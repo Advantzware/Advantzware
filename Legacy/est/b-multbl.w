@@ -39,6 +39,8 @@ CREATE WIDGET-POOL.
 ASSIGN
  cocode = g_company
  locode = g_loc.
+DEFINE TEMP-TABLE tt-eb LIKE eb
+FIELD dec-recid AS DECIMAL.
 
 DEF BUFFER xest FOR est.
 DEF BUFFER xef FOR ef.
@@ -49,13 +51,13 @@ DEF BUFFER b-ref FOR reftable.
 DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 DEF VAR ll-new-form AS LOG NO-UNDO.
 DEF VAR v-qty AS DEC NO-UNDO.
-DEF VAR hld-yld-qty LIKE eb.yld-qty NO-UNDO.
-DEF VAR hld-num-up  LIKE eb.num-up NO-UNDO.
+DEF VAR hld-yld-qty LIKE tt-eb.yld-qty NO-UNDO.
+DEF VAR hld-num-up  LIKE tt-eb.num-up NO-UNDO.
 DEF VAR ll-change AS LOG NO-UNDO.
-DEF VAR v-form-no LIKE eb.form-no NO-UNDO.
-DEF VAR v-blank-no LIKE eb.blank-no NO-UNDO.
-DEF VAR v-num-up LIKE eb.num-up NO-UNDO.
-DEF VAR lv-prev-val-1 AS CHAR NO-UNDO.
+DEF VAR v-form-no LIKE tt-eb.form-no NO-UNDO.
+DEF VAR v-blank-no LIKE tt-eb.blank-no NO-UNDO.
+DEF VAR v-num-up LIKE tt-eb.num-up NO-UNDO.
+DEF VAR lv-prev-val-1 AS CHAR NO-UNDO. 
 
 &SCOPED-DEFINE sortby-phrase BY reftable.val[1] BY reftable.val[2]
 
@@ -89,52 +91,52 @@ DEF VAR lv-prev-val-1 AS CHAR NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES eb ef reftable
+&Scoped-define INTERNAL-TABLES tt-eb ef reftable
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table reftable.val[1] reftable.val[2] ~
-eb.part-no display-bl-qty () @ eb.bl-qty eb.bl-qty ~
-display-bl-qty () @ eb.bl-qty display-yld-qty () @ eb.yld-qty eb.yld-qty ~
-display-yld-qty () @ eb.yld-qty eb.yrprice display-num-wid () @ eb.num-wid ~
-eb.num-wid display-num-wid () @ eb.num-wid display-num-len () @ eb.num-len ~
-eb.num-len display-num-len () @ eb.num-len eb.num-up 
+tt-eb.part-no display-bl-qty () @ tt-eb.bl-qty tt-eb.bl-qty ~
+display-bl-qty () @ tt-eb.bl-qty display-yld-qty () @ tt-eb.yld-qty tt-eb.yld-qty ~
+display-yld-qty () @ tt-eb.yld-qty tt-eb.yrprice display-num-wid () @ tt-eb.num-wid ~
+tt-eb.num-wid display-num-wid () @ tt-eb.num-wid display-num-len () @ tt-eb.num-len ~
+tt-eb.num-len display-num-len () @ tt-eb.num-len tt-eb.num-up 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table reftable.val[1] ~
-reftable.val[2] eb.part-no eb.bl-qty eb.yld-qty eb.yrprice eb.num-wid ~
-eb.num-len 
-&Scoped-define ENABLED-TABLES-IN-QUERY-br_table reftable eb
+reftable.val[2] tt-eb.part-no tt-eb.bl-qty tt-eb.yld-qty tt-eb.yrprice tt-eb.num-wid ~
+tt-eb.num-len 
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table reftable tt-eb
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table reftable
-&Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br_table eb
-&Scoped-define QUERY-STRING-br_table FOR EACH eb WHERE eb.company = est.company ~
-  AND eb.loc = est.loc ~
-  AND eb.est-no = est.est-no NO-LOCK, ~
-      FIRST ef WHERE ef.company = eb.company ~
-  AND ef.loc = eb.loc ~
-  AND ef.est-no = eb.est-no ~
-  AND ef.form-no = eb.form-no NO-LOCK, ~
+&Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-br_table tt-eb
+&Scoped-define QUERY-STRING-br_table FOR EACH tt-eb WHERE tt-eb.company = est.company ~
+  AND tt-eb.loc = est.loc ~
+  AND tt-eb.est-no = est.est-no NO-LOCK, ~
+      FIRST ef WHERE ef.company = tt-eb.company ~
+  AND ef.loc = tt-eb.loc ~
+  AND ef.est-no = tt-eb.est-no ~
+  AND ef.form-no = tt-eb.form-no NO-LOCK, ~
       FIRST reftable WHERE reftable.reftable eq "est\d-multbl.w" and ~
-reftable.company  eq eb.company       and ~
-reftable.loc      eq eb.loc           and ~
-reftable.code     eq eb.est-no        and ~
-reftable.val[3]   eq dec(recid(eb)) NO-LOCK ~
+reftable.company  eq tt-eb.company       and ~
+reftable.loc      eq tt-eb.loc           and ~
+reftable.code     eq tt-eb.est-no        and ~
+reftable.val[3]   eq dec(tt-eb.dec-recid) NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH eb WHERE eb.company = est.company ~
-  AND eb.loc = est.loc ~
-  AND eb.est-no = est.est-no NO-LOCK, ~
-      FIRST ef WHERE ef.company = eb.company ~
-  AND ef.loc = eb.loc ~
-  AND ef.est-no = eb.est-no ~
-  AND ef.form-no = eb.form-no NO-LOCK, ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH tt-eb WHERE tt-eb.company = est.company ~
+  AND tt-eb.loc = est.loc ~
+  AND tt-eb.est-no = est.est-no NO-LOCK, ~
+      FIRST ef WHERE ef.company = tt-eb.company ~
+  AND ef.loc = tt-eb.loc ~
+  AND ef.est-no = tt-eb.est-no ~
+  AND ef.form-no = tt-eb.form-no NO-LOCK, ~
       FIRST reftable WHERE reftable.reftable eq "est\d-multbl.w" and ~
-reftable.company  eq eb.company       and ~
-reftable.loc      eq eb.loc           and ~
-reftable.code     eq eb.est-no        and ~
-reftable.val[3]   eq dec(recid(eb)) NO-LOCK ~
+reftable.company  eq tt-eb.company       and ~
+reftable.loc      eq tt-eb.loc           and ~
+reftable.code     eq tt-eb.est-no        and ~
+reftable.val[3]   eq dec(tt-eb.dec-recid) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-br_table eb ef reftable
-&Scoped-define FIRST-TABLE-IN-QUERY-br_table eb
+&Scoped-define TABLES-IN-QUERY-br_table tt-eb ef reftable
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table tt-eb
 &Scoped-define SECOND-TABLE-IN-QUERY-br_table ef
 &Scoped-define THIRD-TABLE-IN-QUERY-br_table reftable
 
@@ -236,7 +238,7 @@ FUNCTION display-yld-qty RETURNS INTEGER
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
-      eb, 
+      tt-eb, 
       ef, 
       reftable SCROLLING.
 &ANALYZE-RESUME
@@ -249,33 +251,33 @@ DEFINE BROWSE br_table
             WIDTH 7 LABEL-BGCOLOR 14
       reftable.val[2] COLUMN-LABEL "Blank#" FORMAT ">>>>>>>>>>":U
             WIDTH 7 LABEL-BGCOLOR 14
-      eb.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(15)":U
+      tt-eb.part-no COLUMN-LABEL "Customer Part#" FORMAT "x(15)":U
             WIDTH 20 LABEL-BGCOLOR 14
-      display-bl-qty () @ eb.bl-qty
-      eb.bl-qty COLUMN-LABEL "Request Qty" FORMAT "->>>,>>>,>>>":U
+      display-bl-qty () @ tt-eb.bl-qty
+      tt-eb.bl-qty COLUMN-LABEL "Request Qty" FORMAT "->>>,>>>,>>>":U
             WIDTH 13
-      display-bl-qty () @ eb.bl-qty
-      display-yld-qty () @ eb.yld-qty
-      eb.yld-qty FORMAT "->>>,>>>,>>>":U WIDTH 13
-      display-yld-qty () @ eb.yld-qty
-      eb.yrprice COLUMN-LABEL "Priced By" FORMAT "Yield/Request":U
+      display-bl-qty () @ tt-eb.bl-qty
+      display-yld-qty () @ tt-eb.yld-qty
+      tt-eb.yld-qty FORMAT "->>>,>>>,>>>":U WIDTH 13
+      display-yld-qty () @ tt-eb.yld-qty
+      tt-eb.yrprice COLUMN-LABEL "Priced By" FORMAT "Yield/Request":U
             LABEL-BGCOLOR 14
-      display-num-wid () @ eb.num-wid
-      eb.num-wid FORMAT ">>>":U
-      display-num-wid () @ eb.num-wid
-      display-num-len () @ eb.num-len
-      eb.num-len FORMAT ">>>":U
-      display-num-len () @ eb.num-len
-      eb.num-up COLUMN-LABEL "No. Up" FORMAT ">>>,>>9":U LABEL-BGCOLOR 14
+      display-num-wid () @ tt-eb.num-wid
+      tt-eb.num-wid FORMAT ">>>":U
+      display-num-wid () @ tt-eb.num-wid
+      display-num-len () @ tt-eb.num-len
+      tt-eb.num-len FORMAT ">>>":U
+      display-num-len () @ tt-eb.num-len
+      tt-eb.num-up COLUMN-LABEL "No. Up" FORMAT ">>>,>>9":U LABEL-BGCOLOR 14
   ENABLE
       reftable.val[1]
       reftable.val[2]
-      eb.part-no
-      eb.bl-qty
-      eb.yld-qty
-      eb.yrprice
-      eb.num-wid
-      eb.num-len
+      tt-eb.part-no
+      tt-eb.bl-qty
+      tt-eb.yld-qty
+      tt-eb.yrprice
+      tt-eb.num-wid
+      tt-eb.num-len
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 108 BY 5.95
@@ -366,10 +368,10 @@ ASSIGN
   AND ASI.ef.est-no = ASI.eb.est-no
   AND ASI.ef.form-no = ASI.eb.form-no"
      _JoinCode[3]      = "reftable.reftable eq ""est\d-multbl.w"" and
-reftable.company  eq eb.company       and
-reftable.loc      eq eb.loc           and
-reftable.code     eq eb.est-no        and
-reftable.val[3]   eq dec(recid(eb))"
+reftable.company  eq tt-eb.company       and
+reftable.loc      eq tt-eb.loc           and
+reftable.code     eq tt-eb.est-no        and
+reftable.val[3]   eq dec(tt-eb.dec-recid)"
      _FldNameList[1]   > ASI.reftable.val[1]
 "reftable.val[1]" "Form#" ">>>>>>>>>>" "decimal" ? ? ? 14 ? ? yes ? no no "7" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.reftable.val[2]
@@ -377,31 +379,31 @@ reftable.val[3]   eq dec(recid(eb))"
      _FldNameList[3]   > ASI.eb.part-no
 "eb.part-no" "Customer Part#" ? "character" ? ? ? 14 ? ? yes ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"
-"display-bl-qty () @ eb.bl-qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-bl-qty () @ tt-eb.bl-qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.eb.bl-qty
 "eb.bl-qty" "Request Qty" "->>>,>>>,>>>" "integer" ? ? ? ? ? ? yes ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
-"display-bl-qty () @ eb.bl-qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-bl-qty () @ tt-eb.bl-qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > "_<CALC>"
-"display-yld-qty () @ eb.yld-qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-yld-qty () @ tt-eb.yld-qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.eb.yld-qty
 "eb.yld-qty" ? "->>>,>>>,>>>" "integer" ? ? ? ? ? ? yes ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
-"display-yld-qty () @ eb.yld-qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-yld-qty () @ tt-eb.yld-qty" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.eb.yrprice
 "eb.yrprice" "Priced By" "Yield/Request" "logical" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > "_<CALC>"
-"display-num-wid () @ eb.num-wid" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-num-wid () @ tt-eb.num-wid" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.eb.num-wid
 "eb.num-wid" ? ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > "_<CALC>"
-"display-num-wid () @ eb.num-wid" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-num-wid () @ tt-eb.num-wid" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > "_<CALC>"
-"display-num-len () @ eb.num-len" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-num-len () @ tt-eb.num-len" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.eb.num-len
 "eb.num-len" ? ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > "_<CALC>"
-"display-num-len () @ eb.num-len" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"display-num-len () @ tt-eb.num-len" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.eb.num-up
 "eb.num-up" "No. Up" ">>>,>>9" "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
@@ -432,7 +434,7 @@ DO:
 
   /*CASE FOCUS:NAME:
     WHEN "loc" THEN DO:
-      RUN windows/l-loc.w (eb.company, FOCUS:SCREEN-VALUE, OUTPUT char-val).
+      RUN windows/l-loc.w (tt-eb.company, FOCUS:SCREEN-VALUE, OUTPUT char-val).
       IF char-val <> "" THEN DO:
         FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
         APPLY "leave" TO FOCUS.
@@ -452,17 +454,17 @@ ON ROW-DISPLAY OF br_table IN FRAME F-Main
 DO:   
    DEFINE VARIABLE bl-qty AS INTEGER NO-UNDO .
    DEFINE VARIABLE yld-qty AS INTEGER NO-UNDO .
-  IF AVAIL eb THEN DO:
+  IF AVAIL tt-eb THEN DO:
       ASSIGN
           bl-qty  = display-bl-qty ()
           yld-qty = display-yld-qty () .
       
       IF bl-qty NE yld-qty THEN
           ASSIGN 
-          eb.bl-qty:BGCOLOR IN BROWSE {&BROWSE-NAME}       = 12
-          eb.yld-qty:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 12 
+          tt-eb.bl-qty:BGCOLOR IN BROWSE {&BROWSE-NAME}       = 12
+          tt-eb.yld-qty:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 12 
               .
-  END. /* avail eb */
+  END. /* avail tt-eb */
 
 END.
 
@@ -558,9 +560,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME eb.bl-qty
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.bl-qty br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF eb.bl-qty IN BROWSE br_table /* Request Qty */
+&Scoped-define SELF-NAME tt-eb.bl-qty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-eb.bl-qty br_table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF tt-eb.bl-qty IN BROWSE br_table /* Request Qty */
 DO:
   IF est.est-type EQ 2 OR
      est.est-type EQ 5 OR
@@ -574,8 +576,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.bl-qty br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF eb.bl-qty IN BROWSE br_table /* Request Qty */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-eb.bl-qty br_table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF tt-eb.bl-qty IN BROWSE br_table /* Request Qty */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-bl-yld-up NO-ERROR.
@@ -587,9 +589,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME eb.yld-qty
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.yld-qty br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF eb.yld-qty IN BROWSE br_table /* Yield Qty */
+&Scoped-define SELF-NAME tt-eb.yld-qty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-eb.yld-qty br_table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF tt-eb.yld-qty IN BROWSE br_table /* Yield Qty */
 DO:
   IF est.est-type EQ 2 OR
      est.est-type EQ 5 OR
@@ -603,8 +605,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.yld-qty br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF eb.yld-qty IN BROWSE br_table /* Yield Qty */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-eb.yld-qty br_table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF tt-eb.yld-qty IN BROWSE br_table /* Yield Qty */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-bl-yld-up NO-ERROR.
@@ -616,19 +618,19 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME eb.num-wid
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.num-wid br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF eb.num-wid IN BROWSE br_table /* # on Width */
+&Scoped-define SELF-NAME tt-eb.num-wid
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-eb.num-wid br_table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF tt-eb.num-wid IN BROWSE br_table /* # on Width */
 DO:
-  DEF BUFFER b-eb FOR eb.
+  DEF BUFFER b-eb FOR tt-eb.
 
 
   IF (est.est-type EQ 2 OR
       est.est-type EQ 5 OR
       est.est-type EQ 6)                     AND
      CAN-FIND(b-eb OF est
-              WHERE b-eb.form-no EQ eb.form-no
-                AND b-eb.eqty    EQ eb.eqty) THEN DO:
+              WHERE b-eb.form-no EQ tt-eb.form-no
+                AND b-eb.eqty    EQ tt-eb.eqty) THEN DO:
     APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
     RETURN NO-APPLY.
   END.
@@ -638,8 +640,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.num-wid br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF eb.num-wid IN BROWSE br_table /* # on Width */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-eb.num-wid br_table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF tt-eb.num-wid IN BROWSE br_table /* # on Width */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-bl-yld-up NO-ERROR.
@@ -651,8 +653,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.num-wid br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF eb.num-wid IN BROWSE br_table /* # on Width */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-eb.num-wid br_table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF tt-eb.num-wid IN BROWSE br_table /* # on Width */
 DO:
   RUN calc-#up.
 END.
@@ -661,19 +663,19 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME eb.num-len
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.num-len br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF eb.num-len IN BROWSE br_table /* # on Length */
+&Scoped-define SELF-NAME tt-eb.num-len
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-eb.num-len br_table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF tt-eb.num-len IN BROWSE br_table /* # on Length */
 DO:
-  DEF BUFFER b-eb FOR eb.
+  DEF BUFFER b-eb FOR tt-eb.
 
 
   IF (est.est-type EQ 2 OR
       est.est-type EQ 5 OR
       est.est-type EQ 6)                     AND
      CAN-FIND(b-eb OF est
-              WHERE b-eb.form-no EQ eb.form-no
-                AND b-eb.eqty    EQ eb.eqty) THEN DO:
+              WHERE b-eb.form-no EQ tt-eb.form-no
+                AND b-eb.eqty    EQ tt-eb.eqty) THEN DO:
     APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
     RETURN NO-APPLY.
   END.
@@ -683,8 +685,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.num-len br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF eb.num-len IN BROWSE br_table /* # on Length */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-eb.num-len br_table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF tt-eb.num-len IN BROWSE br_table /* # on Length */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-bl-yld-up NO-ERROR.
@@ -696,8 +698,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.num-len br_table _BROWSE-COLUMN B-table-Win
-ON VALUE-CHANGED OF eb.num-len IN BROWSE br_table /* # on Length */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-eb.num-len br_table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF tt-eb.num-len IN BROWSE br_table /* # on Length */
 DO:
   RUN calc-#up.
 END.
@@ -782,9 +784,9 @@ PROCEDURE calc-#up :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name} =
-        STRING(DEC(eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name}) *
-               DEC(eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name})).
+    tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name} =
+        STRING(DEC(tt-eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name}) *
+               DEC(tt-eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name})).
   END.
 
 END PROCEDURE.
@@ -821,18 +823,18 @@ PROCEDURE finish-assign :
   DEF VAR ll-die-changed AS LOG NO-UNDO.
   DEF VAR ll-ans AS LOG NO-UNDO.
   DEF VAR li-qty AS INT NO-UNDO.
-  DEF VAR lv-frm LIKE eb.form-no INIT 0 NO-UNDO.
-  DEF VAR lv-blk LIKE eb.blank-no INIT 0 NO-UNDO.
+  DEF VAR lv-frm LIKE tt-eb.form-no INIT 0 NO-UNDO.
+  DEF VAR lv-blk LIKE tt-eb.blank-no INIT 0 NO-UNDO.
 
   DEF BUFFER multbl FOR reftable.
 
 
-  FIND CURRENT eb.
+  FIND CURRENT tt-eb.
   FIND CURRENT est.
 
-  lv-die-in = eb.die-in.
-  IF eb.die-in NE 0 THEN eb.die-in = (eb.die-in / v-num-up) * eb.num-up.
-  IF lv-die-in NE eb.die-in THEN ll-die-changed = YES.
+  lv-die-in = tt-eb.die-in.
+  IF tt-eb.die-in NE 0 THEN tt-eb.die-in = (tt-eb.die-in / v-num-up) * tt-eb.num-up.
+  IF lv-die-in NE tt-eb.die-in THEN ll-die-changed = YES.
 
   RELEASE xef.
   IF ll-change         AND
@@ -840,17 +842,17 @@ PROCEDURE finish-assign :
      est.est-type NE 5 AND
      est.est-type NE 6 THEN
   FIND FIRST xef
-      WHERE xef.company EQ eb.company
-        AND xef.est-no  EQ eb.est-no
+      WHERE xef.company EQ tt-eb.company
+        AND xef.est-no  EQ tt-eb.est-no
         AND xef.form-no EQ reftable.val[1]
       NO-LOCK NO-ERROR.
 
   IF AVAIL xef THEN DO:
-    v-qty = eb.yld-qty / eb.num-up.
+    v-qty = tt-eb.yld-qty / tt-eb.num-up.
     {sys/inc/roundup.i v-qty}
     ASSIGN
-     eb.yld-qty = v-qty * eb.num-up
-     /*xef.die-in = eb.die-in*/.
+     tt-eb.yld-qty = v-qty * tt-eb.num-up
+     /*xef.die-in = tt-eb.die-in*/.
 
     ll-ans = NO.
 
@@ -858,7 +860,7 @@ PROCEDURE finish-assign :
         WHERE xeb.company EQ xef.company
           AND xeb.est-no  EQ xef.est-no
           AND xeb.form-no EQ xef.form-no
-          AND RECID(xeb)  NE RECID(eb)
+          AND decimal(RECID(xeb))  NE tt-eb.dec-recid
           AND xeb.yld-qty NE v-qty * xeb.num-up:
       ll-ans = YES.
       MESSAGE "For all other Blanks on this Form..." SKIP
@@ -874,7 +876,7 @@ PROCEDURE finish-assign :
         WHERE xeb.company EQ xef.company
           AND xeb.est-no  EQ xef.est-no
           AND xeb.form-no EQ xef.form-no
-          AND ROWID(xeb)  NE ROWID(eb)
+          AND ROWID(xeb)  NE ROWID(tt-eb)
           AND xeb.yld-qty NE v-qty * xeb.num-up
         BY xeb.blank-no:
       /*IF xeb.yld-qty LT xeb.bl-qty THEN xeb.yld-qty = xeb.bl-qty.*/
@@ -899,7 +901,7 @@ PROCEDURE finish-assign :
     RELEASE xeb.
   END.
 
-  FIND CURRENT eb  NO-LOCK.
+  FIND CURRENT tt-eb  NO-LOCK.
   FIND CURRENT est NO-LOCK.
 
   IF ll-die-changed THEN RUN est/updefdie.p (ROWID(ef)).
@@ -951,7 +953,7 @@ PROCEDURE get-eb-rowid :
 ------------------------------------------------------------------------------*/
   DEF OUTPUT PARAMETER op-rowid AS ROWID NO-UNDO.
 
-  op-rowid = ROWID(eb).
+  op-rowid = ROWID(tt-eb).
 
 END PROCEDURE.
 
@@ -964,24 +966,24 @@ PROCEDURE local-assign-statement :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-bl-qty LIKE eb.bl-qty NO-UNDO.
-  DEF VAR lv-yld-qty LIKE eb.yld-qty NO-UNDO.
+  DEF VAR lv-bl-qty LIKE tt-eb.bl-qty NO-UNDO.
+  DEF VAR lv-yld-qty LIKE tt-eb.yld-qty NO-UNDO.
   DEF VAR lv-field AS CHAR NO-UNDO.
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
-   lv-bl-qty  = eb.bl-qty
-   lv-yld-qty = eb.yld-qty.
+   lv-bl-qty  = tt-eb.bl-qty
+   lv-yld-qty = tt-eb.yld-qty.
 
   DO WITH FRAME {&FRAME-NAME}:
     IF est.est-type GE 5 THEN
       ASSIGN
        lv-field                                         =
-                        eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name}
-       eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name} =
-                        eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name}
-       eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name} =
+                        tt-eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name}
+       tt-eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name} =
+                        tt-eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name}
+       tt-eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name} =
                         lv-field.
   END.
 
@@ -990,14 +992,14 @@ PROCEDURE local-assign-statement :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-    eb.num-up = INT(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
+    tt-eb.num-up = INT(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
 
     IF est.est-type EQ 2 OR
        est.est-type EQ 5 OR
        est.est-type EQ 6 THEN
       ASSIGN
-       eb.bl-qty  = lv-bl-qty
-       eb.yld-qty = lv-yld-qty.
+       tt-eb.bl-qty  = lv-bl-qty
+       tt-eb.yld-qty = lv-yld-qty.
   END.
 
   FOR EACH b-ref
@@ -1057,15 +1059,15 @@ PROCEDURE local-enable-fields :
     ll-new-form = NO.
 
     ASSIGN
-     hld-yld-qty = eb.yld-qty
-     hld-num-up  = eb.num-up.
+     hld-yld-qty = tt-eb.yld-qty
+     hld-num-up  = tt-eb.num-up.
        
     IF hld-yld-qty EQ 0 THEN DO:
       FIND FIRST xeb
-          WHERE xeb.company EQ eb.company
-            AND xeb.est-no  EQ eb.est-no
-            AND xeb.form-no EQ eb.form-no
-            AND RECID(xeb)  NE RECID(eb)
+          WHERE xeb.company EQ tt-eb.company
+            AND xeb.est-no  EQ tt-eb.est-no
+            AND xeb.form-no EQ tt-eb.form-no
+            AND decimal(RECID(xeb))  NE tt-eb.dec-recid
           NO-LOCK NO-ERROR.
       IF AVAIL xeb THEN DO:
         v-qty = xeb.yld-qty / xeb.num-up.
@@ -1091,9 +1093,26 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  DEF VAR char-hdl AS CHAR NO-UNDO.
+  DEF VAR lv-rowid AS ROWID NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
+IF NOT AVAILABLE est THEN DO:
 
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
+
+    RUN get-eb-rowid IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rowid).
+    
+    FIND FIRST eb WHERE rowid(eb) = lv-rowid NO-LOCK NO-ERROR.
+    IF AVAILABLE eb THEN DO:
+        FOR EACH xeb NO-LOCK WHERE xeb.company EQ eb.company 
+          AND xeb.est-no EQ eb.est-no:
+              CREATE tt-eb.
+              BUFFER-COPY xeb TO tt-eb.
+              tt-eb.dec-recid = decimal(recid(eb)).
+        END.
+     END.
+END.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
@@ -1102,7 +1121,7 @@ PROCEDURE local-initialize :
      est.est-type EQ 5 OR
      est.est-type EQ 6 THEN
   DO WITH FRAME {&FRAME-NAME}:
-    eb.yld-qty:LABEL IN BROWSE {&browse-name} = "Qty/Set".
+    tt-eb.yld-qty:LABEL IN BROWSE {&browse-name} = "Qty/Set".
   END.
 
 END PROCEDURE.
@@ -1119,9 +1138,24 @@ PROCEDURE local-open-query :
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR lv-rowid AS ROWID NO-UNDO.
 
-
+FOR EACH tt-eb WHERE tt-eb.company = est.company ~
+  AND tt-eb.loc = est.loc ~
+  AND tt-eb.est-no = est.est-no NO-LOCK, ~
+      FIRST ef WHERE ef.company = tt-eb.company ~
+  AND ef.loc = tt-eb.loc ~
+  AND ef.est-no = tt-eb.est-no ~
+  AND ef.form-no = tt-eb.form-no NO-LOCK, ~
+      FIRST reftable WHERE reftable.reftable eq "est\d-multbl.w" and ~
+reftable.company  eq tt-eb.company       and ~
+reftable.loc      eq tt-eb.loc           and ~
+reftable.code     eq tt-eb.est-no        and ~
+reftable.val[3]   eq dec(tt-eb.dec-recid) NO-LOCK :
+  MESSAGE "records found"
+    VIEW-AS ALERT-BOX INFO BUTTONS OK.
+END.
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  MESSAGE "local open query running" AVAIL(est)
+    VIEW-AS ALERT-BOX INFO BUTTONS OK.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
@@ -1151,7 +1185,7 @@ PROCEDURE local-update-record :
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  lv-rowid = ROWID(eb).
+  lv-rowid = ROWID(tt-eb).
 
   RUN calc-#up.
 
@@ -1166,14 +1200,14 @@ PROCEDURE local-update-record :
 
   ASSIGN
    ll-change  = NO
-   v-form-no  = eb.form-no
-   v-blank-no = eb.blank-no
-   v-num-up   = eb.num-up.
+   v-form-no  = tt-eb.form-no
+   v-blank-no = tt-eb.blank-no
+   v-num-up   = tt-eb.num-up.
 
   DO WITH FRAME {&frame-name}:
-    ll-change = eb.bl-qty  NE DEC(eb.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name})  OR
-                eb.yld-qty NE DEC(eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) OR
-                eb.num-up  NE DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
+    ll-change = tt-eb.bl-qty  NE DEC(tt-eb.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name})  OR
+                tt-eb.yld-qty NE DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) OR
+                tt-eb.num-up  NE DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
   END.
 
   /* Dispatch standard ADM method.                             */
@@ -1314,66 +1348,55 @@ PROCEDURE valid-bl-yld-up :
   IF est.est-type NE 2 AND
      est.est-type NE 5 AND
      est.est-type NE 6 THEN DO WITH FRAME {&FRAME-NAME}:
-    IF DEC(eb.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
+    IF DEC(tt-eb.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 THEN DO:
       MESSAGE "Request Qty may not be zero..." VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO eb.bl-qty IN BROWSE {&browse-name}.
+      APPLY "entry" TO tt-eb.bl-qty IN BROWSE {&browse-name}.
       RETURN ERROR.
     END.
 
-    /*IF DEC(eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) LT
-       DEC(eb.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name})  THEN DO:
-      eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name} =
-          eb.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name}.
-      IF DEC(eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) /
-         DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) GT v-qty THEN DO:
-        v-qty = DEC(eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) /
-                DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
-        {sys/inc/roundup.i v-qty}
-      END.
-    END.*/
 
-    IF DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) LT 1 THEN
+    IF DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) LT 1 THEN
       ASSIGN
-       eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name} = "1"
-       eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name} = "1"
-       eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}  = "1".
+       tt-eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name} = "1"
+       tt-eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name} = "1"
+       tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}  = "1".
 
-    IF DEC(eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) NE hld-yld-qty AND
-       DEC(eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) MODULO
-         DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0          AND
+    IF DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) NE hld-yld-qty AND
+       DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) MODULO
+         DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0          AND
        v-qty NE 0                                                           AND
        NOT ll-one-bl-per-form                                               THEN DO:
-      eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name} =
-          STRING(TRUNC(DEC(eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / v-qty,0) +
-                 INT(DEC(eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) MODULO v-qty GT 0)).
+      tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name} =
+          STRING(TRUNC(DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / v-qty,0) +
+                 INT(DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) MODULO v-qty GT 0)).
     END.
                     
-    IF DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) NE hld-num-up THEN DO:
+    IF DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) NE hld-num-up THEN DO:
       ll-ans = NO.
-      IF DEC(eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) MODULO
-           DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN
+      IF DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) MODULO
+           DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN
         MESSAGE "Recalculate Yield Qty?"
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
             UPDATE ll-ans.
       IF ll-ans THEN DO:
-        v-qty = DEC(eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
+        v-qty = DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name}) / DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
         {sys/inc/roundup.i v-qty}
-        eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name} =
-            STRING(v-qty * DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name})).
+        tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name} =
+            STRING(v-qty * DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name})).
       END.
     END.
           
     ASSIGN
-     hld-yld-qty = DEC(eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name})
-     hld-num-up  = DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
+     hld-yld-qty = DEC(tt-eb.yld-qty:SCREEN-VALUE IN BROWSE {&browse-name})
+     hld-num-up  = DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}).
 
-    IF DEC(eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name}) *
-       DEC(eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name}) NE
-        DEC(eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
+    IF DEC(tt-eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name}) *
+       DEC(tt-eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name}) NE
+        DEC(tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
       ASSIGN
-       eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name} =
-                              eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}
-       eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name} = "1".
+       tt-eb.num-wid:SCREEN-VALUE IN BROWSE {&browse-name} =
+                              tt-eb.num-up:SCREEN-VALUE IN BROWSE {&browse-name}
+       tt-eb.num-len:SCREEN-VALUE IN BROWSE {&browse-name} = "1".
           
     v-qty = hld-yld-qty / hld-num-up.
     {sys/inc/roundup.i v-qty}
@@ -1475,26 +1498,26 @@ FUNCTION display-bl-qty RETURNS INTEGER
     Notes:  
 ------------------------------------------------------------------------------*/
   DEF VAR ld-part-qty AS DEC NO-UNDO.
-  DEF VAR lv-bl-qty LIKE eb.bl-qty NO-UNDO.
-  DEF VAR lv-yld-qty LIKE eb.yld-qty NO-UNDO.
+  DEF VAR lv-bl-qty LIKE tt-eb.bl-qty NO-UNDO.
+  DEF VAR lv-yld-qty LIKE tt-eb.yld-qty NO-UNDO.
 
 
   IF est.est-type EQ 2 OR est.est-type EQ 6 THEN DO:
     IF est.est-type EQ 2 THEN
       ASSIGN
-       lv-bl-qty  = eb.bl-qty
-       lv-yld-qty = eb.cust-%.
+       lv-bl-qty  = tt-eb.bl-qty
+       lv-yld-qty = tt-eb.cust-%.
     ELSE
       ASSIGN
        lv-bl-qty  = est.est-qty[1]
-       lv-yld-qty = eb.yld-qty.
+       lv-yld-qty = tt-eb.yld-qty.
 
     {sys/inc/partqty1.i ld-part-qty lv-yld-qty}
 
     lv-bl-qty = lv-bl-qty * ld-part-qty.
   END.
 
-  ELSE lv-bl-qty = eb.bl-qty.
+  ELSE lv-bl-qty = tt-eb.bl-qty.
   
   RETURN lv-bl-qty.   /* Function return value. */
 
@@ -1511,7 +1534,7 @@ FUNCTION display-num-len RETURNS INTEGER
     Notes:  
 ------------------------------------------------------------------------------*/
 
-  RETURN IF est.est-type GE 5 THEN eb.num-wid ELSE eb.num-len. /* Function return value. */
+  RETURN IF est.est-type GE 5 THEN tt-eb.num-wid ELSE tt-eb.num-len. /* Function return value. */
 
 END FUNCTION.
 
@@ -1526,7 +1549,7 @@ FUNCTION display-num-wid RETURNS INTEGER
     Notes:  
 ------------------------------------------------------------------------------*/
 
-  RETURN IF est.est-type GE 5 THEN eb.num-len ELSE eb.num-wid. /* Function return value. */
+  RETURN IF est.est-type GE 5 THEN tt-eb.num-len ELSE tt-eb.num-wid. /* Function return value. */
 
 END FUNCTION.
 
@@ -1540,11 +1563,11 @@ FUNCTION display-yld-qty RETURNS INTEGER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  DEF VAR lv-yld-qty LIKE eb.yld-qty NO-UNDO.
+  DEF VAR lv-yld-qty LIKE tt-eb.yld-qty NO-UNDO.
 
 
-  lv-yld-qty = IF est.est-type EQ 2 THEN eb.cust-%  ELSE
-               IF est.est-type EQ 6 THEN eb.yld-qty ELSE eb.yld-qty.
+  lv-yld-qty = IF est.est-type EQ 2 THEN tt-eb.cust-%  ELSE
+               IF est.est-type EQ 6 THEN tt-eb.yld-qty ELSE tt-eb.yld-qty.
   
   RETURN lv-yld-qty.   /* Function return value. */
 
