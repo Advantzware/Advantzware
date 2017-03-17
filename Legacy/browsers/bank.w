@@ -57,7 +57,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -137,7 +137,7 @@ DEFINE BROWSE Browser-Table
       bank.bank-code FORMAT "x(8)":U
       bank.bank-name FORMAT "x(20)":U
       bank.phone FORMAT "x(12)":U
-      bank.actnum FORMAT "x(25)":U
+      bank.actnum COLUMN-LABEL "G/L Account" FORMAT "x(25)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 99 BY 16.43
@@ -215,7 +215,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -240,7 +240,8 @@ ASSIGN
      _FldNameList[1]   = ASI.bank.bank-code
      _FldNameList[2]   = ASI.bank.bank-name
      _FldNameList[3]   = ASI.bank.phone
-     _FldNameList[4]   = ASI.bank.actnum
+     _FldNameList[4]   > ASI.bank.actnum
+"actnum" "G/L Account" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
