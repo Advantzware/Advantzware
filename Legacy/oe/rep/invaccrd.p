@@ -619,18 +619,10 @@ ELSE lv-comp-color = "BLACK".
             FIND FIRST bf-inv-head NO-LOCK
                  WHERE bf-inv-head.company EQ inv-head.company
                    AND bf-inv-head.inv-no EQ inv-head.inv-no
-                   AND bf-inv-head.multi-invoice = no  NO-ERROR .
+                   AND bf-inv-head.multi-invoice = NO  NO-ERROR .
          IF AVAIL bf-inv-head THEN
          do i = 1 to 4:
           if bf-inv-head.bill-i[i] ne "" then do:
-       /*     if v-printline gt 29 then
-            do:
-              put skip(30 - v-printline) "* CONTINUED *" at 72.
-              assign v-printline = 0.
-              page.
-
-            end.
-       */ 
             put bf-inv-head.bill-i[i] at 10 skip.
             assign v-printline = v-printline + 1.
           end.
