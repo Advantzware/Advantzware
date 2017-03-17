@@ -181,9 +181,10 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE cb_paytype AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE cb_paytype AS CHARACTER FORMAT "X(256)":U INITIAL "All Payment Types" 
      LABEL "Pay Type" 
      VIEW-AS COMBO-BOX INNER-LINES 5
+     LIST-ITEMS "All Payment Types","All Electronic","All Non-Electronic" 
      DROP-DOWN-LIST
      SIZE 20 BY 1 NO-UNDO.
 
@@ -1108,7 +1109,7 @@ PROCEDURE build-payment-type-list :
  Notes:
 ------------------------------------------------------------------------------*/
    DEFINE VARIABLE ilogic AS LOG NO-UNDO.
-   cb_paytype:LIST-ITEMS IN FRAME {&frame-name} = "".
+   /*cb_paytype:LIST-ITEMS IN FRAME {&frame-name} = "".*/
       
    FOR EACH payment-type NO-LOCK WHERE payment-type.company = cocode.
        ilogic = cb_paytype:ADD-LAST (payment-type.type) IN FRAME {&frame-name}.
