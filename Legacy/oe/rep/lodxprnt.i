@@ -1,7 +1,5 @@
 /* oe/rep/invxprnt.i */
-DEFINE VARIABLE cEmail AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
+
 
  FIND FIRST cust NO-LOCK
      WHERE cust.company EQ cocode
