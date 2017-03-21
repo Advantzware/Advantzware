@@ -56,7 +56,7 @@ DEFINE TEMP-TABLE ttTabOrder NO-UNDO
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExit tabOptions btnSave tabObjects 
+&Scoped-Define ENABLED-OBJECTS btnSave btnExit tabOptions tabObjects 
 &Scoped-Define DISPLAYED-OBJECTS tabLabel tabOptions tabObjects 
 
 /* Custom List Definitions                                              */
@@ -105,7 +105,7 @@ DEFINE BUTTON btnMoveUp
      LABEL "Move &Up" 
      SIZE 4.2 BY 1.
 
-DEFINE BUTTON btnSave 
+DEFINE BUTTON btnSave AUTO-GO 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save"
@@ -132,13 +132,13 @@ DEFINE VARIABLE tabObjects AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
+     btnSave AT ROW 25.76 COL 80 HELP
+          "Save" WIDGET-ID 8
      btnExit AT ROW 25.76 COL 88 HELP
           "Exit Design Layout Window" WIDGET-ID 4
      tabLabel AT ROW 1.24 COL 5 COLON-ALIGNED WIDGET-ID 2
      tabOptions AT ROW 1.24 COL 67 COLON-ALIGNED HELP
           "Select Tabbing Option"
-     btnSave AT ROW 25.76 COL 80 HELP
-          "Save" WIDGET-ID 8
      tabObjects AT ROW 2.43 COL 2 HELP
           "Select Tabbable Object to Move" NO-LABEL
      btnMoveDown AT ROW 8.86 COL 81 HELP
@@ -260,7 +260,6 @@ DO:
         iopttTabOrder = tabOptions
         ioplSavePrompt = YES
         .
-    MESSAGE "UDF Tab Order Saved" VIEW-AS ALERT-BOX TITLE "Save".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -365,7 +364,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY tabLabel tabOptions tabObjects 
       WITH FRAME Dialog-Frame.
-  ENABLE btnExit tabOptions btnSave tabObjects 
+  ENABLE btnSave btnExit tabOptions tabObjects 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
