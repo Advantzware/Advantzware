@@ -95,7 +95,7 @@ DEFINE FRAME Dialog-Frame
      IDList AT ROW 1 COL 1 NO-LABEL WIDGET-ID 6
      btnOK AT ROW 9.57 COL 20 WIDGET-ID 4
      btnCancel AT ROW 9.57 COL 30 WIDGET-ID 2
-     SPACE(0.79) SKIP(0.00)
+     SPACE(0.80) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Select ID" WIDGET-ID 100.
@@ -135,7 +135,8 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Select ID */
 DO:
-  APPLY "END-ERROR":U TO SELF.
+  opID = ''.
+  APPLY 'GO':U TO FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -216,7 +217,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
     ASSIGN
       opID = IDList:ENTRY(1)
-      IDList = IDList:ENTRY(1).
+      IDList = IDList:ENTRY(1)
+      .
     RUN enable_UI.
     IF IDList:NUM-ITEMS EQ 1 THEN
     RETURN.
@@ -293,8 +295,7 @@ PROCEDURE getValidIDList :
   DEFINE VARIABLE validID AS CHARACTER NO-UNDO.
 
   validIDList = ''.
-  IF SEARCH('{&data}/validID.dat') NE ? THEN
-  DO:
+  IF SEARCH('{&data}/validID.dat') NE ? THEN DO:
     INPUT FROM VALUE(SEARCH('{&data}/validID.dat')) NO-ECHO.
     REPEAT:
       IMPORT validID.
