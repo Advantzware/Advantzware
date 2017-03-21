@@ -85,10 +85,10 @@ userField66 userField67 userField68 userField69 userField70 ~
 userField71 userField72 userField73 userField74 userField75 ~
 userField76 userField77 userField78 userField79 userField80 ~
 userField81 userField82 userField83 userField84 userField85 ~
-userField86 userField87 userField88 userField89
+userField86 userField87 userField88 userField89 userField90 ~
+userField91 
 /*
-userField90 
-userField91 userField92 userField93 userField94 userField95 
+userField92 userField93 userField94 userField95 
 userField96 userField97 userField98 
 */
 
@@ -2121,120 +2121,6 @@ DEFINE FRAME configurationFrame
          AT COL 1 ROW 1 SCROLLABLE 
          TITLE "Scheduler Configuration".
 
-DEFINE FRAME fieldsFrame
-     userField71 AT ROW 1.24 COL 2
-     userField72 AT ROW 2.19 COL 2
-     userField73 AT ROW 3.14 COL 2
-     userField74 AT ROW 4.1 COL 2
-     userField75 AT ROW 5.05 COL 2
-     userField76 AT ROW 6 COL 2
-     userField77 AT ROW 6.95 COL 2
-     userField24 AT ROW 7.91 COL 2
-     userField19 AT ROW 8.86 COL 2
-     userField03 AT ROW 9.81 COL 2
-     userField26 AT ROW 10.76 COL 2
-     userField04 AT ROW 11.71 COL 2
-     userField27 AT ROW 12.67 COL 2
-     userField34 AT ROW 13.62 COL 2
-     userField22 AT ROW 14.57 COL 2
-     userField79 AT ROW 15.52 COL 2
-     userField21 AT ROW 16.48 COL 2
-     userField25 AT ROW 17.43 COL 2
-     userField14 AT ROW 18.38 COL 2
-     userField28 AT ROW 19.33 COL 2
-     userField89 AT ROW 20.29 COL 2
-     userField69 AT ROW 21.24 COL 2
-     userField64 AT ROW 22.19 COL 2
-     userField63 AT ROW 23.14 COL 2
-     userField01 AT ROW 24.1 COL 2
-     userField02 AT ROW 1.24 COL 34
-     userField12 AT ROW 2.19 COL 34
-     userField05 AT ROW 3.14 COL 34
-     userField80 AT ROW 4.1 COL 34
-     userField85 AT ROW 5.05 COL 34
-     userField66 AT ROW 6 COL 34
-     userField68 AT ROW 6.95 COL 34
-     userField08 AT ROW 7.91 COL 34
-     userField81 AT ROW 8.86 COL 34
-     userField18 AT ROW 9.81 COL 34
-     userField58 AT ROW 10.76 COL 34
-     userField59 AT ROW 11.71 COL 34
-     userField41 AT ROW 12.67 COL 34
-     userField42 AT ROW 13.62 COL 34
-     userField43 AT ROW 14.57 COL 34
-     userField44 AT ROW 15.52 COL 34
-     userField45 AT ROW 16.48 COL 34
-     userField46 AT ROW 17.43 COL 34
-     userField47 AT ROW 18.38 COL 34
-     userField48 AT ROW 19.33 COL 34
-     userField49 AT ROW 20.29 COL 34
-     userField50 AT ROW 21.24 COL 34
-     userField65 AT ROW 22.19 COL 34
-     userField67 AT ROW 23.14 COL 34
-     userField09 AT ROW 24.1 COL 34
-     userField10 AT ROW 1.24 COL 66
-     userField32 AT ROW 2.19 COL 66
-     userField82 AT ROW 3.14 COL 66
-     userField30 AT ROW 4.1 COL 66
-     userField61 AT ROW 5.05 COL 66
-     userField62 AT ROW 6 COL 66
-     userField78 AT ROW 6.95 COL 66
-     userField87 AT ROW 7.91 COL 66
-     userField60 AT ROW 8.86 COL 66
-     userField56 AT ROW 9.81 COL 66
-     userField55 AT ROW 10.76 COL 66
-     userField51 AT ROW 11.71 COL 66
-     userField20 AT ROW 12.67 COL 66
-     userField06 AT ROW 13.62 COL 66
-     userField07 AT ROW 14.57 COL 66
-     userField16 AT ROW 15.52 COL 66
-     userField35 AT ROW 16.48 COL 66
-     userField57 AT ROW 17.43 COL 66
-     userField52 AT ROW 18.38 COL 66
-     userField38 AT ROW 19.33 COL 66
-     userField37 AT ROW 20.29 COL 66
-     userField54 AT ROW 21.24 COL 66
-     userField15 AT ROW 22.19 COL 66
-     userField36 AT ROW 23.14 COL 66
-     useNotes AT ROW 24.1 COL 66
-     userField23 AT ROW 1.24 COL 98
-     userField39 AT ROW 2.19 COL 98
-     userField40 AT ROW 3.14 COL 98
-     userField83 AT ROW 4.1 COL 98
-     userField88 AT ROW 5.05 COL 98
-     useStatus AT ROW 6 COL 98
-     userField13 AT ROW 6.95 COL 98
-     userField53 AT ROW 7.91 COL 98
-     userField29 AT ROW 8.86 COL 98
-     userField33 AT ROW 9.81 COL 98
-     userField86 AT ROW 10.76 COL 98
-     userField84 AT ROW 11.71 COL 98
-     userField31 AT ROW 12.67 COL 98
-     userField70 AT ROW 13.62 COL 98
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 23 ROW 1.24
-         SIZE 129 BY 25.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME fieldsFrame
-     userField17 AT ROW 14.57 COL 98
-     userField11 AT ROW 15.52 COL 98
-     userField90 AT ROW 16.48 COL 98
-     userField91 AT ROW 17.43 COL 98
-     userField92 AT ROW 18.38 COL 98
-     userField93 AT ROW 19.33 COL 98
-     userField94 AT ROW 20.29 COL 98
-     userField95 AT ROW 21.24 COL 98
-     userField96 AT ROW 22.19 COL 98
-     userField97 AT ROW 23.14 COL 98
-     userField98 AT ROW 24.1 COL 98
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 23 ROW 1.24
-         SIZE 129 BY 25
-         TITLE "Fields".
-
 DEFINE FRAME colorsFrame
      jobLabel-1 AT ROW 1.95 COL 3 COLON-ALIGNED
      customLabel-1 AT ROW 1.95 COL 73 COLON-ALIGNED
@@ -2321,6 +2207,9 @@ DEFINE FRAME colorsFrame
           "Select to Apply Completed Checkoff to Whole Job vs. Each Resour"
      dueDateUsedValue AT ROW 24.1 COL 32 HELP
           "Select Due Date/Production Date" NO-LABEL
+     "<Now><Due><Start--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 6.71 COL 44
+          FONT 1
      "Value" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 1.24 COL 99
      "<Start--End><Now><Due>" VIEW-AS TEXT
@@ -2344,24 +2233,22 @@ DEFINE FRAME colorsFrame
           FONT 1
      "Default ~"<Due>~" Value Used:" VIEW-AS TEXT
           SIZE 28 BY .81 AT ROW 24.1 COL 3
-     "Custom Color Label" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 1.24 COL 76
-     "<Start--Now--End><Due>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 7.91 COL 44
+     "<Now><Start--Due--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 5.52 COL 44
           FONT 1
-     "[Status Checkoff Default Settings]" VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 20.29 COL 83
-          BGCOLOR 8 
-     "<Start--End><Due><Now>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 12.67 COL 44
+     "<Now><Start--End><Due>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 4.33 COL 44
           FONT 1
+     "Job Conflict Color" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 19.1 COL 7
      "[Set Job Color based on <Due>]" VIEW-AS TEXT
           SIZE 31 BY .62 AT ROW 23.38 COL 3
           BGCOLOR 8 
-     "Job Conflict Color" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 19.1 COL 7
-     "<Now><Start--End><Due>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 4.33 COL 44
+     "<Start--Now--Due--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 9.1 COL 44
+          FONT 1
+     "<Due><Start--Now--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 16.24 COL 44
           FONT 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -2370,24 +2257,6 @@ DEFINE FRAME colorsFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME colorsFrame
-     "<Due><Now><Start--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 17.43 COL 44
-          FONT 1
-     "<Now><Start--Due--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 5.52 COL 44
-          FONT 1
-     "<Start--Due--End><Now>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 13.86 COL 44
-          FONT 1
-     "<Now><Due><Start--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 6.71 COL 44
-          FONT 1
-     "<Start--Now--Due--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 9.1 COL 44
-          FONT 1
-     "<Due><Start--Now--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 16.24 COL 44
-          FONT 1
      "Priority" VIEW-AS TEXT
           SIZE 7 BY .62 AT ROW 1.24 COL 36
      "Job Color Label" VIEW-AS TEXT
@@ -2405,6 +2274,23 @@ DEFINE FRAME colorsFrame
      "<Start--Due--Now--End>" VIEW-AS TEXT
           SIZE 25 BY 1 AT ROW 10.29 COL 44
           FONT 1
+     "<Due><Now><Start--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 17.43 COL 44
+          FONT 1
+     "<Start--End><Due><Now>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 12.67 COL 44
+          FONT 1
+     "<Start--Due--End><Now>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 13.86 COL 44
+          FONT 1
+     "Custom Color Label" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 1.24 COL 76
+     "<Start--Now--End><Due>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 7.91 COL 44
+          FONT 1
+     "[Status Checkoff Default Settings]" VIEW-AS TEXT
+          SIZE 32 BY .62 AT ROW 20.29 COL 83
+          BGCOLOR 8 
      RECT-7 AT ROW 18.62 COL 2
      customBGColor-1 AT ROW 1.95 COL 110
      customBGColor-10 AT ROW 12.67 COL 110
@@ -2586,10 +2472,6 @@ DEFINE FRAME defaultsFrame
      "[Valid Schedule Board ID's]" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 14.57 COL 50
           BGCOLOR 8 
-     "Resource:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 11.48 COL 91
-     "Job Seq.:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 12.43 COL 92
      "[Scheduler Re-Start Required to take effect]" VIEW-AS TEXT
           SIZE 42 BY .62 AT ROW 21.95 COL 54
           BGCOLOR 8 
@@ -2625,6 +2507,8 @@ DEFINE FRAME defaultsFrame
      "[Board Settings]" VIEW-AS TEXT
           SIZE 15 BY .62 AT ROW 1.24 COL 3
           BGCOLOR 8 
+     "Job on Resource Highlight Color" VIEW-AS TEXT
+          SIZE 31 BY .62 AT ROW 9.33 COL 10
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 1.24
@@ -2632,8 +2516,6 @@ DEFINE FRAME defaultsFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME defaultsFrame
-     "Job on Resource Highlight Color" VIEW-AS TEXT
-          SIZE 31 BY .62 AT ROW 9.33 COL 10
      "[Priority Settings]" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 10.76 COL 91
           BGCOLOR 8 
@@ -2643,6 +2525,10 @@ DEFINE FRAME defaultsFrame
           SIZE 26 BY .62 AT ROW 16.95 COL 91
      "Grid Line Color" VIEW-AS TEXT
           SIZE 14.4 BY .62 AT ROW 6.95 COL 10
+     "Resource:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 11.48 COL 91
+     "Job Seq.:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 12.43 COL 92
      RECT-3 AT ROW 21 COL 2
      RECT-1 AT ROW 1.48 COL 2
      rectGrid AT ROW 4.81 COL 91
@@ -2711,6 +2597,120 @@ DEFINE FRAME colorDisplayFrame
          AT COL 3 ROW 4.1
          SIZE 17 BY 20.24
          TITLE "Colors".
+
+DEFINE FRAME fieldsFrame
+     userField71 AT ROW 1.24 COL 2
+     userField72 AT ROW 2.19 COL 2
+     userField73 AT ROW 3.14 COL 2
+     userField74 AT ROW 4.1 COL 2
+     userField75 AT ROW 5.05 COL 2
+     userField76 AT ROW 6 COL 2
+     userField77 AT ROW 6.95 COL 2
+     userField24 AT ROW 7.91 COL 2
+     userField19 AT ROW 8.86 COL 2
+     userField03 AT ROW 9.81 COL 2
+     userField26 AT ROW 10.76 COL 2
+     userField04 AT ROW 11.71 COL 2
+     userField27 AT ROW 12.67 COL 2
+     userField34 AT ROW 13.62 COL 2
+     userField22 AT ROW 14.57 COL 2
+     userField79 AT ROW 15.52 COL 2
+     userField21 AT ROW 16.48 COL 2
+     userField25 AT ROW 17.43 COL 2
+     userField14 AT ROW 18.38 COL 2
+     userField28 AT ROW 19.33 COL 2
+     userField89 AT ROW 20.29 COL 2
+     userField69 AT ROW 21.24 COL 2
+     userField64 AT ROW 22.19 COL 2
+     userField63 AT ROW 23.14 COL 2
+     userField01 AT ROW 24.1 COL 2
+     userField02 AT ROW 1.24 COL 34
+     userField90 AT ROW 2.19 COL 34
+     userField12 AT ROW 3.14 COL 34
+     userField05 AT ROW 4.1 COL 34
+     userField80 AT ROW 5.05 COL 34
+     userField85 AT ROW 6 COL 34
+     userField66 AT ROW 6.95 COL 34
+     userField68 AT ROW 7.91 COL 34
+     userField08 AT ROW 8.86 COL 34
+     userField81 AT ROW 9.81 COL 34
+     userField91 AT ROW 10.76 COL 34
+     userField18 AT ROW 11.71 COL 34
+     userField58 AT ROW 12.67 COL 34
+     userField59 AT ROW 13.62 COL 34
+     userField41 AT ROW 14.57 COL 34
+     userField42 AT ROW 15.52 COL 34
+     userField43 AT ROW 16.48 COL 34
+     userField44 AT ROW 17.43 COL 34
+     userField45 AT ROW 18.38 COL 34
+     userField46 AT ROW 19.33 COL 34
+     userField47 AT ROW 20.29 COL 34
+     userField48 AT ROW 21.24 COL 34
+     userField49 AT ROW 22.19 COL 34
+     userField50 AT ROW 23.14 COL 34
+     userField65 AT ROW 24.1 COL 34
+     userField67 AT ROW 1.24 COL 66
+     userField09 AT ROW 2.19 COL 66
+     userField10 AT ROW 3.14 COL 66
+     userField32 AT ROW 4.1 COL 66
+     userField82 AT ROW 5.05 COL 66
+     userField30 AT ROW 6 COL 66
+     userField61 AT ROW 6.95 COL 66
+     userField62 AT ROW 7.91 COL 66
+     userField78 AT ROW 8.86 COL 66
+     userField87 AT ROW 9.81 COL 66
+     userField60 AT ROW 10.76 COL 66
+     userField56 AT ROW 11.71 COL 66
+     userField55 AT ROW 12.67 COL 66
+     userField51 AT ROW 13.62 COL 66
+     userField20 AT ROW 14.57 COL 66
+     userField06 AT ROW 15.52 COL 66
+     userField07 AT ROW 16.48 COL 66
+     userField16 AT ROW 17.43 COL 66
+     userField35 AT ROW 18.38 COL 66
+     userField57 AT ROW 19.33 COL 66
+     userField52 AT ROW 20.29 COL 66
+     userField38 AT ROW 21.24 COL 66
+     userField37 AT ROW 22.19 COL 66
+     userField54 AT ROW 23.14 COL 66
+     userField15 AT ROW 24.1 COL 66
+     userField36 AT ROW 1.24 COL 98
+     useNotes AT ROW 2.19 COL 98
+     userField23 AT ROW 3.14 COL 98
+     userField39 AT ROW 4.1 COL 98
+     userField40 AT ROW 5.05 COL 98
+     userField83 AT ROW 6 COL 98
+     userField88 AT ROW 6.95 COL 98
+     useStatus AT ROW 7.91 COL 98
+     userField13 AT ROW 8.86 COL 98
+     userField53 AT ROW 9.81 COL 98
+     userField29 AT ROW 10.76 COL 98
+     userField33 AT ROW 11.71 COL 98
+     userField86 AT ROW 12.67 COL 98
+     userField84 AT ROW 13.62 COL 98
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 23 ROW 1.24
+         SIZE 129 BY 25.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME fieldsFrame
+     userField31 AT ROW 14.57 COL 98
+     userField70 AT ROW 15.52 COL 98
+     userField17 AT ROW 16.48 COL 98
+     userField11 AT ROW 17.43 COL 98
+     userField92 AT ROW 18.38 COL 98
+     userField93 AT ROW 19.33 COL 98
+     userField94 AT ROW 20.29 COL 98
+     userField95 AT ROW 21.24 COL 98
+     userField96 AT ROW 22.19 COL 98
+     userField97 AT ROW 23.14 COL 98
+     userField98 AT ROW 24.1 COL 98
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 23 ROW 1.24
+         SIZE 129 BY 25
+         TITLE "Fields".
 
 
 /* *********************** Procedure Settings ************************ */

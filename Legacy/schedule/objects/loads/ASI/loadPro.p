@@ -6,7 +6,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 90
+&SCOPED-DEFINE nextUserField 92
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -35,6 +35,7 @@ DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 DEFINE VARIABLE customLabelList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ufCust AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufBoardName AS LOGICAL NO-UNDO INIT YES.
+DEFINE VARIABLE ufDC AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufEB AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufEF AS LOGICAL NO-UNDO INIT YES.
 DEFINE VARIABLE ufEst AS LOGICAL NO-UNDO INIT YES.
@@ -686,6 +687,8 @@ FOR EACH job-hdr NO-LOCK
               AND oe-rel.i-no EQ oe-ordl.i-no
               AND oe-rel.line EQ oe-ordl.line
             BREAK BY oe-rel.rel-no:
+          IF FIRST(oe-rel.rel-no) THEN
+          userField[91] = setUserField(91,STRING(oe-rel.rel-date,'99.99.9999')).
           IF LAST(oe-rel.rel-no) THEN
           ASSIGN
             userField[37] = setUserField(37,STRING(oe-rel.qty,'->>,>>>,>>9'))
@@ -944,6 +947,30 @@ FOR EACH job-hdr NO-LOCK
                                     AND bJobMch.i-no NE '') THEN '<Multi Item>'
                  ELSE job-hdr.i-no.
               /* ELSE getItemNo(job-mch.company,job-mch.job-no,job-mch.job-no2,job-mch.frm,job-hdr.i-no). */
+
+    IF ufDC AND
+       CAN-FIND(FIRST pc-prdd
+                WHERE pc-prdd.company  EQ job-mch.company
+                  AND pc-prdd.job-no   EQ job-mch.job-no
+                  AND pc-prdd.job-no2  EQ job-mch.job-no2
+                  AND pc-prdd.frm      EQ job-mch.frm
+                  AND pc-prdd.blank-no EQ job-mch.blank-no
+                  AND pc-prdd.pass     EQ job-mch.pass
+                  AND pc-prdd.m-code   EQ job-mch.m-code
+                  AND pc-prdd.qty      NE 0) THEN
+    FOR EACH pc-prdd NO-LOCK
+        WHERE pc-prdd.company  EQ job-mch.company
+          AND pc-prdd.job-no   EQ job-mch.job-no
+          AND pc-prdd.job-no2  EQ job-mch.job-no2
+          AND pc-prdd.frm      EQ job-mch.frm
+          AND pc-prdd.blank-no EQ job-mch.blank-no
+          AND pc-prdd.pass     EQ job-mch.pass
+          AND pc-prdd.m-code   EQ job-mch.m-code
+          AND pc-prdd.qty      NE 0
+        :
+        userField[90] = setUserField(90,STRING(INTEGER(userField[90])
+                      + pc-prdd.qty,"->>>,>>>,>>9")).
+    END. /* each pc-prdd */
 
     ASSIGN
       customVal = SUBSTR(customValueList,2)
@@ -1771,6 +1798,8 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[87] = 'OverRun%'        userWidth[87] = 10
     userLabel[88] = 'Speed'           userWidth[88] = 10
     userLabel[89] = 'Created'         userWidth[89] = 15
+    userLabel[90] = 'DC Prod Qty'     userWidth[90] = 12
+    userLabel[91] = 'First Release'   userWidth[91] = 15
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1837,9 +1866,10 @@ PROCEDURE setUseFields:
     ufJob = useField[89]
     ufJobMch = useField[9] OR useField[15] OR useField[18] OR useField[19] OR useField[20] OR useField[85] OR useField[88]
     ufOEOrdl = useField[82] OR useField[84] OR useField[86] OR useField[87]
-    ufOERel = useField[37] OR useField[38] OR useField[39] OR useField[40] OR useField[52] OR useField[63]
+    ufOERel = useField[37] OR useField[38] OR useField[39] OR useField[40] OR useField[52] OR useField[63]OR useField[91]
     ufPOOrdl = useField[7] OR useField[16] OR useField[17] OR useField[35]
     ufProdQty = useField[57]
     ufPrep = useField[80]
+    ufDC = useField[90]
     .
 END PROCEDURE.
