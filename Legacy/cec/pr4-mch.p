@@ -259,7 +259,9 @@ FOR EACH est-op WHERE est-op.company = xest.company
         op-tot[4] = op-tot[4] + oprun$
         op-tot[5] = op-tot[5] + optot$
         op-tot[6] = op-tot[6] + v-var-fac[1] + v-var-fac[2]
-        op-tot[7] = op-tot[7] + v-fix-fac[1] + v-fix-fac[2].
+        op-tot[7] = op-tot[7] + v-fix-fac[1] + v-fix-fac[2]
+        op-tot[8] = op-tot[8] + opmr * est-op.op-crew[1]
+        op-tot[9] = op-tot[9] + oprun * est-op.op-crew[2].
 END.
 
 ASSIGN

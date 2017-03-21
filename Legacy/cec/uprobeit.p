@@ -300,8 +300,19 @@ FOR EACH probeit
 
     board-cst = board-cst / (v-qty / 1000).
     
-        
-        
+    /*For ticket 19263 - storage of total man hours op-tot[8] = tot MR man hours, op-tot[9] = tot Run man hours*/    
+     FIND FIRST reftable
+            WHERE reftable.reftable EQ "probe.board"
+            AND reftable.company  EQ probe.company
+            AND reftable.loc      EQ ""
+            AND reftable.code     EQ probe.est-no
+            AND reftable.code2    EQ STRING(probe.line,"9999999999")
+            NO-ERROR.
+     IF AVAILABLE reftable THEN DO:
+            reftable.val[6] = op-tot[8] + op-tot[9].
+            FIND CURRENT reftable NO-LOCK.
+     END.    
+    
     dBoardCst = 0.
     IF xest.est-type EQ  6  THEN /*If estimate is a set, calculate per item board cost and total fact cost*/
     DO:
@@ -323,19 +334,14 @@ FOR EACH probeit
     
         IF probeit.fact-cost GT 0 THEN 
             dBoardPct = dBoardCst / probeit.fact-cost * 100.
+        
     END. /*Set calc*/
     ELSE /*Tandems, combos*/
     DO:
         /*Pull the Total Board Cost from the probe.board (Reftable)*/
-        FIND FIRST reftable
-            WHERE reftable.reftable EQ "probe.board"
-            AND reftable.company  EQ probe.company
-            AND reftable.loc      EQ ""
-            AND reftable.code     EQ probe.est-no
-            AND reftable.code2    EQ STRING(probe.line,"9999999999")
-            NO-ERROR.
-        IF AVAILABLE reftable THEN dBoardCst = reftable.val[1].
-    
+               IF AVAILABLE reftable THEN 
+            dBoardCst = reftable.val[1].
+            
         /*Use the ord-cost which is the Total Factory Cost to determine the reduction lookup pct*/
         IF ord-cost GT 0 THEN 
             dBoardPct = dBoardCst / ord-cost * 100.
