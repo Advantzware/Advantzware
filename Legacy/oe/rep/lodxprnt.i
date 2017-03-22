@@ -88,7 +88,7 @@ PUT "<R46><C3><#11><FROM><R46><C19><RECT><||3>"
     "<R46><C19><FROM><R50><C19><LINE><||3>" .
 
 PUT "<FArial><=11><R-2><B><P14> Qty / Case</B>" SKIP.
-PUT "<FArial><=11><R+1><B><C4><P30>  " tt-word-print.pcs   "</B>" SKIP.
+PUT "<FArial><=11><R46.5><B><C4><P30>  " tt-word-print.pcs   "</B>" SKIP.
 
 PUT "<R46><C23><#12><FROM><R46><C38><RECT><||3>" 
     "<R50><C23><FROM><R50><C38><LINE><||3>"  
@@ -96,14 +96,14 @@ PUT "<R46><C23><#12><FROM><R46><C38><RECT><||3>"
     "<R46><C38><FROM><R50><C38><LINE><||3>" .
 
 PUT "<FArial><=12><R-2><B><P14> Cases / Pallet</B>" SKIP.
-PUT "<FArial><=12><R+1><B><C24><P30>  "  tt-word-print.bundle "</B>" SKIP.
+PUT "<FArial><=12><R46.5><B><C24><P30>  "  tt-word-print.bundle "</B>" SKIP.
 
 PUT "<R46><C42><#13><FROM><R46><C59><RECT><||3>" 
     "<R50><C42><FROM><R50><C59><LINE><||3>"   
     "<R46><C42><FROM><R50><C42><LINE><||3>" 
     "<R46><C59><FROM><R50><C59><LINE><||3>" .
 PUT "<FArial><=13><R-2><B><P14> Partial Case</B>" SKIP.
-PUT "<FArial><=13><R+1><B><C43><P30>  "  tt-word-print.partial "</B>" SKIP.
+PUT "<FArial><=13><R46.5><B><C43><P30>  "  tt-word-print.partial "</B>" SKIP.
 
 PUT "<R46><C63><#14><FROM><R46><C80><RECT><||3>" 
     "<R50><C63><FROM><R50><C80><LINE><||3>"  
@@ -111,7 +111,7 @@ PUT "<R46><C63><#14><FROM><R46><C80><RECT><||3>"
     "<R46><C80><FROM><R50><C80><LINE><||3>" .
 
 PUT "<FArial><=14><R-2><B><P14> Qty Pallet</B>" SKIP.
-PUT "<FArial><=14><R+1><B><C64><P30>  "  tt-word-print.total-unit  "</B>" SKIP.
+PUT "<FArial><=14><R46.5><B><C64><P30>  "  tt-word-print.total-unit  "</B>" SKIP.
 
 PUT "<R53><C3><#15><FROM><R53><C18><RECT><||3>" 
     "<R57><C3><FROM><R57><C18><LINE><||3>"  
@@ -119,7 +119,7 @@ PUT "<R53><C3><#15><FROM><R53><C18><RECT><||3>"
     "<R53><C18><FROM><R57><C18><LINE><||3>".
 
 PUT "<FArial><=15><R-2><B><P14> Wt / Case</B>" SKIP.
-PUT "<FArial><=15><R+1><B><C4><P30>  " tt-word-print.case-wt "</B>" SKIP.
+PUT "<FArial><=15><R53.5><B><C4><P30>  " tt-word-print.case-wt "</B>" SKIP.
 
 PUT "<R53><C22><#16><FROM><R53><C48><RECT><||3>" 
     "<R57><C22><FROM><R57><C48><LINE><||3>"   
