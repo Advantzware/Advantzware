@@ -7098,11 +7098,10 @@ PROCEDURE reprint-tag :
 
   RUN create-text-file.
 
-
   IF cBarCodeProgram EQ "" THEN do:    
       RUN AutoPrint.
   END.
-  ELSE IF cBarCodeProgram EQ "xprint" THEN do:
+  ELSE IF cBarCodeProgram EQ "xprint" AND scr-auto-print THEN do:
       PAUSE 1.
       RUN print-loadtg  .
   END.
@@ -7194,7 +7193,7 @@ PROCEDURE run-report :
 IF cBarCodeProgram EQ "" THEN DO:    
     RUN AutoPrint.
 END.
-ELSE IF cBarCodeProgram EQ "xprint" THEN do: 
+ELSE IF cBarCodeProgram EQ "xprint" AND scr-auto-print THEN do: 
     PAUSE 1.
     RUN print-loadtg .
 END.
