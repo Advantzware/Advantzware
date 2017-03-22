@@ -120,6 +120,7 @@ DEF VAR lv-comp-name AS cha FORM "x(30)" NO-UNDO.
 DEF VAR lv-comp-color AS cha NO-UNDO.
 DEF VAR lv-other-color AS cha INIT "BLACK" NO-UNDO.
 DEF VAR v-page-num AS INT NO-UNDO.
+DEF VAR cBillNotes LIKE inv-head.bill-i NO-UNDO.
 DEFINE BUFFER bf-inv-head FOR inv-head .
 
 find first sys-ctrl where sys-ctrl.company eq cocode
@@ -615,15 +616,40 @@ ELSE lv-comp-color = "BLACK".
 
         end. /* each inv-misc */
 
+
+
         if v-prntinst then do:
-            FIND FIRST bf-inv-head NO-LOCK
-                 WHERE bf-inv-head.company EQ inv-head.company
-                   AND bf-inv-head.inv-no EQ inv-head.inv-no
-                   AND bf-inv-head.multi-invoice = NO  NO-ERROR .
-         IF AVAIL bf-inv-head THEN
+            ASSIGN 
+            cBillNotes[1] = ""
+            cBillNotes[2] = ""
+            cBillNotes[3] = ""
+            cBillNotes[4] = "".
+           
+            IF inv-head.multi-invoice THEN
+                FOR EACH bf-inv-head NO-LOCK
+                   WHERE bf-inv-head.company EQ inv-head.company
+                     AND bf-inv-head.cust-no EQ inv-head.cust-no
+                     AND bf-inv-head.bol-no EQ xinv-head.bol-no
+                     AND NOT bf-inv-head.multi-invoice
+                  BREAK BY bf-inv-head.inv-date DESC:
+                  ASSIGN 
+                    cBillNotes[1] = bf-inv-head.bill-i[1]
+                    cBillNotes[2] = bf-inv-head.bill-i[2]
+                    cBillNotes[3] = bf-inv-head.bill-i[3]
+                    cBillNotes[4] = bf-inv-head.bill-i[4]
+                      .
+                  LEAVE.
+                END.
+                ELSE 
+                    ASSIGN
+                        cBillNotes[1] = inv-head.bill-i[1]
+                        cBillNotes[2] = inv-head.bill-i[2]
+                        cBillNotes[3] = inv-head.bill-i[3]
+                        cBillNotes[4] = inv-head.bill-i[4]  .
+
          do i = 1 to 4:
-          if bf-inv-head.bill-i[i] ne "" then do:
-            put bf-inv-head.bill-i[i] at 10 skip.
+          if cBillNotes[i] ne "" then do:
+            put cBillNotes[i] at 10 skip.
             assign v-printline = v-printline + 1.
           end.
          end. /* 1 to 4 */

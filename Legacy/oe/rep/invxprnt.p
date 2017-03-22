@@ -195,7 +195,7 @@ find first company where company.company eq cocode NO-LOCK.
         IF xinv-head.multi-invoice THEN
             FOR EACH bf-inv-head 
                 WHERE bf-inv-head.company EQ xinv-head.company
-                  AND bf-inv-head.inv-no EQ xinv-head.inv-no
+                  AND bf-inv-head.bol-no EQ xinv-head.bol-no
                   AND bf-inv-head.cust-no EQ xinv-head.cust-no
                   AND NOT bf-inv-head.multi-invoice
                   AND bf-inv-head.stat NE "H"
