@@ -18,7 +18,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -188,13 +188,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 /*{methods/template/windows.i}*/
 
@@ -261,7 +265,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -378,7 +382,7 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options , 'AFTER':U ).
     END. /* Page 0 */
-
+    
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'cec/v-item.w':U ,
@@ -411,7 +415,7 @@ PROCEDURE adm-create-objects :
              OUTPUT h_p-rmview ).
        RUN set-position IN h_p-rmview ( 22.19 , 88.00 ) NO-ERROR.
        RUN set-size IN h_p-rmview ( 2.14 , 58.00 ) NO-ERROR.
-
+       
        /* Links to SmartViewer h_v-item. */
        RUN add-link IN adm-broker-hdl ( /*h_b-item*/ THIS-PROCEDURE , 'Record':U , h_v-item ).
        RUN add-link IN adm-broker-hdl ( h_p-rmview , 'TableIO':U , h_v-item ).
@@ -940,14 +944,14 @@ PROCEDURE local-change-page :
 
   end.   
   ==== */
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   /*{methods/winReSizePgChg.i}*/
 
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -960,7 +964,7 @@ PROCEDURE local-create-objects :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -989,9 +993,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1008,13 +1012,13 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
  FIND FIRST ITEM WHERE recid(ITEM) = ip-board NO-LOCK NO-ERROR.
-
+ 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
   APPLY "ENTRY" TO FRAME {&FRAME-NAME}.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1046,7 +1050,7 @@ PROCEDURE select_add :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-
+  
   run select-page(1).
   run get-link-handle in adm-broker-hdl(this-procedure,"add-item-target", output char-hdl).
   run add-item in widget-handle(char-hdl).
@@ -1065,9 +1069,9 @@ PROCEDURE select_exit :
   Notes:       
 ------------------------------------------------------------------------------*/
    def var char-hdl as cha no-undo.   
-
+   
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
 
 END PROCEDURE.

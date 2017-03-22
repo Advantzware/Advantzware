@@ -3,27 +3,27 @@
 &Scoped-define WINDOW-NAME MAINMENU
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS MAINMENU 
 /*------------------------------------------------------------------------
-
+ 
   File:              mainmenu.w
-
+ 
   Description:       Main Menu
-
+ 
   Input Parameters:  <none>
-
+ 
   Output Parameters: <none>
-
+ 
   Author:            Ron Stark
-
+ 
   Created:           01/25/98 -  12:36 am
-
+ 
 --------------------------------------------------------------------*/
-
+ 
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
-
+ 
 CREATE WIDGET-POOL.
 
 /* *************************** Set Function ************************** */
@@ -31,13 +31,13 @@ CREATE WIDGET-POOL.
 ON F1 HELP.
 ON CTRL-F HELP.
 ON CTRL-P HELP.
-
+ 
 /* ***************************  Definitions  ************************** */
-
+ 
 /* Parameters Definitions ---                                           */
-
+ 
 /* Local Variable Definitions ---                                       */
-
+ 
 &Scoped-define start-button-col 2
 &Scoped-define start-button-row 3.5
 &Scoped-define button-height 1.1
@@ -207,19 +207,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT MAINMENU:LOAD-ICON("adeicon/progress.ico":U) THEN
+    MESSAGE "Unable to load icon: adeicon/progress.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -251,7 +245,7 @@ THEN MAINMENU:HIDDEN = no.
 */  /* FRAME FRAME-USER */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -285,17 +279,15 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+ 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
-
+ 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* These events will close the window and terminate the procedure.      */
 /* (NOTE: this will override any user-defined triggers previously       */
@@ -318,7 +310,7 @@ END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
-
+ 
 /* Now enable the interface and wait for the exit condition.*/
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
@@ -330,7 +322,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         boxes:LOAD-IMAGE(sys-ctrl.DESCrip).
   {methods/mainmenu.i}
   RUN Read_Menus.
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -444,7 +435,7 @@ PROCEDURE Mneumonic :
   ELSE
   bttn:LABEL = bttn:LABEL + ' **'.
 */
-
+ 
 
   if bttn:label = "Exit" then bttn:label = "E&xit".
   else if button-col > 80 then do: /* third column */
@@ -469,7 +460,7 @@ PROCEDURE Read_Menus :
   DEFINE VARIABLE m AS CHARACTER EXTENT 2 NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   def var ls-menu-lst as cha no-undo.
-
+  
   FOR EACH ttbl EXCLUSIVE-LOCK:
     DELETE ttbl.
   END.
@@ -544,7 +535,7 @@ PROCEDURE Run_Button :
   DEFINE VARIABLE save-widget AS WIDGET-HANDLE NO-UNDO.
 
   IF button-handle:NAME = 'Exit' THEN APPLY 'WINDOW-CLOSE':U TO {&WINDOW-NAME}.
-
+  
   ASSIGN
     current-widget = FRAME {&FRAME-NAME}:HANDLE
     current-widget = current-widget:FIRST-CHILD

@@ -1,4 +1,4 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 /* Procedure Description
 "This SmartPanel sends update, add, 
 copy, reset, delete, and cancel messages 
@@ -70,16 +70,15 @@ def var phandle as handle no-undo.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE SmartPanel
-&Scoped-define DB-AWARE no
 
-&Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
+&Scoped-define ADM-SUPPORTED-LINKS             TableIO-Source
 
 /* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-first Btn-left Btn-right Btn-last Btn-up ~
-Btn-down 
+&Scoped-Define ENABLED-OBJECTS Btn-down Btn-up Btn-right Btn-left Btn-first ~
+Btn-last 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -125,19 +124,19 @@ DEFINE BUTTON Btn-up
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 57 BY 1.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
-     Btn-first AT ROW 1.24 COL 2
-     Btn-left AT ROW 1.24 COL 11
-     Btn-right AT ROW 1.24 COL 20
-     Btn-last AT ROW 1.24 COL 29
-     Btn-up AT ROW 1.24 COL 38
-     Btn-down AT ROW 1.24 COL 47
+     Btn-down AT ROW 1.29 COL 2
+     Btn-up AT ROW 1.29 COL 11
+     Btn-right AT ROW 1.29 COL 20
+     Btn-left AT ROW 1.29 COL 28.8
+     Btn-first AT ROW 1.29 COL 37.8
+     Btn-last AT ROW 1.29 COL 48
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -159,7 +158,7 @@ DEFINE FRAME Panel-Frame
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
 IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT."
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
   RETURN.
 END.
@@ -171,25 +170,14 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW C-WIn ASSIGN
-         HEIGHT             = 1.76
+         HEIGHT             = 1.86
          WIDTH              = 57.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
-/* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
-{src/adm/method/panel.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
-/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
+/* ***************  Runtime Attributes and UIB Settings  ************** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-WIn
@@ -218,6 +206,16 @@ ASSIGN
  
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
+/* ************************* Included-Libraries *********************** */
+
+{src/adm/method/panel.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 
 /* ************************  Control Triggers  ************************ */
 
@@ -226,7 +224,6 @@ ASSIGN
 ON CHOOSE OF Btn-down IN FRAME Panel-Frame /* Down */
 DO:
    {methods/run_link.i "tableio-target" "proc-down"}
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -238,7 +235,6 @@ END.
 ON CHOOSE OF Btn-first IN FRAME Panel-Frame /* First */
 DO:
      {methods/run_link.i "tableio-target" "proc-first"}
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -250,7 +246,6 @@ END.
 ON CHOOSE OF Btn-last IN FRAME Panel-Frame /* LAst */
 DO:
      {methods/run_link.i "tableio-target" "proc-last"}
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -263,7 +258,6 @@ ON CHOOSE OF Btn-left IN FRAME Panel-Frame /* Left */
 DO:
        {methods/run_link.i "tableio-target" "proc-left"}
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -276,7 +270,6 @@ ON CHOOSE OF Btn-right IN FRAME Panel-Frame /* Right */
 DO:
        {methods/run_link.i "tableio-target" "proc-right"}
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -289,7 +282,6 @@ ON CHOOSE OF Btn-up IN FRAME Panel-Frame /* Up */
 DO:
        {methods/run_link.i "tableio-target" "proc-up"}
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -306,8 +298,8 @@ END.
   /* Set the default SmartPanel to the one that has the Commit push */
   /* button displayed (the TABLEIO-TARGETS are not enabled/disabled */
   /* automatically with this type of SmartPanel).                   */
-
-
+  
+                           
   /* If the application hasn't enabled the behavior that a RETURN in a frame = GO,
      then enable the usage of the Save button as the default button. (Note that in
      8.0, the Save button was *always* the default button.) */
@@ -320,13 +312,6 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
-  
-  {methods/setButton.i Btn-first "First"}
-  {methods/setButton.i Btn-left "Left"}
-  {methods/setButton.i Btn-right "Right"}
-  {methods/setButton.i Btn-last "Last"}
-  {methods/setButton.i Btn-up "Up"}
-  {methods/setButton.i Btn-down "Down"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -334,7 +319,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-WIn  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-WIn _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -352,6 +337,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable C-WIn 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
@@ -363,11 +349,12 @@ PROCEDURE local-enable :
 
   RUN dispatch ('enable':U).      /* Get all objects enabled to start. */
   RUN set-buttons (adm-panel-state).
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize C-WIn 
 PROCEDURE local-initialize :
@@ -378,7 +365,7 @@ PROCEDURE local-initialize :
   ------------------------------------------------------------------------*/
 
   DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
-
+  
   /* Insert pre-dispatch code here. */ 
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT "adm-initialize":U ) .
@@ -408,7 +395,7 @@ PROCEDURE local-initialize :
      END.
      RUN set-buttons (adm-panel-state).
   END.
-
+ 
   IF panel-type = 'SAVE':U AND /* Only enable a Save panel if there's a record */
     LOOKUP(query-position,'no-record-available,no-external-record-available':U) = 0
      THEN RUN notify ('enable-fields, TABLEIO-TARGET':U).
@@ -421,6 +408,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-buttons C-WIn 
 PROCEDURE set-buttons :
 /*------------------------------------------------------------------------------
@@ -428,7 +416,7 @@ PROCEDURE set-buttons :
            sort of action is occuring to the TABLEIO-TARGET(s) of the panel.
   Parameters:  Character string that denotes which action to set the button
                sensitivities.
-
+               
                The values are: initial - the panel is in a state where no record
                                          changes are occuring; i.e. it is possible
                                          to  Update, Add, Copy, or Delete a record.
@@ -472,9 +460,9 @@ DO WITH FRAME Panel-Frame:
 &ENDIF
 
   END. /* panel-state = 'disable-all' */
-
+  
   ELSE IF panel-state = 'initial':U THEN DO:
-
+  
     /* The panel is not actively changing any of its TABLEIO-TARGET(s). */
 
 &IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
@@ -500,7 +488,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Cancel:SENSITIVE = NO.
 &ENDIF
-
+      
   END. /* panel-state = 'initial' */
 
   ELSE IF panel-state = 'add-only':U THEN DO:
@@ -529,9 +517,9 @@ DO WITH FRAME Panel-Frame:
 &ENDIF
 
   END. /* panel-state = 'add-only' */
-
+ 
   ELSE DO: /* panel-state = action-chosen */ 
-
+  
     /* The panel had one of the buttons capable of changing/adding a record */
     /* pressed. Always force the SAVE/UPDATE button to be sensitive in the  */
     /* the event that the smartpanel is disabled and later enabled prior to */
@@ -567,6 +555,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-label C-WIn 
 PROCEDURE set-label :
 /*------------------------------------------------------------------------------
@@ -586,6 +575,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed C-WIn 
 PROCEDURE state-changed :
@@ -607,6 +597,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE use-smartpaneltype C-WIn 
 PROCEDURE use-smartpaneltype :
 /*------------------------------------------------------------------------------
@@ -620,9 +611,10 @@ PROCEDURE use-smartpaneltype :
 ------------------------------------------------------------------------------*/
   define input parameter inval as character.
   panel-type = inval.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 

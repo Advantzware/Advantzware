@@ -309,7 +309,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 {methods/template/viewer.i}
 
@@ -385,7 +384,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -410,7 +409,6 @@ DO:
                                           machemp.ratetype:SCREEN-VALUE,
                                    OUTPUT op-rate).
   machemp.rate:SCREEN-VALUE = STRING(op-rate).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -488,7 +486,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -570,7 +568,7 @@ PROCEDURE enable-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+   
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE fi_shift.
   END.

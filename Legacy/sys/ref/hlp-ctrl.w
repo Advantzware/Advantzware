@@ -15,7 +15,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -165,7 +165,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -197,7 +196,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -296,7 +295,7 @@ DO:
      ed-text:SCREEN-VALUE FORMAT "x(10000)" .
 
     RUN custom/prntproc.p (list-name,INT(11),"P").
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -526,9 +525,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

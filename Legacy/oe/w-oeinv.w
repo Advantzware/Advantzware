@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: oe\w-oeinv.w
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -162,13 +162,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -226,7 +230,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -330,7 +334,7 @@ PROCEDURE adm-create-objects :
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.67 , 148.00 ) NO-ERROR.
-
+       
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
@@ -763,7 +767,7 @@ PROCEDURE FakeChangePage :
 
   RUN get-attribute ("current-page").
     viCurrPage = INT (RETURN-VALUE).
-
+  
   IF NOT vlInitialized THEN DO:
     RUN Select-Page (2).
     RUN Select-Page (3).
@@ -833,7 +837,7 @@ PROCEDURE local-change-page :
   DEF VAR li-last-page AS INT NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   run get-attribute ("current-page").
   assign li-prev-page = li-cur-page
          li-cur-page = int(return-value).
@@ -841,7 +845,7 @@ PROCEDURE local-change-page :
   if li-cur-page = 6 then do:  /* estimate */
      li-last-page = li-prev-page.
      run get-link-handle in adm-broker-hdl (this-procedure,"estimate-target",output char-hdl).
-
+     
      if valid-handle(widget-handle(char-hdl)) then do:
         run get-line-est in widget-handle(char-hdl) (output ls-est-no).        
         if ls-est-no = "" then do:
@@ -867,7 +871,7 @@ PROCEDURE local-change-page :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -881,9 +885,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -951,7 +955,7 @@ PROCEDURE Select_Add :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-
+  
   RUN select-page(2).
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,'addPlusButton-target',OUTPUT char-hdl).
   RUN addPlusButton IN WIDGET-HANDLE(char-hdl).
@@ -991,7 +995,7 @@ PROCEDURE select_attcust :
 
     v-order-no = IF AVAIL b-inv-line THEN b-inv-line.ord-no ELSE
                  IF AVAIL b-inv-misc THEN b-inv-misc.ord-no ELSE 0.
-
+    
     FIND FIRST b-cust WHERE
          b-cust.company EQ b-inv-head.company AND
          b-cust.cust-no EQ b-inv-head.cust-no

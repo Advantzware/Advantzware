@@ -4,10 +4,6 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -428,7 +424,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -440,7 +436,7 @@ ON HELP OF FRAME F-Main
 DO:
    def var lv-handle as widget-handle no-undo.
    def var char-val as cha no-undo.
-
+   
    case focus:name :
         when "contact-title" then do:
              run windows/l-title.w (focus:screen-value, output char-val).
@@ -460,7 +456,7 @@ DO:
         otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-
+             
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
               if lv-handle:name = "cust-no" then do:
@@ -469,7 +465,7 @@ DO:
                               no-lock no-error.
               end.    
            end.   /* g_lookup-var <> "" */
-
+           
         end.   
    end case.
 
@@ -492,7 +488,7 @@ DO:
     APPLY 'ENTRY' TO SELF.
     RETURN NO-APPLY.
   end.
-
+  
   if SELF:SCREEN-VALUE eq "S" and contact.ship-id:SCREEN-VALUE eq "" then
   do:
     message "Location May no be 'S' when ShipID is Blank" 
@@ -501,7 +497,7 @@ DO:
     APPLY 'ENTRY' TO SELF.
     RETURN NO-APPLY.
   end.
-
+ 
   if SELF:SCREEN-VALUE eq ? and contact.cust-no:screen-value eq "" then
     enable  contact_sman
             contact_cust-name
@@ -556,7 +552,7 @@ DO:
     APPLY 'ENTRY' TO SELF.
     RETURN NO-APPLY.
   end.
-
+  
   if SELF:SCREEN-VALUE eq "S" and contact.ship-id:SCREEN-VALUE eq "" then
   do:
     message "Location May no be 'S' when ShipID is Blank" 
@@ -565,7 +561,7 @@ DO:
     APPLY 'ENTRY' TO SELF.
     RETURN NO-APPLY.
   end.
-
+ 
   if SELF:SCREEN-VALUE eq ? and contact.cust-no:screen-value eq "" then
   do:
     if contact.cust-name eq "" then contact_cust-name = "".
@@ -655,7 +651,7 @@ DO:
     APPLY 'ENTRY' TO SELF.
     RETURN NO-APPLY.
   END.
-
+    
   {methods/dispflds.i}
 
 END.
@@ -685,7 +681,7 @@ DO:
 
     if avail cust then contact_sman:screen-value in frame {&frame-name} = cust.sman.  
     enable contact.contact-loc WITH FRAME {&FRAME-NAME}.
-
+    
     disable contact_sman
             contact_cust-name
             contact_addr1 
@@ -697,7 +693,7 @@ DO:
             contact_county
             contact_territory
      WITH FRAME {&FRAME-NAME}.
-
+    
   end.
 END.
 
@@ -712,10 +708,10 @@ DO:
   correct-error = false.
   if contact.first-name:SCREEN-VALUE in frame {&frame-name} eq '' then
     assign correct-error = true.
-
+  
   {methods/entryerr.i
             &error-message="First Name CANNOT be Blank"}
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -728,10 +724,10 @@ ON LEAVE OF contact.last-name IN FRAME F-Main /* Last Name */
 DO:
   if contact.last-name:SCREEN-VALUE in frame {&frame-name} eq '' then
     assign correct-error = true.
-
+  
   {methods/entryerr.i
             &error-message="Last Name CANNOT be Blank"}
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -748,7 +744,7 @@ DO:
       contact_state:screen-value in frame {&frame-name} eq '' or
       contact_zip:screen-value   in frame {&frame-name} eq '') then
     message "Remember to Complete the Contact Address Information Below." view-as alert-box.
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -777,16 +773,16 @@ DO:
                                 AND shipto.cust-no = s-cust-no
                                 AND shipto.ship-id = SELF:SCREEN-VALUE"
       &error-message="Invalid Shipto Number"}
-
+    
     assign contact.contact-loc:screen-value = "S".
-
+    
     if contact.cust-no:screen-value ne contact.ship-id:screen-value then
       disable contact.contact-loc with frame {&frame-name}.
     else
       enable contact.contact-loc with frame {&frame-name}.
     APPLY 'VALUE-CHANGED' TO contact.contact-loc.
   end.
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -806,7 +802,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -940,14 +936,14 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ll-new-record = yes.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
 
   {methods/viewers/create/contact.i}
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -961,7 +957,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   if avail contact and not ll-new-record then
      assign contact_addr1 = contact.addr1
             contact_addr2 = contact.addr2

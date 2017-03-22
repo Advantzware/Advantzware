@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -505,7 +501,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -516,7 +512,7 @@ ASSIGN
 ON HELP OF FRAME F-Main
 DO:
     DEF VAR char-val AS cha NO-UNDO.
-
+    
 
     CASE FOCUS:NAME :
         WHEN "acrange" OR WHEN "acrange1" OR WHEN "actnum" THEN DO:
@@ -723,7 +719,7 @@ END.
 ON LEAVE OF lv-d-type IN FRAME F-Main /* Type */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+   
     IF LOOKUP(string(lv-gl-type,"99"),"21,22,23,24,60,61,71,73,90") = 0 THEN do:
         MESSAGE "Invalid Type. " VIEW-AS ALERT-BOX.
         RETURN NO-APPLY.
@@ -746,7 +742,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -863,7 +859,7 @@ PROCEDURE local-assign-statement :
   SUBSTR(gl-rpt.flag,10,1) = IF lv-s-yn-10 THEN "Y" ELSE "N".
   SUBSTR(gl-rpt.flag,11,1) = IF lv-s-yn-11 THEN "Y" ELSE "N".
   SUBSTR(gl-rpt.flag,12,1) = IF lv-s-yn-12 THEN "Y" ELSE "N".
-
+  
   IF gl-rpt.type EQ 60 OR
      gl-rpt.type EQ 61 THEN
   DO i = 1 TO 12:
@@ -876,7 +872,7 @@ PROCEDURE local-assign-statement :
   IF lv-break THEN gl-rpt.type = gl-rpt.type * 10.
 
   RUN reftable-values (NO).
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -888,7 +884,7 @@ PROCEDURE local-cancel-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -997,7 +993,7 @@ PROCEDURE local-display-fields :
      DO i = 1 TO v-n-types:
         IF gl-rpt.type = {gl/gl-type.i v-type-no[i]} THEN lv-d-type = v-type[i].
      END.
-
+  
      run gl/gl-rptg.p (input recid(gl-rpt), input no).
      ASSIGN lv-s-dscr-1 = v-sub[1]
           lv-s-dscr-2 = v-sub[2]
@@ -1299,7 +1295,7 @@ PROCEDURE validate-acct :
       MESSAGE "Invalid Account Number. Try Help." VIEW-AS ALERT-BOX.      
       RETURN ERROR.
   END.
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1349,7 +1345,7 @@ PROCEDURE validate-record :
         RETURN ERROR.
     END.
 
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

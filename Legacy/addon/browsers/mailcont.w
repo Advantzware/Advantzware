@@ -4,10 +4,6 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -230,8 +226,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -287,7 +281,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -303,7 +297,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-
+   
     RUN new-state in phandle ('update-begin':U).
 
     return no-apply.
@@ -331,7 +325,7 @@ DO:
                   mailcont.last-name:screen-value = contact.last-name
                   .
     end.
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -384,15 +378,15 @@ DO:
            is-maillist:sensitive = yes.
            is-maillist:row  = self:row + 1 /*contact.maillist:row in browse {&browse-name}*/
            .
-
+           
            is-maillist:column = self:column /*contact.maillist:column in browse {&browse-name}*/
-
+           
            .
      apply "entry" to is-maillist.
      wait-for "mouse-select-click" of is-maillist focus is-maillist. 
      return no-apply.      
   */
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -415,7 +409,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL is-maillist B-table-Win
 ON LEAVE OF is-maillist IN FRAME F-Main
 DO:
-
+  
     apply "value-changed" to is-maillist in frame {&frame-name}.
     return no-apply.
 END.
@@ -429,7 +423,7 @@ ON MOUSE-SELECT-CLICK OF is-maillist IN FRAME F-Main
 DO:
    apply "value-changed" to is-maillist.
    return no-apply.
-
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -443,9 +437,9 @@ DO:
     mailcon.maillist:screen-value in browse {&browse-name} = string(is-maillist).
    /* if is-maillist then apply "entry" to contact.list-name.
     else*/
-
+    
      apply "row-leave" to browse {&browse-name}.
-
+    
     self:hidden in frame {&frame-name} = yes.
     return no-apply.
 END.
@@ -567,7 +561,7 @@ PROCEDURE local-assign-record :
     if lv-cont-recid <> ? then assign mailcont.contact-rec = lv-cont-recid
                                       lv-cont-recid = ? . 
   end.  
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -587,7 +581,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   mailcont.list-no = maillist.list-no.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -653,7 +647,7 @@ PROCEDURE local-update-record :
        apply "entry" to mailcont.last-name.
        return no-apply.
   end.                                 
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -715,14 +709,14 @@ PROCEDURE update-maillist :
   Notes:       
 ------------------------------------------------------------------------------*/
   def buffer bf-cont for mailcont.
-
+      
   lv-is-mail-yes = not lv-is-mail-yes.
-
+  
   message "Are you sure you want to update All Mail list?" view-as alert-box warning
       button yes-no update lv-ans as log.
-
+      
   if lv-ans then do:
-
+  
      for EACH EMPTRACK.bf-cont OF EMPTRACK.maillist:
          bf-cont.maillist = lv-is-mail-yes. 
      end.

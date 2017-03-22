@@ -16,7 +16,7 @@
       <none>
 
   History: New V9 Version - January 15, 1998
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -159,7 +159,6 @@ Destroy on next read */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -181,7 +180,7 @@ THEN wWin:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -248,7 +247,7 @@ DO:
  END.
 
  FIND FIRST oe-boll WHERE ROWID(oe-boll) EQ save-row NO-LOCK NO-ERROR.
-
+ 
  IF AVAIL oe-boll THEN DO:
 
     FIND FIRST oe-rell WHERE oe-rell.company EQ cocode
@@ -256,7 +255,7 @@ DO:
       AND oe-rell.i-no EQ oe-boll.i-no
       AND oe-rell.s-code EQ "I"
     NO-LOCK NO-ERROR.
-
+   
  END.
 
  IF AVAIL oe-boll AND AVAIL oe-rell THEN DO:
@@ -284,7 +283,7 @@ DO:
 
  END.
 
-
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */

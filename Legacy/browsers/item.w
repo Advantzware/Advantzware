@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -56,7 +52,7 @@ DEFINE VARIABLE lvFirstRowID AS ROWID NO-UNDO.
 DEFINE VARIABLE lvLastRowID AS ROWID NO-UNDO.
 DEF VAR v-called-setCellColumns AS LOG NO-UNDO.
 DEF VAR v-col-move AS LOG NO-UNDO INIT TRUE.
-
+    
 ASSIGN
  cocode = g_company
  locode = g_loc.
@@ -246,8 +242,6 @@ END.
 {custom/yellowColumns.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -322,7 +316,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -528,10 +522,10 @@ PROCEDURE local-open-query :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN dispatch ('get-last':U).
   IF AVAILABLE item THEN lvLastRowID  = ROWID(item).
-
+    
   RUN dispatch ('get-first':U).
   IF AVAILABLE item THEN lvFirstRowID  = ROWID(item).
-
+  
   APPLY "value-changed" TO browse-order IN FRAME {&FRAME-NAME}.
   APPLY "value-changed" TO BROWSE {&browse-name}.
 
@@ -611,7 +605,7 @@ PROCEDURE navigate-browser :
     WHEN 'N' THEN 
     do:
        RUN dispatch ('get-next':U).
-
+      
        RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"history-target", OUTPUT char-hdl).
        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
           RUN new-item IN WIDGET-HANDLE(char-hdl).
@@ -623,10 +617,10 @@ PROCEDURE navigate-browser :
            RUN new-item IN WIDGET-HANDLE(char-hdl).
     END.
   END CASE.
-
+    
   IF ROWID(item) EQ lvLastRowID THEN
   opNavType = 'L'.
-
+      
   IF ROWID(item) EQ lvFirstRowID THEN
   opNavType = IF opNavType EQ 'L' THEN 'B' ELSE 'F'.
 
@@ -730,14 +724,14 @@ PROCEDURE spec-image-proc :
    DEFINE VARIABLE lspec AS LOGICAL NO-UNDO.
    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
-
+ 
  IF AVAIL ITEM THEN
    lspec = CAN-FIND(FIRST notes WHERE
             notes.rec_key = ITEM.rec_key AND
             notes.note_type = "S").
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spechk-target':U, OUTPUT char-hdl).
-
+  
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT lspec).
 END PROCEDURE.

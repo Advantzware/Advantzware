@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: ap\v-apinv.w
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -256,7 +256,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 {methods/template/viewer.i}
 
@@ -318,7 +317,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -355,7 +354,6 @@ END.
 ON CHOOSE OF btn-exrate IN FRAME F-Main /* ExRate */
 DO:
   RUN windows/d-exrate.w ("ap-inv", RECID(ap-inv)).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -516,7 +514,7 @@ PROCEDURE add-inv :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
    RUN dispatch ('add-record').
 
 END PROCEDURE.
@@ -633,19 +631,19 @@ for each po-ord
     use-index po-no no-lock:
 
   RUN po/rec-inv.p (ROWID(po-ordl), OUTPUT v-qty).
-
+    
   if v-qty gt 0 then do:
     /*  create report.
     assign
      report.term-id = v-term
      report.key-01  = string(po-ord.po-no,">>>>>>")
      report.rec-id  = recid(po-ord).
-
+       
     if po-ord.po-no ge ip-po-no and v-po ne 0 then
       assign
        fil_id = recid(report)
        v-po   = 0.
-
+         
     if program-name(2) begins "ap/ap-inv." then leave blok. else leave.  */
 
     op-recid = RECID(po-ord).
@@ -666,9 +664,9 @@ PROCEDURE hold-ap :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER bf-ap-inv FOR ap-inv.
-
+  
   DO WITH FRAME {&FRAME-NAME}:
-
+  
       IF ap-inv.inv-date:SENSITIVE IN FRAME {&FRAME-NAME} THEN do:
          MESSAGE "You can not change status middle of modification. "
             VIEW-AS ALERT-BOX ERROR.
@@ -723,7 +721,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
   ap-inv.freq = cb_freq.
 
   IF scr-manual-check-no:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
@@ -734,7 +732,7 @@ PROCEDURE local-assign-record :
         AND vend.vend-no EQ ap-inv.vend-no
       NO-LOCK NO-ERROR.
   ap-inv.terms = vend.terms.
-
+       
   lv-got-exrate = NO.
 
   IF adm-new-record THEN DO:
@@ -761,7 +759,7 @@ PROCEDURE local-cancel-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-cancel = YES.
 
@@ -776,7 +774,7 @@ PROCEDURE local-cancel-record :
   FIND CURRENT ap-inv NO-LOCK NO-ERROR.
 
   RUN disable-fields.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -816,7 +814,7 @@ PROCEDURE local-create-record :
   END. 
 
   RUN dispatch ('row-changed').
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -913,7 +911,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-po-recid AS RECID NO-UNDO.
   DEF VAR ll-new-record AS LOG NO-UNDO.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   ll-new-record = adm-new-record.
 
@@ -958,7 +956,7 @@ PROCEDURE local-update-record :
   END.
 
   RUN dispatch ("display-fields").
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1016,7 +1014,7 @@ PROCEDURE new-vend-no :
         NO-LOCK NO-ERROR.
     IF AVAIL vend THEN DO:
       FIND FIRST terms WHERE terms.t-code EQ vend.terms NO-LOCK NO-ERROR.
-
+      
       ASSIGN
        vend_name:SCREEN-VALUE        = vend.name
        ap-inv.disc-%:SCREEN-VALUE    = STRING(vend.disc-%)
@@ -1031,7 +1029,7 @@ PROCEDURE new-vend-no :
          ap-inv.disc-days:SCREEN-VALUE = STRING(terms.disc-days).
     END.
   END.
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1070,7 +1068,7 @@ PROCEDURE proc-enable :
     IF ll-recur THEN ENABLE cb_freq.
     IF apautocheck-log THEN ENABLE scr-manual-check-no.
   END.
-
+  
   ASSIGN
    ll-first        = YES
    ll-date-warning = NO.
@@ -1106,7 +1104,7 @@ PROCEDURE reopen-query :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   IF AVAIL ap-inv THEN DO:
     /*RUN reopen-browser.*/
     RUN dispatch ('display-fields').
@@ -1154,7 +1152,7 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

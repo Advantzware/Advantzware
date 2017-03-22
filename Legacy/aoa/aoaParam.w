@@ -15,7 +15,7 @@
   Output Parameters: <none>
 
   History: Ron Stark - 3.7.2016
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -450,13 +450,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("schedule/images/scheduler.ico":U) THEN
+    MESSAGE "Unable to load icon: schedule/images/scheduler.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -620,7 +624,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttUserPrint.
 */  /* FRAME paramFrame */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1122,15 +1126,15 @@ PROCEDURE local-create-objects :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN pSetWinSize.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1153,7 +1157,7 @@ PROCEDURE local-enable :
   RUN pPopulateOptions IN h_aoaParam (THIS-PROCEDURE) NO-ERROR.
 
   RUN pGetParamValues (?).
-
+  
   RUN pGetColumns.
 
   RUN pParamValuesOverride IN h_aoaParam NO-ERROR.
@@ -1239,13 +1243,13 @@ PROCEDURE pExcel :
     DEFINE VARIABLE chRangeCol  AS COM-HANDLE NO-UNDO.
     DEFINE VARIABLE idx         AS INTEGER    NO-UNDO.
     DEFINE VARIABLE errorMsg    AS CHARACTER  NO-UNDO.
-
+    
     RUN pSaveParamValues (NO, BUFFER user-print).
 
     IF VALID-HANDLE(hAppSrv) THEN DO WITH FRAME frameColumns:
         hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
         IF NOT VALID-HANDLE(hTable) THEN RETURN.
-
+        
         ASSIGN
             cExcelFile = "aoa\excel\.keep"
             FILE-INFO:FILE-NAME = cExcelFile
@@ -1330,7 +1334,7 @@ PROCEDURE pExcel :
         END. /* show parameters */
         ELSE /* remove spare worksheet */
         chWorkbook:WorkSheets(2):DELETE NO-ERROR.
-
+        
         /* Select a worksheet */
         chWorkbook:Worksheets(1):Activate.
         ASSIGN
@@ -1431,7 +1435,7 @@ PROCEDURE pExcel :
         END.
         ELSE
         iRow = iRow - 1.
-
+        
         ASSIGN
             chWorkSheet:Cells(iStatusRow + 2,2):Value = "Formatting Cells...Done"
             chWorkSheet:Cells(iStatusRow + 4,2):Value = "Building Wooksheet..."
@@ -1446,7 +1450,7 @@ PROCEDURE pExcel :
             chWorkSheet:Cells(iStatusRow + 2,2):Value = ""
             chWorkSheet:Cells(iStatusRow + 4,2):Value = ""
             .
-
+        
         /* scroll returned temp-table records */
         CREATE QUERY hQuery.
         hQuery:SET-BUFFERS(hTable:HANDLE).
@@ -1500,7 +1504,7 @@ PROCEDURE pExcel :
         chExcel:ScreenUpdating = TRUE.
         /* auto save excel file */
         chExcel:ActiveSheet:SaveAs(cExcelFile).
-
+        
         /* Release created objects. */
         RELEASE OBJECT chWorkbook  NO-ERROR.
         RELEASE OBJECT chWorkSheet NO-ERROR.
@@ -1537,9 +1541,9 @@ PROCEDURE pGenerateInclude :
         "    ~{aoa/includes/aoaInputDefParams.i}" SKIP(1)
         "    /* parameter values loaded into these variables */" SKIP
         .
-
+    
     fGenerateInclude(hFrame,"DefVar").
-
+    
     PUT UNFORMATTED
         "    DEFINE VARIABLE lSecure AS LOGICAL NO-UNDO." SKIP
         "    DEFINE VARIABLE cAvailableColumns AS CHARACTER NO-UNDO." SKIP
@@ -1549,7 +1553,7 @@ PROCEDURE pGenerateInclude :
         "    /* load parameter values from above record into variables */" SKIP
         "    ASSIGN" SKIP
         .
-
+    
     fGenerateInclude(hFrame,"DynFunc").
 
     PUT UNFORMATTED
@@ -1589,7 +1593,7 @@ PROCEDURE pGetColumns :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE hTable AS HANDLE  NO-UNDO.
     DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
-
+    
     IF VALID-HANDLE(hAppSrv) THEN DO WITH FRAME frameColumns:
         hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
         IF NOT VALID-HANDLE(hTable) THEN RETURN.
@@ -1683,7 +1687,7 @@ PROCEDURE pGetParamValues :
         END. /* name <> ? */
         hChild = hChild:NEXT-SIBLING.
     END. /* do while */
-
+    
     ASSIGN
         hChild = FRAME frameShow:HANDLE
         hChild = hChild:FIRST-CHILD
@@ -1743,7 +1747,7 @@ PROCEDURE pGetUserPrint :
     END. /* each buserprint */
 
     {&OPEN-QUERY-browseUserPrint}
-
+    
     APPLY "VALUE-CHANGED":U TO BROWSE browseUserPrint.
 
 END PROCEDURE.
@@ -1844,7 +1848,7 @@ PROCEDURE pSaveParamValues :
 ------------------------------------------------------------------------------*/
     /* number of reserved parameter fields needed */
     &SCOPED-DEFINE reserved 13
-
+    
     DEFINE INPUT  PARAMETER iplBatch   AS LOGICAL NO-UNDO.
     DEFINE PARAMETER BUFFER user-print FOR user-print.
 
@@ -1909,7 +1913,7 @@ PROCEDURE pSaveParamValues :
             hChild = hChild:NEXT-SIBLING.
             IF idx EQ EXTENT(user-print.field-name) - {&reserved} THEN LEAVE.
         END. /* do while */
-
+    
         /* reserve 2, 1 for security, another for title */
         IF idx LE EXTENT(user-print.field-name) - {&reserved} THEN
         ASSIGN
@@ -1922,7 +1926,7 @@ PROCEDURE pSaveParamValues :
             user-print.field-label[idx] = "Title"
             user-print.field-value[idx] = aoaTitle
             .
-
+        
         /* reserve 2 for avail columns and selected columns */
         IF aoaColumns THEN DO WITH FRAME frameColumns:
             DO cnt = 1 TO svAvailableColumns:NUM-ITEMS:
@@ -1945,7 +1949,7 @@ PROCEDURE pSaveParamValues :
                 user-print.field-value[idx] = TRIM(cColumns,",")
                 .
         END. /* aoacolumns */
-
+        
         /* reserve 9 for show/hide section parameters */
         ASSIGN
             hChild = FRAME frameShow:HANDLE
@@ -1966,7 +1970,7 @@ PROCEDURE pSaveParamValues :
 
     IF AVAILABLE user-print THEN
     FIND CURRENT user-print NO-LOCK.
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1980,7 +1984,7 @@ PROCEDURE pSchedule :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iBatchSeq AS INTEGER NO-UNDO.
-
+    
     FOR EACH user-print NO-LOCK
         WHERE user-print.company EQ aoaCompany
            BY user-print.batch-seq DESCENDING :
@@ -2041,33 +2045,26 @@ PROCEDURE pSetWinSize :
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iHeight AS INTEGER NO-UNDO.
     DEFINE VARIABLE iWidth  AS INTEGER NO-UNDO.
-    DEFINE VARIABLE hWinKitFrame       AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE oWinKitControl     AS System.Windows.Forms.Control NO-UNDO.    
-    
 
     RUN get-attribute IN h_aoaParam ('adm-object-handle':U).
     hParamFrame = WIDGET-HANDLE(RETURN-VALUE).
 
     IF NOT VALID-HANDLE(hParamFrame) THEN RETURN.
-    
-    hWinKitFrame = IF VALID-OBJECT (oFormControl) THEN oFormControl:GetTabPageFrame (0)
-                   ELSE {&WINDOW-NAME}:HANDLE . 
-   
+
     DO WITH FRAME {&FRAME-NAME}:
         IF aoaType EQ "Report" THEN
-        iWidth = FRAME frameShow:WIDTH-PIXELS    + 5
-               + FRAME frameColumns:WIDTH-PIXELS + 5.
+        iWidth = FRAME frameShow:WIDTH-PIXELS + 5 + FRAME frameColumns:WIDTH-PIXELS + 5.
 
         ASSIGN
-            hWinKitFrame:WIDTH-PIXELS                 = hParamFrame:WIDTH-PIXELS + 5 + iWidth
-            hWinKitFrame:HEIGHT-PIXELS                = hParamFrame:HEIGHT-PIXELS + 5
+            {&WINDOW-NAME}:WIDTH-PIXELS               = hParamFrame:WIDTH-PIXELS + 5 + iWidth
+            {&WINDOW-NAME}:HEIGHT-PIXELS              = hParamFrame:HEIGHT-PIXELS + 5
                                                       + btnView:HEIGHT-PIXELS + 5
-            hWinKitFrame:VIRTUAL-HEIGHT-PIXELS        = hWinKitFrame:HEIGHT-PIXELS
-            hWinKitFrame:VIRTUAL-WIDTH-PIXELS         = hWinKitFrame:WIDTH-PIXELS
-            FRAME {&FRAME-NAME}:WIDTH-PIXELS          = hWinKitFrame:WIDTH-PIXELS
-            FRAME {&FRAME-NAME}:HEIGHT-PIXELS         = hWinKitFrame:HEIGHT-PIXELS
-            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = hWinKitFrame:WIDTH-PIXELS
-            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = hWinKitFrame:HEIGHT-PIXELS
+            {&WINDOW-NAME}:VIRTUAL-HEIGHT-PIXELS      = {&WINDOW-NAME}:HEIGHT-PIXELS
+            {&WINDOW-NAME}:VIRTUAL-WIDTH-PIXELS       = {&WINDOW-NAME}:WIDTH-PIXELS
+            FRAME {&FRAME-NAME}:WIDTH-PIXELS          = {&WINDOW-NAME}:WIDTH-PIXELS
+            FRAME {&FRAME-NAME}:HEIGHT-PIXELS         = {&WINDOW-NAME}:HEIGHT-PIXELS
+            FRAME {&FRAME-NAME}:VIRTUAL-WIDTH-PIXELS  = {&WINDOW-NAME}:WIDTH-PIXELS
+            FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT-PIXELS = {&WINDOW-NAME}:HEIGHT-PIXELS
             btnView:Y                                 = hParamFrame:HEIGHT-PIXELS + 5
             btnCancel:Y                               = hParamFrame:HEIGHT-PIXELS + 5
             btnExcel:Y                                = hParamFrame:HEIGHT-PIXELS + 5
@@ -2218,7 +2215,7 @@ PROCEDURE pURL :
         END. /* field-name ne '' */
     END. /* do idx */
     */
-
+    
     IF aoaType EQ "Report" THEN
     ASSIGN aoaURL = aoaURL + "^&refresh=true^&connection=AdvantzwareOA".
 
@@ -2226,19 +2223,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winReSize W-Win
-PROCEDURE winReSize:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 /* ************************  Function Implementations ***************** */
 
@@ -2463,7 +2447,7 @@ FUNCTION fGetModule RETURNS CHARACTER
         cModule = "XX".
     END. /* repeat */
     INPUT CLOSE.
-
+    
     RETURN cModule.
 
 END FUNCTION.
@@ -2479,7 +2463,7 @@ FUNCTION fSetDescription RETURNS CHARACTER
     Notes:  add additional parameter fields to fSetDescription.p
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
-
+    
     RUN aoa/param/fSetDescription.p (ipObject:HANDLE, aoaCompany, OUTPUT cDescription).
 
     RETURN cDescription.

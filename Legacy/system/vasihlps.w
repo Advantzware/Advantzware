@@ -176,13 +176,12 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -198,7 +197,6 @@ ASSIGN
 ON CHOOSE OF btn-display IN FRAME F-Main /* Display */
 DO:
     message "Under Development!. " view-as alert-box.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -210,7 +208,6 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME F-Main /* Cancel */
 DO:
     apply "window-clow" to frame {&frame-name}.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -224,11 +221,11 @@ DO:
     def var i as int no-undo.
     def var li-return as int no-undo.
     def var ll-dummy as log no-undo.
-
+    
     assign ls-index-fld.
     ls-input = ls-index-fld + keylabel(lastkey).
     li-return = sl-help:lookup(ls-input) .
-
+        
     if li-return > 0 then do:
        ll-dummy = sl-help:scroll-to-item(li-return).
        sl-help:screen-value = sl-help:entry(li-return).   
@@ -250,7 +247,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: addon/touch/w-mchtrn.w
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -161,13 +161,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -210,7 +214,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME message-frame */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -364,15 +368,17 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'addon/touch/b-mchtr2.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_b-mchtr2 ).
-       /* Position in AB:  ( 3.14 , 3.00 ) */
+       RUN set-position IN h_b-mchtr2 ( 3.14 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 7.86 , 115.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updca2.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
              OUTPUT h_p-updca2-2 ).
        RUN set-position IN h_p-updca2-2 ( 11.00 , 40.00 ) NO-ERROR.
        RUN set-size IN h_p-updca2-2 ( 1.43 , 38.00 ) NO-ERROR.
@@ -380,19 +386,24 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
-       /* Links to  h_b-mchtr2. */
+       /* Links to SmartNavBrowser h_b-mchtr2. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-mchtr2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updca2-2 , 'TableIO':U , h_b-mchtr2 ).
        RUN add-link IN adm-broker-hdl ( h_b-mchtr2 , 'Record':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_b-mchtr2 ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updca2-2 ,
+             h_b-mchtr2 , 'AFTER':U ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/machtran.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Layout = ':U ,
              OUTPUT h_machtran ).
-       /* Position in AB:  ( 3.14 , 3.00 ) */
+       RUN set-position IN h_machtran ( 3.14 , 3.00 ) NO-ERROR.
        /* Size in UIB:  ( 7.38 , 115.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -408,7 +419,9 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-tchupd.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  '':U ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
              OUTPUT h_p-tchupd ).
        RUN set-position IN h_p-tchupd ( 10.52 , 59.00 ) NO-ERROR.
        RUN set-size IN h_p-tchupd ( 1.76 , 59.20 ) NO-ERROR.
@@ -416,13 +429,17 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
-       /* Links to  h_machtran. */
+       /* Links to SmartViewer h_machtran. */
        RUN add-link IN adm-broker-hdl ( h_b-mchtr2 , 'Record':U , h_machtran ).
        RUN add-link IN adm-broker-hdl ( h_p-tchupd , 'TableIO':U , h_machtran ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_machtran ,
              h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+             h_machtran , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-tchupd ,
+             h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
 
   END CASE.
@@ -561,9 +578,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -635,13 +652,13 @@ PROCEDURE Select_att :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR adm-current-page AS INT NO-UNDO.
-
+  
   IF NOT AVAIL machtran THEN RETURN.
 
   rec_key_value = machtran.rec_key.
 
   RUN windows/ATTACH.w(rec_key_value,HEADER_value).
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -660,12 +677,12 @@ PROCEDURE select_dept2 :
 
   IF AVAIL machtran AND machtran.job_number <> "" THEN DO:
      /*RUN touch/getnote.p (RECID(machtran)).*/
-
+     
      /*FIND bf-mtran WHERE RECID(bf-mtran) = RECID(machtran) EXCLUSIVE-LOCK.*/
      FIND FIRST job WHERE job.company EQ machtran.company AND
                           job.job-no = machtran.job_number AND
                           job.job-no2 = machtran.job_sub NO-LOCK NO-ERROR.
-
+     
      /*IF AVAIL job THEN bf-mtran.rec_key = job.rec_key.*/
 
      RUN touch/getnote.p (job.rec_key).
@@ -708,9 +725,9 @@ PROCEDURE select_dept2 :
         RUN touch/savenote.p (job.rec_key).
      END.
   END.
-
-
-
+  
+  
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -723,7 +740,7 @@ PROCEDURE select_jobrel :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
      FIND FIRST job WHERE
           job.company EQ company_code AND
           job.job-no = job_number AND
@@ -736,7 +753,7 @@ PROCEDURE select_jobrel :
        RUN touch/getnote.p (rec_key_value).       
        RUN jcrep/r-tickt2.w (job_number, int(job_sub)) NO-ERROR.
      END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -753,13 +770,13 @@ PROCEDURE select_ONote :
 
   IF AVAIL machtran AND machtran.job_number <> "" THEN DO:
      /*RUN touch/getnote.p (RECID(machtran)).*/
-
+     
      /*FIND bf-mtran WHERE RECID(bf-mtran) = RECID(machtran) EXCLUSIVE-LOCK.*/
      FIND FIRST job WHERE job.company EQ machtran.company AND
                           job.job-no = machtran.job_number AND
                           job.job-no2 = machtran.job_sub NO-LOCK NO-ERROR.
-
-
+     
+     
      ASSIGN cJobKey = job.company + string(job.job,"9999999") /*job.rec_key*/ 
             rec_key_value = job.rec_key
             HEADER_value =  string(job.job) /*job.job-no + STRING(job.job-no2)*/.
@@ -767,7 +784,7 @@ PROCEDURE select_ONote :
      RUN touch/getnoteA.p (rec_key_value, HEADER_value).
 
      /*RUN windows/specnote.w (rec_key_value,HEADER_value).  */
-
+    
      RUN windows/opnotes.w (rec_key_value, HEADER_value,machine_code,ForM_number).
 
      RUN touch/savenoteA.p (job.rec_key, HEADER_value).

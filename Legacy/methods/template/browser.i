@@ -18,7 +18,7 @@
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE VARIABLE current-rowid AS ROWID     NO-UNDO.
+DEFINE VARIABLE current-rowid AS ROWID NO-UNDO.
 
 &IF "{&IAMWHAT}" = "" &THEN
 DEFINE VARIABLE save-rowid AS ROWID NO-UNDO.
@@ -38,7 +38,7 @@ DEF VAR ll-order-set AS LOG NO-UNDO.
 IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
    INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
    INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-v-prgmname = USERID("ASI") + "..".
+v-prgmname = USERID("NOSWEAT") + "..".
 ELSE
 ASSIGN
   period_pos = INDEX(PROGRAM-NAME(1),".")
@@ -162,7 +162,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Disable-Navigation Include 
 PROCEDURE Disable-Navigation :
 /*------------------------------------------------------------------------------
@@ -222,7 +221,6 @@ PROCEDURE Find-Record :
       {methods/template/findrecd.i 13}
     END CASE.
   END.
-  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -323,17 +321,14 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
-  &IF DEFINED(dataGrid) NE 0 &THEN
-  RUN pDataGridInit.
-  &ENDIF
     
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     ll-order-set = YES.
     RUN clear_auto_find.
-/*    RUN change-order (browse-order:SCREEN-VALUE).*/
+    RUN change-order (browse-order:SCREEN-VALUE).
   END.
 
   {methods/template/local/brwsinit.i}

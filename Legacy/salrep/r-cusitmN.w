@@ -92,6 +92,11 @@ DEFINE TEMP-TABLE w-data NO-UNDO
   FIELD inv-no    LIKE ar-invl.inv-no COLUMN-LABEL "Invoice!Number"
   FIELD rec-id    AS RECID.
 
+DEFINE TEMP-TABLE ttgroup
+    FIELD group-name AS CHARACTER
+    FIELD qty-ship    AS INTEGER
+    FIELD inv-amt     AS INTEGER .
+
 DEFINE VARIABLE v-print-fmt AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
@@ -490,19 +495,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -513,6 +512,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -722,7 +731,6 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -781,8 +789,8 @@ DO:
        END.
        WHEN 6 THEN RUN OUTPUT-to-port.
 
-  END CASE. 
-     {Advantzware/WinKit/winkit-panel-triggerend.i}
+  END CASE.
+  SESSION:SET-WAIT-STATE (""). 
  END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -795,7 +803,6 @@ ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -822,7 +829,6 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -838,7 +844,6 @@ DO:
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -850,7 +855,6 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -867,7 +871,6 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -879,7 +882,6 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1198,10 +1200,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1269,7 +1269,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1814,6 +1813,7 @@ DEFINE VARIABLE lSelected AS LOG INIT YES NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+EMPTY TEMP-TABLE ttgroup .
 
 FORM cust.cust-no       COLUMN-LABEL "Customer"
      v-name             COLUMN-LABEL "Customer/Item Name"
@@ -2280,6 +2280,20 @@ EMPTY TEMP-TABLE tt-report.
       IF v-disc-p AND v-disc NE 0 THEN
         v-pric = v-pric * (100 - v-disc) / 100.
 
+       FIND FIRST ttgroup NO-LOCK
+           WHERE ttgroup.group-name EQ (IF AVAILABLE cust THEN  STRING(cust.spare-char-2) ELSE "") NO-ERROR.
+
+      IF NOT AVAIL ttgroup THEN DO:
+          CREATE ttgroup .
+          ASSIGN ttgroup.group-name = (IF AVAILABLE cust THEN  STRING(cust.spare-char-2) ELSE "").
+                 ttgroup.qty-ship    =  v-qty[1] .
+                 ttgroup.inv-amt     =  v-amt[1] .
+      END.
+      ELSE DO:
+          ttgroup.qty-ship    = ttgroup.qty-ship  + v-qty[1]  .
+          ttgroup.inv-amt     = ttgroup.inv-amt   + v-amt[1]  .
+      END.
+
        ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -2574,6 +2588,18 @@ EMPTY TEMP-TABLE tt-report.
                        SUBSTRING(cExcelDisplay,4,350) SKIP.
              END.
 
+             PUT SKIP(1) .
+
+           FOR EACH ttgroup NO-LOCK BY ttgroup.group-name :
+            PUT "Customer Group " + STRING(ttgroup.group-name,"x(8)") + " Grand Totals:"  AT 10 FORMAT "x(37)"
+                SPACE(5)
+                " Qty Shipped: " + STRING(ttgroup.qty-ship) FORMAT "x(18)"
+                SPACE(5)
+                "Invoice Amt: " + STRING(ttgroup.inv-amt)  FORMAT "x(18)"
+                .
+           END.
+           PUT SKIP(1) .
+        
   /*IF tb_excel THEN
      RUN print-excel-1(INPUT NO,
                        INPUT v-qty[5], INPUT v-amt[5]).*/

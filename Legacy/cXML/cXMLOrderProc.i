@@ -30,7 +30,6 @@ END PROCEDURE.
 PROCEDURE genOrderHeader:
   DEFINE INPUT  PARAMETER ipiNextOrderNumber AS INTEGER NO-UNDO.
   DEFINE INPUT  PARAMETER ipcOrderDate AS CHARACTER NO-UNDO.
-  DEFINE INPUT  PARAMETER ipcDueDate AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER oprOrdRec AS ROWID NO-UNDO.
     
   CREATE oe-ord.
@@ -41,9 +40,6 @@ PROCEDURE genOrderHeader:
     oe-ord.ord-date = DATE(INT(SUBSTR(ipcOrderDate,6,2))
                           ,INT(SUBSTR(ipcOrderDate,9,2))
                           ,INT(SUBSTR(ipcOrderDate,1,4)))
-    oe-ord.due-date = DATE(INT(SUBSTR(ipcDueDate,6,2))
-                          ,INT(SUBSTR(ipcDueDate,9,2))
-                          ,INT(SUBSTR(ipcDueDate,1,4)))
     oe-ord.ord-no = ipiNextOrderNumber
     oe-ord.user-id = USERID('NoSweat')
     oe-ord.type = 'O'
@@ -316,15 +312,23 @@ PROCEDURE genOrderLines:
   DEFINE VARIABLE itemUnitOfMeasure AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
   DEFINE VARIABLE iNextOrderNumber LIKE oe-ord.ord-no NO-UNDO.
-  DEFINE VARIABLE iNextShipNo LIKE shipto.ship-no   NO-UNDO.
+  DEFINE VARIABLE iNextShipNo LIKE shipto.ship-no NO-UNDO.
   DEFINE VARIABLE dItemQtyEach LIKE oe-ordl.qty NO-UNDO.
-  DEFINE VARIABLE cShipToTaxCode AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE cShipToTaxCode AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cRequestedDeliveryDate AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE dRequestedDeliveryDate AS DATE NO-UNDO.
 
   FIND oe-ord WHERE ROWID(oe-ord) EQ iprOeOrd NO-LOCK NO-ERROR.
 
   FOR EACH ttNodes:
+    ASSIGN
+        dRequestedDeliveryDate = oe-ord.due-date
+        cRequestedDeliveryDate = ""
+        .
     IF ttNodes.parentName EQ 'itemOut' AND ttNodes.nodeName EQ 'lineNumber' THEN
       itemLineNumber = TRIM(ttNodes.nodeValue).
+    ELSE IF ttNodes.parentName EQ 'itemOut' AND ttNodes.nodeName EQ 'requestedDeliveryDate' THEN
+      cRequestedDeliveryDate = TRIM(ttNodes.nodeValue).
     ELSE IF ttNodes.parentName EQ 'itemOut' AND ttNodes.nodeName EQ 'quantity' THEN
       itemQuantity = TRIM(ttNodes.nodeValue).
     ELSE IF ttNodes.parentName EQ 'itemID' AND ttNodes.nodeName EQ 'supplierPartID' THEN
@@ -350,6 +354,11 @@ PROCEDURE genOrderLines:
         NEXT.
       END.
       
+      IF cRequestedDeliveryDate NE "" THEN
+      dRequestedDeliveryDate = DATE(INT(SUBSTR(cRequestedDeliveryDate,6,2))
+                                   ,INT(SUBSTR(cRequestedDeliveryDate,9,2))
+                                   ,INT(SUBSTR(cRequestedDeliveryDate,1,4))).
+      
       CREATE oe-ordl.
       ASSIGN
         oe-ordl.company   = oe-ord.company
@@ -358,7 +367,7 @@ PROCEDURE genOrderLines:
         oe-ordl.cust-no   = oe-ord.cust-no
         oe-ordl.po-no     = oe-ord.po-no
         oe-ordl.req-code  = oe-ord.due-code
-        oe-ordl.req-date  = oe-ord.due-date
+        oe-ordl.req-date  = dRequestedDeliveryDate
         oe-ordl.prom-code = oe-ord.due-code
         oe-ordl.prom-date = oe-ord.due-date
         oe-ordl.disc      = cust.disc
@@ -463,7 +472,6 @@ PROCEDURE gencXMLOrder:
     fromIdentity = getNodeValue('From','Identity')
     orderDate = getNodeValue('OrderRequestHeader','orderDate')
     custNo = getCustNo(fromIdentity)
-    cDueDate = getNodeValue('','')
     .
   FIND FIRST cust NO-LOCK
        WHERE cust.company EQ cocode
@@ -475,7 +483,7 @@ PROCEDURE gencXMLOrder:
   END.
 
   iNextOrderNumber = GetNextOrder#().
-  RUN genOrderHeader (INPUT iNextOrderNumber, INPUT orderDate, INPUT cDueDate, OUTPUT rOrdRec).
+  RUN genOrderHeader (INPUT iNextOrderNumber, INPUT orderDate, OUTPUT rOrdRec).
   RUN assignOrderHeader (INPUT rOrdRec, OUTPUT cShipToID, OUTPUT cReturn).  
   RUN genOrderLines (INPUT rOrdRec, INPUT cShipToID, OUTPUT cReturn).
   RUN touchOrder (INPUT rOrdRec, OUTPUT cReturn).

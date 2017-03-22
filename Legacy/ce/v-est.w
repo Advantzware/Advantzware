@@ -529,7 +529,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 {methods/template/viewer.i}
 
@@ -669,7 +668,7 @@ ASSIGN
 */  /* FRAME fold */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -699,7 +698,7 @@ DO:
         end.
         when "req-date" or when "due-date" then do:
              /*{methods/calendar.i}  run on self's help trigger*/
-
+             
         end.
         when "part-no" then do: 
            run est/l-ebrfqP.w (cocode, locode, lw-focus:screen-value, output lv-eb-tmpid) .
@@ -720,7 +719,7 @@ DO:
            find xef of xeb where xef.company = xeb.company and
                                  xef.est-no = xeb.est-no
                           no-lock no-error.
-
+   
            run copy-from-est.
            /*run copy-from-est2. */
       end.
@@ -876,7 +875,7 @@ ON CHOOSE OF btnCadLookup IN FRAME fold
 DO:
   DEFINE VARIABLE initDir AS CHARACTER NO-UNDO.
   DEFINE VARIABLE okClicked AS LOGICAL NO-UNDO.
-
+ 
   FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
                                 AND sys-ctrl.name EQ 'CADFILE' NO-ERROR.
   IF NOT AVAILABLE sys-ctrl THEN DO:
@@ -890,7 +889,7 @@ DO:
   ASSIGN
     initDir = sys-ctrl.char-fld
     cadfile = ''.
-
+  
   SYSTEM-DIALOG GET-FILE cadfile 
                 TITLE 'Select Image File to insert'
                 FILTERS 'JPG Files    (*.jpg)' '*.jpg',
@@ -902,7 +901,6 @@ DO:
                 MUST-EXIST USE-FILENAME UPDATE okClicked.
   IF okClicked THEN
       ASSIGN eb.cad-no:SCREEN-VALUE = imageName(cadfile).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -931,7 +929,7 @@ DO:
     initDir = sys-ctrl.char-fld
     dieFile = ''
     v-intval = sys-ctrl.int-fld  .
-
+  
   IF v-intval = 0 THEN
      SYSTEM-DIALOG GET-FILE dieFile 
                 TITLE 'Select Image File to insert'
@@ -969,7 +967,6 @@ DO:
   IF okClicked THEN
      ASSIGN eb.die-no:SCREEN-VALUE = IF eb.die-no:SCREEN-VALUE = "" THEN imageName(dieFile) ELSE eb.die-no:SCREEN-VALUE
             ef.cad-image:SCREEN-VALUE = diefile /*imageName(dieFile)*/.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -983,10 +980,9 @@ DO:
   IF AVAIL eb THEN
    FIND FIRST ITEM WHERE ITEM.company  = cocode
        AND ITEM.i-no = ef.board NO-LOCK NO-ERROR.
-
+  
    IF AVAIL ITEM THEN
    RUN windows/item-fe.w(RECID(ITEM)) .
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1000,10 +996,9 @@ DO:
   IF AVAIL eb THEN
    FIND FIRST cust WHERE cust.company  = cocode
        AND cust.cust-no = eb.cust-no NO-LOCK NO-ERROR.
-
+  
    IF AVAIL cust THEN
    RUN windows/v-cust.w(RECID(cust)) .
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1017,10 +1012,9 @@ DO:
   IF AVAIL eb THEN
    FIND FIRST itemfg WHERE itemfg.company  = cocode
        AND itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.
-
+  
    IF AVAIL itemfg THEN
    RUN oe/w-estfg.w(RECID(eb)) .
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1035,10 +1029,9 @@ DO:
   IF AVAIL eb THEN
    FIND FIRST bf-est WHERE bf-est.company  = cocode
        AND bf-est.est-no = FILL(" ",8 - LENGTH(TRIM(INPUT fi_from-est-no))) + TRIM(INPUT fi_from-est-no) NO-LOCK NO-ERROR.
-
+  
    IF AVAIL bf-est THEN
    RUN est/w-estesf.w(RECID(bf-est)) .
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1052,10 +1045,9 @@ DO:
   IF AVAIL eb THEN
    FIND FIRST style WHERE style.company  = cocode
        AND style.style = eb.style NO-LOCK NO-ERROR.
-
+  
    IF AVAIL style THEN
    RUN windows/stylef-e.w(RECID(style)) .
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1254,10 +1246,10 @@ DO:
           and shipto.cust-no eq eb.cust-no:screen-value
           and shipto.ship-id eq {&self-name}:screen-value
         no-lock no-error.
-
+            
     if not avail shipto then do:
       {&self-name}:screen-value = "TEMP".
-
+      
       if eb.ship-name:screen-value    eq "" and
          eb.ship-addr[1]:screen-value eq "" and
          eb.ship-addr[2]:screen-value eq "" and
@@ -1478,7 +1470,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1549,7 +1541,7 @@ PROCEDURE calc-blank-size :
 ------------------------------------------------------------------------------*/
 /*  from rfq not right for corrugate
    /* calc blank W,L SqIn */
-
+   
          find first reftable
           where reftable.reftable eq "STYFLU"
             and reftable.company  eq eb.style
@@ -1573,7 +1565,7 @@ PROCEDURE calc-blank-size :
    if lv-is-corr then string((formule.formule[7] * formule.formule[8]) * 0.007) 
                  else string(formule.formule[7] * formule.formule[8]).
 */   
-
+ 
 ======== old */
 
  /* calc blank W,L SqIn */
@@ -1585,7 +1577,7 @@ PROCEDURE calc-blank-size :
    def var K_FRAC as dec init 6.25 no-undo.
    def var v-score-char like v-lscore-c extent 12.
    def buffer xest for est.
-
+   
    find first sys-ctrl  where sys-ctrl.company eq cocode
                            and sys-ctrl.name    eq "PANELS"
         no-lock no-error.
@@ -1600,14 +1592,14 @@ PROCEDURE calc-blank-size :
           UPDATE sys-ctrl.log-fld.
    end.
    lv-panels = sys-ctrl.log-fld.
-
+    
    find xest where /*recid(xest) = recid(est) no-lock. */
                    xest.company = eb.company and
                    xest.est-no = eb.est-no
                    no-lock no-error.
    find xef where recid(xef) = recid(ef) no-lock.
    find xeb where recid(xeb) = recid(eb) no-lock.
-
+   
    find FIRST style where style.company = eb.company and
                     style.style = eb.style
                     no-lock no-error.
@@ -1718,11 +1710,11 @@ DO:
 END.
 
 {fg/set-inks1.i itemfg xeb}
-
+ 
 {sys/inc/fgcascnt.i itemfg xeb}
 
 {sys/inc/updfgdim.i "xeb"}
-
+   
 
 END PROCEDURE.
 
@@ -1738,13 +1730,13 @@ PROCEDURE cust-spec :
 ------------------------------------------------------------------------------*/
   def var rec_key_value as cha no-undo.
   def var header_value as cha no-undo.
-
+  
   RUN Get_Procedure IN Persistent-Handle ('specnot2.',OUTPUT run-proc,no).
   find itemfg where itemfg.company = eb.company and
                     itemfg.i-no = eb.stock-no:screen-value in frame {&frame-name}
                     no-lock no-error.
   rec_key_value = if avail itemfg then itemfg.rec_key else "".
-
+  
   IF rec_key_value <> "" and run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)}        
   else do:
     message "No FG Item Spec note." rec_key_value view-as alert-box.
@@ -1827,8 +1819,8 @@ PROCEDURE local-assign-record :
   DEF BUFFER b-est FOR est.
   DEF BUFFER b-eb FOR eb.
   DEF BUFFER bf-eb FOR eb.
-
-
+  
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   assign
    lv-hld-cust   = eb.cust-no
@@ -1842,7 +1834,7 @@ PROCEDURE local-assign-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-
+  
   /* Code placed here will execute AFTER standard behavior.    */
   FIND CURRENT ef.
 
@@ -1900,7 +1892,7 @@ PROCEDURE local-assign-record :
   IF ll-one-eb-on-ef AND ll-blank-size-changed THEN DO:
     MESSAGE "Do you wish to reset layout screen?"
             VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOG.
-
+    
     ef.lsh-lock = NO.    
     IF ll-ans2 THEN RUN update-sheet.    
   END.
@@ -2043,7 +2035,7 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   DISABLE btnDieLookup btncadLookup WITH FRAME {&FRAME-NAME}.
   dieFile = ''.
 
@@ -2207,7 +2199,7 @@ PROCEDURE local-display-fields :
         {sys/look/itemb1W.i}
           AND item.i-no EQ ef.board:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-
+    
     ef.brd-dscr:SCREEN-VALUE = IF AVAIL item THEN item.i-name ELSE "". 
 
     FIND FIRST sman
@@ -2241,7 +2233,7 @@ PROCEDURE local-display-fields :
          btn_fgitem:HIDDEN  = FALSE .
 
     btn_from:LABEL = TRIM(fi_from-est-no:LABEL) + ": " /*+ TRIM(eb.stock)*/ .
-
+    
     btn_style:LABEL = TRIM(eb.style:LABEL) + ": " /*+ TRIM(eb.style) */ .
     IF eb.style = "" THEN
             btn_style:HIDDEN  = TRUE .
@@ -2280,14 +2272,14 @@ PROCEDURE local-display-fields :
 
        RELEASE reftable.
     END.
-
+    
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"copy-source",OUTPUT char-hdl).
 
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN enable-copy IN WIDGET-HANDLE(char-hdl) (lv-one-eb).
-
+    
   END.
-
+                                  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2401,10 +2393,10 @@ PROCEDURE local-update-record :
 
   RUN valid-board NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  
   RUN valid-sman NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+      
   RUN valid-procat NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -2468,11 +2460,11 @@ PROCEDURE local-update-record :
                AND oe-prmtx.i-no               BEGINS itemfg.i-no
                AND SUBSTR(oe-prmtx.i-no,1,100) EQ itemfg.i-no
                EXCLUSIVE-LOCK:
-
+               
                ASSIGN
                    SUBSTR(oe-prmtx.i-no,1,100) = STRING(itemfg.i-no,"X(100)")
                    oe-prmtx.procat             = itemfg.procat.
-
+               
            END. /* Each oe-prmtx */
        END.
   END.
@@ -2535,7 +2527,7 @@ PROCEDURE new-sman :
   DEF VAR lv-sman LIKE sman.sman NO-UNDO.
   DEF VAR ld-markup AS DEC NO-UNDO.
 
-
+  
   DO WITH FRAME {&FRAME-NAME}.
     sman_sname:SCREEN-VALUE = "".
 
@@ -2543,14 +2535,14 @@ PROCEDURE new-sman :
         WHERE sman.company EQ cocode
           AND sman.sman    EQ eb.sman:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-
+    
     IF AVAIL sman THEN DO:
       ASSIGN
        sman_sname:SCREEN-VALUE = sman.sname
        lv-sman = sman.sman.
 
       RUN ce/markup.p (eb.company, ROWID(eb), OUTPUT ld-markup).
-
+      
       RUN sys/inc/getsmncm.p (eb.cust-no:SCREEN-VALUE,
                               INPUT-OUTPUT lv-sman,
                               eb.procat:SCREEN-VALUE,
@@ -2725,7 +2717,7 @@ PROCEDURE proc-enable :
                       AND reftable.loc      EQ ""
                       AND reftable.code     EQ STRING(job-hdr.job,"999999999")
                       AND reftable.code2    EQ eb.stock-no).
-
+      
       IF ll THEN LEAVE.
     END.
 
@@ -2907,7 +2899,7 @@ PROCEDURE update-sheet :
   IF NOT lv-foam THEN DO:
     {ce/ceroute1.i w id l en}
   END.
-
+     
   RUN ce/calc-dim.p.
 
   find xef where recid(xef) = recid(ef) no-lock.
@@ -2989,7 +2981,7 @@ PROCEDURE valid-fi_from-est-no :
   DEF BUFFER b-est FOR est.
   DEF BUFFER b-eb FOR eb.
 
-
+                            
   DO WITH FRAME {&FRAME-NAME}:
     fi_from-est-no:SCREEN-VALUE =
         STRING(INT(fi_from-est-no:SCREEN-VALUE),">>>>>>>>") NO-ERROR.

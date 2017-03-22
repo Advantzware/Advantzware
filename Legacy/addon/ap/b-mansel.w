@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -236,8 +232,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -293,7 +287,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -448,7 +442,7 @@ PROCEDURE auto-add :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   RUN get-link-handle IN adm-broker-hdl
                        (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
   phandle = WIDGET-HANDLE(char-hdl).
@@ -466,7 +460,7 @@ PROCEDURE auto-add-tt :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+   
    IF CAN-FIND(FIRST w-ap-sel) THEN RUN auto-add.
 
 END PROCEDURE.
@@ -481,7 +475,7 @@ PROCEDURE auto-save :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+   
   RUN get-link-handle IN adm-broker-hdl
                        (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
   phandle = WIDGET-HANDLE(char-hdl).
@@ -530,7 +524,7 @@ PROCEDURE delete-tt :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   IF AVAIL ap-sel THEN DO:
     FIND FIRST w-ap-sel WHERE w-ap-sel.ap-chk-rowid EQ ROWID(ap-chk) NO-ERROR.
     IF AVAIL w-ap-sel THEN DELETE w-ap-sel.
@@ -596,8 +590,8 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
   DEF VAR ld-pre-paid AS DEC NO-UNDO.
   DEF VAR ld-pre-disc AS DEC NO-UNDO.
-
-
+  
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN ld-pre-paid = ap-sel.amt-paid
          ld-pre-disc = ap-sel.disc-amt.

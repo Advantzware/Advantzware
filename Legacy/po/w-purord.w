@@ -18,7 +18,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -161,13 +161,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -225,7 +229,7 @@ THEN W-Win:HIDDEN = YES.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -666,9 +670,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -688,7 +692,7 @@ PROCEDURE local-row-available :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN setUserPrint.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -702,7 +706,7 @@ PROCEDURE select_add :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR char-hdl AS cha NO-UNDO.
-
+  
   RUN select-page(2).
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-po-target", OUTPUT char-hdl).
   RUN add-po IN WIDGET-HANDLE(char-hdl).
@@ -719,7 +723,7 @@ PROCEDURE select_addbest :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR char-hdl AS cha NO-UNDO.
-
+  
    RUN select-page(1).
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-po-best-target", OUTPUT char-hdl).
    RUN add-po-best IN WIDGET-HANDLE(char-hdl).

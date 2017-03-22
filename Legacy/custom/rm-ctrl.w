@@ -57,11 +57,11 @@ CREATE WIDGET-POOL.
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME rm-ctrl
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-16 Btn_Update Btn_Close 
+&Scoped-Define ENABLED-OBJECTS Btn_Update Btn_Close RECT-15 RECT-16 
 &Scoped-Define DISPLAYED-FIELDS rm-ctrl.avg-lst-cst rm-ctrl.using-jc ~
 rm-ctrl.master-audit rm-ctrl.mat rm-ctrl.inv-asset-acctno ~
 rm-ctrl.post-transfers rm-ctrl.post-rcpts-w-i-p 
@@ -101,11 +101,11 @@ DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1"
      BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
 
 DEFINE RECTANGLE RECT-15
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 33 BY 1.67.
 
 DEFINE RECTANGLE RECT-16
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
      SIZE 74 BY 7.62.
 
 
@@ -149,10 +149,10 @@ DEFINE FRAME rm-ctrl
      Btn_Close AT ROW 9.1 COL 51 HELP
           "Cancel Update or Close Window"
      F1 AT ROW 5.52 COL 57 NO-LABEL
-     "Use:" VIEW-AS TEXT
-          SIZE 5 BY 1 AT ROW 1.24 COL 28
      RECT-15 AT ROW 8.86 COL 34
      RECT-16 AT ROW 1 COL 1
+     "Use:" VIEW-AS TEXT
+          SIZE 5 BY 1 AT ROW 1.24 COL 28
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -192,17 +192,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -212,17 +209,19 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME rm-ctrl
-   FRAME-NAME                                                           */
-/* SETTINGS FOR RADIO-SET rm-ctrl.avg-lst-cst IN FRAME rm-ctrl
-   NO-ENABLE 1                                                          */
-ASSIGN 
+                                                                        */
+ASSIGN
        Btn_Close:PRIVATE-DATA IN FRAME rm-ctrl     = 
                 "ribbon-button".
 
-ASSIGN 
+
+ASSIGN
        Btn_Update:PRIVATE-DATA IN FRAME rm-ctrl     = 
                 "ribbon-button".
 
+
+/* SETTINGS FOR RADIO-SET rm-ctrl.avg-lst-cst IN FRAME rm-ctrl
+   NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN F1 IN FRAME rm-ctrl
    NO-DISPLAY NO-ENABLE ALIGN-L 6                                       */
 ASSIGN 
@@ -238,8 +237,6 @@ ASSIGN
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX rm-ctrl.post-transfers IN FRAME rm-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR RECTANGLE RECT-15 IN FRAME rm-ctrl
-   NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX rm-ctrl.using-jc IN FRAME rm-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -248,7 +245,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -294,7 +291,6 @@ DO:
       Btn_Update:LABEL = "&Update".
     RUN enable_UI.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -323,7 +319,6 @@ DO:
     ASSIGN {&LIST-1}.
     FIND CURRENT rm-ctrl NO-LOCK.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -364,10 +359,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -390,7 +383,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN enable_UI.
   {methods/nowait.i}
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -436,7 +428,7 @@ PROCEDURE enable_UI :
           rm-ctrl.inv-asset-acctno rm-ctrl.post-transfers 
           rm-ctrl.post-rcpts-w-i-p 
       WITH FRAME rm-ctrl IN WINDOW C-Win.
-  ENABLE RECT-16 Btn_Update Btn_Close 
+  ENABLE Btn_Update Btn_Close RECT-15 RECT-16 
       WITH FRAME rm-ctrl IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-rm-ctrl}
   VIEW C-Win.

@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -283,7 +279,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -315,7 +311,7 @@ DO:
    DEF VAR v_chrfld1  AS CHAR NO-UNDO INIT 'c:\'.
 
    DO WITH FRAME {&FRAME-NAME}:
-
+      
      {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT opName,OUTPUT opModule)"}                
 
       IF opName EQ "CINVOICE" THEN
@@ -326,7 +322,7 @@ DO:
 
          RETURN NO-APPLY.
       END.
-
+      
       /* gdm - 11050804 */
       ELSE IF opName EQ 'CASLABEL' THEN DO:          
 
@@ -351,11 +347,11 @@ DO:
                                           INPUT i-chrfld,
                                           OUTPUT v_chrfld1).
           END.
-
+            
 
           IF TRIM(v_chrfld1) NE "" 
             THEN ASSIGN sys-ctrl-shipto.char-fld:SCREEN-VALUE = v_chrfld1.
-
+            
       END. /* gdm - 11050804 end */
 
       /* gdm - 12170903 */
@@ -377,10 +373,10 @@ DO:
           RUN sys\ref\char-fld-help.w(INPUT gcompany,
                                       INPUT i-chrfld,
                                       OUTPUT v_chrfld1).
-
+          
           IF TRIM(v_chrfld1) NE "" THEN
              ASSIGN sys-ctrl-shipto.char-fld:SCREEN-VALUE = v_chrfld1.
-
+            
       END. /* gdm - 12170903 end */
 
       ELSE IF
@@ -538,7 +534,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -630,12 +626,12 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
     {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT opName,OUTPUT opModule)"} 
-
+        
     IF opName EQ "CustomerList" THEN
         ASSIGN sys-ctrl-shipto.log-fld:LABEL IN FRAME {&FRAME-NAME} = "Limit Customers?" .
     ELSE
         ASSIGN sys-ctrl-shipto.log-fld:LABEL IN FRAME {&FRAME-NAME}  = "Logical Value" . 
-
+        
     IF opName  EQ "CASLABEL" OR opName  EQ "BarDir" OR opName  EQ "RMTags" THEN
          ASSIGN sys-ctrl-shipto.char-fld:LABEL IN FRAME {&FRAME-NAME} = "Label Location" .
     ELSE IF opName  EQ "PushPin" THEN
@@ -679,13 +675,13 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT opName,OUTPUT opModule)"}  
-
+  
   IF opName = "Reports" AND sys-ctrl-shipto.log-fld  THEN do:
 
     MESSAGE " Would you like to set all reports to yes? "  
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO 
         UPDATE check-all-update . 
-
+    
     IF check-all-update  THEN do:
         FOR EACH bf-sys-ctrl-shipto WHERE bf-sys-ctrl-shipto.company = cocode AND 
              bf-sys-ctrl-shipto.NAME = "Reports" EXCLUSIVE-LOCK:
@@ -756,9 +752,9 @@ PROCEDURE valid-char-fld :
   DEF VAR lValid AS LOG NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
   DEF VAR j AS INT NO-UNDO. 
-
+  
   {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT opName,OUTPUT opModule)"}
-
+  
 
 
 
@@ -766,21 +762,21 @@ PROCEDURE valid-char-fld :
  /* Task 11011321 */
     IF sys-ctrl-shipto.char-fld:SCREEN-VALUE NE "" AND
         CAN-DO(cValidateList,opName) THEN DO: 
-
+    
         /*  {sys/ref/valid-char-fld.i} */
-
+ 
       lValid = TRUE.     
-
+        
       /* Process NK1 options where user can select more than one */
       /* option - validate each option individually              */
       IF LOOKUP(opName, gvcMultiSelect) GT 0 
         AND INDEX(sys-ctrl-shipto.char-fld:SCREEN-VALUE, ",") GT 0 THEN DO:
-
+  
           DO i = 1 TO NUM-ENTRIES(sys-ctrl-shipto.char-fld:SCREEN-VALUE):
-
+           
             cSingleValue = ENTRY(i, sys-ctrl-shipto.char-fld:SCREEN-VALUE).
-
-
+          
+        
             RUN sys/ref/validSysCtrlChar.p 
               (INPUT g_company,
                INPUT g_loc,
@@ -792,8 +788,8 @@ PROCEDURE valid-char-fld :
                INPUT str-init[LOOKUP(opName, name-fld-list)],
                OUTPUT cEntryTo,
                OUTPUT lValid).
-
-
+             
+        
             IF NOT lValid THEN DO:   
               CASE cEntryTo:
                 WHEN "Char" THEN
@@ -803,13 +799,13 @@ PROCEDURE valid-char-fld :
               END CASE.
               LEAVE.
             END. /* if not lvalid */
-
+           
           END. /* do i = ... */
-
-
+  
+  
       END. /* if multiple values to validate */
       ELSE DO:
-
+        
           RUN sys/ref/validSysCtrlChar.p 
             (INPUT g_company,
              INPUT g_loc,
@@ -829,9 +825,9 @@ PROCEDURE valid-char-fld :
                 APPLY 'ENTRY':U TO {&tableName}.log-fld.
             END CASE.
           END. /* Not lvalid */
-
+  
       END. /* Single value to validate */
-
+  
       IF NOT lValid THEN
         RETURN ERROR.
     END.  /* End if non-blank value */   /* Task 11011321 */
@@ -851,7 +847,7 @@ PROCEDURE valid-char-fld :
      END. /* else do */
   END. /* do with frame */
 
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -865,7 +861,7 @@ PROCEDURE valid-cust :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT opName,OUTPUT opModule)"}
-
+  
   DO WITH FRAME {&FRAME-NAME}:
 
      IF sys-ctrl-shipto.cust-vend-no:SCREEN-VALUE NE "" THEN

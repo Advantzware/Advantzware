@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -278,7 +274,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -289,7 +285,7 @@ ASSIGN
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -365,7 +361,7 @@ PROCEDURE local-display-fields :
         AND itemfg-loc.i-no EQ itemfg.i-no
         AND itemfg-loc.loc EQ lc-pass-loc
         NO-LOCK NO-ERROR.
-
+   
     IF AVAIL itemfg-loc THEN DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
         itemfg.q-ono:SCREEN-VALUE = STRING(itemfg-loc.q-ono)
@@ -376,12 +372,12 @@ PROCEDURE local-display-fields :
         itemfg.ord-level:SCREEN-VALUE = STRING(itemfg-loc.ord-level)
         itemfg.ord-max:SCREEN-VALUE = STRING(itemfg-loc.ord-max)
         itemfg.ord-min:SCREEN-VALUE = STRING(itemfg-loc.ord-min).
-
-
+ 
+ 
     END.
   END.
   ELSE DO:
-
+     
       IF AVAIL itemfg THEN DO WITH FRAME {&FRAME-NAME}:
         ASSIGN        
           itemfg.q-alloc:SCREEN-VALUE = STRING(get-alloc()).
@@ -523,7 +519,7 @@ FUNCTION get-alloc RETURNS INTEGER
     FIND FIRST fg-set WHERE fg-set.company = itemfg.company
                         AND fg-set.set-no = itemfg.i-no
                       NO-LOCK NO-ERROR.
-
+  
   IF lc-pass-loc = ""  THEN
       lc-pass-loc = "ALL".
   /* If this is not set-related, then just return */
@@ -550,7 +546,7 @@ FUNCTION get-alloc RETURNS INTEGER
                 AND b2-itemfg.i-no    EQ fg-set.set-no
                 /* AND b2-itemfg.isaset  EQ YES */
               NO-LOCK NO-ERROR.
-
+    
           IF AVAIL b2-itemfg THEN DO:
             FOR EACH oe-ordl WHERE oe-ordl.company = fg-set.company 
                                AND oe-ordl.i-no = b2-itemfg.i-no
@@ -571,9 +567,9 @@ FUNCTION get-alloc RETURNS INTEGER
             /* AND b2-itemfg.isaset EQ YES */
             AND b2-itemfg-loc.loc  EQ lc-pass-loc 
           NO-LOCK NO-ERROR.
-
+          
           IF AVAIL b2-itemfg-loc THEN DO:
-
+          
 
             /* check of oe-rel seems to be here to confirm rel qty is real */
             FOR EACH oe-ordl WHERE oe-ordl.company = fg-set.company 
@@ -590,7 +586,7 @@ FUNCTION get-alloc RETURNS INTEGER
           END.
 
     END.
-
+      
   END.
 
   RETURN lv-q-all.   /* Function return value. */

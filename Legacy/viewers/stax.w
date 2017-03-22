@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -414,7 +410,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -775,7 +771,7 @@ ASSIGN
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF         
-
+  
 /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -863,7 +859,7 @@ PROCEDURE local-assign-record :
  /* if adm-new-record then 
      stax.tax-group = string(gcompany,"x(10)") + trim(ls-tax-group).
  */ 
-
+ 
    find first stax-group where stax-group.company = stax.company and
                                stax-group.tax-group = stax.tax-group
                                no-lock no-error.
@@ -872,7 +868,7 @@ PROCEDURE local-assign-record :
       assign stax-group.company = stax.company
              stax-group.tax-group = stax.tax-group
              stax-group.tax-dscr = stax.tax-group.
-
+             
    end.
 END PROCEDURE.
 
@@ -893,7 +889,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/stax.i}  /* assign stax.company = gcompany */
-
+  
 
 END PROCEDURE.
 
@@ -1048,7 +1044,7 @@ PROCEDURE valid-tax-group :
 
   DO WITH FRAME {&FRAME-NAME}:
     stax.tax-group:SCREEN-VALUE = CAPS(stax.tax-group:SCREEN-VALUE).
-
+    
     FOR EACH b-stax NO-LOCK
        WHERE b-stax.company EQ cocode
          AND b-stax.tax-group EQ stax.tax-group:SCREEN-VALUE:

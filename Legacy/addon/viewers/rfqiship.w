@@ -4,10 +4,6 @@
           rfq              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -280,7 +276,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -313,7 +309,7 @@ DO:
                        carr-dscr:screen-value in frame {&frame-name} = entry(2,char-val)
                        .
              return no-apply.              
-
+             
         end.
         when "cas-no" then do:
            find style where style.company = rfqitem.company and
@@ -370,7 +366,7 @@ DO:
                                  carrier.carrier = rfqitem.carrier:screen-value in frame {&frame-name}
                                  no-lock no-error.
                carr-dscr:screen-value in frame {&frame-name} = if avail carrier then carrier.dscr else "".
-
+                                 
            end.
            return no-apply.   
      end.
@@ -386,7 +382,7 @@ ON return OF FRAME F-Main
 anywhere
 DO:
   /*  use     session:data-entry-return = true.  /* return key will be like tab key */
-
+  
    def var lv-wh as handle no-undo.
 
     lv-wh = focus:next-tab-item.
@@ -396,7 +392,7 @@ DO:
     apply "entry" to lv-wh.
     return no-apply.
     */
-
+    
     return .
 END.
 
@@ -467,7 +463,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -543,13 +539,13 @@ PROCEDURE local-display-fields :
                     shipto.ship-id = rfqitem.ship-id
                     no-lock no-error.
   ship-name:screen-value in frame {&frame-name} = if avail shipto then shipto.ship-name else "".
-
+                                      
   find carrier where carrier.company = rfqitem.company and 
                      carrier.loc     = rfqitem.loc and
                      carrier.carrier = rfqitem.carrier
                                  no-lock no-error.
   carr-dscr:screen-value in frame {&frame-name} = if avail carrier then carrier.dscr else "".
-
+                 
 
 
 END PROCEDURE.

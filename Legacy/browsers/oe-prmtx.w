@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -255,8 +251,6 @@ END.
 {methods/template/browser.i}
 {custom/yellowColumns.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -339,7 +333,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -475,7 +469,7 @@ DEFINE VAR catto   AS CHAR NO-UNDO.
         ItemFrom     = oe-prmtx.i-no   
         typeFrom     = oe-prmtx.custype
         catfrom      = oe-prmtx.procat .
-
+    
     GET LAST Browser-Table .
     IF AVAIL oe-prmtx THEN
       ASSIGN

@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*********************************************************************
 * Copyright (C) 2000 by Progress Software Corporation ("PSC"),       *
@@ -334,7 +330,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -353,10 +349,10 @@ DO:
       WHEN "m-code" THEN
       DO:
          run windows/l-mach.w (g_company,g_loc, lw-focus:screen-value, output char-val).
-
+          
          IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN DO: 
             lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
-
+            
          END.
       END.
       WHEN "style" THEN
@@ -411,7 +407,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -427,7 +423,7 @@ PROCEDURE add-item :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+   
    RUN dispatch ('add-record').
 
 END PROCEDURE.
@@ -540,7 +536,7 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN mach-attach.company = cocode
          mach-attach-pat.company = cocode.
-
+  
 
 END PROCEDURE.
 
@@ -669,7 +665,7 @@ PROCEDURE valid-m-code :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST mach
                     WHERE mach.company EQ cocode

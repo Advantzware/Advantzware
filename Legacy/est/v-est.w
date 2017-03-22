@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -480,7 +476,7 @@ ASSIGN
 */  /* FRAME Fold */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -502,12 +498,12 @@ DO:
         end.
         when "req-date" or when "due-date" then do:
              /*{methods/calendar.i}  run on self's help trigger*/
-
+             
         end.
         otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-
+             
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
               if lv-handle:name = "cust-no" then do:
@@ -531,7 +527,7 @@ DO:
                                else ""
               */
                      .                
-
+   
                  find sman where sman.company = gcompany and
                               sman.sman = eb.sman:screen-value
                               no-lock no-error.
@@ -540,7 +536,7 @@ DO:
                      .
               end.  /* cust-no */
            end.   /* g_lookup-var <> "" */
-
+           
         end.   
    end case.
 
@@ -563,7 +559,7 @@ assign cocode = gcompany
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -634,18 +630,18 @@ PROCEDURE calc-blank-size :
   Notes:       
 ------------------------------------------------------------------------------*/
  /* calc blank W,L SqIn */
-
+   
    find xest where recid(xest) = recid(est) no-lock.
    find xef where recid(xef) = recid(ef) no-lock.
    find xeb where recid(xeb) = recid(eb) no-lock.
-
+   
    find style where style.company = eb.company and
                     style.style = eb.style
                     no-lock no-error.
    if avail style then do:
       run est/u2kinc1.p .
       run est/u2kinc2.p .
-
+      
       find bf-eb of eb exclusive-lock.    
       assign bf-eb.t-wid = (formule[1])
           bf-eb.t-len = (formule[2])
@@ -667,7 +663,7 @@ PROCEDURE create-childrecord :
 ------------------------------------------------------------------------------*/
   def var i as int no-undo.
   def buffer bb for eb.
-
+  
   create ef.
   assign
    ef.est-type  = 1
@@ -823,7 +819,7 @@ PROCEDURE local-create-record :
   def var cocode as cha no-undo.
   def buffer bf-est for est.
   def buffer bb for eb.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -839,7 +835,7 @@ PROCEDURE local-create-record :
                            no-lock.
   li-new-estnum = ce-ctrl.e-num + 1.
   ll-new-record = yes.
-
+    
   assign est.est-type = 1
          est.company = gcompany
          est.loc = gloc
@@ -850,7 +846,7 @@ PROCEDURE local-create-record :
          est.mod-date = ?
          .
    display est.est-no est.est-date with frame {&frame-name}.
-
+            
    assign cocode = gcompany
          .      
 
@@ -884,7 +880,7 @@ PROCEDURE local-update-record :
             eb.t-sqin = eb.t-len * eb.t-wid .
      ll-auto-calc-selected = no.
   end.
-
+  
   run dispatch ('display-fields').  /* refresh 2nd & all children pages */
 
 END PROCEDURE.

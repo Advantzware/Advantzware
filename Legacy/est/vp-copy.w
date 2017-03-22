@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File: est\vp-copy.w
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -131,7 +131,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -164,7 +163,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -178,7 +177,6 @@ DO:
    RUN get-link-handle IN adm-broker-hdl 
        (THIS-PROCEDURE, 'copy-Target':U, OUTPUT source-str).
    run copy-blank in widget-handle(source-str).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -195,7 +193,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -264,19 +262,19 @@ PROCEDURE enable-copy :
   DEFINE VARIABLE access-close AS LOGICAL NO-UNDO.
 
   DEF VAR v-can-update AS LOG NO-UNDO.
-
+  
   v-prgmname = "p-rfqsiz.".
-
+  
   FIND b-prgrms WHERE b-prgrms.prgmname = v-prgmname NO-LOCK NO-ERROR.
   IF AVAILABLE b-prgrms THEN
   DO:
      DO num-groups = 1 TO NUM-ENTRIES(g_groups):
         IF NOT CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) THEN
            NEXT.
-
+    
         IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) THEN
            v-can-update = YES.
-
+        
         group-ok = yes.
      END.
      IF NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
@@ -293,7 +291,7 @@ PROCEDURE enable-copy :
      ENABLE btn-copy  WITH FRAME {&FRAME-NAME}.
   ELSE
      DISABLE btn-copy WITH FRAME {&FRAME-NAME}.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

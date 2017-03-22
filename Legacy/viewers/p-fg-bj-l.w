@@ -153,7 +153,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -186,7 +185,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -197,15 +196,14 @@ ASSIGN
 ON CHOOSE OF btn-update IN FRAME F-Main /* Update Cost/Unit/Count */
 DO:
   def var char-hdl as cha no-undo.
-
-
+      
+  
   IF NOT ll-secure THEN do:  
      RUN sys/ref/d-passwd.w (1, OUTPUT ll-secure). 
      IF NOT ll-secure THEN RETURN NO-APPLY.
   END.  
   run get-link-handle in adm-broker-hdl (this-procedure, "cost-source", output char-hdl).  
   run update-cost in widget-handle(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -240,7 +238,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

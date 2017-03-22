@@ -15,7 +15,7 @@
       <none>
 
   History: New V9 Version - January 15, 1998
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -197,7 +197,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -238,7 +237,7 @@ THEN wWin:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -319,7 +318,7 @@ DO:
           "selection parameters?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
 
-
+  
 
   IF v-process THEN RUN run-process.
 END.
@@ -369,7 +368,7 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm2/windowmn.i}
 
-
+    
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
@@ -384,7 +383,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   /* check security */
-
+ 
 /*   IF access-close THEN DO:            */
 /*      APPLY "close" TO THIS-PROCEDURE. */
 /*      RETURN .                         */

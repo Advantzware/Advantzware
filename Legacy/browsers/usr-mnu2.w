@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -38,7 +34,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
 def var ls-user-id as cha no-undo.
 def var lv-first-time as log no-undo.
 
@@ -218,8 +213,6 @@ END.
 
 {src/adm/method/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -263,7 +256,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -277,16 +270,16 @@ DO:
    if lv-first-time then assign lv-search = ""
                                 lv-search:screen-value = "".
                                 lv-first-time = no.
-
+   
    if lastkey < 48 or lastkey > 57 then do:
       message "Invalid Number. Please enter numbers only. " view-as alert-box error.
       return no-apply.
    end.               
-
+                 
    assign lv-search = lv-search + keylabel(lastkey)
           .
    display lv-search with frame {&frame-name}.
-
+           
    run find-menu.
 
 END.
@@ -306,7 +299,7 @@ DO:
         MESSAGE "No program available. Contact Advance Software." VIEW-AS ALERT-BOX.
         RETURN NO-APPLY.
     END.
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -355,7 +348,7 @@ ON CHOOSE OF btn-clear IN FRAME F-Main /* Clear Find */
 DO:
     assign lv-search = "".
     display lv-search with frame {&frame-name}.
-
+    
     apply "entry" to browse {&browse-name}.
     return no-apply.
 END.
@@ -369,7 +362,7 @@ END.
 ON LEAVE OF lv-search IN FRAME F-Main /* Find Menu# */
 or return of lv-search
 DO:
-
+  
     assign lv-search.
     run find-menu.
 END.
@@ -448,7 +441,7 @@ PROCEDURE find-menu :
      use-index pi-mnu-item no-lock no-error.
   if avail mnu-item then do:
      reposition  {&browse-name} to rowid rowid(mnu-item).
-
+     
   end.   
 END PROCEDURE.
 
@@ -466,7 +459,7 @@ PROCEDURE local-delete-record :
   message "Are you sure you want to delete? " view-as alert-box question
      button yes-no update ll-ans as log.
   if not ll-ans then return .   
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
@@ -486,7 +479,7 @@ PROCEDURE local-enable-fields :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   if userid('nosweat') <> "ASI" then return no-apply.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 

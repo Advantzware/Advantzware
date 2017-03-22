@@ -179,13 +179,12 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -201,7 +200,6 @@ ASSIGN
 ON CHOOSE OF Btn_Import IN FRAME F-Main /* Import Jobs */
 DO:
   RUN Import_Job.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -213,7 +211,6 @@ END.
 ON CHOOSE OF Btn_Refresh IN FRAME F-Main /* Refresh */
 DO:
   RUN Get_Pending_Imports.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -230,7 +227,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -370,7 +367,7 @@ PROCEDURE Import_Job :
     INPUT CLOSE.
     APPLY 'CHOOSE' TO Btn_Refresh.
   END.
-
+  
   IF VALID-HANDLE(adm-broker-hdl) THEN
   DO WITH FRAME {&FRAME-NAME}:
     RUN get-link-handle IN adm-broker-hdl

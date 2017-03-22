@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -369,8 +365,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -457,7 +451,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -504,7 +498,7 @@ DO:
         WHEN "actnum" THEN DO:
             RUN windows/l-acct3.w (g_company,"T",lw-focus:SCREEN-VALUE, OUTPUT char-val).
             IF char-val <> "" THEN ASSIGN lw-focus:SCREEN-VALUE = ENTRY(1,char-val).
-
+                                         
         END.
         when "pr-qty-uom" then do:
             RUN get-uom-list (OUTPUT uom-list).
@@ -880,7 +874,7 @@ FIND po-ord WHERE RECID(po-ord) = ipriPO NO-LOCK NO-ERROR.
 FOR EACH tt-pol:
     DELETE tt-pol.
 END.
-
+  
 lv-num-rec = 0.
 
 IF AVAILABLE po-ord THEN 
@@ -905,12 +899,12 @@ DO:
                               AND {ap/invlline.i -1} EQ po-ordl.line
                             USE-INDEX i-no))
         USE-INDEX po-no NO-LOCK:
-
+        
         IF LOOKUP(po-ordl.stat,"X,F") > 0 /* not deleted or cancelled */ THEN
             NEXT.
-
+    
         lNegativeReceipt = NO.
-
+    
         IF po-ordl.t-rec-qty EQ 0 
             AND NOT CAN-FIND(FIRST item 
                                 WHERE item.company EQ cocode
@@ -919,7 +913,7 @@ DO:
                                   AND item.stocked EQ NO) THEN
         DO:
             cPoNo = STRING(po-ordl.po-no).
-
+    
             FOR EACH rm-rcpth 
                 WHERE rm-rcpth.company EQ po-ordl.company 
                   AND rm-rcpth.po-no EQ cPoNo 
@@ -934,7 +928,7 @@ DO:
                 lNegativeReceipt = YES.
                 LEAVE.
             END.
-
+                
             IF lNegativeReceipt EQ NO THEN
             DO:
                 FOR EACH fg-rcpth 
@@ -948,33 +942,33 @@ DO:
                       AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code 
                       AND fg-rdtlh.qty LT 0
                     NO-LOCK:
-
+                      
                     lNegativeReceipt = YES.
                     LEAVE.
                 END.
             END.
         END.
-
+        
         IF NOT (po-ordl.t-rec-qty NE 0 OR lNegativeReceipt 
             OR (po-ordl.item-type 
                 AND CAN-FIND(FIRST item WHERE item.company EQ cocode
                 AND item.i-no    EQ po-ordl.i-no 
                 AND item.i-code  EQ "R"
                 AND item.stocked EQ NO))) THEN NEXT.
-
+            
         RUN sys/inc/po-recqa.p (RECID(po-ordl), OUTPUT dQtyReceived, OUTPUT dAmountReceived).    
         RUN sys/inc/po-invqa.p (RECID(po-ordl), OUTPUT dQtyInvoiced, OUTPUT dAmountInvoiced).
-
+    
         ASSIGN 
             dAmountInvoiced = 0
             dAmountReceived = 0.
-
+    
         FIND FIRST ITEM 
             WHERE item.company EQ cocode
               AND item.i-no    EQ po-ordl.i-no
               AND po-ordl.item-type
             NO-LOCK NO-ERROR.
-
+    
         IF po-ordl.stat NE "C" 
             OR (apinvmsg-log = YES AND dQtyReceived EQ 0 
                 AND dQtyInvoiced EQ 0) 
@@ -1021,13 +1015,13 @@ PROCEDURE calc-amt :
   FIND po-ordl WHERE po-ordl.company = g_company
                  AND po-ordl.po-no = ap-invl.po-no
                  AND po-ordl.LINE = {ap/invlline.i -1} NO-LOCK NO-ERROR.
-
+  
   IF AVAIL po-ordl THEN DO:
      ASSIGN v-wid = po-ordl.s-wid
             v-len = IF po-ordl.pr-qty-uom EQ "ROLL" THEN 12 ELSE po-ordl.s-len
             v-dep = 0
             v-bwt = 0.
-
+     
      find first ITEM where item.company eq cocode
                        and item.i-no    eq po-ordl.i-no
                        and po-ordl.item-type
@@ -1042,9 +1036,9 @@ PROCEDURE calc-amt :
     if v-wid eq 0 THEN v-wid = if v-len eq 0 then 12 else v-len.
     v-len = dec(ap-invl.sf-sht:SCREEN-VALUE IN BROWSE {&browse-name}) * 144 / v-wid.
   end.
-
+  
   if v-len eq 0 then v-len = 12.
-
+  
   if ap-invl.pr-qty-uom:SCREEN-VALUE eq ap-invl.cons-uom:SCREEN-VALUE OR
      ap-invl.pr-qty-uom:SCREEN-VALUE = "0"
       THEN v-temp-pr = dec(ap-invl.unit-pr:SCREEN-VALUE).
@@ -1054,7 +1048,7 @@ PROCEDURE calc-amt :
                             dec(ap-invl.unit-pr:SCREEN-VALUE), output v-temp-pr).
 
   ap-invl.amt:SCREEN-VALUE = string(dec(ap-invl.qty:SCREEN-VALUE) * v-temp-pr).
-
+  
   IF ap-invl.pr-qty-uom:SCREEN-VALUE EQ "L" THEN ap-invl.amt:SCREEN-VALUE = ap-invl.unit-pr:SCREEN-VALUE.
 
   if ap-invl.cons-uom:SCREEN-VALUE eq "MSF" 
@@ -1065,7 +1059,7 @@ PROCEDURE calc-amt :
                           DEC(ap-invl.qty:SCREEN-VALUE), output ld-amt-msf).
     ap-invl.amt-msf:SCREEN-VALUE = STRING(ld-amt-msf).
   END.
-
+  
  END.
 
 END PROCEDURE.
@@ -1093,14 +1087,14 @@ PROCEDURE calc-amt2 :
     FIND po-ordl WHERE po-ordl.company = g_company
                  AND po-ordl.po-no = ap-invl.po-no
                  AND po-ordl.LINE = {ap/invlline.i -1} NO-LOCK NO-ERROR.
-
+  
     IF AVAIL po-ordl THEN DO:
        ASSIGN v-wid = po-ordl.s-wid
               v-len = IF po-ordl.pr-qty-uom EQ "ROLL" THEN 12 ELSE po-ordl.s-len
               v-dep = 0
               v-bwt = 0
             .
-
+     
        find first ITEM where item.company eq cocode
                        and item.i-no    eq po-ordl.i-no
                        and po-ordl.item-type
@@ -1115,7 +1109,7 @@ PROCEDURE calc-amt2 :
        if v-wid eq 0 THEN v-wid = if v-len eq 0 then 12 else v-len.
        v-len = dec(ap-invl.sf-sht:SCREEN-VALUE IN BROWSE {&browse-name}) * 144 / v-wid.
      end.
-
+   
      if v-len eq 0 then v-len = 12.
 
      v-temp-pr = dec(ap-invl.amt:SCREEN-VALUE) / dec(ap-invl.qty:SCREEN-VALUE).
@@ -1125,9 +1119,9 @@ PROCEDURE calc-amt2 :
        run sys/ref/convcuom.p (ap-invl.cons-uom:SCREEN-VALUE, ap-invl.pr-qty-uom:SCREEN-VALUE,
                                v-bwt, v-len, v-wid, v-dep,
                                v-temp-pr, output v-temp-pr).
-
+                               
      ap-invl.unit-pr:SCREEN-VALUE = string(v-temp-pr).
-
+   
      if ap-invl.cons-uom:SCREEN-VALUE eq "MSF" 
         THEN ap-invl.amt-msf:SCREEN-VALUE = string(ap-invl.qty:SCREEN-VALUE).
      else DO: 
@@ -1160,7 +1154,7 @@ PROCEDURE calc-amt3 :
          v-len = IF po-ordl.pr-qty-uom EQ "ROLL" THEN 12 ELSE po-ordl.s-len
          v-dep = 0
          v-bwt = 0.
-
+  
   find first ITEM where item.company eq cocode
                     and item.i-no    eq po-ordl.i-no
                     and po-ordl.item-type
@@ -1169,15 +1163,15 @@ PROCEDURE calc-amt3 :
        v-dep = item.s-dep.          
        {po/pol-dims.i}
   end.
-
+  
 
   if v-wid eq 0 or v-len eq 0 then do:
     if v-wid eq 0 THEN v-wid = if v-len eq 0 then 12 else v-len.
     v-len = ap-invl.sf-sht * 144 / v-wid.
   end.
-
+  
   if v-len eq 0 then v-len = 12.
-
+  
   if ap-invl.pr-qty-uom eq ap-invl.cons-uom OR
      ap-invl.pr-qty-uom = "0" THEN
      v-temp-pr = ap-invl.unit-pr.
@@ -1187,7 +1181,7 @@ PROCEDURE calc-amt3 :
                             ap-invl.unit-pr, output v-temp-pr).
 
   ap-invl.amt = ap-invl.qty * v-temp-pr.
-
+  
   IF ap-invl.pr-qty-uom EQ "L" THEN ap-invl.amt = ap-invl.unit-pr.
 
   if ap-invl.cons-uom eq "MSF" 
@@ -1196,7 +1190,7 @@ PROCEDURE calc-amt3 :
      run sys/ref/convquom.p (ap-invl.cons-uom, "MSF",
                           v-bwt, v-len, v-wid, v-dep,
                           ap-invl.qty, output ap-invl.amt-msf).
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1293,7 +1287,7 @@ PROCEDURE create-ap-from-po :
             v-len = IF po-ordl.pr-qty-uom EQ "ROLL" THEN 12 ELSE po-ordl.s-len
             v-dep = 0
             v-bwt = 0.
-
+     
      IF tt-ap-invl.cons-uom EQ "ROLL" THEN tt-ap-invl.cons-uom = "LF".
 
      IF po-ordl.item-type AND appaper-chr NE "PO UOM" AND
@@ -1312,7 +1306,7 @@ PROCEDURE create-ap-from-po :
            WHERE itemfg.company EQ po-ordl.company
              AND itemfg.i-no    EQ po-ordl.i-no
            NO-LOCK NO-ERROR.
-
+              
        IF AVAIL itemfg THEN
        FIND FIRST prodl 
            WHERE prodl.company EQ itemfg.company
@@ -1335,7 +1329,7 @@ PROCEDURE create-ap-from-po :
           WHERE item.company EQ cocode
             AND item.i-no    EQ po-ordl.i-no
           NO-LOCK NO-ERROR.
-
+      
        IF AVAIL item AND item.stocked THEN
        FIND FIRST costtype
            WHERE costtype.company   EQ cocode
@@ -1398,7 +1392,7 @@ PROCEDURE create-ap-from-po :
         ELSE DO:
             /*Calculate proportionate amt based on total cost, not including setup*/
             tt-ap-invl.amt = (po-ordl.t-cost - po-ordl.setup) * ( v-tmp-qty / po-ordl.ord-qty ).
-
+    
             /*Add setup charges back only if no other ap-invl exist for this po line*/
             lSetup = NO.
             FIND FIRST bf-ap-invl 
@@ -1409,9 +1403,9 @@ PROCEDURE create-ap-from-po :
                 NO-LOCK NO-ERROR.
             IF NOT AVAIL bf-ap-invl THEN lSetup = YES.
             IF lSetup THEN tt-ap-invl.amt = tt-ap-invl.amt + po-ordl.setup.
-
+            
             tt-ap-invl.unit-pr = tt-ap-invl.amt / tt-ap-invl.qty.
-
+    
             IF tt-ap-invl.cons-uom NE tt-ap-invl.pr-qty-uom THEN
               RUN sys/ref/convcuom.p (tt-ap-invl.cons-uom, tt-ap-invl.pr-qty-uom,
                                       v-bwt, v-len, v-wid, v-dep,
@@ -1420,7 +1414,7 @@ PROCEDURE create-ap-from-po :
         END.
          if v-len eq 0 then v-len = 12.
         if v-wid eq 0 then v-wid = 12.
-
+        
         tt-ap-invl.sf-sht = if v-corr then (v-len * v-wid * .007)
                                       else (v-len * v-wid / 144).
 
@@ -1456,7 +1450,7 @@ PROCEDURE create-ap-from-po-old :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DEF VAR v-qty AS DEC NO-UNDO.
   DEF VAR v-temp-pr LIKE bf-invl.unit-pr NO-UNDO.
   DEF VAR z AS INT NO-UNDO.
@@ -1464,7 +1458,7 @@ PROCEDURE create-ap-from-po-old :
   DEF VAR v-dscr AS cha NO-UNDO.
 
   DEF BUFFER b-ap-inv FOR ap-inv.
-
+  
 
   FIND LAST bf-invl WHERE bf-invl.i-no = ap-inv.i-no AND bf-invl.po-no = 0
                     USE-INDEX i-no NO-ERROR.
@@ -1475,7 +1469,7 @@ PROCEDURE create-ap-from-po-old :
 
   IF v-vend-act EQ "" THEN
      v-vend-act = v-ap-pur.
-
+  
   v-dscr = "".
   IF AVAIL ap-invl THEN lv-rowid = ROWID(ap-invl).
 
@@ -1536,7 +1530,7 @@ PROCEDURE create-ap-from-po-old :
           v-dep = item.s-dep.          
           {po/pol-dims.i}
      end.
-
+        
      /*   
      if po-ordl.item-type then do:
           v-qty = if avail item           and
@@ -1544,27 +1538,27 @@ PROCEDURE create-ap-from-po-old :
                      item.mat-type eq "M" and
                      item.stocked eq no   then po-ordl.cons-qty
                   else po-ordl.t-rec-qty.
-
+                   
           if po-ordl.cons-uom eq bf-invl.cons-uom then
                  bf-invl.qty = (v-qty - po-ordl.t-inv-qty).
-
+          
           else do:
             run sys/ref/convquom.p (po-ordl.cons-uom, bf-invl.cons-uom ,
                                    v-bwt, v-len, v-wid, v-dep,
                                    v-qty, output v-qty).
-
+                                   
             bf-invl.qty = (v-qty - po-ordl.t-inv-qty).
           end.
      end.          
      ELSE do:
           if bf-invl.cons-uom eq "EA" then
             bf-invl.qty = (po-ordl.t-rec-qty - po-ordl.t-inv-qty).
-
+            
           else do:
             run sys/ref/convquom.p("EA", bf-invl.cons-uom,
                                    0, 0, 0, 0,
                                    po-ordl.t-rec-qty, output v-qty).
-
+                                   
             bf-invl.qty = (v-qty - po-ordl.t-inv-qty).
           end.  
       end.
@@ -1584,7 +1578,7 @@ PROCEDURE create-ap-from-po-old :
 
         if v-len eq 0 then v-len = 12.
         if v-wid eq 0 then v-wid = 12.
-
+        
         bf-invl.sf-sht = if v-corr then (v-len * v-wid * .007)
                                       else (v-len * v-wid / 144).
 
@@ -1605,8 +1599,8 @@ PROCEDURE create-ap-from-po-old :
                                  bf-invl.qty, output v-qty).
 
         bf-invl.amt-msf = (bf-invl.sf-sht * v-qty / 1000).
-
-
+ 
+  
      FIND b-ap-inv WHERE ROWID(b-ap-inv) EQ ROWID(ap-inv).
 
      IF LAST-OF(po-ordl.po-no) THEN b-ap-inv.freight = po-ord.t-freight.
@@ -1677,7 +1671,7 @@ PROCEDURE display-po :
   {ce/msfcalc.i}
 
   FIND po-ordl WHERE RECID(po-ordl) EQ ip-porecid NO-LOCK NO-ERROR.
-
+  
   IF AVAIL po-ordl THEN DO:
      lv-pol-rowid = ROWID(po-ordl).
      FIND FIRST po-ord WHERE po-ord.company = po-ordl.company 
@@ -1713,9 +1707,9 @@ PROCEDURE display-po :
      end.  
      IF v-vend-actnum EQ "" THEN
         v-vend-actnum = v-ap-pur.
-
+     
      if ap-invl.actnum:SCREEN-VALUE eq "" then ap-invl.actnum:SCREEN-VALUE = v-vend-actnum.
-
+     
      find first ITEM where item.company eq cocode
                        and item.i-no    eq po-ordl.i-no
                        and po-ordl.item-type
@@ -1724,7 +1718,7 @@ PROCEDURE display-po :
           v-dep = item.s-dep.          
           {po/pol-dims.i}
      end.
-
+        
      if po-ordl.item-type then do:
           v-qty = if avail item           and
                      item.i-code eq "R"   and
@@ -1734,24 +1728,24 @@ PROCEDURE display-po :
 
           if po-ordl.cons-uom eq ap-invl.cons-uom:SCREEN-VALUE then
                  ap-invl.qty:SCREEN-VALUE = string(v-qty - po-ordl.t-inv-qty).
-
+          
           else do:
             run sys/ref/convquom.p (po-ordl.cons-uom, ap-invl.cons-uom:SCREEN-VALUE ,
                                    v-bwt, v-len, v-wid, v-dep,
                                    v-qty, output v-qty).
-
+                                   
             ap-invl.qty:SCREEN-VALUE = string(v-qty - po-ordl.t-inv-qty).
           end.
      end.          
      ELSE do:
           if ap-invl.cons-uom:SCREEN-VALUE eq "EA" then
             ap-invl.qty:SCREEN-VALUE = string(po-ordl.t-rec-qty - po-ordl.t-inv-qty).
-
+            
           else do:
             run sys/ref/convquom.p("EA", ap-invl.cons-uom:SCREEN-VALUE,
                                    0, 0, 0, 0,
                                    po-ordl.t-rec-qty, output v-qty).
-
+                                   
             ap-invl.qty:SCREEN-VALUE = string(v-qty - po-ordl.t-inv-qty).
           end.  
       end.
@@ -1760,9 +1754,9 @@ PROCEDURE display-po :
      /* gdm - 05290903  
       RUN ap/d-selrec.w (ROWID(ap-inv), lv-pol-rowid, OUTPUT lv-invl-qty).
       gdm - 05290903 end */
-
+    
   /*    FIND CURRENT ap-invl NO-LOCK NO-ERROR.  */
-
+   
       if ap-invl.pr-qty-uom:SCREEN-VALUE eq ap-invl.cons-uom:SCREEN-VALUE
           THEN v-temp-pr = dec(ap-invl.unit-pr:SCREEN-VALUE).          
       else
@@ -1777,7 +1771,7 @@ PROCEDURE display-po :
 
         if v-len eq 0 then v-len = 12.
         if v-wid eq 0 then v-wid = 12.
-
+        
         ap-invl.sf-sht:SCREEN-VALUE = if v-corr then STRING(v-len * v-wid * .007)
                                       else STRING(v-len * v-wid / 144).
 
@@ -1798,7 +1792,7 @@ PROCEDURE display-po :
                                  int(ap-invl.qty:SCREEN-VALUE), output v-qty).
 
         ap-invl.amt-msf:SCREEN-VALUE = string(dec(ap-invl.sf-sht:SCREEN-VALUE) * v-qty / 1000).
-
+        
   END.  /* avail po-ordl */
 
   SESSION:SET-WAIT-STATE("").
@@ -1893,7 +1887,7 @@ PROCEDURE local-add-record :
     RETURN error.
   END.
 
-
+ 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
 
@@ -1957,7 +1951,7 @@ PROCEDURE local-assign-statement :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-statement':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
   ASSIGN ap-invl.amt = DEC(ap-invl.amt:SCREEN-VALUE IN BROWSE {&browse-name})
          ap-invl.amt-msf = DEC(ap-invl.amt-msf:SCREEN-VALUE).
 
@@ -2155,7 +2149,7 @@ PROCEDURE local-enable-fields :
 
   IF v-msg EQ "" AND ap-inv.posted THEN
     v-msg = "This invoice has been posted, no changes are allowed!".
-
+  
   IF v-msg EQ "" AND apsecure-log AND ap-inv.user-id NE USERID("nosweat") THEN
     v-msg = "This invoice may only be updated by UserID: " +
             TRIM(ap-inv.user-id) + "...".
@@ -2220,7 +2214,7 @@ PROCEDURE local-update-record :
   /* === validation ---- */
   RUN valid-po-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ap-invl.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) EQ 0 AND
        ap-invl.actnum:SCREEN-VALUE IN BROWSE {&browse-name} EQ "" THEN DO:
@@ -2229,7 +2223,7 @@ PROCEDURE local-update-record :
       v-vend-act = IF AVAIL vend THEN vend.actnum ELSE "".
       IF v-vend-act EQ "" THEN
          v-vend-act = v-ap-pur.
-
+      
       ap-invl.actnum:SCREEN-VALUE = v-vend-act.
     END.
   END.
@@ -2321,7 +2315,7 @@ DO WITH FRAME {&FRAME-NAME}:
     RUN sys/ref/convcuom.p(ap-invl.pr-qty-uom, "EA",
                            v-basis-w, v-len, v-wid, v-dep,
                            ip-cost, OUTPUT v-tot-cost).
-
+ 
   for each job-mat no-lock
       where job-mat.company  eq xjob-mat.company
         and job-mat.job      eq xjob-mat.job
@@ -2339,7 +2333,7 @@ DO WITH FRAME {&FRAME-NAME}:
         where e-item.company eq po-ordl.company
           and e-item.i-no    eq po-ordl.i-no
         no-error.
-
+    
     find first e-item-vend no-lock
         where e-item-vend.company eq item.company
           and e-item-vend.i-no    eq item.i-no
@@ -2364,7 +2358,7 @@ DO WITH FRAME {&FRAME-NAME}:
             LEAVE.
          END.
       end.
-
+    
       IF v-index EQ 0 THEN
       DO:
          FIND FIRST b-qty WHERE
@@ -2373,7 +2367,7 @@ DO WITH FRAME {&FRAME-NAME}:
               b-qty.CODE    = e-item-vend.i-no AND
               b-qty.code2   = e-item-vend.vend-no
               NO-LOCK NO-ERROR.
-
+        
          DO i = 1 TO 10:
             IF v-qty-comp LE b-qty.val[i] THEN
             DO:
@@ -2399,7 +2393,7 @@ DO WITH FRAME {&FRAME-NAME}:
               b-cost.CODE    = e-item-vend.i-no AND
               b-cost.code2   = e-item-vend.vend-no
               NO-LOCK NO-ERROR.
-
+        
          FIND FIRST b-setup WHERE
               b-setup.reftable = "vend-setup" AND
               b-setup.company = e-item-vend.company AND
@@ -2413,7 +2407,7 @@ DO WITH FRAME {&FRAME-NAME}:
                op-adder-setup = op-adder-setup + v-setup
                v-cost = ((b-cost.val[v-index - 10] * v-qty-comp) + v-setup) / v-qty-comp.
       END.
-
+      
       /* This adds the Adder cost in */
       IF e-item.std-uom NE ap-invl.pr-qty-uom THEN
         RUN sys/ref/convcuom.p(e-item.std-uom, ap-invl.pr-qty-uom, job-mat.basis-w,
@@ -2423,7 +2417,7 @@ DO WITH FRAME {&FRAME-NAME}:
 
     ELSE DO:
       v-cost = job-mat.std-cost.
-
+      
       IF job-mat.sc-uom NE ap-invl.pr-qty-uom THEN
         RUN sys/ref/convcuom.p(job-mat.sc-uom, ap-invl.pr-qty-uom, job-mat.basis-w,
                                job-mat.len, job-mat.wid, item.s-dep,
@@ -2437,7 +2431,7 @@ DO WITH FRAME {&FRAME-NAME}:
     RUN sys/ref/convcuom.p("EA", ap-invl.pr-qty-uom,
                            v-basis-w, v-len, v-wid, v-dep,
                            v-tot-cost, OUTPUT v-tot-cost).
-
+ 
   op-cost = v-add-cost + v-tot-cost.
 
   IF ap-invl.pr-qty-uom NE ap-invl.cons-uom THEN
@@ -2506,7 +2500,7 @@ PROCEDURE recalc-board :
       ITEM.i-no = lv-item-no AND
       ITEM.mat-type = "B"
       NO-LOCK NO-ERROR.
-
+  
       ASSIGN lv-tot-rec-qty = 0
              v-len = 0
              v-wid = 0.
@@ -2524,7 +2518,7 @@ PROCEDURE recalc-board :
         ASSIGN
           v-len = item.s-len
           v-wid = if item.r-wid gt 0 then item.r-wid else item.s-wid.
-
+        
         for each b-po-ordl
             where b-po-ordl.company eq cocode
                and b-po-ordl.po-no   eq po-ord.po-no
@@ -2533,14 +2527,14 @@ PROCEDURE recalc-board :
                and b-po-ordl.job-no2 eq rm-rcpth.job-no2
              no-lock
              by b-po-ordl.s-num desc:
-
+             
            assign
             v-len = b-po-ordl.s-len
             v-wid = b-po-ordl.s-wid.
-
+          
            if b-po-ordl.s-num eq rm-rdtlh.s-num then leave.
         end.
-
+      
         if rm-rcpth.job-no ne "" then
           for each job-mat
               where job-mat.company eq cocode
@@ -2549,14 +2543,14 @@ PROCEDURE recalc-board :
                 and job-mat.job-no2 eq rm-rcpth.job-no2
               no-lock
               by job-mat.frm desc:
-
+              
             assign
              v-len = job-mat.len
              v-wid = job-mat.wid.
-
+          
             if job-mat.frm eq rm-rdtlh.s-num then leave.  
           end.
-
+      
         if v-len eq 0 then v-len = 12.
         if v-wid eq 0 then v-wid = 12.
 
@@ -2568,7 +2562,7 @@ PROCEDURE recalc-board :
                                 v-qty, OUTPUT v-qty).
 
         {sys/inc/roundup.i v-qty}
-
+        
 
         lv-tot-rec-qty = lv-tot-rec-qty + v-qty.
       END.
@@ -2595,7 +2589,7 @@ PROCEDURE recalc-board :
 
   RUN reopen-query.
 
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2626,7 +2620,7 @@ PROCEDURE reopen-query :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   RUN reopen-header.
 
   RUN dispatch ("open-query").
@@ -2645,7 +2639,7 @@ PROCEDURE repo-query :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
 
-
+                              
   DO WITH FRAME {&FRAME-NAME}:
     RUN dispatch ("open-query").
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
@@ -2723,7 +2717,7 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2865,7 +2859,7 @@ PROCEDURE update-ttt :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+    
    FIND FIRST tt-ap-invl WHERE tt-ap-invl.i-no EQ ap-inv.i-no NO-ERROR.
 
    IF AVAIL tt-ap-invl THEN DO:
@@ -2875,7 +2869,7 @@ PROCEDURE update-ttt :
      FIND CURRENT ap-invl NO-LOCK.
      RUN dispatch ("display-fields").
    END.
-
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3062,8 +3056,8 @@ PROCEDURE vend-cost :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
-
+  
+  
 
   /*from create po line item program (d-poordl.w) */
   DEF VAR v-qty  AS DEC NO-UNDO.
@@ -3112,7 +3106,7 @@ PROCEDURE vend-cost :
           AND job-mat.frm      EQ po-ordl.s-num
           AND job-mat.blank-no EQ po-ordl.b-num
         USE-INDEX seq-idx NO-ERROR.
-
+        
     IF AVAIL job-mat THEN lv-recid = RECID(job-mat).
 
     FIND FIRST e-item NO-LOCK
@@ -3177,7 +3171,7 @@ PROCEDURE vend-cost :
        v-cost = po-ordl.cost
        v-qty  = ap-invl.qty.
 
-
+      
       IF tt-ei.std-uom NE ap-invl.cons-uom THEN
          RUN sys/ref/convquom.p(ap-invl.cons-uom,
                                tt-ei.std-uom, v-basis-w,
@@ -3190,7 +3184,7 @@ PROCEDURE vend-cost :
        v-save-qty = v-qty - v-save-qty
        v-setup    = 0
        v-pb-qty   = 0.
-
+            
       RUN est/dim-charge.p (tt-eiv.rec_key,
                             v-wid,
                             v-len,
@@ -3243,9 +3237,9 @@ PROCEDURE vend-cost :
 
         lv-pb-qty = IF v-pb-qty LE 0 THEN 0 ELSE v-pb-qty.
       END.
-
+      
       IF v-qty <> 0 THEN v-cost = v-cost / v-qty.  
-
+      
       IF tt-ei.std-uom NE ap-invl.pr-qty-uom THEN
         RUN sys/ref/convcuom.p(tt-ei.std-uom,
                                ap-invl.pr-qty-uom, v-basis-w,
@@ -3265,7 +3259,7 @@ PROCEDURE vend-cost :
     END.
 
     IF AVAIL job-mat THEN DO:
-
+      
       IF poqty-log THEN
         RUN po-adder2 (RECID(po-ordl), lv-recid, po-ord.vend-no,
                        lv-pb-qty,
@@ -3274,7 +3268,7 @@ PROCEDURE vend-cost :
                        OUTPUT v-pb-cst,
                        OUTPUT v-pb-cns,
                        OUTPUT lv-adder-setup).
-
+      
         RUN po-adder2 (RECID(po-ordl), lv-recid, po-ord.vend-no,
                        ap-invl.qty,
                        ar-pr-qty-uom-cost,
@@ -3295,12 +3289,12 @@ PROCEDURE vend-cost :
         v-ord-qty = lv-pb-qty.
 
         IF ap-invl.cons-uom NE ap-invl.pr-qty-uom THEN
-
+   
           RUN sys/ref/convquom.p(ap-invl.cons-uom,
                                  ap-invl.pr-qty-uom,
                                  v-basis-w, v-len, v-wid, v-dep,
                                  v-ord-qty, OUTPUT v-ord-qty).
-
+     
         lv-t-cost = (v-ord-qty * v-pb-cst) + v-pb-stp.
       END.
 
@@ -3315,20 +3309,20 @@ PROCEDURE vend-cost :
       lv-t-cost = (lv-final-cost + lv-final-setup) *
                   IF ap-invl.qty LT 0 THEN -1 ELSE 1.
     ELSE DO:
-
+      
       IF ap-invl.cons-uom NE ap-invl.pr-qty-uom THEN
         RUN sys/ref/convquom.p(ap-invl.cons-uom,
                                ap-invl.pr-qty-uom,
                                v-basis-w, v-len, v-wid, v-dep,
                                v-ord-qty, OUTPUT v-ord-qty).
-
+    
       lv-t-cost = (v-ord-qty * lv-final-cost) +
                   lv-final-setup.
     END.
 
     IF po-ordl.disc NE 0 THEN
        lv-t-cost = lv-t-cost * (1 - (po-ordl.disc / 100)).
-
+    
     ap-invl.unit-pr = lv-t-cost / v-ord-qty.
 
   END.
@@ -3353,7 +3347,7 @@ FUNCTION display-bnum RETURNS INTEGER
                           NO-LOCK NO-ERROR.
   IF AVAIL po-ordl THEN RETURN po-ordl.s-num.
   ELSE RETURN 0.   /* Function return value. */
-
+  
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3371,7 +3365,7 @@ FUNCTION display-item-no RETURNS CHARACTER
                        AND po-ordl.po-no = ap-invl.po-no
                        AND po-ordl.LINE = ap-invl.LINE - (ap-invl.po-no * 1000)
                        NO-LOCK NO-ERROR.
-
+ 
   IF AVAIL po-ordl THEN RETURN po-ordl.i-no.
   ELSE RETURN "NO PO ITEM".   /* Function return value. */
 
@@ -3426,7 +3420,7 @@ FUNCTION display-seq RETURNS INTEGER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-
+  
   RETURN li-line-num .   /* Function return value. */
 
 END FUNCTION.

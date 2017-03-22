@@ -36,7 +36,7 @@ DEFINE VARIABLE scanAgain AS LOGICAL NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-
+{custom/xprint.i}
 assign
  cocode = gcompany
  locode = gloc.
@@ -195,6 +195,34 @@ DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cResult AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lGetBin AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
+DEFINE VARIABLE i-bardir-int AS INTEGER NO-UNDO .
+DEFINE VARIABLE i-xprint-int AS INTEGER NO-UNDO .
+DEF VAR ls-image1 AS cha NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.   
+
+RUN sys/ref/nk1look.p (INPUT cocode,
+                       INPUT "LoadTagXprintImage",
+                       INPUT "C",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT ls-image1,
+                       OUTPUT lFound).
+
+FILE-INFO:FILE-NAME = ls-image1.
+ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+
 RUN sys/ref/nk1look.p (INPUT cocode,
                        INPUT "FGSetAssembly",
                        INPUT "L",
@@ -259,6 +287,8 @@ DEF BUFFER bf-po-ord  FOR po-ord.
 DEF BUFFER bf-po-ordl FOR po-ordl.
 
 DEF BUFFER bf-jobhdr FOR job-hdr.
+DEFINE TEMP-TABLE tt-word-print LIKE w-ord 
+    FIELD tag-no AS CHARACTER .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -281,14 +311,15 @@ begin_job2 end_job end_job2 begin_i-no end_i-no rd_order-sts rd_print ~
 begin_date end_date rd_comps tb_dept-note tb_rel tb_over tb_16ths ~
 tb_ship-id scr-auto-print scr-freeze-label scr-label-file begin_labels ~
 begin_form btn-ok btn-cancel tb_xfer-lot tb_override-mult begin_ship-to ~
-end_ship-to RECT-7 RECT-8 RECT-11 RECT-12 
+end_ship-to tb_close RECT-7 RECT-8 RECT-11 RECT-12 tb_print-view 
 &Scoped-Define DISPLAYED-OBJECTS tbPartSelect loadtagFunction tb_ret ~
 tb_reprint-tag v-ord-list v-job-list begin_ord-no end_ord-no begin_job ~
 begin_job2 end_job end_job2 begin_i-no end_i-no rd_order-sts rd_print ~
 begin_date end_date rd_comps v-dept-list tb_dept-note tb_rel tb_over ~
 tb_16ths tb_ship-id v-ship-id scr-auto-print scr-freeze-label ~
 scr-label-file begin_labels begin_form begin_filename typeLabel statusLabel ~
-lbl_po-no tb_xfer-lot tb_override-mult begin_ship-to end_ship-to 
+lbl_po-no tb_xfer-lot tb_override-mult begin_ship-to end_ship-to tb_close ~
+tb_print-view 
 
 /* Custom List Definitions                                              */
 /* jobFields,NonReprint,List-3,List-4,List-5,F1                         */
@@ -524,6 +555,11 @@ DEFINE VARIABLE tb_16ths AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_close AS LOGICAL INITIAL no 
+     LABEL "Close?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 12 BY 1 NO-UNDO.
+
 DEFINE VARIABLE tb_dept-note AS LOGICAL INITIAL no 
      LABEL "Print Department Notes?" 
      VIEW-AS TOGGLE-BOX
@@ -538,6 +574,11 @@ DEFINE VARIABLE tb_override-mult AS LOGICAL INITIAL no
      LABEL "Ignore Customer Labels per Skid" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_print-view AS LOGICAL INITIAL no 
+     LABEL "Xprint Preview?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 19.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_rel AS LOGICAL INITIAL no 
      LABEL "Print Posted Release in BOL File?" 
@@ -605,8 +646,8 @@ DEFINE FRAME FRAME-A
      tb_16ths AT ROW 18.48 COL 73
      tb_ship-id AT ROW 17.38 COL 59.4 WIDGET-ID 24
      v-ship-id AT ROW 17.38 COL 75.8 COLON-ALIGNED NO-LABEL WIDGET-ID 26
-     scr-auto-print AT ROW 20.38 COL 26.4 WIDGET-ID 2
-     scr-freeze-label AT ROW 20.38 COL 49.6 WIDGET-ID 4
+     scr-auto-print AT ROW 20.38 COL 18.4 WIDGET-ID 2
+     scr-freeze-label AT ROW 20.38 COL 39.6 WIDGET-ID 4
      scr-label-file AT ROW 21.33 COL 24 COLON-ALIGNED WIDGET-ID 6
      begin_labels AT ROW 22.33 COL 24 COLON-ALIGNED
      begin_form AT ROW 22.29 COL 84 COLON-ALIGNED
@@ -623,6 +664,8 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Release Shipto" WIDGET-ID 36
      end_ship-to AT ROW 14.71 COL 82.6 COLON-ALIGNED HELP
           "Enter Ending Release shipto" WIDGET-ID 38
+     tb_close AT ROW 20.38 COL 69 WIDGET-ID 40
+     tb_print-view AT ROW 20.38 COL 81.4 WIDGET-ID 42
      "Output Options:" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 19.76 COL 4 WIDGET-ID 22
           FONT 6
@@ -636,9 +679,6 @@ DEFINE FRAME FRAME-A
      "Data Parameters:" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 4.57 COL 4 WIDGET-ID 10
           FONT 6
-     "Print Options:" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 13.14 COL 4 WIDGET-ID 14
-          FONT 6
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -646,6 +686,9 @@ DEFINE FRAME FRAME-A
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
+     "Print Options:" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 13.14 COL 4 WIDGET-ID 14
+          FONT 6
      RECT-7 AT ROW 1.24 COL 2
      RECT-8 AT ROW 4.81 COL 2 WIDGET-ID 8
      RECT-11 AT ROW 13.38 COL 2 WIDGET-ID 18
@@ -691,19 +734,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -747,6 +784,14 @@ ASSIGN
 ASSIGN 
        begin_ship-to:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 /* SETTINGS FOR FILL-IN end_date IN FRAME FRAME-A
    2                                                                    */
@@ -820,6 +865,10 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       tb_close:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        tb_dept-note:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -833,6 +882,10 @@ ASSIGN
    2                                                                    */
 ASSIGN 
        tb_override-mult:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       tb_print-view:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_rel IN FRAME FRAME-A
@@ -889,7 +942,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1110,7 +1163,6 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1122,6 +1174,12 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:  
   ASSIGN {&displayed-objects}.
+
+   ASSIGN
+      cBarCodeProgram = IF scr-label-file MATCHES "*.xpr*" THEN "xprint" ELSE "" .
+   FOR EACH tt-word-print:
+       DELETE tt-word-print .
+   END.
 
   ASSIGN 
       v-auto-print = scr-auto-print
@@ -1155,7 +1213,6 @@ DO:
      APPLY "entry" TO fi_cas-lab.
      RETURN NO-APPLY.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2187,10 +2244,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -2535,7 +2590,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   lForm = NO.
   iForm = 0.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 
@@ -3734,6 +3788,7 @@ PROCEDURE create-text-file :
       /* Rename to expected file name / location */
       IF SEARCH(v-out) NE ? THEN
         OS-DELETE VALUE(v-out).
+      /*IF cBarCodeProgram EQ ""  THEN*/
       OS-RENAME VALUE(cTmpFile) VALUE(v-out).
 
 
@@ -4349,7 +4404,7 @@ PROCEDURE enable_UI :
           rd_comps v-dept-list tb_dept-note tb_rel tb_over tb_16ths tb_ship-id 
           v-ship-id scr-auto-print scr-freeze-label scr-label-file begin_labels 
           begin_form begin_filename typeLabel statusLabel lbl_po-no tb_xfer-lot 
-          tb_override-mult begin_ship-to end_ship-to 
+          tb_override-mult begin_ship-to end_ship-to tb_close tb_print-view 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE tbPartSelect loadtagFunction tb_ret tb_reprint-tag v-ord-list 
          v-job-list begin_ord-no end_ord-no begin_job begin_job2 end_job 
@@ -4357,7 +4412,7 @@ PROCEDURE enable_UI :
          rd_comps tb_dept-note tb_rel tb_over tb_16ths tb_ship-id 
          scr-auto-print scr-freeze-label scr-label-file begin_labels begin_form 
          btn-ok btn-cancel tb_xfer-lot tb_override-mult begin_ship-to 
-         end_ship-to RECT-7 RECT-8 RECT-11 RECT-12 
+         end_ship-to tb_close RECT-7 RECT-8 RECT-11 RECT-12 tb_print-view 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -6614,7 +6669,7 @@ PROCEDURE ok-button :
 
   APPLY "entry" TO fi_cas-lab IN FRAME {&FRAME-NAME}.
 
-  IF lv-ok-ran AND NOT tb_reprint-tag THEN
+  IF lv-ok-ran AND NOT tb_reprint-tag AND tb_close THEN
       APPLY "close" TO THIS-PROCEDURE.
   /*
   case rd-dest:
@@ -6919,6 +6974,96 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE print-loadtg C-Win 
+PROCEDURE print-loadtg :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+DEFINE VARIABLE cEmail AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cPhone AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
+
+    {sys/inc/print1.i}
+    {sys/inc/outprint.i value(85)}
+
+    SESSION:SET-WAIT-STATE ("general").
+
+    PUT "<PREVIEW>".
+
+    IF tb_print-view THEN DO:
+        IF NOT lBussFormModle THEN
+           PUT "<PREVIEW><MODAL=NO>" FORM "x(30)".
+         ELSE
+           PUT "<PREVIEW>" FORM "x(30)".
+   END.
+   ELSE DO:
+       PUT "<PRINTER?>" FORM "x(30)".
+   END.
+
+    DO WITH FRAME {&FRAME-NAME}:
+        FOR EACH tt-word-print NO-LOCK BREAK
+                                BY tt-word-print.ord-no 
+                                BY tt-word-print.i-no:
+                                
+           IF scr-label-file:SCREEN-VALUE EQ "loadtag.xpr" THEN DO:
+               {oe/rep/lodxprntstd.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag1.xpr" THEN DO:
+               {oe/rep/lodxprnt.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag2.xpr" THEN DO:
+               {oe/rep/lodxprnt2.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag3.xpr" THEN DO:
+               {oe/rep/lodxprnt3.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag4.xpr" THEN DO:
+               {oe/rep/lodxprnt4.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag5.xpr" THEN DO:
+               {oe/rep/lodxprnt5.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag6.xpr" THEN DO:
+               {oe/rep/lodxprnt6.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag7.xpr" THEN DO:
+               {oe/rep/lodxprnt7.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag8.xpr" THEN DO:
+               {oe/rep/lodxprnt8.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag9.xpr" THEN DO:
+               {oe/rep/lodxprnt8.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag10.xpr" THEN DO:
+               {oe/rep/lodxprnt10.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag11.xpr" THEN DO:
+               {oe/rep/lodxprnt11.i}
+           END.
+           ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag12.xpr" THEN DO:
+               {oe/rep/lodxprnt12.i}
+           END.
+    
+         IF NOT LAST(tt-word-print.i-no) THEN PAGE .
+        END.
+    END.
+
+
+    OUTPUT CLOSE.
+    SESSION:SET-WAIT-STATE ("").
+
+    FILE-INFO:FILE-NAME = list-name.
+    RUN printfile (FILE-INFO:FILE-NAME).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reprint-tag C-Win 
 PROCEDURE reprint-tag :
 /*------------------------------------------------------------------------------
@@ -6952,10 +7097,19 @@ PROCEDURE reprint-tag :
   END.
 
   RUN create-text-file.
-  IF (NOT is-from-addons() OR SSLoadTag-log = TRUE) THEN
-  MESSAGE "Loadtag reprint is completed." VIEW-AS ALERT-BOX INFORMATION.
+
+  IF cBarCodeProgram EQ "" THEN do:    
+      RUN AutoPrint.
+  END.
+  ELSE IF cBarCodeProgram EQ "xprint" AND scr-auto-print THEN do:
+      PAUSE 1.
+      RUN print-loadtg  .
+  END.
+
+  IF (NOT is-from-addons() OR SSLoadTag-log = TRUE) THEN 
+      MESSAGE "Loadtag reprint is completed." VIEW-AS ALERT-BOX INFORMATION.
   SESSION:SET-WAIT-STATE ("").
-  RUN AutoPrint.
+
 
 END PROCEDURE.
 
@@ -7035,7 +7189,15 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
 {oerep/r-loadtg1.i}
-RUN AutoPrint.
+
+IF cBarCodeProgram EQ "" THEN DO:    
+    RUN AutoPrint.
+END.
+ELSE IF cBarCodeProgram EQ "xprint" AND scr-auto-print THEN do: 
+    PAUSE 1.
+    RUN print-loadtg .
+END.
+SESSION:SET-WAIT-STATE ("").
 /*     IF scr-auto-print THEN                                                  */
 /*     DO:                                                                     */
 /*        DEF VAR v-int AS INT NO-UNDO.                                        */
@@ -7430,6 +7592,14 @@ PROCEDURE write-loadtag-line :
  IF lSSCC THEN PUT UNFORMATTED ",~"" w-ord.sscc "~"".
 
  PUT UNFORMATTED SKIP.
+
+ /* temp table for xprint */
+ IF cBarCodeProgram EQ "xprint" THEN do:
+     CREATE tt-word-print .
+     BUFFER-COPY w-ord TO tt-word-print .
+     ASSIGN 
+         tt-word-print.tag-no = loadtag.tag-no .
+ END.
 
 
 

@@ -18,7 +18,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -88,8 +88,6 @@ DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_mach AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_mach-2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_mach-cal AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_mach-cal-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_mach-part AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_mmtx AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_mmtx-sp AS HANDLE NO-UNDO.
@@ -100,7 +98,6 @@ DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-dwup AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-dwup-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-dwup-3 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-machca AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-machsd AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-machsu AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-machsu-2 AS HANDLE NO-UNDO.
@@ -175,13 +172,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -239,7 +240,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -338,7 +339,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Brws Mach|View Mach|Standard|Setup|Run|Spoilage|Capacity|Parts' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Brws Mach|View Mach|Standard|Setup|Run|Spoilage|Parts' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -486,7 +487,7 @@ PROCEDURE adm-create-objects :
              INPUT  {&WINDOW-NAME} ,
              INPUT  '':U ,
              OUTPUT h_q-mmty ).
-       RUN set-position IN h_q-mmty ( 4.67 , 137.00 ) NO-ERROR.
+       RUN set-position IN h_q-mmty ( 5.33 , 135.60 ) NO-ERROR.
        /* Size in UIB:  ( 2.05 , 11.60 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -502,8 +503,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_p-dwup ).
-       RUN set-position IN h_p-dwup ( 6.95 , 132.00 ) NO-ERROR.
-       RUN set-size IN h_p-dwup ( 11.67 , 16.00 ) NO-ERROR.
+       RUN set-position IN h_p-dwup ( 7.67 , 131.00 ) NO-ERROR.
+       RUN set-size IN h_p-dwup ( 8.81 , 16.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-machsu.w':U ,
@@ -512,8 +513,8 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-machsu ).
-       RUN set-position IN h_p-machsu ( 18.86 , 132.00 ) NO-ERROR.
-       RUN set-size IN h_p-machsu ( 4.76 , 16.00 ) NO-ERROR.
+       RUN set-position IN h_p-machsu ( 16.95 , 131.00 ) NO-ERROR.
+       RUN set-size IN h_p-machsu ( 3.57 , 16.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('3':U) NO-ERROR.
@@ -665,56 +666,8 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-machsu-3 ,
              h_p-dwup-3 , 'AFTER':U ).
     END. /* Page 6 */
+    
     WHEN 7 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/mach-cal.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_mach-cal ).
-       RUN set-position IN h_mach-cal ( 4.81 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_mach-cal ( 19.52 , 65.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/mach-cal.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = no,
-                     Disable-on-Init = no,
-                     Layout = ,
-                     Create-On-Add = Yes':U ,
-             OUTPUT h_mach-cal-2 ).
-       RUN set-position IN h_mach-cal-2 ( 4.81 , 69.00 ) NO-ERROR.
-       /* Size in UIB:  ( 5.95 , 79.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-machca.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-machca ).
-       RUN set-position IN h_p-machca ( 11.00 , 70.00 ) NO-ERROR.
-       RUN set-size IN h_p-machca ( 1.76 , 77.00 ) NO-ERROR.
-
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
-
-       /* Links to SmartBrowser h_mach-cal. */
-       RUN add-link IN adm-broker-hdl ( h_mach , 'Record':U , h_mach-cal ).
-
-       /* Links to SmartViewer h_mach-cal-2. */
-       RUN add-link IN adm-broker-hdl ( h_mach-cal , 'Record':U , h_mach-cal-2 ).
-       RUN add-link IN adm-broker-hdl ( h_p-machca , 'TableIO':U , h_mach-cal-2 ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_mach-cal ,
-             h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_mach-cal-2 ,
-             h_mach-cal , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-machca ,
-             h_mach-cal-2 , 'AFTER':U ).
-    END. /* Page 7 */
-    WHEN 8 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/mach-part.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -767,7 +720,7 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
              v_mach-part , 'AFTER':U ).
        RUN add-link IN adm-broker-hdl ( h_mach-part , 'export-xl':U , h_export ).
-    END. /* Page 8 */
+    END. /* Page 7 */
 
   END CASE.
   /* Select a Startup page. */
@@ -875,7 +828,7 @@ PROCEDURE local-change-page :
 ------------------------------------------------------------------------------*/
    def var char-hdl as cha no-undo.
    def var li-page as int no-undo.
-
+   
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -892,7 +845,7 @@ PROCEDURE local-change-page :
      else if li-page = 5 then run get-link-handle in adm-broker-hdl (this-procedure, 'st-button1-source', output char-hdl).
      else if li-page = 6 then run get-link-handle in adm-broker-hdl (this-procedure, 'st-button2-source', output char-hdl). 
      run dispatch in widget-handle(char-hdl) ('initialize').
-
+     
   end.
 
 END PROCEDURE.
@@ -908,9 +861,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -924,7 +877,7 @@ PROCEDURE Select_Add :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR char-hdl AS CHAR NO-UNDO.
-
+  
    RUN select-page(2).
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-item-target", OUTPUT char-hdl).
    RUN add-item IN WIDGET-HANDLE(char-hdl).

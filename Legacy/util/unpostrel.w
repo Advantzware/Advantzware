@@ -16,7 +16,7 @@
       <none>
 
   History: New V9 Version - January 15, 1998
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -151,7 +151,6 @@ Destroy on next read */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -173,7 +172,7 @@ THEN wWin:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -231,7 +230,7 @@ DO:
     find oe-ordl where oe-ordl.company = oe-rell.company
       and oe-ordl.ord-no = oe-rell.ord-no
       and oe-ordl.line = oe-rell.line no-lock no-error.
-
+     
   END.
 
   for each oe-rell where oe-rell.company = fiCompany:SCREEN-VALUE IN FRAME fMain
@@ -252,7 +251,7 @@ DO:
       and oe-ordl.line = oe-rell.line no-lock no-error.      
     IF NOT AVAIL oe-rel THEN
      run c:\temp\asi\oe\cleanrel.p (input rowid(oe-ordl)).
-
+     
   END.
 
 END.
@@ -281,7 +280,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm2/windowmn.i}
-
+    
 
 /* Procedure h-TestDynBrowse.p -- test dynamic temp-table
    methods. */
@@ -416,7 +415,7 @@ for each oe-rell where oe-rell.company = fiCompany:SCREEN-VALUE IN FRAME fMain
     find oe-ordl where oe-ordl.company = oe-rell.company
       and oe-ordl.ord-no = oe-rell.ord-no
       and oe-ordl.line = oe-rell.line no-lock no-error.
-
+      
       hTTBuf:BUFFER-CREATE().
       hTTBuf:BUFFER-COPY(BUFFER oe-rell:HANDLE).    
       hTTBuf:BUFFER-FIELD("avail-bol"):BUFFER-VALUE = AVAIL(oe-boll).
@@ -429,7 +428,7 @@ for each oe-rell where oe-rell.company = fiCompany:SCREEN-VALUE IN FRAME fMain
 
       /*
      run c:\temp\asi\oe\cleanrel.p (input rowid(oe-ordl)). */
-
+     
 END.
 
 END PROCEDURE.

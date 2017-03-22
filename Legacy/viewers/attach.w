@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -247,7 +243,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -269,7 +265,7 @@ DO:
        FILE-INFO:FILE-NAME = cInitDir
       cInitDir = FILE-INFO:FULL-PATHNAME .
    IF cInitDir = ? THEN cInitDir = "" .
-
+   
    system-dialog get-file ls-filename 
                  title "Select Image File to insert"
                  filters "All Files    (*.*) " "*.*",
@@ -288,7 +284,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-
+      
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -418,7 +414,7 @@ ON HELP OF attach.run-program IN FRAME F-Main /* Program to excute */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-
+   
    system-dialog get-file ls-filename 
                  title "Select Application to open with"
                  filters "Executable Files (*.exe)" "*.exe", 
@@ -427,7 +423,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-
+      
     IF ll-ok THEN self:screen-value = CHR(34) + ls-filename + CHR(34).
 END.
 
@@ -467,7 +463,7 @@ PROCEDURE WinExec EXTERNAL "KERNEL32.DLL":
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -542,7 +538,7 @@ PROCEDURE excute-program :
    IF tInt LE 32 THEN
    DO:
       IF ATTACH.run-program <> "" THEN do:
-
+          
           OS-COMMAND SILENT START value(trim(ATTACH.run-program)) value(lv-cmd).
       END.
       ELSE DO:
@@ -597,7 +593,7 @@ PROCEDURE local-add-record :
 
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
     RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key).
-
+ 
     FIND FIRST est WHERE est.rec_key = lv-rec_key NO-LOCK NO-ERROR.
 
     IF AVAIL est THEN DO:
@@ -607,7 +603,7 @@ PROCEDURE local-add-record :
            eb.est-no = est.est-no NO-LOCK :
            IF eb.stock-no <> "" THEN v-i-no = v-i-no + eb.stock-no + ",". 
        END.
-
+       
     END.
     ELSE DO:
         FIND FIRST oe-ord WHERE
@@ -630,7 +626,7 @@ PROCEDURE local-add-record :
                    v-i-no = v-i-no + eb.stock-no + ",". 
                END.
             END.
-
+       
         END.
         ELSE
         DO:
@@ -647,21 +643,21 @@ PROCEDURE local-add-record :
                                          OUTPUT v-rec-key-list).             
 
           IF v-i-no = "" THEN DO:
-
+          
               FIND FIRST bf2-oe-ordl WHERE
                  bf2-oe-ordl.rec_key EQ lv-rec_key
                  NO-LOCK NO-ERROR.
-
+                   
               IF AVAIL bf2-oe-ordl THEN DO:
-
+    
                  FOR EACH bf3-oe-ordl WHERE
                      bf3-oe-ordl.company EQ bf2-oe-ordl.company AND
                      bf3-oe-ordl.ord-no EQ bf2-oe-ordl.ord-no
                      NO-LOCK:
-
+                 
                      v-i-no = v-i-no + bf3-oe-ordl.i-no + ",".
                  END.
-
+    
               END.
           END. /* v-i-no = "" */
         END. /* not avail oe-ord */
@@ -702,20 +698,20 @@ PROCEDURE local-assign-record :
        attach.est-no = lv-saletool
        attach.i-no   = lv-saletool.
     END.
-
+     
     ELSE DO:
       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
       RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key).
       ASSIGN attach.rec_key = lv-rec_key.
       FIND FIRST itemfg WHERE itemfg.rec_key = lv-rec_key NO-LOCK NO-ERROR.
-
+      
       IF AVAIL itemfg AND poPaperClip-INT EQ 1 THEN
         RUN po/copyItemAttach.p (INPUT "Item", INPUT attach.attach-file, INPUT ROWID(itemfg)).
     END.
-
+    
     attach.company = g_company.
   END.
-
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -791,7 +787,7 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */

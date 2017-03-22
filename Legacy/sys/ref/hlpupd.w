@@ -151,8 +151,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -192,7 +190,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -237,7 +235,7 @@ DO:
        END.
 /* mod - sewa for Web Services task 08211210 */
       ASSIGN op-ed-text = STRING(ed-text:SCREEN-VALUE).
-
+     
       find first sys-ctrl  WHERE sys-ctrl.name    eq "AsiHelpService"
         no-lock no-error.
       IF AVAIL sys-ctrl THEN
@@ -247,8 +245,8 @@ DO:
 
       CREATE SERVER vhWebService.
       vhWebService:CONNECT(vconn) NO-ERROR.
-
-
+   
+      
       IF NOT vhWebService:CONNECTED() THEN
           DO:
           STOP.
@@ -256,10 +254,10 @@ DO:
 
       RUN Service1Soap SET vhSalesSoap ON vhWebService .
       RUN HelpUpdate IN vhSalesSoap(INPUT string(fr-msg),INPUT STRING(ed-text:SCREEN-VALUE),INPUT STRING(lv-updated),  OUTPUT parameters1).
-
+      
 
     end.  /*mod-sewa */
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -354,7 +352,7 @@ find first sys-ctrl  WHERE sys-ctrl.name    eq "AsiHelpService"
 
       CREATE SERVER vhWebService.
       vhWebService:CONNECT(vconn) NO-ERROR.
-
+ 
 IF NOT vhWebService:CONNECTED() THEN
 DO:
   IF AVAIL hlp-head THEN do:
@@ -411,7 +409,7 @@ else if fr-title = "" then
 ELSE lv-help-title = "Help On " + fr-title +  " For " +
                     ip-db + "." + ip-table + "." + ip-field .
 lv-frame-name = ip-frame.
-
+ 
 ASSIGN op-ed-text = STRING(fr-txt).
 
 END. /* WebService conn*/   /*mod-sewa */

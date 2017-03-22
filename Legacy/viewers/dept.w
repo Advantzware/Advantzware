@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -201,7 +197,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
@@ -223,7 +219,7 @@ ASSIGN
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -293,14 +289,14 @@ PROCEDURE local-assign-record :
   def var lv-new-fc like dept.fc no-undo.
   def var dept-rowid as rowid no-undo.
   def var char-hdl as char no-undo.
-
-
+  
+   
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   assign
    lv-old-fc  = dept.fc
    dept-rowid = rowid(dept).
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -310,34 +306,34 @@ PROCEDURE local-assign-record :
     assign
      lv-new-fc = dept.fc
      i         = lv-new-fc.
-
+  
     for each dept
         {sys/ref/deptW.i}
           and dept.fc     ge lv-new-fc
           and dept.fc     lt 99
           and rowid(dept) ne dept-rowid
         by dept.fc:
-
+      
       assign
        i       = i + 1
        dept.fc = i * -1.
     end.
-
+  
     for each dept {sys/ref/deptW.i} and dept.fc lt 0:
       dept.fc = dept.fc * -1.
     end.
 
     for each dept {sys/ref/deptW.i} no-lock,
         each mach where mach.dept[1] eq dept.code:
-
+    
       mach.d-seq = dept.fc.
     end.
-
+  
     run get-link-handle in adm-broker-hdl (this-procedure,"record-source", output char-hdl).  
 
     run repo-query in widget-handle(char-hdl) (dept-rowid).
   end.
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

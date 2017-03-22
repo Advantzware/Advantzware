@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -272,7 +268,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -309,7 +305,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -409,7 +405,7 @@ PROCEDURE check-balanced :
  END.
 
  op-balanced = gl-jrn.tr-amt = 0.
-
+ 
  IF NOT op-balanced THEN DO:
     MESSAGE "Debit and Credit do not balance. Do you want to continue?"
         VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans AS LOG.
@@ -550,7 +546,7 @@ PROCEDURE import-excel :
    DEF VAR i-actnum AS INTE NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-
+   
       system-dialog get-file chFile 
                     title "Select File to Import"
                     filters "Excel File (*.xls) " "*.xls"
@@ -558,7 +554,7 @@ PROCEDURE import-excel :
                     MUST-EXIST
                     USE-FILENAME
                     UPDATE ll-ok.
-
+     
       IF ll-ok THEN
       DO:
          IF LENGTH(chFile) LT 4 OR
@@ -568,32 +564,32 @@ PROCEDURE import-excel :
                 VIEW-AS ALERT-BOX ERROR BUTTONS OK.
             LEAVE.
          END.
-
+     
          SESSION:SET-WAIT-STATE ("general").
-
+     
          EMPTY TEMP-TABLE tt-gl-jrn.
          EMPTY TEMP-TABLE tt-gl-jrnl.
 
          /* Initialize Excel. */
          CREATE "Excel.Application" chExcelApplication NO-ERROR.
-
+     
          /* Check if Excel got initialized. */
          IF not (valid-handle (chExcelApplication)) THEN
          DO:
             MESSAGE "Unable to Start Excel." VIEW-AS ALERT-BOX ERROR.
             RETURN ERROR.
          END.
-
+     
          /* Open our Excel File. */  
          chExcelApplication:Visible = FALSE.
          chWorkbook = chExcelApplication:Workbooks:OPEN(chfile) no-error.
-
+     
          /* Do not display Excel error messages. */
          chExcelApplication:DisplayAlerts = false  no-error.
-
+     
          /* Go to the Active Sheet. */
          chWorkbook:WorkSheets(1):Activate no-error.
-
+     
          ASSIGN
             chWorkSheet = chExcelApplication:Sheets:item(1).
 
@@ -622,7 +618,7 @@ PROCEDURE import-excel :
                END.
 
                tt-gl-jrn.reverse = chWorkSheet:Range("D" + STRING(viRowCount)):VALUE NO-ERROR.
-
+           
                IF ERROR-STATUS:ERROR THEN
                DO:
                   MESSAGE "Invalid Reverse Entry Value, in row " + STRING(viRowCount) + "."
@@ -696,7 +692,7 @@ PROCEDURE import-excel :
                END.
 
                RELEASE tt-gl-jrnl.
-
+               
                ASSIGN
                   v-line = v-line + 1
                   viRowCount = viRowCount + 1.
@@ -715,13 +711,13 @@ PROCEDURE import-excel :
          RELEASE OBJECT chWorkbook NO-ERROR.
          RELEASE OBJECT chWorkSheet NO-ERROR.
          RELEASE OBJECT chExcelApplication NO-ERROR.
-
+     
          IF valid-flag THEN
          DO:
             /*create records*/
 
             FOR EACH tt-gl-jrn:
-
+            
                CREATE gl-jrn.
                ASSIGN 
                   gl-jrn.reverse = tt-gl-jrn.reverse

@@ -4,10 +4,6 @@
           nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -274,8 +270,6 @@ END.
 
 {src/adm/method/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -332,7 +326,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttbl NO-LOCK.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -407,9 +401,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_showall B-table-Win
 ON CHOOSE OF btn_showall IN FRAME F-Main /* Show All */
 DO:
-
+    
     RUN show-all. 
-
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -463,7 +457,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-est-no B-table-Win
 ON LEAVE OF lv-est-no IN FRAME F-Main /* Est# */
 DO:
-
+  
   IF SELF:SCREEN-VALUE = "" THEN RETURN.
   ASSIGN lv-est-no.
 
@@ -498,7 +492,7 @@ DO:
                        THEN RETURN NO-APPLY.
                WHEN 'SCHEDULING' THEN IF jobs.scheduling_status NE '' THEN RETURN NO-APPLY.
          END CASE.
-
+      
          CREATE bf-ttbl.
          ASSIGN
              bf-ttbl.job-no = job.job-no + '-' + STRING(job.job-no2)
@@ -532,7 +526,7 @@ DO:
       BROWSE {&browse-name}:SELECT-FOCUSED-ROW().
   END.
   ELSE DO:
-
+      
       FIND FIRST job WHERE job.company = g_company
                        AND job.job-no = v-job-no AND job.job-no2 = v-job-no2 
                        NO-LOCK NO-ERROR.
@@ -555,7 +549,7 @@ DO:
                        THEN RETURN NO-APPLY.
                WHEN 'SCHEDULING' THEN IF jobs.scheduling_status NE '' THEN RETURN NO-APPLY.
          END CASE.
-
+      
          CREATE bf-ttbl.
          ASSIGN
              bf-ttbl.job-no = job.job-no + '-' + STRING(job.job-no2)
@@ -756,7 +750,6 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-  RUN pDataGridInit.
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF selected-option:NUM-ITEMS IN FRAME {&FRAME-NAME} = 0 THEN
@@ -782,7 +775,7 @@ PROCEDURE Selected_Option :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
   DEFINE VARIABLE jobs-rowid AS ROWID NO-UNDO.
-
+  
   ldummy = SESSION:SET-WAIT-STATE('General').
   IF VALID-HANDLE(adm-broker-hdl) THEN
   DO WITH FRAME {&FRAME-NAME}:
@@ -866,7 +859,7 @@ PROCEDURE show-all :
   Notes:       
 ------------------------------------------------------------------------------*/
  SESSION:SET-WAIT-STATE("general").
-
+ 
  ENABLE {&LIST-6} WITH FRAME {&FRAME-NAME}.
   FOR EACH ttbl EXCLUSIVE-LOCK:
     DELETE ttbl.

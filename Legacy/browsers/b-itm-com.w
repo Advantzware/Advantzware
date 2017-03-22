@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -264,8 +260,6 @@ END.
 {methods/template/browser.i}
 {custom/yellowColumns.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -346,7 +340,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -512,9 +506,9 @@ PROCEDURE import-excel :
    FOR EACH tt-item-comm:
       DELETE tt-item-comm.
    END.
-
+   
    DO WITH FRAME {&FRAME-NAME}:
-
+   
       SYSTEM-DIALOG GET-FILE chFile 
                     TITLE "Select File to Import"
                     FILTERS "Excel File (*.xls,*.xlsx) " "*.xls,*.xlsx"
@@ -522,7 +516,7 @@ PROCEDURE import-excel :
                     MUST-EXIST
                     USE-FILENAME
                     UPDATE v-ok.
-
+     
       IF v-ok THEN DO:
          IF LENGTH(chFile) LT 4 OR
             (SUBSTR(chFile,LENGTH(chFile) - 3) NE ".xls" AND 
@@ -531,34 +525,34 @@ PROCEDURE import-excel :
                 VIEW-AS ALERT-BOX ERROR BUTTONS OK.
             LEAVE.
          END.
-
+     
          SESSION:SET-WAIT-STATE ("general").
-
+   
          /* Initialize Excel. */
          CREATE "Excel.Application" chExcelApplication NO-ERROR.
-
+     
          /* Check if Excel got initialized. */
          IF NOT (VALID-HANDLE (chExcelApplication)) THEN DO:
             MESSAGE "Unable to Start Excel." VIEW-AS ALERT-BOX ERROR.
             RETURN ERROR. 
          END.
-
+     
          /* Open our Excel File. */  
          chExcelApplication:VISIBLE = FALSE.
          chWorkbook = chExcelApplication:Workbooks:OPEN(chfile) NO-ERROR.
-
+     
          /* Do not display Excel error messages. */
          chExcelApplication:DisplayAlerts = FALSE NO-ERROR.
-
+     
          /* Go to the Active Sheet. */
          chWorkbook:WorkSheets(1):Activate NO-ERROR.
-
+     
          ASSIGN
             chWorkSheet = chExcelApplication:Sheets:ITEM(1).
 
          REPEAT:
             IF chWorkSheet:Range("A" + STRING(v-RowCount)):VALUE = ? THEN LEAVE.
-
+ 
             CREATE tt-item-comm.
             ASSIGN
                tt-item-comm.company            = cocode
@@ -590,7 +584,7 @@ PROCEDURE import-excel :
                v-RowCount = v-RowCount + 1.
          END.
       END.
-
+      
       /*Free memory*/
       chWorkbook = chExcelApplication:Workbooks:CLOSE() NO-ERROR.
       RELEASE OBJECT chWorkbook NO-ERROR.
@@ -605,7 +599,7 @@ PROCEDURE import-excel :
             PUT UNFORMATTED "Invalid Customer Number " + '"' + tt-item-comm.cust-no + '"' + ", in row " + STRING(tt-item-comm.row-no) + "." SKIP.
             tt-item-comm.valid = FALSE.
          END.
-
+         
          FIND FIRST b-itemfg WHERE b-itemfg.company = tt-item-comm.company
                                AND b-itemfg.cust-no = tt-item-comm.cust-no
                                AND b-itemfg.i-no    = tt-item-comm.i-no NO-LOCK NO-ERROR.
@@ -631,7 +625,7 @@ PROCEDURE import-excel :
                tt-item-comm.i-name     = b-itemfg.i-name
                tt-item-comm.part-dscr1 = b-itemfg.part-dscr1
                tt-item-comm.part-dscr2 = b-itemfg.part-dscr2.
-
+         
 /*          IF CAN-FIND(FIRST b-item-comm WHERE b-item-comm.company = tt-item-comm.company                                                                                                             */
 /*                                          AND b-item-comm.cust-no = tt-item-comm.cust-no                                                                                                             */
 /*                                          AND b-item-comm.i-no    = tt-item-comm.i-no) THEN DO:                                                                                                      */
@@ -804,7 +798,7 @@ FOR EACH b-item-comm WHERE
           b-itemfg.company = cocode AND
           b-itemfg.i-no    = b-item-comm.i-no
           NO-LOCK:
-
+   
     ASSIGN 
        b-item-comm.base-cost = b-itemfg.avg-cost
        b-item-comm.zz-char[3] = b-itemfg.prod-uom.

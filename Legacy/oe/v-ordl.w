@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -482,7 +478,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -494,7 +490,7 @@ ON HELP OF FRAME F-Main
 DO:
     def var char-val as cha no-undo.
     def var look-recid as recid no-undo. 
-
+  
     find oe-ord where oe-ord.company = gcompany and oe-ord.ord-no = oe-ordl.ord-no
                    no-lock no-error.
     case focus:name :
@@ -570,7 +566,7 @@ DO:
               if char-val <> "" then assign focus:screen-value = entry(1,char-val)
                                             oe-ordl.vend-no:screen-value = entry(2,char-val)  .         
          end.
-
+          
     end case.
     return no-apply.
 
@@ -591,7 +587,7 @@ DO:
        oe-ordl.cas-cnt:screen-value = oe-ordl.qty:screen-value.        
     end.
     {oe/ordltot.i oe-ordl qty oe-ordl}
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -619,7 +615,7 @@ END.
 ON LEAVE OF oe-ordl.est-no IN FRAME F-Main /* Estimate # */
 DO:
     if lastkey = -1 then return.
-
+    
     if oe-ordl.est-no:screen-value <> "" then do:
        v-est-no = oe-ordl.est-no:screen-value.
        run util/rjust.p (input-output v-est-no,8).
@@ -648,7 +644,7 @@ END.
 ON LEAVE OF oe-ordl.i-no IN FRAME F-Main /* FG Item# */
 DO:
     if lastkey = -1 then return.
-
+    
     def var ls-i-no as cha no-undo.
     def var ls-part-no as cha no-undo.
     def var ls-est-no as cha no-undo.
@@ -658,7 +654,7 @@ DO:
     run display-fgitem no-error.
 
     if return-value <> "" then return no-apply.
-
+    
     if error-status:error then do: /* not avail itemfg */
      /*  message "This item does not exist, would you like to add it?" view-as alert-box question
                button yes-no update ll-ans as log.  
@@ -668,11 +664,11 @@ DO:
               ls-part-no = oe-ordl.part-no:screen-value
               ls-est-no = oe-ordl.est-no:screen-value
               ls-uom = oe-ordl.pr-uom:screen-value.
-
+                  
        run oe/d-citmfg.w (ls-est-no, input-output ls-i-no,
                           input-output ls-part-no,input-output ls-uom) no-error.
        if ls-i-no = "" then return no-apply.  /* cancel */
-
+       
        if ls-i-no <> "" then do:   
           assign oe-ordl.i-no:screen-value = ls-i-no
                  oe-ordl.part-no:screen-value = ls-part-no.
@@ -712,7 +708,7 @@ END.
 ON LEAVE OF oe-ordl.job-no IN FRAME F-Main /* Job Number */
 DO:
    def var i as int no-undo.
-
+   
    assign v-bld-job = "".
    do i = 1 to 6:
       if substring(input oe-ordl.job-no,i,1) ne " " then
@@ -743,7 +739,7 @@ DO:
                   view-as alert-box error  .
           return no-apply.
     end.        
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -783,7 +779,7 @@ DO:
       end.                      
       run display-fgpart (recid(itemfg) )  no-error.
       if error-status:error then return no-apply.
-
+      
       apply "entry" to oe-ordl.price.
       return no-apply.
   end.
@@ -798,9 +794,9 @@ END.
 ON LEAVE OF oe-ordl.po-no-po IN FRAME F-Main /* Board PO # */
 DO:
     if lastkey = -1 then return.
-
+    
     def var ld-cost as dec no-undo.
-
+    
     if self:screen-value ne "0" then do:
        find first po-ord where po-ord.company eq cocode
                            and po-ord.po-no   eq input oe-ordl.po-no-po
@@ -810,7 +806,7 @@ DO:
                    view-as alert-box error .
           return no-apply.
        end.
-
+            
        if oe-ordl.job-no ne "" then do:
           find first job-hdr where job-hdr.company eq cocode
                     and job-hdr.job-no  eq oe-ordl.job-no
@@ -824,7 +820,7 @@ DO:
                   first item where item.company  eq cocode
                                and item.i-no     eq job-mat.rm-i-no
                                and item.mat-type eq "B" no-lock:                 
-
+  
                   find first po-ordl where po-ordl.company   eq cocode
                             and po-ordl.i-no      eq job-mat.rm-i-no
                             and po-ordl.po-no     eq po-ord.po-no
@@ -870,9 +866,9 @@ END.
 ON LEAVE OF oe-ordl.pr-uom IN FRAME F-Main /* UOM */
 DO:
     def var lv-out-cost as dec no-undo.
-
+    
     if lastkey = -1 then return.
-
+    
     if oe-ordl.pr-uom:screen-value <> "" then do:
        find first uom where uom.uom eq oe-ordl.pr-uom:screen-value
                         and lookup(uom.uom,lv-uom-list) ne 0
@@ -889,7 +885,7 @@ DO:
         run sys/ref/convcuom.p(oe-ordl.pr-uom:screen-value, "M", 0, 0, 0, 0,
                                dec(oe-ordl.cost:screen-value), output lv-out-cost).
      assign oe-ordl.cost:screen-value = string(lv-out-cost).
-
+     
     {oe/ordltot.i oe-ordl qty oe-ordl}
 
 END.
@@ -940,12 +936,12 @@ DO:
    def var v-set as cha no-undo.
    def var v-qty as int no-undo.
    def var v-checkset as log no-undo.
-
+   
    if dec(oe-ordl.qty:screen-value) = 0 then do:
       message "Quantity can not be 0. " view-as alert-box error.
       return no-apply.
    end.
-
+   
    if int(oe-ordl.qty:screen-value) < int(oe-ordl.cas-cnt:screen-value) or
       int(oe-ordl.cas-cnt:screen-value) = 0
    then oe-ordl.cas-cnt:screen-value = oe-ordl.qty:screen-value. 
@@ -968,7 +964,7 @@ DO:
              /*if nufile then old-qty = 0.*/
              run oe/fgadd2.p.   /** 2pc box fg create/update routine **/
    end.
-
+  
 
    if avail xest and v-quo-price then do:
       assign lv-price = dec(oe-ordl.price:screen-value)
@@ -985,7 +981,7 @@ DO:
              oe-ordl.pr-uom:screen-value = lv-pr-uom
              oe-ordl.qty:SCREEN-VALUE = STRING(v-i-qty).
    end. 
-
+   
     /* Begin Calculate Weight for Order */
     /* take old qty - new qty find weight and add to order */
     find first itemfg where itemfg.company eq cocode
@@ -1100,11 +1096,11 @@ assign gcompany = g_company
     ASSIGN
      v-print-head = sys-ctrl.log-fld
      v-print-fmt  = sys-ctrl.char-fld.
-
+  
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   v-rel = oe-ordl.rel.
 
   /************************ INTERNAL PROCEDURES ********************/
@@ -1155,12 +1151,12 @@ PROCEDURE calc-alloc-qty :
 ------------------------------------------------------------------------------*/
 def output param v-alloc as int no-undo.
 def var v-type as cha no-undo.
-
+       
 find first itemfg where itemfg.company = gcompany and
                         itemfg.i-no = oe-ordl.i-no
                         no-lock no-error.                          
 v-alloc = 0.
-
+  
 for each oe-ordl where oe-ordl.company eq cocode
                    and oe-ordl.i-no    eq itemfg.i-no
             use-index item no-lock,   
@@ -1169,13 +1165,13 @@ for each oe-ordl where oe-ordl.company eq cocode
           and index("CZT",oe-ord.stat) eq 0
           and oe-ord.type ne "T"
           use-index ord-no no-lock:
-
+          
     for each oe-rel where oe-rel.company eq cocode
           and oe-rel.ord-no  eq oe-ordl.ord-no
           and oe-rel.i-no    eq oe-ordl.i-no
           and oe-rel.line    eq oe-ordl.line
           use-index ord-item no-lock:
-
+        
        {oe/rel-stat.i v-type} 
        if v-type eq "P" then v-alloc = v-alloc + oe-rel.qty.
        else 
@@ -1190,7 +1186,7 @@ for each oe-ordl where oe-ordl.company eq cocode
          v-alloc = v-alloc + inv-line.ship-qty.
        end.
     end.
-
+    
     for each oe-relh  where oe-relh.company eq cocode
              and oe-relh.ord-no  eq oe-ordl.ord-no
              and oe-relh.posted  eq no
@@ -1226,9 +1222,9 @@ PROCEDURE create-release :
   def var v-ship-id like oe-rel.ship-id no-undo.
   def var v-num-shipto as int no-undo.
 
-
+  
   def buffer xoe-rel for oe-rel.
-
+  
   find first sys-ctrl where sys-ctrl.company = cocode and
                             sys-ctrl.name = "jobcreat" 
                             no-lock no-error.
@@ -1246,7 +1242,7 @@ PROCEDURE create-release :
                        and shipto.cust-no eq oe-ordl.cust-no:
                assign v-num-shipto = v-num-shipto + 1.
      end.
-
+     
      if v-num-shipto gt 1 then
      do:
          if oe-ordl.est-no ne "" then
@@ -1296,7 +1292,7 @@ PROCEDURE create-release :
                                  sys-ctrl.name     = "OECARIER"
                                  sys-ctrl.descrip  = "Default carrier from Header or ShipTo:"
                                  sys-ctrl.char-fld = "ShipTo".
-
+       
                                do while true:
                                  message "Default Shipping Carrier from Header or Shipto?" 
                                    update sys-ctrl.char-fld.
@@ -1342,7 +1338,7 @@ PROCEDURE create-release :
                             sys-ctrl.name     = "OECARIER"
                             sys-ctrl.descrip  = "Default carrier from Header or ShipTo~:"
                             sys-ctrl.char-fld = "ShipTo".
-
+       
                      do while true:
                         message "Default Shipping Carrier from Header or Shipto?" 
                         update sys-ctrl.char-fld.
@@ -1383,7 +1379,7 @@ PROCEDURE create-release :
                            sys-ctrl.name     = "OECARIER"
                            sys-ctrl.descrip  = "Default carrier from Header or ShipTo~:"
                            sys-ctrl.char-fld = "ShipTo".
-
+       
                     do while true:
                         message "Default Shipping Carrier from Header or Shipto?" 
                         update sys-ctrl.char-fld.
@@ -1396,14 +1392,14 @@ PROCEDURE create-release :
            end.           
        end.           
   end.
-
+         
   fil_id = recid(oe-ordl).
   if avail oe-ordl and (oe-ordl.est-no ne "" and oe-ordl.job-no eq "") then do:
        message " Since job number is blank, a job will not be created "
                   view-as alert-box.
   end.  
   else run oe/ordlup.p.         /* Update Inventory and Job Costing */
-
+           
  if xoe-ord.est-no eq "" and oe-ordl.est-no ne "" then do:
       fil_id = recid(oe-ordl).
       run oe/estupl.p.
@@ -1455,14 +1451,14 @@ assign cocode = gcompany
        .
 
 {ce/msfcalc.i}
-
+                 
 {oe/fgfreight.i} 
 find first sys-ctrl
     where sys-ctrl.company eq cocode
       and sys-ctrl.name    eq "SETPRINT"
     no-lock no-error.
 if avail sys-ctrl then v-alloc = sys-ctrl.log-fld.
-
+       
 find first cust  where cust.company eq gcompany
                    and cust.cust-no eq xeb.cust-no
     no-lock no-error.
@@ -1523,7 +1519,7 @@ if avail xeb then do:
     END.
 
     {fg/set-inks1.i itemfg xeb}.
-
+ 
     {sys/inc/fgcascnt.i itemfg xeb}
 
      /* {sys/inc/updfgdim.i "xeb"} replaced with below (02211202) */
@@ -1600,7 +1596,7 @@ PROCEDURE display-est-detail :
   def var lv-price as dec no-undo.
   def var lv-pr-uom as cha no-undo.
   DEF VAR lv-qty AS DEC NO-UNDO.
-
+  
   find first eb where string(recid(eb)) = ip-char no-lock no-error.
   if avail eb then do WITH FRAME {&Frame-name} :
      find first est-qty where est-qty.company = eb.company
@@ -1664,7 +1660,7 @@ PROCEDURE display-fgitem :
 
   if not avail oe-ord then find oe-ord where oe-ord.company = gcompany and
                                 oe-ord.ord-no = oe-ordl.ord-no no-lock. 
-
+                                
   /* ====== oe/oedlfg.i ===========*/
   if itemfg.class eq "*" then oe-ordl.disc:screen-value = "0".
   if oe-ord.type eq "O" and oe-ordl.est-no ne "" then
@@ -1700,7 +1696,7 @@ PROCEDURE display-fgitem :
                oe-ordl.cost:screen-value   = string(po-ordl.cons-cost).
      else assign oe-ordl.pr-uom:screen-value = itemfg.prod-uom
                  oe-ordl.cost:screen-value   = string(itemfg.total-std-cost).
-
+      
      if oe-ordl.pr-uom ne "M" then
         run sys/ref/convcuom.p(oe-ordl.pr-uom:screen-value, "M", 0, 0, 0, 0,
                                dec(oe-ordl.cost:screen-value), output lv-out-cost).
@@ -1711,7 +1707,7 @@ PROCEDURE display-fgitem :
 
   if v-use-rel then run calc-alloc-qty (output li-alloc).
   else li-alloc = itemfg.q-alloc.
-
+  
   if avail itemfg then assign li-on-hand = itemfg.q-onh
                               li-on-order = itemfg.q-ono
                               /*li-alloc = itemfg.q-alloc */
@@ -1728,7 +1724,7 @@ PROCEDURE display-fgitem :
               li-backorder 
               li-avail 
               li-reorder with frame {&frame-name}.
-
+ 
  li-reorder:bgcolor = ?.            
 
  if (itemfg.q-onh + itemfg.q-ono - li-alloc) <= itemfg.ord-level and
@@ -1775,7 +1771,7 @@ PROCEDURE display-fgpart :
 
 run validate-fgitem no-error.
 if error-status:error then return error.
-
+   
 do with frame {&frame-name}:  
   find itemfg where recid(itemfg) = ip-recid no-lock.
   if itemfg.class eq "*" then oe-ordl.disc:screen-value = "0".
@@ -1812,14 +1808,14 @@ do with frame {&frame-name}:
                oe-ordl.cost:screen-value   = string(po-ordl.cons-cost).
      else assign oe-ordl.pr-uom:screen-value = itemfg.prod-uom
                  oe-ordl.cost:screen-value   = string(itemfg.total-std-cost).
-
+      
      if oe-ordl.pr-uom ne "M" then
         run sys/ref/convcuom.p(oe-ordl.pr-uom:screen-value, "M", 0, 0, 0, 0,
                                dec(oe-ordl.cost:screen-value), output lv-out-cost).
      assign oe-ordl.cost:screen-value = string(lv-out-cost)
             oe-ordl.pr-uom:screen-value = itemfg.sell-uom.                        
   end.
-
+  
 end.  /* frame {&frame-name} */
 
   /* ====== from display-fgitem like oe/fg-qtys.p  =========*/  
@@ -1841,14 +1837,14 @@ end.  /* frame {&frame-name} */
               li-backorder 
               li-avail 
               li-reorder with frame {&frame-name}.
-
+ 
   li-reorder:bgcolor = ?.            
   if (itemfg.q-onh + itemfg.q-ono - li-alloc) <= itemfg.ord-level and
      itemfg.ord-level > 0 then do:
      assign li-reorder:bgcolor = 12.   
   end.
   /* =========== end display qtys ============*/
-
+ 
  if itemfg.isaset and itemfg.t-sqft eq 0 AND
      CAN-FIND(FIRST fg-set WHERE fg-set.company EQ cocode
                              AND fg-set.set-no  EQ itemfg.i-no
@@ -1867,10 +1863,10 @@ end.  /* frame {&frame-name} */
         v-i-qty = int(oe-ordl.qty:screen-value)
         .
  run oe/oe-price.p. 
-
+ 
  if oe-ordl.qty:screen-value = "0" or oe-ordl.qty:screen-value = "" then
     apply "entry" to oe-ordl.qty.
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1890,7 +1886,7 @@ PROCEDURE display-fgqtys :
 
   if v-use-rel then run calc-alloc-qty (output li-alloc).
   else li-alloc = itemfg.q-alloc.
-
+  
   if avail itemfg then assign li-on-hand = itemfg.q-onh
                               li-on-order = itemfg.q-ono
                               /*li-alloc = itemfg.q-alloc */
@@ -1907,7 +1903,7 @@ PROCEDURE display-fgqtys :
               li-backorder 
               li-avail 
               li-reorder with frame {&frame-name}.
-
+ 
  li-reorder:bgcolor = ?.            
  if (itemfg.q-onh + itemfg.q-ono - li-alloc) <= itemfg.ord-level and
     itemfg.ord-level > 0 then do:
@@ -1926,7 +1922,7 @@ PROCEDURE local-assign-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def buffer xoe-ordl for oe-ordl.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   if not avail oe-ord then 
      find oe-ord where oe-ord.company = gcompany and oe-ord.ord-no = oe-ordl.ord-no
@@ -1975,7 +1971,7 @@ PROCEDURE local-create-record :
   def var i as int no-undo.
   def var char-hdl as cha no-undo.
   def var lv-ord-rowid as rowid no-undo.
-
+      
   /* Code placed here will execute PRIOR to standard behavior. */
   if not avail oe-ordl then do:  /* first ordl record creation */
        run get-link-handle in adm-broker-hdl (this-procedure, "record-source", output char-hdl).
@@ -1989,12 +1985,12 @@ PROCEDURE local-create-record :
    find last bf-ordl of oe-ord no-lock no-error.
    if avail bf-ordl then z = bf-ordl.line + 1.
   end.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
   lv-ordl-recid = recid(oe-ordl).  /* progress bug for first record creation */
   if avail oe-ord then do:
    find first cust {sys/ref/custW.i} and cust.cust-no = oe-ord.cust-no
@@ -2016,7 +2012,7 @@ PROCEDURE local-create-record :
       for each work-ordl where work-ordl.cust-no eq oe-ord.cust-no
                             by work-ordl.form-no
         by work-ordl.blank-no:
-
+        
        assign
         oe-ordl.i-name     = work-ordl.i-name
         oe-ordl.part-no    = work-ordl.part-no
@@ -2035,14 +2031,14 @@ PROCEDURE local-create-record :
         oe-ordl.cas-cnt    = work-ordl.cas-cnt
         oe-ordl.blank-no   = work-ordl.blank-no
         oe-ordl.form-no    = work-ordl.form-no.
-
+        
        delete work-ordl.
-
+       
        z = 99.
-
+       
        leave.
      end.
-
+ 
      if z eq 1 then
         assign oe-ordl.est-no   = oe-ord.est-no
                oe-ordl.est-type = oe-ord.est-type.
@@ -2056,7 +2052,7 @@ PROCEDURE local-create-record :
        oe-ordl.est-no   = oe-ord.est-no
        oe-ordl.est-type = oe-ord.est-type.
 
-
+             
    do i = 1 to 3:
      assign
       oe-ordl.s-man[i]  = oe-ord.sman[i]
@@ -2117,7 +2113,7 @@ PROCEDURE local-display-fields :
 
      return.  
   end.
-
+  
   find first sys-ctrl where sys-ctrl.company eq gcompany
                       and sys-ctrl.name    eq "OEREORDR"
        no-lock no-error.
@@ -2138,7 +2134,7 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   run display-fgqtys.
-
+                            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2182,7 +2178,7 @@ PROCEDURE select-his :
   find first cust {sys/ref/custW.i} and
                   cust.cust-no eq xoe-ord.cust-no
                   use-index cust no-lock no-error.
-
+                  
   def var char-hdl as cha no-undo.
   run get-link-handle in adm-broker-hdl (this-procedure,"container-source",output char-hdl).
   run init-history in widget-handle(char-hdl) (this-procedure).
@@ -2208,7 +2204,7 @@ PROCEDURE select-price :
          v-price-lev = 0.
   /* Get appropriate level */
   run oe/oe-level.p.
-
+ 
   repeat:
        message "What Level should the Items be Repriced At?" update v-price-lev .
        if v-price-lev le 0 or v-price-lev ge 11 then do:
@@ -2219,7 +2215,7 @@ PROCEDURE select-price :
    end.
 
    run oe/oe-repr1.p.
-
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2238,15 +2234,15 @@ PROCEDURE select-stat :
   find first cust {sys/ref/custW.i} and
                   cust.cust-no eq xoe-ord.cust-no
                   use-index cust no-lock no-error.
-
+                  
   /*run oe/d-credit.w./* (cocode,cust.cust-no).*/ */
   def var char-hdl as cha no-undo.
   run get-link-handle in adm-broker-hdl (this-procedure,"container-source",output char-hdl).
   run init-credit-inq in widget-handle(char-hdl) (this-procedure).
 
   run dispatch ('open-query').
-
-
+  
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2333,7 +2329,7 @@ do with frame {&frame-name} :
               return error.
        end.
    end.
-
+           
    find first xoe-ordl where xoe-ordl.company eq oe-ordl.company and
               xoe-ordl.ord-no eq oe-ordl.ord-no and
               xoe-ordl.i-no eq input oe-ordl.i-no /* and

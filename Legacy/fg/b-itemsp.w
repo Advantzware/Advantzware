@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -216,8 +212,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -263,7 +257,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -427,12 +421,12 @@ FUNCTION notes-dscr RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
   def buffer bf-item-spec for item-spec.
   def var ls-return as cha no-undo.
-
+  
   find bf-item-spec where bf-item-spec.company = item-spec.company and
                           bf-item-spec.i-no = "" and
                           bf-item-spec.code = item-spec.code
                           no-lock no-error.
-
+                          
   ls-return = if avail bf-item-spec then bf-item-spec.notes[1] else "".                        
   Return ls-return.   /* Function return value. */
 

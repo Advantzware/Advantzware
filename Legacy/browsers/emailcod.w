@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -200,8 +196,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -249,7 +243,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -287,14 +281,14 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
-
+  
   /* disable/enable set parts tab */
   def var char-hdl as cha no-undo.
   def var cEmailTo as cha no-undo.
-
+  
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "container-source", OUTPUT char-hdl).
   RUN get-link-handle IN adm-broker-hdl(WIDGET-HANDLE(char-hdl), "page-source", OUTPUT char-hdl).
-
+  
   if emailcod.emailTo <> "" then do:
     IF can-do(emailcod.emailTo,"Customer") or can-do(emailcod.emailTo,"Cust") 
        THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 2) NO-ERROR.
@@ -309,7 +303,7 @@ DO:
     IF can-do(emailcod.emailTo,"SoldTo") THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6) NO-ERROR.
     ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6) NO-ERROR.
   end.
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -417,7 +411,7 @@ PROCEDURE local-row-changed:
   /* Code placed here will execute AFTER standard behavior.    */
 
   apply 'value-changed' to browse {&browse-name}. 
-
+  
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -317,8 +313,6 @@ END.
 
 {src/adm/method/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -426,7 +420,7 @@ fg-rctd.rita-code = ""R"""
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -721,7 +715,7 @@ DO:
     DEF VAR v-locbin AS cha NO-UNDO.
     IF SELF:MODIFIED THEN DO:
        IF LENGTH(SELF:SCREEN-VALUE) > 5 THEN DO:
-
+          
           v-locbin = SELF:SCREEN-VALUE.
           ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = SUBSTRING(v-locbin,1,5)
                  fg-rctd.loc-bin:SCREEN-VALUE = SUBSTRING(v-locbin,6,8).
@@ -1007,7 +1001,7 @@ PROCEDURE fgpostlog :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ipLogText AS CHARACTER NO-UNDO.
-
+        
    PUT STREAM logFile UNFORMATTED STRING(TODAY,'99.99.9999') ' '
        STRING(TIME,'hh:mm:ss am') ' : ' ipLogText SKIP.
 END PROCEDURE.
@@ -1024,11 +1018,11 @@ PROCEDURE gl-from-work :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-run AS INT NO-UNDO.
   DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
-
+  
   def var credits as dec init 0 no-undo.
   def var debits as dec init 0 no-undo. 
 
-
+  
   FIND FIRST period
       WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -1039,7 +1033,7 @@ PROCEDURE gl-from-work :
       where (ip-run eq 1 and work-gl.job-no ne "")
          or (ip-run eq 2 and work-gl.job-no eq "")
       break by work-gl.actnum:
-
+      
     assign
      debits  = debits  + work-gl.debits
      credits = credits + work-gl.credits.
@@ -1153,7 +1147,6 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-  RUN pDataGridInit.
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF SSMoveFG-cha = "Whs/Bin" THEN DO:
@@ -1346,7 +1339,7 @@ PROCEDURE post-finished-goods :
       IF LAST-OF(w-fg-rctd.tag) THEN DO:
         IF TRIM(w-fg-rctd.tag) NE "" THEN 
         /* Ensure Bin/Tags Qty is correct.  Task 01270602 */
-
+        
         FOR EACH fg-bin NO-LOCK
             WHERE fg-bin.company EQ g_company
               AND fg-bin.i-no    EQ loadtag.i-no
@@ -1464,13 +1457,13 @@ PROCEDURE post-finished-goods :
                 gl-ctrl.trnum = v-trnum.
 
          FIND CURRENT gl-ctrl NO-LOCK.
-
+         
          IF fgPostLog THEN RUN fgPostLog ('Begin Run gl-from-work 1').         
          RUN gl-from-work (1, v-trnum).
          IF fgPostLog THEN RUN fgPostLog ('End 1 - Begin Run gl-from-work 2').
          RUN gl-from-work (2, v-trnum).
          IF fgPostLog THEN RUN fgPostLog ('End Run gl-from-work 2').
-
+         
          LEAVE.
         END. /* IF AVAIL gl-ctrl */
       END. /* REPEAT */
@@ -1522,7 +1515,7 @@ PROCEDURE post-finished-goods :
     IF fgPostLog THEN RUN fgPostLog ('End').
     IF fgPostLog THEN OUTPUT STREAM logFile CLOSE.
     SESSION:SET-WAIT-STATE ("").
-
+  
   RUN local-open-query.
 END PROCEDURE.
 
@@ -1537,13 +1530,13 @@ PROCEDURE post-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR v-done AS INT NO-UNDO.
-
+  
 
   /*RUN custom/d-msg.w ("Warning","","Are you ready to post FG Receipts?","",2,"YES,NO", OUTPUT v-done).
   IF v-done >= 2 THEN RETURN.*/
-
+  
   RUN fg/fgpstall.w (?, "R").
-
+  
   RUN dispatch ('open-query').
 
 END PROCEDURE.
@@ -1648,7 +1641,7 @@ PROCEDURE validate-record :
           APPLY "entry" TO fg-rctd.loc.
           RETURN ERROR.
   END.
-
+  
   FIND FIRST fg-bin WHERE fg-bin.company = g_company 
                       AND fg-bin.i-no = ""
                       AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}

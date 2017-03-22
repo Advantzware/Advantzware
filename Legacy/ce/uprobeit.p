@@ -36,6 +36,7 @@ DEFINE VARIABLE v-pct              LIKE eb.comm INIT 0 EXTENT 5 NO-UNDO.
 DEFINE VARIABLE ll-tandem          AS LOG       NO-UNDO.
 DEFINE VARIABLE ll-use-margin      AS LOG       NO-UNDO.
 DEFINE VARIABLE board-cst          AS DECIMAL   NO-UNDO.
+DEFINE VARIABLE dBoardCst          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dBoardPct          AS DECIMAL   NO-UNDO.
 
 DEFINE SHARED TEMP-TABLE tt-rel NO-UNDO LIKE reftable.
@@ -336,14 +337,45 @@ FOR EACH probeit
 
         board-cst = board-cst + (brd.cost-m * blk.pct * (t-blkqty[ef.form-no] / 1000)).
     END.
-    IF ord-cost GT 0 AND qm GT 0 THEN 
-        dBoardPct = board-cst / ord-cost * 100.
+    
+    /*Note - calculation of board specific cost differs from Corrugated since there is not total Board Cost reftable*/
+    /*This is specific to the particular item*/
+    dBoardCst = 0.
+    FOR EACH blk WHERE blk.id EQ probeit.part-no,
+        FIRST ef NO-LOCK
+        WHERE ef.company EQ xest.company
+        AND ef.est-no  EQ xest.est-no
+        AND ef.form-no EQ blk.snum,
+        EACH brd WHERE brd.form-no EQ ef.form-no, 
+        FIRST ITEM NO-LOCK
+        WHERE item.company EQ ef.company
+        AND item.i-no EQ brd.i-no
+        AND item.mat-type EQ "B":
+
+        dBoardCst = dBoardCst + (brd.cost-m * blk.pct * (t-blkqty[ef.form-no] / 1000)).
+    END.
+
+    dBoardCst = dBoardCst / (v-qty / 1000).
+    
+    IF probeit.fact-cost GT 0 THEN 
+        dBoardPct = dBoardCst / probeit.fact-cost * 100.
+ 
+    
+    /*eb is not available at this point and is needed for markup matrix lookup - find the non-set header blank*/       
+    IF NOT AVAILABLE eb THEN 
+        FIND FIRST eb NO-LOCK
+            WHERE eb.company EQ probeit.company
+            AND eb.est-no EQ probeit.est-no
+            AND eb.part-no EQ probeit.part-no
+            AND eb.form-no GT 0
+            NO-ERROR.
+    
     RUN custom/markup.p (ROWID(eb),
-        board-cst,
+        dBoardCst,
         dBoardPct,
         INPUT-OUTPUT lv-sell-by,
         INPUT-OUTPUT v-pct[3]).
-
+   
     /*  IF lv-sell-by-ce-ctrl NE "B" AND                                                      */
     /*     lv-sell-by EQ "B" THEN DO:                                                         */
     /*     board-cst = 0.                                                                     */

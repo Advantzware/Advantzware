@@ -4,12 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win 
-USING Consultingwerk.Framework.Collections.CharacterDictionary FROM PROPATH.
-USING Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl FROM PROPATH.
-&SCOPED-DEFINE dataGrid
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -37,13 +31,11 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-/*
-&SCOPED-DEFINE setBrowseFocus
+/*&SCOPED-DEFINE setBrowseFocus
 &SCOPED-DEFINE yellowColumnsName cust
 &SCOPED-DEFINE cellColumnDat browsers-cust
 &SCOPED-DEFINE useMatches
-&SCOPED-DEFINE defaultWhere cust.company = gcompany
-*/
+&SCOPED-DEFINE defaultWhere cust.company = gcompany */
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE browseOnly
 {methods/defines/winReSize.i}
@@ -89,7 +81,7 @@ ASSIGN cocode = g_company
        locode = g_loc.
 
 DO TRANSACTION:
-    {sys/ref/CustList.i NEW}
+     {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""AF1"" }
 END.
 
@@ -501,13 +493,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-/*{src/adm/method/browser.i}  */
-/*{src/adm/method/query.i}    */
-/*{methods/template/browser.i}*/
-/*{custom/yellowColumns.i}    */
+/*{src/adm/method/browser.i}
+{src/adm/method/query.i}
+{methods/template/browser.i}
+{custom/yellowColumns.i}*/
 
 {src/adm/method/navbrows.i}
-{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1138,7 +1129,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize B-table-Win 
 PROCEDURE local-initialize :
 /*------------------------------------------------------------------------------
@@ -1149,9 +1139,6 @@ PROCEDURE local-initialize :
   /* Code placed here will execute PRIOR to standard behavior. */
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-  
-  RUN pDataGridInit.
-  
   RUN setCellColumns.
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN cust.company:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -1177,7 +1164,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
@@ -1245,7 +1231,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE move-columns B-table-Win 
 PROCEDURE move-columns :

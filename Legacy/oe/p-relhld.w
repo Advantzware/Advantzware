@@ -147,7 +147,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -182,7 +181,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -198,8 +197,7 @@ DO:
 
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) 
       THEN RUN security IN WIDGET-HANDLE(char-hdl).
-
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -297,7 +295,7 @@ ASSIGN
 
         ASSIGN Btn-Update:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
 
-
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,7 +314,7 @@ IF Btn-Update:LABEL IN FRAME {&FRAME-NAME}= "&Hold"
   THEN
     ASSIGN
       Btn-Update:LABEL = "&Release".
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

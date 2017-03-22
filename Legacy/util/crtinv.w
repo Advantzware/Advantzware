@@ -289,19 +289,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -371,7 +365,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-missing-inv,
 */  /* BROWSE BROWSE-4 */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -425,7 +419,6 @@ DO:
   RUN check-range.
   FILL-IN-1:SCREEN-VALUE = "".
   FILL-IN-1:HIDDEN = TRUE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -437,7 +430,6 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -449,7 +441,6 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
    run run-process.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -479,7 +470,6 @@ DO:
         oe-boll.bol-no = fi_bol-no
         NO-LOCK.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -500,10 +490,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -514,11 +502,10 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   /* check security */
-
+  
   RUN enable_UI.
   FILL-IN-1:HIDDEN = TRUE.
   {methods/nowait.i}
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -566,7 +553,7 @@ FOR EACH oe-boll WHERE oe-boll.company EQ cocode
                b-reftable3.rec_key  EQ STRING(RECID(oe-boll))
                USE-INDEX rec_key
                NO-LOCK NO-ERROR.
-
+         
           IF AVAIL b-reftable3 THEN
           find first inv-line
               where inv-line.r-no   eq inv-head.r-no
@@ -704,7 +691,7 @@ DEF VAR v-index AS INT NO-UNDO.
    END.
 
    DO WITH FRAME {&FRAME-NAME}:
-
+   
    DO v-index = 1 TO browse-2:NUM-SELECTED-ROWS:
       browse-2:FETCH-SELECTED-ROW(v-index).
 
@@ -712,11 +699,11 @@ DEF VAR v-index AS INT NO-UNDO.
       DO:
          FIND LAST inv-head USE-INDEX r-no NO-LOCK NO-ERROR.
          v-ref-no = IF AVAIL inv-head THEN inv-head.r-no ELSE 0.
-
+  
          FIND LAST inv-line USE-INDEX r-no NO-LOCK NO-ERROR.
          IF AVAIL inv-line AND inv-line.r-no GT v-ref-no THEN
             v-ref-no = inv-line.r-no.
-
+  
          v-ref-no = v-ref-no + 1.
 
          FIND FIRST oe-bolh WHERE
@@ -732,26 +719,26 @@ DEF VAR v-index AS INT NO-UNDO.
                  shipto.cust-no EQ oe-bolh.cust-no AND
                  shipto.ship-no NE 1
                  USE-INDEX ship-id NO-LOCK NO-ERROR.
-
+           
             IF NOT AVAIL shipto THEN
                FIND FIRST shipto WHERE
                     shipto.company EQ oe-bolh.company AND
                     shipto.cust-no EQ oe-bolh.cust-no
                     USE-INDEX ship-no
                     NO-LOCK NO-ERROR.
-
+           
             FIND FIRST reftable WHERE
                  reftable.reftable EQ "oe-bolh.lot-no" AND
                  reftable.rec_key  EQ oe-bolh.rec_key
                  USE-INDEX rec_key
                  NO-LOCK NO-ERROR.
-
+           
             IF AVAIL reftable THEN
                v-fob-code = reftable.CODE.
             ELSE
                v-fob-code = "".
             RELEASE reftable.
-
+           
             FIND FIRST oe-ord WHERE
                   oe-ord.company EQ oe-boll.company AND
                   oe-ord.ord-no  EQ oe-boll.ord-no
@@ -804,36 +791,36 @@ DEF VAR v-index AS INT NO-UNDO.
               inv-head.state        = cust.state
               inv-head.zip          = cust.zip
               inv-head.curr-code[1] = cust.curr-code.
-
+            
             FIND FIRST usergrps WHERE
                  usergrps.usergrps = "IN"
                  NO-LOCK NO-ERROR.
-
+            
             IF AVAIL usergrps AND TRIM(usergrps.users) NE "" THEN
             DO:
                ASSIGN
                 v-line-count = 0
                 v-start-pos  = 1.
-
+            
                DO li = 1 TO LENGTH(usergrps.users):
                   ls = SUBSTR(usergrps.users,li,1).
-
+                 
                   IF v-line-count < 5 AND ls EQ CHR(10) OR ls EQ CHR(13) THEN
                      ASSIGN
                         v-line-count = v-line-count + 1
                         inv-head.bill-i[v-line-count] = SUBSTR(usergrps.users,v-start-pos,li - v-start-pos)
                         v-start-pos = li + 1.
-
+               
                   IF v-line-count < 5 AND li = LENGTH(usergrps.users) AND
                      NOT(ls EQ CHR(10) OR ls EQ CHR(13)) THEN
                      ASSIGN
                         v-line-count = v-line-count + 1
                         inv-head.bill-i[v-line-count] = SUBSTR(usergrps.users,v-start-pos,li - v-start-pos + 1).
                END.
-
+               
                RELEASE usergrps.
             END.
-
+            
             DO li = 1 TO 4:
                IF inv-head.bill-i[li] = "" THEN
                   inv-head.bill-i[li] = oe-ord.bill-i[li].
@@ -877,7 +864,7 @@ DEF VAR v-index AS INT NO-UNDO.
                b-reftable3.rec_key  EQ STRING(RECID(oe-boll))
                USE-INDEX rec_key
                NO-LOCK NO-ERROR.
-
+         
           IF AVAIL b-reftable3 THEN
           find first inv-line
               where inv-line.r-no   eq inv-head.r-no
@@ -917,7 +904,7 @@ DEF VAR v-index AS INT NO-UNDO.
               itemfg.company EQ oe-boll.company AND
               itemfg.i-no    EQ oe-boll.i-no
               NO-LOCK NO-ERROR.
-
+           
          ASSIGN
           inv-line.r-no       = v-ref-no
           inv-line.company    = oe-bolh.company
@@ -954,13 +941,13 @@ DEF VAR v-index AS INT NO-UNDO.
           inv-line.qty        = oe-ordl.qty
           inv-line.p-c        = oe-boll.p-c
           inv-line.po-no      = oe-boll.po-no.
-
+         
           FIND FIRST reftable WHERE
                reftable.reftable EQ "oe-boll.sell-price" AND
                reftable.rec_key  EQ STRING(RECID(oe-boll))
                USE-INDEX rec_key
                NO-LOCK NO-ERROR.
-
+         
           IF AVAIL reftable THEN
           DO:
              IF reftable.val[2] EQ 1 THEN
@@ -969,13 +956,13 @@ DEF VAR v-index AS INT NO-UNDO.
                 inv-line.price = reftable.val[1].
              RELEASE reftable.
           END.
-
+         
           FIND FIRST reftable WHERE
                reftable.reftable EQ "oe-boll.lot-no" AND
                reftable.rec_key  EQ STRING(RECID(oe-boll))
                USE-INDEX rec_key
                NO-LOCK NO-ERROR.
-
+         
           IF AVAIL reftable THEN
           DO:
              CREATE b-reftable.
@@ -997,7 +984,7 @@ DEF VAR v-index AS INT NO-UNDO.
       /** Increase invoice Qty when invoice or invoice & ship **/
       IF oe-boll.s-code ne "S" and not oe-ordl.is-a-component then
          inv-line.inv-qty = inv-line.inv-qty + oe-boll.qty.
-
+  
       /** Increase ship Qty when ship or invoice & ship **/
       if oe-boll.s-code ne "I" or
          can-find(first b-oe-ordl {sys/inc/ordlcomp.i b-oe-ordl oe-ordl}) then
@@ -1071,7 +1058,7 @@ DEF VAR v-index AS INT NO-UNDO.
    session:set-wait-state("").
 
    message "Process Is Completed." view-as alert-box.
-
+  
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

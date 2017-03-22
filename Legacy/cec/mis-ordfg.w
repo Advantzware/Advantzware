@@ -9,7 +9,7 @@
 /*------------------------------------------------------------------------
 
   File: est-vend.p
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -148,8 +148,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -192,7 +190,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -203,7 +201,7 @@ ASSIGN
 ON GO OF FRAME D-Dialog /* Order FG item Selection */
 DO:
   IF AVAIL tt-report THEN op-vend-no = tt-report.key-01.
-
+  
   RUN clean-up.
 END.
 
@@ -242,9 +240,9 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
   op-vend-no = tt-report.key-01.
-
+  
   RUN clean-up.
-
+  
  END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -317,7 +315,7 @@ PROCEDURE build-tt-report :
 /*                                                                            */
 /* -------------------------------------------------------------------------- */
 
-
+          
 FIND oe-ord WHERE RECID(oe-ord) EQ v-recid NO-LOCK NO-ERROR.
 
 IF NOT AVAIL oe-ord THEN LEAVE.
@@ -326,13 +324,13 @@ FOR EACH oe-ordl
     WHERE oe-ordl.company EQ oe-ord.company
       AND oe-ordl.ord-no  EQ oe-ord.ord-no
    NO-LOCK:
-
+    
     CREATE tt-report.
     ASSIGN
      tt-report.key-01  = oe-ordl.i-no
      tt-report.key-02  = oe-ordl.i-NAME
      tt-report.rec-id  = RECID(oe-ordl).
-
+  
 END.
 
 /* end ---------------------------------- copr. 2001  advanced software, inc. */

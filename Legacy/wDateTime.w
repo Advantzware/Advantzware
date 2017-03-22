@@ -15,7 +15,7 @@
       <none>
 
   History: New V9 Version - January 15, 1998
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -165,7 +165,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -187,7 +186,7 @@ THEN wWin:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 /* **********************  Create OCX Containers  ********************** */
@@ -262,8 +261,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BUTTON-10 wWin
 ON CHOOSE OF BUTTON-10 IN FRAME fMain /* Set Time */
 DO:
-
-
+ 
+ 
    chCtrlFrame-2:DTPicker:hour() = INT(FILL-IN-5:SCREEN-VALUE).
    chCtrlFrame-2:DTPicker:minute() = INT(FILL-IN-6:SCREEN-VALUE).
    chCtrlFrame-2:DTPicker:second() = INT(FILL-IN-7:SCREEN-VALUE).
@@ -289,7 +288,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BUTTON-8 wWin
 ON CHOOSE OF BUTTON-8 IN FRAME fMain /* Read Date */
 DO:
-
+  
 MESSAGE chCtrlframe:dtpicker:VALUE()
   VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
@@ -334,7 +333,7 @@ DO:
   chCtrlframe:dtpicker:FORMAT() = 1.
    chCtrlframe:dtpicker:VALUE() = DATE(FILL-IN-4:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

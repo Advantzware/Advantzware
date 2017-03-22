@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -232,8 +228,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -295,7 +289,7 @@ v-po-no <> """" and attach.est-no = v-po-no)
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -351,7 +345,7 @@ DO:
   v-i-no = "".
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
     RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key).
-
+    
     FIND FIRST po-ordl WHERE po-ordl.rec_key = lv-rec_key NO-LOCK NO-ERROR.
     IF AVAIL po-ordl THEN
         v-i-no = po-ordl.i-no.
@@ -497,7 +491,7 @@ PROCEDURE local-open-query :
   {methods/run_link.i "CONTAINER-SOURCE" "Get-ip-rec_key" "(OUTPUT ip-rec_key)"}
 
   {sys/ref/attachpologic.i}
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
@@ -549,21 +543,21 @@ DEF VAR lv-from-rec_key AS CHAR NO-UNDO.
 /* Accept list of attachments to copy from itemfg and create in PO */
 
 FOR EACH tt-mis WHERE tt-mis.selekt = YES:
-
+    
     FIND bf-item-attach WHERE ROWID(bf-item-attach) = tt-mis.sel-rowid
          NO-LOCK NO-ERROR.
     IF NOT AVAIL bf-item-attach THEN
         NEXT.
-
+    
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
     RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key).
 
     FIND FIRST po-ord WHERE po-ord.rec_key = lv-rec_key NO-LOCK NO-ERROR.
-
+    
     IF NOT AVAIL po-ord THEN
     DO:
        FIND FIRST po-ordl WHERE po-ordl.rec_key = lv-rec_key NO-LOCK NO-ERROR.
-
+  
        IF AVAIL po-ordl THEN
        DO:
           FIND FIRST po-ord WHERE
@@ -574,7 +568,7 @@ FOR EACH tt-mis WHERE tt-mis.selekt = YES:
           IF AVAIL po-ord THEN
              lv-rec_key = po-ord.rec_key.
        END.
-
+          
     END.
 
     FIND FIRST bf-attach WHERE bf-attach.rec_key EQ lv-rec_key 
@@ -584,7 +578,7 @@ FOR EACH tt-mis WHERE tt-mis.selekt = YES:
     /* Already Attached? */
     IF AVAIL bf-attach THEN
         NEXT.
-
+    
     CREATE bf-attach.
     BUFFER-COPY bf-item-attach EXCEPT rec_key TO bf-attach.
 
@@ -595,15 +589,15 @@ FOR EACH tt-mis WHERE tt-mis.selekt = YES:
 
 /*   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl). */
 /*   RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key).                         */
-
+  
 /*   FIND FIRST po-ord WHERE po-ord.rec_key = lv-rec_key NO-LOCK NO-ERROR. */
-
+  
   IF AVAIL po-ord THEN
      v-po-no = STRING(po-ord.po-no).
   ELSE
   DO:
      FIND FIRST po-ordl WHERE po-ordl.rec_key = lv-rec_key NO-LOCK NO-ERROR.
-
+  
      IF AVAIL po-ordl THEN
      DO:
         FIND FIRST po-ord WHERE
@@ -616,7 +610,7 @@ FOR EACH tt-mis WHERE tt-mis.selekt = YES:
      END.
   END.
 
-
+  
   ASSIGN bf-attach.creat-date = TODAY
          bf-attach.est-no = v-po-no.
 END.

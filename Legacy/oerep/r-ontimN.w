@@ -48,6 +48,11 @@ DEFINE TEMP-TABLE tt-date-reasons
     FIELD reason-code AS CHARACTER
     FIELD occurrences AS INTEGER.
 
+DEFINE TEMP-TABLE ttgroup
+    FIELD group-name AS CHARACTER
+    FIELD deliver    AS INTEGER
+    FIELD ontime     AS INTEGER .
+
 DEFINE STREAM excel.
 
 DEFINE VARIABLE ldummy AS LOG NO-UNDO.
@@ -369,19 +374,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -392,6 +391,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_bol-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -529,7 +538,6 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -585,7 +593,6 @@ SESSION:SET-WAIT-STATE("general").
        END. 
        WHEN 6  THEN RUN output-to-port.
   END CASE. 
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -612,7 +619,6 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -628,7 +634,6 @@ DO:
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -640,7 +645,6 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -657,7 +661,6 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -669,7 +672,6 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -898,10 +900,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -939,7 +939,6 @@ RUN DisplaySelectionList.
     APPLY "entry" TO begin_cust.
   END.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1312,6 +1311,7 @@ FORMAT HEADER
        SKIP
     WITH FRAME r-top.
 EMPTY TEMP-TABLE tt-date-reasons.
+EMPTY TEMP-TABLE ttgroup .
 ASSIGN
  str-tit2 = c-win:TITLE
  str-tit3 = "By Customer"
@@ -1424,6 +1424,7 @@ SESSION:SET-WAIT-STATE ("general").
          v-sqft = IF AVAILABLE itemfg THEN itemfg.t-sqft ELSE 0.
          v-msf = (oe-boll.qty * v-sqft )/ 1000. 
 
+
       IF FIRST-OF(oe-ord.cust-no) THEN DO:
         FIND FIRST cust
             WHERE cust.company EQ cocode
@@ -1455,6 +1456,24 @@ SESSION:SET-WAIT-STATE ("general").
           END.
           tt-date-reasons.occurrences = tt-date-reasons.occurrences + 1.
       END.
+
+      FIND FIRST ttgroup NO-LOCK
+           WHERE ttgroup.group-name EQ (IF AVAILABLE cust THEN  STRING(cust.spare-char-2) ELSE "") NO-ERROR.
+
+      IF NOT AVAIL ttgroup THEN DO:
+          CREATE ttgroup .
+          ASSIGN ttgroup.group-name = (IF AVAILABLE cust THEN  STRING(cust.spare-char-2) ELSE "").
+                 ttgroup.deliver    = 1 .
+                 IF oe-bolh.bol-date LE v-compare-dt THEN
+                     ttgroup.ontime     =  1 .
+      END.
+      ELSE DO:
+                 ttgroup.deliver    = ttgroup.deliver + 1 .
+                 IF oe-bolh.bol-date LE v-compare-dt THEN
+                     ttgroup.ontime     =ttgroup.ontime + 1 .
+      END.
+
+
 
       ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1622,6 +1641,18 @@ SESSION:SET-WAIT-STATE ("general").
                     WITH FRAME f-occurrences WIDTH 132 STREAM-IO.
             END.
         END.
+         PUT SKIP(1) .
+        FOR EACH ttgroup NO-LOCK BY ttgroup.group-name :
+            PUT " Customer Group " + STRING(ttgroup.group-name,"x(8)") + " Grand Totals:"  AT 10 FORMAT "x(40)"
+                SPACE(5)
+                " Deliveries: " + STRING(ttgroup.deliver) FORMAT "x(18)"
+                SPACE(5)
+                "On-Time: " + STRING(ttgroup.ontime)  FORMAT "x(15)"
+                SPACE(5)
+                  STRING(ttgroup.deliver / ttgroup.ontime * 100,">>9.99%")  FORMAT "x(16)" SKIP .
+        END.
+
+
       END.
     END. /* each oe-ord */
 

@@ -147,8 +147,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -188,7 +186,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -231,7 +229,7 @@ DO:
        END.
 /* mod - sewa for Web Services task 08211210 */
        ASSIGN op-ed-text = STRING(ed-text:SCREEN-VALUE).
-
+      
       find first sys-ctrl  WHERE sys-ctrl.name    eq "AsiHelpService"
         no-lock no-error.
         IF AVAIL sys-ctrl THEN
@@ -241,7 +239,7 @@ DO:
 
       CREATE SERVER vhWebService.
       vhWebService:CONNECT(vconn) NO-ERROR.
-
+      
       IF NOT vhWebService:CONNECTED() THEN
           DO:
           STOP.
@@ -249,9 +247,9 @@ DO:
 
       RUN Service1Soap SET vhSalesSoap ON vhWebService .
       RUN HelpUpdate IN vhSalesSoap(INPUT string(fr-msg),INPUT STRING(ed-text:SCREEN-VALUE),INPUT STRING(lv-updated),  OUTPUT parameters1).
-
+        
     end.  /*mod-sewa */
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -383,7 +381,7 @@ ELSE DO: /*  WebService conn */
         is-frame-help = YES.
     ELSE
         is-frame-help  = NO.
-
+    
     if is-frame-help then  
         lv-help-title = "Help For " + (if fr-title <> "" then fr-title
                                  else substring(fr-txt,1,30) )

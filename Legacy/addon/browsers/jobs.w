@@ -4,10 +4,6 @@
           jobs             PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -38,7 +34,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
 
 DEFINE VARIABLE jobs_cadcam_status AS CHARACTER NO-UNDO.
 DEFINE VARIABLE jobs_scheduling_status AS CHARACTER NO-UNDO.
@@ -267,8 +262,6 @@ END.
 
 {src/adm/method/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -333,7 +326,7 @@ and toggle-1 = yes)
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -345,18 +338,18 @@ ON return OF auto-find IN FRAME F-Main /* Search  Job */
 DO:
    assign auto-find.
    def var lv-recid as recid no-undo.
-
+ 
  /*  &scoped-define key-phrase trim(jobs.job) begins auto-find
  */
 
-
+   
    find first bf-jobs where trim(bf-jobs.job) begins auto-find no-lock no-error.
    lv-recid = if avail bf-jobs then recid(bf-jobs) else ?.
-
+  
    if lv-recid <> ? then do:
        reposition {&browse-name} to recid lv-recid.
        apply "value-changed" to {&browse-name}.
-
+       
     /*   auto-find = "".   */
        disp auto-find with frame {&frame-name}.
    end.
@@ -426,7 +419,7 @@ ON CHOOSE OF btn-clear IN FRAME F-Main /* Clear Search */
 DO:
     assign auto-find = "".
     display auto-find with frame {&frame-name}.
-
+      
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -493,13 +486,13 @@ PROCEDURE Check_Jobs :
 ------------------------------------------------------------------------------*/
   def input  parameter ip-rowid as rowid no-undo.
   def output parameter op-valid as log no-undo.
-
+  
 
   do with frame {&frame-name}:
     reposition {&browse-name} to rowid ip-rowid no-error.
-
+  
     op-valid = not error-status:error.
-
+    
     if op-valid then {&browse-name}:delete-current-row().
   end.  
 END PROCEDURE.
@@ -533,9 +526,9 @@ PROCEDURE Position_Jobs :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER jobs-rowid AS ROWID NO-UNDO.
-
+  
   {&OPEN-QUERY-{&BROWSE-NAME}}
-
+    
   IF jobs-rowid NE ? THEN
   REPOSITION {&BROWSE-NAME} TO ROWID jobs-rowid.
   run dispatch ('row-changed').

@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -216,8 +212,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -274,7 +268,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -383,10 +377,10 @@ PROCEDURE get-line-est :
   Notes:       
 ------------------------------------------------------------------------------*/
   def output parameter op-est-no as cha no-undo.
-
+  
   op-est-no = if available oe-ordl then oe-ordl.est-no else oe-ord.est-no.
 
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -436,7 +430,7 @@ PROCEDURE reopen-query :
 ------------------------------------------------------------------------------*/
  DEF VAR lv-tmp-rowid AS ROWID NO-UNDO.
  lv-tmp-rowid = ROWID(oe-ordl).
-
+ 
  RUN reopen-query1 (lv-tmp-rowid).
 
 END PROCEDURE.

@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -358,7 +354,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -470,7 +466,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -595,7 +591,7 @@ PROCEDURE local-create-record :
     user-batch.company = user-print.company
     user-batch.batch-seq = user-print.batch-seq
     user-batch.prog-seq = user-print.prog-seq.
-
+         
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -636,7 +632,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
   DEF VAR i AS INT NO-UNDO.
   ed-values = "".
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -777,7 +773,7 @@ PROCEDURE update-batch :
   DEF VAR RUN-PROC AS cha NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
 
-
+  
   FIND FIRST reftable WHERE reftable.reftable = "Batchrpt"
                         AND reftable.CODE = user-print.program-id NO-LOCK NO-ERROR.
   IF AVAIL reftable THEN DO:
@@ -797,7 +793,7 @@ PROCEDURE update-batch :
     DISPLAY ed-values WITH FRAME {&FRAME-NAME}.
   END.
 
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

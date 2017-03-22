@@ -166,7 +166,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -201,7 +200,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -212,7 +211,6 @@ ASSIGN
 ON CHOOSE OF Btn-First IN FRAME F-Main /* First */
 DO:
   run do-button ("F").
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -224,7 +222,6 @@ END.
 ON CHOOSE OF Btn-Last IN FRAME F-Main /* Last */
 DO:
   run do-button ("L").
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -236,7 +233,6 @@ END.
 ON CHOOSE OF Btn-Next IN FRAME F-Main /* Next */
 DO:
   run do-button ("N").
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -248,7 +244,6 @@ END.
 ON CHOOSE OF Btn-Prev IN FRAME F-Main /* Prev */
 DO:
   run do-button ("P").
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -261,11 +256,11 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+  
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -322,23 +317,23 @@ PROCEDURE do-button :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-button AS CHAR NO-UNDO.
-
+  
   DEF VAR char-hdl AS CHAR NO-UNDO.
   DEF VAR lv-nav-type AS CHAR NO-UNDO.
-
+  
 
   RUN get-link-handle IN adm-broker-hdl
                       (THIS-PROCEDURE, "nav-itm-source", OUTPUT char-hdl).
-
+                      
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
-
+    
     RUN navigate-browser2 IN WIDGET-HANDLE(char-hdl) (ip-button, OUTPUT lv-nav-type).
-
+ 
     DO WITH FRAME {&FRAME-NAME}:
       ENABLE ALL.
-
+  
       IF lv-nav-type EQ "F" THEN DISABLE btn-first btn-prev.
-
+    
       IF lv-nav-type EQ "L" THEN DISABLE btn-last btn-next.
 
       IF lv-nav-type EQ "B" THEN DISABLE ALL.
@@ -364,7 +359,7 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute AFTER standard behavior.    */
   run do-button ("").
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -376,7 +371,7 @@ PROCEDURE local-view :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -384,7 +379,7 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */ 
   run do-button ("").
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

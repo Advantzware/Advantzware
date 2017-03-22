@@ -162,19 +162,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -208,7 +202,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-oe-ordl.
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -232,7 +226,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* Fix Order Cost/Margin */
 DO:
   /* This event will close the window and terminate the procedure.  */
-
+  
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -272,10 +266,9 @@ DO:
              ASSIGN tt-oe-ordl.tt-rowid = ROWID(oe-ordl).
           RELEASE tt-oe-ordl.
       END.
-
+      
       OPEN QUERY browse-1 FOR EACH tt-oe-ordl.
    END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -296,10 +289,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -315,9 +306,9 @@ ON 'leave':U OF tt-oe-ordl.cost DO:
            FIND FIRST oe-ordl WHERE
                 ROWID(oe-ordl) EQ tt-oe-ordl.tt-rowid
                 EXCLUSIVE-LOCK.
-
+          
            oe-ordl.cost = DEC(tt-oe-ordl.cost:SCREEN-VALUE IN BROWSE {&browse-name}).
-
+                
            FIND CURRENT oe-ordl NO-LOCK.
         END.
   END.
@@ -332,9 +323,9 @@ ON 'leave':U OF tt-oe-ordl.q-qty DO:
            FIND FIRST oe-ordl WHERE
                 ROWID(oe-ordl) EQ tt-oe-ordl.tt-rowid
                 EXCLUSIVE-LOCK.
-
+          
            oe-ordl.q-qty = DEC(tt-oe-ordl.q-qty:SCREEN-VALUE IN BROWSE {&browse-name}).
-
+                
            FIND CURRENT oe-ordl NO-LOCK.
         END.
   END.

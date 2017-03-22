@@ -147,7 +147,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -180,7 +179,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -191,7 +190,7 @@ ASSIGN
 ON CHOOSE OF bt-post IN FRAME F-Main /* Post */
 DO:
       def var out-hd-lst as cha no-undo.
-
+      
       message "Are you ready to post" view-as alert-box question 
               button yes-no update ll-ans as log.
 
@@ -199,10 +198,9 @@ DO:
       if not error-status:error then do:
          run get-link-handle in adm-broker-hdl (This-procedure,"Record-Source", output out-hd-lst).
          run dispatch in widget-handle(out-hd-lst) ("open-query").
-
+         
       end.
-
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -219,7 +217,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -292,7 +290,7 @@ PROCEDURE get-matrix :
   def var v-bwt like po-ordl.s-len no-undo.
   def var lv-out-qty as dec no-undo.
   def var lv-out-cost as dec no-undo.
-
+     
   cocode = asi.rm-rctd.company.
 
   find item  where item.company eq cocode and item.i-no  eq asi.rm-rctd.i-no
@@ -306,7 +304,7 @@ PROCEDURE get-matrix :
                        and po-ordl.item-type = yes
                        and po-ordl.s-num = (asi.rm-rctd.s-num)
                            no-lock no-error.
-
+  
   if avail po-ordl then do:
      assign  v-len = po-ordl.s-len
              v-wid = po-ordl.s-wid
@@ -333,7 +331,7 @@ PROCEDURE get-matrix :
         if v-wid eq 0 then v-wid = if avail item and item.r-wid ne 0 then item.r-wid else item.s-wid.
         if v-bwt eq 0 then v-bwt = if avail item then item.basis-w else 0.
   end.
-
+  
   /* convert qty po-ordl.pr-qty-uom*/
   run rm/convquom.p(asi.rm-rctd.pur-uom,
                     po-ordl.cons-uom,
@@ -343,7 +341,7 @@ PROCEDURE get-matrix :
                          input v-dep,
                          input asi.rm-rctd.qty,
                          output lv-out-qty).
-
+  
   /* convert cost po-ordl.pr-uom*/
   run rm/convcuom.p(po-ordl.cons-uom, asi.rm-rctd.cost-uom,
                                v-bwt, v-len, v-wid, v-dep,
@@ -412,7 +410,7 @@ PROCEDURE rm-post-issue :
          UPDATE sys-ctrl.log-fld.
   end.
   v-autoissue = sys-ctrl.log-fld.
-
+ 
 /*  for each asi.rm-rctd of asi.rm-rcth :
        /* where rm-rcpt.company   eq asi.rm-rcth.company
           and rm-rcpt.rita-code eq "R"
@@ -427,7 +425,7 @@ PROCEDURE rm-post-issue :
          do x = 1 to length(v-po-no):
             if substr(v-po-no,x,1) lt "0" or substr(v-po-no,x,1) gt "9" then next .
          end.
-
+    
       if asi.rm-rctd.job-no ne "" then do:
           find first po-ordl
               where po-ordl.company   eq asi.rm-rctd.company
@@ -440,7 +438,7 @@ PROCEDURE rm-post-issue :
 
           if not avail po-ordl then next.
       end.
-
+     
       find first item where item.company eq asi.rm-rctd.company
                         and item.i-no    eq asi.rm-rctd.i-no
            no-error.
@@ -448,7 +446,7 @@ PROCEDURE rm-post-issue :
           (item.i-code eq "R" and not v-autoissue)  then next .
 
       run get-matrix (output ld-cvt-qty, output ld-cvt-cost).
-
+    
       /*======== from rm/rm-post.p   =========*/
      /*  no need to run twice - run from rm-post-receipt
          if (item.i-code eq "E" and asi.rm-rcth.rita-code eq "R") then do:
@@ -478,7 +476,7 @@ PROCEDURE rm-post-issue :
             and job.job-no2 eq asi.rm-rctd.job-no2
           no-lock no-error.
       if avail job and avail item and item.mat-type eq "B" then do:
-
+      
          /* ==========================   /* asi.rm-rcth.i */ */
          if not ll-is-rcth-created then do:
             x = 1.
@@ -496,7 +494,7 @@ PROCEDURE rm-post-issue :
                 b-rm-h.trans-date = today.
             ll-is-rcth-created = yes.    
          end.
-
+      
          find first b-rm-d where b-rm-d.r-no = b-rm-h.r-no and
                                  b-rm-d.company = asi.rm-rctd.company and
                                  b-rm-d.loc = asi.rm-rctd.loc and
@@ -516,7 +514,7 @@ PROCEDURE rm-post-issue :
            /* rm-addcr.i needs one end */
          end.
       end.
-
+      
       else  if asi.rm-rctd.rita-code eq "I" then do:  /** ISSUES **/
             find first job  where job.company eq asi.rm-rctd.company
                 and job.job-no  eq fill(" ",6 - length(trim(asi.rm-rctd.job-no))) +
@@ -571,14 +569,14 @@ PROCEDURE rm-post-issue :
                      item.q-comm     = item.q-comm - out-qty
                      job-mat.all-flg = (job-mat.qty-all gt 0).
             if item.q-comm lt 0 then item.q-comm = 0.
-
+          
             if item.mat-type eq "B" then 
               {rm/rm-addcr.i R b-rm-h b-rm-d b-}
               assign b-rm-h.rita-code = "ADDER"
                      b-rm-d.rita-code = "A".
-
+              
             end.
-
+          
           end.
           assign  rm-bin.qty     = rm-bin.qty - asi.rm-rctd.qty
            item.q-onh     = item.q-onh - asi.rm-rctd.qty
@@ -597,7 +595,7 @@ PROCEDURE rm-post-issue :
 
     /*end.  /* for each asi.rm-rctd */
     */
-
+    
    /* find b-asi.rm-rcth where recid(b-asi.rm-rcth) = recid(asi.rm-rcth).
     assign b-asi.rm-rcth.rita-code = "P" /* posted */
            b-asi.rm-rcth.trans-date = today
@@ -632,9 +630,9 @@ PROCEDURE rm-post-receipt :
   def var ld-cvt-qty as dec no-undo.
   def var ld-cvt-cost as dec no-undo.
   def buffer ps-rctd for asi.rm-rctd .
-
+  
   cocode = asi.rm-rctd.company.
-
+  
   find first sys-ctrl  where sys-ctrl.company eq asi.rm-rctd.company
                          and sys-ctrl.name    eq "AUTOISSU"
        no-lock no-error.
@@ -648,7 +646,7 @@ PROCEDURE rm-post-receipt :
          UPDATE sys-ctrl.log-fld.
   end.
   v-autoissue = sys-ctrl.log-fld.
-
+ 
 /*for each asi.rm-rctd of asi.rm-rcth :
        /* where rm-rcpt.company   eq asi.rm-rcth.company
           and rm-rcpt.rita-code eq "R"
@@ -656,7 +654,7 @@ PROCEDURE rm-post-receipt :
           and rm-rcpt.job-no    le v-to-job
         use-index rita no-lock.
         */
-
+  
 */      
       v-po-no = trim(asi.rm-rctd.po-no).
       if v-po-no ne "" then 
@@ -682,13 +680,13 @@ PROCEDURE rm-post-receipt :
         (item.i-code eq "E" and not avail po-ordl) or
         (item.i-code eq "R" and not v-autoissue)  then next .
 
-
+      
       run get-matrix (output ld-cvt-qty, output ld-cvt-cost).
-
+    
       message "after conversion:" ld-cvt-qty ld-cvt-cost 
-
+              
       view-as alert-box.
-
+    
       /*======== from rm/rm-post.p   =========*/
       if (item.i-code eq "E" and asi.rm-rctd.rita-code eq "R") then do:
            {rm/rm-poupd.i 1}
@@ -773,7 +771,7 @@ PROCEDURE rm-post-receipt :
                  job-mat.qty-iss = job-mat.qty-iss + out-qty
                  job-mat.qty-all = job-mat.qty-all - out-qty
                  item.q-comm     = item.q-comm     - asi.rm-rctd.qty.
-
+    
             /* Don't relieve more than were allocated */
             if job-mat.qty-all lt 0 then
                run sys/ref/convquom.p(job-mat.qty-uom, rm-rcpt.pur-uom,
@@ -810,10 +808,10 @@ PROCEDURE rm-post-receipt :
   /*end.  /* for each asi.rm-rctd */
   */
 
-
+  
     if v-autoissue then run rm-post-issue.
 
-
+    
  /* find b-asi.rm-rcth where recid(b-asi.rm-rcth) = recid(asi.rm-rcth).
     assign b-asi.rm-rcth.rita-code = "P" /* posted */
            b-asi.rm-rcth.trans-date = today

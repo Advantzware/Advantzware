@@ -4,10 +4,6 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -330,7 +326,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -527,7 +523,7 @@ v-old-employee = employee.employee.
             BUFFER-COPY b-empmach-old EXCEPT b-empmach-old.rec_key b-empmach-old.employee
             TO b-empmach-new ASSIGN b-empmach-new.employee = employee.employee NO-ERROR.  
         END.
-
+        
      END.
 
 END PROCEDURE.
@@ -584,7 +580,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   /*=== validate password ===*/
   if is-password-changed then do with frame {&frame-name}:  
      is-password-changed = no.
@@ -596,7 +592,7 @@ PROCEDURE local-update-record :
         RETURN NO-APPLY.
      end.
   end.
-
+     
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 

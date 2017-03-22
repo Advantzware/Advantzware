@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: oe\w-order.w
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -196,13 +196,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -260,7 +264,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -285,7 +289,7 @@ ON WINDOW-CLOSE OF W-Win /* Order Maintenance */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-
+    
   IF VALID-HANDLE(h_v-ord) THEN
     RUN manual-apply-save IN h_p-ordhd. 
 
@@ -315,7 +319,7 @@ DO:
    IF li-cur-page = 3 OR li-cur-page = 5  THEN do:
       {methods/winReSizePgChg.i}
    END.
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -352,7 +356,7 @@ PROCEDURE add-prmtx-link :
 ------------------------------------------------------------------------------*/
   /*
   def output param op-handle as handle no-undo.
-
+  
   RUN add-link IN adm-broker-hdl ( h_q-orpmtx , 'Record':U , h_oe-prmtx ).
   op-handle = h_oe-prmtx.
  */ 
@@ -1198,7 +1202,7 @@ PROCEDURE hide-estimate :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ 
   run select-page (li-prev-page).
 
 END PROCEDURE.
@@ -1214,9 +1218,9 @@ PROCEDURE init-credit-inq :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input param ip-handle as handle no-undo.
-
+  
   if valid-handle(h-detail) then run dispatch in h-detail ('destroy').    
-
+  
   run init-object
       ('oe/w-credit.w', {&window-name}:handle, 'Edge-Pixels=0', output h-detail).
 
@@ -1226,7 +1230,7 @@ PROCEDURE init-credit-inq :
   run add-link in adm-broker-hdl (ip-handle,"record", h-detail) no-error.
 
   run dispatch in h-detail ('initialize').
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1251,7 +1255,7 @@ PROCEDURE init-history :
   run add-link in adm-broker-hdl (ip-handle,"record", h-detail) no-error.
 
   run dispatch in h-detail ('initialize').
-
+  
 
 END PROCEDURE.
 
@@ -1265,9 +1269,9 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var ls-est-no as cha no-undo.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   run get-attribute ("current-page").
   assign li-prev-page = li-cur-page
          li-cur-page = int(return-value).
@@ -1303,7 +1307,7 @@ PROCEDURE local-change-page :
              END.
            END.
      END.
-
+     
   end.
 
   /* If was just on the items tab, don't try to reset release tab */
@@ -1353,7 +1357,7 @@ PROCEDURE local-create-objects :
   IF lv-current-page <> 6 THEN
       RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
   ELSE DO:
-
+      
       run get-link-handle in adm-broker-hdl (this-procedure,"estimate-target",output char-hdl).
       if valid-handle(widget-handle(char-hdl)) then do:
          run get-line-est in widget-handle(char-hdl) (output ls-est-no).
@@ -1386,14 +1390,14 @@ PROCEDURE local-exit :
   Parameters:  <none>
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
-
+    
     IF VALID-HANDLE(h_v-ord) THEN
        RUN manual-apply-save IN h_p-ordhd.
 
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1421,7 +1425,7 @@ PROCEDURE make-buttons-insensitive :
     IF VALID-HANDLE(h_movecol) THEN
        RUN make-insensitive IN h_movecol.
    RETURN.
-
+       
 END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1450,7 +1454,7 @@ PROCEDURE make-buttons-sensitive :
     IF VALID-HANDLE(h_movecol) THEN
        RUN make-sensitive IN h_movecol.   
    RETURN.
-
+       
 END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1520,10 +1524,10 @@ PROCEDURE print_RelTicket :
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
-
+      
 
   RUN Get_Procedure IN Persistent-Handle ('oe-relh_.',OUTPUT run-proc,yes).
-
+  
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"relTicket-target",OUTPUT char-hdl).
   DO li = 1 TO NUM-ENTRIES(char-hdl):
     IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(li,char-hdl))) THEN
@@ -1561,7 +1565,7 @@ PROCEDURE select_dept2 :
   DEFINE VARIABLE iCurrentPage AS INTEGER     NO-UNDO.
   RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
   ASSIGN iCurrentPage = INTEGER(RETURN-VALUE).
-
+  
   IF iCurrentPage EQ 5 THEN
     RUN SELECT_notes IN h_b-ordrel.
   ELSE
@@ -1581,7 +1585,7 @@ PROCEDURE select_add :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-
+  
   run select-page(2).
   run get-link-handle in adm-broker-hdl(this-procedure,"add-ord-target", output char-hdl).
   run add-order in widget-handle(char-hdl).
@@ -1603,7 +1607,7 @@ PROCEDURE select_att :
 
  RUN windows/ATTACH.w(rec_key_value,HEADER_value).
 
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1616,7 +1620,7 @@ PROCEDURE select_attcust :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ 
  DEF BUFFER b-oe-ordl FOR oe-ordl.
  DEF BUFFER b-oe-ord FOR oe-ord.
  DEF BUFFER b-cust FOR cust.
@@ -1646,8 +1650,8 @@ PROCEDURE select_attcust :
        RUN windows/cstattch.w(b-cust.rec_key,'Customer: ' + b-cust.cust-no +
                               ' - ' + 'Name: ' + b-cust.name,b-oe-ord.ord-no). 
  END.
-
-
+ 
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1661,7 +1665,7 @@ PROCEDURE select_ONote :
   Notes:       
 ------------------------------------------------------------------------------*/
   /*RUN windows/opnotes.w(rec_key_value,HEADER_value).*/
-
+  
   DEF VAR cHeaderValue AS cha NO-UNDO.
 
   {methods/run_link.i "record-SOURCE" "get-job-header" "(output cHeaderValue)"}

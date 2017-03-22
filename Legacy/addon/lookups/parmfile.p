@@ -1,6 +1,6 @@
 /* parmfile.p - Generated 07/25/1998 -  1:19 am by NoSweat
 "parmfile. " ~
-"ASI " ~
+"NOSWEAT " ~
 "parmfile " ~
 " " ~
 "parmfile " ~
@@ -18,7 +18,7 @@
 "parmfile. " ~
 */
 
-&Scoped-define lookup-db ASI.
+&Scoped-define lookup-db NOSWEAT.
 &Scoped-define lookup-file parmfile
 &Scoped-define where-statement TRUE
 &Scoped-define return-field parmfile

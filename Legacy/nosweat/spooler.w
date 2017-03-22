@@ -348,19 +348,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -447,7 +441,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 /* **********************  Create OCX Containers  ********************** */
@@ -511,7 +505,6 @@ DO:
   ENABLE {&List-2} WITH FRAME {&FRAME-NAME}.
   APPLY 'ENTRY':U TO intervalValue.
   RETURN NO-APPLY.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -549,7 +542,6 @@ DO:
     APPLY 'ENTRY':U TO intervalValue.
   END.
   RETURN NO-APPLY.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -561,7 +553,6 @@ END.
 ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -588,7 +579,6 @@ DO:
     DELETE user-print.
   END. /* avail user-print */
   RUN getSpoolRequests.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,7 +591,6 @@ ON CHOOSE OF Btn_Process IN FRAME DEFAULT-FRAME /* Process */
 DO:
   RUN runSpool.
   RUN getSpoolRequests.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -665,10 +654,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -679,7 +666,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
-
+  
   /* if blank, probably auto running, no company value exists at this point */
   IF g_company EQ '' THEN DO:
     g_company = '001'. /* set a default */
@@ -687,9 +674,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF AVAILABLE sys-ctrl THEN
     g_company = sys-ctrl.char-fld.
   END. /* if g_company */
-
+  
   RUN getSpoolRequests.
-
+  
   IF INDEX(PROGRAM-NAME(2),'persist') EQ 0 AND
      AVAILABLE sys-ctrl AND sys-ctrl.log-fld EQ YES THEN DO:
     APPLY 'CHOOSE':U TO btnSpooler.
@@ -697,10 +684,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY 'LEAVE':U TO intervalValue.
     APPLY 'CHOOSE':U TO btnStartStop.
   END.
-
+  
   SESSION:SET-WAIT-STATE('').
-
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
+  
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -819,19 +805,19 @@ PROCEDURE getSpoolRequests :
       user_id:SCREEN-VALUE = ""
       batchSeq:SCREEN-VALUE = "".
   END.
-
+  
   FOR EACH user-print NO-LOCK
       WHERE user-print.company EQ g_company
         AND user-print.batch NE '':
     spool_list:ADD-LAST(user-print.prog-title,STRING(ROWID(user-print))) IN FRAME {&FRAME-NAME}.
   END. /* each user-print */
-
+  
   IF spool_list:NUM-ITEMS EQ 0 THEN DO:
     DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
     MESSAGE "No Spool Requests Exist!" VIEW-AS ALERT-BOX INFORMATION.
     RETURN.
   END.
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     spool_list:SCREEN-VALUE = spool_list:ENTRY(1).
     APPLY "VALUE-CHANGED" TO spool_list.
@@ -885,7 +871,7 @@ PROCEDURE setNextRun :
   DEFINE VARIABLE nextDay AS INTEGER NO-UNDO.
   DEFINE VARIABLE day# AS INTEGER NO-UNDO.
   DEFINE VARIABLE idx AS INTEGER NO-UNDO.
-
+  
   ASSIGN
     user-print.last-date = TODAY
     user-print.last-time = TIME

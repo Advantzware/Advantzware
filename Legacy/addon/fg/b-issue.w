@@ -4,10 +4,6 @@
           jobs             PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -311,7 +307,7 @@ fg-rctd.rita-code = ""S"""
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
@@ -320,8 +316,6 @@ fg-rctd.rita-code = ""S"""
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
-
-{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -341,7 +335,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-
+   
    RUN new-state in phandle ('update-begin':U).
 
 END.
@@ -354,7 +348,7 @@ END.
 ON HELP OF Browser-Table IN FRAME F-Main
 DO:
  IF NOT avail fg-rctd then find fg-rctd where recid(fg-rctd) = lv-recid no-lock no-error. 
-
+ 
  def var ll-tag# as log no-undo.
  ll-help-run = yes.
  case focus:name :
@@ -377,7 +371,7 @@ DO:
                        fg-rctd.s-num:screen-value in browse {&browse-name} = string(po-ordl.s-num)
                        fg-rctd.qty:screen-value in browse {&browse-name} = string(po-ordl.ord-qty)
                        fg-rctd.cost:screen-value in browse {&browse-name} = string(po-ordl.cons-cost)  /* po-ordl.cost*/
-
+                    
                     /* need conversion
                        ext-cost:screen-value = string(decimal(fg-rctd.qty:screen-value) *
                                                       decimal(fg-rctd.cost:screen-value)
@@ -397,7 +391,7 @@ DO:
              if not avail item then find first item where item.company = fg-rctd.company and
                                                           item.i-no = entry(2,char-val)
                                       no-lock no-error.
-
+             
              assign fg-rctd.loc:screen-value in browse {&browse-name} =  item.loc
                     fg-rctd.loc-bin:screen-value in browse {&browse-name} =  item.loc-bin
                     .
@@ -446,7 +440,7 @@ DO:
                      fg-rctd.job-no:screen-value = entry(1,char-val)
                      fg-rctd.job-no2:screen-value = entry(2,char-val)
                      .
-
+             
            end.
            return no-apply.   
      end.  
@@ -456,7 +450,7 @@ DO:
               assign focus:screen-value in  browse {&browse-name}  = entry(1,char-val)
                      fg-rctd.loc-bin:screen-value in browse {&browse-name} = entry(2,char-val)
                      .
-
+             
            end.
            return no-apply.   
      end.
@@ -468,7 +462,7 @@ DO:
                      fg-rctd.cases:screen-value = entry(3,char-val)
               /*       fg-rctd.tag:screen-value = entry(4,char-val)*/
                      .
-
+             
            end.
            return no-apply.   
      end.
@@ -485,7 +479,7 @@ ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:  /* display calculated field */
   /* def var ii as int.
    ii = if avail rm-rctd then integer(rm-rctd.po-no) else 0.
-
+   
    if avail rm-rctd then    run get-matrix (true).
 */
 END.
@@ -499,7 +493,7 @@ ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
-
+  
   ll-help-run = no.
 END.
 
@@ -671,7 +665,7 @@ PROCEDURE local-disable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   if valid-handle(hd-post-child) then  hd-post-child:sensitive = yes.
             /* value assigned from local-enable-fields*/
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -687,7 +681,7 @@ PROCEDURE local-enable-fields :
   def var out-hd-lst as cha no-undo.
   def var ii as int no-undo.
   def var hd-next as widget-handle no-undo.
-
+   
   /* Code placed here will execute PRIOR to standard behavior. */
   run get-link-handle in adm-broker-hdl (this-procedure,"record-target", output out-hd-lst).
   hd-post = widget-handle(out-hd-lst).  /* procedure */
@@ -716,7 +710,7 @@ PROCEDURE local-enable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   apply "entry" to fg-rctd.rct-date in browse {&browse-name}.
   return no-apply.
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -736,7 +730,7 @@ PROCEDURE local-update-record :
   if not avail fg-rctd then find fg-rctd where recid(fg-rctd) = lv-recid no-error.
 
   if error-status:error then return no-apply.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -800,12 +794,12 @@ PROCEDURE tag-method :
   Notes:       
 ------------------------------------------------------------------------------*/
   def output parameter op-tag# as log no-undo.
-
+  
   cocode = rm-rctd.company.
-
+  
   {rm/tag#.i}
   op-tag# = v-tag#.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -822,7 +816,7 @@ PROCEDURE tag-sequence :
   def var v-tag-seq as int no-undo.
   def var v-locode as cha no-undo.
   def buffer xfg-rctd for fg-rctd.
-
+  
   assign v-tag-seq = 0
          v-locode  = "".
 

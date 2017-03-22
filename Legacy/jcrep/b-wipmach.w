@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -247,8 +243,6 @@ END.
 {methods/template/browser.i}
 {custom/yellowColumns.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -331,7 +325,7 @@ asi.mach.m-code = asi.wiptag-mch.m-code"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -360,7 +354,7 @@ DO:
 /*                                                                                                     */
 /*       END.                                                                                          */
 /*   END CASE.                                                                                         */
-
+  
 
 END.
 
@@ -427,7 +421,7 @@ DO:
       RUN reopen-query IN WIDGET-HANDLE(char-hdl).
       MESSAGE "Reopened query in browse" VIEW-AS ALERT-BOX.
   END.
-
+     
 
 END.
 
@@ -573,8 +567,8 @@ PROCEDURE local-row-changed :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
-
+ 
+ 
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -610,7 +604,7 @@ PROCEDURE refresh-brwse :
 /*   ELSE MESSAGE "VALID-HANDLE(WIDGET-HANDLE(char-hdl))" SKIP     */
 /*               "char-hdl " char-hdl                              */
 /*       VALID-HANDLE(WIDGET-HANDLE(char-hdl)) VIEW-AS ALERT-BOX.  */
-
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

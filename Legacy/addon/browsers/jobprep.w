@@ -4,10 +4,6 @@
           jobs             PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -38,7 +34,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
 DEF VAR code-desc AS cha FORM "x(20)" NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
@@ -228,8 +223,6 @@ END.
 
 {src/adm/method/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -279,7 +272,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -481,7 +474,7 @@ FUNCTION code-desc RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   def var code-desc as cha no-undo.
-
+  
   find first prep where /*prep.company = jobprep.company and
                         prep.loc = jobprep.loc and*/
                         prep.code = jobprep.code

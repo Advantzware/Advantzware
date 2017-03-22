@@ -15,7 +15,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -144,7 +144,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -166,7 +165,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -206,7 +205,7 @@ DO:
     ASSIGN begin_seq END_seq.
     MESSAGE "All procedures from Batch pool will run. Are you ready? "
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE lv-ans AS LOG.
-
+    
     IF lv-ans THEN do:
        RUN BATCH/runbatch.p (begin_seq,END_seq).
        MESSAGE "Batch procedure is completed!" VIEW-AS ALERT-BOX INFORMATION.
@@ -317,9 +316,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

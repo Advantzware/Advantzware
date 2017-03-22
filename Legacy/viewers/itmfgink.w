@@ -4,15 +4,11 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
   File: viewers/itmfgink.w
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -242,7 +238,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -253,8 +249,8 @@ ASSIGN
 ON HELP OF FRAME F-Main
 DO:
   DEF VAR char-val AS cha NO-UNDO.
-
-
+      
+  
   DO WITH FRAME {&FRAME-NAME}:
     CASE FOCUS:NAME:
       WHEN "rm-i-no" then do:        
@@ -357,11 +353,11 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+  
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -792,7 +788,7 @@ PROCEDURE valid-cover% :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(itemfg-ink.cover%:SCREEN-VALUE) LT 1   OR
        DEC(itemfg-ink.cover%:SCREEN-VALUE) GT 100 THEN DO:
@@ -859,7 +855,7 @@ PROCEDURE valid-rm-i-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST item
         WHERE item.company EQ g_company

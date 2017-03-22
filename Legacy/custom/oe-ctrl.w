@@ -62,8 +62,8 @@ DEF VAR giCurrOrd AS INT NO-UNDO.
 &Scoped-define FRAME-NAME oe-ctrl
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Close Btn_Update n-ord RECT-17 RECT-18 ~
-RECT-19 
+&Scoped-Define ENABLED-OBJECTS n-ord Btn_Update Btn_Close RECT-15 RECT-17 ~
+RECT-18 RECT-19 
 &Scoped-Define DISPLAYED-FIELDS oe-ctrl.i-code ar-ctrl.last-inv ~
 oe-ctrl.job-no-def-to-ord oe-ctrl.rng-ord[1] oe-ctrl.rng-ord[2] ~
 oe-ctrl.n-bol oe-ctrl.rng-bol[1] oe-ctrl.rng-bol[2] oe-ctrl.n-bar ~
@@ -99,13 +99,13 @@ oe-ctrl.pr-broker fNextRFIDNum
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Close  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn_Close 
      LABEL "&Close" 
-     SIZE 8 BY 1.91.
+     SIZE 15 BY 1.14.
 
-DEFINE BUTTON Btn_Update  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn_Update 
      LABEL "&Update" 
-     SIZE 8 BY 1.91.
+     SIZE 15 BY 1.14.
 
 DEFINE VARIABLE fNextRFIDNum AS CHARACTER FORMAT "x(24)" 
      LABEL "Next RFID Tag Number" 
@@ -117,6 +117,10 @@ DEFINE VARIABLE n-ord LIKE oe-ctrl.n-ord
      VIEW-AS FILL-IN 
      SIZE 10.4 BY 1
      BGCOLOR 15  NO-UNDO.
+
+DEFINE RECTANGLE RECT-15
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 33 BY 1.67.
 
 DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -139,173 +143,174 @@ DEFINE VARIABLE tgCreateSSBol AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME oe-ctrl
-     Btn_Close AT ROW 22.19 COL 59 HELP
-          "Cancel Update or Close Window"
-     Btn_Update AT ROW 22.19 COL 51 HELP
-          "Update/Save System Configurations"
-     tgCreateSSBol AT ROW 13.86 COL 69.2 WIDGET-ID 8
-     oe-ctrl.i-code AT ROW 19.62 COL 24 NO-LABEL
+     tgCreateSSBol AT ROW 13.86 COL 72.2 WIDGET-ID 8
+     oe-ctrl.i-code AT ROW 19.62 COL 27 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Stock", yes,
 "Custom", no
           SIZE 22 BY .81
-     ar-ctrl.last-inv AT ROW 1.24 COL 32 COLON-ALIGNED
+     ar-ctrl.last-inv AT ROW 1.24 COL 35 COLON-ALIGNED
           LABEL "Last Invoice Number"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 7 FGCOLOR 15 
-     oe-ctrl.job-no-def-to-ord AT ROW 20.86 COL 24 NO-LABEL
+     oe-ctrl.job-no-def-to-ord AT ROW 20.86 COL 27 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Order", yes,
 "Estimate", no
           SIZE 23.2 BY .81
-     n-ord AT ROW 2.43 COL 32 COLON-ALIGNED HELP
+     n-ord AT ROW 2.43 COL 35 COLON-ALIGNED HELP
           "Enter order number to be used for next order"
           LABEL "Next Order Number"
           BGCOLOR 15 
-     oe-ctrl.rng-ord[1] AT ROW 2.43 COL 71 COLON-ALIGNED
+     oe-ctrl.rng-ord[1] AT ROW 2.43 COL 74 COLON-ALIGNED
           LABEL "Range"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.rng-ord[2] AT ROW 2.43 COL 89 COLON-ALIGNED
+     oe-ctrl.rng-ord[2] AT ROW 2.43 COL 92 COLON-ALIGNED
           LABEL "To"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.n-bol AT ROW 3.62 COL 32 COLON-ALIGNED
+     oe-ctrl.n-bol AT ROW 3.62 COL 35 COLON-ALIGNED
           LABEL "Next Bill of Lading Number"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.rng-bol[1] AT ROW 3.62 COL 71 COLON-ALIGNED
+     oe-ctrl.rng-bol[1] AT ROW 3.62 COL 74 COLON-ALIGNED
           LABEL "Range"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.rng-bol[2] AT ROW 3.62 COL 89 COLON-ALIGNED
+     oe-ctrl.rng-bol[2] AT ROW 3.62 COL 92 COLON-ALIGNED
           LABEL "To"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.n-bar AT ROW 4.81 COL 32 COLON-ALIGNED
+     oe-ctrl.n-bar AT ROW 4.81 COL 35 COLON-ALIGNED
           LABEL "Next Bar Code Label Number"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.rng-bc[1] AT ROW 4.81 COL 71 COLON-ALIGNED
+     oe-ctrl.rng-bc[1] AT ROW 4.81 COL 74 COLON-ALIGNED
           LABEL "Range"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.rng-bc[2] AT ROW 4.81 COL 89 COLON-ALIGNED
+     oe-ctrl.rng-bc[2] AT ROW 4.81 COL 92 COLON-ALIGNED
           LABEL "To"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.n-rec AT ROW 6 COL 32 COLON-ALIGNED
+     oe-ctrl.n-rec AT ROW 6 COL 35 COLON-ALIGNED
           LABEL "Next Receiving Ticket Number"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.rng-rec[1] AT ROW 6 COL 71 COLON-ALIGNED
+     oe-ctrl.rng-rec[1] AT ROW 6 COL 74 COLON-ALIGNED
           LABEL "Range"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.rng-rec[2] AT ROW 6 COL 89 COLON-ALIGNED
+     oe-ctrl.rng-rec[2] AT ROW 6 COL 92 COLON-ALIGNED
           LABEL "To"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.prcom AT ROW 10.29 COL 4
+     oe-ctrl.prcom AT ROW 10.29 COL 7
           LABEL "Print Company Name on Invoices"
           VIEW-AS TOGGLE-BOX
           SIZE 36 BY .81
-     oe-ctrl.f-tax AT ROW 11.48 COL 4
+     oe-ctrl.f-tax AT ROW 11.48 COL 7
           LABEL "Charge Tax on Freight"
           VIEW-AS TOGGLE-BOX
           SIZE 25 BY .81
-     oe-ctrl.prep-chrg AT ROW 12.43 COL 4
+     oe-ctrl.prep-chrg AT ROW 12.43 COL 7
           LABEL "Charge Tax on Prep Charges"
           VIEW-AS TOGGLE-BOX
           SIZE 37 BY .81
-     oe-ctrl.prep-comm AT ROW 13.38 COL 4
+     oe-ctrl.prep-comm AT ROW 13.38 COL 7
           LABEL "Pay Commissions on Prep Charges"
           VIEW-AS TOGGLE-BOX
           SIZE 39 BY .81
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 108 BY 23.38.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME oe-ctrl
-     oe-ctrl.prep-tax AT ROW 14.33 COL 4
+     oe-ctrl.prep-tax AT ROW 14.33 COL 7
           LABEL "Post Prep Charges to Sales Analysis"
           VIEW-AS TOGGLE-BOX
           SIZE 38 BY .81
-     oe-ctrl.use-ra-no AT ROW 15.29 COL 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 120.8 BY 23.38.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME oe-ctrl
+     oe-ctrl.use-ra-no AT ROW 15.29 COL 7
           LABEL "Use Return Authorization Numbers"
           VIEW-AS TOGGLE-BOX
           SIZE 37 BY .81
-     oe-ctrl.ship-from AT ROW 17 COL 34 COLON-ALIGNED
+     oe-ctrl.ship-from AT ROW 17 COL 37 COLON-ALIGNED
           LABEL "Ship From"
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
           BGCOLOR 15 
-     oe-ctrl.u-inv AT ROW 17.95 COL 34 COLON-ALIGNED
+     oe-ctrl.u-inv AT ROW 17.95 COL 37 COLON-ALIGNED
           LABEL "Update Inventory When Posting"
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
           BGCOLOR 15 
-     oe-ctrl.p-fact AT ROW 10.52 COL 69
+     oe-ctrl.p-fact AT ROW 10.52 COL 72
           LABEL "Print Factory Ticket"
           VIEW-AS TOGGLE-BOX
           SIZE 23 BY .81
-     oe-ctrl.p-bol AT ROW 11.71 COL 69
+     oe-ctrl.p-bol AT ROW 11.71 COL 72
           LABEL "Print Bill of Lading"
           VIEW-AS TOGGLE-BOX
           SIZE 21 BY .81
-     oe-ctrl.p-pick AT ROW 12.91 COL 69
+     oe-ctrl.p-pick AT ROW 12.91 COL 72
           LABEL "Release/Print Release Ticket"
           VIEW-AS TOGGLE-BOX
           SIZE 34 BY .81
-     oe-ctrl.p-ack AT ROW 17.43 COL 70
+     oe-ctrl.p-ack AT ROW 17.43 COL 73
           LABEL "Print Totals on Acknowledgement"
           VIEW-AS TOGGLE-BOX
           SIZE 37 BY .81
-     oe-ctrl.p-sep AT ROW 18.86 COL 70
+     oe-ctrl.p-sep AT ROW 18.86 COL 73
           LABEL "Print Seperate Invoice per Release"
           VIEW-AS TOGGLE-BOX
           SIZE 37 BY .81
-     oe-ctrl.pr-broker AT ROW 20.05 COL 70
+     oe-ctrl.pr-broker AT ROW 20.05 COL 73
           LABEL "Print Broker on Release / BOL"
           VIEW-AS TOGGLE-BOX
           SIZE 33 BY .81
-     fNextRFIDNum AT ROW 7.19 COL 32 COLON-ALIGNED WIDGET-ID 6
+     Btn_Update AT ROW 22.71 COL 44 HELP
+          "Update/Save System Configurations"
+     Btn_Close AT ROW 22.71 COL 60 HELP
+          "Cancel Update or Close Window"
+     fNextRFIDNum AT ROW 7.19 COL 35 COLON-ALIGNED WIDGET-ID 6
      "Company Control" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 8.86 COL 4
+          SIZE 19 BY .62 AT ROW 8.86 COL 7
           FGCOLOR 9 FONT 6
      "Default Box Type:" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 19.1 COL 6
+          SIZE 17 BY .62 AT ROW 19.1 COL 9
      "Default Job No:" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 20.29 COL 8
+          SIZE 15 BY .62 AT ROW 20.29 COL 11
      "Credit Control" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 9.1 COL 69
+          SIZE 16 BY .62 AT ROW 9.1 COL 72
           FGCOLOR 9 FONT 6
      "Print Operations" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 15.76 COL 69
+          SIZE 19 BY .62 AT ROW 15.76 COL 72
           FGCOLOR 9 FONT 6
-     RECT-17 AT ROW 9.57 COL 2
-     RECT-18 AT ROW 9.81 COL 68
-     RECT-19 AT ROW 16.48 COL 69
+     RECT-15 AT ROW 22.43 COL 43
+     RECT-17 AT ROW 9.57 COL 5
+     RECT-18 AT ROW 9.81 COL 71
+     RECT-19 AT ROW 16.48 COL 72
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 108 BY 23.38.
+         SIZE 120.8 BY 23.38.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -326,7 +331,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Order Processing Control"
          HEIGHT             = 23.38
-         WIDTH              = 108
+         WIDTH              = 120.8
          MAX-HEIGHT         = 23.38
          MAX-WIDTH          = 120.8
          VIRTUAL-HEIGHT     = 23.38
@@ -341,17 +346,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -362,6 +364,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME oe-ctrl
    FRAME-NAME Custom                                                    */
+ASSIGN
+       Btn_Close:PRIVATE-DATA IN FRAME oe-ctrl     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_Update:PRIVATE-DATA IN FRAME oe-ctrl     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.f-tax IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN fNextRFIDNum IN FRAME oe-ctrl
@@ -440,7 +452,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME oe-ctrl */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -481,8 +493,9 @@ DO:
   ELSE
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
-   {methods/setButton.i Btn_Update "Update"}
-   {methods/setButton.i Btn_Close "Close"}
+    ASSIGN
+      {&SELF-NAME}:LABEL = "&Close"
+      Btn_Update:LABEL = "&Update".
     RUN enable_UI.
     RUN sys/ref/asicurseq.p (INPUT gcompany, INPUT "order_seq", OUTPUT giCurrOrd) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN
@@ -490,7 +503,6 @@ DO:
               VIEW-AS ALERT-BOX INFO BUTTONS OK.
     n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -519,8 +531,9 @@ DO:
     IF CAN-FIND(FIRST inv-head WHERE inv-head.company EQ gcompany AND
                 inv-head.multi-invoice = no) THEN
       DISABLE oe-ctrl.u-inv.
-           {methods/setButton.i Btn_Update "Save"}
-           {methods/setButton.i Btn_Close "Cancel"}
+    ASSIGN
+      {&SELF-NAME}:LABEL = "&Save"
+      Btn_Close:LABEL = "&Cancel".
 
     APPLY "ENTRY" TO n-ord.
     n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
@@ -549,8 +562,9 @@ DO:
     oe-ctrl.spare-int-1 = (IF tgCreateSSBol THEN 1 ELSE 0).
     DISABLE {&LIST-1}.
     DISABLE tgCreateSSBol.
-   {methods/setButton.i Btn_Update "Update"}
-   {methods/setButton.i Btn_Close "Close"}
+    ASSIGN
+      {&SELF-NAME}:LABEL = "&Update"
+      Btn_Close:LABEL = "&Close".
     FIND CURRENT ar-ctrl NO-LOCK.
 
     FIND company WHERE company.company EQ gcompany NO-LOCK NO-ERROR.
@@ -565,7 +579,6 @@ DO:
 
      FIND CURRENT oe-ctrl NO-LOCK.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -596,10 +609,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -648,10 +659,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
   n-ord:SENSITIVE = NO.
-   {methods/nowait.i}
-   {methods/setButton.i Btn_Update "Update"}
-   {methods/setButton.i Btn_Close "Close"}
-   {Advantzware/WinKit/embedfinalize-nonadm.i}
+  {methods/nowait.i}
+
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -706,7 +715,7 @@ PROCEDURE enable_UI :
           oe-ctrl.ship-from oe-ctrl.u-inv oe-ctrl.p-fact oe-ctrl.p-bol 
           oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
-  ENABLE Btn_Close Btn_Update n-ord RECT-17 RECT-18 RECT-19 
+  ENABLE n-ord Btn_Update Btn_Close RECT-15 RECT-17 RECT-18 RECT-19 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-oe-ctrl}
   VIEW C-Win.

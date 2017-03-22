@@ -176,7 +176,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -215,7 +214,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -230,7 +229,6 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
    run reopen-query in widget-handle(char-hdl) (?).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -243,7 +241,6 @@ ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
 DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
    run delete-item in widget-handle(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -257,7 +254,6 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
    run select-his in widget-handle(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -271,7 +267,6 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
    run select-price in widget-handle(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -288,7 +283,6 @@ ON CHOOSE OF Btn-Save IN FRAME F-Main /* Update */
     run reopen-query in widget-handle(char-hdl) (rowid(oe-ordl)).
 
       */
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -301,8 +295,7 @@ ON CHOOSE OF btn-stat IN FRAME F-Main /* Stat */
 DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
    run select-stat in widget-handle(char-hdl).
-
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -315,7 +308,6 @@ ON CHOOSE OF Btn-View IN FRAME F-Main /* View */
 DO:
     run oe/d-oeitem.w (recid(oe-ordl), oe-ordl.ord-no, "View",INPUT TABLE tt-item-qty-price,
                        OUTPUT v-rowid-list, OUTPUT ll-canceled).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -332,7 +324,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

@@ -1,6 +1,6 @@
 /* prgrms_.p - Generated 11/15/1998 -  7:32 pm by NoSweat
 "prgrms_. " ~
-"ASI " ~
+"NOSWEAT " ~
 "prgrms " ~
 " " ~
 "prgtitle " ~
@@ -18,7 +18,7 @@
 " " ~
 */
 
-&Scoped-define lookup-db ASI.
+&Scoped-define lookup-db NOSWEAT.
 &Scoped-define lookup-file prgrms
 &Scoped-define where-statement TRUE
 &Scoped-define return-field prgtitle

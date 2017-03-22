@@ -10,12 +10,10 @@
 /* configuration version procedures */
 {{&includes}/configVersion.i}
 
-DEFINE VARIABLE containerHandle AS HANDLE    NO-UNDO.
-DEFINE VARIABLE hSBHandle       AS HANDLE    NO-UNDO.
-DEFINE VARIABLE loadProgram     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE reload          AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE scenario        AS CHARACTER NO-UNDO INITIAL 'Actual'.
-
+DEFINE VARIABLE containerHandle AS HANDLE NO-UNDO.
+DEFINE VARIABLE loadProgram AS CHARACTER NO-UNDO.
+DEFINE VARIABLE reload AS LOGICAL NO-UNDO.
+DEFINE VARIABLE scenario AS CHARACTER NO-UNDO INITIAL 'Actual'.
 DEFINE SHARED VARIABLE g_company AS CHARACTER NO-UNDO.
 
 SESSION:SET-WAIT-STATE('').
@@ -67,7 +65,6 @@ IF reload EQ ? THEN DO:
   IF reload EQ ? THEN RETURN.
 END.
 
-IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ FALSE THEN
 DISPLAY SKIP(1) 'Getting Schedule Board Jobs' SKIP(1)
   WITH FRAME fMsg1 OVERLAY CENTERED ROW 10 BGCOLOR 14 FONT 6
   TITLE ' Schedule Board ({&sbExternal})'.
@@ -78,12 +75,10 @@ ELSE DO:
   {{&includes}/loadProgram.i} /* runs load{&Board}.p program */
 END. /* else do */
 
-IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ FALSE THEN DO: 
-    HIDE FRAME fMsg1 NO-PAUSE.
-    DISPLAY SKIP(1) 'Loading Schedule Board Jobs' SKIP(1)
-      WITH FRAME fMsg2 OVERLAY CENTERED ROW 10 BGCOLOR 14 FONT 6
-      TITLE ' Schedule Board ({&sbExternal})'.
-END.      
+HIDE FRAME fMsg1 NO-PAUSE.
+DISPLAY SKIP(1) 'Loading Schedule Board Jobs' SKIP(1)
+  WITH FRAME fMsg2 OVERLAY CENTERED ROW 10 BGCOLOR 14 FONT 6
+  TITLE ' Schedule Board ({&sbExternal})'.
 
 PROCESS EVENTS.
 
@@ -93,18 +88,8 @@ HIDE FRAME fMsg2 NO-PAUSE.
 &IF '{&sbExternal}' EQ 'sbHTML' &THEN
 RUN {&objects}/sbHTML.p.
 &ELSEIF '{&sbExternal}' EQ 'sbReport' &THEN
-IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN DO: 
-    RUN {&prompts}/fieldFilter.w PERSISTENT SET hSBHandle ('{&Board}','','',NO,NO,?,'print').
-/*    RUN dispatch IN hSBHandle ('Initialize').*/
-END.
-ELSE 
 RUN {&prompts}/fieldFilter.w ('{&Board}','','',NO,NO,?,'print').
 &ELSEIF '{&sbExternal}' EQ 'sbStatus' &THEN
-IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN DO: 
-    RUN {&objects}/sbStatus.w PERSISTENT SET hSBHandle.
-    RUN dispatch IN hSBHandle ('Initialize').
-END.
-ELSE 
 RUN {&objects}/sbStatus.w.
 &ENDIF
 

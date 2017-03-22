@@ -215,7 +215,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -257,7 +256,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -279,7 +278,7 @@ DO:
        FILE-INFO:FILE-NAME = cInitDir
       cInitDir = FILE-INFO:FULL-PATHNAME .
    IF cInitDir = ? THEN cInitDir = "" .
-
+   
    system-dialog get-file ls-filename 
                  title "Select Image File to insert"
                  filters "JPG Files    (*.jpg)" "*.jpg",
@@ -292,7 +291,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-
+      
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -316,7 +315,7 @@ DO:
        FILE-INFO:FILE-NAME = cInitDir
       cInitDir = FILE-INFO:FULL-PATHNAME .
    IF cInitDir = ? THEN cInitDir = "" .
-
+   
    system-dialog get-file ls-filename 
                  title "Select Image File to insert"
                  filters "JPG Files    (*.jpg)" "*.jpg",
@@ -329,7 +328,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-
+      
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -342,7 +341,6 @@ END.
 ON CHOOSE OF btnFirst IN FRAME F-Main /* First */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "changeImage" "('first')"}
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -354,7 +352,6 @@ END.
 ON CHOOSE OF btnLast IN FRAME F-Main /* Last */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "changeImage" "('last')"}
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -366,7 +363,6 @@ END.
 ON CHOOSE OF btnNext IN FRAME F-Main /* Next */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "changeImage" "('next')"}
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -378,7 +374,6 @@ END.
 ON CHOOSE OF btnPrevious IN FRAME F-Main /* Previous */
 DO:
   {methods/run_link.i "CONTAINER-SOURCE" "changeImage" "('prev')"}
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -395,7 +390,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -521,7 +516,7 @@ if avail xbox-design-hdr then do:
          assign  box-design-line.wscore     = w-box-design-line.wscore-c
                  box-design-line.wcum-score = w-box-design-line.wcum-score-c.
    end.
-
+ 
    if v-rebuild ne "B" then do:
       if v-rebuild eq "S" then
          box-design-hdr.description = w-box-h.description.
@@ -532,7 +527,7 @@ if avail xbox-design-hdr then do:
 
       for each w-box-l of box-design-hdr no-lock,
           first box-design-line of w-box-l:
-
+      
           if v-rebuild eq "S" then
              assign box-design-line.line-no    = w-box-l.line-no
                      box-design-line.line-text  = w-box-l.line-text.
@@ -624,7 +619,7 @@ PROCEDURE refresh-boximg :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR ll-dummy AS LOG NO-UNDO.
-
+  
 
    FIND CURRENT box-design-hdr NO-LOCK NO-ERROR.
    IF NOT AVAIL box-design-hdr THEN RETURN.
@@ -636,7 +631,7 @@ PROCEDURE refresh-boximg :
      ll-dummy = box-image-2:load-image(box-design-hdr.box-3d-image) in frame {&frame-name}.
      /*assign box-image:height-pixels = box-image:height-pixels - 10
             box-image:width-pixels =  box-image:width-pixels - 10.
-
+            
      */
    end.
    ELSE */
@@ -645,7 +640,7 @@ PROCEDURE refresh-boximg :
      ll-dummy = box-image-2:load-image(box-design-hdr.box-image) in frame {&frame-name}.
      /*assign box-image:height-pixels = box-image:height-pixels - 10
             box-image:width-pixels =  box-image:width-pixels - 10.
-
+            
      */
    end.
    ll-box-refreshed = YES.
@@ -709,7 +704,7 @@ PROCEDURE update-image :
   DEF VAR lv-cmd2 AS cha NO-UNDO.
   DEF VAR lv-image-file AS cha NO-UNDO.
   DEF VAR tInt AS INT NO-UNDO.
-
+  
   lv-cmd = "custom\mspaint.exe".
 
   IF AVAIL box-design-hdr AND box-design-hdr.box-image <> "" THEN DO:
@@ -732,7 +727,7 @@ PROCEDURE update-image :
                  IF SEARCH("c:\winnt\system32\mspaint.exe") <> ? THEN lv-cmd = "c:\winnt\system32\mspaint.exe".
                  ELSE IF    SEARCH("c:\windows\system32\mspaint.exe") <> ? THEN lv-cmd = "c:\windows\system32\mspaint.exe".
          END.
-
+    
          ASSIGN
          lv-cmd = lv-cmd + " " + chr(34) + box-design-hdr.box-image:SCREEN-VALUE IN FRAME {&FRAME-NAME} + CHR(34)
          lv-image-file = chr(34) + box-design-hdr.box-image:SCREEN-VALUE IN FRAME {&FRAME-NAME} + CHR(34).

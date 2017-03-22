@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -396,7 +392,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -410,7 +406,7 @@ RUN oe/oe-sysct.p.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -490,9 +486,9 @@ PROCEDURE local-initialize :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR cocode AS CHAR NO-UNDO.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
@@ -624,22 +620,22 @@ FUNCTION get-inv-qty RETURNS DECIMAL
   DEF BUFFER b-oe-ordl FOR oe-ordl.
 
   DEF VAR lp-inv-qty AS INT NO-UNDO.
-
+  
   ASSIGN lp-inv-qty = 0.
-
+         
   FIND b-oe-ordl WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl) NO-LOCK.
-
+  
   FOR EACH ar-invl  WHERE
       ar-invl.company EQ oe-ordl.company AND
       ar-invl.ord-no EQ oe-ordl.ord-no AND
       ar-invl.i-no EQ oe-ordl.i-no
       NO-LOCK:
-
+      
       lp-inv-qty = lp-inv-qty + ar-invl.inv-qty.
   END.
 
   RETURN lp-inv-qty.
-
+ 
   /* Function return value. */
 
 END FUNCTION.

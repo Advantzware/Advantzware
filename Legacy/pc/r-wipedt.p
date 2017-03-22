@@ -316,19 +316,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -413,7 +407,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -505,7 +499,6 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -563,7 +556,7 @@ DO:
   FOR EACH work-gl:
     DELETE work-gl.
   END.
-
+       
   run run-report. 
 
   case rd-dest:
@@ -589,7 +582,6 @@ DO:
 
     ELSE MESSAGE "No WIP available for posting..." VIEW-AS ALERT-BOX ERROR.
   END. 
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -799,10 +791,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -812,14 +802,14 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-
+  
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-
-
+    
+   
   ASSIGN
     begin_date  = TODAY
     end_date    = TODAY
@@ -827,9 +817,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                              ELSE "WIP Edit List".
 
   RUN enable_UI.
-
+  
   {methods/nowait.i}
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -896,11 +885,11 @@ PROCEDURE gl-from-work :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-run AS INT NO-UNDO.
   DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
-
+  
   def var credits as dec init 0 no-undo.
   def var debits as dec init 0 no-undo. 
 
-
+  
   FIND FIRST period
       WHERE period.company EQ cocode
         AND period.pst     LE TODAY
@@ -911,7 +900,7 @@ PROCEDURE gl-from-work :
       where (ip-run eq 1 and work-gl.job-no ne "")
          or (ip-run eq 2 and work-gl.job-no eq "")
       break by work-gl.actnum:
-
+      
     assign
      debits  = debits  + work-gl.debits
      credits = credits + work-gl.credits.
@@ -947,7 +936,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-
+          
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -958,9 +947,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-
+   
          UPDATE OKpressed.
-
+         
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -979,7 +968,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-
+  
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1030,7 +1019,7 @@ DEF BUFFER b-mach FOR mach.
 FOR EACH tt-report NO-LOCK,
 
     FIRST pc-prdd WHERE RECID(pc-prdd) EQ tt-report.rec-id,
-
+          
     first mach
     {sys/ref/machW.i}
       and mach.m-code eq pc-prdd.m-code
@@ -1044,7 +1033,7 @@ FOR EACH tt-report NO-LOCK,
     break by pc-prdd.m-code
 
     TRANSACTION:
-
+             
   find first w-job where w-job.job eq job.job no-error.
   if not avail w-job then create w-job.
   w-job.job = job.job.
@@ -1088,7 +1077,7 @@ FOR EACH tt-report NO-LOCK,
                       + pc-prdd.hours.
 
       RELEASE reftable.
-
+         
   END.
 
   IF mach.dept[1] EQ "PR" OR mach.dept[2] EQ "PR" OR
@@ -1117,7 +1106,7 @@ FOR EACH tt-report NO-LOCK,
       RUN est/ef-#out.p (ROWID(ef), OUTPUT v-on).
       v-on = v-up * v-on.
     END.
-
+                      
     find first est-op
         where est-op.company eq est.company
           and est-op.est-no  eq est.est-no
@@ -1137,7 +1126,7 @@ FOR EACH tt-report NO-LOCK,
         run sys/inc/numout.p (recid(est-op), output v-out).
 
       else v-out = 1.
-
+               
       v-up = v-up * v-out.
     end.
 
@@ -1145,7 +1134,7 @@ FOR EACH tt-report NO-LOCK,
 
     v-on = v-on / v-up.
   end.
-
+           
   v-up-hs = 1.
 
   if pc-prdd.dept eq "HS" and
@@ -1153,9 +1142,9 @@ FOR EACH tt-report NO-LOCK,
      mach.therm           and
      mach.p-type eq "S"   then
     run sys/inc/numup.p (est.company, est.est-no, pc-prdd.frm, output v-up-hs).
-
+           
   {pc/pcmchact.i}
-
+           
   if pc-prdd.complete AND pc-prdd.qty NE 0 then do:
     RUN pc/pcprdd4u.p (ROWID(pc-prdd)).
 
@@ -1187,14 +1176,14 @@ FOR EACH tt-report NO-LOCK,
        fg-rctd.i-no       = tt-job-hdr.i-no
        fg-rctd.job-no     = pc-prdd.job-no
        fg-rctd.job-no2    = pc-prdd.job-no2.
-
+                 
       assign
        v-up  = 1
        v-out = 1.
-
+                 
       if avail est and index("APB",mach.p-type) le 0 then do:
         run sys/inc/numup.p (est.company, est.est-no, pc-prdd.frm, output v-up).
-
+                 
         find first est-op
             where est-op.company eq est.company
               and est-op.est-no  eq est.est-no
@@ -1208,7 +1197,7 @@ FOR EACH tt-report NO-LOCK,
             no-lock no-error.
         if avail est-op and est-op.n-out ne 0 then v-out = est-op.n-out.
       end.
-
+                 
       ASSIGN
        fg-rctd.b-num      = pc-prdd.blank-no
        fg-rctd.s-num      = pc-prdd.frm
@@ -1238,7 +1227,7 @@ FOR EACH tt-report NO-LOCK,
          fg-rctd.qty-case   = reftable.val[2]
          fg-rctd.cases-unit = reftable.val[3]
          fg-rctd.partial    = fg-rctd.t-qty - (fg-rctd.cases * fg-rctd.qty-case).
-
+        
         FIND FIRST fg-bin 
             WHERE fg-bin.rec_key EQ reftable.code2 /*RECID(fg-bin) EQ INT(reftable.code2)*/ 
             NO-LOCK NO-ERROR.
@@ -1313,7 +1302,7 @@ IF dcpostgl-log THEN DO TRANSACTION:
       ASSIGN v-trnum       = gl-ctrl.trnum + 1
              gl-ctrl.trnum = v-trnum.
       FIND CURRENT gl-ctrl NO-LOCK.
-
+      
       RUN gl-from-work (1, v-trnum).
       RUN gl-from-work (2, v-trnum).
       LEAVE.
@@ -1329,7 +1318,7 @@ for each w-job,
     no-lock:
   run jc/job-cls2.p (recid(job)).
 end.
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1398,9 +1387,9 @@ PROCEDURE proc-form-cmplt :
       ASSIGN
        v-set  = itemfg.i-no
        v-qty  = pc-prdd.qty.
-
+            
       RUN fg/checkset.p (RECID(itemfg), ?, INPUT-OUTPUT v-qty).
-
+          
       IF v-qty LT pc-prdd.qty THEN DO:
         choice = NO.
         MESSAGE "Insufficient components for AUTOPOST, process anyway?"
@@ -1440,7 +1429,7 @@ PROCEDURE proc-form-cmplt :
        fg-bin.last-cost    = job-hdr.std-tot-cost
        fg-bin.unit-count   = itemfg.case-count.
     END.
-
+      
     IF fg-bin.cases-unit   LE 0 THEN fg-bin.cases-unit   = 1.
     IF fg-bin.units-pallet LE 0 THEN fg-bin.units-pallet = 1.
 /*    
@@ -1456,7 +1445,7 @@ PROCEDURE proc-form-cmplt :
      b-reftable.company  = cocode
      b-reftable.code     = STRING(RECID(job-hdr))
      b-reftable.code2    = STRING(RECID(fg-bin)).
-
+    
     v-runqty = 0. 
     FOR EACH bf-prdd WHERE bf-prdd.company = pc-prdd.company 
                        AND bf-prdd.m-code = pc-prdd.m-code
@@ -1556,7 +1545,7 @@ PROCEDURE proc-form-cmplt :
         RUN est/ef-#out.p (ROWID(ef), OUTPUT v-on).
         v-on = v-up * v-on.
       END.
-
+                      
       find first est-op
           where est-op.company eq est.company
             and est-op.est-no  eq est.est-no
@@ -1579,7 +1568,7 @@ PROCEDURE proc-form-cmplt :
 
       v-on = v-on / v-up.
     end.
-
+           
     v-up-hs = 1.
 
     if job-mch.dept eq "HS" and
@@ -1591,7 +1580,7 @@ PROCEDURE proc-form-cmplt :
  /* Don't create wip
     {touch/pcmchact.i}  /* from {pc/pcmchact.i}  mch-act creatation */
  */
-
+ 
  /* IF v-assembled THEN */
     IF pc-prdd.qty > 0 OR v-runqty > 0 THEN
     FOR EACH reftable
@@ -1633,14 +1622,14 @@ PROCEDURE proc-form-cmplt :
        fg-rctd.i-no       = reftable.code2
        fg-rctd.job-no     = job-hdr.job-no
        fg-rctd.job-no2    = job-hdr.job-no2.
-
+                 
       assign
        v-up  = 1
        v-out = 1.
-
+      
       if avail est and INDEX("APB",mach.p-type) LE 0 then do:
         run sys/inc/numup.p (est.company, est.est-no, job-mch.frm, output v-up).
-
+                 
         find first est-op
             where est-op.company eq est.company
               and est-op.est-no  eq est.est-no
@@ -1672,7 +1661,7 @@ PROCEDURE proc-form-cmplt :
       if fg-rctd.t-qty le 0 then fg-rctd.cases = 0.
 
       release fg-bin.
-
+      
       FIND FIRST b-reftable
           WHERE b-reftable.reftable EQ "ts/jobdata.p"
             AND b-reftable.company  EQ cocode
@@ -1681,13 +1670,13 @@ PROCEDURE proc-form-cmplt :
 
       IF AVAIL b-reftable THEN 
       FIND FIRST fg-bin WHERE RECID(fg-bin) EQ INT(b-reftable.code2) NO-LOCK NO-ERROR.
-
+      
       IF AVAIL fg-bin THEN
         ASSIGN
          v-loc       = fg-bin.loc
          v-loc-bin   = fg-bin.loc-bin
          fg-rctd.tag = fg-bin.tag.
-
+                
       ELSE
         RUN fg/autopost.p (ROWID(itemfg), fg-rctd.job-no, fg-rctd.job-no2,
                            OUTPUT v-loc, OUTPUT v-loc-bin).
@@ -1729,7 +1718,7 @@ PROCEDURE proc-form-cmplt :
 ===    */
 
    /* end of fg receipt creation */
-
+ 
   RELEASE fg-rctd.
   RELEASE job.
 
@@ -1759,7 +1748,7 @@ PROCEDURE proc-set-cmplt :
    def var v-up-hs     like eb.num-up NO-UNDO.
    def var v-on        like eb.num-up NO-UNDO.
    DEF VAR h_updbin AS HANDLE NO-UNDO.
-
+   
    DEF BUFFER b-reftable FOR reftable.
 
    FIND FIRST job WHERE job.company EQ cocode
@@ -1803,9 +1792,9 @@ PROCEDURE proc-set-cmplt :
       ASSIGN
        v-set  = itemfg.i-no
        v-qty  = pc-prdd.qty.
-
+            
       RUN fg/checkset.p (RECID(itemfg), ?, INPUT-OUTPUT v-qty).
-
+          
       IF v-qty LT pc-prdd.qty THEN DO:
         choice = NO.
         MESSAGE "Insufficient components for AUTOPOST, process anyway?"
@@ -1845,10 +1834,10 @@ PROCEDURE proc-set-cmplt :
        fg-bin.last-cost    = job-hdr.std-tot-cost
        fg-bin.unit-count   = itemfg.case-count.
     END.
-
+      
     IF fg-bin.cases-unit   LE 0 THEN fg-bin.cases-unit   = 1.
     IF fg-bin.units-pallet LE 0 THEN fg-bin.units-pallet = 1.
-
+    
   /*  FIND FIRST b-reftable
         WHERE b-reftable.reftable EQ "ts/jobdata.p"
           AND b-reftable.company  EQ cocode
@@ -1861,7 +1850,7 @@ PROCEDURE proc-set-cmplt :
      b-reftable.company  = cocode
      b-reftable.code     = STRING(RECID(job-hdr))
      b-reftable.code2    = STRING(RECID(fg-bin)).
-
+    
     v-runqty = 0. 
     FOR EACH bf-prdd WHERE bf-prdd.company = pc-prdd.company 
                        AND bf-prdd.m-code = pc-prdd.m-code
@@ -1934,10 +1923,10 @@ PROCEDURE proc-set-cmplt :
               reftable.loc      = mach-part.m-code
               reftable.code     = mach-part.rm-part-code. 
         END.
-
+        
         reftable.val[1] = reftable.val[1]
                         + pc-prdd.hours.
-
+        
         RELEASE reftable.
     END.
 
@@ -1963,7 +1952,7 @@ PROCEDURE proc-set-cmplt :
              (if ef.n-out   eq 0 then 1 else ef.n-out) *
              (if ef.n-out-l eq 0 then 1 else ef.n-out-l) *
              (if ef.n-out-d eq 0 then 1 else ef.n-out-d).
-
+                      
     find first est-op
         where est-op.company eq est.company
           and est-op.est-no  eq est.est-no
@@ -1986,7 +1975,7 @@ PROCEDURE proc-set-cmplt :
 
     v-on = v-on / v-up.
   end.
-
+           
   v-up-hs = 1.
 
   if job-mch.dept eq "HS" and
@@ -2040,14 +2029,14 @@ PROCEDURE proc-set-cmplt :
        fg-rctd.i-no       = job-hdr.i-no
        fg-rctd.job-no     = job-hdr.job-no
        fg-rctd.job-no2    = job-hdr.job-no2.
-
+                 
       assign
        v-up  = 1
        v-out = 1.
-
+      
       if avail est and index("AB",mach.p-type) le 0 then do:
         run sys/inc/numup.p (est.company, est.est-no, job-mch.frm, output v-up).
-
+                 
         find first est-op
             where est-op.company eq est.company
               and est-op.est-no  eq est.est-no
@@ -2079,7 +2068,7 @@ PROCEDURE proc-set-cmplt :
       if fg-rctd.t-qty le 0 then fg-rctd.cases = 0.
 
       release fg-bin.
-
+      
       FIND FIRST b-reftable
           WHERE b-reftable.reftable EQ "ts/jobdata.p"
             AND b-reftable.company  EQ cocode
@@ -2088,13 +2077,13 @@ PROCEDURE proc-set-cmplt :
 
       IF AVAIL b-reftable THEN 
       FIND FIRST fg-bin WHERE RECID(fg-bin) EQ INT(b-reftable.code2) NO-LOCK NO-ERROR.
-
+      
       IF AVAIL fg-bin THEN
         ASSIGN
          v-loc       = fg-bin.loc
          v-loc-bin   = fg-bin.loc-bin
          fg-rctd.tag = fg-bin.tag.
-
+                
       ELSE
         RUN fg/autopost.p (ROWID(itemfg), fg-rctd.job-no, fg-rctd.job-no2,
                            OUTPUT v-loc, OUTPUT v-loc-bin).
@@ -2136,7 +2125,7 @@ PROCEDURE proc-set-cmplt :
 ===    */
 
    /* end of fg receipt creation */
-
+ 
   RELEASE fg-rctd.
   RELEASE job.
 
@@ -2281,7 +2270,7 @@ for each pc-prdd
            (pc-prdd.qty   ne 0) or
            (pc-prdd.waste ne 0))
     no-lock,
-
+          
     first mach
     {sys/ref/machW.i}
       and mach.m-code eq pc-prdd.m-code
@@ -2319,7 +2308,7 @@ for each pc-prdd
       RUN est/ef-#out.p (ROWID(ef), OUTPUT v-on).
       v-on = v-up * v-on.
     END.
-
+                      
     find first est-op
         where est-op.company eq est.company
           and est-op.est-no  eq est.est-no
@@ -2339,7 +2328,7 @@ for each pc-prdd
         run sys/inc/numout.p (recid(est-op), output v-out).
 
       else v-out = 1.
-
+               
       v-up = v-up * v-out.
     end.
 
@@ -2347,7 +2336,7 @@ for each pc-prdd
 
     v-on = v-on / v-up.
   end.
-
+           
   v-up-hs = 1.
 
   if pc-prdd.dept eq "HS" and
@@ -2412,9 +2401,9 @@ for each pc-prdd
 
   CREATE tt-report.
   tt-report.rec-id = RECID(pc-prdd).
-
+  
 END.
-
+ 
 if v-dept-paging then do:
   {pc/rep/mch-edit2.i pc-prdd.dept "by pc-prdd.m-code"}
 end.
@@ -2429,7 +2418,7 @@ FOR EACH work-gl BY work-gl.actnum BY work-gl.job-no BY work-gl.job-no2:
       WHERE account.company EQ cocode
         AND account.actnum  EQ work-gl.actnum
       NO-LOCK NO-ERROR.
-
+        
   ASSIGN
    v-dscr        = IF AVAIL account THEN account.dscr
                    ELSE "ACCOUNT NOT FOUND - " + work-gl.actnum
@@ -2470,11 +2459,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-
+  
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-
+  
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2502,23 +2491,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-
+  
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-
+       
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-
+                 
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
-
+ 
   put fill("-",80) format "x(80)" skip.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2534,21 +2523,21 @@ PROCEDURE update-plate-die :
   DEF INPUT PARAM ip-rowid    AS   ROWID NO-UNDO.
   DEF INPUT PARAM ip-upd-type AS   CHAR NO-UNDO.
   DEF INPUT PARAM ip-est-type LIKE est.est-type NO-UNDO.
-
+  
   DEF BUFFER b-pc-prdd FOR pc-prdd.
   DEF BUFFER bf-job FOR job.
 
   FIND b-pc-prdd WHERE ROWID(b-pc-prdd) EQ ip-rowid NO-LOCK NO-ERROR.
 
   IF AVAIL b-pc-prdd THEN
-
+  
      FOR FIRST bf-job
          WHERE bf-job.company eq cocode
            AND bf-job.job     eq b-pc-prdd.job
            AND bf-job.job-no  eq b-pc-prdd.job-no
            AND bf-job.job-no2 eq b-pc-prdd.job-no2
          NO-LOCK,
-
+    
          FIRST job-hdr
          WHERE job-hdr.company   EQ cocode
            AND job-hdr.job       EQ b-pc-prdd.job
@@ -2557,12 +2546,12 @@ PROCEDURE update-plate-die :
            AND (job-mch.frm      EQ b-pc-prdd.frm OR
                 ip-est-type      EQ 2)
          NO-LOCK:
-
+    
        FIND FIRST itemfg
            WHERE itemfg.company EQ cocode
              AND itemfg.i-no    EQ job-hdr.i-no
            NO-LOCK NO-ERROR.
-
+    
        IF ip-est-type EQ 2 AND job.est-no NE "" AND
           AVAIL itemfg AND itemfg.isaset        THEN
        FOR EACH eb
@@ -2576,7 +2565,7 @@ PROCEDURE update-plate-die :
            NO-LOCK:
          LEAVE.
        END.
-
+    
        IF AVAIL itemfg THEN DO:
 
          IF ip-upd-type EQ "P" AND itemfg.plate-no NE "" THEN
@@ -2584,27 +2573,27 @@ PROCEDURE update-plate-die :
              WHERE prep.company EQ cocode
                AND prep.code    EQ itemfg.plate-no
              NO-ERROR.
-
+    
          ELSE
          IF ip-upd-type EQ "D" AND itemfg.die-no NE "" THEN
          FIND FIRST prep
              WHERE prep.company EQ cocode
                AND prep.code    EQ itemfg.die-no
              NO-ERROR.
-
+    
          IF AVAIL prep THEN DO:
-
+         
            ASSIGN prep.no-of-impressions = prep.no-of-impressions +
                                            b-pc-prdd.qty + b-pc-prdd.waste
                   prep.last-date         = b-pc-prdd.op-date.
-
+    
            FIND FIRST reftable WHERE
                 reftable.reftable EQ "PREPLASTJOB" AND
                 reftable.company  EQ prep.company AND
                 reftable.loc      EQ prep.loc AND
                 reftable.code     EQ prep.CODE
                 NO-ERROR.
-
+    
            IF NOT AVAIL reftable THEN DO:
              CREATE reftable.
              ASSIGN
@@ -2613,11 +2602,11 @@ PROCEDURE update-plate-die :
                reftable.loc      = prep.loc
                reftable.code     = prep.CODE. 
            END.
-
+           
            ASSIGN
              reftable.code2    = b-pc-prdd.job-no
              reftable.val[1]   = b-pc-prdd.job-no2.
-
+    
            RELEASE reftable.
            RELEASE prep.
          END.

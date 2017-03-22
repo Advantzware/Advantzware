@@ -46,8 +46,14 @@ DEFINE TEMP-TABLE ttDeltaList
     FIELD dbField      AS CHARACTER COLUMN-LABEL "Flags"
     FIELD objectType   AS CHARACTER COLUMN-LABEL "Type (e.g. field or sequence)"
     FIELD shouldExist  AS LOG 
-    FIELD databaseName AS CHARACTER .
-
+    FIELD databaseName AS CHARACTER 
+    FIELD passesTest   AS LOGICAL 
+  .   
+    
+DEFINE TEMP-TABLE ttfiles 
+    FIELD ttfullname AS CHARACTER  
+    FIELD ttfilename AS CHARACTER   .  
+  
 ASSIGN
     cocode = g_company
     locode = g_loc.
@@ -176,19 +182,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -214,7 +214,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -252,7 +252,6 @@ ON WINDOW-CLOSE OF C-Win /* Transaction Monitor */
 ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
     DO:
         APPLY 'CLOSE' TO THIS-PROCEDURE.
-        {Advantzware/WinKit/winkit-panel-triggerend.i}
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -263,11 +262,10 @@ ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCompareSchema C-Win
 ON CHOOSE OF btnCompareSchema IN FRAME DEFAULT-FRAME /* Compare Schema */
     DO:
-
+ 
         RUN pShowNeededDeltas.
         RETURN NO-APPLY.
-
-        {Advantzware/WinKit/winkit-panel-triggerend.i}
+        
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -287,10 +285,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
     DO:
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
         RUN disable_UI.
     END.
 
@@ -302,15 +298,14 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-
+        
     RUN enable_UI.
 
     RUN pCreateObjectReferences.
-
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
+    RUN readDeltaFiles.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
-
+        
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -369,7 +364,7 @@ PROCEDURE pCreateObjectReferences:
     ------------------------------------------------------------------------------*/
     CREATE ttDeltaList.
     ASSIGN 
-        ttDeltaList.allFileName  = "asi_delta_16.3.4"
+        ttDeltaList.allFileName  = "asi_delta_16.3.4.df"
         ttDeltaList.awVersion    = "16.3.4"
         ttDeltaList.dbTable      = "EDPOTran"
         ttDeltaList.dbField      = "Ack-Date"
@@ -380,7 +375,7 @@ PROCEDURE pCreateObjectReferences:
 
     CREATE ttDeltaList.
     ASSIGN 
-        ttDeltaList.allFileName  = "asi_delta_16.3.0"
+        ttDeltaList.allFileName  = "asi_delta_16.3.0.df"
         ttDeltaList.awVersion    = "16.3.0"
         ttDeltaList.dbTable      = "cust-markup"
         ttDeltaList.dbField      = "markup_reduction"
@@ -391,7 +386,7 @@ PROCEDURE pCreateObjectReferences:
 
     CREATE ttDeltaList.
     ASSIGN 
-        ttDeltaList.allFileName  = "asi_delta_16.2.0"
+        ttDeltaList.allFileName  = "asi_delta_16.2.0.df"
         ttDeltaList.awVersion    = "16.2.0"
         ttDeltaList.dbTable      = "vend"
         ttDeltaList.dbField      = "payment-type"
@@ -402,7 +397,7 @@ PROCEDURE pCreateObjectReferences:
 
     CREATE ttDeltaList.
     ASSIGN 
-        ttDeltaList.allFileName  = "asi_delta_16.1.0"
+        ttDeltaList.allFileName  = "asi_delta_16.1.0.df"
         ttDeltaList.awVersion    = "16.1.0"
         ttDeltaList.dbTable      = "userEula"
         ttDeltaList.dbField      = "eula_code"
@@ -410,10 +405,10 @@ PROCEDURE pCreateObjectReferences:
         ttDeltaList.shouldExist  = YES
         ttDeltaList.databaseName = "ASI" 
         .
-
+         
     CREATE ttDeltaList.
     ASSIGN 
-        ttDeltaList.allFileName  = "asi_delta_16.0.6"
+        ttDeltaList.allFileName  = "asi_delta_16.0.6.df"
         ttDeltaList.awVersion    = "16.0.6"
         ttDeltaList.dbTable      = "emailcod"
         ttDeltaList.dbField      = "emailTo"
@@ -421,10 +416,10 @@ PROCEDURE pCreateObjectReferences:
         ttDeltaList.shouldExist  = YES
         ttDeltaList.databaseName = "ASI" 
         .
-
+         
     CREATE ttDeltaList.
     ASSIGN 
-        ttDeltaList.allFileName  = "asi_delta_16.0.0"
+        ttDeltaList.allFileName  = "asi_delta_16.0.0.df"
         ttDeltaList.awVersion    = "16.0.0"
         ttDeltaList.dbTable      = "oe-ord"
         ttDeltaList.dbField      = "ack-prnt-date"
@@ -432,10 +427,10 @@ PROCEDURE pCreateObjectReferences:
         ttDeltaList.shouldExist  = YES
         ttDeltaList.databaseName = "ASI" 
         .
-
+        
     CREATE ttDeltaList.
     ASSIGN 
-        ttDeltaList.allFileName  = "addon\nosweat_delta_16.3.0"
+        ttDeltaList.allFileName  = "addon\nosweat_delta_16.3.0.df"
         ttDeltaList.awVersion    = "16.3.0"
         ttDeltaList.dbTable      = "mfgroup"
         ttDeltaList.dbField      = "mfgroup_data"
@@ -443,7 +438,7 @@ PROCEDURE pCreateObjectReferences:
         ttDeltaList.shouldExist  = YES
         ttDeltaList.databaseName = "NOSWEAT" 
         .
-
+        
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -461,59 +456,213 @@ PROCEDURE pShowNeededDeltas:
 
     DEFINE VARIABLE cDeltaDisplay AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lPassesTest   AS LOG       NO-UNDO.
-
+  
     /*  RUN pCreateObjectReferences. */
+  
 
-
-
+  
     DO WITH FRAME {&frame-name}:
         FIND FIRST ttDeltaList WHERE ttDeltaList.allFileName BEGINS "addon"
-           NO-ERROR.
-        IF AVAIL ttDeltaList THEN
-          MESSAGE "Please run this utility from advantzware and addons also"
-            VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            NO-ERROR.
+        IF AVAILABLE ttDeltaList THEN
+            MESSAGE "Please run this utility from advantzware and addons also"
+                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
         edLocks:SCREEN-VALUE = "".
         ASSIGN fiVersion.
-
+        
         FOR EACH ttDeltaList WHERE ttDeltaList.awVersion LE fiVersion:
-
+            
             lPassesTest = FALSE.
             CASE ttDeltaList.databaseName:
                 WHEN "ASI" THEN 
-                    DO:
-                        /* ttDeltaList.objectType   = "field" */
-                        FIND FIRST asi._file WHERE asi._file._file-name EQ ttDeltaList.dbTable     
-                            NO-LOCK NO-ERROR.
+                    DO:                                                
+                        FIND FIRST asi._file NO-LOCK  WHERE asi._file._file-name EQ ttDeltaList.dbTable     
+                           NO-ERROR.
                         IF AVAILABLE asi._file THEN 
-                            FIND FIRST asi._field OF asi._file 
+                            FIND FIRST asi._field NO-LOCK OF asi._file 
                                 WHERE asi._field._field-name EQ   ttDeltaList.dbField
-                                NO-LOCK NO-ERROR.
+                                NO-ERROR.
                         lPassesTest = avail(asi._field) EQ ttDeltaList.shouldExist.                     
 
                     END.
                 WHEN "NOSWEAT" THEN 
                     DO:
-                        /* ttDeltaList.objectType   = "field" */
-                        FIND FIRST nosweat._file WHERE nosweat._file._file-name EQ ttDeltaList.dbTable     
-                            NO-LOCK NO-ERROR.
+                        
+                        FIND FIRST nosweat._file NO-LOCK WHERE nosweat._file._file-name EQ ttDeltaList.dbTable     
+                            NO-ERROR.
                         IF AVAILABLE nosweat._file THEN 
-                            FIND FIRST nosweat._field OF nosweat._file 
+                            FIND FIRST nosweat._field NO-LOCK OF nosweat._file 
                                 WHERE nosweat._field._field-name EQ   ttDeltaList.dbField
-                                NO-LOCK NO-ERROR.
+                                NO-ERROR.
                         lPassesTest = avail(nosweat._field) EQ ttDeltaList.shouldExist.               
                     END.
             END CASE.
+            
+            ttDeltaList.passesTest = lPassesTest.
+
+    
+        END.  
+        FOR EACH ttDeltaList WHERE ttDeltaList.awVersion LE fiVersion 
+            BREAK BY ttDeltaList.allFileName
+                  BY ttDeltaList.passesTest:  
+          IF FIRST-OF(ttDeltaList.passesTest) THEN DO:
+            lPassesTest = ttDeltaList.passesTest.
 
             cDeltaDisplay = 
                 ttDeltaList.allFileName 
                 + (IF lPassesTest THEN " Has Been Applied." ELSE " Needs to be applied")
                 + chr(13)
                 . 
-
+                
             edLocks:SCREEN-VALUE = edLocks:SCREEN-VALUE + cDeltaDisplay.
+
+          END.
 
         END.
     END. 
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE readDeltaFiles C-Win
+PROCEDURE readDeltaFiles:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cFileName   AS CHARACTER NO-UNDO.   
+    DEFINE VARIABLE cShortName  AS CHARACTER NO-UNDO.  
+    DEFINE VARIABLE cFolderName AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cFullName   AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE ctype       AS CHARACTER NO-UNDO. 
+    DEFINE VARIABLE cInputLine  AS CHARACTER FORMAT "x(50)". 
+    DEFINE VARIABLE cTable      AS CHARACTER NO-UNDO.  
+    DEFINE VARIABLE cField      AS CHARACTER NO-UNDO.   
+    
+    DEFINE VARIABLE iLeftPos    AS INTEGER   NO-UNDO. 
+    DEFINE VARIABLE iRightPos   AS INTEGER   NO-UNDO.  
+    DEFINE VARIABLE iSlashPos AS INTEGER.  
+     
+    cFileName = SEARCH("stdMenu\deltas\asi_delta_15.9.0.df"). 
+    /* cFileName = "C:\Advantzware\v16\Resources\stdMenu\deltas\asi_delta_15.9.0.df". */ 
+    
+    /* Examine folder for file list */    
+    iSlashPos = R-INDEX(cFileName, "\"). 
+    cShortName = SUBSTRING(cFileName,  iSlashPos + 1).  
+    cFolderName = SUBSTRING(cFileName,  1, iSlashPos - 1).  
+
+    INPUT FROM OS-DIR (cFolderName) .  
+    REPEAT:  
+        /* Input from os-Dir returns space delimited  File name and full name */
+        IMPORT cFullName cFileName cType. 
+        DISPLAY cFileName FORMAT "x(20)" cFullName FORMAT "x(65)"  cType.   
+        IF cType BEGINS "F" THEN 
+        DO:   
+            CREATE ttFiles.  
+            ASSIGN 
+                ttFiles.ttFullName = cFullName  
+                ttFiles.ttFileName = cFileName 
+                .             
+        END.   
+    END.    
+    INPUT CLOSE.  
+
+
+    /* With each file in the list, read the contents */
+    FOR EACH ttFiles:  
+        cFileName = ttFiles.ttFileName.
+        INPUT from value(cFileName).
+
+        REPEAT: 
+            cInputLine = "". 
+            IMPORT UNFORMATTED cInputLine. 
+            
+            cInputLine = TRIM(cInputLine).
+            IF NOT cInputLine BEGINS "add field" THEN NEXT.  
+      
+            iLeftPos = INDEX(cInputLine, '"').   
+            iRightPos = R-INDEX(cInputLine, '"'). 
+            
+            IF iLeftPos EQ 0 OR iRightPos EQ 0 THEN NEXT. 
+            
+            cInputLine = SUBSTRING(cInputLine, iLeftPos, iRightPos - iLeftPos).   
+            cInputLine = TRIM(REPLACE(cINputLine, '"', '')). 
+            cInputLine = TRIM(REPLACE(cINputLine, '  ', ' ')).  
+            cInputLine = TRIM(REPLACE(cINputLine, ' OF ', ',')).  
+            
+            cTable = ENTRY(2, cInputLine).  
+            cField = ENTRY(1, cInputLine).    
+            
+            
+            IF cShortName BEGINS "asi" THEN 
+            DO:
+                FIND FIRST asi._file NO-LOCK WHERE asi._file._file-name EQ cTable 
+                     NO-ERROR. 
+                IF AVAILABLE asi._file THEN  
+                    FIND FIRST asi._field NO-LOCK OF asi._file WHERE  
+                        asi._field._field-name EQ cField  
+                        NO-ERROR. 
+                          
+                    CREATE ttDeltaList.
+                    ASSIGN 
+                        ttDeltaList.allFileName  = TRIM(ttFiles.ttfullname)
+                        ttDeltaList.awVersion    = entry(3, ttFiles.ttFileName, "_")
+                        ttDeltaList.dbTable      = cTable
+                        ttDeltaList.dbField      = cField
+                        ttDeltaList.objectType   = "field"
+                        ttDeltaList.shouldExist  = YES
+                        ttDeltaList.databaseName = "ASI" 
+                        .         
+            END.   
+            ELSE IF cShortName BEGINS "nosweat" THEN 
+                DO: 
+                    FIND FIRST nosweat._file  NO-LOCK WHERE nosweat._file._file-name EQ cTable 
+                        NO-ERROR. 
+                    IF AVAILABLE nosweat._file THEN  
+                        FIND FIRST nosweat._field NO-LOCK OF nosweat._file WHERE  
+                            nosweat._field._field-name EQ cField  
+                             NO-ERROR.   
+                    CREATE ttDeltaList.
+                    ASSIGN 
+                        ttDeltaList.allFileName  = TRIM(ttFiles.ttfullname)
+                        ttDeltaList.awVersion    = entry(3, ttFiles.ttFileName, "_")
+                        ttDeltaList.dbTable      = cTable
+                        ttDeltaList.dbField      = cField
+                        ttDeltaList.objectType   = "field"
+                        ttDeltaList.shouldExist  = YES
+                        ttDeltaList.databaseName = "NOSWEAT" 
+                        .                             
+
+                END.   
+                ELSE IF cShortName BEGINS "asihlp" THEN 
+                    DO: 
+                        FIND FIRST asihlp._file NO-LOCK WHERE asihlp._file._file-name EQ cTable 
+                             NO-ERROR. 
+                        IF AVAILABLE asihlp._file THEN  
+                            FIND FIRST asihlp._field NO-LOCK OF asihlp._file WHERE  
+                                asihlp._field._field-name EQ cField  
+                                 NO-ERROR.   
+                       CREATE ttDeltaList.
+                       ASSIGN 
+                            ttDeltaList.allFileName  = TRIM(ttFiles.ttfullname)
+                            ttDeltaList.awVersion    = entry(3, ttFiles.ttFileName, "_")
+                            ttDeltaList.dbTable      = cTable
+                            ttDeltaList.dbField      = cField
+                            ttDeltaList.objectType   = "field"
+                            ttDeltaList.shouldExist  = YES
+                            ttDeltaList.databaseName = "asihlp" 
+                            . 
+                    END.        
+        END.  /* Repeat each line of file */
+        INPUT close.    
+    END. /* each ttFiles */
+  
+
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */

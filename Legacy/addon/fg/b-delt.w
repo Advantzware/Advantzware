@@ -4,15 +4,11 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
   File:  addon\fg\b-delt.w
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -281,8 +277,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -368,7 +362,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -394,7 +388,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-
+   
    RUN new-state in phandle ('update-begin':U).
 
 
@@ -606,7 +600,7 @@ DO:
               lv-prev-job2 = fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}.
               lv-job-no = fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}.
               lv-job-no2 = fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}.
-
+  
               RETURN NO-APPLY.
            END.
        END.
@@ -663,7 +657,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.tag IN BROWSE Browser-Table /* Tag# */
 DO:
-
+    
 
     IF LASTKEY = -1 /*OR fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = "" */
     THEN RETURN.
@@ -996,7 +990,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.qty-case Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF fg-rctd.qty-case IN BROWSE Browser-Table /* Unit!Count */
 DO:
-
+  
     /*
     RUN get-matrix (NO) NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. */
@@ -1165,9 +1159,9 @@ PROCEDURE get-fg-bin-cost :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
-
-
+  
+  
+  
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST fg-bin
         WHERE fg-bin.company EQ cocode
@@ -1242,7 +1236,7 @@ PROCEDURE get-freight-cost :
           RUN sys/ref/convquom.p(po-ordl.pr-qty-uom, "EA",
                                  0, po-ordl.s-len, po-ordl.s-wid, 0,
                                  ld-qty, OUTPUT ld-qty).
-
+      
         ld-wgt[2] = ld-wgt[2] + (ld-qty / 100 * itemfg.weight-100).
 
         IF ROWID(po-ordl) EQ lv-rowid THEN
@@ -1326,7 +1320,7 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
                        and po-ordl.job-no2 = integer(fg-rctd.job-no2:screen-value)
                        and po-ordl.item-type = no
                        no-lock no-error.
-
+  
   IF AVAIL po-ordl THEN DO:
     ASSIGN
      v-len = po-ordl.s-len
@@ -1368,17 +1362,17 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
                   WHERE oe-ord.company EQ job-hdr.company
                     AND oe-ord.ord-no  EQ job-hdr.ord-no
                   NO-ERROR.
-
+              
               v-rec-qty = (job-hdr.qty * (1 + ((IF AVAIL oe-ordl THEN oe-ordl.over-pct ELSE
                                                 IF AVAIL oe-ord  THEN oe-ord.over-pct  ELSE 0) / 100))).
-
+      
           END.
           IF v-rec-qty <  int(fg-rctd.t-qty:SCREEN-VALUE) AND NOT lv-overrun-checked THEN DO:
              MESSAGE "Receipt quantity exceeds job quantity." VIEW-AS ALERT-BOX Warning.
              /*RETURN ERROR.*/
              lv-overrun-checked = YES.
           END.
-
+          
        END.
   END.
 
@@ -1391,7 +1385,7 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
                       v-bwt, v-len, v-wid, v-dep,
                       fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lv-out-cost).
 END.
-
+  
 IF lv-cost-uom NE "EA" THEN
   RUN rm/convquom.p("EA", lv-cost-uom,                   
                     v-bwt, v-len, v-wid, v-dep,
@@ -1444,7 +1438,7 @@ PROCEDURE get-matrix-all :
 
       lv-out-qty = lv-out-qty + b-fg-rctd.t-qty.     
   END.
-
+  
   lv-out-qty = lv-out-qty + int(fg-rctd.t-qty:SCREEN-VALUE).
 
   IF fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode - use screen-value */
@@ -1458,7 +1452,7 @@ PROCEDURE get-matrix-all :
                        and po-ordl.job-no2 = integer(fg-rctd.job-no2:screen-value)
                        and po-ordl.item-type = no
                        no-lock no-error.
-
+  
        IF AVAIL po-ordl THEN DO:
           v-rec-qty = po-ordl.t-rec-qty + lv-out-qty.
           RUN sys/ref/ea-um-fg.p (po-ordl.pr-qty-uom, OUTPUT ll-ea).
@@ -1495,20 +1489,20 @@ PROCEDURE get-matrix-all :
                   WHERE oe-ord.company EQ job-hdr.company
                     AND oe-ord.ord-no  EQ job-hdr.ord-no
                   NO-ERROR.
-
+              
               v-rec-qty = (job-hdr.qty * (1 + (IF AVAIL oe-ordl THEN oe-ordl.over-pct ELSE
                                                IF AVAIL oe-ord  THEN oe-ord.over-pct  ELSE 0 / 100))).
-
+      
            END.
            IF v-rec-qty <  lv-out-qty AND NOT lv-overrun-checked THEN DO:
               MESSAGE "Receipt quantity exceeds job quantity." VIEW-AS ALERT-BOX Warning.
              /*RETURN ERROR.*/
               lv-overrun-checked = YES.
            END.
-
+           
          END.
        END.
-
+     
   END. /* i-no <> ""*/
 
 END PROCEDURE.
@@ -1610,7 +1604,7 @@ PROCEDURE get-values :
             AND reftable-job.code2    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
           NO-LOCK NO-ERROR.
     END.
-
+       
     if avail job-hdr and job-hdr.std-tot-cost gt 0 then
       ASSIGN
        lv-cost-uom = "M"
@@ -1630,7 +1624,7 @@ PROCEDURE get-values :
             and po-ordl.i-no      eq fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
             and po-ordl.item-type eq no
           no-lock no-error.
-
+          
       if avail po-ordl THEN DO:
         ASSIGN
          lv-cost-uom = po-ordl.pr-uom.
@@ -1638,7 +1632,7 @@ PROCEDURE get-values :
 
         RUN show-freight.
       END.
-
+     
       else
       if avail itemfg          AND
          DEC(lv-std-cost) EQ 0 THEN DO:
@@ -1685,7 +1679,7 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DEF VAR ls-tmp-qty AS cha NO-UNDO.
   DEF VAR ls-tmp-uom AS cha NO-UNDO.
   DEF VAR ls-tmp-cst AS cha NO-UNDO.
@@ -1744,7 +1738,7 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-rno LIKE fg-rctd.r-no NO-UNDO.
   DEF BUFFER b-fg-rctd FOR fg-rctd.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-rno = 0.
   FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
@@ -1834,7 +1828,7 @@ PROCEDURE local-enable-fields :
   def var hd-next as widget-handle no-undo.
   DEF VAR li AS INT NO-UNDO.
 
-
+   
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
@@ -1913,7 +1907,7 @@ PROCEDURE local-update-record :
 
   RUN valid-po-no (1) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  
   RUN valid-job-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1997,7 +1991,7 @@ PROCEDURE new-qty :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name} =
         STRING(INT(fg-rctd.cases:SCREEN-VALUE) *
@@ -2134,11 +2128,11 @@ PROCEDURE tag-method :
   /*
   def output parameter op-tag# as log no-undo.
   def var cocode like rm-rcth.company no-undo.
-
-
+  
+  
   {rm/tag#.i}
   op-tag# = v-tag#.
-
+  
   */
 END PROCEDURE.
 
@@ -2155,7 +2149,7 @@ PROCEDURE tag-sequence :
  def var v-tag-seq as int no-undo.
   def var v-locode as cha no-undo.
   def buffer xfg-rctd for fg-rctd.
-
+  
   assign v-tag-seq = 0
          v-locode  = "".
 
@@ -2226,7 +2220,7 @@ PROCEDURE valid-job-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&frame-name}:
     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
         FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
@@ -2279,7 +2273,7 @@ PROCEDURE valid-job-no2 :
   DEF VAR lv-ans AS LOG NO-UNDO.
   DEF VAR lv-err AS LOG INIT NO NO-UNDO.
 
-
+                                                         
   DO WITH FRAME {&frame-name}:
     IF TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) NE TRIM(lv-job-no)  OR
        DEC(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) NE DEC(lv-job-no2) THEN
@@ -2299,7 +2293,7 @@ PROCEDURE valid-job-no2 :
           NO-LOCK:
         LEAVE.
       END.
-
+          
       IF NOT AVAIL job-hdr THEN
       FOR EACH job
           WHERE job.company EQ fg-rctd.company
@@ -2404,7 +2398,7 @@ PROCEDURE valid-tag :
         RETURN ERROR.
      END.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2455,7 +2449,7 @@ PROCEDURE validate-record :
   DEF VAR li-max-qty AS INT NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
 
-
+ 
   FIND itemfg WHERE itemfg.company = fg-rctd.company
                 AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                 NO-LOCK NO-ERROR.
@@ -2494,7 +2488,7 @@ PROCEDURE validate-record :
                  INT(fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name})) +
                 INT(fg-rctd.partial:SCREEN-VALUE IN BROWSE {&browse-name}),"->>>,>>>,>>9.99")
      li-max-qty = DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}).
-
+            
     RUN fg/checkset.w (ROWID(itemfg),
                        ROWID(fg-rctd),
                        fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
@@ -2523,7 +2517,7 @@ PROCEDURE validate-record :
       END.
     END.
   END.
-
+  
   FIND FIRST loc WHERE loc.company = g_company
                         AND loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
                         NO-LOCK NO-ERROR.
@@ -2532,7 +2526,7 @@ PROCEDURE validate-record :
           APPLY "entry" TO fg-rctd.loc.
           RETURN ERROR.
   END.
-
+  
   FIND FIRST fg-bin WHERE fg-bin.company = g_company 
                       AND fg-bin.i-no = ""
                       AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2546,7 +2540,7 @@ PROCEDURE validate-record :
   /* ===== tag validation =====*/
   IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> ""
   THEN DO:
-
+  
     FIND FIRST bf-tmp WHERE bf-tmp.company = g_company AND
                             bf-tmp.tag = fg-rctd.tag:SCREEN-VALUE
                         AND RECID(bf-tmp) <> RECID(fg-rctd)

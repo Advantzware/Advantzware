@@ -18,7 +18,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -171,13 +171,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -244,7 +248,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -751,9 +755,9 @@ PROCEDURE init-credit-inq :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input param ip-handle as handle no-undo.
-
+  
   if valid-handle(h-detail) then run dispatch in h-detail ('destroy').    
-
+  
   run init-object
       ('oe/w-credit.w', {&window-name}:handle, 'Edge-Pixels=0', output h-detail).
 
@@ -763,7 +767,7 @@ PROCEDURE init-credit-inq :
   run add-link in adm-broker-hdl (ip-handle,"record", h-detail) no-error.
 
   run dispatch in h-detail ('initialize').
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -788,7 +792,7 @@ PROCEDURE init-history :
   run add-link in adm-broker-hdl (ip-handle,"record", h-detail) no-error.
 
   run dispatch in h-detail ('initialize').
-
+  
 
 END PROCEDURE.
 
@@ -802,9 +806,9 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var ls-est-no as cha no-undo.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   run get-attribute ("current-page").
   assign li-prev-page = li-cur-page
          li-cur-page = int(return-value).
@@ -821,7 +825,7 @@ PROCEDURE local-change-page :
       end.    
     end.                            
   end.
-
+         
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
@@ -840,9 +844,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

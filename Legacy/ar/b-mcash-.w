@@ -5,10 +5,6 @@
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
-
 
 /* Temp-Table and Buffer definitions                                    */
 DEFINE TEMP-TABLE tt-mcash NO-UNDO LIKE ar-mcash
@@ -45,7 +41,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
-
+  
 DEF BUFFER b-ar-mcash FOR ar-mcash.
 DEF BUFFER bf-reftable FOR reftable.
 DEF BUFFER bf2-reftable FOR reftable.
@@ -252,8 +248,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -313,7 +307,7 @@ reftable.code2    = tt-mcash.check-no"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -413,14 +407,14 @@ PROCEDURE create-tt :
         v-posted = NO.
      ELSE
         v-posted = YES.
-
+   
      FOR EACH b-ar-mcash WHERE 
          b-ar-mcash.company = g_company AND
          b-ar-mcash.posted EQ v-posted AND
          b-ar-mcash.payer BEGINS auto_find
          NO-LOCK
          BY b-ar-mcash.payer:
-
+    
          FIND FIRST bf-reftable WHERE
               bf-reftable.reftable = "AR-MCASH" AND
               bf-reftable.company  = b-ar-mcash.company AND
@@ -442,16 +436,16 @@ PROCEDURE create-tt :
               tt-mcash.curr-code[1] = b-ar-mcash.curr-code[1] AND
               tt-mcash.check-no = v-check-no
               NO-ERROR.
-
+         
          IF NOT AVAIL tt-mcash THEN
          DO:
             CREATE tt-mcash.
             BUFFER-COPY b-ar-mcash EXCEPT check-amt TO tt-mcash
                ASSIGN tt-mcash.check-no = v-check-no.
          END.
-
+    
          tt-mcash.check-amt = tt-mcash.check-amt + b-ar-mcash.check-amt.
-
+    
          RELEASE tt-mcash.
      END.
   END.
@@ -568,7 +562,7 @@ PROCEDURE repos-to-new :
 
          REPOSITION {&browse-name} TO ROWID ROWID(tt-mcash).
          APPLY "VALUE-CHANGED" TO {&browse-name} IN FRAME {&FRAME-NAME}.
-
+         
          LEAVE.
       END.
    END.

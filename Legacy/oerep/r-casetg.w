@@ -33,6 +33,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/gloc.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
+{custom/xprint.i}
 
 {sys/inc/var.i new shared}
 
@@ -92,7 +93,7 @@ DEF VAR v-auto-print    AS LOG NO-UNDO.
 /* gdm - 11050806 */
 DEF VAR v-casflg        AS LOG NO-UNDO.
 DEF VAR v-lcnt          AS INT NO-UNDO.
-
+DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
 
 def TEMP-TABLE w-file NO-UNDO field w-key AS ROWID.
 DEF TEMP-TABLE tt-tag NO-UNDO FIELD tt-recid AS RECID.
@@ -381,19 +382,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -404,6 +399,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN begin_date IN FRAME FRAME-A
    2                                                                    */
 ASSIGN 
@@ -972,7 +977,6 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -982,7 +986,7 @@ END.
 &Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
-DO:
+DO: 
 
     IF begin_i-no:SCREEN-VALUE EQ "" AND 
        (begin_job:SCREEN-VALUE NE "" OR begin_job:SCREEN-VALUE NE "" OR 
@@ -1011,7 +1015,6 @@ DO:
     END.
 
     RUN ok-button.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1252,10 +1255,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1379,7 +1380,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
 
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -2279,7 +2279,8 @@ PROCEDURE ok-button :
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-
+  ASSIGN
+      cBarCodeProgram = IF scr-label-file MATCHES "*.xpr*" THEN "xprint" ELSE "" .
   IF scr-auto-print AND scr-label-file = "" THEN
   DO:
      MESSAGE "Label Matrix Label File cannot be blank."
@@ -2822,17 +2823,19 @@ ASSIGN
   END.    /* TRIAD INTERMEC BARCODE PRINT ROUTINE */
 
   ELSE DO:
-    OUTPUT TO VALUE(v-out).
-    PUT UNFORMATTED
-        "CUSTOMER,ORDNUMBER,JOBNUMBER,ITEM,CUSTPARTNO,INAME,IDSCR1,IDSCR2," +
-        "IDSCR3,CUSTPONO,PCS,BUNDLE,TOTAL," +
-        "BILLNAME,BILLADD1,BILLADD2,BILLCITY,BILLSTATE,BILLZIP,BILLCOUNTRY," +
-        "SOLDNAME,SOLDADD1,SOLDADD2,SOLDCITY,SOLDSTATE,SOLDZIP,SOLDCOUNTRY," +
-        "SHIPNAME,SHIPADD1,SHIPADD2,SHIPCITY,SHIPSTATE,SHIPZIP,SHIPCOUNTRY," +
-        "DUEDATE,RELDATE,UPCNO,LENGTH,WIDTH,DEPTH,FLUTE,TEST,VENDOR,GROSSWGT," +
-        "TAREWGT,NETWGT,SHEETWGT,UOM,MIDDLESEXJOBNUMBER,MIDDLESEXCUSTPONO," +
-        "TAG#,PARTIAL,CASECODE,COLOR,CODE,CASEWGT,FG LOT#,RELLOT#,DRAWING#,POLINE#,PONO,FORM,BLANK,".
-    PUT SKIP.
+    IF cBarCodeProgram EQ "" THEN DO:
+        OUTPUT TO VALUE(v-out).
+        PUT UNFORMATTED
+            "CUSTOMER,ORDNUMBER,JOBNUMBER,ITEM,CUSTPARTNO,INAME,IDSCR1,IDSCR2," +
+            "IDSCR3,CUSTPONO,PCS,BUNDLE,TOTAL," +
+            "BILLNAME,BILLADD1,BILLADD2,BILLCITY,BILLSTATE,BILLZIP,BILLCOUNTRY," +
+            "SOLDNAME,SOLDADD1,SOLDADD2,SOLDCITY,SOLDSTATE,SOLDZIP,SOLDCOUNTRY," +
+            "SHIPNAME,SHIPADD1,SHIPADD2,SHIPCITY,SHIPSTATE,SHIPZIP,SHIPCOUNTRY," +
+            "DUEDATE,RELDATE,UPCNO,LENGTH,WIDTH,DEPTH,FLUTE,TEST,VENDOR,GROSSWGT," +
+            "TAREWGT,NETWGT,SHEETWGT,UOM,MIDDLESEXJOBNUMBER,MIDDLESEXCUSTPONO," +
+            "TAG#,PARTIAL,CASECODE,COLOR,CODE,CASEWGT,FG LOT#,RELLOT#,DRAWING#,POLINE#,PONO,FORM,BLANK,".
+        PUT SKIP.
+    END.
 
     FOR EACH w-ord:
       IF tb_16ths THEN
@@ -2926,9 +2929,8 @@ ASSIGN
                    loadtag.misc-char[2] = w-ord.lot
                    lv-tag-no = loadtag.tag-no.
         /*END.*/
-
+        IF cBarCodeProgram EQ "" THEN
         DO i = 1 TO (lv-how-many-tags ):
-
            PUT UNFORMATTED
             "~""  removeChars(w-ord.cust-name)  "~","
             w-ord.ord-no ","
@@ -2998,10 +3000,33 @@ ASSIGN
       end.
     end.
     output close.
-    RUN AutoPrint.
+
+    IF cBarCodeProgram EQ "" THEN
+        RUN AutoPrint.
+
   end.    /* NOT TRIAD */
 
   RUN update-counts.
+  IF cBarCodeProgram EQ "xprint" THEN do:
+    {sys/inc/print1.i}
+
+    {sys/inc/outprint.i value(85)}
+
+    PUT "<PREVIEW>".  
+
+    FOR EACH w-ord NO-LOCK BREAK 
+                          BY w-ord.ord-no
+                          BY w-ord.i-no :
+       {oe/rep/case2xprnt.i}
+       IF NOT LAST(w-ord.i-no) THEN PAGE .
+    END.
+
+     OUTPUT CLOSE.
+
+     FILE-INFO:FILE-NAME = list-name.
+     RUN printfile (FILE-INFO:FILE-NAME).
+  END.
+
 
 SESSION:SET-WAIT-STATE ("").
 end procedure.

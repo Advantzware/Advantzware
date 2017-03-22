@@ -18,7 +18,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -328,7 +328,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -397,7 +396,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-sel WHERE tt-sel.tt-deleted = NO ~{&SORTBY-P
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -422,7 +421,7 @@ ON WINDOW-CLOSE OF W-Win /* Payment Selection by Due Date */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-
+  
   /*  APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
   */
@@ -442,7 +441,7 @@ DO:
   DEF VAR lw-focus AS HANDLE NO-UNDO.
   DEF VAR char-val AS CHAR NO-UNDO.
 
-
+  
   lw-focus = FOCUS.
 
   CASE FOCUS:NAME:
@@ -451,7 +450,7 @@ DO:
 
     OTHERWISE DO:
       RUN applhelp.p.
-
+             
       IF g_lookup-var NE ""                                AND
          TRIM(g_lookup-var) NE TRIM(lw-focus:SCREEN-VALUE) THEN DO:
         lw-focus:SCREEN-VALUE = g_lookup-var.
@@ -520,7 +519,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-
+  
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -532,7 +531,7 @@ DO:
      lv-sort-by     = lv-column-nam.
  /*    lv-sort-by-lab = lv-column-lab.
 */
-
+  
 
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
@@ -581,13 +580,13 @@ DO:
    tt-sel.amt-due:READ-ONLY = NO*/
    tt-sel.disc-amt:READ-ONLY = NO
    tt-sel.amt-paid:READ-ONLY = NO.
-
+ 
    BROWSE {&browse-name}:INSERT-ROW("after").
    APPLY "entry" TO tt-sel.vend-no IN BROWSE {&browse-name}.
    btn-change:LABEL = "Save".
    ENABLE btn-change btn-cancel WITH FRAME {&FRAME-NAME}.
    DISABLE btn-delete btn-add btn-finish WITH FRAME {&FRAME-NAME}.
-
+   
    ASSIGN
       lv-first = no
       lv-in-update = NO.
@@ -615,11 +614,11 @@ DO:
              tt-sel.amt-due:READ-ONLY = YES*/
              tt-sel.disc-amt:READ-ONLY = NO                 
              tt-sel.amt-paid:READ-ONLY = NO.
-
+      
   END.
   ELSE DO:  /* add and cancel */
      IF lv-in-add THEN BROWSE {&browse-name}:DELETE-current-ROW().
-
+     
   END.
   btn-change:LABEL = "Update".
   ENABLE btn-delete btn-add btn-finish WITH FRAME {&FRAME-NAME}.
@@ -646,7 +645,7 @@ DO:
                         AND ap-inv.vend-no = tt-sel.vend-no:SCREEN-VALUE IN BROWSE {&browse-name}
                         AND ap-inv.posted  = YES
                         AND ap-inv.inv-no = (tt-sel.inv-no:SCREEN-VALUE IN BROWSE {&browse-name} ) NO-LOCK NO-ERROR.
-
+          
           IF NOT AVAIL ap-inv THEN DO:
              MESSAGE "Invalid Invoice Number. Try Help. " VIEW-AS ALERT-BOX.
              APPLY "entry" TO tt-sel.inv-no .
@@ -657,7 +656,7 @@ DO:
                         AND ap-sel.vend-no = tt-sel.vend-no:SCREEN-VALUE IN BROWSE {&browse-name}
                         AND ap-sel.man-check = NO
                         AND ap-sel.inv-no = tt-sel.inv-no:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
-
+             
              IF AVAIL ap-sel THEN DO:
                 MESSAGE "The INVOICE NUMBER you entered has already been selected, please re-enter."
                        VIEW-AS ALERT-BOX ERROR.
@@ -665,7 +664,7 @@ DO:
                 RETURN NO-APPLY.
              END.
           END.   
-
+          
           IF dec(tt-sel.amt-paid:SCREEN-VALUE) + dec(tt-sel.disc-amt:SCREEN-VALUE) > dec(tt-sel.inv-bal:SCREEN-VALUE) THEN DO:
              MESSAGE "Over payment is not allowed!" VIEW-AS ALERT-BOX ERROR.
              APPLY "entry" TO tt-sel.amt-paid IN BROWSE {&browse-name}.
@@ -685,7 +684,7 @@ DO:
              /* need inv-no lookup and find ap-inv */                    
                     tt-sel.inv-bal = IF AVAIL ap-inv THEN ap-inv.due ELSE 0
                     tt-sel.due-date = IF AVAIL ap-inv THEN ap-inv.due-date ELSE ?
-
+                    
                     .
             /* need to create ap-sel */
           END.
@@ -694,7 +693,7 @@ DO:
          find first ap-inv WHERE ap-inv.company = g_company                                                  
                               and ap-inv.vend-no eq tt-sel.vend-no
                               and ap-inv.inv-no  eq tt-sel.inv-no no-error.
-
+ 
           ASSIGN ap-inv.paid = ap-inv.paid - lv-pre-paid
                  ap-inv.due = ap-inv.due + lv-pre-paid + lv-pre-disc
                  .
@@ -710,7 +709,7 @@ DO:
            FOR EACH bf-tsel:
                 fi_amt = fi_amt + bf-tsel.amt-paid.
            END.
-
+         
           DISPLAY fi_amt WITH FRAME {&FRAME-NAME}.
           ASSIGN tt-sel.inv-no:READ-ONLY IN BROWSE {&browse-name} = YES
                  tt-sel.vend-no:READ-ONLY = YES
@@ -801,10 +800,10 @@ DO:
       MESSAGE "Delete Currently Selected Record(s)?"
          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
          UPDATE ll-ans AS LOG.
-
+    
       IF NOT ll-ans THEN RETURN.
       EMPTY TEMP-TABLE tt-del-list.
-
+      
       iLastRow = 0.
       /* Grab selected rows and add to a list */
       DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
@@ -812,14 +811,14 @@ DO:
 
          IF QUERY browse-1:CURRENT-RESULT-ROW GT iLastRow THEN
              iLastRow = QUERY browse-1:CURRENT-RESULT-ROW.
-
+         
          FIND FIRST tt-del-list WHERE tt-del-list.tt-row EQ ROWID(tt-sel)
               NO-ERROR.
          IF NOT AVAIL tt-del-list THEN DO:      
              CREATE tt-del-list.
              ASSIGN tt-del-list.tt-row = ROWID(tt-sel).
          END.
-
+              
       END. /* do li to numresults */
 
 
@@ -857,7 +856,7 @@ DO:
 /*       QUERY BROWSE-1:QUERY-OPEN().                   */
 /*                                                      */
 /*   END.                                               */
-
+  
   RUN openQuery.
   QUERY browse-1:REPOSITION-TO-ROW ( iLastRow ).
 
@@ -1000,7 +999,7 @@ DO:
         tb_cc-only:SCREEN-VALUE = "NO"
         tb_cc = NO
         tb_cc:SCREEN-VALUE = "NO".
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1037,7 +1036,7 @@ DO:
         tb_bp-only:SCREEN-VALUE = "NO"
         tb_cc = NO
         tb_cc:SCREEN-VALUE = "NO".
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1112,7 +1111,7 @@ DO:
        ASSIGN tt-sel.disc-amt:SCREEN-VALUE = "0.00"
               tt-sel.amt-due:SCREEN-VALUE = string(ap-inv.due).
     END.   
-
+        
     ASSIGN tt-sel.due-date:SCREEN-VALUE IN BROWSE {&browse-name} = string(ap-inv.due-date,"99/99/9999")
            tt-sel.inv-bal:SCREEN-VALUE = STRING(ap-inv.due)
            tt-sel.vend:SCREEN-VALUE = STRING(ap-inv.vend)
@@ -1211,7 +1210,7 @@ DO:
        ASSIGN tt-sel.disc-amt:SCREEN-VALUE = "0.00"
               tt-sel.amt-due:SCREEN-VALUE = string(ap-inv.due).
     END.   
-
+        
     ASSIGN tt-sel.due-date:SCREEN-VALUE IN BROWSE {&browse-name} = string(ap-inv.due-date,"99/99/9999")
            tt-sel.inv-bal:SCREEN-VALUE = STRING(ap-inv.due)
            tt-sel.vend-no:SCREEN-VALUE = STRING(ap-inv.vend-no) 
@@ -1281,18 +1280,18 @@ END.
 END.
 ON 'leave':U OF tt-sel.disc-amt IN BROWSE {&browse-name}
 DO:
-
+    
     ASSIGN tt-sel.amt-due:SCREEN-VALUE IN BROWSE {&browse-name}
                   = string(dec(tt-sel.inv-bal:SCREEN-VALUE) - dec(tt-sel.disc-amt:SCREEN-VALUE))
            tt-sel.amt-paid:SCREEN-VALUE = tt-sel.amt-due:SCREEN-VALUE.
-
+    
     lv-pre-disc = dec(tt-sel.disc-amt:SCREEN-VALUE).
 
     RETURN.
 END.
 ON 'leave':U OF tt-sel.amt-paid IN BROWSE {&browse-name}
 DO:
-
+    
     lv-pre-paid = dec(tt-sel.amt-paid:SCREEN-VALUE IN BROWSE {&browse-name}).
     RETURN.
 END.
@@ -1357,11 +1356,11 @@ PROCEDURE build-table :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ 
  EMPTY TEMP-TABLE tt-sel.
 
   lv-proamt = 0 .
-
+ 
  FOR EACH ap-sel NO-LOCK
      WHERE ap-sel.company   EQ g_company
        AND ap-sel.man-check EQ NO:
@@ -1439,7 +1438,7 @@ fi_amt = 0.
                               company.curr-code EQ fi_curr-code))
                     use-index ap-inv           
                      break by ap-inv.vend-no:
-
+    
           find first ap-sel WHERE ap-sel.company = g_company                    
 /*                               and ap-sel.man-check eq NO */
                               and ap-sel.vend-no eq ap-inv.vend-no
@@ -1514,7 +1513,7 @@ fi_amt = 0.
                   lv-proamt:SCREEN-VALUE = STRING(bank.bal - fi_amt) .
                   END.
               END.
-
+             
           END.
 
       end.  /* for each vend, ap-inv... */
@@ -1592,9 +1591,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1621,13 +1620,13 @@ PROCEDURE local-initialize :
      APPLY "window-close" TO current-window.
      RETURN .
   END.
-
+      
   DO WITH FRAME {&FRAME-NAME}:
     APPLY "value-changed" TO fi_curr-code.
   END.
 
   ASSIGN uperiod = g_period.
-
+    
   FOR EACH ap-sel
       WHERE ap-sel.company   EQ cocode
         AND ap-sel.man-check EQ NO
@@ -1684,7 +1683,7 @@ PROCEDURE local-initialize :
   RUN build-table.
 
   {methods/nowait.i}
-
+  
   IF CAN-FIND(FIRST tt-sel) THEN DO WITH FRAME {&FRAME-NAME}: 
     {&open-query-{&browse-name}}
     ASSIGN fi_amt = 0.

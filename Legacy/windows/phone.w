@@ -18,7 +18,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -204,13 +204,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -270,7 +274,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -515,12 +519,12 @@ PROCEDURE AdvancedNotice :
     RUN local-hide   IN h_emailcod                        NO-ERROR.
     RETURN.
   END.
-
+    
   IF DYNAMIC-FUNCTION ('AdvancedNotice' IN h_phone-2) THEN DO:
 
 /*     MESSAGE 'reftable record exists'     */
 /*       VIEW-AS ALERT-BOX INFO BUTTONS OK. */
-
+    
 /*     IF VALID-HANDLE (h_phone-2)   THEN RUN EMailNotify        IN  h_phone-2 (YES). */
     IF VALID-HANDLE (h_emailcod)  THEN RUN AutoCreateRBOLPrt  IN h_emailcod.    
 
@@ -597,7 +601,7 @@ PROCEDURE Get-IP-Header :
   find rec_key where rec_key.rec_key = ip-rec_key no-lock no-error.
   if avail rec_key then op-header = rec_key.table_name.
   else op-header = "".
-
+    
   /*op-Header = ip-Header.*/
 
 
@@ -636,7 +640,7 @@ PROCEDURE local-change-page :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN AdvancedNotice.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -650,9 +654,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -711,7 +715,7 @@ PROCEDURE state-changed :
   RUN RefreshData IN h_emailcod.
 
   RUN AdvancedNotice.
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

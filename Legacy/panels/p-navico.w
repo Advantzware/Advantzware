@@ -141,7 +141,7 @@ DEFINE FRAME Panel-Frame
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
 
-
+ 
 
 /* *********************** Procedure Settings ************************ */
 
@@ -201,13 +201,12 @@ ASSIGN
 */  /* FRAME Panel-Frame */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB P-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -224,7 +223,6 @@ ON CHOOSE OF Btn-First IN FRAME Panel-Frame /* First */
 DO:
   RUN notify IN THIS-PROCEDURE (IF first-on-left THEN 'get-first':U
                                                  ELSE 'get-last':U).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -237,7 +235,6 @@ ON CHOOSE OF Btn-Last IN FRAME Panel-Frame /* Last */
 DO:
   RUN notify IN THIS-PROCEDURE (IF first-on-left THEN 'get-last':U
                                                  ELSE 'get-first':U).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -250,7 +247,6 @@ ON CHOOSE OF Btn-Next IN FRAME Panel-Frame /* Next */
 DO:
   RUN notify IN THIS-PROCEDURE (IF first-on-left THEN 'get-next':U
                                                  ELSE 'get-prev':U).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -263,7 +259,6 @@ ON CHOOSE OF Btn-Prev IN FRAME Panel-Frame /* Prev */
 DO:
   RUN notify IN THIS-PROCEDURE (IF first-on-left THEN 'get-prev':U
                                                  ELSE 'get-next':U).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -321,7 +316,7 @@ PROCEDURE local-enable :
 
   RUN dispatch ('enable':U).      /* Get all objects enabled to start. */
   RUN set-buttons (adm-panel-state).
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -390,14 +385,14 @@ DEFINE INPUT PARAMETER first-last AS CHARACTER NO-UNDO.
 DO WITH FRAME Panel-Frame:
 
   IF first-last = 'disable-all':U THEN DO:
-
+  
     /* all the buttons are disabled, which might happen in the case of */
     /* only a single record available in a table.                      */
 
 &IF LOOKUP("Btn-First":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-First:SENSITIVE = NO.
 &ENDIF
-
+      
 &IF LOOKUP("Btn-Last":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Last:SENSITIVE = NO.
 &ENDIF
@@ -409,7 +404,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Next":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Next:SENSITIVE = NO.
 &ENDIF    
-
+    
   END. /* first-last = disable-all */
 
   ELSE IF first-last = 'enable-all':U THEN DO: /* This was a next or prev-enable all */
@@ -417,7 +412,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-First":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-First:SENSITIVE = YES.
 &ENDIF
-
+    
 &IF LOOKUP("Btn-Last":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Last:SENSITIVE = YES.
 &ENDIF

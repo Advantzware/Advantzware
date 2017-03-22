@@ -18,7 +18,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -153,13 +153,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 /*{methods/template/windows.i}*/
 
@@ -217,7 +221,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -333,7 +337,7 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
              FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
-
+   
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/stylef.w':U ,
@@ -346,7 +350,7 @@ PROCEDURE adm-create-objects :
              OUTPUT h_stylef-2 ).
        RUN set-position IN h_stylef-2 ( 4.57 , 5.00 ) NO-ERROR.
        /* Size in UIB:  ( 18.33 , 143.00 ) */
-
+       
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -610,9 +614,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -627,7 +631,7 @@ PROCEDURE Print-List :
 ------------------------------------------------------------------------------*/
 
  RUN listobjs/stylef_.w.
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -645,13 +649,13 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
  FIND FIRST style WHERE recid(style) = ip-style NO-LOCK NO-ERROR.
-
+ 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
   APPLY "ENTRY" TO FRAME {&FRAME-NAME}.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -666,9 +670,9 @@ PROCEDURE select_exit :
   Notes:       
 ------------------------------------------------------------------------------*/
    def var char-hdl as cha no-undo.   
-
+   
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
 
 END PROCEDURE.
@@ -684,7 +688,7 @@ PROCEDURE Select_Add :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR char-hdl AS CHAR NO-UNDO.
-
+  
    RUN select-page(1).
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-item-target", OUTPUT char-hdl).
    RUN add-item IN WIDGET-HANDLE(char-hdl).

@@ -1,6 +1,6 @@
 /* machchrg.p - Generated 08/29/2000 - 11:34 am by NoSweat
 "machchrg. " ~
-"ASI " ~
+"EMPTRACK " ~
 "machchrg " ~
 "machchrg.company = gcompany AND machchrg.machine = s-machine " ~
 "charge_code " ~
@@ -18,7 +18,7 @@
 "machchrg. " ~
 */
 
-&Scoped-define lookup-db ASI.
+&Scoped-define lookup-db EMPTRACK.
 &Scoped-define lookup-file machchrg
 &Scoped-define where-statement machchrg.company = gcompany AND machchrg.machine = s-machine
 &Scoped-define return-field charge_code

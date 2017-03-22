@@ -179,7 +179,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -212,7 +211,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -237,7 +236,7 @@ DO:
      END.
 
      RUN oe/d-oerell.w (?, RECID(oe-relh), "add",OUTPUT lv-rowid).
-
+     
      FOR EACH bf-oe-rell NO-LOCK
          WHERE bf-oe-rell.company EQ oe-relh.company
            AND bf-oe-rell.r-no EQ oe-relh.r-no
@@ -255,7 +254,6 @@ DO:
        RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -293,19 +291,19 @@ DO:
             BY bf-oe-rell.line:
           iL[1] = iL[1] + 1.
       END.
-
+     
       FIND LAST bf-oe-rell NO-LOCK
            WHERE bf-oe-rell.company EQ oe-relh.company
              AND bf-oe-rell.r-no EQ oe-relh.r-no NO-ERROR.
 
       z = IF AVAILABLE bf-oe-rell THEN bf-oe-rell.line + 1 ELSE 1.
-
+      
       CREATE bf-oe-rell.
       BUFFER-COPY oe-rell EXCEPT rec_key line TO bf-oe-rell.
       /*bf-oe-rell.LINE = z.*/
-
+     
       RUN oe/d-oerell.w (RECID(bf-oe-rell), RECID(oe-relh), "Copy",OUTPUT lv-rowid).
-
+     
       FOR EACH bf-oe-rell NO-LOCK
           WHERE bf-oe-rell.company EQ oe-relh.company
             AND bf-oe-rell.r-no EQ oe-relh.r-no
@@ -315,16 +313,15 @@ DO:
               iL[2]    = iL[2] + 1.
           /*lv-rowid = ROWID(bf-oe-rell)*/ 
       END.
-
+     
       IF iL[2] GT 0 AND (iL[1] NE iL[2] OR iL[2] EQ 1) THEN DO:
-
+          
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
        RUN local-open-query IN WIDGET-HANDLE(char-hdl).
        RUN reopen-query IN WIDGET-HANDLE(char-hdl) .
        RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
       END.
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -335,9 +332,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Delete V-table-Win
 ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
 DO:
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
-  RUN delete_item IN WIDGET-HANDLE(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
+    IF AVAIL oe-rell THEN DO: 
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+      RUN delete_item IN WIDGET-HANDLE(char-hdl).
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -349,11 +347,10 @@ END.
 ON CHOOSE OF btn-selbin IN FRAME F-Main /* Recost Board */
 DO:
     DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-
+    
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-target", OUTPUT char-hdl).
     RUN select-bintags IN WIDGET-HANDLE(char-hdl) .
-
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -370,22 +367,21 @@ DO:
     DO:
       IF oe-relh.stat NE "c" THEN DO:   
        EMPTY TEMP-TABLE tt-oe-rell.
-
+      
        CREATE tt-oe-rell.
        BUFFER-COPY oe-rell TO tt-oe-rell.
-
+      
        RUN oe/d-oerell.w (RECID(oe-rell),RECID(oe-relh), "update", OUTPUT lv-rowid) . 
-
+       
        BUFFER-COMPARE tt-oe-rell TO oe-rell SAVE RESULT IN ll.
-
+       
        RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
        RUN reopen-query IN WIDGET-HANDLE(char-hdl) .
        RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
-
+      
        /*RUN reopen-po-ord-query.*/
       END.
     END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -399,7 +395,6 @@ DO:
   DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
   IF AVAILABLE oe-rell THEN
       RUN oe/d-oerell.w (RECID(oe-rell), RECID(oe-relh), "view",OUTPUT lv-rowid). 
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -413,7 +408,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) NE 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -521,7 +516,7 @@ PROCEDURE local-row-available :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
   DO WITH FRAME {&FRAME-NAME}: 
-    IF oe-relh.posted EQ YES THEN DO:
+    IF AVAIL oe-relh AND oe-relh.posted EQ YES THEN DO:
         ASSIGN Btn-View:SENSITIVE = NO.                                                          
         Btn-Save:SENSITIVE = NO.
         Btn-Add:SENSITIVE = NO.
@@ -557,7 +552,7 @@ PROCEDURE reopen-po-ord-query :
 
   /*IF AVAIL oe-rell THEN DO:
     lv-rowid = ROWID(oe-rell).
-
+      
     run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
     run get-link-handle in adm-broker-hdl(widget-handle(char-hdl),"record-source", output char-hdl).
 

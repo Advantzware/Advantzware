@@ -15,7 +15,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -110,13 +110,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon/progress.ico":U) THEN
+    MESSAGE "Unable to load icon: adeicon/progress.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -138,7 +142,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -311,9 +315,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -337,7 +341,7 @@ PROCEDURE local-initialize :
     {&WINDOW-NAME}:X = 0
     {&WINDOW-NAME}:Y = 0.
 
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -373,9 +377,9 @@ PROCEDURE Set_Title :
   DEFINE VARIABLE labelLanguage AS CHARACTER NO-UNDO.
 
   RUN Get_Value IN h_touchfrm ('Label_Language',OUTPUT labelLanguage). */
-
+  
   {&WINDOW-NAME}:TITLE = window_title.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

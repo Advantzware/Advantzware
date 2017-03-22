@@ -4,15 +4,11 @@
           rfq              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
   File: addon/browsers/rfqitem.w
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -289,8 +285,6 @@ END.
 
 {src/adm/method/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -373,7 +367,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -389,11 +383,11 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-
+   
     RUN new-state in phandle ('update-begin':U).
   /*  assign add-active = no. */
 
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -405,13 +399,13 @@ ON HELP OF br_table IN FRAME F-Main
 DO:
      def var ls-cur-val as cha no-undo.
      def var lv-eb-recid as recid no-undo.
-
+         
      case focus:name :
      when "qty" then do:
-
+ 
           /*lv-recid = recid(rfqitem). will get from other place*/
           lv-recid = if avail rfqitem then recid(rfqitem) else lv-recid .
-
+ 
           if lv-copy-record then do: 
              /*lv-recid = lv-old-rfqitem-id.*/  /* source record for copy */
              run windows/rfqqtyd2.w (lv-old-rfqitem-id, rfqitem.qty[1]:screen-value in browse {&browse-name}, output char-val).                  
@@ -462,7 +456,7 @@ DO:
           run windows/rfqqtyd.w (lv-recid, rfqitem.qty[1]:screen-value in browse {&browse-name}, output char-val).     
           if rfqitem.qty[1]:screen-value <> char-val and char-val <> "?" then
              assign rfqitem.qty[1]:screen-value = char-val.
-
+             
      end.
      when "part-no" then do: 
            run rfq/l-ebrfqP.w (rfq.company, rfq.loc, focus:screen-value, output lv-eb-recid) .
@@ -490,7 +484,7 @@ DO:
         /*   for each style no-lock:
                lv-log = sl-style-list:add-last(style.style) in frame {&frame-name}.
            end.
-
+    
            assign sl-style-list:columns = browse br_table:columns + 43
                   sl-style-list:row = browse br_table:row + 1
                   sl-style-list:sensitive  = true
@@ -515,7 +509,7 @@ DO:
          /*  for each fgcat no-lock:
               lv-log = sl-cat-list:add-last(fgcat.procat) in frame {&frame-name}.
            end.
-
+    
            assign sl-cat-list:columns = browse br_table:columns + 52
                   sl-cat-list:row = browse br_table:row + 1
                   sl-cat-list:sensitive  = true
@@ -550,7 +544,7 @@ DO:
        end.
 
   end case.  
-
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -621,7 +615,7 @@ DO:
       keyfunction(lastkey) = "cursor-up" or
       keyfunction(lastkey) = "cursor-down" 
    then do:
-
+  
       return no-apply.
    end.
 
@@ -648,7 +642,7 @@ DO:
    if avail style and style.industry = "2" then      ll-is-corr-style = yes.
    else ll-is-corr-style = no.
 
-
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -716,7 +710,7 @@ DO:
                                    no-lock no-error.
                   if avail style then assign rfqitem.board:screen-value = style.material[1].                 
               end.
-
+            
              end.
              when false then do: /* copy from RFQ */
                   run windows/l-rfq.q (rfq.company, focus:screen-value, output char-val).
@@ -788,7 +782,7 @@ DO:
                       rfqitem.i-pass = 0    .
               END.
               ELSE rfqitem.i-col:screen-value in browse {&browse-name} = string(1) .
-
+                                    
               IF AVAIL style AND style.material[6] EQ "" THEN do:
                   rfqitem.i-coat:screen-value in browse {&browse-name} = "0" .
               END.
@@ -804,7 +798,7 @@ DO:
                         .
              END.
              run  copy-from-est.    
-
+             
            end.
        end.    
     end.  /* avail itemfg */
@@ -818,7 +812,7 @@ DO:
                              est.est-no = (entry(2,char-val))
                       no-lock no-error.
               if avail est then do:
-
+                
                  find first eb where eb.e-num = est.e-num 
                                  and eb.stock-no = focus:screen-value
                                  no-lock no-error.
@@ -850,10 +844,10 @@ DO:
 
     end.            /* else */  
   end. /* adm-new-record */ 
-
+ 
   else if not adm-new-record and lastkey <> -1 and rfqitem.stock-no:screen-value <> ""
   then do:  /* update existing records */
-
+  
     find first itemfg where itemfg.company = rfq.company and
                             itemfg.i-no = rfqitem.stock-no:screen-value in browse {&browse-name}
                       no-lock no-error.
@@ -910,7 +904,7 @@ DO :
    if lv-part-no-prev <> self:screen-value in browse {&browse-name} and
       lastkey <> -1
    then do:
-
+      
 
       /* find estimate rec first */
       find first eb where eb.company = rfq.company and
@@ -960,8 +954,8 @@ DO :
                  rfqitem.wid:screen-value = string(itemfg.w-score[50])
                  rfqitem.dep:screen-value = string(itemfg.d-score[50])
                  .
-
-
+          
+    
         end.
     end.  /* modified */    
 END.
@@ -982,18 +976,18 @@ DO :
     for each style no-lock:
         lv-log = cb-style-list:add-last(style.style) in frame {&frame-name}.
     end.
-
+    
     assign cb-style-list:columns = browse br_table:columns + 43
            cb-style-list:row = browse br_table:row + 1
            cb-style-list:sensitive  = true
            cb-style-list:visible  = true
            cb-style-list:screen-value in frame {&frame-name} = rfqitem.style.
            .
-
+           
     apply "entry" to cb-style-list.  
     return no-apply.
     */     
-
+           
     ls-prev-val = self:screen-value.
     .
 END.
@@ -1015,14 +1009,14 @@ DO:
          MESSAGE "Invalid Style." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
       END.
-
+                      
    END.
-
+       
    self:screen-value = caps(self:screen-value).
    find style where style.company = rfq.company and
                     style.style = rfqitem.style:screen-value in browse {&browse-name}
                     no-lock no-error.   
-
+   
    IF adm-new-record THEN DO:
           IF style.material[2] EQ ""  THEN do:
               ASSIGN
@@ -1053,9 +1047,9 @@ DO:
    else assign rfqitem.len:format in browse {&browse-name} = ">9.99999"
                rfqitem.wid:format in browse {&browse-name} = ">9.99999"
                rfqitem.dep:format in browse {&browse-name} = ">9.99999".
-
+                  
    if lv-rfqitem-copied-from-est then return.  /* ??? */
-
+   
 /*   if rfqitem.style:modified in browse {&browse-name} then do: not work */
    if ls-prev-val <> self:screen-value then do:
       if avail style then 
@@ -1079,14 +1073,14 @@ DO:
     for each fgcat no-lock:
         lv-log = cb-cat-list:add-last(fgcat.procat) in frame {&frame-name}.
     end.
-
+    
     assign cb-cat-list:columns = browse br_table:columns + 52
            cb-cat-list:row = browse br_table:row + 1
            cb-cat-list:sensitive  = true
            cb-cat-list:visible  = true
            cb-cat-list:screen-value in frame {&frame-name} = rfqitem.procat.
            .
-
+           
     apply "entry" to cb-cat-list.  
     return no-apply.
 */
@@ -1126,7 +1120,7 @@ DO:
                           fgcat.procat > self:screen-value in browse {&browse-name}
                           no-lock no-error.
    if avail fgcat then self:screen-value in browse {&browse-name} = fgcat.procat.
-
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1149,7 +1143,7 @@ DO:
           view-as alert-box error.
       return no-apply.
    end.
-
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1192,7 +1186,7 @@ DO:
           view-as alert-box error.
          return no-apply.
       end.
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1220,12 +1214,12 @@ DO:
     then do:
          message "Invalid Board. Try Help."    view-as alert-box error.
          return no-apply.
-
+   
     end.     
     if avail item then 
        assign rfqitem.cal:screen-value in browse {&browse-name} = string(item.cal)
               .               
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1289,7 +1283,7 @@ PROCEDURE assign-rfqitem :
 ------------------------------------------------------------------------------*/
   def var v-dim-fit as log no-undo.
   DEF VAR i AS INT NO-UNDO.
-
+  
   if lv-rfqitem-copied-from-est then do:
      lv-rfqitem-copied-from-est = no.
      return.
@@ -1306,7 +1300,7 @@ PROCEDURE assign-rfqitem :
                                      rfqitem.brd-dscr = item.i-name
                                      .
   end.   
-
+  
   IF adm-new-record then do:
         if not avail style then find style where style.company = rfq.company and
                                      style.style = rfqitem.style no-lock no-error.   
@@ -1321,7 +1315,7 @@ PROCEDURE assign-rfqitem :
                                      .
            /* = score allowance k-wid, k-len ==== */ 
            find xritem where recid(xritem) = recid(rfqitem).
-
+           
            {rfq/u2estc.i rfqitem.gluelap 1}
            {rfq/u2estc.i rfqitem.k-wid 2}
 
@@ -1405,7 +1399,7 @@ PROCEDURE assign-rfqitem :
               END.
               ELSE rfqitem.i-coat:screen-value in browse {&browse-name} = "1" .
 
-
+              
            END.
         END.
   end.  /* adm-new */
@@ -1422,7 +1416,7 @@ PROCEDURE calc-blank-size :
   Notes:       
 ------------------------------------------------------------------------------*/
  /* calc blank W,L SqIn */
-
+   
    def var lv-panels as log no-undo.
    DEF VAR i AS INT NO-UNDO.
    def var j as int no-undo.
@@ -1486,8 +1480,8 @@ PROCEDURE calc-blank-size :
                 i = i + 1
                 bf-rfqitem.k-wid-array2[i] = w-box-design-line.wscore-d.
              {sys/inc/k16bb.i bf-rfqitem.k-wid-array2[i]}
-
-
+              
+             
 
            end.
 
@@ -1532,7 +1526,7 @@ PROCEDURE calc-blank-size2 :
   Notes:       
 ------------------------------------------------------------------------------*/
    find xritem where recid(xritem) = recid(rfqitem) no-lock.
-
+   
    {rfq/u2estc.i rfqitem.gluelap 1}
    {rfq/u2estc.i rfqitem.k-wid 2}
    find first item where item.company = rfq.company
@@ -1593,7 +1587,7 @@ PROCEDURE calc-pass :
       def var save_id2 as recid no-undo.
       def buffer alt-item for item .
       def var choice as log no-undo.
-
+           
       find first style where style.company = rfqitem.company and
                  style.style = rfqitem.style no-lock no-error.
       if avail style then do:
@@ -1631,7 +1625,7 @@ PROCEDURE calc-pass :
                                       alt-item.i-no     = rfq-ctrl.def-coat
                                       no-lock no-error.
       end.
-
+   
       ASSIGN
       save_id = recid(item)
       save_id2 = IF AVAIL ALT-ITEM THEN recid(alt-item) ELSE ?
@@ -1640,7 +1634,7 @@ PROCEDURE calc-pass :
       counter = 1
       choice = true.
       {sys/inc/roundup.i j}
-
+ 
       find bf-rfqitem of rfqitem exclusive-lock.    
       if choice then do i = 1 to 10:
          if i le integer(rfqitem.i-col:screen-value) then do with frame {&frame-name}:
@@ -1666,12 +1660,12 @@ PROCEDURE calc-pass :
                      bf-rfqitem.i-code[i] = ""
                      bf-rfqitem.i-dscr[i] = "" 
                      bf-rfqitem.i-%[i]    = 0.  
-
+        
          end.
          if j <> 0 and i modulo j = 0 then counter = counter + 1.
          if counter > (rfqitem.i-pass) then counter = rfqitem.i-pass.
       end.
-
+   
 
 END PROCEDURE.
 
@@ -1688,17 +1682,17 @@ PROCEDURE copy-from-est :
   def var lv-tmp-recid as recid no-undo.
   DEF VAR i AS INT NO-UNDO.
   /*def input parameter ip-est-no like est.est-no no-undo.
-
+  
   find est where est.company = rfq.company and
                  est.loc = rfq.loc and
                  est.est-no = ip-est-no
                  no-lock no-error.   
   find first ef where ef.e-num = est.e-num no-lock no-error
   find first eb of ef no-lock no-error
-
+  
   if avail eb then  do:
    */
-
+  
   lv-rfqitem-copied-from-est = yes.
   lv-tmp-recid = if recid(rfqitem) <> ? then recid(rfqitem) else lv-recid.
   find bf-rfqitem where recid(bf-rfqitem) = lv-tmp-recid .  /* lv-recid <= add */
@@ -1743,7 +1737,7 @@ PROCEDURE copy-from-est :
          bf-rfqitem.medium  = ef.medium     
          bf-rfqitem.test     =    ef.test 
          .
-
+       
   assign  bf-rfqitem.adhesive = eb.adhesive 
           bf-rfqitem.cad-no   = eb.cad-no        
           bf-rfqitem.carr-dscr = eb.carr-dscr 
@@ -1943,7 +1937,7 @@ PROCEDURE copy-from-est2 :
         find style where style.company = rfqitem.company and
                               style.style = eb.style
                               no-lock no-error.
-
+        
         IF AVAIL style AND style.material[2] EQ ""  THEN do:
             ASSIGN
                 rfqitem.i-col:screen-value in browse {&browse-name} = "0" 
@@ -2039,9 +2033,9 @@ PROCEDURE local-add-record :
   rfqitem.seq:screen-value in browse {&browse-name} = string(return-value).
       ---> assing-record triggered
    */  
-
+     
   /* Code placed here will execute AFTER standard behavior.    */
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2060,7 +2054,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+ 
   IF lv-rfqitem-copied-from-est AND ll-is-corr-style THEN DO:
       {sys/inc/k16bb.i rfqitem.wid  } 
       {sys/inc/k16bb.i rfqitem.len  } 
@@ -2074,7 +2068,7 @@ PROCEDURE local-assign-record :
         {sys/inc/k16bb.i rfqitem.len  } 
         {sys/inc/k16bb.i rfqitem.dep  } 
      end.
-
+    
      if rfqitem.stock-no:screen-value in browse {&browse-name} = "" then do:
         find cust where cust.company = rfq.company and cust.cust-no = rfq.cust-no
                         no-lock no-error.
@@ -2221,10 +2215,10 @@ PROCEDURE local-copy-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+ 
   lv-copy-record = yes. 
   lv-old-rfqitem-id = recid(rfqitem).
-
+  
   ASSIGN lv-copy-qty[2] = rfqitem.qty[2]
          lv-copy-qty[3] = rfqitem.qty[3]
          lv-copy-qty[4] = rfqitem.qty[4]
@@ -2275,7 +2269,7 @@ PROCEDURE local-copy-record :
 
    rfqitem.seq:screen-value in browse {&browse-name} = return-value.
 */
-
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2310,7 +2304,7 @@ PROCEDURE local-create-record :
                              no-lock no-error.
   assign rfqitem.ship-id = if avail shipto then shipto.ship-id else ""
          rfqitem.carrier = if avail shipto then shipto.carrier else "".
-
+                                   
   if not lv-copy-record then do:
      FIND FIRST rfq-ctrl WHERE rfq-ctrl.company = rfq.company NO-LOCK NO-ERROR.
 
@@ -2327,7 +2321,7 @@ PROCEDURE local-create-record :
         buffer-copy  bf-rfqitem except bf-rfqitem.seq to rfqitem.      
    end.
    lv-recid = recid(rfqitem).  /* to resolve error "no rfqitem record avail" */
-
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2354,7 +2348,7 @@ PROCEDURE local-delete-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   run reset-seqno.
-
+  
 
 END PROCEDURE.
 
@@ -2369,13 +2363,13 @@ PROCEDURE local-enable-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   if not avail rfqitem then return.
-
+  
   RUN set-panel(0).
   apply "entry" to rfqitem.qty in browse {&browse-name}.
   return no-apply.
@@ -2490,7 +2484,7 @@ PROCEDURE local-update-record :
       return no-apply.
   end.
 
-
+  
 
     /* ============================*/
 
@@ -2509,7 +2503,7 @@ PROCEDURE local-update-record :
 
      run refreshRow in widget-handle(source-str) ( input cMode, rowid(rfq) ).
    end.
-
+  
   /* =========== not working 
    RUN get-link-handle IN adm-broker-hdl 
        (THIS-PROCEDURE, 'RECORD-SOURCE':U, OUTPUT source-str).
@@ -2520,10 +2514,10 @@ PROCEDURE local-update-record :
 ======================== */
 
     if lv-copy-record then    lv-copy-record = no.
-
-
+   
+    
     run notify ('row-available'). /*tell updated info to children window */
-
+    
 
     assign lv-rfqitem-copied-from-est = no
            lv-copy-record = no.
@@ -2548,11 +2542,11 @@ PROCEDURE local-view :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
   run dispatch ('row-available').  /* to display corrware dimension -
                                       will run function to-corrware-dim */
-
-
+  
+                                      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2570,7 +2564,7 @@ PROCEDURE next-seq-no :
    find last bf-rfqitem where bf-rfqitem.rfq-no = rfq.rfq-no no-lock no-error.
    if not avail bf-rfqitem then li-seq = 0.
    else li-seq = bf-rfqitem.seq.
-
+      
    li-seq = li-seq + 1.
    /*rfqitem.seq:screen-value in browse {&browse-name} = string(li-seq).    
    */   
@@ -2587,7 +2581,7 @@ PROCEDURE next-seq-no :
            bf-rfqitem.rfq-no ", " bf-rfqitem.seq ", " bf-rfqitem.company
     view-as alert-box.   
   */
-
+  
  END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2790,11 +2784,11 @@ FUNCTION To-Corrware-Dim RETURNS DECIMAL
     Notes:  
 ------------------------------------------------------------------------------*/
   def var out-dim as DEC DECIMALS 6 no-undo.
-
+  
   if ip-is-corr-style AND v-cecscrn-char NE "Decimal" THEN
      out-dim = round(trunc(ip-dim,0) + ((ip-dim - trunc(ip-dim,0)) / K_FRAC),2).
   else out-dim = ip-dim.
-
+     
   RETURN out-dim.   /* Function return value. */
 
 END FUNCTION.

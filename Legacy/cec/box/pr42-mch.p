@@ -350,7 +350,9 @@ FOR EACH xef
             op-tot[2] = op-tot[2] + oprun
             op-tot[3] = op-tot[3] + opmr$
             op-tot[4] = op-tot[4] + oprun$
-            op-tot[5] = op-tot[5] + optot$.
+            op-tot[5] = op-tot[5] + optot$
+            op-tot[8] = op-tot[8] + opmr * est-op.op-crew[1]
+            op-tot[9] = op-tot[9] + oprun * est-op.op-crew[2].
 
         r-spoil = r-spoil + (est-op.num-sh * (est-op.op-spoil / 100)).
 

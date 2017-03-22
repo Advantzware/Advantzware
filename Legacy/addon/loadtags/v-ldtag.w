@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -420,7 +416,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -448,7 +444,7 @@ END.
 ON LEAVE OF loadtag.misc-dec[2] IN FRAME F-Main /* Loaded Pallet Wt */
 DO:
     DEF VAR v-ansflg AS LOG NO-UNDO.
-
+    
     DO WITH FRAME {&FRAME-NAME}: /* gdm - 09210908 */
       ASSIGN v-ldpalwt = 0.
       RUN calc-ldweight(OUTPUT v-ldpalwt). 
@@ -495,7 +491,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL loadtag.tot-cases V-table-Win
 ON LEAVE OF loadtag.tot-cases IN FRAME F-Main /* Total Units O/H */
 DO:
-
+   
    DO WITH FRAME {&FRAME-NAME}: /* gdm - 09210908 */
      ASSIGN v-ldpalwt = 0.
      RUN calc-ldweight(OUTPUT v-ldpalwt). 
@@ -517,7 +513,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

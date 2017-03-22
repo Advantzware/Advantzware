@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -221,8 +217,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -273,7 +267,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -284,13 +278,13 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON MOUSE-SELECT-DBLCLICK OF Browser-Table IN FRAME F-Main /* E-Mail Notification System */
 DO:
-
+  
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
     IF NOT CAN-FIND (FIRST reftable NO-LOCK
                      WHERE reftable.rec_key = STRING (vrEmpAlert)
                        AND reftable.CODE    = emailcod.emailcod)
@@ -584,7 +578,7 @@ PROCEDURE SendAll :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   FOR EACH emailcod WHERE emailcod.emailcod > '' NO-LOCK:
 
     IF NOT CAN-FIND (FIRST reftable NO-LOCK
@@ -653,7 +647,7 @@ FUNCTION CheckNotice RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-
+    
     IF CAN-FIND (FIRST reftable NO-LOCK
                  WHERE reftable.rec_key = STRING (vrEmpAlert)
                    AND reftable.CODE    = emailcod.emailcod)

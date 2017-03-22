@@ -4,10 +4,6 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -211,8 +207,6 @@ END.
 
 {src/adm/method/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -263,7 +257,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-note ~{&SORTBY-PHRASE}.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -378,9 +372,9 @@ PROCEDURE build-table :
   def buffer bf-machemp for machemp.
   def buffer bf-employee for employee.
   def buffer bf-emplogin for emplogin.
-
+  
   EMPTY TEMP-TABLE tt-note.
-
+  
   for each bf-employee FIELDS(rec_key) where
       bf-employee.company EQ g_company AND
       bf-employee.employee = machemp.employee NO-LOCK,
@@ -390,7 +384,7 @@ PROCEDURE build-table :
          create tt-note.
          buffer-copy note to tt-note.
          tt-note.note-src = "Employee".
-
+      
   end.    
   for each bf-emplogin FIELDS(rec_key) where
       bf-emplogin.company EQ g_company AND
@@ -411,7 +405,7 @@ PROCEDURE build-table :
          buffer-copy note to tt-note.
          tt-note.note-src = "Emp. Transaction".
   end.
-
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -443,7 +437,7 @@ PROCEDURE local-open-query :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+ 
   run build-table.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .

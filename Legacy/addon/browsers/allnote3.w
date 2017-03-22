@@ -4,10 +4,6 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -38,7 +34,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
 
 def temp-table tt-note  like note
                field note-src as cha form "x(20)" label "Note From" .
@@ -248,15 +243,13 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/browser.i}
-
-{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -367,11 +360,11 @@ PROCEDURE build-table :
   def buffer bf-machemp for machemp.
   def buffer bf-employee for employee.
   def buffer bf-emplogin for emplogin.
-
+  
   for each tt-note:
       delete tt-note.
   end.
-
+  
   for each bf-employee where
       bf-employee.company EQ employee.company AND
       bf-employee.employee = employee.employee no-lock:
@@ -403,8 +396,8 @@ PROCEDURE build-table :
          tt-note.note-src = "Emp. Transaction".
       end.
   end.    
-
-
+      
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -438,7 +431,7 @@ PROCEDURE local-open-query :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+ 
   run build-table.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .

@@ -811,17 +811,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -1004,7 +993,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1055,7 +1044,7 @@ DO:
         MESSAGE "No Time Sheet Record available." VIEW-AS ALERT-BOX ERROR.
         RETURN NO-APPLY.
     END.
-
+    
     FIND CURRENT emptrack.timesheet EXCLUSIVE-LOCK NO-ERROR.
     IF AVAILABLE emptrack.timesheet THEN
     DO:
@@ -1065,7 +1054,6 @@ DO:
       RUN PROCESS(INPUT NO).
     END.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1109,7 +1097,6 @@ DO:
     END.
   END.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1127,7 +1114,7 @@ DO:
         MESSAGE "Employee# can not be blank." VIEW-AS ALERT-BOX ERROR.
         RETURN NO-APPLY.
     END.
-
+    
     IF BtnLogin:LABEL = "Login" THEN
     DO:
       FIND FIRST employee NO-LOCK WHERE
@@ -1234,7 +1221,6 @@ DO:
           APPLY "entry" TO LvEmployee.
     END.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1276,7 +1262,6 @@ DO:
                            INPUT DECIMAL(Hdl-VACHrs[5]:SCREEN-VALUE),
                            INPUT DECIMAL(Hdl-VACHrs[6]:SCREEN-VALUE),
                            INPUT DECIMAL(Hdl-VACHrs[7]:SCREEN-VALUE)).
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1288,7 +1273,7 @@ END.
 ON CHOOSE OF BtnTS IN FRAME DEFAULT-FRAME /* Submit Time Sheet */
 DO:
   DO WITH FRAME {&FRAME-NAME} :
-
+  
     RELEASE employee.
 
     FIND FIRST tt-emp WHERE
@@ -1313,7 +1298,7 @@ DO:
     END.
 
     ASSIGN WeekendingDate LvEmployee .
-
+    
     CREATE EmpTrack.TimeSheet.
     ASSIGN 
       EMPTRACK.TimeSheet.WeekEnding = WeekEndingDate
@@ -1340,7 +1325,6 @@ DO:
 
     RUN PROCESS(INPUT YES).
   END.                   
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1375,7 +1359,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1406,7 +1390,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1437,7 +1421,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1468,7 +1452,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1499,7 +1483,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1530,7 +1514,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1561,7 +1545,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1592,7 +1576,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1623,7 +1607,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1654,7 +1638,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1685,7 +1669,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1716,7 +1700,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1747,7 +1731,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1778,7 +1762,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1809,7 +1793,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1840,7 +1824,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1871,7 +1855,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1902,7 +1886,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1933,7 +1917,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1964,7 +1948,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -1995,7 +1979,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -2026,7 +2010,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -2057,7 +2041,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -2088,7 +2072,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -2119,7 +2103,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -2150,7 +2134,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -2181,7 +2165,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -2212,7 +2196,7 @@ DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
-
+      
       IF DECIMAL({&SELF-NAME}:SCREEN-VALUE) - TRUNCATE( DECIMAL({&SELF-NAME}:SCREEN-VALUE), 0 ) > .59 THEN
       DO:
           MESSAGE "Invalid Hours." VIEW-AS ALERT-BOX ERROR.
@@ -2233,7 +2217,7 @@ ON LEAVE OF WeekendingDate IN FRAME DEFAULT-FRAME /* Week Ending */
 DO:
   IF DATE(WeekEndingDate:SCREEN-VALUE) <> ? THEN
      RUN PROCESS(INPUT YES).
-
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2263,10 +2247,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -2303,7 +2285,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*   END.                                                                                */
   RUN INIT.
   {methods/nowait.i}
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -2477,7 +2458,7 @@ DO WITH FRAME {&FRAME-NAME} :
   ASSIGN Lvemployee LvEmployeeList WeekEndingDate
          LvNotes:SCREEN-VALUE = "".
   DISABLE BtnApprove BtnDecline BtnTS.
-
+  
   IF WeekendingDate = ? OR weekday(WeekEndingDate) <> 1 THEN
   DO:
       MESSAGE "Week Ending Date must be Sunday." VIEW-AS ALERT-BOX ERROR.
@@ -2539,7 +2520,7 @@ DO WITH FRAME {&FRAME-NAME} :
   END.
 
   /* Find if the timesheet is submitted or not */
-
+           
   FIND FIRST timesheet WHERE
        timesheet.employee =  employee.employee AND
        timesheet.WeekEnding = DATE(WeekendingDate:SCREEN-VALUE)
@@ -2616,7 +2597,7 @@ DO WITH FRAME {&FRAME-NAME} :
       ASSIGN BtnDecline:SENSITIVE = TRUE.
     END.
   END.
-
+  
   ELSE DO :
     assign
         LvEmpNum = employee.employee
@@ -2705,7 +2686,7 @@ DO WITH FRAME {&FRAME-NAME} :
       ( (( decimal(Hdl-DTHrs[j]:SCREEN-VALUE) - TRUNCATE( decimal(Hdl-DTHrs[j]:SCREEN-VALUE) , 0 ) ) * 100 ) * 60)
     .
   END.
-
+  
   ASSIGN TS-DTHrs-tot:SCREEN-VALUE = string( truncate(LvTotDTHrs / 3600,0), ">99" ) + "." + STRING(truncate((LvTotDTHrs mod 3600) / 60,0), "99").
 .
 END.
@@ -2731,7 +2712,7 @@ DO WITH FRAME {&FRAME-NAME} :
       ( (( decimal(Hdl-mHrs[j]:SCREEN-VALUE) - TRUNCATE( decimal(Hdl-mHrs[j]:SCREEN-VALUE) , 0 ) ) * 100 ) * 60)
     .
   END.
-
+  
   ASSIGN TS-mHrs-tot:SCREEN-VALUE = string( truncate(LvTotmHrs / 3600,0), ">99" ) + "." + STRING(truncate((LvTotmHrs mod 3600) / 60,0), "99").
 .
 END.
@@ -2757,7 +2738,7 @@ DO WITH FRAME {&FRAME-NAME} :
       ( (( decimal(Hdl-OTHrs[j]:SCREEN-VALUE) - TRUNCATE( decimal(Hdl-OTHrs[j]:SCREEN-VALUE) , 0 ) ) * 100 ) * 60)
     .
   END.
-
+  
   ASSIGN TS-OTHrs-tot:SCREEN-VALUE = string( truncate(LvTotOTHrs / 3600,0), ">99" ) + "." + STRING(truncate((LvTotOTHrs mod 3600) / 60,0), "99").
 .
 END.
@@ -2783,7 +2764,7 @@ DO WITH FRAME {&FRAME-NAME} :
       ( (( decimal(Hdl-WrkHrs[j]:SCREEN-VALUE) - TRUNCATE( decimal(Hdl-WrkHrs[j]:SCREEN-VALUE) , 0 ) ) * 100 ) * 60)
     .
   END.
-
+  
   ASSIGN TS-WrkHrs-tot:SCREEN-VALUE = string( truncate(LvTotWrkHrs / 3600,0), ">99" ) + "." + STRING(truncate((LvTotWrkHrs mod 3600) / 60,0), "99").
 .
 END.
@@ -2810,7 +2791,7 @@ DO WITH FRAME {&FRAME-NAME} :
       ( (( decimal(Hdl-VACHrs[j]:SCREEN-VALUE) - TRUNCATE( decimal(Hdl-VACHrs[j]:SCREEN-VALUE) , 0 ) ) * 100 ) * 60)
     .
   END.
-
+  
   ASSIGN TS-VACHrs-tot:SCREEN-VALUE = string( truncate(LvTotVACHrs / 3600,0), ">99" ) + "." + STRING(truncate((LvTotVACHrs mod 3600) / 60,0), "99").
 .
 END.

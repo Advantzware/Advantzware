@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -526,7 +522,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -571,7 +567,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -810,7 +806,7 @@ PROCEDURE local-display-fields :
 
         IF NOT lFound OR cLookupDisplay EQ "" THEN 
             cLookupDisplay = "Square Feet".
-
+        
         fiLookupValue:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cLookupDisplay.
     END.
 
@@ -842,7 +838,7 @@ PROCEDURE local-update-record :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
 /* Code placed here will execute AFTER standard behavior.    */
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -872,7 +868,7 @@ PROCEDURE proc-enable :
             cb_markup-on-09
             cb_markup-on-10.
     END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -983,7 +979,7 @@ PROCEDURE valid-markup :
       Notes:       
     ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
-
+      
         IF DEC(cust-markup.markup[1]:SCREEN-VALUE) GE 100 THEN
         DO:
             MESSAGE "Markup Must Be Less Than 100."
@@ -1064,7 +1060,7 @@ PROCEDURE valid-markup :
             RETURN ERROR.
         END.
     END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1077,7 +1073,7 @@ PROCEDURE valid-procat :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-
+  
     DO WITH FRAME {&FRAME-NAME}:
         cust-markup.procat:SCREEN-VALUE =
             CAPS(cust-markup.procat:SCREEN-VALUE).
@@ -1146,7 +1142,7 @@ FUNCTION getCustName RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cCust AS CHARACTER NO-UNDO. 
-
+    
     IF ipCustNo EQ "" THEN 
         cCust = "All Customers".
     ELSE 
@@ -1176,7 +1172,7 @@ FUNCTION getProCatDscr RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cDescription AS CHARACTER NO-UNDO.
-
+  
     IF ipProCat EQ "" THEN 
         cDescription = "All Categories".
     ELSE 
@@ -1205,12 +1201,12 @@ FUNCTION getStyleDscr RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cStyle AS CHARACTER NO-UNDO.
-
+    
     IF ipStyle EQ "" THEN
         cStyle = "All Styles".
     ELSE 
     DO:
-
+        
         FIND FIRST style NO-LOCK
             WHERE style.company EQ g_company
             AND style.style EQ ipStyle

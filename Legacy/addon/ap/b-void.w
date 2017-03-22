@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -312,8 +308,6 @@ END.
 
 {src/adm/method/navbrows.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -373,7 +367,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -438,7 +432,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-
+  
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -638,7 +632,7 @@ PROCEDURE disable-note :
   Notes:       
 ------------------------------------------------------------------------------*/
  DEF OUTPUT PARAMETER op-enable-note AS LOG  NO-UNDO.
-
+ 
 
 END PROCEDURE.
 
@@ -692,7 +686,7 @@ PROCEDURE first-query :
 
 
   RUN set-defaults.
-
+  
   li = 0.
 
   {&for-each1}
@@ -834,16 +828,15 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-  RUN pDataGridInit.
 
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN 
    ap-pay.vend-no:READ-ONLY IN BROWSE {&browse-name} = YES
    ap-pay.check-no:READ-ONLY IN BROWSE {&browse-name} = YES
    ap-pay.bank-code:READ-ONLY IN BROWSE {&browse-name} = YES
-
+   
    .
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -866,7 +859,7 @@ PROCEDURE local-open-query :
   ELSE DO:
     {ap/j-void.i}
   END.
-
+  
   ll-first = NO.
 
   RUN dispatch ("display-fields").
@@ -878,7 +871,7 @@ PROCEDURE local-open-query :
     lv-last-rowid  = ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}}).
   IF AVAIL {&SECOND-TABLE-IN-QUERY-{&browse-name}} THEN
     lv-last-rowid2 = ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}).
-
+    
   RUN dispatch ('get-first':U).
   IF AVAIL {&FIRST-TABLE-IN-QUERY-{&browse-name}} THEN
     lv-frst-rowid  = ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}}).
@@ -929,10 +922,10 @@ PROCEDURE navigate-browser :
     WHEN "N" THEN RUN dispatch ('get-next':U).
     WHEN "P" THEN RUN dispatch ('get-prev':U).
   END CASE.
-
+    
   IF ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}}) EQ lv-last-rowid THEN
     op-nav-type = "L".
-
+      
   IF ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}}) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -951,7 +944,7 @@ PROCEDURE navigate-browser2 :
 
   DEF INPUT  PARAMETER ip-nav-type AS CHAR.
   DEF OUTPUT PARAMETER op-nav-type AS CHAR.
-
+  
   DEF VAR hld-rowid AS ROWID NO-UNDO.
 
 
@@ -970,10 +963,10 @@ PROCEDURE navigate-browser2 :
                     RUN dispatch ('get-prev':U).
                   END.
   END CASE.
-
+    
   IF ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}) EQ lv-last-rowid2 THEN
     op-nav-type = "L".
-
+      
   IF ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}) EQ lv-frst-rowid2 THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".*/
 
@@ -1033,7 +1026,7 @@ PROCEDURE set-defaults :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      fi_fchk:SCREEN-VALUE = ""
@@ -1142,7 +1135,7 @@ FUNCTION display-reconciled RETURNS LOGICAL
  IF AVAIL ap-pay AND ap-pay.cleared = ? THEN RETURN FALSE.
  ELSE IF AVAIL ap-pay THEN RETURN ap-pay.cleared. 
  ELSE RETURN FALSE.
-
+  
 
 END FUNCTION.
 

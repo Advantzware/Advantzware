@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -260,8 +256,6 @@ END.
 {methods/template/browser.i}
 {custom/yellowColumns.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -332,7 +326,7 @@ po-ord.po-no eq po-ordl.po-no"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -460,16 +454,16 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   /*
   if not avail po-ordl then return.
-
+  
   find first vend where vend.company = item.company and
                         vend.vend-no = po-ord.vend-no no-lock no-error.
   ls-vend-name = if avail vend then vend.name else "N/A" .
   */
-
+  
 /* moved into function convert-qty
   if po-ordl.cons-uom eq item.cons-uom then
      assign   li-ord-qty = po-ordl.cons-qty
@@ -480,7 +474,7 @@ PROCEDURE local-display-fields :
                          item.basis-w, po-ordl.s-len,
                          po-ordl.s-wid, item.s-dep,
                          po-ordl.cons-qty, output li-ord-qty).
-
+                         
      run sys/ref/convquom.p(po-ordl.cons-uom, item.cons-uom,
                          item.basis-w, po-ordl.s-len,
                          po-ordl.s-wid, item.s-dep,
@@ -627,7 +621,7 @@ FUNCTION vend-name RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   if not avail po-ordl then RETURN "".
-
+  
   find first vend where vend.company = item.company and
                         vend.vend-no = po-ord.vend-no no-lock no-error.
   ls-vend-name = if avail vend then vend.name else "N/A" .

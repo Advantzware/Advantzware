@@ -225,7 +225,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 {methods/template/viewer.i}
 
@@ -279,7 +278,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -320,7 +319,6 @@ DO:
 
       APPLY "ENTRY":U TO fi_fchk IN FRAME {&FRAME-NAME}.
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -336,7 +334,7 @@ DO:
         fi_fchk
         fi_cust
         v-c-no = 0.
-
+    
      FIND FIRST ar-cash WHERE
           ar-cash.company EQ cocode AND
           ar-cash.check-no EQ fi_fchk AND
@@ -344,14 +342,14 @@ DO:
           ar-cash.posted EQ YES /*AND
           ar-cash.reconciled EQ NO*/
           NO-LOCK NO-ERROR.
-
+    
      IF AVAIL ar-cash THEN
      DO:
         FIND FIRST cust WHERE
              cust.company EQ g_company AND
              cust.cust-no EQ ar-cash.cust-no
              NO-LOCK NO-ERROR.
-
+    
         IF AVAIL cust THEN cust_name = cust.name.
 
         FIND FIRST bank WHERE
@@ -389,7 +387,6 @@ DO:
         APPLY "ENTRY":U TO fi_fchk IN FRAME {&FRAME-NAME}.
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -422,14 +419,14 @@ DO:
                END.
             END.
          END.
-
+          
          ar-cash.cleared = IF v-voided THEN ? ELSE NO. 
          RELEASE ar-cash.
       END.
       ELSE
          MESSAGE "Check not available for updating."
              VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-
+           
       ASSIGN
         btn_save:SENSITIVE = NO
         btn_can-2:SENSITIVE = NO
@@ -440,7 +437,6 @@ DO:
 
       APPLY "ENTRY":U TO fi_fchk IN FRAME {&FRAME-NAME}.
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -474,9 +470,9 @@ END.
 ON LEAVE OF fi_fchk IN FRAME F-Main /* Check# */
 DO:
    DO WITH FRAME {&FRAME-NAME}:
-
+   
       IF LASTKEY = -1 THEN RETURN.
-
+     
       IF int(fi_fchk:SCREEN-VALUE) = 0 THEN DO:
          MESSAGE "Check number must be entered..." VIEW-AS ALERT-BOX.
          RETURN NO-APPLY.
@@ -505,7 +501,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

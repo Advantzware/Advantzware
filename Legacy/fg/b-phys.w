@@ -909,7 +909,10 @@ PROCEDURE crt-pcount :
              b-fg-rctd.cust-no = fg-bin.cust-no.
 
        IF tt-selected.tt-import-zero THEN
-          ASSIGN b-fg-rctd.cases = 0
+          ASSIGN b-fg-rctd.std-cost = fg-bin.qty /
+                                     (IF fg-bin.pur-uom EQ "M" THEN 1000 ELSE 1) *
+                                     fg-bin.std-tot-cost
+                 b-fg-rctd.cases = 0
                  /*b-fg-rctd.qty-case = 0
                  b-fg-rctd.cases-unit = 0*/
                  b-fg-rctd.partial = 0

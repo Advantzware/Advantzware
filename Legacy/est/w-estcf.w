@@ -18,7 +18,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -177,13 +177,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -241,7 +245,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -955,7 +959,7 @@ PROCEDURE init-box-design :
   RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_q-boxdes ).
   RUN add-link IN adm-broker-hdl ( ip-handle, 'box-calc':U , h_q-boxdes ).
   RUN dispatch IN h_q-boxdes ('initialize').
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -967,14 +971,14 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */  
   run get-attribute ("current-page").
-
+   
   assign
    li-page[2] = li-page[1]
    li-page[1] = int(return-value).
-
+  
   if li-page[1] = 9 then do:  /* quote */
     def buffer bf-quote for quotehd .
     find first bf-quote where bf-quote.company = g_company and
@@ -998,7 +1002,7 @@ PROCEDURE local-change-page :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1012,9 +1016,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1054,12 +1058,12 @@ PROCEDURE Select_Add :
 ------------------------------------------------------------------------------*/
 
   def var char-hdl as cha no-undo.
-
+  
   run select-page(2).
   run get-link-handle in adm-broker-hdl(this-procedure,"add-est-target", output char-hdl).
   run add-estimate in widget-handle(char-hdl).
-
-
+  
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

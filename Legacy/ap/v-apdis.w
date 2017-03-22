@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -255,7 +251,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -278,7 +274,7 @@ DO:
          OTHERWISE DO:
             lv-handle = focus:handle.
             run applhelp.p.
-
+             
             if g_lookup-var <> "" then do:
                lv-handle:screen-value = g_lookup-var.
             end.  
@@ -306,7 +302,7 @@ DO:
        ASSIGN
            lv-check-no:SCREEN-VALUE  = STRING( IF AVAIL bank THEN bank.last-chk + 1 ELSE 0) .
    END.
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -355,7 +351,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -472,8 +468,8 @@ PROCEDURE local-assign-statement :
       IF AVAIL bank THEN bank.last-chk = INTEGER(lv-check-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})  .
       RELEASE bank .
   END.
-
-
+ 
+ 
 
 
 END PROCEDURE.
@@ -494,13 +490,13 @@ PROCEDURE local-create-record :
       X = bf-dis.d-no.
       LEAVE.
   END.
-
+  
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
  find first ap-ctrl where ap-ctrl.company = g_company no-lock no-error.
 
  find first bank where bank.company = g_company and
@@ -519,7 +515,7 @@ PROCEDURE local-create-record :
         ap-dis.check-date = TODAY.
 
  /*IF AVAIL bank THEN bank.last-chk = ap-dis.check-no.*/
-
+ 
 RUN dispatch ('row-changed').
 IF adm-adding-record THEN ENABLE lv-check-no WITH FRAME {&FRAME-NAME}.
 
@@ -544,7 +540,7 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
   DISABLE lv-check-no WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -599,13 +595,13 @@ PROCEDURE proc-enable :
   Notes:       
 ------------------------------------------------------------------------------*/
   IF NOT adm-new-record AND ap-dis.posted THEN do:
-
+       
       DEF VAR char-hdl AS cha NO-UNDO.
       MESSAGE "This invoice has been posted. No changes are allowed!"           
            VIEW-AS ALERT-BOX ERROR.
       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-source", OUTPUT char-hdl).
       RUN apply-cancel IN WIDGET-HANDLE(char-hdl).
-
+      
   END.
   ENABLE lv-check-no WITH FRAME {&FRAME-NAME}.
 
@@ -704,7 +700,7 @@ PROCEDURE valid-check-no :
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-ap-dis FOR ap-dis.
 
-
+                  
   DO WITH FRAME {&FRAME-NAME}:
     IF CAN-FIND(FIRST b-ap-dis
                 WHERE b-ap-dis.company   EQ ap-dis.company

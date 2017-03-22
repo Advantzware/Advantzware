@@ -47,7 +47,7 @@ DEFINE VARIABLE correct-error AS LOGICAL NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-
+{custom/xprint.i}
 assign
  cocode = gcompany
  locode = gloc.
@@ -114,6 +114,7 @@ def var char_units      as char no-undo.
 def var copy_count      as int no-undo initial 2.
 def var n               as int no-undo initial 0.
 DEF VAR v-avgcost AS LOG NO-UNDO.
+DEFINE VARIABLE cBarCodeProgram AS CHARACTER NO-UNDO .
 {rm/avgcost.i}
 
 DEF BUFFER b-company FOR company.
@@ -133,6 +134,9 @@ DEF TEMP-TABLE tt-mat NO-UNDO FIELD frm LIKE job-mat.frm
 
 {rmrep/rmloadtg.i NEW}
 {sys/form/r-top3.f}
+
+DEFINE TEMP-TABLE tt-po-print LIKE w-po 
+    FIELD tag-no AS CHARACTER .
 
 tmpstore = FILL("_",50).
 
@@ -398,19 +402,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -421,6 +419,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN begin_filename IN FRAME FRAME-A
    1 2                                                                  */
 ASSIGN 
@@ -604,7 +612,6 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -616,7 +623,6 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   RUN ok-button.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -771,10 +777,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -889,7 +893,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO v-po-list.
   END.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1559,6 +1562,11 @@ PROCEDURE ok-button :
 
      ASSIGN {&displayed-objects}.
   END.
+  ASSIGN
+      cBarCodeProgram = IF scr-label-file MATCHES "*.xpr*" THEN "xprint" ELSE "" .
+      FOR EACH tt-po-print:
+          DELETE tt-po-print .
+      END.
 
   ASSIGN
      v-out = scr-text-file-path
@@ -2012,18 +2020,29 @@ PROCEDURE reprintTag :
     w-po.tag-date = loadtag.tag-date
     w-po.total-tags = IF AVAILABLE cust AND cust.int-field[1] GT 0 THEN cust.int-field[1]
                       ELSE IF v-mult GT 0 THEN v-mult ELSE 1.
+  IF cBarCodeProgram EQ "" THEN DO:
+      ERROR-STATUS:ERROR = NO.
+      RUN setOutputFile.
+      IF ERROR-STATUS:ERROR THEN RETURN.
+      OUTPUT TO VALUE(v-out).
+      RUN outputTagHeader.
+      DO numberTags = 1 TO w-po.total-tags:
+        RUN outputTagLine (w-po.rcpt-qty).
+      END.
+      OUTPUT CLOSE.
 
-  ERROR-STATUS:ERROR = NO.
-  RUN setOutputFile.
-  IF ERROR-STATUS:ERROR THEN RETURN.
-  OUTPUT TO VALUE(v-out).
-  RUN outputTagHeader.
-  DO numberTags = 1 TO w-po.total-tags:
-    RUN outputTagLine (w-po.rcpt-qty).
+      RUN AutoPrint.
   END.
-  OUTPUT CLOSE.
 
-  RUN AutoPrint.
+  IF cBarCodeProgram EQ "xprint" THEN do:
+      IF cBarCodeProgram EQ "xprint" THEN do:
+            CREATE tt-po-print .
+            BUFFER-COPY w-po TO tt-po-print .
+            ASSIGN 
+                tt-po-print.tag-no = IF AVAIL loadtag THEN loadtag.tag-no ELSE "" .
+      END.
+      RUN xprint-tag .
+  END.
 
   MESSAGE 'Loadtag Reprint Complete!' VIEW-AS ALERT-BOX.
   APPLY 'ENTRY':U TO reprintLoadtag IN FRAME {&FRAME-NAME}.
@@ -2249,18 +2268,19 @@ PROCEDURE run-report :
   IF NOT choice THEN RETURN ERROR.
 
   SESSION:SET-WAIT-STATE ("general").
+  IF cBarCodeProgram EQ ""  THEN DO:
+      {sys/inc/print1.i}
 
-  {sys/inc/print1.i}
+      {sys/inc/outprint.i value(lines-per-page)} 
 
-  {sys/inc/outprint.i value(lines-per-page)} 
+      VIEW FRAME r-top.
+      VIEW FRAME top.
 
-  VIEW FRAME r-top.
-  VIEW FRAME top.
+      RUN setOutputFile.
 
-  RUN setOutputFile.
-
-  OUTPUT TO VALUE(v-out).
-  RUN outputTagHeader.
+      OUTPUT TO VALUE(v-out).
+      RUN outputTagHeader.
+  END.
   FOR EACH w-po EXCLUSIVE-LOCK:
     IF NOT lv-itemOnly THEN
     FIND FIRST po-ord NO-LOCK WHERE po-ord.company EQ cocode
@@ -2291,14 +2311,22 @@ PROCEDURE run-report :
 /*       lv-how-many-tags = w-po.total-tags * v-mult - (IF w-po.partial NE 0 THEN 1 ELSE 0). */
       DO i = 1 TO v-mult:
         IF i EQ 1 THEN RUN create-loadtag (j,w-po.rcpt-qty,lv-itemOnly).
-        RUN outputTagLine (w-po.rcpt-qty).
+          IF cBarCodeProgram EQ "" THEN
+             RUN outputTagLine (w-po.rcpt-qty).
       END. /* do i */
     END. /* do j */
     IF w-po.partial NE 0 THEN
     DO i = 1 TO v-mult: /* for partial print */
       IF i EQ 1 THEN RUN create-loadtag (j,w-po.partial,lv-itemOnly).
-      RUN outputTagLine (w-po.rcpt-qty).
+         IF cBarCodeProgram EQ "" THEN
+         RUN outputTagLine (w-po.rcpt-qty).
     END. /* do i */
+    IF cBarCodeProgram EQ "xprint" THEN do:
+            CREATE tt-po-print .
+            BUFFER-COPY w-po TO tt-po-print .
+            ASSIGN 
+                tt-po-print.tag-no = IF AVAIL loadtag THEN loadtag.tag-no ELSE "" .
+    END.
     DELETE w-po.
   END. /* each w-po */
   OUTPUT CLOSE.
@@ -2306,7 +2334,11 @@ PROCEDURE run-report :
 
 
   /*** auto print ***/
-  RUN AutoPrint.
+  IF cBarCodeProgram EQ ""  THEN
+      RUN AutoPrint.
+  ELSE IF cBarCodeProgram EQ "xprint" THEN 
+      RUN xprint-tag .
+
 /*   IF scr-auto-print THEN                                                  */
 /*   DO:                                                                     */
 /*      DEF VAR v-int AS INT NO-UNDO.                                        */
@@ -2603,6 +2635,34 @@ PROCEDURE validLoadtag :
         APPLY 'ENTRY':U TO reprintLoadtag.
      END.
   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE xprint-tag C-Win 
+PROCEDURE xprint-tag :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+      {sys/inc/print1.i}
+      {sys/inc/outprint.i value(85)}
+
+      PUT "<PREVIEW>".  
+
+      FOR EACH tt-po-print  NO-LOCK
+          WHERE tt-po-print.rcpt-qty GT 0 BREAK BY tt-po-print.ord-no :
+          {rm/rep/rmtagxprnt.i}
+          IF NOT LAST(tt-po-print.ord-no) THEN PAGE .
+      END.
+
+      OUTPUT CLOSE.
+      FILE-INFO:FILE-NAME = list-name.
+      RUN printfile (FILE-INFO:FILE-NAME).
 
 END PROCEDURE.
 

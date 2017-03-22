@@ -4,10 +4,6 @@
           nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -253,7 +249,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -439,10 +435,10 @@ PROCEDURE get-title :
 
   IF AVAIL(notes) THEN
   FIND bfNotes WHERE ROWID(bfNotes) = ROWID(notes) NO-LOCK NO-ERROR.
-
+  
   IF AVAIL bfNotes THEN DO WITH FRAME {&FRAME-NAME}:     
       FIND rejct-cd WHERE rejct-cd.CODE = bfNotes.note_title NO-LOCK NO-ERROR.
-
+     
       IF AVAIL rejct-cd THEN
       cbTitle:SCREEN-VALUE = bfNotes.note_title.
   END.
@@ -465,7 +461,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/notes.i}
-
+  
   notes.note_type = "R".
 END PROCEDURE.
 
@@ -496,7 +492,7 @@ PROCEDURE local-display-fields :
       IF AVAIL rejct-cd THEN
       cbTitle:SCREEN-VALUE = notes.note_title.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -562,7 +558,7 @@ PROCEDURE new-note_code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+                  
   DO WITH FRAME {&FRAME-NAME}:
 
     FIND FIRST item-spec NO-LOCK

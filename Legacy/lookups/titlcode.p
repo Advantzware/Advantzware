@@ -1,6 +1,6 @@
 /* titlcode.p - Generated 03/30/2005 -  3:30 pm by NoSweat
 "titlcode. " ~
-"ASI " ~
+"NOSWEAT " ~
 "titlcode " ~
 " " ~
 "titlcode " ~
@@ -18,7 +18,7 @@
 "titlcode. " ~
 */
 
-&Scoped-define lookup-db ASI.
+&Scoped-define lookup-db NOSWEAT.
 &Scoped-define lookup-file titlcode
 &Scoped-define where-statement TRUE
 &Scoped-define return-field titlcode

@@ -78,11 +78,11 @@ listname = "p-machsd." .
 
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Cancel Btn-Save 
+&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Cancel 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -97,26 +97,26 @@ listname = "p-machsd." .
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn-Cancel  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn-Cancel 
      LABEL "Ca&ncel" 
-     SIZE 8 BY 1.9
+     SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-Save  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn-Save 
      LABEL "&Save" 
-     SIZE 8 BY 1.91
+     SIZE 9 BY 1.29
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 21 BY 2.38.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     SIZE 31 BY 1.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
-     Btn-Cancel AT ROW 1.24 COL 13
-     Btn-Save AT ROW 1.24 COL 2
+     Btn-Save AT ROW 1.29 COL 2
+     Btn-Cancel AT ROW 1.29 COL 20.8
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -150,7 +150,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW C-WIn ASSIGN
-         HEIGHT             = 4.24
+         HEIGHT             = 1.86
          WIDTH              = 31.4.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -159,7 +159,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -174,7 +173,7 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
@@ -207,10 +206,7 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"}
-      {methods/setButton.i Btn-Cancel "Cancel"}
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -222,8 +218,6 @@ END.
 ON CHOOSE OF Btn-Save IN FRAME Panel-Frame /* Save */
 DO:
 &IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
-  {methods/setButton.i Btn-Save "Update"}
-  {methods/setButton.i Btn-Cancel "Cancel"}
   /* If we're in a persistent add-mode then don't change any labels. Just make */
   /* a call to update the last record and then add another record.             */
   RUN get-attribute IN THIS-PROCEDURE ('AddFunction':U).
@@ -242,8 +236,6 @@ DO:
         DO:
            RUN new-state('update-begin':U).
            ASSIGN add-active = no.
-           {methods/setButton.i Btn-Save "Save"}
-           {methods/setButton.i Btn-Cancel "Cancel"}
         END.
         ELSE 
         DO: /* Save */
@@ -255,7 +247,6 @@ DO:
         RUN notify ('update-record':U).
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i "CHOOSE"}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -272,11 +263,11 @@ END.
   /* Set the default SmartPanel to the one that has the Commit push */
   /* button displayed (the TABLEIO-TARGETS are not enabled/disabled */
   /* automatically with this type of SmartPanel).                   */
-
+  
   RUN set-attribute-list ("SmartPanelType=Save, 
                            Edge-Pixels=2,
                            AddFunction=One-Record":U). 
-
+                           
   /* If the application hasn't enabled the behavior that a RETURN in a frame = GO,
      then enable the usage of the Save button as the default button. (Note that in
      8.0, the Save button was *always* the default button.) */
@@ -284,14 +275,11 @@ END.
   ASSIGN
       Btn-Save:DEFAULT IN FRAME {&FRAME-NAME} = yes
       FRAME {&FRAME-NAME}:DEFAULT-BUTTON = Btn-Save:HANDLE.
-            
+  
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"}
-  {methods/setButton.i Btn-Cancel "Cancel"}
-        
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -346,7 +334,7 @@ PROCEDURE local-enable :
 
   RUN dispatch ('enable':U).      /* Get all objects enabled to start. */
   RUN set-buttons (adm-panel-state).
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -361,7 +349,7 @@ PROCEDURE local-initialize :
   ------------------------------------------------------------------------*/
 
   DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
-
+  
   /* Insert pre-dispatch code here. */ 
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT "adm-initialize":U ) .
@@ -390,7 +378,7 @@ PROCEDURE local-initialize :
      END.
      RUN set-buttons (adm-panel-state).
   END.
-
+    
   IF panel-type = 'SAVE':U AND /* Only enable a Save panel if there's a record */
     LOOKUP(query-position,'no-record-available,no-external-record-available':U) = 0
      THEN RUN notify ('enable-fields, TABLEIO-TARGET':U).
@@ -422,7 +410,7 @@ PROCEDURE set-buttons :
            sort of action is occuring to the TABLEIO-TARGET(s) of the panel.
   Parameters:  Character string that denotes which action to set the button
                sensitivities.
-
+               
                The values are: initial - the panel is in a state where no record
                                          changes are occuring; i.e. it is possible
                                          to  Update, Add, Copy, or Delete a record.
@@ -466,9 +454,9 @@ DO WITH FRAME Panel-Frame:
 &ENDIF
 
   END. /* panel-state = 'disable-all' */
-
+  
   ELSE IF panel-state = 'initial':U THEN DO:
-
+  
     /* The panel is not actively changing any of its TABLEIO-TARGET(s). */
 
 &IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
@@ -494,7 +482,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Cancel:SENSITIVE = NO.
 &ENDIF
-
+      
   END. /* panel-state = 'initial' */
 
   ELSE IF panel-state = 'add-only':U THEN DO:
@@ -523,9 +511,9 @@ DO WITH FRAME Panel-Frame:
 &ENDIF
 
   END. /* panel-state = 'add-only' */
-
+ 
   ELSE DO: /* panel-state = action-chosen */ 
-
+  
     /* The panel had one of the buttons capable of changing/adding a record */
     /* pressed. Always force the SAVE/UPDATE button to be sensitive in the  */
     /* the event that the smartpanel is disabled and later enabled prior to */
@@ -617,7 +605,7 @@ PROCEDURE use-smartpaneltype :
 ------------------------------------------------------------------------------*/
   define input parameter inval as character.
   panel-type = inval.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -4,10 +4,6 @@
           nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -274,8 +270,6 @@ END.
 
 {src/adm/method/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -332,7 +326,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttbl NO-LOCK.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -678,7 +672,6 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-  RUN pDataGridInit.
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF selected-option:NUM-ITEMS IN FRAME {&FRAME-NAME} = 0 THEN
@@ -704,7 +697,7 @@ PROCEDURE Selected_Option :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
   DEFINE VARIABLE jobs-rowid AS ROWID NO-UNDO.
-
+  
   ldummy = SESSION:SET-WAIT-STATE('General').
   IF VALID-HANDLE(adm-broker-hdl) THEN
   DO WITH FRAME {&FRAME-NAME}:

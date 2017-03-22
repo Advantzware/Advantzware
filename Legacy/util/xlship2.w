@@ -47,7 +47,7 @@ DEFINE INPUT PARAMETER pcZone    LIKE shipto.dest-code NO-UNDO.
 DEFINE VARIABLE ghParentFrame      AS HANDLE   NO-UNDO.
 DEFINE VARIABLE gcFileName AS CHAR NO-UNDO 
     INIT "P:\Stacey\Import Shipto.xlsx".
-
+    
 DEFINE VARIABLE gcDefaultDir AS CHAR NO-UNDO INIT "".
 
 DEFINE VARIABLE gcExcelTypeList AS CHAR NO-UNDO INIT "xls,.xls,xl,excel".
@@ -512,17 +512,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -606,7 +595,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttData
 */  /* BROWSE brData */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -643,7 +632,6 @@ END.
 ON CHOOSE OF btnClear IN FRAME DEFAULT-FRAME /* Clear */
 DO:
   RUN Clear-Data.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -655,7 +643,6 @@ END.
 ON CHOOSE OF btnDelete IN FRAME DEFAULT-FRAME /* Delete */
 DO:
   RUN Delete-Record.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -675,7 +662,6 @@ DO:
   &ELSE
       APPLY "CLOSE":U TO THIS-PROCEDURE.
   &ENDIF
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -687,7 +673,6 @@ END.
 ON CHOOSE OF btnFile IN FRAME DEFAULT-FRAME /* <> */
 DO:
     RUN Select-File.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -699,7 +684,6 @@ END.
 ON CHOOSE OF btnImport IN FRAME DEFAULT-FRAME /* Import */
 DO:
   RUN Import-Data.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -711,7 +695,6 @@ END.
 ON CHOOSE OF btnLoad IN FRAME DEFAULT-FRAME /* Load */
 DO:
   RUN Process-Data.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -723,7 +706,6 @@ END.
 ON CHOOSE OF btnRemove IN FRAME DEFAULT-FRAME /* Remove */
 DO:
   RUN Remove-Data.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -768,10 +750,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -781,11 +761,10 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-
+  
   RUN enable_UI.
   APPLY 'entry' TO fiFilename.
   RUN init-proc.
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -831,7 +810,7 @@ PROCEDURE Clear-Data :
       RUN Show-Results.
   END.
 
-
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -855,7 +834,7 @@ PROCEDURE Convert-File :
   /* Start Excel */
   CREATE "Excel.Application" chExcel.
   ASSIGN chExcel:Visible = FALSE.
-
+  
   /* Open the file. */
   chExcel:Workbooks:Open(pcInputFile,2,TRUE,,,,TRUE).
 
@@ -879,7 +858,7 @@ PROCEDURE Convert-File :
 
   /* Close the workbook. */
   chWorkBook:Close().
-
+  
   /* Release objects. */
   RELEASE OBJECT chWorkSheet NO-ERROR.
   RELEASE OBJECT chWorkBook NO-ERROR.
@@ -980,7 +959,7 @@ PROCEDURE Import-CSV :
     DEFINE VARIABLE vi              AS INT  NO-UNDO INIT 0.
     DEFINE VARIABLE vcShip-Code     AS CHAR NO-UNDO INIT "".
     DEFINE VARIABLE vcWhse           AS CHAR NO-UNDO INIT "".
-
+    
     DEFINE VARIABLE vcFileName AS CHAR NO-UNDO INIT "".
 
 /*     /* If the import positions are not entered, then abort. */       */
@@ -1112,9 +1091,9 @@ PROCEDURE Import-Data :
 
       /* Import csv file. */
       RUN Import-CSV.
-
+          
   END.
-
+  
 
 END PROCEDURE.
 
@@ -1220,7 +1199,7 @@ PROCEDURE Init-Proc :
       ASSIGN {&WINDOW-NAME}:TITLE = {&WINDOW-NAME}:TITLE + " " + pcCust-no.
       ASSIGN fiFileName:SCREEN-VALUE = gcFileName.
   END.
-
+ 
   /* Set the starting directory for file lookup. */
   ASSIGN gcDefaultDir = getDirName(gcFileName).
 
@@ -1253,12 +1232,12 @@ PROCEDURE Process-Data :
       IF NOT lLoad THEN RETURN.
 
       SESSION:SET-WAIT-STATE ("General").
-
+          
       DO TRANSACTION ON ERROR UNDO, RETURN:
-
+    
           /* Process each temp-table record. */
           FOR EACH ttData NO-LOCK WHERE validRec = TRUE:
-
+              
               ASSIGN viShipNo = getShipNo().
 
 
@@ -1290,13 +1269,13 @@ PROCEDURE Process-Data :
 
               /* save rowid */
               ASSIGN ttData.rRowid = ROWID(shipto).
-
+    
           END.
       END. /* DO TRANSACTION */
-
+    
       /* Show final results on screen. */
       RUN Show-Results.
-
+    
       SESSION:SET-WAIT-STATE ("").
 
   END. /* DO WITH FRAME */
@@ -1325,9 +1304,9 @@ PROCEDURE Remove-Data :
   IF NOT lRemove THEN RETURN.
 
   SESSION:SET-WAIT-STATE ("General").
-
+          
       DO TRANSACTION ON ERROR UNDO, RETURN:
-
+      
       FOR EACH ttData:
           FIND shipto EXCLUSIVE-LOCK WHERE ROWID(shipto) = ttData.rRowid NO-ERROR.
           IF AVAIL shipto THEN 
@@ -1416,7 +1395,7 @@ PROCEDURE Set-Header-Values :
                   fiColumn-Phone:SCREEN-VALUE = STRING(LOOKUP("Phone",pcLine))
                   fiColumn-Shipto:SCREEN-VALUE = STRING(LOOKUP("Ship ID", pcLine))
                   fiColumn-whse:SCREEN-VALUE = STRING(LOOKUP("Whse", pcLine)).
-
+                  
      END.
 
      RETURN.
@@ -1582,7 +1561,7 @@ FUNCTION getData RETURNS CHAR
   Purpose:  Return the requested data from the input line.
     Notes:  
 ------------------------------------------------------------------------------*/
-
+ 
     RETURN ENTRY(getPosition(pcElement),pcInputLine).
 
 END FUNCTION.
@@ -1655,7 +1634,7 @@ FUNCTION getHeaderRow RETURNS INTEGER
   DO WITH FRAME {&FRAME-NAME}:
       RETURN INT(fiHeaderRow:SCREEN-VALUE).
   END.
-
+                                           
 
 END FUNCTION.
 
@@ -1699,7 +1678,7 @@ FUNCTION getNumRecs RETURNS INTEGER
       ASSIGN vi = vi + 1.
   END.
 
-
+  
   RETURN vi.   /* Function return value. */
 
 END FUNCTION.
@@ -1753,7 +1732,7 @@ FUNCTION getShipCode RETURNS CHARACTER
 
 
   ASSIGN pcCity = REPLACE(pcCity, " ", "").
-
+  
   REPEAT:
       ASSIGN iCount = iCount + 1.
       /* Build a potential ship-code using city prefix and counter. */
@@ -1871,7 +1850,7 @@ FUNCTION isHeaderRow RETURNS LOGICAL
     Notes:  
 ------------------------------------------------------------------------------*/
 
-
+  
      IF LOOKUP("DBU",pcLine) > 0 AND
          LOOKUP("Zone",pcLine) > 0 AND
          LOOKUP("First Name",pcLine) > 0 AND

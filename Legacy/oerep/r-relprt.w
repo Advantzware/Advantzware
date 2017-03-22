@@ -463,19 +463,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -486,6 +480,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -710,7 +714,6 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -973,7 +976,6 @@ END CASE.
     MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
   END.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1342,10 +1344,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1505,6 +1505,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_post-rel:SCREEN-VALUE = "no"
        tb_post-rel:HIDDEN       = YES.
 
+    IF v-relprint EQ "StClair" THEN
+        ASSIGN 
+            rd-print-what:SENSITIVE = NO
+            rd-print-what:SCREEN-VALUE = "I"
+            rd-print-what = "I" .
+            tb_p-bin:SCREEN-VALUE = "Yes".
+            tb_p-bin:SENSITIVE = NO .
+            tb_p-bin = YES.
+
     IF LOOKUP(v-relprint,"Carded") > 0 THEN
        ASSIGN rd-print-what:sensitive = YES
               begin_loc:SENSITIVE = IF rd-print-what:SCREEN-VALUE = "I" THEN YES ELSE NO
@@ -1539,6 +1548,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             rd-print-what:SCREEN-VALUE = "R"
             rd-print-what = "R".
 
+    IF v-relprint EQ "StClair" THEN
+        ASSIGN 
+            rd-print-what:SENSITIVE = NO .
+
     IF v-relprint EQ "Indiana" THEN
        tb_pricing:SENSITIVE = YES.
 
@@ -1553,7 +1566,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   END.    
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -2120,9 +2132,9 @@ IF IS-xprint-form AND (v-1st-page OR v-multi-cust = NO) THEN DO:
         END.
         WHEN 5 THEN DO:
             IF LOOKUP(v-relprint,"PremierX,Lakeside,Distributor") > 0 THEN
-            PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=-3mm><PDF-TOP=5mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(120)".
+            PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=-3mm><PDF-TOP=5mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
             ELSE
-             PUT "<PREVIEW><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(60)".
+             PUT "<PREVIEW><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
         END.
     END CASE.
 END.

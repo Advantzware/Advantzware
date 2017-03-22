@@ -15,7 +15,7 @@
       <none>
 
   History: New V9 Version - January 15, 1998
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -147,7 +147,6 @@ Destroy on next read */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -169,7 +168,7 @@ THEN wWin:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 /* **********************  Create OCX Containers  ********************** */
@@ -400,8 +399,8 @@ PROCEDURE initializeObject :
   /* Code placed here will execute PRIOR to standard behavior. */
   fill-in-1 = TIME.
   fill-in-2 = STRING(TIME,"hh:mm:ss").
-
-
+  
+  
   RUN SUPER.
 
   /* Code placed here will execute AFTER standard behavior.    */

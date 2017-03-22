@@ -252,13 +252,12 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 {methods/template/viewer.i}
 
@@ -285,7 +284,7 @@ DO:
                      rm-rcpt.job-no:screen-value = entry(4,char-val)
                      rm-rcpt.job-no2:screen-value = entry(5,char-val)
                      .
-
+             
            end.
            return no-apply.   
      end.
@@ -308,7 +307,7 @@ DO:
                      rm-rcpt.job-no:screen-value = entry(1,char-val)
                      rm-rcpt.job-no2:screen-value = entry(2,char-val)
                      .
-
+             
            end.
            return no-apply.   
      end.  
@@ -325,7 +324,6 @@ ON CHOOSE OF BUTTON-1 IN FRAME F-Main /* Post */
 DO:
   message "Posting Current Record.  Record Available" avail rm-rcpt 
   view-as alert-box buttons yes-no-cancel.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -353,7 +351,7 @@ DO:
            rm-rcpt.i-name = po-ordl.i-name
            rm-rcpt.job-no = po-ordl.job-no
            rm-rcpt.job-no2 = po-ordl.job-no2.
-
+           
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -373,7 +371,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -464,7 +462,7 @@ PROCEDURE local-create-record :
 
    rm-rcpt.trans-date = today.
    display rm-rcpt.trans-date with frame {&frame-name}.  
-
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -480,16 +478,16 @@ PROCEDURE local-end-update :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   def var ll-new-record as log no-undo.
-
+  
   ll-new-record = adm-new-record.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'end-update':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   if ll-new-record then do:
      def var source-str as cha no-undo.
-
+     
      RUN get-link-handle IN adm-broker-hdl 
         (this-procedure, 'CONTAINER-SOURCE':U, OUTPUT source-str).
      run select-page in widget-handle(source-str) (3).

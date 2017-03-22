@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -210,8 +206,6 @@ END.
 
 {src/adm/method/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -254,7 +248,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-rpt,
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -366,7 +360,7 @@ PROCEDURE build-table :
           CREATE tt-rpt.
           BUFFER-COPY bf-rpt TO tt-rpt.
           tt-rpt.tt-recid = RECID(bf-rpt).
-
+                     
       END.
       RUN set-attribute-list IN adm-broker-hdl("GLRPT-NUM = " + gl-rpt.rpt).
    END.
@@ -459,7 +453,7 @@ PROCEDURE repo-query :
 
   IF lv-recid NE ? THEN DO WITH FRAME {&FRAME-NAME}:
     RUN dispatch ("open-query").
-
+     
     FIND FIRST b-tt-rpt WHERE b-tt-rpt.tt-recid EQ lv-recid NO-LOCK NO-ERROR.
 
     IF AVAIL b-tt-rpt THEN

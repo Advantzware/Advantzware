@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -436,7 +432,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -447,7 +443,7 @@ ASSIGN
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -531,7 +527,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-
+  
      wiptag.tag-time = (INT(SUBSTRING(v-tagtime-2:SCREEN-VALUE,1,2)) * 3600)
                      + (INT(SUBSTRING(v-tagtime-2:SCREEN-VALUE,4,2)) * 60)
                      + (INT(SUBSTRING(v-tagtime-2:SCREEN-VALUE,7,2))).
@@ -571,13 +567,13 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-
+  
   ASSIGN
      wiptag.company = g_company
      fi_sht-wid:SCREEN-VALUE = "0"
@@ -602,7 +598,7 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
   IF AVAIL wiptag THEN
   DO:
      ASSIGN
@@ -630,7 +626,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-
+   
    IF USERID("NOSWEAT") NE "ASI" THEN do:
        MESSAGE "User not ASI update not allow... " VIEW-AS ALERT-BOX ERROR .
        RETURN NO-APPLY.
@@ -655,9 +651,9 @@ PROCEDURE reftable-values :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAM ip-display AS LOG NO-UNDO.
-
+ 
     DO WITH FRAME {&FRAME-NAME}:
-
+  
        IF AVAIL wiptag THEN DO:
           FIND FIRST reftable WHERE
                reftable.reftable = "WIPLEN" AND
@@ -665,7 +661,7 @@ PROCEDURE reftable-values :
                reftable.CODE = wiptag.tag-no
                USE-INDEX CODE
                NO-ERROR.
-
+         
           IF NOT AVAIL reftable THEN
           DO:
              CREATE reftable.
@@ -674,7 +670,7 @@ PROCEDURE reftable-values :
                 reftable.company = wiptag.company
                 reftable.CODE = wiptag.tag-no.
           END.
-
+         
           IF ip-display THEN
              ASSIGN
                 fi_sht-wid:SCREEN-VALUE = STRING(reftable.val[1])
@@ -683,7 +679,7 @@ PROCEDURE reftable-values :
              ASSIGN
                 reftable.val[1] = DEC(fi_sht-wid:SCREEN-VALUE)
                 reftable.val[2] = DEC(fi_sht-len:SCREEN-VALUE).
-
+      
           FIND CURRENT reftable NO-LOCK.
        END.
     END.

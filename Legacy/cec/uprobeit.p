@@ -300,20 +300,52 @@ FOR EACH probeit
 
     board-cst = board-cst / (v-qty / 1000).
     
-    /*Pull the Total Board Cost from the probe.board (Reftable)*/
-    dBoardCst = 0.
-    FIND FIRST reftable
-        WHERE reftable.reftable EQ "probe.board"
-        AND reftable.company  EQ probe.company
-        AND reftable.loc      EQ ""
-        AND reftable.code     EQ probe.est-no
-        AND reftable.code2    EQ STRING(probe.line,"9999999999")
-        NO-ERROR.
-    IF AVAILABLE reftable THEN dBoardCst = reftable.val[1].
+    /*For ticket 19263 - storage of total man hours op-tot[8] = tot MR man hours, op-tot[9] = tot Run man hours*/    
+     FIND FIRST reftable
+            WHERE reftable.reftable EQ "probe.board"
+            AND reftable.company  EQ probe.company
+            AND reftable.loc      EQ ""
+            AND reftable.code     EQ probe.est-no
+            AND reftable.code2    EQ STRING(probe.line,"9999999999")
+            NO-ERROR.
+     IF AVAILABLE reftable THEN DO:
+            reftable.val[6] = op-tot[8] + op-tot[9].
+            FIND CURRENT reftable NO-LOCK.
+     END.    
     
-    /*Use the ord-cost which is the Total Factory Cost to determine the reduction lookup pct*/
-    IF ord-cost GT 0 THEN 
-        dBoardPct = dBoardCst / ord-cost * 100.
+    dBoardCst = 0.
+    IF xest.est-type EQ  6  THEN /*If estimate is a set, calculate per item board cost and total fact cost*/
+    DO:
+        FOR EACH blk WHERE blk.id EQ probeit.part-no,
+            FIRST ef NO-LOCK
+            WHERE ef.company EQ xest.company
+            AND ef.est-no  EQ xest.est-no
+            AND ef.form-no EQ blk.snum,
+            EACH brd WHERE brd.form-no EQ ef.form-no, 
+            FIRST ITEM NO-LOCK
+            WHERE item.company EQ ef.company
+            AND item.i-no EQ brd.i-no
+            AND item.mat-type EQ "B":
+
+            dBoardCst = dBoardCst + (brd.cost-m * blk.pct * (t-blkqty[ef.form-no] / 1000)).
+        END.
+
+        dBoardCst = dBoardCst / (v-qty / 1000).
+    
+        IF probeit.fact-cost GT 0 THEN 
+            dBoardPct = dBoardCst / probeit.fact-cost * 100.
+        
+    END. /*Set calc*/
+    ELSE /*Tandems, combos*/
+    DO:
+        /*Pull the Total Board Cost from the probe.board (Reftable)*/
+               IF AVAILABLE reftable THEN 
+            dBoardCst = reftable.val[1].
+            
+        /*Use the ord-cost which is the Total Factory Cost to determine the reduction lookup pct*/
+        IF ord-cost GT 0 THEN 
+            dBoardPct = dBoardCst / ord-cost * 100.
+    END.
     
     /*eb is not available at this point and is needed for markup matrix lookup - find the non-set header blank*/       
     IF NOT AVAILABLE eb THEN 
@@ -323,12 +355,13 @@ FOR EACH probeit
             AND eb.part-no EQ probeit.part-no
             AND eb.form-no GT 0
             NO-ERROR.
+ 
     RUN custom/markup.p (ROWID(eb),
         dBoardCst,
         dBoardPct,
         INPUT-OUTPUT lv-sell-by,
         INPUT-OUTPUT v-pct).
-
+ 
     /*  IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN DO:                        */
     /*    board-cst = 0.                                                                   */
     /*                                                                                     */

@@ -221,19 +221,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -267,7 +261,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -304,7 +298,6 @@ END.
 ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -324,7 +317,6 @@ DO:
     search-string:SCREEN-VALUE = "".
   OS-DELETE VALUE(list-name).
   DISABLE {&LIST-2} WITH FRAME {&FRAME-NAME}.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -336,7 +328,6 @@ END.
 ON CHOOSE OF Btn_Font IN FRAME DEFAULT-FRAME /* Font */
 DO:
   SYSTEM-DIALOG FONT 9 FIXED-ONLY.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -356,7 +347,6 @@ DO:
     ldummy = screen-report:SET-SELECTION(screen-report:CURSOR-OFFSET -
          LENGTH(search-string:SCREEN-VALUE),screen-report:CURSOR-OFFSET).
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -391,7 +381,6 @@ DO:
     search-string:SCREEN-VALUE = "".
   ENABLE {&LIST-2} WITH FRAME {&FRAME-NAME}.
   APPLY "LEAVE" TO search-string IN FRAME {&FRAME-NAME}.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -411,7 +400,6 @@ DO:
     ldummy = screen-report:SET-SELECTION(screen-report:CURSOR-OFFSET,
          screen-report:CURSOR-OFFSET + LENGTH(search-string:SCREEN-VALUE)).
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -445,7 +433,6 @@ DO:
   END.
   INPUT CLOSE.
   OUTPUT CLOSE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -479,7 +466,6 @@ DO:
         R-INDEX(list-name,".") - R-INDEX(list-name,"\"))
     ldummy = screen-report:SAVE-FILE(list-name)
     {&WINDOW-NAME}:TITLE = "Screen Viewer - '" + screen-file-name + "'".
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -493,7 +479,6 @@ DO:
   ENABLE search-string WITH FRAME {&FRAME-NAME}.
   APPLY "ENTRY" TO search-string.
   RETURN NO-APPLY.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -550,10 +535,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -566,14 +549,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   {methods/enhance.i}
   {methods/nowait.i}
-
+      
   ASSIGN
     {&WINDOW-NAME}:TITLE = "Screen Viewer - '" + screen-file-name + "'"
     list-name = "users~/" + USERID("NOSWEAT") + "~/" + screen-file-name
     ldummy = screen-report:READ-FILE(list-name).
   IF NOT ldummy THEN
   APPLY "CHOOSE" TO Btn_Open IN FRAME {&FRAME-NAME}.
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR "CLOSE" OF THIS-PROCEDURE.
 END.

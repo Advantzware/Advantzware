@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -225,8 +221,6 @@ END.
 
 {src/adm/method/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -278,7 +272,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -315,7 +309,7 @@ DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -444,7 +438,6 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-  RUN pDataGridInit.
 
   /* Code placed here will execute AFTER standard behavior.    */
 
@@ -505,7 +498,7 @@ DEF VAR char-hdl AS CHAR NO-UNDO.
 
 run get-link-handle in adm-broker-hdl (this-procedure,"record-source",output char-hdl).
 RUN reopen-query IN widget-handle(char-hdl) (INPUT RECID(oe-reth)).
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

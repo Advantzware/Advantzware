@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -214,7 +210,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
@@ -236,7 +232,7 @@ ASSIGN
 ON HELP OF FRAME F-Main
 DO:
     def var char-val as cha no-undo.
-
+    
     case focus:name :
         when "code" then do:
              run cec/l-itspec.w (item.company, focus:screen-value, output char-val).
@@ -244,10 +240,10 @@ DO:
                 assign focus:screen-value = entry(1,char-val)
                        ls-note-dscr:screen-value = entry(2,char-val).
              end.
-
+             
         end.
-
-
+    
+    
     end case.
     return no-apply.
 END.
@@ -285,7 +281,7 @@ session:data-entry-return = true.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -365,7 +361,7 @@ PROCEDURE local-create-record :
          item-spec.item-type = yes
          item-spec.notes = ""
          .
-
+         
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -378,16 +374,16 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ 
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   find bf-item-spec where bf-item-spec.company = item-spec.company and
                           bf-item-spec.i-no = "" and
                           bf-item-spec.code = item-spec.code
                           no-lock no-error.
   ls-note-dscr = if avail bf-item-spec then bf-item-spec.notes[1] else "". 
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 

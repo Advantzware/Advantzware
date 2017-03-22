@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -325,7 +321,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -337,7 +333,7 @@ ON HELP OF FRAME F-Main
 DO:
   DEFINE VARIABLE char-val AS CHARACTER NO-UNDO. 
   DEFINE VARIABLE lw-focus AS WIDGET-HANDLE NO-UNDO.
-
+  
 
   lw-focus = FOCUS.
 
@@ -391,14 +387,14 @@ END.
 ON LEAVE OF job.est-no IN FRAME F-Main /* Estimate # */
 DO:
   IF LASTKEY NE -1 THEN DO:
-
+      
     RUN valid-cust-user NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     RUN validate-est (""). 
     IF NOT ll-valid THEN RETURN NO-APPLY.
 
-
+   
   END.
 END.
 
@@ -472,7 +468,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+    
 /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -560,7 +556,7 @@ PROCEDURE close-reopen :
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
   DEFINE VARIABLE ll-process AS LOG NO-UNDO.
 
-
+    
   ll-process = job.opened OR ll-secure OR NOT v-jobpass.
 
   IF NOT ll-process THEN DO:
@@ -704,7 +700,7 @@ IF ip-flg THEN DO:
      RUN assign-start-date.
      v-assign-start-date = YES.
   END.
-
+  
   IF v-assign-start-date THEN
   DO:
      RUN get-link-handle IN adm-broker-hdl
@@ -742,11 +738,11 @@ PROCEDURE hold-release :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.  
   DEFINE VARIABLE lOrderOnHold AS LOGICAL NO-UNDO.  
-
+    
     IF AVAILABLE job AND job.opened THEN 
     DO:
         FIND CURRENT job NO-ERROR.
-
+    
         lOrderOnHold = NO.
         IF oeJobHold-log AND job.stat EQ "H" THEN 
         DO:
@@ -768,7 +764,7 @@ PROCEDURE hold-release :
                 END. /* has a sales order defined */
             END. /* each job-hdr */
         END. /* Job on hold */
-
+    
         IF NOT lOrderOnHold THEN 
         DO:
             job.stat = IF job.stat EQ "H" THEN
@@ -802,7 +798,7 @@ PROCEDURE hold-release :
                 job.reason = ENTRY(1,char-hdl).                
             END.
             IF job.stat <> "H" THEN job.reason = "".
-
+            
             FIND CURRENT job NO-LOCK NO-ERROR.
 
             RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
@@ -823,7 +819,7 @@ PROCEDURE is-row-available :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER op-row-avail AS LOG NO-UNDO.
-
+  
   op-row-avail = IF AVAILABLE job THEN YES ELSE NO.
 
 END PROCEDURE.
@@ -840,14 +836,14 @@ PROCEDURE local-assign-record :
   DEFINE VARIABLE lv-start-date AS DATE NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   lv-start-date = IF AVAILABLE job THEN job.start-date ELSE ?.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
   /* task# 12070507 per joe */
   FOR EACH job-hdr
       WHERE job-hdr.company EQ job.company
@@ -862,7 +858,7 @@ PROCEDURE local-assign-record :
     RUN update-schedule.    
     RUN updateOrderDate.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -927,7 +923,7 @@ PROCEDURE local-create-record :
   DEFINE VARIABLE li LIKE job.job.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   li = 1.
   FIND LAST job WHERE job.company EQ cocode USE-INDEX job NO-LOCK NO-ERROR.
   FIND LAST job-hdr WHERE job-hdr.company EQ cocode
@@ -939,7 +935,7 @@ PROCEDURE local-create-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
   ASSIGN
    job.job        = li
    job.company    = cocode
@@ -947,7 +943,7 @@ PROCEDURE local-create-record :
    /*job.start-date = TODAY v-startdate */
    job.stat       = "P".
 
-
+  
   IF copyJob THEN
   ASSIGN
     job.start-date = DATE(job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME})
@@ -957,9 +953,9 @@ PROCEDURE local-create-record :
     DISABLE ALL.
     ENABLE job.est-no.
   END.
-
+  
   RUN dispatch ('row-changed').
-
+  
 
 END PROCEDURE.
 
@@ -1020,21 +1016,21 @@ PROCEDURE local-delete-record :
 
       IF NOT ll-warn THEN RETURN ERROR.
     END.
-
+  
     IF lv-msg EQ "" THEN DO:
         {custom/askdel.i}
      END.
-
+    
   /*END.*/
 
   /* set attrib rec-deleted for reopen-query */
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"Record-source",OUTPUT char-hdl).
   RUN set-attribute-list IN WIDGET-HANDLE(char-hdl) ("REC-DELETED=yes").
 
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
-
+ 
   RUN get-link-handle IN adm-broker-hdl
                       (THIS-PROCEDURE, "record-target", OUTPUT char-hdl).
 
@@ -1053,7 +1049,7 @@ PROCEDURE local-display-fields :
   Notes:       gdm - 05290901 
                THIS WILL CHECK THE JOB START DATE VERSUS 
                MACHINE SETUP START DATE. GETTING THE MACHINE SETUP START DATE.
-
+               
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE li AS INTEGER NO-UNDO.
 DEFINE VARIABLE char-hdl AS cha NO-UNDO.
@@ -1074,12 +1070,12 @@ DEFINE VARIABLE char-hdl AS cha NO-UNDO.
   END.
   ELSE ASSIGN vHoldReason:hidden IN FRAME {&frame-name} = YES
               vHoldReason:screen-value  = "".
-
+  
   RUN get-start-date (NO). 
 
 /*   DISP job.start-date WITH FRAME {&FRAME-NAME}. */
 
-
+  
 
 END PROCEDURE.
 
@@ -1166,7 +1162,7 @@ PROCEDURE local-row-available :
        lv-new-job-hdr-rowid = ?.
    END.
 
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1191,7 +1187,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN validate-start-date.
   IF NOT ll-valid THEN RETURN NO-APPLY.
-
+    
   /* per task #11280506
   RUN valid-due-date NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. */
@@ -1204,7 +1200,7 @@ PROCEDURE local-update-record :
 
   RUN valid-job-no.
   IF NOT ll-valid THEN RETURN NO-APPLY.
-
+ 
   RUN valid-job-no2.
   IF NOT ll-valid THEN RETURN NO-APPLY.
 
@@ -1298,14 +1294,14 @@ PROCEDURE local-update-record :
       SESSION:SET-WAIT-STATE("general").
       nufile = YES.
       FIND xeb WHERE ROWID(xeb) = rEbRow NO-LOCK NO-ERROR.
-
+      
       IF AVAILABLE xeb AND cNewItem GT "" THEN DO:
         FIND xeb WHERE ROWID(xeb) = rEbRow EXCLUSIVE-LOCK NO-ERROR.
         xeb.stock-no = cNewItem.
       END.
-
+     
       RUN jc/jc-calc.p (RECID(job), NO) NO-ERROR.
-
+      
       fil_id = RECID(job).
       RUN po/doPo.p (YES) /* Yes Indicates to prompt for RM */.
       RUN jc/addJobFarm.p (INPUT job.job).
@@ -1372,7 +1368,7 @@ PROCEDURE local-update-record :
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-target", OUTPUT char-hdl).     
     RUN dispatch IN WIDGET-HANDLE(ENTRY(li,char-hdl)) ('open-query':U).
   END.
-
+ 
   ASSIGN
     ll-sch-updated = NO
     copyJob = NO.
@@ -1396,7 +1392,7 @@ PROCEDURE local-update-record :
                              job.job-no + ',' + STRING(job.job-no2) + ',' +
                              STRING(v-reprint) + ',' +  "0" ). /* gdm - 07130906 */  
   END.
-
+  
 
   /* re-open the query so when user selects Estimate folder, it shows the new estimate added. */
   IF ll-new THEN DO:  
@@ -1424,7 +1420,7 @@ PROCEDURE Rebuild-Stds :
              VIEW-AS ALERT-BOX ERROR.
          UNDO, RETURN.
      END.
-
+    
      FOR EACH job-mat FIELDS(company all-flg rm-i-no) WHERE
          job-mat.company = job.company AND
          job-mat.job = job.job AND
@@ -1437,13 +1433,13 @@ PROCEDURE Rebuild-Stds :
                item.i-no EQ job-mat.rm-i-no AND
                ITEM.mat-type EQ 'B'
                NO-LOCK:
-
+         
                MESSAGE "Real Board Has Been Committed to Import Estimated Board Material." SKIP
                        "You Must Deallocate Board."
                   VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
                LEAVE.
      END.
-
+    
      RUN jc/jobstds.p (ROWID(job)).
      RUN refresh-browser.
      RUN get-start-date(INPUT YES).
@@ -1474,11 +1470,11 @@ PROCEDURE recalc-costs :
       ASSIGN
        nufile   = NO
        hld-stat = job.stat.
-
+        
       RUN jc/jc-calc.p (RECID(job), NO).
 
       nufile = NO.
-
+       
       IF hld-stat NE "P" THEN job.stat = hld-stat.
 
       RUN refresh-browser.
@@ -1502,7 +1498,7 @@ PROCEDURE refresh-browser :
   DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
   DEFINE VARIABLE char-hdl2 AS CHARACTER NO-UNDO.
 
-
+  
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"job-hdr-source", OUTPUT char-hdl).     
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
     char-hdl2 = char-hdl.
@@ -1511,7 +1507,7 @@ PROCEDURE refresh-browser :
 
 /*
   lv-rowid = IF AVAIL job THEN ROWID(job) ELSE ?.
-
+  
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).     
   RUN reopen-query IN WIDGET-HANDLE(char-hdl) (?).
 
@@ -1647,7 +1643,7 @@ PROCEDURE unapprove :
          END. /* ELSE IF AVAIL usergrps AND */
       END. /* IF USERID("nosweat") NE job.USER-ID */
    END. /* IF AVAIL sys-ctrl AND sys-ctrl.log-fld */
-
+    
   IF AVAILABLE job THEN DO:
     FIND CURRENT job NO-ERROR.
 
@@ -1855,7 +1851,7 @@ RUN jc/updateSchedule.p (INPUT job.start-date, INPUT ROWID(job)).
 /*      END.                                                                                                         */
 /*   END.                                                                                                            */
   ll-sch-updated = YES.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1971,9 +1967,9 @@ PROCEDURE valid-job-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   ll-valid = YES.
-
+  
   DO WITH FRAME {&frame-name}:
     job.job-no:SCREEN-VALUE =
         FILL(" ",6 - LENGTH(TRIM(job.job-no:SCREEN-VALUE))) +
@@ -2001,7 +1997,7 @@ PROCEDURE valid-job-no2 :
 ------------------------------------------------------------------------------*/
 
   ll-valid = YES.
-
+  
   DO WITH FRAME {&frame-name}:
     IF CAN-FIND(FIRST xjob
         WHERE xjob.company EQ job.company
@@ -2029,7 +2025,7 @@ PROCEDURE valid-whse :
   Notes:       
 ------------------------------------------------------------------------------*/
   ll-valid = YES.
-
+  
   DO WITH FRAME {&frame-name}:
 
     IF TRIM(job.loc:SCREEN-VALUE) EQ "" THEN DO:
@@ -2048,7 +2044,7 @@ PROCEDURE valid-whse :
       APPLY "entry" TO job.loc.
       ll-valid = NO.
     END.
-
+         
   END.
 END PROCEDURE.
 
@@ -2154,14 +2150,14 @@ PROCEDURE validate-est :
            ASSIGN
             v-bld-job = " " + job.est-no:SCREEN-VALUE
             li        = 0.  
-
+          
            IF AVAILABLE sys-ctrl THEN
              v-bld-job = SUBSTR(sys-ctrl.char-fld,1,1) + TRIM(v-bld-job).
-
+          
            ASSIGN
               v-bld-job = FILL(" ",6 - LENGTH(TRIM(v-bld-job))) + TRIM(v-bld-job)
               ll = NO.
-
+          
            IF CAN-FIND(FIRST xjob WHERE
               xjob.company EQ cocode AND
               xjob.job-no  EQ v-bld-job AND
@@ -2171,22 +2167,22 @@ PROCEDURE validate-est :
                  MESSAGE "Job(s) Already Exist for This Estimate, Create New One?"
                     VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
                     UPDATE ll.
-
+               
                  IF NOT ll THEN DO:
                     APPLY "entry" TO job.est-no.
                     RETURN NO-APPLY.
                  END.
               END.
-
+          
            FOR EACH xjob FIELDS(job-no2) NO-LOCK
                WHERE xjob.company EQ cocode
                  AND xjob.job-no  EQ v-bld-job
                  AND ROWID(xjob)  NE ROWID(job)
                USE-INDEX job-no
                BY xjob.job-no2 DESCENDING:
-
+          
                li = xjob.job-no2 + 1.
-
+          
                LEAVE.
            END.
         END.
@@ -2199,12 +2195,12 @@ PROCEDURE validate-est :
             APPLY "entry" TO job.est-no.
             RETURN NO-APPLY.
           END.
-
+        
           FIND LAST xjob
               WHERE xjob.company EQ cocode
                 AND xjob.job-no  BEGINS SUBSTR(sys-ctrl.char-fld,2,1)
               NO-LOCK NO-ERROR.
-
+            
           ASSIGN
            li        = (IF AVAILABLE xjob THEN INT(SUBSTR(xjob.job-no,2,5)) ELSE 0) + 1
            v-bld-job = SUBSTR(sys-ctrl.char-fld,2,1) + STRING(li,"99999")
@@ -2282,7 +2278,7 @@ PROCEDURE view-user-id :
   Notes:       
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
-
+      
       DISPLAY job.user-id.
    END.
 END PROCEDURE.

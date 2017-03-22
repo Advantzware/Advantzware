@@ -18,7 +18,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -189,13 +189,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -253,7 +257,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -280,7 +284,7 @@ DO:
      and its descendents to terminate properly on exit. */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -326,7 +330,7 @@ PROCEDURE add-prmtx-link :
 ------------------------------------------------------------------------------*/
   /*
   def output param op-handle as handle no-undo.
-
+  
   RUN add-link IN adm-broker-hdl ( h_q-orpmtx , 'Record':U , h_oe-prmtx ).
   op-handle = h_oe-prmtx.
  */ 
@@ -925,9 +929,9 @@ PROCEDURE init-credit-inq :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input param ip-handle as handle no-undo.
-
+  
   if valid-handle(h-detail) then run dispatch in h-detail ('destroy').    
-
+  
   run init-object
       ('oe/w-credit.w', {&window-name}:handle, 'Edge-Pixels=0', output h-detail).
 
@@ -937,7 +941,7 @@ PROCEDURE init-credit-inq :
   run add-link in adm-broker-hdl (ip-handle,"record", h-detail) no-error.
 
   run dispatch in h-detail ('initialize').
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -962,7 +966,7 @@ PROCEDURE init-history :
   run add-link in adm-broker-hdl (ip-handle,"record", h-detail) no-error.
 
   run dispatch in h-detail ('initialize').
-
+  
 
 END PROCEDURE.
 
@@ -976,9 +980,9 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var ls-est-no as cha no-undo.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   run get-attribute ("current-page").
   assign li-prev-page = li-cur-page
          li-cur-page = int(return-value).
@@ -1043,9 +1047,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1116,7 +1120,7 @@ PROCEDURE lockWindow :
                     , 0
                     , output iRet
                     ).
-
+    
     run RedrawWindow( phWindow:hwnd /* {&window-name}:hwnd */
                     , 0
                     , 0
@@ -1234,9 +1238,9 @@ PROCEDURE switch-ord-status :
     DEF VAR ll AS LOGICAL no-undo.
     ll = setWindowFreeze(YES).
     DO ON ERROR UNDO, LEAVE:
-
+      
       IF ipStatus EQ "A" THEN DO:
-
+  
           /* Links to SmartNavBrowser h_b-crdinq. */
          /* RUN remove-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_b-crdinq ). */
           IF VALID-HANDLE(h_b-crdinqa) THEN
@@ -1250,12 +1254,12 @@ PROCEDURE switch-ord-status :
              RUN remove-link IN adm-broker-hdl ( h_b-crdinq , 'Record':U , h_vi-ord-2 ).
            IF VALID-HANDLE(h_v-oebill) THEN
              RUN remove-link IN adm-broker-hdl ( h_b-crdinq , 'Record':U , h_v-oebill ).
-
+  
              RUN adm-hide IN h_b-crdinq.
   /*            RUN adm-destroy IN h_b-crdinq. */
              DELETE OBJECT h_b-crdinq.
          END.
-
+  
           RUN cleanup-links IN adm-broker-hdl.
          IF VALID-HANDLE(h_b-crdinqa) THEN DO: 
              RUN adm-hide IN h_b-crdinqa.
@@ -1265,8 +1269,8 @@ PROCEDURE switch-ord-status :
           RUN cleanup-links IN adm-broker-hdl.           
   /*         RUN remove-link IN adm-broker-hdl ( h_p-navico-2 , 'Navigation':U , h_b-crdinq ). */
   /*         RUN remove-link IN adm-broker-hdl ( h_b-crdinq , 'Record':U , THIS-PROCEDURE ).   */
-
-
+  
+  
   /*         RUN adm-hide IN h_b-crdinq. */
          RUN init-object IN THIS-PROCEDURE (
                INPUT  'oe/b-crdinqA.w':U ,
@@ -1275,23 +1279,23 @@ PROCEDURE switch-ord-status :
                OUTPUT h_b-crdinqA ).
          RUN set-position IN h_b-crdinqA ( 4.57 , 2.00 ) NO-ERROR.
          /* Size in UIB:  ( 19.52 , 148.00 ) */  
-
+  
          /* Initialize other pages that this page requires. */
          RUN init-pages IN THIS-PROCEDURE ('2,4':U) NO-ERROR.
          RUN adm-view IN h_b-crdinqA.
-
-
+       
+   
          RUN local-initialize IN h_b-crdinqA. 
          RUN local-open-query IN h_b-crdinqA. 
          RUN adm-hide IN h_p-credapp-2.
          RUN adm-view IN h_p-credapp-2.
-
+  
          /* Size in UIB:  ( 1.43 , 34.00 ) */
           RUN add-link IN adm-broker-hdl ( h_p-navico-2 , 'Navigation':U , h_b-crdinqA ). 
           RUN add-link IN adm-broker-hdl ( h_b-crdinqA , 'Record':U , THIS-PROCEDURE ).   
           RUN add-link IN adm-broker-hdl ( h_b-crdinqA , 'Record':U , h_v-ord ).          
           RUN add-link IN adm-broker-hdl ( h_b-crdinqA , 'nav-itm':U , h_v-navest ). 
-
+  
           IF VALID-HANDLE(h_vp-webitm-2) THEN
             RUN add-link IN adm-broker-hdl ( h_b-crdinqA , 'Record':U , h_vp-webitm-2 ).
           IF VALID-HANDLE(h_vi-ord-2) THEN
@@ -1302,25 +1306,25 @@ PROCEDURE switch-ord-status :
            /* Links to SmartViewer h_export. */
          RUN add-link IN adm-broker-hdl ( h_b-crdinqa , 'export-xl':U , h_export ).
        /*RUN add-link IN adm-broker-hdl ( h_b-crdinq , 'export-xl':U , h_export ).*/
-
+         
           RUN local-get-first IN h_b-crdinqa.
           RUN adm-row-available IN h_b-crdinqA.
           RUN local-initialize IN h_v-navest.
-
+  
           /* Adjust the tab order of the smart objects. */
           RUN adjust-tab-order IN adm-broker-hdl ( h_b-crdinqA ,
                h_folder , 'AFTER':U ).    
-
+  
           RUN adm-view IN h_p-credapp-2.
           RUN apply-arrow IN h_b-crdinqa. 
           RUN notify ('row-available':U).
-
-
+  
+  
       END.
       ELSE DO:
-
+  
           IF VALID-HANDLE(h_b-crdinqA) THEN DO: 
-
+  
             IF VALID-HANDLE(h_vp-webitm-2) THEN
               RUN remove-link IN adm-broker-hdl ( h_b-crdinqA , 'Record':U , h_vp-webitm-2 ).
             IF VALID-HANDLE(h_vi-ord-2) THEN
@@ -1332,7 +1336,7 @@ PROCEDURE switch-ord-status :
           END.
           RUN cleanup-links IN adm-broker-hdl.
           IF VALID-HANDLE(h_b-crdinq) THEN DO: 
-
+  
              RUN adm-hide IN h_b-crdinq.
              DELETE OBJECT h_b-crdinq.
           END.        
@@ -1349,16 +1353,16 @@ PROCEDURE switch-ord-status :
          /* Initialize other pages that this page requires. */
          RUN init-pages IN THIS-PROCEDURE ('2,4':U) NO-ERROR.
          RUN adm-view IN h_b-crdinq.
-
+  
   /*        IF VALID-HANDLE(h_b-crdinq) THEN */
   /*          RUN adm-view IN h_b-crdinq.    */
          RUN local-initialize IN h_b-crdinq.
          RUN local-open-query IN h_b-crdinq.
          RUN adm-hide IN h_p-credapp-2.
          RUN adm-view IN h_p-credapp-2.
-
-
-
+  
+  
+  
          /* Links to SmartNavBrowser h_b-crdinq. */  
          RUN add-link IN adm-broker-hdl ( h_p-navico-2 , 'Navigation':U , h_b-crdinq ).
          RUN add-link IN adm-broker-hdl ( h_b-crdinq , 'Record':U , THIS-PROCEDURE ).
@@ -1377,20 +1381,20 @@ PROCEDURE switch-ord-status :
             RUN add-link IN adm-broker-hdl ( h_b-crdinq , 'Record':U , h_v-oebill ).
           RUN local-get-first IN h_b-crdinq.
           RUN adm-row-available IN h_b-crdinq.
-
+  
           /* Adjust the tab order of the smart objects. */
           RUN adjust-tab-order IN adm-broker-hdl ( h_b-crdinq ,
                h_folder , 'AFTER':U ).  
-
-
+  
+  
          RUN apply-arrow IN h_b-crdinq. 
          RUN notify ('row-available':U).
          RUN local-open-query IN h_b-crdinq.
-
+  
       END. /* View Hold Status */
     END. /* On error... */
 ll = setWindowFreeze(NO).
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

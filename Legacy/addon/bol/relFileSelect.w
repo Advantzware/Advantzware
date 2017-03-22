@@ -240,19 +240,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -282,7 +276,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-missing-inv NO-LOCK.
 */  /* BROWSE BROWSE-4 */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -331,7 +325,6 @@ DO:
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
         APPLY "close" TO THIS-PROCEDURE.
-        {Advantzware/WinKit/winkit-panel-triggerend.i}
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -343,7 +336,6 @@ DO:
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Select */
 DO:
         RUN run-process.
-        {Advantzware/WinKit/winkit-panel-triggerend.i}
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -363,7 +355,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 DEFINE STREAM sinput.  
 DEFINE VARIABLE cFileInput AS CHARACTER NO-UNDO.  
 DEFINE VARIABLE cLogDir    AS CHARACTER NO-UNDO. 
-
+  
 FILE-INFO:FILE-NAME = ".\logs".  
 cLogDir = FILE-INFO:FULL-PATHNAME.
 
@@ -372,7 +364,7 @@ REPEAT:
     /* create temp-table */
     IMPORT STREAM sInput cFileInput.  
     FILE-INFO:FILE-NAME = cLogDir + "/" + cFileInput. 
-
+    
     IF NOT cFileInput MATCHES ipcFileMatch THEN NEXT.
     CREATE tt-missing-inv.
     ASSIGN 
@@ -386,10 +378,8 @@ INPUT STREAM sInput CLOSE.
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
     RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -400,10 +390,9 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     /* check security */
-
+  
     RUN enable_UI.
     /*{methods/nowait.i} */
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -491,12 +480,12 @@ DEFINE VARIABLE v-index      AS INTEGER   NO-UNDO.
             opcFileName = tt-missing-inv.missingFileFull.
       END.
    END.
-
+   
   END.
   APPLY 'close' TO THIS-PROCEDURE. 
     SESSION:SET-WAIT-STATE("").
-
-
+    
+  
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

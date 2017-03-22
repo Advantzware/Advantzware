@@ -177,7 +177,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -216,7 +215,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -234,7 +233,6 @@ DO:
    run oe/d-invitm.w (?, inv-head.r-no,"ADD").  
    run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
    run reopen-query in widget-handle(char-hdl) (?).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -247,7 +245,6 @@ ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
 DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
    run delete-item in widget-handle(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -261,7 +258,6 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
    run select-his in widget-handle(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -275,7 +271,6 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
    run select-price in widget-handle(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -289,7 +284,6 @@ DO:
     run oe/d-invitm.w (recid(inv-line), inv-line.r-no,"Update").
     run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
     run reopen-query in widget-handle(char-hdl) (recid(inv-line)).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -302,8 +296,7 @@ ON CHOOSE OF btn-ship IN FRAME F-Main /* Shipped */
 DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
    run select-stat in widget-handle(char-hdl).
-
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,7 +309,6 @@ ON CHOOSE OF Btn-View IN FRAME F-Main /* View */
 DO:
    run oe/d-invitm.w (recid(inv-line), inv-line.r-no,"view").
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -333,7 +325,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -383,7 +375,7 @@ PROCEDURE auto-add :
   Notes:       
 ------------------------------------------------------------------------------*/
   APPLY "choose" TO btn-add IN FRAME {&FRAME-NAME}.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

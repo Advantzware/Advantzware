@@ -17,7 +17,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -145,13 +145,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -209,7 +213,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -555,7 +559,7 @@ PROCEDURE local-change-page :
   RUN GET-ATTRIBUTE ("current-page").
   ASSIGN lv-prev-page = lv-curr-page
          lv-curr-page = int(return-value).
-
+  
   IF lv-prev-page = 2 THEN DO:
      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"arcash-source",OUTPUT char-hdl).
      RUN check-applied-amt IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-applied-all).
@@ -583,7 +587,7 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
   DEF VAR char-hdl AS cha NO-UNDO.
-
+  
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-line-target",OUTPUT char-hdl).
   RUN undo-added IN WIDGET-HANDLE(char-hdl).
@@ -598,7 +602,7 @@ PROCEDURE local-exit :
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
   END.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -626,7 +630,7 @@ PROCEDURE select_add :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-
+  
   run select-page(2).
   run get-link-handle in adm-broker-hdl(this-procedure,"add-item-target", output char-hdl).
   run add-item in widget-handle(char-hdl).

@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -283,7 +279,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -294,7 +290,7 @@ ASSIGN
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -346,7 +342,7 @@ def var v-type as cha no-undo.
 
 DEF BUFFER b-oe-ordl FOR oe-ordl.
 DEF BUFFER s-code FOR reftable.
-
+    
 find first itemfg where itemfg.company = cocode and
                         itemfg.i-no = oe-ordl.i-no
                         no-lock no-error.                          
@@ -361,7 +357,7 @@ for each b-oe-ordl where b-oe-ordl.company eq cocode
           and oe-ord.ord-no  eq b-oe-ordl.ord-no
           and oe-ord.type ne "T"
           use-index ord-no no-lock:
-
+          
     for each oe-rel where oe-rel.company eq cocode
           and oe-rel.ord-no  eq b-oe-ordl.ord-no
           and oe-rel.i-no    eq b-oe-ordl.i-no
@@ -372,7 +368,7 @@ for each b-oe-ordl where b-oe-ordl.company eq cocode
                    s-code.reftable EQ "oe-rel.s-code" AND
                    s-code.company  EQ STRING(oe-rel.r-no,"9999999999")
                    NO-LOCK NO-ERROR.
-
+        
        {oe/rel-stat.i v-type}
 
        if v-type eq "P" then DO:
@@ -440,7 +436,7 @@ PROCEDURE display-fgqtys :
 ------------------------------------------------------------------------------*/
  def var v-use-rel as log no-undo.
  DEFINE VARIABLE iCommit AS INTEGER NO-UNDO.
-
+  
   find first sys-ctrl where sys-ctrl.company eq oe-ordl.company
                       and sys-ctrl.name    eq "OEREORDR"
        no-lock no-error.
@@ -450,10 +446,10 @@ PROCEDURE display-fgqtys :
                           itemfg.i-no = oe-ordl.i-no
                           no-lock NO-ERROR.
   if not avail itemfg then return error.
-
+  
   /*if v-use-rel then run calc-alloc-qty (output li-alloc).
   else li-alloc = itemfg.q-alloc.*/
-
+ 
  ASSIGN iCommit =  0.
   FOR EACH oe-rel NO-LOCK WHERE oe-rel.company EQ oe-ordl.company
                             AND oe-rel.ord-no  EQ oe-ordl.ord-no
@@ -468,7 +464,7 @@ PROCEDURE display-fgqtys :
   IF oereordr-log OR oereordr-log EQ ? THEN
       RUN oe/oereordr.p (BUFFER itemfg, INPUT oereordr-log, OUTPUT li-alloc).
   ELSE li-alloc = itemfg.q-alloc.
-
+  
   if avail itemfg then assign li-on-hand = itemfg.q-onh
                               li-on-order = itemfg.q-ono
                               /*li-alloc = itemfg.q-alloc */
@@ -517,7 +513,7 @@ PROCEDURE local-display-fields :
                                              OUTPUT li-backorder,
                                              OUTPUT li-avail,
                                              OUTPUT li-reorder).
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 

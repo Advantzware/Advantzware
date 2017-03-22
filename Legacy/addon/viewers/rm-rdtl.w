@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -263,7 +259,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
@@ -291,7 +287,7 @@ DO:
               assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
                      rm-rdtl.loc-bin:screen-value = entry(2,char-val)
                      .
-
+             
            end.
            return no-apply.   
      end.
@@ -303,7 +299,7 @@ DO:
                      rm-rdtl.qty:screen-value = entry(3,char-val)
                      rm-rdtl.tag:screen-value = entry(4,char-val)
                      .
-
+             
            end.
            return no-apply.   
      end.
@@ -319,11 +315,11 @@ END.
 ON LEAVE OF rm-rdtl.cost IN FRAME F-Main /* Costs */
 DO:
   def var v-qty like rm-rdtl.qty no-undo.  
-
+  
   run rm/convquom.p 
         ("M", "EA", 0, 0, 0, 0, 
          (input rm-rdtl.qty), output v-qty).  
-
+  
   assign ext-cost = v-qty * rm-rdtl.cost. 
   display ext-cost with frame {&frame-name}.
 
@@ -338,14 +334,14 @@ END.
 ON LEAVE OF rm-rdtl.qty IN FRAME F-Main /* Qty */
 DO:
   def var v-qty like rm-rdtl.qty no-undo.  
-
+  
   run rm/convquom.p 
         ("M", "EA", 0, 0, 0, 0, 
          (input rm-rdtl.qty), output v-qty).  
-
+  
   assign ext-cost = v-qty * rm-rdtl.cost. 
   display ext-cost with frame {&frame-name}.
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -362,7 +358,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -414,7 +410,7 @@ PROCEDURE create-detail :
 ------------------------------------------------------------------------------*/
   def var v-cost like item.avg-cost no-undo.
   def var v-locbin like item.loc-bin no-undo.
-
+  
   find first item where item.company = rm-rcpt.company and
                         item.i-no = rm-rcpt.i-no
                         no-lock no-error.
@@ -432,7 +428,7 @@ PROCEDURE create-detail :
          rm-rdtl.cost = v-cost
          rm-rdtl.loc-bin = v-locbin.
   display rm-rdtl.job-no rm-rdtl.job-no2 rm-rdtl.loc with frame {&frame-name}.
-
+                   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -474,7 +470,7 @@ PROCEDURE local-create-record :
   /*{methods/viewers/create/rm-rdtl.i}
   */
   run create-detail.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -519,15 +515,15 @@ PROCEDURE local-display-fields :
   run rm/convquom.p 
         ("M", "EA", 0, 0, 0, 0, 
          decimal(rm-rdtl.qty:screen-value in frame {&frame-name}), output v-qty).  
-
+  
   assign ext-cost = v-qty * decimal(rm-rdtl.cost:screen-value in frame {&frame-name}). 
   display ext-cost with frame {&frame-name}.
-
-
+   
+ 
  assign lv_pur-uom = rm-rcpt.pur-uom
         cost-uom = rm-rcpt.pur-uom.
  disp lv_pur-uom with frame {&frame-name}  .
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

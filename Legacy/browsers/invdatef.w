@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -251,15 +247,13 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/browser.i}
-
-{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -288,35 +282,35 @@ ON ANY-PRINTABLE OF br_table IN FRAME F-Main
 DO:
   IF NUM-RESULTS("{&BROWSE-NAME}") = 0 OR NUM-RESULTS("{&BROWSE-NAME}") = ? THEN
     RETURN NO-APPLY.
-
+     
   auto-find = auto-find + keylabel(lastkey).
-
+  
   find first ar-inv
       where ar-inv.company eq cocode
         and ar-inv.inv-no  ge int(auto-find)
       no-lock no-error.
-
+    
   do while avail ar-inv:
     reposition {&browse-name} to rowid rowid(ar-inv) no-error.
-
+ 
     if error-status:error then
     find next ar-inv
         where ar-inv.company eq cocode
           and ar-inv.inv-no  ge int(auto-find)
         no-lock no-error.
-
+            
     else leave.
   end.
-
+  
   auto-find:screen-value = auto-find.
-
+  
   IF auto-find = "" THEN
     DISABLE clear-btn with frame {&frame-name}.
   ELSE
     ENABLE clear-btn with frame {&frame-name}.
-
+    
   apply "value-changed" to {&browse-name}.
-
+  
   apply "entry" to {&browse-name}.
 END.
 
@@ -374,11 +368,11 @@ END.
 ON CHOOSE OF clear-btn IN FRAME F-Main /* Clear Find */
 DO:
   apply lastkey.
-
+  
   assign
    auto-find              = ""
    auto-find:screen-value = auto-find.
-
+   
   apply "any-printable" to {&browse-name}.
 END.
 

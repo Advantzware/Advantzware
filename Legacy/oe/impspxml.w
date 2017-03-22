@@ -197,19 +197,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -235,7 +229,7 @@ THEN C-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -272,7 +266,6 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
   APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -284,7 +277,7 @@ END.
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
   DEF VAR v-process AS LOG INIT NO NO-UNDO.
-
+   
   IF NOT oeimport-log THEN DO:
       MESSAGE "Can't import orders. Contact System Administrator!"
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
@@ -313,7 +306,6 @@ DO:
   END.
 
   IF v-process THEN RUN runProcess.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -326,7 +318,7 @@ ON HELP OF fcFileName IN FRAME FRAME-A /* Import File: */
 DO:
     def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-
+   
    system-dialog get-file ls-filename 
                  title "Select Image File to insert"
                  filters "SPS XML Files    (*.xml)" "*.xml",
@@ -335,7 +327,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-
+      
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -387,10 +379,8 @@ ELSE
     CURRENT-WINDOW:HIDDEN = FALSE.
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -400,7 +390,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-
+  
   IF NOT llBatchMode THEN
   RUN enable_UI.
 
@@ -411,7 +401,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*                AND sys-ctrl.log-fld EQ YES).    */
 
   {methods/nowait.i}  
-
+  
   DO WITH FRAME {&frame-name}:
     IF llBatchMode THEN DO:
     /* special */ RUN runProcess.
@@ -422,7 +412,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     /* iNextOrder# = oe-ctrl.n-ord. */
   END.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -533,7 +522,7 @@ PROCEDURE ImportOrder :
    DEF INPUT PARAM ipFileName AS cha NO-UNDO.
 
    RUN oe/oe850imp.p (ipFileName).
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -620,7 +609,7 @@ PROCEDURE runProcess :
 
   IF NOT llBatchMode THEN DO:
     RUN ImportOrder (fcFileName).  
-
+    
     /* Special to impord */
     ASSIGN  fcMessage:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
 
@@ -630,9 +619,9 @@ PROCEDURE runProcess :
     IF gcImportError = "" THEN
        MESSAGE TRIM(c-win:TITLE) + " EDI Import Process Is Completed.  "  VIEW-AS ALERT-BOX.
   END.
+                                                                      
 
-
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

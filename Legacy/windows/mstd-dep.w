@@ -95,7 +95,7 @@ mstd.board-depth[14] mstd.depth-reduc[14] mstd.board-depth[15] ~
 mstd.depth-reduc[15] 
 &Scoped-define ENABLED-TABLES mstd
 &Scoped-define FIRST-ENABLED-TABLE mstd
-&Scoped-Define ENABLED-OBJECTS Btn_Cancel Btn_Done Btn_update 
+&Scoped-Define ENABLED-OBJECTS Btn_update Btn_Cancel Btn_Done 
 &Scoped-Define DISPLAYED-FIELDS mstd.board-depth[1] mstd.depth-reduc[1] ~
 mstd.board-depth[2] mstd.depth-reduc[2] mstd.board-depth[3] ~
 mstd.depth-reduc[3] mstd.depth-reduc[4] mstd.board-depth[4] ~
@@ -124,19 +124,19 @@ mstd.depth-reduc[15]
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Cancel  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn_Cancel 
      LABEL "Ca&ncel" 
-     SIZE 8 BY 1.91
+     SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE BUTTON Btn_Done  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn_Done 
      LABEL "&Done" 
-     SIZE 8 BY 1.91
+     SIZE 15 BY 1.14
      BGCOLOR 8 .
 
-DEFINE BUTTON Btn_update  NO-FOCUS FLAT-BUTTON
+DEFINE BUTTON Btn_update 
      LABEL "&Update" 
-     SIZE 8 BY 1.91.
+     SIZE 15 BY 1.14.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -147,12 +147,9 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     Btn_Cancel AT ROW 18.14 COL 28
-     Btn_Done AT ROW 18.14 COL 38
      mstd.board-depth[1] AT ROW 2.43 COL 16 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 13.2 BY 1
-     Btn_update AT ROW 18.14 COL 18
      mstd.depth-reduc[1] AT ROW 2.43 COL 38 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
@@ -245,11 +242,14 @@ DEFINE FRAME Dialog-Frame
      mstd.depth-reduc[15] AT ROW 16.29 COL 38 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
-     "Speed Reduction" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 1.48 COL 35
+     Btn_update AT ROW 18.14 COL 10
+     Btn_Cancel AT ROW 18.14 COL 31
+     Btn_Done AT ROW 18.14 COL 51
      "Box Depth" VIEW-AS TEXT
           SIZE 12 BY .62 AT ROW 1.48 COL 20
-     SPACE(46.19) SKIP(19.27)
+     "Speed Reduction" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 1.48 COL 35
+     SPACE(25.19) SKIP(19.27)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          NO-LABELS SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "REDUCTION BY DEPTH".
@@ -350,8 +350,8 @@ DO:
             with frame {&frame-name}
             .
     disable all except btn_update /*btn_cancel*/ btn_done with frame {&frame-name}.
-    {methods/setButtonIco.i Btn_Update "Update"}   
-    enable btn_done with frame {&frame-name}.
+    btn_update:label = "&Update".   
+    enable btn_done with frame {&frame-name}.        
 END.
 
 
@@ -371,17 +371,18 @@ END.
 ON CHOOSE OF Btn_update IN FRAME Dialog-Frame /* Update */
 DO:
     if self:label = "&Update" then do:
-       {methods/setButtonIco.i Btn_Update "Save"}
+       btn_update:label = "&Save".
        enable all with frame {&frame-name}.
        disable btn_done with frame {&frame-name}.   
        apply "entry" to mstd.board-depth[1] in frame {&frame-name}.
     end.
     else do:
-       run assign-record.  
+       run assign-record.   
        disable all except btn_update /* btn_cancel*/ btn_done with frame {&frame-name}.
-       {methods/setButtonIco.i Btn_Update "Update"}
+       btn_update:label = "&Update".
        enable btn_done with frame {&frame-name}.
-    end.
+    end.   
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -415,10 +416,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           with frame {&frame-name}.
   enable btn_update btn_done with frame {&frame-name}.
   view frame {&frame-name}.
-  
-  {methods/setButtonIco.i Btn_Update "Update"}
-  {methods/setButtonIco.i Btn_Cancel "Cancel"}
-  {methods/setButtonIco.i Btn_Done "Done"}
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -489,17 +486,17 @@ PROCEDURE enable_UI :
           mstd.board-depth[13] mstd.depth-reduc[13] mstd.board-depth[14] 
           mstd.depth-reduc[14] mstd.board-depth[15] mstd.depth-reduc[15] 
       WITH FRAME Dialog-Frame.
-  ENABLE Btn_Cancel Btn_Done mstd.board-depth[1] Btn_update mstd.depth-reduc[1] 
-         mstd.board-depth[2] mstd.depth-reduc[2] mstd.board-depth[3] 
-         mstd.depth-reduc[3] mstd.depth-reduc[4] mstd.board-depth[4] 
-         mstd.depth-reduc[5] mstd.board-depth[5] mstd.depth-reduc[6] 
-         mstd.board-depth[6] mstd.depth-reduc[7] mstd.board-depth[7] 
-         mstd.depth-reduc[8] mstd.board-depth[8] mstd.depth-reduc[9] 
-         mstd.board-depth[9] mstd.depth-reduc[10] mstd.board-depth[10] 
-         mstd.depth-reduc[11] mstd.board-depth[11] mstd.depth-reduc[12] 
-         mstd.board-depth[12] mstd.board-depth[13] mstd.depth-reduc[13] 
-         mstd.board-depth[14] mstd.depth-reduc[14] mstd.board-depth[15] 
-         mstd.depth-reduc[15] 
+  ENABLE mstd.board-depth[1] mstd.depth-reduc[1] mstd.board-depth[2] 
+         mstd.depth-reduc[2] mstd.board-depth[3] mstd.depth-reduc[3] 
+         mstd.depth-reduc[4] mstd.board-depth[4] mstd.depth-reduc[5] 
+         mstd.board-depth[5] mstd.depth-reduc[6] mstd.board-depth[6] 
+         mstd.depth-reduc[7] mstd.board-depth[7] mstd.depth-reduc[8] 
+         mstd.board-depth[8] mstd.depth-reduc[9] mstd.board-depth[9] 
+         mstd.depth-reduc[10] mstd.board-depth[10] mstd.depth-reduc[11] 
+         mstd.board-depth[11] mstd.depth-reduc[12] mstd.board-depth[12] 
+         mstd.board-depth[13] mstd.depth-reduc[13] mstd.board-depth[14] 
+         mstd.depth-reduc[14] mstd.board-depth[15] mstd.depth-reduc[15] 
+         Btn_update Btn_Cancel Btn_Done 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

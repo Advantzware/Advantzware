@@ -5,10 +5,6 @@
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
-
 
 /* Temp-Table and Buffer definitions                                    */
 DEFINE TEMP-TABLE tt-itemfgUpd NO-UNDO LIKE itemfg.
@@ -234,8 +230,6 @@ END.
 
 {src/adm/method/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -319,7 +313,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -414,7 +408,7 @@ DO:
 
 
   DO WITH FRAME {&FRAME-NAME}:
-
+  
     IF tt-itemfgUpd.spare-char-5 GT "" THEN DO:    
 
       edErrorNotes:SET-SELECTION( 1 , 200 ).
@@ -536,13 +530,13 @@ PROCEDURE disable-enable-buttons :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT  PARAMETER ipcDisableEnable AS CHARACTER   NO-UNDO.
   DO WITH FRAME {&FRAME-NAME}:
-
+  
   IF ipcDisableEnable EQ "Disable" THEN 
     ASSIGN
     btSkipThese:VISIBLE = FALSE
     btTryLater:VISIBLE = FALSE.
   ELSE DO:
-
+  
     ASSIGN
     btSkipThese:VISIBLE = TRUE
     btTryLater:VISIBLE = TRUE.
@@ -686,8 +680,8 @@ IF lDoUpdate THEN DO:
           itemfg.weight-100   = tt-itemfgUpd.weight-100.
         IF tt-itemfgUpd.frt-class GT "" THEN
           itemfg.frt-class    = tt-itemfgUpd.frt-class.
-
-
+  
+  
        FOR EACH eb NO-LOCK
            WHERE eb.company EQ itemfg.company
              AND eb.cust-no EQ itemfg.cust-no
@@ -708,7 +702,7 @@ IF lDoUpdate THEN DO:
          FIND CURRENT b-eb NO-LOCK.
          RELEASE b-eb.
        END. /* each eb */
-
+  
       END. /* if avail then assign */
     END. /* if no errors */
   END. /* each update tt */
@@ -844,7 +838,7 @@ FUNCTION display-i-name RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-
+  
 
 
   RETURN IF AVAIL item THEN item.i-name

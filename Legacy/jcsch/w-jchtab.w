@@ -18,7 +18,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -225,7 +225,7 @@ DEFINE BROWSE BROWSE-2
      tt-sch.job-list[6] FORMAT "x(10)"
      tt-sch.job-list[7] FORMAT "x(10)"
      tt-sch.job-list[8] FORMAT "x(10)"
-
+ 
  FILL( CHR(150),LENGTH(tt-sch.job-list[1]) ) @ tt-sch.job-list[1] FORM "x(10)"
  FILL(CHR(150),LENGTH(tt-sch.job-list[2])) @ tt-sch.job-list[2]   FORM "x(10)"
  FILL(CHR(150),LENGTH(tt-sch.job-list[3])) @ tt-sch.job-list[3]   FORM "x(10)"
@@ -234,7 +234,7 @@ DEFINE BROWSE BROWSE-2
  FILL(CHR(150),LENGTH(tt-sch.job-list[6])) @ tt-sch.job-list[6]  FORM "x(10)"
  FILL(CHR(150),LENGTH(tt-sch.job-list[7])) @ tt-sch.job-list[7]  FORM "x(10)"
  FILL(CHR(150),LENGTH(tt-sch.job-list[8])) @ tt-sch.job-list[8]  FORM "x(10)"
-
+ 
 /*ENABLE tt-sch.job-list[1] tt-sch.job-list[2] */
 
 ===*/
@@ -305,7 +305,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -345,7 +344,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-sch
 */  /* BROWSE BROWSE-2 */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -383,7 +382,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 W-Win
 ON ROW-DISPLAY OF BROWSE-2 IN FRAME F-Main
 DO:
-
+  
   /*  ASSIGN tt-sch.m-code:BGCOLOR IN BROWSE {&browse-name} = ?
               tt-sch.job-list[1]:BGCOLOR IN BROWSE {&browse-name} = ?
               tt-sch.job-list[2]:BGCOLOR IN BROWSE {&browse-name} = ?
@@ -451,17 +450,17 @@ DO:
 /*  IF tt-sch.s-seq = 1 THEN RETURN NO-APPLY.*/
 
    /* DEFINE FRAME f-tab.
-
+  
     CREATE WIDGET-POOL "w-tab" PERSISTENT NO-ERROR. 
     ASSIGN FRAME f-tab:X = tt-sch.job-list[1]:X IN BROWSE {&browse-name}
            FRAME f-tab:Y = tt-sch.job-list[1]:y IN BROWSE {&browse-name}  
            FRAME f-tab:VISIBLE = YES
            .
-
+           
    DISPLAY tt-sch.job-list[1] WITH FRAME f-tab OVERLAY TOP-ONLY NO-LABELS WIDTH 35.
    */
-
-
+    
+    
     v-help = tt-sch.job-list[FOCUS:INDEX].
     ASSIGN  v-help:X IN FRAME {&FRAME-NAME} = /*tt-sch.job-list[1]:X IN BROWSE {&browse-name} */
                                               FRAME {&FRAME-NAME}:X + 30
@@ -687,14 +686,14 @@ PROCEDURE build-table :
                                  AND mach-calendar.m-code = job-mch.m-code 
                                  AND mach-calendar.m-date = job-mch.start-date NO-LOCK
        BREAK BY job-mch.start-date DESC  BY job-mch.m-code BY start-time:
-
+  
       IF FIRST-OF(job-mch.start-date) THEN DO:
          v-cnt = v-cnt + 1.
          CREATE tt_date.
          ASSIGN tt_date.s-seq = STRING(v-cnt)
                 tt_date.s-date = job-mch.start-date
                 tt_date.s-time = job-mch.start-time.
-
+         
       END.
       IF v-cnt > 7 THEN LEAVE. /* one week */
   END.
@@ -706,7 +705,7 @@ PROCEDURE build-table :
                                  AND mach-calendar.m-code = job-mch.m-code 
                                  AND mach-calendar.m-date = job-mch.start-date NO-LOCK
       BREAK BY job-mch.m-code BY job-mch.start-date BY job-mch.start-time:
-
+  
       IF FIRST-OF(job-mch.m-code) THEN DO:
          CREATE tt-tab.
          ASSIGN tt-tab.m-code = job-mch.m-code
@@ -715,7 +714,7 @@ PROCEDURE build-table :
          CREATE tt-sch.
          ASSIGN tt-sch.m-code = job-mch.m-code.
          lv-tsch-rowid = ROWID(tt-sch).
-
+         
       END.
       IF FIRST-OF(job-mch.start-date) THEN do:
          v-cnt = v-cnt + 1.
@@ -725,7 +724,7 @@ PROCEDURE build-table :
         */
       END.
       IF NOT AVAIL tt-sch THEN FIND tt-sch WHERE ROWID(tt-sch) = lv-tsch-rowid.
-
+      
       IF v-cnt >= 1 AND v-cnt <= 7 THEN
          tt-sch.s-date[v-cnt] = job-mch.start-date.
 
@@ -739,7 +738,7 @@ PROCEDURE build-table :
          IF v-tot-time < 0 THEN v-tot-time = 0.
          lv-sch-io = YES.
       END.
-
+      
       IF j = 0 THEN j = 1.
 
 
@@ -758,12 +757,12 @@ PROCEDURE build-table :
                                            STRING(job-mch.job-no2,">9") 
                  tt-sch.in-out[v-cnt] = lv-sch-io. 
 
-
+     
 
     IF i > 300 THEN LEAVE.
 
   END.
-
+  
 /*
   v-time = 0.
   FOR EACH tt_date ,
@@ -775,11 +774,11 @@ PROCEDURE build-table :
       ASSIGN tt-tab.m-code = mach.m-code
              tt-tab.s-date = tt_date.s-date
              tt-tab.s-time = v-time.
-
+     
   END.
 
   FOR EACH tt-tab BREAK BY tt-tab.m-code BY tt-tab.s-date BY tt-tab.s-time:
-
+     
       IF FIRST-OF(tt-tab.m-code) THEN DO:
          CREATE tt-sch.
          ASSIGN tt-sch.m-code = tt-tab.m-code.
@@ -791,18 +790,18 @@ PROCEDURE build-table :
          j = 1.
       END.
       IF FIRST-OF(tt-tab.s-time) THEN j = 1.
-
+      
       j = int(SUBSTRING(STRING(tt-tab.s-time,"HH:MM"),1,2)).
       j = j + IF int(SUBSTRING(STRING(tt-tab.s-time,"HH:MM"),4,2)) > 0 THEN 1 ELSE 0 .
       tt-sch.s-time[j] = j. 
       /* time - 24 hrs and 10 cells per hour */
       tt-sch.job-list[j] = tt-sch.job-list[j] + STRING(tt-tab.s-time).
 
-
+      
   END.
 */
 
-
+  
 
 END PROCEDURE.
 
@@ -870,9 +869,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -926,7 +925,7 @@ PROCEDURE local-initialize :
 
         vi = vi + 1.
         hC = hC:NEXT-COLUMN.
-
+        
   END.
  SESSION:SET-WAIT-STATE("").
 
@@ -1061,7 +1060,7 @@ FUNCTION disp-job-list RETURNS CHARACTER
               IF LENGTH(tt-sch.job-list[ip-element]) < 24 THEN 
                   FILL(CHR(103), 24 - LENGTH(tt-sch.job-list[ip-element]))  
                ELSE ""  */
-
+       
               FILL(" ", int(tt-sch.s-time[ip-element])) + 
                tt-sch.job-list[ip-element] +
               IF LENGTH(tt-sch.job-list[ip-element]) < 24 THEN 

@@ -138,7 +138,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -171,7 +170,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -194,12 +193,12 @@ DO:
 
    DEF VAR vdDate-From  AS DATE NO-UNDO INIT ?.
    DEF VAR vdDate-To    AS DATE NO-UNDO INIT ?.
-
+  
 
 /*    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'excel-source':U,OUTPUT char-hdl). */
 /*                                                                                             */
 /*    RUN export-excel in WIDGET-HANDLE(char-hdl).                                             */
-
+ 
   IF v-whereamI MATCHES "*oeinq/w-ordinq*" OR v-whereamI MATCHES "*oe/w-order*" OR v-whereamI MATCHES "*oe/w-cloord*"
   THEN DO: 
       /* If order inquiry, then pass current sort data to the report window. */
@@ -221,7 +220,7 @@ DO:
                                                              OUTPUT vdDate-From,
                                                              OUTPUT vdDate-To).
       END. /* IF v-whereamI MATCHES "*oeinq/w-ordinq*" */
-
+          
       /* Run the report passing filled or blank data. */
       RUN oerep/rd-order.w (INPUT vcCust-From,
                             INPUT vcCust-To,
@@ -233,7 +232,7 @@ DO:
                             INPUT viOrder-To,
                             INPUT vdDate-From,
                             INPUT vdDate-To). 
-
+      
   END.
   ELSE 
    IF v-whereamI MATCHES "*jcrep/w-wipmt*"
@@ -256,7 +255,6 @@ DO:
           ELSE
               RUN jcrep/r-jobexl.w.   /*Task# 08111405*/
          END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -273,7 +271,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -226,8 +222,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -286,7 +280,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -471,7 +465,7 @@ PROCEDURE get-item-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def output parameter op-item-recid as recid no-undo.
-
+  
   op-item-recid = recid(itemfg).
 END PROCEDURE.
 
@@ -486,7 +480,7 @@ PROCEDURE local-open-query :
 ------------------------------------------------------------------------------*/
   def buffer bf-itemfg for itemfg.
   def var ll-first-rec as log.
-
+     
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -506,7 +500,7 @@ PROCEDURE local-open-query :
     /* gdm - 06040921 */
     IF TRIM(fgmaster-cha) EQ "FGMASTER" 
       THEN RUN get-fgmaster-uom.
-
+    
      ll-first-rec = yes.
      create e-itemfg.
      assign e-itemfg.company = itemfg.company
@@ -537,7 +531,7 @@ PROCEDURE local-open-query :
   if ll-first-rec then run dispatch ('open-query').
 
 
-
+            
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

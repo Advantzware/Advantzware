@@ -198,7 +198,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -237,7 +236,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -248,7 +247,6 @@ ASSIGN
 ON CHOOSE OF btn_all IN FRAME F-Main /* Allocated */
 DO:
   IF li-all NE 0 THEN RUN oe/w-inqord.w (ROWID(itemfg), YES).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -260,7 +258,6 @@ END.
 ON CHOOSE OF btn_onh IN FRAME F-Main /* On Hand */
 DO:
   IF li-onh NE 0 THEN RUN fg/w-inqonh.w (ROWID(itemfg), NO).
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -300,7 +297,6 @@ DO:
         NO-LOCK NO-ERROR.
     IF AVAIL po-ordl THEN RUN po/w-inqpo.w (ROWID(itemfg), YES).
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -317,7 +313,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -365,7 +361,7 @@ PROCEDURE calc-fgqtys :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var v-use-rel as log no-undo.
-
+  
 
   find first itemfg where itemfg.company = oe-ordl.company and
                           itemfg.i-no = oe-ordl.i-no
@@ -379,7 +375,7 @@ PROCEDURE calc-fgqtys :
               li-reo = 0.
      return error.
   end.
-
+ 
   IF oereordr-log OR oereordr-log EQ ? THEN
       RUN oe/oereordr.p (BUFFER itemfg, INPUT oereordr-log, OUTPUT li-all).
   ELSE li-all = itemfg.q-alloc. 
@@ -498,7 +494,7 @@ PROCEDURE local-display-fields :
       IF VALID-HANDLE(WIDGET-HANDLE(ENTRY(li,char-hdl))) THEN
         RUN dispatch IN WIDGET-HANDLE(ENTRY(li,char-hdl)) ("display-fields").
     END.
-
+    
   END.
 
 END PROCEDURE.

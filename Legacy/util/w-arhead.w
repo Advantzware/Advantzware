@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: util/w-arhead.w
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -515,7 +515,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -561,7 +560,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ar-inv SHARE-LOCK.
 */  /* FRAME fMain */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -599,7 +598,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_inv wWin
 ON GO OF begin_inv IN FRAME fMain /* AR Invoice# */
 DO:
-
+ 
    RUN edit-checks NO-ERROR.
 
    IF ERROR-STATUS:ERROR THEN 
@@ -634,7 +633,7 @@ DO:
 
    RUN build-records NO-ERROR.
    RUN display-ar-inv   NO-ERROR.
-
+     
 
 END.
 
@@ -691,7 +690,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-
+  
   RUN update-ar-inv.
   RUN util/b-arline.w (BUFFER ar-inv) NO-ERROR.
   APPLY "entry" TO begin_inv IN FRAME fmain.
@@ -714,8 +713,8 @@ END.
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm2/windowmn.i}
 
-
-
+ 
+    
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE 
@@ -730,7 +729,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   /* check security */
-
+ 
 /*   IF access-close THEN DO:            */
 /*      APPLY "close" TO THIS-PROCEDURE. */
 /*      RETURN .                         */
@@ -846,7 +845,7 @@ PROCEDURE build-ar-inv :
            ar-inv.t-sales        = inv-head.t-inv-rev - inv-head.t-inv-tax
            ar-inv.net            = inv-head.t-inv-rev - inv-head.t-inv-tax
            ar-inv.freight        = inv-head.t-inv-freight.
-
+                   
            if inv-head.f-bill then
               ASSIGN ar-inv.t-sales = ar-inv.t-sales - inv-head.t-inv-freight .
 
@@ -870,7 +869,7 @@ PROCEDURE build-ar-inv :
            FIND currency WHERE currency.company = inv-head.company
                                      AND currency.c-code = ar-inv.curr-code[1] NO-LOCK NO-ERROR.
            IF AVAIL currency THEN ar-inv.ex-rate = currency.ex-rate .  
-
+           
 
 END PROCEDURE.
 
@@ -905,7 +904,7 @@ PROCEDURE build-ar-lines :
             where fgcat.company eq oe-bolh.company
               and fgcat.procat  eq itemfg.procat
               no-lock no-error.
-
+          
     CREATE ar-invl.
     ASSIGN ar-invl.x-no       = v-ref-ar
            ar-invl.actnum     = if avail fgcat AND fgcat.glacc NE "" THEN fgcat.glacc
@@ -997,7 +996,7 @@ PROCEDURE build-inv-header :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ 
 
  /*IF ERROR-STATUS:ERROR THEN
     RETURN NO-APPLY. */
@@ -1022,7 +1021,7 @@ PROCEDURE build-inv-header :
         ELSE LEAVE.
     END.
 
-
+   
   CREATE inv-head.
   ASSIGN inv-head.sold-no    = shipto.ship-id
        inv-head.sold-name    = shipto.ship-name
@@ -1142,7 +1141,7 @@ FOR EACH oe-boll WHERE oe-boll.b-no = oe-bolh.b-no NO-LOCK :
 
   IF NOT AVAIL inv-line THEN 
   DO:
-
+      
       CREATE inv-line.
       ASSIGN inv-line.r-no       = v-ref-inv
           inv-line.company    = oe-bolh.company
@@ -1181,32 +1180,32 @@ FOR EACH oe-boll WHERE oe-boll.b-no = oe-bolh.b-no NO-LOCK :
        inv-line.qty        = oe-ordl.qty
        inv-line.p-c        = oe-boll.p-c
        inv-line.po-no      = oe-boll.po-no.
-
+    
 
        FIND FIRST reftable WHERE
             reftable.reftable EQ "oe-boll.sell-price" AND
             reftable.rec_key  EQ STRING(RECID(oe-boll))
             USE-INDEX rec_key
             NO-LOCK NO-ERROR.
-
+    
        IF AVAIL reftable THEN
        DO:
           IF reftable.val[1] NE 0 THEN
              inv-line.price = reftable.val[1].
           RELEASE reftable.
        END.
-
-
+    
+  
   END.
 
   ASSIGN inv-line.t-weight      = inv-line.t-weight + oe-boll.weight
          inv-head.t-inv-weight  = inv-head.t-inv-weight + oe-boll.weight
          inv-line.t-freight     = inv-line.t-freight + oe-boll.freight
          inv-head.t-inv-freight = inv-head.t-inv-freight + oe-boll.freight.
-
+ 
   IF oe-boll.s-code ne "S" and not oe-ordl.is-a-component then
      inv-line.inv-qty = inv-line.inv-qty + oe-boll.qty.
-
+  
   /** Increase ship Qty when ship or invoice & ship **/
   if oe-boll.s-code ne "I"                                            or
      can-find(first b-oe-ordl {sys/inc/ordlcomp.i b-oe-ordl oe-ordl}) then
@@ -1257,8 +1256,8 @@ FOR EACH oe-boll WHERE oe-boll.b-no = oe-bolh.b-no NO-LOCK :
                       stax.tax-group = inv-head.tax-gr NO-LOCK NO-ERROR.
   if avail stax THEN
       v-tax = ROUND(inv-line.t-price * stax.tax-rate[1] / 100,2).
-
-
+    
+  
 
   /*
 
@@ -1266,9 +1265,9 @@ FOR EACH oe-boll WHERE oe-boll.b-no = oe-bolh.b-no NO-LOCK :
                      OUTPUT v-cost[1], OUTPUT v-cost[2],
                      OUTPUT v-cost[3], OUTPUT v-cost[4],
                      OUTPUT xx-cost1, OUTPUT xx-cost2).
-
+  
           .
-
+  
   inv-head.t-inv-cost = inv-head.t-inv-cost + inv-line.cost.
   */
 
@@ -1311,12 +1310,12 @@ FOR EACH oe-boll WHERE oe-boll.b-no = oe-bolh.b-no NO-LOCK :
       inv-line.comm-amt[i] = ROUND((((inv-line.t-price
                                        * inv-line.s-pct[i]) / 100)
                                        * inv-line.s-comm[i]) / 100,2).        
-
+      
   END.
 
 END.
 
-
+ 
 
 END PROCEDURE.
 
@@ -1337,7 +1336,7 @@ FOR EACH oe-boll WHERE oe-boll.b-no = oe-bolh.b-no NO-LOCK :
        AND oe-ordm.ord-no  EQ oe-boll.ord-no
        and oe-ordm.bill    eq "I"
        NO-LOCK:
-
+  
       ASSIGN v-ord-lines = v-ord-lines + 1.
 
       create inv-misc.
@@ -1349,12 +1348,12 @@ FOR EACH oe-boll WHERE oe-boll.b-no = oe-bolh.b-no NO-LOCK :
              inv-misc.inv-line       = oe-ordm.ord-line
              inv-misc.s-commbasis[1] = oe-ordm.commbasis[1].
 
-
+   
       find LAST b-ar-invl  WHERE
            b-ar-invl.x-no = v-ref-arl
            no-lock NO-ERROR.
 
-
+      
 DISABLE TRIGGERS FOR LOAD OF ar-inv.           
       create ar-invl.
       ASSIGN ar-invl.x-no           = v-ref-ar
@@ -1402,7 +1401,7 @@ DISABLE TRIGGERS FOR LOAD OF ar-inv.
              ar-invl.posted         = YES.
 
              IF NOT ar-invl.billable THEN ar-invl.amt = 0.
-
+              
   END.
 
 END.
@@ -1685,7 +1684,7 @@ PROCEDURE edit-checks :
 ------------------------------------------------------------------------------*/
 
  DO WITH FRAME fmain:
-
+   
    FIND FIRST oe-boll WHERE
         oe-boll.company EQ cocode AND
         oe-boll.inv-no = int(begin_inv:SCREEN-VALUE)
@@ -1951,7 +1950,7 @@ FOR EACH gltrans WHERE
    IF v-pos = 0 THEN NEXT.
 
     v-pos = v-pos + 4.
-
+   
    IF INT(SUBSTRING(gltrans.tr-dscr,v-pos,10)) = begin_inv THEN
    DO:
        ASSIGN v-tr-date = gltrans.tr-date.
@@ -2020,7 +2019,7 @@ PROCEDURE run-process :
 ------------------------------------------------------------------------------*/
 
 
-
+                       
 
 session:set-wait-state("General").
 message " Process Is Completed." view-as alert-box.
@@ -2149,7 +2148,7 @@ ASSIGN {&displayed-fields}.
 /*                                                                                  */
 /*                                                                                  */
 /*                                                                                  */
-
+    
 END.
 
 END PROCEDURE.

@@ -19,7 +19,7 @@
       <none>
 
   History: New V9 Version - January 15, 1998
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -206,7 +206,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -238,7 +237,7 @@ THEN wWin:HIDDEN = yes.
 */  /* FRAME fMain */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -288,17 +287,17 @@ END.
 ON CHOOSE OF btOk IN FRAME fMain /* Import */
 DO:
   DEF VAR v-i-no LIKE itemfg.i-no NO-UNDO.
-
+  
   run PreFGImport.  /*validate records from XML file */
   RUN ImportFGReceipts.
-
+  
   MESSAGE "FG Receipts import is completed!  Posting now......"
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
-
+      
   /*run PostFGImport.*/   
   run fg/fgpost.p (input table FGReceiptRow). 
-
-
+  
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -324,12 +323,12 @@ DO:
             ASSIGN v-path = TRIM(sys-ctrl.char-fld).
 
     END.
-
+    
     RUN sys\ref\char-fld-help.w(INPUT cocode,
                                 INPUT v-path,
                                 OUTPUT chFile).
 
-
+  
    */
 
       system-dialog get-file chFile 
@@ -444,7 +443,7 @@ PROCEDURE FGPostLog :
  Notes:
 ------------------------------------------------------------------------------*/
  DEFINE INPUT PARAMETER ipLogText AS CHARACTER NO-UNDO.
-
+        
  PUT STREAM logFile UNFORMATTED STRING(TODAY,'99.99.9999') ' '
      STRING(TIME,'hh:mm:ss am') ' : ' ipLogText SKIP.
 
@@ -461,11 +460,11 @@ PROCEDURE gl-from-work :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-run AS INT NO-UNDO.
   DEF INPUT PARAM ip-trnum AS INT NO-UNDO.
-
+  
   def var credits as dec init 0 no-undo.
   def var debits as dec init 0 no-undo. 
 
-
+  
   FIND FIRST period
       WHERE period.company EQ cocode
         AND period.pst     LE v-post-date
@@ -476,7 +475,7 @@ PROCEDURE gl-from-work :
       where (ip-run eq 1 and work-gl.job-no ne "")
          or (ip-run eq 2 and work-gl.job-no eq "")
       break by work-gl.actnum:
-
+      
     assign
      debits  = debits  + work-gl.debits
      credits = credits + work-gl.credits.
@@ -512,7 +511,7 @@ PROCEDURE ImportFGReceipts :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ 
 
   /*  write xml files ===
   FOR EACH fg-rctd WHERE rita-code = "R":
@@ -522,14 +521,14 @@ PROCEDURE ImportFGReceipts :
 
   TEMP-TABLE tt-rctd:WRITE-XML("FILE","c:\temp\fg-rctd.xml", TRUE).
   ==========*/
-
+  
   def var lv-rno as int no-undo.
-
+  
   FIND LAST fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
   IF AVAIL fg-rctd AND fg-rctd.r-no GT lv-rno THEN lv-rno = fg-rctd.r-no.
   FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
   IF AVAIL fg-rcpth AND fg-rcpth.r-no GT lv-rno THEN lv-rno = fg-rcpth.r-no.
-
+ 
   DO WHILE TRUE:
     lv-rno = lv-rno + 1.
     FIND FIRST fg-rcpth WHERE fg-rcpth.r-no EQ lv-rno USE-INDEX r-no NO-LOCK NO-ERROR.
@@ -541,9 +540,9 @@ PROCEDURE ImportFGReceipts :
 
   empty temp-table FGReceiptRow.  
   TEMP-TABLE FGReceiptRow:READ-XML ("File", xmlfile:screen-value in frame {&frame-name}, "Empty",?,NO).
-
+  
   FOR EACH FGReceiptRow:
-
+   
     create fg-rctd.
     buffer-copy FGReceiptRow to fg-rctd.
     assign fg-rctd.r-no = lv-rno
@@ -554,7 +553,7 @@ PROCEDURE ImportFGReceipts :
              fg-rctd.cases-unit   = 1
              fg-rctd.ext-cost     = 0
            */
-
+           
            FGReceiptRow.TableRowid = rowid(fg-rctd)
            lv-rno = lv-rno + 1
            .     
@@ -642,7 +641,7 @@ PROCEDURE PostFGImport :
   define var cocode as cha no-undo.
   define var g_company as cha no-undo.
   DEF VAR fg-uom-list  AS CHAR NO-UNDO.
-
+  
   do transaction:
     {sys/inc/closejob.i FGPost}
     {sys/inc/fgpostgl.i}
@@ -653,21 +652,21 @@ PROCEDURE PostFGImport :
   END.
 
   v-fgpostgl = fgpostgl.
-
+  
   RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
-
+  
   fgPostLog = SEARCH('logs/fgpstall.log') NE ?.
   IF fgPostLog THEN
   OUTPUT STREAM logFile TO VALUE('logs/fgpstall.' +
          STRING(TODAY,'99999999') + '.' + STRING(TIME) + '.log').
 
   IF fgPostLog THEN RUN fgPostLog ('Started').
-
+  
 for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ : 
   assign cocode = FGReceiptRow.company
          g_company = FGReceiptRow.company
          .
-
+  
   FIND FIRST period NO-LOCK
       WHERE period.company EQ  cocode
         AND period.pst     LE v-post-date
@@ -746,7 +745,7 @@ for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ :
       IF LAST-OF(w-fg-rctd.tag) THEN DO:
         IF TRIM(w-fg-rctd.tag) NE "" THEN 
         /* Ensure Bin/Tags Qty is correct.  Task 01270602 */
-
+        
         FOR EACH fg-bin NO-LOCK
             WHERE fg-bin.company EQ g_company
               AND fg-bin.i-no    EQ loadtag.i-no
@@ -864,13 +863,13 @@ for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ :
                 gl-ctrl.trnum = v-trnum.
 
          FIND CURRENT gl-ctrl NO-LOCK.
-
+         
          IF fgPostLog THEN RUN fgPostLog ('Begin Run gl-from-work 1').         
          RUN gl-from-work (1, v-trnum).
          IF fgPostLog THEN RUN fgPostLog ('End 1 - Begin Run gl-from-work 2').
          RUN gl-from-work (2, v-trnum).
          IF fgPostLog THEN RUN fgPostLog ('End Run gl-from-work 2').
-
+         
          LEAVE.
         END. /* IF AVAIL gl-ctrl */
       END. /* REPEAT */
@@ -921,7 +920,7 @@ for each FGReceiptRow no-lock /* where FGReceiptRow.TableRowid <> ? */ :
     END.
     IF fgPostLog THEN RUN fgPostLog ('End').
     IF fgPostLog THEN OUTPUT STREAM logFile CLOSE.
-
+    
   end. /* for each FGReceiptRow */
 
 
@@ -938,10 +937,10 @@ PROCEDURE PreFGImport :
 ------------------------------------------------------------------------------*/
   def var lv-error as log no-undo.
   def var lv-error-msg as cha no-undo.
-
+  
   lv-error = no. 
   TEMP-TABLE FGReceiptRow:READ-XML ("File", xmlfile:screen-value in frame {&frame-name}, "Empty",?,NO).
-
+  
   /* validate main key columns - company,rita-code,tag,po-no,job-no,i-no,loc,loc-bin,tag2,loc2,loc-bin2,cost-uom */
   for each FGReceiptRow no-lock: 
 /*      run validate-company (FGReceiptRow.Company, output lv-error, output lv-error-msg).                   */
@@ -955,9 +954,9 @@ PROCEDURE PreFGImport :
 /*      run validate-loc (FGReceiptRow.loc2, FGReceiptRow.loc-bin2, output lv-error, output lv-error-msg).   */
 /*      run validate-uom (FGReceiptRow.cost-uom, output lv-error, output lv-error-msg).                      */
     /*    run ValidateFGImport (output lv-error, output lv-error-msg). */
-
+           
   end.
-
+      
 
 END PROCEDURE.
 
@@ -972,19 +971,19 @@ PROCEDURE ValidateFGImport :
 ------------------------------------------------------------------------------*/
     def output param op-error as log no-undo.
     def output param op-error-msg as cha no-undo.
-
+    
     def var lv-uom-list as cha no-undo.
-
+    
     /* validate rita-code */
     if not can-do(FGReceiptRow.rita-code,"R,T") 
     then assign op-error = yes
                 op-error-msg = "Invalid RITA code!"
                 .
-
+                
     /* validate tag */
-
+    
     /* validate po-no */
-
+                
     /* validate cost-uom */
     RUN sys/ref/uom-fg.p (NO, OUTPUT lv-uom-list).
     IF INDEX(lv-uom-list,FGReceiptRow.cost-uom) LE 0 
@@ -1037,12 +1036,12 @@ PROCEDURE ValidateFGImport :
                      OUTPUT lvCalcExtCost,
                      OUTPUT lvCalcFrtCost,
                      OUTPUT lvSetupPerCostUom).
-
+      
                   ASSIGN FGReceiptRow.cost-uom = lvCalcCostUom
                          FGReceiptRow.std-cost = (lvCalcStdCost)
                          FGReceiptRow.ext-cost = (lvCalcExtCost)
                          lv-cost = FGReceiptRow.std-cost.    
-
+                            
                   /*RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).*/
                   FIND FIRST po-ord WHERE po-ord.company EQ po-ordl.company AND
                                           po-ord.po-no   EQ po-ordl.po-no    NO-LOCK NO-ERROR.
@@ -1071,8 +1070,8 @@ PROCEDURE ValidateFGImport :
                       .
        end. 
     end.
-
-
+                       
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

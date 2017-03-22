@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: windows/specnote.w
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -157,13 +157,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\edit%":U) THEN
+    MESSAGE "Unable to load icon: adeicon\edit%"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -223,7 +227,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -480,7 +484,7 @@ PROCEDURE estimate-notes-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE OUTPUT PARAMETER op-est AS LOG NO-UNDO.
-
+   
    op-est = INDEX(v-prg-2,"w-est") NE 0.
 END PROCEDURE.
 
@@ -529,13 +533,13 @@ PROCEDURE get-ip-header :
   IF op-header EQ "" THEN
   FIND FIRST oe-ord WHERE oe-ord.rec_key EQ ip-rec_key NO-LOCK NO-ERROR.
   IF AVAIL oe-ord THEN op-header = oe-ord.est-no.
-
+  
   IF op-header EQ "" THEN
   FIND FIRST job-hdr WHERE job-hdr.rec_key EQ ip-rec_key NO-LOCK NO-ERROR.
   IF AVAIL job-hdr THEN op-header = job-hdr.est-no.
 
   IF op-header EQ "" THEN op-header = ip-header.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -565,9 +569,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

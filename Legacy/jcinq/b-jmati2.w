@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -226,8 +222,6 @@ END.
 
 {src/adm/method/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -269,7 +263,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH mat BY mat.form-no BY mat.blank-no BY mat.rm-i-
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -408,7 +402,7 @@ PROCEDURE local-open-query :
 			 po-ordl.po-no   = po-all.po-no AND
 			 po-ordl.line    = po-all.line
 			 NO-LOCK NO-ERROR.
-
+    
     CREATE mat.
     ASSIGN
      mat.form-no  = job-mat.frm

@@ -60,7 +60,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 DEF VAR lv-char-hdl AS CHAR NO-UNDO.
 DEF VAR lv-bol-label AS CHAR NO-UNDO.
-
+    
 {methods/defines/hndldefs.i}
 {methods/prgsecdt.i}
 {sys/inc/VAR.i "new shared"}
@@ -156,7 +156,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -191,7 +190,7 @@ ASSIGN
 */  /* FRAME Panel-Frame */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -203,8 +202,7 @@ ON CHOOSE OF btn-release IN FRAME Panel-Frame /* Release */
 DO:
     run get-link-handle in adm-broker-hdl(this-procedure, "ordrel-target", output lv-char-hdl).
     run release-item in widget-handle(lv-char-hdl).
-
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -221,15 +219,15 @@ END.
   /* Set the default SmartPanel to the one that has the Commit push */
   /* button displayed (the TABLEIO-TARGETS are not enabled/disabled */
   /* automatically with this type of SmartPanel).                   */
-
+  
   RUN set-attribute-list ("SmartPanelType=Save, 
                            Edge-Pixels=2,
                            AddFunction=One-Record":U).
-
+                           
   /* If the application hasn't enabled the behavior that a RETURN in a frame = GO,
      then enable the usage of the Save button as the default button. (Note that in
      8.0, the Save button was *always* the default button.) */
-
+  
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
@@ -269,7 +267,7 @@ PROCEDURE local-enable :
 
   RUN dispatch ('enable':U).      /* Get all objects enabled to start. */
   RUN set-buttons (adm-panel-state).
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -284,7 +282,7 @@ PROCEDURE local-initialize :
   ------------------------------------------------------------------------*/
 
   DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
-
+  
   /* Insert pre-dispatch code here. */ 
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT "adm-initialize":U ) .
@@ -328,7 +326,7 @@ PROCEDURE reset-button :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-reset AS LOG NO-UNDO.
-
+  
   IF v-can-update THEN
      btn-release:SENSITIVE IN FRAME {&FRAME-NAME} = ip-reset.
 END PROCEDURE.
@@ -343,7 +341,7 @@ PROCEDURE set-buttons :
            sort of action is occuring to the TABLEIO-TARGET(s) of the panel.
   Parameters:  Character string that denotes which action to set the button
                sensitivities.
-
+               
                The values are: initial - the panel is in a state where no record
                                          changes are occuring; i.e. it is possible
                                          to  Update, Add, Copy, or Delete a record.
@@ -375,7 +373,7 @@ IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
   ASSIGN
    ll-no-bol = CAN-DO(panel-state,"NoBOL")
    ll-no-job = CAN-DO(panel-state,"NoJob").
-
+   
   IF ll-no-bol OR ll-no-job THEN panel-state = prev-panel.
 END.
 */
@@ -394,9 +392,9 @@ DO WITH FRAME Panel-Frame:
 
 
   END. /* panel-state = 'disable-all' */
-
+  
   ELSE IF panel-state = 'initial':U THEN DO:
-
+  
     /* The panel is not actively changing any of its TABLEIO-TARGET(s). */
 
 &IF LOOKUP("btn-release":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
@@ -405,9 +403,9 @@ DO WITH FRAME Panel-Frame:
 
   END. /* panel-state = 'initial' */
 
-
+ 
   ELSE DO: /* panel-state = action-chosen */ 
-
+  
     /* The panel had one of the buttons capable of changing/adding a record */
     /* pressed. Always force the SAVE/UPDATE button to be sensitive in the  */
     /* the event that the smartpanel is disabled and later enabled prior to */
@@ -450,7 +448,7 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/pustates.i}
   END CASE.
-
+  
   /* change to force buttons after delete style record */
   run get-attribute in adm-broker-hdl ('IS-deleteD').
   if return-value = "yes" and p-state begins "link" then do: 
@@ -479,7 +477,7 @@ PROCEDURE use-smartpaneltype :
 ------------------------------------------------------------------------------*/
   define input parameter inval as character.
   panel-type = inval.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

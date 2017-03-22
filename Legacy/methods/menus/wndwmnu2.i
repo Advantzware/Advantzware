@@ -20,9 +20,12 @@ IF run-proc NE '' THEN ~
 RUN Get_Procedure IN Persistent-Handle ('notes.',OUTPUT run-proc,no). ~
 IF run-proc NE '' THEN ~
 ~{methods/smartrun.i (rec_key_value,header_value)}
-&Scoped-define ITEM4 UDF
-&Scoped-define LABEL4 User Defined Fields
-&Scoped-define PROC4 RUN UDF.
+&Scoped-define ITEM4 Misc_Fields
+&Scoped-define LABEL4 Misc Fields
+&Scoped-define PROC4 ~
+RUN Get_Procedure IN Persistent-Handle ('mfvalues.',OUTPUT run-proc,no). ~
+IF run-proc NE '' THEN ~
+~{methods/smartrun.i (b-prgrms.mfgroup,rec_key_value,header_value)}
 /* ============ NOT in use 
 &Scoped-define ITEM5 Browser
 &Scoped-define LABEL5 Browser

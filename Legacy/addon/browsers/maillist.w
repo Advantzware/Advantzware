@@ -4,10 +4,6 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -224,8 +220,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -283,7 +277,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -365,14 +359,14 @@ DO:
            is-maillist:sensitive = yes.
            is-maillist:row  = self:row + 1 /*contact.maillist:row in browse {&browse-name}*/
            .
-
+           
            is-maillist:column = self:column /*contact.maillist:column in browse {&browse-name}*/
-
+           
            .
      apply "entry" to is-maillist.
      return no-apply.      
    */
-
+                 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -396,7 +390,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL is-maillist B-table-Win
 ON LEAVE OF is-maillist IN FRAME F-Main
 DO:
-
+  
     apply "value-changed" to is-maillist in frame {&frame-name}.
     return no-apply.
 END.
@@ -424,9 +418,9 @@ DO:
     contact.maillist:screen-value in browse {&browse-name} = string(is-maillist).
    /* if is-maillist then apply "entry" to contact.list-name.
     else*/
-
+    
      apply "row-leave" to browse {&browse-name}.
-
+    
     self:hidden in frame {&frame-name} = yes.
     return no-apply.
 END.

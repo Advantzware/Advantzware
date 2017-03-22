@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -231,7 +227,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -263,7 +259,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-
+      
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -353,7 +349,7 @@ ON HELP OF attach.run-program IN FRAME F-Main /* Program to excute */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-
+   
    system-dialog get-file ls-filename 
                  title "Select Application to open with"
                  filters "Executable Files (*.exe)" "*.exe", 
@@ -362,7 +358,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-
+      
     IF ll-ok THEN self:screen-value = CHR(34) + ls-filename + CHR(34).
 END.
 
@@ -402,7 +398,7 @@ PROCEDURE WinExec EXTERNAL "KERNEL32.DLL":
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -469,7 +465,7 @@ PROCEDURE excute-program :
 ------------------------------------------------------------------------------*/
    DEF VAR lv-cmd AS cha NO-UNDO.
    DEF VAR tInt As Int No-undo.
-
+   
    lv-cmd = chr(34) + ATTACH.attach-file + " " + CHR(34).
    RUN ShellExecuteA(0, "open", ATTACH.attach-file, "", "", 0, OUTPUT tInt).
    IF tInt LE 32 THEN
@@ -497,20 +493,20 @@ PROCEDURE local-add-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
   ASSIGN v-po-no = "".
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
   RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key).
-
+  
   FIND FIRST po-ord WHERE po-ord.rec_key = lv-rec_key NO-LOCK NO-ERROR.
-
+  
   IF AVAIL po-ord THEN
      v-po-no = STRING(po-ord.po-no).
   ELSE
   DO:
      FIND FIRST po-ordl WHERE po-ordl.rec_key = lv-rec_key NO-LOCK NO-ERROR.
-
+  
      IF AVAIL po-ordl THEN
      DO:
         FIND FIRST po-ord WHERE
@@ -523,7 +519,7 @@ PROCEDURE local-add-record :
      END.
   END.
 
-
+  
   ASSIGN ATTACH.creat-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(TODAY)
          ATTACH.est-no:SCREEN-VALUE = v-po-no.
 
@@ -548,16 +544,16 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF adm-adding-record THEN DO:
-
+    
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
     RUN get-ip-rec_key IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rec_key).
 
     FIND FIRST po-ord WHERE po-ord.rec_key = lv-rec_key NO-LOCK NO-ERROR.
-
+  
     IF NOT AVAIL po-ord THEN
     DO:
        FIND FIRST po-ordl WHERE po-ordl.rec_key = lv-rec_key NO-LOCK NO-ERROR.
-
+  
        IF AVAIL po-ordl THEN
        DO:
           FIND FIRST po-ord WHERE
@@ -568,13 +564,13 @@ PROCEDURE local-assign-record :
           IF AVAIL po-ord THEN
              lv-rec_key = po-ord.rec_key.
        END.
-
+          
     END.
 
     ASSIGN attach.rec_key = lv-rec_key
            attach.company = g_company.
   END.
-
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -629,7 +625,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN validate-po-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 

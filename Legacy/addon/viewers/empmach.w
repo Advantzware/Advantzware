@@ -4,10 +4,6 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -234,7 +230,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -256,13 +252,13 @@ ON LEAVE OF empmach.gl_account IN FRAME F-Main /* G/L Account */
 DO:
   {custom/actleave.i}
   IF TRIM(SELF:SCREEN-VALUE) = "-" OR TRIM(SELF:SCREEN-VALUE) = "" THEN SELF:FORMAT = "x(25)".
-
-
+  
+  
   {methods/entryerr.i
       &can-find="first account WHERE (account.company = gcompany
                            AND account.actnum = SELF:SCREEN-VALUE) OR self:SCREEN-VALUE = '' OR trim(SELF:SCREEN-VALUE) = '-' "
      &error-message="Invalid G/L Account"}
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -296,7 +292,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

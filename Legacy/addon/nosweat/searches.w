@@ -376,6 +376,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN F1 IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L 6                                                  */
 /* SETTINGS FOR FILL-IN m-return-field IN FRAME DEFAULT-FRAME
@@ -456,7 +466,6 @@ DO:
     IF select-list:IS-SELECTED(i) THEN
     select-list:SCREEN-VALUE = "".
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -468,7 +477,6 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -500,7 +508,6 @@ DO:
     OTHERWISE
     m_status:SCREEN-VALUE = "DELETE Cancelled".
   END CASE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -521,7 +528,6 @@ DO:
       shandle:SCREEN-VALUE = shandle:ENTRY(i + 1).
     LEAVE.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -558,7 +564,6 @@ DO:
     IF AVAILABLE prgrms THEN
     m-frame-title:SCREEN-VALUE = prgrms.prgtitle + " Search".
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -571,7 +576,6 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   APPLY "CHOOSE" TO Btn_Save.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -584,7 +588,6 @@ ON CHOOSE OF Btn_Remove IN FRAME DEFAULT-FRAME /* Remove */
 DO:
   IF shandle:SCREEN-VALUE NE "" THEN
   APPLY "DEFAULT-ACTION" TO shandle.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,7 +604,6 @@ DO:
   ASSIGN
     m-order-values:SENSITIVE = NOT auto_set
     m_status:SCREEN-VALUE = "Search Record RESET".
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -777,7 +779,6 @@ DO:
   ASSIGN
     Btn_Cancel:LABEL = "&Close"
     m_status:SCREEN-VALUE = "Search SAVEd".
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -798,7 +799,6 @@ DO:
       shandle:SCREEN-VALUE = shandle:ENTRY(i - 1).
     LEAVE.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -935,10 +935,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -954,7 +952,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   APPLY "VALUE-CHANGED" TO selected-set.
   {methods/enhance.i}
   {methods/nowait.i}
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

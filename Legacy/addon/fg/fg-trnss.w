@@ -17,7 +17,7 @@
       <none>
 
   History: 
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -121,7 +121,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -143,7 +142,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -253,13 +252,13 @@ PROCEDURE adm-create-objects :
 
 END PROCEDURE.
 PROCEDURE local-initialize:
-
+    
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
     RUN make-small IN h_b-trans.
 
 FRAME F-Main:HEIGHT-CHAR = 18.00 /* 12.52 */.
 W-Win:HEIGHT-CHARS = 19.00 /* 13.52 */.
-
+        
     IF VALID-HANDLE(h_p-updba2) THEN
       RUN auto-add IN  h_p-updba2.
     /*IF VALID-HANDLE(h_p-updba2) THEN
@@ -337,9 +336,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -376,9 +375,9 @@ PROCEDURE select_exit :
    RUN cancel-entry in WIDGET-HANDLE(char-hdl).*/
 
    RUN do-cancel IN h_p-updba2.
-
+   
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
 
 END PROCEDURE.

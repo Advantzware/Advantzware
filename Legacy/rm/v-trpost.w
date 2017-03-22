@@ -166,13 +166,12 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -188,7 +187,7 @@ ASSIGN
 ON CHOOSE OF bt-post IN FRAME F-Main /* Post */
 DO:
       def var out-hd-lst as cha no-undo.
-
+      
       message "Are you ready to post" view-as alert-box question 
               button yes-no update ll-ans as log.
 
@@ -196,10 +195,9 @@ DO:
       if not error-status:error then do:
          run get-link-handle in adm-broker-hdl (This-procedure,"Record-Source", output out-hd-lst).
          run dispatch in widget-handle(out-hd-lst) ("open-query").
-
+         
       end.
-
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -216,7 +214,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -291,7 +289,7 @@ PROCEDURE get-matrix :
   def var v-bwt like po-ordl.s-len no-undo.
   def var lv-out-qty as dec no-undo.
   def var lv-out-cost as dec no-undo.
-
+     
   cocode = rm-rctd.company.
 
   find item  where item.company eq cocode and item.i-no  eq rm-rctd.i-no
@@ -305,7 +303,7 @@ PROCEDURE get-matrix :
                        and po-ordl.item-type = yes
                        and po-ordl.s-num = (rm-rctd.s-num)
                            no-lock no-error.
-
+  
   if avail po-ordl then do:
      assign  v-len = po-ordl.s-len
              v-wid = po-ordl.s-wid
@@ -332,7 +330,7 @@ PROCEDURE get-matrix :
         if v-wid eq 0 then v-wid = if avail item and item.r-wid ne 0 then item.r-wid else item.s-wid.
         if v-bwt eq 0 then v-bwt = if avail item then item.basis-w else 0.
   end.
-
+  
   /* convert qty po-ordl.pr-qty-uom*/
   run rm/convquom.p(rm-rctd.pur-uom,
                     po-ordl.cons-uom,
@@ -342,7 +340,7 @@ PROCEDURE get-matrix :
                          input v-dep,
                          input rm-rctd.qty,
                          output lv-out-qty).
-
+  
   /* convert cost po-ordl.pr-uom*/
   run rm/convcuom.p(po-ordl.cons-uom, rm-rctd.cost-uom,
                                v-bwt, v-len, v-wid, v-dep,
@@ -385,9 +383,9 @@ PROCEDURE rm-post-receipt :
   def var ld-cvt-qty as dec no-undo.
   def var ld-cvt-cost as dec no-undo.
   def buffer ps-rctd for rm-rctd .
-
+  
   cocode = rm-rctd.company.
-
+  
 /*for each rm-rctd of rm-rcth :
        /* where rm-rcpt.company   eq rm-rcth.company
           and rm-rcpt.rita-code eq "R"
@@ -395,7 +393,7 @@ PROCEDURE rm-post-receipt :
           and rm-rcpt.job-no    le v-to-job
         use-index rita no-lock.
         */
-
+  
 */      
 
       find first item where item.company eq rm-rctd.company
@@ -449,7 +447,7 @@ PROCEDURE rm-post-receipt :
           xrm-bin.qty = xrm-bin.qty + rm-rctd.qty.
       end. /* T */
 
-
+   
 
    find ps-rctd where recid(ps-rctd) = recid(rm-rctd).
 
@@ -463,7 +461,7 @@ PROCEDURE rm-post-receipt :
   /*end.  /* for each rm-rctd */
   */
 
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

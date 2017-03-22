@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: jc/w-jobcst.w
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -203,13 +203,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -281,7 +285,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1038,7 +1042,7 @@ PROCEDURE local-change-page :
   END.
   ELSE
   IF li-page EQ 6 THEN DO:  /* estimate */
-
+    
     li-last-page = li-prev-page.
 
     /* This attempts to clear error of fg item screen appearing when user clicks on estimate */
@@ -1049,7 +1053,7 @@ PROCEDURE local-change-page :
     FIND FIRST est NO-LOCK WHERE est.company EQ job.company
                              AND est.est-no EQ job.est-no NO-ERROR.
     IF AVAILABLE est THEN DO:
-
+   
       IF est.est-type LE 4 THEN DO:
 
         RUN select-page (9).
@@ -1090,11 +1094,11 @@ PROCEDURE local-change-page :
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF li-page EQ 8 THEN DO:  /* farm */
-
+ 
       IF NOT llJobFarmSec THEN DO:    
         /* Disable Update Panel */
         RUN get-link-handle IN adm-broker-hdl (h_p-updsav-2, 'TableIO':U, OUTPUT cLinkHnd).       
-
+        
         RUN init-pages IN THIS-PROCEDURE ('8':U) NO-ERROR.
         IF VALID-HANDLE(HANDLE(cLinkHnd)) THEN
         RUN remove-link IN adm-broker-hdl ( h_p-updsav-2 , 'TableIO':U , h_b-jobfarm-3 ) NO-ERROR.
@@ -1103,10 +1107,10 @@ PROCEDURE local-change-page :
       END.
   END.
   {methods/winReSizePgChg.i}
-
+  
   /* gdm - 05290901 */
   IF li-page = 2 AND NOT chk-date THEN DO:
-
+         
     IF AVAIL job AND v-start-flag THEN
        RUN get-start-date IN h_v-job (YES).
   END.
@@ -1148,9 +1152,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

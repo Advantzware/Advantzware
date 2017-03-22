@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -515,7 +511,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
@@ -540,7 +536,7 @@ DO:
     def var lv-handle as handle no-undo.
     def var char-val as cha no-undo.    
     lv-handle = focus:handle.
-
+   
     case focus:name :
          when "i-code" then do:
              find style where style.company = eb.company and
@@ -566,7 +562,7 @@ DO:
                   end case.       
              end.         
              return no-apply.                       
-
+                            
          end.
          when "cas-no" then do:
            find style where style.company = eb.company and
@@ -619,11 +615,11 @@ DO:
                        eb.carr-dscr:screen-value in frame {&frame-name} = entry(2,char-val)
                        .
              return no-apply.              
-
+             
         end.
 
-
-
+         
+         
     end case.
 
 END.
@@ -652,7 +648,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.cas-no V-table-Win
 ON LEAVE OF eb.cas-no IN FRAME F-Main /* Packing Code */
 DO:
-
+  
               find item where item.company = eb.company and
                               item.i-no = eb.cas-no:screen-value
                               no-lock no-error.
@@ -703,7 +699,7 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-
+                   
      if avail item then  eb.i-dscr[10]:screen-value in frame {&frame-name} = item.i-name.
   end.
 
@@ -730,7 +726,7 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-
+                   
      if avail item then  eb.i-dscr[1]:screen-value in frame {&frame-name} = item.i-name.
   end.
 
@@ -757,7 +753,7 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-
+                   
      if avail item then  eb.i-dscr[2]:screen-value in frame {&frame-name} = item.i-name.
   end.
 
@@ -784,7 +780,7 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-
+                   
      if avail item then  eb.i-dscr[3]:screen-value in frame {&frame-name} = item.i-name.
   end.
 
@@ -812,7 +808,7 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-
+                   
      if avail item then  eb.i-dscr[4]:screen-value in frame {&frame-name} = item.i-name.
   end.
 
@@ -840,7 +836,7 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-
+                   
      if avail item then  eb.i-dscr[5]:screen-value in frame {&frame-name} = item.i-name.
   end.
 
@@ -868,7 +864,7 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-
+                   
      if avail item then  eb.i-dscr[6]:screen-value in frame {&frame-name} = item.i-name.
   end.
 
@@ -896,7 +892,7 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-
+                   
      if avail item then  eb.i-dscr[7]:screen-value in frame {&frame-name} = item.i-name.
   end.
 
@@ -924,7 +920,7 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-
+                   
      if avail item then  eb.i-dscr[8]:screen-value in frame {&frame-name} = item.i-name.
   end.
 
@@ -952,7 +948,7 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-
+                   
      if avail item then  eb.i-dscr[9]:screen-value in frame {&frame-name} = item.i-name.
   end.
 
@@ -996,7 +992,7 @@ session:data-entry-return = yes.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1205,7 +1201,7 @@ PROCEDURE update-pack :
           eb.i-%[1 for 10]
           with frame {&frame-name}.
   apply "entry" to eb.cas-no in frame {&frame-name}.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

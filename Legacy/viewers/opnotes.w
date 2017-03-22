@@ -198,7 +198,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 {methods/template/viewer.i}
 
@@ -238,7 +237,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -248,11 +247,11 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-dept V-table-Win
 ON CHOOSE OF btn-dept IN FRAME F-Main /* Department List */
 DO:
-
+  
   DEF VAR v-deptlst AS cha NO-UNDO.
-
+  
       RUN addon/windows/d-deptlk.w (v-machine,OUTPUT v-deptlst).
-
+  
   IF v-deptlst <> "" THEN DO:
      FIND FIRST mach WHERE mach.company = g_company AND
                            mach.m-code = v-machine NO-LOCK NO-ERROR.
@@ -263,11 +262,10 @@ DO:
      FIND FIRST dept WHERE dept.code EQ notes.note_code:SCREEN-VALUE NO-LOCK NO-ERROR.
      dept-dscr:screen-value in frame {&frame-name} = if avail dept then dept.dscr else "".
      APPLY "leave" TO notes.note_code.
-
+     
   END.
   v-got-dept = YES.
   RETURN NO-APPLY.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -342,11 +340,11 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+  
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -479,7 +477,7 @@ IF v-machine EQ "" THEN
 DO WITH FRAME {&FRAME-NAME}:
 btn-dept:HIDDEN = YES.
 END.
-
+                                      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -578,7 +576,7 @@ PROCEDURE valid-note_code :
       RETURN ERROR.
     END.
   END.
-
+    
 
 END PROCEDURE.
 

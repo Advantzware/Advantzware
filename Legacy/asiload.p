@@ -250,7 +250,4 @@ IF SEARCH(".\reftable.d") NE ? AND CAN-DO('ASI,NoSweat',USERID('NoSweat')) THEN 
 
 END. /* if search */
 
-IF SEARCH (".\SmartMenu.dat") NE ? THEN 
-RUN SmartMenu.p.
-
 SESSION:SET-WAIT-STATE("").

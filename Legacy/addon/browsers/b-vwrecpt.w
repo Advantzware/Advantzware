@@ -4,10 +4,6 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -253,8 +249,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -337,7 +331,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -353,7 +347,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-
+   
    RUN new-state in phandle ('update-begin':U).
 
 END.
@@ -435,7 +429,7 @@ DO:
             RUN custitem/l-vwbol.w(INPUT cocode,
                                    INPUT "",
                                    OUTPUT lv-rowids).
-
+   
             IF lv-rowids NE "" THEN DO:
                RUN dispatch('cancel-records').     
                RUN dispatch('end-update').
@@ -443,18 +437,18 @@ DO:
                /*RUN dispatch ('open-query').*/
 
                v-lvwbol = YES.
-
+               
                FOR EACH w-rowid:
                   DELETE w-rowid.
                END.
-
+   
                DO li = 1 TO NUM-ENTRIES(lv-rowids):
                   IF ENTRY(li,lv-rowids) NE "" THEN DO:
                      CREATE w-rowid.
                      w-rowid = ENTRY(li,lv-rowids).
                   END.
                END.
-
+   
                DO WHILE AVAIL vend-whse-trans AND CAN-FIND(FIRST w-rowid):
                   FIND FIRST w-rowid WHERE w-rowid EQ STRING(ROWID(vend-whse-trans)) NO-ERROR.
                   IF AVAIL w-rowid THEN DELETE w-rowid.
@@ -477,7 +471,7 @@ ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
-
+  
   ll-help-run = no.
 END.
 
@@ -572,7 +566,7 @@ DO:
 /*       RUN val-usage-date.                         */
 /*       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. */
 /*    END.                                           */
-
+       
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -615,7 +609,7 @@ DO:
       RUN val-vend-plant-dept-code NO-ERROR.        
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. 
     END.
-
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -829,7 +823,7 @@ FOR EACH b-oe-boll WHERE b-oe-boll.company = cocode
 END.
 
 IF AVAILABLE(tt-bol) AND v-cnt = 1 THEN DO:
-
+   
    FIND FIRST b-vend-whse-item WHERE b-vend-whse-item.company     = tt-bol.company
                                  AND b-vend-whse-item.fg-item-no  = tt-bol.i-no NO-LOCK NO-ERROR.
    ASSIGN
@@ -846,7 +840,7 @@ IF AVAILABLE(tt-bol) AND v-cnt = 1 THEN DO:
       vend-whse-trans.vendor-plant-code:SCREEN-VALUE IN BROWSE {&browse-name}  = CAPS(b-vend-whse-item.vendor-plant-code)
       vend-whse-trans.cust-part-no:SCREEN-VALUE IN BROWSE {&browse-name}       = CAPS(b-vend-whse-item.cust-part-no)
       vend-whse-trans.plant-tot-oh-qty:SCREEN-VALUE IN BROWSE {&browse-name}   = STRING(b-vend-whse-item.plant-tot-oh-qty + tt-bol.qty).
-
+   
    FIND FIRST b-oe-ordl WHERE b-oe-ordl.company  EQ tt-bol.company
                           AND b-oe-ordl.i-no     EQ tt-bol.i-no
                           AND b-oe-ordl.job-no   EQ tt-bol.job-no
@@ -856,30 +850,30 @@ IF AVAILABLE(tt-bol) AND v-cnt = 1 THEN DO:
       vend-whse-trans.sell-price:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(b-oe-ordl.t-price).
 END.
 ELSE DO:
-
+   
    RUN local-cancel-record.
 
    FOR EACH tt-bol:
       v-r-no = 0.
       FIND LAST b-vend-whse-trans USE-INDEX r-no NO-LOCK NO-ERROR.
       IF AVAIL b-vend-whse-trans AND b-vend-whse-trans.r-no > v-r-no THEN v-r-no = b-vend-whse-trans.r-no.
-
+      
       FIND LAST b-vend-whse-trans-hist USE-INDEX r-no NO-LOCK NO-ERROR.
       IF AVAIL b-vend-whse-trans-hist AND b-vend-whse-trans-hist.r-no GT v-r-no THEN v-r-no = b-vend-whse-trans-hist.r-no.
-
-
+      
+      
       DO WHILE TRUE:
          v-r-no = v-r-no + 1.
-
+      
          FIND FIRST b-vend-whse-trans-hist WHERE b-vend-whse-trans-hist.r-no = v-r-no USE-INDEX r-no NO-LOCK NO-ERROR.
          IF AVAIL b-vend-whse-trans-hist THEN NEXT.
-
+      
          FIND FIRST b-vend-whse-trans WHERE b-vend-whse-trans.r-no = v-r-no USE-INDEX r-no NO-LOCK NO-ERROR.
          IF AVAIL b-vend-whse-trans THEN NEXT.
-
+      
          LEAVE.
       END.
-
+      
       CREATE vend-whse-trans. 
       ASSIGN
          vend-whse-trans.company       = tt-bol.company
@@ -902,7 +896,7 @@ ELSE DO:
          vend-whse-trans.vend-job-no   = tt-bol.job-no
          vend-whse-trans.vend-job-no2  = tt-bol.job-no2 
          vend-whse-trans.vend-ord-no   = tt-bol.ord-no.
-
+   
       FIND FIRST b-oe-ordl WHERE b-oe-ordl.company  EQ tt-bol.company
                              AND b-oe-ordl.i-no     EQ tt-bol.i-no
                              AND b-oe-ordl.job-no   EQ tt-bol.job-no
@@ -910,7 +904,7 @@ ELSE DO:
                              AND b-oe-ordl.line     EQ tt-bol.LINE NO-LOCK NO-ERROR.
       IF AVAILABLE(b-oe-ordl) THEN
          vend-whse-trans.sell-price = b-oe-ordl.t-price.
-
+      
       FIND FIRST b-vend-whse-item WHERE b-vend-whse-item.company = tt-bol.company
                                     AND b-vend-whse-item.fg-item = tt-bol.i-no NO-LOCK NO-ERROR.
       IF AVAILABLE(b-vend-whse-item) THEN DO:
@@ -1105,7 +1099,7 @@ PROCEDURE local-disable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   if valid-handle(hd-post-child) then  hd-post-child:sensitive = yes.
             /* value assigned from local-enable-fields*/
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1122,7 +1116,7 @@ PROCEDURE local-enable-fields :
   def var hd-next as widget-handle no-undo.
   DEF VAR li AS INT NO-UNDO.
 
-
+   
   /* Code placed here will execute PRIOR to standard behavior. */
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1137,7 +1131,7 @@ PROCEDURE local-enable-fields :
   DO WITH FRAME {&FRAME-NAME}:
     APPLY "entry" TO vend-whse-trans.vend-bol-no IN BROWSE {&browse-name}.
   END.
-
+ 
 
 END PROCEDURE.
 
@@ -1170,7 +1164,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF VAR li AS INT NO-UNDO.
-
+  
 
    /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -1376,7 +1370,7 @@ DO WITH FRAME {&FRAME-NAME}:
                          WHERE  b-vend-whse-item.company     = b-oe-boll.company
                            AND b-vend-whse-item.fg-item-no  = b-oe-boll.i-no
                        ) NO-ERROR.      
-
+      
     /* gdm - 11160904 */       
 
       FIND FIRST b-vend-whse-item WHERE b-vend-whse-item.company     = b-oe-boll.company

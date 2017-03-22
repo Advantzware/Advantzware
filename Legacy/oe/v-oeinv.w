@@ -338,7 +338,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 {methods/template/viewer.i}
 
@@ -431,7 +430,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -519,7 +518,6 @@ END.
 ON CHOOSE OF btnCalendar-1 IN FRAME F-Main
 DO:
   {methods/btnCalendar.i inv-head.inv-date}
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -749,11 +747,11 @@ END.
 /* ***************************  Main Block  *************************** */
 session:data-entry-return = yes.
   RUN oe/oe-sysct.p.
-
+  
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -869,7 +867,7 @@ PROCEDURE display-cust-detail :
   DEF VAR v-ord-limit AS DEC NO-UNDO.
   DEF VAR v-crd-limit AS DEC NO-UNDO.
 
-
+ 
   find cust where recid(cust) = ip-recid no-lock no-error.
   if avail cust then do with frame {&frame-name} :
     ll-cust-displayed = yes.
@@ -891,7 +889,7 @@ PROCEDURE display-cust-detail :
             v-ord-limit       = cust.ord-lim
             v-crd-limit       = cust.cr-lim - (cust.acc-bal + cust.ord-bal).
 
-
+    
     if inv-head.carrier eq "" then inv-head.carrier:screen-value = cust.carrier.
 
     assign inv-head.cust-no:screen-value   = cust.cust-no
@@ -911,7 +909,7 @@ PROCEDURE display-cust-detail :
        inv-head.sold-city:SCREEN-VALUE    = inv-head.city:SCREEN-VALUE
        inv-head.sold-state:SCREEN-VALUE   = inv-head.state:SCREEN-VALUE
        inv-head.sold-zip:SCREEN-VALUE     = inv-head.zip:SCREEN-VALUE.*/
-
+       
     ASSIGN
      inv-head.sold-no:SCREEN-VALUE = cust.cust-no
      ll-use-soldto                 = YES
@@ -1001,7 +999,7 @@ PROCEDURE hold-invoice :
           DO:
              /* This Invoice, FG, or Customer */
              ASSIGN v-Date = inv-head.inv-date.
-
+             
              RUN oe\invhold.w(OUTPUT v-choice,INPUT-OUTPUT v-date, INPUT ROWID(inv-head), OUTPUT v-rowid-list).
 
              IF v-choice EQ "FG" THEN
@@ -1037,11 +1035,11 @@ PROCEDURE hold-invoice :
                         bf-head.company EQ inv-head.company AND
                         bf-head.cust-no EQ inv-head.cust-no AND
                         bf-head.stat EQ "H":
-
+    
                         ASSIGN bf-head.stat = ""
                                bf-head.inv-date = v-date.
                     END.
-
+    
                     RELEASE bf-head.
                     inv-status:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RELEASED".
                 END.
@@ -1153,7 +1151,7 @@ PROCEDURE hold-invoice :
          ASSIGN bf-head.stat = "".
          RELEASE bf-head.
 /*                    bf-head.inv-date = v-date */
-
+                
 /*         END. */
      END.
  END.
@@ -1185,7 +1183,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN ld-prev-frt-tot = IF inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0 .
-
+         
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1198,7 +1196,7 @@ PROCEDURE local-assign-record :
   /* WFK - took out frt-pay eq 'P', should only be added to total if a 'b' */
   IF inv-status EQ "ON HOLD" AND inv-head.stat NE "H" THEN inv-head.stat = "H".
   inv-head.f-bill = inv-head.frt-pay eq "B" /* OR inv-head.frt-pay eq "P" */.
-
+  
 
   /* recalc tax */
   /*if inv-head.tax-gr <> "" THEN DO: */
@@ -1293,7 +1291,7 @@ PROCEDURE local-assign-record :
                                         stax.tax-rate1[i] / 100,2).
                    ld-tax-amt = ld-tax-amt + ld-tax-tmp.
                    ld-tax-tot = ld-tax-tot + ld-tax-tmp.
-
+      
               end.
       end.      
   IF inv-head.cust-no NE '' AND inv-head.sman[1] EQ '' THEN DO:
@@ -1311,9 +1309,9 @@ PROCEDURE local-assign-record :
   IF inv-head.tax-gr = "" THEN ld-tax-tot = 0.
 
   ASSIGN inv-head.t-inv-tax = ld-tax-tot.
-
+   
   ASSIGN inv-head.t-inv-rev = ld-inv-accum + inv-head.t-inv-tax.
-
+    
   RUN dispatch ('display-fields').
 
 END PROCEDURE.
@@ -1402,7 +1400,7 @@ PROCEDURE local-display-fields :
   DEF BUFFER b-inv-line FOR inv-line.
   DEF BUFFER b-inv-misc FOR inv-misc.
   DEF BUFFER b-oe-ord FOR oe-ord.
-
+                              
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -1424,7 +1422,7 @@ PROCEDURE local-display-fields :
             NO-ERROR.
      lv-ord-no = IF AVAIL b-inv-line THEN b-inv-line.ord-no ELSE
                 IF AVAIL b-inv-misc THEN b-inv-misc.ord-no ELSE 0.
-
+    
 /*      FIND FIRST b-oe-bolh WHERE b-oe-bolh.company EQ inv-head.company    */
 /*          AND b-oe-bolh.bol-no EQ inv-head.bol-no                         */
 /*          AND b-oe-bolh.cust-no EQ inv-head.cust-no NO-LOCK NO-ERROR.     */
@@ -1440,7 +1438,7 @@ PROCEDURE local-display-fields :
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
         RUN set-status-btn-lbl IN WIDGET-HANDLE(char-hdl) (INPUT inv-head.stat).
   END.
-
+  
   DISABLE inv-status WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -1459,12 +1457,12 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-cust-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  
   RUN valid-freight NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   RUN soldto-question.
-
+ 
   RUN valid-sold-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1476,7 +1474,7 @@ PROCEDURE local-update-record :
 
   RUN valid-carrier NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  
   RUN valid-fob NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1581,7 +1579,7 @@ PROCEDURE soldto-question :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   IF NOT ll-soldto-ans THEN DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      ll-use-soldto = NO
@@ -1649,7 +1647,7 @@ PROCEDURE valid-cust-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     v-msg = "".
 
@@ -1726,7 +1724,7 @@ PROCEDURE valid-freight :
        NOT CAN-FIND(FIRST inv-line
                     WHERE inv-line.company EQ cocode 
                       AND inv-line.r-no EQ inv-head.r-no)
-
+                      
     THEN DO:
      MESSAGE " **must enter line item before entering freight**"
           VIEW-AS ALERT-BOX ERROR.
@@ -1764,7 +1762,7 @@ PROCEDURE valid-sold-no :
         APPLY "entry" TO inv-head.sold-no.
         RETURN ERROR.
      END.
-
+    
      IF NOT ll-use-soldto THEN
      DO:
         FIND FIRST shipto WHERE
@@ -1772,7 +1770,7 @@ PROCEDURE valid-sold-no :
              shipto.cust-no EQ inv-head.cust-no:SCREEN-VALUE AND
              shipto.ship-id EQ inv-head.sold-no:SCREEN-VALUE
              NO-LOCK NO-ERROR.
-
+    
         IF AVAIL shipto THEN
            assign inv-head.sold-no:SCREEN-VALUE  = shipto.ship-id
                   inv-head.sold-name:SCREEN-VALUE = shipto.ship-name
@@ -1807,7 +1805,7 @@ PROCEDURE valid-sold-no :
                     lv-ship-name = inv-head.sold-name:SCREEN-VALUE IN FRAME {&FRAME-NAME}
                     lv-ship-id = inv-head.sold-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}    
                     lv-ship-state = inv-head.sold-state:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
-
+              
                  RUN viewers/nship.w (ROWID(cust),
                                       INPUT lv-ship-id,
                                       INPUT lv-ship-name,
@@ -1816,7 +1814,7 @@ PROCEDURE valid-sold-no :
            END.
         END.
      END.
-
+    
      ll-soldto-ans = YES.
   END.
 
@@ -1832,7 +1830,7 @@ PROCEDURE valid-tax-gr :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     IF inv-head.tax-gr:SCREEN-VALUE NE "" AND
        NOT CAN-FIND(FIRST stax

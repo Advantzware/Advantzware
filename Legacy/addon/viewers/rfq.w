@@ -261,13 +261,12 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -287,9 +286,9 @@ DO:
   else run browsers/custlook.w  (output lv-cust-no, output lv-cust-name) .
   rfq.cust-no:screen-value = string(lv-cust-no).
   rfq.ship-name:screen-value = lv-cust-name.
-
+  
   RETURN NO-APPLY.
-
+ 
 
 END.
 
@@ -302,7 +301,6 @@ END.
 ON CHOOSE OF lk-cust-no IN FRAME F-Main /* Button 1 */
 DO:
     apply "help" to frame {&frame-name}.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -320,7 +318,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -369,15 +367,15 @@ PROCEDURE assign-company :
   Notes:       
 ------------------------------------------------------------------------------*/
   def buffer bf-rfq for rfq.
-
+  
   find bf-rfq of rfq .
   find first usr where usr.uid = userid(ldbname(1)) no-error.
   if avail usr then do:
      assign bf-rfq.company = usr.company
             bf-rfq.loc = usr.loc
             .
-
-
+            
+     
   end.
 END PROCEDURE.
 
@@ -412,16 +410,16 @@ PROCEDURE get-rfqno :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var new-rfq# like rfq.rfq-no no-undo.
-
+  
   find first rfq-ctrl no-error.
   if avail rfq-ctrl then do:
      new-rfq# = rfq-ctrl.rfq-num.
      rfq-ctrl.rfq-num = rfq-ctrl.rfq-num + 1.
      return string(new-rfq#).
   end.
-
-
-
+    
+  
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

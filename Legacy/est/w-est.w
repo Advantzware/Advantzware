@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: est\w-est.w
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -197,13 +197,17 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -261,7 +265,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -906,8 +910,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_q-boxdes ).
        RUN add-link IN adm-broker-hdl ( h_probe , 'box-calc':U , h_q-boxdes ).
        RUN add-link IN adm-broker-hdl ( h_v-est , 'box-calc':U , h_q-boxdes ).
-
-
+       
+     
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-boxdee ,
              h_folder , 'AFTER':U ).
@@ -1195,9 +1199,9 @@ PROCEDURE hide-quote :
   Notes:       
 ------------------------------------------------------------------------------*/  
   run select-page (li-page[2]).
-
+      
   IF li-page[2] = 10 THEN DO: /* spec folder redisplay foe updated qutoe info */
-
+   
      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"ebhead-target",OUTPUT char-hdl).
 
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -1227,7 +1231,7 @@ PROCEDURE init-box-design :
   RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_q-boxdes ).
   RUN add-link IN adm-broker-hdl ( ip-handle, 'box-calc':U , h_q-boxdes ).
   RUN dispatch IN h_q-boxdes ('initialize').
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1239,14 +1243,14 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */  
   run get-attribute ("current-page").
-
+   
   assign
    li-page[2] = li-page[1]
    li-page[1] = int(return-value).
-
+  
   if li-page[1] = 10 then do:  /* quote */
     def buffer bf-quote for quotehd .
     find first bf-quote where bf-quote.company = g_company and
@@ -1261,7 +1265,7 @@ PROCEDURE local-change-page :
        return no-apply.        
     end.                            
   end.
-
+   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
@@ -1333,7 +1337,7 @@ PROCEDURE local-create-objects :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  {methods/winReSizePgChg.i}
+  /* {methods/winReSizePgChg.i} */
 
 END PROCEDURE.
 
@@ -1348,9 +1352,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-
+   
    RETURN.
-
+       
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1413,12 +1417,12 @@ PROCEDURE Select_Add :
 ------------------------------------------------------------------------------*/
 
   def var char-hdl as cha no-undo.
-
+  
   run select-page(2).
   run get-link-handle in adm-broker-hdl(this-procedure,"add-est-target", output char-hdl).
   run add-estimate in widget-handle(char-hdl).
-
-
+  
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

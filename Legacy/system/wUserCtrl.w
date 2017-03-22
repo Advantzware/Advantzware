@@ -16,7 +16,7 @@
       <none>
 
   History: New V9 Version - January 15, 1998
-
+          
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -166,7 +166,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
     {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -196,7 +195,7 @@ THEN wWin:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -451,16 +450,16 @@ DEFINE VARIABLE iConcurUsers AS INTEGER NO-UNDO.
 DEFINE VARIABLE iUniqueUsers AS INTEGER NO-UNDO.
 RUN system/userCount.p (INPUT "asi", OUTPUT iConcurUsers, OUTPUT iUniqueUsers).
     FIND FIRST asi._license NO-LOCK.
-
+   
     DO WITH FRAME {&frame-name}:
         fiLicensed:SCREEN-VALUE = STRING(asi._license._Lic-ValidUsers).   
         fiActive:screen-value = STRING(iConcurUsers)  .
         /* _Lic-CurrConns */  
         fiAVailable:SCREEN-VALUE = STRING(asi._license._lic-ValidUsers - iConcurUsers).
         fiUnique:SCREEN-VALUE = STRING(iUniqueUsers).
-
+        
     END.
-
+   
 
 END PROCEDURE.
 

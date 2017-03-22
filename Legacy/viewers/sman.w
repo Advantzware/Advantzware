@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -251,7 +247,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -278,7 +274,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -359,15 +355,15 @@ PROCEDURE local-assign-record :
   def var i as int no-undo.
   def var ls-prev-sman like sman.sman no-undo.
   def buffer bf-mtx for smanmtrx.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   ls-prev-sman = sman.sman.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
   if adm-adding-record then do:
      for each custype where custype.company EQ sman.company no-lock:
          page-no = 1.
@@ -405,7 +401,7 @@ PROCEDURE local-assign-record :
                    sman-mtx.type-comm = sman.scomm
                    sman-mtx.custype-no = page-no.
             end.
-
+        
             assign sman-mtx.procat[i] = fgcat.procat
                    sman-mtx.dscr[i]   = fgcat.dscr
                    sman-mtx.comm[i]   = sman.scomm
@@ -423,7 +419,7 @@ PROCEDURE local-assign-record :
         end.  /* each fgcat */
       end. /* each custype */
   end.  /* adding-record */
-
+  
   else if adm-new-record then do:  /* copy */
        /*for each sman-mtx where sman-mtx.company = sman.company and
                                sman-mtx.sman = ls-prev-sman
@@ -485,7 +481,7 @@ PROCEDURE local-update-record :
       smanmtrx.company = sman.company AND
       smanmtrx.sman = sman.sman
       EXCLUSIVE-LOCK:
-
+        
       smanmtrx.commbasis = sman.commbasis.
 
       IF sman.commbasis NE "M" THEN

@@ -4,10 +4,6 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -38,7 +34,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
 
 DEFINE VARIABLE start-time AS CHARACTER NO-UNDO.
 DEFINE VARIABLE end-time AS CHARACTER NO-UNDO.
@@ -237,8 +232,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -305,7 +298,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -439,7 +432,7 @@ PROCEDURE get-rec-key :
   run get-link-handle in adm-broker-hdl(this-procedure, "container-source", output char-hdl).
   if valid-handle(widget-handle(char-hdl)) then 
          run Set-Rec-Key_Header in widget-handle(char-hdl) (emplogin.rec_key, emplogin.employee).
-
+  
 
 END PROCEDURE.
 

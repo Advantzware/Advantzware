@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -38,7 +34,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -277,15 +272,13 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/browser.i}
-
-{Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -356,7 +349,7 @@ DO:
    apply "tab" to self.
    return no-apply. 
   */
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -513,9 +506,9 @@ PROCEDURE get-ord-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   def  output parameter op-ord-rid as rowid no-undo.
-
+  
   op-ord-rid = rowid(oe-ord).
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

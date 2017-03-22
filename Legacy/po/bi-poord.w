@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -48,7 +44,7 @@ ASSIGN cocode = g_company
 
 DEF BUFFER b-ref1 FOR reftable.
 DEF BUFFER b-ref2 FOR reftable.
-
+    
 DEF NEW SHARED VAR factor# AS DECIMAL NO-UNDO.
 DEF NEW SHARED VAR v-default-gl-log AS LOG NO-UNDO.
 DEF NEW SHARED VAR v-default-gl-cha AS cha NO-UNDO.
@@ -270,8 +266,6 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -343,7 +337,7 @@ ASI.po-ordl.line LT 99999999"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -354,7 +348,7 @@ ASI.po-ordl.line LT 99999999"
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
-
+    
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"buttons-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) 
        THEN RUN browser-dbclicked IN WIDGET-HANDLE(char-hdl).
@@ -590,7 +584,7 @@ PROCEDURE delete_item :
     END.
   END.
   FIND CURRENT po-ordl NO-LOCK NO-ERROR.
-
+  
   SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
@@ -624,7 +618,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   IF AVAIL(po-ordl) AND  po-ordl.item-type = NO  THEN
     FIND itemfg NO-LOCK WHERE itemfg.company EQ po-ordl.company
       AND itemfg.i-no EQ po-ordl.i-no
@@ -754,7 +748,7 @@ PROCEDURE set-rec-key :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     APPLY "value-changed" TO BROWSE {&browse-name}.
   END.

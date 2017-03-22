@@ -9,7 +9,7 @@
 /*------------------------------------------------------------------------
 
   File: est-vend.p
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -153,8 +153,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -197,7 +195,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -208,7 +206,7 @@ ASSIGN
 ON GO OF FRAME D-Dialog /* Board Vendor Selection */
 DO:
   IF AVAIL tt-report THEN op-vend-no = tt-report.key-01.
-
+  
   RUN clean-up.
 END.
 
@@ -272,9 +270,9 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
   op-vend-no = tt-report.key-01.
-
+  
   RUN clean-up.
-
+  
   IF ceboard-log AND v-board-cost-not-zero AND op-vend-no NE "" THEN
   DO:
      MESSAGE "Special Board Cost was Entered on Layout Folder" SKIP

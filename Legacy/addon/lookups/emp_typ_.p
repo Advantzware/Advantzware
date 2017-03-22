@@ -1,6 +1,6 @@
 /* emp_typ_.p - Generated 03/30/2000 - 10:35 am by nosweat
 "emp_typ_. " ~
-"ASI " ~
+"EMPTRACK " ~
 "emp_type " ~
 " " ~
 "description " ~
@@ -18,7 +18,7 @@
 "emp_type. " ~
 */
 
-&Scoped-define lookup-db ASI.
+&Scoped-define lookup-db EMPTRACK.
 &Scoped-define lookup-file emp_type
 &Scoped-define where-statement TRUE
 &Scoped-define return-field description

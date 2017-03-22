@@ -1,6 +1,6 @@
 /* users.p - Generated 02/28/1998 -  3:45 pm by Exitt
 "users. " ~
-"ASI " ~
+"NOSWEAT " ~
 "users " ~
 " " ~
 "user_id " ~
@@ -18,7 +18,7 @@
 "users. " ~
 */
 
-&Scoped-define lookup-db ASI.
+&Scoped-define lookup-db NOSWEAT.
 &Scoped-define lookup-file users
 &Scoped-define where-statement TRUE
 &Scoped-define return-field user_id

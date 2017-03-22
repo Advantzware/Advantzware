@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -52,7 +48,7 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 assign
  cocode = g_company
  locode = g_loc.
-
+ 
 def new shared var uom-list as char init "M,EA,L,CS,C,LB,DRM,ROL,PKG,SET,DOZ,BDL" NO-UNDO.
 def var v-invalid as log no-undo.
 DEF VAR lv-cust-no AS cha NO-UNDO.
@@ -534,7 +530,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -546,19 +542,19 @@ ON HELP OF FRAME F-Main
 DO:
   def var char-val as cha no-undo.
   def var lv-handle as handle no-undo.
-
-
+  
+    
   case focus:name :
     when "uom" then do:
       run windows/l-stduom.w (cocode, uom-list, focus:screen-value, output char-val).
       if char-val ne "" then 
         focus:screen-value in frame {&frame-name} = entry(1,char-val).
     end.
-
+     
     otherwise do:
       lv-handle = focus:handle.
       run applhelp.p.
-
+             
       if g_lookup-var ne "" then lv-handle:screen-value = g_lookup-var. 
 
       apply "entry" to lv-handle.
@@ -575,7 +571,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-prmtx.cust-no V-table-Win
 ON ENTRY OF oe-prmtx.cust-no IN FRAME F-Main /* Customer */
 DO:
-
+ 
   oe-prmtx.custype:sensitive = yes.
 END.
 
@@ -592,7 +588,7 @@ DO:
          RETURN NO-APPLY.
       END.
    END.
-
+   
   find first cust
       {sys/ref/custW.i}
         and cust.cust-no eq oe-prmtx.cust-no:screen-value in frame {&frame-name}
@@ -601,7 +597,7 @@ DO:
     assign
      oe-prmtx.cust-no:screen-value in frame {&frame-name} = cust.cust-no
      oe-prmtx.custype:screen-value in frame {&frame-name} = cust.type.
-
+  
     oe-prmtx.custype:sensitive = no.
     apply "entry" to oe-prmtx.i-no.
   end.
@@ -658,7 +654,7 @@ DO:
         RETURN NO-APPLY.
      END.
   END.
-
+  
 
   find first itemfg
       where itemfg.company eq cocode
@@ -671,7 +667,7 @@ DO:
 /* 02061208 per BJ */
 /*     oe-prmtx.procat:sensitive = no. */
 /*     apply "entry" to oe-prmtx.meth. */
-
+    
   end.
 END.
 
@@ -687,7 +683,7 @@ DO:
     enable  oe-prmtx.price    with frame {&frame-name}.
     disable oe-prmtx.discount with frame {&frame-name}.
   end.
-
+  
   else do:
     enable  oe-prmtx.discount with frame {&frame-name}.
     disable oe-prmtx.price    with frame {&frame-name}.
@@ -881,7 +877,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -991,7 +987,7 @@ PROCEDURE enable-oe-prmtx-field :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE ALL.
 
@@ -999,7 +995,7 @@ PROCEDURE enable-oe-prmtx-field :
       ENABLE  oe-prmtx.price.
       DISABLE oe-prmtx.discount.
     END.
-
+  
     ELSE DO:
       ENABLE  oe-prmtx.discount.
       DISABLE oe-prmtx.price.
@@ -1049,7 +1045,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   disable all with frame {&frame-name}.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
@@ -1160,7 +1156,7 @@ PROCEDURE local-update-record :
       RUN valid-cust-no NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
-
+  
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN DO:
      RETURN NO-APPLY.
@@ -1175,47 +1171,47 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN DO:
      RETURN NO-APPLY.
   END.
-
+  
 
   run valid-uom-01.
   if v-invalid then return no-apply.
-
+  
   run valid-uom-02.
   if v-invalid then return no-apply.
-
+  
   run valid-uom-03.
   if v-invalid then return no-apply.
-
+  
   run valid-uom-04.
   if v-invalid then return no-apply.
-
+  
   run valid-uom-05.
   if v-invalid then return no-apply.
-
+  
   run valid-uom-06.
   if v-invalid then return no-apply.
-
+  
   run valid-uom-07.
   if v-invalid then return no-apply.
-
+  
   run valid-uom-08.
   if v-invalid then return no-apply.
-
+  
   run valid-uom-09.
   if v-invalid then return no-apply.
-
+  
   run valid-uom-10.
   if v-invalid then return no-apply.
 
   disable all with frame {&frame-name}.
-
+  
   IF adm-adding-record THEN lv-cust-no = oe-prmtx.cust-no:SCREEN-VALUE.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1435,14 +1431,14 @@ if int(oe-prmtx.qty[01]:screen-value in frame {&frame-name}) ne 0 then do:
         and lookup(uom.uom,uom-list) ne 0
       no-lock no-error.
   if avail uom then oe-prmtx.uom[01]:screen-value = uom.uom.
-
+ 
   else do:
     message "Must enter a valid UOM" view-as alert-box error.
     v-invalid = yes.
     apply "entry" to oe-prmtx.uom[01]. 
   end.
 end.
-
+                     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1464,7 +1460,7 @@ if int(oe-prmtx.qty[02]:screen-value in frame {&frame-name}) ne 0 then do:
         and lookup(uom.uom,uom-list) ne 0
       no-lock no-error.
   if avail uom then oe-prmtx.uom[02]:screen-value = uom.uom.
-
+ 
   else do:
     message "Must enter a valid UOM" view-as alert-box error.
     v-invalid = yes.
@@ -1493,7 +1489,7 @@ if int(oe-prmtx.qty [03]:screen-value in frame {&frame-name}) ne 0 then do:
         and lookup(uom.uom,uom-list) ne 0
       no-lock no-error.
   if avail uom then oe-prmtx.uom[03]:screen-value = uom.uom.
-
+ 
   else do:
     message "Must enter a valid UOM" view-as alert-box error.
     v-invalid = yes.
@@ -1522,7 +1518,7 @@ if int(oe-prmtx.qty[04]:screen-value in frame {&frame-name}) ne 0 then do:
         and lookup(uom.uom,uom-list) ne 0
       no-lock no-error.
   if avail uom then oe-prmtx.uom[04]:screen-value = uom.uom.
-
+ 
   else do:
     message "Must enter a valid UOM" view-as alert-box error.
     v-invalid = yes.
@@ -1551,7 +1547,7 @@ if int(oe-prmtx.qty[05]:screen-value in frame {&frame-name}) ne 0 then do:
         and lookup(uom.uom,uom-list) ne 0
       no-lock no-error.
   if avail uom then oe-prmtx.uom[05]:screen-value = uom.uom.
-
+ 
   else do:
     message "Must enter a valid UOM" view-as alert-box error.
     v-invalid = yes.
@@ -1580,7 +1576,7 @@ if int(oe-prmtx.qty[06]:screen-value in frame {&frame-name}) ne 0 then do:
         and lookup(uom.uom,uom-list) ne 0
       no-lock no-error.
   if avail uom then oe-prmtx.uom[06]:screen-value = uom.uom.
-
+ 
   else do:
     message "Must enter a valid UOM" view-as alert-box error.
     v-invalid = yes.
@@ -1609,7 +1605,7 @@ if int(oe-prmtx.qty[07]:screen-value in frame {&frame-name}) ne 0 then do:
         and lookup(uom.uom,uom-list) ne 0
       no-lock no-error.
   if avail uom then oe-prmtx.uom[07]:screen-value = uom.uom.
-
+ 
   else do:
     message "Must enter a valid UOM" view-as alert-box error.
     v-invalid = yes.
@@ -1638,7 +1634,7 @@ if int(oe-prmtx.qty[08]:screen-value in frame {&frame-name}) ne 0 then do:
         and lookup(uom.uom,uom-list) ne 0
       no-lock no-error.
   if avail uom then oe-prmtx.uom[08]:screen-value = uom.uom.
-
+ 
   else do:
     message "Must enter a valid UOM" view-as alert-box error.
     v-invalid = yes.
@@ -1667,7 +1663,7 @@ if int(oe-prmtx.qty[09]:screen-value in frame {&frame-name}) ne 0 then do:
         and lookup(uom.uom,uom-list) ne 0
       no-lock no-error.
   if avail uom then oe-prmtx.uom[09]:screen-value = uom.uom.
-
+ 
   else do:
     message "Must enter a valid UOM" view-as alert-box error.
     v-invalid = yes.
@@ -1696,7 +1692,7 @@ if int(oe-prmtx.qty[10]:screen-value in frame {&frame-name}) ne 0 then do:
         and lookup(uom.uom,uom-list) ne 0
       no-lock no-error.
   if avail uom then oe-prmtx.uom[10]:screen-value = uom.uom.
-
+ 
   else do:
     message "Must enter a valid UOM" view-as alert-box error.
     v-invalid = yes.

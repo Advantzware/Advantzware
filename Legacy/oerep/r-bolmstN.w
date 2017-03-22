@@ -10,7 +10,7 @@
   File: salrep\r-prodmh.w
 
   Description: Production Highlights
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -248,19 +248,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 
@@ -300,7 +294,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-oe-bolh, EACH oe-bolh WHERE
 */  /* BROWSE browse-machine */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -337,7 +331,6 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -372,7 +365,7 @@ DO:
           LvOutputSelection = "Screen". 
       WHEN 3 THEN
           LvOutputSelection = "Email".
-
+     
   END CASE.
 
   RUN SetBolForm (v-print-fmt).
@@ -381,7 +374,6 @@ DO:
 
   RUN GenerateReport("",NO).
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -395,9 +387,9 @@ DO:
 
     DO WITH FRAME {&FRAME-NAME}:
 
-
+    
          ASSIGN fi_ship-id.
-
+        
          CLOSE QUERY browse-machine.
         RUN build-table. 
          OPEN QUERY browse-machine FOR EACH tt-oe-bolh, EACH oe-bolh WHERE 
@@ -409,7 +401,6 @@ DO:
 
        END.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -450,7 +441,7 @@ DO:
 
       IF SELF:MODIFIED THEN
       DO:
-
+        
       END.
    END.
 END.
@@ -484,10 +475,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i}
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -504,19 +493,19 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-
+   
   ASSIGN
     fi_ship-id = cocode.
 
   RUN enable_UI.
-
+  
   {methods/nowait.i}
   {custom/usrprint.i}
 
   CLOSE QUERY browse-machine.
    RUN build-table. 
   DO WITH FRAME {&FRAME-NAME}:
-
+         
   OPEN QUERY browse-machine FOR EACH tt-oe-bolh, EACH oe-bolh WHERE
        recid(oe-bolh) EQ tt-oe-bolh.tt-recid AND
        oe-bolh.company = cocode  AND
@@ -524,8 +513,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        oe-bolh.posted EQ NO 
        NO-LOCK BY oe-bolh.bol-no.
   END.
-
-    {Advantzware/WinKit/embedfinalize-nonadm.i}
+ 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -549,7 +537,7 @@ PROCEDURE build-table :
        oe-bolh.company = cocode  AND
        oe-bolh.ship-id = fi_ship-id:SCREEN-VALUE AND 
        oe-bolh.posted EQ NO BREAK BY oe-bolh.bol-no :
-
+     
          FIND FIRST tt-oe-bolh WHERE tt-oe-bolh.tt-recid = RECID(oe-bolh)
               NO-ERROR.
          IF NOT AVAIL tt-oe-bolh THEN DO:
@@ -589,12 +577,12 @@ build-work:
      WHERE oe-bolh.company EQ cocode AND 
        recid(oe-bolh) EQ tt-oe-bolh.tt-recid AND
        oe-bolh.posted  EQ NO
-
+       
        AND CAN-FIND (FIRST oe-boll
                      WHERE oe-boll.company EQ oe-bolh.company
                        AND oe-boll.b-no    EQ oe-bolh.b-no )
       USE-INDEX post:
-
+  
     /*IF NOT oe-ctrl.p-bol THEN*/
     FOR EACH oe-boll
        WHERE oe-boll.company EQ oe-bolh.company
@@ -611,8 +599,8 @@ build-work:
 
       NEXT build-work.
     END.
-
-
+  
+ 
     FIND FIRST sys-ctrl-shipto WHERE
          sys-ctrl-shipto.company      EQ oe-bolh.company AND
          sys-ctrl-shipto.name         EQ "BOLMaster" AND
@@ -628,7 +616,7 @@ build-work:
          sys-ctrl-shipto.cust-vend-no EQ oe-bolh.cust-no AND
          sys-ctrl-shipto.ship-id      EQ ''
          NO-LOCK NO-ERROR.
-
+  
 
     ASSIGN
        reportKey10     = oe-bolh.printed /* 05291402 */
@@ -643,7 +631,7 @@ build-work:
        report.term-id = v-term-id AND
        report.rec-id  = RECID(oe-bolh)) THEN
        DO:
-
+        
           CREATE report.
           ASSIGN 
               report.term-id  = v-term-id
@@ -657,12 +645,12 @@ build-work:
                                 ELSE "N" /*BOL only*/ 
               report.key-04   = IF AVAIL sys-ctrl-shipto THEN sys-ctrl-shipto.char-fld ELSE "".
        END.
-
+       
     status default 'Now Processing BOL: ' + string (oe-bolh.bol-no) + '....'.
-
+    
   END.
  END.
-
+  
  /* v-lines-per-page = 76.*/
 
   status default ''.
@@ -723,13 +711,13 @@ PROCEDURE GenerateReport :
    DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
    DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
    DEFINE VARIABLE v-trans-lbl AS CHARACTER NO-UNDO .
-
+   
       CASE rd-dest:
          WHEN 1 THEN RUN output-to-printer(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
          WHEN 2 THEN RUN output-to-screen(INPUT ip-cust-no, INPUT ip-sys-ctrl-shipto).
          WHEN 3 THEN DO:
               IF is-xprint-form THEN DO:
-
+               
                   RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
                   {custom/asimail.i &TYPE = "Customer"
                                 &begin_cust= v-trans-lbl
@@ -745,7 +733,7 @@ PROCEDURE GenerateReport :
                                      &mail-subject="FRAME {&FRAME-NAME}:TITLE"
                                      &mail-body="FRAME {&FRAME-NAME}:TITLE"
                                      &mail-file=list-name }
-
+    
               END.
           END. 
       END CASE.
@@ -814,22 +802,22 @@ PROCEDURE run-report :
   {sys/form/r-top.i}
 
   {sys/inc/print1.i}
-
+  
   {sys/inc/outprint.i value(76)}
 
   SESSION:SET-WAIT-STATE ("general").
-
+   
   {sa/sa-sls01.i}
-
+  
   v-term-id = v-term.
-
+  
   run build-work ('').
 
   ASSIGN lv-pdf-file = init-dir + "\TransBol" + string(TIME) + ".pdf".
 
 
   IF IS-xprint-form THEN DO:
-
+  
       CASE rd-dest:
           WHEN 1 THEN PUT "<PRINTER?>".
           WHEN 2 THEN do:
@@ -839,17 +827,17 @@ PROCEDURE run-report :
                PUT "<PREVIEW>".        
           END.
           WHEN 3 THEN DO:
-               PUT "<PDF-OUTPUT=" + lv-pdf-file + ">" FORM "x(100)".
+               PUT "<PDF-OUTPUT=" + lv-pdf-file + ">" FORM "x(180)".
           END.
       END CASE.
   END.
 
   RUN VALUE(v-program). 
-
+  
    for each report where report.term-id eq v-term-id:
       delete report.
   end.
-
+  
   OUTPUT CLOSE.
 
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -869,20 +857,20 @@ PROCEDURE SetBOLForm :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER icFormName AS CHARACTER NO-UNDO.
-
+   
       CASE icFormName:
          WHEN "ShipTo" OR WHEN "Indiana" THEN
             ASSIGN 
                is-xprint-form = YES
                v-program      = "oe/rep/bolmindc.p".
-
+        
          OTHERWISE
             ASSIGN
                is-xprint-form = YES
                v-program = "oe/rep/bolmindc.p".
      END CASE.
-
-
+  
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

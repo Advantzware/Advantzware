@@ -279,7 +279,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -338,7 +337,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -357,7 +356,6 @@ DO:
     DISPLAY jobs.cadcam_status WITH FRAME {&FRAME-NAME}.
     DISABLE Btn_Clear_CADCAM_Status WITH FRAME {&FRAME-NAME}.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -377,7 +375,6 @@ DO:
     DISPLAY jobs.scheduling_status WITH FRAME {&FRAME-NAME}.
     DISABLE Btn_Clear_Scheduling_Status WITH FRAME {&FRAME-NAME}.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -394,7 +391,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

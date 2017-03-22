@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i}
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -282,7 +278,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -304,7 +300,7 @@ DO:
        FILE-INFO:FILE-NAME = cInitDir
       cInitDir = FILE-INFO:FULL-PATHNAME .
    IF cInitDir = ? THEN cInitDir = "" .
-
+   
    system-dialog get-file ls-filename 
                  title "Select Image File to insert"
                  filters "JPG Files    (*.jpg)" "*.jpg",
@@ -316,7 +312,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-
+      
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -340,7 +336,7 @@ DO:
        FILE-INFO:FILE-NAME = cInitDir
       cInitDir = FILE-INFO:FULL-PATHNAME .
    IF cInitDir = ? THEN cInitDir = "" .
-
+   
    system-dialog get-file ls-filename 
                  title "Select Image File to insert"
                  filters "JPG Files    (*.jpg)" "*.jpg",
@@ -352,7 +348,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-
+      
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -365,7 +361,7 @@ END.
 ON LEAVE OF box-design-hdr.lscore IN FRAME F-Main /* Length!Score */
 DO:
     if lastkey = -1 then return.
-
+    
     def var i as int no-undo.
     def var ls-string as cha init "0,1,2,3,4,5,6,7,8,9" no-undo.
     do i = 1 to length(self:screen-value) :
@@ -374,8 +370,8 @@ DO:
          return no-apply.
       end. 
     end.
-
-
+    
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -410,7 +406,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-
+  
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -536,7 +532,7 @@ if avail xbox-design-hdr then do:
          assign  box-design-line.wscore     = w-box-design-line.wscore-c
                  box-design-line.wcum-score = w-box-design-line.wcum-score-c.
    end.
-
+ 
    if v-rebuild ne "B" then do:
       if v-rebuild eq "S" then
          box-design-hdr.description = w-box-h.description.
@@ -547,7 +543,7 @@ if avail xbox-design-hdr then do:
 
       for each w-box-l of box-design-hdr no-lock,
           first box-design-line of w-box-l:
-
+      
           if v-rebuild eq "S" then
              assign box-design-line.line-no    = w-box-l.line-no
                      box-design-line.line-text  = w-box-l.line-text.
@@ -592,7 +588,7 @@ PROCEDURE build-screen :
          li-col = frame {&frame-name}:column
          li-cnt = 1
          .
-
+         
   for each box-design-line of box-design-hdr where box-design-line.line-text <> ""
                 no-lock by box-design-line.line-no:
       create fill-in lv-wcum-score[li-cnt] 
@@ -624,13 +620,13 @@ PROCEDURE build-screen :
                      message self:name "," {&self-name} view-as alert-box.
                   end.
              end triggers.
-
+                    
       assign li-row = li-row + 1
              li-line-no[li-cnt] = box-design-line.line-no
              li-cnt = li-cnt + 1.       
   end.
   li-cnt = li-cnt - 1.
-
+  
 */  
 
 /* ===== width display =======*/
@@ -638,21 +634,21 @@ PROCEDURE build-screen :
          lv-wcum-score = ""
          li-cnt = 0
          li-line-no = 0.
-
+  
   for each box-design-line of box-design-hdr no-lock by box-design-line.line-no:
       assign lv-wscore = lv-wscore + box-design-line.wscore + chr(13)
              lv-wcum-score = lv-wcum-score + box-design-line.wcum-score + chr(13)
              li-cnt = li-cnt + 1
              li-line-no[li-cnt] = box-design-line.line-no
              .
-
+             
   end.
   /*
   display lv-wscore lv-wcum-score with frame {&frame-name}.
   */
   assign box-design-hdr.wscore:screen-value in frame {&frame-name} = lv-wscore
          box-design-hdr.wcum-score:screen-value in frame {&frame-name} = lv-wcum-score.
-
+         
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -695,23 +691,23 @@ PROCEDURE die-image :
      END.
      ELSE lv-die-image = (IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "") + eb.die-no + ".jpg".
   END.
-
+  
   IF SEARCH(lv-die-image) <> ? THEN DO:
       RUN ShellExecuteA(0, "open", lv-die-image, "", "", 0, OUTPUT tInt).
         IF tInt LE 32 THEN
         DO:
             IF lv-die-image MATCHES "*.pdf*"  THEN DO:
-
+                
                 RUN custom/runapdf.p (OUTPUT lv-cmd).
                 lv-cmd = lv-cmd + chr(32) + lv-die-image.
                 RUN WinExec (INPUT lv-cmd, INPUT 1,OUTPUT lv-return).
             END.
-
+            
             /*ll-dummy = box-image-2:load-image(lv-die-image) in frame {&frame-name}.*/
             OS-COMMAND SILENT VALUE(lv-cmd + " " + '"' + lv-die-image + '"' ).
         END.
   END.
-
+     
   ELSE DO:
      MESSAGE "No Die Image available. Check Die Image!" VIEW-AS ALERT-BOX ERROR.
   END.
@@ -753,10 +749,10 @@ PROCEDURE local-assign-record :
   def var ls-wscore as cha no-undo.
   def var ls-wcum as cha no-undo.
   def var ls-key as cha no-undo.
-
+  
   def var ls-prev-wscore as cha no-undo.
   def var ls-prev-wcum as cha no-undo.
-
+      
   /* Code placed here will execute PRIOR to standard behavior. */
   assign ls-prev-wscore = box-design-hdr.wscore:screen-value in frame {&frame-name}
          ls-prev-wcum = box-design-hdr.wcum-score:screen-value. 
@@ -776,7 +772,7 @@ PROCEDURE local-assign-record :
          li-ln = 1
          ls-wscore = ""      
          . 
-
+         
   do i = 1 to length(ls-ws-value):
      ls-key = substring(ls-ws-value,i,1).
      if asc(ls-key) < 17 then do:  /* control key chr(13) = return key but says ctrl-j */
@@ -809,7 +805,7 @@ PROCEDURE local-assign-record :
          ls-wscore = ""
          ld-wcum = 0
          ls-new-wcum = "".
-
+  
   do i = 1 to length(ls-ws-value):         
      ls-key = substring(ls-ws-value,i,1).
      if asc(ls-key) < 17 then do:  /* control key */
@@ -828,7 +824,7 @@ PROCEDURE local-assign-record :
         assign ls-wscore = ls-wscore + ls-key.
      end.
   end.
-
+  
   for each box-design-line of box-design-hdr no-lock:
       ls-new-wcum = ls-new-wcum + 
                     if box-design-line.wcum-score <> "" then box-design-line.wcum-score
@@ -840,7 +836,7 @@ PROCEDURE local-assign-record :
   def var ld-ls-val as dec no-undo.
   def var li-start as int no-undo.
   def var ls-char as cha no-undo.
-
+  
   assign ls-lscore = ""
          ld-ls-val = 0
          li-start = 0
@@ -876,7 +872,7 @@ PROCEDURE local-assign-record :
 
   end.
   /* ===== end of lcum-score calc =======*/
-
+ 
   */
 END PROCEDURE.
 
@@ -934,7 +930,7 @@ PROCEDURE local-create-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def buffer xbox-design-hdr for box-design-hdr.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -965,11 +961,11 @@ PROCEDURE local-delete-record :
          VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE response AS LOGICAL.
    IF NOT response THEN  RETURN "ADM-ERROR":U.
    session:set-wait-state("general").
-
+   
    for each box-design-line of box-design-hdr:
        delete box-design-line.
    end.
-
+   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
@@ -977,7 +973,7 @@ PROCEDURE local-delete-record :
   RUN release-shared-buffers.
 
   session:set-wait-state("").
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1010,14 +1006,14 @@ PROCEDURE local-display-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+ 
  /*
   run build-screen .
   run get-link-handle in adm-broker-hdl(this-procedure,"container-source", output char-hdl).  
@@ -1029,7 +1025,7 @@ PROCEDURE local-display-fields :
             lv-line-text[i]:visible = yes.
   end.
   */
-
+  
    if not avail box-design-hdr and avail eb then do:
      run build-box ("B") .
    end.   
@@ -1038,7 +1034,7 @@ PROCEDURE local-display-fields :
    DEF VAR ll-dummy AS LOG NO-UNDO.
    IF AVAIL box-design-hdr THEN DO WITH FRAME {&FRAME-NAME}:
       /*ll-dummy = box-image-2:load-image("") in frame {&frame-name} no-error. */
-
+  
       if NOT ll-is-3d-displayed AND box-design-hdr.box-image <> "" then do:
          /*  box-image:auto-resize = yes. */
          ASSIGN box-design-hdr.box-text:HIDDEN = yes
@@ -1075,13 +1071,13 @@ PROCEDURE local-display-fields :
                                AND style.style = bf-eb.style NO-LOCK NO-ERROR.
             IF AVAIL style THEN box-design-hdr.design-no:SCREEN-VALUE = string(style.design-no).
          END.
-
+         
       END.
 
    END.
 
-
-
+ 
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1157,9 +1153,9 @@ PROCEDURE rebuild-box :
           AND est.est-no  EQ box-design-hdr.est-no
         NO-LOCK NO-ERROR.
     {est/checkuse.i}
-
+  
     v-rebuild = "B".  
-
+   
     repeat:
        message "Rebuild 'S'cores, Box 'D'esign, or 'B'oth?" 
            update v-rebuild .
@@ -1218,7 +1214,7 @@ PROCEDURE refresh-boximg :
      ll-dummy = box-image-2:load-image(box-design-hdr.box-image) in frame {&frame-name}.
      /*assign box-image:height-pixels = box-image:height-pixels - 10
             box-image:width-pixels =  box-image:width-pixels - 10.
-
+            
      */
    end.
    ELSE if ll-is-3d-displayed AND
@@ -1227,7 +1223,7 @@ PROCEDURE refresh-boximg :
      ll-dummy = box-image-2:load-image(box-design-hdr.box-3d-image) in frame {&frame-name}.
      /*assign box-image:height-pixels = box-image:height-pixels - 10
             box-image:width-pixels =  box-image:width-pixels - 10.
-
+            
      */
    end.
 
@@ -1315,7 +1311,7 @@ DO WITH FRAME {&FRAME-NAME}:
               box-design-hdr.box-3d-image:HIDDEN = NO.
        DISPLAY box-design-hdr.box-3d-image .
        ll-dummy = box-image-2:load-image("") in frame {&frame-name} no-error.
-
+  
        if box-design-hdr.box-3d-image <> "" then do:
           /*  box-image:auto-resize = yes. */
           ASSIGN box-design-hdr.box-text:HIDDEN = yes
@@ -1383,7 +1379,7 @@ PROCEDURE update-fgitem-img :
                     OS-COMMAND SILENT VALUE(lv-fgimg).
             END.
       END.
-
+              
       ELSE IF AVAIL itemfg THEN DO:
           MESSAGE "No Graphic Image entered. Would you like to enter it?" VIEW-AS ALERT-BOX QUESTION
               BUTTON YES-NO UPDATE ll-ans AS LOG.
@@ -1396,7 +1392,7 @@ PROCEDURE update-fgitem-img :
                 DO:
                     IF itemfg.box-image MATCHES "*.pdf*" THEN
                     DO:
-
+                        
                         RUN custom/runapdf.p (OUTPUT lv-cmd).
                         lv-cmd = lv-cmd + chr(32) + trim(itemfg.box-image).      
                         RUN WinExec (INPUT lv-cmd, INPUT 1,OUTPUT lv-return).
@@ -1411,7 +1407,7 @@ PROCEDURE update-fgitem-img :
    END.
    ELSE
       MESSAGE "No FG Item# entered..." VIEW-AS ALERT-BOX ERROR.
-
+     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1469,7 +1465,7 @@ PROCEDURE update-image :
          IF tInt LE 32 THEN
          DO:
              IF box-design-hdr.box-image MATCHES "*.pdf*"  THEN DO:
-
+                 
                  RUN custom/runapdf.p (OUTPUT lv-cmd).
                  lv-cmd = lv-cmd + chr(32) + box-design-hdr.box-image.      
                  RUN WinExec (INPUT lv-cmd, INPUT 1,OUTPUT lv-return).
@@ -1500,7 +1496,7 @@ PROCEDURE update-image :
          IF tInt LE 32 THEN
          DO:
              IF box-design-hdr.box-3d-image MATCHES "*.pdf*"  THEN DO:
-
+                 
                  RUN custom/runapdf.p (OUTPUT lv-cmd).
                  lv-cmd = lv-cmd + chr(32) + box-design-hdr.box-3d-image.      
                  RUN WinExec (INPUT lv-cmd, INPUT 1,OUTPUT lv-return).
