@@ -145,8 +145,7 @@ DEFINE VARIABLE h_xferjobdata AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btNextItemfg 
-     LABEL "Next Item" 
-     IMAGE-UP FILE "Graphics/32x32/plus.ico":U
+     LABEL "+FG#" 
      SIZE 11 BY 1.67
      .
 
