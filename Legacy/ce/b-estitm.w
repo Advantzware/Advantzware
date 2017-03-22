@@ -3678,7 +3678,7 @@ PROCEDURE local-assign-record :
   END.
 
   IF est.est-type GT 1                           AND
-     (adm-new-record OR eb.yld-qty LT eb.bl-qty) THEN
+     (adm-new-record OR eb.yld-qty NE eb.bl-qty) THEN
     RUN set-yld-qty (ROWID(eb)).
 
   RUN ce/com/istandem.p (ROWID(est), OUTPUT ll-tandem).
