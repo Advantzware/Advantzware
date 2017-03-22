@@ -6,11 +6,11 @@
   ipText = REPLACE(ipText,'|',CHR(10)).
   ipText = REPLACE(ipText,',',' - ').
   ipText = REPLACE(ipText,'@skipLine@','').
+  /*ipText = REPLACE(ipText,'@jobDescription@',ttblJob.jobDescription).*/
   ipText = REPLACE(ipText,'@dueDate@',STRING(ttblJob.dueDate,'99.99.9999')).
   ipText = REPLACE(ipText,'@Due Time@',STRING(ttblJob.dueTime,'HH:MM:SS am')).
   ipText = REPLACE(ipText,'@endDate@',STRING(ttblJob.endDate,'99.99.9999')).
   ipText = REPLACE(ipText,'@End Time@',STRING(ttblJob.endTime,'HH:MM:SS am')).
-  ipText = REPLACE(ipText,'@jobDescription',ttblJob.jobDescription).
   ipText = REPLACE(ipText,'@jobLocked@',STRING(ttblJob.jobLocked,'Yes/No')).
   ipText = REPLACE(ipText,'@jobSequence@',STRING(INT(ttblJob.jobSequence),'zz9')).
   ipText = REPLACE(ipText,'@jobSort@',ttblJob.jobSort).
@@ -158,4 +158,5 @@
   ipText = REPLACE(ipText,'@userField96@',ttblJob.userField96).
   ipText = REPLACE(ipText,'@userField97@',ttblJob.userField97).
   ipText = REPLACE(ipText,'@userField98@',ttblJob.userField98).
+  ipText = REPLACE(ipText,'@jobDescription@','').
   opText = ipText.

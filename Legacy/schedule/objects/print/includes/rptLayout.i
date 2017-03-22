@@ -77,6 +77,7 @@ PROCEDURE buildLines:
   DEFINE INPUT PARAMETER ipHeaderLines AS LOGICAL NO-UNDO.
 
   DEFINE VARIABLE lvFieldFormat AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cText AS CHARACTER NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
   ASSIGN
@@ -105,8 +106,11 @@ PROCEDURE buildLines:
       RUN loadField ({&useTable}.job).
       WHEN 'jobCompleted' THEN
       RUN loadField (STRING({&useTable}.jobCompleted,lvFieldFormat)).
-      WHEN 'jobDescription' THEN
-      RUN loadField ({&useTable}.jobDescription).
+      WHEN 'jobDescription' THEN DO:
+          cText = REPLACE({&useTable}.jobDescription,'|',' ').
+          RUN jobText (cText, OUTPUT cText).
+          RUN loadField (cText).
+      END.
       WHEN 'jobLocked' THEN
       RUN loadField (STRING({&useTable}.jobLocked,lvFieldFormat)).
       WHEN 'jobSort' THEN
@@ -345,6 +349,10 @@ PROCEDURE getConfiguration:
   IMPORT version.
   INPUT CLOSE.
   RUN VALUE('get' + version).
+END PROCEDURE.
+
+PROCEDURE jobText:
+    {{&loads}/jobText.i}
 END PROCEDURE.
 
 PROCEDURE loadField:
