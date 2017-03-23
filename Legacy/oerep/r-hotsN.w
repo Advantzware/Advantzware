@@ -1903,8 +1903,6 @@ FIND FIRST users WHERE
 
  lv-pdf-file = tmp2-dir + "\hots" + STRING(TIME).
 
-SESSION:SET-WAIT-STATE("general").
-
 FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
   IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
