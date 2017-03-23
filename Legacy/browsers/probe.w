@@ -3101,7 +3101,8 @@ PROCEDURE print42 :
      v-update-qty-gsa = NO
      ld-gsa-brd = 0
      ld-gsa-mat = 0
-     ld-gsa-lab = 0.
+     ld-gsa-lab = 0
+     dTotalManHrs = 0.
 
   {cec/print42p.i}
 
