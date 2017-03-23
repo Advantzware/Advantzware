@@ -149,15 +149,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-ASSIGN
-       Btn_Close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
-
-ASSIGN
-       Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
 
 /* SETTINGS FOR FILL-IN scr-text IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
