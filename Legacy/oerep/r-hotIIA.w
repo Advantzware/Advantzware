@@ -1348,8 +1348,6 @@ FIND FIRST users WHERE
 
  lv-pdf-file = tmp2-dir + "\hots" + STRING(TIME).
 
-SESSION:SET-WAIT-STATE("general").
-
 /*{oe/rep/oehots.i}*/
 {oe/rep/oehotsII.i}
 
