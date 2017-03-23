@@ -575,15 +575,15 @@ FOR EACH job-hdr NO-LOCK
             BY job-mch.blank-no
             BY job-mch.line
       :
-    IF FIRST-OF(job-mch.frm) OR cascadeJob EQ NO THEN resSeq = 0.
-
     IF est.est-type EQ 3 OR est.est-type EQ 4 OR
        est.est-type EQ 7 OR est.est-type EQ 8 THEN DO:
       IF job-mch.frm NE job-hdr.frm THEN NEXT.
       IF job-hdr.blank-no LE 1 AND job-mch.blank-no GT 1 THEN NEXT.
       IF job-hdr.blank-no GT 1 AND job-hdr.blank-no NE job-mch.blank-no THEN NEXT.
     END. /* tandem or combo */
-    
+
+    IF FIRST-OF(job-mch.frm) OR cascadeJob EQ NO THEN resSeq = 0.
+
     IF traceON THEN DO:
       debugCount = debugCount + 1.
       PUT UNFORMATTED
@@ -949,28 +949,30 @@ FOR EACH job-hdr NO-LOCK
               /* ELSE getItemNo(job-mch.company,job-mch.job-no,job-mch.job-no2,job-mch.frm,job-hdr.i-no). */
 
     IF ufDC AND
-       CAN-FIND(FIRST pc-prdd
-                WHERE pc-prdd.company  EQ job-mch.company
-                  AND pc-prdd.job-no   EQ job-mch.job-no
-                  AND pc-prdd.job-no2  EQ job-mch.job-no2
-                  AND pc-prdd.frm      EQ job-mch.frm
-                  AND pc-prdd.blank-no EQ job-mch.blank-no
-                  AND pc-prdd.pass     EQ job-mch.pass
-                  AND pc-prdd.m-code   EQ job-mch.m-code
-                  AND pc-prdd.qty      NE 0) THEN
-    FOR EACH pc-prdd NO-LOCK
-        WHERE pc-prdd.company  EQ job-mch.company
-          AND pc-prdd.job-no   EQ job-mch.job-no
-          AND pc-prdd.job-no2  EQ job-mch.job-no2
-          AND pc-prdd.frm      EQ job-mch.frm
-          AND pc-prdd.blank-no EQ job-mch.blank-no
-          AND pc-prdd.pass     EQ job-mch.pass
-          AND pc-prdd.m-code   EQ job-mch.m-code
-          AND pc-prdd.qty      NE 0
+       CAN-FIND(FIRST mch-act NO-LOCK
+        WHERE mch-act.company  EQ job-mch.company
+          AND mch-act.job-no   EQ job-mch.job-no
+          AND mch-act.job-no2  EQ job-mch.job-no2
+          AND mch-act.frm      EQ job-mch.frm
+          AND mch-act.blank-no EQ job-mch.blank-no
+          AND mch-act.pass     EQ job-mch.pass
+          AND mch-act.qty      NE 0) THEN
+    FOR EACH mch-act NO-LOCK
+        WHERE mch-act.company  EQ job-mch.company
+          AND mch-act.job-no   EQ job-mch.job-no
+          AND mch-act.job-no2  EQ job-mch.job-no2
+          AND mch-act.frm      EQ job-mch.frm
+          AND mch-act.blank-no EQ job-mch.blank-no
+          AND mch-act.pass     EQ job-mch.pass
+          AND mch-act.qty      NE 0,
+        FIRST job-code NO-LOCK
+        WHERE job-code.code EQ mch-act.code
+          AND (job-code.cat EQ "RUN"
+           OR  job-code.cat EQ "DT")
         :
         userField[90] = setUserField(90,STRING(INTEGER(userField[90])
-                      + pc-prdd.qty,"->>>,>>>,>>9")).
-    END. /* each pc-prdd */
+                      + mch-act.qty,"->>>,>>>,>>9")).
+    END. /* each mch-act */
 
     ASSIGN
       customVal = SUBSTR(customValueList,2)
