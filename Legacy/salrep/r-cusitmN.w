@@ -95,7 +95,7 @@ DEFINE TEMP-TABLE w-data NO-UNDO
 DEFINE TEMP-TABLE ttgroup
     FIELD group-name AS CHARACTER
     FIELD qty-ship    AS INTEGER
-    FIELD inv-amt     AS INTEGER .
+    FIELD inv-amt     AS DECIMAL .
 
 DEFINE VARIABLE v-print-fmt AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
@@ -2442,11 +2442,11 @@ EMPTY TEMP-TABLE tt-report.
                          WHEN "fgitem"  THEN cVarValue = "" .
                          WHEN "item-name"   THEN cVarValue = "" .
                          WHEN "ord"  THEN cVarValue = "" .
-                        WHEN "qty-ship"   THEN cVarValue = STRING(v-qty[3],"->>>,>>>,>>9") .
-                        WHEN "unit-pr"  THEN cVarValue = "" .
-                        WHEN "uom"   THEN cVarValue = "" .
-                        WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[3],"->,>>>,>>>,>>9.99") .
-                        WHEN "cust-g"  THEN cVarValue = "" .
+                         WHEN "qty-ship"   THEN cVarValue = STRING(v-qty[3],"->>>,>>>,>>9") .
+                         WHEN "unit-pr"  THEN cVarValue = "" .
+                         WHEN "uom"   THEN cVarValue = "" .
+                         WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[3],"->,>>>,>>>,>>9.99") .
+                         WHEN "cust-g"  THEN cVarValue = "" .
 
                     END CASE.
 
@@ -2593,9 +2593,9 @@ EMPTY TEMP-TABLE tt-report.
            FOR EACH ttgroup NO-LOCK BY ttgroup.group-name :
             PUT "Customer Group " + STRING(ttgroup.group-name,"x(8)") + " Grand Totals:"  AT 10 FORMAT "x(37)"
                 SPACE(5)
-                " Qty Shipped: " + STRING(ttgroup.qty-ship) FORMAT "x(18)"
-                SPACE(5)
-                "Invoice Amt: " + STRING(ttgroup.inv-amt)  FORMAT "x(18)"
+                " Qty Shipped: " + STRING(ttgroup.qty-ship,"->>>,>>>,>>9") FORMAT "x(36)"
+                SPACE(1)
+                "Invoice Amt: " + STRING(ttgroup.inv-amt,"->,>>>,>>>,>>9.99")  FORMAT "x(36)"
                 .
            END.
            PUT SKIP(1) .

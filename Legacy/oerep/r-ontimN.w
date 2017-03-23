@@ -1649,7 +1649,7 @@ SESSION:SET-WAIT-STATE ("general").
                 SPACE(5)
                 "On-Time: " + STRING(ttgroup.ontime)  FORMAT "x(15)"
                 SPACE(5)
-                  STRING(ttgroup.deliver / ttgroup.ontime * 100,">>9.99%")  FORMAT "x(16)" SKIP .
+                  STRING(ttgroup.ontime / ttgroup.deliver  * 100,">>9.99%")  FORMAT "x(16)" SKIP .
         END.
 
 
