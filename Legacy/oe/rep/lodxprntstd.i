@@ -1,5 +1,4 @@
 /* oe/rep/invxprnt.i */
-DEFINE VARIABLE cEmlLabel AS CHARACTER NO-UNDO INITIAL "Email:".
 
  FIND FIRST cust NO-LOCK
      WHERE cust.company EQ cocode
@@ -36,7 +35,8 @@ PUT "<FArial><=4><R25><C40><P14> Phone: " cPhone FORMAT "x(15)"  "" SKIP(2).
 PUT "<FArial><=4><R27><C6><P14>" tt-word-print.ship-add1 FORMAT "x(30)" "" .
 PUT "<FArial><=4><R27><C40><P14> Fax: " cFax FORMAT "x(15)" "" SKIP(3).
 PUT "<FArial><=4><R29><C6><P14>" STRING(tt-word-print.ship-city,"x(15)") " " tt-word-print.ship-state FORMAT "x(2)" " " tt-word-print.ship-zip "" .
-PUT "<FArial><=4><R29><C40><P14> " (IF cEmail NE "" THEN cEmlLabel ELSE "")  cEmail FORMAT "x(30)" "" SKIP(2).
+PUT "<FArial><=4><R29><C40><P14> " cEmail FORMAT "x(30)"  "" SKIP(2).
+
 
 PUT "<R34><C5><#4><FROM><R34><C70><RECT><||3>" SKIP
     "<R47><C5><FROM><R47><C70><LINE><||3>" SKIP  

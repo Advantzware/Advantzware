@@ -7036,7 +7036,7 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
                {oe/rep/lodxprnt8.i}
            END.
            ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag9.xpr" THEN DO:
-               {oe/rep/lodxprnt8.i}
+               {oe/rep/lodxprnt9.i}
            END.
            ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag10.xpr" THEN DO:
                {oe/rep/lodxprnt10.i}

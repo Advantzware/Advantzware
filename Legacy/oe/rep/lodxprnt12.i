@@ -42,14 +42,14 @@ PUT  "<C1><#2>".
     "<R31><C23><FROM><R35><C23><LINE><||3>" SKIP
     "<R31><C80><FROM><R35><C80><LINE><||3>" SKIP.
 
- PUT "<FArial><=8><R32><C3><B><P22> Cust PO# " "<C25>" tt-word-print.cust-po-no  FORMAT ">>>>>>>>>"   "</B>" SKIP.
+ PUT "<FArial><=8><R32><C3><B><P22> Cust PO# " "<C25>" tt-word-print.cust-po-no  FORMAT "x(15)"   "</B>" SKIP.
 
  PUT "<R37><C23><#9><FROM><R37><C80><RECT><||3>" SKIP
     "<R41><C23><FROM><R41><C80><LINE><||3>" SKIP  
     "<R37><C23><FROM><R41><C23><LINE><||3>" SKIP
     "<R37><C80><FROM><R41><C80><LINE><||3>" SKIP.
 
- PUT "<FArial><=9><R38><C3><B><P22> XPEDX PO: " "<C25>" tt-word-print.po-no FORMAT ">>>>>>>>>"    "</B>" SKIP.
+ PUT "<FArial><=9><R38><C3><B><P22> XPEDX PO: " "<C25>" tt-word-print.po-no FORMAT ">>>>>>>>>>"    "</B>" SKIP.
 
  PUT "<R43><C23><#10><FROM><R43><C80><RECT><||3>" SKIP
     "<R47><C23><FROM><R47><C80><LINE><||3>" SKIP  
@@ -77,7 +77,7 @@ PUT  "<C1><#2>".
     "<R61><C23><FROM><R65><C23><LINE><||3>" SKIP
     "<R61><C80><FROM><R65><C80><LINE><||3>" SKIP.
 
- PUT "<FArial><=13><R62><C3><B><P22> UNIT QTY: " "<C25>" tt-word-print.ord-qty    "</B>" SKIP.
+ PUT "<FArial><=13><R62><C3><B><P22> UNIT QTY: " "<C25>" tt-word-print.total-unit FORMAT ">,>>>,>>9"    "</B>" SKIP.
 
  .
 
