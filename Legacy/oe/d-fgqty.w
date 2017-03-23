@@ -112,24 +112,24 @@ DEFINE QUERY D-Dialog FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     itemfg.i-no AT ROW 2.67 COL 25 COLON-ALIGNED
+     itemfg.i-no AT ROW 2.67 COL 29 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     itemfg.beg-bal AT ROW 3.62 COL 25 COLON-ALIGNED
+     itemfg.beg-bal AT ROW 3.62 COL 29 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
-     itemfg.q-onh AT ROW 4.57 COL 25 COLON-ALIGNED
+     itemfg.q-onh AT ROW 4.57 COL 29 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
-     itemfg.q-ono AT ROW 5.52 COL 25 COLON-ALIGNED
+     itemfg.q-ono AT ROW 5.52 COL 29 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
-     v-alloc AT ROW 6.48 COL 25 COLON-ALIGNED
-     itemfg.q-back AT ROW 7.43 COL 25 COLON-ALIGNED
+     v-alloc AT ROW 6.48 COL 29 COLON-ALIGNED
+     itemfg.q-back AT ROW 7.43 COL 29 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
-     v-avail AT ROW 8.38 COL 25 COLON-ALIGNED
-     itemfg.ord-level AT ROW 9.33 COL 25 COLON-ALIGNED
+     v-avail AT ROW 8.38 COL 29 COLON-ALIGNED
+     itemfg.ord-level AT ROW 9.33 COL 29 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
      Btn_OK AT ROW 16.48 COL 39
