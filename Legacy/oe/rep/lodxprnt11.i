@@ -15,7 +15,7 @@ PUT  "<FArial>".
 PUT  "<C+25><#1>".
 PUT  "<=1>" SKIP.
 PUT  "<C1><#2>".
-PUT   "<#=100><AT=,2><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE= " tt-word-print.tag-no FORMAT "x(20)"   ">"
+PUT   "<#=100><AT=,2><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.tag-no FORMAT "x(20)"   ">"
     "<AT=,3>" tt-word-print.tag-no FORMAT "x(20)"   .
 
 PUT  SKIP(3) "<R9><C3><FROM><R9><C80><LINE>" SKIP .
