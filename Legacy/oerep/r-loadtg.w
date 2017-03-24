@@ -6990,18 +6990,16 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
     {sys/inc/outprint.i value(85)}
 
     SESSION:SET-WAIT-STATE ("general").
-
-    PUT "<PREVIEW>".
-
+   
     IF tb_print-view THEN DO:
         IF NOT lBussFormModle THEN
            PUT "<PREVIEW><MODAL=NO>" FORM "x(30)".
          ELSE
            PUT "<PREVIEW>" FORM "x(30)".
-   END.
-   ELSE DO:
+    END.
+    ELSE DO:
        PUT "<PRINTER?>" FORM "x(30)".
-   END.
+    END.
 
     DO WITH FRAME {&FRAME-NAME}:
         FOR EACH tt-word-print NO-LOCK BREAK
