@@ -17,7 +17,7 @@ PUT  "<=1>" SKIP.
 PUT  "<C1><#2>".
 PUT "<FArial><=4><R11><C5><P12> " "......................................................................  Fold Here  ......................................................................" "" SKIP(2).
 
-PUT   "<#=100><AT=2.10,1.5><FROM><AT=+.6,+6><BARCODE,TYPE=128B,ANGLE=180,CHECKSUM=NONE,VALUE= " tt-word-print.tag-no FORMAT "x(20)"  ">"
+PUT   "<#=100><AT=2.10,1.5><FROM><AT=+.6,+6><BARCODE,TYPE=128B,ANGLE=180,CHECKSUM=NONE,VALUE=" tt-word-print.tag-no FORMAT "x(20)"  ">"
     "<AT=2.9,3.2><P16>" tt-word-print.tag-no FORMAT "x(20)"  .
 
 PUT  SKIP(3) "<R21><C5><FROM><R21><C80><LINE>" SKIP.
@@ -52,8 +52,8 @@ PUT "<FArial><=5><R45><C6><P16> FG#:             " "<B><C20>" tt-word-print.i-no
 
 PUT  "<R21><C71><FROM><R64><C71><LINE>" SKIP.
 
-PUT   "<#=100><AT=4.08,7.50><FROM><AT=+.6,+6><BARCODE,TYPE=128B,ANGLE=90,CHECKSUM=NONE,VALUE= " tt-word-print.tag-no FORMAT "x(20)"  ">"
-    "<AT=6.00,7.35><angle=270>" tt-word-print.tag-no FORMAT "x(20)" "</angle>"  .
+PUT   "<#=100><AT=4.08,7.50><FROM><AT=+.6,+6><BARCODE,TYPE=128B,ANGLE=90,CHECKSUM=NONE,VALUE=" tt-word-print.tag-no FORMAT "x(20)"  ">".
+/*    "<AT=6.00,7.35><angle=270>" tt-word-print.tag-no FORMAT "x(20)" "</angle>"  .*/
  
 PUT "<FArial><=6><R49><C5><P16> Qty/Case " SKIP.
 PUT "<FArial><=6><R51><C5><B><P30>  " tt-word-print.pcs "</B>" SKIP.

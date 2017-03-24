@@ -50,7 +50,7 @@ PUT "<R36><C45><#8><FROM><R36><C80><RECT><||3>" SKIP
 
 PUT "<FArial><=8><R37.5><C45><B><P20>  " tt-word-print.due-date FORMAT "99/99/99"    "</B>" SKIP.
 
-PUT   "<#=100><AT=7.6,0.6><FROM><AT=+.8,+3.1><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE= " tt-word-print.i-no FORMAT "x(30)"   ">"
+PUT   "<#=100><AT=7.6,0.6><FROM><AT=+.8,+3.1><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.i-no FORMAT "x(30)"   ">"
     "<AT=7.3,1><p15>" tt-word-print.i-no FORMAT "x(15)"   .
 
 PUT "<R44><C3><#9><FROM><R44><C40><RECT><||3>" SKIP
@@ -60,7 +60,7 @@ PUT "<R44><C3><#9><FROM><R44><C40><RECT><||3>" SKIP
 
 PUT "<FArial><=4><R42><C3><B><p15> Finished Goods Item# (VPN) </B>" SKIP.
 
-PUT   "<#=100><AT=7.6,5.4><FROM><AT=+.8,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE= " tt-word-print.ord-qty   ">"
+PUT   "<#=100><AT=7.6,5.4><FROM><AT=+.8,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.ord-qty   ">"
     "<AT=7.3,5.7>" tt-word-print.ord-qty   .
 
 PUT "<R44><C45><#9><FROM><R44><C80><RECT><||3>" SKIP
