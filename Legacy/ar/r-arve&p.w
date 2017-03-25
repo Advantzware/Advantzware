@@ -38,11 +38,11 @@ DEF VAR lv-audit-dir AS CHAR NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
-    
+
 FIND FIRST company WHERE company.company = gcompany NO-LOCK NO-ERROR.
 IF AVAIL company THEN lv-comp-curr = company.curr-code.
 
@@ -322,6 +322,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -374,7 +384,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -447,7 +457,7 @@ DO:
 
   run check-date.
   if v-invalid then return no-apply.
-      
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
@@ -457,7 +467,7 @@ DO:
          v-s-date   = begin_date
          v-e-date   = END_date   
          v-sort     = tb_sort.
-  
+
   v-postable = NO.
 
   DO TRANSACTION:       /** GET next G/L TRANS. POSTING # **/
@@ -657,7 +667,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -711,7 +721,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN init-proc.
-  
+
   RUN enable_UI.
 
   IF NOT ip-post THEN
@@ -767,7 +777,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -802,7 +812,7 @@ PROCEDURE clear-ar :
 for each ar-inv where ar-inv.company  eq cocode
                   and ar-inv.posted   eq no
                   /*and ar-inv.printed  eq NO */ :
-      
+
     IF NOT CAN-FIND(FIRST ar-invl WHERE ar-invl.x-no = ar-inv.x-no) THEN
        DELETE ar-inv.
 END.
@@ -823,7 +833,7 @@ PROCEDURE copy-report-to-audit-dir :
   DEF VAR dirname1 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname2 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname3 AS CHAR FORMAT "X(20)" NO-UNDO.
-  
+
   ASSIGN targetfile = lv-audit-dir + "\AR\AU4\Run#"
                     + STRING(v-trnum) + ".txt"
          dirname1 = lv-audit-dir
@@ -918,7 +928,7 @@ find first sys-ctrl where
     sys-ctrl.company eq cocode AND
     sys-ctrl.name    eq "AUDITDIR"
     no-lock no-error.
-  
+
   if not avail sys-ctrl then DO TRANSACTION:
      create sys-ctrl.
      assign
@@ -977,7 +987,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -987,9 +997,9 @@ PROCEDURE output-to-file :
          ASK-OVERWRITE
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -1032,7 +1042,7 @@ PROCEDURE post-gl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /** POST TO GENERAL LEDGER ACCOUNTS TRANSACTION FILE **/
   post-2:
   do transaction:
@@ -1192,7 +1202,7 @@ FORM
 
 FORM
   WITH FRAME f-distrib-t DOWN WIDTH 140 NO-BOX STREAM-IO.
-  
+
   DEF VAR time_stamp AS ch NO-UNDO.
   DEF VAR g1 AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
   DEF VAR g2 LIKE g1 NO-UNDO.
@@ -1214,7 +1224,7 @@ def var tot-debit  like wkdistrib.amount no-undo.
 def var tot-credit like wkdistrib.amount no-undo.
 
 {sys/form/r-top3w.f}
-      
+
 DEF VAR lv-head AS CHAR FORMAT 'X(78)' NO-UNDO.
 IF NOT posting THEN
 lv-head =
@@ -1327,7 +1337,7 @@ DO: /* REPEAT: 9508 cah */
     put screen row lorow columns 70 string(ar-inv.inv-no,">>>>>9") .
     if first-of(cust.cust-no) then put cust.cust-no space(1) cust.name.
 
-    
+
     PUT ar-inv.inv-no   TO 47
         ar-inv.inv-date AT 49 FORM "99/99/99"
         ar-inv.net      AT 58.
@@ -1336,7 +1346,7 @@ DO: /* REPEAT: 9508 cah */
        v-postable = YES
        v2 = v2 + net
        v1 = v1 + ar-inv.disc-taken.
-    
+
     RELEASE currency.
     IF lv-comp-curr NE "" AND lv-comp-curr NE ar-inv.curr-code[1] THEN
     FIND FIRST currency NO-LOCK
@@ -1393,7 +1403,7 @@ DO: /* REPEAT: 9508 cah */
       IF tb_ton THEN
         PUT ld-pton                         TO 132  FORMAT "->>>>9.99"
             ld-tons[1]                      TO 142  FORMAT "->>>9.999".
-          
+
       PUT SKIP.
 
       IF ar-invl.i-dscr NE "" THEN PUT ar-invl.i-dscr AT 79 SKIP.
@@ -1548,7 +1558,7 @@ DO: /* REPEAT: 9508 cah */
         ASSIGN
          ws_debit  = ws_debit + (-1 * wkdistrib.amount) 
          tot-debit = tot-debit + (-1 * wkdistrib.amount).
-      
+
       IF LAST-OF(wkdistrib.actnum)  THEN DO:
          find account where account.company eq cocode
               and account.actnum  eq wkdistrib.actnum
@@ -1569,7 +1579,7 @@ DO: /* REPEAT: 9508 cah */
                  ws_credit = 0.
       END.
     end.
-    
+
     if avail wkdistrib then do:
       IF wkdistrib.use-cur-act THEN 
           find account
@@ -1589,7 +1599,7 @@ DO: /* REPEAT: 9508 cah */
       if not avail account then DO:
               display "*NOT IN ACCOUNT FILE*" @ account.dscr
            with frame f-distrib.
-         
+
       END.
       down 1 with frame f-distrib.
     end.*/
@@ -1762,11 +1772,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1794,23 +1804,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

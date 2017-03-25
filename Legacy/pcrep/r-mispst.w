@@ -143,6 +143,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
+ASSIGN
+       BtnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       BtnOK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN FILL-IN-1 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -151,7 +161,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -204,7 +214,7 @@ DO:
     cocode = g_company.
     postit:
     do transaction on error undo postit, leave postit:
-      
+
        transblok:
        for each pc-misc where pc-misc.company = g_company
                              on error undo postit, leave:
@@ -220,7 +230,7 @@ DO:
      if not v-dunne  then
          message "   ERRORS ENCOUNTERED...  POSTING ABORTED !   " 
                  VIEW-AS ALERT-BOX ERROR.
-         
+
 
    APPLY "close" TO THIS-PROCEDURE.
 END.

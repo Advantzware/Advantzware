@@ -165,13 +165,23 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
     THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -265,9 +275,9 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
         DEFINE VARIABLE i           AS INTEGER  INITIAL 0 NO-UNDO.
         DEFINE VARIABLE num-imports AS INTEGER  INITIAL 0 NO-UNDO.
         DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
-  
+
         SESSION:SET-WAIT-STATE("GENERAL").
-  
+
         IF to_company:SCREEN-VALUE = "" THEN 
         DO:
             MESSAGE "Company Must be Enter " VIEW-AS ALERT-BOX ERROR.
@@ -281,12 +291,12 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
             RETURN NO-APPLY.
         END.
         ASSIGN tgOverwrite.
-  
+
         FOR EACH bf-sys-ctrl WHERE bf-sys-ctrl.company = from_company NO-LOCK :
 
             FIND FIRST sys-ctrl WHERE sys-ctrl.NAME = bf-sys-ctrl.NAME 
                 AND  sys-ctrl.company = to_company EXCLUSIVE-LOCK NO-ERROR .
-      
+
             IF NOT AVAILABLE sys-ctrl OR tgOverwrite THEN 
             DO:
                 IF NOT AVAILABLE sys-ctrl THEN 
@@ -294,9 +304,9 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
                 BUFFER-COPY bf-sys-ctrl EXCEPT bf-sys-ctrl.company TO sys-ctrl.
                 ASSIGN 
                     sys-ctrl.company = to_company .
-        
+
                 FIND CURRENT sys-ctrl NO-LOCK.
-                
+
                 FOR EACH bf-sys-ctrl-shipto OF bf-sys-ctrl  NO-LOCK :
                     FIND FIRST sys-ctrl-shipto EXCLUSIVE-LOCK WHERE sys-ctrl-shipto.company EQ to_company 
                         AND sys-ctrl-shipto.cust-vend EQ bf-sys-ctrl-shipto.cust-vend
@@ -314,12 +324,12 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
                         RELEASE sys-ctrl-shipto.
                     END.
                 END. /* Each bf-sys-ctrl-shipto */
-                
+
                 RELEASE sys-ctrl.
             END. /* If not avail sys-ctrl */
 
        END. /* For each bf-sys-ctrl */
-      
+
 
         SESSION:SET-WAIT-STATE("").
 
@@ -415,10 +425,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         usercomp.loc = '' AND
         usercomp.company_default = YES
         NO-LOCK NO-ERROR.
-  
+
     IF AVAILABLE usercomp THEN 
         ASSIGN FROM_company:SCREEN-VALUE = usercomp.company .
-  
+
     APPLY "entry" TO from_company.
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -478,7 +488,7 @@ PROCEDURE valid-tit-code :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
- 
+
     DO WITH FRAME {&FRAME-NAME}:
     /* IF (tit-code:SCREEN-VALUE) <> "" AND
         NOT CAN-FIND(FIRST titlcode

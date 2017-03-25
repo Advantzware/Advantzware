@@ -121,7 +121,7 @@ DEF VAR lv-i-no   LIKE itemfg.i-no NO-UNDO.
 DEF VAR ll-first  AS   LOG NO-UNDO.
 DEF VAR lv-r-no   LIKE oe-retl.r-no NO-UNDO.
 DEF VAR lv-type   AS   CHAR NO-UNDO.
-
+DEFINE VARIABLE lselected AS LOGICAL NO-UNDO .
 
 ASSIGN
  str-tit2 = /*c-win:title*/ "Sales Analysis - This Year vs Last Year"

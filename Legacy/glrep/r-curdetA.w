@@ -274,6 +274,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_acct:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -316,7 +326,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -422,6 +432,7 @@ DO:
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
   end case.
+  SESSION:SET-WAIT-STATE ("").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -579,7 +590,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Transaction Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -625,7 +636,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -635,9 +646,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   tran-date = today.
 
   RUN check-date.
- 
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -663,7 +674,7 @@ PROCEDURE check-date :
   Notes:       
 ------------------------------------------------------------------------------*/
   v-invalid = no.
-  
+
   find first period
       where period.company eq gcompany
         and period.pst     le tran-date
@@ -736,7 +747,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -747,11 +758,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
      {custom/out2file.i}
 
 END PROCEDURE.
@@ -783,7 +794,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -860,14 +871,14 @@ find first period
 assign
  str-tit2 = "Current Month General Ledger" + IF tb_detailed THEN " Detail " ELSE " Summary"
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  str-tit3 = "Period " + string(tran-period,"99") + " - " +
             string(period.pst) + " to " + string(period.pend)
  {sys/inc/ctrtext.i str-tit3 132}
-             
+
  str-tit4 = "Account Number             Journal  Reference                           Date             Debits        Credits               Balance"
  str-tit5 = "           Jrn#    Run #"
- 
+
  facct = begin_acct
  tacct = end_acct
  op    = string(tb_detailed,"D/S")
@@ -888,12 +899,12 @@ vyear = period.yr.
 if td-show-parm then run show-param.
 
 SESSION:SET-WAIT-STATE ("general").
-  
+
   display str-tit3      format "x(132)" skip(1)
           str-tit4      format "x(132)" skip
           str-tit5      format "x(132)" skip
           fill("-",132) format "x(132)" skip
-          
+
       with frame r-top.
 
 /* gdm - 10010905 */
@@ -972,7 +983,7 @@ END.
                    if gltrans.jrnl eq "CDISB"                          then
                      "CASH DISBURSEMENT"                               else
                      ""
-                     
+
         tmp-dscr = if op eq "D" then gltrans.tr-dscr                   else
                    if tmp-dscr ne "" then tmp-dscr                     else
                    if gltrans.jrnl eq "APMEM"                          then
@@ -990,7 +1001,7 @@ END.
                    if gltrans.jrnl eq "JCOST"                          then
                      "PRODUCTION JOB COSTING"                          else
                      ""
-        
+
         tmp-dscr = if op eq "D" then gltrans.tr-dscr                   else
                    if tmp-dscr ne "" then tmp-dscr                     else
                    if gltrans.jrnl eq "ADJUST"                         then
@@ -1023,7 +1034,7 @@ END.
 
 
           PUT STREAM str-exl UNFORMATTED  SKIP.
-          
+
         END.
         /* gdm - 10010905 */
 
@@ -1160,11 +1171,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1192,23 +1203,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

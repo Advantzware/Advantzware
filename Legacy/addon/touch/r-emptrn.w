@@ -279,6 +279,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME L-To-R                                                    */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_employee:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "save".
@@ -313,7 +323,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -370,7 +380,7 @@ DO:
      APPLY "entry" TO begin_employee.
      RETURN NO-APPLY.
   END.
-  
+
   IF v-password NE emptrack.employee.passwd THEN DO:
      MESSAGE "Invalid Password. Try again. " VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO v-password.
@@ -679,7 +689,7 @@ PROCEDURE output-to-printer :
   DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
   DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
   DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
   RUN custom/prntproc.p (list-name,INT(lv-font-no), lv-ornt).
 
 END PROCEDURE.
@@ -695,7 +705,7 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
   RUN scr-rpt.w (list-name,c-win:TITLE,INT(lv-font-no),lv-ornt).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -712,29 +722,29 @@ PROCEDURE run-report :
   DEF VAR li-end-time AS INT NO-UNDO.
 
   SESSION:SET-WAIT-STATE('general').
-  
+
   {sys/form/r-top3w.f}
-  
+
   FORM HEADER SKIP(1) WITH FRAME r-top.
-  
+
   ASSIGN
      str-tit2 = c-win:TITLE
      {sys/inc/ctrtext.i str-tit2 112}
      str-tit3 = FILL('-',132)
      {sys/inc/ctrtext.i str-tit3 132}.
-  
+
   {sys/inc/print1.i}
   {sys/inc/outprint.i VALUE(lines-per-page)}
-  
+
   IF td-show-parm THEN RUN show-param.
-  
+
   VIEW FRAME r-top.
   IF tb_excel THEN DO:
     OUTPUT STREAM excel TO VALUE(fi_file).
     ASSIGN excelheader = "Employee,Name,Start Date,End Date,Shift,Login Time,Logout Time,Worked,OT @ 1.5, OT @ 2".
     PUT STREAM excel UNFORMATTED excelheader SKIP.
   END.
-  
+
   for each emplogin no-lock where
       emplogin.company EQ cocode AND
       emplogin.employee = begin_employee AND
@@ -815,11 +825,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -847,23 +857,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

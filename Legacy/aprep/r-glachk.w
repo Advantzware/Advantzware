@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File: aprep\r-glachk.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -327,6 +327,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        Begin_Bank:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -383,7 +393,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -477,10 +487,10 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
-      
+
   IF tb_excel THEN DO:
     OUTPUT STREAM excel CLOSE.
     IF tb_runExcel THEN
@@ -520,7 +530,8 @@ DO:
            END.
        END. 
        WHEN 6 THEN run output-to-port.
-  end case. 
+  end case.
+  SESSION:SET-WAIT-STATE (""). 
 
 END.
 
@@ -578,7 +589,7 @@ ON HELP OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog get-file ls-filename 
                  title "Select File to Save "
                  filters "Excel Files    (*.csv)" "*.csv",
@@ -587,7 +598,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -761,7 +772,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -866,7 +877,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -955,7 +966,7 @@ FOR EACH tt-report2,
           USE-INDEX vend
     BREAK BY ap-inv.vend-no
           BY ap-inv.inv-no:
-   
+
     {custom/statusMsg.i " 'Processing Vendor #  '  + string(vend.vend-no) "}
 
     IF FIRST(ap-inv.inv-no) THEN DO:
@@ -963,15 +974,15 @@ FOR EACH tt-report2,
             account.company EQ ap-inv.company AND
             account.actnum  EQ v-frt-acct
             NO-LOCK NO-ERROR.
-    
+
        PUT v-frt-acct + " - " +
           (IF AVAIL account THEN account.dscr ELSE "Not on file") FORMAT "x(40)"
           SKIP.
     END. /* FIRST(ap-inv.vend-no)*/
-     
+
     ASSIGN v-frgt-amt = ap-payl.amt-paid * 
                         (ap-inv.freight / (ap-inv.net + ap-inv.freight)).
-    
+
     PUT ap-payl.check-no FORMAT ">>>>>>>>" AT 6
         ap-inv.inv-date         AT 41   FORMAT "99/99/99"
         SPACE(1)
@@ -986,14 +997,14 @@ FOR EACH tt-report2,
         ap-inv.freight          TO 118
         v-frgt-amt              TO 131
         SKIP.
-    
+
     ACCUM v-frgt-amt (TOTAL).
 
     IF LAST(ap-inv.inv-no) THEN
        PUT "** TOTAL " TO 114
            (ACCUM TOTAL v-frgt-amt) FORMAT "->>,>>>,>>9.99" TO 128
            " *" SKIP(1).
-    
+
 END. /* FOR EACH tt-report */
 
 EMPTY TEMP-TABLE tt-report2.
@@ -1044,14 +1055,14 @@ FOR EACH tt-report2,
             account.company eq ap-inv.company AND
             account.actnum  eq ap-invl.actnum
             NO-LOCK NO-ERROR.
-     
+
        PUT ap-invl.actnum + " - " +
            (IF AVAIL account THEN account.dscr ELSE "Not on file") FORMAT "x(40)" SKIP.
     END.
 
     ASSIGN v-line-amt = ap-payl.amt-paid * 
                         (ap-invl.amt / (ap-inv.net + ap-inv.freight)).
-    
+
     PUT ap-payl.check-no FORMAT ">>>>>>>>" AT 6
         ap-invl.po-no         AT 34
         SPACE(1)
@@ -1072,7 +1083,7 @@ FOR EACH tt-report2,
         v-line-amt
         SPACE(1)
         SKIP.
-    
+
     ACCUM v-line-amt (TOTAL BY ap-invl.actnum).
     ACCUM v-line-amt (TOTAL).
 
@@ -1108,7 +1119,7 @@ DEF VAR v-vend-name LIKE vend.NAME NO-UNDO.
 
 FORM tt-report.check-no    FORMAT ">>>>>>>>"  COLUMN-LABEL "Check#"
      tt-report.check-date  FORMAT "99/99/99"  COLUMN-LABEL "Chk Date"
-     
+
      tt-report.vend-no                        COLUMN-LABEL "Vendor#"
      tt-report.vend-name                      COLUMN-LABEL "Name"
      tt-report.inv-no                         COLUMN-LABEL "Invoice#"
@@ -1159,9 +1170,9 @@ FOR EACH ap-pay
       AND ap-pay.posted     EQ YES
       AND ap-pay.memo       EQ NO
     USE-INDEX vend-no NO-LOCK,
-      
+
     EACH ap-payl WHERE ap-payl.c-no EQ ap-pay.c-no NO-LOCK
-      
+
     BREAK BY ap-pay.check-act
           BY ap-pay.check-no
           BY ap-payl.inv-no
@@ -1204,7 +1215,7 @@ FOR EACH ap-pay
         IF AVAILABLE(vend) THEN
            v-vend-name = vend.NAME.
      END.
-  
+
     /* rtc end */
 
     ASSIGN
@@ -1232,7 +1243,7 @@ FOR EACH ap-pay
           ap-inv.vend-no EQ ap-payl.vend-no AND
           ap-inv.inv-no  EQ ap-payl.inv-no
           NO-LOCK NO-ERROR.
-   
+
   FOR  EACH ap-invl WHERE
          ap-invl.i-no EQ ap-inv.i-no USE-INDEX i-no
          NO-LOCK
@@ -1291,14 +1302,14 @@ FOR EACH ap-pay
             tt-report.act-amt      = tt-report.act-amt + ap-payl.amt-paid * 
                         (ap-invl.amt / (ap-inv.net + ap-inv.freight)).
       END.
-                                                                      
+
   END.
 
 
 
      RELEASE vend.
   END.
-            
+
   IF LAST-OF(ap-pay.check-no) THEN DO:
     IF NOT FIRST-OF(ap-pay.check-no) AND v-gross-amt EQ 0 THEN DO:
       CREATE tt-report.
@@ -1420,11 +1431,11 @@ END.
 
 /* gdm - */
 
-    
+
 IF tb_excel THEN DO:
   OUTPUT STREAM excel TO VALUE(fi_file).
   excelHeader = 'Check#,Check Date,Vendor#,Name,Invoice#,Gross Amt,Discount,Net Amt,Acct#, Amount'.
-  
+
   PUT STREAM excel UNFORMATTED '"' '",' '"' '",' '"' '",' '"' '",' '"' "Check Register by GL#" '"' SKIP(1).
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelHeader,',','","') '"' SKIP.
 END. /* if tb_excel */
@@ -1456,7 +1467,7 @@ FOR EACH tt-report NO-LOCK WITH FRAME ap-chk
               tt-report.act-no
               tt-report.act-amt.
     DOWN.
-    
+
     CLEAR NO-PAUSE.
   END.
 
@@ -1480,7 +1491,7 @@ FOR EACH tt-report NO-LOCK WITH FRAME ap-chk
       v-sub-disc   = v-sub-disc + tt-report.amt-disc 
       v-sub-paid   = v-sub-paid + tt-report.amt-paid .
   END.
-  
+
   DISPLAY tt-report.check-no   WHEN FIRST-OF(tt-report.key-03)
           tt-report.check-date WHEN FIRST-OF(tt-report.key-03)
           tt-report.vend-no    WHEN FIRST-OF(tt-report.key-03)
@@ -1494,7 +1505,7 @@ FOR EACH tt-report NO-LOCK WITH FRAME ap-chk
           tt-report.act-amt   
           tt-report.chk-label WHEN (FIRST-OF(tt-report.key-02) AND LAST-OF(tt-report.key-02) ) . 
             DOWN.
- 
+
   IF tb_excel THEN do:
     PUT STREAM excel UNFORMATTED
         '"' STRING(tt-report.check-no,">>>>>>>>") '",'
@@ -1525,7 +1536,7 @@ FOR EACH tt-report NO-LOCK WITH FRAME ap-chk
         '"' " Check Total"  '"'
         SKIP(1).
     END.
-    
+
   END.
 
   RELEASE vend NO-ERROR.
@@ -1549,7 +1560,7 @@ FOR EACH tt-report NO-LOCK WITH FRAME ap-chk
         v-sub-paid  = 0
         v-sub-acount = 0 .
   END.
-  
+
   IF LAST-OF(tt-report.key-02) THEN DOWN 2.
 
   IF LAST(tt-report.key-01) THEN DO:
@@ -1582,7 +1593,7 @@ FOR EACH tt-report NO-LOCK WITH FRAME ap-chk
         SKIP. 
    END.
   END.
-  
+
 
 END.
 
@@ -1623,11 +1634,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1655,23 +1666,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

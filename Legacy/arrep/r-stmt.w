@@ -15,7 +15,7 @@
   Author            : Ron Stark
 
   Created           : 01/12/2000
-  
+
   History           : dgd 06/08/2007  - Task# 05300713: Batch E-Mail
 
 ------------------------------------------------------------------------*/
@@ -93,6 +93,17 @@ def var v-use-cust as log no-undo.
 DEF VAR vcDefaultForm AS CHAR NO-UNDO.
 DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
+
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
 
 {custom/xprint.i}
 
@@ -370,6 +381,11 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -428,7 +444,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -510,10 +526,10 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN {&displayed-objects}.
   END.
-       
+
   IF rd-dest = 4 OR (rd-dest = 5 AND NOT tb_BatchMail:CHECKED)
      AND begin_cust-no <> end_cust-no THEN DO:
-    
+
     IF rd-dest = 4 THEN
        MESSAGE "Beginning Customer and Ending Customer must be the same for Fax."
           VIEW-AS ALERT-BOX ERROR.
@@ -543,7 +559,7 @@ DO:
             b-cust.cust-no GE begin_cust-no AND
             b-cust.cust-no LE end_cust-no
             NO-LOCK:
-        
+
             FIND FIRST sys-ctrl-shipto WHERE
                  sys-ctrl-shipto.company = cocode AND
                  sys-ctrl-shipto.NAME = "STMTPRINT" AND
@@ -551,16 +567,16 @@ DO:
                  sys-ctrl-shipto.cust-vend-no = b-cust.cust-no AND
                  sys-ctrl-shipto.char-fld > ''
                  NO-LOCK NO-ERROR.
-          
+
             IF AVAIL sys-ctrl-shipto THEN
                v-stmt-char = sys-ctrl-shipto.char-fld.
             ELSE
                v-stmt-char = vcDefaultForm.
-       
+
             IF v-stmt-char EQ "ASIExcel" THEN
             DO:
                v-excel = YES.
-              
+
                CASE rd-dest:
                   WHEN 1 THEN
                      LvOutputSelection = "Printer".
@@ -578,7 +594,7 @@ DO:
             END.
             ELSE
                v-excel = NO.
-           
+
             IF v-excel AND tb_BatchMail:CHECKED THEN
             DO:
                IF v-excel-message = NO THEN
@@ -589,7 +605,7 @@ DO:
                END.
                NEXT.
             END.
-            
+
             IF v-excel OR NOT rd-dest = 5 THEN
                run run-report(b-cust.cust-no, TRUE).
 
@@ -602,26 +618,26 @@ DO:
                RUN SendMail-1 (b-cust.cust-no, v-cust-mode,  v-dir + "\stmt.pdf").
             END.
         END. /*each b-cust*/
-        
+
      END. /*if sys-ctrl-shipto found*/
   ELSE IF rd-dest = 5 AND tb_BatchMail:CHECKED THEN  /*if no sys-ctrl-shipto found*/
   DO:
   FOR EACH ttCustList NO-LOCK  :
-   
+
           /* find first ar-inv where ar-inv.company eq cocode    and
                             ar-inv.cust-no eq ttCustList.cust-no and
                             ar-inv.posted                and
                             ar-inv.due ne 0              and
                             ar-inv.inv-date le stmt-date and
                             ar-inv.due-date le stmt-date no-lock no-error.
-           
+
            if not avail ar-inv THEN next.*/
 
-      
+
      IF v-stmt-char EQ "ASIExcel" THEN
      DO:
         v-excel = YES.
-     
+
         CASE rd-dest:
            WHEN 1 THEN
               LvOutputSelection = "Printer".
@@ -668,7 +684,7 @@ DO:
      IF v-stmt-char EQ "ASIExcel" THEN
      DO:
         v-excel = YES.
-     
+
         CASE rd-dest:
            WHEN 1 THEN
               LvOutputSelection = "Printer".
@@ -699,14 +715,14 @@ DO:
 
      IF NOT v-excel THEN
         RUN GenerateReport(begin_cust-no,end_cust-no).
-         
+
      ELSE IF rd-dest EQ 5 THEN /*excel*/
      DO:
         v-cust-mode = IF NOT tb_HideDialog:CHECKED THEN "Customer"
                       ELSE "Customer1".
         RUN SendMail-1 (begin_cust-no, v-cust-mode, v-dir + "\stmt.pdf").
      END.
-    
+
   END. /*end sys-ctrl-shipto not found*/
 
   /*current-window:WINDOW-STATE  = WINDOW-MINIMIZE. */   
@@ -725,7 +741,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -999,9 +1015,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   stmt-date = today.
-  
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "AR4",cocode, 
@@ -1027,7 +1043,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE sys-ctrl.log-fld.
     end.
-    
+
     ASSIGN
        v-print-hdr = sys-ctrl.log-fld
        v-use-cust  = sys-ctrl.char-fld eq "CUST S"
@@ -1120,20 +1136,20 @@ PROCEDURE BatchMail :
      IF icBatchMode THEN
      DO:
         vlSkipRec = YES.
-       
+
         FOR EACH phone    NO-LOCK 
            WHERE phone.table_rec_key     = b1-cust.rec_key:
-       
+
           IF CAN-FIND (FIRST emaildtl NO-LOCK 
                        WHERE emaildtl.emailcod  BEGINS 'R-STMT'
                          AND emaildtl.table_rec_key  = phone.rec_key) THEN 
           DO:
-                
+
             vlSkipRec = NO.
             LEAVE.
           END.
         END.
-       
+
         IF vlSkipRec THEN NEXT.
      END.
 
@@ -1204,7 +1220,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'AR4').
-    
+
 
 END PROCEDURE.
 
@@ -1270,15 +1286,15 @@ PROCEDURE GenerateMail :
   DO WITH FRAME {&FRAME-NAME}:
 
      IF is-xprint-form THEN DO:
-       
+
       RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-      
+
       IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', list-name + '.pdf').
                                ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer',  list-name + '.pdf').
     END.
-   
+
     ELSE DO:
-        
+
       /*Print PDF attachment*/
       IF (v-stmt-char EQ "" OR v-stmt-char EQ "ASI") THEN
       DO:
@@ -1287,9 +1303,9 @@ PROCEDURE GenerateMail :
             RUN custom/printaspdf.p(INPUT list-name,
                                     INPUT INT(lv-font-no),
                                     INPUT lv-ornt).
-            
+
             OS-COMMAND SILENT VALUE("copy /y " + v-dir + "\asi.pdf " + v-dir + "\statement.pdf").
-        
+
             list-name = v-dir + "\statement.pdf".
          END.
          ELSE
@@ -1347,7 +1363,7 @@ PROCEDURE GenerateReport :
          END.
          WHEN 5 THEN
             RUN output-to-mail(INPUT ip-cust-from, INPUT ip-cust-to).
-         
+
          WHEN 6 THEN run output-to-port.
     end case.
 END PROCEDURE.
@@ -1400,12 +1416,12 @@ PROCEDURE output-to-mail :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-cust-no-from AS CHAR NO-UNDO.
   DEFINE INPUT PARAMETER ip-cust-no-to AS CHAR NO-UNDO.
-  
+
   IF NOT tb_BatchMail:CHECKED IN FRAME {&FRAME-NAME} THEN
      RUN BatchMail (ip-cust-no-from, ip-cust-no-from, NO).
   ELSE
      RUN BatchMail (ip-cust-no-from, ip-cust-no-to, YES).
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1455,7 +1471,7 @@ PROCEDURE output-to-screen :
      RUN printfile (FILE-INFO:FILE-NAME).
  END.
  ELSE run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1470,7 +1486,7 @@ PROCEDURE run-asistmt :
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
 DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
-    
+
 DEF VAR v-first AS LOG NO-UNDO.
 DEF VAR v-remitto AS cha FORM "x(50)" EXTENT 4 NO-UNDO.
 
@@ -1553,7 +1569,7 @@ form
   "=============================== S T A T E M E N T ============================"
   skip
   with frame stmt-header no-box no-labels stream-io width 80.
- 
+
 form
   tt-inv.trans-date 
   tt-inv.type FORM "x(3)"
@@ -1671,16 +1687,16 @@ if v-print-hdr and avail company then do:
                           + ws_letterhead[xx].
   end.
 end.
-    
+
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 56}
-   
+
  v-stmt-date = stmt-date
  v-msg       = stmt-msg
  v-detail    = tb_detailed
  v-past-due  = tb_past-due.
- 
+
 IF ip-sys-ctrl-shipto THEN
    ASSIGN
       v-lo-cust = ip-cust-no
@@ -1704,16 +1720,21 @@ ELSE
 IF is-xprint-form THEN DO:
    CASE rd-dest :
         WHEN 1 THEN PUT "<PRINTER?>" FORM "x(30)".
-        WHEN 2 THEN PUT "<PREVIEW>" FORM "x(30)".
-          WHEN 4 THEN do:
+        WHEN 2 THEN do:
+            IF NOT lBussFormModle THEN        
+              PUT "<PREVIEW><MODAL=NO>" FORM "x(30)". 
+            ELSE
+              PUT "<PREVIEW>" FORM "x(30)".
+        END.
+        WHEN 4 THEN do:
               ls-fax-file = "c:\tmp\fx" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
         END.        
         WHEN 5 THEN DO:
             IF NOT tb_BatchMail:CHECKED IN FRAME {&FRAME-NAME} THEN
-               PUT "<PREVIEW><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(80)".              
+               PUT "<PREVIEW><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".              
             ELSE
-               PUT "<PREVIEW=PDF><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(80)".
+               PUT "<PREVIEW=PDF><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
         END.
    END CASE.
    PUT "</PROGRESS>".
@@ -1744,7 +1765,7 @@ FOR EACH ttCustList
   ASSIGN v-last-amt  = 0
          v-last-ref# = ""
          v-last-paydate = ?.
-  
+
   if v-past-due then
   do:
     find first ar-inv where ar-inv.company eq cust.company    and
@@ -1819,7 +1840,7 @@ FOR EACH ttCustList
                           else ar-inv.due
        tt-inv.po-no      = (IF AVAIL ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "")
        tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "").
-        
+
      IF v-stmt-char = "Printers" THEN
           tt-inv.bol-no = (IF AVAIL ar-invl AND ar-invl.job-no NE "" 
                                 THEN "  " + ar-invl.job-no
@@ -1838,7 +1859,7 @@ FOR EACH ttCustList
           where ar-cash.c-no       eq ar-cashl.c-no
             and ar-cash.check-date le v-stmt-date
           use-index c-no no-lock:
-      
+
         create tt-inv.
         assign
          tt-inv.cust-no     = cust.cust-no
@@ -1850,7 +1871,7 @@ FOR EACH ttCustList
          tt-inv.description = ar-cashl.dscr
          tt-inv.po-no       = (IF AVAIL ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "")
          tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "").
-        
+
         IF v-stmt-char = "Printers" THEN
           tt-inv.bol-no = (IF AVAIL ar-invl AND ar-invl.job-no NE "" 
                                 THEN "  " + ar-invl.job-no 
@@ -1863,7 +1884,7 @@ FOR EACH ttCustList
             assign
              tt-inv.type   = "R"
              tt-inv.amount = ar-cashl.amt-disc * -1.
-         
+
           else  
           if ar-cashl.amt-paid + ar-cashl.amt-disc le 0 then
             assign
@@ -1894,7 +1915,7 @@ FOR EACH ttCustList
         END.
     END.
   end.
-  
+
   for each ar-cashl
       where ar-cashl.company    eq cust.company
         and ar-cashl.cust-no    eq cust.cust-no
@@ -1910,7 +1931,7 @@ FOR EACH ttCustList
       where ar-cash.c-no       eq ar-cashl.c-no
         and ar-cash.check-date le v-stmt-date
       use-index c-no no-lock:
-      
+
     create tt-inv.
     assign
      tt-inv.cust-no     = cust.cust-no
@@ -1922,12 +1943,12 @@ FOR EACH ttCustList
      tt-inv.description = ar-cashl.dscr
      tt-inv.po-no       = "" /*(IF AVAIL ar-invl THEN ar-invl.po-no ELSE "")*/ /* on-account dont display PO# */
      tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "").
-     
+
     if ar-cashl.memo then
       assign
        tt-inv.amount = ar-cashl.amt-paid
        tt-inv.type   = if tt-inv.amount lt 0 then "CR" else "DR".
-       
+
     else
       assign
        tt-inv.amount = (ar-cashl.amt-paid + ar-cashl.amt-disc) * -1
@@ -2130,7 +2151,7 @@ FOR EACH ttCustList
            "<=1><R+17>Date     Code  Ref#  Description   <C56>Amount        Balance" SKIP
            "<=1><R+18><FROM><C+80><LINE>"
            . 
-       
+
        v-first = NO.
     end.
 
@@ -2189,23 +2210,23 @@ FOR EACH ttCustList
     v-aged[v-per] = v-aged[v-per] + tt-inv.amount.
 
     if last-of ("1") then do:
-      
+
       IF NOT v-asi-excel THEN
       DO:
          PUT SKIP(1).
-        
+
          if v-print-hdr then
          display
            v-msg
            v-balance
            with frame stmt-total-line.
-        
+
          else
          display
            v-msg
            v-balance
            with frame no-stmt-total-line.
-         
+
          IF v-stmt-char = "Badger" THEN 
          PUT "<R57><C1><#2>"SKIP
          "<=2>      Current             31 - 60             61 - 90            >90 Days" skip
@@ -2224,7 +2245,7 @@ FOR EACH ttCustList
          "<=3><R+1><C1>" code-legend skip
          "<R+1><C+80><RECT#3>" 
          SKIP. 
-         
+
       END.
       ELSE
       DO:
@@ -2348,7 +2369,7 @@ form
   "=============================== S T A T E M E N T ============================"
   skip
   with frame stmt-header no-box no-labels stream-io width 80.
- 
+
 form
   tt-inv.trans-date 
   tt-inv.type   FORM "x(3)"  
@@ -2448,9 +2469,9 @@ form
       FILE-INFO:FILE-NAME = ls-image1.
       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
       FILE-INFO:FILE-NAME = ls-image2.
-      
+
       ls-full-img2 = FILE-INFO:FULL-PATHNAME + ">".
-      
+
 
 if v-use-cust then
 find first cust
@@ -2490,11 +2511,11 @@ if v-print-hdr and avail company then do:
                           + ws_letterhead[xx].
   end.
 end.
-    
+
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 56}
-   
+
  v-stmt-date = stmt-date
  v-lo-cust   = IF tb_BatchMail:CHECKED IN FRAME {&frame-name} 
                   THEN icCustNo 
@@ -2505,7 +2526,7 @@ assign
  v-msg       = stmt-msg
  v-detail    = tb_detailed
  v-past-due  = tb_past-due.
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i  value(lines-per-page)}
@@ -2516,13 +2537,18 @@ is-xprint-form = YES.
 IF is-xprint-form THEN DO:
    CASE rd-dest :
         WHEN 1 THEN PUT "<PRINTER?>" FORM "x(30)".
-        WHEN 2 THEN PUT "<PREVIEW>" FORM "x(30)".
-          WHEN 4 THEN do:
+        WHEN 2 THEN do:
+            IF NOT lBussFormModle THEN        
+              PUT "<PREVIEW><MODAL=NO>" FORM "x(30)". 
+            ELSE
+              PUT "<PREVIEW>" FORM "x(30)".
+        END.
+        WHEN 4 THEN do:
               ls-fax-file = "c:\tmp\fx" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
         END.        
         WHEN 5 THEN DO:
-            PUT "<PDF=DIRECT><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(80)".              
+            PUT "<PDF=DIRECT><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".              
         END.
    END CASE.
    PUT "</PROGRESS>".
@@ -2622,7 +2648,7 @@ FIRST cust no-lock
                               ar-inv.tax-amt then ar-inv.net else ar-inv.gross
                           else ar-inv.due
        tt-inv.po-no      = (IF AVAIL ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "").                              .
-      
+
       if v-detail then
       for each ar-cashl
           where ar-cashl.company  eq ar-inv.company
@@ -2635,7 +2661,7 @@ FIRST cust no-lock
           where ar-cash.c-no       eq ar-cashl.c-no
             and ar-cash.check-date le v-stmt-date
           use-index c-no no-lock:
-      
+
         create tt-inv.
         assign
          tt-inv.sort-fld    = "0" + STRING(ar-cashl.inv-no,"9999999999") + "1"
@@ -2651,7 +2677,7 @@ FIRST cust no-lock
             assign
              tt-inv.type   = "R"
              tt-inv.amount = ar-cashl.amt-disc * -1.
-         
+
           else  
           if ar-cashl.amt-paid + ar-cashl.amt-disc le 0 then
             assign
@@ -2667,7 +2693,7 @@ FIRST cust no-lock
           assign
            tt-inv.type   = "P"
            tt-inv.amount = (ar-cashl.amt-paid + ar-cashl.amt-disc) * -1.
-           
+
       end.
     END.
     ELSE IF tb_curr-bal THEN DO:
@@ -2682,7 +2708,7 @@ FIRST cust no-lock
         END.
     END.
   end.
-  
+
   for each ar-cashl
       where ar-cashl.company    eq cust.company
         and ar-cashl.cust-no    eq cust.cust-no
@@ -2698,7 +2724,7 @@ FIRST cust no-lock
       where ar-cash.c-no       eq ar-cashl.c-no
         and ar-cash.check-date le v-stmt-date
       use-index c-no no-lock:
-      
+
     create tt-inv.
     assign
      tt-inv.sort-fld    = "1" + STRING(ar-cashl.inv-no,"9999999999")
@@ -2708,12 +2734,12 @@ FIRST cust no-lock
      tt-inv.inv-no      = ar-cashl.inv-no
      tt-inv.description = ar-cashl.dscr
      tt-inv.po-no       = "" /*(IF AVAIL ar-invl THEN ar-invl.po-no ELSE "")*/.
-     
+
     if ar-cashl.memo then
       assign
        tt-inv.amount = ar-cashl.amt-paid
        tt-inv.type   = if tt-inv.amount lt 0 then "CR" else "DR".
-       
+
     else
       assign
        tt-inv.amount = (ar-cashl.amt-paid + ar-cashl.amt-disc) * -1
@@ -2910,7 +2936,7 @@ FIRST cust no-lock
            "<=1><R+17>Date     Code  Ref#  Description   <C56>Amount        Balance" SKIP
            "<=1><R+18><FROM><C+80><LINE>"
            . 
-       
+
        v-first = NO.
     end.
 
@@ -3010,7 +3036,7 @@ FIRST cust no-lock
          "<=3><R+1><C1>" code-legend skip
          "<R+1><C+80><RECT#3>" 
          SKIP. 
-      
+
     end.
   end.  /* for each tt-inv */
 
@@ -3033,7 +3059,7 @@ PROCEDURE run-protagonstmt :
 DEFINE INPUT PARAMETER ip-cust-no AS CHAR NO-UNDO.
 DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 DEFINE INPUT PARAMETER ipl-email AS LOG NO-UNDO.
-    
+
 DEF VAR v-first AS LOG NO-UNDO.
 DEF VAR v-remitto AS cha FORM "x(50)" EXTENT 4 NO-UNDO.
 
@@ -3142,7 +3168,7 @@ DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
 ASSIGN ls-image1 = (IF v-stmt-char = "Protagon" THEN "images\protinv.jpg"
                    ELSE IF v-stmt-char = "SouleMed" THEN "images\Soulemedical.jpg" 
                     ELSE "images\Soule.jpg") . 
- 
+
 
     ASSIGN
        FILE-INFO:FILE-NAME = ls-image1
@@ -3193,16 +3219,16 @@ if v-print-hdr and avail company then do:
                           + ws_letterhead[xx].
   end.
 end.
-    
+
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 56}
-   
+
  v-stmt-date = stmt-date
  v-msg       = stmt-msg
  v-detail    = tb_detailed
  v-past-due  = tb_past-due.
- 
+
 IF ip-sys-ctrl-shipto THEN
    ASSIGN
       v-lo-cust = ip-cust-no
@@ -3234,16 +3260,21 @@ ELSE
 IF is-xprint-form THEN DO:
    CASE rd-dest :
         WHEN 1 THEN PUT "<PRINTER?>" FORM "x(30)".
-        WHEN 2 THEN PUT "<PREVIEW>" FORM "x(30)".
-          WHEN 4 THEN do:
+        WHEN 2 THEN do:
+            IF NOT lBussFormModle THEN        
+              PUT "<PREVIEW><MODAL=NO>" FORM "x(30)". 
+            ELSE
+              PUT "<PREVIEW>" FORM "x(30)".
+        END.
+        WHEN 4 THEN do:
               ls-fax-file = "c:\tmp\fx" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
         END.        
         WHEN 5 THEN DO:
             IF NOT tb_BatchMail:CHECKED IN FRAME {&FRAME-NAME} THEN
-               PUT "<PREVIEW><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(80)".              
+               PUT "<PREVIEW><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".              
             ELSE
-               PUT "<PREVIEW=PDF><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(80)".
+               PUT "<PREVIEW=PDF><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
         END.
    END CASE.
    PUT "</PROGRESS>".
@@ -3267,14 +3298,14 @@ FIRST cust no-lock
       AND ((cust.acc-bal ne 0 AND NOT tb_curr-bal) OR (tb_curr-bal))
     BREAK BY cust.cust-no
     transaction:
-    
+
     IF NOT v-asi-excel THEN
      EMPTY TEMP-TABLE tt-inv.
 
   ASSIGN v-last-amt  = 0
          v-last-ref# = ""
          v-last-paydate = ?.
-  
+
   if v-past-due then
   do:
     find first ar-inv where ar-inv.company eq cust.company    and
@@ -3350,7 +3381,7 @@ FIRST cust no-lock
                           else ar-inv.due
        tt-inv.po-no      = (IF AVAIL ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "")
        tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "").
-      
+
      IF v-stmt-char = "Printers" THEN
           tt-inv.bol-no = (IF AVAIL ar-invl AND ar-invl.job-no NE "" 
                                 THEN "  " + ar-invl.job-no
@@ -3369,7 +3400,7 @@ FIRST cust no-lock
           where ar-cash.c-no       eq ar-cashl.c-no
             and ar-cash.check-date le v-stmt-date
           use-index c-no no-lock:
-      
+
         create tt-inv.
         assign
          tt-inv.cust-no     = cust.cust-no
@@ -3381,7 +3412,7 @@ FIRST cust no-lock
          tt-inv.description = ar-cashl.dscr
          tt-inv.po-no       = (IF AVAIL ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "")
          tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "").
-        
+
         IF v-stmt-char = "Printers" THEN
           tt-inv.bol-no = (IF AVAIL ar-invl AND ar-invl.job-no NE "" 
                                 THEN "  " + ar-invl.job-no 
@@ -3394,7 +3425,7 @@ FIRST cust no-lock
             assign
              tt-inv.type   = "R"
              tt-inv.amount = ar-cashl.amt-disc * -1.
-         
+
           else  
           if ar-cashl.amt-paid + ar-cashl.amt-disc le 0 then
             assign
@@ -3425,7 +3456,7 @@ FIRST cust no-lock
         END.
     END.
   end.
-  
+
   for each ar-cashl
       where ar-cashl.company    eq cust.company
         and ar-cashl.cust-no    eq cust.cust-no
@@ -3441,7 +3472,7 @@ FIRST cust no-lock
       where ar-cash.c-no       eq ar-cashl.c-no
         and ar-cash.check-date le v-stmt-date
       use-index c-no no-lock:
-      
+
     create tt-inv.
     assign
      tt-inv.cust-no     = cust.cust-no
@@ -3452,17 +3483,17 @@ FIRST cust no-lock
      tt-inv.description = ar-cashl.dscr
      tt-inv.po-no       = (IF AVAIL ar-invl THEN ar-invl.po-no ELSE "")
      tt-inv.bol-no     = (IF AVAIL ar-invl AND ar-invl.bol-no <> 0 THEN string(ar-invl.bol-no,">>>>>>>>") ELSE "").
-     
+
     if ar-cashl.memo then
       assign
        tt-inv.amount = ar-cashl.amt-paid
        tt-inv.type   = if tt-inv.amount lt 0 then "CR" else "DR".
-       
+
     else
       assign
        tt-inv.amount = (ar-cashl.amt-paid + ar-cashl.amt-disc) * -1
        tt-inv.type   = "P".
-  
+
     end.                                                
 
   /* to get last payment amt, check, date */
@@ -3581,7 +3612,7 @@ FIRST cust no-lock
            "<=1><R+17>Date       Ref# Desc.      Customer PO           Invoice<C60>Balance        Balance" SKIP
            "<=1><R+18><FROM><C+80><LINE>"
             .
-       
+
        v-first = NO.
     end.
 
@@ -3635,23 +3666,23 @@ FIRST cust no-lock
     v-aged[v-per] = v-aged[v-per] + tt-inv.amount.
 
     if last-of ("1") then do:
-      
+
       IF NOT v-asi-excel THEN
       DO:
          PUT SKIP(1).
-        
+
          if v-print-hdr then
          display
            v-msg
            v-balance
            with frame stmt-total-line.
-        
+
          else
          display
            v-msg
            v-balance
            with frame no-stmt-total-line.
-         
+
          PUT "<R56><C1><#2>"SKIP
          "<=2><C13>    0-30 Days     31-60 Days     61-90 Days       >90 Days" skip
          "<=2><R+1.3><FROM><C+80><LINE>" SKIP
@@ -3668,7 +3699,7 @@ FIRST cust no-lock
          "<=3><R+1><C1>" code-legend skip
          "<R+1><C+80><RECT#3>" 
          SKIP. 
-         
+
       END.
       ELSE
       DO:
@@ -3794,7 +3825,7 @@ form
   "=============================== S T A T E M E N T ============================"
   skip
   with frame stmt-header no-box no-labels stream-io width 80.
- 
+
 form
   tt-inv.trans-date column-label "Date"
   tt-inv.type     column-label "Code"
@@ -3854,7 +3885,7 @@ form
   v-aged[1 for 5] skip(1)
   code-legend skip
   with frame no-stmt-total no-box no-labels stream-io width 80.
-      
+
 if v-use-cust then
    find first cust WHERE
         cust.company eq cocode AND
@@ -3895,16 +3926,16 @@ if v-print-hdr and avail company then do:
                           + ws_letterhead[xx].
   end.
 end.
-    
+
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 56}
-   
+
  v-stmt-date = stmt-date
  v-msg       = stmt-msg
  v-detail    = tb_detailed
  v-past-due  = tb_past-due.
- 
+
 IF ip-sys-ctrl-shipto THEN
    ASSIGN
       v-lo-cust = ip-cust-no
@@ -4009,7 +4040,7 @@ FOR EACH ttCustList
                               ar-inv.tax-amt then ar-inv.net else ar-inv.gross
                           else ar-inv.due
        tt-inv.po-no      = (IF AVAIL ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "").                              
-      
+
       if v-detail then
       for each ar-cashl
           where ar-cashl.company  eq ar-inv.company
@@ -4022,7 +4053,7 @@ FOR EACH ttCustList
           where ar-cash.c-no       eq ar-cashl.c-no
             and ar-cash.check-date le v-stmt-date
           use-index c-no no-lock:
-      
+
         create tt-inv.
         assign
          tt-inv.sort-fld    = "0" + STRING(ar-cashl.inv-no,"9999999999") + "1"
@@ -4037,7 +4068,7 @@ FOR EACH ttCustList
             assign
              tt-inv.type   = "R"
              tt-inv.amount = ar-cashl.amt-disc * -1.
-         
+
           else  
           if ar-cashl.amt-paid + ar-cashl.amt-disc le 0 then
             assign
@@ -4067,7 +4098,7 @@ FOR EACH ttCustList
         END.
     END.
   end.
-  
+
   for each ar-cashl
       where ar-cashl.company    eq cust.company
         and ar-cashl.cust-no    eq cust.cust-no
@@ -4083,7 +4114,7 @@ FOR EACH ttCustList
       where ar-cash.c-no       eq ar-cashl.c-no
         and ar-cash.check-date le v-stmt-date
       use-index c-no no-lock:
-      
+
     create tt-inv.
     assign
      tt-inv.sort-fld    = "1" + STRING(ar-cashl.inv-no,"9999999999")
@@ -4092,12 +4123,12 @@ FOR EACH ttCustList
      tt-inv.inv-no      = ar-cashl.inv-no
      tt-inv.description = ar-cashl.dscr
      tt-inv.po-no       = "" /*(IF AVAIL ar-invl THEN ar-invl.po-no ELSE "")*/.
-     
+
     if ar-cashl.memo then
       assign
        tt-inv.amount = ar-cashl.amt-paid
        tt-inv.type   = if tt-inv.amount lt 0 then "CR" else "DR".
-       
+
     else
       assign
        tt-inv.amount = (ar-cashl.amt-paid + ar-cashl.amt-disc) * -1
@@ -4131,7 +4162,7 @@ FOR EACH ttCustList
             by tt-inv.sort-fld
             by tt-inv.trans-date:
     if first-of ("1") or (line-counter gt ln-total) then do:
-      
+
       page.
       if v-print-hdr then
       display
@@ -4212,7 +4243,7 @@ FOR EACH ttCustList
 
     if last-of ("1") then do:
       adv = ln-total - line-counter.
-      
+
       put skip(adv).
 
       if v-print-hdr then
@@ -4343,7 +4374,7 @@ form
   "=============================== S T A T E M E N T ============================"
   skip
   with frame stmt-header no-box no-labels stream-io width 80.
- 
+
 form
   tt-inv.trans-date column-label "Date"
   tt-inv.type     column-label "Code"
@@ -4403,7 +4434,7 @@ form
   v-aged[1 for 5] skip(1)
   code-legend skip
   with frame no-stmt-total no-box no-labels stream-io width 80.
-      
+
 if v-use-cust then
    find first cust WHERE
         cust.company eq cocode AND
@@ -4444,11 +4475,11 @@ if v-print-hdr and avail company then do:
                           + ws_letterhead[xx].
   end.
 end.
-    
+
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 56}
-   
+
  v-stmt-date = stmt-date
  v-lo-cust   = IF tb_BatchMail:CHECKED IN FRAME {&frame-name} 
                   THEN icCustNo 
@@ -4459,7 +4490,7 @@ assign
  v-msg       = stmt-msg
  v-detail    = tb_detailed
  v-past-due  = tb_past-due.
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i  value(lines-per-page)}
@@ -4555,7 +4586,7 @@ FOR EACH ttCustList
                               ar-inv.tax-amt then ar-inv.net else ar-inv.gross
                           else ar-inv.due
        tt-inv.po-no      = (IF AVAIL ar-invl AND ar-invl.inv-no <> 0 THEN ar-invl.po-no ELSE "").
-      
+
       if v-detail then
       for each ar-cashl
           where ar-cashl.company  eq ar-inv.company
@@ -4568,7 +4599,7 @@ FOR EACH ttCustList
           where ar-cash.c-no       eq ar-cashl.c-no
             and ar-cash.check-date le v-stmt-date
           use-index c-no no-lock:
-      
+
         create tt-inv.
         assign
          tt-inv.sort-fld    = "0" + STRING(ar-cashl.inv-no,"9999999999") + "1"
@@ -4583,7 +4614,7 @@ FOR EACH ttCustList
             assign
              tt-inv.type   = "R"
              tt-inv.amount = ar-cashl.amt-disc * -1.
-         
+
           else  
           if ar-cashl.amt-paid + ar-cashl.amt-disc le 0 then
             assign
@@ -4613,7 +4644,7 @@ FOR EACH ttCustList
         END.
     END.
   end.
-  
+
   for each ar-cashl
       where ar-cashl.company    eq cust.company
         and ar-cashl.cust-no    eq cust.cust-no
@@ -4629,7 +4660,7 @@ FOR EACH ttCustList
       where ar-cash.c-no       eq ar-cashl.c-no
         and ar-cash.check-date le v-stmt-date
       use-index c-no no-lock:
-      
+
     create tt-inv.
     assign
      tt-inv.sort-fld    = "1" + STRING(ar-cashl.inv-no,"9999999999")
@@ -4638,12 +4669,12 @@ FOR EACH ttCustList
      tt-inv.inv-no      = ar-cashl.inv-no
      tt-inv.description = ar-cashl.dscr
      tt-inv.po-no       = "" /*(IF AVAIL ar-invl THEN ar-invl.po-no ELSE "")*/.
-     
+
     if ar-cashl.memo then
       assign
        tt-inv.amount = ar-cashl.amt-paid
        tt-inv.type   = if tt-inv.amount lt 0 then "CR" else "DR".
-       
+
     else
       assign
        tt-inv.amount = (ar-cashl.amt-paid + ar-cashl.amt-disc) * -1
@@ -4677,7 +4708,7 @@ FOR EACH ttCustList
             by tt-inv.sort-fld
             by tt-inv.trans-date:
     if first-of ("1") or (line-counter gt ln-total) then do:
-      
+
       page.
       if v-print-hdr then
       display
@@ -4758,7 +4789,7 @@ FOR EACH ttCustList
 
     if last-of ("1") then do:
       adv = ln-total - line-counter.
-      
+
       put skip(adv).
 
       if v-print-hdr then
@@ -4814,13 +4845,13 @@ PROCEDURE SendMail-1 :
   DEFINE VARIABLE vcSubject   AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcErrorMsg  AS CHARACTER  NO-UNDO.
- 
+
   IF v-stmt-char EQ "ASIExcel" THEN
      ASSIGN icFileName =  v-dir + "\stmt.xls"      .
 
   ASSIGN vcSubject   = "STATEMENT" + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
          vcMailBody  = "Please review attached statement(s).".
-                    
+
   RUN custom/xpmail2.p   (input   icRecType,
                           input   'R-STMT.',
                           input   icFileName,
@@ -4876,7 +4907,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4898,7 +4929,7 @@ PROCEDURE SetEmailBoxes :
      IF v-pdf-camp THEN
         tb_emailpdf:SENSITIVE = YES.
   END.
-    
+
   ELSE
      ASSIGN tb_BatchMail:SENSITIVE  = no
             tb_BatchMail:CHECKED    = no
@@ -4925,8 +4956,8 @@ PROCEDURE SetStmtForm :
 
 
 
-   
-   
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4947,11 +4978,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -4979,23 +5010,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5016,7 +5047,7 @@ FUNCTION formatDate RETURNS CHARACTER
       "April",      "May",          "June", 
       "July",       "August",       "September",
       "October",    "November",     "December" ]. 
-    
+
     out-date = cmonth[MONTH(ip-date)] + " " + STRING(DAY(ip-date)) + " " + STRING(YEAR(ip-date)).
     RETURN out-date.  /* Function return value. */
 

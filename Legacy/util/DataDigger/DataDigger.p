@@ -307,7 +307,7 @@ PROCEDURE recompileSelf :
 
   define buffer bOsFile for ttOsFile.
   /* wfk - can't always do recompile */
-  RETURN.
+  IF TRUE THEN RETURN.
   define frame infoFrame
     "Please wait while DataDigger is recompiled." view-as text size 43 by .62 at row 1.48 col 3 
       with 1 down no-box keep-tab-order overlay side-labels 

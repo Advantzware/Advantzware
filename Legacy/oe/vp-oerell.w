@@ -332,8 +332,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Delete V-table-Win
 ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
 DO:
-  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
-  RUN delete_item IN WIDGET-HANDLE(char-hdl).
+    IF AVAIL oe-rell THEN DO: 
+      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+      RUN delete_item IN WIDGET-HANDLE(char-hdl).
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -514,7 +516,7 @@ PROCEDURE local-row-available :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
 
   DO WITH FRAME {&FRAME-NAME}: 
-    IF oe-relh.posted EQ YES THEN DO:
+    IF AVAIL oe-relh AND oe-relh.posted EQ YES THEN DO:
         ASSIGN Btn-View:SENSITIVE = NO.                                                          
         Btn-Save:SENSITIVE = NO.
         Btn-Add:SENSITIVE = NO.

@@ -53,6 +53,18 @@ DEF VAR ls-fax-file AS CHAR NO-UNDO.
 
 DEF VAR v-ord-no-text AS CHAR FORMAT "x(9)" NO-UNDO.
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
+
 DEF TEMP-TABLE tt-report NO-UNDO LIKE report
     FIELD qty LIKE oe-rell.qty
     FIELD open-job-no-ord AS LOG.
@@ -518,6 +530,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_carr:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -679,7 +701,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -866,7 +888,8 @@ DO:
            END.
        END. 
       WHEN 6 THEN RUN output-to-port.
-  end case. 
+  end case.
+  SESSION:SET-WAIT-STATE(""). 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1232,7 +1255,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   begin_date = today.
   is-xprint-form = YES.
 
@@ -1317,7 +1340,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
    /*   DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1328,12 +1351,12 @@ PROCEDURE output-to-file :
       /*   CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
     */
-    
+
   {custom/out2file.i}
 
 
@@ -1358,7 +1381,7 @@ PROCEDURE output-to-mail :
                              &mail-subject="Hots"
                              &mail-body="Hots"
                              &mail-file=lv-pdf-file + ".pdf" }  
-                             
+
   END.
   END.
 
@@ -1445,8 +1468,6 @@ FIND FIRST users WHERE
 
  lv-pdf-file = tmp2-dir + "\hots" + STRING(TIME).
 
-SESSION:SET-WAIT-STATE("general").
-
 {oe/rep/oehots.i}
 
 IF tb_excel THEN DO:
@@ -1479,11 +1500,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1511,23 +1532,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

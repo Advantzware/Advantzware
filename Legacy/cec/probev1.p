@@ -109,14 +109,17 @@ DO:
         reftable.code     EQ probe.est-no  AND
         reftable.code2    EQ STRING(probe.line,"9999999999")
         NO-LOCK.
-
+   IF reftable.val[6] GT 0 THEN 
+        dContPerManHr =  reftable.val[5] / reftable.val[6].
+   ELSE 
+        dContPerManHr = reftable.val[5].
    IF cerunc-dec EQ 0 THEN
       display probe.est-qty
               probe.freight
 	          reftable.val[2]
 	          reftable.val[3]
-              reftable.val[4]
 	          reftable.val[5]
+	          dContPerManHr
               probe.sell-price
               voverall 
 	          probe.gsh-qty format ">>>>>9"
@@ -127,8 +130,8 @@ DO:
            probe.freight
 	       reftable.val[2]
 	       reftable.val[3]
-           reftable.val[4]
 	       reftable.val[5]
+	       dContPerManHr
            probe.sell-price
            voverall 
 	       probe.gsh-qty format ">>>>>9"

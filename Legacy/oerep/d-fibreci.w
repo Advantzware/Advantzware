@@ -7,7 +7,7 @@
   File              : oerep\d-fibreci.w
 
   Description       : Dialog-Box for Commercial Invoice User Input
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
@@ -184,13 +184,23 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 

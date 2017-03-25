@@ -172,6 +172,11 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME fg-ctrl
                                                                         */
+ASSIGN
+       Btn_Close:PRIVATE-DATA IN FRAME fg-ctrl     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR RADIO-SET fg-ctrl.inv-meth IN FRAME fg-ctrl
    NO-ENABLE 1                                                          */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -180,7 +185,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 

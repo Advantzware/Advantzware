@@ -191,6 +191,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME po-ctrl
    FRAME-NAME                                                           */
+ASSIGN
+       Btn_Close:PRIVATE-DATA IN FRAME po-ctrl     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_Update:PRIVATE-DATA IN FRAME po-ctrl     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR TOGGLE-BOX po-ctrl.prcom IN FRAME po-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX po-ctrl.pre-printed-forms IN FRAME po-ctrl
@@ -205,7 +215,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -245,7 +255,7 @@ DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
   ELSE
   DO WITH FRAME {&FRAME-NAME}:
-      
+
     DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
     ASSIGN
       {&SELF-NAME}:LABEL = "&Close"
@@ -278,7 +288,7 @@ DO:
               VIEW-AS ALERT-BOX INFO BUTTONS OK.
     FIND CURRENT po-ctrl EXCLUSIVE-LOCK.
     po-ctrl.next-po-no = giCurrPo + 1.
-   
+
     fiNextPo:SCREEN-VALUE = STRING(giCurrPO  + 1, ">>>>>>").    
     ASSIGN
       {&SELF-NAME}:LABEL = "&Save"
@@ -305,7 +315,7 @@ DO:
      fiNextPo:SCREEN-VALUE = STRING(DYNAMIC-CURRENT-VALUE("po_seq" + company.spare-char-1, "ASI") + 1, ">>>>>>").
      FIND CURRENT po-ctrl EXCLUSIVE-LOCK.
      po-ctrl.next-po-no = INTEGER(fiNextPo:SCREEN-VALUE).    
-    
+
     FIND CURRENT po-ctrl NO-LOCK.
   END.
 END.
@@ -350,12 +360,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND FIRST po-ctrl WHERE po-ctrl.company EQ gcompany NO-LOCK NO-ERROR.
 
   RUN enable_UI.
-  
+
 
   {methods/nowait.i}
 
   APPLY "ENTRY":U TO Btn_Update IN FRAME {&FRAME-NAME}.
-  
+
   RUN sys/ref/asicurseq.p (INPUT gcompany, INPUT "po_seq", OUTPUT giCurrPo) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN
     MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
@@ -364,7 +374,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   fiNextPo:SCREEN-VALUE = STRING(giCurrPo  + 1, ">>>>>>").
   fiNextPo:SENSITIVE = NO. 
   DISABLE fiNextPo. 
-  
+
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

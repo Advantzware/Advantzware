@@ -341,6 +341,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -411,7 +421,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -545,10 +555,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
-  end case. 
+  end case.
+  SESSION:SET-WAIT-STATE (""). 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -565,12 +576,12 @@ DO:
 
     ASSIGN cTextSelected = sl_selected:LIST-ITEMS
            cTextListed = sl_avail:LIST-ITEMS.
- 
+
     IF NOT cColumnInit THEN RUN custom/d-rptsel.w (INPUT-OUTPUT cTextListed, INPUT-OUTPUT cTextSelected, INPUT-OUTPUT cTextListToDefault, INPUT-OUTPUT cTextListToSelect).
 
     ASSIGN sl_selected:LIST-ITEMS = cTextSelected
            sl_avail:LIST-ITEMS = cTextListed.
- 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -725,7 +736,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -733,7 +744,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -776,7 +787,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -823,7 +834,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 def var v-mat-list as char no-undo.
-    
+
 {sys/inc/f3helpw.i}
 
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
@@ -849,7 +860,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   RUN DisplaySelectionList.
   RUN enable_UI.
 
@@ -858,9 +869,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   end.
   if substr(v-mat-list,length(trim(v-mat-list)),1) eq "," then
     substr(v-mat-list,length(trim(v-mat-list)),1) = "".
-  
+
   select-mat:list-items = v-mat-list.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -868,7 +879,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_date.
   END.
-  
+
    cColumnInit   = NO .
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -891,7 +902,7 @@ PROCEDURE create-tt-report :
 FOR EACH reftable
    {ap/ap-reftbW.i po-ordl.po-no}
    NO-LOCK,
-    
+
    EACH ap-inv
    WHERE ap-inv.company EQ cocode
      AND ap-inv.i-no    EQ INT(reftable.code2)
@@ -899,13 +910,13 @@ FOR EACH reftable
      AND (ap-inv.po-no  EQ po-ordl.po-no OR ap-inv.po-no EQ 0)
      AND ap-inv.posted  EQ yes
    USE-INDEX i-no NO-LOCK,
-        
+
    EACH ap-invl
    WHERE ap-invl.i-no       EQ ap-inv.i-no
      AND (ap-invl.po-no     EQ po-ordl.po-no OR ap-inv.po-no NE 0)
      AND {ap/invlline.i -1} EQ po-ordl.line
    USE-INDEX i-no NO-LOCK,
-   
+
    FIRST ap-ledger
    WHERE ap-ledger.company  EQ ap-inv.company
      AND ap-ledger.vend-no  EQ ap-inv.vend-no
@@ -914,7 +925,7 @@ FOR EACH reftable
      AND ap-ledger.tr-date  GE begin_date
      AND ap-ledger.tr-date  LE end_date
    NO-LOCK:
-    
+
   CREATE tt-report.
   ASSIGN
    tt-report.rec-id = RECID(po-ordl)
@@ -961,7 +972,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -987,7 +998,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1000,7 +1011,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1008,9 +1019,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1031,7 +1042,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1041,7 +1052,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1049,9 +1060,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1112,7 +1123,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1121,7 +1132,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1137,7 +1148,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1148,9 +1159,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
 {custom/out2file.i}
 
@@ -1183,7 +1194,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1253,7 +1264,7 @@ form itemfg.i-no        column-label "FG Item#"
      po-ordl.actnum     column-label "G/L Account"
      v-amt[1]         column-label "Amt Invoiced"
                         format "->>,>>>,>>9.99"
-                        
+
     with frame detail down no-box STREAM-IO width 132.
 
 /*FORM HEADER
@@ -1261,7 +1272,7 @@ form itemfg.i-no        column-label "FG Item#"
     "FG Product Category:"
     v-procat
     SKIP(1)
-    
+
     WITH FRAME r-top. */
 
 
@@ -1284,7 +1295,7 @@ do with frame {&frame-name}:
     if select-mat:is-selected(i) then
       v-mtype = v-mtype + trim(substr(select-mat:entry(i),1,5)) + ",".
   end.
-  
+
   IF length(TRIM(v-mtype)) EQ 0 THEN
   DO:
      MESSAGE "No Material Type Selected."
@@ -1295,16 +1306,16 @@ do with frame {&frame-name}:
 
   if substr(v-mtype,length(trim(v-mtype)),1) eq "," then
     substr(v-mtype,length(trim(v-mtype)),1) = "".
-    
+
   mat-types = v-mtype.
-  
+
   do i = 1 to length(mat-types):
     if substr(mat-types,i,1) eq "," then substr(mat-types,i,1) = " ".
   end.
-  
+
   display mat-types.
 end.
- 
+
 
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1361,12 +1372,12 @@ if td-show-parm then run show-param.
              LOOKUP("B",v-mtype) GT 0 OR
              LOOKUP("P",v-mtype) GT 0)
       NO-LOCK,
-        
+
       FIRST po-ord
       WHERE po-ord.company EQ po-ordl.company
         AND po-ord.po-no   EQ po-ordl.po-no
       NO-LOCK,
-      
+
       FIRST itemfg
       WHERE itemfg.company EQ po-ordl.company
         AND itemfg.i-no    EQ po-ordl.i-no
@@ -1390,7 +1401,7 @@ if td-show-parm then run show-param.
                        AND item.i-no    EQ po-ordl.i-no
                        AND LOOKUP(item.mat-type,v-mtype) GT 0)
       NO-LOCK,
-        
+
       FIRST po-ord
       WHERE po-ord.company EQ po-ordl.company
         AND po-ord.po-no   EQ po-ordl.po-no
@@ -1422,7 +1433,7 @@ if td-show-parm then run show-param.
       END.
     END.
   END.
-      
+
   FOR EACH tt-report,
 
       FIRST po-ordl WHERE RECID(po-ordl) EQ tt-report.rec-id NO-LOCK
@@ -1449,7 +1460,7 @@ if td-show-parm then run show-param.
               po-ordl.i-no
               tt-report.key-05    @ po-ordl.actnum
               v-amt[1]
- 
+
           WITH FRAME detail.
 
       DOWN WITH FRAME detail.
@@ -1468,7 +1479,7 @@ if td-show-parm then run show-param.
                cVarValue = ""
                cExcelDisplay = ""
                cExcelVarValue = "".
-        
+
         DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
            cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                 CASE cTmpField:             
@@ -1478,15 +1489,15 @@ if td-show-parm then run show-param.
                      WHEN "act"      THEN cVarValue = STRING(tt-report.key-05,"x(25)") .
                      WHEN "cat"      THEN cVarValue = STRING(tt-report.key-01) .
                      WHEN "amt"      THEN cVarValue = STRING(v-amt[1],"->>,>>>,>>9.99")  .
-                     
+
                 END CASE.
-                  
+
                 cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
         END.
-        
+
         PUT UNFORMATTED cDisplay SKIP.
         IF tb_excel THEN DO:
              PUT STREAM excel UNFORMATTED  
@@ -1509,7 +1520,7 @@ if td-show-parm then run show-param.
 
       DISPLAY "FG Prod Cat Totals"  @ po-ordl.actnum
               v-amt[2]              @ v-amt[1]
- 
+
           WITH FRAME detail.
 
       IF tb_excel THEN
@@ -1528,7 +1539,7 @@ if td-show-parm then run show-param.
                cVarValue = ""
                cExcelDisplay = ""
                cExcelVarValue = "".
-        
+
         DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
            cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                 CASE cTmpField:             
@@ -1538,9 +1549,9 @@ if td-show-parm then run show-param.
                      WHEN "act"      THEN cVarValue = "".
                      WHEN "cat"      THEN cVarValue = "" .
                      WHEN "amt"      THEN cVarValue = STRING(v-amt[2],"->>,>>>,>>9.99")  .
-                     
+
                 END CASE.
-                  
+
                 cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -1592,11 +1603,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1624,23 +1635,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

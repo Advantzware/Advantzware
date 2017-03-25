@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File: salrep\r-cusitm.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -91,7 +91,7 @@ def TEMP-TABLE w-data NO-UNDO
   field i-no      like ar-invl.i-no column-label "FG Item"
   field inv-no    like ar-invl.inv-no column-label "Invoice!Number"
   field rec-id    as recid.
- 
+
 DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL NO-UNDO.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
@@ -445,6 +445,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -563,7 +573,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -679,7 +689,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
- 
+
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT tb_cust-list OR  NOT AVAIL ttCustList THEN do:
   EMPTY TEMP-TABLE ttCustList.
@@ -705,7 +715,7 @@ DO:
                             &fax-file=list-name }
        END. 
        when 5 then do:
-           
+
            IF is-xprint-form THEN DO:
               {custom/asimail.i &TYPE = "Salesman"
                              &begin_cust= begin_slsmn
@@ -725,7 +735,8 @@ DO:
        END.
        WHEN 6 THEN RUN OUTPUT-to-port.
 
-  end case. 
+  end case.
+  SESSION:SET-WAIT-STATE (""). 
  END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -737,7 +748,7 @@ DO:
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1021,13 +1032,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_inv-date = date(1,1,year(today))
    end_inv-date   = today.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "HZ",cocode, 
@@ -1060,7 +1071,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
         btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         .
-      
+
    IF ou-log AND ou-cust-int = 0 THEN do:
        ASSIGN 
         tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -1136,7 +1147,7 @@ def input parameter ip-key-10 like tt-report.key-10 no-undo.
 
 
 create xreport.
-  
+
 assign
  v-exc           = no
  xreport.term-id = ""
@@ -1155,7 +1166,7 @@ assign
  xreport.key-09  = tt-report.key-09
  xreport.key-10  = ip-key-10 
  xreport.v-po    = ar-invl.po-no .
-   
+
 if xreport.key-02 eq "" and (v-det or v-sort1 ne "I") then
   if v-sort1 eq "C" then
     xreport.key-02 = xreport.key-05.
@@ -1184,7 +1195,7 @@ def input parameter ip-key-10 like report.key-10 no-undo.
 do i = 1 to 3:
   v-sman-no = if ar-invl.sman[i] eq "" and i eq 1 then cust.sman
               else ar-invl.sman[i].
-           
+
   if v-sman-no   lt fsman                         or
      v-sman-no   gt tsman                         or
      (i ne 1 and
@@ -1208,7 +1219,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'HZ').
-    
+
 
 END PROCEDURE.
 
@@ -1274,7 +1285,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1285,11 +1296,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
 {custom/out2file.i}
 
 END PROCEDURE.
@@ -1321,7 +1332,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1361,7 +1372,7 @@ PROCEDURE print-excel-1 :
   DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.
   DEFINE INPUT PARAMETER ip-qty AS DEC NO-UNDO.
   DEFINE INPUT PARAMETER ip-amt AS DEC NO-UNDO.
-  
+
   PUT STREAM excel UNFORMATTED
       SKIP
       '"' ""  '",'
@@ -1390,7 +1401,7 @@ PROCEDURE print-excel-1 :
          '"' STRING(ip-qty,"->>>,>>>,>>>") '",'
          '"' STRING(ip-amt,"->,>>>,>>>,>>9.99") '",'
          SKIP.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1451,7 +1462,7 @@ assign
  v-freight  = NO
  v-inc-fc   = tb_fin-chg
  lv-quotes  = CHR(34).
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1464,7 +1475,7 @@ IF tb_excel THEN DO:
                   ELSE IF v-sort1 EQ "I" THEN "ITEM QTY. TOTALS,ITEM AMT. TOTALS,"
                   ELSE "SHIP-TO QTY. TOTALS,SHIP-TO AMT. TOTALS,")
                + "CUSTOMER QTY. TOTALS,CUSTOMER AMT. TOTALS".
-   
+
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
 END.
 
@@ -1487,7 +1498,7 @@ FOR EACH ttCustList
       {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
    {sa/sa-sls03.i "fdate" "tdate"}    
   end.
- 
+
   for each tt-report
       where tt-report.term-id eq ""
         and tt-report.key-01  eq ""
@@ -1506,17 +1517,17 @@ FOR EACH ttCustList
 
       transaction:
       {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
-      
+
     if tt-report.key-10 eq "ar-inv" then do:       
        find ar-inv where recid(ar-inv) eq tt-report.rec-id no-lock.       
-       
+
        run ship-data.
-          
+
        if v-ship ge fship and
           v-ship le tship and
           v-shpz ge fshpz and
           v-shpz le tshpz then do:
-           
+
          for each ar-invl
              where ar-invl.x-no    eq ar-inv.x-no
                and ar-invl.i-no    ge fitem
@@ -1525,35 +1536,35 @@ FOR EACH ttCustList
                and ar-invl.po-no   le tpo
                and (ar-invl.billable or not ar-invl.misc)
              use-index x-no no-lock:
-      
+
            run create-report1 (recid(ar-invl),
                                if ar-invl.misc then ar-invl.i-name else
                                if ar-invl.i-no ne "" then ar-invl.i-no else
                                "AR SALE",
                                string(ar-inv.inv-no,"999999"), "").
          end.
-          
+
          if v-freight and ar-inv.f-bill then do:
             find first ar-invl where ar-invl.x-no eq ar-inv.x-no
                 use-index x-no no-lock no-error.
-                
+
             if avail ar-invl then do:
                v-sman-no = "".
-                         
+
                do i = 1 to 3:
                  if ar-invl.sman[i] ne "" then do:
                    v-sman-no = ar-invl.sman[i].
                    leave.
                  end.
                end.
-              
+
                if v-sman-no eq "" then v-sman-no = cust.sman.
-              
+
                if "freight" ge fitem                      and
                   "freight" le titem                      and
                   v-sman-no ge fsman                      and
                   v-sman-no le tsman                      THEN do:
-                    
+
                  run create-report (recid(ar-invl), "FREIGHT",
                                     string(ar-inv.inv-no,"999999"), "FREIGHT").
                END.
@@ -1568,7 +1579,7 @@ FOR EACH ttCustList
     if tt-report.key-10 eq "ar-cashl" then do:      
        find ar-cashl where recid(ar-cashl) eq tt-report.rec-id no-lock.
        find ar-cash  where ar-cash.c-no    eq ar-cashl.c-no no-lock.
-       
+
        assign
         v-exc            = yes
         tt-report.key-01 = trim(if v-sort1 eq "Z" then cust.zip else "") +
@@ -1582,15 +1593,15 @@ FOR EACH ttCustList
         tt-report.key-05 = tt-report.key-09
         tt-report.key-06 = cust.sman
         tt-report.key-07 = tt-report.key-03.
-      
+
        release ar-inv.
-      
+
        RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
-      
+
        ASSIGN
         lv-r-no = 0
         lv-type = "".
-           
+
        IF AVAIL reftable THEN
           ASSIGN
              lv-r-no = reftable.val[1]
@@ -1600,7 +1611,7 @@ FOR EACH ttCustList
          ASSIGN
             lv-r-no = INT(SUBSTR(ar-cashl.dscr,INDEX(ar-cashl.dscr,"oe return") + 25,12))
             lv-type = TRIM(SUBSTR(ar-cashl.dscr,INDEX(ar-cashl.dscr,"oe return") + 12,10)).
-      
+
        IF lv-r-no NE 0 THEN DO:
          find first oe-reth
              where oe-reth.company eq cocode
@@ -1613,10 +1624,10 @@ FOR EACH ttCustList
                 and ar-inv.inv-no  eq oe-reth.inv-no
               no-lock no-error.
        end.       
-      
+
        if avail ar-inv then do:
           run ship-data.
-         
+
           if v-ship ge fship and
              v-ship le tship and
              v-shpz ge fshpz and
@@ -1646,7 +1657,7 @@ FOR EACH ttCustList
                delete tt-report.
             end.
           end.
-         
+
           else
           if lv-type   eq "freight"                  and
              "freight" ge fitem                      and
@@ -1659,7 +1670,7 @@ FOR EACH ttCustList
              tt-report.key-02 = if v-sort1 ne "I" then v-ship else ""
              tt-report.key-03 = "FREIGHT"
              tt-report.key-05 = v-ship.
-         
+
           else
           if lv-type   eq "tax"                  and
              "tax"     ge fitem                  and
@@ -1671,14 +1682,14 @@ FOR EACH ttCustList
              tt-report.key-02 = if v-sort1 ne "I" then v-ship else ""
              tt-report.key-03 = "TAX"
              tt-report.key-05 = v-ship.
-         
+
           else
           if ""        ge fitem and
              ""        le titem and
              cust.sman ge fsman and
              cust.sman le tsman then v-exc = no.
        end.
-      
+
        else
        if ""               ge fitem and
           ""               le titem and
@@ -1688,12 +1699,12 @@ FOR EACH ttCustList
           ar-cashl.cust-no le tship and
           cust.zip         ge fshpz and
           cust.zip         le tshpz then v-exc = no.
-      
+
        if avail tt-report then do:
           tt-report.key-07 = tt-report.key-03.
-          
+
           if v-exc then delete tt-report.
-         
+
           else
           if tt-report.key-02 eq "" and (v-det or v-sort1 ne "I") then
             if v-sort1 eq "C" then
@@ -1752,7 +1763,7 @@ FOR EACH ttCustList
          v-qty[1] = 0
          v-amt[1] = ar-inv.freight
          v-disc   = 0.
-      
+
       else do:
         do i = 1 to 3:
           if ar-invl.sman[i] eq tt-report.key-06 then
@@ -1849,7 +1860,7 @@ FOR EACH ttCustList
     if v-det then do:
       if v-disc-p and v-disc ne 0 then
         v-pric = v-pric * (100 - v-disc) / 100.
-     
+
       display cust.cust-no         when first-of(tt-report.key-01)
               v-name               when (v-print1 and first-of(tt-report.key-01))
                                      or (not v-print1)
@@ -1863,7 +1874,7 @@ FOR EACH ttCustList
               v-uom
               v-amt[1].
       down.
-    
+
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED
              '"' IF first-of(tt-report.key-01) THEN
@@ -1886,16 +1897,16 @@ FOR EACH ttCustList
 
     else
         display cust.cust-no v-name.
-   
+
     assign
      v-qty[2] = v-qty[2] + v-qty[1]
      v-amt[2] = v-amt[2] + v-amt[1].
-    
+
     if last-of(tt-report.key-03) then do:
       if v-det then do:
         if v-sort1 ne "O" then do:
           underline v-name v-qty[1] v-amt[1] with frame itemx.
-        
+
           display "          ITEM TOTALS"                     @ v-name
                   "       SHIP-TO TOTALS" when v-sort1 eq "I" @ v-name
                   v-qty[2] @ v-qty[1]
@@ -1907,7 +1918,7 @@ FOR EACH ttCustList
 
           IF tb_excel THEN
              RUN print-excel-1(INPUT YES, INPUT v-qty[2], INPUT v-amt[2]).
-          
+
           put skip(1).
         end.
       end.
@@ -1937,7 +1948,7 @@ FOR EACH ttCustList
               '"' ""                                                '",'
               '"' ""                                                '",' SKIP.
       end.
-    
+
       assign
        v-qty[3] = v-qty[3] + v-qty[2]
        v-amt[3] = v-amt[3] + v-amt[2]
@@ -1949,7 +1960,7 @@ FOR EACH ttCustList
     if last-of(tt-report.key-02) then do:
       if v-det or v-sort1 ne "I" then do:
         underline v-name v-qty[1] v-amt[1] with frame itemx.
-        
+
         display "       SHIP-TO TOTALS"                     @ v-name
                 "         ORDER TOTALS" when v-sort1 eq "O" @ v-name
                 "          ITEM TOTALS" when v-sort1 eq "I" @ v-name
@@ -1964,7 +1975,7 @@ FOR EACH ttCustList
         IF tb_excel THEN
            RUN print-excel-1(INPUT YES, INPUT v-qty[3], INPUT v-amt[3]).
       end.
-   
+
       assign
        v-qty[4] = v-qty[4] + v-qty[3]
        v-amt[4] = v-amt[4] + v-amt[3]
@@ -1975,7 +1986,7 @@ FOR EACH ttCustList
 
     if last-of(tt-report.key-01) then do:
       underline v-name v-qty[1] v-amt[1] with frame itemx.
-      
+
       display "      CUSTOMER TOTALS" @ v-name
               v-qty[4] @ v-qty[1]
               v-amt[4] @ v-amt[1]
@@ -1988,7 +1999,7 @@ FOR EACH ttCustList
       IF tb_excel THEN
          RUN print-excel-1(INPUT NO, INPUT v-qty[4], INPUT v-amt[4]).
 
-     
+
       assign
        v-qty[5] = v-qty[5] + v-qty[4]
        v-amt[5] = v-amt[5] + v-amt[4]
@@ -2005,7 +2016,7 @@ FOR EACH ttCustList
   put skip(1).
 
   underline v-name v-qty[1] v-amt[1] with frame itemx.
- 
+
   display "         GRAND TOTALS" @ v-name
           v-qty[5] @ v-qty[1]
           v-amt[5] @ v-amt[1]
@@ -2049,7 +2060,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2063,25 +2074,25 @@ PROCEDURE ship-data :
   Notes:       
 ------------------------------------------------------------------------------*/
 release shipto.
-      
+
 if ar-inv.ship-id ne "" then
 find first shipto
     where shipto.company eq cocode
       and shipto.cust-no eq ar-inv.cust-no
       and shipto.ship-id eq ar-inv.ship-id
     no-lock no-error.
-          
+
 if avail shipto then
   assign
    v-ship = ar-inv.ship-id
    v-shpz = shipto.ship-zip.
-         
+
 else
 if ar-inv.sold-id ne "" then
   assign
    v-ship = ar-inv.sold-id
    v-shpz = ar-inv.sold-zip.
-         
+
 else
   assign
    v-ship = ar-inv.cust-no
@@ -2107,11 +2118,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2139,23 +2150,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

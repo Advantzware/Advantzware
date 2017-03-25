@@ -125,7 +125,7 @@ for each xef where xef.company  eq xest.company
         "$" + string(v-cost,">>>9.99")  to 50 space(1) b-uom
         v-alf format "x(7)" to 63
         a-cost / qm / v-sqft-fac format ">>>9.99" to 71
-        a-cost to 80 skip.
+        a-cost format ">>>>>9.99" to 80 skip.
   end.
 end.
 

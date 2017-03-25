@@ -311,6 +311,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -377,7 +387,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -471,7 +481,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-       
+
   run run-report. 
 
   case rd-dest:
@@ -692,7 +702,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
- 
+
   ASSIGN
       begin_date  = DATE (1,1,YEAR(TODAY))
       END_date    = DATE (12,31,year(TODAY)).
@@ -786,7 +796,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -874,17 +884,17 @@ assign
  {sys/inc/ctrtext.i str-tit2 112}
 
   v-stat        = SUBSTR(rd_jstat,1,1)
-  
+
   v-fjob        = fill(" ",6 - length(trim(begin_job-no))) +
                   trim(begin_job-no) + string(int(begin_job-no2),"99")
   v-tjob        = fill(" ",6 - length(trim(end_job-no)))   +
                   trim(end_job-no)   + string(int(end_job-no2),"99")  
-    
+
   v-fcust       = begin_cust
   v-tcust       = END_cust
   v-fdate       = begin_date
   v-tdate       = END_date. 
-         
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1125,12 +1135,12 @@ display "" with frame r-top.
                   and ap-inv.po-no   eq po-ordl.po-no
                   and ap-inv.posted  eq yes
                 use-index ap-inv no-lock,
-        
+
                 each ap-invl
                 where ap-invl.i-no eq ap-inv.i-no
                   and ap-invl.line eq po-ordl.line
                 no-lock:
-          
+
               v-cost = v-cost + ap-invl.amt.
 
               create xreport.
@@ -1142,20 +1152,20 @@ display "" with frame r-top.
                xreport.key-04  = po-ordl.i-no
                xreport.rec-id  = recid(ap-invl).
             end.
-            
+
             for each ap-inv
                 where ap-inv.company eq cocode
                   and ap-inv.vend-no eq po-ord.vend-no
                   and ap-inv.po-no   eq 0
                   and ap-inv.posted  eq yes
                 use-index ap-inv no-lock,
-        
+
                 each ap-invl
                 where ap-invl.i-no       eq ap-inv.i-no
                   and ap-invl.po-no      eq po-ordl.po-no
                   and {ap/invlline.i -1} eq po-ordl.line
                 no-lock:
-                  
+
               v-cost = v-cost + ap-invl.amt.
 
               create xreport.
@@ -1233,7 +1243,7 @@ display "" with frame r-top.
                           STRING(v-inv-qty,">>>>>>>9")
                        ELSE 
                           STRING(v-qty,">>>>>>>9")) '",'.
-            
+
           v-inv-qty = v-inv-qty + v-qty.
         end.
 
@@ -1311,11 +1321,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1347,19 +1357,19 @@ PROCEDURE show-param :
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

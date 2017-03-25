@@ -648,6 +648,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+ASSIGN
+       Btn_Close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_Update:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR RADIO-SET avg_cost IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR TOGGLE-BOX ce-ctrl.comm-add IN FRAME DEFAULT-FRAME
@@ -818,7 +828,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -857,7 +867,7 @@ ON WINDOW-CLOSE OF C-Win /* Cost Estimating Control */
 ON HELP OF FRAME DEFAULT-FRAME
     DO:
         DEFINE VARIABLE char-val AS cha NO-UNDO.
-     
+
         CASE FOCUS:NAME :
             WHEN 'def-ink' THEN 
                 DO:
@@ -912,19 +922,19 @@ ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
         DO:
             RUN spec-%or$ (.01).
             FIND CURRENT ce-ctrl NO-LOCK NO-ERROR.  
-    
+
             APPLY "CLOSE" TO THIS-PROCEDURE.
         END.
-  
+
         ELSE
         DO WITH FRAME {&FRAME-NAME}:  
             DISABLE {&LIST-1}
                 rd-sp-1 rd-sp-2 rd-sp-3.
-            
+
             ASSIGN
                 {&SELF-NAME}:LABEL = "&Close"
                 Btn_Update:LABEL   = "&Update".
-      
+
             RUN enable_UI.
             FIND CURRENT ce-ctrl NO-LOCK NO-ERROR.
         END.
@@ -942,28 +952,28 @@ ON CHOOSE OF Btn_Update IN FRAME DEFAULT-FRAME /* Update */
         DO WITH FRAME {&FRAME-NAME}:   
             ENABLE {&LIST-1}
                 rd-sp-1 rd-sp-2 rd-sp-3.
-    
+
             ASSIGN
                 {&SELF-NAME}:LABEL = "&Save"
                 Btn_Close:LABEL    = "&Cancel".
-    
+
             APPLY "ENTRY" TO ce-ctrl.e-num.
         END.
         ELSE
         DO WITH FRAME {&FRAME-NAME}:
             RUN validate NO-ERROR.
             IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-     
+
             DISABLE {&LIST-1}
                 rd-sp-1 rd-sp-2 rd-sp-3.
-    
+
             ASSIGN
                 {&SELF-NAME}:LABEL = "&Update"
                 Btn_Close:LABEL    = "&Close".
             FIND CURRENT ce-ctrl EXCLUSIVE-LOCK.  
             ASSIGN {&LIST-1}
                 rd-sp-1 rd-sp-2 rd-sp-3.
-    
+
             RUN reftable-values (NO).
         END.
         FIND CURRENT ce-ctrl NO-LOCK NO-ERROR.  
@@ -977,7 +987,7 @@ ON CHOOSE OF Btn_Update IN FRAME DEFAULT-FRAME /* Update */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ce-ctrl.sell-by C-Win
 ON LEAVE OF ce-ctrl.sell-by IN FRAME DEFAULT-FRAME /* Calculate Sell Price on Net or Gross */
     DO:
- 
+
         IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
        index(lv-sell-by-list, SELF:screen-value) = 0 THEN 
         DO:
@@ -985,7 +995,7 @@ ON LEAVE OF ce-ctrl.sell-by IN FRAME DEFAULT-FRAME /* Calculate Sell Price on Ne
                 MESSAGE "Must be 'N'et, 'G'ross, 'F'reight added, 'S'quare-Feet, or 'B'oard."
                     VIEW-AS ALERT-BOX ERROR.
             ELSE MESSAGE "Must be 'N'et, 'G'ross or 'F'reight added." VIEW-AS ALERT-BOX ERROR.
-          
+
             RETURN NO-APPLY.           
         END.
 
@@ -1109,7 +1119,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     FIND ce-ctrl WHERE ce-ctrl.company = gcompany
         AND ce-ctrl.loc = gloc NO-LOCK NO-ERROR.
-                 
+
     RUN enable_UI.
     IF AVAILABLE ce-ctrl THEN 
     DO:
@@ -1122,7 +1132,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                 ls-title2    = "Markup%"
                 ls-title3    = " MSF"
                 ls-title4    = "Markup%".
-               
+
         ASSIGN
             rd-sp-1 = IF ce-ctrl.spec-%[1] GE 1 THEN 2 ELSE 1
             rd-sp-2 = IF ce-ctrl.spec-%[2] GE 1 THEN 2 ELSE 1
@@ -1135,9 +1145,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         fi_fg-rate-farm fi_rm-rate-farm fi_hand-pct-farm
         fi_fold-pct fi_broker-pct
         WITH FRAME {&FRAME-NAME}.
-          
+
     RUN spec-%or$ (100).
- 
+
     {methods/nowait.i}
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1247,7 +1257,7 @@ PROCEDURE reftable-values :
                 reftable.company  = ce-ctrl.company
                 reftable.loc      = ce-ctrl.loc.
         END.
-    
+
         IF ip-display THEN
             fi_fg-rate-farm = reftable.val[1].
         ELSE
@@ -1275,7 +1285,7 @@ PROCEDURE reftable-values :
                 reftable.company  = ce-ctrl.company
                 reftable.loc      = ce-ctrl.loc.
         END.
-    
+
         IF ip-display THEN
             fi_rm-rate-farm = reftable.val[1].
         ELSE
@@ -1302,13 +1312,13 @@ PROCEDURE reftable-values :
                 reftable.company  = ce-ctrl.company
                 reftable.loc      = ce-ctrl.loc.
         END.
-    
+
         IF ip-display THEN
             fi_hand-pct-farm = reftable.val[1].
         ELSE
             reftable.val[1] = fi_hand-pct-farm.
         FIND CURRENT reftable NO-LOCK NO-ERROR .
-        
+
         IF ip-display THEN
             FIND FIRST reftable NO-LOCK
                 WHERE reftable.reftable EQ "ce-ctrl.fold-pct"
@@ -1329,7 +1339,7 @@ PROCEDURE reftable-values :
                 reftable.company  = ce-ctrl.company
                 reftable.loc      = ce-ctrl.loc.
         END.
-    
+
         IF ip-display THEN
             fi_fold-pct = reftable.val[1].
         ELSE
@@ -1357,7 +1367,7 @@ PROCEDURE reftable-values :
                 reftable.company  = ce-ctrl.company
                 reftable.loc      = ce-ctrl.loc.
         END.
-    
+
         IF ip-display THEN
             fi_broker-pct = reftable.val[1].
         ELSE
@@ -1378,19 +1388,19 @@ PROCEDURE spec-%or$ :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ip-factor AS DECIMAL NO-UNDO.
-  
-      
+
+
     DO  WITH FRAME {&frame-name}:
         FIND CURRENT ce-ctrl NO-ERROR.
-   
+
         IF rd-sp-1 EQ 1 THEN ce-ctrl.spec-%[1] = ce-ctrl.spec-%[1] * ip-factor.
         IF rd-sp-2 EQ 1 THEN ce-ctrl.spec-%[2] = ce-ctrl.spec-%[2] * ip-factor.
         IF rd-sp-3 EQ 1 THEN ce-ctrl.spec-%[3] = ce-ctrl.spec-%[3] * ip-factor.
-  
+
         DISPLAY ce-ctrl.spec-%[1]
             ce-ctrl.spec-%[2]
             ce-ctrl.spec-%[3].
-  
+
         FIND CURRENT ce-ctrl NO-LOCK NO-ERROR.
     END.
 END PROCEDURE.
@@ -1406,7 +1416,7 @@ PROCEDURE validate :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE i AS INTEGER NO-UNDO.
- 
+
     DO WITH FRAME {&frame-name}:
         IF ce-ctrl.spec-l[1]:screen-value NE ""     AND
             dec(ce-ctrl.spec-%[1]:screen-value) LT 1 THEN 
@@ -1415,7 +1425,7 @@ PROCEDURE validate :
             APPLY "entry" TO ce-ctrl.spec-%[1].
             RETURN ERROR.
         END.
-   
+
         IF ce-ctrl.spec-l[2]:screen-value NE ""     AND
             dec(ce-ctrl.spec-%[2]:screen-value) LT 1 THEN 
         DO:     
@@ -1423,7 +1433,7 @@ PROCEDURE validate :
             APPLY "entry" TO ce-ctrl.spec-%[2].
             RETURN ERROR.
         END.
-   
+
         IF ce-ctrl.spec-l[3]:screen-value NE ""     AND
             dec(ce-ctrl.spec-%[3]:screen-value) LT 1 THEN 
         DO:     
@@ -1431,7 +1441,7 @@ PROCEDURE validate :
             APPLY "entry" TO ce-ctrl.spec-%[3].
             RETURN ERROR.
         END.
-    
+
         IF ce-ctrl.sell-by:screen-value <> "" AND
       index(lv-sell-by-list, ce-ctrl.sell-by:screen-value) = 0 THEN 
         DO:
@@ -1443,7 +1453,7 @@ PROCEDURE validate :
             RETURN ERROR.           
         END.  
     END.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

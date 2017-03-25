@@ -34,11 +34,13 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
          AND oe-ordl.i-no    EQ tt-boll.i-no
          AND oe-ordl.line    EQ tt-boll.LINE  NO-ERROR.
       v-tot-case-qty = v-tot-case-qty + bf-ttboll.qty.
+      IF bf-ttboll.partial GT 0 THEN
+      v-tot-case-qty = v-tot-case-qty +   bf-ttboll.partial .
       FIND FIRST oe-ord NO-LOCK WHERE oe-ord.company EQ cocode
          AND oe-ord.ord-no  EQ tt-boll.ord-no  NO-ERROR.                  
       i = i + 1.
       
-      FIND FIRST w2 WHERE w2.cas-cnt EQ bf-ttboll.qty-case NO-ERROR.
+      FIND FIRST w2 WHERE (w2.cas-cnt * w2.cases) EQ (bf-ttboll.qty-case * bf-ttboll.cases) NO-ERROR.
       IF NOT AVAILABLE w2 THEN CREATE w2.
       ASSIGN w2.job-po = ""
              w2.i-no = ""
@@ -46,7 +48,8 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
              w2.cases   = w2.cases + bf-ttboll.cases
              w2.rec-id = RECID(bf-ttboll) 
              w2.partial = w2.partial + bf-ttboll.partial
-             w2.unitCount = bf-ttboll.unitCount  .
+             w2.unitCount = bf-ttboll.unitCount
+             w2.qty-sum   = bf-ttboll.qty-sum   .
             
       IF i = 1 THEN ASSIGN w2.job-po = bf-ttboll.po-no
                            w2.dscr = oe-ordl.part-no
@@ -138,9 +141,9 @@ IF FIRST-OF(tt-boll.LINE) THEN DO:
             w2.job-po
             w2.dscr
             w2.unitcount @ w2.cases
-            icountpallet
+            w2.qty-sum @ icountpallet
             w2.partial @  tt-boll.partial
-            v-tot-case-qty + w2.partial WHEN FIRST (w2.cases) @ tt-boll.qty
+            icountpallet + w2.partial /*v-tot-case-qty + w2.partial WHEN FIRST (w2.cases)*/ @ tt-boll.qty
             bf-ttboll.p-c  WHEN AVAILABLE bf-ttboll AND first(w2.cases) @ bf-ttboll.p-c                         
            /* 1  WHEN i = 2 AND bf-ttboll.partial > 0  @ w2.cases
             tt-boll.partial WHEN i = 2 AND tt-boll.partial > 0 @ w2.cas-cnt */

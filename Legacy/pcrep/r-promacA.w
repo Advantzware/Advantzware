@@ -35,7 +35,7 @@ DEFINE TEMP-TABLE tt-mch-srt NO-UNDO LIKE mch-srt
 {custom/gloc.i}
 {custom/getcmpny.i}
 {custom/getloc.i}
-  
+
 {sys/inc/var.i new shared}
 
 assign
@@ -304,6 +304,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -370,7 +380,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -708,13 +718,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
 
-   
+
   assign
    begin_date = date(month(TODAY), 1, year(TODAY))
    end_date   = today.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -786,7 +796,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -797,11 +807,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
-     
+
  {custom/out2file.i}
 
 END PROCEDURE.
@@ -833,7 +843,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -871,7 +881,7 @@ PROCEDURE run-report :
 {sys/form/r-topw.f}
 
 DEF BUFFER b-mch-srt FOR mch-srt.
-    
+
 def var v-date as date extent 2 format "99/99/9999" no-undo.
 def var v-dept as ch format 'x(4)' extent 2 init [" ","zzzz"].
 def var v-mach like mach.m-code extent 2 init [" ","zzzzzz"].
@@ -1003,7 +1013,7 @@ assign
  v-date[1]   = begin_date
  v-date[2]   = end_date
  v-show      = tb_sel-per
- 
+
  hdr-tit  = "MACH                    <---MAKE READY HOURS--->  " +
             "<------RUN HOURS------->  <----MR & RUN HOURS---->  " +
             "<--D/T HOURS-->       ACTUAL    EXPECTED"
@@ -1017,7 +1027,7 @@ assign
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
-                               
+
 if td-show-parm then run show-param.
 
 display "" with frame r-top.
@@ -1028,7 +1038,7 @@ display "" with frame r-top.
   FOR EACH tt-mch-srt:
       DELETE tt-mch-srt.
   END.
-  
+
   for each mch-act where
       mch-act.company eq cocode and
       mch-act.m-code  ge v-mach[1] and
@@ -1069,7 +1079,7 @@ display "" with frame r-top.
                                      mch-act.blank-no EQ 0 THEN 1
                                                            ELSE mch-act.blank-no
                mch-srt.pass     = mch-act.pass.
-        
+
      END.
      find job-code where job-code.code eq mch-act.code
                          no-lock no-error.
@@ -1156,12 +1166,12 @@ display "" with frame r-top.
                         item.company eq cocode AND
                         item.i-no eq job-mat.i-no
                         no-lock
-         
+
                   BREAK BY job-mat.frm
                         BY item.mat-type
                         BY job-mat.j-no
                         BY job-mat.rec_key:
-         
+
                   mch-srt.run-std-hr = (mch-srt.qty-prod * job-mat.len / 12) / job-mch.speed.
                   LEAVE.
               END.
@@ -1197,12 +1207,12 @@ display "" with frame r-top.
      {sys/inc/roundup.i mch-srt.qty-expect}
 
      IF mch-srt.run-std-hr EQ ? THEN mch-srt.run-std-hr = 0.
-                                    
+
      a = fill(" ",6 - length(trim(mch-srt.job-no))) +
          trim(mch-srt.job-no) + "-" +
          string(mch-srt.job-no2,"99").
 
-     
+
      if not v-prt-job AND NOT v-prt-both then
      for each job-hdr
          where job-hdr.company eq cocode
@@ -1210,17 +1220,17 @@ display "" with frame r-top.
            and job-hdr.job-no  eq mch-srt.job-no
            and job-hdr.job-no2 eq mch-srt.job-no2
          no-lock
-               
+
          by job-hdr.blank-no desc
          by job-hdr.frm      desc:
-               
+
        a = job-hdr.i-no.
-             
+
        if job-hdr.frm       eq mch-srt.frm           and
           (job-hdr.blank-no eq mch-srt.blank-no or
            job-hdr.blank-no eq 0)                    then leave.
      end.
-    
+
      IF v-prt-both THEN
      for each job-hdr
          where job-hdr.company eq cocode
@@ -1228,12 +1238,12 @@ display "" with frame r-top.
            and job-hdr.job-no  eq mch-srt.job-no
            and job-hdr.job-no2 eq mch-srt.job-no2
          no-lock
-               
+
          by job-hdr.blank-no desc
          by job-hdr.frm      desc:
-               
+
        b = job-hdr.i-no.
-              
+
        if job-hdr.frm       eq mch-srt.frm           and
           (job-hdr.blank-no eq mch-srt.blank-no or
            job-hdr.blank-no eq 0)                    then leave.
@@ -1246,9 +1256,9 @@ display "" with frame r-top.
         tt-mch-srt.i-no = b .
 
   end.
-  
+
     put skip.
-     
+
      for each tt-mch-srt use-index dept-idx
                       break by tt-mch-srt.dept
                             by tt-mch-srt.m-code
@@ -1293,7 +1303,7 @@ display "" with frame r-top.
                    dt-eff
                    job-qty-prod        format "->>,>>>,>>9"
                    job-qty-expect      format "->>,>>>,>>9" SKIP
-                   
+
                 with frame detboth STREAM-IO width 180 no-labels no-box down.
 
            IF NOT v-prt-both  THEN
@@ -1312,7 +1322,7 @@ display "" with frame r-top.
                    dt-eff
                    job-qty-prod        format "->>,>>>,>>9"
                    job-qty-expect      format "->>,>>>,>>9" SKIP
-                   
+
                 with frame det STREAM-IO width 180 no-labels no-box down.
 
            IF v-prt-both THEN DO:
@@ -1407,7 +1417,7 @@ display "" with frame r-top.
                    mch-qty-prod
                    mch-qty-expect skip
                    fill("-", 136) format "x(136)" at 7
-                   
+
                with frame detm STREAM-IO width 180 no-labels no-box.
 
            assign mch-mr-std = 0
@@ -1444,7 +1454,7 @@ display "" with frame r-top.
                    dpt-qty-prod
                    dpt-qty-expect skip
                    fill("=", 142) format "x(142)"
-                   
+
                with frame detd STREAM-IO width 180 no-labels no-box.
 
            assign dpt-mr-std = 0
@@ -1492,11 +1502,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1524,23 +1534,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

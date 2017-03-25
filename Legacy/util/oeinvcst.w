@@ -220,6 +220,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -228,7 +238,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -280,7 +290,7 @@ DO:
 
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE)
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-          
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -384,9 +394,9 @@ DEF VAR v-cost-m LIKE ar-invl.cost EXTENT 4 NO-UNDO.
 DEF VAR v-basis AS CHAR NO-UNDO.
 DEF VAR v-comm AS DEC NO-UNDO.
 
-                                                     
+
 SESSION:SET-WAIT-STATE("General").
-  
+
 DO WITH FRAME {&FRAME-NAME}:
   ASSIGN
    begin_inv
@@ -457,25 +467,25 @@ FOR EACH ar-inv
         IF v-uom NE "M" THEN
           RUN sys/ref/convcuom.p(v-uom, "M", 0, 0, 0, 0,
                                  v-cost-m[li], OUTPUT v-cost-m[li]).
-                                       
+
          v-cost[li] = v-cost[li] + (v-cost-m[li] * oe-boll.qty / 1000).
       END.                           
     END.
-  
+
     DO li = 1 TO 4:
       v-cost[li] = v-cost[li] / (v-qty / 1000).
-    
+
       IF v-cost[li] EQ ? THEN v-cost[li] = 0.
     END.
-   
+
     ASSIGN
        ar-invl.cost = v-cost[1] + v-cost[2] + v-cost[3] + v-cost[4]
        ar-invl.dscr[1] = "M".
-          
+
     IF ar-invl.cost EQ ? THEN ar-invl.cost = 0.
 
     ar-inv.t-cost = ar-inv.t-cost - ar-invl.t-cost.
-          
+
     ar-invl.t-cost = ar-invl.cost * ar-invl.inv-qty / 1000.
 
     IF ar-invl.t-cost EQ ? THEN ar-invl.t-cost = 0.
@@ -497,13 +507,13 @@ FOR EACH ar-inv
     END.
   END.
 END.
-    
+
 SESSION:SET-WAIT-STATE("").
-    
+
 MESSAGE TRIM(c-win:TITLE) + " Process Complete..." VIEW-AS ALERT-BOX.
-    
+
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

@@ -209,6 +209,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 /* SETTINGS FOR FRAME FRAME-H
@@ -219,7 +229,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -272,7 +282,7 @@ DO:
           " within the selection parameters?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-                              
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -330,7 +340,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ELSE
   IF SUBSTR(v-spec-list,LENGTH(TRIM(v-spec-list)),1) EQ "," THEN
     SUBSTR(v-spec-list,LENGTH(TRIM(v-spec-list)),1) = "".
-  
+
   select-spec:LIST-ITEMS = v-spec-list.
 
   RUN enable_UI.
@@ -425,10 +435,10 @@ END.
 STATUS DEFAULT "".
 
 SESSION:SET-WAIT-STATE("").
-   
+
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

@@ -77,7 +77,7 @@ DEFINE BUTTON btnCancel AUTO-END-KEY
      SIZE 8 BY 1.91
      BGCOLOR 8 FONT 4.
 
-DEFINE BUTTON btnOK 
+DEFINE BUTTON btnOK AUTO-GO 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91
@@ -208,11 +208,11 @@ DEFINE VARIABLE vert-bar AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
+     btnOK AT ROW 1.24 COL 92 HELP
+          "OK to Save Edit Function Settings"
      attr_id AT ROW 1.24 COL 17.2 COLON-ALIGNED HELP
           "Enter Attribute Identifier"
      attr_order AT ROW 2.43 COL 17 COLON-ALIGNED
-     btnOK AT ROW 1.24 COL 92 HELP
-          "OK to Save Edit Function Settings"
      attr_type AT ROW 3.62 COL 17 COLON-ALIGNED
      horz-bar AT ROW 3.62 COL 43 HELP
           "Set Horizontal Scrollbar"
@@ -254,7 +254,7 @@ DEFINE FRAME Dialog-Frame
           "Select Display/Load Values Procedure Name"
      btnCancel AT ROW 1.24 COL 100 HELP
           "CANCEL Edit Function"
-     SPACE(0.99) SKIP(11.08)
+     SPACE(1.00) SKIP(11.09)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "User Defined Fields Attribute Editor"
@@ -417,7 +417,6 @@ DO:
     WHEN "TEXT" THEN
     ttAttrb.attr_settings = font-setting:SCREEN-VALUE.
   END CASE.
-  MESSAGE "UDF Attributes Saved" VIEW-AS ALERT-BOX TITLE "Save".
 END.
 
 /* _UIB-CODE-BLOCK-END */

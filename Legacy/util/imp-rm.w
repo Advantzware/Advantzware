@@ -183,13 +183,23 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -247,7 +257,7 @@ DO:
           "selection parameters?"
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
       UPDATE ll-process.
-          
+
   IF ll-process THEN RUN run-process.
 END.
 
@@ -349,7 +359,7 @@ lv-import = SEARCH(fi_file).
 IF SEARCH(lv-import) EQ ? THEN
   MESSAGE TRIM(fi_file) + " doesn't exist,  please try again..."
       VIEW-AS ALERT-BOX ERROR.
- 
+
 ELSE DO:
   SESSION:SET-WAIT-STATE("General").
 

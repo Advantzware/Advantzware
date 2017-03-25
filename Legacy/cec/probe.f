@@ -4,6 +4,7 @@
 
 def var voverall     as   dec    /*format "->>,>>>,>>9.99"*/ .
 def var vtot-msf     as   dec    format ">>>>9.9<<<<".
+DEFINE VARIABLE dContPerManHr AS DECIMAL format ">>>>9.99".
 def var vfont4xprint as cha no-undo.
 
 /* moved to probeu3.p  
@@ -89,24 +90,24 @@ form
      with width 130 stream-io frame probe-big down no-labels no-underline no-attr-space no-box.
 
 form
-     probe.est-qty          format ">>>>>>9"
+     probe.est-qty          format ">>>>>9"
      probe.freight          format ">9"
-     reftable.val[2]        format "->>,>>9.99"
+     reftable.val[2]        format "->>>>9.99"
      reftable.val[3]        format "->>9.99"
-     reftable.val[4]        format ">>>,>>9.99"
-     reftable.val[5]        format ">>>,>>9.99"
+     reftable.val[5]        format ">>>>9.99"
+     dContPerManHR         format ">>>>9.99"
      probe.sell-price       format "->>>>9.99"
      voverall               format "->>>9.99"
      probe.gsh-qty format ">>>>>9"
      vtot-msf
      skip
      header
-     /*"     E S T I M A T E  " + "#" + trim(xest.est-no) +
-     "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip*/
+     "     E S T I M A T E  " + "#" + trim(xest.est-no) +
+     "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip
      "                              "
      space(10)
-     "                                              Total      Sell    Price  Total   Total" skip
-     "    Qty  R  Board $/M Board %   Contb /M      Contb     Price     /MSF Sheets     MSF"
+     "              Board            Total   Contb/      Sell    Price  Total   Total" skip
+     "   Qty  R       $/M Board %    Contb   Man Hr     Price     /MSF Sheets     MSF"
      /*skip*/
      with width 90 stream-io frame probe-peach down no-labels no-underline no-attr-space no-box.
       
@@ -115,8 +116,8 @@ form
      probe.freight          format ">9"
      reftable.val[2]        format "->,>>>,>>9.99"
      reftable.val[3]        format "->>9.99"
-     reftable.val[4]        format ">,>>>,>>9.99"
      reftable.val[5]        format ">>,>>>,>>9.99"
+     dContPerManHR         format ">,>>>,>>9.99"
      probe.sell-price       format "->,>>>,>>9.99"
      voverall               format "->>,>>>,>>9.99"
      probe.gsh-qty format ">>>>>9"
@@ -127,8 +128,8 @@ form
      "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip*/
      "                              "
      space(10)
-     "                                                      Total          Sell     Price  Total   Total" skip
-     "    Qty  R     Board $/M Board %     Contb /M         Contb         Price      /MSF Sheets     MSF"
+     "                                     Total         Contb/        Sell     Price  Total   Total" skip
+     "    Qty  R     Board $/M Board %     Contb         Man Hr       Price      /MSF Sheets     MSF"
      /*skip*/
      with width 130 stream-io frame probe-peach-big down no-labels no-underline no-attr-space no-box.
            

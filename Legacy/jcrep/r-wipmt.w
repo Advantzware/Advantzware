@@ -13,7 +13,7 @@
   Output Parameters:  <none>
 
   Author:             Dennis G. Dizon
-  
+
   Created:            Mar 30, 2007
 
 ------------------------------------------------------------------------*/
@@ -436,6 +436,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN begin_job2 IN FRAME FRAME-A
    1                                                                    */
 ASSIGN 
@@ -493,7 +503,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -640,7 +650,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   DEF VAR hold-title AS CHAR NO-UNDO.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
@@ -665,7 +675,7 @@ DO:
           VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
         RETURN NO-APPLY.
-        
+
   END.
 
   RUN count-item.
@@ -696,7 +706,7 @@ DO:
                                   &mail-subject= c-win:TITLE 
                                   &mail-body= c-win:TITLE 
                                   &mail-file=list-name }           
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -906,7 +916,7 @@ END.
 ON VALUE-CHANGED OF tgl-SubTotShSz IN FRAME FRAME-A /* SubTot by RM Item  Sheet Size */
 DO:
   ASSIGN {&SELF-NAME}.
-                                         
+
   IF {&SELF-NAME} THEN ASSIGN 
                               tgl-ShWL   = YES
                               tgl-TagQty = YES
@@ -952,7 +962,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   /* uncommet this part if the greenbar is needed
@@ -1106,7 +1116,7 @@ DO WITH FRAME {&FRAME-NAME}:
             &mail-body=c-win:title
             &mail-file=list-name }
 
- 
+
 END.
 
 END PROCEDURE.
@@ -1136,7 +1146,7 @@ PROCEDURE output-to-printer :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   
+
    RUN custom/prntproc.p (list-name,INT(lv-font-no),lv-ornt).
 
 END PROCEDURE.
@@ -1198,7 +1208,7 @@ FORM HEADER
     v-page-brk
   SKIP(1)
  WITH FRAME r-top2 NO-BOX PAGE-TOP STREAM-IO WIDTH 185.
-    
+
 ASSIGN str-tit2 = c-win:TITLE 
        {sys/inc/ctrtext.i str-tit2 142} .
 
@@ -1306,7 +1316,7 @@ FOR EACH wiptag NO-LOCK
       WHERE reftable.reftable = "WIPLEN" 
         AND reftable.company = wiptag.company 
         AND reftable.CODE = wiptag.tag-no USE-INDEX CODE NO-ERROR.
-    
+
     CREATE tt-wiptag.
     BUFFER-COPY wiptag TO tt-wiptag NO-ERROR.
 
@@ -1345,7 +1355,7 @@ FOR EACH tt-wiptag NO-LOCK
        v-sht-wid-len   = tt-wiptag.t-sht-wid-len.
 
     ASSIGN v-subtot-count  =  v-subtot-count + tt-wiptag.pallet-count.
-    
+
     IF tgl-tag    THEN PUT UNFORMATTED v-tag-no FORMAT "x(21)".
 
     IF tgl-rmbin  THEN PUT UNFORMATTED v-rm-bin FORMAT "x(9)". 
@@ -1396,7 +1406,7 @@ FOR EACH tt-wiptag NO-LOCK
         END.            
 
     END.
-    
+
 
     IF tb_excel THEN DO:
 
@@ -1477,11 +1487,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1509,23 +1519,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

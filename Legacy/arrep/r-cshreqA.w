@@ -304,6 +304,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -344,7 +354,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -460,7 +470,7 @@ DO:
                                   &mail-body="Customer List"
                                   &mail-file=list-name }
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -652,7 +662,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    begin_date-3 = begin_date-2 + 7.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
     DO WITH FRAME {&FRAME-NAME}:
@@ -753,7 +763,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -825,9 +835,9 @@ FORM HEADER
      "Disc       Gross     Disc       Gross     Disc          Gross     Disc"
      SKIP
      FILL("_",135) FORMAT "x(135)"
-     
+
     WITH PAGE-TOP FRAME f-top STREAM-IO WIDTH 135 NO-BOX.
-    
+
 FORM ar-inv.inv-no
      SPACE(4)
      ar-inv.inv-date        FORMAT "99/99/99"
@@ -842,16 +852,16 @@ FORM ar-inv.inv-no
      inv-d[4]               FORMAT "->>>>.99" 
      ws_gross
      ws_disc-avail
-     
+
     WITH STREAM-IO WIDTH 135 FRAME a NO-LABELS DOWN NO-BOX.
-    
+
 
 EMPTY TEMP-TABLE tt-report.
 
 ASSIGN
  str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  d1[1]  = begin_date-1
  d1[2]  = begin_date-2
  d1[3]  = begin_date-3
@@ -881,7 +891,7 @@ SESSION:SET-WAIT-STATE ("general").
         AND ar-inv.posted  EQ YES
         AND ar-inv.due     NE 0
       NO-LOCK,
-      
+
       FIRST cust
       WHERE cust.company eq cocode
         AND cust.cust-no eq ar-inv.cust-no
@@ -902,13 +912,13 @@ SESSION:SET-WAIT-STATE ("general").
      tt-report.key-03  = STRING(ar-inv.inv-no,"9999999999")
      tt-report.rec-id  = RECID(ar-inv).
   END.
-  
+
   DISPLAY "" WITH FRAME r-top.
   DISPLAY "" WITH FRAME f-top.
 
   FOR EACH tt-report,
       FIRST ar-inv WHERE RECID(ar-inv) EQ tt-report.rec-id NO-LOCK
-      
+
       BREAK BY tt-report.key-01
             BY tt-report.key-02
             BY tt-report.key-03:
@@ -921,55 +931,55 @@ SESSION:SET-WAIT-STATE ("general").
         WHERE cust.company EQ cocode
           AND cust.cust-no EQ ar-inv.cust-no
         NO-LOCK NO-ERROR.
-    
+
     IF FIRST-OF(tt-report.key-02) THEN DO:
       PUT ar-inv.cust-no.
       IF AVAIL cust THEN PUT cust.name.
       PUT SKIP.
     END.
-    
+
     ASSIGN
      ws_gross      = ar-inv.due
      ws_disc-avail = IF ar-inv.net NE 0 THEN
                        (ar-inv.net * (ar-inv.disc-% / 100) - ar-inv.disc-taken)
                      ELSE 0.
-                     
+
     DO li = 1 to 4:
       ASSIGN
        inv-t[li] = 0
        inv-d[li] = 0.
     END.
-                     
+
     IF tt-report.due-date GT d1[3] THEN
       ASSIGN
        cust-t[4] = cust-t[4] + ws_gross
        inv-t[4]  = ws_gross.
-       
+
     ELSE
     IF tt-report.due-date GT d1[2] THEN
       ASSIGN
        cust-t[3] = cust-t[3] + ws_gross
        inv-t[3]  = ws_gross.
-    
+
     ELSE
     IF tt-report.due-date GT d1[1] THEN
       ASSIGN
        cust-t[2] = cust-t[2] + ws_gross
        inv-t[2]  = ws_gross.
-    
+
     ELSE
       ASSIGN
        cust-t[1] = cust-t[1] + ws_gross
        inv-t[1]  = ws_gross.
-       
+
     v-disc-date = IF AVAIL terms THEN (ar-inv.inv-date + terms.disc-days)
                                  ELSE tt-report.due-date.
-       
+
     IF v-disc-date GT d1[3] THEN
       ASSIGN
        cust-d[4] = cust-d[4] + ws_disc-avail
        inv-d[4]  = ws_disc-avail.
-              
+
     ELSE
     IF v-disc-date GT d1[2] THEN
       ASSIGN
@@ -981,12 +991,12 @@ SESSION:SET-WAIT-STATE ("general").
       ASSIGN
        cust-d[2] = cust-d[2] + ws_disc-avail
        inv-d[2]  = ws_disc-avail.
-    
+
     ELSE
       ASSIGN
        cust-d[1] = cust-d[1] + ws_disc-avail
        inv-d[1]  = ws_disc-avail.
-       
+
     DISPLAY ar-inv.inv-no
             ar-inv.inv-date
             tt-report.due-date
@@ -1002,10 +1012,10 @@ SESSION:SET-WAIT-STATE ("general").
             inv-d[4] WHEN inv-d[4] NE 0
             ws_gross
             ws_disc-avail
-            
+
         WITH FRAME a.
     DOWN WITH FRAME a.
-    
+
     IF tb_excel THEN
        PUT STREAM excel UNFORMATTED
            '"' IF FIRST-OF(tt-report.key-02) THEN ar-inv.cust-no
@@ -1049,10 +1059,10 @@ SESSION:SET-WAIT-STATE ("general").
               cust-d[4]  @ inv-d[4]
               cust-t[1] + cust-t[2] + cust-t[3] + cust-t[4] @ ws_gross
               cust-d[1] + cust-d[2] + cust-d[3] + cust-d[4] @ ws_disc-avail
-              
+
           WITH FRAME a.
       DOWN 2 WITH FRAME a.
-      
+
       IF tb_excel THEN
          PUT STREAM excel UNFORMATTED
              '"' ""                                  '",'
@@ -1076,12 +1086,12 @@ SESSION:SET-WAIT-STATE ("general").
         ASSIGN
          grand-t[li] = grand-t[li] + cust-t[li]
          grand-d[li] = grand-d[li] + cust-d[li]
-         
+
          cust-t[li]  = 0
          cust-d[li]  = 0.
       END.
     END.  /* last-of loop */
-    
+
     IF LAST(tt-report.key-02) THEN DO:
       DOWN 1 WITH FRAME a.
 
@@ -1096,7 +1106,7 @@ SESSION:SET-WAIT-STATE ("general").
               grand-d[4] @ inv-d[4]
               grand-t[1] + grand-t[2] + grand-t[3] + grand-t[4] @ ws_gross
               grand-d[1] + grand-d[2] + grand-d[3] + grand-d[4] @ ws_disc-avail
-          
+
           WITH FRAME a.
 
       IF tb_excel THEN
@@ -1160,11 +1170,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1192,23 +1202,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

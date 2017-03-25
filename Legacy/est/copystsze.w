@@ -186,6 +186,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_line:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -208,7 +218,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -302,7 +312,7 @@ DO:
 
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) + " " +
           TRIM(STRING(begin_pallet)) + " to " +
           TRIM(STRING(end_pallet)) + "?"

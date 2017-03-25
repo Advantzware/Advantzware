@@ -1,7 +1,8 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v9r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI
 &ANALYZE-RESUME
-&Scoped-define WINDOW-NAME C-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
+&Scoped-define WINDOW-NAME CURRENT-WINDOW
+&Scoped-define FRAME-NAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
   File: ID.w
@@ -14,20 +15,10 @@
 
   Author: Ron Stark
 
-  Created: 5.12.2004
-
+  Created: 5.12.2004 (changed from window to dialog 3.3.2017)
 ------------------------------------------------------------------------*/
-/*          This .W file was created with the Progress AppBuilder.    
-  */
+/*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
-
-/* Create an unnamed pool to store all the widgets created 
-     by this procedure. This is a good default which assures
-     that this procedure's triggers and internal procedures 
-     will execute in this procedure's storage, and that proper
-     cleanup will occur on deletion of the procedure. */
-
-CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
@@ -62,11 +53,11 @@ SESSION:SET-WAIT-STATE('').
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE Window
+&Scoped-define PROCEDURE-TYPE Dialog-Box
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
-&Scoped-define FRAME-NAME DEFAULT-FRAME
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
+&Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS IDList btnOK btnCancel 
@@ -82,15 +73,14 @@ SESSION:SET-WAIT-STATE('').
 
 /* ***********************  Control Definitions  ********************** */
 
-/* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+/* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btnCancel 
+DEFINE BUTTON btnCancel AUTO-END-KEY 
      LABEL "&Cancel" 
      SIZE 9.2 BY 1.
 
-DEFINE BUTTON btnOK 
+DEFINE BUTTON btnOK AUTO-GO 
      LABEL "&OK" 
      SIZE 9.2 BY 1.
 
@@ -101,69 +91,36 @@ DEFINE VARIABLE IDList AS CHARACTER
 
 /* ************************  Frame Definitions  *********************** */
 
-DEFINE FRAME DEFAULT-FRAME
-     IDList AT ROW 1 COL 1 NO-LABEL
-     btnOK AT ROW 9.57 COL 20
-     btnCancel AT ROW 9.57 COL 30
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 39.2 BY 9.57.
+DEFINE FRAME Dialog-Frame
+     IDList AT ROW 1 COL 1 NO-LABEL WIDGET-ID 6
+     btnOK AT ROW 9.57 COL 20 WIDGET-ID 4
+     btnCancel AT ROW 9.57 COL 30 WIDGET-ID 2
+     SPACE(0.80) SKIP(0.00)
+    WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
+         SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
+         TITLE "Select ID" WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: Window
-   Allow: Basic,Browse,DB-Fields,Window,Query
+   Type: Dialog-Box
+   Allow: Basic,Browse,DB-Fields,Query
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
-
-/* *************************  Create Window  ************************** */
-
-&ANALYZE-SUSPEND _CREATE-WINDOW
-IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW C-Win ASSIGN
-         HIDDEN             = YES
-         TITLE              = "Select ID"
-         HEIGHT             = 9.57
-         WIDTH              = 39.2
-         MAX-HEIGHT         = 9.62
-         MAX-WIDTH          = 39.2
-         VIRTUAL-HEIGHT     = 9.62
-         VIRTUAL-WIDTH      = 39.2
-         SMALL-TITLE        = yes
-         SHOW-IN-TASKBAR    = no
-         CONTROL-BOX        = no
-         MIN-BUTTON         = no
-         MAX-BUTTON         = no
-         ALWAYS-ON-TOP      = yes
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
-         BGCOLOR            = ?
-         FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
-ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
-/* END WINDOW DEFINITION                                                */
-&ANALYZE-RESUME
 
 
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW C-Win
-  VISIBLE,,RUN-PERSISTENT                                               */
-/* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
-IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+/* SETTINGS FOR DIALOG-BOX Dialog-Frame
+   FRAME-NAME                                                           */
+ASSIGN 
+       FRAME Dialog-Frame:SCROLLABLE       = FALSE
+       FRAME Dialog-Frame:HIDDEN           = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -174,26 +131,12 @@ THEN C-Win:HIDDEN = no.
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME C-Win
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Select ID */
-OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
-  /* This case occurs when the user presses the "Esc" key.
-     In a persistently run window, just ignore this.  If we did not, the
-     application would exit. */
-  IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Select ID */
+&Scoped-define SELF-NAME Dialog-Frame
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Select ID */
 DO:
-  /* This event will close the window and terminate the procedure.  */
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+  opID = ''.
+  APPLY 'GO':U TO FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -201,22 +144,10 @@ END.
 
 
 &Scoped-define SELF-NAME btnCancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel C-Win
-ON CHOOSE OF btnCancel IN FRAME DEFAULT-FRAME /* Cancel */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel Dialog-Frame
+ON CHOOSE OF btnCancel IN FRAME Dialog-Frame /* Cancel */
 DO:
   opID = ''.
-  APPLY 'CLOSE':U TO THIS-PROCEDURE.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME btnOK
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK C-Win
-ON CHOOSE OF btnOK IN FRAME DEFAULT-FRAME /* OK */
-DO:
-  APPLY 'CLOSE':U TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -224,18 +155,18 @@ END.
 
 
 &Scoped-define SELF-NAME IDList
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL IDList C-Win
-ON DEFAULT-ACTION OF IDList IN FRAME DEFAULT-FRAME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL IDList Dialog-Frame
+ON DEFAULT-ACTION OF IDList IN FRAME Dialog-Frame
 DO:
-  APPLY 'CLOSE':U TO THIS-PROCEDURE.
+  APPLY 'GO':U TO FRAME {&FRAME-NAME}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL IDList C-Win
-ON RETURN OF IDList IN FRAME DEFAULT-FRAME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL IDList Dialog-Frame
+ON RETURN OF IDList IN FRAME Dialog-Frame
 DO:
   APPLY 'DEFAULT-ACTION':U TO SELF.
 END.
@@ -244,8 +175,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL IDList C-Win
-ON VALUE-CHANGED OF IDList IN FRAME DEFAULT-FRAME
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL IDList Dialog-Frame
+ON VALUE-CHANGED OF IDList IN FRAME Dialog-Frame
 DO:
   opID = IDList:SCREEN-VALUE.
 END.
@@ -256,50 +187,44 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
 
 
 /* ***************************  Main Block  *************************** */
 
-/* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
-ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
-       THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
+/* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
+THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
-/* The CLOSE event can be used from inside or outside the procedure to  */
-/* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
-   RUN disable_UI.
-
-/* Best default for GUI applications is...                              */
-PAUSE 0 BEFORE-HIDE.
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  RUN getValidIDList.
-  startDir = REPLACE(clientDat + '{&scenarios}','\','/').
-  RUN getID (startDir,OUTPUT dirList).
-  DO i = 1 TO NUM-ENTRIES(dirList):
-    RUN getID (startDir + '/' + ENTRY(i,dirList),OUTPUT ID).
-    IF ID EQ '' AND CAN-DO(validIDList,ENTRY(i,dirList)) THEN
-    IDList:ADD-LAST(ENTRY(i,dirList)).
-    ELSE
-    DO j = 1 TO NUM-ENTRIES(ID):
-      IF CAN-DO(validIDList,ENTRY(i,dirList) + '/' + ENTRY(j,ID)) THEN
-      IDList:ADD-LAST(ENTRY(i,dirList) + '/' + ENTRY(j,ID)).
+    RUN getValidIDList.
+    startDir = REPLACE(clientDat + '{&scenarios}','\','/').
+    RUN getID (startDir,OUTPUT dirList).
+    DO i = 1 TO NUM-ENTRIES(dirList):
+      RUN getID (startDir + '/' + ENTRY(i,dirList),OUTPUT ID).
+      IF ID EQ '' AND CAN-DO(validIDList,ENTRY(i,dirList)) THEN
+      IDList:ADD-LAST(ENTRY(i,dirList)).
+      ELSE
+      DO j = 1 TO NUM-ENTRIES(ID):
+        IF CAN-DO(validIDList,ENTRY(i,dirList) + '/' + ENTRY(j,ID)) THEN
+        IDList:ADD-LAST(ENTRY(i,dirList) + '/' + ENTRY(j,ID)).
+      END.
     END.
-  END.
-  ASSIGN
-    opID = IDList:ENTRY(1)
-    IDList = IDList:ENTRY(1).
-  RUN enable_UI.
-  IF IDList:NUM-ITEMS EQ 1 THEN
-  RETURN.
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+    ASSIGN
+      opID = IDList:ENTRY(1)
+      IDList = IDList:ENTRY(1)
+      .
+    RUN enable_UI.
+    IF IDList:NUM-ITEMS EQ 1 THEN
+    RETURN.
+  WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
+RUN disable_UI.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -307,7 +232,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI Dialog-Frame  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -317,16 +242,14 @@ PROCEDURE disable_UI :
                frames.  This procedure is usually called when
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
-  /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-  THEN DELETE WIDGET C-Win.
-  IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+  /* Hide all frames. */
+  HIDE FRAME Dialog-Frame.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -338,17 +261,17 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY IDList 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
+      WITH FRAME Dialog-Frame.
   ENABLE IDList btnOK btnCancel 
-      WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-  VIEW C-Win.
+      WITH FRAME Dialog-Frame.
+  VIEW FRAME Dialog-Frame.
+  {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getID C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getID Dialog-Frame 
 PROCEDURE getID :
 /*------------------------------------------------------------------------------
   Purpose:     get installation identifier dir names
@@ -362,7 +285,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getValidIDList C-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE getValidIDList Dialog-Frame 
 PROCEDURE getValidIDList :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -372,8 +295,7 @@ PROCEDURE getValidIDList :
   DEFINE VARIABLE validID AS CHARACTER NO-UNDO.
 
   validIDList = ''.
-  IF SEARCH('{&data}/validID.dat') NE ? THEN
-  DO:
+  IF SEARCH('{&data}/validID.dat') NE ? THEN DO:
     INPUT FROM VALUE(SEARCH('{&data}/validID.dat')) NO-ECHO.
     REPEAT:
       IMPORT validID.

@@ -7,7 +7,7 @@
   File: salrep\r-hisatk.w
 
   Description: High Sales Tracking
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -340,6 +340,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        as-of-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -410,7 +420,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -549,7 +559,7 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -565,7 +575,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -825,7 +835,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        and period.pst     le TODAY
        and period.pend    ge TODAY
      no-lock.  
-  
+
   assign
    as-of-date = TODAY
    prt-period = 3
@@ -833,7 +843,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    cust       = 99999.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "HR1",cocode, 
@@ -887,7 +897,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
-   
+
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -950,7 +960,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'HR1').
-    
+
 
 END PROCEDURE.
 
@@ -1012,7 +1022,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1023,11 +1033,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY. */
-     
+
 {custom/out2file.i}
 
 END PROCEDURE.
@@ -1059,7 +1069,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1276,12 +1286,12 @@ FOR EACH ar-inv
     WHERE cust.company EQ ar-inv.company
       AND cust.cust-no EQ ar-inv.cust-no
     NO-LOCK:
-  
+
   for each ar-invl
       where ar-invl.x-no    eq ar-inv.x-no
         and (ar-invl.billable or not ar-invl.misc)
       no-lock:
-      
+
       {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
     do i = 1 to 3:
       assign
@@ -1361,12 +1371,12 @@ FOR each cust where cust.company eq cocode
       v-slsm[1] = if (not avail ar-invl)                or
                      (ar-invl.sman[i] eq "" and i eq 1) then
                     cust.sman else ar-invl.sman[i].
-    
+
      if v-slsm[1]   lt fsman                         or
         v-slsm[1]   gt tsman                         or
         (i ne 1 and
          (v-slsm[1] eq "" or ar-invl.s-pct[i] eq 0)) then next.
-    
+
      assign
       v-slsp[1] = if (not avail ar-invl)                or
                      ar-invl.sman[i] eq ""              or
@@ -1374,13 +1384,13 @@ FOR each cust where cust.company eq cocode
                   else ar-invl.s-pct[i]
       v-amt1    = (ar-cashl.amt-paid - ar-cashl.amt-disc) *
                   v-slsp[1] / 100.
-    
+
      if ar-cash.check-date ge fdate[v-per-2] and
         ar-cash.check-date le tdate[v-per-2] then
        v-amt[1] = v-amt[1] + v-amt1.
-    
+
      v-amt[2] = v-amt[2] + v-amt1.
-    
+
      create tt-report.
      assign
       tt-report.key-01  = if v-sort then "" else v-slsm[1]
@@ -1433,7 +1443,7 @@ for each tt-report no-lock
         tt-report2.dec1   = if v-ytd then 0 else v-amt[1]
         tt-report2.dec2   = v-amt[2].
      end.
-    
+
      v-amt = 0.
   end.
 end.
@@ -1463,7 +1473,7 @@ for each tt-report2,
           no-lock no-error.
       lv-sman = TRIM(tt-report2.key-01) + " " +
                 TRIM(IF AVAIL sman THEN sman.sname ELSE "Not on file").
-      
+
       IF FIRST(tt-report2.key-01) THEN
          VIEW FRAME r-top2.
 
@@ -1490,13 +1500,13 @@ for each tt-report2,
     if tt-report.key-10 eq "ar-invl" then do:
        find ar-invl where recid(ar-invl) eq tt-report.rec-id no-lock.
        find ar-inv  where ar-inv.x-no    eq ar-invl.x-no  no-lock.
-      
+
        do v = v1 to v-per-2:
          if ar-inv.inv-date ge fdate[v] and
             ar-inv.inv-date le tdate[v] then
            v-amt[v] = v-amt[v] + dec(tt-report.dec2).
        end.
-      
+
        v-amt[21] = v-amt[21] + dec(tt-report.dec2).
     end.
 
@@ -1504,34 +1514,34 @@ for each tt-report2,
     if tt-report.key-10 eq "ar-cashl" then do:
        find ar-cashl where recid(ar-cashl) eq tt-report.rec-id no-lock.
        find ar-cash  where ar-cash.c-no    eq ar-cashl.c-no no-lock.
-      
+
        do v = v1 to v-per-2:
          if ar-cash.check-date ge fdate[v] and
             ar-cash.check-date le tdate[v] then
            v-amt[v] = v-amt[v] + dec(tt-report.dec2).
        end.
-      
+
        v-amt[21] = v-amt[21] + dec(tt-report.dec2).
     end.
   end.
 
   if v-prt le v-custs then do:
      v = 0.
-    
+
      do i = v1 to v-per-2:
         v = v + 1.
-       
+
         if v modulo 4 eq 0 or
            i eq v-per-2   then do:
-       
+
           v-j = v / 4.
-       
+
           {sys/inc/roundup.i v-j}
-       
+
           assign
            j = v-j
            j = v1 + (4 * (j - 1)).
-       
+
           display cust.cust-no          when v eq 4 or
                                              (i eq v-per-2 and v lt 4)
                   cust.name             when v eq 4 or
@@ -1549,23 +1559,23 @@ for each tt-report2,
           down.
         end.
      end.
-    
+
      IF tb_excel THEN
      DO:
         PUT STREAM excel UNFORMATTED
              '"' cust.cust-no '",'
              '"' cust.name    '",'.
-    
+
         do i = v1 to v-per-2:
-        
+
            PUT STREAM excel UNFORMATTED
                '"' STRING(v-amt[i],"->,>>>,>>>,>>9.99") '",'.
         END.
-    
+
         PUT STREAM excel UNFORMATTED
             '"' STRING(v-amt[21],"->,>>>,>>>,>>9.99")  '",'.
      END.
-    
+
      put skip(1).
      IF tb_excel THEN
         PUT STREAM excel UNFORMATTED SKIP(1).
@@ -1577,7 +1587,7 @@ for each tt-report2,
 
   if last-of(tt-report2.key-01) or v-prt eq v-custs then do:
      v = 0.
-    
+
      underline cust.name.
      if v-label[1] ne "" then underline v-amt[17].
      if v-label[2] ne "" then underline v-amt[18].
@@ -1585,21 +1595,21 @@ for each tt-report2,
      if v-label[4] ne "" then underline v-amt[20].
      underline v-amt[21].
      down.
-    
+
      do i = v1 to v-per-2:
        v = v + 1.
-    
+
        if v modulo 4 eq 0 or
           i eq v-per-2   then do:
-    
+
          v-j = v / 4.
-    
+
          {sys/inc/roundup.i v-j}
-    
+
          assign
           j = v-j
           j = v1 + (4 * (j - 1)).
-    
+
          display "Totals"              when v eq 4 or
                                             (i eq v-per-2 and v lt 4)
                                                                  @ cust.name
@@ -1620,10 +1630,10 @@ for each tt-report2,
                                             (i eq v-per-2 and v lt 4)
                                                                  @ v-amt[21].
          down.
-         
+
        end.
      end.
-    
+
      IF tb_excel THEN
      DO:
         PUT STREAM excel UNFORMATTED
@@ -1631,19 +1641,19 @@ for each tt-report2,
           '"' IF not last-of(tt-report2.key-01) THEN
                  "Totals (Printed Customers)"
               ELSE "Totals"                                    '",'.
-    
-    
+
+
         do i = v1 to v-per-2:
            PUT STREAM excel UNFORMATTED
              '"' STRING(v-tot-amt[i],"->,>>>,>>>,>>9.99")     '",'.
         END.
-    
+
         PUT STREAM excel UNFORMATTED
           '"' STRING(v-tot-amt[21],"->,>>>,>>>,>>9.99")      '",'
           SKIP.
-          
+
      END.
-    
+
      if last-of(tt-report2.key-01) then v-tot-amt = 0.
   end.
 end.
@@ -1683,7 +1693,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1704,11 +1714,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1736,23 +1746,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -53,11 +53,11 @@ DEF VAR ino AS CHAR NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
-    
+
 def new shared buffer xoe-ord for oe-ord.
 def new shared buffer xest    for est.
 def new shared buffer xef     for ef.
@@ -93,7 +93,7 @@ define TEMP-TABLE w-ord-misc NO-UNDO
   field bill like oe-ordm.bill.
 
 {sys/form/r-top3w.f}
-    
+
 form HEADER
      SKIP(1)
      "Order#  Est#      Job#     Date     Bill To#   " +
@@ -104,7 +104,7 @@ form HEADER
 
 find first oe-ctrl where oe-ctrl.company eq cocode no-lock.
 v-fr-tax = oe-ctrl.f-tax.
-    
+
 {sa/sa-sls01.i}
 
 
@@ -319,6 +319,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -358,7 +368,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -603,7 +613,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Post Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -658,15 +668,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    tran-date   = today
    c-win:TITLE = IF ip-post THEN "Order Posting/Purge Deleted"
                             ELSE "Order Edit List".
-  
+
   RUN enable_UI.
 
   RUN check-date.
-      
+
   IF NOT ip-post THEN DO WITH FRAME {&FRAME-NAME}:  
     DISABLE tran-date tran-period.
   END.
-  
+
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -687,7 +697,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -781,7 +791,7 @@ form
   space(2) xoe-ord.cust-no
   space(3) xoe-ord.cust-name xoe-ord.sold-id space(3) v-tot-ord
 with no-labels no-box  no-underline STREAM-IO width 132 frame ord.
- 
+
 form
       w-ord-line.i-no at 10 label "Item"
       w-ord-line.i-name format "x(25)" label "Description"
@@ -798,44 +808,44 @@ form
       skip
 with down no-box STREAM-IO width 132 frame ordm.
 
-  
+
   SESSION:SET-WAIT-STATE("general").
 
   IF ip-list-post EQ "list" THEN
 
   for each tt-report where tt-report.term-id eq v-term no-lock,
-    
+
       first xoe-ord where recid(xoe-ord) eq tt-report.rec-id NO-LOCK,
-        
+
       first cust {sys/ref/custW.i} and cust.cust-no eq xoe-ord.cust-no NO-LOCK
-        
+
       by tt-report.key-01:
 
       RUN ar/cctaxrt.p (cocode,xoe-ord.tax-gr, OUTPUT v-tax-rate, OUTPUT v-freight-rate /* ignored */).
-             
+
       /******* CALCULATE TOTALS FOR ORDER ***************/
       assign
        v-postable = yes
        v-tot-ord = 0
        v-tot-qty = 0.
-      
+
       FOR EACH oe-ordl
           WHERE oe-ordl.company EQ xoe-ord.company
             AND oe-ordl.ord-no  EQ xoe-ord.ord-no
           no-lock break by oe-ordl.ord-no:
-      
+
         if first-of(oe-ordl.ord-no) and v-detail  then
           put skip.
-      
+
         assign
          v-qty-lft = oe-ordl.qty - oe-ordl.inv-qty.
          v-ext-price = 0.
-      
+
         if oe-ordl.pr-uom Begins "L" AND oe-ordl.pr-uom NE "LB" then
           assign
            v-ext-price = oe-ordl.price -
                          round( (oe-ordl.price * oe-ordl.disc) / 100, 2).
-      
+
         else
         if oe-ordl.pr-uom EQ "CS" THEN DO:
           FIND FIRST itemfg
@@ -852,7 +862,7 @@ with down no-box STREAM-IO width 132 frame ordm.
              v-ext-price = (v-qty-lft * oe-ordl.price) -
                            round(((v-qty-lft * oe-ordl.price) * oe-ordl.disc) / 100, 2).
         end.
-      
+
         ELSE
         if oe-ordl.pr-uom EQ "C" then
           assign
@@ -863,22 +873,22 @@ with down no-box STREAM-IO width 132 frame ordm.
         if oe-ordl.pr-uom EQ "EA" then
           v-ext-price = (v-qty-lft * oe-ordl.price) -
                         round(( (v-qty-lft * oe-ordl.price) * oe-ordl.disc) / 100, 2).
-      
+
         ELSE
           assign
            v-ext-price = ((v-qty-lft / 1000) *
                           oe-ordl.price) - round(( ((v-qty-lft / 1000) *
                           oe-ordl.price) * oe-ordl.disc) / 100, 2).
-      
+
                                            /** CALCULATE FREIGHT CHARGES **/
         v-tot-freight = v-tot-freight +
                         (round(oe-ordl.t-freight / oe-ordl.qty, 2) * v-qty-lft).
-      
+
                                            /** CALCULATE TAX CHARGES **/
         if oe-ordl.tax and v-tax-rate > 0 then assign
           v-tot-tax = v-tot-tax +
                                 round((v-ext-price * v-tax-rate) / 100,2).
-      
+
         create w-ord-line.
         assign
          w-ord-line.ord-no = oe-ordl.ord-no
@@ -895,21 +905,21 @@ with down no-box STREAM-IO width 132 frame ordm.
                      if xoe-ord.stat ne "D" then v-qty-lft
                                            else - ( v-qty-lft ).  
       end. /* each oe-ordl */
-      
+
       for each oe-ordm
           where oe-ordm.company EQ xoe-ord.company
             AND oe-ordm.ord-no  EQ xoe-ord.ord-no
           no-lock
-          
+
           break by oe-ordm.ord-no:
-      
+
         if oe-ordm.bill EQ "Y" then do:
           v-tot-ord = v-tot-ord + oe-ordm.amt.
-      
+
           if oe-ordm.tax and v-tax-rate > 0 THEN
             v-tot-tax = v-tot-tax + round((oe-ordm.amt * v-tax-rate) / 100,2).
         end. /* = "Y" */
-      
+
         create w-ord-misc.
         assign
          w-ord-misc.ord-no = oe-ordm.ord-no
@@ -919,7 +929,7 @@ with down no-box STREAM-IO width 132 frame ordm.
          w-ord-misc.tax = oe-ordm.tax
          w-ord-misc.bill = oe-ordm.bill.
       end. /* each oe-ordm */
-      
+
       DISPLAY xoe-ord.ord-no
               xoe-ord.est-no
               xoe-ord.job-no
@@ -929,7 +939,7 @@ with down no-box STREAM-IO width 132 frame ordm.
               xoe-ord.cust-name
               xoe-ord.sold-id
               v-tot-ord
-      
+
           with frame ord.
 
       ASSIGN exl-due-date = STRING(xoe-ord.due-date) .
@@ -947,18 +957,18 @@ with down no-box STREAM-IO width 132 frame ordm.
                   '"'  v-tot-ord            '",'        
              SKIP.
       END. 
-      
+
       for each w-ord-line break by w-ord-line.ord-no:
         if v-detail THEN do:
           if first(w-ord-line.ord-no) then put skip(1).
-      
+
           DISPLAY w-ord-line.i-no
                   w-ord-line.i-name
                   w-ord-line.qty-lft
                   w-ord-line.price
                   w-ord-line.uom
                   w-ord-line.t-price
-      
+
               with frame ordl.
           down with frame ordl.
 
@@ -994,7 +1004,7 @@ with down no-box STREAM-IO width 132 frame ordm.
                   '"'  w-ord-line.t-price    '",'      SKIP .
           END. 
 
-       
+
           if LAST(w-ord-line.ord-no) THEN do:                       /*Task# 12121301*/
               for each w-ord-misc break by w-ord-misc.ord-no:
                   IF tb_excel THEN DO:
@@ -1020,25 +1030,25 @@ with down no-box STREAM-IO width 132 frame ordm.
         END.
         delete w-ord-line.
       end. /* each w-ord-line */
-      
+
       for each w-ord-misc break by w-ord-misc.ord-no:
         if v-detail THEN do:
           if first(w-ord-misc.ord-no) then put skip(1).
-      
+
           DISPLAY w-ord-misc.charge
                   w-ord-misc.dscr w-ord-misc.amt
-      
+
               with frame ordm.
-      
+
           if w-ord-misc.bill = "N" then
             DISPLAY "       N/C" @ w-ord-misc.amt with frame ordm.
-      
+
           down with frame ordm.
         end. /* v-detail */
-      
+
         delete w-ord-misc.
       end. /* each w-ord-misc */
-      
+
       if xoe-ord.stat EQ "H" then
         put "** THIS ORDER IS ON CREDIT HOLD **" to 39.
       else
@@ -1047,7 +1057,7 @@ with down no-box STREAM-IO width 132 frame ordm.
       else
       if xoe-ord.stat EQ "C" OR xoe-ord.stat EQ "Z" then
         put "** THIS ORDER IS CLOSED **" to 39.
-      
+
       if xoe-ord.stat ne "D" then
         assign
          v-g-tot-ord = v-g-tot-ord + v-tot-ord
@@ -1056,22 +1066,22 @@ with down no-box STREAM-IO width 132 frame ordm.
         assign
          v-g-del-tot-ord = v-g-del-tot-ord + v-tot-ord
          v-g-del-tot-qty = v-g-del-tot-qty + v-tot-qty.
-      
+
       put skip(1).
   END. /*ip-list-post eq "list"*/
 
   ELSE IF ip-list-post EQ "post" THEN
   DO:
      for each tt-report where tt-report.term-id eq v-term no-lock,
-    
+
      first xoe-ord where recid(xoe-ord) eq tt-report.rec-id,
-       
+
      first cust {sys/ref/custW.i} and cust.cust-no eq xoe-ord.cust-no
-       
+
      by tt-report.key-01:
 
      RUN ar/cctaxrt.p (cocode,xoe-ord.tax-gr, OUTPUT v-tax-rate, OUTPUT v-freight-rate /* ignored */).
-     
+
      DO TRANSACTION:
         assign
          xoe-ord.t-comm    = 0
@@ -1080,18 +1090,18 @@ with down no-box STREAM-IO width 132 frame ordm.
          xoe-ord.tax       = 0
          v-inv             = NO
          v-ship            = NO.
-            
+
         FOR EACH oe-ordl
             WHERE oe-ordl.company EQ xoe-ord.company
               AND oe-ordl.ord-no  EQ xoe-ord.ord-no:
-        
+
           if oe-ordl.stat eq "I" or oe-ordl.stat eq "B" then v-inv = yes.
           else v-ship = yes.
-              
+
           assign
            xoe-ord.t-revenue = xoe-ord.t-revenue + oe-ordl.t-price
            xoe-ord.t-cost    = xoe-ord.t-cost    + oe-ordl.t-cost.
-        
+
           if oe-ordl.tax and v-tax-rate gt 0 THEN DO:
 
               RUN ar/calctax2.p (xoe-ord.tax-gr,
@@ -1103,17 +1113,17 @@ with down no-box STREAM-IO width 132 frame ordm.
 
               ASSIGN xoe-ord.tax = xoe-ord.tax + v-tax-amt.
           END.
-        
+
           if xoe-ord.stat eq "D" then delete oe-ordl.
         END.
-        
+
         for each oe-ordm
             where oe-ordm.company eq xoe-ord.company
               and oe-ordm.ord-no  eq xoe-ord.ord-no:
-        
+
           IF oe-ordm.bill EQ "Y" THEN do:
             xoe-ord.t-revenue = xoe-ord.t-revenue + oe-ordm.amt.
-        
+
             if oe-ordm.tax and v-tax-rate gt 0 THEN DO:
 
                 RUN ar/calctax2.p (xoe-ord.tax-gr,
@@ -1126,21 +1136,21 @@ with down no-box STREAM-IO width 132 frame ordm.
                 ASSIGN xoe-ord.tax = xoe-ord.tax + v-tax-amt.
             END.
           END.
-        
+
           if xoe-ord.stat eq "D" then delete oe-ordm.
         END.
-        
+
         run oe/oe-comm.p.  /* Calculate Commissions */
-            
+
         if xoe-ord.f-bill THEN
           xoe-ord.t-revenue = xoe-ord.t-revenue + xoe-ord.t-freight.
-        
+
         if v-fr-tax THEN
           xoe-ord.tax = xoe-ord.tax +
                        round((xoe-ord.t-freight * v-tax-rate) / 100,2).
-        
+
         IF xoe-ord.stat eq "H" then xoe-ord.posted = yes.
-        
+
         ELSE
         IF xoe-ord.stat eq "D" then do:
           FOR EACH oe-rel
@@ -1161,17 +1171,17 @@ with down no-box STREAM-IO width 132 frame ordm.
                FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
             DELETE oe-rel.
           END.
-        
+
           for each oe-relh
               where oe-relh.company eq xoe-ord.company
                 and oe-relh.ord-no  eq xoe-ord.ord-no
                 and oe-relh.posted  eq no
               use-index relh:
-        
+
             for each oe-rell where oe-rell.r-no eq oe-relh.r-no:
               delete oe-rell.
             end.
-        
+
             delete oe-relh.
           end.
 /*        06211305 - Replace n-ord with sequence */        
@@ -1179,24 +1189,24 @@ with down no-box STREAM-IO width 132 frame ordm.
 /*               exclusive-lock no-error.                                */
 /*           if xoe-ord.ord-no eq oe-ctrl.n-ord - 1 then                 */
 /*              oe-ctrl.n-ord = xoe-ord.ord-no.                          */
-        
+
           delete xoe-ord.
         end.
-        
+
         else
         if xoe-ord.stat eq "C" then xoe-ord.stat = "Z".
-        
+
         ELSE DO:   
           if xoe-ord.stat eq "U" THEN
             xoe-ord.stat = IF v-inv THEN "I" ELSE
                           IF v-ship THEN "S" ELSE "R".
-        
+
           else
             assign
              cust.n-sales[13]          = cust.n-sales[13] + 1
              cust.n-sales[tran-period] = cust.n-sales[tran-period] + 1
              xoe-ord.stat              = "R".
-        
+
           xoe-ord.tot-ord = xoe-ord.t-revenue.
         end.
      END.
@@ -1270,7 +1280,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1281,9 +1291,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -1335,7 +1345,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
@@ -1361,7 +1371,7 @@ PROCEDURE run-report :
   assign
    str-tit2 = c-win:title 
    {sys/inc/ctrtext.i str-tit2 112}
- 
+
    str-tit3 = "Period " + string(tran-period,"99") + " - " +
               IF AVAIL period THEN
                 (string(period.pst) + " to " + string(period.pend)) ELSE ""
@@ -1387,12 +1397,12 @@ PROCEDURE run-report :
       {sys/ref/custW.i}
         and cust.cust-no eq oe-ord.cust-no
       NO-LOCK
-      
+
       transaction:
-      
+
     find xoe-ord where recid(xoe-ord) eq recid(oe-ord)
         exclusive-lock no-wait no-error.
-    
+
     if avail xoe-ord then do:
       create tt-report.
       assign
@@ -1403,7 +1413,7 @@ PROCEDURE run-report :
       FIND CURRENT xoe-ord NO-LOCK.
     end.
   end.
-  
+
  /*
   for each oe-ord no-lock
       where oe-ord.company eq cocode
@@ -1414,10 +1424,10 @@ PROCEDURE run-report :
       first cust no-lock
       {sys/ref/custW.i}
         and cust.cust-no eq oe-ord.cust-no:
-      
+
     find xoe-ord where recid(xoe-ord) eq recid(oe-ord)
         exclusive-lock no-wait no-error.
-    
+
     if avail xoe-ord then do:
       create tt-report.
       assign
@@ -1427,13 +1437,13 @@ PROCEDURE run-report :
     end.
   end.
   */
-  
+
   {sys/inc/print1.i}
 
   {sys/inc/outprint.i value(lines-per-page)}
 
   if td-show-parm then run show-param.
-  
+
   display with frame r-top.
 
   IF tb_excel THEN do:                                  /*Task# 12121301*/
@@ -1448,7 +1458,7 @@ PROCEDURE run-report :
 
   PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
   END.
-    
+
 
   RUN list-post ("list").
 
@@ -1481,12 +1491,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1512,23 +1522,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

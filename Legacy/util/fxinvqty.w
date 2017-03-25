@@ -171,6 +171,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -179,7 +189,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -243,11 +253,11 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-   
+
   MESSAGE "Are you sure you want to" TRIM(c-win:TITLE) + "?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -358,16 +368,16 @@ FOR EACH oe-ord
     EACH oe-ordl
     WHERE oe-ordl.company EQ cocode
       AND oe-ordl.ord-no  EQ oe-ord.ord-no
-    
+
    TRANSACTION:
-     
+
   STATUS DEFAULT "Processing....ORDER/ITEM: "         +
                  TRIM(STRING(oe-ord.ord-no,">>>>>>")) + "/" +
                  TRIM(oe-ordl.i-no).
-      
+
   RUN oe/inv-qty.p (ROWID(oe-ordl), OUTPUT oe-ordl.inv-qty).
 END.
-      
+
 STATUS DEFAULT "".
 
 SESSION:SET-WAIT-STATE("").
@@ -375,7 +385,7 @@ SESSION:SET-WAIT-STATE("").
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

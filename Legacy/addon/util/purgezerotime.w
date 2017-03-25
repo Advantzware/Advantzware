@@ -223,6 +223,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -231,7 +241,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -375,7 +385,7 @@ PROCEDURE run-process :
 /* ------------------------------------------------ sys/del/est.p 3/29/95 CTS */
 /* Delete / Archive old estimates                                             */
 /* -------------------------------------------------------------------------- */
-  
+
 OUTPUT STREAM st-export TO value("c:\tmp\del0trans." + STRING(YEAR(TODAY)) + STRING(MONTH(TODAY))
                         + STRING(DAY(TODAY)) + STRING(TIME)  ).
 
@@ -386,11 +396,11 @@ do with frame {&frame-name}:
 end.
 
 session:set-wait-state("").
-  
+
 message "Are you sure you want to delete the all 0 hour Login/Machine/Employee transactions for the " +
         "selection parameters?"
         view-as alert-box question button yes-no update v-process.
-          
+
 if v-process then do:
   session:set-wait-state("general").
 
@@ -441,7 +451,7 @@ if v-process then do:
 end.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

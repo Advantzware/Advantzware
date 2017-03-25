@@ -567,10 +567,11 @@ v-printline = 0.
 
         IF AVAIL ITEM AND ITEM.mat-type EQ "B" AND ITEM.industry = "2" THEN
            PUT lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)".
-
-        IF v-cost GT 0 AND v-setup GT 0 THEN
-           PUT STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" +
-               STRING(v-setup) + "SETUP" FORM "x(25)" SKIP.
+        IF v-cost GT 0 AND v-setup GT 0 THEN DO:
+            /*PUT STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" +
+               STRING(v-setup) + "SETUP" FORM "x(25)" SKIP.*/
+            PUT "<FCourier New><C61>" STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" + STRING(v-setup) + "SETUP" FORM "x(25)"  "" SKIP.
+        END.
         ELSE
            PUT SKIP.
 

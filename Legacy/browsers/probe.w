@@ -147,6 +147,17 @@ DEFINE VARIABLE v-cestcalc AS CHARACTER NO-UNDO.
 ASSIGN
  cocode = g_company
  locode = g_loc.
+ 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR. 
 
 FIND FIRST sys-ctrl NO-LOCK WHERE
     sys-ctrl.company EQ cocode AND
@@ -2853,7 +2864,12 @@ PROCEDURE print-box-est :
 
   OUTPUT TO VALUE(ls-outfile) .
   IF ip-dest EQ 1 THEN PUT "<PRINTER?></PROGRESS><P11>".  /*<REVIEW>*/
-  ELSE IF ip-dest EQ 2 THEN PUT "<PREVIEW=ZoomToWidth></PROGRESS><P11>".  /*<REVIEW>*/
+  ELSE IF ip-dest EQ 2 THEN DO:
+      IF NOT lBussFormModle THEN
+         PUT "<PREVIEW=ZoomToWidth><MODAL=NO></PROGRESS><P11>".
+      ELSE
+         PUT "<PREVIEW=ZoomToWidth></PROGRESS><P11>".          
+  END.
   ELSE IF ip-dest EQ 4 THEN DO:
      ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tIF".
      PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW></PROGRESS><P11>".
@@ -2862,7 +2878,7 @@ PROCEDURE print-box-est :
       ASSIGN
          init-dir = v-dir
          lv-pdf-file = v-dir + "Est" + TRIM(est.est-no).
-      PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS><P11>" FORMAT "x(100)".
+      PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS><P11>" FORMAT "x(180)".
   END.
   OUTPUT CLOSE.
 
@@ -3085,7 +3101,8 @@ PROCEDURE print42 :
      v-update-qty-gsa = NO
      ld-gsa-brd = 0
      ld-gsa-mat = 0
-     ld-gsa-lab = 0.
+     ld-gsa-lab = 0
+     dTotalManHrs = 0.
 
   {cec/print42p.i}
 

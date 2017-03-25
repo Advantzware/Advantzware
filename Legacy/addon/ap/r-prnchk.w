@@ -65,6 +65,17 @@ DEFINE VARIABLE gcRemittanceDefault AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcPDFFile AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE gcDefVend AS CHARACTER   NO-UNDO.
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
 {custom/xprint.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -298,6 +309,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        bank-code:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -346,7 +367,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -411,12 +432,12 @@ DO:
         ASSIGN 
             START_check-no = giCheckNoACH
             START_check-no:SCREEN-VALUE = STRING(giCheckNoACH).
-        
+
       ELSE
         ASSIGN 
             START_check-no = giCheckNoStd
             START_check-no:SCREEN-VALUE = STRING(giCheckNoStd).
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -463,16 +484,16 @@ DO:
           APPLY "entry" TO bank-code.
           RETURN NO-APPLY.
         END.
-    
+
         IF INT(start_check-no:SCREEN-VALUE) EQ 0 THEN 
             IF tb_ach 
                 THEN
                     start_check-no:SCREEN-VALUE = STRING(bank.spare-int-1 + 1).
                 ELSE
                     start_check-no:SCREEN-VALUE = STRING(bank.last-chk + 1).
-    
+
         ASSIGN {&displayed-objects}.
-    
+
         IF NOT tb_ach AND rd-dest EQ 5 THEN DO:
             MESSAGE "Email output only available for ACH/Bill Pay Check Run"
                 VIEW-AS ALERT-BOX ERROR.
@@ -480,7 +501,7 @@ DO:
             RETURN NO-APPLY.
           END.
   END.
-       
+
   stnum = START_check-no.
 
   IF CAN-FIND(FIRST sys-ctrl-shipto
@@ -511,7 +532,7 @@ DO:
                   and b-vend.vend-no eq b-ap-chk.vend-no
                 break by b-ap-chk.company
                       BY b-ap-chk.vend-no:
-      
+
                 IF FIRST-OF(b-ap-chk.vend-no) THEN
                 DO:
                     FIND FIRST sys-ctrl-shipto
@@ -525,7 +546,7 @@ DO:
                         RUN SetChkForm (sys-ctrl-shipto.char-fld,NO).
                     ELSE
                         RUN SetChkForm (vcDefaultForm,NO). 
-                
+
                     RUN run-report(b-ap-chk.vend-no, TRUE).
                     RUN GenerateReport.
                 END.
@@ -538,7 +559,7 @@ DO:
   DO:
 
    IF glRemittance AND tb_ach THEN DO:
-        
+
         RUN SetChkForm(INPUT gcRemittanceDefault,
                        INPUT YES).
    END.
@@ -682,7 +703,7 @@ DO:
         ASSIGN 
             START_check-no:SCREEN-VALUE = STRING(giCheckNoStd)
             START_check-no = giCheckNoStd.
-   
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -760,7 +781,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                         OUTPUT glRemittance).
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -950,7 +971,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -960,9 +981,9 @@ PROCEDURE output-to-file :
          ASK-OVERWRITE
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -1050,7 +1071,7 @@ DEF VAR lFlag AS LOGICAL NO-UNDO INIT YES.
 
 
 if td-show-parm then run show-param.
-    
+
 SESSION:SET-WAIT-STATE ("general").
 
 outers:
@@ -1084,11 +1105,11 @@ do on error undo outers, leave outers :
                      where ap-sel.company   eq cocode
                        and ap-sel.vend-no   eq ap-chk.vend-no
                        and ap-sel.man-check eq no),
-       
+
       first vend
       where vend.company eq cocode
         and vend.vend-no eq ap-chk.vend-no
-        
+
       break by ap-chk.vend-no:
       IF FIRST-OF(ap-chk.vend-no) THEN
           gcDefVend = ap-chk.vend-no.
@@ -1097,24 +1118,24 @@ do on error undo outers, leave outers :
      ap-chk.check-act = bank.actnum
      sel-per-chk      = 0
      num-of-chks      = num-of-chks + 1.
-      
+
     for each ap-sel
         where ap-sel.company   eq cocode
           and ap-sel.vend-no   eq ap-chk.vend-no
           and ap-sel.man-check eq no
         no-lock
-       
+
         break by ap-sel.inv-no:
-       
+
       sel-per-chk = sel-per-chk + 1.
-      
+
       if sel-per-chk eq max-per-chk and not last(ap-sel.inv-no) then
         assign
          num-of-chks = num-of-chks + 1
          sel-per-chk = 0.
     end.
   end.
-  
+
   /* Code Added for Validating that check numbers have not been posted  */
   /* num-of-chks is actually one less then then number of checks so     */
   /* check range is appropriate number                                  */
@@ -1142,15 +1163,20 @@ do on error undo outers, leave outers :
     IF ll-is-xprint-form THEN DO:
         CASE rd-dest:
             WHEN 1 THEN PUT "<PRINTER?>" /*"</PROGRESS>"*/ .
-            WHEN 2 THEN PUT "<PREVIEW>" /*"</PROGRESS>"*/.        /* Task 09301303*/    
-/*           WHEN 4 THEN do:                                                                                                    */
+            WHEN 2 THEN do:
+               IF NOT lBussFormModle THEN
+                PUT "<PREVIEW><MODAL=NO>". 
+               ELSE
+                PUT "<PREVIEW>".        
+            END. 
+/*          WHEN 4 THEN do:                                                                                                    */
 /*                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".                                                          */
 /*                 PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".                                                     */
-/*           END.                                                                                                               */
+/*          END.                                                                                                               */
           WHEN 5 THEN do:
               gcPDFFile = init-dir + "\RemitRun.pdf".
-              PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + gcPdfFile + ">" FORM "x(100)".
-              
+              PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + gcPdfFile + ">" FORM "x(180)".
+
           END.
         END CASE.
     END.  
@@ -1207,12 +1233,12 @@ PROCEDURE SetChkForm :
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ipcFormName AS CHAR NO-UNDO.
    DEFINE INPUT PARAMETER iplRemit AS LOGICAL NO-UNDO.
-    
+
    ASSIGN
       laser-chk = NO
       lv-prt-bypass = NO.
 IF iplRemit THEN DO:
-    
+
     IF LOOKUP(ipcFormName,laser-list-ach) GT 0 THEN
         ASSIGN
             laser-chk = YES
@@ -1475,7 +1501,7 @@ ELSE DO:
           assign
              max-per-chk  = if v-print-fmt eq "s" then 20 else 12
              next-program = "ap/ap-chk" + v-print-fmt + ".p".
-   
+
           if search(next-program) eq ? then
              next-program = "ap/ap-chk" + v-print-fmt + ".r".
        END.
@@ -1544,11 +1570,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1576,23 +1602,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1718,7 +1744,7 @@ FUNCTION ACHRunOK RETURNS LOGICAL
 ------------------------------------------------------------------------------*/
 DEFINE VARIABLE lNonACHVendorFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lCheckSelected AS LOGICAL     NO-UNDO.
-    
+
 FOR EACH ap-chk
     WHERE ap-chk.company   EQ cocode
       AND ap-chk.man-check EQ NO

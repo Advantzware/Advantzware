@@ -151,6 +151,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN FILL-IN-1 IN FRAME FRAME-A
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -159,7 +169,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -209,7 +219,7 @@ DO:
     SESSION:SET-WAIT-STAT("general").
 
     run jc/impfrcor.p.
-    
+
     SESSION:SET-WAIT-STAT("").
     MESSAGE "Uploading completed." VIEW-AS ALERT-BOX.
 

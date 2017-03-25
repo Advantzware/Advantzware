@@ -35,7 +35,7 @@ DEF VAR init-dir AS CHA NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -228,6 +228,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        bank_code:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -253,7 +263,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -331,15 +341,15 @@ DO:
     END. /* REPEAT */
     /* gdm - 11050906 */
   END.
-       
+
   run run-report.
-  
+
   case rd-dest:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
        when 3 then run output-to-file.
   end case.
-  
+
   IF v-postable THEN DO:    
     lv-post = NO.
 
@@ -444,7 +454,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      bank_code      = bank.bank-code .
 
      end_date = TODAY.
-  
+
   RUN enable_UI.
 
   {methods/nowait.i}
@@ -509,7 +519,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -519,9 +529,9 @@ PROCEDURE output-to-file :
          ASK-OVERWRITE
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -567,7 +577,7 @@ PROCEDURE post-gl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /** POST TO GENERAL LEDGER ACCOUNTS TRANSACTION FILE **/
 postit:
 DO TRANSACTION:
@@ -623,7 +633,7 @@ PROCEDURE run-report :
 /* ---------------------------------------------------- oe/invpost.p 10/94 gb */
 /* Invoicing  - Edit Register & Post Invoicing Transactions                   */
 /* -------------------------------------------------------------------------- */
- 
+
 DEF VAR v-chk-tot AS DEC FORMAT "->,>>>,>>9.99" NO-UNDO.
 DEF VAR v-jrn-tot AS DEC FORMAT "->,>>>,>>9.99" NO-UNDO.
 DEF VAR v-dep-tot AS DEC FORMAT "->,>>>,>>9.99" NO-UNDO.
@@ -659,7 +669,7 @@ form skip(2) space(52) "(There are no reconciled checks/journals/deposits)"
 
 form skip(2) space(58) "(End of the report)"
      with frame end-of-report width 132 no-box no-labels.
-      
+
 
   SESSION:SET-WAIT-STATE("general").
 
@@ -690,7 +700,7 @@ FIND LAST period NO-LOCK
 
 IF AVAIL period THEN DO:
   RUN ap/reconcilrpt.p(INPUT v-bank-code ).
-   
+
   VIEW FRAME r-top.
 
   FOR EACH reconcile WHERE tt-date LE end_date
@@ -735,7 +745,7 @@ IF AVAIL period THEN DO:
           WHERE account.company EQ bank.company
             AND account.actnum  EQ bank.actnum
           NO-ERROR.
-      
+
       IF AVAIL account THEN
         RUN gl/gl-open2.p (ROWID(account), period.pst, end_date, OUTPUT v-bnk-tot).
 
@@ -794,11 +804,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -826,23 +836,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

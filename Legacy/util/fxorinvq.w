@@ -150,13 +150,23 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+ASSIGN
+       BtnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btnOk:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -207,14 +217,14 @@ DO:
    DEF VAR iInvQty AS INT NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-    
+
       SESSION:SET-WAIT-STATE ("general").
-  
+
       ASSIGN from-order to-order from-item to-item.
       IF from-order = 0 AND to-order = 0 THEN
          ASSIGN to-order = 999999
                 to-order:SCREEN-VALUE = "999999".
-      
+
       FOR EACH oe-ordl WHERE oe-ordl.company EQ cocode AND
              oe-ordl.ord-no >= from-order AND
              oe-ordl.ord-no <= to-order AND
@@ -237,7 +247,7 @@ DO:
                  iCount = iCount + 1.
 
       END.
-      
+
 
       MESSAGE iCount "Order Line Items Were Update."
           VIEW-AS ALERT-BOX INFO BUTTONS OK.
@@ -276,7 +286,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
    RUN enable_UI.
-  
+
    IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

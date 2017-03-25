@@ -261,6 +261,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_job-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -285,7 +295,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -364,7 +374,7 @@ DO:
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
           " for the selected parameters?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll.
-        
+
   IF ll THEN RUN run-process.
 END.
 
@@ -481,7 +491,7 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
 DEF VAR v-job-no LIKE job.job-no EXTENT 2 INIT [" ", "zzzzzz"] NO-UNDO.
-    
+
 DEF BUFFER b-loadtag FOR loadtag.
 
 
@@ -552,7 +562,7 @@ STATUS DEFAULT.
 SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Complete..." VIEW-AS ALERT-BOX.
-    
+
 APPLY "close" TO THIS-PROCEDURE.
 
 END PROCEDURE.

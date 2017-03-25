@@ -60,6 +60,18 @@ DEFINE VARIABLE v-post-date AS DATE INIT TODAY .
 DEFINE VARIABLE gv-fgemail AS LOGICAL NO-UNDO INIT ?.
 DEFINE NEW SHARED VARIABLE cShipTO AS CHARACTER NO-UNDO .
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
+
 DEFINE NEW SHARED TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
     FIELD row-id   AS ROWID
     FIELD has-rec  AS LOG INIT NO
@@ -4221,9 +4233,14 @@ IF IS-xprint-form THEN DO:
   
       CASE rd-dest:
           WHEN 1 THEN PUT "<PRINTER?>".
-          WHEN 2 THEN PUT "<PREVIEW>".
+          WHEN 2 THEN do:
+            IF NOT lBussFormModle THEN
+               PUT "<PREVIEW><MODAL=NO>". 
+            ELSE
+               PUT "<PREVIEW>".      
+          END.
           WHEN 3 THEN DO:
-               PUT "<PDF-OUTPUT=" + lv-pdf-file + ">" FORM "x(100)".
+               PUT "<PDF-OUTPUT=" + lv-pdf-file + ">" FORM "x(180)".
           END.
       END CASE.
   END.

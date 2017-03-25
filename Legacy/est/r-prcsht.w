@@ -59,6 +59,18 @@ DEF VAR lv-pdf-file AS cha NO-UNDO.
 DEF VAR v-qty-lev AS INT NO-UNDO.
 DEF VAR v-print-what AS cha NO-UNDO.
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
+
 {custom/xprint.i}
 
 {methods/prgsecur.i}
@@ -283,6 +295,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
@@ -323,7 +345,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -372,7 +394,7 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   assign {&DISPLAYED-OBJECTS}
          lv-pdf-file = init-dir + "\PRS" + STRING(quotehd.q-no).
-  
+
   run run-report. 
   v-cust = quotehd.cust-no.
 
@@ -615,10 +637,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       WHERE est.company EQ quotehd.company
         AND est.est-no  EQ quotehd.est-no
       NO-LOCK NO-ERROR.
-  
-  
+
+
   is-xprint-form = YES.
- 
+
   RUN enable_UI.
   {custom/usrprint.i}
   ASSIGN rd-dest.
@@ -633,10 +655,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      init-dir = users.user_program[2].
   ELSE
      init-dir = "c:\tmp".
-                                                                 
-   
+
+
   DO WITH FRAME {&frame-name}:
-                                                                 
+
    IF LOOKUP(v-print-what,"StClair") > 0 THEN   
      ASSIGN 
      tb_print-2nd-dscr:HIDDEN IN FRAME FRAME-A = NO 
@@ -655,7 +677,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
            tb_print-est-dscr:HIDDEN IN FRAME FRAME-A = YES
            tb_change_qty:HIDDEN IN FRAME FRAME-A = YES . 
    END.
-     
+
   END.
 
   {methods/nowait.i}
@@ -722,7 +744,7 @@ PROCEDURE output-to-fax :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
 
 END PROCEDURE.
 
@@ -767,7 +789,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -802,7 +824,7 @@ PROCEDURE output-to-screen :
      RUN printfile (FILE-INFO:FILE-NAME).
   END.
   ELSE run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
-  
+
   /*ELSE run scr-rpt.w (list-name,c-win:title). /* open file-name, title */  */
 
 END PROCEDURE.
@@ -846,12 +868,17 @@ SESSION:SET-WAIT-STATE ("general").
 IF IS-xprint-form THEN DO:
     CASE rd-dest:
         WHEN 1 THEN PUT  "<PRINTER?>".
-        WHEN 2 THEN PUT "<PREVIEW>".        
+        WHEN 2 THEN do:
+            IF NOT lBussFormModle THEN
+               PUT "<PREVIEW><MODAL=NO>". 
+            ELSE
+               PUT "<PREVIEW>".      
+        END.         
         WHEN  4 THEN do:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW>".
         END.
-        WHEN 5 THEN PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf><PDF-LEFT=5mm>" FORM "x(100)".
+        WHEN 5 THEN PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf><PDF-LEFT=5mm>" FORM "x(180)".
     END CASE.
 END.
 
@@ -1081,14 +1108,14 @@ FOR EACH quoteitm OF quotehd NO-LOCK /*,
              SKIP.
     */
 
-    
-    
+
+
     IF v-print-what = "StClair" THEN do:
         IF v-uom = "CS" THEN do:
             IF AVAIL eb THEN
                 ASSIGN v-qty = v-qty / eb.tr-cnt .
         END.
-       
+
        IF tb_change_qty THEN
         ASSIGN v-qty = v-qty-lev .
 
@@ -1155,7 +1182,7 @@ FOR EACH quoteitm OF quotehd NO-LOCK /*,
        END.
        PUT "<=2><R+17><P9>" SKIP.
     END.
-    
+
 
 END.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
@@ -1184,11 +1211,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1216,24 +1243,24 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
   PAGE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

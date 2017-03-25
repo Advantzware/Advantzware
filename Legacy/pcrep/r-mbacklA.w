@@ -309,6 +309,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -377,7 +387,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -707,11 +717,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-  
+
   begin_date = today.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
    APPLY "entry" TO Begin_dept IN FRAME {&FRAME-NAME}.
@@ -870,7 +880,7 @@ assign
  v-due-d   = rd_show2 EQ "Due"
  v-date    = begin_date
  v-left    = tb_show3
-                    
+
  v-hdr[1] = fill(" ",73) + if v-left then " TOTAL   WEEKLY    ACCUM" else
                                           "STNDRD  STNDRD  ACTUAL  ACTUAL  REMAIN  REMAIN   TOTAL"
  v-hdr[2] = "MACH" + fill(" ",40) + (if v-due-d then "DUE  " else "START") +
@@ -1105,7 +1115,7 @@ display "" with frame r-top.
                     PUT STREAM excel UNFORMATTED
                         '"' "" '",'.
                  END.
-                 
+
                  PUT STREAM excel UNFORMATTED
                     '"' "TOTAL" '",'
                     '"' STRING(v-tot-hrs[1] + v-tot-hrs[2],">,>>9.99") '",'.
@@ -1124,7 +1134,7 @@ display "" with frame r-top.
              end.
 
              put skip(1).
- 
+
              IF tb_excel THEN
                 PUT STREAM excel UNFORMATTED
                     SKIP(1).
@@ -1153,7 +1163,7 @@ display "" with frame r-top.
          if work-rep.qty-rem lt 0 then work-rep.qty-rem = 0.
 
          tot-hrs = job-mr-hrs + job-run-hrs.
-         
+
          display work-rep.m-code
                     when first-of(work-rep.m-code)
                  mach.m-dscr
@@ -1236,7 +1246,7 @@ display "" with frame r-top.
                     PUT STREAM excel UNFORMATTED
                         '"' "" '",'.
                  END.
-                 
+
                  PUT STREAM excel UNFORMATTED
                     '"' "TOTAL" '",'
                     '"' STRING(v-tot-hrs[1],">,>>9.99")                '",'
@@ -1264,7 +1274,7 @@ display "" with frame r-top.
                     PUT STREAM excel UNFORMATTED
                         '"' "" '",'.
                  END.
-                 
+
                  PUT STREAM excel UNFORMATTED
                     '"' "TOTAL" '",'
                     '"' STRING(v-tot-hrs[1] + v-tot-hrs[2],">,>>9.99") '",'
@@ -1276,7 +1286,7 @@ display "" with frame r-top.
 
            v-saturday = 7 - weekday(work-rep.start-date) + work-rep.start-date.
 
-           
+
          end.
    end. /* each item */
 
@@ -1310,12 +1320,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1341,23 +1351,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

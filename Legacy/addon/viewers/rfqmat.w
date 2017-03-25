@@ -633,7 +633,7 @@ DO:
                                         rfqitem.leaf-l[1]:screen-value = string(item.s-len) 
                                         .
            end.
-           return no-apply.   
+           if true then return no-apply.   
         /*  toolkit lookup 
            run applhelp.p.
            if g_lookup-var <> "" then do:
@@ -644,8 +644,7 @@ DO:
                 rfqitem.leaf-dscr[1]:screen-value = item.i-name.                
            end.
            ================== */
-           return no-apply.  
-
+           if true then return no-apply.  
      end.    
      when "Foil" then do:
            find style where style.company = rfq.company and

@@ -36,7 +36,7 @@ DEF VAR score-count AS INT NO-UNDO.
 DEF VAR v-see-1st-blank AS LOG NO-UNDO.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
 DEF VAR v-sht-qty-string AS cha NO-UNDO.
 DEF VAR v-whs-ship-id AS CHAR NO-UNDO.
 def var v-form-sqft-2 as dec decimals 3 format ">>9.9<<" NO-UNDO.
@@ -215,36 +215,36 @@ do v-local-loop = 1 to v-local-copies:
         end.
 
         find first w-i.
-        v-ink-1 =  w-i.i-dscr +
+        v-ink-1 =  w-i.i-dscr /*+
                    (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">>>,>>9") ELSE "" ) +
-                   IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
+                   IF w-i.i-dscr <> "" THEN "LBS" ELSE ""*/ .
         find next w-i.
-        v-ink-2 =  w-i.i-dscr +
+        v-ink-2 =  w-i.i-dscr /*+
                    (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">>>,>>9") ELSE "" ) +
-                   IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
+                   IF w-i.i-dscr <> "" THEN "LBS" ELSE ""*/.
         find next w-i.
-        v-ink-3 =  w-i.i-dscr +
+        v-ink-3 =  w-i.i-dscr /*+
                    (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">>>,>>9") ELSE "" ) +
-                   IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
+                   IF w-i.i-dscr <> "" THEN "LBS" ELSE ""*/.
         find NEXT w-i.
 
         ASSIGN
-        v-ink-4 =  w-i.i-dscr +
+        v-ink-4 =  w-i.i-dscr /*+
                    (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">>>,>>9") ELSE "" ) +
-                   IF w-i.i-dscr <> "" THEN "LBS" ELSE ""
+                   IF w-i.i-dscr <> "" THEN "LBS" ELSE ""*/
         v-form-sqft = round(if v-corr then (xeb.t-len * xeb.t-wid * .007)
                             else (xeb.t-len * xeb.t-wid / 144),3)
         v-form-sqft-2 = round(if v-corr then (v-form-len * v-form-wid * .007)
                                        else (v-form-len * v-form-wid / 144),3).
         FIND NEXT w-i.
-         v-ink-5 =  w-i.i-dscr +
+         v-ink-5 =  w-i.i-dscr /*+
                    (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">>>,>>9") ELSE "" ) +
-                   IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
+                   IF w-i.i-dscr <> "" THEN "LBS" ELSE ""*/.
         find next w-i.
 
-         v-ink-6 =  w-i.i-dscr +
+         v-ink-6 =  w-i.i-dscr /*+
                    (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">>>,>>9") ELSE "" ) +
-                   IF w-i.i-dscr <> "" THEN "LBS" ELSE "".
+                   IF w-i.i-dscr <> "" THEN "LBS" ELSE ""*/.
        
         find first xxprep where xxprep.company eq cocode
                             and xxprep.code eq xeb.die-no

@@ -214,6 +214,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 /* SETTINGS FOR FRAME FRAME-H
@@ -224,7 +234,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -279,7 +289,7 @@ DO:
                          ELSE ("GL History for Acct#: " + TRIM(del_number))) +
           "up to and including the date specified?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-                     
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -445,7 +455,7 @@ FIND FIRST period
     NO-LOCK NO-ERROR.
 lv-fisc-yr = (IF AVAIL period THEN period.yr ELSE YEAR(TODAY)) -
              INT(NOT company.yend-per).
-  
+
 IF NOT tb_del-all THEN
   ASSIGN
    fr-acct = del_number
@@ -463,7 +473,7 @@ FOR EACH account
     WHERE account.company EQ cocode
       AND account.actnum  GE fr-acct
       AND account.actnum  LE to-acct,
-    
+
     EACH glhist
     WHERE glhist.company EQ account.company
       AND glhist.actnum  EQ account.actnum
@@ -479,7 +489,7 @@ FOR EACH account
 
   IF period.yr EQ lv-fisc-yr THEN
     account.cyr[period.pnum] = account.cyr[period.pnum] - glhist.tr-amt.
-         
+
   ELSE
   IF period.yr EQ lv-fisc-yr - 1 THEN
     account.lyr[period.pnum] = account.lyr[period.pnum] - glhist.tr-amt.
@@ -503,7 +513,7 @@ FOR EACH account
       ASSIGN
        b-retain.cyr[period.pnum] = b-retain.cyr[period.pnum] - glhist.tr-amt
        b-contra.cyr[period.pnum] = b-contra.cyr[period.pnum] + glhist.tr-amt.
-         
+
     ELSE
     IF period.yr EQ lv-fisc-yr - 1 THEN
       ASSIGN
@@ -538,7 +548,7 @@ SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

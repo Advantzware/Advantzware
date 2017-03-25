@@ -189,6 +189,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -205,7 +215,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -273,7 +283,7 @@ DO:
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) +
           " for the selected parameters?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll.
-        
+
   IF ll THEN RUN run-process.
 END.
 
@@ -474,7 +484,7 @@ FUNCTION ConvertDateToINo RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cConverted AS CHARACTER   NO-UNDO.
-    
+
     cConverted = STRING(ipdtDate,"99999999").
     cConverted = SUBSTRING(cConverted,5,4) + 
                  SUBSTRING(cConverted,1,2) + 
@@ -495,7 +505,7 @@ FUNCTION ConvertINoToDate RETURNS DATE
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE dtConverted AS DATE    NO-UNDO.
     DEFINE VARIABLE cConverted AS CHARACTER   NO-UNDO.
-    
+
     IF LENGTH(ipcINoDate) = 8 THEN DO:
         cConverted =  
             SUBSTRING(ipcINoDate,5,2) + "/" + 

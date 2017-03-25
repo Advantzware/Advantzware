@@ -15,7 +15,7 @@
   Author            : JLF
 
   Created           : 08/05/02
-  
+
   History           : dgd 06/21/2007  - Task# 06200703 - Vendor Specific Forms
                                         via N-K-1
 
@@ -71,7 +71,6 @@ DEFINE TEMP-TABLE w-export NO-UNDO
 {custom/xprint.i}
 DEFINE NEW SHARED VARIABLE s-group-notes AS LOG NO-UNDO.
 DEFINE NEW SHARED VARIABLE s-print-prices AS LOG NO-UNDO.
-
 /* Variables defined for Excel */
 /* Build a Table to keep sequence of pdf files */
 
@@ -103,6 +102,17 @@ RUN sys/ref/nk1look.p (cocode, "POPaperClip", "L", NO, NO, "", "",
                           OUTPUT cRtnChar, OUTPUT llRecFound).
 IF llRecFound THEN
         poPaperClip-log = LOGICAL(cRtnChar).
+
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -389,6 +399,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_po-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -465,7 +485,7 @@ THEN C-Win:HIDDEN = NO.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -558,7 +578,7 @@ DO:
   ELSE IF rd-dest = 4  THEN ASSIGN LvOutputSelection = "Fax". 
   ELSE IF rd-dest = 5  THEN ASSIGN LvOutputSelection = "Email".
   ELSE IF rd-dest = 6  THEN ASSIGN LvOutputSelection = "Port".
-  
+
   ASSIGN
     v-start-po          = begin_po-no
     v-end-po            = end_po-no 
@@ -577,7 +597,7 @@ DO:
     s-print-prices      = tb_print-prices
     v-print-terms       = tb_print-terms
     lv-attachments      = tb_attachments.
- 
+
   IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
      sys-ctrl-shipto.company = cocode AND
      sys-ctrl-shipto.NAME = "POPRINT") THEN
@@ -607,9 +627,9 @@ DO:
               NO-LOCK
              BREAK BY b1-po-ord.company
                    BY b1-po-ord.vend-no:
-            
+
                IF FIRST-OF (b1-po-ord.vend-no) THEN DO:
-                 
+
                  FIND FIRST sys-ctrl-shipto
                       WHERE sys-ctrl-shipto.company      = cocode
                         AND sys-ctrl-shipto.NAME         = "POPRINT"
@@ -617,7 +637,7 @@ DO:
                         AND sys-ctrl-shipto.cust-vend-no = b1-po-ord.vend-no 
                         AND sys-ctrl-shipto.char-fld > '' 
                       NO-LOCK NO-ERROR.
-            
+
                  IF AVAILABLE sys-ctrl-shipto THEN
                  DO:
                     RUN SetPOPrintForm (sys-ctrl-shipto.char-fld) .
@@ -628,11 +648,11 @@ DO:
                     RUN SetPOPrintForm (vcDefaultForm).
                     v-print-fmt = vcDefaultForm.
                  END.
-                 
+
                  RUN SetGlobalVariables(INPUT b1-po-ord.po-no).
-                 
+
                  RUN run-report(b1-po-ord.vend-no, TRUE) . 
-            
+
                  RUN GenerateReport(b1-po-ord.vend-no, b1-po-ord.vend-no) .
                END.
             END. /*FOR EACH*/
@@ -963,7 +983,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    v-pre-printed-forms = po-ctrl.pre-printed-forms
    v-company           = po-ctrl.prcom
    vcDefaultForm = v-print-fmt.
-   
+
   FIND FIRST users WHERE
        users.user_id EQ USERID("NOSWEAT")
        NO-LOCK NO-ERROR.
@@ -993,11 +1013,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           ASSIGN
              tb_itemDescription = NO
              tb_itemDescription:SCREEN-VALUE = 'NO'
-      
+
          tb_score-types              = CAN-DO("Premierx,PremierCX,PremierXFGItems,Fibrex,MWFibre,Protagon,Sultana",v-print-fmt)
          tb_score-types:SCREEN-VALUE = STRING(tb_score-types)
          tb_score-types:SENSITIVE    = YES.
-      
+
        DISABLE tb_itemDescription
                tb_score-types.
     END.
@@ -1019,7 +1039,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF v-print-fmt NE "Indiana" THEN
      ASSIGN tb_print-prices:SCREEN-VALUE = "NO"
             tb_print-prices:SENSITIVE = NO.
-    
+
     IF NOT poPaperClip-log THEN 
         ASSIGN tb_attachments:SCREEN-VALUE = "NO"
                tb_attachments:SENSITIVE    = NO.
@@ -1050,7 +1070,7 @@ PROCEDURE create-export :
 
   CREATE w-export.
   w-exp-prog = ENTRY(LOOKUP(ip-export,lv-exp-form-list),lv-exp-prog-list).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1131,7 +1151,7 @@ PROCEDURE GenerateReport :
        WHEN 2 THEN RUN output-to-screen.
        WHEN 3 THEN RUN output-to-file.
        WHEN 4 THEN DO:
-           
+
            IF lv-fax-type = "MULTI" THEN DO:
               RUN output-to-fax-prt. /* create tif file */              
               {custom/asifaxm3.i &TYPE         = "MULTI"
@@ -1155,9 +1175,9 @@ PROCEDURE GenerateReport :
        WHEN 6 THEN RUN output-to-port.
     END CASE. 
   END.
-  
+
   IF rd-dest = 5 THEN DO:      
-   
+
     /* gdm - 11190804 */
     IF LOOKUP(v-print-fmt,"Xprint,poprint 1,StClair,Boss,Hughes,PeachTree,FibreX,Protagon") > 0 
         OR lv-attachments THEN DO:
@@ -1200,7 +1220,7 @@ PROCEDURE GenerateReport :
                     END.
                     ASSIGN 
                         v-outfile = v-outfile + TRIM(bf-attach.attach-file) + "," .
-                
+
                 END.
             END.
             ELSE
@@ -1214,7 +1234,7 @@ PROCEDURE GenerateReport :
     END.
 
     IF is-xprint-form OR v-print-fmt = "southpak-xl" THEN DO:
-      
+
       IF v-print-fmt <> "southpak-xl" THEN DO:
 
         RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
@@ -1231,7 +1251,7 @@ PROCEDURE GenerateReport :
           lv-attachments)
         AND TRIM(v-outfile) NE "" 
          THEN ASSIGN lv-pdf-file = v-outfile + lv-pdf-file. 
-      
+
       IF LOOKUP(v-print-fmt,"PremierX,PremierCX,PremierXFGItems") > 0  THEN DO: 
           IF v-start-po EQ v-end-po  THEN
             lcSubject = "Purchase Order: " + STRING(v-start-po).
@@ -1239,7 +1259,7 @@ PROCEDURE GenerateReport :
             lcSubject = "Purchase Orders: " + STRING(v-start-po) + " - " + STRING(v-end-po).
       END.
       ELSE lcSubject = "Purchase Orders".
-     
+
       RUN custom/xpmail2.p   (INPUT   "Vendor",
                               INPUT   'R-POPRT.',
                               INPUT   lv-pdf-file,
@@ -1248,9 +1268,9 @@ PROCEDURE GenerateReport :
                               INPUT   "Purchase Orders",
                               OUTPUT  vcErrorMsg).
     END.
-    
+
     ELSE DO:
-        
+
       IF NOT AttachmentExists() THEN RETURN.
 
       /* gdm - 11190804 */
@@ -1352,7 +1372,7 @@ PROCEDURE output-to-fax-prt :
         END.
         lv-file-name = "".   
      END.
-     
+
   END.
 END PROCEDURE.
 
@@ -1377,9 +1397,9 @@ PROCEDURE output-to-file :
          ASK-OVERWRITE
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -1427,7 +1447,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   IF is-xprint-form THEN DO:
      FILE-INFO:FILE-NAME = list-name.
      RUN printfile (FILE-INFO:FILE-NAME).
@@ -1449,7 +1469,7 @@ PROCEDURE run-report :
   DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
 
   {sys/form/r-top.i}
-  
+
   ASSIGN
     v-start-po          = begin_po-no
     v-end-po            = end_po-no
@@ -1477,37 +1497,37 @@ PROCEDURE run-report :
      ASSIGN
         v-start-vend = begin_vend-no
         v-end-vend   = end_vend-no.
-  
+
   IF rd-dest EQ 4 THEN DO:
-  
+
     v-sendfax = YES.
-  
+
     FIND FIRST sys-ctrl
          WHERE sys-ctrl.company EQ cocode
            AND sys-ctrl.name    EQ "FAXSOFT"  NO-LOCK NO-ERROR.
-  
+
     IF NOT AVAILABLE sys-ctrl THEN DO TRANSACTION:
-  
+
       CREATE sys-ctrl.
-      
+
       ASSIGN
        sys-ctrl.company  = cocode
        sys-ctrl.name     = "FAXSOFT"
        sys-ctrl.descrip  = "Fax Software"
        sys-ctrl.char-fld = "FaxConsl"
        sys-ctrl.log-fld  = NO.
-  
+
       MESSAGE "System control record NOT found. " "Enter Fax Software"
               UPDATE sys-ctrl.char-fld.
     END.
-  
+
     v-faxprog = sys-ctrl.char-fld. 
   END.
-  
+
   {sa/sa-sls01.i}
-  
+
   v-term-id = v-term.
-  
+
   FOR EACH po-ord NO-LOCK
      WHERE po-ord.company EQ cocode
        AND po-ord.printed EQ v-reprint-po
@@ -1527,20 +1547,25 @@ PROCEDURE run-report :
      report.key-02  = STRING(po-ord.po-no,"9999999999")
      report.rec-id  = RECID(po-ord).
   END.
-  
+
   {sys/inc/print1.i}
-  
+
   {sys/inc/outprint.i VALUE(lines-per-page)}
-  
+
   IF td-show-parm THEN RUN show-param.
-  
+
   v-lines-per-page = lines-per-page.
-  
+
   IF IS-xprint-form AND v-print-fmt <> "southpak-xl" THEN DO:
-  
+
       CASE rd-dest:
           WHEN 1 THEN PUT  "<PRINTER?></PROGRESS>".
-          WHEN 2 THEN PUT "<PREVIEW></PROGRESS>".        
+          WHEN 2 THEN do:
+              IF NOT lBussFormModle THEN
+                PUT "<PREVIEW><MODAL=NO></PROGRESS>".     
+              ELSE
+                PUT "<PREVIEW></PROGRESS>".     
+          END.          
           WHEN 4 THEN DO:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
                     /*(IF is-xprint-form THEN ".xpr" ELSE ".txt").*/
@@ -1548,10 +1573,10 @@ PROCEDURE run-report :
           END.
           WHEN 5 THEN DO:
               IF v-print-fmt = "Centbox" OR v-print-fmt = "VALLEY" 
-                THEN PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(120)".
-                ELSE PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(120)".
+                THEN PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+                ELSE PUT "<PREVIEW><FORMAT=LETTER></PROGRESS><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file  + ".pdf>" FORM "x(180)".
           END.
-          
+
       END CASE.
   END.
 
@@ -1559,7 +1584,7 @@ PROCEDURE run-report :
     RUN VALUE(v-program) (lv-multi-faxout,lines-per-page). 
   ELSE  
     RUN VALUE(v-program).
-  
+
   FOR EACH reftable WHERE reftable.reftable EQ "vend.poexport" TRANSACTION:
     FIND FIRST vend
          WHERE vend.company   EQ reftable.company
@@ -1568,12 +1593,12 @@ PROCEDURE run-report :
     IF AVAILABLE vend THEN vend.po-export = reftable.dscr.
     DELETE reftable.
   END.
- 
+
   IF v-corrugator AND poexport-log THEN DO:
     FOR EACH w-export:
       DELETE w-export.
     END.
-  
+
     IF poexport-cha EQ "Vendor" THEN
     FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
        FIRST po-ord WHERE RECID(po-ord) EQ report.rec-id NO-LOCK,
@@ -1583,24 +1608,24 @@ PROCEDURE run-report :
          AND vend.po-export NE ""
        BREAK 
           BY vend.po-export:
-         
+
       IF FIRST-OF(vend.po-export) THEN RUN create-export (vend.po-export).
     END.
-  
+
     ELSE RUN create-export (poexport-cha).
-  
+
     FOR EACH w-export WHERE TRIM(w-exp-prog) NE "":
-        
+
         RUN VALUE("po/" + TRIM(w-exp-prog) + ".p") (v-print-fmt) NO-ERROR.
     END.
   END.
-  
+
   FOR EACH report WHERE report.term-id EQ v-term-id: 
     DELETE report.
   END.
-  
+
   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-  
+
   OUTPUT CLOSE.
 
 END PROCEDURE.
@@ -1651,7 +1676,7 @@ PROCEDURE SetPOPrintForm :
   v-print-fmt = icPrintFormat.
 
   CASE icPrintFormat:
-    
+
     WHEN 'MiddleSx'     THEN ASSIGN v-program = "po/pomidsex.p"     li-lineperpage = 64.
     WHEN 'Century'      THEN ASSIGN v-program = "po/po-cent.p"      li-lineperpage = 56. /* was 63*/    
     WHEN 'Rudd'         THEN ASSIGN v-program = "po/po-rudd.p"      li-lineperpage = 60.
@@ -1723,11 +1748,11 @@ PROCEDURE show-param :
   DEFINE VARIABLE parm-lbl-list AS cha NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE lv-label AS cha.
-  
+
   lv-frame-hdl = FRAME {&FRAME-NAME}:HANDLE.
   lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
   lv-field-hdl = lv-group-hdl:FIRST-CHILD .
-  
+
   DO WHILE TRUE:
      IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
      IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
@@ -1755,24 +1780,24 @@ PROCEDURE show-param :
   PUT SPACE(28)
       "< Selection Parameters >"
       SKIP(1).
-  
+
   DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
     IF ENTRY(i,parm-fld-list) NE "" OR
        ENTRY(i,parm-lbl-list) NE "" THEN DO:
-       
+
       lv-label = FILL(" ",34 - LENGTH(TRIM(ENTRY(i,parm-lbl-list)))) +
                  TRIM(ENTRY(i,parm-lbl-list)) + ":".
-                 
+
       PUT lv-label FORMAT "x(35)" AT 5
           SPACE(1)
           TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
           SKIP.              
     END.
   END.
- 
+
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
   PAGE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

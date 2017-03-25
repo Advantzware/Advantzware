@@ -185,6 +185,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn_cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn_ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN begin_date IN FRAME FRAME-A
    1                                                                    */
 /* SETTINGS FOR FILL-IN begin_emp IN FRAME FRAME-A
@@ -209,7 +219,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -246,7 +256,7 @@ END.
 ON HELP OF FRAME FRAME-A
 DO:
    def var char-val as cha no-undo.
-   
+
    if focus:name = "begin_emp" or focus:name = "end_emp" then do:
       run windows/l-emp.w (input gcompany, focus:screen-value, output char-val).
       if char-val <> "" then focus:screen-value = char-val.   
@@ -316,7 +326,7 @@ DO:
   end.
 
   run purge-trans.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -358,7 +368,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
- 
+
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
@@ -385,12 +395,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    begin_emp = if avail emptrack.employee then emptrack.employee.employee else "".
    find last emptrack.employee no-lock no-error.
    end_emp = if avail emptrack.employee then emptrack.employee.employee else "".
-   
+
    assign begin_date = today
           end_date = today
           .
    RUN enable_UI.
-  
+
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -460,13 +470,13 @@ PROCEDURE purge-trans :
      disable triggers for load of machemp.
      disable triggers for load of machtran.
      disable triggers for load of emplogin.
-     
+
      session:set-wait-state("general").
      output stream st-mach to value("system\machtran.d" + string(time)).
      output stream st-emp to value("system\machemp.d" + string(time)).
      output stream st-emplogin to value("system\emplogin.d" + string(time)).
 
-   
+
      /* may need code not to delete notes but can't display anyway 
         even notes are not deleted */
 
@@ -478,20 +488,20 @@ PROCEDURE purge-trans :
                       and machemp.employee >= begin_emp
                       and machemp.employee <= end_emp 
                       AND machemp.posted :
-           
+
          FOR EACH machtran WHERE    machtran.rec_key = machemp.table_rec_key
              AND machtran.posted :
-            
+
              export stream st-mach machtran. 
              delete machtran.  
          end.
          export stream st-emp machemp.
          delete machemp.
-           
+
      END.  /* each machtran */
      output stream st-mach close.
      output stream st-emp close.
-     
+
      for each emplogin where emplogin.company EQ g_company
                          AND emplogin.end_date >= begin_date 
                          and emplogin.end_date <= end_date
@@ -500,7 +510,7 @@ PROCEDURE purge-trans :
          export stream st-emplogin emplogin.
          delete emplogin.                         
      end.
-     
+
      session:set-wait-state("").
    end.
 

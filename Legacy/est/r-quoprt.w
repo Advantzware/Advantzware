@@ -90,6 +90,17 @@ DEF NEW SHARED VAR v-fg-desc3 AS LOG NO-UNDO.
 DEFINE NEW SHARED VARIABLE LvOutputSelection AS CHAR NO-UNDO.
 DEFINE NEW SHARED VARIABLE CallingParameter AS CHAR NO-UNDO.
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
 DEF BUFFER b1-cust FOR cust.
 DEF BUFFER b-quotehd FOR quotehd.
 DEF BUFFER b-est FOR est.
@@ -474,6 +485,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -585,7 +606,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -665,7 +686,7 @@ DO:
                  b-quotehd-2.loc     EQ locode AND
                  b-quotehd-2.q-no EQ INT(begin_quo#:SCREEN-VALUE)
                  NO-LOCK NO-ERROR.
-            
+
             IF AVAIL b-quotehd-2 THEN
                FIND FIRST b-est WHERE
                     b-est.company EQ b-quotehd-2.company AND
@@ -701,7 +722,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
-  
+
   DEF VAR lv-loc LIKE quotehd.loc NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv-quo-no LIKE quotehd.q-no NO-UNDO.
@@ -818,7 +839,7 @@ DO:
                        AND quotehd.loc     EQ lv-loc  
                        AND quotehd.q-no    EQ lv-quo-no
                      USE-INDEX q-no NO-LOCK NO-ERROR.
-                 
+
                  IF AVAIL quotehd THEN DO:
                    CREATE tt-quote.
                    ASSIGN
@@ -872,7 +893,7 @@ DO:
         RUN GenerateReport(begin_cust, end_cust).
      END.
   END.
-  
+
   IF rd-dest = 5 then do:
 
      IF tb_page:CHECKED THEN
@@ -894,7 +915,7 @@ DO:
      RUN output-to-mail.
 
      RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-    
+
      SESSION:SET-WAIT-STATE ("").
   END.
 
@@ -1231,7 +1252,7 @@ DO:
 
   IF v-print-fmt EQ "Simkins"
     THEN  ASSIGN lv-termFile:SENSITIVE = {&self-name} .  
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1293,13 +1314,13 @@ DO:
                     b-quotehd-2.loc EQ locode AND
                     b-quotehd-2.q-no EQ v-first-quote-no
                     NO-LOCK NO-ERROR.
-               
+
                IF AVAIL b-quotehd-2 THEN
                   FIND FIRST b-est WHERE
                        b-est.company EQ b-quotehd-2.company AND
                        b-est.est-no  EQ b-quotehd-2.est-no
                        NO-LOCK NO-ERROR.
-              
+
                IF AVAIL b-est THEN
                DO:
                   IF b-est.est-type LE 4 THEN
@@ -1357,8 +1378,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       WHERE est.company EQ quotehd.company
         AND est.est-no  EQ quotehd.est-no
       NO-LOCK NO-ERROR.
-  
-  
+
+
   /*IF NOT AVAIL est THEN RETURN.*/
 
   ASSIGN
@@ -1387,7 +1408,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    CallingParameter = sys-ctrl.char-fld
    v-log       = sys-ctrl.log-fld
    vcDefaultForm = v-print-fmt.
-  
+
   FIND FIRST users WHERE
        users.user_id EQ USERID("NOSWEAT")
        NO-LOCK NO-ERROR.
@@ -1398,7 +1419,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      init-dir = "c:\tmp".
 
   RUN SetQuoForm(v-print-fmt).
-  
+
   RUN enable_UI.
 
   DO WITH FRAME {&frame-name}:
@@ -1414,7 +1435,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
            end_cust:SCREEN-VALUE   = begin_cust
            begin_quo#:SCREEN-VALUE = string(quotehd.q-no)
            end_quo#:SCREEN-VALUE   = string(begin_quo#).
-    
+
     lines-per-page:SCREEN-VALUE = STRING(v-tmp-lines-per-page).
     DISABLE lines-per-page.
     IF NOT AVAIL est OR est.est-type LE 4 THEN DISABLE tb_note tb_comm.
@@ -1441,7 +1462,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                tb_print-2nd-dscr = NO
                tb_prt-item:HIDDEN = YES
                tb_prt-item = NO.
-    
+
     IF is-xprint-form = NO THEN DISABLE tb_prt-box.
     IF v-print-fmt = "Century" THEN tb_prt-quoimage:HIDDEN = NO.
     ELSE tb_prt-quoimage:HIDDEN = YES.
@@ -1462,7 +1483,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              lv-termFile:HIDDEN    = YES
              tb_terms:SENSITIVE    = NO
              lv-termFile:SENSITIVE = NO.
-    
+
     IF v-print-fmt EQ "Premier-Excel" 
         OR v-print-fmt EQ "CCC-Excel" 
         /*OR v-print-fmt EQ "Bell-Excel"*/
@@ -1498,7 +1519,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*         tb_terms:SENSITIVE       = YES         */
 /*         lv-termFile:SCREEN-VALUE = lv-termFile */
 /*         tb_terms:SCREEN-VALUE    = "NO".       */
-        
+
 
       IF (TRIM(cocode) EQ "011" OR 
          TRIM(cocode) EQ "11") /* Landrum */
@@ -1531,7 +1552,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     APPLY "entry" TO v-quo-list.
   END.
- 
+
   {methods/nowait.i}
   APPLY "entry" TO v-quo-list IN FRAME {&FRAME-NAME}.
 
@@ -1631,7 +1652,7 @@ PROCEDURE BatchMail :
         END.
 
         DO li = 1 TO NUM-ENTRIES(v-quo-list):
-        
+
            lv-quo-no = INT(ENTRY(li,v-quo-list)) NO-ERROR.
            IF NOT ERROR-STATUS:ERROR AND lv-quo-no NE 0 THEN
            FIND FIRST quotehd
@@ -1641,7 +1662,7 @@ PROCEDURE BatchMail :
                  AND quotehd.cust-no GE icBegCustNo
                  AND quotehd.cust-no LE icEndCustNo
                USE-INDEX q-no NO-LOCK NO-ERROR.
-           
+
            IF AVAIL quotehd THEN DO:
              CREATE tt-quote2.
              ASSIGN
@@ -1677,7 +1698,7 @@ PROCEDURE BatchMail :
          RUN batchmail-2-proc.
      END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1693,11 +1714,11 @@ PROCEDURE batchmail-2-proc :
    IF tb_BatchMail:CHECKED IN FRAME {&FRAME-NAME} THEN
    DO:
       vlSkipRec = YES.
-      
+
       FOR EACH phone WHERE 
           phone.table_rec_key = b1-cust.rec_key
           NO-LOCK:
-      
+
           IF CAN-FIND (FIRST emaildtl WHERE
              emaildtl.emailcod  BEGINS 'r-quoprt' AND
              emaildtl.table_rec_key  = phone.rec_key) THEN 
@@ -1706,10 +1727,10 @@ PROCEDURE batchmail-2-proc :
                 LEAVE.
              END.
       END.
-      
+
       IF vlSkipRec THEN NEXT.
    END.
-  
+
    FIND FIRST sys-ctrl-shipto WHERE
         sys-ctrl-shipto.company      = cocode AND
         sys-ctrl-shipto.NAME         = "QUOPRINT" AND
@@ -1762,11 +1783,11 @@ PROCEDURE batchmail-2-proc :
          lv-pdf-file = init-dir + "\quote".
 
    RUN run-report (INPUT yes, INPUT b1-cust.cust-no).
-   
+
    STATUS DEFAULT 'Now processing CUST: ' + b1-cust.cust-no + '....'.
 
    RUN GenerateMail(INPUT b-quotehd.q-no).
-   
+
    STATUS DEFAULT ''.
 END PROCEDURE.
 
@@ -1838,7 +1859,7 @@ PROCEDURE GenerateMail :
   DO WITH FRAME {&FRAME-NAME}:
 
      IF is-xprint-form THEN DO:
-       
+
         IF not(v-print-fmt EQ "CSC-EXCEL" OR
                v-print-fmt EQ "PREMIER-EXCEL" OR
                v-print-fmt EQ "BELL-EXCEL" OR
@@ -1848,13 +1869,13 @@ PROCEDURE GenerateMail :
                v-print-fmt EQ "KNIGHT-EXCEL" OR
                v-print-fmt EQ "MSPACK-EXCEL") THEN
            RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-       
+
         IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', lv-pdf-file + ".pdf", ip-quote-no).
         ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer',  lv-pdf-file + ".pdf",ip-quote-no).
      END.
-    
+
      ELSE DO:
-         
+
        IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (b1-cust.cust-no, 'Customer1', list-name, ip-quote-no).
        ELSE RUN SendMail-1 (b1-cust.cust-no, 'Customer',  list-name, ip-quote-no).
      END.
@@ -1911,7 +1932,7 @@ PROCEDURE output-to-fax :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
 
 END PROCEDURE.
 
@@ -1943,7 +1964,7 @@ PROCEDURE output-to-mail :
       RUN BatchMail (begin_cust, IF NOT tb_BatchMail:CHECKED THEN begin_cust
                                  ELSE end_cust).
    END.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1993,7 +2014,7 @@ PROCEDURE output-to-screen :
      RUN printfile (FILE-INFO:FILE-NAME).
   END.
   ELSE run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
-  
+
   /*ELSE run scr-rpt.w (list-name,c-win:title). /* open file-name, title */  */
 
 END PROCEDURE.
@@ -2049,7 +2070,7 @@ ASSIGN
 
  IF rs_note:HIDDEN EQ NO THEN
     s-note-mode = rs_note.
- 
+
 {sys/inc/outprint.i value(lines-per-page)}
 
 if td-show-parm then run show-param.
@@ -2110,7 +2131,7 @@ DO WHILE TRUE:  /* because loc is in header */
           AND quotehd.cust-no GE fcust
           AND quotehd.cust-no LE tcust
         USE-INDEX q-no NO-LOCK NO-ERROR.
-  
+
     IF AVAIL quotehd THEN DO:
       CREATE tt-quote.
       ASSIGN
@@ -2177,7 +2198,7 @@ FOR EACH tt-quote,
     no-lock
 
     transaction:
-  
+
   create report.
   assign
    report.term-id = v-term
@@ -2249,15 +2270,21 @@ ELSE
 IF IS-xprint-form THEN DO:
     CASE rd-dest:
         WHEN 1 THEN PUT  "<PRINTER?></PROGRESS>".
-        WHEN 2 THEN PUT "<PREVIEW></PROGRESS>".        
+        WHEN 2 THEN do:
+            IF NOT lBussFormModle THEN
+              PUT "<PREVIEW><MODAL=NO></PROGRESS>".     
+            ELSE
+              PUT "<PREVIEW></PROGRESS>".     
+        END.
+
         WHEN  4 THEN do:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
         END.
         WHEN 5 THEN do:
             IF lookup(v-print-fmt,"century,unipak,PPI,Packrite,Simkins") > 0 THEN       
-               PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=3mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(130)" "</PROGRESS>".
-            ELSE PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=Arial,Courier New><PDF-LEFT=2mm><PDF-TOP=3mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(130)" "</PROGRESS>".
+               PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=3mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
+            ELSE PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=Arial,Courier New><PDF-LEFT=2mm><PDF-TOP=3mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)" "</PROGRESS>".
         END.
     END CASE.
 END.
@@ -2367,7 +2394,7 @@ FOR EACH tt-quote WHERE
     no-lock
 
     transaction:
-  
+
   create report.
   assign
    report.term-id = v-term
@@ -2433,15 +2460,21 @@ ELSE
 IF IS-xprint-form THEN DO:
     CASE rd-dest:
         WHEN 1 THEN PUT  "<PRINTER?></PROGRESS>".
-        WHEN 2 THEN PUT "<PREVIEW></PROGRESS>".        
+        WHEN 2 THEN do:
+            IF NOT lBussFormModle THEN
+              PUT "<PREVIEW><MODAL=NO></PROGRESS>".     
+            ELSE
+              PUT "<PREVIEW></PROGRESS>".     
+        END.         
+
         WHEN  4 THEN do:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
               PUT UNFORMATTED "<PRINTER?><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
         END.
         WHEN 5 THEN do:
             IF lookup(v-print-fmt,"century,unipak,PPI,Packrite") > 0 THEN       
-               PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=3mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(130)".
-            ELSE PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=Arial,Courier New><PDF-LEFT=2mm><PDF-TOP=3mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(130)".
+               PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=3mm><PDF-TOP=4mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+            ELSE PUT "<FORMAT=LETTER><PREVIEW><PDF-EXCLUDE=Arial,Courier New><PDF-LEFT=2mm><PDF-TOP=3mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
         END.
     END CASE.
 END.
@@ -2488,7 +2521,7 @@ PROCEDURE SendMail-1 :
 
   ASSIGN  vcSubject   = "Quote # " + STRING(ip-quote-no) + " " + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
           vcMailBody  = "Please review attached quote(s)".
-                      
+
   RUN custom/xpmail2.p   (input  icRecType,
                           input  'r-quoprt.',
                           input  icFileName,
@@ -2620,7 +2653,7 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
      lv-frame-hdl = frame {&frame-name}:HANDLE
      lv-group-hdl = lv-frame-hdl:first-child
@@ -2661,24 +2694,24 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
   PAGE.
-  
+
   END.
 END PROCEDURE.
 

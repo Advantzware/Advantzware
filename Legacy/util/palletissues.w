@@ -208,6 +208,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -216,7 +226,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -300,7 +310,7 @@ DO:
    DEF VAR v-cnt AS INT NO-UNDO.
    DEF VAR v-qty AS DECI NO-UNDO.
    DEF VAR v-job-no LIKE job.job-no EXTENT 2 INITIAL [" ", " "] NO-UNDO.
-   
+
    DO WITH FRAME {&FRAME-NAME}:
       ASSIGN {&DISPLAYED-OBJECTS}.
    END.
@@ -328,7 +338,7 @@ DO:
                                     AND job-mat.frm     = job-hdr.frm
                                     AND job-mat.blank-no = job-hdr.blank-no:
 /*                                     AND job-mat.i-no    = job-hdr.i-no: */
-                                   
+
             FIND FIRST ITEM WHERE item.company = job-mat.company
                               AND item.i-no    = job-mat.rm-i-no
                               AND item.mat-type = "D" NO-LOCK NO-ERROR.

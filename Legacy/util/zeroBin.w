@@ -166,6 +166,16 @@ ASSIGN
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -174,7 +184,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -312,7 +322,7 @@ PROCEDURE run-process :
     /* ------------------------------------------------ sys/del/est.p 3/29/95 CTS */
     /* Delete / Archive old estimates                                             */
     /* -------------------------------------------------------------------------- */
-  
+
 
     DEFINE VARIABLE archive     AS LOG       FORMAT "Archive/Delete" NO-UNDO.
     DEFINE VARIABLE v-file-path AS CHARACTER FORMAT "X(75)" NO-UNDO.
@@ -322,15 +332,15 @@ PROCEDURE run-process :
     DEFINE VARIABLE iDelCnt     AS INTEGER   NO-UNDO.
 
     DO WITH FRAME {&frame-name}:
- 
+
         DISABLE TRIGGERS FOR LOAD OF fg-bin.
 
         lv-msg = "Are you sure you want to purge the bins with 0 quantity?".
-          
+
 
         MESSAGE lv-msg
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-          
+
         IF v-process THEN 
         DO:
 
@@ -360,10 +370,10 @@ PROCEDURE run-process :
                 TRANSACTION:
                 idelCnt = idelCnt + 1.
                 DELETE asi.fg-bin.
-                
+
             END.
-            
-            
+
+
             SESSION:SET-WAIT-STATE("").
 
             MESSAGE iDelCnt "Records Purged" SKIP  "Process Is Completed." VIEW-AS ALERT-BOX.
@@ -371,7 +381,7 @@ PROCEDURE run-process :
         END. /* if v-process */
     END. /* do with frame */
     RETURN NO-APPLY.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

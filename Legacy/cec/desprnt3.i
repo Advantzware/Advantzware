@@ -359,7 +359,7 @@ for each ef
          PUT  "<C66>" IF est.metric AND box-design-line.wscore <> "" THEN string( ROUND(({sys/inc/k16bv.i dec(box-design-line.wscore)}) * 25.4,0)) ELSE TRIM(box-design-line.wscore) 
               IF est.metric AND box-design-line.wcum-score <> "" THEN string( ROUND(({sys/inc/k16bv.i dec(box-design-line.wcum-score)}) * 25.4,0)) ELSE TRIM(box-design-line.wcum-score) SKIP.          
      END.
-     PAGE {1}.
+/*   PAGE {1}.*/
   END. /* else box image */
 
   /* For combo, prevent from printing multiple times */

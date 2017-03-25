@@ -229,6 +229,11 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME ap-ctrl
                                                                         */
+ASSIGN
+       Btn_Close:PRIVATE-DATA IN FRAME ap-ctrl     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN ap-ctrl.cash-act IN FRAME ap-ctrl
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ap-ctrl.discount IN FRAME ap-ctrl
@@ -277,7 +282,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -346,7 +351,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     /* VALIDATION */
     DEF VAR v-avail AS LOG NO-UNDO.
-    
+
     {custom/validate/acct.i ap-ctrl.payables}
     {custom/validate/acct.i ap-ctrl.purchases}
     {custom/validate/acct.i ap-ctrl.cash-act}
@@ -492,7 +497,7 @@ DO:
   /*{custom/actleave.i} */
     DEF VAR v-avail AS LOG NO-UNDO.
     {custom/validate/acct.i ap-ctrl.stax}
-        
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

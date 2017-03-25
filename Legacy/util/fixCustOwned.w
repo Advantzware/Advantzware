@@ -186,6 +186,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -194,7 +204,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -254,13 +264,13 @@ DO:
     RETURN NO-APPLY.
   END.
 
-   
+
   MESSAGE "Are you sure you want to zero out customer owned bins from "
           begin_i-no " to " end_i-no
           " for the selected parameters" + "?"
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
       UPDATE ll.
-        
+
   IF ll THEN RUN run-process.
 END.
 
@@ -391,7 +401,7 @@ FOR EACH bf-itemfg
           BY bf-fg-bin.bol-no
           BY bf-fg-bin.inv-no
           BY bf-fg-bin.po-no:
-    
+
     IF FIRST-OF(bf-fg-bin.po-no) THEN 
       liQty = 0.
 
@@ -405,10 +415,10 @@ FOR EACH bf-itemfg
         x = fg-rctd.r-no.
         LEAVE.
       END.
-      
+
       FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
       IF AVAIL fg-rcpth AND fg-rcpth.r-no GT x THEN x = fg-rcpth.r-no.             
-      
+
 
       /* Create new Count record to be posted */
       CREATE fg-rctd.
@@ -432,7 +442,7 @@ FOR EACH bf-itemfg
        fg-rctd.tag        = bf-fg-bin.tag
        fg-rctd.cust-no    = bf-fg-bin.cust-no
        fg-rctd.po-no = TRIM(STRING(bf-fg-bin.po-no,">>>>>>>>>>")).
-       
+
 
        begin_userid = USERID("NOSWEAT").
        END_userid   = begin_userid.
@@ -448,9 +458,9 @@ END. /* each bf-itemfg */
 SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Complete..." VIEW-AS ALERT-BOX.
-    
 
-  
+
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

@@ -131,13 +131,23 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+ASSIGN
+       BtnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btnOk:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -194,9 +204,9 @@ DO:
 
 
    DO WITH FRAME {&FRAME-NAME}:
-    
+
       SESSION:SET-WAIT-STATE ("general").
-  
+
       ASSIGN cEstNo.
       cEstNo = FILL(" ",8 - LENGTH(TRIM(cEstNo))) + TRIM(cEstNo).
 
@@ -221,8 +231,8 @@ DO:
           END.
 
       END.
-      
-      
+
+
 
       MESSAGE iCount "Estimates Were Updated."
           VIEW-AS ALERT-BOX INFO BUTTONS OK.
@@ -261,7 +271,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
    RUN enable_UI.
-  
+
    IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

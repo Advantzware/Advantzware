@@ -402,8 +402,6 @@ FOR EACH tt-cust,
                     ttAgedReceivables.xxSort1     = tt-cust.sorter
                     ttAgedReceivables.xxSort2     = tt-inv.sorter
                     .
-MESSAGE 1 ttAgedReceivables.xxSort1 ttAgedReceivables.xxSort2
-    VIEW-AS ALERT-BOX INFO BUTTONS OK.
                         
                 FOR EACH notes NO-LOCK
                     WHERE notes.rec_key EQ ar-inv.rec_key
@@ -540,8 +538,6 @@ MESSAGE 1 ttAgedReceivables.xxSort1 ttAgedReceivables.xxSort2
                                 ttAgedReceivables.xxSort1     = tt-cust.sorter
                                 ttAgedReceivables.xxSort2     = tt-inv.sorter
                                 .
-MESSAGE 2 ttAgedReceivables.xxSort1 ttAgedReceivables.xxSort2
-    VIEW-AS ALERT-BOX INFO BUTTONS OK.
                             FOR EACH notes NO-LOCK
                                 WHERE notes.rec_key   EQ ar-inv.rec_key
                                   AND notes.note_type EQ "I"
@@ -585,8 +581,6 @@ MESSAGE 2 ttAgedReceivables.xxSort1 ttAgedReceivables.xxSort2
                             ttAgedReceivables.xxSort1     = tt-cust.sorter
                             ttAgedReceivables.xxSort2     = tt-inv.sorter
                             .
-MESSAGE 3 ttAgedReceivables.xxSort1 ttAgedReceivables.xxSort2
-    VIEW-AS ALERT-BOX INFO BUTTONS OK.
                     
                         FOR EACH notes NO-LOCK
                             WHERE notes.rec_key   EQ ar-inv.rec_key
@@ -655,8 +649,6 @@ MESSAGE 3 ttAgedReceivables.xxSort1 ttAgedReceivables.xxSort2
                             ttAgedReceivables.xxSort1     = tt-cust.sorter
                             ttAgedReceivables.xxSort2     = tt-inv.sorter
                             .
-MESSAGE 4 ttAgedReceivables.xxSort1 ttAgedReceivables.xxSort2
-    VIEW-AS ALERT-BOX INFO BUTTONS OK.
                         FOR EACH notes NO-LOCK
                             WHERE notes.rec_key   EQ ar-inv.rec_key
                               AND notes.note_type EQ "I"
@@ -833,8 +825,6 @@ MESSAGE 4 ttAgedReceivables.xxSort1 ttAgedReceivables.xxSort2
                     ttAgedReceivables.xxSort1     = tt-cust.sorter
                     ttAgedReceivables.xxSort2     = IF cSort2 EQ "Invoice Date" THEN INTEGER(dtInvoiceDate) ELSE 0
                     . 
-MESSAGE 5 ttAgedReceivables.xxSort1 ttAgedReceivables.xxSort2
-    VIEW-AS ALERT-BOX INFO BUTTONS OK.
             END. /*IF cType EQ "Detail" THEN DO */
             
             ASSIGN
@@ -914,8 +904,6 @@ MESSAGE 5 ttAgedReceivables.xxSort1 ttAgedReceivables.xxSort2
                     ttAgedReceivables.xxSort1     = tt-cust.sorter
                     ttAgedReceivables.xxSort2     = IF cSort2 EQ "Invoice Date" THEN INTEGER(dtInvoiceDate) ELSE 0
                     . 
-MESSAGE 6 ttAgedReceivables.xxSort1 ttAgedReceivables.xxSort2
-    VIEW-AS ALERT-BOX INFO BUTTONS OK.
             END. /* if cType eq "Detail" */
         END. /* else do: */
     END. /* each ar-cashl */

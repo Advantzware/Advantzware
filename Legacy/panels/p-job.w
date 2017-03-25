@@ -114,11 +114,11 @@ DEFINE BUTTON Btn-Delete
      FONT 4.
 
 DEFINE BUTTON btn-rebuild 
-     LABEL "Re&build Stds" 
+     LABEL "Re&build Std" 
      SIZE 14 BY 1.29.
 
 DEFINE BUTTON btn-recalc 
-     LABEL "Re&calc Costs" 
+     LABEL "Re&calc Cost" 
      SIZE 14 BY 1.29.
 
 DEFINE BUTTON Btn-Reset 

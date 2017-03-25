@@ -320,6 +320,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_acct:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -366,7 +376,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -449,7 +459,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-   
+
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
   EMPTY TEMP-TABLE ttCustList.
@@ -465,7 +475,8 @@ DO:
        when 1 then run output-to-printer.
        when 2 then run output-to-screen.
        when 3 then run output-to-file.
-  end case. 
+  end case.  
+SESSION:SET-WAIT-STATE (""). 
 
 END.
 
@@ -478,7 +489,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -707,7 +718,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
      RUN sys/inc/CustListForm.p ( "AL3",cocode, 
                                OUTPUT ou-log,
@@ -810,7 +821,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'AL3').
-    
+
 
 END PROCEDURE.
 
@@ -870,7 +881,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -881,9 +892,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -902,7 +913,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -968,7 +979,7 @@ FORM tt-report.actnum      COLUMN-LABEL "GL Acct#"
      /*tt-report.i-name      COLUMN-LABEL "Item Description" */
      tt-report.tr-num      COLUMN-LABEL "Run#"     
      tt-report.amt         COLUMN-LABEL "Amount"    FORMAT "->>>,>>>,>>>,>>9.99"
-   
+
     WITH FRAME detail NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 132.
 
 
@@ -1026,7 +1037,7 @@ FOR EACH ar-ledger
     IF AVAIL ar-inv THEN DO:
       lv-jrnl = IF ar-inv.net EQ ar-inv.gross + ar-inv.freight + ar-inv.tax-amt
                 THEN "ARINV" ELSE "OEINV".
-      
+
       CREATE tt-report.
       BUFFER-COPY ar-ledger TO tt-report
       ASSIGN
@@ -1035,7 +1046,7 @@ FOR EACH ar-ledger
        tt-report.actnum = ar-ctrl.receivables
        tt-report.amt    = (IF lv-jrnl EQ "ARINV"
                            THEN ar-inv.net ELSE ar-inv.gross) * -1.
-          
+
       IF ar-inv.tax-amt NE 0 THEN DO:
         RELEASE stax.
         IF ar-inv.tax-code NE "" THEN
@@ -1043,39 +1054,39 @@ FOR EACH ar-ledger
             WHERE stax.company   EQ ar-inv.company
               AND stax.tax-group EQ ar-inv.tax-code
             NO-LOCK NO-ERROR.
-             
+
         IF AVAIL stax THEN DO:
           assign v-ttl-tax  = 0
                  v-ttl-rate = 0.
 
-     
+
           DO li = 1 TO extent(stax.tax-rate1): 
-           
+
             if stax.tax-rate1[li] = 0 then next.
-           
+
             ld-tax-rate[li] = stax.tax-rate1[li].
-           
+
             IF stax.accum-tax AND li GT 1 THEN
            DO lj = 1 TO li - 1: 
-            
+
               ld-tax-rate[li] = ld-tax-rate[li] +
                                 (ld-tax-rate[li] * (stax.tax-rate[lj] / 100)).
             END.
             v-ttl-rate = v-ttl-rate + ld-tax-rate[li].
           END.
-              
+
           DO li = 1 TO extent(stax.tax-rate1):
             if stax.tax-rate1[li] = 0 then next.
             ASSIGN ld-tax-rate[li] = ROUND(ld-tax-rate[li] / v-ttl-rate *
                                            ar-inv.tax-amt,2)
                    v-ttl-tax = v-ttl-tax + ld-tax-rate[li].
           END.
-              
-              
+
+
           IF ar-inv.tax-amt NE v-ttl-tax THEN
             ld-tax-rate[1] = ld-tax-rate[1] +
                              (ar-inv.tax-amt - v-ttl-tax).
-             
+
           DO li = 1 TO extent(stax.tax-rate1):
             if stax.tax-rate1[li] = 0 then next.
             CREATE tt-report.
@@ -1139,7 +1150,7 @@ FOR EACH ar-ledger
       /* gdm - 09240903 */
       lv-jrnl = IF ar-cashl.amt-paid - ar-cashl.amt-disc GT 0
                 THEN "DBMEM" ELSE "CRMEM".
-              
+
       CREATE tt-report.
       BUFFER-COPY ar-ledger TO tt-report
       ASSIGN
@@ -1401,7 +1412,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1422,11 +1433,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1454,23 +1465,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

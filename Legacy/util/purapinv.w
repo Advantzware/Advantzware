@@ -206,6 +206,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -214,7 +224,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -401,7 +411,7 @@ do with frame {&frame-name}:
    end_date 
    tb_open  .
 end.
- 
+
 assign
  fdate     = begin_date
  tdate     = end_date
@@ -420,7 +430,7 @@ for each ap-inv
     use-index posted:
 
         amt       = 0 .
-  
+
   for each ap-payl
       where ap-payl.inv-no   eq ap-inv.inv-no
         and ap-payl.vend-no  eq ap-inv.vend-no
@@ -432,14 +442,14 @@ for each ap-inv
 
     amt = amt - ap-payl.amt-paid +
           (ap-payl.amt-disc * if ap-payl.memo then 1 else -1) .
-  
+
   end. /* for each ap-payl */
 
   amt = amt + ap-inv.net.
-  
+
   IF v-open AND ( (ap-inv.due - ap-inv.paid ) > 0 OR 
                   (ap-inv.due - ap-inv.paid ) < 0 ) THEN amt = 0.
-  
+
   if amt eq 0 then do:
     for each ap-payl
         where ap-payl.inv-no   eq ap-inv.inv-no
@@ -461,7 +471,7 @@ for each ap-inv
          delete ap-pay.
         END.
       end.
-      
+
       EXPORT STREAM st-appayl ap-payl.
       delete ap-payl.
     end.
@@ -488,7 +498,7 @@ session:set-wait-state("").
 
 message trim(c-win:title) + " Process Is Completed." view-as alert-box.
 apply "close" to this-procedure.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

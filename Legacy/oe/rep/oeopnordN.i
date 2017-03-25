@@ -134,7 +134,13 @@ END.
          SKIP.
    END.*/
 
-   IF rd-dest EQ 2 THEN PUT UNFORMATTED "<PREVIEW><OLANDSCAPE><P9></PROGRESS>". ELSE 
+   IF rd-dest EQ 2 THEN DO:
+      IF NOT lBussFormModle THEN
+        PUT UNFORMATTED "<PREVIEW><MODAL=NO><OLANDSCAPE><P9></PROGRESS>".
+      ELSE
+        PUT UNFORMATTED "<PREVIEW><OLANDSCAPE><P9></PROGRESS>".
+   END.
+   ELSE 
    IF rd-dest EQ 1 THEN PUT UNFORMATTED "<PRINTER?><OLANDSCAPE><P9></PROGRESS>". ELSE 
    IF rd-dest EQ  4 THEN DO:
       ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
@@ -143,7 +149,7 @@ END.
    END.
    ELSE 
       IF rd-dest = 5 THEN 
-         PUT UNFORMATTED "<PRINT=NO><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS>" FORM "x(120)".
+         PUT UNFORMATTED "<PRINT=NO><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS>" FORM "x(180)".
 
    /*IF td-show-parm THEN run show-param.*/
 

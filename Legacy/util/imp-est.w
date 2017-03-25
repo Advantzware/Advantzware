@@ -179,13 +179,23 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -240,7 +250,7 @@ DO:
     MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) + " within the " +
             "selection parameters?"
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-process.
-          
+
     IF ll-process THEN RUN run-process.
   END.
 END.

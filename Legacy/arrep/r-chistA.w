@@ -38,16 +38,16 @@ DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
 
 {sys/ref/CustList.i NEW}
-    
+
 FIND FIRST company WHERE company.company = cocode NO-LOCK NO-ERROR.
 IF AVAIL company THEN lv-comp-curr = company.curr-code.
-    
+
 DEF VAR v-invalid AS LOG NO-UNDO.
 DEF VAR v-postable AS LOG NO-UNDO.
 
@@ -95,7 +95,7 @@ DO TRANSACTION:
         sys-ctrl.company eq cocode AND
         sys-ctrl.name    eq "AUDITDIR"
         no-lock no-error.
-   
+
    if not avail sys-ctrl THEN DO:
       create sys-ctrl.
       assign
@@ -104,12 +104,12 @@ DO TRANSACTION:
          sys-ctrl.descrip = "Audit Trails directory"
          sys-ctrl.char-fld = ".\AUDIT TRAILS".
    end.
-  
+
    lv-audit-dir = sys-ctrl.char-fld.
-  
+
    IF LOOKUP(SUBSTR(lv-audit-dir,LENGTH(lv-audit-dir),1),"/,\") > 0 THEN
       lv-audit-dir = SUBSTR(lv-audit-dir,1,LENGTH(lv-audit-dir) - 1).
-  
+
    RELEASE sys-ctrl.
 END.
 
@@ -353,6 +353,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -396,7 +406,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -472,7 +482,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
       EMPTY TEMP-TABLE ttCustList.
@@ -518,7 +528,8 @@ DO:
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
   end case.
-  
+  SESSION:SET-WAIT-STATE ("").
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -530,7 +541,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -753,7 +764,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO tran-date.
     */
   END.
-  
+
   {methods/nowait.i}
 
    RUN sys/ref/CustList.p (INPUT cocode,
@@ -850,7 +861,7 @@ PROCEDURE copy-report-to-audit-dir :
   DEF VAR dirname1 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname2 AS CHAR FORMAT "X(20)" NO-UNDO.
   DEF VAR dirname3 AS CHAR FORMAT "X(20)" NO-UNDO.
-  
+
   ASSIGN targetfile = lv-audit-dir + "\AR\AC2\Run#"
                     + STRING(xtrnum) + ".txt"
          dirname1 = lv-audit-dir
@@ -880,7 +891,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'AL1').
-    
+
 
 END PROCEDURE.
 
@@ -954,7 +965,7 @@ PROCEDURE init-proc :
                        and account.actnum  eq xdis-acct
       no-lock no-error.
   if not avail account or account.actnum eq "" then do:
-    
+
     message " Discount Account is blank or is not on file for this Company." VIEW-AS ALERT-BOX ERROR.
     RETURN ERROR.
   end.
@@ -973,7 +984,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -984,11 +995,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
-     
+
 {custom/out2file.i}     
 
 
@@ -1021,7 +1032,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1102,7 +1113,7 @@ DEF VAR coname AS cha NO-UNDO.
 DEF VAR loname AS cha NO-UNDO.   */
 
 SESSION:SET-WAIT-STATE("general").
-               
+
 assign sort-by-cust = rd_sort = "customer"
        v-from-date  = begin_date
        v-to-date    = END_date
@@ -1120,7 +1131,7 @@ skip fill("_",132) format "x(132)"
     with no-labels no-box no-underline frame f-top page-top WIDTH 200 STREAM-IO.
 
 {sys/inc/print1.i}
-    
+
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF tb_excel THEN DO:
@@ -1158,7 +1169,7 @@ IF td-show-parm THEN RUN show-param.
          v-amt-paid-tot = 0
          v-disc-tot = 0
          v-on-act-tot = 0.
-  
+
   DISPLAY "" with frame r-top.
   DISPLAY "" with frame f-top.
 
@@ -1171,7 +1182,7 @@ IF td-show-parm THEN RUN show-param.
   else do:
     {arrep/ar-reg-r.i c-no 2}
   end.
-  
+
 
 SESSION:SET-WAIT-STATE("").
 
@@ -1205,7 +1216,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1226,11 +1237,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1258,23 +1269,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -170,13 +170,23 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -230,10 +240,10 @@ DO:
   MESSAGE "Are you sure you wish to continue?"
           VIEW-AS ALERT-BOX QUESTION BUTTON yes-no
           UPDATE ll-process.
-      
+
   IF ll-process THEN DO:
     SESSION:SET-WAIT-STATE ("general").
-        
+
     RUN run-process.
 
     SESSION:SET-WAIT-STATE("").
@@ -344,40 +354,40 @@ def var v-err as int.
      v-ip-file = fi_file
      v-op-file = "glmstr.quo".
   end.
-   
+
   if opsys eq "UNIX" then
     unix silent quoter -c 1-3000 value(search(v-ip-file)) > value(v-op-file).
   else
     dos  silent quoter -c 1-3000 value(search(v-ip-file)) > value(v-op-file).
 
   input from value(v-op-file).
-  
+
   output to value("glmstr.err").
 
   repeat:
     assign
      v-file = ""
      v-int  = v-int + 1.
-    
+
     import v-file.
-    
+
     find first account
         where account.company eq cocode
           and account.actnum  eq substr(entry(3,v-file),5,4) + "-" +
                                  substr(entry(3,v-file),11,2)
         no-lock no-error.
-        
+
     status default "Processing GL Acct#: " +
                    trim(substr(entry(3,v-file),5,4) + "-" +
                         substr(entry(3,v-file),11,2)).
-        
+
     if avail account                         or
        substr(entry(3,v-file),5,4) lt "1000" or 
        substr(entry(3,v-file),5,4) gt "7999" then do:
       v-err = v-err + 1.
       put unformatted v-int " " v-file skip.
     end.
-    
+
     else do:
       create account.
       assign
@@ -390,17 +400,17 @@ def var v-err as int.
                          if substr(entry(3,v-file),5,4) ge "3000" then "C" else
                          if substr(entry(3,v-file),5,4) ge "2000" then "L" else
                                                                        "A".
-      
+
     end.
   end.
-  
+
   output close.
   input close.
 
   status default "".
 
   if v-err gt 0 then message "Errors output to glmstr.err" VIEW-AS ALERT-BOX.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

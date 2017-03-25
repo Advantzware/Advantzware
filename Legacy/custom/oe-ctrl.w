@@ -364,6 +364,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME oe-ctrl
    FRAME-NAME Custom                                                    */
+ASSIGN
+       Btn_Close:PRIVATE-DATA IN FRAME oe-ctrl     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_Update:PRIVATE-DATA IN FRAME oe-ctrl     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.f-tax IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN fNextRFIDNum IN FRAME oe-ctrl
@@ -442,7 +452,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME oe-ctrl */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -566,7 +576,7 @@ DO:
      n-ord:SCREEN-VALUE = STRING(DYNAMIC-CURRENT-VALUE("order_seq" + company.spare-char-1, "ASI") + 1, ">>>>>>").
      FIND CURRENT oe-ctrl EXCLUSIVE-LOCK.
      oe-ctrl.n-ord = INTEGER(n-ord:SCREEN-VALUE).
-    
+
      FIND CURRENT oe-ctrl NO-LOCK.
   END.
 END.

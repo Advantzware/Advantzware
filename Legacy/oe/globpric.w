@@ -338,6 +338,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN lbl_price IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lbl_rnd-meth IN FRAME FRAME-A
@@ -368,7 +378,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -422,7 +432,7 @@ DO:
   MESSAGE "Are you sure you want to change the Price Matrix(es) within the " +
           "selection parameters?"
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-          
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -605,7 +615,7 @@ PROCEDURE markdown :
 
     RUN rounding (INPUT-OUTPUT ipb-oe-prmtx.price[ctr]).
   end.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -628,7 +638,7 @@ DEFINE PARAMETER BUFFER ipb-oe-prmtx FOR oe-prmtx.
       if price-basis eq "P" then 
         ipb-oe-prmtx.price[ctr]    = ipb-oe-prmtx.price[ctr] * 2.
     end.
-  
+
     else do:
       if price-basis eq "D" then DO:
         IF pct-divide = "D" THEN
@@ -646,7 +656,7 @@ DEFINE PARAMETER BUFFER ipb-oe-prmtx FOR oe-prmtx.
     end.
     RUN rounding (INPUT-OUTPUT ipb-oe-prmtx.price[ctr]).
   end.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -665,7 +675,7 @@ PROCEDURE rounding :
   io-price = io-price * li-factor.
 
   {sys/inc/roundup.i io-price}
-                      
+
   io-price = io-price / li-factor.
 
 END PROCEDURE.
@@ -718,7 +728,7 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
       AND oe-prmtx.i-no       LE end-item-no
       AND oe-prmtx.eff-date   GE beg_eff_date
       AND oe-prmtx.eff-date   LE end_eff_date:
-    
+
     FIND NEXT oe-prmtx.
     RELEASE bf-oe-prmtx.
 
@@ -752,7 +762,7 @@ REPEAT PRESELECT EACH oe-prmtx EXCLUSIVE-LOCK
 /*                                     SUBSTR(v-date-str,7,4) +               */
 /*                                     SUBSTR(v-date-str,1,2) +               */
 /*                                     SUBSTR(v-date-str,4,2).                */
-             
+
               IF percent-change LE 0 THEN
                  RUN markdown (BUFFER bf-oe-prmtx).
               ELSE 
@@ -765,7 +775,7 @@ SESSION:SET-WAIT-STATE("").
 
 MESSAGE trim(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2002  advanced software, inc. */
 
 END PROCEDURE.
@@ -782,10 +792,10 @@ FUNCTION isLatestEffDate RETURNS LOGICAL
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
- 
+
     DEF BUFFER bf-oe-prmtx FOR oe-prmtx.
 /*     DEF BUFFER bf-reftable FOR reftable. */
-    
+
     FOR EACH bf-oe-prmtx NO-LOCK
         WHERE bf-oe-prmtx.company    EQ cocode 
             AND bf-oe-prmtx.cust-no    EQ ipbf-oe-prmtx.cust-no
@@ -805,7 +815,7 @@ FUNCTION isLatestEffDate RETURNS LOGICAL
           IF bf-oe-prmtx.eff-date GT ipbf-oe-prmtx.eff-date THEN 
             RETURN NO.
     END. /*each price matrix for same item*/
-    
+
     RETURN YES.   /* Function return value. */
 
 END FUNCTION.

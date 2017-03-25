@@ -249,6 +249,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_comp:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -285,7 +295,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -344,7 +354,7 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   assign rd-dest.
-       
+
   run run-report. 
   STATUS DEFAULT "Processing Complete".
 
@@ -532,14 +542,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      begin_comp = lv-default-comp
      end_comp   = lv-default-comp
      .
-  
+
   RUN enable_UI.
 
   IF v-count LE 1 THEN
       ASSIGN
       begin_comp:SENSITIVE = NO
       end_comp:SENSITIVE   = NO .
-  
+
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -635,7 +645,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -693,14 +703,14 @@ FIND FIRST period
       AND period.pst     LE end_date
       AND period.pend    GE end_date
     NO-LOCK NO-ERROR.
-    
+
 IF AVAIL period THEN
   ASSIGN 
    end_date  = period.pend
    .
-   
+
 DISPLAY end_date WITH FRAME {&FRAME-NAME}.
-      
+
 ASSIGN
  str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
@@ -731,7 +741,7 @@ FOR EACH company WHERE
       AND period.pst     LE end_date
       AND period.pend    GE end_date
     NO-LOCK NO-ERROR.
-    
+
     IF AVAIL period THEN
     ASSIGN
         v-period  = period.pnum
@@ -845,7 +855,7 @@ FOR EACH company WHERE
      ACCUMULATE v-tot-lyd (TOTAL).
    END.
    END.
-   
+
 
    DISPLAY "T O T A L S" to 39
            (ACCUM TOTAL baldue)         FORMAT "->>,>>>,>>9.99"
@@ -895,11 +905,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -927,23 +937,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -60,7 +60,8 @@ DEFINE TEMP-TABLE w2 NO-UNDO
     FIELD qty AS INTEGER 
     FIELD dscr LIKE oe-ordl.part-dscr1
     FIELD partial          AS INTEGER
-    FIELD unitcount        AS INTEGER  .
+    FIELD unitcount        AS INTEGER 
+    FIELD qty-sum          AS INTEGER .
 
 DEFINE TEMP-TABLE w3 NO-UNDO
     FIELD ship-i           AS   CHARACTER FORMAT "x(60)".
@@ -478,7 +479,7 @@ PROCEDURE create-tt-boll.
         AND tt-boll.po-no    EQ oe-boll.po-no
         AND tt-boll.ord-no   EQ oe-boll.ord-no
         AND tt-boll.line     EQ oe-boll.LINE 
-        AND tt-boll.qty-case EQ ip-qty-case
+        AND (tt-boll.qty-sum EQ (ip-qty-case * ip-cases))
       NO-ERROR.
 
   IF NOT AVAILABLE tt-boll THEN DO:
@@ -490,6 +491,7 @@ PROCEDURE create-tt-boll.
      tt-boll.cases    = 0
      tt-boll.qty      = 0
      tt-boll.weight   = 0
+     tt-boll.qty-sum = ip-qty-case * ip-cases
      /*tt-boll.partial  = 0*/ .
    
   END.

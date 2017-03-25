@@ -371,8 +371,12 @@ is-xprint-form = (ip-industry EQ "Corr") OR
 
 IF is-xprint-form THEN DO:
 
-  IF rd-dest EQ 2 THEN 
-    PUT "<PREVIEW>".
+  IF rd-dest EQ 2 THEN DO:
+     IF NOT lBussFormModle THEN
+       PUT "<PREVIEW><MODAL=NO>".
+     ELSE
+       PUT "<PREVIEW>".
+  END.
 
   ELSE IF rd-dest EQ 1 THEN 
     PUT "<PRINTER?>".
@@ -392,7 +396,7 @@ IF is-xprint-form THEN DO:
        can-do ('Interpac,Frankstn,OTTPkg,Colonial,CCC,Dayton,Livngstn,Shelby,HPB,METRO,FibreFC,PPI,PackRite,Rosmar,Knight,MidYork,Carded,Dee,Badger',lv-format-f)) THEN 
       PUT UNFORMATTED "<OLANDSCAPE>".
     
-    PUT "<PRINT=NO><PDF-LEFT=1mm><PDF-TOP=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(120)".
+    PUT "<PRINT=NO><PDF-LEFT=1mm><PDF-TOP=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
   
   END.
 END.

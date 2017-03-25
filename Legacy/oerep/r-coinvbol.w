@@ -316,6 +316,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    Custom                                                               */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_bol#-1:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -421,7 +431,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -775,13 +785,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     begin_bol#-2 = ip-end-bol.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   EMPTY TEMP-TABLE w-comm-bol.
 
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     APPLY "entry" TO begin_bol#-1.
   END.
 
@@ -897,7 +907,7 @@ IF v-bol-list NE "" AND
            oe-bolh.bol-no  ge v-s-bol[li] AND
            oe-bolh.bol-no  le v-s-bol[li + 1]
            no-lock:
-      
+
            IF NOT CAN-FIND(FIRST w-comm-bol WHERE
               w-comm-bol.bol-no EQ oe-bolh.bol-no) THEN
               DO:

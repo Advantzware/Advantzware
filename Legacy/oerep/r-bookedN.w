@@ -92,12 +92,12 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
     (IF {sys/inc/rptDisp.i "cust.name"} THEN    "CUSTOMER NAME " ELSE "" ) + 13
     (IF {sys/inc/rptDisp.i "w-data.comm"} THEN  "COMM % " ELSE "" ) +    6
     (IF {sys/inc/rptDisp.i "w-data.procat"} THEN  "PROD!Code " ELSE "" ) +    5
-    
+
     (IF {sys/inc/rptDisp.i "w-data.item-n"} THEN "ITEM DESCRIPTION " ELSE "")  +  16
     (IF {sys/inc/rptDisp.i "w-data.qty"} THEN    "QTY ORDERED/EA " ELSE "" ) +  14
     (IF {sys/inc/rptDisp.i "w-data.sqft"} THEN "Sq Ft " ELSE "" ) +    10
     (IF {sys/inc/rptDisp.i "w-data.t-sqft"} THEN "Total!Sq Ft/M " ELSE "" ) +    10
-    
+
     (IF {sys/inc/rptDisp.i "v-price-per-m"} THEN "$/MSF    " ELSE "" ) + 10
     (IF {sys/inc/rptDisp.i "w-data.price"} THEN "PRICE " ELSE "" ) + 10
     (IF {sys/inc/rptDisp.i "v-revenue"} THEN     ""Order!Amount      " ELSE "" ) +  13
@@ -105,19 +105,19 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
     (IF {sys/inc/rptDisp.i "v-profit"}  THEN     "% Profit " ELSE "" ) +  9
     (IF {sys/inc/rptDisp.i "w-data.t-tons"}  THEN "Total!  Ton   " ELSE "" ) + 8
     (IF {sys/inc/rptDisp.i "v-price-per-t"}  THEN "$/TON      " ELSE "" ) +  10    
-    
+
     (IF {sys/inc/rptDisp.i "oe-ordl.part-no"}  THEN "Customer Part#" ELSE "" ) +  15    
   */
 ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER NAME,COMM %,PROD CODE," +
                             "FG ITEM NAME,QTY ORDERED/EA,SQ FT,TOTAL Sq Ft/M," +
                             "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON," +
-                            "FG ITEM#,ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE"  
+                            "FG ITEM#,ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE,Net %"  
        cFieldListToSelect = "oe-ord.due-date,w-data.ord-no,cust.name,w-data.comm,w-data.procat," +
                             "w-data.item-n,w-data.qty,w-data.sqft,t-sqft," +
                             "v-price-per-m,w-data.price,v-revenue,v-profit,t-tons,v-price-per-t," +
-                            "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no,cust-po,die-no,oe-ord.ord-date" 
-                            
-       cFieldLength = "8,14,13,6,9," + "16,14,10,13," + "10,10,13,9,10,10," + "15,8,15,15,15,10"
+                            "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no,cust-po,die-no,oe-ord.ord-date,v-net-prct" 
+
+       cFieldLength = "8,14,13,6,9," + "16,14,10,13," + "10,10,13,9,10,10," + "15,8,15,15,15,10,7"
        .
 
 {sys/inc/ttRptSel.i}
@@ -540,6 +540,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -668,7 +678,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -846,7 +856,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1030,7 +1040,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -1038,7 +1048,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEFINE VARIABLE cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -1081,7 +1091,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1299,7 +1309,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   ASSIGN 
    begin_ord-date = TODAY 
    end_ord-date   = TODAY.
@@ -1308,7 +1318,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1356,7 +1366,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1397,7 +1407,7 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .    
   END.
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
 
@@ -1420,7 +1430,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1430,7 +1440,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1438,9 +1448,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1620,13 +1630,13 @@ PROCEDURE run-batch :
   Notes:       
 ------------------------------------------------------------------------------*/
  /* DEFINE VARIABLE printok AS LOG.
-  
+
   SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
-   
+
   RUN custom/usrprtb.p
       ("oerep\s-booked.r", FRAME {&FRAME-NAME}:HANDLE, SESSION:PRINTER-NAME, SESSION:PRINTER-PORT, CURRENT-WINDOW:TITLE).
   */
-  
+
   {BATCH/runbatch.i "oerep\s-booked.r"}
 
 END PROCEDURE.
@@ -1706,6 +1716,7 @@ cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF BUFFER boe-ord FOR oe-ord.
 DEF BUFFER boe-ordl FOR oe-ordl.
 DEF BUFFER bcust FOR cust.
+
 DEF BUFFER bw-data FOR w-data.
 
 FIND FIRST w-data NO-ERROR.
@@ -1715,7 +1726,7 @@ FORM HEADER "Sales Rep:"
             "-"
             v-sname
     WITH FRAME r-top1 NO-BOX NO-ATTR-SPACE PAGE-TOP STREAM-IO WIDTH 180.
- 
+
 ASSIGN 
  str-tit2 = c-win:TITLE + "   (O-R-5)"
  {sys/inc/ctrtext.i str-tit2 112}
@@ -1748,7 +1759,7 @@ FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength + 1 - LENGTH(ttRptSelected.TextList))
             str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
             excelheader = excelHeader + ttRptSelected.TextList + ",".        
-    
+
     IF LOOKUP(ttRptSelected.TextList, "TOTAL Sq Ft/M,$/MSF,ORDER AMOUNT,TOTAL TONS,$/TON,% PROFIT") NE 0    THEN
         ASSIGN
         str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
@@ -1779,7 +1790,7 @@ ASSIGN str-tit4 =
     (IF {sys/inc/rptDisp.i "v-fg-cost"}   THEN       "TOT COST  " ELSE "" ) +
     (IF {sys/inc/rptDisp.i "v-fg-value"}  THEN       "TOT SELL VALUE" ELSE ""  )
   str-tit5 = ""
-     
+
     .
 */
 
@@ -1837,12 +1848,12 @@ PROCEDURE show-param :
   DEFINE VARIABLE parm-lbl-list AS CHARACTER NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE lv-label as CHARACTER.
-  
+
   ASSIGN
   lv-frame-hdl = FRAME {&FRAME-NAME}:HANDLE
   lv-group-hdl = lv-frame-hdl:FIRST-CHILD
   lv-field-hdl = lv-group-hdl:FIRST-CHILD.
-  
+
   DO WHILE TRUE:
      IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
      IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") GT 0
@@ -1870,23 +1881,23 @@ PROCEDURE show-param :
   PUT SPACE(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
     IF ENTRY(i,parm-fld-list) NE "" OR 
        ENTRY(i,parm-lbl-list) NE "" THEN DO:
-       
+
       lv-label = FILL(" ",34 - LENGTH(TRIM(ENTRY(i,parm-lbl-list)))) +
                  TRIM(ENTRY(i,parm-lbl-list)) + ":".
-                 
+
       PUT lv-label FORMAT "x(35)" AT 5
           SPACE(1)
           TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
           SKIP.              
     END.
   END.
- 
+
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

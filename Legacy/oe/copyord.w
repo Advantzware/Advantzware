@@ -222,6 +222,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_ord-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -250,7 +260,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -327,7 +337,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:    
     RUN valid-begin_ord-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
- 
+
     APPLY "entry" TO to_company.
     RUN valid-company NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -337,7 +347,7 @@ DO:
 
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   MESSAGE "Are you sure you want to " + TRIM(c-win:TITLE) + " " +
           TRIM(STRING(begin_ord-no)) + " from Company " + TRIM(from_company) + " to " +
           " Company " + TRIM(to_company) + "?"
@@ -365,7 +375,7 @@ DO:
     {&self-name}:SCREEN-VALUE = c-char-val.
     APPLY "value-changed" TO {&self-name}.
   END.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -438,7 +448,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   ASSIGN
    from_company = cocode
    to_company   = cocode.
@@ -555,7 +565,7 @@ PROCEDURE new-company :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     FIND company WHERE company.company BEGINS FOCUS:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL company THEN DO:
@@ -632,7 +642,7 @@ PROCEDURE valid-begin_ord-no :
     END.
     IF INT(to_ord-no:SCREEN-VALUE) LE 0 THEN
       to_ord-no:SCREEN-VALUE = "1".
-     
+
   END.
 
 END PROCEDURE.
@@ -663,7 +673,7 @@ PROCEDURE valid-company :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

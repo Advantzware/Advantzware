@@ -59,7 +59,7 @@ DEFINE VARIABLE v-roll-multp AS DECIMAL DECIMALS 4 NO-UNDO.
 
 DEFINE TEMP-TABLE tt-rm-bin NO-UNDO LIKE rm-bin
                                  FIELD trans-date LIKE rm-rcpth.trans-date.
-    
+
 
 DEFINE STREAM excel.
 
@@ -365,6 +365,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        as-of-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -452,7 +462,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -881,7 +891,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -957,7 +967,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*     DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -968,11 +978,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.  */
-     
+
  {custom/out2file.i}
 
 END PROCEDURE.
@@ -1004,7 +1014,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1015,7 +1025,7 @@ PROCEDURE output-to-printer :
                             INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
                                     /* use-dialog(1) and landscape(2) */
  */
-  
+
   RUN custom/prntproc.p (list-name,INTEGER(lv-font-no),lv-ornt).
 END PROCEDURE.
 
@@ -1087,7 +1097,7 @@ DEFINE VARIABLE lv-uom  AS CHARACTER NO-UNDO.
           AND rm-rdtlh.loc-bin      EQ tt-rm-bin.loc-bin
           AND rm-rdtlh.tag          EQ tt-rm-bin.tag
         USE-INDEX rm-rdtl
-    
+
         BY rm-rcpth.trans-date
         BY rm-rcpth.r-no:
 
@@ -1103,13 +1113,13 @@ DEFINE VARIABLE lv-uom  AS CHARACTER NO-UNDO.
           AND rm-rdtlh.tag          EQ tt-rm-bin.tag
           AND rm-rdtlh.rita-code    NE "S"
         USE-INDEX tag,
-        
+
         EACH rm-rcpth NO-LOCK 
         WHERE rm-rcpth.r-no         EQ rm-rdtlh.r-no
           AND rm-rcpth.rita-code    EQ rm-rdtlh.rita-code
           AND rm-rcpth.i-no         EQ ITEM.i-no
         USE-INDEX r-no
-    
+
         BY rm-rcpth.trans-date
         BY rm-rcpth.r-no:
 
@@ -1235,7 +1245,7 @@ SESSION:SET-WAIT-STATE ("general").
         AND ITEM.mat-type          GE ftyp
         AND ITEM.mat-type          LE ttyp
         AND ITEM.i-code            EQ "R" :
-      
+
 
        {custom/statusMsg.i "'Processing Item # ' + string(item.i-no)"} 
 
@@ -1265,7 +1275,7 @@ SESSION:SET-WAIT-STATE ("general").
         AND ITEM.mat-type          GE ftyp
         AND ITEM.mat-type          LE ttyp
         AND ITEM.i-code            EQ "E"  :
-    
+
 
           {custom/statusMsg.i "'Processing Item # ' + string(item.i-no)"} 
 
@@ -1284,19 +1294,19 @@ SESSION:SET-WAIT-STATE ("general").
        END.
   END.
  END.
-  
+
   FOR EACH tt-rm-bin NO-LOCK 
       WHERE tt-rm-bin.loc          GE floc
         AND tt-rm-bin.loc          LE tloc
         AND tt-rm-bin.trans-date   GE begin_date
         AND tt-rm-bin.trans-date   LE end_date
         AND (zbal OR tt-rm-bin.qty NE 0),
-    
+
 
       FIRST ITEM NO-LOCK
       WHERE ITEM.company EQ tt-rm-bin.company
         AND ITEM.i-no    EQ tt-rm-bin.i-no
-     
+
       BREAK BY tt-rm-bin.loc
             BY tt-rm-bin.i-no
             BY tt-rm-bin.loc-bin
@@ -1317,7 +1327,7 @@ SESSION:SET-WAIT-STATE ("general").
     v-cost = IF ce-ctrl.r-cost THEN ITEM.avg-cost ELSE tt-rm-bin.cost.
 
     IF v-cost EQ ? THEN v-cost = 0.
-    
+
     IF tagask AND tt-rm-bin.tag NE "" THEN
       tt-rm-bin.tag = "*" + tt-rm-bin.tag + "*".
 
@@ -1349,17 +1359,17 @@ SESSION:SET-WAIT-STATE ("general").
          WITH FRAME itemx NO-BOX NO-ATTR-SPACE DOWN STREAM-IO WIDTH 164.
 
     IF tb_excel THEN DO:
-     
-        
+
+
         ASSIGN
           chrRmBinTag = TRIM(tt-rm-bin.tag)
           chrTotCostVal = STRING(tt-rm-bin.qty * v-cost, "->>>>>9.99").
-        
+
         EXPORT STREAM excel DELIMITER ","
           tt-rm-bin.loc tt-rm-bin.i-no ITEM.i-name tt-rm-bin.loc-bin
           chrRmBinTag tt-rm-bin.trans-date tt-rm-bin.qty v-cost 
           chrTotCostVal.
-    
+
     END.
 
     ASSIGN 
@@ -1384,7 +1394,7 @@ SESSION:SET-WAIT-STATE ("general").
                                    tt-rm-bin.qty, OUTPUT v-lf-qty).
           ELSE
              v-lf-qty = tt-rm-bin.qty.
-          
+
           IF ITEM.s-len NE 0 THEN
           DO:
              v-rolls-dec = v-lf-qty / ITEM.s-len.
@@ -1424,7 +1434,7 @@ SESSION:SET-WAIT-STATE ("general").
                  v-cum-price            TO 132.
            END.
          END.
-      
+
       IF NOT LAST-OF(tt-rm-bin.i-no) THEN PUT SKIP(1).
 
       ASSIGN 
@@ -1460,7 +1470,7 @@ SESSION:SET-WAIT-STATE ("general").
       END.
 
       PUT SKIP(1).
-      
+
       ASSIGN 
        v-tot-price  = v-tot-price + v-cum-price2
        v-tot-rolls = v-tot-rolls + v-item-rolls
@@ -1536,11 +1546,11 @@ PROCEDURE show-param :
   DEFINE VARIABLE parm-lbl-list AS CHARACTER NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE lv-label AS CHARACTER.
-  
+
   lv-frame-hdl = FRAME {&FRAME-NAME}:HANDLE.
   lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
   lv-field-hdl = lv-group-hdl:FIRST-CHILD .
-  
+
   DO WHILE TRUE:
      IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
      IF LOOKUP(lv-field-hdl:private-data,"parm") GT 0
@@ -1568,23 +1578,23 @@ PROCEDURE show-param :
   PUT SPACE(28)
       "< Selection Parameters >"
       SKIP(1).
-  
+
   DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
     IF ENTRY(i,parm-fld-list) NE "" OR
        ENTRY(i,parm-lbl-list) NE "" THEN DO:
-       
+
       lv-label = FILL(" ",34 - LENGTH(TRIM(ENTRY(i,parm-lbl-list)))) +
                  TRIM(ENTRY(i,parm-lbl-list)) + ":".
-                 
+
       PUT lv-label FORMAT "x(35)" AT 5
           SPACE(1)
           TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
           SKIP.              
     END.
   END.
- 
+
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

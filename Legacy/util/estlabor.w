@@ -223,6 +223,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -231,7 +241,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -381,9 +391,9 @@ def var fest        as   cha                format ">>>>>".
 def var test        like fest               init 99999.
 def var fmch        like est-op.m-code.
 def var tmch        like fmch               init "zzzzzz".
-  
+
 session:set-wait-state("General").
-  
+
 do with frame {&frame-name}:
   assign
    begin_est
@@ -391,22 +401,22 @@ do with frame {&frame-name}:
    begin_mach
    end_mach.
 end.
-  
+
 assign
  fest = string(begin_est)
  test = string(end_est)
  fmch = begin_mach
  tmch = end_mach.
-   
+
 session:set-wait-state("").
-  
+
 {util/updestrt.i}
 
 message trim(c-win:title) + " Process Is Completed." view-as alert-box.
 apply "close" to this-procedure.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

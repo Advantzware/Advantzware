@@ -147,6 +147,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -155,7 +165,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -226,7 +236,7 @@ DO:
       END.
          STATUS DEFAULT "Processing.... " + TRIM(STRING(v-cnt)).
    END.
- 
+
    STATUS DEFAULT "".
 
    SESSION:SET-WAIT-STATE("").
@@ -234,7 +244,7 @@ DO:
    MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
 
    APPLY "close" TO THIS-PROCEDURE.  
-   
+
 
 END.
 

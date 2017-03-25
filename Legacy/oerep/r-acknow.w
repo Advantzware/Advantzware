@@ -101,7 +101,16 @@ DO TRANSACTION:
   {sys/inc/ackmst.i}
 END.
 
-DEFINE VARIABLE retcode             AS INTEGER   NO-UNDO.
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
 
 PROCEDURE mail EXTERNAL 'xpMail.dll' :
 
@@ -519,6 +528,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -616,7 +635,7 @@ THEN C-Win:HIDDEN = NO.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -739,7 +758,7 @@ DO:
       v-ack-master = IF rd_ack-ordmst = "M" THEN YES ELSE NO .
       ELSE
        v-ack-master = NO .
-       
+
   IF LvOutputSelection = "Email"THEN DO:
      RUN BatchMail. 
   END. 
@@ -771,9 +790,9 @@ DO:
                NO-LOCK
                BREAK BY b-oe-ord.company
                      BY b-oe-ord.cust-no:
-             
+
                IF FIRST-OF(b-oe-ord.cust-no) THEN DO:
-       
+
                   FIND FIRST sys-ctrl-shipto WHERE
                        sys-ctrl-shipto.company = cocode AND
                        sys-ctrl-shipto.NAME = "ACKMASTER" AND
@@ -781,7 +800,7 @@ DO:
                        sys-ctrl-shipto.cust-vend-no = b-oe-ord.cust-no AND
                        sys-ctrl-shipto.char-fld > ''
                        NO-LOCK NO-ERROR.
-       
+
                   IF AVAIL sys-ctrl-shipto THEN
                   DO:
                      RUN SetAckMstForm (sys-ctrl-shipto.char-fld).
@@ -792,7 +811,7 @@ DO:
                      RUN SetAckMstForm (vmDefaultForm).
                      v-print-fmt = vmDefaultForm.
                   END.
-       
+
                   RUN SetGlobalVariables(b-oe-ord.ord-no).
                   RUN run-report(b-oe-ord.cust-no, TRUE).
                   RUN GenerateReport(b-oe-ord.cust-no,b-oe-ord.cust-no).
@@ -804,7 +823,7 @@ DO:
      END. /*if can-find sys-ctrl-shipto*/
   ELSE
      DO:
-      
+
         v-print-fmt = vmDefaultForm.
         RUN SetAckMstForm (v-print-fmt).
         RUN SetGlobalVariables(INPUT begin_ord-no).
@@ -814,7 +833,7 @@ DO:
 
     END.  /* end of v-ack-master log = yes */
 
-  
+
     ELSE DO:
       IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
      sys-ctrl-shipto.company = cocode AND
@@ -841,9 +860,9 @@ DO:
                NO-LOCK
                BREAK BY b-oe-ord.company
                      BY b-oe-ord.cust-no:
-             
+
                IF FIRST-OF(b-oe-ord.cust-no) THEN DO:
-       
+
                   FIND FIRST sys-ctrl-shipto WHERE
                        sys-ctrl-shipto.company = cocode AND
                        sys-ctrl-shipto.NAME = "ACKHEAD" AND
@@ -851,7 +870,7 @@ DO:
                        sys-ctrl-shipto.cust-vend-no = b-oe-ord.cust-no AND
                        sys-ctrl-shipto.char-fld > ''
                        NO-LOCK NO-ERROR.
-       
+
                   IF AVAIL sys-ctrl-shipto THEN
                   DO:
                      RUN SetOEAckForm (sys-ctrl-shipto.char-fld).
@@ -862,7 +881,7 @@ DO:
                      RUN SetOEAckForm (vcDefaultForm).
                      v-print-fmt = vcDefaultForm.
                   END.
-       
+
                   RUN SetGlobalVariables(b-oe-ord.ord-no).
                   RUN run-report(b-oe-ord.cust-no, TRUE).
                   RUN GenerateReport(b-oe-ord.cust-no,b-oe-ord.cust-no).
@@ -883,7 +902,7 @@ DO:
 
     END. /* else of v-ack-master  */
   END.  /* NOT output to email */
-  
+
 END.  /* end of btn-ok */
 
 /* _UIB-CODE-BLOCK-END */
@@ -897,7 +916,7 @@ DO:
    DEF VAR char-val AS CHAR NO-UNDO.
    DEF VAR ip-char-val AS CHAR NO-UNDO.
    DEF VAR i-cnt AS INT NO-UNDO.
-   
+
    ASSIGN spec-code
           ip-char-val = "".
 
@@ -909,7 +928,7 @@ DO:
        CREATE tt-specCd.
        ASSIGN tt-char-val = TRIM(ENTRY(i-cnt,spec-code)).
    END.
-   
+
    FOR FIRST  tt-specCd NO-LOCK 
        BY tt-specCd.tt-char-val:
 
@@ -943,7 +962,7 @@ END.
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
      ASSIGN {&self-name}.
-          
+
      RUN get-cust-attch .
 
 END.
@@ -1187,7 +1206,7 @@ DO:
             tb_shpnot:SENSITIVE = YES. 
         ELSE ASSIGN 
             tb_shpnot:HIDDEN = YES . 
-        
+
         IF v-print-fmt EQ "Badger"
             THEN ASSIGN
             TG_print-due-cd:HIDDEN = NO
@@ -1244,7 +1263,7 @@ DO:
         ASSIGN 
             tb_terms                 = NO
             tb_terms:SENSITIVE       = YES.
-        
+
         ASSIGN lv-termFile:SENSITIVE = NO.
 
         IF tb_terms:SCREEN-VALUE EQ "YES" 
@@ -1274,12 +1293,12 @@ DO:
          ASSIGN 
              TG_print-pen-notes:HIDDEN     = NO
              TG_print-pen-notes:SENSITIVE  = YES.
-        
+
             IF tb_inst:SCREEN-VALUE EQ "Yes" THEN
              spec-code:HIDDEN IN FRAME FRAME-A = NO .
             ELSE
              spec-code:HIDDEN IN FRAME FRAME-A = YES .
-            
+
              IF TG_print-pen-notes:SCREEN-VALUE EQ "Yes" THEN
                 dept-code:HIDDEN IN FRAME FRAME-A = NO .
             ELSE
@@ -1314,7 +1333,7 @@ DO:
    DEF VAR char-val AS CHAR NO-UNDO.
    DEF VAR ip-char-val AS CHAR NO-UNDO.
    DEF VAR i-cnt AS INT NO-UNDO.
-   
+
    ASSIGN spec-code
           ip-char-val = "".
 
@@ -1326,7 +1345,7 @@ DO:
        CREATE tt-specCd.
        ASSIGN tt-char-val = TRIM(ENTRY(i-cnt,spec-code)).
    END.
-   
+
    FOR FIRST  tt-specCd NO-LOCK 
        BY tt-specCd.tt-char-val:
 
@@ -1533,8 +1552,8 @@ DO:
     ASSIGN {&self-name}.
     IF v-print-fmt EQ "Simkins" 
       THEN ASSIGN lv-termFile:SENSITIVE = {&self-name}.
-      
-      
+
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1690,7 +1709,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE sys-ctrl.log-fld.
   END.
-   
+
   ASSIGN
    v-print-fmt  = sys-ctrl.char-fld
    v-print-head = sys-ctrl.log-fld
@@ -1735,7 +1754,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_act-rel = NO
        tb_act-rel:SENSITIVE = NO
        tb_act-rel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
-    
+
     IF v-print-fmt = "Dee" THEN
       ASSIGN
          TG_whs-mths:SENSITIVE = YES. 
@@ -1758,7 +1777,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*              TG_print-pdf-view:HIDDEN     = YES   */
 /*              TG_print-pdf-view:SENSITIVE  = NO.   */
 
-    
+
     /* gdm - 04160907*/
     IF v-print-fmt NE "Simkins" 
       THEN ASSIGN 
@@ -1782,7 +1801,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_itm-tot:HIDDEN = NO . 
     ELSE
         tb_itm-tot:HIDDEN = YES  . 
-          
+
 
     IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "PremierCX"
          THEN ASSIGN
@@ -1805,13 +1824,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*     IF v-print-fmt EQ "ACPI"     */
 /*          THEN ASSIGN             */
 /*             tb_itempo:HIDDEN = NO. */
-     
+
     IF v-print-fmt EQ "Soule" OR v-print-fmt EQ "SouleUOM"
       THEN ASSIGN 
              tb_print-component:HIDDEN       = NO .
         ELSE
              tb_print-component:HIDDEN       = YES .
-    
+
     IF v-print-fmt EQ "Axis"
       THEN ASSIGN 
              tb_billnotes:HIDDEN       = NO .
@@ -1819,7 +1838,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              tb_billnotes:HIDDEN       = YES .
 
     IF v-print-fmt EQ "Simkins" THEN DO:      
-      
+
       ASSIGN           
           lv-termFile =  lv-termFile:SCREEN-VALUE
           lv-termFile:SCREEN-VALUE = lv-termFile.
@@ -1854,11 +1873,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                    TRIM(cocode) EQ "62" /* Ideal */
                   THEN ASSIGN lv-termFile:SCREEN-VALUE = lv-termPath + "QuoteTerms62.txt".
                   ELSE ASSIGN lv-termFile:SCREEN-VALUE = lv-termFile.
-                  
+
 
       ASSIGN lv-termFile:SCREEN-VALUE = lv-termFile
              lv-termFile:SENSITIVE = NO.
-             
+
       IF tb_terms:SCREEN-VALUE EQ "YES" 
         THEN lv-termFile:SENSITIVE = YES.
 
@@ -1868,7 +1887,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           lv-termFile:SCREEN-VALUE = ""
           lv-termFile              = ""
           lv-termFile:SENSITIVE    = NO.
-        
+
 
     IF LOOKUP(v-print-fmt,"Soule,SouleUOM,ContSvc") = 0 THEN DO:
         IF tb_sch-rel:SCREEN-VALUE EQ "NO" AND
@@ -1888,12 +1907,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          ASSIGN 
              TG_print-pen-notes:HIDDEN     = NO
              TG_print-pen-notes:SENSITIVE  = YES.
-        
+
             IF tb_inst:SCREEN-VALUE EQ "Yes" THEN
              spec-code:HIDDEN IN FRAME FRAME-A = NO .
             ELSE
              spec-code:HIDDEN IN FRAME FRAME-A = YES .
-            
+
              IF TG_print-pen-notes:SCREEN-VALUE EQ "Yes" THEN
                 dept-code:HIDDEN IN FRAME FRAME-A = NO .
             ELSE
@@ -1930,14 +1949,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
          END.
          ELSE
              rd_ack-ordmst:HIDDEN IN FRAME {&FRAME-NAME} = YES .
-    
+
     IF TG_eml-push-att:SCREEN-VALUE EQ "Yes" THEN
       sel-attch:HIDDEN IN FRAME FRAME-A = NO .
     ELSE 
        sel-attch:HIDDEN IN FRAME FRAME-A = YES .
     RUN get-cust-attch .
 
-             
+
     APPLY "entry" TO begin_ord-no.
   END.
 
@@ -1985,9 +2004,9 @@ PROCEDURE BatchMail:
                NO-LOCK
                BREAK BY b1-oe-ord.company
                      BY b1-oe-ord.cust-no:
-             
+
                IF FIRST-OF(b1-oe-ord.cust-no) THEN DO:
-       
+
                   FIND FIRST sys-ctrl-shipto WHERE
                        sys-ctrl-shipto.company = cocode AND
                        sys-ctrl-shipto.NAME = "ACKMASTER" AND
@@ -1995,7 +2014,7 @@ PROCEDURE BatchMail:
                        sys-ctrl-shipto.cust-vend-no = b1-oe-ord.cust-no AND
                        sys-ctrl-shipto.char-fld > ''
                        NO-LOCK NO-ERROR.
-       
+
                   IF AVAIL sys-ctrl-shipto THEN
                   DO:
                      RUN SetAckMstForm (sys-ctrl-shipto.char-fld).
@@ -2007,7 +2026,7 @@ PROCEDURE BatchMail:
                      v-print-fmt = vmDefaultForm.
                   END.
                   RUN output-to-mail (b1-oe-ord.cust-no, b1-oe-ord.ord-no).        
-                  
+
                END.
            END. /* FOR EACH*/
         ELSE
@@ -2016,7 +2035,7 @@ PROCEDURE BatchMail:
      END. /*if can-find sys-ctrl-shipto*/
   ELSE
      DO:
-      
+
         v-print-fmt = vmDefaultForm.
         RUN SetAckMstForm (v-print-fmt).
         RUN output-to-mail (begin_cust-no,begin_ord-no).
@@ -2027,7 +2046,7 @@ PROCEDURE BatchMail:
 
     END.  /* end of v-ack-master log = yes */
 
-  
+
     ELSE DO:
       IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
      sys-ctrl-shipto.company = cocode AND
@@ -2054,9 +2073,9 @@ PROCEDURE BatchMail:
                NO-LOCK
                BREAK BY b-oe-ord.company
                      BY b-oe-ord.cust-no:
-             
+
                IF FIRST-OF(b-oe-ord.cust-no) THEN DO:
-       
+
                   FIND FIRST sys-ctrl-shipto WHERE
                        sys-ctrl-shipto.company = cocode AND
                        sys-ctrl-shipto.NAME = "ACKHEAD" AND
@@ -2064,7 +2083,7 @@ PROCEDURE BatchMail:
                        sys-ctrl-shipto.cust-vend-no = b-oe-ord.cust-no AND
                        sys-ctrl-shipto.char-fld > ''
                        NO-LOCK NO-ERROR.
-       
+
                   IF AVAIL sys-ctrl-shipto THEN
                   DO:
                      RUN SetOEAckForm (sys-ctrl-shipto.char-fld).
@@ -2117,18 +2136,18 @@ PROCEDURE buildToList:
   DEFINE OUTPUT PARAMETER opToList    AS CHARACTER NO-UNDO.
 
   DEF BUFFER b2-cust FOR cust.
-  
+
   FOR EACH phone NO-LOCK 
      WHERE phone.table_rec_key EQ ipRecKey
         OR ipRecKey EQ 'ALL':
-    
+
     IF CAN-FIND(FIRST emaildtl
                 WHERE emaildtl.emailcod       EQ ipCode
                   AND emaildtl.table_rec_key  EQ phone.rec_key) 
        OR
        phone.titlcode EQ ipCode THEN
     DO:
-    
+
       IF phone.e_mail NE '' AND NOT CAN-DO(opToList,phone.e_mail) THEN 
       DO:        
         opToList = opToList + (IF opToList NE '' THEN ',' 
@@ -2136,7 +2155,7 @@ PROCEDURE buildToList:
                             + phone.e_mail.
       END.
     END.
-        
+
   END. /* each phone */
 
   IF opToList EQ '' OR opToList = ? THEN DO: 
@@ -2152,7 +2171,7 @@ PROCEDURE buildToList:
             EACH reftable NO-LOCK
            WHERE reftable.rec_key = phone.rec_key
              AND reftable.CODE    = ipCode:
-            
+
           opToList = opToList + (IF opToList NE '' THEN ',' 
                                                    ELSE '') 
                               + phone.e_mail.
@@ -2162,7 +2181,7 @@ PROCEDURE buildToList:
           opToList = b2-cust.email.
      END.
      ELSE opToList = ipEMail.
-   
+
   END.
 
 END PROCEDURE.
@@ -2258,32 +2277,32 @@ PROCEDURE GenerateEmail:
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER icCustNo AS CHAR NO-UNDO.
   DEF INPUT PARAM icOrdNo AS INT NO-UNDO.
-  
-  
+
+
   DEFINE VARIABLE vcSubject   AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE vcErrorMsg  AS CHARACTER  NO-UNDO.
-  
+
   DEF BUFFER b1-cust FOR cust.
-  
+
   DEFINE VARIABLE ls-to-list          AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lv-mailto           AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lv-mailsubject      AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lv-mailbody         AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lv-mailattach       AS CHARACTER NO-UNDO.
   DEF VAR ls-to-list2 AS cha NO-UNDO.
-  
+
   IF is-xprint-form THEN RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-                
+
   ASSIGN  vcSubject   = "ACKNOWLEDGEMENT:" + string(icOrdNo) + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
           vcMailBody  = "Please review attached Order Acknowledgement #: " + string(icOrdNo).       
-  
+
   FIND b1-cust WHERE b1-cust.company = cocode AND b1-cust.cust-no = icCustNo NO-LOCK NO-ERROR.
   RUN buildToList (INPUT  b1-cust.rec_key,   /* Rec_Key        */
                     INPUT  b1-cust.email,     /* Email Address  */
                     INPUT  "r-acknow.",  /* Title          */
                     OUTPUT ls-to-list).    /* Recepients     */
-                              
+
    /* build list for shipto */
   ls-to-list2 = "".
   FOR EACH b2-oe-ord WHERE b2-oe-ord.company = cocode AND b2-oe-ord.ord-no = icOrdno NO-LOCK,
@@ -2297,7 +2316,7 @@ PROCEDURE GenerateEmail:
                     INPUT  "",     /* Email Address  */
                     INPUT  'r-acknow.',      /* Title          */
                     OUTPUT ls-to-list2).    /* Recepients     */
-                    
+
           END.
 
   END.
@@ -2316,14 +2335,14 @@ PROCEDURE GenerateEmail:
 
    IF lv-attach-push NE "" AND TG_eml-push-att:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Yes" THEN
             lv-mailattach = lv-mailattach + "," + lv-attach-push .
-                         
+
   RUN mail (lv-mailto,        /* Mail Recepients  */
             lv-mailsubject,   /* Subject          */
             lv-mailbody,      /* Body             */
             lv-mailattach,    /* Attachment       */
             1,                /* Mail Dialog Type */
             OUTPUT retcode).  /* Return Code      */
-                       
+
 /*  RUN custom/xpmail2.p   (input   icRecType,  */
 /*                          input   'R-ACKNOW.',*/
 /*                          input   list-name,  */
@@ -2419,7 +2438,7 @@ DEF VAR gb AS CHAR NO-UNDO .
                                     &mail-subject="Acknowledgement"
                                     &mail-body="Acknowledgement"
                                     &mail-file=list-name }
-     
+
              END.
          END. 
          WHEN 6 THEN RUN output-to-port.
@@ -2442,9 +2461,9 @@ PROCEDURE Get-cust-attch :
 ------------------------------------------------------------------------------*/
 DEF VAR v-attch-list AS CHAR NO-UNDO.
 DO WITH FRAME {&frame-name}:
-    
+
     IF TG_eml-push-att:SCREEN-VALUE = "YES" THEN DO:
-        
+
         FIND FIRST cust WHERE cust.company EQ cocode
             AND cust.cust-no EQ begin_cust-no:SCREEN-VALUE  NO-LOCK NO-ERROR . 
         IF AVAIL cust THEN
@@ -2453,7 +2472,7 @@ DO WITH FRAME {&frame-name}:
             IF attach.attach-file <> ""  THEN
                 v-attch-list = v-attch-list + attach.attach-file + "," .
             END.
-            
+
     END. /* TG_eml-push-att */
             sel-attch:LIST-ITEMS = v-attch-list.
 END.        
@@ -2477,7 +2496,7 @@ DO WITH FRAME {&frame-name}:
           lv-attach-push = lv-attach-push + TRIM(sel-attch:ENTRY(i)) + ",".
     END.
 END.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2517,7 +2536,7 @@ PROCEDURE output-to-fax-prt :
   IF is-xprint-form THEN DO:
      FILE-INFO:FILE-NAME = list-name.
      lv-xpr-file = FILE-INFO:FULL-PATHNAME.
-  
+
      RUN printfile (lv-xpr-file).
   END.
 END PROCEDURE.
@@ -2568,9 +2587,9 @@ IF v-ack-master = YES THEN DO:
                NO-LOCK
                BREAK BY b-oe-ord.company
                      BY b-oe-ord.cust-no:
-             
+
                IF FIRST-OF(b-oe-ord.cust-no) THEN DO:
-       
+
                   FIND FIRST sys-ctrl-shipto WHERE
                        sys-ctrl-shipto.company = cocode AND
                        sys-ctrl-shipto.NAME = "ACKMASTER" AND
@@ -2578,7 +2597,7 @@ IF v-ack-master = YES THEN DO:
                        sys-ctrl-shipto.cust-vend-no = b-oe-ord.cust-no AND
                        sys-ctrl-shipto.char-fld > ''
                        NO-LOCK NO-ERROR.
-       
+
                   IF AVAIL sys-ctrl-shipto THEN
                   DO:
                      RUN SetAckMstForm (sys-ctrl-shipto.char-fld).
@@ -2589,7 +2608,7 @@ IF v-ack-master = YES THEN DO:
                      RUN SetAckMstForm (vmDefaultForm).
                      v-print-fmt = vmDefaultForm.
                   END.
-       
+
                   RUN SetGlobalVariables(b-oe-ord.ord-no).
                   RUN run-report(b-oe-ord.cust-no, TRUE).
                   RUN GenerateEmail(b-oe-ord.cust-no,b-oe-ord.ord-no).
@@ -2601,7 +2620,7 @@ IF v-ack-master = YES THEN DO:
      END. /*if can-find sys-ctrl-shipto*/
   ELSE
      DO:
-      
+
         v-print-fmt = vmDefaultForm.
         RUN SetAckMstForm (v-print-fmt).
         RUN SetGlobalVariables(INPUT begin_ord-no).
@@ -2611,7 +2630,7 @@ IF v-ack-master = YES THEN DO:
 
     END.  /* end of v-ack-master log = yes */
 
-  
+
     ELSE DO:
       IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
      sys-ctrl-shipto.company = cocode AND
@@ -2630,9 +2649,9 @@ IF v-ack-master = YES THEN DO:
                NO-LOCK
                BREAK BY b-oe-ord.company
                      BY b-oe-ord.cust-no:
-             
+
                IF FIRST-OF(b-oe-ord.cust-no) THEN DO:
-       
+
                   FIND FIRST sys-ctrl-shipto WHERE
                        sys-ctrl-shipto.company = cocode AND
                        sys-ctrl-shipto.NAME = "ACKHEAD" AND
@@ -2640,7 +2659,7 @@ IF v-ack-master = YES THEN DO:
                        sys-ctrl-shipto.cust-vend-no = b-oe-ord.cust-no AND
                        sys-ctrl-shipto.char-fld > ''
                        NO-LOCK NO-ERROR.
-       
+
                   IF AVAIL sys-ctrl-shipto THEN
                   DO:
                      RUN SetOEAckForm (sys-ctrl-shipto.char-fld).
@@ -2651,7 +2670,7 @@ IF v-ack-master = YES THEN DO:
                      RUN SetOEAckForm (vcDefaultForm).
                      v-print-fmt = vcDefaultForm.
                   END.
-       
+
                   RUN SetGlobalVariables(b-oe-ord.ord-no).
                   RUN run-report(b-oe-ord.cust-no, TRUE).
                   RUN GenerateEmail(b-oe-ord.cust-no,b-oe-ord.ord-no).
@@ -2690,7 +2709,7 @@ PROCEDURE output-to-port :
 ------------------------------------------------------------------------------*/
 
  RUN custom/d-print.w (list-name).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2727,7 +2746,7 @@ PROCEDURE output-to-screen :
   END.
   ELSE
      RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2805,7 +2824,7 @@ FOR EACH oe-ord
    report.term-id = v-term
    report.rec-id  = RECID(oe-ord)
    report.key-01 = STRING(oe-ord.ack-prnt).
- 
+
 END.
 
 {sys/inc/outprint.i VALUE(lines-per-page)}
@@ -2819,7 +2838,12 @@ ASSIGN
 IF IS-xprint-form THEN DO:
    CASE rd-dest:
        WHEN 1 THEN PUT  "<PRINTER?>".
-       WHEN 2 THEN PUT "<PREVIEW>".        
+       WHEN 2 THEN do:
+           IF NOT lBussFormModle THEN
+            PUT "<PREVIEW><MODAL=NO>". 
+           ELSE
+            PUT "<PREVIEW>".        
+       END.
        WHEN 4 THEN DO:
              ls-fax-file = "c:\tmp\fx" + STRING(TIME) + ".tif".
              PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
@@ -2827,10 +2851,10 @@ IF IS-xprint-form THEN DO:
        WHEN 5 THEN DO:
            IF TG_preview THEN PUT "<PREVIEW>". ELSE PUT "<PRINT=NO>".
             IF LOOKUP(v-print-fmt,"Century,Unipak,Axis,Soule,SouleUOM,APC,Perform,Fibrex,Allwest,Simkins,HOPX,Carded") > 0 THEN
-                PUT "<FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(120)".
+                PUT "<FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE IF LOOKUP(v-print-fmt,"Frankstn,3CPack") > 0 THEN /* task 07211402 */
-                 PUT "<PDF-LEFT=2mm><PDF-TOP=5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
-            ELSE PUT "<PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
+                 PUT "<PDF-LEFT=2mm><PDF-TOP=5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+            ELSE PUT "<PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
        END.
    END CASE.
    PUT "</PROGRESS>".
@@ -2851,7 +2875,7 @@ OUTPUT CLOSE.
 FOR EACH report WHERE report.term-id EQ v-term-id:
    FIND oe-ord WHERE RECID(oe-ord) EQ report.rec-id.
    IF STRING(oe-ord.ack-prnt) <> report.key-01 AND oe-ord.ack-prnt THEN oe-ord.ack-prnt-date = TODAY.
-     
+
   DELETE report.
 END.
 
@@ -2912,12 +2936,12 @@ PROCEDURE SetAckMstForm :
    v-print-fmt = icPrintFormat.
 
    CASE icPrintFormat:
-       
+
        WHEN "3CPack" THEN ASSIGN v-program = "oe/rep/ackm3cpk.p" is-xprint-form = YES lines-per-page = 65.
        OTHERWISE ASSIGN v-program = "oe/rep/ackm3cpk.p" is-xprint-form = YES lines-per-page = 65.
 
    END.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2998,7 +3022,7 @@ PROCEDURE SetOEAckForm :
        OTHERWISE ASSIGN v-program = "oe/rep/ackasi.p" is-xprint-form = NO lines-per-page = 55.
 
    END.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3013,7 +3037,7 @@ PROCEDURE SetShipToToggle :
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN tb_sch-rel tb_act-rel.
-        
+
         IF LOOKUP(v-print-fmt,"ContSvc,Soule,SouleUOM") = 0 THEN DO:
             IF tb_sch-rel OR tb_act-rel THEN
                 tb_ship-to:SENSITIVE = YES.
@@ -3053,11 +3077,11 @@ PROCEDURE show-param :
   DEF VAR parm-lbl-list AS cha NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
   DEF VAR lv-label AS cha.
-  
+
   lv-frame-hdl = FRAME {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
   lv-field-hdl = lv-group-hdl:FIRST-CHILD .
-  
+
   DO WHILE TRUE:
      IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
      IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
@@ -3085,24 +3109,24 @@ PROCEDURE show-param :
   PUT SPACE(28)
       "< Selection Parameters >"
       SKIP(1).
-  
+
   DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
     IF ENTRY(i,parm-fld-list) NE "" OR
        entry(i,parm-lbl-list) NE "" THEN DO:
-       
+
       lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
                  trim(ENTRY(i,parm-lbl-list)) + ":".
-                 
+
       PUT lv-label FORMAT "x(35)" AT 5
           SPACE(1)
           TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
           SKIP.              
     END.
   END.
- 
+
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
   PAGE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -174,6 +174,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        filename:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "save".
@@ -188,7 +198,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -250,13 +260,13 @@ DO:
 
 
   session:set-wait-state("general").
-       
+
   run run-report. 
 
   session:set-wait-state("").
   message "Mail Merge File Generation Is Completed. " view-as alert-box.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
- 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -283,7 +293,7 @@ DO:
   IF NOT sel-ok THEN
   RETURN NO-APPLY.
   {&SELF-NAME}:SCREEN-VALUE = selected-name.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -360,9 +370,9 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-               
+
   RUN enable_UI.
-  
+
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -423,7 +433,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -434,9 +444,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -455,7 +465,7 @@ PROCEDURE output-to-label :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
      SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -480,7 +490,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
      SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -491,7 +501,7 @@ PROCEDURE output-to-printer :
                             INPUT 3, INPUT 0, INPUT 0, INPUT 0, OUTPUT result).    /* portrait */
   else RUN 'adecomm/_osprint.p' (INPUT ?, INPUT list-name,  
                             INPUT 3, INPUT 2, INPUT 0, INPUT 0, OUTPUT result).  /* landscape */
-                          
+
 
 END PROCEDURE.
 
@@ -563,17 +573,17 @@ form
       v-lbl-1[4] at 3 v-lbl-2[4] at 45 v-lbl-3[4] at 88 skip
       v-lbl-1[5] at 3 v-lbl-2[5] at 45 v-lbl-3[5] at 88 skip
       with width 130 no-box no-label stream-io down frame lbl.
-      
+
 assign v-start-compress = ""
        v-end-compress = "".
 
  output stream s-mail to value(filename) page-size 0.
-   
+
    /*if  tbMailMrge and contact.maillist  then  */
    do:
       find first maillist where maillist.list-name = ls-mail-list no-lock no-error.
       if not avail maillist then return.
-      
+
       for each mailcont of maillist no-lock,
           each contact no-lock where recid(contact) = mailcont.contact-rec 
                                /*  and contact.company eq selected-company
@@ -599,9 +609,9 @@ assign v-start-compress = ""
                   "country" v-delim skip.
               assign print-head = no.
           end.
-              
+
           v-cust-name = if avail cust then cust.name else "".
-       
+
           put stream s-mail unformatted
               trim(contact.sirname) v-delim
               trim(mailcont.first-name) v-delim
@@ -624,9 +634,9 @@ assign v-start-compress = ""
                                         string(note.note_date,"99/99/9999") + " " +
                                         string(note.note_time,"HH:MM:SS AM").
       end.  /* for each */
-   
+
    end.  /* tbmailmrge */
-   
+
    output stream s-mail close.
 
    return.

@@ -171,6 +171,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -179,7 +189,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -242,7 +252,7 @@ DO:
   MESSAGE "Are you sure you want to" TRIM(c-win:TITLE) + "?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -354,9 +364,9 @@ FOR EACH itemfg NO-LOCK WHERE itemfg.company = g_company
 
     STATUS DEFAULT "Processing.... FG ITEM: "         + TRIM(itemfg.i-no) +
         "  Estimage: " + TRIM(eb.est-no).  
-   
+
 END.
-      
+
 STATUS DEFAULT "".
 
 SESSION:SET-WAIT-STATE("").
@@ -364,7 +374,7 @@ SESSION:SET-WAIT-STATE("").
 MESSAGE /*TRIM(c-win:TITLE) +*/ " Process Is Completed." VIEW-AS ALERT-BOX.
 
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

@@ -43,7 +43,7 @@ DEF VAR is-xprint-form AS LOG NO-UNDO.
 assign
  cocode = gcompany
  locode = gloc.
- 
+
 {aprep\r-1099m.i NEW}
 {custom/xprint.i}
 
@@ -51,6 +51,17 @@ def buffer xperiod for period.
 
 def var v-num-per like company.num-per no-undo.
 DEF VAR v-print-fmt AS CHAR NO-UNDO.
+
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -258,6 +269,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -286,7 +307,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -529,14 +550,14 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
   FIND FIRST company WHERE company.company EQ cocode NO-LOCK NO-ERROR.
   IF AVAIL company THEN v-num-per = company.num-per.
 
   ASSIGN
    begin_date = ?
    end_date   = ?.
-   
+
   FIND FIRST sys-ctrl WHERE
        sys-ctrl.company EQ cocode AND
        sys-ctrl.name    EQ "1099MISC"
@@ -562,7 +583,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -585,9 +606,9 @@ PROCEDURE calc-total-proc :
    DEFINE INPUT PARAMETER ip-last-of-vend AS LOG NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       iop-vend-tot = iop-vend-tot + (ap-payl.amt-paid - ap-payl.amt-disc).
-            
+
       if ip-last-of-vend then do:
         if iop-vend-tot ne 0 or tb_zero-ven:CHECKED then
         DO:
@@ -603,7 +624,7 @@ PROCEDURE calc-total-proc :
                  tt-1099-m.vend-total = iop-vend-tot.
           RELEASE tt-1099-m.
         END.
-              
+
         iop-vend-tot  = 0.
       END.
    END.
@@ -720,7 +741,12 @@ DEF VAR v-vend-tot AS DEC NO-UNDO.
   DO:
     CASE rd-dest:
           WHEN 1 THEN PUT  "<PRINTER?>".
-          WHEN 2 THEN PUT "<PREVIEW>".
+          WHEN 2 THEN do:
+              IF NOT lBussFormModle THEN
+                PUT "<PREVIEW><MODAL=NO>". 
+              ELSE
+                PUT "<PREVIEW>".        
+          END.
     END CASE.
     PUT "</PROGRESS>".
   END.
@@ -774,7 +800,7 @@ DEF VAR v-vend-tot AS DEC NO-UNDO.
               ap-payl.memo eq no
               no-lock
          break by vend.vend-no:
-    
+
          RUN calc-total-proc(INPUT-OUTPUT v-vend-tot,
                              INPUT LAST-OF(vend.vend-no)).
      end.

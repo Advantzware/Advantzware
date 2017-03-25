@@ -212,6 +212,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -220,7 +230,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -296,22 +306,22 @@ DO:
     ASSIGN
      end_i-no              = ""
      end_i-no:SCREEN-VALUE = end_i-no.
-   
+
   else
   if end_i-no eq "" then do:
     message "ERROR: The new FG# cannot be spaces" view-as alert-box error.
     return no-apply.
   end.
-    
+
   else
   if can-find(first itemfg
               where itemfg.company eq cocode
                 and itemfg.i-no    eq end_i-no) then do:
     v-process = no.
-    
+
     message "The new FG# already exists, merge old FG# into new FG#?"
             view-as alert-box question button yes-no update v-process.
-            
+
     if not v-process then return no-apply.
   end.
 
@@ -430,12 +440,12 @@ def var v-item      like itemfg.i-no init "".
 def var v-new-item  like itemfg.i-no.
 def var v-char      as   char.
 
-  
+
 assign
  v-item     = begin_i-no
  v-new-item = end_i-no
  v-process  = no.
-   
+
 if v-item eq "/" then
   message "Are you sure you wish to update each FG Item# with its Estimate#?"
       view-as alert-box question button yes-no
@@ -462,15 +472,15 @@ IF v-item BEGINS "!"                            AND
       view-as alert-box question button yes-no
       update v-process.
 end.
-          
+
 else
   message "Are you sure you want change FG Item#" trim(caps(v-item))
           "to" trim((v-new-item)) + "?"       
       view-as alert-box question button yes-no update v-process.
-          
+
 if v-process then do:
   session:set-wait-state("General").
-  
+
   if index("/*!",v-item) gt 0 then
   for each itemfg
       where itemfg.company           eq cocode
@@ -484,13 +494,13 @@ if v-process then do:
       no-lock:
 
     STATUS DEFAULT "Processing FG Item#: " + TRIM(itemfg.i-no).
-      
+
     if v-item eq "*" then
     do i = 1 to length(trim(itemfg.i-no)):
       v-char = substr(itemfg.i-no,i,1).
-        
+
       if v-char eq "," then v-char = "-".
-        
+
       substr(v-new-item,i,1) = v-char.
     end.
 
@@ -499,7 +509,7 @@ if v-process then do:
 
     run fg/updfgitm.p (recid(itemfg), if v-item eq "!" then "!" else v-new-item).
   end.
-  
+
   else
   for each itemfg
       where itemfg.company eq cocode
@@ -507,21 +517,21 @@ if v-process then do:
       no-lock:
 
     STATUS DEFAULT "Processing FG Item#: " + TRIM(itemfg.i-no).
-    
+
     run fg/updfgitm.p (recid(itemfg), v-new-item).
   end.
 
   STATUS DEFAULT "".
-    
+
   session:set-wait-state("").
-    
+
   message trim(c-win:title) + " Process Complete..." view-as alert-box.
-    
+
   apply "close" to this-procedure.
 end.
 
 return no-apply.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

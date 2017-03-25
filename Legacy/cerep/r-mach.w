@@ -272,6 +272,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_dept:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -316,7 +326,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -393,7 +403,7 @@ DO:
     END.
 
   assign rd-dest.
-       
+
   run run-report. 
 
   CASE rd-dest:
@@ -715,7 +725,7 @@ PROCEDURE output-to-printer :
  /*    DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -726,7 +736,7 @@ PROCEDURE output-to-printer :
                             INPUT 3, INPUT 3, INPUT 0, INPUT 0, OUTPUT result).
                                     /* use-dialog(1) and landscape(2) */
    */
- 
+
    RUN custom/prntproc.p (list-name,int(lv-font-no),lv-ornt).
 END PROCEDURE.
 
@@ -992,10 +1002,10 @@ END.
       END.
 
       if sho-stds then do:
-        
+
         for each mstd of mach with frame mstd:
           clear frame mstd all no-pause.
-          
+
           /*if line-counter gt 40 then page.*/
           display skip(1).
           find first dept
@@ -1063,13 +1073,13 @@ END.
                       mmty.vals[140 + i] when mmty.vals[140 + i] ne 0
                       mmty.vals[150 + i] when mmty.vals[150 + i] ne 0.
             end.
-            
+
             down.
           end.
-          
+
           for each mmtx of mstd with frame mmtx :
           /*  clear frame mmtx all no-pause. */
-        
+
             if line-counter gt 55 then page.
 
             lv-need-display = IF mmtx.page-no = 0 AND mmtx.across-no = 0 THEN YES ELSE NO.
@@ -1114,7 +1124,7 @@ END.
                         mmtx.vals[140 + i]
                         mmtx.vals[150 + i]
                     with frame mmtx.
-                
+
               end.
             /*  run sys/ref/mach-1.p (recid(mstd)). */
             end.
@@ -1154,7 +1164,7 @@ END.
                         format ">>9.99"   @ mmtx.vals[150 + i]
                   with frame mmtx.
             end.
-           
+
             IF lv-need-display OR mmtx.mr-run THEN down.      
           end.
           PUT SKIP(2).
@@ -1174,7 +1184,7 @@ END.
 
     /* gdm - 10130802 */
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-  
+
     SESSION:SET-WAIT-STATE ("general").
 
 /* END ---------------------------------- copr. 1992  Advanced Software, Inc. */
@@ -1275,16 +1285,16 @@ format
   " Tandem MR/Plate :" to 54 mach.Tan-MRP   " /Fountn:" mach.tan-MRF
   skip(2)
   with frame mach overlay no-labels stream-io width 81.
-  
+
 
 assign
  str-tit2 = "Machines List"
  str-tit2 = fill(" ",int((56 - length(trim(str-tit2))) / 2)) + trim(str-tit2)
- 
+
  head[1]  = " =============================  R  A  T  E  S  =============================  "
  head[2]  = "  ==== LIMITS     Min       Max ==="
  head[3]  = "==========  Printing Press  =========" 
-    
+
  fmac     = begin_mach
  tmac     = end_mach
  fdep     = begin_dept
@@ -1298,7 +1308,7 @@ assign
 if td-show-parm then run show-param.
 
 display str-tit with frame r-top.
- 
+
 for each mach
     where mach.company  eq cocode
       and mach.loc      eq locode
@@ -1307,11 +1317,11 @@ for each mach
       and mach.dept[1]  ge fdep
       and mach.dept[1]  le tdep
     no-lock,
-    
+
     first company
     where company.company eq mach.company
     no-lock,
-    
+
     first loc
     where loc.company eq mach.company
       and loc.loc     eq mach.loc
@@ -1331,11 +1341,11 @@ for each mach
           and mstd.m-code  eq mach.m-code
         no-lock
         with frame mstd: 
-        
+
       clear frame mstd all no-pause.
-      
+
       display skip(1).
-      
+
       find first dept
           where dept.company eq cocode
             and dept.code    eq mstd.dept
@@ -1344,52 +1354,52 @@ for each mach
           where style.company eq cocode
             and style.style   eq mstd.style
           no-lock no-error.
-          
+
       display mstd.m-code
               mach.m-dscr
               mstd.dept
               dept.dscr   when avail dept
               mstd.style
               style.dscr when avail style.
-              
+
       find std-code where std-code.code eq string(mr-x,"99") no-lock no-error.
-      
+
       display mr-x std-code.dscr when avail std-code @ mx-dscr[1].
-      
+
       find std-code where std-code.code eq string(mr-y,"99") no-lock no-error.
-      
+
       display mr-y std-code.dscr when avail std-code @ mx-dscr[2].
-      
+
       find std-code where std-code.code eq string(rs-x,"99") no-lock no-error.
-      
+
       display rs-x std-code.dscr when avail std-code @ mx-dscr[3].
-      
+
       find std-code where std-code.code eq string(rs-y,"99") no-lock no-error.
-      
+
       display rs-y std-code.dscr when avail std-code @ mx-dscr[4].
-      
+
       find std-code where std-code.code eq string(sp-x,"99") no-lock no-error.
-      
+
       display sp-x std-code.dscr when avail std-code @ sp-dscr[1].
-      
+
       find std-code where std-code.code eq string(sp-y,"99") no-lock no-error.
-      
+
       display sp-y std-code.dscr when avail std-code @ sp-dscr[2].
 
       for each mmty of mstd with frame mmty:
         clear frame mmty all no-pause.
-        
+
         display mmty.m-code
                 mach.m-dscr
                 mmty.style
                 style.dscr  when avail style
                 mmty.c-title
                 mmty.rtit[1 for 15].
-                
+
         do i = 1 to 15:
           display mmty.row-value[i] when mmty.row-value[i] ne 0.
         end.
-        
+
         do i = 1 to 10:
           display mmty.col-value[i] when mmty.col-value[i] ne 0
                   mmty.vals[10  + i] when mmty.vals[10  + i] ne 0
@@ -1408,13 +1418,13 @@ for each mach
                   mmty.vals[140 + i] when mmty.vals[140 + i] ne 0
                   mmty.vals[150 + i] when mmty.vals[150 + i] ne 0.
         end.
-            
+
         down.
       end.
-   
+
       for each mmtx of mstd with frame mmtx down:
         clear frame mmtx all no-pause.
-        
+
         display mmtx.m-code
                 mach.m-dscr
                 mmtx.style
@@ -1423,12 +1433,12 @@ for each mach
                 "SPOIL" when mr-run @ mmtx.mr-run
                 mmtx.c-title
                 mmtx.rtit[1 for 15] with frame mmtx.
-                
+
         do i = 1 to 15:
           display mmtx.row-value[i] when mmtx.row-value[i] ne 0
               with frame mmtx.
         end.
-        
+
         /* The following is for RUN matrix's only */
         if not mr-run then do:
           do i = 1 to 10:
@@ -1449,11 +1459,11 @@ for each mach
                     mmtx.vals[150 + i]
                 with frame mmtx.
           end.
-          
+
 
           run sys/ref/mach-1.p (recid(mstd)).
         end.
-        
+
         else              /* This is for RUN SPOILAGE matrix's only */
         do i = 1 to 10:
           display mmtx.col-value[i] when mmtx.col-value[i] ne 0
@@ -1499,7 +1509,7 @@ for each mach
 end.
 
 /* END ---------------------------------- copr. 1992  Advanced Software, Inc. */
-   
+
 end procedure.
 
 */
@@ -1524,11 +1534,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1556,23 +1566,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

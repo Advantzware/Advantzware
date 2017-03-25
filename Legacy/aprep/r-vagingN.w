@@ -92,9 +92,9 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "CURRENCY,VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,DUE DATE,AMOUNT,#DAYS" 
-                           
+
        cFieldListToSelect = "curr,vend,vend-name,phone,type,term,inv,date,due-date,amt,day" 
-                           
+
        cFieldLength = "8,10,30,15,6,17,12,8,8,17,6" 
        cFieldType = "c,c,c,c,c,c,c,c,c,i,i" 
     .
@@ -474,6 +474,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        as_of_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -582,7 +592,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -754,7 +764,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -971,7 +981,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -979,7 +989,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -1022,7 +1032,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1130,13 +1140,13 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-       
+
   ASSIGN period-days-1 = 30
          period-days-2 = 60
          period-days-3 = 90
@@ -1144,9 +1154,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             .
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
-     
+
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
      RUN DisplaySelectionList2.
@@ -1201,7 +1211,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cListContents AS CHARACTER NO-UNDO.
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1227,7 +1237,7 @@ PROCEDURE DisplaySelectionList :
   DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) NE NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1240,7 +1250,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents EQ "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1248,9 +1258,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1271,7 +1281,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) NE NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1281,7 +1291,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents EQ "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1289,9 +1299,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1357,7 +1367,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList NO-LOCK WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1366,7 +1376,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1543,7 +1553,7 @@ SESSION:SET-WAIT-STATE ("general").
 ASSIGN 
  str-tit2 = c-win:TITLE 
  {sys/inc/ctrtext.i str-tit2 112}
- 
+
  v-s-vend  = begin_vend
  v-e-vend  = end_vend
  v-s-type  = begin_type
@@ -1583,7 +1593,7 @@ DEFINE VARIABLE cslist AS CHARACTER NO-UNDO.
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
  END.
 
- 
+
      ASSIGN
      str-tit4 = str-tit4 +  "          0 -"  + STRING(period-days-1,">>>9") + FILL(" ",8) +   
                       STRING(period-days-1 + 1) + " - " + STRING(period-days-2,">>>9") + FILL(" ",8) +
@@ -1635,7 +1645,7 @@ VIEW FRAME r-top.
   FOR EACH company NO-LOCK WHERE
        company.company GE begin_comp AND
        company.company LE end_comp,
-        
+
     EACH vend NO-LOCK
       WHERE vend.company EQ company.company
         AND vend.vend-no GE v-s-vend
@@ -1658,7 +1668,7 @@ VIEW FRAME r-top.
           AND ap-inv.posted    EQ YES
           AND (ap-inv.inv-date LE as_of_date OR NOT v-idate)
         USE-INDEX ap-inv ,
-    
+
         FIRST ap-ledger NO-LOCK
         WHERE ap-ledger.company  EQ company.company
           AND ap-ledger.vend-no  EQ ap-inv.vend-no
@@ -1682,7 +1692,7 @@ VIEW FRAME r-top.
 
   IF tb_excel THEN DO:
      OUTPUT STREAM excel TO VALUE(fi_file).
-   
+
      excelheader = excelheader
                 /* + "VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,AMOUNT,#DAYS,"*/
                  + "0-" + STRING(period-days-1) + "," + STRING(period-days-1 + 1) + "-" 
@@ -1701,27 +1711,27 @@ VIEW FRAME r-top.
      {custom/statusMsg.i " 'Processing Vendor#  '  + string(vend.vend-no) "}
     IF FIRST-OF(tt-vend.curr-code) THEN DO:
       lv-page-break = "Currency: " + TRIM(tt-vend.curr-code).
-     
+
       IF ll-mult-curr OR FIRST(tt-vend.curr-code) THEN PAGE.
     END.
-    
+
     {ap/ap-agedN.i}
 
     IF LAST-OF(tt-vend.curr-code) THEN DO:
        IF ll-mult-curr THEN DO:
           PUT SKIP(2).
-         
+
           ASSIGN
            lv-f-bot-hdr = " CURR TOTALS"
            curr-t[6]    = 0.
-         
+
           DO i = 1 TO 5:
             curr-t[6] = curr-t[6] + curr-t[i].
           END.
-         
+
           VIEW FRAME f-bot.
           DOWN.
-         
+
           DISPLAY SPACE(10) lv-f-bot-hdr
                   curr-t[1]
                   curr-t[2]
@@ -1730,23 +1740,23 @@ VIEW FRAME r-top.
                   curr-t[5]
                   curr-t[6]
                   SKIP
-            
+
               WITH FRAME bot1 NO-BOX NO-LABELS NO-ATTR-SPACE STREAM-IO WIDTH 200.
-         
+
           DISPLAY "PERCENTAGE COMPOSITION" SPACE(2)
                   (curr-t[1] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
                   (curr-t[2] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
                   (curr-t[3] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
                   (curr-t[4] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
                   (curr-t[5] / t2) * 100 FORMAT "->>>>>>>>>>9.99%"
-            
+
               WITH FRAME bot2 STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-ATTR-SPACE.
-         
+
           IF tb_excel THEN
           DO:
             PUT STREAM excel UNFORMATTED
                 SKIP(1).
-         
+
             IF ll-mult-curr THEN
                PUT STREAM excel UNFORMATTED
                    '"' "" '",'.
@@ -1758,9 +1768,9 @@ VIEW FRAME r-top.
                         + ",Total Payables,".
 
                  PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader,',','","') '"' SKIP.
-         
+
             PUT STREAM excel UNFORMATTED
-               
+
                 '"' ""                                  '",'
                 '"' "CURR TOTALS"                       '",'
                 '"' ""                                  '",'
@@ -1771,13 +1781,13 @@ VIEW FRAME r-top.
                 '"' STRING(curr-t[5],"$->>>,>>>,>>9.99") '",'
                 '"' STRING(curr-t[6],"$->>>,>>>,>>9.99") '",'
                 SKIP.
-         
+
             IF ll-mult-curr THEN
                PUT STREAM excel UNFORMATTED
                    '"' "" '",'.
-         
+
             PUT STREAM excel UNFORMATTED
-                
+
                 '"' "PERCENTAGE COMPOSITION"            '",'
                 '"' ""                                  '",'
                 '"' STRING((curr-t[1] / t2) * 100,"->>>>>>>>>>9.99%") '",'
@@ -1788,7 +1798,7 @@ VIEW FRAME r-top.
                 SKIP(1).
           END.
        END.
-      
+
        DO i = 1 TO 5:
          grand-t[i] = grand-t[i] + curr-t[i].
        END.
@@ -1806,7 +1816,7 @@ VIEW FRAME r-top.
   END.
 
   PUT SKIP(2).
-  
+
   ASSIGN
    lv-f-bot-hdr = "GRAND TOTALS"
    grand-t[6]   = 0.
@@ -1814,7 +1824,7 @@ VIEW FRAME r-top.
   DO i = 1 TO 5:
      grand-t[6] = grand-t[6] + grand-t[i].
   END.
-  
+
   VIEW FRAME f-bot.
   DOWN.
 
@@ -1826,7 +1836,7 @@ VIEW FRAME r-top.
           grand-t[5]
           grand-t[6]
           skip
-          
+
       WITH FRAME bot3 NO-BOX NO-LABELS NO-ATTR-SPACE STREAM-IO WIDTH 200.
 
   DISPLAY "PERCENTAGE COMPOSITION" SPACE(2)
@@ -1835,7 +1845,7 @@ VIEW FRAME r-top.
           (grand-t[3] / t3) * 100 FORMAT "->>>>>>>>>>9.99%"
           (grand-t[4] / t3) * 100 FORMAT "->>>>>>>>>>9.99%"
           (grand-t[5] / t3) * 100 FORMAT "->>>>>>>>>>9.99%"
-          
+
       WITH FRAME b4 STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-ATTR-SPACE.
 
   IF tb_excel THEN
@@ -1848,7 +1858,7 @@ VIEW FRAME r-top.
               '"' "" '",'.*/
 
        PUT STREAM excel UNFORMATTED
-           
+
            '"' ""                                  '",' 
            '"' "GRAND TOTALS"                      '",'
            '"' ""                                  '",'
@@ -1868,7 +1878,7 @@ VIEW FRAME r-top.
               '"' "" '",'.*/
 
        PUT STREAM excel UNFORMATTED
-           
+
            '"' ""                                  '",'
            '"' "PERCENTAGE COMPOSITION"            '",'
            '"' ""                                  '",'
@@ -1912,11 +1922,11 @@ PROCEDURE show-param :
   DEFINE VARIABLE parm-lbl-list AS CHARACTER NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE lv-label AS CHARACTER.
-  
+
   lv-frame-hdl = FRAME {&FRAME-NAME}:HANDLE.
   lv-group-hdl = lv-frame-hdl:FIRST-CHILD.
   lv-field-hdl = lv-group-hdl:FIRST-CHILD .
-  
+
   DO WHILE TRUE:
      IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
      IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") GT 0
@@ -1944,25 +1954,25 @@ PROCEDURE show-param :
   PUT SPACE(28)
       "< Selection Parameters >"
       SKIP(1).
-  
+
   DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
     IF ENTRY(i,parm-fld-list) NE "" OR
        ENTRY(i,parm-lbl-list) NE "" THEN DO:
-       
+
       lv-label = FILL(" ",34 - LENGTH(TRIM(ENTRY(i,parm-lbl-list)))) +
                  TRIM(ENTRY(i,parm-lbl-list)) + ":".
-                 
+
       PUT lv-label FORMAT "x(35)" AT 5
           SPACE(1)
           TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
           SKIP.              
     END.
   END.
- 
+
   PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
   PAGE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

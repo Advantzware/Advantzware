@@ -49,7 +49,7 @@ CREATE WIDGET-POOL.
 assign
  cocode = gcompany
  locode = gloc.
- 
+
 def var v-process as log no-undo.
 
 /* _UIB-CODE-BLOCK-END */
@@ -250,6 +250,16 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN lbl_del-neg IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN lbl_del-zer IN FRAME FRAME-A
@@ -264,7 +274,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -314,14 +324,14 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   v-process = NO.
 
   MESSAGE "Are you sure you want to" TRIM(c-win:TITLE) +
           " within the selection parameters?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE v-process.
-  
+
   IF g_batch THEN tb_batch = YES.
   IF tb_batch THEN DO:
      RUN run-batch.
@@ -442,7 +452,7 @@ PROCEDURE run-process :
 /* ------------------------------------------------ util/fg-mkbin.p 05/97 JLF */
 /* finished goods bin rebuild program                                         */
 /* -------------------------------------------------------------------------- */
- 
+
 DEF VAR fcus        LIKE cust.cust-no.
 DEF VAR tcus        LIKE fcus               INIT "zzzzzzzz".
 DEF VAR fitm        LIKE itemfg.i-no.
@@ -462,7 +472,7 @@ DO WITH FRAME {&FRAME-NAME}:
    tb_del-neg
    tbIncludeInactive.
 END.
-  
+
 ASSIGN
  fitm = begin_i-no
  titm = end_i-no
@@ -474,7 +484,7 @@ ASSIGN
 
 
 SESSION:SET-WAIT-STATE("General").
-  
+
 FOR EACH itemfg
     WHERE itemfg.company    EQ cocode
       AND itemfg.cust-no    GE fcus
@@ -512,9 +522,9 @@ FOR EACH itemfg
       WHERE fg-bin.company EQ cocode
         AND fg-bin.i-no    EQ itemfg.i-no
         AND fg-bin.qty     LT 0:
-      
+
     RUN fg/cre-pchr.p (ROWID(fg-bin), "C", 0, 0).
-        
+
     DELETE fg-bin.
   END.
 
@@ -526,9 +536,9 @@ STATUS DEFAULT "".
 SESSION:SET-WAIT-STATE("General").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Is Completed." VIEW-AS ALERT-BOX.
-           
+
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

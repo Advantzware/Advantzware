@@ -202,6 +202,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -210,7 +220,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -247,7 +257,7 @@ END.
 ON LEAVE OF begin_curr IN FRAME FRAME-A /* Old Currency Code */
 DO:
   assign {&self-name}.
-  
+
   {&self-name}:screen-value = caps({&self-name}).
 END.
 
@@ -275,12 +285,12 @@ DO:
   END.
 
   v-process  = NO.
-   
+
   MESSAGE "Are you sure you want to " +
           TRIM(c-win:TITLE) + " for the selected parameters?"   
       VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
       UPDATE v-process.
-        
+
   IF v-process THEN RUN run-process.
 END.
 
@@ -293,7 +303,7 @@ END.
 ON LEAVE OF end_curr IN FRAME FRAME-A /* New Currency Code */
 DO:
   assign {&self-name}.
-  
+
   {&self-name}:screen-value = caps({&self-name}).
 END.
 
@@ -389,7 +399,7 @@ PROCEDURE run-process :
 /* -------------------------------------------------------------------------- */
 
 SESSION:SET-WAIT-STATE("General").
-    
+
 FOR EACH cust
     WHERE cust.company   EQ cocode
       AND cust.curr-code MATCHES begin_curr
@@ -400,9 +410,9 @@ END.
 SESSION:SET-WAIT-STATE("").
 
 MESSAGE TRIM(c-win:TITLE) + " Process Complete..." VIEW-AS ALERT-BOX.
-    
+
 APPLY "close" TO THIS-PROCEDURE.
-  
+
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 
 END PROCEDURE.

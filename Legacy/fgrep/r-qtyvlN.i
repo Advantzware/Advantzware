@@ -1,3 +1,4 @@
+DEFINE VARIABLE iCommited AS INTEGER.
 EMPTY TEMP-TABLE tt-cust.
 
 FOR EACH cust
@@ -195,6 +196,7 @@ FOR EACH tt-cust,
                NO-LOCK 
                BY itemfg.cust-no
                BY itemfg.i-no:
+
 
         RUN fg/fgSlsRep.p (INPUT itemfg.company,
             INPUT itemfg.cust-no,
@@ -414,6 +416,13 @@ FOR EACH tt-cust,
                          ASSIGN v-sell-price = (oe-ordl.t-price / oe-ordl.qty * 1000) .
                      ELSE 
                          ASSIGN v-sell-price = itemfg.sell-price .
+                
+                     FIND  oe-rel WHERE oe-rel.company EQ cocode 
+                           AND oe-rel.ord-no  EQ oe-ordl.ord-no 
+                           AND oe-rel.i-no    EQ oe-ordl.i-no 
+                           AND oe-rel.line    EQ oe-ordl.LINE NO-LOCK NO-ERROR.
+                     IF AVAILABLE oe-rel THEN iCommited = oe-rel.tot-qty.
+                       
 
              ASSIGN cDisplay = ""
                     cTmpField = ""
@@ -434,7 +443,10 @@ FOR EACH tt-cust,
                           WHEN "qty-oh"     THEN cVarValue = STRING(v-qty-job,"->>>,>>>,>>9") .                                                                            
                           WHEN "rcpt-dt"    THEN cVarValue = IF NOT(zbal AND v-qty-onh = 0) AND NOT(v-qty-job = 0) AND trans-date NE ? THEN STRING(trans-date) ELSE "" . 
                           WHEN "sel-prc"    THEN cVarValue = STRING(v-sell-price,">>,>>>,>>9.99") .   
-                          WHEN "ttl-val"    THEN cVarValue = STRING(v-ext-job,"->>>,>>>,>>9.99") .                                                                               
+                          WHEN "ttl-val"    THEN cVarValue = STRING(v-ext-job,"->>>,>>>,>>9.99") .
+                          WHEN "commtd"     THEN cVarValue = STRING(iCommited,"->>,>>>,>>9") .  
+                          WHEN "qty-case"   THEN cVarValue = STRING(itemfg.case-count,"->>,>>9") .  
+
                      END CASE.
                        
                      cExcelVarValue = cVarValue.
@@ -538,7 +550,9 @@ FOR EACH tt-cust,
                           WHEN "qty-oh"     THEN cVarValue = STRING(v-tot-onh,"->>>,>>>,>>9") .                                                                            
                           WHEN "rcpt-dt"    THEN cVarValue = "" . 
                           WHEN "sel-prc"    THEN cVarValue = "" .   
-                          WHEN "ttl-val"    THEN cVarValue = STRING(v-tot-ext,"->>>,>>>,>>9.99") .                                                                               
+                          WHEN "ttl-val"    THEN cVarValue = STRING(v-tot-ext,"->>>,>>>,>>9.99") .
+                          WHEN "commtd"     THEN cVarValue = "" .  
+                          WHEN "qty-case"   THEN cVarValue = "" . 
                      END CASE.
                        
                      cExcelVarValue = cVarValue.
@@ -609,7 +623,9 @@ FOR EACH tt-cust,
                           WHEN "qty-oh"     THEN cVarValue = STRING(v-grand-tot-onh,"->>>,>>>,>>9") .                                                                            
                           WHEN "rcpt-dt"    THEN cVarValue = "" . 
                           WHEN "sel-prc"    THEN cVarValue = "" .   
-                          WHEN "ttl-val"    THEN cVarValue = STRING(v-grand-tot-ext,"->>>,>>>,>>9.99") .                                                                               
+                          WHEN "ttl-val"    THEN cVarValue = STRING(v-grand-tot-ext,"->>>,>>>,>>9.99") . 
+                          WHEN "commtd"     THEN cVarValue = "" .  
+                          WHEN "qty-case"   THEN cVarValue = "" . 
                      END CASE.
                        
                      cExcelVarValue = cVarValue.

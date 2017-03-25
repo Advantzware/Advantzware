@@ -17,7 +17,7 @@ RUN getConfiguration.
 {{&viewers}/includes/setFilterFlag.i "print"}
 
 printFile = clientDat + '{&print}/' + ID + '/{&printProgramName}.' +
-             (IF ipExcel THEN 'csv' ELSE 'txt').
+             (IF ipExcel THEN USERID('NoSweat') + '.csv' ELSE 'txt').
 
 IF ipExcel THEN linesPerPageValue = 0.
 

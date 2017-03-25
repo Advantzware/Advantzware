@@ -375,6 +375,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_bank:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -427,7 +437,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -512,7 +522,7 @@ DO:
   END.
 
   RUN GetSelectionList.
- 
+
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
   IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
        EMPTY TEMP-TABLE ttCustList.
@@ -553,10 +563,11 @@ END.
                                   &mail-body="Bank Deposit List"
                                   &mail-file=list-name }
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
-  end case. 
+  end case.
+  SESSION:SET-WAIT-STATE (""). 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -568,7 +579,7 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -609,7 +620,7 @@ DO:
 
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -803,7 +814,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -811,7 +822,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -854,7 +865,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -942,7 +953,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   assign
    begin_date = date(1,1,year(today))
    end_date   = today.
-   
+
   find first bank where bank.company eq gcompany no-lock no-error.
   if avail bank then
     assign
@@ -951,7 +962,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   RUN sys/inc/CustListForm.p ( "AR8",cocode, 
@@ -1057,7 +1068,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'AR8').
-    
+
 
 END PROCEDURE.
 
@@ -1092,7 +1103,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -1118,7 +1129,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1131,7 +1142,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1139,9 +1150,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1162,7 +1173,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1172,7 +1183,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1180,9 +1191,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1250,17 +1261,17 @@ PROCEDURE get-detail-values :
   IF ip-jrnl EQ "CASHR" THEN DO:
      lv-check-no = INT(SUBSTR(ip-dscr,INDEX(ip-dscr," Inv# ") - 10,10)) NO-ERROR.
      IF ERROR-STATUS:ERROR THEN lv-check-no = 0.
-    
+
      lv-inv-no = INT(SUBSTR(ip-dscr,INDEX(ip-dscr," Inv# ") + 6,10)) NO-ERROR.
      IF ERROR-STATUS:ERROR THEN lv-inv-no = 0.
-    
+
      RELEASE ar-inv.
      IF lv-inv-no NE 0 THEN
      FIND FIRST ar-inv NO-LOCK
          WHERE ar-inv.company EQ cocode
            AND ar-inv.inv-no  EQ lv-inv-no
          NO-ERROR.
-    
+
      IF lv-check-no NE 0 THEN
      FOR EACH ar-cash FIELDS(company cust-no c-no) NO-LOCK
          WHERE ar-cash.company  EQ cocode
@@ -1271,13 +1282,13 @@ PROCEDURE get-detail-values :
          WHERE cust.company EQ ar-cash.company
            AND cust.cust-no EQ ar-cash.cust-no
          NO-LOCK:
-    
+
        ASSIGN
         lv-cust-no = ar-cash.cust-no
         lv-name    = cust.name.
-    
+
        IF lv-inv-no EQ 0 OR ip-void THEN lv-amt = ip-amt.
-    
+
        ELSE
        FOR EACH ar-cashl FIELDS(amt-paid)
            WHERE ar-cashl.c-no   EQ ar-cash.c-no
@@ -1321,7 +1332,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1330,7 +1341,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1478,7 +1489,7 @@ SESSION:SET-WAIT-STATE ("general").
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
-   
+
  v-s-date = begin_date
  v-e-date = end_date
  v-s-bank = begin_bank
@@ -1505,13 +1516,13 @@ DEF VAR cslist AS cha NO-UNDO.
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-        
+
         IF LOOKUP(ttRptSelected.TextList, "DAILY TOTAL") <> 0    THEN
             ASSIGN
             str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
             str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
-      
+
  END.
  IF lselected THEN DO:
     FIND FIRST ttCustList WHERE ttCustList.log-fld EQ TRUE NO-ERROR.
@@ -1565,7 +1576,7 @@ FOR EACH ar-cash NO-LOCK
                         WHERE reftable.reftable = "ARCASHLVDDATE"
                           AND reftable.rec_key = ar-cashl.rec_key
                         USE-INDEX rec_key).
-    
+
       IF NOT v-void THEN
         FIND FIRST ar-ledger NO-LOCK
              WHERE ar-ledger.company EQ ar-cash.company
@@ -1582,9 +1593,9 @@ FOR EACH ar-cash NO-LOCK
                AND ar-ledger.tr-date GE v-s-date
                AND ar-ledger.tr-date LE v-e-date
              NO-ERROR.
-    
+
       IF NOT AVAIL ar-ledger THEN NEXT.
-    
+
       CREATE tt-gltrans.
       ASSIGN
         tt-gltrans.company = ar-cash.company
@@ -1648,16 +1659,16 @@ FOR EACH bank
           and tt-gltrans.actnum  eq bank.bank-code
           and tt-gltrans.tr-date eq date-loop
         no-lock
-             
+
         break by tt-gltrans.tr-date
               BY tt-gltrans.trnum
               BY tt-gltrans.tr-dscr:
-           
+
     /*  IF v-frst THEN
       DO:
         display bank.bank-code when v-frst
                 bank.actnum when v-frst
-                       
+
             with frame day-log.
 
         IF tb_excel THEN
@@ -1669,10 +1680,10 @@ FOR EACH bank
 
     /*  IF tb_det THEN DO:
          IF v-frst THEN DOWN WITH FRAME day-log. */
-        
+
          RUN get-detail-values (tt-gltrans.jrnl, tt-gltrans.tr-dscr, tt-gltrans.tr-amt,
                                 tt-gltrans.VOID).
-        
+
          IF lv-amt EQ 0 THEN lv-amt = tt-gltrans.tr-amt.
 
        /*  IF lv-check-no NE 0 THEN DO:
@@ -1682,10 +1693,10 @@ FOR EACH bank
                       "Inv " + TRIM(STRING(lv-inv-no,">>>>>>>")) ELSE "")
                                @ v-tr-num
                    lv-amt      @ tot-daily[2]
-                        
+
                WITH FRAME day-log.
            DOWN WITH FRAME day-log.
-        
+
            IF tb_excel THEN
              PUT STREAM excel UNFORMATTED
                  '"' ""      '",'
@@ -1698,13 +1709,13 @@ FOR EACH bank
                 SKIP.
          END. */
     /*  END. */
-    
+
          ASSIGN cDisplay = ""
             cTmpField = ""
             cVarValue = ""
             cExcelDisplay = ""
             cExcelVarValue = "".
-     
+
      DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
         cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
              CASE cTmpField: 
@@ -1716,15 +1727,15 @@ FOR EACH bank
                   WHEN "ttl"    THEN cVarValue = STRING(lv-amt,"->>,>>>,>>9.99") .
                   WHEN "chk"    THEN cVarValue = IF lv-check-no NE 0 THEN STRING(lv-check-no,">>>>>>>>>>")  ELSE "" .
                   WHEN "inv"    THEN cVarValue = IF lv-inv-no NE 0 THEN STRING(lv-inv-no,">>>>>>>") ELSE ""  .
-                  
+
              END CASE.
-             
+
              cExcelVarValue = cVarValue.
              cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
      END.
-     
+
      PUT UNFORMATTED cDisplay SKIP.
      IF tb_excel THEN DO:
           PUT STREAM excel UNFORMATTED  
@@ -1753,7 +1764,7 @@ FOR EACH bank
       /*  display tt-gltrans.tr-date @ v-date
                 TRIM(STRING(tt-gltrans.trnum,">>>>>>>>>>")) @ v-tr-num
                 tot-daily[1] @ tot-daily[2]
-                       
+
             with frame day-log.
         down with frame day-log.
 
@@ -1772,7 +1783,7 @@ FOR EACH bank
                     cVarValue = ""
                     cExcelDisplay = ""
                     cExcelVarValue = "".
-             
+
              DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                 cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                      CASE cTmpField: 
@@ -1784,15 +1795,15 @@ FOR EACH bank
                           WHEN "ttl"    THEN cVarValue = STRING(tot-daily[1],"->>,>>>,>>9.99") .
                           WHEN "chk"    THEN cVarValue = "" .
                           WHEN "inv"    THEN cVarValue = ""  .
-                          
+
                      END CASE.
-                     
+
                      cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                                 FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
              END.
-             
+
              PUT UNFORMATTED cDisplay SKIP.
              IF tb_excel THEN DO:
                   PUT STREAM excel UNFORMATTED  
@@ -1823,7 +1834,7 @@ FOR EACH bank
         END. */
 
      /*   display tot-daily[2]
-                
+
             with frame day-log.
         down with frame day-log.
 
@@ -1843,7 +1854,7 @@ FOR EACH bank
                     cVarValue = ""
                     cExcelDisplay = ""
                     cExcelVarValue = "".
-             
+
              DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                 cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                      CASE cTmpField: 
@@ -1855,21 +1866,21 @@ FOR EACH bank
                           WHEN "ttl"    THEN cVarValue = STRING(tot-daily[2],"->>,>>>,>>9.99") .
                           WHEN "chk"    THEN cVarValue = "" .
                           WHEN "inv"    THEN cVarValue = ""  .
-                          
+
                      END CASE.
-                     
+
                      cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                                 FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
              END.
-             
+
              PUT UNFORMATTED cDisplay SKIP(1).
              IF tb_excel THEN DO:
                   PUT STREAM excel UNFORMATTED  
                         cExcelDisplay SKIP.
               END.
-             
+
         assign
          bank-tot     = bank-tot + tot-daily[2]
          tot-daily[2] = 0.
@@ -1903,7 +1914,7 @@ FOR EACH bank
                     cVarValue = ""
                     cExcelDisplay = ""
                     cExcelVarValue = "".
-             
+
              DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                 cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                      CASE cTmpField: 
@@ -1915,22 +1926,22 @@ FOR EACH bank
                           WHEN "ttl"    THEN cVarValue = STRING(bank-tot,"->>,>>>,>>9.99") .
                           WHEN "chk"    THEN cVarValue = "" .
                           WHEN "inv"    THEN cVarValue = ""  .
-                          
+
                      END CASE.
-                     
+
                      cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                                 FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
              END.
-             
+
              PUT UNFORMATTED  "       Total Deposits" substring(cDisplay,22,300) SKIP.
              IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
                       "  Total Deposits  " + substring(cExcelDisplay,3,300) SKIP.
              END.
   END.
-              
+
 
   dep-tot = dep-tot + bank-tot.
 end.
@@ -1951,7 +1962,7 @@ PUT SKIP str-line SKIP .
                     cVarValue = ""
                     cExcelDisplay = ""
                     cExcelVarValue = "".
-             
+
              DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                 cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                      CASE cTmpField: 
@@ -1963,15 +1974,15 @@ PUT SKIP str-line SKIP .
                           WHEN "ttl"    THEN cVarValue = STRING(dep-tot,"->>,>>>,>>9.99") .
                           WHEN "chk"    THEN cVarValue = "" .
                           WHEN "inv"    THEN cVarValue = ""  .
-                          
+
                      END CASE.
-                     
+
                      cExcelVarValue = cVarValue.
                      cDisplay = cDisplay + cVarValue +
                                 FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                      cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
              END.
-             
+
              PUT UNFORMATTED  "       Total Deposits for All Banks" substring(cDisplay,36,300) SKIP.
              IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
@@ -2013,7 +2024,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2034,12 +2045,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-                  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2065,23 +2076,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

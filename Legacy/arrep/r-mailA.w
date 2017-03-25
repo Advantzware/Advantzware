@@ -339,6 +339,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust-type:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -419,7 +429,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -535,7 +545,7 @@ DO:
                                   &mail-body="Customer List"
                                   &mail-file=list-name }
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
@@ -758,7 +768,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
     RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -845,7 +855,7 @@ PROCEDURE output-to-port :
   Notes:       
 ------------------------------------------------------------------------------*/
    RUN custom/d-print.w (list-name).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -861,7 +871,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -925,7 +935,7 @@ DEFINE VARIABLE labelCnt AS INTEGER NO-UNDO.
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 56}
-   
+
  vfst  = begin_state
  vtst  = end_state
  vfty  = begin_cust-type
@@ -959,7 +969,7 @@ for each cust
        and ((cust.active ge vfsu and cust.active le vtsu)
        or (cust.active eq 'e' and includeEStatus))
      no-lock by cust.cust-no:
-     
+
     {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
   if vdest eq "ASCII" then do:
     if vcust and vcont THEN DO:
@@ -1009,41 +1019,41 @@ for each cust
           '"' STRING(cust.zip,"X(10)") '",'
           SKIP.
   end.
-  
+
   else if vdest eq "Labels" then do:
     cnt = 0.
-  
+
     if cust.contact ne "" and vcont then do:
       cnt = cnt + 1.
       plabel[cnt] = trim(cust.contact).
     end.
-  
+
     if cust.cust-no ne "" and vcust then do:
       if cnt eq 0 then do:
         cnt = cnt + 1.
         plabel[cnt] = cust.cust-no.
       end.
-    
+
       else do:
         plabel[cnt] = plabel[cnt] + " " + cust.cust-no.
       end.
     end.
-  
+
     if cust.name ne "" then do:
       cnt = cnt + 1.
       plabel[cnt] = trim(cust.name).
     end.
-  
+
     if cust.addr[1] ne "" then do:
       cnt = cnt + 1.
       plabel[cnt] = cust.addr[1].
     end.
-  
+
     if cust.addr[2] ne "" then do:
       cnt = cnt + 1.
       plabel[cnt] = cust.addr[2].
     end.
-  
+
     if cust.city ne "" or cust.state ne "" or cust.zip ne "" then do:
       cnt = cnt + 1.
       if cust.city  ne "" then plabel[cnt] = trim(cust.city) + ", ".
@@ -1067,33 +1077,33 @@ for each cust
       cnt = cnt + 1.
       substr(plabel[cnt],colCnt,31) = trim(cust.contact).
     end.
-  
+
     if cust.cust-no ne "" and vcust then do:
       if cnt eq 2 then do:
         cnt = cnt + 1.
         substr(plabel[cnt],colCnt,31) = cust.cust-no.
       end.
-    
+
       else do:
         substr(plabel[cnt],colCnt,31) = trim(substr(plabel[cnt],colCnt,31)) + " " + cust.cust-no.
       end.
     end.
-  
+
     if cust.name ne "" then do:
       cnt = cnt + 1.
       substr(plabel[cnt],colCnt,31) = trim(cust.name).
     end.
-  
+
     if cust.addr[1] ne "" then do:
       cnt = cnt + 1.
       substr(plabel[cnt],colCnt,31) = cust.addr[1].
     end.
-  
+
     if cust.addr[2] ne "" then do:
       cnt = cnt + 1.
       substr(plabel[cnt],colCnt,31) = cust.addr[2].
     end.
-  
+
     if cust.city ne "" or cust.state ne "" or cust.zip ne "" then do:
       cnt = cnt + 1.
       if cust.city  ne "" then substr(plabel[cnt],colCnt,31) = trim(cust.city) + ','.
@@ -1191,11 +1201,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1223,23 +1233,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -376,6 +376,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
+ASSIGN
+       Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 /* SETTINGS FOR FILL-IN F1 IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L 6                                                  */
 /* SETTINGS FOR FILL-IN m-return-field IN FRAME DEFAULT-FRAME
@@ -396,7 +406,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -698,7 +708,7 @@ DO:
   PUT UNFORMATTED m-where-statement.
   ELSE
   PUT UNFORMATTED "TRUE".
-  
+
   PUT UNFORMATTED SKIP
     "~&Scoped-define return-field " m-return-field SKIP
     "~&Scoped-define font " m-font SKIP
@@ -760,7 +770,7 @@ DO:
     "~{methods/search.i}" SKIP.
 
   OUTPUT CLOSE.
-  
+
   MESSAGE "Compile Search?" VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
       UPDATE compile-search AS LOGICAL.
   IF compile-search THEN
@@ -1066,7 +1076,7 @@ PROCEDURE Get_Search :
   END.
   ELSE
   m-search-prgm = m_search_prgm.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

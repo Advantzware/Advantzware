@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File: windows/r-sysctl.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -276,6 +276,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_module:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -316,7 +326,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -388,7 +398,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&DISPLAYED-OBJECTS}.
   END.
-  
+
   run run-report.
 
   case rd-dest:
@@ -598,12 +608,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 /*   END.                                */
 
   RUN enable_UI.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
-       
+
     ASSIGN
        begin_name:SCREEN-VALUE = ip-name
        end_name:SCREEN-VALUE = ip-name
@@ -612,7 +622,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     APPLY "entry" TO begin_name.
   END.
-  
+
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -701,7 +711,7 @@ FOR EACH hlp-head NO-LOCK WHERE hlp-head.fld-name = sys-ctrl.NAME:
           v-help-text = REPLACE(v-help-text, v-line-feed , ' ').
 
    DO v-cnt1 = 1 TO 100:
-   
+
     ASSIGN v-excnt = v-excnt + 1
            v-spcnt = 0
            v-help-text = TRIM(v-help-text).
@@ -720,7 +730,7 @@ FOR EACH hlp-head NO-LOCK WHERE hlp-head.fld-name = sys-ctrl.NAME:
                        v-help-text = SUBSTR(v-help-text,v-spcnt + 1).
            ELSE ASSIGN v-lntxt = SUBSTR(v-help-text,1,100)
                        v-help-text = SUBSTR(v-help-text,101).
-         
+
        ASSIGN v-help-line[v-excnt] = v-help-line[v-excnt] + v-lntxt.
 
     END.
@@ -744,7 +754,7 @@ PROCEDURE output-to-file :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
 {custom/out2file.i}
 END PROCEDURE.
 
@@ -851,7 +861,7 @@ ASSIGN
    str-tit2 = c-win:title
    {sys/inc/ctrtext.i str-tit2 112}.
 
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -872,7 +882,7 @@ IF tb_excel THEN DO:
   IF TG_xls-help-doc 
     THEN PUT STREAM s-excel UNFORMATTED ",TITLE,HELP DOCUMENT" SKIP.
     ELSE PUT STREAM s-excel UNFORMATTED SKIP.
-  
+
 END.  
 
 FOR EACH sys-ctrl NO-LOCK WHERE sys-ctrl.company = g_company
@@ -908,7 +918,7 @@ FOR EACH sys-ctrl NO-LOCK WHERE sys-ctrl.company = g_company
 
 
    IF TG_xls-help-doc THEN DO:
-       
+
      FIND FIRST hlp-head NO-LOCK 
        WHERE hlp-head.fld-name = sys-ctrl.NAME NO-ERROR.
      IF AVAIL hlp-head THEN DO:       
@@ -981,11 +991,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1013,23 +1023,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

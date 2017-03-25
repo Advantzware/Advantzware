@@ -136,13 +136,23 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+ASSIGN
+       BtnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btnOk:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -190,7 +200,7 @@ END.
 ON CHOOSE OF btnOk IN FRAME DEFAULT-FRAME /* OK */
 DO:
    DEF VAR v-process AS LOG NO-UNDO.
-   
+
    ASSIGN fi_filename 
           FILE-INFO:FILE-NAME = fi_filename.
 
@@ -204,7 +214,7 @@ DO:
 
    message "Are you sure you want copy Image file?"     
           view-as alert-box question button yes-no update v-process.
-        
+
   if v-process then run run-process.
 
 END.
@@ -227,7 +237,7 @@ DO:
       TITLE      "Select Image  ..."
       FILTERS    "All Files (*.*)" "*.*"
       INITIAL-DIR init-dir
-      
+
       USE-FILENAME
       UPDATE OKpressed.
   IF NOT OKpressed THEN
@@ -266,9 +276,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
    RUN enable_UI.
-   
+
    apply 'entry':u to fi_filename.
-  
+
    IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -333,7 +343,7 @@ PROCEDURE run-process :
   DEF VAR v-filename AS CHAR FORMAT "X(100)" NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-   
+
      SESSION:SET-WAIT-STATE ("general").
 
      REPEAT:

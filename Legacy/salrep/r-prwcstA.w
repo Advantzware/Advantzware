@@ -332,6 +332,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -378,7 +388,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -428,7 +438,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-  
+
   run run-report. 
   STATUS DEFAULT "Processing Complete".
   case rd-dest:
@@ -462,10 +472,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
-  end case. 
+  end case.
+  SESSION:SET-WAIT-STATE (""). 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -659,10 +670,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    inv-date = TODAY.
-   
+
   RUN enable_UI.
 
   {methods/nowait.i}
@@ -939,7 +950,7 @@ assign
             if avail fgcat then tt-report.key-01 = fgcat.procat.
           end.
         end.
-        
+
         tt-report.key-02 = if v-misc and tt-report.key-01 eq "MISC"
                            then ar-invl.actnum else tt-report.key-01.
       end.
@@ -1010,7 +1021,7 @@ assign
               w-ptd-amt
               w-ptd-cost
               w-ptd-prof
-              
+
         with frame itemx.
 
     assign
@@ -1042,7 +1053,7 @@ assign
             v-gtot-ptd-amt              @ w-ptd-amt
             v-gtot-ptd-cost             @ w-ptd-cost
             v-gtot-ptd-prof             @ w-ptd-prof
-            
+
         with frame itemx.
 
     IF tb_excel THEN
@@ -1078,7 +1089,7 @@ assign
                 w-ptd-amt
                 w-ptd-cost
                 w-ptd-prof
-                
+
           with frame itemx.
 
       clear frame itemx no-pause.
@@ -1088,7 +1099,7 @@ assign
             and tt-report.key-01  eq "MISC"
 
       {sa/sa-dsr2.i m}
-    
+
       if v-misc then do:
         underline w-msf
                   w-$msf
@@ -1100,7 +1111,7 @@ assign
                   w-ptd-amt
                   w-ptd-cost
                   w-ptd-prof
-                  
+
             with frame itemx.
 
         assign
@@ -1119,7 +1130,7 @@ assign
                            else 0
          v-mtot-prof     = v-mtot-prof     * 100
          v-mtot-ptd-prof = v-mtot-ptd-prof * 100.
-     
+
         put skip(1).
 
         display "   MISC"                   @ w-procat
@@ -1133,7 +1144,7 @@ assign
                 v-mtot-ptd-amt              @ w-ptd-amt
                 v-mtot-ptd-cost             @ w-ptd-cost
                 v-mtot-ptd-prof             @ w-ptd-prof
-                
+
             with frame itemx.
 
         IF tb_excel THEN
@@ -1154,7 +1165,7 @@ assign
 
         put skip.
       end.
-      
+
       assign
        v-gtot-msf     = v-gtot-msf     + v-mtot-msf
        v-gtot-amt     = v-gtot-amt     + v-mtot-amt
@@ -1179,7 +1190,7 @@ assign
                 w-ptd-amt
                 w-ptd-cost
                 w-ptd-prof
-                
+
           with frame itemx.
 
       clear frame itemx no-pause.
@@ -1203,7 +1214,7 @@ assign
               w-ptd-amt
               w-ptd-cost
               w-ptd-prof
-              
+
         with frame itemx.
 
     assign
@@ -1221,7 +1232,7 @@ assign
                        else 0
      v-gtot-prof     = v-gtot-prof     * 100
      v-gtot-ptd-prof = v-gtot-ptd-prof * 100.
-                       
+
     display "  TOTAL"                   @ w-procat
             v-gtot-msf                  @ w-msf
             v-gtot-$msf                 @ w-$msf
@@ -1233,7 +1244,7 @@ assign
             v-gtot-ptd-amt              @ w-ptd-amt
             v-gtot-ptd-cost             @ w-ptd-cost
             v-gtot-ptd-prof             @ w-ptd-prof
-            
+
         with frame itemx.
 
     IF tb_excel THEN
@@ -1288,12 +1299,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1319,23 +1330,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

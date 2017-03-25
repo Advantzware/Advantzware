@@ -40,6 +40,18 @@ DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF VAR is-xprint-form AS LOG NO-UNDO.
 DEF VAR tmp-dir AS cha NO-UNDO.
 
+DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
+
+ RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
+
+
 {sys/inc/print1.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -541,8 +553,13 @@ PROCEDURE run-report :
 {sys/inc/outprint.i value(lines-per-page)}
 
 CASE rd-dest:
-    WHEN 2 OR WHEN 3 THEN PUT "<PREVIEW>".
-    WHEN 5 THEN PUT "<PRINT=NO><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(100)".
+    WHEN 2 OR WHEN 3 THEN DO:
+        IF NOT lBussFormModle THEN
+          PUT "<PREVIEW><MODAL=NO>". 
+        ELSE
+          PUT "<PREVIEW>".  
+    END.
+    WHEN 5 THEN PUT "<PRINT=NO><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
 
 END CASE.
 
