@@ -1,15 +1,12 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
-/* Connected Databases 
-          asi              PROGRESS
-*/
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
-  File:  browsers/company.w
+  File: oe/p-oehold.w
 
-  Description: from BROWSER.W - Basic SmartBrowser Object Template
+  Description: Links to order viewer to place order on hold status.
 
   Input Parameters:
       <none>
@@ -35,6 +32,19 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+
+DEFINE VARIABLE hViewer  AS HANDLE NO-UNDO.
+DEFINE VARIABLE char-hdl AS CHAR NO-UNDO.
+/* DEFINE VARIABLE char-val AS CHAR NO-UNDO INIT "".  */
+/*                                                    */
+/* DEFINE BUFFER b-oe-ord FOR oe-ord.                 */
+/* DEFINE BUFFER b-oe-ordl FOR oe-ordl.               */
+
+{oe/ordholdstat.i}
+
+/*{methods/prgsecdt.i}*/
+{methods/defines/globdefs.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -43,46 +53,40 @@ CREATE WIDGET-POOL.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartBrowser
+&Scoped-define PROCEDURE-TYPE SmartViewer
+&Scoped-define DB-AWARE no
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
-&Scoped-define BROWSE-NAME br_table
 
-/* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES company
-
-/* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table company.company company.name 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
-&Scoped-define FIELD-PAIRS-IN-QUERY-br_table
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH company NO-LOCK.
-&Scoped-define TABLES-IN-QUERY-br_table company
-&Scoped-define FIRST-TABLE-IN-QUERY-br_table company
+ /* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES eb
+&Scoped-define FIRST-EXTERNAL-TABLE eb
 
 
-/* Definitions for FRAME F-Main                                         */
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR eb.
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br_table 
+&Scoped-Define ENABLED-OBJECTS RECT-1 btn-add 
 
 /* Custom List Definitions                                              */
-/* List-1,List-2,List-3,List-4,List-5,List-6                            */
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" B-table-Win _INLINE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
 /* Actions: ? adm/support/keyedit.w ? ? ? */
 /* STRUCTURED-DATA
 <KEY-OBJECT>
-&BROWSE-NAME
+THIS-PROCEDURE
 </KEY-OBJECT>
 <FOREIGN-KEYS>
-</FOREIGN-KEYS>
+</FOREIGN-KEYS> 
 <EXECUTING-CODE>
 **************************
 * Set attributes related to FOREIGN KEYS
@@ -96,68 +100,39 @@ RUN set-attribute-list (
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Advanced Query Options" B-table-Win _INLINE
-/* Actions: ? adm/support/advqedit.w ? ? ? */
-/* STRUCTURED-DATA
-<KEY-OBJECT>
-&BROWSE-NAME
-</KEY-OBJECT>
-<SORTBY-OPTIONS>
-</SORTBY-OPTIONS> 
-<SORTBY-RUN-CODE>
-************************
-* Set attributes related to SORTBY-OPTIONS */
-RUN set-attribute-list (
-    'SortBy-Options = ""':U).
-/************************
-</SORTBY-RUN-CODE> 
-<FILTER-ATTRIBUTES>
-</FILTER-ATTRIBUTES> */   
+/* ************************  Function Prototypes ********************** */
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
 
 
 /* Definitions of the field level widgets                               */
-/* Query definitions                                                    */
-&ANALYZE-SUSPEND
-DEFINE QUERY br_table FOR 
-      company
-    FIELDS(company.company
-      company.name) SCROLLING.
-&ANALYZE-RESUME
+DEFINE BUTTON btn-add 
+     LABEL "+FG#" 
+     SIZE 9 BY 1.43 TOOLTIP "add FG Item on Set Item".
 
-/* Browse definitions                                                   */
-DEFINE BROWSE br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
-  QUERY br_table NO-LOCK DISPLAY
-      company.company
-      company.name
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 58 BY 4.33
-         FONT 2.
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 11 BY 1.91.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     br_table AT ROW 1 COL 1
+     btn-add AT ROW 1.29 COL 2
+     RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 8 FGCOLOR 0 .
+         AT COL 1 ROW 1 SCROLLABLE .
 
 
 /* *********************** Procedure Settings ************************ */
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartBrowser
-   Allow: Basic,Browse
+   Type: SmartViewer
+   Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
    Other Settings: PERSISTENT-ONLY COMPILE
@@ -166,7 +141,7 @@ DEFINE FRAME F-Main
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
 IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT."
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
   RETURN.
 END.
@@ -177,22 +152,31 @@ END.
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
-  CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 3.33
-         WIDTH              = 58.
+  CREATE WINDOW V-table-Win ASSIGN
+         HEIGHT             = 6.86
+         WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{src/adm/method/viewer.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW B-table-Win
-  NOT-VISIBLE,,RUN-PERSISTENT                                           */
+/* SETTINGS FOR WINDOW V-table-Win
+  VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB br_table 1 F-Main */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -202,17 +186,6 @@ ASSIGN
 
 
 /* Setting information for Queries and Browse Widgets fields            */
-
-&ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
-/* Query rebuild information for BROWSE br_table
-     _TblList          = "asi.company"
-     _Options          = "NO-LOCK"
-     _TblOptList       = "USED"
-     _FldNameList[1]   = asi.company.company
-     _FldNameList[2]   = asi.company.name
-     _Query            is NOT OPENED
-*/  /* BROWSE br_table */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME F-Main
 /* Query rebuild information for FRAME F-Main
@@ -224,50 +197,25 @@ ASSIGN
  
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB B-table-Win 
-/* ************************* Included-Libraries *********************** */
-
-{src/adm/method/browser.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define BROWSE-NAME br_table
-&Scoped-define SELF-NAME br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON ROW-ENTRY OF br_table IN FRAME F-Main
-DO:
-  /* This code displays initial values for newly added or copied rows. */
-  {src/adm/template/brsentry.i}
-END.
+&Scoped-define SELF-NAME btn-add
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-add V-table-Win
+ON CHOOSE OF btn-add IN FRAME F-Main /* Hold */
+DO: 
+    DEF VAR char-hdl AS cha NO-UNDO.
+    DEF VAR l-is-updating AS LOG NO-UNDO.
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"fgadd-target", OUTPUT char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl))  THEN
+    RUN is-in-update IN WIDGET-HANDLE(char-hdl) (OUTPUT l-is-updating).
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON ROW-LEAVE OF br_table IN FRAME F-Main
-DO:
-    /* Do not disable this code or no updates will take place except
-     by pressing the Save button on an Update SmartPanel. */
-   {src/adm/template/brsleave.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
-ON VALUE-CHANGED OF br_table IN FRAME F-Main
-DO:
-  /* This ADM trigger code must be preserved in order to notify other
-     objects when the browser's current row changes. */
-  {src/adm/template/brschnge.i}
+     IF l-is-updating THEN RETURN .
+    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) AND NOT l-is-updating  THEN
+    RUN set-auto-add-item IN WIDGET-HANDLE(char-hdl).
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -276,14 +224,16 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
 
 /* ***************************  Main Block  *************************** */
 
-&IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
-RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-&ENDIF
+  &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
+    RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
+  &ENDIF         
+  
+  /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -291,7 +241,7 @@ RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win _ADM-ROW-AVAILABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
   Purpose:     Dispatched to this procedure when the Record-
@@ -304,6 +254,15 @@ PROCEDURE adm-row-available :
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
 
+  /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "eb"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "eb"}
+
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
@@ -313,8 +272,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-all V-table-Win 
+PROCEDURE disable-all :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI B-table-Win _DEFAULT-DISABLE
+  DO WITH FRAME {&FRAME-NAME}:
+    DISABLE ALL.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -332,8 +307,53 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable-all V-table-Win 
+PROCEDURE enable-all :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win _ADM-SEND-RECORDS
+  DO WITH FRAME {&FRAME-NAME}:
+    ENABLE ALL.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize V-table-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+    DEF VAR char-hdl AS cha NO-UNDO.
+    DEF VAR l-is-updating AS LOG NO-UNDO.
+
+    /*RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"fgadd-target", OUTPUT char-hdl).
+    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl))  THEN
+    RUN is-in-update IN WIDGET-HANDLE(char-hdl) (OUTPUT l-is-updating).
+
+     /* Code placed here will execute AFTER standard behavior.    */
+     IF NOT l-is-updating THEN ASSIGN btn-add:SENSITIVE IN FRAME {&FRAME-NAME} = YES .
+     ELSE ASSIGN btn-add:SENSITIVE IN FRAME {&FRAME-NAME} = NO .*/
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
   Purpose:     Send record ROWID's for all tables used by
@@ -345,7 +365,7 @@ PROCEDURE send-records :
   {src/adm/template/snd-head.i}
 
   /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "company"}
+  {src/adm/template/snd-list.i "eb"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
@@ -355,8 +375,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
   Purpose:     
@@ -369,11 +388,13 @@ PROCEDURE state-changed :
   CASE p-state:
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
-      {src/adm/template/bstates.i}
+      {src/adm/template/vstates.i}
   END CASE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
 
 

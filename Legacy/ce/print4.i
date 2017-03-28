@@ -98,6 +98,7 @@ DEFINE {2} VARIABLE cm-disp                 AS CHARACTER NO-UNDO.
 DEFINE {2} VARIABLE cmah-disp               AS CHARACTER NO-UNDO.
 DEFINE {2} VARIABLE cmoh-disp               AS CHARACTER NO-UNDO.
 DEFINE {2} VARIABLE cm%-disp                AS CHARACTER NO-UNDO.
+DEFINE {2} VARIABLE dTotalManHrs            AS DECIMAL   NO-UNDO.
 
 DEFINE     VARIABLE save-lock               AS LOG       NO-UNDO.
 DEFINE     VARIABLE do-gsa                  AS LOG       INIT NO NO-UNDO.

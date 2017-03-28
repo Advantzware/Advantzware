@@ -142,17 +142,18 @@ DEFINE VARIABLE h_vp-stkpn AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-qtest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_xferjobdata AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_fgadd AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btNextItemfg 
+/*DEFINE BUTTON btNextItemfg 
      LABEL "+FG#" 
      SIZE 11 BY 1.67
-     .
+     .*/
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME est
-    btNextItemfg AT COL 107 ROW 22.43
+    /*btNextItemfg AT COL 107 ROW 22.43*/
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -309,7 +310,7 @@ END.
 &ANALYZE-RESUME
 
 
-ON CHOOSE OF btNextItemfg IN FRAME est /* Next Item */
+/*ON CHOOSE OF btNextItemfg IN FRAME est /* Next Item */
 DO:
     DEF VAR l-is-updating AS LOG NO-UNDO.
 
@@ -319,7 +320,7 @@ DO:
     IF VALID-HANDLE(h_b-estitm) AND NOT l-is-updating THEN
         RUN set-auto-add-item IN h_b-estitm.
 
-END.
+END.*/
 
 &UNDEFINE SELF-NAME
 
@@ -479,6 +480,14 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-estc ( 1.91 , 61.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'est/p-fgadd.w':U ,
+             INPUT  FRAME est:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_fgadd ).
+       RUN set-position IN h_fgadd ( 22.19 , 109.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.91 , 11.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/vp-est.w':U ,
              INPUT  FRAME est:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -501,6 +510,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_vp-est. */
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_vp-est ).
        RUN add-link IN adm-broker-hdl ( h_b-estitm , 'set-goto':U , h_vp-est ).
+       /* Links to SmartViewer h_fgadd. */
+       RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_fgadd ).
+       RUN add-link IN adm-broker-hdl (h_fgadd, 'fgadd':U , h_p-estc ).
 
     END. /* Page 2 */
     WHEN 3 THEN DO:
@@ -1300,13 +1312,13 @@ ELSE
   END.
  
   DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
+    /*ASSIGN
       btNextItemfg:VISIBLE = li-page[1] EQ 2
       btNextItemfg:SENSITIVE = li-page[1] EQ 2.
     IF li-page[1] EQ 2 AND NOT CAN-DO(winObjects,'btNextItemfg') AND rowDiff NE 0 THEN
     ASSIGN
       btNextItemfg:ROW = btNextItemfg:ROW + rowDiff
-      winObjects = winObjects + 'btNextItemfg' + ','.
+      winObjects = winObjects + 'btNextItemfg' + ','.*/
   END.
 
 END PROCEDURE.

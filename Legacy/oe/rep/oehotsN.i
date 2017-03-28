@@ -39,8 +39,16 @@
       v-line SKIP
      WITH FRAME pg-head NO-BOX PAGE-TOP NO-LABEL STREAM-IO WIDTH 200.
 
-   SESSION:SET-WAIT-STATE ("general").
+   IF tb_excel THEN DO:
+      OUTPUT STREAM st-excel TO VALUE(fi_file).
+      PUT STREAM st-excel UNFORMATTED
+         /*"Date,Due,Ordered,Item,Cust PO#,Order#,R#,Ven,PO#,Brd Rcpt,Routing,Q-Order,Q-Comp,Q-Onhand,Ship City,"
+         (IF rd_lComments THEN "Comment,Customer" ELSE "Style,Test,Customer")*/
+          excelheader
+         SKIP.
+   END.
 
+   
    ASSIGN 
       {sys/inc/ctrtext.i str-tit2 112}
       v-tot-qty    = 0
@@ -81,22 +89,15 @@
                  IF v-sort EQ "N"  THEN "By Item Name By Date"     ELSE
                  IF v-sort EQ "A"  THEN "By Carrier By Date"       ELSE
                  IF v-sort EQ "CR" THEN "By Credit Rating By Date" ELSE
-                                     "By Territory By Date"
-   
+                                     "By Territory By Date"  .
+
+   SESSION:SET-WAIT-STATE("general").
+
    {sys/inc/ctrtext.i str-tit3 132}.
    
    {sys/inc/print1.i}
 
    {sys/inc/outprint.i VALUE(lines-per-page)}
-
-   IF tb_excel THEN DO:
-      OUTPUT STREAM st-excel TO VALUE(fi_file).
-      PUT STREAM st-excel UNFORMATTED
-         /*"Date,Due,Ordered,Item,Cust PO#,Order#,R#,Ven,PO#,Brd Rcpt,Routing,Q-Order,Q-Comp,Q-Onhand,Ship City,"
-         (IF rd_lComments THEN "Comment,Customer" ELSE "Style,Test,Customer")*/
-          excelheader
-         SKIP.
-   END.
      
    IF rd-dest EQ 2 THEN DO:
       IF NOT lBussFormModle THEN

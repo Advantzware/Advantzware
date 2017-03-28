@@ -71,11 +71,11 @@ DEF VAR ip-job-rowid AS ROWID NO-UNDO.
 /* Definitions for QUERY Query-Main                                     */
 &Scoped-define QUERY-STRING-Query-Main FOR EACH job WHERE ~{&KEY-PHRASE} ~
       AND job.company = g_company and ~
-job.job = 1. NO-LOCK ~
+job.job = 1 NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Query-Main OPEN QUERY Query-Main FOR EACH job WHERE ~{&KEY-PHRASE} ~
       AND job.company = g_company and ~
-job.job = 1. NO-LOCK ~
+job.job = 1 NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Query-Main job
 &Scoped-define FIRST-TABLE-IN-QUERY-Query-Main job

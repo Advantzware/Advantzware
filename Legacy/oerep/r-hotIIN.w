@@ -1753,8 +1753,6 @@ FIND FIRST users WHERE
 
  lv-pdf-file = tmp2-dir + "\hots" + STRING(TIME).
 
-SESSION:SET-WAIT-STATE("general").
-
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 

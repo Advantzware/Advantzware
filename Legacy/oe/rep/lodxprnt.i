@@ -17,7 +17,7 @@ PUT  "<FArial>".
 PUT  "<C+25><#1>".
 PUT  "<=1>" SKIP.
 PUT  "<C1><#2>".
-PUT   "<#=100><AT=,2><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE= " tt-word-print.tag-no FORMAT "x(20)" ">"
+PUT   "<#=100><AT=,2><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.tag-no FORMAT "x(20)" ">"
     "<AT=,3><P14>" tt-word-print.tag-no FORMAT "x(20)" .
 
 PUT  SKIP(3) "<R9><C3><FROM><R9><C80><LINE>" SKIP .
@@ -28,11 +28,11 @@ PUT "<R11><C3><#4><FROM><R11><C80><RECT><||3>" SKIP
     "<R11><C80><FROM><R18><C80><LINE><||3>" SKIP.
 
 PUT "<FArial><=4><R+1><C5><B>" tt-word-print.ship-name FORMAT "x(25)"  "</B>" SKIP.
-PUT "<FArial><=4><R+1><C45><B> Email: " cEmail FORMAT "x(30)"  "</B>" SKIP(2).
+PUT "<FArial><=4><R+1><C40><B> Email: " cEmail FORMAT "x(30)"  "</B>" SKIP(2).
 PUT "<FArial><=4><R+3><C5><B>" tt-word-print.ship-add1 FORMAT "x(25)" "</B>" .
-PUT "<FArial><=4><R+3><C45><B> Phone: " cPhone FORMAT "x(15)" "</B>" SKIP(2).
+PUT "<FArial><=4><R+3><C40><B> Phone: " cPhone FORMAT "x(15)" "</B>" SKIP(2).
 PUT "<FArial><=4><R+5><C5><B>" STRING(tt-word-print.ship-city,"x(15)") " " tt-word-print.ship-state FORMAT "x(2)" " " tt-word-print.ship-zip  "</B>" .
-PUT "<FArial><=4><R+5><C45><B> Fax: " cFax FORMAT "x(15)" "</B>" SKIP(2).
+PUT "<FArial><=4><R+5><C40><B> Fax: " cFax FORMAT "x(15)" "</B>" SKIP(2).
 
 PUT "<R22><C3><#5><FROM><R22><C80><RECT><||3>" SKIP
     "<R25><C3><FROM><R25><C80><LINE><||3>" SKIP  
