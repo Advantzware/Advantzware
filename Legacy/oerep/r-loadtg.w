@@ -6998,7 +6998,7 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
            PUT "<PREVIEW>" FORM "x(30)".
     END.
     ELSE DO:
-       PUT "<PRINTER?>" FORM "x(30)".
+       PUT "<PRINTER?><FORMAT=LEGAL>" FORM "x(30)".
     END.
 
     DO WITH FRAME {&FRAME-NAME}:
