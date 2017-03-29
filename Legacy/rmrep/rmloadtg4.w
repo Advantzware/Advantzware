@@ -629,6 +629,38 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME begin_rm-i-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_rm-i-no C-Win
+ON HELP OF begin_rm-i-no IN FRAME FRAME-A /* Tag# */
+DO:
+  DEFINE VARIABLE opCharVal AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE opRecID AS RECID NO-UNDO.
+
+  RUN windows/l-itmpo.w (cocode,'',begin_po-no:SCREEN-VALUE,begin_rm-i-no:SCREEN-VALUE,OUTPUT opCharVal,OUTPUT opRecID).
+  IF opCharVal NE '' THEN
+  SELF:SCREEN-VALUE = ENTRY(1,opCharVal).
+  APPLY 'ENTRY':U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_rm-i-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_rm-i-no C-Win
+ON HELP OF end_rm-i-no IN FRAME FRAME-A /* Tag# */
+DO:
+  DEFINE VARIABLE opCharVal AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE opRecID AS RECID NO-UNDO.
+
+  RUN windows/l-itmpo.w (cocode,'',end_po-no:SCREEN-VALUE,end_rm-i-no:SCREEN-VALUE,OUTPUT opCharVal,OUTPUT opRecID).
+  IF opCharVal NE '' THEN
+  SELF:SCREEN-VALUE = ENTRY(1,opCharVal).
+  APPLY 'ENTRY':U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &Scoped-define SELF-NAME reprintLoadtag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL reprintLoadtag C-Win
 ON HELP OF reprintLoadtag IN FRAME FRAME-A /* Tag# */
