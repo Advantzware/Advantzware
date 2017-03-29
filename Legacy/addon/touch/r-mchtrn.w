@@ -779,7 +779,9 @@ PROCEDURE run-report :
 /*==== Report main body procedure ================================
 ==================================================================*/
 DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE iTothours AS INTEGER NO-UNDO .
+DEFINE VARIABLE iRunQty   AS INTEGER NO-UNDO.
+DEFINE VARIABLE iWasteQty AS INTEGER NO-UNDO.
 SESSION:SET-WAIT-STATE("general").
 
 {sys/form/r-top3w.f}
@@ -832,7 +834,7 @@ FOR EACH machtran NO-LOCK WHERE
     machtran.end_date
     STRING(machtran.end_time,'HH:MM am') LABEL 'Log Out'
     machtran.shift
-    STRING(machtran.total_time,'HH:MM') LABEL 'Total'
+    STRING(machtran.total_time ,'HH:MM' ) LABEL 'Total'
     machtran.run_qty
     machtran.waste_qty  
      WITH FRAME mch NO-BOX WIDTH 132 STREAM-IO DOWN.
@@ -852,6 +854,11 @@ FOR EACH machtran NO-LOCK WHERE
      trim(STRING(machtran.total_time,'HH:MM')) ","
      machtran.run_qty ","
      machtran.waste_qty.
+     ASSIGN
+         iTothours  = iTothours + (machtran.total_time )
+         iRunQty    = iRunQty  + machtran.run_qty
+         iWasteQty  = iWasteQty + machtran.waste_qty .
+
   IF show-employees THEN RUN show-employees IN THIS-PROCEDURE (BUFFER machtran).
   ELSE IF tb_excel THEN PUT STREAM excel SKIP.
 END.
@@ -899,6 +906,12 @@ ELSE IF rd_sort = 2 THEN DO:
          trim(STRING(machtran.total_time,'HH:MM')) ","
          machtran.run_qty ","
          machtran.waste_qty.
+         
+         ASSIGN
+         iTothours  = iTothours + machtran.total_time 
+         iRunQty    = iRunQty  + machtran.run_qty
+         iWasteQty  = iWasteQty + machtran.waste_qty .
+
       IF show-employees THEN RUN show-employees IN THIS-PROCEDURE (BUFFER machtran).
       ELSE IF tb_excel THEN PUT STREAM excel SKIP.
 
@@ -953,9 +966,23 @@ FOR EACH mach FIELDS(m-code) WHERE
      trim(STRING(machtran.total_time,'HH:MM')) ","
      machtran.run_qty ","
      machtran.waste_qty.
+
+     ASSIGN
+         iTothours  = iTothours + machtran.total_time 
+         iRunQty    = iRunQty  + machtran.run_qty
+         iWasteQty  = iWasteQty + machtran.waste_qty .
+
   IF show-employees THEN RUN show-employees IN THIS-PROCEDURE (BUFFER machtran).
   ELSE IF tb_excel THEN PUT STREAM excel SKIP.
 END. /* sort by machine/date/time*/
+
+PUT  "-------- ----------- ------ " AT 89
+     " Totals:   " AT 78
+     trim(STRING(iTothours / 3600,">>>>>.99")) FORMAT "x(8)" SPACE(1)
+     iRunQty FORMAT ">>>>>>>>>>9" SPACE(1)
+     iWasteQty FORMAT ">>>>>9"
+    SKIP .
+
 
 output close.
 IF tb_excel THEN 
