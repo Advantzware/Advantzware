@@ -912,13 +912,13 @@ view frame head.
                        
                     end.
                     IF wrk-ink.i-pass = 1 THEN
-                       ASSIGN v-ink1[i] = (IF v-pass-count = 1 THEN "F    " ELSE "B    ") +
+                       ASSIGN v-ink1[i] = (IF v-pass-count = 1 THEN "1    " ELSE "2    ") +
                                           /*string(wrk-ink.i-code,"X(15)")*/ STRING(v-i-qty[i],"->>>,>>>,>>9.99") + " " + 
                                           string(wrk-ink.i-dscr,"x(20)") + " " + trim(v-alloc) /*v-item[i]*/
                                           /*+ (IF i = 1 THEN "  " + eb.plate-no ELSE "") */
                               i = i + 1         . 
                     ELSE IF wrk-ink.i-pass = 2 THEN
-                       ASSIGN v-ink2[i] = "F    " + /*string(wrk-ink.i-code,"X(15)")*/ STRING(v-i-qty[i],"->>>,>>>,>>9.99") + " " + 
+                       ASSIGN v-ink2[i] = "1    " + /*string(wrk-ink.i-code,"X(15)")*/ STRING(v-i-qty[i],"->>>,>>>,>>9.99") + " " + 
                                    string(wrk-ink.i-dscr,"x(20)") + " " + trim(v-alloc) /*v-item[i]*/
                               i = i + 1.     
                 END.
