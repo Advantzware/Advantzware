@@ -16,7 +16,7 @@ FIND FIRST cust NO-LOCK
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT UNFORMATTED   
-               "<C4><R5.5><#1><R+90><C+80><IMAGE#1=" ls-full-img1.
+               "<C4><R4.5><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
         
          PUT "<R17><C3><P25><FROM><R17><C80><LINE>" SKIP.
         
@@ -66,33 +66,33 @@ FIND FIRST cust NO-LOCK
         
         PUT "<FArial><=8><R37.3><C45><B><P20>  " tt-word-print.due-date FORMAT "99/99/99" "</P20></B>" SKIP.
         
-        PUT   "<#=100><AT=7.6,0.8><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.cust-part-no FORMAT "x(15)" ">"
-            "<AT=7.3,2.1><p15>" tt-word-print.cust-part-no FORMAT "x(15)" .
+        PUT   "<#=100><AT=7.6,0.6><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.cust-part-no FORMAT "x(15)" ">"
+            "<AT=7.3,2.08><p15>" tt-word-print.cust-part-no FORMAT "x(15)" .
         
         PUT "<R44><C3><#9><FROM><R44><C50><RECT><||3>" SKIP
             "<R54><C3><FROM><R54><C50><LINE><||3>" SKIP 
             "<R44><C3><FROM><R54><C3><LINE><||3>" SKIP
             "<R44><C50><FROM><R54><C50><LINE><||3>" SKIP.
         
-        PUT "<FArial><=4><R42><C3><B><p15> Customer Part#  (P) </B>" SKIP.
+        PUT "<FArial><=4><R42><C3><B><p15> Customer Part# </B>" SKIP.
         
-        PUT   "<#=100><AT=7.6,5.8><FROM><AT=+.8,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.ord-qty ">"
-            "<AT=7.3,6.1>" tt-word-print.ord-qty  .
+        PUT   "<#=100><AT=7.6,5.8><FROM><AT=+.8,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.ord-qty FORMAT "->,>>>,>>9" ">"
+            "<AT=7.3,6.1>" tt-word-print.ord-qty FORMAT "->,>>>,>>9" .
         
         PUT "<R44><C53><#9><FROM><R44><C80><RECT><||3>" SKIP
             "<R54><C53><FROM><R54><C80><LINE><||3>" SKIP 
             "<R44><C53><FROM><R54><C53><LINE><||3>" SKIP
             "<R44><C80><FROM><R54><C80><LINE><||3>" SKIP.
-        PUT "<FArial><=4><R42><C65><B><p15> Qty  (Q)</B>" SKIP.
+        PUT "<FArial><=4><R42><C65><B><p15> Qty </B>" SKIP.
         
-        PUT   "<#=100><AT=9.7,3.6><FROM><AT=+.8,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.cust-po-no FORMAT "x(15)" ">"
-            "<AT=9.4,4.4>" tt-word-print.cust-po-no FORMAT "x(15)"  .
+        PUT   "<#=100><AT=9.75,3.4><FROM><AT=+.8,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.cust-po-no FORMAT "x(15)" ">"
+            "<AT=9.45,3.57>" tt-word-print.cust-po-no FORMAT "x(15)"  .
         
         PUT "<R57><C25><#9><FROM><R57><C65><RECT><||3>" SKIP
             "<R65><C25><FROM><R65><C65><LINE><||3>" SKIP 
             "<R57><C25><FROM><R65><C25><LINE><||3>" SKIP
             "<R57><C65><FROM><R65><C65><LINE><||3>" SKIP.
-        PUT "<FArial><=4><R55><C36><B><p15> Customer Po#  (Z)</B>" SKIP.
+        PUT "<FArial><=4><R55><C36><B><p15> Customer Po# </B>" SKIP.
         
          .
         
@@ -105,7 +105,7 @@ FIND FIRST cust NO-LOCK
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT UNFORMATTED   
-               "<C4><R20.5><#1><R+90><C+80><IMAGE#1=" ls-full-img1.
+               "<C4><R19.5><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
         
          PUT "<R32><C3><P25><FROM><R32><C80><LINE>" SKIP.
         
@@ -155,33 +155,33 @@ FIND FIRST cust NO-LOCK
         
         PUT "<FArial><=8><R52.3><C45><B><P20>  " tt-word-print.due-date FORMAT "99/99/99" "</P20></B>" SKIP.
         
-        PUT   "<#=100><AT=10.00,0.8><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.cust-part-no FORMAT "x(15)" ">"
-            "<AT=10.90,2.1><p15>" tt-word-print.cust-part-no FORMAT "x(15)" .
+        PUT   "<#=100><AT=10.00,0.6><FROM><AT=+.8,+4><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.cust-part-no FORMAT "x(15)" ">"
+            "<AT=10.90,2.08><p15>" tt-word-print.cust-part-no FORMAT "x(15)" .
         
         PUT "<R59><C3><#9><FROM><R59><C50><RECT><||3>" SKIP
             "<R69><C3><FROM><R69><C50><LINE><||3>" SKIP 
             "<R59><C3><FROM><R69><C3><LINE><||3>" SKIP
             "<R59><C50><FROM><R69><C50><LINE><||3>" SKIP.
         
-        PUT "<FArial><=4><R57><C3><B><p15> Customer Part#  (P) </B>" SKIP.
+        PUT "<FArial><=4><R57><C3><B><p15> Customer Part# </B>" SKIP.
         
-        PUT   "<#=100><AT=10.00,5.8><FROM><AT=+.8,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.ord-qty ">"
-            "<AT=10.90,6.1>" tt-word-print.ord-qty  .
+        PUT   "<#=100><AT=10.00,5.8><FROM><AT=+.8,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.ord-qty FORMAT "->,>>>,>>9" ">"
+            "<AT=10.90,6.1>" tt-word-print.ord-qty FORMAT "->,>>>,>>9"  .
         
         PUT "<R59><C53><#9><FROM><R59><C80><RECT><||3>" SKIP
             "<R69><C53><FROM><R69><C80><LINE><||3>" SKIP 
             "<R59><C53><FROM><R69><C53><LINE><||3>" SKIP
             "<R59><C80><FROM><R69><C80><LINE><||3>" SKIP.
-        PUT "<FArial><=4><R57><C65><B><p15> Qty  (Q)</B>" SKIP.
+        PUT "<FArial><=4><R57><C65><B><p15> Qty </B>" SKIP.
         
-        PUT   "<#=100><AT=12.00,3.6><FROM><AT=+.8,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.cust-po-no FORMAT "x(15)" ">"
-            "<AT=12.90,4.4>" tt-word-print.cust-po-no FORMAT "x(15)"  .
+        PUT   "<#=100><AT=12.00,3.4><FROM><AT=+.8,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.cust-po-no FORMAT "x(15)" ">"
+            "<AT=12.90,3.57>" tt-word-print.cust-po-no FORMAT "x(15)"  .
         
         PUT "<R72><C25><#9><FROM><R72><C65><RECT><||3>" SKIP
             "<R80><C25><FROM><R80><C65><LINE><||3>" SKIP 
             "<R72><C25><FROM><R80><C25><LINE><||3>" SKIP
             "<R72><C65><FROM><R80><C65><LINE><||3>" SKIP.
-        PUT "<FArial><=4><R70><C36><B><p15> Customer Po#  (Z)</B>" SKIP.
+        PUT "<FArial><=4><R70><C36><B><p15> Customer Po# </B>" SKIP.
         
          .
         

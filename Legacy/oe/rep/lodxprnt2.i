@@ -50,8 +50,7 @@
         
         PUT "<R35><C3><#7><FROM><R35><C80><RECT><||3>" SKIP
             "<R39><C3><FROM><R39><C80><LINE><||3>" SKIP  
-            "<R35><C3><FROM><R36><C3><LINE><||3>" SKIP
-            "<R38><C3><FROM><R39><C3><LINE><||3>" SKIP
+            "<R35><C3><FROM><R39><C3><LINE><||3>" SKIP
             "<R35><C80><FROM><R39><C80><LINE><||3>" SKIP.
         
         PUT "<FArial><=7><R-2><B><P14> Customer Part# </B>" SKIP.
@@ -59,12 +58,11 @@
         
         PUT "<R42><C3><#8><FROM><R42><C80><RECT><||3>" SKIP
             "<R48><C3><FROM><R48><C80><LINE><||3>" SKIP  
-            "<R42><C3><FROM><R44><C3><LINE><||3>" SKIP
-            "<R46><C3><FROM><R48><C3><LINE><||3>" SKIP
+            "<R42><C3><FROM><R48><C3><LINE><||3>" SKIP
             "<R42><C80><FROM><R48><C80><LINE><||3>" SKIP.
         
         PUT "<FArial><=8><R-2><B><P14> Item Description </B>" SKIP.
-        PUT "<FArial><=8><R43><C2><B><P22>  " tt-word-print.part-dscr1 FORMAT "x(30)"  "</B>" SKIP.
+        PUT "<FArial><=8><R43.5><C2><B><P22>  " tt-word-print.i-name FORMAT "x(25)"  "</B>" SKIP.
         
         PUT "<R51><C3><#9><FROM><R51><C80><RECT><||3>" SKIP
             "<R55><C3><FROM><R55><C80><LINE><||3>" SKIP  
@@ -158,8 +156,7 @@
         
         PUT "<R55><C3><#7><FROM><R55><C80><RECT><||3>" SKIP
             "<R59><C3><FROM><R59><C80><LINE><||3>" SKIP  
-            "<R55><C3><FROM><R56><C3><LINE><||3>" SKIP
-            "<R58><C3><FROM><R59><C3><LINE><||3>" SKIP
+            "<R55><C3><FROM><R59><C3><LINE><||3>" SKIP
             "<R55><C80><FROM><R59><C80><LINE><||3>" SKIP.
         
         PUT "<FArial><=7><R-2><B><P14> Customer Part# </B>" SKIP.
@@ -167,12 +164,11 @@
         
         PUT "<R62><C3><#8><FROM><R62><C80><RECT><||3>" SKIP
             "<R68><C3><FROM><R68><C80><LINE><||3>" SKIP  
-            "<R62><C3><FROM><R64><C3><LINE><||3>" SKIP
-            "<R66><C3><FROM><R68><C3><LINE><||3>" SKIP
+            "<R62><C3><FROM><R68><C3><LINE><||3>" SKIP
             "<R62><C80><FROM><R68><C80><LINE><||3>" SKIP.
         
         PUT "<FArial><=8><R-2><B><P14> Item Description </B>" SKIP.
-        PUT "<FArial><=8><R63><C2><B><P22>  " tt-word-print.part-dscr1 FORMAT "x(30)"  "</B>" SKIP.
+        PUT "<FArial><=8><R63.5><C2><B><P22>  " tt-word-print.i-name FORMAT "x(25)"  "</B>" SKIP.
         
         PUT "<R71><C3><#9><FROM><R71><C80><RECT><||3>" SKIP
             "<R75><C3><FROM><R75><C80><LINE><||3>" SKIP  

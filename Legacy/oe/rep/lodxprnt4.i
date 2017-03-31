@@ -18,7 +18,7 @@ IF tb_print-view THEN DO:
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT UNFORMATTED   
-               "<C4><R5.5><#1><R+90><C+80><IMAGE#1=" ls-full-img1.
+               "<C4><R5.5><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
         
          PUT "<R17><C3><P25><FROM><R17><C80><LINE>" SKIP.
         
@@ -64,7 +64,7 @@ IF tb_print-view THEN DO:
             "<R55><C18><FROM><R60><C18><LINE><||3>" SKIP.
         
         PUT "<FArial><=10><R53><C4><B><P22> Qty </B>" SKIP.
-        PUT "<FArial><=10><R56><C2><B><P21>" tt-word-print.ord-qty  "</B>" SKIP.
+        PUT "<FArial><=10><R56><C2><B><P21>" tt-word-print.ord-qty FORMAT "->,>>>,>>9"  "</B>" SKIP.
         
         PUT "<R55><C20><#11><FROM><R55><C29><RECT><||3>" SKIP
             "<R60><C20><FROM><R60><C29><LINE><||3>" SKIP  
@@ -110,7 +110,7 @@ ELSE DO:
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT UNFORMATTED   
-               "<C4><R25.5><#1><R+90><C+80><IMAGE#1=" ls-full-img1.
+               "<C4><R25.5><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
         
          PUT "<R37><C3><P25><FROM><R37><C80><LINE>" SKIP.
         
@@ -156,7 +156,7 @@ ELSE DO:
             "<R75><C18><FROM><R80><C18><LINE><||3>" SKIP.
         
         PUT "<FArial><=10><R73><C4><B><P22> Qty </B>" SKIP.
-        PUT "<FArial><=10><R76><C2><B><P21>" tt-word-print.ord-qty  "</B>" SKIP.
+        PUT "<FArial><=10><R76><C2><B><P21>" tt-word-print.ord-qty FORMAT "->,>>>,>>9"  "</B>" SKIP.
         
         PUT "<R75><C20><#11><FROM><R75><C29><RECT><||3>" SKIP
             "<R80><C20><FROM><R80><C29><LINE><||3>" SKIP  

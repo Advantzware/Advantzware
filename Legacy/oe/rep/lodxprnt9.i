@@ -18,7 +18,7 @@ IF tb_print-view THEN do:
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT UNFORMATTED   
-               "<C4><R5.5><#1><R+90><C+80><IMAGE#1=" ls-full-img1.
+               "<C4><R4.5><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
         PUT "<R17><C3><P25><FROM><R17><C80><LINE>" SKIP.
         
          PUT "<FArial><R15><C3><p12><B>" tt-word-print.ship-add1 FORMAT "x(30)"  "</B>" .
@@ -118,7 +118,7 @@ ELSE DO:
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT UNFORMATTED   
-               "<C4><R25.5><#1><R+90><C+80><IMAGE#1=" ls-full-img1.
+               "<C4><R24.5><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
         PUT "<R37><C3><P25><FROM><R37><C80><LINE>" SKIP.
         
          PUT "<FArial><R35><C3><p12><B>" tt-word-print.ship-add1 FORMAT "x(30)"  "</B>" .
