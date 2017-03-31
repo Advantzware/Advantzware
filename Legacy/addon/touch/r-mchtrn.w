@@ -782,6 +782,7 @@ DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 DEFINE VARIABLE iTothours AS INTEGER NO-UNDO .
 DEFINE VARIABLE iRunQty   AS INTEGER NO-UNDO.
 DEFINE VARIABLE iWasteQty AS INTEGER NO-UNDO.
+DEFINE VARIABLE cTot      AS CHARACTER NO-UNDO .
 SESSION:SET-WAIT-STATE("general").
 
 {sys/form/r-top3w.f}
@@ -976,12 +977,16 @@ FOR EACH mach FIELDS(m-code) WHERE
   ELSE IF tb_excel THEN PUT STREAM excel SKIP.
 END. /* sort by machine/date/time*/
 
+ASSIGN cTot = STRING(TRUNCATE(iTothours / 3600,0),">>>99") + ":" + 
+                              STRING(((iTothours MOD 3600) / 60),"99") .
+
 PUT  "-------- ----------- ------ " AT 89
      " Totals:   " AT 78
-     trim(STRING(iTothours / 3600,">>>>>.99")) FORMAT "x(8)" SPACE(1)
+     trim(cTot)  FORMAT "x(8)" SPACE(1)
      iRunQty FORMAT ">>>>>>>>>>9" SPACE(1)
      iWasteQty FORMAT ">>>>>9"
-    SKIP .
+    SKIP   .
+    .
 
 
 output close.
