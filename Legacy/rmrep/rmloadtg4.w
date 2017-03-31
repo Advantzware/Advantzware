@@ -636,7 +636,7 @@ DO:
   DEFINE VARIABLE opCharVal AS CHARACTER NO-UNDO.
   DEFINE VARIABLE opRecID AS RECID NO-UNDO.
 
-  RUN windows/l-itmpo.w (cocode,'',begin_po-no:SCREEN-VALUE,begin_rm-i-no:SCREEN-VALUE,OUTPUT opCharVal,OUTPUT opRecID).
+  RUN windows/l-itmpo.w (cocode,'',begin_po-no:SCREEN-VALUE,end_po-no:SCREEN-VALUE,OUTPUT opCharVal,OUTPUT opRecID).
   IF opCharVal NE '' THEN
   SELF:SCREEN-VALUE = ENTRY(1,opCharVal).
   APPLY 'ENTRY':U TO SELF.
@@ -652,7 +652,7 @@ DO:
   DEFINE VARIABLE opCharVal AS CHARACTER NO-UNDO.
   DEFINE VARIABLE opRecID AS RECID NO-UNDO.
 
-  RUN windows/l-itmpo.w (cocode,'',end_po-no:SCREEN-VALUE,end_rm-i-no:SCREEN-VALUE,OUTPUT opCharVal,OUTPUT opRecID).
+  RUN windows/l-itmpo.w (cocode,'',begin_po-no:SCREEN-VALUE,end_po-no:SCREEN-VALUE,OUTPUT opCharVal,OUTPUT opRecID).
   IF opCharVal NE '' THEN
   SELF:SCREEN-VALUE = ENTRY(1,opCharVal).
   APPLY 'ENTRY':U TO SELF.
