@@ -7,7 +7,7 @@ IF tb_print-view THEN do:
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT UNFORMATTED   
-               "<C4><R5.5><#1><R+90><C+80><IMAGE#1=" ls-full-img1.
+               "<C4><R4.5><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
         
          PUT "<R16><C3><P25><FROM><R16><C80><LINE>" SKIP.
         
@@ -25,8 +25,8 @@ IF tb_print-view THEN do:
             "<R28><C3><FROM><R33><C3><LINE><||3>" SKIP
             "<R28><C40><FROM><R33><C40><LINE><||3>" SKIP.
         
-        PUT "<FArial><=5><R-2><B><p15> Shorr Part#                                                   Cust Part# </B>" SKIP.
-        PUT "<FArial><=5><R29.5><C3><B><P18>  " tt-word-print.cust-part-no FORMAT "x(15)"   "</B>" SKIP.
+        PUT "<FArial><=5><R-2><B><p15> FG#                                                                Cust Part# </B>" SKIP.
+        PUT "<FArial><=5><R29.5><C3><B><P18>  " tt-word-print.i-no FORMAT "x(15)"   "</B>" SKIP.
         
         
         PUT "<R28><C45><#6><FROM><R28><C80><RECT><||3>" SKIP
@@ -62,8 +62,8 @@ IF tb_print-view THEN do:
         
         PUT "<FArial><=4><R42><C3><B><p15> Finished Goods Item# (VPN) </B>" SKIP.
         
-        PUT   "<#=100><AT=7.6,5.4><FROM><AT=+.8,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.ord-qty   ">"
-            "<AT=7.3,5.7>" tt-word-print.ord-qty   .
+        PUT   "<#=100><AT=7.6,5.4><FROM><AT=+.8,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.ord-qty FORMAT "->,>>>,>>9"   ">"
+            "<AT=7.3,5.7>" tt-word-print.ord-qty FORMAT "->,>>>,>>9"   .
         
         PUT "<R44><C45><#9><FROM><R44><C80><RECT><||3>" SKIP
             "<R54><C45><FROM><R54><C80><LINE><||3>" SKIP 
@@ -81,7 +81,7 @@ ELSE DO:
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT UNFORMATTED   
-               "<C4><R25.5><#1><R+90><C+80><IMAGE#1=" ls-full-img1.
+               "<C4><R24.5><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
         
          PUT "<R36><C3><P25><FROM><R36><C80><LINE>" SKIP.
         
@@ -99,8 +99,8 @@ ELSE DO:
             "<R48><C3><FROM><R53><C3><LINE><||3>" SKIP
             "<R48><C40><FROM><R53><C40><LINE><||3>" SKIP.
         
-        PUT "<FArial><=5><R-2><B><p15> Shorr Part#                                                   Cust Part# </B>" SKIP.
-        PUT "<FArial><=5><R49.5><C3><B><P18>  " tt-word-print.cust-part-no FORMAT "x(15)"   "</B>" SKIP.
+        PUT "<FArial><=5><R-2><B><p15> FG#                                                                Cust Part# </B>" SKIP.
+        PUT "<FArial><=5><R49.5><C3><B><P18>  " tt-word-print.i-no FORMAT "x(15)"   "</B>" SKIP.
         
         
         PUT "<R48><C45><#6><FROM><R48><C80><RECT><||3>" SKIP
@@ -136,8 +136,8 @@ ELSE DO:
         
         PUT "<FArial><=4><R62><C3><B><p15> Finished Goods Item# (VPN) </B>" SKIP.
         
-        PUT   "<#=100><AT=10.85,5.4><FROM><AT=+.8,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.ord-qty   ">"
-            "<AT=11.70,5.7>" tt-word-print.ord-qty   .
+        PUT   "<#=100><AT=10.85,5.4><FROM><AT=+.8,+2><BARCODE,TYPE=128B,CHECKSUM=NONE,VALUE=" tt-word-print.ord-qty FORMAT "->,>>>,>>9"   ">"
+            "<AT=11.70,5.7>" tt-word-print.ord-qty FORMAT "->,>>>,>>9"   .
         
         PUT "<R64><C45><#9><FROM><R64><C80><RECT><||3>" SKIP
             "<R74><C45><FROM><R74><C80><LINE><||3>" SKIP 

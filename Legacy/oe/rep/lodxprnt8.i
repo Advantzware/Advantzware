@@ -1,4 +1,10 @@
-/* oe/rep/invxprnt.i */    
+/* oe/rep/invxprnt.i */ 
+
+
+DEFINE VARIABLE cSize AS CHARACTER.
+
+cSize = string(itemfg.l-score[50]) + "X" + STRING(itemfg.w-score[50]) + "X" + string(itemfg.d-score[50]) .
+  
 
 IF tb_print-view THEN do:                 
 
@@ -7,7 +13,7 @@ IF tb_print-view THEN do:
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT UNFORMATTED   
-               "<C4><R5.5><#1><R+90><C+80><IMAGE#1=" ls-full-img1.
+               "<C4><R15.5><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
         
          PUT "<R33><C30><P22><FROM><R33><C80><LINE>" SKIP.
         
@@ -23,7 +29,7 @@ IF tb_print-view THEN do:
         
          PUT "<R48><C11><P22><FROM><R48><C80><LINE>" SKIP.
         
-         PUT "<FArial><=5><R45><B><P21> SIZE: "  "<C11>"  /*tt-word-print.i-no FORMAT "x(15)"*/ "x-x-x"   "</B>".
+         PUT "<FArial><=5><R45><B><P21> SIZE: "  "<C11>"  cSize "</B>".
         
          PUT "<R53><C14><P22><FROM><R53><C80><LINE>" SKIP.
         
@@ -31,7 +37,7 @@ IF tb_print-view THEN do:
         
          PUT "<R59><C20><P22><FROM><R59><C80><LINE>".
         
-         PUT "<FArial><=7><R56><B><P21> QUANTITY: "   "<C20>"  tt-word-print.ord-qty     "</B>".
+         PUT "<FArial><=7><R56><B><P21> QUANTITY: "   "<C20>"  tt-word-print.ord-qty FORMAT "->,>>>,>>9"    "</B>".
         
          PUT "<FArial><=9><R64><C7> <B><P22> "    tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99")  "</B>" SKIP.
          PUT "<FArial><=9><R64><C37> <B><P22> "    tt-word-print.i-no FORMAT "x(15)"  "</B>" SKIP.
@@ -47,7 +53,7 @@ ELSE DO:
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT UNFORMATTED   
-               "<C4><R25.5><#1><R+90><C+80><IMAGE#1=" ls-full-img1.
+               "<C4><R25.5><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
         
          PUT "<R43><C30><P22><FROM><R43><C80><LINE>" SKIP.
         
@@ -63,7 +69,7 @@ ELSE DO:
         
          PUT "<R58><C11><P22><FROM><R58><C80><LINE>" SKIP.
         
-         PUT "<FArial><=5><R55><B><P21> SIZE: "  "<C11>"  /*tt-word-print.i-no FORMAT "x(15)"*/ "x-x-x"   "</B>".
+         PUT "<FArial><=5><R55><B><P21> SIZE: "  "<C11>"  cSize  "</B>".
         
          PUT "<R63><C14><P22><FROM><R63><C80><LINE>" SKIP.
         
@@ -71,7 +77,7 @@ ELSE DO:
         
          PUT "<R69><C20><P22><FROM><R69><C80><LINE>".
         
-         PUT "<FArial><=7><R66><B><P21> QUANTITY: "   "<C20>"  tt-word-print.ord-qty     "</B>".
+         PUT "<FArial><=7><R66><B><P21> QUANTITY: "   "<C20>"  tt-word-print.ord-qty FORMAT "->,>>>,>>9"    "</B>".
         
          PUT "<FArial><=9><R74><C7> <B><P22> "    tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99")  "</B>" SKIP.
          PUT "<FArial><=9><R74><C37> <B><P22> "    tt-word-print.i-no FORMAT "x(15)"  "</B>" SKIP.
