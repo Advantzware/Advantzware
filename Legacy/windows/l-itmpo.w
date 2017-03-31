@@ -33,7 +33,7 @@
 def input parameter ip-company like itemfg.company no-undo.
 def input parameter ip-industry like style.industry no-undo.
 def input parameter ip-po-no like po-ord.po-no no-undo.
-def input parameter ip-cur-val as cha no-undo.
+def input parameter ip-cur-val LIKE po-ord.po-no no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
 DEF OUTPUT PARAM op-rec-val AS RECID NO-UNDO.
 
@@ -367,15 +367,16 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
+
   FOR EACH po-ordl NO-LOCK
        WHERE po-ordl.company = ip-company 
-        AND  po-ordl.po-no = ip-po-no :
+        AND  po-ordl.po-no GE ip-po-no
+        AND  po-ordl.po-no LE ip-cur-val :
          cCheckItem = cCheckItem + po-ordl.i-no + "," .
   END.
   IF cCheckItem = "," THEN cCheckItem = "" .
-  IF ip-cur-val EQ "zzzzzzzzzzzzzzz" THEN ip-cur-val = "" .
-
-  /*&scoped-define key-phrase {&fld-name-1} >= ip-cur-val*/
+  
+/*&scoped-define key-phrase {&fld-name-1} >= ip-cur-val*/
   &scoped-define sortby-phrase {&sortby-1}
   
   RUN enable_UI.
