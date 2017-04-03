@@ -27,6 +27,7 @@
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 
 def input param ip-field as cha no-undo.
 def input param ip-table as cha no-undo.
@@ -276,19 +277,32 @@ DEFINE VARIABLE fr-fram  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE fr-field  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE fr-file  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE fr-flags AS CHAR NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
-find first sys-ctrl  WHERE sys-ctrl.name    eq "AsiHelpClientID"
-        no-lock no-error.
+find first sys-ctrl NO-LOCK
+     WHERE sys-ctrl.name    eq "AsiHelpClientID"
+       AND sys-ctrl.company EQ g_company NO-ERROR .
   IF AVAIL sys-ctrl THEN
         vclint = sys-ctrl.char-fld  .
+  ELSE DO:
+      RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpClientID", "C" /* Logical */, NO /* check by cust */, 
+      INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+      OUTPUT cRtnChar, OUTPUT lRecFound).
+  END.
   RELEASE sys-ctrl .
 
-find first sys-ctrl  WHERE sys-ctrl.name    eq "AsiHelpService"
-        no-lock no-error.
+find first sys-ctrl NO-LOCK
+     WHERE sys-ctrl.name    eq "AsiHelpService"
+       AND sys-ctrl.company EQ g_company NO-ERROR.
   IF AVAIL sys-ctrl THEN
       ASSIGN vconn = sys-ctrl.char-fld .
-  ELSE
+  ELSE do:
       vconn = "".
+      RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpService", "C" /* Logical */, NO /* check by cust */, 
+      INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+      OUTPUT cRtnChar, OUTPUT lRecFound).
+  END.
   RELEASE sys-ctrl .
 
 
