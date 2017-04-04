@@ -236,8 +236,9 @@ DO:
 /* mod - sewa for Web Services task 08211210 */
       ASSIGN op-ed-text = STRING(ed-text:SCREEN-VALUE).
      
-      find first sys-ctrl  WHERE sys-ctrl.name    eq "AsiHelpService"
-        no-lock no-error.
+      find first sys-ctrl NO-LOCK
+           WHERE sys-ctrl.name    eq "AsiHelpService"
+             AND sys-ctrl.company EQ g_company NO-ERROR.
       IF AVAIL sys-ctrl THEN
          ASSIGN vconn = sys-ctrl.char-fld .
       ELSE
@@ -343,8 +344,9 @@ find first help-msg where asihlp.help-msg.msg-number = hlp-head.msg-num no-lock 
 */                 
 
 /* mod - sewa for Web Services task 08211210 */
-find first sys-ctrl  WHERE sys-ctrl.name    eq "AsiHelpService"
-        no-lock no-error.
+find first sys-ctrl NO-LOCK
+     WHERE sys-ctrl.name    eq "AsiHelpService"
+       AND sys-ctrl.company EQ g_company NO-ERROR.
   IF AVAIL sys-ctrl THEN
       ASSIGN vconn = sys-ctrl.char-fld .
   ELSE
