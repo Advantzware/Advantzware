@@ -124,9 +124,9 @@ DEFINE VARIABLE v-recalc-estimates AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     v-old-style AT ROW 1.76 COL 16.8 COLON-ALIGNED
-     v-new-style AT ROW 3 COL 16.8 COLON-ALIGNED
-     v-cust-no AT ROW 4.1 COL 16.8 COLON-ALIGNED WIDGET-ID 2
+     v-old-style AT ROW 1.76 COL 19 COLON-ALIGNED
+     v-new-style AT ROW 3 COL 19 COLON-ALIGNED
+     v-cust-no AT ROW 4.1 COL 19 COLON-ALIGNED WIDGET-ID 2
      v-recalc-estimates AT ROW 5.76 COL 19 WIDGET-ID 4
      Btn_OK AT ROW 8.62 COL 21
      Btn_Cancel AT ROW 8.62 COL 38.6

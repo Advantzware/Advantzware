@@ -92,9 +92,9 @@ srchPrgTitle EQ "") NO-LOCK INDEXED-REPOSITION.
     ~{&OPEN-QUERY-browsePrgrms}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnSave srchPrgmName btnClearSrchPrgmName ~
-srchPrgTitle browseMFPrgrms browsePrgrms btnClearSrchPrgTitle btnRestore ~
-btnExit 
+&Scoped-Define ENABLED-OBJECTS btnSave srchPrgmName srchPrgTitle ~
+browseMFPrgrms btnClearSrchPrgmName browsePrgrms btnClearSrchPrgTitle ~
+btnRestore btnExit 
 &Scoped-Define DISPLAYED-OBJECTS mfGroup srchPrgmName srchPrgTitle 
 
 /* Custom List Definitions                                              */
@@ -132,7 +132,7 @@ DEFINE BUTTON btnRestore
      SIZE 8 BY 1.91 TOOLTIP "Reset"
      FONT 4.
 
-DEFINE BUTTON btnSave 
+DEFINE BUTTON btnSave AUTO-GO 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Save" 
      SIZE 8 BY 1.91 TOOLTIP "Save"
@@ -192,11 +192,11 @@ DEFINE FRAME Dialog-Frame
      mfGroup AT ROW 2.19 COL 14 COLON-ALIGNED WIDGET-ID 10
      srchPrgmName AT ROW 3.14 COL 80 COLON-ALIGNED HELP
           "Search Program" WIDGET-ID 14
-     btnClearSrchPrgmName AT ROW 3.14 COL 99 HELP
-          "Clear Program Search" WIDGET-ID 18
      srchPrgTitle AT ROW 3.14 COL 101 COLON-ALIGNED HELP
           "Search Title" NO-LABEL WIDGET-ID 16
      browseMFPrgrms AT ROW 4.33 COL 1 WIDGET-ID 200
+     btnClearSrchPrgmName AT ROW 3.14 COL 99 HELP
+          "Clear Program Search" WIDGET-ID 18
      browsePrgrms AT ROW 4.33 COL 82 WIDGET-ID 100
      btnClearSrchPrgTitle AT ROW 3.14 COL 157 HELP
           "Clear Program Search" WIDGET-ID 20
@@ -229,7 +229,7 @@ DEFINE FRAME Dialog-Frame
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
 /* BROWSE-TAB browseMFPrgrms srchPrgTitle Dialog-Frame */
-/* BROWSE-TAB browsePrgrms browseMFPrgrms Dialog-Frame */
+/* BROWSE-TAB browsePrgrms btnClearSrchPrgmName Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
@@ -371,7 +371,6 @@ ON CHOOSE OF btnSave IN FRAME Dialog-Frame /* Save */
 DO:
     RUN saveMFPrgrms.
     ioplSavePrompt = YES.
-    MESSAGE "UDF Attach Programs Saved" VIEW-AS ALERT-BOX TITLE "Save".
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -481,7 +480,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY mfGroup srchPrgmName srchPrgTitle 
       WITH FRAME Dialog-Frame.
-  ENABLE btnSave srchPrgmName btnClearSrchPrgmName srchPrgTitle browseMFPrgrms 
+  ENABLE btnSave srchPrgmName srchPrgTitle browseMFPrgrms btnClearSrchPrgmName 
          browsePrgrms btnClearSrchPrgTitle btnRestore btnExit 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.

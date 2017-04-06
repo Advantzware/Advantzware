@@ -318,6 +318,14 @@ do while avail {1} and x eq 0:
     {cec/kxy2.i "{1}" COL v-short-qty-set}
 
   else
+  if mstd.{3}-x eq 33 then
+    {cec/kxy2.i "{1}" COL xeb.num-wid}
+
+  else
+  if mstd.{3}-x eq 34 then
+    {cec/kxy2.i "{1}" COL xeb.num-len}
+
+  else
   if mstd.{3}-x eq 98 then i = 1.
 
   if i gt 0 and i lt 11 then
@@ -456,6 +464,14 @@ do while avail {1} and y eq 0:
   else
   if mstd.{3}-y eq 32 then
     {cec/kxy2.i "{1}" row v-short-qty-set}
+
+  else
+   if mstd.{3}-y eq 33 then
+    {cec/kxy2.i "{1}" row xeb.num-wid}
+
+  else
+  if mstd.{3}-y eq 34 then
+    {cec/kxy2.i "{1}" row xeb.num-len}
 
   else
   if mstd.{3}-y eq 98 then i = 1.

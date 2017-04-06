@@ -43,6 +43,8 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
 
+&SCOPED-DEFINE browse2 sys/HELP/j-help.i
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -83,8 +85,8 @@ hlp-head.help-txt
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+Btn_Clear_Find td_status
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find td_status
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -112,11 +114,16 @@ DEFINE VARIABLE browse-order AS INTEGER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "N/A", 1
-     SIZE 55 BY 1 NO-UNDO.
+     SIZE 37 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 145 BY 1.43.
+
+DEFINE VARIABLE td_status AS LOGICAL INITIAL no 
+     LABEL "Glossary Only?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18.4 BY .81 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -157,6 +164,7 @@ DEFINE FRAME F-Main
           "Enter Auto Find Value"
      Btn_Clear_Find AT ROW 19.33 COL 132 HELP
           "CLEAR AUTO FIND Value"
+     td_status AT ROW 19.40 COL 41.6 WIDGET-ID 4
      "By:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 19.33 COL 2
      RECT-4 AT ROW 19.1 COL 1
@@ -305,6 +313,21 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME td_status
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td_status B-table-Win
+ON VALUE-CHANGED OF td_status IN FRAME F-Main /* Posted */
+DO:
+  ASSIGN td_status.
+  
+  RUN local-open-query.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK B-table-Win 
@@ -377,6 +400,7 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  APPLY "value-changed" TO browse-order IN FRAME {&FRAME-NAME}.
   APPLY "value-changed" TO BROWSE {&browse-name}.
   APPLY "entry" TO BROWSE {&browse-name}.
 END PROCEDURE.

@@ -27,7 +27,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "FGRecptUnit,OeDateWarn,PREPMASTER,POFarmOutScores,OEQtyPerUnitWarn,APMatTypeExceptions," 
             + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
             + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
-            + "KiwiT,BusinessFormModal,CEGotoCalc"  .
+            + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc"  .
 
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -277,12 +277,22 @@ CASE ip-nk1-value:
                            INPUT "Set Business Form Preview window to Modal (wait to close)?",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
                            INPUT NO /* Logical value */).
+    WHEN "LoadTagXprintImage" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "Set Logo on xprint loadtag ",
+                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT NO /* Logical value */).
+    WHEN "AsiHelpClientID" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "Asi Help Client ID ",
+                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT YES /* Logical value */).
     WHEN "CEGotoCalc" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Use enhanced GOTO Screen from Estimate?",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).
-        
+                                   
 END CASE.
 ELSE
 CASE ip-nk1-value:

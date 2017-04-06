@@ -138,7 +138,7 @@ DEFINE BUTTON printSBOL
      IMAGE-UP FILE "Graphics/32x32/document_check_edit.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 9 BY 2.14 TOOLTIP "Print BOL".
+     SIZE 9 BY 2.14 TOOLTIP "Print Signed BOL".
 
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 

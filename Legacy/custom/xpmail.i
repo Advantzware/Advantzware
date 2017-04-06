@@ -27,7 +27,7 @@ DEFINE VARIABLE lv-mailattach       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE vlSilentMode        AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE vcRecordID          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ls-to-list2         AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE cCheckMailFormat    AS CHARACTER NO-UNDO .
 DEFINE BUFFER b2-cust               FOR cust.
     
 IF ipType BEGINS 'CUSTOMER' THEN DO:
@@ -194,10 +194,11 @@ IF lv-mailattach MATCHES('*xpr*') AND SEARCH('viewer.exe') NE ? THEN
     FILE-INFO:FILE-NAME = 'viewer.exe'
     lv-mailattach       = FILE-INFO:FULL-PATHNAME + ',' + lv-mailattach.
 
+cCheckMailFormat = entry(1,ipType,"|") .
+
 /* Customer, Vendor, ShipTo   = DIALOG BOX        */
-IF TRIM(ipType) EQ "" OR SUBSTRING (ipType, LENGTH (ipType)) ne '1' THEN
+IF TRIM(ipType) EQ "" OR SUBSTRING (cCheckMailFormat, LENGTH (cCheckMailFormat)) ne '1' THEN
 do:
-    
   RUN mail (lv-mailto,        /* Mail Recepients  */
             lv-mailsubject,   /* Subject          */
             lv-mailbody,      /* Body             */

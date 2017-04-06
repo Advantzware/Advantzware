@@ -264,7 +264,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                    ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6].
        /* gdm - 11170804 deducted 2 char from format, used to be 30 */
        IF v-board NE "" THEN PUT SPACE(28) v-board FORM "x(28)".
-       ELSE numfit = 10.
+      /* ELSE numfit = 10.*/
     END.
 
     IF i GT numfit THEN PUT SPACE(58) .
@@ -295,12 +295,19 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        put xqqty.qty FORMAT ">>>>>>>9" TO 65
        */
        /* gdm - 11040801 - added 1 char(int) to format to fit 10 million + qty */
-        
-       put xqqty.qty FORMAT ">>>>>>>9" TO 65
-           xqqty.rels space(6)
-           xqqty.price FORMAT "->>>>,>>9.99<<" space(2)
-           xqqty.uom.   
+       IF LINE-COUNTER > PAGE-SIZE - 1 THEN DO: 
+           v-printline = 0.
+           page.  
+           {cec/quote/quoxpnt2.i}
+       PUT SKIP(1).
+       END.
+
        
+       PUT "<C48>" xqqty.qty FORMAT ">>>>>>>9"  SPACE(1)
+           xqqty.rels space(5)
+           xqqty.price FORMAT "->>>>,>>9.99<<" space(2)
+           xqqty.uom.
+           
        v-line-total = v-line-total + xqqty.price.
     END.
 

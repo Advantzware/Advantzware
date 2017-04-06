@@ -967,7 +967,7 @@ FOR EACH job
 IF v-clos THEN
 FOR EACH job
     WHERE job.opened     EQ NO
-      AND job.close-date LE v-date
+      AND job.close-date GT v-date
   {jc/rep/wipbycat.i "use-index opened"}
 
 for each tt-report,

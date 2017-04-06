@@ -14,6 +14,8 @@ def var v-date      AS CHAR format "x(10)" NO-UNDO.
 def var v-pric      like ar-invl.unit-pr.
 def var v-uom       like ar-invl.pr-uom.
 def var v-brdc      as   dec.
+def var v-ordc      as   dec.
+def var v-invc      as   dec.
 def var v-marg      as   dec.
 def var v-brdp      as   dec.
 def var v-$msf      as   dec.
@@ -21,6 +23,8 @@ def var v-$msf      as   dec.
 def {1} var v-qty   as   int extent 4.
 def {1} var v-msf   as   dec extent 4.
 def {1} var v-cst   as   dec extent 4.
+def {1} var v-cst1   as  dec extent 4.
+def {1} var v-cst2   as  dec extent 4.
 def {1} var v-amt   as   dec extent 4.
 
 def var v-cust-no   like cust.cust-no.

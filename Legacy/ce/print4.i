@@ -72,7 +72,7 @@ DEFINE {2} VARIABLE tprep-add               AS DECIMAL   FORMAT "->>>>>9.99" NO-
 DEFINE {2} VARIABLE tprep-atz               AS DECIMAL   FORMAT "->>>>>9.99" NO-UNDO.
 DEFINE {2} VARIABLE tprep-sim               AS CHARACTER NO-UNDO.
 DEFINE {2} VARIABLE tprep-tot               AS DECIMAL   FORMAT "->>>>>9.99" NO-UNDO.
-DEFINE {2} VARIABLE op-tot                  AS DECIMAL   EXTENT 7 NO-UNDO.
+DEFINE {2} VARIABLE op-tot                  AS DECIMAL   EXTENT 10 NO-UNDO.
 DEFINE {2} VARIABLE mis-tot                 AS DECIMAL   EXTENT 6 NO-UNDO.
 DEFINE {2} VARIABLE tt-blk                  AS DECIMAL   NO-UNDO.           /* total blank qty all sheets */
 DEFINE {2} VARIABLE r-spo$                  AS DECIMAL   EXTENT 99 NO-UNDO.
@@ -98,6 +98,7 @@ DEFINE {2} VARIABLE cm-disp                 AS CHARACTER NO-UNDO.
 DEFINE {2} VARIABLE cmah-disp               AS CHARACTER NO-UNDO.
 DEFINE {2} VARIABLE cmoh-disp               AS CHARACTER NO-UNDO.
 DEFINE {2} VARIABLE cm%-disp                AS CHARACTER NO-UNDO.
+DEFINE {2} VARIABLE dTotalManHrs            AS DECIMAL   NO-UNDO.
 
 DEFINE     VARIABLE save-lock               AS LOG       NO-UNDO.
 DEFINE     VARIABLE do-gsa                  AS LOG       INIT NO NO-UNDO.
