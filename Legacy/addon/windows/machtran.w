@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: windows/machtran.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -155,17 +155,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -223,7 +219,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -647,7 +643,7 @@ PROCEDURE exit-procedure :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   IF VALID-HANDLE(hCaller) THEN
       RUN Destroy-JobNotes IN hCaller NO-ERROR.
 
@@ -768,7 +764,7 @@ PROCEDURE local-exit :
    APPLY "CLOSE":U TO THIS-PROCEDURE.
 
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -842,7 +838,7 @@ PROCEDURE select_dept2 :
 ------------------------------------------------------------------------------*/
   IF AVAIL machtran AND machtran.job_number <> "" THEN DO:
      /*RUN touch/getnote.p (RECID(machtran)).*/
-     
+
      FIND FIRST job WHERE job.company EQ machtran.company AND
                           job.job-no = machtran.job_number AND
                           job.job-no2 = machtran.job_sub NO-LOCK NO-ERROR.
@@ -850,11 +846,11 @@ PROCEDURE select_dept2 :
      IF AVAIL job THEN
      DO:
         RUN touch/getnote.p (job.rec_key).
-       
+
         rec_key_value = job.rec_key.
-       
+
         RUN windows/specnott.w (rec_key_value,HEADER_value,machtran.machine,machtran.form_number).
-       
+
         RUN touch/savenote.p (job.rec_key).
      END.
   END.

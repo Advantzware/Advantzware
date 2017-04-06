@@ -7,7 +7,7 @@
 /*------------------------------------------------------------------------
 
   File: touch/touchfrm.w
- 
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -132,6 +132,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB F-Frame-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {touch/translations.i}
 
@@ -161,7 +162,7 @@ END.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK F-Frame-Win 
@@ -393,7 +394,7 @@ PROCEDURE calc-dock-time :
 ------------------------------------------------------------------------------*/
   def input parameter ip-status as cha no-undo.
   def input-output parameter iop-time as int no-undo.
-  
+
   def var li-hour as int no-undo.
   def var li-mini as int no-undo.
   def var li-dmin as int no-undo.
@@ -401,7 +402,7 @@ PROCEDURE calc-dock-time :
   def var li-docktime as int no-undo.
   def var li-dout as int no-undo.
   def var li-out-min as int no-undo.
-  
+
   find first emptrack.employee where
        emptrack.employee.company = company_code AND
        emptrack.employee.employee = employee_code
@@ -410,10 +411,10 @@ PROCEDURE calc-dock-time :
   if avail emptrack.employee and
      emptrack.employee.dock-time = 0 then
      return.
-   
+
   ASSIGN
     li-docktime = if avail emptrack.employee then emptrack.employee.dock-time else 15  /* 15 min */
-  
+
     /* login In */
     li-hour = truncate(iop-time / 3600,0)
     li-mini = iop-time mod 3600
@@ -422,7 +423,7 @@ PROCEDURE calc-dock-time :
     li-dmin = li-dtim * li-docktime
     li-dout = trunc(li-mini / li-docktime,0)
     li-out-min = li-dout * li-docktime.
-  
+
   if ip-status = "login" then iop-time = li-hour * 3600 + li-dmin * 60.
   else iop-time = li-hour * 3600 + li-out-min * 60.
 
@@ -961,7 +962,7 @@ DO:
                b-emplogin.rec_key NE emplogin.rec_key
                USE-INDEX pi-emplogin
                NO-LOCK NO-ERROR.
-       
+
           IF AVAIL b-emplogin THEN
           DO:
              IF emplogin.start_date = b-emplogin.end_date THEN
@@ -970,7 +971,7 @@ DO:
                 li-diff-time = (86400 - b-emplogin.end_time)
                              + (emplogin.start_date - b-emplogin.end_date - 1) * 86400
                              +  emplogin.START_time.
-            
+
              if NOT (li-diff-time < 0 OR li-diff-time EQ ?) AND
                 li-diff-time GT maxbreak-int then
                 stoptime = li-time-no-dock.
@@ -984,7 +985,7 @@ DO:
        END.
        ELSE
           stoptime = li-time.
-       
+
        RUN Get-Shift(company_code,emplogin.machine,stoptime,"END",OUTPUT shiftvar).
 
        IF shiftvar = emplogin.shift THEN
@@ -1092,7 +1093,7 @@ DO:
                             AND emptrack.employee.employee = employee_code NO-LOCK NO-ERROR.
                RUN Shift-Data(company_code,machinecode,machemp.shift,
                            OUTPUT starttime,OUTPUT endtime).
-              
+
                IF tsdocksec-log AND
                   employee.dock-time GT 0 AND
                   endtime NE li-time-no-dock THEN
@@ -1101,9 +1102,9 @@ DO:
                      endtime = endtime + 1.
                ELSE
                   v-add-one-sec = FALSE.
-              
+
                machemp.end_time = endtime.
-              
+
                {custom/calctime.i &file="machemp"}
                RUN Missing-Shift(company_code,machinecode,machemp.shift,shiftvar,
                               OUTPUT missingshift).
@@ -1111,7 +1112,7 @@ DO:
                DO: /* create record for skipped shift */
                   RUN Shift-Data(company_code,machinecode,missingshift,
                                  OUTPUT starttime,OUTPUT endtime).
-              
+
                   IF NOT CAN-FIND(FIRST buf-machemp WHERE
                      buf-machemp.table_rec_key = machtran.rec_key AND
                      buf-machemp.employee = employee_code AND
@@ -1120,7 +1121,7 @@ DO:
                      DO:
                         IF v-add-one-sec THEN
                            endtime = endtime + 1.
-              
+
                         CREATE buf-machemp.
                         ASSIGN buf-machemp.table_rec_key = machtran.rec_key
                                buf-machemp.employee = employee_code
@@ -1131,7 +1132,7 @@ DO:
                                buf-machemp.shift = missingshift
                                buf-machemp.ratetype = 'Standard'
                                buf-machemp.rate_usage = emptrack.employee.rate_usage.
-                       
+
                         RUN Employee-Rate(company_code,employee_code,buf-machemp.shift,machinecode,
                                       buf-machemp.rate_usage,buf-machemp.ratetype,OUTPUT buf-machemp.rate).
                         {custom/calctime.i &file="buf-machemp"}
@@ -1141,7 +1142,7 @@ DO:
                /* create record for current shift */
                RUN Shift-Data (company_code,machine_code,shiftvar,
                             OUTPUT starttime,OUTPUT endtime).
-              
+
                IF NOT(v-add-one-sec AND starttime EQ stoptime) AND
                   NOT CAN-FIND(FIRST buf-machemp WHERE
                   buf-machemp.table_rec_key = machtran.rec_key AND
@@ -1159,7 +1160,7 @@ DO:
                             buf-machemp.shift = shiftvar
                             buf-machemp.ratetype = 'Standard'
                             buf-machemp.rate_usage = emptrack.employee.rate_usage.
-                    
+
                      RUN Employee-Rate(company_code,employee_code,buf-machemp.shift,machinecode,
                                     buf-machemp.rate_usage,buf-machemp.ratetype,OUTPUT buf-machemp.rate).
                      {custom/calctime.i &file="buf-machemp"}
@@ -1172,7 +1173,7 @@ DO:
        END. /* avail machtran */
     end. /* else  start_date = end_data(today) YSK 09/20/01 */
     /* TSCLOCK mods*/
-                      
+
     IF tsclock-log AND machine_code <> "CLOCK" THEN do:
        CREATE emplogin.
        ASSIGN emplogin.company = company_code
@@ -1215,7 +1216,7 @@ DO:
                   b-emplogin.rec_key NE emplogin.rec_key
                   USE-INDEX pi-emplogin
                   NO-LOCK NO-ERROR.
-          
+
              IF AVAIL b-emplogin THEN
              DO:
                 IF emplogin.start_date = b-emplogin.end_date THEN
@@ -1224,7 +1225,7 @@ DO:
                    li-diff-time = (86400 - b-emplogin.end_time)
                                 + (emplogin.start_date - b-emplogin.end_date - 1) * 86400
                                 +  li-time-no-dock.
-               
+
                 if NOT (li-diff-time < 0 OR li-diff-time EQ ?) AND
                    li-diff-time LE maxbreak-int then
                    emplogin.end_time = li-time-no-dock.
@@ -1275,7 +1276,7 @@ DO:
              li-diff-time = (86400 - b-emplogin.end_time)
                           + (emplogin.start_date - b-emplogin.end_date - 1) * 86400
                           +  li-time-no-dock.
-         
+
           if NOT (li-diff-time < 0 OR li-diff-time EQ ?) AND
              li-diff-time LE maxbreak-int then
              li-time = li-time-no-dock.
@@ -1289,7 +1290,7 @@ DO:
     RUN Get-Shift(company_code,machine_code,emplogin.start_time,"START",
                   OUTPUT emplogin.shift).   
 
-         
+
     /* get active machine if it exists and log into machine */
     FIND FIRST machtran WHERE
          machtran.company = company_code AND
@@ -1324,7 +1325,7 @@ DO:
              RUN Employee-Rate(company_code,machemp.employee,machemp.shift,machine_code,
                                machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
           END.
-          
+
     END. /* avail machtran */
 
     /* ======= mods for dummy transaction for people working without job ===*/
@@ -1350,11 +1351,11 @@ DO:
         machtran.charge_code = charge_code
         machtran-rowid = ROWID(machtran)
         machtran.shift = emplogin.shift.      
-  
+
      /*  RUN Get-Shift(company_code,machine_code,machtran.start_time,job_sequence,
              OUTPUT machtran.shift).
        {methods/run_link.i "CONTAINER" "Set_MachTran_Rowid" "(machtran-rowid)"} */
-      
+
         IF NOT CAN-FIND(FIRST machemp WHERE
            machemp.table_rec_key = machtran.rec_key AND
            machemp.employee = emplogin.employee AND
@@ -1376,7 +1377,7 @@ DO:
       end.  /* industry = x */
     end.  /* else */
     /* end of mods =====*/
-    
+
 END. /* activity_status = login */
   FIND CURRENT machemp NO-LOCK NO-ERROR.
   FIND CURRENT emplogin NO-LOCK NO-ERROR.
@@ -1446,7 +1447,7 @@ PROCEDURE Set_Title :
   DEFINE INPUT PARAMETER window_title AS CHARACTER NO-UNDO.
 
   {methods/run_link.i "CONTAINER" "Set_Title" "(window_title)"}
-  
+
 
 END PROCEDURE.
 

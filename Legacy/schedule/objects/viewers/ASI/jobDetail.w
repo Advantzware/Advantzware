@@ -16,7 +16,7 @@
   Output Parameters: <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -195,17 +195,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("schedule/images/scheduler.ico":U) THEN
-    MESSAGE "Unable to load icon: schedule/images/scheduler.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -240,7 +236,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -641,7 +637,7 @@ PROCEDURE job :
       /*btnJobNotes:HIDDEN = YES*/ .
     RUN disableUpdateButtons IN h_cust-2.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -675,9 +671,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -704,7 +700,7 @@ PROCEDURE local-row-available :
   ASSIGN
     estType = findProgram('{&viewers}/',ID,'/viewers/folding.w')
     estTypeSave = estType.
-  
+
   IF AVAILABLE est THEN
   estType = findProgram('{&viewers}/',ID,'/viewers/' +
            (IF est.est-type LE 4 THEN 'folding.w' ELSE 'corrugated.w')).

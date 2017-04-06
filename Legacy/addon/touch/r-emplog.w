@@ -50,9 +50,9 @@ ASSIGN
 
 DEFINE TEMP-TABLE tt-note NO-UNDO
   FIELD employee LIKE emplogin.employee
-  FIELD rec_key LIKE nosweat.notes.rec_key
-  FIELD note_date LIKE nosweat.notes.note_date
-  FIELD note_title LIKE nosweat.notes.note_title
+  FIELD rec_key LIKE ASI.notes.rec_key
+  FIELD note_date LIKE ASI.notes.note_date
+  FIELD note_title LIKE ASI.notes.note_title
   FIELD note_src AS CHARACTER
   INDEX noteindex employee note_date.
 
@@ -318,13 +318,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -473,6 +479,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
   APPLY 'CLOSE' TO THIS-PROCEDURE.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -520,6 +527,7 @@ DO:
     END.
     WHEN 6 THEN RUN output-to-port.
   END CASE. 
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -662,8 +670,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -686,6 +696,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   {methods/nowait.i}
   APPLY 'ENTRY' TO begin_employee IN FRAME {&FRAME-NAME}.
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -860,7 +873,7 @@ PROCEDURE proc-2 :
         break by emplogin.employee by emplogin.start_date by start_time:
 
         if first-of(emplogin.employee) then do:
-           find emptrack.employee where employee.employee = emplogin.employee  no-lock no-error.
+           find employee where employee.employee = emplogin.employee  no-lock no-error.
            if not avail employee then next.
          /*  put "Employee: " employee.employee "  " employee.first_name employee.last_name skip
                "====================================================================" skip.                    
@@ -1021,7 +1034,7 @@ PROCEDURE proc-all :
         break by emplogin.employee by emplogin.start_date by start_time:
 
         if first-of(emplogin.employee) then do:
-           find emptrack.employee where employee.employee = emplogin.employee  no-lock no-error.
+           find employee where employee.employee = emplogin.employee  no-lock no-error.
            if not avail employee then next.
          /*  put "Employee: " employee.employee "  " employee.first_name employee.last_name skip
                "====================================================================" skip.                    
@@ -1171,7 +1184,7 @@ PROCEDURE run-report :
   DEF VAR v-date AS DATE NO-UNDO.
   DEF VAR v-date-2 AS DATE NO-UNDO.
 
-  DEFINE BUFFER bf-employee for emptrack.employee.
+  DEFINE BUFFER bf-employee for employee.
   DEFINE BUFFER bf-machemp for machemp.
 
   SESSION:SET-WAIT-STATE('general').
@@ -1222,7 +1235,7 @@ PROCEDURE run-report :
     STATUS DEFAULT "Processing .. for employee " + tt-emp.emp.
 
     IF FIRST-OF(tt-emp.emp) THEN DO:
-      find emptrack.employee where employee.employee = tt-emp.emp  no-lock no-error.
+      find employee where employee.employee = tt-emp.emp  no-lock no-error.
       put "Employee: " .
       IF AVAIL employee THEN 
             PUT employee.employee "  " employee.first_name employee.last_name.
@@ -1306,7 +1319,7 @@ PROCEDURE run-report :
         break by emplogin.employee by emplogin.start_date by start_time:
 
         if first-of(emplogin.employee) then do:
-          /* find emptrack.employee where employee.employee = emplogin.employee  no-lock no-error.
+          /* find employee where employee.employee = emplogin.employee  no-lock no-error.
            if not avail employee then next.
            put "Employee: " employee.employee "  " employee.first_name employee.last_name skip
                "====================================================================" skip.           

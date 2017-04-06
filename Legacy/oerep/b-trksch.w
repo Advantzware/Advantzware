@@ -209,6 +209,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {custom/yellowcolumns.i}
 
@@ -262,7 +263,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-report USE-INDEX tt-trk-stop-3 NO-LOCK ~{&SO
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -297,7 +298,7 @@ DO:
              IN BROWSE {&browse-name} = tt-report.old-load-no
              tt-report.ship-date:SCREEN-VALUE
              IN BROWSE {&browse-name} = STRING(tt-report.old-ship-date).
-     
+
       RUN set-read-only(INPUT YES).
 
       APPLY "ENTRY" TO bUpdate IN FRAME {&FRAME-NAME}.
@@ -332,7 +333,7 @@ DO:
                     truck-run-print.oe-rel-r-no EQ tt-report.oe-rel-r-no AND
                     truck-run-print.rec_key = tt-report.truck-print-key
                     EXCLUSIVE-LOCK NO-ERROR.
-           
+
             ELSE IF tt-report.link-no EQ 0 THEN
                FIND FIRST truck-run-print WHERE
                     truck-run-print.company EQ tt-report.company AND
@@ -344,7 +345,7 @@ DO:
                     truck-run-print.po-no  EQ tt-report.po-no AND
                     truck-run-print.rec_key = tt-report.truck-print-key
                     EXCLUSIVE-LOCK NO-ERROR.
-           
+
             ELSE
                FIND FIRST truck-run-print WHERE
                     truck-run-print.company EQ tt-report.company AND
@@ -357,10 +358,10 @@ DO:
                     truck-run-print.po-no  EQ tt-report.po-no AND
                     truck-run-print.rec_key = tt-report.truck-print-key
                     EXCLUSIVE-LOCK NO-ERROR.
-           
+
             IF AVAIL truck-run-print THEN
                DELETE truck-run-print.
-           
+
             DELETE tt-report.
 
          END. /*end of selected rows loop*/
@@ -515,7 +516,7 @@ Please select one row and try again."
         END. /*end of selected rows loop*/
 
         RUN calc-tot-wgt-proc.
-        
+
         CLOSE QUERY browse-2.
         OPEN QUERY browse-2 FOR EACH tt-report USE-INDEX tt-trk-stop-3 NO-LOCK.
         RUN local-initialize.
@@ -613,7 +614,7 @@ ON 'leave':U OF tt-report.truck-code IN BROWSE {&browse-name} DO:
              truck.carrier = tt-report.carrier:SCREEN-VALUE IN BROWSE {&browse-name} AND
              truck.truck-code = tt-report.truck-code:SCREEN-VALUE IN BROWSE {&browse-name}
              NO-LOCK NO-ERROR.
-       
+
         IF NOT AVAIL truck THEN
         DO:
            MESSAGE "Invalid Truck Code."
@@ -642,7 +643,7 @@ ON 'leave':U OF tt-report.LOAD-NO IN BROWSE {&browse-name} DO:
            b-tt-report.load-no = tt-report.load-no:SCREEN-VALUE IN BROWSE {&browse-name} AND
            b-tt-report.unique-no NE tt-report.unique-no
            NO-ERROR.
-     
+
       IF AVAIL b-tt-report THEN
       DO:
          tt-report.stop-no:SCREEN-VALUE = STRING(b-tt-report.stop-no + 1).
@@ -715,7 +716,7 @@ DEF BUFFER bf-tt-report FOR tt-report.
               truck-run-print.po-no  EQ bf-tt-report.po-no AND
               bf-tt-report.truck-print-key = truck-run-print.rec_key
               EXCLUSIVE-LOCK NO-ERROR.
-     
+
       ELSE
          FIND FIRST truck-run-print WHERE
               truck-run-print.company EQ bf-tt-report.company AND
@@ -747,7 +748,7 @@ DEF BUFFER bf-tt-report FOR tt-report.
            truck-run-print.spare-char-1 = bf-tt-report.rec_key.
 
       END.
-      
+
       FIND FIRST reftable WHERE
            reftable.reftable = "trp-car" AND
            reftable.rec_key  = truck-run-print.rec_key
@@ -839,7 +840,7 @@ PROCEDURE calc-tot-wgt-proc :
            bf2-tt-report.tot-units = bf2-tt-report.tot-units + bf-tt-report.pallets.
       END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -930,7 +931,7 @@ PROCEDURE set-read-only :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-log AS LOG NO-UNDO.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
       tt-report.pallets:READ-ONLY IN BROWSE {&browse-name} = ip-log
@@ -941,7 +942,7 @@ PROCEDURE set-read-only :
       tt-report.ship-date:READ-ONLY  IN BROWSE {&browse-name} = ip-log
       bCancel:SENSITIVE = NOT ip-log
       bUpdate:LABEL = IF ip-log THEN "&Update" ELSE "&Save".
-    
+
   END.
 END PROCEDURE.
 
@@ -1001,7 +1002,7 @@ PROCEDURE update-record :
  DEF VAR v-row AS INT NO-UNDO.
  DEF VAR v-truck-run-rowid AS ROWID.
  DO WITH FRAME {&FRAME-NAME}:
-    
+
    ASSIGN
      v-rowid = ROWID(tt-report)
      v-row   = browse-2:FOCUSED-ROW.
@@ -1070,7 +1071,7 @@ PROCEDURE update-record :
            truck.carrier = tt-report.carrier:SCREEN-VALUE IN BROWSE {&browse-name} AND
            truck.truck-code = tt-report.truck-code:SCREEN-VALUE IN BROWSE {&browse-name}
            NO-LOCK NO-ERROR.
-     
+
       IF NOT AVAIL truck THEN
       DO:
          MESSAGE "Invalid Truck Code."
@@ -1087,7 +1088,7 @@ PROCEDURE update-record :
    END.
    ELSE
       tt-report.truck-dscr:SCREEN-VALUE = "".
-   
+
    IF NOT op-error THEN
    DO:       
       RUN add-truck-run (INPUT rowid(tt-report), INPUT NO, OUTPUT v-truck-run-rowid).
@@ -1106,7 +1107,7 @@ PROCEDURE update-record :
       RELEASE truck-run-print.
       RELEASE reftable.
    END.
-   
+
    ASSIGN tt-report.carrier    = tt-report.carrier:SCREEN-VALUE IN BROWSE {&browse-name}
           tt-report.truck-code = tt-report.truck-code:SCREEN-VALUE IN BROWSE {&browse-name}
           tt-report.truck-dscr = tt-report.truck-dscr:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1131,7 +1132,7 @@ PROCEDURE update-record :
        truck.carrier = tt-report.carrier AND
        truck.truck-code = tt-report.truck-code
        NO-LOCK NO-ERROR.
-  
+
   IF AVAIL truck THEN 
   DO: 
       IF truck.weight-limit < tt-report.tot-weight THEN
@@ -1151,7 +1152,7 @@ PROCEDURE update-record :
          reftable.CODE     EQ tt-report.carrier AND
          reftable.code2    EQ tt-report.truck-code
          NO-LOCK NO-ERROR.
-     
+
     IF AVAIL reftable AND reftable.val[1] < tt-report.tot-msf THEN
        MESSAGE "Total MSF is greater than Truck MSF Limit of " + STRING(reftable.val[1]) + "."
           VIEW-AS ALERT-BOX WARNING.
@@ -1168,7 +1169,7 @@ PROCEDURE update-record :
 
   CLOSE QUERY browse-2.
   OPEN QUERY browse-2 FOR EACH tt-report USE-INDEX tt-trk-stop-3 NO-LOCK.
- 
+
   browse-2:SET-REPOSITIONED-ROW(v-row).
 
   REPOSITION browse-2 TO ROWID v-rowid NO-ERROR.
@@ -1196,7 +1197,7 @@ PROCEDURE update-release :
          oe-relh.carrier = tt-report.carrier
          oe-relh.trailer = tt-report.truck-code
          oe-relh.rel-date = tt-report.ship-date.
-         
+
       FIND CURRENT oe-relh NO-LOCK.
       RELEASE oe-relh.
    END.

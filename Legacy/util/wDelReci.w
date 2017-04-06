@@ -15,7 +15,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -153,6 +153,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 
 {src/adm/method/containr.i}
 {methods/template/windows.i}
@@ -205,7 +206,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -360,7 +361,7 @@ FOR EACH phone NO-LOCK,
    WHERE reftable.rec_key = STRING (RECID (phone))
   :
   find first cust no-lock where cust.rec_key eq phone.table_rec_key  no-error.
-  
+
   find bf-reftable where rowid(bf-reftable) eq rowid(reftable)
     exclusive-lock no-error.
   if not avail bf-reftable then do:
@@ -369,12 +370,12 @@ FOR EACH phone NO-LOCK,
       view-as alert-box.
       next.
   end.
-   
+
   bf-reftable.rec_key = phone.rec_key.
-  
-  
+
+
   find  current bf-reftable no-lock.
-  
+
 end.
 
 END PROCEDURE.
@@ -435,9 +436,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

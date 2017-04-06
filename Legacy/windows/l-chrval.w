@@ -9,7 +9,7 @@
 /*------------------------------------------------------------------------
 
   File: est-vend.p
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -143,6 +143,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -185,7 +186,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -196,7 +197,7 @@ ASSIGN
 ON GO OF FRAME D-Dialog /* Company Selection */
 DO:
   IF AVAIL tt-report THEN char-val = tt-report.key-01.
-  
+
   RUN clean-up.
 END.
 
@@ -320,7 +321,7 @@ DO I = 1 TO NUM-ENTRIES(v-ordxchr-val):
         tt-report.key-01  = thisOne
         tt-report.key-02  = company.NAME.          
 END.
-  
+
 /*CREATE tt-report.*/
 
 /* end ---------------------------------- copr. 2001  advanced software, inc. */

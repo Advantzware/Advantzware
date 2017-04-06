@@ -4,6 +4,10 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:13 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -231,7 +235,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -246,7 +250,7 @@ DO:
 
   /*FIND LAST b-machseq NO-LOCK WHERE b-machseq.company = gcompany AND 
                                     b-machseq.machine = s-machine NO-ERROR.
-                                    
+
   IF adm-new-record THEN
     ASSIGN machseq.machseq:SCREEN-VALUE = STRING(IF AVAIL b-machseq THEN b-machseq.machseq + 1 ELSE 1).
    */ 
@@ -303,7 +307,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

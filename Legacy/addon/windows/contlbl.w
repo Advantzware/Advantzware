@@ -324,13 +324,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -499,6 +505,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -533,8 +540,8 @@ DO:
            /*run output-to-fax.*/
            {custom/asifax.i &begin_cust=begin_cust-no
                             &END_cust=END_cust-no
-                            &fax-subject="Mail List Label"
-                            &fax-body="Mail List Label"
+    {methods/setButton.i &fax-subject="Mail List Label" "Label"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:23 am */
+    {methods/setButton.i &fax-body="Mail List Label" "Label"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:23 am */
                             &fax-file=list-name }
        END.
        when 5 then do:
@@ -543,8 +550,8 @@ DO:
               {custom/asimail.i &TYPE="CUSTOMER"
                              &begin_cust=begin_cust-no
                              &END_cust=end_cust-no
-                             &mail-subject="Mail List Label"
-                             &mail-body="Mail List Label"
+    {methods/setButton.i &mail-subject="Mail List Label" "Label"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:23 am */
+    {methods/setButton.i &mail-body="Mail List Label" "Label"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:23 am */
                              &mail-file=lv-pdf-file + ".pdf" }
            END.
            ELSE DO:
@@ -562,6 +569,7 @@ DO:
   end case. 
 
   session:set-wait-state("").
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -754,8 +762,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -784,6 +794,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}
   apply "entry" to ls-mail-list in frame {&frame-name}.
 
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:23 am */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:23 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

@@ -115,6 +115,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -145,7 +146,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -185,7 +186,7 @@ IF NOT AVAIL itemfg THEN DO:
    DO:
       IF LOOKUP(SUBSTR(v-graphic-char,LENGTH(v-graphic-char)),"\,/") EQ 0 THEN
          v-graphic-char = v-graphic-char + "\".
-     
+
       IF SEARCH(v-graphic-char + itemfg.i-no + ".jpg") NE ? THEN
          itemfg.box-image = v-graphic-char + itemfg.i-no + ".jpg".
    END.
@@ -291,7 +292,7 @@ PROCEDURE Allow-Update :
 ------------------------------------------------------------------------------*/
  &Scoped-define ACCESSTYPE update
   {methods/template/security.i}
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

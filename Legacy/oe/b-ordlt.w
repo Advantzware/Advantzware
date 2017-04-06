@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:10 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -104,7 +108,7 @@ DEFINE TEMP-TABLE tt-oe-ordl NO-UNDO LIKE oe-ordl.
 
 DEFINE BUFFER b-fob FOR reftable.
 DEFINE BUFFER s-code FOR reftable.
-    
+
 {oe/tt-item-qty-price.i}
 
 RUN sys/ref/nk1look.p (INPUT cocode, "OEBOLPrompt", "L" /* Logical */, NO /* check by cust */, 
@@ -374,6 +378,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -465,7 +471,7 @@ ASI.oe-ordl.line LT 99999999"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -479,10 +485,10 @@ DO:
 
     DEFINE VARIABLE char-hdl AS cha NO-UNDO.
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"update-target",OUTPUT char-hdl).
-    
+
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
         RUN update-item IN WIDGET-HANDLE(char-hdl).
-    
+
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"dtl-view-target",OUTPUT char-hdl).
 
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO: 
@@ -491,7 +497,7 @@ DO:
                       OUTPUT v-rowid-list,
                       OUTPUT ll-canceled).
     END.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -676,12 +682,12 @@ FIND FIRST cust NO-LOCK
 
 ASSIGN clvtext = "Notes: " .
 IF oeBolPrompt-log AND AVAILABLE cust THEN DO:
-    
+
         FOR EACH notes NO-LOCK WHERE notes.rec_key = cust.rec_key AND
                               LOOKUP(notes.note_code,oeBolPrompt-char) <> 0 :
             clvtext = clvtext + notes.note_text + "  " + CHR(13)  .
         END.
-    
+
     IF clvtext NE "Notes: " THEN
     MESSAGE clvtext VIEW-AS ALERT-BOX INFORMATION BUTTONS OK  .
 END.
@@ -691,8 +697,8 @@ FIND FIRST sys-ctrl NO-LOCK
     WHERE sys-ctrl.company EQ cocode
       AND sys-ctrl.name EQ "RELCREDT" NO-ERROR.
 IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN DO:
-    
-    
+
+
     IF AVAILABLE cust THEN RUN oe/CRcheck.p (INPUT ROWID(cust),
                                          INPUT YES,
                                          OUTPUT v-chkflg).
@@ -715,9 +721,9 @@ FOR EACH bf-rel
         AND bf-rel.ord-no  EQ xoe-ord.ord-no
         AND bf-rel.link-no EQ 0
       NO-LOCK:
-    
+
   RUN oe/rel-stat.p (ROWID(bf-rel), OUTPUT v-stat).
-       
+
   IF INDEX("AB",v-stat) EQ 0 THEN DO:
      choice = YES.
      LEAVE.
@@ -752,7 +758,7 @@ IF choice THEN DO:
         AND xoe-ordl.line    EQ bf-rel.line
         AND (RECID(xoe-ordl) EQ RECID(oe-ordl) OR v-all-items)
       NO-LOCK:
-     
+
     RUN oe/rel-stat.p (ROWID(bf-rel), OUTPUT v-stat).
 
     IF NOT CAN-DO("A,B",v-stat) THEN DO:
@@ -789,7 +795,7 @@ IF choice THEN DO:
             BY bf-rel.rel-date
             BY bf-rel.ship-id
             BY w-rel.fob:
-                   
+
     IF FIRST-OF(w-rel.fob) THEN DO:
        choice = v-do-def.
 
@@ -800,11 +806,11 @@ IF choice THEN DO:
                " and FOB-" + TRIM(w-rel.fob) + " ?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
     END.
-    
+
     IF NOT choice THEN
        DELETE w-rel.
   END.
-  
+
   FOR EACH w-rel,
       FIRST bf-rel WHERE ROWID(bf-rel) EQ w-rowid NO-LOCK,
       FIRST xoe-ordl
@@ -850,7 +856,7 @@ IF choice THEN DO:
              END.
           END.
   END. /*oeBolPrompt-log  */
-  
+
 
   DEFINE VARIABLE char-hdl AS cha NO-UNDO.
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"bolrel-target",OUTPUT char-hdl).
@@ -949,7 +955,7 @@ PROCEDURE close-reopen :
                 TRIM(STRING(ll-close,"close/reopen")) +
                 " this Order Line Item?"
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll.
-    
+
         IF ll THEN DO:
           RUN oe/closelin.p (ROWID(oe-ordl), ll-close).
           RUN reposit-item (RECID(oe-ord), RECID(oe-ordl)).
@@ -975,8 +981,8 @@ PROCEDURE close-reopen-order :
   IF AVAIL(oe-ordl) THEN DO:
 
       RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-  
-  
+
+
       phandle = SESSION:FIRST-PROCEDURE.
       DO WHILE VALID-HANDLE(phandle):
         IF INDEX(phandle:FILE-NAME,'b-ordinq.') NE 0 THEN DO:          
@@ -992,7 +998,7 @@ PROCEDURE close-reopen-order :
                     AND oe-ord.ord-no  = oe-ordl.ord-no
                   NO-LOCK NO-ERROR.
       RUN oe/d-clsoe.w (ROWID(oe-ord)).
-    
+
       RUN reopen-query1 IN phandle (lv-rowid).
 
   END.
@@ -1031,7 +1037,7 @@ PROCEDURE delete-item :
   DEFINE VARIABLE ll-dumb AS LOG NO-UNDO.
   DEFINE VARIABLE lv-continue AS LOG NO-UNDO.
   DEFINE BUFFER bf-ordl FOR oe-ordl.
-  
+
   DEFINE VARIABLE v-delete AS LOG NO-UNDO.
   DEFINE VARIABLE choice AS LOG NO-UNDO.
   DEFINE BUFFER xoe-ordl FOR oe-ordl.
@@ -1058,7 +1064,7 @@ PROCEDURE delete-item :
 
   DEFINE BUFFER tmp-xoe-ordl FOR oe-ordl.
   DEFINE BUFFER tmp-xoe-ordm FOR oe-ordm.
-    
+
   IF AVAILABLE oe-ordl AND oe-ordl.rel-stat THEN DO:
      MESSAGE "Previous Quantities have been released for this item..." SKIP
              VIEW-AS ALERT-BOX ERROR.
@@ -1138,7 +1144,7 @@ PROCEDURE delete-item :
           VIEW-AS ALERT-BOX ERROR.
       RETURN.
     END.
-  
+
   lv-item-recid = RECID(oe-ordl).
   FIND bf-ordl WHERE RECID(bf-ordl) EQ lv-item-recid NO-LOCK NO-ERROR.
   RUN oe/oe-ordd.p  (lv-item-recid, OUTPUT lv-continue).  /* deleting bol,rel */
@@ -1162,7 +1168,7 @@ PROCEDURE delete-item :
       IF oe-ordm.bill = "Y" THEN tmp-ordm-amt = tmp-ordm-amt + oe-ordm.amt.               
       DELETE oe-ordm.
   END.
-      
+
   IF oe-ordl.job-no <> "" THEN DO:
      IF ll-valid-eb AND
         CAN-FIND(FIRST job
@@ -1203,7 +1209,7 @@ PROCEDURE delete-item :
                 run fg/comp-upd.p (recid(itemfg), job-hdr.qty * -1, "q-ono", job-hdr.est-no).
              end.*/
           END.
-          
+
           IF AVAILABLE job-hdr THEN DO:
              {util/dljobkey.i}
           END.
@@ -1222,9 +1228,9 @@ PROCEDURE delete-item :
                                        AND job-hdr.job-no  EQ job.job-no
                                        AND job-hdr.job-no2 EQ job.job-no2
                                      USE-INDEX job-no):
- 
+
         RUN jc/jc-dall.p (RECID(job)).                    
- 
+
         FOR EACH job-mat WHERE job-mat.company  EQ cocode
                            AND job-mat.job      EQ job.job
                            AND job-mat.job-no   EQ job.job-no
@@ -1273,7 +1279,7 @@ PROCEDURE delete-item :
                           USE-INDEX misc-idx:
            DELETE misc-act.
         END.
-            
+
         IF job.exported THEN DO:
            job.stat = "X".
            RUN jc/kiwiexp2.p (RECID(job)).
@@ -1394,7 +1400,7 @@ PROCEDURE delete-item :
                       AND eb.stock-no   NE ""
                       AND (eb.stock-no  EQ oe-ordl.i-no OR
                            est.est-type EQ 2 OR est.est-type EQ 6):
-          
+
             IF v-blank-fg-on-est EQ 0 AND 
                oe-ordl.est-type NE 3  AND
                oe-ordl.est-type NE 4  AND
@@ -1492,7 +1498,7 @@ PROCEDURE delete-item :
 
   IF ll-more-ord THEN DO:
     ll-dumb = BROWSE {&browse-name}:DELETE-CURRENT-ROW().
-    
+
     FIND bf-ordl WHERE RECID(bf-ordl) EQ lv-item-recid NO-ERROR.
     IF AVAILABLE bf-ordl THEN DELETE bf-ordl.
 
@@ -1519,7 +1525,7 @@ PROCEDURE delete-item :
   RUN refresh-releases.
 
   SESSION:SET-WAIT-STATE("").
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1551,7 +1557,7 @@ PROCEDURE get-line-est :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER op-est-no AS cha NO-UNDO.
-  
+
   op-est-no = IF AVAILABLE oe-ordl THEN oe-ordl.est-no ELSE oe-ord.est-no.
 END PROCEDURE.
 
@@ -1566,7 +1572,7 @@ PROCEDURE get-rowid2 :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER op-rowid AS ROWID NO-UNDO.
-  
+
   IF AVAILABLE oe-ordl THEN op-rowid = ROWID(oe-ordl).
 
 END PROCEDURE.
@@ -1710,7 +1716,7 @@ PROCEDURE printTicket :
   END.
   ELSE
      v-reprint = oe-ordl.ftick-prnt.
-  
+
 
 END PROCEDURE.
 
@@ -1911,7 +1917,7 @@ PROCEDURE select-his :
     FIND FIRST cust {sys/ref/custW.i} AND
                     cust.cust-no EQ xoe-ord.cust-no
                     use-index cust no-lock no-error.
-                  
+
     DEFINE VARIABLE char-hdl AS cha NO-UNDO.
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
     RUN init-history IN WIDGET-HANDLE(char-hdl) (THIS-PROCEDURE).
@@ -1934,7 +1940,7 @@ PROCEDURE select-price :
  DEFINE VARIABLE lv-tmp-recid AS RECID NO-UNDO.
  DEFINE VARIABLE ld-prev-t-price LIKE oe-ordl.t-price NO-UNDO.
 
- 
+
  FIND xoe-ord WHERE xoe-ord.company = oe-ordl.company AND
                      xoe-ord.ord-no = oe-ordl.ord-no NO-LOCK NO-ERROR.
 
@@ -1942,7 +1948,7 @@ PROCEDURE select-price :
          v-price-lev = 0.
   /* Get appropriate level */
   RUN oe/oe-level.p.
- 
+
   REPEAT:
        MESSAGE "What Level should the Items be Repriced At?" UPDATE v-price-lev .
        IF v-price-lev LE 0 OR v-price-lev GE 11 THEN DO:
@@ -1954,7 +1960,7 @@ PROCEDURE select-price :
    ASSIGN
     lv-tmp-recid    = RECID(oe-ordl)
     ld-prev-t-price = oe-ordl.t-price.
-   
+
    RUN oe/oe-repr1.p.
    {&open-query-{&browse-name}}
    REPOSITION {&browse-name} TO RECID lv-tmp-recid.
@@ -1962,7 +1968,7 @@ PROCEDURE select-price :
    RUN oe/calcordt.p (ROWID(oe-ord)).
 
    IF ld-prev-t-price NE oe-ordl.t-price THEN RUN oe/creditck.p (ROWID(oe-ord),YES).
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1981,14 +1987,14 @@ PROCEDURE select-stat :
   FIND FIRST cust {sys/ref/custW.i} AND
                   cust.cust-no EQ xoe-ord.cust-no
                   use-index cust no-lock no-error.
-                  
+
   /*run oe/d-credit.w./* (cocode,cust.cust-no).*/ */
   DEFINE VARIABLE char-hdl AS cha NO-UNDO.
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
   RUN init-credit-inq IN WIDGET-HANDLE(char-hdl) (THIS-PROCEDURE).
 
   RUN dispatch ('open-query').
-  
+
 
 END PROCEDURE.
 
@@ -2020,7 +2026,7 @@ PROCEDURE get-max :
 ------------------------------------------------------------------------------*/
 /* This will display "PDC" records - Promise Date change */
     RUN dispatch ('initialize').                           
-   
+
 END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2164,11 +2170,11 @@ FUNCTION get-pr-uom RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
    DEFINE BUFFER b-oe-ordl FOR oe-ordl.
    DEFINE VARIABLE lv-uom AS CHARACTER NO-UNDO.
-  
+
    FIND b-oe-ordl WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl) NO-LOCK.
-  
+
    lv-uom = b-oe-ordl.pr-uom.
-  
+
    IF b-oe-ordl.stat EQ "C" OR b-oe-ordl.opened EQ NO THEN
       FOR EACH ar-invl FIELDS(inv-no pr-uom) WHERE
           ar-invl.company EQ cocode AND
@@ -2176,11 +2182,11 @@ FUNCTION get-pr-uom RETURNS CHARACTER
           ar-invl.i-no EQ b-oe-ordl.i-no
           NO-LOCK
           BY ar-invl.inv-no DESCENDING:
-  
+
           lv-uom = ar-invl.pr-uom.
           LEAVE.
       END.
-  
+
    RETURN lv-uom.
 
 END FUNCTION.

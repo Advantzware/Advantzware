@@ -142,7 +142,7 @@ FOR EACH ar-cash
         USE-INDEX rec_key NO-LOCK NO-ERROR.
     IF AVAIL reftable AND 
         reftable.CODE EQ "H" THEN DO:
-        
+
         RELEASE reftable.
         NEXT.
     END.
@@ -208,7 +208,7 @@ FOR EACH ar-cash
                     oe-reth.company EQ ar-cashl.company AND
                     oe-reth.r-no    EQ INT(SUBSTRING(ar-cashl.dscr,51))
                     NO-LOCK NO-ERROR.
-              
+
                IF AVAIL oe-reth THEN
                DO:
                   FIND FIRST oe-retl WHERE
@@ -216,7 +216,7 @@ FOR EACH ar-cash
                        oe-retl.r-no EQ oe-reth.r-no AND
                        oe-retl.LINE EQ ar-cashl.LINE
                        NO-LOCK no-error.
-              
+
                   IF AVAIL oe-retl THEN
                   DO:
                      ASSIGN
@@ -224,13 +224,13 @@ FOR EACH ar-cash
                         v-po-no  = ""
                         v-bol-no = ""
                         v-s-man  = "".
-              
+
                      FIND FIRST ar-invl WHERE
                           ar-invl.company EQ oe-reth.company AND
                           ar-invl.x-no EQ ar-inv.x-no AND
                           ar-invl.i-no EQ oe-retl.i-no
                           NO-LOCK NO-ERROR.
-                    
+
                      IF AVAIL ar-invl THEN
                      DO:
                         ASSIGN
@@ -241,13 +241,13 @@ FOR EACH ar-cash
                                       ELSE IF ar-invl.sman[2] NE "" THEN
                                            ar-invl.sman[2]
                                       ELSE ar-invl.sman[3].
-                    
+
                         RELEASE ar-invl.
                      END.
-                    
+
                      RELEASE oe-retl.
                   END.
-              
+
                   RELEASE oe-reth.
                END.
             END.
@@ -311,7 +311,7 @@ FOR EACH ar-cash
               IF lv-desc BEGINS "Debit -" 
                 THEN lv-desc = SUBSTR(lv-desc,9).
         END.
-        
+
         IF (ar-cashl.amt-paid - ar-cashl.amt-disc) LT 0
            THEN v-creamt = (ar-cashl.amt-paid - ar-cashl.amt-disc).
            ELSE v-debamt = (ar-cashl.amt-paid - ar-cashl.amt-disc).
@@ -329,7 +329,7 @@ FOR EACH ar-cash
         v-printline = v-printline + 1.
 
         /* gdm - 02200906 */
-        FIND FIRST  nosweat.notes NO-LOCK
+        FIND FIRST  ASI.notes NO-LOCK
             WHERE notes.rec_key = ar-cashl.rec_key
              AND TRIM(notes.note_text) NE "" NO-ERROR.
         IF AVAIL notes THEN DO:
@@ -337,10 +337,10 @@ FOR EACH ar-cash
             PUT "<B>Notes: </B>" SKIP(1).
 
             v-printline = v-printline + 1.
-            
-            
 
-            FOR EACH nosweat.notes NO-LOCK
+
+
+            FOR EACH ASI.notes NO-LOCK
                 WHERE notes.rec_key = ar-cashl.rec_key
                 BY note_date BY note_time:
 
@@ -349,14 +349,14 @@ FOR EACH ar-cash
                 ASSIGN 
                     v-text = ""
                     v-text = v-text + " " + notes.note_text.
-                
+
                 DO v-licnt = 1 TO 5:
                     CREATE tt-formtext.
                     ASSIGN tt-line-no = v-licnt
                         tt-length  = 100. 
                 END.
                 RUN custom/formtext.p (v-text).
-                
+
                 ASSIGN 
                     i = 0 v-notes = "" note-count = 0.
                 FOR EACH tt-formtext:
@@ -367,12 +367,12 @@ FOR EACH ar-cash
                 END.
 
                 DO i = 1 TO note-count:
-                    
+
                     IF v-notes[i] NE "" THEN
                         PUT  v-notes[i] FORM "x(80)" SKIP.
-                    
+
                     v-printline = v-printline + 1.
-                    
+
                     IF v-printline > 54 THEN DO:
                         PAGE.
                         v-printline = 0.
@@ -404,7 +404,7 @@ FOR EACH ar-cash
             "<R58><C53><#8><FROM><R+3><C80><RECT> " 
             "<=8><R+.5><P10><B> Credit Memo Amount :</B>" v-tcreamt FORMAT "->>>,>>9.99"
             "<=8><R+1.5><P10><B>  Debit Memo Amount :</B>" v-tdebamt FORMAT "->>>,>>9.99".
-        
+
         PAGE.
 
         v-printline = 0.

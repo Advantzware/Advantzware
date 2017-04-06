@@ -4,6 +4,10 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:10 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -34,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i} /* added by script _globdefs.p on 03.28.2017 @ 10:42:30 am */
 def new shared var sh-emp like employee.employee no-undo.
 def new shared var sh-date like emplogin.start_date no-undo.
 
@@ -221,6 +226,8 @@ END.
 
 {src/adm/method/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -272,7 +279,7 @@ OPEN QUERY {&SELF-NAME} FOR each tt-login
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -412,9 +419,9 @@ PROCEDURE build-table :
                 li-t-time = emplogin.total_time
                 tt-login.t-time = STRING(TRUNCATE(li-t-time / 3600,0),">>>>9") + ":" + 
                                   STRING(((li-t-time MOD 3600) / 60),"99").
-      
+
     end.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -447,7 +454,7 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   run build-table.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
@@ -481,9 +488,9 @@ PROCEDURE run-more :
                                    use-index tt-date
                                    no-lock no-error.
    end.
-   
+
    if avail tt-login then reposition {&browse-name} to recid recid(tt-login).
-                               
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

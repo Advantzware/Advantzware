@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -168,17 +168,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -236,7 +232,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -252,7 +248,7 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
      application would exit. */
   IF THIS-PROCEDURE:PERSISTENT THEN RETURN NO-APPLY.
   DEF VAR lQuoteitmExists AS LOG NO-UNDO.
-   
+
   IF VALID-HANDLE(h_v-qthd) THEN DO:  
     RUN quoteitm-exists IN h_v-qthd (OUTPUT lQuoteitmExists, OUTPUT rQuoterow).
     IF NOT lQuoteitmExists THEN DO:
@@ -272,7 +268,7 @@ ON WINDOW-CLOSE OF W-Win /* Quote Maintenance */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
-  
+
   DEF VAR lQuoteitmExists AS LOG NO-UNDO.
   IF VALID-HANDLE(h_v-qthd) THEN DO:  
     RUN quoteitm-exists IN h_v-qthd (OUTPUT lQuoteitmExists, OUTPUT rQuoterow).
@@ -733,7 +729,7 @@ PROCEDURE local-change-page :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lQuoteitmExists AS LOG NO-UNDO.
-   
+
   DEF VAR adm-current-page AS INT NO-UNDO.
      RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
   ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
@@ -764,7 +760,7 @@ PROCEDURE local-destroy :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lQuoteitmExists AS LOG NO-UNDO.
-  
+
 
   rQuoteRow = ?.
   IF VALID-HANDLE(h_v-qthd) THEN DO:      
@@ -772,7 +768,7 @@ PROCEDURE local-destroy :
     IF NOT lQuoteitmExists THEN DO:
       MESSAGE "Note: This quote will be deleted since it contains no items."
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
-     
+
     END.
   END.
 
@@ -803,7 +799,7 @@ PROCEDURE local-exit :
 -------------------------------------------------------------*/
 
   DEF VAR lQuoteitmExists AS LOG NO-UNDO.
-   
+
   IF VALID-HANDLE(h_v-qthd) THEN DO:  
     RUN quoteitm-exists IN h_v-qthd (OUTPUT lQuoteitmExists, OUTPUT rQuoterow).
     IF NOT lQuoteitmExists THEN DO:
@@ -813,9 +809,9 @@ PROCEDURE local-exit :
     END.
   END.
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -875,7 +871,7 @@ PROCEDURE Select_Add :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-  
+
   RUN select-page(2).
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,'addPlusButton-target',OUTPUT char-hdl).
   RUN addPlusButton IN WIDGET-HANDLE(char-hdl).

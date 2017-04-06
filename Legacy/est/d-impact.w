@@ -6,7 +6,7 @@
 /*------------------------------------------------------------------------
 
   File: est/d-artioscad.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -63,7 +63,7 @@ def temp-table tt-CompStyle NO-UNDO
     field compQty as int extent 30
     field compNumUp as int extent 30
     FIELD compPurMan AS LOG EXTENT 10.
-                                 
+
 {sys/inc/var.i shared}
 {custom/gcompany.i}  
 gcompany = cocode.
@@ -183,6 +183,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -213,7 +214,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -236,20 +237,20 @@ END.
 ON CHOOSE OF btnCAD#Lookup IN FRAME D-Dialog
 DO:
     def var cCadFile as cha no-undo.
-    
+
     def var okClicked as log no-undo.
-    
+
     SYSTEM-DIALOG GET-FILE cCadFile 
                 TITLE 'Select Artios CAD File to insert'
                 FILTERS 'XML Files    (*.xml)' '*.xml'
                 INITIAL-DIR artioscad-chr
                 MUST-EXIST USE-FILENAME UPDATE okClicked.
-  
+
 
   IF okClicked THEN
      ASSIGN cadNumber:screen-value = cCadFile.
-     
-     
+
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -275,7 +276,7 @@ DO:
   def var cArtiosCadFile as cha no-undo.
   def var iRevision as int init 65 no-undo.
   def var iRevExt as int no-undo.
-  
+
   assign iFormNumber = 0
          iBlankNumber = 0
          cadNumber /*cStyle */
@@ -288,41 +289,41 @@ DO:
   if substring(artioscad-chr,length(artioscad-chr),1) <> "/" and
      substring(artioscad-chr,length(artioscad-chr),1) <> "\" then
      artioscad-chr = artioscad-chr + "\".
-  
+
   if index(cadNumber,"\") > 0 or index(cadNumber,"/") > 0 or
      index(cadNumber,"ARD") > 0 then cArtiosCadFile = cadNumber.
   else    cArtiosCadFile = artioscad-chr + cadnumber + ".xml".
- 
+
   session:set-wait-state("general").
-  
+
   /*run AssignCADFormInfo. not for impact cad */
-  
+
   /* run getSubDirList.   run from leave of cadnumber */
-  
+
   if search(cArtiosCadFile ) <> ? then do:  /* import single CAD file */
      run create-ttCad (cArtiosCadFile).
   end.
   else do iExt = 1 to iProjectCount: 
     /* import Project CAD file ###### + %%(2 digit extension) +  @ (1 character revision) */
-    
+
      for each tt-SubDir :    
        if search(tt-SubDir.DirName + cadNumber + string(iExt,"99") + ".ARD" ) <> ? then do:       
-          
+
           run create-ttCad (tt-SubDir.DirName + cadNumber + string(iExt,"99") + ".ARD" ).               
        end.
         /* check revision file */
        do iRevExt = 65 to 90:
-     
+
           if search(tt-SubDir.DirName + cadNumber + string(iExt,"99") + chr(iRevExt) + ".ARD" ) <> ? 
              then  run create-ttCad (tt-SubDir.DirName + cadNumber + string(iExt,"99") + chr(iRevExt) + ".ARD" ).               
           else if search(tt-SubDir.DirName + cadNumber + string(iExt,"99") + chr(iRevExt + 32) + ".ARD" ) <> ? 
              then  run create-ttCad (tt-SubDir.DirName + cadNumber + string(iExt,"99") + chr(iRevExt + 32) + ".ARD" ).  
        end.
      end.  /* each tt-SubDir */
-                 
+
   end. 
   session:set-wait-state("").
-   
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -334,14 +335,14 @@ END.
 ON LEAVE OF cadNumber IN FRAME D-Dialog /* CAD File/Project # */
 DO:
     def var icnt as int no-undo.
-    
+
     ASSIGN cadNumber .
     /*run getNumofCADForm (output iNumofCADForm).*/
 
     /* if iNumofCADForm > 1 then do icnt = 2 to iNumofCadForm: */
 /*        cb-CADSeq:add-last(string(icnt)). */
 /*     end. */
-    
+
     /*vNumOfCADForm:screen-value  = "Total Number of CAD File: " + string(iNumofCadForm).  */
 END.
 
@@ -387,7 +388,7 @@ ON LEAVE OF iSetQty IN FRAME D-Dialog /* Estimate Qty */
 DO:
       /* assign iCompQty-1:screen-value in frame {&frame-name} = iSetQty:screen-value */
 /*                  . */
-                 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -563,16 +564,16 @@ ASSIGN
    .
 /*   cFileNameJPG = cCadPath + /*chCtrlFrame:CadX:ReturnTextCode4Param("#W$")*/
                   SUBSTRING(ipFilename, R-INDEX(ipFilename, "\") + 1) + ".jpg"
-   
+
    resultx = chCtrlFrame:CadX:OpenDesign (ipFilename,0)
    resultx = chCtrlFrame:CadX:SetOverlayClass(3,1) /*print dimensions*/
    resultx = chCtrlFrame:CadX:SaveAsBitmap(1,cFilenameJPG, 600, 600, 20, , , 1, 100).
 
 find first tt-CompStyle where tt-CompStyle.form-num = iFormNumber no-error.
- 
+
   cDieInch = chCtrlFrame:CadX:ReturnTextCode4Param("#LENRULE").
   IF INDEX(cDieInch,"+") > 0 THEN cDieInch = SUBSTRING(cDieInch,1,INDEX(cDieInch,"+") - 1).
-  
+
   CREATE tt-artios.
   ASSIGN tt-artios.cadnum = /*cadNumber*/ chCtrlFrame:CadX:ReturnTextCode4Param("#ITEM$")
          tt-artios.cadfile = ipFileName
@@ -611,9 +612,9 @@ find first tt-CompStyle where tt-CompStyle.form-num = iFormNumber no-error.
                                  + " " +
                                  chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(DSGNR,LNAME$)")
                           .
-           
+
        if avail tt-compstyle and tt-CompStyle.NumOfComponents > 1 then do while iSeq < tt-CompStyle.NumOfComponents:
-  
+
           create tt-artios.
           assign iSeq = iSeq + 1
                  iBlankNumber = iBlankNumber + 1
@@ -661,7 +662,7 @@ find first tt-CompStyle where tt-CompStyle.form-num = iFormNumber no-error.
         /*find first tt-CompStyle where tt-CompStyle.form-num = iFormNumber no-error.*/
 
         RUN est/loadImpactXml.p (ipFilename, OUTPUT ldProjectId).
-        
+
         FIND xmlProject WHERE xmlProject.projectId = ldProjectid NO-LOCK.
         FIND xmlProjectInfo WHERE xmlProjectInfo.projectId = xmlProject.projectId NO-LOCK.
 
@@ -673,7 +674,7 @@ find first tt-CompStyle where tt-CompStyle.form-num = iFormNumber no-error.
                EACH xmllayoutsFormDesign NO-LOCK WHERE xmllayoutsformdesign.projectid = xmllayouts.projectid
                BREAK BY xmlLayoutsFormDesign.layoutName /*BY xmllayoutFormDesign.*/                                         
                :
-        
+
                IF FIRST-OF(xmlLayoutsFormDesign.LayoutName) THEN iFormNumber = iFormNumber + 1.
 
         CREATE tt-artios.
@@ -784,8 +785,8 @@ PROCEDURE displayCADFormInfo :
   Notes:       
 ------------------------------------------------------------------------------*/
   def buffer bf-compStyle for tt-CompStyle.
-  
- 
+
+
 /*   find first bf-CompStyle where bf-CompStyle.form-num = int(substring(cb-CADSeq,1,2)) no-error. */
 /*   if not avail bf-CompStyle then do:                                                            */
 /*      create bf-CompStyle.                                                                       */
@@ -1171,7 +1172,7 @@ PROCEDURE getCADCAM2 :
 /*     END. */
 /*     INPUT CLOSE. */
 /*   END. */
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1185,12 +1186,12 @@ PROCEDURE getNumofCADForm :
   Notes:       
 ------------------------------------------------------------------------------*/
   def output param opNumofCADForm as int no-undo.
-    
+
   def var cTMPCadFIle as cha no-undo.
   def var iExt as int no-undo.
   def var iRevExt as int no-undo.
   def var cCAD# as cha no-undo.
-  
+
   empty temp-table tt-subdir.
 
   /* if artioscad-chr = "" then artioscad-chr = "c:\artios\asi\". */
@@ -1198,9 +1199,9 @@ PROCEDURE getNumofCADForm :
 /*      substring(artioscad-chr,length(artioscad-chr),1) <> "\" then */
 /*      artioscad-chr = artioscad-chr + "\". */
 
-  
-  
-  
+
+
+
 /*   if substring(cadPath,length(cadPath),1) <> "/" and                                                                  */
 /*      substring(cadPath,length(cadPath),1) <> "\" then                                                                 */
 /*      cadPath = cadPath + "\".                                                                                         */
@@ -1271,7 +1272,7 @@ PROCEDURE getSubDirList :
 /* END.                                                  */
 
    INPUT FROM OS-DIR (ipcCurrentDirectory).
-    
+
    REPEAT:
         IMPORT cFileName.
         IF cFileName = '.' OR cFileName = '..' OR cFileName = ? THEN NEXT.
@@ -1330,9 +1331,9 @@ PROCEDURE valid-category :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
-   
+
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       IF NOT CAN-FIND(FIRST fgcat WHERE
          fgcat.company EQ cocode AND
          fgcat.procat  EQ cCategory:SCREEN-VALUE) OR
@@ -1357,7 +1358,7 @@ PROCEDURE valid-style :
    DEFINE INPUT PARAMETER ip-handle AS WIDGET-HANDLE.
    DEFINE INPUT PARAMETER ip-check-blank AS LOG NO-UNDO.
    DEFINE OUTPUT parameter op-error AS LOG NO-UNDO.
-   
+
    DO WITH FRAME {&FRAME-NAME}:
       IF (ip-handle:SCREEN-VALUE NE "" AND NOT CAN-FIND(FIRST style
                       WHERE style.company  EQ gcompany

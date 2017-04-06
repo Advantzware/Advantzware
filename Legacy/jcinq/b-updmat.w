@@ -10,7 +10,7 @@
   File: b-updmat.w
 
   Description: Update Material Transactions
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -220,6 +220,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -310,7 +311,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-mat-tran
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -352,7 +353,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tt-mat-tran.job-no BROWSE-2 _BROWSE-COLUMN D-Dialog
 ON LEAVE OF tt-mat-tran.job-no IN BROWSE BROWSE-2 /* Job No # */
 DO:
-    
+
   IF LASTKEY NE -1 THEN DO:
     RUN valid-job-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -464,7 +465,7 @@ DO:
 
    DO WITH FRAME {&FRAME-NAME}:
        lv-rowid = ROWID(tt-mat-tran).
-  
+
    FIND mat-act WHERE ROWID(mat-act) EQ tt-mat-tran.ROWID EXCLUSIVE-LOCK NO-ERROR.
 
    IF AVAIL mat-act THEN
@@ -474,9 +475,9 @@ DO:
    FIND CURRENT tt-mat-tran EXCLUSIVE-LOCK NO-ERROR .
    IF AVAIL tt-mat-tran  THEN
        DELETE tt-mat-tran .
-  
+
  END.
-   
+
  CLOSE QUERY browse-2.
 
  OPEN QUERY browse-2 FOR EACH tt-mat-tran.
@@ -494,7 +495,7 @@ DO:
     IF AVAIL tt-mat-tran THEN
         tag-no = tt-mat-tran.tag .
     ELSE tag-no = "" .
-    
+
    IF /*USERID("nosweat") EQ "asi" AND*/
     AVAILABLE tt-mat-tran THEN DO:
 
@@ -699,12 +700,12 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- 
+
 
 
 END PROCEDURE.
@@ -742,7 +743,7 @@ PROCEDURE set-read-only :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-log AS LOG NO-UNDO.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
 
     ASSIGN
@@ -773,14 +774,14 @@ PROCEDURE update-mat-act :
   DEF VAR iOldJobNo2 LIKE mat-act.job-no2 NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-       
+
     RUN valid-job-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     FIND mat-act WHERE ROWID(mat-act) EQ tt-mat-tran.ROWID EXCLUSIVE-LOCK NO-ERROR.
 
     IF AVAILABLE mat-act THEN DO:
-       
+
        ASSIGN
          cOldJobNo = tt-mat-tran.job-no
          iOldJobNo2 = tt-mat-tran.job-no2
@@ -802,7 +803,7 @@ PROCEDURE update-mat-act :
          mat-act.qty      = tt-mat-tran.qty-posted
          mat-act.tag      = tt-mat-tran.tag
          mat-act.ext-cost = tt-mat-tran.ext-cost.
-        
+
        IF cOldJobNo NE mat-act.job-no OR iOldJobNo2 NE mat-act.job-no2 THEN DO:
            FIND FIRST job 
                WHERE job.company EQ mat-act.company
@@ -830,16 +831,16 @@ PROCEDURE update-record :
    DEF VAR lv-rowid AS ROWID NO-UNDO.
 
  DO WITH FRAME {&FRAME-NAME}:
-       
+
     lv-rowid = ROWID(tt-mat-tran).
 
     RUN valid-job-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     RUN update-mat-act.    
-    
+
     RUN set-read-only(INPUT YES).
-    
+
     CLOSE QUERY {&browse-name}.
     OPEN QUERY {&browse-name} FOR EACH tt-mat-tran NO-LOCK.
 
@@ -877,7 +878,7 @@ PROCEDURE valid-job-no :
         APPLY "entry" TO tt-mat-tran.job-no IN BROWSE {&browse-name}.
         RETURN ERROR.
       END.
-    
+
   END.
 
 END PROCEDURE.

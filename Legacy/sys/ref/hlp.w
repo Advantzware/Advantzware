@@ -15,7 +15,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -183,6 +183,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -220,7 +221,7 @@ THEN W-Win:HIDDEN = YES.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -260,17 +261,17 @@ DO:
      /* need security check */
     DEF VAR lv-password AS cha NO-UNDO.
     DEF VAR op-ed-text AS cha NO-UNDO.
-    
+
     ASSIGN ll-secure = NO
            op-ed-text = ed-text.
-    
+
     IF NOT ll-secure THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure).
-    
+
     IF ll-secure EQ YES THEN DO:
-    
+
         IF INDEX(PROPATH, "DataDig") EQ 0 THEN
           PROPATH = PROPATH + "," + ENTRY(1, PROPATH) + "\" + "util\datadigger".
-      
+
         RUN util/dataview.p.
 
     END.
@@ -298,7 +299,7 @@ DO:
           ed-text:SCREEN-VALUE FORMAT "x(10000)"  .
 
     RUN custom/prntproc.p (list-name,INT(11),"P").
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -321,7 +322,7 @@ DO:
     IF ll-secure EQ YES THEN
         RUN sys/ref/hlpupd.p (ip-field,ip-table,ip-db,ip-frame,ip-language,OUTPUT op-ed-text).
 
-    
+
 /* === re-display    ==========*/
   /*find first asihlp.hlp-head where hlp-head.fld-name = ip-field and
                                  hlp-head.fil-name = ip-table
@@ -358,17 +359,17 @@ DO:
      /* need security check */
     DEF VAR lv-password AS cha NO-UNDO.
     DEF VAR op-ed-text AS cha NO-UNDO.
-    
+
     ASSIGN ll-secure = NO
            op-ed-text = ed-text.
-    
+
     IF NOT ll-secure THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure).
-    
+
     IF ll-secure EQ YES THEN DO:
-    
+
         IF INDEX(PROPATH, "DataDig") EQ 0 THEN
           PROPATH = PROPATH + "," + ENTRY(1, PROPATH) + "\" + "util\datadigger".
-      
+
         RUN util/dataview.p.
 
     END.
@@ -487,7 +488,7 @@ IF NOT vhWebService:CONNECTED() THEN
     END. /* WebService no conn*/
 
     ELSE DO:
-       
+
     RUN Service1Soap SET vhSalesSoap ON vhWebService .
     RUN HelpMain IN vhSalesSoap(INPUT STRING(ip-field),INPUT STRING(ip-table),INPUT STRING(ip-frame),INPUT STRING(vclint),  OUTPUT parameters1,OUTPUT parameters2,OUTPUT fr-flags ).
 
@@ -517,7 +518,7 @@ IF NOT vhWebService:CONNECTED() THEN
                      lv-help-title = "Help For " + ip-db + "." + ip-table + "." + ip-field.
                  ELSE lv-help-title = "Help On " + fr-title +  " For " +
                       ip-db + "." + ip-table + "." + ip-field .
-                      
+
                  lv-frame-name = "Frame Name: " + ip-frame.
                  lv-program = "Procedure: " + substring(PROGRAM-NAME(2),INDEX(PROGRAM-NAME(2)," ")).
     END.  /* WebService is conn*/
@@ -637,9 +638,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

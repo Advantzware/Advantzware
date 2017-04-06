@@ -734,13 +734,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -942,7 +948,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -1163,6 +1169,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:02 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1200,7 +1207,7 @@ DO:
 
   IF scr-auto-print AND scr-label-file = "" THEN
   DO:
-     MESSAGE "Label Matrix Label File cannot be blank."
+    {methods/setButton.i MESSAGE "Label Matrix Label File cannot be blank." "blank"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:45 am */
          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
      APPLY "ENTRY":U TO scr-label-file IN FRAME {&FRAME-NAME}.
      RETURN NO-APPLY.
@@ -1213,6 +1220,7 @@ DO:
      APPLY "entry" TO fi_cas-lab.
      RETURN NO-APPLY.
   END.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:02 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2244,8 +2252,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:02 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -2590,6 +2600,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   lForm = NO.
   iForm = 0.
 
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:45 am */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:45 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:02 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 
@@ -6990,7 +7003,7 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
     {sys/inc/outprint.i value(85)}
 
     SESSION:SET-WAIT-STATE ("general").
-   
+
     IF tb_print-view THEN DO:
         IF NOT lBussFormModle THEN
            PUT "<PREVIEW><MODAL=NO>" FORM "x(30)".
@@ -7005,7 +7018,7 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
         FOR EACH tt-word-print NO-LOCK BREAK
                                 BY tt-word-print.ord-no 
                                 BY tt-word-print.i-no:
-                                
+
            IF scr-label-file:SCREEN-VALUE EQ "loadtag.xpr" THEN DO:
                {oe/rep/lodxprntstd.i}
            END.
@@ -7045,7 +7058,7 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
            ELSE IF scr-label-file:SCREEN-VALUE EQ "loadtag12.xpr" THEN DO:
                {oe/rep/lodxprnt12.i}
            END.
-    
+
          IF NOT LAST(tt-word-print.i-no) THEN PAGE .
         END.
     END.

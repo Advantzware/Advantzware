@@ -4,6 +4,10 @@
           nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:06 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -203,6 +207,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -235,16 +241,16 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "NOSWEAT.notes"
+     _TblList          = "ASI.notes"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "notes.rec_key = ip-rec_key
- AND NOSWEAT.notes.note_type = ""I"""
-     _FldNameList[1]   = NOSWEAT.notes.note_date
+ AND ASI.notes.note_type = ""I"""
+     _FldNameList[1]   = ASI.notes.note_date
      _FldNameList[2]   > "_<CALC>"
 "STRING(notes.note_time,'HH:MM:SS am') @ notetime" "Note Time" "X(11)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   = NOSWEAT.notes.note_title
-     _FldNameList[4]   = NOSWEAT.notes.user_id
+     _FldNameList[3]   = ASI.notes.note_title
+     _FldNameList[4]   = ASI.notes.user_id
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -256,7 +262,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 

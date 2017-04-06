@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:11 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -38,6 +42,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i} /* added by script _globdefs.p on 03.28.2017 @ 10:42:30 am */
 DEF VAR ld-inv-amt AS DEC NO-UNDO.
 DEF VAR li-days-old AS INT NO-UNDO.
 
@@ -227,6 +232,8 @@ END.
 
 {src/adm/method/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -283,7 +290,7 @@ ASI.ar-inv.due    GT 0"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -423,6 +430,7 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+  RUN pDataGridInit. /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:11 am */
 
   /* Code placed here will execute AFTER standard behavior.    */
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.

@@ -135,6 +135,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -148,7 +159,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -185,6 +196,7 @@ END.
 ON CHOOSE OF BtnCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
     APPLY "close" TO THIS-PROCEDURE.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:34 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -196,7 +208,7 @@ END.
 ON CHOOSE OF BtnOK IN FRAME DEFAULT-FRAME /* OK */
 DO:  
    DEF VAR v-image-file AS cha NO-UNDO.
-  
+
    ASSIGN {&displayed-objects}.
 
    IF v-t = "" OR v-3d = "" THEN DO:
@@ -223,7 +235,7 @@ DO:
         BUTTON YES-NO UPDATE ll-ans AS LOG.
     IF ll-ans THEN
     DO:
-    
+
     IF tg_estimates = NO THEN
     FOR EACH box-design-hdr WHERE
         box-design-hdr.design-no NE 0:
@@ -276,6 +288,7 @@ DO:
     END.
     MESSAGE "Process is completed." VIEW-AS ALERT-BOX INFORMATION.
     APPLY "close" TO THIS-PROCEDURE.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:34 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -295,8 +308,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:34 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -307,6 +322,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:34 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

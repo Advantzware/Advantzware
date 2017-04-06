@@ -7,7 +7,7 @@
 /*------------------------------------------------------------------------
 
   File: addon/bol/s-relbol.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -107,6 +107,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -128,7 +129,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -323,11 +324,11 @@ PROCEDURE local-exit :
      CAN-FIND(FIRST asi._file WHERE
      asi._file._File-Name = "ssrelbol") THEN
      RUN save-relbol IN WIDGET-HANDLE(char-hdl).
-   
+
   APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
   RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -369,9 +370,9 @@ PROCEDURE select_exit :
      CAN-FIND(FIRST asi._file WHERE
      asi._file._File-Name = "ssrelbol") THEN
      RUN save-relbol IN WIDGET-HANDLE(char-hdl).
-  
+
   APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
 END PROCEDURE.
 

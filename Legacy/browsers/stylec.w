@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:08 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -199,6 +203,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -248,7 +254,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -286,7 +292,7 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
-  
+
 /* ========== tried to force update button enabled on page 2 but not working == 
      modification is done on panel on page 2 (p-updsav.w -> state-changed
      ===================================================================
@@ -295,7 +301,7 @@ DO:
    def var tmp-char as cha no-undo.
    def var lv-hdl as handle no-undo.
    def var ll-deleted as log no-undo.
-    
+
    ll-deleted = no.
    run get-attribute in adm-broker-hdl ('IS-DELETED').
    if return-value = "yes" then ll-deleted = yes.
@@ -306,7 +312,7 @@ DO:
        RUN request-attribute IN adm-broker-hdl
             (INPUT widget-handle(char-hdl), INPUT 'TABLEIO-TARGET':U,
              INPUT 'Query-Position':U).  
-     
+
      lv-hdl = widget-handle(char-hdl).
      def var h_stylec as handle no-undo.
      def var cont-hdl as cha no-undo.
@@ -332,7 +338,7 @@ DO:
              "query-position: " RETURN-VALUE skip
              "viewer link:" tmp-char valid-handle(widget-handle(tmp-char))
              .
-             
+
      run set-attribute-list in adm-broker-hdl ("IS-DELETED=no").
     */  
      adm-panel-state = 'initial':U.
@@ -453,10 +459,10 @@ PROCEDURE refresh-query :
   def var i as int no-undo.
   def var lv-rowid as rowid no-undo.  /* current record's rowid */
   def var lv-stat as log no-undo.
-  
+
   lv-rowid = if avail style then rowid(style)  else ?.
   i = browse {&browse-name}:focused-row.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     APPLY "value-changed" TO browse-order.
   END.

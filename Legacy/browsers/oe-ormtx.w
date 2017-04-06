@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:07 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -260,6 +264,8 @@ END.
 {methods/template/browser.i}
 {custom/yellowColumns.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -342,7 +348,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -406,8 +412,8 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-    
-    
+
+
 {methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -488,7 +494,7 @@ DEFINE VAR catto   AS CHAR NO-UNDO.
         ItemFrom     = oe-prmtx.i-no   
         typeFrom     = oe-prmtx.custype
         catfrom      = oe-prmtx.procat .
-    
+
     GET LAST Browser-Table .
     IF AVAIL oe-prmtx THEN
       ASSIGN
@@ -564,9 +570,9 @@ PROCEDURE local-open-query :
     IF AVAIL oe-ordl THEN
         ASSIGN auto_find:SCREEN-VALUE = oe-ordl.i-no 
         browse-order:SCREEN-VALUE = "3" .
-        
+
     END.
-  
+
     APPLY "entry" TO auto_find .
     APPLY 'ENTRY' TO {&BROWSE-NAME} IN FRAME {&FRAME-NAME}.
 

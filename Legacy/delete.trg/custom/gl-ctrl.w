@@ -306,11 +306,11 @@ DO:
   ELSE
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
-    ASSIGN
-      {&SELF-NAME}:LABEL = "&Close"
-      Btn_Update:LABEL = "&Update".
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
     RUN enable_UI.
   END.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -325,20 +325,19 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE {&LIST-1}.
     DISPLAY {&F1}.
-    ASSIGN
-      {&SELF-NAME}:LABEL = "&Save"
-      Btn_Close:LABEL = "&Cancel".
+    {methods/setButton.i Btn_Update "Save"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {methods/setButton.i Btn_Close "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
     APPLY "ENTRY" TO gl-ctrl.journal.
   END.
   ELSE
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE {&LIST-1}.
     HIDE {&F1} NO-PAUSE.
-    ASSIGN
-      {&SELF-NAME}:LABEL = "&Update"
-      Btn_Close:LABEL = "&Close".
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
     ASSIGN {&LIST-1}.
   END.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -400,8 +399,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -414,6 +415,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND gl-ctrl WHERE gl-ctrl.company = gcompany NO-LOCK NO-ERROR.
   RUN enable_UI.
   {methods/nowait.i}
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

@@ -177,6 +177,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -218,7 +219,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-select, EACH eb WHERE ROWID(eb) EQ tt-rowid
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -368,10 +369,10 @@ PROCEDURE build-table :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEF BUFFER b-eb FOR eb.
 
-                     
+
   lv-form-no = 0.
 
   FOR EACH tt-select:

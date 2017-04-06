@@ -176,6 +176,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -216,7 +217,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-inv.
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -376,7 +377,7 @@ PROCEDURE build-table :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   FOR EACH ar-invl NO-LOCK
       WHERE ar-invl.x-no EQ ar-inv.x-no
         AND ar-invl.amt  NE 0:
@@ -581,7 +582,7 @@ PROCEDURE local-initialize :
 
   DO WITH FRAME {&FRAME-NAME}:
     {&browse-name}:SELECT-ALL ().
-    
+
     DO WHILE {&browse-name}:NUM-SELECTED-ROWS GT li1:
       DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
         {&browse-name}:FETCH-SELECTED-ROW (li) NO-ERROR.

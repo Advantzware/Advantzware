@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:16 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -479,7 +483,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -625,7 +629,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -679,7 +683,7 @@ PROCEDURE auto-calc :
    disable ef.m-code ef.lsh-len ef.lsh-wid ef.m-dscr
            ef.xgrain ef.board ef.flute
            ef.gsh-wid ef.gsh-len ef.gsh-dep
-           
+
            with frame {&frame-name}.
 
 /*===========  corrware
@@ -701,7 +705,7 @@ PROCEDURE auto-calc :
                ef.n-out-l:screen-value = string(trunc(ef.lsh-wid / ef.nsh-len,0))
                ef.n-out-d:screen-value = string("1").
    end.
-   
+
    assign ef.n-out:screen-value   = string("0")
           ef.n-out-l:screen-value = string("0")
           ef.n-out-d:screen-value = string("0")
@@ -717,7 +721,7 @@ PROCEDURE auto-calc :
           eb.num-len:screen-value = string("0")
           eb.num-wid:screen-value = string("0")
           eb.num-dep:screen-value = string("0").
-          
+
 
    run dispatch ('enable-fields').
    disable ef.gsh-wid ef.gsh-len ef.gsh-dep
@@ -774,7 +778,7 @@ PROCEDURE local-assign-record :
      run ce/calc-dim.p .
      find xef where recid(xef) = recid(ef).
      find xeb where recid(xeb) = recid(eb).
-     
+
      assign ef.lsh-len:screen-value in frame {&frame-name} = string(xef.lsh-len )
               ef.lsh-wid:screen-value = string(xef.lsh-wid )
               ef.gsh-len:screen-value = string(xef.gsh-len )

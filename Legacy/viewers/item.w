@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:21 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -912,7 +916,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -924,7 +928,7 @@ ON HELP OF FRAME F-Main
 DO:
    def var lv-handle as handle no-undo.
    def var char-val as cha no-undo.
-   
+
    CASE Focus:name :
        when "flute" then do:
            /*run est/l-flute.w (output char-val).  using reftable*/
@@ -963,10 +967,10 @@ DO:
      otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-             
+
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
-        
+
            end.   /* g_lookup-var <> "" */
            apply "entry" to lv-handle.
            return no-apply.
@@ -1004,7 +1008,7 @@ DO:
       {custom/mattypes.i}
     END.
     &UNDEFINE mat-types-enable
-    
+
        IF fi_mat-type:SCREEN-VALUE = "R" THEN do:
         ASSIGN
             item.reg-no:LABEL = "Paper Type" 
@@ -1027,7 +1031,7 @@ END.
 ON VALUE-CHANGED OF fi_mat-type IN FRAME F-Main /* Mat'l Type */
 DO:
   &Scoped-define mat-types-enable NO
-  
+
   FIND mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE NO-LOCK NO-ERROR.
 
   IF AVAIL mat THEN DO:
@@ -1038,7 +1042,7 @@ DO:
       {custom/mattypes.i}
     END.
     &UNDEFINE mat-types-enable
-    
+
     IF fi_mat-type:SCREEN-VALUE = "R" THEN do:
         ASSIGN
             item.reg-no:LABEL = "Paper Type" .
@@ -1151,7 +1155,7 @@ session:data-entry-return = yes.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1366,7 +1370,7 @@ PROCEDURE local-assign-record :
      lv-cas-pal-w = DEC(fi_cas-pal-w:SCREEN-VALUE)
      lv-ect       = DEC(fi_ect:SCREEN-VALUE).
   END.
-          
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -1379,7 +1383,7 @@ PROCEDURE local-assign-record :
          locode = gloc
          fi_mat-type = lv-mat-type
          item.mat-type = lv-mat-type.   
-  
+
   if adm-new-record and item.mat-type = "D" then do:  /* from rm/cpall.i */
      find first bf-item where bf-item.company = gcompany and
                               bf-item.mat-type = "D" and
@@ -1451,7 +1455,7 @@ PROCEDURE local-assign-record :
          find bf-item where bf-item.company = gcompany and
                             bf-item.i-no = ls-prev-i-no
                             no-lock no-error.
-         
+
          DO WITH FRAME {&FRAME-NAME}:
            BUFFER-COPY bf-item EXCEPT rec_key TO ITEM
            ASSIGN
@@ -1611,7 +1615,7 @@ PROCEDURE local-display-fields :
         ELSE 
             ASSIGN
                 item.reg-no:LABEL = "Reg.#" .
-            
+
     end.
 
     else
@@ -1621,10 +1625,10 @@ PROCEDURE local-display-fields :
        fi_reg-no /*:screen-value*/    = item.reg-no.
     end.
   END.
- 
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
- 
+
   /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
 
@@ -1639,7 +1643,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   def var is-new-record as log no-undo.
   DEF VAR char-hdl AS CHAR NO-UNDO.
-  
+
 
   /* Code placed here will execute PRIOR to standard behavior. */
   is-new-record = adm-new-record.
@@ -1850,14 +1854,14 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN disable-item.
-  
+
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
 
   IF is-new-record THEN do:
       RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(item)). 
       RUN reset-init-values IN WIDGET-HANDLE(char-hdl).
    END.
-  
+
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ("row-changed").
 
 
@@ -1956,7 +1960,7 @@ PROCEDURE valid-i-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF item.i-no:SCREEN-VALUE EQ "" THEN DO:
       MESSAGE "Item# may not be spaces..." VIEW-AS ALERT-BOX ERROR.
@@ -1964,7 +1968,7 @@ PROCEDURE valid-i-no :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1987,7 +1991,7 @@ PROCEDURE valid-mat-type :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

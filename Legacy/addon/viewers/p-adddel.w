@@ -40,7 +40,7 @@ CREATE WIDGET-POOL.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartViewer
+&Scoped-define PROCEDURE-TYPE SmartPanel
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
@@ -164,13 +164,14 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{src/adm/method/viewer.i}
+{Advantzware/WinKit/winkit-panel.i}
+{src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -186,11 +187,12 @@ ON CHOOSE OF btn-add IN FRAME F-Main /* Add */
 DO:
     def var char-hdl as cha no-undo.
     def var lv-mail-rec as recid no-undo.
-    
+
     run get-link-handle in adm-broker-hdl(this-procedure,"maillist-target",output char-hdl).
     run get-mail-recid in widget-handle(char-hdl) (output lv-mail-rec).
     run windows/mailadd.w (lv-mail-rec).
     run dispatch in widget-handle(char-hdl) ('open-query').
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:46 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -203,12 +205,13 @@ ON CHOOSE OF btn-delete IN FRAME F-Main /* Delete */
 DO:
     def var char-hdl as cha no-undo.
     def var lv-mail-rec as recid no-undo.
-    
+
     run get-link-handle in adm-broker-hdl (this-procedure,"maillist-target",output char-hdl).
     run get-recid in widget-handle(char-hdl) (output lv-mail-rec).
 
     run windows/maildel.w (lv-mail-rec).
     run dispatch in widget-handle(char-hdl) ('open-query').
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:46 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -225,7 +228,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

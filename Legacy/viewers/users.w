@@ -5,6 +5,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:23 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -398,7 +402,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -447,7 +451,7 @@ DO:
         SELF:SCREEN-VALUE = substring(ls-filename,R-INDEX(ls-filename,"/") + 1).
      ELSE IF INDEX(ls-filename,"\") > 0 THEN
         SELF:SCREEN-VALUE = substring(ls-filename,R-INDEX(ls-filename,"\") + 1).
-       
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -457,7 +461,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.user_program[1] V-table-Win
 ON LEAVE OF users.user_program[1] IN FRAME F-Main /* Box Image Software Path */
 DO:
-  
+
   IF INDEX(self:screen-value,"/") > 0 THEN
         SELF:SCREEN-VALUE = substring(self:screen-value,R-INDEX(self:screen-value,"/") + 1).
      ELSE IF INDEX(self:screen-value,"\") > 0 THEN
@@ -475,12 +479,12 @@ ON HELP OF users.user_program[3] IN FRAME F-Main /* FG/RM Pallet Load Tag / Case
 DO:
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog get-dir ls-filename 
                  title "Select Path to save"
                  initial-dir users.USER_program[3]
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
 END.
 
@@ -523,11 +527,11 @@ END.
   DO TRANSACTION:
      {sys/inc/webroot.i}
   END.
-     
+
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -617,7 +621,7 @@ PROCEDURE local-assign-record :
 
   /* gdm - 05180924 */
   ASSIGN users.image_filename = TRIM(fi_email).
-  
+
   {methods/viewers/assign/{&FIRST-EXTERNAL-TABLE}.i}
 
   IF adm-new-record THEN DO:
@@ -643,7 +647,7 @@ PROCEDURE local-assign-record :
      FIND FIRST usercomp WHERE usercomp.USER_id = users.USER_id 
                            AND usercomp.company = lv-default-comp AND
                                usercomp.loc = lv-default-loc NO-LOCK NO-ERROR.
-     
+
      IF NOT AVAIL usercomp THEN DO:
         CREATE usercomp.
         ASSIGN usercomp.user_id = users.USER_id
@@ -727,7 +731,7 @@ PROCEDURE local-assign-record :
      MESSAGE "Do you want to change " users.USER_id "'s password?"
          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans .
   IF ll-ans THEN DO:
-   
+
      FIND NOSWEAT._user
           WHERE NOSWEAT._user._userid = users.user_id EXCLUSIVE-LOCK NO-ERROR.
      IF AVAILABLE NOSWEAT._user THEN         
@@ -751,7 +755,7 @@ PROCEDURE local-assign-record :
          _user._password = ENCODE(v-new-pass).
          */
       END.
-   
+
   END.
 
 END PROCEDURE.
@@ -859,7 +863,7 @@ PROCEDURE local-update-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN tb_security = NO
          v-sec-from = ""
@@ -903,7 +907,7 @@ PROCEDURE proc-enable :
          fi_phone-area lv-phone-num fi_phone-country
          fi_fax-area lv-fax-num fi_fax-country fi_email
          WITH FRAME {&FRAME-NAME}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -938,20 +942,20 @@ PROCEDURE reftable-values :
   DEF VAR v-fax-num AS CHAR NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-  
+
     IF AVAIL users THEN DO:
        FIND FIRST reftable WHERE
             reftable.reftable EQ "users.user-docs" AND
             reftable.company EQ users.user_id
             NO-ERROR.
-   
+
        IF NOT AVAIL reftable THEN DO:
           CREATE reftable.
           ASSIGN
             reftable.reftable = "users.user-docs"
             reftable.company  = users.user_id.
        END.
-   
+
        IF ip-display THEN
           ASSIGN
              tg_po = LOGICAL(reftable.val[1])
@@ -980,7 +984,7 @@ PROCEDURE reftable-values :
             reftable.reftable = "users.phone-no"
             reftable.company  = users.user_id.
        END.
-   
+
        IF ip-display THEN
           ASSIGN
              fi_phone-area = SUBSTRING(reftable.CODE,1,3)
@@ -1002,7 +1006,7 @@ PROCEDURE reftable-values :
             reftable.reftable = "users.fax-no"
             reftable.company  = users.user_id.
        END.
-   
+
        IF ip-display THEN
           ASSIGN
              fi_fax-area = SUBSTRING(reftable.CODE,1,3)
@@ -1024,7 +1028,7 @@ PROCEDURE reftable-values :
             reftable.reftable = "users.phone-cnty"
             reftable.company  = users.user_id.
        END.
-   
+
        IF ip-display THEN
           ASSIGN
              fi_phone-country = reftable.CODE.
@@ -1044,7 +1048,7 @@ PROCEDURE reftable-values :
             reftable.reftable = "users.fax-cnty"
             reftable.company  = users.user_id.
        END.
-   
+
        IF ip-display THEN
           ASSIGN
              fi_fax-country = reftable.CODE.
@@ -1117,7 +1121,7 @@ PROCEDURE valid-user-id :
      MESSAGE "Invalid User ID. " VIEW-AS ALERT-BOX ERROR.     
      RETURN ERROR.
   END.
-     
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

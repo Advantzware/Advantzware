@@ -9,7 +9,7 @@
 /*------------------------------------------------------------------------
 
   File: fg\d-invprc.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -173,6 +173,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {custom/yellowColumns.i}
 
@@ -222,7 +223,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-inv,
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -401,9 +402,9 @@ PROCEDURE build-table :
          itemfg.company EQ cust.company AND
          itemfg.cust-no EQ cust.cust-no
          NO-LOCK:
-    
+
          RELEASE ar-invl.
-    
+
          FOR EACH ar-invl WHERE
              ar-invl.company EQ cust.company AND
              ar-invl.posted EQ YES AND
@@ -416,10 +417,10 @@ PROCEDURE build-table :
                    NO-LOCK
              BREAK BY ar-inv.inv-date DESC
                    BY ar-invl.x-no    DESC:
-    
+
              LEAVE.
          END.
-    
+
          IF AVAIL ar-invl THEN
          DO:
             CREATE tt-inv.

@@ -111,6 +111,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB s-object 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/smart.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -143,7 +144,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -161,6 +162,7 @@ DO:
     RUN util/chk-mod.p ("ASI", crmType) NO-ERROR.
     IF NOT ERROR-STATUS:ERROR THEN
     RUN pCRM IN WIDGET-HANDLE(cHandle).
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:44 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -220,7 +222,7 @@ PROCEDURE state-changed :
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
   END CASE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

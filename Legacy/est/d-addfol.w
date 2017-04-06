@@ -6,7 +6,7 @@
 /*------------------------------------------------------------------------
 
   File: est\d-addfol.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -148,6 +148,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -190,7 +191,7 @@ ELSE
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -332,7 +333,7 @@ IF ip-corr = YES THEN
    ASSIGN
       btn_part:HIDDEN = NO
       btn_part:SENSITIVE = YES.
-    
+
 {src/adm/template/dialogmn.i}
 
 /* _UIB-CODE-BLOCK-END */

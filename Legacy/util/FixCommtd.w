@@ -52,7 +52,7 @@ DEF TEMP-TABLE tt-job-mat NO-UNDO
     FIELD t-all-flg LIKE job-mat.all-flg
     FIELD t-rowid   AS ROWID
     .                     
-   
+
 DEF BUFFER b-tt-job-mat FOR tt-job-mat.
 
 DEF BUFFER bf-tt-job-mat FOR tt-job-mat.
@@ -182,7 +182,7 @@ DEFINE BROWSE BROWSE-2
       tt-job-mat.t-rm-i-no LABEL "Rm Item#"      WIDTH 35
       tt-job-mat.t-qty-all COLUMN-LABEL "Qty ! Committed" WIDTH 10
       tt-job-mat.t-all-flg LABEL "Committed"     WIDTH 5
-      
+
 
 /*       ENABLE tt-job-mat.new-i-no */
 /* _UIB-CODE-BLOCK-END */
@@ -225,6 +225,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -265,7 +266,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-job-mat
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -275,7 +276,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-job-mat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job1 D-Dialog
 ON LEAVE OF begin_job1 IN FRAME D-Dialog /* From Job # */
 DO:
-    
+
     ASSIGN 
         {&self-name}
         {&self-name}:SCREEN-VALUE = CAPS({&self-name})
@@ -333,7 +334,7 @@ DO:
     END.
 
     RUN check-job.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -388,7 +389,7 @@ DO:
           END.
       END.
   END.
-    
+
 
   SESSION:SET-WAIT-STATE ("").
 
@@ -570,7 +571,7 @@ FOR EACH job NO-LOCK
 
    RUN build-table (job-mat.job-no,
                    job-mat.job-no2).
-   
+
 END.
 
 {&OPEN-QUERY-{&BROWSE-NAME}}

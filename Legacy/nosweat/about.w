@@ -282,7 +282,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       autoMaximize:SCREEN-VALUE = STRING(SEARCH(winReSize) NE ?)
       autoMaximize.
     IF SEARCH(winReSizeDat) NE ? THEN DO:
-      INPUT FROM VALUE(winReSizeDat).
+      INPUT FROM VALUE(SEARCH(winReSizeDat)).
       IMPORT winSize sizeRatio.
       INPUT CLOSE.
     END.

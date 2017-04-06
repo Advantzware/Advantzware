@@ -187,6 +187,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -261,6 +272,7 @@ END.
 ON CHOOSE OF btnCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY 'CLOSE':U TO THIS-PROCEDURE.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:59 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -323,6 +335,7 @@ DO:
   MESSAGE cMessage
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
   ENABLE {&List-1} {&List-2} WITH FRAME {&FRAME-NAME}.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:59 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -334,6 +347,7 @@ END.
 ON CHOOSE OF calendar-1 IN FRAME DEFAULT-FRAME
 DO:
   APPLY 'HELP':U TO invStart.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:59 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -345,6 +359,7 @@ END.
 ON CHOOSE OF calendar-2 IN FRAME DEFAULT-FRAME
 DO:
   APPLY 'HELP':U TO invEnd.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:59 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -386,8 +401,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:59 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -424,6 +441,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY 'CLOSE':U TO THIS-PROCEDURE.
   END.
 
+    {methods/setButton.i btnCancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:42 am */
+    {methods/setButton.i btnOK "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:42 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:59 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

@@ -9,7 +9,7 @@
 /*------------------------------------------------------------------------
 
   File: est\d-machex2.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -147,6 +147,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -191,7 +192,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-mach-route NO-LOCK,
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -276,7 +277,7 @@ END.
             tt-mach-route.m-code EQ tt-mach-exc.m-code AND
             tt-mach-route.form-no EQ tt-mach-exc.form-no AND
             tt-mach-route.blank-no EQ tt-mach-exc.blank-no:
-      
+
       ASSIGN
          tt-mach-route.reason = tt-mach-exc.reason
          tt-mach-route.dept = tt-mach-exc.dept
@@ -295,7 +296,7 @@ END.
       tt-mach-route.reason EQ "":
       tt-mach-route.reason = "Valid Machine".
   END.
-  
+
   {src/adm/template/dialogmn.i}
 
 /* _UIB-CODE-BLOCK-END */

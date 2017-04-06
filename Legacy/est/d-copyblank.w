@@ -6,7 +6,7 @@
 /*------------------------------------------------------------------------
 
   File: est\d-copyblank.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -45,7 +45,7 @@ def TEMP-TABLE w-box-l NO-UNDO like box-design-line.
 {custom/globdefs.i}
 
 cocode = g_company.
-       
+
 DO TRANSACTION:
    {sys/inc/cestyle.i F}
 END.
@@ -200,6 +200,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -240,7 +241,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -267,7 +268,7 @@ DO:
    DEF VAR v-style-same AS LOG NO-UNDO.
    DEF VAR li AS INT NO-UNDO.
    DEF VAR v-log AS LOG NO-UNDO.
-   
+
    DO WITH FRAME {&FRAME-NAME}:
       ASSIGN v-copy-sheet-from v-copy-blank-from
              v-copy-sheet-to v-copy-blank-to
@@ -285,12 +286,12 @@ DO:
          APPLY "entry" TO v-copy-blank-to.
          RETURN NO-APPLY.
       END.
- 
+
    MESSAGE "Are you sure you want to Copy Blank Info? " VIEW-AS ALERT-BOX WARNING
          BUTTON YES-NO UPDATE ll-ans AS LOG.
 
    IF ll-ans THEN DO:
-       
+
       SESSION:SET-WAIT-STATE("GENERAL").
 
       FOR EACH bx-ef WHERE
@@ -458,7 +459,7 @@ DO:
           MESSAGE "Invalid Blank#. Try Help. " VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
        END.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -560,7 +561,7 @@ IF AVAIL b-eb AND AVAIL b-ef THEN DO:
       v-copy-blank-from = b-eb.blank-no
       v-copy-sheet-from = b-eb.form-no
       v-copy-sheet-to   = v-copy-sheet-from.
-  
+
    FOR EACH b2-eb FIELDS(blank-no) WHERE
        b2-eb.company EQ b-eb.company AND
        b2-eb.est-no  EQ b-eb.est-no AND
@@ -569,11 +570,11 @@ IF AVAIL b-eb AND AVAIL b-ef THEN DO:
        b2-eb.form-no EQ b-eb.form-no
        NO-LOCK
        BY b2-eb.blank-no DESC:
-     
+
        v-copy-blank-to = b2-eb.blank-no.
        LEAVE.
    END.
-  
+
    {src/adm/template/dialogmn.i}
 END.
 
@@ -626,7 +627,7 @@ PROCEDURE build-box :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-box-des AS CHAR NO-UNDO.
-   
+
    find xeb where recid(xeb) = recid(bx-eb) no-lock.
 
    find first xest where
@@ -654,7 +655,7 @@ PROCEDURE build-box1 :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEF INPUT PARAMETER v-rebuild AS CHAR NO-UNDO.
-   
+
    def buffer xbox-design-hdr  for box-design-hdr.
    def buffer xbox-design-line for box-design-line.
 
@@ -699,7 +700,7 @@ PROCEDURE build-box1 :
       IF v-rebuild NE "N" THEN
       DO:
          run cec/descalc.p (recid(xest), recid(xeb)).
-        
+
          create box-design-hdr.
          assign  box-design-hdr.design-no   = 0
                  box-design-hdr.company = xeb.company
@@ -715,7 +716,7 @@ PROCEDURE build-box1 :
                  box-design-hdr.box-text = xbox-design-hdr.box-text
                  box-design-hdr.box-image = xbox-design-hdr.box-image
                  box-design-hdr.box-3d-image = xbox-design-hdr.box-3d-image.
-              
+
          for each xbox-design-line of xbox-design-hdr no-lock:
             create box-design-line.
             assign box-design-line.design-no  = box-design-hdr.design-no
@@ -725,19 +726,19 @@ PROCEDURE build-box1 :
                    box-design-line.blank-no   = box-design-hdr.blank-no
                    box-design-line.line-no    = xbox-design-line.line-no
                    box-design-line.line-text  = xbox-design-line.line-text.
-        
+
             find first w-box-design-line
                  where w-box-design-line.line-no eq box-design-line.line-no   no-error.
-        
+
             if avail w-box-design-line then
                assign  box-design-line.wscore     = w-box-design-line.wscore-c
                        box-design-line.wcum-score = w-box-design-line.wcum-score-c.
          end.
       END. /*if v-rebuild ne "N"*/
-     
+
       if v-rebuild ne "B" AND v-rebuild NE "N" then do:
          FIND FIRST w-box-h NO-ERROR.
-     
+
          IF AVAIL w-box-h THEN
          DO:
             if v-rebuild eq "S" then
@@ -749,10 +750,10 @@ PROCEDURE build-box1 :
                       box-design-hdr.lcum-score  = w-box-h.lcum-score
                       box-design-hdr.wscore      = w-box-h.wscore
                       box-design-hdr.wcum-score  = w-box-h.wcum-score.
-           
+
             for each w-box-l of box-design-hdr,
                 first box-design-line of w-box-l:
-            
+
                 if v-rebuild eq "S" then
                    assign box-design-line.line-no    = w-box-l.line-no
                           box-design-line.line-text  = w-box-l.line-text.

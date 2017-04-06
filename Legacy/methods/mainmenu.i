@@ -15,7 +15,7 @@
     wk-ptrs.menu-name = "popup"
     wk-ptrs.smenu-ptr = popup-ptr.
 
-  FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK.
+  FIND users WHERE users.user_id = USERID("ASI") NO-LOCK.
   j = IF users.developer THEN 2 ELSE 1.
 
   ASSIGN
@@ -34,15 +34,14 @@
 
   m_menu-lst[1] = TRIM(m_menu-lst[1]) + "." + TRIM(m_menu-lst[2]).
 
-
   DO i = 1 TO j:
-    IF i = 1 THEN
-      IF SEARCH("usermenu/" + USERID("NOSWEAT") + "/" + m_menu-lst[1]) NE ? THEN
-      INPUT FROM VALUE(search("usermenu/" + USERID("NOSWEAT") + "/" + m_menu-lst[1])) NO-ECHO.
+IF i = 1 THEN
+      IF SEARCH("usermenu/" + USERID("ASI") + "/" + m_menu-lst[1]) NE ? THEN
+      INPUT FROM VALUE(SEARCH ("usermenu/" + USERID("ASI") + "/" + m_menu-lst[1])) NO-ECHO.
       ELSE
-      INPUT FROM VALUE(search(m_menu-lst[1])) NO-ECHO.
+      INPUT FROM VALUE(SEARCH (m_menu-lst[1])) NO-ECHO.
     ELSE
-    INPUT FROM popup.lst NO-ECHO.
+    INPUT FROM VALUE(SEARCH ("popup.lst")) NO-ECHO.
     REPEAT:
       ASSIGN
        m_item1 = ""
@@ -63,12 +62,12 @@
 
   DO i = 1 TO j:
     IF i = 1 THEN
-      IF SEARCH("usermenu/" + USERID("NOSWEAT") + "/" + m_menu-lst[1]) NE ? THEN
-      INPUT FROM VALUE(search("usermenu/" + USERID("NOSWEAT") + "/" + m_menu-lst[1])) NO-ECHO.
+      IF SEARCH("usermenu/" + USERID("ASI") + "/" + m_menu-lst[1]) NE ? THEN
+      INPUT FROM VALUE(SEARCH ("usermenu/" + USERID("ASI") + "/" + m_menu-lst[1])) NO-ECHO.
       ELSE
-      INPUT FROM VALUE(search(m_menu-lst[1])) NO-ECHO.
+      INPUT FROM VALUE(SEARCH (m_menu-lst[1])) NO-ECHO.
     ELSE
-    INPUT FROM popup.lst NO-ECHO.
+    INPUT FROM VALUE(SEARCH ("popup.lst")) NO-ECHO.
     REPEAT:
       ASSIGN
        m_item1 = ""
@@ -79,13 +78,13 @@
          (m_est-only AND m_item3 NE "est") THEN NEXT.
       FIND FIRST wk-ptrs WHERE wk-ptrs.menu-name = m_item2 NO-LOCK NO-ERROR.
       IF NOT AVAIL wk-ptrs THEN DO:
-          IF USERID("Nosweat") EQ "ASI" THEN
+          IF USERID("ASI") EQ "ASI" THEN
             MESSAGE "Missing menu item: " m_item2 SKIP
             "menu file:" m_menu-lst[1] SKIP
-            VIEW-AS ALERT-BOX.          
+            VIEW-AS ALERT-BOX.
           NEXT.
       END.
-    
+
       IF CAN-DO("RULE,SKIP",m_item1) THEN
       DO:
         CREATE MENU-ITEM menu-item-ptr
@@ -146,7 +145,7 @@
 
   RUN enable_UI.
   {methods/enhance.i}
-  users_user_id = USERID("NOSWEAT") /*+ " - " + users.user_name */ .
+  users_user_id = USERID("ASI") /*+ " - " + users.user_name */ .
   DISPLAY users_user_id
       WITH FRAME {&FRAME-NAME} IN WINDOW {&WINDOW-NAME}.
   v_image_filename = users.image_filename.

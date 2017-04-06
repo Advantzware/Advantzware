@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:24 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -51,7 +55,7 @@ DEFINE VARIABLE l-valid AS LOGICAL NO-UNDO.
 DEF VAR ll-secure AS LOG NO-UNDO.
 {sys/ref/sys-ctrl.i}
 
-   
+
 &SCOPED-DEFINE vend-maint enable-vend-fields
 
 &SCOPED-DEFINE where-poexport                  ~
@@ -87,7 +91,7 @@ DO TRANSACTION:
             sys-ctrl.company = g_company
             sys-ctrl.name    = "VendXfer"
             sys-ctrl.descrip = "Transfer Vendor Information to Sister Plants?".
-           
+
          end.
          assign
             vend-char-f =  sys-ctrl.char-fld 
@@ -606,7 +610,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -665,7 +669,7 @@ DO:
     run valid-buyer NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   end.
-  
+
   {methods/dispflds.i}
 END.
 
@@ -700,7 +704,7 @@ DO:
 
        IF vend.zip:SCREEN-VALUE NE vend.zip THEN
         RUN zip-carrier.
-  
+
         RETURN NO-APPLY.
 
     END.  /* vend.city*/
@@ -763,7 +767,7 @@ DO:
     run valid-curr NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   end.
-  
+
   {methods/dispflds.i}
 END.
 
@@ -893,7 +897,7 @@ DO:
   if lastkey ne -1 then do:
     run valid-state NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    
+
     if adm-new-record and vend.r-state:screen-value eq "" then
       vend.r-state:screen-value = {&self-name}:screen-value.
   end.
@@ -925,7 +929,7 @@ DO:
     run valid-terms NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   end.
-  
+
   {methods/dispflds.i}
 END.
 
@@ -941,7 +945,7 @@ DO:
     run valid-vendtype NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   end.
-  
+
   {methods/dispflds.i}
 END.
 
@@ -1018,13 +1022,13 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-  
+
   session:data-entry-return = yes.
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1109,7 +1113,7 @@ PROCEDURE build-payment-type-list :
 ------------------------------------------------------------------------------*/
    DEFINE VARIABLE ilogic AS LOG NO-UNDO.
    cb_paytype:LIST-ITEMS IN FRAME {&frame-name} = "".
-      
+
    FOR EACH payment-type NO-LOCK WHERE payment-type.company = cocode.
        ilogic = cb_paytype:ADD-LAST (payment-type.type) IN FRAME {&frame-name}.
    END.
@@ -1195,7 +1199,7 @@ DO WITH FRAME {&FRAME-NAME}:
 /*    ELSE                                         */
 /*        tb_billpay:SCREEN-VALUE = "NO".          */
   IF AVAILABLE vend THEN cb_paytype:SCREEN-VALUE IN FRAME {&frame-name} = vend.payment-type. 
- 
+
 END.
 
 END PROCEDURE.
@@ -1236,7 +1240,7 @@ PROCEDURE local-apply-entry :
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
 
-    
+
     IF vend.frt-pay:SCREEN-VALUE BEGINS '"' THEN
    vend.frt-pay:SCREEN-VALUE = "".
   END.
@@ -1257,7 +1261,7 @@ DEF VAR v-old-poexport LIKE vend.po-export NO-UNDO.
 ASSIGN v-old-poexport = vend.po-export.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -1267,7 +1271,7 @@ ASSIGN v-old-poexport = vend.po-export.
      THEN ASSIGN vend.po-export:SCREEN-VALUE = v-old-poexport
                  vend.po-export = v-old-poexport.
 /* gdm - 07080903 end */
- 
+
   /* Code placed here will execute AFTER standard behavior.    */
   RUN assignCC.
   IF adm-new-record THEN DO:
@@ -1361,7 +1365,7 @@ PROCEDURE local-delete-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1376,15 +1380,15 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAILABLE vend THEN RUN build-payment-type-list.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
-  
-   
+
+
   RUN displayCC.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1406,7 +1410,7 @@ DEFINE VARIABLE container-hdl AS CHARACTER     NO-UNDO.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   RUN valid-po-sec.
   IF NOT l-valid THEN RETURN NO-APPLY.
-  
+
   run valid-vendtype.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   IF vend.actnum:MODIFIED IN FRAME {&frame-name} THEN DO:
@@ -1417,28 +1421,28 @@ DEFINE VARIABLE container-hdl AS CHARACTER     NO-UNDO.
 
   run valid-buyer NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
+
   run valid-state NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-   
+
   run valid-actnum NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
+
   run valid-stax NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-      
+
   RUN valid-code-1099 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
+
   run valid-terms NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-      
+
   RUN valid-po-export NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
+
   run valid-r-state NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
+
   run valid-carrier NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.  
 
@@ -1455,7 +1459,7 @@ DEFINE VARIABLE container-hdl AS CHARACTER     NO-UNDO.
   RUN disable-vend-fields.
 
   IF lNewRec THEN DO WITH FRAME {&FRAME-NAME}:
-    
+
       run get-link-handle in adm-broker-hdl(this-procedure,"container-source", output container-hdl).
       run passNewVend IN widget-handle(container-hdl) (vend.vend-no:SCREEN-VALUE).
   END.
@@ -1555,7 +1559,7 @@ find first sys-ctrl
     where sys-ctrl.company eq cocode
       and sys-ctrl.name    eq "AP GL#"
     no-lock no-error.
-      
+
 if not avail sys-ctrl                                     or
    not sys-ctrl.log-fld                                   or
    {&self-name}:screen-value in frame {&frame-name} ne "" then do:
@@ -1580,7 +1584,7 @@ PROCEDURE valid-buyer :
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
-    
+
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
   {custom/validate/buyer.i &where = sys\look/buyerW.i}
   IF NOT v-avail THEN RETURN ERROR.
@@ -1603,7 +1607,7 @@ PROCEDURE valid-carrier :
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
-    
+
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
   {custom/validate/carrier.i &where = sys\look/carrierW.i}
   IF NOT v-avail THEN RETURN ERROR.
@@ -1650,7 +1654,7 @@ PROCEDURE valid-curr :
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
-    
+
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
    {custom/validate/currency.i &where = sys/look/curr.i }
   IF NOT v-avail THEN RETURN ERROR.
@@ -1674,7 +1678,7 @@ PROCEDURE valid-loc :
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
-    
+
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
   {custom/validate/loc.i &where = sys/look/locW.i}
   IF NOT v-avail THEN RETURN ERROR.
@@ -1734,7 +1738,7 @@ PROCEDURE valid-po-sec :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   l-valid = YES.
 
   DO WITH FRAME {&frame-name}:    
@@ -1769,7 +1773,7 @@ PROCEDURE valid-r-state :
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
-    
+
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
   {custom/validate/state.i &where = sys/look/trueW.i}
   IF NOT v-avail THEN RETURN ERROR.
@@ -1792,7 +1796,7 @@ PROCEDURE valid-state :
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
-    
+
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
   {custom/validate/state.i &where = sys/look/trueW.i}
   IF NOT v-avail THEN RETURN ERROR.
@@ -1815,7 +1819,7 @@ PROCEDURE valid-stax :
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
-    
+
 IF aptax-log                                              OR
    {&self-name}:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
   {custom/validate/stax.i &where = sys/look/staxW.i}
@@ -1839,7 +1843,7 @@ PROCEDURE valid-terms :
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
-    
+
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
   {custom/validate/terms.i &where = sys/look/termsW.i}
   IF NOT v-avail THEN RETURN ERROR.
@@ -1857,7 +1861,7 @@ PROCEDURE valid-vend-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-                              
+
   DO WITH FRAME {&FRAME-NAME}:
     IF vend.vend-no:SCREEN-VALUE EQ "" OR
        CAN-FIND(FIRST b-vend WHERE b-vend.company EQ cocode
@@ -1890,7 +1894,7 @@ PROCEDURE valid-vendtype :
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
 
-    
+
 if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
   {custom/validate/ventype.i &where = sys/look/trueW.i}
   IF NOT v-avail THEN RETURN ERROR.
@@ -1908,7 +1912,7 @@ PROCEDURE vend-city :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-     
+
   DO WITH FRAME {&FRAME-NAME}:
     IF vend.city:SCREEN-VALUE NE "" THEN
     FIND FIRST nosweat.zipcode
@@ -1988,7 +1992,7 @@ PROCEDURE vend-zip :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-     
+
   DO WITH FRAME {&FRAME-NAME}:
     IF vend.zip:SCREEN-VALUE NE "" THEN
     FIND FIRST nosweat.zipcode
@@ -2013,7 +2017,7 @@ PROCEDURE zip-carrier :
   Notes:       
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
-   
+
    /* gdm - 10010913 */
    FIND FIRST nosweat.zipcode
         WHERE nosweat.zipcode.zipcode EQ vend.zip:SCREEN-VALUE

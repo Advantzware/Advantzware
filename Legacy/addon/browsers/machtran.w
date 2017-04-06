@@ -4,6 +4,10 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:03 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -263,6 +267,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -351,7 +357,7 @@ AND ~{&KEY-PHRASE}"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -424,21 +430,21 @@ DO:
   IF AVAILABLE machtran THEN
   DO:
      FIND CURRENT machtran NO-LOCK.
-    
+
      DEF BUFFER b-job FOR job.
-    
+
      FIND FIRST b-job WHERE
           b-job.company EQ machtran.company AND
           b-job.job-no EQ machtran.job_number AND
           b-job.job-no2 EQ machtran.job_sub
           NO-LOCK NO-ERROR.
-    
+
      IF AVAIL b-job THEN
      DO:
         {methods/run_link.i "CONTAINER-SOURCE" "Notes-Message"
           "(CAN-FIND(FIRST nosweat.note WHERE nosweat.note.rec_key = b-job.rec_key))"}
      END.
-    
+
      {methods/run_link.i "CONTAINER-SOURCE" "Set-Rec-Key_Header"
           "(machtran.rec_key,{methods/headers/machtran.i})"}
      {methods/run_link.i "CONTAINER-SOURCE" "MF-Message"

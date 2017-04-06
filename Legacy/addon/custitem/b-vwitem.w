@@ -4,6 +4,10 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:04 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -264,6 +268,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -334,7 +340,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -350,7 +356,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-   
+
     RUN new-state in phandle ('update-begin':U).
 
 END.
@@ -579,7 +585,7 @@ PROCEDURE fill-vendor-code :
                                       AND b-vend-code-cust-xref.cust-no = vend-whse-item.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
    IF AVAILABLE(b-vend-code-cust-xref) THEN
       ASSIGN vend-whse-item.vendor-code:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} = b-vend-code-cust-xref.vendor-code.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -618,9 +624,9 @@ PROCEDURE import-excel :
    FOR EACH tt-vend-whse-trans:
       DELETE tt-vend-whse-trans.
    END.
-   
+
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       SYSTEM-DIALOG GET-FILE chFile 
                     TITLE "Select File to Import"
                     FILTERS "Excel File (*.xls,*.xlsx) " "*.xls,*.xlsx"
@@ -628,7 +634,7 @@ PROCEDURE import-excel :
                     MUST-EXIST
                     USE-FILENAME
                     UPDATE v-ok.
-     
+
       IF v-ok THEN DO:
          IF LENGTH(chFile) LT 4 OR
             (SUBSTR(chFile,LENGTH(chFile) - 3) NE ".xls" AND 
@@ -637,34 +643,34 @@ PROCEDURE import-excel :
                 VIEW-AS ALERT-BOX ERROR BUTTONS OK.
             LEAVE.
          END.
-     
+
          SESSION:SET-WAIT-STATE ("general").
-   
+
          /* Initialize Excel. */
          CREATE "Excel.Application" chExcelAppl NO-ERROR.
-     
+
          /* Check if Excel got initialized. */
          IF NOT (VALID-HANDLE (chExcelAppl)) THEN DO:
             MESSAGE "Unable to Start Excel." VIEW-AS ALERT-BOX ERROR.
             RETURN ERROR. 
          END.
-     
+
          /* Open our Excel File. */  
          chExcelAppl:VISIBLE = FALSE.
          chWorkbook = chExcelAppl:Workbooks:OPEN(chfile) NO-ERROR.
-     
+
          /* Do not display Excel error messages. */
          chExcelAppl:DisplayAlerts = FALSE NO-ERROR.
-     
+
          /* Go to the Active Sheet. */
          chWorkbook:WorkSheets(1):Activate NO-ERROR.
-     
+
          ASSIGN
             chWorkSheet = chExcelAppl:Sheets:ITEM(1).
 
          REPEAT:
             IF chWorkSheet:Range("A" + STRING(v-RowCount)):VALUE EQ ? THEN LEAVE.
-                
+
             CREATE tt-vend-whse-trans.
             ASSIGN
                tt-vend-whse-trans.company           = cocode
@@ -680,7 +686,7 @@ PROCEDURE import-excel :
                v-RowCount = v-RowCount + 1.
          END.
       END.
-      
+
       /*Free memory*/
       chWorkbook = chExcelAppl:Workbooks:CLOSE() NO-ERROR.
       RELEASE OBJECT chWorkbook NO-ERROR.
@@ -704,7 +710,7 @@ PROCEDURE import-excel :
          v-deci-at = INDEX(tt-vend-whse-trans.fg-item-no, ".0000000000").
          IF v-deci-at > 0 THEN
             tt-vend-whse-trans.fg-item-no = SUBSTRING(tt-vend-whse-trans.fg-item-no, 1, v-deci-at - 1). 
-        
+
          FIND FIRST b-vend-code-cust-xref WHERE b-vend-code-cust-xref.company     = tt-vend-whse-trans.company 
                                            AND b-vend-code-cust-xref.vendor-code  = tt-vend-whse-trans.vendor-code NO-LOCK NO-ERROR.
 
@@ -735,7 +741,7 @@ PROCEDURE import-excel :
                tt-vend-whse-trans.valid = FALSE
                v-valid-flag = FALSE.
          END.
-         
+
          IF NOT CAN-FIND(FIRST b-itemfg WHERE b-itemfg.company = tt-vend-whse-trans.company 
                                           AND b-itemfg.part-no = tt-vend-whse-trans.cust-part-no) THEN DO:
 
@@ -744,7 +750,7 @@ PROCEDURE import-excel :
                tt-vend-whse-trans.valid = FALSE
                v-valid-flag = FALSE.
          END.
-         
+
          IF NOT CAN-FIND(FIRST b-vend-whse-item WHERE b-vend-whse-item.company            = tt-vend-whse-trans.company
                                                   AND b-vend-whse-item.vendor-code        = tt-vend-whse-trans.vendor-code
                                                   AND b-vend-whse-item.vendor-plant-code  = tt-vend-whse-trans.vendor-plant-code
@@ -762,7 +768,7 @@ PROCEDURE import-excel :
          MESSAGE "The Excel file did not load, please review error file." SKIP
                  "c:\tmp\vw-xlsimp-error.txt"
             VIEW-AS ALERT-BOX INFO BUTTONS OK.
-         
+
       END.
       ELSE DO:
          v-r-no = 0.
@@ -771,21 +777,21 @@ PROCEDURE import-excel :
 
          FIND LAST vend-whse-trans-hist USE-INDEX r-no NO-LOCK NO-ERROR.
          IF AVAIL vend-whse-trans-hist AND vend-whse-trans-hist.r-no GT v-r-no THEN v-r-no = vend-whse-trans-hist.r-no.
-         
+
          DO WHILE TRUE:
             v-r-no = v-r-no + 1.
-   
+
             FIND FIRST vend-whse-trans-hist WHERE vend-whse-trans-hist.r-no = v-r-no USE-INDEX r-no NO-LOCK NO-ERROR.
             IF AVAIL vend-whse-trans-hist THEN NEXT.
-   
+
             FIND FIRST b-vend-whse-trans WHERE b-vend-whse-trans.r-no = v-r-no USE-INDEX r-no NO-LOCK NO-ERROR.
             IF AVAIL b-vend-whse-trans THEN NEXT.
-   
+
             LEAVE.
          END.
-         
+
          FOR EACH tt-vend-whse-trans:
-              
+
             FIND FIRST b-itemfg WHERE b-itemfg.company = tt-vend-whse-trans.company
                                   AND b-itemfg.cust-no = tt-vend-whse-trans.cust-no
                                   AND b-itemfg.part-no = tt-vend-whse-trans.cust-part-no NO-LOCK NO-ERROR.
@@ -842,7 +848,7 @@ PROCEDURE import-excel :
    END.
 
    OUTPUT CLOSE.
-  
+
    RUN dispatch ('open-query'). 
 
 END PROCEDURE.
@@ -888,7 +894,7 @@ PROCEDURE local-assign-record :
       ASSIGN
          v-vendor-code = vend-whse-item.vendor-code:SCREEN-VALUE IN BROWSE {&browse-name}.
    END.
-  
+
    /* Dispatch standard ADM method.                             */
    RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ).
 
@@ -914,7 +920,7 @@ PROCEDURE local-copy-record :
 
    /* Code placed here will execute PRIOR to standard behavior. */
    v-copy-rec = yes.
-  
+
    /* Dispatch standard ADM method.                             */
    RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
 
@@ -931,7 +937,7 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
    /* Code placed here will execute PRIOR to standard behavior. */
 
    /* Dispatch standard ADM method.                             */
@@ -963,16 +969,16 @@ PROCEDURE local-delete-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   MESSAGE "Delete Currently Selected Record?"
   VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE response AS LOGICAL.
-  
+
   IF NOT response THEN RETURN "ADM-ERROR":U.
-    
-      
+
+
   /*  progress bug - no rfqitem record available 
       if add is canceled when new line is appended to last line */
-  
+
   IF NOT AVAIL vend-whse-item THEN 
      FIND vend-whse-item WHERE RECID(vend-whse-item) = v-recid NO-ERROR.
 
@@ -1015,10 +1021,10 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
    DEF VAR li AS INT NO-UNDO.
    /* Code placed here will execute PRIOR to standard behavior. */
-   
+
    IF NOT AVAIL vend-whse-item THEN 
       FIND vend-whse-item WHERE RECID(vend-whse-item) = v-recid NO-ERROR.
-  
+
    RUN val-cust-no NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1033,14 +1039,14 @@ PROCEDURE local-update-record :
 
    RUN val-dept-code NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-      
-   
+
+
    /* Dispatch standard ADM method.                             */
    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
- 
+
 
    /* Code placed here will execute AFTER standard behavior.    */
-   
+
 
 /*    RUN repo-query(INPUT v-recid). */
 
@@ -1049,7 +1055,7 @@ PROCEDURE local-update-record :
          APPLY 'cursor-left' TO {&BROWSE-NAME}.
       END.
    END.
-         
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

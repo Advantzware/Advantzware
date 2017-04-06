@@ -4,11 +4,15 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:23 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
   File: viewers\stylec.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -115,7 +119,7 @@ style.m-dscr[6] style.m-dscr[7]
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-    
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
 /* Actions: ? adm/support/keyedit.w ? ? ? */
 /* STRUCTURED-DATA
@@ -525,7 +529,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -1129,7 +1133,7 @@ session:data-entry-return = yes.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1226,14 +1230,14 @@ PROCEDURE display-flute-dim :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input param ip-code as int no-undo.
-   
+
   find first reftable where reftable.reftable = "STYFLU" 
                         and reftable.company = style.style
                         and reftable.loc = flute.code
                         and reftable.code = string(ip-code)
                         no-error.
   if not avail reftable then do:
-    
+
      create reftable.
      assign reftable.reftable = "STYFLU" 
             reftable.company = style.style
@@ -1241,7 +1245,7 @@ PROCEDURE display-flute-dim :
             reftable.code = string(ip-code)
             . 
   end.       
- 
+
   case ip-code:
       when 1 then do:
              ld-joint-tab:screen-value in frame {&frame-name} = string(reftable.val[13]).
@@ -1253,7 +1257,7 @@ PROCEDURE display-flute-dim :
       when 6 then ld-stitch-out:screen-value = string(reftable.val[13]).                 
       when 7 then ld-tape-score:screen-value = string(reftable.val[13]).
   end case.
-      
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1267,7 +1271,7 @@ PROCEDURE enable-style-field :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* called from methods/viewers/enable/style.i */
-  
+
   enable ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
           ld-tape-score with frame {&frame-name}.
 
@@ -1289,7 +1293,7 @@ PROCEDURE get-dim-values :
   def output param op-total as dec no-undo.
   def var i as int no-undo.
 
-  
+
   find first reftable where reftable.reftable = "STYFLU" 
                         and reftable.company = ip-style
                         and reftable.loc = ip-flute
@@ -1356,11 +1360,11 @@ PROCEDURE local-assign-record :
                        reftable.code2 = "1"
                        reftable.code = string(j)
                        .
-                       
+
            end. 
         end.  /* do j */
      end.     /* for each bf-flute */
-     
+
      ELSE do: /* === copy style, scoring, & routing-mtx info */
          for each reftable
              where reftable.reftable eq "STYFLU"
@@ -1475,7 +1479,7 @@ PROCEDURE local-assign-record :
   assign
    reftable.dscr     = style.material[1]:screen-value
    style.material[1] = "".
-  
+
   /* ============= end ==============*/
 END PROCEDURE.
 
@@ -1523,7 +1527,7 @@ PROCEDURE local-create-record :
          style.qty-per-set = 1. /* corrugated style */
 
   if adm-adding-record then do:
-         
+
      assign ld-joint-tab = 0
             ld-blank-width = 0
             ld-glue-in = 0
@@ -1531,7 +1535,7 @@ PROCEDURE local-create-record :
             ld-stitch-in = 0
             ld-stitch-out = 0
           ld-tape-score = 0.
-   
+
      display ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
           ld-tape-score with frame {&frame-name}.
 
@@ -1552,9 +1556,9 @@ PROCEDURE local-delete-record :
   def var j as int no-undo.
   DEF VAR lv-rowid AS ROWID EXTENT 2 NO-UNDO.
 
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   find first eb where eb.company = gcompany and
                       eb.loc = gloc and
                       eb.style = style.style
@@ -1599,11 +1603,11 @@ PROCEDURE local-delete-record :
          if avail reftable then delete reftable.
       end.
   end.   
-  
+
   for each routing-mtx of style :
       delete routing-mtx.
   end.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
@@ -1611,7 +1615,7 @@ PROCEDURE local-delete-record :
   RUN reset-browse (lv-rowid[2]).
 
   run set-attribute-list in adm-broker-hdl ("IS-DELETED=yes").  /* to force update button to be enabled */
-  
+
   SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
@@ -1635,9 +1639,9 @@ PROCEDURE local-display-fields :
  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
  IF AVAIL flute THEN
  ASSIGN flute-val = flute.CODE .
- 
+
   /* Code placed here will execute AFTER standard behavior.    */
-   
+
    if not avail style then return.
 
    DO WITH FRAME {&FRAME-NAME}:
@@ -1664,7 +1668,7 @@ PROCEDURE local-display-fields :
 
 
    END.
-   
+
 
    {viewers/stylec3.i 2}
    {viewers/stylec3.i 3}
@@ -1672,7 +1676,7 @@ PROCEDURE local-display-fields :
    {viewers/stylec3.i 5}
    {viewers/stylec3.i 6}
    {viewers/stylec3.i 7}
-   
+
    def var ld-total as dec DECIMALS 6 no-undo.
    run get-dim-values (style.style,flute.code, "1", output ld-total).                                 
    ld-joint-tab = ld-total.
@@ -1694,7 +1698,7 @@ PROCEDURE local-display-fields :
 
   disable ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
           ld-tape-score with frame {&frame-name}.
-          
+
   find first reftable where reftable.reftable = "STYFLU" and reftable.company = style.style
                         and reftable.loc = flute.code
                         and reftable.code = "BOARD"
@@ -1767,7 +1771,7 @@ PROCEDURE local-update-record :
   def var ls-m-value as cha no-undo.
   DEF VAR ll-new-record AS LOG NO-UNDO.
 
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   /* validation check */
   RUN valid-type NO-ERROR.
@@ -1793,7 +1797,7 @@ PROCEDURE local-update-record :
            when 6 then ls-m-value = style.material[6]:screen-value.
            when 7 then ls-m-value = style.material[7]:screen-value.           
         end case.
-        
+
         if not can-find(first item where item.company = style.company and 
                  /* item.industry = style.industry and */
                   item.i-no = ls-m-value )
@@ -1841,7 +1845,7 @@ PROCEDURE local-update-record :
        end.
     end.
   end.   /* do with frame */
-     
+
   /* end of validation */
   ll-new-record = adm-new-record.
 

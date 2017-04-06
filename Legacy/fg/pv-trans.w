@@ -40,7 +40,7 @@ CREATE WIDGET-POOL.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartViewer
+&Scoped-define PROCEDURE-TYPE SmartPanel
 &Scoped-define DB-AWARE no
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
@@ -138,7 +138,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{src/adm/method/viewer.i}
+{Advantzware/WinKit/winkit-panel.i}
+{src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -170,7 +171,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -185,6 +186,7 @@ DO:
     IF valid-handle(widget-handle(char-hdl))
            THEN RUN trans-count IN WIDGET-HANDLE(char-hdl).
 
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -201,7 +203,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

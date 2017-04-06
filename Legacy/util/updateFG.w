@@ -17,7 +17,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -172,17 +172,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -240,7 +236,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -303,7 +299,7 @@ DO:
 
    def var ls-filename as cha no-undo.
    def var ll-ok as log no-undo.
-   
+
    system-dialog get-file ls-filename 
                  title "Select File to insert"
                  filters "Data Files    (*.csv)" "*.csv",
@@ -312,7 +308,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-      
+
     IF ll-ok THEN self:screen-value = ls-filename.
 
 END.
@@ -330,7 +326,7 @@ END.
 
   /* {custom/getcmpny.i}  */
  /* {custom/globdefs.i}  */
- 
+
   MESSAGE "Please back up the database before running this utility!"
     VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
@@ -512,9 +508,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -596,11 +592,11 @@ PROCEDURE processFile :
          freight-class.freight-class = tt-itemfg.frt-class
          NO-LOCK NO-ERROR.
     IF NOT AVAIL freight-class AND tt-itemfg.frt-class GT "" THEN DO:
-     
+
       cErrorList = cErrorList + "Invalid Freight Class. ".
 
     END.
-      
+
     IF NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = cocode 
                                    AND fg-bin.loc = tt-itemfg.def-loc 
                                    AND fg-bin.loc-bin = tt-itemfg.def-loc-bin)
@@ -613,7 +609,7 @@ PROCEDURE processFile :
      DELETE tt-itemfg.
   END.
   FIND FIRST tt-itemfg.
-  
+
   RUN pass-temp-table IN h_b-updfg (INPUT TABLE tt-itemfg).
 
 END PROCEDURE.

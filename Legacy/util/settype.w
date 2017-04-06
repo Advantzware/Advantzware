@@ -173,6 +173,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -225,7 +226,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH cust
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -343,7 +344,7 @@ ON 'help':U OF BROWSE {&browse-name}
 DO:
   DEF VAR lv-handle AS HANDLE NO-UNDO.
   DEF VAR char-val AS cha NO-UNDO.
-   
+
   CASE FOCUS:NAME :
     WHEN "type" THEN DO:
       RUN windows/l-csttyp.w (cocode, cust.type:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).

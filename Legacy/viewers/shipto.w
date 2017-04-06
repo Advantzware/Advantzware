@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:22 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -552,7 +556,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -614,7 +618,7 @@ DO:
           otherwise do:
              lv-handle = focus:handle.
              run applhelp.p.
-             
+
              if g_lookup-var <> "" then do:
                 lv-handle:screen-value = g_lookup-var.        
              end.   /* g_lookup-var <> "" */
@@ -762,7 +766,7 @@ DO:
     RUN valid-loc NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
- 
+
   {methods/dispflds.i}
 END.
 
@@ -810,12 +814,12 @@ DO:
     RUN valid-ship-id NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
- 
+
   {methods/dispflds.i}
   */
   /* will run only create new record */
   RUN display-new-shipto.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -830,7 +834,7 @@ DO:
     RUN valid-ship-state NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
- 
+
   {methods/dispflds.i}
 END.
 
@@ -886,7 +890,7 @@ DO:
     RUN valid-tax-code NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
- 
+
   {methods/dispflds.i}
 END.
 
@@ -905,7 +909,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -958,7 +962,7 @@ PROCEDURE disable-shipto :
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE fi_jded-id tb_mandatory-tax.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -990,7 +994,7 @@ PROCEDURE display-new-shipto :
   Notes:       
 ------------------------------------------------------------------------------*/
  DEF BUFFER bf-cust FOR cust.
- 
+
  DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST bf-cust WHERE bf-cust.company = g_company AND
                             bf-cust.cust-no = shipto.ship-id:SCREEN-VALUE
@@ -1067,7 +1071,7 @@ PROCEDURE import-data :
                           INPUT shipto.dest-code).
 
 
-  
+
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT hBrowse).
 
   IF VALID-HANDLE(hBrowse) THEN
@@ -1106,7 +1110,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN reftable-values (INPUT NO).
-  
+
 
   IF cust.active EQ "X" THEN DO: 
     SESSION:SET-WAIT-STATE ("general").
@@ -1171,14 +1175,14 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER bfr-cust FOR cust.
   /* Code placed here will execute BEFORE standard behavior.   */
-                          
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/shipto.i}
    fi_sname:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "". 
-      
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1201,7 +1205,7 @@ PROCEDURE local-delete-record :
 
     /* Default shipto can be deleted if not used and if it is a duplicate */
     DO WITH FRAME {&FRAME-NAME}:
-      
+
 
       IF CAN-FIND(FIRST b-shipto
                   WHERE b-shipto.company       EQ cocode
@@ -1236,7 +1240,7 @@ PROCEDURE local-delete-record :
 
 
          END. /* If this ship-to is in use, block the delete */
-           
+
       END. /* duplicate found */
       ELSE DO:
             MESSAGE "This is the default ship to for this customer and " SKIP
@@ -1268,11 +1272,11 @@ PROCEDURE local-delete-record :
               DELETE buff-shipto .
       END.
    END.
-     
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1300,7 +1304,7 @@ PROCEDURE local-display-fields :
         fi_sname = getSalesmanName(shipto.spare-char-1).
 
       DISPLAY faxareacode faxnumber fi_sname WITH FRAME {&FRAME-NAME}.
-       
+
   END.
 
 END PROCEDURE.
@@ -1433,7 +1437,7 @@ PROCEDURE reftable-values :
       fi_jded-id = reftable.dscr.
     ELSE
       reftable.dscr = fi_jded-id.
-          
+
     FIND FIRST reftable {&where-mand-tax} NO-ERROR.
     IF NOT AVAIL reftable THEN DO:
       CREATE reftable.
@@ -1488,7 +1492,7 @@ PROCEDURE ship-zip :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-                           
+
 /*   DO WITH FRAME {&FRAME-NAME}:                                        */
 /*     IF shipto.ship-zip:SCREEN-VALUE NE "" THEN                        */
 /*     FIND FIRST nosweat.zipcode                                        */
@@ -1556,10 +1560,10 @@ PROCEDURE shipto-new-log :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
 DEF VAR thisOne AS CHAR NO-UNDO.
 DEFINE BUFFER buff-shipto FOR shipto .
- 
+
  FIND CURRENT shipto NO-LOCK.
  DO I = 1 TO NUM-ENTRIES(v-cust-fmt):
      ASSIGN thisOne = ENTRY(i,v-cust-fmt).
@@ -1579,7 +1583,7 @@ PROCEDURE shipto-update-log :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
 DEF VAR thisOne AS CHAR NO-UNDO.
 DEFINE BUFFER buff-shipto FOR shipto .
 
@@ -1660,7 +1664,7 @@ PROCEDURE update-shipto :
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "tableio-source", OUTPUT char-hdl).
 
   RUN set-buttons IN WIDGET-HANDLE(char-hdl) ("action-chosen").
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1726,7 +1730,7 @@ PROCEDURE valid-loc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     shipto.loc:SCREEN-VALUE = CAPS(shipto.loc:SCREEN-VALUE).
 
@@ -1823,7 +1827,7 @@ PROCEDURE valid-ship-no :
   DEF BUFFER b-cust   FOR cust.
 
   DO WITH FRAME {&FRAME-NAME}:
-   
+
 
     IF CAN-FIND(FIRST b-shipto
                 WHERE b-shipto.company       EQ cocode
@@ -1848,7 +1852,7 @@ PROCEDURE valid-ship-no :
         ELSE
           MESSAGE "ShipTo # already exists for this customer..." VIEW-AS ALERT-BOX ERROR.
       END.
-        
+
       APPLY "entry" TO shipto.ship-id.
       RETURN ERROR.
     END. /* If can-find duplicate ship-no */
@@ -1919,7 +1923,7 @@ PROCEDURE valid-tax-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     shipto.tax-code:SCREEN-VALUE = CAPS(shipto.tax-code:SCREEN-VALUE).
 
@@ -1955,7 +1959,7 @@ FUNCTION getSalesmanName RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
     DEFINE BUFFER bf-sman FOR sman.
-    
+
     IF ipcSalesman NE "" THEN
         FIND FIRST bf-sman 
             WHERE bf-sman.company EQ cocode

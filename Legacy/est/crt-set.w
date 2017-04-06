@@ -9,7 +9,7 @@
 /*------------------------------------------------------------------------
 
   File: est\crt-set.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -211,6 +211,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -244,7 +245,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -388,7 +389,7 @@ DO:
       assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
                /*        itemfg.procat-desc:screen-value = entry(2,char-val) */
                        .
-   
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -565,7 +566,7 @@ PROCEDURE local-enable :
     ELSE DISABLE fi_stock-no.
     IF est.est-type LE 4 THEN DISABLE tb_unitize.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

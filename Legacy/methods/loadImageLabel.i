@@ -6,5 +6,3 @@
     {1}:LOAD-IMAGE-INSENSITIVE ("{&imageFolder}inactive{&imageType}").
     &ENDIF
 &ENDIF
-IF {1}:LABEL NE "" THEN 
-{1}:LABEL = (IF {1}:LABEL BEGINS "~&" THEN "~&" ELSE "") + "{2}".

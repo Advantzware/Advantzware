@@ -372,13 +372,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -668,6 +674,7 @@ END.
 ON CHOOSE OF Btn-1 IN FRAME DEFAULT-FRAME /* 1 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -679,6 +686,7 @@ END.
 ON CHOOSE OF Btn-10 IN FRAME DEFAULT-FRAME /* 10 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -690,6 +698,7 @@ END.
 ON CHOOSE OF Btn-11 IN FRAME DEFAULT-FRAME /* 11 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -701,6 +710,7 @@ END.
 ON CHOOSE OF Btn-12 IN FRAME DEFAULT-FRAME /* 12 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -712,6 +722,7 @@ END.
 ON CHOOSE OF Btn-13 IN FRAME DEFAULT-FRAME /* 13 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -723,6 +734,7 @@ END.
 ON CHOOSE OF Btn-14 IN FRAME DEFAULT-FRAME /* 14 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -734,6 +746,7 @@ END.
 ON CHOOSE OF Btn-15 IN FRAME DEFAULT-FRAME /* 15 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -745,6 +758,7 @@ END.
 ON CHOOSE OF Btn-16 IN FRAME DEFAULT-FRAME /* 16 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -756,6 +770,7 @@ END.
 ON CHOOSE OF Btn-17 IN FRAME DEFAULT-FRAME /* 17 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -767,6 +782,7 @@ END.
 ON CHOOSE OF Btn-18 IN FRAME DEFAULT-FRAME /* 18 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -778,6 +794,7 @@ END.
 ON CHOOSE OF Btn-19 IN FRAME DEFAULT-FRAME /* 19 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -789,6 +806,7 @@ END.
 ON CHOOSE OF Btn-2 IN FRAME DEFAULT-FRAME /* 2 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -800,6 +818,7 @@ END.
 ON CHOOSE OF Btn-20 IN FRAME DEFAULT-FRAME /* 20 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -811,6 +830,7 @@ END.
 ON CHOOSE OF Btn-21 IN FRAME DEFAULT-FRAME /* 21 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -822,6 +842,7 @@ END.
 ON CHOOSE OF Btn-22 IN FRAME DEFAULT-FRAME /* 22 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -833,6 +854,7 @@ END.
 ON CHOOSE OF Btn-23 IN FRAME DEFAULT-FRAME /* 23 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -844,6 +866,7 @@ END.
 ON CHOOSE OF Btn-24 IN FRAME DEFAULT-FRAME /* 24 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -855,6 +878,7 @@ END.
 ON CHOOSE OF Btn-25 IN FRAME DEFAULT-FRAME /* 25 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -866,6 +890,7 @@ END.
 ON CHOOSE OF Btn-26 IN FRAME DEFAULT-FRAME /* 26 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -877,6 +902,7 @@ END.
 ON CHOOSE OF Btn-27 IN FRAME DEFAULT-FRAME /* 27 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -888,6 +914,7 @@ END.
 ON CHOOSE OF Btn-28 IN FRAME DEFAULT-FRAME /* 28 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -899,6 +926,7 @@ END.
 ON CHOOSE OF Btn-29 IN FRAME DEFAULT-FRAME /* 29 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -910,6 +938,7 @@ END.
 ON CHOOSE OF Btn-3 IN FRAME DEFAULT-FRAME /* 3 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -921,6 +950,7 @@ END.
 ON CHOOSE OF Btn-30 IN FRAME DEFAULT-FRAME /* 30 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -932,6 +962,7 @@ END.
 ON CHOOSE OF Btn-31 IN FRAME DEFAULT-FRAME /* 31 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -943,6 +974,7 @@ END.
 ON CHOOSE OF Btn-32 IN FRAME DEFAULT-FRAME /* 32 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -954,6 +986,7 @@ END.
 ON CHOOSE OF Btn-33 IN FRAME DEFAULT-FRAME /* 33 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -965,6 +998,7 @@ END.
 ON CHOOSE OF Btn-34 IN FRAME DEFAULT-FRAME /* 34 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -976,6 +1010,7 @@ END.
 ON CHOOSE OF Btn-35 IN FRAME DEFAULT-FRAME /* 35 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -987,6 +1022,7 @@ END.
 ON CHOOSE OF Btn-36 IN FRAME DEFAULT-FRAME /* 36 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -998,6 +1034,7 @@ END.
 ON CHOOSE OF Btn-37 IN FRAME DEFAULT-FRAME /* 37 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1009,6 +1046,7 @@ END.
 ON CHOOSE OF Btn-4 IN FRAME DEFAULT-FRAME /* 4 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1020,6 +1058,7 @@ END.
 ON CHOOSE OF Btn-5 IN FRAME DEFAULT-FRAME /* 5 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1031,6 +1070,7 @@ END.
 ON CHOOSE OF Btn-6 IN FRAME DEFAULT-FRAME /* 6 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1042,6 +1082,7 @@ END.
 ON CHOOSE OF Btn-7 IN FRAME DEFAULT-FRAME /* 7 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1053,6 +1094,7 @@ END.
 ON CHOOSE OF Btn-8 IN FRAME DEFAULT-FRAME /* 8 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1064,6 +1106,7 @@ END.
 ON CHOOSE OF Btn-9 IN FRAME DEFAULT-FRAME /* 9 */
 DO:
   RUN Day-Selected(SELF:HANDLE).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1076,6 +1119,7 @@ ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
 DO:
   calendar-date = ''.
   APPLY 'CLOSE' TO THIS-PROCEDURE.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1088,6 +1132,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   calendar-date = STRING(DATE(months:LOOKUP(months:SCREEN-VALUE),iday,INTEGER(years:SCREEN-VALUE))).
   APPLY 'CLOSE' TO THIS-PROCEDURE.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1140,8 +1185,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -1167,6 +1214,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   RUN Set-Days.
   ldummy = SESSION:SET-WAIT-STATE('').
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
+    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

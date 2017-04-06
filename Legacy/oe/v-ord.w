@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:18 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -159,7 +163,7 @@ ASSIGN
     {sys/inc/shiptorep.i}
     {sys/inc/custlistform.i ""OU1"" }
   END.
-    
+
 RUN methods/prgsecur.p
     (INPUT "OEDateChg",
      INPUT "ALL", /* based on run, create, update, delete or all */
@@ -809,7 +813,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -926,7 +930,7 @@ DO:
          WHEN "due-code" THEN DO:
               RUN windows/l-dcode.w (v-duelist, OUTPUT char-val).
               IF char-val <> "" THEN oe-ord.due-code:SCREEN-VALUE = ENTRY(1,char-val).
-                                            
+
          END.
          WHEN "fi_type" THEN DO:
               RUN windows/l-ordtyp.w (fi_type:SCREEN-VALUE, OUTPUT char-val).
@@ -1022,7 +1026,7 @@ END.
 ON LEAVE OF oe-ord.carrier IN FRAME F-Main /* Carrier */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-    
+
     IF oe-ord.carrier:screen-value <> "" AND
        NOT CAN-FIND(FIRST carrier WHERE carrier.company = g_company AND
                                   carrier.loc = g_loc AND
@@ -1322,7 +1326,7 @@ END.
 ON LEAVE OF oe-ord.last-date IN FRAME F-Main /* Last Ship */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-    
+
     IF SELF:modified AND date(SELF:screen-value) < TODAY THEN DO:
        MESSAGE "Last Ship Date can not be earlier than TODAY." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
@@ -1541,7 +1545,7 @@ IF LASTKEY NE -1 THEN DO:
           MESSAGE "Invalid Type. Try help. " VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
         END.
-            
+
     END.
 
   IF oe-ord.spare-char-2:SCREEN-VALUE <> oe-ord.spare-char-2 THEN DO:
@@ -1589,7 +1593,7 @@ END.
 ON LEAVE OF oe-ord.terms IN FRAME F-Main /* Pay Terms */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-    
+
     IF oe-ord.terms:screen-value <> "" AND
        NOT CAN-FIND(FIRST terms WHERE terms.t-code = oe-ord.terms:screen-value)
     THEN DO:
@@ -1597,7 +1601,7 @@ DO:
        oe-ord.terms-d:screen-value = "".
        RETURN NO-APPLY.
     END.
-    
+
     FIND FIRST terms WHERE terms.t-code = oe-ord.terms:screen-value NO-LOCK NO-ERROR.
     IF AVAIL terms THEN oe-ord.terms-d:screen-value = terms.dscr.
 END.
@@ -1693,8 +1697,8 @@ FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
   END.
 
   oeprompt = sys-ctrl.log-fld.
-  
-  
+
+
   IF NOT v-oecomm-log THEN RUN hide-comm (YES).
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -1816,7 +1820,7 @@ DO WITH FRAME {&FRAME-NAME}:
      FIND FIRST cust WHERE cust.company EQ cocode
                  AND cust.cust-no EQ oe-ord.cust-no:SCREEN-VALUE
                  NO-LOCK NO-ERROR.
-     
+
      IF AVAIL cust THEN
      FIND FIRST notes WHERE  notes.rec  = cust.rec_key 
                      AND notes.note_type = "G"
@@ -1825,16 +1829,16 @@ DO WITH FRAME {&FRAME-NAME}:
      IF NOT AVAIL notes THEN DO:
          FIND FIRST bf-cust-note WHERE bf-cust-note.company EQ cocode
              AND bf-cust-note.active  EQ "X" NO-LOCK NO-ERROR.
-         
+
         IF AVAIL bf-cust-note THEN
         FIND FIRST notes WHERE notes.rec  = bf-cust-note.rec_key 
                      AND notes.note_type = "G"
                      AND note_group  = "BN" NO-LOCK NO-ERROR.
      END. /* not avail notes */
-    
+
      IF AVAIL notes THEN DO:
          lv-text  = notes.note_text .
-         
+
           DO i = 1 TO 15:
               CREATE tt-formtext.
                   ASSIGN tt-line-no = i
@@ -2043,7 +2047,7 @@ PROCEDURE close-reopen :
   DEF VAR lv-rowid AS ROWID NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
 
-  
+
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
 
   RUN browse-rowid IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-rowid).
@@ -2121,9 +2125,9 @@ PROCEDURE create-job :
   DEF VAR v-job-no LIKE job.job-no NO-UNDO.
   DEF VAR v-job-no2 LIKE job.job-no2 NO-UNDO.
   DEF VAR li-j-no AS INT NO-UNDO.
-    
+
   /* === from oe/oe-ord1.p  ============= */
-         
+
   FIND LAST job WHERE job.company EQ cocode NO-LOCK NO-ERROR.
   v-job-job = IF AVAIL job THEN job.job + 1 ELSE 1.
   ASSIGN
@@ -2161,7 +2165,7 @@ PROCEDURE create-job :
          FIND FIRST itemfg WHERE itemfg.company EQ oe-ordl.company
                              AND itemfg.i-no    EQ oe-ordl.i-no
                              NO-LOCK NO-ERROR.   
-         
+
          CREATE job-hdr.
          ASSIGN job-hdr.company      = cocode
                 job-hdr.loc          = locode
@@ -2208,7 +2212,7 @@ PROCEDURE create-job :
     IF oe-ord.stat EQ "H" THEN 
       RUN oe/syncJobHold.p (INPUT oe-ord.company, INPUT oe-ord.ord-no, INPUT "Hold").
   FIND CURRENT job NO-LOCK.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2226,7 +2230,7 @@ PROCEDURE create-misc :
   DEF VAR v-tax-rate AS DEC FORM ">,>>9.99<<<" NO-UNDO.
   DEF VAR v-frt-tax-rate LIKE v-tax-rate NO-UNDO.
   DEF BUFFER bf-eb FOR eb .
-  
+
   FIND bf-eb WHERE RECID(bf-eb) = ip-recid NO-LOCK NO-ERROR.
   IF NOT AVAIL bf-eb THEN RETURN.
 
@@ -2235,7 +2239,7 @@ PROCEDURE create-misc :
       WHERE cust.company = g_company 
         AND cust.cust-no = oe-ord.cust-no
       NO-ERROR.
-  
+
   FOR EACH est-prep WHERE est-prep.company = g_company
                       AND est-prep.est-no = bf-eb.est-no
                       AND est-prep.simon = "S"     NO-LOCK .
@@ -2268,7 +2272,7 @@ PROCEDURE create-misc :
                 oe-ordm.tax = cust.sort = "Y" AND oe-ord.tax-gr <> ""
                 oe-ordm.cost = (est-prep.cost * est-prep.qty * (est-prep.amtz / 100))
                 oe-ordm.bill  = "Y".
-            
+
          IF PrepTax-log THEN 
             ASSIGN oe-ordm.tax = TRUE
                    oe-ordm.spare-char-1 = IF cust.spare-char-1 <> "" THEN cust.spare-char-1 ELSE oe-ord.tax-gr.
@@ -2356,10 +2360,10 @@ PROCEDURE create-release :
   DEF VAR v-pct-chg AS DEC NO-UNDO.
   DEF VAR v-ship-id LIKE oe-rel.ship-id NO-UNDO.
   DEF VAR v-num-shipto AS INT NO-UNDO.
-  
+
   DEF BUFFER xoe-rel FOR oe-rel.
 
-  
+
   FIND xoe-ord WHERE RECID(xoe-ord) = recid(oe-ord) NO-LOCK.  
   FIND FIRST oe-ordl WHERE oe-ordl.company = oe-ord.company AND
                            oe-ordl.ord-no = oe-ord.ord-no
@@ -2377,7 +2381,7 @@ PROCEDURE create-release :
                        AND shipto.cust-no EQ oe-ordl.cust-no:
                ASSIGN v-num-shipto = v-num-shipto + 1.
      END.
-     
+
      IF v-num-shipto GT 1 THEN
      DO:
          IF oe-ordl.est-no NE "" THEN
@@ -2436,7 +2440,7 @@ PROCEDURE create-release :
                                  sys-ctrl.name     = "OECARIER"
                                  sys-ctrl.descrip  = "Default carrier from Header or ShipTo:"
                                  sys-ctrl.char-fld = "ShipTo".
-       
+
                                DO WHILE TRUE:
                                  MESSAGE "Default Shipping Carrier from Header or Shipto?" 
                                    UPDATE sys-ctrl.char-fld.
@@ -2481,7 +2485,7 @@ PROCEDURE create-release :
                             sys-ctrl.name     = "OECARIER"
                             sys-ctrl.descrip  = "Default carrier from Header or ShipTo~:"
                             sys-ctrl.char-fld = "ShipTo".
-       
+
                      DO WHILE TRUE:
                         MESSAGE "Default Shipping Carrier from Header or Shipto?" 
                         UPDATE sys-ctrl.char-fld.
@@ -2522,7 +2526,7 @@ PROCEDURE create-release :
                            sys-ctrl.name     = "OECARIER"
                            sys-ctrl.descrip  = "Default carrier from Header or ShipTo~:"
                            sys-ctrl.char-fld = "ShipTo".
-       
+
                     DO WHILE TRUE:
                         MESSAGE "Default Shipping Carrier from Header or Shipto?" 
                         UPDATE sys-ctrl.char-fld.
@@ -2534,14 +2538,14 @@ PROCEDURE create-release :
            END.           
        END.           
   END.
-         
+
   fil_id = RECID(oe-ordl).
   IF AVAIL oe-ordl AND (oe-ordl.est-no NE "" AND oe-ordl.job-no EQ "") THEN DO:
        MESSAGE " Since job number is blank, a job will not be created "
                   VIEW-AS ALERT-BOX.
   END.  
   ELSE RUN oe/ordlup.p.         /* Update Inventory and Job Costing */
-           
+
  IF /*oe-ord.est-no eq "" and*/ oe-ordl.est-no NE "" THEN DO:
       fil_id = RECID(oe-ordl).
       RUN oe/estupl.p.
@@ -2616,13 +2620,13 @@ DEF VAR i AS INT NO-UNDO.
 
  {ce/msfcalc.i}
  {oe/fgfreight.i} 
- 
+
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
       AND sys-ctrl.name    EQ "SETPRINT"
     NO-LOCK NO-ERROR.
 IF AVAIL sys-ctrl THEN v-alloc = sys-ctrl.log-fld.
-       
+
 FIND FIRST cust  WHERE cust.company EQ cocode
                    AND cust.cust-no EQ xeb.cust-no
     NO-LOCK NO-ERROR.
@@ -2766,7 +2770,7 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
       AND period.pend    GE oe-ord.ord-date
     NO-LOCK NO-ERROR.
   v-period = IF AVAIL period AND period.pstat THEN period.pnum ELSE 1.
-  
+
   IF (oe-ord.est-no NE "" OR INT(oe-ord.est-no) NE 0) THEN DO:
     FIND FIRST est
     WHERE est.company EQ oe-ord.company
@@ -2774,7 +2778,7 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
     TRIM(oe-ord.est-no)
     NO-LOCK NO-ERROR.
     IF AVAIL est THEN DO:
-      
+
       FIND CURRENT est EXCLUSIVE.
       FIND LAST xoe-ord 
         WHERE xoe-ord.company = oe-ord.company AND
@@ -2789,15 +2793,15 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
         IF est.ord-date EQ oe-ord.ord-date THEN est.ord-date = ?.
         IF est.ord-no EQ oe-ord.ord-no THEN est.ord-no = 0.
       END.
-      
+
       FIND CURRENT est NO-LOCK.
     END.
   END.
-  
+
   FOR EACH oe-ordl OF oe-ord:
     RUN oe/oe-ordd.p(RECID(oe-ordl),OUTPUT v-continue).
     IF NOT v-continue THEN RETURN ERROR /* NO-APPLY */.
-    
+
     FOR EACH oe-rel
       WHERE oe-rel.company = oe-ordl.company
       AND oe-rel.ord-no = oe-ordl.ord-no
@@ -2805,13 +2809,13 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
       AND oe-rel.LINE = oe-ordl.LINE:
       DELETE oe-rel.
     END. /* each oe-rel */
-    
+
     FIND FIRST itemfg
       WHERE itemfg.company EQ oe-ordl.company
         AND itemfg.i-no    EQ oe-ordl.i-no
       NO-ERROR.
     IF AVAIL itemfg THEN DO:
-      
+
       IF AVAIL(itemfg) AND AVAIL(oe-ord) THEN DO:
         RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT oe-ord.loc).
         FIND FIRST itemfg-loc
@@ -2820,19 +2824,19 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
             AND itemfg-loc.loc     EQ oe-ord.loc
           EXCLUSIVE-LOCK NO-ERROR.
       END.
-      
+
       IF oe-ord.TYPE NE "T" THEN DO:
         itemfg.q-alloc = itemfg.q-alloc - oe-ordl.qty.
         IF AVAIL(itemfg-loc) THEN
         itemfg-loc.q-alloc = itemfg-loc.q-alloc - oe-ordl.qty.
       END.
-      
+
       IF itemfg.q-alloc LT 0 THEN DO:
         itemfg.q-alloc = 0.
         IF AVAIL(itemfg-loc) THEN
         itemfg-loc.q-alloc = 0.
       END.
-      
+
       ASSIGN
         itemfg.q-avail   = itemfg.q-onh + itemfg.q-ono - itemfg.q-alloc
         itemfg.q-ptd     = itemfg.q-ptd - oe-ordl.qty
@@ -2842,19 +2846,19 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
           itemfg-loc.q-avail   = itemfg-loc.q-onh + itemfg-loc.q-ono - itemfg-loc.q-alloc
           itemfg-loc.q-ptd     = itemfg-loc.q-ptd - oe-ordl.qty
           itemfg-loc.q-ord-ytd = itemfg-loc.q-ord-ytd - oe-ordl.qty.
-      
+
       IF oe-ord.TYPE NE "T"                                                   AND
       NOT CAN-FIND(FIRST b-oe-ordl {sys/inc/ordlcomp.i b-oe-ordl oe-ordl}) THEN
       RUN fg/comp-upd.p (RECID(itemfg), oe-ordl.qty * -1, "q-alloc", 0).
     END. /* avail itemfg */
-    
+
     RUN ar/cctaxrt.p (INPUT oe-ord.company, INPUT oe-ord.tax-gr,
     OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
-    
+
     ASSIGN
     v-qty-lft   = oe-ordl.qty - oe-ordl.inv-qty
     v-ext-price = 0.
-    
+
     IF v-qty-lft GT 0 THEN DO:
       IF oe-ordl.pr-uom BEGINS "L" AND oe-ordl.pr-uom NE "LB" THEN
         v-ext-price = oe-ordl.price - ROUND( (oe-ordl.price * oe-ordl.disc) / 100, 2).
@@ -2884,7 +2888,7 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
         v-ext-price = ((v-qty-lft) *
         oe-ordl.price) - ROUND(( ((v-qty-lft) *
         oe-ordl.price) * oe-ordl.disc) / 100, 2).
-      
+
       /** calculate freight charges **/
       ASSIGN v-tot-freight = v-tot-freight +
       (ROUND(oe-ordl.t-freight / oe-ordl.qty, 2) *
@@ -2893,13 +2897,13 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
       IF oe-ordl.tax AND v-tax-rate GT 0 THEN ASSIGN
       v-tot-tax = v-tot-tax + ROUND((v-ext-price * v-tax-rate) / 100,2).
     END. /* inv-qty ne 0 */
-    
+
     IF oe-ordl.tax THEN
       ASSIGN v-totord = (v-totord + v-ext-price +
       ROUND((v-ext-price * v-tax-rate) / 100,2)).
     ELSE
       ASSIGN v-totord = v-totord + v-ext-price.
-    
+
     FOR EACH oe-ordm
       WHERE oe-ordm.company EQ oe-ordl.company
       AND oe-ordm.ord-no  EQ oe-ordl.ord-no
@@ -2912,18 +2916,18 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
         v-totord = (v-totord +
         ROUND((oe-ordm.amt * v-tax-rate) / 100,2)).
       END.
-      
+
       IF oe-ord.stat = "N" OR oe-ord.stat = "A" OR oe-ord.stat = "H" THEN
       DELETE oe-ordm.
     END. /* each oe-ordm */
-    
+
     IF oe-ordl.job-no NE "" THEN DO:
       FIND FIRST job
         WHERE job.company EQ oe-ordl.company
           AND job.job-no  EQ oe-ordl.job-no
           AND job.job-no2 EQ oe-ordl.job-no2
         USE-INDEX job-no NO-LOCK NO-ERROR.
-      
+
       FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company  EQ oe-ordl.company
         AND job-hdr.est-no   EQ oe-ordl.est-no
@@ -2933,13 +2937,13 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
         job-hdr.i-no   EQ oe-ordl.i-no) OR
         job-hdr.ord-no  EQ 0)
         USE-INDEX enum:
-        
+
         IF job-hdr.ord-no NE 0 THEN DO:          
           IF AVAIL job THEN DO:
             {util/dljobkey.i}
           END.
         END.
-        
+
         DO loop-limit = 1 TO 1000:
           FIND del-job-hdr WHERE ROWID(del-job-hdr) EQ ROWID(job-hdr)
           EXCLUSIVE NO-WAIT NO-ERROR.
@@ -2949,22 +2953,22 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
           END.
         END.
       END. /* Each Job-hdr */
-      
+
       FIND FIRST job
         WHERE job.company EQ oe-ordl.company
           AND job.job-no  EQ oe-ordl.job-no
           AND job.job-no2 EQ oe-ordl.job-no2
         USE-INDEX job-no EXCLUSIVE NO-ERROR.
-      
+
       IF AVAIL job                                          AND
       NOT CAN-FIND(FIRST job-hdr
         WHERE job-hdr.company EQ job.company
           AND job-hdr.job     EQ job.job
           AND job-hdr.job-no  EQ job.job-no
         AND job-hdr.job-no2 EQ job.job-no2) THEN DO:
-        
+
         RUN jc/jc-dall.p (RECID(job)).
-        
+
         FOR EACH job-mat
           WHERE job-mat.company  EQ job.company
           AND job-mat.job      EQ job.job
@@ -2973,7 +2977,7 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
           USE-INDEX seq-idx:
           DELETE job-mat.
         END.
-        
+
         FOR EACH mat-act
           WHERE mat-act.company  EQ job.company
           AND mat-act.job      EQ job.job
@@ -2982,7 +2986,7 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
           USE-INDEX job:
           DELETE mat-act.
         END.
-        
+
         FOR EACH job-mch
           WHERE job-mch.company  EQ job.company
           AND job-mch.job      EQ job.job
@@ -2991,7 +2995,7 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
           USE-INDEX seq-idx:
           DELETE job-mch.
         END.
-        
+
         FOR EACH mch-act
           WHERE mch-act.company  EQ job.company
           AND mch-act.job      EQ job.job
@@ -3000,7 +3004,7 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
           USE-INDEX job:
           DELETE mch-act.
         END.
-        
+
         FOR EACH job-prep
           WHERE job-prep.company  EQ job.company
           AND job-prep.job      EQ job.job
@@ -3033,36 +3037,36 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
           USE-INDEX misc-idx:
           DELETE misc-act.
         END.
-        
+
         IF job.exported THEN DO:
           job.stat = "X".
           RUN jc/kiwiexp2.p (RECID(job)).
         END.
-        
+
         DELETE job.
       END. /* Avail Job */
     END. /* Job-no ne "" */
-    
+
     FOR EACH tt-del-eb:
       FIND eb WHERE ROWID(eb) = tt-del-eb.del-rowid EXCLUSIVE-LOCK.
       eb.stock-no = "".
     END.
-    
+
     IF oe-ordl.t-inv-qty = 0 THEN ASSIGN v-new-ord = YES.
     /*if index("NAH",oe-ord.stat) gt 0 THEN delete oe-ordl.*/
   END. /* each oe-ordl */
-  
+
   /*task 07221004*/
   IF INDEX("NAH",oe-ord.stat) GT 0 THEN
   FOR EACH oe-ordl OF oe-ord:
     DELETE oe-ordl.
   END.
-  
+
   FIND CURRENT itemfg NO-LOCK NO-ERROR.
-  
+
   RUN ar/cctaxrt.p (INPUT oe-ord.company, INPUT oe-ord.tax-gr,
   OUTPUT v-tax-rate, OUTPUT v-frt-tax-rate).
-  
+
   FOR EACH oe-ordm
     WHERE oe-ordm.company EQ oe-ord.company
     AND oe-ordm.ord-no  EQ oe-ord.ord-no:
@@ -3075,12 +3079,12 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
       v-totord  = v-totord +
       ROUND((oe-ordm.amt * v-tax-rate) / 100,2).
     END.
-    
+
     IF INDEX("NAH",oe-ord.stat) GT 0 THEN DELETE oe-ordm.
   END. /* each oe-ordm */
-  
+
   FIND CURRENT oe-ordm NO-LOCK NO-ERROR.
-  
+
   IF oe-ord.f-bill THEN DO:
     IF v-fr-tax THEN
     v-totord = (v-totord + oe-ord.t-freight +
@@ -3088,10 +3092,10 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
     ELSE
     v-totord = v-totord + oe-ord.t-freight.
   END.
-  
+
   IF v-fr-tax THEN
   v-tot-tax = v-tot-tax + ROUND((v-tot-freight * v-frt-tax-rate) / 100,2).
-  
+
   FIND FIRST cust
     WHERE cust.company EQ oe-ord.company
     AND cust.cust-no EQ oe-ord.cust-no
@@ -3107,17 +3111,17 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
     IF cust.n-sales[v-period] LT 0 THEN ASSIGN cust.n-sales[v-period] = 0.
     FIND CURRENT cust NO-LOCK.
   END.
- 
+
 
   FOR EACH work-ordl:
     DELETE work-ordl.
   END.
-  
+
   FOR EACH job-hdr NO-LOCK
     WHERE job-hdr.company EQ oe-ord.company
     AND job-hdr.ord-no  EQ oe-ord.ord-no
     AND job-hdr.est-no  EQ oe-ord.est-no:
-    
+
     DO loop-limit = 1 TO 1000:
       FIND del-job-hdr WHERE ROWID(del-job-hdr) EQ ROWID(job-hdr)
       EXCLUSIVE NO-WAIT NO-ERROR.
@@ -3129,7 +3133,7 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
   END.
   RELEASE job.
   RELEASE job-hdr.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3142,7 +3146,7 @@ PROCEDURE disable-fields :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE fi_type tb_whs-order fi_prev_order.
   END.
@@ -3180,7 +3184,7 @@ PROCEDURE display-cust-detail :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-recid AS RECID NO-UNDO.
-  
+
   DEF VAR v-lead-days LIKE oe-ord.lead-days NO-UNDO.
   DEF VAR v-last-date LIKE oe-ord.last-date NO-UNDO.
   DEF VAR v-due-date  LIKE oe-ord.due-date  NO-UNDO.
@@ -3223,7 +3227,7 @@ PROCEDURE display-cust-detail :
             v-crd-limit       = cust.cr-lim - (cust.acc-bal + cust.ord-bal).
 
        RUN get-po-def .
-    
+
       IF v-shiptorep-log THEN DO:  /* task 05301401 */
           FIND FIRST shipto WHERE shipto.company EQ cocode
                         AND shipto.cust-no EQ cust.cust-no
@@ -3286,7 +3290,7 @@ PROCEDURE display-cust-detail :
     IF AVAIL sman THEN ASSIGN oe-ord.sname[1]:screen-value = sman.sname
                               oe-ord.s-comm[1]:screen-value = STRING(sman.scomm)
                               v-margin = 0.
-    
+
     IF oe-ord.carrier EQ "" THEN oe-ord.carrier:screen-value = cust.carrier.
 
     FIND FIRST terms WHERE terms.company EQ cocode
@@ -3294,7 +3298,7 @@ PROCEDURE display-cust-detail :
                NO-LOCK NO-ERROR.
     IF AVAIL terms THEN  oe-ord.terms-d:screen-value = terms.dscr.
     ELSE oe-ord.terms-d:screen-value = "".
-         
+
     FIND FIRST soldto WHERE soldto.company EQ cocode
                         AND soldto.cust-no EQ cust.cust-no
                         AND soldto.sold-id BEGINS trim(cust.cust-no)
@@ -3322,9 +3326,9 @@ PROCEDURE display-cust-detail :
               ls-ship-i[2] = shipto.notes[2]
               ls-ship-i[3] = shipto.notes[3]
               ls-ship-i[4] = shipto.notes[4].
-       
+
     IF cust.active EQ "X" THEN fi_type:screen-value = "T".
-    
+
     IF INDEX("HA",oe-ord.stat:screen-value) = 0 THEN DO:
        /*if (cust.cr-lim - (cust.acc-bal + cust.ord-bal) < 0) or cust.cr-hold
        then do:
@@ -3394,7 +3398,7 @@ PROCEDURE est-from-tandem :
       RELEASE xeb.
 
       RUN est/oeselest.p.
-      
+
       SESSION:SET-WAIT-STATE ("general").
       RUN get-from-est.
       SESSION:SET-WAIT-STATE ("").
@@ -3475,7 +3479,7 @@ DO:
 v-est-no = oe-ord.est-no:screen-value IN FRAME {&frame-name}.
 RUN util/rjust.p (INPUT-OUTPUT v-est-no,8).
 oe-ord.est-no:screen-value IN FRAME {&frame-name} = v-est-no.
- 
+
 FIND FIRST xest
     WHERE xest.company EQ cocode
       AND xest.est-no  EQ v-est-no 
@@ -3496,7 +3500,7 @@ IF AVAIL xest THEN DO:
                 AND eb.form-no NE 0
                 AND TRIM(eb.cust-no) NE ""
            NO-LOCK BREAK BY eb.est-no BY eb.cust-no:
-      
+
     IF FIRST-OF(eb.cust-no) THEN DO:
       /** finding the customer is done this way because the index is not
       setup efficently to find the customer regardles of active stat **/
@@ -3532,7 +3536,7 @@ IF AVAIL xest THEN DO:
                   VIEW-AS ALERT-BOX ERROR. 
             RETURN "Inactive FGItem".
        END.
-          
+
     END.
   END. /* each eb */
 
@@ -3540,7 +3544,7 @@ IF AVAIL xest THEN DO:
    j         = 1
    fil_id    = save_id        /* reset fil_id, scrambled in calc...*/
    ll-order-from-est = YES.              
-   
+
   FIND FIRST xeb WHERE xeb.company = xest.company 
                    AND xeb.est-no EQ xest.est-no
                    AND xeb.form-no  EQ 0
@@ -3556,29 +3560,29 @@ IF AVAIL xest THEN DO:
         AND cust.cust-no EQ eb.cust-no
       USE-INDEX cust
       BREAK BY eb.est-no BY eb.cust-no BY eb.form-no BY eb.blank-no:
-      
+
     IF FIRST-OF(eb.cust-no) THEN DO:
         /* if order is not created from above - only one cust-no */
           v-prod-cat = eb.procat.
       FIND xoe-ord WHERE RECID(xoe-ord) = recid(oe-ord) NO-LOCK.
-      
+
       IF ll-do-job THEN DO:
           cEstNo = FILL(" ",6 - length(TRIM(oe-ord.est-no:screen-value))) + trim(oe-ord.est-no:screen-value).
         v-job-no = FILL(" ",6 - length(TRIM(oe-ord.ord-no:screen-value))) + oe-ord.ord-no:screen-value.
         RUN jc/job-no.p (INPUT-OUTPUT v-job-no, INPUT-OUTPUT v-job-no2,INPUT v-prod-cat,
                          INPUT cEstNo).
-         
+
         IF v-job-no EQ "" THEN
           v-job-no = cEstNo.
-      
+
       END.
       ELSE
         ASSIGN
          v-job-no  = ""
          v-job-no2 = 0.
-      
+
         RUN display-cust-detail (RECID(cust)).
-      
+
       ASSIGN oe-ord.sold-id:screen-value   = eb.cust-no /** DEFAULT to first SOLD to **/
              oe-ord.sman[1]:screen-value   = eb.sman
              oe-ord.cust-no:screen-value   = eb.cust-no
@@ -3620,7 +3624,7 @@ IF AVAIL xest THEN DO:
            NO-LOCK NO-ERROR.
       IF AVAIL sman THEN
             ASSIGN oe-ord.sname[1]:screen-value = sman.sname .
-                              
+
       IF oeestcom-log = NO OR
          NOT(AVAIL sman AND sman.commbasis EQ "M") THEN
          ASSIGN
@@ -3653,7 +3657,7 @@ IF AVAIL xest THEN DO:
                 NO-LOCK
                 BY probe.probe-date DESC
                 BY probe.probe-time DESC:
-                
+
                 LEAVE.
             END.
          ELSE
@@ -3664,7 +3668,7 @@ IF AVAIL xest THEN DO:
                 NO-LOCK
                 BY probe.probe-date DESC
                 BY probe.probe-time DESC:
-                
+
                 LEAVE.
             END.
 
@@ -3683,8 +3687,8 @@ IF AVAIL xest THEN DO:
           fi_prev_order:SCREEN-VALUE = STRING(oe-ord.pord-).
       IF FIRST(eb.cust-no) THEN 
          fil_id = RECID(xoe-ord).
-          
-      
+
+
 
       FIND FIRST terms WHERE terms.company EQ cocode
                         AND terms.t-code  EQ cust.terms
@@ -3693,7 +3697,7 @@ IF AVAIL xest THEN DO:
       ELSE oe-ord.terms-d:screen-value = "".
 
       IF cust.active EQ "X" THEN fi_type:screen-value = "T".
- 
+
       v-factor = IF xest.est-type GE 1 AND xest.est-type LE 4 THEN  lastship-dec
                  ELSE 1. 
       IF lastship-cha EQ "Fibre"  THEN
@@ -3710,7 +3714,7 @@ END. /* avail xest */
 END. /*  */
 
 RUN get-po-def .
-  
+
 ASSIGN
  ll-est-no-mod     = NO
  lv-old-cust-no    = oe-ord.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -3776,7 +3780,7 @@ PROCEDURE hide-comm :
         oe-ord.s-comm[1]:HIDDEN IN FRAME {&FRAME-NAME} = ip-hidden
         oe-ord.s-comm[2]:HIDDEN IN FRAME {&FRAME-NAME} = ip-hidden
         oe-ord.s-comm[3]:HIDDEN IN FRAME {&FRAME-NAME} = ip-hidden.
-    
+
      IF NOT ip-hidden THEN
      DO:
         DISPLAY rect-36
@@ -3784,7 +3788,7 @@ PROCEDURE hide-comm :
                 fi_sname-lbl
                 fi_s-pct-lbl
                 fi_s-comm-lbl.
-    
+
         IF AVAIL oe-ord THEN
            DISPLAY
               oe-ord.sman[1]
@@ -3832,7 +3836,7 @@ PROCEDURE hold-approve :
 
     RELEASE cust.
 
-  
+
     IF AVAIL oe-ord AND can-do("H,W",oe-ord.stat) AND 
         CAN-FIND(FIRST b-oe-ordl 
         WHERE b-oe-ordl.company EQ oe-ord.company
@@ -3913,29 +3917,29 @@ PROCEDURE hold-approve :
             SESSION:SET-WAIT-STATE("General").
 
             DO TRANSACTION:  /* Set default values */
-                
+
                 FIND CURRENT oe-ord EXCLUSIVE-LOCK.
                 ASSIGN
                     oe-ord.user-id     = USERID("nosweat")
                     oe-ord.approved-id = USERID("nosweat")
                     oe-ord.t-freight   = 0.
-      
+
                 IF oe-ord.type EQ "" THEN oe-ord.type = "O".
-      
+
                 IF oe-ord.sman[1] EQ "" THEN
                     ASSIGN
                         oe-ord.sman    = ""
                         oe-ord.sman[1] = cust.sman.
-      
+
                 IF oe-ord.sman[1] NE "" AND oe-ord.s-pct[1] EQ 0 THEN
                     oe-ord.s-pct[1] = 100.00.
-      
+
                 DO i = 1 TO EXTENT(oe-ord.sman):
                     IF oe-ord.s-comm[i] GE 100 THEN
                         ASSIGN
                             oe-ord.s-comm = 0
                             v-margin      = 0.
-      
+
                     FIND FIRST sman
                         WHERE sman.company EQ oe-ord.company
                         AND sman.sman    EQ oe-ord.sman[i]
@@ -3943,7 +3947,7 @@ PROCEDURE hold-approve :
                     IF AVAIL sman THEN 
                     DO:
                         oe-ord.sname[1] = sman.sname.
-         
+
                         IF oe-ord.s-comm[i] LE 0 THEN
                         DO:
                             oe-ord.s-comm[i] = sman.scomm.
@@ -3952,7 +3956,7 @@ PROCEDURE hold-approve :
                         END.
                     END.
                 END. /* do i = 1 to sman */
-      
+
                 FOR EACH b-oe-ordl NO-LOCK
                     WHERE b-oe-ordl.company EQ oe-ord.company
                     AND b-oe-ordl.ord-no  EQ oe-ord.ord-no
@@ -3961,17 +3965,17 @@ PROCEDURE hold-approve :
                     FIRST itemfg NO-LOCK
                     WHERE itemfg.company EQ b-oe-ordl.company
                     AND itemfg.i-no    EQ b-oe-ordl.i-no:
-      
+
                     FIND oe-ordl WHERE ROWID(oe-ordl) EQ ROWID(b-oe-ordl)
                         EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
                     IF NOT AVAIL oe-ordl THEN NEXT.
-      
+
                     ASSIGN
                         oe-ordl.req-code  = oe-ord.due-code
                         oe-ordl.req-date  = oe-ord.due-date
                         oe-ordl.prom-code = oe-ord.due-code
                         oe-ordl.prom-date = oe-ord.due-date.
-      
+
                     DO i = 1 TO MIN(EXTENT(oe-ordl.s-man),EXTENT(oe-ord.sman)):
                         ASSIGN
                             oe-ordl.s-man[i]  = oe-ord.sman[i]
@@ -3983,7 +3987,7 @@ PROCEDURE hold-approve :
                                 oe-ordl.q-qty = oe-ord.t-fuel
                                 v-margin      = oe-ord.t-fuel.
                     END.
-      
+
                     FIND FIRST po-ordl NO-LOCK
                         WHERE po-ordl.company   EQ oe-ordl.company
                         AND po-ordl.i-no      EQ oe-ordl.i-no
@@ -3998,11 +4002,11 @@ PROCEDURE hold-approve :
                         ASSIGN
                             lv-uom       = itemfg.prod-uom
                             oe-ordl.cost = itemfg.total-std-cost.
-       
+
                     IF lv-uom NE "M" THEN
                         RUN sys/ref/convcuom.p(lv-uom, "M", 0, 0, 0, 0,
                             oe-ordl.cost, OUTPUT oe-ordl.cost).
-      
+
                     RUN oe/ordlfrat.p (ROWID(oe-ordl), OUTPUT oe-ordl.t-freight).
                     oe-ord.t-freight = oe-ord.t-freight + oe-ordl.t-freight.
                     FIND CURRENT oe-ordl NO-LOCK.
@@ -4010,13 +4014,13 @@ PROCEDURE hold-approve :
                 END. /* Each oe-ordl */
                 FIND CURRENT oe-ord NO-LOCK.
             END. /* Transaction, set default values */
-           
+
 
             RUN oe/ordfrate.p (ROWID(oe-ord)).
-      
+
             FIND xoe-ord WHERE ROWID(xoe-ord) EQ ROWID(oe-ord) NO-LOCK NO-ERROR.
             IF AVAIL xoe-ord THEN RUN oe/oe-comm.p.
-      
+
             RUN oe/calcordt.p (ROWID(oe-ord)).
 
             RUN oe/creditck.p (ROWID(cust), YES). 
@@ -4025,7 +4029,7 @@ PROCEDURE hold-approve :
                 b-cust.company EQ cust.company AND
                 b-cust.cust-no EQ cust.cust-no
                 NO-LOCK.
-                
+
             DO TRANSACTION: /* Set oe-ord.stat */
                 FIND CURRENT oe-ord EXCLUSIVE-LOCK.
                 IF b-cust.cr-hold THEN 
@@ -4049,16 +4053,16 @@ PROCEDURE hold-approve :
                 FIND CURRENT oe-ord NO-LOCK.
             END. /* transaction, set oe-ord.stat */
 
-            
+
             IF v-create-job AND oe-ord.job-no NE "" THEN 
             DO TRANSACTION: /*create job*/
-            
+
                 FIND FIRST job NO-LOCK
                     WHERE job.company EQ oe-ord.company
                     AND job.job-no  EQ oe-ord.job-no
                     AND job.job-no2 EQ oe-ord.job-no2
                     NO-ERROR.
-         
+
                 IF AVAIL job AND TRIM(job.est-no) NE TRIM(oe-ord.est-no) THEN
                     IF CAN-FIND(FIRST job-hdr
                         WHERE job-hdr.company EQ job.company
@@ -4081,20 +4085,20 @@ PROCEDURE hold-approve :
                         FIND CURRENT job NO-ERROR.
                         IF AVAIL job THEN DELETE job.
                     END.
-         
+
                 IF NOT AVAIL job THEN 
                 DO:
                     RUN create-job (OUTPUT lv-job-recid).
                     FIND job WHERE RECID(job) = lv-job-recid NO-LOCK.
                 END.                 
-         
+
                 v-qty-mod = YES.
 
                 IF AVAIL job AND INDEX("HWPRL",job.stat) NE 0 THEN 
                 DO:
                     /*IF NOT v-qty-mod THEN
                        RUN oe/job-qty.p (ROWID(oe-ord), OUTPUT v-qty-mod).*/
-         
+
                     IF v-qty-mod OR job.stat EQ "P" THEN 
                     DO:
                         RUN jc/chkrebld.p (RECID(job), OUTPUT choice).     
@@ -4105,12 +4109,12 @@ PROCEDURE hold-approve :
                                 hld-nufile = nufile 
                                 hld-stat   = job.stat
                                 nufile     = YES.
-         
+
                             RUN jc/jc-calc.p(RECID(job), NO).
                             ASSIGN 
                                 fil_id = hld-id
                                 nufile = hld-nufile.
-               
+
                             IF hld-stat NE "P" THEN 
                             DO:
                                 FIND CURRENT job EXCLUSIVE.
@@ -4120,7 +4124,7 @@ PROCEDURE hold-approve :
                         END.
                     END.
                 END.
-                
+
                 FIND FIRST sys-ctrl WHERE
                     sys-ctrl.company EQ cocode AND
                     sys-ctrl.name    EQ "SCHEDULE"
@@ -4134,29 +4138,29 @@ PROCEDURE hold-approve :
                     WHERE oe-ordl.company EQ cocode
                     AND oe-ordl.ord-no  EQ oe-ord.ord-no
                     AND oe-ordl.is-a-component EQ NO
-         
+
                     BREAK BY oe-ordl.job-no
                     BY oe-ordl.job-no2:
-         
+
                     IF LAST-OF(oe-ordl.job-no2) THEN 
                     DO:
                         ASSIGN
                             hld-id     = fil_id
                             hld-nufile = nufile
                             fil_id     = RECID(oe-ordl).
-             
+
                         RUN po/doPo.p (YES) /* Yes Indicates to prompt for RM */.
                         /* check oe-ordl.due-date and calc promised date and job's start-date */
 
                         IF oe-ordl.est-no NE "" AND v-run-schedule THEN RUN update-start-date.
-              
+
                         ASSIGN
                             fil_id = hld-id
                             nufile = hld-nufile.
                     END.
                 END.
             END.  /* transaction if v-create-job */
-              
+
             SESSION:SET-WAIT-STATE("").
         END. /* if a web order */
 
@@ -4187,13 +4191,13 @@ PROCEDURE hold-approve :
             FIND CURRENT cust EXCLUSIVE-LOCK NO-ERROR.
             IF AVAIL cust THEN 
             DO:
-        
+
                 cust.cr-hold = oe-ord.stat EQ "H" OR
                     CAN-FIND(FIRST b-oe-ord
                     WHERE b-oe-ord.company EQ oe-ord.company
                     AND b-oe-ord.cust-no EQ oe-ord.cust-no
                     AND b-oe-ord.stat    EQ "H").
-    
+
                 FIND CURRENT cust NO-LOCK NO-ERROR.
             END. /* avail cust */
         END. /* transaction - update cust */
@@ -4205,7 +4209,7 @@ PROCEDURE hold-approve :
             RUN reopen-query1 IN WIDGET-HANDLE(char-hdl) (ROWID(oe-ord)).
     END. /* if avail cust */
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4245,7 +4249,7 @@ PROCEDURE local-assign-record :
     DEF    VAR      li-tries          AS INT     NO-UNDO.
     DEF    VAR      llUpdateStartDate AS LOG     NO-UNDO.
     DEFINE VARIABLE lInvoiceFound     AS LOGICAL NO-UNDO.
-  
+
     DEF    VAR      dCalcDueDate      AS DATE    NO-UNDO.
     DEF    VAR      dCalcPromDate     AS DATE    NO-UNDO.
     DEF BUFFER b-oe-rel    FOR oe-rel.
@@ -4269,7 +4273,7 @@ PROCEDURE local-assign-record :
 
         IF NOT adm-new-record AND oe-ord.po-no NE oe-ord.po-no:SCREEN-VALUE THEN 
         DO:
-    
+
             MESSAGE "Update all order lines/releases with this "  +
                 TRIM(oe-ord.po-no:LABEL) + "?"
                 VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-new-po.
@@ -4297,7 +4301,7 @@ PROCEDURE local-assign-record :
             END. /* if oepo#xfer-log */
 
         END. /* If PO # changed */
-    
+
     END. /* Do with frame */
 
     ASSIGN
@@ -4318,28 +4322,28 @@ PROCEDURE local-assign-record :
             WHERE oe-ordl.company EQ oe-ord.company
             AND oe-ordl.ord-no  EQ oe-ord.ord-no
             NO-LOCK:
-        
+
             FOR EACH oe-rel 
                 WHERE oe-rel.company EQ oe-ordl.company
                 AND oe-rel.ord-no  EQ oe-ordl.ord-no
                 AND oe-rel.i-no    EQ oe-ordl.i-no
                 NO-LOCK
                 BY oe-rel.rel-date:
-          
+
                 IF LOOKUP(oe-rel.stat, 'A,C,P,Z' ) EQ 0 THEN 
                 DO:
-        
+
                     RUN new-due-date (INPUT ROWID(oe-rel)).
                     FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ rowid(oe-rel) EXCLUSIVE-LOCK.
-        
+
                     bf-oe-rel.spare-char-4 = STRING(oe-ord.due-date) + ",,".
-         
-                    
+
+
                     bf-oe-rel.rel-date = get-colonial-rel-date(ROWID(bf-oe-rel)).        
                     FIND CURRENT bf-oe-rel NO-LOCK.
                     RELEASE bf-oe-rel.
                 END.
-         
+
                 /* Only consider first one */
                 LEAVE.
             END. /* each oe-rel */
@@ -4355,7 +4359,7 @@ PROCEDURE local-assign-record :
         DO:
             IF dueDateChanged THEN 
             DO:
-          
+
                 job.due-date = oe-ord.due-date.
                 FOR EACH due-job-hdr EXCLUSIVE-LOCK
                     WHERE due-job-hdr.company EQ job.company
@@ -4372,7 +4376,7 @@ PROCEDURE local-assign-record :
                 IF prodDateChanged THEN
                     job.start-date = IF sys-ctrl.char-fld NE 'NoDate' THEN oe-ord.prod-date
                     ELSE ?.
-                         
+
                 IF dueDateChanged AND sys-ctrl.char-fld EQ 'PlanDate' THEN 
                 DO:
                     IF NOT VALID-HANDLE(scheduleHndl) THEN
@@ -4393,14 +4397,14 @@ PROCEDURE local-assign-record :
                         FIND CURRENT bf-oe-ord NO-LOCK NO-ERROR.
                     END.
                 END. /* if duedatechanged */
-        
+
                 job.start-date = calcStartDate.
                 FIND CURRENT job NO-LOCK.
             END. /* avail sys-ctrl */
 
         END. /* avail job */
     END. /* if job-no ne '' */
-  
+
     /*BV-Update order line job start dates*/
     FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ oe-ord.company
         AND sys-ctrl.name EQ 'SCHEDULE' NO-ERROR.
@@ -4418,7 +4422,7 @@ PROCEDURE local-assign-record :
             END. /*each bf-oe-ordl*/
         END. /*llUpdateStartDate*/
     END. /*ProdDateChanged*/
-  
+
     FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
     IF AVAIL bf-oe-ord THEN 
     DO:
@@ -4484,14 +4488,14 @@ PROCEDURE local-assign-record :
             IF AVAIL eb THEN eb.stock-no = oe-ordl.i-no.
         END.
     END.
-    
+
     RUN bill_notes .
 
     IF oe-ord.due-date NE lv-date THEN
         FOR EACH oe-ordl OF oe-ord BREAK BY oe-ordl.line:
             IF NOT ll-new-due THEN
                 ll-new-due = FIRST(oe-ordl.line) AND LAST(oe-ordl.line).
-         
+
             IF NOT ll-new-due THEN
                 MESSAGE "Update all line items with this Due Date?"
                     VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
@@ -4503,7 +4507,7 @@ PROCEDURE local-assign-record :
 
                 IF oe-ordl.req-date GT oe-ordl.prom-date THEN
                     oe-ordl.prom-date = oe-ordl.req-date.
-        
+
                 IF oeDateAuto-log AND OeDateAuto-Char = "Colonial" THEN 
                 DO:
                     RUN oe/dueDateCalc.p (INPUT oe-ord.cust-no,
@@ -4514,19 +4518,19 @@ PROCEDURE local-assign-record :
                         OUTPUT dCalcDueDate,
                         OUTPUT dCalcPromDate).
                     oe-ordl.prom-date = dCalcPromDate.     
-            
+
                 END. /* if oeDateAuto for colonial */
-        
+
             END. /* If ll-new-due */
             ELSE LEAVE.
         END. /* each oe-ordl */
     FIND CURRENT oe-ordl NO-LOCK NO-ERROR.
-  
+
     RELEASE eb.
     RELEASE oe-rel.
     RELEASE bfx-ord.
     RELEASE oe-ordl.
-  
+
     FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.  
     IF AVAIL bf-oe-ord THEN 
     DO:
@@ -4539,7 +4543,7 @@ PROCEDURE local-assign-record :
     ASSIGN
         adm-new-record           = NO
         oe-ord.cust-no:SENSITIVE = NO.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4598,7 +4602,7 @@ PROCEDURE local-copy-record :
 
 
      RUN nextOrdNo (OUTPUT nextOrdNo).
-     
+
      /* copyOrder now creates order using next available order # */
      RUN copyOrder (g_company,g_company,oe-ord.ord-no,INPUT-OUTPUT nextOrdNo).
      FIND FIRST oe-ord NO-LOCK
@@ -4621,9 +4625,9 @@ PROCEDURE local-copy-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4644,7 +4648,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DEF VAR char-hdl AS CHAR NO-UNDO.
-  
+
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-source",OUTPUT char-hdl).
   RUN make-buttons-insensitive IN WIDGET-HANDLE(char-hdl).
   IF ll-ord-no-override THEN
@@ -4652,7 +4656,7 @@ PROCEDURE local-create-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
 
   lv-new-row-id = ROWID(oe-ord).
@@ -4662,7 +4666,7 @@ PROCEDURE local-create-record :
                         INPUT "order_seq", 
                         OUTPUT li-next-ordno) NO-ERROR. 
   liOrdnoSV = liUserOrdNo.
-  
+
   IF      ll-ord-no-override 
       AND liOrdNoSV NE 0
       /* AND liOrdnoSV LT li-next-ordno + 1  */
@@ -4681,20 +4685,20 @@ PROCEDURE local-create-record :
   ELSE DO:
       /* Ord No via sequence value */ 
       RUN sys/ref/asiseq.p (INPUT g_company, INPUT "order_seq", OUTPUT li-next-ordno) NO-ERROR.
-    
+
       IF ERROR-STATUS:ERROR THEN
         MESSAGE "An error occured, please contact ASI: " RETURN-VALUE
            VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    
+
       DO WHILE CAN-FIND(FIRST bf-oe-ord
                         WHERE bf-oe-ord.company EQ g_company
                           AND bf-oe-ord.ord-no  EQ li-next-ordno
                           AND ROWID(bf-oe-ord)  NE ROWID(oe-ord)):
-        
+
           RUN sys/ref/asiseq.p (INPUT g_company, 
                               INPUT "order_seq", 
                               OUTPUT li-next-ordno) NO-ERROR.    
-        
+
       END.
   END. /* Ord-no via sequence value */
   ll-ord-no-override = FALSE.
@@ -4710,7 +4714,7 @@ PROCEDURE local-create-record :
          bf-oe-ord.due-code = "ON" NO-ERROR.
 
   FIND CURRENT bf-oe-ord NO-LOCK.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN
         fi_type:SCREEN-VALUE = oe-ord.TYPE
@@ -4740,7 +4744,7 @@ PROCEDURE local-create-record :
      oe-ctrl.n-ord = oe-ord.ord-no + 1.
      RELEASE oe-ctrl.
    END.
-  
+
 
 END PROCEDURE.
 
@@ -4784,17 +4788,17 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
 
     IF RETURN-VALUE EQ "ERROR" OR RETURN-VALUE EQ "ADM-ERROR" THEN
         RETURN NO-APPLY.
-    
+
     FOR EACH oe-ordl OF oe-ord NO-LOCK:
-    
+
         FIND FIRST itemfg
           WHERE itemfg.company EQ oe-ordl.company
             AND itemfg.i-no    EQ oe-ordl.i-no
           NO-ERROR.
-        
+
         IF AVAIL itemfg THEN DO:
           ll-ans = NO.
-          
+
           IF itemfg.avg-cost       EQ 0 AND itemfg.last-cost EQ 0 AND
           itemfg.total-std-cost EQ 0 AND itemfg.beg-bal   EQ 0 AND
           itemfg.q-onh          EQ 0 AND itemfg.q-ono     EQ 0 AND
@@ -4804,14 +4808,14 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
             WHERE est.company EQ oe-ord.company
             AND est.est-no  EQ oe-ord.est-no
             NO-LOCK,
-            
+
             EACH eb
             WHERE eb.company    EQ est.company
               AND eb.est-no     EQ est.est-no
               AND eb.stock-no   NE ""
               AND (eb.stock-no  EQ oe-ordl.i-no OR
             est.est-type EQ 2 OR est.est-type EQ 6):
-            
+
             IF NOT ll-ans THEN DO:
 
 
@@ -4829,28 +4833,28 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
                 CREATE tt-del-eb.
                 ASSIGN tt-del-eb.del-rowid = ROWID(eb).
             END.
-    
+
             RELEASE eb.
           END. /* for first est, each eb */
         END. /* if avail itemfg */
     END. /* each ordl of ord */
-    
+
     /* {oe/v-ord-d.i} */
     RUN del-detail-recs.
     IF RETURN-VALUE EQ "ERROR" OR RETURN-VALUE EQ "ADM-ERROR" THEN
         RETURN NO-APPLY.
-    
+
 
     IF INDEX("NAHW",oe-ord.stat) GT 0 THEN DO:
         /* Dispatch standard ADM method.                             */
         RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ).
     END.
-    
+
     ELSE DO:
         FIND bf-oe-ord WHERE ROWID(bf-oe-ord) = ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
         bf-oe-ord.stat = "D".
         FIND CURRENT bf-oe-ord NO-LOCK.
-        
+
         RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ).
     END.
     /* Code placed here will execute AFTER standard behavior.    */
@@ -4868,7 +4872,7 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
     RELEASE oe-ordl.
     RELEASE job.
     RUN release-shared-buffers.
-    
+
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
     RUN reopen-query IN WIDGET-HANDLE(char-hdl).
 
@@ -4904,7 +4908,7 @@ PROCEDURE local-display-fields :
   DO WITH FRAME {&FRAME-NAME}:
       ASSIGN oe-ord.spare-char-2:TOOLTIP =  getOrdStatDescr(oe-ord.spare-char-2:SCREEN-VALUE).
   END.
-  
+
 
 END PROCEDURE.
 
@@ -4949,7 +4953,7 @@ PROCEDURE local-enable-fields :
     DISABLE oe-ord.ord-no.
 
     lv-old-cust-no = oe-ord.cust-no:SCREEN-VALUE.
-         
+
     ENABLE fi_type tb_whs-order fi_prev_order.
     IF NOT job#-log THEN DISABLE oe-ord.job-no oe-ord.job-no2.
     IF adm-new-record THEN
@@ -4971,7 +4975,7 @@ PROCEDURE local-enable-fields :
    ll-valid-po-no = NO.
 
   RUN release-shared-buffers.
-                    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5010,7 +5014,7 @@ PROCEDURE local-update-record :
   DEF VAR li AS INT NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
 
-      
+
   DEF BUFFER b-oe-ordl FOR oe-ordl.
   DEF BUFFER bf-oe-ord FOR oe-ord.
 
@@ -5063,11 +5067,11 @@ PROCEDURE local-update-record :
 
      RUN valid-tax-gr NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-     
+
      RUN valid-due-date.
      IF ERROR-STATUS:ERROR THEN
         RETURN NO-APPLY.
-    
+
      IF oe-ord.carrier:screen-value <> "" AND
         NOT CAN-FIND(FIRST carrier WHERE carrier.company = g_company AND
                                   carrier.loc = g_loc AND
@@ -5126,7 +5130,7 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
   /* ==== end of validation ===*/
-  
+
   ASSIGN
    lv-rowid   = ROWID(oe-ord)
    ll-new-po  = NO
@@ -5156,7 +5160,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   /* ===  don't go item page yet. -> move page to 2 */
-  
+
   IF ll-is-new-rec THEN DO:
     IF oe-ord.est-no EQ "" AND AVAIL(oe-ord) THEN DO:
       FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
@@ -5164,7 +5168,7 @@ PROCEDURE local-update-record :
         bf-oe-ord.f-bill = oe-ord.frt-pay EQ "B".
       FIND CURRENT bf-oe-ord NO-LOCK.
     END.
-        
+
     ELSE DO:
         /* Need to allow update-record to complete before this extensive */
         /* order from est logic to avoid holding records                 */
@@ -5187,7 +5191,7 @@ PROCEDURE local-update-record :
   END.
 
   ELSE DO:
-     
+
     BUFFER-COMPARE oe-ord TO old-oe-ord SAVE RESULT IN ll.
     IF ll-new-po OR ll-new-due OR NOT ll THEN DO:
       RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
@@ -5200,13 +5204,13 @@ PROCEDURE local-update-record :
   RELEASE bfx-ord.  
 
   RUN release-shared-buffers.
-  
+
   RUN disable-fields.
   SESSION:SET-WAIT-STATE('').
 
   IF NOT ll-is-new-rec THEN
   RUN oe/sman-upd.p (ROWID(oe-ord)).
-  
+
   IF copyRecord THEN DO:
     MESSAGE 'update' VIEW-AS ALERT-BOX.
   END.
@@ -5248,14 +5252,14 @@ PROCEDURE new-due-date :
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT  PARAMETER ipOeRelRow AS ROWID NO-UNDO.
-    
+
     DEF BUFFER bf-shipto FOR shipto.
     DEF BUFFER bf-oe-rel FOR oe-rel.
     DEF VAR dCalcDueDate AS DATE NO-UNDO.
     DEF VAR dCalcPromDate AS DATE NO-UNDO.
     DEFINE VARIABLE dTempDate AS DATE NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
-        
+
         FIND bf-oe-rel WHERE ROWID(bf-oe-rel) EQ ipOeRelRow EXCLUSIVE-LOCK NO-ERROR.
         IF AVAIL bf-oe-rel AND AVAIL oe-ord THEN 
         DO:
@@ -5476,11 +5480,11 @@ RUN oe/ordfrest.p
   /* RUN dispatch ('open-query'). */
 
   RUN dispatch ('row-changed').
-  
+
   /* wfk - viewer was not updating, must have been in update mode */
   RUN local-initialize.
   RUN dispatch ('row-changed').    
-  
+
 
 END PROCEDURE.
 
@@ -5513,7 +5517,7 @@ INDEX("CZ",oe-ord.stat) NE 0            THEN DO:
   ELSE 
      MESSAGE "Order has been closed. No changes allowed"
               VIEW-AS ALERT-BOX ERROR.
-  
+
   RETURN ERROR.
 END.
 
@@ -5526,15 +5530,15 @@ IF oe-ord.job-no NE "" THEN DO:
           AND job.job-no2 EQ oe-ord.job-no2
           AND (job.stat EQ "C" OR job.stat EQ "W" OR job.stat EQ "Z")
       USE-INDEX job-no NO-LOCK NO-ERROR.
-  
-  
+
+
   IF AVAIL job THEN DO:
     MESSAGE "Order cannot be Deleted, Job has been Processed or Closed."
             "You Must Close the Order."
             VIEW-AS ALERT-BOX ERROR.
     RETURN ERROR.
   END.
-  
+
 END.
 
 
@@ -5550,7 +5554,7 @@ IF AVAIL oe-ordl THEN DO:
           VIEW-AS ALERT-BOX ERROR.
   RETURN ERROR.
 END.
-  
+
 
 
 FIND FIRST oe-ordl OF oe-ord WHERE oe-ordl.po-no-po <> 0 NO-LOCK NO-ERROR.
@@ -5574,7 +5578,7 @@ FOR EACH oe-ordl OF oe-ord NO-LOCK:
                 AND fg-rcpts.job-no2 EQ oe-ordl.job-no2
                 AND fg-rcpts.i-no    EQ oe-ordl.i-no
             NO-LOCK NO-ERROR.
-        
+
         IF NOT AVAIL fg-rcpts THEN
         FIND FIRST fg-rcpth USE-INDEX job
             WHERE fg-rcpth.company EQ oe-ord.company
@@ -5583,12 +5587,12 @@ FOR EACH oe-ordl OF oe-ord NO-LOCK:
                 AND fg-rcpth.job-no2 EQ oe-ordl.job-no2
                 AND fg-rcpth.i-no    EQ oe-ordl.i-no
             NO-LOCK NO-ERROR.
-    
-    
+
+
         IF (AVAIL fg-rcpts OR AVAIL fg-rcpth) AND
           oe-ordl.job-no NE ""  THEN DO:
-    
-    
+
+
             MESSAGE "Finished Goods Transactions Exists For This Order. "
                     "Deleting Is Not Permitted!  You Must Close The Order."
                      VIEW-AS ALERT-BOX ERROR.
@@ -5601,12 +5605,12 @@ END. /* Each oe-ordl */
 IF NOT adm-new-record THEN DO:
   MESSAGE "Delete Order" STRING(oe-ord.ord-no) "for" STRING(oe-ord.cust-no) "?" VIEW-AS ALERT-BOX QUESTION
   BUTTON YES-NO UPDATE ll-ans AS LOG.
-  
+
   IF NOT ll-ans THEN RETURN ERROR.
-  
+
   RUN check-use-1 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN "ADM-ERROR".
-  
+
   RUN check-use-2 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN "ADM-ERROR".
 END.
@@ -5676,14 +5680,14 @@ ip-parms =
 prompt-loop:
 DO WHILE TRUE:
     RUN custom/d-prompt.w (INPUT "", ip-parms, "", OUTPUT op-values).
-    
+
     DO i = 1 TO NUM-ENTRIES(op-values) BY 2.
         IF ENTRY(i, op-values) EQ "default" THEN
           choice = ENTRY(i + 1, op-values) NO-ERROR.
         IF ENTRY(i, op-values) EQ "tg2" THEN
           lcNewOrder = ENTRY(i + 1, op-values) NO-ERROR.            
     END.
-    
+
     IF choice NE "CANCEL" THEN DO:
         liOrderNo = INTEGER(lcNewOrder) NO-ERROR.
         RUN valid-entered-ord-no (INPUT liOrderNo, OUTPUT lValid).
@@ -5790,7 +5794,7 @@ PROCEDURE update-ord-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     READKEY PAUSE 0.
     IF adm-new-record                AND
@@ -5868,7 +5872,7 @@ PROCEDURE update-start-date :
                            ((bf-mch.run-hr - truncate(bf-mch.run-hr,0)) * 100 * 60 / 100) * 60
              lv-job-time = lv-job-time + lv-mr-time +  lv-run-time.
   END.
-  
+
   ASSIGN
      lv-job-hr = IF lv-job-time MOD 3600 > 0 THEN TRUNCATE(lv-job-time / 3600,0) + 1
                  ELSE TRUNCATE(lv-job-time / 3600,0)
@@ -5906,21 +5910,21 @@ PROCEDURE update-start-date :
      END. */
      lv-start-date = TODAY.
   END.
-  
+
   v-run-schedule = NOT CAN-FIND(FIRST sys-ctrl
                                 WHERE sys-ctrl.company EQ oe-ord.company
                                   AND sys-ctrl.name EQ 'SCHEDULE'
                                   AND sys-ctrl.char-fld EQ 'NoDate'
                                   AND sys-ctrl.log-fld EQ YES).
   IF v-run-schedule THEN DO: /* run if above does not exist */
-  
+
   /* === reset start-date === */
   ASSIGN lv-mr-time = 0
          lv-run-time = 0
          lv-job-time = 0
          lv-maccum-time = 0
          li-num-of-wkend = 0.
-  
+
   FOR EACH bf-hdr WHERE bf-hdr.company = oe-ord.company
                     AND bf-hdr.job-no = oe-ordl.job-no
                     AND bf-hdr.job-no2 = oe-ordl.job-no2,
@@ -5946,7 +5950,7 @@ PROCEDURE update-start-date :
           END.
           IF FIRST-OF(bf-mch.frm) THEN
                 bf-hdr.start-date = job.start-date.
-      
+
           ASSIGN
           lv-mr-time = IF bf-mch.mr-hr = 0 THEN 0 ELSE
                       TRUNCATE(bf-mch.mr-hr,0) * 3600 +
@@ -5991,14 +5995,14 @@ PROCEDURE update-start-date :
                              lv-job-time MOD lv-maccum-time > 0 THEN TRUNCATE(lv-job-time / lv-maccum-time,0) 
                           ELSE IF lv-job-time > lv-maccum-time THEN TRUNCATE(lv-job-time / lv-maccum-time,0) - 1
                           ELSE 0.
-          
+
           ASSIGN bf-mch.end-time = bf-mch.start-time + lv-run-time
                  bf-mch.end-time-su = bf-mch.start-time-su + lv-mr-time
                  bf-mch.end-date = lv-start-date           
                  lv-wrk-st-time = lv-wrk-st-time + lv-mr-time + lv-run-time.
   END.
   END. /* if v-run-schedule*/
-  
+
   ASSIGN
      bx-ordl.prom-date = lv-prom-date
      bx-ordl.req-date = IF lv-update-job-stdate THEN lv-prom-date ELSE bx-ordl.req-date.
@@ -6058,7 +6062,7 @@ PROCEDURE valid-cust-no :
   DEF VAR li AS INT NO-UNDO.
   DEF VAR ll AS LOG INIT NO NO-UNDO.
 
-            
+
   DO WITH FRAME {&FRAME-NAME}:
     IF lv-old-cust-no NE oe-ord.cust-no:SCREEN-VALUE THEN RUN new-cust-no.
 
@@ -6114,7 +6118,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
                             OUTPUT lActive).
 {sys/inc/chblankcust.i ""OU1""}
     DO WITH FRAME {&FRAME-NAME}:
-        
+
         IF ip-est = "est" THEN DO:
             v-est-no = FILL(" ",8 - LENGTH(TRIM(oe-ord.est-no:SCREEN-VALUE))) +
                                             TRIM(oe-ord.est-no:SCREEN-VALUE) .
@@ -6130,7 +6134,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
             v-cust-chk = oe-ord.cust-no:SCREEN-VALUE .
         END.
     END.
-    
+
   IF ou-log THEN
     DO WITH FRAME {&FRAME-NAME}:
       IF LOOKUP(v-cust-chk,custcount) = 0 THEN DO:
@@ -6159,12 +6163,12 @@ PROCEDURE valid-due-date :
     DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
     DEFINE VARIABLE ldDate    AS DATE    NO-UNDO.
     DO WITH FRAME {&FRAME-NAME}:
-    
+
         ASSIGN 
             lValid    = YES
             lContinue = YES
             ldDate    = DATE(oe-ord.due-date:screen-value).
-       
+
         RUN oe/dateFuture.p (INPUT cocode, INPUT ldDate, INPUT YES /* prompt */, OUTPUT lValid, OUTPUT lContinue).
         IF NOT lValid AND  NOT lContinue THEN 
         DO:      
@@ -6188,14 +6192,14 @@ PROCEDURE valid-entered-ord-no :
   DEF INPUT PARAMETER ipiOrdNo AS INT NO-UNDO.  
   DEF OUTPUT PARAMETER oplGoodOrder AS LOG NO-UNDO.
   DEF BUFFER b-oe-ord FOR oe-ord.
-       
+
   DO WITH FRAME {&FRAME-NAME}:
     IF ipiOrdNo EQ 0 OR
        CAN-FIND(FIRST b-oe-ord
                 WHERE b-oe-ord.company EQ cocode
                   AND b-oe-ord.ord-no  EQ ipiOrdNo
                   AND ROWID(b-oe-ord)  NE ROWID(oe-ord))
-        
+
     THEN DO:
 
       MESSAGE 
@@ -6220,7 +6224,7 @@ PROCEDURE valid-est-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
  /* IF adm-new-record THEN*/
  DO WITH FRAME {&FRAME-NAME}:
     IF oe-ord.est-no:SCREEN-VALUE NE "" THEN DO:
@@ -6234,20 +6238,20 @@ PROCEDURE valid-est-no :
         APPLY "entry" TO oe-ord.est-no.
         RETURN ERROR.
       END.
-      
+
       IF v-quo-price-log AND v-quo-price-dec EQ 1 THEN DO:
         FOR EACH quotehd
             WHERE quotehd.company EQ est.company
               AND quotehd.loc     EQ est.loc
               AND quotehd.est-no  EQ est.est-no
              NO-LOCK,
-    
+
              EACH quoteitm OF quotehd NO-LOCK,
 
              EACH quoteqty OF quoteitm NO-LOCK:
           LEAVE.
         END.
-              
+
         IF NOT AVAIL quoteqty THEN DO:
           MESSAGE "No quotes exists for this estimate..."
               VIEW-AS ALERT-BOX ERROR.
@@ -6288,7 +6292,7 @@ PROCEDURE valid-job-no2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF oe-ord.est-no:SCREEN-VALUE NE "" AND
        oe-ord.job-no:SCREEN-VALUE NE "" AND
@@ -6317,7 +6321,7 @@ PROCEDURE valid-ord-no :
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-oe-ord FOR oe-ord.
 
-       
+
   DO WITH FRAME {&FRAME-NAME}:
     IF INT(oe-ord.ord-no:SCREEN-VALUE) EQ 0 OR
        CAN-FIND(FIRST b-oe-ord
@@ -6348,7 +6352,7 @@ PROCEDURE valid-po-no :
   DEF BUFFER b-oe-ordl FOR oe-ordl.
   DEF BUFFER cust-po-mand FOR reftable.
 
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST cust NO-LOCK
         WHERE cust.company EQ oe-ord.company
@@ -6360,7 +6364,7 @@ PROCEDURE valid-po-no :
                          AND cust-po-mand.code     EQ cust.cust-no
                          AND cust-po-mand.val[1]   EQ 1)
         NO-ERROR.
-    
+
     IF AVAIL cust AND TRIM(oe-ord.po-no:SCREEN-VALUE) EQ "" THEN DO:
       MESSAGE "PO# is mandatory for this Customer..."
           VIEW-AS ALERT-BOX ERROR.
@@ -6420,7 +6424,7 @@ PROCEDURE valid-sman :
               ELSE
               IF ip-int EQ 2 THEN oe-ord.sman[2]:SCREEN-VALUE
                              ELSE oe-ord.sman[1]:SCREEN-VALUE.
-    
+
     IF lv-sman NE "" THEN DO:
         FIND FIRST sman NO-LOCK WHERE sman.company EQ cocode
                                   AND sman.sman    EQ lv-sman NO-ERROR.

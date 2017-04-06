@@ -185,7 +185,7 @@ FOR EACH report
         WHERE quotehd.company = oe-ordl.company
           AND quotehd.est-no = oe-ordl.est-no NO-LOCK NO-ERROR.
       IF AVAIL quotehd THEN DO:
-        
+
         FIND FIRST quoteitm OF quotehd 
           WHERE quoteitm.part-no = oe-ordl.part-no NO-LOCK NO-ERROR.
         IF AVAIL quoteitm THEN DO:
@@ -245,7 +245,7 @@ FOR EACH report
          oe-ordl.part-dscr1 NE ""        
         THEN DO:
 
-        
+
         PUT 
            oe-ordl.i-no   AT 18
            oe-ordl.i-name AT 36  SKIP.
@@ -309,7 +309,7 @@ FOR EACH report
         ASSIGN v-printline = 20.          
       END.
 
-      
+
       IF oe-ordl.pr-uom BEGINS "L" AND 
          oe-ordl.pr-uom NE "LB" 
         THEN ASSIGN v-totlin = oe-ordl.price * IF oe-ordl.qty LT 0 
@@ -350,7 +350,7 @@ FOR EACH report
                         ELSE ROUND(v-totlin * (1 - (oe-ordl.disc / 100)),2).
 
       ASSIGN v-totord = v-totord + v-totlin.
-  
+
       IF v-printline GE lv-line-print THEN DO:
         PAGE .
         {oe/rep/ackxprnt.i}
@@ -412,52 +412,52 @@ FOR EACH report
          WHERE oe-ordl.company EQ oe-ord.company
            AND oe-ordl.ord-no  EQ oe-ord.ord-no NO-LOCK NO-ERROR.
        IF AVAIL oe-ordl THEN
-       FIND FIRST  nosweat.notes NO-LOCK
+       FIND FIRST  ASI.notes NO-LOCK
          WHERE notes.rec_key = oe-ordl.rec_key
            AND TRIM(notes.note_text) NE "" NO-ERROR.
        IF AVAIL notes THEN DO:
-   
+
          PUT "<B>Notes: </B>" SKIP.
-   
+
          ASSIGN  v-printline = v-printline + 1.
-   
-         FOR EACH nosweat.notes NO-LOCK
+
+         FOR EACH ASI.notes NO-LOCK
            WHERE notes.rec_key = oe-ordl.rec_key
               BY note_date BY note_time:
-   
+
              FOR EACH tt-formtext: DELETE tt-formtext. END.
-   
+
              ASSIGN 
                v-text = ""
                v-text = v-text + " " + notes.note_text.
-   
+
              DO v-licnt = 1 TO 5:
                 CREATE tt-formtext.
                 ASSIGN tt-line-no = v-licnt
                        tt-length  = 100. 
              END.
-   
+
              RUN custom/formtext.p (v-text).
-   
+
              ASSIGN 
                   i = 0 v-notes = "" note-count = 0.
-   
+
              FOR EACH tt-formtext:
                 ASSIGN i = i + 1.
                 IF i <= 5 
                   THEN ASSIGN v-notes[i] = tt-formtext.tt-text.
-   
+
                 IF v-notes[i] <> "" THEN note-count = i.
-   
+
              END.
-   
+
              DO i = 1 TO note-count:
-                      
+
                IF v-notes[i] NE "" 
                  THEN PUT  v-notes[i] FORM "x(80)" SKIP(1).
-   
+
                ASSIGN v-printline = v-printline + 2.
-               
+
                IF v-printline GE lv-line-print THEN DO:
                  PAGE .
                  {oe/rep/ackxprnt.i}
@@ -532,7 +532,7 @@ FOR EACH report
 
     IF v-prntinst THEN  
       DO i = 1 TO 4:
-      
+
           v-billinst[i] = oe-ord.bill-i[i].
     END.
 
@@ -571,11 +571,11 @@ IF v-terms  AND
    INPUT FROM VALUE(TRIM(v-termfile)).
    REPEAT:
     IMPORT UNFORMATTED v-char.
-    
+
     IF TRIM(v-char) NE "" AND LENGTH(TRIM(v-char)) GT 145 THEN DO:
 
       FOR EACH tt-formtext: DELETE tt-formtext. END.
-            
+
       DO v-licnt = 1 TO 10:
        CREATE tt-formtext.
        ASSIGN tt-line-no = v-licnt
@@ -602,17 +602,17 @@ IF v-terms  AND
       END.
     END.
     ELSE PUT "<FTimes New (W1)><#11><P8>"  v-char FORMAT "x(145)" SKIP. 
-  
+
    END.
    INPUT CLOSE.
-   
+
 END.
 RETURN.
 
 PROCEDURE print-rels:
-    
+
     DEF INPUT PARAM ip-first AS LOG NO-UNDO.
-    
+
     DO WITH FRAME sched-rel DOWN:
 
       if v-printline ge lv-line-print THEN DO:

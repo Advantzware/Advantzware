@@ -317,6 +317,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -329,6 +330,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   RUN Set-comp_loc.
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -383,8 +385,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -414,6 +418,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DISPLAY sysdate WITH FRAME {&FRAME-NAME}.
   {methods/enhance.i}
   {methods/nowait.i}
+    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
   IF onlyone THEN

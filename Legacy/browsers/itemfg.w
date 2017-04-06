@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:06 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -236,6 +240,8 @@ END.
 {methods/template/browser.i}
 {custom/yellowColumns.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -312,7 +318,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -398,7 +404,7 @@ DO:
   RUN get-link-handle IN adm-broker-hdl(WIDGET-HANDLE(char-hdl), "page-source", OUTPUT char-hdl).
   IF itemfg.isaset THEN RUN enable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6) NO-ERROR.
   ELSE RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6) NO-ERROR.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -511,11 +517,11 @@ PROCEDURE local-open-query :
   IF NUM-RESULTS("{&BROWSE-NAME}":U) GT 0 THEN RUN dispatch ('get-last':U).
   IF AVAIL itemfg THEN
   lvLastRowID  = ROWID(itemfg).
-    
+
   IF NUM-RESULTS("{&BROWSE-NAME}":U) GT 0 THEN RUN dispatch ('get-first':U).
   IF AVAIL itemfg THEN
   lvFirstRowID  = ROWID(itemfg).
-  
+
   APPLY "value-changed" TO BROWSE {&browse-name}.
   APPLY "entry" TO BROWSE {&browse-name}.
 
@@ -533,7 +539,7 @@ PROCEDURE navigate-browser :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipNavType AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opNavType AS CHARACTER NO-UNDO.
- 
+
   IF ipNavType NE '' THEN
   CASE ipNavType:
     WHEN 'F' THEN RUN dispatch ('get-first':U).
@@ -542,10 +548,10 @@ PROCEDURE navigate-browser :
     WHEN 'P' THEN RUN dispatch ('get-prev':U).
     WHEN 'G' THEN RUN lookup-eb.
   END CASE.
-    
+
   IF ROWID(itemfg) EQ lvLastRowID THEN
   opNavType = 'L'.
-      
+
   IF ROWID(itemfg) EQ lvFirstRowID THEN
   opNavType = IF opNavType EQ 'L' THEN 'B' ELSE 'F'.
 
@@ -562,10 +568,10 @@ PROCEDURE repo-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input parameter ip-rowid as rowid no-undo.
-  
-  
+
+
   run dispatch in this-procedure ("open-query").
-  
+
   reposition {&browse-name} to rowid ip-rowid no-error.
 
   run dispatch in this-procedure ("row-changed").

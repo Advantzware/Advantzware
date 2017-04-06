@@ -49,11 +49,11 @@ DEFINE TEMP-TABLE ttDeltaList
     FIELD databaseName AS CHARACTER 
     FIELD passesTest   AS LOGICAL 
   .   
-    
+
 DEFINE TEMP-TABLE ttfiles 
     FIELD ttfullname AS CHARACTER  
     FIELD ttfilename AS CHARACTER   .  
-  
+
 ASSIGN
     cocode = g_company
     locode = g_loc.
@@ -182,13 +182,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-        VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -214,7 +220,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -252,6 +258,7 @@ ON WINDOW-CLOSE OF C-Win /* Transaction Monitor */
 ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
     DO:
         APPLY 'CLOSE' TO THIS-PROCEDURE.
+        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:18 am */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -262,10 +269,11 @@ ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCompareSchema C-Win
 ON CHOOSE OF btnCompareSchema IN FRAME DEFAULT-FRAME /* Compare Schema */
     DO:
- 
+
         RUN pShowNeededDeltas.
         RETURN NO-APPLY.
-        
+
+        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:18 am */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -285,8 +293,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
     DO:
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:18 am */
+END.
         RUN disable_UI.
     END.
 
@@ -298,14 +308,15 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-        
+
     RUN enable_UI.
 
     RUN pCreateObjectReferences.
     RUN readDeltaFiles.
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:18 am */
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
-        
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -405,7 +416,7 @@ PROCEDURE pCreateObjectReferences:
         ttDeltaList.shouldExist  = YES
         ttDeltaList.databaseName = "ASI" 
         .
-         
+
     CREATE ttDeltaList.
     ASSIGN 
         ttDeltaList.allFileName  = "asi_delta_16.0.6.df"
@@ -416,7 +427,7 @@ PROCEDURE pCreateObjectReferences:
         ttDeltaList.shouldExist  = YES
         ttDeltaList.databaseName = "ASI" 
         .
-         
+
     CREATE ttDeltaList.
     ASSIGN 
         ttDeltaList.allFileName  = "asi_delta_16.0.0.df"
@@ -427,7 +438,7 @@ PROCEDURE pCreateObjectReferences:
         ttDeltaList.shouldExist  = YES
         ttDeltaList.databaseName = "ASI" 
         .
-        
+
     CREATE ttDeltaList.
     ASSIGN 
         ttDeltaList.allFileName  = "addon\nosweat_delta_16.3.0.df"
@@ -438,7 +449,7 @@ PROCEDURE pCreateObjectReferences:
         ttDeltaList.shouldExist  = YES
         ttDeltaList.databaseName = "NOSWEAT" 
         .
-        
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -456,11 +467,11 @@ PROCEDURE pShowNeededDeltas:
 
     DEFINE VARIABLE cDeltaDisplay AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lPassesTest   AS LOG       NO-UNDO.
-  
-    /*  RUN pCreateObjectReferences. */
-  
 
-  
+    /*  RUN pCreateObjectReferences. */
+
+
+
     DO WITH FRAME {&frame-name}:
         FIND FIRST ttDeltaList WHERE ttDeltaList.allFileName BEGINS "addon"
             NO-ERROR.
@@ -469,9 +480,9 @@ PROCEDURE pShowNeededDeltas:
                 VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
         edLocks:SCREEN-VALUE = "".
         ASSIGN fiVersion.
-        
+
         FOR EACH ttDeltaList WHERE ttDeltaList.awVersion LE fiVersion:
-            
+
             lPassesTest = FALSE.
             CASE ttDeltaList.databaseName:
                 WHEN "ASI" THEN 
@@ -487,7 +498,7 @@ PROCEDURE pShowNeededDeltas:
                     END.
                 WHEN "NOSWEAT" THEN 
                     DO:
-                        
+
                         FIND FIRST nosweat._file NO-LOCK WHERE nosweat._file._file-name EQ ttDeltaList.dbTable     
                             NO-ERROR.
                         IF AVAILABLE nosweat._file THEN 
@@ -497,10 +508,10 @@ PROCEDURE pShowNeededDeltas:
                         lPassesTest = avail(nosweat._field) EQ ttDeltaList.shouldExist.               
                     END.
             END CASE.
-            
+
             ttDeltaList.passesTest = lPassesTest.
 
-    
+
         END.  
         FOR EACH ttDeltaList WHERE ttDeltaList.awVersion LE fiVersion 
             BREAK BY ttDeltaList.allFileName
@@ -513,7 +524,7 @@ PROCEDURE pShowNeededDeltas:
                 + (IF lPassesTest THEN " Has Been Applied." ELSE " Needs to be applied")
                 + chr(13)
                 . 
-                
+
             edLocks:SCREEN-VALUE = edLocks:SCREEN-VALUE + cDeltaDisplay.
 
           END.
@@ -542,14 +553,14 @@ PROCEDURE readDeltaFiles:
     DEFINE VARIABLE cInputLine  AS CHARACTER FORMAT "x(50)". 
     DEFINE VARIABLE cTable      AS CHARACTER NO-UNDO.  
     DEFINE VARIABLE cField      AS CHARACTER NO-UNDO.   
-    
+
     DEFINE VARIABLE iLeftPos    AS INTEGER   NO-UNDO. 
     DEFINE VARIABLE iRightPos   AS INTEGER   NO-UNDO.  
     DEFINE VARIABLE iSlashPos AS INTEGER.  
-     
+
     cFileName = SEARCH("stdMenu\deltas\asi_delta_15.9.0.df"). 
     /* cFileName = "C:\Advantzware\v16\Resources\stdMenu\deltas\asi_delta_15.9.0.df". */ 
-    
+
     /* Examine folder for file list */    
     iSlashPos = R-INDEX(cFileName, "\"). 
     cShortName = SUBSTRING(cFileName,  iSlashPos + 1).  
@@ -580,24 +591,24 @@ PROCEDURE readDeltaFiles:
         REPEAT: 
             cInputLine = "". 
             IMPORT UNFORMATTED cInputLine. 
-            
+
             cInputLine = TRIM(cInputLine).
             IF NOT cInputLine BEGINS "add field" THEN NEXT.  
-      
+
             iLeftPos = INDEX(cInputLine, '"').   
             iRightPos = R-INDEX(cInputLine, '"'). 
-            
+
             IF iLeftPos EQ 0 OR iRightPos EQ 0 THEN NEXT. 
-            
+
             cInputLine = SUBSTRING(cInputLine, iLeftPos, iRightPos - iLeftPos).   
             cInputLine = TRIM(REPLACE(cINputLine, '"', '')). 
             cInputLine = TRIM(REPLACE(cINputLine, '  ', ' ')).  
             cInputLine = TRIM(REPLACE(cINputLine, ' OF ', ',')).  
-            
+
             cTable = ENTRY(2, cInputLine).  
             cField = ENTRY(1, cInputLine).    
-            
-            
+
+
             IF cShortName BEGINS "asi" THEN 
             DO:
                 FIND FIRST asi._file NO-LOCK WHERE asi._file._file-name EQ cTable 
@@ -606,7 +617,7 @@ PROCEDURE readDeltaFiles:
                     FIND FIRST asi._field NO-LOCK OF asi._file WHERE  
                         asi._field._field-name EQ cField  
                         NO-ERROR. 
-                          
+
                     CREATE ttDeltaList.
                     ASSIGN 
                         ttDeltaList.allFileName  = TRIM(ttFiles.ttfullname)
@@ -660,7 +671,7 @@ PROCEDURE readDeltaFiles:
         END.  /* Repeat each line of file */
         INPUT close.    
     END. /* each ttFiles */
-  
+
 
 
 END PROCEDURE.

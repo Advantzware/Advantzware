@@ -5,6 +5,10 @@
           asihlp           PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:19 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -232,7 +236,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -243,7 +247,7 @@ ASSIGN
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -341,16 +345,16 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
- 
+
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   hlp-head.reviewstatus = IF tb_re-view:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes" THEN "R" ELSE "B" .
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -371,14 +375,14 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   DEFINE BUFFER bf-hlp FOR hlp-head.
   DEFINE VARIABLE li-next-num AS INTEGER NO-UNDO.
-  
+
   FIND LAST bf-hlp USE-INDEX mess-num NO-LOCK NO-ERROR.
   IF AVAILABLE bf-hlp THEN li-next-num = bf-hlp.msg-num + 1.
   ELSE li-next-num = 1.
-  
+
   hlp-head.msg-num = li-next-num.
   DISPLAY hlp-head.msg-num WITH FRAME {&frame-name}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -459,7 +463,7 @@ PROCEDURE local-display-fields :
     DISABLE tb_re-view .
   END.
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -480,18 +484,18 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   SESSION:SET-WAIT-STATE("general").
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   SESSION:SET-WAIT-STATE("").
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE tb_re-view .
   END.
 /* mod - sewa for Web Services task 08211210 */
-  
+
 FIND FIRST sys-ctrl  WHERE sys-ctrl.name    EQ "UpdateService"
         NO-LOCK NO-ERROR.
   IF AVAILABLE sys-ctrl THEN
@@ -511,7 +515,7 @@ FIND FIRST sys-ctrl  WHERE sys-ctrl.name    EQ "UpdateService"
 
       RUN HelpInsert IN vhSalesSoap(INPUT STRING(hlp-head.MSG-NUM),INPUT STRING(hlp-head.FLD-NAME),INPUT STRING(hlp-head.FRM-TITLE),INPUT STRING(hlp-head.FIL-NAME),INPUT STRING(hlp-head.FRM-NAME),INPUT STRING(hlp-head.help-txt),  OUTPUT parameters1).
 /* mod- sewa */
-              
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -22,7 +22,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
   END.
 
   RUN printHeader (6, OUTPUT v-printline).
-         
+
   RELEASE eb.
   RELEASE ef.
   FIND FIRST est WHERE est.company = xquo.company
@@ -40,7 +40,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
         AND eb.est-no  EQ est.est-no
         and eb.form-no NE 0
       NO-LOCK NO-ERROR.
-        
+
   IF AVAIL eb THEN DO:
     FIND FIRST ef
         WHERE ef.company EQ est.company
@@ -66,7 +66,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                       AND itemfg.i-no = xqitm.part-no NO-LOCK NO-ERROR.
 
   DO i = 1 TO numfit:
-    
+
     IF i EQ 1 THEN DO:
       lv-est-no = IF AVAIL eb THEN xquo.est-no ELSE "".
       lv-part-dscr1 = IF AVAIL est AND est.est-type EQ 6 
@@ -147,7 +147,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     END.
     ELSE
     IF i EQ 4 THEN DO:
-       
+
        PUT "CAD#: " + (IF AVAIL eb THEN eb.cad-no ELSE "") AT 8  FORM "x(21)".
 
        IF ll-prt-dscr2 THEN DO:
@@ -190,7 +190,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                    ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6].
          adder-print = YES.
        END.       
-       
+
        RELEASE bf-eb.
        IF AVAILABLE(est) AND est.est-type = 6 THEN
           FIND FIRST bf-eb WHERE bf-eb.company EQ xquo.company
@@ -224,11 +224,11 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        IF NOT adder-print AND NOT logSetPrinting AND AVAIL ef THEN
          v-board = ef.adder[1] + " " + ef.adder[2] + " " + ef.adder[3] + " " +
                    ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6].
-       
+
        IF v-board NE "" THEN PUT SPACE(28) v-board FORM "x(28)".
        ELSE numfit = 5.
     END.
-    
+
     IF i GT numfit THEN PUT SPACE(58) .
 
     IF AVAIL xqqty THEN DO:
@@ -243,7 +243,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
         /*xqqty.rels*/ SPACE(5)
         xqqty.price FORMAT "->>,>>9.99" space(6)
         xqqty.uom.   
-       
+
      v-line-total = v-line-total + xqqty.price.
     END.
 
@@ -254,7 +254,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
   END. /* do numfit */
 
   IF s-print-comp THEN DO :      /* Print components of a set */
-  
+
     FIND FIRST est
         WHERE est.company EQ xquo.company
           AND est.est-no  EQ xquo.est-no
@@ -270,7 +270,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     FOR EACH ef WHERE ef.company EQ est.company
                   AND ef.est-no  EQ est.est-no NO-LOCK,      
         EACH eb OF ef NO-LOCK BREAK BY ef.form-no :
-        
+
       RUN printHeader (1,OUTPUT idummy).
       IF FIRST(ef.form-no) THEN DO:
         IF LINE-COUNTER GT PAGE-SIZE - 2 THEN PAGE.
@@ -301,16 +301,16 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
         trim-size = TRIM(STRING(ld-len,lv-format)) + "x" +
                     TRIM(STRING(ld-wid,lv-format)) + "x" +
                     TRIM(STRING(ld-dep,lv-format)).
-                
+
       IF LENGTH(TRIM(trim-size)) GT 24 THEN
       DO cc = 1 TO LENGTH(trim-size):
         IF SUBSTR(trim-size,cc,1) NE "" THEN
            temp-trim-size = temp-trim-size + SUBST(trim-size,cc,1).
       END.
       ELSE temp-trim-size = trim-size.
-    
+
       put eb.part-no AT 8 FORM "x(21)" temp-trim-size   SKIP.
-    
+
       FIND FIRST style
           WHERE style.company EQ cocode
             AND style.style   EQ eb.style
@@ -318,13 +318,13 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       style-dscr = IF AVAIL style THEN style.dscr ELSE eb.style.      
       PUT eb.part-dscr1 AT 8 FORM "x(21)"
           style-dscr SKIP.
-    
+
       v-board = /*IF AVAIL ef THEN*/
                   ef.board    + " - " +
                   ef.adder[1] + " " + ef.adder[2] + " " + ef.adder[3] + " " +
                   ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6]
                 /*ELSE "-"*/.
-              
+
       IF SUBSTR(v-board,LENGTH(TRIM(v-board)),1) EQ "-" THEN
         SUBSTR(v-board,LENGTH(TRIM(v-board)),1) = "".
 
@@ -338,16 +338,16 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
                     IF item.est-dscr GT "" THEN item.est-dscr ELSE
                        item.i-dscr.
       END.
-      
+
       PUT eb.part-dscr2  AT 8  FORM "x(21)"
           v-board  FORM "x(50)"   SKIP .
-    
+
       put eb.i-coldscr   AT 30 SKIP.
     END.
   END.    /* disp components */
 
   numfit = 0.
-  
+
   FOR EACH xqqty OF xqitm NO-LOCK,
       EACH xqchg NO-LOCK
       where xqchg.company eq xqqty.company
@@ -381,19 +381,19 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       NO-LOCK 
       BREAK BY xqchg.qty
             BY xqchg.charge:
-  
+
     IF FIRST-OF(xqchg.qty) THEN DO:
       IF FIRST(xqchg.qty) THEN PUT SKIP(1).
       PUT "For QTY: " AT 5
           TRIM(STRING(xqchg.qty,">>>>>>>")).
     END.
-                                            
+
     lv-chg-amt = xqchg.amt.   
 
     IF xqchg.bill EQ "N" THEN
        PUT xqchg.charge AT 22
           /*"N/C"        TO 80*/  SKIP.
-      
+
     ELSE
     IF INDEX("TML",xqchg.bill) GT 0 THEN
        PUT xqchg.charge       AT 22
@@ -457,9 +457,9 @@ FOR EACH xqchg OF xquo NO-LOCK
           BY xqchg.s-num
           BY xqchg.b-num:
 
- 
+
   IF FIRST(xqchg.charge) THEN PUT SKIP(1).
- 
+
   /*
   IF FIRST-OF(xqchg.charge) THEN DO: 
 
@@ -469,14 +469,14 @@ FOR EACH xqchg OF xquo NO-LOCK
           logprint = TRUE.
       END.
    */   
-  
+
     /*IF xqchg.qty EQ 0 OR FIRST-OF(xqchg.b-num) THEN DO:*/
      lv-chg-amt = xqchg.amt .
 
      IF xqchg.bill EQ "N" THEN
        PUT xqchg.charge AT 22
           /* "N/C"        TO 80 */ SKIP.
-      
+
      ELSE
        IF INDEX("TML",xqchg.bill) GT 0 THEN
          PUT xqchg.charge       AT 22
@@ -486,7 +486,7 @@ FOR EACH xqchg OF xquo NO-LOCK
           */
              lv-chg-amt          TO 83  
                    "EA"          AT 90 SKIP.
-     
+
      ELSE
        IF xqchg.bill EQ "W" THEN
          PUT xqchg.charge    AT 22
@@ -515,7 +515,7 @@ DO:
      {custom/notespr2.i job v-inst2 EXTENT(v-inst2) "notes.rec_key = est.rec_key and notes.note_code >= fdept and notes.note_code <= tdept" }
 
      idx = 0.
-     
+
      DO i = 1 TO EXTENT(v-dept-inst) /*6*/:
        v-dept-inst[i] = v-inst2[i].
        IF v-dept-inst[i] NE '' THEN idx = idx + 1.
@@ -525,9 +525,9 @@ DO:
 
        IF v-notesPageSpan THEN RUN printHeader (1,OUTPUT idummy).
                           ELSE RUN printHeader (idx,OUTPUT idummy).
-         
+
        PUT "Department Notes: " SKIP.
-       
+
        DO idx = 1 TO EXTENT(v-dept-inst):
 
          IF v-dept-inst[idx] NE "" THEN PUT v-dept-inst[idx] AT 3.
@@ -545,14 +545,14 @@ DO:
 END. /* DO */
 
 /* PRINT PEN NOTES */
-  FIND FIRST  nosweat.notes NO-LOCK
+  FIND FIRST  ASI.notes NO-LOCK
     WHERE notes.rec_key = xquo.rec_key
       AND TRIM(notes.note_text) NE "" NO-ERROR.
   IF AVAIL notes THEN DO:
     PUT "<B>Notes: </B>" SKIP.
 
     ASSIGN  v-printline = v-printline + 1.
-    FOR EACH nosweat.notes NO-LOCK
+    FOR EACH ASI.notes NO-LOCK
       WHERE notes.rec_key = xquo.rec_key
       BY note_date BY note_time:
 
@@ -571,7 +571,7 @@ END. /* DO */
       RUN custom/formtext.p (v-text).
 
       ASSIGN i = 0 v-notes = "" note-count = 0.
-      
+
      FOR EACH tt-formtext:
         ASSIGN i = i + 1.
        IF i <= 5 

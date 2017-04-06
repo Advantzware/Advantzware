@@ -144,7 +144,7 @@ DEFINE QUERY BROWSE-2 FOR
 /* Browse definitions                                                   */
 DEFINE BROWSE BROWSE-2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-2 D-Dialog _FREEFORM
-     
+
   QUERY BROWSE-2 DISPLAY
       tt-rec.old-i-no LABEL "Old FG Item#" WIDTH 40
      tt-rec.new-i-no LABEL "New FG Item#" WIDTH 40
@@ -178,6 +178,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -218,7 +219,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-rec BY tt-rec.old-i-no
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -288,7 +289,7 @@ DO:
         FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
 
      APPLY "leave" TO fi_cust-no.
-           
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

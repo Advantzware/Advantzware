@@ -262,6 +262,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -299,7 +300,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -665,7 +666,7 @@ DO:
   /*      APPLY "entry" TO lv-qty-3.
         return no-apply. */
     END.  
-    
+
     /*if int(self:screen-value) <> 0 and
       int(lv-qty-2:screen-value) < int(lv-qty-1:screen-value) then return no-apply.*/
 END.
@@ -683,7 +684,7 @@ DO:
     /*    APPLY "entry" TO lv-qty-4.
         return no-apply. */
     END.  
-    
+
     /*if int(self:screen-value) <> 0 and
       int(lv-qty-3:screen-value) < int(lv-qty-2:screen-value) then return no-apply.*/
 END.
@@ -701,7 +702,7 @@ DO:
       /*  APPLY "entry" TO lv-qty-5.
         return no-apply. */
     END.   
-    
+
     /*if int(self:screen-value) <> 0 and
       int(lv-qty-4:screen-value) < int(lv-qty-3:screen-value) then return no-apply.*/
 
@@ -720,7 +721,7 @@ DO:
      /*   APPLY "entry" TO lv-qty-6.
         return no-apply. */
     END.   
-    
+
     /*if int(self:screen-value) <> 0 and
       int(lv-qty-5:screen-value) < int(lv-qty-4:screen-value) then return no-apply.*/
 
@@ -739,7 +740,7 @@ DO:
      /*   APPLY "entry" TO lv-qty-7.
         return no-apply. */
     END.   
-    
+
     /*if int(self:screen-value) <> 0 and
       int(lv-qty-6:screen-value) < int(lv-qty-5:screen-value) then return no-apply.*/
 
@@ -758,7 +759,7 @@ DO:
        /* APPLY "entry" TO lv-qty-8.
         return no-apply. */
     END.   
-    
+
     /*if int(self:screen-value) <> 0 and
       int(lv-qty-7:screen-value) < int(lv-qty-6:screen-value) then return no-apply.*/
 

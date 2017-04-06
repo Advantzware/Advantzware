@@ -9,7 +9,7 @@
 /*------------------------------------------------------------------------
 
   File: est\custfly.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -510,6 +510,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -651,7 +652,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -663,7 +664,7 @@ ON HELP OF FRAME D-Dialog /* Customer Maintenance */
 DO:
    def var lv-handle as handle no-undo.
    def var char-val as cha no-undo.
-   
+
    CASE Focus:name :
        when "del-zone" then do:
            run windows/l-delzon.w 
@@ -761,10 +762,10 @@ DO:
      otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-             
+
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
-        
+
            end.   /* g_lookup-var <> "" */
            apply "entry" to lv-handle.
            return no-apply.
@@ -833,7 +834,7 @@ ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
 DO:
     MESSAGE "Do you want to delete a created customer? "
           VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll-ans AS LOG.
-    
+
     IF ll-ans THEN DO:
        find cust where cust.company = gcompany and cust.cust-no = ip-cust-no no-error.       
        DELETE cust.
@@ -842,8 +843,8 @@ DO:
          APPLY "choose" TO btn_ok.
          RETURN NO-APPLY.
     END.
-  
-  
+
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -854,10 +855,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* Save */
 DO:
- 
+
 
    RUN cust-zip.
-    
+
    /*run validate-cust no-error.
    if error-status:error then return no-apply. */
   do with frame {&frame-name}:
@@ -882,8 +883,8 @@ DO:
            APPLY "entry" TO cust.cust-no.
            RETURN NO-APPLY.
      END.
-    
-    
+
+
      if cust.sman:screen-value <> "" and
         not can-find(first sman where sman.sman = cust.sman:screen-value)
      then do:
@@ -1013,7 +1014,7 @@ DO:
        NOT ll-secure                                THEN DO:
 
         RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                  = NO
@@ -1032,7 +1033,7 @@ DO:
        NOT ll-secure                                  THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                   = NO
@@ -1062,7 +1063,7 @@ DO:
        APPLY "entry" TO cust.inv-meth.
        RETURN NO-APPLY.
    END.
- 
+
      /* validate terms */
      v-valid = YES.
      IF v-secur                               AND
@@ -1095,7 +1096,7 @@ DO:
            NOT ll-secure                            THEN DO:
 
            RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
            IF NOT ll-secure THEN
               ASSIGN v-valid                = NO
                      cust.disc:SCREEN-VALUE = STRING(cust.disc).
@@ -1131,7 +1132,7 @@ DO:
              NOT ll-secure                                THEN DO:
 
              RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
              IF NOT ll-secure THEN
              ASSIGN v-valid                  = NO
                     cust.markup:SCREEN-VALUE = STRING(cust.markup).
@@ -1154,13 +1155,13 @@ DO:
 
   RUN valid-ord-lim.
   IF NOT v-valid THEN RETURN NO-APPLY.
-  
+
   RUN valid-inv-meth.
   IF NOT v-valid THEN RETURN NO-APPLY.
 
   RUN valid-terms.
   IF NOT v-valid THEN RETURN NO-APPLY.
-  
+
   RUN valid-disc.
   IF NOT v-valid THEN RETURN NO-APPLY.
 
@@ -1171,7 +1172,7 @@ DO:
   IF NOT v-valid THEN RETURN NO-APPLY.
 */
   /* ============== end of validations ==================*/
-  
+
   ASSIGN {&list-4}.
 
   run assign-cust.
@@ -1501,7 +1502,7 @@ DO:
         message "Invalid Sales Rep. Try Help." view-as alert-box error.
         return no-apply.
    end.
-   
+
   {methods/dispflds.i}
 END.
 
@@ -1559,7 +1560,7 @@ DO:
      message "Invalid Tax Code. Try Help." self:screen-value view-as alert-box error.
      return no-apply.
   end.                                     
-                                   
+
   {methods/dispflds.i}
 END.
 
@@ -1673,7 +1674,7 @@ if not avail sys-ctrl then DO TRANSACTION:
    v-prompt          = NO
    sys-ctrl.log-fld  = v-prompt
    sys-ctrl.char-fld = "".
-   
+
   do i = 1 to 8:
     sys-ctrl.char-fld = sys-ctrl.char-fld + string(v-flag[i],"Y/N").
   end. 
@@ -1843,7 +1844,7 @@ PROCEDURE display-field :
          {est/cust-dis.i}
 /*      {custom/dispflds.i} */
     END CASE.
-    
+
   END.
 &ENDIF
 
@@ -1911,7 +1912,7 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  
+
   case cust.active :
         when "A" then cust.active:screen-value in frame {&frame-name} = "(A)ctive".
         when "I" then cust.active:screen-value in frame {&frame-name} = "(I)nactive".
@@ -1967,7 +1968,7 @@ PROCEDURE valid-cr-hold :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:    
@@ -1998,7 +1999,7 @@ PROCEDURE valid-cr-hold-invdays :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   
+
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2042,7 +2043,7 @@ PROCEDURE valid-cr-lim :
        NOT ll-secure                                THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                  = NO
@@ -2074,7 +2075,7 @@ v-valid = YES.
        NOT ll-secure                            THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                = NO
@@ -2105,7 +2106,7 @@ PROCEDURE valid-fin-chg :
        NOT ll-secure                                              THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                   = NO
@@ -2137,7 +2138,7 @@ PROCEDURE valid-inv-meth :
        NOT ll-secure                                                THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                    = NO
@@ -2169,7 +2170,7 @@ PROCEDURE valid-markup :
        NOT ll-secure                                THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                  = NO
@@ -2201,7 +2202,7 @@ PROCEDURE valid-ord-lim :
        NOT ll-secure                                  THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                   = NO
@@ -2233,13 +2234,13 @@ PROCEDURE valid-terms :
        NOT ll-secure                         THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
          ASSIGN
          v-valid                   = NO
          cust.terms:SCREEN-VALUE = cust.terms.
     END. 
-   
+
     IF v-valid                                                                 AND
        NOT CAN-FIND(FIRST terms WHERE terms.t-code EQ cust.terms:SCREEN-VALUE) THEN DO:
 
@@ -2348,7 +2349,7 @@ PROCEDURE validate-cust :
        apply "entry" to cust.state.
        return error.
      end.                                     
- 
+
 
   end.
 

@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:06 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -217,6 +221,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -279,7 +285,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -392,7 +398,7 @@ PROCEDURE chg-method :
   Notes:       
 ------------------------------------------------------------------------------*/
   def output param op-chg-method LIKE carrier.chg-method no-undo.
-  
+
   op-chg-method = IF AVAIL carrier THEN carrier.chg-method ELSE "W".
 
 END PROCEDURE.
@@ -447,9 +453,9 @@ PROCEDURE Is-by-pallet :
   Notes:       
 ------------------------------------------------------------------------------*/
   def output param op-by-pallet as log no-undo.
-  
+
   op-by-pallet = if avail carrier and carrier.by-pallet then yes else no.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

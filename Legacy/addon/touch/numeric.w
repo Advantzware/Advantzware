@@ -214,13 +214,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -245,7 +251,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -282,6 +288,7 @@ END.
 ON CHOOSE OF Btn_Backspace IN FRAME DEFAULT-FRAME /* BACKSPACE */
 DO:
   RUN Apply_Key (SELF:TOOLTIP).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -293,6 +300,7 @@ END.
 ON CHOOSE OF Btn_Clear IN FRAME DEFAULT-FRAME /* CLEAR */
 DO:
   RUN Apply_Key (SELF:TOOLTIP).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -304,6 +312,7 @@ END.
 ON CHOOSE OF Btn_Eight IN FRAME DEFAULT-FRAME /* 8 */
 DO:
   RUN Apply_Key (SELF:LABEL).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -315,6 +324,7 @@ END.
 ON CHOOSE OF Btn_Five IN FRAME DEFAULT-FRAME /* 5 */
 DO:
   RUN Apply_Key (SELF:LABEL).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -326,6 +336,7 @@ END.
 ON CHOOSE OF Btn_Four IN FRAME DEFAULT-FRAME /* 4 */
 DO:
   RUN Apply_Key (SELF:LABEL).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -337,6 +348,7 @@ END.
 ON CHOOSE OF Btn_Minus IN FRAME DEFAULT-FRAME /* - */
 DO:
   RUN Apply_Key (SELF:LABEL).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -348,6 +360,7 @@ END.
 ON CHOOSE OF Btn_Nine IN FRAME DEFAULT-FRAME /* 9 */
 DO:
   RUN Apply_Key (SELF:LABEL).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -359,6 +372,7 @@ END.
 ON CHOOSE OF Btn_One IN FRAME DEFAULT-FRAME /* 1 */
 DO:
   RUN Apply_Key (SELF:LABEL).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -370,6 +384,7 @@ END.
 ON CHOOSE OF Btn_Period IN FRAME DEFAULT-FRAME /* . */
 DO:
   RUN Apply_Key (SELF:LABEL).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -381,6 +396,7 @@ END.
 ON CHOOSE OF Btn_Seven IN FRAME DEFAULT-FRAME /* 7 */
 DO:
   RUN Apply_Key (SELF:LABEL).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -392,6 +408,7 @@ END.
 ON CHOOSE OF Btn_Six IN FRAME DEFAULT-FRAME /* 6 */
 DO:
   RUN Apply_Key (SELF:LABEL).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -403,6 +420,7 @@ END.
 ON CHOOSE OF Btn_Three IN FRAME DEFAULT-FRAME /* 3 */
 DO:
   RUN Apply_Key (SELF:LABEL).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -414,6 +432,7 @@ END.
 ON CHOOSE OF Btn_Two IN FRAME DEFAULT-FRAME /* 2 */
 DO:
   RUN Apply_Key (SELF:LABEL).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -425,6 +444,7 @@ END.
 ON CHOOSE OF Btn_Zero IN FRAME DEFAULT-FRAME /* 0 */
 DO:
   RUN Apply_Key (SELF:LABEL).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -444,8 +464,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -457,6 +479,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
   {touch/kbLanguage.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -474,8 +497,8 @@ PROCEDURE Apply_Key :
   Parameters:  Input Keystroke Value
   Notes:       
 ------------------------------------------------------------------------------*/
-  
-  
+
+
   {touch/applykey.i}
 
 END PROCEDURE.

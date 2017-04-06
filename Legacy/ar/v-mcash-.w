@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:15 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -29,7 +33,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 
 {sys/inc/var.i new shared}
-    
+
 ASSIGN
  cocode = g_company
  locode = g_loc.
@@ -248,7 +252,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -302,7 +306,7 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -457,7 +461,7 @@ PROCEDURE local-assign-record :
         AND reftable.loc      = STRING(ar-mcash.m-no,">>>>>>9")
         AND reftable.code     = ar-mcash.rec_key NO-ERROR.
     IF NOT AVAIL reftable THEN DO:
-      
+
       CREATE reftable.
       ASSIGN
        reftable.reftable = "AR-MCASH"
@@ -483,7 +487,7 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
@@ -620,13 +624,13 @@ PROCEDURE local-update-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
   IF ll-new THEN DO:
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"line-item-target", OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN add-first-line IN WIDGET-HANDLE(char-hdl) (ROWID(ar-mcash)).
-    
+
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-line-target", OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN auto-line-upd IN WIDGET-HANDLE(char-hdl).
@@ -670,7 +674,7 @@ PROCEDURE local-update-record :
          b-reftable.code2 = fl_checkno:SCREEN-VALUE.
          RELEASE b-reftable.
      END.
-  
+
   IF ll-new EQ NO THEN
   DO:
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).

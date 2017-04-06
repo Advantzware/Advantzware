@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:19 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -582,7 +586,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -636,67 +640,67 @@ DO:
            account.lyr[11]
            account.lyr[12]
            account.lyr[13].
-         
+
     IF account.cyr[1]:SENSITIVE THEN
       ASSIGN
        account.cyr[1]:BGCOLOR = 15
        account.cyr[1]:FGCOLOR = 0.
-         
+
     IF account.cyr[2]:SENSITIVE THEN
       ASSIGN
        account.cyr[2]:BGCOLOR = 15
        account.cyr[2]:FGCOLOR = 0.
-         
+
     IF account.cyr[3]:SENSITIVE THEN
       ASSIGN
        account.cyr[3]:BGCOLOR = 15
        account.cyr[3]:FGCOLOR = 0.
-         
+
     IF account.cyr[4]:SENSITIVE THEN
       ASSIGN
        account.cyr[4]:BGCOLOR = 15
        account.cyr[4]:FGCOLOR = 0.
-         
+
     IF account.cyr[5]:SENSITIVE THEN
       ASSIGN
        account.cyr[5]:BGCOLOR = 15
        account.cyr[5]:FGCOLOR = 0.
-         
+
     IF account.cyr[6]:SENSITIVE THEN
       ASSIGN
        account.cyr[6]:BGCOLOR = 15
        account.cyr[6]:FGCOLOR = 0.
-         
+
     IF account.cyr[7]:SENSITIVE THEN
       ASSIGN
        account.cyr[7]:BGCOLOR = 15
        account.cyr[7]:FGCOLOR = 0.
-         
+
     IF account.cyr[8]:SENSITIVE THEN
       ASSIGN
        account.cyr[8]:BGCOLOR = 15
        account.cyr[8]:FGCOLOR = 0.
-         
+
     IF account.cyr[9]:SENSITIVE THEN
       ASSIGN
        account.cyr[9]:BGCOLOR = 15
        account.cyr[9]:FGCOLOR = 0.
-         
+
     IF account.cyr[10]:SENSITIVE THEN
       ASSIGN
        account.cyr[10]:BGCOLOR = 15
        account.cyr[10]:FGCOLOR = 0.
-         
+
     IF account.cyr[11]:SENSITIVE THEN
       ASSIGN
        account.cyr[11]:BGCOLOR = 15
        account.cyr[11]:FGCOLOR = 0.
-         
+
     IF account.cyr[12]:SENSITIVE THEN
       ASSIGN
        account.cyr[12]:BGCOLOR = 15
        account.cyr[12]:FGCOLOR = 0.
-         
+
     IF account.cyr[13]:SENSITIVE THEN
       ASSIGN
        account.cyr[13]:BGCOLOR = 15
@@ -788,7 +792,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -897,7 +901,7 @@ PROCEDURE assign-ctrl-o :
 
         account.lyr[li] = lv-lyr[li].
       END.
-    
+
       FIND CURRENT account NO-LOCK.
     END.
   END.
@@ -1097,7 +1101,7 @@ PROCEDURE enable-account :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE tb_not-disc.
 
@@ -1137,8 +1141,8 @@ PROCEDURE local-assign-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR ll-not-disc AS LOG NO-UNDO.
-  
-  
+
+
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
     ll-not-disc = tb_not-disc:SCREEN-VALUE EQ "yes".
@@ -1319,7 +1323,7 @@ PROCEDURE local-update-record :
   END.
 
   RUN disable-ctrl-o. 
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

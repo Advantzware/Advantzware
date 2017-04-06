@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:07 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -264,6 +268,8 @@ END.
 {methods/template/browser.i}
 {custom/yellowColumns.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -331,7 +337,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -508,7 +514,7 @@ PROCEDURE calc-cost :
 
   DEF BUFFER bf-rm-bin FOR rm-bin.
   DEF BUFFER bf-item FOR item.
-    
+
 
   v-override = NO.
 
@@ -520,7 +526,7 @@ PROCEDURE calc-cost :
         VIEW-AS ALERT-BOX ERROR.
     RETURN NO-APPLY.
   END.
-     
+
   IF v-override THEN DO:
     /*find bf-rm-bin where recid(bf-rm-bin) = recid(rm-bin).
     lv-cost = rm-bin.cost.

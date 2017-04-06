@@ -4,6 +4,10 @@
           jobs             PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:11 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -34,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i} /* added by script _globdefs.p on 03.28.2017 @ 10:42:30 am */
 
 DEFINE VARIABLE jobs_cadcam_status AS CHARACTER NO-UNDO.
 DEFINE VARIABLE jobs_scheduling_status AS CHARACTER NO-UNDO.
@@ -64,34 +69,34 @@ define buffer bf-jobs for jobs.  /* for auto-find */
 jobs.cadcam_status jobs.scheduling_status jobs.customer jobs.name 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH jobs ~
-      WHERE ((jobs.jobs.cadcam_status = "Pending" ~
+      WHERE ((jobs.cadcam_status = "Pending" ~
  OR jobs.scheduling_status = "Pending") ~
 and toggle-1 = no) ~
- OR ((jobs.jobs.cadcam_status = "" ~
+ OR ((jobs.cadcam_status = "" ~
  AND jobs.scheduling_status = "") ~
 and toggle-1 = no) ~
 or ~
-((jobs.jobs.cadcam_status = "Exported" or jobs.cadcam_status = "Printed")  ~
+((jobs.cadcam_status = "Exported" or jobs.cadcam_status = "Printed")  ~
  AND jobs.scheduling_status <> "Pending" ~
 and toggle-1 = yes)  ~
 OR ~
- ((jobs.jobs.cadcam_status <> "Pending"  ~
+ ((jobs.cadcam_status <> "Pending"  ~
 AND (jobs.scheduling_status = "Exported" or scheduling_status = "Printed")) ~
 and toggle-1 = yes) ~
  NO-LOCK
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH jobs ~
-      WHERE ((jobs.jobs.cadcam_status = "Pending" ~
+      WHERE ((jobs.cadcam_status = "Pending" ~
  OR jobs.scheduling_status = "Pending") ~
 and toggle-1 = no) ~
- OR ((jobs.jobs.cadcam_status = "" ~
+ OR ((jobs.cadcam_status = "" ~
  AND jobs.scheduling_status = "") ~
 and toggle-1 = no) ~
 or ~
-((jobs.jobs.cadcam_status = "Exported" or jobs.cadcam_status = "Printed")  ~
+((jobs.cadcam_status = "Exported" or jobs.cadcam_status = "Printed")  ~
  AND jobs.scheduling_status <> "Pending" ~
 and toggle-1 = yes)  ~
 OR ~
- ((jobs.jobs.cadcam_status <> "Pending"  ~
+ ((jobs.cadcam_status <> "Pending"  ~
 AND (jobs.scheduling_status = "Exported" or scheduling_status = "Printed")) ~
 and toggle-1 = yes) ~
  NO-LOCK.
@@ -262,6 +267,8 @@ END.
 
 {src/adm/method/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -291,29 +298,29 @@ ASSIGN
      _TblList          = "jobs.jobs"
      _Options          = "NO-LOCK"
      _TblOptList       = "USED"
-     _Where[1]         = "((jobs.jobs.cadcam_status = ""Pending""
- OR jobs.jobs.scheduling_status = ""Pending"")
+     _Where[1]         = "((jobs.cadcam_status = ""Pending""
+ OR jobs.scheduling_status = ""Pending"")
 and toggle-1 = no)
- OR ((jobs.jobs.cadcam_status = """"
- AND jobs.jobs.scheduling_status = """")
+ OR ((jobs.cadcam_status = """"
+ AND jobs.scheduling_status = """")
 and toggle-1 = no)
 or
-((jobs.jobs.cadcam_status = ""Exported"" or jobs.jobs.cadcam_status = ""Printed"") 
- AND jobs.jobs.scheduling_status <> ""Pending""
+((jobs.cadcam_status = ""Exported"" or jobs.cadcam_status = ""Printed"") 
+ AND jobs.scheduling_status <> ""Pending""
 and toggle-1 = yes) 
 OR
- ((jobs.jobs.cadcam_status <> ""Pending"" 
+ ((jobs.cadcam_status <> ""Pending"" 
 AND (jobs.scheduling_status = ""Exported"" or jobs.scheduling_status = ""Printed""))
 and toggle-1 = yes)
 "
-     _FldNameList[1]   = jobs.jobs.job
-     _FldNameList[2]   = jobs.jobs.estimate
-     _FldNameList[3]   > jobs.jobs.cadcam_status
+     _FldNameList[1]   = jobs.job
+     _FldNameList[2]   = jobs.estimate
+     _FldNameList[3]   > jobs.cadcam_status
 "jobs.cadcam_status" "CADCAM" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[4]   > jobs.jobs.scheduling_status
+     _FldNameList[4]   > jobs.scheduling_status
 "jobs.scheduling_status" "Scheduling" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[5]   = jobs.jobs.customer
-     _FldNameList[6]   > jobs.jobs.name
+     _FldNameList[5]   = jobs.customer
+     _FldNameList[6]   > jobs.name
 "jobs.name" ? "X(31)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
@@ -326,7 +333,7 @@ and toggle-1 = yes)
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -338,18 +345,18 @@ ON return OF auto-find IN FRAME F-Main /* Search  Job */
 DO:
    assign auto-find.
    def var lv-recid as recid no-undo.
- 
+
  /*  &scoped-define key-phrase trim(jobs.job) begins auto-find
  */
 
-   
+
    find first bf-jobs where trim(bf-jobs.job) begins auto-find no-lock no-error.
    lv-recid = if avail bf-jobs then recid(bf-jobs) else ?.
-  
+
    if lv-recid <> ? then do:
        reposition {&browse-name} to recid lv-recid.
        apply "value-changed" to {&browse-name}.
-       
+
     /*   auto-find = "".   */
        disp auto-find with frame {&frame-name}.
    end.
@@ -419,7 +426,7 @@ ON CHOOSE OF btn-clear IN FRAME F-Main /* Clear Search */
 DO:
     assign auto-find = "".
     display auto-find with frame {&frame-name}.
-      
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -486,13 +493,13 @@ PROCEDURE Check_Jobs :
 ------------------------------------------------------------------------------*/
   def input  parameter ip-rowid as rowid no-undo.
   def output parameter op-valid as log no-undo.
-  
+
 
   do with frame {&frame-name}:
     reposition {&browse-name} to rowid ip-rowid no-error.
-  
+
     op-valid = not error-status:error.
-    
+
     if op-valid then {&browse-name}:delete-current-row().
   end.  
 END PROCEDURE.
@@ -526,9 +533,9 @@ PROCEDURE Position_Jobs :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER jobs-rowid AS ROWID NO-UNDO.
-  
+
   {&OPEN-QUERY-{&BROWSE-NAME}}
-    
+
   IF jobs-rowid NE ? THEN
   REPOSITION {&BROWSE-NAME} TO ROWID jobs-rowid.
   run dispatch ('row-changed').

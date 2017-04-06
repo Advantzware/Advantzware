@@ -252,6 +252,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -388,6 +399,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:44 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -399,6 +411,7 @@ END.
 ON CHOOSE OF Btn_Help IN FRAME DEFAULT-FRAME /* Help */
 DO: /* Call Help Function (or a simple message). */
 MESSAGE "Help for File: {&FILE-NAME}":U VIEW-AS ALERT-BOX INFORMATION.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:44 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -568,6 +581,7 @@ DO:
   SESSION:SET-WAIT-STATE("").
   message num-imports " Contacts Downloaded." view-as alert-box.
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:44 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -669,8 +683,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:44 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -694,6 +710,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    tit-code:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE
    list-name:HIDDEN IN FRAME DEFAULT-FRAME          = TRUE.
    APPLY "entry" TO begin_cust-no.
+    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:29 am */
+    {methods/setButton.i Btn_Help "Help"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:29 am */
+    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:29 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:44 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

@@ -4,6 +4,10 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:14 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -440,7 +444,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -664,7 +668,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -711,7 +715,7 @@ PROCEDURE disable-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE fi_shift {&TIME-FIELDS} WITH FRAME {&FRAME-NAME}.
     DISABLE rsAllOrSpecificDays tgSun tgMon tgTues tgWeds tgThur tgFri tgSat
@@ -754,9 +758,9 @@ PROCEDURE enable-proc :
     ENABLE fi_shift.
   END.*/
   DO WITH FRAME {&FRAME-NAME}:
-  
+
    ENABLE rsAllOrSpecificDays.
-    
+
     IF rsAllOrSpecificDays:SCREEN-VALUE EQ "ALL" THEN
       DISABLE tgSun tgMon tgTues tgWeds tgThur tgFri tgSat
       WITH FRAME {&FRAME-NAME}.
@@ -764,7 +768,7 @@ PROCEDURE enable-proc :
       ENABLE tgSun tgMon tgTues tgWeds tgThur tgFri tgSat
         WITH FRAME {&FRAME-NAME}.
   END.
- 
+
     IF adm-new-record THEN DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
        rsAllOrSpecificDays:SCREEN-VALUE = "All"
@@ -788,23 +792,23 @@ PROCEDURE local-assign-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var ll-new-record as log no-undo.
-  
+
   ll-new-record = adm-new-record.
   /* Code placed here will execute PRIOR to standard behavior. */
- 
+
 
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN rsAllOrSpecificDays tgSun tgMon tgTues tgWeds tgThur tgFri tgSat
     .
   END.
 
- 
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/assign/shifts.i}
- 
+
   if not ll-new-record then do:
     {custom/set_time2.i
       &field="shifts.lunch_start"
@@ -813,7 +817,7 @@ PROCEDURE local-assign-record :
       &second="lunch_start_second"
       &ampm="lunch_start_ampm"
      }
-  
+
      {custom/set_time2.i
       &field="shifts.lunch_end"
       &hour="lunch_end_hour"
@@ -839,7 +843,7 @@ PROCEDURE local-assign-record :
   end.
 
   shifts.shift = TRIM(STRING(fi_shift,">>")).
- 
+
 
 END PROCEDURE.
 
@@ -892,7 +896,7 @@ PROCEDURE local-create-record :
       &second="lunch_start_second"
       &ampm="lunch_start_ampm"
   }
-  
+
   {custom/set_time2.i
       &field="shifts.lunch_end"
       &hour="lunch_end_hour"
@@ -917,7 +921,7 @@ DEF VAR i AS INT NO-UNDO.
   IF AVAIL shifts AND NOT adm-new-record THEN DO:
     fi_shift = INT(shifts.shift) NO-ERROR.
   END.
-  
+
   {custom/get_time2.i
       &field="shifts.lunch_start"
       &hour="lunch_start_hour"
@@ -952,7 +956,7 @@ DEF VAR i AS INT NO-UNDO.
     FIND FIRST reftable WHERE reftable.reftable EQ "ShiftDays"
        AND reftable.CODE EQ shifts.rec_key
     NO-LOCK NO-ERROR.
-    
+
     IF AVAIL reftable THEN DO:
 
   ENABLE tgSun tgMon tgTues tgWeds tgThur tgFri tgSat
@@ -1063,7 +1067,7 @@ DEF VAR char-hdl AS CHAR NO-UNDO.
         reftable.CODE = shifts.rec_key.
   END.
 
-  
+
   IF adm-new-record THEN DO WITH FRAME {&FRAME-NAME}:
       ASSIGN reftable.code2 =  cDaysList
              reftable.loc = STRING(IF cUseDayListScreenValue EQ "Specific" THEN 1 ELSE 0).
@@ -1090,7 +1094,7 @@ DEF VAR char-hdl AS CHAR NO-UNDO.
       RUN refresh-and-reposition IN WIDGET-HANDLE(char-hdl) (ROWID(shifts)). 
   END.
   ELSE DO:
-  
+
     reftable.code2 =  STRING(tgSun) + "," +
                       STRING(tgMon) + "," +
                       STRING(tgTues) + "," +
@@ -1159,7 +1163,7 @@ PROCEDURE valid-fi_shift :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
-      
+
   DEF BUFFER b-shifts FOR shifts.
 
 

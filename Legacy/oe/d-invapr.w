@@ -124,6 +124,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -154,7 +155,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -189,7 +190,7 @@ DO:
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"row-id-source",OUTPUT char-hdl).
   RUN get-row-id IN WIDGET-HANDLE(char-hdl) (OUTPUT io-rowid-list, OUTPUT io-qty-list).
   opr-rowid-list = io-rowid-list.
-  
+
 
   APPLY "go":U TO FRAME {&FRAME-NAME}.
 END.
@@ -215,11 +216,11 @@ io-rowid = ?.
 IF AVAIL cust THEN DO:
   FRAME {&FRAME-NAME}:TITLE = TRIM(FRAME {&FRAME-NAME}:TITLE) + " " +
                               TRIM(cust.cust-no).
- 
+
   {src/adm/template/dialogmn.i}
 END.
 
-  
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -363,7 +364,7 @@ PROCEDURE get-item-no :
 
   ASSIGN
    op-ord-no = inv-head.bol-no.
-   
+
 
 END PROCEDURE.
 

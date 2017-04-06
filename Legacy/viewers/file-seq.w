@@ -40,7 +40,7 @@ CREATE WIDGET-POOL.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartViewer
+&Scoped-define PROCEDURE-TYPE SmartPanel
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
@@ -155,13 +155,14 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{src/adm/method/viewer.i}
+{Advantzware/WinKit/winkit-panel.i}
+{src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -177,18 +178,18 @@ ON CHOOSE OF btn-re-seq IN FRAME F-Main /* Proceed Re-Sequence */
 DO:
      def buffer bf-file for file.
      def var i as int no-undo.
-     
+
      Message "Are you sure you want to re-sequence reference file?" 
              view-as alert-box question button yes-no update ll-ans as log.
      if not ll-ans then return no-apply.
-     
+
      session:set-wait-state("General").
      i = 1000.
      for each bf-file where bf-file.seq < 1000 by bf-file.grp by bf-file.seq:
          assign i = i + 5
                 bf-file.seq = i. 
                 .
-         
+
      end.
      for each bf-file where bf-file.seq > 1000 by bf-file.seq:
          assign bf-file.seq = bf-file.seq - 1000.
@@ -196,6 +197,7 @@ DO:
      end.
      session:set-wait-state("").
      message "Re-Sequence is completed." view-as alert-box.
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -212,7 +214,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

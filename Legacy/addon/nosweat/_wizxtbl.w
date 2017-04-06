@@ -196,7 +196,7 @@ ASSIGN
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -234,10 +234,11 @@ END.
 ON CHOOSE OF b_AddXT IN FRAME DEFAULT-FRAME /* Add External Tables */
 DO:
   DEFINE VARIABLE arg AS CHARACTER.
-  
+
   /* Call External Tables dialog */
   RUN adeuib/_uib_dlg.p (INT(proc-recid), "EXTERNAL-TABLES":U, INPUT-OUTPUT arg).
   RUN Check_TblList.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -249,6 +250,7 @@ END.
 ON CHOOSE OF b_HelpXT IN FRAME DEFAULT-FRAME /* Help on External Tables */
 DO:
   RUN adecomm/_adehelp.p ("UIB":U, "CONTEXT":U, {&Wiz_External_Tables}, ?).  
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -274,11 +276,13 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* Get Procedure context (recid of procedure record in the UIB) */
 RUN adeuib/_uibinfo.p(?, "PROCEDURE ?":U, "PROCEDURE":U, OUTPUT proc-recid).
 RUN Check_TblList.
-  
+
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -290,6 +294,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
   RUN Load_Image.
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

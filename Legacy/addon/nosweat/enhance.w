@@ -524,7 +524,7 @@ THEN WINDOW-1:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -536,6 +536,7 @@ THEN WINDOW-1:HIDDEN = no.
 ON CHOOSE OF Btn_OK IN FRAME FRAME-A /* OK */
 DO:
   APPLY "CHOOSE" TO Btn_Save.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -575,6 +576,7 @@ DO:
   widget-list:SCREEN-VALUE = widget-list:ENTRY(1).
   APPLY "VALUE-CHANGED" TO widget-list.
   APPLY "ENTRY" TO widget-list.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -588,6 +590,7 @@ DO:
   ASSIGN
     m-example:BGCOLOR = ?
     w-bgc[list-pos] = ?.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,6 +604,7 @@ DO:
   ASSIGN
     m-example:FGCOLOR = ?
     w-fgc[list-pos] = ?.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -615,6 +619,7 @@ DO:
     m-example:FONT = ?
     w-font[list-pos] = ?
     widget-fonts:SCREEN-VALUE = ?.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -656,6 +661,7 @@ DO:
   END.
   Btn_Cancel:LABEL = "&Close".
   DISABLE Btn_Reset WITH FRAME {&FRAME-NAME}.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1073,8 +1079,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+END.
 
 /* These events will close the window and terminate the procedure.      */
 /* (NOTE: this will override any user-defined triggers previously       */
@@ -1105,6 +1113,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN Get_Fonts.
   APPLY "CHOOSE" TO Btn_Reset.
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1187,7 +1196,7 @@ PROCEDURE Get_Fonts :
     GET-KEY-VALUE SECTION "fonts" KEY "font" + STRING(i) VALUE x.
     ldummy = widget-fonts:ADD-LAST(STRING(i) + ", " + x).
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

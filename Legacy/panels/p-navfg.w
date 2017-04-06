@@ -196,6 +196,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB P-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -230,7 +231,7 @@ ASSIGN
 */  /* FRAME Panel-Frame */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -245,6 +246,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"navigation-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN Navigate-FG IN WIDGET-HANDLE(char-hdl) ("FIRST").
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:44 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -261,6 +263,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"navigation-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN Navigate-FG IN WIDGET-HANDLE(char-hdl) ("LAST").
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:44 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -277,6 +280,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"navigation-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN Navigate-FG IN WIDGET-HANDLE(char-hdl) ("NEXT").
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:44 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -293,6 +297,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"navigation-target",OUTPUT char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
        RUN Navigate-FG IN WIDGET-HANDLE(char-hdl) ("PREV").
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:44 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -391,7 +396,7 @@ PROCEDURE local-initialize :
        RUN set-buttons (adm-panel-state).
      END.
   END.
- 
+
 
 END PROCEDURE.
 
@@ -413,8 +418,8 @@ PROCEDURE local-view :
   /* Code placed here will execute AFTER standard behavior.    */
   adm-panel-state = "enable-all".
   RUN set-buttons ("enable-all").                                
-  
-  
+
+
 
 
 
@@ -454,14 +459,14 @@ MESSAGE "set-buttons:" first-last "," RETURN-VALUE SKIP
 DO WITH FRAME Panel-Frame:
 
   IF first-last = 'disable-all':U THEN DO:
-  
+
     /* all the buttons are disabled, which might happen in the case of */
     /* only a single record available in a table.                      */
 
 &IF LOOKUP("Btn-First":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-First:SENSITIVE = NO.
 &ENDIF
-      
+
 &IF LOOKUP("Btn-Last":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Last:SENSITIVE = NO.
 &ENDIF
@@ -473,7 +478,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Next":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Next:SENSITIVE = NO.
 &ENDIF    
-    
+
   END. /* first-last = disable-all */
 
   ELSE IF first-last = 'enable-all':U THEN DO: /* This was a next or prev-enable all */
@@ -481,7 +486,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-First":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-First:SENSITIVE = YES.
 &ENDIF
-    
+
 &IF LOOKUP("Btn-Last":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Last:SENSITIVE = YES.
 &ENDIF

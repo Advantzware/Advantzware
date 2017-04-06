@@ -51,7 +51,7 @@ DEF VAR init-dir AS CHA NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -101,7 +101,7 @@ FORMAT
   oe-bolh.ship-id  space(2)
   oe-bolh.deleted AT 106 format "*DELETED*/ "
   skip(1)
-  
+
   header "Date         BOL.#  Carrier  Trailer     Freight    Rate  Tot WT  Cust#       Ship#   "
          "----------  ------  -------  --------  ---------  ------  ------  --------    --------"
 
@@ -384,7 +384,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -469,7 +469,7 @@ DO:
 
   run check-date.
   if v-invalid then return no-apply.
-      
+
   assign
    rd-dest
    tran-period
@@ -482,7 +482,7 @@ DO:
    v-no-post  = 0
    v-tot-post = 0
    v-tried    = no.
-       
+
   run run-report. 
 
   case rd-dest:
@@ -585,7 +585,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Transaction Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -632,14 +632,14 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
   assign
    tran-date   = today
    begin_date  = TODAY
    end_date    = TODAY
    c-win:TITLE = IF ip-post THEN "BOL Posting/Create Invoice"
                             ELSE "BOL Edit List".
-  
+
   find first oe-ctrl where oe-ctrl.company eq cocode no-lock no-error.
   v-u-inv = oe-ctrl.u-inv.
 
@@ -654,23 +654,23 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      sys-ctrl.name    = "BOLPOST"
      sys-ctrl.descrip = "Post BOL if BOL Qty > Bin Qty"
      choice           = yes.
-   
+
     MESSAGE sys-ctrl.descrip
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE choice.
-  
+
     if not choice then sys-ctrl.char-fld eq "Bin>Qty".
   end.
   v-check-qty = sys-ctrl.char-fld eq "Bin>Qty".
-    
+
   RUN enable_UI.
 
   RUN check-date.
-      
+
   IF NOT ip-post THEN DO WITH FRAME {&FRAME-NAME}:  
     DISABLE tran-date tran-period.
   END.
-  
+
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -691,7 +691,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -791,7 +791,7 @@ PROCEDURE exception-rpt :
 {sys/form/r-top3w.f}
 
 FORM HEADER SKIP(1) WITH FRAME r-top.
- 
+
 
   FIND first period                   
       where period.company eq gcompany
@@ -802,7 +802,7 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
   assign
    str-tit2 = "BOL - Insufficient Inventory Report"
    {sys/inc/ctrtext.i str-tit2 112}
- 
+
    str-tit3 = "Period " + STRING(tran-period,"99") + " - " +
               IF AVAIL period THEN
                 (STRING(period.pst) + " to " + STRING(period.pend)) ELSE ""
@@ -811,9 +811,9 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
   {sys/inc/print1.i}
 
   {sys/inc/outprint.i value(lines-per-page)}
-  
+
   display with frame r-top.
-  
+
   for each w-except,
 
       first oe-bolh
@@ -861,7 +861,7 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
             w-except.weight     @ oe-boll.weight
         with frame boll.
     down with frame boll.
-    
+
     put skip(1).
   END.
 
@@ -878,7 +878,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -889,9 +889,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -910,7 +910,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -973,16 +973,16 @@ do TRANSACTION.
             (oe-boll.loc     eq "" or
              oe-boll.loc-bin eq ""))
       use-index post,
-      
+
       first cust
       where cust.company eq cocode
         and cust.cust-no eq oe-bolh.cust-no
       no-lock
-      
+
       break by oe-bolh.bol-no
             by oe-bolh.ord-no
             by oe-bolh.rel-no.
-            
+
     if first-of(oe-bolh.bol-no) and v-u-inv AND v-check-qty then
     for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK,
 
@@ -998,7 +998,7 @@ do TRANSACTION.
               by oe-boll.loc
               by oe-boll.loc-bin
               by oe-boll.tag:
-             
+
       find first w-fg-bin
           where w-fg-bin.company eq cocode
             and w-fg-bin.i-no    eq oe-boll.i-no
@@ -1020,7 +1020,7 @@ do TRANSACTION.
          w-fg-bin.tag     = oe-boll.tag.
       end.
       w-fg-bin.qty = w-fg-bin.qty + oe-boll.qty.
-              
+
       if last-of(oe-boll.tag) then do:
         find first fg-bin
             where fg-bin.company eq cocode
@@ -1031,7 +1031,7 @@ do TRANSACTION.
               and fg-bin.loc-bin eq oe-boll.loc-bin
               and fg-bin.tag     eq oe-boll.tag
             no-lock no-error.
-            
+
         if not avail fg-bin or fg-bin.qty lt w-fg-bin.qty then do:
           create w-except.
           buffer-copy oe-boll to w-except.
@@ -1067,7 +1067,7 @@ do TRANSACTION.
           and oe-ordl.line    eq oe-boll.line
           and oe-ordl.i-no    eq oe-boll.i-no
         use-index ord-no no-lock,
-        
+
         first itemfg
         where itemfg.company eq cocode
           and itemfg.i-no    eq oe-boll.i-no
@@ -1084,7 +1084,7 @@ do TRANSACTION.
 
           find last fg-rcpth use-index r-no no-lock no-error.
           if avail fg-rcpth and fg-rcpth.r-no gt v-rcpt-no THEN v-rcpt-no = fg-rcpth.r-no.
-              
+
           create fg-rctd.
           assign
            fg-rctd.r-no      = v-rcpt-no + 1
@@ -1104,7 +1104,7 @@ do TRANSACTION.
            fg-rctd.t-qty     = oe-boll.qty
            fg-rctd.loc2      = shipto.loc
            fg-rctd.loc-bin2  = shipto.loc-bin.
-          
+
           find first fg-bin         /* Make sure we have a bin to relieve */
               where fg-bin.company eq cocode
                 and fg-bin.i-no    eq oe-boll.i-no
@@ -1161,7 +1161,7 @@ do TRANSACTION.
              xfg-bin.std-var-cost = fg-bin.std-var-cost
              xfg-bin.std-fix-cost = fg-bin.std-fix-cost.
           end.
-          
+
           ASSIGN 
            fg-rctd.pur-uom  = fg-bin.pur-uom
            fg-rctd.std-cost = fg-bin.std-tot-cost.
@@ -1174,22 +1174,22 @@ do TRANSACTION.
 
           assign
            fg-rctd.ext-cost = fg-rctd.ext-cost * fg-rctd.t-qty
-           
+
            oe-bolh.posted = yes
            oe-boll.posted = yes.
         end.  
       end.
-      
+
       else do:
          {oe/seq-bolh.i}
       end.
     end.      
   end. /* for each oe-bolh */
-  
+
   EMPTY TEMP-TABLE w-fg-bin.
-  
+
   run oe/oe-bolp3.p (v-term).
-  
+
   hide frame post no-pause.
 end. /* post-blok*/
 
@@ -1209,7 +1209,7 @@ for each oe-bolh
   for each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no:
     delete oe-boll.
   end. /* each oe-boll */
-  
+
   delete oe-bolh.
 end. /* each oe-bolh */
 
@@ -1243,11 +1243,11 @@ PROCEDURE run-report :
 /* -------------------------------------------------- oe/oe-bolp2.p 07/97 FWK */
 /* BILL OF LADING POSTING REPORT MODULE 2 - O/E Module                        */
 /* -------------------------------------------------------------------------- */
-   
+
 {sys/form/r-top3w.f}
 
 FORM HEADER SKIP(1) WITH FRAME r-top.
- 
+
 
   FIND first period                   
       where period.company eq gcompany
@@ -1258,7 +1258,7 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
   assign
    str-tit2 = c-win:TITLE
    {sys/inc/ctrtext.i str-tit2 112}
- 
+
    str-tit3 = "Period " + STRING(tran-period,"99") + " - " +
               IF AVAIL period THEN
                 (STRING(period.pst) + " to " + STRING(period.pend)) ELSE ""
@@ -1269,7 +1269,7 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
   {sys/inc/outprint.i value(lines-per-page)}
 
   if td-show-parm then run show-param.
-  
+
   display with frame r-top.
 
   for each oe-bolh
@@ -1362,7 +1362,7 @@ FORM HEADER SKIP(1) WITH FRAME r-top.
           run create-nopost ("Finish Good Item Was Not Found").
           NEXT mainblok.
         end.
-            
+
         if oe-boll.loc eq "" or oe-boll.loc-bin eq "" THEN do:
           run create-nopost ("Warehouse or Bin is Blank").
           NEXT mainblok.
@@ -1450,11 +1450,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1482,23 +1482,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

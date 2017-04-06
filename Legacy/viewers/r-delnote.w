@@ -6,7 +6,7 @@
 /*------------------------------------------------------------------------
 
   File: viewers\r-delnote.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -352,6 +352,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -582,7 +583,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -615,11 +616,11 @@ DO:
       FOR EACH notes WHERE 
           notes.rec_key = ip-rec-key AND
           notes.note_type <> "S":
-     
+
           DELETE notes.
       END.
       SESSION:SET-WAIT-STATE(""). 
-     
+
       MESSAGE "All Notes Deleted."
           VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
@@ -644,7 +645,7 @@ DO:
 
    IF ll-ans THEN
       DO WITH FRAME {&FRAME-NAME}:
-      
+
          ASSIGN
             toggle-1 toggle-2 toggle-3 toggle-4 toggle-5 toggle-6
             toggle-7 toggle-8 toggle-9 toggle-10 toggle-11 toggle-12
@@ -659,7 +660,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 1
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -672,7 +673,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 2
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -685,7 +686,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 3
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -698,7 +699,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 4
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -711,7 +712,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 5
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -724,7 +725,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 6
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -737,7 +738,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 7
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -750,7 +751,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 8
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -763,7 +764,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 9
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -776,7 +777,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 10
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -789,7 +790,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 11
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -802,7 +803,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 12
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -815,7 +816,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 13
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -828,7 +829,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 14
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -841,7 +842,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 15
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -854,7 +855,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 16
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -867,7 +868,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 17
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -880,7 +881,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 18
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -893,7 +894,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 19
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -906,7 +907,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 20
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -919,7 +920,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 21
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -932,7 +933,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 22
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -945,7 +946,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 23
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -958,7 +959,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 24
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -971,7 +972,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 25
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -984,7 +985,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 26
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -997,7 +998,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 27
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -1010,7 +1011,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 28
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -1023,7 +1024,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 29
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -1036,7 +1037,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 30
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -1049,7 +1050,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 31
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -1062,7 +1063,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 32
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -1075,7 +1076,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 33
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -1088,7 +1089,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 34
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -1101,7 +1102,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 35
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -1114,7 +1115,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 36
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -1127,7 +1128,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 37
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -1140,7 +1141,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 38
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -1153,7 +1154,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 39
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -1166,7 +1167,7 @@ DO:
             FIND FIRST tt-dept WHERE
                  tt-dept.COUNT = 40
                  NO-ERROR.
-                 
+
               IF AVAIL tt-dept THEN
               DO:
                  v-dept-list = tt-dept.dept + ",".
@@ -1180,7 +1181,7 @@ DO:
              notes.note_type <> "S" AND
              notes.note_code NE "" AND
              LOOKUP(notes.note_code,v-dept-list) GT 0:
-     
+
              DELETE notes.
          END.
          SESSION:SET-WAIT-STATE("").
@@ -1307,11 +1308,11 @@ EMPTY TEMP-TABLE tt-dept.
    END.
 
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       FOR EACH tt-dept:
-     
+
           CASE tt-dept.COUNT:
-     
+
              WHEN 1 THEN
                 ASSIGN toggle-1:LABEL = tt-dept.dept
                        toggle-1:SENSITIVE = YES

@@ -6,7 +6,7 @@
 /*------------------------------------------------------------------------
 
   File: addon\touch\d-clocki.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
@@ -120,7 +120,7 @@ ASSIGN
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -243,7 +243,7 @@ PROCEDURE calc-dock-time :
 ------------------------------------------------------------------------------*/
   def input parameter ip-status as cha no-undo.
   def input-output parameter iop-time as int no-undo.
-  
+
   def var li-hour as int no-undo.
   def var li-mini as int no-undo.
   def var li-dmin as int no-undo.
@@ -254,14 +254,14 @@ PROCEDURE calc-dock-time :
 
 
  /* RUN Get-Shift(company_code,emplogin.machine,stoptime,"END",OUTPUT shiftvar). */
-  find first emptrack.employee where emptrack.employee.company = company_code 
-                                 and emptrack.employee.employee = employee_code
+  find first employee where employee.company = company_code 
+                                 and employee.employee = employee_code
                     no-lock no-error.
-  if avail emptrack.employee and emptrack.employee.dock-time = 0 then return.
-   
+  if avail employee and employee.dock-time = 0 then return.
+
   ASSIGN
-    li-docktime = if avail emptrack.employee then emptrack.employee.dock-time else 15  /* 15 min */
-  
+    li-docktime = if avail employee then employee.dock-time else 15  /* 15 min */
+
   /* login In */
   li-hour = truncate(iop-time / 3600,0).
   li-mini = iop-time mod 3600.
@@ -270,7 +270,7 @@ PROCEDURE calc-dock-time :
   li-dmin = li-dtim * li-docktime.
   li-dout = trunc(li-mini / li-docktime,0).
   li-out-min = li-dout * li-docktime.
-  
+
   if ip-status = "login" then iop-time = li-hour * 3600 + li-dmin * 60.
   else iop-time = li-hour * 3600 + li-out-min * 60.
 
@@ -340,12 +340,12 @@ ASSIGN
   employee_code = v-employee.
   machine_code = "CLOCK".
 
-FIND emptrack.employee WHERE
-     emptrack.employee.company = company_code AND
-     emptrack.employee.employee = employee_code
+FIND employee WHERE
+     employee.company = company_code AND
+     employee.employee = employee_code
      NO-LOCK NO-ERROR.
 
-IF NOT AVAILABLE emptrack.employee THEN DO:
+IF NOT AVAILABLE employee THEN DO:
    MESSAGE "Invalid Employee ID. " VIEW-AS ALERT-BOX ERROR.
    RETURN ERROR.
 END.
@@ -354,13 +354,13 @@ run calc-dock-time (activity_status, input-output li-time).
 /*========== clock in */
 IF activity_status = 'login' THEN
 DO:
-    IF CAN-FIND(FIRST emptrack.emplogin WHERE
-       emptrack.emplogin.company = company_code AND
-       emptrack.emplogin.employee = employee_code AND
-       emptrack.emplogin.machine = machine_code AND
-       emptrack.emplogin.END_date EQ ? AND
-       emptrack.emplogin.end_time = 0 AND
-       emptrack.emplogin.total_time = 0) THEN DO:
+    IF CAN-FIND(FIRST emplogin WHERE
+       emplogin.company = company_code AND
+       emplogin.employee = employee_code AND
+       emplogin.machine = machine_code AND
+       emplogin.END_date EQ ? AND
+       emplogin.end_time = 0 AND
+       emplogin.total_time = 0) THEN DO:
        MESSAGE "Already Clocked In. " VIEW-AS ALERT-BOX ERROR.
        RETURN ERROR.
     END.
@@ -374,7 +374,7 @@ DO:
             b-emplogin.END_date NE ?
             USE-INDEX pi-emplogin
             NO-LOCK NO-ERROR.
-    
+
        IF AVAIL b-emplogin THEN
        DO:
           IF emplogin.start_date = b-emplogin.end_date THEN
@@ -383,11 +383,11 @@ DO:
              li-diff-time = (86400 - b-emplogin.end_time)
                           + (emplogin.start_date - b-emplogin.end_date - 1) * 86400
                           +  li-time-no-dock.
-         
+
           IF NOT (li-diff-time < 0 OR li-diff-time EQ ?) AND
              li-diff-time LE maxbreak-int then
              li-time = li-time-no-dock.
-          
+
           RELEASE b-emplogin.
        END.
     END.
@@ -415,24 +415,24 @@ DO:
 END. /* activity_status = login */
 
 ELSE DO:  /* logout/clock out*/
-  IF CAN-FIND(FIRST emptrack.emplogin WHERE
-       emptrack.emplogin.company = company_code AND
-       emptrack.emplogin.employee = employee_code AND
-       emptrack.emplogin.machine <> machine_code AND
-       emptrack.emplogin.END_date EQ ? AND
-       emptrack.emplogin.end_time = 0 AND
-       emptrack.emplogin.total_time = 0) THEN DO: /* Do logout first */
+  IF CAN-FIND(FIRST emplogin WHERE
+       emplogin.company = company_code AND
+       emplogin.employee = employee_code AND
+       emplogin.machine <> machine_code AND
+       emplogin.END_date EQ ? AND
+       emplogin.end_time = 0 AND
+       emplogin.total_time = 0) THEN DO: /* Do logout first */
      MESSAGE "Sorry, Employee Must Log Out of Machine on Plant Floor." VIEW-AS ALERT-BOX ERROR.
      RETURN ERROR.
   END.
 
-  FIND FIRST emptrack.emplogin WHERE
-       emptrack.emplogin.company = company_code AND
-       emptrack.emplogin.employee = employee_code AND
-       emptrack.emplogin.machine = machine_code AND
-       emptrack.emplogin.END_date EQ ? AND
-       emptrack.emplogin.end_time = 0 AND
-       emptrack.emplogin.total_time = 0
+  FIND FIRST emplogin WHERE
+       emplogin.company = company_code AND
+       emplogin.employee = employee_code AND
+       emplogin.machine = machine_code AND
+       emplogin.END_date EQ ? AND
+       emplogin.end_time = 0 AND
+       emplogin.total_time = 0
        EXCLUSIVE-LOCK NO-ERROR.
 
   IF NOT AVAIL emplogin THEN DO:
@@ -444,7 +444,7 @@ ELSE DO:  /* logout/clock out*/
             emplogin.END_time = TIME /*Don't apply doctime i-time*/.
      {custom/calctime.i &file="emplogin"}
   END.
-  
+
 END.
 v-employee:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
 

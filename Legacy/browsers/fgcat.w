@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:06 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -174,7 +178,7 @@ DEFINE BROWSE Browser-Table
       fgcat.glacc FORMAT "x(25)":U LABEL-BGCOLOR 14
       getDscr() @ cDscr COLUMN-LABEL "GL Account Description" FORMAT "x(45)":U
       getType() @ cType COLUMN-LABEL "GL Account Type" FORMAT "x":U
-      
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 93 BY 18.1
@@ -241,6 +245,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -305,7 +311,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -499,7 +505,7 @@ FUNCTION getDscr RETURNS CHARACTER
            and account.actnum EQ fgcat.glacc :
          cResult = account.dscr . 
      END.
-     
+
   IF cResult = ? THEN ASSIGN cResult = "" .
     RETURN cResult.
 
@@ -517,15 +523,15 @@ FUNCTION getType RETURNS CHARACTER
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    
+
     DEFINE VARIABLE cResult    AS CHARACTER NO-UNDO.
-    
+
     FOR EACH account NO-LOCK
          WHERE  account.company eq gcompany 
            and account.actnum EQ fgcat.glacc :
          cResult = account.type . 
      END.
-     
+
   IF cResult = ? THEN ASSIGN cResult = "" .
 
     RETURN cResult.

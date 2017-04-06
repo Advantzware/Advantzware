@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:23 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -729,7 +733,7 @@ DEFINE FRAME F-Main
      stack-flute.vals[125] AT ROW 14.71 COL 68 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     
+
      stack-flute.vals[126] AT ROW 14.71 COL 80 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
@@ -767,7 +771,7 @@ DEFINE FRAME F-Main
      stack-flute.vals[133] AT ROW 15.71 COL 43 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-    
+
      stack-flute.vals[134] AT ROW 15.71 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
@@ -804,7 +808,7 @@ DEFINE FRAME F-Main
      stack-flute.vals[143] AT ROW 16.71 COL 43 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     
+
      stack-flute.vals[144] AT ROW 16.71 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
@@ -869,7 +873,7 @@ DEFINE FRAME F-Main
      stack-flute.vals[160] AT ROW 17.67 COL 128 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     
+
      RECT-1 AT ROW 1 COL 1
      "TEST" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 3.14 COL 9
@@ -1006,7 +1010,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -1017,7 +1021,7 @@ ASSIGN
 ON HELP OF FRAME F-Main
 DO:
     def var char-val as cha no-undo.
-    
+
     case focus:name :
          when 'pallet' then do:
                run windows/l-itemp.w (gcompany, "", focus:screen-value, output char-val).
@@ -1242,10 +1246,10 @@ PROCEDURE local-create-record :
          stack-flute.page-no = 0
          /*stack-flute.pallet = ce-ctrl.def-pal*/
          .
-  
+
   if adm-adding-record then do:       
      display stack-flute.code /*stack-flute.pallet */ with frame {&frame-name}.
-         
+
     ctsloop:
       do cts-count = 1 to extent(stack-flute.col-value):
         find next alt-reftable where  alt-reftable.company = "" /* KLUDGE stack-flute.company ***/ and
@@ -1256,7 +1260,7 @@ PROCEDURE local-create-record :
           assign stack-flute.col-value[cts-count] = alt-reftable.code.
         else leave ctsloop.
     end.
-  
+
     display stack-flute.code stack-flute.pallet 
           stack-flute.col-value[1 for 10]
           with frame {&frame-name}.

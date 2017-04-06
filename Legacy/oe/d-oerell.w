@@ -4,11 +4,15 @@
           asi              PROGRESS
 */
 &SCOPED-DEFINE WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:26 am */
+
 &SCOPED-DEFINE FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
   File: po\d-poordl.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -322,7 +326,7 @@ ASSIGN
 */  /* DIALOG-BOX Dialog-Frame */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -339,7 +343,7 @@ DO:
     DEFINE VARIABLE op-rowid AS ROWID          NO-UNDO.
 
     lw-focus = FOCUS.
-    
+
     CASE lw-focus:NAME :
          WHEN "ord-no" THEN DO:
            MESSAGE "Press YES to select by Order or NO by FG Item"
@@ -364,7 +368,7 @@ DO:
                  IF AVAILABLE oe-rell THEN DELETE oe-rell .
              END.
              APPLY "go" TO FRAME {&FRAME-NAME}.
-            
+
            END.
          END.
          WHEN "po-no" THEN DO:
@@ -402,7 +406,7 @@ DO:
 
     RETURN NO-APPLY.
 
-   
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -438,7 +442,7 @@ DO:
     DISABLE TRIGGERS FOR LOAD OF oe-rell .
 
     IF lv-item-recid NE ? THEN DO:
-        
+
        FIND oe-rell EXCLUSIVE-LOCK
             WHERE RECID(oe-rell) EQ lv-item-recid  NO-ERROR.
        IF AVAILABLE oe-rell THEN DELETE oe-rell .
@@ -481,7 +485,7 @@ DO:
   END.
    /* Code placed here will execute PRIOR to standard behavior. */
   old-po-no = IF AVAILABLE oe-rell THEN oe-rell.po-no ELSE "".
-   
+
 
   RUN valid-ord-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -506,7 +510,7 @@ DO:
 
   DO TRANSACTION:
       FIND CURRENT oe-rell EXCLUSIVE-LOCK NO-ERROR.
-   
+
       DO WITH FRAME {&FRAME-NAME}:
           ASSIGN {&FIELDS-IN-QUERY-{&FRAME-NAME}} .
       END.
@@ -560,7 +564,7 @@ DO:
   RELEASE oe-rel.
 
   ip-rowid = ROWID(oe-rell).
-  
+
 APPLY "go" TO FRAME {&FRAME-NAME}.
 
 END.
@@ -670,7 +674,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.ord-no Dialog-Frame
 ON ENTRY OF oe-rell.ord-no IN FRAME Dialog-Frame /* Order# */
 DO:
-    
+
   IF ip-type EQ "update"  OR ip-type EQ "view" THEN DO:
     APPLY "tab" TO {&self-name} .
     RETURN NO-APPLY.
@@ -686,11 +690,11 @@ END.
 ON LEAVE OF oe-rell.ord-no IN FRAME Dialog-Frame /* Order# */
 DO:
   DEFINE VARIABLE op-rowid AS ROWID NO-UNDO.
- 
+
   IF LASTKEY NE -1 THEN DO:
     RUN valid-ord-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-   
+
     IF ip-type EQ "Add" THEN DO:
       ASSIGN
        oe-rell.loc:SCREEN-VALUE      = g_loc
@@ -704,9 +708,9 @@ DO:
              IF ll-ans THEN DO:
                 ASSIGN lv-item-imported = YES
                        lv-import-rejected = NO.
-                
+
                 RUN import-order-items (RECID(oe-ord), "order", OUTPUT op-rowid).
-                 
+
                 ip-rowid = op-rowid .
 
                 IF lv-item-recid NE ? THEN DO:
@@ -715,11 +719,11 @@ DO:
                 END.
 
                  APPLY "go" TO FRAME {&FRAME-NAME}.
-                
+
              END.
              ELSE lv-import-rejected = YES.
          END.
-                 
+
       END.
     END.
   END.
@@ -825,7 +829,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     FIND oe-relh NO-LOCK
         WHERE oe-relh.company EQ cocode
           AND RECID(oe-relh)  EQ ip-recid2 NO-ERROR .
-     
+
     IF ip-type EQ "copy" THEN lv-item-recid = ip-recid.
 
 
@@ -854,7 +858,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     DO WITH FRAME {&FRAME-NAME}:
         IF ip-type EQ "update" THEN DISABLE oe-rell.ord-no oe-rell.rel-no oe-rell.b-ord-no.
-         
+
         IF ip-type EQ "add"  OR ip-type EQ "copy" THEN DO:
             APPLY "entry" TO oe-rell.ord-no  .
         END.
@@ -941,21 +945,21 @@ PROCEDURE create-item :
 
     IF AVAILABLE oe-relh THEN 
     DO WITH FRAME {&FRAME-NAME}:
-    
+
         /*FIND LAST oe-rell NO-LOCK WHERE
             oe-rell.company EQ oe-relh.company AND
             oe-rell.r-no EQ oe-relh.r-no 
             NO-ERROR.
 
         z = IF AVAILABLE oe-rell THEN oe-rell.line + 1 ELSE 1.*/
-   
+
         CREATE oe-rell.
         ASSIGN lv-item-recid = RECID(oe-rell).
             ll-new-record = YES.
-        
+
         ASSIGN oe-rell.company = oe-relh.company.
                oe-rell.r-no = oe-relh.r-no.
-        
+
         FIND FIRST bf-oe-rell NO-LOCK
             WHERE bf-oe-rell.r-no   EQ oe-relh.r-no
               AND bf-oe-rell.s-code NE ""
@@ -963,7 +967,7 @@ PROCEDURE create-item :
             NO-ERROR.
         IF AVAILABLE bf-oe-rell THEN oe-rell.s-code = bf-oe-rell.s-code.
 
-        
+
         FIND CURRENT oe-rell NO-LOCK NO-ERROR.
     END. /* avail oe-relh */
 
@@ -1005,7 +1009,7 @@ PROCEDURE display-item :
                AND oe-ordl.line EQ oe-rell.line NO-ERROR .
         IF AVAILABLE oe-ordl THEN
             ASSIGN fi_part-no = oe-ordl.part-no .
-        
+
         DISPLAY  oe-rell.ord-no oe-rell.i-no 
             oe-rell.po-no oe-rell.qty oe-rell.tag oe-rell.loc oe-rell.loc-bin 
             oe-rell.job-no oe-rell.job-no2 oe-rell.cust-no oe-rell.cases 
@@ -1014,7 +1018,7 @@ PROCEDURE display-item :
             WITH FRAME Dialog-Frame.
     END.
 
-    
+
     IF ip-type NE "view" THEN DO:
         ENABLE  Btn_Cancel Btn_OK WITH FRAME Dialog-Frame.
     END.
@@ -1022,7 +1026,7 @@ PROCEDURE display-item :
     VIEW FRAME {&FRAME-NAME}. 
     APPLY "entry" TO FRAME {&FRAME-NAME}.
 
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1166,7 +1170,7 @@ PROCEDURE valid-loc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
   DO WITH FRAME {&FRAME-NAME}:
       FIND FIRST loc NO-LOCK
            WHERE loc.company = cocode
@@ -1315,10 +1319,10 @@ DO WITH FRAME {&FRAME-NAME}:
                  AND INTEGER(oe-rell.ord-no:SCREEN-VALUE  ) EQ bf-rell.ord-no
                  AND ROWID(bf-rell) NE ip-rowid) THEN
      RETURN "Order Exist".
-  
+
   RETURN "".
 END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1364,7 +1368,7 @@ PROCEDURE import-order-items :
           AND oe-rel.i-no EQ bf-ordl.i-no
           AND oe-rel.link-no EQ 0
           NO-ERROR.
-      
+
       CREATE b-oe-rell-new.
       ASSIGN b-oe-rell-new.company = oe-relh.company.
              b-oe-rell-new.loc = /* g_loc - 10021210 */ IF AVAILABLE oe-rel THEN oe-rel.spare-char-1
@@ -1405,7 +1409,7 @@ PROCEDURE import-order-items :
           WHERE itemfg.company EQ b-oe-rell-new.company
             AND itemfg.i-no    EQ b-oe-rell-new.i-no
           NO-ERROR.
-                   
+
       ASSIGN
       b-oe-rell-new.qty-case = IF AVAILABLE bf-ordl AND
                                bf-ordl.cas-cnt GT 0 THEN bf-ordl.cas-cnt
@@ -1414,7 +1418,7 @@ PROCEDURE import-order-items :
                                   itemfg.case-count GT 0 THEN itemfg.case-count
                                ELSE 1.
 
-      
+
        b-oe-rell-new.cases   = TRUNC((b-oe-rell-new.qty - b-oe-rell-new.partial) /
                                b-oe-rell-new.qty-case,0).
        b-oe-rell-new.partial = b-oe-rell-new.qty - (b-oe-rell-new.cases * b-oe-rell-new.qty-case).
@@ -1466,7 +1470,7 @@ PROCEDURE import-order-items-look :
           AND oe-rel.i-no EQ bf-ordl.i-no
           AND oe-rel.link-no EQ 0
           NO-ERROR.
-      
+
      /* create b-oe-rell-new.*/
       ASSIGN oe-rell.loc:SCREEN-VALUE = /* g_loc - 10021210 */ IF AVAILABLE oe-rel THEN oe-rel.spare-char-1
                                 ELSE g_loc .
@@ -1484,13 +1488,13 @@ PROCEDURE import-order-items-look :
              oe-rell.job-no:SCREEN-VALUE = bf-ordl.job-no .
              oe-rell.job-no2:SCREEN-VALUE = STRING(bf-ordl.job-no2) .
 
-    
+
 
       FIND FIRST itemfg NO-LOCK
           WHERE itemfg.company EQ oe-rell.company
             AND itemfg.i-no    EQ oe-rell.i-no:SCREEN-VALUE
           NO-ERROR.
-                   
+
       ASSIGN
       oe-rell.qty-case:SCREEN-VALUE = IF AVAILABLE bf-ordl AND
                                bf-ordl.cas-cnt GT 0 THEN STRING(bf-ordl.cas-cnt)
@@ -1499,13 +1503,13 @@ PROCEDURE import-order-items-look :
                                   itemfg.case-count GT 0 THEN STRING(itemfg.case-count)
                                ELSE "1" .
 
-      
+
        oe-rell.cases:SCREEN-VALUE   = STRING((INT(oe-rell.qty:SCREEN-VALUE) - INT(oe-rell.partial:SCREEN-VALUE)) /
                               INT(oe-rell.qty-case:SCREEN-VALUE)) .
        oe-rell.partial:SCREEN-VALUE = STRING(INT(oe-rell.qty:SCREEN-VALUE) - (INT(oe-rell.cases:SCREEN-VALUE) * INT(oe-rell.qty-case:SCREEN-VALUE))).
-       
 
-      
+
+
     END.                 
   END.
  END.
@@ -1527,7 +1531,7 @@ PROCEDURE display-orditm :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
 
-  
+
   FIND bf-ordl WHERE RECID(bf-ordl) = ip-recid NO-LOCK NO-ERROR.
   IF NOT AVAILABLE bf-ordl THEN RETURN.
 

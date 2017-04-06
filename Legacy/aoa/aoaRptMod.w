@@ -478,6 +478,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -564,7 +575,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttSubject.
 */  /* BROWSE ttSubject */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -588,7 +599,7 @@ END.
 ON WINDOW-CLOSE OF C-Win /* AOA Report Modifier */
 DO:
   /* This event will close the window and terminate the procedure.  */
-  
+
   RELEASE OBJECT PAReportEngine.
   RELEASE OBJECT PAApplication.
 
@@ -616,6 +627,7 @@ END.
 ON CHOOSE OF btnDetailOnFormat IN FRAME DEFAULT-FRAME /* Detail OnFormat */
 DO:
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.Detail.OnFormat.dat.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -627,6 +639,7 @@ END.
 ON CHOOSE OF btnGroupFooterOnFormat IN FRAME DEFAULT-FRAME /* Group Footer OnFormat */
 DO:
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.GroupFooter.OnFormat.dat.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -638,6 +651,7 @@ END.
 ON CHOOSE OF btnGroupHeaderOnFormat IN FRAME DEFAULT-FRAME /* Group Header OnFormat */
 DO:
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.GroupHeader.OnFormat.dat.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -649,6 +663,7 @@ END.
 ON CHOOSE OF btnOnReportEnd IN FRAME DEFAULT-FRAME /* OnReportEnd */
 DO:
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.OnReportEnd.dat.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -660,6 +675,7 @@ END.
 ON CHOOSE OF btnOnReportStart IN FRAME DEFAULT-FRAME /* OnReportStart */
 DO:
   OS-COMMAND NO-WAIT notepad.exe aoa\vbScript\Rpt.OnReportStart.dat.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -681,6 +697,7 @@ DO:
         cID = SEARCH(cID).
         RUN pOpenAOAProgram (cID).
     END.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -692,6 +709,7 @@ END.
 ON CHOOSE OF btnPublish IN FRAME DEFAULT-FRAME /* Publish */
 DO:
     RUN pPublish (YES).
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -711,6 +729,7 @@ DO:
     RUN pSetReportFields.
     PAReportEngine:SaveReport(INPUT-OUTPUT hReport,aoaRptFile).
     MESSAGE "Report:" aoaReportTitle "Updates Saved" VIEW-AS ALERT-BOX.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -722,6 +741,7 @@ END.
 ON CHOOSE OF btnSetName IN FRAME DEFAULT-FRAME /* Set Names */
 DO:
   RUN pSetNames.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -739,6 +759,7 @@ DO:
     /*
     RUN aoa/aoaSubRpt.w (aoaProgramID, {&SELF-NAME}:PRIVATE-DATA).
     */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -750,6 +771,7 @@ END.
 ON CHOOSE OF btnUpdate IN FRAME DEFAULT-FRAME /* Update Scripts  Publish */
 DO:
   RUN pUpdate.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -786,8 +808,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -801,6 +825,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pCreateObjects.
   RUN pGetAOAFiles.
   RUN enable_UI.
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -937,10 +962,10 @@ PROCEDURE pGetReportFields :
     DEFINE VARIABLE idx        AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cDataField AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cCaption   AS CHARACTER NO-UNDO.
-    
+
     PAReportEngine:OpenReport(ipcReportName).
     hReport = PAReportEngine:Report.
-    
+
     IF NOT VALID-HANDLE(hReport) THEN DO:
         MESSAGE "Report:" ipcReportName "- Failed to Open"
             VIEW-AS ALERT-BOX ERROR.
@@ -1060,7 +1085,7 @@ PROCEDURE pGetTempTableFields :
 
     DEFINE VARIABLE idx    AS INTEGER NO-UNDO.
     DEFINE VARIABLE iOrder AS INTEGER NO-UNDO.
-    
+
     IF NOT VALID-HANDLE(iphTable) THEN RETURN.
 
     EMPTY TEMP-TABLE ttSubject.
@@ -1137,7 +1162,7 @@ PROCEDURE pOpenAOAProgram :
 
     RUN VALUE(cAppSrv) PERSISTENT SET hAppSrv.
     hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
-    
+
     RUN pGetTempTableFields (hTable).
     RUN pGetReportFields (aoaRptFile).
 
@@ -1179,7 +1204,7 @@ PROCEDURE pPublish :
         publishExe " ~"" aoaRptFile "~" guest password > "
         REPLACE(publishBat,".bat",".log") SKIP.
     OUTPUT CLOSE.
-    
+
     SESSION:SET-WAIT-STATE("General").
     OS-COMMAND SILENT VALUE(publishBat).
     SESSION:SET-WAIT-STATE("").
@@ -1192,7 +1217,7 @@ PROCEDURE pPublish :
        logText = logText + txtLine.
     END.
     INPUT CLOSE.
-    
+
     IF iplShow THEN DO:
         IF logText EQ "success" THEN
             MESSAGE "Published OK" VIEW-AS ALERT-BOX.
@@ -1307,14 +1332,14 @@ PROCEDURE pSetNames :
         IF AVAILABLE ttPageHeader OR AVAILABLE ttDetail THEN
         iLeft = iLeft + ttSubject.ttSize + 50.
     END. /* each subject */
-    
+
     IF autoSetParameters THEN DO:
         FIND FIRST ttParameter WHERE ttParameter.pOrder EQ 0 NO-ERROR.
         IF AVAILABLE ttParameter THEN
         ASSIGN
             ttParameter.pCaption = aoaReportTitle
             ttParameter.pWidth   = LENGTH(aoaReportTitle) * 180.
-        
+
         FIND FIRST user-print NO-LOCK
              WHERE user-print.company    EQ "001"
                AND user-print.program-id EQ aoaProgramID
@@ -1351,7 +1376,7 @@ PROCEDURE pSetNames :
             MESSAGE "No User-Print Record Exists to Set Parameters"
                 VIEW-AS ALERT-BOX ERROR.
     END. /* if setparameternames */
-    
+
     aoaReportWidth:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(iLeft).
 
     {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}

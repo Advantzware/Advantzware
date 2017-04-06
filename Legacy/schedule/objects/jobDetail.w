@@ -13,7 +13,7 @@
   Output Parameters: <none>
 
   History: Ron Stark - 5.1.2004
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -118,17 +118,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("schedule/images/scheduler.ico":U) THEN
-    MESSAGE "Unable to load icon: schedule/images/scheduler.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -159,7 +155,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME detailFrame */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -298,7 +294,7 @@ PROCEDURE job :
   {&WINDOW-NAME}:Y = ipYCoord + 120.
   RUN select-page (0).
   RUN passRowID IN h_jobDetail (ipRowID).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -310,11 +306,11 @@ PROCEDURE local-create-objects :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   jobDetail = findProgram('{&viewers}/',ID,'/jobDetail.w').
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-objects':U ) .
 

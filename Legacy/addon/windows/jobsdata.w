@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -168,17 +168,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -212,7 +208,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -722,7 +718,7 @@ PROCEDURE Job_Load :
   end.
   /* =========== end of status check ==============*/
   job-num = job.job-no + '-' + STRING(job.job-no2).
-  
+
   FIND jobs WHERE jobs.job = job-num EXCLUSIVE-LOCK NO-ERROR.
   IF AVAILABLE jobs THEN
   DO:
@@ -861,7 +857,7 @@ PROCEDURE Job_Load :
                AND oe-ordl.i-no = job-hdr.i-no
              NO-LOCK NO-ERROR.
         CREATE jobitems.
-        
+
         ASSIGN
           jobitems.job = job.job-no + '-' + STRING(job.job-no2)
           jobitems.form_number = eb.form-no
@@ -908,7 +904,7 @@ PROCEDURE Job_Load :
                       jobitems.description = if eb.part-dscr1 = "" and AVAILABLE itemfg THEN itemfg.i-name
                                              ELSE eb.part-dscr1                                 
                       .          
-          
+
         DO i = 1 TO EXTENT(jobitems.width_panels):
           ASSIGN
             jobitems.width_panels[i] = eb.k-wid-array2[i]
@@ -935,7 +931,7 @@ PROCEDURE Job_Load :
           jobitems.joint_length = eb.lin-in
           jobitems.blank_sq_feet = eb.t-sqin / 144.
       END. /* avail stype */
-      
+
       FOR EACH job-mat NO-LOCK
           WHERE job-mat.company = job-hdr.company
             AND job-mat.job = job-hdr.job
@@ -1182,9 +1178,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

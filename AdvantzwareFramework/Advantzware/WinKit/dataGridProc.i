@@ -15,6 +15,11 @@
 DEFINE VARIABLE cGridColumns AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cGridQuery   AS CHARACTER NO-UNDO.
 
+ON 'CTRL-ALT-G':U ANYWHERE
+DO:
+    RUN pDataGridDat.        
+END.
+
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -58,6 +63,11 @@ PROCEDURE pApplyFilterHandler:
                  + (IF hCellColumn:DATA-TYPE EQ "Character" THEN "~"" ELSE "")
                  .
       END. /* do idx */
+      
+      MESSAGE
+      AVAILABLE (mach) SKIP 
+      cQuery
+      VIEW-AS ALERT-BOX.
 
       QUERY {&BROWSE-NAME}:QUERY-PREPARE (cQuery).
       QUERY {&BROWSE-NAME}:QUERY-OPEN.
@@ -114,6 +124,8 @@ PROCEDURE pCreateDataGridDat:
         cQueryStr     = REPLACE (cQueryStr,"=","EQ")
         cQueryStr     = REPLACE (cQueryStr,"  "," ")
         cQueryStr     = REPLACE (cQueryStr,"  "," ")
+        cQueryStr     = REPLACE (cQueryStr,"WHERE TRUE AND","WHERE")
+        cQueryStr     = REPLACE (cQueryStr,"WHERE TRUE","WHERE")
         .
     OUTPUT TO VALUE (ipcGridSearch).
     PUT UNFORMATTED cQueryStr SKIP.
@@ -168,6 +180,23 @@ PROCEDURE pCustomizeGrid:
             oRenderedBrowseControl:DisplayLayout:Bands[0]:Columns[gridName]:FilterOperandStyle = Infragistics.Win.UltraWinGrid.FilterOperandStyle:None NO-ERROR .
         END. /* do idx */
     END. /* valid-object */
+
+END PROCEDURE.
+
+PROCEDURE pDataGridDat:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cGridSearch AS CHARACTER NO-UNDO.
+
+  IF VALID-OBJECT (oRenderedBrowseControl) THEN DO:
+      cGridSearch = "dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".dat").
+      IF SEARCH (cGridSearch) NE ? THEN DO:
+          OS-COMMAND SILENT notepad.exe VALUE (SEARCH (cGridSearch)).
+      END. /* if search ne ? */
+  END. /* valid-object */
+
 
 END PROCEDURE.
 

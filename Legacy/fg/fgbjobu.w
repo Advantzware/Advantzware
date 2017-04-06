@@ -66,7 +66,7 @@ def shared temp-table w-job no-undo
   field avl-qty as int format "->>>,>>9"
   FIELD tot-wt like fg-bin.tot-wt
   INDEX w-job job-no job-no2 loc loc-bin tag.
-  
+
 def buffer tmp-w-job for w-job.
 
 
@@ -251,6 +251,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -295,7 +296,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -337,12 +338,12 @@ DO:
 
 
   DISABLE TRIGGERS FOR LOAD OF loadtag.
-  
+
   do with frame {&frame-name}:
     assign ld-v1 ld-v3 ld-v4 ld-v5 ld-v6 ld-v7 ld-v8 ld-v9 ld-v10 ld-v11.
     ld-v2 = (ld-v1 * ld-v4) + ld-v11.
   end.
-  
+
   if not avail w-job then return.
 
   assign
@@ -459,7 +460,7 @@ DO:
       RUN fg/d-reqtys.w (ROWID(itemfg), NO).
     END.    
   END.
-  
+
   IF w-job.job-no NE "" THEN DO:
     for each fg-bin
         where fg-bin.company  eq cocode
@@ -512,9 +513,9 @@ DO:
                             w-job.std-fix-cost +
                             w-job.std-var-cost.
     end.
-    
+
     delete tmp-w-job.
-    
+
     find first w-job where recid(w-job) eq w-job-rec.
   end.
 
@@ -529,7 +530,7 @@ DO:
                             job-hdr.std-mat-cost +
                             job-hdr.std-fix-cost +
                             job-hdr.std-var-cost.
-                          
+
     release oe-ordl.
     if not v-full-cost then
     find first oe-ordl
@@ -541,7 +542,7 @@ DO:
         no-error.
     if avail oe-ordl then oe-ordl.cost = job-hdr.std-tot-cost.
   end.
-  
+
   RUN fg/updfgcs1.p (RECID(itemfg), NO).
 END.
 
@@ -654,7 +655,7 @@ if avail w-job then do:
       where itemfg.company eq cocode
         and itemfg.i-no    eq w-job.i-no
       no-lock.
-      
+
   find first fg-bin
       where fg-bin.company  eq cocode
         and fg-bin.i-no     eq w-job.i-no

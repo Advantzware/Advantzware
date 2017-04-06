@@ -112,7 +112,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartDialog
-   External Tables: NOSWEAT.notes
+   External Tables: ASI.notes
    Allow: Basic,Browse,DB-Fields,Query,Smart
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -120,6 +120,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -150,7 +151,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 

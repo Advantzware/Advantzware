@@ -8,6 +8,10 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
 /* Connected Databases 
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:05 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -271,6 +275,8 @@ END.
 {src/adm/method/navbrows.i}
 {custom/yellowColumns.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -325,7 +331,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-report NO-LOCK ~{&SORTBY-PHRASE}.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -401,7 +407,7 @@ DO:
 
   IF AVAILABLE tt-report AND 
      tt-report.ap-inv-rec-key NE "" THEN DO:
-      
+
      {methods/run_link.i "CONTAINER-SOURCE" "Set-Rec-Key_Header"
                    "(tt-report.ap-inv-rec-key,tt-report.inv-no)"}
 
@@ -474,7 +480,7 @@ DO:
       WITH STREAM-IO WIDTH 80 FRAME ap-balh SIDE-LABELS NO-UNDERLINE PAGE-TOP
            TITLE "       V E N D O R   A C C O U N T S       ".
 
-    
+
   FIND FIRST sys-ctrl
       WHERE sys-ctrl.company EQ cocode
         AND sys-ctrl.name    EQ "APINQ"
@@ -490,14 +496,14 @@ DO:
             UPDATE sys-ctrl.char-fld.
   END.
   v-print-fmt = sys-ctrl.char-fld.
-      
+
   FIND FIRST tt-report NO-ERROR.
 
   IF AVAIL tt-report THEN DO WITH FRAME ap-balh:
     SESSION:SET-WAIT-STATE ("general").
 
     lv-dots = FILL(".",80).
-        
+
     {sys/inc/print1.i}
     {sys/inc/outprint.i 56}
 
@@ -678,7 +684,7 @@ END.
           and ap-inv.inv-no   le t-inv
           and ap-inv.inv-date ge (today - num-day-old)
         no-lock
-          
+
         by ap-inv.inv-date by ap-inv.inv-no:
 
       ASSIGN
@@ -702,26 +708,26 @@ END.
          tt-report.ap-inv-rec-key = ap-inv.rec_key
          tt-report.vend-no    = ap-inv.vend-no
          tt-report.inv-no     = ap-inv.inv-no.
-                         
+
         for each ap-payl
             where ap-payl.inv-no   eq ap-inv.inv-no
               and ap-payl.vend-no  eq ap-inv.vend-no
               and ap-payl.posted   eq YES
             no-lock,
-               
+
             first ap-pay
             where ap-pay.company eq cocode 
               and ap-pay.c-no    eq ap-payl.c-no
             NO-LOCK:
-              
+
           t-dscr = "Payment".
-            
+
           if ap-payl.memo then t-dscr = "CR MEMO".
-            
+
           if ap-payl.amt-paid            lt 0  and
              ap-payl.memo                eq no and
              ap-inv.net + ap-inv.freight gt 0  then t-dscr = "Void Chk".
-               
+
           if ap-payl.amt-paid ne 0 then do:
             ASSIGN
             t-credits  = ap-payl.amt-paid
@@ -781,13 +787,13 @@ END.
             ASSIGN
             t-dscr = "Discount"
             x-check-no = string(ap-payl.check-no).
-              
+
             if ap-payl.memo then do:
 
               ASSIGN
                  t-dscr = "DB MEMO"
                  t-balance = t-balance + ap-payl.amt-disc.
-                
+
               create tt-report.
               assign
                tt-report.key-01     = string(lv-key,"x(100)") + "a" + 
@@ -847,12 +853,12 @@ END.
             and ap-payl.posted  eq yes
             and ap-payl.vend-no eq vend.vend-no
           no-lock,
-            
+
           first ap-pay
           where ap-pay.company eq cocode 
             and ap-pay.c-no eq ap-payl.c-no
           NO-LOCK:
-            
+
         t-dscr = "Payment".
         if ap-payl.memo then t-dscr = "CR MEMO".
 
@@ -860,7 +866,7 @@ END.
           t-credits = ap-payl.amt-paid.
           t-balance = t-balance - ap-payl.amt-paid.
           x-check-no = string(ap-payl.check-no).
-            
+
           create tt-report.
           assign
            tt-report.key-01     = string(lv-key,"x(100)") + "a" + 
@@ -897,7 +903,7 @@ END.
             ASSIGN
             t-dscr = "DB MEMO"
             t-balance = t-balance + ap-payl.amt-disc.
-              
+
             create tt-report.
             assign
              tt-report.key-01     = string(lv-key,"x(100)") + "a" +
@@ -921,7 +927,7 @@ END.
               IF AVAIL b-ap-inv THEN
                  tt-report.ap-inv-rec-key = b-ap-inv.rec_key.
           end. /* if ap-payl.memo then do */
-            
+
           else do:
             create tt-report.
             assign
@@ -965,31 +971,31 @@ END.
           work-bal = work-bal - tt-report.credits.
 
         tt-report.balance = work-bal.
-  
+
         if tt-report.dscr ne "Invoice" AND
            NOT tt-report.cr-db THEN
           ASSIGN
            tt-report.debits  = tt-report.credits
            tt-report.credits = 0.
-          
+
         if FIRST(tt-report.key-01) then do:
           if ap-inv.po-no eq 0 then
           for each ap-invl
               where ap-invl.i-no  eq ap-inv.i-no
                 and ap-invl.po-no ne 0
               break by ap-invl.po-no:
-              
+
             IF LAST-OF(ap-invl.po-no) THEN
               lv-po-no = TRIM(lv-po-no) + " " +
                          TRIM(STRING(ap-invl.po-no,">>>>>>>>>>")).
           end.
-            
+
           else lv-po-no = TRIM(STRING(ap-inv.po-no,">>>>>>>>>>")).
 
           tt-report.po-no = TRIM(lv-po-no).
         END.  
       end. /* for each tt-report break by tt-report.key-01 */
-       
+
       if (show-bal ne work-bal and work-bal ne bal-diff) or
          (show-bal eq work-bal and bal-diff eq 0)        then do:
         CREATE tt-report.
@@ -1061,6 +1067,7 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+  RUN pDataGridInit. /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:05 am */
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
@@ -1095,7 +1102,7 @@ PROCEDURE local-open-query :
           b-vend.company EQ cocode AND
           b-vend.vend-no EQ tt-report.vend-no
           NO-LOCK NO-ERROR.
-    
+
      IF AVAIL b-vend THEN
         RUN pushpin-image-proc(INPUT b-vend.rec_key).
   END.
@@ -1113,7 +1120,7 @@ PROCEDURE new-vend :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     FIND vend NO-LOCK
         WHERE vend.company EQ cocode
@@ -1135,7 +1142,7 @@ PROCEDURE pushpin-image-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-rec_key AS CHAR NO-UNDO.
-   
+
    DEF VAR v-att AS LOG NO-UNDO.
    DEF VAR v-inv-no AS CHAR NO-UNDO.
 
@@ -1146,7 +1153,7 @@ PROCEDURE pushpin-image-proc :
                  attach.company = cocode and
                  attach.rec_key = ip-rec_key AND
                  (attach.est-no eq v-inv-no OR ATTACH.est-no EQ "")).
-   
+
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachinv-target':U, OUTPUT char-hdl).
 

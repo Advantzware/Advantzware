@@ -17,6 +17,7 @@
 &ELSEIF "{2}" EQ "First"   &THEN &GLOBAL-DEFINE imageName navigate_beginning
 &ELSEIF "{2}" EQ "Last"    &THEN &GLOBAL-DEFINE imageName navigate_end
 &ELSEIF "{2}" EQ "Left"    &THEN &GLOBAL-DEFINE imageName navigate_left
+&ELSEIF "{2}" EQ "Print"   &THEN &GLOBAL-DEFINE imageName printer
 &ELSEIF "{2}" EQ "No Note" &THEN &GLOBAL-DEFINE imageName sign_forbidden
 &ELSEIF "{2}" EQ "No UDF"  &THEN &GLOBAL-DEFINE imageName sign_forbidden
 &ELSEIF "{2}" EQ "Note"    &THEN &GLOBAL-DEFINE imageName edit

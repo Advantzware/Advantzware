@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:15 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -230,7 +234,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -275,7 +279,7 @@ DO:
       END.
    END.
    vend_name = IF AVAIL vend THEN vend.NAME ELSE "".
-   
+
    DISP vend_name WITH FRAME {&FRAME-NAME}.
 
 END.
@@ -295,7 +299,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -466,7 +470,7 @@ PROCEDURE local-create-record :
 /* Add Mode for AP CR/DB Memo module                                          */
 /* -------------------------------------------------------------------------- */
 
-  
+
 
    ap-pay.check-no = xchk + 1.
    if ap-pay.check-no < 90000001 then ap-pay.check-no = 90000001.
@@ -508,7 +512,7 @@ PROCEDURE local-display-fields :
   FOR EACH bf-payl OF ap-pay NO-LOCK:
     ld-amt = ld-amt - bf-payl.amt-paid + bf-payl.amt-disc.
   END.
- 
+
   DISPLAY ld-amt WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -573,13 +577,13 @@ PROCEDURE proc-enable :
   Notes:       
 ------------------------------------------------------------------------------*/
  IF NOT adm-new-record AND ap-pay.posted THEN do:
-       
+
       DEF VAR char-hdl AS cha NO-UNDO.
       MESSAGE "This Memo has been posted. No changes are allowed!"           
            VIEW-AS ALERT-BOX ERROR.
       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-source", OUTPUT char-hdl).
       RUN apply-cancel IN WIDGET-HANDLE(char-hdl).
-      
+
    END.
 END PROCEDURE.
 

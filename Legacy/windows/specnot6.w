@@ -19,7 +19,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -163,7 +163,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: NOSWEAT.notes
+   External Tables: ASI.notes
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 2
    Other Settings: COMPILE
@@ -193,17 +193,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\edit%":U) THEN
-    MESSAGE "Unable to load icon: adeicon\edit%"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -268,7 +264,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -602,9 +598,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -651,7 +647,7 @@ ELSE DO:
     find first est where FALSE no-lock no-error.
 
     do:
-      
+
 
 
 
@@ -670,7 +666,7 @@ ELSE DO:
              MESSAGE "No FG Item entered. " VIEW-AS ALERT-BOX ERROR.
              RETURN ERROR.
           END.
-          
+
         IF AVAIL oe-ordl THEN DO:
             FIND FIRST itemfg WHERE itemfg.i-no = oe-ordl.i-no NO-LOCK NO-ERROR.
             IF AVAIL itemfg THEN
@@ -682,7 +678,7 @@ ELSE DO:
       end.
     END.
   END. /* not avail itemfg */
-  
+
   IF AVAIL itemfg THEN
     ASSIGN
      lbl_i-no = "     FG Item#"

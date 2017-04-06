@@ -16,7 +16,7 @@
       <none>
 
   History: New V9 Version - January 15, 1998
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -148,6 +148,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm2/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -169,7 +170,7 @@ THEN wWin:HIDDEN = YES.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -206,7 +207,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btAccept wWin
 ON 'choose' OF btAccept IN FRAME fMain /* YES, I Accept */
 DO:
-  
+
   CREATE userEula.
   ASSIGN userEula.eula_code = cVersion
          userEula.accepted  = TRUE
@@ -215,7 +216,7 @@ DO:
          userEula.user_id   = USERID("Nosweat").
   oplAccepts = TRUE.       
   APPLY "CLOSE":U TO THIS-PROCEDURE.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -227,7 +228,7 @@ END.
 ON 'choose' OF btReject IN FRAME fMain /* NO, I Do Not Accept */
 DO:
  DEFINE VARIABLE lChoice AS LOGICAL NO-UNDO.
- 
+
  MESSAGE "Are you sure you want to reject the agreement?"
  VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO TITLE "License Rejection Confirmation"
  UPDATE lChoice.
@@ -341,22 +342,22 @@ DEFINE VARIABLE lVersionRead AS LOGICAL NO-UNDO.
 cEntireText = "".
 INPUT FROM VALUE(ipcEulaFile).
 REPEAT:
-    
+
     cInputLine = "".
     IMPORT UNFORMATTED cInputLine.
-    
+
     IF NOT lVersionRead THEN DO:
         IF NOT cInputLine BEGINS "[" THEN 
           ASSIGN cVersion = cInputLine lVersionRead = YES.
-                 
+
         NEXT.
     END.
-    
+
     IF cInputLine BEGINS "[" THEN
       NEXT.
-      
+
     cEntireText = cEntireText + cInputLine + CHR(13).
-    
+
 END.
 INPUT CLOSE.
 

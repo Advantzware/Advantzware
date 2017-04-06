@@ -203,6 +203,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -235,7 +236,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -317,7 +318,7 @@ DO:
     RUN dump-mach.
 
     SESSION:SET-WAIT-STATE("").
-        
+
     APPLY "close" TO THIS-PROCEDURE.
   END.
 END.
@@ -399,7 +400,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL to-company D-Dialog
 ON VALUE-CHANGED OF to-company IN FRAME D-Dialog
 DO:
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -471,7 +472,7 @@ PROCEDURE add-list :
      IF lookup(ENTRY(i,lv-item-list),lv-screen-value) > 0 THEN
         /*IF mach-list:IS-SELECTED(i)*/   mach-list:DELETE(ENTRY(i,lv-item-list)).     
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -564,7 +565,7 @@ PROCEDURE dump-mach :
   EMPTY TEMP-TABLE tt-mmtx .
   EMPTY TEMP-TABLE tt-mach-calendar .
   EMPTY TEMP-TABLE tt-mmtx2 .
-  
+
   OUTPUT TO VALUE(v-dumpfile).
   OUTPUT STREAM st-mstd TO VALUE(v-dumpfile + "1").
   OUTPUT STREAM st-mmty TO VALUE(v-dumpfile + "2").
@@ -633,7 +634,7 @@ PROCEDURE enable-buttons :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&frame-name}:
 /*    DISABLE btn_close btn_open btn_close-all btn_open-all.
 
@@ -678,7 +679,7 @@ PROCEDURE init-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
 
   RUN load-comp.
   RUN load-list.
@@ -701,14 +702,14 @@ PROCEDURE load-comp :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   FOR EACH company NO-LOCK:
       v-dummy = cb-company:ADD-LAST(company.company) IN FRAME {&FRAME-NAME}.
       v-dummy = to-company:ADD-LAST(company.company) IN FRAME {&FRAME-NAME}.
   END.
   cb-company:SCREEN-VALUE IN FRAME {&FRAME-NAME} = g_company.
   to-company:SCREEN-VALUE IN FRAME {&FRAME-NAME} = g_company.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -722,7 +723,7 @@ PROCEDURE load-list :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR v-list AS CHAR NO-UNDO.
-  
+
   v-list = "".
   FOR EACH mach NO-LOCK WHERE mach.company = cb-company:SCREEN-VALUE IN FRAME {&FRAME-NAME} BY mach.m-code:
       v-list = v-list + mach.m-code + ",".
@@ -789,7 +790,7 @@ PROCEDURE remove-list :
      IF lookup(ENTRY(i,lv-item-list),lv-screen-value) > 0 
         THEN mach-selected-list:DELETE(ENTRY(i,lv-item-list)).     
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

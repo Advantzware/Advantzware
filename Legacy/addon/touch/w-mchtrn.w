@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: addon/touch/w-mchtrn.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -129,7 +129,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: EMPTRACK.machtran
+   External Tables: machtran
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
@@ -161,17 +161,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -214,7 +210,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME message-frame */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -578,9 +574,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -652,13 +648,13 @@ PROCEDURE Select_att :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR adm-current-page AS INT NO-UNDO.
-  
+
   IF NOT AVAIL machtran THEN RETURN.
 
   rec_key_value = machtran.rec_key.
 
   RUN windows/ATTACH.w(rec_key_value,HEADER_value).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -677,12 +673,12 @@ PROCEDURE select_dept2 :
 
   IF AVAIL machtran AND machtran.job_number <> "" THEN DO:
      /*RUN touch/getnote.p (RECID(machtran)).*/
-     
+
      /*FIND bf-mtran WHERE RECID(bf-mtran) = RECID(machtran) EXCLUSIVE-LOCK.*/
      FIND FIRST job WHERE job.company EQ machtran.company AND
                           job.job-no = machtran.job_number AND
                           job.job-no2 = machtran.job_sub NO-LOCK NO-ERROR.
-     
+
      /*IF AVAIL job THEN bf-mtran.rec_key = job.rec_key.*/
 
      RUN touch/getnote.p (job.rec_key).
@@ -692,7 +688,7 @@ PROCEDURE select_dept2 :
         RUN touch/copynote.p (job.rec_key).
        /* move to touch/copynote.p
         FOR EACH nosweat-asi.notes WHERE asi.notes.rec_key = job.rec_key NO-LOCK:
-           BUFFER-COPY nosweat-asi.notes TO nosweat.notes. 
+           BUFFER-COPY ASI-asi.notes TO ASI.notes. 
         END.
        */     
      */
@@ -725,9 +721,9 @@ PROCEDURE select_dept2 :
         RUN touch/savenote.p (job.rec_key).
      END.
   END.
-  
-  
-  
+
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -740,7 +736,7 @@ PROCEDURE select_jobrel :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
      FIND FIRST job WHERE
           job.company EQ company_code AND
           job.job-no = job_number AND
@@ -753,7 +749,7 @@ PROCEDURE select_jobrel :
        RUN touch/getnote.p (rec_key_value).       
        RUN jcrep/r-tickt2.w (job_number, int(job_sub)) NO-ERROR.
      END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -770,13 +766,13 @@ PROCEDURE select_ONote :
 
   IF AVAIL machtran AND machtran.job_number <> "" THEN DO:
      /*RUN touch/getnote.p (RECID(machtran)).*/
-     
+
      /*FIND bf-mtran WHERE RECID(bf-mtran) = RECID(machtran) EXCLUSIVE-LOCK.*/
      FIND FIRST job WHERE job.company EQ machtran.company AND
                           job.job-no = machtran.job_number AND
                           job.job-no2 = machtran.job_sub NO-LOCK NO-ERROR.
-     
-     
+
+
      ASSIGN cJobKey = job.company + string(job.job,"9999999") /*job.rec_key*/ 
             rec_key_value = job.rec_key
             HEADER_value =  string(job.job) /*job.job-no + STRING(job.job-no2)*/.
@@ -784,7 +780,7 @@ PROCEDURE select_ONote :
      RUN touch/getnoteA.p (rec_key_value, HEADER_value).
 
      /*RUN windows/specnote.w (rec_key_value,HEADER_value).  */
-    
+
      RUN windows/opnotes.w (rec_key_value, HEADER_value,machine_code,ForM_number).
 
      RUN touch/savenoteA.p (job.rec_key, HEADER_value).

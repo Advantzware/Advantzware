@@ -189,6 +189,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -229,7 +230,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-rec BY tt-rec.old-i-no
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -276,35 +277,35 @@ ON CHOOSE OF btn_go IN FRAME D-Dialog /* Go */
 DO:
     IF AVAIL tt-rec THEN DO:
         IF tt-rec.ftp-software EQ "FTP" THEN DO:
-            
-            
+
+
             OUTPUT TO VALUE(".\po\ftpdir.txt").    /* ftp text file */
-            
+
             PUT UNFORMATTED 
                 "open " + tt-rec.ftp-site  SKIP   /* ftp server ip address */
                 tt-rec.ftp-user            SKIP   /* userid */
                 tt-rec.ftp-passwd          SKIP.   /* password */
-                
+
             IF tt-rec.ftp-dir GT "" THEN 
             PUT UNFORMATTED
                 "cd " + tt-rec.ftp-dir     SKIP.
-                
+
             PUT UNFORMATTED
                 "dir "                     SKIP   /* file to transfer */
                 "quit" .
             OUTPUT CLOSE.
-            
+
             DEF VAR cFtpMode AS CHAR NO-UNDO.
-            
+
             OS-COMMAND SILENT VALUE("ftp -v -i -s:.\po\ftpdir.txt 1>po\doftp.log 2>&1").
-            
-            
+
+
         END. /* FTP */
-    
+
         IF tt-rec.ftp-software EQ "winSCP" THEN 
         DO:
             cWinScpIniFile = SEARCH("winScp\winscp.ini").
-            
+
             IF cWinScpIniFile EQ ? THEN 
                 cWinScpIniFile = "".
             ELSE 
@@ -312,9 +313,9 @@ DO:
                 FILE-INFO:FILE-NAME = cWinScpIniFile.
                 cWinScpIniFile = " /ini=" + FILE-INFO:FULL-PATHNAME.
             END.
-            
+
             OUTPUT TO VALUE(".\po\ftpdir.txt"). 
-            
+
             /* New Destination */
             PUT UNFORMATTED 
                 "option batch abort"   SKIP.
@@ -323,7 +324,7 @@ DO:
 
             PUT UNFORMATTED "open " 
              + tt-rec.ftp-mode + ":" + tt-rec.ftp-user + ":" + tt-rec.ftp-passwd + "@" + tt-rec.ftp-site SKIP.
-            
+
             IF tt-rec.ftp-dir GT "" THEN 
                 PUT UNFORMATTED
                     "cd " + tt-rec.ftp-dir     SKIP.            
@@ -335,19 +336,19 @@ DO:
             PUT UNFORMATTED 
                 "Exit"                 SKIP.   
             OUTPUT CLOSE.
-            
-            
+
+
             cExec = getWinScpExec().
-                      
+
             IF cWinScpIniFile GT "" THEN 
                 cExec = cExec + " " + "/ini=" + cWinScpIniFile.          
             OS-COMMAND SILENT VALUE(cExec + " /script=.\po\ftpdir.txt > po\doFtp.log").
-            
-            
+
+
         END. /* If WinScp */
-        
+
         OS-COMMAND NO-WAIT notepad VALUE("po\doFtp.log").
-        
+
     END. /* avail tt-rec */
 END. /* Choose Go */
 
@@ -427,7 +428,7 @@ EMPTY TEMP-TABLE tt-rec.
 DO WITH FRAME {&FRAME-NAME}:
     INPUT FROM po/poexport.dat.
     REPEAT:
-        
+
         CREATE tt-rec.
         IMPORT tt-rec.old-i-no tt-rec.new-i-no tt-rec.ftp-site tt-rec.ftp-user tt-rec.ftp-passwd
                tt-rec.ftp-mode tt-rec.ftp-dir tt-rec.ftp-software.
@@ -532,22 +533,22 @@ FUNCTION getWinScpExec RETURNS CHARACTER
     ------------------------------------------------------------------------------*/
     DEF VAR cWinScpExe AS CHAR NO-UNDO.
     DEF VAR cExec      AS CHAR NO-UNDO.
-    
+
     IF SEARCH("C:\Program Files\WinSCP\winscp.com") NE ? 
         OR SEARCH("WinSCP\winscp.com") NE ?
         OR SEARCH("C:\Program Files (x86)\WinSCP\winscp.com") NE ?
         THEN 
     DO:
-        
+
         cExec = SEARCH("WinSCP\winscp.com").
         IF cExec EQ ? THEN 
             cExec = SEARCH("C:\Program Files\WinSCP\winscp.com").
         IF cExec EQ ? THEN 
             cExec = SEARCH("C:\Program Files (x86)\WinSCP\winscp.com").
-          
+
         FILE-INFO:FILE-NAME = cExec.
         cExec = FILE-INFO:FULL-PATHNAME.
-        
+
         cExec = '"' + cExec + '"'.
     END.
     cWinScpExe = cExec.          

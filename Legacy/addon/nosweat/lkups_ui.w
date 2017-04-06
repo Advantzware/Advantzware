@@ -226,6 +226,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -245,8 +246,9 @@ DO:
     IF run-proc NE "" THEN
     RUN VALUE(run-proc) (INPUT m_lookup_prgm:SCREEN-VALUE).
   END.
-  Btn_Cancel:LABEL = "&Close".
+    {methods/setButton.i Btn_Cancel "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
   APPLY "ENTRY" TO m_lookup_prgm.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -259,6 +261,7 @@ ON CHOOSE OF Btn_Test IN FRAME DEFAULT-FRAME /* Test Run */
 DO:
   IF SEARCH("lookups/" + m_lookup_prgm:SCREEN-VALUE + "p") NE ? THEN
   RUN VALUE("lookups/" + m_lookup_prgm:SCREEN-VALUE + "p").
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -292,8 +295,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -306,6 +311,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   {methods/enhance.i}
   {methods/nowait.i}
+    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
+    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

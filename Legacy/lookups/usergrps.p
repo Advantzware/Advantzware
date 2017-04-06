@@ -1,6 +1,6 @@
 /* usergrps.p - Generated 03/22/1998 -  9:54 pm by Exitt
 "usergrps. " ~
-"NOSWEAT " ~
+"ASI " ~
 "usergrps " ~
 " " ~
 "usergrps " ~
@@ -18,7 +18,7 @@
 "usergrps. " ~
 */
 
-&Scoped-define lookup-db NOSWEAT.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file usergrps
 &Scoped-define where-statement TRUE
 &Scoped-define return-field usergrps

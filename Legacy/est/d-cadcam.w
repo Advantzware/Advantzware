@@ -144,6 +144,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -178,7 +179,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -337,7 +338,7 @@ PROCEDURE getCADCAM :
   DEFINE VARIABLE odbcNull AS CHARACTER NO-UNDO.
   DEFINE VARIABLE odbcCursor AS INTEGER NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
-  
+
   FIND sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ ipCompany
                           AND sys-ctrl.name EQ 'Artios' NO-ERROR.
   IF NOT AVAILABLE sys-ctrl THEN
@@ -362,10 +363,10 @@ PROCEDURE getCADCAM :
   /* Open up the connection to the ODBC Layer */
   hConnection:Open ('data source=' + odbcDSN + ';server=' +
                      odbcServer,odbcUserID,odbcPassword,0) NO-ERROR.
-  
+
   IF ERROR-STATUS:ERROR THEN
   MESSAGE 'Error:' ERROR-STATUS:NUM-MESSAGES VIEW-AS ALERT-BOX.
-  
+
   /* Check for connection errors */
   IF ERROR-STATUS:NUM-MESSAGES GT 0 THEN
   DO i = 1 TO ERROR-STATUS:NUM-MESSAGES:
@@ -416,7 +417,7 @@ PROCEDURE getCADCAM :
     /* Close the ADO connection */
     hConnection:Close no-error.
   END. /* The connection opened correctly */
-  
+
   /* Release the memory!! */
   RELEASE OBJECT hConnection NO-ERROR.
   RELEASE OBJECT hCommand NO-ERROR.
@@ -492,7 +493,7 @@ PROCEDURE getCADCAM2 :
     END.
     INPUT CLOSE.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

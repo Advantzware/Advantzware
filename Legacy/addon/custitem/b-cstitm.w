@@ -4,6 +4,10 @@
           rfq              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:04 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -225,6 +229,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -275,7 +281,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -291,7 +297,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-   
+
     RUN new-state in phandle ('update-begin':U).
 
 END.
@@ -403,9 +409,9 @@ DO:
               error.
             return no-apply.
        end.
-       
+
     end.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -436,7 +442,7 @@ DO:
               error.
             return no-apply.
        end.
-       
+
     end.
 
 END.
@@ -468,7 +474,7 @@ DO:
               error.
             return no-apply.
        end.
-       
+
     end.
 
 END.
@@ -568,7 +574,7 @@ PROCEDURE local-assign-record :
        assign ls-cust = cust-itm.cust-no:screen-value in browse {&browse-name}
               ls-loc = cust-itm.loc:screen-value 
               .
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -588,7 +594,7 @@ PROCEDURE local-assign-statement :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
- 
+
 if ll-copy-rec then
      /* ls-cust, ls-loc = assigned from loacl-assign-record */
      assign cust-itm.cust-no:screen-value in browse {&browse-name} = ls-cust 
@@ -613,7 +619,7 @@ PROCEDURE local-copy-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   ll-copy-rec = yes.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
 
@@ -631,7 +637,7 @@ PROCEDURE local-create-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def buffer bf-cust-itm for cust-itm.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -671,14 +677,14 @@ PROCEDURE local-delete-record :
   message "response:" response view-as alert-box.
     if response then do: end.
     else IF not response  THEN do: end.
-    
+
     else RETURN "ADM-ERROR":U.
 */
     MESSAGE "Delete Currently Selected Record?"
     VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE response AS LOGICAL.
     IF not response  THEN RETURN "ADM-ERROR":U.
-    
-      
+
+
   /*  progress bug - no rfqitem record available 
       if add is canceled when new line is appended to last line */
   if not avail cust-itm then find cust-itm where recid(cust-itm) = lv-recid no-error.
@@ -710,14 +716,14 @@ PROCEDURE local-update-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
- 
+
 
   /* Code placed here will execute AFTER standard behavior.    */
-   
+
   assign ls-last-cust-no = cust-itm.cust-no
          ls-last-loc = cust-itm.loc.
 
-         
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

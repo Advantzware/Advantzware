@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:21 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -600,7 +604,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -713,7 +717,7 @@ DO:
            IF char-val <> "" THEN
                ASSIGN lw-focus:SCREEN-VALUE = char-val.
        END.
-       
+
 
     END.    
 
@@ -865,7 +869,7 @@ END.
 ON VALUE-CHANGED OF itemfg.i-code IN FRAME F-Main /* Item Code */
 DO:
   IF {&self-name}:SCREEN-VALUE EQ "C" THEN DO:
- 
+
       itemfg.prod-uom:SCREEN-VALUE = "M".
 
       APPLY "LEAVE" TO itemfg.prod-uom IN FRAME F-MAIN.
@@ -873,7 +877,7 @@ DO:
 
   RUN prod-uom-able.
 
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -953,7 +957,7 @@ DO:
          MESSAGE "Invalid Product Category. Try Help." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
     END.
-    
+
     FIND FIRST fgcat WHERE fgcat.company = gcompany AND
                            fgcat.procat = SELF:screen-value
                            NO-LOCK NO-ERROR.
@@ -968,7 +972,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.prod-uom V-table-Win
 ON LEAVE OF itemfg.prod-uom IN FRAME F-Main /* Cost UOM */
 DO:
-  
+
     IF LASTKEY <> -1 AND 
        ( (itemfg.i-code:screen-value = "S" AND
           can-do("EA,M",itemfg.prod-uom:screen-value )) OR
@@ -986,7 +990,7 @@ DO:
     FIND CURRENT itemfg NO-WAIT NO-ERROR.
 
     ASSIGN itemfg.prod-uom:SCREEN-VALUE  = INPUT itemfg.prod-uom.
-    
+
     RUN sys/ref/convcuom.p (itemfg.prod-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
                             0, 0, 0, 0, itemfg.avg-cost,
                                  OUTPUT itemfg.avg-cost).
@@ -1024,31 +1028,31 @@ DO:
                        AND fg-bin.i-no    EQ itemfg.i-no:screen-value
                        AND fg-bin.pur-uom NE INPUT itemfg.prod-uom:
 
-        
+
         RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
                                 0, 0, 0, 0, fg-bin.avg-cost,
                                      OUTPUT fg-bin.avg-cost).
-        
+
         RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
                                 0, 0, 0, 0, fg-bin.last-cost,
                                      OUTPUT fg-bin.last-cost).
-        
+
         RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
                                 0, 0, 0, 0, fg-bin.std-mat-cost,
                                      OUTPUT fg-bin.std-mat-cost).
-                                     
+
         RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
                                 0, 0, 0, 0, fg-bin.std-lab-cost,
                                      OUTPUT fg-bin.std-lab-cost).
-                                     
+
         RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
                                 0, 0, 0, 0, fg-bin.std-var-cost,
                                      OUTPUT fg-bin.std-var-cost).
-                                     
+
         RUN sys/ref/convcuom.p (fg-bin.pur-uom, INPUT itemfg.prod-uom:SCREEN-VALUE,
                                 0, 0, 0, 0, fg-bin.std-fix-cost,
                                      OUTPUT fg-bin.std-fix-cost).
-                                
+
         ASSIGN
          fg-bin.std-tot-cost = fg-bin.std-mat-cost +
                                fg-bin.std-lab-cost +
@@ -1057,7 +1061,7 @@ DO:
          fg-bin.pur-uom      = INPUT itemfg.prod-uom.
 
     END.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1168,7 +1172,7 @@ DO:
          MESSAGE "Invalid Style. Try Help." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
     END.
-    
+
     FIND FIRST style WHERE style.company = gcompany AND
                                       style.style = SELF:screen-value
                                       NO-LOCK NO-ERROR.
@@ -1249,7 +1253,7 @@ tg-Freeze-weight:SENSITIVE = FALSE. /* Was enabled initially without doing updat
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1316,7 +1320,7 @@ PROCEDURE calc-std-cost :
               dec(itemfg.std-lab-cost:screen-value) +
               dec(itemfg.std-var-cost:screen-value) +
               dec(itemfg.std-fix-cost:screen-value)).
-    
+
   END.
 END PROCEDURE.
 
@@ -1364,15 +1368,15 @@ PROCEDURE enable-itemfg-field :
   DEF BUFFER bf-itemfg FOR itemfg.
 
   DEF VAR ll AS LOG NO-UNDO.
-  
+
   DO WITH FRAME {&frame-name}:
     ENABLE ALL.
-   
+
     ASSIGN
        old-est-no = IF AVAIL itemfg THEN itemfg.est-no ELSE ""
        lv-puruom = ""
        cDefaultProdUom = "".
-    
+
     DISABLE itemfg.cust-name
             itemfg.procat-desc
             itemfg.style-desc
@@ -1405,9 +1409,9 @@ PROCEDURE enable-itemfg-field :
                           v-shpmet                = bf-itemfg.ship-meth
                           cDefaultProdUom         = bf-itemfg.prod-uom
                            .  
-                       
+
     END.
-    
+
     IF AVAIL itemfg THEN DO:
       IF itemfg.q-onh NE 0 THEN
         DISABLE itemfg.std-mat-cost
@@ -1417,16 +1421,16 @@ PROCEDURE enable-itemfg-field :
                 itemfg.total-std-cost
                 itemfg.avg-cost
                 itemfg.last-cost.
-              
+
       RUN prod-uom-able.
     END.
   END.
     RUN hide-fgsecure-fields.
-    
+
   /* Per validation code, M should be valid in all cases */ 
   IF cDefaultProdUom EQ "" THEN
      cDefaultProdUom = "M".
-    
+
 
 END PROCEDURE.
 
@@ -1511,7 +1515,7 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-custype      LIKE oe-prmtx.custype NO-UNDO.
   DEF VAR lv-cust-no      LIKE oe-prmtx.cust-no NO-UNDO.
- 
+
 
   DEF BUFFER b-i   FOR itemfg.
   DEF BUFFER b-ei  FOR e-itemfg.
@@ -1536,14 +1540,14 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN reftable-values (NO).
-  
+
   IF tg-freeze-weight THEN
       itemfg.spare-int-1 = 1.
   ELSE
       itemfg.spare-int-1 = 0.
-      
+
   IF adm-new-record AND NOT adm-adding-record AND AVAIL b-i THEN DO: /* copy */
-     
+
     FOR EACH b-ei OF b-i NO-LOCK:
       FIND FIRST e-itemfg OF itemfg NO-LOCK NO-ERROR.
 
@@ -1554,7 +1558,7 @@ PROCEDURE local-assign-record :
          e-itemfg.i-no = itemfg.i-no.
         RELEASE e-itemfg.
       END.
-        
+
       FOR EACH b-eiv OF b-ei NO-LOCK:
         CREATE e-itemfg-vend.
         BUFFER-COPY b-eiv EXCEPT rec_key TO e-itemfg-vend
@@ -1562,7 +1566,7 @@ PROCEDURE local-assign-record :
          e-itemfg-vend.i-no = itemfg.i-no.
         RELEASE e-itemfg-vend.
       END.
-      
+
       LEAVE.
     END.
     IF v-cpyspc THEN DO:
@@ -1570,7 +1574,7 @@ PROCEDURE local-assign-record :
              AND notes.note_type EQ "S" 
              AND notes.note_code GE v-begspc 
              AND notes.note_code LE v-endspc NO-LOCK:
-           
+
              CREATE bf-notes .
              BUFFER-COPY notes EXCEPT rec_key TO bf-notes .
              ASSIGN
@@ -1586,7 +1590,7 @@ PROCEDURE local-assign-record :
   /*Task# 04121312*/
  FIND FIRST fg-set WHERE fg-set.company = itemfg.company 
      AND fg-set.set-no = itemfg.i-no NO-LOCK NO-ERROR.
- 
+
  IF AVAIL itemfg AND AVAIL fg-set THEN
    FOR EACH eb NO-LOCK      
        WHERE eb.company EQ itemfg.company
@@ -1635,7 +1639,7 @@ PROCEDURE local-assign-record :
                       IF AVAIL b-eiv THEN
                         DELETE b-eiv .
                     END. /* if i = 2 */
-                        
+
           END. /* each e-itemfg-vend ... */
 
      END. /* each e-itemfg ... */
@@ -1643,7 +1647,7 @@ PROCEDURE local-assign-record :
 
   ASSIGN itemfg.taxable = tb_taxable
          itemfg.spare-char-2 = (IF tgVaried:CHECKED IN FRAME {&FRAME-NAME} THEN 'YES' ELSE 'NO').
-         
+
   /* btr - refresh the screen */
   RUN local-display-fields.
 
@@ -1660,7 +1664,7 @@ PROCEDURE local-cancel-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
@@ -1685,10 +1689,10 @@ PROCEDURE local-create-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-   
+
   /* Code placed here will execute AFTER standard behavior.    */
   FIND FIRST oe-ctrl WHERE oe-ctrl.company = gcompany NO-LOCK NO-ERROR.
- 
+
   ASSIGN itemfg.company = gcompany
          itemfg.loc = gloc
 /*          itemfg.sell-uom = "M" */
@@ -1699,12 +1703,12 @@ PROCEDURE local-create-record :
          itemfg.ship-meth =  v-shpmet
          itemfg.exempt-disc = NO
          itemfg.stat = "A".
-         
+
   DO WITH FRAME {&FRAME-NAME}:
-            
+
     IF itemfg.prod-uom:VISIBLE EQ FALSE THEN 
        itemfg.prod-uom = cDefaultProdUom.
-              
+
   END.
 
   /* Create an itemfg-loc for the default warehouse */
@@ -1717,7 +1721,7 @@ PROCEDURE local-create-record :
 /*      rd_status:SCREEN-VALUE      = "A"   */
 /*      tb_exempt-disc:SCREEN-VALUE = "no". */
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1743,24 +1747,24 @@ PROCEDURE local-display-fields :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
 /*   DISABLE rd_status tb_exempt-disc WITH FRAME {&FRAME-NAME}. */
- 
+
   IF AVAIL itemfg THEN DO:
-      
+
     FIND FIRST cust WHERE cust.company = itemfg.company
                       AND cust.cust-no = itemfg.cust-no NO-LOCK NO-ERROR.
     IF AVAIL cust AND cust.name <> itemfg.cust-name THEN
        itemfg.cust-name:SCREEN-VALUE IN FRAME {&FRAME-NAME} = cust.name.
-   
+
     ASSIGN tgVaried:CHECKED = (IF itemfg.spare-char-2 = 'YES' THEN TRUE ELSE FALSE)
            tg-freeze-weight:CHECKED = (IF itemfg.spare-int-1 = 1 THEN TRUE ELSE FALSE).
     RUN SetPurMan(itemfg.isaset).
   END. /* avail itemfg */
 
   RUN new-type.
-  
+
 
 END PROCEDURE.
 
@@ -1838,11 +1842,11 @@ PROCEDURE local-update-record :
   DEF VAR ll-new-spc-no AS LOG NO-UNDO.
   DEF VAR ll-new-upc-no AS LOG NO-UNDO.
   DEF VAR ll-new-procat AS LOG NO-UNDO.
-  
+
   tg-Freeze-weight:SENSITIVE  IN FRAME f-main = TRUE.
   /* Code placed here will execute PRIOR to standard behavior. */
   ll-add-record = adm-adding-record.
-  
+
   /* copy records */
   IF adm-new-record AND NOT adm-adding-record THEN 
       ll-copy = TRUE.
@@ -1861,7 +1865,7 @@ PROCEDURE local-update-record :
 
   RUN valid-cust-part NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
+
   DO WITH FRAME {&frame-name}:
     IF itemfg.style:screen-value <> "" AND
        NOT CAN-FIND(FIRST style WHERE style.company = gcompany AND
@@ -1890,7 +1894,7 @@ PROCEDURE local-update-record :
          APPLY "entry" TO itemfg.def-loc.
          RETURN NO-APPLY.
     END.
-    
+
     IF itemfg.def-loc-bin:screen-value <> "" AND
        NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:screen-value AND
                           fg-bin.loc-bin = itemfg.def-loc-bin:screen-value)
@@ -1905,7 +1909,7 @@ PROCEDURE local-update-record :
            (itemfg.i-code:screen-value = "C" AND can-do("M",itemfg.prod-uom:screen-value) )
         THEN DO:  END.
         ELSE DO:
-    
+
             IF fgsecurity-log AND ((itemfg.i-code:screen-value = "S" AND can-do("EA,M",itemfg.prod-uom )) OR
            (itemfg.i-code:screen-value = "C" AND can-do("M",itemfg.prod-uom) )) THEN DO: END.
            ELSE DO:
@@ -1939,7 +1943,7 @@ PROCEDURE local-update-record :
      VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
   END.
-  
+
   RUN calc-std-cost.
 
   ASSIGN
@@ -1974,12 +1978,12 @@ PROCEDURE local-update-record :
       IF AVAIL itemfg THEN
       DO:
          itemfg.taxable = ll-tax.
-        
+
          IF ll-new-record AND v-graphic-char NE "" AND itemfg.box-image EQ "" THEN 
          DO:
             IF LOOKUP(SUBSTR(v-graphic-char,LENGTH(v-graphic-char)),"\,/") EQ 0 THEN
                v-graphic-char = v-graphic-char + "\".
-         
+
             IF SEARCH(v-graphic-char + itemfg.i-no:SCREEN-VALUE + ".jpg") NE ? THEN
             DO:
                /*FIND CURRENT itemfg EXCLUSIVE-LOCK NO-ERROR.
@@ -2020,7 +2024,7 @@ PROCEDURE local-update-record :
     IF ll-new-part-no OR ll-new-i-name 
         OR ll-new-part-dscr1 OR ll-new-part-dscr2 OR ll-new-part-dscr3 THEN
         RUN update-order(OUTPUT op-upd-die).
-    
+
     IF ll-new-part-no OR ll-new-i-name OR ll-new-part-dscr1
         OR ll-new-die-no OR ll-new-plate-no OR ll-new-spc-no OR ll-new-upc-no 
         OR ll-new-procat 
@@ -2085,7 +2089,7 @@ PROCEDURE new-est-no :
           AND (eb.part-no  EQ itemfg.part-no:SCREEN-VALUE OR
                eb.stock-no EQ itemfg.i-no:SCREEN-VALUE)
         NO-LOCK NO-ERROR.
-   
+
     IF AVAIL eb THEN DO:
       ASSIGN
        itemfg.cad-no:SCREEN-VALUE   = CAPS(eb.cad-no)
@@ -2096,7 +2100,7 @@ PROCEDURE new-est-no :
        itemfg.cust-no:SCREEN-VALUE  = CAPS(eb.cust-no)
        itemfg.part-no:SCREEN-VALUE  = CAPS(eb.part-no)
        itemfg.style:SCREEN-VALUE    = eb.style  .   /* Task 01311402 */
- 
+
       itemfg.case-count:SCREEN-VALUE = STRING(eb.cas-cnt).
 
       FIND FIRST sys-ctrl
@@ -2173,7 +2177,7 @@ PROCEDURE proc-copy :
   DEF VAR v-cost AS LOG INIT YES NO-UNDO.
 
   IF AVAIL itemfg THEN DO WITH FRAME {&FRAME-NAME}:
-      
+
       RUN oeinq/d-cpyfg.w (OUTPUT v-cost, OUTPUT v-mat, OUTPUT v-cpyspc, OUTPUT v-begspc, OUTPUT v-endspc).
      IF NOT v-cost THEN
          ASSIGN
@@ -2185,8 +2189,8 @@ PROCEDURE proc-copy :
          itemfg.avg-cost:SCREEN-VALUE        = "0"
          itemfg.last-cost:SCREEN-VALUE       = "0"
          itemfg.spare-dec-1:SCREEN-VALUE     = "0" .
-     
-     
+
+
   END. /*IF AVAIL itemfg THEN DO WITH  */
 
 END PROCEDURE.
@@ -2223,12 +2227,12 @@ PROCEDURE recalc-cost :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR char-hdl AS cha NO-UNDO.
-  
-  
+
+
   RUN fg/d-recost.w (ROWID(itemfg)).
-  
+
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
-  
+
   RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(itemfg)).
 END PROCEDURE.
 
@@ -2292,11 +2296,11 @@ PROCEDURE repo-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
-  
+
   FIND CURRENT itemfg NO-LOCK NO-ERROR.
   RUN dispatch ('display-fields').
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2380,7 +2384,7 @@ PROCEDURE update-order :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER op-upd-die AS LOG NO-UNDO.
-    
+
   RUN fg/ordrupdt.w (ROWID(itemfg),old-part-no#).
 /*   IF TRIM(itemfg.est-no) GT "" THEN                                */
 /*   RUN fg/estupdt.w (ROWID(itemfg),old-part-no#,OUTPUT op-upd-die). */
@@ -2390,7 +2394,7 @@ PROCEDURE update-order :
    DEF VAR lv-est-no LIKE itemfg.est-no NO-UNDO.
 
    def buffer b-eb for eb.
-  
+
    &SCOPED-DEFINE where-phrase WHERE eb.company    EQ itemfg.company   ~
                                  AND eb.cust-no    EQ itemfg.cust-no   ~
                                  AND ((eb.part-no  EQ old-part-no# AND ~
@@ -2424,7 +2428,7 @@ PROCEDURE update-order :
      MESSAGE "Update Information for Estimate?"
          VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE yn#.
    END. /* if yn# */
-  
+
    if yn# then do:
      FOR EACH w-est-no:
        DELETE w-est-no.
@@ -2444,7 +2448,7 @@ PROCEDURE update-order :
              AND TRIM(eb.master-est-no) NE ""
              AND NOT CAN-FIND(FIRST w-est-no WHERE w-est-no EQ eb.master-est-no)
            NO-LOCK:
-         
+
          CREATE w-est-no.
          w-est-no = eb.master-est-no.
        END. /* each eb */
@@ -2461,7 +2465,7 @@ PROCEDURE update-order :
          {&where-phrase}
            and eb.est-no eq w-est-no
          exclusive-lock:
-     
+
           find first b-eb where b-eb.company eq eb.company
                             and b-eb.est-no  eq w-est-no
                             and w-est-no     eq itemfg.est-no
@@ -2476,7 +2480,7 @@ PROCEDURE update-order :
                  eb.spc-no     = itemfg.spc-no
                  eb.upc-no     = itemfg.upc-no.
      end. /* each w-est-no */
-    
+
      if avail b-eb then do:
         itemfg.part-no = old-part-no#.
         message "ERROR: Customer Part# already exists on form,"
@@ -2516,7 +2520,7 @@ PROCEDURE valid-cust-no :
                 NO-LOCK NO-ERROR.
     IF AVAIL cust THEN ASSIGN itemfg.cust-name:SCREEN-VALUE    = cust.name.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2539,9 +2543,9 @@ PROCEDURE valid-cust-part :
          APPLY "entry" TO itemfg.part-no.
          RETURN ERROR.
     END.
-    
+
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2585,7 +2589,7 @@ PROCEDURE valid-est-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&frame-name}:
     IF INT(old-est-no) NE INT(itemfg.est-no:SCREEN-VALUE) THEN RUN new-est-no.
 
@@ -2649,7 +2653,7 @@ PROCEDURE valid-type :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF TRIM(itemfg.type-code:SCREEN-VALUE) NE ""                AND
        LOOKUP(itemfg.type-code:SCREEN-VALUE,lv-type-codes) LE 0 THEN DO:

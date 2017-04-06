@@ -31,7 +31,7 @@
 
 /* Local Variable Definitions ---                                       */
 def input parameter ip-company like itemfg.company no-undo.
-def input parameter ip-cust-no like rfq.cust-no no-undo.
+def input parameter ip-cust-no like cust-no no-undo.
 def input parameter ip-cur-recid as recid no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */
@@ -65,13 +65,13 @@ def var lv-type-dscr as cha no-undo.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 rfqitem.rfq-no rfq.cust-no ~
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 rfqitem.rfq-no cust-no ~
 rfqitem.stock-no rfqitem.i-name rfqitem.part-no 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define FIELD-PAIRS-IN-QUERY-BROWSE-1
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH rfqitem WHERE ~{&KEY-PHRASE} ~
       AND recid(rfqitem) <> ip-cur-recid and ~
-rfq.rfqitem.company = ip-company  ~
+rfqitem.company = ip-company  ~
  NO-LOCK, ~
       EACH rfq OF rfqitem ~
       WHERE cust-no = ip-cust-no NO-LOCK ~
@@ -142,7 +142,7 @@ DEFINE BROWSE BROWSE-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-1 Dialog-Frame _STRUCTURED
   QUERY BROWSE-1 NO-LOCK DISPLAY
       rfqitem.rfq-no
-      rfq.cust-no
+      cust-no
       rfqitem.stock-no COLUMN-LABEL "FG Item#"
       rfqitem.i-name
       rfqitem.part-no COLUMN-LABEL "Customer Part#"
@@ -199,24 +199,24 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "rfq.rfqitem,rfq.rfq OF rfq.rfqitem"
+     _TblList          = "rfqitem,rfq OF rfqitem"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "recid(rfqitem) <> ip-cur-recid and
-rfq.rfqitem.company = ip-company 
+rfqitem.company = ip-company 
 "
-     _Where[2]         = "rfq.cust-no = ip-cust-no"
-     _FldNameList[1]   = rfq.rfqitem.rfq-no
-     _FldNameList[2]   = rfq.rfq.cust-no
-     _FldNameList[3]   > rfq.rfqitem.stock-no
+     _Where[2]         = "cust-no = ip-cust-no"
+     _FldNameList[1]   = rfqitem.rfq-no
+     _FldNameList[2]   = cust-no
+     _FldNameList[3]   > rfqitem.stock-no
 "rfqitem.stock-no" "FG Item#" ? "character" ? ? ? ? ? ? no ?
-     _FldNameList[4]   = rfq.rfqitem.i-name
-     _FldNameList[5]   > rfq.rfqitem.part-no
+     _FldNameList[4]   = rfqitem.i-name
+     _FldNameList[5]   > rfqitem.part-no
 "rfqitem.part-no" "Customer Part#" ? "character" ? ? ? ? ? ? no ?
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -244,7 +244,7 @@ DO:
                  string(rfqitem.seq) 
                  .
    apply "window-close" to frame {&frame-name}. 
-      
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -276,7 +276,7 @@ DO:
                  string(rfqitem.seq) 
                  .
    apply "window-close" to frame {&frame-name}. 
-      
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -296,7 +296,7 @@ DO:
         {srtord.i 1}
         {srtord.i 2}
     end.      
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -336,10 +336,10 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  
+
    &scoped-define key-phrase {&fld-name-2} >= ip-cur-val
    lv-search:screen-value in frame {&frame-name} = ip-cur-val.
-   
+
    RUN enable_UI.
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.

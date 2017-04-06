@@ -51,7 +51,7 @@ DEF VAR init-dir AS CHA NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -312,7 +312,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -363,7 +363,7 @@ DO:
 
   /*run check-date.
   if not ll-valid then return no-apply.*/
-      
+
   assign
    rd-dest
    v-from-job = fill(" ",6 - length(trim(input v-from-job))) +
@@ -374,7 +374,7 @@ DO:
                 (IF t-issue   THEN "I" ELSE "") +
                 (IF t-trans   THEN "T" ELSE "") +
                 (IF t-adj     THEN "A" ELSE "").
-       
+
   run run-report. 
 
   case rd-dest:
@@ -384,7 +384,7 @@ DO:
   end case.
 
   lv-post = NO.
-      
+
   IF ip-post THEN DO:
     MESSAGE "Post RM Transactions?"
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
@@ -403,17 +403,17 @@ DO:
 
   if (not lv-post) or index(v-types,"R") eq 0 then
   for each w-rec-h  where w-rec-h.rita-code eq "R",
-    
+
       first rm-rctd where recid(rm-rctd) eq w-rec-h.rec-id:
-  
+
     delete rm-rctd.
   end.
 
   if (not lv-post) or index(v-types,"I") eq 0 then
   for each w-rec-h  where w-rec-h.rita-code eq "I",
-    
+
       first rm-rctd where recid(rm-rctd) eq w-rec-h.rec-id:
-  
+
     delete rm-rctd.
   end.
 
@@ -569,7 +569,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   if v-autoissue             and
      index(v-types,"R") gt 0 and
      index(v-types,"I") eq 0 then v-types = trim(v-types) + "I".
-   
+
   assign
    v-post-date = TODAY
    t-receipt   = index(v-types,"R") gt 0
@@ -579,13 +579,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    v-types     = ""
    c-win:TITLE = IF ip-post THEN "Raw Material Post"
                             ELSE "Raw Material Edit List".
-    
+
   RUN enable_UI.
 
   /*RUN check-date.*/
 
   IF NOT ip-post THEN DISABLE v-post-date WITH FRAME {&FRAME-NAME}.
-  
+
   {methods/nowait.i}
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
@@ -607,7 +607,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     ll-valid = YES.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le v-post-date
@@ -677,7 +677,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -687,9 +687,9 @@ PROCEDURE output-to-file :
          ASK-OVERWRITE
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -780,15 +780,15 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
           and can-find(first item where item.company eq cocode
                                     and item.i-no    eq b-rm-rctd.i-no)
         no-lock
-        
+
         break by b-rm-rctd.i-no
               by b-rm-rctd.r-no
-        
+
         transaction:
-        
+
       find rm-rctd where recid(rm-rctd) eq recid(b-rm-rctd) exclusive no-wait.
       if locked rm-rctd then next transblok.
-      
+
       find first item
           where item.company eq cocode
             and item.i-no    eq rm-rctd.i-no
@@ -811,10 +811,10 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
             and xrm-rctd.po-no     eq rm-rctd.po-no
             and xrm-rctd.r-no      lt rm-rctd.r-no
           no-lock:
-            
+
         undo transblok, next transblok.
       end.
-      
+
       find first job
           where job.company eq cocode
             and job.job-no  eq fill(" ",6 - length(trim(rm-rctd.job-no))) +
@@ -839,7 +839,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
          rm-bin.tag     = rm-rctd.tag
          rm-bin.i-no    = rm-rctd.i-no.
       end. /* not avail rm-bin */
-        
+
       if rm-rctd.rita-code eq "R" then do:        /** RECEIPTS **/
         {rm/rm-post.i "rm-bin.qty" "rm-bin.cost" "rm-rctd.qty" "rm-rctd.cost"}
 
@@ -847,9 +847,9 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
          rm-bin.qty     = rm-bin.qty + rm-rctd.qty
          item.last-cost = rm-rctd.cost
          item.q-onh     = item.q-onh + rm-rctd.qty.
-           
+
         {rm/rm-poupd.i 2}
-          
+
         item.q-avail = item.q-onh + item.q-ono - item.q-comm.
       end. /* R */
 
@@ -857,9 +857,9 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
       if rm-rctd.rita-code eq "I" then do:  /** ISSUES **/
         if avail job and job.job-no ne "" then do:
           run rm/mkjobmat.p (recid(rm-rctd),rm-rctd.company, output v-recid).
-            
+
           find job-mat where recid(job-mat) eq v-recid no-error.
-            
+
           if not avail job-mat then do:
             bell.
             message " Job Mat Record not found for "
@@ -883,9 +883,9 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
           if v-bwt eq 0 then v-bwt = item.basis-w.
 
           if index("RL",job.stat) ne 0 then job.stat = "W".
-            
+
           {rm/rmmatact.i}            /* Create Actual Material */
-            
+
           run sys/ref/convquom.p(rm-rctd.pur-uom, job-mat.qty-uom,
                                  v-bwt, v-len, v-wid, v-dep,
                                  rm-rctd.qty, output out-qty).
@@ -901,7 +901,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
            job-mat.qty-iss = job-mat.qty-iss + out-qty
            job-mat.qty-all = job-mat.qty-all - out-qty
            item.q-comm     = item.q-comm     - rm-rctd.qty.
-            
+
           run sys/ref/convquom.p(rm-rctd.pur-uom, job-mat.sc-uom,
                                  v-bwt, v-len, v-wid, v-dep,
                                  rm-rctd.qty, output out-qty).
@@ -922,7 +922,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
 
           IF item.mat-type EQ "B" THEN RUN rm/rm-addcr.p (ROWID(rm-rctd)).
         end.
-          
+
         find first rm-bin
             where rm-bin.company eq rm-rctd.company
               and rm-bin.loc     eq rm-rctd.loc
@@ -930,7 +930,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
               and rm-bin.loc-bin eq rm-rctd.loc-bin
               and rm-bin.tag     eq rm-rctd.tag
             no-error.
-          
+
         assign
          rm-bin.qty     = rm-bin.qty - rm-rctd.qty
          item.q-onh     = item.q-onh - rm-rctd.qty
@@ -1026,7 +1026,7 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
           and rm-rctd.job-no    ge v-from-job
           and rm-rctd.job-no    le v-to-job     
         transaction:
-        
+
       rm-rctd.rita-code = "I".
     end.
 
@@ -1040,7 +1040,7 @@ PROCEDURE run-report :
 /* ------------------------------------------------ rm/rep/rm-post.p 10/93 cd */
 /* raw materials posting - part 1 : printout                                  */
 /* -------------------------------------------------------------------------- */
-   
+
 {sys/form/r-top3w.f}
 
 def var v-type-prt as ch format "X(11)" init "".
@@ -1054,7 +1054,7 @@ def var v-inkissue as log.
 def var v-pr-tots as log format "Y/N".     
 def var v-whse like rm-rctd.loc.
 DEF VAR v-int AS INT NO-UNDO.
- 
+
 def buffer b-rm-rctd for rm-rctd.
 DEF BUFFER b-item FOR ITEM.
 
@@ -1074,7 +1074,7 @@ form rm-rctd.rct-date                   label "DATE"
      rm-rctd.pur-uom                    label "UOM"    
      rm-rctd.cost format "->>>>>9.99"   label "COST"
      v-ext-cost                         label "TOTAL COST"
-     
+
     with frame itemx no-box down STREAM-IO width 132.
 
     if index(v-types,"R") gt 0 then
@@ -1086,7 +1086,7 @@ form rm-rctd.rct-date                   label "DATE"
           and rm-rctd.job-no    le v-to-job
           AND rm-rctd.job-no    ne ""
         no-lock,
-        
+
         first item
         where item.company eq cocode
           and item.i-no    eq rm-rctd.i-no
@@ -1125,7 +1125,7 @@ form rm-rctd.rct-date                   label "DATE"
       assign
        b-rm-rctd.r-no      = v-int
        b-rm-rctd.rita-code = "I".
-         
+
       create w-rec-h.
       assign
        w-rec-h.rec-id    = recid(b-rm-rctd)
@@ -1184,24 +1184,24 @@ form rm-rctd.rct-date                   label "DATE"
           and index(v-types,rm-rctd.rita-code) gt 0 
           and rm-rctd.rita-code ne "C"
         no-lock
-        
+
         break by rm-rctd.loc                                             
               by rm-rctd.i-no 
               by rm-rctd.loc-bin                           
               by rm-rctd.tag
-              
+
         with frame itemx:                                                   
 
       if first-of(rm-rctd.loc) then do:
         v-whse = rm-rctd.loc.
-                   
+
         if first(rm-rctd.loc) then DISPLAY WITH frame r-top.
-        
+
         else put skip(3) "WHSE: " v-whse.
       end.
-          
+
       v-ext-cost = rm-rctd.cost * rm-rctd.qty.
-        
+
       if rm-rctd.po-no ne " " then                                         
       find first po-ord
           where po-ord.company eq cocode
@@ -1238,7 +1238,7 @@ form rm-rctd.rct-date                   label "DATE"
         assign
          v-tot-qty = v-tot-qty + rm-rctd.qty
          v-tot-cost = v-tot-cost + (rm-rctd.cost * rm-rctd.qty).
-        
+
       if last-of(rm-rctd.i-no) then do:
         if v-pr-tots then
           put "-----------"                         to 85
@@ -1254,7 +1254,7 @@ form rm-rctd.rct-date                   label "DATE"
          v-tot-cost = 0.
       end.   
     end. /* each rm-rctd */
-    
+
     if v-pr-tots then                                                           
       put "-----------"                               to 85
           "----------"                                to 120 skip
@@ -1282,12 +1282,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1313,23 +1313,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

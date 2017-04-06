@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:04 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -263,6 +267,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -329,7 +335,7 @@ fg-rctd.rita-code = ""I"""
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -345,7 +351,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-   
+
    RUN new-state in phandle ('update-begin':U).
 
 END.
@@ -361,7 +367,7 @@ DO:
 
 
   IF NOT AVAIL fg-rctd THEN FIND fg-rctd WHERE RECID(fg-rctd) EQ lv-recid NO-LOCK NO-ERROR. 
- 
+
   ll-help-run = YES.
 
   CASE FOCUS:NAME:
@@ -486,7 +492,7 @@ ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:  /* display calculated field */
   /* def var ii as int.
    ii = if avail rm-rctd then integer(rm-rctd.po-no) else 0.
-   
+
    if avail rm-rctd then    run get-matrix (true).
 */
 END.
@@ -500,7 +506,7 @@ ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
-  
+
   ll-help-run = no.
 END.
 
@@ -633,7 +639,7 @@ DO:
   END.
 
   /*  IF LASTKEY = -1 THEN RETURN.
-      
+
   find first itemfg {sys/look/itemfgrlW.i}
              and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                  no-lock no-error.
@@ -864,7 +870,7 @@ PROCEDURE fgbin-help :
         FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
         TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
-    
+
     RUN windows/l-fgibn2.w (g_company, fg-rctd.i-no:screen-value in browse {&browse-name}, fg-rctd.job-no:screen-value in browse {&browse-name}, INT(fg-rctd.job-no2:screen-value in browse {&browse-name}), fg-rctd.loc:screen-value in browse {&browse-name}, fg-rctd.loc-bin:screen-value in browse {&browse-name}, fg-rctd.tag:screen-value in browse {&browse-name}, output lv-rowid).
     FIND fg-bin WHERE ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
 
@@ -888,7 +894,7 @@ PROCEDURE fgbin-help :
       RUN new-bin.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -907,14 +913,14 @@ PROCEDURE get-def-values :
         and itemfg.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
       no-lock no-error.
   fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
-      
+
   IF adm-new-record THEN DO:
     find first fg-ctrl where fg-ctrl.company eq cocode no-lock no-error.
     assign
      /*fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(itemfg.case-count)*/
      fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}      = ""
      fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}  = "".
-       
+
      do:
       find first fg-bin
           where fg-bin.company eq cocode
@@ -934,13 +940,13 @@ PROCEDURE get-def-values :
           where cust.company eq cocode
             and cust.active  eq "X"
           no-lock no-error.
-                                
+
       if avail cust then do:
         find first shipto
             where shipto.company eq cocode
               and shipto.cust-no eq cust.cust-no  
             no-lock no-error.
-           
+
         if avail shipto then do:
           find first fg-bin
               where fg-bin.company eq cocode
@@ -955,7 +961,7 @@ PROCEDURE get-def-values :
         end.                                  
       end.
     end.    
-    
+
   END.
 
   if fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}  eq "" then do:
@@ -984,7 +990,7 @@ PROCEDURE get-def-values :
   ELSE if avail itemfg AND fg-rctd.loc:SCREEN-VALUE = "" THEN
     ASSIGN fg-rctd.loc:SCREEN-VALUE     = itemfg.def-loc
            fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin
-  
+
            /*fg-rctd.qty-case:SCREEN-VALUE = /*IF fg-rctd.po-no:SCREEN-VALUE = "" and
                                               fg-rctd.job-no:SCREEN-VALUE = "" 
                                            THEN   STRING(itemfg.case-count)
@@ -1026,7 +1032,7 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
  DEF VAR lv-rno LIKE fg-rctd.r-no NO-UNDO.
 
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   lv-rno = 0.
@@ -1100,7 +1106,7 @@ PROCEDURE local-disable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   if valid-handle(hd-post-child) then  hd-post-child:sensitive = yes.
             /* value assigned from local-enable-fields*/
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1115,7 +1121,7 @@ PROCEDURE local-enable-fields :
   def var out-hd-lst as cha no-undo.
   def var ii as int no-undo.
   def var hd-next as widget-handle no-undo.
-   
+
   /* Code placed here will execute PRIOR to standard behavior. */
   /*
   run get-link-handle in adm-broker-hdl (this-procedure,"record-target", output out-hd-lst).
@@ -1148,7 +1154,7 @@ PROCEDURE local-enable-fields :
   /*apply "entry" to fg-rctd.tag in browse {&browse-name}.
   return no-apply.*/
 
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1320,7 +1326,7 @@ PROCEDURE valid-i-no :
       RETURN ERROR.
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1383,7 +1389,7 @@ FIND FIRST loadtag WHERE loadtag.company = g_company
  IF NOT AVAIL loadtag OR  fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN DO:
     /*MESSAGE "Invalid Tag#. Try help or Scan valid tag#..." VIEW-AS ALERT-BOX ERROR.*/
      RUN custom/d-msg.w ("Error","","","Invalid Tag#. Try help or Scan valid tag#...",1,"OK", OUTPUT v-out).
-     
+
 
     APPLY "entry" TO fg-rctd.tag IN BROWSE {&browse-name}.
     RETURN ERROR.
@@ -1426,7 +1432,7 @@ PROCEDURE validate-record :
         END.
      END.
   END.
-  
+
   FIND FIRST loc WHERE loc.company = g_company
                         AND loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
                         NO-LOCK NO-ERROR.
@@ -1435,7 +1441,7 @@ PROCEDURE validate-record :
           APPLY "entry" TO fg-rctd.loc.
           RETURN ERROR.
   END.
-  
+
   FIND FIRST fg-bin WHERE fg-bin.company = g_company 
                       AND fg-bin.i-no = ""
                       AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -1449,7 +1455,7 @@ PROCEDURE validate-record :
   /* ===== tag validation =====*/
   IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> ""
   THEN DO:
-  
+
     FIND FIRST bf-tmp WHERE bf-tmp.company = g_company AND
                             bf-tmp.tag = fg-rctd.tag:SCREEN-VALUE
                         AND RECID(bf-tmp) <> RECID(fg-rctd)

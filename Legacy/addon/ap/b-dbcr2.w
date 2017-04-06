@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:02 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -251,6 +255,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -310,7 +316,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -327,7 +333,7 @@ DO:
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
   phandle = WIDGET-HANDLE(char-hdl).
-    
+
   IF NOT ll-inquiry THEN RUN new-state in phandle ('update-begin':U).
 END.
 
@@ -527,7 +533,7 @@ PROCEDURE create-appayl :
 
   FOR EACH tt-inv WHERE tt-inv.selekt,
       FIRST ap-inv WHERE RECID(ap-inv) EQ tt-inv.rec-id NO-LOCK:
-        
+
     FIND FIRST ap-invl WHERE ap-invl.company = ap-inv.company
                          AND ap-invl.i-no = ap-inv.i-no NO-LOCK NO-ERROR.    
 
@@ -573,7 +579,7 @@ PROCEDURE create-appayl :
 
     RELEASE ap-payl.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -608,7 +614,7 @@ PROCEDURE display-apinv :
 
 
   FIND FIRST ap-inv WHERE RECID(ap-inv) EQ ip-recid NO-LOCK NO-ERROR.
-  
+
   FIND FIRST ap-invl WHERE ap-invl.company = ap-inv.company
                          AND ap-invl.i-no = ap-inv.i-no NO-LOCK NO-ERROR.    
 
@@ -853,7 +859,7 @@ PROCEDURE local-update-record :
 
   RUN valid-inv-act NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
+
    /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -863,7 +869,7 @@ PROCEDURE local-update-record :
          adm-updating-record = NO
          adm-new-record = NO
          lv-inv-displayed = NO.
-         
+
 
 END PROCEDURE.
 

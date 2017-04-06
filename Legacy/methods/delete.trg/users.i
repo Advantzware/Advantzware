@@ -62,4 +62,16 @@ IF SEARCH("./usermenu/" + trim(users.user_id) + "/menu.cor" ) <> ? THEN
 IF SEARCH("./usermenu/" + trim(users.user_id) + "/menu.tmp" ) <> ? THEN 
          OS-DELETE VALUE("./usermenu/" + users.user_id + "/menu.tmp").
 
-
+IF CONNECTED ("SmartDB") THEN DO:
+    FIND FIRST SmartUser EXCLUSIVE-LOCK 
+         WHERE SmartUser.UserName EQ users.user_id
+         NO-ERROR.
+    IF AVAILABLE SmartUser THEN DO:
+        FOR EACH SmartUserGroup EXCLUSIVE-LOCK
+            WHERE SmartUserGroup.UserGuid EQ SmartUser.UserGuid
+            :
+            DELETE SmartUserGroup.
+        END. /* for each */
+        DELETE SmartUser.
+    END. /* if avail */
+END. /* if CONNECTED */

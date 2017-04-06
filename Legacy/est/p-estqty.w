@@ -181,6 +181,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -215,7 +216,7 @@ ASSIGN
 */  /* FRAME Panel-Frame */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -228,7 +229,9 @@ DO:
   add-active = yes.
 
   RUN notify ('add-record':U).
-  
+  {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -242,7 +245,9 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
+      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
    END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -255,6 +260,8 @@ ON CHOOSE OF Btn-Copy IN FRAME Panel-Frame /* Copy */
 DO:
 
    RUN notify ('copy-record':U).
+   {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -266,6 +273,7 @@ END.
 ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
 DO:
    RUN notify ('delete-record':U).  
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -277,6 +285,7 @@ END.
 ON CHOOSE OF Btn-Reset IN FRAME Panel-Frame /* Reset */
 DO:
   RUN notify ('reset-record':U).
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -305,18 +314,22 @@ DO:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
            RUN new-state('update-begin':U).
+           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
            ASSIGN add-active = no.
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
         END.                              
      END.
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
      END.
   END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -333,11 +346,11 @@ END.
   /* Set the default SmartPanel to the one that has the Commit push */
   /* button displayed (the TABLEIO-TARGETS are not enabled/disabled */
   /* automatically with this type of SmartPanel).                   */
-  
+
   RUN set-attribute-list ("SmartPanelType=Save, 
                            Edge-Pixels=2,
                            AddFunction=One-Record":U). 
-                           
+
   /* If the application hasn't enabled the behavior that a RETURN in a frame = GO,
      then enable the usage of the Save button as the default button. (Note that in
      8.0, the Save button was *always* the default button.) */
@@ -345,10 +358,17 @@ END.
   ASSIGN
       Btn-Save:DEFAULT IN FRAME {&FRAME-NAME} = yes
       FRAME {&FRAME-NAME}:DEFAULT-BUTTON = Btn-Save:HANDLE.
-  
+
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
+
+  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+  {methods/setButton.i Btn-Reset "Reset"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+  {methods/setButton.i Btn-Add "Add"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+  {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+  {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -400,7 +420,7 @@ PROCEDURE local-enable :
 
   RUN dispatch ('enable':U).      /* Get all objects enabled to start. */
   RUN set-buttons (adm-panel-state).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -415,7 +435,7 @@ PROCEDURE local-initialize :
   ------------------------------------------------------------------------*/
 
   DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
-  
+
   /* Insert pre-dispatch code here. */ 
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT "adm-initialize":U ) .
@@ -448,7 +468,7 @@ message "local-init query-pos:" query-position " panel:" adm-panel-state skip
          "table-link:" tab-target-link  "end".
 */
   END.
- 
+
   IF panel-type = 'SAVE':U AND /* Only enable a Save panel if there's a record */
     LOOKUP(query-position,'no-record-available,no-external-record-available':U) = 0
      THEN RUN notify ('enable-fields, TABLEIO-TARGET':U).
@@ -467,7 +487,7 @@ PROCEDURE set-buttons :
            sort of action is occuring to the TABLEIO-TARGET(s) of the panel.
   Parameters:  Character string that denotes which action to set the button
                sensitivities.
-               
+
                The values are: initial - the panel is in a state where no record
                                          changes are occuring; i.e. it is possible
                                          to  Update, Add, Copy, or Delete a record.
@@ -526,9 +546,9 @@ DO WITH FRAME Panel-Frame:
 &ENDIF
 
   END. /* panel-state = 'disable-all' */
-  
+
   ELSE IF panel-state = 'initial':U THEN DO:
-  
+
     /* The panel is not actively changing any of its TABLEIO-TARGET(s). */
 
 &IF LOOKUP("Btn-Save":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
@@ -554,7 +574,7 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Cancel":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Cancel:SENSITIVE = NO.
 &ENDIF
-      
+
   END. /* panel-state = 'initial' */
 
   ELSE IF panel-state = 'add-only':U THEN DO:
@@ -583,9 +603,9 @@ DO WITH FRAME Panel-Frame:
 &ENDIF
 
   END. /* panel-state = 'add-only' */
- 
+
   ELSE DO: /* panel-state = action-chosen */ 
-  
+
     /* The panel had one of the buttons capable of changing/adding a record */
     /* pressed. Always force the SAVE/UPDATE button to be sensitive in the  */
     /* the event that the smartpanel is disabled and later enabled prior to */
@@ -667,7 +687,7 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/pustates.i}
   END CASE.
-  
+
   /* change to force buttons after delete style record */
   run get-attribute in adm-broker-hdl ('IS-DELETED').
   if return-value = "yes" and p-state begins "link" then do: 
@@ -696,7 +716,7 @@ PROCEDURE use-smartpaneltype :
 ------------------------------------------------------------------------------*/
   define input parameter inval as character.
   panel-type = inval.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -4,6 +4,10 @@
           rfq              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:03 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -233,6 +237,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -298,7 +304,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -441,8 +447,8 @@ PROCEDURE local-open-query :
   /* Code placed here will execute AFTER standard behavior.    */
 
   apply "value-changed" to browse-order in frame {&frame-name}.
- 
- 
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -457,7 +463,7 @@ PROCEDURE RefreshRow :
 ------------------------------------------------------------------------------*/
   define input parameter pcMode     as character no-undo.
   define input parameter prRowIdent as rowid     no-undo.
-  
+
   if pcMode = 'newRecord':U then do:
      def var lv-rowid-rfqitem as rowid no-undo.
      run get-rowid (output lv-rowid-rfqitem).
@@ -482,7 +488,7 @@ message  string(prrowident) string(lv-rowid-rfqitem) string(currowident)
       browse browser-Table:select-next-row().
       browse browser-Table:fetch-selected-row(1).
     end.  
-   
+
   end.
   else do :
 /*    find current rfqitem no-lock no-error.*/
@@ -545,7 +551,7 @@ FUNCTION disp-est-no RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
- 
+
   IF AVAIL rfqitem THEN RETURN trim(rfqitem.est-no).   /* Function return value. */
   ELSE RETURN "".
 
@@ -562,7 +568,7 @@ FUNCTION To-Corrware-Dim RETURNS DECIMAL
     Notes:  
 ------------------------------------------------------------------------------*/
   def var out-dim as dec DECIMALS 6 no-undo.
-  
+
   if ip-is-corr-style AND v-cecscrn-char NE "Decimal" then 
      out-dim = round(trunc(ip-dim,0) + ((ip-dim - trunc(ip-dim,0)) / K_FRAC),2).
   else out-dim = ip-dim.

@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:11 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -39,6 +43,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i} /* added by script _globdefs.p on 03.28.2017 @ 10:42:30 am */
 
 DEF TEMP-TABLE tt-budget FIELD yr AS int
                          FIELD prd AS INT
@@ -235,6 +240,8 @@ END.
 
 {src/adm/method/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -277,7 +284,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-budget NO-LOCK,
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -362,7 +369,7 @@ PROCEDURE add-periods :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEF VAR lv-yr AS INT NO-UNDO.
   DEF VAR lv-prd AS INT NO-UNDO.
 
@@ -433,14 +440,14 @@ PROCEDURE build-budget :
   END.
 
   IF NOT v-year-changed THEN DO:
-     
+
      DO WHILE cb_year:NUM-ITEMS IN FRAME {&FRAME-NAME} <> 0:
        cb_year:DELETE(1) IN FRAME {&FRAME-NAME}.
      END.
 
      cb_year:ADD-LAST(string(YEAR(TODAY),"9999")) IN FRAME {&FRAME-NAME}.
      cb_year:SCREEN-VALUE IN FRAME {&FRAME-NAME} = STRING(YEAR(TODAY),"9999").
-  
+
      FOR EACH bf-bud OF sman NO-LOCK BREAK BY bf-bud.budget-yr DESC:
          IF FIRST-OF(bf-bud.budget-yr) AND bf-bud.budget-yr <> YEAR(TODAY) THEN DO:
             cb_year:ADD-LAST(STRING(bf-bud.budget-yr,"9999")) IN FRAME {&FRAME-NAME}.
@@ -577,6 +584,7 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+  RUN pDataGridInit. /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:11 am */
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizeLocInit.i}

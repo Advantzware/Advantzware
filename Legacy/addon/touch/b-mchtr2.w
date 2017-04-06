@@ -286,7 +286,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-tran,
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -328,10 +328,10 @@ DO:
       keyfunction(lastkey) = "cursor-up" or
       keyfunction(lastkey) = "cursor-down" 
    then do:
-  
+
       return no-apply.
    end.
- 
+
    {est/brsleave.i}   /* same but update will be like add 
                          need to run set-attribute-list ("adm-new-record = 'no' ")
                          in local-update-record  */
@@ -445,14 +445,14 @@ PROCEDURE build-table :
  RUN get-values IN WIDGET-HANDLE(char-hdl) (OUTPUT company_code,OUTPUT machine_code,OUTPUT job_number,OUTPUT job_sub,
       OUTPUT form_number, OUTPUT blank_number,OUTPUT pass_sequence,OUTPUT label_language).
 
-FOR EACH EMPTRACK.machtran WHERE machtran.company = company_code AND
+FOR EACH machtran WHERE machtran.company = company_code AND
                         machtran.machine = machine_code AND
                         machtran.job_number = job_number AND
                         machtran.job_sub = INTEGER(job_sub) AND
                         machtran.form_number = INTEGER(form_number) AND
                         machtran.blank_number = INTEGER(blank_number) AND
                         machtran.pass_sequence = INTEGER(pass_sequence) NO-LOCK:
-    
+
     CREATE tt-tran.
     BUFFER-COPY machtran TO tt-tran.
     ASSIGN lv-run-total = lv-run-total + machtran.run_qty
@@ -566,7 +566,7 @@ PROCEDURE local-assign-record :
   DEF VAR v-min AS INT NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   ASSIGN tt-tran.startx = tt-tran.startx:SCREEN-VALUE IN BROWSE {&browse-name}
          tt-tran.endx = tt-tran.endx:SCREEN-VALUE
          tt-tran.start_date = date(tt-tran.start_date:SCREEN-VALUE)
@@ -745,11 +745,11 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   /*To update total run column*/
   RUN build-table.
   {&open-query-{&browse-name}}
-  
+
   IF ttRowID <> ? THEN DO:
      REPOSITION {&browse-name} TO ROWID ttRowID NO-ERROR.
      RUN dispatch ('row-change').
@@ -768,14 +768,14 @@ PROCEDURE paper-clip-image-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-rec_key AS CHAR NO-UNDO.
-   
+
    DEF VAR v-i-no AS CHAR NO-UNDO.
    DEF VAR v-est-no AS cha NO-UNDO.
    DEF VAR v-att AS LOG NO-UNDO.
    DEF VAR char-hdl AS CHAR NO-UNDO.
 
    {sys/ref/attachlogic.i}
-  
+
    IF v-est-no <> "" AND v-i-no <> "" THEN
       v-att = CAN-FIND(FIRST asi.attach WHERE
               attach.company = company_code and
@@ -795,7 +795,7 @@ PROCEDURE paper-clip-image-proc :
               (index(v-i-no,attach.i-no) > 0)).
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
-  
+
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN paper-clip-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
 END PROCEDURE.

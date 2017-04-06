@@ -124,6 +124,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -154,7 +155,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -310,7 +311,7 @@ PROCEDURE Allow-Create :
   DEFINE OUTPUT PARAMETER op-flag AS LOGICAL NO-UNDO.
 
   op-flag = yes.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -421,7 +422,7 @@ PROCEDURE get-item-record :
   Notes:       
 ------------------------------------------------------------------------------*/
 def output parameter op-item-recid as recid no-undo.
-  
+
 FIND FIRST itemfg WHERE
   itemfg.company EQ cocode AND
   itemfg.i-no EQ ip-i-no
@@ -474,14 +475,14 @@ PROCEDURE local-initialize :
     NO-LOCK NO-ERROR.
 
   IF AVAIL itemfg THEN DO:
-  
+
     FIND FIRST e-itemfg WHERE
       e-itemfg.company = cocode AND
       e-itemfg.i-no = ip-i-no
       EXCLUSIVE-LOCK NO-ERROR.
 
     if not avail e-itemfg then do:
-      
+
       create e-itemfg.
       assign e-itemfg.company = itemfg.company
              e-itemfg.i-no = itemfg.i-no
@@ -501,7 +502,7 @@ PROCEDURE local-initialize :
            e-itemfg-vend.vend-no = ""
            e-itemfg-vend.item-type = NO.
     END.
-    
+
     RUN dispatch IN WIDGET-HANDLE(char-hdl) ("add-record").
 
     RUN add-vend-cost IN WIDGET-HANDLE(char-hdl)(INPUT RECID(e-itemfg),

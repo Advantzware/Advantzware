@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:15 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -1072,7 +1076,7 @@ ASSIGN
 */  /* FRAME fold */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -1096,8 +1100,8 @@ DO:
 
     v-loopct = INT(eb.i-col:SCREEN-VALUE) + 
                INT(eb.i-coat:SCREEN-VALUE).
-    
-    
+
+
     case focus:name :
          when "i-code2" then do:
              find style where style.company = eb.company and
@@ -1111,7 +1115,7 @@ DO:
              IF char-val <> "" THEN DO:
 
                  ASSIGN v-valhld = char-val.
-               
+
                  DO v-cnt = FOCUS:INDEX  TO v-loopct:                     
 
                    CASE v-cnt:
@@ -1188,7 +1192,7 @@ DO:
                    ASSIGN v-valhld = SUBSTR(v-valhld,(LENGTH(ENTRY(1,v-valhld)) + LENGTH(ENTRY(2,v-valhld)) + 3)).
 
                    IF TRIM(v-valhld) EQ ""  THEN LEAVE.
-                  
+
                  END.
 
                  RUN getUnit# (FOCUS:INDEX).                                  
@@ -1469,7 +1473,7 @@ DO:
                  /* do not copy over to divider value (AH task 07011009) */
                  eb.div-up:SCREEN-VALUE  = STRING(ITEM.box-case).
   END.
-  
+
 
 END.
 
@@ -1482,7 +1486,7 @@ END.
 ON LEAVE OF fi_side-2 IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
-   
+
       ASSIGN fi_side-2.
 
       IF fi_side-2 NE "" AND LOOKUP(fi_side-2,"F,B") EQ 0 THEN
@@ -1503,7 +1507,7 @@ END.
 ON LEAVE OF fi_side-3 IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
-   
+
       ASSIGN fi_side-3.
 
       IF fi_side-3 NE "" AND LOOKUP(fi_side-3,"F,B") EQ 0 THEN
@@ -1524,7 +1528,7 @@ END.
 ON LEAVE OF fi_side-4 IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
-   
+
       ASSIGN fi_side-4.
 
       IF fi_side-4 NE "" AND LOOKUP(fi_side-4,"F,B") EQ 0 THEN
@@ -1545,7 +1549,7 @@ END.
 ON LEAVE OF fi_side-5 IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
-   
+
       ASSIGN fi_side-5.
 
       IF fi_side-5 NE "" AND LOOKUP(fi_side-5,"F,B") EQ 0 THEN
@@ -1566,7 +1570,7 @@ END.
 ON LEAVE OF fi_side-6 IN FRAME fold
 DO:
   IF LASTKEY NE -1 THEN DO:
-   
+
      ASSIGN fi_side-6.
 
      IF fi_side-6 NE "" AND LOOKUP(fi_side-6,"F,B") EQ 0 THEN
@@ -1587,7 +1591,7 @@ END.
 ON LEAVE OF fi_side-7 IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
-   
+
       ASSIGN fi_side-7.
 
       IF fi_side-7 NE "" AND LOOKUP(fi_side-7,"F,B") EQ 0 THEN
@@ -1608,7 +1612,7 @@ END.
 ON LEAVE OF fi_side-8 IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
-   
+
       ASSIGN fi_side-8.
 
       IF fi_side-8 NE "" AND LOOKUP(fi_side-8,"F,B") EQ 0 THEN
@@ -1629,7 +1633,7 @@ END.
 ON LEAVE OF fi_side-9 IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
-   
+
       ASSIGN fi_side-9.
 
       IF fi_side-9 NE "" AND LOOKUP(fi_side-9,"F,B") EQ 0 THEN
@@ -2206,7 +2210,7 @@ session:data-entry-return = yes.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -2357,7 +2361,7 @@ PROCEDURE calc-tr-cnt :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     eb.tr-cnt:SCREEN-VALUE = "0".
 
@@ -2494,7 +2498,7 @@ PROCEDURE disable-inks :
             fi_side-16
             fi_side-17.
   END.
-          
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2554,7 +2558,7 @@ PROCEDURE dynamic-labels :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF lv-label[1] EQ "" THEN lv-label[1] = eb.cas-cnt:LABEL.
 
@@ -2642,9 +2646,9 @@ PROCEDURE fgcolors-reset :
     RUN fg/setcolor.p (ROWID(ink-eb), lv-type).
 
     DO li = 0 TO 1:
-    
+
        v-str = "ce/v-est3.w Unit#" + TRIM(STRING(li,">")).
-      
+
        FIND FIRST b-ref WHERE
             b-ref.reftable EQ v-str AND
             b-ref.company  EQ ink-eb.company AND
@@ -2652,7 +2656,7 @@ PROCEDURE fgcolors-reset :
             b-ref.code     EQ STRING(ink-eb.form-no,"9999999999") AND
             b-ref.code2    EQ STRING(ink-eb.blank-no,"9999999999")
             NO-ERROR.
-      
+
        IF AVAIL b-ref THEN
        DO:
           b-ref.dscr = "".
@@ -2723,7 +2727,7 @@ PROCEDURE find-create-unit# :
     END.
 
     op-rowid = ROWID(b-rt).
-    
+
   END.
 
 END PROCEDURE.
@@ -2763,7 +2767,7 @@ PROCEDURE find-depth-reftable :
            b-rt.loc      = b-eb.est-no
            b-rt.code     = STRING(b-eb.form-no,"9999999999")
            b-rt.code2    = STRING(b-eb.blank-no,"9999999999").
-     
+
         IF eb.layer-pad NE "" THEN
         DO:
            find FIRST b-item where
@@ -2948,12 +2952,12 @@ PROCEDURE local-assign-record :
      def var lv-cas-pal like eb.cas-pal no-undo.
      def var lv-tr-cnt like eb.tr-cnt no-undo.
      def var lv-error as log no-undo.
-     
+
      find xest where xest.company = eb.company and
                      xest.est-no = eb.est-no .
      find xeb where recid(xeb) = recid(eb).                
   END.
-      
+
   IF ll-unit-calc OR ll-update-pack THEN DO:
     IF est.est-type EQ 2 AND eb.form-no NE 0               AND
        eb.cas-no NE "" AND eb.tr-no NE "" AND NOT ll-assem AND
@@ -2965,7 +2969,7 @@ PROCEDURE local-assign-record :
 
       MESSAGE "Copy this form's Packing Info to all other forms?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans.
-     
+
       IF ll-ans THEN
       FOR EACH b-eb
           WHERE b-eb.company EQ eb.company
@@ -2973,7 +2977,7 @@ PROCEDURE local-assign-record :
             AND b-eb.eqty    EQ eb.eqty
             AND b-eb.form-no NE 0
             AND ROWID(b-eb)  NE ROWID(eb):
-           
+
         ASSIGN
          b-eb.cas-no   = eb.cas-no
          b-eb.cas-cost = eb.cas-cost
@@ -3038,16 +3042,16 @@ PROCEDURE local-assign-record :
       reftable.val[11] = fi_unit-11
       reftable.val[12] = fi_unit-12
       reftable.dscr    = v-side-string.
-    
+
      FIND CURRENT reftable NO-LOCK.
-    
+
      DO a = 1 TO 12:
         lv-unit-1[a] = reftable.val[a].
      END.
-    
+
      lv-side-1 = v-side-string.
   END.
-  
+
   RUN find-create-unit# (ROWID(eb), 1, OUTPUT lv-rowid).
   FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-ERROR .
 
@@ -3141,7 +3145,7 @@ PROCEDURE local-assign-record :
        END.
 
        b-rt.dscr = SUBSTRING(lv-side-2,1,12).
-      
+
        FIND CURRENT b-rt NO-LOCK.
     END.
 
@@ -3260,7 +3264,7 @@ PROCEDURE local-display-fields :
   IF NOT adm-new-record THEN DO:
      RUN find-create-unit# (ROWID(eb), 0, OUTPUT lv-rowid).
      FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-LOCK NO-ERROR.
-    
+
      IF AVAIL reftable THEN
        ASSIGN
         fi_unit-1  = reftable.val[1]
@@ -3288,10 +3292,10 @@ PROCEDURE local-display-fields :
         fi_side-11  = SUBSTRING(reftable.dscr,11,1)
         fi_side-12  = SUBSTRING(reftable.dscr,12,1)
          .
-    
+
      RUN find-create-unit# (ROWID(eb), 1, OUTPUT lv-rowid).
      FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-LOCK NO-ERROR.
-    
+
      IF AVAIL reftable THEN
        ASSIGN
         fi_unit-13 = reftable.val[1]
@@ -3304,8 +3308,8 @@ PROCEDURE local-display-fields :
         fi_side-15  = SUBSTRING(reftable.dscr,3,1)
         fi_side-16  = SUBSTRING(reftable.dscr,4,1)
         fi_side-17  = SUBSTRING(reftable.dscr,5,1).
-    
-    
+
+
      RUN find-depth-reftable(ROWID(eb), OUTPUT lv-rowid).
      FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-ERROR.
      IF AVAIL reftable THEN
@@ -3342,7 +3346,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR li-num-of-code AS INT NO-UNDO.
 
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -3564,7 +3568,7 @@ PROCEDURE release-shared-buffers :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   RELEASE xest.
   RELEASE xef.
   RELEASE xeb.
@@ -3586,7 +3590,7 @@ IF eb.form-no NE 0 THEN DO:
   {custom/checkuse.i}
 
   RUN custom/framechk.p (1, FRAME {&FRAME-NAME}:HANDLE).
-  
+
   RUN reset-ink1 (ROWID(eb)).
 
   RUN custom/framechk.p (2, FRAME {&FRAME-NAME}:HANDLE).
@@ -3723,7 +3727,7 @@ PROCEDURE reset-ink1 :
                                       alt-item.i-no     = ce-ctrl.def-coat
                                       no-lock no-error.
       end.
-   
+
       ASSIGN
       save_id = recid(item)
       save_id2 = recid(alt-item)
@@ -3732,7 +3736,7 @@ PROCEDURE reset-ink1 :
       choice = true.
 
       {sys/inc/roundup.i j}
-      
+
 /*    do i = 1 to 12:
        if ink-eb.i-code2[i] ne "" then do:
           choice = no.
@@ -3740,7 +3744,7 @@ PROCEDURE reset-ink1 :
        end.
       end.     
  commented to recalc every time */
- 
+
       if choice then do i = 1 to 20:
          if i le ink-eb.i-col then do:
               find item where recid(item) = save_id no-lock no-error.
@@ -4014,7 +4018,7 @@ PROCEDURE reset-ink1 :
                                         ink-eb.i-dscr2[20] = ""
                                         ink-eb.i-%2[20]    = 0.
               end case.       
-                     
+
          end.
 
 
@@ -4024,9 +4028,9 @@ PROCEDURE reset-ink1 :
       end.
 
       DO li = 0 TO 1:
-    
+
          v-str = "ce/v-est3.w Unit#" + TRIM(STRING(li,">")).
-         
+
          FIND FIRST b-ref WHERE
               b-ref.reftable EQ v-str AND
               b-ref.company  EQ ink-eb.company AND
@@ -4034,7 +4038,7 @@ PROCEDURE reset-ink1 :
               b-ref.code     EQ STRING(ink-eb.form-no,"9999999999") AND
               b-ref.code2    EQ STRING(ink-eb.blank-no,"9999999999")
               NO-ERROR.
-         
+
          IF AVAIL b-ref THEN
          DO:
             b-ref.dscr = "".
@@ -4053,7 +4057,7 @@ PROCEDURE reset-ink1 :
                ELSE
                   b-ref.dscr = b-ref.dscr + " ".
             END.
-         
+
             FIND CURRENT b-ref NO-LOCK NO-ERROR.
             RELEASE b-ref.
          END.
@@ -4096,7 +4100,7 @@ PROCEDURE run-job-stds :
         AND job.opened  EQ YES
       NO-LOCK
       BREAK BY job.job:
-      
+
     IF LAST(job.job) OR job-hdr.ord-no EQ est.ord-no THEN DO:
       RUN jc/jobstds.p (ROWID(job)).
       LEAVE.
@@ -4161,20 +4165,20 @@ PROCEDURE set-pack :
        NO-LOCK NO-ERROR.
 
   ll-ans = AVAIL b-eb.
-       
+
   IF ll-ans THEN DO:
     ll-ans = NO.
-   
+
     MESSAGE "Ship set assembled?"
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans.
-   
+
     IF ll-ans THEN DO:
       FOR EACH b-eb
           WHERE b-eb.company EQ eb.company
             AND b-eb.est-no  EQ eb.est-no
             AND b-eb.form-no NE 0
             AND b-eb.cust-%  GE 0:
-             
+
         ASSIGN
          b-eb.cas-no   = ""
          b-eb.cas-cost = 0
@@ -4191,7 +4195,7 @@ PROCEDURE set-pack :
          b-eb.tr-wid   = 0
          b-eb.tr-dep   = 0.
       END.
-     
+
       FIND CURRENT eb NO-LOCK.
     END.
   END.
@@ -4210,7 +4214,7 @@ PROCEDURE show-pr-type :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&frame-name}:
     RELEASE item.
 
@@ -4265,7 +4269,7 @@ PROCEDURE unit-calc :
   END.
 
   {custom/checkuse.i}
-  
+
   RUN set-pack (OUTPUT ll-unit-calc).
 
   if eb.tr-cas = 0 then eb.tr-cas:screen-value in frame {&frame-name} = "1".
@@ -4289,7 +4293,7 @@ PROCEDURE unit-calc :
   RUN disable-inks.
 
   apply "entry" to eb.cas-no in frame {&frame-name}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4382,11 +4386,11 @@ PROCEDURE update-pack :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-      
+
   {custom/checkuse.i}
 
   RUN custom/framechk.p (1, FRAME {&FRAME-NAME}:HANDLE).
-  
+
   RUN set-pack (OUTPUT ll-update-pack).
 
   if eb.tr-cas = 0 then eb.tr-cas:screen-value in frame {&frame-name} = "1".
@@ -4422,7 +4426,7 @@ PROCEDURE valid-carrier :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     eb.carrier:SCREEN-VALUE = CAPS(eb.carrier:SCREEN-VALUE).
 

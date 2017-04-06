@@ -18,9 +18,9 @@ INDEX pi-tsrep tt-date.
 
 DEFINE SHARED TEMP-TABLE tt-note NO-UNDO
   FIELD employee LIKE emplogin.employee
-  FIELD rec_key LIKE nosweat.notes.rec_key
-  FIELD note_date LIKE nosweat.notes.note_date
-  FIELD note_title LIKE nosweat.notes.note_title
+  FIELD rec_key LIKE ASI.notes.rec_key
+  FIELD note_date LIKE ASI.notes.note_date
+  FIELD note_title LIKE ASI.notes.note_title
   FIELD note_src AS CHARACTER.
 
           /* Variables for excel Automation  */
@@ -72,7 +72,7 @@ DEF VAR mypict AS COM-HANDLE.
     CREATE "Excel.Application" chExcelApplication NO-ERROR.
     chExcelApplication:VISIBLE = TRUE.
   END.
-  
+
   /* Check if Excel got initialized. */
   IF not (valid-handle (chExcelApplication)) THEN
   DO :
@@ -80,7 +80,7 @@ DEF VAR mypict AS COM-HANDLE.
     RETURN ERROR.
   END.
 
-  
+
   /* Open our Excel Template. */  
   assign chWorkbook = chExcelApplication:Workbooks:Open(chfile)  no-error.
   /* Name */
@@ -136,14 +136,14 @@ DEF VAR mypict AS COM-HANDLE.
           ASSIGN chExcelApplication:ActiveCell:Value = tt-dt-hrs.
       END.
   END.
-  
+
   for each tt-note BY tt-note.note_date:
       IF LvNotes = "" THEN
       ASSIGN LvNotes = string(tt-note.note_date) + " "  + tt-note.note_title.
       ELSE
       ASSIGN LvNotes = LvNotes + chr(10) + string(tt-note.note_date) + " "  + tt-note.note_title.
   END.
-  
+
   /* Notes */
   v-cell = "R36C1".
   chExcelApplication:Goto(v-cell) NO-ERROR.
@@ -169,7 +169,7 @@ DEF VAR mypict AS COM-HANDLE.
 
   /* Create the record */
   MESSAGE "Please review the TimeSheet and update the information if needed before submitting TimeSheet" VIEW-AS ALERT-BOX.
-  
+
   MESSAGE "Do you want to Submit the Time Sheet?"
   VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
   TITLE "" UPDATE choice AS LOGICAL.
@@ -191,7 +191,7 @@ DEF VAR mypict AS COM-HANDLE.
                         STRING(DAY(TODAY)) + "-" +
                         STRING(YEAR(today)) + "-" +
                         ".xls".
-     
+
 
     chExcelApplication:ActiveSheet:SaveAs(LvFileName) no-error.
     IF SEARCH(LvFileName) = ? THEN
@@ -206,14 +206,14 @@ DEF VAR mypict AS COM-HANDLE.
         TimeSheet.employee = LvEmpNum
         TimeSheet.WeekEnding = LvWeekEnding
         TimeSheet.file-name = LvFileName
-         
+
         TimeSheet.SubmittedBy = LvEmpNum
         TimeSheet.SubmittedOn = TODAY.
   END.
-  
+
   chWorkbook:Close(no) no-error.   
   chExcelApplication:Quit() no-error.
-  
+
   RELEASE OBJECT chWorkbook NO-ERROR.
   RELEASE OBJECT chWorkSheet NO-ERROR.
   RELEASE OBJECT chHyper NO-ERROR.

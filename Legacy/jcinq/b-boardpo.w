@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: jcinq\b-boardpo.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -189,6 +189,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -239,7 +240,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-po
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -385,14 +386,14 @@ PROCEDURE build-set-table :
       NO-LOCK:
 
       v-po-no = poNum().
-     
+
       CREATE tt-set-component.
       ASSIGN
          tt-set-component.i-no = eb.stock-no
          tt-set-component.form-no = eb.form-no
          tt-set-component.blank-no = eb.blank-no
          tt-set-component.first-po-no = v-po-no.
-     
+
       job-mat-loop:
       FOR EACH job-mat FIELDS(i-no job-no job-no2 frm blank-no) WHERE
           job-mat.company EQ cocode AND
@@ -405,10 +406,10 @@ PROCEDURE build-set-table :
                 ITEM.i-no EQ job-mat.i-no AND
                 ITEM.mat-type EQ "B"
                 NO-LOCK:
-     
+
           IF NOT((job-mat.blank-no EQ eb.blank-no OR
              job-mat.blank-no EQ 0)) THEN NEXT.
-      
+
           FOR EACH po-ordl FIELDS(pr-qty-uom s-len s-wid ord-qty s-num b-num) WHERE
               po-ordl.company EQ cocode AND
               po-ordl.i-no EQ job-mat.i-no AND
@@ -417,7 +418,7 @@ PROCEDURE build-set-table :
               po-ordl.job-no2 EQ job-mat.job-no2 AND
               po-ordl.item-type EQ YES
               NO-LOCK:
-     
+
               IF (po-ordl.s-num EQ job-mat.frm OR
                  po-ordl.s-num EQ ?) AND
                  (po-ordl.b-num EQ job-mat.blank-no OR
@@ -434,16 +435,16 @@ PROCEDURE build-set-table :
                                               OUTPUT v-ea-qty).
                     ELSE
                        v-ea-qty = po-ordl.ord-qty.
-     
+
                     {sys/inc/roundup.i v-ea-qty}
-     
+
                     tt-set-component.sheets-on-order = tt-set-component.sheets-on-order
                                                      + v-ea-qty.
                  END.
           END. /*each po-ordl*/
-     
+
           RELEASE tt-set-component.
-     
+
           LEAVE job-mat-loop.
       END.
   END. /*end eb*/
@@ -522,7 +523,7 @@ FUNCTION poNum RETURNS INTEGER
   ( ) :
 
    DEFINE VARIABLE rtnValue2 AS INT NO-UNDO.
-  
+
    main-loop:
    FOR EACH job-mat FIELDS(i-no job-no job-no2 frm blank-no) WHERE
        job-mat.company EQ cocode AND
@@ -537,7 +538,7 @@ FUNCTION poNum RETURNS INTEGER
              ITEM.i-no EQ job-mat.i-no AND
              ITEM.mat-type EQ "B"
              NO-LOCK:
-   
+
        FOR EACH po-ordl FIELDS(s-num b-num po-no) WHERE
            po-ordl.company EQ cocode AND
            po-ordl.i-no EQ job-mat.i-no AND
@@ -546,7 +547,7 @@ FUNCTION poNum RETURNS INTEGER
            po-ordl.item-type EQ YES
            NO-LOCK
            BY po-ordl.po-no:
-   
+
            IF (po-ordl.s-num EQ job-mat.frm OR
               po-ordl.s-num EQ ?) AND
               (po-ordl.b-num EQ job-mat.blank-no OR
@@ -557,7 +558,7 @@ FUNCTION poNum RETURNS INTEGER
               END.
        END.
    END.
-  
+
    RETURN rtnValue2.
 
 END FUNCTION.

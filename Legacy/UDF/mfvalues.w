@@ -118,7 +118,7 @@ DEFINE BUTTON btnExit
 DEFINE BUTTON btnSave 
      IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Save" 
-     SIZE 8 BY 1.91 TOOLTIP "Save"
+     SIZE 8 BY 1.9 TOOLTIP "Save"
      FONT 4.
 
 DEFINE VARIABLE mfgroupList AS CHARACTER FORMAT "X(256)":U 
@@ -173,11 +173,11 @@ DEFINE FRAME DEFAULT-FRAME
           "Delete" WIDGET-ID 4
      btnSave AT ROW 21.71 COL 76 HELP
           "Save" WIDGET-ID 6
-     btnExit AT ROW 21.71 COL 84 HELP
-          "Exit Design Layout Window" WIDGET-ID 2
      mfgroupList AT ROW 21.48 COL 9 COLON-ALIGNED HELP
           "Select Group Name" NO-LABEL
      mfRecKey AT ROW 22.67 COL 9 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     btnExit AT ROW 21.71 COL 84 HELP
+          "Exit Design Layout Window" WIDGET-ID 2
      mfgroupLabel AT ROW 21.48 COL 3 NO-LABEL
      mfRecKeyLabel AT ROW 22.67 COL 1 NO-LABEL WIDGET-ID 10
      Rect-Main AT ROW 2.05 COL 1.6
@@ -225,6 +225,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -467,6 +468,7 @@ PROCEDURE createTabs :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+  IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ FALSE THEN
   RUN LockWindowUpdate (ACTIVE-WINDOW:HWND,OUTPUT i).
   DELETE WIDGET-POOL "widget-pool-tabs" NO-ERROR.
   CREATE WIDGET-POOL "widget-pool-tabs" PERSISTENT.

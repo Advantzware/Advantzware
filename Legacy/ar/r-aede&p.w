@@ -51,7 +51,7 @@ DEF VAR init-dir AS CHA NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/VAR.i new shared}
-    
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -326,7 +326,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -379,10 +379,10 @@ DO:
   assign
    rd-dest
    tran-period.
-  
+
   run check-date.
   if v-invalid then return no-apply.
-       
+
   run run-report. 
 
   case rd-dest:
@@ -463,7 +463,7 @@ END.
 ON LEAVE OF tran-date IN FRAME FRAME-A /* Transaction Date */
 DO:
   assign {&self-name}.
-  
+
   if lastkey ne -1 then do:
     run check-date.
     if v-invalid then return no-apply.
@@ -509,20 +509,20 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-   
+
   assign
    tran-date   = today
    c-win:TITLE = IF ip-post THEN "Order Posting/Purge Deleted"
                             ELSE "Order Edit List".
-  
+
   RUN enable_UI.
 
   RUN check-date.
-      
+
   IF NOT ip-post THEN DO WITH FRAME {&FRAME-NAME}:  
     DISABLE tran-date tran-period.
   END.
-  
+
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -543,7 +543,7 @@ PROCEDURE check-date :
 ------------------------------------------------------------------------------*/
   DO with frame {&frame-name}:
     v-invalid = no.
-  
+
     find first period                   
         where period.company eq cocode
           and period.pst     le tran-date
@@ -616,11 +616,11 @@ PROCEDURE list-post :
 
 
   for each w-report where w-report.term-id eq v-term no-lock,
-    
+
       first xoe-ord where recid(xoe-ord) eq w-report.rec-id,
-        
+
       first cust {sys/ref/cust.w} and cust.cust-no eq xoe-ord.cust-no
-        
+
       by w-report.key-01:
 
     find first stax
@@ -630,7 +630,7 @@ PROCEDURE list-post :
     v-tax-rate = IF AVAIL stax THEN
                    stax.tax-rate[1] + stax.tax-rate[2] + stax.tax-rate[3]
                  ELSE 0.
-          
+
     IF ip-list-post EQ "list" THEN do:
       v-postable = yes.
 
@@ -722,7 +722,7 @@ PROCEDURE list-post :
           where oe-ordm.company EQ xoe-ord.company
             AND oe-ordm.ord-no  EQ xoe-ord.ord-no
           no-lock
-          
+
           break by oe-ordm.ord-no:
 
         if oe-ordm.bill EQ "Y" then do:
@@ -789,7 +789,7 @@ PROCEDURE list-post :
 
         delete w-ord-misc.
       end. /* each w-ord-misc */
-     
+
       if xoe-ord.stat EQ "H" then
         put "** THIS ORDER IS ON CREDIT HOLD **" to 39.
       else
@@ -819,14 +819,14 @@ PROCEDURE list-post :
        xoe-ord.tax       = 0
        v-inv             = NO
        v-ship            = NO.
-          
+
       FOR EACH oe-ordl
           WHERE oe-ordl.company EQ xoe-ord.company
             AND oe-ordl.ord-no  EQ xoe-ord.ord-no:
 
         if oe-ordl.stat eq "I" or oe-ordl.stat eq "B" then v-inv = yes.
         else v-ship = yes.
-            
+
         assign
          xoe-ord.t-revenue = xoe-ord.t-revenue + oe-ordl.t-price
          xoe-ord.t-cost    = xoe-ord.t-cost    + oe-ordl.t-cost.
@@ -855,7 +855,7 @@ PROCEDURE list-post :
       END.
 
       run oe/oe-comm.p.  /* Calculate Commissions */
-          
+
       if xoe-ord.f-bill THEN
         xoe-ord.t-revenue = xoe-ord.t-revenue + xoe-ord.t-freight.
 
@@ -955,7 +955,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
      DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -966,9 +966,9 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -987,7 +987,7 @@ PROCEDURE output-to-printer :
      DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1036,7 +1036,7 @@ if not posting then
 else
   head = "I N V O I C E   P O S T I N G".
 
- 
+
 view frame ireg.
 pause 0.
  {sys/inc/period.i}
@@ -1069,7 +1069,7 @@ end.
  assign
    str-tit2 = c-win:title 
    {sys/inc/ctrtext.i str-tit2 112}
- 
+
    str-tit3 = "Period " + string(tran-period,"99") + " - " +
               IF AVAIL period THEN
                 (string(period.pst) + " to " + string(period.pend)) ELSE ""
@@ -1084,7 +1084,7 @@ end.
   {sys/inc/outprint.i value(lines-per-page)}
 
   if td-show-parm then run show-param.
-  
+
   display with frame r-top.
  for each cust {sys/ref/cust.w} no-lock,
       each ar-inv
@@ -1144,26 +1144,26 @@ end.
 
       put "TAX" at 79 space(1)
           ar-inv.tax-amt format "->>,>>>,>>9.99" at 110 skip.
-          
+
       if avail stax then do:
         def var ws_taxacct as char no-undo.
         def var v-jd-taxamt as dec no-undo.
         def var v-tax-rate as dec no-undo decimals 10 extent 4.
-        
+
         v-tax-rate = 0.
-              
+
         do i = 1 to 3:
           v-tax-rate[i] = stax.tax-rate[i].
-               
+
           if stax.company eq "yes" and i gt 1 then
           do k = 1 to i - 1:
             v-tax-rate[i] = v-tax-rate[i] +
                             (v-tax-rate[i] * (stax.tax-rate[k] / 100)).
           end.
         end.
-              
+
         v-tax-rate[4] = v-tax-rate[1] + v-tax-rate[2] + v-tax-rate[3].
-              
+
         do i = 1 to 3:
           find first account
               where account.company eq cocode
@@ -1172,7 +1172,7 @@ end.
           assign    
            ws_taxacct  = if avail account then stax.tax-acc[i] else xar-stax
            v-jd-taxamt = v-tax-rate[i] / v-tax-rate[4] * ar-inv.tax-amt.
-           
+
           {sys/inc/bldwkfl.i ws_taxacct "-1 * v-jd-taxamt"}
         end.
       end. /* avail stax */    
@@ -1288,7 +1288,7 @@ end.
     else display (-1 * ws_net) @ ws_credit.
     down 1 with frame f-distrib.
   end.
- 
+
 
 END PROCEDURE.
 
@@ -1310,11 +1310,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -1342,23 +1342,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

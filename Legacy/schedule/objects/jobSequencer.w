@@ -16,7 +16,7 @@
   Output Parameters: <none>
 
   History: New V9 Version - January 15, 1998
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
 /*----------------------------------------------------------------------*/
@@ -307,17 +307,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT wWin:LOAD-ICON("schedule/images/scheduler.ico":U) THEN
-    MESSAGE "Unable to load icon: schedule/images/scheduler.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -377,7 +373,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttblSeq INDEXED-REPOSITION.
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -854,7 +850,7 @@ PROCEDURE local-initialize :
   /* Code placed here will execute PRIOR to standard behavior. */
   {&WINDOW-NAME}:WINDOW-STATE = 1.
   RUN loadSeq.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 

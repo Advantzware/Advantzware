@@ -9,7 +9,7 @@
 /*------------------------------------------------------------------------
 
   File: est\crt-set-part.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -264,6 +264,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -331,7 +332,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -418,7 +419,7 @@ DO:
 
          APPLY "go" TO FRAME {&frame-name}.
     END.
-      
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -536,7 +537,7 @@ DO:
       assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
                /*        itemfg.procat-desc:screen-value = entry(2,char-val) */
                        .
-   
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -825,7 +826,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   IF v-cecscrn-dec THEN
      ASSIGN
         eb.len:FORMAT IN FRAME {&FRAME-NAME} = ">>9.999999" 
@@ -975,11 +976,11 @@ PROCEDURE valid-part-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
-  
+
   DEF VAR li AS INT NO-UNDO.
 
   DEF BUFFER b-eb FOR eb.
-  
+
   FOR EACH b-eb
       WHERE b-eb.company EQ eb.company
         AND b-eb.est-no  EQ eb.est-no
@@ -1017,7 +1018,7 @@ PROCEDURE valid-procat :
   Notes:       
 ------------------------------------------------------------------------------*/
  DEF OUTPUT PARAMETER op-error AS LOG NO-UNDO.
-     
+
  DO WITH FRAME {&FRAME-NAME}:
     IF eb.procat:SCREEN-VALUE = "" THEN DO:
        MESSAGE "Category must be entered. Try help." VIEW-AS ALERT-BOX ERROR.

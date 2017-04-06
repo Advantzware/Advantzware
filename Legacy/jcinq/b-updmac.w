@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: jcinq\b-updmac.w
-   
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -185,7 +185,7 @@ DEFINE BROWSE BROWSE-2
    tt-mch-tran.varoh            COLUMN-LABEL "Var OH"
    tt-mch-tran.fixoh            COLUMN-LABEL "Fixed OH"
    tt-mch-tran.crew             COLUMN-LABEL "Crew"
-  
+
 
    ENABLE tt-mch-tran.tran-date
           tt-mch-tran.machine-code
@@ -236,6 +236,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -276,7 +277,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-mch-tran
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -354,7 +355,7 @@ ON 'leave':U OF tt-mch-tran.end-am DO:
 END.
 
 ON 'leave':U OF tt-mch-tran.start-time IN BROWSE {&browse-name} DO:
-  
+
   IF LASTKEY NE -1 THEN DO:
     RUN valid-time(INPUT tt-mch-tran.start-time:SCREEN-VALUE IN BROWSE {&browse-name},
                    OUTPUT op-valid).
@@ -367,11 +368,11 @@ ON 'leave':U OF tt-mch-tran.start-time IN BROWSE {&browse-name} DO:
 END.
 
 ON 'leave':U OF tt-mch-tran.end-time IN BROWSE {&browse-name} DO:
-  
+
   IF LASTKEY NE -1 THEN DO:
     RUN valid-time(INPUT tt-mch-tran.end-time:SCREEN-VALUE IN BROWSE {&browse-name},
                    OUTPUT op-valid).
-   
+
     IF NOT op-valid THEN
       RETURN NO-APPLY.
     ELSE RUN calc-num-hours-proc.
@@ -453,7 +454,7 @@ DO:
                      OUTPUT op-valid).
   END.
   IF NOT op-valid THEN DO:
-  
+
         MESSAGE "Department entered must match the first department in the machine file."
           VIEW-AS ALERT-BOX INFO BUTTONS OK.
         RETURN NO-APPLY.
@@ -570,11 +571,11 @@ PROCEDURE build-table :
     DO v-count = 1 TO 50:
        tt-mch-tran.dl-rate = tt-mch-tran.dl-rate + mch-act.rate[v-count].
     END.
-           
+
     RELEASE tt-mch-tran.
-    
+
   END.
-  
+
   for each misc-act WHERE
     misc-act.company eq cocode AND
     misc-act.job-no  eq ip-job-no AND
@@ -761,7 +762,7 @@ PROCEDURE update-record :
   DEF VAR lv-rowid AS ROWID NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     lv-rowid = ROWID(tt-mch-tran).
 
     IF tt-mch-tran.tran-type:SCREEN-VALUE IN BROWSE {&browse-name} = "HRS" THEN DO:
@@ -874,7 +875,7 @@ PROCEDURE update-record2 :
   DEF VAR lv-rowid AS ROWID NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     lv-rowid = ROWID(tt-mch-tran).
 
     IF tt-mch-tran.tran-type:SCREEN-VALUE IN BROWSE {&browse-name} = "HRS" THEN DO:
@@ -962,7 +963,7 @@ PROCEDURE update-record2 :
         RELEASE misc-act.
       END.
     END.
-   
+
   END.
 END PROCEDURE.
 

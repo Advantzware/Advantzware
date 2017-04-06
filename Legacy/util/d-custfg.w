@@ -192,6 +192,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -232,7 +233,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-rec BY tt-rec.old-i-no
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -340,7 +341,7 @@ DO:
         FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
 
      APPLY "leave" TO fi_cust-no.
-           
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -530,7 +531,7 @@ DO WITH FRAME {&FRAME-NAME}:
                    THEN li2 = 0.
                    ELSE LEAVE.
                END.
-      
+
                ASSIGN 
                    li = MAX(li,li2)
                    tt-rec.new-i-no = lv-i-no + STRING(li + 1,"9999") + 

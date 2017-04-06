@@ -7,7 +7,7 @@
 /*------------------------------------------------------------------------
 
   File: poinq\f-porec.w
- 
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -160,6 +160,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB F-Frame-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -198,7 +199,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH temp-rec.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 &Scoped-define BROWSE-NAME BROWSE-4
 
@@ -299,7 +300,7 @@ PROCEDURE populate-tt :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-po-no AS INT NO-UNDO.
-    
+
    DEF VAR v-po-no AS CHAR NO-UNDO.
 
    v-po-no = STRING(ip-po-no).
@@ -315,7 +316,7 @@ PROCEDURE populate-tt :
             rm-rdtlh.r-no EQ rm-rcpth.r-no AND
             rm-rdtlh.rita-code EQ rm-rcpth.rita-code
             NO-LOCK:
-   
+
        CREATE temp-rec.
        ASSIGN temp-rec.item-no = rm-rcpth.i-no
               temp-rec.job-no = rm-rcpth.job-no
@@ -327,7 +328,7 @@ PROCEDURE populate-tt :
 
        RELEASE temp-rec.
    END.
-   
+
    FIND FIRST b-po-ord WHERE
         b-po-ord.company EQ cocode AND
         b-po-ord.po-no EQ ip-po-no
@@ -345,7 +346,7 @@ PROCEDURE populate-tt :
                fg-rdtlh.r-no EQ fg-rcpth.r-no AND
                fg-rdtlh.rita-code EQ fg-rcpth.rita-code
                NO-LOCK:
-         
+
           CREATE temp-rec.
           ASSIGN temp-rec.item-no = fg-rcpth.i-no
                  temp-rec.job-no = fg-rcpth.job-no

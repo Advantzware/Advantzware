@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:20 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -391,7 +395,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -473,7 +477,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -580,9 +584,9 @@ PROCEDURE lyytd-tot :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
   IF ll-secure THEN DO:
     RUN ar/d-ytdbal.w (ROWID(cust)).
 
@@ -603,7 +607,7 @@ PROCEDURE recalc-tot :
   Notes:       
 ------------------------------------------------------------------------------*/
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
   IF ll-secure THEN DO:
     RUN ar/d-rectot.w (ROWID(cust)).
 

@@ -35,7 +35,7 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
     {sys/inc/var.i new shared}
-  
+
 assign
  cocode = gcompany
  locode = gloc.
@@ -59,7 +59,7 @@ DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
 
 ASSIGN cTextListToSelect = "PO #,Vendor,Item #,Item Description,Control #,Packed,Qty Ord,Trans Date," +
                            "Trans Qty,Amount,UOM,Balance Due"
-                         
+
        cFieldListToSelect = "po,vend,item,desc,cont,pack,qty-ord,tran-date," +
                             "tran-qty,amt,uom,bal-due"
 
@@ -408,13 +408,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -545,7 +551,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -626,6 +632,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:07 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -674,10 +681,11 @@ DO:
                                   &mail-file=list-name }
 
            END.
- 
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:07 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -695,12 +703,13 @@ DO:
 
     ASSIGN cTextSelected = sl_selected:LIST-ITEMS
            cTextListed = sl_avail:LIST-ITEMS.
- 
+
     IF NOT cColumnInit THEN RUN custom/d-rptsel.w (INPUT-OUTPUT cTextListed, INPUT-OUTPUT cTextSelected, INPUT-OUTPUT cTextListToDefault, INPUT-OUTPUT cTextListToSelect).
 
     ASSIGN sl_selected:LIST-ITEMS = cTextSelected
            sl_avail:LIST-ITEMS = cTextListed.
- 
+
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:07 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -834,7 +843,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -842,7 +851,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -885,7 +894,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -962,8 +971,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:07 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -979,28 +990,28 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      APPLY "close" TO THIS-PROCEDURE.
      RETURN .
   END.
-   
+
   assign
    begin_po-date = date(1,1,year(today))
    end_po-date   = today.
   RUN DisplaySelectionList.
   RUN enable_UI.
-  
+
  for each mat:
     v-mat-list = v-mat-list + string(mat.mat,"x(5)") + " " + mat.dscr + ",".
   end.
   if substr(v-mat-list,length(trim(v-mat-list)),1) eq "," then
     substr(v-mat-list,length(trim(v-mat-list)),1) = "".
-  
+
   select-mat:list-items = v-mat-list.
-        
+
   do i = 1 to select-mat:num-items:
     if trim(substr(select-mat:entry(i),1,5)) eq "B" then do:
       select-mat:screen-value = entry(i,v-mat-list).
       leave.
     end.
   end.
-  
+
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1009,6 +1020,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_po-no.
   END.
 cColumnInit   = NO .
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:07 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1059,7 +1071,7 @@ DEF BUFFER xjob-mat FOR job-mat.
           and ((po-ord.stat eq "C" and ipv-stat eq "C") or
                (po-ord.stat ne "C" and ipv-stat eq "O") or ipv-stat eq "A")
         no-lock,
-          
+
         each po-ordl
         where po-ordl.company   EQ po-ord.company
           AND po-ordl.po-no     EQ po-ord.po-no
@@ -1072,18 +1084,18 @@ DEF BUFFER xjob-mat FOR job-mat.
           and ((po-ordl.item-type eq yes and ipv-type eq "R") or
                (po-ordl.item-type eq no  and ipv-type eq "F") or ipv-type eq "B")
         no-lock:
-      
+
       release item.
       release job-hdr.
       release job-mat.
-      
+
       find first item
           where item.company eq cocode
             and item.i-no    eq po-ordl.i-no
           no-lock no-error.
-      
+
       if po-ordl.item-type and not avail item then next.
-      
+
       if index(ipv-mattype-list,"A") ne 0 and
          po-ordl.job-no ne ""           and 
          avail item                     and
@@ -1093,7 +1105,7 @@ DEF BUFFER xjob-mat FOR job-mat.
             and job-hdr.job-no  eq po-ordl.job-no
             and job-hdr.job-no2 eq po-ordl.job-no2
           no-lock no-error.
-       
+
       if avail job-hdr then
       find first job-mat
           where job-mat.company  eq cocode
@@ -1103,7 +1115,7 @@ DEF BUFFER xjob-mat FOR job-mat.
             and job-mat.rm-i-no  eq po-ordl.i-no
             and job-mat.frm      eq po-ordl.s-num
           no-lock no-error. 
-      
+
       if avail job-mat then
       for each xjob-mat
           where xjob-mat.company  eq cocode
@@ -1115,7 +1127,7 @@ DEF BUFFER xjob-mat FOR job-mat.
                                       and item.i-no     eq xjob-mat.i-no
                                       and item.mat-type eq "A")
           no-lock:
-        
+
         create report.
         assign
          report.term-id = ipv-term
@@ -1128,7 +1140,7 @@ DEF BUFFER xjob-mat FOR job-mat.
          report.key-07  = xjob-mat.qty-uom
          report.rec-id  = recid(po-ordl).
       end.
-      
+
       if avail item and index(ipv-mattype-list,item.mat-type) eq 0 then next.
 
       create report.
@@ -1179,7 +1191,7 @@ PROCEDURE DisplaySelectionList :
   DEF VAR iCount AS INT NO-UNDO.
 
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -1192,7 +1204,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1200,9 +1212,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 END PROCEDURE.
 
@@ -1223,7 +1235,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -1233,7 +1245,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -1241,9 +1253,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -1308,7 +1320,7 @@ PROCEDURE GetSelectionList :
 
  DO i = 1 TO sl_selected:NUM-ITEMS /* IN FRAME {&FRAME-NAME}*/ :
     FIND FIRST ttRptList WHERE ttRptList.TextList = ENTRY(i,cTmpList) NO-LOCK NO-ERROR.     
-  
+
     CREATE ttRptSelected.
     ASSIGN ttRptSelected.TextList =  ENTRY(i,cTmpList)
            ttRptSelected.FieldList = ttRptList.FieldList
@@ -1317,7 +1329,7 @@ PROCEDURE GetSelectionList :
            ttRptSelected.HeadingFromLeft = IF entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cTmpList)), cFieldType) = "C" THEN YES ELSE NO
            iColumnLength = iColumnLength + ttRptSelected.FieldLength + 1.
            .        
-           
+
  END.
 
 END PROCEDURE.
@@ -1384,7 +1396,7 @@ PROCEDURE excel-3-proc :
   DEF INPUT PARAMETER ip-dec2 AS DEC NO-UNDO.
   DEF INPUT PARAMETER ip-dec3 AS DEC NO-UNDO.
   DEF INPUT PARAMETER ip-dec4 AS DEC NO-UNDO.
-  
+
   PUT STREAM excel UNFORMATTED
       SKIP
       '"' ""                                    '",' 
@@ -1437,7 +1449,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /*    DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1448,11 +1460,11 @@ PROCEDURE output-to-file :
     /*     CREATE-TEST-FILE*/
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.*/
-     
+
  {custom/out2file.i}.
 
 END PROCEDURE.
@@ -1484,7 +1496,7 @@ PROCEDURE output-to-printer :
 /*     DEFINE VARIABLE printok AS LOGICAL NO-UNDO.
      DEFINE VARIABLE list-text AS CHARACTER FORMAT "x(176)" NO-UNDO.
      DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-  
+
 /*     SYSTEM-DIALOG PRINTER-SETUP UPDATE printok.
      IF NOT printok THEN
      RETURN NO-APPLY.
@@ -1536,10 +1548,10 @@ form  header
       tim_str
       str-tit2 format "x(112)"   "{1}" at 123
       skip(1)
-      
+
      with frame r-top row 1 column 1 stream-io width 250
 	   no-labels no-box no-underline page-top.
-  
+
 def buffer xjob-mat for job-mat.
 
 def var v-foot-rem like ap-invl.amt-msf no-undo.
@@ -1627,13 +1639,13 @@ FORM po-ord.po-no          column-label "PO #"
      v-uom    COLUMN-LABEL "UOM"
      v-balance             column-label "Balance Due"     
      with frame main no-box no-attr-space down STREAM-IO width 165 /*131*/ .
-  
+
  {ce/msfcalc.i} 
 
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
-   
+
  v-s-pono    = begin_po-no
  v-e-pono    = END_po-no
  v-s-date    = begin_po-date
@@ -1658,16 +1670,16 @@ do with frame {&frame-name}:
     if select-mat:is-selected(i) then
       v-mattype-list = v-mattype-list + trim(substr(select-mat:entry(i),1,5)) + ",".
   end.
-  
+
   if LENGTH(TRIM(v-mattype-list)) NE 0 AND substr(v-mattype-list,length(trim(v-mattype-list)),1) eq "," then
     substr(v-mattype-list,length(trim(v-mattype-list)),1) = "".
-    
+
   mat-types = v-mattype-list.
-  
+
   do i = 1 to length(mat-types):
     if substr(mat-types,i,1) eq "," then substr(mat-types,i,1) = " ".
   end.
-  
+
   display mat-types.
 end.
 
@@ -1696,7 +1708,7 @@ DEF VAR cslist AS cha NO-UNDO.
  END.
 
 {sa/sa-sls01.i}
- 
+
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
@@ -1711,7 +1723,7 @@ END.
 if td-show-parm then run show-param.
 
 SESSION:SET-WAIT-STATE ("general").
-  
+
 DISPLAY WITH frame r-top.
 
 {custom/statusMsg.i " 'Processing...'"}
@@ -1774,38 +1786,38 @@ RUN build-report-recs (
       end.
 
       v-cons-qty = po-ordl.cons-qty.
-      
+
       if po-ordl.item-type then do:
         find first item
             where item.company eq cocode
               and item.i-no    eq report.key-05
             no-lock no-error.
-            
+
         if po-ordl.i-no ne report.key-05 and
            report.key-07 ne ""           then do:
-           
+
           find first item
               where item.company eq cocode
                 and item.i-no    eq po-ordl.i-no
               no-lock no-error. 
-           
+
           if po-ordl.cons-uom ne "EA" then
             run sys/ref/convquom.p (po-ordl.cons-uom, "EA", item.basis-w,
                                     po-ordl.s-len, po-ordl.s-wid, item.s-dep,
                                     v-cons-qty, output v-cons-qty).
-        
+
           find first item
               where item.company eq cocode
                 and item.i-no    eq report.key-05
               no-lock no-error.
-            
+
           if "EA" ne report.key-07 then
             run sys/ref/convquom.p ("EA", report.key-07, item.basis-w,
                                     po-ordl.s-len, po-ordl.s-wid, item.s-dep,
                                     v-cons-qty, output v-cons-qty).
         end.
       end.
- 
+
       else do:
         find first itemfg
             where itemfg.company eq cocode
@@ -1822,7 +1834,7 @@ RUN build-report-recs (
 
       ASSIGN v-trans-date = ? 
               v-trans-qty = 0 .
-      
+
      IF po-ordl.item-type THEN
          FIND FIRST b-rm-rcpth
           where b-rm-rcpth.company    eq cocode
@@ -1836,28 +1848,28 @@ RUN build-report-recs (
             AND b-rm-rdtlh.job-no2 EQ po-ordl.job-no2
             AND b-rm-rdtlh.s-num   EQ po-ordl.s-num
           NO-LOCK NO-ERROR.
-     
+
      IF AVAIL b-rm-rcpth THEN DO:
         bf-v-cons-qty = b-rm-rdtlh.qty.
-        
+
         if po-ordl.i-no ne report.key-05 and
            report.key-07 ne ""           then do:
-           
+
           find first item
               where item.company eq cocode
                 and item.i-no    eq po-ordl.i-no
               no-lock no-error. 
-           
+
           if po-ordl.cons-uom ne "EA" then
             run sys/ref/convquom.p (po-ordl.cons-uom, "EA", item.basis-w,
                                     po-ordl.s-len, po-ordl.s-wid, item.s-dep,
                                     bf-v-cons-qty, output bf-v-cons-qty).
-        
+
           find first item
               where item.company eq cocode
                 and item.i-no    eq report.key-05
               no-lock no-error.
-            
+
           if "EA" ne report.key-07 then
             run sys/ref/convquom.p ("EA", report.key-07, item.basis-w,
                                     po-ordl.s-len, po-ordl.s-wid, item.s-dep,
@@ -1911,7 +1923,7 @@ RUN build-report-recs (
                    cVarValue = ""
                    cExcelDisplay = ""
                    cExcelVarValue = "".
-     
+
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
@@ -1927,15 +1939,15 @@ RUN build-report-recs (
                          WHEN "amt"   THEN cVarValue = STRING(v-amount,"->>,>>9.99") .
                          WHEN "uom"  THEN cVarValue = STRING(v-uom,"x(8)") .
                          WHEN "bal-due"  THEN cVarValue = STRING(v-balance,"->>>,>>9.99") .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
@@ -1979,27 +1991,27 @@ RUN build-report-recs (
           /*down with frame main.
           clear frame main.*/
         end.
-        
+
         v-cons-qty = rm-rdtlh.qty.
-        
+
         if po-ordl.i-no ne report.key-05 and
            report.key-07 ne ""           then do:
-           
+
           find first item
               where item.company eq cocode
                 and item.i-no    eq po-ordl.i-no
               no-lock no-error. 
-           
+
           if po-ordl.cons-uom ne "EA" then
             run sys/ref/convquom.p (po-ordl.cons-uom, "EA", item.basis-w,
                                     po-ordl.s-len, po-ordl.s-wid, item.s-dep,
                                     v-cons-qty, output v-cons-qty).
-        
+
           find first item
               where item.company eq cocode
                 and item.i-no    eq report.key-05
               no-lock no-error.
-            
+
           if "EA" ne report.key-07 then
             run sys/ref/convquom.p ("EA", report.key-07, item.basis-w,
                                     po-ordl.s-len, po-ordl.s-wid, item.s-dep,
@@ -2037,21 +2049,21 @@ RUN build-report-recs (
                          WHEN "amt"   THEN cVarValue = STRING(v-amount,"->>,>>9.99") .
                          WHEN "uom"  THEN cVarValue = STRING(v-uom,"x(8)") .
                          WHEN "bal-due"  THEN cVarValue = /*STRING(v-balance,"->>>,>>9.99")*/ "" .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
-       
+
       end.
 
       else
@@ -2085,7 +2097,7 @@ RUN build-report-recs (
                      (IF fg-rcpth.pur-uom EQ "M" THEN 1000 ELSE 1)
          v-amt[4]  = v-amt[4] + v-amount
          v-uom     = "M".
-         
+
         /*display fg-rcpth.trans-date @ rm-rcpth.trans-date
                 fg-rdtlh.qty        @ rm-rdtlh.qty
                 v-amount v-uom
@@ -2111,24 +2123,24 @@ RUN build-report-recs (
                          WHEN "amt"   THEN cVarValue = STRING(v-amount,"->>,>>9.99") .
                          WHEN "uom"  THEN cVarValue = STRING(v-uom,"x(8)") .
                          WHEN "bal-due"  THEN cVarValue = /*STRING(v-balance,"->>>,>>9.99")*/ "" .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-          
+
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
              END.
 
-        
+
       end.
-      
+
      /* display v-balance with frame main.
 
       IF tb_excel THEN
@@ -2138,7 +2150,7 @@ RUN build-report-recs (
       clear frame main.*/
 
       v-bal[4] = v-bal[4] + v-balance.
-      
+
       if last-of(report.key-04) then do:
         put skip(1).
 
@@ -2174,9 +2186,9 @@ RUN build-report-recs (
                          WHEN "amt"   THEN cVarValue = STRING(v-amt[4],"->>,>>9.99") .
                          WHEN "uom"  THEN cVarValue = "" .
                          WHEN "bal-due"  THEN cVarValue = STRING(v-bal[4],"->>>,>>9.99")  .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -2243,9 +2255,9 @@ RUN build-report-recs (
                          WHEN "amt"   THEN cVarValue = STRING(v-amt[3],"->>,>>9.99") .
                          WHEN "uom"  THEN cVarValue = "" .
                          WHEN "bal-due"  THEN cVarValue = STRING(v-bal[3],"->>>,>>9.99")  .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -2312,9 +2324,9 @@ RUN build-report-recs (
                          WHEN "amt"   THEN cVarValue = STRING(v-amt[2],"->>,>>9.99") .
                          WHEN "uom"  THEN cVarValue = "" .
                          WHEN "bal-due"  THEN cVarValue = STRING(v-bal[2],"->>>,>>9.99")  .
-                         
+
                     END CASE.
-                      
+
                     cExcelVarValue = cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
@@ -2356,7 +2368,7 @@ END.
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").   
- 
+
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
@@ -2379,11 +2391,11 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha.
-  
+
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child .
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -2411,23 +2423,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

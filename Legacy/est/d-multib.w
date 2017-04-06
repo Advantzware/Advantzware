@@ -109,6 +109,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -139,7 +140,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -328,7 +329,7 @@ PROCEDURE get-eb-rowid :
 ------------------------------------------------------------------------------*/
   DEF OUTPUT PARAMETER op-rowid AS ROWID NO-UNDO.
 
-  
+
   op-rowid = io-rowid.
 
 END PROCEDURE.

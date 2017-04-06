@@ -9,7 +9,7 @@
 /*------------------------------------------------------------------------
 
   File: windows\prepfly.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -160,6 +160,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -190,7 +191,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -353,7 +354,7 @@ PROCEDURE Allow-Create :
   DEFINE OUTPUT PARAMETER op-flag AS LOGICAL NO-UNDO.
 
   op-flag = YES.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -504,7 +505,7 @@ PROCEDURE get-defaults :
         NO-LOCK:
       prep.number-up = prep.number-up + b-eb.num-up.
     END.
-   
+
     IF prep.cust-no NE "" THEN
        FOR EACH cust FIELDS(NAME)
            WHERE cust.company EQ prep.company
@@ -524,9 +525,9 @@ PROCEDURE get-defaults :
        prep.owner-%[1] = 100.
       LEAVE.
     END.
-    
+
     RUN  est/calcMatType.p (INPUT io-code1, OUTPUT cMatTypeSearch).
-    
+
     cDefaultFromPrep = "".
     IF prepMaster-log THEN
       cDefaultFromPrep = getDefaultPrep(cMatTypeSearch).   
@@ -537,7 +538,7 @@ PROCEDURE get-defaults :
         IF NOT AVAIL bf-def-prep THEN 
          cDefaultFromPrep = "".
     END. 
-      
+
 
     FOR EACH b-prep 
         WHERE b-prep.company  EQ prep.company
@@ -563,7 +564,7 @@ PROCEDURE get-defaults :
       prep.owner[2]     = b-prep.owner[2]
       prep.owner-%[2]   = b-prep.owner-%[2]
        .  
-       
+
       IF cDefaultFromPrep GT "" THEN DO:
           ASSIGN prep.actnum = b-prep.actnum.
                  prep.loc-bin = b-prep.loc-bin.
@@ -575,7 +576,7 @@ PROCEDURE get-defaults :
              prep.actnum = prepplgl-chr.
           ELSE
              prep.actnum = b-prep.actnum.
-    
+
           IF prep.mat-type EQ "D" AND prepdiebin-log THEN
              prep.loc-bin = prepdiebin-chr.
           ELSE IF prep.mat-type EQ "P" AND prepplbin-log THEN
@@ -607,7 +608,7 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */

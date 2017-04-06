@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File: addon\touch\w-clocki.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -142,6 +142,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -165,7 +166,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -322,7 +323,7 @@ PROCEDURE calc-dock-time :
 ------------------------------------------------------------------------------*/
   def input parameter ip-status as cha no-undo.
   def input-output parameter iop-time as int no-undo.
-  
+
   def var li-hour as int no-undo.
   def var li-mini as int no-undo.
   def var li-dmin as int no-undo.
@@ -336,10 +337,10 @@ PROCEDURE calc-dock-time :
                                  and emptrack.employee.employee = employee_code
                     no-lock no-error.
   if avail emptrack.employee and emptrack.employee.dock-time = 0 then return.
-   
+
   ASSIGN
   li-docktime = if avail emptrack.employee then emptrack.employee.dock-time else 15  /* 15 min */
-  
+
   /* login In */
   li-hour = truncate(iop-time / 3600,0)
   li-mini = iop-time mod 3600
@@ -348,7 +349,7 @@ PROCEDURE calc-dock-time :
   li-dmin = li-dtim * li-docktime
   li-dout = trunc(li-mini / li-docktime,0)
   li-out-min = li-dout * li-docktime.
-  
+
   if ip-status = "login" then iop-time = li-hour * 3600 + li-dmin * 60.
   else iop-time = li-hour * 3600 + li-out-min * 60.
 
@@ -452,7 +453,7 @@ DO:
            b-emplogin.END_date NE ?
            USE-INDEX pi-emplogin
            NO-LOCK NO-ERROR.
-   
+
       IF AVAIL b-emplogin THEN
       DO:
          IF emplogin.start_date = b-emplogin.end_date THEN
@@ -461,11 +462,11 @@ DO:
             li-diff-time = (86400 - b-emplogin.end_time)
                          + (emplogin.start_date - b-emplogin.end_date - 1) * 86400
                          +  li-time-no-dock.
-        
+
          IF NOT (li-diff-time < 0 OR li-diff-time EQ ?) AND
             li-diff-time LE maxbreak-int then
             li-time = li-time-no-dock.
-         
+
          RELEASE b-emplogin.
       END.
    END.
@@ -475,7 +476,7 @@ DO:
       emplogin.START_date = TODAY AND
       emplogin.START_time = li-time AND
       emplogin.machine = machine_code) THEN DO:
-      
+
       MESSAGE "Already Clocked In for" TODAY " Time:" STRING(li-time,"hh:mm")  VIEW-AS ALERT-BOX ERROR.
       RETURN ERROR.
    END.
@@ -522,7 +523,7 @@ ELSE DO:  /* logout/clock out*/
             emplogin.END_time = TIME /*Don't apply doctime i-time*/.
      {custom/calctime.i &file="emplogin"}
   END.
-  
+
 END.
 v-employee:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
 
@@ -563,9 +564,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -587,7 +588,7 @@ PROCEDURE local-initialize :
   v-clockio:BGCOLOR IN FRAME {&FRAME-NAME} = IF ip-clock-in THEN 10 ELSE 12.
   btn-next:LABEL = /*IF ip-clock-in THEN "Next Clock In" ELSE "Next Clock Out".*/
                    "&SAVE".
-  
+
 
 END PROCEDURE.
 

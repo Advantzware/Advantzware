@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: est\w-estc.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -209,17 +209,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -277,7 +273,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -1212,7 +1208,7 @@ PROCEDURE init-box-design :
   RUN add-link IN adm-broker-hdl ( h_b-estitm , 'Record':U , h_q-boxdes ).
   RUN add-link IN adm-broker-hdl ( ip-handle, 'box-calc':U , h_q-boxdes ).
   RUN dispatch IN h_q-boxdes ('initialize').
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1231,11 +1227,11 @@ PROCEDURE local-change-page :
   RUN get-attribute IN THIS-PROCEDURE ('Current-Page':U).
   ASSIGN adm-current-page = INTEGER(RETURN-VALUE).
 
-   
+
   assign
    li-page[2] = li-page[1]
    li-page[1] = int(return-value).
-  
+
   if li-page[1] = 10 then do:  /* quote */
     def buffer bf-quote for quotehd .
     find first bf-quote where bf-quote.company = g_company and
@@ -1255,7 +1251,7 @@ PROCEDURE local-change-page :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  /* {methods/winReSizePgChg.i} */
+  {methods/winReSizePgChg.i}
   IF NOT ll-false-page-change THEN DO:
   run get-attribute ("current-page").
   l-spec-modified = NO.
@@ -1266,7 +1262,7 @@ PROCEDURE local-change-page :
               "YOU MUST SAVE CHANGES ON THE SPEC FOLDER BEFORE PROCEEDING."
               view-as alert-box error.            
       RUN select-page IN THIS-PROCEDURE ( 3 ).
-              
+
   END.  
   ELSE
     IF VALID-HANDLE(h_p-rfqsiz) AND adm-current-page NE 3 THEN DO:
@@ -1304,13 +1300,13 @@ ELSE
   END.
   IF li-page[1] = 5 THEN
   RUN dispatch IN h_v-est3 ( INPUT 'row-changed':U ) .
- 
+
   IF li-page[1] = 9 THEN DO:
          RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"initbtn-target",OUTPUT char-hdl).
          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
           RUN reopen-init IN WIDGET-HANDLE(char-hdl) .
   END.
- 
+
   DO WITH FRAME {&FRAME-NAME}:
     /*ASSIGN
       btNextItemfg:VISIBLE = li-page[1] EQ 2
@@ -1334,9 +1330,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1377,14 +1373,14 @@ PROCEDURE Select_Add :
 ------------------------------------------------------------------------------*/
 
   def var char-hdl as cha no-undo.
-  
+
   run select-page(2).
 
   run get-link-handle in adm-broker-hdl(this-procedure,"add-est-target", output char-hdl).
   run add-estimate in widget-handle(char-hdl).
 
 
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

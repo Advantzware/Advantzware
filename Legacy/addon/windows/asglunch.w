@@ -187,13 +187,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -228,7 +234,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -265,7 +271,7 @@ END.
 ON HELP OF FRAME FRAME-A
 DO:
    def var char-val as cha no-undo.
-   
+
    if focus:name = "begin_emp" or focus:name = "end_emp" then do:
       run windows/l-emp.w (input gcompany, focus:screen-value, output char-val).
       if char-val <> "" then focus:screen-value = char-val.   
@@ -325,6 +331,7 @@ ON CHOOSE OF btn_cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure. 
 
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -352,7 +359,8 @@ DO:
   end.
 
   run assign-lunch-hour.
-  
+
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -413,8 +421,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -424,16 +434,17 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
- 
+
    find first employee no-lock no-error.
    begin_emp = if avail employee then employee.employee else "".
    find last employee no-lock no-error.
    end_emp = if avail employee then employee.employee else "".
-   
-   
+
+
    RUN enable_UI.
-  
+
   {methods/nowait.i}
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:38 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -456,7 +467,7 @@ PROCEDURE assign-lunch-hour :
   def var run-qty like machtran.run_qty no-undo.
   def var waste-qty like machtran.waste_qty no-undo.
   def var lv-date as date no-undo.
-   
+
   message "Lunch Hour Transactions will be created " skip
            "for Employee " begin_emp
           " - " end_emp " and for shifte " begin_shift " - " end_shift
@@ -531,7 +542,7 @@ PROCEDURE assign-lunch-hour :
           end.  /* do lv-date */
        end.     /* first-of(machine) */   
       end.  /* machshft */
-   
+
    /* ==================
     /* ======= all employee for the machine ===========*/
       for each empmach no-lock where empmach.company = machtran.company
@@ -545,7 +556,7 @@ PROCEDURE assign-lunch-hour :
                            and emplogin.start_date <= end_date
                                no-lock 
                                break by empmach.employee by empmach.machine:       
-  
+
           if first-of(empmach.employee) then do:   
              find shifts where shifts.company = emplogin.company and
                                shifts.shift = emplogin.shift
@@ -574,7 +585,7 @@ PROCEDURE assign-lunch-hour :
              OUTPUT machtran.shift). 
       {methods/run_link.i "CONTAINER" "Set_MachTran_Rowid" "(bf-machtran-rowid)"}
 */    
-       
+
             find employee of empmach no-lock .
             CREATE machemp.
             ASSIGN machemp.table_rec_key = machtran.rec_key
@@ -592,7 +603,7 @@ PROCEDURE assign-lunch-hour :
              RUN Employee-Rate(machtran.company,machemp.employee,machemp.shift,machtran.machine,
                           machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
              {custom/calctime.i &file="machemp"}
-                          
+
 
    /* =============== 
      /* get active employees logged into this machine */

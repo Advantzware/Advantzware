@@ -4,6 +4,10 @@
           nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:26 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -167,7 +171,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: NOSWEAT.notes
+   External Tables: ASI.notes
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -237,7 +241,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -247,11 +251,11 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-dept V-table-Win
 ON CHOOSE OF btn-dept IN FRAME F-Main /* Department List */
 DO:
-  
+
   DEF VAR v-deptlst AS cha NO-UNDO.
-  
+
       RUN addon/windows/d-deptlk.w (v-machine,OUTPUT v-deptlst).
-  
+
   IF v-deptlst <> "" THEN DO:
      FIND FIRST mach WHERE mach.company = g_company AND
                            mach.m-code = v-machine NO-LOCK NO-ERROR.
@@ -262,7 +266,7 @@ DO:
      FIND FIRST dept WHERE dept.code EQ notes.note_code:SCREEN-VALUE NO-LOCK NO-ERROR.
      dept-dscr:screen-value in frame {&frame-name} = if avail dept then dept.dscr else "".
      APPLY "leave" TO notes.note_code.
-     
+
   END.
   v-got-dept = YES.
   RETURN NO-APPLY.
@@ -340,11 +344,11 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-  
+
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -477,7 +481,7 @@ IF v-machine EQ "" THEN
 DO WITH FRAME {&FRAME-NAME}:
 btn-dept:HIDDEN = YES.
 END.
-                                      
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -576,7 +580,7 @@ PROCEDURE valid-note_code :
       RETURN ERROR.
     END.
   END.
-    
+
 
 END PROCEDURE.
 

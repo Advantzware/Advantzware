@@ -219,6 +219,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -271,7 +272,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -411,7 +412,7 @@ DO:
 
   MESSAGE "Are you sure you want to copy using these parameters?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-        
+
   IF v-process THEN DO:
     RUN copy-records.
 
@@ -612,7 +613,7 @@ PROCEDURE adjust-date :
   IF li-adj-days LT 0 THEN li-adj-days = li-adj-days + 7.
 
   io-date = io-date + li-adj-days.
-  
+
   IF YEAR(io-date) NE end_year THEN
     ASSIGN
      li-adj-days = (IF end_year MODULO 4 EQ 0 THEN 366 ELSE 365) *
@@ -755,7 +756,7 @@ PROCEDURE create-new-record :
 
   DEF BUFFER b-mach-cal FOR mach-calendar.
 
-  
+
   IF ip-first-of THEN
   FOR EACH b-mach-cal
       WHERE b-mach-cal.company EQ mach-calendar.company
@@ -828,7 +829,7 @@ PROCEDURE enable-dates :
          end_date:HIDDEN      = YES.  
     END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -875,7 +876,7 @@ PROCEDURE local-enable :
 
     ENABLE tb_new-mach tb_old-mach btn_cancel.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -903,7 +904,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -979,7 +980,7 @@ PROCEDURE valid-end_year :
     IF (begin_mach EQ end_mach AND begin_year GE end_year AND TB_NEW-MACH ) OR
        (begin_mach NE end_mach AND begin_year GT end_year) THEN DO:
 
-      
+
       IF begin_mach EQ end_mach THEN
         MESSAGE  TRIM(end_year:LABEL) + " must be greater than " + TRIM(begin_year:LABEL)
             VIEW-AS ALERT-BOX ERROR.
@@ -990,7 +991,7 @@ PROCEDURE valid-end_year :
       RETURN ERROR.
     END.
     */
-    
+
     IF TB_NEW-MACH THEN DO:
        IF begin_mach = END_mach THEN DO:
           MESSAGE "Choose 'Copy within machine' option please..." VIEW-AS ALERT-BOX ERROR.
@@ -1011,7 +1012,7 @@ PROCEDURE valid-end_year :
         END.
 
     END.
-    
+
   END.
 
 END PROCEDURE.
@@ -1028,7 +1029,7 @@ PROCEDURE valid-mach :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-mach LIKE mach-calendar.m-code NO-UNDO.
 
-                
+
   IF NOT CAN-FIND(FIRST mach
                   WHERE mach.company EQ cocode
                     AND mach.loc     EQ locode

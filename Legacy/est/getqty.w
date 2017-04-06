@@ -6,7 +6,7 @@
 /*------------------------------------------------------------------------
 
   File: est\getqty.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -562,6 +562,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -595,7 +596,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -700,7 +701,7 @@ DO:
 
   FIND FIRST bf-est NO-LOCK
      WHERE RECID(bf-est) EQ recid(xest) NO-ERROR.
- 
+
   lv-estqty-recid = IF AVAIL est-qty THEN RECID(est-qty) ELSE ?.
   RUN est/estqtyd.w (lv-estqty-recid, RECID(eb), STRING(IF bf-est.est-type LE 4 THEN eb.bl-qty ELSE est-qty.eqty), OUTPUT char-val, OUTPUT char-val2, OUTPUT date-val, OUTPUT date-val2).
 
@@ -712,12 +713,12 @@ DO:
       bf-est.est-qty[3] = INT(ENTRY(3,char-val))
       bf-est.est-qty[4] = INT(ENTRY(4,char-val)).
      FIND CURRENT bf-est NO-LOCK NO-ERROR.
-    
+
      lv-hld-eqty = est-qty.eqty.
      FIND CURRENT est-qty NO-ERROR.
      est-qty.eqty = INT(ENTRY(1,char-val)).
      FIND CURRENT est-qty NO-LOCK NO-ERROR.
-    
+
      /*RELEASE eb.*/
      FOR EACH bff-eb
          WHERE bff-eb.company EQ bf-est.company
@@ -733,14 +734,14 @@ DO:
            AND bff-ef.eqty    EQ lv-hld-eqty:
        bff-ef.eqty = INT(ENTRY(1,char-val)).
      END.
-    
+
      FOR EACH est-op
          WHERE est-op.company EQ bf-est.company
            AND est-op.est-no  EQ bf-est.est-no
            AND est-op.qty     EQ lv-hld-eqty:
        est-op.qty = est-qty.eqty.
      END.
-    
+
      FOR EACH est-op
          WHERE est-op.company EQ bf-est.company
            AND est-op.est-no  EQ bf-est.est-no
@@ -748,7 +749,7 @@ DO:
            AND est-op.line    GE 500:
        DELETE est-op.
      END.
-    
+
      APPLY "choose" TO btn-clear.
   END. 
 
@@ -759,63 +760,63 @@ DO:
         lv-qty-1:SCREEN-VALUE  = ENTRY(1,char-val).
        APPLY "entry" TO lv-qty-2.
      END.
-    
+
      IF INT(ENTRY(2,char-val)) NE 0 THEN DO:
        ASSIGN
         lv-rels-2:SCREEN-VALUE = ENTRY(12,char-val)
         lv-qty-2:SCREEN-VALUE  = ENTRY(2,char-val).
        APPLY "entry" TO lv-qty-3.
      END.
-    
+
      IF INT(ENTRY(3,char-val)) NE 0 THEN DO:
        ASSIGN
         lv-rels-3:SCREEN-VALUE = ENTRY(13,char-val)
         lv-qty-3:SCREEN-VALUE  = ENTRY(3,char-val).
        APPLY "entry" TO lv-qty-4.
      END.
-    
+
      IF INT(ENTRY(4,char-val)) NE 0 THEN DO:
        ASSIGN
         lv-rels-4:SCREEN-VALUE = ENTRY(14,char-val)
         lv-qty-4:SCREEN-VALUE  = ENTRY(4,char-val).
        APPLY "entry" TO lv-qty-5.
      END.
-    
+
      IF INT(ENTRY(5,char-val)) NE 0 THEN DO:
        ASSIGN
         lv-rels-5:SCREEN-VALUE = ENTRY(15,char-val)
         lv-qty-5:SCREEN-VALUE  = ENTRY(5,char-val).
        APPLY "entry" TO lv-qty-6.
      END.
-    
+
      IF INT(ENTRY(6,char-val)) NE 0 THEN DO:
        ASSIGN
         lv-rels-6:SCREEN-VALUE = ENTRY(16,char-val)
         lv-qty-6:SCREEN-VALUE  = ENTRY(6,char-val).
        APPLY "entry" TO lv-qty-7.
      END.
-    
+
      IF INT(ENTRY(7,char-val)) NE 0 THEN DO:
        ASSIGN
         lv-rels-7:SCREEN-VALUE = ENTRY(17,char-val)
         lv-qty-7:SCREEN-VALUE  = ENTRY(7,char-val).
        APPLY "entry" TO lv-qty-8.
      END.
-    
+
      IF INT(ENTRY(8,char-val)) NE 0 THEN DO:
        ASSIGN
         lv-rels-8:SCREEN-VALUE = ENTRY(18,char-val)
         lv-qty-8:SCREEN-VALUE  = ENTRY(8,char-val).
        APPLY "entry" TO lv-qty-9.
      END.
-    
+
      IF INT(ENTRY(9,char-val)) NE 0 THEN DO:
        ASSIGN
         lv-rels-9:SCREEN-VALUE = ENTRY(19,char-val)
         lv-qty-9:SCREEN-VALUE  = ENTRY(9,char-val).
        APPLY "entry" TO lv-qty-10.
      END.
-    
+
      IF INT(ENTRY(10,char-val)) NE 0 THEN DO:
        ASSIGN
         lv-rels-10:SCREEN-VALUE = ENTRY(20,char-val)
@@ -831,63 +832,63 @@ DO:
         lv-qty-11:SCREEN-VALUE  = ENTRY(1,char-val2).
        APPLY "entry" TO lv-qty-12.
      END.
-    
+
      IF INT(ENTRY(2,char-val2)) NE 0 THEN DO:
        ASSIGN
         lv-rels-12:SCREEN-VALUE = ENTRY(12,char-val2)
         lv-qty-12:SCREEN-VALUE  = ENTRY(2,char-val2).
        APPLY "entry" TO lv-qty-13.
      END.
-    
+
      IF INT(ENTRY(3,char-val2)) NE 0 THEN DO:
        ASSIGN
         lv-rels-13:SCREEN-VALUE = ENTRY(13,char-val2)
         lv-qty-13:SCREEN-VALUE  = ENTRY(3,char-val2).
        APPLY "entry" TO lv-qty-14.
      END.
-    
+
      IF INT(ENTRY(4,char-val2)) NE 0 THEN DO:
        ASSIGN
         lv-rels-14:SCREEN-VALUE = ENTRY(14,char-val2)
         lv-qty-14:SCREEN-VALUE  = ENTRY(4,char-val2).
        APPLY "entry" TO lv-qty-15.
      END.
-    
+
      IF INT(ENTRY(5,char-val2)) NE 0 THEN DO:
        ASSIGN
         lv-rels-15:SCREEN-VALUE = ENTRY(15,char-val2)
         lv-qty-15:SCREEN-VALUE  = ENTRY(5,char-val2).
        APPLY "entry" TO lv-qty-16.
      END.
-    
+
      IF INT(ENTRY(6,char-val2)) NE 0 THEN DO:
        ASSIGN
         lv-rels-16:SCREEN-VALUE = ENTRY(16,char-val2)
         lv-qty-16:SCREEN-VALUE  = ENTRY(6,char-val2).
        APPLY "entry" TO lv-qty-17.
      END.
-    
+
      IF INT(ENTRY(7,char-val2)) NE 0 THEN DO:
        ASSIGN
         lv-rels-17:SCREEN-VALUE = ENTRY(17,char-val2)
         lv-qty-17:SCREEN-VALUE  = ENTRY(7,char-val2).
        APPLY "entry" TO lv-qty-18.
      END.
-    
+
      IF INT(ENTRY(8,char-val2)) NE 0 THEN DO:
        ASSIGN
         lv-rels-18:SCREEN-VALUE = ENTRY(18,char-val2)
         lv-qty-18:SCREEN-VALUE  = ENTRY(8,char-val2).
        APPLY "entry" TO lv-qty-19.
      END.
-                                        
+
      IF INT(ENTRY(9,char-val2)) NE 0 THEN DO:
        ASSIGN
         lv-rels-19:SCREEN-VALUE = ENTRY(19,char-val2)
         lv-qty-19:SCREEN-VALUE  = ENTRY(9,char-val2).
        APPLY "entry" TO lv-qty-20.
      END.
-    
+
      IF INT(ENTRY(10,char-val2)) NE 0 THEN DO:
        ASSIGN
         lv-rels-20:SCREEN-VALUE = ENTRY(20,char-val2)

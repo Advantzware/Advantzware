@@ -185,6 +185,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -227,7 +228,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -257,7 +258,7 @@ DO:
   END.
 
   ll = tb_est-die OR tb_est-img OR tb_est-cad.
-  
+
   IF ll THEN
   FOR EACH b-ef
       WHERE b-ef.company  EQ ef.company
@@ -281,7 +282,7 @@ DO:
   ll = tb_fgp-die OR tb_fgp-img OR tb_fgp-cad.
 
   IF ll THEN DO:
-  
+
     IF AVAIL itemfg THEN
     FOR EACH b-eb
         WHERE b-eb.company  EQ itemfg.company

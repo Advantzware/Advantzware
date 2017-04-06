@@ -291,6 +291,17 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -324,7 +335,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-comm-calc
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -380,7 +391,7 @@ DO:
          FI-set-sales-price      = tt-comm-calc.set-sales-price
          FI-comm-rate            = tt-comm-calc.commission-rate
          FI-rebate-percent       = tt-comm-calc.rebate-percent.
-   
+
       DISPLAY          
          FI-base-cost
          FI-comm-rate
@@ -566,8 +577,10 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:01 am */
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -588,6 +601,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    RUN calculate-commission-costs.
    APPLY "ITERATION-CHANGED" TO BROWSE BROWSE-1.
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:01 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -637,7 +651,7 @@ PROCEDURE cal-commission :
    DEF VAR v-qty        AS DECI NO-UNDO.
    DEF VAR v-rebate     AS DECI NO-UNDO.
    DEF VAR v-amt        AS DECI NO-UNDO.
-   
+
    ASSIGN
       tt-comm-calc.amt = tt-comm-calc.orig-inv-amt
       v-rebate = (tt-comm-calc.amt * tt-comm-calc.rebate-percent) / 100
@@ -692,13 +706,13 @@ PROCEDURE calculate-commission-costs :
             tt-comm-calc.base-cost-uom       = item-comm.zz-char[3]
             tt-comm-calc.base-cost-qty       = tt-comm-calc.qty
             tt-comm-calc.set-sell-price-qty  = tt-comm-calc.qty.
-         
+
 
          IF item-comm.zz-char[2] = "" THEN
             tt-comm-calc.set-sell-price-uom = tt-comm-calc.pr-uom.
          IF item-comm.zz-char[3] = "" THEN
             tt-comm-calc.base-cost-uom = tt-comm-calc.cost-uom.
-         
+
          /*if "locked" or not set to use invoice costs, use base cost from OF7
          tt-comm-calc.commission cost is set to invoice costs by default*/
          IF NOT iplUseInvoiceCost 

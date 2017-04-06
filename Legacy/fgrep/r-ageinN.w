@@ -5,7 +5,7 @@
 /*------------------------------------------------------------------------
 
   File: fgrep\r-ageinv.w
-  
+
   Description:  Aged Inventory
     - Run-report --> Build-report --> produce report
     - Build temp-table per fg-bin record
@@ -243,8 +243,8 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg .
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
-    
-    
+
+
 ASSIGN cTextListToSelect = "Rep,Rep Name,Customer Name,Item #,Description,Cost,Sell Value $," +
                            "Days,Cust Part #,Last Ship,Qty1,Qty2,Qty3,Qty4,Qty5," +
                            "Value1,Value2,Value3,Value4,Value5,Cust#"
@@ -737,13 +737,19 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -819,7 +825,7 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        btn_Up:HIDDEN IN FRAME FRAME-A           = TRUE.
-      
+
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -947,7 +953,7 @@ THEN C-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -1116,6 +1122,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:47 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1166,10 +1173,11 @@ DO:
                              &mail-subject= "Aged Inventory Report"
                              &mail-body= "Aged Inventory Report"
                              &mail-file=list-name }
-          
+
        END. 
        WHEN 6 THEN run output-to-port.
   end case. 
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:47 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1180,7 +1188,8 @@ END.
 ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
-  
+
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:47 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1219,6 +1228,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:47 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1230,6 +1240,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:47 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1246,6 +1257,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:47 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1270,7 +1282,8 @@ DO:
 
     ASSIGN sl_selected:LIST-ITEMS = cTextSelected
            sl_avail:LIST-ITEMS = cTextListed.
- 
+
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:47 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1282,6 +1295,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:47 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1534,7 +1548,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
 DO:
-  
+
    IF (NOT CAN-DO(sl_selected:LIST-ITEMs,{&SELF-NAME}:SCREEN-VALUE) OR
        sl_selected:NUM-ITEMS = 0)
    THEN ASSIGN ldummy = sl_selected:ADD-LAST({&SELF-NAME}:SCREEN-VALUE)
@@ -1542,7 +1556,7 @@ DO:
               /* sl_selected:SCREEN-VALUE = sl_selected:ENTRY(sl_selected:NUM-ITEMS) */
                .
 
-  
+
 /* for pairs
     DEF VAR cSelectedList AS cha NO-UNDO.
     cSelectedList = sl_Selected:LIST-ITEM-PAIRS.
@@ -1585,7 +1599,7 @@ DO:
   ASSIGN
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}:ENTRY(1)
     .
-    
+
 
 END.
 
@@ -1668,8 +1682,10 @@ END.
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:47 am */
+END.
 
 IF v-custom EQ ? THEN DO:
       APPLY 'CLOSE' TO THIS-PROCEDURE.
@@ -1687,7 +1703,7 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-      
+
 /* security check need {methods/prgsecur.i} in definition section */
   IF access-close THEN DO:
      APPLY "close" TO THIS-PROCEDURE.
@@ -1704,23 +1720,23 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   /* Check for custom report version */
-  
+
 
   IF NOT v-custom AND ir12-log THEN
       RUN set-custom (INPUT v-custom).
-  
+
   /* Standard report sets defaults from user defined in nk1=IR12 */
   IF NOT v-custom AND ir12-char GT "" AND ir12-log THEN
       v-custom-user = ir12-char. 
 
   {methods/nowait.i}
-  
+
   RUN sys/inc/CustListForm.p ( "IR12",cocode, 
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
 
   DO WITH FRAME {&FRAME-NAME}:
-      
+
   /*  {custom/usrprntc.i "and true" v-custom-user} */
 
       {custom/usrprint.i} 
@@ -1743,7 +1759,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                           INPUT 'IR12',
                           INPUT NO,
                           OUTPUT glCustListActive).
-  
+
   {sys/inc/chblankcust.i ""IR12""}
   IF v-custom THEN DO:
       IF ou-log THEN DO:
@@ -1760,7 +1776,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO"
             btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
             .
-          
+
        IF ou-log AND ou-cust-int = 0 THEN do:
            ASSIGN 
             tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
@@ -1775,6 +1791,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       rd_show:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
       rd_show:HIDDEN IN FRAME {&FRAME-NAME} = YES .
 
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:47 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 
@@ -1838,7 +1855,7 @@ PROCEDURE CustList :
 
     RUN sys/ref/CustListManager.w(INPUT cocode,
                                   INPUT 'IR12').
-    
+
 
 END PROCEDURE.
 
@@ -1863,124 +1880,124 @@ DEF INPUT PARAMETER aged-days-1 AS INTEGER FORMAT ">,>>>":U INITIAL 9999
 
 DEF INPUT PARAMETER aged-days-2 AS INTEGER FORMAT ">,>>>":U INITIAL 9999 
      LABEL "2" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER aged-days-3 AS INTEGER FORMAT ">,>>>":U INITIAL 9999 
      LABEL "3" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER aged-days-4 AS INTEGER FORMAT ">,>>>":U INITIAL 9999 
      LABEL "4" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER as-of-date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/01 
      LABEL "As of" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER begin_cust-no AS CHARACTER FORMAT "X(8)" 
      LABEL "Beginning Customer#" 
-      
+
      .
 
 DEF INPUT PARAMETER begin_i-no AS CHARACTER FORMAT "X(15)":U 
      LABEL "Beginning Item#" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER begin_job-no AS CHARACTER FORMAT "X(6)":U 
      LABEL "Beginning Job#" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER begin_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "00" 
      LABEL "" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER begin_loc-bin AS CHARACTER FORMAT "X(8)":U 
      LABEL "Beginning Bin" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER begin_slm AS CHARACTER FORMAT "XXX":U 
      LABEL "Beginning Sales Rep#" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER begin_whse AS CHARACTER FORMAT "X(5)":U 
      LABEL "Beginning Warehouse" 
-      
+
       NO-UNDO.
 
 DEF INPUT PARAMETER end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
      LABEL "Ending Customer#" 
-      
+
      .
 
 DEF INPUT PARAMETER end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz" 
      LABEL "Ending Item#" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER end_job-no AS CHARACTER FORMAT "X(6)":U INITIAL "zzzzzz" 
      LABEL "Ending Job#" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER end_job-no2 AS CHARACTER FORMAT "-99":U INITIAL "99" 
      LABEL "" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER end_loc-bin AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz" 
      LABEL "Ending Bin" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER end_slm AS CHARACTER FORMAT "XXX":U INITIAL "zzz" 
      LABEL "Ending Sales Rep#" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER end_whse AS CHARACTER FORMAT "X(5)":U INITIAL "zzzzz" 
      LABEL "Ending Warehouse" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-ageinv.csv" 
      LABEL "If Yes, File Name" 
-      
+
      .
 
 DEF INPUT PARAMETER lbl_show AS CHARACTER FORMAT "X(256)":U INITIAL "Print?" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Sort?" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER list_class AS CHARACTER FORMAT "X(256)":U 
      LABEL "Inventory Class(es)" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
      LABEL "Font" 
-      
+
      NO-UNDO.
 
 DEF INPUT PARAMETER lv-ornt AS CHARACTER INITIAL "P" 
@@ -2088,14 +2105,14 @@ REPEAT:
               v-red     = min(v-qty,v-qohi[v])
               v-qohi[v] = v-qohi[v] - v-red
               v-qty     = v-qty     - v-red.
-    
+
            IF rd_price = "Sell" THEN
               v-sell-price[v] = v-sell-price[v] - (v-price * v-red).
         END.
-          
+
         if v-qty le 0 then leave.
       end.
-    
+
       if v-qty gt 0 then v-qohi[6] = v-qohi[6] - v-qty.
 
       /* Reduce the negative quantity the same way */
@@ -2111,14 +2128,14 @@ REPEAT:
               v-qohi[v] = v-qohi[v] - v-red
               /* v-qty is positive, v-red is negative */
               v-qty     = v-qty + v-red.
-    
+
            IF rd_price = "Sell" THEN
               v-sell-price[v] = v-sell-price[v] - (v-price * v-red).
         END.
-          
+
         if v-qty le 0 then leave.
       end.
-    
+
       if v-qty gt 0 then v-qohi[6] = v-qohi[6] + v-qty.
 
   END. /* negative found to reduce */
@@ -2160,7 +2177,7 @@ PROCEDURE DisplaySelectionDefault :
 ------------------------------------------------------------------------------*/
   DEF VAR cListContents AS cha NO-UNDO.
   DEF VAR iCount AS INT NO-UNDO.
-  
+
   DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
 
      cListContents = cListContents +                   
@@ -2187,7 +2204,7 @@ PROCEDURE DisplaySelectionList :
 /*   MESSAGE "List to select: " NUM-ENTRIES(cTextListToSelect) ":" NUM-ENTRIES(cFieldListToSelect) */
 /*           VIEW-AS ALERT-BOX INFO BUTTONS OK.                                                    */
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
-     
+
      RETURN.
   END.
 
@@ -2200,7 +2217,7 @@ PROCEDURE DisplaySelectionList :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -2208,9 +2225,9 @@ PROCEDURE DisplaySelectionList :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
 
@@ -2233,7 +2250,7 @@ PROCEDURE DisplaySelectionList2 :
   IF NUM-ENTRIES(cTextListToSelect) <> NUM-ENTRIES(cFieldListToSelect) THEN DO:
     RETURN.
   END.
-        
+
   EMPTY TEMP-TABLE ttRptList.
 
   DO iCount = 1 TO NUM-ENTRIES(cTextListToSelect):
@@ -2243,7 +2260,7 @@ PROCEDURE DisplaySelectionList2 :
                      ENTRY(iCount,cTextListToSelect) + "," +
                      ENTRY(1,cFieldListToSelect)
                      paris */
-                     
+
                     (IF cListContents = "" THEN ""  ELSE ",") +
                      ENTRY(iCount,cTextListToSelect)   .
     CREATE ttRptList.
@@ -2251,9 +2268,9 @@ PROCEDURE DisplaySelectionList2 :
            ttRptlist.FieldList = ENTRY(iCount,cFieldListToSelect)
            .
   END.
-  
+
  /* sl_avail:LIST-ITEM-PAIRS IN FRAME {&FRAME-NAME} = cListContents. */
-  
+
   sl_avail:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
 
   DO iCount = 1 TO sl_selected:NUM-ITEMS:
@@ -2346,7 +2363,7 @@ PROCEDURE GetVarValue :
   DEF OUTPUT PARAM opVarValue AS cha NO-UNDO.
 
   opVarValue = ipVarName.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2539,7 +2556,7 @@ FIND bf-tt-fg-bin WHERE ROWID(bf-tt-fg-bin) EQ ipr-tt-fg-bin-row NO-LOCK NO-ERRO
                   lv-sell-price = oe-ordl.price * (1 - (oe-ordl.disc / 100))
                   lv-sell-uom   = oe-ordl.pr-uom
                   lv-case-count = oe-ordl.cas-cnt.
-            
+
          END.
       END.
 
@@ -2567,7 +2584,7 @@ FIND bf-tt-fg-bin WHERE ROWID(bf-tt-fg-bin) EQ ipr-tt-fg-bin-row NO-LOCK NO-ERRO
             lv-sell-uom   = oe-ordl.pr-uom
             lv-case-count = oe-ordl.cas-cnt
             v-found-job = YES.
-           
+
            LEAVE.
          END.
 
@@ -2603,7 +2620,7 @@ FIND bf-tt-fg-bin WHERE ROWID(bf-tt-fg-bin) EQ ipr-tt-fg-bin-row NO-LOCK NO-ERRO
       if itemfg.sell-uom eq "L" then
         if bf-tt-fg-bin.qty le 0 then v-ext = 0.
         else v-ext = lv-sell-price.
-        
+
       v-ext = round(v-ext,2).  
 
       if v-costl eq ? then v-costl = 0.
@@ -2670,7 +2687,7 @@ form  header
       tim_str
       str-tit2 format "x(112)"   "{1}" at 123
       skip(1)
-      
+
      with frame r-top2 row 1 column 1 stream-io width 150
 	   no-labels no-box no-underline page-top.
 
@@ -2736,7 +2753,7 @@ ELSE*/
      v-label2[02] = ""
      v-label2[03] = ""      
      v-label2[04] = ""    .
-     
+
 /*IF v-cost THEN */
   ASSIGN
    v-label1[1] = "             "
@@ -2753,7 +2770,7 @@ ELSE*/
    v-label1[11] = v-label2[02] 
    v-label1[12] = v-label2[03]
    v-label1[13] = v-label2[04] .
-   
+
 /*ELSE
   ASSIGN
    v-label1[1]  = "      Selling"
@@ -2788,7 +2805,7 @@ ASSIGN
 DO li = 6 TO 10:
   v-label[li] = FILL(" ",8 - LENGTH(TRIM(v-label[li]))) + TRIM(v-label[li]).
 END.
-            
+
 if v-curr then
   assign
    v-label[01] = v-label[01]
@@ -2801,7 +2818,7 @@ if v-curr then
    v-label[13] = "--------"
    v-label[14] = "--------"
    v-label[15] = "--------".
-       
+
 else
   assign
    v-label[01] = "        "
@@ -2943,7 +2960,7 @@ DO WITH FRAME {&FRAME-NAME}:
 END.
 
 READKEY PAUSE 0.
-     
+
 SESSION:SET-WAIT-STATE ("general").
 
 /*FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -2989,19 +3006,19 @@ DEF VAR cslist AS cha NO-UNDO.
      IF ttRptSelected.TextList EQ "qty1" THEN
          ASSIGN
             ttRptSelected.TextList = "Qty " + trim(STRING(v-label[06],"x(8)"))  .
-            
+
         ELSE IF ttRptSelected.TextList EQ "qty2"  THEN
          ASSIGN
             ttRptSelected.TextList =  "Qty " + TRIM(string(v-label[07],"x(8)"))  .
-            
+
         ELSE IF ttRptSelected.TextList EQ "qty3"  THEN
          ASSIGN
             ttRptSelected.TextList = "Qty " + TRIM(string(v-label[08],"x(8)")) .
-           
+
         ELSE IF ttRptSelected.TextList EQ "qty4" THEN
          ASSIGN
             ttRptSelected.TextList = "Qty " +  TRIM(string(v-label[09],"x(8)")) .
-            
+
         ELSE IF ttRptSelected.TextList EQ "qty5" THEN
          ASSIGN
             ttRptSelected.TextList = "Qty " +  TRIM(string(v-label[10],"x(8)")) .
@@ -3009,24 +3026,24 @@ DEF VAR cslist AS cha NO-UNDO.
         ELSE IF ttRptSelected.TextList EQ "Value1" THEN
          ASSIGN
             ttRptSelected.TextList = "Value " + TRIM(string(v-label[06],"x(8)"))  .
-            
+
         ELSE IF ttRptSelected.TextList EQ "Value2"  THEN
          ASSIGN
             ttRptSelected.TextList =  "Value " + TRIM(string(v-label[07],"x(8)"))  .
-            
+
         ELSE IF ttRptSelected.TextList EQ "Value3"  THEN
          ASSIGN
             ttRptSelected.TextList = "Value " + TRIM(string(v-label[08],"x(8)")) .
-           
+
         ELSE IF ttRptSelected.TextList EQ "Value4" THEN
          ASSIGN
             ttRptSelected.TextList = "Value " +  TRIM(string(v-label[09],"x(8)")) .
-            
+
         ELSE IF ttRptSelected.TextList EQ "Value5" THEN
          ASSIGN
             ttRptSelected.TextList = "Value " +  TRIM(string(v-label[10],"x(8)")) .
 
-           
+
    IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
    THEN ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "
                str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
@@ -3041,7 +3058,7 @@ DEF VAR cslist AS cha NO-UNDO.
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-      
+
 
  END.
 
@@ -3098,7 +3115,7 @@ for each tt-file WHERE
   lv-sname = IF AVAIL sman AND sman.sname NE "" THEN sman.sname ELSE
              IF AVAIL cust AND cust.sman EQ "" THEN "No Sales Rep Name" ELSE "Not on File".
 
-  
+
   if first-of(tt-sman)                  or
      (first-of(tt-cust-no) and v-break) then do:
     IF FIRST(tt-sman) THEN do: 
@@ -3136,7 +3153,7 @@ for each tt-file WHERE
         v-val[1] = v-qohi[1] + v-qohi[2] + v-qohi[3] + v-qohi[4] + v-qohi[5].
 
     DO v = 1 TO 5:
-        
+
             IF tt-sell-price[v] EQ ? THEN tt-sell-price[v] = 0.
          END.
 
@@ -3151,7 +3168,7 @@ for each tt-file WHERE
             cVarValue = ""
             cExcelDisplay = ""
             cExcelVarValue = "".
-             
+
      DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
         cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
              CASE cTmpField: 
@@ -3176,16 +3193,16 @@ for each tt-file WHERE
                   WHEN "val3"      THEN cVarValue = /*IF v-curr AND NOT v-q-or-v THEN*/ STRING(tt-sell-price[3],"->>>>>>>>>>9") /*ELSE ""*/ .  
                   WHEN "val4"      THEN cVarValue = /*IF NOT v-q-or-v THEN*/ STRING(tt-sell-price[4],"->>>>>>>>>>9") /*ELSE ""*/ .            
                   WHEN "val5"      THEN cVarValue = /*IF NOT v-q-or-v THEN*/ STRING(tt-sell-price[5],"->>>>>>>>>9") /*ELSE ""*/ .            
-                  
-                  
+
+
              END CASE.
-             
+
              cExcelVarValue = cVarValue.
              cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
      END.
-     
+
      PUT UNFORMATTED cDisplay SKIP.
      IF tb_excel THEN DO:
           PUT STREAM excel UNFORMATTED  
@@ -3213,7 +3230,7 @@ for each tt-file WHERE
    v-sell-price     = 0
    v-qohi           = 0      
    lv-last-fld      = "".
-  
+
   if last-of(tt-cust-no) then do:
     if v-sub-t then do:
         PUT str-line SKIP .
@@ -3222,7 +3239,7 @@ for each tt-file WHERE
             cVarValue = ""
             cExcelDisplay = ""
             cExcelVarValue = "".
-     
+
      DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
         cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
              CASE cTmpField: 
@@ -3247,16 +3264,16 @@ for each tt-file WHERE
                   WHEN "val3"      THEN cVarValue = /*IF v-curr AND NOT v-q-or-v THEN*/ STRING(v-valc[3],"->>>>>>>>>>9") /*ELSE ""*/ . 
                   WHEN "val4"      THEN cVarValue = /*IF NOT v-q-or-v THEN*/ STRING(v-valc[4],"->>>>>>>>>>9") /*ELSE ""*/  .           
                   WHEN "val5"      THEN cVarValue = /*IF NOT v-q-or-v THEN*/ STRING(v-valc[5],"->>>>>>>>>9") /*ELSE "" */ .            
-                  
-                  
+
+
              END CASE.
-               
+
              cExcelVarValue = cVarValue.
              cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
      END.
-     
+
      PUT UNFORMATTED  "       Customer Subtotal:" substring(cDisplay,26,300) SKIP.
      IF tb_excel THEN DO:
          PUT STREAM excel UNFORMATTED  
@@ -3264,7 +3281,7 @@ for each tt-file WHERE
      END.
 
     end.
-    
+
     assign
      v-cst[3]  = v-cst[3]  + v-cst[2]
      v-val[3]  = v-val[3]  + v-val[2]
@@ -3325,7 +3342,7 @@ for each tt-file WHERE
             cVarValue = ""
             cExcelDisplay = ""
             cExcelVarValue = "".
-     
+
      DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
         cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
              CASE cTmpField: 
@@ -3350,16 +3367,16 @@ for each tt-file WHERE
                   WHEN "val3"      THEN cVarValue = STRING(v-vals[3],"->>>>>>>>>>9") . 
                   WHEN "val4"      THEN cVarValue = STRING(v-vals[4],"->>>>>>>>>>9")  .           
                   WHEN "val5"      THEN cVarValue = STRING(v-vals[5],"->>>>>>>>>9") .            
-                  
-                  
+
+
              END CASE.
-               
+
              cExcelVarValue = cVarValue.
              cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
      END.
-     
+
      PUT UNFORMATTED  "       Salesperson Subtotal:" substring(cDisplay,29,300) SKIP.
      IF tb_excel THEN DO:
          PUT STREAM excel UNFORMATTED  
@@ -3411,7 +3428,7 @@ for each tt-file WHERE
             cVarValue = ""
             cExcelDisplay = ""
             cExcelVarValue = "".
-     
+
      DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
         cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
              CASE cTmpField: 
@@ -3436,16 +3453,16 @@ for each tt-file WHERE
                   WHEN "val3"      THEN cVarValue =  STRING(v-valg[3],"->>>>>>>>>>9")  . 
                   WHEN "val4"      THEN cVarValue =  STRING(v-valg[4],"->>>>>>>>>>9")   .           
                   WHEN "val5"      THEN cVarValue =  STRING(v-valg[5],"->>>>>>>>>9")   .            
-                  
-                  
+
+
              END CASE.
-               
+
              cExcelVarValue = cVarValue.
              cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
      END.
-     
+
      PUT UNFORMATTED  "       Grand Total:" substring(cDisplay,20,300) SKIP.
      IF tb_excel THEN DO:
          PUT STREAM excel UNFORMATTED  
@@ -3474,7 +3491,7 @@ for each tt-file WHERE
             cVarValue = ""
             cExcelDisplay = ""
             cExcelVarValue = "".
-     
+
      DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
         cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
              CASE cTmpField: 
@@ -3499,21 +3516,21 @@ for each tt-file WHERE
                   WHEN "val3"      THEN cVarValue =  string(v-valg[3] / v-all-tot-val * 100, "->>>>>>9.99%") . 
                   WHEN "val4"      THEN cVarValue =  string(v-valg[4] / v-all-tot-val * 100, "->>>>>>9.99%") . 
                   WHEN "val5"      THEN cVarValue =  string(v-valg[5] / v-all-tot-val * 100, "->>>>>9.99%")  . 
-                  
-                  
+
+
              END CASE.
-               
+
              cExcelVarValue = cVarValue.
              cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
      END.
-     
+
      PUT UNFORMATTED  "       % of Grand Total:" substring(cDisplay,25,300) SKIP.
 
-   
+
   end.
-  
+
   delete tt-file.
 end. /* each tt-file */
 
@@ -3541,11 +3558,11 @@ PROCEDURE produce-report :
   Notes:
   ------------------------------------------------------------------------------*/
   /* fgrep/r-ageinv.i
-  
+
   Notes:
   - tt-file allows for break by  salesrep, customer, item
   - tt-fg-bin allows for break by tag, job, loc, bin, i-no
-  
+
   */
   DEF VAR v-rec-date AS DATE NO-UNDO.
   DEF VAR l-first-bin AS LOG NO-UNDO.
@@ -3589,7 +3606,7 @@ PROCEDURE produce-report :
     list_class = ""
     sort-opt   = SUBSTR(rd_sort,1,1) 
     lvlIncludeOld = tb_include_old_items.
-  
+
   DO li = 1 TO NUM-ENTRIES(v-class):
     list_class = list_class + " " + (IF ENTRY(li,v-class) EQ "" THEN "Spaces"
     ELSE ENTRY(li,v-class)).
@@ -3600,7 +3617,7 @@ PROCEDURE produce-report :
   EMPTY TEMP-TABLE tt-fg-bin.
   EMPTY TEMP-TABLE tt-itemfg.
 
-  
+
   ASSIGN
   v-cst[1]     = 0
   v-val[1]     = 0
@@ -3610,22 +3627,22 @@ PROCEDURE produce-report :
   v-tot-for-item = 0
   v-sell-price = 0
   ld-last      = 01/01/0001.
-  
+
   EMPTY TEMP-TABLE tt-fg-bin.
   EMPTY TEMP-TABLE tt-items.
 
-  
+
     IF tb_cust-list EQ NO AND (fcus EQ "" AND tcus BEGINS "zzz") THEN 
     DO:
         IF fslm GT "" OR NOT tslm BEGINS "zzz" THEN 
         DO:     
-            
+
             /* Create list of tt-items with all records within the from-to slsm */
             /* range. Actual sales rep for the item is determined in main loop */
             /* below                                                            */
             FOR EACH cust-part 
                 WHERE cust-part.company EQ cocode
-         
+
                 NO-LOCK, 
                 FIRST reftable 
                 WHERE reftable.reftable EQ "cp-lab-p" 
@@ -3633,13 +3650,13 @@ PROCEDURE produce-report :
                 AND reftable.loc        EQ cust-part.i-no   
                 AND reftable.code       EQ cust-part.cust-no 
                 NO-LOCK:
-        
+
                 IF cust-part.spare-char-1 NE "" THEN 
                 DO:
                     IF cust-part.spare-char-1 GE fslm
                         AND cust-part.spare-char-1 LE tslm THEN 
                     DO:
-             
+
                         FIND FIRST tt-items WHERE tt-items.i-no EQ cust-part.i-no
                             NO-LOCK NO-ERROR.
                         IF NOT AVAIL tt-items THEN 
@@ -3648,7 +3665,7 @@ PROCEDURE produce-report :
                             CREATE tt-items.
                             tt-items.i-no = cust-part.i-no.
                         END.
-                      
+
                     END.
                 END.
 
@@ -3658,17 +3675,17 @@ PROCEDURE produce-report :
                 AND (itemfg.spare-char-3 GT "" OR itemfg.cust-no GT "" )
 
                 NO-LOCK: 
-                    
+
                 IF itemfg.cust-no GT "" THEN 
                     FIND cust WHERE cust.cust-no = itemfg.cust-no
                         AND cust.company = cocode NO-LOCK NO-ERROR.
-                        
+
                 IF (AVAIL cust AND cust.ACTIVE NE "X" AND cust.sman GT ""
                     AND cust.sman GE fslm AND cust.sman LE tslm)
                     OR (itemfg.spare-char-3 GE fslm 
                     AND itemfg.spare-char-3 LE tslm) THEN 
                 DO:
-            
+
                     FIND FIRST tt-items WHERE tt-items.i-no EQ itemfg.i-no
                         NO-LOCK NO-ERROR.
                     IF NOT AVAIL tt-items THEN 
@@ -3733,7 +3750,7 @@ END.
       FIRST itemfg WHERE itemfg.company = cocode
                      AND itemfg.i-no = tt-items.i-no
                    NO-LOCK:
-    
+
     IF v-class NE "" AND
     LOOKUP(itemfg.class,v-class) EQ 0 THEN NEXT.
 
@@ -3741,7 +3758,7 @@ END.
 /********************** Start section copied from IR2 *******************/
 
     /* Don't know what these passed values should be */
-    
+
     DEF VAR v-loc LIKE fg-bin.loc EXTENT 2 . /* begin/end warehouse */
     DEF VAR v-loc-bin LIKE fg-bin.loc-bin EXTENT 2. /* begin/end bin */
     DEF VAR zbal AS LOG INIT NO. /* include zero balances */
@@ -3757,11 +3774,11 @@ END.
         age-days[2] = aged-days-2
         age-days[3] = aged-days-3
         age-days[4] = aged-days-4.
- 
+
       RUN fg/rep/tt-fgbin.p (BUFFER itemfg, vdat, "", "zzzzzzzzzz",
                              v-loc[1], v-loc[2], v-loc-bin[1], v-loc-bin[2],
                              zbal, fi_days-old, YES, v-custown).
-                      
+
       FOR EACH tt-fg-bin
           WHERE tt-fg-bin.company EQ itemfg.company
             AND tt-fg-bin.i-no    EQ itemfg.i-no
@@ -3773,7 +3790,7 @@ END.
                  (tt-fg-bin.cust-no EQ "" AND tt-fg-bin.loc NE "CUST"))   
           USE-INDEX co-ino
           BREAK BY tt-fg-bin.i-no:
-   
+
         RUN price-calc (INPUT ROWID(tt-fg-bin), OUTPUT v-bin-price, OUTPUT v-price-uom).
 
         IF FIRST(tt-fg-bin.i-no)  THEN DO:            
@@ -3783,14 +3800,14 @@ END.
             /*
         RUN sys/ref/convcuom.p(v-price-uom, "EA", 0, 0, 0, 0,
         v-null, OUTPUT v-bin-price ). */
-        
+
         IF v-price-uom = "M" THEN
             v-bin-price = v-bin-price / 1000.
         ELSE IF v-price-uom EQ "CS" AND AVAIL itemfg THEN
             v-bin-price = v-bin-price / itemfg.case-count.
 
         tt-fg-bin.spare-dec-1 = tt-fg-bin.spare-dec-1 + (v-bin-price * tt-fg-bin.qty).
-        
+
         IF tt-fg-bin.qty NE 0 OR zbal THEN DO:
           {custom/statusMsg.i "'Building Report Section 2: Item ' + tt-fg-bin.i-no"}            
           CREATE tt-itemfg.
@@ -3809,7 +3826,7 @@ END.
                                    STRING(tt-itemfg.loc-bin,"x(10)")     +
                                    STRING(tt-itemfg.tag,"x(20)").
         END.
-    
+
         ELSE DELETE tt-fg-bin.
      END. /* each tt-fg-bin */
 
@@ -3838,11 +3855,11 @@ END.
             BY tt-itemfg.job-no
             BY tt-itemfg.job-no2
             :
-        
+
         FIND FIRST cust WHERE cust.company EQ itemfg.company 
              AND cust.cust-no EQ itemfg.cust-no
              NO-LOCK NO-ERROR.
-        
+
         DEF VAR lv-rct-date AS DATE.
         DEF VAR v-buck AS INT.
 
@@ -3864,9 +3881,9 @@ END.
                    INPUT "",
                    INPUT tt-itemfg.i-no,
                    OUTPUT cNewRep).
-      
+
         IF AVAIL cust AND cust.ACTIVE NE "X" AND cNewRep EQ "" THEN do:
-          
+
           FOR EACH cust-part WHERE cust-part.company = itemfg.company   
               AND cust-part.i-no = itemfg.i-no
               AND cust-part.cust-no EQ cust.cust-no
@@ -3874,7 +3891,7 @@ END.
               FIRST reftable WHERE reftable.reftable = "cp-lab-p" 
               AND reftable.company = cust-part.company  
               AND reftable.loc = cust-part.i-no   AND reftable.code = cust-part.cust-no NO-LOCK:
-        
+
               IF cust-part.spare-char-1 NE "" THEN do:
                   FIND FIRST sman WHERE sman.company = itemfg.company
                       AND sman.sman = cust-part.spare-char-1 NO-LOCK NO-ERROR.
@@ -3882,11 +3899,11 @@ END.
                   LEAVE .
               END.
            END. /* end of cust-part */                 
-           
+
           IF v-sales-rep EQ "" THEN DO:
             FIND FIRST sman WHERE sman.company = cust.company
                 AND sman.sman = cust.sman NO-LOCK NO-ERROR.
-                
+
             IF cNewRep EQ "" AND AVAIL sman THEN v-sales-rep = sman.sman.
           END.
         END.
@@ -3894,32 +3911,32 @@ END.
             IF AVAIL cust THEN
             FIND FIRST sman WHERE sman.company = cust.company
                 AND sman.sman = cust.sman NO-LOCK NO-ERROR.
-                
+
             IF cNewRep EQ "" AND AVAIL sman THEN v-sales-rep = sman.sman.
         END.
         IF v-sales-rep EQ "" AND cNewRep GT "" THEN 
           v-sales-rep = cNewRep.
-        
-         
+
+
         /* change 9/24 */
         IF FIRST-OF(tt-itemfg.i-no) THEN 
             ASSIGN v-qohi = 0.
 
         lv-rct-date = tt-fg-bin.first-date.
-        
+
         v-buck = IF vdat - lv-rct-date LT aged-days-1 THEN 1 ELSE
                  IF vdat - lv-rct-date LT aged-days-2 THEN 2 ELSE
                  IF vdat - lv-rct-date LT aged-days-3 THEN 3 ELSE
                  IF vdat - lv-rct-date LT aged-days-4 THEN 4 ELSE 5.
-        
+
         v-qohi[v-buck] = v-qohi[v-buck] + tt-fg-bin.qty.
-        
+
 
         v-qty-2     = v-qohi[1] + v-qohi[2] + v-qohi[3] +
                       v-qohi[4] + v-qohi[5] + v-qohi[6].
 
         v-sell-price[v-buck] = v-sell-price[v-buck] + tt-fg-bin.spare-dec-1.
-        
+
         IF itemfg.prod-uom EQ "EA" THEN
         v-u-cst = tt-fg-bin.std-tot-cost.
         ELSE
@@ -3956,7 +3973,7 @@ END.
                                 AND oe-ordl.i-no    EQ tt-fg-bin.i-no
                     USE-INDEX ITEM 
                     NO-LOCK NO-ERROR.
-        
+
 
         END.
         IF avail oe-ordl THEN DO:
@@ -3969,7 +3986,7 @@ END.
 
         ELSE DO:
           lv-case-count = itemfg.case-count.
-          
+
           IF itemfg.sell-uom EQ "EA" THEN
             v-u-val = itemfg.sell-price.
           ELSE
@@ -3983,7 +4000,7 @@ END.
 
         IF v-u-cst EQ ? THEN v-u-cst = 0.
         IF v-u-val EQ ? THEN v-u-val = 0.
-        
+
         IF NOT tb_neg-sale OR (v-qty-2 * v-u-val) GT 0 THEN
         ASSIGN v-cst[1] = v-cst[1] + (tt-fg-bin.qty * v-u-cst)
                v-val[1] = v-val[1] + (tt-fg-bin.qty * v-u-val).
@@ -3992,11 +4009,11 @@ END.
       IF vdat - tt-fg-bin.first-date GT v-max-days 
             AND tt-fg-bin.qty NE 0 /* 9/18 - wfk - trying this since was wrong */
           THEN DO:
-          
+
           v-max-days = vdat - tt-fg-bin.first-date.
       END.
       IF LAST-OF(tt-itemfg.i-no) THEN DO:
-            
+
           /* Hopefully these are calculated the same way as in 
              the original IR12 */
 
@@ -4004,9 +4021,9 @@ END.
         /* change 9/24 moved from other section since v-sell-price wasn't available there */
         IF NOT v-q-or-v THEN DO:
          v-qty = v-qohi[1] + v-qohi[2] + v-qohi[3] + v-qohi[4] + v-qohi[5].
-      
+
          DO v = 1 TO 5:
-        
+
             /*IF rd_price = "Avg" THEN
 /*              v-qohi[v] = v-val[1] / v-qty * v-qohi[v]. */
                 .
@@ -4035,7 +4052,7 @@ END.
             tt-file.tt-sell-price[4] = v-sell-price[4]
             tt-file.tt-sell-price[5] = v-sell-price[5]
             .
- 
+
 
          ASSIGN v-ord-slsmn = "" 
                     tot-qty = 0
@@ -4099,7 +4116,7 @@ PROCEDURE reduce_negatives :
 
 
       IF v-qohi[6] LT 0 THEN DO:
-    
+
         ASSIGN
          v-qty     = v-qohi[6] * -1
          v-qohi[6] = 0.
@@ -4115,7 +4132,7 @@ PROCEDURE reduce_negatives :
         END.
 
         IF v-qty GT 0 THEN v-qohi[6] = v-qohi[6] - v-qty.
-    
+
       END.      
 
     END.
@@ -4174,7 +4191,7 @@ FOR EACH tt-items.
   SESSION:SET-WAIT-STATE ("").
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
-  
+
 end procedure.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4222,7 +4239,7 @@ DO WITH FRAME {&FRAME-NAME}:
      tb_val-cust:sensitive = v-custom
      tb_cust-list:SENSITIVE = v-custom
      btnCustList:SENSITIVE = v-custom
-    
+
       .
 END.
 
@@ -4300,7 +4317,7 @@ PROCEDURE SetCustRange :
         btnCustList:SENSITIVE = iplChecked
        .
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4321,12 +4338,12 @@ PROCEDURE show-param :
   def var parm-lbl-list as cha no-undo.
   def var i as int no-undo.
   def var lv-label as cha NO-UNDO.
-  
+
   ASSIGN
   lv-frame-hdl = frame {&frame-name}:HANDLE
   lv-group-hdl = lv-frame-hdl:first-child
   lv-field-hdl = lv-group-hdl:first-child.
-  
+
   do while true:
      if not valid-handle(lv-field-hdl) then leave.
      if lookup(lv-field-hdl:private-data,"parm") > 0
@@ -4352,23 +4369,23 @@ PROCEDURE show-param :
   put space(28)
       "< Selection Parameters >"
       skip(1).
-  
+
   do i = 1 to num-entries(parm-fld-list,","):
     if entry(i,parm-fld-list) ne "" or
        entry(i,parm-lbl-list) ne "" then do:
-       
+
       lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
                  trim(entry(i,parm-lbl-list)) + ":".
-                 
+
       put lv-label format "x(35)" at 5
           space(1)
           trim(entry(i,parm-fld-list)) format "x(40)"
           skip.              
     end.
   end.
- 
+
   put fill("-",80) format "x(80)" skip.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4455,7 +4472,7 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
   /*RETURN string(hField:BUFFER-VALUE, hField:FORMAT) */
   RETURN string(hipField:BUFFER-VALUE).
-      
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

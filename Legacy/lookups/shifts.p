@@ -1,6 +1,6 @@
 /* shifts.p - Generated 06/14/2016 -  3:40 pm by NoSweat
 "shifts. " ~
-"emptrack " ~
+"ASI " ~
 "shifts " ~
 "shifts.company EQ gcompany " ~
 "shift " ~
@@ -18,7 +18,7 @@
 " " ~
 */
 
-&Scoped-define lookup-db emptrack.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file shifts
 &Scoped-define where-statement shifts.company EQ gcompany
 &Scoped-define return-field shift

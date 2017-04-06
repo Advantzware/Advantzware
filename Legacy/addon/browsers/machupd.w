@@ -6,7 +6,7 @@
 /*------------------------------------------------------------------------
 
   File: addon/browsers/machupd.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -225,6 +225,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -267,7 +268,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -311,10 +312,10 @@ END.
 ON CHOOSE OF btn-ok IN FRAME D-Dialog /* OK */
 DO:
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       FIND FIRST machtran WHERE
            ROWID(machtran) EQ ip-rowid.
-      
+
       ASSIGN
          scr-machine
          scr-job-no
@@ -344,19 +345,19 @@ DO:
          machtran.end_date = scr-end-date
          machtran.shift = scr-shift
          machtran.run_qty = scr-run-qty.
-     
+
       {custom/set_time.i
         &field="machtran.start_time"
         &hour="start_hour"
         &minute="start_minute"
         &ampm="start_ampm"}
-        
+
       {custom/set_time.i
         &field="machtran.end_time"
         &hour="end_hour"
         &minute="end_minute"
         &ampm="end_ampm"}
-        
+
       {custom/calctime.i &file="machtran"}
 
       RELEASE machtran.
@@ -465,7 +466,7 @@ ASSIGN
       &hour="start_hour"
       &minute="start_minute"
       &ampm="start_ampm"}
-      
+
 {custom/get_time.i
       &field="machtran.end_time"
       &hour="end_hour"

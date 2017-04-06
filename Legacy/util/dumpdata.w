@@ -6,7 +6,7 @@
 /*------------------------------------------------------------------------
 
   File: util\dumpdata.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -164,6 +164,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -194,7 +195,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -269,7 +270,7 @@ DO:
   IF SUBSTRING(v-dumpfile,LENGTH(v-dumpfile),1) <> "/"
        AND SUBSTRING(v-dumpfile,LENGTH(v-dumpfile),1) <> "\"
   THEN v-dumpfile = v-dumpfile + "\".
-  
+
   IF NOT v-process THEN
     MESSAGE "Are you sure you want to dump all the selected tables to " v-dumpfile " ?"
             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
@@ -280,7 +281,7 @@ DO:
     MESSAGE "Export is completed." VIEW-AS ALERT-BOX INFORMATION.
 
     SESSION:SET-WAIT-STATE("").
-        
+
     APPLY "close" TO THIS-PROCEDURE.
   END.
 END.
@@ -488,7 +489,7 @@ PROCEDURE dump-cust :
               "Exp Date,Freight Payment,FOB,Partial Ship,Location,Carrier,Delivery Zone,Territory," +
               "Underrun%,Overrun%,Mark-Up,Whse Days,Pallet,Case/Bundle,No. Load tags"
               .
-  
+
 
   OUTPUT TO VALUE (v-dumpfile + "Customer Master.csv").
   PUT UNFORMATTED v-heading SKIP.
@@ -507,7 +508,7 @@ PROCEDURE dump-cust :
          WHEN "P":U THEN v-frtpay = "Prepaid" .
          WHEN "T":U THEN v-frtpay = "3rd Party".
     END CASE.
-    
+
 
     v-inv-meth = IF cust.inv-meth THEN "PO"
                  ELSE IF NOT cust.inv-meth  THEN "BOL"
@@ -705,7 +706,7 @@ PROCEDURE dump-data2 :
 
   DEF VAR v-delimiter AS cha FORM "x" NO-UNDO.
   v-delimiter = "~t". /* "," or "~t"*/
-  
+
   CASE ip-table:
       when "cust" THEN DO: {util/dumpdata.i "cust" "Customer Master.csv" }.  END.
       when "oe-ord" THEN DO: {util/dumpdata.i "oe-ord" "Order Header.csv" }. END.
@@ -714,7 +715,7 @@ PROCEDURE dump-data2 :
       when "ar-inv" THEN DO: {util/dumpdata.i "ar-inv" "Invoice Header.csv"}. END.
       when "ar-invl" THEN DO: {util/dumpdata.i "ar-invl" "Invoice Line.csv"}. END.
   END CASE.
-  
+
 
 END PROCEDURE.
 
@@ -1092,7 +1093,7 @@ PROCEDURE enable-buttons :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&frame-name}:
 /*    DISABLE btn_close btn_open btn_close-all btn_open-all.
 
@@ -1136,7 +1137,7 @@ PROCEDURE init-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
 
   RUN load-list.
 
@@ -1159,10 +1160,10 @@ PROCEDURE load-list :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR v-list AS CHAR NO-UNDO.
-  
+
   v-list = "Customer Master,Order Header,Order Line,FG Master,Invoice Header,Invoice Line".
   table-list:LIST-ITEMS IN FRAME {&FRAME-NAME} = v-list.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1214,7 +1215,7 @@ PROCEDURE remove-list :
      IF lookup(ENTRY(i,lv-item-list),lv-screen-value) > 0 
         THEN table-selected-list:DELETE(ENTRY(i,lv-item-list)).     
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -197,6 +197,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -229,7 +230,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -313,7 +314,7 @@ DO:
           TRIM(STRING(ll-close,"close/reopen")) +
           " the selected Jobs?"
      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-  
+
   IF v-process THEN DO WITH FRAME {&FRAME-NAME}:
     SESSION:SET-WAIT-STATE("general").
 
@@ -370,7 +371,7 @@ DO:
              ASSIGN
                 rm-rctd.rct-date = close_date .
           END.
-  
+
       DISPLAY "Job Closing: " +
               TRIM(job.job-no) + "-" +
               STRING(job.job-no2,"99") FORMAT "x(30)" @ fi_status
@@ -404,13 +405,13 @@ DO:
               STRING(job.job-no2,"99") FORMAT "x(30)" @ fi_status
         WITH FRAME {&FRAME-NAME}.
     END.
-    
+
     RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-     
+
     DISPLAY "" @ fi_status WITH FRAME {&FRAME-NAME}.
 
     SESSION:SET-WAIT-STATE("").
-        
+
     APPLY "close" TO THIS-PROCEDURE.
   END.
 END.

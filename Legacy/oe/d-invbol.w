@@ -113,6 +113,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -143,7 +144,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -237,7 +238,7 @@ DO TRANSACTION:
   RUN oe/get-r-no.p (INPUT "oe-relh", OUTPUT v-nxt-r-no).
 
   RUN oe/release#.p (cocode, OUTPUT li2).
-  
+
   CREATE oe-relh.
   ASSIGN
    oe-relh.company  = cocode
@@ -250,7 +251,7 @@ DO TRANSACTION:
    out-recid = RECID(oe-relh).
 
   RUN oe/fifoloop.p (ROWID(inv-line), NO, OUTPUT ll-none).
-  
+
   IF NOT ll-none THEN
      FOR EACH oe-rell FIELDS(qty)
          WHERE oe-rell.company EQ oe-relh.company
@@ -267,7 +268,7 @@ IF li-qty GE inv-line.ship-qty THEN DO TRANSACTION:
   DO:
      FIND LAST oe-bolh USE-INDEX b-no NO-LOCK NO-ERROR.
      li = IF AVAIL oe-bolh THEN oe-bolh.b-no ELSE 0.
-    
+
      CREATE oe-bolh.
      ASSIGN
       oe-bolh.company  = cocode
@@ -279,7 +280,7 @@ IF li-qty GE inv-line.ship-qty THEN DO TRANSACTION:
       oe-bolh.posted   = YES
       oe-bolh.deleted  = YES
       oe-bolh.bol-date = TODAY.
-  
+
      FOR EACH oe-rell
          WHERE oe-rell.company EQ oe-relh.company
            AND oe-rell.r-no    EQ oe-relh.r-no

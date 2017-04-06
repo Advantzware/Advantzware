@@ -28,12 +28,12 @@
 /* ***************************  Definitions  ************************** */
 
 /* Parameters Definitions ---                                           */
-DEF INPUT PARAMETER ip-note-rec-key LIKE NOSWEAT.notes.rec_key      NO-UNDO.
-DEF INPUT PARAMETER ip-note-type    LIKE  NOSWEAT.notes.note_type   NO-UNDO.
-DEF INPUT PARAMETER ip-note-source  LIKE NOSWEAT.notes.note_source  NO-UNDO.
-DEF INPUT PARAMETER ip-note-group   LIKE NOSWEAT.notes.note_group   NO-UNDO.
-DEF INPUT PARAMETER ip-note-form-no LIKE NOSWEAT.notes.note_form_no  NO-UNDO.
-DEF INPUT PARAMETER ip-note-code    LIKE NOSWEAT.notes.note_code     NO-UNDO.
+DEF INPUT PARAMETER ip-note-rec-key LIKE ASI.notes.rec_key      NO-UNDO.
+DEF INPUT PARAMETER ip-note-type    LIKE  ASI.notes.note_type   NO-UNDO.
+DEF INPUT PARAMETER ip-note-source  LIKE ASI.notes.note_source  NO-UNDO.
+DEF INPUT PARAMETER ip-note-group   LIKE ASI.notes.note_group   NO-UNDO.
+DEF INPUT PARAMETER ip-note-form-no LIKE ASI.notes.note_form_no  NO-UNDO.
+DEF INPUT PARAMETER ip-note-code    LIKE ASI.notes.note_code     NO-UNDO.
 /* Any field values to place in the description */
 DEF INPUT PARAMETER ip-ref-fields   AS   CHAR                        NO-UNDO.
 DEF OUTPUT PARAMETER op-code-chosen AS   CHAR                        NO-UNDO.
@@ -248,14 +248,14 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX dialog-Frame
 /* Query rebuild information for DIALOG-BOX dialog-Frame
-     _TblList          = "NOSWEAT.notes"
+     _TblList          = "ASI.notes"
      _Options          = "SHARE-LOCK"
-     _Where[1]         = "NOSWEAT.notes.rec_key = ip-note-rec-key"
+     _Where[1]         = "ASI.notes.rec_key = ip-note-rec-key"
      _Query            is OPENED
 */  /* DIALOG-BOX dialog-Frame */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -319,7 +319,7 @@ DO:
     DEF VAR iCurRow      AS INT NO-UNDO.
     DEF VAR iCurCol      AS INT NO-UNDO.
     DEF VAR h_d-prompt   AS HANDLE NO-UNDO.
-    
+
     REPEAT:
         ASSIGN lNewCode = ""
                lNewDesc = ""
@@ -376,7 +376,7 @@ END.
 ON CHOOSE OF btCancel IN FRAME dialog-Frame /* Cancel */
 DO:
   ASSIGN cbTitle.
-  
+
   IF cbTitle = "" THEN DO:
       MESSAGE "A note title is required to save this note. " SKIP
               "Please select one and click 'OK' " SKIP 
@@ -393,7 +393,7 @@ DO:
       APPLY "entry" TO cbTitle.
       RETURN NO-APPLY.
   END.
-           
+
   RUN save-record.
 
   APPLY 'go' TO  FRAME {&FRAME-NAME}.
@@ -409,7 +409,7 @@ ON CHOOSE OF btOk IN FRAME dialog-Frame /* OK */
 DO:
 
   ASSIGN cbTitle.
-  
+
   IF cbTitle:SCREEN-VALUE = "" THEN DO:
       MESSAGE "A note title is required to save this note. " SKIP
               "Please select one and click 'OK' " SKIP 
@@ -425,7 +425,7 @@ DO:
       APPLY "entry" TO cbTitle.
       RETURN NO-APPLY.
   END.
-           
+
   RUN save-record.
 
   APPLY 'go' TO  FRAME {&FRAME-NAME}.
@@ -507,7 +507,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-  
+
 IF ip-note-rec-key = ? THEN DO:
     RUN DISABLE_ui.
     APPLY 'close' TO CURRENT-WINDOW.
@@ -533,8 +533,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         cCalcNoteType = "D".
     IF ip-note-code EQ "DRC" THEN 
         cCalcNoteType = "L".
-    
-    
+
+
     CASE cCalcNoteType:
         WHEN "R" THEN
         RUN asi-initialize.
@@ -545,7 +545,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         WHEN "L" THEN
         RUN rel-due-date-init.
     END CASE.
-    
+
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
@@ -769,23 +769,23 @@ PROCEDURE save-record :
       APPLY "entry" TO cbTitle IN FRAME {&FRAME-NAME}.
       RETURN NO-APPLY.
   END.
-           
+
   op-code-chosen = rejct-cd.CODE.
-  CREATE nosweat.notes.
-  ASSIGN NOSWEAT.notes.note_text 
-         NOSWEAT.notes.note_title = cbTitle.
+  CREATE ASI.notes.
+  ASSIGN ASI.notes.note_text 
+         ASI.notes.note_title = cbTitle.
   ASSIGN 
-      NOSWEAT.notes.viewed      = NO
-      NOSWEAT.notes.user_id     = USERID("NOSWEAT")
-      NOSWEAT.notes.rec_key     = ip-note-rec-key
-      NOSWEAT.notes.note_type   = ip-note-type      
-      NOSWEAT.notes.note_time   = TIME    
-      NOSWEAT.notes.note_source = ip-note-source
-      NOSWEAT.notes.note_group  = ip-note-group
-      NOSWEAT.notes.note_form_no = ip-note-form-no
-      NOSWEAT.notes.note_date    = TODAY
-      NOSWEAT.notes.note_code    .
-  op-added-rowid = ROWID(nosweat.notes).
+      ASI.notes.viewed      = NO
+      ASI.notes.user_id     = USERID("ASI")
+      ASI.notes.rec_key     = ip-note-rec-key
+      ASI.notes.note_type   = ip-note-type      
+      ASI.notes.note_time   = TIME    
+      ASI.notes.note_source = ip-note-source
+      ASI.notes.note_group  = ip-note-group
+      ASI.notes.note_form_no = ip-note-form-no
+      ASI.notes.note_date    = TODAY
+      ASI.notes.note_code    .
+  op-added-rowid = ROWID(ASI.notes).
 
 END PROCEDURE.
 

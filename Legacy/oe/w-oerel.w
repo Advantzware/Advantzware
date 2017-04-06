@@ -18,7 +18,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -159,17 +159,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -227,7 +223,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -446,7 +442,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartBrowser h_b-oerell. */
        RUN add-link IN adm-broker-hdl ( h_vp-oerell , 'TableIO':U , h_b-oerell ).
        RUN add-link IN adm-broker-hdl ( h_v-oerel , 'Record':U , h_b-oerell ).
-        
+
        RUN add-link IN adm-broker-hdl ( h_b-oerell , 'buttons':U , h_vp-oerell ).
        RUN add-link IN adm-broker-hdl ( h_b-oerell  , 'Record':U , h_vp-oerell ).
 
@@ -631,9 +627,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -662,7 +658,7 @@ PROCEDURE local-row-available :
                 ',,99999999,' + STRING(oe-relh.printed) + ',' +
                 STRING(oe-relh.rel-date) + ',' + STRING(oe-relh.rel-date) + ',' +
                 ',zzzzz').       
-      
+
 
 END PROCEDURE.
 
@@ -677,7 +673,7 @@ PROCEDURE Select_Add :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-  
+
   RUN select-page(2).
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,'addPlusButton-target',OUTPUT char-hdl).
   RUN addPlusButton IN WIDGET-HANDLE(char-hdl).
@@ -694,7 +690,7 @@ PROCEDURE select_dept2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
 RUN SELECT_notes IN h_b-oerell.
 
 END PROCEDURE.

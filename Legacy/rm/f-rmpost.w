@@ -17,7 +17,7 @@
   Output Parameters:
       <none>
 
- 
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -140,12 +140,13 @@ END.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB F-Frame-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -161,7 +162,7 @@ END.
 ON CHOOSE OF bt-post IN FRAME F-Main /* Post */
 DO:
       def var out-hd-lst as cha no-undo.
-      
+
       message "Are you ready to post" view-as alert-box question 
               button yes-no update ll-ans as log.
 
@@ -169,9 +170,9 @@ DO:
       if not error-status:error then do:
          run get-link-handle in adm-broker-hdl (This-procedure,"Record-Source", output out-hd-lst).
          run dispatch in widget-handle(out-hd-lst) ("open-query").
-         
+
       end.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

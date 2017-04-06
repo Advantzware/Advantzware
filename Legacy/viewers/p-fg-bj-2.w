@@ -47,7 +47,7 @@ listname = "p-updinv." .
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartViewer
+&Scoped-define PROCEDURE-TYPE SmartPanel
 &Scoped-define DB-AWARE no
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
@@ -170,7 +170,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{src/adm/method/viewer.i}
+{Advantzware/WinKit/winkit-panel.i}
+{src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -202,7 +203,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -213,14 +214,15 @@ ASSIGN
 ON CHOOSE OF btn-update IN FRAME F-Main /* Update Cost/Unit/Count */
 DO:
   def var char-hdl as cha no-undo.
-      
-  
+
+
   IF NOT ll-secure THEN do:  
      RUN sys/ref/d-passwd.w (1, OUTPUT ll-secure). 
      IF NOT ll-secure THEN RETURN NO-APPLY.
   END.  
   run get-link-handle in adm-broker-hdl (this-procedure, "cost-source", output char-hdl).  
   run update-cost in widget-handle(char-hdl).
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:48 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -255,6 +257,7 @@ DO:
   APPLY 'ENTRY':U TO fi_tag#.
   RETURN NO-APPLY.
     END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:48 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -306,7 +309,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 
@@ -377,7 +380,7 @@ PROCEDURE local-enable :
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
-    
+
   END.
 END PROCEDURE.
 

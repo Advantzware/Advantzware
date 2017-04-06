@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:10 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -346,6 +350,8 @@ END.
 {methods/template/browser.i}
 {custom/yellowColumns.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -452,7 +458,7 @@ ASI.wiptag.fg-i-name BEGINS tb_fg-i-name AND
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -535,7 +541,7 @@ DO:
             assign
              focus:screen-value in browse {&BROWSE-NAME} = ENTRY(1,char-val)
              tb_job-no2:screen-value = ENTRY(2,char-val).
-            
+
          END.
 END.
 
@@ -609,7 +615,7 @@ DO:
          if char-val <> "" then do:
             assign
              focus:screen-value in browse {&BROWSE-NAME} = ENTRY(1,char-val).
-            
+
          END.
 END.
 

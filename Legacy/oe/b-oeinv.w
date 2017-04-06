@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:10 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -261,6 +265,8 @@ END.
 {methods/template/browser.i}
 {custom/yellowColumns.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -343,7 +349,7 @@ ASI.inv-head.multi-invoice = no"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -518,7 +524,7 @@ PROCEDURE pushpin-image-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-rec_key AS CHAR NO-UNDO.
-   
+
    DEF VAR v-att AS LOG NO-UNDO.
    DEF VAR lv-ord-no AS CHAR NO-UNDO.
    DEF VAR v-ord-no AS INT NO-UNDO.
@@ -526,7 +532,7 @@ PROCEDURE pushpin-image-proc :
    FIND FIRST inv-line OF inv-head
         WHERE inv-line.ord-no NE 0
         NO-LOCK NO-ERROR.
-  
+
    IF NOT AVAIL inv-line THEN
       FIND FIRST inv-misc OF inv-head
            WHERE inv-misc.ord-no NE 0
@@ -538,14 +544,14 @@ PROCEDURE pushpin-image-proc :
                   IF AVAIL inv-misc THEN STRING(inv-misc.ord-no)
                   ELSE
                   STRING(0)
-    
+
     v-att = CAN-FIND(FIRST asi.attach WHERE
             attach.company = cocode and
             attach.rec_key = ip-rec_key AND
             (attach.est-no eq lv-ord-no OR ATTACH.est-no EQ "")).
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachcust-target':U, OUTPUT char-hdl).
-  
+
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN pushpin-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
 END PROCEDURE.
@@ -606,19 +612,19 @@ DEF VAR v-totqty LIKE inv-line.qty NO-UNDO.
 
 IF AVAIL inv-head THEN DO:
    ASSIGN li-ord-no = f-ordno().
-  
+
    IF li-ord-no NE 0 THEN DO:
-  
+
       FIND FIRST bf-oe-ord NO-LOCK 
         WHERE bf-oe-ord.company EQ inv-head.company 
           AND bf-oe-ord.ord-no  EQ li-ord-no NO-ERROR.
-     
+
       FOR EACH bf-inv-line OF inv-head NO-LOCK
           BREAK BY bf-inv-line.line
                 BY bf-inv-line.i-no:
-        
+
           IF FIRST-OF(bf-inv-line.i-no) THEN DO:
-         
+
              ASSIGN v-totqty = 0.
              FOR EACH inv-line FIELDS(ship-qty) NO-LOCK
                WHERE inv-line.company EQ bf-inv-line.company 
@@ -628,9 +634,9 @@ IF AVAIL inv-head THEN DO:
                  AND inv-line.i-no    EQ bf-inv-line.i-no:
                  ASSIGN v-totqty = v-totqty + inv-line.ship-qty.
              END.
-             
+
              IF v-totqty NE bf-inv-line.qty THEN DO:
-            
+
                 ASSIGN inv-head.inv-no:BGCOLOR IN BROWSE {&BROWSE-NAME}    = 12
                        inv-head.cust-no:BGCOLOR IN BROWSE {&BROWSE-NAME}   = 12
                        inv-head.cust-name:BGCOLOR IN BROWSE {&BROWSE-NAME} = 12
@@ -641,7 +647,7 @@ IF AVAIL inv-head THEN DO:
                        inv-head.t-inv-rev:BGCOLOR IN BROWSE {&BROWSE-NAME} = 12
                        ls-status:BGCOLOR IN BROWSE {&BROWSE-NAME}          = 12
                        inv-head.r-no:BGCOLOR IN BROWSE {&BROWSE-NAME}      = 12.
-               
+
                 LEAVE.
              END.
           END.
@@ -715,7 +721,7 @@ FUNCTION f-ordno RETURNS INTEGER
       NO-ERROR.
   lf-ord-no = IF AVAIL inv-line THEN inv-line.ord-no ELSE
               IF AVAIL inv-misc THEN inv-misc.ord-no ELSE 0.
-  
+
   RETURN lf-ord-no.   /* Function return value. */
 
 END FUNCTION.

@@ -50,7 +50,7 @@ ASSIGN cocode = g_company
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&Scoped-define PROCEDURE-TYPE SmartViewer
+&Scoped-define PROCEDURE-TYPE SmartPanel
 &Scoped-define DB-AWARE no
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
@@ -163,7 +163,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{src/adm/method/viewer.i}
+{Advantzware/WinKit/winkit-panel.i}
+{src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -195,7 +196,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -206,6 +207,7 @@ ASSIGN
 ON CHOOSE OF Btn-print IN FRAME F-Main /* Print Price List */
 DO:
     IF AVAIL quotehd THEN RUN est/r-prcsht.w (ROWID(quotehd)).
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:46 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -228,6 +230,7 @@ DO:
     RUN est/dPrcMtxQ.w (OUTPUT ll-ans, OUTPUT cTransQ).
     IF ll-ans THEN RUN oe/updprmtx2.p (ROWID(quotehd), "", 0, "", 0, cTransQ).
   END.
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:46 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -244,7 +247,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -315,7 +318,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   IF NOT v-can-update THEN btn-update:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
 END PROCEDURE.
 

@@ -4,6 +4,10 @@
           nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:26 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -170,7 +174,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: NOSWEAT.notes
+   External Tables: ASI.notes
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -252,7 +256,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -279,7 +283,7 @@ DO:
      FIND FIRST dept WHERE dept.code EQ notes.note_code:SCREEN-VALUE NO-LOCK NO-ERROR.
      dept-dscr:screen-value in frame {&frame-name} = if avail dept then dept.dscr else "".
      APPLY "leave" TO notes.note_code.
-     
+
   END.
   v-got-dept = YES.
   RETURN NO-APPLY.
@@ -297,7 +301,7 @@ DO:
     ENABLE btn-dept WITH FRAME {&FRAME-NAME}.
 
    /* IF NOT v-got-dept AND v-new-record THEN */   
-   
+
   IF PROGRAM-NAME(9) MATCHES "*add-record*" THEN      APPLY "choose" TO  btn-dept .
 
 END.
@@ -347,12 +351,12 @@ DO:
     def var ls-header as cha no-undo.
     def var char-hdl as cha no-undo.
     def var char-val as cha no-undo.
-    
+
     run get-link-handle in adm-broker-hdl (this-procedure,"container-source", output char-hdl).
     run get-ip-header in widget-handle(char-hdl) (output ls-header).
     run windows/l-formno.w (g_company, ls-header, output char-val).
     if char-val <> "" then self:screen-value = char-val.
-     
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -382,7 +386,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -475,13 +479,13 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/notes.i}
-  
+
   notes.note_type = "D".
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
   RUN get-form-number IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-form#).
   notes.note_FORM_no = lv-form#.
 
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -503,7 +507,7 @@ PROCEDURE local-display-fields :
   find first dept where dept.code eq notes.note_code no-lock no-error.
   dept-dscr:screen-value in frame {&frame-name} =
       if avail dept then dept.dscr else "".
-                                      
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -604,7 +608,7 @@ PROCEDURE valid-note_code :
       RETURN ERROR.
     END.
   END.
-    
+
 
 END PROCEDURE.
 
@@ -620,7 +624,7 @@ PROCEDURE valid-note_form_no :
 ------------------------------------------------------------------------------*/
   DEF VAR ls-header AS CHAR NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
-       
+
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source", OUTPUT char-hdl).
   RUN get-ip-header IN WIDGET-HANDLE(char-hdl) (OUTPUT ls-header).

@@ -4,6 +4,10 @@
           rfq              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:14 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -564,7 +568,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -577,7 +581,7 @@ DO:
    def var out-hdl-str as cha no-undo.
    run get-link-handle in adm-broker-hdl (this-procedure,"TABLEIO-SOURCE",output out-hdl-str).   
    run notify in widget-handle(out-hdl-str) ("update-record"). 
-   
+
 
 END.
 
@@ -797,7 +801,7 @@ DO:
        end case.  /* case focus:name */           
      end.  /* otherwise */
   end case.
- 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1020,8 +1024,8 @@ DO:
        message "Invalid Flute. Try Help." view-as alert-box error.
        return no-apply.
     end.     
-                              
-                              
+
+
 
 END.
 
@@ -1277,7 +1281,7 @@ DO:
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
      end.
- 
+
 
 END.
 
@@ -1320,7 +1324,7 @@ DO:
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
        end.
-     
+
 
 END.
 
@@ -1333,13 +1337,13 @@ END.
 ON LEAVE OF rfqitem.test IN FRAME F-Main /* Test */
 DO:
    if self:screen-value = "" then return.
-   
+
    def var v-term as cha no-undo.
    v-term = string(year(today),"9999") +
             string(month(today),"99")  +
             string(day(today),"99") /* +
             STRING(time,"99999")*/ .
-            
+
    find first report
       WHERE report.term-id begins v-term and  report.key-01  eq "TEST"  and
             report.key-02 = self:screen-value
@@ -1347,7 +1351,7 @@ DO:
   if not avail report and lastkey <> -1 then do:
      message "Invalid Test. Try Help." view-as alert-box error.
      return no-apply.
-     
+
   end.
 END.
 
@@ -1366,7 +1370,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1576,7 +1580,7 @@ PROCEDURE local-display-fields :
     RUN custom/extradec.p (.0001, rfqitem.spec-qty[li-sq],
                            OUTPUT lv-spec-qty[li-sq]).
   END.
-  
+
   ASSIGN
    fi_spec-qty-01 = lv-spec-qty[01]
    fi_spec-qty-02 = lv-spec-qty[02]
@@ -1589,7 +1593,7 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   run hide-adders.
-   
+
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
@@ -1608,7 +1612,7 @@ PROCEDURE local-enable-fields :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
- 
+
   /* Code placed here will execute AFTER standard behavior.    */
   RUN hide-adders.
 
@@ -1685,7 +1689,7 @@ PROCEDURE local-update-record :
          rfqitem.adder[11] = rfqitem.adder[11]:screen-value in frame {&frame-name}
          rfqitem.adder[12] = rfqitem.adder[12]:screen-value in frame {&frame-name}       
          .
-         
+
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.

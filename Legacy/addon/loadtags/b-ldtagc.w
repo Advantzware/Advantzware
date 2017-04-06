@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:05 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -219,6 +223,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -291,7 +297,7 @@ and loadtag.is-case-tag "
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -405,7 +411,7 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-is-case-tag B-table-Win 
 PROCEDURE get-is-case-tag :
 DEF OUTPUT PARAM op-is-case-tag LIKE loadtag.is-case-tag INIT YES NO-UNDO.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -414,7 +420,7 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-item-type B-table-Win 
 PROCEDURE get-item-type :
 DEF OUTPUT PARAM op-item-type LIKE loadtag.item-type INIT NO NO-UNDO.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

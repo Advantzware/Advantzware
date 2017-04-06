@@ -15,7 +15,7 @@
       <none>
 
   History: 
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -126,6 +126,7 @@ Destroy on next read */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -147,7 +148,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -185,9 +186,9 @@ END.
 ON CHOOSE OF btn-ready IN FRAME F-Main /* Receiving Data */
 DO:
    OS-COMMAND NO-CONSOLE VALUE("c:\percon\ppg4\pdtfer -1rb9600 c:\percon\ppg4\asiphys.txt") .
-  
+
       MESSAGE "Physical count data imported..." VIEW-AS ALERT-BOX.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -292,9 +293,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

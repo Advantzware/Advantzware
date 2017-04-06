@@ -122,6 +122,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -153,7 +154,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -220,7 +221,7 @@ DO:
         ip-whbn = YES .
     ELSE ip-whbn = NO .
 
-     
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -230,7 +231,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel D-Dialog
 ON CHOOSE OF btn-cancel IN FRAME D-Dialog /* Cancel */
 DO:
-    
+
  END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -350,7 +351,7 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- 
+
 
 END PROCEDURE.
 

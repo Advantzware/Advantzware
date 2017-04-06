@@ -4,6 +4,10 @@
           nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:08 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -202,6 +206,8 @@ END.
 {src/adm/method/query.i}
 {methods/template/browser.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -255,7 +261,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH usercust WHERE
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -367,7 +373,7 @@ PROCEDURE del-selected :
         UPDATE v-delflg.
 
     IF NOT v-delflg THEN RETURN NO-APPLY.
-    
+
     DO WITH FRAME {&frame-name}:
 
         IF v-delflg THEN
@@ -379,13 +385,13 @@ PROCEDURE del-selected :
          DO v-lcnt = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
 
             {&browse-name}:FETCH-SELECTED-ROW (v-lcnt) NO-ERROR.
-            
+
             IF AVAIL cust THEN DO:
-                
+
                 CREATE tt-delCust.
                 ASSIGN
                     tt-delCust.t-custRowId = ROWID(usercust).
-                        
+
                 RELEASE tt-delCust.
             END.
         END.

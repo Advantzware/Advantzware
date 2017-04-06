@@ -241,6 +241,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -292,7 +293,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -327,12 +328,12 @@ ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
   DEF VAR v-process AS LOG NO-UNDO.
 
-  
+
   v-process = NO.
 
   MESSAGE "Are you sure you want to copy using these parameters?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-        
+
   IF v-process THEN DO:
     run copy-records.
 
@@ -463,7 +464,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 FIND est-op WHERE ROWID(est-op) EQ ip-rowid NO-LOCK NO-ERROR.
-  
+
 IF AVAIL est-op THEN
 FIND FIRST b-est-op
     WHERE {&key-phrase}
@@ -537,7 +538,7 @@ FOR EACH b-est-op
       AND b-est-op.s-num   LE fi_s-num
       AND ((b-est-op.b-num GE est-op.b-num and
             b-est-op.b-num LE fi_b-num) or b-est-op.s-num gt est-op.s-num):
-        
+
   IF tb_01 THEN b-est-op.op-mr      = est-op.op-mr.
   IF tb_02 THEN b-est-op.op-waste   = est-op.op-waste.
   IF tb_03 THEN b-est-op.op-crew[1] = est-op.op-crew[1].
@@ -624,7 +625,7 @@ PROCEDURE local-enable :
     IF NOT AVAIL b-est-op THEN DISABLE fi_s-num.
     IF est-op.op-sb       THEN DISABLE fi_b-num.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

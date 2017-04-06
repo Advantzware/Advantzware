@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:15 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -234,7 +238,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -300,9 +304,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-chk.vend-no V-table-Win
 ON LEAVE OF ap-chk.vend-no IN FRAME F-Main /* Vendor */
 DO:
-   
+
    {VALIDATE/vend.i ap-chk.vend-no vend_name:SCREEN-VALUE}
-   
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -312,7 +316,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-chk.vend-no V-table-Win
 ON VALUE-CHANGED OF ap-chk.vend-no IN FRAME F-Main /* Vendor */
 DO:
-  
+
 /* Task# 04030308
     IF ap-chk.vend-no:SCREEN-VALUE <> "" THEN DO:
         FIND FIRST vend WHERE vend.company = g_company
@@ -340,7 +344,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -462,7 +466,7 @@ PROCEDURE local-assign-record :
   ASSIGN
    lv-old-check-no   = ap-chk.check-no
    lv-old-check-date = ap-chk.check-date.
-            
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -486,7 +490,7 @@ PROCEDURE local-assign-record :
      IF ap-chk.check-no > bank.last-chk THEN bank.last-chk = ap-chk.check-no.
      ap-chk.check-act = bank.actnum.
   END.
- 
+
 
 END PROCEDURE.
 
@@ -536,7 +540,7 @@ PROCEDURE local-display-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR ld-tmp-amt AS DEC NO-UNDO.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAIL ap-chk THEN DO:
      FIND FIRST vend WHERE vend.company = g_company

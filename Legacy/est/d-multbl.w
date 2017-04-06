@@ -9,7 +9,7 @@
 /*------------------------------------------------------------------------
 
   File: est\d-multbl.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -111,6 +111,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -141,7 +142,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -206,12 +207,12 @@ DO:
         BY est-op.d-seq
         BY est-op.op-pass
         BY est-op.rec_key:
-      
+
       {sys/inc/outstrPL.i est-op SHARE}
       ASSIGN
        li          = li + 1
        est-op.line = li.
-     
+
       IF AVAIL reftable THEN reftable.loc = STRING(est-op.line,"9999999999"). 
     END.
   END.
@@ -423,7 +424,7 @@ PROCEDURE get-eb-rowid :
 ------------------------------------------------------------------------------*/
   DEF OUTPUT PARAMETER op-rowid AS ROWID NO-UNDO.
 
-  
+
   op-rowid = io-rowid.
 
 END PROCEDURE.
@@ -442,7 +443,7 @@ PROCEDURE new-forms :
 
   DEF VAR li AS INT NO-UNDO.
 
-  
+
   FOR EACH multbl {&where-multbl} USE-INDEX reftable,
       FIRST eb
       WHERE RECID(eb) EQ INT(multbl.val[3])

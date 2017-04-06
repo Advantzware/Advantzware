@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:24 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -211,7 +215,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -222,7 +226,7 @@ ASSIGN
 ON HELP OF usercomp.loc IN FRAME F-Main /* Location */
 DO:
    DEF VAR char-val AS cha NO-UNDO.
-  
+
    {methods/run_link.i "RECORD-SOURCE" "Get-Values"
       "(OUTPUT op-user_id,OUTPUT op-company)"}
    RUN windows/l-loc.w (op-company,FOCUS:SCREEN-VALUE,OUTPUT char-val).
@@ -264,7 +268,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -373,7 +377,7 @@ PROCEDURE local-update-record :
     APPLY "entry" TO usercomp.loc.
     RETURN NO-APPLY.
   END.
-  
+
   IF usercomp.loc_default:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes" THEN DO:  /* task 07071403 */
       find first ce-ctrl where ce-ctrl.company = op-company and
                                   ce-ctrl.loc = usercomp.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -385,7 +389,7 @@ PROCEDURE local-update-record :
                     ce-ctrl.loc     = usercomp.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} .
          end.
   END.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 

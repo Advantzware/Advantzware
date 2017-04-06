@@ -1,6 +1,6 @@
 /* stateco_.p - Generated 03/24/1998 - 11:45 pm by Exitt
 "stateco_. " ~
-"NOSWEAT " ~
+"ASI " ~
 "statecod " ~
 " " ~
 "description " ~
@@ -18,7 +18,7 @@
 "statecod. " ~
 */
 
-&Scoped-define lookup-db NOSWEAT.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file statecod
 &Scoped-define where-statement TRUE
 &Scoped-define return-field description

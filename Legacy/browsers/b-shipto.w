@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:05 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -51,7 +55,7 @@ CREATE WIDGET-POOL.
 DEF VAR v-called-setCellColumns AS LOG NO-UNDO.
 DEF VAR v-col-move AS LOG INIT YES NO-UNDO.
 
- 
+
 DEFINE VARIABLE columnCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 DEFINE VARIABLE useColors AS CHAR NO-UNDO.
@@ -106,12 +110,12 @@ DEF VAR cust-rep AS CHAR NO-UNDO.
           AND (IF fi_stat BEGINS '*' THEN shipto.ship-state MATCHES fi_stat  ~
                ELSE shipto.ship-state    BEGINS fi_stat)   ~
           AND shipto.ship-zip    BEGINS fi_zip   
-          
+
 
 &SCOPED-DEFINE for-eachblank                      ~
     FOR EACH shipto                               ~
         WHERE {&key-phrase} 
-        
+
 
 &SCOPED-DEFINE sortby-log                                                                                                                                  ~
     IF lv-sort-by EQ "ship-id"    THEN shipto.ship-id ELSE ~
@@ -122,7 +126,7 @@ DEF VAR cust-rep AS CHAR NO-UNDO.
     IF lv-sort-by EQ "ship-state"   THEN shipto.ship-state   ELSE ~
     IF lv-sort-by EQ "cust-rep"      THEN string(display-rep())  ELSE ~
     IF lv-sort-by EQ "ship-zip"     THEN shipto.ship-zip      ELSE ""
-    
+
 &SCOPED-DEFINE sortby BY shipto.ship-id
 
 &SCOPED-DEFINE sortby-phrase-asc  ~
@@ -327,7 +331,7 @@ DEFINE BROWSE Browser-Table
       shipto.ship-state FORMAT "x(2)":U WIDTH 6.2 LABEL-BGCOLOR 14
       shipto.ship-zip COLUMN-LABEL "Zip" FORMAT "x(10)":U LABEL-BGCOLOR 14
       display-rep() @ cust-rep COLUMN-LABEL "Cust Rep" FORMAT "x(8)":U LABEL-BGCOLOR 14
-       
+
     ENABLE
      shipto.company  
      shipto.cust-no 
@@ -440,6 +444,8 @@ END.
 
 {src/adm/method/navbrows.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -513,7 +519,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -592,7 +598,7 @@ END.
 ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
 DO:
   DO WITH FRAME {&FRAME-NAME}:
-      
+
     ASSIGN
      fi_ship-id
      fi_i-name
@@ -600,9 +606,9 @@ DO:
      fi_stat
      fi_zip
      ll-first = NO.
-    
+
     RUN dispatch ("open-query").
-    
+
     GET FIRST Browser-Table .
     IF NOT AVAIL shipto THEN DO:  /* task 07311402 */
         MESSAGE "No Shipto Found, please update your Search Criteria."
@@ -622,7 +628,7 @@ ON CHOOSE OF btn_next IN FRAME F-Main /* Show Next */
 DO:
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     ASSIGN
     lv-show-next = YES
     ll-show-all = NO.
@@ -632,7 +638,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("").
 
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -645,7 +651,7 @@ ON CHOOSE OF btn_prev IN FRAME F-Main /* Show Previous */
 DO:
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     ASSIGN
     lv-show-prev = YES
     ll-show-all = NO.
@@ -706,7 +712,7 @@ DO:
 
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
   RUN dispatch ("open-query").
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -720,7 +726,7 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
-  
+
   assign s-rec_key = shipto.rec_key when avail shipto.
   RUN spec-book-image-proc .  /* task 10221306 */
 END.
@@ -993,6 +999,7 @@ PROCEDURE local-initialize :
   /* Code placed here will execute PRIOR to standard behavior. */
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+  RUN pDataGridInit. /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:05 am */
   RUN setCellColumns.
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN shipto.company:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -1004,7 +1011,7 @@ PROCEDURE local-initialize :
          shipto.ship-state:READ-ONLY IN BROWSE {&browse-name} = YES
          shipto.ship-zip:READ-ONLY IN BROWSE {&browse-name} = YES
          FI_moveCol = "Sort".
-  
+
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
 
    APPLY 'ENTRY':U TO fi_ship-id IN FRAME {&FRAME-NAME}.
@@ -1072,9 +1079,9 @@ PROCEDURE local-open-query :
       lv-show-next = NO.
 
   /*RUN set-rec_key.*/
-  
+
   APPLY "value-changed" TO BROWSE {&browse-name}.
-  
+
 
 END PROCEDURE.
 
@@ -1110,7 +1117,7 @@ PROCEDURE navigate-browser :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipNavType AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opNavType AS CHARACTER NO-UNDO.
- 
+
   IF ipNavType NE '' THEN
   CASE ipNavType:
     WHEN 'F' THEN RUN dispatch ('get-first':U).
@@ -1119,10 +1126,10 @@ PROCEDURE navigate-browser :
     WHEN 'P' THEN RUN dispatch ('get-prev':U).
     WHEN 'G' THEN RUN lookup-eb.
   END CASE.
-    
+
   IF ROWID(cust) EQ lvLastRowID THEN
   opNavType = 'L'.
-      
+
   IF ROWID(shipto) EQ lvFirstRowID THEN
   opNavType = IF opNavType EQ 'L' THEN 'B' ELSE 'F'.
 
@@ -1139,7 +1146,7 @@ PROCEDURE query-first :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
-  
+
   find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "shipBrowse"
                         no-lock no-error.
@@ -1159,15 +1166,15 @@ PROCEDURE query-first :
     lv-shipto-no = ship.cust-no.
     IF li GE sys-ctrl.int-fld THEN LEAVE.
   END.
-  
+
   &SCOPED-DEFINE open-query                   ~
       OPEN QUERY {&browse-name}               ~
         {&for-eachblank}                      ~
           AND shipto.ship-id <= lv-shipto-no NO-LOCK
-            
+
   IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                  ELSE {&open-query} {&sortby-phrase-desc}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1194,7 +1201,7 @@ PROCEDURE query-go :
                sys-ctrl.int-fld = 30.
   end.
 
-  
+
   IF fi_ship-id NE "" AND fi_ship-id BEGINS '*' THEN DO:  
 
 
@@ -1219,7 +1226,7 @@ PROCEDURE query-go :
   END.  
 
   ELSE IF fi_ship-id NE "" AND NOT fi_ship-id BEGINS '*' THEN DO:  
-    
+
       {&for-each1} NO-LOCK
       /* USE-INDEX cust-no */
        BY shipto.ship-id :
@@ -1238,7 +1245,7 @@ PROCEDURE query-go :
                   ELSE {&open-query} {&sortby-phrase-desc}.
 
   END.
-  
+
   ELSE IF fi_i-name NE "" AND fi_i-name BEGINS '*'  THEN DO: 
 
     {&for-each2} NO-LOCK
@@ -1255,7 +1262,7 @@ PROCEDURE query-go :
            {&for-each2}                          ~
              AND shipto.ship-id <= lv-shipto-no NO-LOCK
 
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1277,10 +1284,10 @@ PROCEDURE query-go :
 
        IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                       ELSE {&open-query} {&sortby-phrase-desc}.
-  
+
   END.
   ELSE IF fi_city NE "" AND fi_city BEGINS '*' THEN DO:  
-    
+
         {&for-each2} NO-LOCK
             /* USE-INDEX customer*/
              BY shipto.ship-id:
@@ -1294,7 +1301,7 @@ PROCEDURE query-go :
              OPEN QUERY {&browse-name}               ~
                {&for-each2}                          ~
                  AND shipto.ship-id <= lv-shipto-no NO-LOCK
-                        
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1318,7 +1325,7 @@ PROCEDURE query-go :
 
   END.
   ELSE IF fi_stat NE "" AND fi_stat BEGINS '*' THEN DO:  
-  
+
     {&for-each2} NO-LOCK
         BY shipto.ship-id :
         ASSIGN
@@ -1331,7 +1338,7 @@ PROCEDURE query-go :
          OPEN QUERY {&browse-name}               ~
            {&for-each2}                          ~
              AND shipto.ship-id <= lv-shipto-no NO-LOCK
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1370,7 +1377,7 @@ PROCEDURE query-go :
            {&for-each2}                          ~
              AND shipto.ship-id <= lv-shipto-no NO-LOCK
 
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1394,9 +1401,9 @@ PROCEDURE query-go :
 
   END.
 
-  
+
   /*ELSE IF fi_sman NE "" AND fi_sman BEGINS '*' THEN DO:
-  
+
          {&for-each2} NO-LOCK
              /*USE-INDEX estimate*/
              BY shipto.ship-id :
@@ -1405,12 +1412,12 @@ PROCEDURE query-go :
             lv-shipto-no = shipto.ship-id.
             IF li GE sys-ctrl.int-fld THEN LEAVE.
          END.
-    
+
          &SCOPED-DEFINE open-query                   ~
              OPEN QUERY {&browse-name}               ~
                {&for-each2}                          ~
                  AND shipto.ship-id <= lv-shipto-no NO-LOCK  
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1437,7 +1444,7 @@ PROCEDURE query-go :
 
   END.
   ELSE IF fi_terr NE "" AND fi_terr BEGINS '*' THEN DO:
-  
+
          {&for-each2} NO-LOCK
              /*USE-INDEX estimate*/
              BY shipto.ship-id :
@@ -1446,16 +1453,16 @@ PROCEDURE query-go :
             lv-shipto-no = shipto.ship-id.
             IF li GE sys-ctrl.int-fld THEN LEAVE.
          END.
-    
+
          &SCOPED-DEFINE open-query                   ~
              OPEN QUERY {&browse-name}               ~
                {&for-each2}                          ~
                  AND shipto.ship-id <= lv-shipto-no NO-LOCK  
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.*/
-  
+
   ELSE DO:  
     {&for-eachblank} NO-LOCK
        BREAK BY shipto.ship-id :
@@ -1468,7 +1475,7 @@ PROCEDURE query-go :
         OPEN QUERY {&browse-name}               ~
            {&for-eachblank}                     ~
              AND shipto.ship-id <= lv-shipto-no NO-LOCK
-            
+
     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                    ELSE {&open-query} {&sortby-phrase-desc}.
 
@@ -1487,9 +1494,9 @@ PROCEDURE repo-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input parameter ip-rowid as rowid no-undo.
- 
+
   run dispatch in this-procedure ("open-query").
-  
+
   reposition {&browse-name} to rowid ip-rowid no-error.
 
   run dispatch in this-procedure ("row-changed").
@@ -1518,7 +1525,7 @@ RUN set-defaults.
 reposition {&browse-name} to rowid ip-rowid no-error.
 
 run dispatch in this-procedure ("row-changed").
- 
+
 APPLY "value-changed" TO BROWSE {&browse-name}.
 
 END PROCEDURE.
@@ -1562,7 +1569,7 @@ PROCEDURE set-defaults :
      fi_city:SCREEN-VALUE = ""
      fi_stat:SCREEN-VALUE  = ""
      fi_zip:SCREEN-VALUE  = ""
-    
+
      .
   END.
 
@@ -1593,7 +1600,7 @@ PROCEDURE show-prev-next :
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv-shipto-no AS cha NO-UNDO.
-  
+
   find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "shipBrowse"
                         no-lock no-error.
@@ -1636,7 +1643,7 @@ PROCEDURE show-prev-next :
            lv-shipto-no = shipto.ship-id.
           IF li GE sys-ctrl.int-fld THEN LEAVE.       
         END.
-       
+
         &SCOPED-DEFINE open-query                   ~
             OPEN QUERY {&browse-name}               ~
             {&for-each1}                          ~
@@ -1646,7 +1653,7 @@ PROCEDURE show-prev-next :
 
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
      ELSE {&open-query} {&sortby-phrase-desc}.
-  
+
   END.  /* lv-show-prev */
   ELSE IF lv-show-next THEN DO:
       IF fi_ship-id EQ "" AND fi_i-name EQ "" AND fi_city EQ "" AND
@@ -1669,7 +1676,7 @@ PROCEDURE show-prev-next :
       END.
       ELSE
       DO:
-      
+
       {&for-each1} 
          and shipto.ship-id >= lv-last-show-cust-no  NO-LOCK:
          ASSIGN
@@ -1692,10 +1699,10 @@ PROCEDURE show-prev-next :
       &SCOPED-DEFINE open-query                   ~
          OPEN QUERY {&browse-name}               ~
            {&for-each1} NO-LOCK                         
-            
+
       IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                      ELSE {&open-query} {&sortby-phrase-desc}.
-    
+
   END. /*show all*/
 
 
@@ -1772,14 +1779,14 @@ PROCEDURE spec-book-image-proc :
 ------------------------------------------------------------------------------*/
    DEF VAR v-spec AS LOG NO-UNDO.
    DEF VAR char-hdl AS CHAR NO-UNDO.
-  
+
   IF AVAIL cust THEN
       v-spec = CAN-FIND(FIRST notes WHERE
                notes.rec_key = cust.rec_key AND
                notes.note_type <> "o").
-   
+
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachcust-target':U, OUTPUT char-hdl).
-  
+
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
@@ -1804,7 +1811,7 @@ FUNCTION display-rep RETURNS CHARACTER
       RETURN STRING(cust.sman)    .
   ELSE
       RETURN "".
-  
+
 
 END FUNCTION.
 

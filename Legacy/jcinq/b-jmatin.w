@@ -4,6 +4,10 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:12 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -242,6 +246,8 @@ END.
 {src/adm/method/browser.i}
 {custom/yellowColumns.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -286,7 +292,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-mat ~{&SORTBY-PHRASE}.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -476,9 +482,9 @@ PROCEDURE local-open-query :
         where item.company eq job-mat.company
           and item.i-no    eq job-mat.rm-i-no
         use-index i-no no-lock.
-      
+
     v-pct = 1.
-    
+
     create tt-mat.
     assign
      tt-mat.form-no  = job-mat.frm
@@ -534,9 +540,9 @@ PROCEDURE local-open-query :
         where item.company eq mat-act.company
           and item.i-no    eq mat-act.rm-i-no
         use-index i-no no-lock.
-      
+
     v-pct = 1.
-    
+
     find first tt-mat
         where tt-mat.form-no  eq mat-act.s-num
           and tt-mat.blank-no eq mat-act.b-num
@@ -552,7 +558,7 @@ PROCEDURE local-open-query :
        tt-mat.cst-std  = 0
        v-qty        = 0
        v-cost       = 0.
-       
+
       for each rm-rcpth
           where rm-rcpth.company   eq cocode
             and rm-rcpth.job-no    eq mat-act.job-no
@@ -560,19 +566,19 @@ PROCEDURE local-open-query :
             and rm-rcpth.i-no      eq mat-act.i-no
             and rm-rcpth.rita-code eq "I"
           no-lock,
-          
+
           each rm-rdtlh
           where rm-rdtlh.r-no eq rm-rcpth.r-no
           no-lock:
-        
+
         assign
          v-qty  = v-qty  + rm-rdtlh.qty
          v-cost = v-cost + (rm-rdtlh.qty * rm-rdtlh.cost).
       end.
-      
+
       v-cost = v-cost / v-qty.
     end.
-    
+
     ELSE DO:
      v-cost = mat-act.cost.
 

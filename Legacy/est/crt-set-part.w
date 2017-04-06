@@ -9,7 +9,7 @@
 /*------------------------------------------------------------------------
 
   File: est\crt-set-part.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -307,6 +307,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -340,7 +341,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -390,19 +391,19 @@ DO:
 
       RUN valid-stock-no(OUTPUT op-error).
       IF op-error THEN RETURN NO-APPLY.
-     
+
       RUN valid-part-no(OUTPUT op-error).
       IF op-error THEN RETURN NO-APPLY.
-     
+
       RUN valid-procat(OUTPUT op-error).
       IF op-error THEN RETURN NO-APPLY.
-     
+
       RUN valid-style(input scr-style-1,input 1,OUTPUT op-error).
       IF op-error THEN RETURN NO-APPLY.
-     
+
       RUN valid-style(input scr-style-2, input 2,OUTPUT op-error).
       IF op-error THEN RETURN NO-APPLY.
-     
+
       RUN valid-board(OUTPUT op-error).
       IF op-error THEN RETURN NO-APPLY.
 
@@ -678,7 +679,7 @@ DO:
    DEF VAR lv-rowid AS ROWID NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       run windows/l-board1.w (INPUT est.company,
                               INPUT '2',
                               INPUT scr-board:screen-value,
@@ -921,19 +922,19 @@ DO:
    DEF VAR char-val AS CHAR NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-   
+
       run windows/l-stylec.w (est.company,scr-style-1:SCREEN-VALUE, output char-val).
       if char-val <> "" and scr-style-1:SCREEN-VALUE <> entry(1,char-val) THEN
       DO:
          ASSIGN
             scr-style-1:SCREEN-VALUE = entry(1,char-val).
             scr-style-1.
-         
+
          FIND FIRST style WHERE
               style.company = est.company and
               style.style = scr-style-1:SCREEN-VALUE
               NO-LOCK NO-ERROR.
-        
+
          IF AVAIL style AND scr-board:SCREEN-VALUE EQ "" THEN
             scr-board:SCREEN-VALUE = style.material[1].
       END.
@@ -964,7 +965,7 @@ DO:
            style.company = est.company and
            style.style = scr-style-1:SCREEN-VALUE
            NO-LOCK NO-ERROR.
-     
+
       IF AVAIL style AND scr-board:SCREEN-VALUE EQ "" THEN
          scr-board:SCREEN-VALUE = style.material[1].
    END.
@@ -1143,7 +1144,7 @@ PROCEDURE local-enable :
      IF est.ord-no EQ 0 AND est.ord-date EQ ? THEN.
      ELSE DISABLE fi_stock-no.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1163,9 +1164,9 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   DO WITH FRAME {&FRAME-NAME}:
-  
+
      CASE cepartition-int:
          WHEN 0 THEN
             cb_rev-corr:SCREEN-VALUE = "N".
@@ -1309,7 +1310,7 @@ PROCEDURE valid-board :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
- 
+
    DO WITH FRAME {&FRAME-NAME}:
       IF scr-board:SCREEN-VALUE = "" THEN DO:
          MESSAGE "Board must be entered. Try help." VIEW-AS ALERT-BOX ERROR.
@@ -1342,9 +1343,9 @@ PROCEDURE valid-no-forms :
   Notes:       
 ------------------------------------------------------------------------------*/
  DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
- 
+
  DO WITH FRAME {&FRAME-NAME}:
-    
+
     IF scr-no-forms LT 1 OR scr-no-forms GT 2 THEN DO:
        MESSAGE "Number of Forms can only be 1 or 2." VIEW-AS ALERT-BOX ERROR.
        APPLY "entry" TO scr-no-forms.
@@ -1364,7 +1365,7 @@ PROCEDURE valid-part-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
-                     
+
   DO WITH FRAME {&FRAME-NAME}:
     IF fi_part-no:SCREEN-VALUE EQ "" OR
        CAN-FIND(FIRST eb WHERE eb.company   EQ est.company
@@ -1394,7 +1395,7 @@ PROCEDURE valid-procat :
   Notes:       
 ------------------------------------------------------------------------------*/
  DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
- 
+
  DO WITH FRAME {&FRAME-NAME}:
     IF fi_procat:SCREEN-VALUE = "" THEN DO:
        MESSAGE "Category must be entered. Try help." VIEW-AS ALERT-BOX ERROR.
@@ -1542,7 +1543,7 @@ PROCEDURE valid-style :
    DEFINE INPUT PARAMETER ip-style AS CHAR NO-UNDO.
    DEFINE INPUT PARAMETER ip-num AS INT NO-UNDO.
    DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
-                     
+
    DO WITH FRAME {&FRAME-NAME}:
       IF ip-style EQ "" OR
          NOT CAN-FIND(FIRST style WHERE
@@ -1555,12 +1556,12 @@ PROCEDURE valid-style :
          ELSE
             MESSAGE "Invalid Style."
                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-           
+
          IF ip-num EQ 1 THEN
             APPLY "entry" TO scr-style-1 IN FRAME {&FRAME-NAME}.
          ELSE
             APPLY "entry" TO scr-style-2 IN FRAME {&FRAME-NAME}.
-        
+
          op-error = YES.
       END.
    END.

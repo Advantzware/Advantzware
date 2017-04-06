@@ -7,7 +7,7 @@
 /*------------------------------------------------------------------------
 
   File: addon\fg\fg-rcpt.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -135,17 +135,13 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/template/windows.i}
 
@@ -203,7 +199,7 @@ THEN W-Win:HIDDEN = yes.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -368,7 +364,7 @@ PROCEDURE adm-create-objects :
              OUTPUT h_b-rcptd-2 ).
        RUN set-position IN h_b-rcptd-2 ( 4.81 , 3.00 ) NO-ERROR.
        RUN SET-SIZE IN h_b-rcptd-2 ( 17.38 , 145.00 ) NO-ERROR.
-       
+
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updbar.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -378,14 +374,14 @@ PROCEDURE adm-create-objects :
              OUTPUT h_p-updbar ).
        RUN set-position IN h_p-updbar ( 22.67 , 37.00 ) NO-ERROR.
        RUN SET-SIZE IN h_p-updbar ( 1.76 , 82.00 ) NO-ERROR.
-         
+
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
-       
+
        /* Links to SmartNavBrowser h_b-rcptd-2. */
        RUN add-link IN adm-broker-hdl ( h_b-rcptd , 'linker':U , h_b-rcptd-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updbar , 'TableIO':U , h_b-rcptd-2 ).
-      
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_b-rcptd-2 ,
              h_folder , 'AFTER':U ).
@@ -436,9 +432,9 @@ PROCEDURE asi-exit :
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"can-exit-source", OUTPUT char-hdl).
    RUN can-exit IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-can-exit).
-  
+
    IF NOT lv-can-exit THEN RETURN ERROR.*/
-   
+
     RUN do-cancel IN h_p-updbar.
 
 END PROCEDURE.
@@ -514,9 +510,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -570,7 +566,7 @@ PROCEDURE setUserExit :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-  
+
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"cancel-item-target", OUTPUT char-hdl).
    RUN cancel-item IN WIDGET-HANDLE(char-hdl).
 END PROCEDURE.

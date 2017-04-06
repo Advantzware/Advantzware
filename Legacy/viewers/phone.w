@@ -4,6 +4,10 @@
           nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 03.28.2017 @ 10:44:22 am */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
@@ -300,7 +304,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -353,7 +357,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -418,7 +422,7 @@ PROCEDURE EmailNotify :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEFINE INPUT PARAM ilQuietMode  AS LOGICAL NO-UNDO.
 
   IF tbNotice:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
@@ -438,23 +442,23 @@ PROCEDURE EmailNotify :
 
     IF AVAIL phone AND phone.table_rec_key NE "" THEN
     DO:
-    
+
     FIND FIRST reftable EXCLUSIVE-LOCK
          WHERE reftable.rec_key = phone.table_rec_key
            AND reftable.CODE    = STRING (phone.rec_key) NO-ERROR.
 
     IF AVAIL reftable THEN DO:
-      
+
       IF CAN-FIND (FIRST reftable NO-LOCK 
                    WHERE reftable.rec_key = STRING (phone.rec_key))
       THEN DO:
         IF NOT ilQuietMode THEN DO:
-        
+
           MESSAGE 'This contact is currently set to receive Advanced Ship Notice(s).'  SKIP
                   'Do you wish to stop sending such notices to this contact?'
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
             UPDATE vlProceed AS LOGICAL.
-  
+
           IF NOT vlProceed THEN DO:
             tbNotice:SCREEN-VALUE = 'YES'. 
             MESSAGE 'Aborted.'
@@ -486,7 +490,7 @@ PROCEDURE EmailNotify :
     END.
     END.
   END.
-  
+
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"CONTAINER",OUTPUT char-hdl).
 
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -504,21 +508,21 @@ PROCEDURE local-create-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/phone.i}
-  
- 
+
+
   RUN SetEmailNotify.
   vrPhone = ?.
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"CONTAINER",OUTPUT char-hdl).
 
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN AdvancedNotice IN WIDGET-HANDLE(char-hdl).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -639,7 +643,7 @@ PROCEDURE SetEmailNotify :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-  
+
     RUN SetNotifyMode.
 
     IF CAN-FIND (FIRST reftable NO-LOCK
@@ -673,7 +677,7 @@ PROCEDURE SetNotifyMode :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-  
+
     IF phone.e_mail:SENSITIVE THEN tbNotice:SENSITIVE = TRUE.
                               ELSE tbNotice:SENSITIVE = FALSE.
   END.

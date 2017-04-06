@@ -16,7 +16,7 @@
   Output Parameters:
       <none>
 
- 
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -153,6 +153,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB F-Frame-Win 
 /* ************************* Included-Libraries *********************** */
 
+{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 {methods/enhance.i}
 
@@ -189,7 +190,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -460,7 +461,7 @@ PROCEDURE Export-Values :
   DO WHILE current-widget NE ?:
     IF CAN-DO("export,save",current-widget:PRIVATE-DATA) THEN
     EXPORT current-widget:SCREEN-VALUE.
-    
+
     current-widget = current-widget:NEXT-SIBLING.
   END.
   OUTPUT CLOSE.
