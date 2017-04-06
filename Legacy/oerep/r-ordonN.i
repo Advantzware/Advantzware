@@ -1,4 +1,4 @@
-    
+
     FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
     
     FOR EACH oe-ord
@@ -301,6 +301,37 @@
            LEAVE.
         /*END.*/
       END.
+      dOrdVal = 0.
+
+      if oe-ordl.pr-uom begins "L" AND oe-ordl.pr-uom NE "LB" then
+          assign dOrdVal = oe-ordl.price * IF oe-ordl.qty LT 0 THEN -1 ELSE 1.
+                             
+        else
+        if oe-ordl.pr-uom eq "CS" then
+        do:
+          
+          dOrdVal = oe-ordl.qty /
+                     (if oe-ordl.cas-cnt ne 0 then oe-ordl.cas-cnt else
+                      if avail itemfg and itemfg.case-count ne 0
+                      then itemfg.case-count else 1) *
+                     oe-ordl.price.
+        end.
+        else
+        if oe-ordl.pr-uom eq "C" then
+          dOrdVal = oe-ordl.qty / 100 * oe-ordl.price.
+
+        else
+        if oe-ordl.pr-uom eq "M" then
+          dOrdVal = oe-ordl.qty / 1000 * oe-ordl.price.
+
+        else /** DEFAULT TO EACH **/
+          dOrdVal = oe-ordl.qty * oe-ordl.price.
+
+        dOrdVal = ROUND(dOrdVal,2).
+
+        IF oe-ordl.disc NE 0 THEN
+           dOrdVal = ROUND(dOrdVal * (1 - (oe-ordl.disc / 100)),2).
+
              
 
             ASSIGN cDisplay = ""
@@ -330,6 +361,7 @@
                    WHEN "qty-avl"  THEN cVarValue = STRING(tt-report.q-avl,"->,>>>,>>9") .
                    WHEN "est-unt"  THEN cVarValue = STRING(tt-report.unit-count,">>>>9") .
                    WHEN "est-palt" THEN cVarValue = STRING(tt-report.units-pallet,">>9") .
+                   WHEN "ord-value"  THEN cVarValue =  STRING(dOrdVal,"->>>,>>>,>>9.99") .
                   /* WHEN "bin-job"  THEN cVarValue = STRING(v-bin-job)              .
                    WHEN "whs"      THEN cVarValue = STRING(v-whs)              .
                    WHEN "bin"      THEN cVarValue = STRING(v-bin)              .
