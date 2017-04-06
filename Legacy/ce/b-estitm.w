@@ -101,6 +101,10 @@ DEF VAR old-bl-qty LIKE eb.bl-qty NO-UNDO.
 DEF VAR ll-tandem AS LOG NO-UNDO.
 DEF VAR lv-repo AS CHAR INIT "ON" NO-UNDO.
 DEF VAR uom-list AS cha NO-UNDO.
+DEFINE VARIABLE cCEGOTOCALC     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lCEGOTOCALC AS LOG NO-UNDO.
+DEFINE VARIABLE cNK1Value AS CHAR NO-UNDO.
 
 /*DEF BUFFER bf-ef FOR ef.
 DEF BUFFER bf-eb FOR eb.
@@ -132,6 +136,12 @@ DO TRANSACTION:
   {sys/inc/shiptorep.i}
   {sys/inc/custlistform.i ""EF""}
 END.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "CEGOTOCALC", "C" /* Char */, NO, NO /* check by cust */, "", "" , 
+    OUTPUT cCEGOTOCALC, OUTPUT lRecFound).
+RUN sys/ref/nk1look.p (INPUT cocode, "CEGOTOCALC", "L" /* Logical */, NO, NO /* check by cust */, "", "" , 
+    OUTPUT cNK1Value, OUTPUT lRecFound).
+lCEGOTOCALC = LOGICAL(cNK1Value).
 {sys/inc/f16to32.i}
 
 {methods/defines/hndldefs.i}
@@ -556,10 +566,10 @@ DO:
          RETURN NO-APPLY.
       END.
       WHEN "style" THEN DO:
-           ls-cur-val = eb.style:screen-value in browse {&browse-name} .
+           ls-cur-val = eb.style:screen-value IN BROWSE {&browse-name} .
            RUN windows/l-stylef.w (gcompany,ls-cur-val, OUTPUT char-val).
            IF char-val <> "" THEN DO:
-              eb.style:SCREEN-VALUE in browse {&browse-name} = entry(1,char-val).
+              eb.style:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val).
               FIND style WHERE style.company = gcompany AND
                                style.style = eb.style:screen-value IN BROWSE {&browse-name}
                          NO-LOCK NO-ERROR.            
@@ -571,16 +581,16 @@ DO:
            RETURN NO-APPLY.
       END.
       WHEN "procat" THEN DO:
-           ls-cur-val = eb.procat:SCREEN-VALUE in browse {&browse-name}.
+           ls-cur-val = eb.procat:SCREEN-VALUE IN BROWSE {&browse-name}.
            RUN windows/l-fgcat.w (gcompany,ls-cur-val,OUTPUT char-val).
            IF char-val <> "" THEN
-              eb.procat:SCREEN-VALUE in browse {&browse-name} = entry(1,char-val).
+              eb.procat:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val).
            RETURN NO-APPLY.
 
        END.
        WHEN "Board" THEN DO:
            DEF VAR lv-ind LIKE style.industry NO-UNDO.
-           ls-cur-val = ef.Board:SCREEN-VALUE in browse {&browse-name}.
+           ls-cur-val = ef.Board:SCREEN-VALUE IN BROWSE {&browse-name}.
            FIND style WHERE style.company = gcompany AND
                             style.style = eb.style:screen-value IN BROWSE {&browse-name}
                             NO-LOCK NO-ERROR.   
@@ -588,29 +598,29 @@ DO:
            ELSE lv-ind = "".  
            IF AVAIL style AND style.type = "f" THEN  /* foam */
                  RUN windows/l-boardf.w (gcompany,lv-ind,ls-cur-val,OUTPUT char-val).
-           else run windows/l-board1.w (eb.company,lv-ind,ef.Board:SCREEN-VALUE in browse {&browse-name} , output lv-rowid).
+           ELSE RUN windows/l-board1.w (eb.company,lv-ind,ef.Board:SCREEN-VALUE IN BROWSE {&browse-name} , OUTPUT lv-rowid).
            FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
-           IF AVAIL ITEM AND ITEM.i-no NE ef.Board:SCREEN-VALUE in browse {&browse-name} THEN DO:
-             ef.Board:SCREEN-VALUE in browse {&browse-name} = item.i-no.
+           IF AVAIL ITEM AND ITEM.i-no NE ef.Board:SCREEN-VALUE IN BROWSE {&browse-name} THEN DO:
+             ef.Board:SCREEN-VALUE IN BROWSE {&browse-name} = item.i-no.
              RUN new-board.
            END.
 
            RETURN NO-APPLY.   
        END.
        WHEN "cust-no" THEN DO:
-           ls-cur-val = eb.cust-no:SCREEN-VALUE in browse {&browse-name}.
+           ls-cur-val = eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name}.
            RUN windows/l-cust.w (gcompany,ls-cur-val, OUTPUT char-val).
            IF char-val NE "" AND ls-cur-val NE ENTRY(1,char-val) THEN DO:
-              eb.cust-no:SCREEN-VALUE in browse {&browse-name} = ENTRY(1,char-val).
+              eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
               APPLY "value-changed" TO eb.cust-no.
            END.
            RETURN NO-APPLY.
        END.  /* cust-no */
        WHEN "ship-id" THEN DO:
-           ls-cur-val = eb.ship-id:SCREEN-VALUE in browse {&browse-name}.
-           RUN windows/l-shipto.w (gcompany,gloc,eb.cust-no:SCREEN-VALUE in browse {&browse-name},ls-cur-val, OUTPUT char-val).
+           ls-cur-val = eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name}.
+           RUN windows/l-shipto.w (gcompany,gloc,eb.cust-no:SCREEN-VALUE IN BROWSE {&browse-name},ls-cur-val, OUTPUT char-val).
            IF char-val NE "" AND ls-cur-val NE ENTRY(1,char-val) THEN DO:
-              eb.ship-id:SCREEN-VALUE in browse {&browse-name} = ENTRY(1,char-val).
+              eb.ship-id:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
               APPLY "value-changed" TO lw-focus.
            END.
            RETURN NO-APPLY.
@@ -621,7 +631,7 @@ DO:
              lv-estqty-recid = IF AVAIL est-qty THEN RECID(est-qty) ELSE ?.
              RUN est/estqtyd.w (lv-estqty-recid, RECID(eb),eb.bl-qty:screen-value IN BROWSE {&browse-name}, OUTPUT char-val, OUTPUT char-val2, OUTPUT date-val, OUTPUT date-val2) .
              IF char-val <> "?" 
-                then assign eb.bl-qty:SCREEN-VALUE in browse {&browse-name} = entry(1,char-val)
+                THEN ASSIGN eb.bl-qty:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val)
                             lv-copy-qty[2] = INTEGER(ENTRY(2,char-val))
                             lv-copy-qty[3] = INTEGER(ENTRY(3,char-val))
                             lv-copy-qty[4] = INTEGER(ENTRY(4,char-val))
@@ -3687,7 +3697,8 @@ PROCEDURE local-assign-record :
      (est.est-type EQ 4       AND
       old-bl-qty NE eb.bl-qty AND
       NOT ll-new-record       AND
-      NOT ll-tandem)                THEN RUN run-goto.
+      NOT ll-tandem)                THEN RUN run-goto
+    .
 
   IF NOT ll-is-copy-record AND ceroute-log AND li-est-type EQ 1 THEN DO:
      FIND xest WHERE RECID(xest) = recid(est).
@@ -5031,7 +5042,11 @@ PROCEDURE run-goto :
       /*RUN ce/com/istandem.p (lv-rowid, OUTPUT ll).
 
       IF ll THEN*/
+      IF NOT lCEGOTOCALC THEN
         RUN est/d-multbl.w (INPUT-OUTPUT lv-rowid, OUTPUT op-changed).
+      ELSE 
+        RUN est/w-multiV.w (INPUT-OUTPUT lv-rowid, OUTPUT op-changed).
+      
       /*ELSE
         RUN est/d-multib.w (INPUT-OUTPUT lv-rowid).*/
 
