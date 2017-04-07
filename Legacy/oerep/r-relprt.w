@@ -1509,9 +1509,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ASSIGN 
             rd-print-what:SENSITIVE = NO
             rd-print-what:SCREEN-VALUE = "I"
-            rd-print-what = "I" .
-            tb_p-bin:SCREEN-VALUE = "Yes".
-            tb_p-bin:SENSITIVE = NO .
+            rd-print-what = "I" 
+            tb_p-bin:SCREEN-VALUE = "Yes"
+            tb_p-bin:SENSITIVE = NO 
             tb_p-bin = YES.
 
     IF LOOKUP(v-relprint,"Carded") > 0 THEN
