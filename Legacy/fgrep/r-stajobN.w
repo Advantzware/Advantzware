@@ -85,7 +85,7 @@ DEFINE VARIABLE cFieldType AS cha NO-UNDO.
 DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
-ASSIGN cTextListToSelect = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #,DESCRIPTION,JOB," +
+ASSIGN cTextListToSelect = "CUSTOMER,PO #,SREP,ITEM #,CUST PART #,DESCRIPTION,JOB," +
                            "REL#,REL DATE,RFQ#,QTY ALLOCATED,QTY ON HAND,QTY ORDERED," +
                            "QTY SHIPPED,RECEIPT DATE,PRICE,VALUE,RELEASE QTY," +
                            "QTY PROD.,QTY BALANCE,ORDER DATE,SHIP DATE,WHSE," +
@@ -104,7 +104,7 @@ ASSIGN cTextListToSelect = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #,DESCRIPTION,JO
            .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "CUSTOMER,PO #,SMAN,ITEM #,"
+ASSIGN cTextListToDefault  = "CUSTOMER,PO #,SREP,ITEM #,"
                          + "DESCRIPTION,WHSE,QTY ORDERED,QTY SHIPPED,"
                          + "QTY ON HAND,ORDER PRICE,VALUE".
 
