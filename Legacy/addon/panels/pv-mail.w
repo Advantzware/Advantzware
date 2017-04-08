@@ -166,7 +166,6 @@ ASSIGN
 /* ************************* Included-Libraries *********************** */
 
 {Advantzware/WinKit/winkit-panel.i}
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -187,8 +186,7 @@ DO:
     run get-link-handle in adm-broker-hdl(this-procedure,"maillist-target",output char-hdl).
     run update-maillist in widget-handle(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:41 am */
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:46 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:52 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */

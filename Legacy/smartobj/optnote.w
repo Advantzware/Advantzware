@@ -221,8 +221,6 @@ PROCEDURE Init-Buttons :
 
   IF NOT notes-button THEN
   DISABLE select_dept2 WITH FRAME {&FRAME-NAME}.
-  IF NOT misc_fields-button THEN
-  DISABLE UDF WITH FRAME {&FRAME-NAME}.
 
   {methods/run_link.i "note-link-target" "disable-note" "(output notes-button)"}
   IF NOT notes-button THEN

@@ -477,7 +477,6 @@ PROCEDURE finish-new-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:48 am */
 
 END PROCEDURE.
 

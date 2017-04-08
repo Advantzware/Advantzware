@@ -175,12 +175,12 @@ PROCEDURE set-size :
   DEFINE VARIABLE iWidget AS HANDLE NO-UNDO.
   DEFINE VARIABLE cWidgets AS CHARACTER NO-UNDO.
 
+  &IF DEFINED(NoWinKit) EQ 0 &THEN
   IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive THEN DO:
-
     FRAME {&frame-name}:HIDDEN = TRUE .
-
     RETURN .
   END.
+  &ENDIF
 
   DO WITH FRAME {&FRAME-NAME}:
     /* The margin is based on the standard column width, unless specified

@@ -488,7 +488,7 @@ ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY 'CLOSE':U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -502,7 +502,7 @@ DO:
   IF EDIBOLPostCharFld NE '' THEN RUN ftpFiles.
   MESSAGE 'BOL Post FTP Complete' VIEW-AS ALERT-BOX.
   RETURN NO-APPLY.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -516,7 +516,7 @@ DO:
   IF EDIReleaseCharFld NE '' THEN RUN loadFiles.
   MESSAGE 'Release Auto Load & Create Complete' VIEW-AS ALERT-BOX.
   RETURN NO-APPLY.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -534,7 +534,7 @@ DO:
   ENABLE {&List-2} WITH FRAME {&FRAME-NAME}.
   APPLY 'ENTRY':U TO intervalValue.
   RETURN NO-APPLY.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -548,7 +548,7 @@ DO:
   ftpData:SAVE-FILE(custFTP).
   DISABLE btnUndo WITH FRAME {&FRAME-NAME}.
   MESSAGE 'FTP Data Information SAVED' VIEW-AS ALERT-BOX.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -588,7 +588,7 @@ DO:
     APPLY 'ENTRY':U TO intervalValue.
   END.
   RETURN NO-APPLY.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,7 +601,7 @@ ON CHOOSE OF btnUndo IN FRAME DEFAULT-FRAME /* Undo Change */
 DO:
   ftpData:READ-FILE(custFTP).
   DISABLE btnUndo WITH FRAME {&FRAME-NAME}.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -751,7 +751,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -774,7 +774,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     'user-password' + CHR(10) +
     'htdocs/bol-post-files/directory'.
   APPLY 'VALUE-CHANGED':U TO EDIBOLPost.
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

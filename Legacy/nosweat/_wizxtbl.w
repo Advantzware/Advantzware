@@ -248,7 +248,7 @@ DO:
   /* Call External Tables dialog */
   RUN adeuib/_uib_dlg.p (INT(proc-recid), "EXTERNAL-TABLES":U, INPUT-OUTPUT arg).
   RUN Check_TblList.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -260,7 +260,7 @@ END.
 ON CHOOSE OF b_HelpXT IN FRAME DEFAULT-FRAME /* Help on External Tables */
 DO:
   RUN adecomm/_adehelp.p ("UIB":U, "CONTEXT":U, {&Wiz_External_Tables}, ?).  
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -291,7 +291,7 @@ RUN Check_TblList.
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -304,9 +304,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
   RUN Load_Image.
-    {methods/setButton.i b_AddXT "Add"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:41 am */
-    {methods/setButton.i b_HelpXT "Help"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:41 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {methods/setButton.i b_AddXT "Add"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:14 pm */
+    {methods/setButton.i b_HelpXT "Help"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:14 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

@@ -200,7 +200,7 @@ DO:
      RUN check-tandem-button IN WIDGET-HANDLE(char-hdl) (OUTPUT ll).
      IF NOT ll THEN RUN add-tandem IN WIDGET-HANDLE(char-hdl).
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:53 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -217,9 +217,9 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:52 am */
+      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:09:02 pm */
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:46 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:51 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -235,7 +235,7 @@ DO:
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "tableio-target", OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN RUN recalc-tot IN WIDGET-HANDLE(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:46 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:51 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -247,7 +247,7 @@ END.
 ON CHOOSE OF Btn-Reset IN FRAME Panel-Frame /* Reset */
 DO:
   RUN notify ('reset-record':U).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:46 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:51 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -276,22 +276,22 @@ DO:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
            RUN new-state('update-begin':U).
-           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:52 am */
+           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.07.2017 @  2:09:02 pm */
            ASSIGN add-active = no.
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:52 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:09:02 pm */
         END.                              
      END.
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:52 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:09:02 pm */
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:46 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:51 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -307,7 +307,7 @@ DO:
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "tableio-target", OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN RUN lyytd-tot IN WIDGET-HANDLE(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:46 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:51 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -341,9 +341,9 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:52 am */
-  {methods/setButton.i Btn-Reset "Reset"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:52 am */
-  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:52 am */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:09:02 pm */
+  {methods/setButton.i Btn-Reset "Reset"} /* added by script _admTransPanels.p on 04.07.2017 @  2:09:02 pm */
+  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.07.2017 @  2:09:02 pm */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

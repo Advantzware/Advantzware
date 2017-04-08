@@ -186,7 +186,7 @@ END.
 ON CHOOSE OF btn_comp IN FRAME DEFAULT-FRAME /* Compile All */
 DO:
   RUN run-compile.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:45 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:28 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -208,7 +208,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:45 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:28 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -226,8 +226,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              'P:\asi10test\pco1010' + '\addon,' + PROPATH.
 
   RUN enable_UI.
-    {methods/setButton.i btn_comp "Compile"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:30 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:45 am */
+    {methods/setButton.i btn_comp "Compile"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:28 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

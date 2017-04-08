@@ -31,7 +31,7 @@
 
 /* Local Variable Definitions ---                                       */
 def input parameter ip-company like itemfg.company no-undo.
-def input parameter ip-cust-no like cust-no no-undo.
+def input parameter ip-cust-no like itemfg.cust-no no-undo.
 def input parameter ip-cur-recid as recid no-undo.
 def input parameter ip-cur-val as cha no-undo.
 def output parameter op-char-val as cha no-undo. /* string i-code + i-name */

@@ -393,11 +393,13 @@ PROCEDURE adm-initialize :
     -------------------------------------------------------------*/
   RUN broker-initialize IN adm-broker-hdl (THIS-PROCEDURE) NO-ERROR.
 
-  &IF "{&PROCEDURE-TYPE}" = "SmartPanel" &THEN
-  IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive = TRUE THEN DO:
-      FRAME {&frame-name}:HIDDEN = TRUE .
-      FRAME {&frame-name}:MOVE-TO-BOTTOM () .
-  END.
+  &IF DEFINED(NoWinKit) EQ 0 &THEN  
+      &IF "{&PROCEDURE-TYPE}" = "SmartPanel" &THEN
+      IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive = TRUE THEN DO:
+          FRAME {&frame-name}:HIDDEN = TRUE .
+          FRAME {&frame-name}:MOVE-TO-BOTTOM () .
+      END.
+      &ENDIF
   &ENDIF
 
 END PROCEDURE.
@@ -465,11 +467,13 @@ PROCEDURE adm-view :
 
   RUN broker-view IN adm-broker-hdl (THIS-PROCEDURE) NO-ERROR.
 
-  &IF "{&PROCEDURE-TYPE}" = "SmartPanel" &THEN
-  IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive = TRUE THEN DO:
-      FRAME {&frame-name}:HIDDEN = TRUE .
-      FRAME {&frame-name}:MOVE-TO-BOTTOM () .
-  END.
+  &IF DEFINED(NoWinKit) EQ 0 &THEN
+      &IF "{&PROCEDURE-TYPE}" = "SmartPanel" &THEN
+      IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive = TRUE THEN DO:
+          FRAME {&frame-name}:HIDDEN = TRUE .
+          FRAME {&frame-name}:MOVE-TO-BOTTOM () .
+      END.
+      &ENDIF
   &ENDIF
 
 END PROCEDURE.

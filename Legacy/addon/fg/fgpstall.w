@@ -710,7 +710,7 @@ DO:
   END.
 
   RUN print-and-post.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:35 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:15 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1003,9 +1003,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     {methods/nowait.i}
 
-    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:21 am */
-    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:21 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:35 am */
+    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:10 pm */
+    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:10 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:15 pm */
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
       WAIT-FOR CLOSE OF THIS-PROCEDURE.
   END.

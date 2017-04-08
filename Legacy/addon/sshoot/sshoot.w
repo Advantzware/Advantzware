@@ -241,7 +241,7 @@ END.
 ON CHOOSE OF btn-bol IN FRAME DEFAULT-FRAME /* Bill of Lading */
 DO:
    RUN addon/bol/boltrans.w.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:17 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -253,7 +253,7 @@ END.
 ON CHOOSE OF btn-close IN FRAME DEFAULT-FRAME /* Close */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:17 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -265,7 +265,7 @@ END.
 ON CHOOSE OF btn-fg IN FRAME DEFAULT-FRAME /* Finished Goods */
 DO:
    RUN addon/fg/fgtransa.w.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:17 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -277,7 +277,7 @@ END.
 ON CHOOSE OF btn-rm IN FRAME DEFAULT-FRAME /* Material */
 DO:
    RUN addon/rm/rmtransa.w.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:17 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -289,7 +289,7 @@ END.
 ON CHOOSE OF btn-tag IN FRAME DEFAULT-FRAME /* Load Tag Creation */
 DO:
    RUN addon/loadtags/ldtagtrs.w.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:17 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -311,7 +311,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:17 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -328,12 +328,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   {methods/nowait.i}
   APPLY "entry" TO btn-rm.
-    {methods/setButton.i btn-bol "Bill"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {methods/setButton.i btn-close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {methods/setButton.i btn-fg "Finished"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {methods/setButton.i btn-rm "Material"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {methods/setButton.i btn-tag "Label"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {methods/setButton.i btn-bol "Bill"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:11 pm */
+    {methods/setButton.i btn-close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:11 pm */
+    {methods/setButton.i btn-fg "Finished"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:11 pm */
+    {methods/setButton.i btn-rm "Material"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:11 pm */
+    {methods/setButton.i btn-tag "Label"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:11 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:17 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 

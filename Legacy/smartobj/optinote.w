@@ -156,7 +156,7 @@ ON CHOOSE OF Select_InvNote IN FRAME F-Main /* Operator Notes */
 DO:
 
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:45 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:50 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */

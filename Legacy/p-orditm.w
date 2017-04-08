@@ -229,9 +229,9 @@ DO:
   add-active = yes.
 
   RUN notify ('add-record':U).
-  {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:48 am */
+  {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -245,9 +245,9 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:48 am */
+      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -259,7 +259,7 @@ END.
 ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
 DO:
    RUN notify ('delete-record':U).  
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -273,7 +273,7 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"tableio-target", output char-hdl).
    run select-his in widget-handle(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -287,7 +287,7 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"tableio-target", output char-hdl).
    run select-price in widget-handle(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,22 +316,22 @@ DO:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
            RUN new-state('update-begin':U).
-           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:48 am */
+           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
            ASSIGN add-active = no.
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:48 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
         END.                              
      END.
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:48 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -345,7 +345,7 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"tableio-target", output char-hdl).
    run select-stat in widget-handle(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -379,10 +379,10 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
-  {methods/setButton.i Btn-Add "Add"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
-  {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
-  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
+  {methods/setButton.i Btn-Add "Add"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
+  {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
+  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

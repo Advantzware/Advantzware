@@ -253,9 +253,9 @@ DO:
   add-active = yes.
 
   RUN notify ('add-record':U).
-  {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+  {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -269,9 +269,9 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -284,8 +284,8 @@ ON CHOOSE OF Btn-Copy IN FRAME Panel-Frame /* Copy */
 DO:
 
    RUN notify ('copy-record':U).
-   {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+   {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -297,7 +297,7 @@ END.
 ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
 DO:
    RUN notify ('delete-record':U).  
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -309,7 +309,7 @@ END.
 ON CHOOSE OF Btn-Reset IN FRAME Panel-Frame /* Reset */
 DO:
   RUN notify ('reset-record':U).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -338,30 +338,30 @@ DO:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
            RUN new-state('update-begin':U).
-           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
            ASSIGN add-active = no.
         END.
         ELSE 
         DO: /* Save */
            IF ll-auto-add-active THEN DO:
                RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
 RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
                RUN auto-add.
                RETURN.
            END.
            RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
         END.                              
      END.
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -395,12 +395,12 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
-  {methods/setButton.i Btn-Reset "Reset"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
-  {methods/setButton.i Btn-Add "Add"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
-  {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
-  {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
-  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
+  {methods/setButton.i Btn-Reset "Reset"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
+  {methods/setButton.i Btn-Add "Add"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
+  {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
+  {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
+  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

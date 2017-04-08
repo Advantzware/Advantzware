@@ -186,7 +186,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'upd-base-cost-source':U,OUTPUT char-hdl).
 
    RUN update-base-cost in WIDGET-HANDLE(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:48 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:55 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */

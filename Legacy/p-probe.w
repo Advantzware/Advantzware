@@ -244,13 +244,13 @@ ON CHOOSE OF Btn-Cancel IN FRAME Panel-Frame /* Cancel */
 DO:
   DO WITH FRAME Panel-Frame:
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
       enable btn-imp-price btn-view btn-item btn-print btn-quote btn-whatif
              with frame {&frame-name}.
 
 
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -272,7 +272,7 @@ DO:
      run copy-item in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -287,7 +287,7 @@ DO:
    enable btn-imp-price btn-view btn-item btn-print btn-quote btn-whatif
              with frame {&frame-name}.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -311,7 +311,7 @@ DO:
      run import-price in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -333,7 +333,7 @@ DO:
      run update-item in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -358,7 +358,7 @@ DO:
      run print-probe in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -383,7 +383,7 @@ DO:
      run update-quote in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -412,7 +412,7 @@ DO:
         IF Btn-Save:LABEL = '&What If' THEN 
         DO:
            RUN new-state('update-begin':U).
-           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
            assign btn-item:sensitive = no
                   btn-view:sensitive = no
                   btn-print:sensitive = no
@@ -425,7 +425,7 @@ DO:
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
            assign btn-item:sensitive = yes
                   btn-view:sensitive = yes
                   btn-print:sensitive = yes
@@ -438,7 +438,7 @@ DO:
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
            assign btn-item:sensitive = yes
                   btn-view:sensitive = yes
                   btn-print:sensitive = yes
@@ -447,7 +447,7 @@ DO:
                   .
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -471,7 +471,7 @@ DO:
      run display-probe in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -496,7 +496,7 @@ DO:
      run run-whatif in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:42 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -530,10 +530,10 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
-  {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
-  {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
-  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 03.28.2017 @ 10:44:49 am */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
+  {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
+  {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
+  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

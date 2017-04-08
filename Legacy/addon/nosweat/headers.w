@@ -287,7 +287,7 @@ DO:
   APPLY "CHOOSE" TO Btn_Add_Label.
   APPLY "CHOOSE" TO Btn_Add_Field.
   APPLY "CHOOSE" TO Btn_Add_Dash.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -301,7 +301,7 @@ DO:
   IF header-include:SCREEN-VALUE NE "" THEN
   ldummy = header-include:INSERT-STRING(" +").
   ldummy = header-include:INSERT-STRING(" ' - '").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -325,7 +325,7 @@ DO:
         ELSE
         "STRING(" + table-names:SCREEN-VALUE + "." + field-names:SCREEN-VALUE + ")"
     ldummy = header-include:INSERT-STRING(" " + field-string).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -345,7 +345,7 @@ DO:
                 OUTPUT cdummy).
   ldummy = header-include:INSERT-STRING("'" + cdummy + ": '").
   {methods/nowait.i}
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -358,7 +358,7 @@ ON CHOOSE OF Btn_Add_WO_Dash IN FRAME DEFAULT-FRAME /* Add W/O Dash */
 DO:
   APPLY "CHOOSE" TO Btn_Add_Label.
   APPLY "CHOOSE" TO Btn_Add_Field.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -370,7 +370,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -384,7 +384,7 @@ DO:
   ASSIGN
     header-include:SCREEN-VALUE = ""
     include_name:SCREEN-VALUE = "".
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -397,7 +397,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   APPLY "CHOOSE" TO Btn_Save.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -444,7 +444,7 @@ DO:
       RETURN.
     END.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -459,7 +459,7 @@ DO:
   include_name:SCREEN-VALUE = table-names:SCREEN-VALUE + ".i".
   ldummy = header-include:SAVE-FILE("methods/headers/" + include_name:SCREEN-VALUE).
   Btn_Cancel:LABEL = "&Close".
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -506,7 +506,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -523,7 +523,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       db-names:ENTRY(1) IN FRAME {&FRAME-NAME}.
   APPLY "VALUE-CHANGED" TO db-names.
   {methods/nowait.i}
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

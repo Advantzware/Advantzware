@@ -441,11 +441,11 @@ DO:
   ELSE
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:30 am */
-    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:30 am */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
     RUN enable_UI.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:45 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:28 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -460,8 +460,8 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE {&LIST-1}.
     DISPLAY {&F1}.
-    {methods/setButton.i Btn_Update "Save"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:30 am */
-    {methods/setButton.i Btn_Close "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:30 am */
+    {methods/setButton.i Btn_Update "Save"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
+    {methods/setButton.i Btn_Close "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
     APPLY "ENTRY" TO ar-ctrl.last-inv.
   END.
   ELSE
@@ -479,13 +479,13 @@ DO:
 
     DISABLE {&LIST-1}.
     HIDE {&F1} NO-PAUSE.
-    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:30 am */
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:30 am */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
     FIND CURRENT ar-ctrl EXCLUSIVE-LOCK.
     ASSIGN {&LIST-1}.
     FIND CURRENT ar-ctrl NO-LOCK.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:45 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:28 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -665,7 +665,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:45 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:28 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -693,8 +693,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   APPLY 'ENTRY':U TO Btn_Update IN FRAME {&FRAME-NAME}.
 
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:30 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:45 am */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:28 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

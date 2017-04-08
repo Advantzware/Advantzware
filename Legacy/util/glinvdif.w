@@ -206,7 +206,7 @@ END.
 ON CHOOSE OF BtnCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
     APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:17 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:06 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -332,12 +332,12 @@ DO:
 
                  IF LAST-OF(gltrans.tr-dscr) AND v-tr-amt NE v-inv-amt + v-inv-disc THEN
                  DO:
-    {methods/setButton.i DISPLAY gltrans.tr-dscr COLUMN-LABEL "G/L Description" "Description"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:59 am */
-    {methods/setButton.i ar-inv.inv-no COLUMN-LABEL "Invoice #" "#"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:59 am */
-    {methods/setButton.i ar-inv.inv-date COLUMN-LABEL "Invoice Date" "Date"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:59 am */
-    {methods/setButton.i v-inv-amt + v-inv-disc COLUMN-LABEL "Invoice Amount" "Amount"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:59 am */
-    {methods/setButton.i gltrans.tr-amt * -1 COLUMN-LABEL "G/L Amount" "Amount"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:59 am */
-    {methods/setButton.i gltrans.trnum FORMAT "ZZZZ9" COLUMN-LABEL "G/L Run #" "#"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:59 am */
+                    DISPLAY gltrans.tr-dscr COLUMN-LABEL "G/L Description"
+                            ar-inv.inv-no COLUMN-LABEL "Invoice #"
+                            ar-inv.inv-date COLUMN-LABEL "Invoice Date"
+                            v-inv-amt + v-inv-disc COLUMN-LABEL "Invoice Amount"
+                            gltrans.tr-amt * -1 COLUMN-LABEL "G/L Amount"
+                            gltrans.trnum FORMAT "ZZZZ9" COLUMN-LABEL "G/L Run #"
                      with no-box frame frame-a down STREAM-IO width 200.
 
                     down with frame frame-a.
@@ -353,7 +353,7 @@ DO:
       run scr-rpt.w (list-name,c-win:title,11,"P").
    END.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:17 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:06 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -375,7 +375,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:17 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:06 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -389,9 +389,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
    RUN enable_UI.
 
-    {methods/setButton.i BtnCancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:59 am */
-    {methods/setButton.i btnOk "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:59 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:17 am */
+    {methods/setButton.i BtnCancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:18 pm */
+    {methods/setButton.i btnOk "OK"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:18 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:06 pm */
    IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

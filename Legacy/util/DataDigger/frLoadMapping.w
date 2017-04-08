@@ -457,7 +457,7 @@ or "CTRL-CURSOR-RIGHT" of brSelectedFields
 or "CTRL-CURSOR-RIGHT" of brAvailableFields
 DO:
   run shootField(brSelectedFields:handle,brAvailableFields:handle).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -470,7 +470,7 @@ ON CHOOSE OF btMoveDownAvail IN FRAME frDataSettings /* v */
 or "CTRL-CURSOR-DOWN" of brAvailableFields
 DO:
   run moveField(brAvailableFields:handle,yes).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -483,7 +483,7 @@ ON CHOOSE OF btMoveDownSel IN FRAME frDataSettings /* v */
 or "CTRL-CURSOR-DOWN" of brSelectedFields
 DO:
   run moveField(brSelectedFields:handle,yes).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -496,7 +496,7 @@ ON CHOOSE OF btMoveUpAvail IN FRAME frDataSettings /* ^ */
 or "CTRL-CURSOR-UP" of brAvailableFields
 DO:
   run moveField(brAvailableFields:handle,no).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -509,7 +509,7 @@ ON CHOOSE OF btMoveUpSel IN FRAME frDataSettings /* ^ */
 or "CTRL-CURSOR-UP" of brSelectedFields
 DO:
   run moveField(brSelectedFields:handle,no).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -528,7 +528,7 @@ DO:
     {&OPEN-QUERY-brRawData}
   end.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -547,7 +547,7 @@ DO:
     {&OPEN-QUERY-brRawData}
   end.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -562,7 +562,7 @@ or "CTRL-CURSOR-LEFT" of brAvailableFields
 or "CTRL-CURSOR-LEFT" of brSelectedFields
 DO:
   run shootField(brAvailableFields:handle,brSelectedFields:handle).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -584,7 +584,7 @@ DELETE WIDGET  {&WINDOW-NAME}.
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* General procedures for all viewers in the MVC */
@@ -601,7 +601,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN enable_UI.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

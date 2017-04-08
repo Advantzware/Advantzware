@@ -178,7 +178,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl 
        (THIS-PROCEDURE, 'copy-Target':U, OUTPUT source-str).
    run copy-blank in widget-handle(source-str).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:46 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:52 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */

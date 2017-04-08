@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          emptrack         PROGRESS
+          asi         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
@@ -71,10 +71,10 @@ machchrg.machine eq ip-machine NO-LOCK ~
     ~{&OPEN-QUERY-BROWSE-1}
 &Scoped-define QUERY-STRING-Dialog-Frame FOR EACH machchrg ~
       WHERE machchrg.company eq ip-company and ~
-EMPTRACK.machchrg.machine eq ip-machine SHARE-LOCK
+machchrg.machine eq ip-machine SHARE-LOCK
 &Scoped-define OPEN-QUERY-Dialog-Frame OPEN QUERY Dialog-Frame FOR EACH machchrg ~
       WHERE machchrg.company eq ip-company and ~
-EMPTRACK.machchrg.machine eq ip-machine SHARE-LOCK.
+machchrg.machine eq ip-machine SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-Dialog-Frame machchrg
 &Scoped-define FIRST-TABLE-IN-QUERY-Dialog-Frame machchrg
 
@@ -193,11 +193,11 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "EMPTRACK.machchrg"
+     _TblList          = "machchrg"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "machchrg.company eq ip-company and
 machchrg.machine eq ip-machine"
-     _FldNameList[1]   > EMPTRACK.machchrg.charge_code
+     _FldNameList[1]   > machchrg.charge_code
 "machchrg.charge_code" "Code" ? "character" ? ? ? ? ? ? no "" no no "8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
@@ -205,10 +205,10 @@ machchrg.machine eq ip-machine"
 
 &ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX Dialog-Frame
 /* Query rebuild information for DIALOG-BOX Dialog-Frame
-     _TblList          = "EMPTRACK.machchrg"
+     _TblList          = "machchrg"
      _Options          = "SHARE-LOCK"
-     _Where[1]         = "EMPTRACK.machchrg.company eq ip-company and
-EMPTRACK.machchrg.machine eq ip-machine"
+     _Where[1]         = "machchrg.company eq ip-company and
+machchrg.machine eq ip-machine"
      _Query            is OPENED
 */  /* DIALOG-BOX Dialog-Frame */
 &ANALYZE-RESUME

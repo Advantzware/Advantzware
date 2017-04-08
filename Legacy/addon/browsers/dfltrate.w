@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:02 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.07.2017 @  2:07:52 pm */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -74,12 +74,12 @@ ASSIGN cocode = g_company
 rate.machine rate.ratetype rate.rate rate.factortype 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH rate WHERE ~{&KEY-PHRASE} ~
-      AND rate.company = 'zzz' AND ~
-rate.employee = 'zzzzz' NO-LOCK ~
+      AND rate.company = "zzz" AND ~
+rate.employee = "zzzzz" NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH rate WHERE ~{&KEY-PHRASE} ~
-      AND rate.company = 'zzz' AND ~
-rate.employee = 'zzzzz' NO-LOCK ~
+      AND rate.company = "zzz" AND ~
+rate.employee = "zzzzz" NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table rate
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table rate
@@ -231,7 +231,6 @@ END.
 {src/adm/method/browser.i}
 {src/adm/method/query.i}
 {methods/template/browser.i}
-
 {Advantzware/WinKit/dataGridProc.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -276,8 +275,8 @@ ASSIGN
      _TblList          = "EMPTRACK.rate"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _Where[1]         = "rate.company = 'zzz' AND
-rate.employee = 'zzzzz'"
+     _Where[1]         = "rate.company = "zzz" AND
+rate.employee = "zzzzz""
      _FldNameList[1]   > EMPTRACK.rate.rate_usage
 "rate_usage" "Rate Usage" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > EMPTRACK.rate.shift

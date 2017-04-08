@@ -163,7 +163,6 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {Advantzware/WinKit/winkit-panel.i}
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -209,8 +208,7 @@ ASSIGN
 ON CHOOSE OF Btn-First IN FRAME F-Main /* First */
 DO:
   run do-button ("F").
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:45 am */
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:55 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -222,8 +220,7 @@ END.
 ON CHOOSE OF Btn-Last IN FRAME F-Main /* Last */
 DO:
   run do-button ("L").
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:45 am */
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:55 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -235,8 +232,7 @@ END.
 ON CHOOSE OF Btn-Next IN FRAME F-Main /* Next */
 DO:
   run do-button ("N").
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:45 am */
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:55 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -248,8 +244,7 @@ END.
 ON CHOOSE OF Btn-Prev IN FRAME F-Main /* Prev */
 DO:
   run do-button ("P").
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:45 am */
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:55 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */

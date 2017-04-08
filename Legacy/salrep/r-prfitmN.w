@@ -78,18 +78,18 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "Customer,Invoice#,FG Item,Cust Part No,Categ,Qty Shipped,Itm SqFT,Ttl MSF,$/MSF," +
-                           "Unit Price,UOM,Cost/M,Margin/M,Cost%,Colors,Order date,Ship Date,Invoice Amt,Estimate#," +
+                           "Unit Price,UOM,Board Cost/M,Order Cost/M,Invoice Cost/M,Margin/M,Cost%,Colors,Order date,Ship Date,Invoice Amt,Estimate#," +
                            "Style,Flute,Test,Length,Width,Depth"
        cFieldListToSelect = "cust,inv,ino,cust-part,cat,qty-shp,i-sq,ttl-msf,msf," +
-                            "unt-prc,uom,cst-m,mar-m,cst,colr,ord-dt,shp-dt,inv-amt,est," +
+                            "unt-prc,uom,brdcst-m,ordcst-m,invcst-m,mar-m,cst,colr,ord-dt,shp-dt,inv-amt,est," +
                             "styl,flut,tst,lnth,wdth,dpth"
-       cFieldLength = "8,8,15,15,5,12,8,7,5," + "15,3,11,11,11,6,10,10,15,9," + "6,5,6,6,6,6"
+       cFieldLength = "8,8,15,15,5,12,8,7,5," + "15,3,12,12,14,11,11,6,10,10,15,9," + "6,5,6,6,6,6"
        cFieldType = "c,i,c,c,c,i,i,i,i," + "i,c,i,i,i,c,c,c,i,c," + "c,c,c,i,i,i" 
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Customer,Invoice#,FG Item,Cust Part No,Categ,Qty Shipped,Itm SqFT,Ttl MSF,$/MSF," +
-                           "Unit Price,UOM,Cost/M,Margin/M,Cost%,Colors,Order date,Ship Date,Invoice Amt,Estimate#," +
+                           "Unit Price,UOM,Board Cost/M,Order Cost/M,Invoice Cost/M,Margin/M,Cost%,Colors,Order date,Ship Date,Invoice Amt,Estimate#," +
                            "Style,Flute,Test,Length,Width,Depth" .
 
 /* _UIB-CODE-BLOCK-END */
@@ -610,7 +610,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:13 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:01 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -671,7 +671,7 @@ DO:
        END. 
        WHEN 6 THEN run output-to-port.
   end case.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:13 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:01 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -684,7 +684,7 @@ ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:13 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:01 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -711,7 +711,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:13 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:01 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -727,7 +727,7 @@ DO:
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:13 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:01 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -739,7 +739,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:13 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:01 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -756,7 +756,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:13 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:01 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -768,7 +768,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:13 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:01 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1045,7 +1045,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:13 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:01 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -1077,6 +1077,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                OUTPUT ou-cust-int) .
 
   DO WITH FRAME {&FRAME-NAME}:
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:49 pm */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:49 pm */
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_cust-no.
@@ -1115,9 +1117,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    END.
 
   RUN enable-disable.
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:56 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:56 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:13 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:01 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1542,7 +1542,6 @@ PROCEDURE run-report :
 
 def var v-cuom   like po-ordl.cons-uom.
 def var v-unit   as   char format "!" init "U".
-def var v-cost1  as   char format "!" init "B".
 def var v-cost2  as   log  init yes.
 def var v-cost3  as   char format "!" init "C".
 def var v-label1 as   char format "x(15)".
@@ -1603,7 +1602,6 @@ assign
  fdate          = begin_inv-date
  tdate          = end_inv-date
  sort-by-cust   = rd_sort EQ "Customer#"
- v-cost1        = "4"      
  /*v-unit         = SUBSTR(rd_show2,1,1)*/
  /*v-cost3        = SUBSTR(rd_show3,1,1)*/
  v-inc-fc       = tb_fin-chg
@@ -1633,7 +1631,7 @@ END.
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-        IF LOOKUP(ttRptSelected.TextList, "Qty Shipped,Ttl MSF,$/MSF,Invoice Amt,Cost/M,Margin/M,Cost%") <> 0    THEN
+        IF LOOKUP(ttRptSelected.TextList, "Qty Shipped,Ttl MSF,$/MSF,Invoice Amt,Board Cost/M,Order Cost/M,Invoice Cost/M,Margin/M,Cost%") <> 0    THEN
          ASSIGN
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE

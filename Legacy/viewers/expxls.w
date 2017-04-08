@@ -256,7 +256,7 @@ DO:
           ELSE
               RUN jcrep/r-jobexl.w.   /*Task# 08111405*/
          END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:46 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:51 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */

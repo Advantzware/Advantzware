@@ -48,12 +48,13 @@ CREATE WIDGET-POOL.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-2 RECT-3 RECT-1 spool_list Btn_Process ~
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-2 spool_list Btn_Process ~
 Btn_Delete Btn_Close 
 &Scoped-Define DISPLAYED-OBJECTS spool_list spool_title spool_date ~
 spool_time user_id 
@@ -110,15 +111,15 @@ DEFINE VARIABLE user_id AS CHARACTER FORMAT "X(256)":U
      BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 54 BY 13.81.
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 54 BY 5.
 
 DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 54 BY 1.67.
 
 DEFINE VARIABLE spool_list AS CHARACTER 
@@ -141,13 +142,13 @@ DEFINE FRAME DEFAULT-FRAME
      spool_date AT ROW 17.91 COL 11 COLON-ALIGNED
      spool_time AT ROW 17.91 COL 40 COLON-ALIGNED
      user_id AT ROW 19.33 COL 11 COLON-ALIGNED
-     RECT-2 AT ROW 15.76 COL 2
-     RECT-3 AT ROW 21 COL 2
      "Spool Requests" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 1.24 COL 3
-     RECT-1 AT ROW 1.48 COL 2
      "Spool Request Detail" VIEW-AS TEXT
           SIZE 25 BY .62 AT ROW 15.52 COL 3
+     RECT-1 AT ROW 1.48 COL 2
+     RECT-2 AT ROW 15.76 COL 2
+     RECT-3 AT ROW 21 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -189,39 +190,45 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
-ASSIGN
+   FRAME-NAME                                                           */
+ASSIGN 
        Btn_Close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-ASSIGN
+/* SETTINGS FOR BUTTON Btn_Delete IN FRAME DEFAULT-FRAME
+   1                                                                    */
+ASSIGN 
        Btn_Delete:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-ASSIGN
+/* SETTINGS FOR BUTTON Btn_Process IN FRAME DEFAULT-FRAME
+   1                                                                    */
+ASSIGN 
        Btn_Process:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-/* SETTINGS FOR BUTTON Btn_Delete IN FRAME DEFAULT-FRAME
-   1                                                                    */
-/* SETTINGS FOR BUTTON Btn_Process IN FRAME DEFAULT-FRAME
-   1                                                                    */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN spool_date IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR SELECTION-LIST spool_list IN FRAME DEFAULT-FRAME
@@ -247,8 +254,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
-
-
+ 
 
 
 
@@ -285,7 +291,7 @@ END.
 ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -304,7 +310,7 @@ DO:
   OS-DELETE VALUE(config.spool_dir + "/" + spool_title:SCREEN-VALUE + ".spl").
   OS-DELETE VALUE(config.spool_dir + "/" + spool_title:SCREEN-VALUE + ".rpt").
   RUN Get-Spool-Requests.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -317,7 +323,7 @@ ON CHOOSE OF Btn_Process IN FRAME DEFAULT-FRAME /* Process */
 DO:
   RUN Get_Procedure IN Persistent-Handle ("chkspool.",OUTPUT run-proc,yes).
   RUN Get-Spool-Requests.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -350,15 +356,11 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
-
-ON ESC OF {&WINDOW-NAME} ANYWHERE DO:
-  APPLY 'CLOSE' TO THIS-PROCEDURE.
-END.
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
@@ -369,10 +371,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND FIRST config NO-LOCK.
   RUN Get-Spool-Requests.
   {methods/nowait.i}
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {methods/setButton.i Btn_Delete "Delete"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {methods/setButton.i Btn_Process "Process"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:14 pm */
+    {methods/setButton.i Btn_Delete "Delete"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:14 pm */
+    {methods/setButton.i Btn_Process "Process"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:14 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -383,7 +385,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -402,8 +404,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -416,7 +417,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY spool_list spool_title spool_date spool_time user_id 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-2 RECT-3 RECT-1 spool_list Btn_Process Btn_Delete Btn_Close 
+  ENABLE RECT-1 RECT-2 spool_list Btn_Process Btn_Delete Btn_Close 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -424,7 +425,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-Spool-Requests C-Win 
 PROCEDURE Get-Spool-Requests :
@@ -481,7 +481,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Spool-Details C-Win 
 PROCEDURE Spool-Details :
 /*------------------------------------------------------------------------------
@@ -517,5 +516,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

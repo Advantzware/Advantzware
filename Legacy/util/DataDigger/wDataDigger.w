@@ -2001,7 +2001,7 @@ ON CHOOSE OF btnAbout IN FRAME frSettings /* Que */
 DO:
   hide frame frSettings.
   run value(getProgramDir() + 'dAbout.w') persistent.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2032,7 +2032,7 @@ DO:
   btnDelete:sensitive = FALSE.  
   btnAdd:sensitive = FALSE.
   */
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2064,7 +2064,7 @@ DO:
       apply 'value-changed' to brTables.
     run setWindowTitle.
   end.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2092,7 +2092,7 @@ DO:
   if cOldTable <> getCurrentTable() then
     apply 'value-changed' to brTables.
   run setWindowTitle.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2112,7 +2112,7 @@ DO:
   else 
     ficWhere2:replace-selection-text(substitute(' &1 ', self:label)).
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2133,7 +2133,7 @@ DO:
   else 
     ficWhere2:replace-selection-text(substitute(' ( &1 ) ', ficWhere2:selection-text)).
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2146,7 +2146,7 @@ ON CHOOSE OF btnCancel-2 IN FRAME frWhere /* Cancel */
 DO:
   ficWhere2:screen-value in frame frWhere = ficWhere:screen-value in frame frMain. 
   setQueryEditor('Hidden').
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2170,7 +2170,7 @@ DO:
   if iHelpId > 0 then
     system-help cHelpfile context iHelpId.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2211,7 +2211,7 @@ DO:
               , '' 
               ).  
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2225,7 +2225,7 @@ DO:
 
   run btnClearDataFilterChoose. 
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2257,7 +2257,7 @@ DO:
 
   apply 'choose' to btnFieldFilter.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2279,7 +2279,7 @@ DO:
 
   apply 'choose' to btnIndexFilter.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2308,7 +2308,7 @@ DO:
 
   apply 'choose' to btnTableFilter.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2342,7 +2342,7 @@ do:
   cQuery = formatQueryString(cQuery, yes).
   clipboard:value = getReadableQuery(cQuery).
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2359,7 +2359,7 @@ do:
 
   /* run value(getProgramDir() + 'wDataDigger.w') persistent. */
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2371,7 +2371,7 @@ end.
 ON CHOOSE OF btnDataFilter IN FRAME frMain /* Y */
 do:
   run reopenDataBrowse('',?).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2385,7 +2385,7 @@ DO:
 
   run btnDeleteChoose.
 
-                              {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+                              {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END. /* choose of btnDelete */
 
 /* _UIB-CODE-BLOCK-END */
@@ -2400,7 +2400,7 @@ ON CHOOSE OF btnDump-2 IN FRAME frSettings /* Dmp */
 DO:
   hide frame frSettings.
   run btnDumpChoose. 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2421,7 +2421,7 @@ do:
 
   run btnEditChoose.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2455,7 +2455,7 @@ DO:
     apply 'value-changed' to brTables.
   run setWindowTitle.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2471,7 +2471,7 @@ ON CHOOSE OF btnFavorites IN FRAME frSettings /* Fav */
 DO:
   hide frame frSettings.
   run btnFavouritesChoose.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2486,7 +2486,7 @@ or 'return' of fiOrderFilter, fiNameFilter, fiTypeFilter, fiFormatFilter, fiLabe
 DO:
   run reopenFieldBrowse(?,?). /* reopen, while maintaining original sort */
   apply 'entry' to brFields.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2501,7 +2501,7 @@ DO:
 
   run startWinHelp(focus).
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2514,7 +2514,7 @@ ON CHOOSE OF btnIndexFilter IN FRAME frMain /* Y */
 or 'return' of fiIndexNameFilter, fiFlagsFilter, fiFieldsFilter
 DO:
   run reopenIndexBrowse(?,?). /* reopen, while maintaining original sort */
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2549,7 +2549,7 @@ DO:
 
   apply "entry" to cbAndOr.
   return no-apply.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2564,7 +2564,7 @@ ON CHOOSE OF btnLoad-2 IN FRAME frSettings /* Load */
 DO:
   hide frame frSettings.
   run loadData.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2580,7 +2580,7 @@ DO:
 
   run moveField('bottom').
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2595,7 +2595,7 @@ DO:
 
   run moveField('down').
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2610,7 +2610,7 @@ DO:
 
   run moveField('top').
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2625,7 +2625,7 @@ DO:
 
   run moveField('up').
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2639,7 +2639,7 @@ or 'page-up' of ficWhere       in frame frMain
 or 'choose'  of btnNextQuery-2 in frame frWhere
 do:
   setQuery(-1).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2652,7 +2652,7 @@ end.
 ON CHOOSE OF btnOK IN FRAME frWhere /* OK */
 DO:
   setQueryEditor('Hidden').
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2667,7 +2667,7 @@ OR 'page-down' of ficWhere       in frame frMain
 or 'choose'    of btnPrevQuery-2 in frame frWhere
 do:
   setQuery(+1).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2689,7 +2689,7 @@ DO:
   else 
     ficWhere2:replace-selection-text(substitute('"&1"', ficWhere2:selection-text)).
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2731,7 +2731,7 @@ DO:
   end.
 
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2751,7 +2751,7 @@ DO:
   hide frame frSettings.
   run btnQueriesChoose.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2775,7 +2775,7 @@ DO:
   if file-info:full-pathname <> ? then
     run value(cQueryTesterPath) persistent.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2805,7 +2805,7 @@ DO:
     run setWindowTitle.
   end.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2832,7 +2832,7 @@ DO:
     run setWindowTitle.
   end.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2858,7 +2858,7 @@ DO:
 
   run reopenFieldBrowse('iOrder', yes).
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2873,7 +2873,7 @@ ON CHOOSE OF btnSettings IN FRAME frSettings /* INI */
 DO:
   hide frame frSettings.
   run btnSettingsChoose.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2910,7 +2910,7 @@ ON CHOOSE OF btnTabFields IN FRAME frMain /* Fld */
 or 'ctrl-1' of frame {&frame-name} anywhere
 DO:
   run setPage(1).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2923,7 +2923,7 @@ ON CHOOSE OF btnTabIndexes IN FRAME frMain /* Idx */
 or 'ctrl-2' of frame {&frame-name} anywhere
 DO:
   run setPage(2).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2972,7 +2972,7 @@ DO:
   apply 'value-changed' to brTables.
   apply 'entry' to brTables.
   return no-apply.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3001,7 +3001,7 @@ DO:
 
   apply 'entry' to btnSettings in frame frSettings.
   return no-apply.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3015,7 +3015,7 @@ DO:
 
   run btnViewChoose.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3054,7 +3054,7 @@ do:
 
   if valid-handle(ghDataBrowse) then
     apply 'entry' to ghDataBrowse. 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3080,7 +3080,7 @@ DO:
 
   end case.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3562,7 +3562,7 @@ DO:
   apply 'value-changed' to brTables.  /* this sets the gcCurrentDatabase */
   apply 'choose' to btnTableFilter. 
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3601,7 +3601,7 @@ DO:
   cbDatabaseFilter:list-items = ',' + cDatabases.
   cbDatabaseFilter:screen-value = cLogicalName.
   apply 'value-changed' to cbDatabaseFilter. 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3632,7 +3632,7 @@ END.
 ON CHOOSE OF MENU-ITEM m_View_as_Excel /* View as Excel */
 DO:
   run setViewType('XLS').
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3644,7 +3644,7 @@ END.
 ON CHOOSE OF MENU-ITEM m_View_as_HTML /* View as HTML */
 DO:
   run setViewType('HTML').
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3656,7 +3656,7 @@ END.
 ON CHOOSE OF MENU-ITEM m_View_as_text /* View as TEXT */
 DO:
   run setViewType('TXT').
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3722,7 +3722,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
 do:
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
   define variable cSetting as character no-undo. 
 
@@ -3828,7 +3828,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   apply 'entry' to fiTableFilter.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
   if not this-procedure:persistent then 
     wait-for close of this-procedure.
 

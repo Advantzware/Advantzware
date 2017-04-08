@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:10 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.07.2017 @  2:08:02 pm */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -76,12 +76,12 @@ CREATE WIDGET-POOL.
 reftable.code2 reftable.dscr 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH reftable WHERE ~{&KEY-PHRASE} ~
-      AND reftable.reftable EQ 'Utilities' ~
-AND reftable.company EQ '' NO-LOCK ~
+      AND reftable.reftable EQ "Utilities" ~
+AND reftable.company EQ "" NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH reftable WHERE ~{&KEY-PHRASE} ~
-      AND reftable.reftable EQ 'Utilities' ~
-AND reftable.company EQ '' NO-LOCK ~
+      AND reftable.reftable EQ "Utilities" ~
+AND reftable.company EQ "" NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table reftable
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table reftable
@@ -250,8 +250,8 @@ ASSIGN
      _TblList          = "ASI.reftable"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _Where[1]         = "reftable.reftable EQ 'Utilities'
-AND reftable.company EQ ''"
+     _Where[1]         = "reftable.reftable EQ "Utilities"
+AND reftable.company EQ ""
      _FldNameList[1]   > ASI.reftable.loc
 "reftable.loc" "Utility (Code)" "x(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.reftable.code

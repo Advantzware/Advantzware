@@ -85,11 +85,11 @@ DEF VAR ls-fax-file AS CHAR NO-UNDO.
 &Scoped-Define ENABLED-OBJECTS begin_machine end_machine begin_start-date ~
 end_start-date rd_sort show-employees rd-dest lv-ornt lines-per-page ~
 lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel ~
-RECT-6 RECT-7 
+RECT-6 RECT-7 begin_shift end_shift 
 &Scoped-Define DISPLAYED-OBJECTS selected-company begin_machine end_machine ~
 begin_start-date end_start-date rd_sort show-employees rd-dest lv-ornt ~
 lines-per-page lv-font-no td-show-parm lv-font-name tb_excel tb_runExcel ~
-fi_file 
+fi_file begin_shift end_shift 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -118,6 +118,11 @@ DEFINE VARIABLE begin_machine AS CHARACTER FORMAT "X(10)"
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
+DEFINE VARIABLE begin_shift AS CHARACTER FORMAT "X(8)" 
+     LABEL "Beginning Shift" 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1.
+
 DEFINE VARIABLE begin_start-date AS DATE FORMAT "99/99/9999" INITIAL 01/01/01 
      LABEL "Beginning Start Date" 
      VIEW-AS FILL-IN 
@@ -125,6 +130,11 @@ DEFINE VARIABLE begin_start-date AS DATE FORMAT "99/99/9999" INITIAL 01/01/01
 
 DEFINE VARIABLE end_machine AS CHARACTER FORMAT "X(10)" INITIAL "zzzzzzz" 
      LABEL "Ending Machine" 
+     VIEW-AS FILL-IN 
+     SIZE 15.6 BY 1.
+
+DEFINE VARIABLE end_shift AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
+     LABEL "Ending Shift" 
      VIEW-AS FILL-IN 
      SIZE 15.6 BY 1.
 
@@ -191,7 +201,7 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 95 BY 10.24.
+     SIZE 95 BY 10.48.
 
 DEFINE VARIABLE show-employees AS LOGICAL INITIAL no 
      LABEL "Show Employee Transactions" 
@@ -228,8 +238,8 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Start Date"
      end_start-date AT ROW 6 COL 67 COLON-ALIGNED HELP
           "Enter Beginning Start Date"
-     rd_sort AT ROW 7.43 COL 25 NO-LABEL
-     show-employees AT ROW 9.57 COL 32 HELP
+     rd_sort AT ROW 8.52 COL 25 NO-LABEL
+     show-employees AT ROW 10 COL 32 HELP
           "Select to Show Employee Transactions"
      rd-dest AT ROW 12.91 COL 6 NO-LABEL
      lv-ornt AT ROW 12.91 COL 29 NO-LABEL
@@ -243,13 +253,17 @@ DEFINE FRAME FRAME-A
           "Enter File Name"
      btn-ok AT ROW 21.24 COL 24
      btn-cancel AT ROW 21.24 COL 61
+     begin_shift AT ROW 7.29 COL 25 COLON-ALIGNED HELP
+          "Enter Beginning Shift" WIDGET-ID 2
+     end_shift AT ROW 7.29 COL 67 COLON-ALIGNED HELP
+          "Enter Ending Shift" WIDGET-ID 4
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 11.71 COL 3
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
      "Sort By:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 7.67 COL 15
+          SIZE 8 BY .62 AT ROW 8.76 COL 15
      RECT-6 AT ROW 11.48 COL 2
      RECT-7 AT ROW 1 COL 2
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -315,18 +329,12 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_machine:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       begin_shift:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -334,7 +342,19 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
        end_machine:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_shift:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -410,7 +430,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:18 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -466,7 +486,7 @@ DO:
 
   end case. 
   SESSION:SET-WAIT-STATE("").
-     {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
+     {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:18 pm */
  END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,7 +621,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:18 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -625,12 +645,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   {methods/nowait.i}
   DO WITH FRAME {&frame-name}:
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:20 pm */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:20 pm */
     {custom/usrprint.i}
     APPLY 'ENTRY' TO begin_machine.
   END.
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:23 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:23 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:37 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:18 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -674,10 +694,12 @@ PROCEDURE enable_UI :
   DISPLAY selected-company begin_machine end_machine begin_start-date 
           end_start-date rd_sort show-employees rd-dest lv-ornt lines-per-page 
           lv-font-no td-show-parm lv-font-name tb_excel tb_runExcel fi_file 
+          begin_shift end_shift 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE begin_machine end_machine begin_start-date end_start-date rd_sort 
          show-employees rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
          tb_excel tb_runExcel fi_file btn-ok btn-cancel RECT-6 RECT-7 
+         begin_shift end_shift 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -792,7 +814,10 @@ PROCEDURE run-report :
 /*==== Report main body procedure ================================
 ==================================================================*/
 DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE iTothours AS INTEGER NO-UNDO .
+DEFINE VARIABLE iRunQty   AS INTEGER NO-UNDO.
+DEFINE VARIABLE iWasteQty AS INTEGER NO-UNDO.
+DEFINE VARIABLE cTot      AS CHARACTER NO-UNDO .
 SESSION:SET-WAIT-STATE("general").
 
 {sys/form/r-top3w.f}
@@ -827,7 +852,9 @@ FOR EACH machtran NO-LOCK WHERE
     machtran.machine GE begin_machine AND
     machtran.machine LE end_machine AND
     machtran.start_date GE begin_start-date AND
-    machtran.start_date LE END_start-date
+    machtran.start_date LE END_start-date AND
+    machtran.shift GE begin_shift AND
+    machtran.shift LE END_shift
     BREAK BY machtran.START_date
           BY machtran.START_time BY machtran.machine BY machtran.job_number
           BY machtran.END_date BY machtran.END_time.
@@ -845,7 +872,7 @@ FOR EACH machtran NO-LOCK WHERE
     machtran.end_date
     STRING(machtran.end_time,'HH:MM am') LABEL 'Log Out'
     machtran.shift
-    STRING(machtran.total_time,'HH:MM') LABEL 'Total'
+    STRING(machtran.total_time ,'HH:MM' ) LABEL 'Total'
     machtran.run_qty
     machtran.waste_qty  
      WITH FRAME mch NO-BOX WIDTH 132 STREAM-IO DOWN.
@@ -865,6 +892,11 @@ FOR EACH machtran NO-LOCK WHERE
      trim(STRING(machtran.total_time,'HH:MM')) ","
      machtran.run_qty ","
      machtran.waste_qty.
+     ASSIGN
+         iTothours  = iTothours + (machtran.total_time )
+         iRunQty    = iRunQty  + machtran.run_qty
+         iWasteQty  = iWasteQty + machtran.waste_qty .
+
   IF show-employees THEN RUN show-employees IN THIS-PROCEDURE (BUFFER machtran).
   ELSE IF tb_excel THEN PUT STREAM excel SKIP.
 END.
@@ -874,7 +906,9 @@ ELSE IF rd_sort = 2 THEN DO:
              machtran.machine GE begin_machine AND
              machtran.machine LE end_machine AND
              machtran.start_date GE begin_start-date AND
-             machtran.start_date LE END_start-date
+             machtran.start_date LE END_start-date AND
+             machtran.shift GE begin_shift AND
+             machtran.shift LE END_shift
         BREAK BY machtran.START_date
               BY machtran.job_number BY machtran.machine BY machtran.START_time
               BY machtran.END_date BY machtran.END_time.
@@ -912,6 +946,12 @@ ELSE IF rd_sort = 2 THEN DO:
          trim(STRING(machtran.total_time,'HH:MM')) ","
          machtran.run_qty ","
          machtran.waste_qty.
+
+         ASSIGN
+         iTothours  = iTothours + machtran.total_time 
+         iRunQty    = iRunQty  + machtran.run_qty
+         iWasteQty  = iWasteQty + machtran.waste_qty .
+
       IF show-employees THEN RUN show-employees IN THIS-PROCEDURE (BUFFER machtran).
       ELSE IF tb_excel THEN PUT STREAM excel SKIP.
 
@@ -927,7 +967,9 @@ FOR EACH mach FIELDS(m-code) WHERE
     EACH machtran NO-LOCK WHERE machtran.company = selected-company AND
          machtran.machine EQ mach.m-code AND
          machtran.start_date GE begin_start-date AND
-         machtran.start_date LE END_start-date
+         machtran.start_date LE END_start-date AND
+         machtran.shift GE begin_shift AND
+         machtran.shift LE END_shift
     BREAK BY machtran.machine
           BY machtran.START_date
           BY machtran.START_time  BY machtran.job_number
@@ -966,9 +1008,27 @@ FOR EACH mach FIELDS(m-code) WHERE
      trim(STRING(machtran.total_time,'HH:MM')) ","
      machtran.run_qty ","
      machtran.waste_qty.
+
+     ASSIGN
+         iTothours  = iTothours + machtran.total_time 
+         iRunQty    = iRunQty  + machtran.run_qty
+         iWasteQty  = iWasteQty + machtran.waste_qty .
+
   IF show-employees THEN RUN show-employees IN THIS-PROCEDURE (BUFFER machtran).
   ELSE IF tb_excel THEN PUT STREAM excel SKIP.
 END. /* sort by machine/date/time*/
+
+ASSIGN cTot = STRING(TRUNCATE(iTothours / 3600,0),">>>99") + ":" + 
+                              STRING(((iTothours MOD 3600) / 60),"99") .
+
+PUT  "-------- ----------- ------ " AT 89
+     " Totals:   " AT 78
+     trim(cTot)  FORMAT "x(8)" SPACE(1)
+     iRunQty FORMAT ">>>>>>>>>>9" SPACE(1)
+     iWasteQty FORMAT ">>>>>9"
+    SKIP   .
+    .
+
 
 output close.
 IF tb_excel THEN 

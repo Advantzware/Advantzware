@@ -348,7 +348,7 @@ DO:
 
       OPEN QUERY browse-1 FOR EACH tt-oe-rel,FIRST tt-report WHERE tt-report.rec-id eq tt-oe-rel.tt-recid.
    END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:17 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:05 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -380,7 +380,7 @@ DO:
    END.
 
    APPLY "CHOOSE" TO btn-pop IN FRAME {&FRAME-NAME}.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:17 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:05 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -406,7 +406,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:17 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:05 pm */
 END.
 
 /* Best default for GUI applications is...                              */

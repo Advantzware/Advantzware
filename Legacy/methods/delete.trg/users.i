@@ -42,9 +42,9 @@ FOR EACH reftable WHERE
     DELETE reftable.
 END.
 
-FIND NOSWEAT._user EXCLUSIVE-LOCK
-    WHERE NOSWEAT._user._userid = users.user_id NO-ERROR.
-IF AVAILABLE NOSWEAT._user THEN DELETE NOSWEAT._user.
+FIND ASI._user EXCLUSIVE-LOCK
+    WHERE ASI._user._userid = users.user_id NO-ERROR.
+IF AVAILABLE ASI._user THEN DELETE ASI._user.
 
 /*
 FIND FIRST usr EXCLUSIVE-LOCK WHERE usr.uid EQ users.user_id NO-ERROR.

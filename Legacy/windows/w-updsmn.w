@@ -269,7 +269,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
     apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -296,7 +296,7 @@ DO:
 
   IF v-process THEN RUN run-process.
   ELSE APPLY "choose" TO btn-cancel.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -318,7 +318,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -332,9 +332,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ASSIGN begin_cust = ip-cust-no
          END_cust = ip-cust-no.
   RUN enable_UI.
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:44:01 am */
-    {methods/setButton.i btn-process "Start"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:44:01 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:20 am */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:19 pm */
+    {methods/setButton.i btn-process "Start"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:19 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

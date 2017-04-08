@@ -83,6 +83,7 @@ DEFINE VARIABLE cFieldListToSelect AS cha NO-UNDO.
 DEFINE VARIABLE cFieldLength AS cha NO-UNDO.
 DEFINE VARIABLE cFieldType AS cha NO-UNDO.
 DEFINE VARIABLE iColumnLength AS INTEGER NO-UNDO.
+DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #,DESCRIPTION,JOB," +
                            "REL#,REL DATE,RFQ#,QTY ALLOCATED,QTY ON HAND,QTY ORDERED," +
@@ -103,6 +104,10 @@ ASSIGN cTextListToSelect = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #,DESCRIPTION,JO
            .
 
 {sys/inc/ttRptSel.i}
+ASSIGN cTextListToDefault  = "CUSTOMER,PO #,SMAN,ITEM #,"
+                         + "DESCRIPTION,WHSE,QTY ORDERED,QTY SHIPPED,"
+                         + "QTY ON HAND,ORDER PRICE,VALUE".
+
 
 {sys/inc/oereordr.i}
 
@@ -124,9 +129,9 @@ ASSIGN cTextListToSelect = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #,DESCRIPTION,JO
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-8 tb_cust-list btnCustList ~
 begin_cust end_cust begin_cust-po end_cust-po begin_slm end_slm ~
 begin_job-no begin_job-no2 end_job-no end_job-no2 rd_itm-code rd_ostat ~
-rd_smry-dtl tb_sort tb_inc-zero tb_inc-cust sl_avail Btn_Add sl_selected ~
-Btn_Remove btn_Up btn_down rd-dest lv-ornt td-show-parm lines-per-page ~
-lv-font-no tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+rd_smry-dtl tb_sort tb_inc-zero tb_inc-cust sl_avail sl_selected Btn_Def ~
+Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt td-show-parm ~
+lines-per-page lv-font-no tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust ~
 begin_cust-po end_cust-po begin_slm end_slm begin_job-no begin_job-no2 ~
 end_job-no end_job-no2 lbl_itm-code rd_itm-code lbl_ostat rd_ostat ~
@@ -154,10 +159,10 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -171,6 +176,10 @@ DEFINE BUTTON btnCustList
 
 DEFINE BUTTON Btn_Add 
      LABEL "&Add >>" 
+     SIZE 16 BY 1.
+
+DEFINE BUTTON Btn_Def 
+     LABEL "&Default" 
      SIZE 16 BY 1.
 
 DEFINE BUTTON btn_down 
@@ -324,39 +333,39 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 31 BY 5.71 NO-UNDO.
 
-DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
      VIEW-AS TOGGLE-BOX
      SIZE 30.2 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_inc-cust AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_inc-cust AS LOGICAL INITIAL no 
      LABEL "Include Customer Owned Warehouse?" 
      VIEW-AS TOGGLE-BOX
      SIZE 42 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_inc-zero AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_inc-zero AS LOGICAL INITIAL no 
      LABEL "Include Zero Quantity On Hand?" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_sort AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_sort AS LOGICAL INITIAL no 
      LABEL "Sort By Part#?" 
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL YES 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -387,29 +396,31 @@ DEFINE FRAME FRAME-A
           "Enter Ending Job Number" WIDGET-ID 50
      end_job-no2 AT ROW 5.38 COL 84 COLON-ALIGNED HELP
           "Enter Ending Job Number" WIDGET-ID 52
-     lbl_itm-code AT ROW 6.81 COL 19 COLON-ALIGNED NO-LABELS
-     rd_itm-code AT ROW 6.81 COL 34 NO-LABELS
-     lbl_ostat AT ROW 7.76 COL 17 COLON-ALIGNED NO-LABELS
-     rd_ostat AT ROW 7.76 COL 34 NO-LABELS
-     lbl_print AT ROW 8.67 COL 24.8 COLON-ALIGNED NO-LABELS
-     rd_smry-dtl AT ROW 8.71 COL 34 NO-LABELS
+     lbl_itm-code AT ROW 6.81 COL 19 COLON-ALIGNED NO-LABEL
+     rd_itm-code AT ROW 6.81 COL 34 NO-LABEL
+     lbl_ostat AT ROW 7.76 COL 17 COLON-ALIGNED NO-LABEL
+     rd_ostat AT ROW 7.76 COL 34 NO-LABEL
+     lbl_print AT ROW 8.67 COL 24.8 COLON-ALIGNED NO-LABEL
+     rd_smry-dtl AT ROW 8.71 COL 34 NO-LABEL
      tb_sort AT ROW 9.67 COL 55 RIGHT-ALIGNED
      tb_inc-zero AT ROW 10.62 COL 34
      tb_inc-cust AT ROW 11.48 COL 75 RIGHT-ALIGNED
-     sl_avail AT ROW 13.62 COL 7 NO-LABELS WIDGET-ID 26
-     Btn_Add AT ROW 13.62 COL 41 HELP
+     sl_avail AT ROW 13.62 COL 7 NO-LABEL WIDGET-ID 26
+     sl_selected AT ROW 13.62 COL 61 NO-LABEL WIDGET-ID 28
+     Btn_Def AT ROW 13.71 COL 41 HELP
+          "Add Selected Table to Tables to Audit" WIDGET-ID 56
+     Btn_Add AT ROW 14.81 COL 41 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     sl_selected AT ROW 13.62 COL 61 NO-LABELS WIDGET-ID 28
-     Btn_Remove AT ROW 14.81 COL 41 HELP
+     Btn_Remove AT ROW 15.95 COL 41 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 16 COL 41 WIDGET-ID 40
-     btn_down AT ROW 17.19 COL 41 WIDGET-ID 42
-     rd-dest AT ROW 20.76 COL 4 NO-LABELS
-     lv-ornt AT ROW 20.76 COL 31 NO-LABELS
+     btn_Up AT ROW 17.05 COL 41 WIDGET-ID 40
+     btn_down AT ROW 18.14 COL 41 WIDGET-ID 42
+     rd-dest AT ROW 20.76 COL 4 NO-LABEL
+     lv-ornt AT ROW 20.76 COL 31 NO-LABEL
      td-show-parm AT ROW 21.71 COL 31
      lines-per-page AT ROW 23.24 COL 83.4 COLON-ALIGNED
      lv-font-no AT ROW 23.29 COL 28.6 COLON-ALIGNED
-     lv-font-name AT ROW 24.29 COL 28.4 COLON-ALIGNED NO-LABELS
+     lv-font-name AT ROW 24.29 COL 28.4 COLON-ALIGNED NO-LABEL
      tb_excel AT ROW 25.81 COL 62.6 RIGHT-ALIGNED
      tb_runExcel AT ROW 25.81 COL 84.6 RIGHT-ALIGNED
      fi_file AT ROW 26.71 COL 40.6 COLON-ALIGNED HELP
@@ -418,13 +429,13 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 28.38 COL 60
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 12.91 COL 3 WIDGET-ID 38
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 20.05 COL 3
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 12.91 COL 60.4 WIDGET-ID 44
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 12.91 COL 60.4 WIDGET-ID 44
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 20.05 COL 3
      RECT-6 AT ROW 19.57 COL 1
      RECT-8 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -456,15 +467,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 /* END WINDOW DEFINITION                                                */
@@ -490,16 +501,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -519,6 +520,14 @@ ASSIGN
 ASSIGN 
        begin_slm:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -609,7 +618,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -708,7 +717,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:51 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -777,7 +786,7 @@ DO:
        WHEN 6 THEN RUN output-to-port.
   END CASE. 
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:51 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -790,7 +799,7 @@ ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:51 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -817,7 +826,23 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:51 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Def
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Def C-Win
+ON CHOOSE OF Btn_Def IN FRAME FRAME-A /* Default */
+DO:
+  DEF VAR cSelectedList AS cha NO-UNDO.
+
+  RUN DisplaySelectionDefault.  /* task 04041406 */ 
+  RUN DisplaySelectionList2 .
+
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -829,7 +854,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:51 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -846,7 +871,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:51 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -858,7 +883,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:51 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1181,7 +1206,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:51 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -1207,6 +1232,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                OUTPUT ou-log,
                                OUTPUT ou-cust-int) .
   DO WITH FRAME {&FRAME-NAME}:
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:31 pm */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:31 pm */
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_cust.
@@ -1244,9 +1271,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:35 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:35 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:51 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1329,6 +1354,29 @@ PROCEDURE disable_UI :
   IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
   THEN DELETE WIDGET C-Win.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault C-Win 
+PROCEDURE DisplaySelectionDefault :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR cListContents AS cha NO-UNDO.
+  DEF VAR iCount AS INT NO-UNDO.
+
+  DO iCount = 1 TO NUM-ENTRIES(cTextListToDefault):
+
+     cListContents = cListContents +                   
+                    (IF cListContents = "" THEN ""  ELSE ",") +
+                     ENTRY(iCount,cTextListToDefault)   .
+  END.            
+  sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME} = cListContents. 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1441,9 +1489,9 @@ PROCEDURE enable_UI :
   ENABLE RECT-6 RECT-8 tb_cust-list btnCustList begin_cust end_cust 
          begin_cust-po end_cust-po begin_slm end_slm begin_job-no begin_job-no2 
          end_job-no end_job-no2 rd_itm-code rd_ostat rd_smry-dtl tb_sort 
-         tb_inc-zero tb_inc-cust sl_avail Btn_Add sl_selected Btn_Remove btn_Up 
-         btn_down rd-dest lv-ornt td-show-parm lines-per-page lv-font-no 
-         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         tb_inc-zero tb_inc-cust sl_avail sl_selected Btn_Def Btn_Add 
+         Btn_Remove btn_Up btn_down rd-dest lv-ornt td-show-parm lines-per-page 
+         lv-font-no tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

@@ -202,7 +202,7 @@ ON CHOOSE OF Btn-Update IN FRAME F-Main /* Select Bin/Tags */
 DO:
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"selbin-target",OUTPUT char-hdl).
    RUN select-bin IN WIDGET-HANDLE(char-hdl). 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:53 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */

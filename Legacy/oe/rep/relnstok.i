@@ -346,30 +346,7 @@ END.
                    tt-bin-file.ord-no   = w-oe-rell.ord-no .
                i        = i + 1.
              END.
-
-         
-    /*IF i EQ 0 THEN DO:
-      FIND FIRST b-cust
-      WHERE b-cust.company EQ cocode
-      AND b-cust.active  EQ "X"
-      NO-LOCK NO-ERROR.
-      IF avail b-cust THEN DO:
-        FIND FIRST b-ship
-        WHERE b-ship.company EQ cocode
-        AND b-ship.cust-no EQ b-cust.cust-no
-        NO-LOCK NO-ERROR.
-        IF avail b-ship THEN DO:
-          CREATE tt-bin-file.
-          ASSIGN
-          tt-bin-file.w-loc = b-ship.loc
-          tt-bin-file.w-bin = b-ship.loc-bin
-          tt-bin-file.w-i-no = w-oe-rell.i-no
-          tt-bin-file.ord-no = w-oe-rell.ord-no
-          i     = i + 1 .
-         
-        END.
-      END.
-    END.*/
+   
 
     IF i = 0 THEN do:
           create tt-bin-file.
@@ -430,14 +407,6 @@ FOR EACH tt-item NO-LOCK:
            sw = NO
            v-tot-count = 0.
 
-  
-/*   03261507 - this was causing extra partial              */
-/*   IF FIRST-OF(w-oe-rell.ord-no) THEN DO:                   */
-/*     ASSIGN v-tot-rqty = 0                                  */
-/*     sw = NO.                                               */
-/*   END.                                                     */
-
-  
   ASSIGN
   v-rel-qty = v-rel-qty + w-oe-rell.qty
   v-tot-rqty = v-tot-rqty + w-oe-rell.qty.
@@ -507,11 +476,27 @@ FOR EACH tt-item NO-LOCK:
                 w-bin.w-bin    = fg-bin.loc-bin
                 w-bin.w-qty[1] = fg-bin.qty
                 w-bin.w-qty[2] = fg-bin.qty
-                w-bin.w-unit-count = fg-bin.case-count
-                w-bin.w-units = TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0)
+                w-bin.w-unit-count  =  w-oe-rell.cases /*fg-bin.case-count*/
+                w-bin.w-units = w-oe-rell.qty-case /*TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0)*/
                 w-bin.w-i-no = fg-bin.i-no
                 i        = i + 1.
-
+                FIND FIRST bf-w-oe-rell NO-LOCK
+                                   WHERE  bf-w-oe-rell.company  EQ w-oe-rell.company
+                                      AND bf-w-oe-rell.r-no     EQ w-oe-rell.r-no
+                                      AND bf-w-oe-rell.ord-no   EQ w-oe-rell.ord-no
+                                      AND bf-w-oe-rell.i-no     EQ w-oe-rell.i-no
+                                      AND bf-w-oe-rell.line     EQ w-oe-rell.line
+                                      AND bf-w-oe-rell.rel-no   EQ w-oe-rell.rel-no
+                                      AND bf-w-oe-rell.b-ord-no EQ w-oe-rell.b-ord-no
+                                      AND bf-w-oe-rell.po-no    EQ w-oe-rell.po-no
+                                      AND bf-w-oe-rell.loc      EQ fg-bin.loc
+                                      AND bf-w-oe-rell.loc-bin  EQ fg-bin.loc-bin
+                                      AND bf-w-oe-rell.tag      EQ fg-bin.tag NO-ERROR.
+                IF AVAIL bf-w-oe-rell  THEN
+                    ASSIGN
+                    w-bin.w-unit-count  =  bf-w-oe-rell.cases /*fg-bin.case-count*/
+                    w-bin.w-units  = bf-w-oe-rell.qty-case .
+               RELEASE bf-w-oe-rell .
                RELEASE w-bin.
            end. /*each fg-bin*/
     
@@ -540,34 +525,14 @@ FOR EACH tt-item NO-LOCK:
       w-bin.w-bin    = bf-w-oe-rell.loc-bin
       w-bin.w-qty[1] = bf-w-oe-rell.qty
       w-bin.w-qty[2] = bf-w-oe-rell.qty
-      w-bin.w-unit-count = bf-w-oe-rell.cases
-      w-bin.w-units = TRUNC((bf-w-oe-rell.qty - bf-w-oe-rell.partial) / bf-w-oe-rell.cases,0)
+      w-bin.w-unit-count  = bf-w-oe-rell.cases
+      w-bin.w-units  = TRUNC((bf-w-oe-rell.qty - bf-w-oe-rell.partial) / bf-w-oe-rell.cases,0)
       w-bin.w-i-no = bf-w-oe-rell.i-no
       w-bin.w-set-no = bf-w-oe-rell.set-no
       i        = i + 1.
       
     END.
-    
-   /* IF i EQ 0 THEN DO:
-      FIND FIRST b-cust
-      WHERE b-cust.company EQ cocode
-      AND b-cust.active  EQ "X"
-      NO-LOCK NO-ERROR.
-      IF avail b-cust THEN DO:
-        FIND FIRST b-ship
-        WHERE b-ship.company EQ cocode
-        AND b-ship.cust-no EQ b-cust.cust-no
-        NO-LOCK NO-ERROR.
-        IF avail b-ship THEN DO:
-          CREATE w-bin.
-          ASSIGN
-          w-bin.w-loc = b-ship.loc
-          w-bin.w-bin = b-ship.loc-bin
-          i     = i + 1
-          w-bin.w-date-time = "29991201000000".
-        END.
-      END.
-    END.*/
+   
    
     DO i = i TO 7:
       CREATE w-bin.
@@ -667,8 +632,8 @@ FOR EACH tt-item NO-LOCK:
       w-oe-rell.ord-no WHEN FIRST(w-bin.w-date-time)
       v-bin
       w-bin.w-par
+      w-bin.w-unit-count 
       w-bin.w-units  
-      w-bin.w-unit-count  
       v-tot-rqty WHEN sw = NO
       v-rs WHEN sw = NO
       WITH FRAME rel-mid.

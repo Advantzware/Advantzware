@@ -248,7 +248,7 @@ END.
 ON CHOOSE OF BtnCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
     APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -303,7 +303,7 @@ DO:
   MESSAGE 'Modified ' viRecordCount ' record(s)!'
     VIEW-AS ALERT-BOX INFO BUTTONS OK.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -341,7 +341,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -356,9 +356,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   apply 'value-changed':u to cbImageType.
 
-    {methods/setButton.i BtnCancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:44:01 am */
-    {methods/setButton.i btnOk "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:44:01 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {methods/setButton.i BtnCancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:19 pm */
+    {methods/setButton.i btnOk "OK"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:19 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

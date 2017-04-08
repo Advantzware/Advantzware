@@ -499,8 +499,8 @@ DO:
   ELSE
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
     RUN enable_UI.
     RUN sys/ref/asicurseq.p (INPUT gcompany, INPUT "order_seq", OUTPUT giCurrOrd) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN
@@ -508,7 +508,7 @@ DO:
               VIEW-AS ALERT-BOX INFO BUTTONS OK.
     n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -537,8 +537,8 @@ DO:
     IF CAN-FIND(FIRST inv-head WHERE inv-head.company EQ gcompany AND
                 inv-head.multi-invoice = no) THEN
       DISABLE oe-ctrl.u-inv.
-    {methods/setButton.i Btn_Update "Save"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {methods/setButton.i Btn_Close "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {methods/setButton.i Btn_Update "Save"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
+    {methods/setButton.i Btn_Close "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
 
     APPLY "ENTRY" TO n-ord.
     n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
@@ -567,8 +567,8 @@ DO:
     oe-ctrl.spare-int-1 = (IF tgCreateSSBol THEN 1 ELSE 0).
     DISABLE {&LIST-1}.
     DISABLE tgCreateSSBol.
-    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
     FIND CURRENT ar-ctrl NO-LOCK.
 
     FIND company WHERE company.company EQ gcompany NO-LOCK NO-ERROR.
@@ -583,7 +583,7 @@ DO:
 
      FIND CURRENT oe-ctrl NO-LOCK.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -616,7 +616,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -668,9 +668,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   n-ord:SENSITIVE = NO.
   {methods/nowait.i}
 
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

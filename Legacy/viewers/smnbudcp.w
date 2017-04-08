@@ -195,7 +195,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'copy-source':U,OUTPUT char-hdl).
 
    RUN add-periods in WIDGET-HANDLE(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:48 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:55 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -210,7 +210,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'copy-source':U,OUTPUT char-hdl).
 
    RUN copy-periods in WIDGET-HANDLE(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:48 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:55 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -224,7 +224,7 @@ DO:
    def var char-hdl as cha no-undo.   
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'copy-source':U,OUTPUT char-hdl).
    RUN import-budgets in WIDGET-HANDLE(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:48 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:55 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */

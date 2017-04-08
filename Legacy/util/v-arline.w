@@ -553,7 +553,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME fMain /* Cancel */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -566,7 +566,7 @@ ON CHOOSE OF btn-del IN FRAME fMain /* Delete */
 DO:
     MESSAGE "Deletion of AR lines in NOT Allowed"
         VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -578,7 +578,7 @@ END.
 ON CHOOSE OF btn-exit IN FRAME fMain /* Exit */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -591,7 +591,7 @@ ON CHOOSE OF btn-update IN FRAME fMain /* Update */
 DO:
   RUN update-ar-invl.
   APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -613,7 +613,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -631,7 +631,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           ar-invl.i-no
           WITH FRAME fmain.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:19 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

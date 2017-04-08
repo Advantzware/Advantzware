@@ -455,7 +455,7 @@ DO:
     IF svAvailableSelections:IS-SELECTED(i) THEN
     svAvailableSelections:SCREEN-VALUE = "".
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -467,7 +467,7 @@ END.
 ON CHOOSE OF btnCancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -498,7 +498,7 @@ DO:
     OTHERWISE
     svStatus:SCREEN-VALUE = "DELETE Cancelled".
   END CASE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -546,7 +546,7 @@ DO:
       svStatus:SCREEN-VALUE = "DESCRIPTION Lookup Created"
       .
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -567,7 +567,7 @@ DO:
       .
     LEAVE.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -605,7 +605,7 @@ DO:
     IF AVAILABLE prgrms THEN
     svFrameTitle:SCREEN-VALUE = prgrms.prgtitle + " Lookup".
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -618,7 +618,7 @@ ON CHOOSE OF btnOK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   APPLY "CHOOSE" TO btnSave.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -631,7 +631,7 @@ ON CHOOSE OF btnRemove IN FRAME DEFAULT-FRAME /* Remove */
 DO:
   IF sHandle:SCREEN-VALUE NE "" THEN
   APPLY "DEFAULT-ACTION" TO sHandle.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -649,7 +649,7 @@ DO:
     svOrderValues:SENSITIVE = NOT svAutoSet
     svStatus:SCREEN-VALUE = "Lookup Record RESET"
     .
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -823,7 +823,7 @@ DO:
     btnCancel:LABEL = "&Close"
     svStatus:SCREEN-VALUE = "Lookup SAVEd"
     .
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -844,7 +844,7 @@ DO:
       .
     LEAVE.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -987,7 +987,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -1004,7 +1004,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   APPLY "VALUE-CHANGED" TO svSelectedSet.
   {methods/enhance.i}
   {methods/nowait.i}
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:58 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

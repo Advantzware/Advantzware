@@ -6,7 +6,7 @@ RUN refreshCallingBrowse.
 
 PROCEDURE refreshCallingBrowse:
   DEFINE VARIABLE phandle AS WIDGET-HANDLE NO-UNDO.
-  
+
   phandle = SESSION:FIRST-PROCEDURE.
   DO WHILE VALID-HANDLE(phandle):
     IF INDEX(phandle:FILE-NAME,'w-oeinv.') NE 0 THEN DO:

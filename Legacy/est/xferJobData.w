@@ -668,7 +668,7 @@ END.
 ON CHOOSE OF btnApplyDateFilter IN FRAME DEFAULT-FRAME /* Select Jobs Using Date Range */
 DO:
   RUN applyDateFilter.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:30 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -680,7 +680,7 @@ END.
 ON CHOOSE OF btnApplyJobFilter IN FRAME DEFAULT-FRAME /* Select Jobs Using Job # Range */
 DO:
   RUN applyJobFilter.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:30 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -692,7 +692,7 @@ END.
 ON CHOOSE OF btnApplyQtyFilter IN FRAME DEFAULT-FRAME /* Select Jobs Using Quantity Range */
 DO:
   RUN applyQtyFilter.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:30 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -704,7 +704,7 @@ END.
 ON CHOOSE OF btnSubmit IN FRAME DEFAULT-FRAME /* Transfer "Actual Job Data" to "Estimate Standards" */
 DO:
   RUN submitJobData.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:30 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -716,7 +716,7 @@ END.
 ON CHOOSE OF btnSubmitDownLeft IN FRAME DEFAULT-FRAME
 DO:
   RUN submitJobData.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:30 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -728,7 +728,7 @@ END.
 ON CHOOSE OF btnSubmitDownRight IN FRAME DEFAULT-FRAME
 DO:
   RUN submitJobData.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:30 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -879,7 +879,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
 DO:
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:30 pm */
 END.
   RUN disable_UI.
 END.
@@ -962,7 +962,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   HIDE {&FILTERS}.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:30 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

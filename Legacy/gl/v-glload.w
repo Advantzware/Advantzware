@@ -191,7 +191,7 @@ DO:
 
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
     RUN load-recurring IN WIDGET-HANDLE(char-hdl) NO-ERROR.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:53 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */

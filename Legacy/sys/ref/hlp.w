@@ -33,6 +33,8 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
+
 DEF INPUT PARAM ip-field AS cha NO-UNDO.
 DEF INPUT PARAM ip-table AS cha NO-UNDO.
 DEF INPUT PARAM ip-db AS cha NO-UNDO.
@@ -413,19 +415,32 @@ DEFINE VARIABLE fr-fram  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE fr-field  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE fr-file  AS CHARACTER NO-UNDO.
 DEFINE VARIABLE fr-flags AS CHAR NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
-FIND FIRST sys-ctrl  WHERE sys-ctrl.name    EQ "AsiHelpClientID"
-        NO-LOCK NO-ERROR.
+FIND FIRST sys-ctrl NO-LOCK
+     WHERE sys-ctrl.name    EQ "AsiHelpClientID"
+       AND sys-ctrl.company EQ g_company  NO-ERROR.
   IF AVAIL sys-ctrl THEN
         vclint = sys-ctrl.char-fld  .
+  ELSE DO:
+      RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpClientID", "C" /* Logical */, NO /* check by cust */, 
+            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+            OUTPUT cRtnChar, OUTPUT lRecFound).
+  END.
   RELEASE sys-ctrl .
 
-FIND FIRST sys-ctrl  WHERE sys-ctrl.name    EQ "AsiHelpService"
-        NO-LOCK NO-ERROR.
+FIND FIRST sys-ctrl  NO-LOCK
+     WHERE sys-ctrl.name    EQ "AsiHelpService"
+       AND sys-ctrl.company EQ g_company  NO-ERROR.
   IF AVAIL sys-ctrl THEN
       ASSIGN vconn = sys-ctrl.char-fld .
-  ELSE
+  ELSE do:
       vconn = "".
+      RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpService", "C" /* Logical */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cRtnChar, OUTPUT lRecFound).
+  END.
   RELEASE sys-ctrl .
 
       CREATE SERVER vhWebService.

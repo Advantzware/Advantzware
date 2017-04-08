@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 03.28.2017 @ 10:44:12 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.07.2017 @  2:08:04 pm */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -30,7 +30,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE yellowColumnsName b-jmchfi
 &SCOPED-DEFINE noSortByField
 &SCOPED-DEFINE SORTBY-PHRASE ~
-BY STRING(mch.form-no,'999') BY STRING(mch.blank-no,'999') BY STRING(mch.line,'999')
+BY STRING(mch.form-no,"999") BY STRING(mch.blank-no,"999") BY STRING(mch.line,"999")
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
 

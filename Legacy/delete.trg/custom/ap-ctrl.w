@@ -55,8 +55,9 @@ CREATE WIDGET-POOL.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
@@ -65,15 +66,19 @@ CREATE WIDGET-POOL.
 /* Definitions for FRAME DEFAULT-FRAME                                  */
 &Scoped-define FIELDS-IN-QUERY-DEFAULT-FRAME ap-ctrl.payables ~
 ap-ctrl.purchases ap-ctrl.cash-act ap-ctrl.discount ap-ctrl.stax 
+&Scoped-define QUERY-STRING-DEFAULT-FRAME FOR EACH ap-ctrl SHARE-LOCK
 &Scoped-define OPEN-QUERY-DEFAULT-FRAME OPEN QUERY DEFAULT-FRAME FOR EACH ap-ctrl SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-DEFAULT-FRAME ap-ctrl
 &Scoped-define FIRST-TABLE-IN-QUERY-DEFAULT-FRAME ap-ctrl
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-16 RECT-15 Btn_Update Btn_Close 
+&Scoped-Define ENABLED-OBJECTS RECT-16 Btn_Update Btn_Close 
 &Scoped-Define DISPLAYED-FIELDS ap-ctrl.payables ap-ctrl.purchases ~
 ap-ctrl.cash-act ap-ctrl.discount ap-ctrl.stax 
+&Scoped-define DISPLAYED-TABLES ap-ctrl
+&Scoped-define FIRST-DISPLAYED-TABLE ap-ctrl
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -126,11 +131,11 @@ DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1"
      BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
 
 DEFINE RECTANGLE RECT-15
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 33 BY 1.67.
 
 DEFINE RECTANGLE RECT-16
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 51 BY 6.19.
 
 /* Query definitions                                                    */
@@ -214,29 +219,34 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
-ASSIGN
+   FRAME-NAME                                                           */
+ASSIGN 
        Btn_Close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        Btn_Update:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
-
 
 /* SETTINGS FOR FILL-IN ap-ctrl.cash-act IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
@@ -271,6 +281,8 @@ ASSIGN
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ap-ctrl.purchases IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
+/* SETTINGS FOR RECTANGLE RECT-15 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ap-ctrl.stax IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -289,8 +301,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
-
-
+ 
 
 
 
@@ -331,11 +342,11 @@ DO:
   ELSE
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
     RUN enable_UI.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -350,19 +361,19 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE {&LIST-1}.
     DISPLAY {&F1}.
-    {methods/setButton.i Btn_Update "Save"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {methods/setButton.i Btn_Close "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {methods/setButton.i Btn_Update "Save"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
+    {methods/setButton.i Btn_Close "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
     APPLY "ENTRY" TO ap-ctrl.payables.
   END.
   ELSE
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE {&LIST-1}.
     HIDE {&F1} NO-PAUSE.
-    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
     ASSIGN {&LIST-1}.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -489,7 +500,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -503,9 +514,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
   RUN enable_UI.
   {methods/nowait.i}
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -516,7 +527,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -535,8 +546,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -554,7 +564,7 @@ PROCEDURE enable_UI :
     DISPLAY ap-ctrl.payables ap-ctrl.purchases ap-ctrl.cash-act ap-ctrl.discount 
           ap-ctrl.stax 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-16 RECT-15 Btn_Update Btn_Close 
+  ENABLE RECT-16 Btn_Update Btn_Close 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -562,5 +572,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

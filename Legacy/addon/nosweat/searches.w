@@ -52,16 +52,17 @@ DEFINE VARIABLE data-format AS CHARACTER NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Get_Field m-where-statement ~
-m-order-values auto_set selected-set Btn_UP show-fields order-fields ~
-select-list Btn_Add Btn_Remove Btn_Down m-frame-title m-top-include ~
-m-def-include m-end-include m-ui-prgmname m-font m-height-size m-width-size ~
-RECT-1 RECT-2 Btn_Reset Btn_Save Btn_Delete Btn_Cancel Btn_OK 
+&Scoped-Define ENABLED-OBJECTS Btn_Get_Field RECT-1 RECT-2 ~
+m-where-statement m-order-values auto_set selected-set Btn_UP show-fields ~
+order-fields select-list Btn_Add Btn_Remove Btn_Down m-frame-title ~
+m-top-include m-def-include m-end-include m-ui-prgmname m-font ~
+m-height-size m-width-size Btn_Reset Btn_Save Btn_Delete Btn_Cancel Btn_OK 
 &Scoped-Define DISPLAYED-OBJECTS m-search-prgm m-search-db m-search-file ~
 m-return-field m-where-statement m-order-values auto_set m-word-field ~
 selected-set show-fields order-fields select-list m-frame-title ~
@@ -141,6 +142,7 @@ DEFINE VARIABLE m-font AS INTEGER FORMAT "9":U INITIAL 4
      LABEL "Font" 
      VIEW-AS COMBO-BOX INNER-LINES 8
      LIST-ITEMS "0","1","2","3","4","5","6","7" 
+     DROP-DOWN-LIST
      SIZE 7 BY 1 NO-UNDO.
 
 DEFINE VARIABLE m-where-statement AS CHARACTER 
@@ -231,11 +233,11 @@ DEFINE VARIABLE selected-set AS INTEGER INITIAL 1
      SIZE 64.8 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 47.6 BY 2.
 
 DEFINE RECTANGLE RECT-2
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 32.2 BY 2.
 
 DEFINE VARIABLE order-fields AS CHARACTER 
@@ -362,30 +364,27 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
-ASSIGN
-       Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
-
-ASSIGN
-       Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
-
+   FRAME-NAME                                                           */
 /* SETTINGS FOR FILL-IN F1 IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L 6                                                  */
 /* SETTINGS FOR FILL-IN m-return-field IN FRAME DEFAULT-FRAME
@@ -406,8 +405,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
-
+ 
 
 
 
@@ -466,7 +464,7 @@ DO:
     IF select-list:IS-SELECTED(i) THEN
     select-list:SCREEN-VALUE = "".
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -478,7 +476,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -510,7 +508,7 @@ DO:
     OTHERWISE
     m_status:SCREEN-VALUE = "DELETE Cancelled".
   END CASE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -531,7 +529,7 @@ DO:
       shandle:SCREEN-VALUE = shandle:ENTRY(i + 1).
     LEAVE.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -568,7 +566,7 @@ DO:
     IF AVAILABLE prgrms THEN
     m-frame-title:SCREEN-VALUE = prgrms.prgtitle + " Search".
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -581,7 +579,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   APPLY "CHOOSE" TO Btn_Save.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -594,7 +592,7 @@ ON CHOOSE OF Btn_Remove IN FRAME DEFAULT-FRAME /* Remove */
 DO:
   IF shandle:SCREEN-VALUE NE "" THEN
   APPLY "DEFAULT-ACTION" TO shandle.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -611,7 +609,7 @@ DO:
   ASSIGN
     m-order-values:SENSITIVE = NOT auto_set
     m_status:SCREEN-VALUE = "Search Record RESET".
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -784,9 +782,10 @@ DO:
   IF compile-search THEN
   COMPILE VALUE("searches/" + m_search_prgm + "p") SAVE.
 
-    {methods/setButton.i Btn_Cancel "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
+  ASSIGN
+    Btn_Cancel:LABEL = "&Close"
     m_status:SCREEN-VALUE = "Search SAVEd".
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -807,7 +806,7 @@ DO:
       shandle:SCREEN-VALUE = shandle:ENTRY(i - 1).
     LEAVE.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -946,7 +945,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -963,9 +962,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   APPLY "VALUE-CHANGED" TO selected-set.
   {methods/enhance.i}
   {methods/nowait.i}
-    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1002,8 +999,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -1022,8 +1018,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -1040,10 +1035,10 @@ PROCEDURE enable_UI :
           m-def-include m-end-include m-ui-prgmname m_status m-font 
           m-height-size m-width-size F1 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE Btn_Get_Field m-where-statement m-order-values auto_set selected-set 
-         Btn_UP show-fields order-fields select-list Btn_Add Btn_Remove 
-         Btn_Down m-frame-title m-top-include m-def-include m-end-include 
-         m-ui-prgmname m-font m-height-size m-width-size RECT-1 RECT-2 
+  ENABLE Btn_Get_Field RECT-1 RECT-2 m-where-statement m-order-values auto_set 
+         selected-set Btn_UP show-fields order-fields select-list Btn_Add 
+         Btn_Remove Btn_Down m-frame-title m-top-include m-def-include 
+         m-end-include m-ui-prgmname m-font m-height-size m-width-size 
          Btn_Reset Btn_Save Btn_Delete Btn_Cancel Btn_OK 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
@@ -1052,7 +1047,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get_Search C-Win 
 PROCEDURE Get_Search :
@@ -1095,5 +1089,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

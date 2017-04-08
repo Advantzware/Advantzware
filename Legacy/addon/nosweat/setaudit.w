@@ -51,8 +51,9 @@ DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
@@ -134,14 +135,14 @@ DEFINE FRAME DEFAULT-FRAME
           "Use this function to CANCEL field selecition"
      Btn_OK AT ROW 23.14 COL 26 HELP
           "Use this function to ACCEPT selected field"
-     "Database Names" VIEW-AS TEXT
-          SIZE 20 BY 1 AT ROW 1 COL 3
+     "Table Names" VIEW-AS TEXT
+          SIZE 15.6 BY 1 AT ROW 7.91 COL 4
           FONT 6
      "Tables to Audit" VIEW-AS TEXT
           SIZE 18 BY 1 AT ROW 1 COL 45
           FONT 6
-     "Table Names" VIEW-AS TEXT
-          SIZE 15.6 BY 1 AT ROW 7.91 COL 4
+     "Database Names" VIEW-AS TEXT
+          SIZE 20 BY 1 AT ROW 1 COL 3
           FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -185,23 +186,31 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
-ASSIGN
+   FRAME-NAME                                                           */
+ASSIGN 
        Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
-
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -209,8 +218,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
-
+ 
 
 
 
@@ -253,7 +261,7 @@ DO:
     ldummy = audit-tables:ADD-LAST(table-names:ENTRY(i)).
   END.
   table-names:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -267,7 +275,7 @@ DO:
   DO i = 1 TO audit-tables:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
     audit-tables:SCREEN-VALUE = audit-tables:ENTRY(i).
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -279,7 +287,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -293,7 +301,7 @@ DO:
   FIND FIRST config EXCLUSIVE-LOCK.
   config.audit_tables = audit-tables:LIST-ITEMS IN FRAME {&FRAME-NAME}.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -308,7 +316,7 @@ DO:
     IF audit-tables:IS-SELECTED(i) THEN
     ldummy = audit-tables:DELETE(i).
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -322,7 +330,7 @@ DO:
   DO i = 1 TO table-names:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
     table-names:SCREEN-VALUE = table-names:ENTRY(i).
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -357,7 +365,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -382,9 +390,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RETURN.
   audit-tables:LIST-ITEMS IN FRAME {&FRAME-NAME} = config.audit_tables.
   {methods/nowait.i}
-    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:11 pm */
+    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:11 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -395,7 +403,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -414,8 +422,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -438,7 +445,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get_DBs C-Win 
 PROCEDURE Get_DBs :
 /* -----------------------------------------------------------
@@ -457,7 +463,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get_Tables C-Win 
 PROCEDURE Get_Tables :
@@ -479,7 +484,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus C-Win 
 PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
@@ -493,5 +497,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

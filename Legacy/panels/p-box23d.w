@@ -204,7 +204,7 @@ DO:
    IF valid-handle(widget-handle(char-hdl))
       THEN RUN swap-image IN WIDGET-HANDLE(char-hdl) ("2d").
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:43 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:47 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -222,7 +222,7 @@ DO:
    IF valid-handle(widget-handle(char-hdl))
       THEN RUN swap-image IN WIDGET-HANDLE(char-hdl) ("3d").
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:43 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:47 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */

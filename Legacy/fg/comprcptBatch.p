@@ -79,7 +79,7 @@ DO:
     FIND FIRST fg-rctd EXCLUSIVE-LOCK WHERE 
       fg-rctd.company EQ ipcCompany
         AND fg-rctd.tag EQ ipcTag 
-        AND fg-rctd.rita-code EQ 'R'
+        AND fg-rctd.rita-code EQ 'R' NO-ERROR.
      IF NOT AVAILABLE fg-rctd THEN
         RETURN. 
       

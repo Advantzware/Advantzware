@@ -58,6 +58,7 @@ def var lv-sell-by-list as cha init "NG" no-undo.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
 /* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
@@ -85,14 +86,15 @@ ce-ctrl.spec-add[1] ce-ctrl.spec-add[2] ce-ctrl.spec-add[3] ~
 ce-ctrl.mat-cost[6] ce-ctrl.mat-pct[6] ce-ctrl.lab-cost[6] ~
 ce-ctrl.lab-pct[6] ce-ctrl.spec-add[6] ce-ctrl.spec-add[7] ~
 ce-ctrl.spec-add[8] 
+&Scoped-define QUERY-STRING-DEFAULT-FRAME FOR EACH ce-ctrl SHARE-LOCK
 &Scoped-define OPEN-QUERY-DEFAULT-FRAME OPEN QUERY DEFAULT-FRAME FOR EACH ce-ctrl SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-DEFAULT-FRAME ce-ctrl
 &Scoped-define FIRST-TABLE-IN-QUERY-DEFAULT-FRAME ce-ctrl
 
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-22 RECT-21 RECT-20 RECT-15 RECT-23 ~
-Btn_Update Btn_Close 
+&Scoped-Define ENABLED-OBJECTS RECT-22 RECT-21 RECT-20 RECT-23 Btn_Update ~
+Btn_Close 
 &Scoped-Define DISPLAYED-FIELDS ce-ctrl.e-num ce-ctrl.e-range[1] ~
 ce-ctrl.e-range[2] ce-ctrl.q-num ce-ctrl.q-range[1] ce-ctrl.q-range[2] ~
 ce-ctrl.ls-width ce-ctrl.ls-triml ce-ctrl.fg-rate ce-ctrl.ls-length ~
@@ -111,6 +113,8 @@ ce-ctrl.lab-cost[5] ce-ctrl.lab-pct[5] ce-ctrl.shp-add ce-ctrl.spec-add[1] ~
 ce-ctrl.spec-add[2] ce-ctrl.spec-add[3] ce-ctrl.mat-cost[6] ~
 ce-ctrl.mat-pct[6] ce-ctrl.lab-cost[6] ce-ctrl.lab-pct[6] ~
 ce-ctrl.spec-add[6] ce-ctrl.spec-add[7] ce-ctrl.spec-add[8] 
+&Scoped-define DISPLAYED-TABLES ce-ctrl
+&Scoped-define FIRST-DISPLAYED-TABLE ce-ctrl
 &Scoped-Define DISPLAYED-OBJECTS avg_cost rd-sp-1 rd-sp-2 rd-sp-3 ~
 ls-mtx-title ls-title1 ls-title2 ls-title3 ls-title4 
 
@@ -204,23 +208,23 @@ DEFINE VARIABLE rd-sp-3 AS INTEGER
      SIZE 12 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-15
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 33 BY 1.67.
 
 DEFINE RECTANGLE RECT-20
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 54 BY 8.81.
 
 DEFINE RECTANGLE RECT-21
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 54 BY 8.33.
 
 DEFINE RECTANGLE RECT-22
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 59 BY 8.81.
 
 DEFINE RECTANGLE RECT-23
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 59 BY 8.33.
 
 /* Query definitions                                                    */
@@ -335,7 +339,11 @@ DEFINE FRAME DEFAULT-FRAME
           VIEW-AS FILL-IN 
           SIZE 15.6 BY 1
           BGCOLOR 15 
-.
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 124.6 BY 22.43.
+
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
      ce-ctrl.comm-mrkup AT ROW 10.29 COL 38 COLON-ALIGNED
@@ -425,13 +433,17 @@ DEFINE FRAME DEFAULT-FRAME
           VIEW-AS FILL-IN 
           SIZE 11.8 BY 1
           BGCOLOR 15 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 124.6 BY 22.43.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME DEFAULT-FRAME
      ce-ctrl.lab-pct[3] AT ROW 16.48 COL 43 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-.
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME DEFAULT-FRAME
      ce-ctrl.prof-mrkup AT ROW 16.95 COL 87 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
@@ -519,35 +531,39 @@ DEFINE FRAME DEFAULT-FRAME
           LABEL "Royal"
           VIEW-AS TOGGLE-BOX
           SIZE 11 BY .81
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 124.6 BY 22.43.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME DEFAULT-FRAME
      Btn_Update AT ROW 21.95 COL 69 HELP
           "Update/Save System Configurations"
      Btn_Close AT ROW 21.95 COL 85 HELP
           "Cancel Update or Close Window"
      ls-mtx-title AT ROW 12.67 COL 3 COLON-ALIGNED NO-LABEL
-.
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME DEFAULT-FRAME
      ls-title1 AT ROW 13.38 COL 4 COLON-ALIGNED NO-LABEL
      ls-title2 AT ROW 13.38 COL 15 COLON-ALIGNED NO-LABEL
      ls-title3 AT ROW 13.38 COL 34 COLON-ALIGNED NO-LABEL
      ls-title4 AT ROW 13.38 COL 44 COLON-ALIGNED NO-LABEL
-     RECT-22 AT ROW 3.86 COL 57
-     RECT-21 AT ROW 12.91 COL 2
-     RECT-20 AT ROW 3.86 COL 2
-     RECT-15 AT ROW 21.71 COL 68
-     "Add to Fact. Costs" VIEW-AS TEXT
-          SIZE 18 BY .81 AT ROW 19.33 COL 58
-     "Press Feed Type:" VIEW-AS TEXT
-          SIZE 16.6 BY 1 AT ROW 6.71 COL 7
-     "Estimating Defaults" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 3.62 COL 4
+     "What If/Print Options" VIEW-AS TEXT
+          SIZE 25 BY .62 AT ROW 12.67 COL 59
           FONT 6
      "Mark Up Options" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 3.62 COL 59
           FONT 6
-     "What If/Print Options" VIEW-AS TEXT
-          SIZE 25 BY .62 AT ROW 12.67 COL 59
+     "Estimating Defaults" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 3.62 COL 4
           FONT 6
+     "Press Feed Type:" VIEW-AS TEXT
+          SIZE 16.6 BY 1 AT ROW 6.71 COL 7
+     "Add to Fact. Costs" VIEW-AS TEXT
+          SIZE 18 BY .81 AT ROW 19.33 COL 58
+     RECT-22 AT ROW 3.86 COL 57
+     RECT-21 AT ROW 12.91 COL 2
+     RECT-20 AT ROW 3.86 COL 2
+     RECT-15 AT ROW 21.71 COL 68
      RECT-23 AT ROW 12.91 COL 57
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -589,32 +605,37 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
-ASSIGN
+/* SETTINGS FOR RADIO-SET avg_cost IN FRAME DEFAULT-FRAME
+   NO-ENABLE 1                                                          */
+ASSIGN 
        Btn_Close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        Btn_Update:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-/* SETTINGS FOR RADIO-SET avg_cost IN FRAME DEFAULT-FRAME
-   NO-ENABLE 1                                                          */
 /* SETTINGS FOR TOGGLE-BOX ce-ctrl.comm-add IN FRAME DEFAULT-FRAME
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN ce-ctrl.comm-mrkup IN FRAME DEFAULT-FRAME
@@ -725,6 +746,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RADIO-SET rd-sp-3 IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-15 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ce-ctrl.rm-rate IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ce-ctrl.sell-by IN FRAME DEFAULT-FRAME
@@ -775,8 +798,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
-
-
+ 
 
 
 
@@ -865,11 +887,11 @@ DO:
   ELSE
   DO WITH FRAME {&FRAME-NAME}:  
     DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
     RUN enable_UI.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -883,8 +905,8 @@ DO:
   IF {&SELF-NAME}:LABEL = "&Update" THEN
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE {&LIST-1}.
-    {methods/setButton.i Btn_Update "Save"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {methods/setButton.i Btn_Close "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {methods/setButton.i Btn_Update "Save"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
+    {methods/setButton.i Btn_Close "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
     APPLY "ENTRY" TO ce-ctrl.e-num.
   END.
   ELSE
@@ -894,12 +916,12 @@ DO:
     if error-status:error then return no-apply.
 
     DISABLE {&LIST-1}.
-    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
     find current ce-ctrl exclusive-lock.  
     ASSIGN {&LIST-1}.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -998,7 +1020,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -1043,9 +1065,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
 
   {methods/nowait.i}
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1056,7 +1078,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -1075,8 +1097,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -1112,7 +1133,7 @@ PROCEDURE enable_UI :
           ce-ctrl.lab-cost[6] ce-ctrl.lab-pct[6] ce-ctrl.spec-add[6] 
           ce-ctrl.spec-add[7] ce-ctrl.spec-add[8] 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE RECT-22 RECT-21 RECT-20 RECT-15 RECT-23 Btn_Update Btn_Close 
+  ENABLE RECT-22 RECT-21 RECT-20 RECT-23 Btn_Update Btn_Close 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1120,7 +1141,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validate C-Win 
 PROCEDURE validate :
@@ -1147,5 +1167,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

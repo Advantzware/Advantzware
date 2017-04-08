@@ -273,7 +273,7 @@ DO:
        RUN set-rec-key IN WIDGET-HANDLE(char-hdl).
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -329,7 +329,7 @@ DO:
         RUN reopen-po-ord-query.
       END.
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -342,7 +342,7 @@ ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
 DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
    run delete_item in widget-handle(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -360,7 +360,7 @@ DO:
         RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(po-ordl)).
 /*         RUN reopen-po-ord-query. */
     END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -407,7 +407,7 @@ DO:
           RETURN NO-APPLY.
       END.
     END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -420,7 +420,7 @@ ON CHOOSE OF btn-scores IN FRAME F-Main /* Scores */
 DO:
   IF AVAIL po-ordl THEN
      run po/d-scores.w (ROWID(po-ordl)).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -433,7 +433,7 @@ ON CHOOSE OF Btn-View IN FRAME F-Main /* View */
 DO:
    IF AVAIL po-ord THEN
       run po/d-poordl.w (recid(po-ordl), po-ord.po-no, "view"). 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */

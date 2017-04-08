@@ -466,7 +466,7 @@ DEFINE VARIABLE lbl_po-no AS CHARACTER FORMAT "X(256)":U INITIAL "Print PO from:
      SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE scr-label-file AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Label Matrix Label File" 
+     LABEL "Print Format" 
      VIEW-AS FILL-IN 
      SIZE 68 BY 1 NO-UNDO.
 
@@ -576,7 +576,7 @@ DEFINE VARIABLE tb_override-mult AS LOGICAL INITIAL no
      SIZE 37 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_print-view AS LOGICAL INITIAL no 
-     LABEL "Xprint Preview?" 
+     LABEL "Preview?" 
      VIEW-AS TOGGLE-BOX
      SIZE 19.6 BY 1 NO-UNDO.
 
@@ -1169,7 +1169,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:02 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:48 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1207,7 +1207,7 @@ DO:
 
   IF scr-auto-print AND scr-label-file = "" THEN
   DO:
-    {methods/setButton.i MESSAGE "Label Matrix Label File cannot be blank." "blank"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:45 am */
+    MESSAGE "Label Matrix Label File cannot be blank."
          VIEW-AS ALERT-BOX ERROR BUTTONS OK.
      APPLY "ENTRY":U TO scr-label-file IN FRAME {&FRAME-NAME}.
      RETURN NO-APPLY.
@@ -1220,7 +1220,7 @@ DO:
      APPLY "entry" TO fi_cas-lab.
      RETURN NO-APPLY.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:02 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:48 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2254,7 +2254,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:02 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:48 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -2387,6 +2387,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      scr-auto-print:SCREEN-VALUE = STRING(sys-ctrl.log-fld).
     /* gdm - 04090909 end */
 
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:15 pm */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:15 pm */
     {custom/usrprint.i}   
     ASSIGN 
         tb_ship-id:SCREEN-VALUE = "NO"
@@ -2600,9 +2602,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   lForm = NO.
   iForm = 0.
 
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:45 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:45 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:43:02 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:48 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 
@@ -7006,12 +7006,12 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
 
     IF tb_print-view THEN DO:
         IF NOT lBussFormModle THEN
-           PUT "<PREVIEW><MODAL=NO>" FORM "x(30)".
+           PUT "<PREVIEW><MODAL=NO>" FORM "x(50)".
          ELSE
            PUT "<PREVIEW>" FORM "x(30)".
     END.
     ELSE DO:
-       PUT "<PRINTER?>" FORM "x(30)".
+       PUT "<PRINTER?><FORMAT=LEGAL>" FORM "x(30)".
     END.
 
     DO WITH FRAME {&FRAME-NAME}:

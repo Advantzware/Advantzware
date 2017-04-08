@@ -54,6 +54,7 @@ DEFINE VARIABLE save-rowid AS ROWID NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
 /* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
@@ -65,7 +66,13 @@ DEFINE VARIABLE save-rowid AS ROWID NO-UNDO.
 /* Definitions for BROWSE companies                                     */
 &Scoped-define FIELDS-IN-QUERY-companies company.company company.name 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-companies 
-&Scoped-define FIELD-PAIRS-IN-QUERY-companies
+&Scoped-define QUERY-STRING-companies FOR EACH usercomp ~
+      WHERE usercomp.user_id = USERID('NOSWEAT') AND ~
+usercomp.loc = '' AND ~
+(IF g_init THEN usercomp.company_default = yes ~
+ ELSE TRUE) NO-LOCK, ~
+      EACH company WHERE TRUE /* Join to usercomp incomplete */ ~
+      AND company.company = usercomp.company NO-LOCK
 &Scoped-define OPEN-QUERY-companies OPEN QUERY companies FOR EACH usercomp ~
       WHERE usercomp.user_id = USERID('NOSWEAT') AND ~
 usercomp.loc = '' AND ~
@@ -75,12 +82,19 @@ usercomp.loc = '' AND ~
       AND company.company = usercomp.company NO-LOCK.
 &Scoped-define TABLES-IN-QUERY-companies usercomp company
 &Scoped-define FIRST-TABLE-IN-QUERY-companies usercomp
+&Scoped-define SECOND-TABLE-IN-QUERY-companies company
 
 
 /* Definitions for BROWSE locations                                     */
 &Scoped-define FIELDS-IN-QUERY-locations loc.loc loc.dscr 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-locations 
-&Scoped-define FIELD-PAIRS-IN-QUERY-locations
+&Scoped-define QUERY-STRING-locations FOR EACH usercomp ~
+      WHERE usercomp.user_id = USERID("NOSWEAT") AND ~
+usercomp.company = company.company AND ~
+usercomp.loc NE "" AND ~
+(IF g_init THEN usercomp.loc_default = yes ~
+ ELSE TRUE) NO-LOCK, ~
+      EACH loc OF usercomp NO-LOCK
 &Scoped-define OPEN-QUERY-locations OPEN QUERY locations FOR EACH usercomp ~
       WHERE usercomp.user_id = USERID("NOSWEAT") AND ~
 usercomp.company = company.company AND ~
@@ -90,6 +104,7 @@ usercomp.loc NE "" AND ~
       EACH loc OF usercomp NO-LOCK.
 &Scoped-define TABLES-IN-QUERY-locations usercomp loc
 &Scoped-define FIRST-TABLE-IN-QUERY-locations usercomp
+&Scoped-define SECOND-TABLE-IN-QUERY-locations loc
 
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
@@ -143,8 +158,8 @@ DEFINE QUERY locations FOR
 DEFINE BROWSE companies
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS companies C-Win _STRUCTURED
   QUERY companies NO-LOCK DISPLAY
-      company.company
-      company.name
+      company.company FORMAT "x(3)":U
+      company.name FORMAT "x(30)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 45 BY 6.67.
@@ -152,8 +167,8 @@ DEFINE BROWSE companies
 DEFINE BROWSE locations
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS locations C-Win _STRUCTURED
   QUERY locations NO-LOCK DISPLAY
-      loc.loc
-      loc.dscr
+      loc.loc FORMAT "x(5)":U
+      loc.dscr FORMAT "x(30)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 44 BY 6.67.
@@ -214,32 +229,37 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
-ASSIGN
+/* BROWSE-TAB companies TEXT-1 DEFAULT-FRAME */
+/* BROWSE-TAB locations companies DEFAULT-FRAME */
+ASSIGN 
        Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-/* BROWSE-TAB companies TEXT-1 DEFAULT-FRAME */
-/* BROWSE-TAB locations companies DEFAULT-FRAME */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -279,8 +299,7 @@ usercomp.loc NE """" AND
 */  /* BROWSE locations */
 &ANALYZE-RESUME
 
-
-
+ 
 
 
 
@@ -317,7 +336,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -330,7 +349,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   RUN Set-comp_loc.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -387,7 +406,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -418,9 +437,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   DISPLAY sysdate WITH FRAME {&FRAME-NAME}.
   {methods/enhance.i}
   {methods/nowait.i}
-    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:31 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:46 am */
+    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
+    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:29 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
   IF onlyone THEN
@@ -433,7 +452,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -452,8 +471,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -474,7 +492,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-comp_loc C-Win 
 PROCEDURE Set-comp_loc :
@@ -509,7 +526,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Period C-Win 
 PROCEDURE Set-Period :
 /*------------------------------------------------------------------------------
@@ -530,5 +546,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

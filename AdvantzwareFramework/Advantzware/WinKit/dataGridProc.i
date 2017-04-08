@@ -64,10 +64,10 @@ PROCEDURE pApplyFilterHandler:
                  .
       END. /* do idx */
       
-      MESSAGE
-      AVAILABLE (mach) SKIP 
-      cQuery
-      VIEW-AS ALERT-BOX.
+/*      MESSAGE              */
+/*      AVAILABLE (mach) SKIP*/
+/*      cQuery               */
+/*      VIEW-AS ALERT-BOX.   */
 
       QUERY {&BROWSE-NAME}:QUERY-PREPARE (cQuery).
       QUERY {&BROWSE-NAME}:QUERY-OPEN.

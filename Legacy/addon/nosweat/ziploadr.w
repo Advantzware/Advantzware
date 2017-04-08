@@ -52,6 +52,8 @@ DEFINE TEMP-TABLE ttbl-zipcode NO-UNDO
   FIELD pref_type AS CHARACTER FORMAT "x"
   FIELD time_zone AS CHARACTER FORMAT "x(5)"
   FIELD dst AS CHARACTER FORMAT "x"
+  FIELD carrier AS CHAR FORMAT "X(5)"
+  FIELD del-zone AS CHAR FORMAT "x(5)"
     INDEX ttbl-zipcode IS PRIMARY UNIQUE
       zipcode pref_type DESCENDING.
 
@@ -64,18 +66,18 @@ DEFINE TEMP-TABLE ttbl-zipcode NO-UNDO
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS preferred Btn_Close approved Btn_OK ~
-nonapproved 
+&Scoped-Define ENABLED-OBJECTS preferred approved nonapproved Btn_Cancel ~
+Btn_OK 
 &Scoped-Define DISPLAYED-OBJECTS preferred approved nonapproved 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
-&Scoped-define List-1 preferred approved Btn_OK nonapproved 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -88,8 +90,8 @@ nonapproved
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Close 
-     LABEL "&Close" 
+DEFINE BUTTON Btn_Cancel 
+     LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
 DEFINE BUTTON Btn_OK 
@@ -117,14 +119,14 @@ DEFINE VARIABLE preferred AS LOGICAL INITIAL yes
 DEFINE FRAME DEFAULT-FRAME
      preferred AT ROW 2.19 COL 6 HELP
           "Select to Load Preferred Zip Codes"
-     Btn_Close AT ROW 2.43 COL 41 HELP
-          "CANCEL Zip Codes Loader"
      approved AT ROW 3.14 COL 6 HELP
           "Select to Load Approved Alias Zip Codes"
-     Btn_OK AT ROW 3.86 COL 41 HELP
-          "Load Selected Zip Code Types"
      nonapproved AT ROW 4.1 COL 6 HELP
           "Select to Load Non-Approved Alias Zip Codes"
+     Btn_Cancel AT ROW 2.43 COL 41 HELP
+          "CANCEL Zip Codes Loader"
+     Btn_OK AT ROW 3.86 COL 41 HELP
+          "Load Selected Zip Code Types"
      "Zip Code Types" VIEW-AS TEXT
           SIZE 17 BY 1 AT ROW 1.24 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -169,40 +171,39 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-   L-To-R, COLUMNS                                                      */
-ASSIGN
-       Btn_Close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+   FRAME-NAME L-To-R,COLUMNS                                            */
+ASSIGN 
+       Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-/* SETTINGS FOR TOGGLE-BOX approved IN FRAME DEFAULT-FRAME
-   1                                                                    */
-/* SETTINGS FOR BUTTON Btn_OK IN FRAME DEFAULT-FRAME
-   1                                                                    */
-/* SETTINGS FOR TOGGLE-BOX nonapproved IN FRAME DEFAULT-FRAME
-   1                                                                    */
-/* SETTINGS FOR TOGGLE-BOX preferred IN FRAME DEFAULT-FRAME
-   1                                                                    */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
-
+ 
 
 
 
@@ -234,12 +235,12 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Close
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Close C-Win
-ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
+&Scoped-define SELF-NAME Btn_Cancel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel C-Win
+ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -285,13 +286,15 @@ DO:
       zipcode.county = ttbl-zipcode.county
       zipcode.time_zone = ttbl-zipcode.time_zone
       zipcode.dst = IF ttbl-zipcode.dst = "y" THEN yes ELSE no
-      zipcode.country = "US".
+      zipcode.country = "US"
+      zipcode.carrier = ttbl-zipcode.carrier
+      zipcode.del-zone = ttbl-zipcode.del-zone.
   END.
   INPUT CLOSE.
   {methods/nowait.i}
   MESSAGE "Zip Codes Loader Complete!" VIEW-AS ALERT-BOX INFORMATION.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -313,42 +316,30 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
-
-ON ESC OF {&WINDOW-NAME} ANYWHERE DO:
-  APPLY 'CLOSE' TO THIS-PROCEDURE.
-END.
 
 /* Now enable the interface and wait for the exit condition.            */
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+  INPUT FROM "zipcodes.txt" NO-ECHO.
+  IMPORT i.
+  preferred:LABEL = preferred:LABEL + " (" + TRIM(STRING(i,">>>,>>9")) + ")".
+  IMPORT i.
+  approved:LABEL = approved:LABEL + " (" + TRIM(STRING(i,">>>,>>9")) + ")".
+  IMPORT i.
+  nonapproved:LABEL = nonapproved:LABEL + " (" + TRIM(STRING(i,">>>,>>9")) + ")".
+  INPUT CLOSE.
   RUN enable_UI.
-  IF SEARCH("zipcodes.txt") NE ? THEN
-  DO:
-    INPUT FROM "zipcodes.txt" NO-ECHO.
-    IMPORT i.
-    preferred:LABEL = preferred:LABEL + " (" + TRIM(STRING(i,">>>,>>9")) + ")".
-    IMPORT i.
-    approved:LABEL = approved:LABEL + " (" + TRIM(STRING(i,">>>,>>9")) + ")".
-    IMPORT i.
-    nonapproved:LABEL = nonapproved:LABEL + " (" + TRIM(STRING(i,">>>,>>9")) + ")".
-    INPUT CLOSE.
-  END.
-  ELSE
-  DO WITH FRAME {&FRAME-NAME}:
-    MESSAGE 'Zip Codes File ~"zipcodes.txt~" does not exist!' VIEW-AS ALERT-BOX.
-    DISABLE {&LIST-1}.
-  END.
   {methods/nowait.i}
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:14 pm */
+    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:14 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -359,7 +350,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -378,8 +369,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -392,7 +382,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY preferred approved nonapproved 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE preferred Btn_Close approved Btn_OK nonapproved 
+  ENABLE preferred approved nonapproved Btn_Cancel Btn_OK 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -400,7 +390,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Purge-ZipCodes C-Win 
 PROCEDURE Purge-ZipCodes :
@@ -424,7 +413,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus C-Win 
 PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
@@ -432,11 +420,10 @@ PROCEDURE Set-Focus :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/setfocus.i Btn_Close}
+  {methods/setfocus.i Btn_Cancel}
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

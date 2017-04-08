@@ -234,7 +234,7 @@ DO:
    run oe/d-invitm.w (?, inv-head.r-no,"ADD").  
    run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
    run reopen-query in widget-handle(char-hdl) (?).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -247,7 +247,7 @@ ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
 DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
    run delete-item in widget-handle(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -261,7 +261,7 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
    run select-his in widget-handle(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -275,7 +275,7 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
    run select-price in widget-handle(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -289,7 +289,7 @@ DO:
     run oe/d-invitm.w (recid(inv-line), inv-line.r-no,"Update").
     run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
     run reopen-query in widget-handle(char-hdl) (recid(inv-line)).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -303,7 +303,7 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
    run select-stat in widget-handle(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,7 +316,7 @@ ON CHOOSE OF Btn-View IN FRAME F-Main /* View */
 DO:
    run oe/d-invitm.w (recid(inv-line), inv-line.r-no,"view").
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:47 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */

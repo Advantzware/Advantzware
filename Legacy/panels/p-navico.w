@@ -224,7 +224,7 @@ ON CHOOSE OF Btn-First IN FRAME Panel-Frame /* First */
 DO:
   RUN notify IN THIS-PROCEDURE (IF first-on-left THEN 'get-first':U
                                                  ELSE 'get-last':U).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:44 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:48 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -237,7 +237,7 @@ ON CHOOSE OF Btn-Last IN FRAME Panel-Frame /* Last */
 DO:
   RUN notify IN THIS-PROCEDURE (IF first-on-left THEN 'get-last':U
                                                  ELSE 'get-first':U).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:44 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:48 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -250,7 +250,7 @@ ON CHOOSE OF Btn-Next IN FRAME Panel-Frame /* Next */
 DO:
   RUN notify IN THIS-PROCEDURE (IF first-on-left THEN 'get-next':U
                                                  ELSE 'get-prev':U).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:44 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:48 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -263,7 +263,7 @@ ON CHOOSE OF Btn-Prev IN FRAME Panel-Frame /* Prev */
 DO:
   RUN notify IN THIS-PROCEDURE (IF first-on-left THEN 'get-prev':U
                                                  ELSE 'get-next':U).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 03.28.2017 @ 10:44:44 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:48 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */

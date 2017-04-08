@@ -51,17 +51,18 @@ DEFINE VARIABLE item_list AS CHARACTER NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
 /* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS db-name tablename dbfield-1 beginfld-1 ~
-begin-default-1 sort-order-1 endfld-1 end-default-1 dbfield-2 beginfld-2 ~
-begin-default-2 sort-order-2 endfld-2 end-default-2 dbfield-3 beginfld-3 ~
-begin-default-3 sort-order-3 endfld-3 end-default-3 dbfield-4 beginfld-4 ~
-begin-default-4 sort-order-4 endfld-4 end-default-4 dbfield-5 beginfld-5 ~
-begin-default-5 sort-order-5 endfld-5 end-default-5 RECT-3 RECT-4 addfld-1 ~
+&Scoped-Define ENABLED-OBJECTS RECT-3 RECT-4 db-name tablename dbfield-1 ~
+beginfld-1 begin-default-1 sort-order-1 endfld-1 end-default-1 dbfield-2 ~
+beginfld-2 begin-default-2 sort-order-2 endfld-2 end-default-2 dbfield-3 ~
+beginfld-3 begin-default-3 sort-order-3 endfld-3 end-default-3 dbfield-4 ~
+beginfld-4 begin-default-4 sort-order-4 endfld-4 end-default-4 dbfield-5 ~
+beginfld-5 begin-default-5 sort-order-5 endfld-5 end-default-5 addfld-1 ~
 add-default-1 addfld-2 add-default-2 shownotes addfld-3 add-default-3 ~
 showmiscflds addfld-4 add-default-4 showaddr addfld-5 add-default-5 ~
 showphones addfld-6 add-default-6 query-default Btn_Open Btn_Delete ~
@@ -114,42 +115,49 @@ DEFINE VARIABLE db-name AS CHARACTER FORMAT "X(256)":U
      LABEL "Database" 
      VIEW-AS COMBO-BOX INNER-LINES 4
      LIST-ITEMS "None" 
+     DROP-DOWN-LIST
      SIZE 30 BY 1 NO-UNDO.
 
 DEFINE VARIABLE dbfield-1 AS CHARACTER FORMAT "X(256)":U 
      LABEL "Field 1" 
      VIEW-AS COMBO-BOX INNER-LINES 20
-     LIST-ITEMS " "
+     LIST-ITEMS "?" 
+     DROP-DOWN-LIST
      SIZE 30 BY 1 NO-UNDO.
 
 DEFINE VARIABLE dbfield-2 AS CHARACTER FORMAT "X(256)":U 
      LABEL "Field 2" 
      VIEW-AS COMBO-BOX INNER-LINES 20
-     LIST-ITEMS " "
+     LIST-ITEMS "?" 
+     DROP-DOWN-LIST
      SIZE 30 BY 1 NO-UNDO.
 
 DEFINE VARIABLE dbfield-3 AS CHARACTER FORMAT "X(256)":U 
      LABEL "Field 3" 
      VIEW-AS COMBO-BOX INNER-LINES 20
-     LIST-ITEMS " "
+     LIST-ITEMS "?" 
+     DROP-DOWN-LIST
      SIZE 30 BY 1 NO-UNDO.
 
 DEFINE VARIABLE dbfield-4 AS CHARACTER FORMAT "X(256)":U 
      LABEL "Field 4" 
      VIEW-AS COMBO-BOX INNER-LINES 20
-     LIST-ITEMS " "
+     LIST-ITEMS "?" 
+     DROP-DOWN-LIST
      SIZE 30 BY 1 NO-UNDO.
 
 DEFINE VARIABLE dbfield-5 AS CHARACTER FORMAT "X(256)":U 
      LABEL "Field 5" 
      VIEW-AS COMBO-BOX INNER-LINES 20
-     LIST-ITEMS " "
+     LIST-ITEMS "?" 
+     DROP-DOWN-LIST
      SIZE 30 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tablename AS CHARACTER FORMAT "X(256)":U 
      LABEL "Table" 
      VIEW-AS COMBO-BOX INNER-LINES 20
      LIST-ITEMS "None" 
+     DROP-DOWN-LIST
      SIZE 30 BY 1 NO-UNDO.
 
 DEFINE VARIABLE addfld-1 AS CHARACTER FORMAT "X(256)":U 
@@ -263,11 +271,11 @@ DEFINE VARIABLE sort-order-5 AS CHARACTER FORMAT "X(256)":U
      SIZE 30 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 78 BY 7.62.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 29 BY 6.19.
 
 DEFINE VARIABLE add-default-1 AS LOGICAL INITIAL no 
@@ -453,7 +461,11 @@ DEFINE FRAME DEFAULT-FRAME
           "Use Default Settings Indicator"
      shownotes AT ROW 16.48 COL 89 HELP
           "Enter Show Notes Indicator"
-.
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 113 BY 23.
+
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME DEFAULT-FRAME
      addfld-3 AT ROW 17.67 COL 12 COLON-ALIGNED HELP
@@ -492,10 +504,10 @@ DEFINE FRAME DEFAULT-FRAME
           "CANCEL and EXIT List Parameters Create/Update"
      Btn_OK AT ROW 22.67 COL 99 HELP
           "OK to SAVE and EXIT List Parameter Create/Update"
-     "List Request Additional Fields" VIEW-AS TEXT
-          SIZE 28 BY .62 AT ROW 14.57 COL 3
      "Show Parameters" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 14.57 COL 85
+     "List Request Additional Fields" VIEW-AS TEXT
+          SIZE 28 BY .62 AT ROW 14.57 COL 3
      RECT-3 AT ROW 14.81 COL 2
      RECT-4 AT ROW 14.81 COL 84
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -538,38 +550,34 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
-ASSIGN
-       Btn_Cancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
-
-ASSIGN
-       Btn_OK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
-
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
-
+ 
 
 
 
@@ -606,7 +614,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:43 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -625,7 +633,7 @@ DO:
   IF NOT deleteok THEN
   RETURN NO-APPLY.
   OS-DELETE VALUE(listparm).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:43 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -638,7 +646,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
   APPLY "CHOOSE"TO Btn_Save.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:43 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -650,7 +658,7 @@ END.
 ON CHOOSE OF Btn_Open IN FRAME DEFAULT-FRAME /* Open */
 DO:
   RUN Open-ListParm.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:43 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -662,7 +670,7 @@ END.
 ON CHOOSE OF Btn_Save IN FRAME DEFAULT-FRAME /* Save */
 DO:
   RUN Save-ListParm.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:43 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -816,7 +824,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:43 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -831,9 +839,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/enhance.i}
   RUN Get-DBs.
   {methods/nowait.i}
-    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:22 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:36 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:43 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -888,8 +894,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -908,8 +913,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -931,17 +935,16 @@ PROCEDURE enable_UI :
           addfld-5 add-default-5 showphones addfld-6 add-default-6 query-default 
           save-name 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE db-name tablename dbfield-1 beginfld-1 begin-default-1 sort-order-1 
-         endfld-1 end-default-1 dbfield-2 beginfld-2 begin-default-2 
-         sort-order-2 endfld-2 end-default-2 dbfield-3 beginfld-3 
-         begin-default-3 sort-order-3 endfld-3 end-default-3 dbfield-4 
-         beginfld-4 begin-default-4 sort-order-4 endfld-4 end-default-4 
-         dbfield-5 beginfld-5 begin-default-5 sort-order-5 endfld-5 
-         end-default-5 RECT-3 RECT-4 addfld-1 add-default-1 addfld-2 
-         add-default-2 shownotes addfld-3 add-default-3 showmiscflds addfld-4 
-         add-default-4 showaddr addfld-5 add-default-5 showphones addfld-6 
-         add-default-6 query-default Btn_Open Btn_Delete Btn_Save save-name 
-         Btn_Cancel Btn_OK 
+  ENABLE RECT-3 RECT-4 db-name tablename dbfield-1 beginfld-1 begin-default-1 
+         sort-order-1 endfld-1 end-default-1 dbfield-2 beginfld-2 
+         begin-default-2 sort-order-2 endfld-2 end-default-2 dbfield-3 
+         beginfld-3 begin-default-3 sort-order-3 endfld-3 end-default-3 
+         dbfield-4 beginfld-4 begin-default-4 sort-order-4 endfld-4 
+         end-default-4 dbfield-5 beginfld-5 begin-default-5 sort-order-5 
+         endfld-5 end-default-5 addfld-1 add-default-1 addfld-2 add-default-2 
+         shownotes addfld-3 add-default-3 showmiscflds addfld-4 add-default-4 
+         showaddr addfld-5 add-default-5 showphones addfld-6 add-default-6 
+         query-default Btn_Open Btn_Delete Btn_Save save-name Btn_Cancel Btn_OK 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -949,7 +952,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-DBs C-Win 
 PROCEDURE Get-DBs :
@@ -973,7 +975,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-Fields C-Win 
 PROCEDURE Get-Fields :
@@ -1000,7 +1001,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-Tables C-Win 
 PROCEDURE Get-Tables :
 /*------------------------------------------------------------------------------
@@ -1020,7 +1020,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Open-ListParm C-Win 
 PROCEDURE Open-ListParm :
@@ -1113,7 +1112,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Output-addfld-Defines C-Win 
 PROCEDURE Output-addfld-Defines :
 /*------------------------------------------------------------------------------
@@ -1134,7 +1132,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Output-addfld-Values C-Win 
 PROCEDURE Output-addfld-Values :
 /*------------------------------------------------------------------------------
@@ -1152,7 +1149,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Output-Defines C-Win 
 PROCEDURE Output-Defines :
@@ -1195,7 +1191,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Output-Values C-Win 
 PROCEDURE Output-Values :
 /*------------------------------------------------------------------------------
@@ -1221,7 +1216,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Save-ListParm C-Win 
 PROCEDURE Save-ListParm :
@@ -1322,7 +1316,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Defaults C-Win 
 PROCEDURE Set-Defaults :
 /*------------------------------------------------------------------------------
@@ -1376,7 +1369,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus C-Win 
 PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
@@ -1390,5 +1382,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

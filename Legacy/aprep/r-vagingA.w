@@ -607,7 +607,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:40 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:20 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -659,7 +659,7 @@ DO:
        WHEN 6 THEN RUN OUTPUT-to-port.
   end case.
   SESSION:SET-WAIT-STATE("").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:40 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:20 pm */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -925,7 +925,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:40 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:20 pm */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -954,6 +954,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:22 pm */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:22 pm */
     {custom/usrprint.i}
     as_of_date:SCREEN-VALUE = STRING(TODAY).
     APPLY "entry" TO begin_vend.
@@ -968,9 +970,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           end_comp = lv-default-comp.
   END.  
 
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:25 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images.p on 03.28.2017 @ 10:43:25 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 03.28.2017 @ 10:42:40 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:20 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1123,7 +1123,7 @@ WITH PAGE-TOP FRAME r-top-1 STREAM-IO WIDTH 200 NO-BOX.
 FORM HEADER SKIP(1)
      "VENDOR#  NAME  TERMS" SKIP
      "PHONE-   TYPE" skip
-     "  INVOICE#      DATE     DUE DATE            AMOUNT #DAYS             0-" + string(period-days-1) + FILL(" ",11) +   
+     "  INVOICE#      DATE                 AMOUNT #DAYS             0-" + string(period-days-1) + FILL(" ",11) +   
                                                                            string(period-days-1 + 1) + "-" + string(period-days-2) + FILL(" ",11) +
                                                                            string(period-days-2 + 1) + "-" + string(period-days-3) + FILL(" ",11) +
                                                                            string(period-days-3 + 1) + "-" + string(period-days-4) + FILL(" ",9) +
@@ -1258,7 +1258,7 @@ VIEW FRAME r-top.
         excelheader = excelheader + "CURRENCY,".
 
      excelheader = excelheader
-                 + "VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,DUE DATE,AMOUNT,#DAYS,"
+                 + "VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,AMOUNT,#DAYS,"
                  + "0-" + STRING(period-days-1) + "," + STRING(period-days-1 + 1) + "-" 
                         + STRING(period-days-2) + "," + STRING(period-days-2 + 1) + "-" 
                         + STRING(period-days-3) + "," + STRING(period-days-3 + 1) + "-" 
@@ -1339,7 +1339,6 @@ VIEW FRAME r-top.
                 '"' ""                                  '",'
                 '"' ""                                  '",'
                 '"' ""                                  '",'
-                '"' ""                                  '",'
                 '"' "CURR TOTALS"                       '",'
                 '"' ""                                  '",'
                 '"' STRING(curr-t[1],"$->>>,>>>,>>9.99") '",'
@@ -1355,7 +1354,6 @@ VIEW FRAME r-top.
                    '"' "" '",'.
 
             PUT STREAM excel UNFORMATTED
-                '"' ""                                  '",'
                 '"' ""                                  '",'
                 '"' ""                                  '",'
                 '"' ""                                  '",'
@@ -1439,7 +1437,6 @@ VIEW FRAME r-top.
            '"' ""                                  '",'
            '"' ""                                  '",'
            '"' ""                                  '",'
-           '"' ""                                  '",'
            '"' ""                                  '",' 
            '"' "GRAND TOTALS"                      '",'
            '"' ""                                  '",'
@@ -1459,7 +1456,6 @@ VIEW FRAME r-top.
               '"' "" '",'.
 
        PUT STREAM excel UNFORMATTED
-           '"' ""                                  '",'
            '"' ""                                  '",'
            '"' ""                                  '",'
            '"' ""                                  '",'
