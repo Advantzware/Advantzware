@@ -27,12 +27,13 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Browse01 h_b-estq
 &SCOPED-DEFINE h_Object01 h_v-navest
 &SCOPED-DEFINE h_Object02 h_p-estc
-&SCOPED-DEFINE h_Object03 h_vp-est
-&SCOPED-DEFINE h_Object04 h_p-probe
-&SCOPED-DEFINE h_Object05 h_vp-box
-&SCOPED-DEFINE h_Object06 h_vp-spec
-&SCOPED-DEFINE h_Object07 h_p-estop
-&SCOPED-DEFINE moveRight {&h_Object07}
+&SCOPED-DEFINE h_Object03 h_fgadd
+&SCOPED-DEFINE h_Object04 h_vp-est
+&SCOPED-DEFINE h_Object05 h_p-probe
+&SCOPED-DEFINE h_Object06 h_vp-box
+&SCOPED-DEFINE h_Object07 h_vp-spec
+&SCOPED-DEFINE h_Object08 h_p-estop
+&SCOPED-DEFINE moveRight {&h_Object08}
 
 /* Parameters Definitions ---                                           */
 
