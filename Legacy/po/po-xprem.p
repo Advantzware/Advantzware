@@ -11,7 +11,7 @@ def buffer b-ref2  for reftable.
 {po/po-print.i}
 
 
-DEF VAR v-wid AS DEC NO-UNDO.
+DEF VAR v-wid AS DEC FORM ">>9.99<<" NO-UNDO.
 DEF VAR v-dep AS DEC NO-UNDO.    
 DEF VAR v-basis-w AS DEC NO-UNDO.
 DEF VAR v-len AS DEC FORM "->,>>9.99" NO-UNDO.
@@ -109,6 +109,9 @@ DEF VAR v-tot-msf AS DEC FORM ">>>>,>>9.999" NO-UNDO.
 DEF VAR v-out-qty AS DEC NO-UNDO.
 DEF VAR lv-add-line AS LOG NO-UNDO.
 
+def var v-dec-fld as decimal no-undo.
+
+
 DEF VAR v-lstloc AS CHAR FORM "x(20)" NO-UNDO.
 
 v-dash-line = fill ("_",80).
@@ -122,6 +125,7 @@ find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "POPRINT" no-lock no-error.
 IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN lv-display-comp = YES.
 ELSE lv-display-comp = NO.
+     v-dec-fld = sys-ctrl.dec-fld.
 
 FIND first sys-ctrl where sys-ctrl.company eq cocode
                            and sys-ctrl.name    eq "LOGOCOLR" no-lock no-error.
@@ -282,6 +286,18 @@ v-printline = 0.
         v-vend-item = (IF (AVAIL ITEM AND ITEM.vend-no = po-ord.vend) THEN ITEM.vend-item ELSE "")
                         +
                       (IF (AVAIL ITEM AND ITEM.vend2-no = po-ord.vend) THEN (" " + ITEM.vend2-item) ELSE "").
+        
+     if v-dec-fld = 0.08 then
+         ASSIGN v-wid = po-ordl.s-wid - truncate(po-ordl.s-wid,0)
+                   v-wid = ( v-wid * 16 ) / 100
+                   v-wid = truncate(po-ordl.s-wid,0) + v-wid
+                   v-len = po-ordl.s-len - truncate(po-ordl.s-len,0)
+                   v-len = ( v-len * 16 ) / 100
+                   v-len = truncate(po-ordl.s-len,0) + v-len
+                   v-wid2 = po-ordl.s-wid
+                   v-len2 = po-ordl.s-len .
+     ELSE
+
         ASSIGN v-wid = po-ordl.s-wid
                v-len = po-ordl.s-len
                v-wid2 = po-ordl.s-wid
@@ -290,12 +306,13 @@ v-printline = 0.
 
         if avail item and item.mat-type eq "B" then do:
           if v-shtsiz then do:
-            assign v-wid = po-ordl.s-wid - truncate(po-ordl.s-wid,0).
-            assign v-wid = ( v-wid * 16 ) / 100.
-            assign v-wid = truncate(po-ordl.s-wid,0) + v-wid.
-            assign v-len = po-ordl.s-len - truncate(po-ordl.s-len,0).
-            assign v-len = ( v-len * 16 ) / 100.
-            assign v-len = truncate(po-ordl.s-len,0) + v-len.
+              if v-dec-fld = 0.08 then
+             ASSIGN v-wid = po-ordl.s-wid - truncate(po-ordl.s-wid,0)
+                  v-wid = ( v-wid * 16 ) / 100
+                  v-wid = truncate(po-ordl.s-wid,0) + v-wid
+                  v-len = po-ordl.s-len - truncate(po-ordl.s-len,0)
+                  v-len = ( v-len * 16 ) / 100
+                  v-len = truncate(po-ordl.s-len,0) + v-len.
             
             assign v-num-add = 0.
 
@@ -567,7 +584,7 @@ v-printline = 0.
         put "W: " at 25 v-wid space(2) "L: " v-len  
                  /*"                   "*/
               /*  "  Flute:"*/  lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)"
-                STRING(v-cost,"->>,>>9.99<<") + po-ordl.pr-uom + " $" +
+                "<C61.5>" STRING(v-cost,"->>,>>9.99<<") + po-ordl.pr-uom + " $" +
                 STRING(v-setup) + "SETUP" FORM "x(25)"   
                 SKIP
                /* space(2) v-vend-item FORM "x(20)" */  .
