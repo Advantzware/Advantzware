@@ -33,7 +33,7 @@ DEF VAR blk-count AS INT NO-UNDO.
 DEF VAR v-cust-no AS CHAR NO-UNDO.
 DEF VAR v-cestcalc AS CHAR NO-UNDO.
 DEFINE VARIABLE ll-return AS LOGICAL     NO-UNDO.
-
+DEFINE VARIABLE cProcat AS CHAR NO-UNDO .
 FIND first sys-ctrl where
     sys-ctrl.company eq cocode AND
     sys-ctrl.name    eq "CESTCALC"
@@ -809,7 +809,11 @@ FOR EACH xef
      stypart[1] = style.dscr
      stypart[2] = xeb.part-no
      dsc[1]     = xeb.part-dscr1
-     dsc[2]     = xeb.part-dscr2.
+     dsc[2]     = xeb.part-dscr2
+     cProcat    = xeb.procat .
+     IF dsc[2] EQ "" THEN
+         ASSIGN dsc[2]  = xeb.procat 
+                cProcat = "" .
 
     DISPLAY /*xeb.cust-no*/
             xeb.yld-qty FORMAT ">>>,>>>,>>9"
@@ -822,6 +826,9 @@ FOR EACH xef
             dsc[2] FORMAT "x(22)"
             sizcol[2] FORMAT "x(21)"
             stypart[2] FORMAT "x(23)" SKIP WITH STREAM-IO.
+         IF cProcat NE "" THEN
+             PUT SKIP SPACE(12)
+             cProcat .
     DOWN.
   END.
 END.  /* for each xef */
