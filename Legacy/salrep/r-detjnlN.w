@@ -1403,7 +1403,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-
+DEFINE BUFFER bf-ar-inv FOR ar-inv.
  form w-data.w-cust-no
      cust.name          FORMAT "x(26)"
      cust.cr-rating     LABEL "C R"
@@ -1570,6 +1570,16 @@ FOR EACH ttCustList
                            AND account.type    EQ "R")
           NO-LOCK:
 
+          FIND FIRST bf-ar-inv NO-LOCK 
+              where bf-ar-inv.company  eq cocode
+                and bf-ar-inv.posted   eq yes
+                and bf-ar-inv.cust-no  eq cust.cust-no
+                and bf-ar-inv.inv-no EQ ar-cashl.inv-no NO-ERROR.
+            IF AVAIL bf-ar-inv THEN DO:
+                IF NOT v-inc-fc THEN
+                    IF bf-ar-inv.TYPE EQ "FC" THEN NEXT .
+            END.
+            
         RELEASE oe-retl.
 
         RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
