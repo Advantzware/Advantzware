@@ -39,6 +39,7 @@ PROCEDURE pApplyFilterHandler:
   DEFINE VARIABLE oFilterValues AS Consultingwerk.Framework.Collections.CharacterDictionary NO-UNDO.
   DEFINE VARIABLE cCellColumn   AS CHARACTER NO-UNDO.
   DEFINE VARIABLE hCellColumn   AS HANDLE    NO-UNDO.
+/*  DEFINE VARIABLE cBuffers      AS CHARACTER NO-UNDO.*/
   DEFINE VARIABLE cQuery        AS CHARACTER NO-UNDO.
   DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
 
@@ -55,20 +56,25 @@ PROCEDURE pApplyFilterHandler:
                         + hCellColumn:NAME
             .
           IF CAN-DO (oFilterValues:Keys,cCellColumn) THEN
-          cQuery = cQuery + "AND "
-                 + hCellColumn:TABLE + "."
-                 + hCellColumn:NAME
-                 + (IF hCellColumn:DATA-TYPE EQ "Character" THEN  " BEGINS ~"" ELSE " EQ ")
+          cQuery = cQuery + (IF INDEX (cQuery, "WHERE") EQ 0 THEN " WHERE "    ELSE " AND ")
+                 + hCellColumn:TABLE + "." + hCellColumn:NAME
+                 + (IF hCellColumn:DATA-TYPE EQ "Character" THEN  " BEGINS ~"" ELSE " EQ " )
                  + oFilterValues:GetValue (cCellColumn)
-                 + (IF hCellColumn:DATA-TYPE EQ "Character" THEN "~"" ELSE "")
+                 + (IF hCellColumn:DATA-TYPE EQ "Character" THEN  "~""         ELSE ""     )
                  .
       END. /* do idx */
       
-/*      MESSAGE              */
-/*      AVAILABLE (mach) SKIP*/
-/*      cQuery               */
-/*      VIEW-AS ALERT-BOX.   */
-
+/*      DO idx = 1 TO NUM-ENTRIES ("{&EXTERNAL-TABLES}", " "):                 */
+/*          IF ENTRY (idx, "{&EXTERNAL-TABLES}", " ") NE "" THEN               */
+/*          cBuffers = cBuffers + ENTRY (idx, "{&EXTERNAL-TABLES}", " ") + ",".*/
+/*      END. /* do idx */                                                      */
+/*      DO idx = 1 TO NUM-ENTRIES ("{&INTERNAL-TABLES}", " "):                 */
+/*          IF ENTRY (idx, "{&INTERNAL-TABLES}", " ") NE "" THEN               */
+/*          cBuffers = cBuffers + ENTRY (idx, "{&INTERNAL-TABLES}", " ") + ",".*/
+/*      END. /* do idx */                                                      */
+/*      cBuffers = TRIM (cBuffers, ",").                                       */
+/*                                                                             */
+/*      QUERY {&BROWSE-NAME}:SET-BUFFERS (cBuffers).                           */
       QUERY {&BROWSE-NAME}:QUERY-PREPARE (cQuery).
       QUERY {&BROWSE-NAME}:QUERY-OPEN.
       QUERY {&BROWSE-NAME}:GET-FIRST() .
@@ -126,12 +132,20 @@ PROCEDURE pCreateDataGridDat:
         cQueryStr     = REPLACE (cQueryStr,"  "," ")
         cQueryStr     = REPLACE (cQueryStr,"WHERE TRUE AND","WHERE")
         cQueryStr     = REPLACE (cQueryStr,"WHERE TRUE","WHERE")
+        cQueryStr     = TRIM (cQueryStr)
         .
+    IF ENTRY (NUM-ENTRIES (cQueryStr, " "), cQueryStr, " ") EQ "WHERE" THEN
+    cQueryStr = REPLACE (cQueryStr," WHERE","").
+
     OUTPUT TO VALUE (ipcGridSearch).
-    PUT UNFORMATTED cQueryStr SKIP.
-    PUT UNFORMATTED cIdxNames SKIP(1).
-    PUT UNFORMATTED "Indexed: " cIdxNames SKIP.
-    PUT UNFORMATTED "Non-Idx: " cNonIdx SKIP.
+    PUT UNFORMATTED
+        cQueryStr SKIP
+        cIdxNames SKIP(1)
+        "Indexed: " cIdxNames SKIP
+        "Non-Idx: " cNonIdx SKIP(1)
+        "Generated " STRING (TODAY ,"99.99.9999") " @ "
+        STRING (TIME ,"hh:mm:ss am") " by: " USERID ("ASI") SKIP
+        .
     cFiles = TRIM (cFiles,",").
     DO idx = 1 TO NUM-ENTRIES (cFiles):
         INPUT FROM VALUE (SEARCH ("dataGrid\dataGrid.dat")) NO-ECHO.
@@ -140,6 +154,7 @@ PROCEDURE pCreateDataGridDat:
             IF cTableName EQ ENTRY (idx,cFiles) THEN LEAVE.
             iRecords = 0.
         END. /* repeat */
+        INPUT CLOSE.
         PUT UNFORMATTED SKIP(1) "Table: " ENTRY (idx,cFiles) " - Records: " LEFT-TRIM (STRING (iRecords,">>>,>>>,>>9")) SKIP.
         FIND FIRST asi._file NO-LOCK
              WHERE asi._file._file-name EQ ENTRY (idx,cFiles)
@@ -154,9 +169,8 @@ PROCEDURE pCreateDataGridDat:
             END. /* each _index */
         END. /* if avail */
     END. /* do idx */
-    PUT UNFORMATTED SKIP(1) "Generated " STRING (TODAY, "99.99.9999") " @ " STRING (TIME, "hh:mm:ss am") " by: " ipcUserID SKIP.
     OUTPUT CLOSE.
-    OS-COMMAND SILENT notepad.exe VALUE (ipcGridSearch).
+    RUN util/dataGridDat.w (ipcGridSearch).
 
 END PROCEDURE.
 
@@ -191,10 +205,9 @@ PROCEDURE pDataGridDat:
   DEFINE VARIABLE cGridSearch AS CHARACTER NO-UNDO.
 
   IF VALID-OBJECT (oRenderedBrowseControl) THEN DO:
-      cGridSearch = "dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".dat").
-      IF SEARCH (cGridSearch) NE ? THEN DO:
-          OS-COMMAND SILENT notepad.exe VALUE (SEARCH (cGridSearch)).
-      END. /* if search ne ? */
+      cGridSearch = SEARCH ("dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".dat")).
+      IF cGridSearch NE ? THEN
+      RUN util/dataGridDat.w (cGridSearch).
   END. /* valid-object */
 
 
