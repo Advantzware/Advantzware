@@ -469,7 +469,7 @@ PROCEDURE Read_Menus :
 
   CREATE WIDGET-POOL "dyn-buttons" PERSISTENT.
   /* ============= dynamic menu for foldware/corrware ============*/
-  ls-menu-lst = "menu.lst".
+  ls-menu-lst = search("menu.lst").
  
   find first sys-ctrl where sys-ctrl.company = g_company and
                             sys-ctrl.name = "cemenu"

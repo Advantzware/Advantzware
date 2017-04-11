@@ -22,7 +22,7 @@
       IF SEARCH("users/" + USERID("NOSWEAT") + "/menu.lst") NE ? THEN
       INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/menu.lst") NO-ECHO.
       ELSE
-      INPUT FROM menu.lst NO-ECHO.
+      INPUT FROM value(search("menu.lst")) NO-ECHO.
     ELSE
     INPUT FROM popup.lst NO-ECHO.
     REPEAT:                          
@@ -43,9 +43,9 @@
       IF SEARCH("users/" + USERID("NOSWEAT") + "/menu.lst") NE ? THEN
       INPUT FROM VALUE("users/" + USERID("NOSWEAT") + "/menu.lst") NO-ECHO.
       ELSE
-      INPUT FROM VALUE("menu.lst") NO-ECHO.
+      INPUT FROM VALUE(search("menu.lst")) NO-ECHO.
     ELSE
-    INPUT FROM popup.lst NO-ECHO.
+    INPUT FROM value(search("popup.lst")) NO-ECHO.
     REPEAT:
       IMPORT m_item1 m_item2.
       IF m_item1 = m_item2 THEN
