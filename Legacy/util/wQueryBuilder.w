@@ -1394,7 +1394,7 @@ DO:
             IF iCtr = ? OR iCtr = 0 THEN ASSIGN
                 iCtr = 1.
 
-            RUN pt/dCalcField.w (INPUT cFullFieldList,
+            RUN util/dCalcField.w (INPUT cFullFieldList,
                                  INPUT-OUTPUT cFldDataType,
                                  INPUT-OUTPUT cFldFormat,
                                  INPUT-OUTPUT cFldInitVal,
@@ -1483,7 +1483,7 @@ DO:
                     VIEW-AS ALERT-BOX ERROR.
                 RETURN.
             END.
-            RUN pt/dCalcField.w (INPUT cFullFieldList,
+            RUN util/dCalcField.w (INPUT cFullFieldList,
                                  INPUT-OUTPUT ttColumns.cDataType,
                                  INPUT-OUTPUT ttColumns.cFormat,
                                  INPUT-OUTPUT ttColumns.cInitVal,
@@ -2123,7 +2123,7 @@ DO:
                     cbWhere-5:{&SV} = ENTRY(1,cbWhere-5:LIST-ITEMS)
                     cbRel-2:{&SV} = ENTRY(1,cbRel-2:LIST-ITEMS)
                     .
-                IF NOT lLoading THEN RUN pt/dFieldSelector.w (INPUT _file._file-name, 
+                IF NOT lLoading THEN RUN util/dFieldSelector.w (INPUT _file._file-name, 
                                                               INPUT-OUTPUT cFieldList[1]).
             END.
             WHEN "cbFile-2" THEN DO:
@@ -2152,7 +2152,7 @@ DO:
                     cbWhere-10:{&SV} = ENTRY(1,cbWhere-10:LIST-ITEMS)
                     cbRel-3:{&SV} = ENTRY(1,cbRel-3:LIST-ITEMS)
                     .
-                IF NOT lLoading THEN RUN pt/dFieldSelector.w (INPUT _file._file-name, 
+                IF NOT lLoading THEN RUN util/dFieldSelector.w (INPUT _file._file-name, 
                                                               INPUT-OUTPUT cFieldList[2]).
             END.
             WHEN "cbFile-3" THEN DO:
@@ -2182,7 +2182,7 @@ DO:
                     cbWhere-15:{&SV} = ENTRY(1,cbWhere-15:LIST-ITEMS)
                     cbRel-4:{&SV} = ENTRY(1,cbRel-4:LIST-ITEMS)
                     .
-                IF NOT lLoading THEN RUN pt/dFieldSelector.w (INPUT _file._file-name, 
+                IF NOT lLoading THEN RUN util/dFieldSelector.w (INPUT _file._file-name, 
                                                               INPUT-OUTPUT cFieldList[3]).
             END.
             WHEN "cbFile-4" THEN DO:
@@ -2207,7 +2207,7 @@ DO:
                     cbWhere-19:{&SV} = ENTRY(1,cbWhere-19:LIST-ITEMS)
                     cbWhere-20:{&SV} = ENTRY(1,cbWhere-20:LIST-ITEMS)
                     .
-                IF NOT lLoading THEN RUN pt/dFieldSelector.w (INPUT _file._file-name, 
+                IF NOT lLoading THEN RUN util/dFieldSelector.w (INPUT _file._file-name, 
                                                               INPUT-OUTPUT cFieldList[4]).
             END.
         END CASE.
