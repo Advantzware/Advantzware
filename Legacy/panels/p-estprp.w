@@ -48,6 +48,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE NoWinKit 
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
