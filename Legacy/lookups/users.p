@@ -31,16 +31,16 @@
 &Scoped-define def-include ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname users.
-&Scoped-define window-size 23
+&Scoped-define window-size 23.7
 &Scoped-define window-col 53
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 38
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 35
-&Scoped-define btn-cancel-col 24
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 37
+&Scoped-define btn-cancel-col 30
+&Scoped-define auto-find-row 23.6
 
 &Global-define FORMAT-1 X(8)
 &Scoped-define FLDNAME1 users.user_id

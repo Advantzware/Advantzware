@@ -31,16 +31,16 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname emp_type.
-&Scoped-define window-size 14
+&Scoped-define window-size 14.7
 &Scoped-define window-col 55
 &Scoped-define rect-1-row 11.15
 &Scoped-define by-row 11.42
 &Scoped-define browse-order-width 34
 &Scoped-define browse-order-row 11.42
-&Scoped-define btn-row 12.77
-&Scoped-define btn-ok-col 31
-&Scoped-define btn-cancel-col 20
-&Scoped-define auto-find-row 13.85
+&Scoped-define btn-row 12.7
+&Scoped-define btn-ok-col 33
+&Scoped-define btn-cancel-col 26
+&Scoped-define auto-find-row 14.6
 
 &Global-define FORMAT-1 x(20)
 &Scoped-define FLDNAME1 emp_type.description

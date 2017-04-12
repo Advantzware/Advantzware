@@ -70,18 +70,21 @@ DEFINE VAR {&WINDOW-NAME} AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Cancel" 
-     SIZE 9.72 BY 1
+     SIZE 8 BY 1.91
      FONT 4.
 
 DEFINE BUTTON Btn_Clear_Find 
+     IMAGE-UP FILE "Graphics/32x32/close.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Clear &Find" 
-     SIZE 13 BY 1
+     SIZE 8 BY 1.91
      FONT 4.
 
 DEFINE BUTTON Btn_OK 
+     IMAGE-UP FILE "Graphics/32x32/checkbox.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&OK" 
-     SIZE 9.72 BY 1
+     SIZE 8 BY 1.91
      FONT 4.
 
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
@@ -103,8 +106,9 @@ DEFINE VARIABLE word_search AS CHARACTER FORMAT "X(256)":U
      SIZE {&width-size} BY 1 NO-UNDO.
 
 DEFINE BUTTON Btn_Clear_Search 
+     IMAGE-UP FILE "Graphics/32x32/error.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Clear &Search" 
-     SIZE 13 BY 1
+     SIZE 8 BY 1.91
      FONT 4.
 &ENDIF
 

@@ -59,11 +59,11 @@ DEFINE VARIABLE cDataFormat       AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnAdd btnDown btnRemove btnUP btnGetField ~
-RECT-3 RECT-1 RECT-2 svWhereStatement svOrderValues svAutoSet svSelectedSet ~
-svShowFields svOrderFields svAvailableSelections svFrameTitle svTopInclude ~
-svDefInclude svEndInclude svUIPrgmname svFont svHeightSize svWidthSize ~
-btnReset btnSave btnDelete btnCancel btnOK btnDescription 
+&Scoped-Define ENABLED-OBJECTS btnAdd btnDown btnRemove btnGetField btnUP ~
+svWhereStatement svOrderValues svAutoSet svSelectedSet svShowFields ~
+svOrderFields svAvailableSelections svFrameTitle svTopInclude svDefInclude ~
+svEndInclude svUIPrgmname svFont svHeightSize svWidthSize btnReset btnSave ~
+btnDelete btnDescription btnOK btnCancel 
 &Scoped-Define DISPLAYED-OBJECTS svLookupPrgm svLookupDB svLookupFile ~
 svReturnField svWhereStatement svOrderValues svAutoSet svSelectedSet ~
 svShowFields svOrderFields svAvailableSelections svFrameTitle svTopInclude ~
@@ -86,13 +86,13 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnAdd 
-     IMAGE-UP FILE "Graphics/16x16/pvback.bmp":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/nav_left.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Add" 
-     SIZE 6.6 BY 1.33
+     SIZE 8 BY 1.91
      FONT 4.
 
 DEFINE BUTTON btnCancel AUTO-END-KEY DEFAULT 
-     LABEL "&Cancel" 
+     LABEL "&Close" 
      SIZE 14 BY 1.24
      BGCOLOR 8 FONT 4.
 
@@ -107,9 +107,9 @@ DEFINE BUTTON btnDescription
      FONT 4.
 
 DEFINE BUTTON btnDown 
-     IMAGE-UP FILE "Graphics/16x16/down.bmp":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/nav_down.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Move Do&wn" 
-     SIZE 6.6 BY 1.33
+     SIZE 8 BY 1.91
      FONT 4.
 
 DEFINE BUTTON btnGetField 
@@ -123,9 +123,9 @@ DEFINE BUTTON btnOK AUTO-GO
      FONT 4.
 
 DEFINE BUTTON btnRemove 
-     IMAGE-UP FILE "Graphics/16x16/pvforw.bmp":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/nav_right.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Re&move" 
-     SIZE 7.2 BY 1.33
+     SIZE 8 BY 1.91
      FONT 4.
 
 DEFINE BUTTON btnReset 
@@ -139,9 +139,9 @@ DEFINE BUTTON btnSave
      BGCOLOR 8 FONT 4.
 
 DEFINE BUTTON btnUP 
-     IMAGE-UP FILE "Graphics/16x16/up.bmp":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/nav_up.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Move &Up" 
-     SIZE 6.6 BY 1.33
+     SIZE 8 BY 1.91
      FONT 4.
 
 DEFINE VARIABLE svFont AS INTEGER FORMAT "9":U INITIAL 4 
@@ -265,16 +265,16 @@ DEFINE VARIABLE svAutoSet AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnAdd AT ROW 13.62 COL 80 HELP
+     btnAdd AT ROW 13.38 COL 80 HELP
           "Add Selected Item"
-     btnDown AT ROW 11.95 COL 80 HELP
+     btnDown AT ROW 11.48 COL 88 HELP
           "Move Selected Item Down"
-     btnRemove AT ROW 15.05 COL 80 HELP
+     btnRemove AT ROW 13.38 COL 88 HELP
           "Remove Selected Item"
-     btnUP AT ROW 10.52 COL 80 HELP
-          "Move Selected Item Up"
      btnGetField AT ROW 1 COL 34.2 HELP
           "Get Database, Table, & Return Field"
+     btnUP AT ROW 11.48 COL 80 HELP
+          "Move Selected Item Up"
      svLookupPrgm AT ROW 1.38 COL 12.6 COLON-ALIGNED
      svLookupDB AT ROW 1.38 COL 47.6 COLON-ALIGNED
      svLookupFile AT ROW 1.38 COL 77 COLON-ALIGNED
@@ -317,16 +317,16 @@ DEFINE FRAME DEFAULT-FRAME
           "Use this function to SAVE this Lookup Browser"
      btnDelete AT ROW 24.05 COL 62.6 HELP
           "Use this function to DELETE this Lookup Browser"
-     btnCancel AT ROW 24.05 COL 79.4 HELP
-          "Use this function to CANCEL Update/Create Lookup Browser"
-     btnOK AT ROW 24.05 COL 94.8
      btnDescription AT ROW 24.1 COL 15.4 HELP
           "Use this function to CREATE DESCRIPTION Lookup Browser"
+     btnOK AT ROW 24.1 COL 79
+     btnCancel AT ROW 24.1 COL 94 HELP
+          "Use this function to CANCEL Update/Create Lookup Browser"
      F1 AT ROW 22.19 COL 27 NO-LABEL
-     "Available Selections" VIEW-AS TEXT
-          SIZE 19.4 BY 1 AT ROW 9.33 COL 118
      "Key Phrase:" VIEW-AS TEXT
           SIZE 11.6 BY 1 AT ROW 2.91 COL 3
+     "Available Selections" VIEW-AS TEXT
+          SIZE 19.4 BY 1 AT ROW 9.33 COL 118
      RECT-3 AT ROW 23.62 COL 14.4
      RECT-1 AT ROW 23.62 COL 30.4
      RECT-2 AT ROW 23.62 COL 78
@@ -372,8 +372,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
 /* ************************* Included-Libraries *********************** */
 
@@ -392,8 +390,38 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+ASSIGN 
+       btnCancel:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+ASSIGN 
+       btnDelete:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+ASSIGN 
+       btnDescription:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+ASSIGN 
+       btnOK:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+ASSIGN 
+       btnReset:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
+ASSIGN 
+       btnSave:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
+                "ribbon-button".
+
 /* SETTINGS FOR FILL-IN F1 IN FRAME DEFAULT-FRAME
    NO-ENABLE ALIGN-L 6                                                  */
+/* SETTINGS FOR RECTANGLE RECT-1 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-2 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME DEFAULT-FRAME
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN svLookupDB IN FRAME DEFAULT-FRAME
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN svLookupFile IN FRAME DEFAULT-FRAME
@@ -410,7 +438,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -464,7 +492,7 @@ END.
 
 &Scoped-define SELF-NAME btnCancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCancel C-Win
-ON CHOOSE OF btnCancel IN FRAME DEFAULT-FRAME /* Cancel */
+ON CHOOSE OF btnCancel IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
     {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
@@ -660,7 +688,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave C-Win
 ON CHOOSE OF btnSave IN FRAME DEFAULT-FRAME /* Save */
 DO:
-  DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+  DEFINE VARIABLE iCnt    AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cLookup AS CHARACTER NO-UNDO.
 
   ASSIGN
     svLookupDB
@@ -677,7 +706,10 @@ DO:
     svTopInclude
     svEndInclude
     svWhereStatement = TRIM(svWhereStatement)
-    svAutoSet.
+    svAutoSet
+    cLookup = SEARCH ("lookups/keep.p")
+    cLookup = REPLACE (cLookup, "keep.", mLookupPrgm)
+    .
 
   RUN pAutoSetOrderValues.
 
@@ -696,7 +728,7 @@ DO:
     svWidthSize:SCREEN-VALUE = "150"
     svWidthSize = "150".
 
-  OUTPUT TO VALUE("lookups/" + mLookupPrgm + "p").
+  OUTPUT TO VALUE(cLookup).
 
   IF INDEX(svWhereStatement,'"') NE 0 THEN
   ASSIGN svWhereStatement = REPLACE(svWhereStatement,'"','""').
@@ -774,16 +806,16 @@ DO:
   PUT UNFORMATTED "~~" svEndInclude.
   PUT UNFORMATTED SKIP
     "~&Scoped-define ui-prgmname " svUIPrgmname SKIP
-    "~&Scoped-define window-size " INTEGER(svHeightSize) + 4 SKIP
+    "~&Scoped-define window-size " INTEGER(svHeightSize) + 4.7 SKIP
     "~&Scoped-define window-col " (150 - INTEGER(svWidthSize)) / 2 SKIP
     "~&Scoped-define rect-1-row " INTEGER(svHeightSize) + 1.15 SKIP
     "~&Scoped-define by-row " INTEGER(svHeightSize) + 1.42 SKIP
     "~&Scoped-define browse-order-width " INTEGER(svWidthSize) - 6 SKIP
     "~&Scoped-define browse-order-row " INTEGER(svHeightSize) + 1.42 SKIP
-    "~&Scoped-define btn-row " INTEGER(svHeightSize) + 2.77 SKIP
-    "~&Scoped-define btn-ok-col " INTEGER(svWidthSize) - 9 SKIP
-    "~&Scoped-define btn-cancel-col " INTEGER(svWidthSize) - 20 SKIP
-    "~&Scoped-define auto-find-row " INTEGER(svHeightSize) + 3.85 SKIP(1).
+    "~&Scoped-define btn-row " INTEGER(svHeightSize) + 2.7 SKIP
+    "~&Scoped-define btn-ok-col " INTEGER(svWidthSize) - 7 SKIP
+    "~&Scoped-define btn-cancel-col " INTEGER(svWidthSize) - 14 SKIP
+    "~&Scoped-define auto-find-row " INTEGER(svHeightSize) + 4.6 SKIP(1).
 
   DO i = 1 TO NUM-ENTRIES(svOrderValues):
     cDataType = "STRING".
@@ -817,7 +849,7 @@ DO:
   MESSAGE "Compile Lookup?" VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
       UPDATE compile-lookup AS LOGICAL.
   IF compile-lookup THEN
-  COMPILE VALUE("lookups\" + mLookupPrgm + "p") SAVE.
+  COMPILE VALUE(SEARCH("lookups\" + mLookupPrgm + "p")) SAVE.
 
   ASSIGN
     btnCancel:LABEL = "&Close"
@@ -1002,9 +1034,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   svOrderValues:SENSITIVE = NOT svAutoSet.
   APPLY "VALUE-CHANGED" TO svSelectedSet.
-  {methods/enhance.i}
+/*  {methods/enhance.i}*/
+  {methods/setButton.i btnReset "Reset"}
+  {methods/setButton.i btnSave "Save"}
+  {methods/setButton.i btnDelete "Delete"}
+  {methods/setButton.i btnOK "OK"}
+  {methods/setButton.i btnCancel "Close"}
   {methods/nowait.i}
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
+  {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1050,11 +1087,11 @@ PROCEDURE enable_UI :
           svAvailableSelections svFrameTitle svTopInclude svDefInclude 
           svEndInclude svUIPrgmname svStatus svFont svHeightSize svWidthSize F1 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnAdd btnDown btnRemove btnUP btnGetField RECT-3 RECT-1 RECT-2 
-         svWhereStatement svOrderValues svAutoSet svSelectedSet svShowFields 
-         svOrderFields svAvailableSelections svFrameTitle svTopInclude 
-         svDefInclude svEndInclude svUIPrgmname svFont svHeightSize svWidthSize 
-         btnReset btnSave btnDelete btnCancel btnOK btnDescription 
+  ENABLE btnAdd btnDown btnRemove btnGetField btnUP svWhereStatement 
+         svOrderValues svAutoSet svSelectedSet svShowFields svOrderFields 
+         svAvailableSelections svFrameTitle svTopInclude svDefInclude 
+         svEndInclude svUIPrgmname svFont svHeightSize svWidthSize btnReset 
+         btnSave btnDelete btnDescription btnOK btnCancel 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1098,7 +1135,7 @@ PROCEDURE pGetLookup :
 -------------------------------------------------------------*/
   IF SEARCH("lookups/" + mLookupPrgm + "p") NE ? THEN
   DO WITH FRAME {&FRAME-NAME}:
-    INPUT FROM VALUE("lookups/" + mLookupPrgm + "p") NO-ECHO.
+    INPUT FROM VALUE(SEARCH("lookups/" + mLookupPrgm + "p")) NO-ECHO.
     IMPORT ^.
     IMPORT svLookupPrgm
       svLookupDB

@@ -47,6 +47,7 @@ DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
 /* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
@@ -70,18 +71,20 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Close 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Close" 
-     SIZE 15 BY 1.14.
+     SIZE 8 BY 1.9.
 
 DEFINE VARIABLE SLIDER-1 AS INTEGER INITIAL 6 
      VIEW-AS SLIDER MIN-VALUE 6 MAX-VALUE 150 HORIZONTAL 
+     TIC-MARKS NONE 
      SIZE 151 BY 2.05 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     Btn_Close AT ROW 1 COL 47 HELP
+     Btn_Close AT ROW 2.19 COL 152 HELP
           "Close Mulich's Ruler"
      SLIDER-1 AT ROW 2.19 COL 1 HELP
           "Slide Scale to Right Edge of Object" NO-LABEL
@@ -91,7 +94,7 @@ DEFINE FRAME DEFAULT-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 151.2 BY 3.29
+         SIZE 159 BY 3.29
          BGCOLOR 4 FGCOLOR 15 .
 
 
@@ -113,11 +116,11 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "Mulich's Ruler"
          HEIGHT             = 3.29
-         WIDTH              = 151.2
+         WIDTH              = 159
          MAX-HEIGHT         = 3.29
-         MAX-WIDTH          = 151.2
+         MAX-WIDTH          = 170.2
          VIRTUAL-HEIGHT     = 3.29
-         VIRTUAL-WIDTH      = 151.2
+         VIRTUAL-WIDTH      = 170.2
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -131,18 +134,28 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{Advantzware/WinKit/embedwindow-nonadm.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
-ASSIGN
+ASSIGN 
+       Btn_Close:AUTO-RESIZE IN FRAME DEFAULT-FRAME      = TRUE
        Btn_Close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
-
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -150,8 +163,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
-
+ 
 
 
 
@@ -235,7 +247,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -254,8 +266,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -277,7 +288,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus C-Win 
 PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
@@ -291,5 +301,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

@@ -44,7 +44,7 @@ ELSE IF KEYLABEL(LASTKEY) EQ "F1" THEN DO: /* F1 function key */
         WHEN YES THEN
         RUN pRunLookup (lookups.prgmname).
         WHEN NO THEN
-        RUN VALUE("lookups/" + lookups.prgmname + "p").
+        RUN VALUE(SEARCH("lookups/" + lookups.prgmname + "p")).
         OTHERWISE DO:
           MESSAGE "Remove Attached Browser from this Field?"
               VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lResponse.
@@ -56,7 +56,7 @@ ELSE IF KEYLABEL(LASTKEY) EQ "F1" THEN DO: /* F1 function key */
         END. /* otherwise */
       END CASE.
     END. /* can-do(g_developer) */
-    ELSE RUN VALUE("lookups/" + lookups.prgmname + "p").
+    ELSE RUN VALUE(SEARCH("lookups/" + lookups.prgmname + "p")).
   END. /* avail lookups */
   ELSE IF cUserID NE "" AND CAN-DO(g_developer,cUserID) THEN DO:
     MESSAGE "Create Lookup Browser for :" SKIP(1)
@@ -97,5 +97,5 @@ PROCEDURE pRunLookup :
       lookups.prgmname    = cLookupPrgm
       .
   END. 
-  RUN VALUE("lookups/" + lookups.prgmname + "p").
+  RUN VALUE(SEARCH("lookups/" + lookups.prgmname + "p")).
 END PROCEDURE.
