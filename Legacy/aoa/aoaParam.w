@@ -376,23 +376,6 @@ DEFINE FRAME paramFrame
          AT COL 1 ROW 1
          SIZE 149 BY 18.05.
 
-DEFINE FRAME frameShow
-     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
-     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
-     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
-     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
-     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
-     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
-     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
-     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
-     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
-     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 1
-         SIZE 40 BY 10.48
-         TITLE "Show/Hide Sections" WIDGET-ID 300.
-
 DEFINE FRAME frameColumns
      svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
      btnDefault AT ROW 1.71 COL 32 HELP
@@ -415,6 +398,23 @@ DEFINE FRAME frameColumns
          AT COL 82 ROW 1
          SIZE 67 BY 10.48
          TITLE "Report Columns" WIDGET-ID 200.
+
+DEFINE FRAME frameShow
+     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
+     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
+     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
+     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
+     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
+     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
+     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
+     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
+     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
+     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 1
+         SIZE 40 BY 10.48
+         TITLE "Show/Hide Sections" WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -450,7 +450,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -530,50 +529,30 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnApply IN FRAME paramFrame
    NO-ENABLE 3 4                                                        */
 ASSIGN 
-       btnApply:HIDDEN IN FRAME paramFrame           = TRUE
-       btnApply:PRIVATE-DATA IN FRAME paramFrame     = 
-                "WinKitRibbon".
-
-ASSIGN 
-       btnCancel:PRIVATE-DATA IN FRAME paramFrame     = 
-                "WinKitRibbon".
+       btnApply:HIDDEN IN FRAME paramFrame           = TRUE.
 
 /* SETTINGS FOR BUTTON btnDelete IN FRAME paramFrame
    NO-ENABLE 3 4                                                        */
 ASSIGN 
-       btnDelete:HIDDEN IN FRAME paramFrame           = TRUE
-       btnDelete:PRIVATE-DATA IN FRAME paramFrame     = 
-                "WinKitRibbon".
+       btnDelete:HIDDEN IN FRAME paramFrame           = TRUE.
 
 ASSIGN 
-       btnExcel:HIDDEN IN FRAME paramFrame           = TRUE
-       btnExcel:PRIVATE-DATA IN FRAME paramFrame     = 
-                "WinKitRibbon".
+       btnExcel:HIDDEN IN FRAME paramFrame           = TRUE.
 
 /* SETTINGS FOR BUTTON btnSave IN FRAME paramFrame
    NO-ENABLE 3 4                                                        */
 ASSIGN 
-       btnSave:HIDDEN IN FRAME paramFrame           = TRUE
-       btnSave:PRIVATE-DATA IN FRAME paramFrame     = 
-                "WinKitRibbon".
+       btnSave:HIDDEN IN FRAME paramFrame           = TRUE.
 
 /* SETTINGS FOR BUTTON btnScheduler IN FRAME paramFrame
    NO-ENABLE                                                            */
 ASSIGN 
-       btnScheduler:HIDDEN IN FRAME paramFrame           = TRUE
-       btnScheduler:PRIVATE-DATA IN FRAME paramFrame     = 
-                "WinKitRibbon".
+       btnScheduler:HIDDEN IN FRAME paramFrame           = TRUE.
 
 /* SETTINGS FOR BUTTON btnShowBatch IN FRAME paramFrame
    NO-ENABLE 3                                                          */
 ASSIGN 
-       btnShowBatch:HIDDEN IN FRAME paramFrame           = TRUE
-       btnShowBatch:PRIVATE-DATA IN FRAME paramFrame     = 
-                "WinKitRibbon".
-
-ASSIGN 
-       btnView:PRIVATE-DATA IN FRAME paramFrame     = 
-                "WinKitRibbon".
+       btnShowBatch:HIDDEN IN FRAME paramFrame           = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
@@ -621,7 +600,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttUserPrint.
 */  /* FRAME paramFrame */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -629,7 +608,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttUserPrint.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* AdvantzwareOA */
+ON END-ERROR OF W-Win /* AOA */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -642,7 +621,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* AdvantzwareOA */
+ON WINDOW-CLOSE OF W-Win /* AOA */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
@@ -2233,18 +2212,17 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winReSize W-Win
-PROCEDURE winReSize:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winReSize W-Win 
+PROCEDURE winReSize :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ************************  Function Implementations ***************** */
 

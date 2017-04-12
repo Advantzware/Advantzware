@@ -1,10 +1,11 @@
-FOR EACH mach NO-LOCK WHERE mach.company EQ %company%  
-m-code,m-dscr,industry,loc,sch-m-code,p-type
+FOR EACH mach NO-LOCK WHERE mach.company EQ "%company%"
+d-seq,industry,loc,m-code,m-dscr,m-seq
 
-Indexed: m-code,industry,loc,d-seq,m-seq
-Non-Idx: dept,m-dscr,sch-m-code,p-type,run-spoil,mr-waste
+Indexed: d-seq,industry,loc,m-code,m-seq
+Non-Idx: dept,m-dscr,mr-waste,p-type,run-spoil,sch-m-code
 
-Table: mach
+Generated 04.11.2017 @  7:55:55 pm by: asi
+Table: mach - Records: 93
 
     Index: d-seq
          Field: company
@@ -25,5 +26,3 @@ Table: mach
 
     Index: rec_key
          Field: rec_key
-
-Generated 03.07.2017 @  1:01:03 pm by: asi

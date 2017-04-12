@@ -275,7 +275,7 @@ ASSIGN
 ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
-  {src/adm/template/brsentry.i}  
+  {src/adm/template/brsentry.i} 
 END.
 
 /* _UIB-CODE-BLOCK-END */

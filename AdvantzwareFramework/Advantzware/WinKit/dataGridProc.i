@@ -14,10 +14,19 @@
 /* ***************************  Definitions  ************************** */
 DEFINE VARIABLE cGridColumns AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cGridQuery   AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lShowQuery   AS LOGICAL   NO-UNDO.
 
 ON 'CTRL-ALT-G':U ANYWHERE
 DO:
     RUN pDataGridDat.        
+END.
+
+ON 'CTRL-ALT-Q':U ANYWHERE
+DO:
+    lShowQuery = NOT lShowQuery.
+    MESSAGE 
+        "Show Query Set To:" lShowQuery
+            VIEW-AS ALERT-BOX.        
 END.
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -39,14 +48,18 @@ PROCEDURE pApplyFilterHandler:
   DEFINE VARIABLE oFilterValues AS Consultingwerk.Framework.Collections.CharacterDictionary NO-UNDO.
   DEFINE VARIABLE cCellColumn   AS CHARACTER NO-UNDO.
   DEFINE VARIABLE hCellColumn   AS HANDLE    NO-UNDO.
-/*  DEFINE VARIABLE cBuffers      AS CHARACTER NO-UNDO.*/
+  DEFINE VARIABLE cBuffers      AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cQuery        AS CHARACTER NO-UNDO.
   DEFINE VARIABLE idx           AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE jdx           AS INTEGER   NO-UNDO.
+  DEFINE VARIABLE hBuffer       AS HANDLE    NO-UNDO EXTENT 10.
 
   IF VALID-OBJECT (oRenderedBrowseControl) AND cGridQuery NE "" THEN DO:
       ASSIGN
         oFilterValues = CAST (sender, RenderedBrowseWithSearchControl):FilterValues
         cQuery        = cGridQuery
+        cQuery        = REPLACE (cQuery, "%company%", g_company)
+        cQuery        = REPLACE (cQuery, "%loc%"    , g_loc    )
         .
       DO idx = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME} :
           ASSIGN
@@ -64,17 +77,25 @@ PROCEDURE pApplyFilterHandler:
                  .
       END. /* do idx */
       
-/*      DO idx = 1 TO NUM-ENTRIES ("{&EXTERNAL-TABLES}", " "):                 */
-/*          IF ENTRY (idx, "{&EXTERNAL-TABLES}", " ") NE "" THEN               */
-/*          cBuffers = cBuffers + ENTRY (idx, "{&EXTERNAL-TABLES}", " ") + ",".*/
-/*      END. /* do idx */                                                      */
-/*      DO idx = 1 TO NUM-ENTRIES ("{&INTERNAL-TABLES}", " "):                 */
-/*          IF ENTRY (idx, "{&INTERNAL-TABLES}", " ") NE "" THEN               */
-/*          cBuffers = cBuffers + ENTRY (idx, "{&INTERNAL-TABLES}", " ") + ",".*/
-/*      END. /* do idx */                                                      */
-/*      cBuffers = TRIM (cBuffers, ",").                                       */
-/*                                                                             */
-/*      QUERY {&BROWSE-NAME}:SET-BUFFERS (cBuffers).                           */
+      &IF DEFINED(EXTERNAL-TABLES) &THEN
+      {Advantzware/WinKit/externalTables.i {&EXTERNAL-TABLES}}
+      DO idx = 1 TO EXTENT (hBuffer) :
+          IF NOT VALID-HANDLE (hBuffer[idx]) THEN LEAVE.
+          DO jdx = 1 TO hBuffer[idx]:NUM-FIELDS :
+              cQuery = REPLACE (cQuery, "%"
+                     + hBuffer[idx]:NAME + "."
+                     + hBuffer[idx]:BUFFER-FIELD (jdx):NAME + "%",
+                       hBuffer[idx]:BUFFER-FIELD (jdx):BUFFER-VALUE ).
+          END. /* do jdx */
+      END. /* do idx */
+      &ENDIF
+      
+      IF lShowQuery THEN 
+      MESSAGE
+        "Query:" SKIP(1) cQuery SKIP(2)
+        "Base Template:" SKIP(1) cGridQuery
+            VIEW-AS ALERT-BOX.
+
       QUERY {&BROWSE-NAME}:QUERY-PREPARE (cQuery).
       QUERY {&BROWSE-NAME}:QUERY-OPEN.
       QUERY {&BROWSE-NAME}:GET-FIRST() .
@@ -123,16 +144,16 @@ PROCEDURE pCreateDataGridDat:
         cQueryStr     = REPLACE (cQueryStr," NO-LOCK","")
         cQueryStr     = REPLACE (cQueryStr,"WHERE","NO-LOCK WHERE")
         cQueryStr     = REPLACE (cQueryStr," TRUE       AND","")
-        cQueryStr     = REPLACE (cQueryStr,"g_company","%company%")
-        cQueryStr     = REPLACE (cQueryStr,"gcompany","%company%")
-        cQueryStr     = REPLACE (cQueryStr,"g_loc","%loc%")
-        cQueryStr     = REPLACE (cQueryStr,"gloc","%loc%")
+        cQueryStr     = REPLACE (cQueryStr,"g_company","~"%company%~"")
+        cQueryStr     = REPLACE (cQueryStr,"gcompany","~"%company%~"")
+        cQueryStr     = REPLACE (cQueryStr,"g_loc","~"%loc%~"")
+        cQueryStr     = REPLACE (cQueryStr,"gloc","~"%loc%~"")
         cQueryStr     = REPLACE (cQueryStr,"=","EQ")
         cQueryStr     = REPLACE (cQueryStr,"  "," ")
         cQueryStr     = REPLACE (cQueryStr,"  "," ")
         cQueryStr     = REPLACE (cQueryStr,"WHERE TRUE AND","WHERE")
         cQueryStr     = REPLACE (cQueryStr,"WHERE TRUE","WHERE")
-        cQueryStr     = TRIM (cQueryStr)
+        cQueryStr     =    TRIM (cQueryStr)
         .
     IF ENTRY (NUM-ENTRIES (cQueryStr, " "), cQueryStr, " ") EQ "WHERE" THEN
     cQueryStr = REPLACE (cQueryStr," WHERE","").
@@ -155,7 +176,9 @@ PROCEDURE pCreateDataGridDat:
             iRecords = 0.
         END. /* repeat */
         INPUT CLOSE.
-        PUT UNFORMATTED SKIP(1) "Table: " ENTRY (idx,cFiles) " - Records: " LEFT-TRIM (STRING (iRecords,">>>,>>>,>>9")) SKIP.
+        IF idx GT 1 THEN 
+        PUT UNFORMATTED SKIP (1).
+        PUT UNFORMATTED "Table: " ENTRY (idx,cFiles) " - Records: " LEFT-TRIM (STRING (iRecords,">>>,>>>,>>9")) SKIP.
         FIND FIRST asi._file NO-LOCK
              WHERE asi._file._file-name EQ ENTRY (idx,cFiles)
              NO-ERROR.
@@ -170,7 +193,8 @@ PROCEDURE pCreateDataGridDat:
         END. /* if avail */
     END. /* do idx */
     OUTPUT CLOSE.
-    RUN util/dataGridDat.w (ipcGridSearch).
+    RUN util/dataGridDat.w (ipcGridSearch, "{&EXTERNAL-TABLES}", "{&TABLES-IN-QUERY-{&BROWSE-NAME}}").
+    RUN pGetDataGridDat (ipcGridSearch).
 
 END PROCEDURE.
 
@@ -207,7 +231,8 @@ PROCEDURE pDataGridDat:
   IF VALID-OBJECT (oRenderedBrowseControl) THEN DO:
       cGridSearch = SEARCH ("dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".dat")).
       IF cGridSearch NE ? THEN
-      RUN util/dataGridDat.w (cGridSearch).
+      RUN util/dataGridDat.w (cGridSearch, "{&EXTERNAL-TABLES}", "{&TABLES-IN-QUERY-{&BROWSE-NAME}}").
+      RUN pGetDataGridDat (cGridSearch).
   END. /* valid-object */
 
 
@@ -230,20 +255,31 @@ PROCEDURE pDataGridInit:
           RUN pCreateDataGridDat (cGridSearch, users.user_id).
       END. /* if search eq ? */
       IF SEARCH (cGridSearch) NE ? THEN DO:
-          INPUT FROM VALUE(SEARCH(cGridSearch)) NO-ECHO.
-          IMPORT UNFORMATTED cGridQuery.
-          IMPORT UNFORMATTED cGridColumns.
-          INPUT CLOSE.
+          RUN pGetDataGridDat (cGridSearch).
           ASSIGN
-              cGridQuery = REPLACE (cGridQuery,"%company%", "~"" + g_company + "~"")
-              cGridQuery = REPLACE (cGridQuery,"%loc%","~""      + g_loc     + "~"")
+              cGridQuery = REPLACE (cGridQuery,"%company%", g_company)
+              cGridQuery = REPLACE (cGridQuery,"%loc%"    , g_loc    )
               .
           IF Consultingwerk.Util.ProcedureHelper:HasEntry(THIS-PROCEDURE, "pApplyFilterHandler") THEN
               CAST (oRenderedBrowseControl, Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl):ApplyFilter:Subscribe ("pApplyFilterHandler") .
-          IF Consultingwerk.Util.ProcedureHelper:HasEntry(THIS-PROCEDURE, "pCustomizeGrid") THEN
+          IF Consultingwerk.Util.ProcedureHelper:HasEntry(THIS-PROCEDURE, "pCustomizeGrid"     ) THEN
               RUN pCustomizeGrid IN THIS-PROCEDURE .
       END. /* if search ne ? */
   END. /* valid-object */
+
+END PROCEDURE.
+
+PROCEDURE pGetDataGridDat:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcDataGridDat AS CHARACTER NO-UNDO.
+    
+    INPUT FROM VALUE(SEARCH(ipcDataGridDat)) NO-ECHO.
+    IMPORT UNFORMATTED cGridQuery.
+    IMPORT UNFORMATTED cGridColumns.
+    INPUT CLOSE.
 
 END PROCEDURE.
 

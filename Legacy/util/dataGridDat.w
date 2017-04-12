@@ -5,19 +5,17 @@
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
 
-  File: 
+  File: util/dataGridDat.w
 
-  Description: 
+  Description: access to .Net Grid query and search columns
 
-  Input Parameters:
-      <none>
+  Input Parameters: Date Grid .dat file name & External Tables
 
-  Output Parameters:
-      <none>
+  Output Parameters: <none>
 
-  Author: 
+  Author: Ron Stark
 
-  Created: 
+  Created: 4.11.2017
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.       */
 /*----------------------------------------------------------------------*/
@@ -27,10 +25,19 @@
 /* Parameters Definitions ---                                           */
 
 &IF DEFINED(UIB_is_Running) EQ 0 &THEN
-DEFINE INPUT PARAMETER ipcDataGridDat AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcDataGridDat    AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcExternalTables AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcTablesInQuery  AS CHARACTER NO-UNDO.
 &ELSE
-DEFINE VARIABLE ipcDataGridDat AS CHARACTER NO-UNDO.
-ipcDataGridDat = "C:\Advantzware\v17\Resources\dataGrid\browsers\mstd.dat".
+DEFINE VARIABLE ipcDataGridDat    AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ipcExternalTables AS CHARACTER NO-UNDO.
+DEFINE VARIABLE ipcTablesInQuery  AS CHARACTER NO-UNDO.
+
+ASSIGN
+    ipcDataGridDat = "C:\Advantzware\v17\Resources\dataGrid\browsers\mstd.dat"
+    ipcExternalTables = "mach"
+    ipcTablesInQuery  = "mstd"
+    .
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
@@ -50,19 +57,46 @@ ipcDataGridDat = "C:\Advantzware\v17\Resources\dataGrid\browsers\mstd.dat".
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS queryString selectedFields indexedFields ~
-nonIndexedFields btnOK btnCancel 
-&Scoped-Define DISPLAYED-OBJECTS queryString indexText selectedFields ~
+&Scoped-Define ENABLED-OBJECTS btnCancel externalTables externalFields ~
+tablesInQuery inQueryFields queryString btnClear btnReset selectedFields ~
+indexedFields nonIndexedFields btnForEach btnWhere btnFirst btnLast btnEQ ~
+btnNE btnBegins btnGT btnGE btnAnd btnOR btnLT btnLE btnLeftPar btnRightPar ~
+btnCompany btnLoc btnNoLock btnOK 
+&Scoped-Define DISPLAYED-OBJECTS externalTables externalFields ~
+tablesInQuery inQueryFields indexText queryString selectedFields ~
 indexedFields nonIndexedFields generated 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
-&Scoped-define List-1 queryString indexText selectedFields indexedFields ~
+&Scoped-define List-1 indexText queryString selectedFields indexedFields ~
 nonIndexedFields 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetFields Dialog-Frame 
+FUNCTION fGetFields RETURNS CHARACTER
+  ( ipcTable AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fInsertField Dialog-Frame 
+FUNCTION fInsertField RETURNS CHARACTER
+  ( ipcTable AS CHARACTER, ipcField AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fInsertQuery Dialog-Frame 
+FUNCTION fInsertQuery RETURNS LOGICAL
+  ( ipcText AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -70,26 +104,106 @@ nonIndexedFields
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btnAnd 
+     LABEL "AND" 
+     SIZE 7 BY 1.14.
+
+DEFINE BUTTON btnBegins 
+     LABEL "BEGINS" 
+     SIZE 15 BY 1.14.
+
 DEFINE BUTTON btnCancel AUTO-END-KEY 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
      SIZE 8 BY 1.91
      BGCOLOR 8 .
 
+DEFINE BUTTON btnClear 
+     LABEL "Clear Query" 
+     SIZE 15 BY 1.14.
+
+DEFINE BUTTON btnCompany 
+     LABEL "~"%company%~"" 
+     SIZE 15 BY 1.14.
+
+DEFINE BUTTON btnEQ 
+     LABEL "EQ" 
+     SIZE 7 BY 1.14.
+
+DEFINE BUTTON btnFirst 
+     LABEL "FIRST" 
+     SIZE 15 BY 1.14.
+
+DEFINE BUTTON btnForEach 
+     LABEL "FOR EACH" 
+     SIZE 15 BY 1.14.
+
+DEFINE BUTTON btnGE 
+     LABEL "GE" 
+     SIZE 7 BY 1.14.
+
+DEFINE BUTTON btnGT 
+     LABEL "GT" 
+     SIZE 7 BY 1.14.
+
+DEFINE BUTTON btnLast 
+     LABEL "LAST" 
+     SIZE 15 BY 1.14.
+
+DEFINE BUTTON btnLE 
+     LABEL "LE" 
+     SIZE 7 BY 1.14.
+
+DEFINE BUTTON btnLeftPar 
+     LABEL "(" 
+     SIZE 7 BY 1.14.
+
+DEFINE BUTTON btnLoc 
+     LABEL "~"%loc%~"" 
+     SIZE 15 BY 1.14.
+
+DEFINE BUTTON btnLT 
+     LABEL "LT" 
+     SIZE 7 BY 1.14.
+
+DEFINE BUTTON btnNE 
+     LABEL "NE" 
+     SIZE 7 BY 1.14.
+
+DEFINE BUTTON btnNoLock 
+     LABEL "NO-LOCK" 
+     SIZE 15 BY 1.14.
+
 DEFINE BUTTON btnOK AUTO-GO 
-     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "" 
-     SIZE 8 BY 1.9
+     SIZE 8 BY 1.91
      BGCOLOR 8 .
+
+DEFINE BUTTON btnOR 
+     LABEL "OR" 
+     SIZE 7 BY 1.14.
+
+DEFINE BUTTON btnReset 
+     LABEL "Reset Query" 
+     SIZE 15 BY 1.14.
+
+DEFINE BUTTON btnRightPar 
+     LABEL ")" 
+     SIZE 7 BY 1.14.
+
+DEFINE BUTTON btnWhere 
+     LABEL "WHERE" 
+     SIZE 15 BY 1.14.
 
 DEFINE VARIABLE indexText AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
-     SIZE 50 BY 28.33
+     SIZE 50 BY 35.95
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE queryString AS CHARACTER 
-     VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
-     SIZE 120 BY 7.14
+     VIEW-AS EDITOR SCROLLBAR-VERTICAL
+     SIZE 135 BY 9.29
      BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE generated AS CHARACTER FORMAT "X(256)":U 
@@ -97,41 +211,89 @@ DEFINE VARIABLE generated AS CHARACTER FORMAT "X(256)":U
      SIZE 48 BY .62
      BGCOLOR 14  NO-UNDO.
 
+DEFINE VARIABLE externalFields AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
+     SIZE 33 BY 6.67 NO-UNDO.
+
+DEFINE VARIABLE externalTables AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
+     SIZE 33 BY 6.67 NO-UNDO.
+
 DEFINE VARIABLE indexedFields AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
-     SIZE 33 BY 20 NO-UNDO.
+     SIZE 33 BY 18.1 NO-UNDO.
+
+DEFINE VARIABLE inQueryFields AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
+     SIZE 33 BY 6.67 NO-UNDO.
 
 DEFINE VARIABLE nonIndexedFields AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
-     SIZE 33 BY 20 NO-UNDO.
+     SIZE 33 BY 18.1 NO-UNDO.
 
 DEFINE VARIABLE selectedFields AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
-     SIZE 33 BY 20 NO-UNDO.
+     SIZE 33 BY 18.1 NO-UNDO.
+
+DEFINE VARIABLE tablesInQuery AS CHARACTER 
+     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
+     SIZE 33 BY 6.67 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     queryString AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 2
-     indexText AT ROW 1.71 COL 121 NO-LABEL WIDGET-ID 4
-     selectedFields AT ROW 10.05 COL 1 NO-LABEL WIDGET-ID 10
-     indexedFields AT ROW 10.05 COL 35 NO-LABEL WIDGET-ID 6
-     nonIndexedFields AT ROW 10.05 COL 69 NO-LABEL WIDGET-ID 8
-     btnOK AT ROW 28.14 COL 103
-     btnCancel AT ROW 28.14 COL 112
-     generated AT ROW 1 COL 49 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     btnCancel AT ROW 35.76 COL 128
+     externalTables AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 26
+     externalFields AT ROW 1.71 COL 35 NO-LABEL WIDGET-ID 32
+     tablesInQuery AT ROW 1.71 COL 69 NO-LABEL WIDGET-ID 28
+     inQueryFields AT ROW 1.71 COL 103 NO-LABEL WIDGET-ID 36
+     indexText AT ROW 1.71 COL 137 NO-LABEL WIDGET-ID 4
+     queryString AT ROW 9.33 COL 1 NO-LABEL WIDGET-ID 2
+     btnClear AT ROW 18.86 COL 104 WIDGET-ID 66
+     btnReset AT ROW 18.86 COL 120 WIDGET-ID 80
+     selectedFields AT ROW 19.57 COL 1 NO-LABEL WIDGET-ID 10
+     indexedFields AT ROW 19.57 COL 35 NO-LABEL WIDGET-ID 6
+     nonIndexedFields AT ROW 19.57 COL 69 NO-LABEL WIDGET-ID 8
+     btnForEach AT ROW 20.29 COL 104 WIDGET-ID 40
+     btnWhere AT ROW 20.29 COL 120 WIDGET-ID 42
+     btnFirst AT ROW 21.71 COL 104 WIDGET-ID 44
+     btnLast AT ROW 21.71 COL 120 WIDGET-ID 46
+     btnEQ AT ROW 23.14 COL 104 WIDGET-ID 50
+     btnNE AT ROW 23.14 COL 112 WIDGET-ID 60
+     btnBegins AT ROW 23.14 COL 120 WIDGET-ID 78
+     btnGT AT ROW 24.57 COL 104 WIDGET-ID 52
+     btnGE AT ROW 24.57 COL 112 WIDGET-ID 54
+     btnAnd AT ROW 24.57 COL 120 WIDGET-ID 68
+     btnOR AT ROW 24.57 COL 128 WIDGET-ID 70
+     btnLT AT ROW 26 COL 104 WIDGET-ID 58
+     btnLE AT ROW 26 COL 112 WIDGET-ID 56
+     btnLeftPar AT ROW 26 COL 120 WIDGET-ID 72
+     btnRightPar AT ROW 26 COL 128 WIDGET-ID 76
+     btnCompany AT ROW 27.43 COL 104 WIDGET-ID 62
+     btnLoc AT ROW 27.43 COL 120 WIDGET-ID 64
+     btnNoLock AT ROW 28.86 COL 112 WIDGET-ID 48
+     btnOK AT ROW 35.76 COL 119
+     generated AT ROW 8.62 COL 49 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     "Tables In Query Fields" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 1 COL 104 WIDGET-ID 38
+     "External Table Fields" VIEW-AS TEXT
+          SIZE 23 BY .62 AT ROW 1 COL 36 WIDGET-ID 34
+     "Tables In Query" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 1 COL 70 WIDGET-ID 30
+     "External Tables" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 1 COL 2 WIDGET-ID 24
      "Table / Indexes / Record Count" VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 1 COL 122 WIDGET-ID 20
+          SIZE 32 BY .62 AT ROW 1 COL 137 WIDGET-ID 20
      "Indexed Fields" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 9.33 COL 36 WIDGET-ID 12
+          SIZE 14 BY .62 AT ROW 18.86 COL 37 WIDGET-ID 12
      "Non-Indexed Fields" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 9.33 COL 70 WIDGET-ID 14
+          SIZE 19 BY .62 AT ROW 18.86 COL 71 WIDGET-ID 14
      "Selected Fields" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 9.33 COL 2 WIDGET-ID 16
+          SIZE 15 BY .62 AT ROW 18.86 COL 3 WIDGET-ID 16
      "Query" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1 COL 2 WIDGET-ID 18
-     SPACE(161.59) SKIP(28.47)
+          SIZE 8 BY .62 AT ROW 8.62 COL 2 WIDGET-ID 18
+     SPACE(176.99) SKIP(28.42)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Data Grd Dat"
@@ -191,11 +353,327 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnAnd
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAnd Dialog-Frame
+ON CHOOSE OF btnAnd IN FRAME Dialog-Frame /* AND */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnBegins
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnBegins Dialog-Frame
+ON CHOOSE OF btnBegins IN FRAME Dialog-Frame /* BEGINS */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnClear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClear Dialog-Frame
+ON CHOOSE OF btnClear IN FRAME Dialog-Frame /* Clear Query */
+DO:
+    queryString:SCREEN-VALUE = "".
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnCompany
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCompany Dialog-Frame
+ON CHOOSE OF btnCompany IN FRAME Dialog-Frame /* "%company%" */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnEQ
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnEQ Dialog-Frame
+ON CHOOSE OF btnEQ IN FRAME Dialog-Frame /* EQ */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnFirst
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFirst Dialog-Frame
+ON CHOOSE OF btnFirst IN FRAME Dialog-Frame /* FIRST */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnForEach
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnForEach Dialog-Frame
+ON CHOOSE OF btnForEach IN FRAME Dialog-Frame /* FOR EACH */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnGE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGE Dialog-Frame
+ON CHOOSE OF btnGE IN FRAME Dialog-Frame /* GE */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnGT
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnGT Dialog-Frame
+ON CHOOSE OF btnGT IN FRAME Dialog-Frame /* GT */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnLast
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLast Dialog-Frame
+ON CHOOSE OF btnLast IN FRAME Dialog-Frame /* LAST */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLE Dialog-Frame
+ON CHOOSE OF btnLE IN FRAME Dialog-Frame /* LE */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnLeftPar
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLeftPar Dialog-Frame
+ON CHOOSE OF btnLeftPar IN FRAME Dialog-Frame /* ( */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnLoc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLoc Dialog-Frame
+ON CHOOSE OF btnLoc IN FRAME Dialog-Frame /* "%loc%" */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnLT
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLT Dialog-Frame
+ON CHOOSE OF btnLT IN FRAME Dialog-Frame /* LT */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnNE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNE Dialog-Frame
+ON CHOOSE OF btnNE IN FRAME Dialog-Frame /* NE */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnNoLock
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNoLock Dialog-Frame
+ON CHOOSE OF btnNoLock IN FRAME Dialog-Frame /* NO-LOCK */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnOK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOK Dialog-Frame
 ON CHOOSE OF btnOK IN FRAME Dialog-Frame
 DO:
     RUN pSetDataGridDat.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnOR
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOR Dialog-Frame
+ON CHOOSE OF btnOR IN FRAME Dialog-Frame /* OR */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnReset
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnReset Dialog-Frame
+ON CHOOSE OF btnReset IN FRAME Dialog-Frame /* Reset Query */
+DO:
+    RUN pGetDataGridDat.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnRightPar
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRightPar Dialog-Frame
+ON CHOOSE OF btnRightPar IN FRAME Dialog-Frame /* ) */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnWhere
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnWhere Dialog-Frame
+ON CHOOSE OF btnWhere IN FRAME Dialog-Frame /* WHERE */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME externalFields
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL externalFields Dialog-Frame
+ON DEFAULT-ACTION OF externalFields IN FRAME Dialog-Frame
+DO:
+    ASSIGN {&SELF-NAME}.
+    fInsertQuery(fInsertField(externalTables,{&SELF-NAME})).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME externalTables
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL externalTables Dialog-Frame
+ON VALUE-CHANGED OF externalTables IN FRAME Dialog-Frame
+DO:
+    ASSIGN {&SELF-NAME}.
+    externalFields:LIST-ITEMS = fGetFields({&SELF-NAME}).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME indexedFields
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL indexedFields Dialog-Frame
+ON DEFAULT-ACTION OF indexedFields IN FRAME Dialog-Frame
+DO:
+    IF selectedFields:LIST-ITEMS EQ ? OR
+       NOT CAN-DO(selectedFields:LIST-ITEMS,{&SELF-NAME}:SCREEN-VALUE) THEN
+    selectedFields:ADD-LAST({&SELF-NAME}:SCREEN-VALUE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME inQueryFields
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inQueryFields Dialog-Frame
+ON DEFAULT-ACTION OF inQueryFields IN FRAME Dialog-Frame
+DO:
+    ASSIGN {&SELF-NAME}.
+    fInsertQuery(tablesInQuery + "." + {&SELF-NAME}).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME nonIndexedFields
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL nonIndexedFields Dialog-Frame
+ON DEFAULT-ACTION OF nonIndexedFields IN FRAME Dialog-Frame
+DO:
+    IF selectedFields:LIST-ITEMS EQ ? OR
+       NOT CAN-DO(selectedFields:LIST-ITEMS,{&SELF-NAME}:SCREEN-VALUE) THEN
+    selectedFields:ADD-LAST({&SELF-NAME}:SCREEN-VALUE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME selectedFields
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL selectedFields Dialog-Frame
+ON DEFAULT-ACTION OF selectedFields IN FRAME Dialog-Frame
+DO:
+    {&SELF-NAME}:DELETE({&SELF-NAME}:SCREEN-VALUE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tablesInQuery
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tablesInQuery Dialog-Frame
+ON DEFAULT-ACTION OF tablesInQuery IN FRAME Dialog-Frame
+DO:
+    ASSIGN {&SELF-NAME}.
+    fInsertQuery({&SELF-NAME}).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tablesInQuery Dialog-Frame
+ON VALUE-CHANGED OF tablesInQuery IN FRAME Dialog-Frame
+DO:
+    ASSIGN {&SELF-NAME}.
+    inQueryFields:LIST-ITEMS = fGetFields({&SELF-NAME}).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -260,11 +738,14 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY queryString indexText selectedFields indexedFields nonIndexedFields 
-          generated 
+  DISPLAY externalTables externalFields tablesInQuery inQueryFields indexText 
+          queryString selectedFields indexedFields nonIndexedFields generated 
       WITH FRAME Dialog-Frame.
-  ENABLE queryString selectedFields indexedFields nonIndexedFields btnOK 
-         btnCancel 
+  ENABLE btnCancel externalTables externalFields tablesInQuery inQueryFields 
+         queryString btnClear btnReset selectedFields indexedFields 
+         nonIndexedFields btnForEach btnWhere btnFirst btnLast btnEQ btnNE 
+         btnBegins btnGT btnGE btnAnd btnOR btnLT btnLE btnLeftPar btnRightPar 
+         btnCompany btnLoc btnNoLock btnOK 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -295,10 +776,16 @@ PROCEDURE pGetDataGridDat :
     IMPORT UNFORMATTED cNonIndexed.
     IMPORT ^.
     IMPORT UNFORMATTED cGenerated.
-    IMPORT ^.
 
     DO WITH FRAME {&FRAME-NAME}:
         ASSIGN
+            ipcExternalTables           = REPLACE(ipcExternalTables," ",",")
+            ipcExternalTables           = TRIM(ipcExternalTables,",")
+            externalTables:LIST-ITEMS   = ipcExternalTables
+            ipcTablesInQuery            = REPLACE(ipcTablesInQuery," ",",")
+            ipcTablesInQuery            = TRIM(ipcTablesInQuery,",")
+            tablesInQuery:LIST-ITEMS    = ipcTablesInQuery
+            tablesInQuery:SCREEN-VALUE  = tablesInQuery:ENTRY(1)
             generated:SCREEN-VALUE      = cGenerated
             queryString:SCREEN-VALUE    = cQueryString
             cIndexed                    = REPLACE(cIndexed, "Indexed: ", "")
@@ -306,11 +793,19 @@ PROCEDURE pGetDataGridDat :
             cNonIndexed                 = REPLACE(cNonIndexed, "Non-Idx: ", "")
             nonIndexedFields:LIST-ITEMS = cNonIndexed
             selectedFields:LIST-ITEMS   = cColumns
+            indexText:SCREEN-VALUE      = ""
             .
         REPEAT:
             IMPORT UNFORMATTED cIndexText.
-            indexText:SCREEN-VALUE = indexText:SCREEN-VALUE + CHR(10) + cIndexText.
+            indexText:SCREEN-VALUE = indexText:SCREEN-VALUE + cIndexText + CHR(10).
         END. /* repeat */
+        APPLY "VALUE-CHANGED":U TO tablesInQuery.
+        IF externalTables:NUM-ITEMS NE 0 THEN DO:
+            externalTables:SCREEN-VALUE = externalTables:ENTRY(1).
+            APPLY "VALUE-CHANGED":U TO externalTables.
+        END.
+        ELSE
+        DISABLE externalTables externalFields.
     END. /* with frame */
     INPUT CLOSE.
 
@@ -329,7 +824,7 @@ PROCEDURE pSetDataGridDat :
     DO WITH FRAME {&FRAME-NAME}:
         OUTPUT TO VALUE(ipcDataGridDat).
         PUT UNFORMATTED
-            queryString:SCREEN-VALUE SKIP
+            LEFT-TRIM(TRIM(REPLACE(queryString:SCREEN-VALUE,CHR(10)," "))) SKIP
             selectedFields:LIST-ITEMS SKIP(1)
             "Indexed: " indexedFields:LIST-ITEMS SKIP
             "Non-Idx: " nonIndexedFields:LIST-ITEMS SKIP(1)
@@ -341,6 +836,74 @@ PROCEDURE pSetDataGridDat :
     END. /* with frame */
 
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetFields Dialog-Frame 
+FUNCTION fGetFields RETURNS CHARACTER
+  ( ipcTable AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cFields AS CHARACTER NO-UNDO.
+
+    FIND FIRST asi._file NO-LOCK
+         WHERE asi._file._file-name EQ ipcTable
+         NO-ERROR.
+    IF AVAILABLE asi._file THEN
+    FOR EACH asi._field OF asi._file NO-LOCK:
+        cFields = cFields + asi._field._field-name + ",".
+    END. /* for each */
+    cFields = TRIM(cFields,",").
+
+    RETURN cFields.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fInsertField Dialog-Frame 
+FUNCTION fInsertField RETURNS CHARACTER
+  ( ipcTable AS CHARACTER, ipcField AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQuote  AS CHARACTER NO-UNDO.
+
+    FIND FIRST asi._file NO-LOCK
+         WHERE asi._file._file-name EQ ipcTable
+         NO-ERROR.
+    IF NOT AVAILABLE asi._file THEN RETURN "[Error Missing Table]".
+    FIND FIRST asi._field OF asi._file NO-LOCK
+         WHERE asi._field._field-name EQ ipcField
+         NO-ERROR.
+    IF NOT AVAILABLE asi._field THEN RETURN "[Error Missing Field]".
+    IF asi._field._data-type EQ "character" THEN cQuote = "~"".
+    RETURN cQuote + "%" + ipcTable + "." + ipcField + "%" + cQuote.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fInsertQuery Dialog-Frame 
+FUNCTION fInsertQuery RETURNS LOGICAL
+  ( ipcText AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    queryString:INSERT-STRING(ipcText + " ") IN FRAME {&FRAME-NAME}.
+    RETURN TRUE.
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
