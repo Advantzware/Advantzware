@@ -57,11 +57,12 @@ ASSIGN
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnCancel externalTables externalFields ~
-tablesInQuery inQueryFields queryString btnClear btnReset selectedFields ~
-indexedFields nonIndexedFields btnForEach btnWhere btnFirst btnLast btnEQ ~
-btnNE btnBegins btnGT btnGE btnAnd btnOR btnLT btnLE btnLeftPar btnRightPar ~
-btnCompany btnLoc btnNoLock btnOK 
+&Scoped-Define ENABLED-OBJECTS btnCancel externalTables btnOK ~
+externalFields tablesInQuery inQueryFields queryString selectedFields ~
+indexedFields nonIndexedFields btnClear btnReset btnForEach btnWhere ~
+btnNoLock btnBegins btnEQ btnNE btnAnd btnOR btnGT btnGE btnLT btnLE ~
+btnTrue btnFalse btnLeftPar btnRightPar btnComma btnUnknown btnFirst ~
+btnLast btnCompany btnLoc 
 &Scoped-Define DISPLAYED-OBJECTS externalTables externalFields ~
 tablesInQuery inQueryFields indexText queryString selectedFields ~
 indexedFields nonIndexedFields generated 
@@ -122,6 +123,10 @@ DEFINE BUTTON btnClear
      LABEL "Clear Query" 
      SIZE 15 BY 1.14.
 
+DEFINE BUTTON btnComma 
+     LABEL "," 
+     SIZE 7 BY 1.14.
+
 DEFINE BUTTON btnCompany 
      LABEL "~"%company%~"" 
      SIZE 15 BY 1.14.
@@ -129,6 +134,10 @@ DEFINE BUTTON btnCompany
 DEFINE BUTTON btnEQ 
      LABEL "EQ" 
      SIZE 7 BY 1.14.
+
+DEFINE BUTTON btnFalse 
+     LABEL "FALSE" 
+     SIZE 15 BY 1.14.
 
 DEFINE BUTTON btnFirst 
      LABEL "FIRST" 
@@ -192,6 +201,14 @@ DEFINE BUTTON btnRightPar
      LABEL ")" 
      SIZE 7 BY 1.14.
 
+DEFINE BUTTON btnTrue 
+     LABEL "TRUE" 
+     SIZE 15 BY 1.14.
+
+DEFINE BUTTON btnUnknown 
+     LABEL "?" 
+     SIZE 7 BY 1.14.
+
 DEFINE BUTTON btnWhere 
      LABEL "WHERE" 
      SIZE 15 BY 1.14.
@@ -245,38 +262,44 @@ DEFINE VARIABLE tablesInQuery AS CHARACTER
 DEFINE FRAME Dialog-Frame
      btnCancel AT ROW 35.76 COL 128
      externalTables AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 26
+     btnOK AT ROW 35.76 COL 119
      externalFields AT ROW 1.71 COL 35 NO-LABEL WIDGET-ID 32
      tablesInQuery AT ROW 1.71 COL 69 NO-LABEL WIDGET-ID 28
      inQueryFields AT ROW 1.71 COL 103 NO-LABEL WIDGET-ID 36
      indexText AT ROW 1.71 COL 137 NO-LABEL WIDGET-ID 4
      queryString AT ROW 9.33 COL 1 NO-LABEL WIDGET-ID 2
-     btnClear AT ROW 18.86 COL 104 WIDGET-ID 66
-     btnReset AT ROW 18.86 COL 120 WIDGET-ID 80
      selectedFields AT ROW 19.57 COL 1 NO-LABEL WIDGET-ID 10
      indexedFields AT ROW 19.57 COL 35 NO-LABEL WIDGET-ID 6
      nonIndexedFields AT ROW 19.57 COL 69 NO-LABEL WIDGET-ID 8
-     btnForEach AT ROW 20.29 COL 104 WIDGET-ID 40
-     btnWhere AT ROW 20.29 COL 120 WIDGET-ID 42
-     btnFirst AT ROW 21.71 COL 104 WIDGET-ID 44
-     btnLast AT ROW 21.71 COL 120 WIDGET-ID 46
-     btnEQ AT ROW 23.14 COL 104 WIDGET-ID 50
-     btnNE AT ROW 23.14 COL 112 WIDGET-ID 60
+     btnClear AT ROW 19.57 COL 104 WIDGET-ID 66
+     btnReset AT ROW 19.57 COL 120 WIDGET-ID 80
+     btnForEach AT ROW 21.95 COL 104 WIDGET-ID 40
+     btnWhere AT ROW 21.95 COL 120 WIDGET-ID 42
+     btnNoLock AT ROW 23.14 COL 104 WIDGET-ID 48
      btnBegins AT ROW 23.14 COL 120 WIDGET-ID 78
-     btnGT AT ROW 24.57 COL 104 WIDGET-ID 52
-     btnGE AT ROW 24.57 COL 112 WIDGET-ID 54
-     btnAnd AT ROW 24.57 COL 120 WIDGET-ID 68
-     btnOR AT ROW 24.57 COL 128 WIDGET-ID 70
-     btnLT AT ROW 26 COL 104 WIDGET-ID 58
-     btnLE AT ROW 26 COL 112 WIDGET-ID 56
-     btnLeftPar AT ROW 26 COL 120 WIDGET-ID 72
-     btnRightPar AT ROW 26 COL 128 WIDGET-ID 76
-     btnCompany AT ROW 27.43 COL 104 WIDGET-ID 62
-     btnLoc AT ROW 27.43 COL 120 WIDGET-ID 64
-     btnNoLock AT ROW 28.86 COL 112 WIDGET-ID 48
-     btnOK AT ROW 35.76 COL 119
+     btnEQ AT ROW 24.33 COL 104 WIDGET-ID 50
+     btnNE AT ROW 24.33 COL 112 WIDGET-ID 60
+     btnAnd AT ROW 24.33 COL 120 WIDGET-ID 68
+     btnOR AT ROW 24.33 COL 128 WIDGET-ID 70
+     btnGT AT ROW 25.52 COL 104 WIDGET-ID 52
+     btnGE AT ROW 25.52 COL 112 WIDGET-ID 54
+     btnLT AT ROW 25.52 COL 120 WIDGET-ID 58
+     btnLE AT ROW 25.52 COL 128 WIDGET-ID 56
+     btnTrue AT ROW 26.71 COL 104 WIDGET-ID 86
+     btnFalse AT ROW 26.71 COL 120 WIDGET-ID 88
+     btnLeftPar AT ROW 27.91 COL 104 WIDGET-ID 72
+     btnRightPar AT ROW 27.91 COL 112 WIDGET-ID 76
+     btnComma AT ROW 27.91 COL 120 WIDGET-ID 82
+     btnUnknown AT ROW 27.91 COL 128 WIDGET-ID 84
+     btnFirst AT ROW 29.1 COL 104 WIDGET-ID 44
+     btnLast AT ROW 29.1 COL 120 WIDGET-ID 46
+     btnCompany AT ROW 31.48 COL 104 WIDGET-ID 62
+     btnLoc AT ROW 31.48 COL 120 WIDGET-ID 64
      generated AT ROW 8.62 COL 49 COLON-ALIGNED NO-LABEL WIDGET-ID 22
-     "Tables In Query Fields" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 1 COL 104 WIDGET-ID 38
+     "Non-Indexed Fields" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 18.86 COL 70 WIDGET-ID 14
+     "Indexed Fields" VIEW-AS TEXT
+          SIZE 14 BY .62 AT ROW 18.86 COL 36 WIDGET-ID 12
      "External Table Fields" VIEW-AS TEXT
           SIZE 23 BY .62 AT ROW 1 COL 36 WIDGET-ID 34
      "Tables In Query" VIEW-AS TEXT
@@ -285,18 +308,16 @@ DEFINE FRAME Dialog-Frame
           SIZE 16 BY .62 AT ROW 1 COL 2 WIDGET-ID 24
      "Table / Indexes / Record Count" VIEW-AS TEXT
           SIZE 32 BY .62 AT ROW 1 COL 137 WIDGET-ID 20
-     "Indexed Fields" VIEW-AS TEXT
-          SIZE 14 BY .62 AT ROW 18.86 COL 37 WIDGET-ID 12
-     "Non-Indexed Fields" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 18.86 COL 71 WIDGET-ID 14
-     "Selected Fields" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 18.86 COL 3 WIDGET-ID 16
+     "Tables In Query Fields" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 1 COL 104 WIDGET-ID 38
      "Query" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 8.62 COL 2 WIDGET-ID 18
-     SPACE(176.99) SKIP(28.42)
+     "Selected Fields" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 18.86 COL 2 WIDGET-ID 16
+     SPACE(170.00) SKIP(18.19)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Data Grd Dat"
+         TITLE "Data Grid .Dat"
          CANCEL-BUTTON btnCancel WIDGET-ID 100.
 
 
@@ -344,7 +365,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
-ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Data Grd Dat */
+ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Data Grid .Dat */
 DO:
     APPLY "END-ERROR":U TO SELF.
 END.
@@ -386,6 +407,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnComma
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnComma Dialog-Frame
+ON CHOOSE OF btnComma IN FRAME Dialog-Frame /* , */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnCompany
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCompany Dialog-Frame
 ON CHOOSE OF btnCompany IN FRAME Dialog-Frame /* "%company%" */
@@ -400,6 +432,17 @@ END.
 &Scoped-define SELF-NAME btnEQ
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnEQ Dialog-Frame
 ON CHOOSE OF btnEQ IN FRAME Dialog-Frame /* EQ */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnFalse
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFalse Dialog-Frame
+ON CHOOSE OF btnFalse IN FRAME Dialog-Frame /* FALSE */
 DO:
     fInsertQuery({&SELF-NAME}:LABEL).
 END.
@@ -565,6 +608,28 @@ END.
 &Scoped-define SELF-NAME btnRightPar
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRightPar Dialog-Frame
 ON CHOOSE OF btnRightPar IN FRAME Dialog-Frame /* ) */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnTrue
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTrue Dialog-Frame
+ON CHOOSE OF btnTrue IN FRAME Dialog-Frame /* TRUE */
+DO:
+    fInsertQuery({&SELF-NAME}:LABEL).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnUnknown
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUnknown Dialog-Frame
+ON CHOOSE OF btnUnknown IN FRAME Dialog-Frame /* ? */
 DO:
     fInsertQuery({&SELF-NAME}:LABEL).
 END.
@@ -741,11 +806,12 @@ PROCEDURE enable_UI :
   DISPLAY externalTables externalFields tablesInQuery inQueryFields indexText 
           queryString selectedFields indexedFields nonIndexedFields generated 
       WITH FRAME Dialog-Frame.
-  ENABLE btnCancel externalTables externalFields tablesInQuery inQueryFields 
-         queryString btnClear btnReset selectedFields indexedFields 
-         nonIndexedFields btnForEach btnWhere btnFirst btnLast btnEQ btnNE 
-         btnBegins btnGT btnGE btnAnd btnOR btnLT btnLE btnLeftPar btnRightPar 
-         btnCompany btnLoc btnNoLock btnOK 
+  ENABLE btnCancel externalTables btnOK externalFields tablesInQuery 
+         inQueryFields queryString selectedFields indexedFields 
+         nonIndexedFields btnClear btnReset btnForEach btnWhere btnNoLock 
+         btnBegins btnEQ btnNE btnAnd btnOR btnGT btnGE btnLT btnLE btnTrue 
+         btnFalse btnLeftPar btnRightPar btnComma btnUnknown btnFirst btnLast 
+         btnCompany btnLoc 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
