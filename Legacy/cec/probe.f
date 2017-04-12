@@ -116,20 +116,20 @@ form
      probe.freight          format ">9"
      reftable.val[2]        format "->,>>>,>>9.99"
      reftable.val[3]        format "->>9.99"
-     reftable.val[5]        format ">>,>>>,>>9.99"
+     reftable.val[5]        format ">>>,>>9.99"
      dContPerManHR         format ">,>>>,>>9.99"
-     probe.sell-price       format "->,>>>,>>9.99"
-     voverall               format "->>,>>>,>>9.99"
+     probe.sell-price       format "->>>>,>>9.99"
+     voverall               format "->>>>9.99"
      probe.gsh-qty format ">>>>>9"
      vtot-msf
      skip
      header
-     /*"     E S T I M A T E  " + "#" + trim(xest.est-no) +
-     "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip*/
+     "     E S T I M A T E  " + "#" + trim(xest.est-no) +
+     "   A N A L Y S I S   P e r  T h o u s a n d     " format "x(78)" skip
      "                              "
      space(10)
      "                                     Total         Contb/        Sell     Price  Total   Total" skip
-     "    Qty  R     Board $/M Board %     Contb         Man Hr       Price      /MSF Sheets     MSF"
+     "    Qty  R     Board $/M Board %     Contb         Man Hr       Price      /MSF Sheets     MSF" 
      /*skip*/
      with width 130 stream-io frame probe-peach-big down no-labels no-underline no-attr-space no-box.
            
