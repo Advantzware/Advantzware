@@ -965,7 +965,8 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
   end.
 
   if vprint then run cec/box/probemk.p (ROWID(probe)).
-
+   dTotalManHrs = 0. /*20305 - need to reset Total Man Hrs calc per Quantity*/
+   
   FOR EACH xjob:
     ACCUMULATE xjob.mat (TOTAL).
   END.
