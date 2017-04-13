@@ -144,6 +144,7 @@ END.
 
 // Trigger for resizable windows
 ON "window-resized":U OF {&WINDOW-NAME} DO:
+    IF CAN-DO (THIS-PROCEDURE:INTERNAL-ENTRIES, "winReSize") THEN 
     RUN winReSize .
 END.
 
