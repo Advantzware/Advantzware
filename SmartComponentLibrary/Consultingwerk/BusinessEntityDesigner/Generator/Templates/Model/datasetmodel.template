@@ -1,0 +1,61 @@
+/*------------------------------------------------------------------------
+    File        : &1
+    Purpose     : 
+    Syntax      : 
+    Description : 
+    Author(s)   : @USER@
+    Created     : @DATE@
+    Notes       : Custom constructors that should not be replaced when the  
+                  DatasetModel class is regenerated, need to be annotated 
+                  using the @CustomConstructor. annotation
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+USING Consultingwerk.OERA.* FROM PROPATH .
+USING &2.* FROM PROPATH .  
+USING Progress.Lang.* FROM PROPATH .
+
+@FILEANNOTATION@
+
+CLASS &2.&1DatasetModel
+    INHERITS &1DatasetModel_Generated: 
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &1DatasetModel class
+        Notes:   
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC &1DatasetModel ():
+        SUPER ().
+
+    END CONSTRUCTOR.
+
+&3    @CustomConstructor.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &1DatasetModel class
+        Notes:   Retrieves data based on a named query   
+        @param pcTables The comma delimited list of the Table Names to retrieve
+        @param poNamedQuery The INamedQueryParameter that defines a named query
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC &1DatasetModel (pcTables AS CHARACTER,
+                                       poNamedQuery AS INamedQueryParameter):
+        SUPER ().
+
+        THIS-OBJECT:RetrieveData (pcTables, poNamedQuery) .
+
+    END CONSTRUCTOR.
+
+    @CustomConstructor.
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &1DatasetModel class
+        Notes:   Retrieves data based on a named query   
+        @param poNamedQuery The INamedQueryParameter that defines a named query
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC &1DatasetModel (poNamedQuery AS INamedQueryParameter):
+        SUPER ().
+
+        THIS-OBJECT:RetrieveData (poNamedQuery) .
+
+    END CONSTRUCTOR.
+
+END CLASS.

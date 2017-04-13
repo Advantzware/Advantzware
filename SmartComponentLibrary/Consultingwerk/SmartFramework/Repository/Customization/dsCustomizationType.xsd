@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsCustomizationType" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartCustomizationType" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartCustomizationTypeBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="CustomizationTypeGuid" type="xsd:string" nillable="true" prodata:fieldName="CustomizationTypeGuid" prodata:format="x(36)"/>
+              <xsd:element name="CustomizationTypeCode" type="xsd:string" nillable="true" prodata:fieldName="CustomizationTypeCode" prodata:format="x(80)" prodata:label="Customization Type"/>
+              <xsd:element name="CustomizationTypeDescription" type="xsd:string" nillable="true" prodata:fieldName="CustomizationTypeDescription" prodata:format="x(80)" prodata:label="Description"/>
+              <xsd:element name="ServiceTypeName" type="xsd:string" nillable="true" prodata:fieldName="ServiceTypeName" prodata:format="x(80)" prodata:label="Service Type Name"/>
+              <xsd:element name="ServiceMethodName" type="xsd:string" nillable="true" prodata:fieldName="ServiceMethodName" prodata:format="x(80)" prodata:label="Method Name"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="CustomizationTypeCode">
+      <xsd:selector xpath=".//eSmartCustomizationType"/>
+      <xsd:field xpath="CustomizationTypeGuid"/>
+    </xsd:unique>
+    <xsd:unique name="CustomizationTypeGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartCustomizationType"/>
+      <xsd:field xpath="CustomizationTypeGuid"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="CustomizationTypeDescription">
+        <prodata:table name="eSmartCustomizationType"/>
+        <prodata:field name="CustomizationTypeDescription"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<dsKeyFieldAssignmentType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartKeyFieldAssignmentType>
+    <KeyFieldAssignmentGUID>f9639cff-f94f-88b2-0114-6ebea423bc62</KeyFieldAssignmentGUID>
+    <KeyFieldAssignmentKey>GUID</KeyFieldAssignmentKey>
+    <KeyFieldAssignmentDescription>Assigns a GUID to a key field.	Does not overwrite existing field values possibly (assigned by the UI`)</KeyFieldAssignmentDescription>
+  </eSmartKeyFieldAssignmentType>
+</dsKeyFieldAssignmentType>

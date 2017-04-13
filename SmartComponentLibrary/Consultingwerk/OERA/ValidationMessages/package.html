@@ -1,0 +1,108 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Consultingwerk.OERA</title>
+</head>
+<body load="onload">
+	The
+	<strong>Consultingwerk.OERA.ValidationMessages</strong> package contains core 
+	classes that allow the serialization of validation messages in a CCSBE 
+	compatible format.
+	<br />
+	<br /> See
+	<strong>Section 2.5 Component Error Handling</strong> of the CCSBE spec:
+	<br />
+	<br /> In any situation where a Business Entity method is not able to
+	perform it's task it is expected to throw errors to its caller. The
+	error message MUST state clearly the nature of the error preventing the
+	Business Entity to perform the task and the error is expected to
+	provide useful additional properties for analysis and logging. It is
+	strongly advised to throw error objects with error messages and not
+	with the legacy ReturnValue (e.g. using the AppError constructor with a
+	CHARACTER and an INTEGER parameter instead of just a single CHARACTER
+	parameter).
+	<br />
+	<br /> In the current revision the CCSBE specification will not
+	enforce different error classes or interfaces to be used for different
+	error scenarios.
+	<br />
+	<br /> Data Validation during update operations is considered an
+	application function and a key behaviour of the (Updatable) Business
+	Entity. As such validation errors (the consumer passes data for update
+	to the Business Entity that does not match the requirements of the
+	Business Logic such as empty fields, data values out of range, foreign
+	key violations etc.) are not expected to be thrown to the caller.
+	Validation error are not runtime errors; they are part of the business
+	logic functionality of a Business Entity. These validation errors are
+	returned to the caller using the mechanisms of ProDataset member
+	records (the ERROR and ERROR-STRING attribute of the member record as
+	well as the ERROR attribute of the ProDataset itself).
+	<br />
+	<br /> Validation messages returned through the ERROR-STRING attribute
+	of the temp-table records are recommended to be encoded in such a way
+	that the Message Manager (defined by CCS later) is able to return a
+	localized error message to the consumer.
+	<br />
+	<br /> Business Entity implementation that should remain usable
+	outside of a full blown CCS implementation SHOULD be prepared to return
+	validation messages directly in a human understandable form as the
+	Message Manager of the CCS may not be available.
+	<br />
+	<br /> As multiple separate validation messages (for different fields)
+	MAY need to be returned those messages are expected to be returned as a
+	JSON array. Each object in the JSON array MUST provide the following
+	properties if applicable:
+	<br />
+	<br />
+	<table class="package">
+		<tr class="packagetableheader">
+			<th>Property</th>
+			<th>Description</th>
+		</tr>
+		<tr>
+			<td>FieldName</td>
+			<td>The name of the field that caused this error. Leave blank if
+				the error is caused by the whole record</td>
+		</tr>
+		<tr>
+			<td>MessageStrings</td>
+			<td>The JSON string array of full unencoded error messages, one
+				string per line.</td>
+		</tr>
+		<tr>
+			<td>MessageId</td>
+			<td>The numeric identifier of an error message.</td>
+		</tr>
+		<tr>
+			<td>MessageGroup</td>
+			<td>The error message group</td>
+		</tr>
+		<tr>
+			<td>SubstitutionValues</td>
+			<td>The JSON string array of values to substitute placeholder
+				(&1, &2, &3, ...) in the message template identified by MessageId
+				and MessageGroup</td>
+		</tr>
+		<tr>
+			<td>Severity</td>
+			<td>A string with is either "Info", "Warning" or "Error"</td>
+		</tr>
+	</table>
+    <br />
+	The Business Entity SHOULD either set the MessageId and MessageGroup or
+	the MessageStrings property in the message structure. MessageId and
+	MessageGroup are typically passed on the client or the service
+	interface to a Message Manager component for retrieving a localized
+	message.<br />
+	<br /> If one or more JSON Array elements for MessageStrings is
+	provided the MessageId, MessageGroup and SubstitutionValues MAY be left
+	empty.<br />
+	<br /> The MessageId (message number) and MessageGroup are used to
+	retrieve a message template string from a Message Manager.<br />
+	<br /> Empty JSON properties are not supposed to be contained in the
+	ERROR-STRING property of the ProDataset member record.<br />
+	<br />
+
+</body>
+</html>

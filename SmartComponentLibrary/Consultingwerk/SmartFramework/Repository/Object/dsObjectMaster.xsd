@@ -1,0 +1,201 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsObjectMaster" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartObjectMaster" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartObjectMasterBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="ObjectMasterGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ObjectName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Object Name"/>
+              <xsd:element name="CustomizationResultGuid" type="xsd:string" nillable="true" prodata:format="x(32)" prodata:label="Customization Result"/>
+              <xsd:element name="CustomizationResultCode" type="xsd:string" nillable="true" prodata:format="X(20)" prodata:label="Customization Result Code"/>
+              <xsd:element name="ObjectTypeGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ObjectTypeName" type="xsd:string" nillable="true" prodata:format="X(20)" prodata:label="Object Type Name"/>
+              <xsd:element name="ModuleGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ModuleName" type="xsd:string" nillable="true" prodata:format="X(20)" prodata:label="Module Name"/>
+              <xsd:element name="ObjectDescription" type="xsd:string" nillable="true" prodata:format="x(400)" prodata:label="Description"/>
+              <xsd:element name="ObjectPackage" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Object Package"/>
+              <xsd:element name="ObjectExtension" type="xsd:string" nillable="true" prodata:label="Extension"/>
+              <xsd:element name="StaticObject" type="xsd:boolean" nillable="true" prodata:label="Static Object"/>
+              <xsd:element name="TemplateObject" type="xsd:boolean" nillable="true" prodata:label="Template Object"/>
+              <xsd:element name="DeploymentType" type="xsd:string" nillable="true" prodata:label="Deployment Type"/>
+              <xsd:element name="RunnableFromMenu" type="xsd:boolean" nillable="true" prodata:label="Runnable from Menu"/>
+              <xsd:element name="Disabled" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="DesignTimeDataSourceGuid" type="xsd:string" nillable="true" prodata:format="x(36)" prodata:label="Design Time Data Source"/>
+              <xsd:element name="DesignTimeDataSourceName" type="xsd:string" nillable="true" prodata:format="X(20)" prodata:label="Design Time Data Source Name"/>
+              <xsd:element name="ContainerType" type="xsd:boolean" nillable="true" prodata:label="Container"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eSmartLink" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartLinkBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="LinkGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ContainerObjectMasterGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="LinkTypeGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="LinkName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Link Name"/>
+              <xsd:element name="SourceObjectInstanceGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="SourceObjectName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Source Object"/>
+              <xsd:element name="SourcePageNumber" type="xsd:int" nillable="true" prodata:format=">>9" prodata:label="Source Page"/>
+              <xsd:element name="TargetObjectInstanceGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="TargetObjectName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Target Object"/>
+              <xsd:element name="TargetPageNumber" type="xsd:int" nillable="true" prodata:format=">>9" prodata:label="Target Page"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eSmartObjectInstance" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartObjectInstanceBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="ObjectInstanceGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ContainerObjectMasterGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ObjectMasterGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ObjectMasterName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Object Name"/>
+              <xsd:element name="ParentInstanceGuid" type="xsd:string" nillable="true" prodata:initial="prodata:unknown" prodata:format="x(36)" prodata:label="Parent Instance"/>
+              <xsd:element name="LayoutPosition" type="xsd:string" nillable="true" prodata:label="Layout Position"/>
+              <xsd:element name="InstanceName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Instance Name"/>
+              <xsd:element name="InstanceDescription" type="xsd:string" nillable="true" prodata:format="x(400)" prodata:label="Description"/>
+              <xsd:element name="PageGuid" type="xsd:string" nillable="true" prodata:format="x(36)" prodata:label="Page"/>
+              <xsd:element name="ObjectSequence" type="xsd:int" nillable="true" prodata:format="->,>>9" prodata:label="Object Sequence"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eSmartPage" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartPageBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="PageGuid" type="xsd:string" nillable="true" prodata:format="x(36)" prodata:label="Page"/>
+              <xsd:element name="ContainerObjectMasterGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="PageSequence" type="xsd:int" nillable="true" prodata:format=">>9" prodata:label="Page Number"/>
+              <xsd:element name="PageLabel" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Page Label"/>
+              <xsd:element name="SecurityToken" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Security Token"/>
+              <xsd:element name="EnableOnCreate" type="xsd:boolean" nillable="true" default="true" prodata:label="Enable on create"/>
+              <xsd:element name="EnableOnModify" type="xsd:boolean" nillable="true" default="true" prodata:label="Enable on modify"/>
+              <xsd:element name="EnableOnView" type="xsd:boolean" nillable="true" default="true" prodata:label="Enable on view"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="ObjectMasterGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartObjectMaster"/>
+      <xsd:field xpath="ObjectMasterGuid"/>
+    </xsd:unique>
+    <xsd:unique name="PackageObjectFileNameCustomizati">
+      <xsd:selector xpath=".//eSmartObjectMaster"/>
+      <xsd:field xpath="ObjectPackage"/>
+      <xsd:field xpath="ObjectName"/>
+      <xsd:field xpath="CustomizationResultGuid"/>
+    </xsd:unique>
+    <xsd:unique name="ContainerSourceLinkTarget">
+      <xsd:selector xpath=".//eSmartLink"/>
+      <xsd:field xpath="ContainerObjectMasterGuid"/>
+      <xsd:field xpath="SourceObjectInstanceGuid"/>
+      <xsd:field xpath="LinkName"/>
+      <xsd:field xpath="TargetObjectInstanceGuid"/>
+    </xsd:unique>
+    <xsd:unique name="LinkGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartLink"/>
+      <xsd:field xpath="LinkGuid"/>
+    </xsd:unique>
+    <xsd:unique name="ContainerInstanceName">
+      <xsd:selector xpath=".//eSmartObjectInstance"/>
+      <xsd:field xpath="ContainerObjectMasterGuid"/>
+      <xsd:field xpath="InstanceName"/>
+    </xsd:unique>
+    <xsd:unique name="ObjectInstanceGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartObjectInstance"/>
+      <xsd:field xpath="ObjectInstanceGuid"/>
+    </xsd:unique>
+    <xsd:unique name="ContainerPageSequence">
+      <xsd:selector xpath=".//eSmartPage"/>
+      <xsd:field xpath="ContainerObjectMasterGuid"/>
+      <xsd:field xpath="PageSequence"/>
+    </xsd:unique>
+    <xsd:unique name="PageGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartPage"/>
+      <xsd:field xpath="PageGuid"/>
+    </xsd:unique>
+    <xsd:keyref name="eSmartObjectMastereSmartLinkRelation" refer="ObjectMasterGuid">
+      <xsd:selector xpath=".//eSmartLink"/>
+      <xsd:field xpath="ContainerObjectMasterGuid"/>
+    </xsd:keyref>
+    <xsd:keyref name="eSmartObjectMastereSmartObjectInstanceRelation" refer="ObjectMasterGuid">
+      <xsd:selector xpath=".//eSmartObjectInstance"/>
+      <xsd:field xpath="ContainerObjectMasterGuid"/>
+    </xsd:keyref>
+    <xsd:keyref name="eSmartObjectMastereSmartPageRelation" refer="ObjectMasterGuid">
+      <xsd:selector xpath=".//eSmartPage"/>
+      <xsd:field xpath="ContainerObjectMasterGuid"/>
+    </xsd:keyref>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="CustomizationResultGuid">
+        <prodata:table name="eSmartObjectMaster"/>
+        <prodata:field name="CustomizationResultGuid"/>
+      </prodata:index>
+      <prodata:index name="ObjectDescription">
+        <prodata:table name="eSmartObjectMaster"/>
+        <prodata:field name="ObjectDescription"/>
+      </prodata:index>
+      <prodata:index name="ObjectNameCustomization">
+        <prodata:table name="eSmartObjectMaster"/>
+        <prodata:field name="ObjectName"/>
+        <prodata:field name="CustomizationResultGuid"/>
+      </prodata:index>
+      <prodata:index name="ObjectTypeGuid">
+        <prodata:table name="eSmartObjectMaster"/>
+        <prodata:field name="ObjectTypeGuid"/>
+      </prodata:index>
+      <prodata:index name="RunnableFromMenu">
+        <prodata:table name="eSmartObjectMaster"/>
+        <prodata:field name="RunnableFromMenu"/>
+      </prodata:index>
+      <prodata:index name="TemplateObject">
+        <prodata:table name="eSmartObjectMaster"/>
+        <prodata:field name="TemplateObject"/>
+      </prodata:index>
+      <prodata:index name="LinkContainer">
+        <prodata:table name="eSmartLink"/>
+        <prodata:field name="LinkName"/>
+        <prodata:field name="ContainerObjectMasterGuid"/>
+      </prodata:index>
+      <prodata:index name="LinkTypeContainer">
+        <prodata:table name="eSmartLink"/>
+        <prodata:field name="LinkTypeGuid"/>
+        <prodata:field name="ContainerObjectMasterGuid"/>
+      </prodata:index>
+      <prodata:index name="SourceContainer">
+        <prodata:table name="eSmartLink"/>
+        <prodata:field name="SourceObjectInstanceGuid"/>
+        <prodata:field name="ContainerObjectMasterGuid"/>
+      </prodata:index>
+      <prodata:index name="TargetContainer">
+        <prodata:table name="eSmartLink"/>
+        <prodata:field name="TargetObjectInstanceGuid"/>
+        <prodata:field name="ContainerObjectMasterGuid"/>
+      </prodata:index>
+      <prodata:index name="ContainerPageSequence">
+        <prodata:table name="eSmartObjectInstance"/>
+        <prodata:field name="ContainerObjectMasterGuid"/>
+        <prodata:field name="PageGuid"/>
+        <prodata:field name="ObjectSequence"/>
+      </prodata:index>
+      <prodata:index name="ContainerParentSequence">
+        <prodata:table name="eSmartObjectInstance"/>
+        <prodata:field name="ContainerObjectMasterGuid"/>
+        <prodata:field name="ParentInstanceGuid"/>
+        <prodata:field name="ObjectSequence"/>
+      </prodata:index>
+      <prodata:index name="ObjectMasterGuid">
+        <prodata:table name="eSmartObjectInstance"/>
+        <prodata:field name="ObjectMasterGuid"/>
+      </prodata:index>
+      <prodata:index name="PageGuid">
+        <prodata:table name="eSmartObjectInstance"/>
+        <prodata:field name="PageGuid"/>
+        <prodata:field name="ObjectSequence"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

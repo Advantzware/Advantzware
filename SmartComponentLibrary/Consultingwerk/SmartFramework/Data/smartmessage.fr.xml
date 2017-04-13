@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<dsMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartMessage>
+    <MessageGuid>c9c3aa5a-0d93-37bb-1914-bc9e1458a7cd</MessageGuid>
+    <MessageGroup>SFR</MessageGroup>
+    <MessageNumber>1</MessageNumber>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013fd2218ca</LanguageGuid>
+    <MessageText>Êtes-vous sûr de vouloir quitter l&apos;application?</MessageText>
+    <MessageDetail>Êtes-vous sûr de vouloir quitter l&apos;application &amp;1?</MessageDetail>
+    <MessageType>Question</MessageType>
+  </eSmartMessage>
+</dsMessage>

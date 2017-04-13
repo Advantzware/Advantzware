@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<dsTranslation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartTranslation>
+    <TranslationGuid>c9c3aa5a-0d93-37bb-1914-c39ec45cadb1</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationFirst_ButtonCaption</TranslationKey>
+    <LanguageGuid>cd229641-1db6-81b3-e211-66569ba03908</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Eerste record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c9c3aa5a-0d93-37bb-1914-c49e30f9073a</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationLast_ButtonCaption</TranslationKey>
+    <LanguageGuid>cd229641-1db6-81b3-e211-66569ba03908</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Laatste record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c9c3aa5a-0d93-37bb-1914-c59e2473a131</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationNext_ButtonCaption</TranslationKey>
+    <LanguageGuid>cd229641-1db6-81b3-e211-66569ba03908</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Volgend record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c9c3aa5a-0d93-37bb-1914-c69e748ba500</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationPrev_ButtonCaption</TranslationKey>
+    <LanguageGuid>cd229641-1db6-81b3-e211-66569ba03908</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Vorig record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>ee19d73b-9980-7897-1914-cced005dea49</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOAdd_ButtonCaption</TranslationKey>
+    <LanguageGuid>cd229641-1db6-81b3-e211-66569ba03908</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Toevoegen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>ee19d73b-9980-7897-1914-cded40704a54</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOCancel_ButtonCaption</TranslationKey>
+    <LanguageGuid>cd229641-1db6-81b3-e211-66569ba03908</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Annuleren</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>ee19d73b-9980-7897-1914-ceed5c33c44a</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOCopy_ButtonCaption</TranslationKey>
+    <LanguageGuid>cd229641-1db6-81b3-e211-66569ba03908</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Kopiëren</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>ee19d73b-9980-7897-1914-cfed6c71d751</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIODelete_ButtonCaption</TranslationKey>
+    <LanguageGuid>cd229641-1db6-81b3-e211-66569ba03908</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Verwijderen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>ee19d73b-9980-7897-1914-d0ed445472f0</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOSave_ButtonCaption</TranslationKey>
+    <LanguageGuid>cd229641-1db6-81b3-e211-66569ba03908</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Opslaan</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>ee19d73b-9980-7897-1914-d1eda8e6e8d2</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOUpdate_ButtonCaption</TranslationKey>
+    <LanguageGuid>cd229641-1db6-81b3-e211-66569ba03908</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Wijzigen</TranslatedString>
+  </eSmartTranslation>
+</dsTranslation>

@@ -1,0 +1,515 @@
+<?xml version="1.0"?>
+<dsTranslation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartTranslation>
+    <TranslationGuid>9270cf01-fd6c-4baf-e211-6460b8373a5b</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOSave_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Speichern</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>937b46a9-20d1-eb91-e211-64601cb9f760</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOUpdate_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Ändern</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>937b46a9-20d1-eb91-e211-64605f2a3540</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOAdd_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Hinzufügen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>950ac719-32aa-5da7-0b14-20d5a85a2b90</TranslationGuid>
+    <TranslationScope>webui</TranslationScope>
+    <TranslationKey>eCustomer.City.Label</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Stadt</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>950ac719-32aa-5da7-0b14-c5d4141e1573</TranslationGuid>
+    <TranslationScope>webui</TranslationScope>
+    <TranslationKey>eCustomer.Name.Label</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Kundenname</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>a2986521-f893-289e-e211-815b206b7aa4</TranslationGuid>
+    <TranslationScope/>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>Warning</OriginalString>
+    <TranslatedString>Warnung</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>a2986521-f893-289e-e211-815b21fc8994</TranslationGuid>
+    <TranslationScope/>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>Information</OriginalString>
+    <TranslatedString>Nachricht</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>a2986521-f893-289e-e211-815b5c496588</TranslationGuid>
+    <TranslationScope/>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>Question</OriginalString>
+    <TranslatedString>Frage</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>a2986521-f893-289e-e211-815be7a2d09c</TranslationGuid>
+    <TranslationScope/>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>Error</OriginalString>
+    <TranslatedString>Fehler</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>a910e3e0-7bb0-34bd-e211-645f6a735b90</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationFirst_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Erster Datensatz</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>a92699ec-c7e5-89a6-e211-6460050dbd54</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIODelete_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Löschen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>a92699ec-c7e5-89a6-e211-6460f15a4135</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationPrev_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Vorheriger Datensatz</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>bedfd430-ef8a-62af-e211-eb5efd5b19be</TranslationGuid>
+    <TranslationScope>Attachment</TranslationScope>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>Attachments</OriginalString>
+    <TranslatedString>Anlagen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c5dd988f-1b4f-2fbe-d613-4f15bcf7cb2d</TranslationGuid>
+    <TranslationScope>SmartViewerControl</TranslationScope>
+    <TranslationKey>DeletePrompt</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Sind Sie sicher, dass Sie diesen Datensatz löschen möchten?</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c5dd988f-1b4f-2fbe-d613-51150046fb6e</TranslationGuid>
+    <TranslationScope>SmartUpdatableBrowser</TranslationScope>
+    <TranslationKey>DeletePrompt</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Sind Sie sicher, dass Sie die ausgewählte Zeile löschen möchten?</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>ce3be47a-fc9e-7b95-e211-64604d480f4a</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOCancel_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Abbrechen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>ce3be47a-fc9e-7b95-e211-646077f14421</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationLast_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Letzter Datensatz</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>d21acb65-dade-2fad-e211-ba5f849e07fe</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinGrid</TranslationScope>
+    <TranslationKey>GroupByBoxDefaultPrompt</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Legen Sie eine Spalte hier ab, um nach dieser zu gruppieren.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>dd81d84a-f6aa-9ab0-e211-1d5f0e6f8e8f</TranslationGuid>
+    <TranslationScope>Attachment</TranslationScope>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>Edit Attachment</OriginalString>
+    <TranslatedString>Anlage bearbeiten</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>dd81d84a-f6aa-9ab0-e211-1d5f2be0ee87</TranslationGuid>
+    <TranslationScope>Attachment</TranslationScope>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>Add Attachment</OriginalString>
+    <TranslatedString>Neue Anlage</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>dd81d84a-f6aa-9ab0-e211-1d5f39181f98</TranslationGuid>
+    <TranslationScope>Attachment</TranslationScope>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>Remove Attachment</OriginalString>
+    <TranslatedString>Anlage entfernen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>dd81d84a-f6aa-9ab0-e211-1d5f501a33a3</TranslationGuid>
+    <TranslationScope>Attachment</TranslationScope>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>Open Attachment</OriginalString>
+    <TranslatedString>Anlage öffnen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>dd81d84a-f6aa-9ab0-e211-1d5fd8d28faa</TranslationGuid>
+    <TranslationScope>Attachment</TranslationScope>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>Export Attachment</OriginalString>
+    <TranslatedString>Anlage exportieren</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bc5fd640a6e3</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinTabbedMdi</TranslationScope>
+    <TranslationKey>MenuItemCancel</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Abbrechen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bd5f26f65c2d</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinTabbedMdi</TranslationScope>
+    <TranslationKey>MenuItemNewHorizontalGroup</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Neue horizontale Gruppe</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bd5f31aece53</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinTabbedMdi</TranslationScope>
+    <TranslationKey>MenuItemMoveToPreviousGroup</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Zur vorherigen Gruppe verschieben</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bd5f65baff0c</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinTabbedMdi</TranslationScope>
+    <TranslationKey>MenuItemClose</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Schliessen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bd5f98fc4d3a</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinTabbedMdi</TranslationScope>
+    <TranslationKey>MenuItemNewVerticalGroup</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Neue vertikale Gruppe</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bd5fc0c5d35c</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinTabbedMdi</TranslationScope>
+    <TranslationKey>MenuItemMaximize</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Maximieren</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bd5fdf1b9147</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinTabbedMdi</TranslationScope>
+    <TranslationKey>MenuItemMoveToNextGroup</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Zur nächsten Gruppe verschieben</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bf5f0483fab2</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinToolbars</TranslationScope>
+    <TranslationKey>QuickAccessToolbarBelowRibbonCustomize</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>&amp;Favoriten unter dem Menüband</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bf5f206af8a8</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinToolbars</TranslationScope>
+    <TranslationKey>QuickAccessToolbarBelowRibbon</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>&amp;Favoriten unter dem Menüband anzeigen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bf5f3253aa96</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinToolbars</TranslationScope>
+    <TranslationKey>QuickAccessToolbarAboveRibbonCustomize</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>&amp;Favoriten über dem Menüband</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bf5f5806e768</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinToolbars</TranslationScope>
+    <TranslationKey>QatQuickCustomizeToolTip</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Favoriten anpassen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bf5f639bad8a</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinToolbars</TranslationScope>
+    <TranslationKey>QuickAccessToolbarAboveRibbon</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>&amp;Favoriten über dem Menüband anzeigen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bf5f672f7bd9</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinToolbars</TranslationScope>
+    <TranslationKey>LockToolbars</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Toolbar &amp;sperren</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bf5f7ac9dfbf</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinToolbars</TranslationScope>
+    <TranslationKey>MinimizeRibbon</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Menüband &amp;minimieren</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bf5f9d88c05a</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinToolbars</TranslationScope>
+    <TranslationKey>MdiCommandCloseWindows</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Alle Fenster schliessen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bf5fb1e262cb</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinToolbars</TranslationScope>
+    <TranslationKey>Customize</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>&amp;Anpassen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bf5fc6321f74</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinToolbars</TranslationScope>
+    <TranslationKey>AddToQuickAccessToolbar</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Zu den Favoriten &amp;hinzufügen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-bf5ff2923081</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinToolbars</TranslationScope>
+    <TranslationKey>RemoveFromQuickAccessToolbar</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Von den Favoriten &amp;entfernen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05f25f818a5</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationPaneOptionsDialog_OKButton</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>OK</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05f2a7c199e</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationPaneOptionsDialog_MoveUpButton_AccessibleDescription</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Verschiebt die ausgewählte Schaltfläche nach oben.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05f2e32613b</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationQuickCustomizeMenu_AddOrRemoveButtons</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>&amp;Schaltflächen hinzufügen oder entfernen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05f3a4bfe3f</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationQuickCustomizeMenu_NavigationPaneOptions</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Na&amp;vigationsbereichoptionen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05f705a2f44</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationPaneOptionsDialog_Caption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Navigationsbereichsoptionen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05f98a4a443</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationPaneOptionsDialog_CancelButton</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Abbrechen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05fa8111c43</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationPaneOptionsDialog_AccessibleDescription</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Bestimmt die Reihenfolge der Schaltflächen im Navigationsbereich</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05fa8d19345</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationPaneOptionsDialog_MoveDownButton_AccessibleDescription</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Verschiebt die ausgewählte Schaltfläche nach unten.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05fad7faa44</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationPaneOptionsDialog_Label</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>S&amp;chaltflächen in dieser Reihenfolge anzeigen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05fbc5e3b46</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationPaneOptionsDialog_MoveUpButton</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Nach &amp;oben</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05fc7b47942</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationQuickCustomizeMenu_ShowMoreButtons</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>&amp;Weniger Schaltflächen anzeigen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05fd07f02a7</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationPaneOptionsDialog_ResetButton</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>&amp;Zurücksetzen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05fd54c1745</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationPaneOptionsDialog_MoveDownButton</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Nach &amp;unten</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05fe21d1430</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationQuickCustomizeButton_Tooltip</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Schaltflächen konfigurieren</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c05fff443741</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationQuickCustomizeMenu_ShowFewerButtons</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>W&amp;eniger Schaltflächen anzeigen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>e892b55a-7631-829f-e211-c15f4d9b561d</TranslationGuid>
+    <TranslationScope>Infragistics.Win.UltraWinExplorerBar</TranslationScope>
+    <TranslationKey>NavigationPaneOptionsDialog_ResetButton_AccessibleDescription</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Setzt die Reihenfolge der Schaltflächen zurück.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>efcf8f70-9e10-aeb5-e211-835b22de48bb</TranslationGuid>
+    <TranslationScope>Button</TranslationScope>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>&amp;No</OriginalString>
+    <TranslatedString>&amp;Nein</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>efcf8f70-9e10-aeb5-e211-835b3748e2d4</TranslationGuid>
+    <TranslationScope>Button</TranslationScope>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>&amp;Retry</OriginalString>
+    <TranslatedString>&amp;Wiederholen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>efcf8f70-9e10-aeb5-e211-835b538c24cb</TranslationGuid>
+    <TranslationScope>Button</TranslationScope>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>&amp;Ok</OriginalString>
+    <TranslatedString>&amp;Ok</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>efcf8f70-9e10-aeb5-e211-835b96882fdb</TranslationGuid>
+    <TranslationScope>Button</TranslationScope>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>&amp;Yes</OriginalString>
+    <TranslatedString>&amp;Ja</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>efcf8f70-9e10-aeb5-e211-835b9be1ae9f</TranslationGuid>
+    <TranslationScope>Button</TranslationScope>
+    <TranslationKey xsi:nil="true"/>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString>&amp;Cancel</OriginalString>
+    <TranslatedString>&amp;Abbrechen</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>f79a297d-ab93-d7a2-e211-646096d0852c</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationNext_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Nächster Datensatz</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>f79a297d-ab93-d7a2-e211-6460b609c14f</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOCopy_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Kopieren</TranslatedString>
+  </eSmartTranslation>
+</dsTranslation>

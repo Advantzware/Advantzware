@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsContextStore" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartContextStore" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartContextStoreBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="ContextStoreGUID" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="SessionID" type="xsd:string" nillable="true" prodata:format="x(40)" prodata:label="Session ID"/>
+              <xsd:element name="UserName" type="xsd:string" nillable="true" prodata:format="x(20)" prodata:label="User Name"/>
+              <xsd:element name="DomainName" type="xsd:string" nillable="true" prodata:format="x(20)" prodata:label="Domain Name"/>
+              <xsd:element name="Created" type="xsd:dateTime" nillable="true" prodata:label="Date Time Created"/>
+              <xsd:element name="LastAccessed" type="xsd:dateTime" nillable="true" prodata:label="Date Time Last Accessed"/>
+              <xsd:element name="ContextDataset" type="xsd:string" nillable="true" prodata:dataType="prodata:clob"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="ContextStoreGUID" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartContextStore"/>
+      <xsd:field xpath="ContextStoreGUID"/>
+    </xsd:unique>
+    <xsd:unique name="SessionID">
+      <xsd:selector xpath=".//eSmartContextStore"/>
+      <xsd:field xpath="SessionID"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="Created">
+        <prodata:table name="eSmartContextStore"/>
+        <prodata:field name="Created"/>
+      </prodata:index>
+      <prodata:index name="DomainUser">
+        <prodata:table name="eSmartContextStore"/>
+        <prodata:field name="DomainName"/>
+        <prodata:field name="UserName"/>
+      </prodata:index>
+      <prodata:index name="LastAccessed">
+        <prodata:table name="eSmartContextStore"/>
+        <prodata:field name="LastAccessed"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

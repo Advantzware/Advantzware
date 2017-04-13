@@ -1,0 +1,6 @@
+Progress has changed the format of .wrx file in 9.1D06, which can lead to compatibility problems with earlier Progress version
+
+The package now inlcudes a wrxFiledsFor91D-91D05.zip file.  As the name says, it includes wrx files for old Progress versions between 9.1D no SP and 9.1D06 to make life easier for people who have not the chance to upgrade to a recent version of Progress.
+
+
+So if you are using 9.1D without any service pack or with a Service Pack level lower than SP 6, then you should override the wrx files of the abhack directory with those of the zip file.

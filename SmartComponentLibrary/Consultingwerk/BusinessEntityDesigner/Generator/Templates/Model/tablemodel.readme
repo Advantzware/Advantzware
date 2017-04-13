@@ -1,0 +1,5 @@
+&1      model class name
+&2      package name
+@USER@  the current user name
+@USERID@      the current user id
+@DATE@  time stamp

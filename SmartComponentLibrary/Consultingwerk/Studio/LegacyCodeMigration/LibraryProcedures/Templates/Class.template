@@ -1,0 +1,50 @@
+/**********************************************************************
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
+ * www.consultingwerk.de and other contributors as listed             *
+ * below.  All Rights Reserved.                                       *
+ *                                                                    *
+ *  Software is distributed on an "AS IS", WITHOUT WARRANTY OF ANY    *
+ *   KIND, either express or implied.                                 *
+ *                                                                    *
+ *  Contributors:                                                     *
+ *                                                                    *
+ **********************************************************************/
+/*------------------------------------------------------------------------
+    File        : &2
+    Purpose     : Class for library procedure wrapper
+    Syntax      : 
+    Description : 
+    Author(s)   : &3
+    Created     : &4
+    Notes       : 
+  ----------------------------------------------------------------------*/
+
+USING &1.* FROM PROPATH .  
+USING Progress.Lang.* FROM PROPATH .
+
+CLASS &1.&2
+    IMPLEMENTS &6.&7:  
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the handle of the library procedure
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY LibraryHandle AS HANDLE NO-UNDO
+    GET.
+    PRIVATE SET.
+    
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &2 class
+        Notes:
+        @param phProcedureHandle The handle of the library procedure
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC &2 (phProcedureHandle AS HANDLE):
+        SUPER ().
+
+        Consultingwerk.Assertion.HandleAssert:WidgetType (phProcedureHandle, "PROCEDURE":U) .
+
+        ASSIGN THIS-OBJECT:LibraryHandle = phProcedureHandle .
+
+    END CONSTRUCTOR.
+  
+&5END CLASS.

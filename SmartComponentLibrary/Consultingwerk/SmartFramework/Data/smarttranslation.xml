@@ -1,0 +1,599 @@
+<?xml version="1.0"?>
+<dsTranslation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartTranslation>
+    <TranslationGuid>9622697a-6a56-56ad-e213-06c1a8bd4367</TranslationGuid>
+    <TranslationScope>Error</TranslationScope>
+    <TranslationKey>Progress.Lang.SysError</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>A runtime error has occurred (Progress.Lang.SysError)</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>9622697a-6a56-56ad-e213-07c10817874b</TranslationGuid>
+    <TranslationScope>Error</TranslationScope>
+    <TranslationKey>Progress.Lang.SoapFaultError</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>A SOAP fault error has occurred</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>9622697a-6a56-56ad-e213-09c1b40f159e</TranslationGuid>
+    <TranslationScope>Error</TranslationScope>
+    <TranslationKey>System.Exception</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>A .NET Exception has occurred (System.Exception)</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>9622697a-6a56-56ad-e213-abc040da45cf</TranslationGuid>
+    <TranslationScope>Error</TranslationScope>
+    <TranslationKey>Progress.Lang.AppError</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>An application error has occurred (Progress.Lang.AppError)</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>bd18c06d-931d-5286-e211-016066562f08</TranslationGuid>
+    <TranslationScope>SmartUpdatableBrowser</TranslationScope>
+    <TranslationKey>SaveRecordPromt_On_RowDeactivate</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString/>
+    <TranslatedString>Current values have not been saved.
+
+Do you wish to save current values before you select another row?</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c5dd988f-1b4f-2fbe-d613-4e15386c6f36</TranslationGuid>
+    <TranslationScope>SmartViewerControl</TranslationScope>
+    <TranslationKey>DeletePrompt</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Are you sure, that you want to delete this record?</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c5dd988f-1b4f-2fbe-d613-50151c5ac377</TranslationGuid>
+    <TranslationScope>SmartUpdatableBrowser</TranslationScope>
+    <TranslationKey>DeletePrompt</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Are you sure, that you want to delete the selected row?</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>f1cd2fe5-c200-e092-e211-665f7d6724bf</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationFirst_ButtonCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>First record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160067bd2de</TranslationGuid>
+    <TranslationScope>SmartBusinessEntityBindingSource</TranslationScope>
+    <TranslationKey>DesignerImportSchemaNewSchemaImported</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>New Schema imported into</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01600736d7de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOUpdate_ButtonCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Update record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01600fecd4de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationPrev_ButtonCustomizerCaptio</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Previous</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-016016a2d2de</TranslationGuid>
+    <TranslationScope>SmartBusinessEntityBindingSource</TranslationScope>
+    <TranslationKey>DesignerImportSchema_Title</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>SmartBusinessEntityBindingSource</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160185dd7de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOUpdate_ButtonCustomizerCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Update</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01601d58d0de</TranslationGuid>
+    <TranslationScope>SmartUpdatableBrowser</TranslationScope>
+    <TranslationKey>UnableToEnableFields_NoActiveRow</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Unable to enable fields for add/update. There is no active row.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01601f13d5de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationPrev_ButtonToolTipText</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Previous record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-016027c9d2de</TranslationGuid>
+    <TranslationScope>SmartDataObjectAdapter</TranslationScope>
+    <TranslationKey>UpdateRowSysError</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Progress runtime</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01602984d7de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOUpdate_ButtonToolTipText</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Update record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01602d7fd0de</TranslationGuid>
+    <TranslationScope>SmartViewerControl</TranslationScope>
+    <TranslationKey>UpdateActiveWhileFormClosing</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Current values have not been saved.
+
+Do you wish to save current values before you close the window?</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160303ad5de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationNext_ButtonCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Next record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-016037f0d2de</TranslationGuid>
+    <TranslationScope>SmartDataObjectBindingSource</TranslationScope>
+    <TranslationKey>DesignerImportSchemaUnableToLaunchSDO</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Unable to launch SmartDataObject!</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-016038abd7de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOSave_ButtonCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Save changes</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01603aabd7de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOSave_ButtonCustomizerCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Save</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01603ea6d0de</TranslationGuid>
+    <TranslationScope>SmartViewerControl</TranslationScope>
+    <TranslationKey>UpdateActiveWhileFormClosing_Title</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Close Window</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01604161d5de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationNext_ButtonCustomizerCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Next</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01604817d3de</TranslationGuid>
+    <TranslationScope>SmartDataObjectBindingSource</TranslationScope>
+    <TranslationKey>DesignerImportSchemaSuccess</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>RowObject schema of SmartDataObject &amp;1 imported.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01604ad2d7de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOSave_ButtonToolTipText</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Save changes</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01604ecdd0de</TranslationGuid>
+    <TranslationScope>SmartViewerControl</TranslationScope>
+    <TranslationKey>UnableToCreateRecord</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Unable to create a new record.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01605188d5de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationNext_ButtonToolTipText</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Next record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160593ed3de</TranslationGuid>
+    <TranslationScope>SmartDataObjectBindingSource</TranslationScope>
+    <TranslationKey>DesignerImportSchemaSuccess_Title</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>SmartComponent Library</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01605af9d7de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOCancel_ButtonCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Cancel update</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01605cf9d7de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOCancel_ButtonCustomizerCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Cancel</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01605ff4d0de</TranslationGuid>
+    <TranslationScope>SmartViewerControl</TranslationScope>
+    <TranslationKey>DisplayError_Title</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Error</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-016062afd5de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationLast_ButtonCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Last record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01606965d3de</TranslationGuid>
+    <TranslationScope>SmartGenericLookup</TranslationScope>
+    <TranslationKey>ShowLookupDialogNumberOfControlsAndFieldsNotEqual_Part1</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>The number of LookupControls is different than the number of LookupFields.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01606b20d8de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOCancel_ButtonToolTipText</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Cancel update</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160701bd1de</TranslationGuid>
+    <TranslationScope>SmartBindingSource</TranslationScope>
+    <TranslationKey>AddControlsForChosenFieldsCatchBlock_Title</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>SmartComponent Library - SmartBindingSource</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-016072d6d5de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationLast_ButtonCustomizerCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Last</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01607a8cd3de</TranslationGuid>
+    <TranslationScope>SmartGenericLookup</TranslationScope>
+    <TranslationKey>ShowLookupDialogNumberOfControlsAndFieldsNotEqual_Part2</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Please remember to fill those properties in pairs.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01607b47d8de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIODelete_ButtonCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Delete record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01608042d1de</TranslationGuid>
+    <TranslationScope>SmartBindingSource</TranslationScope>
+    <TranslationKey>DesignerAddFieldsCatchBlock_Title</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>SmartComponent Library - SmartBindingSource</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-016083fdd5de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationLast_ButtonToolTipText</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Last record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01608ab3d3de</TranslationGuid>
+    <TranslationScope>SmartGenericLookup</TranslationScope>
+    <TranslationKey>ShowLookupDialogNoSmartDataSource</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>There is currently no valid SmartDataSource defined.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01608c6ed8de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIODelete_ButtonCustomizerCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Delete</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01608e6ed8de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIODelete_ButtonToolTipText</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Delete record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01609169d1de</TranslationGuid>
+    <TranslationScope>SmartBindingSource</TranslationScope>
+    <TranslationKey>DesignerClearSchemaCatchBlock_Title</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>SmartComponent Library - SmartBindingSource</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01609324d6de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolBar_Text</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>TableIO Toolbar</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01609bdad3de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>AddNavigationTools</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Adding default navigation Tools and Toolbar to the design time instance.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-01609d95d8de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TransactionToolBar_Text</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Transaction Toolbar</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160a190d1de</TranslationGuid>
+    <TranslationScope>SmartBindingSource</TranslationScope>
+    <TranslationKey>DesignerImportSchemaCatchBlock_Title</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>SmartComponent Library - SmartBindingSource</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160a390d1de</TranslationGuid>
+    <TranslationScope>SmartBusinessEntityAdapter</TranslationScope>
+    <TranslationKey>RetrieveDataError</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Error during RetrieveData:</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160a44bd6de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOAdd_ButtonCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Add record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160aa01d4de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>AddNavigationTools_Title</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>SmartComponent Library</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160adbcd8de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TransactionToolTransactionCommit_ButtonCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Commit</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160b3b7d1de</TranslationGuid>
+    <TranslationScope>SmartBusinessEntityAdapter</TranslationScope>
+    <TranslationKey>CommitRejectWithAutoCommit</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Unable to commit or reject transaction when AutoCommit is turned on.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160b572d6de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOAdd_ButtonCustomizerCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Add</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160bb28d4de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>AddTableIOTools</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Adding default TableIO Tools and Toolbar to the design time instance.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160bd28d4de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>AddTableIOTools_Title</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>SmartComponent Library</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160bde3d8de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TransactionToolTransactionCommit_ButtonCustomizerCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Commit</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160bfe3d8de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TransactionToolTransactionCommit_ButtonToolTipText</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Commit transaction</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160c3ded1de</TranslationGuid>
+    <TranslationScope>SmartBusinessEntityAdapter</TranslationScope>
+    <TranslationKey>DeleteNoRecordError</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Unable to delete - no row is available.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160c599d6de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOAdd_ButtonToolTipText</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Add record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160cd4fd4de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolBar_Text</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Navigation Toolbar</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160ce0ad9de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TransactionToolTransactionUndo_ButtonCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Revert</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160d405d2de</TranslationGuid>
+    <TranslationScope>SmartBusinessEntityAdapter</TranslationScope>
+    <TranslationKey>UnableToCommitTransaction</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Unable to commit transaction.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160d5c0d6de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOCopy_ButtonCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Copy record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160df31d9de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TransactionToolTransactionUndo_ButtonCustomizerCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Revert</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160e52cd2de</TranslationGuid>
+    <TranslationScope>SmartBusinessEntityAdapter</TranslationScope>
+    <TranslationKey>UnableToRejectTransaction</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Unable to reject transaction.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160e5e7d6de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOCopy_ButtonCustomizerCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Copy</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160ed9dd4de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationFirst_ButtonCustomizerCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>First</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160ee58d9de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TransactionToolTransactionUndo_ButtonToolTipText</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Revert transaction</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160ef9dd4de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationFirst_ButtonToolTipText</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>First record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160f553d2de</TranslationGuid>
+    <TranslationScope>SmartBusinessEntityBindingSource</TranslationScope>
+    <TranslationKey>DesignerImportSchemaNoValidSchema</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Backend returned no valid schema information. Cancelling.</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160f70ed7de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOCopy_ButtonToolTipText</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Copy record</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>fc80d219-c93d-719e-e211-0160fec4d4de</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationPrev_ButtonCaption</TranslationKey>
+    <LanguageGuid/>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Previous record</TranslatedString>
+  </eSmartTranslation>
+</dsTranslation>

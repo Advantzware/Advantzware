@@ -1,0 +1,1748 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element msdata:IsDataSet="true" name="root">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" name="value" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+                <xsd:element minOccurs="0" msdata:Ordinal="2" name="comment" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute msdata:Ordinal="1" name="name" type="xsd:string" use="required"/>
+              <xsd:attribute msdata:Ordinal="3" name="type" type="xsd:string"/>
+              <xsd:attribute msdata:Ordinal="4" name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <metadata name="smartBusinessEntityBindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="eSmartSchedulerJobPlan_MaxRuntime_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="eSmartSchedulerJobPlan_MaxRuntime_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 57</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_MaxRuntime_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>77, 14</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_MaxRuntime_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_MaxRuntime_Label.Text" xml:space="preserve">
+    <value>Max. Runtime:</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxRuntime_Label.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_MaxRuntime_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxRuntime_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxRuntime_Label.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxRuntime_Label.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_MaxRuntime.Location" type="System.Drawing.Point, System.Drawing">
+    <value>156, 53</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_MaxRuntime.Size" type="System.Drawing.Size, System.Drawing">
+    <value>80, 21</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_MaxRuntime.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxRuntime.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_MaxRuntime</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxRuntime.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraNumericEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxRuntime.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxRuntime.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_MaxExecutionDelay_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_MaxExecutionDelay_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 84</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_MaxExecutionDelay_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>64, 14</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_MaxExecutionDelay_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_MaxExecutionDelay_Label.Text" xml:space="preserve">
+    <value>Max. Delay:</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxExecutionDelay_Label.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_MaxExecutionDelay_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxExecutionDelay_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxExecutionDelay_Label.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxExecutionDelay_Label.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_MaxExecutionDelay.Location" type="System.Drawing.Point, System.Drawing">
+    <value>156, 80</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_MaxExecutionDelay.Size" type="System.Drawing.Size, System.Drawing">
+    <value>80, 21</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_MaxExecutionDelay.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxExecutionDelay.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_MaxExecutionDelay</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxExecutionDelay.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraNumericEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxExecutionDelay.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_MaxExecutionDelay.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_JobParamter_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_JobParamter_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 107</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_JobParamter_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 14</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_JobParamter_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_JobParamter_Label.Text" xml:space="preserve">
+    <value>Job Paramter:</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_JobParamter_Label.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_JobParamter_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_JobParamter_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_JobParamter_Label.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_JobParamter_Label.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="eSmartSchedulerJobPlan_JobParamter.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Bottom, Left, Right</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_JobParamter.Location" type="System.Drawing.Point, System.Drawing">
+    <value>156, 107</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_JobParamter.Multiline" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_JobParamter.Size" type="System.Drawing.Size, System.Drawing">
+    <value>436, 73</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_JobParamter.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_JobParamter.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_JobParamter</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_JobParamter.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_JobParamter.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_JobParamter.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_PlanningType_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_PlanningType_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 70</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_PlanningType_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>58, 14</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_PlanningType_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_PlanningType_Label.Text" xml:space="preserve">
+    <value>Plan Type:</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_PlanningType_Label.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_PlanningType_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_PlanningType_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_PlanningType_Label.Parent" xml:space="preserve">
+    <value>ultraPanel3.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_PlanningType_Label.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ScheduleDateTime_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ScheduleDateTime_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 32</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ScheduleDateTime_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>117, 14</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ScheduleDateTime_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>13</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ScheduleDateTime_Label.Text" xml:space="preserve">
+    <value>Once Now/Scheduled:</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_ScheduleDateTime_Label.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_ScheduleDateTime_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_ScheduleDateTime_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_ScheduleDateTime_Label.Parent" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_ScheduleDateTime_Label.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringMonday.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 26</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringMonday.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringMonday.TabIndex" type="System.Int32, mscorlib">
+    <value>16</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringMonday.Text" xml:space="preserve">
+    <value>Monday</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringMonday.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringMonday</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringMonday.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringMonday.Parent" xml:space="preserve">
+    <value>ultraGroupBox2</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringMonday.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringTuesday.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 51</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringTuesday.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringTuesday.TabIndex" type="System.Int32, mscorlib">
+    <value>18</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringTuesday.Text" xml:space="preserve">
+    <value>Tuesday</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringTuesday.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringTuesday</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringTuesday.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringTuesday.Parent" xml:space="preserve">
+    <value>ultraGroupBox2</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringTuesday.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringWednesday.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 77</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringWednesday.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringWednesday.TabIndex" type="System.Int32, mscorlib">
+    <value>20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringWednesday.Text" xml:space="preserve">
+    <value>Wendesday</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringWednesday.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringWednesday</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringWednesday.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringWednesday.Parent" xml:space="preserve">
+    <value>ultraGroupBox2</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringWednesday.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringThursday.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 103</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringThursday.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringThursday.TabIndex" type="System.Int32, mscorlib">
+    <value>22</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringThursday.Text" xml:space="preserve">
+    <value>Thursday</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringThursday.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringThursday</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringThursday.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringThursday.Parent" xml:space="preserve">
+    <value>ultraGroupBox2</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringThursday.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringFriday.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 129</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringFriday.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringFriday.TabIndex" type="System.Int32, mscorlib">
+    <value>24</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringFriday.Text" xml:space="preserve">
+    <value>Friday</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringFriday.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringFriday</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringFriday.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringFriday.Parent" xml:space="preserve">
+    <value>ultraGroupBox2</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringFriday.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringSaturday.Location" type="System.Drawing.Point, System.Drawing">
+    <value>441, 26</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringSaturday.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringSaturday.TabIndex" type="System.Int32, mscorlib">
+    <value>26</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringSaturday.Text" xml:space="preserve">
+    <value>Saturday</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringSaturday.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringSaturday</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringSaturday.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringSaturday.Parent" xml:space="preserve">
+    <value>ultraGroupBox2</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringSaturday.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringSunday.Location" type="System.Drawing.Point, System.Drawing">
+    <value>441, 51</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringSunday.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringSunday.TabIndex" type="System.Int32, mscorlib">
+    <value>28</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringSunday.Text" xml:space="preserve">
+    <value>Sunday</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringSunday.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringSunday</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringSunday.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringSunday.Parent" xml:space="preserve">
+    <value>ultraGroupBox2</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringSunday.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_WeekInterval_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_WeekInterval_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 163</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_WeekInterval_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>76, 14</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_WeekInterval_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>29</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_WeekInterval_Label.Text" xml:space="preserve">
+    <value>Week Interval:</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_WeekInterval_Label.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_WeekInterval_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_WeekInterval_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_WeekInterval_Label.Parent" xml:space="preserve">
+    <value>ultraGroupBox2</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_WeekInterval_Label.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_WeekInterval.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 159</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_WeekInterval.Size" type="System.Drawing.Size, System.Drawing">
+    <value>80, 21</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_WeekInterval.TabIndex" type="System.Int32, mscorlib">
+    <value>30</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_WeekInterval.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_WeekInterval</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_WeekInterval.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraNumericEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_WeekInterval.Parent" xml:space="preserve">
+    <value>ultraGroupBox2</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_WeekInterval.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringJanuary.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 26</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringJanuary.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringJanuary.TabIndex" type="System.Int32, mscorlib">
+    <value>32</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringJanuary.Text" xml:space="preserve">
+    <value>January</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringJanuary.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringJanuary</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringJanuary.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringJanuary.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringJanuary.ZOrder" xml:space="preserve">
+    <value>17</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringFebruary.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 52</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringFebruary.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringFebruary.TabIndex" type="System.Int32, mscorlib">
+    <value>34</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringFebruary.Text" xml:space="preserve">
+    <value>February</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringFebruary.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringFebruary</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringFebruary.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringFebruary.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringFebruary.ZOrder" xml:space="preserve">
+    <value>14</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringMarch.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 78</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringMarch.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringMarch.TabIndex" type="System.Int32, mscorlib">
+    <value>36</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringMarch.Text" xml:space="preserve">
+    <value>March</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringMarch.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringMarch</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringMarch.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringMarch.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringMarch.ZOrder" xml:space="preserve">
+    <value>13</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringApril.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 104</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringApril.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringApril.TabIndex" type="System.Int32, mscorlib">
+    <value>38</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringApril.Text" xml:space="preserve">
+    <value>April</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringApril.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringApril</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringApril.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringApril.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringApril.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringMay.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 130</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringMay.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringMay.TabIndex" type="System.Int32, mscorlib">
+    <value>40</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringMay.Text" xml:space="preserve">
+    <value>May</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringMay.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringMay</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringMay.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringMay.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringMay.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringJune.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 156</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringJune.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringJune.TabIndex" type="System.Int32, mscorlib">
+    <value>42</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringJune.Text" xml:space="preserve">
+    <value>June</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringJune.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringJune</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringJune.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringJune.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringJune.ZOrder" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringJuly.Location" type="System.Drawing.Point, System.Drawing">
+    <value>421, 26</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringJuly.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringJuly.TabIndex" type="System.Int32, mscorlib">
+    <value>44</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringJuly.Text" xml:space="preserve">
+    <value>July</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringJuly.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringJuly</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringJuly.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringJuly.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringJuly.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringAugust.Location" type="System.Drawing.Point, System.Drawing">
+    <value>421, 52</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringAugust.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringAugust.TabIndex" type="System.Int32, mscorlib">
+    <value>46</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringAugust.Text" xml:space="preserve">
+    <value>August</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringAugust.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringAugust</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringAugust.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringAugust.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringAugust.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringSeptember.Location" type="System.Drawing.Point, System.Drawing">
+    <value>421, 78</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringSeptember.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringSeptember.TabIndex" type="System.Int32, mscorlib">
+    <value>48</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringSeptember.Text" xml:space="preserve">
+    <value>September</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringSeptember.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringSeptember</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringSeptember.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringSeptember.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringSeptember.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringOctober.Location" type="System.Drawing.Point, System.Drawing">
+    <value>421, 104</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringOctober.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringOctober.TabIndex" type="System.Int32, mscorlib">
+    <value>50</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringOctober.Text" xml:space="preserve">
+    <value>October</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringOctober.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringOctober</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringOctober.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringOctober.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringOctober.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringNovember.Location" type="System.Drawing.Point, System.Drawing">
+    <value>421, 130</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringNovember.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringNovember.TabIndex" type="System.Int32, mscorlib">
+    <value>52</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringNovember.Text" xml:space="preserve">
+    <value>November</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringNovember.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringNovember</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringNovember.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringNovember.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringNovember.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringDecember.Location" type="System.Drawing.Point, System.Drawing">
+    <value>421, 156</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringDecember.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringDecember.TabIndex" type="System.Int32, mscorlib">
+    <value>54</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringDecember.Text" xml:space="preserve">
+    <value>December</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringDecember.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringDecember</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringDecember.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringDecember.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringDecember.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringDaylist_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringDaylist_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 186</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringDaylist_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>33, 14</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringDaylist_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>55</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringDaylist_Label.Text" xml:space="preserve">
+    <value>Days:</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringDaylist_Label.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringDaylist_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringDaylist_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringDaylist_Label.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringDaylist_Label.ZOrder" xml:space="preserve">
+    <value>15</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringDaylist.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringDaylist.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 182</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringDaylist.Size" type="System.Drawing.Size, System.Drawing">
+    <value>436, 21</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringDaylist.TabIndex" type="System.Int32, mscorlib">
+    <value>56</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringDaylist.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringDaylist</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringDaylist.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringDaylist.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringDaylist.ZOrder" xml:space="preserve">
+    <value>16</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringExecutionTimes_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringExecutionTimes_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 11</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringExecutionTimes_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>143, 14</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringExecutionTimes_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>57</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringExecutionTimes_Label.Text" xml:space="preserve">
+    <value>Recurring Execution Times:</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringExecutionTimes_Label.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringExecutionTimes_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringExecutionTimes_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringExecutionTimes_Label.Parent" xml:space="preserve">
+    <value>ultraPanel1.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringExecutionTimes_Label.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringExecutionTimes.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringExecutionTimes.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 7</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringExecutionTimes.Size" type="System.Drawing.Size, System.Drawing">
+    <value>436, 21</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_RecurringExecutionTimes.TabIndex" type="System.Int32, mscorlib">
+    <value>58</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringExecutionTimes.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_RecurringExecutionTimes</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringExecutionTimes.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringExecutionTimes.Parent" xml:space="preserve">
+    <value>ultraPanel1.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_RecurringExecutionTimes.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ValidFrom_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ValidFrom_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 73</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ValidFrom_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>103, 14</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ValidFrom_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>59</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ValidFrom_Label.Text" xml:space="preserve">
+    <value>Job Plan valid from:</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_ValidFrom_Label.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_ValidFrom_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_ValidFrom_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_ValidFrom_Label.Parent" xml:space="preserve">
+    <value>ultraPanel1.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_ValidFrom_Label.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ValidTo_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ValidTo_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 100</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ValidTo_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>90, 14</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ValidTo_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>61</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_ValidTo_Label.Text" xml:space="preserve">
+    <value>Job Plan valid to:</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_ValidTo_Label.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_ValidTo_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_ValidTo_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_ValidTo_Label.Parent" xml:space="preserve">
+    <value>ultraPanel1.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_ValidTo_Label.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_Active.Location" type="System.Drawing.Point, System.Drawing">
+    <value>156, 30</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_Active.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_Active.TabIndex" type="System.Int32, mscorlib">
+    <value>64</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_Active.Text" xml:space="preserve">
+    <value>JobPlan is active</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_Active.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_Active</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_Active.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_Active.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_Active.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_DataBaseConnections_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_DataBaseConnections_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 3</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_DataBaseConnections_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>122, 14</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_DataBaseConnections_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>69</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_DataBaseConnections_Label.Text" xml:space="preserve">
+    <value>Database Connections:</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_DataBaseConnections_Label.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_DataBaseConnections_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_DataBaseConnections_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_DataBaseConnections_Label.Parent" xml:space="preserve">
+    <value>ultraPanel3.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_DataBaseConnections_Label.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_DataBaseConnections.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_DataBaseConnections.Location" type="System.Drawing.Point, System.Drawing">
+    <value>156, 3</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_DataBaseConnections.Multiline" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_DataBaseConnections.Size" type="System.Drawing.Size, System.Drawing">
+    <value>436, 55</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_DataBaseConnections.TabIndex" type="System.Int32, mscorlib">
+    <value>70</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_DataBaseConnections.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_DataBaseConnections</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_DataBaseConnections.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_DataBaseConnections.Parent" xml:space="preserve">
+    <value>ultraPanel3.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_DataBaseConnections.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_SchedulerJobName_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_SchedulerJobName_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 10</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_SchedulerJobName_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>59, 14</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_SchedulerJobName_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>71</value>
+  </data>
+  <data name="eSmartSchedulerJobPlan_SchedulerJobName_Label.Text" xml:space="preserve">
+    <value>Job Name:</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_SchedulerJobName_Label.Name" xml:space="preserve">
+    <value>eSmartSchedulerJobPlan_SchedulerJobName_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_SchedulerJobName_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_SchedulerJobName_Label.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;eSmartSchedulerJobPlan_SchedulerJobName_Label.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="ultraGroupBox1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="ultraDateTimeEditor1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 28</value>
+  </data>
+  <data name="ultraDateTimeEditor1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>169, 21</value>
+  </data>
+  <data name="ultraDateTimeEditor1.TabIndex" type="System.Int32, mscorlib">
+    <value>80</value>
+  </data>
+  <data name="&gt;&gt;ultraDateTimeEditor1.Name" xml:space="preserve">
+    <value>ultraDateTimeEditor1</value>
+  </data>
+  <data name="&gt;&gt;ultraDateTimeEditor1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraDateTimeEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraDateTimeEditor1.Parent" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraDateTimeEditor1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraGroupBox1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1, 96</value>
+  </data>
+  <data name="ultraGroupBox1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>597, 83</value>
+  </data>
+  <data name="ultraGroupBox1.TabIndex" type="System.Int32, mscorlib">
+    <value>73</value>
+  </data>
+  <data name="ultraGroupBox1.Text" xml:space="preserve">
+    <value>Once</value>
+  </data>
+  <data name="ultraGroupBox1.Visible" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox1.Name" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraGroupBox, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox1.Parent" xml:space="preserve">
+    <value>ultraPanel3.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraGroupBox3.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="ultraLabel7.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="ultraLabel7.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 209</value>
+  </data>
+  <data name="ultraLabel7.MaximumSize" type="System.Drawing.Size, System.Drawing">
+    <value>436, 54</value>
+  </data>
+  <data name="ultraLabel7.Size" type="System.Drawing.Size, System.Drawing">
+    <value>420, 27</value>
+  </data>
+  <data name="ultraLabel7.TabIndex" type="System.Int32, mscorlib">
+    <value>59</value>
+  </data>
+  <data name="ultraLabel7.Text" xml:space="preserve">
+    <value>(e.g. 1,7,14,-5    The negative sign indicates the number of days taken from the first day of the following month)</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel7.Name" xml:space="preserve">
+    <value>ultraLabel7</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel7.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel7.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel7.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="btnNone.Location" type="System.Drawing.Point, System.Drawing">
+    <value>29, 78</value>
+  </data>
+  <data name="btnNone.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 23</value>
+  </data>
+  <data name="btnNone.TabIndex" type="System.Int32, mscorlib">
+    <value>58</value>
+  </data>
+  <data name="btnNone.Text" xml:space="preserve">
+    <value>Select none</value>
+  </data>
+  <data name="&gt;&gt;btnNone.Name" xml:space="preserve">
+    <value>btnNone</value>
+  </data>
+  <data name="&gt;&gt;btnNone.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraButton, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;btnNone.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;btnNone.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="btnAll.Location" type="System.Drawing.Point, System.Drawing">
+    <value>29, 52</value>
+  </data>
+  <data name="btnAll.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 23</value>
+  </data>
+  <data name="btnAll.TabIndex" type="System.Int32, mscorlib">
+    <value>57</value>
+  </data>
+  <data name="btnAll.Text" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="&gt;&gt;btnAll.Name" xml:space="preserve">
+    <value>btnAll</value>
+  </data>
+  <data name="&gt;&gt;btnAll.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraButton, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;btnAll.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;btnAll.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="ultraLabel2.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="ultraLabel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 29</value>
+  </data>
+  <data name="ultraLabel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>121, 14</value>
+  </data>
+  <data name="ultraLabel2.TabIndex" type="System.Int32, mscorlib">
+    <value>31</value>
+  </data>
+  <data name="ultraLabel2.Text" xml:space="preserve">
+    <value>Recurring executionon:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Name" xml:space="preserve">
+    <value>ultraLabel2</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Parent" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="ultraGroupBox3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1, 96</value>
+  </data>
+  <data name="ultraGroupBox3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>597, 244</value>
+  </data>
+  <data name="ultraGroupBox3.TabIndex" type="System.Int32, mscorlib">
+    <value>75</value>
+  </data>
+  <data name="ultraGroupBox3.Text" xml:space="preserve">
+    <value>Monthly</value>
+  </data>
+  <data name="ultraGroupBox3.Visible" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox3.Name" xml:space="preserve">
+    <value>ultraGroupBox3</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox3.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraGroupBox, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox3.Parent" xml:space="preserve">
+    <value>ultraPanel3.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox3.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="ultraGroupBox2.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="btnNoneDays.Location" type="System.Drawing.Point, System.Drawing">
+    <value>29, 78</value>
+  </data>
+  <data name="btnNoneDays.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 23</value>
+  </data>
+  <data name="btnNoneDays.TabIndex" type="System.Int32, mscorlib">
+    <value>60</value>
+  </data>
+  <data name="btnNoneDays.Text" xml:space="preserve">
+    <value>Select none</value>
+  </data>
+  <data name="&gt;&gt;btnNoneDays.Name" xml:space="preserve">
+    <value>btnNoneDays</value>
+  </data>
+  <data name="&gt;&gt;btnNoneDays.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraButton, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;btnNoneDays.Parent" xml:space="preserve">
+    <value>ultraGroupBox2</value>
+  </data>
+  <data name="&gt;&gt;btnNoneDays.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="btnAllDays.Location" type="System.Drawing.Point, System.Drawing">
+    <value>29, 52</value>
+  </data>
+  <data name="btnAllDays.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 23</value>
+  </data>
+  <data name="btnAllDays.TabIndex" type="System.Int32, mscorlib">
+    <value>59</value>
+  </data>
+  <data name="btnAllDays.Text" xml:space="preserve">
+    <value>Select all</value>
+  </data>
+  <data name="&gt;&gt;btnAllDays.Name" xml:space="preserve">
+    <value>btnAllDays</value>
+  </data>
+  <data name="&gt;&gt;btnAllDays.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraButton, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;btnAllDays.Parent" xml:space="preserve">
+    <value>ultraGroupBox2</value>
+  </data>
+  <data name="&gt;&gt;btnAllDays.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="ultraLabel1.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="ultraLabel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>10, 29</value>
+  </data>
+  <data name="ultraLabel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>121, 14</value>
+  </data>
+  <data name="ultraLabel1.TabIndex" type="System.Int32, mscorlib">
+    <value>30</value>
+  </data>
+  <data name="ultraLabel1.Text" xml:space="preserve">
+    <value>Recurring executionon:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Name" xml:space="preserve">
+    <value>ultraLabel1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Parent" xml:space="preserve">
+    <value>ultraGroupBox2</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="ultraGroupBox2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>1, 96</value>
+  </data>
+  <data name="ultraGroupBox2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>597, 243</value>
+  </data>
+  <data name="ultraGroupBox2.TabIndex" type="System.Int32, mscorlib">
+    <value>74</value>
+  </data>
+  <data name="ultraGroupBox2.Text" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="ultraGroupBox2.Visible" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox2.Name" xml:space="preserve">
+    <value>ultraGroupBox2</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox2.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraGroupBox, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox2.Parent" xml:space="preserve">
+    <value>ultraPanel3.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox2.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="valueListItem1.DisplayText" xml:space="preserve">
+    <value>Once</value>
+  </data>
+  <data name="valueListItem2.DisplayText" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="valueListItem3.DisplayText" xml:space="preserve">
+    <value>Monthly</value>
+  </data>
+  <data name="ultraComboEditor1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>156, 66</value>
+  </data>
+  <data name="ultraComboEditor1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>232, 21</value>
+  </data>
+  <data name="ultraComboEditor1.TabIndex" type="System.Int32, mscorlib">
+    <value>76</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor1.Name" xml:space="preserve">
+    <value>ultraComboEditor1</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor1.Parent" xml:space="preserve">
+    <value>ultraPanel3.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor1.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="editorButton1.Text" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>156, 6</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.LookupDialogTitle" xml:space="preserve">
+    <value>Lookup</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>429, 21</value>
+  </data>
+  <data name="smartBusinessEntityLookup1.TabIndex" type="System.Int32, mscorlib">
+    <value>79</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup1.Name" xml:space="preserve">
+    <value>smartBusinessEntityLookup1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup1.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityLookup1.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="ultraLabel6.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="ultraLabel6.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 34</value>
+  </data>
+  <data name="ultraLabel6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>134, 14</value>
+  </data>
+  <data name="ultraLabel6.TabIndex" type="System.Int32, mscorlib">
+    <value>81</value>
+  </data>
+  <data name="ultraLabel6.Text" xml:space="preserve">
+    <value>(e.g. 1:00,17:00,18,23:55)</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.Name" xml:space="preserve">
+    <value>ultraLabel6</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.Parent" xml:space="preserve">
+    <value>ultraPanel1.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraDateTimeEditor3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 96</value>
+  </data>
+  <data name="ultraDateTimeEditor3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>177, 21</value>
+  </data>
+  <data name="ultraDateTimeEditor3.TabIndex" type="System.Int32, mscorlib">
+    <value>80</value>
+  </data>
+  <data name="&gt;&gt;ultraDateTimeEditor3.Name" xml:space="preserve">
+    <value>ultraDateTimeEditor3</value>
+  </data>
+  <data name="&gt;&gt;ultraDateTimeEditor3.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraDateTimeEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraDateTimeEditor3.Parent" xml:space="preserve">
+    <value>ultraPanel1.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraDateTimeEditor3.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="ultraDateTimeEditor2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>155, 69</value>
+  </data>
+  <data name="ultraDateTimeEditor2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>177, 21</value>
+  </data>
+  <data name="ultraDateTimeEditor2.TabIndex" type="System.Int32, mscorlib">
+    <value>79</value>
+  </data>
+  <data name="&gt;&gt;ultraDateTimeEditor2.Name" xml:space="preserve">
+    <value>ultraDateTimeEditor2</value>
+  </data>
+  <data name="&gt;&gt;ultraDateTimeEditor2.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraDateTimeEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraDateTimeEditor2.Parent" xml:space="preserve">
+    <value>ultraPanel1.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraDateTimeEditor2.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel1.ClientArea.Name" xml:space="preserve">
+    <value>ultraPanel1.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel1.ClientArea.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel1.ClientArea.Parent" xml:space="preserve">
+    <value>ultraPanel1</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel1.ClientArea.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraPanel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 345</value>
+  </data>
+  <data name="ultraPanel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>597, 120</value>
+  </data>
+  <data name="ultraPanel1.TabIndex" type="System.Int32, mscorlib">
+    <value>80</value>
+  </data>
+  <data name="ultraPanel1.Visible" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel1.Name" xml:space="preserve">
+    <value>ultraPanel1</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel1.Parent" xml:space="preserve">
+    <value>ultraPanel3.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel1.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="ultraLabel3.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="ultraLabel3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>242, 84</value>
+  </data>
+  <data name="ultraLabel3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>54, 14</value>
+  </data>
+  <data name="ultraLabel3.TabIndex" type="System.Int32, mscorlib">
+    <value>81</value>
+  </data>
+  <data name="ultraLabel3.Text" xml:space="preserve">
+    <value>(seconds)</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Name" xml:space="preserve">
+    <value>ultraLabel3</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="ultraLabel4.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="ultraLabel4.Location" type="System.Drawing.Point, System.Drawing">
+    <value>242, 57</value>
+  </data>
+  <data name="ultraLabel4.Size" type="System.Drawing.Size, System.Drawing">
+    <value>54, 14</value>
+  </data>
+  <data name="ultraLabel4.TabIndex" type="System.Int32, mscorlib">
+    <value>82</value>
+  </data>
+  <data name="ultraLabel4.Text" xml:space="preserve">
+    <value>(seconds)</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.Name" xml:space="preserve">
+    <value>ultraLabel4</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel4.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="ultraLabel5.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="ultraLabel5.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 127</value>
+  </data>
+  <data name="ultraLabel5.Size" type="System.Drawing.Size, System.Drawing">
+    <value>130, 14</value>
+  </data>
+  <data name="ultraLabel5.TabIndex" type="System.Int32, mscorlib">
+    <value>83</value>
+  </data>
+  <data name="ultraLabel5.Text" xml:space="preserve">
+    <value>(JSON/XML Serializable)</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Name" xml:space="preserve">
+    <value>ultraLabel5</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Parent" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.ClientArea.Name" xml:space="preserve">
+    <value>ultraPanel2.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.ClientArea.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.ClientArea.Parent" xml:space="preserve">
+    <value>ultraPanel2</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.ClientArea.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraPanel2.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="ultraPanel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="ultraPanel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>602, 186</value>
+  </data>
+  <data name="ultraPanel2.TabIndex" type="System.Int32, mscorlib">
+    <value>84</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.Name" xml:space="preserve">
+    <value>ultraPanel2</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel2.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel3.ClientArea.Name" xml:space="preserve">
+    <value>ultraPanel3.ClientArea</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel3.ClientArea.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraPanelClientAreaUnsafe, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel3.ClientArea.Parent" xml:space="preserve">
+    <value>ultraPanel3</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel3.ClientArea.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraPanel3.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Bottom</value>
+  </data>
+  <data name="ultraPanel3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 192</value>
+  </data>
+  <data name="ultraPanel3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>602, 470</value>
+  </data>
+  <data name="ultraPanel3.TabIndex" type="System.Int32, mscorlib">
+    <value>85</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel3.Name" xml:space="preserve">
+    <value>ultraPanel3</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel3.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraPanel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel3.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraPanel3.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="ultraSplitter1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Bottom</value>
+  </data>
+  <data name="ultraSplitter1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 186</value>
+  </data>
+  <data name="ultraSplitter1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>602, 6</value>
+  </data>
+  <data name="ultraSplitter1.TabIndex" type="System.Int32, mscorlib">
+    <value>81</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Name" xml:space="preserve">
+    <value>ultraSplitter1</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraSplitter, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraSplitter1.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>602, 662</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartSchedulerJobPlanViewerControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartViewerControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+</root>

@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!--
+/**********************************************************************
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
+ * www.consultingwerk.de and other contributors as listed             *
+ * below.  All Rights Reserved.                                       *
+ *                                                                    *
+ *  Software is distributed on an "AS IS", WITHOUT WARRANTY OF ANY    *
+ *   KIND, either express or implied.                                 *
+ *                                                                    *
+ *  Contributors:                                                     *
+ *  Generated   : @TIMESTAMP@                                         *
+ **********************************************************************/
+-->
+<HTML id="packagehtml">
+    <HEAD>
+        <meta http-equiv="expires" content="86400">
+        <TITLE>@PAGETITLE@</TITLE>
+        <link rel="stylesheet" type="text/css" href="resources/stylesheet.css" title="Style">
+        <SCRIPT src="resources/jquery.js"></SCRIPT>
+        <SCRIPT src="resources/functions.js"></SCRIPT>
+        <SCRIPT src="resources/frameload.js"></SCRIPT>
+    </HEAD>
+<BODY id="packagebody">
+    <div id="packagewrapper">
+        <div id="packagemiddle">
+            <table class="header_table">
+                <tbody>
+                <tr>
+                    <td>
+                        <div class="package_name_div">
+                            <table border="0">
+                               <tbody>
+                                    @PARENTPACKAGENAMEOPEN@
+                                    <tr>
+                                         <td class = "parentpackagelabel">
+                                            <span class="span_namespace">Parentpacke:</span>   
+                                        </td>
+                                        <td>
+                                            <span class="span_packagename"><a href="@PARENTPACKAGENAME@.package.html">@PARENTPACKAGENAME@<a></span>
+                                        </td>
+                                    </tr>
+                                    @PARENTPACKAGENAMECLOSE@
+                                    <tr>
+                                        <td colspan="2">
+                                            <span class="span_classname">@PACKAGENAME@</span>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <br/>
+                                            @PACKAGE@
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="google_search">
+                            <div>
+                                <a href="http://www.consultingwerk.de/" target="_blank">
+                                    <img src="resources/logo.jpg" alt="" height="60" width="300">
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            @PACKAGEGROUPS@
+        </div>
+    </div>
+    <div id="packagefooter">
+        <font class="footer">&copy;2006-2016 Consultingwerk Ltd.</font>
+        &nbsp; &nbsp; &nbsp; &nbsp; 
+        <a href="mailto:info@consultingwerk.de" class="footer_link">info@consultingwerk.de</a>
+        &nbsp;
+        <font color="#B8B088"> &nbsp; &nbsp; &nbsp; <a href="http://www.consultingwerk.de" class="footer_link" target="blank">http://www.consultingwerk.de &nbsp; &nbsp;</a></font>
+        &nbsp;
+        <font class="footer_timestamp">@TIMESTAMP@</font>
+    </div>
+</BODY>
+</HTML>
