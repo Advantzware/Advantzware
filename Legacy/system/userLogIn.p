@@ -21,6 +21,7 @@ DEFINE VARIABLE cEulaVersion    AS CHARACTER     NO-UNDO.
 DEFINE VARIABLE lcNk1Value      AS CHARACTER     NO-UNDO.
 DEFINE VARIABLE llRecFound      AS LOGICAL       NO-UNDO.
 DEFINE VARIABLE enforceUserCount-log  AS LOGICAL NO-UNDO.
+DEFINE VARIABLE promptMultiSession-log AS LOGICAL NO-UNDO.
 DEFINE VARIABLE iAllUserCount         AS INTEGER NO-UNDO.
 
 {methods/defines/hndldefs.i}
@@ -43,12 +44,15 @@ RUN sys/ref/nk1look.p (INPUT cocode, "enforceUserCount", "L" /* Logical */, NO /
     OUTPUT lcNk1Value, OUTPUT llRecFound).
 IF llRecFound THEN
     enforceUserCount-log = LOGICAL(lcNk1Value) NO-ERROR.
-    
+RUN sys/ref/nk1look.p (INPUT cocode, "promptMultiSession", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT lcNk1Value, OUTPUT llRecFound).
+IF llRecFound THEN
+    promptMultiSession-log = LOGICAL(lcNk1Value) NO-ERROR.    
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
-
 
 /* CHECK IF USER has more than one login record */
 /* IF so, ask IF this IS replacing OR adding */
@@ -74,7 +78,7 @@ END.
 
 IF iLoginCnt GT 0 THEN DO:
     
-    MESSAGE "You have " + string(iLoginCnt) + " other open sessions and can replace them or add a new one." SKIP 
+    MESSAGE "User " + USERID("nosweat") + " " + string(iLoginCnt) + " other open sessions. Replace them or add a new one?" SKIP 
       "Choose 'YES' to add an additional session." SKIP
       "Choose 'NO' to replace the existing sessions with this new one." SKIP
       "Choose 'CANCEL' to Exit"
@@ -99,9 +103,9 @@ IF NOT oplExit THEN DO:
     
     iAllUserCount = 0.
     FOR EACH userLog NO-LOCK WHERE userLog.userStatus EQ "Logged In" 
-        :
-        
-        iAllUserCount = iAllUserCount + 1.
+        BREAK BY userLog.user_id:
+        IF FIRST-OF(userLog.user_id) THEN 
+          iAllUserCount = iAllUserCount + 1.
     END.            
     
     FIND FIRST userControl NO-LOCK NO-ERROR.
@@ -124,8 +128,8 @@ IF NOT oplExit THEN DO TRANSACTION:
         userLog.user_id       = USERID("NOSWEAT")       
         userLog.sessionID     = asi._myconnection._myconn-pid 
         userLog.userName      = asi._connect._connect-name
-        userLog.IpAddress     = asi._connect._connect-ip
-        userLog.deviceName    = asi._connect._connect-device    
+        userLog.IpAddress     = OS-GETENV("userDomain")
+        userLog.deviceName    = OS-GETENV("computerName")    
         userLog.EulaVersion   = DECIMAL(cEulaVersion)
         userLog.userStatus    = "Logged In"
         userLog.loginDateTime = DATETIME(TODAY, MTIME).

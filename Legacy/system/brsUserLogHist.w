@@ -64,8 +64,8 @@ CREATE WIDGET-POOL.
 &Scoped-define FIELDS-IN-QUERY-br_table userName sessionID loginDateTime ~
 logoutDateTime userStatus EulaVersion IpAddress 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
-&Scoped-define QUERY-STRING-br_table FOR EACH rowObject
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH rowObject.
+&Scoped-define QUERY-STRING-br_table FOR EACH rowObject NO-LOCK INDEXED-REPOSITION
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH rowObject NO-LOCK INDEXED-REPOSITION.
 &Scoped-define TABLES-IN-QUERY-br_table rowObject
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table rowObject
 
@@ -107,7 +107,7 @@ DEFINE BROWSE br_table
       logoutDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
       userStatus FORMAT "x(8)":U
       EulaVersion FORMAT ">>,>>9.99":U
-      IpAddress FORMAT "x(15)":U
+      IpAddress COLUMN-LABEL "Machine" FORMAT "x(15)":U WIDTH 24
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN NO-AUTO-VALIDATE NO-ROW-MARKERS SEPARATORS SIZE 138 BY 6.67 FIT-LAST-COLUMN.
@@ -188,14 +188,15 @@ ASSIGN
 /* Query rebuild information for BROWSE br_table
      _TblList          = "rowObject"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _FldNameList[1]   = _<SDO>.rowObject.userName
+     _FldNameList[1]   > _<SDO>.rowObject.userName
+"userName" ? ? "character" ? ? ? ? ? ? no "?" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   = _<SDO>.rowObject.sessionID
      _FldNameList[3]   = _<SDO>.rowObject.loginDateTime
      _FldNameList[4]   = _<SDO>.rowObject.logoutDateTime
      _FldNameList[5]   = _<SDO>.rowObject.userStatus
      _FldNameList[6]   = _<SDO>.rowObject.EulaVersion
      _FldNameList[7]   > _<SDO>.rowObject.IpAddress
-"IpAddress" ? ? "character" ? ? ? ? ? ? no ? no no "24" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"IpAddress" "Machine" ? "character" ? ? ? ? ? ? no ? no no "24" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME

@@ -68,10 +68,10 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-16 cbHours cbNumUsersOver ~
-fiNotificationEmailAddr fiSecondEmail cbTimeDirective btUpdate btCancel 
-&Scoped-Define DISPLAYED-OBJECTS cbHours cbNumUsersOver ~
-fiNotificationEmailAddr fiSecondEmail cbTimeDirective 
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-16 cbHours fiNumberLicensedUsers ~
+cbNumUsersOver cbTimeDirective btUpdate btCancel 
+&Scoped-Define DISPLAYED-OBJECTS cbHours fiNumberLicensedUsers ~
+cbNumUsersOver cbTimeDirective 
 
 /* Custom List Definitions                                              */
 /* ADM-ASSIGN-FIELDS,List-2,List-3,List-4,List-5,List-6                 */
@@ -119,15 +119,10 @@ DEFINE VARIABLE cbTimeDirective AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 30 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiNotificationEmailAddr AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Notification Email Addr" 
+DEFINE VARIABLE fiNumberLicensedUsers AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Number Licensed Users" 
      VIEW-AS FILL-IN 
-     SIZE 53 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fiSecondEmail AS CHARACTER FORMAT "X(256)":U 
-     LABEL "2nd Notification Email Addr" 
-     VIEW-AS FILL-IN 
-     SIZE 53 BY 1 NO-UNDO.
+     SIZE 14 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -135,20 +130,19 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE RECTANGLE RECT-16
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 91 BY 9.76.
+     SIZE 91 BY 7.05.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
      cbHours AT ROW 3.38 COL 48 COLON-ALIGNED WIDGET-ID 18
-     cbNumUsersOver AT ROW 4.81 COL 48 COLON-ALIGNED WIDGET-ID 22
-     fiNotificationEmailAddr AT ROW 6.48 COL 48 COLON-ALIGNED WIDGET-ID 30
-     fiSecondEmail AT ROW 7.91 COL 48 COLON-ALIGNED WIDGET-ID 32
-     cbTimeDirective AT ROW 9.81 COL 48 COLON-ALIGNED WIDGET-ID 20
-     btUpdate AT ROW 14.33 COL 37 WIDGET-ID 24
-     btCancel AT ROW 14.33 COL 53 WIDGET-ID 26
-     RECT-1 AT ROW 14.1 COL 36 WIDGET-ID 28
+     fiNumberLicensedUsers AT ROW 4.57 COL 48 COLON-ALIGNED WIDGET-ID 36
+     cbNumUsersOver AT ROW 5.76 COL 48 COLON-ALIGNED WIDGET-ID 22
+     cbTimeDirective AT ROW 6.95 COL 48 COLON-ALIGNED WIDGET-ID 20
+     btUpdate AT ROW 10.76 COL 41 WIDGET-ID 24
+     btCancel AT ROW 10.76 COL 57 WIDGET-ID 26
+     RECT-1 AT ROW 10.52 COL 40 WIDGET-ID 28
      RECT-16 AT ROW 2.52 COL 15 WIDGET-ID 34
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY USE-DICT-EXPS 
          SIDE-LABELS NO-UNDERLINE THREE-D NO-AUTO-VALIDATE 
@@ -242,7 +236,7 @@ ON CHOOSE OF btCancel IN FRAME F-Main /* Cancel */
 DO:
         DO WITH FRAME {&frame-name}:
             btUpdate:LABEL = "Update".
-            DISABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail  .
+            DISABLE cbHours cbNumUsersOver cbTimeDirective fiNumberLicensedUsers btCancel.
         END.
     END.
 
@@ -257,33 +251,32 @@ DO:
 
         IF SELF:LABEL = "Update" THEN DO:
           SELF:LABEL = "Save".
-       
+          
             DO WITH FRAME f-main:
                 
-                ENABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail  .
+                ENABLE cbHours cbNumUsersOver fiNumberLicensedUsers cbTimeDirective btCancel.
 
             END.
             
         END.
         ELSE DO:
-
+            DISABLE btCancel.
             SELF:LABEL = "Update".
             DO WITH FRAME f-main:
 
                 FIND FIRST userControl EXCLUSIVE-LOCK.
                 ASSIGN 
-                    cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail
+                    cbHours cbNumUsersOver fiNumberLicensedUsers cbTimeDirective
                     .
-                ASSIGN 
-                    userControl.adminEmailAddr     = fiNotificationEmailAddr:SCREEN-VALUE
+                ASSIGN                     
                     userControl.autoLogoutTime     = INTEGER(cbHours:SCREEN-VALUE)
                     userControl.loginTimeDirective = cbTimeDirective:SCREEN-VALUE
-                    userControl.numUsersOverLimit  = INTEGER(cbNumUsersOver:SCREEN-VALUE)
-                    userControl.secondAdminEmail   = fiSecondEmail:SCREEN-VALUE.
+                    userControl.numUsersOverLimit  = INTEGER(cbNumUsersOver:SCREEN-VALUE)                    
+                    userControl.numLicensedUsers   = INTEGER(fiNumberLicensedUsers)
                 .
                 FIND CURRENT userControl NO-LOCK.
                 RELEASE userControl.
-                DISABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail  .
+                DISABLE cbHours cbNumUsersOver fiNumberLicensedUsers cbTimeDirective btCancel  .
                 
             END.        
                 
@@ -344,6 +337,44 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE displayFields vTable 
+PROCEDURE displayFields :
+/*------------------------------------------------------------------------------
+  Purpose:     Super Override
+  Parameters:  
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  DEFINE INPUT PARAMETER pcColValues AS CHARACTER NO-UNDO.
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  RUN SUPER( INPUT pcColValues).
+
+  /* Code placed here will execute AFTER standard behavior.    */
+    FIND FIRST userControl NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE userControl THEN 
+      CREATE userControl.
+    FIND CURRENT userControl NO-LOCK.
+    DO WITH FRAME {&frame-name}:
+        
+        ENABLE cbHours cbNumUsersOver cbTimeDirective .
+        cbHours:SCREEN-VALUE = STRING(userControl.autoLogoutTime).
+        cbTimeDirective:SCREEN-VALUE = userControl.loginTimeDirective.
+        cbNumUsersOver:SCREEN-VALUE = STRING( userControl.numUsersOverLimit).
+        fiNumberLicensedUsers:SCREEN-VALUE = STRING(userControl.numLicensedUsers).
+        
+        DISABLE cbHours cbNumUsersOver fiNumberLicensedUsers cbTimeDirective .
+   
+     
+
+        DISABLE cbHours cbNumUsersOver fiNumberLicensedUsers cbTimeDirective .
+    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject vTable 
 PROCEDURE initializeObject :
 /*------------------------------------------------------------------------------
@@ -363,20 +394,15 @@ PROCEDURE initializeObject :
     FIND CURRENT userControl NO-LOCK.
     DO WITH FRAME {&frame-name}:
         
-        ENABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail.
+        ENABLE cbHours cbNumUsersOver cbTimeDirective .
         cbHours:SCREEN-VALUE = STRING(userControl.autoLogoutTime).
         cbTimeDirective:SCREEN-VALUE = userControl.loginTimeDirective.
         cbNumUsersOver:SCREEN-VALUE = STRING( userControl.numUsersOverLimit).
+        fiNumberLicensedUsers:SCREEN-VALUE = STRING(userControl.numLicensedUsers).
         
-        DISABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail.
+        DISABLE cbHours cbNumUsersOver fiNumberLicensedUsers cbTimeDirective btCancel.
         
-        DISPLAY 
-            userControl.adminEmailAddr @  fiNotificationEmailAddr
-            userControl.secondAdminEmail @ fiSecondEmail
-            .
-     
-
-        DISABLE cbHours cbNumUsersOver cbTimeDirective fiNotificationEmailAddr fiSecondEmail.
+  
     END.
 
 END PROCEDURE.

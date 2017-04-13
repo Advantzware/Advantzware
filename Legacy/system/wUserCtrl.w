@@ -57,8 +57,9 @@ DEFINE VARIABLE cVersion AS CHARACTER NO-UNDO.
 &Scoped-define FRAME-NAME fMain
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-5 btRefresh 
-&Scoped-Define DISPLAYED-OBJECTS fiActive fiLicensed fiAvailable fiUnique 
+&Scoped-Define ENABLED-OBJECTS RECT-5 btRefresh fiUserFilter btFilter 
+&Scoped-Define DISPLAYED-OBJECTS fiLicensed fiAvailable fiUnique fiActive ~
+fiUserFilter 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -82,22 +83,26 @@ DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vuserctrl AS HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btFilter 
+     LABEL "Filter" 
+     SIZE 15 BY 1.14.
+
 DEFINE BUTTON btRefresh 
      LABEL "Refresh" 
      SIZE 15 BY 1.14.
 
 DEFINE VARIABLE fiActive AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Active" 
+     LABEL "Active Sessions" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiAvailable AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Available" 
+     LABEL "Available Users" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiLicensed AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Licensed" 
+     LABEL "Licensed Users" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
@@ -105,6 +110,11 @@ DEFINE VARIABLE fiUnique AS CHARACTER FORMAT "X(256)":U
      LABEL "Unique Users" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fiUserFilter AS CHARACTER FORMAT "X(256)":U 
+     LABEL "UserID" 
+     VIEW-AS FILL-IN 
+     SIZE 35 BY 1.19 NO-UNDO.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -114,16 +124,18 @@ DEFINE RECTANGLE RECT-5
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME fMain
-     fiActive AT ROW 1.48 COL 10 COLON-ALIGNED WIDGET-ID 14
-     fiLicensed AT ROW 1.48 COL 43 COLON-ALIGNED WIDGET-ID 16
-     fiAvailable AT ROW 1.48 COL 74 COLON-ALIGNED WIDGET-ID 18
-     fiUnique AT ROW 1.48 COL 105 COLON-ALIGNED WIDGET-ID 20
+     fiLicensed AT ROW 1.48 COL 52 COLON-ALIGNED WIDGET-ID 16
+     fiAvailable AT ROW 1.48 COL 82.4 COLON-ALIGNED WIDGET-ID 18
+     fiUnique AT ROW 1.48 COL 112 COLON-ALIGNED WIDGET-ID 20
      btRefresh AT ROW 1.48 COL 129 WIDGET-ID 22
+     fiActive AT ROW 1.52 COL 20 COLON-ALIGNED WIDGET-ID 14
+     fiUserFilter AT ROW 5.76 COL 22 COLON-ALIGNED WIDGET-ID 28
+     btFilter AT ROW 5.76 COL 64 WIDGET-ID 26
      RECT-5 AT ROW 1.24 COL 4 WIDGET-ID 24
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 150.4 BY 20.33 WIDGET-ID 100.
+         SIZE 150.4 BY 22.76 WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -133,7 +145,7 @@ DEFINE FRAME fMain
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Container Links: Data-Target,Data-Source,Page-Target,Update-Source,Update-Target,Filter-target,Filter-Source
-   Design Page: 1
+   Design Page: 2
    Other Settings: APPSERVER
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -145,20 +157,20 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wWin ASSIGN
          HIDDEN             = YES
          TITLE              = "Session Administration"
-         HEIGHT             = 20.33
+         HEIGHT             = 22.76
          WIDTH              = 150.4
          MAX-HEIGHT         = 28.81
          MAX-WIDTH          = 153.2
          VIRTUAL-HEIGHT     = 28.81
          VIRTUAL-WIDTH      = 153.2
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
+         RESIZE             = NO
+         SCROLL-BARS        = NO
+         STATUS-AREA        = NO
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -190,7 +202,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FILL-IN fiUnique IN FRAME fMain
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
-THEN wWin:HIDDEN = yes.
+THEN wWin:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -229,12 +241,24 @@ DO:
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btFilter
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btFilter wWin
+ON CHOOSE OF btFilter IN FRAME fMain /* Filter */
+DO:
+   
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &Scoped-define SELF-NAME btRefresh
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btRefresh wWin
 ON CHOOSE OF btRefresh IN FRAME fMain /* Refresh */
 DO:
- RUN showCounts.
-END.
+        RUN showCounts.
+    END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -276,14 +300,14 @@ PROCEDURE adm-create-objects :
              INPUT  'FolderLabels':U + 'Active Sessions|Session History|Configuration' + 'FolderTabWidth0FolderFont-1HideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_folder ).
        RUN repositionObject IN h_folder ( 3.19 , 4.00 ) NO-ERROR.
-       RUN resizeObject IN h_folder ( 17.86 , 145.00 ) NO-ERROR.
+       RUN resizeObject IN h_folder ( 19.95 , 145.00 ) NO-ERROR.
 
        /* Links to SmartFolder h_folder. */
        RUN addLink ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjustTabOrder ( h_folder ,
-             btRefresh:HANDLE IN FRAME fMain , 'AFTER':U ).
+             fiActive:HANDLE IN FRAME fMain , 'AFTER':U ).
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN constructObject (
@@ -324,15 +348,15 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME fMain:HANDLE ,
              INPUT  'ScrollRemotenoNumDown0CalcWidthnoMaxWidth80FetchOnReposToEndyesUseSortIndicatoryesSearchFieldDataSourceNames?UpdateTargetNames?LogicalObjectNameHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_brsuserloghist ).
-       RUN repositionObject IN h_brsuserloghist ( 5.05 , 7.00 ) NO-ERROR.
-       RUN resizeObject IN h_brsuserloghist ( 15.00 , 138.00 ) NO-ERROR.
+       RUN repositionObject IN h_brsuserloghist ( 8.86 , 7.00 ) NO-ERROR.
+       RUN resizeObject IN h_brsuserloghist ( 13.81 , 138.00 ) NO-ERROR.
 
        /* Links to SmartDataBrowser h_brsuserloghist. */
        RUN addLink ( h_duserloghist , 'Data':U , h_brsuserloghist ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjustTabOrder ( h_brsuserloghist ,
-             h_folder , 'AFTER':U ).
+             btFilter:HANDLE IN FRAME fMain , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN constructObject (
@@ -341,7 +365,7 @@ PROCEDURE adm-create-objects :
              INPUT  'EnabledObjFldsToDisable?ModifyFields(All)DataSourceNamesUpdateTargetNamesLogicalObjectNameLogicalObjectNamePhysicalObjectNameDynamicObjectnoRunAttributeHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_vuserctrl ).
        RUN repositionObject IN h_vuserctrl ( 4.43 , 8.40 ) NO-ERROR.
-       /* Size in AB:  ( 14.76 , 105.00 ) */
+       /* Size in AB:  ( 11.19 , 105.00 ) */
 
        /* Adjust the tab order of the smart objects. */
        RUN adjustTabOrder ( h_vuserctrl ,
@@ -350,7 +374,7 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF currentPage eq 0
+  IF currentPage EQ 0
   THEN RUN selectPage IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
@@ -388,9 +412,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fiActive fiLicensed fiAvailable fiUnique 
+  DISPLAY fiLicensed fiAvailable fiUnique fiActive fiUserFilter 
       WITH FRAME fMain IN WINDOW wWin.
-  ENABLE RECT-5 btRefresh 
+  ENABLE RECT-5 btRefresh fiUserFilter btFilter 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.
@@ -402,10 +426,10 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE exitObject wWin 
 PROCEDURE exitObject :
 /*------------------------------------------------------------------------------
-      Purpose:  Window-specific override of this procedure which destroys 
-                its contents and itself.
-        Notes:  
-    ------------------------------------------------------------------------------*/
+          Purpose:  Window-specific override of this procedure which destroys 
+                    its contents and itself.
+            Notes:  
+        ------------------------------------------------------------------------------*/
 
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN.
@@ -418,9 +442,9 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initializeObject wWin 
 PROCEDURE initializeObject :
 /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
+         Purpose:
+         Notes:
+        ------------------------------------------------------------------------------*/
     DEFINE VARIABLE cInputLine   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cEntireText  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lVersionRead AS LOGICAL   NO-UNDO.
@@ -433,8 +457,8 @@ PROCEDURE initializeObject :
     RUN showCounts.
 
 /* Code placed here will execute AFTER standard behavior.    */
-RUN disableFolderPage IN h_folder
-    ( INPUT 3).
+/*RUN disableFolderPage IN h_folder*/
+/*    ( INPUT 3).                  */
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -443,19 +467,21 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE showCounts wWin 
 PROCEDURE showCounts :
 /*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-DEFINE VARIABLE iConcurUsers AS INTEGER NO-UNDO.
-DEFINE VARIABLE iUniqueUsers AS INTEGER NO-UNDO.
-RUN system/userCount.p (INPUT "asi", OUTPUT iConcurUsers, OUTPUT iUniqueUsers).
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iConcurUsers   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iUniqueUsers   AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iLicensedUsers AS INTEGER NO-UNDO.
+    RUN system/userCount.p (INPUT "asi", OUTPUT iLicensedUsers, OUTPUT iConcurUsers, OUTPUT iUniqueUsers).
+
     FIND FIRST asi._license NO-LOCK.
    
     DO WITH FRAME {&frame-name}:
-        fiLicensed:SCREEN-VALUE = STRING(asi._license._Lic-ValidUsers).   
-        fiActive:screen-value = STRING(iConcurUsers)  .
-        /* _Lic-CurrConns */  
-        fiAVailable:SCREEN-VALUE = STRING(asi._license._lic-ValidUsers - iConcurUsers).
+        
+        fiLicensed:SCREEN-VALUE = STRING(iLicensedUsers).   
+        fiActive:screen-value = STRING(iConcurUsers)  .      
+        fiAVailable:SCREEN-VALUE = STRING(iLicensedUsers - iUniqueUsers).
         fiUnique:SCREEN-VALUE = STRING(iUniqueUsers).
         
     END.
