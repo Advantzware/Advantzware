@@ -145,14 +145,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 150
          VIRTUAL-HEIGHT     = 24
          VIRTUAL-WIDTH      = 150
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = NO
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -197,7 +197,7 @@ ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-fram
 /* SETTINGS FOR FRAME OPTIONS-FRAME
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = yes.
+THEN W-Win:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -534,7 +534,7 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF adm-current-page eq 0 
+  IF adm-current-page EQ 0 
   THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
@@ -826,7 +826,7 @@ PROCEDURE selectMiscFlds :
 
 
      IF AVAIL job-hdr THEN
-   RUN nosweat/mfvalad.p (sys-ctrl.char-fld,{&mfRecKey},{&mfHeader}).
+       RUN UDF/mfvalues.w (sys-ctrl.char-fld,{&mfRecKey},{&mfHeader}).
 
 END PROCEDURE.
 
@@ -840,22 +840,19 @@ PROCEDURE select_dept2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF AVAIL machtran AND machtran.job_number <> "" THEN DO:
-     /*RUN touch/getnote.p (RECID(machtran)).*/
+  IF AVAIL machtran AND machtran.job_number <> "" THEN DO:     
      
      FIND FIRST job WHERE job.company EQ machtran.company AND
                           job.job-no = machtran.job_number AND
                           job.job-no2 = machtran.job_sub NO-LOCK NO-ERROR.
 
      IF AVAIL job THEN
-     DO:
-        RUN touch/getnote.p (job.rec_key).
+     DO:        
        
         rec_key_value = job.rec_key.
        
-        RUN windows/specnott.w (rec_key_value,HEADER_value,machtran.machine,machtran.form_number).
-       
-        RUN touch/savenote.p (job.rec_key).
+        RUN windows/specnott.w (rec_key_value,HEADER_value,machtran.machine,machtran.form_number).       
+        
      END.
   END.
 END PROCEDURE.
