@@ -25,7 +25,7 @@ ON 'CTRL-ALT-Q':U ANYWHERE
 DO:
     lShowQuery = NOT lShowQuery.
     MESSAGE 
-        "Show Query Set To:" lShowQuery
+        "Show Query" STRING(lShowQuery,"YES/NO")
             VIEW-AS ALERT-BOX.        
 END.
 
