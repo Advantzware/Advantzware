@@ -44,6 +44,9 @@ CREATE WIDGET-POOL.
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
 
+DEFINE VARIABLE dtStartDate AS DATETIME    NO-UNDO.
+dtStartDate = TODAY.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -69,12 +72,14 @@ CREATE WIDGET-POOL.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table userLog.userName ~
-userLog.sessionID userLog.LoginDateTime userLog.EulaVersion ~
-userLog.IpAddress 
+userLog.sessionID userLog.LoginDateTime userLog.logoutDateTime ~
+userLog.EulaVersion userLog.IpAddress 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH userLog WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH userLog WHERE ~{&KEY-PHRASE} ~
+      AND userLog.loginDateTime >= dtStartDate NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH userLog WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH userLog WHERE ~{&KEY-PHRASE} ~
+      AND userLog.loginDateTime >= dtStartDate NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table userLog
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table userLog
@@ -83,9 +88,9 @@ userLog.IpAddress
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS RECT-4 fiStartingDate Browser-Table ~
+browse-order auto_find Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS fiStartingDate browse-order auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -109,6 +114,12 @@ DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 32 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fiStartingDate AS DATE FORMAT "99/99/99":U INITIAL ? 
+     LABEL "Starting Date" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1
+     BGCOLOR 15  NO-UNDO.
+
 DEFINE VARIABLE browse-order AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
@@ -126,6 +137,7 @@ DEFINE QUERY Browser-Table FOR
     FIELDS(userLog.userName
       userLog.sessionID
       userLog.LoginDateTime
+      userLog.logoutDateTime
       userLog.EulaVersion
       userLog.IpAddress) SCROLLING.
 &ANALYZE-RESUME
@@ -137,28 +149,30 @@ DEFINE BROWSE Browser-Table
       userLog.userName FORMAT "x(16)":U
       userLog.sessionID FORMAT ">>>>>>>>>>":U
       userLog.LoginDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
-      userLog.EulaVersion FORMAT ">>9.99":U
+      userLog.logoutDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
+      userLog.EulaVersion FORMAT ">>9.99":U WIDTH 41.8
       userLog.IpAddress FORMAT "x(15)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 113 BY 16.43
-         FONT 2.
+         FONT 2 ROW-HEIGHT-CHARS .57.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Browser-Table AT ROW 1 COL 1 HELP
+     fiStartingDate AT ROW 1.24 COL 16 COLON-ALIGNED WIDGET-ID 2
+     Browser-Table AT ROW 2.43 COL 2 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 17.67 COL 6 HELP
+     browse-order AT ROW 19.33 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 17.67 COL 52 COLON-ALIGNED HELP
+     auto_find AT ROW 19.33 COL 52 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 17.67 COL 86 HELP
+     Btn_Clear_Find AT ROW 19.33 COL 86 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 17.67 COL 2
-     RECT-4 AT ROW 17.43 COL 1
+          SIZE 4 BY 1 AT ROW 19.33 COL 2
+     RECT-4 AT ROW 19.1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -191,8 +205,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.52
-         WIDTH              = 113.4.
+         HEIGHT             = 20.05
+         WIDTH              = 116.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -217,7 +231,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table fiStartingDate F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -237,12 +251,14 @@ ASSIGN
      _TblList          = "ASI.userLog"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
+     _Where[1]         = "userLog.loginDateTime >= dtStartDate"
      _FldNameList[1]   = ASI.userLog.userName
      _FldNameList[2]   = ASI.userLog.sessionID
      _FldNameList[3]   = ASI.userLog.LoginDateTime
-     _FldNameList[4]   > ASI.userLog.EulaVersion
-"userLog.EulaVersion" ? ">>9.99" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   = ASI.userLog.IpAddress
+     _FldNameList[4]   = ASI.userLog.logoutDateTime
+     _FldNameList[5]   > ASI.userLog.EulaVersion
+"EulaVersion" ? ">>9.99" "character" ? ? ? ? ? ? no ? no no "41.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   = ASI.userLog.IpAddress
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -292,6 +308,27 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiStartingDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiStartingDate B-table-Win
+ON ENTRY OF fiStartingDate IN FRAME F-Main /* Starting Date */
+DO:
+  RUN local-open-query.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiStartingDate B-table-Win
+ON LEAVE OF fiStartingDate IN FRAME F-Main /* Starting Date */
+DO:
+  RUN local-open-query.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -365,7 +402,11 @@ PROCEDURE local-open-query :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN fiStartingDate.
+    dtStartDate = DATETIME(fiStartingDate).
+  END.
+ 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 

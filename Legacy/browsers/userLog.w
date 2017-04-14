@@ -86,7 +86,7 @@ userLog.IpAddress
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
-Btn_Clear_Find 
+Btn_Clear_Find btDelSelected 
 &Scoped-Define DISPLAYED-OBJECTS browse-order auto_find 
 
 /* Custom List Definitions                                              */
@@ -101,6 +101,10 @@ Btn_Clear_Find
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btDelSelected 
+     LABEL "Delete" 
+     SIZE 15 BY 1.14.
+
 DEFINE BUTTON Btn_Clear_Find 
      LABEL "&Clear Find" 
      SIZE 13 BY 1
@@ -143,7 +147,7 @@ DEFINE BROWSE Browser-Table
       userLog.IpAddress FORMAT "x(15)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 113 BY 16.43
+    WITH NO-ASSIGN SEPARATORS MULTIPLE SIZE 115 BY 16.43
          FONT 2 ROW-HEIGHT-CHARS .71.
 
 
@@ -158,6 +162,7 @@ DEFINE FRAME F-Main
           "Enter Auto Find Value"
      Btn_Clear_Find AT ROW 17.67 COL 86 HELP
           "CLEAR AUTO FIND Value"
+     btDelSelected AT ROW 17.67 COL 101 WIDGET-ID 2
      "By:" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 17.67 COL 2
      RECT-4 AT ROW 17.43 COL 1
@@ -194,7 +199,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
          HEIGHT             = 19.52
-         WIDTH              = 113.4.
+         WIDTH              = 115.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -219,7 +224,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
+/* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -296,6 +301,40 @@ DO:
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
 END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btDelSelected
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btDelSelected B-table-Win
+ON CHOOSE OF btDelSelected IN FRAME F-Main /* Delete */
+DO:
+  DEF BUFFER bf-userLog FOR userLog.
+  DEFINE VARIABLE li AS INTEGER     NO-UNDO.
+  DEFINE VARIABLE lAns AS LOGICAL     NO-UNDO.
+
+  DO WITH FRAME {&frame-name}:
+  
+    MESSAGE "Delete selected session records?"
+          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+          UPDATE lAns.
+    IF lAns THEN DO:
+        IF {&browse-name}:NUM-SELECTED-ROWS GT 0 THEN
+      DO li = 1 TO {&browse-name}:NUM-SELECTED-ROWS:
+        {&browse-name}:FETCH-SELECTED-ROW (li) NO-ERROR.
+        IF AVAIL userLog THEN DO:
+          FIND FIRST bf-userLog EXCLUSIVE-LOCK WHERE ROWID(bf-userLog) EQ ROWID(userLog)
+             NO-ERROR.
+          IF AVAIL bf-userLog THEN
+            DELETE bf-userlog.
+        END. /* if avail userlog */
+      END. /* do li ... */
+      RUN dispatch ('open-query').
+    END. /* if lAns */
+  END. /* do with frame ... */
+
+END. /* end trigger block */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
