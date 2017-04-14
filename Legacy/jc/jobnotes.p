@@ -9,7 +9,6 @@ DISABLE TRIGGERS FOR LOAD OF oe-ord.
 DISABLE TRIGGERS FOR LOAD OF oe-ordl.
 
 DEF VAR v-old-job-rec_key AS CHAR NO-UNDO.
-DEF VAR lDoCopyNote2ASI AS LOG NO-UNDO.
 
 IF AVAIL io-job THEN
 FIND FIRST est NO-LOCK
@@ -18,14 +17,6 @@ FIND FIRST est NO-LOCK
       AND est.rec_key EQ io-job.rec_key
     NO-ERROR.
     
-lDoCopyNote2ASI = NO.
-FILE-INFO:FILE-NAME = ".".
-IF FILE-INFO:FULL-PATHNAME MATCHES "*addon*" THEN lDoCopyNote2ASI = YES.
-  
-/*MESSAGE "debug: test: Addon?" FILE-INFO:FULL-PATHNAME SKIP
-     lDoCopyNote2ASI
-    VIEW-AS ALERT-BOX INFO BUTTONS OK.
-*/
 IF AVAIL est THEN DO:
   ASSIGN
      v-old-job-rec_key = io-job.rec_key
@@ -65,10 +56,6 @@ IF AVAIL est THEN DO:
      oe-ord.rec_key  = io-job.rec_key.
   END.
 
-  IF lDoCopyNote2ASI THEN DO:
-     RUN touch/savenoteA.p (io-job.rec_key,STRING(io-job.job)).
-    
-  END.
   /*IF CAN-FIND(FIRST nosweat._file WHERE
                     nosweat._file._file-name = "mfgroup") THEN
      RUN custom/mfvalue-rec-key-update.p(INPUT v-old-job-rec_key,
