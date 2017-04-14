@@ -1,0 +1,11 @@
+UPDATE TABLE "userLog"
+  TABLE-TRIGGER "CREATE" NO-OVERRIDE PROCEDURE "create.trg/userlog.p" CRC "23191"
+
+ADD INDEX "rec_key" ON "userLog"
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING
+
+ADD INDEX "StatusUserID" ON "userLog"
+  AREA "Index"
+  INDEX-FIELD "userStatus" ASCENDING
+  INDEX-FIELD "user_id" ASCENDING

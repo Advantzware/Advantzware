@@ -14,7 +14,7 @@ DEFINE                   VARIABLE i               AS INTEGER   NO-UNDO.
 DEFINE                   VARIABLE cEulaFile       AS CHARACTER NO-UNDO.
 DEFINE                   VARIABLE cEulaVersion    AS CHARACTER NO-UNDO.
 DEFINE                   VARIABLE lEulaAccepted   AS LOGICAL   NO-UNDO.
-
+DEFINE                   VARIABLE lExit           AS LOGICAL   NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g-sharpshooter  AS LOG       NO-UNDO.  /* no, it's yes only from sharpsh.p */
 
 
@@ -80,6 +80,7 @@ cEulaFile = SEARCH("Eula.txt").
   
 IF CONNECTED("NOSWEAT") THEN
 DO:
+    /*
     lEulaAccepted = NO.
     IF cEulaFile NE ? THEN 
     DO:
@@ -93,13 +94,17 @@ DO:
           
     IF NOT lEulaAccepted THEN 
         QUIT.
-    
-    RUN system/checkExpiredLicense.p.
+    */
+
             
     RUN createSingleUserPFs.
     {methods/setdevid.i}
     RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
     RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
+    /*RUN system/userLogin.p (OUTPUT lExit).
+    IF lExit THEN 
+        QUIT. */
+    RUN system/checkExpiredLicense.p.    
     RUN Get_Procedure IN Persistent-HANDLE ("user_dir.",OUTPUT run-proc,YES).
     g_groups = "". /* YSK need to reset */
     FOR EACH usergrps NO-LOCK:
