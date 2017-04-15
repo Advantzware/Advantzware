@@ -12,12 +12,6 @@
 
  History:
 
- v3.006 (updated 3.23.2017)
- * added field "dc prod qty"
- * added field "first release" date
- * correct job description value
- * added userid to excel file name
-
  v3.005 (updated 1.27.2017)
  * added field job "created" date
 

@@ -1,0 +1,12 @@
+
+create {2}eb.
+assign
+ {2}eb.est-type = {1}
+ {2}eb.company  = {3}est.company
+ {2}eb.loc      = {3}est.loc
+ {2}eb.e-num    = {3}est.e-num
+ {2}eb.est-no   = {3}est.est-no
+ {2}eb.form-no  = 0
+ {2}eb.blank-no = 0
+ {2}eb.est-int  = int({3}est.est-no)
+ {2}eb.pur-man  = no.
