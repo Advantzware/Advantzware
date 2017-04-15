@@ -1,0 +1,3 @@
+/* detailJob.i */
+
+/* static version */
