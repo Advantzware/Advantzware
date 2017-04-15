@@ -76,7 +76,7 @@ FOR EACH userLog NO-LOCK WHERE userLog.userStatus EQ "Logged In"
   iLoginCnt = iLoginCnt + 1.
 END.
 
-IF iLoginCnt GT 0 THEN DO:
+IF iLoginCnt GT 0 AND promptMultiSession-log THEN DO:
     
     MESSAGE "User " + USERID("nosweat") + " " + string(iLoginCnt) + " other open sessions. Replace them or add a new one?" SKIP 
       "Choose 'YES' to add an additional session." SKIP
@@ -99,7 +99,7 @@ END.
 
 
 /* IF adding, CHECK nk1 VALUE AND determine IF the USER COUNT IS over the limit */
-IF NOT oplExit THEN DO:
+IF NOT oplExit AND enforceUserCount-log THEN DO:
     
     iAllUserCount = 0.
     FOR EACH userLog NO-LOCK WHERE userLog.userStatus EQ "Logged In" 

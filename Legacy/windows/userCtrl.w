@@ -69,11 +69,10 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updcan AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_quserctrl AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_usercontrol AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_userctrl-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_userlog AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_userloghst AS HANDLE NO-UNDO.
 
@@ -84,21 +83,21 @@ DEFINE FRAME F-Main
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 150 BY 24
-         BGCOLOR 4  WIDGET-ID 100.
+         BGCOLOR 15  WIDGET-ID 100.
 
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
-         BGCOLOR 4  WIDGET-ID 100.
+         BGCOLOR 15  WIDGET-ID 100.
 
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 68 ROW 2.91
          SIZE 83 BY 1.43
-         BGCOLOR 4  WIDGET-ID 100.
+         BGCOLOR 15  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -313,14 +312,14 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/userlog.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Initial-Lock = EXCLUSIVE-LOCK,
+             INPUT  'Initial-Lock = NO-LOCK,
                      Hide-on-Init = no,
                      Disable-on-Init = no,
                      Layout = ,
                      Create-On-Add = ?':U ,
              OUTPUT h_userlog ).
        RUN set-position IN h_userlog ( 5.52 , 2.00 ) NO-ERROR.
-       RUN set-size IN h_userlog ( 17.86 , 113.00 ) NO-ERROR.
+       RUN set-size IN h_userlog ( 17.86 , 115.00 ) NO-ERROR.
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_userlog ,
@@ -336,50 +335,32 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 17.14 , 80.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/userctrl.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Initial-Lock = NO-LOCK,
-                     Hide-on-Init = yes,
-                     Disable-on-Init = no,
-                     Layout = ,
-                     Create-On-Add = ?':U ,
-             OUTPUT h_userctrl-2 ).
-       RUN set-position IN h_userctrl-2 ( 5.29 , 19.00 ) NO-ERROR.
-       RUN set-size IN h_userctrl-2 ( 16.48 , 99.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-navico.r':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = NAV-ICON,
-                     Right-to-Left = First-On-Left':U ,
-             OUTPUT h_p-navico ).
-       RUN set-position IN h_p-navico ( 22.19 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'p-updcan.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
-             OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 22.19 , 92.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
+             OUTPUT h_p-updcan ).
+       RUN set-position IN h_p-updcan ( 22.43 , 88.00 ) NO-ERROR.
+       RUN set-size IN h_p-updcan ( 1.76 , 31.00 ) NO-ERROR.
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/quserctrl.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_quserctrl ).
+       RUN set-position IN h_quserctrl ( 9.57 , 112.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.86 , 10.80 ) */
 
        /* Links to SmartViewer h_usercontrol. */
-       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_usercontrol ).
-       RUN add-link IN adm-broker-hdl ( h_userctrl-2 , 'Record':U , h_usercontrol ).
+       RUN add-link IN adm-broker-hdl ( h_p-updcan , 'TableIO':U , h_usercontrol ).
+       RUN add-link IN adm-broker-hdl ( h_quserctrl , 'Record':U , h_usercontrol ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_usercontrol ,
              h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_userctrl-2 ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan ,
              h_usercontrol , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
-             h_userctrl-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
-             h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -388,7 +369,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_userloghst ).
        RUN set-position IN h_userloghst ( 5.29 , 4.00 ) NO-ERROR.
-       RUN set-size IN h_userloghst ( 17.86 , 113.00 ) NO-ERROR.
+       RUN set-size IN h_userloghst ( 19.52 , 114.00 ) NO-ERROR.
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_userloghst ,
