@@ -1,0 +1,136 @@
+/* --------------------------------------------------- oe/oe-rel.a   6/93 rd  */
+/* add module - order entry release lines                                     */
+/* -------------------------------------------------------------------------- */
+
+if avail {&fil} then do:
+    {sys/inc/oereleas.i}
+
+    if v-qty-sum + {&fil}.ship-qty gt
+                       {&fil}.qty + ({&fil}.qty * (xoe-ord.over-pct / 100)) then
+        message "Total Planned release quantity will exceed the Or" +
+                        "der quantity + the Underrun %."
+                view-as alert-box warning.
+    
+    find first eb where eb.company = {&fil}.company
+                    and eb.est-no  = {&fil}.est-no
+                    and eb.blank-no eq {&fil}.blank-no
+                    and eb.form-no  eq {&fil}.form-no
+         no-lock no-error.
+    if avail eb then
+       find first shipto of eb no-lock no-error.
+    /*========
+        where shipto.company eq xoe-ord.company
+          and shipto.cust-no eq eb.cust-no
+          and shipto.ship-id eq eb.ship-id
+          and shipto.ship-no eq eb.ship-no
+        no-lock no-error.
+    if not avail shipto then
+    find first shipto
+        where shipto.company eq xoe-ord.company
+          and shipto.cust-no eq eb.cust-no
+          and shipto.ship-id eq eb.ship-id
+        no-lock no-error.
+    if not avail shipto then
+    find shipto
+        where shipto.company eq xoe-ord.company
+          and shipto.cust-no eq eb.cust-no
+          and shipto.ship-no eq eb.ship-no
+        no-lock no-error.
+    */
+
+    /** Find last release in the oe-rel file. **/
+    find first oe-rel use-index seq-no no-lock no-error.
+    /* v-nxt-r-no = (if avail oe-rel then oe-rel.r-no else 0) + 1. */
+    RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+
+    find first sys-ctrl where sys-ctrl.company eq cocode
+                          and sys-ctrl.name    eq "OECARIER"
+               no-lock no-error.
+    if not avail sys-ctrl then do:
+      create sys-ctrl.
+      assign sys-ctrl.company  = cocode
+             sys-ctrl.name     = "OECARIER"
+             sys-ctrl.descrip  = "Default carrier from Header or ShipTo:"
+             sys-ctrl.char-fld = "ShipTo".       
+      do while true:
+        message "Default Shipping Carrier from Header or Shipto?" update sys-ctrl.char-fld.
+        if sys-ctrl.char-fld = "Header" or sys-ctrl.char-fld = "ShipTo" then leave. 
+      end.
+    end.
+    
+    create oe-rel.
+    assign oe-rel.company   = cocode
+           oe-rel.loc       = locode
+           oe-rel.ord-no    = {&fil}.ord-no
+           oe-rel.i-no      = {&fil}.i-no
+           oe-rel.cust-no   = xoe-ord.cust-no
+           oe-rel.po-no     = if {&fil}.po-no ne "" then {&fil}.po-no 
+                                                    else xoe-ord.po-no
+           oe-rel.qty       = 0 /*{&fil}.qty - v-qty-sum*/
+           oe-rel.tot-qty   = {&fil}.qty
+           oe-rel.line      = {&fil}.line
+           oe-rel.s-comm[1] = xoe-ord.s-comm[1]
+           oe-rel.s-comm[2] = xoe-ord.s-comm[2]
+           oe-rel.s-comm[3] = xoe-ord.s-comm[3]
+           oe-rel.s-name[1] = xoe-ord.sname[1]
+           oe-rel.s-name[2] = xoe-ord.sname[2]
+           oe-rel.s-name[3] = xoe-ord.sname[3]
+           oe-rel.s-pct[1]  = xoe-ord.s-pct[1]
+           oe-rel.s-pct[2]  = xoe-ord.s-pct[2]
+           oe-rel.s-pct[3]  = xoe-ord.s-pct[3]
+           oe-rel.sman[1]   = xoe-ord.sman[1]
+           oe-rel.sman[2]   = xoe-ord.sman[2]
+           oe-rel.sman[3]   = xoe-ord.sman[3]
+           oe-rel.sold-no   = xoe-ord.sold-no
+           oe-rel.carrier   = if sys-ctrl.char-fld = "Shipto" and avail shipto then shipto.carrier
+                              else xoe-ord.carrier
+           oe-rel.spare-char-1 = xoe-ord.loc
+           oe-rel.r-no      = v-nxt-r-no.
+           
+    if oereleas-cha eq "LastShip" then
+       oe-rel.rel-date = xoe-ord.last-date.
+    ELSE IF oereleas-cha EQ "Due Date" THEN
+       oe-rel.rel-date = {&fil}.req-date.
+    ELSE /*DueDate+1Day*/
+    DO:
+       oe-rel.rel-date = {&fil}.req-date + 1.
+       IF WEEKDAY(oe-rel.rel-date) EQ 7 THEN
+          oe-rel.rel-date = oe-rel.rel-date + 2.
+       ELSE
+          IF WEEKDAY(oe-rel.rel-date) EQ 1 THEN
+             oe-rel.rel-date = oe-rel.rel-date + 1.
+    END.
+
+    if oe-rel.qty lt 0 then oe-rel.qty = 0.
+
+    if oe-rel.rel-date le v-lst-rel then oe-rel.rel-date = v-lst-rel + 1.
+
+    if not avail shipto then
+    find first shipto where shipto.company eq cocode
+                        and shipto.cust-no eq xoe-ord.cust-no
+         no-lock no-error.
+    if avail shipto then
+       assign oe-rel.ship-addr[1] = shipto.ship-addr[1]
+              oe-rel.ship-city    = shipto.ship-city
+              oe-rel.ship-state   = shipto.ship-state
+              oe-rel.ship-zip     = shipto.ship-zip
+              oe-rel.ship-no      = shipto.ship-no
+              oe-rel.ship-id      = shipto.ship-id
+              oe-rel.ship-i[1]    = shipto.notes[1]
+              oe-rel.ship-i[2]    = shipto.notes[2]
+              oe-rel.ship-i[3]    = shipto.notes[3]
+              oe-rel.ship-i[4]    = shipto.notes[4]
+              oe-rel.spare-char-1 = shipto.loc.
+    else assign oe-rel.ship-no   = xoe-ord.sold-no
+                oe-rel.ship-id   = xoe-ord.sold-id
+                oe-rel.ship-i[1] = xoe-ord.ship-i[1]
+                oe-rel.ship-i[2] = xoe-ord.ship-i[2]
+                oe-rel.ship-i[3] = xoe-ord.ship-i[3]
+                oe-rel.ship-i[4] = xoe-ord.ship-i[4].
+end.
+else do:
+    message " Order Line item record is not avail. " view-as alert-box error.
+    return error.
+end.
+
+/* end ---------------------------------- copr. 1993  advanced software, inc. */
