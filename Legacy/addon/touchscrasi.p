@@ -7,7 +7,7 @@ propath = "p:\asi10test\patch\rco1010,p:\asi10test\patch\rco1010\addon,p:\asi10t
 DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 DEFINE NEW SHARED VARIABLE quit_login AS LOGICAL NO-UNDO.
-DEFINE VARIABLE m_id LIKE NOSWEAT._user._userid NO-UNDO.
+DEFINE VARIABLE m_id AS CHAR NO-UNDO.
 DEF NEW GLOBAL SHARED VAR g-sharpshooter AS LOG NO-UNDO.  /* no, it's yes only from sharpsh.p */
 
 ldummy = SESSION:SET-WAIT-STATE("GENERAL").
@@ -32,15 +32,15 @@ END.
 IF tslogin-log THEN DO:
   m_id = OS-GETENV("OPSYSID").
   IF m_id = ? THEN m_id = "".
-  IF NOT SETUSERID(m_id,"","NOSWEAT") THEN RUN nosweat/login.w.
+  IF NOT SETUSERID(m_id,"",ldbname(1)) THEN RUN nosweat/login.w.
 
-  IF USERID("NOSWEAT") = "" OR quit_login THEN
+  IF USERID(ldbname(1)) = "" OR quit_login THEN
   DO:
     ldummy = SESSION:SET-WAIT-STATE("").
     QUIT.
   END.
 
-  FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK NO-ERROR.
+  FIND users WHERE users.user_id = USERID(ldbname(1)) NO-LOCK NO-ERROR.
   IF NOT AVAILABLE users THEN
   DO:     
     ldummy = SESSION:SET-WAIT-STATE("").
@@ -55,7 +55,7 @@ IF tslogin-log THEN DO:
        NO-LOCK NO-ERROR.
   IF AVAIL usercomp THEN do:
     g_company = usercomp.company.
-    FIND FIRST ASI.usercomp WHERE usercomp.user_id = USERID("NOSWEAT") AND
+    FIND FIRST ASI.usercomp WHERE usercomp.user_id = USERID(ldbname(1)) AND
             usercomp.company = g_company AND
             usercomp.loc NE "" AND usercomp.loc_default = yes
             NO-LOCK NO-ERROR.
@@ -73,7 +73,7 @@ END.  /* prompt login */
 RUN custom/gettime.p.   /* time-source */
 */
 
-IF CONNECTED("NOSWEAT") THEN DO:
+IF CONNECTED(ldbname(1)) THEN DO:
     RUN ./nosweat/persist.p PERSISTENT SET Persistent-Handle.
     RUN touch/touchscr.w.
 END.

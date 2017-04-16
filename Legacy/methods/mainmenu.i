@@ -15,7 +15,7 @@
     wk-ptrs.menu-name = "popup"
     wk-ptrs.smenu-ptr = popup-ptr.
 
-  FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK.
+  FIND users WHERE users.user_id = USERID(ldbname(1)) NO-LOCK.
   j = IF users.developer THEN 2 ELSE 1.
 
   ASSIGN
@@ -37,8 +37,8 @@
 
   DO i = 1 TO j:
     IF i = 1 THEN
-      IF SEARCH("usermenu/" + USERID("NOSWEAT") + "/" + m_menu-lst[1]) NE ? THEN
-      INPUT FROM VALUE(search("usermenu/" + USERID("NOSWEAT") + "/" + m_menu-lst[1])) NO-ECHO.
+      IF SEARCH("usermenu/" + USERID(ldbname(1)) + "/" + m_menu-lst[1]) NE ? THEN
+      INPUT FROM VALUE(search("usermenu/" + USERID(ldbname(1)) + "/" + m_menu-lst[1])) NO-ECHO.
       ELSE
       INPUT FROM VALUE(search(m_menu-lst[1])) NO-ECHO.
     ELSE
@@ -63,8 +63,8 @@
 
   DO i = 1 TO j:
     IF i = 1 THEN
-      IF SEARCH("usermenu/" + USERID("NOSWEAT") + "/" + m_menu-lst[1]) NE ? THEN
-      INPUT FROM VALUE(search("usermenu/" + USERID("NOSWEAT") + "/" + m_menu-lst[1])) NO-ECHO.
+      IF SEARCH("usermenu/" + USERID("ldbname(1)") + "/" + m_menu-lst[1]) NE ? THEN
+      INPUT FROM VALUE(search("usermenu/" + USERID("ldbname(1)") + "/" + m_menu-lst[1])) NO-ECHO.
       ELSE
       INPUT FROM VALUE(search(m_menu-lst[1])) NO-ECHO.
     ELSE
@@ -79,7 +79,7 @@
          (m_est-only AND m_item3 NE "est") THEN NEXT.
       FIND FIRST wk-ptrs WHERE wk-ptrs.menu-name = m_item2 NO-LOCK NO-ERROR.
       IF NOT AVAIL wk-ptrs THEN DO:
-          IF USERID("Nosweat") EQ "ASI" THEN
+          IF USERID("ldbname(1)") EQ "ASI" THEN
             MESSAGE "Missing menu item: " m_item2 SKIP
             "menu file:" m_menu-lst[1] SKIP
             VIEW-AS ALERT-BOX.          
@@ -146,7 +146,7 @@
 
   RUN enable_UI.
   {methods/enhance.i}
-  users_user_id = USERID("NOSWEAT") /*+ " - " + users.user_name */ .
+  users_user_id = USERID("ldbname(1)") /*+ " - " + users.user_name */ .
   DISPLAY users_user_id
       WITH FRAME {&FRAME-NAME} IN WINDOW {&WINDOW-NAME}.
   v_image_filename = users.image_filename.
