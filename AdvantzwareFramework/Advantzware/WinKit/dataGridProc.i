@@ -15,18 +15,22 @@
 DEFINE VARIABLE cGridColumns AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cGridQuery   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lShowQuery   AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE lDeveloper   AS LOGICAL   NO-UNDO.
 
 ON 'CTRL-ALT-G':U ANYWHERE
 DO:
+    IF lDeveloper THEN 
     RUN pDataGridDat.        
 END.
 
 ON 'CTRL-ALT-Q':U ANYWHERE
 DO:
-    lShowQuery = NOT lShowQuery.
-    MESSAGE 
-        "Show Query" STRING(lShowQuery,"YES/NO")
-            VIEW-AS ALERT-BOX.        
+    IF lDeveloper THEN DO: 
+        lShowQuery = NOT lShowQuery.
+        MESSAGE 
+            "Show Query" STRING(lShowQuery,"YES/NO")
+                VIEW-AS ALERT-BOX.        
+    END. /* if ldeveloper */
 END.
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -34,6 +38,11 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID("ASI")
+     NO-ERROR.
+IF AVAILABLE users THEN
+lDeveloper = users.developer.
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -230,9 +239,10 @@ PROCEDURE pDataGridDat:
 
   IF VALID-OBJECT (oRenderedBrowseControl) THEN DO:
       cGridSearch = SEARCH ("dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".dat")).
-      IF cGridSearch NE ? THEN
-      RUN util/dataGridDat.w (cGridSearch, "{&EXTERNAL-TABLES}", "{&TABLES-IN-QUERY-{&BROWSE-NAME}}").
-      RUN pGetDataGridDat (cGridSearch).
+      IF cGridSearch NE ? THEN DO: 
+          RUN util/dataGridDat.w (cGridSearch, "{&EXTERNAL-TABLES}", "{&TABLES-IN-QUERY-{&BROWSE-NAME}}").
+          RUN pGetDataGridDat (cGridSearch).
+      END. /* if ne ? */
   END. /* valid-object */
 
 
@@ -247,13 +257,8 @@ PROCEDURE pDataGridInit:
 
   IF VALID-OBJECT (oRenderedBrowseControl) THEN DO:
       cGridSearch = "dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".dat").
-      IF SEARCH (cGridSearch) EQ ? THEN DO:
-          FIND FIRST users NO-LOCK
-               WHERE users.user_id EQ USERID("ASI")
-               NO-ERROR.
-          IF AVAILABLE users AND users.developer EQ YES THEN
-          RUN pCreateDataGridDat (cGridSearch, users.user_id).
-      END. /* if search eq ? */
+      IF SEARCH (cGridSearch) EQ ? AND lDeveloper THEN
+      RUN pCreateDataGridDat (cGridSearch, USERID("ASI")).
       IF SEARCH (cGridSearch) NE ? THEN DO:
           RUN pGetDataGridDat (cGridSearch).
           ASSIGN
