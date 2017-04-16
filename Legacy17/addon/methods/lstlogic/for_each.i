@@ -1,0 +1,13 @@
+/* for_each.i */
+
+&IF "{&DBFIELD{1}}" NE "" &THEN
+PUT UNFORMATTED
+  "    WHEN {1} THEN" SKIP
+  "    OPEN QUERY {&FIRST-EXTERNAL-TABLE}-query "
+  "FOR EACH {&FIRST-EXTERNAL-TABLE} NO-LOCK WHERE" SKIP
+  "        ~&IF ~"~{&WHERE-STATEMENT}~" NE ~"~" ~&THEN" SKIP
+  "        ~{&WHERE-STATEMENT} AND" SKIP
+  "        ~&ENDIF" SKIP
+  "        {&DBFIELD{1}} GE {&BEGINFLD{1}} AND" SKIP
+  "        {&DBFIELD{1}} LE {&ENDFLD{1}}." SKIP.
+&ENDIF

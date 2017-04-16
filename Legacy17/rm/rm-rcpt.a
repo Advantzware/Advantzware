@@ -1,0 +1,19 @@
+/* ---------------------------------------------------- rm/rm-rcpt.a 10/93 cd */
+/* raw materials - receipts add                                               */
+/* -------------------------------------------------------------------------- */
+
+RUN sys/ref/asiseq.p (INPUT cocode, INPUT "rm_rcpt_seq", OUTPUT x) NO-ERROR.
+IF ERROR-STATUS:ERROR THEN
+  MESSAGE "Could not obtain next sequence #, please contact ASI: " RETURN-VALUE
+          VIEW-AS ALERT-BOX INFO BUTTONS OK.
+
+
+CREATE rm-rcpt.
+ASSIGN
+  rm-rcpt.r-no       = x
+  rm-rcpt.trans-date = TODAY
+  rm-rcpt.company    = cocode
+  rm-rcpt.loc        = locode
+  rm-rcpt.rita-code  = "R".
+  
+/* end ---------------------------------- copr. 1993  advanced software, inc. */

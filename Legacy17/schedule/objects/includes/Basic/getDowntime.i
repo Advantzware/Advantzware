@@ -1,0 +1,3 @@
+/* getDowntime.i */
+
+/* static version */

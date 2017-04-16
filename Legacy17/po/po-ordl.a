@@ -1,0 +1,50 @@
+/* --------------------------------------------------- po/po-ordl.a 12/93 rd  */
+/* add order entry lines - O/E module                                         */
+/* -------------------------------------------------------------------------- */
+
+if avail po-ord then do:
+   z = 1.
+   find last po-ordl where
+        po-ordl.company eq po-ord.company and
+        po-ordl.po-no eq po-ord.po-no
+        no-lock no-error.
+        
+   if available po-ordl then z = po-ordl.line + 1.
+   find vend where vend.company = po-ord.company
+     and vend.vend-no = po-ord.vend-no no-lock no-error.
+
+   create po-ordl.
+   assign
+      po-ordl.company   = cocode
+      po-ordl.po-no     = po-ord.po-no
+      po-ordl.stat      = "O"
+      po-ordl.ord-qty   = 1
+      po-ordl.cons-qty  = 1
+      nufile            = true
+      po-ordl.line      = z
+      po-ordl.due-date  = po-ord.due-date
+      po-ordl.over-pct  = po-ord.over-pct
+      po-ordl.under-pct = po-ord.under-pct
+      po-ordl.vend-no   = po-ord.vend-no.
+
+  if avail vend then do:
+    assign
+     po-ordl.disc = vend.disc-%
+     po-ordl.tax  = vend.tax-gr ne "".
+     
+    if ap-gl#-log and index(ap-gl#-cha,"Vend") gt 0 then
+      po-ordl.actnum = vend.actnum.
+  end.
+
+/*  display po-ordl.line with frame po-ordl. not for creation from order */
+
+  if po-ord.printed or po-ord.stat ne "N" then
+   assign po-ordl.stat = "A".
+end.
+
+else do:
+   bell. message " PO record is not available. " . pause.
+end.
+
+/* end ---------------------------------- copr. 1993  advanced software, inc. */
+
