@@ -76,7 +76,7 @@ ASSIGN cTextListToSelect = "Rep,Name,Customer,Customer Name,Invoice#,Inv Date,FG
        cFieldListToSelect = "rep,name,cust,custname,inv-no,inv-date,fg,cat,qty,ttl-msf,pur-ord," +
                             "msf,sal-amt,ful-cst,proft,grp-no,mbr-no,inv-uom,cust-po"
        cFieldLength = "3,20,8,25,8,8,15,5,12,9,8," +
-                      "8,15,11,11,8,10,3,15"
+                      "9,15,11,11,8,10,3,15"
        cFieldType   = "c,c,c,c,i,c,c,c,i,i,i," + "i,i,i,i,c,c,c,c"
        .
 ASSIGN cTextListToDefault  = "Rep,Customer,Customer Name,Invoice#,FG Item,Name,Catgy,Qty shipped,Total MSF," +
