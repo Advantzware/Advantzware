@@ -22,9 +22,9 @@
       IF SEARCH("users/" + USERID(ldbname(1)) + "/menu.lst") NE ? THEN
       INPUT FROM VALUE("users/" + USERID(ldbname(1)) + "/menu.lst") NO-ECHO.
       ELSE
-      INPUT FROM value(search("menu.lst")) NO-ECHO.
+      INPUT FROM value(search("addon\menu.lst")) NO-ECHO.
     ELSE
-    INPUT FROM popup.lst NO-ECHO.
+    INPUT FROM value(search("addon\popup.lst")) NO-ECHO.
     REPEAT:                          
       IMPORT m_item1 m_item2.
       IF CAN-DO("RULE,SKIP",m_item1) OR INDEX(m_item1,".") NE 0 THEN
@@ -43,9 +43,9 @@
       IF SEARCH("users/" + USERID(ldbname(1)) + "/menu.lst") NE ? THEN
       INPUT FROM VALUE("users/" + USERID(ldbname(1)) + "/menu.lst") NO-ECHO.
       ELSE
-      INPUT FROM VALUE(search("menu.lst")) NO-ECHO.
+      INPUT FROM value(search("addon\menu.lst")) NO-ECHO.
     ELSE
-    INPUT FROM value(search("popup.lst")) NO-ECHO.
+    INPUT FROM value(search("addon\popup.lst")) NO-ECHO.
     REPEAT:
       IMPORT m_item1 m_item2.
       IF m_item1 = m_item2 THEN
