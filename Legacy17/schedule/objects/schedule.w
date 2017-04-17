@@ -41,6 +41,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE WinKitDontEmbed
+
 {system/sysconst.i}
 {schedule/scopDir.i}
 {{&includes}/defBoard.i}
