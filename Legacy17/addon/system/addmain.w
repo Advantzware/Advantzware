@@ -478,7 +478,7 @@ PROCEDURE Read_Menus :
 
   CREATE WIDGET-POOL "dyn-buttons" PERSISTENT.
   /* ============= dynamic menu for foldware/corrware ============*/
-  ls-menu-lst = "menu.lst".
+  ls-menu-lst = "addon\menu.lst".
 
   find first sys-ctrl where sys-ctrl.company = g_company and
                             sys-ctrl.name = "cemenu"
@@ -488,12 +488,12 @@ PROCEDURE Read_Menus :
      if sys-ctrl.char-fld = "Foldware" then ls-menu-lst = "menu.fol".
   end.
 
-  IF SEARCH(".\usermenu\" + USERID("NOSWEAT") + "\" + ls-menu-lst) <> ? THEN
-    ls-menu-lst = ".\usermenu\" + USERID("NOSWEAT") + "\" + ls-menu-lst.
+  IF SEARCH(".\usermenu\" + USERID(ldbname(1)) + "\" + ls-menu-lst) <> ? THEN
+    ls-menu-lst = ".\usermenu\" + USERID(ldbname(1)) + "\" + ls-menu-lst.
 
   /* ========== end of mods =========================*/  
 
-  INPUT FROM /*'menu.lst'*/ value(ls-menu-lst) /* ysk */ NO-ECHO.
+  INPUT FROM /*'menu.lst'*/ value(search(ls-menu-lst)) /* ysk */ NO-ECHO.
   REPEAT:
     IMPORT m[1] m[2].
     IF CAN-DO('RULE,SKIP',m[1]) THEN
