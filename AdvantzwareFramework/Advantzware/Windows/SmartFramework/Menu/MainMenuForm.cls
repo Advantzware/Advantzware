@@ -944,7 +944,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         DEFINE VARIABLE arrayvar14 AS Infragistics.Win.UltraWinToolbars.RibbonTab EXTENT 2 NO-UNDO.
         arrayvar14[1] = ribbonTab1.
         arrayvar14[2] = ribbonTab2.
-        THIS-OBJECT:smartToolbarController1:Ribbon:NonInheritedRibbonTabs:AddRange(arrayvar14).
+/*        THIS-OBJECT:smartToolbarController1:Ribbon:NonInheritedRibbonTabs:AddRange(arrayvar14).*/
         @VisualDesigner.FormMember (NeedsInitialize="false", InitializeArray="true").
         DEFINE VARIABLE arrayvar15 AS Infragistics.Win.UltraWinToolbars.ToolBase EXTENT 2 NO-UNDO.
         arrayvar15[1] = buttonTool43.

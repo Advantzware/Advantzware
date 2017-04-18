@@ -28,7 +28,7 @@
   <ttServiceLoaderRow>
     <Order>5</Order>
     <ServiceTypeName>Consultingwerk.WindowIntegrationKit.ITabFolderCustomizer</ServiceTypeName>
-    <ServiceClassName>Consultingwerk.WindowIntegrationKit.SampleTabFolderCustomizer</ServiceClassName>
+    <ServiceClassName>Consultingwerk.WindowIntegrationKit.TabFolderCustomizer</ServiceClassName>
   </ttServiceLoaderRow> 
   <ttServiceLoaderRow>
     <Order>6</Order>
