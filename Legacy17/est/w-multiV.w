@@ -296,7 +296,7 @@ PROCEDURE adm-create-objects :
         WHEN 0 THEN 
             DO:
                 RUN init-object IN THIS-PROCEDURE (
-                    INPUT  'p:/asi10test/branch/develop/src/est/b-multiv.w':U ,
+                    INPUT  'est/b-multiv.w':U ,
                     INPUT  FRAME F-Main:HANDLE ,
                     INPUT  'Layout = ':U ,
                     OUTPUT h_b-multiv ).

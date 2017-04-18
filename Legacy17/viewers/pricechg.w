@@ -205,7 +205,7 @@ DO:
     def var char-hdl as cha no-undo.
     run get-link-handle in adm-broker-hdl (this-procedure, "price-change-source", output char-hdl).
     run price-change in widget-handle(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:55 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:28 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -191,7 +191,7 @@ ASSIGN
 ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
 DO:
    RUN notify ('delete-record':U).  
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:43 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -227,7 +227,7 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
+  {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

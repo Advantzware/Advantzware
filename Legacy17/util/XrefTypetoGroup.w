@@ -290,7 +290,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -302,7 +302,7 @@ END.
 ON CHOOSE OF Btn_Help IN FRAME DEFAULT-FRAME /* Help */
 DO: /* Call Help Function (or a simple message). */
 MESSAGE "Help for File: {&FILE-NAME}":U VIEW-AS ALERT-BOX INFORMATION.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -349,7 +349,7 @@ DO:
 
   message  "Customer Type Copy to Group successfully" view-as alert-box.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -413,7 +413,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -430,15 +430,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}
 
   DO WITH FRAME {&frame-name}:
-    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:51 pm */
-    {methods/setButton.i Btn_Help "Help"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:51 pm */
-    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:51 pm */
+    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:23 am */
+    {methods/setButton.i Btn_Help "Help"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:23 am */
+    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:23 am */
       {custom/usrprint.i}
       APPLY "entry" TO from_cust-no.
   END.
 
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
    WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

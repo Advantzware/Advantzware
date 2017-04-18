@@ -330,7 +330,7 @@ ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:18 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:45 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -343,7 +343,7 @@ ON CHOOSE OF btnLaunch IN FRAME DEFAULT-FRAME /* Launch */
 DO:
   RUN VALUE("aoa/" + ttAOA.progID + "p").
   RETURN NO-APPLY.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:18 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:45 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -366,7 +366,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:18 pm */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:45 am */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -380,7 +380,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {&WINDOW-NAME}:TITLE = "AOA " + ipcLaunchType + " Launcher".
   RUN enable_UI.
   RUN pGetAOAFiles (ipcLaunchType).
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:18 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:45 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

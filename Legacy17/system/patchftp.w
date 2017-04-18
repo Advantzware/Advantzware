@@ -272,7 +272,7 @@ ON CHOOSE OF btnCheckPatch IN FRAME DEFAULT-FRAME /* Check for Current Patch */
 DO:
   RUN checkPatch.
   RUN uploadPatchDat.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:03 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -285,7 +285,7 @@ ON CHOOSE OF btnDownloadPatch IN FRAME DEFAULT-FRAME /* Download Current Patch *
 DO:
   RUN downloadPatch.
   RUN uploadPatchDat.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:03 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -298,7 +298,7 @@ ON CHOOSE OF btnImcomplete IN FRAME DEFAULT-FRAME /* Re-Run Incomplete Patches *
 DO:
   RUN runPatchHst.
   RUN uploadPatchDat.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:03 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -310,7 +310,7 @@ END.
 ON CHOOSE OF btnRemovePatch IN FRAME DEFAULT-FRAME /* Remove Selected Patch */
 DO:
   RUN removePatch.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:03 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -323,7 +323,7 @@ ON CHOOSE OF btnRunPatch IN FRAME DEFAULT-FRAME /* Run Latest Patch Downloaded *
 DO:
   RUN runPatchDownload.
   RUN uploadPatchDat.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:03 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -335,7 +335,7 @@ END.
 ON CHOOSE OF btnShowHistory IN FRAME DEFAULT-FRAME /* Show Patch History */
 DO:
   RUN system/patchhst.w PERSISTENT.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:03 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -357,7 +357,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:03 pm */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -376,7 +376,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   patchDat = clientid.client-id + '.patch.dat'.
   RUN getCurrentPatches.
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:03 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

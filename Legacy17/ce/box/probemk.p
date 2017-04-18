@@ -12,6 +12,8 @@ DEF NEW SHARED BUFFER xop FOR est-op.
 {ce/print4.i SHARED SHARED}
 {ce/print42.i SHARED}
 
+DEFINE SHARED VARIABLE qty AS INTEGER NO-UNDO .
+
 DEF BUFFER probe-ref FOR reftable.
 
 DEF SHARED VAR v-prep-mat LIKE tprep-mat NO-UNDO.  /* for probemk cost */

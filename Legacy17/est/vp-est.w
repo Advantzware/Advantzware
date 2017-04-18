@@ -211,7 +211,7 @@ DO:
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
   RUN mass-delete IN WIDGET-HANDLE(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:52 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:26 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -227,7 +227,7 @@ DO:
      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
      RUN run-goto IN WIDGET-HANDLE(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:52 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:26 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -243,7 +243,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
    RUN update-set IN WIDGET-HANDLE(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:52 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:26 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */

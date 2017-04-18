@@ -196,7 +196,7 @@ ASSIGN
 ON CHOOSE OF Btn-View IN FRAME F-Main /* View */
 DO:
    run po/d-poordl.w (recid(po-ordl), po-ord.po-no, "view") . 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */

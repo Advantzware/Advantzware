@@ -53,7 +53,7 @@ DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Close SLIDER-1 
+&Scoped-Define ENABLED-OBJECTS SLIDER-1 Btn_Close 
 &Scoped-Define DISPLAYED-OBJECTS SLIDER-1 
 
 /* Custom List Definitions                                              */
@@ -71,7 +71,7 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Close 
-     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U
      LABEL "&Close" 
      SIZE 8 BY 1.9.
 
@@ -84,10 +84,10 @@ DEFINE VARIABLE SLIDER-1 AS INTEGER INITIAL 6
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     Btn_Close AT ROW 2.19 COL 152 HELP
-          "Close Mulich's Ruler"
      SLIDER-1 AT ROW 2.19 COL 1 HELP
           "Slide Scale to Right Edge of Object" NO-LABEL
+     Btn_Close AT ROW 2.19 COL 152 HELP
+          "Close Mulich's Ruler"
      "Place Left Edge of Ruler to Left Edge of Object." VIEW-AS TEXT
           SIZE 46 BY .62 AT ROW 1.24 COL 1
           BGCOLOR 4 FGCOLOR 15 
@@ -153,7 +153,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
 ASSIGN 
-       Btn_Close:AUTO-RESIZE IN FRAME DEFAULT-FRAME      = TRUE
        Btn_Close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
@@ -279,7 +278,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY SLIDER-1 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE Btn_Close SLIDER-1 
+  ENABLE SLIDER-1 Btn_Close 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

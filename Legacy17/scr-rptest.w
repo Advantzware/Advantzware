@@ -255,7 +255,7 @@ DO:
 
   ASSIGN
    /* list-name = screen-file-name + IF screen-file-name NE "" THEN "rpt" ELSE ""
-      init-dir = "users\" + USERID("NOSWEAT").
+      init-dir = "users\" + USERID(ldbname(1)).
    */
     init-dir = "c:\temp\" .
   SYSTEM-DIALOG GET-FILE list-name

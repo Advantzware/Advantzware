@@ -573,7 +573,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME FRAME-F /* Cancel */
 DO:
   APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:55 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:19 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -730,7 +730,7 @@ DO:
   END.
 
   RUN util/fxissues.p.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:55 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:19 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -953,7 +953,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:55 pm */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:19 am */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -1035,8 +1035,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RUN check-date.
 
   DO WITH FRAME {&FRAME-NAME}:
-    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:44 pm */
-    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:44 pm */
+    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:15 am */
+    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:15 am */
       {custom/usrprint.i}
     IF NOT lFromSS THEN DO:     /* task 10201406 */
     END.
@@ -1076,7 +1076,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      END.
   END.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:55 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:19 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1371,6 +1371,7 @@ PROCEDURE final-steps :
     BUFFER-COPY b-tt-rctd TO rm-rctd
     ASSIGN
      rm-rctd.r-no        = v-int
+     rm-rctd.po-no       = ""
      b-tt-rctd.r-no      = rm-rctd.r-no
      b-tt-rctd.has-rec   = YES
      b-tt-rctd.rm-row-id = ROWID(rm-rctd).    

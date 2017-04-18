@@ -294,7 +294,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:17 pm */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
 END.
 
 /* These events will close the window and terminate the procedure.      */
@@ -328,9 +328,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   FIND FIRST sys-ctrl WHERE sys-ctrl.NAME = "bitmap" NO-LOCK NO-ERROR.
   IF AVAIL sys-ctrl AND sys-ctrl.DESCrip <> "" THEN
         boxes:LOAD-IMAGE(sys-ctrl.DESCrip).
-  {methods/mainmenu.i}
+  {addon/methods/mainmenu.i}
   RUN Read_Menus.
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:17 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -479,7 +479,7 @@ PROCEDURE Read_Menus :
 
   CREATE WIDGET-POOL "dyn-buttons" PERSISTENT.
   /* ============= dynamic menu for foldware/corrware ============*/
-  ls-menu-lst = "menu.lst".
+  ls-menu-lst = search("menu.lst").
   find first sys-ctrl where sys-ctrl.company = g_company and
                             sys-ctrl.name = "cemenu"
                             no-lock no-error.

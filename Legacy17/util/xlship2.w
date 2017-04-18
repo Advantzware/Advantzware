@@ -643,7 +643,7 @@ END.
 ON CHOOSE OF btnClear IN FRAME DEFAULT-FRAME /* Clear */
 DO:
   RUN Clear-Data.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -655,7 +655,7 @@ END.
 ON CHOOSE OF btnDelete IN FRAME DEFAULT-FRAME /* Delete */
 DO:
   RUN Delete-Record.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -675,7 +675,7 @@ DO:
   &ELSE
       APPLY "CLOSE":U TO THIS-PROCEDURE.
   &ENDIF
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -687,7 +687,7 @@ END.
 ON CHOOSE OF btnFile IN FRAME DEFAULT-FRAME /* <> */
 DO:
     RUN Select-File.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -699,7 +699,7 @@ END.
 ON CHOOSE OF btnImport IN FRAME DEFAULT-FRAME /* Import */
 DO:
   RUN Import-Data.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -711,7 +711,7 @@ END.
 ON CHOOSE OF btnLoad IN FRAME DEFAULT-FRAME /* Load */
 DO:
   RUN Process-Data.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -723,7 +723,7 @@ END.
 ON CHOOSE OF btnRemove IN FRAME DEFAULT-FRAME /* Remove */
 DO:
   RUN Remove-Data.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -770,7 +770,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -785,7 +785,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   APPLY 'entry' TO fiFilename.
   RUN init-proc.
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:08 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

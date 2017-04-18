@@ -8,7 +8,7 @@ DEF NEW GLOBAL SHARED VAR g_lookup-var AS cha NO-UNDO.
 
 DEFINE NEW SHARED VARIABLE quit_login AS LOGICAL NO-UNDO.
 DEF NEW GLOBAL SHARED VAR g-sharpshooter AS LOG INIT YES NO-UNDO.
-DEFINE VARIABLE m_id LIKE NOSWEAT._user._userid NO-UNDO.
+DEFINE VARIABLE m_id AS CHAR NO-UNDO.
 DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 g-sharpshooter = YES.
@@ -20,16 +20,16 @@ m_id = OS-GETENV("opsysid").
 IF m_id = ? THEN
 m_id = "".
 
-IF NOT SETUSERID(m_id,"","NOSWEAT") THEN
+IF NOT SETUSERID(m_id,"",ldbname(1)) THEN
 RUN ./nosweat/loginss.w.
 
-IF USERID("NOSWEAT") = "" OR quit_login THEN
+IF USERID(ldbname(1)) = "" OR quit_login THEN
 DO:
   ldummy = SESSION:SET-WAIT-STATE("").
   QUIT.
 END.
 
-FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK NO-ERROR.
+FIND users WHERE users.user_id = USERID(ldbname(1)) NO-LOCK NO-ERROR.
 IF NOT AVAILABLE users THEN
 DO:     
   ldummy = SESSION:SET-WAIT-STATE("").
@@ -51,11 +51,11 @@ END.
 /* ======= 
   Load program & lookup data 
   =========*/
-IF userid("nosweat") = "ASI" OR USERID("nosweat") = "NOSWEAT" THEN RUN asiload.p.
+IF userid(ldbname(1)) = "ASI" OR USERID(ldbname(1)) = "NOSWEAT" THEN RUN asiload.p.
 */
 RUN chkdate.p.
 
-IF CONNECTED("NOSWEAT") THEN
+IF CONNECTED(ldbname(1)) THEN
 DO:
   {methods/setdevid.i}
   RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
@@ -63,7 +63,7 @@ DO:
   RUN Get_Procedure IN Persistent-HANDLE ("user_dir.",OUTPUT run-proc,yes).
   g_groups = "". /* YSK need to reset */
   FOR EACH usergrps NO-LOCK:
-    IF CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN
+    IF CAN-DO(usergrps.users,USERID(ldbname(1))) THEN
     g_groups = g_groups + usergrps.usergrps + ",".  /* YSK "," added  */
   END.
   /*RUN Get_Procedure IN Persistent-Handle ("comp_loc.",OUTPUT run-proc,yes). */

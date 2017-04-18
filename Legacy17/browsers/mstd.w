@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.07.2017 @  2:08:03 pm */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:37 am */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i} /* added by script _globdefs.p on 04.07.2017 @  2:06:10 pm */
+{custom/globdefs.i} /* added by script _globdefs.p on 04.18.2017 @ 11:35:37 am */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -275,7 +275,7 @@ ASSIGN
 ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
-  {src/adm/template/brsentry.i} 
+  {src/adm/template/brsentry.i}  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -445,7 +445,7 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-  RUN pDataGridInit. /* added by script _admBrowsers.p on 04.07.2017 @  2:08:03 pm */
+  RUN pDataGridInit. /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:37 am */
 
   /* Code placed here will execute AFTER standard behavior.    */
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.

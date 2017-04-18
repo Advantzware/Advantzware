@@ -217,7 +217,7 @@ DO:
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) AND NOT l-is-updating  THEN
     RUN set-auto-add-item IN WIDGET-HANDLE(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:45 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:21 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */

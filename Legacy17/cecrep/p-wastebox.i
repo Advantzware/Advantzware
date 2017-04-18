@@ -32,5 +32,5 @@
         "<=1><R34.3><C33.2><P8>Forklift"
         "<=1><R35.8><C33.2><P8>Loose Liner"
         "<=1><R37.3><C33.2><P8>Warped"
-        "<=1><R38.8><C33.2><P8>Loose Liner"
+        "<=1><R38.8><C33.2><P8>Low Spots"
         "<=1><R40.3><C33.2><P8>Other"

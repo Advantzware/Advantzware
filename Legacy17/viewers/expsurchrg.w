@@ -184,7 +184,7 @@ DO:
 /*    RUN export-excel in WIDGET-HANDLE(char-hdl).                                             */
 
 RUN oerep/rd-surcg.w.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:55 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */

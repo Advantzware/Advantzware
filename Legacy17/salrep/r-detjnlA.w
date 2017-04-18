@@ -458,7 +458,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:59 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -519,7 +519,7 @@ DO:
 
   end case. 
   SESSION:SET-WAIT-STATE("").
-     {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:59 pm */
+     {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
  END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -532,7 +532,7 @@ ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:59 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -746,7 +746,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:59 pm */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -777,8 +777,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                OUTPUT ou-cust-int) .
 
   DO WITH FRAME {&FRAME-NAME}:
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:47 pm */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:47 pm */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:18 am */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:18 am */
     {custom/usrprint.i}
     APPLY "entry" TO begin_cust-no.
   END.
@@ -815,7 +815,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:59 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1021,7 +1021,7 @@ def var w-tot-msf   like v-tot-msf column-label "$/MSF".
 def var w-procat    like itemfg.procat column-label "Prod!Code".
 def var w-amt       like ar-invl.amt column-label "Invoice!Amount".
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
-
+DEFINE BUFFER bf-ar-inv FOR ar-inv.
  form w-data.w-cust-no
      cust.name          FORMAT "x(26)"
      cust.cr-rating     LABEL "C R"
@@ -1162,6 +1162,16 @@ FOR EACH ttCustList
                            AND account.actnum  EQ ar-cashl.actnum
                            AND account.type    EQ "R")
           NO-LOCK:
+
+          FIND FIRST bf-ar-inv NO-LOCK 
+              where bf-ar-inv.company  eq cocode
+                and bf-ar-inv.posted   eq yes
+                and bf-ar-inv.cust-no  eq cust.cust-no
+                and bf-ar-inv.inv-no EQ ar-cashl.inv-no NO-ERROR.
+            IF AVAIL bf-ar-inv THEN DO:
+                IF NOT v-inc-fc THEN
+                    IF bf-ar-inv.TYPE EQ "FC" THEN NEXT .
+            END.
 
         RELEASE oe-retl.
 

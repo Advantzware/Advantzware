@@ -202,7 +202,7 @@ DO:
                       INPUT TABLE tt-item-qty-price,
                       OUTPUT v-rowid-list,
                       OUTPUT ll-canceled).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:54 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */

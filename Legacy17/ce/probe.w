@@ -3094,7 +3094,8 @@ PROCEDURE printProbe :
   ELSE RUN textFormat (lv-dest,list-name,lv-font,lv-ornt,ls-fax-file,ls-mail-file2).
   
   OS-DELETE VALUE(ls-notefile).
-  OS-DELETE VALUE(ls-xfile).
+/*  OS-DELETE VALUE(ls-xfile). - This was causing an issue once the business form Modal was introduced.  
+Note, this process of deleting files is different than in EC for some reason*/
   OS-DELETE VALUE(ls-outfile).
   ls-outfile = ls-outfile-saved.
 

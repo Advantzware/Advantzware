@@ -236,9 +236,9 @@ DO:
              btn-save:LABEL = "&Update Ink" .
 
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
+      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -272,7 +272,7 @@ DO:
       END.
     END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -293,7 +293,7 @@ DO:
      run update-pack in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -315,7 +315,7 @@ DO:
      run reset-ink in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -350,13 +350,13 @@ DO:
                   btn-stds:sensitive = NO        
                   btn-cancel:SENSITIVE = YES.
            RUN new-state('update-begin':U).
-           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
+           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
            ASSIGN add-active = no.
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
            assign btn-pack:sensitive = YES
                   btn-unitcalc:sensitive = YES
                   btn-reset-ink:sensitive = YES
@@ -368,7 +368,7 @@ DO:
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
         assign btn-pack:sensitive = YES
                btn-unitcalc:sensitive = YES
                btn-reset-ink:sensitive = YES
@@ -378,7 +378,7 @@ DO:
 
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -397,7 +397,7 @@ DO:
       IF VALID-HANDLE(widget-handle(source-str)) THEN 
           run run-job-stds in widget-handle(source-str). 
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -418,7 +418,7 @@ DO:
      run Unit-calc in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -452,8 +452,8 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
-  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

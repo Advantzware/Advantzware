@@ -366,7 +366,7 @@ END.
 ON CHOOSE OF Btn_Add_Menu IN FRAME DEFAULT-FRAME /* Add Menu Item */
 DO:
   RUN Add_Item ("Menu").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -378,7 +378,7 @@ END.
 ON CHOOSE OF Btn_Add_Program IN FRAME DEFAULT-FRAME /* Add Program Item */
 DO:
   RUN Add_Item ("Program").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -390,7 +390,7 @@ END.
 ON CHOOSE OF Btn_Add_Rule IN FRAME DEFAULT-FRAME /* Rule */
 DO:
   RUN Add_Item ("RULE").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -402,7 +402,7 @@ END.
 ON CHOOSE OF Btn_Add_Skip IN FRAME DEFAULT-FRAME /* Skip */
 DO:
   RUN Add_Item ("SKIP").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -488,7 +488,7 @@ DO:
   {&WINDOW-NAME}:MENUBAR = menu-bar-ptr:HANDLE.
   {methods/nowait.i}
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -502,7 +502,7 @@ DO:
   IF SEARCH("users/" + USERID("NOSWEAT") + "/menu.tmp") NE ? THEN
   OS-DELETE VALUE("users/" + USERID("NOSWEAT") + "/menu.tmp").
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -515,7 +515,7 @@ ON CHOOSE OF Btn_Default IN FRAME DEFAULT-FRAME /* Default */
 DO:
   OS-COPY "./menu.lst" VALUE("users/" + USERID("NOSWEAT") + "/menu.lst").
   APPLY "CHOOSE" TO Btn_Reset.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -527,7 +527,7 @@ END.
 ON CHOOSE OF Btn_Down IN FRAME DEFAULT-FRAME /* Down */
 DO:
   RUN Move_Item ("Down").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -539,7 +539,7 @@ END.
 ON CHOOSE OF Btn_Left IN FRAME DEFAULT-FRAME /* << */
 DO:
   RUN Shift_Item ("Left").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -561,7 +561,7 @@ DO:
     RUN Select_Item (menu-items:ENTRY(i)).
   END.
   APPLY "VALUE-CHANGED" TO menu-items.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -601,7 +601,7 @@ DO:
   APPLY "CHOOSE" TO Btn_Build.
   {methods/nowait.i}
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -613,7 +613,7 @@ END.
 ON CHOOSE OF Btn_Right IN FRAME DEFAULT-FRAME /* >> */
 DO:
   RUN Shift_Item ("Right").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -634,7 +634,7 @@ DO:
   ASSIGN
     Btn_Cancel:LABEL IN FRAME {&FRAME-NAME} = "&Close"
     init_menu = yes.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -646,7 +646,7 @@ END.
 ON CHOOSE OF Btn_Up IN FRAME DEFAULT-FRAME /* Up */
 DO:
   RUN Move_Item ("Up").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -720,7 +720,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -739,7 +739,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   APPLY "CHOOSE" TO Btn_Reset.
   APPLY "CHOOSE" TO Btn_Build.
   {methods/nowait.i}
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:16 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

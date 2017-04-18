@@ -36,7 +36,7 @@ DO: /* F1 function key */
     m_frame_db = FRAME-DB
     m_frame_file = FRAME-FILE
     m_frame_field = FRAME-FIELD
-    lv-userid = USERID("NOSWEAT").
+    lv-userid = USERID(ldbname(1)).
 
   FIND lookups 
       WHERE lookups.frame_db = m_frame_db AND

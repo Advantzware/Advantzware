@@ -166,7 +166,7 @@ DEFINE VARIABLE v-qoh AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0
 
 
 /* bol print/post */
-def new shared var out-recid as recid no-undo.
+DEF NEW SHARED VAR out-recid AS RECID NO-UNDO.
 
 DEFINE VARIABLE BolPostLog AS LOGICAL NO-UNDO.
 DEF STREAM logFile.
@@ -181,25 +181,25 @@ DO TRANSACTION:
   {sys/inc/relmerge.i}
   {sys/inc/ssbolprint.i}
 
-  find first sys-ctrl
-        where sys-ctrl.company eq cocode
-          and sys-ctrl.name    eq "BOLFMT"
-        no-lock no-error.
-  v-royal = avail sys-ctrl and lookup(sys-ctrl.char-fld,v-hold-list) ne 0.
+  FIND FIRST sys-ctrl
+        WHERE sys-ctrl.company EQ cocode
+          AND sys-ctrl.name    EQ "BOLFMT"
+        NO-LOCK NO-ERROR.
+  v-royal = AVAIL sys-ctrl AND lookup(sys-ctrl.char-fld,v-hold-list) NE 0.
 
   /* gdm - 10160906 */
   {sys/inc/ssbolscan.i}
-  find first sys-ctrl
-        where sys-ctrl.company eq cocode
-          and sys-ctrl.name    eq "SSBOLSCAN"
-        no-lock no-error.
+  FIND FIRST sys-ctrl
+        WHERE sys-ctrl.company EQ cocode
+          AND sys-ctrl.name    EQ "SSBOLSCAN"
+        NO-LOCK NO-ERROR.
   IF AVAIL sys-ctrl THEN
   ASSIGN ss-bolscan = sys-ctrl.int-fld .
 
 
   FIND FIRST sys-ctrl WHERE
-       sys-ctrl.company eq cocode AND
-       sys-ctrl.name    eq "SSUPDRELPMPT"
+       sys-ctrl.company EQ cocode AND
+       sys-ctrl.name    EQ "SSUPDRELPMPT"
        NO-LOCK NO-ERROR.
   IF NOT AVAIL sys-ctrl THEN DO:
      CREATE sys-ctrl.
@@ -652,7 +652,7 @@ DO:
       RUN dispatch ("cancel-record").
       RETURN NO-APPLY.
     END.
-    FOR EACH oe-relh NO-LOCK WHERE oe-relh.company = cocode and
+    FOR EACH oe-relh NO-LOCK WHERE oe-relh.company = cocode AND
                            oe-relh.release# = INT(SELF:SCREEN-VALUE)
                        AND oe-relh.printed AND NOT oe-relh.posted ,
         EACH oe-rell
@@ -748,7 +748,7 @@ DO:
    END.
    IF lv-po-cnt > 1 THEN RUN addon/bol/d-selpo.w (RECID(oe-relh),RECID(loadtag),OUTPUT lv-po-no).
       /*task 10030502*/
-   ELSE IF NOT lv-po-from-rell and CAN-FIND (FIRST itemfg WHERE itemfg.company = cocode
+   ELSE IF NOT lv-po-from-rell AND CAN-FIND (FIRST itemfg WHERE itemfg.company = cocode
                           AND itemfg.i-no = loadtag.i-no AND itemfg.i-code = "C") THEN DO:
        {addon/bol/bolpoord.i}
    END.
@@ -799,7 +799,7 @@ DO:
    IF NOT AVAIL oe-ordl AND loadtag.ord-no <> 0 THEN DO:
      IF NOT  g-sharpshooter THEN MESSAGE "Tag# Order/FG# invalid..." VIEW-AS ALERT-BOX ERROR.
      ELSE RUN custom/d-msg.w ("Error","","Tag# Order#/FG# invalid...","",1,"OK", OUTPUT v-msgreturn).         
-     RETURN NO-apply.
+     RETURN NO-APPLY.
    END.
    IF NOT CAN-FIND(FIRST oe-rell
                    WHERE oe-rell.company EQ oe-relh.company
@@ -808,13 +808,13 @@ DO:
                      AND oe-rell.i-no    EQ loadtag.i-no
                    USE-INDEX r-no) THEN DO:
      ll = NO.
-     IF ssbol-log or ssbol-log = ? THEN  DO:
+     IF ssbol-log OR ssbol-log = ? THEN  DO:
        IF NOT  g-sharpshooter THEN
           MESSAGE "This Order# " + TRIM(STRING(v-ord-no),">>>>>>>>") + " FG# " 
                 + TRIM(loadtag.i-no) +
                 " is not on release, do you want to ADD TO RELEASE? "
                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll. 
-       ELSE do:
+       ELSE DO:
             RUN custom/d-msg.w ("Question","This Order# " + TRIM(STRING(v-ord-no),">>>>>>>>") + " FG#" + TRIM(loadtag.i-no) +
                " is not on release." , "Do you want to ADD TO RELEASE? ","",2,"Yes,No",OUTPUT v-msgreturn).
             IF v-msgreturn = 1 THEN ll = YES.
@@ -918,14 +918,14 @@ DO:
       DISPLAY tt-relbol.tag# WITH BROWSE {&browse-name}.
       RETURN NO-APPLY.
    END.
-   ELSE do:
+   ELSE DO:
          
       IF int(tt-relbol.qty:screen-value) = 0 THEN DO:
          APPLY "entry" TO tt-relbol.qty.
          DISPLAY tt-relbol.tag# WITH BROWSE {&browse-name}.
          RETURN NO-APPLY.
       END.
-      ELSE do: 
+      ELSE DO: 
           APPLY "row-leave" TO BROWSE {&browse-name}.
       END.
    END.
@@ -952,8 +952,8 @@ DO:
     DEF VAR char-val AS cha NO-UNDO.
     DEF VAR rec-val AS RECID NO-UNDO.
 
-    run windows/l-oerelh.w (cocode,focus:screen-value,output char-val,OUTPUT rec-val).
-    if char-val <> "" then do:
+    RUN windows/l-oerelh.w (cocode,FOCUS:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
+    IF char-val <> "" THEN DO:
         FOCUS:SCREEN-VALUE = ENTRY(1,char-val).  
         lv-do-leave-rel = YES.
         APPLY "leave" TO tt-relbol.release# IN BROWSE {&browse-name}.
@@ -968,10 +968,10 @@ DO:
     DEF VAR char-val AS cha NO-UNDO.
     DEF VAR rec-val AS RECID NO-UNDO.
                       /*was l-ldtag2.w */
-    IF ss-bolscan = 0 THEN do:
-    run windows/l-ldtag9.w (cocode,no, tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name},focus:screen-value,output char-val,OUTPUT rec-val).
+    IF ss-bolscan = 0 THEN DO:
+    RUN windows/l-ldtag9.w (cocode,NO, tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name},FOCUS:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
 
-    if char-val <> "" then do:
+    IF char-val <> "" THEN DO:
         tt-relbol.tag#:SCREEN-VALUE = ENTRY(1,char-val).
         lv-do-leave-tag = YES.
         APPLY "leave" TO tt-relbol.tag#.
@@ -1119,7 +1119,7 @@ IF lFileSelected THEN DO:
     INPUT STREAM sTmpSaveInfo FROM VALUE(cTmpSaveFile).
     REPEAT:
         CREATE tt-relbol. 
-        IMPORT STREAM sTmpSaveInfo tt-relbol except tt-relbol.oerell-row rowid. 
+        IMPORT STREAM sTmpSaveInfo tt-relbol EXCEPT tt-relbol.oerell-row rowid. 
          
     END.
     INPUT STREAM sTmpSaveInfo CLOSE.
@@ -1347,7 +1347,7 @@ PROCEDURE check-bol :
   DEF OUTPUT PARAM op-bol-printed AS LOG NO-UNDO.
 
   FIND FIRST bf-tmp NO-ERROR.
-  IF NOT AVAIL bf-tmp THEN op-bol-printed = yes.
+  IF NOT AVAIL bf-tmp THEN op-bol-printed = YES.
   ELSE op-bol-printed = is-bol-printed.
 
 
@@ -1494,7 +1494,8 @@ PROCEDURE connect-asinos :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-IF NOT connected("asinos") THEN CONNECT value("-pf ../asinos.pf") .
+/* wfk - 20281 - could not find where this was called */
+/* IF NOT connected("asinos") THEN CONNECT value("-pf ../asinos.pf") . */
 
 END PROCEDURE.
 
@@ -1635,9 +1636,9 @@ PROCEDURE create-temp-rel :
             tt-rell.row-id   = ROWID(oe-rell).
 
          FIND FIRST oe-ordl WHERE
-              oe-ordl.company eq oe-rell.company AND
-              oe-ordl.ord-no  eq oe-relh.ord-no AND
-              oe-ordl.line    eq oe-rell.line
+              oe-ordl.company EQ oe-rell.company AND
+              oe-ordl.ord-no  EQ oe-relh.ord-no AND
+              oe-ordl.line    EQ oe-rell.line
               NO-LOCK NO-ERROR.
 
          FOR EACH b-tt-relbol BY b-tt-relbol.seq DESC:
@@ -1908,11 +1909,11 @@ ASSIGN v-ord-no = 0
 
    IF loadtag.ord-no = 0 THEN DO: /* stock box */
       /* Find with specific tag number */
-      FIND first oe-rell WHERE oe-rell.company   EQ cocode
+      FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                            AND oe-rell.r-no      EQ oe-relh.r-no
                            AND oe-rell.tag      EQ loadtag.tag-no                           
                            USE-INDEX r-no NO-LOCK NO-ERROR.
-      IF NOT AVAIL oe-rell THEN do:
+      IF NOT AVAIL oe-rell THEN DO:
      DEF VAR v-ord-no-list AS cha NO-UNDO.
      DEF VAR v-tag-no-list AS cha NO-UNDO.
      DEF VAR v-i-qty AS INT NO-UNDO.
@@ -1944,14 +1945,14 @@ ASSIGN v-ord-no = 0
             FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                         AND oe-rell.r-no      EQ oe-relh.r-no
                         AND oe-rell.i-no      EQ loadtag.i-no 
-                        AND (LOOKUP(string(oe-rell.ord-no),v-ord-no-list) <= 0 OR
+                        AND (LOOKUP(STRING(oe-rell.ord-no),v-ord-no-list) <= 0 OR
                              lookup(oe-rell.tag,v-tag-no-list) <= 0 OR
                              v-i-rel-qty > v-i-qty)
                         USE-INDEX r-no NO-LOCK NO-ERROR.
          ELSE FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                         AND oe-rell.r-no      EQ oe-relh.r-no
                         AND oe-rell.i-no      EQ loadtag.i-no 
-                        AND (LOOKUP(string(oe-rell.ord-no),v-ord-no-list) > 0 OR
+                        AND (LOOKUP(STRING(oe-rell.ord-no),v-ord-no-list) > 0 OR
                              lookup(oe-rell.tag,v-tag-no-list) > 0)
                         USE-INDEX r-no NO-LOCK NO-ERROR.
           /* New logic per Joe, task 11061303 */
@@ -1965,7 +1966,7 @@ ASSIGN v-ord-no = 0
           END.
           
           IF liCnt GT 1 THEN DO:
-              FIND first oe-rell WHERE oe-rell.company   EQ cocode
+              FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                                    AND oe-rell.r-no      EQ oe-relh.r-no
                                    AND oe-rell.i-no      EQ loadtag.i-no                           
                                    USE-INDEX r-no NO-LOCK NO-ERROR.
@@ -1994,7 +1995,7 @@ ASSIGN v-ord-no = 0
               END.
               
               IF liOrderChosen GT 0 THEN
-                  FIND first oe-rell WHERE oe-rell.company   EQ cocode
+                  FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                                        AND oe-rell.r-no      EQ oe-relh.r-no
                                        AND oe-rell.i-no      EQ loadtag.i-no                           
                                        AND oe-rell.ord-no   EQ liOrderChosen
@@ -2023,18 +2024,18 @@ ASSIGN v-ord-no = 0
 END. /* Loadtag order number is zero */
    ELSE DO:
       /* If the loadtag order # is not zero, match it with oe-rell */
-      FIND first oe-rell WHERE oe-rell.company   EQ cocode
+      FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                          AND oe-rell.r-no      EQ oe-relh.r-no
                          AND oe-rell.ord-no    EQ loadtag.ord-no
                          AND oe-rell.i-no EQ  loadtag.i-no
                        USE-INDEX r-no NO-LOCK NO-ERROR.
       IF NOT AVAIL oe-rell THEN
-        FIND first oe-rell WHERE oe-rell.company   EQ cocode
+        FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                              AND oe-rell.r-no      EQ oe-relh.r-no
                          /* AND oe-rell.ord-no    EQ loadtag.ord-no      */
                              AND oe-rell.i-no EQ  loadtag.i-no
                            USE-INDEX r-no NO-LOCK NO-ERROR.
-      IF AVAIL oe-rell THEN do:
+      IF AVAIL oe-rell THEN DO:
           /* There may be a mismatch between the order number on the release */
           /* compared to the loadtag, so ask the user which to use           */
 
@@ -2148,7 +2149,7 @@ END. /* Loadtag order number is zero */
                              AND oe-ord.OPENed = YES NO-LOCK NO-ERROR.
          IF AVAIL oe-ord THEN DO:
             IF oe-ord.cust-no = oe-relh.cust-no THEN DO: /* have ord# from release*/
-               FIND first oe-rell WHERE oe-rell.company   EQ cocode
+               FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                                     AND oe-rell.r-no      EQ oe-relh.r-no
                                     AND oe-rell.tag EQ  loadtag.tag-no
                                   USE-INDEX r-no NO-LOCK NO-ERROR.
@@ -2167,7 +2168,7 @@ END. /* Loadtag order number is zero */
             ELSE DO:
               {addon/bol/loadcust.i}
               IF AVAIL cust AND cust.active = "X" THEN  DO: /* same as stock box ord-no = 0*/
-                 FIND first oe-rell WHERE oe-rell.company   EQ cocode
+                 FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                                AND oe-rell.r-no      EQ oe-relh.r-no
                                AND oe-rell.tag      EQ loadtag.tag-no                           
                                USE-INDEX r-no NO-LOCK NO-ERROR.
@@ -2181,12 +2182,12 @@ END. /* Loadtag order number is zero */
             END.
          END. /* avail oe-ord */
          ELSE DO: /* loadtag.ord-no is invalid */
-             FIND first oe-rell WHERE oe-rell.company   EQ cocode
+             FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                                   AND oe-rell.r-no      EQ oe-relh.r-no
                                   AND oe-rell.tag EQ  loadtag.tag-no
                                   USE-INDEX r-no NO-LOCK NO-ERROR.
              IF NOT AVAIL oe-rell THEN
-                FIND first oe-rell WHERE oe-rell.company   EQ cocode
+                FIND FIRST oe-rell WHERE oe-rell.company   EQ cocode
                                      AND oe-rell.r-no      EQ oe-relh.r-no
                                      AND oe-rell.i-no EQ  loadtag.i-no
                                      USE-INDEX r-no NO-LOCK NO-ERROR.
@@ -2487,7 +2488,7 @@ FOR EACH bf-tmp NO-LOCK WHERE bf-tmp.release# EQ INT(tt-relbol.release#:SCREEN-V
     lv-cnt = lv-cnt + 1.             
 END.
 
-IF lv-cnt >= 8 THEN do:
+IF lv-cnt >= 8 THEN DO:
    IF v-ran-need-scroll THEN RETURN.
    lv-rowid = ROWID(tt-relbol).
    RUN dispatch ('open-query').
@@ -2513,7 +2514,7 @@ DEFINE VARIABLE lIsOnHold AS LOGICAL     NO-UNDO.
 
 lIsOnHold = FALSE.
 IF gvlCheckOrdStat THEN DO:
-  FOR FIRST oe-relh NO-LOCK WHERE oe-relh.company = cocode and
+  FOR FIRST oe-relh NO-LOCK WHERE oe-relh.company = cocode AND
                          oe-relh.release# = INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name})
                      AND oe-relh.printed AND NOT oe-relh.posted ,
       FIRST oe-rell
@@ -2602,8 +2603,8 @@ FOR EACH oe-relh NO-LOCK
       AND CAN-FIND(FIRST tt-rell WHERE tt-rell.release# EQ oe-relh.release#)
     USE-INDEX post
   {oe/oe-relp2.i}
-  FOR EACH oe-rell where oe-rell.company eq oe-relh.company
-                     and oe-rell.r-no    eq oe-relh.r-no
+  FOR EACH oe-rell WHERE oe-rell.company EQ oe-relh.company
+                     AND oe-rell.r-no    EQ oe-relh.r-no
                        USE-INDEX r-no
                    NO-LOCK,
     EACH oe-ordl WHERE oe-ordl.company EQ oe-relh.company
@@ -3023,7 +3024,7 @@ PROCEDURE reopen-query :
    RUN dispatch ('open-query').
    IF ip-rowid <> ? THEN
       REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
-   IF NOT error-status:ERROR THEN RUN dispatch ('row-changed').
+   IF NOT ERROR-STATUS:ERROR THEN RUN dispatch ('row-changed').
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3037,7 +3038,7 @@ PROCEDURE save-relbol :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-   RUN addon/bol/saverelbol.p(input cocode).
+   RUN addon/bol/saverelbol.p(INPUT cocode).
    
 END PROCEDURE.
 
@@ -3453,7 +3454,7 @@ PROCEDURE validate-rel# :
          MESSAGE "Invalid Release#. Not printed? or Already posted?   Try help..." VIEW-AS ALERT-BOX ERROR. 
       ELSE RUN custom/d-msg.w ("Error","","Invalid Release#. Not printed? or Already posted? ","",1,"OK", OUTPUT v-msgreturn).         
       APPLY "entry" TO tt-relbol.release#.
-      RETURN error.
+      RETURN ERROR.
   END.
 
 END PROCEDURE.
@@ -3533,7 +3534,7 @@ PROCEDURE validate-scan :
             ELSE DO:
 
                 IF ssbol-log <> ? THEN
-                       RUN custom/d-msg.w ("Question",trim(v-msg), "was not scanned", "Do you want to Delete it from Release? ",3,"Yes,No,Cancel",OUTPUT v-msgreturn).
+                       RUN custom/d-msg.w ("Question",TRIM(v-msg), "was not scanned", "Do you want to Delete it from Release? ",3,"Yes,No,Cancel",OUTPUT v-msgreturn).
                ELSE
                    v-msgreturn = 2.
                IF v-msgreturn = 2 THEN
@@ -3548,7 +3549,7 @@ PROCEDURE validate-scan :
                MESSAGE TRIM(v-msg + " was not scanned") + "," SKIP
                        "scan all items for the Release before printing BOL..."
                VIEW-AS ALERT-BOX ERROR.
-            ELSE RUN custom/d-msg.w ("Error",trim(v-msg),"was not scanned","scan all items for the Release before printing BOL...",1,"OK",OUTPUT v-msgreturn).
+            ELSE RUN custom/d-msg.w ("Error",TRIM(v-msg),"was not scanned","scan all items for the Release before printing BOL...",1,"OK",OUTPUT v-msgreturn).
          END.
          IF NOT ll THEN RETURN ERROR.
       END.

@@ -17,7 +17,7 @@ def var lv-brd-wu as dec format ">>>>9.9<<<<"no-undo.
 DEF VAR ll-use-defaults AS LOG NO-UNDO.
 DEF VAR ld-board AS DEC NO-UNDO.
 DEF VAR v-depth LIKE ef.lsh-dep NO-UNDO.
-
+DEFINE VARIABLE cProcat AS CHARACTER NO-UNDO.
 
 
 qtty = 0.
@@ -794,7 +794,11 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                  sizcol[1] = string(xeb.len) + "x" + string(xeb.wid) + "x" + string(xeb.dep)
                  sizcol[2] = xeb.i-coldscr
                  stypart[1] = style.dscr
-                 stypart[2] = xeb.part-no.
+                 stypart[2] = xeb.part-no
+                 cProcat    = xeb.procat .
+              IF dsc[2] EQ "" THEN ASSIGN
+                  dsc[2] = xeb.procat 
+                  cProcat = "" .
 
               put space(4) string(xeb.num-up,">>9")     format "x(3)".
               put space(2)
@@ -809,7 +813,11 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
                   space(1)
                   sizcol[2] format "x(17)"
                   space(1)
-                  stypart[2] skip.
+                  stypart[2] .
+               IF cProcat NE "" THEN
+                   PUT SKIP SPACE(20)
+                   cProcat .
+
               down.
            end. 
            put skip(1).
@@ -957,7 +965,8 @@ do vmcl = 1 to 28:   /* ??? 28 not 4*/
   end.
 
   if vprint then run cec/box/probemk.p (ROWID(probe)).
-
+   dTotalManHrs = 0. /*20305 - need to reset Total Man Hrs calc per Quantity*/
+   
   FOR EACH xjob:
     ACCUMULATE xjob.mat (TOTAL).
   END.
