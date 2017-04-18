@@ -281,7 +281,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:37 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:02 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -313,7 +313,7 @@ DO:
   end case.
   */
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:37 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:02 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -379,7 +379,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:37 pm */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:02 am */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -403,9 +403,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
 
   {methods/nowait.i}
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:13 pm */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:37 pm */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:38 am */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:38 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:02 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

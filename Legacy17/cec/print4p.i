@@ -511,7 +511,7 @@
             dsc[1] space(1) sizcol[1] space(2) stypart[1] skip
             space(11)
             dsc[2] space(1) sizcol[2] space(2) stypart[2] skip
-            space(56) "Last Ordered:" xest.ord-date
+            space(11) eb.procat FORMAT "x(8)" space(37) "Last Ordered:" xest.ord-date
             skip(1)
             with no-box no-labels color value(col-norm) stream-io width 80 frame aa1 .
 

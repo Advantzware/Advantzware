@@ -5,7 +5,7 @@
 {methods/defines/hndldefs.i &NEW="NEW"}
 
 DEFINE NEW SHARED        VARIABLE quit_login      AS LOGICAL   NO-UNDO.
-DEFINE                   VARIABLE m_id            LIKE NOSWEAT._user._userid NO-UNDO.
+DEFINE                   VARIABLE m_id            AS CHAR NO-UNDO.
 DEFINE                   VARIABLE ldummy          AS LOGICAL   NO-UNDO.
 DEFINE                   VARIABLE i               AS INTEGER   NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g-sharpshooter  AS LOG       NO-UNDO.  /* no, it's yes only from sharpsh.p */
@@ -31,16 +31,16 @@ m_id = OS-GETENV("OPSYSID").
 IF m_id = ? THEN
     m_id = "".
 
-IF NOT SETUSERID(m_id,"","NOSWEAT") THEN
+IF NOT SETUSERID(m_id,"",ldbname(1)) THEN
     RUN nosweat/login.w.
 
-IF USERID("NOSWEAT") = "" OR quit_login THEN
+IF USERID(ldbname(1)) = "" OR quit_login THEN
 DO:
     ldummy = SESSION:SET-WAIT-STATE("").
     QUIT.
 END.
 
-FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK NO-ERROR.
+FIND users WHERE users.user_id = USERID(ldbname(1)) NO-LOCK NO-ERROR.
 IF NOT AVAILABLE users THEN
 DO:     
     ldummy = SESSION:SET-WAIT-STATE("").
@@ -62,10 +62,10 @@ END.
 /* ======= 
   Load program & lookup data 
   =========*/
-IF USERID("NOSWEAT") = "ASI" OR USERID("NOSWEAT") = "NOSWEAT" THEN RUN asiload.p.
+IF USERID(ldbname(1)) = "ASI" OR USERID(ldbname(1)) = "NOSWEAT" THEN RUN asiload.p.
 
 cEulaFile = SEARCH("Eula.txt").
-IF CONNECTED("NOSWEAT") THEN
+IF CONNECTED(ldbname(1)) THEN
 DO: 
     lEulaAccepted = NO.
     IF cEulaFile NE ? THEN 
@@ -88,7 +88,7 @@ DO:
     RUN Get_Procedure IN Persistent-Handle ("user_dir.",OUTPUT run-proc,YES).
     g_groups = "".
     FOR EACH usergrps NO-LOCK:
-        IF CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN
+        IF CAN-DO(usergrps.users,USERID(ldbname(1))) THEN
             g_groups = g_groups + usergrps.usergrps + ",".
     END.
     init_menu = YES.

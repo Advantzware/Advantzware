@@ -10,7 +10,7 @@ DO:
      asi.expiration.expire-date  = 12/31/9999.
   END.
 
-  IF USERID("NOSWEAT") EQ "asi" AND SEARCH("fixexdat") NE ? THEN DO TRANSACTION:
+  IF USERID(ldbname(1)) EQ "asi" AND SEARCH("fixexdat") NE ? THEN DO TRANSACTION:
     FIND CURRENT asi.expiration.
     MESSAGE "New Date:" UPDATE asi.expiration.expire-date.
     QUIT.

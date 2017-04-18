@@ -210,11 +210,11 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
+      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
       enable btn-recalc-qty with frame {&frame-name}.
 
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -227,7 +227,7 @@ ON CHOOSE OF Btn-recalc-qty IN FRAME Panel-Frame /* Recalc Qty */
 DO:
     run get-link-handle in adm-broker-hdl (this-procedure, "tableio-target", output char-hdl).
     run recalc-qty in widget-handle(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -256,14 +256,14 @@ DO:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
            RUN new-state('update-begin':U).
-           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
+           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
            ASSIGN add-active = no.
            disable btn-recalc-qty with frame {&frame-name}.
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
            enable btn-recalc-qty with frame {&frame-name}.
 
         END.                              
@@ -271,10 +271,10 @@ DO:
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -308,8 +308,8 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
-  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:56 pm */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

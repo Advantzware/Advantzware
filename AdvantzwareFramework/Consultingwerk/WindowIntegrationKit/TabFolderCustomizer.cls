@@ -62,33 +62,60 @@ CLASS Consultingwerk.WindowIntegrationKit.TabFolderCustomizer
 
             RETURN .
         END.
+        
+        poTab:Appearance:Image = ImageHelper:Load ("Graphics/32x32/navigate_right.png":U) .
 
-        CASE piPageNumber:
-            WHEN  1 THEN
-                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_green.png":U) .
-            WHEN  2 THEN
-                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_yellow.png":U) .
-            WHEN  3 THEN
-                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_red.png":U) .
-            WHEN  4 THEN
-                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_blue.png":U) .
-            WHEN  5 THEN
-                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_green.png":U) .
-            WHEN  6 THEN
-                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_yellow.png":U) .
-            WHEN  7 THEN
-                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_red.png":U) .
-            WHEN  8 THEN
-                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_blue.png":U) .
-            WHEN  9 THEN
-                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_green.png":U) .
-            WHEN 10 THEN
-                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_yellow.png":U) .
-            WHEN 11 THEN
-                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_red.png":U) .
-            WHEN 12 THEN
-                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_blue.png":U) .
-        END CASE .
+/*        CASE piPageNumber:                                                                                                                    */
+/*            WHEN  1 THEN                                                                                                                      */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_green.png":U) . */
+/*            WHEN  2 THEN                                                                                                                      */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_yellow.png":U) .*/
+/*            WHEN  3 THEN                                                                                                                      */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_red.png":U) .   */
+/*            WHEN  4 THEN                                                                                                                      */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_blue.png":U) .  */
+/*            WHEN  5 THEN                                                                                                                      */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_green.png":U) . */
+/*            WHEN  6 THEN                                                                                                                      */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_yellow.png":U) .*/
+/*            WHEN  7 THEN                                                                                                                      */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_red.png":U) .   */
+/*            WHEN  8 THEN                                                                                                                      */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_blue.png":U) .  */
+/*            WHEN  9 THEN                                                                                                                      */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_green.png":U) . */
+/*            WHEN 10 THEN                                                                                                                      */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_yellow.png":U) .*/
+/*            WHEN 11 THEN                                                                                                                      */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_red.png":U) .   */
+/*            WHEN 12 THEN                                                                                                                      */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Consultingwerk/WindowIntegrationKit/Samples/Images/document_plain_blue.png":U) .  */
+/*                                                                                                                                              */
+/*            WHEN  1 THEN                                                                           */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Graphics/32x32/keyboard_key_1.png":U) .*/
+/*            WHEN  2 THEN                                                                           */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Graphics/32x32/keyboard_key_2.png":U) .*/
+/*            WHEN  3 THEN                                                                           */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Graphics/32x32/keyboard_key_3.png":U) .*/
+/*            WHEN  4 THEN                                                                           */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Graphics/32x32/keyboard_key_4.png":U) .*/
+/*            WHEN  5 THEN                                                                           */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Graphics/32x32/keyboard_key_5.png":U) .*/
+/*            WHEN  6 THEN                                                                           */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Graphics/32x32/keyboard_key_6.png":U) .*/
+/*            WHEN  7 THEN                                                                           */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Graphics/32x32/keyboard_key_7.png":U) .*/
+/*            WHEN  8 THEN                                                                           */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Graphics/32x32/keyboard_key_8.png":U) .*/
+/*            WHEN  9 THEN                                                                           */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Graphics/32x32/nav_plain.png":U) .     */
+/*            WHEN 10 THEN                                                                           */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Graphics/32x32/object_ball.png":U) .   */
+/*            WHEN 11 THEN                                                                           */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Graphics/32x32/photographic_filter.png":U) .*/
+/*            WHEN 12 THEN                                                                           */
+/*                poTab:Appearance:Image = ImageHelper:Load ("Graphics/32x32/keyboard_key_b.png":U) .*/
+/*        END CASE .*/
 
     END METHOD.
 

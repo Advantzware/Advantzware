@@ -580,7 +580,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:00 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -642,7 +642,7 @@ DO:
        WHEN 6 THEN run output-to-port.
   end case. 
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:00 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -655,7 +655,7 @@ ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:00 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -913,7 +913,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:00 am */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -941,8 +941,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
 
   DO WITH FRAME {&FRAME-NAME}:
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:31 pm */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.07.2017 @  2:07:31 pm */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:36:58 am */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:36:58 am */
     {custom/usrprint.i}
     APPLY "entry" TO begin_cust.
   END.
@@ -979,7 +979,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:35 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:00 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1261,7 +1261,7 @@ IF rd_smry-dtl = "S" THEN DO:
 form
     cust.cust-no label "CUSTOMER"
     itemfg.cust-po-no label "PO #" FORMAT "x(15)"
-    v-sales-rep label "SMAN"
+    v-sales-rep label "SREP"
     itemfg.i-no  label "ITEM #"
     itemfg.part-no label "CUST PART #" format "x(15)"
     itemfg.i-name label "DESCRIPTION" format "x(15)"
@@ -1275,7 +1275,7 @@ form
 form
     cust.cust-no label "CUSTOMER"
     oe-ordl.po-no label "PO #"
-    v-sales-rep label "SMAN"
+    v-sales-rep label "SREP"
     oe-ordl.i-no  label "ITEM #"
     oe-ordl.i-name label "DESCRIPTION" format "x(15)"
     fg-bin.loc label "WHSE"
@@ -1289,7 +1289,7 @@ form
 form
     cust.cust-no label "CUSTOMER"
     itemfg.cust-po-no label "PO #"
-    v-sales-rep label "SMAN"
+    v-sales-rep label "SREP"
     itemfg.i-no  label "ITEM #"
     itemfg.i-name label "DESCRIPTION" format "x(15)"
     v-job column-label "  JOB"
@@ -1321,7 +1321,7 @@ ELSE DO:
 form
     cust.cust-no label "CUSTOMER"
     itemfg.cust-po-no label "PO #" FORMAT "x(15)"
-    v-sales-rep label "SMAN"
+    v-sales-rep label "SREP"
     itemfg.i-no  label "ITEM #"
     itemfg.part-no label "CUST PART #" format "x(15)"
     itemfg.i-name label "DESCRIPTION" format "x(15)"
@@ -1337,7 +1337,7 @@ form
 form
     cust.cust-no label "CUSTOMER"
     oe-ordl.po-no label "PO #"
-    v-sales-rep label "SMAN"
+    v-sales-rep label "SREP"
     oe-ordl.i-no  label "ITEM #"
     oe-ordl.i-name label "DESCRIPTION" format "x(15)"
     fg-bin.loc COLUMN-LABEL "WHSE!REL#"
@@ -1351,7 +1351,7 @@ form
 form
     cust.cust-no label "CUSTOMER"
     itemfg.cust-po-no label "PO #"
-    v-sales-rep label "SMAN"
+    v-sales-rep label "SREP"
     itemfg.i-no  label "ITEM #"
     itemfg.i-name label "DESCRIPTION" format "x(15)"
     v-job column-label "JOB!REL#"
@@ -1401,11 +1401,11 @@ IF tb_excel THEN
     IF v-rec-dat THEN
     DO:
         IF v-prt-cpn THEN  /* frame itemx2 */
-          excelheader = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #," + 
+          excelheader = "CUSTOMER,PO #,SREP,ITEM #,CUST PART #," + 
                         "DESCRIPTION,JOB,QTY ON HAND,RECEIPT DATE," + 
                         "SELLING PRICE,TOTAL VALUE".
         ELSE              /* frame itemx4 */
-          excelheader = "CUSTOMER,PO #,SMAN,ITEM #,DESCRIPTION," + 
+          excelheader = "CUSTOMER,PO #,SREP,ITEM #,DESCRIPTION," + 
                         "JOB,QTY ON HAND,RECEIPT DATE," + 
                         "SELLING PRICE,TOTAL VALUE".
     END.
@@ -1416,7 +1416,7 @@ IF tb_excel THEN
                         "DESCRIPTION,JOB #,QTY ORDERED,QTY SHIPPED," +
                         "QTY ON HAND,SELLING PRICE,TOTAL VALUE".
         ELSE
-           excelheader = "CUSTOMER,PO,SMAN,ITEM #,DESCRIPTION," + 
+           excelheader = "CUSTOMER,PO,SREP,ITEM #,DESCRIPTION," + 
                          "WHSE,QTY ORDERED,QTY SHIPPED,QTY ON HAND," +
                          "SELLING PRICE,TOTAL VALUE".
     END.
@@ -1428,14 +1428,14 @@ IF tb_excel THEN
           /*excelheader = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #," + 
                         "DESCRIPTION,JOB# / REL#,QTY ON HAND / REL DATE,RECEIPT DATE / SCHED REL QTY," + 
                         "SELLING PRICE,TOTAL VALUE".*/
-           excelheader = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #," + 
+           excelheader = "CUSTOMER,PO #,SREP,ITEM #,CUST PART #," + 
                         "DESCRIPTION,JOB#/REL#,QTY ORDERED/REL DATE,QTY SHIPPED/SCHED REL QTY," + 
                         "QTY ON HAND,RECEIPT DATE,SELLING PRICE,TOTAL VALUE".
         ELSE              /* frame itemx4 */
           /*excelheader = "CUSTOMER,PO #,SMAN,ITEM #,DESCRIPTION," + 
                         "JOB# / REL#,QTY ON HAND / REL DATE,RECEIPT DATE / SCHED REL QTY," + 
                         "SELLING PRICE,TOTAL VALUE".*/
-          excelheader = "CUSTOMER,PO #,SMAN,ITEM #,DESCRIPTION," + 
+          excelheader = "CUSTOMER,PO #,SREP,ITEM #,DESCRIPTION," + 
                         "JOB#/REL#,QTY ORDERED/REL DATE,QTY SHIPPED/SCHED REL QTY," + 
                         "QTY ON HAND,RECEIPT DATE,SELLING PRICE,TOTAL VALUE".
     END.
@@ -1446,7 +1446,7 @@ IF tb_excel THEN
                         "DESCRIPTION,JOB#/REL#,QTY ORDERED/REL DATE,QTY SHIPPED/SCHED REL QTY," +
                         "QTY ON HAND,SELLING PRICE,TOTAL VALUE".
         ELSE
-           excelheader = "CUSTOMER,PO,SMAN,ITEM #,DESCRIPTION," + 
+           excelheader = "CUSTOMER,PO,SREP,ITEM #,DESCRIPTION," + 
                          "WHSE/REL#,QTY ORDERED/REL DATE,QTY SHIPPED/SCHED REL QTY,QTY ON HAND," +
                          "SELLING PRICE,TOTAL VALUE".
     END.

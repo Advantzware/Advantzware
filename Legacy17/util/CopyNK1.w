@@ -262,7 +262,7 @@ ON HELP OF FRAME DEFAULT-FRAME
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
     DO:
         APPLY "CLOSE" TO THIS-PROCEDURE.
-        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:04 pm */
+        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:28 am */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -274,7 +274,7 @@ ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 ON CHOOSE OF Btn_Help IN FRAME DEFAULT-FRAME /* Help */
     DO: /* Call Help Function (or a simple message). */
         MESSAGE "Help for File: {&FILE-NAME}":U VIEW-AS ALERT-BOX INFORMATION.
-        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:04 pm */
+        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:28 am */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -348,7 +348,7 @@ ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 
         MESSAGE  "NK-1 Parameter Copy " + to_company + " Company successfully" VIEW-AS ALERT-BOX.
         APPLY "CLOSE" TO THIS-PROCEDURE.
-        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:04 pm */
+        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:28 am */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -415,7 +415,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
     RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:04 pm */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:28 am */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -446,9 +446,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ASSIGN FROM_company:SCREEN-VALUE = usercomp.company .
 
     APPLY "entry" TO from_company.
-    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:16 pm */
-    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:16 pm */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:04 pm */
+    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:42 am */
+    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:42 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:28 am */
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

@@ -307,7 +307,7 @@ ON CHOOSE OF btCancel IN FRAME FRAME-A /* Exit */
 DO:
 
   APPLY 'close' TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:34 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -353,7 +353,7 @@ DO:
     RUN enable_ui.
 
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:34 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -410,7 +410,7 @@ DO:
           END.
       END.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:34 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -450,7 +450,7 @@ DO:
     /* APPLY 'close' TO THIS-PROCEDURE. */
   END.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:34 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -485,7 +485,7 @@ IF AVAIL bf-itemfgloc THEN
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:07:09 pm */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:34 am */
 END.
 
 /* Best default for GUI applications is...                              */

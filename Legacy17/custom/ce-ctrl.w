@@ -937,13 +937,13 @@ ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
             DISABLE {&LIST-1}
                 rd-sp-1 rd-sp-2 rd-sp-3.
 
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
-    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:37 am */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:37 am */
 
             RUN enable_UI.
             FIND CURRENT ce-ctrl NO-LOCK NO-ERROR.
         END.
-        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:28 pm */
+        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:54 am */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -959,8 +959,8 @@ ON CHOOSE OF Btn_Update IN FRAME DEFAULT-FRAME /* Update */
             ENABLE {&LIST-1}
                 rd-sp-1 rd-sp-2 rd-sp-3.
 
-    {methods/setButton.i Btn_Update "Save"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
-    {methods/setButton.i Btn_Close "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
+    {methods/setButton.i Btn_Update "Save"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:37 am */
+    {methods/setButton.i Btn_Close "Cancel"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:37 am */
 
             APPLY "ENTRY" TO ce-ctrl.e-num.
         END.
@@ -972,8 +972,8 @@ ON CHOOSE OF Btn_Update IN FRAME DEFAULT-FRAME /* Update */
             DISABLE {&LIST-1}
                 rd-sp-1 rd-sp-2 rd-sp-3.
 
-    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:37 am */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:37 am */
             FIND CURRENT ce-ctrl EXCLUSIVE-LOCK.  
             ASSIGN {&LIST-1}
                 rd-sp-1 rd-sp-2 rd-sp-3.
@@ -981,7 +981,7 @@ ON CHOOSE OF Btn_Update IN FRAME DEFAULT-FRAME /* Update */
             RUN reftable-values (NO).
         END.
         FIND CURRENT ce-ctrl NO-LOCK NO-ERROR.  
-        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:28 pm */
+        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:54 am */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1100,7 +1100,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
     RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:28 pm */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:54 am */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -1156,9 +1156,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN spec-%or$ (100).
 
     {methods/nowait.i}
-    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
-    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:12 pm */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:28 pm */
+    {methods/setButton.i Btn_Close "Close"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:37 am */
+    {methods/setButton.i Btn_Update "Update"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:37 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:54 am */
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

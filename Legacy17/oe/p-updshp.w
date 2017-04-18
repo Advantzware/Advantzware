@@ -204,9 +204,9 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:59 pm */
+      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:30 am */
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:46 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:22 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -260,7 +260,7 @@ DO:
              END.
 
            RUN new-state('update-begin':U).
-           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:59 pm */
+           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:30 am */
            ASSIGN add-active = no.
         END.
         ELSE 
@@ -270,7 +270,7 @@ DO:
                FIND FIRST b-oe-rel WHERE ROWID(b-oe-rel) =  v-rowid NO-LOCK NO-ERROR .
 
            RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:59 pm */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:30 am */
            MESSAGE "Transfer Notes to Items with Same Release Date and Ship To?"
            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO-CANCEL
                UPDATE ll.
@@ -308,10 +308,10 @@ DO:
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:59 pm */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:30 am */
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:46 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:22 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -345,8 +345,8 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:59 pm */
-  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:59 pm */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:30 am */
+  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:30 am */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

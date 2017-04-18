@@ -95,10 +95,10 @@ DO:
     group-ok = yes.
     /*LEAVE. */
   END.
-  IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
+  IF NOT CAN-DO(b-prgrms.can_run,USERID(ldbname(1))) AND
+     NOT CAN-DO(b-prgrms.can_update,USERID(ldbname(1))) AND
+     NOT CAN-DO(b-prgrms.can_create,USERID(ldbname(1))) AND
+     NOT CAN-DO(b-prgrms.can_delete,USERID(ldbname(1))) AND NOT group-ok THEN
   DO:
     MESSAGE "Program :" PROGRAM-NAME(1) SKIP "Title :" b-prgrms.prgtitle SKIP(1)
         "Access to this Program Denied - Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
@@ -107,13 +107,13 @@ DO:
 
   END.
   ELSE DO:
-      IF NOT v-can-run AND CAN-DO(b-prgrms.can_run,USERID("NOSWEAT"))
+      IF NOT v-can-run AND CAN-DO(b-prgrms.can_run,USERID(ldbname(1)))
             THEN v-can-run = YES.
-      IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("NOSWEAT"))
+      IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID(ldbname(1)))
             THEN v-can-update = YES.
-      IF NOT v-can-create AND CAN-DO(b-prgrms.can_create,USERID("NOSWEAT"))
+      IF NOT v-can-create AND CAN-DO(b-prgrms.can_create,USERID(ldbname(1)))
             THEN v-can-create = YES.
-      IF NOT v-can-delete AND CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT"))
+      IF NOT v-can-delete AND CAN-DO(b-prgrms.can_delete,USERID(ldbname(1)))
             THEN v-can-delete = YES.
   END.
 END. 
@@ -267,9 +267,9 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
+      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:29 am */
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -298,22 +298,22 @@ DO:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
            RUN new-state('update-begin':U).
-           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
+           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:29 am */
            ASSIGN add-active = no.
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:29 am */
         END.                              
      END.
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:29 am */
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:44 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -347,8 +347,8 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
-  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.07.2017 @  2:08:57 pm */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:29 am */
+  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:29 am */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

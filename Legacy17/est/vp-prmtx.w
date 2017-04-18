@@ -207,7 +207,7 @@ ASSIGN
 ON CHOOSE OF Btn-print IN FRAME F-Main /* Print Price List */
 DO:
     IF AVAIL quotehd THEN RUN est/r-prcsht.w (ROWID(quotehd)).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:53 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:26 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -230,7 +230,7 @@ DO:
     RUN est/dPrcMtxQ.w (OUTPUT ll-ans, OUTPUT cTransQ).
     IF ll-ans THEN RUN oe/updprmtx2.p (ROWID(quotehd), "", 0, "", 0, cTransQ).
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:53 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:26 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */

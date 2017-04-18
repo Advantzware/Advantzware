@@ -13,7 +13,7 @@ DISABLE TRIGGERS FOR LOAD OF reftable.
 ll-ans = YES.
 
 IF SEARCH (".\prgrms.d") <> ? AND
-   (userid("nosweat") = "ASI" OR userid("nosweat") = "Nosweat")
+   (userid(ldbname(1)) = "ASI" OR userid(ldbname(1)) = "Nosweat")
 THEN DO:
 
    IF ll-ans THEN DO:
@@ -123,7 +123,7 @@ THEN DO:
 END.
 
 IF SEARCH (".\lookups.d") <> ? AND
-   (userid("nosweat") = "ASI" OR userid("nosweat") = "Nosweat")
+   (userid(ldbname(1)) = "ASI" OR userid(ldbname(1)) = "Nosweat")
 THEN DO:
   
      DEF VAR v1 AS cha FORM "x(15)" NO-UNDO.

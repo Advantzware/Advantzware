@@ -178,7 +178,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'del-source':U,OUTPUT char-hdl).
 
    RUN del-selected in WIDGET-HANDLE(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:55 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -474,7 +474,7 @@ END.
 ON CHOOSE OF btnAddItem IN FRAME DEFAULT-FRAME
 DO:
     RUN pInsert (ttItem.prgmName,ttItem.prgTitle,"").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -486,7 +486,7 @@ END.
 ON CHOOSE OF btnAddMenu IN FRAME DEFAULT-FRAME
 DO:
     RUN pInsert (ttMenu.prgmName,ttMenu.prgTitle,"[MENU]").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -499,7 +499,7 @@ ON CHOOSE OF btnDefault IN FRAME DEFAULT-FRAME
 DO:
   OS-COPY "./menu.lst" VALUE("usermenu/" + userName + "/menu.lst").
   RUN pReset.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -511,7 +511,7 @@ END.
 ON CHOOSE OF btnExit IN FRAME DEFAULT-FRAME
 DO:
     APPLY "CLOSE":U TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -523,7 +523,7 @@ END.
 ON CHOOSE OF btnMoveDown IN FRAME DEFAULT-FRAME
 DO:
     RUN pMove (1).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -535,7 +535,7 @@ END.
 ON CHOOSE OF btnMoveUp IN FRAME DEFAULT-FRAME
 DO:
     RUN pMove (-1).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -547,7 +547,7 @@ END.
 ON CHOOSE OF btnRemove IN FRAME DEFAULT-FRAME
 DO:
     RUN pRemove.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -559,7 +559,7 @@ END.
 ON CHOOSE OF btnReset IN FRAME DEFAULT-FRAME
 DO:
     RUN pReset.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -578,7 +578,7 @@ DO:
   OS-COPY VALUE("usermenu/" + userName + "/menu.lst") VALUE("usermenu/" + userName + "/menu.fol").
   OS-COPY VALUE("usermenu/" + userName + "/menu.lst") VALUE("usermenu/" + userName + "/menu.cor") .
   RUN pReset.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -590,7 +590,7 @@ END.
 ON CHOOSE OF btnShiftLeft IN FRAME DEFAULT-FRAME
 DO:
     RUN pShift (-1).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -602,7 +602,7 @@ END.
 ON CHOOSE OF btnShiftRight IN FRAME DEFAULT-FRAME
 DO:
     RUN pShift (1).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -751,7 +751,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -766,7 +766,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pGetUsers.
   RUN enable_UI.
   RUN pReset.
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

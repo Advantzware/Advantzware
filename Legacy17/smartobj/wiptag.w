@@ -159,7 +159,7 @@ DO:
   {methods/run_link.i "WIPTAG-SOURCE" "{&SELF-NAME}"}
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,'wiptag-target',OUTPUT char-wp).
   RUN wiptag IN char-wp.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.07.2017 @  2:08:51 pm */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:25 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
