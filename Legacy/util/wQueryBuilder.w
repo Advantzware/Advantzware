@@ -84,18 +84,7 @@ DEF TEMP-TABLE ttColumns
     FIELD iRow AS INT
     INDEX idxPos IS PRIMARY iPos.
 
-DEF TEMP-TABLE ttCalcCols
-    FIELD cColLabel AS CHAR
-    FIELD cDataType AS CHAR
-    FIELD cFormat AS CHAR
-    FIELD cFormula AS CHAR
-    FIELD cInitVal AS CHAR
-    FIELD iPos AS INT
-    FIELD iIdx AS INT.
-
 DEF BUFFER bttColumns FOR ttColumns.
-DEF BUFFER bttCalcCols FOR ttCalcCols.
-
 ASSIGN
     cColList = "A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,"
     cColList = cColList + "AA,AB,AC,AD,AE,AF,AG,AH,AI,AJ,AK,AL,AM,AN,AO,AP,AQ,AR,AS,AT,AU,AV,AW,AX,AY,AZ,"
@@ -104,7 +93,27 @@ ASSIGN
     cColList = cColList + "DA,DB,DC,DD,DE,DF,DG,DH,DI,DJ,DK,DL,DM,DN,DO,DP,DQ,DR,DS,DT,DU,DV,DW,DX,DY,DZ,"
     cColList = cColList + "EA,EB,EC,ED,EE,EF,EG,EH,EI,EJ,EK,EL,EM,EN,EO,EP,EQ,ER,ES,ET,EU,EV,EW,EX,EY,EZ,"
     cColList = cColList + "FA,FB,FC,FD,FE,FF,FG,FH,FI,FJ,FK,FL,FM,FN,FO,FP,FQ,FR,FS,FT,FU,FV,FW,FX,FY,FZ,"
-    cColList = cColList + "GA,GB,GC,GD,GE,GF,GG,GH,GI,GJ,GK,GL,GM,GN,GO,GP,GQ,GR,GS,GT,GU,GV,GW,GX,GY,GZ".
+    cColList = cColList + "GA,GB,GC,GD,GE,GF,GG,GH,GI,GJ,GK,GL,GM,GN,GO,GP,GQ,GR,GS,GT,GU,GV,GW,GX,GY,GZ,"
+    cColList = cColList + "HA,HB,HC,HD,HE,HF,HG,HH,HI,HJ,HK,HL,HM,HN,HO,HP,HQ,HR,HS,HT,HU,HV,HW,HX,HY,HZ,"
+    cColList = cColList + "IA,IB,IC,ID,IE,IF,IG,IH,II,IJ,IK,IL,IM,IN,IO,IP,IQ,IR,IS,IT,IU,IV,IW,IX,IY,IZ,"
+    cColList = cColList + "JA,JB,JC,JD,JE,JF,JG,JH,JI,JJ,JK,JL,JM,JN,JO,JP,JQ,JR,JS,JT,JU,JV,JW,JX,JY,JZ,"
+    cColList = cColList + "KA,KB,KC,KD,KE,KF,KG,KH,KI,KJ,KK,KL,KM,KN,KO,KP,KQ,KR,KS,KT,KU,KV,KW,KX,KY,KZ,"
+    cColList = cColList + "LA,LB,LC,LD,LE,LF,LG,LH,LI,LJ,LK,LL,LM,LN,LO,LP,LQ,LR,LS,LT,LU,LV,LW,LX,LY,LZ,"
+    cColList = cColList + "MA,MB,MC,MD,ME,MF,MG,MH,MI,MJ,MK,ML,MM,MN,MO,MP,MQ,MR,MS,MT,MU,MV,MW,MX,MY,MZ,"
+    cColList = cColList + "NA,NB,NC,ND,NE,NF,NG,NH,NI,NJ,NK,NL,NM,NN,NO,NP,NQ,NR,NS,NT,NU,NV,NW,NX,NY,NZ,"
+    cColList = cColList + "OA,OB,OC,OD,OE,OF,OG,OH,OI,OJ,OK,OL,OM,ON,OO,OP,OQ,OR,OS,OT,OU,OV,OW,OX,OY,OZ,"
+    cColList = cColList + "PA,PB,PC,PD,PE,PF,PG,PH,PI,PJ,PK,PL,PM,PN,PO,PP,PQ,PR,PS,PT,PU,PV,PW,PX,PY,PZ,"
+    cColList = cColList + "QA,QB,QC,QD,QE,QF,QG,QH,QI,QJ,QK,QL,QM,QN,QO,QP,QQ,QR,QS,QT,QU,QV,QW,QX,QY,QZ,"
+    cColList = cColList + "RA,RB,RC,RD,RE,RF,RG,RH,RI,RJ,RK,RL,RM,RN,RO,RP,RQ,RR,RS,RT,RU,RV,RW,RX,RY,RZ,"
+    cColList = cColList + "SA,SB,SC,SD,SE,SF,SG,SH,SI,SJ,SK,SL,SM,SN,SO,SP,SQ,SR,SS,ST,SU,SV,SW,SX,SY,SZ,"
+    cColList = cColList + "TA,TB,TC,TD,TE,TF,TG,TH,TI,TJ,TK,TL,TM,TN,TO,TP,TQ,TR,TS,TT,TU,TV,TW,TX,TY,TZ,"
+    cColList = cColList + "UA,UB,UC,UD,UE,UF,UG,UH,UI,UJ,UK,UL,UM,UN,UO,UP,UQ,UR,US,UT,UU,UV,UW,UX,UY,UZ,"
+    cColList = cColList + "VA,VB,VC,VD,VE,VF,VG,VH,VI,VJ,VK,VL,VM,VN,VO,VP,VQ,VR,VS,VT,VU,VV,VW,VX,VY,VZ,"
+    cColList = cColList + "WA,WB,WC,WD,WE,WF,WG,WH,WI,WJ,WK,WL,WM,WN,WO,WP,WQ,WR,WS,WT,WU,WV,WW,WX,WY,WZ,"
+    cColList = cColList + "XA,XB,XC,XD,XE,XF,XG,XH,XI,XJ,XK,XL,XM,XN,XO,XP,XQ,XR,XS,XT,XU,XV,XW,XX,XY,XZ,"
+    cColList = cColList + "YA,YB,YC,YD,YE,YF,YG,YH,YI,YJ,YK,YL,YM,YN,YO,YP,YQ,YR,YS,YT,YU,YV,YW,YX,YY,YZ,"
+    cColList = cColList + "ZA,ZB,ZC,ZD,ZE,ZF,ZG,ZH,ZI,ZJ,ZK,ZL,ZM,ZN,ZO,ZP,ZQ,ZR,ZS,ZT,ZU,ZV,ZW,ZX,ZY,ZZ".
+    .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -125,46 +134,47 @@ ASSIGN
 &Scoped-define FRAME-NAME f-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS bExpand cbFile-1 fiRptName tOpenParen-1 ~
-cbWhere-1 cbOp-1 fiVal-1 tCloseParen-1 cbAnd-1 bCheckSyntax tOpenParen-2 ~
-cbWhere-2 cbOp-2 fiVal-2 tCloseParen-2 cbAnd-2 eQuery tOpenParen-3 ~
-cbWhere-3 cbOp-3 fiVal-3 tCloseParen-3 cbAnd-3 tOpenParen-4 cbWhere-4 ~
-cbOp-4 fiVal-4 tCloseParen-4 cbAnd-4 tOpenParen-5 cbWhere-5 cbOp-5 fiVal-5 ~
-tCloseParen-5 tMore-1 cbFile-2 cbOf-2 cbRel-2 tOpenParen-6 cbWhere-6 cbOp-6 ~
-fiVal-6 tCloseParen-6 cbAnd-6 slDisplayFields fiLockedCols tOpenParen-7 ~
-cbWhere-7 cbOp-7 fiVal-7 tCloseParen-7 cbAnd-7 tOpenParen-8 cbWhere-8 ~
-cbOp-8 fiVal-8 tCloseParen-8 cbAnd-8 fiPagesWide tOpenParen-9 cbWhere-9 ~
-cbOp-9 fiVal-9 tCloseParen-9 cbAnd-9 bMoveUp tOpenParen-10 cbWhere-10 ~
-cbOp-10 fiVal-10 tCloseParen-10 bMoveDown tMore-2 cbFile-3 cbOf-3 cbRel-3 ~
-bRemove tOpenParen-11 cbWhere-11 cbOp-11 fiVal-11 tCloseParen-11 cbAnd-11 ~
-bCalcField tOpenParen-12 cbWhere-12 cbOp-12 fiVal-12 tCloseParen-12 ~
-cbAnd-12 bEditField tOpenParen-13 cbWhere-13 cbOp-13 fiVal-13 ~
-tCloseParen-13 cbAnd-13 bLineBreak tOpenParen-14 cbWhere-14 cbOp-14 ~
-fiVal-14 tCloseParen-14 cbAnd-14 tOpenParen-15 cbWhere-15 cbOp-15 fiVal-15 ~
-tCloseParen-15 bProcess bExport tMore-3 cbFile-4 cbOf-4 cbRel-4 ~
-tOpenParen-16 cbWhere-16 cbOp-16 fiVal-16 tCloseParen-16 cbAnd-16 ~
-tOpenParen-17 cbWhere-17 cbOp-17 fiVal-17 tCloseParen-17 cbAnd-17 ~
-tOpenParen-18 cbWhere-18 cbOp-18 fiVal-18 tCloseParen-18 cbAnd-18 ~
-tOpenParen-19 cbWhere-19 cbOp-19 fiVal-19 tCloseParen-19 cbAnd-19 ~
-tOpenParen-20 cbWhere-20 cbOp-20 fiVal-20 tCloseParen-20 
+&Scoped-Define ENABLED-OBJECTS bExpand cbFile-1 bFields-1 fiRptName ~
+tOpenParen-1 cbWhere-1 cbOp-1 fiVal-1 tCloseParen-1 cbAnd-1 bCheckSyntax ~
+tOpenParen-2 cbWhere-2 cbOp-2 fiVal-2 tCloseParen-2 cbAnd-2 eQuery ~
+tOpenParen-3 cbWhere-3 cbOp-3 fiVal-3 tCloseParen-3 cbAnd-3 tOpenParen-4 ~
+cbWhere-4 cbOp-4 fiVal-4 tCloseParen-4 cbAnd-4 tOpenParen-5 cbWhere-5 ~
+cbOp-5 fiVal-5 tCloseParen-5 cbFile-2 bFields-2 tMore-1 cbOf-2 cbRel-2 ~
+tOpenParen-6 cbWhere-6 cbOp-6 fiVal-6 tCloseParen-6 cbAnd-6 fiLockedCols ~
+slDisplayFields tOpenParen-7 cbWhere-7 cbOp-7 fiVal-7 tCloseParen-7 cbAnd-7 ~
+fiPagesWide tOpenParen-8 cbWhere-8 cbOp-8 fiVal-8 tCloseParen-8 cbAnd-8 ~
+tOpenParen-9 cbWhere-9 cbOp-9 fiVal-9 tCloseParen-9 cbAnd-9 bMoveUp ~
+tOpenParen-10 cbWhere-10 cbOp-10 fiVal-10 tCloseParen-10 bMoveDown ~
+bFields-3 cbOf-3 cbRel-3 bRemove cbFile-3 tMore-2 tOpenParen-11 cbWhere-11 ~
+cbOp-11 fiVal-11 tCloseParen-11 cbAnd-11 bCalcField tOpenParen-12 ~
+cbWhere-12 cbOp-12 fiVal-12 tCloseParen-12 cbAnd-12 bEditField ~
+tOpenParen-13 cbWhere-13 cbOp-13 fiVal-13 tCloseParen-13 cbAnd-13 ~
+bLineBreak tOpenParen-14 cbWhere-14 cbOp-14 fiVal-14 tCloseParen-14 ~
+cbAnd-14 tOpenParen-15 cbWhere-15 cbOp-15 fiVal-15 tCloseParen-15 bProcess ~
+bClear cbFile-4 bFields-4 cbOf-4 cbRel-4 tMore-3 tOpenParen-16 cbWhere-16 ~
+cbOp-16 fiVal-16 tCloseParen-16 cbAnd-16 tOpenParen-17 cbWhere-17 cbOp-17 ~
+fiVal-17 tCloseParen-17 cbAnd-17 tOpenParen-18 cbWhere-18 cbOp-18 fiVal-18 ~
+tCloseParen-18 cbAnd-18 tOpenParen-19 cbWhere-19 cbOp-19 fiVal-19 ~
+tCloseParen-19 cbAnd-19 tOpenParen-20 cbWhere-20 cbOp-20 fiVal-20 ~
+tCloseParen-20 
 &Scoped-Define DISPLAYED-OBJECTS cbFile-1 fiRptName tOpenParen-1 cbWhere-1 ~
 cbOp-1 fiVal-1 tCloseParen-1 cbAnd-1 tOpenParen-2 cbWhere-2 cbOp-2 fiVal-2 ~
 tCloseParen-2 cbAnd-2 eQuery tOpenParen-3 cbWhere-3 cbOp-3 fiVal-3 ~
 tCloseParen-3 cbAnd-3 tOpenParen-4 cbWhere-4 cbOp-4 fiVal-4 tCloseParen-4 ~
-cbAnd-4 tOpenParen-5 cbWhere-5 cbOp-5 fiVal-5 tCloseParen-5 tMore-1 ~
-cbFile-2 cbOf-2 cbRel-2 fiWhere-2 tOpenParen-6 cbWhere-6 cbOp-6 fiVal-6 ~
-tCloseParen-6 cbAnd-6 slDisplayFields fiLockedCols tOpenParen-7 cbWhere-7 ~
-cbOp-7 fiVal-7 tCloseParen-7 cbAnd-7 tOpenParen-8 cbWhere-8 cbOp-8 fiVal-8 ~
-tCloseParen-8 cbAnd-8 fiPagesWide tOpenParen-9 cbWhere-9 cbOp-9 fiVal-9 ~
+cbAnd-4 tOpenParen-5 cbWhere-5 cbOp-5 fiVal-5 tCloseParen-5 cbFile-2 ~
+tMore-1 cbOf-2 cbRel-2 fiWhere-2 tOpenParen-6 cbWhere-6 cbOp-6 fiVal-6 ~
+tCloseParen-6 cbAnd-6 fiLockedCols slDisplayFields tOpenParen-7 cbWhere-7 ~
+cbOp-7 fiVal-7 tCloseParen-7 cbAnd-7 fiPagesWide tOpenParen-8 cbWhere-8 ~
+cbOp-8 fiVal-8 tCloseParen-8 cbAnd-8 tOpenParen-9 cbWhere-9 cbOp-9 fiVal-9 ~
 tCloseParen-9 cbAnd-9 tOpenParen-10 cbWhere-10 cbOp-10 fiVal-10 ~
-tCloseParen-10 tMore-2 cbFile-3 cbOf-3 cbRel-3 fiWhere-3 tOpenParen-11 ~
+tCloseParen-10 cbOf-3 cbRel-3 fiWhere-3 cbFile-3 tMore-2 tOpenParen-11 ~
 cbWhere-11 cbOp-11 fiVal-11 tCloseParen-11 cbAnd-11 tOpenParen-12 ~
 cbWhere-12 cbOp-12 fiVal-12 tCloseParen-12 cbAnd-12 tOpenParen-13 ~
 cbWhere-13 cbOp-13 fiVal-13 tCloseParen-13 cbAnd-13 tOpenParen-14 ~
 cbWhere-14 cbOp-14 fiVal-14 tCloseParen-14 cbAnd-14 tOpenParen-15 ~
-cbWhere-15 cbOp-15 fiVal-15 tCloseParen-15 tMore-3 cbFile-4 cbOf-4 cbRel-4 ~
-fiWhere-4 tOpenParen-16 cbWhere-16 cbOp-16 fiVal-16 tCloseParen-16 cbAnd-16 ~
-tOpenParen-17 cbWhere-17 cbOp-17 fiVal-17 tCloseParen-17 cbAnd-17 ~
+cbWhere-15 cbOp-15 fiVal-15 tCloseParen-15 cbFile-4 cbOf-4 cbRel-4 ~
+fiWhere-4 tMore-3 tOpenParen-16 cbWhere-16 cbOp-16 fiVal-16 tCloseParen-16 ~
+cbAnd-16 tOpenParen-17 cbWhere-17 cbOp-17 fiVal-17 tCloseParen-17 cbAnd-17 ~
 tOpenParen-18 cbWhere-18 cbOp-18 fiVal-18 tCloseParen-18 cbAnd-18 ~
 tOpenParen-19 cbWhere-19 cbOp-19 fiVal-19 tCloseParen-19 cbAnd-19 ~
 tOpenParen-20 cbWhere-20 cbOp-20 fiVal-20 tCloseParen-20 
@@ -189,13 +199,16 @@ DEFINE SUB-MENU m_File
        MENU-ITEM m_Save         LABEL "Save"          
        MENU-ITEM m_Save_As      LABEL "Save As..."    
        RULE
+       MENU-ITEM m_Excel        LABEL "Export to Excel"
+       MENU-ITEM m_Export_to_CSV LABEL "Export to CSV" 
+       RULE
        MENU-ITEM m_Quit         LABEL "Quit"          .
 
 DEFINE SUB-MENU m_Edit 
        MENU-ITEM m_Check_Syntax LABEL "Check Syntax"  
        RULE
        MENU-ITEM m_Process      LABEL "Process"       
-       MENU-ITEM m_Export_to_Excel LABEL "Export to Excel".
+       MENU-ITEM m_Clear_Query  LABEL "Clear Query"   .
 
 DEFINE MENU MENU-BAR-wWin MENUBAR
        SUB-MENU  m_File         LABEL "File"          
@@ -211,6 +224,10 @@ DEFINE BUTTON bCheckSyntax
      LABEL "Check syntax" 
      SIZE 15 BY 1.
 
+DEFINE BUTTON bClear 
+     LABEL "Clear" 
+     SIZE 15 BY 1.
+
 DEFINE BUTTON bEditField 
      LABEL "Edit Field" 
      SIZE 17 BY 1.14.
@@ -218,11 +235,23 @@ DEFINE BUTTON bEditField
 DEFINE BUTTON bExpand 
      IMAGE-UP FILE "images/expand.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Button 1" 
-     SIZE 4.2 BY 1.19 TOOLTIP "Expand/Contract Result List".
+     SIZE 5.2 BY 1.19 TOOLTIP "Expand/Contract Result List".
 
-DEFINE BUTTON bExport 
-     LABEL "Export" 
-     SIZE 15 BY 1.
+DEFINE BUTTON bFields-1 
+     LABEL "F" 
+     SIZE 4 BY 1.14 TOOLTIP "Select Fields to Display".
+
+DEFINE BUTTON bFields-2 
+     LABEL "F" 
+     SIZE 4 BY 1.14 TOOLTIP "Select Fields to Display".
+
+DEFINE BUTTON bFields-3 
+     LABEL "F" 
+     SIZE 4 BY 1.14 TOOLTIP "Select Fields to Display".
+
+DEFINE BUTTON bFields-4 
+     LABEL "F" 
+     SIZE 4 BY 1.14 TOOLTIP "Select Fields to Display".
 
 DEFINE BUTTON bLineBreak 
      LABEL "Insert Line Break" 
@@ -616,11 +645,11 @@ DEFINE VARIABLE cbWhere-9 AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE eDummy AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
-     SIZE 59 BY 7.52 NO-UNDO.
+     SIZE 62 BY 7.52 NO-UNDO.
 
 DEFINE VARIABLE eQuery AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 59 BY 6.24 NO-UNDO.
+     SIZE 62 BY 6.24 NO-UNDO.
 
 DEFINE VARIABLE fiLockedCols AS INTEGER FORMAT ">9":U INITIAL 1 
      LABEL "Locked Cols" 
@@ -719,15 +748,15 @@ DEFINE VARIABLE fiVal-9 AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE fiWhere-2 AS CHARACTER FORMAT "X(256)":U INITIAL "WHERE" 
      VIEW-AS FILL-IN 
-     SIZE 9 BY 1 NO-UNDO.
+     SIZE 10 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiWhere-3 AS CHARACTER FORMAT "X(256)":U INITIAL "WHERE" 
      VIEW-AS FILL-IN 
-     SIZE 9 BY 1 NO-UNDO.
+     SIZE 10 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiWhere-4 AS CHARACTER FORMAT "X(256)":U INITIAL "WHERE" 
      VIEW-AS FILL-IN 
-     SIZE 9 BY 1 NO-UNDO.
+     SIZE 10 BY 1 NO-UNDO.
 
 DEFINE VARIABLE slDisplayFields AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
@@ -952,8 +981,9 @@ DEFINE VARIABLE tOpenParen-9 AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME f-Main
-     bExpand AT ROW 24.76 COL 96
-     cbFile-1 AT ROW 1.52 COL 15 COLON-ALIGNED
+     bExpand AT ROW 24.76 COL 95
+     cbFile-1 AT ROW 1.48 COL 15 COLON-ALIGNED
+     bFields-1 AT ROW 1.48 COL 42
      fiRptName AT ROW 1.52 COL 70 COLON-ALIGNED
      tOpenParen-1 AT ROW 2.76 COL 17
      cbWhere-1 AT ROW 2.76 COL 19 COLON-ALIGNED NO-LABEL
@@ -986,38 +1016,38 @@ DEFINE FRAME f-Main
      cbOp-5 AT ROW 7.76 COL 41 COLON-ALIGNED NO-LABEL
      fiVal-5 AT ROW 7.76 COL 53 COLON-ALIGNED NO-LABEL
      tCloseParen-5 AT ROW 7.76 COL 78
-     tMore-1 AT ROW 9.24 COL 8
      cbFile-2 AT ROW 9.24 COL 15 COLON-ALIGNED NO-LABEL
-     cbOf-2 AT ROW 9.24 COL 41 COLON-ALIGNED NO-LABEL
-     cbRel-2 AT ROW 9.24 COL 53 COLON-ALIGNED NO-LABEL
-     fiWhere-2 AT ROW 9.24 COL 79 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     bFields-2 AT ROW 9.24 COL 42
+     tMore-1 AT ROW 9.33 COL 6
+     cbOf-2 AT ROW 9.33 COL 45 COLON-ALIGNED NO-LABEL
+     cbRel-2 AT ROW 9.33 COL 58 COLON-ALIGNED NO-LABEL
+     fiWhere-2 AT ROW 9.33 COL 83 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      tOpenParen-6 AT ROW 10.52 COL 17
      cbWhere-6 AT ROW 10.52 COL 19 COLON-ALIGNED NO-LABEL
      cbOp-6 AT ROW 10.52 COL 41 COLON-ALIGNED NO-LABEL
      fiVal-6 AT ROW 10.52 COL 53 COLON-ALIGNED NO-LABEL
      tCloseParen-6 AT ROW 10.52 COL 78
      cbAnd-6 AT ROW 10.52 COL 81 COLON-ALIGNED NO-LABEL
+     fiLockedCols AT ROW 11.48 COL 155 COLON-ALIGNED
      slDisplayFields AT ROW 11.52 COL 101 NO-LABEL
-     fiLockedCols AT ROW 11.52 COL 153 COLON-ALIGNED
      tOpenParen-7 AT ROW 11.76 COL 17
      cbWhere-7 AT ROW 11.76 COL 19 COLON-ALIGNED NO-LABEL
      cbOp-7 AT ROW 11.76 COL 41 COLON-ALIGNED NO-LABEL
      fiVal-7 AT ROW 11.76 COL 53 COLON-ALIGNED NO-LABEL
      tCloseParen-7 AT ROW 11.76 COL 78
      cbAnd-7 AT ROW 11.76 COL 81 COLON-ALIGNED NO-LABEL
+     fiPagesWide AT ROW 12.95 COL 155 COLON-ALIGNED
      tOpenParen-8 AT ROW 13 COL 17
      cbWhere-8 AT ROW 13 COL 19 COLON-ALIGNED NO-LABEL
      cbOp-8 AT ROW 13 COL 41 COLON-ALIGNED NO-LABEL
      fiVal-8 AT ROW 13 COL 53 COLON-ALIGNED NO-LABEL
      tCloseParen-8 AT ROW 13 COL 78
      cbAnd-8 AT ROW 13 COL 81 COLON-ALIGNED NO-LABEL
-     fiPagesWide AT ROW 13 COL 153 COLON-ALIGNED
      tOpenParen-9 AT ROW 14.24 COL 17
      cbWhere-9 AT ROW 14.24 COL 19 COLON-ALIGNED NO-LABEL
      cbOp-9 AT ROW 14.24 COL 41 COLON-ALIGNED NO-LABEL
      fiVal-9 AT ROW 14.24 COL 53 COLON-ALIGNED NO-LABEL
      tCloseParen-9 AT ROW 14.24 COL 78
-     cbAnd-9 AT ROW 14.24 COL 81 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1025,40 +1055,42 @@ DEFINE FRAME f-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME f-Main
-     bMoveUp AT ROW 14.52 COL 144
+     cbAnd-9 AT ROW 14.24 COL 81 COLON-ALIGNED NO-LABEL
+     bMoveUp AT ROW 14.48 COL 146
      tOpenParen-10 AT ROW 15.52 COL 17
      cbWhere-10 AT ROW 15.52 COL 19 COLON-ALIGNED NO-LABEL
      cbOp-10 AT ROW 15.52 COL 41 COLON-ALIGNED NO-LABEL
      fiVal-10 AT ROW 15.52 COL 53 COLON-ALIGNED NO-LABEL
      tCloseParen-10 AT ROW 15.52 COL 78
-     bMoveDown AT ROW 15.76 COL 144
-     tMore-2 AT ROW 17 COL 8
+     bMoveDown AT ROW 15.71 COL 146
+     bFields-3 AT ROW 16.95 COL 42
+     cbOf-3 AT ROW 16.95 COL 46 COLON-ALIGNED NO-LABEL
+     cbRel-3 AT ROW 16.95 COL 57 COLON-ALIGNED NO-LABEL
+     fiWhere-3 AT ROW 16.95 COL 82 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     bRemove AT ROW 16.95 COL 146
      cbFile-3 AT ROW 17 COL 15 COLON-ALIGNED NO-LABEL
-     cbOf-3 AT ROW 17 COL 41 COLON-ALIGNED NO-LABEL
-     cbRel-3 AT ROW 17 COL 53 COLON-ALIGNED NO-LABEL
-     fiWhere-3 AT ROW 17 COL 79 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     bRemove AT ROW 17 COL 144
+     tMore-2 AT ROW 17.1 COL 6
      tOpenParen-11 AT ROW 18.24 COL 17
      cbWhere-11 AT ROW 18.24 COL 19 COLON-ALIGNED NO-LABEL
      cbOp-11 AT ROW 18.24 COL 41 COLON-ALIGNED NO-LABEL
      fiVal-11 AT ROW 18.24 COL 53 COLON-ALIGNED NO-LABEL
      tCloseParen-11 AT ROW 18.24 COL 78
      cbAnd-11 AT ROW 18.24 COL 81 COLON-ALIGNED NO-LABEL
-     bCalcField AT ROW 18.52 COL 144
+     bCalcField AT ROW 18.48 COL 146
      tOpenParen-12 AT ROW 19.52 COL 17
      cbWhere-12 AT ROW 19.52 COL 19 COLON-ALIGNED NO-LABEL
      cbOp-12 AT ROW 19.52 COL 41 COLON-ALIGNED NO-LABEL
      fiVal-12 AT ROW 19.52 COL 53 COLON-ALIGNED NO-LABEL
      tCloseParen-12 AT ROW 19.52 COL 78
      cbAnd-12 AT ROW 19.52 COL 81 COLON-ALIGNED NO-LABEL
-     bEditField AT ROW 20 COL 144
+     bEditField AT ROW 19.95 COL 146
      tOpenParen-13 AT ROW 20.76 COL 17
      cbWhere-13 AT ROW 20.76 COL 19 COLON-ALIGNED NO-LABEL
      cbOp-13 AT ROW 20.76 COL 41 COLON-ALIGNED NO-LABEL
      fiVal-13 AT ROW 20.76 COL 53 COLON-ALIGNED NO-LABEL
      tCloseParen-13 AT ROW 20.76 COL 78
      cbAnd-13 AT ROW 20.76 COL 81 COLON-ALIGNED NO-LABEL
-     bLineBreak AT ROW 21.52 COL 144
+     bLineBreak AT ROW 21.48 COL 146
      tOpenParen-14 AT ROW 22 COL 17
      cbWhere-14 AT ROW 22 COL 19 COLON-ALIGNED NO-LABEL
      cbOp-14 AT ROW 22 COL 41 COLON-ALIGNED NO-LABEL
@@ -1071,22 +1103,20 @@ DEFINE FRAME f-Main
      fiVal-15 AT ROW 23.24 COL 53 COLON-ALIGNED NO-LABEL
      tCloseParen-15 AT ROW 23.24 COL 78
      bProcess AT ROW 23.52 COL 124
-     bExport AT ROW 23.52 COL 145
-     tMore-3 AT ROW 24.76 COL 8
+     bClear AT ROW 23.62 COL 148
      cbFile-4 AT ROW 24.76 COL 15 COLON-ALIGNED NO-LABEL
-     cbOf-4 AT ROW 24.76 COL 41 COLON-ALIGNED NO-LABEL
-     cbRel-4 AT ROW 24.76 COL 53 COLON-ALIGNED NO-LABEL
-     fiWhere-4 AT ROW 24.76 COL 79 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
      eDummy AT ROW 24.76 COL 101 NO-LABEL NO-TAB-STOP 
+     bFields-4 AT ROW 24.81 COL 42
+     cbOf-4 AT ROW 24.81 COL 45 COLON-ALIGNED NO-LABEL
+     cbRel-4 AT ROW 24.81 COL 57 COLON-ALIGNED NO-LABEL
+     fiWhere-4 AT ROW 24.81 COL 83 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     tMore-3 AT ROW 24.86 COL 6
      tOpenParen-16 AT ROW 26 COL 17
      cbWhere-16 AT ROW 26 COL 19 COLON-ALIGNED NO-LABEL
      cbOp-16 AT ROW 26 COL 41 COLON-ALIGNED NO-LABEL
      fiVal-16 AT ROW 26 COL 53 COLON-ALIGNED NO-LABEL
      tCloseParen-16 AT ROW 26 COL 78
      cbAnd-16 AT ROW 26 COL 81 COLON-ALIGNED NO-LABEL
-     tOpenParen-17 AT ROW 27.24 COL 17
-     cbWhere-17 AT ROW 27.24 COL 19 COLON-ALIGNED NO-LABEL
-     cbOp-17 AT ROW 27.24 COL 41 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1094,6 +1124,9 @@ DEFINE FRAME f-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME f-Main
+     tOpenParen-17 AT ROW 27.24 COL 17
+     cbWhere-17 AT ROW 27.24 COL 19 COLON-ALIGNED NO-LABEL
+     cbOp-17 AT ROW 27.24 COL 41 COLON-ALIGNED NO-LABEL
      fiVal-17 AT ROW 27.24 COL 53 COLON-ALIGNED NO-LABEL
      tCloseParen-17 AT ROW 27.24 COL 78
      cbAnd-17 AT ROW 27.24 COL 81 COLON-ALIGNED NO-LABEL
@@ -1114,16 +1147,16 @@ DEFINE FRAME f-Main
      cbOp-20 AT ROW 31 COL 41 COLON-ALIGNED NO-LABEL
      fiVal-20 AT ROW 31 COL 53 COLON-ALIGNED NO-LABEL
      tCloseParen-20 AT ROW 31 COL 78
+     "(Calculated field values are only displayed after Export.)" VIEW-AS TEXT
+          SIZE 55 BY .67 AT ROW 32.19 COL 101
      "QUERY STRING:" VIEW-AS TEXT
           SIZE 17 BY 1 AT ROW 3 COL 100
-     "(Calculated field values are only displayed after Export.)" VIEW-AS TEXT
-          SIZE 48 BY .67 AT ROW 32.24 COL 96
-     "DISPLAY FIELDS" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 10.52 COL 100
+     "WHERE" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 1.48 COL 48
      "RESULT LIST" VIEW-AS TEXT
           SIZE 17 BY 1 AT ROW 23.52 COL 100
-     "WHERE" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 1.52 COL 43
+     "DISPLAY FIELDS" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 10.52 COL 100
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1241,6 +1274,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME bClear
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bClear wWin
+ON CHOOSE OF bClear IN FRAME f-Main /* Clear */
+DO:
+    RUN ipClearQuery IN THIS-PROCEDURE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME bExpand
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bExpand wWin
 ON CHOOSE OF bExpand IN FRAME f-Main /* Button 1 */
@@ -1256,20 +1300,20 @@ DO:
                 hBrowse:ROW = 2.5
                 hBrowse:WIDTH = 153
                 hBrowse:HEIGHT = 28.75
-                bExport:ROW = 31.75.  
+                bClear:ROW = 31.75.  
             hBrowse:REFRESH().
         END.
         ELSE DO:
             ASSIGN
                 SELF:ROW = 24.75
-                SELF:COLUMN = 96.
+                SELF:COLUMN = 95.
             SELF:LOAD-IMAGE-UP("images/expand.jpg").
             ASSIGN
-                hBrowse:COL = 101
-                hBrowse:ROW = 24.75
                 hBrowse:WIDTH = 59
                 hBrowse:HEIGHT = 7.5
-                bExport:ROW = 23.5.    
+                hBrowse:COL = 101
+                hBrowse:ROW = 24.75
+                bClear:ROW = 23.5.    
         END.
     END.
 END.
@@ -1278,12 +1322,19 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME bExport
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bExport wWin
-ON CHOOSE OF bExport IN FRAME f-Main /* Export */
+&Scoped-define SELF-NAME bFields-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bFields-1 wWin
+ON CHOOSE OF bFields-1 IN FRAME f-Main /* F */
+or choose of bFields-2
+or choose of bFields-3
+or choose of bFields-4
 DO:
-    IF NOT lProcessed THEN APPLY 'choose' TO bProcess {&IN}.
-    RUN ipExcel IN THIS-PROCEDURE.
+    case self:name:
+        when "bFields-1" then apply 'u1' to cbFile-1.
+        when "bFields-2" then apply 'u1' to cbFile-2.
+        when "bFields-3" then apply 'u1' to cbFile-3.
+        when "bFields-4" then apply 'u1' to cbFile-4.
+    end case.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1323,14 +1374,11 @@ DO:
             ASSIGN
                 bttColumns.iPos = iRow
                 ttColumns.iPos = iRow - 1.
-
-            ASSIGN
-                cTempFrom = slDisplayFields:{&SV}
-                cTempTo = ENTRY(iRow - 1,slDisplayFields:LIST-ITEMS).
-            slDisplayFields:REPLACE("x",cTempFrom).
-            slDisplayFields:REPLACE(cTempFrom,cTempTo).
-            slDisplayFields:REPLACE(cTempTo,"x").
-            slDisplayFields:{&SV} = cTempFrom.
+            assign
+                slDisplayFields:list-items = "".
+            for each ttColumns by ttColumns.ipos:
+                    slDisplayFields:add-last(ttColumns.cDispLabel).
+            end.
         END.
         WHEN "bMoveDown" THEN DO:
             ASSIGN
@@ -1346,14 +1394,11 @@ DO:
             ASSIGN
                 bttColumns.iPos = iRow
                 ttColumns.iPos = iRow + 1.
-            
-            ASSIGN
-                cTempFrom = slDisplayFields:{&SV}
-                cTempTo = ENTRY(iRow + 1,slDisplayFields:LIST-ITEMS).
-            slDisplayFields:REPLACE("x",cTempFrom).
-            slDisplayFields:REPLACE(cTempFrom,cTempTo).
-            slDisplayFields:REPLACE(cTempTo,"x").
-            slDisplayFields:{&SV} = cTempFrom.
+            assign
+                slDisplayFields:list-items = "".
+            for each ttColumns by ttColumns.ipos:
+                    slDisplayFields:add-last(ttColumns.cDispLabel).
+            end.
         END.
         WHEN "bRemove" THEN DO:
             FIND FIRST ttColumns WHERE
@@ -1366,20 +1411,10 @@ DO:
                 RETURN NO-APPLY.
             END.
             ELSE DO:
-                FIND ttCalcCols WHERE 
-                    ttCalcCols.iPos = ttColumns.iPos
-                    NO-ERROR.
-                IF AVAIL ttCalcCols THEN
-                    DELETE ttCalcCols.
                 FOR EACH bttColumns WHERE
                     bttColumns.iPos > ttColumns.iPos:
                     ASSIGN
                         bttColumns.iPos = bttColumns.iPos - 1.
-                END.
-                FOR EACH ttCalcCols WHERE
-                    ttCalcCols.iPos > ttColumns.iPos:
-                    ASSIGN
-                        ttCalcCols.iPos = ttCalcCols.iPos - 1.
                 END.
                 ASSIGN iHold = ttColumns.iRow.
                 DELETE ttColumns.
@@ -1390,9 +1425,7 @@ DO:
             IF NOT lProcessed THEN
                 APPLY 'choose' TO bProcess.
             ASSIGN
-                iCtr = LOOKUP(slDisplayFields:{&SV},slDisplayFields:LIST-ITEMS).
-            IF iCtr = ? OR iCtr = 0 THEN ASSIGN
-                iCtr = 1.
+                iCtr = slDisplayFields:num-items + 1.
 
             RUN util/dCalcField.w (INPUT cFullFieldList,
                                  INPUT-OUTPUT cFldDataType,
@@ -1411,34 +1444,24 @@ DO:
                 NO-LOCK NO-ERROR.
             ASSIGN 
                 iHold = IF AVAIL ttColumns THEN ttColumns.iPos + 1 ELSE 1.
-            CREATE ttCalcCols.
-            ASSIGN
-                ttCalcCols.iIdx = iHold.
-            ASSIGN
-                ttCalcCols.iPos = iCtr
-                ttCalcCols.cDataType = cFldDataType
-                ttCalcCols.cFormat = cFldFormat
-                ttCalcCols.cInitVal = cFldInitVal
-                ttCalcCols.cColLabel = cFldColLabel
-                ttCalcCols.cFormula = cFldFormula.
             CREATE ttColumns.
             ASSIGN
-                ttColumns.cColLabel = ttCalcCols.cColLabel
+                ttColumns.cColLabel = cFldColLabel
                 ttColumns.cColType = "CALC"
                 ttColumns.cColumn = ""
-                ttColumns.cDataType = ttCalcCols.cDataType
-                ttColumns.cDispLabel = ttCalcCols.cColLabel + " (CALC)"
+                ttColumns.cDataType = cFldDataType
+                ttColumns.cDispLabel = cFldColLabel + " (CALC)"
                 ttColumns.cField = ""
-                ttColumns.cFormat = ttCalcCols.cFormat
-                ttColumns.cFormula = ttCalcCols.cFormula
-                ttColumns.cInitVal = ttCalcCols.cInitVal
-                ttColumns.cLabel = ttCalcCols.cColLabel
+                ttColumns.cFormat = cFldFormat
+                ttColumns.cFormula = cFldFormula
+                ttColumns.cInitVal = cFldInitVal
+                ttColumns.cLabel = cFldColLabel
                 ttColumns.cTable = ""
                 ttColumns.iBand = 1    
                 ttColumns.iColumn = 0    
                 ttColumns.iExtent = 0
                 ttColumns.iIdx = iHold
-                ttColumns.iPos = ttCalcCols.iPos
+                ttColumns.iPos = iCtr
                 ttColumns.iRow = 1
                 .
             FOR EACH bttColumns WHERE
@@ -1450,24 +1473,11 @@ DO:
             END.
             ASSIGN
                 ttColumns.iPos = iHold.
-            FOR EACH bttCalcCols WHERE
-                bttCalcCols.iPos >= ttCalcCols.iPos AND
-                bttCalcCols.iIdx <> iHold
-                BY ttCalcCols.iPos DESCENDING:
-                ASSIGN
-                    bttCalcCols.iPos = bttCalcCols.iPos + 1.
-            END.
-            ASSIGN
-                ttCalcCols.iPos = iHold.
             slDisplayFields:INSERT(ttColumns.cDispLabel,ttColumns.iPos).
             iHold = ttColumns.iPos.
             FOR EACH ttColumns:
                 ASSIGN
                     ttColumns.iIdx = ttColumns.iPos.
-            END.
-            FOR EACH ttCalcCols:
-                ASSIGN
-                    ttCalcCols.iIdx = ttCalcCols.iPos.
             END.
         END.
         WHEN "bEditField" THEN DO:
@@ -1489,78 +1499,27 @@ DO:
                                  INPUT-OUTPUT ttColumns.cInitVal,
                                  INPUT-OUTPUT ttColumns.cColLabel, 
                                  INPUT-OUTPUT ttColumns.cFormula).
-            FIND LAST ttCalcCols WHERE
-                ttCalcCols.iPos = LOOKUP(slDisplayFields:{&SV},slDisplayFields:LIST-ITEMS)
+            FIND LAST ttColumns WHERE
+                ttColumns.iPos = LOOKUP(slDisplayFields:{&SV},slDisplayFields:LIST-ITEMS)
                 EXCLUSIVE NO-ERROR.
             ASSIGN
                 ttColumns.cDispLabel = ttColumns.cColLabel + " (CALC)"
-                ttCalcCols.cColLabel = ttColumns.cColLabel
-                ttCalcCols.cDataType = ttColumns.cDataType
-                ttCalcCols.cFormat = ttColumns.cFormat
-                ttCalcCols.cFormula = ttColumns.cFormula
-                ttCalcCols.cInitVal = ttColumns.cInitVal
-                ttCalcCols.iPos = ttColumns.iPos
                 iHold = ttColumns.iPos.
         END.
         WHEN "bLineBreak" THEN DO:
-            IF slDisplayFields:{&SV} = ""
-            OR slDisplayFields:{&SV} = ? THEN DO:
-                MESSAGE
-                    "You must a select a displayed field prior to inserting a line break."
-                    VIEW-AS ALERT-BOX WARNING.
-                RETURN NO-APPLY.
-            END.
-            FIND LAST ttColumns 
-                NO-LOCK NO-ERROR.
-            ASSIGN 
-                iHold = IF AVAIL ttColumns THEN ttColumns.iPos + 1 ELSE 1.
             CREATE ttColumns.
             ASSIGN
-                ttColumns.iIdx = iHold
-                ttColumns.iPos = LOOKUP(slDisplayFields:{&SV},slDisplayFields:LIST-ITEMS)
+                ttColumns.iIdx = slDisplayFields:num-items + 1
+                ttColumns.iPos = slDisplayFields:num-items + 1
                 ttColumns.cDataType = "char"
                 ttColumns.cDispLabel = "<skip>"
                 ttColumns.cFormat = "x(2)"
+                ttColumns.cColType = "SKIP"
                 ttColumns.cInitVal = ""
                 ttColumns.cColLabel = "<skip>"
-                ttColumns.cFormula = "".
-            CREATE ttCalcCols.
-            ASSIGN
-                ttCalcCols.iIdx = iHold
-                ttCalcCols.iPos = ttColumns.iPos
-                ttCalcCols.cColLabel = ttColumns.cColLabel
-                ttCalcCols.cDataType = ttColumns.cDataType
-                ttCalcCols.cFormat = ttColumns.cFormat
-                ttCalcCols.cFormula = ttColumns.cFormula
-                ttCalcCols.cInitVal = ttColumns.cInitVal.
-            FOR EACH bttColumns WHERE
-                bttColumns.iPos >= ttColumns.iPos AND
-                bttColumns.iIdx <> iHold
-                BY bttColumns.iPos DESCENDING:
-                ASSIGN
-                    bttColumns.iPos = bttColumns.iPos + 1.
-            END.
-            ASSIGN
-                ttColumns.iPos = iHold.
-            FOR EACH bttCalcCols WHERE
-                bttCalcCols.iPos >= ttCalcCols.iPos AND
-                bttCalcCols.iIdx <> iHold
-                BY ttCalcCols.iPos DESCENDING:
-                ASSIGN
-                    bttCalcCols.iPos = bttCalcCols.iPos + 1.
-            END.
-            ASSIGN
-                bttCalcCols.iPos = iHold.
-            slDisplayFields:INSERT(ttColumns.cDispLabel,ttColumns.iPos).
-            iHold = ttColumns.iPos.
-            FOR EACH ttColumns:
-                ASSIGN
-                    ttColumns.iIdx = ttColumns.iPos.
-            END.
-            FOR EACH ttCalcCols:
-                ASSIGN
-                    ttCalcCols.iIdx = ttCalcCols.iPos.
-            END.
+                ttColumns.cFormula = ""
+                iHold = slDisplayFields:num-items + 1.
+            slDisplayFields:add-last(ttColumns.cDispLabel).
         END.
     END CASE.
 
@@ -1580,6 +1539,7 @@ DO:
         OR ttColumns.cColLabel = "<skip>" THEN ASSIGN
             iRow = iRow + 1
             iCol = 1.
+        
         IF ttColumns.cColType = "DATA" THEN ASSIGN
             cFullFieldList = cFullFieldList + ttColumns.cTable + "." + ttColumns.cField + (IF ttColumns.iExtent <> 0 THEN "[" + STRING(ttColumns.iExtent) + "]" ELSE "") + ",".
     END.
@@ -2087,14 +2047,15 @@ END.
 
 &Scoped-define SELF-NAME cbFile-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbFile-1 wWin
-ON VALUE-CHANGED OF cbFile-1 IN FRAME f-Main /* FOR EACH */
-OR VALUE-CHANGED OF cbFile-2
-OR VALUE-CHANGED OF cbFile-3
-OR VALUE-CHANGED OF cbFile-4
+ON LEAVE OF cbFile-1 IN FRAME f-Main /* FOR EACH */
+OR leave OF cbFile-2
+OR leave OF cbFile-3
+OR leave OF cbFile-4
 DO:
-    ASSIGN lProcessed = FALSE.
+    ASSIGN 
+        lProcessed = FALSE.
     FIND _file WHERE
-        _file._file-name = SELF:{&SV}
+        _file._file-name = entry(1,SELF:{&SV})
         NO-LOCK NO-ERROR.
     IF AVAIL _file THEN DO:
         CASE SELF:NAME:
@@ -2123,8 +2084,6 @@ DO:
                     cbWhere-5:{&SV} = ENTRY(1,cbWhere-5:LIST-ITEMS)
                     cbRel-2:{&SV} = ENTRY(1,cbRel-2:LIST-ITEMS)
                     .
-                IF NOT lLoading THEN RUN util/dFieldSelector.w (INPUT _file._file-name, 
-                                                              INPUT-OUTPUT cFieldList[1]).
             END.
             WHEN "cbFile-2" THEN DO:
                 ASSIGN
@@ -2152,8 +2111,6 @@ DO:
                     cbWhere-10:{&SV} = ENTRY(1,cbWhere-10:LIST-ITEMS)
                     cbRel-3:{&SV} = ENTRY(1,cbRel-3:LIST-ITEMS)
                     .
-                IF NOT lLoading THEN RUN util/dFieldSelector.w (INPUT _file._file-name, 
-                                                              INPUT-OUTPUT cFieldList[2]).
             END.
             WHEN "cbFile-3" THEN DO:
                 ASSIGN
@@ -2182,8 +2139,6 @@ DO:
                     cbWhere-15:{&SV} = ENTRY(1,cbWhere-15:LIST-ITEMS)
                     cbRel-4:{&SV} = ENTRY(1,cbRel-4:LIST-ITEMS)
                     .
-                IF NOT lLoading THEN RUN util/dFieldSelector.w (INPUT _file._file-name, 
-                                                              INPUT-OUTPUT cFieldList[3]).
             END.
             WHEN "cbFile-4" THEN DO:
                 ASSIGN
@@ -2207,8 +2162,6 @@ DO:
                     cbWhere-19:{&SV} = ENTRY(1,cbWhere-19:LIST-ITEMS)
                     cbWhere-20:{&SV} = ENTRY(1,cbWhere-20:LIST-ITEMS)
                     .
-                IF NOT lLoading THEN RUN util/dFieldSelector.w (INPUT _file._file-name, 
-                                                              INPUT-OUTPUT cFieldList[4]).
             END.
         END CASE.
     END.
@@ -2221,6 +2174,47 @@ DO:
     
     IF NOT lLoading THEN DO:
         RUN ipShowQuery IN THIS-PROCEDURE.
+    END.
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbFile-1 wWin
+ON U1 OF cbFile-1 IN FRAME f-Main /* FOR EACH */
+OR U1 OF cbFile-2
+OR U1 OF cbFile-3
+OR U1 OF cbFile-4
+DO:
+    ASSIGN 
+        lProcessed = FALSE.
+    FIND _file WHERE
+        _file._file-name = entry(1,SELF:{&SV})
+        NO-LOCK NO-ERROR.
+    IF AVAIL _file THEN DO:
+        CASE SELF:NAME:
+            WHEN "cbFile-1" THEN DO:
+                IF NOT lLoading THEN RUN util/dFieldSelector.w (INPUT _file._file-name, 
+                                                              INPUT-OUTPUT cFieldList[1]).
+            END.
+            WHEN "cbFile-2" THEN DO:
+                IF NOT lLoading THEN RUN util/dFieldSelector.w (INPUT _file._file-name, 
+                                                              INPUT-OUTPUT cFieldList[2]).
+            END.
+            WHEN "cbFile-3" THEN DO:
+                IF NOT lLoading THEN RUN util/dFieldSelector.w (INPUT _file._file-name, 
+                                                              INPUT-OUTPUT cFieldList[3]).
+            END.
+            WHEN "cbFile-4" THEN DO:
+                IF NOT lLoading THEN RUN util/dFieldSelector.w (INPUT _file._file-name, 
+                                                              INPUT-OUTPUT cFieldList[4]).
+            END.
+        END CASE.
+    END.
+
+    IF NOT lLoading THEN DO:
         RUN ipSetDisplay IN THIS-PROCEDURE.
     END.
 
@@ -2394,6 +2388,39 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME m_Clear_Query
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Clear_Query wWin
+ON CHOOSE OF MENU-ITEM m_Clear_Query /* Clear Query */
+DO:
+    run ipClearQuery in this-procedure.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME m_Excel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Excel wWin
+ON CHOOSE OF MENU-ITEM m_Excel /* Export to Excel */
+DO:
+    run ipExcel in this-procedure.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME m_Export_to_CSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Export_to_CSV wWin
+ON CHOOSE OF MENU-ITEM m_Export_to_CSV /* Export to CSV */
+DO:
+    run ipCSV in this-procedure.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME m_Open
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Open wWin
 ON CHOOSE OF MENU-ITEM m_Open /* Open... */
@@ -2420,7 +2447,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Save wWin
 ON CHOOSE OF MENU-ITEM m_Save /* Save */
 DO:
-    RUN ipSaveFile IN THIS-PROCEDURE ("").
+    IF fiRptName:{&SV} = "" THEN 
+        RUN ipSaveFile IN THIS-PROCEDURE ("Save As").
+    else 
+        RUN ipSaveFile IN THIS-PROCEDURE ("").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2476,6 +2506,7 @@ DO:
     ASSIGN lProcessed = FALSE.
     ASSIGN
         cbFile-{&cFile}:ROW = SELF:ROW
+        bFields-{&cFile}:ROW = SELF:ROW
         cbOf-{&cFile}:ROW = SELF:ROW
         cbRel-{&cFile}:ROW = SELF:ROW
         fiWhere-{&cFile}:ROW = SELF:ROW
@@ -2511,6 +2542,7 @@ DO:
         .
     IF NOT SELF:CHECKED THEN ASSIGN
         cbFile-{&cFile}:VISIBLE = FALSE
+        bFields-{&cFile}:VISIBLE = FALSE
         cbOf-{&cFile}:VISIBLE = FALSE
         cbRel-{&cFile}:VISIBLE = FALSE
         fiWhere-{&cFile}:VISIBLE = FALSE
@@ -2547,6 +2579,7 @@ DO:
         .
     ELSE ASSIGN
         cbFile-{&cFile}:VISIBLE = TRUE
+        bFields-{&cFile}:VISIBLE = TRUE
         cbOf-{&cFile}:VISIBLE = TRUE
         cbRel-{&cFile}:VISIBLE = IF cbOf-{&cFile}:{&SV} = "OF" THEN TRUE ELSE FALSE
         fiWhere-{&cFile}:VISIBLE = IF cbOf-{&cFile}:{&SV} = "OF" THEN TRUE ELSE FALSE
@@ -2579,6 +2612,7 @@ DO:
     ASSIGN lProcessed = FALSE.
     ASSIGN
         cbFile-{&cFile}:ROW = SELF:ROW
+        bFields-{&cFile}:ROW = SELF:ROW
         cbOf-{&cFile}:ROW = SELF:ROW
         cbRel-{&cFile}:ROW = SELF:ROW
         fiWhere-{&cFile}:ROW = SELF:ROW
@@ -2614,6 +2648,7 @@ DO:
         .
     IF NOT SELF:CHECKED THEN ASSIGN
         cbFile-{&cFile}:VISIBLE = FALSE
+        bFields-{&cFile}:VISIBLE = FALSE
         cbOf-{&cFile}:VISIBLE = FALSE
         cbRel-{&cFile}:VISIBLE = FALSE
         fiWhere-{&cFile}:VISIBLE = FALSE
@@ -2650,6 +2685,7 @@ DO:
         .
     ELSE ASSIGN
         cbFile-{&cFile}:VISIBLE = TRUE
+        bFields-{&cFile}:VISIBLE = TRUE
         cbOf-{&cFile}:VISIBLE = TRUE
         cbRel-{&cFile}:VISIBLE = IF cbOf-{&cFile}:{&SV} = "OF" THEN TRUE ELSE FALSE
         fiWhere-{&cFile}:VISIBLE = IF cbOf-{&cFile}:{&SV} = "OF" THEN TRUE ELSE FALSE
@@ -2682,6 +2718,7 @@ DO:
     ASSIGN lProcessed = FALSE.
     ASSIGN
         cbFile-{&cFile}:ROW = SELF:ROW
+        bFields-{&cFile}:ROW = SELF:ROW
         cbOf-{&cFile}:ROW = SELF:ROW
         cbRel-{&cFile}:ROW = SELF:ROW
         fiWhere-{&cFile}:ROW = SELF:ROW
@@ -2717,6 +2754,7 @@ DO:
         .
     IF NOT SELF:CHECKED THEN ASSIGN
         cbFile-{&cFile}:VISIBLE = FALSE
+        bFields-{&cFile}:VISIBLE = FALSE
         cbOf-{&cFile}:VISIBLE = FALSE
         cbRel-{&cFile}:VISIBLE = FALSE
         fiWhere-{&cFile}:VISIBLE = FALSE
@@ -2752,6 +2790,7 @@ DO:
         .
     ELSE ASSIGN
         cbFile-{&cFile}:VISIBLE = TRUE
+        bFields-{&cFile}:VISIBLE = TRUE
         cbOf-{&cFile}:VISIBLE = TRUE
         cbRel-{&cFile}:VISIBLE = IF cbOf-{&cFile}:{&SV} = "OF" THEN TRUE ELSE FALSE
         fiWhere-{&cFile}:VISIBLE = IF cbOf-{&cFile}:{&SV} = "OF" THEN TRUE ELSE FALSE
@@ -2902,48 +2941,49 @@ PROCEDURE enable_UI :
           cbAnd-1 tOpenParen-2 cbWhere-2 cbOp-2 fiVal-2 tCloseParen-2 cbAnd-2 
           eQuery tOpenParen-3 cbWhere-3 cbOp-3 fiVal-3 tCloseParen-3 cbAnd-3 
           tOpenParen-4 cbWhere-4 cbOp-4 fiVal-4 tCloseParen-4 cbAnd-4 
-          tOpenParen-5 cbWhere-5 cbOp-5 fiVal-5 tCloseParen-5 tMore-1 cbFile-2 
+          tOpenParen-5 cbWhere-5 cbOp-5 fiVal-5 tCloseParen-5 cbFile-2 tMore-1 
           cbOf-2 cbRel-2 fiWhere-2 tOpenParen-6 cbWhere-6 cbOp-6 fiVal-6 
-          tCloseParen-6 cbAnd-6 slDisplayFields fiLockedCols tOpenParen-7 
-          cbWhere-7 cbOp-7 fiVal-7 tCloseParen-7 cbAnd-7 tOpenParen-8 cbWhere-8 
-          cbOp-8 fiVal-8 tCloseParen-8 cbAnd-8 fiPagesWide tOpenParen-9 
-          cbWhere-9 cbOp-9 fiVal-9 tCloseParen-9 cbAnd-9 tOpenParen-10 
-          cbWhere-10 cbOp-10 fiVal-10 tCloseParen-10 tMore-2 cbFile-3 cbOf-3 
-          cbRel-3 fiWhere-3 tOpenParen-11 cbWhere-11 cbOp-11 fiVal-11 
-          tCloseParen-11 cbAnd-11 tOpenParen-12 cbWhere-12 cbOp-12 fiVal-12 
-          tCloseParen-12 cbAnd-12 tOpenParen-13 cbWhere-13 cbOp-13 fiVal-13 
-          tCloseParen-13 cbAnd-13 tOpenParen-14 cbWhere-14 cbOp-14 fiVal-14 
-          tCloseParen-14 cbAnd-14 tOpenParen-15 cbWhere-15 cbOp-15 fiVal-15 
-          tCloseParen-15 tMore-3 cbFile-4 cbOf-4 cbRel-4 fiWhere-4 tOpenParen-16 
-          cbWhere-16 cbOp-16 fiVal-16 tCloseParen-16 cbAnd-16 tOpenParen-17 
-          cbWhere-17 cbOp-17 fiVal-17 tCloseParen-17 cbAnd-17 tOpenParen-18 
-          cbWhere-18 cbOp-18 fiVal-18 tCloseParen-18 cbAnd-18 tOpenParen-19 
-          cbWhere-19 cbOp-19 fiVal-19 tCloseParen-19 cbAnd-19 tOpenParen-20 
-          cbWhere-20 cbOp-20 fiVal-20 tCloseParen-20 
+          tCloseParen-6 cbAnd-6 fiLockedCols slDisplayFields tOpenParen-7 
+          cbWhere-7 cbOp-7 fiVal-7 tCloseParen-7 cbAnd-7 fiPagesWide 
+          tOpenParen-8 cbWhere-8 cbOp-8 fiVal-8 tCloseParen-8 cbAnd-8 
+          tOpenParen-9 cbWhere-9 cbOp-9 fiVal-9 tCloseParen-9 cbAnd-9 
+          tOpenParen-10 cbWhere-10 cbOp-10 fiVal-10 tCloseParen-10 cbOf-3 
+          cbRel-3 fiWhere-3 cbFile-3 tMore-2 tOpenParen-11 cbWhere-11 cbOp-11 
+          fiVal-11 tCloseParen-11 cbAnd-11 tOpenParen-12 cbWhere-12 cbOp-12 
+          fiVal-12 tCloseParen-12 cbAnd-12 tOpenParen-13 cbWhere-13 cbOp-13 
+          fiVal-13 tCloseParen-13 cbAnd-13 tOpenParen-14 cbWhere-14 cbOp-14 
+          fiVal-14 tCloseParen-14 cbAnd-14 tOpenParen-15 cbWhere-15 cbOp-15 
+          fiVal-15 tCloseParen-15 cbFile-4 cbOf-4 cbRel-4 fiWhere-4 tMore-3 
+          tOpenParen-16 cbWhere-16 cbOp-16 fiVal-16 tCloseParen-16 cbAnd-16 
+          tOpenParen-17 cbWhere-17 cbOp-17 fiVal-17 tCloseParen-17 cbAnd-17 
+          tOpenParen-18 cbWhere-18 cbOp-18 fiVal-18 tCloseParen-18 cbAnd-18 
+          tOpenParen-19 cbWhere-19 cbOp-19 fiVal-19 tCloseParen-19 cbAnd-19 
+          tOpenParen-20 cbWhere-20 cbOp-20 fiVal-20 tCloseParen-20 
       WITH FRAME f-Main IN WINDOW wWin.
-  ENABLE bExpand cbFile-1 fiRptName tOpenParen-1 cbWhere-1 cbOp-1 fiVal-1 
-         tCloseParen-1 cbAnd-1 bCheckSyntax tOpenParen-2 cbWhere-2 cbOp-2 
-         fiVal-2 tCloseParen-2 cbAnd-2 eQuery tOpenParen-3 cbWhere-3 cbOp-3 
-         fiVal-3 tCloseParen-3 cbAnd-3 tOpenParen-4 cbWhere-4 cbOp-4 fiVal-4 
-         tCloseParen-4 cbAnd-4 tOpenParen-5 cbWhere-5 cbOp-5 fiVal-5 
-         tCloseParen-5 tMore-1 cbFile-2 cbOf-2 cbRel-2 tOpenParen-6 cbWhere-6 
-         cbOp-6 fiVal-6 tCloseParen-6 cbAnd-6 slDisplayFields fiLockedCols 
-         tOpenParen-7 cbWhere-7 cbOp-7 fiVal-7 tCloseParen-7 cbAnd-7 
-         tOpenParen-8 cbWhere-8 cbOp-8 fiVal-8 tCloseParen-8 cbAnd-8 
-         fiPagesWide tOpenParen-9 cbWhere-9 cbOp-9 fiVal-9 tCloseParen-9 
-         cbAnd-9 bMoveUp tOpenParen-10 cbWhere-10 cbOp-10 fiVal-10 
-         tCloseParen-10 bMoveDown tMore-2 cbFile-3 cbOf-3 cbRel-3 bRemove 
-         tOpenParen-11 cbWhere-11 cbOp-11 fiVal-11 tCloseParen-11 cbAnd-11 
-         bCalcField tOpenParen-12 cbWhere-12 cbOp-12 fiVal-12 tCloseParen-12 
-         cbAnd-12 bEditField tOpenParen-13 cbWhere-13 cbOp-13 fiVal-13 
-         tCloseParen-13 cbAnd-13 bLineBreak tOpenParen-14 cbWhere-14 cbOp-14 
-         fiVal-14 tCloseParen-14 cbAnd-14 tOpenParen-15 cbWhere-15 cbOp-15 
-         fiVal-15 tCloseParen-15 bProcess bExport tMore-3 cbFile-4 cbOf-4 
-         cbRel-4 tOpenParen-16 cbWhere-16 cbOp-16 fiVal-16 tCloseParen-16 
-         cbAnd-16 tOpenParen-17 cbWhere-17 cbOp-17 fiVal-17 tCloseParen-17 
-         cbAnd-17 tOpenParen-18 cbWhere-18 cbOp-18 fiVal-18 tCloseParen-18 
-         cbAnd-18 tOpenParen-19 cbWhere-19 cbOp-19 fiVal-19 tCloseParen-19 
-         cbAnd-19 tOpenParen-20 cbWhere-20 cbOp-20 fiVal-20 tCloseParen-20 
+  ENABLE bExpand cbFile-1 bFields-1 fiRptName tOpenParen-1 cbWhere-1 cbOp-1 
+         fiVal-1 tCloseParen-1 cbAnd-1 bCheckSyntax tOpenParen-2 cbWhere-2 
+         cbOp-2 fiVal-2 tCloseParen-2 cbAnd-2 eQuery tOpenParen-3 cbWhere-3 
+         cbOp-3 fiVal-3 tCloseParen-3 cbAnd-3 tOpenParen-4 cbWhere-4 cbOp-4 
+         fiVal-4 tCloseParen-4 cbAnd-4 tOpenParen-5 cbWhere-5 cbOp-5 fiVal-5 
+         tCloseParen-5 cbFile-2 bFields-2 tMore-1 cbOf-2 cbRel-2 tOpenParen-6 
+         cbWhere-6 cbOp-6 fiVal-6 tCloseParen-6 cbAnd-6 fiLockedCols 
+         slDisplayFields tOpenParen-7 cbWhere-7 cbOp-7 fiVal-7 tCloseParen-7 
+         cbAnd-7 fiPagesWide tOpenParen-8 cbWhere-8 cbOp-8 fiVal-8 
+         tCloseParen-8 cbAnd-8 tOpenParen-9 cbWhere-9 cbOp-9 fiVal-9 
+         tCloseParen-9 cbAnd-9 bMoveUp tOpenParen-10 cbWhere-10 cbOp-10 
+         fiVal-10 tCloseParen-10 bMoveDown bFields-3 cbOf-3 cbRel-3 bRemove 
+         cbFile-3 tMore-2 tOpenParen-11 cbWhere-11 cbOp-11 fiVal-11 
+         tCloseParen-11 cbAnd-11 bCalcField tOpenParen-12 cbWhere-12 cbOp-12 
+         fiVal-12 tCloseParen-12 cbAnd-12 bEditField tOpenParen-13 cbWhere-13 
+         cbOp-13 fiVal-13 tCloseParen-13 cbAnd-13 bLineBreak tOpenParen-14 
+         cbWhere-14 cbOp-14 fiVal-14 tCloseParen-14 cbAnd-14 tOpenParen-15 
+         cbWhere-15 cbOp-15 fiVal-15 tCloseParen-15 bProcess bClear cbFile-4 
+         bFields-4 cbOf-4 cbRel-4 tMore-3 tOpenParen-16 cbWhere-16 cbOp-16 
+         fiVal-16 tCloseParen-16 cbAnd-16 tOpenParen-17 cbWhere-17 cbOp-17 
+         fiVal-17 tCloseParen-17 cbAnd-17 tOpenParen-18 cbWhere-18 cbOp-18 
+         fiVal-18 tCloseParen-18 cbAnd-18 tOpenParen-19 cbWhere-19 cbOp-19 
+         fiVal-19 tCloseParen-19 cbAnd-19 tOpenParen-20 cbWhere-20 cbOp-20 
+         fiVal-20 tCloseParen-20 
       WITH FRAME f-Main IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-f-Main}
   VIEW wWin.
@@ -2975,17 +3015,21 @@ PROCEDURE initializeObject :
   Parameters:  
   Notes:       
 ------------------------------------------------------------------------------*/
+    def var cDispFile as char no-undo.
+    
     cbFile-1:ADD-LAST(" ") {&IN}.
     cbFile-2:ADD-LAST(" ") {&IN}.
     cbFile-3:ADD-LAST(" ") {&IN}.
     cbFile-4:ADD-LAST(" ") {&IN}.
     FOR EACH _file:
+        assign 
+            cDispFile = _file._file-name.
         IF _file._file-name BEGINS "_" THEN NEXT.
         IF _file._file-name BEGINS "SYS" THEN NEXT.
-        cbFile-1:ADD-LAST(_file._file-name) {&IN}.
-        cbFile-2:ADD-LAST(_file._file-name) {&IN}.
-        cbFile-3:ADD-LAST(_file._file-name) {&IN}.
-        cbFile-4:ADD-LAST(_file._file-name) {&IN}.
+        cbFile-1:ADD-LAST(cDispFile) {&IN}.
+        cbFile-2:ADD-LAST(cDispFile) {&IN}.
+        cbFile-3:ADD-LAST(cDispFile) {&IN}.
+        cbFile-4:ADD-LAST(cDispFile) {&IN}.
     END.
 
   RUN SUPER.
@@ -2997,11 +3041,9 @@ PROCEDURE initializeObject :
         h_field = h_frame:FIRST-CHILD.  /* field-group */
         outer-loop:
         repeat:
-            if CAN-DO("toggle-box,fill-in,combo-box",h_field:type) 
+            if CAN-DO("button,toggle-box,fill-in,combo-box",h_field:type) 
             AND NOT SUBSTRING(h_field:NAME,LENGTH(h_field:name) - 1,2) = "-1"  
-            AND NOT h_field:NAME = "fiRptName"
-            AND NOT h_field:NAME = "fiLockedCols"
-            AND NOT h_field:NAME = "fiPagesWide" THEN ASSIGN
+            AND NOT can-do("fiRptName,fiLockedCols,fiPagesWide,bMoveUp,bClear,bMoveDown,bRemove,bCalcField,bEditField,bLineBreak,bProcess,bLineBreak,bCheckSyntax",h_field:NAME) THEN ASSIGN
                 h_field:VISIBLE = FALSE.
             IF h_field:NAME = "tMore-1" THEN ASSIGN
                 h_field:ROW = 4.
@@ -3022,6 +3064,289 @@ PROCEDURE initializeObject :
     APPLY 'value-changed' TO cbFile-1.
     APPLY 'value-changed' TO cbWhere-1.
     */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipClearQuery wWin 
+PROCEDURE ipClearQuery :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    empty temp-table ttColumns.
+    if valid-handle(hBrowse) then do:
+        hBrowse:select-all().
+        hBrowse:delete-selected-rows().
+    end.
+    assign
+        eQuery:screen-value in frame f-Main = ""
+        slDisplayFields:list-items = ""
+        cFieldList[1] = ""
+        cFieldList[2] = ""
+        cFieldList[3] = ""
+        cFieldList[4] = ""
+        .
+    assign
+        cbFile-1:screen-value = " "
+        cbFile-2:screen-value = " "
+        cbFile-3:screen-value = " "
+        cbFile-4:screen-value = " "
+
+        cbWhere-1:list-items = ""
+        cbWhere-2:list-items = ""
+        cbWhere-3:list-items = ""
+        cbWhere-4:list-items = ""
+        cbWhere-5:list-items = ""
+        cbWhere-6:list-items = ""
+        cbWhere-7:list-items = ""
+        cbWhere-8:list-items = ""
+        cbWhere-9:list-items = ""
+        cbWhere-10:list-items = ""
+        cbWhere-11:list-items = ""
+        cbWhere-12:list-items = ""
+        cbWhere-13:list-items = ""
+        cbWhere-14:list-items = ""
+        cbWhere-15:list-items = ""
+        cbWhere-16:list-items = ""
+        cbWhere-17:list-items = ""
+        cbWhere-18:list-items = ""
+        cbWhere-19:list-items = ""
+        cbWhere-20:list-items = ""
+        
+        cbOp-1:screen-value = "="
+        cbOp-2:screen-value = "="
+        cbOp-3:screen-value = "="
+        cbOp-4:screen-value = "="
+        cbOp-5:screen-value = "="
+        cbOp-6:screen-value = "="
+        cbOp-7:screen-value = "="
+        cbOp-8:screen-value = "="
+        cbOp-9:screen-value = "="
+        cbOp-10:screen-value = "="
+        cbOp-11:screen-value = "="
+        cbOp-12:screen-value = "="
+        cbOp-13:screen-value = "="
+        cbOp-14:screen-value = "="
+        cbOp-15:screen-value = "="
+        cbOp-16:screen-value = "="
+        cbOp-17:screen-value = "="
+        cbOp-18:screen-value = "="
+        cbOp-19:screen-value = "="
+        cbOp-20:screen-value = "="
+        
+        fiVal-1:screen-value = ""
+        fiVal-2:screen-value = ""
+        fiVal-3:screen-value = ""
+        fiVal-4:screen-value = ""
+        fiVal-5:screen-value = ""
+        fiVal-6:screen-value = ""
+        fiVal-7:screen-value = ""
+        fiVal-8:screen-value = ""
+        fiVal-9:screen-value = ""
+        fiVal-10:screen-value = ""
+        fiVal-11:screen-value = ""
+        fiVal-12:screen-value = ""
+        fiVal-13:screen-value = ""
+        fiVal-14:screen-value = ""
+        fiVal-15:screen-value = ""
+        fiVal-16:screen-value = ""
+        fiVal-17:screen-value = ""
+        fiVal-18:screen-value = ""
+        fiVal-19:screen-value = ""
+        fiVal-20:screen-value = ""
+        
+        cbAnd-1:screen-value = " "
+        cbAnd-2:screen-value = " "
+        cbAnd-3:screen-value = " "
+        cbAnd-4:screen-value = " "
+        cbAnd-6:screen-value = " "
+        cbAnd-7:screen-value = " "
+        cbAnd-8:screen-value = " "
+        cbAnd-9:screen-value = " "
+        cbAnd-11:screen-value = " "
+        cbAnd-12:screen-value = " "
+        cbAnd-13:screen-value = " "
+        cbAnd-14:screen-value = " "
+        cbAnd-16:screen-value = " "
+        cbAnd-17:screen-value = " "
+        cbAnd-18:screen-value = " "
+        cbAnd-19:screen-value = " "
+        
+        tOpenParen-1:checked = false
+        tOpenParen-2:checked = false
+        tOpenParen-3:checked = false
+        tOpenParen-4:checked = false
+        tOpenParen-5:checked = false
+        tOpenParen-6:checked = false
+        tOpenParen-7:checked = false
+        tOpenParen-8:checked = false
+        tOpenParen-9:checked = false
+        tOpenParen-10:checked = false
+        tOpenParen-11:checked = false
+        tOpenParen-12:checked = false
+        tOpenParen-13:checked = false
+        tOpenParen-14:checked = false
+        tOpenParen-15:checked = false
+        tOpenParen-16:checked = false
+        tOpenParen-17:checked = false
+        tOpenParen-18:checked = false
+        tOpenParen-19:checked = false
+        tOpenParen-20:checked = false
+
+        tCloseParen-1:checked = false
+        tCloseParen-2:checked = false
+        tCloseParen-3:checked = false
+        tCloseParen-4:checked = false
+        tCloseParen-5:checked = false
+        tCloseParen-6:checked = false
+        tCloseParen-7:checked = false
+        tCloseParen-8:checked = false
+        tCloseParen-9:checked = false
+        tCloseParen-10:checked = false
+        tCloseParen-11:checked = false
+        tCloseParen-12:checked = false
+        tCloseParen-13:checked = false
+        tCloseParen-14:checked = false
+        tCloseParen-15:checked = false
+        tCloseParen-16:checked = false
+        tCloseParen-17:checked = false
+        tCloseParen-18:checked = false
+        tCloseParen-19:checked = false
+        tCloseParen-20:checked = false
+        
+        cbOf-2:screen-value = "OF"
+        cbOf-3:screen-value = "OF"
+        cbOf-4:screen-value = "OF"
+        
+        cbRel-2:screen-value = ""
+        cbRel-3:screen-value = ""
+        cbRel-4:screen-value = ""
+        .
+        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCSV wWin 
+PROCEDURE ipCSV :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR cTable              AS CHARACTER    NO-UNDO.
+    DEF VAR cFields             AS CHARACTER    NO-UNDO.
+    DEF VAR hQuery              AS HANDLE       NO-UNDO.
+    DEF VAR hBuffer2            AS HANDLE       NO-UNDO.
+    DEF VAR hField              AS HANDLE       NO-UNDO.
+    DEF VAR iFields             AS INTEGER      NO-UNDO.
+    DEF VAR iDispRow                AS INTEGER      NO-UNDO.
+    DEF VAR cRow                AS CHARACTER    NO-UNDO INITIAL "A".
+    DEF VAR hThisField          AS HANDLE       NO-UNDO.
+    DEF VAR hThisColumn         AS HANDLE       NO-UNDO.
+    DEF VAR iCtr2               AS INT          NO-UNDO.
+    DEF VAR iCtr3               AS INT          NO-UNDO.
+    DEF VAR iColumn             AS INT          NO-UNDO.
+    DEF VAR lExtentCleared      AS LOG          NO-UNDO.
+    DEF VAR cLastField          AS CHAR         NO-UNDO.
+    DEF VAR iBrowseCount        AS INT          NO-UNDO.
+    DEF VAR tWidth              AS INT          NO-UNDO.
+    DEF VAR cExtString AS CHAR NO-UNDO.
+    DEF VAR iHdrRows AS INT NO-UNDO.
+    DEF VAR cTestField AS CHAR NO-UNDO.
+    DEF VAR iStartRow AS INT NO-UNDO.
+    DEF VAR cTempFormula AS CHAR EXTENT 100 NO-UNDO.
+    DEF VAR cTempFormula2 AS CHAR EXTENT 100 NO-UNDO.
+
+    ASSIGN
+        cFileName = fiRptName:{&SV} + " (" + STRING(YEAR(TODAY),"9999") + "_" +
+                                             STRING(MONTH(TODAY),"99") + "_" +
+                                             STRING(DAY(TODAY),"99") + ")" + ".csv".
+    SYSTEM-DIALOG GET-FILE cFileName
+        TITLE "Save CSV..."
+        FILTERS "CSV Files (*.csv)"  "*.csv"
+        USE-FILENAME
+        SAVE-AS
+        DEFAULT-EXTENSION ".qry"
+        INITIAL-DIR "..\Reports\".
+    assign
+        cDataString = "".
+    IF hBrowse:NUM-SELECTED-ROWS = 0 THEN hBrowse:SELECT-ALL().
+
+        
+    OUTPUT TO VALUE(cFileName).
+    
+
+    DO iFields = 1 TO hBrowse:NUM-COLUMNS:
+        ASSIGN 
+            iColumn = iColumn + 1
+            hThisColumn = hBrowse:GET-BROWSE-COLUMN(iFields).
+        IF hThisColumn:LABEL BEGINS "<skip" THEN ASSIGN
+            iDispRow = iDispRow + 1
+            iHdrRows = iHdrRows + 1
+            iColumn = 0.
+        ELSE DO:
+            assign
+                cDataString = cDataString + hThisColumn:LABEL + ",".
+        END.
+    END.
+    assign
+        cDataString = trim(cDataString,",") + chr(10).
+    PUT UNFORMATTED cDataString.
+    assign
+        cDataString = "".
+    
+    DO iCtr3 = 2 TO hBrowse:NUM-SELECTED-ROWS:
+        hBrowse:FETCH-SELECTED-ROW(iCtr3).
+        
+        DO iFields = 1 TO hBrowse:NUM-COLUMNS:
+            hThisColumn = hBrowse:GET-BROWSE-COLUMN(iFields).
+            FIND ttColumns WHERE 
+                ttColumns.iPos = iFields.
+            IF hThisColumn:LABEL = "<skip>" THEN ASSIGN
+                iDispRow = iDispRow + 1
+                iColumn = 1.
+            ELSE DO:
+                ASSIGN 
+                    hField = hThisColumn:BUFFER-FIELD.
+                IF NOT VALID-HANDLE(hField) THEN DO: /* It's a calc field, needs a formula */
+                    ASSIGN 
+                        cTempFormula2[iFields] = cTempFormula[iFields]
+                        cTempFormula2[iFields] = REPLACE(cTempFormula2[iFields],"|0|",STRING(iDispRow - (ttColumns.iRow - 1)))
+                        cTempFormula2[iFields] = REPLACE(cTempFormula2[iFields],"|1|",STRING(iDispRow - (ttColumns.iRow - 1) + 1))
+                        cTempFormula2[iFields] = REPLACE(cTempFormula2[iFields],"|2|",STRING(iDispRow - (ttColumns.iRow - 1) + 2))
+                        cTempFormula2[iFields] = REPLACE(cTempFormula2[iFields],"|3|",STRING(iDispRow - (ttColumns.iRow - 1) + 3))
+                        cTempFormula2[iFields] = REPLACE(cTempFormula2[iFields],"|4|",STRING(iDispRow - (ttColumns.iRow - 1) + 4))
+                        cTempFormula2[iFields] = REPLACE(cTempFormula2[iFields],"|5|",STRING(iDispRow - (ttColumns.iRow - 1) + 5))
+                        cTempFormula2[iFields] = REPLACE(cTempFormula2[iFields],"|6|",STRING(iDispRow - (ttColumns.iRow - 1) + 6))
+                        cTempFormula2[iFields] = REPLACE(cTempFormula2[iFields],"|7|",STRING(iDispRow - (ttColumns.iRow - 1) + 7))
+                        cTempFormula2[iFields] = REPLACE(cTempFormula2[iFields],"|8|",STRING(iDispRow - (ttColumns.iRow - 1) + 8))
+                        cTempFormula2[iFields] = REPLACE(cTempFormula2[iFields],"|9|",STRING(iDispRow - (ttColumns.iRow - 1) + 9)).
+                    cDataString = cDataString + cTempFormula2[iFields] + ",".
+                END.
+                ELSE IF hThisColumn:NAME = hField:NAME THEN DO: /* It's a data field */
+                    IF hField:EXTENT < 2 THEN DO: 
+                        cDataString = cDataString + hField:BUFFER-VALUE + ",".
+                    END.
+                    ELSE DO:
+                        cDataString = cDataString + hField:BUFFER-VALUE(ttColumns.iExtent) + ",".
+                    END.
+                END.
+            END.
+        END.
+        assign
+            cDataString = trim(cDataString,",") + chr(10).
+        PUT UNFORMATTED cDataString.
+        assign
+            cDataString = "".
+    END.    
+    
+    OUTPUT CLOSE.
 
 END PROCEDURE.
 
@@ -3121,9 +3446,11 @@ PROCEDURE ipExcel :
     /*
     SESSION:SET-WAIT-STATE("general").
     */
+    STATUS DEFAULT "Exporting data. Instantiating Excel.".
     CREATE "Excel.Application" chExcelApplication.
 
     ASSIGN 
+        chExcelApplication:ScreenUpdating = false
         chWorkbook                 = chExcelApplication:Workbooks:Add()
         chWorkSheet                = chExcelApplication:Sheets:Item(1)
         cTable                     = IF fiRptName:{&SV} <> "" THEN fiRptName:{&SV} ELSE "TEMP"
@@ -3132,6 +3459,7 @@ PROCEDURE ipExcel :
         iHdrRows = 1
         iColumn = 0.
     
+    STATUS DEFAULT "Exporting data. Formatting spreadsheet.".
     DO iFields = 1 TO hBrowse:NUM-COLUMNS:
         ASSIGN 
             iColumn = iColumn + 1
@@ -3164,6 +3492,7 @@ PROCEDURE ipExcel :
 
     iDispRow = iHdrRows.
     
+    STATUS DEFAULT "Exporting data. Loading records.".
     DO iCtr3 = 1 TO hBrowse:NUM-SELECTED-ROWS:
         hBrowse:FETCH-SELECTED-ROW(iCtr3).
         ASSIGN
@@ -3219,6 +3548,7 @@ PROCEDURE ipExcel :
         END.
     END.
 
+    STATUS DEFAULT "Exporting data. Formatting Print View.".
     chWorksheet:COLUMNS("A:" + STRING(ENTRY(hBrowse:NUM-COLUMNS,cColList))):AutoFit.
     chWorksheet:PageSetup:LeftHeader = fiRptName:{&SV}.
     chWorksheet:PageSetup:LeftFooter = "MXP Query Builder - (c)2016, Foresight Software".                    
@@ -3244,6 +3574,7 @@ PROCEDURE ipExcel :
     chExcelApplication:ActiveWindow:FreezePanes = TRUE.
 
     ASSIGN    
+        chExcelApplication:ScreenUpdating = true
         chExcelApplication:Visible = TRUE.
 
     SESSION:SET-WAIT-STATE("").
@@ -3261,7 +3592,6 @@ PROCEDURE ipGetFile :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    EMPTY TEMP-TABLE ttCalcCols.
     EMPTY TEMP-TABLE ttColumns.
 
     ASSIGN
@@ -3319,10 +3649,10 @@ PROCEDURE ipGetFile :
                     (IF cbFile-2:{&SV} <> ? THEN cbFile-2:{&SV} ELSE "") + "," +
                     (IF cbFile-3:{&SV} <> ? THEN cbFile-3:{&SV} ELSE "") + "," +
                     (IF cbFile-4:{&SV} <> ? THEN cbFile-4:{&SV} ELSE "").
-    APPLY 'value-changed' to cbFile-1.
-    APPLY 'value-changed' to cbFile-2.
-    APPLY 'value-changed' to cbFile-3.
-    APPLY 'value-changed' to cbFile-4.
+    APPLY 'leave' to cbFile-1.
+    APPLY 'leave' to cbFile-2.
+    APPLY 'leave' to cbFile-3.
+    APPLY 'leave' to cbFile-4.
     DO iCtr = 5 TO 10:
         CASE iCtr:
             WHEN 5 THEN ASSIGN cbOf-2:{&SV} = ENTRY(iCtr,cDataString,"|").
@@ -3604,17 +3934,6 @@ PROCEDURE ipLoadttColumns :
         slDisplayFields:ADD-LAST(ttColumns.cDispLabel) {&IN}.
         IF ttColumns.cColType = "DATA" THEN ASSIGN
             cFullFieldList = cFullFieldList + ttColumns.cTable + "." + ttColumns.cField + (IF ttColumns.iExtent <> 0 THEN "[" + STRING(ttColumns.iExtent) + "]" ELSE "") + ",".
-        ELSE DO:
-            CREATE ttCalcCols.
-            ASSIGN
-                ttCalcCols.cColLabel = ttColumns.cColLabel
-                ttCalcCols.cDataType = ttColumns.cDataType
-                ttCalcCols.cFormat = ttColumns.cFormat
-                ttCalcCols.cFormula = ttColumns.cFormula
-                ttCalcCols.cInitVal = ttColumns.cInitVal
-                ttCalcCols.iPos = ttColumns.iPos
-                ttCalcCols.iIdx = ttColumns.iIdx.
-        END.
     END.
     
     ASSIGN
@@ -3724,17 +4043,6 @@ PROCEDURE ipSaveFile :
     
     DEF VAR cDataString AS CHAR NO-UNDO.
     DEF VAR cCalcCol AS CHAR NO-UNDO.
-
-    IF fiRptName:{&SV} = "" THEN DO:
-        MESSAGE
-            "You are saving this report without a report name." SKIP
-            "Would you like to add a report name now?"
-            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lName AS LOG.
-        IF lName THEN DO:
-            APPLY 'entry' TO fiRptName.
-            RETURN.
-        END.
-    END.
 
     /* Note: this order is for PROGRAMMER's conventienc, nothing else */
     ASSIGN cDataString = 
@@ -3953,21 +4261,13 @@ PROCEDURE ipSetDisplay :
     DEF VAR iRow AS INT NO-UNDO.
     DEF VAR iCol AS INT NO-UNDO.
     
-    EMPTY TEMP-TABLE ttColumns.
-
-    FOR EACH ttCalcCols:
-        ASSIGN cReservedPos = cReservedPos + STRING(ttCalcCols.iPos) + ",".
-    END.
-    ASSIGN cReservedPos = TRIM(cReservedPos,",").
-
-    ASSIGN
-        tTempPos = 1
-        slDisplayFields:LIST-ITEMS {&IN} = "".
-    DO WHILE CAN-DO(cReservedPos,STRING(tTempPos)):
-        ASSIGN
-            tTempPos = tTempPos + 1.
-    END.
-
+    for each ttColumns:
+        if ttColumns.cDataType = "DATA" then delete ttColumns.
+        else assign cReservedPos = cReservedPos + string(ttColumns.iPos) + ",".
+    end.
+    assign
+        cReservedPos = trim(cReservedPos,",")
+        tTempPos = 1.
     IF cbFile-1:{&SV} <> ? 
     THEN DO:
         &SCOPED-DEFINE iSet 1
@@ -3990,8 +4290,7 @@ PROCEDURE ipSetDisplay :
                         ttColumns.cColType = "DATA"
                         ttColumns.cColumn = ""
                         ttColumns.cDataType = _field._data-type
-                        ttColumns.cDispLabel = _field._label + " (" + _file._file-name + ")"
-                        ttColumns.cField = _field._field-name
+                        ttColumns.cDispLabel = (if _field._label <> ? then _field._label else _field._field-name) + " (" + _file._file-name + ")"                        ttColumns.cField = _field._field-name
                         ttColumns.cFormat = _field._format
                         ttColumns.cFormula = ""
                         ttColumns.cInitVal = ""
@@ -4022,11 +4321,11 @@ PROCEDURE ipSetDisplay :
                         END.
                         CREATE ttColumns.
                         ASSIGN
-                            ttColumns.cColLabel = _field._label + "[" + STRING(jCtr) + "]"
+                            ttColumns.cColLabel = if _field._label <> ? then _field._label else _field._field-name + "[" + STRING(jCtr) + "]"
                             ttColumns.cColType = "DATA"
                             ttColumns.cColumn = ""
                             ttColumns.cDataType = _field._data-type
-                            ttColumns.cDispLabel = _field._label + "[" + STRING(jCtr) + "]" + " (" + _file._file-name + ")"
+                            ttColumns.cDispLabel = if _field._label <> ? then _field._label else _field._field-name + "[" + STRING(jCtr) + "]" + " (" + _file._file-name + ")"
                             ttColumns.cField = _field._field-name
                             ttColumns.cFormat = _field._format
                             ttColumns.cFormula = ""
@@ -4069,8 +4368,7 @@ PROCEDURE ipSetDisplay :
                         ttColumns.cColType = "DATA"
                         ttColumns.cColumn = ""
                         ttColumns.cDataType = _field._data-type
-                        ttColumns.cDispLabel = _field._label + " (" + _file._file-name + ")"
-                        ttColumns.cField = _field._field-name
+                        ttColumns.cDispLabel = (if _field._label <> ? then _field._label else _field._field-name) + " (" + _file._file-name + ")"                        ttColumns.cField = _field._field-name
                         ttColumns.cFormat = _field._format
                         ttColumns.cFormula = ""
                         ttColumns.cInitVal = ""
@@ -4101,11 +4399,11 @@ PROCEDURE ipSetDisplay :
                         END.
                         CREATE ttColumns.
                         ASSIGN
-                            ttColumns.cColLabel = _field._label + "[" + STRING(jCtr) + "]"
+                            ttColumns.cColLabel = if _field._label <> ? then _field._label else _field._field-name + "[" + STRING(jCtr) + "]"
                             ttColumns.cColType = "DATA"
                             ttColumns.cColumn = ""
                             ttColumns.cDataType = _field._data-type
-                            ttColumns.cDispLabel = _field._label + "[" + STRING(jCtr) + "]" + " (" + _file._file-name + ")"
+                            ttColumns.cDispLabel = if _field._label <> ? then _field._label else _field._field-name + "[" + STRING(jCtr) + "]" + " (" + _file._file-name + ")"
                             ttColumns.cField = _field._field-name
                             ttColumns.cFormat = _field._format
                             ttColumns.cFormula = ""
@@ -4149,8 +4447,7 @@ PROCEDURE ipSetDisplay :
                         ttColumns.cColType = "DATA"
                         ttColumns.cColumn = ""
                         ttColumns.cDataType = _field._data-type
-                        ttColumns.cDispLabel = _field._label + " (" + _file._file-name + ")"
-                        ttColumns.cField = _field._field-name
+                        ttColumns.cDispLabel = (if _field._label <> ? then _field._label else _field._field-name) + " (" + _file._file-name + ")"                        ttColumns.cField = _field._field-name
                         ttColumns.cFormat = _field._format
                         ttColumns.cFormula = ""
                         ttColumns.cInitVal = ""
@@ -4181,11 +4478,11 @@ PROCEDURE ipSetDisplay :
                         END.
                         CREATE ttColumns.
                         ASSIGN
-                            ttColumns.cColLabel = _field._label + "[" + STRING(jCtr) + "]"
+                            ttColumns.cColLabel = if _field._label <> ? then _field._label else _field._field-name + "[" + STRING(jCtr) + "]"
                             ttColumns.cColType = "DATA"
                             ttColumns.cColumn = ""
                             ttColumns.cDataType = _field._data-type
-                            ttColumns.cDispLabel = _field._label + "[" + STRING(jCtr) + "]" + " (" + _file._file-name + ")"
+                            ttColumns.cDispLabel = if _field._label <> ? then _field._label else _field._field-name + "[" + STRING(jCtr) + "]" + " (" + _file._file-name + ")"
                             ttColumns.cField = _field._field-name
                             ttColumns.cFormat = _field._format
                             ttColumns.cFormula = ""
@@ -4230,8 +4527,7 @@ PROCEDURE ipSetDisplay :
                         ttColumns.cColType = "DATA"
                         ttColumns.cColumn = ""
                         ttColumns.cDataType = _field._data-type
-                        ttColumns.cDispLabel = _field._label + " (" + _file._file-name + ")"
-                        ttColumns.cField = _field._field-name
+                        ttColumns.cDispLabel = (if _field._label <> ? then _field._label else _field._field-name) + " (" + _file._file-name + ")"                        ttColumns.cField = _field._field-name
                         ttColumns.cFormat = _field._format
                         ttColumns.cFormula = ""
                         ttColumns.cInitVal = ""
@@ -4262,11 +4558,11 @@ PROCEDURE ipSetDisplay :
                         END.
                         CREATE ttColumns.
                         ASSIGN
-                            ttColumns.cColLabel = _field._label + "[" + STRING(jCtr) + "]"
+                            ttColumns.cColLabel = if _field._label <> ? then _field._label else _field._field-name + "[" + STRING(jCtr) + "]"
                             ttColumns.cColType = "DATA"
                             ttColumns.cColumn = ""
                             ttColumns.cDataType = _field._data-type
-                            ttColumns.cDispLabel = _field._label + "[" + STRING(jCtr) + "]" + " (" + _file._file-name + ")"
+                            ttColumns.cDispLabel = if _field._label <> ? then _field._label else _field._field-name + "[" + STRING(jCtr) + "]" + " (" + _file._file-name + ")"
                             ttColumns.cField = _field._field-name
                             ttColumns.cFormat = _field._format
                             ttColumns.cFormula = ""
@@ -4287,29 +4583,6 @@ PROCEDURE ipSetDisplay :
         END.
     END.
     
-    FOR EACH ttCalcCols:
-        CREATE ttColumns.
-        ASSIGN
-            ttColumns.cColLabel = ttCalcCols.cColLabel
-            ttColumns.cColType = IF ttCalcCols.cFormula <> "" THEN "CALC" ELSE "SKIP"
-            ttColumns.cColumn = ""
-            ttColumns.cDataType = ttCalcCols.cDataType
-            ttColumns.cDispLabel = IF ttColumns.cColType = "CALC" THEN ttCalcCols.cColLabel + " (CALC)" ELSE "<skip>"
-            ttColumns.cField = ""
-            ttColumns.cFormat = ttCalcCols.cFormat
-            ttColumns.cFormula = ttCalcCols.cFormula
-            ttColumns.cInitVal = ttCalcCols.cInitVal
-            ttColumns.cLabel = ttCalcCols.cColLabel
-            ttColumns.cTable = ""
-            ttColumns.iBand = 1    
-            ttColumns.iColumn = 0    
-            ttColumns.iExtent = 0
-            ttColumns.iIdx = ttCalcCols.iPos
-            ttColumns.iPos = ttCalcCols.iPos
-            ttColumns.iRow = 1
-            .
-    END.
-
     ASSIGN
         iRow = 1
         iCol = 1
