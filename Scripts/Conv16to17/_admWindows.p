@@ -23,9 +23,14 @@ REPEAT:
             RUN pCodeFile (INPUT-OUTPUT idx, cFile).
             cFile = "~{Advantzware/WinKit/embedwindow.i}".
         END.
-        ELSE IF cFile EQ "~&IF '~{~&WINDOW-SYSTEM}' NE 'TTY' ~&THEN" THEN DO:
+        ELSE IF cFile BEGINS "~&IF '~{~&WINDOW-SYSTEM}' NE 'TTY' ~&THEN" THEN DO:
             IMPORT UNFORMATTED ^.
             IMPORT UNFORMATTED ^.
+            IMPORT UNFORMATTED ^.
+            IMPORT UNFORMATTED ^.
+            IMPORT UNFORMATTED cFile.
+        END.
+        ELSE IF cFile BEGINS "IF NOT W-Win:LOAD-ICON(~"Graphics\asiicon.ico~":U) THEN" THEN DO:
             IMPORT UNFORMATTED ^.
             IMPORT UNFORMATTED ^.
             IMPORT UNFORMATTED cFile.
