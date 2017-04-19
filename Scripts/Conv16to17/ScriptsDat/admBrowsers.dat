@@ -95,8 +95,6 @@ ap\b-dbcr.w
 ap\b-manchk.w
 ap\b-reconc.w
 ap\b-recysk.w
-apinq\b-apibal.w
-apinq\b-apichk.w
 ar\b-arinq.w
 ar\b-arinv.w
 ar\b-arlinq.w
@@ -110,7 +108,6 @@ browsers\address.w
 browsers\attach.w
 browsers\attachpo.w
 browsers\b-itm-com.w
-browsers\b-shipto.w
 browsers\bank.w
 browsers\boxdes.w
 browsers\buyer.w
@@ -120,7 +117,6 @@ browsers\company.w
 browsers\costtype.w
 browsers\cstattch.w
 browsers\cuserphon.w
-browsers\cust.w
 browsers\custmark.w
 browsers\custMkUp.w
 browsers\custphon.w
@@ -220,7 +216,6 @@ browsers\uservend.w
 browsers\usrcmp-c.w
 browsers\usrcmp-l.w
 browsers\usrcmp-x.w
-browsers\vend.w
 browsers\vendphon.w
 browsers\ventype.w
 browsers\vinvattch.w
@@ -228,7 +223,6 @@ browsers\wip-bin.w
 browsers\xref.w
 browsers\zipcode.w
 ce\b-estlst.w
-cec\b-item.w
 edi\bedpoln.w
 edi\bedpotr.w
 edi\bedshln.w
@@ -241,14 +235,11 @@ fg\b-fg-set.w
 fg\b-itemsp.w
 fg\b-prdlin.w
 fg\b-prodct.w
-fginq\b-fguncm.w
 gl\b-ccode.w
 gl\b-gljrn1.w
 gl\b-gljrnr.w
 gl\b-glload.w
 gl\b-glrpth.w
-jc\b-cldown.w
-jc\b-clhist.w
 jcrep\b-wipmach.w
 jcrep\b-wipmch.w
 jcrep\b-wiptag.w

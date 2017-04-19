@@ -8,10 +8,6 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
 /* Connected Databases 
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:28 am */
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -280,8 +276,6 @@ END.
 {src/adm/method/navbrows.i}
 {custom/yellowColumns.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -334,7 +328,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-report NO-LOCK ~{&SORTBY-PHRASE}
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -410,7 +404,7 @@ DO:
 
   IF AVAILABLE tt-report AND 
      tt-report.ap-inv-rec-key NE "" THEN DO:
-
+      
      {methods/run_link.i "CONTAINER-SOURCE" "Set-Rec-Key_Header"
                    "(tt-report.ap-inv-rec-key,tt-report.inv-no)"}
 
@@ -490,15 +484,15 @@ DO:
        tt-report.gross-amt                      COLUMN-LABEL "Gross Amt"
        tt-report.amt-disc                       COLUMN-LABEL "Discount"
        tt-report.amt-paid                       COLUMN-LABEL "Net Amt"
-
+     
       WITH NO-BOX FRAME ap-chk DOWN WIDTH 80 STREAM-IO.
 
-
+      
   FIND FIRST tt-report NO-ERROR.
 
   IF AVAIL tt-report THEN DO WITH FRAME ap-chkh:
     SESSION:SET-WAIT-STATE ("general").
-
+        
     {sys/inc/print1.i}
     {sys/inc/outprint.i 56}
 
@@ -521,7 +515,7 @@ DO:
                   tt-report.amt-disc
                   tt-report.amt-paid. 
         DOWN.
-
+    
         CLEAR NO-PAUSE.
       END.
 
@@ -749,13 +743,13 @@ FOR EACH ap-pay
       AND ap-pay.posted   EQ YES
       AND ap-pay.memo     EQ NO
     USE-INDEX vend-no NO-LOCK,
-
+      
     EACH ap-payl
     WHERE ap-payl.c-no    EQ ap-pay.c-no
       AND ap-payl.inv-no  GE f-inv
       AND ap-payl.inv-no  LE t-inv
     NO-LOCK
-
+      
     BREAK BY ap-pay.check-act
           BY ap-pay.check-no 
           BY ap-payl.inv-no  
@@ -766,9 +760,9 @@ FOR EACH ap-pay
     li = li + 1.
 
     IF FIRST-OF(ap-pay.check-no) THEN v-check-no = ap-pay.check-no.
-
+    
     v-gross-amt = v-gross-amt + (ap-payl.amt-paid + ap-payl.amt-disc).
-
+    
     IF LAST-OF(ap-payl.inv-no) THEN DO:
         CREATE tt-report.
         ASSIGN
@@ -794,7 +788,7 @@ FOR EACH ap-pay
        IF AVAIL b-ap-inv THEN
           tt-report.ap-inv-rec-key = b-ap-inv.rec_key.
     END. /* IF LAST-OF(ap-payl.inv-no) */
-
+            
     IF LAST-OF(ap-pay.check-no) THEN DO:
         IF NOT FIRST-OF(ap-pay.check-no) OR v-gross-amt EQ 0 THEN DO:
             CREATE tt-report.
@@ -878,8 +872,7 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-  RUN pDataGridInit. /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:28 am */
-
+  
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
@@ -900,7 +893,7 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   IF fi_vend NE "" THEN RUN create-tempfile.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
@@ -914,7 +907,7 @@ PROCEDURE local-open-query :
           b-vend.company EQ cocode AND
           b-vend.vend-no EQ tt-report.vend-no
           NO-LOCK NO-ERROR.
-
+    
      IF AVAIL b-vend THEN
         RUN pushpin-image-proc(INPUT b-vend.rec_key).
   END.
@@ -932,7 +925,7 @@ PROCEDURE new-vend :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     FIND vend NO-LOCK
         WHERE vend.company EQ cocode
@@ -954,7 +947,7 @@ PROCEDURE pushpin-image-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-rec_key AS CHAR NO-UNDO.
-
+   
    DEF VAR v-att AS LOG NO-UNDO.
    DEF VAR v-inv-no AS CHAR NO-UNDO.
 
@@ -965,7 +958,7 @@ PROCEDURE pushpin-image-proc :
                  attach.company = cocode and
                  attach.rec_key = ip-rec_key AND
                  (attach.est-no eq v-inv-no OR ATTACH.est-no EQ "")).
-
+   
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachinv-target':U, OUTPUT char-hdl).
 
