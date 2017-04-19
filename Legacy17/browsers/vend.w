@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:33 am */
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -53,7 +49,7 @@ CREATE WIDGET-POOL.
 
 {sys/inc/VAR.i NEW SHARED}
 {sys/inc/varasgn.i}
-
+  
 DEFINE VARIABLE columnCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 DEFINE VARIABLE useColors AS CHAR NO-UNDO.
@@ -100,7 +96,7 @@ DEF VAR v-rec-key-list AS CHAR NO-UNDO.
           AND vend.TYPE     BEGINS fi_type    ~
           AND vend.buyer    BEGINS fi_buyer  ~
          AND ((vend.ACTIVE = "A" AND tb_act) OR (vend.ACTIVE = "I" AND tb_in-act))
-
+               
 
 &SCOPED-DEFINE for-each2                          ~
     FOR EACH vend                               ~
@@ -478,8 +474,6 @@ END.
 
 {src/adm/method/navbrows.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -557,7 +551,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -581,7 +575,7 @@ ON HELP OF fi_city IN FRAME F-Main /* City */
 DO:
   DEF VAR char-val AS cha NO-UNDO.
   DEF VAR rec-val AS RECID NO-UNDO.
-
+  
        RUN windows/l-city.w (FOCUS:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
        IF char-val NE "" THEN fi_city:SCREEN-VALUE = ENTRY(1,char-val).
 END.
@@ -598,7 +592,7 @@ DO:
   DEF VAR city-val AS cha NO-UNDO.
   DEF VAR state-val AS cha NO-UNDO.
   DEF VAR rec-val AS RECID NO-UNDO.
-
+ 
        RUN windows/l-zipcod.w (FOCUS:SCREEN-VALUE,OUTPUT char-val,OUTPUT city-val,OUTPUT state-val,OUTPUT rec-val).
        IF char-val NE "" THEN fi_zip:SCREEN-VALUE = ENTRY(1,char-val).
    /*    IF city-val NE "" THEN fi.city:SCREEN-VALUE = ENTRY(1,city-val).
@@ -681,9 +675,9 @@ DO:
      tb_act
      tb_in-act
      ll-first = NO.
-
+    
     RUN dispatch ("open-query").
-
+    
     GET FIRST Browser-Table .
     IF NOT AVAIL vend THEN DO:  /* task 07311402 */
         /*ASSIGN
@@ -713,7 +707,7 @@ ON CHOOSE OF btn_next IN FRAME F-Main /* Show Next */
 DO:
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
-
+    
     ASSIGN
     lv-show-next = YES
     ll-show-all = NO.
@@ -723,7 +717,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("").
 
-
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -736,7 +730,7 @@ ON CHOOSE OF btn_prev IN FRAME F-Main /* Show Previous */
 DO:
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
-
+    
     ASSIGN
     lv-show-prev = YES
     ll-show-all = NO.
@@ -895,12 +889,12 @@ PROCEDURE export-xl :
 ------------------------------------------------------------------------------*/
     DEFINE VAR vfirst-vend AS CHAR NO-UNDO . 
     DEFINE VAR vlast-vend AS CHAR NO-UNDO . 
-
+    
     GET FIRST Browser-Table .
       ASSIGN vfirst-vend = vend.vend-no .
     GET LAST Browser-Table .
       ASSIGN vlast-vend = vend.vend-no .
-
+      
 RUN fg/vend-exp.w (vfirst-vend ,vlast-vend).
 
 
@@ -961,7 +955,7 @@ PROCEDURE local-display-fields :
      RUN setCellColumns.
      v-called-setCellColumns = YES.
   END.          */
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
                               TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
@@ -1062,7 +1056,6 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-  RUN pDataGridInit. /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:33 am */
   RUN setCellColumns.
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN vend.vend-no:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -1078,7 +1071,7 @@ PROCEDURE local-initialize :
          vend.state:READ-ONLY IN BROWSE {&browse-name} = YES
          vend.zip:READ-ONLY IN BROWSE {&browse-name} = YES   
          FI_moveCol = "Sort".
-
+  
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
 
    APPLY 'ENTRY':U TO fi_vend-no IN FRAME {&FRAME-NAME}.
@@ -1147,9 +1140,9 @@ PROCEDURE local-open-query :
       lv-show-next = NO.
 
   /*RUN set-rec_key.*/
-
+  
   APPLY "value-changed" TO BROWSE {&browse-name}.
-
+  
 
 END PROCEDURE.
 
@@ -1185,7 +1178,7 @@ PROCEDURE navigate-browser :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipNavType AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opNavType AS CHARACTER NO-UNDO.
-
+ 
   IF ipNavType NE '' THEN
   CASE ipNavType:
     WHEN 'F' THEN RUN dispatch ('get-first':U).
@@ -1194,10 +1187,10 @@ PROCEDURE navigate-browser :
     WHEN 'P' THEN RUN dispatch ('get-prev':U).
     WHEN 'G' THEN RUN lookup-eb.
   END CASE.
-
+    
   IF ROWID(vend) EQ lvLastRowID THEN
   opNavType = 'L'.
-
+      
   IF ROWID(vend) EQ lvFirstRowID THEN
   opNavType = IF opNavType EQ 'L' THEN 'B' ELSE 'F'.
 
@@ -1214,7 +1207,7 @@ PROCEDURE query-first :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
-
+  
   find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "VendBrowse"
                         no-lock no-error.
@@ -1234,15 +1227,15 @@ PROCEDURE query-first :
     lv-vend-no = vend.vend-no.
     IF li GE sys-ctrl.int-fld THEN LEAVE.
   END.
-
+  
   &SCOPED-DEFINE open-query                   ~
       OPEN QUERY {&browse-name}               ~
         {&for-eachblank}                      ~
           AND vend.vend-no <= lv-vend-no NO-LOCK
-
+            
   IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                  ELSE {&open-query} {&sortby-phrase-desc}.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1269,7 +1262,7 @@ PROCEDURE query-go :
                sys-ctrl.int-fld = 30.
   end.
 
-
+  
   IF fi_vend-no NE "" AND fi_vend-no BEGINS '*' THEN DO:  
 
 
@@ -1329,7 +1322,7 @@ PROCEDURE query-go :
            {&for-each2}                          ~
              AND vend.vend-no <= lv-vend-no NO-LOCK
 
-
+            
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1351,10 +1344,10 @@ PROCEDURE query-go :
 
        IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                       ELSE {&open-query} {&sortby-phrase-desc}.
-
+  
   END.
   ELSE IF fi_city NE "" AND fi_city BEGINS '*' THEN DO:  
-
+    
         {&for-each2} NO-LOCK
             /* USE-INDEX customer*/
              BY vend.city:
@@ -1368,7 +1361,7 @@ PROCEDURE query-go :
              OPEN QUERY {&browse-name}               ~
                {&for-each2}                          ~
                  AND vend.vend-no <= lv-vend-no NO-LOCK
-
+                        
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1392,7 +1385,7 @@ PROCEDURE query-go :
 
   END.
   ELSE IF fi_stat NE "" AND fi_stat BEGINS '*' THEN DO:  
-
+  
     {&for-each2} NO-LOCK
         BY vend.state :
         ASSIGN
@@ -1405,7 +1398,7 @@ PROCEDURE query-go :
          OPEN QUERY {&browse-name}               ~
            {&for-each2}                          ~
              AND vend.vend-no <= lv-vend-no NO-LOCK
-
+            
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1444,7 +1437,7 @@ PROCEDURE query-go :
            {&for-each2}                          ~
              AND vend.vend-no <= lv-vend-no NO-LOCK
 
-
+            
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1468,7 +1461,7 @@ PROCEDURE query-go :
 
   END.
   ELSE IF fi_type NE "" AND fi_type BEGINS '*' THEN DO:  
-
+  
     {&for-each2} NO-LOCK 
         BY vend.TYPE:
         ASSIGN
@@ -1481,7 +1474,7 @@ PROCEDURE query-go :
          OPEN QUERY {&browse-name}               ~
            {&for-each2}                          ~
              AND vend.vend-no <= lv-vend-no NO-LOCK  
-
+            
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1505,7 +1498,7 @@ PROCEDURE query-go :
 
   END.
   ELSE IF fi_buyer NE "" AND fi_buyer BEGINS '*' THEN DO:
-
+  
          {&for-each2} NO-LOCK
              /*USE-INDEX estimate*/
              BY vend.buyer :
@@ -1514,12 +1507,12 @@ PROCEDURE query-go :
             lv-vend-no = vend.vend-no.
             IF li GE sys-ctrl.int-fld THEN LEAVE.
          END.
-
+    
          &SCOPED-DEFINE open-query                   ~
              OPEN QUERY {&browse-name}               ~
                {&for-each2}                          ~
                  AND vend.vend-no <= lv-vend-no NO-LOCK  
-
+            
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1546,7 +1539,7 @@ PROCEDURE query-go :
 
   END.
   ELSE DO:  
-
+      
     {&for-eachblank} NO-LOCK
        BREAK BY vend.vend-no :
        IF FIRST-OF(vend.vend-no) THEN li = li + 1.
@@ -1558,7 +1551,7 @@ PROCEDURE query-go :
         OPEN QUERY {&browse-name}               ~
            {&for-eachblank}                     ~
              AND vend.vend-no <= lv-vend-no NO-LOCK
-
+            
     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                    ELSE {&open-query} {&sortby-phrase-desc}.
 
@@ -1577,9 +1570,9 @@ PROCEDURE repo-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input parameter ip-rowid as rowid no-undo.
-
+ 
   run dispatch in this-procedure ("open-query").
-
+  
   reposition {&browse-name} to rowid ip-rowid no-error.
 
   run dispatch in this-procedure ("row-changed").
@@ -1608,7 +1601,7 @@ RUN set-defaults.
 reposition {&browse-name} to rowid ip-rowid no-error.
 
 run dispatch in this-procedure ("row-changed").
-
+ 
 APPLY "value-changed" TO BROWSE {&browse-name}.
 
 END PROCEDURE.
@@ -1660,7 +1653,7 @@ DO WITH FRAME {&FRAME-NAME}:
      tb_act
      tb_in-act
      ll-first = NO.
-
+    
     RUN dispatch ("open-query").
 
 
@@ -1722,7 +1715,7 @@ PROCEDURE set-defaults :
     DISP tb_act
          tb_in-act
         WITH FRAME {&FRAME-NAME}.
-
+    
   END.
 
 END PROCEDURE.
@@ -1752,7 +1745,7 @@ PROCEDURE show-prev-next :
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv-i-no AS cha NO-UNDO.
-
+  
   find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "VendBrowse"
                         no-lock no-error.
@@ -1796,7 +1789,7 @@ PROCEDURE show-prev-next :
            lv-vend-no = vend.vend-no.
           IF li GE sys-ctrl.int-fld THEN LEAVE.       
         END.
-
+       
         &SCOPED-DEFINE open-query                   ~
             OPEN QUERY {&browse-name}               ~
             {&for-each1}                          ~
@@ -1806,7 +1799,7 @@ PROCEDURE show-prev-next :
 
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
      ELSE {&open-query} {&sortby-phrase-desc}.
-
+  
   END.  /* lv-show-prev */
   ELSE IF lv-show-next THEN DO:
       IF fi_vend-no EQ "" AND fi_i-name EQ "" AND fi_city EQ "" AND
@@ -1830,7 +1823,7 @@ PROCEDURE show-prev-next :
       END.
       ELSE
       DO:
-
+      
       {&for-each1} 
          and vend.vend-no >= lv-last-show-vend-no  NO-LOCK:
          ASSIGN
@@ -1853,10 +1846,10 @@ PROCEDURE show-prev-next :
       &SCOPED-DEFINE open-query                   ~
          OPEN QUERY {&browse-name}               ~
            {&for-each1} NO-LOCK                         
-
+            
       IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                      ELSE {&open-query} {&sortby-phrase-desc}.
-
+    
   END. /*show all*/
 
 
@@ -1910,14 +1903,14 @@ PROCEDURE spec-book-image-proc :
 ------------------------------------------------------------------------------*/
    DEF VAR v-spec AS LOG NO-UNDO.
    DEF VAR char-hdl AS CHAR NO-UNDO.
-
+  
   IF AVAIL vend THEN
       v-spec = CAN-FIND(FIRST notes WHERE
                notes.rec_key = vend.rec_key AND
                notes.note_type <> "o").
-
+   
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachvend-target':U, OUTPUT char-hdl).
-
+  
    /*IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN*/
       RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
