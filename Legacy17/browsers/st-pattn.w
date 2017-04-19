@@ -404,7 +404,7 @@ END.
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
 
-/*{methods/winReSize.i}*/
+{methods/winReSize.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

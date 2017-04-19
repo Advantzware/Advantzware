@@ -227,6 +227,11 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+{Advantzware/WinKit/embedwindow-nonadm.i}
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 /* ***************  Runtime Attributes and UIB Settings  ************** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES

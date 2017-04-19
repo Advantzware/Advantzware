@@ -5,10 +5,6 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:25 am */
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -39,7 +35,6 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i} /* added by script _globdefs.p on 04.18.2017 @ 11:35:37 am */
 
 
 DEFINE VARIABLE mach_m-dscr AS CHARACTER NO-UNDO.
@@ -237,8 +232,6 @@ END.
 
 {src/adm/method/navbrows.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -297,7 +290,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -526,7 +519,7 @@ FUNCTION shift_description RETURNS CHARACTER
   Purpose:  return shift description
     Notes:  
 ------------------------------------------------------------------------------*/
-
+  
   FIND shifts WHERE
        shifts.company EQ mach.company AND
        shifts.shift = ip-shifts_shift

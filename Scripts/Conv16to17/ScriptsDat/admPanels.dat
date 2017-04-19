@@ -13,7 +13,6 @@ p-addupd.w
 p-disabl.w
 p-dwup.w
 p-estbox.w
-//p-estop.w
 p-fgset.w
 p-inkpak.w
 p-item.w
@@ -37,7 +36,6 @@ p-updncp.w
 p-updsav.w
 p-updven.w
 est\p-estfrm.w
-//est\p-estqty.w
 est\p-fgadd.w
 est\p-pak.w
 est\v-navest.w
@@ -75,7 +73,6 @@ panels\p-cstsld.w
 panels\p-delete.w
 panels\p-dieimg.w
 panels\p-estc.w
-//panels\p-estprp.w
 panels\p-fest1.w
 panels\p-job.w
 panels\p-jobhdr.w
