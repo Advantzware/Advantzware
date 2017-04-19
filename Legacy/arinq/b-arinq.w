@@ -473,7 +473,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -515,7 +515,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -684,6 +684,7 @@ END.
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main /* Customer# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -736,6 +737,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main /* FG Item# */
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -788,6 +790,7 @@ END.
 ON VALUE-CHANGED OF fi_part-no IN FRAME F-Main /* Cust Part# */
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -812,6 +815,7 @@ END.
 ON VALUE-CHANGED OF fi_po-no IN FRAME F-Main /* Cust PO# */
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -908,7 +912,7 @@ PROCEDURE disable-note :
   Notes:       
 ------------------------------------------------------------------------------*/
  DEF OUTPUT PARAMETER op-enable-note AS LOG  NO-UNDO.
- 
+
 
 END PROCEDURE.
 
@@ -959,7 +963,7 @@ PROCEDURE first-query :
   DEF VAR lv-x-no LIKE ar-invl.x-no NO-UNDO.
 
   RUN set-defaults.
-  
+
   {&for-each11}
       USE-INDEX x-no NO-LOCK,
       {&for-each2}
@@ -1024,7 +1028,7 @@ PROCEDURE local-display-fields :
     fi_sortby:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
                              TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1041,9 +1045,9 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-   
+
   RUN setCellColumns.
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN 
    ar-invl.inv-no:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -1057,14 +1061,14 @@ PROCEDURE local-initialize :
    ar-invl.part-no:READ-ONLY IN BROWSE {&browse-name} = YES
    ar-invl.po-no:READ-ONLY IN BROWSE {&browse-name} = YES
    .
-  
+
   FI_moveCol = "Sort".
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.  
 
   /*RUN set-focus.*/
   APPLY 'VALUE-CHANGED':U TO BROWSE {&BROWSE-NAME}.
   APPLY "entry" TO fi_inv-no IN FRAME {&FRAME-NAME}.
-  
+
 
 END PROCEDURE.
 
@@ -1089,7 +1093,7 @@ PROCEDURE local-open-query :
   ELSE DO:
     {arinq/j-arinq.i}
   END.
-  
+
   ll-first = NO.
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1102,7 +1106,7 @@ PROCEDURE local-open-query :
   RUN dispatch ("display-fields").
 
   RUN dispatch ("row-changed").
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1168,10 +1172,10 @@ PROCEDURE navigate-browser :
     WHEN "N" THEN RUN dispatch ('get-next':U).
     WHEN "P" THEN RUN dispatch ('get-prev':U).
   END CASE.
-    
+
   IF ROWID(ar-invl) EQ lv-last-rowid THEN
     op-nav-type = "L".
-      
+
   IF ROWID(ar-invl) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -1189,7 +1193,7 @@ PROCEDURE navigate-browser2 :
 ------------------------------------------------------------------------------*/
   DEF INPUT  PARAMETER ip-nav-type AS CHAR.
   DEF OUTPUT PARAMETER op-nav-type AS CHAR.
-  
+
   DEF VAR hld-rowid AS ROWID NO-UNDO.
 
   hld-rowid = ROWID(ar-inv).
@@ -1207,10 +1211,10 @@ PROCEDURE navigate-browser2 :
           IF ROWID(ar-inv) EQ hld-rowid THEN LEAVE.  /* No eternal loop*/
     END.
   END CASE.
-    
+
   IF ROWID(ar-inv) EQ lv-last-rowid2 THEN
     op-nav-type = "L".
-      
+
   IF ROWID(ar-inv) EQ lv-frst-rowid2 THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -1277,9 +1281,9 @@ PROCEDURE set-focus :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /*{methods/setfocus.i fi_inv-no}*/
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1312,7 +1316,7 @@ PROCEDURE export-xl :
         itemFrom    = ar-invl.i-no           
         bolFrom     = ar-invl.bol-no
         poFrom      = ar-invl.po-no .        
-                                             
+
     GET LAST Browser-Table .
     IF AVAIL ar-invl THEN
       ASSIGN

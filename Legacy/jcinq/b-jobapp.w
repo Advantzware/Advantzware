@@ -118,7 +118,7 @@ DEF VAR lv-last-show-job-no AS cha NO-UNDO.
     IF lv-sort-by EQ "close-date" THEN STRING(YEAR(job.close-date),"9999") + STRING(MONTH(job.close-date),"99") + STRING(DAY(job.close-date),"99")      ELSE ~
     IF lv-sort-by EQ "pr-print-date" THEN STRING(YEAR(job.pr-print-date),"9999") + STRING(MONTH(job.pr-print-date),"99") + STRING(DAY(job.pr-print-date),"99") + STRING(job.pr-print-time,"999999") ~
     ELSE STRING(YEAR(job.start-date),"9999") + STRING(MONTH(job.start-date),"99") + STRING(DAY(job.start-date),"99")
-                       
+
 
 /*&SCOPED-DEFINE sortby BY job-hdr.job-no BY job-hdr.job-no2 BY job-hdr.i-no*/
 &SCOPED-DEFINE sortby BY job-hdr.job-no BY job-hdr.job-no2
@@ -623,7 +623,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -673,7 +673,7 @@ DO:
            AND reftable.code     EQ STRING(job.job,"9999999999")
            USE-INDEX reftable
          NO-LOCK NO-ERROR.
-  
+
     IF AVAIL reftable THEN li-time = reftable.val[1].
 
     IF job.create-date  GT job.pr-print-date      OR
@@ -723,7 +723,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -813,7 +813,7 @@ DO:
 
   DO WITH FRAME {&FRAME-NAME}:
     lv-show-next = YES.
-    
+
     ENABLE btn_next .
     APPLY "choose" TO btn_go.
   END.
@@ -833,7 +833,7 @@ DO:
 
   DO WITH FRAME {&FRAME-NAME}:
     lv-show-prev = YES.
-   
+
     ENABLE btn_next .
     APPLY "choose" TO btn_go.
   END.
@@ -862,6 +862,7 @@ END.
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -898,6 +899,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -921,6 +923,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1098,7 +1101,7 @@ PROCEDURE first-query :
   end.
 
   adm-query-opened = YES.
-  
+
   IF ll-initial THEN DO:
     RELEASE job-hdr.
     FIND LAST job-hdr
@@ -1203,7 +1206,7 @@ PROCEDURE local-initialize :
    job.stat:READ-ONLY IN BROWSE {&browse-name} = YES
    .
   APPLY 'ENTRY':U TO fi_job-no IN FRAME {&FRAME-NAME}.
-  
+
   RUN set-focus.
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"inquiry-source",OUTPUT char-hdl).
@@ -1266,7 +1269,7 @@ SESSION:SET-WAIT-STATE("general").
               lv-first-show-job-no = job-hdr.job-no.
     ll-first = NO.
   END.
-      
+
 /*IF AVAIL oe-ord THEN*/ APPLY "value-changed" TO BROWSE {&browse-name}.
 lv-show-prev = NO.
 lv-show-next = NO.
@@ -1296,10 +1299,10 @@ PROCEDURE navigate-browser :
     WHEN "N" THEN RUN dispatch ('get-next':U).
     WHEN "P" THEN RUN dispatch ('get-prev':U).
   END CASE.
-    
+
   IF ROWID(job-hdr) EQ lv-last-rowid THEN
     op-nav-type = "L".
-      
+
   IF ROWID(job-hdr) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -1318,7 +1321,7 @@ PROCEDURE navigate-browser2 :
 
   DEF INPUT  PARAMETER ip-nav-type AS CHAR.
   DEF OUTPUT PARAMETER op-nav-type AS CHAR.
-  
+
   DEF VAR hld-rowid AS ROWID NO-UNDO.
 
 
@@ -1335,10 +1338,10 @@ PROCEDURE navigate-browser2 :
                     RUN dispatch ('get-prev':U).
     END.
   END CASE.
-    
+
   IF ROWID(job) EQ lv-last-rowid2 THEN
     op-nav-type = "L".
-      
+
   IF ROWID(job) EQ lv-frst-rowid2 THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -1487,7 +1490,7 @@ DEF VAR lv-job-no AS cha NO-UNDO.
     FOR EACH job-hdr                ~
         WHERE {&key-phrase}         ~
           AND job-hdr.opened EQ YES
-          
+
 &SCOPED-DEFINE for-each-f2                                             ~
     FIRST job NO-LOCK                                                  ~
         WHERE job.company  EQ job-hdr.company                          ~
@@ -1515,7 +1518,7 @@ if not avail sys-ctrl then do transaction:
 end.
 
 RUN set-defaults. 
-                 
+
 IF lv-show-prev THEN DO:
 
   li = 0.
@@ -1523,8 +1526,8 @@ IF lv-show-prev THEN DO:
                 AND job-hdr.job-no lE lv-last-show-job-no  ~
             USE-INDEX job-no  NO-LOCK,   ~
             {&for-each-f2} BREAK BY job-hdr.job-no DESC:
-   
-           
+
+
      IF FIRST-OF(job-hdr.job-no) THEN li = li + 1.
      lv-job-no = job-hdr.job-no.
      IF li GE sys-ctrl.int-fld THEN LEAVE.
@@ -1540,7 +1543,7 @@ IF lv-show-prev THEN DO:
 
     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                    ELSE {&open-query} {&sortby-phrase-desc}.
-  
+
 END.  /* lv-show-prev */
 ELSE IF lv-show-next THEN DO:
     li = 0.   
@@ -1549,7 +1552,7 @@ ELSE IF lv-show-next THEN DO:
           AND job-hdr.job-no gE lv-first-show-job-no  ~
           USE-INDEX job-no  NO-LOCK,   ~
        {&for-each-f2} BREAK BY job-hdr.job-no  :
-     
+
        IF FIRST-OF(job-hdr.job-no) THEN li = li + 1.
        lv-job-no = job-hdr.job-no.
        IF li GE sys-ctrl.int-fld THEN LEAVE.
@@ -1563,7 +1566,7 @@ ELSE IF lv-show-next THEN DO:
             USE-INDEX job-no  NO-LOCK,   ~
             {&for-each-f2}
 
-    
+
     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                            ELSE {&open-query} {&sortby-phrase-desc}. 
 
@@ -1756,7 +1759,7 @@ FUNCTION poNum RETURNS INTEGER
     Notes:  
 ------------------------------------------------------------------------------*/
    DEFINE VARIABLE rtnValue2 AS INT NO-UNDO.
-  
+
    FOR EACH po-ordl FIELDS(s-num po-no b-num i-no) WHERE
        po-ordl.company EQ cocode AND
        po-ordl.job-no EQ job-hdr.job-no AND
@@ -1769,7 +1772,7 @@ FUNCTION poNum RETURNS INTEGER
                       ITEM.mat-type EQ "B")
        NO-LOCK
        BY po-ordl.po-no:
-   
+
       IF (po-ordl.s-num EQ job-hdr.frm OR
           po-ordl.s-num EQ ?) AND
           (po-ordl.b-num EQ job-hdr.blank-no OR
@@ -1779,7 +1782,7 @@ FUNCTION poNum RETURNS INTEGER
              LEAVE.
           END.
    END.
-  
+
    RETURN rtnValue2.
 
 END FUNCTION.
@@ -1871,7 +1874,7 @@ FUNCTION sheets-on-order RETURNS INTEGER
                 rtnValue3 = rtnValue3 + v-ea-qty.
              END.
       END.
-  
+
    RETURN rtnValue3.
 
 END FUNCTION.
@@ -1897,7 +1900,7 @@ FUNCTION shipQty RETURNS INTEGER
     IF AVAILABLE oe-ordl THEN DO:
       RUN oe/ordlsqty.p (ROWID(oe-ordl),
                          OUTPUT li-inv-qty, OUTPUT li-ship-qty).
-      
+
       rtnValue = li-ship-qty.
     END.
   END. /* avail job-hdr */

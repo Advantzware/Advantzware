@@ -553,6 +553,7 @@ DO:
   RUN new-terms.
 
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 
   DO li = 1 TO LENGTH(TRIM({&self-name}:SCREEN-VALUE)):
     APPLY "cursor-right" TO {&self-name}.

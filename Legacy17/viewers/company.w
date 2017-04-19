@@ -444,6 +444,7 @@ DO:
 
   IF {&self-name}:SCREEN-VALUE NE "" THEN DO:
     {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 
     FIND FIRST bf-company
         WHERE bf-company.company EQ {&self-name}:SCREEN-VALUE

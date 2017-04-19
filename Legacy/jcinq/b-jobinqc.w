@@ -548,7 +548,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -603,7 +603,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -697,7 +697,7 @@ DO:
    /* tb_closed:SCREEN-VALUE  = "yes".*/
 
     lv-show-next = YES.
-    
+
     ENABLE btn_next .
     APPLY "choose" TO btn_go.
   END.
@@ -720,7 +720,7 @@ DO:
     /* tb_closed:SCREEN-VALUE  = "yes".*/
 
     lv-show-prev = YES.
-   
+
     ENABLE btn_next .
     APPLY "choose" TO btn_go.
   END.
@@ -749,6 +749,7 @@ END.
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -785,6 +786,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -808,6 +810,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1007,9 +1010,9 @@ PROCEDURE first-query :
             sys-ctrl.char-fld = "JC"
             sys-ctrl.int-fld = 30.
   end.
-  
+
   adm-query-opened = YES.
-  
+
   IF ll-initial THEN DO:
     RELEASE tt-job-hdr.
     FIND LAST tt-job-hdr {&where-first1} USE-INDEX job-no NO-LOCK NO-ERROR.
@@ -1110,7 +1113,7 @@ PROCEDURE local-initialize :
    job.stat:READ-ONLY IN BROWSE {&browse-name} = YES
    .
   APPLY 'ENTRY':U TO fi_job-no IN FRAME {&FRAME-NAME}.
-  
+
   RUN set-focus.
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"inquiry-source",OUTPUT char-hdl).
@@ -1176,7 +1179,7 @@ SESSION:SET-WAIT-STATE("general").
               lv-first-show-job-no = tt-job-hdr.job-no.
     ll-first = NO.
   END.
-      
+
 /*IF AVAIL oe-ord THEN*/ APPLY "value-changed" TO BROWSE {&browse-name}.
 ASSIGN
 lv-show-prev = NO
@@ -1207,10 +1210,10 @@ PROCEDURE navigate-browser :
     WHEN "N" THEN RUN dispatch ('get-next':U).
     WHEN "P" THEN RUN dispatch ('get-prev':U).
   END CASE.
-    
+
   IF ROWID(tt-job-hdr) EQ lv-last-rowid THEN
     op-nav-type = "L".
-      
+
   IF ROWID(tt-job-hdr) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -1229,7 +1232,7 @@ PROCEDURE navigate-browser2 :
 
   DEF INPUT  PARAMETER ip-nav-type AS CHAR.
   DEF OUTPUT PARAMETER op-nav-type AS CHAR.
-  
+
   DEF VAR hld-rowid AS ROWID NO-UNDO.
 
 
@@ -1246,10 +1249,10 @@ PROCEDURE navigate-browser2 :
                     RUN dispatch ('get-prev':U).
     END.
   END CASE.
-    
+
   IF ROWID(job) EQ lv-last-rowid2 THEN
     op-nav-type = "L".
-      
+
   IF ROWID(job) EQ lv-frst-rowid2 THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -1418,7 +1421,7 @@ DEF VAR lv-job-no AS cha NO-UNDO.
     FOR EACH tt-job-hdr                                  ~
         WHERE {&key-phrase}                           ~
           AND tt-job-hdr.opened                      
-          
+
 &SCOPED-DEFINE for-each-f2       ~
     FIRST job OF tt-job-hdr NO-LOCK
 
@@ -1436,16 +1439,16 @@ if not avail sys-ctrl then do transaction:
 end.
 
 RUN set-defaults. 
-                 
+
 IF lv-show-prev THEN DO:
 
-  
+
         {&for-each-f1}                    ~
                 AND tt-job-hdr.job-no lE lv-last-show-job-no  ~
             USE-INDEX job-no  NO-LOCK,   ~
             {&for-each-f2} BREAK BY tt-job-hdr.job-no DESC:
-   
-           
+
+
      IF FIRST-OF(tt-job-hdr.job-no) THEN li = li + 1.
      lv-job-no = tt-job-hdr.job-no.
      IF li GE sys-ctrl.int-fld THEN LEAVE.
@@ -1461,15 +1464,15 @@ IF lv-show-prev THEN DO:
 
     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                    ELSE {&open-query} {&sortby-phrase-desc}.
-  
+
 END.  /* lv-show-prev */
 ELSE IF lv-show-next THEN DO:
-    
+
     {&for-each-f1}                    ~
           AND tt-job-hdr.job-no gE lv-first-show-job-no  ~
           USE-INDEX job-no  NO-LOCK,   ~
        {&for-each-f2} BREAK BY tt-job-hdr.job-no  :
-     
+
        IF FIRST-OF(tt-job-hdr.job-no) THEN li = li + 1.
        lv-job-no = tt-job-hdr.job-no.
        IF li GE sys-ctrl.int-fld THEN LEAVE.
@@ -1483,7 +1486,7 @@ ELSE IF lv-show-next THEN DO:
             USE-INDEX job-no  NO-LOCK,   ~
             {&for-each-f2}
 
-    
+
     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                            ELSE {&open-query} {&sortby-phrase-desc}. 
 
@@ -1723,7 +1726,7 @@ FUNCTION producedQty RETURNS INTEGER
                  fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
                  rtnValue = rtnValue + fg-rdtlh.qty.
         END.
-        
+
     END.
   END. /* avail tt-job-hdr */
   opBalance = rtnValue.
@@ -1752,7 +1755,7 @@ FUNCTION shipQty RETURNS INTEGER
     IF AVAILABLE oe-ordl THEN DO:
       RUN oe/ordlsqty.p (ROWID(oe-ordl),
                          OUTPUT li-inv-qty, OUTPUT li-ship-qty).
-      
+
       rtnValue = li-ship-qty.
     END.
   END. /* avail tt-job-hdr */

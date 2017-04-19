@@ -448,7 +448,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartBrowserCues" B-table-Win _INLINE
 /* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
@@ -473,13 +473,13 @@ From the Table Selector dialog, select the external table.
 
 Step 2 
 Double-click the browse to invoke the Query Builder.
-    
+
 Step 3
 Using the Query Builder, specify the tables and fields for the browse.
 
 Step 4 [Optional]
 In the Code Section Editor, change the Foreign Keys and/or Sort Options for the browse query. Use the "List..." button to access these sections.
-  
+
 Step 5
 Save and close the SmartBrowser master.
 
@@ -487,13 +487,13 @@ INSERTING AN INSTANCE
 
 Step 1
 Open or create a SmartContainer, such as a SmartWindow.
-   
+
 Step 2 
 Choose the SmartBrowser master from the Object Palette.
 
 Step 3
 Draw the SmartBrowser instance into the SmartContainer.
-   
+
 Step 4
 Add all necessary SmartLinks between the SmartBrowser and other SmartObjects. 
 
@@ -538,7 +538,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -631,6 +631,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Job# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -655,6 +656,7 @@ END.
 ON VALUE-CHANGED OF fi_rm-i-no IN FRAME F-Main /* RM Item# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -668,7 +670,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
-    
+
 SESSION:DATA-ENTRY-RETURN = YES.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -762,7 +764,7 @@ PROCEDURE display-item :
 
 
   FIND job-mat WHERE ROWID(job-mat) EQ ip-rowid NO-LOCK NO-ERROR.
-  
+
   IF AVAIL job-mat THEN
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST b-item
@@ -862,7 +864,7 @@ PROCEDURE local-initialize :
    job-mat.wid:READ-ONLY IN BROWSE {&browse-name} = YES
    job-mat.len:READ-ONLY IN BROWSE {&browse-name} = YES
    job.due-date:READ-ONLY IN BROWSE {&browse-name} = YES.
-  
+
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
   {methods/winReSizeLocInit.i}
 
@@ -1053,7 +1055,7 @@ FUNCTION cons-uom RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  
+
 DEF BUFFER b-item FOR ITEM.
 
 DEF VAR v-uom AS CHAR NO-UNDO.
@@ -1065,7 +1067,7 @@ FIND FIRST b-item NO-LOCK
 
 
 IF AVAIL b-item THEN v-uom = b-item.cons-uom.
-   
+
 RETURN v-uom.   /* Function return value. */
 
 END FUNCTION.

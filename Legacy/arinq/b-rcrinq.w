@@ -358,7 +358,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -396,7 +396,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -507,6 +507,7 @@ DO:
   IF AVAIL cust THEN fi_name:SCREEN-VALUE = cust.name.
 
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -597,7 +598,7 @@ PROCEDURE disable-note :
   Notes:       
 ------------------------------------------------------------------------------*/
  DEF OUTPUT PARAMETER op-enable-note AS LOG  NO-UNDO.
- 
+
 
 END PROCEDURE.
 
@@ -649,7 +650,7 @@ PROCEDURE first-query :
 
 
   RUN set-defaults.
-  
+
   li = 0.
 
   {&for-each1}
@@ -823,7 +824,7 @@ PROCEDURE local-open-query :
   ELSE DO:
     {arinq/j-rcrinq.i}
   END.
-  
+
   ll-first = NO.
 
   RUN dispatch ("display-fields").
@@ -835,7 +836,7 @@ PROCEDURE local-open-query :
     lv-last-rowid  = ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}}).
   IF AVAIL {&SECOND-TABLE-IN-QUERY-{&browse-name}} THEN
     lv-last-rowid2 = ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}).
-    
+
   RUN dispatch ('get-first':U).
   IF AVAIL {&FIRST-TABLE-IN-QUERY-{&browse-name}} THEN
     lv-frst-rowid  = ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}}).
@@ -886,10 +887,10 @@ PROCEDURE navigate-browser :
     WHEN "N" THEN RUN dispatch ('get-next':U).
     WHEN "P" THEN RUN dispatch ('get-prev':U).
   END CASE.
-    
+
   IF ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}}) EQ lv-last-rowid THEN
     op-nav-type = "L".
-      
+
   IF ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}}) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -908,7 +909,7 @@ PROCEDURE navigate-browser2 :
 
   DEF INPUT  PARAMETER ip-nav-type AS CHAR.
   DEF OUTPUT PARAMETER op-nav-type AS CHAR.
-  
+
   DEF VAR hld-rowid AS ROWID NO-UNDO.
 
 
@@ -925,10 +926,10 @@ PROCEDURE navigate-browser2 :
                     RUN dispatch ('get-prev':U).
                   END.
   END CASE.
-    
+
   IF ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}) EQ lv-last-rowid2 THEN
     op-nav-type = "L".
-      
+
   IF ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}) EQ lv-frst-rowid2 THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -968,7 +969,7 @@ PROCEDURE set-defaults :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      fi_fchk:SCREEN-VALUE   = ""
