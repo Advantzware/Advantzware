@@ -540,8 +540,8 @@ DO:
            /*run output-to-fax.*/
            {custom/asifax.i &begin_cust=begin_cust-no
                             &END_cust=END_cust-no
-    {methods/setButton.i &fax-subject="Mail List Label" "Label"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:36 am */
-    {methods/setButton.i &fax-body="Mail List Label" "Label"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:36 am */
+                            &fax-subject="Mail List Label"
+                            &fax-body="Mail List Label"
                             &fax-file=list-name }
        END.
        when 5 then do:
@@ -550,8 +550,8 @@ DO:
               {custom/asimail.i &TYPE="CUSTOMER"
                              &begin_cust=begin_cust-no
                              &END_cust=end_cust-no
-    {methods/setButton.i &mail-subject="Mail List Label" "Label"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:36 am */
-    {methods/setButton.i &mail-body="Mail List Label" "Label"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:36 am */
+                             &mail-subject="Mail List Label"
+                             &mail-body="Mail List Label"
                              &mail-file=lv-pdf-file + ".pdf" }
            END.
            ELSE DO:
