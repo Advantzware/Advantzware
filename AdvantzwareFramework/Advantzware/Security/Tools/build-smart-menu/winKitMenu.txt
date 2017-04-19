@@ -164,7 +164,7 @@
 "fgpstmn." "d1" no "Unknown" "newspaper.png"
 "del0qtyb." "d1" no "Unknown" "newspaper.png"
 "fg-to-rm." "d1" no "Unknown" "newspaper.png"
-"fg-cons." "d1" yes "Window" "window_dialog.png"
+"fg-cons." "d1" no "Window" "window_dialog.png"
 "fg-jobfm." "d1" yes "Window" "window_dialog.png"
 "d2" "d" no "Menu" "folder_open.png"
 "r-cycnt." "d2" no "Report" "printer.png"
