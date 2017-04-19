@@ -598,7 +598,7 @@ asi.itemfg.i-no eq ""###"""
 */  /* BROWSE r_table */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -696,7 +696,7 @@ DO:
      fi_rita-code
      fi_tag#
      ll-first = NO.
-    
+
     RUN dispatch ("open-query").
   END.
 END.
@@ -711,7 +711,7 @@ ON CHOOSE OF btn_next IN FRAME F-Main /* Show Next */
 DO:
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     ASSIGN
     lv-show-next = YES
     ll-show-all = NO.
@@ -721,7 +721,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("").
 
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -734,7 +734,7 @@ ON CHOOSE OF btn_prev IN FRAME F-Main /* Show Previous */
 DO:
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     ASSIGN
     lv-show-prev = YES
     ll-show-all = NO.
@@ -769,6 +769,7 @@ ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
    DO WITH FRAME F-Main:
      ASSIGN {&self-name} = CAPS({&self-name}:SCREEN-VALUE). 
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
      DISP {&self-name} WITH FRAME F-MAIN.
    END.
 END.
@@ -783,6 +784,7 @@ ON VALUE-CHANGED OF fi_i-name IN FRAME F-Main
 DO:
    DO WITH FRAME F-Main:
      ASSIGN {&self-name} = CAPS({&self-name}:SCREEN-VALUE). 
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
      DISP {&self-name} WITH FRAME F-MAIN.
    END.
 END.
@@ -796,12 +798,15 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO:
   /* IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE). */
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
   /* IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE). */
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
    DO WITH FRAME F-Main:
      ASSIGN {&self-name} = CAPS({&self-name}:SCREEN-VALUE). 
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
      DISP {&self-name} WITH FRAME F-MAIN.
    END.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -814,6 +819,7 @@ ON VALUE-CHANGED OF fi_part-no IN FRAME F-Main
 DO:
    DO WITH FRAME F-Main:
      ASSIGN {&self-name} = CAPS({&self-name}:SCREEN-VALUE). 
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
      DISP {&self-name} WITH FRAME F-MAIN.
    END.
 END.
@@ -916,7 +922,7 @@ DO:
 
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
   RUN dispatch ("open-query").
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1097,7 +1103,7 @@ PROCEDURE browse-rowid :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF OUTPUT PARAM op-rowid AS ROWID NO-UNDO.
-  
+
   IF AVAIL {&FIRST-TABLE-IN-QUERY-{&browse-name}} THEN
     op-rowid = ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}}).
 
@@ -1214,7 +1220,7 @@ PROCEDURE local-display-fields :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
     fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
@@ -1403,9 +1409,9 @@ PROCEDURE local-open-query :
       lv-show-next = NO.
 
   RUN set-rec_key.
-  
+
   APPLY "value-changed" TO BROWSE {&browse-name}.
-  
+
 
 END PROCEDURE.
 
@@ -1421,7 +1427,7 @@ PROCEDURE navigate-browser :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipNavType AS CHARACTER NO-UNDO.
   DEFINE OUTPUT PARAMETER opNavType AS CHARACTER NO-UNDO.
- 
+
   IF ipNavType NE '' THEN
   CASE ipNavType:
     WHEN 'F' THEN RUN dispatch ('get-first':U).
@@ -1430,10 +1436,10 @@ PROCEDURE navigate-browser :
     WHEN 'P' THEN RUN dispatch ('get-prev':U).
     WHEN 'G' THEN RUN lookup-eb.
   END CASE.
-    
+
   IF ROWID(itemfg) EQ lvLastRowID THEN
   opNavType = 'L'.
-      
+
   IF ROWID(itemfg) EQ lvFirstRowID THEN
   opNavType = IF opNavType EQ 'L' THEN 'B' ELSE 'F'.
 
@@ -1450,14 +1456,14 @@ PROCEDURE paper-clip-image-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-rec_key AS CHAR NO-UNDO.
-   
+
    DEF VAR v-i-no AS CHAR NO-UNDO.
    DEF VAR v-est-no AS cha NO-UNDO.
    DEF VAR v-att AS LOG NO-UNDO.
    DEF VAR char-hdl AS CHAR NO-UNDO.
 
    {sys/ref/attachlogic.i}
-  
+
    IF v-i-no <> "" THEN
       v-att = CAN-FIND(FIRST asi.attach WHERE
               attach.company = cocode and
@@ -1469,7 +1475,7 @@ PROCEDURE paper-clip-image-proc :
               (LOOKUP(attach.rec_key,v-rec-key-list) gt 0)).
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
-  
+
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN paper-clip-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
 END PROCEDURE.
@@ -1485,7 +1491,7 @@ PROCEDURE query-first :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
-       
+
   find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "FGBrowse"
                         no-lock no-error.
@@ -1498,7 +1504,7 @@ PROCEDURE query-first :
                sys-ctrl.char-fld = "FG"
                sys-ctrl.int-fld = 30.
   end.
-    
+
   {&for-eachblank} NO-LOCK:
     ASSIGN
     li = li + 1
@@ -1518,7 +1524,7 @@ PROCEDURE query-first :
 
   IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                  ELSE {&open-query} {&sortby-phrase-desc}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1547,7 +1553,7 @@ PROCEDURE query-go :
 
   IF fi_est-no NE "" THEN
      fi_est-no = FILL(" ",8 - LENGTH(TRIM(fi_est-no))) + TRIM(fi_est-no).
-  
+
   IF fi_i-no NE "" THEN DO:  
     {&for-each1} NO-LOCK
          /* USE-INDEX i-no */ :
@@ -1561,7 +1567,7 @@ PROCEDURE query-go :
          OPEN QUERY {&browse-name}               ~
            {&for-each1}                          ~
              AND itemfg.i-no <= lv-i-no NO-LOCK
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.  
@@ -1579,7 +1585,7 @@ PROCEDURE query-go :
          OPEN QUERY {&browse-name}               ~
            {&for-each1}                          ~
              AND itemfg.i-no <= lv-i-no NO-LOCK
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1598,7 +1604,7 @@ PROCEDURE query-go :
          OPEN QUERY {&browse-name}               ~
            {&for-each1}                          ~
              AND itemfg.i-no <= lv-i-no NO-LOCK
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1615,12 +1621,12 @@ PROCEDURE query-go :
          OPEN QUERY {&browse-name}               ~
            {&for-each1}                          ~
              AND itemfg.i-no <= lv-i-no NO-LOCK
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
   ELSE IF fi_est-no NE "" THEN DO:
-    
+
      {&for-each1} NO-LOCK
      /*    USE-INDEX estimate*/
          BY itemfg.i-no :
@@ -1634,7 +1640,7 @@ PROCEDURE query-go :
          OPEN QUERY {&browse-name}               ~
            {&for-each1}                          ~
              AND itemfg.i-no <= lv-i-no NO-LOCK
-            
+
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                     ELSE {&open-query} {&sortby-phrase-desc}.
   END.
@@ -1652,7 +1658,7 @@ PROCEDURE query-go :
         OPEN QUERY {&browse-name}               ~
            {&for-eachblank}                     ~
              AND itemfg.i-no <= lv-i-no NO-LOCK
-            
+
     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                    ELSE {&open-query} {&sortby-phrase-desc}.
         */
@@ -1673,9 +1679,9 @@ PROCEDURE repo-query :
   def input parameter ip-rowid as rowid no-undo.
   def input parameter ip-rowid2 as rowid no-undo.
   def input parameter ip-rowid3 as rowid no-undo.
-  
+
   /* run dispatch in this-procedure ("open-query"). */
-  
+
   reposition {&browse-name} to rowid ip-rowid, ip-rowid2, ip-rowid3 no-error.
 
   run dispatch in this-procedure ("row-changed").
@@ -1704,7 +1710,7 @@ RUN set-defaults.
 reposition {&browse-name} to rowid ip-rowid no-error.
 
 run dispatch in this-procedure ("row-changed").
- 
+
 APPLY "value-changed" TO BROWSE {&browse-name}.
 
 END PROCEDURE.
@@ -1796,7 +1802,7 @@ PROCEDURE set-rec_key :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-itemfg FOR itemfg.
-  
+
   IF AVAIL itemfg THEN DO:
     FIND b-itemfg NO-LOCK WHERE ROWID(b-itemfg) EQ ROWID(itemfg) NO-ERROR.
     {methods/run_link.i "CONTAINER-SOURCE" "Set-Rec-Key_Header"
@@ -1823,7 +1829,7 @@ PROCEDURE show-prev-next :
   DEF VAR lv-i-no AS cha NO-UNDO.
 
   IF fi_est-no NE "" THEN fi_est-no = FILL(" ",8 - LENGTH(TRIM(fi_est-no))) + TRIM(fi_est-no).
-  
+
   find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "FGBrowse"
                         no-lock no-error.
@@ -1836,7 +1842,7 @@ PROCEDURE show-prev-next :
                sys-ctrl.char-fld = "FG"
                sys-ctrl.int-fld = 30.
   end.
-  
+
   IF lv-show-prev THEN DO:
 
      IF fi_i-no EQ "" AND fi_part-no EQ "" AND fi_cust-no EQ "" AND
@@ -1867,7 +1873,7 @@ PROCEDURE show-prev-next :
            lv-i-no = itemfg.i-no.
           IF li GE sys-ctrl.int-fld THEN LEAVE.       
         END.
-       
+
         &SCOPED-DEFINE open-query                   ~
             OPEN QUERY {&browse-name}               ~
             {&for-each1}                          ~
@@ -1877,7 +1883,7 @@ PROCEDURE show-prev-next :
 
      IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
      ELSE {&open-query} {&sortby-phrase-desc}.
-  
+
   END.  /* lv-show-prev */
   ELSE IF lv-show-next THEN DO:
       IF fi_i-no EQ "" AND fi_part-no EQ "" AND fi_cust-no EQ "" AND
@@ -1901,7 +1907,7 @@ PROCEDURE show-prev-next :
       END.
       ELSE
       DO:
-      
+
       {&for-each1} 
          and itemfg.i-no >= lv-last-show-i-no  NO-LOCK:
          ASSIGN
@@ -1924,10 +1930,10 @@ PROCEDURE show-prev-next :
       &SCOPED-DEFINE open-query                   ~
          OPEN QUERY {&browse-name}               ~
            {&for-each1} NO-LOCK                         
-            
+
       IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                      ELSE {&open-query} {&sortby-phrase-desc}.
-    
+
   END. /*show all*/
 
 
@@ -1945,13 +1951,13 @@ PROCEDURE spec-image-proc :
 ------------------------------------------------------------------------------*/
    DEF VAR v-spec AS LOG NO-UNDO.
    DEF VAR char-hdl AS CHAR NO-UNDO.
-  
+
    v-spec = CAN-FIND(FIRST notes WHERE
             notes.rec_key = itemfg.rec_key AND
             notes.note_type = "S").
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spec-target':U, OUTPUT char-hdl).
-  
+
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
@@ -1988,7 +1994,7 @@ PROCEDURE update-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-rcpth FOR fg-rcpth.
   DEF BUFFER b-rdtlh FOR fg-rdtlh.
-  
+
   DISABLE TRIGGERS FOR LOAD OF fg-rcpth.
   DISABLE TRIGGERS FOR LOAD OF fg-rdtlh.
 

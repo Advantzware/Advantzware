@@ -42,7 +42,7 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 
 {sys/inc/VAR.i NEW SHARED}
-    
+
 ASSIGN
  cocode = g_company
  locode = g_loc.
@@ -55,7 +55,7 @@ DEFINE TEMP-TABLE tt-job-mat NO-UNDO LIKE job-mat
         FIELD job-due-date AS DATE
         FIELD balance  AS DECIMAL 
         FIELD run-bal AS DEC.
-    
+
 DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 DEF VAR lv-sort-by AS CHAR INIT "job-due-date" NO-UNDO.
 DEF VAR lv-sort-by-lab AS CHAR INIT "Due Date" NO-UNDO.
@@ -322,7 +322,7 @@ DEFINE BROWSE Browser-Table
       tt-job-mat.wid
       tt-job-mat.len
       tt-job-mat.job-due-date
-      
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 148 BY 15
@@ -472,7 +472,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartBrowserCues" B-table-Win _INLINE
 /* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
@@ -497,13 +497,13 @@ From the Table Selector dialog, select the external table.
 
 Step 2 
 Double-click the browse to invoke the Query Builder.
-    
+
 Step 3
 Using the Query Builder, specify the tables and fields for the browse.
 
 Step 4 [Optional]
 In the Code Section Editor, change the Foreign Keys and/or Sort Options for the browse query. Use the "List..." button to access these sections.
-  
+
 Step 5
 Save and close the SmartBrowser master.
 
@@ -511,13 +511,13 @@ INSERTING AN INSTANCE
 
 Step 1
 Open or create a SmartContainer, such as a SmartWindow.
-   
+
 Step 2 
 Choose the SmartBrowser master from the Object Palette.
 
 Step 3
 Draw the SmartBrowser instance into the SmartContainer.
-   
+
 Step 4
 Add all necessary SmartLinks between the SmartBrowser and other SmartObjects. 
 
@@ -570,7 +570,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -665,6 +665,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Job# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -689,6 +690,7 @@ END.
 ON VALUE-CHANGED OF fi_rm-i-no IN FRAME F-Main /* RM Item# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -702,7 +704,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
-    
+
 SESSION:DATA-ENTRY-RETURN = YES.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -790,9 +792,9 @@ PROCEDURE display-item :
   DEF VAR v-onh           LIKE item.q-onh EXTENT 4       NO-UNDO.
   DEF VAR v-uom           LIKE item.cons-uom EXTENT 4    NO-UNDO
                           INIT ["EA","TON","LF","MSF"].
-  
+
   FIND tt-job-mat WHERE ROWID(tt-job-mat) EQ ip-rowid NO-LOCK NO-ERROR.
-  
+
   IF AVAIL tt-job-mat THEN
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST b-item
@@ -853,14 +855,14 @@ PROCEDURE first-balances :
   DEF VAR v-balance AS INT NO-UNDO.
   DEF BUFFER bf-job-mat FOR tt-job-mat .
   v-balance = 0.
-      
+
   FOR EACH bf-job-mat:
 
       IF bf-job-mat.job-no <> "" THEN do:
           ASSIGN
               v-balance = v-balance -  bf-job-mat.job-qty.
       END.
-    
+
       ELSE do:
           ASSIGN
               v-balance = v-balance +   bf-job-mat.po-qty.
@@ -873,7 +875,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-      
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE load-balances B-table-Win 
 PROCEDURE load-balances :
 /*------------------------------------------------------------------------------
@@ -886,8 +888,8 @@ PROCEDURE load-balances :
   v-balance = 0.
   GET FIRST {&browse-NAME}. 
   REPEAT:
-      
-  
+
+
       IF AVAIL(tt-job-mat) THEN
       DO:
           v-last-rowid = ROWID(tt-job-mat).
@@ -899,7 +901,7 @@ PROCEDURE load-balances :
           ASSIGN
               v-balance = v-balance -  bf-job-mat.job-qty.
       END.
-    
+
       ELSE do:
           ASSIGN
               v-balance = v-balance +   bf-job-mat.po-qty.
@@ -912,7 +914,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-      
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-display-fields B-table-Win 
 PROCEDURE local-display-fields :
@@ -922,7 +924,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
   /* Code placed here will execute AFTER standard behavior.    */
@@ -967,7 +969,7 @@ PROCEDURE local-initialize :
    tt-job-mat.len:READ-ONLY IN BROWSE {&browse-name} = YES  
    tt-job-mat.job-due-date:READ-ONLY IN BROWSE {&browse-name} = YES 
    .
-  
+
   RUN set-focus.
 
 END PROCEDURE.
@@ -994,9 +996,9 @@ PROCEDURE local-open-query :
      fi_rm-i-no              = item.i-no.
     DISABLE fi_rm-i-no.
   END.
-  
+
    ASSIGN v-balance = 0 .
-          
+
   FOR EACH tt-job-mat NO-LOCK:
       DELETE tt-job-mat.
   END.
@@ -1028,24 +1030,24 @@ PROCEDURE local-open-query :
 
         CREATE tt-job-mat.
         ASSIGN
-              
+
               tt-job-mat.po-no-po = po-ordl.po-no
               tt-job-mat.job-due-date = po-ordl.due-date
               tt-job-mat.qty   = convert-qty(2, po-ordl.cons-qty) 
               tt-job-mat.po-qty  = convert-qty(1, po-ordl.cons-qty)
               tt-job-mat.vendor   = vend-name() 
               tt-job-mat.rm-i-no = item.i-no
-              
+
               .
 
     END.
-  
+
   IF ll-first = NO THEN
     RUN load-balances.
   ELSE
     RUN first-balances.
     {rminq/j-rmcoinq.i}
- 
+
   /*RUN dispatch ("display-fields").*/
 
   /*RUN dispatch ("row-changed").*/
@@ -1055,7 +1057,7 @@ PROCEDURE local-open-query :
   END.
 /*  IF ll-first = YES THEN
   RUN load-balances. */
- 
+
   ll-first = NO.
   v-balance = v-save-balance.
 END PROCEDURE.
@@ -1185,7 +1187,7 @@ FUNCTION cons-uom RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  
+
 DEF BUFFER b-item FOR ITEM.
 
 DEF VAR v-uom AS CHAR NO-UNDO.
@@ -1197,7 +1199,7 @@ FIND FIRST b-item NO-LOCK
 
 
 IF AVAIL b-item THEN v-uom = b-item.cons-uom.
-   
+
 RETURN v-uom.   /* Function return value. */
 
 END FUNCTION.
@@ -1214,7 +1216,7 @@ FUNCTION vend-name RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
   if not avail po-ordl then RETURN "".
-  
+
   find first vend where vend.company = item.company and
                         vend.vend-no = po-ord.vend-no no-lock no-error.
   ls-vend-name = if avail vend then vend.name else "N/A" .
@@ -1316,7 +1318,7 @@ DEF VAR v-bal      AS   INT  NO-UNDO.
 ASSIGN v-bal = 0 .
        v-bal = tt-job-mat.run-bal.
     RETURN v-bal.   /* Function return value. */
-    
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

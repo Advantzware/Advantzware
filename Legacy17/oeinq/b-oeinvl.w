@@ -509,7 +509,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartBrowserCues" B-table-Win _INLINE
 /* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
@@ -534,13 +534,13 @@ From the Table Selector dialog, select the external table.
 
 Step 2 
 Double-click the browse to invoke the Query Builder.
-    
+
 Step 3
 Using the Query Builder, specify the tables and fields for the browse.
 
 Step 4 [Optional]
 In the Code Section Editor, change the Foreign Keys and/or Sort Options for the browse query. Use the "List..." button to access these sections.
-  
+
 Step 5
 Save and close the SmartBrowser master.
 
@@ -548,13 +548,13 @@ INSERTING AN INSTANCE
 
 Step 1
 Open or create a SmartContainer, such as a SmartWindow.
-   
+
 Step 2 
 Choose the SmartBrowser master from the Object Palette.
 
 Step 3
 Draw the SmartBrowser instance into the SmartContainer.
-   
+
 Step 4
 Add all necessary SmartLinks between the SmartBrowser and other SmartObjects. 
 
@@ -618,7 +618,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -772,6 +772,7 @@ END.
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main /* Customer# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -821,6 +822,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main /* FG Item# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -870,6 +872,7 @@ END.
 ON VALUE-CHANGED OF fi_part-no IN FRAME F-Main /* Cust Part# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -893,6 +896,7 @@ END.
 ON VALUE-CHANGED OF fi_po-no IN FRAME F-Main /* Cust PO# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1002,7 +1006,7 @@ PROCEDURE disable-note :
   Notes:       
 ------------------------------------------------------------------------------*/
  DEF OUTPUT PARAMETER op-enable-note AS LOG  NO-UNDO.
- 
+
 
 END PROCEDURE.
 
@@ -1168,10 +1172,10 @@ PROCEDURE navigate-browser :
     WHEN "N" THEN RUN dispatch ('get-next':U).
     WHEN "P" THEN RUN dispatch ('get-prev':U).
   END CASE.
-    
+
   IF ROWID(ar-invl) EQ lv-last-rowid THEN
     op-nav-type = "L".
-      
+
   IF ROWID(ar-invl) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -1190,7 +1194,7 @@ PROCEDURE navigate-browser2 :
 
   DEF INPUT  PARAMETER ip-nav-type AS CHAR.
   DEF OUTPUT PARAMETER op-nav-type AS CHAR.
-  
+
   DEF VAR hld-rowid AS ROWID NO-UNDO.
 
 
@@ -1207,10 +1211,10 @@ PROCEDURE navigate-browser2 :
                     RUN dispatch ('get-prev':U).
                   END.
   END CASE.
-    
+
   IF ROWID(ar-inv) EQ lv-last-rowid2 THEN
     op-nav-type = "L".
-      
+
   IF ROWID(ar-inv) EQ lv-frst-rowid2 THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -1328,7 +1332,7 @@ FUNCTION getCostUOM RETURNS CHARACTER
               WHERE sys-ctrl.company EQ ar-invl.company
                 AND sys-ctrl.name EQ 'OECOMM'
                 AND sys-ctrl.log-fld EQ YES) THEN DO:
-  
+
      IF ar-invl.dscr[1] EQ "" THEN
         RETURN "M".
      ELSE

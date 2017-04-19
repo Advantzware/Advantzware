@@ -429,7 +429,7 @@ ASSIGN
 */  /* BROWSE BROWSE-3 */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -455,7 +455,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -474,7 +474,7 @@ DO:
      lv-sort-by-lab = lv-column-lab.
 
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
-   
+
   APPLY "choose" TO btn_go.
 END.
 
@@ -489,7 +489,7 @@ DO:
    op-char-val = ar-invl.inv-no:screen-value in browse {&browse-name}.
    op-rec-val = recid(ar-inv).              
    apply "window-close" to frame {&frame-name}. 
-      
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -502,7 +502,7 @@ ON CHOOSE OF btn_go IN FRAME Dialog-Frame /* Go */
 DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-     
+
      fi_cust-no
      fi_i-no
      fi_po-no
@@ -534,7 +534,7 @@ ON CHOOSE OF btn_show IN FRAME Dialog-Frame /* Show All */
 DO:
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-     
+
      fi_cust-no:SCREEN-VALUE = ""
      fi_i-no:SCREEN-VALUE    = ""
      fi_po-no:SCREEN-VALUE   = ""
@@ -586,6 +586,7 @@ END.
 ON VALUE-CHANGED OF fi_cust-no IN FRAME Dialog-Frame /* Customer# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -639,6 +640,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME Dialog-Frame /* FG Item# */
 DO:
   /*IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).*/
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -744,7 +746,7 @@ DEF BUFFER b-ar-inv FOR ar-inv.
   DEF VAR lv-x-no LIKE ar-invl.x-no NO-UNDO.
 
   RUN set-defaults.
-  
+
   {&for-each11}
       USE-INDEX x-no NO-LOCK,
       {&for-each2}
@@ -779,7 +781,7 @@ PROCEDURE InitProc :
   Notes:       
 ------------------------------------------------------------------------------*/
 /*RUN setCellColumns.*/
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN 
    ar-invl.inv-no:READ-ONLY IN BROWSE {&browse-name} = YES
@@ -796,7 +798,7 @@ PROCEDURE InitProc :
    ar-invl.part-no:READ-ONLY IN BROWSE {&browse-name} = YES
    ar-invl.po-no:READ-ONLY IN BROWSE {&browse-name} = YES
    .
-   
+
    APPLY 'choose' TO btn_go IN FRAME {&FRAME-NAME}.
 END PROCEDURE.
 
@@ -943,7 +945,7 @@ IF ll-first THEN RUN first-query.
         ASSIGN
          lv-last-rowid  = ROWID(ar-invl)
          lv-last-rowid2 = ROWID(ar-inv).
-      
+
 
       IF AVAIL ar-invl THEN
         ASSIGN
@@ -951,7 +953,7 @@ IF ll-first THEN RUN first-query.
          lv-frst-rowid2 = ROWID(ar-inv).
 
   END.
-  
+
   ll-first = NO.
 
 END PROCEDURE.

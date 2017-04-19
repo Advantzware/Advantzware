@@ -43,7 +43,7 @@ DEF SHARED VAR g_company AS cha NO-UNDO.
 DEF SHARED VAR g_loc AS cha NO-UNDO.
 DEF SHARED VAR g_period AS INT NO-UNDO.
 {methods/defines/hndldefs.i}               
-    
+
 {sys/inc/VAR.i NEW SHARED}
 
 DEF TEMP-TABLE tt-arinq NO-UNDO
@@ -393,7 +393,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-arinq ~{&SORTBY-PHRASE} BY tt-arinq.seq.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -503,7 +503,7 @@ format tt-arinq.ref-num format "X(12)"          column-label "Ck/Cr/Dr#"
        tt-arinq.tr-damt format "->,>>>,>>>.99"  column-label "Debits"
        tt-arinq.tr-camt format "->,>>>,>>>.99"  column-label "Credits"
        tt-arinq.balance format "->,>>>,>>>.99"  column-label "Balance"
-  
+
     with no-box no-attr-space frame a2-1 row 8 12 down stream-io width 132 centered.
 
 format tt-arinq.ref-num format "X(12)"          column-label "Ck/Cr/Dr#/PO"
@@ -514,15 +514,15 @@ format tt-arinq.ref-num format "X(12)"          column-label "Ck/Cr/Dr#/PO"
        tt-arinq.tr-damt format "->,>>>,>>>.99"  column-label "Debits"
        tt-arinq.tr-camt format "->,>>>,>>>.99"  column-label "Credits"
        tt-arinq.balance format "->,>>>,>>>.99"  column-label "Balance"
-  
+
     with no-box no-attr-space frame a2-2 row 8 12 down stream-io width 132 centered.
 
-     
+
   FIND FIRST tt-arinq NO-ERROR.
 
   IF AVAIL tt-arinq THEN DO WITH FRAME ar-inq:
     SESSION:SET-WAIT-STATE ("general").
-        
+
     {sys/inc/print1.i}
     {sys/inc/outprint.i 56}
 
@@ -600,6 +600,7 @@ END.
 ON VALUE-CHANGED OF fi_cust IN FRAME F-Main /* Customer# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 
   RUN new-cust.
 END.
@@ -750,7 +751,7 @@ PROCEDURE create-tempfile :
       USE-INDEX ar-inv
       BY ar-inv.inv-date
       BY ar-inv.inv-no:
-      
+
     if v-format eq "ASI" then do:
       {ar/ar-iact1.i 1}
     end.    
@@ -775,7 +776,7 @@ PROCEDURE create-tempfile :
           AND ar-cash.check-no LE li-tchk
         BY ar-cash.check-date
         BY ar-cash.c-no:
-      
+
       IF v-format eq "ASI" THEN DO:
         {ar/ar-iact2.i 1}
       END.    
@@ -910,7 +911,7 @@ PROCEDURE new-cust :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&frame-name}:
     FIND cust
         WHERE cust.company EQ cocode

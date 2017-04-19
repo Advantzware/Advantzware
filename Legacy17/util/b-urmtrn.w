@@ -440,7 +440,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartBrowserCues" B-table-Win _INLINE
 /* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
@@ -465,13 +465,13 @@ From the Table Selector dialog, select the external table.
 
 Step 2 
 Double-click the browse to invoke the Query Builder.
-    
+
 Step 3
 Using the Query Builder, specify the tables and fields for the browse.
 
 Step 4 [Optional]
 In the Code Section Editor, change the Foreign Keys and/or Sort Options for the browse query. Use the "List..." button to access these sections.
-  
+
 Step 5
 Save and close the SmartBrowser master.
 
@@ -479,13 +479,13 @@ INSERTING AN INSTANCE
 
 Step 1
 Open or create a SmartContainer, such as a SmartWindow.
-   
+
 Step 2 
 Choose the SmartBrowser master from the Object Palette.
 
 Step 3
 Draw the SmartBrowser instance into the SmartContainer.
-   
+
 Step 4
 Add all necessary SmartLinks between the SmartBrowser and other SmartObjects. 
 
@@ -530,7 +530,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -651,6 +651,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Job# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -675,6 +676,7 @@ END.
 ON VALUE-CHANGED OF fi_rita-code IN FRAME F-Main /* Trans Code */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -697,7 +699,7 @@ END.
 ON HELP OF fi_tag# IN FRAME F-Main /* Tag# */
 DO:
   DEF VAR lv-char-val AS CHAR NO-UNDO.
-  
+
   RUN windows/l-fgtag.w (cocode,fi_rm-i-no:SCREEN-VALUE,'',OUTPUT lv-char-val).
   IF ENTRY(1,lv-char-val) NE SELF:SCREEN-VALUE THEN DO: 
     SELF:SCREEN-VALUE = ENTRY(1,lv-char-val).
@@ -716,7 +718,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
-    
+
 SESSION:DATA-ENTRY-RETURN = YES.
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
@@ -797,7 +799,7 @@ PROCEDURE display-item :
 
 
   FIND rm-rcpth WHERE ROWID(rm-rcpth) EQ ip-rowid NO-LOCK NO-ERROR.
-  
+
   IF AVAIL rm-rcpth THEN
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST item
@@ -894,7 +896,7 @@ PROCEDURE local-initialize :
    rm-rdtlh.tag:READ-ONLY IN BROWSE {&browse-name} = YES
    rm-rdtlh.qty:READ-ONLY IN BROWSE {&browse-name} = YES
    .
-  
+
   RUN set-focus.
 
 END PROCEDURE.
@@ -979,7 +981,7 @@ PROCEDURE set-defaults :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      fi_rm-i-no   = ""
@@ -1053,7 +1055,7 @@ FUNCTION calc-ext-cost RETURNS DECIMAL
     Notes:  
 ------------------------------------------------------------------------------*/
 
-  
+
   RETURN IF ip-type EQ 1 THEN (rm-rdtlh.qty * rm-rdtlh.cost)
          ELSE (DEC(rm-rdtlh.qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) *
                DEC(rm-rdtlh.cost:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})).   /* Function return value. */

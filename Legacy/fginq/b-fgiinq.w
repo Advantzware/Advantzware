@@ -501,7 +501,7 @@ fg-rdtlh.rita-code eq fg-rcpth.rita-code"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -539,7 +539,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -633,7 +633,7 @@ DO:
 
     RUN valid-i-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  
+
     ASSIGN {&goFields}
       fi_tag# = fi_tag# + '*'
       ll-first = NO.
@@ -717,7 +717,8 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Job# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -772,6 +773,7 @@ END.
 ON VALUE-CHANGED OF fi_rita-code IN FRAME F-Main /* Trans Code */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -924,7 +926,7 @@ PROCEDURE display-itemfg :
 
 
   FIND fg-rcpth WHERE ROWID(fg-rcpth) EQ ip-rowid NO-LOCK NO-ERROR.
-  
+
   IF AVAIL fg-rcpth THEN
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST itemfg
@@ -1009,7 +1011,7 @@ PROCEDURE local-initialize :
    FI_moveCol = "Sort"
    .
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
-  
+
   RUN set-focus.
 
 END PROCEDURE.
@@ -1090,7 +1092,7 @@ PROCEDURE set-focus :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
  {methods/setfocus.i {&BROWSE-NAME}}
 
  APPLY "entry" TO fi_i-no IN FRAME {&FRAME-NAME}.
@@ -1268,7 +1270,7 @@ else
   /*assign
    li-pallets = 1
    op-qty-pal = fg-rdtlh.qty.*/
-   
+
 */
 
 ASSIGN
@@ -1281,7 +1283,7 @@ op-qty-pal = (IF fg-rdtlh.qty-case     NE 0 THEN fg-rdtlh.qty-case     ELSE
                (IF fg-rdtlh.units-pallet NE 0 THEN fg-rdtlh.units-pallet ELSE
                 IF AVAIL fg-bin AND
                    fg-bin.units-pallet   NE 0 THEN fg-bin.units-pallet   ELSE 1)
-   
+
 li-pallets = fg-rdtlh.qty / op-qty-pal.
 
 {sys/inc/roundup.i li-pallets}

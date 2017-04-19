@@ -451,7 +451,7 @@ DEFINE BROWSE Browser-Table
       get-vend-info() @ vend-name COLUMN-LABEL "Name" FORMAT "x(25)":U
       get-fg-qty(1) @ iBinQtyBef  COLUMN-LABEL "Before Qty" FORMAT "->>>>>>9":U
       get-fg-qty(2) @ iBinQty  COLUMN-LABEL "Bin Change" FORMAT "->>>>>>9":U
-      
+
   ENABLE
       fg-rcpth.i-no
       fg-rcpth.po-no
@@ -689,7 +689,7 @@ reftable.loc      EQ STRING(fg-rcpth.r-no,""9999999999"")"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -741,7 +741,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -1254,7 +1254,7 @@ DO:
           VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE confirm. */
 
        RUN oeinq/d-cpyopn.w (OUTPUT op-all, OUTPUT op-whbn) .
-       
+
     IF op-all THEN do:
          FIND LAST fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
          IF AVAIL fg-rctd AND fg-rctd.r-no GT v-rcpth-no THEN v-rcpth-no = fg-rctd.r-no.
@@ -1276,7 +1276,7 @@ DO:
              ASSIGN b-fg-rcpth.r-no = v-rcpth-no.
          RELEASE b-fg-rcpth.
          FIND CURRENT fg-rcpth NO-LOCK NO-ERROR.
-         
+
          IF AVAILABLE fg-rdtlh THEN
          DO:
             FIND CURRENT fg-rdtlh EXCLUSIVE-LOCK NO-ERROR.
@@ -1298,12 +1298,12 @@ DO:
          END.
 
          RUN local-open-query.
-      
+
     END. /* if op-all */
 
     IF op-whbn THEN DO:
         FIND CURRENT fg-rdtlh NO-LOCK NO-ERROR.
-        
+
         FOR EACH b-fg-rcpth2 OF itemfg 
             WHERE b-fg-rcpth2.trans-date GE fi_date 
             AND b-fg-rcpth2.i-no       BEGINS fi_i-no
@@ -1318,7 +1318,7 @@ DO:
             ASSIGN
                 b-fg-rdtlh2.loc     =  fg-rdtlh.loc
                 b-fg-rdtlh2.loc-bin =  fg-rdtlh.loc-bin .
-            
+
         END.
         RUN local-open-query.
 
@@ -1390,7 +1390,7 @@ DO:
      fi_tag#:SCREEN-VALUE      = ""
      fi_po-no:SCREEN-VALUE     = "".
 
-    
+
     APPLY "choose" TO btn_go.
   END.
 END.
@@ -1403,7 +1403,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_date B-table-Win
 ON LEAVE OF fi_date IN FRAME F-Main /* From Date */
 DO:
-   
+
    IF LASTKEY NE -1 THEN DO:
     APPLY "choose" TO btn_go.
    END.
@@ -1430,6 +1430,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main /* FG Item# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1453,6 +1454,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Job# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1516,6 +1518,7 @@ END.
 ON VALUE-CHANGED OF fi_rita-code IN FRAME F-Main /* Trans Code */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1785,7 +1788,7 @@ PROCEDURE local-initialize :
   /* Code placed here will execute AFTER standard behavior.    */
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
   {methods/winReSizeLocInit.i}
-  
+
     RUN set-read-only (YES).
 /*   ASSIGN                                                         */
 /*    fg-rcpth.i-no:READ-ONLY IN BROWSE {&browse-name} = YES        */
@@ -1842,7 +1845,7 @@ PROCEDURE local-open-query :
   RUN dispatch ("display-fields").
 
   RUN dispatch ("row-changed").
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1919,7 +1922,7 @@ PROCEDURE reCalcUnits :
     ASSIGN 
         fg-rdtlh.cases:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(liCases)
         fg-rdtlh.partial:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(liPartial).
-   
+
 /*   fg-rdtlh.cases:SCREEN-VALUE  IN BROWSE {&browse-name} =                        */
 /*       string(INTEGER(fg-rdtlh.qty:SCREEN-VALUE  IN BROWSE {&browse-name}) /      */
 /*              INTEGER(fg-rdtlh.qty-case:SCREEN-VALUE  IN BROWSE {&browse-name})). */
@@ -1937,7 +1940,7 @@ PROCEDURE repo-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-  
+
 
   DO WITH FRAME {&FRAME-NAME}:
     RUN dispatch ("open-query").
@@ -2023,7 +2026,7 @@ PROCEDURE set-read-only :
      fg-rcpth.post-date:READ-ONLY IN BROWSE {&browse-name}  = ip-log
      /*fg-rcpth.vend-no:READ-ONLY IN BROWSE {&browse-name}  = ip-log*/
       .
-    
+
   END.
 
 END PROCEDURE.
@@ -2061,7 +2064,7 @@ PROCEDURE update-record :
   DEF BUFFER b-rcpth FOR fg-rcpth.
   DEF BUFFER b-rdtlh FOR fg-rdtlh.
   DEF BUFFER b-reftb FOR reftable.
-  
+
   DISABLE TRIGGERS FOR LOAD OF fg-rcpth.
   DISABLE TRIGGERS FOR LOAD OF fg-rdtlh.
 
@@ -2184,7 +2187,7 @@ PROCEDURE valid-loc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     fg-rdtlh.loc:SCREEN-VALUE IN BROWSE {&browse-name} =
         CAPS(fg-rdtlh.loc:SCREEN-VALUE IN BROWSE {&browse-name}).
@@ -2212,7 +2215,7 @@ PROCEDURE valid-loc-bin :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     fg-rdtlh.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} =
         CAPS(fg-rdtlh.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}).
@@ -2285,13 +2288,13 @@ FUNCTION display-bol RETURNS INTEGER
   FIND FIRST oe-bolh
           WHERE oe-bolh.company EQ cocode
             AND oe-bolh.b-no    EQ fg-rcpth.b-no NO-LOCK NO-ERROR.
- 
+
 
   IF AVAIL oe-bolh THEN
       RETURN INT(oe-bolh.bol-no)    .
   ELSE
       RETURN 0.
-   
+
 
 END FUNCTION.
 
@@ -2308,13 +2311,13 @@ FUNCTION display-ship RETURNS CHARACTER
   FIND FIRST oe-bolh
           WHERE oe-bolh.company EQ cocode
             AND oe-bolh.b-no    EQ fg-rcpth.b-no NO-LOCK NO-ERROR.
- 
+
   IF AVAIL oe-bolh THEN do:
      RETURN STRING(oe-bolh.cust-no)    .
   END.
   ELSE
       RETURN "".
- 
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2359,7 +2362,7 @@ else*/
   /*assign
    li-pallets = 1
    op-qty-pal = fg-rdtlh.qty.*/
-   
+
 li-pallets = fg-rdtlh.qty / op-qty-pal.
 
 {sys/inc/roundup.i li-pallets}
@@ -2435,7 +2438,7 @@ DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh .
       iBinQtyb = iBinQtyb +  bf-fg-rdtlh.qty  .
       LEAVE .
   END.
-     
+
   ASSIGN iBinQtya = fg-rdtlh.qty  
       iBinQtydeff = iBinQtya - iBinQtyb .
 
@@ -2478,7 +2481,7 @@ IF AVAIL po-ord THEN do:
         where vend.company eq cocode
         and vend.vend-no    eq po-ord.vend-no
         no-lock no-error.  
-    
+
     IF AVAIL vend THEN
         RETURN STRING(vend.NAME) .
     ELSE

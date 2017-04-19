@@ -568,7 +568,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -623,7 +623,7 @@ DO:
   DEFINE VARIABLE lv-column-nam AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lv-column-lab AS CHARACTER NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -663,7 +663,7 @@ DO:
        "(job.rec_key,{methods/headers/job.i})"}
     {methods/run_link.i "CONTAINER-SOURCE" "Notes-Message"
        "(CAN-FIND(FIRST notes WHERE notes.rec_key = job.rec_key))"}
-    
+
    RUN spec-image-proc.
 
    RUN dept-image-proc.
@@ -680,7 +680,7 @@ DO:
        {methods/run_link.i "CONTAINER-SOURCE" "MF-Message"
        "(CAN-FIND(FIRST mfvalues WHERE mfvalues.rec_key = job.rec_key))"}
      /*"(CAN-FIND(FIRST mfvalues WHERE mfvalues.rec_key = v-job-rec-key))"}*/
-       
+
        IF job-hdr.est-no GT "" THEN DO:
            FIND FIRST xeb NO-LOCK WHERE xeb.company EQ job-hdr.company
                AND xeb.est-no EQ job-hdr.est-no
@@ -764,7 +764,7 @@ DO:
    /* tb_closed:SCREEN-VALUE  = "yes".*/
 
     lv-show-next = YES.
-    
+
     ENABLE btn_next .
     APPLY "choose" TO btn_go.
   END.
@@ -787,7 +787,7 @@ DO:
     /* tb_closed:SCREEN-VALUE  = "yes".*/
 
     lv-show-prev = YES.
-   
+
     ENABLE btn_next .
     APPLY "choose" TO btn_go.
   END.
@@ -816,6 +816,7 @@ END.
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -898,6 +899,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO: 
     IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE). /* Task# 01211410*/
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 
 END.
 
@@ -922,6 +924,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1167,9 +1170,9 @@ PROCEDURE first-query :
             sys-ctrl.char-fld = "JC"
             sys-ctrl.int-fld = 30.
   END.
-  
+
   adm-query-opened = YES.
-  
+
   IF ll-initial THEN DO:
     RELEASE job-hdr.
     FIND LAST job-hdr NO-LOCK {&where-first1} USE-INDEX job-no  NO-ERROR.
@@ -1294,7 +1297,7 @@ PROCEDURE local-initialize :
    .
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
   APPLY 'ENTRY':U TO fi_job-no IN FRAME {&FRAME-NAME}.
-  
+
   RUN set-focus.
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"inquiry-source",OUTPUT char-hdl).
@@ -1360,7 +1363,7 @@ SESSION:SET-WAIT-STATE("general").
               lv-first-show-job-no = job-hdr.job-no.
     ll-first = NO.
   END.
-      
+
 /*IF AVAIL oe-ord THEN*/ APPLY "value-changed" TO BROWSE {&browse-name}.
 ASSIGN
 lv-show-prev = NO
@@ -1391,10 +1394,10 @@ PROCEDURE navigate-browser :
     WHEN "N" THEN RUN dispatch ('get-next':U).
     WHEN "P" THEN RUN dispatch ('get-prev':U).
   END CASE.
-    
+
   IF ROWID(job-hdr) EQ lv-last-rowid THEN
     op-nav-type = "L".
-      
+
   IF ROWID(job-hdr) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -1434,7 +1437,7 @@ PROCEDURE navigate-browser2 :
 
   DEFINE INPUT  PARAMETER ip-nav-type AS CHARACTER.
   DEFINE OUTPUT PARAMETER op-nav-type AS CHARACTER.
-  
+
   DEFINE VARIABLE hld-rowid AS ROWID NO-UNDO.
 
 
@@ -1451,10 +1454,10 @@ PROCEDURE navigate-browser2 :
                     RUN dispatch ('get-prev':U).
     END.
   END CASE.
-    
+
   IF ROWID(job) EQ lv-last-rowid2 THEN
     op-nav-type = "L".
-      
+
   IF ROWID(job) EQ lv-frst-rowid2 THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -1652,7 +1655,7 @@ DEFINE VARIABLE lv-job-no AS CHARACTER NO-UNDO.
     FOR EACH job-hdr                                  ~
         WHERE {&key-phrase}                           ~
           AND job-hdr.opened                      
-          
+
 &SCOPED-DEFINE for-each-f2       ~
     FIRST job OF job-hdr NO-LOCK
 
@@ -1669,16 +1672,16 @@ IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
 END.
 
 RUN set-defaults. 
-                 
+
 IF lv-show-prev THEN DO:
 
-  
+
         {&for-each-f1}                    ~
                 AND job-hdr.job-no lE lv-last-show-job-no  ~
             USE-INDEX job-no  NO-LOCK,   ~
             {&for-each-f2} BREAK BY job-hdr.job-no DESC:
-   
-           
+
+
      IF FIRST-OF(job-hdr.job-no) THEN li = li + 1.
      lv-job-no = job-hdr.job-no.
      IF li GE sys-ctrl.int-fld THEN LEAVE.
@@ -1694,15 +1697,15 @@ IF lv-show-prev THEN DO:
 
     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                    ELSE {&open-query} {&sortby-phrase-desc}.
-  
+
 END.  /* lv-show-prev */
 ELSE IF lv-show-next THEN DO:
-    
+
     {&for-each-f1}                    ~
           AND job-hdr.job-no GE lv-first-show-job-no  ~
           USE-INDEX job-no  NO-LOCK,   ~
        {&for-each-f2} BREAK BY job-hdr.job-no  :
-     
+
        IF FIRST-OF(job-hdr.job-no) THEN li = li + 1.
        lv-job-no = job-hdr.job-no.
        IF li GE sys-ctrl.int-fld THEN LEAVE.
@@ -1716,7 +1719,7 @@ ELSE IF lv-show-next THEN DO:
             USE-INDEX job-no  NO-LOCK,   ~
             {&for-each-f2}
 
-    
+
     IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc}.
                            ELSE {&open-query} {&sortby-phrase-desc}. 
 
@@ -1770,15 +1773,15 @@ PROCEDURE dept-image-proc :
 ------------------------------------------------------------------------------*/
    DEFINE VARIABLE v-spec AS LOGICAL NO-UNDO.
    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
-  
+
    FIND FIRST notes NO-LOCK WHERE notes.rec_key = job.rec_key NO-ERROR.
-   
+
    IF AVAIL notes THEN
       v-spec = TRUE.
    ELSE v-spec = FALSE.
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spec-target':U, OUTPUT char-hdl).
-  
+
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
@@ -1801,14 +1804,14 @@ PROCEDURE spec-image-proc :
      WHERE itemfg.company EQ job-hdr.company
      AND itemfg.i-no    EQ job-hdr.i-no
      NO-ERROR.
- 
+
  IF AVAIL itemfg THEN
    v-spec = CAN-FIND(FIRST notes WHERE
             notes.rec_key = itemfg.rec_key AND
             notes.note_type = "S").
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spec-target':U, OUTPUT char-hdl).
-  
+
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
@@ -2061,7 +2064,7 @@ FUNCTION shipQty RETURNS INTEGER
     IF AVAILABLE oe-ordl THEN DO:
       RUN oe/ordlsqty.p (ROWID(oe-ordl),
                          OUTPUT li-inv-qty, OUTPUT li-ship-qty).
-      
+
       rtnValue = li-ship-qty.
     END.
   END. /* avail job-hdr */

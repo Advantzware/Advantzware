@@ -6,7 +6,5 @@ DEFINE TEMP-TABLE ttFileCode NO-UNDO
 
 FUNCTION fAddComment RETURN CHARACTER (ipcText AS CHARACTER):
     RETURN ipcText + " /* added by script "
-                   + PROGRAM-NAME(2) + " on "
-                   + STRING(TODAY,"99.99.9999") + " @ "
-                   + STRING(TIME,"hh:mm:ss am") + " */".
+                   + PROGRAM-NAME(2) + " */".
 END FUNCTION.

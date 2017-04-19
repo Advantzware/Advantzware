@@ -96,7 +96,7 @@ ll-sort-asc = NO /*oeinq*/  .
         WHERE {&key-phrase}                         ~
         AND ( (lookup(oe-ordl.cust-no,custcount) <> 0 AND oe-ordl.cust-no <> "") OR custcount = "") 
 
-                       
+
 
 &SCOPED-DEFINE for-each1                            ~
     FOR EACH oe-ordl                                ~
@@ -764,7 +764,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -868,7 +868,7 @@ DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
-      
+
   {methods/run_link.i "CONTAINER-SOURCE" "Set-Rec-Key_Header"
      "(oe-ordl.rec_key,{methods/headers/oe-ordl.i})"}
   {methods/run_link.i "CONTAINER-SOURCE" "Notes-Message"
@@ -888,7 +888,7 @@ DO:
 
   IF AVAIL b-cust THEN
      RUN pushpin-image-proc(INPUT b-cust.rec_key).
-  
+
 
 /* 08291305 - move this to b-ordrel.w */
 /*   IF AVAIL oe-ordl THEN                                                            */
@@ -992,7 +992,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("").
 
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1036,6 +1036,7 @@ END.
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1093,6 +1094,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1118,6 +1120,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1158,6 +1161,7 @@ END.
 ON VALUE-CHANGED OF fi_part-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1169,6 +1173,7 @@ END.
 ON VALUE-CHANGED OF fi_po-no1 IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1193,6 +1198,7 @@ END.
 ON VALUE-CHANGED OF fi_sman IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1285,16 +1291,16 @@ PROCEDURE dept-pan-image-proc :
 ------------------------------------------------------------------------------*/
    DEF VAR v-spec AS LOG NO-UNDO.
    DEF VAR char-hdl AS CHAR NO-UNDO.
-  
+
    FIND FIRST notes WHERE notes.rec_key = oe-ordl.rec_key
        NO-LOCK NO-ERROR.
-   
+
    IF AVAIL notes THEN
       v-spec = TRUE.
    ELSE v-spec = FALSE.
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
-  
+
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
@@ -1342,7 +1348,7 @@ PROCEDURE Enable-Navigation :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    
+
   {methods/run_link.i "NAVIGATION-SOURCE" "dispatch" "('enable':U) NO-ERROR"}
 
 END PROCEDURE.
@@ -1393,7 +1399,7 @@ IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
 END.
 
   IF ll-initial THEN DO:
-     
+
      {&for-eachblank}
       USE-INDEX opened NO-LOCK,
       {&for-each3}
@@ -1402,7 +1408,7 @@ END.
       lv-ord-no = oe-ordl.ord-no.
       IF li GE sys-ctrl.int-fld THEN LEAVE.
      END.
-    
+
      &SCOPED-DEFINE joinScop OUTER-JOIN
      &SCOPED-DEFINE open-query                   ~
         OPEN QUERY {&browse-name}               ~
@@ -1425,7 +1431,7 @@ END.
   ELSE ll-first = NO.
 
   ll-initial = YES.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1460,9 +1466,9 @@ PROCEDURE get-line-est :
 ------------------------------------------------------------------------------*/
   DEF OUTPUT PARAMETER op-est-no AS cha NO-UNDO.
 
-  
+
   op-est-no = IF AVAILABLE oe-ordl THEN oe-ordl.est-no ELSE oe-ord.est-no.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1638,7 +1644,7 @@ PROCEDURE local-open-query :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
@@ -1652,18 +1658,18 @@ PROCEDURE local-open-query :
   IF AVAIL {&first-table-in-query-{&browse-name}} THEN DO:
     RUN dispatch ("display-fields").
     RUN dispatch ("row-changed").
-    
+
     GET LAST {&browse-name}.
     IF AVAIL {&first-table-in-query-{&browse-name}} THEN
       ASSIGN lv-last-rowid = ROWID({&first-table-in-query-{&browse-name}})
              lv-last-show-ord-no = oe-ordl.ord-no.
-    
+
     GET FIRST {&browse-name}.
     IF AVAIL {&first-table-in-query-{&browse-name}} THEN
       ASSIGN lv-frst-rowid = ROWID({&first-table-in-query-{&browse-name}})
              lv-first-show-ord-no = oe-ordl.ord-no.   
   END.
-  
+
   IF AVAIL oe-ord THEN APPLY "value-changed" TO BROWSE {&browse-name}.
   ASSIGN
      lv-show-prev = NO
@@ -1725,8 +1731,8 @@ PROCEDURE navigate-browser :
 
   DEF INPUT  PARAMETER ip-nav-type AS CHAR.
   DEF OUTPUT PARAMETER op-nav-type AS CHAR.
- 
- 
+
+
   IF ip-nav-type NE "" THEN
   CASE ip-nav-type:
     WHEN "F" THEN RUN dispatch ('get-first':U).
@@ -1734,10 +1740,10 @@ PROCEDURE navigate-browser :
     WHEN "N" THEN RUN dispatch ('get-next':U).
     WHEN "P" THEN RUN dispatch ('get-prev':U).
   END CASE.
-    
+
   IF ROWID(oe-ordl) EQ lv-last-rowid THEN
     op-nav-type = "L".
-      
+
   IF ROWID(oe-ordl) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -1810,14 +1816,14 @@ PROCEDURE paper-clip-image-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-rec_key AS CHAR NO-UNDO.
-   
+
    DEF VAR v-i-no AS CHAR NO-UNDO.
    DEF VAR v-est-no AS cha NO-UNDO.
    DEF VAR v-att AS LOG NO-UNDO.
    DEF VAR char-hdl AS CHAR NO-UNDO.
 
    {sys/ref/attachlogic.i}
-  
+
    IF v-est-no <> "" AND v-i-no <> "" THEN
       v-att = CAN-FIND(FIRST asi.attach WHERE
               attach.company = cocode AND
@@ -1837,10 +1843,10 @@ PROCEDURE paper-clip-image-proc :
               index(v-i-no,attach.i-no) > 0).
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
-  
+
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN paper-clip-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1854,7 +1860,7 @@ PROCEDURE pushpin-image-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-rec_key AS CHAR NO-UNDO.
-   
+
    DEF VAR v-att AS LOG NO-UNDO.
    DEF VAR lv-ord-no AS CHAR NO-UNDO.
 
@@ -1866,10 +1872,10 @@ PROCEDURE pushpin-image-proc :
               (attach.est-no EQ lv-ord-no OR ATTACH.est-no EQ "")).
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attachcust-target':U, OUTPUT char-hdl).
-  
+
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN pushpin-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1886,7 +1892,7 @@ PROCEDURE record-added :
   ll-first = YES.
   RUN set-defaults.
   ASSIGN FRAME {&FRAME-NAME}
-     
+
      fi_cust-no
      fi_i-no
      fi_part-no
@@ -1914,7 +1920,7 @@ PROCEDURE reopen-query :
 ------------------------------------------------------------------------------*/
  DEF VAR lv-tmp-rowid AS ROWID NO-UNDO.
  lv-tmp-rowid = ROWID(oe-ordl).
- 
+
  RUN reopen-query1 (lv-tmp-rowid).
 END PROCEDURE.
 
@@ -2072,7 +2078,7 @@ PROCEDURE select-his :
   FIND FIRST cust {sys/ref/custW.i} AND
                   cust.cust-no EQ oe-ord.cust-no
                   USE-INDEX cust NO-LOCK NO-ERROR.
-                  
+
   DEF VAR char-hdl AS cha NO-UNDO.
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
   RUN init-history IN WIDGET-HANDLE(char-hdl) (THIS-PROCEDURE).
@@ -2142,7 +2148,7 @@ PROCEDURE set-focus :
   Notes:       
 ------------------------------------------------------------------------------*/
   /*{methods/setfocus.i fi_ord-no}*/
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2172,7 +2178,7 @@ IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
 END.
 
 RUN set-defaults.
-                 
+
 IF lv-show-prev THEN DO:
 
     {&for-eachblank}
@@ -2203,10 +2209,10 @@ IF lv-show-prev THEN DO:
               {&for-each2}
 
     {oeinq/j-ordinq1.i}
-  
+
 END.  /* lv-show-prev */
 ELSE IF lv-show-next THEN DO:
-    
+
    {&for-eachblank}
     AND oe-ordl.ord-no >= lv-first-show-ord-no  
     USE-INDEX opened NO-LOCK,
@@ -2251,21 +2257,21 @@ PROCEDURE spec-book-image-proc :
 ------------------------------------------------------------------------------*/
    DEF VAR v-spec AS LOG NO-UNDO.
    DEF VAR char-hdl AS CHAR NO-UNDO.
-  
+
    DEF BUFFER bf2-itemfg FOR itemfg.
 
    FIND FIRST bf2-itemfg WHERE
         bf2-itemfg.company = oe-ordl.company AND
         bf2-itemfg.i-no EQ oe-ordl.i-no
         NO-LOCK NO-ERROR.
-   
+
    IF AVAIL bf2-itemfg THEN
       v-spec = CAN-FIND(FIRST notes WHERE
                notes.rec_key = bf2-itemfg.rec_key AND
                notes.note_type = "S").
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
-  
+
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
@@ -2316,7 +2322,7 @@ PROCEDURE xlocal-destroy :
   Notes:    Called from local destroy since local destroy is not available
             to edit (defined in methods\browsers\setCellColumns.i   
 ------------------------------------------------------------------------------*/
-  
+
   IF VALID-HANDLE(lr-rel-lib) THEN
      DELETE OBJECT lr-rel-lib.
 END PROCEDURE.
@@ -2460,7 +2466,7 @@ FUNCTION get-pct RETURNS INTEGER
     IF rtnValue EQ 0 THEN rtnValue = 100.
     IF rtnValue EQ -100 THEN rtnValue = 0.
   END.
-  
+
   RETURN rtnValue.
 
 END FUNCTION.
@@ -2525,7 +2531,7 @@ DO:
             iTotalProdQty = iTotalProdQty + iJobProdQty.
         END.
     END.
- 
+
     IF oe-ordl.po-no-po NE 0 THEN
         FOR EACH fg-rcpth FIELDS(r-no rita-code)
             WHERE fg-rcpth.company   EQ cocode 
@@ -2540,7 +2546,7 @@ DO:
             iTotalProdQty = iTotalProdQty + fg-rdtlh.qty.
         END.
 END.
- 
+
 op-bal = iTotalProdQty.
 RETURN iTotalProdQty.   /* Function return value. */
 
@@ -2560,8 +2566,8 @@ FUNCTION fget-qty-nothand RETURNS INTEGER
   DEFINE VARIABLE irtnValue AS INTEGER NO-UNDO.
 
     irtnValue = (ipHand - ipBal).
-   
-  
+
+
   RETURN irtnValue.
 
 END FUNCTION.
@@ -2600,7 +2606,7 @@ FUNCTION get-xfer-qty RETURNS DECIMAL
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
-             
+
 Regardless of Customer Bill to.
 1)  Release Status must be Z or C to add the to the Total Transfer Qty.
 
@@ -2637,7 +2643,7 @@ Regardless of Customer Bill to.
 
       ASSIGN vTransfer-Qty = (vTransfer-Qty + buf-oe-rel.qty).
   END.
-  
+
   RETURN vTransfer-Qty.   /* Function return value. */
 
 END FUNCTION.
@@ -2697,7 +2703,7 @@ FUNCTION getReturned RETURNS DECIMAL
 
             IF FIRST-OF(ar-invl.inv-no) THEN 
             DO:
-    
+
                 FOR EACH oe-reth WHERE oe-reth.company EQ ar-invl.company
                     AND oe-reth.posted EQ TRUE
                     AND oe-reth.applied EQ TRUE 
@@ -2710,7 +2716,7 @@ FUNCTION getReturned RETURNS DECIMAL
                     AND oe-retl.i-no    EQ ar-invl.i-no
                     NO-LOCK
                     :
-                         
+
                     ASSIGN
                         dTotQtyRet = dTotQtyRet + oe-retl.tot-qty-return        
                         dTotRetInv = dTotRetInv + oe-retl.qty-return-inv.
@@ -2723,7 +2729,7 @@ FUNCTION getReturned RETURNS DECIMAL
      ELSE
        dResult = dTotRetInv.
 
-  
+
     RETURN dResult.
 
 
@@ -2763,7 +2769,7 @@ FUNCTION getRS RETURNS CHARACTER
     DEF VAR lc-result AS CHAR NO-UNDO.
     lc-result = "".
     IF oe-ordl.whsed THEN lc-result = "X".
-    
+
     RETURN lc-result.   /* Function return value. */
 
 END FUNCTION.
@@ -2784,7 +2790,7 @@ FUNCTION getTotalReturned RETURNS DECIMAL
 
 
     dResult = getReturned("TotalREturned"). 
-  
+
     RETURN dResult.
 
 END FUNCTION.

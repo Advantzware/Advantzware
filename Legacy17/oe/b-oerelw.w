@@ -85,7 +85,7 @@ DEF VAR lv-first-show-rel-no AS int NO-UNDO.
         EACH oe-rell USE-INDEX r-no NO-LOCK         ~
         WHERE oe-rell.company   EQ oe-relh.company  ~
           AND oe-rell.r-no      EQ oe-relh.r-no     ~
-        
+
 &SCOPED-DEFINE sortby-log                                                                                                                                    ~
     IF lv-sort-by EQ "ord-no"    THEN STRING(oe-rell.ord-no,"9999999999")                                                                               ELSE ~
     IF lv-sort-by EQ "release#"  THEN STRING(oe-relh.release#,"9999999999")                                                                             ELSE ~
@@ -445,7 +445,7 @@ use-index r-no"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartBrowserCues" B-table-Win _INLINE
 /* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
@@ -470,13 +470,13 @@ From the Table Selector dialog, select the external table.
 
 Step 2 
 Double-click the browse to invoke the Query Builder.
-    
+
 Step 3
 Using the Query Builder, specify the tables and fields for the browse.
 
 Step 4 [Optional]
 In the Code Section Editor, change the Foreign Keys and/or Sort Options for the browse query. Use the "List..." button to access these sections.
-  
+
 Step 5
 Save and close the SmartBrowser master.
 
@@ -484,13 +484,13 @@ INSERTING AN INSTANCE
 
 Step 1
 Open or create a SmartContainer, such as a SmartWindow.
-   
+
 Step 2 
 Choose the SmartBrowser master from the Object Palette.
 
 Step 3
 Draw the SmartBrowser instance into the SmartContainer.
-   
+
 Step 4
 Add all necessary SmartLinks between the SmartBrowser and other SmartObjects. 
 
@@ -549,7 +549,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -584,7 +584,7 @@ DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
-  
+
   DEF VAR char-hdl AS cha NO-UNDO.
   DEF VAR phandle AS HANDLE NO-UNDO.
   {methods/run_link.i "CONTAINER-SOURCE" "Set-Rec-Key_Header"
@@ -632,7 +632,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     RUN set-defaults.    
     lv-show-next = YES.
-    
+
 
     ENABLE btn_next .
     APPLY "choose" TO btn_go.
@@ -640,7 +640,7 @@ DO:
 
   SESSION:SET-WAIT-STATE("").
 
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -655,7 +655,7 @@ DO:
   DO WITH FRAME {&FRAME-NAME}:
     RUN set-defaults.    
     lv-show-prev = YES.
-   
+
     ENABLE btn_next .
     APPLY "choose" TO btn_go.
   END.
@@ -672,6 +672,7 @@ END.
 ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -683,6 +684,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -694,6 +696,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -705,6 +708,7 @@ END.
 ON VALUE-CHANGED OF fi_po-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -810,7 +814,7 @@ PROCEDURE Enable-Navigation :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    
+
   {methods/run_link.i "NAVIGATION-SOURCE" "dispatch" "('enable':U) NO-ERROR"}
 
 END PROCEDURE.
@@ -1048,7 +1052,7 @@ PROCEDURE local-open-query :
       ASSIGN lv-frst-rowid = ROWID({&first-table-in-query-{&browse-name}})
              lv-first-show-rel-no = oe-relh.release#.
   END.
- 
+
   lv-show-prev = NO.
   lv-show-next = NO.
 END PROCEDURE.
@@ -1086,8 +1090,8 @@ PROCEDURE navigate-browser :
 
   DEF INPUT  PARAMETER ip-nav-type AS CHAR.
   DEF OUTPUT PARAMETER op-nav-type AS CHAR.
- 
- 
+
+
   IF ip-nav-type NE "" THEN
   CASE ip-nav-type:
     WHEN "F" THEN RUN dispatch ('get-first':U).
@@ -1095,10 +1099,10 @@ PROCEDURE navigate-browser :
     WHEN "N" THEN RUN dispatch ('get-next':U).
     WHEN "P" THEN RUN dispatch ('get-prev':U).
   END CASE.
-    
+
   IF ROWID(oe-rell) EQ lv-last-rowid THEN
     op-nav-type = "L".
-      
+
   IF ROWID(oe-rell) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -1280,16 +1284,16 @@ IF lv-show-prev THEN DO:
 
 END.  /* lv-show-prev */
 ELSE IF lv-show-next THEN DO:
-  
+
   li = 0.
-  
+
   {&for-each1blank} AND oe-relh.release# >= lv-first-show-rel-no  
        USE-INDEX delpost NO-LOCK BREAK BY oe-relh.release# :
     IF FIRST-OF(oe-relh.release#) THEN li = li + 1.
     lv-rel-no = oe-relh.release#.
     IF li GE sys-ctrl.int-fld THEN LEAVE.
   END.
-  
+
   &SCOPED-DEFINE open-query                     ~
       OPEN QUERY {&browse-name}                 ~
         {&for-each1blank}                       ~

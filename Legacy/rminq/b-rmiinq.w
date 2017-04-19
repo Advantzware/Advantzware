@@ -531,7 +531,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -583,7 +583,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -880,7 +880,7 @@ DO:
              ASSIGN b-rm-rcpth.r-no = v-rcpth-no.
          RELEASE b-rm-rcpth.
          FIND CURRENT rm-rcpth NO-LOCK NO-ERROR.
-         
+
          IF AVAILABLE rm-rdtlh THEN
          DO:
             FIND CURRENT rm-rdtlh EXCLUSIVE-LOCK NO-ERROR.
@@ -900,7 +900,7 @@ DO:
             RELEASE b-reftable.
             FIND CURRENT reftable NO-LOCK NO-ERROR.
          END.
-         
+
          RUN local-open-query.
       END.
 END.
@@ -1004,6 +1004,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Job# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1041,6 +1042,7 @@ END.
 ON VALUE-CHANGED OF fi_rita-code IN FRAME F-Main /* Trans Code */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1063,7 +1065,7 @@ END.
 ON HELP OF fi_tag# IN FRAME F-Main /* Tag# */
 DO:
   DEF VAR lv-char-val AS CHAR NO-UNDO.
-  
+
   RUN windows/l-fgtag.w (cocode,fi_rm-i-no:SCREEN-VALUE,'',OUTPUT lv-char-val).
   IF ENTRY(1,lv-char-val) NE SELF:SCREEN-VALUE THEN DO: 
     SELF:SCREEN-VALUE = ENTRY(1,lv-char-val).
@@ -1213,7 +1215,7 @@ PROCEDURE convert-uoms :
       IF v-bwt EQ 0 THEN v-bwt = IF AVAIL item THEN item.basis-w ELSE 0.
     END.
     FIND CURRENT item NO-LOCK NO-ERROR.
-  
+
     /* convert qty */
     IF rm-rcpth.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} EQ lv-qty-uom THEN
       lv-out-qty = DEC(rm-rdtlh.qty:SCREEN-VALUE IN BROWSE {&browse-name}).
@@ -1224,7 +1226,7 @@ PROCEDURE convert-uoms :
                             v-bwt, v-len, v-wid, v-dep,
                             DEC(rm-rdtlh.qty:SCREEN-VALUE IN BROWSE {&browse-name}),
                             OUTPUT lv-out-qty).
-  
+
     /* convert cost */
     IF rm-rcpth.loc:SCREEN-VALUE IN BROWSE {&browse-name} EQ "L" THEN
       lv-out-cost = DEC(rm-rdtlh.cost:SCREEN-VALUE IN BROWSE {&browse-name}) / lv-out-qty.
@@ -1298,7 +1300,7 @@ PROCEDURE display-item :
 
 
   FIND rm-rcpth WHERE ROWID(rm-rcpth) EQ ip-rowid NO-LOCK NO-ERROR.
-  
+
   IF AVAIL rm-rcpth THEN
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST item
@@ -1394,9 +1396,9 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   DISPLAY fi_date WITH FRAME {&FRAME-NAME}.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
@@ -1417,7 +1419,7 @@ PROCEDURE local-initialize :
 
   DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
   {methods/winReSizeLocInit.i}
-  
+
   RUN set-focus.
 
 FI_moveCol = "Sort".
@@ -1521,7 +1523,7 @@ PROCEDURE repo-query :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
-  
+
 
   DO WITH FRAME {&FRAME-NAME}:
     RUN dispatch ("open-query").
@@ -1703,7 +1705,7 @@ PROCEDURE update-mat-act-cost :
           job-mat.i-no     EQ b-rm-rcpth.i-no
           NO-LOCK
           BREAK BY job-mat.blank-no DESC:
-      
+
          IF LAST(job-mat.blank-no) OR
             job-mat.blank-no EQ b-rm-rdtlh.b-num THEN
             LEAVE.
@@ -1715,21 +1717,21 @@ PROCEDURE update-mat-act-cost :
            v-len = job-mat.len
            v-wid = job-mat.wid
            v-dep = item.s-dep.
-         
+
          IF v-len EQ 0 THEN v-len = item.s-len.
-         
+
          IF v-wid EQ 0 THEN
            v-wid = IF item.r-wid NE 0 THEN item.r-wid ELSE item.s-wid.
-         
+
          IF v-bwt EQ 0 THEN v-bwt = item.basis-w.
-         
+
          IF item.cons-uom EQ b-rm-rcpth.pur-uom THEN
            v-cost = b-rm-rdtlh.cost.
          ELSE
            RUN sys/ref/convcuom.p(item.cons-uom, b-rm-rcpth.pur-uom,
                                   v-bwt, v-len, v-wid, v-dep,
                                   b-rm-rdtlh.cost, OUTPUT v-cost).    
-         
+
          FIND FIRST mat-act
              WHERE mat-act.company   EQ job-mat.company
                AND mat-act.mat-date  EQ b-rm-rcpth.post-date
@@ -1750,7 +1752,7 @@ PROCEDURE update-mat-act-cost :
                RUN sys/ref/convcuom.p(b-rm-rcpth.pur-uom, job-mat.sc-uom,
                                       v-bwt, v-len, v-wid, v-dep,
                                       v-cost, OUTPUT v-cost).
-         
+
             ASSIGN
                mat-act.cost = v-cost
                mat-act.ext-cost = v-cost * mat-act.qty.
@@ -1759,7 +1761,7 @@ PROCEDURE update-mat-act-cost :
          END.
       END.
    END.
-                  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

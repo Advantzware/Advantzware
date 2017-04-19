@@ -104,7 +104,7 @@ DEF VAR v-paidflg AS LOG NO-UNDO.
           AND ((po-ordl.opened  AND tb_open)   OR    ~
                (NOT po-ordl.opened AND tb_closed))  ~
           AND (po-ordl.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
-          
+
 &SCOPED-DEFINE for-each11                           ~
     FOR EACH po-ordl                                ~
         WHERE {&key-phrase}                         ~
@@ -146,7 +146,7 @@ DEF VAR v-paidflg AS LOG NO-UNDO.
       AND (   (tb_unpaid AND tb_paid)                            ~
            OR (tb_paid AND AVAIL(ap-inv))                          ~
            OR (tb_unpaid AND NOT AVAIL(ap-inv)))                
-    
+
 
 &SCOPED-DEFINE sortby-log1                                                                                                             ~
     IF lv-sort-by EQ "ord-qty"    THEN STRING(9999999999.99999 + po-ordl.ord-qty,"-9999999999.99999")                             ELSE ~
@@ -750,7 +750,7 @@ po-ord.po-no eq po-ordl.po-no"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -802,7 +802,7 @@ DO:
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-  
+
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
@@ -826,7 +826,7 @@ DO:
     ASSIGN lv-sort-by = "statl" .
      lv-sort-by-lab = lv-column-lab.
     END.
-    
+
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
   RUN dispatch ("open-query").
@@ -895,9 +895,9 @@ ON CHOOSE OF btn_next IN FRAME F-Main /* Show Next */
 DO:
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     lv-show-next = YES.
-    
+
     APPLY "choose" TO btn_go.
   END.
 
@@ -914,7 +914,7 @@ ON CHOOSE OF btn_prev IN FRAME F-Main /* Show Previous */
 DO:
    SESSION:SET-WAIT-STATE("general").
   DO WITH FRAME {&FRAME-NAME}:
-   
+
     lv-show-prev = YES.
     ENABLE btn_next .
     APPLY "choose" TO btn_go.
@@ -980,6 +980,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -990,7 +991,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_job-no B-table-Win
 ON HELP OF fi_job-no IN FRAME F-Main
 DO:
-  
+
   DEF VAR lv-itemtype AS cha NO-UNDO.
   DEF VAR char-val AS cha NO-UNDO.
   DEF VAR look-recid AS RECID NO-UNDO.
@@ -1008,6 +1009,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1019,6 +1021,7 @@ END.
 ON VALUE-CHANGED OF fi_vend-i-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1030,6 +1033,7 @@ END.
 ON VALUE-CHANGED OF fi_vend-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1124,7 +1128,7 @@ PROCEDURE add-po-best :
 ------------------------------------------------------------------------------*/
    DEF VAR op-job-no AS CHAR NO-UNDO.
    DEF VAR op-job-no2 AS INT NO-UNDO.
-   
+
    RUN po\po-autobrd.w(OUTPUT op-job-no,
                        OUTPUT op-job-no2).
 
@@ -1494,7 +1498,7 @@ PROCEDURE local-initialize :
    po-ordl.pr-uom:READ-ONLY IN BROWSE {&browse-name} = YES
    po-ordl.cust-no:READ-ONLY IN BROWSE {&browse-name} = YES 
    .
-  
+
   FI_moveCol = "Sort".
   DISPLAY FI_moveCol WITH FRAME {&FRAME-NAME}.
 
@@ -1563,7 +1567,7 @@ PROCEDURE local-open-query :
           lv-frst-rowid = ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}})
           lv-first-show-po-no = po-ordl.po-no.
     END.
-      
+
     IF AVAIL {&SECOND-TABLE-IN-QUERY-{&browse-name}} THEN DO:
       IF NOT ll-sort-asc THEN
         lv-last-rowid2 = ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}).
@@ -1665,10 +1669,10 @@ PROCEDURE navigate-browser :
     WHEN "N" THEN RUN dispatch ('get-next':U).
     WHEN "P" THEN RUN dispatch ('get-prev':U).
   END CASE.
-    
+
   IF ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}}) EQ lv-last-rowid THEN
     op-nav-type = "L".
-      
+
   IF ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}}) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
   */
@@ -1688,7 +1692,7 @@ PROCEDURE navigate-browser2 :
 
   DEF INPUT  PARAMETER ip-nav-type AS CHAR.
   DEF OUTPUT PARAMETER op-nav-type AS CHAR.
-  
+
   DEF VAR hld-rowid AS ROWID NO-UNDO.
 
 
@@ -1705,10 +1709,10 @@ PROCEDURE navigate-browser2 :
                     RUN dispatch ('get-prev':U).
                   END.
   END CASE.
-    
+
   IF ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}) EQ lv-last-rowid2 THEN
     op-nav-type = "L".
-      
+
   IF ROWID({&SECOND-TABLE-IN-QUERY-{&browse-name}}) EQ lv-frst-rowid2 THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
@@ -1725,13 +1729,13 @@ PROCEDURE paper-clip-image-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER ip-rec_key AS CHAR NO-UNDO.
-   
+
    DEF VAR v-po-no AS CHAR NO-UNDO.
    DEF VAR v-att AS LOG NO-UNDO.
    DEF VAR char-hdl AS CHAR NO-UNDO.
 
    {sys/ref/attachpologic.i}
-  
+
    IF v-po-no <> "" THEN
       v-att = CAN-FIND(FIRST asi.attach WHERE
               attach.rec_key EQ v-rec-key-list AND          
@@ -1739,7 +1743,7 @@ PROCEDURE paper-clip-image-proc :
               attach.est-no = v-po-no).
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
-  
+
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN paper-clip-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
 END PROCEDURE.
@@ -1801,7 +1805,7 @@ PROCEDURE query-first :
     lv-po-no = po-ordl.po-no.
     IF li GE sys-ctrl.int-fld THEN LEAVE.
   END.
-  
+
   &SCOPED-DEFINE open-query                 ~
       OPEN QUERY {&browse-name}             ~
            {&for-each11}                    ~
@@ -1864,7 +1868,7 @@ PROCEDURE query-go :
             {&for-each4}, ~
            {&for-each5}, ~
            {&for-each6}
-         
+
 
     IF LOOKUP(lv-sort-by,lv-sort-list1) GT 0 THEN
       IF ll-sort-asc THEN {&open-query} {&sortby-phrase-asc1}.
@@ -1880,7 +1884,7 @@ PROCEDURE query-go :
       USE-INDEX job-no NO-LOCK,
       {&for-each2}    
       BREAK BY po-ordl.po-no DESC:
-    
+
       IF FIRST-OF(po-ordl.po-no) THEN li = li + 1.
       lv-po-no = po-ordl.po-no.
       IF li GE sys-ctrl.int-fld THEN LEAVE.
@@ -1912,7 +1916,7 @@ PROCEDURE query-go :
       {&for-each2}
 
       BREAK BY po-ordl.po-no DESC:
-    
+
       IF FIRST-OF(po-ordl.po-no) THEN li = li + 1.
       lv-po-no = po-ordl.po-no.
       IF li GE sys-ctrl.int-fld THEN LEAVE.
@@ -1944,7 +1948,7 @@ PROCEDURE query-go :
       {&for-each2}
 
       BREAK BY po-ordl.po-no DESC:
-    
+
       IF FIRST-OF(po-ordl.po-no) THEN li = li + 1.
       lv-po-no = po-ordl.po-no.
       IF li GE sys-ctrl.int-fld THEN LEAVE.
@@ -1972,7 +1976,7 @@ PROCEDURE query-go :
   ELSE  DO:
 
 
-  
+
 
 
 
@@ -1981,7 +1985,7 @@ PROCEDURE query-go :
       {&for-each2}
 
       BREAK BY po-ordl.po-no DESC:
-    
+
       IF FIRST-OF(po-ordl.po-no)  THEN li = li + 1.
       lv-po-no = po-ordl.po-no.
       IF li GE sys-ctrl.int-fld THEN LEAVE.
@@ -2193,7 +2197,7 @@ PROCEDURE set-value :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   IF ll-new-record THEN DO:
     {methods/template/local/setvalue.i}
 
@@ -2226,7 +2230,7 @@ PROCEDURE setUserPrint :
                                STRING(po-ord.po-no) + ',' + STRING(po-ord.po-no) + ',' +
                                po-ord.vend-no + ',' + po-ord.vend-no + ',' + STRING(po-ord.printed) + ',' +
                                (IF po-ord.stat EQ "C" AND po-ord.printed THEN "YES" ELSE "NO")).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2286,7 +2290,7 @@ IF lv-show-prev THEN DO:
       AND po-ordl.po-no LE lv-last-show-po-no
       USE-INDEX job-no NO-LOCK,
       {&for-each2}
- 
+
       BREAK BY po-ordl.po-no DESC:
         IF FIRST-OF(po-ordl.po-no)  THEN li = li + 1.
         lv-po-no = po-ordl.po-no.
@@ -2313,7 +2317,7 @@ IF lv-show-prev THEN DO:
                      ELSE {&open-query} {&sortby-phrase-desc2}.
 
   END.
-  
+
   ELSE IF fi_i-no NE "" THEN DO:
 
     {&for-each1}
@@ -2353,7 +2357,7 @@ IF lv-show-prev THEN DO:
       AND po-ordl.po-no LE lv-last-show-po-no
       USE-INDEX vend-i-no NO-LOCK,
       {&for-each2}
- 
+
       BREAK BY po-ordl.po-no DESC:
         IF FIRST-OF(po-ordl.po-no) THEN li = li + 1.
         lv-po-no = po-ordl.po-no.
@@ -2421,7 +2425,7 @@ IF lv-show-prev THEN DO:
       AND po-ordl.po-no LE lv-last-show-po-no
       NO-LOCK,
       {&for-each2}
-  
+
       BREAK BY po-ordl.po-no DESC:
         IF FIRST-OF(po-ordl.po-no) THEN li = li + 1.
         lv-po-no = po-ordl.po-no.
@@ -2449,7 +2453,7 @@ IF lv-show-prev THEN DO:
   END.
 END.  /* lv-show-prev */
 ELSE /*IF lv-show-next THEN*/ DO:
-    
+
   IF fi_po-no NE 0 THEN DO:
 
     &SCOPED-DEFINE open-query                   ~
@@ -2543,7 +2547,7 @@ ELSE /*IF lv-show-next THEN*/ DO:
       AND po-ordl.po-no GE lv-first-show-po-no
       USE-INDEX vend-i-no NO-LOCK,
       {&for-each2}
-  
+
       BREAK BY po-ordl.po-no:
         IF FIRST-OF(po-ordl.po-no) THEN li = li + 1.
         lv-po-no = po-ordl.po-no.
@@ -2576,7 +2580,7 @@ ELSE /*IF lv-show-next THEN*/ DO:
       AND po-ordl.po-no GE lv-first-show-po-no
       USE-INDEX opened NO-LOCK,
       {&for-each2}
-  
+
       BREAK BY po-ordl.po-no:
         IF FIRST-OF(po-ordl.po-no) THEN li = li + 1.
         lv-po-no = po-ordl.po-no.
@@ -2795,7 +2799,7 @@ FUNCTION qty-in-ord-uom RETURNS DECIMAL
 
   DEF BUFFER b-po-ordl FOR po-ordl.
 
-  
+
 
   FIND b-po-ordl WHERE ROWID(b-po-ordl) EQ ROWID(po-ordl) NO-LOCK NO-ERROR.
 
