@@ -221,8 +221,8 @@ DO:
     message "Are you sure you want to update Help Information" view-as alert-box question
              button yes-no update ll-ans as log.
     if ll-ans then  DO WITH FRAME {&FRAME-NAME}:
-       IF AVAIL hlp-head THEN DO:
-       def buffer bf-hlp-head for hlp-head. 
+       IF AVAIL asihlp.hlp-head THEN DO:
+       def buffer bf-hlp-head for asihlp.hlp-head. 
        find bf-hlp-head where recid(bf-hlp-head) = recid(hlp-head).
   /*     lv-dum = ed-text:SAVE-FILE(bf-hlp-head.help-txt). */
 
@@ -305,17 +305,17 @@ DEFINE VARIABLE fr-file  AS CHARACTER NO-UNDO.
 /*mod-sewa*/
 
 is-frame-help = no.
-find first asihlp.hlp-head where hlp-head.fld-name = ip-value and
-                                 hlp-head.fil-name = ip-table /*and
-                                 hlp-head.frm-name = ip-frame   */
+find first asihlp.hlp-head where asihlp.hlp-head.fld-name = ip-value and
+                                 asihlp.hlp-head.fil-name = ip-table /*and
+                                 asihlp.hlp-head.frm-name = ip-frame   */
                                  no-lock no-error.
-if avail hlp-head then is-frame-help = yes.  /* same field but different help by business */
+if avail asihlp.hlp-head then is-frame-help = yes.  /* same field but different help by business */
 else do:
-find first asihlp.hlp-head where hlp-head.fld-name = ip-field
+find first asihlp.hlp-head where asihlp.hlp-head.fld-name = ip-field
                                  no-lock no-error.
-if not avail hlp-head then do:                                /* program-name */
-   find first hlp-head where hlp-head.fld-name matches ("*" +  ip-frame + "*")  no-lock no-error.
-   if not avail hlp-head then do: 
+if not avail asihlp.hlp-head then do:                                /* program-name */
+   find first asihlp.hlp-head where asihlp.hlp-head.fld-name matches ("*" +  ip-frame + "*")  no-lock no-error.
+   if not avail asihlp.hlp-head then do: 
       if ip-table <> "" then message "Help For " string(ip-table) + "." + string(ip-field) ": No Detail Help Information Available!." view-as alert-box error.
       else message "Help For "  string(ip-frame)  ": No Detail Help Information Available!." view-as alert-box error.
       return .
@@ -324,7 +324,7 @@ if not avail hlp-head then do:                                /* program-name */
 end.
 end.  /* else no ip-frame */
 /*
-find first help-msg where asihlp.help-msg.msg-number = hlp-head.msg-num no-lock no-error.
+find first help-msg where asihlp.help-msg.msg-number = asihlp.hlp-head.msg-num no-lock no-error.
 */ 
 
 /* mod - sewa for Web Services task 08211210 */
@@ -341,27 +341,27 @@ find first sys-ctrl NO-LOCK
 
 IF NOT vhWebService:CONNECTED() THEN
 DO:
-    IF AVAIL hlp-head THEN do:
+    IF AVAIL asihlp.hlp-head THEN do:
     if is-frame-help then  
-        lv-help-title = "Help For " + (if hlp-head.frm-title <> "" then hlp-head.frm-title
+        lv-help-title = "Help For " + (if asihlp.hlp-head.frm-title <> "" then asihlp.hlp-head.frm-title
                                     else substring(hlp-head.help-txt,1,30) ) 
-                                    + "   " + hlp-head.fil-name + "." + hlp-head.fld-name .
+                                    + "   " + asihlp.hlp-head.fil-name + "." + asihlp.hlp-head.fld-name .
 
-    else if hlp-head.frm-title = "" then 
+    else if asihlp.hlp-head.frm-title = "" then 
         lv-help-title = "Help For " + ip-value.
-    else lv-help-title = "Help On " + hlp-head.frm-title +  " For " + ip-value.
+    else lv-help-title = "Help On " + asihlp.hlp-head.frm-title +  " For " + ip-value.
 
     assign ed-text = ""
            ls-line-no = "".
     /*       
-    for each bf-msg where bf-msg.msg-number = hlp-head.msg-num :
+    for each bf-msg where bf-msg.msg-number = asihlp.hlp-head.msg-num :
         ed-text = ed-text + bf-msg.msg-txt + chr(13).    
         ls-line-no = ls-line-no + string(bf-msg.msg-line) + ",".
     end. 
     */
     lv-frame-name = ip-frame.
-    ASSIGN ed-text = hlp-head.help-txt
-           lv-updated = hlp-head.updated
+    ASSIGN ed-text = asihlp.hlp-head.help-txt
+           lv-updated = asihlp.hlp-head.updated
            op-ed-text = STRING(ed-text).
 
     END. /* avail hlp-head*/
