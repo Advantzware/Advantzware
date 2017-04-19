@@ -216,7 +216,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* ************************* Included-Libraries *********************** */
 
 {Advantzware/WinKit/embedwindow-nonadm.i}
-{Advantzware/WinKit/embedwindow-nonadm.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

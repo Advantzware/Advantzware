@@ -51,7 +51,7 @@ ON CTRL-P HELP.
 /* System Constant Values */
 {system/sysconst.i}
 
-{methods/defines/mainmenu.i}
+{addon/methods/defines/mainmenu.i}
 
 DEFINE TEMP-TABLE ttbl NO-UNDO
   FIELD menu-order AS INTEGER
