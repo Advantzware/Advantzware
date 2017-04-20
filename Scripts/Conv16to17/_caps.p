@@ -24,7 +24,8 @@ REPEAT:
                 IF cFile BEGINS "/* _UIB-CODE-BLOCK-END */" THEN
                 LEAVE.
                 RUN pCodeFile (INPUT-OUTPUT idx, cFile).
-                IF INDEX(cFile,"CAPS(") NE 0 THEN DO:
+                IF INDEX(cFile,"CAPS(") NE 0 AND
+                   NOT TRIM(cFile) BEGINS "/*" THEN DO:
                     cFile = fAddComment("  ~{&SELF-NAME}:CURSOR-OFFSET = LENGTH(~{&SELF-NAME}:SCREEN-VALUE) + 1.").
                     RUN pCodeFile (INPUT-OUTPUT idx, cFile).
                 END.

@@ -758,8 +758,8 @@ DO:
     end case. 
 
     APPLY "close" TO THIS-PROCEDURE.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:26 am */
  END.
-{Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:26 am */
 
 
 /* _UIB-CODE-BLOCK-END */
@@ -1051,6 +1051,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                OUTPUT ou-cust-int) .
 
   DO WITH FRAME {&FRAME-NAME}:
+     {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:41 am */
+     {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:41 am */
      {custom/usrprint.i}
 
      ASSIGN
@@ -1114,8 +1116,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     OUTPUT cRtnChar, OUTPUT lRecFound).
 /* gdm - 0309094 end */
 
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:41 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:41 am */
     {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:26 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
