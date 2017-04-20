@@ -1,0 +1,32 @@
+FOR EACH usercomp OF users  NO-LOCK usercomp.company EQ company.company AND usercomp.loc NE "",  EACH loc OF usercomp  NO-LOCK
+loc,dscr
+
+Indexed: loc,dscr
+Non-Idx: loc_default
+
+Generated 04.19.2017 @  2:30:07 pm by: asi
+Table: usercomp - Records: 825
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: usercomp
+         Field: user_id
+         Field: company
+         Field: loc
+
+Table: loc - Records: 290
+
+    Index: dscr
+         Field: company
+         Field: dscr
+
+    Index: loc
+         Field: company
+         Field: loc
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-dscr
+         Field: dscr

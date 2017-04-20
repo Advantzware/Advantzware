@@ -1,0 +1,27 @@
+FOR EACH carrier NO-LOCK WHERE carrier.company EQ "%company%"
+carrier,dscr,loc
+
+Indexed: carrier,dscr,loc
+Non-Idx: chg-method
+
+Generated 04.18.2017 @ 12:44:51 am by: nosweat
+Table: carrier - Records: 193
+
+    Index: carrier
+         Field: company
+         Field: carrier
+
+    Index: dscr
+         Field: company
+         Field: dscr
+
+    Index: loc
+         Field: company
+         Field: loc
+         Field: carrier
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-dscr
+         Field: dscr

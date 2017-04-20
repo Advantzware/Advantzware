@@ -1,0 +1,29 @@
+FOR EACH reftable NO-LOCK WHERE reftable.reftable EQ "SALETOOL" AND reftable.company EQ cocode
+Non-Idx: dscr
+
+Indexed: Non-Idx: dscr
+Non-Idx: ?
+
+Generated 04.18.2017 @ 12:23:26 am by: nosweat
+
+    Index: code
+         Field: reftable
+         Field: code
+
+    Index: code2
+         Field: reftable
+         Field: code2
+
+    Index: loc
+         Field: reftable
+         Field: loc
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: reftable
+         Field: reftable
+         Field: company
+         Field: loc
+         Field: code
+         Field: code2

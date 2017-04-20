@@ -1,0 +1,22 @@
+FOR EACH attach NO-LOCK WHERE attach.company EQ reftable.company AND attach.est-no EQ trim(reftable.reftable) + reftable.code AND attach.i-no EQ trim(reftable.reftable) + reftable.code
+Non-Idx: attach-file
+
+Indexed: Non-Idx: attach-file,run-application
+Non-Idx: ?
+
+Generated 04.18.2017 @ 12:23:51 am by: nosweat
+
+    Index: est-no
+         Field: company
+         Field: est-no
+
+    Index: i-no
+         Field: company
+         Field: i-no
+
+    Index: link
+         Field: link-table
+         Field: rec_key
+
+    Index: rec_key
+         Field: rec_key

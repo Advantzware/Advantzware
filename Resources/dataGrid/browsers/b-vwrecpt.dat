@@ -1,0 +1,33 @@
+FOR EACH vend-whse-trans NO-LOCK WHERE vend-whse-trans.trans-type EQ "R"
+cust-part-no,fg-item-no,item-po-no,r-no,trans-date,vend-bol-no,vend-job-no,vendor-code,vendor-plant-code
+
+Indexed: cust-part-no,fg-item-no,r-no,trans-date,vendor-code,vendor-plant-code
+Non-Idx: item-line-no,item-po-no,plant-tot-oh-qty,sell-price,trans-qty,vend-bol-no,vend-job-no,vend-job-no2,vendor-dept-code,vend-ord-no
+
+Generated 04.18.2017 @  6:54:00 am by: nosweat
+Table: vend-whse-trans - Records: 0
+
+    Index: cust-part
+         Field: company
+         Field: vendor-code
+         Field: vendor-plant-code
+         Field: cust-part-no
+         Field: r-no
+
+    Index: date
+         Field: company
+         Field: trans-date
+
+    Index: fg-code
+         Field: company
+         Field: vendor-code
+         Field: vendor-plant-code
+         Field: fg-item-no
+         Field: r-no
+
+    Index: r-no
+         Field: company
+         Field: r-no
+
+    Index: rec_key
+         Field: rec_key

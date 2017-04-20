@@ -1,0 +1,21 @@
+FOR EACH sys-ctrl-shipto OF sys-ctrl NO-LOCK
+cust-vend,cust-vend-no,ship-id
+
+Indexed: cust-vend,cust-vend-no,ship-id
+Non-Idx: char-fld,date-fld,dec-fld,int-fld,log-fld
+
+Generated 04.19.2017 @  2:21:01 pm by: asi
+Table: sys-ctrl-shipto - Records: 732
+
+    Index: cust-vend
+         Field: company
+         Field: cust-vend
+         Field: cust-vend-no
+         Field: ship-id
+
+    Index: name
+         Field: company
+         Field: name
+         Field: cust-vend
+         Field: cust-vend-no
+         Field: ship-id

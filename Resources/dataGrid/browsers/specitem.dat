@@ -1,0 +1,22 @@
+FOR EACH item-spec NO-LOCK WHERE item-spec.company EQ "%company%"
+code,notes
+
+Indexed: code
+Non-Idx: notes
+
+Generated 04.18.2017 @  2:51:39 am by: nosweat
+Table: item-spec - Records: 57
+
+    Index: i-no
+         Field: company
+         Field: i-no
+         Field: code
+
+    Index: item-spec
+         Field: company
+         Field: item-type
+         Field: i-no
+         Field: code
+
+    Index: rec_key
+         Field: rec_key

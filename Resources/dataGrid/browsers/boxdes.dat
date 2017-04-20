@@ -1,0 +1,24 @@
+FOR EACH box-design-hdr NO-LOCK WHERE box-design-hdr.company EQ "%company%"  and ASI.box-design-hdr.design-no <> 0
+blank-no,description,design-no,est-no,form-no
+
+Indexed: blank-no,design-no,est-no,form-no
+Non-Idx: description
+
+Generated 04.18.2017 @ 12:56:12 am by: nosweat
+Table: box-design-hdr - Records: 58,761
+
+    Index: design
+         Field: design-no
+         Field: company
+         Field: est-no
+         Field: eqty
+         Field: form-no
+         Field: blank-no
+
+    Index: est
+         Field: e-num
+         Field: form-no
+         Field: blank-no
+
+    Index: rec_key
+         Field: rec_key
