@@ -44,6 +44,9 @@ FIND FIRST users NO-LOCK
 IF AVAILABLE users THEN
 lDeveloper = users.developer.
 
+IF SEARCH ("developer.dat") NE ? THEN 
+lDeveloper = YES.
+
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pApplyFilterHandler:
@@ -53,8 +56,9 @@ PROCEDURE pApplyFilterHandler:
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER sender AS System.Object NO-UNDO.
   DEFINE INPUT PARAMETER e      AS System.EventArgs NO-UNDO.
-
+  
   DEFINE VARIABLE oFilterValues AS Consultingwerk.Framework.Collections.CharacterDictionary NO-UNDO.
+  DEFINE VARIABLE cGridErrors   AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cCellColumn   AS CHARACTER NO-UNDO.
   DEFINE VARIABLE hCellColumn   AS HANDLE    NO-UNDO.
   DEFINE VARIABLE cBuffers      AS CHARACTER NO-UNDO.
@@ -69,6 +73,8 @@ PROCEDURE pApplyFilterHandler:
         cQuery        = cGridQuery
         cQuery        = REPLACE (cQuery, "%company%", g_company)
         cQuery        = REPLACE (cQuery, "%loc%"    , g_loc    )
+        cGridErrors   = SEARCH ("dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".dat")).
+        cGridErrors   = REPLACE (cGridErrors, ".dat", ".err")
         .
       DO idx = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME} :
           ASSIGN
@@ -104,10 +110,26 @@ PROCEDURE pApplyFilterHandler:
         "Query:" SKIP(1) cQuery SKIP(2)
         "Base Template:" SKIP(1) cGridQuery
             VIEW-AS ALERT-BOX.
-
-      QUERY {&BROWSE-NAME}:QUERY-PREPARE (cQuery).
-      QUERY {&BROWSE-NAME}:QUERY-OPEN.
-      QUERY {&BROWSE-NAME}:GET-FIRST() .
+            
+      QUERY {&BROWSE-NAME}:QUERY-PREPARE (cQuery) NO-ERROR.      
+      IF ERROR-STATUS:NUM-MESSAGES NE 0 THEN DO: 
+          IF lDeveloper THEN DO:
+              OUTPUT TO VALUE (cGridErrors).
+              PUT UNFORMATTED "PROGRAM: " THIS-PROCEDURE:NAME SKIP(1). 
+              DO idx = 1 TO ERROR-STATUS:NUM-MESSAGES:
+                  PUT UNFORMATTED "ERROR: " AT 5 ERROR-STATUS:GET-MESSAGE (idx).
+              END. /* do idx */
+              PUT UNFORMATTED SKIP (1) "QUERY: " AT 5 cQuery SKIP.
+              OUTPUT CLOSE.
+              OS-COMMAND NO-WAIT notepad.exe VALUE (cGridErrors).
+          END. /* if ldeveloper */
+      END. /* if error */
+      ELSE DO:
+          IF SEARCH (cGridErrors) NE ? THEN 
+          OS-DELETE VALUE (cGridErrors).
+          QUERY {&BROWSE-NAME}:QUERY-OPEN.
+          QUERY {&BROWSE-NAME}:GET-FIRST().
+      END.
   END. /* valid-object */
 
 END PROCEDURE.
@@ -124,7 +146,7 @@ PROCEDURE pCreateDataGridDat:
     DEFINE VARIABLE cFiles      AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cTableName  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iRecords    AS INTEGER   NO-UNDO.
-
+    
     DO idx = 1 TO {&BROWSE-NAME}:NUM-COLUMNS IN FRAME {&FRAME-NAME} :
         hCellColumn = {&BROWSE-NAME}:GET-BROWSE-COLUMN(idx).
         FIND FIRST asi._file NO-LOCK
