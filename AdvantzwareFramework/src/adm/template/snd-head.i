@@ -16,6 +16,7 @@
      https://github.com/advantzwareWinKit/Advantzware/issues/38 */
   &IF "{&PROCEDURE-TYPE}" EQ "SmartBrowser" &THEN
   IF NOT AVAILABLE {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}} THEN
+      IF QUERY {&BROWSE-NAME}:NUM-RESULTS NE ? THEN 
       GET FIRST {&BROWSE-NAME} .
   &ENDIF
 
