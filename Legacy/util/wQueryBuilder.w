@@ -3264,7 +3264,7 @@ PROCEDURE ipCSV :
     DEF VAR cTempFormula2 AS CHAR EXTENT 100 NO-UNDO.
 
     ASSIGN
-        cFileName = fiRptName:{&SV} + " (" + STRING(YEAR(TODAY),"9999") + "_" +
+        cFileName = (IF fiRptName:{&SV} <> "" then fiRptName:{&SV} else "SAMPLE")+ " (" + STRING(YEAR(TODAY),"9999") + "_" +
                                              STRING(MONTH(TODAY),"99") + "_" +
                                              STRING(DAY(TODAY),"99") + ")" + ".csv".
     SYSTEM-DIALOG GET-FILE cFileName
@@ -3276,7 +3276,7 @@ PROCEDURE ipCSV :
         INITIAL-DIR "..\Reports\".
     assign
         cDataString = "".
-    IF hBrowse:NUM-SELECTED-ROWS = 0 THEN hBrowse:SELECT-ALL().
+    IF hBrowse:NUM-SELECTED-ROWS < 2 THEN hBrowse:SELECT-ALL().
 
         
     OUTPUT TO VALUE(cFileName).
@@ -3301,7 +3301,7 @@ PROCEDURE ipCSV :
     assign
         cDataString = "".
     
-    DO iCtr3 = 2 TO hBrowse:NUM-SELECTED-ROWS:
+    DO iCtr3 = 1 TO hBrowse:NUM-SELECTED-ROWS:
         hBrowse:FETCH-SELECTED-ROW(iCtr3).
         
         DO iFields = 1 TO hBrowse:NUM-COLUMNS:
@@ -4079,7 +4079,6 @@ PROCEDURE ipSaveFile :
         (IF cbWhere-18:{&SV} <> ? THEN cbWhere-18:{&SV} ELSE "") + "|" +
         (IF cbWhere-19:{&SV} <> ? THEN cbWhere-19:{&SV} ELSE "") + "|" +
         (IF cbWhere-20:{&SV} <> ? THEN cbWhere-20:{&SV} ELSE "") + "|".
-
     ASSIGN cDataString = cDataString +
         (IF cbOp-1:{&SV} <> ? THEN cbOp-1:{&SV} ELSE "") + "|" +
         (IF cbOp-2:{&SV} <> ? THEN cbOp-2:{&SV} ELSE "") + "|" +
@@ -4101,7 +4100,6 @@ PROCEDURE ipSaveFile :
         (IF cbOp-18:{&SV} <> ? THEN cbOp-18:{&SV} ELSE "") + "|" +
         (IF cbOp-19:{&SV} <> ? THEN cbOp-19:{&SV} ELSE "") + "|" +
         (IF cbOp-20:{&SV} <> ? THEN cbOp-20:{&SV} ELSE "") + "|".
-.
     ASSIGN cDataString = cDataString +
         (IF fiVal-1:{&SV} <> ? THEN fiVal-1:{&SV} ELSE "") + "|" +
         (IF fiVal-2:{&SV} <> ? THEN fiVal-2:{&SV} ELSE "") + "|" +
@@ -4123,7 +4121,6 @@ PROCEDURE ipSaveFile :
         (IF fiVal-18:{&SV} <> ? THEN fiVal-18:{&SV} ELSE "") + "|" +
         (IF fiVal-19:{&SV} <> ? THEN fiVal-19:{&SV} ELSE "") + "|" +
         (IF fiVal-20:{&SV} <> ? THEN fiVal-20:{&SV} ELSE "") + "|".
-.
     ASSIGN cDataString = cDataString +
         (IF cbAnd-1:{&SV} <> ? THEN cbAnd-1:{&SV} ELSE "") + "|" +
         (IF cbAnd-2:{&SV} <> ? THEN cbAnd-2:{&SV} ELSE "") + "|" +
@@ -4141,7 +4138,6 @@ PROCEDURE ipSaveFile :
         (IF cbAnd-17:{&SV} <> ? THEN cbAnd-17:{&SV} ELSE "") + "|" +
         (IF cbAnd-18:{&SV} <> ? THEN cbAnd-18:{&SV} ELSE "") + "|" +
         (IF cbAnd-19:{&SV} <> ? THEN cbAnd-19:{&SV} ELSE "") + "|".
-.
     ASSIGN cDataString = cDataString +
         (IF tOpenParen-1:CHECKED THEN "Y" ELSE "N") + "|" +
         (IF tOpenParen-2:CHECKED THEN "Y" ELSE "N") + "|" +
@@ -4163,7 +4159,6 @@ PROCEDURE ipSaveFile :
         (IF tOpenParen-18:CHECKED THEN "Y" ELSE "N") + "|" +
         (IF tOpenParen-19:CHECKED THEN "Y" ELSE "N") + "|" +
         (IF tOpenParen-20:CHECKED THEN "Y" ELSE "N") + "|".
-.
     ASSIGN cDataString = cDataString +
         (IF tCloseParen-1:CHECKED THEN "Y" ELSE "N") + "|" +
         (IF tCloseParen-2:CHECKED THEN "Y" ELSE "N") + "|" +
@@ -4185,15 +4180,13 @@ PROCEDURE ipSaveFile :
         (IF tCloseParen-18:CHECKED THEN "Y" ELSE "N") + "|" +
         (IF tCloseParen-19:CHECKED THEN "Y" ELSE "N") + "|" +
         (IF tCloseParen-20:CHECKED THEN "Y" ELSE "N") + "|".
-    
     ASSIGN cDataString = cDataString + 
         (IF cFieldList[1] <> ? THEN cFieldList[1] ELSE "") + "|" +
         (IF cFieldList[2] <> ? THEN cFieldList[2] ELSE "") + "|" +
         (IF cFieldList[3] <> ? THEN cFieldList[3] ELSE "") + "|" +
         (IF cFieldList[4] <> ? THEN cFieldList[4] ELSE "") + "|".
-    
     ASSIGN cDataString = cDataString + 
-        fiRptName:{&SV} + "|" + 
+        (if fiRptName:{&SV} <> ? then fiRptName:{&SV} else "") + "|" + 
         fiLockedCols:{&SV} + "|" +
         fiPagesWide:{&SV} + "|".
 
@@ -4215,16 +4208,17 @@ PROCEDURE ipSaveFile :
                        STRING(ttColumns.iExtent) + "`" + 
                        STRING(ttColumns.iIdx) + "`" + 
                        STRING(ttColumns.iPos) + "`" + 
-                       STRING(ttColumns.iRow) 
-            cDataString = cDataString + cCalcCol + "|".
+                       STRING(ttColumns.iRow).
+            cDataString = cDataString + (if cCalcCol <> ? then cCalcCol + "|" else "").
     END.
-        
+
     /* Mark the end of file */
+
     ASSIGN cDataString = cDataString + CHR(10).
 
     IF cHowSave = "SaveAs" OR cFileName = "" THEN DO:
         ASSIGN
-            cFileName = fiRptName:{&SV} + " (" + STRING(YEAR(TODAY),"9999") + "_" +
+            cFileName = (IF fiRptName:{&SV} <> "" then fiRptName:{&SV} else "SAMPLE") + " (" + STRING(YEAR(TODAY),"9999") + "_" +
                                                  STRING(MONTH(TODAY),"99") + "_" +
                                                  STRING(DAY(TODAY),"99") + ")" + ".qry".
         SYSTEM-DIALOG GET-FILE cFileName
@@ -4235,7 +4229,6 @@ PROCEDURE ipSaveFile :
         DEFAULT-EXTENSION ".qry"
         INITIAL-DIR "..\Reports\".
     END.
-
     OUTPUT TO VALUE(cFileName).
     PUT UNFORMATTED cDataString.
     OUTPUT CLOSE.
