@@ -1,5 +1,22 @@
 /* caselbl3.p */
 
+&SCOPED-DEFINE loginProcedure nosweat/login.w
+&SCOPED-DEFINE checkUserRecord YES 
+&SCOPED-DEFINE connectDatabases YES
+&SCOPED-DEFINE runAsiLoad NO
+&SCOPED-DEFINE createSingleUserPFs NO
+&SCOPED-DEFINE nonPersistProgram oerep/r-casetg.w
+&SCOPED-DEFINE checkExpiredLicense YES
+&SCOPED-DEFINE checkUserCount YES
+&SCOPED-DEFINE getCompanyProc CUSTOM/getcomp.p
+
+    
+{nosweat.i}
+
+
+
+/* original code */
+/*
 propath = "p:\asi10test\patch\rco1010,p:\asi10test\patch\rco1010\addon,p:\asi10test\rco1010,p:\asi10test\rco1010\addon," + PROPATH.
 
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
@@ -88,3 +105,5 @@ DO:
 END. 
 ldummy = SESSION:SET-WAIT-STATE("").
 QUIT.
+
+*/

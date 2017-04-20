@@ -1,5 +1,19 @@
 /* ldtagcrt.p Loadtag creation program  */
 
+&SCOPED-DEFINE loginProcedure nosweat/login.w
+&SCOPED-DEFINE checkUserRecord YES 
+&SCOPED-DEFINE connectDatabases YES
+&SCOPED-DEFINE runAsiLoad YES
+&SCOPED-DEFINE createSingleUserPFs YES
+&SCOPED-DEFINE nonPersistProgram oerep/r-loadtg.w
+&SCOPED-DEFINE checkExpiredLicense YES
+&SCOPED-DEFINE checkUserCount YES
+&SCOPED-DEFINE getCompanyProc CUSTOM/getcomp.p
+{nosweat.i}
+
+
+/* Original Code */
+/*
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
 
@@ -83,3 +97,4 @@ DO:
 END. 
 ldummy = SESSION:SET-WAIT-STATE("").
 QUIT.
+*/

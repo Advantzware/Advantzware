@@ -1,6 +1,22 @@
 /* touchscr.p */
 PROPATH = "..\," + PROPATH.
+&SCOPED-DEFINE loginProcedure nosweat/login.w
+&SCOPED-DEFINE nonPersistProgram touch/touchscr.w
+&SCOPED-DEFINE checkUserRecord YES
+&SCOPED-DEFINE connectDatabases YES
+&SCOPED-DEFINE runAsiLoad YES
+&SCOPED-DEFINE createSingleUserPFs YES
+&SCOPED-DEFINE checkExpiredLicense YES
+&GLOBAL-DEFINE checkUserCount YES
+&SCOPED-DEFINE overrideUserID landrum
+&SCOPED-DEFINE overrideUserPasswd landrum
+&SCOPED-DEFINE getCompanyProc sshoot/comp-loc.p
 
+{nosweat.i}
+
+
+/* Original Code */
+/*
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
 
@@ -40,3 +56,4 @@ END.
 
 ldummy = SESSION:SET-WAIT-STATE("").
 QUIT.
+*/
