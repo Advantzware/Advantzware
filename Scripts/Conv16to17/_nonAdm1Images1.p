@@ -56,7 +56,8 @@ REPEAT:
             cTrigger = ENTRY(4,cFile," ").
             REPEAT:
                 IMPORT UNFORMATTED cFile.
-                IF INDEX(cFile,"LABEL") NE 0 THEN DO:
+                IF INDEX(cFile,"LABEL") NE 0 AND
+                   INDEX(nonAdmImage,"contlbl") EQ 0 THEN DO:
                     cLabel = ENTRY(NUM-ENTRIES(cFile," "),cFile," ").
                     IF INDEX(cLabel,"~"") NE 0 THEN DO:
                         ASSIGN
