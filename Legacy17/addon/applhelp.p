@@ -43,12 +43,6 @@ DO: /* F1 function key */
             lookups.frame_file = m_frame_file AND 
             lookups.frame_field = m_frame_field 
           NO-LOCK NO-ERROR.
-  /*MESSAGE
-    m_frame_db  FRAME-DB
-    m_frame_file  FRAME-FILE
-    m_frame_field  FRAME-FIELD
-    AVAIL(lookups)
- VIEW-AS ALERT-BOX.*/
   IF AVAILABLE lookups THEN
   DO:
     IF lv-userid NE "" AND CAN-DO(g_developer,lv-userid) THEN
@@ -59,8 +53,12 @@ DO: /* F1 function key */
       CASE m_response:
         WHEN yes THEN
         RUN Run_Lookup (lookups.prgmname).
-        WHEN no THEN
-        RUN VALUE("lookups/" + lookups.prgmname + "p").
+        WHEN NO THEN DO: 
+            IF SEARCH("lookups/" + lookups.prgmname + "r") NE ? THEN
+            RUN VALUE(SEARCH("lookups/" + lookups.prgmname + "r")).
+            ELSE IF SEARCH("lookups/" + lookups.prgmname + "p") NE ? THEN  
+            RUN VALUE(SEARCH("lookups/" + lookups.prgmname + "p")).
+        END.
         OTHERWISE
         DO:
           MESSAGE "Remove Attached Browser from this Field?"
