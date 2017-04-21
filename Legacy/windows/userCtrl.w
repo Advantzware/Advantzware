@@ -85,18 +85,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15  WIDGET-ID 100.
 
-DEFINE FRAME message-frame
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 68 ROW 2.91
-         SIZE 83 BY 1.43
-         BGCOLOR 15  WIDGET-ID 100.
-
 DEFINE FRAME OPTIONS-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 1
          SIZE 148 BY 1.91
+         BGCOLOR 15  WIDGET-ID 100.
+
+DEFINE FRAME message-frame
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 68 ROW 2.91
+         SIZE 83 BY 1.43
          BGCOLOR 15  WIDGET-ID 100.
 
 
@@ -106,7 +106,7 @@ DEFINE FRAME OPTIONS-FRAME
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 2
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -319,7 +319,7 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = ?':U ,
              OUTPUT h_userlog ).
-       RUN set-position IN h_userlog ( 5.52 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_userlog ( 5.52 , 6.80 ) NO-ERROR.
        RUN set-size IN h_userlog ( 17.86 , 115.00 ) NO-ERROR.
 
        /* Adjust the tab order of the smart objects. */
