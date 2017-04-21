@@ -70,7 +70,20 @@ PROCEDURE winReSize:
     &ENDIF
       FRAME {&FRAME-NAME}:VIRTUAL-HEIGHT = FRAME {&FRAME-NAME}:HEIGHT
       FRAME {&FRAME-NAME}:VIRTUAL-WIDTH  = FRAME {&FRAME-NAME}:WIDTH
+      currentWidget = FRAME {&FRAME-NAME}:HANDLE
+      currentWidget = currentWidget:FIRST-CHILD
+      currentWidget = currentWidget:FIRST-CHILD
       .
-
+  // correct if browser too large for the frame
+  DO WHILE currentWidget NE ?:
+    IF currentWidget:TYPE EQ 'BROWSE' THEN DO:
+      IF currentWidget:HEIGHT GT FRAME {&FRAME-NAME}:HEIGHT THEN
+      currentWidget:HEIGHT = FRAME {&FRAME-NAME}:HEIGHT.
+      IF currentWidget:WIDTH GT FRAME {&FRAME-NAME}:WIDTH THEN
+      currentWidget:WIDTH = FRAME {&FRAME-NAME}:WIDTH.
+    END. /* if browse type */
+    currentWidget = currentWidget:NEXT-SIBLING.
+  END.
+    
 END PROCEDURE.
 &ENDIF

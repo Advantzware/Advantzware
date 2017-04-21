@@ -596,7 +596,7 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winReSize Include
-PROCEDURE winReSize PRIVATE :
+PROCEDURE winReSize :
 /*------------------------------------------------------------------------------
   Purpose:
   Parameters:  <none>
