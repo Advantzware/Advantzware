@@ -26,6 +26,8 @@
 
 DEFINE VARIABLE adm-panel-state AS CHARACTER NO-UNDO.
 
+{methods/slError.i}
+
 &IF DEFINED (adm-panel) = 0 &THEN
 &GLOBAL adm-panel yes
 /* Dialog program to run to set runtime attributes - if not defined in master */
