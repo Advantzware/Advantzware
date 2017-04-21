@@ -2230,7 +2230,7 @@ PROCEDURE valid-tax-gr :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-focus AS HANDLE NO-UNDO.
 
-
+  slError = YES.
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-focus:SCREEN-VALUE NE "" AND
        NOT CAN-FIND(FIRST stax
@@ -2243,6 +2243,7 @@ PROCEDURE valid-tax-gr :
       RETURN ERROR.
     END.
   END.
+  slError = NO.
 
 END PROCEDURE.
 
@@ -2257,6 +2258,7 @@ PROCEDURE valid-type :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  slError = YES.
   DO WITH FRAME {&FRAME-NAME}:
     po-ord.type:SCREEN-VALUE = CAPS(po-ord.type:SCREEN-VALUE).
 
@@ -2270,6 +2272,7 @@ PROCEDURE valid-type :
     RUN new-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN ERROR.
   END.
+  slError = NO.
 
 END PROCEDURE.
 
@@ -2284,6 +2287,7 @@ PROCEDURE valid-vend-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  slError = YES.
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST vend
         WHERE vend.company EQ po-ord.company
@@ -2301,6 +2305,7 @@ PROCEDURE valid-vend-no :
       RETURN ERROR.
     END.
   END.
+  slError = NO.
 
 END PROCEDURE.
 
