@@ -215,7 +215,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow-nonadm.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -295,7 +294,6 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:17 pm */
 END.
 
 /* These events will close the window and terminate the procedure.      */
@@ -329,7 +327,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         boxes:LOAD-IMAGE(sys-ctrl.DESCrip).
   {addon/methods/mainmenu.i}
   RUN Read_Menus.
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:17 pm */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
