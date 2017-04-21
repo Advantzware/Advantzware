@@ -32,7 +32,6 @@ DEFINE VARIABLE cResponse      AS CHARACTER NO-UNDO.
 ASSIGN
     cocode         = gcompany
     locode         = gloc
-    igsSessionID   = NEXT-VALUE(session_seq)
     cCurrentUserID = USERID(LDBNAME(1)).
     
 FIND FIRST userLog NO-LOCK 
