@@ -31,6 +31,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE DontValidateError /* added by script _dontValidatePanels.p */
 
 /* Parameters Definitions ---                                           */
 define input  parameter phParent as handle      no-undo.

@@ -192,10 +192,8 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE DO:
+ON CLOSE OF THIS-PROCEDURE 
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
-END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
@@ -206,8 +204,6 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
-    {methods/setButton.i Btn_DBTable "Get"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:35 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:43 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

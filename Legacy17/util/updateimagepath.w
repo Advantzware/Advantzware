@@ -29,6 +29,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE DontValidateError /* added by script _dontValidatePanels.p */
 
 /* Variables */
 DEFINE VARIABLE vcStartingPath  AS CHARACTER  NO-UNDO.

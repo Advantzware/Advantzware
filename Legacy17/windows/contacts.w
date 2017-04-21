@@ -31,6 +31,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE DontValidateError /* added by script _dontValidatePanels.p */
 
 /* Parameters */
 &IF DEFINED (UIB_Is_Running) = 0 &THEN

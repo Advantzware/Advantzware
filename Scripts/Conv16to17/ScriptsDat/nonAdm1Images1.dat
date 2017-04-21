@@ -19,7 +19,6 @@ addon\nosweat\brwsdefs.w
 addon\nosweat\config.w
 addon\nosweat\listparm.w
 addon\nosweat\lkupdate.w
-addon\nosweat\lkups_ui.w
 addon\nosweat\mfvalues.w
 addon\nosweat\popups.w
 addon\nosweat\ruler.w
@@ -27,7 +26,6 @@ addon\nosweat\searches.w
 addon\nosweat\searchui.w
 addon\nosweat\setaudit.w
 addon\nosweat\spool.w
-addon\nosweat\tablefld.w
 addon\nosweat\ziploadr.w
 addon\oe\r-bole&p.w
 addon\rm\r-recven.w

@@ -21,6 +21,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE DontValidateError /* added by script _dontValidatePanels.p */
 {custom/globdefs.i}
 
 {sys/inc/var.i new shared}
