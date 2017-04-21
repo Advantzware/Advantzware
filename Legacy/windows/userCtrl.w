@@ -106,7 +106,7 @@ DEFINE FRAME OPTIONS-FRAME
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
+   Design Page: 2
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -244,8 +244,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
-  IF USERID(LDBNAME(1)) NE "ASI" THEN 
-     RUN disable-folder-page (INPUT 2) NO-ERROR.
+.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -452,8 +451,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
-PROCEDURE local-change-page :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
+PROCEDURE local-enable :
 /*------------------------------------------------------------------------------
   Purpose:     Override standard ADM method
   Notes:       
@@ -462,10 +461,12 @@ PROCEDURE local-change-page :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
 
+  IF USERID(LDBNAME(1)) NE "ASI" AND VALID-HANDLE(h_folder) THEN
+    RUN disable-folder-page IN h_folder (2) .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

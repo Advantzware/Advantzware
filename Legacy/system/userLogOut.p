@@ -38,6 +38,7 @@ FIND FIRST userLog NO-LOCK
     WHERE userLog.user_id     = cCurrentUserID       
     AND userLog.sessionID     = igsSessionID 
     AND userLog.userStatus EQ "Logged In" 
+    USE-INDEX sessionID
     NO-ERROR.
         
   

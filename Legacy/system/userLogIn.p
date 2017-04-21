@@ -171,7 +171,7 @@ IF NOT oplExit THEN DO TRANSACTION:
     ASSIGN 
         userLog.user_id       = cCurrentUserID       
         userLog.sessionID     = igsSessionID 
-        userLog.userName      = asi._connect._connect-name
+        userLog.userName      = cUserName
         userLog.IpAddress     = OS-GETENV("userDomain")
         userLog.deviceName    = OS-GETENV("computerName")    
         userLog.EulaVersion   = DECIMAL(cEulaVersion)

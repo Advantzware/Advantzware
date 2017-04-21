@@ -29,6 +29,7 @@ DEFINE INPUT  PARAMETER ipOpenSessions AS INTEGER NO-UNDO.
 DEFINE INPUT  PARAMETER ipMaxPerUser   AS INTEGER NO-UNDO.
 DEFINE OUTPUT PARAMETER op-value AS cha NO-UNDO.
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE cMessage AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -67,31 +68,32 @@ DEFINE BUTTON btnAddSession AUTO-GO
      FONT 6.
 
 DEFINE BUTTON btnClearOtherSessions AUTO-GO 
-     LABEL "Clear Out Other Sessions" 
+     LABEL "Log Out Other Sessions" 
      SIZE 33 BY 1.14
      FONT 6.
 
-DEFINE BUTTON btnExit 
+DEFINE BUTTON btnExit AUTO-GO 
      LABEL "Exit Application" 
      SIZE 23 BY 1.14
      FONT 6.
 
 DEFINE VARIABLE fiUserMessage AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
-     SIZE 60 BY 1 NO-UNDO.
+     SIZE 60 BY 1
+     FONT 6 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     fiUserMessage AT ROW 1.95 COL 14 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+     fiUserMessage AT ROW 1.95 COL 20 COLON-ALIGNED NO-LABEL WIDGET-ID 6
      btnAddSession AT ROW 5.33 COL 3
      btnClearOtherSessions AT ROW 5.33 COL 38
      btnExit AT ROW 5.33 COL 74 WIDGET-ID 2
      "Choose one option:" VIEW-AS TEXT
-          SIZE 26 BY 1.43 AT ROW 3.38 COL 31 WIDGET-ID 4
+          SIZE 26 BY 1.43 AT ROW 3.14 COL 33 WIDGET-ID 4
           FONT 6
-     SPACE(45.39) SKIP(2.13)
+     SPACE(43.39) SKIP(2.37)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "System Control Question"
@@ -155,7 +157,7 @@ DO:
 
 &Scoped-define SELF-NAME btnClearOtherSessions
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnClearOtherSessions Dialog-Frame
-ON CHOOSE OF btnClearOtherSessions IN FRAME Dialog-Frame /* Clear Out Other Sessions */
+ON CHOOSE OF btnClearOtherSessions IN FRAME Dialog-Frame /* Log Out Other Sessions */
 DO:
         op-value = TRIM(SELF:label).
     END.
@@ -181,7 +183,15 @@ IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+    IF ipOpenSessions GE ipMaxPerUser THEN
+      cMessage = "User " + USERID(LDBNAME(1)) + " has reached the maximum " + STRING(ipMaxPerUser) + " sessions.".
+    ELSE
+      cMessage = "User " + USERID(LDBNAME(1)) + " has " + STRING(ipOpenSessions) + " other session(s) open.".
+    fiUserMessage = cMessage.
     RUN enable_UI.
+    IF ipOpenSessions GE ipMaxPerUser THEN
+      ASSIGN btnAddSession:VISIBLE = FALSE btnClearOtherSessions:COLUMN = 18 btnExit:COLUMN = 54.
+
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
 RUN disable_UI.
