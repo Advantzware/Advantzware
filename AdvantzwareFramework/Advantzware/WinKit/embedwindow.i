@@ -30,7 +30,6 @@
 {src/winkit/winkitactive.i}
 
 &IF DEFINED (winkitactive) NE 0 &THEN
-{methods/slError.i NEW}
 
 /* Mike Fechner, Consultingwerk Ltd. 06.02.2016
    Advantzware default is to use tab folders */
