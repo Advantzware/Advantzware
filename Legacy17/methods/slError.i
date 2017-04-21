@@ -1,3 +1,0 @@
-/* slError.i */
-
-DEFINE {1} SHARED VARIABLE slError AS LOGICAL NO-UNDO.
