@@ -5,7 +5,7 @@
 {methods/buttonImage.i {1} "{2}" {3}}
 
 DO:
-    &IF DEFINED(ValidateError) &THEN
+    &IF DEFINED(DontValidateError) EQ 0 &THEN
     IF VALID-HANDLE(adm-broker-hdl) THEN DO:
       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"TableIO-Target":U,OUTPUT char-hdl).
       pHandle = WIDGET-HANDLE(char-hdl).

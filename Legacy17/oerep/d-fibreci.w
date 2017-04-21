@@ -15,6 +15,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE DontValidateError /* added by script _dontValidatePanels.p */
 
 /* Parameters */
 DEF INPUT PARAM icInvoiceForm   AS CHAR NO-UNDO.

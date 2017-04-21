@@ -39,7 +39,6 @@ addon\nosweat\config.w
 addon\nosweat\lookups.w
 addon\nosweat\scr_view.w
 addon\nosweat\setaudit.w
-addon\nosweat\tablefld.w
 addon\nosweat\usermenu.w
 addon\nosweat\_wizntro.w
 addon\nosweat\_wizxtbl.w
