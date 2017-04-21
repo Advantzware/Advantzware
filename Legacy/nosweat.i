@@ -40,7 +40,9 @@ DEFINE                   VARIABLE i               AS INTEGER   NO-UNDO.
 DEFINE                   VARIABLE lExit           AS LOGICAL   NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g-sharpshooter  AS LOG       NO-UNDO.  /* no, it's yes only from sharpsh.p */
 
+DO TRANSACTION:
 {sys/inc/tslogin.i}
+END.
 
 /* Previously not run in every case, should be up for discussion */
 RUN custom/gettime.p.
@@ -98,6 +100,11 @@ DO:
     &ENDIF
 
     {methods/setdevid.i}
+
+    &IF DEFINED(getCompanyProc) NE 0  &THEN
+    RUN getCompanyProc.
+    &ENDIF
+
     
     &IF "{&addonPersist}" EQ "YES"  &THEN
       RUN addon/nosweat/persist.p PERSISTENT SET Persistent-Handle.
@@ -109,10 +116,12 @@ DO:
     
     &IF "{&checkUserCount}" EQ "YES"  &THEN
     
-    IF NOT (PDBNAME(1) EQ "ASI" OR PDBNAME(2) EQ "ASI" OR PDBNAME(3) EQ "ASI") THEN 
-    DO:
+    /* IF NOT (PDBNAME(1) EQ "ASI" OR PDBNAME(2) EQ "ASI" OR PDBNAME(3) EQ "ASI") THEN  */
+    DO TRANSACTION:
+            
         /* Check EULA and number of sessions here using combined db or in mainmenu if ASI is physically connected */
         RUN system/userLogin.p (OUTPUT lExit).
+        
         IF lExit THEN 
             QUIT. 
     END.
@@ -130,9 +139,6 @@ DO:
     RUN setUserGroups.
     
     
-    &IF DEFINED(getCompanyProc) NE 0  &THEN
-    RUN getCompanyProc.
-    &ENDIF
     
     &IF DEFINED(overrideCompany) NE 0  &THEN
     RUN setCompanyOverride (INPUT "{&overrideCompany}").
@@ -170,6 +176,9 @@ END.
 
 
     
+DO TRANSACTION:
+  RUN system/userLogOut.p.
+END.
 ldummy = SESSION:SET-WAIT-STATE("").
 QUIT.
 
