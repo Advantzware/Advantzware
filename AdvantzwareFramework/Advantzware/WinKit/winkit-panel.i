@@ -32,6 +32,8 @@ DEFINE VARIABLE oForm   AS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWi
 DEFINE VARIABLE oPanelRibbonTab AS Infragistics.Win.UltraWinToolbars.RibbonTab NO-UNDO .
 DEFINE VARIABLE cPanelRibbonGroupKey AS CHARACTER NO-UNDO .
 
+{methods/defines/lValidateError.i}
+
 /* ***************************  Main Block  *************************** */
 
 
