@@ -357,7 +357,7 @@ PROCEDURE adm-get-prev :
 
             ASSIGN oApi = Consultingwerk.WindowIntegrationKit.BrowseMethods:ForHandle(browser-handle) .
 
-            oApi:SELECT-NEXT-ROW() .
+            oApi:SELECT-PREV-ROW() .
         END.
         ELSE
             q-stat = browser-handle:SELECT-PREV-ROW().
