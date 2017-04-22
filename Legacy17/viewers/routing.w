@@ -1051,6 +1051,7 @@ PROCEDURE validate-machine :
 ------------------------------------------------------------------------------*/
   def input parameter ip-mach like mach.m-code no-undo.
 
+  {methods/lValidateError.i YES}
   if not can-find(mach where mach.company = gcompany
               and mach.loc = gloc
               and mach.m-code = ip-mach) and ip-mach <> ""
@@ -1058,6 +1059,7 @@ PROCEDURE validate-machine :
      return error.
   end.            
   return.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

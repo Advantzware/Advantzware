@@ -1943,6 +1943,7 @@ PROCEDURE valid-type :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-DO("B,C,D,F,P,R,W",style.type:SCREEN-VALUE) THEN DO:
       MESSAGE "Invalid Type. Type must be 'B'ox, 'D'ie Cut, 'F'oam, 'P'artition, 'R'oll Partition, or 'W'ood..."
@@ -1951,6 +1952,7 @@ PROCEDURE valid-type :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

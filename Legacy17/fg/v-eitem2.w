@@ -1541,6 +1541,7 @@ PROCEDURE valid-std-uom :
   DEF VAR uom-list AS CHAR INIT "" NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     fi_std-uom:SCREEN-VALUE = CAPS(fi_std-uom:SCREEN-VALUE).
 
@@ -1568,6 +1569,7 @@ PROCEDURE valid-std-uom :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

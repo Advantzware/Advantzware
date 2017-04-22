@@ -1550,6 +1550,7 @@ PROCEDURE valid-actnum :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 &Scoped-define SELF-NAME vend.actnum
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
@@ -1567,6 +1568,7 @@ if not avail sys-ctrl                                     or
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1580,6 +1582,7 @@ PROCEDURE valid-buyer :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 &Scoped-define SELF-NAME vend.buyer
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
@@ -1590,6 +1593,7 @@ if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1603,6 +1607,7 @@ PROCEDURE valid-carrier :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 &Scoped-define SELF-NAME vend.carrier
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
@@ -1613,6 +1618,7 @@ if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1626,6 +1632,7 @@ PROCEDURE valid-code-1099 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     vend.code-1099:SCREEN-VALUE = CAPS(vend.code-1099:SCREEN-VALUE).
 
@@ -1637,6 +1644,7 @@ PROCEDURE valid-code-1099 :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1650,6 +1658,7 @@ PROCEDURE valid-curr :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 &Scoped-define SELF-NAME vend.curr-code
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
@@ -1662,6 +1671,7 @@ end.
 
 
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1674,6 +1684,7 @@ PROCEDURE valid-loc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
 &Scoped-define SELF-NAME vend.loc
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
@@ -1684,6 +1695,7 @@ if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1701,6 +1713,7 @@ PROCEDURE valid-po-export :
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ls-field-value = TRIM(vend.po-export:SCREEN-VALUE).
 
@@ -1725,6 +1738,7 @@ PROCEDURE valid-po-export :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1739,6 +1753,7 @@ PROCEDURE valid-po-sec :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   l-valid = YES.
 
   DO WITH FRAME {&frame-name}:    
@@ -1756,6 +1771,7 @@ PROCEDURE valid-po-sec :
     IF NOT l-valid THEN APPLY "entry" TO vend.po-export.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1769,6 +1785,7 @@ PROCEDURE valid-r-state :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 &Scoped-define SELF-NAME vend.r-state
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
@@ -1779,6 +1796,7 @@ if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1792,6 +1810,7 @@ PROCEDURE valid-state :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 &Scoped-define SELF-NAME vend.state
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
@@ -1802,6 +1821,7 @@ if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1815,6 +1835,7 @@ PROCEDURE valid-stax :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 &Scoped-define SELF-NAME vend.tax-gr
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
@@ -1826,6 +1847,7 @@ IF aptax-log                                              OR
   IF NOT v-avail THEN RETURN ERROR.
 END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1839,6 +1861,7 @@ PROCEDURE valid-terms :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 &Scoped-define SELF-NAME vend.terms
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
@@ -1849,6 +1872,7 @@ if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1862,6 +1886,7 @@ PROCEDURE valid-vend-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF vend.vend-no:SCREEN-VALUE EQ "" OR
        CAN-FIND(FIRST b-vend WHERE b-vend.company EQ cocode
@@ -1877,6 +1902,7 @@ PROCEDURE valid-vend-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1890,6 +1916,7 @@ PROCEDURE valid-vendtype :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 &Scoped-define SELF-NAME vend.type
 
 DEF VAR v-avail AS LOG INIT YES NO-UNDO.
@@ -1900,6 +1927,7 @@ if {&self-name}:screen-value in frame {&frame-name} ne "" then do:
   IF NOT v-avail THEN RETURN ERROR.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

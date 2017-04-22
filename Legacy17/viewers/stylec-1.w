@@ -845,6 +845,7 @@ PROCEDURE valid-dim :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ip-focus:SCREEN-VALUE) - TRUNC(DEC(ip-focus:SCREEN-VALUE),0) GT .15
     THEN DO:
@@ -856,6 +857,7 @@ PROCEDURE valid-dim :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -599,6 +599,7 @@ PROCEDURE valid-loc :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     carrier.loc:SCREEN-VALUE = CAPS(carrier.loc:SCREEN-VALUE).
 
@@ -612,6 +613,7 @@ PROCEDURE valid-loc :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

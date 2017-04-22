@@ -579,8 +579,7 @@ PROCEDURE valid-actnum :
 
   DEF VAR lv-msg AS CHAR NO-UNDO.
   DEF VAR lv-types AS CHAR INIT "ACELRT" NO-UNDO.
-  DEF VAR lv-type-dscr AS CHAR INIT
-      "Asset,Capital,Expense,Liability,Revenue,Total" NO-UNDO.
+  DEF VAR lv-type-dscr AS CHAR INIT "Asset,Capital,Expense,Liability,Revenue,Total" NO-UNDO.
 
 
   DO WITH FRAME {&FRAME-NAME}:

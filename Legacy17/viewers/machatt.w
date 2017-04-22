@@ -670,6 +670,7 @@ PROCEDURE valid-m-code :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST mach
                     WHERE mach.company EQ cocode
@@ -682,6 +683,7 @@ PROCEDURE valid-m-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -697,6 +699,7 @@ PROCEDURE valid-style :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-focus:SCREEN-VALUE NE "" AND
        NOT CAN-FIND(FIRST style
@@ -710,6 +713,7 @@ PROCEDURE valid-style :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

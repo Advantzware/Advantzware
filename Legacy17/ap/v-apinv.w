@@ -1170,6 +1170,7 @@ PROCEDURE valid-inv-date :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   IF NOT ll-recur THEN
   DO WITH FRAME {&FRAME-NAME}:
     IF DATE(ap-inv.inv-date:SCREEN-VALUE) GT TODAY THEN DO:
@@ -1185,6 +1186,7 @@ PROCEDURE valid-inv-date :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1198,6 +1200,7 @@ PROCEDURE valid-inv-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   IF NOT ll-recur THEN
   DO WITH FRAME {&FRAME-NAME}:
     IF ap-inv.inv-no:SCREEN-VALUE EQ "" THEN DO:
@@ -1210,6 +1213,7 @@ PROCEDURE valid-inv-no :
     IF ERROR-STATUS:ERROR THEN RETURN ERROR.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1225,6 +1229,7 @@ PROCEDURE valid-tax-gr :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -1240,6 +1245,7 @@ PROCEDURE valid-tax-gr :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1255,6 +1261,7 @@ PROCEDURE valid-vend-inv :
   DEF VAR ll AS LOG NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST bf-inv
           WHERE bf-inv.company EQ cocode
@@ -1277,6 +1284,7 @@ PROCEDURE valid-vend-inv :
   END.
 
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1290,6 +1298,7 @@ PROCEDURE valid-vend-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST vend
         WHERE vend.company EQ cocode
@@ -1313,6 +1322,7 @@ PROCEDURE valid-vend-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

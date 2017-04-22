@@ -535,6 +535,7 @@ PROCEDURE valid-acct :
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     CASE ip-int:
       WHEN 1 THEN
@@ -600,6 +601,7 @@ PROCEDURE valid-acct :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

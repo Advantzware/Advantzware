@@ -869,6 +869,7 @@ PROCEDURE valid-check-date :
   DEF VAR ll AS LOG INIT NO NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT ll-warned                                                               AND
        NOT CAN-FIND(FIRST period
@@ -888,6 +889,7 @@ PROCEDURE valid-check-date :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -901,6 +903,7 @@ PROCEDURE valid-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF lv-old-cust NE ar-cash.cust-no:SCREEN-VALUE THEN RUN new-cust-no.
 
@@ -914,6 +917,7 @@ PROCEDURE valid-cust-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

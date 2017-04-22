@@ -1575,6 +1575,7 @@ PROCEDURE valid-rpt :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF gl-rpt.rpt:SCREEN-VALUE EQ "" THEN DO:
         MESSAGE "Report ID can not be blank. " VIEW-AS ALERT-BOX ERROR.
@@ -1592,6 +1593,7 @@ PROCEDURE valid-rpt :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -2924,6 +2924,7 @@ PROCEDURE valid-adhesive :
   DEF INPUT PARAM ip-field AS WIDGET-HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-field:SCREEN-VALUE = CAPS(ip-field:SCREEN-VALUE).
 
@@ -2940,6 +2941,7 @@ PROCEDURE valid-adhesive :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2953,6 +2955,7 @@ PROCEDURE valid-board :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ef.board:SCREEN-VALUE = CAPS(ef.board:SCREEN-VALUE).
 
@@ -2968,6 +2971,7 @@ PROCEDURE valid-board :
     IF ef.brd-dscr:SCREEN-VALUE EQ "" THEN RUN new-board.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2986,6 +2990,7 @@ PROCEDURE valid-fi_from-est-no :
   DEF BUFFER b-eb FOR eb.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     fi_from-est-no:SCREEN-VALUE =
         STRING(INT(fi_from-est-no:SCREEN-VALUE),">>>>>>>>") NO-ERROR.
@@ -3023,6 +3028,7 @@ PROCEDURE valid-fi_from-est-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3042,6 +3048,7 @@ PROCEDURE valid-prep :
   DEF VAR ll AS LOG INIT YES NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   IF addprep-log THEN
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-type EQ 1 THEN
@@ -3078,6 +3085,7 @@ PROCEDURE valid-prep :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3091,6 +3099,7 @@ PROCEDURE valid-procat :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     eb.procat:SCREEN-VALUE = CAPS(eb.procat:SCREEN-VALUE).
 
@@ -3104,6 +3113,7 @@ PROCEDURE valid-procat :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3117,6 +3127,7 @@ PROCEDURE valid-ship-id :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST shipto
                     WHERE shipto.company EQ cocode
@@ -3135,6 +3146,7 @@ PROCEDURE valid-ship-id :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3147,6 +3159,7 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   FIND FIRST sman
         WHERE sman.company EQ cocode
           AND sman.sman    EQ eb.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -3159,6 +3172,7 @@ PROCEDURE valid-sman :
     END.
     sman_sname:SCREEN-VALUE = sman.sNAME.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3172,6 +3186,7 @@ PROCEDURE valid-style :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     eb.style:SCREEN-VALUE = CAPS(eb.style:SCREEN-VALUE).
 
@@ -3201,6 +3216,7 @@ PROCEDURE valid-style :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3216,6 +3232,7 @@ PROCEDURE valid-wid-len :
   DEF VAR lv-handle AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     lv-handle = IF LOOKUP(FOCUS:NAME,"style,len") GT 0 THEN FOCUS ELSE ?.
     IF NOT VALID-HANDLE(lv-handle) THEN lv-handle = eb.wid:HANDLE.
@@ -3242,6 +3259,7 @@ PROCEDURE valid-wid-len :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

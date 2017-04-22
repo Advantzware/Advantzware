@@ -849,6 +849,7 @@ PROCEDURE valid-base-cost-uom :
 ------------------------------------------------------------------------------*/
 DEF VAR v-msg AS CHAR FORMAT "X(15)".
 
+  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
    v-msg = "".
 
@@ -871,6 +872,7 @@ DO WITH FRAME {&FRAME-NAME}:
    ELSE
       ASSIGN item-comm.zz-char[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = CAPS(item-comm.zz-char[3]:SCREEN-VALUE).
 END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -885,6 +887,7 @@ PROCEDURE valid-cust-no :
 ------------------------------------------------------------------------------*/
    DEF BUFFER b-cust FOR cust.
 
+  {methods/lValidateError.i YES}
    IF NOT CAN-FIND(FIRST cust WHERE cust.company = g_company
                                 AND cust.cust-no = item-comm.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN DO:
       MESSAGE "Invalid Customer#. " VIEW-AS ALERT-BOX ERROR.
@@ -902,6 +905,7 @@ PROCEDURE valid-cust-no :
       END.
    END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -919,6 +923,7 @@ PROCEDURE valid-i-no :
 
    DEF VAR v-msg AS CHAR NO-UNDO.
 
+  {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
       v-msg = "".
 
@@ -955,6 +960,7 @@ PROCEDURE valid-i-no :
                item-comm.zz-char[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = b-itemfg.prod-uom.
       END.
    END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -969,6 +975,7 @@ PROCEDURE valid-set-sales-price-uom :
 ------------------------------------------------------------------------------*/
 DEF VAR v-msg AS CHAR FORMAT "X(15)".
 
+  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
    v-msg = "".
 
@@ -991,6 +998,7 @@ DO WITH FRAME {&FRAME-NAME}:
    ELSE
       ASSIGN item-comm.zz-char[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = CAPS(item-comm.zz-char[2]:SCREEN-VALUE).
 END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

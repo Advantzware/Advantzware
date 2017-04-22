@@ -494,6 +494,7 @@ PROCEDURE valid-carrier :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
       zipcode.carrier:SCREEN-VALUE = CAPS(zipcode.carrier:SCREEN-VALUE).
 
@@ -508,6 +509,7 @@ PROCEDURE valid-carrier :
             RETURN ERROR.
          END.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -520,6 +522,7 @@ PROCEDURE valid-dest-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
       zipcode.del-zone:SCREEN-VALUE = CAPS(zipcode.del-zone:SCREEN-VALUE).
 
@@ -535,6 +538,7 @@ PROCEDURE valid-dest-code :
             RETURN ERROR.
          END.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

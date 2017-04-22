@@ -2025,6 +2025,7 @@ PROCEDURE valid-markup :
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv AS DEC NO-UNDO.
 
+  {methods/lValidateError.i YES}
   li = ip-int.
 
   IF li EQ 0 THEN
@@ -2059,6 +2060,7 @@ PROCEDURE valid-markup :
     END.
 
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2077,6 +2079,7 @@ PROCEDURE valid-mis-simon :
   DEF VAR lv AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   li = ip-int.
 
   IF li EQ 0 THEN
@@ -2120,6 +2123,7 @@ PROCEDURE valid-mis-simon :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

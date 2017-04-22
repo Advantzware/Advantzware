@@ -3577,6 +3577,7 @@ PROCEDURE valid-gsh-len :
   DEF VAR li AS INT NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF ll-auto-calc-selected                                                    AND
        ((DEC(ef.gsh-len:SCREEN-VALUE) LT DEC(ef.nsh-len:SCREEN-VALUE) AND
@@ -3589,6 +3590,7 @@ PROCEDURE valid-gsh-len :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3607,6 +3609,7 @@ PROCEDURE valid-gsh-wid :
   DEF BUFFER bf-eb FOR eb.
 
 
+  {methods/lValidateError.i YES}
   DO TRANSACTION:
     {sys/inc/celayout.i}
   END.
@@ -3656,6 +3659,7 @@ PROCEDURE valid-gsh-wid :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3677,6 +3681,7 @@ PROCEDURE valid-leaf-bnum :
   DEF VAR lv-bnum AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     CASE ip-int:
         WHEN 1 THEN
@@ -3719,6 +3724,7 @@ PROCEDURE valid-leaf-bnum :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3739,6 +3745,7 @@ PROCEDURE valid-leaf-snum :
   DEF VAR lv-snum AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     CASE ip-int:
         WHEN 1 THEN
@@ -3781,6 +3788,7 @@ PROCEDURE valid-leaf-snum :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

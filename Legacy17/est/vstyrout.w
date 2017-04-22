@@ -1824,6 +1824,7 @@ PROCEDURE validate-routing :
 ------------------------------------------------------------------------------*/
   def input param ip-r-code as cha no-undo.
 
+  {methods/lValidateError.i YES}
   if  ip-r-code <> "" and
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = ip-r-code)
@@ -1831,6 +1832,7 @@ PROCEDURE validate-routing :
               return error.
     end.                 
     return. 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

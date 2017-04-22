@@ -1327,6 +1327,7 @@ PROCEDURE valid-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND(FIRST cust WHERE cust.company = g_company
                       AND cust.cust-no = oe-prmtx.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})
   THEN DO:
@@ -1334,6 +1335,7 @@ PROCEDURE valid-cust-no :
       RETURN ERROR.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1347,6 +1349,7 @@ PROCEDURE valid-custtype :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND(FIRST custype WHERE custype.company = g_company
                       AND custype.custype = oe-prmtx.custype:SCREEN-VALUE IN FRAME {&FRAME-NAME})
   THEN DO:
@@ -1357,6 +1360,7 @@ PROCEDURE valid-custtype :
 
 
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1370,6 +1374,7 @@ PROCEDURE valid-i-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   IF oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE ""
       AND NOT CAN-FIND(FIRST itemfg WHERE itemfg.company = g_company
                       AND itemfg.i-no = oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})
@@ -1379,6 +1384,7 @@ PROCEDURE valid-i-no :
       RETURN ERROR.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1391,6 +1397,7 @@ PROCEDURE valid-procat :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
 IF NOT CAN-FIND(FIRST fgcat 
                     WHERE fgcat.company EQ g_company 
                       AND fgcat.procat EQ oe-prmtx.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME})
@@ -1414,6 +1421,7 @@ IF AVAIL itemfg
         RETURN ERROR.
 END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1427,6 +1435,7 @@ PROCEDURE valid-uom-01 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 v-invalid = no.
 
 if int(oe-prmtx.qty[01]:screen-value in frame {&frame-name}) ne 0 then do:
@@ -1443,6 +1452,7 @@ if int(oe-prmtx.qty[01]:screen-value in frame {&frame-name}) ne 0 then do:
   end.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1456,6 +1466,7 @@ PROCEDURE valid-uom-02 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 v-invalid = no.
 
 if int(oe-prmtx.qty[02]:screen-value in frame {&frame-name}) ne 0 then do:
@@ -1472,6 +1483,7 @@ if int(oe-prmtx.qty[02]:screen-value in frame {&frame-name}) ne 0 then do:
   end.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1485,6 +1497,7 @@ PROCEDURE valid-uom-03 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 v-invalid = no.
 
 if int(oe-prmtx.qty [03]:screen-value in frame {&frame-name}) ne 0 then do:
@@ -1501,6 +1514,7 @@ if int(oe-prmtx.qty [03]:screen-value in frame {&frame-name}) ne 0 then do:
   end.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1514,6 +1528,7 @@ PROCEDURE valid-uom-04 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 v-invalid = no.
 
 if int(oe-prmtx.qty[04]:screen-value in frame {&frame-name}) ne 0 then do:
@@ -1530,6 +1545,7 @@ if int(oe-prmtx.qty[04]:screen-value in frame {&frame-name}) ne 0 then do:
   end.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1543,6 +1559,7 @@ PROCEDURE valid-uom-05 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 v-invalid = no.
 
 if int(oe-prmtx.qty[05]:screen-value in frame {&frame-name}) ne 0 then do:
@@ -1559,6 +1576,7 @@ if int(oe-prmtx.qty[05]:screen-value in frame {&frame-name}) ne 0 then do:
   end.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1572,6 +1590,7 @@ PROCEDURE valid-uom-06 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 v-invalid = no.
 
 if int(oe-prmtx.qty[06]:screen-value in frame {&frame-name}) ne 0 then do:
@@ -1588,6 +1607,7 @@ if int(oe-prmtx.qty[06]:screen-value in frame {&frame-name}) ne 0 then do:
   end.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1601,6 +1621,7 @@ PROCEDURE valid-uom-07 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 v-invalid = no.
 
 if int(oe-prmtx.qty[07]:screen-value in frame {&frame-name}) ne 0 then do:
@@ -1617,6 +1638,7 @@ if int(oe-prmtx.qty[07]:screen-value in frame {&frame-name}) ne 0 then do:
   end.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1630,6 +1652,7 @@ PROCEDURE valid-uom-08 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 v-invalid = no.
 
 if int(oe-prmtx.qty[08]:screen-value in frame {&frame-name}) ne 0 then do:
@@ -1646,6 +1669,7 @@ if int(oe-prmtx.qty[08]:screen-value in frame {&frame-name}) ne 0 then do:
   end.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1659,6 +1683,7 @@ PROCEDURE valid-uom-09 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 v-invalid = no.
 
 if int(oe-prmtx.qty[09]:screen-value in frame {&frame-name}) ne 0 then do:
@@ -1675,6 +1700,7 @@ if int(oe-prmtx.qty[09]:screen-value in frame {&frame-name}) ne 0 then do:
   end.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1688,6 +1714,7 @@ PROCEDURE valid-uom-10 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 v-invalid = no.
 
 if int(oe-prmtx.qty[10]:screen-value in frame {&frame-name}) ne 0 then do:
@@ -1704,6 +1731,7 @@ if int(oe-prmtx.qty[10]:screen-value in frame {&frame-name}) ne 0 then do:
   end.
 end.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

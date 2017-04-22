@@ -581,6 +581,7 @@ PROCEDURE valid-m-code :
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST mach NO-LOCK
         WHERE mach.company EQ g_company
@@ -608,6 +609,7 @@ PROCEDURE valid-m-code :
      pc-prdh.dept:SCREEN-VALUE = mach.dept[1].
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

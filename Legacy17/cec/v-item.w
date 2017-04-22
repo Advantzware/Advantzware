@@ -2476,8 +2476,10 @@ PROCEDURE valid-dimensions :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   {custom/validDim.i}
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2494,6 +2496,7 @@ PROCEDURE valid-flute :
   DEF INPUT PARAM ip-mat-type LIKE item.mat-type NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -2508,6 +2511,7 @@ PROCEDURE valid-flute :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2521,6 +2525,7 @@ PROCEDURE valid-i-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF item.i-no:SCREEN-VALUE EQ "" THEN DO:
       MESSAGE "Item# may not be spaces..." VIEW-AS ALERT-BOX ERROR.
@@ -2529,6 +2534,7 @@ PROCEDURE valid-i-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2542,6 +2548,7 @@ PROCEDURE valid-mat-type :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     fi_mat-type:SCREEN-VALUE = CAPS(fi_mat-type:SCREEN-VALUE).
 
@@ -2552,6 +2559,7 @@ PROCEDURE valid-mat-type :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2570,6 +2578,7 @@ PROCEDURE valid-test :
   DEF VAR lv-flute LIKE item.flute NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE)
@@ -2588,6 +2597,7 @@ PROCEDURE valid-test :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2602,6 +2612,7 @@ PROCEDURE valid-16th&32th :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
     IF sys-ctrl.char-fld = "16th's" THEN DO:
         IF DECIMAL(item.s-wid:screen-value) - trunc(DECIMAL(item.s-wid:screen-value),0) >= v-16-or-32 
@@ -2675,4 +2686,5 @@ DO WITH FRAME {&FRAME-NAME}:
     END.
 END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.

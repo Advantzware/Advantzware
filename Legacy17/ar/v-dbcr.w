@@ -713,6 +713,7 @@ PROCEDURE valid-cust-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
 /* === validation ====*/
   DO WITH FRAME {&FRAME-NAME}:
      IF ar-cash.cust-no:MODIFIED THEN DO:
@@ -730,6 +731,7 @@ PROCEDURE valid-cust-no :
 
   END.
   /* ====== end validation =========*/
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

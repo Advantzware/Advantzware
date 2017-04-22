@@ -953,7 +953,7 @@ PROCEDURE valid-key :
     ------------------------------------------------------------------------------*/
     DEF BUFFER b-cust-markup FOR cust-markup.
 
-
+    {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         IF CAN-FIND(FIRST b-cust-markup
             WHERE b-cust-markup.company EQ cocode
@@ -970,6 +970,7 @@ PROCEDURE valid-key :
         END.
     END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -982,6 +983,7 @@ PROCEDURE valid-markup :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
 
         IF DEC(cust-markup.markup[1]:SCREEN-VALUE) GE 100 THEN
@@ -1065,6 +1067,7 @@ PROCEDURE valid-markup :
         END.
     END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1077,7 +1080,7 @@ PROCEDURE valid-procat :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-
+  {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         cust-markup.procat:SCREEN-VALUE =
             CAPS(cust-markup.procat:SCREEN-VALUE).
@@ -1098,6 +1101,7 @@ PROCEDURE valid-procat :
         IF ERROR-STATUS:ERROR THEN RETURN ERROR.
     END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1110,7 +1114,7 @@ PROCEDURE valid-style :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-
+  {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         cust-markup.style:SCREEN-VALUE =
             CAPS(cust-markup.style:SCREEN-VALUE).
@@ -1131,6 +1135,7 @@ PROCEDURE valid-style :
         IF ERROR-STATUS:ERROR THEN RETURN ERROR.
     END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
