@@ -134,6 +134,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
+IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
+    MESSAGE "Unable to load icon: adeicon\progress"
+            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
+
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -240,6 +246,7 @@ END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
+.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -314,7 +321,7 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = ?':U ,
              OUTPUT h_userlog ).
-       RUN set-position IN h_userlog ( 5.52 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_userlog ( 5.52 , 6.80 ) NO-ERROR.
        RUN set-size IN h_userlog ( 17.86 , 115.00 ) NO-ERROR.
 
        /* Adjust the tab order of the smart objects. */
@@ -441,6 +448,27 @@ PROCEDURE enable_UI :
   VIEW FRAME message-frame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-message-frame}
   VIEW W-Win.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable W-Win 
+PROCEDURE local-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+  IF USERID(LDBNAME(1)) NE "ASI" AND VALID-HANDLE(h_folder) THEN
+    RUN disable-folder-page IN h_folder (2) .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
