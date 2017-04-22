@@ -310,6 +310,7 @@ ASSIGN
           FIND FIRST sman WHERE sman.company = xeb.company AND
                                 sman.sman = xeb.sman NO-LOCK NO-ERROR.
           v-sman = IF AVAILABLE sman THEN sman.sname ELSE xeb.sman.
+          v-dept-note[31] = "CSR: " + IF AVAILABLE xoe-ord THEN xoe-ord.user-id ELSE job.user-id.
 
           /* Fibre logic to show each ink on estimate - start */
           FOR EACH w-i2:
@@ -917,8 +918,8 @@ ASSIGN
     /***************************/
 
         ASSIGN
-        v-inst = ""
-        v-dept-note[31] = "CSR: " + IF AVAILABLE xoe-ord THEN xoe-ord.user-id ELSE job.user-id.
+        v-inst = "".
+        /*v-dept-note[31] = "CSR: " + IF AVAILABLE xoe-ord THEN xoe-ord.user-id ELSE job.user-id.*/
         IF s-prt-ship-split THEN
            FIND FIRST tt-fibre WHERE tt-fibre.tt-job-no = job-hdr.job-no
                          AND tt-fibre.tt-job-no2 = job-hdr.job-no2
@@ -961,14 +962,14 @@ ASSIGN
             "<=1><R+36><C33>" v-dept-note[28] FORM "x(39)"
             "<=1><R+37><C33>" v-dept-note[29] FORM "x(39)"
             "<=1><R+38><C33>" v-dept-note[30] FORM "x(39)"
-            "<=1><R+39><C33>" v-dept-note[31] FORM "x(39)" 
-            "<=1><R+40><C33><FROM><R+5><C65><RECT><||3>"
+            /*"<=1><R+39><C33>" v-dept-note[31] FORM "x(39)" */
+            "<=1><R+40.8><C33><FROM><R+4.2><C65><RECT><||3>"
             "<=1><R+41><C33><P8>  Bundles: ________ @ _______          TOTAL"
             "<=1><R+42><C40> ________ @ _______"
             "<=1><R+43><C33>  Pallets: ________ @ _______"
             "<=1><R+44><C40> ________ @ _______       __________"
             "<=1><R+42><C57><FROM><C64><LINE><||3>"
-            "<=1><R+40><C55><FROM><R+5><C55><LINE><||3>"
+            "<=1><R+40.8><C55><FROM><R+4.2><C55><LINE><||3>"
             .
         IF s-prt-ship-split THEN
             PUT 
