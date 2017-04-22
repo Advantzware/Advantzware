@@ -59,15 +59,13 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR userControl.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS userControl.autoLogoutTime ~
-userControl.maxAllowedUsers userControl.numLicensedUsers ~
-userControl.numUsersOverLimit 
+&Scoped-Define ENABLED-FIELDS userControl.maxAllowedUsers ~
+userControl.numUsersOverLimit userControl.maxSessionsPerUser 
 &Scoped-define ENABLED-TABLES userControl
 &Scoped-define FIRST-ENABLED-TABLE userControl
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS userControl.autoLogoutTime ~
-userControl.maxAllowedUsers userControl.numLicensedUsers ~
-userControl.numUsersOverLimit 
+&Scoped-Define DISPLAYED-FIELDS userControl.maxAllowedUsers ~
+userControl.numUsersOverLimit userControl.maxSessionsPerUser 
 &Scoped-define DISPLAYED-TABLES userControl
 &Scoped-define FIRST-DISPLAYED-TABLE userControl
 
@@ -113,21 +111,22 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     userControl.autoLogoutTime AT ROW 3.14 COL 38 COLON-ALIGNED WIDGET-ID 4
+     userControl.autoLogoutTime AT ROW 3.38 COL 42 COLON-ALIGNED WIDGET-ID 4
           LABEL "Auto Logout Time (Hours)"
           VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-     userControl.maxAllowedUsers AT ROW 5.14 COL 38 COLON-ALIGNED WIDGET-ID 8
+          SIZE 11 BY 1
+     userControl.maxAllowedUsers AT ROW 5.38 COL 42 COLON-ALIGNED WIDGET-ID 8
           LABEL "Max Allowed Sessions"
           VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     userControl.numLicensedUsers AT ROW 6.14 COL 38 COLON-ALIGNED WIDGET-ID 10
-          VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     userControl.numUsersOverLimit AT ROW 7.67 COL 38 COLON-ALIGNED WIDGET-ID 12
+          SIZE 12 BY 1
+     userControl.numUsersOverLimit AT ROW 6.48 COL 42 COLON-ALIGNED WIDGET-ID 12
           LABEL "Num Users Allowed Over Limit"
           VIEW-AS FILL-IN 
-          SIZE 8 BY 1
+          SIZE 12 BY 1
+     userControl.maxSessionsPerUser AT ROW 8.62 COL 42 COLON-ALIGNED WIDGET-ID 14
+          LABEL "Max Sessions Per User"
+          VIEW-AS FILL-IN 
+          SIZE 12 BY 1
      RECT-1 AT ROW 1 COL 2
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -192,8 +191,13 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN userControl.autoLogoutTime IN FRAME F-Main
-   EXP-LABEL                                                            */
+   NO-DISPLAY NO-ENABLE EXP-LABEL                                       */
+ASSIGN 
+       userControl.autoLogoutTime:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN userControl.maxAllowedUsers IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN userControl.maxSessionsPerUser IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN userControl.numUsersOverLimit IN FRAME F-Main
    EXP-LABEL                                                            */

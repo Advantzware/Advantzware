@@ -22,8 +22,12 @@ DEFINE VARIABLE lcNk1Value      AS CHARACTER     NO-UNDO.
 DEFINE VARIABLE llRecFound      AS LOGICAL       NO-UNDO.
 DEFINE VARIABLE enforceUserCount-log  AS LOGICAL NO-UNDO.
 DEFINE VARIABLE promptMultiSession-log AS LOGICAL NO-UNDO.
-DEFINE VARIABLE iAllUserCount         AS INTEGER NO-UNDO.
-
+DEFINE VARIABLE iAllUserCount   AS INTEGER NO-UNDO.
+DEFINE VARIABLE iThisUserCount  AS INTEGER NO-UNDO.
+DEFINE VARIABLE cUserName       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iMaxSessionsPerUser AS INTEGER NO-UNDO.
+DEFINE VARIABLE cCurrentUserID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cResponse AS CHARACTER NO-UNDO.
 {methods/defines/hndldefs.i}
 {custom/gcompany.i}    
 {custom/getcmpny.i}
@@ -34,21 +38,39 @@ DEFINE VARIABLE iAllUserCount         AS INTEGER NO-UNDO.
 
 ASSIGN
     cocode = gcompany
-    locode = gloc.
+    locode = gloc
+    igsSessionID = NEXT-VALUE(session_seq)
+    cCurrentUserID = USERID(LDBNAME(1)).
+    
 
 /* System Constant Values  contains user eula file*/
 {system/sysconst.i}
-
+FIND FIRST sys-ctrl NO-LOCK 
+    WHERE sys-ctrl.company EQ cocode
+    AND sys-ctrl.name    EQ "enforceUserCount"
+    NO-ERROR.
+IF AVAILABLE sys-ctrl THEN DO:
 RUN sys/ref/nk1look.p (INPUT cocode, "enforceUserCount", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT lcNk1Value, OUTPUT llRecFound).
 IF llRecFound THEN
     enforceUserCount-log = LOGICAL(lcNk1Value) NO-ERROR.
+END. 
+ELSE 
+    enforceUserCount-log = TRUE.
+FIND FIRST sys-ctrl NO-LOCK 
+    WHERE sys-ctrl.company EQ cocode
+    AND sys-ctrl.name    EQ "promptMultiSession"
+    NO-ERROR.
+IF AVAILABLE sys-ctrl THEN DO:
 RUN sys/ref/nk1look.p (INPUT cocode, "promptMultiSession", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
     OUTPUT lcNk1Value, OUTPUT llRecFound).
 IF llRecFound THEN
-    promptMultiSession-log = LOGICAL(lcNk1Value) NO-ERROR.    
+    promptMultiSession-log = LOGICAL(lcNk1Value) NO-ERROR.
+END. 
+ELSE
+    promptMultiSession-log = YES.
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -58,6 +80,20 @@ IF llRecFound THEN
 /* IF so, ask IF this IS replacing OR adding */
 /* You have n session currently open.  Are you replacing one or adding a new one?" */
 DEFINE VARIABLE iLoginCnt AS INTEGER NO-UNDO.
+
+FIND FIRST userControl NO-LOCK NO-ERROR.
+
+IF NOT AVAILABLE userControl THEN DO:
+    RUN util/createUserControl.
+    FIND FIRST userControl NO-LOCK NO-ERROR.
+    IF NOT AVAILABLE userControl THEN DO:
+        MESSAGE "User Control Record was not found.  Exiting application."
+        VIEW-AS ALERT-BOX.
+        QUIT.
+    END. 
+END.
+  
+iMaxSessionsPerUser = userControl.maxSessionsPerUser.
 
 FIND FIRST asi._myconnection NO-LOCK NO-ERROR.  
 
@@ -72,24 +108,22 @@ IF NOT lEulaAccepted THEN
     
 iLoginCnt = 0.
 FOR EACH userLog NO-LOCK WHERE userLog.userStatus EQ "Logged In" 
-  AND  userLog.user_id EQ USERID("nosweat"):
+  AND  userLog.user_id EQ cCurrentUserID:
   iLoginCnt = iLoginCnt + 1.
 END.
 
+/* If user has other sessions open, prompt to add another or close them */
 IF iLoginCnt GT 0 AND promptMultiSession-log THEN DO:
-    
-    MESSAGE "User " + USERID("nosweat") + " " + string(iLoginCnt) + " other open sessions. Replace them or add a new one?" SKIP 
-      "Choose 'YES' to add an additional session." SKIP
-      "Choose 'NO' to replace the existing sessions with this new one." SKIP
-      "Choose 'CANCEL' to Exit"
-      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO-CANCEL UPDATE lAnswer.
+    RUN system/dSession.w (INPUT iLoginCnt, INPUT iMaxSessionsPerUser, OUTPUT cResponse).
       
-    CASE lAnswer:
-        WHEN ? THEN 
+    CASE cResponse:
+        WHEN "" THEN 
           oplExit = TRUE.
-        WHEN NO THEN DO:
+        WHEN "Exit Application" THEN 
+            oplExit = TRUE.          
+        WHEN "Log Out Other Sessions" THEN DO:
             FOR EACH userLog EXCLUSIVE-LOCK WHERE userLog.userStatus EQ "Logged In" 
-                AND  userLog.user_id EQ USERID("nosweat"):
+                AND  userLog.user_id EQ cCurrentUserID:
                 userLog.userStatus = "User Logged Out".
             END.            
         END.
@@ -108,11 +142,14 @@ IF NOT oplExit AND enforceUserCount-log THEN DO:
           iAllUserCount = iAllUserCount + 1.
     END.            
     
+
     FIND FIRST userControl NO-LOCK NO-ERROR.
     IF AVAILABLE userControl THEN DO:        
         /* +1 represents the additional session for the current new login */
         IF iAllUserCount + 1 GT userControl.maxAllowedUsers + userControl.numUsersOverLimit THEN DO:            
-           MESSAGE "The maximum number of sessions has been reached.  Exiting the application."
+           MESSAGE "The maximum number of sessions of " + STRING(userControl.maxAllowedUsers) + " has been reached." SKIP
+                   "Please contact your administrator to order more licenses."                   
+                   "Exiting the application."
                    VIEW-AS ALERT-BOX WARNING .
            oplExit = TRUE.                                       
         END.
@@ -120,18 +157,27 @@ IF NOT oplExit AND enforceUserCount-log THEN DO:
     
 END. /* If not exit was chosen */
 
-/* Reject TO accept the ADD - The system will exceed the maximum user count of n */
 
+
+
+
+/* Reject TO accept the ADD - The system will exceed the maximum user count of n */
+FIND FIRST users NO-LOCK WHERE users.user_id EQ cCurrentUserID NO-ERROR.
+IF AVAILABLE users THEN 
+    cUserName = users.user_name.
 IF NOT oplExit THEN DO TRANSACTION:
+    
     CREATE userLog.
     ASSIGN 
-        userLog.user_id       = USERID("NOSWEAT")       
-        userLog.sessionID     = asi._myconnection._myconn-pid 
-        userLog.userName      = asi._connect._connect-name
+        userLog.user_id       = cCurrentUserID       
+        userLog.sessionID     = igsSessionID 
+        userLog.userName      = cUserName
         userLog.IpAddress     = OS-GETENV("userDomain")
         userLog.deviceName    = OS-GETENV("computerName")    
         userLog.EulaVersion   = DECIMAL(cEulaVersion)
         userLog.userStatus    = "Logged In"
-        userLog.loginDateTime = DATETIME(TODAY, MTIME).
+        userLog.loginDateTime = DATETIME(TODAY, MTIME)
+        .
+    FIND CURRENT userLog NO-LOCK NO-ERROR.
+            
 END.  /* If not exiting */
-FIND CURRENT userLog NO-LOCK NO-ERROR.
