@@ -1558,6 +1558,7 @@ PROCEDURE valid-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     quotehd.cust-no:SCREEN-VALUE = CAPS(quotehd.cust-no:SCREEN-VALUE).
 
@@ -1582,6 +1583,7 @@ PROCEDURE valid-cust-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1594,6 +1596,7 @@ PROCEDURE valid-cust-user :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
 custcount = "".
 DEF VAR lActive AS LOG NO-UNDO.
 RUN sys/ref/CustList.p (INPUT cocode,
@@ -1612,6 +1615,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1625,6 +1629,7 @@ PROCEDURE valid-ship-id :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     quotehd.ship-id:SCREEN-VALUE = CAPS(quotehd.ship-id:SCREEN-VALUE).
 
@@ -1643,6 +1648,7 @@ PROCEDURE valid-ship-id :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1656,6 +1662,7 @@ PROCEDURE valid-sold-id :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     quotehd.sold-id:SCREEN-VALUE = CAPS(quotehd.sold-id:SCREEN-VALUE).
 
@@ -1675,6 +1682,7 @@ PROCEDURE valid-sold-id :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

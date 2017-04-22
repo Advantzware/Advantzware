@@ -757,6 +757,7 @@ PROCEDURE valid-char-fld :
   DEF VAR i AS INT NO-UNDO.
   DEF VAR j AS INT NO-UNDO. 
 
+  {methods/lValidateError.i YES}
   {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT opName,OUTPUT opModule)"}
 
 
@@ -852,6 +853,7 @@ PROCEDURE valid-char-fld :
   END. /* do with frame */
 
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -864,6 +866,7 @@ PROCEDURE valid-cust :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT opName,OUTPUT opModule)"}
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -891,6 +894,7 @@ PROCEDURE valid-cust :
         END CASE.
      END.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -903,9 +907,11 @@ PROCEDURE valid-log-fld :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT opName,OUTPUT opModule)"}
   {sys/ref/valid-log-fld.i}
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

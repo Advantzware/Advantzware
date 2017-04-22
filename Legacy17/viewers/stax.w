@@ -1015,6 +1015,7 @@ PROCEDURE valid-tax-code :
   DEFINE INPUT PARAMETER ip-value  AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ip-widget AS HANDLE    NO-UNDO.
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
     ip-widget:SCREEN-VALUE = CAPS(ip-value).
@@ -1032,6 +1033,7 @@ PROCEDURE valid-tax-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1046,6 +1048,7 @@ PROCEDURE valid-tax-group :
 ------------------------------------------------------------------------------*/ 
   DEFINE BUFFER b-stax FOR stax.
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     stax.tax-group:SCREEN-VALUE = CAPS(stax.tax-group:SCREEN-VALUE).
 
@@ -1061,6 +1064,7 @@ PROCEDURE valid-tax-group :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

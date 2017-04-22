@@ -1798,6 +1798,7 @@ PROCEDURE valid-roll-w-27 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(e-item-vend.roll-w[27]:SCREEN-VALUE) GT DEC(e-item-vend.roll-w[28]:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(e-item-vend.roll-w[27]:LABEL) " may not be greater than " TRIM(e-item-vend.roll-w[28]:LABEL).
@@ -1806,6 +1807,7 @@ PROCEDURE valid-roll-w-27 :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1819,6 +1821,7 @@ PROCEDURE valid-roll-w-28 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(e-item-vend.roll-w[28]:SCREEN-VALUE) LT DEC(e-item-vend.roll-w[27]:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(e-item-vend.roll-w[28]:LABEL) " may not be less than " TRIM(e-item-vend.roll-w[27]:LABEL).
@@ -1827,6 +1830,7 @@ PROCEDURE valid-roll-w-28 :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1840,6 +1844,7 @@ PROCEDURE valid-roll-w-29 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(e-item-vend.roll-w[29]:SCREEN-VALUE) GT DEC(e-item-vend.roll-w[30]:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(e-item-vend.roll-w[29]:LABEL) " may not be greater than " TRIM(e-item-vend.roll-w[30]:LABEL).
@@ -1848,6 +1853,7 @@ PROCEDURE valid-roll-w-29 :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1861,6 +1867,7 @@ PROCEDURE valid-roll-w-30 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(e-item-vend.roll-w[30]:SCREEN-VALUE) LT DEC(e-item-vend.roll-w[29]:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(e-item-vend.roll-w[30]:LABEL) " may not be less than " TRIM(e-item-vend.roll-w[29]:LABEL).
@@ -1869,6 +1876,7 @@ PROCEDURE valid-roll-w-30 :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1888,6 +1896,7 @@ PROCEDURE valid-vend-no :
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-focus:SCREEN-VALUE EQ "" THEN
       IF e-item-vend.vend-no NE "" AND NOT adm-new-record THEN
@@ -1922,6 +1931,7 @@ PROCEDURE valid-vend-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

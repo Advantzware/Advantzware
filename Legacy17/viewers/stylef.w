@@ -1489,6 +1489,7 @@ PROCEDURE valid-type :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
       IF style.type:SCREEN-VALUE NE "" THEN do:
@@ -1500,6 +1501,7 @@ PROCEDURE valid-type :
       END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

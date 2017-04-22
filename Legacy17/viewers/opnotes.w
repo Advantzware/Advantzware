@@ -570,6 +570,7 @@ PROCEDURE valid-note_code :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF notes.note_code:SCREEN-VALUE NE "" AND
        NOT CAN-FIND(FIRST dept WHERE dept.code EQ notes.note_code:SCREEN-VALUE)
@@ -582,6 +583,7 @@ PROCEDURE valid-note_code :
   END.
 
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

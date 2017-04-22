@@ -4427,6 +4427,7 @@ PROCEDURE valid-carrier :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     eb.carrier:SCREEN-VALUE = CAPS(eb.carrier:SCREEN-VALUE).
 
@@ -4441,6 +4442,7 @@ PROCEDURE valid-carrier :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4454,6 +4456,7 @@ PROCEDURE valid-cas-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     if eb.cas-no:screen-value <> "" and
        not can-find(item where item.company = eb.company
@@ -4467,6 +4470,7 @@ PROCEDURE valid-cas-no :
     end.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4480,6 +4484,7 @@ PROCEDURE valid-cas-wt :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(eb.cas-cnt:SCREEN-VALUE) NE 0 AND
        DEC(eb.cas-wt:SCREEN-VALUE)  NE 0 THEN DO:
@@ -4493,6 +4498,7 @@ PROCEDURE valid-cas-wt :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4506,6 +4512,7 @@ PROCEDURE valid-dest-code :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST carr-mtx
                     WHERE carr-mtx.company  EQ cocode 
@@ -4520,6 +4527,7 @@ PROCEDURE valid-dest-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4532,6 +4540,7 @@ PROCEDURE valid-divider :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
     if eb.divider:screen-value <> "" and
        not can-find(item where item.company = eb.company
@@ -4544,6 +4553,7 @@ DO WITH FRAME {&FRAME-NAME}:
       return ERROR.
     end.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4556,6 +4566,7 @@ PROCEDURE valid-layer-pad :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
     if eb.layer-pad:screen-value <> "" and
        not can-find(item where item.company = eb.company
@@ -4568,6 +4579,7 @@ DO WITH FRAME {&FRAME-NAME}:
       return ERROR.
     end.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4585,6 +4597,7 @@ DEF VAR cLayPer AS CHAR NO-UNDO.
 DEF VAR cMsg AS CHAR NO-UNDO.
 DEF VAR cValidValues AS CHAR INIT "C,P" NO-UNDO.
 
+  {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         IF eb.spare-char-3:SCREEN-VALUE = "" THEN eb.spare-char-3:SCREEN-VALUE = "C".
         IF eb.spare-char-4:SCREEN-VALUE = "" THEN eb.spare-char-4:SCREEN-VALUE = "C".
@@ -4609,6 +4622,7 @@ DEF VAR cValidValues AS CHAR INIT "C,P" NO-UNDO.
         END.
     END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -557,6 +557,7 @@ PROCEDURE valid-note_code :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF notes.note_code:SCREEN-VALUE NE '' THEN DO:
       dept-dscr:SCREEN-VALUE = ''.
@@ -574,6 +575,7 @@ PROCEDURE valid-note_code :
   END.
 
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -592,6 +594,7 @@ PROCEDURE valid-note_form_no PRIVATE :
 
   DEFINE BUFFER b1-job  FOR job.
 
+  {methods/lValidateError.i YES}
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source", OUTPUT char-hdl).
   RUN get-ip-header IN WIDGET-HANDLE(char-hdl) (OUTPUT ls-header).
 
@@ -634,6 +637,7 @@ PROCEDURE valid-note_form_no PRIVATE :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

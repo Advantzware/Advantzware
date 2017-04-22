@@ -1628,6 +1628,7 @@ PROCEDURE valid-carrier :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
      FIND FIRST carrier WHERE carrier.company = g_company
                           AND carrier.carrier = inv-head.carrier:SCREEN-VALUE
@@ -1639,6 +1640,7 @@ PROCEDURE valid-carrier :
      END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1652,6 +1654,7 @@ PROCEDURE valid-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     v-msg = "".
 
@@ -1692,6 +1695,7 @@ PROCEDURE valid-cust-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1704,6 +1708,7 @@ PROCEDURE valid-fob :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
  DO WITH FRAME {&FRAME-NAME}:
     IF INDEX("ORIG,DEST",inv-head.fob-code:SCREEN-VALUE) <= 0 THEN DO:
        MESSAGE "Invalid FOB Code. Enter ORIG or DEST ." VIEW-AS ALERT-BOX ERROR.
@@ -1711,6 +1716,7 @@ PROCEDURE valid-fob :
        RETURN ERROR.
     END.
  END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1723,6 +1729,7 @@ PROCEDURE valid-freight :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF (inv-head.t-inv-freight:SCREEN-VALUE NE "0.00" ) AND
        NOT CAN-FIND(FIRST inv-line
@@ -1737,6 +1744,7 @@ PROCEDURE valid-freight :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1755,6 +1763,7 @@ PROCEDURE valid-sold-no :
   DEF VAR lv-ship-id    LIKE shipto.ship-id    NO-UNDO.
   DEF VAR lv-ship-state LIKE shipto.ship-state NO-UNDO.
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
      IF (ll-use-soldto AND 
          NOT CAN-FIND(FIRST soldto WHERE
@@ -1822,6 +1831,7 @@ PROCEDURE valid-sold-no :
      ll-soldto-ans = YES.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1835,6 +1845,7 @@ PROCEDURE valid-tax-gr :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF inv-head.tax-gr:SCREEN-VALUE NE "" AND
        NOT CAN-FIND(FIRST stax
@@ -1848,6 +1859,7 @@ PROCEDURE valid-tax-gr :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1861,6 +1873,7 @@ PROCEDURE valid-terms :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF inv-head.terms:SCREEN-VALUE NE "CASH" AND
        NOT CAN-FIND(FIRST terms WHERE terms.company EQ g_company
@@ -1872,6 +1885,7 @@ PROCEDURE valid-terms :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

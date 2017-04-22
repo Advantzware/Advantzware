@@ -1071,6 +1071,7 @@ PROCEDURE valid-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF oe-rell.cust-no:SCREEN-VALUE /*IN BROWSE {&browse-name}*/ NE "" AND
        (oe-rell.cust-no:SCREEN-VALUE /*IN BROWSE {&browse-name}*/ NE oe-bolh.cust-no OR
@@ -1091,6 +1092,7 @@ PROCEDURE valid-cust-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1104,6 +1106,7 @@ PROCEDURE valid-i-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST bf-ordl NO-LOCK
         WHERE bf-ordl.company EQ cocode
@@ -1118,6 +1121,7 @@ PROCEDURE valid-i-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1133,6 +1137,7 @@ PROCEDURE valid-job-no :
   DEFINE VARIABLE lv-job-no LIKE bf-ordl.job-no NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN lv-job-no = TRIM(oe-rell.job-no:SCREEN-VALUE )
      lv-job-no = FILL(" ",6 - LENGTH(lv-job-no)) + lv-job-no
@@ -1157,6 +1162,7 @@ PROCEDURE valid-job-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1171,6 +1177,7 @@ PROCEDURE valid-loc :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
       FIND FIRST loc NO-LOCK
            WHERE loc.company = cocode
@@ -1183,6 +1190,7 @@ PROCEDURE valid-loc :
       END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1195,6 +1203,7 @@ PROCEDURE valid-loc-bin :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
  DO WITH FRAME {&FRAME-NAME}:
       FIND FIRST fg-bin NO-LOCK
           WHERE fg-bin.company EQ cocode 
@@ -1209,6 +1218,7 @@ PROCEDURE valid-loc-bin :
       END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1225,6 +1235,7 @@ PROCEDURE valid-ord-no :
   DEFINE VARIABLE cv-msg    AS CHARACTER        NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      cv-msg    = ""
@@ -1267,6 +1278,7 @@ PROCEDURE valid-ord-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1282,6 +1294,7 @@ PROCEDURE valid-s-code :
   DEFINE BUFFER b-oe-rell FOR oe-rell.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF LOOKUP(oe-rell.s-code:SCREEN-VALUE ,cv-s-codes) LE 0 OR
        CAN-FIND(FIRST b-oe-rell
@@ -1296,6 +1309,7 @@ PROCEDURE valid-s-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

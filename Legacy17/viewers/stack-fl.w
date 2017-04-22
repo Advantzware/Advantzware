@@ -1370,6 +1370,7 @@ PROCEDURE valid-pallet PRIVATE :
   DEF VAR li AS INT NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF adm-new-record THEN DO:
       IF lv-msg EQ ""                             AND
@@ -1413,6 +1414,7 @@ PROCEDURE valid-pallet PRIVATE :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

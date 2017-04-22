@@ -1167,6 +1167,7 @@ PROCEDURE valid-fi_shift :
   DEF BUFFER b-shifts FOR shifts.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF CAN-FIND(FIRST b-shifts
                 WHERE b-shifts.company    EQ cocode
@@ -1178,6 +1179,7 @@ PROCEDURE valid-fi_shift :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

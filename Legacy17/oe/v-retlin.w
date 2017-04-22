@@ -1304,6 +1304,7 @@ PROCEDURE valid-i-no :
 
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
+  {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
   FIND FIRST ar-inv NO-LOCK
@@ -1342,6 +1343,7 @@ PROCEDURE valid-i-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1356,6 +1358,7 @@ PROCEDURE valid-loc :
 -----------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
+  {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
   DO WITH FRAME {&FRAME-NAME}:
@@ -1371,6 +1374,7 @@ PROCEDURE valid-loc :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1384,6 +1388,7 @@ PROCEDURE valid-loc-bin :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
+  {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
 
@@ -1403,6 +1408,7 @@ PROCEDURE valid-loc-bin :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1417,6 +1423,7 @@ PROCEDURE valid-ord-no :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
+  {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
   FIND FIRST ar-inv NO-LOCK
@@ -1440,6 +1447,7 @@ PROCEDURE valid-ord-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1454,6 +1462,7 @@ PROCEDURE valid-po-no :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
+  {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
   FIND FIRST ar-inv NO-LOCK
@@ -1478,6 +1487,7 @@ PROCEDURE valid-po-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1493,6 +1503,7 @@ PROCEDURE valid-qty-return-inv :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ip-focus:SCREEN-VALUE) GT
        DEC(oe-retl.tot-qty-return:SCREEN-VALUE) THEN DO:
@@ -1505,6 +1516,7 @@ PROCEDURE valid-qty-return-inv :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1519,6 +1531,7 @@ PROCEDURE valid-tag :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
+  {methods/lValidateError.i YES}
   /* Blank tag is valid */
   IF ip-focus:SCREEN-VALUE EQ "" THEN
     RETURN.
@@ -1576,6 +1589,7 @@ PROCEDURE valid-tag :
         RETURN ERROR.
       END. /* if record not found */
   END. /* do with frame */
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1591,6 +1605,7 @@ PROCEDURE valid-tot-qty-return :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
   DEF VAR lv-msg AS CHAR NO-UNDO.
+  {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.      
 
@@ -1649,6 +1664,7 @@ PROCEDURE valid-tot-qty-return :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

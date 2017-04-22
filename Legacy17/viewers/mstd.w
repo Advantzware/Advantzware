@@ -1327,6 +1327,7 @@ PROCEDURE valid-m-code :
 ------------------------------------------------------------------------------*/
   DEF BUFFER bf-mach FOR mach.
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST bf-mach WHERE bf-mach.company EQ gcompany
                                     AND bf-mach.loc     EQ gloc
@@ -1336,6 +1337,7 @@ PROCEDURE valid-m-code :
       RETURN ERROR.
     END.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

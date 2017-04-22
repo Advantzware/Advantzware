@@ -470,6 +470,7 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND(FIRST sman WHERE
      sman.company = g_company AND
      sman.sman = usersman.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN
@@ -478,6 +479,7 @@ PROCEDURE valid-sman :
         APPLY "entry" TO usersman.sman.
         RETURN error.
      END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

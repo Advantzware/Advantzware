@@ -1898,6 +1898,7 @@ PROCEDURE valid-cust-user :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
 custcount = "".
 DEFINE VARIABLE lActive AS LOG NO-UNDO.
 DEFINE VARIABLE v-cust-chk AS CHARACTER NO-UNDO.
@@ -1935,6 +1936,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1947,6 +1949,7 @@ PROCEDURE valid-due-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DATE(job.due-date:SCREEN-VALUE) LT DATE(job.start-date:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(job.due-date:LABEL) +
@@ -1959,6 +1962,7 @@ PROCEDURE valid-due-date :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1972,6 +1976,7 @@ PROCEDURE valid-job-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   ll-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -1987,6 +1992,7 @@ PROCEDURE valid-job-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2000,6 +2006,7 @@ PROCEDURE valid-job-no2 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   ll-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2016,6 +2023,7 @@ PROCEDURE valid-job-no2 :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2028,6 +2036,7 @@ PROCEDURE valid-whse :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   ll-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2050,6 +2059,7 @@ PROCEDURE valid-whse :
     END.
 
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2069,6 +2079,7 @@ PROCEDURE validate-est :
   DEFINE VARIABLE ll AS LOG NO-UNDO.
   DEFINE VARIABLE lActive AS LOG NO-UNDO.
 
+  {methods/lValidateError.i YES}
   ll-valid = YES.
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -2228,6 +2239,7 @@ PROCEDURE validate-est :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2241,6 +2253,7 @@ PROCEDURE validate-start-date :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         RUN jc/validStartDate.p (INPUT job.start-date:SCREEN-VALUE,
                                  OUTPUT ll-valid).
@@ -2269,6 +2282,7 @@ PROCEDURE validate-start-date :
 /*     END.                                                     */
 /*   END.                                                       */
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -465,6 +465,7 @@ PROCEDURE valid-vend :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND(FIRST vend WHERE
      vend.company = g_company AND
      vend.vend-no = uservend.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN
@@ -473,6 +474,7 @@ PROCEDURE valid-vend :
         APPLY "entry" TO uservend.vend-no.
         RETURN error.
      END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -780,6 +780,7 @@ PROCEDURE valid-charge :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND(FIRST surcharge WHERE surcharge.company = g_company
                          AND surcharge.charge = v-charge:SCREEN-VALUE IN FRAME {&FRAME-NAME})
     AND v-charge:SCREEN-VALUE <> ""
@@ -788,6 +789,7 @@ PROCEDURE valid-charge :
      APPLY "entry" TO v-charge.
      RETURN ERROR.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -800,6 +802,7 @@ PROCEDURE valid-fg-glacc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT v-gl-fg:SCREEN-VALUE EQ "" AND
          NOT CAN-FIND(FIRST account
@@ -812,6 +815,7 @@ PROCEDURE valid-fg-glacc :
          RETURN ERROR.
       END.
    END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -825,6 +829,7 @@ PROCEDURE valid-glacc :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST account
                     WHERE account.company EQ cocode
@@ -837,6 +842,7 @@ PROCEDURE valid-glacc :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -849,6 +855,7 @@ PROCEDURE valid-rm-glacc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT v-gl-rm:SCREEN-VALUE EQ "" AND
          NOT CAN-FIND(FIRST account
@@ -861,6 +868,7 @@ PROCEDURE valid-rm-glacc :
          RETURN ERROR.
       END.
    END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

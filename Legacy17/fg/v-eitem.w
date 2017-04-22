@@ -1595,6 +1595,7 @@ PROCEDURE valid-cust-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
       IF e-itemfg-vend.cust-no:SCREEN-VALUE NE "" AND
          NOT CAN-FIND(FIRST cust WHERE
@@ -1607,6 +1608,7 @@ PROCEDURE valid-cust-no :
          RETURN ERROR.
       END.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1622,6 +1624,7 @@ PROCEDURE valid-std-uom :
   DEF VAR uom-list AS CHAR INIT "" NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     e-itemfg.std-uom:SCREEN-VALUE = CAPS(e-itemfg.std-uom:SCREEN-VALUE).
 
@@ -1649,6 +1652,7 @@ PROCEDURE valid-std-uom :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1666,6 +1670,7 @@ PROCEDURE valid-vend-no :
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-focus:SCREEN-VALUE NE "" THEN
       IF e-itemfg-vend.vend-no EQ "" AND NOT adm-new-record THEN
@@ -1685,6 +1690,7 @@ PROCEDURE valid-vend-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

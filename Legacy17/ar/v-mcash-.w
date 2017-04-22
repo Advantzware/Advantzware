@@ -883,6 +883,7 @@ PROCEDURE valid-bank-code :
   DEF INPUT PARAM ip-focus AS WIDGET-HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -897,6 +898,7 @@ PROCEDURE valid-bank-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -912,6 +914,7 @@ PROCEDURE valid-curr-code :
   DEF INPUT PARAM ip-focus AS WIDGET-HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -925,6 +928,7 @@ PROCEDURE valid-curr-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

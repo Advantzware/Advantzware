@@ -4703,6 +4703,7 @@ PROCEDURE valid-adder :
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -4737,6 +4738,7 @@ PROCEDURE valid-adder :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4752,6 +4754,7 @@ PROCEDURE valid-gsh-dep :
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ef.gsh-dep:SCREEN-VALUE) - TRUNC(DEC(ef.gsh-dep:SCREEN-VALUE),0) GE v-16-or-32 THEN
       lv-msg = "Should not have more than " + string(v-16-or-32 - 0.01) + " as decimal, field is (inches.16ths/32nd's). ".
@@ -4768,6 +4771,7 @@ PROCEDURE valid-gsh-dep :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4783,6 +4787,7 @@ PROCEDURE valid-gsh-len :
   DEF VAR lv-msg AS CHAR NO-UNDO.
   DEF VAR v-s-len LIKE ITEM.s-len NO-UNDO.
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ef.gsh-len:SCREEN-VALUE) - TRUNC(DEC(ef.gsh-len:SCREEN-VALUE),0) GE v-16-or-32 THEN
       lv-msg = "Should not have more than " + string(v-16-or-32 - 0.01) + " as decimal, field is (inches.16ths/32nd's). ".
@@ -4817,6 +4822,7 @@ PROCEDURE valid-gsh-len :
 /*     END.                                                                                              */
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4841,6 +4847,7 @@ PROCEDURE valid-gsh-wid :
   DEF VAR v-item-len LIKE ITEM.s-len NO-UNDO.
   DEF VAR v-item-dep LIKE ITEM.s-dep NO-UNDO.
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ef.gsh-wid:SCREEN-VALUE) - TRUNC(DEC(ef.gsh-wid:SCREEN-VALUE),0) GE v-16-or-32 THEN
       lv-msg = "Can not have more than " + string(v-16-or-32 - 0.01) + " as decimal, field is (inches.16ths/32nd's). ".
@@ -4936,6 +4943,7 @@ PROCEDURE valid-gsh-wid :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4957,6 +4965,7 @@ PROCEDURE valid-leaf-bnum :
   DEF VAR lv-bnum AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     CASE ip-int:
         WHEN 1 THEN
@@ -4999,6 +5008,7 @@ PROCEDURE valid-leaf-bnum :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5019,6 +5029,7 @@ PROCEDURE valid-leaf-snum :
   DEF VAR lv-snum AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     CASE ip-int:
         WHEN 1 THEN
@@ -5061,6 +5072,7 @@ PROCEDURE valid-leaf-snum :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5074,6 +5086,7 @@ PROCEDURE valid-trim-d :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
     IF ef.trim-d:HIDDEN = NO THEN
@@ -5092,6 +5105,7 @@ PROCEDURE valid-trim-d :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5105,6 +5119,7 @@ PROCEDURE valid-trim-l :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ef.trim-l:SCREEN-VALUE) - TRUNC(DEC(ef.trim-l:SCREEN-VALUE),0) GT v-16-or-32
     THEN DO:
@@ -5122,6 +5137,7 @@ PROCEDURE valid-trim-l :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5135,6 +5151,7 @@ PROCEDURE valid-trim-w :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ef.trim-w:SCREEN-VALUE) - TRUNC(DEC(ef.trim-w:SCREEN-VALUE),0) GT v-16-or-32
     THEN DO:
@@ -5152,6 +5169,7 @@ PROCEDURE valid-trim-w :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

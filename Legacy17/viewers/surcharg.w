@@ -544,6 +544,7 @@ PROCEDURE valid-charge :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   IF CAN-FIND(FIRST prep WHERE prep.company = g_company
                     AND prep.CODE = surcharge.charge:SCREEN-VALUE IN FRAME {&FRAME-NAME})
   THEN DO:
@@ -551,6 +552,7 @@ PROCEDURE valid-charge :
       APPLY "entry" TO surcharge.charge.
       RETURN ERROR.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -563,6 +565,7 @@ PROCEDURE valid-cust-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   FIND FIRST cust WHERE cust.company = g_company
                     AND cust.cust-no = surcharge.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} 
                     NO-LOCK NO-ERROR.
@@ -571,6 +574,7 @@ PROCEDURE valid-cust-no :
      APPLY "entry" TO surcharge.cust-no .
      RETURN ERROR.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

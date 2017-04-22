@@ -385,6 +385,7 @@ PROCEDURE valid-cat :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     job-code.cat:SCREEN-VALUE = CAPS(job-code.cat:SCREEN-VALUE).
 
@@ -396,6 +397,7 @@ PROCEDURE valid-cat :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

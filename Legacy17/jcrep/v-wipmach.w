@@ -977,6 +977,7 @@ PROCEDURE valid-machine-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
  IF NOT CAN-FIND(FIRST mach where mach.company = g_company AND
           mach.loc = g_loc AND 
           mach.m-code = wiptag-mch.m-code:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -987,6 +988,7 @@ PROCEDURE valid-machine-code :
      RETURN ERROR.
  END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
