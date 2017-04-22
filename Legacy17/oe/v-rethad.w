@@ -752,6 +752,7 @@ PROCEDURE validate-cust-no :
 DEF INPUT PARAM ip-int AS INT NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
   IF ip-int EQ 1                        OR
      oe-reth.cust-no:SCREEN-VALUE NE "" THEN DO:
@@ -774,6 +775,7 @@ DO WITH FRAME {&FRAME-NAME}:
   END.
 END.  /* frame */
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -789,6 +791,7 @@ PROCEDURE validate-inv-no :
 DEF INPUT PARAM ip-int AS INT NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
   IF ip-int EQ 1                           OR
      INT(oe-reth.inv-no:SCREEN-VALUE) NE 0 THEN DO:
@@ -815,6 +818,7 @@ DO WITH FRAME {&FRAME-NAME}:
   END.
 END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

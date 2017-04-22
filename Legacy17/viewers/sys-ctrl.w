@@ -739,6 +739,7 @@ PROCEDURE valid-char-fld :
   DEF VAR lValid AS LOG NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
   DEF VAR j AS INT NO-UNDO.  
+  {methods/lValidateError.i YES}
   lValid = TRUE.
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -842,6 +843,7 @@ PROCEDURE valid-char-fld :
   END.
   */
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -854,8 +856,10 @@ PROCEDURE valid-log-fld :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   {sys/ref/valid-log-fld.i}
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

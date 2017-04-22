@@ -1402,6 +1402,7 @@ PROCEDURE valid-sch-machine :
 ------------------------------------------------------------------------------*/
   DEFINE BUFFER buf-mach FOR mach.
 
+  {methods/lValidateError.i YES}
   lv-mach-list = "".
 
   FIND FIRST mach NO-LOCK WHERE mach.company = gcompany
@@ -1416,6 +1417,7 @@ PROCEDURE valid-sch-machine :
         lv-mach-list = lv-mach-list + buf-mach.m-code + ",".
      END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1428,6 +1430,7 @@ PROCEDURE validate-date-time :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   /* task# 10110517 allow duplicate time if gang jobs is yes*/
   DEF BUFFER bf-mach FOR mach.
 
@@ -1582,6 +1585,7 @@ PROCEDURE validate-date-time :
 
   IF AVAIL bf-machtran THEN DO: */
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

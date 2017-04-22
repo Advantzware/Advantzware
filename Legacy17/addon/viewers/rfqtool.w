@@ -1095,6 +1095,7 @@ PROCEDURE validate-cust :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND (cust where cust.company = gcompany     and
                    cust.cust-no = rfq.cust-no:screen-value in frame {&frame-name} )
      OR rfq.cust-no:SCREEN-VALUE = "" THEN DO:
@@ -1137,6 +1138,7 @@ PROCEDURE validate-cust :
     RETURN ERROR.
  END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

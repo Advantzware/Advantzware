@@ -793,6 +793,7 @@ PROCEDURE valid-cover% :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(itemfg-ink.cover%:SCREEN-VALUE) LT 1   OR
        DEC(itemfg-ink.cover%:SCREEN-VALUE) GT 100 THEN DO:
@@ -803,6 +804,7 @@ PROCEDURE valid-cover% :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -816,6 +818,7 @@ PROCEDURE valid-fi_occurs :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(fi_occurs:SCREEN-VALUE) LT 1 THEN DO:
       MESSAGE TRIM(fi_occurs:LABEL) + " must be greater than zero..."
@@ -825,6 +828,7 @@ PROCEDURE valid-fi_occurs :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -838,6 +842,7 @@ PROCEDURE valid-pass :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(itemfg-ink.pass:SCREEN-VALUE) LT 1 THEN DO:
       MESSAGE TRIM(fi_occurs:LABEL) + " must be greater than zero..."
@@ -847,6 +852,7 @@ PROCEDURE valid-pass :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -860,6 +866,7 @@ PROCEDURE valid-rm-i-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST item
         WHERE item.company EQ g_company
@@ -875,6 +882,7 @@ PROCEDURE valid-rm-i-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

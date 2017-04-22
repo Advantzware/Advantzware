@@ -1116,12 +1116,14 @@ PROCEDURE valid-user-id :
   DEF INPUT PARAM ip-user-id AS cha NO-UNDO.
   DEF BUFFER bf-users FOR users.
 
+  {methods/lValidateError.i YES}
   FIND FIRST bf-users WHERE bf-users.USER_id = ip-user-id NO-LOCK NO-ERROR.
   IF NOT AVAIL bf-users AND NOT adm-new-record THEN DO:
      MESSAGE "Invalid User ID. " VIEW-AS ALERT-BOX ERROR.     
      RETURN ERROR.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1134,11 +1136,13 @@ PROCEDURE validate-userid :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   IF users.USER_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
      MESSAGE "User Id must be entered. " VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO users.USER_id.
      RETURN ERROR.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

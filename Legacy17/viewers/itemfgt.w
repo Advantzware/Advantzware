@@ -840,6 +840,7 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     /* Blank is valid */
     IF itemfg.spare-char-3:SCREEN-VALUE EQ "" THEN 
@@ -856,6 +857,7 @@ PROCEDURE valid-sman :
       fiSlsRepName:SCREEN-VALUE = sman.sname.
     END.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

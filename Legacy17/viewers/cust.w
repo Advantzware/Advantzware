@@ -2566,6 +2566,7 @@ PROCEDURE valid-cr-hold :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:    
@@ -2586,6 +2587,7 @@ PROCEDURE valid-cr-hold :
     IF NOT v-valid THEN APPLY "entry" TO cust.cr-hold.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2599,6 +2601,7 @@ PROCEDURE valid-cr-hold-invdays :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2620,6 +2623,7 @@ PROCEDURE valid-cr-hold-invdays :
     IF NOT v-valid THEN APPLY "entry" TO cust.cr-hold-invdays.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2633,6 +2637,7 @@ PROCEDURE valid-cr-lim :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2654,6 +2659,7 @@ PROCEDURE valid-cr-lim :
     IF NOT v-valid THEN APPLY "entry" TO cust.cr-lim.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2667,6 +2673,7 @@ PROCEDURE valid-currency :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
  FIND FIRST currency WHERE currency.company = g_company
                        AND currency.c-code = cust.curr-code:SCREEN-VALUE IN FRAME {&FRAME-NAME}
                        NO-LOCK NO-ERROR.
@@ -2676,6 +2683,7 @@ PROCEDURE valid-currency :
     RETURN error.
  END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2688,6 +2696,7 @@ PROCEDURE valid-custtype :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND(FIRST custype WHERE custype.company = cocode
                        AND custype.custype = cust.TYPE:SCREEN-VALUE IN FRAME {&FRAME-NAME}
                         )
@@ -2695,6 +2704,7 @@ PROCEDURE valid-custtype :
      MESSAGE "Invalid customer type. Try help." VIEW-AS ALERT-BOX ERROR.
      RETURN ERROR.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2708,6 +2718,7 @@ PROCEDURE valid-disc :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2729,6 +2740,7 @@ PROCEDURE valid-disc :
     IF NOT v-valid THEN APPLY "entry" TO cust.disc.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2742,6 +2754,7 @@ PROCEDURE valid-fin-chg :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   v-valid = YES.
   DO WITH FRAME {&frame-name}:
     IF NOT ll-secure                                              AND
@@ -2762,6 +2775,7 @@ PROCEDURE valid-fin-chg :
     IF NOT v-valid THEN APPLY "entry" TO cust.fin-chg.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2774,6 +2788,7 @@ PROCEDURE valid-inv-meth :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2796,6 +2811,7 @@ PROCEDURE valid-inv-meth :
     IF NOT v-valid THEN APPLY "entry" TO rd_inv-meth.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2809,6 +2825,7 @@ PROCEDURE valid-markup :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2830,6 +2847,7 @@ PROCEDURE valid-markup :
     IF NOT v-valid THEN APPLY "entry" TO cust.markup.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2843,6 +2861,7 @@ PROCEDURE valid-ord-lim :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2864,6 +2883,7 @@ PROCEDURE valid-ord-lim :
     IF NOT v-valid THEN APPLY "entry" TO cust.ord-lim.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2876,6 +2896,7 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   FIND FIRST sman
         WHERE sman.company EQ cocode
           AND sman.sman    EQ cust.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -2888,6 +2909,7 @@ PROCEDURE valid-sman :
     END.
     sman_sname:SCREEN-VALUE = sman.sNAME.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2900,6 +2922,7 @@ PROCEDURE valid-status :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
 IF cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(X)" 
   THEN 
     FIND FIRST bf-cust NO-LOCK
@@ -2919,6 +2942,7 @@ IF cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(X)"
     END.
 
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2932,6 +2956,7 @@ PROCEDURE valid-terms :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2960,6 +2985,7 @@ PROCEDURE valid-terms :
     IF NOT v-valid THEN APPLY "entry" TO cust.terms.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

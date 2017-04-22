@@ -889,6 +889,7 @@ PROCEDURE validate-est-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
 IF NOT ll-saletool THEN DO:
   IF LASTKEY = -1 and
      ATTACH.est-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" AND
@@ -910,6 +911,7 @@ IF NOT ll-saletool THEN DO:
   END.
 END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -922,6 +924,7 @@ PROCEDURE validate-i-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
 IF NOT ll-saletool THEN DO:
   IF ATTACH.est-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" AND
      ATTACH.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN
@@ -942,6 +945,7 @@ IF NOT ll-saletool THEN DO:
   END.
 END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

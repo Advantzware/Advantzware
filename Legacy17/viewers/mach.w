@@ -2086,6 +2086,7 @@ PROCEDURE valid-fi_sch-m-code :
   DEF BUFFER b-mach FOR mach.
   DEF VAR v-industry AS CHAR NO-UNDO.
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
     ASSIGN
@@ -2108,6 +2109,7 @@ PROCEDURE valid-fi_sch-m-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2123,6 +2125,7 @@ PROCEDURE valid-m-code :
   DEF BUFFER b-mach FOR mach.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     mach.m-code:SCREEN-VALUE = CAPS(mach.m-code:SCREEN-VALUE).
 
@@ -2141,6 +2144,7 @@ PROCEDURE valid-m-code :
       mach.sch-m-code:SCREEN-VALUE = mach.m-code:SCREEN-VALUE.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2156,6 +2160,7 @@ PROCEDURE valid-m-seq :
   DEF BUFFER b-mach FOR mach.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF CAN-FIND(FIRST b-mach
                 WHERE b-mach.company EQ mach.company
@@ -2187,6 +2192,7 @@ PROCEDURE valid-m-seq :
 
 
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

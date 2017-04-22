@@ -705,6 +705,7 @@ PROCEDURE valid-check-no :
   DEF BUFFER b-ap-dis FOR ap-dis.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF CAN-FIND(FIRST b-ap-dis
                 WHERE b-ap-dis.company   EQ ap-dis.company
@@ -727,6 +728,7 @@ PROCEDURE valid-check-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

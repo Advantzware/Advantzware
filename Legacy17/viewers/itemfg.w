@@ -2503,6 +2503,7 @@ PROCEDURE valid-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF (itemfg.cust-no:SCREEN-VALUE EQ "" AND
         itemfg.i-code:SCREEN-VALUE  EQ "C")                              OR
@@ -2521,6 +2522,7 @@ PROCEDURE valid-cust-no :
     IF AVAIL cust THEN ASSIGN itemfg.cust-name:SCREEN-VALUE    = cust.name.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2534,6 +2536,7 @@ PROCEDURE valid-cust-part :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
        IF itemfg.part-no:screen-value EQ "" THEN
            ASSIGN itemfg.part-no:SCREEN-VALUE = itemfg.i-no:SCREEN-VALUE .
@@ -2546,6 +2549,7 @@ PROCEDURE valid-cust-part :
 
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2558,6 +2562,7 @@ PROCEDURE valid-cust-user :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
 custcount = "".
 DEF VAR lActive AS LOG NO-UNDO.
 RUN sys/ref/CustList.p (INPUT cocode,
@@ -2577,6 +2582,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
       END.
     END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2590,6 +2596,7 @@ PROCEDURE valid-est-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&frame-name}:
     IF INT(old-est-no) NE INT(itemfg.est-no:SCREEN-VALUE) THEN RUN new-est-no.
 
@@ -2605,6 +2612,7 @@ PROCEDURE valid-est-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2622,6 +2630,7 @@ PROCEDURE valid-i-no :
   DEF VAR v-msg AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     v-msg = "".
 
@@ -2641,6 +2650,7 @@ PROCEDURE valid-i-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2654,6 +2664,7 @@ PROCEDURE valid-type :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF TRIM(itemfg.type-code:SCREEN-VALUE) NE ""                AND
        LOOKUP(itemfg.type-code:SCREEN-VALUE,lv-type-codes) LE 0 THEN DO:
@@ -2663,6 +2674,7 @@ PROCEDURE valid-type :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

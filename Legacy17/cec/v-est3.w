@@ -2874,6 +2874,7 @@ PROCEDURE valid-carrier :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     eb.carrier:SCREEN-VALUE = CAPS(eb.carrier:SCREEN-VALUE).
 
@@ -2888,6 +2889,7 @@ PROCEDURE valid-carrier :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2901,6 +2903,7 @@ PROCEDURE valid-cas-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     if eb.cas-no:screen-value <> "" and
        not can-find(item where item.company = eb.company
@@ -2914,6 +2917,7 @@ PROCEDURE valid-cas-no :
     end.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2929,6 +2933,7 @@ PROCEDURE valid-cas-pal :
   DEF VAR ll-ans AS LOG NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   /*IF ll-update-pack THEN
   DO WITH FRAME {&FRAME-NAME}:
     lv-layers = INT(eb.cas-pal:SCREEN-VALUE) / INT(eb.stacks:SCREEN-VALUE).
@@ -2946,6 +2951,7 @@ PROCEDURE valid-cas-pal :
     END.
   END.*/
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2959,6 +2965,7 @@ PROCEDURE valid-cas-wt :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(eb.cas-cnt:SCREEN-VALUE) NE 0 AND
        DEC(eb.cas-wt:SCREEN-VALUE)  NE 0 THEN DO:
@@ -2972,6 +2979,7 @@ PROCEDURE valid-cas-wt :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2985,6 +2993,7 @@ PROCEDURE valid-dest-code :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST carr-mtx
                     WHERE carr-mtx.company  EQ cocode 
@@ -2999,6 +3008,7 @@ PROCEDURE valid-dest-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3012,6 +3022,7 @@ PROCEDURE valid-stack-code :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT ll-foam OR eb.stack-code:SCREEN-VALUE NE "" THEN DO:
       IF NOT CAN-FIND(FIRST reftable 
@@ -3026,6 +3037,7 @@ PROCEDURE valid-stack-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

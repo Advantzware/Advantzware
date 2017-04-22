@@ -583,10 +583,9 @@ PROCEDURE valid-actnum :
 
   DEF VAR lv-msg AS CHAR NO-UNDO.
   DEF VAR lv-types AS CHAR INIT "ACELRT" NO-UNDO.
-  DEF VAR lv-type-dscr AS CHAR INIT
-      "Asset,Capital,Expense,Liability,Revenue,Total" NO-UNDO.
+  DEF VAR lv-type-dscr AS CHAR INIT "Asset,Capital,Expense,Liability,Revenue,Total" NO-UNDO.
 
-
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF lv-msg EQ "" AND
        NOT CAN-FIND(FIRST account
@@ -611,6 +610,7 @@ PROCEDURE valid-actnum :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

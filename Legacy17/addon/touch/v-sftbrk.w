@@ -806,12 +806,14 @@ PROCEDURE valid-chg-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
    IF NOT CAN-FIND(FIRST job-code 
              WHERE job-code.CODE = shift_break.charge_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} )
    THEN RETURN "Invalie Charge Code!.".
    ELSE RETURN "".
 
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -826,11 +828,13 @@ PROCEDURE valid-hour :
 ------------------------------------------------------------------------------*/
  DEF INPUT PARAMETER ip-hour AS CHAR.
 
+  {methods/lValidateError.i YES}
  correct-error = INTEGER(ip-hour) LT 0 OR INTEGER(ip-hour) GT 12.
  IF correct-error THEN
      RETURN "Invalid Hour. Must be between 0 and 12... ".
  ELSE RETURN "". 
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -845,11 +849,13 @@ PROCEDURE valid-min :
 ------------------------------------------------------------------------------*/
  DEF INPUT PARAM ip-min AS cha NO-UNDO.
 
+  {methods/lValidateError.i YES}
  correct-error = INTEGER(ip-min) LT 0 OR INTEGER(ip-min) GT 59.
  IF correct-error THEN
      RETURN "Invalid Hour. Must be between 0 and 59... ".
  ELSE RETURN "".
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -864,10 +870,12 @@ PROCEDURE valid-sec :
 ------------------------------------------------------------------------------*/
    DEF INPUT PARAM ip-sec AS cha NO-UNDO.
 
+  {methods/lValidateError.i YES}
    correct-error = INTEGER(ip-sec) LT 0 OR INTEGER(ip-sec) GT 59.
    IF correct-error THEN
       RETURN "Invalid Second. Must be between 0 and 59... ".
    ELSE RETURN "".
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -760,6 +760,7 @@ PROCEDURE valid-end-hr :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF INT(v-st-hr:SCREEN-VALUE) GT 12 /*OR INT(v-st-hr:SCREEN-VALUE) EQ 0 */ THEN DO:
       MESSAGE "Invalid End Hour..." VIEW-AS ALERT-BOX ERROR.
@@ -768,6 +769,7 @@ PROCEDURE valid-end-hr :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -781,6 +783,7 @@ PROCEDURE valid-end-mn :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF INT(v-end-mn:SCREEN-VALUE) GT 59 THEN DO:
       MESSAGE "Invalid End Minute..." VIEW-AS ALERT-BOX ERROR.
@@ -789,6 +792,7 @@ PROCEDURE valid-end-mn :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -802,6 +806,7 @@ PROCEDURE valid-st-hr :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF INT(v-st-hr:SCREEN-VALUE) GT 12 /*OR int(v-st-hr:SCREEN-VALUE) EQ 0 */ THEN DO:
       MESSAGE "Invalid Start Hour..." VIEW-AS ALERT-BOX ERROR.
@@ -810,6 +815,7 @@ PROCEDURE valid-st-hr :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -823,6 +829,7 @@ PROCEDURE valid-st-mn :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF INT(v-st-mn:SCREEN-VALUE) GT 59 THEN DO:
       MESSAGE "Invalid Start Minute..." VIEW-AS ALERT-BOX ERROR.
@@ -831,6 +838,7 @@ PROCEDURE valid-st-mn :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

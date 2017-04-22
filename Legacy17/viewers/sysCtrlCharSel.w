@@ -694,6 +694,7 @@ PROCEDURE valid-char-fld :
 ------------------------------------------------------------------------------*/
 
 
+  {methods/lValidateError.i YES}
 /*   DEF VAR thisOne AS CHAR NO-UNDO.                                        */
 /*   DEF VAR comp-char-val AS CHAR NO-UNDO.                                  */
 /*   DEF VAR cEntryTo AS CHAR NO-UNDO.                                       */
@@ -757,6 +758,7 @@ PROCEDURE valid-char-fld :
   END.
   */
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -769,8 +771,10 @@ PROCEDURE valid-log-fld :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
  /* {sys/ref/valid-log-fld.i} */
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

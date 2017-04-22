@@ -691,6 +691,7 @@ PROCEDURE validate-po-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   IF ATTACH.est-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} <> "" AND
      NOT CAN-FIND(FIRST po-ord WHERE po-ord.company = g_company AND 
      po-ord.po-no = INT(ATTACH.est-no:SCREEN-VALUE IN FRAME {&FRAME-NAME})) THEN
@@ -701,6 +702,7 @@ PROCEDURE validate-po-no :
   END.
 
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

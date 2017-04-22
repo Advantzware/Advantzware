@@ -1919,8 +1919,10 @@ PROCEDURE valid-dimensions :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   {custom/validDim.i}
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1934,6 +1936,7 @@ PROCEDURE valid-flute :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     item.flute:SCREEN-VALUE = CAPS(item.flute:SCREEN-VALUE).
 
@@ -1948,6 +1951,7 @@ PROCEDURE valid-flute :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1961,6 +1965,7 @@ PROCEDURE valid-i-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF item.i-no:SCREEN-VALUE EQ "" THEN DO:
       MESSAGE "Item# may not be spaces..." VIEW-AS ALERT-BOX ERROR.
@@ -1969,6 +1974,7 @@ PROCEDURE valid-i-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1982,6 +1988,7 @@ PROCEDURE valid-mat-type :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     fi_mat-type:SCREEN-VALUE = CAPS(fi_mat-type:SCREEN-VALUE).
 
@@ -1992,6 +1999,7 @@ PROCEDURE valid-mat-type :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2007,6 +2015,7 @@ PROCEDURE valid-test :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -2020,6 +2029,7 @@ PROCEDURE valid-test :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

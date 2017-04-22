@@ -1263,6 +1263,7 @@ PROCEDURE valid-pur-uom :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     itemfg.pur-uom:SCREEN-VALUE = CAPS(itemfg.pur-uom:SCREEN-VALUE).
     /* take out per Joe - task 10021210 */
@@ -1274,6 +1275,7 @@ PROCEDURE valid-pur-uom :
 /*     end.                                                                     */
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

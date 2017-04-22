@@ -739,6 +739,7 @@ PROCEDURE valid-note_code :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
 /*   DO WITH FRAME {&FRAME-NAME}:                                                 */
 /*     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).                       */
 /*                                                                                */
@@ -753,6 +754,7 @@ PROCEDURE valid-note_code :
 /*      END.                                                                      */
 /*   END.                                                                         */
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
