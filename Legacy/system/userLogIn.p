@@ -146,19 +146,24 @@ IF NOT oplExit AND enforceUserCount-log THEN DO:
     FIND FIRST userControl NO-LOCK NO-ERROR.
     IF AVAILABLE userControl THEN DO:        
         /* +1 represents the additional session for the current new login */
-        IF iAllUserCount + 1 GT userControl.maxAllowedUsers + userControl.numUsersOverLimit THEN DO:            
-           MESSAGE "The maximum number of sessions of " + STRING(userControl.maxAllowedUsers) + " has been reached." SKIP
-                   "Please contact your administrator to order more licenses."                   
-                   "Exiting the application."
-                   VIEW-AS ALERT-BOX WARNING .
-           oplExit = TRUE.                                       
-        END.
+
+        IF iAllUserCount + 1 GT userControl.maxAllowedUsers + userControl.numUsersOverLimit THEN 
+        DO:            
+            MESSAGE "The maximum number of connections has been reached.  Exiting the application."
+                VIEW-AS ALERT-BOX WARNING .
+            oplExit = TRUE.                                       
+        END.        
+        ELSE IF iAllUserCount + 1 GT userControl.maxAllowedUsers THEN 
+            DO:            
+                MESSAGE "The maximum number of connections has been reached." SKIP 
+                    "Please notify your administrator to add more licences."
+                    VIEW-AS ALERT-BOX WARNING .
+            
+            END.
+            
     END. /* Avail user control */
     
 END. /* If not exit was chosen */
-
-
-
 
 
 /* Reject TO accept the ADD - The system will exceed the maximum user count of n */
