@@ -211,7 +211,7 @@ PROCEDURE Init-Options-Panel :
                        SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.p") NE ? 
     list-button      = SEARCH("listobjs/" + listname + ".r") NE ? OR
                        SEARCH("listobjs/" + listname + ".w") NE ? 
-    notes-button     = LOOKUP("{&FIRST-EXTERNAL-TABLE}","{&NORECKEY}"," ") GT 0 
+    notes-button     = LOOKUP("{&FIRST-EXTERNAL-TABLE}","{&NORECKEY}"," ") EQ 0 
     spec-note-button = LOOKUP("{&FIRST-EXTERNAL-TABLE}","est,item,itemfg,cust,vend,oe-ord,job,pc-prdd,pc-prdh,oe-ordl,po-ordl,quotehd,oe-relh") GT 0
     udf-button       = CAN-FIND(FIRST mfgroup WHERE LOOKUP(v-prgmname,mfgroup.mfgroup_data,"|") NE 0)    
     .

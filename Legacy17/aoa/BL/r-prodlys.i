@@ -80,7 +80,7 @@ PROCEDURE pProductionAnalysis1:
         NEXT.
         IF (mch-act.dept GE ipcStartDept AND
             mch-act.dept LE ipcEndDept)  OR
-           (mach.dept[2] NE ""         AND
+           (mach.dept[2] NE ""           AND
             mach.dept[2] GE ipcStartDept AND
             mach.dept[2] LE ipcEndDept   AND
             NOT CAN-FIND(FIRST bMchAct
@@ -466,7 +466,7 @@ PROCEDURE pProductionAnalysis2:
         IF AVAILABLE job-mch THEN
         ASSIGN
             ttProductionAnalysis.mrComp  = STRING(job-mch.mr-complete)
-            ttProductionAnalysis.runComp = string(job-mch.run-complete)
+            ttProductionAnalysis.runComp = STRING(job-mch.run-complete)
             .
         ASSIGN
             ttProductionAnalysis.runWaste  = 0
