@@ -1597,12 +1597,14 @@ PROCEDURE select_att :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hAttach AS HANDLE NO-UNDO.
 
- /*RUN Get_Procedure IN Persistent-Handle ('attach.',OUTPUT run-proc,no).
- IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .  */
-
- RUN windows/ATTACH.w(rec_key_value,HEADER_value).
-
+    IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN DO:
+        RUN windows/attach.w PERSISTENT SET hAttach (rec_key_value, header_value).
+        RUN dispatch IN hAttach ("initialize") .
+    END.
+    ELSE
+    RUN windows/attach.w (rec_key_value, header_value).
 
 END PROCEDURE.
 
@@ -1616,6 +1618,7 @@ PROCEDURE select_attcust :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+     DEFINE VARIABLE hAttach AS HANDLE NO-UNDO. 
 
  DEF BUFFER b-oe-ordl FOR oe-ordl.
  DEF BUFFER b-oe-ord FOR oe-ord.
@@ -1642,9 +1645,17 @@ PROCEDURE select_attcust :
             b-cust.cust-no EQ b-oe-ord.cust-no
             NO-LOCK NO-ERROR.
 
-     IF AVAIL b-cust THEN
-       RUN windows/cstattch.w(b-cust.rec_key,'Customer: ' + b-cust.cust-no +
-                              ' - ' + 'Name: ' + b-cust.name,b-oe-ord.ord-no). 
+     IF AVAIL b-cust THEN DO:
+         IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN DO:
+             RUN windows/cstattch.w PERSISTENT SET hAttach
+                                (b-cust.rec_key,'Customer: ' + b-cust.cust-no +
+                                ' - ' + 'Name: ' + b-cust.name,b-oe-ord.ord-no).
+             RUN dispatch IN hAttach ("initialize") .
+         END.
+         ELSE
+         RUN windows/cstattch.w (b-cust.rec_key,'Customer: ' + b-cust.cust-no +
+                                 ' - ' + 'Name: ' + b-cust.name,b-oe-ord.ord-no).
+     END.                          
  END.
 
 
