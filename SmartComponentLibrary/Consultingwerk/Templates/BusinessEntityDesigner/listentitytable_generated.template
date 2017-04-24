@@ -1,0 +1,54 @@
+/**********************************************************************
+ * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
+ * www.consultingwerk.de and other contributors as listed             *
+ * below.  All Rights Reserved.                                       *
+ *                                                                    *
+ *  Software is distributed on an "AS IS", WITHOUT WARRANTY OF ANY    *
+ *   KIND, either express or implied.                                 *
+ *                                                                    *
+ *  Contributors:                                                     *
+ *                                                                    *
+ **********************************************************************/ 
+/*------------------------------------------------------------------------
+    File        : List&1_Generated
+    Purpose     : 
+    Syntax      : 
+    Description : 
+    Author(s)   : @USER@ / Consultingwerk Ltd.
+    Created     : &3 
+    Notes       : 
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+USING Consultingwerk.Framework.Base.GenericList FROM PROPATH .
+USING &2.* FROM PROPATH .
+USING Progress.Lang.* FROM PROPATH .
+
+@FILEANNOTATION@
+
+CLASS &2.List&1_Generated 
+    INHERITS GenericList
+    ABSTRACT: 
+
+    { Consultingwerk/Framework/Base/GenericList.i &1 }
+
+    /*------------------------------------------------------------------------------
+        Purpose: Creates a New Row, Initializes it and adds it to the List 
+        Notes:   
+        @return The reference to the new row instance
+    ------------------------------------------------------------------------------*/
+    METHOD PROTECTED &1 NewRow ():
+        
+        DEFINE VARIABLE o&1 AS &1 NO-UNDO . 
+        
+        o&1 = NEW &1 () . 
+        o&1:InitializeNewRow () . 
+        
+        THIS-OBJECT:Add (o&1) . 
+        
+        RETURN o&1 .
+    
+    END METHOD .
+
+END CLASS.

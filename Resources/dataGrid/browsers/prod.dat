@@ -1,0 +1,22 @@
+FOR EACH prod NO-LOCK WHERE prod.company EQ "%company%"
+dscr,prolin
+
+Indexed: dscr,prolin
+Non-Idx: ?
+
+Generated 04.18.2017 @  1:52:23 am by: nosweat
+Table: prod - Records: 54
+
+    Index: dscr
+         Field: company
+         Field: dscr
+
+    Index: pi-prod
+         Field: company
+         Field: prolin
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-dscr
+         Field: dscr

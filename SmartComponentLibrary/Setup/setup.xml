@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**********************************************************************
+ * Copyright (C) 2006-2015 by Consultingwerk Ltd. ("CW") -            *
+ * www.consultingwerk.de and other contributors as listed             *
+ * below.  All Rights Reserved.                                       *
+ *                                                                    *
+ *  Software is distributed on an "AS IS", WITHOUT WARRANTY OF ANY    *
+ *   KIND, either express or implied.                                 *
+ *                                                                    *
+ *  Contributors:                                                     *
+ *                                                                    *
+ **********************************************************************/ 
+-->
+<!-- Upgrade and setup Script for the SmartComponent Library/SmartFramework                     -->
+<!-- Performs upgrade tasks for the SmartDB Database                                            -->
+<!-- Parameters:                                                                                -->
+<!--        -Dsmartdb=<location to your smartdb>                                                -->
+<!--        -Ddlc=<location to your dlc>                                                        -->
+<!--        -Dinstallroot=<location of your SmartComponent Library install>                     -->
+<!-- A server for the SmartDB should be started                                                 --> 
+<!-- Sample: ant -f setup.xml -Dsmartdb="smartdb"                                               -->
+<!--                          -Dsmartdbhost="localhost"                                         -->
+<!--                          -Dsmartdbport="4711"                                              -->
+<!--                          -Ddlc="c:\Progress\OpenEdge113"                                   --> 
+<!--                          -Dinstallroot="..\ABL"                                            --> 
+<!--                                                                                            -->
+<!-- Optional parameter:      -DMm="8192"              Custom setting for -Mm                   -->
+<!--                          -Dcpinternal="utf-8"     Custom setting for -cpinternal           -->
+<!--                          -Dcpstream="utf-8"       Custom setting for -cpstream             -->
+<!--                          -Dcpcoll="BASIC"         Custom setting for -cpcoll               -->
+
+<project name="SmartComponent Library" default="setup" basedir=".">
+
+    <description>SmartComponent Library Upgrade</description>
+
+    <property environment="env"/>
+    <property name="Mm" value="1024" />
+    <property name="cpstream" value="iso8859-1" />
+    <property name="cpinternal" value="iso8859-1" />
+    <property name="cpcoll" value="German-Library" />
+
+    <taskdef resource="PCT.properties" classpath="Install/PCT/PCT.jar" />
+    <typedef resource="types.properties" classpath="Install/PCT/PCT.jar" />  
+    
+    <!-- Import SmartDb Data -->
+    <macrodef name="importBusinessEntityData">
+        <attribute name="BusinessEntity" />
+        <attribute name="FileName" />
+        <attribute name="SkipFields" />
+        <sequential>
+	        <PCTRun
+	            procedure="Consultingwerk/SmartFramework/Tools/Import/import-data.p"
+	            graphicalMode="false" dlcHome="${dlc}" cpinternal="${cpinternal}" cpColl="${cpcoll}" cpstream="${cpstream}" 
+	            inputchars="32000" token="4000" stackSize="200" msgBufferSize="${Mm}" 
+	            dirSize="10000">
+	
+	            <propath>
+	                <pathelement path="${installroot}" />
+	                <pathelement path="${installroot}/src" />
+	            </propath>
+
+	            <DBConnection dbName="${smartdb}" hostName="${smartdbhost}" dbPort="${smartdbport}" />
+	
+	            <Parameter name="BusinessEntity" value="@{BusinessEntity}" />
+                <Parameter name="FileName" value="@{FileName}" />
+                <Parameter name="SkipFields" value="@{SkipFields}" />
+	        </PCTRun>     
+	        
+	        <echo/>   
+        </sequential>
+    </macrodef>	
+	
+	<target name="setup">
+
+        <PCTVersion />
+
+        <PCTRun procedure="Install/Support/verify-connect.p" 
+            graphicalMode="false" dlcHome="${dlc}" cpinternal="${cpinternal}" cpColl="${cpcoll}" cpstream="${cpstream}" 
+            compileUnderscore="true" inputchars="16000" token="4000" msgBufferSize="${Mm}" >
+
+            <DBConnection dbName="${smartdb}" hostName="${smartdbhost}" dbPort="${smartdbport}" />
+        </PCTRun>
+	
+        <mkdir dir="temp"/> 
+        <delete dir="temp" includes="**/*.*"/> 
+        <delete file="incrdump.e" />
+
+		<!-- Create a SmartDB with the current database Schema -->		
+        <echo message="Creating new local database with current schema..." />
+        <echo />		
+        
+        <PCTCreateBase dbName="ref-SmartDB" destDir="temp"
+            schemaFile="${installroot}/DB/SmartDB/SmartDB.df"
+            blockSize="8" dlcHome="${dlc}" />
+		
+		<!-- Create a delta.df file --> 
+        <echo />        
+        <echo message="Creating delta.df to prepare schema update of your SmartDB ..." />
+        <echo />        
+
+		<PCTDumpIncremental destFile="temp/delta.df" dlcHome="${dlc}" 
+		   debugLevel="2" activeIndexes="0" removeEmptyDFFile="true" msgBufferSize="${Mm}" >
+		
+			<SourceDB dbname="temp/ref-SmartDB" singleUser="true" />
+	        <TargetDB dbname="${smartdb}" hostName="${smartdbhost}" dbPort="${smartdbport}" />
+		</PCTDumpIncremental>
+
+        <!-- Cleanup -->
+        <delete file="incrdump.e" />
+
+        <!-- Verify if delta.df file was created and load Schema, if there are schema changes -->
+        <available file="temp/delta.df" property="delta.df.present"/>
+		
+		<antcall target="LoadSchema" />
+
+        <!-- Cleanup -->
+        <delete verbose="true">
+            <fileset dir="temp" includes="**/*"/>
+        </delete> 
+
+        <!-- Prompt user before continue -->
+        <echo /><echo />
+        <echo message="We are now going to load the new data into the SmartDB. " />
+        <echo message="Please back it up first!" />
+        
+        <input
+            message="Continue (y/n)?"
+            validargs="y,n"
+            addproperty="do.continue"/>
+        
+        <condition property="do.abort">
+              <equals arg1="n" arg2="${do.continue}"/>
+        </condition>
+        <fail if="do.abort">Upgrade aborted by user.</fail>
+
+        <!-- Recompile to avoid SCL-1443 -->
+        <PCTCompile destDir="${installroot}" graphicalMode="false" dlcHome="${dlc}"
+            md5="true" minSize="false" cpinternal="${cpinternal}" cpColl="${cpcoll}" cpstream="${cpstream}" 
+            compileUnderscore="true" inputchars="32000" 
+            token="4000" progPerc="10">
+            <fileset dir="${installroot}" casesensitive="false">
+                <include name="Consultingwerk/SmartFramework/**/*.cls"/>
+                <include name="Consultingwerk/SmartFramework/**/*.p"/>
+                <include name="src/SmartDBtrgs/**/*.p"/>
+             </fileset>
+
+            <propath>
+                <pathelement path="${installroot}" />
+                <pathelement path="${installroot}/src" />
+            </propath>
+            <DBConnection dbName="${smartdb}" hostName="${smartdbhost}" dbPort="${smartdbport}" />
+        </PCTCompile>   
+
+		<!-- Load the menu structure -->
+        <PCTRun
+            procedure="Consultingwerk/SmartFramework/Tools/Import/MenuStructure/release-menu-structure.p"
+            graphicalMode="false" dlcHome="${dlc}" cpinternal="${cpinternal}" cpColl="${cpcoll}" cpstream="${cpstream}" 
+            inputchars="16000" token="4000" msgBufferSize="${Mm}" >
+
+            <propath>
+                <pathelement path="${installroot}" />
+                <pathelement path="${installroot}/src" />
+            </propath>
+
+            <DBConnection dbName="${smartdb}" hostName="${smartdbhost}" dbPort="${smartdbport}" />
+
+            <Parameter name="SourceFile" value="${installroot}/Consultingwerk/SmartFramework/Data/menu-structure.xml" />
+            <Parameter name="Overwrite" value="True" />
+        </PCTRun>
+
+        <!-- Load XML files into SmartFramework Business Entities -->
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.System.SmartBusinessEntityBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartbusinessentity.xml"		
+            SkipFields="TrackDeletions" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.Authorization.GroupBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartgroup.xml"         
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.System.KeyFieldAssignmentTypeBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartkeyfieldassignmenttype.xml" 
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.System.LanguageBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartlanguage.xml" 
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.Scheduler.SchedulerJobBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartschedulerjob.xml"         
+            SkipFields="MaxRuntime" />
+            
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.Menu.MenuStyleBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartmenustyle.xml"         
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.System.MessageBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartmessage.xml" 
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.Menu.ProductBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartproduct.xml" 
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.Menu.ModuleBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartmodule.xml" 
+            SkipFields="" />
+							
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.System.RelationBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartrelation.xml" 
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.Authorization.SecurityRealmBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartsecurityrealm.xml" 
+            SkipFields="DefaultRestricted,CompanyDependent" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.System.TableBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smarttable.xml" 
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.System.TranslationBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smarttranslation.xml"
+            SkipFields="" />
+        
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.System.ValueListBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartvaluelist.xml" 
+            SkipFields="" />
+
+        <!-- Repository Meta Data -->
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.Repository.Class.AttributeBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartattribute.xml" 
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.Repository.Class.AttributeGroupBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartattributegroup.xml" 
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.Repository.Class.AttributeValueBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartattributevalue.xml" 
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.Repository.Class.ClassTypeBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartclasstype.xml" 
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.Repository.Class.LinkTypeBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartlinktype.xml" 
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.Repository.Class.ObjectTypeBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartobjecttype.xml" 
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.Repository.Class.SupportedLinkBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartsupportedlink.xml" 
+            SkipFields="" />
+
+        <importBusinessEntityData 
+            BusinessEntity="Consultingwerk.SmartFramework.Repository.Customization.CustomizationTypeBusinessEntity" 
+            FileName="Consultingwerk/SmartFramework/Data/smartcustomizationype.xml" 
+            SkipFields="" />
+
+    </target>
+    
+    <target name="LoadSchema" if="${delta.df.present}">
+    
+        <!-- Prompt user before continue -->
+        <echo /><echo />
+        <echo message="We are now going to load the new schema into the SmartDB. " />
+        <echo message="Please back it up first!" />
+        <echo message="The pending schema changes can be reviewed in temp/delta.df." />
+        
+        <input
+            message="Continue (y/n)?"
+            validargs="y,n"
+            addproperty="do.continue"/>
+        
+        <condition property="do.abort">
+              <equals arg1="n" arg2="${do.continue}"/>
+        </condition>
+        <fail if="do.abort">Upgrade aborted by user.</fail>
+    
+        <!-- Load delta.df file into SmartDB -->
+        <antcall target="OnlineLoadSchema" />
+        <antcall target="OfflineLoadSchema" />
+
+		<!-- Delete R-Code in Install Directory -->    
+		<echo message="Deleting R-Code in install directory" />
+        <delete verbose="true">
+            <fileset dir="${installroot}/Consultingwerk" includes="**/*.r"/>
+            <fileset dir="${installroot}/src/SmartDBtrgs" includes="**/*.r"/>
+        </delete> 
+    	<echo /> 
+    
+    </target>
+
+    <target name="OnlineLoadSchema" if="${online}">
+        <echo message="Performing online Schema Change"/>
+
+        <PCTLoadSchema srcFile="temp/delta.df" dlcHome="${dlc}" onlineChanges="true" callbackClass="rssw.pct.AbstractLoadCallback" msgBufferSize="${Mm}" >
+            <DBConnection dbName="${smartdb}" hostName="${smartdbhost}" dbPort="${smartdbport}" />
+        </PCTLoadSchema>
+    </target>
+
+    <target name="OfflineLoadSchema" unless="${online}">
+        <echo message="Performing offline Schema Change"/>
+
+        <PCTLoadSchema srcFile="temp/delta.df" dlcHome="${dlc}" msgBufferSize="${Mm}" >
+            <DBConnection dbName="${smartdb}" hostName="${smartdbhost}" dbPort="${smartdbport}" />
+        </PCTLoadSchema>
+    </target>
+
+</project>

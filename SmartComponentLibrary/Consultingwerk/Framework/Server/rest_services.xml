@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<ttServiceLoader xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <ttServiceLoaderRow>
+    <Order>0</Order>
+    <ServiceTypeName>Consultingwerk.OERA.IServiceManagerLifeCycleProvider</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.OERA.ServiceManagerLifeCycleProvider</ServiceClassName>
+  </ttServiceLoaderRow>
+
+  <ttServiceLoaderRow>
+    <Order>1</Order>
+    <ServiceTypeName>Consultingwerk.Framework.IMessagePublisher</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.Framework.MessagePublisher</ServiceClassName>
+  </ttServiceLoaderRow>
+  <ttServiceLoaderRow>
+    <Order>1</Order>
+    <ServiceTypeName>Consultingwerk.Framework.Server.IActionalInstrumentationService</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.Framework.Server.ActionalInteractionService</ServiceClassName>
+  </ttServiceLoaderRow>
+  <ttServiceLoaderRow>
+    <Order>2</Order>
+    <ServiceTypeName>Consultingwerk.Framework.RepositoryServices.IRepositoryService</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.Framework.RepositoryServices.Dynamics.SimpleDynamicsRepositoryService</ServiceClassName>
+    <RequiredDatabases>ICFDB</RequiredDatabases>
+  </ttServiceLoaderRow>
+  <ttServiceLoaderRow>
+    <Order>3</Order>
+    <ServiceTypeName>Consultingwerk.Framework.Server.RestServerSessionActivator</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.Framework.Server.RestServerSessionActivator</ServiceClassName>
+  </ttServiceLoaderRow>
+  <ttServiceLoaderRow>
+    <Order>4</Order>
+    <ServiceTypeName>Consultingwerk.Framework.Server.IContextDatasetStore</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.Framework.Server.ContextDatasetStore</ServiceClassName>
+  </ttServiceLoaderRow>
+  <ttServiceLoaderRow>
+    <Order>5</Order>
+    <ServiceTypeName>Consultingwerk.OERA.Context.IContextDatasetFactory</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.OERA.Context.ContextDatasetFactory</ServiceClassName>
+  </ttServiceLoaderRow>
+
+  <ttServiceLoaderRow>
+    <Order>6</Order>
+    <ServiceTypeName>Consultingwerk.Framework.Authorization.IFieldAuthorizationProvider</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.SmartFramework.Authorization.SmartFieldAuthorizationProvider</ServiceClassName>
+  </ttServiceLoaderRow>
+
+
+  <ttServiceLoaderRow>
+    <Order>6</Order>
+    <ServiceTypeName>Consultingwerk.OERA.JsdoGenericService.ICatalogCacheService</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.OERA.JsdoGenericService.CatalogCacheService</ServiceClassName>
+  </ttServiceLoaderRow>
+
+
+  <ttServiceLoaderRow>
+    <Order>100</Order>
+    <ServiceTypeName>Consultingwerk.Framework.IStartupValidationService</ServiceTypeName>
+    <ServiceClassName>Consultingwerk.Framework.Server.RestServerStartupValidationService</ServiceClassName>
+  </ttServiceLoaderRow>
+ 
+</ttServiceLoader>

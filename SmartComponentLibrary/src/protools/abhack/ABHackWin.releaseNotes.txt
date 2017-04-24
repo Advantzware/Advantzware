@@ -1,0 +1,1964 @@
+Nowadays, an Application Development Environment without auto-completion is a kind of torture.  So hack it or die...    
+
+Why "ABHack" ?
+==============
+ABHack is not limited to the procedure editor in itself.  For instance it increases the number of visible inner-lines of the Event/ProcName Combo-box of the Section Editor (this is enough to change your all life isn't it?), or can make the Data Dictionary resizable.
+Indeed, ABHack is a good place holder to hack all these tools dynamically without changing their source code.  I may also hack a few property dialog-boxes in the future.
+By the way, why a penguin icon?  First, it's a cute animal.  Next, the authors of Linux were not particularly happy with existing legacy systems. With their talent and passion, they managed to make a superior system, a bit like ABHack does. Note also that ABHack is Open Source.
+
+
+
+Improvements on 15-MAR-2014:
+============================
+* Make the find floating window more like a status bar; it will resize itself to match the width of the editor
+* Add info about the position (line, column), the selection (length, nb of lines) and the file (lines, length) in the status bar
+* Highlight the selected word throughout the opened files (à la Notepad++)
+
+
+
+Improvements on 08-JAN-2014:
+============================
+* Save the opened files & position within the file : line & offset within the line, section within the file (works with procedure editor & structured editor) and restore it when opening abhack. Very useful when your session crashes (Openedge is not very stable when I'm playing with memptrs) or just to close your session (close AppBuilder) and find it restored when you open it again.
+* Move appbuilder window at ABHack startup so that it is not overlapped by the ABHack window
+* A little fix so that ABHack considers structured editor closed when they are in fact only hidden (must have changed in Progress 10, with 9 as far as I remember they disapeared from the ABHack opened procedure list)
+
+
+
+Improvements on 13-OCT-2009:
+============================
+Track of the STATIC option for class members.  
+  => this required the addition of a isStatic logical field and index to a few tables in abhack.db, which means people will have to throw their abhack catalog database and rebuild it
+Added completion of static members of classes refered statically.
+
+
+
+Improvements on 13-FEB-2009:
+============================
+Improved the parser so it better handles resources defined with OVERRIDE STATIC or FINAL before the access mode (PUBLIC PROTECTED or PRIVATE)
+
+New %\codeblock directive. This will looks at the section and sets the name according to that.  If it cannot find anything, it takes the name of the file instead.  Note: it was thought to call it %\section in a first place, but on second thought that seemed a bit confusing.
+
+New %\year directive. This will expand to a four digit year number
+
+Finally added date format “DD-MM-YYYY” to the list of Date Completion Formats, in order to please Patrick Tingen. Note I personally prefer DD-MMM-YYYY that leads to less confusion with typical DD-MM versus MM-DD issues.
+
+Sorted the list of Keywords to suggest buffers
+
+Corrected some typos. Changed ‘bellow’ to ‘below’ (except where the value is stored/retrieved from the registry).
+
+Fixed the following error on Ctrl-A+t-C due to a recent correction of bellow to below:
+Procedure protools/abhack/abhackwin.w has no entry point for copyUISVBellowMouse. (6456)
+ 
+
+
+Improvements on 20-JAN-2009:
+============================
+Updated attrTabCompletion10.txt with new attributes and methods for the COMPILER System Handle
+
+Not sure if I have already tried that in the past:  changed the abhackParser allow the catch of global buffer definition with a name equal to the target table.  Indeed I want to let the ability to define a global buffer explicitly so ABHack does not report suspicious global buffers when the developper knows what he is doing.
+   => you may do DEFINE BUFFER customer FOR customer. in a definition block for a .w file that uses a browse and query for the customer table (indeed, having a global scope for that is just perfectly valid)
+
+Fixed ToString() as a method in ProgressLangDefs.xml so it does not appear as an attribute for the Progress.Lang.Object Class
+
+Made all ABL objects inherit from the Progress.Lang.Object Class in abhackDbLib.p  (see loadPropMethFromDb and getClassMemberTypeFromDb)
+
+
+
+Improvements on 24-DEC-2008:
+===========================
+Solved the possible following error when ABHAck wants to handle a current window that is a .NET form:
+
+Cannot access the TITLE attribute because the widget does not exist. (3140)
+
+
+
+
+Improvements on 16-DEC-2008:
+===========================
+Fixed new little regression with the following error: 
+  Unknown name, possibly physical name when should be logical <name>. (1016)
+This was due to a test of CONNECTED(ENTRY(1, cPreviousWord, ".")) for the recent improvement of the hype strike mode after "dbname.buffer"
+
+
+
+Improvements on 8-DEC-2008:
+===========================
+A few weeks a go, I was reported that the hype strike mode was not working well with qualified database names.
+This release adresses the most important issues:
+ a) NO-LOCK and WHERE can now be suggested OK when pressing space or dot after a FIRST/EACH/LAST database.table
+ b) When a popup suggests "database.table", then typing dot can manage these two situations:
+    b.1) if the carret is right after a space (no word typed yet), then "database.table" is inserted right away in hype strike mode so it can pop up a field list.
+    b.2) if the current word is a part of the database name without any table name (like "datab"), then the database name is inserted with a trialing dot so the developper can start typing the name of ANOTHER table.
+
+
+A *Major* improvement around table completion:  When dealing with a Most Recently Used Buffer list (after keywords like AVAIL, FIRST, EACH...), the list is completely rebuilt when the size current word reaches the minimum size to suggest completion for (" => Min size of words for completion" in config).
+This solves an annoying case when someone wants another table with a name that begins with an item of a MRB list, as illustrated bellow with a order orderline join of a sports or sports2000 database:
+FOR EACH order
+ ,EACH 
+       ^--- at this point, a MRUB list limited to "order" pops up.  Because of this, one had to type 'Esc' after "ord" so a full table list would be rebuilt with order and orderline.
+
+Now we have the following:
+FOR EACH order
+ ,EACH ord
+          ^--- at this point the list is completely rebuilt with order and orderline.
+
+So in short, now, the Most Recently Used Buffer Lists do not harm anymore and can only help.
+
+
+Fix on 4-DEC-2008:
+==================
+Fixed regression error due to the fix of 1-DEC-2008: "Cannot delete the default buffer for a TEMP-TABLE object--delete the TEMP-TABLE object instead.(328)"
+
+
+Fix on 1-DEC-2008:
+==================
+Fixed dyn buffer memory leak in displaytextSelectedInfo.  No longer use a WIDGET-POOL to manage the deletion of hBuffer created with createTTorDBBuffer(), but delete it explicitly
+
+
+Improvement on 14-NOV-2008:
+===========================
+Many thanks to Jan Keirse for his implementation of "generate a debug list on Ctrl-Alt-D".  He did it the smart way.  It is indeed very nice to have such a contributer.
+
+Updated attrTabCompletion10.txt for the 3 SAX objets (I did not for Version 9)
+
+Added these three new name patterns in attrGuessObjType10.txt
+SAX-READER     saxr*,hsaxr*        
+SAX-ATTRIBUTES saxa*,hsaxa*        
+SAX-WRITER     saxw*,hsaxw*        
+
+
+
+Improvement on 3-NOV-2008:
+==========================
+Added following Guess Obj type patterns:
+X-DOCUMENT     h*xdo*,xdo*
+X-NODEREF      h*no*,xno*
+
+Updated attrTabCompletion10.txt and attrTabCompletion9.txt
+
+
+Improvement on 1-NOV-2008:
+==========================
+Fixed hype strike mode on colon.  The colonPressed routine could not truncate the content before the carret correclty.  I added logic that takes into account the fact that CURSOR-CHAR is not yet incremented on a real USER-INTERFACE-TRIGGER, but is already when it is called from CtrlDelay.PSTimerApplyEvent.Tick
+
+New feature "Listing on Ctrl-Alt-T" to open a generated temporary listing for the current source.  Note that the file is deleted as soon as it is open. 
+
+Refined parser to improve the section label of runtime Trigger, by not mentioning "RUN someProc IN someHandle".
+
+
+Improvement on 28-OCT-2008:
+===========================
+Fixed carretInComment() API so it does not return true when the carret is just between parentheses.
+
+Changed call to READ-XML() for ProgressLangDefs.xml so it used unknown value for the schema location, which causes less problems in older version like 10.1B03.
+
+Refined the attrGuessObjtType9/10.txt config file with the following guys:
+SAX-READER     saxr*,hsaxr*        
+SAX-ATTRIBUTES saxa*,hsaxa*        
+SAX-WRITER     saxw*,hsaxw*
+
+Updated attrTabCompletion10.txt for SAX-READER, SAX-ATTRIBUTE and SAX-WRITER objects
+
+Easier way to add ABHack to your Protools palette: new addToProtools.dat.txt file added to the package:
+To add abhack to your protools palette, you may just insert the following line at the top of your %dlc%\gui\protools\protools.dat:
+"abhack" "protools/abhack/abhackwin.w" "protools/abhack/tux.bmp" yes yes 5 no
+
+
+Improvement on 21-OCT-2008:
+===========================
+Added new feature "No completion in comment (single line)".  Enabled by default.
+
+Fixed regression introduced about one month ago with END. no longer inserted after a DO: or REPEAT: that is not a first word of a line.
+The cause was taking place in abhackParser.p/protectWrappedContent that was fixed on the way.
+
+Fixed initial value of glKeepTrackListingBuffer in abhackwin.w/restoreSetting.  Indeed, people that were not aware of this feature will now see it enabled.
+
+Removed obsolete glEnlargeNameCombo functionality
+
+
+Improvement on 20-OCT-2008:
+===========================
+Now ABHack can handle the STATIC keyword.  Actually, we do not need to keep track of it in term of completion, so I just had to skip it.
+
+Fix: when the BEFORE-TABLE option was used at last in a DEFINE Statement, just before the final full stop, then the before table name could end up with a trailing dot.
+Example:  DEFINE TEMP-TABLE ttOrder NO-UNDO LIKE Order BEFORE-TABLE btOrder.
+  => here the tracked before table name could be "btOrder."
+
+A few 10.1C updates to API tooltips (INTERVAL) and ABL attributes especially for the datset and query objects (ERROR-STACK-TRACE, RELATIONS-ACTIVE, TOP-NAV-QUERY, GET-RELATION(), FIRST-OF()... )
+
+Added aliases for progress.lang.object,Progress.Lang.ProError,Progress.Lang.Error,Progress.Lang.AppError,Progress.Lang.SysError 
+Note the aliases are respectively plo, plp,ple,pla and pls
+
+In OE 10, now ABHack loads a new xml file protools\abhack\ProgressLangDefs.xml into a dataset in order to manage the completion of and attributes and methods for Progress.Lang.* objects.  Note that attribute chaining works also for these objects.
+
+An object reference defined in a CATCH e AS progress.lang.ProError is also tracked down.
+
+Improvement for non structured sources: ignore Definition Section Mark and only consider one single main block so we can define a 'little' global variable anywhere in the main block without splitting it into two sections definition and main, which can disturbs a Local load.  This case could be hit when a main block was defining an error object with CATCH eMyError AS Progress.Error.* a the top of a main block followed later by a little variable definition, leading to two virtual sections.  The eMyError was no longer available after the variable definition although it sill in a vliad scope.
+
+Fixed procedure window width too small on window-maximize when the taksbar is located on the side of the screen (not at the top or bottom).
+
+
+Improvement on 23-SEP-2008:
+===========================
+Fixed missing completion on ´:´ for local variables when their definition line begins with spaces.
+
+Better support completion after buffer-field("FieldName"):<here>   This has become possible with the recent additions of a new option "protectOKMatchingPar" to the extractWordN API together with the new protectWrappedContent function in abhackParser.p
+
+
+Improvement on 15-SEP-2008:
+===========================
+Added support of OO ABL chaining completion after a method that returns an extended type.  Exemple:
+  getExtentedType():<members of that extended type>
+
+
+Added support of OO ABL completion for extended type chaining.  Exemple:
+  ObjA:getObjB():ObjCProp:getObjD():<members of extended type ObjD>
+
+
+Note that completion of for ABL primitives (INTEGER, HANDLE, CHARACTER...) after colon (':') will still take place as last resort ( I may even disable it in a next feature when I find a primitive type before the colon that is not a handle, but a CHAR or INT etc...)
+
+
+Refined aliases of Open customTabCompletion.txt to be more handy and less intrusive.  Examples:
+NUM-E and numen instead of NUM-E* for NUM-ENTRIES
+REPL and REPLA and REPLAC instead of REPL* for REAPLCE(%\c)
+RETURN-V and returnv and rtn for RETUN-VALUE
+PARA and PARAM instead of PARA* for PARAMETER
+
+Stability issue with the automatic positionning of the section layout treeview window (stuck mode).  On some machines(especially slow ones), it behaves like in 'stuck' mode (follow current procedure editor).  Slighly changed abhackSections.w/AttachMode and initializeObject to make it less sensitive to temporary values of pcMode.
+  => PLEASE report me if you are still hiting an issue around this point.
+
+
+Updated procEditorTriggers.p to avoid a persistent proc memory leak in protools/abhack/pcustomeditortriggers.p as pointed out by Dries
+
+
+
+Fix on 27-AUG-2008:
+===================
+As reported by Baltazar, fixed regression introduced in the 25-AUG-2008 embedded version of pure4gltv.w (missing reference of {&pure4gltvrootpath} in {{&pure4gltvrootpath}pure4gltvwindows.i})
+ => note it was OK on 23-JUL-2008.
+
+
+Important Fix and improvement on 26-AUG-2008:
+=============================================
+As reported by Dries, the subscription to SE_EXIT done yesterday introduces a serious regression since this event is fired when a GUI window or a Structured Procedure is closed, which was causing ABHack to exit
+
+As suggested by Dries, make ABHack restart itself after recompile.  Change the message accordingly.
+
+
+
+Improvements and Fixes on 25-AUG-2008:
+======================================
+Problem reported by Fred de Weerd: in CtrlSpy.PSTimerSpy.Tick, when considering a possible large selected text (between 1988 and 1999 characters), ignore cases where the selection goes over 1980 character, since it can lead to gpf (case reported to tech supoprt to end up with a more common error message)
+
+As pointed out by Baltazar Oliveira:catch a AppBuilder Exit event to save the ABHack settings (in A4GLB words: SUBSCRIBE TO "SE_EXIT" ANYWHERE RUN-PROCEDURE "CloseProcedure".)
+
+As suggested by Patrick Tingen, reverse the release note so Last achievements are reported first.  Many thanks to him for having rearranged the Release not documents.
+
+Added latest version of pure4GLTv.w with a few fixes and improvements
+
+
+
+Improvements on 23-JUL-2008:
+============================
+Revised the process that detects the OpenEdge version (for special care prior 9.1E02) so it accepts a version like 10.2APT without complaining.
+
+Major fix in the queryInfo API used by the Query Analyzer, which will avoid long lags when ABHack analyses a query with bad index usage:
+Actually, it seems that calling query-prepare() is enough to know the INDEX-INFORMATION, no need to call QUERY-OPEN()
+Not only it is not necessary, but it is actually rather bad when one develops against a large database, because opening the query can also keep the PROCESS very busy for nuts when the QUERY is not optimized (optimizing the QUERY is actually the prupose of the QUERY optimizer...)
+
+
+Improvements on 9-JUL-2008:
+============================
+Completion of fields now inserts 'BY' between each fields when multiple fields are inserted at once and when ' BY ' is detected before the current position of the cursor.  Note it works with both single line or splitted lines.
+
+Updated a few aliases in customTabCompletion.txt to be less annoying with the Hype Strike mode (removed a few '*', and made sure that a few common words like 'this' do not fire annoying ones: changed this* to thisp):
+Targp TARGET-PROCEDURE
+thisp THIS-PROCEDURE
+thos THIS-OBJECT
+thiso THIS-OBJECT
+UNFOR* UNFORMATTED 
+{&Se {&SELF-NAME}
+{&br {&BROWSE-NAME}
+{&fr {&FRAME-NAME}
+{&wi {&WINDOW-NAME}
+&Se {&SELF-NAME}
+&br {&BROWSE-NAME}
+&fr {&FRAME-NAME}
+&wi {&WINDOW-NAME}
+
+
+Improvements and fixes on 06-JUN-2008:
+======================================
+Fixed bug with subdirectories appearing more than once in OS-file list
+
+Added support of UDF completion after DYNAMIC-FUNCTION(<ThenHere> IN <firstHere>, <parameters> )
+  Example:
+  DEFINE VARIABLE hMyLib AS HANDLE      NO-UNDO.
+  RUN protools/abhack/ABHackWin.w PERSISTENT SET hMyLib
+  
+  DYNAMIC-FUNCTION('' IN[type space after 'IN'])
+
+  Once you choose hMyLib, the cursor goes backward between the single quotes so you can choose a UDF of the library
+
+  Then you get the parameters with
+          DYNAMIC-FUNCTION('createTTorDBBuffer' IN hMyLib ,INPUT phEditor
+                                                          ,INPUT pcBufferName
+                                                          ,INPUT pcOptn)
+                                                          
+                                                          
+Fixes on 22-MAY-2008:
+=====================
+PRIVATE Internal procedure could be suggested in RUN <here> IN hSomeLib.  Now, the PRIVATE option is caught by the parser and handled in the cAccessMode field of the ABHack temp-table and DB table.
+
+When a Ctrl-Alt-M Compile was fired, in case of compilation error, then the old .r file not removed, so an obsolete .r could still be used.
+Also took the opportunity to make the monitoring editor show with flashes that a compilation failed on Ctrl-Alt-M
+
+Added tooltip info for ENTRY() and NUM-ENTRIES() into the customAPITooltip.txt file.
+
+Added a few changed regarding the management of abhack/pcustomeditortriggers.p on request of Kan Keirse
+
+Made sur that the initial default for "Completion for preprocessor names" (completion) is checked, as well as for "Always keep track compile-listing buffer usage && scope" (Misc)
+  => PLEASE NOTE: New abhack users will be able to use these features at the very beginning, but existing users shoudl make sure they have tried their usage at least once.
+
+
+Improvements on 28-MAR-2008:
+===========================
+Made the toggle-box glKeepTrackListingBuffer initial value default to YES.
+  => If you do not have set on the Misc Page (top right), then I really invite you to set it.  I just changed its tooltip to "A MUST HAVE TO MASTER RECORD BUFFER SCOPE"
+
+Now ABHack automatically disconnects from the abhack database on exit.  This just makes more sense.
+
+Suggestion from Jan Keirse: Now protools/abhack/procEditorTriggers.p checks for the existence of an optional protools/abhack/pcustomeditortriggers.p, and runs it if found.
+
+
+Fixes on 25-FEB-2008:
+=====================
+Now, when the main timer is disabled with the STOP button or by pressing Ctrl-Alt-O, then no completion occurs at all even on dot, colon, quote, slash, open parenthese and so on.  This is more consistent for people who edit Webspeed html code and want completion only in Speedscript parts.
+
+fixed possible error 129 in the parser in the indexed field ttMark.cBlockName because of a very large trigger event name (list of widgets).
+
+
+Fixes on 01-FEB-2008:
+=====================
+Fixed a possible lock leak in abhackDbLib.p for the new table ahpreproc in the abhack database (buffer scope issue)
+
+Addressed a possible error "Cannot access the TABLE-HANDLE attribute because the widget does not exist. (3140)" in the abhack parser.  This little regression was introduced with the recent support of catching the data type of variables defined with the LIKE option (LIKE DB or TT field)
+
+Changed default X and Y of abhackwin so it does not appear off screen when recompiling.
+
+
+Improvements on 19-JAN-2008:
+============================
+Completion of preprocessor names after '{&' or '&UNDEFINE '  => This is a big step forward.
+Preprocessor definitions are caught during the parsing of a compiled listing.  GLOBAL preprocessor are always caught, SCOPED ones are only when the include level is 0.  I also catch the &UNDEFINE directives to ignore preprocessors that have been undefined when building a popup list at a given line number.
+
+Note that this new feature requires to update the schema of the abhack database.  You might want to use the Bulk Dump utility to feed or refresh your abhack database with preprocessor definitions.  Apply 'delta070926-to-080113.df' if you want to keep an existing database.
+
+The impact on performances is not bad: the Bulk Dump utility requires only 26min and 14s to process the 5187 source files of the %DLC%/src directory (laptop with CPU's running at 2GHz).
+
+A preprocessor list also pops up after the &UNDEFINE directive, which is very good to avoid lethal typos...
+However note that if you really type "&UNDEFINE " 100% by hand, then the popup will not fire.  The solution is to either:
+  1) insert a 2nd space and hit backspace. 
+  2) or use the alias on "&UN" then press space to insert the item
+    => The reason is a weird core problem that does not allow me to detect a value-changed situation when a space is inserted after a "&UNDEFINED" (the LENGTH attribute of the editor remains unchanged).
+
+
+
+Added a new "Show/Hide sPecial chars (space, CR) on Ctrl-Alt-P" feature.  Many thanks to Jan Keirse for sharing this trick with us.
+
+Took the opportunity to review a few tooltips for widgets on the "Keys" frame.
+
+
+Improvements on 20-DEC-2007:
+============================
+Implemented suggestion of Jarno Jarno van den Bout in the findAppBuilder procedure so it can better detect a customized AppBuilder (with additional menu-items)
+
+Refined the AbhackDbReadme.txt so the most important info appear at first (like quick steps to create the ABHack database)
+
+Improved the parser so it can now trap the datatype of a variable defined like another variable or like a database field or temp-table field.
+
+Remove show-in-taskbar option for the infoWin window.
+
+Added resources to start the track of preprocessor definitions.  (was really used on 13-JAN-2008)
+
+
+Improvements and fixes on 03-DEC-2007:
+======================================
+Do not kill popup on backspace when the current word is shorter than 3 chars when mode is field-list, or procedure list.
+
+Double clicking on the tiny info window now toggle its state between maximized and normal.  Note the maximized width is truncated to current-width.
+
+Added added "EACH","FIRST","LAST","PREV" and "NEXT" to the list of words to suggest buffers after.  Up to you to add them to your selection
+Small refines for the "NEXT" case so the suggestion of block label is not broken.
+
+Refined the behavior when typing '(' in the editor for a hype's strike popup that has just been raised and when nothing has been typed yet to narrow down the list.  The idea is to insert the '(' right away, and keep the popup, instead of inserting the current popup item.
+
+The suggested 'WHERE' popup now come in lower case when people do not want to caps, as pointed out by Patrick Tingen.
+
+
+Improvements and fixes on 20-NOV-2007:
+======================================
+
+Wrap selected text with opening and closing guy ('"([{) : better handling of the case when multiple lines of text are selected.
+
+Change the default of ABHack to font #4, which is the default font of the ADE.  This will help people who have modified the default fonts of a standard ADE.
+
+Solve possible error "**Unable to realize  FRAME fImagePage outside of its parent. (4102)", which was due to an attemp of using SIZE-PIXELS instead of SIZE for the definition of a frame.
+
+
+Improvements and fixes on 19-NOV-2007:
+======================================
+
+,---------------[PLEASE READ  New "Hypes' Strike" Feature]---------------
+|
+| Introduced a new "Hypes' Strike" feature that makes the completion very
+| fast and pushy on space, comma, period, parentheses, > , etc...
+|
+| The principle is to anticipate what you want after the current selected
+| popup completion item.  If you want an equal or a space or dot, you no
+| longer need to first type Return to insert the item before equal/space
+| or dot, but just that equal or space or dot.
+|
+| This mode is rather pushy, so I had to review the custom aliases so
+| their popup would go away without pressing Esc all the time.
+|   Example:
+|   The alias "THIS*" for "THIS-PROCEDURE" has been changed to "thisp".
+|
+| A few other points have been refined and reviewed regarding completion.
+| After one week of using it, I believe it is stable enough to be
+| released to the masses.  I hope you will appreciate it.
+|
+| The Hype's Strike feature will be enabled by default.  If you do not
+| like it, please report the reason why you don't like it, and note you
+| can disable it by unchecking the red toggle-box in the completion page.
+|
+`------------------------------------------------------------------------
+
+New feature in addition to "Insert closing guy" for characters in "'([{   When some text is selected: the selected text becomes wrapped by the opening and closing guys.  For instance, one may want to select a long text and type double-quote to get a quoted string, or '(' to wrap the text between parentheses.
+    => Isn't it pretty cool ?
+
+Now, when we choose a libraryHandle after RUN IN, then the cursor goes back after RUN automatically then inserts a space so we get the list of internal procedures of libraryHandle.
+    => Dries and Jan, I seem to recall you me asked that in the past, and I said no...  I've changed my mind ;)
+
+Replaced the obsolete glAddTableAfterWhere feature by a more amazing glAddWhereAfterFetchTable.  The idea is to suggest 'WHERE' automatically after a 'FIRST <buffer>' or 'EACH <buffer>'.
+    => Try to insert this by hitting space with the new Hypes' Strike
+
+Improved completion of A4GBL Attributes and Methods: keep the popup when one presses backspace in such a way the word becomes smaller than the usual minimum length of words before completion (3 characters)
+
+Reviewed list of custom aliases so there are more compatible with the new Hypes' Strike Mode.  Indeed, they popup only when the current words exactly matches the alias, and disappear when an additional unmatching character is typed afterwards.
+
+The auto shrink feature will now ignore non procedure editor windows that use a color editor.
+
+Solved error 3135 or 3137 that could occur when resizing or maximizing an editor window after closing the Section Layout small window.
+
+Changed default value of glCompileMinSize to NO, so people who use the debugger do not get mad with messages saying the action segment is not in synch.
+
+Improved the automatic reposition of the ABHack Finder tiny window so it does not flash when its target editor window is too far on the bottom
+
+
+New features and fixes on 30-OCT-2007:
+======================================
+New Ability to insert the current Method name when typing ':' after 'SUPER' in a OO Class Method Override.
+
+In method completion popups, fixed the multiple occurrences of method names due to overrides.
+
+The parser could catch a trailing '):' for a method first parameter when defined at the first line.
+
+
+New features and fixes on 27-OCT-2007:
+======================================
+New ability to adapt an editor window height to the number of lines in its editor on Ctrl-W
+  => see the Keys page
+
+New ability to automatically shift editor windows on the right or on the left when they overlap the ABHack main window.
+  => see the Misc page: "Move new detected editor windows away from ABHack"
+
+New ability to automatically shrink down a simple procedure editor window (not section editor) when it holds less than a given number of lines.
+  => see the Misc page: "Max empty lines before shrinking an editor window down"
+
+Support of USING <package>.* in external procedures (no longer limited to .cls files)
+
+Smarter sorting of buffer/table/temp-table in completion popups.  The completion list was refined with the Most Recently Used buffers to show the last used guys at the top.  This is good for all the tracked buffer usages find FIND, CREATE, EACH etc....  However, it was not the case with lines that define a buffer or a parameter buffer.  These two cases are now handled in a special way in the ttUsedBuffers.iLine, so the most recently defined will not show at first.
+
+Fixed issue for completion of Class ressources when the class relies on multiple usages of "USING package.*.".  This problem was just about how abhackDbLib.p was querying the data in abhack.db, not about how they were saved into it (so the data are fine).
+
+Fixed the synchronization between the Section Layout Treeveiw and the Section Editor for widget UI events:
+ a) The synch works in both directions
+ b) Database Fields events, as well as temp-table fields events
+ c) the Main block node works as well.
+
+Restructured the allocation of temp-table id's (field ittid in tttt, ttfld and ttidx) to avoid a possible error 132.
+
+Revised the load of global ressources for a class so it includes the before tables even when there is an error during the load. 
+
+
+Improvements and fixes on 07-NOV-2007:
+======================================
+Refined the shrink window feature so it gives one extra line for the height.  The point is to avoid an annoying native scroll of VSlick when we reach the bottom of the viewport
+
+Fixed insertion of OO Method Parameters refered in another object
+
+Revised the way Most Recently Used buffers are moved to the top of buffer/table completion popups.
+
+Reviewed the standard list of aliases so it now include the simple standard VSlick variable definitions like dvi or odvi or udvi.  Indeed, some people still ignore these.  Added 'mes' as well
+
+
+Improvements and fixes on 18-OCT-2007:
+======================================
+New option in the popup list to insert a list of fields with one item per line, and with and trailing equal sign.
+  => see popup menu on right click
+  => took the opportunity to better handle the sensitivity of these popup menu items
+
+Fix insertion of parameters for a .p located in the starting dir of a session (in ./).  ABHack was "saying GetExtProcParam returned this error:'The source ./<someDotp>.p is not registered in abhack.db."  Solution was to rely on FILE-INFO:FULL-PATHNAME instead of the SEARCH function.
+
+Updated Open attrTabCompletion<X>.txt with a few guys (of the LAST-EVENT system handle)
+
+Procedure names could be parsed (and registered) with a trailing colon (':') when defined with PROCEDURE myProc:  (no space before the colon).
+
+Added AMBIGUOUS and LOCKED in the list of words to suggested MRU buffers after (Suggestion of JC Cardot)
+  
+
+Fixes on 5-OCT-2007:
+====================
+The query analyzer could not analyze a FIND using the NO-WAIT option.
+
+On a Linux with a Compiz 3D Desktop, the 'ALT-CTRL-CURSOR-DOWN' fires an unfold 3D Cube, so it was not possible to use the duplicate current line.  Added the ability to duplicate the current line on ALT-CTRL-CURSOR-UP as well, which is ignored by Compiz.
+
+The query Analyser could be disturbed by a comment present in the query like with:
+"FIND /*some Comment*/ FIRST myTable".  
+   => FIRST is not the first word after FIND.
+   => It now removes possible comments with the removeLineComments() API.
+
+When a very small tooltip was displayed (like with empty text for instance), one coud get the following error:
+"button btnclose does not fit..." (6491).   
+   => Now I make sure the tooltip does not smaller than a minimum size.
+
+In some cases (probably when a .r file exists) a global load could report a compilation error (by flashing the monitoring editor) although there were none, because I was relying on COMPILER:ERROR-ROW = ? OR ERROR-STATUS:GET-NUMBER(1) = 6430.
+Now I rely on COMPILER:ERROR-ROW = ? OR COMPILER:ERROR-ROW = 0 OR ERROR-STATUS:GET-NUMBER(1) = 6430.  
+
+The Stop button was stopping almost all the timers, except the one of the Find floating window.  This could be annoying when using the debugger.
+
+
+Fix on 26-SEP-2007:
+===================
+Temp-table fields were not properly stored in the abhack database. As a consequence, a field popup could propose an empty field list.  The root cause was a little typo in the schema of the abhack database: in the table ahfld, the field cFfdName should actually be named cFldName.   => note the 'f' instead of 'l'
+
+Since abhackDbLib dumps the definition with buffer-copy's, this field was remaining empty.
+
+The Schema has been corrected, as well as the startup check routine.  However, you can quickly the schema it manually in order to keep an existing database (this is indeed very quick because it does not affect indexes):
+ 1) quit abhack.  You should remain connected to abhackdb.  If not, then connect to it manually.  Make sure that you are the only one connected to it.
+ 2) Data dictionary, table ahfld, rename the field cFfdName into cFldName
+ 3) In the table ahdbversion, field abhackVersion, change the initial value to 26-SEP-2007 then commit all changes
+ 4) COMPILE protools\abhack\abhackDbLib.p SAVE
+ 5) Then to check the problem has been adressed correclty: open a source file that defines a temp-table.  Press Alt-G to force a global load and refresh the definitions in the abhack database.  Close the file, reopen it, then type the temp-table name in the editor and press '.' right after it to see the field list.
+
+ 
+Improvements and Fixes on 21-SEP-2007:
+======================================
+
+Two Big new features:
+
+A] Insertion of parameters for external procedures.
+
+  A.1) The referred external procedure must be described in either a ABHack Global Def XML file (OE 10 only), or in the abhack database (the best option for both V9 and OE 10).
+  A.2) The schema of the abhack database and/or XML file has been modified to keep track of global parameters for a exernal .p or .w procedure.  Upgrade the abhack database, and run again the Bulk Dump process to refresh your database or XML catalog with the parameters of your libraries.
+  A.3) When a .p or .w file name is found after a RUN, then I search it in the ABHack database only based on the file name, and not with a possible leading relative path.  As a consequence, if .p's and .w's exist multiple times in your propath (External Procedure Strong Overriding), then ABHack will use the first it can find to insert parameters.  This is not important if your overrides have the same parameters.
+
+
+B] The OS file completion for .i's or for .p's and .w's after RUN can now use the ABHack Database, which is MUCH FASTER than scanning the OS Files, especially with Networked drives.
+
+  B.1] This feature can be disabled with the purple new toggle-box "Use ABHack.db to find OS files" in the completion page
+  B.2] Directories that do not contain any source file will not show in the completion popup, which is just smarter.
+  B.3] Of course, only registered files can be found in the ABHack database, so you should definitely use the Bulk Dump Utility to make ABHack know all the files that you use.
+  B.4] Do not hesitate to run the Bulk Dump Utility against the Progress Source files in %DLC%/src (Dynamics, adm2 etc...)
+  
+
+
+Fixed a nasty issue that could mess up the ttMark records when firing a loadGlobal from the editor and when the current line what the first line of procedure block or function block.  The next loadLocal could believe that new lines had been inserted and was shifting all the marks.  As a result, clicking on a node in the section layout would not result in the excpeted scroll in the editor. 
+
+
+The bulk Dump utility now takes the opportunity to ask the abhackdblib.p library to un register source files that have been deleted on disk.  These actions also appear on the Bulk Dump monitoring Editor.  New check box to enable this cleanup, or just process this cleanup have been added to the Bulk Dump utility.
+
+
+To address a problem reported by Jan Kierse: Improved behavior on BACKSPACE for completion popups.  When erasing a word with backspace, then the current popup is killed as soon as the current word becomes smaller than the original length when completion was first suggested.
+
+
+OO ABL completion for "<ObjVariable> = NEW <ObjectType>", no propose "= NEW <ObjectType>()"  [the parentheses]
+  => later we shall suggest the parameters of a constructor(s) as appropriate [think of possible overloads].
+
+
+Finally made the abhackExit event close the info window.  In the first days, I thought it could be handy to keep it running, but the trick to make it save the position and size was not handy.
+Section Layout window: The buffer nodes in "Buffer scope" branch was showing only Database icons.  Now it shows the temp-table icon when appropriate.
+
+
+Changed initial value of glKeepTrackListingBuffer to YES
+  => This one is a major feature of ABHack, so I changed the string value for 'NO' in the registry to make sure that people have really unchecked the box manually and that is was not just unchecked because the previous default value was a NO by mistake
+
+
+The detection of main AppBuilder window now relies on a title that matches "*AppBuilder" and the presence of a 'About AppBuilder' menu-item in a Help SubMenu, because some people (Like Jan Keirse) add a little prefix to the title of the AppBuilder depending on the workspace being used.
+
+
+Added CLOB,BLOB,LONGCHAR,COM-HANDLE,INT64,ROWID,RECID to the preprocessor list of native datatypes.
+
+
+Info Win: for the test editor: repaired black on black due to initial value of 0 saved in the registry.  Now, if the colors are restored as black on black, then the fgColor is set to light green  (10)
+  
+
+Fixes an improvements on 10-SEP-2007:
+=====================================
+Changed initial value of the obsolete glEnlargeNameCombo option toggle-box to NO, so someone that uses abhack for the first time does not get a weird warning at first launch.
+
+
+As discussed on the abhack forum and with the participation of Paul Volk: improved the usage of the two old versions of Progress stability tweaks "Force WAIT-FOR" and "Stop when focus in dialog":
+a) When running 9.1Dxx or 9.1E00 (FCS) or 9.1E01, then ABHack checks if the command line that started Progress uses the Startup Parameter -filterocxevents.
+  => If no then it raises a warning to invite people to add this param in the command line, then makes sure that both options are enabled.
+  => If yes, and if these two options are enabled, then it disables them with a little information message.
+b) In 9.1E02 or above, if these two options are set, then ABHack disables them.
+
+c) Made sure the "Stop when Focus in Dialog" option is versioned in the registry, so the Version 9 setting does not affect OE 10 sessions.
+
+
+Moved the "Stop spying when not in editor window (leverage tracing)" option outside of the stability tweaks.  Indeed, this option has nothing to do with stability.  Its point is to leverage the -clientlog file or OE 10 Logmanager file when tracing the A4GBL.
+
+
+The editor windows registration process at startup could catch AppBuilder Section Editor hidden windows, which could cause errors 138 about ttSection when there were selected in the browse.  The startup process ignores them now.
+
+
+The ABHack.db connection phrase is also versioned so one can use a different database for version 9 projects and OE 10 projects, especially for shared memory connections.  Note that one can still share a single V9 db with -S for both version.  But again, performances are much better in Shared Memory mode, which can be important when ABHack dumps thousands of record for a source file.
+
+
+The query Analyzer could be disturbed by a valid "BREAK BY" phrase, because this option is not valid (yet) in a Dynamic query.  The solution was to replace a "BREAK BY" by a simple "BY" so it does not affect the index usage.
+
+
+Fixes on 07-SEP-2007:
+=====================
+For OO ABL when reloading from DB (phase 3 feature), fixed serious issue when reloading temp-table fields and indices defined in a super class, which could lead to error 132 and missing fields for the completion of super temp-table field's
+
+Fixed minor issue for the fileName info of super resources for OO ABL
+
+
+Amazing issue with the autocompile mechanism: it can make problems if you update very quickely a release of abhack on a machine that has a clock later than the one of my own laptop.  Why? Well, suppose I release the abhackWin.w file last modified at 14:00 (2:00pm).  At the same time, sOmeone on the west with local time of 8:00am downloads it and launches it.  The autocompile finds out that abhackWin.w is more recent than one .r file, so it recompiles all and exits.  As a consequence, the new .r's have a mod-time stamped with today 8:00 o'clock.  So these .r's will sill look older than my source file until it is 14:00 o' clock local time.  People living on the east side won't suffer from this problem.
+  => SOlution: hire me in Los Angeles...
+More seriously: if the oldest .r' is not older than 1min, and the most recent source file is in the future (so comes from my machines on the east at a time you have not reached yet), then do not recompile.
+I have hit this issue on a machine with a clock that was 20 minutes late, as I just dealing with source files I just modified.
+  => This problem addressed in this release (at worse, you will have to let it recompile if you do not relaunch it within mone minute).
+  => I have also changed a few things to let the monitor editor be more verbose at startup.
+
+  
+Fixes on 06-SEP-2007:   
+=====================
+Fixed parser regarding local variables defined in function or method that could be taken like global resources.  This was an old issue that could make the popup list suggest extra unexpected variables or buffers.
+
+OO ABL: Repaired call to load super resources after a restore from DB.
+
+Fixed old issue when preparing completion buffer list.  The DB schema cache part was not checking if a buffer was already present in the list (case of used buffers) so it could appear twice.
+
+
+2nd pack of fixes for 04-SEP-2007  => call it 04-SEP-2007b
+==========================================================
+Fixed possible error 560 when parsing a line that defines a parameter in an incomplete way (no parameter name or no data type)
+
+Fixed save/restore and display of gcGlobalResCat in the registry on exit.  In short, one could get it set to 'disabled' at startup although he was using 'DB' fine earlier.
+
+Fixed share-lock leaks in abhack.db.  By design, they should not have happen, because I limit the scope of the buffers, but I had a little mistake in the definition of a &redefineChildrenBufferScope preprocessor in abhackDbLib...
+ => Did a few bulk dumps while monitoring abhack.db with promon.  I sware it now works as design
+
+Better handling of before tables (OE 10 option when defining a temp-table):
+ 1) Catch it when defined in the very first line
+ 2) Do not dump them in DB or XML, but rather recreate them at the end of the loadGlobalFromCar job
+
+The RUN <procedureList> IN <SomeHandelVar> was not firing if a full stop was already located after <SomeHandelVar>.  Example:
+RUN <procedureList> IN hMyLib.  <---- this full stop
+
+
+Fixes on 04-SEP-2007:   
+=====================
+Removed CodePage information from the abhack.df, as suggested by Dries Feys.
+
+Fixed inheritance data that can affect a global dump to XML or DB.
+  => please, refresh the global desc catalog with the global Dump utility...
+
+
+Fixes and improvements on 03-SEP-2007:   => PHASE THREE
+======================================      ===========
+
+ABHack now support completion for RUN IN for both OE 10 and V9 when one uses the abhack database.
+  => Please read the AbhackDbReadme.txt file
+
+
+Fixes and improvements on 31-AUG-2007:
+======================================
+
+=========================[Important restructuration PLEASE READ]=================
+abhackwin.w had become so large that it could lead to bad errors in version 9.  I have therefore more themain parsing entries to a new abhackparser.p.  This new guy will help to reuse abhack stuff in other circumstances...
+
+
+Resturctured the load and dump of XML so it uses SHARED temp-table instead of passing them BY-REFERENCE.  The main procedure abhackwin.w now defines the global resource temp-tables as NEW SHARED.  Sure, the BY-REFERENCE is smarter, but it is only available since 10.1. 
+  => This change opens the door to OE 10.0, and will make it easier to adapt a few .p to work with a database instead of xml files.
+  => For those who did not guess it, this step will be PHASE THREE: faster, more flexible and operational in Version 9....
+
+Found out that a dev session could become slower after a long uptime.  Investigated possible memory leaks and found out few dynanmic buffer cases.  Indeed, createTTorDBBuffer() could be called without deleting the buffer or temp-table afterwards.
+  => Next to this cleanup I had to fix a few regressions with error 3135.  I believe it should be stable, but I may have missed one.
+==[END]==================[Important restructuration PLEASE READ]=================
+
+
+             [Completion for calls in external librairies]
+,------------[   RUN <InternalProc> IN <hSomeLibrary>    ]---------------------
+|
+| Now, ABHack proposes library handles after "RUN IN".  These handles are
+| handle variables (global or local) that have been seen caught during a global
+| load with a "RUN <ExternalProcedure> PERSISTENT SET <theHandleVar>"
+|
+| The best is yet to come...  if you press space on the right "RUN" and on the 
+| left of "IN <hLibraryHandle>", then ABHack will try to load the xml file of
+| the ExternalProcedure corresponding to <theHandleVar> (actually the last usage
+| of this variable in a RUN PERSISTENT SET.  If it finds the xml file and can
+| load it, then ABHack will be able to propose the list of internal procedures
+| and insert their parameters
+|
+| Notes:
+| A new alias 'RUN RUN IN' has been implemented to show that abhack can no do
+| something with 'RUN IN'
+|
+| Try to use different variables for different libraries.  If you reuse the same
+| for multiple libraries then it is not easy to guess the correct external
+| procedure.  I may improve the process for local variables, but it is not
+| possible to guess with global variables if it was set in another internal
+| procedure.
+|
+`------------------------------------------------------------------------------
+
+
+,---------[Improvement about the open text-selected file names]----------------
+|
+| This one is a great little plus and worth 5 little lines: made it easier to
+| propose to open an include file: just triple click on a line and it becomes
+| selected.  ABHack will remove possible leading '{' and '}' from the selected
+| line and even take only the first space word (ignore compile time arguments)
+| to stip an include file name out.
+|
+| ABHack also suggest to a open a class file when its name is text selected.
+|
+| ABHack can also resolve a possible package path with tracked usages of USING
+`------------------------------------------------------------------------------
+
+If we open a file with ABHack that is already open, then ABHack just put the focus back to the previous window that hold it, except if this editor was a Section Editor Window so we can have a source open in the two modes.
+
+At startup, ABHack registers all open editor windows.  This is especially handy when we stop and restart abhack while improving it.
+
+Fix for Find next/prev occurence of current word on alt-cursor-right/left when "local scope" is selected in the abhack finder (Removed the FIND-WRAP-AROUND option from the SEARCH)
+
+Starting to track usage of RUN <someLib> PERSIST SET <someVar> so we can provide a liste of internal procedures for "RUN IN hSomeLibHandle.
+
+Added new useful alias for people doing OO: 'dvv'  DEFINE VARIABLE  AS   NO-UNDO.  => no type at all
+
+Query analyser: if a query has a buffer against a foreign database then we now get a nice warnig saying it cannot be analyzed.  Before we were hitting the following error:
+INDEX-INFORMATION requires query <name> to be QUERY-PREPARED or open and defined with RCODE-INFORMATION. (7362)
+Read Entry P6070 on the Knowledge Center for more information with INDEX-INFORMATION and foreign databases.
+Fixes and improvements on 21-AUG-2007:
+======================================
+
+Improvement: the Open files browse now shows:
+ a) in Bold the files that are in modified state.  The title of these modified editor windows is also prefixed by " **  ".
+ b) in red the files that appear to be open for a 2nd time.  In other words, ABHack found out another procedure editor that was open earlier for the same file.  If one wants to save such a file with F6 or Ctrl-S, then ABHack will warn that another older source editor is open for the same and will ask to confirm the save.
+
+
+The open file browse now reacts on value-changed rather than default-action to move a selected source file editor to top.
+
+Improved search prev/next current word on alt-left/right.  Now the 'local scope' of the small abhackfind window is taken into account.  If a successfull find goes outside of the current scope, then cursor goes back to where it was, and the small find fill in blinks in red.
+
+Info Floating Window: fixed the restore setting so a color of black (0) can be restored effectivelly.
+
+Section Layout Treeview: Usage of different icons for methods to show the access modes.
+
+The "Convert 100% CAPS to lower case" option was working fine for tables and for fields when inserting them in the code, but not earlier when displaying these fields in the list.  It looks nicer now.
+
+Revised the pdf doc with main new features
+
+,---------[Important improvement for installations and updates]----------------
+| Recently I got one remark (Mike) about the fact it is not very straight forward
+| to 'install' ABHack, especially because one has to put pure4gltv separatly in
+| his propath to enjoy the Section Layout Treeview.  This was absolutely true.
+|
+| I have therefore reviewed the code of pure4gltv to make the change of its root
+| path possible.  I also took the opportunity to get rid off an old problem
+| with a famous windows.p API library that has different signatures when Dynamics
+| is used or no (let alone V9 / OE 10).
+|
+| So now, one single package will provide everything in protools/abhack. It will
+| also be easier for me to add a few treeview icons (the case in this release for
+| method nodes)
+|
+| I also took the oppotunity to reanable the usage of .r files.  ABHack quickly
+| checks if all sources are older than .r files.  If not, then it will recompile
+| all in no-error mode (for Version 9).  This process is very quick and will
+| probably help for performance at run time.  One only little drawback: one
+| should not share the same directory for both Version 9 and Open Edge 10
+| anymore (which should be very rare).
+`------------------------------------------------------------------------------
+
+
+Fixes and improvements on 16-AUG-2007:
+======================================
+
+,----[IMPORTANT IF YOU ARE ALREADY USING THE ABHack XML GLOBAL DESC FILES]-----
+|  Some of the changes will require to regenerate the xml .abhack files.
+|      => Please the GUI Bulk Dump utility.
+`------------------------------------------------------------------------------
+
+Now the abhack xmlfiles use an external xml schema file protools\abhack\GlobResourceDescSchema.xml.  This file is generated if not found during a xmlDump.  With this file the generated xml files will no longer need to include dataset schema definitions, so they will shorter, and hopefully faster (not sure about this point).
+
+Improved bulk Dump to go faster (disabled useless localLoad and a few GUI effects).  For %DLC%src (3161 files) drop from 17 min 32s to 9 min 41s.
+
+
+,----------[XML Bulk Dump: new abhackBulkDumpIgnoreDir.txt file directive]-----
+| Just create an empty file of that name in a directory and the Bulk Dump utility
+| will skip the directory as well as its subdirectories.
+`------------------------------------------------------------------------------
+
+Disabled the .abhack xml global def files for 10.0.  Indeed, I need to be able to pass temp-table parameters with the "BY-REFERENCE" option to work with good performances.  IT seems this feature was introduced in 10.1A FCS
+
+Improved error handling for the load and dumpo of xml files.  Errors now appear in the monitoring editor (like using an obsolete xml file)
+
+The ttedt.isClass field was not set for .cls files.
+
+Just starting to use the ttUsing temp-table to track the OE 10 USING package.  It was correctly maintained by the load global process, but not dumped in the xml files.  Problem addressed
+
+Fixed a possible ERROR ** Attempt to read from closed stream edtImport. (1386)  from loadGlobParseListingMarks, which could occur when the listing file to parse was partially generated because the source file failed to compile
+
+Fixed the handling of short source file full path to parse in a COMPILE LISTING (shorter than 17 characters).  This could also lead to possible errors 82.
+
+
+,-------------[Nasty little issue addressed at best in this release]----------------
+| This NASTY ISSUE HAS ALREADY BEEN REPORTED IN THE PAST ON the peg abhack list but
+| I understand the real root cause only now:
+| If the trigger PROCEDURE CtrlSpy.PSTimerSpy.Tick fires while a little debug message
+| is being displayed at the screen, the ERROR-STATUS:ERROR flag and/or RETURN-VALUE
+| might be changed by this trigger procedure, which can change the flow of the
+| application being tested from the AppBuilder.  => rare case, but nasty!
+|
+| Code to reproduce (and explain) the problem:
+|   RUN myProc NO-ERROR.
+|
+|   /* => the CtrlSpy.PSTimerSpy.Tick might fire during this message */
+|   MESSAGE 1 ERROR-STATUS:ERROR SKIP RETURN-VALUE
+|       VIEW-AS ALERT-BOX INFO BUTTONS OK.
+|
+|   /* ERROR-STATUS:ERROR or/and RETURN-VALUE have changed!!! */
+|   MESSAGE 2 ERROR-STATUS:ERROR SKIP RETURN-VALUE
+|       VIEW-AS ALERT-BOX INFO BUTTONS OK.
+|
+|   PROCEDURE myProc:    
+|       RETURN ERROR "some value".
+|   END PROCEDURE.
+|
+| I can manage to restore the ERROR-STATUS:ERROR flag, but not the RETURN-VALUE
+| event with the best Dynamics tricks I am aware of...
+|    =>| See details in the code CtrlSpy.PSTimerSpy.Tick procedure
+| 
+| I believe the only way to really address this problem is to use a startup
+| parameter that prevents ocx event to fire while a message is being displayed
+|   => can't recall the name of this parameter
+`------------------------------------------------------------------------------
+
+
+Fix on 14-AUG-2007
+==================
+Better behavior in Version 9 when people try to use the new Dump & Load of ABHack XML Gobal Def description files.
+
+
+Fixes and improvements on 13-AUG-2007:   (A rather major release)
+======================================
+
+
+  New minor features:
+  ===================
+
+Ability to define alias with large texts for people who like large macros.  See the bottom of customTabCompletion.txt file, or try the 'stdh' or 'stdf' aliases.
+
+%\userName and %\fileName alias directives
+
+Added ROWID and RECID to the list of words to suggest used buffers after
+  => Up to you to add these new guys in the selection-list [completion 2)]
+
+ABHack now flashes the bgcolor of the monitor editor when a Load Global process hits a compile error
+  => This way, one is aware that the global load process may miss a few resources, especially the new buffer scopes.
+
+Insert internalProc/udf/method with many parameters can now split the parameters in multiple lines.
+Two new options have been added to define the minimum number of parameters to split a line, as well as the style to manage the comma's between each parameter.
+ Note: There used to be two toggle-boxes to specify if the INPUT keyword had to be inserted for procedures and for function/methods.  Now the same one is used for all [in the completion 2) frame] so the two new options can also apply for all.
+
+Starting to keep track of object USING packages, as well as super class object (INHERITS)
+
+Added new fields to ttEdt temp-table to keep track of last Global Load.  manageMonitorEdtColor is now more reliable with source code that has no global resources at all.
+
+In the section Layout window, nodes are now added on the fly (usage of the pure4gltv "addOnExpand" feature) for about 80% of the nodes (parameters and buffer usage).  Thus ABHack is much faster at filling the treeview when switching editor windows.
+
+
+
+  New Major features:
+  ===================
+
+,---------------[Report about buffer usage & their scope]-----------------------------
+|
+| Started to record the buffer usage reported at the end of a LISTING obtained
+| with the COMPILE Statement.  A special notice is reported when buffers with 
+| a global scope are detected (the Monitoring editor displays in red with details
+| in its tooltip).
+|  => This new option could cost more resources when filling the section layout
+| treeview.  The loading process has therefore been optimized to load most of the
+| nodes on demand (on the fly with addOnExpand)
+|
+| The Section Layout Window treeview has been reorganized.
+|  a) The buffer scopes appear in a new "Scoped buffers" top container node
+|        => very handy to detect buffer usage
+|  b) The parameters appear in a new 'Parameter(s)' container node that is already
+|    expanded at the beginning.
+|  c) A new Scoped buffers node appears in each function, procedure, method and in
+|     the main block.  This last one is very handy to detect those with a global scope
+|
+| Note that some buffers are reported with a global scope when they are just referred
+| in a CAN-FIND or with EMPTY TEMP-TABLE.  This behavior of COMPILE LISTING is a bit
+| suspicious because these two statements do not extend the scope of their buffers.
+| That being said, one work around is to redefine these buffers locally even for a
+| CAN-FIND, which brings a great advantage: with this extra buffer redefinition I can
+| list very quickly all the buffers used in each entry, or all the entries that use
+| a given buffer (for both Db tables and temp-tables) 
+|     => just give it a try with abhackwin.w itself to have an example
+`--------------------------------------------------------------------------------------
+
+
+,---------------[Dump and Load of ABHack Global Resources in XML files]----------------
+|
+| This feature is a major step forward to reach the phase two of abhack: the completion
+| of properties and methods for class variables, and of 'super' resources
+| A new "Use Global Resources ABHack XML Dump Files" toggle-box and a new
+| "Dumped resource files root dir" fill-in have been implemented on the Misc page to
+| enable this feature.  For the later, I recommend to use a local directory with a short
+| path, like "C:/abhackDumps".
+|
+|  a) when abhack finds out that a source editor has loaded another source file, it tries
+|  to find an ABHack global resources XML file with a name of:
+| "<DumpResourceFileRoot>/<sourceFileFullPath>.<fileExtension>.abhack"
+|   Example: C:\ABHackDumps\CDrive\v10Tools\protools\abhack\ABHackWin.w.abhack
+|      Note: the Drive letter in <sourceFileFullPath> is replaced by "<Letter>Drive"
+|   => if this file is found then ABHack loads it.  Note the time to load such a file is
+| between 20 and 30 times faster than the normal global load process (with 2 compiles
+| and 3 parses)
+|
+|  b) When global resources are loaded on user request with the normal compile & parse 
+|  process (on Alt-G or Ctrl-S), then ABHack takes the opportunity to dump the global
+|  resources in the xml file mentioned above.
+|  Note that dumping this description file is rather fast (about 150ms for a very
+|  large source file like abhackwin.w itself)
+|
+|  c) a GUI Bulk Dump Utility has been implemented to Dump Global Def Description Files
+|   for a root directory.  A good test is to run it for %DLC%/src...
+|     => 3161 source files processed in 17 minutes and 32s.  70MBytes of xml files generated
+|
+|
+| With this feature, one no longer needs to load the global resources each time he opens
+| a new file.
+`--------------------------------------------------------------------------------------
+
+
+  Fixes:
+  ======
+
+Load only one mark for CONSTRUCTOR and DESTRUCTOR methods during globalLoad.  As a visual consequence these methods no longer appear twice in the section layout treeview.
+
+Suggested buffer after "CAN-FIND(" without FIRST or LAST (unique can-find) were prefixed with 'CAN-FIND('
+
+Align variable definitions could remove a period at the end of a line for some data types when the data type was the last word of the line (NO-UNDO not used).
+
+The align definition can now handle the PRIVATE, PROTECTED and PUBLIC options.
+
+Updated a few aliases in customTabCompletion.txt (proc* => add 'END PROCEDURE' => the same for UDF's)
+
+Updated attrTabCompletion10.txt with a few dataset and temp-table methods
+
+
+Fixes and improvements on 29-JUL-2007:
+======================================
+Refined the window-maximize trigger of code windows for people who prefer to have the abhack windows (main, section layout plus win info) on the right of their screen, and their section code windows on the left (I personally do the opposite)
+
+I take the opportunity to supply to screenshots of my development environment in action to give ideas about windows layout.  Feel free to send me yours.
+  My current config is dual screen 1400x900 + 1280x1024 (guess with the black hole)
+  I keep the ADE windows (AppBuilder, ABHack, palettes) on the left screen, as well as the section code I am currently editing and that I may maximize
+  The Object Palette fits on the left of the ABHack main win.  The Section Layout and the info win fit at the bottom.
+  The Protools palette is located on the bottom in such a way it will remain visible on the right of the find mini window when a editor window is maximized.
+
+  Note that maximizing a code window on the left screen (ctrl-M, or double click on title bar) results in having visible ABHack windows on the left, as well as the object and protools palettes (left and bottom=.
+
+  The right screen has a few MS Explorer windows ready to drag and drop source files to the AppBuilder or ABHack (open file dialog=for dummies).  I also have a few section windows here to keep an eye on their code while I am busy on the left screen (I hate the one-visible-editor-at-a-time-approach.  A piece of code usually works with other pieces)
+
+
+  My favorite Virtual Desktop utility (http://enablevirtualdesktop.com/virtualdesktop/index.htm for free) fits on the bottom right of the left screen, as well as Miranda, an alternate Instance messaging soft (without adds, and with more capabilities than some M$ crapWare)
+
+
+Fixes and improvements on 05-JUL-2007:
+======================================
+Nice new feature: in large editor mode (non section editor), Alt-Page-up and Alt-page-down now give the ability to jump to a next or previous section.  Note that for now, I do now maintain a MRU list like I do with a Section Editor Window.
+
+Starting to parse the data type of local and global variables/parameters, so this info becomes available in the info window.  For now, I will ignore the resources defined with LIKE (will do later)
+
+Many thanks to Johan Samyn for bringing a new "Right margin indicator at column" feature in the Misc Page.  It is always a great pleasure to see other people manage to get into the code and bring new features.
+
+Note that Johan took the opportunity to fix a little typo in 'glDrawBoxAroudCurrentLine' (should be 'glDrawBoxAroundCurrentLine').  On can judge the quality of a software in this kind of little detail ;)
+
+Fixed a possible serious core hang with the query analyzer if the selected expression to analyze contains something like:
+  FIND FIRST Customer NO-LOCK WHERE Customer.NAME = mySelList:SCREEN-VALUE IN FRAME fMain.
+  => The "IN FRAME <frameName>" seems to cause a QUERY-PREPARE() hang...
+As a work around, the Query Analyzer will remove all "IN FRAME <frameName>" expressions,and will even try to handle something like mySelList:SCREEN-VALUE or mySelList:INPUT-VALUE or myBufferField:BUFFER-VALUE like a simple variable name (to be replaced by '?'), so the analyses can be performed OK.
+
+
+To please Johan: brought support of various date format for aliases.  Took the opportunity to add one for french, s'il vous plaît.
+
+As poited out by Dries: I disabled the close of the abhackfinder window on Alt-F4.  One shall use the right toggle-box on the main abhackwindow to close this facility.
+Dries note that I keep the focus in this window when pressing Enter or Alt-Enter so you can search again.  Please press Esc to move the focus back to the editor as the tooltip says.
+
+Now a click on the fancy pic on the AppBuilder (flag/smiley/or text) takes the opportunity to implement a resurect Session Windows feature.  This is very handy when one uses a Virtual Desktop Solution like "Enable Virtual Desktop" (which I recommand : http://enablevirtualdesktop.com/virtualdesktop/index.htm)
+Indeed, Virtual Desktop are not native on Windoze (I've always seen them on *NIX for 14 yers...) and those nice magic tools can sometimes have problems with the collaborative implementation of the Window Manager of M$ Windoze, which can lead to hidden small windows when switching to another Virtual Desktop.
+  => The new ABHack resurect windows feature will help to repair de situation.  Just click on the fancy picture    and the Object Palette, Protools, POV, ABHack windows will be made visible again.
+
+
+Fixes and improvements on 23-JUN-2007:
+======================================
+Slightly resized the abhack find window to avoid scrollbar on sites that have modified the standard Fonts of the ADE.
+
+In the section layout window, the parameter nodes we sorted alphabetically... Implemented a new option in addNode of pure4glTv so superceed the autoSort TV option for one single node, and made abhack use it for the parameters
+  => PLEASE INSTALL LATEST VERSION OF pure4gltv TO INHERIT FROM THIS NEW FEATURE.  (pureabltv-2007-JUN-19.zip or higher)
+
+Solved possible error in JumpToSectionMark when Main spying timer is stopped: Cannot access the WINDOW attribute because the widget does not exist. (3140)
+
+Solved another possible error in JumpToSectionMark when Main spying timer is stopped: ** ttEdt record not on file. (138)
+
+In the Ection Layout treeview, refined the label of trigger nodes so the widget name appears first, then the event list in lower case without 'ON' and 'OF'.  This way, the sorting is more intesting, especially for the search on keystroke.
+
+Before launching the new outline layout treeview, I used to check SEARCH("pure4GLTv.r") = ?  => changed "pure4GLTv.r" to "pure4GLTv.w" for Sneda that uses the same tools direcdtory for both V9 and OE10 */
+
+Implemented the ability to define a new custom list of words in protools/abhack/customTabCompletion.ofMine.txt to abort the completion process.  
+ => Note I believe this one has been asked around for a long time, but I could usally solve most problems by checking the KEYWORD-ALL function.  The point of this new feature is to provide the ability to abort the completion process for non ABL keywords
+Suppose you define a class package called 'core' and that you have a table name 'coreBladiBla'.  Each time you type 'core' then an unwanted 'coreBladibla' popups up.  I first thought about implementing a simple list of words that would be profiled per user, but a lead architect might want to define a list of words for all developpers on site, so I implemented a new '@abortCompletionProcess@' directive for the protools/abhack/customTabCompletion.ofMine.txt file.  Any expression defined with this directive will make abhack aware you want to ABORT the completion
+process for this word.
+
+
+Little fix in the query analyzer for FOR FIRST and FOR LAST types of queries:
+ a) Repeat after me, a FOR FIRST and a FOR LAST *can* use multiple indices (I did limit it to one single index).    
+    =>Thanks to Marco Squintani for pointing that out.
+ b) That being said, a FOR FIRST or FOR LAST *ignores* a BY clause, so ABHack will add little warning if a FOR FIRST or FOR LAST uses a BY clause
+Fixes and improvements on 17-JUN-2007:
+======================================
+Now the Section Layout Window shows sorted node.  Guys, I just had to check the 'auto-sort' property of pure4gltv, which I am the author, so yes, you shall laught at me for not having done that earlier... ;)
+
+Fixed the way used buffer are tracked for structured editor.
+
+Implemented new feature in pure4gltv so we can search for a node label by typing it's beginning in the treeview.  It will automatically search for the next brother node (same parent) that begins with a string composed by the last keystrokes, with up to 1500ms between each keystroke (after this time, the string is cleared).  This one is really a cool feature.
+   => download the latest version of pure4gltv on PSDN to enjoy this feature
+   => http://www.psdn.com/library/entry.jspa?categoryID=41&externalID=263
+
+Select appropriate node in section outline when the focus goes back to another structured editor, and at the end of a loadGLobal Action
+
+Fixed possible error when tweaking menu-item accelerator for Find action when the focus goes into the Code Viewer of the Enhanced Procedure Object Viewer.
+
+Fixed one little glitch that could affect the local Load of a simple unstructured editor window, very important for demo.
+
+Added new wrx files to wrxFilesFor91D-91D05.zip
+
+
+Fixes on 12-JUN-2007:
+=====================
+Fix the tracking of used buffer when using a large unstructured file so the suggestion of used buffers work again after keywords like AVAILABLE AND OR DELETE etc...
+
+
+Fixes on 10-JUN-2007: (abhack070610d.zip)
+=====================
+For a simple .p file without entries, let ABHack consider resources as local.  Good point for demos.
+
+Fix "error Value <value> too large to fit in INTEGER datatype. (13682)" when editor is empty, or just made empty by selecting all and deleting.
+  => fixed this problem for global load as well
+
+Fixed possible ** FIND FIRST/LAST failed for table ttMethod. (565) in Section Outline Window
+
+Load Global with Methods could be messed up with parameter signature when a method did not have any input param.
+
+
+Fixes and improvements on 09-JUN-2007:
+======================================
+ABHack seemed quite for about 3 weeks, but believe me, many things happened to it with deep restructurations and big additions, so I prefered to make sure everything was stable before submitting this thrilling release.
+
+Little side note: I am currently in a Big American car in Arizona, back from the Grand Canyon to Phoenix Marriott hotel (yes, Exchange 2007), with a few Progress Mates (Richard, Joachim, Sasha and Libor).  We had a very pleasant day, and I thought it could be fun to add a last little point to this big release in the car during the trip.
+
+
+
+Found a method to manage unstructured source files in a large editor.  Starting to implement a few constructs.
+
+Slightly improved performance of load global resources (5-7%  219ms to parse 11600 lines instead 235 in the past).
+
+Added extra test to avoid a popup with table name 'endtext' when we just type a very common keyword 'END'.  This could be extremely annoying as typing '.' when the popup was present was resulting in typing the table name 'endtext' and firing field completion.  Now, abhack does not suggest anything when cWordBeforeCarret = KEYWORD(cWordBeforeCarret)   (see valueChanged procedure)
+  => did the same for variable and function completion.
+
+The global resource parser could miss a procedure if it had comment at the end of its very first line, like:
+PROCEDURE myProc: /* some comment*/
+
+The global resource parser could miss a function if it was defined with 'RETURN' instead of 'RETURNS'.  Since Progress allows this kind of abreviation, abhack has to accept it.
+
+Fix submitted by Dries Feys: performance gain in popup selection-list by setting LIST-ITEMS at once rather than calling ADD-LAST() for each item to add.
+
+<DISABLED BECAUSE IT CAN INTRODUCE A REGRESSION>
+Fix submitted by Dries Feys: make the focus go from the popup list back to the editor quicker by setting PSTimerEntryEditor:Interval to 20 (was 150)
+</DISABLED BECAUSE IT CAN INTRODUCE A REGRESSION>
+
+  Very Important restructuration:
+  ===============================
+Changed the loadLocalResource procedure to work against an editor dump file rather than with the screen-value of the editor.  This opens the gate to managing unstructured procedure in large editors.  For this, ABHack has been changed in the following areas:
+ 1) it often calls the SAVE-FILE() methods to a file called localLoad.p in a abhack temp dir called <SESSION:TEMP-DIRECTORY>/abhackTmp/<PID> (-T should definitely be local <= VERY IMPORTANT!!!).  This localload.p file is kept for the all duration of the ABHack session (deleted on close of THIS-PROCEDURE) to avoid a 16ms loss due to a systematic OS-DELETE.  Actually, the whole temp-directory itself is deleted on CLOSE of this procedure, and  sub-directories that have not been updated for the last 8 days are deleted too.
+ 2) If a compile preprocess is a success, then abhack alos produces a compile-listing to catch block line-marks at the end of the listing file.  The source file is parsed later to update this marks with file offsets so ABHack will be able to quickly seek-jump to a given block to parse local resources.
+ 3) A temp-table of marks is maintained with line numbers and file offsets to quickly jump to a given procedure/fuction/method block in the file.
+ 4) The loadLoal process is not fired each time abhack notices the current line has changed, after 300 ms of idle time.  This is a significant change because in the past it used to fire a localLoad only when the number of lines had  changed. => This is the reason why I keep an eye on perfomance and I try to make a localLoad process not exceed 50ms (often 0 or 16ms, so the 16ms mentioned above to delete a temp-file do matter)
+
+
+The global resource load now also works against a file saved in the temp-dir, with the same name as the source file (so the {&FILE-NAME} preprocessor is reliable).  This way, an unstructured file can be analyzed without saving it first, and can even have never been saved (Untitled in title bar).  Note this temp file is deleted each time at the end of the globalLoad process (to keep a tiny temp dir, and because 16ms do not matter in a loadGlobal action).
+
+Implemented new option to make Ctrl-S fire a Save + a global Load.  This is particularly interesting for Structured Procedures or .w files.  Note it is still possible to fire a simple save on F6 and a simple global load on Alt-G.
+
+Added a few aliases to support the access mode of data members (PRIVATE|PROTECTED|PUBLIC)  Example: udvc => DEFINE PUBLIC VARIABLE %\c AS CHARACTER NO-UNDO.   
+ => Note: p*U*blic pr*O*tected pr*I*vate
+
+The load global is no longer disturbed by an access mode of variable and property data members.  This info is even stored in the global resource temp-table for future use.
+
+Support of PROPERTY resources.  For now, they are handled in the same temp-table as the global variables (no need to do more until I manage GET and SET accessor blocks)
+
+Global Load: Fixed a possible error 132 due to a unique index violation in the field temp-table.
+
+Insertion of method names and their parameters.  For now, I will only support local method (not those defined in a super class).
+
+Implemented a new find facility at the bottom of the current editor Window:
+ a) Its main point is to get rid of the modal dialog-box, which can often hide the source code you are interested in
+ b) It fires a find while you are typing the expression to search (on value-changed of the fill-in), and sets its background to red when the find is not successful => a bit like the Find functionality of FireFox (which is far superior to other tools)
+ c) Is able to perform a local find (in the current section), which is an important plus when one works in a large unstructured object.   Note that Alt-L and Alt-G can quickly switch between these two modes.
+ b) Pay attention to the tooltip of the find Combo (Enter => Find Next, Shift/Enter => Find Prev,  Esc => Focus to editor)
+ e) It comes into action on Ctrl-F if the Enable ABHack Find Window is checked
+ f) It maintains a Most Recently Used list of items to quickly provide completion on the expressions that were used recently.  An item is pushed into the MRU on RETURN or shift-Return.  This MRU can be cleared on right-click
+
+
+Support of completion for fields defined as CLASS progress.lang.object
+
+Added a few aliases for the new OO ABL constructs (CONSTRUCTOR, DESTRUCTOR, METHOD).
+
+New browse on the main abhack window to choose among the various open files.
+ a)  The '>>' expand button can expand the main window in two steps to get either the full window, or just a vö  cal strip with the browse.  Note that one can go through the expand cycle in the two direction with right or left click.
+ b) Made the main window resizable when the browse is visible.  The window-height is stored in the preferences.
+
+Implemented a new Section Outline window to list and jump throughout the sections of an unstructured procedure:
+-1) This new window uses pure4gltv.w and therefore requires the standard visual adm2 classes
+ 0) Actually it can also support structured procedure. 
+ 1) It is kept in synch with the current object/procedure
+ 2) Items are sorted in the order where they are found in the source file (not alphabetically, at least for now)
+ 3) Methods, Procedures and functions show their parameters in children nodes.
+ 4) It is reloaded when global resources are refreshed (Alt-G or Ctrl-S)
+ 5) The window is resizable.
+ 6) Position and size are saved and restored as profiled properties
+ 7) The Section Layout Window can run in two modes:
+  7.1) 'free' mode: ABHack does nto change its position
+  7.2) 'stick' mode to make it stick to the left side of the current procedure editor.
+   => maximizing the window will limit the max-size to let the section layout window visible on the left.  Note: One can fire the maximize action with the maximize button (of course) or by double clicking on the window title bar (many ignore this native feature) or also by Pressing Ctrl-M (ABHack feature to keep your fingers warm) 
+
+Fixed possible error with alt-PageUp/PageDown to jump to previous sections.
+
+Fixed problem with get table name by FLA introduced with the new schema cache mecanism.
+
+Fixed %\buffer directive replacement
+
+
+Fixes and improvements on 18-MAY-2007:
+======================================
+Implemented a new local table schema cache to improve performances when connected to remote databases.  This new feature will probably help to have quicker table completion in environments with many remote databases with many tables.
+
+Made the main ABHack window a drop target to open files via the openFile internal procedure.
+
+
+
+Fix to a problem <very well described by Jan Keirse>
+When you select the file name of something that will be opened with 
+appbuilder (as in not with a procedure window), like a window or a
+structured procedure, and choose "Open selected file", the file is opened 
+and everything seams ok. 
+Seams! Now close abhack. You'll notice that the window (not the section 
+editor!) that was opened dissapears. However it is still present in the 
+Window menu from appbuilder. 
+
+When you try to open it again you get:
+
+Invalid widget-handle.  Not initialised or points to a deleted widget. 
+(3135)
+
+and then 
+Cannot access the TYPE attribute because the widget does not exist. (3140)
+
+If you close AppBuilder it turns completely mad. Continuing to work 
+eventually results in corrupted files (although I don't know how to 
+reproduce this yet). 
+</very well described by Jan Keirse>
+
+And now the fix:
+ a) openFile now runs protools\abhack\openFileInAB.p persistently, which createsa new default widget-pool
+ b) added a temp-table to keep track of windows created in the widget-pool
+ c) New anywhere event "ABHackOpenFileInABCleanUp" to clean up the persist procs and widget-pools
+
+
+
+
+The main ctrlSpy timer of ABHack can do some operations with NO-ERROR during an input blocking statement that can add some messages to the ERROR-STATUS system handle, which can distrub an application.  Note this can happen with anything that uses a PSTimer and not only ABHack.
+  => this has been addressed by doing a dummy assing in a {&RETURN} preprocessor of the OCX.Tick event of this timer.  More information can be found on the peg/abhack forum (search for a mail dated on 15-MAY-2007)
+
+
+Some people could have weird issues with table completion due to the 'First try with FLA' feature (that was enabled by default) if they were connected to multiple databases with duplicates on _File._Dump-name.
+  => Changed this feature to disabled by default, unless we are connected to a icfdb database (Dynamics) which really uses the FLA concept.  Reminder, FLA stands for Five Letter Accronym, a kind of unique code for a table stored in _File._Dump-name.  It is very handy to use short names for database table.  For instance, in one project, we just type 'vnmcd' and ABHack can suggest "vnm_commercial_denomination" (yes, this is a very large table name indeed).  So if you have short and unique file-dump names in your schema, then I invite you to use the "first try with FLA" feature.
+
+
+Fixes and improvements on 12-MAY-2007:
+======================================
+Ctrl-Alt-L can now align a block of buffer definition.
+
+Implemented a new global variable gcKeyWordsToConvertToCase to manage keywords that should be converted to upper or lower case during alignment definition "NO-UNDO,INITIAL,LABEL,HELP,COLUMN-LABEL,EXTENT", depending on the "Completion with lower case" toggle-box
+ => the keywords define, buffer, parameter, as, like, input... (all the guys on the left side) are already handled and are not necessary in this list.
+ => for now, this list is hardcoded.  If anyone wants to manage it as yet-another-preference, then he is very welcome to make it and send me the code (a easy 3-10 min job).
+
+
+Fixed error "Entry 6 is outside the range of list default,0,1,0,." in addLikeIndices that can occur when a table or temp-table is defined without any index (Default index)
+
+There was still a little problem with qualified database names in buffers for field completion and Query analyses.  Fixed implemented in createTTorDBBuffer
+
+
+Fix on 07-MAY-2007:
+===================
+Finished to restructured the main parser procedure (loadGlobalResourcesInFile) to go over the 20k limit.
+
+
+Fixes and improvements 2-MAY-2007:
+==================================
+Update attrGuessObjType10.txt for datasets
+
+Added READ-XML() and WRITE-XML() READ-XMLSCHEMA() and WRITE-XMLSCHEMA() to customAPITooltip.txt
+
+Fixed loadGlobalResourcesInFile to catch global parameters (those of the main block of a .p or .w).  Made sure it also works for TABLE-HANDLE, TABLE, DATASET or DATASET-HANDLE.
+
+
+Fix on 24-APR-2007:
+===================
+Removed OE 10 WIDGET-ID option that was added by accident for a new toggle-box in abhackwin.w.  Old Progress versions do not understand this OE10 option.
+
+
+Fixes & Improvements on 22-APR-2007:
+====================================
+Corrected typo in label of new toggle-box "Find Next/Prev Selected Text on Alt-Right/Left" (not ctrl-Alt-Right/Left)
+  => So please note that the find next/prev occurence of selected text works on alt-right/left
+
+As agreed with Patrick Tingen, alt-right/left will now automatically select the current word if none is selected, then carry on a search based on it.
+
+The query analyzer now better aligns fields details in index information
+
+
+Little GUI changes suggested by Matt Verrinder:
+ 1. I’ve changed the ABHack and ABHackInfo windows to have small title bars – I think they look much neater for info type windows, sure you lose the close button, but that prevents you from accidentally clicking it! And Alt-F4 still works if you really want to close it
+   => But manage to set the CONTROL-BOX attribute for ABHack win so we still have the close button. (hint: just refine the generated code)
+
+ 2. I’ve removed the vertical scrollbar from the editor widgets, just to improve the look, you can still scroll with the mouse or cursors if necessary
+
+ 3. I’ve made the Hide/Stop/Load Global/Info Window/>> buttons flat – a minor thing, but I think it looks better
+
+ 4. When you resize the combo box in the section editor (hWidget:NAME = “se_event”), I set the font to ? so that it uses a proportional font rather than the fixed pitch font. I wanted to do this on Widget Name too, but unfortunately it doesn’t look too good
+   => Provided a radio-set to choose the font: "leave Unchanged", "?" or "1"
+
+
+Fixed made the "automatic insertion of END after DO or REPEAT" not depend on "Attribute/Method popup on : key" (Thanks for the report Andy)
+
+Now abhack catches the definition of the new OE10 BEFORE-TABLE option to offer table and field completion on before-tables.
+
+For the above point, started Restructured the main parser procedure (loadGlobalResourcesInFile) to go over the 20k limit.  This open the door for other structures as mentionned on the peg (OE10 classes, methode, properties...).
+
+
+Fixes & Improvements on 15-APR-2007:
+====================================
+Nice new feature on alt-right/left (on Patrick T.'s request) => search next occurence of selected text.  If no text is selected then it behaves like a find next/prev (like F9 or Shift F9).  In the past, ABHack was using alt-right/left to fire a native VSLick similar completion.  Now, this native action is still available but on Ctrl-Alt-Left/Right.
+
+Major Change:  OK, she said the UI was a bit too overloarded... => reorganized the setting GUI in 3 pages.  If one wants to modify ABHack, then he shall use the AppBuilder 'List Object' button to select a frame, then the move-to-top() button to bring the frame to top.
+ => IMPORTANT NOTE: Yes I know how to use a tabStrip OCX, or a smartFolder, but I want ABHack to avoid the usage of extra componant for stability sake in the numerous supported versions of OpenEdge.
+
+New DrawBoxAroudCurrentLine feature asked by Dries.  It's a nice one, so I enabled this guy by default.  If you do not like it, then just uncheck the toggle-box.
+
+New feature to enlarge the Event/Name combo in the Section Editor (Request of Dries).  In order to avoid errors with the container frame, I need to shrink down the width of the widget name combo on its right.
+
+Major Fix: the undo on Ctrl-Z was ineffective in large editors (more than 31000 characters) with a strange flashing of the current line.  This was due to the method I use to get the current line in a large editor without using a temporary OS File (quick selection of the current line, then get the SELECTION-TEXT) and the fact that a ctrl-z was firing another value changed.  Now, a ctrl-z undo event disables the next valueChanged, which solves the problem.
+
+Stability fix: when a temp-table has fields defined with FIELDS instead of FIELD (beware about the trailing 'S', by the way, it seems the ABL accepts that like FIELD, which is not documented), then the ABHack parser could partially catch this kind of field, which could lead to the creation of a dynamic temp-table without any field but with indices, which could eventually lead to a GPF.  Now ABHack completely ignores this way of defining fields, which is much more consistent, and safer.
+
+When "Convert DB Objects to lower case" is checked, then do not convert temp-table name that are not 100% upper case
+
+The XRefAnalyzer Tool now uses the same font at the editor where the tool was launched from  (Request of Dries, please let me know how it goes)
+
+
+Fixes & Improvements on 11-APR-2007:
+====================================
+Fixed field popup for a buffer defined against an explicit database
+
+Typing a full stop after ' = ""' no longer fires field completion (the "" is taken a a word)
+
+
+Fixes & Improvements on 10-APR-2007:
+====================================
+This one is a new added thrilling feature: quickly jump to a Most Recently Used sections on alt-Page-Up/Down.  If you want to reset the MRU list, then close the Section Editor Window and open an new one.
+
+Improvement, let ABHack resuggest completion popup after choosing an alias because it may put the cursor after a word to suggest buffers after
+
+Let ABHack rebuild a popup when we choosed a procedure/include file-name directory item
+
+Added a new Copy Screen-value/label of the widget located bellow the mouse pointer.  This very handy feature works for the active window.  Expect the smartFolder label text widgets, it seems to be able to catch most of the cases so far.
+
+Corrected the label of the toggle-box "Convert DB Tables to lower case" to "Convert DB Objects to lower case".  Indeed, database fields are also converted to lower case when their name is in full upper case (not mixed cases).
+
+Little detail: made the widget combo have a large INNER-LINES than the default 8, like the refined procedure combo (How did I manage to miss this one in first place?)
+
+Added Alias dvcl DEFINE VARIABLE %\c AS CLASS  NO-UNDO.
+
+Added ability to build a used field list in the xrefanalcodeViewer.w for the ACCESS refType.  This list shall be used in the FIELDS option of a FOR EACH block or in a query for large tables.
+
+Changed initial default of the ABHack Window top-only toggle-box to NO.
+
+Ctrl-Alt-L to align selected definition could let NO-UNDO in upper case even if the completion in lowerCase was used.
+
+
+Fixes & Improvements on 02-APR-2007:
+====================================
+Corrected typo in toggle label regarding the action on alt-down.  To make it clear, alt-down and alt-up move the current line down and up, and alt-ctrl-down duplicates the current line, like Eclipse does.
+
+Removed the protools/abhack/customTabCompletion.ofMine.txt file from the package to make sure it does not overrides yours.  ABHack will create this file from scratch if it finds out it does not exist.  I will not rely on copying a template file because yet another template file could bring extra confusion.
+
+Avoid to to rebuild another popup when we just choosed an item in a popup.  Example, in the past, when a popup was containing two items like "myBuffer" and "myBuffer2", then choosing "myBuffer" would lead to the same popup coming again.
+
+Fixed error "bfx: Field too large for a data item. Try to increase -s. (42)" when selecting a large text.  I now let the Query Analyzer try to catch a selection of up to 3000 character only (was 10000 before)
+
+
+Fixes & Improvements on 27-MAR-2007:
+====================================
+Followup about the last fix for the query analyzer (still next to the recently addition of full support of qualified databases).  There could still be a problem with joined queries (infinite loop and error 5635 + STOP).
+
+
+Fixes & Improvements on 26-MAR-2007:
+====================================
+The query analyzer was broken when the full support of qualified databases was added recently.  This could lead to a message saying 'don't know what to do with "" ', which is now fixed.
+
+Little improvement with alias custom completion: In the past, the custom completion list could persist although it would not contain any item matching the current word in the editor.  With the re-auto-caps feature introduced recently, this could lead to an undesired forced auto-caps by ABHack in  commented text although VSLick is normally smart enough to not auto-caps in such area.  Anyway, ABHack is now more consistent and will now kill the popup list when the current word is no longer compatible with the items present in the list.
+
+The stop/start on CTRL-ALT-O is now an ANYWHERE trigger, so it can be effective from anywhere in the Progress session.
+
+Significant improvement: introduction of a new protools/abhack/customTabCompletion.ofMine.txt config file to extend the standard protools/abhack/customTabCompletion.txt.  ABHack now loads this file to extend the 'standard' on or ovveride original/standard definition.  One can also redefine an alias with a special value of @dislabledAlias@ to delete a ttCustAlias alias record so it can completely disable an item.  With this two files mecanism, I am still able to suggest new aliases for everyone, but developper always has the last word and does not loose his own customization when customTabCompletion.txt is updated.
+
+Compile on Ctrl-Alt-M was also firing Maximize/Restore (defined on Ctrl-M).  Many thanks to Jan Keirse for the report and the fix.
+
+
+Fixes & Improvements on 21-MAR-2007:
+====================================
+Now one can also align the definition of parameters with Ctrl-Alt-L, with thee alignement points: input/output types, scalar param names and scalar data-types.  Buffer paramaters are also aligned together, and table/table-handle/datasets are also handled after the input/output.  Of course, parameter lines are not sorted as ABHAck does with a block of variable definitions, otherwise it would break the signatures of a procedure.
+Note that ABHack cannot align function parameters yet.
+
+Significant improvement of table/buffer completion.  Now the list of tables/buffers is sorted by taking the most recently used buffers into account.  In other words, when multiple buffers/tables are present in the popup list, then the ones that were used the most recently will be moved to the top of the list.
+
+Repaired getBufferByFLA when a buffer/table popup list is active.  It had been broken when the support of qualified db was improved.
+
+Fixed early field completion when .dot is pressed in the editor while a table/list is still visible.
+
+Fixed weird issue when pressing space while a buffer/table popup is active with items containing a Progress keyword located before the carret.  Space was killing a popup list, auto-capitalizing the previous keyword as appropriate then and inserting a space as expected, but was also moving the cursor to the end of the line.
+
+Made sure it is possible to fire a field completion in front of any character, including a final period.
+
+The package now inlcudes a wrxFiledsFor91D-91D05.zip file.  As the name says, it includes wrx files for old Progress versions between 9.1D no SP and 9.1D06 to make life easier for people who have not the chance to upgrade to a recent version of Progress.
+
+
+Fixes & Improvements on 18-MAR-2007:
+====================================
+Corrected release not regarding the instance name of a PSTimerExit in ProcEditorTooltip.w
+
+Improved insertion of closing guy in front of a ':' at the end of a line
+
+Fixed possible error 1016 when selecting text with a slash and a dot when ABHack tries to get info about a text selected buffer name with qualified database name
+
+
+Fixes & Improvements on 17-MAR-2007:
+====================================
+Packaging: I will now try to not include 'dummy' updates of .wrx files in the zip file.  This will help people that are using an old version of Progress to keep their regenerated .wrx.  I will also try to supply old Progress Version compatible .wrx files in a new directory in the future (Could someone send me 9.1D wrx files?).
+
+Better support of qualified database names:
+  a) Table completion will take a leading qualified database name into account
+  b) Field list on dot after table name will also take a qualified database name into account so the fields will come from the expected table.
+  c) Note that qualified database names were already taken into account in suggested used buffers (after WHERE AVAILABLE BUFFER-COPY '=' AND etc...)
+  d) The Query Analyzer has been slighlty refined regarding database name
+  e) Info about selected text can handle "database.table" to give info about the concerned table.
+
+Little GUI improvement: When the main ABHack window is expanded with the '>>' button, it is now automatically shifted on the left if the upper right corner was going outisde of the workspace area on the right.  Pressing '<<' will restore the original position as well.  This makes the life easier for those who prefer to have the ABHack window on the right of their display.
+
+Minor fix: when a popup contains items that begin with a Progress Keyword (like a 'assignDone' variable), then typing the progress keyword (here 'assign') could break the auto-capitalization feature of VSLick ('assign' not transformed in 'ASSIGN').  Now, when pressing space, before killing a popup, ABHack checks if the previous word was a Progress keyword to send a 'upcase-selection' command to VSLick before inserting the space.
+
+
+Fixes & Improvements on 14-MAR-2007:
+====================================
+New handy behavior regarding the completion of table/buffer:
+ a) Pressing '.' in a table/buffer popup list will be equivalent to typing 'RETURN' + '.', so the selected table/buffer is written in the editor then a field list pops up in one single key stroke.
+ b) The same applies when pressing '.' in the editor while a table/buffer popup list is active.  This is particularly handy when multiple tables start with the same root
+
+New feature: Maximize or Restore Editor Window on Ctrl-M, like Eclipse Does.
+
+New feature: Move current line up or down on Alt-Down/Up, like Eclipse Does.  Note I can also move a selected block of lines, however the selection gets lost at the end of the action, and I do not know yet the best way to reselect it after the move.
+
+Corrected new feature introduced on 11-MAR-2007 to duplicate current line on Alt-Ctrl-Down instead of Alt-Down, so it really does like Eclipse.
+
+Fix: The completion in lower case feature could be ineffective for A4GBL attributes/method when restarting ABHack because the associated preference was restored too late.
+
+Fix: Pressing Ctrl-S when a popup was active in the editor could lead to bad errors from the ADE.  Now ABHack firsts kill the popup before asking the ADE to save the file.
+
+Added little stability tests in the main block of abhackwin.w when restarting ABHack next to a brutal exit of a previous instance (seen with the ctrl-S issue mentioned above, which has been solved anyway)
+
+
+Fix & Improvements on 11-MAR-2007:
+==================================
+New feature to duplicate the current line on Alt-Cursor-down like Eclipse does.
+
+Now, the automatic insertion of a closing quote/double-quote/parenthese... takes care of letting a full stop outside of the string/parentheses...  In words, typing double-quotes in front of 'word.' (at the end of a line) results in '"word".' and no longer '"word."'.
+  => Note this feature is able to detect a full stop even if it is followed by comments at the end of a line.  In words, typing '(' in front of 'word. /* some comments at end of line */' results in '(word). /* some comments at end of line */' and not '(word.) /* some comments at end of line */'
+
+Added a little warning message on value-changed of the 'complete in lower case' feature to remind people they have to keep it in synch with a preference in the AppBuilder Standard Editing Options.
+
+When an old version of Progress is used, ABHack now enables the 'stop spying when focus in dialog' stability option together with the 'force wait-for'.  This additional point makes the 'Replace all' feature stable in 9.1E00"
+
+
+Fix & Improvements on 5-MAR-2007:
+=================================
+Stability enforcement: ABHack now automatically sets the "force wait-for option" if we are running with a Progress Version earlier than 9.102, with a little warning message if this option was not already set.
+
+About 'Stability enforcement' for old version of Progress (prior 9.1E02): As said in a message, one can get minor errors when using the force wait-for option (with File/MRU for instance).  But I recently found out we can avoid these errors if we run ABHack this way:
+ 1) Start Progress Desktop (not AppBuilder direclty)
+ 2) Tools->Protools->ABHack
+ 3) Tools-> AppBuilder
+   => I usually never use the Desktop myself, but with old version of Progress, it is just the way to go.
+
+Fix convert to lower case for DB fields: do it only if the glConvertDbTablesToLC toggle-box is checked.
+
+Field completion on dot could abort for a temp-table when ABHack could not manage to catch the details to recreate its indices.  As the indices are not necessary for field completion (as opposed to query analyses), an option has been added to create a reference dynamic temp-table without taking care of its index definitions.  This is particularly interesting for the 'RowObject' temp-table in smartDataViewers, since this Temp-table is sometimes defined in one single line by the ADE.
+
+Added completion of block labels after NEXT, LEAVE, UNDO and RETRY.  This feature is more relevant in Section Editors and cannot work in large editor with more than 32k.  A rather sophisticated process has been achieved in a isValidBLockLabel() UDF, so only relevant block labels should appear in popups.
+
+
+Fix & Improvements on 26-FEB-2007:
+==================================
+Fix: Comment on slash used to say the selection was too large when a simple space was text-selected.
+
+Improved the following aliases (perfect to redefine a buffer with local scope):
+dpb DEFINE PARAMETER BUFFER %\wBuffer FOR %\c.
+dbf DEFINE BUFFER %\wBuffer FOR %\c.
+
+Corrected the 'fifnc' alias
+
+Corrected bug in loadGLobalResource to catch view-as phrase of a global var or a parameter.
+
+Load Globals: ability to catch Temp-Table INDEX defined with "INDEX name AS PRIMARY ..."  (AS instead of IS, is that documented?  => anyway it words, and it has been seen in a standard adm2 include file) 
+
+Finally added DISP DISPLAY = and ASSIGN to the list of keywords to suggest used buffers after.  The '=' is very useful in query where phrases, and for assignments.  Perhaps a bit pushy at other places but I believe it is still worth it.
+   => Added a stamp based mechanism to suggest the selection of the entire list when a new guy is available there
+   Note: I do not believe it is really worth adding '<' '>' '<=' and '>='.  Please let me know if you believe it should.(the same about EQ GE GT LE and LT)
+
+Added a check box to convert table names to lower case, which was always the case before.  Note this box is unchecked by default except for the ~20 developers involved in our project.
+
+BIG NEW FEATURE: make the popup field list scroll to the most likely interesting field after an equal sign.  Example:
+FOR EACH invoice NO-LOCK
+ ,FIRST order NO-LOCK WHERE
+      order.Ordernum = invoice.[field list pops up]  
+                               ^^^^^^^^^^^^^^^^^^^^
+    => will try to scroll to a 'Ordernum' field (then to a '*Ordernum' then to a 'Ordernum*' then at last to a '*Ordernum*')
+
+
+BIG NEW FEATURE: Improved suggested list of buffers after '=' equal operator  => move the buffer that is already used on the left side of the equal sign to the end of the list.  This way, it is not at first place when we type a where clause, but we still have it when we do an assignment.  This point is making the suggestion of last used buffers very powerful.
+
+BIG NEW FEATURE: 'Keep track of Section Cursor Position'.  ABHack restores the previous row and col of a section you visited earlier when you go back to it.  This boosts your productivity when you often jump to different sections of your code.
+
+
+Improvements on 17-Feb-2007:
+============================
+New %\wBuffer directive in the customTabCompletion.txt file.  This tag is replaced by the next chosen buffer in a popup list.  Example with the 'ifnc' alias:
+IF NOT AVAILABLE %\c THEN DO:
+    CREATE %\wBuffer.
+    ASSIGN %\wBuffer.
+END.
+  => The cursor move then to %\c, one types the 3 first letter of a table/buffer/tt name, get the buffer list popup then chooses one.  At this time, all the %\wBuffer occurences are replaced but the selected buffer name.
+ 
+  => I invite you to try (or at least have a look at) the new aliases fifav fifna fifnb fifnc fifdo ifav ifna ifnb ifnc ifdo.
+  
+Improved error message in the tiny ABHack consol when we fail to create a dynamic temp-table.  It will make it easier to find out that ABHack could not find the fields that compose an index.
+
+New removeLineComments() API to remove the comments from a line (including nested comments).  ABHack uses it to work with reliable definition lines (think of "INDEX myIndex /*IS UNIQUE*/ myField").
+
+The new ABHack info win now displays a lot of information about tables (field list and indices).  It also kept it in synch with the popup list for table/buffer/temp-tables.
+
+
+Improvements on 15-Feb-2007:
+============================
+Big New feature: We can now launch a new floating Information Window from ABHack, with a "Info Win" button that is available in the tiny window.
+
+This floating window can display information about selected text, like field information (data type, label, initial value...), the parent buffer (local or global buffer, temp-table or database name), or type of variable or buffer.
+
+Its size (yes it is resizable), position, top-only, and fgcolor/bgcolor are saved as profiled data like the rest of ABHack (in HKEY/current-user...)
+
+Note that one can change the fgcolor/bgcolor on right-click on this window.
+
+This window also displays field information in synch with the popup field-list
+
+Other actions on right-click: toggle top-only, start another window to keep and unsynch with main ABHack win to keep a current content (like query analyser)
+
+This window can also be used to display the report of the query analyzer, which is a little bit less pushy than getting popups pseudo tooltips in the editor
+
+The popup field-list now displays the data type of each field on the right side (in abbreviated form)
+
+
+Fixes & Improvements on 14-Feb-2007:
+====================================
+LoadGLobalResources for User Defined Functions: fix the handling of INPUT INPUT-OUTPUT and OUTPUT options (there was a mistake of one character that was resulting in catching a space instead of a parameter name.
+
+Internal improvement: if ABHack cannot create a dyn temp-table based on the definition it could catch, then it gives explanations in the monitoring editor.  A typical case is when an index has no field information because the used fields where specified in multiple lines.
+
+Internal improvement: the valueChanged event returns if it comes after a dotPressed event (added a special flag in ttEdt for that), which just makes sense (leverage CPU usage).  One good consequence of this: a monitoring info written by dotPressed is not erased by valueChanged.
+
+Fix queryIndexDetails for the case a a TT that has no index defined at all (Thanks to Jan Kierse).
+
+Added BY to the list of keywords to suggest buffers after.  Up to you to add it to the selection or press 'select-all'.
+
+Changed always-on-top to top-only.
+
+
+Fixes & Improvements on 11-Feb-2007:
+====================================
+A load local ressource is now automatically initiated at the end of a load global resource job.  This improves the handling of used buffers for temp-tables.
+
+Added handy custom alias 'ifna' to suggest "IF NOT AVAILABLE %\c THEN".  I hope you're all using 'ner'  'dbf' 'dtt' 'wgh' 'rtn' 'dynt' '&fr' 'fif' 'foe' 'ffn' or that you have at least had a look at the customTabCompletion.txt file
+Added 'ifjj' for our Friend Jojo ;)   "IF NOT AVAILABLE %\c THEN DO:~n    ~nEND."
+I also invite you to use the handy hacking aliase 'seeh'
+
+Little fix in query anaylyser.  There used to be a possible error 7319 when selecting a temporary text like "FOR EACH       RUN", because "RUN" is a reserved keyword.  ABHack should just let you call buffers with reserved words if you like.
+
+Finally added CREATE, LIKE and BUFFER-COMPARE to the list of keywords to suggest buffers after.  Up to you to add it to the selection or press 'select-all'.
+
+Avoid field completion popup on dot after space, comma, parentheses....
+
+Fix in loadGlobalResource for variables buffers temp-tables fields or indices with a name that matches "*global" or "*new" or "*shared"
+
+Added common guess types to attrGuessObjType<X>.txt
+
+Removed abhackwin.r fake .r file that takes care of removing old .r files.  It was introduced in on 9-JAN-2007 and people should be up to date now.
+
+Added a few funny pictures to the pics directory.  I don't know yet where to put them in a ABHack windows...
+
+
+Fixes & Improvements on 6-Feb-2007:
+===================================
+Improved suggestion of buffers after OF: now I test all the buffers with dyn queries to filter out the guys that are not valid for the join with the OF operator.
+Added support to temp-tables, which required the tracking of temp-table index definitions (a significant point).
+
+Restructured the code with a few new API's like createTTorDBBuffer() to create a TT or DB buffer on the fly based on a buffer name and editor handle, or queryIndexDetails().
+
+Now that ABHack knows about temp-table indices, it becomes possible to make the query analyzer investigate temp-table queries by creating these TT's on the fly. 
+  => Done!  What is the limit of the query analyzer now ?  Note the new code is much smarter and lighter to maintain thanks to the new API's mentioned above.
+
+Fixed the loadLocalResources regarding the list of used buffers (remove a possible leading or trailing comma)
+
+ABHack could sometime believe the focus was in a dialog-box (like Editor Find Dialog) whereas the dialog could be hidden.  Added an extra test about hDialogFrame:VISIBLE to try to avoid this case.  Note that Progress does not handle the FOCUS system handle very well with the source code editor...
+  => Perhaps this is a good piece of news for people using an old version of Progress (9.1D or 9.1EFCS)
+
+Improved support of DATASET and DATA-SOURCE in the loadLocalResources and loadGlobalResources process.
+
+Improved loadLocalResources regarding the parameters of User Defined Functions
+
+New findAppBuilder IP involved when appropirate as suggested by Jan Keirse.  This will make life easier for people that start ABHack with _adevent.p at startup before having the AppBuilder ready
+
+
+Fixes & Improvements on 31-JAN-2007:
+====================================
+New feature to disable popups, API tooltips and insertion of closing guy when the caret is in a quoted string.
+
+When a popup list is narrowed in match mode, then make sure we end up with one selected item.
+
+In some case, the insertion of a popup variable name with underscores could remove too many words, especially when the caret was at the first column.
+
+The parameter name of a procedure could be caught multiple times during the loadGlobal process.
+
+
+Fixes & Improvements on 26-JAN-2007:
+====================================
+When there is only one buffer to suggest, then the special case to suggest the most appropriate one after the 'WHERE' keyword could result in adding it again to the list, giving a list of 2 similar items.
+
+Regression fix: Align definitions on Ctrl-Alt-L was broken due to a reload of localRessources I added at the end of the process recently, and that could disturb the replacement of the selection to align.
+
+Support of INT64 datatype in the Aligne Definition feature on Ctrl-Alt-L
+
+Updated attrTabCompletion10.txt with a few new OE 10 attributes that were missed a first.
+
+Fixed regression about the load of function parameters in localLoad and globalLoad.
+
+
+Fixes & Improvements on 24-JAN-2007:
+====================================
+Added shortcut Ctrl-Alt-O to Stop/Start ABHack mainspying timer
+
+Fixed minor issue with ')' that could be inserted twice at the end of a custom alias like DYNAMIC-FUNCTION(''))
+
+Fixed unwanted multiple selection issue in a popup field list when typing in the editor to narrow down the list.  Typically, for the customer table, typing 'n' was resulting in having both 'custnum' and 'name' selected.  Now, the list is narrowed with fields that contains 'n' but only 'name' is selected.
+
+Added a few items to the list of words to suggest used buffers after: AVAIL, VALIDATE, RELEASE
+
+Provided a new set of fancy pictures...  ;)  If you read the release notes, then I tell you the secret to make a change be effectively saved: you need to close it with the french flag at least once to be authorized to restore another pic ;)
+
+Added a button to open a txt file that explains how to make the editor show the matching '(' when typing a ')'
+
+
+Fixes & Improvements on 22-JAN-2007:
+====================================
+TREMENDOUS BIG NEW FEATURE: Popup to suggest used buffers after a defined list of keywords like AVAILABLE,WHERE,OF,AND,OR,DELETE.
+ => This feature is making the "Add table name after where" obsolete (I may drop it one day), but I keep it for now for backward compatibility.  
+
+Fixed insertion of WHERE when pressing TAB and when table FLA = table name.
+
+Fixed little bug about completion of table and field names that begin with '_' (like meta schema _file or VST's)
+
+Implemented a global load in two phases:
+  1) preprocessed file to catch resources defined in include files
+    => but the file is partially generated in case of syntax errors, so the load can be incomplete
+    => plus a procedure defined without proper "END PROCEDURE" at the end, or a UDF without "END FUNCTION" can mess up ABHack to find out we are back in the main block.
+  2) load the source file itself to load as much as possible in case of compilation error or
+   if ABhack could not find out when the code was going back to a main block
+
+The Appbuilder can sometimes raise a few 3140 errors.  I suppose they are due to the open selected-text file-name in AppBuilder, because the procedure that does it should perhaps have the AppBuilder window as current-window.  Made new openFileInAB.p to do it this way.
+
+
+Fixes & Improvements on 19-JAN-2007:
+====================================
+Re-enabled access to multiple clipboard on Ctrl-Alt-V.  This very nice feature and was working fine in Version 9 although it has never been documented, but was broken in OE 10.  ABHack now defines the trigger to call the VLSlick list-clipboards command.
+
+Removed the usage of WIDGET-ID from the newly provided xrefanalcodeViewer.w so it can work in Version 9.
+
+A weird '[pair-list]' API tooltip could come when spaces where selected.  Cause corrected in customAPITooltip.txt: it was due to the definition of the API tooltip of BUFFER-COMPARE that was splited on multiple lines.
+
+Note added in tooltip of "Comment/uncomment selection on '/'"  => This feature cannot work with the '/' key of the numeric keypad.  Reason is that it is very difficult to handle the numeric keypad.  I already use the GetKeyboardState win32 API quite often to solve a few problems, but for this feature, the problem is that the selection is first replaced with '/' and it seems there is no way to first undo the replace-selection action to perhaps redo the '/' action afterwards.
+
+Fixed little bug with Ctrl-Left when the carret was between 1st and 2nd character.  Thanks to Jan Keirse for reporting and giving the right fix.
+
+Made alignFields feature a bit safer.  Now it cancels the align action if a selected line contains the DEFINE TEMP-TABLE or the definition of an index.
+
+New VSlick native completion feature on Alt-Left/Right with a word located before/after carret that begins with same prefix.  Although it cannot compete with other ABHack completions, I thought I *had* to implement this amazing VSLick native feature.
+
+Support of field completion for a buffer that was defined against an explicit database.  The getBuffer API has been refined to handle a database name passed explicitely in the buffer name.
+
+New option 'Enhanced behavior to insert )' for the insert closing guy feature.  If one types '(' right in front of 'SUBSTRING(cvar, 3, 4)' then the closing ')' is inserted after the last ')'.  For now, it ignores quotes.  Later, I may try to detect a pair of them...
+
+New feature show procedure nodes on Ctrl-Alt-P.  Native VSLick stuff.  Amazing in a large editor.  Use Alt-C twice to toggle off.
+
+New feature show/hide line numbers on Ctrl-Alt-I.  Native VSLick stuff.
+
+Added a few usefull aliases to customTabCompletion.txt: STR for STRING%\( , QUOTER( LEFT-TRIM( TRIM( and RIGHT-TRIM(
+
+Fixed a infinite loop scenario with getFileFrom title for a "Untitled <x> " procedure editor window, an API that is used on Ctrl-Alt-E (open generated full code) , Ctrl-Alt-X (cross ref tool) or Ctrl-Alt-M (compile file)
+
+
+Fixes and Improvements on 14-JAN-2007:
+======================================
+Fixed error reported on PSDN about the completetion of field names on dot for a temp-table defined like another table.  This problem could occur only if the temp-table was defined without any additional option or field.
+
+Moved openFile procedure from procEditorList.w to abhackwin.w.  It seems to solve a few 3135 errors with the AppBuilder, especially with the MRU.  I suppose that adeuib/_open-w.p is quite sensitive to the PROCEDURE:CURRENT-WINDOW of its caller.  So far, with this change, I now longer get these errors when I open files with the selected source-file popup.
+
+New feature to comment or uncomment current selection on '/'
+
+New Feature Alt-H => native VSLick feature to hide & collapse a multi-line selection.
+Beware, the plus sign will appear at the line *above* the first selected line, so you might want to start your selection at the next line.
+Select the line with the plus sign and press Alt-S to restore.
+
+THIS ONE IS AMAZING: New Feature Alt-C => native VSLick feature to hide & collapse all multi-line comments.
+Press Alt-C twice quickly to show all.
+
+Added new shortcut Alt-G to load Global resources like Ctrl-Alt-G.  Alt-G is more convenient to fire this operation more often.
+
+New feature on Ctrl-Alt-X to launch an analyze XRef tool available on PSDN and refined by Jan Keirse.  Many thanks to Jan for his contribution with ready code, and congrats to have found how to use the EnableSourceEditor.i include ;)
+
+
+Improvements 11-Jan-2007:
+=========================
+If selected text corresponds to a valid OS source file (SEARCH <> ?) then a popup offers to open the file in the AppBuilder.  In the previous release, this point could only open a file in a procedure editor window, now it can open a .w or structured .p file as the AppBuilder would do.
+
+Support of OS file popup for &PLIP = '.p' (Handy for Dynamics dynlaunch.i and launch.i)
+
+Added a little 'ABHacked' Dynamic text in window of the AppBuilder.  Clicking on it shows or hides the ABHack window.  This text gently blinks to show the spying timer is active.  It color turns green when ABHack knows global resources for the current editor window.  This way we can work effectively without keeping the ABHack window visible.
+
+Implemented another option is to show an amazing little smiley shooting with guns
+
+Changed the light-blue background color of popup list to light-grey as suggested on the peg
+
+Support of OS file popup for include files
+
+Added { into the list of guys to close automatically
+
+Removed '%DLC%/gui' from gcExtProcIgnoreDir as this directory contains many useful includes like launch.i and dynlaunch.i (a little cheet from PSC for performance sake).  ABHack will replace this directory at startup by '%DLC%/gui/ade*' if it finds an old value in the registry
+
+Added a little warning in the header of customTabCompletion.txt to invite people to customize it, but to also make backups before applying a new release.
+
+
+Improvements 9-Jan-2007:
+========================
+Big new feature: a popup comes when one types 'RUN .p' or 'RUN .w' to suggest a list of procedure files or directories.
+
+Improvement of the insertion of parameters for internal procedures.  They now get inserted after ''TARGET-PROCEDURE'
+
+Ability to automatically insert closing ) ] or ' or " guys
+
+Improved the insertion of a closing guy.  Now, inserting a '(' right in front of a word will insert a corresponding ')' right after this word.
+
+Introduction of a new %\( directive in customTabCompletion.txt.  This directive will make ABHack insert a '(' in such a way it can guess where to put the coressponding closing ')'
+
+ABHack can now call the AppBuilder Save Action on Standard Ctrl-S and F6 from a simple section editor.
+
+New Procedure Window on Ctrl-F3 even from a Section Procedure Window (pointed by Jan Keirse)
+
+Do not comment line when typing double slash '//' after colon, like 'http://'
+
+Little fix in attribute popup: if we switch off the filtering, then it remains off when typing to narrow down the list
+
+.r files are no longer provided to make the updates easier in both V9 and OE 10.  A dummy OE 10 abhackwin.r is provided to override a possible obsolete one.  This guy will auto detect and auto delete itself with a little message in OE 10 and will fail in V9.  In V9, just delete it.  I will probably deliver this fake guy for a while in the next releases to make sure everyone has delete his .r files.  Note the regular abhackwin.w will detect other .r files of ABHack at startup to delete them.
+
+
+Fix on 4-Jan-2007:
+==================
+For 10.1B, Fixed error with a new empty editor window when reading hEditor:LENGTH: "Value 
+<value> too large to fit in INTEGER datatype. (13682)"
+
+Fix the catching of view-as phrase when VIEW-AS is on the last definition line (ends with period)
+
+
+Improvements/Fix 31-Dec-2006 & 3-Jan-2007:
+==========================================
+Changed the attrTabCompletion<X>.txt file to define the widget/object types for each attribute/method.  Made a attrTabCompletionRefineWin.w tool to refine this file.
+
+New feature to filter the Attibute/Method popup list on:
+ 1) A view-as option detected in the definition of a variable when loading global resources
+ 2) If no view-as available, then ABHack can guess the object/widget type from the variable names, as defined in a new attrGuessObjType<X>.txt file
+ 
+The insertion of an internal procedure with autocompletion also inserts its parameters 
+
+The insertion of an internal User Defined Function with autocompletion also inserts its parameters 
+
+Ctrl-Alt-E load the current structured .p or .w procedure in a simple editor window.  Very handy to perform global replace or global research
+
+Ctrl-Alt-M compile the current structured .p or .w procedure
+
+Ability to force usage of lower case for some completions like A4GBL attribute/methods, custom completion when an item is in pure CAPS, automatic insertion of NO-LOCK, WHERE and END.  Note we do not need to convert the various .txt file to use this feature.  Now, as I do not use this feature myself, please let me know if similar cases were missed.
+
+Made ABHack OE 10.1B ready regarding the usage of the ETIME function that is going to use the new INT64 datatype.  Trick was to convert its value to decimal so it will work with order versions as well.
+
+Fixed possible occurence of error 42 when a very large text is selected.  The query analyser should try to handle a textlarger than 32k.
+
+Fixed list of procedures or functions that was not filtered on target editor (all procedure and function could be suggested for all editors)
+
+Fixed little bug in replaceWord() used by the query analyser, so a word between parentheses is correctly handled 
+
+
+Improvements/Fix 22-Dec-2006:
+=============================
+Make a separate txt file for the release notes, and remove them from the readme txt and pdf files.  Add a button to open releaseNote.txt, and another to open default web browser to http://www.peg.com/lists/abhack/web/ ;)
+
+Ctrl-Alt-L Align for Assignment blocks to better handle the key word ASSIGN, and a left part of equal sign with multiple words
+
+Let vslick auto-capitalize A4GBL keyWords when a popup comes but we choose to ignore it without pressing Esc and we finish typing the word entirely.  Could be considered as a bug.
+
+Fix of a little regression that had been introduced in the query Analyser on 12-DEC-2006 when global variable or global parameters where used in a query.
+
+Fixed the only little bug I have on Linux with wine : the GetCaretPos win32 API does not work well when text is selected.  This makes popups always come at the top of the editor, and not at the caret position. Perhaps it is possible to unselect the text for a short time to let getCaretPos work.
+
+Finally decided to let .r file go with the package.  They are made with 10.1A.  This will push Version 9 people to recompile the .w files, which can be very important for the performance of the popup lists
+
+Made ABHack no appear in the taskbar (at last)
+
+
+Improvements 20-Dec-2006:
+=========================
+IMPORTANT RESTRUCTURATION.  PLEASE READ ALL ABHACK FILES HAVE BEEN MOVED TO A 'abhack' SUBDIRECTORY OF protools  (protools/abhack).  THIS WILL MAKE THE MAINTENANCE EASIER FOR PEOPLE HAVING OTHER TOOLS IN THE PROOTOLS DIR.  THIS WILL ALSO INCITE DEVELOPPERS TO HAVE A LOOK AT THE VARIOUS .TXT FILES LIKE attrTabCompletion.txt, customAPITooltip.txt, AND attrTabCompletion<X>.txt
+ A removeAbhackFilesFromParentDir.bat IS PROVIDED TO CLEANUP THE protools DIR
+ DOC UPDATED TO REFLECT THIS CHANGE
+ PLEASE UPDATE THE PROTOOLS PALETTE TO USE protools/abhack:
+       procedure: protools/abhack/ABHackWin.w
+       picture the little penguin protools/abhack/tux.bmp  (do not choose the .ico file, but the .bmp)
+ Many thanks to Patrick Tingen for his contribution regarding this step.
+
+
+New Feature to Delete Previous word on Ctrl-Backspace.  A message warns the following when the toogle-box is checked "Note this feature is not very reliable with vslick...  Sometimes, it will end up in deleting the whole line, espcially if you just did Ctrl-Z before   Perhaps I will find a trick later"
+
+New Feature to Delete Current word on Ctrl-Delete.  Note this one is reliable (unlike ctrl-backspace ;)
+
+Three usefull new aliases into customAPITooltip.txt: {&Se {&SELF-NAME}  {&fr {&FRAME-NAME} and  {&wi {&WINDOW-NAME}
+
+
+Fix/Improvements 18&19-Dec-2006:
+================================
+The %\c directive now works fine with aliases that insert mulitple lines (used to be effective for first line only)
+
+Improved loadGlobalVars process:
+ 1) It now relies on a PREPROCESSED file (generated much quicker)
+ 2) Better way to skip procedure and function block, no chances to take a local resource as a global one
+ 3) Note that the LoadGlobalVars parser will consider we are back in the main block if a line begins with "END PROCEDURE" or "END FUNCTION".  It would be very hard to rely on a simple "END", so it is recommanded to end procedures and functions with the corresponding keyword.
+ 4) Mutliple fields defined in one single line are all loaded (case of ADM2 RowObject temp-table)
+
+Ctrl-Alt-L Alignment of variable takes the opportunity to reload variable names by itself.
+
+Support of internal procedure popup after the RUN keyword, in auto-completion mode (if non empty word after run) of full list of procedures if we just typed the space after RUN.  Note this feature does not disable the "RUN %\c IN TARGET-PROCEDURE." custom alias.
+
+Support of User Defined Functions like variable names.
+
+Restructuration of the code to be able to mix variable global variables and function names into one single popup list.
+
+UI of ABHack Window redrawn to make more space for the new features
+
+Improvement of the Force Wait-for feature for Old versions like 9.1D.  Now ABHack overrides the window-close trigger of the Main AppBuilder Window in order to first kill itself.  The developper might then close the AppBuilder a 2nd time.  This way, we avoid the badly nested wait-for scenario with error 4123
+
+
+Fix/Improvements 15-Dec-2006:
+=============================
+New usefull custom aliases:
+ ffn = FIND FIRST  NO-LOCK WHERE 
+ ffx = FIND FIRST %\c EXCLUSIVE-LOCK WHERE 
+ fon = FOR EACH %\c NO-LOCK WHERE   
+ fon = FOR EACH %\c EXCLUSIVE-LOCK WHERE
+They are especialy interesting if one wants to write a where clause at a next line
+Note: Just remove them from the protools\abhack\customTabCompletion.txt file if you do not like them
+
+If a table name is chosen and a table list pops up again with names that begin with the one that we just choosed, then if we move the cursor to end of line or after the 'WHERE' word then hit RETURN, then the 2nd table list popup is killed and a carriage return is inserted
+Popup table list makes sure a table found by FLA is present in the list, and show a little tooltip when table found by FLA among others
+
+
+Fix/Improvements 14-Dec-2006:
+=============================
+Popup table list makes sure a table found by FLA is present in the list, and show a little tooltip when table found by FLA among others
+
+The Query Analyser can now handle a selected CAN-FIND() phrase.  How did I manage to miss this guy in first place ?
+
+Improved and simplified code to delete partial words or customAliases when an item is chosen in the Popup List.  This particularly affect word that contain a character considered as a word break by vslick (like digit, '_' or '*')
+
+giAutoCompMinSize property was not correctly restored from the registry
+
+Restructured the release notes to have the latest at the bottom
+
+Avoid error 3135 when active window is a default window without any frame.  The same for a popup list or tooltip if  procedure editor window has no menu bar (like the POV Code Viewer)
+
+
+Fix/Improvements 13-Dec-2006:
+=============================
+Added a paragraph 'Hard to get used to a few features'.
+
+Remove the limit of the Query Analyzer when a foreign buffer is refered with a OF operator.
+
+If a tooltip frame is too small to contain a large text, then a native tooltip is set for it to show the text was truncated to fit in the editor window.
+
+LoadGlobalVars could miss the definition of a temp-table field defined individually with the LIKE option
+
+;+ or chr(x)+ were not firing the ++ feature with plus key of the numeric KeyPad
+
+
+Fixes 12-Dec-2006:
+==================
+Provide a cute screen shot showing ABHack running in a Compiz 3D Desktop on Linux (Mandriva 2007 KDE 3.5) with wine (0.9.26)...
+
+myVar,+ was giving myVar = myVar, + "," +    now it gives the expected myVar = myVar + "," + 
+
+The query anaylser was not happy with a find/query that refers to foreign buffers, like the 2nd find here:
+  FIND FIRST table_a.
+  FIND FIRST table_b NO-LOCK WHERE table_b.id = table_a.id.
+     => it can now replace the table_a.id by '?'.
+ That being said, I discovered the following limitation: it can still not handle the OF operator with a foreign buffer like FIND FIRST table_b OF table_a  in the above example
+       => (later on 12-DEC-2006 ) Found a tweak to hack this limit to be relased tomorrow
+
+The Ctrl-Alt-L Alignment feature can now manage the NEW GLOBAL and SHARED key words.
+They will not be correclty aligned with non shared vars, but at least the keywords will not be lost
+Note that we should handle a distinct block for each sharing type to result in correclty aligned blocks
+  => in other words, align new global shared animals together, then non shared vars as a separate block
+Side comment: NEW GLOBAL SHARED vars are fine (do not abuse, but fine), on the other hand simple SHARED VAR and simple NEW SHARED vars are bad  (I mean without the GLOBAL keepword)
+
+
+Fixes/Improvments 8-Dec-2006:
+=============================
+I just fixed a regression introduced in Query Analyzer yesterday.  A valid "table.field" was taken like a variable name then replaced by a '?' resulting a stupid query like "FOR EACH myTable WHERE '?' = '?' " (instead of "FOR EACH myTable WHERE myTable.field = '?' ").  This was making the QA always believe the query would use the primary index.
+ => I forgot to mention this change of the Query Analyser yesterday... I add it now Sorry about this one...  (This is getting more calm after 2 days)
+
+The '*' operator can be used to narrow any popup list, even multiple times.  This was already working, but the choice of an Item with RETURN was not removing the '*' character(s)
+Example, when the popup comes for attribute list: type 'bu*h' and the list is narrowed to "BUFFER-HANDLE DEFAULT-BUFFER-HANDLE and GET-BUFFER-HANDLE()"
+More crary to illustrate mulitple *'s: "fo*ro*s" gives one single item 'FOCUSED-ROW-SELECTED'
+This can be usefull for field list in large tables
+
+
+Fixes on 7-Dec-2006:
+====================
+Ability to force a Wait-for to make ABHack Stable in 9.1E FCS (and perhaps other versions of Progress) in some circumstances like just running "MESSAGE VIEW-AS ALERT-BOX INFO BUTTONS OK."
+Note it can lead to a little error 4123 if one closes ABHack before closing a window that was just run, but nothing serious.
+  => Please let me know how it affects the stability with the version you are using it you are concerned by this problem
+
+Resizing the Editor Window when a/mulitple popup tooltip(s) is/are present kills the popup and effectivelly resizes the editor window like popup list can do
+
+ABHack ignores returns from valueChanged if a popup list is already taking care of that
+
+Query Analyzer does not try to obtain index details when INDEX-INFORMATION(n) = 'ROWID'
+
+Query Analyzer does not replace a short variable name like 'r' everywhere in the where clause ("WHERE" becoming "WHE'?'E")
+  => Forgot to mention this point.  Added today 8-DEC-2006.  Note it introduced a regression fixed on 8-DEC-2006
+
+Tab insert the right number of spaces : FILL(' ', giTabNumSpaces - (hEditor:CURSOR-CHAR - 1) MODULO giTabNumSpaces)
+  => so it ends up at 4 8 12 16... even if the cursor was not at 0 4 8 12...
+
+'+' inserted just *before* a ',' does not fire the ',+' action (++ feature:  myVar,+  gives  myVar = myVar, + "," + )
+
+When a popup list comes up, then ABHack lets the popup take care of editor valueChanged.  Took care of not breaking to resolve a table name by FLA (the popup list ask ABHacker to get a table by FLA)
+
+
+Fixes on 6-Dec-2006:
+====================
+No error when launching the data dictionary when not connected to any database.
+
+The query analyser can now handle dbName.tableName in query/FOR/FIND phrases
+
+Ability to define how many spaces to insert on a regular Tab (default is 4).
+
+Ability to automatically insert a END. And a blankline (with idented number of spaces) on ':' after DO or REPEAT.
+
+
+Other notes on 6-Dec-2006:
+==========================
+A few problems have been reported with the .wrx file with old versions of Progress (9.1D).  Please try to regenerate these files by resaving their attached .w files.  Bellow are the values of the properties for each instance of the PSTimer OCX:
+
+ABHackWin.w
+   PSTimerSpy                Interval=20   Enabled=True
+   PSTimerValueChanged       Interval=40   Enabled=False
+   PSTimerApplyEvent         Interval=200  Enabled=False
+
+ProcEditorList.w
+   PSTimerMoveToTop     Interval=120   Enabled=True
+   PSTimerEntryEditor   Interval=150   Enabled=True
+
+ProcEditorTooltip.w
+   PSTimerMoveToTop     Interval=80    Enabled=True
+   PSTimerEntryEditor   Interval=150   Enabled=True
+   PSTimerExit          Interval=5000  Enabled=True
+    ( => this last one was defined with a different name of "PSTimerEntryExit" in the past)
+
+
+An instable case has been discovered recntly in 9.1E FCS (no Service Pack) that does not seem to occur with 9.1E02 (actually 9.1E0212), and sure not in 10.1A01.  
+
+To reproduce it, just have ABHack running (and spying switched on), one simple Procedure Editor Window with the code 'MESSAGE VIEW-AS ALERT-BOX INFO BUTTONS OK.' and run it.
+
+Note it does not occur if one of the following condition is true:
+  The code to run does just  'MESSAGE' (without the view-as dialog-box option), which makes a default grey window appear
+  There is an open .w file window
+  The PSTimerSpy is stopped (Stop button).
+     => Therefore I tend to believe there is something wrong with the ACTIVE-WINDOW system handle in this versions of Progress.  Please let me know if you find a work around.
+
+
+     

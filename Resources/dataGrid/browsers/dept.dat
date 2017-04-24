@@ -1,0 +1,36 @@
+FOR EACH dept NO-LOCK
+code,dscr,fc
+
+Indexed: code,dscr,fc
+Non-Idx: ?
+
+Generated 04.18.2017 @  2:49:46 am by: nosweat
+Table: dept - Records: 15
+
+    Index: code
+         Field: code
+
+    Index: dept
+         Field: company
+         Field: fc
+         Field: setup
+         Field: corr
+         Field: therm
+         Field: code
+
+    Index: dscr
+         Field: dscr
+
+    Index: fc
+         Field: fc
+
+    Index: industry
+         Field: company
+         Field: industry
+         Field: code
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-dscr
+         Field: dscr

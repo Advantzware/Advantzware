@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsConfigurationValue" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartConfigurationValue" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartConfigurationValueBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="ConfigurationValueGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ConfigurationValueName" type="xsd:string" nillable="true" prodata:format="x(20)" prodata:label="Name"/>
+              <xsd:element name="ConfigurationValueCharacter" type="xsd:string" nillable="true" prodata:initial="prodata:unknown" prodata:format="x(50)" prodata:label="Value Character"/>
+              <xsd:element name="ConfigurationValueInteger" type="xsd:int" nillable="true" prodata:initial="prodata:unknown"/>
+              <xsd:element name="ConfigurationValueInt64" type="xsd:long" nillable="true" prodata:initial="prodata:unknown"/>
+              <xsd:element name="ConfigurationValueDecimal" type="xsd:decimal" nillable="true" prodata:initial="prodata:unknown"/>
+              <xsd:element name="ConfiugrationValueData" type="xsd:date" nillable="true"/>
+              <xsd:element name="ConfigurationValueDateTime" type="xsd:dateTime" nillable="true" prodata:dataType="prodata:dateTime"/>
+              <xsd:element name="ConfigurationValueDateTimeTz" type="xsd:dateTime" nillable="true"/>
+              <xsd:element name="ConfigurationValueLogical" type="xsd:boolean" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="ConfigurationValueGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartConfigurationValue"/>
+      <xsd:field xpath="ConfigurationValueGuid"/>
+    </xsd:unique>
+    <xsd:unique name="ConfigurationValueName">
+      <xsd:selector xpath=".//eSmartConfigurationValue"/>
+      <xsd:field xpath="ConfigurationValueName"/>
+    </xsd:unique>
+  </xsd:element>
+</xsd:schema>

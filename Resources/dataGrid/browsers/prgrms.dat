@@ -1,0 +1,20 @@
+FOR EACH prgrms NO-LOCK
+dir_group,prgmname,prgtitle
+
+Indexed: prgmname,prgtitle
+Non-Idx: can_create,can_delete,can_run,can_update,dir_group,menu_item,mfgroup,popup,track_usage
+
+Generated 04.19.2017 @  4:11:33 am by: nosweat
+Table: prgrms - Records: 1,687
+
+    Index: pi-prgrms
+         Field: prgmname
+
+    Index: si-prgtitle
+         Field: prgtitle
+
+    Index: si-rec_key
+         Field: rec_key
+
+    Index: wi-prgtitle
+         Field: prgtitle

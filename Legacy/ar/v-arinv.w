@@ -330,7 +330,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -373,7 +373,7 @@ DO:
          OTHERWISE DO:
             lv-handle = focus:handle.
             run applhelp.p.
-             
+
             if g_lookup-var <> "" then do:
                lv-handle:screen-value = g_lookup-var.
             end.  
@@ -549,6 +549,7 @@ DO:
   RUN new-terms.
 
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 
   DO li = 1 TO LENGTH(TRIM({&self-name}:SCREEN-VALUE)):
     APPLY "cursor-right" TO {&self-name}.
@@ -569,7 +570,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -684,7 +685,7 @@ PROCEDURE local-assign-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
   ar-inv.f-bill = ar-inv.freight GT 0.
 
@@ -744,7 +745,7 @@ PROCEDURE local-assign-record :
   FIND FIRST ar-invl EXCLUSIVE-LOCK
       WHERE ar-invl.x-no EQ ar-inv.x-no NO-ERROR.
   IF AVAIL ar-invl THEN DO:
-      
+
       ASSIGN ar-invl.inv-no = ar-inv.inv-no.         
 
   END.
@@ -936,7 +937,7 @@ PROCEDURE local-update-record :
      RUN auto-line-add IN WIDGET-HANDLE(char-hdl).
   END.
   lv-due-calckt = NO.
-  
+
   /* task 02150601 */
   FOR EACH bARInvl WHERE bARInvl.company EQ ar-inv.company
                      AND bARInvl.inv-no EQ ar-inv.inv-no:

@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element msdata:IsDataSet="true" name="root">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" name="value" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+                <xsd:element minOccurs="0" msdata:Ordinal="2" name="comment" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute msdata:Ordinal="1" name="name" type="xsd:string" use="required"/>
+              <xsd:attribute msdata:Ordinal="3" name="type" type="xsd:string"/>
+              <xsd:attribute msdata:Ordinal="4" name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="uneRunningDays.Location" type="System.Drawing.Point, System.Drawing">
+    <value>187, 111</value>
+  </data>
+  <data name="uneRunningDays.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 21</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="uneRunningDays.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="&gt;&gt;uneRunningDays.Name" xml:space="preserve">
+    <value>uneRunningDays</value>
+  </data>
+  <data name="&gt;&gt;uneRunningDays.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraNumericEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;uneRunningDays.Parent" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;uneRunningDays.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="ultraLabel8.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="ultraLabel8.Location" type="System.Drawing.Point, System.Drawing">
+    <value>293, 115</value>
+  </data>
+  <data name="ultraLabel8.Size" type="System.Drawing.Size, System.Drawing">
+    <value>45, 23</value>
+  </data>
+  <data name="ultraLabel8.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="ultraLabel8.Text" xml:space="preserve">
+    <value>days</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel8.Name" xml:space="preserve">
+    <value>ultraLabel8</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel8.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel8.Parent" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel8.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="ultraLabel9.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="ultraLabel9.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 115</value>
+  </data>
+  <data name="ultraLabel9.Size" type="System.Drawing.Size, System.Drawing">
+    <value>174, 23</value>
+  </data>
+  <data name="ultraLabel9.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="ultraLabel9.Text" xml:space="preserve">
+    <value>"Running" older than</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel9.Name" xml:space="preserve">
+    <value>ultraLabel9</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel9.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel9.Parent" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel9.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="uneCancelledDays.Location" type="System.Drawing.Point, System.Drawing">
+    <value>187, 84</value>
+  </data>
+  <data name="uneCancelledDays.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 21</value>
+  </data>
+  <data name="uneCancelledDays.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;uneCancelledDays.Name" xml:space="preserve">
+    <value>uneCancelledDays</value>
+  </data>
+  <data name="&gt;&gt;uneCancelledDays.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraNumericEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;uneCancelledDays.Parent" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;uneCancelledDays.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="ultraLabel6.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="ultraLabel6.Location" type="System.Drawing.Point, System.Drawing">
+    <value>293, 88</value>
+  </data>
+  <data name="ultraLabel6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>45, 23</value>
+  </data>
+  <data name="ultraLabel6.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="ultraLabel6.Text" xml:space="preserve">
+    <value>days</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.Name" xml:space="preserve">
+    <value>ultraLabel6</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.Parent" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel6.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="ultraLabel7.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="ultraLabel7.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 88</value>
+  </data>
+  <data name="ultraLabel7.Size" type="System.Drawing.Size, System.Drawing">
+    <value>174, 23</value>
+  </data>
+  <data name="ultraLabel7.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="ultraLabel7.Text" xml:space="preserve">
+    <value>"Cancelled" older than</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel7.Name" xml:space="preserve">
+    <value>ultraLabel7</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel7.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel7.Parent" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel7.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="uneFinishedDays.Location" type="System.Drawing.Point, System.Drawing">
+    <value>187, 57</value>
+  </data>
+  <data name="uneFinishedDays.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 21</value>
+  </data>
+  <data name="uneFinishedDays.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;uneFinishedDays.Name" xml:space="preserve">
+    <value>uneFinishedDays</value>
+  </data>
+  <data name="&gt;&gt;uneFinishedDays.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraNumericEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;uneFinishedDays.Parent" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;uneFinishedDays.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="ultraLabel3.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="ultraLabel3.Location" type="System.Drawing.Point, System.Drawing">
+    <value>293, 61</value>
+  </data>
+  <data name="ultraLabel3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>45, 23</value>
+  </data>
+  <data name="ultraLabel3.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="ultraLabel3.Text" xml:space="preserve">
+    <value>days</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Name" xml:space="preserve">
+    <value>ultraLabel3</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.Parent" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel3.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="ultraLabel5.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="ultraLabel5.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 61</value>
+  </data>
+  <data name="ultraLabel5.Size" type="System.Drawing.Size, System.Drawing">
+    <value>174, 23</value>
+  </data>
+  <data name="ultraLabel5.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="ultraLabel5.Text" xml:space="preserve">
+    <value>"Finished" older than</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Name" xml:space="preserve">
+    <value>ultraLabel5</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.Parent" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel5.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="uneFailedDays.Location" type="System.Drawing.Point, System.Drawing">
+    <value>187, 30</value>
+  </data>
+  <data name="uneFailedDays.Size" type="System.Drawing.Size, System.Drawing">
+    <value>100, 21</value>
+  </data>
+  <data name="uneFailedDays.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;uneFailedDays.Name" xml:space="preserve">
+    <value>uneFailedDays</value>
+  </data>
+  <data name="&gt;&gt;uneFailedDays.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraNumericEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;uneFailedDays.Parent" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;uneFailedDays.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="ultraLabel2.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="ultraLabel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>293, 34</value>
+  </data>
+  <data name="ultraLabel2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>45, 23</value>
+  </data>
+  <data name="ultraLabel2.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="ultraLabel2.Text" xml:space="preserve">
+    <value>days</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Name" xml:space="preserve">
+    <value>ultraLabel2</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.Parent" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel2.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="ultraLabel1.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="ultraLabel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>7, 34</value>
+  </data>
+  <data name="ultraLabel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>174, 23</value>
+  </data>
+  <data name="ultraLabel1.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="ultraLabel1.Text" xml:space="preserve">
+    <value>"Failed" older than</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Name" xml:space="preserve">
+    <value>ultraLabel1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Parent" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="ultraGroupBox1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="ultraGroupBox1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data name="ultraGroupBox1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>633, 176</value>
+  </data>
+  <data name="ultraGroupBox1.TabIndex" type="System.Int32, mscorlib">
+    <value>25</value>
+  </data>
+  <data name="ultraGroupBox1.Text" xml:space="preserve">
+    <value>Cleanup Jobs with Status:</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox1.Name" xml:space="preserve">
+    <value>ultraGroupBox1</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraGroupBox, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2230, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraGroupBox1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>633, 176</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>CleanupSchedulerJobCommandControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.Windows.Framework.Scheduler.JobCommandBaseControl, OEProxyAssembly, Version=11.6.0.3, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+</root>

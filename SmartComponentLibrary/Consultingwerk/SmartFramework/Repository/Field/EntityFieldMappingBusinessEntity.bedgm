@@ -1,0 +1,260 @@
+<?xml version="1.0"?>
+<dsBusinessEntity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eBusinessEntity>
+    <BusinessEntityName>EntityFieldMappingBusinessEntity</BusinessEntityName>
+    <BusinessEntityPurpose>Business Entity for EntityFieldMapping</BusinessEntityPurpose>
+    <BusinessEntityDescription/>
+    <BusinessEntityPackage>Consultingwerk.SmartFramework.Repository.Field</BusinessEntityPackage>
+    <DataAccessName>EntityFieldMappingDataAccess</DataAccessName>
+    <DataAccessPackage>Consultingwerk.SmartFramework.Repository.Field</DataAccessPackage>
+    <DatasetControllerName>EntityFieldMappingDatasetController</DatasetControllerName>
+    <DatasetControllerPackage>Consultingwerk.SmartFramework.Repository.Field</DatasetControllerPackage>
+    <DatasetName>dsEntityFieldMapping</DatasetName>
+    <DatasetPath>Consultingwerk/SmartFramework/Repository/Field</DatasetPath>
+    <DefaultTablePath>Consultingwerk/SmartFramework/Repository/Field</DefaultTablePath>
+    <DefaultTablePrefix>e</DefaultTablePrefix>
+    <DefaultTableSuffix/>
+    <DefaultBeforeTablePrefix>e</DefaultBeforeTablePrefix>
+    <DefaultBeforeTableSuffix>Before</DefaultBeforeTableSuffix>
+    <GenerateBusinessEntity>true</GenerateBusinessEntity>
+    <GenerateDataAccess>true</GenerateDataAccess>
+    <GenerateDatasetController>true</GenerateDatasetController>
+    <DistinctTempTableIncludeFiles>true</DistinctTempTableIncludeFiles>
+  </eBusinessEntity>
+  <eTable>
+    <BusinessEntityName>EntityFieldMappingBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartEntityFieldMapping</TempTableName>
+    <SourceTableNames>SmartEntityFieldMapping</SourceTableNames>
+    <SourceBufferNames>SmartEntityFieldMapping</SourceBufferNames>
+    <SourceDefaultQuery/>
+    <SourceBufferKeys/>
+    <TempTablePurpose/>
+    <TempTableDescription/>
+    <TempTablePath>Consultingwerk/SmartFramework/Repository/Field</TempTablePath>
+    <TempTableBeforeName>eSmartEntityFieldMappingBefore</TempTableBeforeName>
+    <LayoutColumn>106</LayoutColumn>
+    <LayoutRow>72</LayoutRow>
+    <LayoutWidth>200</LayoutWidth>
+    <LayoutHeight>270</LayoutHeight>
+    <NamespaceUri/>
+    <NamespacePrefix/>
+    <XmlNodeName/>
+    <SerializeName/>
+    <NoBeforeTable>false</NoBeforeTable>
+    <EntityPackageName>Consultingwerk.SmartFramework.Repository.Field</EntityPackageName>
+    <EntityClassName>SmartEntityFieldMapping</EntityClassName>
+    <DeletedFields/>
+  </eTable>
+  <eField>
+    <BusinessEntityName>EntityFieldMappingBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartEntityFieldMapping</TempTableName>
+    <FieldName>EntityFieldMappingGuid</FieldName>
+    <FieldOrder>1</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription>EntityFieldMappingGuid</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>EntityFieldMappingGuid</FieldLabel>
+    <FieldFormat>x(36)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartEntityFieldMapping.EntityFieldMappingGuid</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+  </eField>
+  <eField>
+    <BusinessEntityName>EntityFieldMappingBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartEntityFieldMapping</TempTableName>
+    <FieldName>EntityName</FieldName>
+    <FieldOrder>2</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription>Entity Name</FieldDescription>
+    <FieldInitial>*</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Entity Name</FieldLabel>
+    <FieldFormat>x(40)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartEntityFieldMapping.EntityName</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.BusinessEntityDesigner.Validation.MandatoryValidationProperties&quot;,
+  &quot;SmartMessageGroup&quot;: &quot;VALMSG&quot;,
+  &quot;SmartMessageNumber&quot;: 1
+}
+</FieldValidationInstance>
+    <FieldSemanticType/>
+  </eField>
+  <eField>
+    <BusinessEntityName>EntityFieldMappingBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartEntityFieldMapping</TempTableName>
+    <FieldName>EntityTable</FieldName>
+    <FieldOrder>3</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription>Table Name</FieldDescription>
+    <FieldInitial>*</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Table Name</FieldLabel>
+    <FieldFormat>x(40)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartEntityFieldMapping.EntityTable</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.BusinessEntityDesigner.Validation.MandatoryValidationProperties&quot;,
+  &quot;SmartMessageGroup&quot;: &quot;VALMSG&quot;,
+  &quot;SmartMessageNumber&quot;: 1
+}
+</FieldValidationInstance>
+    <FieldSemanticType/>
+  </eField>
+  <eField>
+    <BusinessEntityName>EntityFieldMappingBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartEntityFieldMapping</TempTableName>
+    <FieldName>Environments</FieldName>
+    <FieldOrder>5</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription>Environments</FieldDescription>
+    <FieldInitial>*</FieldInitial>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Environments</FieldLabel>
+    <FieldFormat>x(40)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartEntityFieldMapping.Environments</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance xsi:nil="true"/>
+    <FieldSemanticType/>
+  </eField>
+  <eField>
+    <BusinessEntityName>EntityFieldMappingBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartEntityFieldMapping</TempTableName>
+    <FieldName>FieldName</FieldName>
+    <FieldOrder>4</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription>Field Name</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Field Name</FieldLabel>
+    <FieldFormat>x(40)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartEntityFieldMapping.FieldName</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.BusinessEntityDesigner.Validation.MandatoryValidationProperties&quot;,
+  &quot;SmartMessageGroup&quot;: &quot;VALMSG&quot;,
+  &quot;SmartMessageNumber&quot;: 1
+}
+</FieldValidationInstance>
+    <FieldSemanticType/>
+  </eField>
+  <eField>
+    <BusinessEntityName>EntityFieldMappingBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartEntityFieldMapping</TempTableName>
+    <FieldName>FieldObjectName</FieldName>
+    <FieldOrder>6</FieldOrder>
+    <FieldDataType>CHARACTER</FieldDataType>
+    <FieldDescription>Object Name</FieldDescription>
+    <FieldInitial/>
+    <FieldInitialUnknownValue>false</FieldInitialUnknownValue>
+    <FieldLabel>Object Name</FieldLabel>
+    <FieldFormat>x(40)</FieldFormat>
+    <FieldSerializeHidden>false</FieldSerializeHidden>
+    <FieldSerializeName/>
+    <FieldXmlDataType/>
+    <FieldXmlNodeType/>
+    <FieldXmlNodeName/>
+    <FieldSource>SmartEntityFieldMapping.FieldObjectName</FieldSource>
+    <FieldExtent>0</FieldExtent>
+    <FieldGetAccess>PUBLIC</FieldGetAccess>
+    <FieldSetAccess>PUBLIC</FieldSetAccess>
+    <FieldCalcExpression/>
+    <FieldCaseSensitive>false</FieldCaseSensitive>
+    <FieldCustomControlName/>
+    <FieldValidationInstance>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.BusinessEntityDesigner.Validation.MandatoryValidationProperties&quot;,
+  &quot;SmartMessageGroup&quot;: &quot;VALMSG&quot;,
+  &quot;SmartMessageNumber&quot;: 1
+}
+</FieldValidationInstance>
+    <FieldSemanticType/>
+  </eField>
+  <eIndex>
+    <BusinessEntityName>EntityFieldMappingBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartEntityFieldMapping</TempTableName>
+    <IndexOrder>1</IndexOrder>
+    <IndexName>EntityFieldMappingGuid</IndexName>
+    <IndexUnique>true</IndexUnique>
+    <IndexPrimary>true</IndexPrimary>
+    <IndexWordIndex>false</IndexWordIndex>
+    <FieldNames>EntityFieldMappingGuid</FieldNames>
+    <FieldSort>ASCENDING</FieldSort>
+    <DefaultSearchCodeGeneration>true</DefaultSearchCodeGeneration>
+  </eIndex>
+  <eIndex>
+    <BusinessEntityName>EntityFieldMappingBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartEntityFieldMapping</TempTableName>
+    <IndexOrder>2</IndexOrder>
+    <IndexName>FieldName</IndexName>
+    <IndexUnique>false</IndexUnique>
+    <IndexPrimary>false</IndexPrimary>
+    <IndexWordIndex>false</IndexWordIndex>
+    <FieldNames>FieldName,EntityName,EntityTable</FieldNames>
+    <FieldSort>ASCENDING,ASCENDING,ASCENDING</FieldSort>
+    <DefaultSearchCodeGeneration>false</DefaultSearchCodeGeneration>
+  </eIndex>
+  <eIndex>
+    <BusinessEntityName>EntityFieldMappingBusinessEntity</BusinessEntityName>
+    <TempTableName>eSmartEntityFieldMapping</TempTableName>
+    <IndexOrder>3</IndexOrder>
+    <IndexName>FieldObjectName</IndexName>
+    <IndexUnique>false</IndexUnique>
+    <IndexPrimary>false</IndexPrimary>
+    <IndexWordIndex>false</IndexWordIndex>
+    <FieldNames>FieldObjectName</FieldNames>
+    <FieldSort>ASCENDING</FieldSort>
+    <DefaultSearchCodeGeneration>false</DefaultSearchCodeGeneration>
+  </eIndex>
+</dsBusinessEntity>

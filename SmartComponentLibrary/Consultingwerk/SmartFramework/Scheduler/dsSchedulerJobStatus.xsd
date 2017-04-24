@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsSchedulerJobStatus" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartSchedulerJobStatus" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartSchedulerJobStatusBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="SchedulerJobStatusGuid" type="xsd:string" nillable="true" prodata:format="x(36)" prodata:label="Job Status ID"/>
+              <xsd:element name="SchedulerJobGuid" type="xsd:string" nillable="true" prodata:format="x(36)" prodata:label="Job Guid"/>
+              <xsd:element name="SchedulerJobPlanGuid" type="xsd:string" nillable="true" prodata:initial="prodata:unknown" prodata:format="x(36)" prodata:label="Job Status ID"/>
+              <xsd:element name="ScheduleDateTime" type="xsd:dateTime" nillable="true" prodata:label="Scheduled Job Execution"/>
+              <xsd:element name="JobName" type="xsd:string" nillable="true" prodata:format="x(40)"/>
+              <xsd:element name="Recurring" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="JobStatus" type="xsd:string" nillable="true" prodata:format="x(20)" prodata:label="Job Status"/>
+              <xsd:element name="StatusText" type="xsd:string" nillable="true" prodata:format="x(40)" prodata:label="Status Text"/>
+              <xsd:element name="Percentage" type="xsd:int" nillable="true" prodata:format="zz9" prodata:label="Progress"/>
+              <xsd:element name="MaxExecutionDelay" type="xsd:int" nillable="true" prodata:format="zzzz9" prodata:label="Max. Delay"/>
+              <xsd:element name="Cancel" type="xsd:boolean" nillable="true" prodata:label="Cancel Req."/>
+              <xsd:element name="StartDateTime" type="xsd:dateTime" nillable="true" prodata:label="Start DateTime"/>
+              <xsd:element name="FinishedDateTime" type="xsd:dateTime" nillable="true" prodata:label="Finished DateTime"/>
+              <xsd:element name="JobParamter" type="xsd:string" nillable="true" prodata:dataType="prodata:clob"/>
+              <xsd:element name="ContextDataSet" type="xsd:string" nillable="true" prodata:dataType="prodata:clob"/>
+              <xsd:element name="UserGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="DataBaseConnections" type="xsd:string" nillable="true" prodata:format="x(120)"/>
+              <xsd:element name="ClientPrincipal" type="xsd:base64Binary" nillable="true"/>
+              <xsd:element name="SchedulerJobName" type="xsd:string" nillable="true" prodata:format="x(40)" prodata:label="JobName"/>
+              <xsd:element name="Description" type="xsd:string" nillable="true" prodata:format="x(400)"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="JobStatus" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartSchedulerJobStatus"/>
+      <xsd:field xpath="SchedulerJobStatusGuid"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="Job">
+        <prodata:table name="eSmartSchedulerJobStatus"/>
+        <prodata:field name="SchedulerJobGuid"/>
+        <prodata:field name="Recurring"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

@@ -146,6 +146,7 @@ IF NOT oplExit AND enforceUserCount-log THEN DO:
     FIND FIRST userControl NO-LOCK NO-ERROR.
     IF AVAILABLE userControl THEN DO:        
         /* +1 represents the additional session for the current new login */
+
         IF iAllUserCount + 1 GT userControl.maxAllowedUsers + userControl.numUsersOverLimit THEN 
         DO:            
             MESSAGE "The maximum number of connections has been reached.  Exiting the application."
@@ -159,9 +160,11 @@ IF NOT oplExit AND enforceUserCount-log THEN DO:
                     VIEW-AS ALERT-BOX WARNING .
             
             END.
+            
     END. /* Avail user control */
     
 END. /* If not exit was chosen */
+
 
 /* Reject TO accept the ADD - The system will exceed the maximum user count of n */
 FIND FIRST users NO-LOCK WHERE users.user_id EQ cCurrentUserID NO-ERROR.

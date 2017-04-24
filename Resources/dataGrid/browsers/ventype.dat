@@ -1,0 +1,22 @@
+FOR EACH ventype NO-LOCK WHERE ventype.company EQ "%company%"
+Dscr,type
+
+Indexed: Dscr,type
+Non-Idx: ?
+
+Generated 04.18.2017 @  2:29:56 am by: nosweat
+Table: ventype - Records: 10
+
+    Index: dscr
+         Field: company
+         Field: Dscr
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: type
+         Field: company
+         Field: type
+
+    Index: wi-dscr
+         Field: Dscr

@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element msdata:IsDataSet="true" name="root">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" name="value" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+                <xsd:element minOccurs="0" msdata:Ordinal="2" name="comment" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute msdata:Ordinal="1" name="name" type="xsd:string" use="required"/>
+              <xsd:attribute msdata:Ordinal="3" name="type" type="xsd:string"/>
+              <xsd:attribute msdata:Ordinal="4" name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="ultraNavigationBar1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Top</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="ultraNavigationBar1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 0</value>
+  </data>
+  <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance1.Image" type="System.Drawing.Bitmap, System.Drawing">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACt0RVh0Q29w
+        eXJpZ2h0AENvcHlyaWdodCCpIDIwMDgtMjAxMSBJTkNPUlMgR21iSBCOIU8AAALgSURBVDhPrZBbSNNR
+        AMb/L0IQBIHgQ5EPYjRFSk2sYVjaUkRzzjTRzJozdTavy8umDe+XclCKZhLeKPJGmZaUl3Slect7zXSZ
+        pi4vU+dM5/3rOAa+hC/1g4/z8v2+czjUfyf30WNumMfpyUhPY1mIq2E7z8WwmutsUCBim9O0lf0RBDrL
+        gB0AcyR9WFW8wcRgCTKC6TKeKaWjrf0dYSznoCiEOQWMA1v9JBJgu5kMdeBVXiCyhayfCRzLVr67UXmA
+        s6GY42BwQ6vukcR3lGOrFVvrDdhaq8cOObHZSEZaSNpIerCx9A7Tsgr42eu3UTEBNk+DWDQ5z5UmifE+
+        VVWaxYZqvAjqsSeQlIbhudgbhSnuaK+Ng1pRCfVsGTYXK4GVBrjTdUsoPseqbWOmEEqZGEP1ocgXMUgc
+        UPngCsYkfKwPJ2JdloViMqKQZkE5kgvVSA6WRovAtNTNpKLYZ6MG3gsBuRg74xkk6dj8nkrEZKxKE/F7
+        MB7L/XfRWBQASfFNKPrvQflVjMnuh2Ce0UukfBjHDPMSHdcgz8T2j3SsjyRDPUTEL/FQ9Yuw2BOLhS4B
+        5nvTUBDHwMSHGCgHUjHUlALP80cjNR+XHGr7Yq5DoLl1RSsqe+Iw3yXEXHs0plsjMdPCR3HSZUirA6Hq
+        i4ek7A6uWh/haAYEt+he5fddsNQdCwWRFj4TsVOA2U/RkH/kY6o5HBNNYajL90FjLgvL5FWV2X7wYRgw
+        NQNsp+OHoq+ZqaVV/pgiRfmu0BiCsYYQjL69DVktF8M1Afj2OhQFQhuoB5KQI2DuZEQwLmkGdonwMrcL
+        cjFpCHczWc3g0lGW5oS+UjZkRByp8cdQlR+kL/1QluwIZacIPCfaL1fLw3pafQ8zC0on1OMknccySQ9i
+        GnUKvMzWxMFWKEmww0AFG+1F19H7zBe+9ifqtMr+nLPWP8BlmdgGu5kmBboY9cWyLTaCWMYq9kXaBW3l
+        X6CoP9fV4N0PdCSlAAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data mimetype="application/x-microsoft.net.object.bytearray.base64" name="appearance2.Image" type="System.Drawing.Bitmap, System.Drawing">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAACt0RVh0Q29w
+        eXJpZ2h0AENvcHlyaWdodCCpIDIwMDgtMjAxMSBJTkNPUlMgR21iSBCOIU8AAAKpSURBVDhPYyAEth46
+        WbNpz8GXm3Yf+LV1/5Gv+46debtgxdrJcXkVGlAluEF8zWyRRZt2/VDWNlmvoWeyT13XZIOarnHb5GWb
+        5yTllR2AKsMNNh06PT0irfCrnbt/Rmb7DNnGKfM1lI1cRHcdO//C3MnnEFQZOuhm2njw+L3ghMx1q3cd
+        fqNlbL0WJLrrxKXFrgERH3OapsSv3bHvv4q2cSNYOTqon7cqYPKCZf8qWnr3J+SU/uOXUtMOqJvCu3bn
+        oc8yqjqL9p+5fN41MPohVDkm2Hr03EUTe6+rmw6eumVk434SJLb96IXeiJTcv7ahqcF7jp/9p2lkvQCs
+        GB2Uz1xju2jd1v+ZJbUHmyfO/i+jpl8YGRrMvPngmScaxtYH9py8uCU0IfMHH7ciH1QLKth54uJhe+/Q
+        55sPnD7pHBh9GyjEtP34xdL8qub/EpomUYfPXPppbOe+H6IaDRT2LNdZt+vQ38SsooMTF63+p6Bl1A0S
+        333i0nlzJ++7Ww+fm1Hd1v9fSEnPFKwBHew5eXmrT0Ti15U7Du11D479wiouwrf39NXYqUvX/eeVUM47
+        cuHaK6fAmOtQ5aggtnma3LZDp36p6JkvX7ph24WI5My7rX1TW89evX3FMzT2w5It+1vXbt//X1nPvBWq
+        BRVsO3hqGTDK/vLKqSk5BcYazVy4Ykdde98zn/DEG8JyWnaHL1y9HJqc8wWqHBNs3Hfsg4Wr/3koFwXs
+        Onk5YefhU/8NbFzWQIUwwartB14EJubdaZ0wvQ4qBAaK8iFsB89cuJpd0fRXQEZTHyqMCTLLGtNOXbj8
+        d86yNQ/X7jpw6tDZSzeB+PmJS9fetvRM+aduZDMdqhQ3MLZ2csorrjgUGZ/81dnT/7+zd8BPC0f3Gwoa
+        eh1QJVgAAwMAWMstaHrgO5sAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="ultraNavigationBar1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>752, 24</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="ultraNavigationBar1.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="ultraNavigationBar1.Text" xml:space="preserve">
+    <value>ultraNavigationBar1</value>
+  </data>
+  <data name="&gt;&gt;ultraNavigationBar1.Name" xml:space="preserve">
+    <value>ultraNavigationBar1</value>
+  </data>
+  <data name="&gt;&gt;ultraNavigationBar1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraNavigationBar, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraNavigationBar1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraNavigationBar1.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="ultraListView1.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
+    <value>Fill</value>
+  </data>
+  <data name="ultraListView1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 24</value>
+  </data>
+  <data name="ultraListView1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>752, 308</value>
+  </data>
+  <data name="ultraListView1.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="ultraListView1.Text" xml:space="preserve">
+    <value>ultraListView1</value>
+  </data>
+  <data name="&gt;&gt;ultraListView1.Name" xml:space="preserve">
+    <value>ultraListView1</value>
+  </data>
+  <data name="&gt;&gt;ultraListView1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinListView.UltraListView, Infragistics4.Win.UltraWinListView.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraListView1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraListView1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="smartBusinessEntityAdapter1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <metadata name="timer1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>217, 17</value>
+  </metadata>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>752, 332</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityAdapter1.Name" xml:space="preserve">
+    <value>smartBusinessEntityAdapter1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityAdapter1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityAdapter, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;timer1.Name" xml:space="preserve">
+    <value>timer1</value>
+  </data>
+  <data name="&gt;&gt;timer1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Timer, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartAttachmentControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartUserControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+</root>

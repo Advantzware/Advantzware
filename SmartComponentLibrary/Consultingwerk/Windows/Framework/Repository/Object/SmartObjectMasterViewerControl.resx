@@ -1,0 +1,749 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element msdata:IsDataSet="true" name="root">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" name="value" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+                <xsd:element minOccurs="0" msdata:Ordinal="2" name="comment" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute msdata:Ordinal="1" name="name" type="xsd:string" use="required"/>
+              <xsd:attribute msdata:Ordinal="3" name="type" type="xsd:string"/>
+              <xsd:attribute msdata:Ordinal="4" name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <metadata name="smartBusinessEntityBindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="eSmartObjectMaster_ObjectName_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="eSmartObjectMaster_ObjectName_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 24</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectName_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>73, 14</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectName_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectName_Label.Text" xml:space="preserve">
+    <value>Object Name:</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectName_Label.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_ObjectName_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectName_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectName_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectName_Label.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="eSmartObjectMaster_ObjectName.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>158, 20</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>220, 21</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectName.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectName.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_ObjectName</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectName.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectName.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectName.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="eSmartObjectMaster_CustomizationResultGuid_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartObjectMaster_CustomizationResultGuid_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 50</value>
+  </data>
+  <data name="eSmartObjectMaster_CustomizationResultGuid_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>114, 14</value>
+  </data>
+  <data name="eSmartObjectMaster_CustomizationResultGuid_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="eSmartObjectMaster_CustomizationResultGuid_Label.Text" xml:space="preserve">
+    <value>Customization Result:</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_CustomizationResultGuid_Label.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_CustomizationResultGuid_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_CustomizationResultGuid_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_CustomizationResultGuid_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_CustomizationResultGuid_Label.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectTypeGuid_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectTypeGuid_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 76</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectTypeGuid_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>68, 14</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectTypeGuid_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectTypeGuid_Label.Text" xml:space="preserve">
+    <value>Object Type:</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectTypeGuid_Label.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_ObjectTypeGuid_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectTypeGuid_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectTypeGuid_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectTypeGuid_Label.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="eSmartObjectMaster_ModuleGuid_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartObjectMaster_ModuleGuid_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 102</value>
+  </data>
+  <data name="eSmartObjectMaster_ModuleGuid_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>45, 14</value>
+  </data>
+  <data name="eSmartObjectMaster_ModuleGuid_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="eSmartObjectMaster_ModuleGuid_Label.Text" xml:space="preserve">
+    <value>Module:</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ModuleGuid_Label.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_ModuleGuid_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ModuleGuid_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ModuleGuid_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ModuleGuid_Label.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectDescription_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectDescription_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 128</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectDescription_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>64, 14</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectDescription_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectDescription_Label.Text" xml:space="preserve">
+    <value>Description:</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectDescription_Label.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_ObjectDescription_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectDescription_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectDescription_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectDescription_Label.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectDescription.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectDescription.Location" type="System.Drawing.Point, System.Drawing">
+    <value>158, 124</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectDescription.Size" type="System.Drawing.Size, System.Drawing">
+    <value>220, 21</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectDescription.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectDescription.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_ObjectDescription</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectDescription.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectDescription.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectDescription.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectPackage_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectPackage_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 154</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectPackage_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>87, 14</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectPackage_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectPackage_Label.Text" xml:space="preserve">
+    <value>Object Package:</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectPackage_Label.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_ObjectPackage_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectPackage_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectPackage_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectPackage_Label.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectPackage.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectPackage.Location" type="System.Drawing.Point, System.Drawing">
+    <value>158, 150</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectPackage.Size" type="System.Drawing.Size, System.Drawing">
+    <value>220, 21</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectPackage.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectPackage.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_ObjectPackage</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectPackage.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectPackage.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectPackage.ZOrder" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectExtension_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectExtension_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 180</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectExtension_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>57, 14</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectExtension_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectExtension_Label.Text" xml:space="preserve">
+    <value>Extension:</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectExtension_Label.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_ObjectExtension_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectExtension_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectExtension_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectExtension_Label.ZOrder" xml:space="preserve">
+    <value>13</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectExtension.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectExtension.Location" type="System.Drawing.Point, System.Drawing">
+    <value>158, 176</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectExtension.Size" type="System.Drawing.Size, System.Drawing">
+    <value>220, 21</value>
+  </data>
+  <data name="eSmartObjectMaster_ObjectExtension.TabIndex" type="System.Int32, mscorlib">
+    <value>13</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectExtension.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_ObjectExtension</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectExtension.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectExtension.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_ObjectExtension.ZOrder" xml:space="preserve">
+    <value>14</value>
+  </data>
+  <data name="eSmartObjectMaster_StaticObject.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="eSmartObjectMaster_StaticObject.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartObjectMaster_StaticObject.Location" type="System.Drawing.Point, System.Drawing">
+    <value>402, 24</value>
+  </data>
+  <data name="eSmartObjectMaster_StaticObject.Size" type="System.Drawing.Size, System.Drawing">
+    <value>85, 17</value>
+  </data>
+  <data name="eSmartObjectMaster_StaticObject.TabIndex" type="System.Int32, mscorlib">
+    <value>18</value>
+  </data>
+  <data name="eSmartObjectMaster_StaticObject.Text" xml:space="preserve">
+    <value>Static Object</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_StaticObject.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_StaticObject</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_StaticObject.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_StaticObject.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_StaticObject.ZOrder" xml:space="preserve">
+    <value>15</value>
+  </data>
+  <data name="eSmartObjectMaster_TemplateObject.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="eSmartObjectMaster_TemplateObject.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartObjectMaster_TemplateObject.Location" type="System.Drawing.Point, System.Drawing">
+    <value>402, 50</value>
+  </data>
+  <data name="eSmartObjectMaster_TemplateObject.Size" type="System.Drawing.Size, System.Drawing">
+    <value>104, 17</value>
+  </data>
+  <data name="eSmartObjectMaster_TemplateObject.TabIndex" type="System.Int32, mscorlib">
+    <value>19</value>
+  </data>
+  <data name="eSmartObjectMaster_TemplateObject.Text" xml:space="preserve">
+    <value>Template Object</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_TemplateObject.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_TemplateObject</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_TemplateObject.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_TemplateObject.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_TemplateObject.ZOrder" xml:space="preserve">
+    <value>16</value>
+  </data>
+  <data name="eSmartObjectMaster_DeploymentType_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartObjectMaster_DeploymentType_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 207</value>
+  </data>
+  <data name="eSmartObjectMaster_DeploymentType_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>96, 14</value>
+  </data>
+  <data name="eSmartObjectMaster_DeploymentType_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>14</value>
+  </data>
+  <data name="eSmartObjectMaster_DeploymentType_Label.Text" xml:space="preserve">
+    <value>Deployment Type:</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_DeploymentType_Label.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_DeploymentType_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_DeploymentType_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_DeploymentType_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_DeploymentType_Label.ZOrder" xml:space="preserve">
+    <value>17</value>
+  </data>
+  <data name="eSmartObjectMaster_DeploymentType.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="eSmartObjectMaster_DeploymentType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>158, 203</value>
+  </data>
+  <data name="eSmartObjectMaster_DeploymentType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>220, 21</value>
+  </data>
+  <data name="eSmartObjectMaster_DeploymentType.TabIndex" type="System.Int32, mscorlib">
+    <value>15</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_DeploymentType.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_DeploymentType</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_DeploymentType.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_DeploymentType.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_DeploymentType.ZOrder" xml:space="preserve">
+    <value>18</value>
+  </data>
+  <data name="eSmartObjectMaster_RunnableFromMenu.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="eSmartObjectMaster_RunnableFromMenu.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartObjectMaster_RunnableFromMenu.Location" type="System.Drawing.Point, System.Drawing">
+    <value>402, 75</value>
+  </data>
+  <data name="eSmartObjectMaster_RunnableFromMenu.Size" type="System.Drawing.Size, System.Drawing">
+    <value>127, 17</value>
+  </data>
+  <data name="eSmartObjectMaster_RunnableFromMenu.TabIndex" type="System.Int32, mscorlib">
+    <value>20</value>
+  </data>
+  <data name="eSmartObjectMaster_RunnableFromMenu.Text" xml:space="preserve">
+    <value>Runnable from Menu</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_RunnableFromMenu.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_RunnableFromMenu</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_RunnableFromMenu.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_RunnableFromMenu.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_RunnableFromMenu.ZOrder" xml:space="preserve">
+    <value>19</value>
+  </data>
+  <data name="eSmartObjectMaster_Disabled.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Right</value>
+  </data>
+  <data name="eSmartObjectMaster_Disabled.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartObjectMaster_Disabled.Location" type="System.Drawing.Point, System.Drawing">
+    <value>402, 101</value>
+  </data>
+  <data name="eSmartObjectMaster_Disabled.Size" type="System.Drawing.Size, System.Drawing">
+    <value>65, 17</value>
+  </data>
+  <data name="eSmartObjectMaster_Disabled.TabIndex" type="System.Int32, mscorlib">
+    <value>21</value>
+  </data>
+  <data name="eSmartObjectMaster_Disabled.Text" xml:space="preserve">
+    <value>Disabled</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_Disabled.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_Disabled</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_Disabled.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_Disabled.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_Disabled.ZOrder" xml:space="preserve">
+    <value>20</value>
+  </data>
+  <data name="eSmartObjectMaster_DesignTimeDataSourceGuid_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="eSmartObjectMaster_DesignTimeDataSourceGuid_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>20, 234</value>
+  </data>
+  <data name="eSmartObjectMaster_DesignTimeDataSourceGuid_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>137, 14</value>
+  </data>
+  <data name="eSmartObjectMaster_DesignTimeDataSourceGuid_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>16</value>
+  </data>
+  <data name="eSmartObjectMaster_DesignTimeDataSourceGuid_Label.Text" xml:space="preserve">
+    <value>Design Time Data Source:</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_DesignTimeDataSourceGuid_Label.Name" xml:space="preserve">
+    <value>eSmartObjectMaster_DesignTimeDataSourceGuid_Label</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_DesignTimeDataSourceGuid_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_DesignTimeDataSourceGuid_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;eSmartObjectMaster_DesignTimeDataSourceGuid_Label.ZOrder" xml:space="preserve">
+    <value>21</value>
+  </data>
+  <data name="lookupObjectType.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="editorButton1.Text" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="lookupObjectType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>158, 72</value>
+  </data>
+  <data name="lookupObjectType.LookupDialogTitle" xml:space="preserve">
+    <value>Lookup Object Type</value>
+  </data>
+  <data name="lookupObjectType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>220, 21</value>
+  </data>
+  <data name="lookupObjectType.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="&gt;&gt;lookupObjectType.Name" xml:space="preserve">
+    <value>lookupObjectType</value>
+  </data>
+  <data name="&gt;&gt;lookupObjectType.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;lookupObjectType.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lookupObjectType.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="lookupModule.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="editorButton2.Text" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="lookupModule.Location" type="System.Drawing.Point, System.Drawing">
+    <value>158, 98</value>
+  </data>
+  <data name="lookupModule.LookupDialogTitle" xml:space="preserve">
+    <value>Lookup Module</value>
+  </data>
+  <data name="lookupModule.Size" type="System.Drawing.Size, System.Drawing">
+    <value>220, 21</value>
+  </data>
+  <data name="lookupModule.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="&gt;&gt;lookupModule.Name" xml:space="preserve">
+    <value>lookupModule</value>
+  </data>
+  <data name="&gt;&gt;lookupModule.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;lookupModule.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lookupModule.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="lookupDesignTimeDataSource.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="editorButton3.Text" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="lookupDesignTimeDataSource.Location" type="System.Drawing.Point, System.Drawing">
+    <value>158, 230</value>
+  </data>
+  <data name="lookupDesignTimeDataSource.LookupDialogTitle" xml:space="preserve">
+    <value>Lookup Design Time Data Source</value>
+  </data>
+  <data name="lookupDesignTimeDataSource.Size" type="System.Drawing.Size, System.Drawing">
+    <value>220, 21</value>
+  </data>
+  <data name="lookupDesignTimeDataSource.TabIndex" type="System.Int32, mscorlib">
+    <value>17</value>
+  </data>
+  <data name="&gt;&gt;lookupDesignTimeDataSource.Name" xml:space="preserve">
+    <value>lookupDesignTimeDataSource</value>
+  </data>
+  <data name="&gt;&gt;lookupDesignTimeDataSource.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;lookupDesignTimeDataSource.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lookupDesignTimeDataSource.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="lookupCustomizationType.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="editorButton4.Text" xml:space="preserve">
+    <value>...</value>
+  </data>
+  <data name="lookupCustomizationType.Location" type="System.Drawing.Point, System.Drawing">
+    <value>158, 46</value>
+  </data>
+  <data name="lookupCustomizationType.LookupDialogTitle" xml:space="preserve">
+    <value>Lookup Customization Result Code</value>
+  </data>
+  <data name="lookupCustomizationType.Size" type="System.Drawing.Size, System.Drawing">
+    <value>220, 21</value>
+  </data>
+  <data name="lookupCustomizationType.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;lookupCustomizationType.Name" xml:space="preserve">
+    <value>lookupCustomizationType</value>
+  </data>
+  <data name="&gt;&gt;lookupCustomizationType.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityLookup, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;lookupCustomizationType.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;lookupCustomizationType.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>529, 431</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartObjectMasterViewerControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartViewerControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+</root>

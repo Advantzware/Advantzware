@@ -1,0 +1,40 @@
+/**********************************************************************
+ * Copyright (C) 2006-@YEAR@ by Consultingwerk Ltd. ("CW") -            *
+ * www.consultingwerk.de and other contributors as listed             *
+ * below.  All Rights Reserved.                                       *
+ *                                                                    *
+ *  Software is distributed on an "AS IS", WITHOUT WARRANTY OF ANY    *
+ *   KIND, either express or implied.                                 *
+ *                                                                    *
+ *  Contributors:                                                     *
+ *                                                                    *
+ **********************************************************************/
+/*------------------------------------------------------------------------
+    File        : LlConst
+    Purpose     : Constants definitions for List && Label API's
+    Syntax      :
+    Description :
+    Author(s)   : @USER@ / Consultingwerk Ltd.
+    Created     : @DATE@
+    Notes       :
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+
+USING Consultingwerk.Windows.ListAndLabel.* FROM PROPATH .
+USING Progress.Lang.*                       FROM PROPATH .
+
+CLASS Consultingwerk.Windows.ListAndLabel.LlConst:
+
+    /*------------------------------------------------------------------------------
+        Purpose: Disallow instance creation
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC LlConst ():
+        SUPER ().
+
+    END CONSTRUCTOR.
+
+&1
+END CLASS.

@@ -1,0 +1,23 @@
+FOR EACH statecod NO-LOCK
+description,fips_code,statecod
+
+Indexed: description,fips_code,statecod
+Non-Idx: ?
+
+Generated 04.18.2017 @  2:53:12 am by: nosweat
+Table: statecod - Records: 87
+
+    Index: pi-statecod
+         Field: statecod
+
+    Index: si-description
+         Field: description
+
+    Index: si-fips_code
+         Field: fips_code
+
+    Index: si-rec_key
+         Field: rec_key
+
+    Index: wi-description
+         Field: description

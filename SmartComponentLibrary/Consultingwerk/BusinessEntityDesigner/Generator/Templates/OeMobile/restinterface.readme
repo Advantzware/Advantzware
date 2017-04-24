@@ -1,0 +1,11 @@
+&1            interface class name
+&2            interface class package
+&3            business entity name including package
+&4            description
+&5            time stamp
+&6            appserver module
+&7            URI
+&8            dataset name
+&9            dataset path (including PDSOE project name and include file name)
+@USER@        the current user name
+@USERID@      the current user id

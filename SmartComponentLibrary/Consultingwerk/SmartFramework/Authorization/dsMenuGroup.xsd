@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsMenuGroup" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="ePossibleGroup" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="ePossibleGroupBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="MenuGroupGuid" type="xsd:string" nillable="true" prodata:fieldName="MenuGroupGuid" prodata:format="x(36)"/>
+              <xsd:element name="MenuGuid" type="xsd:string" nillable="true" prodata:fieldName="MenuGuid" prodata:format="x(36)"/>
+              <xsd:element name="GroupGuid" type="xsd:string" nillable="true" prodata:fieldName="GroupGuid" prodata:format="x(36)"/>
+              <xsd:element name="GroupName" type="xsd:string" nillable="true" prodata:format="x(20)"/>
+              <xsd:element name="LoginCompanyName" type="xsd:string" nillable="true" prodata:format="x(20)"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eSmartMenuGroup" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartMenuGroupBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="MenuGroupGuid" type="xsd:string" nillable="true" prodata:fieldName="MenuGroupGuid" prodata:format="x(36)"/>
+              <xsd:element name="MenuGuid" type="xsd:string" nillable="true" prodata:fieldName="MenuGuid" prodata:format="x(36)"/>
+              <xsd:element name="GroupGuid" type="xsd:string" nillable="true" prodata:fieldName="GroupGuid" prodata:format="x(36)"/>
+              <xsd:element name="GroupName" type="xsd:string" nillable="true" prodata:format="x(20)"/>
+              <xsd:element name="LoginCompanyName" type="xsd:string" nillable="true" prodata:format="x(20)"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="MenuGroupGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//ePossibleGroup"/>
+      <xsd:field xpath="MenuGroupGuid"/>
+    </xsd:unique>
+    <xsd:unique name="eSmartMenuGroup_MenuGroupGuid" prodata:indexName="MenuGroupGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartMenuGroup"/>
+      <xsd:field xpath="MenuGroupGuid"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="GroupId">
+        <prodata:table name="ePossibleGroup"/>
+        <prodata:field name="GroupGuid"/>
+      </prodata:index>
+      <prodata:index name="GroupId">
+        <prodata:table name="eSmartMenuGroup"/>
+        <prodata:field name="GroupGuid"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

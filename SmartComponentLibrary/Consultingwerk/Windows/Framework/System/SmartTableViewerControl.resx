@@ -1,0 +1,791 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:xsd="http://www.w3.org/2001/XMLSchema" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element msdata:IsDataSet="true" name="root">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" name="value" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+                <xsd:element minOccurs="0" msdata:Ordinal="2" name="comment" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute msdata:Ordinal="1" name="name" type="xsd:string" use="required"/>
+              <xsd:attribute msdata:Ordinal="3" name="type" type="xsd:string"/>
+              <xsd:attribute msdata:Ordinal="4" name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element minOccurs="0" msdata:Ordinal="1" name="value" type="xsd:string"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <metadata name="smartBusinessEntityBindingSource1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>179, 17</value>
+  </metadata>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="tbTableName_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"/>
+  <data name="tbTableName_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 7</value>
+  </data>
+  <data name="tbTableName_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>69, 14</value>
+  </data>
+  <data name="tbTableName_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>1</value>
+  </data>
+  <data name="tbTableName_Label.Text" xml:space="preserve">
+    <value>Table Name:</value>
+  </data>
+  <data name="&gt;&gt;tbTableName_Label.Name" xml:space="preserve">
+    <value>tbTableName_Label</value>
+  </data>
+  <data name="&gt;&gt;tbTableName_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbTableName_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbTableName_Label.ZOrder" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"/>
+  <data name="tbTableName.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="tbTableName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 3</value>
+  </data>
+  <data name="tbTableName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>278, 21</value>
+  </data>
+  <data name="tbTableName.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="&gt;&gt;tbTableName.Name" xml:space="preserve">
+    <value>tbTableName</value>
+  </data>
+  <data name="&gt;&gt;tbTableName.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbTableName.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbTableName.ZOrder" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="tbDatabaseName_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbDatabaseName_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 33</value>
+  </data>
+  <data name="tbDatabaseName_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>89, 14</value>
+  </data>
+  <data name="tbDatabaseName_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="tbDatabaseName_Label.Text" xml:space="preserve">
+    <value>Database Name:</value>
+  </data>
+  <data name="&gt;&gt;tbDatabaseName_Label.Name" xml:space="preserve">
+    <value>tbDatabaseName_Label</value>
+  </data>
+  <data name="&gt;&gt;tbDatabaseName_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbDatabaseName_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbDatabaseName_Label.ZOrder" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="tbDatabaseName.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="tbDatabaseName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 29</value>
+  </data>
+  <data name="tbDatabaseName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>278, 21</value>
+  </data>
+  <data name="tbDatabaseName.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
+  <data name="&gt;&gt;tbDatabaseName.Name" xml:space="preserve">
+    <value>tbDatabaseName</value>
+  </data>
+  <data name="&gt;&gt;tbDatabaseName.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbDatabaseName.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbDatabaseName.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="tbTableDescription_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbTableDescription_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 59</value>
+  </data>
+  <data name="tbTableDescription_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>96, 14</value>
+  </data>
+  <data name="tbTableDescription_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
+  <data name="tbTableDescription_Label.Text" xml:space="preserve">
+    <value>Table Description:</value>
+  </data>
+  <data name="&gt;&gt;tbTableDescription_Label.Name" xml:space="preserve">
+    <value>tbTableDescription_Label</value>
+  </data>
+  <data name="&gt;&gt;tbTableDescription_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbTableDescription_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbTableDescription_Label.ZOrder" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="tbTableDescription.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="tbTableDescription.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 55</value>
+  </data>
+  <data name="tbTableDescription.Multiline" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbTableDescription.Size" type="System.Drawing.Size, System.Drawing">
+    <value>278, 107</value>
+  </data>
+  <data name="tbTableDescription.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
+  <data name="&gt;&gt;tbTableDescription.Name" xml:space="preserve">
+    <value>tbTableDescription</value>
+  </data>
+  <data name="&gt;&gt;tbTableDescription.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbTableDescription.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbTableDescription.ZOrder" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="tbUniqueKeyFields_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbUniqueKeyFields_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 172</value>
+  </data>
+  <data name="tbUniqueKeyFields_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>99, 14</value>
+  </data>
+  <data name="tbUniqueKeyFields_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>7</value>
+  </data>
+  <data name="tbUniqueKeyFields_Label.Text" xml:space="preserve">
+    <value>Unique Key Fields:</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFields_Label.Name" xml:space="preserve">
+    <value>tbUniqueKeyFields_Label</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFields_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFields_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFields_Label.ZOrder" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="tbUniqueKeyFields.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="tbUniqueKeyFields.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 168</value>
+  </data>
+  <data name="tbUniqueKeyFields.Size" type="System.Drawing.Size, System.Drawing">
+    <value>278, 21</value>
+  </data>
+  <data name="tbUniqueKeyFields.TabIndex" type="System.Int32, mscorlib">
+    <value>8</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFields.Name" xml:space="preserve">
+    <value>tbUniqueKeyFields</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFields.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFields.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFields.ZOrder" xml:space="preserve">
+    <value>9</value>
+  </data>
+  <data name="tbUniqueKeyFormats_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbUniqueKeyFormats_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 198</value>
+  </data>
+  <data name="tbUniqueKeyFormats_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>110, 14</value>
+  </data>
+  <data name="tbUniqueKeyFormats_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>9</value>
+  </data>
+  <data name="tbUniqueKeyFormats_Label.Text" xml:space="preserve">
+    <value>Unique Key Formats:</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFormats_Label.Name" xml:space="preserve">
+    <value>tbUniqueKeyFormats_Label</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFormats_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFormats_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFormats_Label.ZOrder" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="tbUniqueKeyFormats.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="tbUniqueKeyFormats.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 194</value>
+  </data>
+  <data name="tbUniqueKeyFormats.Size" type="System.Drawing.Size, System.Drawing">
+    <value>278, 21</value>
+  </data>
+  <data name="tbUniqueKeyFormats.TabIndex" type="System.Int32, mscorlib">
+    <value>10</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFormats.Name" xml:space="preserve">
+    <value>tbUniqueKeyFormats</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFormats.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFormats.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeyFormats.ZOrder" xml:space="preserve">
+    <value>11</value>
+  </data>
+  <data name="tbUniqueKeySubstitute_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="tbUniqueKeySubstitute_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 224</value>
+  </data>
+  <data name="tbUniqueKeySubstitute_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>119, 14</value>
+  </data>
+  <data name="tbUniqueKeySubstitute_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>11</value>
+  </data>
+  <data name="tbUniqueKeySubstitute_Label.Text" xml:space="preserve">
+    <value>Unique Key Substitute:</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeySubstitute_Label.Name" xml:space="preserve">
+    <value>tbUniqueKeySubstitute_Label</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeySubstitute_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeySubstitute_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeySubstitute_Label.ZOrder" xml:space="preserve">
+    <value>15</value>
+  </data>
+  <data name="tbUniqueKeySubstitute.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="tbUniqueKeySubstitute.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 220</value>
+  </data>
+  <data name="tbUniqueKeySubstitute.Size" type="System.Drawing.Size, System.Drawing">
+    <value>278, 21</value>
+  </data>
+  <data name="tbUniqueKeySubstitute.TabIndex" type="System.Int32, mscorlib">
+    <value>12</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeySubstitute.Name" xml:space="preserve">
+    <value>tbUniqueKeySubstitute</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeySubstitute.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeySubstitute.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbUniqueKeySubstitute.ZOrder" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="tbAllowComments.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 375</value>
+  </data>
+  <data name="tbAllowComments.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="tbAllowComments.TabIndex" type="System.Int32, mscorlib">
+    <value>23</value>
+  </data>
+  <data name="tbAllowComments.Text" xml:space="preserve">
+    <value>Comments allowed</value>
+  </data>
+  <data name="&gt;&gt;tbAllowComments.Name" xml:space="preserve">
+    <value>tbAllowComments</value>
+  </data>
+  <data name="&gt;&gt;tbAllowComments.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbAllowComments.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbAllowComments.ZOrder" xml:space="preserve">
+    <value>13</value>
+  </data>
+  <data name="tbAllowAttachments.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 402</value>
+  </data>
+  <data name="tbAllowAttachments.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 20</value>
+  </data>
+  <data name="tbAllowAttachments.TabIndex" type="System.Int32, mscorlib">
+    <value>24</value>
+  </data>
+  <data name="tbAllowAttachments.Text" xml:space="preserve">
+    <value>Attachments allowed</value>
+  </data>
+  <data name="&gt;&gt;tbAllowAttachments.Name" xml:space="preserve">
+    <value>tbAllowAttachments</value>
+  </data>
+  <data name="&gt;&gt;tbAllowAttachments.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraCheckEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;tbAllowAttachments.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;tbAllowAttachments.ZOrder" xml:space="preserve">
+    <value>14</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 277</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields_Label.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>2, 2, 2, 2</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>97, 14</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>15</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields_Label.Text" xml:space="preserve">
+    <value>&amp;Description Fields:</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields_Label.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields_Label</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields_Label.ZOrder" xml:space="preserve">
+    <value>16</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 273</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>2, 2, 2, 2</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields.Size" type="System.Drawing.Size, System.Drawing">
+    <value>278, 21</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields.TabIndex" type="System.Int32, mscorlib">
+    <value>16</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFields.ZOrder" xml:space="preserve">
+    <value>17</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 301</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats_Label.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>2, 2, 2, 2</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>109, 14</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>17</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats_Label.Text" xml:space="preserve">
+    <value>&amp;Description Formats:</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats_Label.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats_Label</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats_Label.ZOrder" xml:space="preserve">
+    <value>18</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 298</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>2, 2, 2, 2</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats.Size" type="System.Drawing.Size, System.Drawing">
+    <value>278, 21</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats.TabIndex" type="System.Int32, mscorlib">
+    <value>18</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionFormats.ZOrder" xml:space="preserve">
+    <value>19</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 325</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute_Label.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>2, 2, 2, 2</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>118, 14</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>19</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute_Label.Text" xml:space="preserve">
+    <value>&amp;Description Substitute:</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute_Label.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute_Label</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute_Label.ZOrder" xml:space="preserve">
+    <value>20</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 322</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>2, 2, 2, 2</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute.Size" type="System.Drawing.Size, System.Drawing">
+    <value>278, 21</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute.TabIndex" type="System.Int32, mscorlib">
+    <value>20</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_DescriptionSubstitute.ZOrder" xml:space="preserve">
+    <value>21</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_TempTableName_Label.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_TempTableName_Label.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 352</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_TempTableName_Label.Size" type="System.Drawing.Size, System.Drawing">
+    <value>101, 14</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_TempTableName_Label.TabIndex" type="System.Int32, mscorlib">
+    <value>21</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_TempTableName_Label.Text" xml:space="preserve">
+    <value>&amp;Temp Table Name:</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_TempTableName_Label.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartTable_TempTableName_Label</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_TempTableName_Label.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_TempTableName_Label.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_TempTableName_Label.ZOrder" xml:space="preserve">
+    <value>22</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_TempTableName.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_TempTableName.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 348</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_TempTableName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>278, 21</value>
+  </data>
+  <data name="smartBusinessEntityBindingSource1_eSmartTable_TempTableName.TabIndex" type="System.Int32, mscorlib">
+    <value>22</value>
+  </data>
+  <metadata name="ultraToolTipManager1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>17, 17</value>
+  </metadata>
+  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+    <value>True</value>
+  </metadata>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
+    <value>6, 13</value>
+  </data>
+  <data name="ultraLabel1.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="ultraLabel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 251</value>
+  </data>
+  <data name="ultraLabel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>124, 14</value>
+  </data>
+  <data name="ultraLabel1.TabIndex" type="System.Int32, mscorlib">
+    <value>26</value>
+  </data>
+  <data name="ultraLabel1.Text" xml:space="preserve">
+    <value>Auto Assign Key Fields:</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Name" xml:space="preserve">
+    <value>ultraLabel1</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Type" xml:space="preserve">
+    <value>Infragistics.Win.Misc.UltraLabel, Infragistics4.Win.Misc.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraLabel1.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="ultraComboEditor1.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="ultraComboEditor1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>130, 247</value>
+  </data>
+  <data name="ultraComboEditor1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>278, 21</value>
+  </data>
+  <data name="ultraComboEditor1.TabIndex" type="System.Int32, mscorlib">
+    <value>25</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor1.Name" xml:space="preserve">
+    <value>ultraComboEditor1</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraComboEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor1.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;ultraComboEditor1.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="$this.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>4, 4, 4, 4</value>
+  </data>
+  <data name="$this.Size" type="System.Drawing.Size, System.Drawing">
+    <value>411, 451</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Implementation.SmartBusinessEntityBindingSource, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;ultraToolTipManager1.Name" xml:space="preserve">
+    <value>ultraToolTipManager1</value>
+  </data>
+  <data name="&gt;&gt;ultraToolTipManager1.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinToolTip.UltraToolTipManager, Infragistics4.Win.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;$this.Name" xml:space="preserve">
+    <value>SmartTableViewerControl</value>
+  </data>
+  <data name="&gt;&gt;$this.Type" xml:space="preserve">
+    <value>Consultingwerk.SmartComponents.Base.SmartViewerControl, OEProxyAssembly, Version=11.6.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="ultraToolTipInfo1.ToolTipText" xml:space="preserve">
+    <value>Defines the detaulf temp-table name used in the Business Entity Designer excluding the prefix like "e" or "tt"</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_TempTableName.Name" xml:space="preserve">
+    <value>smartBusinessEntityBindingSource1_eSmartTable_TempTableName</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_TempTableName.Type" xml:space="preserve">
+    <value>Infragistics.Win.UltraWinEditors.UltraTextEditor, Infragistics4.Win.UltraWinEditors.v15.1, Version=15.1.20151.2203, Culture=neutral, PublicKeyToken=7dd5c3163f2cd0cb</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_TempTableName.Parent" xml:space="preserve">
+    <value>$this</value>
+  </data>
+  <data name="&gt;&gt;smartBusinessEntityBindingSource1_eSmartTable_TempTableName.ZOrder" xml:space="preserve">
+    <value>23</value>
+  </data>
+</root>

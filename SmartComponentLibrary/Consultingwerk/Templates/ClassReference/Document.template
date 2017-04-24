@@ -1,0 +1,366 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!--
+/**********************************************************************
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
+ * www.consultingwerk.de and other contributors as listed             *
+ * below.  All Rights Reserved.                                       *
+ *                                                                    *
+ *  Software is distributed on an "AS IS", WITHOUT WARRANTY OF ANY    *
+ *   KIND, either express or implied.                                 *
+ *                                                                    *
+ *  Contributors:                                                     *
+ *  Generated   : @TIMESTAMP@                                                                   *
+ **********************************************************************/
+-->
+<HTML>
+    <HEAD>
+        <meta http-equiv="expires" content="86400">
+        <TITLE>@PAGETITLE@</TITLE>
+        <link rel="stylesheet" type="text/css" href="resources/stylesheet.css" title="Style">
+        <script src="resources/jquery.js"></script>
+        <script src="resources/functions.js"></script>
+        <script src="resources/frameload.js"></script>
+        <script>
+            function copyToClipboard(text) {
+                window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
+            }
+        </script>
+        <!-- Browser Switch -->
+        <!--[if lt IE 8]>
+            <!-- Smaller than IE 8 -->
+            <style type="text/css">
+                .HeightFixIE { 
+                    height: 23px !important;
+                }
+            </style>
+        <![endif]-->
+        <!--[if IE 8]>
+            <!-- Equal IE 8 -->
+            <style type="text/css">
+                .HeightFixIE { 
+                    height: 20px !important;
+                }
+            </style>
+        <![endif]-->
+    </HEAD>
+<BODY onload="onLoad()">
+    <table class="header_table">
+        <tbody>
+        <tr>
+            <td>
+            	<div class="unit_header">
+            	    <table border="0">
+            	       <tbody>
+                	        <tr>
+                	            <td>
+                	                <span class="span_namespace"><a name="top">Namespace:</a></span>   
+                	            </td>
+                	            <td>
+                	                <span class="span_packagename"><a href="@PACKAGENAME@.package.html">@PACKAGENAME@<a></span>
+                	            </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="span_pagetype">@PAGETYPE@&nbsp;</span>
+                                </td>
+                                <td>
+                                    <table>
+                                        <tr>
+                                            <td>
+                                                <span class="span_classname">@CLASSNAME@&nbsp;<img src="resources/copy.png" width=16 height=16 title="Copy to Clipboard" alt="Copy to Clipboard" onclick="copyToClipboard('@PACKAGENAME@.@CLASSNAME@');"></span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <span class="span_parentclass">Parent classes:</span>   
+                                </td>
+                                <td class="span_parentclass">
+                                    @PARENTCLASSES@
+                                </td>
+                            </tr>
+                            @INHERITSTAGOPEN@
+                            <tr>
+                                <td>
+                                    <span class="span_inherits">Inherits:</span>
+                                </td>
+                                <td class="unit_inherits">
+                                    <span class="span_inherits">@INHERITS@</span>
+                                </td>
+                            </tr>
+                            @INHERITSTAGCLOSE@
+                            @INTERFACECOMMENTTAGOPEN@
+                            <tr>
+                                <td>
+                                    <span class="span_implements">Implements:</span> 
+                                </td>
+                                <td class="unit_interface">
+                                    <span class="span_implements">@INTERFACELINKS@</span> 
+                                </td>
+                            </tr>
+                            @INTERFACECOMMENTTAGCLOSE@
+                            <tr>
+                                <td>
+                                    <span class="span_inherits">@UNITFINAL@</span>
+                                </td>
+                                <td>
+                                </td>
+                            </tr>
+                            @INHERITSFROMMEOPEN@
+                            <tr>
+                                <td>
+                                    <span class="span_implements">Inherited by:</span>
+                                </td>
+                                <td>
+                                    
+                                    <span class="span_inherits">@INHERITSFROMME@</span>
+                                </td>
+                            </tr>
+                            @INHERITSFROMMECLOSE@
+                            <tr>
+                                <td>
+                                    <span class="span_inherits">@UNITABSTRACT@</span>
+                                </td>
+                                <td>
+                                </td>
+                            </tr>
+                            @IMPLEMENTSFROMMEOPEN@
+                            <tr>
+                                <td>
+                                    <span class="span_implements">Implemented by:</span>
+                                </td>
+                                <td>
+                                    <span class="span_inherits">@IMPLEMENTSFROMME@</span>
+                                </td>
+                            </tr>
+                            @IMPLEMENTSFROMMECLOSE@
+                        </tbody>
+                    </table>
+                	<br>
+                	<span class="unit_comment">
+                	@UNITHEADER@
+                	</span>
+                	<br>
+                </div>
+            </td>
+            <td>
+            <!-- place holder -->
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    
+    <p class="span_quicklinks">Navigate to: 
+        <a href="#methods">Methods</a> |
+        <a href="#constructors">Constructors</a> |
+        <a href="#events">Events</a> |
+        <a href="#properties">Properties</a>
+        </p>
+
+    @METHODCOMMENTTAGOPEN@
+    <br>
+    <br>
+    <div class="TableHeadingColor">
+        <span class="span_toplink"><a href="#top">Top</a></span>
+        <span id="method_summary" class="expand_arrow expandButtonShow HeightFixIE">
+        </span>
+        <span>
+            <font size="+2">
+                <b><a name="methods">Method Summary</a></b>
+            </font>
+        </span>
+    </div>
+    <table border="0" class="table_content table_content_summary method_summary">
+        <tbody>
+            <tr class="TableSubHeadingColor">
+                <th align="left"></th>
+                <th align="left">Options</th>
+                <th align="left">Name</th>
+                <th align="left">Purpose</th>
+            </tr>
+            @OVERVIEWMETHODS@    
+        </tbody>
+    </table>
+    @METHODCOMMENTTAGCLOSE@
+    @CONSTRUCTORCOMMENTTAGOPEN@
+    <br>
+    <div class="TableHeadingColor">
+        <span class="span_toplink"><a href="#top">Top</a></span>
+        <span id="constructor_summary" class="expand_arrow expandButtonShow HeightFixIE">
+        </span>
+        <span>
+            <font size="+2">
+                <b><a name="constructors">Constructor Summary</a></b>
+            </font>
+        </span>
+    </div>
+    <table border="0" class="table_content table_content_summary constructor_summary">
+        <tbody>
+            <tr class="TableSubHeadingColor">
+                <th align="left"></th>
+                <th align="left">Options</th>
+                <th align="left">Name</th>
+                <th align="left">Purpose</th>
+            </tr>
+            @OVERVIEWCONSTRUCTORS@    
+        </tbody>
+    </table>
+    @CONSTRUCTORCOMMENTTAGCLOSE@
+    @EVENTCOMMENTTAGOPEN@
+    <br>
+    <div class="TableHeadingColor">
+        <span class="span_toplink"><a href="#top">Top</a></span>
+        <span id="event_summary" class="expand_arrow expandButtonShow HeightFixIE">
+        </span>
+        <span>
+            <font size="+2">
+                <b><a name="events">Event Summary</a></b>
+            </font>
+        </span>
+    </div>
+    <table border="0" class="table_content table_content_summary event_summary">
+        <tbody>
+            <tr class="TableSubHeadingColor">
+                <th align="left"></th>
+                <th align="left">Options</th>
+                <th align="left">Name</th>
+                <th align="left">Purpose</th>
+            </tr>
+            @OVERVIEWEVENTS@    
+        </tbody>
+    </table>
+    @EVENTCOMMENTTAGCLOSE@
+    @PROPERTYCOMMENTTAGOPEN@
+    <br>
+    <div class="TableHeadingColor">
+        <span class="span_toplink"><a href="#top">Top</a></span>
+        <span id="property_summary" class="expand_arrow expandButtonShow HeightFixIE">
+        </span>
+        <span>
+            <font size="+2">
+                <b><a name="properties">Property Summary</a></b>
+            </font>
+        </span>
+    </div>
+    <table border="0" class="table_content table_content_summary property_summary">
+        <tbody>
+            <tr class="TableSubHeadingColor">
+                <th align="left"></th>
+                <th align="left">Options</th>
+                <th align="left">Name</th>
+                <th align="left">Purpose</th>
+            </tr>
+            @OVERVIEWPROPERTIES@    
+        </tbody>
+    </table>
+    @PROPERTYCOMMENTTAGCLOSE@
+    @ENUMMEMBERCOMMENTTAGOPEN@
+    <br>
+    <div class="TableHeadingColor">
+        <span class="span_toplink"><a href="#top">Top</a></span>
+        <span id="property_summary" class="expand_arrow expandButtonShow HeightFixIE">
+        </span>
+        <span>
+            <font size="+2">
+                <b><a name="properties">Enum Member Summary</a></b>
+            </font>
+        </span>
+    </div>
+    <table border="0" class="table_content table_content_summary enum_summary">
+        <tbody>
+            <tr class="TableSubHeadingColor">
+                <th align="left"></th>
+                <th align="left"></th>
+                <th align="left">Name</th>
+                <th align="left">Purpose</th>
+            </tr>
+            @OVERVIEWENUMMEMBERS@   
+        </tbody>
+    </table>
+    @ENUMMEMBERCOMMENTTAGCLOSE@    
+    <br>
+    <br>
+    @DETAILMETHODCOMMENTTAGOPEN@
+    <div class="TableHeadingColor cell">
+        <span id="method_detail" class="expand_arrow expandButtonShow HeightFixIE">
+        </span>
+        <span>
+            <font size="+2">
+                <b>Method Detail</b>
+            </font>
+        </span>
+    </div>
+    <table border="0" class="table_content table_content_details method_detail">
+        <tbody>
+            @DETAILMETHODS@
+        </tbody>
+    </table>
+    <br>
+    <br>
+    @DETAILMETHODCOMMENTTAGCLOSE@
+    @DETAILCONSTRUCTORCOMMENTTAGOPEN@
+    <div class="TableHeadingColor cell">
+        <span id="constructor_detail" class="expand_arrow expandButtonShow HeightFixIE">
+        </span>
+        <span>
+            <font size="+2">
+                <b>Constructor Detail</b>
+            </font>
+        </span>
+    </div>
+    <table border="0" class="table_content table_content_details constructor_detail">
+        <tbody>
+            @DETAILCONSTRUCTORS@
+        </tbody>
+    </table>
+    <br>
+    <br>
+    @DETAILCONSTRUCTORCOMMENTTAGCLOSE@
+    @DETAILEVENTCOMMENTTAGOPEN@
+    <div class="TableHeadingColor cell">
+        <span id="event_detail" class="expand_arrow expandButtonShow HeightFixIE">
+        </span>
+        <span>
+            <font size="+2">
+                <b>Event Detail</b>
+            </font>
+        </span>
+    </div>
+    <table border="0" class="table_content table_content_details event_detail">
+        <tbody>
+            @DETAILEVENTS@
+        </tbody>
+    </table>
+    <br>
+    <br>
+    @DETAILEVENTCOMMENTTAGCLOSE@
+    @DETAILPROPERTYCOMMENTTAGOPEN@
+    <div class="TableHeadingColor cell">
+        <span id="property_detail" class="expand_arrow table_content_details expandButtonShow HeightFixIE">
+        </span>
+        <span>
+            <font size="+2">
+                <b>Property Detail</b>
+            </font>
+        </span>
+    </div>
+    <table border="0" class="table_content property_detail">
+        <tbody>
+            @DETAILPROPERTIES@
+        </tbody>
+    </table>
+    <br>
+    <br>
+    @DETAILPROPERTYCOMMENTTAGCLOSE@
+    
+    <font class="footer">&copy;2006-2016 Consultingwerk Ltd.</font>
+	&nbsp; &nbsp; &nbsp; &nbsp; 
+	<a href="mailto:info@consultingwerk.de" class="footer_link">info@consultingwerk.de</a>
+	&nbsp;
+	<font color="#B8B088"> &nbsp; &nbsp; &nbsp; <a href="http://www.consultingwerk.de" class="footer_link" target="blank">http://www.consultingwerk.de &nbsp; &nbsp;</a></font>
+    &nbsp;
+    <font class="footer_timestamp">@TIMESTAMP@</font>
+    </BODY>
+</HTML>

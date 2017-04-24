@@ -1,0 +1,107 @@
+{
+  "defaultMapping": {
+    "string": "Text",
+    "number": "Number",
+    "integer": "Integer",
+    "date": "Date",
+    "date-time": "Datetime"
+  },
+  "semanticTypes": {
+    "Internal": {
+      "editor": {
+        "default": null,
+        "compatibleTypes": []
+      }
+    },
+    "Text": {
+      "editor": {
+        "default": "text-input",
+        "compatibleTypes": ["plain-text"]
+      }
+    },
+    "RichText": {
+      "editor": {
+        "default": "editor",
+        "compatibleTypes": ["plain-text", "text-input"]
+      }
+    },
+    "Integer": {
+      "editor": {
+        "default": "integer-input",
+        "compatibleTypes": ["plain-text", "text-input", "numeric-slider"]
+      }
+    },
+    "Number": {
+      "editor": {
+        "default": "numeric-input",
+        "compatibleTypes": ["plain-text", "text-input", "numeric-slider"]
+      }
+    },
+    "Boolean": {
+      "editor": {
+        "default": "check-box",
+        "compatibleTypes": ["bool-radio-set"]
+      }
+    },
+    "Date": {
+      "editor": {
+        "default": "date-input",
+        "compatibleTypes": ["plain-text", "text-input", "calendar"]
+      }
+    },
+    "Datetime": {
+      "editor": {
+        "default": "date-time-input",
+        "compatibleTypes": ["plain-text", "text-input", "calendar"]
+      }
+    },
+    "Currency": {
+      "editor": {
+        "default": "currency-input",
+        "compatibleTypes": ["plain-text", "text-input", "numeric-slider"]
+      }
+    },
+    "Email": {
+      "editor": {
+        "default": "email-input",
+        "compatibleTypes": ["plain-text", "text-input"]
+      }
+    },
+    "PhoneNumber": {
+      "editor": {
+        "default": "phone-number-input",
+        "compatibleTypes": ["plain-text", "text-input"]
+      }
+    },
+    "URL": {
+      "editor": {
+        "default": "url-input",
+        "compatibleTypes": ["plain-text", "text-input"]
+      }
+    },
+    "Password": {
+      "editor": {
+        "default": "password-input",
+        "compatibleTypes": ["plain-text", "text-input"]
+      }
+    },
+    "Photo": {
+      "editor": {
+        "default": "upload",
+        "compatibleTypes": ["plain-text", "text-input"]
+      }
+    },
+    "Percent": {
+      "editor": {
+        "default": "percent-input",
+        "compatibleTypes": ["plain-text", "text-input", "numeric-slider"]
+      }
+    },
+    "PercentValue": {
+      "editor": {
+        "default": "percent-value-input",
+        "compatibleTypes": ["plain-text", "text-input", "numeric-slider"]
+      }
+    }
+  }
+}

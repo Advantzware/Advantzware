@@ -1,0 +1,19 @@
+FOR EACH notes NO-LOCK WHERE notes.rec_key EQ ip-rec_key AND notes.note_type EQ "S"
+note_code,note_date,note_title
+
+Indexed: note_date,note_title
+Non-Idx: note_code,notetime,user_id
+
+Generated 04.18.2017 @ 10:52:05 pm by: nosweat
+Table: notes - Records: 247,835
+
+    Index: pi-notes
+         Field: rec_key
+         Field: note_date
+         Field: note_time
+
+    Index: si-notes-title
+         Field: note_title
+
+    Index: wi-note_text
+         Field: note_text

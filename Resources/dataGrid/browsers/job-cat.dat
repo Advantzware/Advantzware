@@ -1,0 +1,20 @@
+FOR EACH job-cat NO-LOCK
+cat,dscr
+
+Indexed: cat,dscr
+Non-Idx: ?
+
+Generated 04.18.2017 @  2:49:09 am by: nosweat
+Table: job-cat - Records: 4
+
+    Index: dscr
+         Field: dscr
+
+    Index: job-cat
+         Field: cat
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-dscr
+         Field: dscr

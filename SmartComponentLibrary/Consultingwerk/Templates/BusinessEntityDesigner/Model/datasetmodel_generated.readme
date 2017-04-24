@@ -1,0 +1,11 @@
+&1      model class name
+&2      package name
+&3      dataset name
+&4      constuctor source code
+&5      table model properties code block
+&6      business entity package
+&7      business entity name
+&8      dataset path 
+&9	proxy methods to Invokable Methods
+@USER@  the current user name
+@DATE@  time stamp

@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsAttachment" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartAttachment" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartAttachmentBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="AttachmentGUID" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="TableGUID" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="RecordKeyValue" type="xsd:string" nillable="true" prodata:format="x(80)"/>
+              <xsd:element name="AttachmentRoleGUID" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="CommentRoleGUID" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="AttachmentName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Name"/>
+              <xsd:element name="AttachmentFolder" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Folder"/>
+              <xsd:element name="LanguageGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="AttachmentData" type="xsd:base64Binary" nillable="true" prodata:dataType="prodata:blob"/>
+              <xsd:element name="AttachmentThumbnail" type="xsd:base64Binary" nillable="true" prodata:dataType="prodata:blob"/>
+              <xsd:element name="CommentData" type="xsd:string" nillable="true" prodata:dataType="prodata:clob"/>
+              <xsd:element name="AttachmentRoleName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Attachment Role"/>
+              <xsd:element name="AttachmentSize" type="xsd:long" nillable="true" prodata:label="Attachment Size"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="AttachmentName" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartAttachment"/>
+      <xsd:field xpath="TableGUID"/>
+      <xsd:field xpath="RecordKeyValue"/>
+      <xsd:field xpath="AttachmentFolder"/>
+      <xsd:field xpath="AttachmentName"/>
+    </xsd:unique>
+    <xsd:unique name="AtttachmentGUID">
+      <xsd:selector xpath=".//eSmartAttachment"/>
+      <xsd:field xpath="AttachmentGUID"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="AttachmentRole">
+        <prodata:table name="eSmartAttachment"/>
+        <prodata:field name="TableGUID"/>
+        <prodata:field name="RecordKeyValue"/>
+        <prodata:field name="AttachmentRoleGUID"/>
+        <prodata:field name="LanguageGuid"/>
+      </prodata:index>
+      <prodata:index name="CommentGUID">
+        <prodata:table name="eSmartAttachment"/>
+        <prodata:field name="TableGUID"/>
+        <prodata:field name="RecordKeyValue"/>
+        <prodata:field name="CommentRoleGUID"/>
+        <prodata:field name="LanguageGuid"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

@@ -1,0 +1,272 @@
+# protools/abhack/customTabCompletion.txt is a list of custom aliases to use with ABHack
+#
+################ SIGNIFICANT CHANGE ON 24-MAR-2007: ##############################################################
+# PLEASE NOW USE THE protools/abhack/customTabCompletion.ofMine.txt FILE TO DEFINE YOUR OWN CUSTOM ALIASES       #
+# AS I MAY UPDATE protools/abhack/customTabCompletion.txt IN FUTURE RELEASE TO SUGGEST NEW ALIASES TO EVERYONE   #
+##################################################################################################################
+# 
+# By using the new protools/abhack/customTabCompletion.ofMine.txt file, you no longer need to
+# make a backup of your aliases before applying an new release.
+#
+###################################################################################
+# NEW ON 21-JUN-2007 : Implemented the ability to define a new custom list of words
+# IN protools/abhack/customTabCompletion.ofMine.txt to abort the completion process.  
+# => Note I believe this one has been asked around for a long time.  
+# Suppose you define a class package called 'core' and that you have a table name
+# 'coreBladiBla'.  Each time you type 'core' then an unwanted 'coreBladibla' popups
+# up.  I first thought about implementing a simple list of words that would be profiled 
+# per user, but a lead architect might want to define a list of words for all
+# developpers on site, so I implemented a new '@abortCompletionProcess@'
+# directive for the protools/abhack/customTabCompletion.ofMine.txt file.  Any expression
+# defined with this directive will make abhack aware you want to ABORT the completion
+# process for this word.
+###################################################################################
+#
+#
+# Do not forget to put a carriage return at the end of the file
+# Lines that begins with '#' are ignored
+# This file is reloaded each time you recheck the "&Custom completion" toggle-box
+# One can define aliases for the matches operator
+# ~n          => insert carriage return
+# %\d         => date in your *own* format (European, or American) => better than with VSlick
+# %\c         => put the cursor there  /* 18-DEC-2006 sla: Improvement: %\c now work for aliases that insert multiple lines */
+# %\(         => insert a '(' in such a way it can guess where to put the matching ')'
+# %\wBuffer   => replaced by the next chosen buffer in a popup list  /* 17-FEB-2007 sla: new buffer directive */
+# %\userName  => replaced by OS-GETENV("userName")
+# %\fileName  => replaced the current source file name
+# %\codeblock => replaced by the name of the current internal procedure, function or trigger (or filename as last resort)
+# %\year      => replaced by the four-digit year number
+#
+# 07-AUG-2007 sla: new ability to define large text aliases, see the large text section at the bottom of this file
+#
+# this one is great to hack things
+seeh DEFINE VARIABLE hhack AS HANDLE      NO-UNDO.~nhhack = WIDGET-HANDLE("%\c").~nMESSAGE hhack:~n  VIEW-AS ALERT-BOX INFO BUTTONS OK.
+#
+# a few advantages of redefining this alias:
+# 1) it becomes easier to insert it after something (most people ignore they can push a native vslick alias with Ctrl-Space)
+# 2) some people still ignore it exists
+mes MESSAGE %\c~n    VIEW-AS ALERT-BOX INFO BUTTONS OK.
+
+# SIMPLE variables
+dpp DEFINE PROPERTY %\c AS CHARACTER NO-UNDO~n    PUBLIC GET.~n    PROTECTED SET (pc AS CHARACTER):~n    END SET.
+dvv DEFINE VARIABLE %\c AS   NO-UNDO.
+dvi DEFINE VARIABLE %\c AS INTEGER     NO-UNDO.
+dv6 DEFINE VARIABLE %\c AS INT64       NO-UNDO.
+dvc DEFINE VARIABLE %\c AS CHARACTER   NO-UNDO.
+dvh DEFINE VARIABLE %\c AS HANDLE      NO-UNDO.
+dvl DEFINE VARIABLE %\c AS LOGICAL     NO-UNDO.
+dvs DEFINE VARIABLE %\c AS CLASS       NO-UNDO.
+dvde DEFINE VARIABLE %\c AS DECIMAL     NO-UNDO.
+dvda DEFINE VARIABLE %\c AS DATE        NO-UNDO.
+dvdt DEFINE VARIABLE %\c AS DATETIME    NO-UNDO.
+dvdz DEFINE VARIABLE %\c AS DATETIME-TZ NO-UNDO.
+# PRIVATE guys
+idpp DEFINE PRIVATE PROPERTY %\c AS CHARACTER NO-UNDO~n    GET.~n    SET (pc AS CHARACTER):~n    END SET.
+idvv DEFINE PRIVATE VARIABLE %\c AS   NO-UNDO.
+idvi DEFINE PRIVATE VARIABLE %\c AS INTEGER     NO-UNDO.
+idv6 DEFINE PRIVATE VARIABLE %\c AS INT64       NO-UNDO.
+idvc DEFINE PRIVATE VARIABLE %\c AS CHARACTER   NO-UNDO.
+idvh DEFINE PRIVATE VARIABLE %\c AS HANDLE      NO-UNDO.
+idvl DEFINE PRIVATE VARIABLE %\c AS LOGICAL     NO-UNDO.
+idvs DEFINE PRIVATE VARIABLE %\c AS CLASS       NO-UNDO.
+idvde DEFINE PRIVATE VARIABLE %\c AS DECIMAL     NO-UNDO.
+idvda DEFINE PRIVATE VARIABLE %\c AS DATE        NO-UNDO.
+idvdt DEFINE PRIVATE VARIABLE %\c AS DATETIME    NO-UNDO.
+idvdz DEFINE PRIVATE VARIABLE %\c AS DATETIME-TZ NO-UNDO.
+# PROTECTED guys
+odpp DEFINE PROTECTED PROPERTY %\c AS CHARACTER NO-UNDO~n    GET.~n    PRIVATE SET (pc AS CHARACTER):~n    END SET.
+odvv DEFINE PROTECTED VARIABLE %\c AS   NO-UNDO.
+odvi DEFINE PROTECTED VARIABLE %\c AS INTEGER     NO-UNDO.
+odv6 DEFINE PROTECTED VARIABLE %\c AS INT64       NO-UNDO.
+odvc DEFINE PROTECTED VARIABLE %\c AS CHARACTER   NO-UNDO.
+odvh DEFINE PROTECTED VARIABLE %\c AS HANDLE      NO-UNDO.
+odvl DEFINE PROTECTED VARIABLE %\c AS LOGICAL     NO-UNDO.
+odvs DEFINE PROTECTED VARIABLE %\c AS CLASS       NO-UNDO.
+odvde DEFINE PROTECTED VARIABLE %\c AS DECIMAL     NO-UNDO.
+odvda DEFINE PROTECTED VARIABLE %\c AS DATE        NO-UNDO.
+odvdt DEFINE PROTECTED VARIABLE %\c AS DATETIME    NO-UNDO.
+odvdz DEFINE PROTECTED VARIABLE %\c AS DATETIME-TZ NO-UNDO.
+# PUBLIC guys
+udpp DEFINE PUBLIC PROPERTY %\c AS CHARACTER NO-UNDO~n    PUBLIC GET.~n    PROTECTED SET (pc AS CHARACTER):~n    END SET.
+udvv DEFINE PUBLIC VARIABLE %\c AS   NO-UNDO.
+udvi DEFINE PUBLIC VARIABLE %\c AS INTEGER     NO-UNDO.
+udv6 DEFINE PUBLIC VARIABLE %\c AS INT64       NO-UNDO.
+udvc DEFINE PUBLIC VARIABLE %\c AS CHARACTER   NO-UNDO.
+udvh DEFINE PUBLIC VARIABLE %\c AS HANDLE      NO-UNDO.
+udvl DEFINE PUBLIC VARIABLE %\c AS LOGICAL     NO-UNDO.
+udvs DEFINE PUBLIC VARIABLE %\c AS CLASS       NO-UNDO.
+udvde DEFINE PUBLIC VARIABLE %\c AS DECIMAL     NO-UNDO.
+udvda DEFINE PUBLIC VARIABLE %\c AS DATE        NO-UNDO.
+udvdt DEFINE PUBLIC VARIABLE %\c AS DATETIME    NO-UNDO.
+udvdz DEFINE PUBLIC VARIABLE %\c AS DATETIME-TZ NO-UNDO.
+# A4GBL aliases
+Targp TARGET-PROCEDURE
+thisp THIS-PROCEDURE
+thos THIS-OBJECT
+thiso THIS-OBJECT
+UNFOR* UNFORMATTED 
+{&Se {&SELF-NAME}
+{&br {&BROWSE-NAME}
+{&fr {&FRAME-NAME}
+{&wi {&WINDOW-NAME}
+&Se {&SELF-NAME}
+&br {&BROWSE-NAME}
+&fr {&FRAME-NAME}
+&wi {&WINDOW-NAME}
+AVAIL AVAILABLE 
+fifav FIND FIRST %\c NO-LOCK WHERE .~nIF AVAILABLE %\wBuffer THEN
+fifna FIND FIRST %\c NO-LOCK WHERE .~nIF NOT AVAILABLE %\wBuffer THEN
+fifnb FIND FIRST %\c NO-LOCK WHERE .~nIF NOT AVAILABLE %\wBuffer THEN DO:~n    CREATE %\wBuffer.~n    BUFFER-COPY  TO %\wBuffer.~nEND.
+fifnc FIND FIRST %\c NO-LOCK WHERE .~nIF NOT AVAILABLE %\wBuffer THEN DO:~n    CREATE %\wBuffer.~n    ASSIGN %\wBuffer = .~nEND.
+fifdo FIND FIRST %\c NO-LOCK WHERE .~nIF NOT AVAILABLE %\wBuffer THEN DO:~n    ~nEND.
+ifav IF AVAILABLE %\c THEN
+ifna IF NOT AVAILABLE %\c THEN
+ifnb IF NOT AVAILABLE %\c THEN DO:~n    CREATE %\wBuffer.~n    BUFFER-COPY  TO %\wBuffer.~nEND.
+ifnc IF NOT AVAILABLE %\c THEN DO:~n    CREATE %\wBuffer.~n    ASSIGN %\wBuffer = .~nEND.
+ifnd IF NOT AVAILABLE %\c THEN DO:~n    ~nEND.
+ifdo IF AVAILABLE %\c THEN DO:~n    ~nEND.
+BUFFER-F BUFFER-FIELD(%\c)
+BUFFER-F BUFFER-FIELD(%\c):BUFFER-VALUE
+CHAR CHARACTER
+INT INTEGER
+IN6 INT64
+INT INTEGER%\(
+DEC DECIMAL
+DEC DECIMAL%\(
+DESC DESCENDING
+LOG LOGICAL
+LOG LOGICAL%\(
+CAN-F CAN-FIND(
+dds DEFINE DATASET %\c FOR ~n DATA-RELATION
+dss DEFINE DATA-SOURCE %\c FOR
+dqq DEFINE QUERY q%\c FOR 
+DEF DEFINE 
+doiet DO iEntry = 1 TO NUM-ENTRIES(%\c):~n    ~nEND.
+ffm FRAME fMain
+ffx FIND FIRST %\c EXCLUSIVE-LOCK WHERE 
+ffn FIND FIRST %\c NO-LOCK WHERE 
+fif FIND FIRST 
+foe FOR EACH %\c ~nEND.
+fon FOR EACH %\c NO-LOCK WHERE ~nEND.
+fox FOR EACH %\c EXCLUSIVE-LOCK WHERE ~nEND.
+fxl FIND FIRST %\c WHERE  EXCLUSIVE-LOCK
+fnl FIND FIRST %\c WHERE  NO-LOCK 
+fre FOR EACH %\c WHERE  EXCLUSIVE-LOCK ~nEND.
+frn FOR EACH %\c WHERE  NO-LOCK ~nEND.
+FILE- FILE-INFO:FILE-NAME
+FILE- FILE-INFO:FULL-PATHNAME
+FONT- FONT-TABLE
+FRA FRAME
+FRA FRAME {&FRAME-NAME}
+FORMA FORMAT "X(%\c)"
+FUNC FUNCTION %\c RETURNS ( ):    ~n~nEND FUNCTION.
+PROCE PROCEDURE %\c:    ~n~nEND PROCEDURE.
+EMPT EMPTY TEMP-TABLE %\c.
+EXCL EXCLUSIVE-LOCK 
+LEFT- LEFT-TRIM%\(
+CONSTR CONSTRUCTOR PUBLIC %\c ():~n    ~nEND CONSTRUCTOR.
+DESTR DESTRUCTOR PUBLIC %\c ():~n    ~nEND DESTRUCTOR.
+method METHOD PRIVATE VOID %\c ():~n    ~nEND METHOD.
+method METHOD PROTECTED VOID %\c ():~n    ~nEND METHOD.
+method METHOD PUBLIC VOID %\c ():~n    ~nEND METHOD.
+NUM-E NUM-ENTRIES%\(
+NUMen NUM-ENTRIES%\(
+ner NO-ERROR
+PARA PARAMETER 
+PARAM PARAMETER 
+PERS PERSISTENT 
+QUOT QUOTER%\(
+REPL REPLACE%\(
+REPLA REPLACE%\(
+REPLAC REPLACE%\(
+RETURN-V RETURN-VALUE
+RETURNV RETURN-VALUE
+rtn RETURN-VALUE
+RIGHT- RIGHT-TRIM%\(
+SOURCE-* SOURCE-PROCEDURE
+SUBSTI SUBSTITUTE%\(
+SUBSTR SUBSTRING%\(
+STR STRING%\(
+TRI TRIM%\(
+VALI* VALID-HANDLE%\(
+VALO* VALID-OBJECT%\(
+VAR VARIABLE 
+WIDGET- WIDGET-HANDLE%\(
+Wgh* WIDGET-HANDLE%\(
+WIDGET-P WIDGET-POOL
+WIDGETP WIDGET-POOL
+WGP WIDGET-POOL
+RUN RUN IN 
+RUN RUN %\c IN TARGET-PROCEDURE.
+RUN RUN %\c.p
+RUN RUN %\c.w
+dpb DEFINE PARAMETER BUFFER %\wBuffer FOR %\c.
+dbf DEFINE BUFFER %\wBuffer FOR %\c.
+dtt DEFINE TEMP-TABLE %\c NO-UNDO LABEL ""~n FIELD  AS .
+err ERROR-STATUS:ERROR
+dynl* {dynlaunch.i~n  &PLIP  = '%\c.p'~n  &IProc = ''~n  &mode1 = INPUT  &parm1 = ''   &dataType1 = CHARACTER ~n  &mode2 = INPUT  &parm2 = ''   &dataType2 = INTEGER}
+dynl* {dynlaunch.i &define-only=YES}
+launch {launch.i~n  &PLIP  = '%\c.p'~n  &IProc = ''~n  &PList = "( )"~n  &autokill = NO}
+dyn DYNAMIC-FUNCTION('%\c')
+dyni DYNAMIC-FUNCTION('' IN %\c)
+dynt DYNAMIC-FUNCTION('%\c' IN TARGET-PROCEDURE)
+globa {adm2/globals.i}
+#
+# ADM2/Dynamics API's
+assignW* assignWidgetValue(%\c, )
+assignW* assignWidgetValueList(%\c, , )
+blankW* blankWidget(%\c)
+clearW* clearWidget(%\c)
+disableW* disableWidget(%\c)
+enableW* enableWidget(%\c)
+formattedW* formattedWidgetValue(%\c)
+hideW* hideWidget(%\c)
+highlightW* highlightWidget(%\c)
+toggleW* toggleWidget(%\c)
+viewW* viewWidget(%\c)
+widgetH* widgetHandle(\%c)
+widgetV* widgetValue(%\c)
+widgetVL* widgetValueList(%\c, )
+rowo rowObject
+rowu rowObjUpd
+aferr {aferrortxt.i 'AD' '%\c' '' '' }
+#
+#
+lirtn {&libReturnValueAndStack}
+#
+# you might want to define a similar alias with your own name in protools/abhack/customTabCompletion.ofMine.txt in order to insert dated comments quickly
+sla /* %\d sla: %\c */
+#
+#
+# Large text section
+# Syntax is:
+# <LargeText [TextAlias]  [optional comment]>
+# [text line 1]
+# [text line 2]
+# [text line 3]  ...
+# </LargeText [TextAlias] [optional comment]>
+<LargeText StdH* StandardHeader>
+/*------------------------------------------------------------------------------
+  Name      : %\codeblock
+  Purpose   : %\c
+  Author    : %\userName   %\d
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+</LargeText StdH* StandardHeader>
+<LargeText StdF* StandardFileHeader>
+/*------------------------------------------------------------------------------
+         %\fileName   %\d  by %\userName   
+  Purpose: %\c
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+</LargeText StdF* StandardFileHeader>
+# 
+plc Progress.Lang.Class
+plo Progress.Lang.Object
+plp Progress.Lang.ProError
+ple Progress.Lang.Error
+pla Progress.Lang.AppError
+pls Progress.Lang.SysError  
+plf Progress.Lang.SoapFaultError

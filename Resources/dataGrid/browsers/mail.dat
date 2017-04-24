@@ -1,0 +1,14 @@
+FOR EACH maillist NO-LOCK
+list-name,list-no
+
+Indexed: list-no
+Non-Idx: active,list-date,list-name,purpose
+
+Generated 04.18.2017 @  6:34:34 am by: nosweat
+Table: maillist - Records: 0
+
+    Index: maillist
+         Field: list-no
+
+    Index: rec_key
+         Field: rec_key

@@ -1,0 +1,18 @@
+FOR EACH surcharge NO-LOCK WHERE surcharge.company EQ "%company%"
+charge,cust-no,dscr
+
+Indexed: charge,cust-no
+Non-Idx: amt,calc-on,dscr
+
+Generated 04.18.2017 @  1:16:45 am by: nosweat
+Table: surcharge - Records: 1
+
+    Index: cust-no
+         Field: company
+         Field: cust-no
+         Field: charge
+
+    Index: surcharge
+         Field: company
+         Field: charge
+         Field: cust-no

@@ -3,28 +3,28 @@
 &Scoped-define WINDOW-NAME MAINMENU
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS MAINMENU 
 /*------------------------------------------------------------------------
- 
+
   File:              addmain.w
- 
+
   Description:       Main Menu
- 
+
   Input Parameters:  <none>
- 
+
   Output Parameters: <none>
- 
+
   Author:            Ron Stark
- 
+
   Created:           01/25/98 -  12:36 am
                      03/25/16 - WFK - Merged changes to color, version
- 
+
 --------------------------------------------------------------------*/
- 
+
 /* Create an unnamed pool to store all the widgets created 
      by this procedure. This is a good default which assures
      that this procedure's triggers and internal procedures 
      will execute in this procedure's storage, and that proper
      cleanup will occur on deletion of the procedure. */
- 
+
 CREATE WIDGET-POOL.
 
 /* *************************** Set Function ************************** */
@@ -32,13 +32,13 @@ CREATE WIDGET-POOL.
 ON F1 HELP.
 ON CTRL-F HELP.
 ON CTRL-P HELP.
- 
+
 /* ***************************  Definitions  ************************** */
- 
+
 /* Parameters Definitions ---                                           */
- 
+
 /* Local Variable Definitions ---                                       */
- 
+
 &Scoped-define start-button-col 2
 &Scoped-define start-button-row 3.5
 &Scoped-define button-height 1.1
@@ -207,13 +207,18 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT MAINMENU:LOAD-ICON("adeicon/progress.ico":U) THEN
-    MESSAGE "Unable to load icon: adeicon/progress.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
@@ -245,7 +250,7 @@ THEN MAINMENU:HIDDEN = no.
 */  /* FRAME FRAME-USER */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -280,15 +285,16 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
- 
+
 /* Set CURRENT-WINDOW: this will parent dialog-boxes and frames.        */
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
- 
+
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
+END.
 
 /* These events will close the window and terminate the procedure.      */
 /* (NOTE: this will override any user-defined triggers previously       */
@@ -309,7 +315,7 @@ END.
 {sys/inc/f3helpm.i} /* ASI F3 key include */
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
- 
+
 /* Now enable the interface and wait for the exit condition.*/
 /* (NOTE: handle ERROR and END-KEY so cleanup code will always fire.    */
 MAIN-BLOCK:
@@ -434,7 +440,7 @@ PROCEDURE Mneumonic :
   ELSE
   bttn:LABEL = bttn:LABEL + ' **'.
 */
- 
+
 
   if bttn:label = "Exit" then bttn:label = "E&xit".
   else if button-col > 80 then do: /* third column */
@@ -459,7 +465,7 @@ PROCEDURE Read_Menus :
   DEFINE VARIABLE m AS CHARACTER EXTENT 2 NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   def var ls-menu-lst as cha no-undo.
-  
+
   FOR EACH ttbl EXCLUSIVE-LOCK:
     DELETE ttbl.
   END.
@@ -469,8 +475,8 @@ PROCEDURE Read_Menus :
 
   CREATE WIDGET-POOL "dyn-buttons" PERSISTENT.
   /* ============= dynamic menu for foldware/corrware ============*/
-  ls-menu-lst = "menu.lst".
- 
+  ls-menu-lst = "addon\menu.lst".
+
   find first sys-ctrl where sys-ctrl.company = g_company and
                             sys-ctrl.name = "cemenu"
                             no-lock no-error.
@@ -479,12 +485,12 @@ PROCEDURE Read_Menus :
      if sys-ctrl.char-fld = "Foldware" then ls-menu-lst = "menu.fol".
   end.
 
-  IF SEARCH(".\usermenu\" + USERID("NOSWEAT") + "\" + ls-menu-lst) <> ? THEN
-    ls-menu-lst = ".\usermenu\" + USERID("NOSWEAT") + "\" + ls-menu-lst.
+  IF SEARCH(".\usermenu\" + USERID(ldbname(1)) + "\" + ls-menu-lst) <> ? THEN
+    ls-menu-lst = ".\usermenu\" + USERID(ldbname(1)) + "\" + ls-menu-lst.
 
   /* ========== end of mods =========================*/  
-  
-  INPUT FROM /*'menu.lst'*/ value(ls-menu-lst) /* ysk */ NO-ECHO.
+
+  INPUT FROM /*'menu.lst'*/ value(search(ls-menu-lst)) /* ysk */ NO-ECHO.
   REPEAT:
     IMPORT m[1] m[2].
     IF CAN-DO('RULE,SKIP',m[1]) THEN

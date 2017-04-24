@@ -1,0 +1,20 @@
+FOR EACH company NO-LOCK
+company,name
+
+Indexed: company,name
+Non-Idx: fid,sid
+
+Generated 04.18.2017 @  2:35:05 am by: nosweat
+Table: company - Records: 3
+
+    Index: company
+         Field: company
+
+    Index: name
+         Field: name
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-name
+         Field: name

@@ -1,0 +1,527 @@
+/*global*/
+.show{
+    display: block;
+}
+
+.hidden{
+    display: none;
+}
+
+.iPad, .iPad select{
+    height: 18px !important;
+}
+
+img{
+    border : 0 none;
+}
+
+body{
+    margin: 0;
+}
+/* TasbarMenu */
+
+.TaskBarMenuContainer{
+    font-family: "Segoe UI light",Tahoma,Verdana,sans-serif;
+    width: 200px;
+    height: 23px;
+    float: right;
+    margin: 10px;
+    color: white;
+    border: thin solid #21374C;
+}
+
+.TaskBarMenuContainer span{
+    cursor: pointer;
+    position: relative;
+    left: 20px;
+    
+}
+
+.TaskBarMenuContainerHover{
+    border-color: #C0C1C9;
+    background: url("img/bgximgMenubar.png") repeat-x -100px -488px;
+}
+
+.TaskBarMenuLinks{
+    cursor: pointer;
+    top: -12px;
+    position: relative;
+    left: -119px;
+    width: 320px;
+    z-index: 100;
+}
+
+.TaskBarMenuLinks ul li{
+    font-family: "Segoe UI light",Tahoma,Verdana,sans-serif;
+    list-style-type: none;
+    margin-left: -40px;
+    background-color: white;
+    border-left: thin solid #C0C1C9;
+    border-right: thin solid #C0C1C9;
+    height:43px;
+    cursor:pointer;
+}
+
+.TaskBarMenuLinks ul li:hover{
+     background-color: #FFD86C;
+     border-top: thin solid #C2821B;
+     border-bottom: thin solid #C2821B;
+     border-color: #C2821B !important;
+}
+
+.TaskBarMenuLinks ul li a span div:first-child{
+    float:left;
+    border-right: thin solid #C0C1C9;
+    height:42px;
+    width:42px;
+}
+
+.TaskBarMenuLinks ul li a span div:first-child img{
+    border:0px;
+    float:right;
+}
+
+.TaskBarMenuLinks ul li:first-child{
+    border-top: thin solid #C0C1C9;
+}
+
+.TaskBarMenuLinks ul li a span div:last-child{
+    border-bottom: thin dashed #C0C1C9;
+    height:42px;
+    left: 42px;
+    position: relative;
+    width: 275px;
+}
+
+.TaskBarMenuLinks ul li a{
+  color:black;
+  text-decoration:none;
+  left: -20px;
+  position: relative;
+}
+
+.TaskBarMenuLinks ul li:last-child{
+    border-bottom: thin solid #C0C1C9;
+}
+
+/* SmartRibbonBar */
+
+.SmartRibbonInfo{
+    height: 43px;
+}
+
+.SmartRibbonBar a:link, .SmartRibbonBar a:focus, .SmartRibbonBar a:active{
+    text-decoration:none;
+}
+
+.SmartRibbonBar{
+    background-color: #21374C;
+}
+
+.SmartRibbonTabContainer{
+    position: relative;
+    bottom: -23px;
+}
+
+.SmartRibbonTabs, .SmartRibbonGroups{
+    list-style: none;
+    list-style-position: outside;
+    list-style-image: none;
+    padding: 0;
+    margin:  0;
+    font-family: "Segoe UI",Tahoma,Verdana,sans-serif;
+    font-size: 8pt;
+
+}
+
+.SmartRibbonTabs{
+    border-color: black;
+}
+
+.SmartRibbonGroup a:hover{
+    border-color: #C2821B !important;
+    background-color: #FFD86C;
+}
+
+.SmartRibbonTabs li{
+    background-color: #B3E9FD;
+    float: left;
+    border: 1px solid black;
+    border-width: 1px 1px 0 1px;
+    height: 21px;
+    margin: 0 3px;
+    
+}
+
+.SmartRibbonTabs li a{
+    padding: 0 1em;
+    color: black;
+    cursor: default;
+}
+
+.SmartRibbonGroups li{
+    float: left;
+    border: none;
+    display: inline;
+    margin:  0 0.2em;
+}
+
+.SmartRibbonTab_active{
+    background-color: white !important;
+    position: relative;
+    top: 1px;
+}
+
+.SmartRibbonGroup{
+    float: left;
+    border: 1px solid #BBB;
+    display: inline;
+    height: 90px;
+    border-width: 0 1px 0 0;
+    padding: 0 1em;
+    margin: 0px -10px 0px 0px;
+}
+
+.SmartRibbonGroupFooter{
+    display: block !important;
+    float: none !important;
+    text-align: center !important;
+    color: #5B626C !important;
+    margin: 75px 0.2em !important;
+    cursor: default;
+    list-style-type: none !important;
+}
+
+.SmartRibbonLinks{
+    background: white url("img/bgximg.png") repeat-x -0px -882px;
+    border: 1px solid black;
+    clear: both;
+    padding: 0;
+    height: 90px;
+}
+
+.SmartRibbonLinkLarge{
+    float: left;
+    padding: 0;
+    margin: 0;
+}
+
+.SmartRibbonLinkLarge span a{
+    padding: 2px 0px 2px;
+    border: 1px solid transparent;
+    height: 63px;
+    cursor: default;
+    float: left;
+}
+
+.SmartRibbonLinkLarge span a span{
+    display: block;
+    padding: 10px 1px 0px;
+    line-height: 1em !important;
+    text-align: center;
+    color: black;
+}
+
+.SmartRibbonLinkLarge span a span span{
+    display: inline-block;
+}
+
+.SmartRibbonLinkLarge span a span img{
+    width: 32px;
+    height: 32px;
+    display: inline;
+    border: none;
+}
+
+.SmartRibbonLinkNormal{
+    display: block !important;
+    float: none !important;
+    
+    /*Browse-Hack für IE7 Darstellung*/
+    margin: 5px 5px 0px 5px !important;
+    /* *+margin: -10px 5px 0px 5px !important;*/
+    
+    list-style-type: none !important;
+}
+
+.SmartRibbonLinksNormal{
+    padding: 0 1.5em;
+    margin: 0px 0px 0px 0px;
+}
+
+.SmartRibbonLinkNormal span{
+    height: 16px;
+    vertical-align: top;
+}
+
+.SmartRibbonLinkNormal span a{
+    height: 16px;
+    color: black;
+    display: block;
+    cursor: default;
+    border: 1px solid transparent;
+}
+
+.SmartRibbonLinkNormal span a:hover{
+    border-color: #C2821B !important;
+    background-color: #FFD86C;
+}
+
+.SmartRibbonLinkNormal span a span img{
+    width: 16px;
+    height: 16px;
+    display: inline;
+    border: none;
+}
+
+.SmartRibbonLinkHover{
+    border-color: #C2821B !important;
+    background-color: #FFD86C;
+}
+
+/* SmartDataGrid */
+
+.even{
+    background-color: white;
+}
+
+.uneven{
+    background-color: #E9EEFF;
+}
+
+/* SmartDataViewer */
+
+.SmartDataViewer{
+    font-family: "Segoe UI",Tahoma,Verdana,sans-serif;
+    font-size: 14px;
+    position: relative;
+    border: 1px solid #7F9DB9;
+    background-color: #CEDCEC;
+}
+
+.SmartDataViewerTitle{
+    text-align: center;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    color: black;
+    font-weight: bold;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.SmartDataViewer label, 
+.SmartDataViewer input, 
+.SmartDataViewer textarea,
+.SmartDataViewer select,
+.SmartDataViewer img,
+.SmartDataViewer button{
+    position: absolute;
+}
+
+.SmartDataViewer input, 
+.SmartDataViewer textarea,
+.SmartDataViewer select,
+.SmartDataViewer img,
+.SmartDataViewer button{
+    border: 1px solid #7F9DB9;
+}
+.SmartDataViewer input:hover, .SmartDataViewer input:focus, 
+.SmartDataViewer textarea:hover, .SmartDataViewer textarea:focus,
+.SmartDataViewer select:hover, .SmartDataViewer select:focus,
+.SmartDataViewer img:hover, .SmartDataViewer img:focus,
+.SmartDataViewer button:hover, .SmartDataViewer button:focus{
+    border: 2px solid #FFD86C !important;
+}
+
+/* Messaging */
+.SmartDialog .Overlay{
+    background-color: #333335;
+    height: 100%;
+    width: 100%;
+    left: 0;
+    top: 0;
+    opacity: 0.5;
+    position: fixed;
+    z-index: 10;
+}
+
+.SmartDialog .Error{
+    position: absolute;
+    width:300px;
+    left: 50%;
+    top: 50%;
+    margin-left: -150px;
+    margin-top: -200px;
+    font-family: "Segoe UI",Tahoma,Verdana,sans-serif;
+    font-size: 14px;
+    z-index: 100;
+    border: 1px solid black;
+    background-color: white;
+}
+
+.SmartDialog .Error .Title{
+    position: relative;
+    padding: .4em 1em;
+    color:black;
+    cursor: move;
+    border-bottom: 1px solid black;
+    background: white url("img/browser_header.gif") repeat-x -0px -0px;
+    font-weight: bold;
+}
+
+.SmartDialog .Error .Buttons{
+    float: right;
+    margin-bottom: 5px;
+    margin-right: 5px;
+}
+
+.SmartDialog .Error .DetailButton{
+    float: left;
+    margin-left: 5px;
+}
+
+.SmartDialog .Error .Body{
+    position: relative;
+    padding: .4em 1em;
+    color: black;
+    margin-left: 46px
+}
+
+.SmartDialog .Error .StackTrace
+.SmartDialog .Error .Image
+{
+    position: relative;
+    padding: .4em 1em;
+    color: black;
+    float: left;
+}
+
+.SmartDialog .Error .Image{
+    float: left;
+    margin: 12px;
+}
+
+.SmartDialog .Error .StackTrace{
+    margin: 5px 5px 5px 5px;
+    border: 1px solid #BBB;
+}
+
+.SmartDialog .Error .StackTrace label{
+    font-weight: bold;
+}
+
+.thSmartGrid{
+    font-family: Tahoma;
+    font-size: 11px;
+    color: black;
+    text-align: left;
+    border: 1px solid #6D93E1;
+}
+
+.tdSmartGrid{
+    font-family: Tahoma;
+    font-size: 11px;
+    color: black;
+    text-align: left;
+
+}
+
+.thSmartGridDiv{
+    margin-top: 5px;
+    margin-left: 5px;
+    margin-bottom: 5px;
+    font-color: white;
+}
+
+.trSmartGridHeader{
+   background: -webkit-gradient( linear, left top, left bottom, color-stop(0.05, #091C99), color-stop(1, #17037F) );
+   background: -moz-linear-gradient( center top, #091C99 5%, #17037F 100% );   
+   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#091C99', endColorstr='#17037F');
+   background-color: #091C99;
+   color: #FFFFFF;
+   font-size: 15px;
+   font-weight: bold;
+   border-left: 1px solid #494FFC;
+}
+
+.SmartGridTitle{
+    text-align: center;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    color: black;
+    font-weight: bold;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.TableSmartGrid{
+    border-collapse: collapse;
+}
+
+.SmartGrid table { 
+    border-collapse: collapse; 
+    text-align: left; width: 100%; 
+} 
+
+.SmartGrid {
+    font: normal 12px/150% Arial,Helvetica, sans-serif;
+    background: #fff; 
+    overflow: hidden; 
+    border: 1px solid #006699; 
+    -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px;
+}
+
+.SmartGrid table td, .datagrid table th { 
+    padding: 3px 10px; 
+}
+
+.SmartGrid table thead th {
+    background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #006699), color-stop(1, #00557F) );
+    background:-moz-linear-gradient( center top, #006699 5%, #00557F 100% );
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#006699', endColorstr='#00557F');
+    background-color:#006699; 
+    color:#FFFFFF; 
+    font-size: 15px; 
+    font-weight: bold; 
+    border-left: 1px solid #0070A8;
+    padding-bottom: 5px;
+    padding-top: 5px; 
+} 
+
+.SmartGrid table thead th:first-child { 
+    border: none; 
+}
+
+.SmartGrid table tbody td { 
+    color: #00496B; border-left: 1px solid #E1EEF4;font-size: 12px;font-weight: normal; 
+}
+
+.SmartGrid table tbody .alt td { 
+    background: #E1EEF4; color: #00496B; 
+}
+
+.SmartGrid table tbody td:first-child { 
+    border-left: none; 
+}
+
+.SmartGrid table tbody tr:last-child td { 
+    border-bottom: 1px solid #E1EEF4; 
+}
+
+.TextContainer{
+    text-align: left;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    color: black;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.footer {
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    color: #225085;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: none;
+}

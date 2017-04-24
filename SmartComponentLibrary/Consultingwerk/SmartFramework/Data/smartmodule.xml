@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<dsModule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartModule>
+    <ModuleGuid>85cc3965-01d7-3e9f-d613-4fbc249410bf</ModuleGuid>
+    <ModuleName>WinKit Demo</ModuleName>
+    <ModuleDescription/>
+    <ProductGuid>90ce58db-ca1f-3288-e013-974a20f764f9</ProductGuid>
+    <ProductCode>Demo</ProductCode>
+    <ModuleDataFolder/>
+    <ModulePackage/>
+  </eSmartModule>
+  <eSmartModule>
+    <ModuleGuid>90423811-8c25-1589-e311-0e23615f0830</ModuleGuid>
+    <ModuleName>Consultingwerk Windows</ModuleName>
+    <ModuleDescription>Windows related functionality</ModuleDescription>
+    <ProductGuid>90ce58db-ca1f-3288-e013-974a6c73267f</ProductGuid>
+    <ProductCode>SmartFramework</ProductCode>
+    <ModuleDataFolder>Consultingwerk/Windows/Framework/Dump</ModuleDataFolder>
+    <ModulePackage/>
+  </eSmartModule>
+  <eSmartModule>
+    <ModuleGuid>a7d2db79-496b-1fa5-e211-953fc621b1d1</ModuleGuid>
+    <ModuleName>Consultingwerk SmartFramework</ModuleName>
+    <ModuleDescription>Maintenance Functions in the Consultingwerk SmartFramework</ModuleDescription>
+    <ProductGuid>90ce58db-ca1f-3288-e013-974a6c73267f</ProductGuid>
+    <ProductCode>SmartFramework</ProductCode>
+    <ModuleDataFolder>Consultingwerk/SmartFramework/Repository/Dump</ModuleDataFolder>
+    <ModulePackage/>
+  </eSmartModule>
+  <eSmartModule>
+    <ModuleGuid>c8f0d5f7-0bbb-0a82-0314-e87cfc88efdc</ModuleGuid>
+    <ModuleName>Web2 Demo</ModuleName>
+    <ModuleDescription/>
+    <ProductGuid>90ce58db-ca1f-3288-e013-974a20f764f9</ProductGuid>
+    <ProductCode>Demo</ProductCode>
+    <ModuleDataFolder>Consultingwerk/SmartComponentsDemo/Web2/Dump</ModuleDataFolder>
+    <ModulePackage/>
+  </eSmartModule>
+  <eSmartModule>
+    <ModuleGuid>d1ab93dd-33bb-5aaf-1d14-7ef1040644b6</ModuleGuid>
+    <ModuleName>Consultingwerk Standard Repository Objects</ModuleName>
+    <ModuleDescription>Standard Repository Objects.</ModuleDescription>
+    <ProductGuid>90ce58db-ca1f-3288-e013-974a6c73267f</ProductGuid>
+    <ProductCode>SmartFramework</ProductCode>
+    <ModuleDataFolder>Consultingwerk/SmartFramework/Repository/Dump/Standard</ModuleDataFolder>
+    <ModulePackage/>
+  </eSmartModule>
+  <eSmartModule>
+    <ModuleGuid>e1792278-88ef-bca2-1c14-9465e0624a21</ModuleGuid>
+    <ModuleName>Demo Data Fields</ModuleName>
+    <ModuleDescription>Data Fields for the Demo Business Entities</ModuleDescription>
+    <ProductGuid>90ce58db-ca1f-3288-e013-974a20f764f9</ProductGuid>
+    <ProductCode>Demo</ProductCode>
+    <ModuleDataFolder>Consultingwerk/SmartComponentsDemo/Dump/Fields</ModuleDataFolder>
+    <ModulePackage/>
+  </eSmartModule>
+  <eSmartModule>
+    <ModuleGuid>e51853a3-eece-8a97-e211-048822e29ccc</ModuleGuid>
+    <ModuleName>Demo</ModuleName>
+    <ModuleDescription>Demo Module</ModuleDescription>
+    <ProductGuid>90ce58db-ca1f-3288-e013-974a20f764f9</ProductGuid>
+    <ProductCode>Demo</ProductCode>
+    <ModuleDataFolder>Consultingwerk/SmartComponentsDemo/Dump</ModuleDataFolder>
+    <ModulePackage/>
+  </eSmartModule>
+</dsModule>

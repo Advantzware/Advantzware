@@ -1,0 +1,24 @@
+{
+  "SerializedType": "Consultingwerk.Framework.TypeDescriptor.ClassAnnotationContainer",
+  "ClassName": "Consultingwerk.SmartFramework.Repository.FIeld.EntityFieldMappingBusinessEntity",
+  "TimeStamp": "2016-11-05T11:02:33.985+01:00",
+  "TempTables": [
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "eSmartEntityFieldMapping",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@openapi.openedge.entity.primarykey",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "fields",
+              "Value": "EntityFieldMappingGuid"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+FOR EACH mat NO-LOCK
+dscr,mat
+
+Indexed: dscr,mat
+Non-Idx: ?
+
+Generated 04.18.2017 @  2:49:25 am by: nosweat
+Table: mat - Records: 27
+
+    Index: dscr
+         Field: dscr
+
+    Index: mat
+         Field: mat
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-dscr
+         Field: dscr

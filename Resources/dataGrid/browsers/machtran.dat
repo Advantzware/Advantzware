@@ -1,0 +1,51 @@
+FOR EACH machtran NO-LOCK WHERE machtran.company EQ "%company%" AND machtran.posted EQ no AND TRUE
+blank_number,charge_code,end_date,form_number,job_number,job_sub,machine,pass_sequence,start_date
+
+Indexed: blank_number,charge_code,end_date,form_number,job_number,job_sub,machine,pass_sequence,start_date
+Non-Idx: end-time,run_qty,shift,start-time,total-time
+
+Generated 04.18.2017 @  6:00:20 am by: nosweat
+Table: machtran - Records: 0
+
+    Index: enddate
+         Field: company
+         Field: end_date
+         Field: end_time
+         Field: total_time
+
+    Index: menddate
+         Field: company
+         Field: machine
+         Field: end_date
+         Field: end_time
+         Field: total_time
+
+    Index: pi-machtran
+         Field: company
+         Field: machine
+         Field: job_number
+         Field: job_sub
+         Field: form_number
+         Field: blank_number
+         Field: pass_sequence
+         Field: start_date
+         Field: start_time
+         Field: jobseq
+         Field: charge_code
+
+    Index: si-joborder
+         Field: company
+         Field: posted
+         Field: job_number
+         Field: start_date
+         Field: start_time
+
+    Index: si-machorder
+         Field: company
+         Field: posted
+         Field: machine
+         Field: start_date
+         Field: start_time
+
+    Index: si-rec_key
+         Field: rec_key

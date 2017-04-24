@@ -1,0 +1,276 @@
+/**********************************************************************
+ * Copyright (C) 2006-2016 by Consultingwerk Ltd. ("CW") -            *
+ * www.consultingwerk.de and other contributors as listed             *
+ * below.  All Rights Reserved.                                       *
+ *                                                                    *
+ *  Software is distributed on an "AS IS", WITHOUT WARRANTY OF ANY    *
+ *   KIND, either express or implied.                                 *
+ *                                                                    *
+ *  Contributors:                                                     *
+ *                                                                    *
+ **********************************************************************/
+/*------------------------------------------------------------------------
+    File        : NotFoundException
+    Purpose     : Exception thrown by the DataAccess:FindRecord methods
+    Syntax      :
+    Description :
+    Author(s)   : Mike Fechner / Consultingwerk Ltd.
+    Created     : Fri Jun 20 22:15:57 CEST 2014
+    Notes       :
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW .
+
+USING Consultingwerk.Exceptions.* FROM PROPATH .
+USING Progress.Lang.*             FROM PROPATH .
+
+{Consultingwerk/products.i}
+
+CLASS Consultingwerk.OERA.Exceptions.NotFoundException
+    INHERITS ExceptionWithTitle
+    {&SERIALIZABLE}:
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the Batch size (number of records) associated with the error
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY BatchSize AS INTEGER NO-UNDO
+    GET.
+    PRIVATE SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the Buffer Name associated with the error
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY BufferName AS CHARACTER NO-UNDO
+    GET.
+    PRIVATE SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the Class Name associated with the error
+        Notes:   Typically the name of the Data Access class causing this issue. The
+                 stack trace typically only contains the Consultingwerk.OERA.DataAccess
+                 class and not the actual implementation
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY ClassName AS CHARACTER NO-UNDO
+    GET.
+    PRIVATE SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the FindString associated with the error
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY FindString AS CHARACTER NO-UNDO
+    GET.
+    PRIVATE SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the Prefetch size (number of records) associated with the error
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY Prefetch AS INTEGER NO-UNDO
+    GET.
+    PRIVATE SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Returns the QueryString associated with the error
+        Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE PUBLIC PROPERTY QueryString AS CHARACTER NO-UNDO
+    GET.
+    PRIVATE SET.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor of the NotFoundException class
+        Notes:
+        @param pcErrorString The error message associated with this ExceptionWithTitle object
+        @param piMessageNumber The error message number associated with this ExceptionWithTitle object
+        @param pcTitle The title for the Exception
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC NotFoundException (pcErrorString AS CHARACTER,
+                                          piMessageNumber AS INTEGER,
+                                          pcTitle AS CHARACTER):
+
+        SUPER (pcErrorString, piMessageNumber, pcTitle).
+
+    END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor of the NotFoundException class
+        Notes:
+        @param pcErrorString The error message associated with this ExceptionWithTitle object
+        @param piMessageNumber The error message number associated with this ExceptionWithTitle object
+        @param pcTitle The title for the Exception
+        @param pcFindString This Find String associated with this error
+        @param pcBufferName The Buffer name associated with this error
+        @param pcQueryString The Query string associated with this error
+        @param piPrefetch The number of records to prefetch associated with this error
+        @param piBatchSize The number of records to return to the client (total incl. prefetch) associated with this error
+        @param pcClassName The name of the class that caused this error
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC NotFoundException (pcErrorString AS CHARACTER,
+                                          piMessageNumber AS INTEGER,
+                                          pcTitle AS CHARACTER,
+                                          pcFindString AS CHARACTER,
+                                          pcBufferName AS CHARACTER,
+                                          pcQueryString AS CHARACTER,
+                                          piPrefetch AS INTEGER,
+                                          piBatchSize AS INTEGER,
+                                          pcClassName AS CHARACTER):
+
+        SUPER (pcErrorString, piMessageNumber, pcTitle).
+
+        ASSIGN THIS-OBJECT:FindString  = pcFindString
+               THIS-OBJECT:BufferName  = pcBufferName
+               THIS-OBJECT:QueryString = pcQueryString
+               THIS-OBJECT:Prefetch    = piPrefetch
+               THIS-OBJECT:BatchSize   = piBatchSize
+               THIS-OBJECT:ClassName   = pcClassName .
+
+    END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor of the NotFoundException class
+        Notes:
+        @param pcErrorString The error message associated with this ExceptionWithTitle object
+        @param piMessageNumber The error message number associated with this ExceptionWithTitle object
+        @param pcTitle The title for the Exception
+        @param pcFindString This Find String associated with this error
+        @param pcBufferName The Buffer name associated with this error
+        @param pcQueryString The Query string associated with this error
+        @param piPrefetch The number of records to prefetch associated with this error
+        @param piBatchSize The number of records to return to the client (total incl. prefetch) associated with this error
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC NotFoundException (pcErrorString AS CHARACTER,
+                                          piMessageNumber AS INTEGER,
+                                          pcTitle AS CHARACTER,
+                                          pcFindString AS CHARACTER,
+                                          pcBufferName AS CHARACTER,
+                                          pcQueryString AS CHARACTER,
+                                          piPrefetch AS INTEGER,
+                                          piBatchSize AS INTEGER):
+
+        SUPER (pcErrorString, piMessageNumber, pcTitle).
+
+        ASSIGN THIS-OBJECT:FindString  = pcFindString
+               THIS-OBJECT:BufferName  = pcBufferName
+               THIS-OBJECT:QueryString = pcQueryString
+               THIS-OBJECT:Prefetch    = piPrefetch
+               THIS-OBJECT:BatchSize   = piBatchSize .
+
+    END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor of the NotFoundException class
+        Notes:
+        @param pcErrorString The error message associated with this ExceptionWithTitle object
+        @param piMessageNumber The error message number associated with this ExceptionWithTitle object
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC NotFoundException (pcErrorString AS CHARACTER,
+                                          piMessageNumber AS INTEGER):
+
+        SUPER (pcErrorString, piMessageNumber, "No record is available."{&TRAN}).
+
+    END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor of the NotFoundException class
+        Notes:
+        @param pcErrorString The error message associated with this ExceptionWithTitle object
+        @param piMessageNumber The error message number associated with this ExceptionWithTitle object
+        @param pcFindString This Find String associated with this error
+        @param pcBufferName The Buffer name associated with this error
+        @param pcQueryString The Query string associated with this error
+        @param piPrefetch The number of records to prefetch associated with this error
+        @param piBatchSize The number of records to return to the client (total incl. prefetch) associated with this error
+        @param pcClassName The name of the class that caused this error
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC NotFoundException (pcErrorString AS CHARACTER,
+                                          piMessageNumber AS INTEGER,
+                                          pcFindString AS CHARACTER,
+                                          pcBufferName AS CHARACTER,
+                                          pcQueryString AS CHARACTER,
+                                          piPrefetch AS INTEGER,
+                                          piBatchSize AS INTEGER,
+                                          pcClassName AS CHARACTER):
+
+        SUPER (pcErrorString, piMessageNumber, "No record is available."{&TRAN}).
+
+        ASSIGN THIS-OBJECT:FindString  = pcFindString
+               THIS-OBJECT:BufferName  = pcBufferName
+               THIS-OBJECT:QueryString = pcQueryString
+               THIS-OBJECT:Prefetch    = piPrefetch
+               THIS-OBJECT:BatchSize   = piBatchSize
+               THIS-OBJECT:ClassName   = pcClassName .
+
+    END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor of the NotFoundException class
+        Notes:
+        @param pcErrorString The error message associated with this ExceptionWithTitle object
+        @param piMessageNumber The error message number associated with this ExceptionWithTitle object
+        @param pcFindString This Find String associated with this error
+        @param pcBufferName The Buffer name associated with this error
+        @param pcQueryString The Query string associated with this error
+        @param piPrefetch The number of records to prefetch associated with this error
+        @param piBatchSize The number of records to return to the client (total incl. prefetch) associated with this error
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC NotFoundException (pcErrorString AS CHARACTER,
+                                          piMessageNumber AS INTEGER,
+                                          pcFindString AS CHARACTER,
+                                          pcBufferName AS CHARACTER,
+                                          pcQueryString AS CHARACTER,
+                                          piPrefetch AS INTEGER,
+                                          piBatchSize AS INTEGER):
+
+        SUPER (pcErrorString, piMessageNumber, "No record is available."{&TRAN}).
+
+        ASSIGN THIS-OBJECT:FindString  = pcFindString
+               THIS-OBJECT:BufferName  = pcBufferName
+               THIS-OBJECT:QueryString = pcQueryString
+               THIS-OBJECT:Prefetch    = piPrefetch
+               THIS-OBJECT:BatchSize   = piBatchSize .
+
+    END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor of the NotFoundException class
+        Notes:
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC NotFoundException ():
+
+        SUPER ("No record is available."{&TRAN},
+               0,
+               "No record is available."{&TRAN}).
+
+    END CONSTRUCTOR.
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor of the NotFoundException class
+        Notes:
+        @param pcFindString This Find String associated with this error
+        @param pcBufferName The Buffer name associated with this error
+        @param pcQueryString The Query string associated with this error
+        @param piPrefetch The number of records to prefetch associated with this error
+        @param piBatchSize The number of records to return to the client (total incl. prefetch) associated with this error
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC NotFoundException (pcFindString AS CHARACTER,
+                                          pcBufferName AS CHARACTER,
+                                          pcQueryString AS CHARACTER,
+                                          piPrefetch AS INTEGER,
+                                          piBatchSize AS INTEGER):
+
+        SUPER ("No record is available."{&TRAN},
+               0,
+               "No record is available."{&TRAN}).
+
+        ASSIGN THIS-OBJECT:FindString  = pcFindString
+               THIS-OBJECT:BufferName  = pcBufferName
+               THIS-OBJECT:QueryString = pcQueryString
+               THIS-OBJECT:Prefetch    = piPrefetch
+               THIS-OBJECT:BatchSize   = piBatchSize .
+
+    END CONSTRUCTOR.
+
+END CLASS.

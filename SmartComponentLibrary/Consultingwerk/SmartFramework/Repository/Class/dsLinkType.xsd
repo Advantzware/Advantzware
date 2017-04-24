@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsLinkType" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartLinkType" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartLinkTypeBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="LinkTypeGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="LinkName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Link Name"/>
+              <xsd:element name="SourcePropertyName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Source Property Name"/>
+              <xsd:element name="SourceHandshakeMethod" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Source Handshake Method"/>
+              <xsd:element name="TargetPropertyName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Target Property Name"/>
+              <xsd:element name="TargetHandshakeMethod" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Target Handshake Method"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="LinkName">
+      <xsd:selector xpath=".//eSmartLinkType"/>
+      <xsd:field xpath="LinkName"/>
+    </xsd:unique>
+    <xsd:unique name="LinkTypeGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartLinkType"/>
+      <xsd:field xpath="LinkTypeGuid"/>
+    </xsd:unique>
+  </xsd:element>
+</xsd:schema>

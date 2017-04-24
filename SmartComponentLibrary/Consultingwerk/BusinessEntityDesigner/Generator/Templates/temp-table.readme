@@ -1,0 +1,12 @@
+&1      temp-table name
+&2      before-table name
+&3      keyword "BEFORE-TABLE" when using a before-table
+&4      fields block
+&5      index block
+&6      time stamp
+&7      purpose
+&8      description
+&9      table options 
+@USER@  the current user name
+@USERID@      the current user id
+@STARNOVAANNOTATIONS@
