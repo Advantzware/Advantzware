@@ -1077,6 +1077,7 @@ FORMAT HEADER
       break by ar-cash.cust-no
             by ar-cash.check-no
       with frame a1:
+      
 
     FIND FIRST reftable WHERE
          reftable.reftable = "ARCASHHOLD" AND
@@ -1412,6 +1413,55 @@ PROCEDURE copy-report-to-audit-dir :
     OS-CREATE-DIR VALUE(dirname3).
     OS-COPY VALUE(list-name) VALUE (targetfile).
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-status C-Win 
+PROCEDURE check-status :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+IF AVAIL cust THEN do:
+    FIND FIRST  terms NO-LOCK
+        WHERE terms.company = cust.company
+          AND terms.t-code  = cust.terms NO-ERROR.
+
+    IF cust.cr-hold THEN do:
+        FOR EACH ar-inv NO-LOCK
+            WHERE ar-inv.company  EQ cust.company
+              AND ar-inv.posted   EQ YES
+              AND ar-inv.due      GT 0
+              AND ar-inv.cust-no  EQ cust.cust-no
+              AND ar-inv.due-date LT (TODAY - (cust.cr-hold-invdays + terms.net-days))
+            USE-INDEX posted-due
+            BREAK BY ar-inv.company:
+    
+            ACCUM ar-inv.due (TOTAL).
+    
+            IF LAST(ar-inv.company)        AND
+               cust.cr-lim GT (ACCUM TOTAL ar-inv.due) THEN DO:
+    
+                ASSIGN cust.cr-hold = NO .
+    
+                FOR EACH oe-ord EXCLUSIVE-LOCK
+                    WHERE oe-ord.company             EQ cocode
+                      AND oe-ord.cust-no             EQ cust.cust-no
+                      AND oe-ord.stat EQ "H" :
+                    ASSIGN
+                        oe-ord.stat = "A" .
+                END.
+            END.
+        END.  /* for each ar-inv */
+    END. /* cust.cr-hold */
+END. /* avail cust */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
