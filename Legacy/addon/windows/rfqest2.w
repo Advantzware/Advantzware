@@ -20,17 +20,17 @@
 
 /* Local Variable Definitions ---                                       */
 
-DEF INPUT PARAMETER ip-rfq-recid AS RECID NO-UNDO.
-DEF INPUT PARAMETER ip-rfqitem-recid AS RECID NO-UNDO.
-DEF VAR lv-seq-max AS INT NO-UNDO.
-DEF VAR ll-transfer AS LOG NO-UNDO.
-DEF VAR li-est-type AS INT NO-UNDO.
-DEF VAR ls-seq-list AS cha NO-UNDO.
-DEF VAR ll-selected AS LOG NO-UNDO.
-DEF VAR li-current-row AS INT NO-UNDO.
-DEF VAR ls-find-list AS cha NO-UNDO.
-DEF VAR ls-crt-list AS cha NO-UNDO.
-DEF VAR ls-dest-code AS cha NO-UNDO.
+def input parameter ip-rfq-recid as recid no-undo.
+def input parameter ip-rfqitem-recid as recid no-undo.
+def var lv-seq-max as int no-undo.
+def var ll-transfer as log no-undo.
+def var li-est-type as int no-undo.
+def var ls-seq-list as cha no-undo.
+def var ll-selected as log no-undo.
+def var li-current-row as int no-undo.
+def var ls-find-list as cha no-undo.
+def var ls-crt-list as cha no-undo.
+def var ls-dest-code as cha no-undo.
 DEF VAR viCount AS INT NO-UNDO.
 DEF VAR v-side-count AS INT NO-UNDO.
 
@@ -136,13 +136,13 @@ DEFINE BROWSE BROWSE-1
       rfqitem.rfq-no
       rfqitem.form-no
       rfqitem.blank-no
-      rfqitem.seq LABEL "#" FORM ">>9"
-      rfqitem.stock-no LABEL "FG Item#"
-      rfqitem.i-name LABEL "Item Name" FORM "x(30)"
+      rfqitem.seq label "#" form ">>9"
+      rfqitem.stock-no label "FG Item#"
+      rfqitem.i-name label "Item Name" form "x(30)"
       rfqitem.part-no
       rfqitem.style
-      rfqitem.procat LABEL "Category"
-      rfqitem.est-no LABEL "Est#" FORM "x(8)"
+      rfqitem.procat label "Category"
+      rfqitem.est-no label "Est#" FORM "x(8)"
       /*rfqitem.len label "L"
       rfqitem.wid label "W"
       rfqitem.dep label "D"
@@ -290,20 +290,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Transfer To Estimate */
 DO :
-   DEF VAR li-cnt AS INT NO-UNDO.
-   DEF VAR ll-return AS LOG NO-UNDO.
-   DEF VAR ll-is-transfered AS LOG NO-UNDO.
-   DEF VAR ls-est-list AS cha NO-UNDO.
+   def var li-cnt as int no-undo.
+   def var ll-return as log no-undo.
+   def var ll-is-transfered as log no-undo.
+   def var ls-est-list as cha no-undo.
    DEF BUFFER bf-item FOR rfqitem.
 
-   IF li-est-type = 0 THEN DO:
-      MESSAGE "Estimate type can't be blank. Please estimate type first!"
-               VIEW-AS ALERT-BOX ERROR.
-      APPLY "entry" TO cb-est-type.
-      RETURN NO-APPLY.
-   END.   
+   if li-est-type = 0 then do:
+      message "Estimate type can't be blank. Please estimate type first!"
+               view-as alert-box error.
+      apply "entry" to cb-est-type.
+      return no-apply.
+   end.   
    IF li-est-type = 6 THEN DO:
-      FIND FIRST rfqitem OF rfq WHERE rfqitem.seq = 999 NO-LOCK NO-ERROR.
+      FIND FIRST rfqitem OF rfq where rfqitem.seq = 999 NO-LOCK NO-ERROR.
       IF NOT AVAIL rfqitem THEN DO: 
          FIND FIRST bf-item OF rfq NO-LOCK NO-ERROR.
          CREATE rfqitem.
@@ -311,17 +311,17 @@ DO :
          rfqitem.seq = 999.
          RUN rfq/d-rfqset.w  (RECID(rfqitem),6).
       END.
-      ELSE RUN rfq/d-rfqset.w  (RECID(rfqitem),6).
+      ELSE RUN rfq/d-rfqset.w  (recid(rfqitem),6).
    END.
-   ASSIGN li-num-of-form 
+   assign li-num-of-form 
           li-num-of-blank
           ls-seq-list = ""
           ls-find-list = ""
           ls-crt-list = "" 
-          ll-is-transfered = NO.
+          ll-is-transfered = no.
    
-   IF {&browse-name}:num-selected-rows IN FRAME {&frame-name} > 0 THEN
-   DO li-cnt = 1 TO {&browse-name}:num-selected-rows IN FRAME {&frame-name}:
+   if {&browse-name}:num-selected-rows in frame {&frame-name} > 0 then
+   do li-cnt = 1 to {&browse-name}:num-selected-rows in frame {&frame-name}:
 
       ASSIGN
         ll-return = {&browse-name}:fetch-selected-row(li-cnt)
@@ -333,31 +333,31 @@ DO :
                 ll-is-transfered = yes.
          else ls-crt-list = ls-crt-list + string(rfqitem.seq) + ",".
       */ 
-   END.
+   end.
  
-   IF rd-trx-type = 1 THEN DO: /* new */ 
-      CASE li-est-type :
-           WHEN 1 OR WHEN 5 THEN RUN trx-rfq-to-est.
-           WHEN 2 OR WHEN 3 OR WHEN 4 THEN RUN trx-rfq-to-est-4.
+   if rd-trx-type = 1 then do: /* new */ 
+      case li-est-type :
+           when 1 or when 5 then run trx-rfq-to-est.
+           when 2 or when 3 or when 4 then run trx-rfq-to-est-4.
            WHEN 6 THEN RUN trx-rfq-to-est-6.
            /*when 4 then run trx-rfq-to-est-4.
            when 5 then run trx-rfq-to-est-5.
            when 6 then run trx-rfq-to-est-6. */
-      END CASE.
+      end case.
       
-   END. 
-   ELSE DO: /* update */
+   end. 
+   else do: /* update */
       
       ls-find-list = ls-seq-list.
-      CASE li-est-type :
-           WHEN 1 OR WHEN 5 THEN RUN find-est-update.
-           WHEN 2 OR WHEN 3 OR WHEN 4 OR WHEN 7 OR WHEN 8 THEN RUN find-est-update4.
+      case li-est-type :
+           when 1 or when 5 then run find-est-update.
+           when 2 or when 3 or when 4 or when 7 or when 8 then run find-est-update4.
            WHEN 6 THEN RUN find-est-update6.
-      END CASE.   
-   END.
+      end case.   
+   end.
    
 
-   APPLY "go" TO FRAME {&frame-name}.
+   apply "go" to frame {&frame-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -368,15 +368,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cb-est-type Dialog-Frame
 ON VALUE-CHANGED OF cb-est-type IN FRAME Dialog-Frame /* Estimate Type */
 DO:
-   ASSIGN cb-est-type.
-   CASE cb-est-type:
-        WHEN "Folding Single Item" THEN li-est-type = 1.
-        WHEN "Folding Two Piece Box" THEN li-est-type = 2.
-        WHEN "Folding Tandem Runs" THEN li-est-type = 3.
-        WHEN "Folding Combination" THEN li-est-type = 4.
-        WHEN "Corrugated Single Item" THEN li-est-type = 5.
-        WHEN "Corrugated Set" THEN li-est-type = 6.        
-   END.
+   assign cb-est-type.
+   case cb-est-type:
+        when "Folding Single Item" then li-est-type = 1.
+        when "Folding Two Piece Box" then li-est-type = 2.
+        when "Folding Tandem Runs" then li-est-type = 3.
+        when "Folding Combination" then li-est-type = 4.
+        when "Corrugated Single Item" then li-est-type = 5.
+        when "Corrugated Set" then li-est-type = 6.        
+   end.
 /* form-no and blank-no in browser  
    if (li-est-type > 1 and li-est-type < 5) or li-est-type > 5 then do with frame {&frame-name}:
       assign /*li-num-of-form:visible = true
@@ -396,17 +396,17 @@ DO:
                .
 */
 
-   RUN select-all. 
-   DEF BUFFER bf-rfqitem FOR rfqitem.
+   run select-all. 
+   def buffer bf-rfqitem for rfqitem.
    
-   CASE li-est-type:
-        WHEN 1 THEN DO:
-             FOR EACH bf-rfqitem OF rfq :
-                 ASSIGN bf-rfqitem.form-no = 1
+   case li-est-type:
+        when 1 then do:
+             for each bf-rfqitem of rfq :
+                 assign bf-rfqitem.form-no = 1
                         bf-rfqitem.blank-no = 1. 
-             END.
-        END.
-   END CASE.
+             end.
+        end.
+   end case.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -417,9 +417,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-trx-type Dialog-Frame
 ON VALUE-CHANGED OF rd-trx-type IN FRAME Dialog-Frame
 DO:
-    ASSIGN rd-trx-type.
+    assign rd-trx-type.
     {&open-query-{&browse-name}}    
-    RUN select-all.
+    run select-all.
     
 END.
 
@@ -435,7 +435,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
 /* Parent the dialog-box to the ACTIVE-WINDOW, if there is no parent.   */
-IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT EQ ?
+IF VALID-HANDLE(ACTIVE-WINDOW) AND FRAME {&FRAME-NAME}:PARENT eq ?
 THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 
 
@@ -445,33 +445,33 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
-  FIND rfq WHERE RECID(rfq) = ip-rfq-recid NO-LOCK.
-  FIND sys-ctrl WHERE sys-ctrl.company = rfq.company AND
+  find rfq where recid(rfq) = ip-rfq-recid no-lock.
+  find sys-ctrl where sys-ctrl.company = rfq.company and
                       sys-ctrl.name = "cemenu"
-                      NO-LOCK NO-ERROR.
-  IF AVAIL sys-ctrl THEN DO:
-     CASE sys-ctrl.char-fld:
-          WHEN "Corrware" THEN DO:
+                      no-lock no-error.
+  if avail sys-ctrl then do:
+     case sys-ctrl.char-fld:
+          when "Corrware" then do:
                 cb-est-type:list-items = "Corrugated Single Item,Corrugated Set".
-                cb-est-type:screen-value = ENTRY(1,cb-est-type:list-items).   
+                cb-est-type:screen-value = entry(1,cb-est-type:list-items).   
                 li-est-type = 5.
-          END.
-          WHEN "foldware" THEN DO:
+          end.
+          when "foldware" then do:
                 cb-est-type:list-items = "Folding Single Item,Folding Two Piece Box,Folding Tandem Runs,Folding Combination".
-                cb-est-type:screen-value = ENTRY(1,cb-est-type:list-items).   
+                cb-est-type:screen-value = entry(1,cb-est-type:list-items).   
                 li-est-type = 1.
-          END.
-          WHEN "both" THEN DO:
+          end.
+          when "both" then do:
                  cb-est-type:list-items = "Folding Single Item,Folding Two Piece Box,Folding Tandem Runs,Folding Combination," +
                                           "Corrugated Single Item,Corrugated Set".                 
-                cb-est-type:screen-value = ENTRY(1,cb-est-type:list-items).   
+                cb-est-type:screen-value = entry(1,cb-est-type:list-items).   
                 li-est-type = 1.
-          END.
-     END.  
-  END.
+          end.
+     end.  
+  end.
   rd-trx-type = 1.
   RUN enable_UI.
-  RUN select-all.  /* don't select not but select when type changed*/
+  run select-all.  /* don't select not but select when type changed*/
   
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -490,16 +490,16 @@ PROCEDURE create-est-prep :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF INPUT PARAMETER ip-enum LIKE est.e-num NO-UNDO.
-   DEF INPUT PARAMETER ip-est-no AS cha NO-UNDO.
-   DEF VAR i AS INT NO-UNDO.
+   def input parameter ip-enum like est.e-num no-undo.
+   def input parameter ip-est-no as cha no-undo.
+   def var i as int no-undo.
 
    DISABLE TRIGGERS FOR LOAD OF est-prep.
 
    i = 1.
-   FOR EACH prep WHERE prep.company = rfqitem.company AND prep.dfault NO-LOCK:
-       CREATE est-prep.
-       ASSIGN   est-prep.e-num  = ip-enum
+   for each prep where prep.company = rfqitem.company and prep.dfault NO-LOCK:
+       create est-prep.
+       assign   est-prep.e-num  = ip-enum
                 est-prep.est-no = ip-est-no
                 est-prep.company = rfqitem.company
                 est-prep.eqty = rfqitem.qty[1]
@@ -518,7 +518,7 @@ PROCEDURE create-est-prep :
                 .
                 i = i + 1.
                 
-   END.
+   end.
 
 END PROCEDURE.
 
@@ -571,21 +571,21 @@ PROCEDURE find-est-update :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR li-form-no AS INT NO-UNDO.
-DEF VAR li-blank-no AS INT NO-UNDO.
-DEF VAR li-cnt AS INT NO-UNDO.
+def var li-form-no as int no-undo.
+def var li-blank-no as int no-undo.
+def var li-cnt as int no-undo.
 DEF VAR i AS INT NO-UNDO.
 
 DISABLE TRIGGERS FOR LOAD OF est.
 
-SESSION:SET-WAIT-STATE("COMPILER").
+session:set-wait-state("COMPILER").
 
 
-FOR EACH rfqitem OF rfq WHERE INDEX(ls-find-list,STRING(rfqitem.seq,">>9")) > 0 :
-    FIND est WHERE est.company = rfqitem.company AND
+for each rfqitem of rfq where index(ls-find-list,string(rfqitem.seq,">>9")) > 0 :
+    find est where est.company = rfqitem.company and
                    est.est-no = rfqitem.est-no
                    .
-    ASSIGN est.est-qty[1] = rfqitem.qty[1]
+    assign est.est-qty[1] = rfqitem.qty[1]
            est.est-qty[2] = rfqitem.qty[2]
            est.est-qty[3] = rfqitem.qty[3]
            est.est-qty[4] = rfqitem.qty[4]                                             
@@ -593,32 +593,32 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-find-list,STRING(rfqitem.seq,">>9")) > 0 
            .
     FIND FIRST est-qty WHERE est-qty.company = est.company
                        AND est-qty.est-no = est.est-no NO-ERROR.
-    IF AVAIL est-qty THEN DO:
+    IF AVAIL est-qty THEN do:
         est-qty.eqty = rfqitem.qty[1].
         DO i = 1 TO 98:
           est-qty.qty[i] = rfqitem.qty[i].
         END.
     END.
-    FIND FIRST ef WHERE ef.company = est.company
+    find first ef where ef.company = est.company
                     AND ef.est-no = est.est-no
                     AND ef.form-no = rfqitem.form-no.
-    ASSIGN li-form-no = 1
+    assign li-form-no = 1
            li-num-of-blank = 1 
            li-blank-no = 1.
     
-    IF rfqitem.ship-id <> "" THEN DO:
-       FIND shipto WHERE shipto.company = rfqitem.company AND
-                         shipto.cust-no = rfq.cust-no AND
+    if rfqitem.ship-id <> "" then do:
+       find shipto where shipto.company = rfqitem.company and
+                         shipto.cust-no = rfq.cust-no and
                          shipto.ship-id = rfqitem.ship-id
-                         NO-LOCK NO-ERROR.
-       IF AVAIL shipto THEN ls-dest-code = shipto.dest-code.
-    END.    
-    ELSE DO:
-       FIND cust WHERE cust.company = rfqitem.company AND
+                         no-lock no-error.
+       if avail shipto then ls-dest-code = shipto.dest-code.
+    end.    
+    else do:
+       find cust where cust.company = rfqitem.company and
                        cust.cust-no = rfq.cust-no 
-                       NO-LOCK NO-ERROR.
-       IF AVAIL cust THEN ls-dest-code = cust.del-zone.
-    END.
+                       no-lock no-error.
+       if avail cust then ls-dest-code = cust.del-zone.
+    end.
            
     FIND FIRST ITEM WHERE
          ITEM.company EQ rfqitem.company AND
@@ -629,7 +629,7 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-find-list,STRING(rfqitem.seq,">>9")) > 0 
 
     RELEASE ITEM.
 
-    FIND FIRST eb WHERE eb.company = rfqitem.company
+    find first eb where eb.company = rfqitem.company
                     AND eb.est-no = rfqitem.est-no
                     AND eb.form-no = rfqitem.form-no
                     AND eb.blank-no = rfqitem.blank-no NO-ERROR.
@@ -637,9 +637,10 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-find-list,STRING(rfqitem.seq,">>9")) > 0 
 
     IF AVAIL eb THEN DO:     
         {rfq/upd-eb.i}
-    END.    
+    END.
+    {rfq/upd-note.i}
 
-END.  /* each rfqitem */
+end.  /* each rfqitem */
 
 
 END PROCEDURE.
@@ -654,19 +655,19 @@ PROCEDURE find-est-update4 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR li-form-no AS INT NO-UNDO.
-DEF VAR li-blank-no AS INT NO-UNDO.
-DEF VAR li-cnt AS INT NO-UNDO.
+def var li-form-no as int no-undo.
+def var li-blank-no as int no-undo.
+def var li-cnt as int no-undo.
 DEF VAR i AS INT NO-UNDO.
 DISABLE TRIGGERS FOR LOAD OF est.
-SESSION:SET-WAIT-STATE("COMPILER").
+session:set-wait-state("COMPILER").
 
 
-FOR EACH rfqitem OF rfq WHERE INDEX(ls-find-list,STRING(rfqitem.seq,">>9")) > 0 :
-    FIND est WHERE est.company = rfqitem.company AND
+for each rfqitem of rfq where index(ls-find-list,string(rfqitem.seq,">>9")) > 0 :
+    find est where est.company = rfqitem.company and
                    est.est-no = rfqitem.est-no
                    .
-    ASSIGN est.est-qty[1] = rfqitem.qty[1]
+    assign est.est-qty[1] = rfqitem.qty[1]
            est.est-qty[2] = rfqitem.qty[2]
            est.est-qty[3] = rfqitem.qty[3]
            est.est-qty[4] = rfqitem.qty[4]                                             
@@ -675,14 +676,14 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-find-list,STRING(rfqitem.seq,">>9")) > 0 
      FIND FIRST est-qty WHERE est-qty.company = est.company
                        AND est-qty.est-no = est.est-no NO-ERROR.
 
-     IF AVAIL est-qty THEN DO:
+     IF AVAIL est-qty THEN do:
         est-qty.eqty = rfqitem.qty[1].
         DO i = 1 TO 99:
           est-qty.qty[i] = rfqitem.qty[i].
         END.
      END.
 
-     FIND FIRST ef WHERE ef.company = est.company AND 
+     find first ef where ef.company = est.company AND 
                          ef.est-no = est.est-no.
      /*assign li-form-no = 1
            li-num-of-blank = 1 
@@ -702,29 +703,30 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-find-list,STRING(rfqitem.seq,">>9")) > 0 
        li-cnt = li-cnt + 1.
 */      
 
-    IF rfqitem.ship-id <> "" THEN DO:
-       FIND shipto WHERE shipto.company = rfqitem.company AND
-                         shipto.cust-no = rfq.cust-no AND
+    if rfqitem.ship-id <> "" then do:
+       find shipto where shipto.company = rfqitem.company and
+                         shipto.cust-no = rfq.cust-no and
                          shipto.ship-id = rfqitem.ship-id
-                         NO-LOCK NO-ERROR.
-       IF AVAIL shipto THEN ls-dest-code = shipto.dest-code.
-    END.    
-    ELSE DO:
-       FIND cust WHERE cust.company = rfqitem.company AND
+                         no-lock no-error.
+       if avail shipto then ls-dest-code = shipto.dest-code.
+    end.    
+    else do:
+       find cust where cust.company = rfqitem.company and
                        cust.cust-no = rfq.cust-no 
-                       NO-LOCK NO-ERROR.
-       IF AVAIL cust THEN ls-dest-code = cust.del-zone.
-    END.
+                       no-lock no-error.
+       if avail cust then ls-dest-code = cust.del-zone.
+    end.
 
-       FIND FIRST eb OF ef WHERE eb.blank-no = rfqitem.blank-no  /*li-cnt*/  NO-ERROR.
-       IF AVAIL eb THEN DO: 
+       find first eb of ef where eb.blank-no = rfqitem.blank-no  /*li-cnt*/  no-error.
+       if avail eb then do: 
           {rfq/upd-eb.i} 
-       END.
-       ELSE DO:
-         LEAVE.
-       END.  
-  /*  end.*/    
-END.  /* each rfqitem */
+       end.
+       else do:
+         leave.
+       end.  
+  /*  end.*/
+    {rfq/upd-note.i}
+end.  /* each rfqitem */
 
 
 END PROCEDURE.
@@ -739,38 +741,38 @@ PROCEDURE find-est-update6 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR li-form-no AS INT NO-UNDO.
-DEF VAR li-blank-no AS INT NO-UNDO.
-DEF VAR li-cnt AS INT NO-UNDO.
+def var li-form-no as int no-undo.
+def var li-blank-no as int no-undo.
+def var li-cnt as int no-undo.
 DEF VAR i AS INT NO-UNDO.
 DEF BUFFER bf-ritem FOR rfqitem.
 
 DISABLE TRIGGERS FOR LOAD OF est.
-SESSION:SET-WAIT-STATE("COMPILER").
+session:set-wait-state("COMPILER").
 
 
-FOR EACH rfqitem OF rfq WHERE INDEX(ls-find-list,STRING(rfqitem.seq,">>9")) > 0 :
-    FIND est WHERE est.company = rfqitem.company AND
+for each rfqitem of rfq where index(ls-find-list,string(rfqitem.seq,">>9")) > 0 :
+    find est where est.company = rfqitem.company and
                    est.est-no = rfqitem.est-no
                    .
-    ASSIGN est.est-qty[1] = rfqitem.qty[1]
+    assign est.est-qty[1] = rfqitem.qty[1]
            est.est-qty[2] = rfqitem.qty[2]
            est.est-qty[3] = rfqitem.qty[3]
            est.est-qty[4] = rfqitem.qty[4]                                             
            est.mod-date = 01/01/1900  /* Indiana mods Task# 05110404 */
            .
-     
+     {rfq/upd-note.i}
      FIND FIRST est-qty WHERE est-qty.company = est.company
                        AND est-qty.est-no = est.est-no NO-ERROR.
 
-     IF AVAIL est-qty THEN DO:
+     IF AVAIL est-qty THEN do:
         /*est-qty.eqty = rfqitem.qty[1].*/
         DO i = 1 TO 99:
           est-qty.qty[i] = rfqitem.qty[i].
         END.
      END.
 
-     FIND FIRST ef WHERE ef.company = est.company AND 
+     find first ef where ef.company = est.company AND 
                          ef.est-no = est.est-no AND
                          ef.form-no = rfqitem.form-no.
      /*assign li-form-no = 1
@@ -791,30 +793,30 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-find-list,STRING(rfqitem.seq,">>9")) > 0 
        li-cnt = li-cnt + 1.
 */      
 
-    IF rfqitem.ship-id <> "" THEN DO:
-       FIND shipto WHERE shipto.company = rfqitem.company AND
-                         shipto.cust-no = rfq.cust-no AND
+    if rfqitem.ship-id <> "" then do:
+       find shipto where shipto.company = rfqitem.company and
+                         shipto.cust-no = rfq.cust-no and
                          shipto.ship-id = rfqitem.ship-id
-                         NO-LOCK NO-ERROR.
-       IF AVAIL shipto THEN ls-dest-code = shipto.dest-code.
-    END.    
-    ELSE DO:
-       FIND cust WHERE cust.company = rfqitem.company AND
+                         no-lock no-error.
+       if avail shipto then ls-dest-code = shipto.dest-code.
+    end.    
+    else do:
+       find cust where cust.company = rfqitem.company and
                        cust.cust-no = rfq.cust-no 
-                       NO-LOCK NO-ERROR.
-       IF AVAIL cust THEN ls-dest-code = cust.del-zone.
-    END.
+                       no-lock no-error.
+       if avail cust then ls-dest-code = cust.del-zone.
+    end.
 
-    FIND FIRST eb OF ef WHERE eb.blank-no = rfqitem.blank-no  /*li-cnt*/  NO-ERROR.
-    IF AVAIL eb THEN DO: 
+    find first eb of ef where eb.blank-no = rfqitem.blank-no  /*li-cnt*/  no-error.
+    if avail eb then do: 
           {rfq/upd-eb.i} 
-    END.
-    ELSE DO:
-         LEAVE.
-    END.  
-END.  /* each rfqitem */
+    end.
+    else do:
+         leave.
+    end.  
+end.  /* each rfqitem */
 /* update set header */
-  FIND FIRST bf-ritem OF rfq WHERE bf-ritem.seq = 999 NO-LOCK NO-ERROR.
+  FIND FIRST bf-ritem of rfq where bf-ritem.seq = 999 NO-LOCK NO-ERROR.
   IF AVAIL bf-ritem THEN DO:
     FIND FIRST est WHERE est.company = bf-ritem.company
                      AND est.est-no = bf-ritem.est-no NO-LOCK NO-ERROR.
@@ -840,7 +842,7 @@ PROCEDURE select-all :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR li-count AS INT NO-UNDO.
+  def var li-count as int no-undo.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv-seq AS CHAR NO-UNDO.
   
@@ -891,11 +893,11 @@ PROCEDURE trx-rfq-to-est :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR li-next-est AS INT NO-UNDO.
-DEF VAR li-next-enum AS INT NO-UNDO.
-DEF VAR li-form-no AS INT NO-UNDO.
-DEF VAR li-blank-no AS INT NO-UNDO.
-DEF VAR li-cnt AS INT NO-UNDO.
+def var li-next-est as int no-undo.
+def var li-next-enum as int no-undo.
+def var li-form-no as int no-undo.
+def var li-blank-no as int no-undo.
+def var li-cnt as int no-undo.
 DEF VAR i AS INT NO-UNDO.
 DEF VAR ls-key AS cha NO-UNDO.
 
@@ -907,24 +909,24 @@ DISABLE TRIGGERS FOR LOAD OF reftable.
 
 REPEAT:
 
-FIND FIRST ce-ctrl WHERE
-     ce-ctrl.company = rfqitem.company AND
+find first ce-ctrl where
+     ce-ctrl.company = rfqitem.company and
      ce-ctrl.loc = rfqitem.loc
      EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
 
 IF AVAIL ce-ctrl THEN
 DO:
 
-li-next-est = IF AVAIL ce-ctrl THEN ce-ctrl.e-num ELSE 0.
-FIND LAST est /*use-index e-num no in V9 */ NO-LOCK NO-ERROR.
-li-next-enum = IF AVAIL est THEN est.e-num ELSE 0.
+li-next-est = if avail ce-ctrl then ce-ctrl.e-num else 0.
+find last est /*use-index e-num no in V9 */ no-lock no-error.
+li-next-enum = if avail est then est.e-num else 0.
 
-SESSION:SET-WAIT-STATE("COMPILER").
+session:set-wait-state("COMPILER").
 
-FOR EACH rfqitem OF rfq WHERE INDEX(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0 :
+for each rfqitem of rfq where index(ls-seq-list,string(rfqitem.seq,">>9")) > 0 :
 
-    CREATE est.
-    ASSIGN
+    create est.
+    assign
        li-next-est = li-next-est + 1
        li-next-enum = li-next-enum + 1
        li-form-no = 1
@@ -937,12 +939,12 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0 :
        est.est-qty[4] = rfqitem.qty[4]                                             
        est.est-type = li-est-type
        est.e-num    = li-next-enum
-       est.est-no   = STRING(li-next-est,">>>>>>>>")                          
+       est.est-no   = string(li-next-est,">>>>>>>>")                          
        est.form-qty = 1               
        est.mod-date = 01/01/1900  /* Indiana mods Task# 05110404 */
        est.est-date = TODAY
-       ls-key = STRING(TODAY,"99999999") +
-                string(NEXT-VALUE(rec_key_seq,nosweat),"99999999")
+       ls-key = string(today,"99999999") +
+                string(next-value(rec_key_seq,nosweat),"99999999")
        est.rec_key = ls-key.
 
     CREATE est-qty.
@@ -954,23 +956,23 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0 :
        est-qty.qty[i] = rfqitem.qty[i].
     END.
 
-    RUN create-est-prep (li-next-enum,STRING(li-next-est,">>>>>>>>")).
+    run create-est-prep (li-next-enum,string(li-next-est,">>>>>>>>")).
 
-    IF rfqitem.ship-id <> "" THEN DO:
-       FIND shipto WHERE shipto.company = rfqitem.company AND
-                         shipto.cust-no = rfq.cust-no AND
+    if rfqitem.ship-id <> "" then do:
+       find shipto where shipto.company = rfqitem.company and
+                         shipto.cust-no = rfq.cust-no and
                          shipto.ship-id = rfqitem.ship-id
-                         NO-LOCK NO-ERROR.
-       IF AVAIL shipto THEN ls-dest-code = shipto.dest-code.
-    END.    
-    ELSE DO:
-       FIND cust WHERE cust.company = rfqitem.company AND
+                         no-lock no-error.
+       if avail shipto then ls-dest-code = shipto.dest-code.
+    end.    
+    else do:
+       find cust where cust.company = rfqitem.company and
                        cust.cust-no = rfq.cust-no 
-                       NO-LOCK NO-ERROR.
-       IF AVAIL cust THEN ls-dest-code = cust.del-zone.
-    END.
+                       no-lock no-error.
+       if avail cust then ls-dest-code = cust.del-zone.
+    end.
     
-    CREATE ef.
+    create ef.
 
     FIND FIRST ITEM WHERE
          ITEM.company EQ rfqitem.company AND
@@ -981,18 +983,18 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0 :
 
     RELEASE ITEM.
 
-    CREATE eb.
+    create eb.
     {rfq/asn-eb.i}
 
     {ce/updunit#.i eb 0}
     {ce/updunit#.i eb 1}
 
-   ASSIGN rfqitem.est-no = est.est-no
+   assign rfqitem.est-no = est.est-no
           rfqitem.form-no = li-form-no
           rfqitem.blank-no = li-blank-no.
-    
+    {rfq/upd-note.i}
 
- END.  /* each rfqitem */
+ end.  /* each rfqitem */
 
  ce-ctrl.e-num = li-next-est.
  FIND CURRENT ce-ctrl NO-LOCK.
@@ -1011,34 +1013,34 @@ PROCEDURE trx-rfq-to-est-2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR li-next-est AS INT NO-UNDO.
-DEF VAR li-next-enum AS INT NO-UNDO.
-DEF VAR li-form-no AS INT NO-UNDO.
-DEF VAR li-blank-no AS INT NO-UNDO.
-DEF VAR li-cnt AS INT NO-UNDO.
+def var li-next-est as int no-undo.
+def var li-next-enum as int no-undo.
+def var li-form-no as int no-undo.
+def var li-blank-no as int no-undo.
+def var li-cnt as int no-undo.
 
-SESSION:SET-WAIT-STATE("COMPILER").
+session:set-wait-state("COMPILER").
 
 REPEAT:
 
-FIND FIRST ce-ctrl WHERE
-     ce-ctrl.company = rfqitem.company AND
+find first ce-ctrl where
+     ce-ctrl.company = rfqitem.company and
      ce-ctrl.loc = rfqitem.loc
      EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
 
 IF AVAIL ce-ctrl THEN
 DO:
 
-li-next-est = IF AVAIL ce-ctrl THEN ce-ctrl.e-num ELSE 0.
-FIND LAST est /* use-index e-num */ NO-LOCK NO-ERROR.
-li-next-enum = IF AVAIL est THEN est.e-num ELSE 0.
+li-next-est = if avail ce-ctrl then ce-ctrl.e-num else 0.
+find last est /* use-index e-num */ no-lock no-error.
+li-next-enum = if avail est then est.e-num else 0.
 
-FOR EACH rfqitem OF rfq WHERE INDEX(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0  
-                        BREAK BY rfqitem.part-no:
+for each rfqitem of rfq where index(ls-seq-list,string(rfqitem.seq,">>9")) > 0  
+                        break by rfqitem.part-no:
 
 /*    if first-of(rfqitem.part-no) then do: */
-       CREATE est.
-       ASSIGN 
+       create est.
+       assign 
        li-next-est = li-next-est + 1
        li-next-enum = li-next-enum + 1
        est.company  = rfqitem.company                                     
@@ -1049,31 +1051,32 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0
        est.est-qty[4] = rfqitem.qty[4]                                             
        est.est-type = li-est-type
        est.e-num    = li-next-enum
-       est.est-no   = STRING(li-next-est,">>>>>>>>").
+       est.est-no   = string(li-next-est,">>>>>>>>").
         FIND FIRST ITEM WHERE
              ITEM.company EQ rfqitem.company AND
              ITEM.i-no EQ rfqitem.board
              NO-LOCK NO-ERROR.
 
-        DO li-cnt = 1 TO li-num-of-form:
-           CREATE ef.
-           ASSIGN li-form-no = li-cnt
+        do li-cnt = 1 to li-num-of-form:
+           create ef.
+           assign li-form-no = li-cnt
                   li-blank-no = 1.
            {rfq/asn-ef.i}
 
-           CREATE eb.
+           create eb.
            {rfq/asn-eb.i}
            {ce/updunit#.i eb 0}
            {ce/updunit#.i eb 1}
-        END.
+        end.
 
         RELEASE ITEM.
-        
+
+        {rfq/upd-note.i}
 
  /*   end. /* first-of */  */
 
     rfqitem.est-no = est.est-no.
-   END.  /* each rfqitem */
+   end.  /* each rfqitem */
 
    ce-ctrl.e-num = li-next-est.
    FIND CURRENT ce-ctrl NO-LOCK.
@@ -1093,33 +1096,33 @@ PROCEDURE trx-rfq-to-est-3 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR li-next-est AS INT NO-UNDO.
-DEF VAR li-next-enum AS INT NO-UNDO.
-DEF VAR li-cnt AS INT NO-UNDO.
-DEF VAR li-form-no AS INT NO-UNDO.
-DEF VAR li-blank-no AS INT NO-UNDO.
+def var li-next-est as int no-undo.
+def var li-next-enum as int no-undo.
+def var li-cnt as int no-undo.
+def var li-form-no as int no-undo.
+def var li-blank-no as int no-undo.
 
 REPEAT:
 
-FIND FIRST ce-ctrl WHERE ce-ctrl.company = rfqitem.company AND
+find first ce-ctrl where ce-ctrl.company = rfqitem.company and
                          ce-ctrl.loc = rfqitem.loc
                         EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
 
 IF AVAIL ce-ctrl THEN
 DO:
 
-FIND LAST est /* use-index e-num */ NO-LOCK NO-ERROR.
+find last est /* use-index e-num */ no-lock no-error.
 
 ASSIGN
-   li-next-est = IF AVAIL ce-ctrl THEN ce-ctrl.e-num ELSE 0
-   li-next-enum = IF AVAIL est THEN est.e-num ELSE 0
+   li-next-est = if avail ce-ctrl then ce-ctrl.e-num else 0
+   li-next-enum = if avail est then est.e-num else 0
    li-form-no = 1.
 
-FOR EACH rfqitem OF rfq WHERE INDEX(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0  
-                        BREAK BY rfqitem.part-no:
+for each rfqitem of rfq where index(ls-seq-list,string(rfqitem.seq,">>9")) > 0  
+                        break by rfqitem.part-no:
 /*    if first-of(rfqitem.part-no) then do: */
-       CREATE est.
-       ASSIGN li-next-est = li-next-est + 1
+       create est.
+       assign li-next-est = li-next-est + 1
               li-next-enum = li-next-enum + 1
               est.company  = rfqitem.company                                     
               est.loc      = rfqitem.loc
@@ -1129,9 +1132,9 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0
               est.est-qty[4] = rfqitem.qty[4]                                             
               est.est-type = li-est-type
               est.e-num    = li-next-enum
-              est.est-no   = STRING(li-next-est,">>>>>>>>").
+              est.est-no   = string(li-next-est,">>>>>>>>").
 
-       CREATE ef.
+       create ef.
 
        FIND FIRST ITEM WHERE
             ITEM.company EQ rfqitem.company AND
@@ -1143,16 +1146,16 @@ FOR EACH rfqitem OF rfq WHERE INDEX(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0
        RELEASE ITEM.
 
 /*    end.  /* first-of */  */
-    DO li-cnt = 1 TO li-num-of-blank: 
-       CREATE eb.
+    do li-cnt = 1 to li-num-of-blank: 
+       create eb.
        li-blank-no = li-cnt.
        {rfq/asn-eb.i}  
        {ce/updunit#.i eb 0}
        {ce/updunit#.i eb 1}
-    END.  /* do */
+    end.  /* do */
 
     rfqitem.est-no = est.est-no.
-   END.  /* each rfqitem */
+   end.  /* each rfqitem */
 
    ce-ctrl.e-num = li-next-est.
    FIND CURRENT ce-ctrl NO-LOCK.
@@ -1171,12 +1174,12 @@ PROCEDURE trx-rfq-to-est-4 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR li-next-est AS INT NO-UNDO.
-  DEF VAR li-next-enum AS INT NO-UNDO.
-  DEF VAR li-cnt AS INT NO-UNDO.
-  DEF VAR li-cnt2 AS INT NO-UNDO.
-  DEF VAR li-form-no AS INT NO-UNDO.
-  DEF VAR li-blank-no AS INT NO-UNDO.
+  def var li-next-est as int no-undo.
+  def var li-next-enum as int no-undo.
+  def var li-cnt as int no-undo.
+  def var li-cnt2 as int no-undo.
+  def var li-form-no as int no-undo.
+  def var li-blank-no as int no-undo.
   DEF VAR i AS INT NO-UNDO.
   DEF VAR ls-key AS cha NO-UNDO.
 
@@ -1185,37 +1188,37 @@ PROCEDURE trx-rfq-to-est-4 :
 
   REPEAT:
   
-  FIND FIRST ce-ctrl WHERE
-       ce-ctrl.company = rfqitem.company AND
+  find first ce-ctrl where
+       ce-ctrl.company = rfqitem.company and
        ce-ctrl.loc = rfqitem.loc
        EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
 
   IF AVAIL ce-ctrl THEN
   DO:
 
-  FIND LAST est /*use-index e-num */ NO-LOCK NO-ERROR.
+  find last est /*use-index e-num */ no-lock no-error.
 
   ASSIGN
-  li-next-est = IF AVAIL ce-ctrl THEN ce-ctrl.e-num ELSE 0
-  li-next-enum = IF AVAIL est THEN est.e-num ELSE 0
+  li-next-est = if avail ce-ctrl then ce-ctrl.e-num else 0
+  li-next-enum = if avail est then est.e-num else 0
 
   li-form-no = 1
   li-cnt = 0
-  li-num-of-blank = NUM-ENTRIES(ls-seq-list) - 1. /* don't count last comma */
+  li-num-of-blank = num-entries(ls-seq-list) - 1. /* don't count last comma */
   
-  FOR EACH rfqitem WHERE
+  for each rfqitem where
       rfqitem.company EQ rfq.company AND
       rfqitem.loc EQ rfq.loc AND
       rfqitem.rfq-no EQ rfq.rfq-no AND
-      index(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0 
-      BREAK BY rfqitem.part-no:
+      index(ls-seq-list,string(rfqitem.seq,">>9")) > 0 
+      break by rfqitem.part-no:
 
-      IF FIRST(rfqitem.part-no) THEN DO:
+      if first(rfqitem.part-no) then do:
          li-next-est = li-next-est + 1.
          li-next-enum = li-next-enum + 1.
          li-cnt2 = 0.
-       CREATE est.
-       ASSIGN est.company  = rfqitem.company                                     
+       create est.
+       assign est.company  = rfqitem.company                                     
               est.loc      = rfqitem.loc
               est.est-qty[1] = rfqitem.qty[1]
               est.est-qty[2] = rfqitem.qty[2]
@@ -1223,12 +1226,12 @@ PROCEDURE trx-rfq-to-est-4 :
               est.est-qty[4] = rfqitem.qty[4]                                             
               est.est-type = li-est-type
               est.e-num    = li-next-enum
-              est.est-no   = STRING(li-next-est,">>>>>>>>")                          
+              est.est-no   = string(li-next-est,">>>>>>>>")                          
               est.form-qty = li-num-of-form
-              est.est-date = TODAY 
+              est.est-date = today 
               est.mod-date = 01/01/1900  /* Indiana mods Task# 05110404 */
-      ls-key = STRING(TODAY,"99999999") +
-             string(NEXT-VALUE(rec_key_seq,nosweat),"99999999")
+      ls-key = string(today,"99999999") +
+             string(next-value(rec_key_seq,nosweat),"99999999")
       est.rec_key = ls-key.       
 
       CREATE est-qty.
@@ -1239,11 +1242,11 @@ PROCEDURE trx-rfq-to-est-4 :
       DO i = 1 TO 99:
           est-qty.qty[i] = rfqitem.qty[i].
       END.
-      RUN create-est-prep (li-next-enum, STRING(li-next-est,">>>>>>>>")).
+      run create-est-prep (li-next-enum, STRING(li-next-est,">>>>>>>>")).
     
       /* do li-cnt = 1 to li-num-of-form: */
           li-form-no = li-cnt + 1.
-          CREATE ef.
+          create ef.
 
           FIND FIRST ITEM WHERE
                ITEM.company EQ rfqitem.company AND
@@ -1254,23 +1257,23 @@ PROCEDURE trx-rfq-to-est-4 :
 
           RELEASE ITEM.
       /* end.*/
-      
-    END.  /* first   i-est 1-ef */  
-    IF rfqitem.ship-id <> "" THEN DO:
-       FIND shipto WHERE shipto.company = rfqitem.company AND
-                         shipto.cust-no = rfq.cust-no AND
+      {rfq/upd-note.i}
+    end.  /* first   i-est 1-ef */  
+    if rfqitem.ship-id <> "" then do:
+       find shipto where shipto.company = rfqitem.company and
+                         shipto.cust-no = rfq.cust-no and
                          shipto.ship-id = rfqitem.ship-id
-                         NO-LOCK NO-ERROR.
-       IF AVAIL shipto THEN ls-dest-code = shipto.dest-code.
-    END.    
-    ELSE DO:
-       FIND cust WHERE cust.company = rfqitem.company AND
+                         no-lock no-error.
+       if avail shipto then ls-dest-code = shipto.dest-code.
+    end.    
+    else do:
+       find cust where cust.company = rfqitem.company and
                        cust.cust-no = rfq.cust-no 
-                       NO-LOCK NO-ERROR.
-       IF AVAIL cust THEN ls-dest-code = cust.del-zone.
-    END.
+                       no-lock no-error.
+       if avail cust then ls-dest-code = cust.del-zone.
+    end.
     /*   do li-cnt2 = 1 to li-num-of-blank: */
-             CREATE eb.         /* 1-eb per rfqitem */
+             create eb.         /* 1-eb per rfqitem */
              ASSIGN
              li-cnt2 = li-cnt2 + 1
              li-blank-no = li-cnt2.
@@ -1280,11 +1283,11 @@ PROCEDURE trx-rfq-to-est-4 :
       /*    end.
        end.
       */
-     ASSIGN rfqitem.est-no = est.est-no
+     assign rfqitem.est-no = est.est-no
             rfqitem.form-no = li-form-no
             rfqitem.blank-no = li-blank-no
             .
-  END.  /* each rfqitem */
+  end.  /* each rfqitem */
 
   ce-ctrl.e-num = li-next-est.
   FIND CURRENT ce-ctrl NO-LOCK.
@@ -1304,12 +1307,12 @@ PROCEDURE trx-rfq-to-est-6 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  DEF VAR li-next-est AS INT NO-UNDO.
-  DEF VAR li-next-enum AS INT NO-UNDO.
-  DEF VAR li-cnt AS INT NO-UNDO.
-  DEF VAR li-cnt2 AS INT NO-UNDO.
-  DEF VAR li-form-no AS INT NO-UNDO.
-  DEF VAR li-blank-no AS INT NO-UNDO.
+  def var li-next-est as int no-undo.
+  def var li-next-enum as int no-undo.
+  def var li-cnt as int no-undo.
+  def var li-cnt2 as int no-undo.
+  def var li-form-no as int no-undo.
+  def var li-blank-no as int no-undo.
   DEF VAR i AS INT NO-UNDO.
   DEF VAR lv-est-recid AS RECID NO-UNDO.
   DEF VAR ls-key AS cha NO-UNDO.
@@ -1322,28 +1325,28 @@ PROCEDURE trx-rfq-to-est-6 :
 
   REPEAT:
   
-  FIND FIRST ce-ctrl WHERE ce-ctrl.company = rfqitem.company AND
+  find first ce-ctrl where ce-ctrl.company = rfqitem.company and
                          ce-ctrl.loc = rfqitem.loc
                          EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
   
   IF AVAIL ce-ctrl THEN
   DO:
   
-  FIND LAST est /*use-index e-num */ NO-LOCK NO-ERROR.
+  find last est /*use-index e-num */ no-lock no-error.
   ASSIGN
-  li-next-est = IF AVAIL ce-ctrl THEN ce-ctrl.e-num ELSE 0
-  li-next-enum = IF AVAIL est THEN est.e-num ELSE 0
+  li-next-est = if avail ce-ctrl then ce-ctrl.e-num else 0
+  li-next-enum = if avail est then est.e-num else 0
 
   li-form-no = 0
   li-cnt = 0
-  li-num-of-blank = NUM-ENTRIES(ls-seq-list) - 1. /* don't count last comma */
+  li-num-of-blank = num-entries(ls-seq-list) - 1. /* don't count last comma */
   
-  FOR EACH rfqitem OF rfq WHERE INDEX(ls-seq-list,STRING(rfqitem.seq,">>9")) > 0  
-                        BREAK BY rfqitem.part-no:
-      IF FIRST(rfqitem.part-no) THEN DO:
+  for each rfqitem of rfq where index(ls-seq-list,string(rfqitem.seq,">>9")) > 0  
+                        break by rfqitem.part-no:
+      if first(rfqitem.part-no) then do:
 
-         CREATE est.
-         ASSIGN
+         create est.
+         assign
               li-next-est = li-next-est + 1
               li-next-enum = li-next-enum + 1
               li-cnt2 = 0
@@ -1355,12 +1358,12 @@ PROCEDURE trx-rfq-to-est-6 :
               est.est-qty[4] = rfqitem.qty[4]                                             
               est.est-type = li-est-type
               est.e-num    = li-next-enum
-              est.est-no   = STRING(li-next-est,">>>>>>>>")                          
+              est.est-no   = string(li-next-est,">>>>>>>>")                          
               est.form-qty = li-num-of-form
-              est.est-date = TODAY 
+              est.est-date = today 
               est.mod-date = 01/01/1900  /* Indiana mods Task# 05110404 */
-        ls-key = STRING(TODAY,"99999999") +
-             string(NEXT-VALUE(rec_key_seq,nosweat),"99999999")
+        ls-key = string(today,"99999999") +
+             string(next-value(rec_key_seq,nosweat),"99999999")
         est.rec_key = ls-key
         lv-est-recid = RECID(est).
         CREATE est-qty.
@@ -1372,26 +1375,26 @@ PROCEDURE trx-rfq-to-est-6 :
            est-qty.qty[i] = rfqitem.qty[i].
         END.
 
-        RUN create-est-prep (li-next-enum,STRING(li-next-est,">>>>>>>>")).
-          
-      END.  /* first   i-est 1-ef */  
+        run create-est-prep (li-next-enum,string(li-next-est,">>>>>>>>")).
+        {rfq/upd-note.i}  
+      end.  /* first   i-est 1-ef */  
       IF NOT AVAIL est THEN FIND est WHERE RECID(est) = lv-est-recid .
 
-      IF rfqitem.ship-id <> "" THEN DO:
-         FIND shipto WHERE shipto.company = rfqitem.company AND
-                         shipto.cust-no = rfq.cust-no AND
+      if rfqitem.ship-id <> "" then do:
+         find shipto where shipto.company = rfqitem.company and
+                         shipto.cust-no = rfq.cust-no and
                          shipto.ship-id = rfqitem.ship-id
-                         NO-LOCK NO-ERROR.
-         IF AVAIL shipto THEN ls-dest-code = shipto.dest-code.
-      END.    
-      ELSE DO:
-         FIND cust WHERE cust.company = rfqitem.company AND
+                         no-lock no-error.
+         if avail shipto then ls-dest-code = shipto.dest-code.
+      end.    
+      else do:
+         find cust where cust.company = rfqitem.company and
                          cust.cust-no = rfq.cust-no 
-                         NO-LOCK NO-ERROR.
-         IF AVAIL cust THEN ls-dest-code = cust.del-zone.
-      END.
+                         no-lock no-error.
+         if avail cust then ls-dest-code = cust.del-zone.
+      end.
       li-form-no = li-form-no + 1.
-      CREATE ef.
+      create ef.
 
       FIND FIRST ITEM WHERE
            ITEM.company EQ rfqitem.company AND
@@ -1403,7 +1406,7 @@ PROCEDURE trx-rfq-to-est-6 :
       RELEASE ITEM.
 
       li-cnt2 = 0.
-      CREATE eb.         /* 1-eb per rfqitem */
+      create eb.         /* 1-eb per rfqitem */
       ASSIGN
       li-cnt2 = li-cnt2 + 1
       li-blank-no = li-cnt2.
@@ -1411,23 +1414,23 @@ PROCEDURE trx-rfq-to-est-6 :
       {ce/updunit#.i eb 0}
       {ce/updunit#.i eb 1}
       
-      ASSIGN rfqitem.est-no = est.est-no
+      assign rfqitem.est-no = est.est-no
              rfqitem.form-no = li-form-no
              rfqitem.blank-no = li-blank-no
             .
-      IF LAST(rfqitem.part-no) THEN DO:
+      IF LAST(rfqitem.part-no) then do:
          est.form-qty = li-form-no.
          /* create set header */
-         FIND FIRST bf-ritem OF rfq WHERE bf-ritem.seq = 999  NO-ERROR.
+         FIND FIRST bf-ritem of rfq where bf-ritem.seq = 999  NO-ERROR.
          IF AVAIL bf-ritem THEN DO:
             /* create ef.
            {rfq/asn-efs.i}  no ef for SET header */
-           CREATE eb.         /* 1-eb per rfqitem */
+           create eb.         /* 1-eb per rfqitem */
            {rfq/asn-ebs.i}
            bf-ritem.est-no = est.est-no.
          END.
       END.
-  END.  /* each rfqitem */
+  end.  /* each rfqitem */
 
   ce-ctrl.e-num = li-next-est.
   FIND CURRENT ce-ctrl NO-LOCK.

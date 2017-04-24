@@ -153,9 +153,11 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL selectMiscFlds s-object
 ON CHOOSE OF selectMiscFlds IN FRAME F-Main /* Misc Fields */
 DO:
- 
+  IF NOT connected("asinos") THEN CONNECT value("-pf ../asinos.pf") .
+
   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
- 
+
+  IF connected("asinos") THEN DISCONNECT value("asinos").
 
 END.
 

@@ -1470,8 +1470,7 @@ PROCEDURE connect-asinos :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-/* wfk - 20281 - could not find where this is called */
-/* IF NOT CONNECTED("asinos") THEN CONNECT value("-pf ../asinos.pf"). */
+IF NOT CONNECTED("asinos") THEN CONNECT value("-pf ../asinos.pf").
 
 END PROCEDURE.
 
