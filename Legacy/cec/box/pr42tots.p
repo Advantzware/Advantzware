@@ -41,6 +41,7 @@ DEFINE        VARIABLE v-n-out          AS INTEGER   NO-UNDO.
 DEFINE        VARIABLE ld-fg-rate       AS DECIMAL   NO-UNDO.
 DEFINE        VARIABLE ll-gsa-pct       AS LOG       NO-UNDO.
 DEFINE        VARIABLE v-cust-no        AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE dFreightTemp     AS DECIMAL   NO-UNDO.
 
 DEFINE BUFFER reftable-fm         FOR reftable.
 DEFINE BUFFER reftable-broker-pct FOR reftable.
@@ -232,10 +233,17 @@ FOR EACH car
                         END.
                     END.
         
-                    ELSE
-                    DO i = 1 TO 10:
-                        fr-tot = carr-mtx.rate[i] * vcarmsf.          
-                        IF carr-mtx.weight[i] GE vcarmsf THEN LEAVE.
+                    ELSE 
+                    DO:  /*Ticket 20329 was only calculating the last form on a set with MSF calculation*/
+                        DO i = 1 TO 10:
+                            dFreightTemp = 0.
+                            dFreightTemp = carr-mtx.rate[i] * vcarmsf.          
+                            IF carr-mtx.weight[i] GE vcarmsf THEN LEAVE.
+                        END.
+                        IF vmclean2 THEN
+                            fr-tot = dFreightTemp. /*vmclean2 = SETPRINT=MCLEAN - separates totals per component*/
+                        ELSE IF car.snum NE 0 THEN 
+                                fr-tot = fr-tot + dFreightTemp.  /*SETPRINT=ASI - aggregates totals for set*/
                     END.
         
                 /*         find first bf-eb where bf-eb.company = xest.company and */
@@ -254,9 +262,9 @@ FOR EACH car
     /*                          bf-eb.est-no    = xest.est-no and    */
     /*                          bf-eb.form-no = 0 NO-LOCK NO-ERROR.  */
     /*       isUnitized = AVAIL bf-eb AND bf-eb.pur-man.             */
-      
-      
-    IF NOT (xest.est-type EQ 6 
+    /*Note This condition was change with ticket 20329 since this appears to include form 0 (header) msf when it shouldn't*/
+
+    IF carrier.chg-method NE "M" AND  NOT (xest.est-type EQ 6
         AND avail(bf-eb) 
         AND bf-eb.pur-man = YES 
         AND bf-eb.set-is-assembled 
