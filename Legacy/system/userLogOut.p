@@ -19,14 +19,26 @@
 
 
 /* ***************************  Main Block  *************************** */
-FIND FIRST asi._myconnection NO-LOCK.  
-FIND FIRST asi._connect NO-LOCK WHERE _connect._connect-id = _myconnection._myconn-id
-    NO-ERROR. 
-  
+DEFINE VARIABLE cCurrentUserID AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cResponse      AS CHARACTER NO-UNDO.
+{methods/defines/hndldefs.i}
+{custom/gcompany.i}    
+{custom/getcmpny.i}
+{custom/gloc.i}
+{custom/getloc.i}
+
+{sys/inc/var.i new shared}
+
+ASSIGN
+    cocode         = gcompany
+    locode         = gloc
+    cCurrentUserID = USERID(LDBNAME(1)).
+    
 FIND FIRST userLog NO-LOCK 
-    WHERE userLog.user_id       = USERID("NOSWEAT")       
-    AND userLog.sessionID     = asi._myconnection._myconn-pid 
+    WHERE userLog.user_id     = cCurrentUserID       
+    AND userLog.sessionID     = igsSessionID 
     AND userLog.userStatus EQ "Logged In" 
+    USE-INDEX sessionID
     NO-ERROR.
         
   
@@ -38,7 +50,6 @@ DO TRANSACTION:
         userLog.userStatus     = "User Logged Out".
 
     FIND CURRENT userLog NO-LOCK.
-
 
 END.
 

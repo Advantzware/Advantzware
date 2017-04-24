@@ -81,7 +81,7 @@ DELETE WIDGET-POOL "dyn-buttons" NO-ERROR.
 ASSIGN
   g_company = ""
   g_loc = "".
-RUN Get_Procedure IN Persistent-Handle ("comp_loc.",OUTPUT run-proc,yes).
+RUN Get_Procedure IN Persistent-Handle ("comp_loc.",OUTPUT run-proc,YES).
 IF g_company = "" OR g_loc = "" THEN
 DO:
   MESSAGE "No Company and/or Location found for your login ID." SKIP
@@ -197,14 +197,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 200
          VIRTUAL-HEIGHT     = 40
          VIRTUAL-WIDTH      = 200
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
+         RESIZE             = NO
+         SCROLL-BARS        = NO
+         STATUS-AREA        = NO
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -231,7 +231,7 @@ IF NOT MAINMENU:LOAD-ICON("adeicon/progress.ico":U) THEN
 /* SETTINGS FOR FILL-IN users_user_id IN FRAME FRAME-USER
    NO-ENABLE                                                            */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(MAINMENU)
-THEN MAINMENU:HIDDEN = no.
+THEN MAINMENU:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -254,9 +254,9 @@ THEN MAINMENU:HIDDEN = no.
 &Scoped-define SELF-NAME FRAME-USER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-USER MAINMENU
 ON END-ERROR OF FRAME FRAME-USER
-anywhere
+ANYWHERE
 DO:
-    return no-apply.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -266,7 +266,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL FRAME-USER MAINMENU
 ON HELP OF FRAME FRAME-USER
 DO:
-  RUN Get_Procedure IN Persistent-Handle ("popups.",OUTPUT run-proc,yes).
+  RUN Get_Procedure IN Persistent-Handle ("popups.",OUTPUT run-proc,YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -297,6 +297,7 @@ ON WINDOW-CLOSE OF {&WINDOW-NAME} DO:
   MESSAGE 'Exit AdvantzWare?' VIEW-AS ALERT-BOX
     QUESTION BUTTONS YES-NO UPDATE closeMenu.
   IF NOT closeMenu THEN RETURN NO-APPLY.
+  RUN system/userLogOut.p.
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.
@@ -437,12 +438,12 @@ PROCEDURE Mneumonic :
 */
  
 
-  if bttn:label = "Exit" then bttn:label = "E&xit".
-  else if button-col > 80 then do: /* third column */
+  IF bttn:LABEL = "Exit" THEN bttn:LABEL = "E&xit".
+  ELSE IF button-col > 80 THEN DO: /* third column */
         button-count = button-count + 1.
         bttn:LABEL = '&' + string(button-count) + ' ' + bttn:LABEL. 
-  end.    
-  else assign bttn:LABEL = '&' + /* SUBSTRING(bttn:LABEL,1,1) + ' ' +*/  bttn:LABEL
+  END.    
+  ELSE ASSIGN bttn:LABEL = '&' + /* SUBSTRING(bttn:LABEL,1,1) + ' ' +*/  bttn:LABEL
        button-count = 0     .
 
 END PROCEDURE.
@@ -459,7 +460,7 @@ PROCEDURE Read_Menus :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE m AS CHARACTER EXTENT 2 NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
-  def var ls-menu-lst as cha no-undo.
+  DEF VAR ls-menu-lst AS cha NO-UNDO.
   
   FOR EACH ttbl EXCLUSIVE-LOCK:
     DELETE ttbl.
@@ -471,13 +472,13 @@ PROCEDURE Read_Menus :
   CREATE WIDGET-POOL "dyn-buttons" PERSISTENT.
   /* ============= dynamic menu for foldware/corrware ============*/
   ls-menu-lst = "menu.lst".
-  find first sys-ctrl where sys-ctrl.company = g_company and
+  FIND FIRST sys-ctrl WHERE sys-ctrl.company = g_company AND
                             sys-ctrl.name = "cemenu"
-                            no-lock no-error.
-  if avail sys-ctrl then do:
-     if sys-ctrl.char-fld = "Corrware" then ls-menu-lst = "menu.cor".
-     if sys-ctrl.char-fld = "Foldware" then ls-menu-lst = "menu.fol".
-  end.
+                            NO-LOCK NO-ERROR.
+  IF AVAIL sys-ctrl THEN DO:
+     IF sys-ctrl.char-fld = "Corrware" THEN ls-menu-lst = "menu.cor".
+     IF sys-ctrl.char-fld = "Foldware" THEN ls-menu-lst = "menu.fol".
+  END.
   /* ========== end of mods =========================*/                          
   INPUT FROM /*'menu.lst'*/ value(ls-menu-lst) /* ysk */ NO-ECHO.
   REPEAT:
@@ -570,7 +571,7 @@ PROCEDURE Run_Button :
   IF INDEX(button-handle:NAME,'.') = 0 THEN
   RUN Create_Buttons(button-handle:NAME).
   ELSE
-  RUN Get_Procedure IN Persistent-Handle(button-handle:NAME,OUTPUT run-proc,yes).
+  RUN Get_Procedure IN Persistent-Handle(button-handle:NAME,OUTPUT run-proc,YES).
 
 
 END PROCEDURE.
