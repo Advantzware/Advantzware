@@ -366,7 +366,7 @@ PROCEDURE Create_Buttons :
         HEIGHT-CHARS = {&button-height}
         WIDTH-CHARS = {&button-width}
         HIDDEN = NO
-        MANUAL-HIGHLIGHT = TRUE
+        /* MANUAL-HIGHLIGHT = TRUE */
       TRIGGERS:
         ON CHOOSE
           PERSISTENT RUN Run_Button IN THIS-PROCEDURE (button-widget:HANDLE).
