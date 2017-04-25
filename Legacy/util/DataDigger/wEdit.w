@@ -146,10 +146,10 @@ DEFINE BROWSE brFields
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME frEdit
-     brFields AT Y 5 X 0 WIDGET-ID 200
-     fiNumRecords AT Y 465 X 90 COLON-ALIGNED WIDGET-ID 10
-     btnOk AT Y 465 X 390 WIDGET-ID 6
-     btnClose AT Y 465 X 585 WIDGET-ID 4
+     brFields at row 1.24 col 1 WIDGET-ID 200
+     fiNumRecords at row 23.14 col 19 COLON-ALIGNED WIDGET-ID 10
+     btnOk at row 23.14 col 100 WIDGET-ID 6
+     btnClose AT row 23.14 col 119  WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -197,7 +197,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow-nonadm.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -391,7 +390,6 @@ DO:
   end.
 
   apply 'close' to this-procedure. 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:34 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -406,7 +404,6 @@ do:
   run btnGoChoose(output polSuccess).
   if not polSuccess then return no-apply.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:34 am */
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -428,7 +425,6 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
 do:
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:34 am */
 END.
   /* Save settings */
   setRegistry("DataDigger:Edit", "Window:x", string(wEdit:x) ).                             
@@ -541,7 +537,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   run initializeObject.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:34 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
