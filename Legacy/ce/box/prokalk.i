@@ -54,6 +54,14 @@
        maxco = MIN(w-ink.inks + w-ink.varn,mach.max-color).
      END.
    END.
+   ELSE DO:
+    /*14152 - Calculate the maxco using all ink passes for non printers/coaters*/
+     maxco = 0. 
+     FOR EACH w-ink:
+        maxco = maxco + w-ink.inks + w-ink.varn.
+     END.
+   END.
+   
    
    find first style
        where style.company eq cocode
