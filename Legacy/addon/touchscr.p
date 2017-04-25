@@ -6,11 +6,10 @@
 &SCOPED-DEFINE checkUserRecord YES
 &SCOPED-DEFINE connectDatabases YES
 &SCOPED-DEFINE runAsiLoad YES
-&SCOPED-DEFINE createSingleUserPFs YES
 &SCOPED-DEFINE checkExpiredLicense YES
 &GLOBAL-DEFINE checkUserCount YES
 &SCOPED-DEFINE getCompanyProc sshoot/comp-loc.p
-
+&SCOPED-DEFINE appName touchscreen
 {nosweat.i}
 
 /* Original Code */

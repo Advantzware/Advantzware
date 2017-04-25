@@ -18,16 +18,10 @@
     &SCOPED-DEFINE sharpshooterFlag YES
     &SCOPED-DEFINE checkBlankCompany YES
     &SCOPED-DEFINE addonPersist YES
-    /* user_dir. - see caselbl3.p */
-    /* comp_loc. - see ltaglbla.p - this was commented out in each case I found */
-    /* gettime.p - see addon/touchscr.p */
+    &SCOPED-DEFINE appName(touchscreen, advantzware, sharpshooter)
+    /* Note: user_dir is used in see caselbl3.p */    
+    /* Note: gettime.p used in addon/touchscr.p */
 */
-
-CREATE ALIAS NoSweat  FOR DATABASE ASI NO-ERROR.
-CREATE ALIAS EmpTrack FOR DATABASE ASI NO-ERROR.
-CREATE ALIAS Jobs     FOR DATABASE ASI NO-ERROR.
-CREATE ALIAS RFQ      FOR DATABASE ASI NO-ERROR.
-
 
 
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
@@ -39,13 +33,9 @@ DEFINE                   VARIABLE ldummy          AS LOGICAL   NO-UNDO.
 DEFINE                   VARIABLE i               AS INTEGER   NO-UNDO.
 DEFINE                   VARIABLE lExit           AS LOGICAL   NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g-sharpshooter  AS LOG       NO-UNDO.  /* no, it's yes only from sharpsh.p */
-
-DO TRANSACTION:
-{sys/inc/tslogin.i}
-END.
-
-/* Previously not run in every case, should be up for discussion */
-RUN custom/gettime.p.
+DEFINE                   VARIABLE tslogin-log     AS LOGICAL NO-UNDO.
+DEFINE                   VARIABLE lFound          AS LOGICAL NO-UNDO.
+DEFINE                   VARIABLE cTsLogin        AS CHARACTER   NO-UNDO.
 
 &IF "{&sharpshooterFlag}" EQ "YES"  &THEN
 
@@ -77,17 +67,32 @@ DO:
     QUIT.
 END.
 
-&IF "{&checkUserRecord}" EQ "YES"  &THEN
-RUN userRecordCheck.
-&ENDIF
-
 &IF "{&connectDatabases}" EQ "YES"  &THEN
 RUN connectDatabases.
 &ENDIF
 
+&IF "{&checkUserRecord}" EQ "YES"  &THEN
+RUN userRecordCheck.
+&ENDIF
+
+
+RUN sys/ref/nk1look.p (INPUT g_company,
+                       INPUT "tslogin",
+                       INPUT "L",
+                       INPUT NO,
+                       INPUT NO,
+                       INPUT "",
+                       INPUT "",
+                       OUTPUT cTsLogin,
+                       OUTPUT lFound).
+IF lFound THEN
+    tslogin-log = cTsLogin EQ "YES".
+
+
 &IF "{&runAsiLoad}" EQ "YES"  &THEN
-.
-IF USERID(LDBNAME(1)) = "ASI" OR USERID(LDBNAME(1)) = "NOSWEAT" THEN RUN asiload.p.
+
+RUN asiload.p.
+
 &ENDIF
 
 RUN chkdate.p.
@@ -96,7 +101,8 @@ IF CONNECTED(LDBNAME(1)) THEN
 DO:
 
     &IF "{&createSingleUserPFs}" EQ "YES" &THEN          
-    RUN createSingleUserPFs.
+      /* Decided this was not needed */
+      /* RUN createSingleUserPFs. */
     &ENDIF
 
     {methods/setdevid.i}
@@ -105,7 +111,7 @@ DO:
     RUN getCompanyProc.
     &ENDIF
 
-    
+
     &IF "{&addonPersist}" EQ "YES"  &THEN
       RUN addon/nosweat/persist.p PERSISTENT SET Persistent-Handle.
     &ELSE
@@ -121,14 +127,12 @@ DO:
             
         /* Check EULA and number of sessions here using combined db or in mainmenu if ASI is physically connected */
         RUN system/userLogin.p (OUTPUT lExit).
-        
         IF lExit THEN 
             QUIT. 
     END.
     
     &ENDIF
     
-
     &IF "{&checkExpiredLicense}" EQ "YES"  &THEN
     RUN system/checkExpiredLicense.p.    
     &ENDIF
@@ -257,7 +261,7 @@ END PROCEDURE.
 
 PROCEDURE setDefaultUser:
     /* {&defaultUser} */
-    IF SETUSERID("{&overrideUserID}","{&overrideUserPasswd}","NOSWEAT") THEN.
+    IF SETUSERID("{&overrideUserID}","{&overrideUserPasswd}",LDBNAME(1)) THEN.
 END PROCEDURE. 
    
 
@@ -269,8 +273,10 @@ END PROCEDURE.
     
 PROCEDURE setUserProc:
 
-    /* If not touchscreen or if tslogin-log then run login prompt */
-    IF INDEX("{&execProgram}", "touch") EQ 0 OR (INDEX("{&execProgram}", "touch") GT 0 AND tslogin-log) THEN    
+    /* Touchscreen may not prompt so check for tslogin for touch programs */
+    IF "{&appName}" NE "touchscreen"  
+        OR ("{&appName}" EQ "touchscreen" AND tslogin-log )         
+      THEN    
     DO:
         m_id = OS-GETENV("opsysid").
 
@@ -283,8 +289,10 @@ PROCEDURE setUserProc:
 END. 
 
 PROCEDURE startNonPersistentMenu:
-        
-        RUN VALUE("{&nonPersistProgram}").
+
+      IF "{&appName}" EQ "touchscreen" THEN
+        RUN custom/gettime.p.
+      RUN VALUE("{&nonPersistProgram}").
     
 END PROCEDURE.
 

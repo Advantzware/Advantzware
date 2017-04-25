@@ -4,7 +4,6 @@ PROPATH = "..\,.\" + PROPATH.
 &SCOPED-DEFINE checkUserRecord YES
 &SCOPED-DEFINE connectDatabases YES
 &SCOPED-DEFINE runAsiLoad YES
-&SCOPED-DEFINE createSingleUserPFs YES
 &SCOPED-DEFINE execProgram sssetups.    
 &SCOPED-DEFINE checkExpiredLicense YES
 &GLOBAL-DEFINE checkUserCount YES
