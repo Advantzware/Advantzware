@@ -534,7 +534,8 @@ PROCEDURE initialize-folder :
 
     IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive AND
        VALID-HANDLE (container-hdl) AND
-       Consultingwerk.Util.ProcedureHelper:HasEntry (container-hdl, "getEmbeddedWindowForm") THEN DO:
+       Consultingwerk.Util.ProcedureHelper:HasEntry (container-hdl, "getEmbeddedWindowForm") AND
+       Consultingwerk.Util.ProcedureHelper:HasEntry (container-hdl, "noEmbeddedWindowForm") EQ FALSE THEN DO:
 
         oForm = DYNAMIC-FUNCTION ("getEmbeddedWindowForm" IN container-hdl)  .
 

@@ -1,5 +1,6 @@
 /* scopDir.i */
 
+&GLOBAL-DEFINE WinKitDontEmbed
 &GLOBAL-DEFINE startDir schedule
 &GLOBAL-DEFINE backup c:\sb.dat.backup
 &GLOBAL-DEFINE data {&startDir}/data
@@ -66,6 +67,11 @@ ASSIGN
   codeDir = SEARCH('{&startDir}\sbPro.p')
   codeDir = REPLACE(codeDir,'{&startDir}\sbPro.p','')
   .
+
+PROCEDURE noEmbeddedWindowForm :
+    // here simply as a dummy procedure to prevent folder.w
+    // from attempting to create tabs in non embedded window
+END PROCEDURE.
 
 &GLOBAL-DEFINE installDir
 &ENDIF
