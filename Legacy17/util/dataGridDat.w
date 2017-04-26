@@ -68,8 +68,8 @@ ASSIGN
 tablesInQuery inQueryFields queryString dataGridIncludeFields ~
 selectedFields indexedFields nonIndexedFields btnClear btnReset btnForEach ~
 btnWhere btnNoLock btnBegins btnEQ btnNE btnAnd btnOR btnGT btnGE btnLT ~
-btnLE btnTrue btnFalse btnLeftPar btnRightPar btnOK btnComma btnUnknown ~
-btnFirst btnLast btnCompany btnLoc 
+btnLE btnTrue btnFalse btnLeftPar btnRightPar btnComma btnUnknown btnFirst ~
+btnLast btnCompany btnLoc btnOK 
 &Scoped-Define DISPLAYED-OBJECTS externalTables externalFields ~
 tablesInQuery inQueryFields indexText queryString dataGridIncludeFields ~
 selectedFields indexedFields nonIndexedFields generated dataGridIncludeFile 
@@ -306,13 +306,13 @@ DEFINE FRAME Dialog-Frame
      btnFalse AT ROW 28.86 COL 120 WIDGET-ID 88
      btnLeftPar AT ROW 30.05 COL 104 WIDGET-ID 72
      btnRightPar AT ROW 30.05 COL 112 WIDGET-ID 76
-     btnOK AT ROW 35.76 COL 118
      btnComma AT ROW 30.05 COL 120 WIDGET-ID 82
      btnUnknown AT ROW 30.05 COL 128 WIDGET-ID 84
      btnFirst AT ROW 31.24 COL 104 WIDGET-ID 44
      btnLast AT ROW 31.24 COL 120 WIDGET-ID 46
      btnCompany AT ROW 33.62 COL 104 WIDGET-ID 62
      btnLoc AT ROW 33.62 COL 120 WIDGET-ID 64
+     btnOK AT ROW 35.76 COL 118
      generated AT ROW 8.62 COL 49 COLON-ALIGNED NO-LABEL WIDGET-ID 22
      dataGridIncludeFile AT ROW 18.86 COL 18 COLON-ALIGNED WIDGET-ID 90
      "Non-Indexed Fields" VIEW-AS TEXT
@@ -832,8 +832,8 @@ PROCEDURE enable_UI :
          queryString dataGridIncludeFields selectedFields indexedFields 
          nonIndexedFields btnClear btnReset btnForEach btnWhere btnNoLock 
          btnBegins btnEQ btnNE btnAnd btnOR btnGT btnGE btnLT btnLE btnTrue 
-         btnFalse btnLeftPar btnRightPar btnOK btnComma btnUnknown btnFirst 
-         btnLast btnCompany btnLoc 
+         btnFalse btnLeftPar btnRightPar btnComma btnUnknown btnFirst btnLast 
+         btnCompany btnLoc btnOK 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -897,15 +897,23 @@ PROCEDURE pGetDataGridDat :
         INPUT CLOSE.
         
         IF ipcDataGridInclude NE ? THEN DO:
-            INPUT FROM VALUE(ipcDataGridInclude) NO-ECHO.
-            IMPORT UNFORMATTED dataGridIncludeFields.
-            INPUT CLOSE.
+            IF SEARCH(ipcDataGridInclude) EQ ? THEN DO:
+                OUTPUT TO VALUE(ipcDataGridInclude).
+                PUT UNFORMATTED SKIP(1).
+                OUTPUT CLOSE.
+            END. /* if ne ? */
+            ELSE DO:            
+                INPUT FROM VALUE(ipcDataGridInclude) NO-ECHO.
+                IMPORT UNFORMATTED dataGridIncludeFields.
+                INPUT CLOSE.
+            END. /* else */
     
             ASSIGN
                 dataGridIncludeFile:SCREEN-VALUE   = ipcDataGridInclude
                 dataGridIncludeFields:SCREEN-VALUE = dataGridIncludeFields
                 .
         END. /* if ne ? */
+        
     END. /* with frame */
 
 END PROCEDURE.
@@ -935,7 +943,7 @@ PROCEDURE pSetDataGridDat :
 
         IF ipcDataGridInclude NE ? THEN DO:
             OUTPUT TO VALUE(ipcDataGridInclude).
-            PUT UNFORMATTED dataGridIncludeFields:SCREEN-VALUE SKIP.
+            PUT UNFORMATTED dataGridIncludeFields:SCREEN-VALUE SKIP(1).
             OUTPUT CLOSE.
         END. /* if ne ? */
     END. /* with frame */
