@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\est\b-qthd.i
 &SCOPED-DEFINE yellowColumnsName b-qthd
 &SCOPED-DEFINE localOpenQuery
 &SCOPED-DEFINE SORTBY-PHRASE BY STRING(quotehd.q-no,">>>>>9") DESCENDING

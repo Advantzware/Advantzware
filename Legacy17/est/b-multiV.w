@@ -58,6 +58,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\est\b-multiV.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

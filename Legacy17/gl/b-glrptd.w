@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\gl\b-glrptd.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

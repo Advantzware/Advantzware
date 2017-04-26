@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\procat.i
 &SCOPED-DEFINE yellowColumnsName procat
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT

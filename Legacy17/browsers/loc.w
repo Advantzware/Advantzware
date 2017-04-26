@@ -37,6 +37,7 @@ CREATE WIDGET-POOL.
 
 
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\loc.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

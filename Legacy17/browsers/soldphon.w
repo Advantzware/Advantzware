@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\soldphon.i
 &SCOPED-DEFINE BRWSDEFS   emailcst
 &SCOPED-DEFINE emailTable soldTo
 &SCOPED-DEFINE browse2    methods/browsers/phoneBrowse3.i

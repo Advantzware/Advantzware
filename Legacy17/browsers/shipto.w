@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\shipto.i
 &SCOPED-DEFINE yellowColumnsName shipto
 &SCOPED-DEFINE autofind
 &SCOPED-DEFINE cellColumnDat browsers-shipto

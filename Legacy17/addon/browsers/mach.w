@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\mach.i
 &SCOPED-DEFINE yellowColumnsName mach
 /* Parameters Definitions ---                                           */
 

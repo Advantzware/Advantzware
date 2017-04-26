@@ -27,6 +27,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\rfqitem.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

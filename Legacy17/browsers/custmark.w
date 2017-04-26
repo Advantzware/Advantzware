@@ -29,6 +29,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\custmark.i
 &SCOPED-DEFINE cellColumnDat browsers-custmark
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}

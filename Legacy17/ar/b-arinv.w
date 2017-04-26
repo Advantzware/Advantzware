@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\ar\b-arinv.i
 &SCOPED-DEFINE yellowColumnsName ar-inv
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT

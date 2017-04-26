@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\MACHSHFT.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

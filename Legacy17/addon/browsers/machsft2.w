@@ -31,6 +31,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\machsft2.i
 &SCOPED-DEFINE yellowColumnsName machshft
 /* Parameters Definitions ---                                           */
 
@@ -290,7 +291,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -519,7 +520,7 @@ FUNCTION shift_description RETURNS CHARACTER
   Purpose:  return shift description
     Notes:  
 ------------------------------------------------------------------------------*/
-  
+
   FIND shifts WHERE
        shifts.company EQ mach.company AND
        shifts.shift = ip-shifts_shift

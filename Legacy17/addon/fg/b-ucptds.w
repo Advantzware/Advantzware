@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\fg\b-ucptds.i
 &SCOPED-DEFINE yellowColumnsName b-rcptd-fg
 /* Parameters Definitions ---                                           */
 

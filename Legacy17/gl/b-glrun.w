@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\gl\b-glrun.i
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
 

@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\routing.i
 &SCOPED-DEFINE yellowColumnsName routing
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}

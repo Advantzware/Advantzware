@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\carrier.i
 &SCOPED-DEFINE yellowColumnsName carrier
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}

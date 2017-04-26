@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\touch\b-mchtrn.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

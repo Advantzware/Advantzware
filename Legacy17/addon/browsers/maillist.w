@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\maillist.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

@@ -35,6 +35,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\machchrg.i
 &SCOPED-DEFINE yellowColumnsName machchrg
 /* Parameters Definitions ---                                           */
 

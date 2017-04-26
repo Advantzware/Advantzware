@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\util\b-updfg.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

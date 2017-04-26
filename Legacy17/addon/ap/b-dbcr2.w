@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\ap\b-dbcr2.i
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
 

@@ -35,6 +35,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\machseq.i
 &SCOPED-DEFINE yellowColumnsName machseq
 /* Parameters Definitions ---                                           */
 

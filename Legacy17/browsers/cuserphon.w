@@ -28,6 +28,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\cuserphon.i
 &SCOPED-DEFINE BRWSDEFS ecstuser
 &SCOPED-DEFINE emailTable cust
 &SCOPED-DEFINE emailTable2 users

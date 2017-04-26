@@ -27,6 +27,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\oe\b-oeinv.i
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}
 

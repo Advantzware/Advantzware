@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\rm-rdtl.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

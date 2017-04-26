@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\empinou2.i
 &SCOPED-DEFINE yellowColumnsName tt-login
 /* Parameters Definitions ---                                           */
 

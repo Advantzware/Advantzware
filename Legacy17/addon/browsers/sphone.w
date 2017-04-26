@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\sphone.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
