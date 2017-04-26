@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\itemfg.i
 &SCOPED-DEFINE yellowColumnsName itemfg
 &SCOPED-DEFINE autoFind
 

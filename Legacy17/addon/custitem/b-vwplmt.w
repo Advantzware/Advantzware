@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\custitem\b-vwplmt.i
 &SCOPED-DEFINE yellowColumnsName vend-plant
 /* Parameters Definitions ---                                           */
 

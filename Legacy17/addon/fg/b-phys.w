@@ -27,6 +27,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\fg\b-phys.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

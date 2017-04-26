@@ -27,6 +27,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\attachpo.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\util\b-utils.i
 &SCOPED-DEFINE setBrowseFocus
 &SCOPED-DEFINE BRWSDEFS utils
 &SCOPED-DEFINE useMatches   /*Task# 11141305 */

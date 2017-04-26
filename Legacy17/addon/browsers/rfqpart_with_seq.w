@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\rfqpart_with_seq.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

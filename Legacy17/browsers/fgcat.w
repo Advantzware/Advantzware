@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\fgcat.i
 /* rtc 2*/
 &SCOPED-DEFINE yellowColumnsName fgcat
 &SCOPED-DEFINE winReSize

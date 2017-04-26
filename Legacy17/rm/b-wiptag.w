@@ -27,6 +27,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\rm\b-wiptag.i
 &SCOPED-DEFINE yellowColumnsName b-wiptag
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}

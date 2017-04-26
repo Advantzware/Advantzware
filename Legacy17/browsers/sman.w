@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\sman.i
 &SCOPED-DEFINE setBrowseFocus
 /* gdm - 09150810 */
 &SCOPED-DEFINE yellowColumnsName sman

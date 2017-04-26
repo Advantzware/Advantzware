@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\sys-form.i
 &SCOPED-DEFINE yellowColumnsName sys-ctrl-shipto            /*task# 12271301*/
 
 /* Parameters Definitions ---                                           */

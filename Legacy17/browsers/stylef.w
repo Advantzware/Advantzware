@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\stylef.i
 &SCOPED-DEFINE useMatches
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT

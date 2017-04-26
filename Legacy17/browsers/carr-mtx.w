@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\carr-mtx.i
 &SCOPED-DEFINE yellowColumnsName carr-mtx
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT

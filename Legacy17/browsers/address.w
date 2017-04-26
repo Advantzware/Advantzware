@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\address.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

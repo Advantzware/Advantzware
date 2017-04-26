@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\sys-ctrl.i
 /* gdm  - 09190806 */
 &SCOPED-DEFINE yellowColumnsName sys-ctrl
 &SCOPED-DEFINE useMatches

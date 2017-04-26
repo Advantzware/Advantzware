@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\machemp3.i
 &SCOPED-DEFINE yellowColumnsName machemp
 /* Parameters Definitions ---                                           */
 

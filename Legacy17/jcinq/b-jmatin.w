@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\jcinq\b-jmatin.i
 &SCOPED-DEFINE yellowColumnsName b-jmatin
 &SCOPED-DEFINE noSortByField
 &SCOPED-DEFINE SORTBY-PHRASE BY tt-mat.form-no BY tt-mat.blank-no

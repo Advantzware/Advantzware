@@ -28,6 +28,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\empalert.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

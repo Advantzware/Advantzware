@@ -28,6 +28,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\emailsold.i
 /* Preprocessors */
 &SCOPED-DEFINE BRWSDEFS   emailcst
 &SCOPED-DEFINE emailTable soldto

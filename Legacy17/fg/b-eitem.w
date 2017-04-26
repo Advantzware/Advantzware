@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\fg\b-eitem.i
 /* gdm  - 09160802 */
 &SCOPED-DEFINE yellowColumnsName e-itemfg
 &SCOPED-DEFINE winReSize

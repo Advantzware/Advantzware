@@ -27,6 +27,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\jcrep\b-wipmch.i
 &SCOPED-DEFINE yellowColumnsName b-wipmach
 &SCOPED-DEFINE browse2 methods\browsers\wiptag-mch2.i
 &SCOPED-DEFINE winReSize

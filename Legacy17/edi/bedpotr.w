@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\edi\bedpotr.i
 &SCOPED-DEFINE setBrowseFocus
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT

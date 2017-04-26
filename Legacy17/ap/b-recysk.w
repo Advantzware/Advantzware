@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\ap\b-recysk.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

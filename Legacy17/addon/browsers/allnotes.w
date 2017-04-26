@@ -26,6 +26,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\allnotes.i
 &SCOPED-DEFINE yellowColumnsName tt-note
 /* Parameters Definitions ---                                           */
 

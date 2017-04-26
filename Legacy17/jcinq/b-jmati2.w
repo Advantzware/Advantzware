@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\jcinq\b-jmati2.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

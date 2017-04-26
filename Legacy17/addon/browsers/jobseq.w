@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\jobseq.i
 &SCOPED-DEFINE yellowColumnsName jobseq
 /* Parameters Definitions ---                                           */
 

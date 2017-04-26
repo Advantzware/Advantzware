@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\fg\b-itemsp.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

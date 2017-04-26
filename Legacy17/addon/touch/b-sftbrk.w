@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\touch\b-sftbrk.i
 &SCOPED-DEFINE yellowColumnsName shift_break
 /* Parameters Definitions ---                                           */
 

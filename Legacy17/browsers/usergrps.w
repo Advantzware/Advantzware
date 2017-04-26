@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\usergrps.i
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE useMatches
 {methods/defines/winReSize.i}

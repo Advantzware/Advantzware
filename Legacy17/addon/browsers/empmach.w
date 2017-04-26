@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\empmach.i
 &SCOPED-DEFINE yellowColumnsName empmach
 /* Parameters Definitions ---                                           */
 

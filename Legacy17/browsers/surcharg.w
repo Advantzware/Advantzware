@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\surcharg.i
 &SCOPED-DEFINE yellowColumnsName surcharge
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT

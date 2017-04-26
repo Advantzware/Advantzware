@@ -27,6 +27,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\ap\b-apinvl.i
 &SCOPED-DEFINE yellowColumnsName ap-invl
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}

@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\oeinq\b-oeboll.i
 &SCOPED-DEFINE cellColumnBrowserName oeinqb-oeboll
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}

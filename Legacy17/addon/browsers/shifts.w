@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\shifts.i
 &SCOPED-DEFINE yellowColumnsName shifts
 /* Parameters Definitions ---                                           */
 

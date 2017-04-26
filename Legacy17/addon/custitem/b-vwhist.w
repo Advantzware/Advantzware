@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\custitem\b-vwhist.i
 &SCOPED-DEFINE yellowColumnsName vend-whse-trans-hist
 /* Parameters Definitions ---                                           */
 

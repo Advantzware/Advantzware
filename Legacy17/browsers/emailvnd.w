@@ -28,6 +28,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\emailvnd.i
 &SCOPED-DEFINE BRWSDEFS emailvnd
 &SCOPED-DEFINE emailTable vend
 &SCOPED-DEFINE browse2 methods/browsers/emailBrowse.i

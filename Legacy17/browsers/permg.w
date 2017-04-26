@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\permg.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
