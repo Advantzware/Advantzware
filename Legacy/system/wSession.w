@@ -250,14 +250,6 @@ END.
 
 /* ***************************  Main Block  *************************** */
     
-IF ipOpenSessions GE ipMaxPerUser THEN
-  cMessage = "User " + USERID(LDBNAME(1)) + " has reached the maximum " + STRING(ipMaxPerUser) + " sessions.".
-ELSE
-  cMessage = "User " + USERID(LDBNAME(1)) + " has " + STRING(ipOpenSessions) + " other session(s) open.".
-fiUserMessage = cMessage.
-RUN enable_UI.
-IF ipOpenSessions GE ipMaxPerUser THEN
-  ASSIGN btnAddSession:VISIBLE = FALSE btnClearOtherSessions:COLUMN = 18 btnExit:COLUMN = 54.
 
 
 /* Include custom  Main Block code for SmartWindows. */
@@ -356,6 +348,34 @@ PROCEDURE local-exit :
    
    RETURN.
        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize W-Win 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF ipOpenSessions GE ipMaxPerUser THEN
+    cMessage = "User " + USERID(LDBNAME(1)) + " has reached the maximum " + STRING(ipMaxPerUser) + " sessions.".
+  ELSE
+    cMessage = "User " + USERID(LDBNAME(1)) + " has " + STRING(ipOpenSessions) + " other session(s) open.".
+  fiUserMessage = cMessage.
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+
+  IF ipOpenSessions GE ipMaxPerUser THEN
+    ASSIGN btnAddSession:VISIBLE IN FRAME {&FRAME-NAME} = FALSE btnClearOtherSessions:COLUMN = 18 btnExit:COLUMN = 54.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
