@@ -114,7 +114,7 @@ END.
 
 /* If user has other sessions open, prompt to add another or close them */
 IF iLoginCnt GT 0 AND promptMultiSession-log THEN DO:
-    RUN system/dSession.w (INPUT iLoginCnt, INPUT iMaxSessionsPerUser, OUTPUT cResponse).
+    RUN system/wSession.w (INPUT iLoginCnt, INPUT iMaxSessionsPerUser, OUTPUT cResponse).
       
     CASE cResponse:
         WHEN "" THEN 
