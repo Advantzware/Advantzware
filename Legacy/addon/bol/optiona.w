@@ -179,7 +179,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_bol s-object
 ON CHOOSE OF Btn_bol IN FRAME F-Main /* Create BOL */
 DO:
-    IF NOT connected("asinos") THEN CONNECT value("-pf ../asinos.pf") .
+    IF NOT connected("asinos") THEN CONNECT value("-pf " + search("asinos.pf")).
 
     IF g-sharpshooter THEN RUN addon/bol/s-relbol.w.
     ELSE RUN addon/bol/w-relbol.w.
@@ -226,7 +226,7 @@ DO:
    IF CAN-FIND(FIRST asi._file WHERE
       asi._file._File-Name = "ssrelbol") THEN
    DO:
-      IF NOT connected("asinos") THEN CONNECT value("-pf ../asinos.pf") .
+      IF NOT connected("asinos") THEN CONNECT value("-pf " + search("asinos.pf")).
 
       IF g-sharpshooter THEN RUN addon/bol/s-updrel.w.
       ELSE RUN addon/bol/w-updrel.w.
