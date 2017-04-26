@@ -1,6 +1,20 @@
 /* sharpsh.p  from nosweat.p for sharp shooter*/
 PROPATH = "..\,.\" + PROPATH.
 
+&SCOPED-DEFINE loginProcedure addon/nosweat/loginss.w
+&SCOPED-DEFINE checkUserRecord YES
+&SCOPED-DEFINE connectDatabases YES
+&SCOPED-DEFINE runAsiLoad YES
+&SCOPED-DEFINE execProgram sshoot.    
+&SCOPED-DEFINE checkExpiredLicense YES
+&GLOBAL-DEFINE checkUserCount YES
+&SCOPED-DEFINE sharpshooterFlag YES
+&SCOPED-DEFINE getCompanyProc sshoot/comp-loc.p
+
+{nosweat.i}
+
+/* Original Code */
+/*
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
 
@@ -82,3 +96,4 @@ END.
 
 ldummy = SESSION:SET-WAIT-STATE("").
 QUIT.
+*/
