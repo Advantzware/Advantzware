@@ -546,7 +546,7 @@ with frame brd no-labels no-box width 82 stream-io down:
        t-blkqty[xeb.form-no] = t-blkqty[xeb.form-no] + (qtty[vmcl] * v-yld)
        brd-l[4]  = xeb.t-len
        brd-w[4]  = xeb.t-wid
-       brd-sq[4] = xeb.t-sqin  /*brd-l[4] * brd-w[4]*/ 
+       brd-sq[4] = brd-l[4] * brd-w[4]
        brd-sf[4] = if v-corr then (brd-sq[4] * .007) else (brd-sq[4] / 144)
        brd-wu[4] = brd-sf[4] * item.basis-w
 
