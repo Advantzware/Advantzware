@@ -45,29 +45,23 @@ ASSIGN
 
 /* System Constant Values  contains user eula file*/
 {system/sysconst.i}
+
+/* Note: cocode may not be available at this point */
 FIND FIRST sys-ctrl NO-LOCK 
-    WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name    EQ "enforceUserCount"
+    WHERE /* sys-ctrl.company EQ cocode
+    AND */ sys-ctrl.name    EQ "enforceUserCount"
     NO-ERROR.
 IF AVAILABLE sys-ctrl THEN DO:
-RUN sys/ref/nk1look.p (INPUT cocode, "enforceUserCount", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT lcNk1Value, OUTPUT llRecFound).
-IF llRecFound THEN
-    enforceUserCount-log = LOGICAL(lcNk1Value) NO-ERROR.
+    enforceUserCount-log = sys-ctrl.log-fld NO-ERROR.
 END. 
 ELSE 
     enforceUserCount-log = TRUE.
 FIND FIRST sys-ctrl NO-LOCK 
-    WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name    EQ "promptMultiSession"
+    WHERE /* sys-ctrl.company EQ cocode
+    AND */ sys-ctrl.name    EQ "promptMultiSession"
     NO-ERROR.
 IF AVAILABLE sys-ctrl THEN DO:
-RUN sys/ref/nk1look.p (INPUT cocode, "promptMultiSession", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT lcNk1Value, OUTPUT llRecFound).
-IF llRecFound THEN
-    promptMultiSession-log = LOGICAL(lcNk1Value) NO-ERROR.
+    promptMultiSession-log = sys-ctrl.log-fld NO-ERROR.
 END. 
 ELSE
     promptMultiSession-log = YES.
