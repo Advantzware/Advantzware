@@ -123,7 +123,9 @@ IF iLoginCnt GT 0 AND promptMultiSession-log THEN DO:
         WHEN "Log Out Other Sessions" THEN DO:
             FOR EACH userLog EXCLUSIVE-LOCK WHERE userLog.userStatus EQ "Logged In" 
                 AND  userLog.user_id EQ cCurrentUserID:
-                userLog.userStatus = "User Logged Out".
+                ASSIGN 
+                    userLog.logoutDateTime = DATETIME(TODAY, MTIME)
+                    userLog.userStatus     = "User Logged Out".
             END.            
         END.
     END CASE.
