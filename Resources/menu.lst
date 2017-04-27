@@ -172,6 +172,7 @@ del0qtyb. d1
 fg-to-rm. d1
 fg-cons. d1
 fg-jobfm. d1
+r-pstran. d1
 d2 d
 r-cycnt. d2
 fg-phys. d2
@@ -285,6 +286,7 @@ r-wipstd. gr
 r-ontim2. gr
 gf g
 r-mcheff. gf
+r-prodlys. gf
 h file est
 h2 h
 w-jobcst. h2
@@ -552,7 +554,7 @@ sys-ctrl. s8 est
 w-head. s8 est
 utlookmn. s8 est
 wNewLic. s8 est
-wUserCtrl. s8 est
+userCtrl. s8 est
 custproc. s est
 u-fntclr. s est
 s11 s est
@@ -592,6 +594,10 @@ sr2. sr est
 w-batch. sr est
 EDIRelBL. sr est
 contexp. sr est
+wedpotr. sr est
+wedpoak. sr est
+wedshtr. sr est
+impspxml. sr est
 RULE file est
 user mainmenu est
 comp_loc. user est
