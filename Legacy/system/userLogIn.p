@@ -101,7 +101,6 @@ FIND FIRST asi._connect NO-LOCK WHERE _connect._connect-usr = _myconnection._myc
     NO-ERROR. 
     
 cEulaFile = SEARCH("{&EulaFile}").
-    
 RUN system/checkEula.p (INPUT cEulaFile, OUTPUT lEulaAccepted, OUTPUT cEulaVersion).
 IF NOT lEulaAccepted THEN 
     oplExit = TRUE. 

@@ -23,8 +23,8 @@ FIND FIRST userControl NO-LOCK NO-ERROR.
 IF NOT AVAILABLE userControl THEN DO:
     CREATE userControl.
     ASSIGN 
-      maxAllowedUsers    = 5
+      maxAllowedUsers    = 1
       numUsersOverLimit  = 0
-      numLicensedUsers   = 5
+      numLicensedUsers   = 1
       maxSessionsPerUser = 2.
 END.
