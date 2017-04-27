@@ -213,6 +213,8 @@ PROCEDURE connectDatabases:
         END.
     END.
     
+    if connected("asihelp") then create alias asihlp for database asihelp.
+    
 END PROCEDURE.
 
 PROCEDURE createSingleUserPFs:
