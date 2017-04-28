@@ -683,7 +683,8 @@ IF ip-flg THEN DO:
 
    IF job.start-date EQ ? AND
       job.start-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "" AND
-      v-jbmch-stdate NE ? THEN
+      v-jbmch-stdate NE ? AND 
+      noDate EQ FALSE THEN
       DO:
          RUN assign-start-date.
          v-assign-start-date = YES.
