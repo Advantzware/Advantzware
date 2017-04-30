@@ -3001,15 +3001,58 @@ PROCEDURE get-ef-nsh :
   Notes:       sys/inc/k16.i:
                Formula to display fractions as 16ths of an inch 
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lUpdateNetSheet AS LOG INIT TRUE NO-UNDO.
-
   DEFINE VARIABLE v-n-out-l LIKE ef-nsh.n-out-l NO-UNDO INIT 0.
   DEFINE VARIABLE v-n-out-w LIKE ef-nsh.n-out-w NO-UNDO INIT 0.
   DEFINE VARIABLE v-n-out-d LIKE ef-nsh.n-out-d NO-UNDO INIT 0.
-
+  DEFINE VARIABLE lUpdateNetSheet AS LOGICAL INIT TRUE NO-UNDO.
+  DEFINE VARIABLE lResetEfNsh AS LOGICAL INIT TRUE NO-UNDO.
+  DEFINE VARIABLE dNewWid AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dNewLen AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dNewDep AS DECIMAL NO-UNDO.
+  
+  DEFINE BUFFER bf-ef-nsh FOR ef-nsh.
 
  DO WITH FRAME {&FRAME-NAME}:
+    FIND FIRST ef-nsh OF ef NO-LOCK 
+        WHERE ef-nsh.pass-no EQ 1 
+        NO-ERROR.
+    IF AVAILABLE ef-nsh 
+        AND  (TRIM(ef.gsh-wid:SCREEN-VALUE) NE TRIM(STRING({sys/inc/k16.i ef-nsh.wid-in},">>>>9.99"))
+              OR TRIM(ef.gsh-len:SCREEN-VALUE) NE TRIM(STRING({sys/inc/k16.i ef-nsh.len-in},">>>>9.99"))
+              OR TRIM(ef.gsh-dep:SCREEN-VALUE) NE TRIM(STRING({sys/inc/k16.i ef-nsh.dep-in},">>>>9.99"))) THEN DO:
+        
+        MESSAGE "Gross Sheet has changed. Reset Net Sheet Passes?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lResetEfNsh.
+        IF lResetEfNsh THEN DO: 
+            FOR EACH ef-nsh OF ef EXCLUSIVE-LOCK:
+                IF ef-nsh.pass-no EQ 1 THEN DO: 
+                    ASSIGN 
+                        dNewWid = DEC(ef.gsh-wid:SCREEN-VALUE)
+                        dNewLen = DEC(ef.gsh-len:SCREEN-VALUE)
+                        dNewDep = DEC(ef.gsh-dep:SCREEN-VALUE)
+                        .
+                    {sys/inc/k16bb.i dNewWid}
+                    {sys/inc/k16bb.i dNewLen}
+                    {sys/inc/k16bb.i dNewDep}
+                    
+                    ASSIGN 
+                        ef-nsh.wid-in = dNewWid
+                        ef-nsh.len-in = dNewLen
+                        ef-nsh.dep-in = dNewDep
+                        ef-nsh.wid-out = dNewWid
+                        ef-nsh.len-out = dNewLen
+                        ef-nsh.dep-out = dNewDep
+                        ef-nsh.n-out-w = 1
+                        ef-nsh.n-out-l = 1
+                        ef-nsh.n-out-d = 1
+                        . 
 
+                END.
+                ELSE 
+                    DELETE ef-nsh.
+            END.
+        END.
+    END.
     RUN est/d-ef-nsh.w (ROWID(ef)) NO-ERROR.
 
     /* Find first pass and transfer IN values to screen gross sheet values */
