@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<dsTranslation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartTranslation>
+    <TranslationGuid>c9c3aa5a-0d93-37bb-1914-b19e74896a39</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOAdd_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013fd2218ca</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Ajouter</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c9c3aa5a-0d93-37bb-1914-b19ef48dbbea</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOCancel_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013fd2218ca</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Annuler</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c9c3aa5a-0d93-37bb-1914-b29e249db6b4</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOCopy_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013fd2218ca</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Copier</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c9c3aa5a-0d93-37bb-1914-b39ef4d39a87</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIODelete_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013fd2218ca</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Supprimer</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c9c3aa5a-0d93-37bb-1914-b49e40201e39</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOSave_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013fd2218ca</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Sauvegarder</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c9c3aa5a-0d93-37bb-1914-b59e2092c804</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>TableIOToolTableIOUpdate_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013fd2218ca</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Modifier</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c9c3aa5a-0d93-37bb-1914-b69e08fe1bd9</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationPrev_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013fd2218ca</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Enregistrement précédent</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c9c3aa5a-0d93-37bb-1914-b69eac8fd21f</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationFirst_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013fd2218ca</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Premier enregistrement</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c9c3aa5a-0d93-37bb-1914-b79ef053ebc5</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationLast_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013fd2218ca</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Dernier enregistrement</TranslatedString>
+  </eSmartTranslation>
+  <eSmartTranslation>
+    <TranslationGuid>c9c3aa5a-0d93-37bb-1914-b89e24da989e</TranslationGuid>
+    <TranslationScope>SmartToolbarController</TranslationScope>
+    <TranslationKey>NavigationToolNavigationNext_ButtonCaption</TranslationKey>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013fd2218ca</LanguageGuid>
+    <OriginalString xsi:nil="true"/>
+    <TranslatedString>Enregistrement suivant</TranslatedString>
+  </eSmartTranslation>
+</dsTranslation>

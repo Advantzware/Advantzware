@@ -1,0 +1,20 @@
+  FIELD est-no LIKE est.est-no VALIDATE ~
+  FIELD company LIKE est.company VALIDATE ~
+  FIELD est-date LIKE est.est-date VALIDATE ~
+  FIELD est-type LIKE est.est-type VALIDATE ~
+  FIELD eqty LIKE est-qty.eqty VALIDATE ~
+  FIELD board LIKE ef.board VALIDATE ~
+  FIELD brd-dscr LIKE ef.brd-dscr VALIDATE ~
+  FIELD cal LIKE ef.cal VALIDATE ~
+  FIELD cust-no LIKE eb.cust-no VALIDATE ~
+  FIELD i-coat LIKE eb.i-coat VALIDATE ~
+  FIELD i-col LIKE eb.i-col VALIDATE ~
+  FIELD len LIKE eb.len VALIDATE ~
+  FIELD part-dscr1 LIKE eb.part-dscr1 VALIDATE ~
+  FIELD part-no LIKE eb.part-no VALIDATE ~
+  FIELD procat LIKE eb.procat VALIDATE ~
+  FIELD ship-id LIKE eb.ship-id VALIDATE ~
+  FIELD style LIKE eb.style VALIDATE ~
+  FIELD stock-no LIKE eb.stock-no VALIDATE ~
+  FIELD wid LIKE eb.wid VALIDATE ~
+  FIELD dep LIKE eb.dep VALIDATE 

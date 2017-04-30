@@ -1,0 +1,27 @@
+FOR EACH employee NO-LOCK WHERE employee.company EQ "%company%" AND TRUE
+employee,first_name,last_name,soc_sec
+
+Indexed: employee,first_name,last_name,soc_sec
+Non-Idx: actnum,emp_type,rate_usage,start_date
+
+Generated 04.18.2017 @  5:58:02 am by: nosweat
+Table: employee - Records: 0
+
+    Index: pi-employee
+         Field: company
+         Field: employee
+
+    Index: si-last-name
+         Field: company
+         Field: last_name
+         Field: first_name
+
+    Index: si-rec_key
+         Field: rec_key
+
+    Index: si-sec_soc
+         Field: company
+         Field: soc_sec
+
+    Index: wi-last-name
+         Field: last_name

@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<dsObjectMaster xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartObjectMaster ObjectMasterGuid="d1ab93dd-33bb-5aaf-1d14-7ff1d8bae6b1" ObjectName="Button" CustomizationResultGuid="" ObjectTypeGuid="d1ab93dd-33bb-5aaf-1d14-25f184abc30b" ModuleGuid="d1ab93dd-33bb-5aaf-1d14-7ef1040644b6" ObjectDescription="Standard Button" ObjectPackage="" ObjectExtension="" StaticObject="false" TemplateObject="false" DeploymentType="" RunnableFromMenu="false" Disabled="false" DesignTimeDataSourceGuid=""/>
+</dsObjectMaster>

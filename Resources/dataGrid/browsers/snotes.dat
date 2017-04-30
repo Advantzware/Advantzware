@@ -1,0 +1,29 @@
+FOR EACH notes NO-LOCK ,  EACH rec_key OF notes,  EACH prgmxref OF rec_key where prgmxref.pageno ne "9999999999"
+note_date,note_title,prgmname,table_name
+
+Indexed: note_date,note_title
+Non-Idx: notetime,prgmname,table_name
+
+Generated 04.19.2017 @  3:54:48 am by: nosweat
+Table: notes - Records: 247,835
+
+    Index: pi-notes
+         Field: rec_key
+         Field: note_date
+         Field: note_time
+
+    Index: si-notes-title
+         Field: note_title
+
+    Index: wi-note_text
+         Field: note_text
+
+Table: rec_key - Records: 63,340,741
+
+    Index: pi-rec_key
+         Field: rec_key
+
+Table: prgmxref - Records: 56
+
+    Index: pi-prgmxref
+         Field: table_name

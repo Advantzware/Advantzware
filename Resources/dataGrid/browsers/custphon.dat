@@ -1,0 +1,81 @@
+FOR EACH phone NO-LOCK WHERE phone.table_rec_key EQ "%emailcod.rec_key%" ,  FIRST cust NO-LOCK WHERE cust.rec_key EQ phone.table_rec_key
+attention,cust-no,name,rec_key,rec_key,titlcode
+
+Indexed: attention,cust-no,name,rec_key,rec_key,titlcode
+Non-Idx: ?
+
+Generated 04.19.2017 @  4:04:08 am by: nosweat
+Table: cust - Records: 7,531
+
+    Index: active
+         Field: company
+         Field: active
+         Field: cust-no
+
+    Index: city
+         Field: company
+         Field: city
+         Field: name
+
+    Index: cust
+         Field: company
+         Field: cust-no
+
+    Index: name
+         Field: company
+         Field: name
+         Field: active
+
+    Index: phone
+         Field: company
+         Field: area-code
+         Field: phone
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: sman
+         Field: company
+         Field: sman
+         Field: name
+         Field: active
+
+    Index: state
+         Field: company
+         Field: state
+         Field: name
+
+    Index: terr
+         Field: company
+         Field: terr
+         Field: name
+
+    Index: type
+         Field: company
+         Field: type
+         Field: name
+         Field: active
+
+    Index: wi-name
+         Field: name
+
+    Index: zip
+         Field: company
+         Field: zip
+         Field: postal
+         Field: name
+
+Table: phone - Records: 1,849
+
+    Index: pi-phone
+         Field: table_rec_key
+         Field: attention
+
+    Index: si-rec_key
+         Field: rec_key
+
+    Index: titlcode
+         Field: titlcode
+
+    Index: wi-attention
+         Field: attention

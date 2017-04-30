@@ -1,0 +1,24 @@
+FOR EACH rejct-cd NO-LOCK WHERE rejct-cd.type EQ lv-rjct-type
+code,dscr
+
+Indexed: code,dscr
+Non-Idx: ?
+
+Generated 04.18.2017 @  1:19:04 am by: nosweat
+Table: rejct-cd - Records: 13
+
+    Index: code
+         Field: code
+
+    Index: dscr
+         Field: dscr
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: type
+         Field: type
+         Field: code
+
+    Index: wi-dscr
+         Field: dscr

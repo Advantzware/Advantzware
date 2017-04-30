@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<dsMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartMessage>
+    <MessageGuid>845d1242-5f79-d6b2-d613-f20f34ba2623</MessageGuid>
+    <MessageGroup>SFR</MessageGroup>
+    <MessageNumber>3</MessageNumber>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <MessageText>Sind Sie sicher, dass Sie diesen Datensatz löschen möchten?</MessageText>
+    <MessageDetail>Sind Sie sicher, dass Sie diesen Datensatz löschen möchten?</MessageDetail>
+    <MessageType>Question</MessageType>
+  </eSmartMessage>
+  <eSmartMessage>
+    <MessageGuid>9208cb14-01b2-86ae-e311-8b03b0568de5</MessageGuid>
+    <MessageGroup>VALMSG</MessageGroup>
+    <MessageNumber>1</MessageNumber>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <MessageText>&amp;1 muss gefüllt werden.</MessageText>
+    <MessageDetail>Das Feld &amp;1 darf nicht leer bleiben.</MessageDetail>
+    <MessageType>Error</MessageType>
+  </eSmartMessage>
+  <eSmartMessage>
+    <MessageGuid>979aec7a-f22f-419f-e211-665a85f54420</MessageGuid>
+    <MessageGroup>SFR</MessageGroup>
+    <MessageNumber>1</MessageNumber>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <MessageText>Sind Sie sicher, dass Sie die Anwendung verlassen möchten?</MessageText>
+    <MessageDetail>Sind Sie sicher, dass Sie die &amp;1 Anwendung verlassen möchten?</MessageDetail>
+    <MessageType>Question</MessageType>
+  </eSmartMessage>
+  <eSmartMessage>
+    <MessageGuid>9d428864-ef4d-339d-1614-f9601048444e</MessageGuid>
+    <MessageGroup>VALMSG</MessageGroup>
+    <MessageNumber>108</MessageNumber>
+    <LanguageGuid>f22eb2af-1aee-bdb9-e211-3013dfe38ac2</LanguageGuid>
+    <MessageText>&amp;3 muss eingegeben werden.</MessageText>
+    <MessageDetail/>
+    <MessageType>Error</MessageType>
+  </eSmartMessage>
+</dsMessage>

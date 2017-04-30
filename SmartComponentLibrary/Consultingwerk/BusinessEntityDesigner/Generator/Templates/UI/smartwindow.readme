@@ -1,0 +1,30 @@
+@WINDOW_NAME@ The Name of the generated SmartWindowForm
+@WINDOW_PACKAGE@ The Package Name of the generated SmartWindowForm
+@WINDOW_TITLE@ The Title of the Window
+
+@VIEWER_NAME@ The class name of the SmartViewerControl to use
+@VIEWER_VARIABLENAME@ The name of the Viewer reference variable
+
+@DATASET_CONTROLLER_TYPE@ The class name of the dataset controller
+
+@CONTROL_SUPPORT_VARIABLES@ The code block that defines required support variables for the contained Controls
+@CONTROL_NEW@ The code block that News the contained Controls
+@CONTROL_BEGININIT@ The :BeginInit calls for the contained Controls
+@CONTROLS_PROPERTY_ASSIGN@ The code that assigns the properties to the contained Controls
+
+@BINDING_SOURCE_ENTITY_JOIN@ The EntityJoin property for the BindingSource
+@BINDING_SOURCE_ENTITY_NAME@ The EntityName property for the BindingSource
+@BINDING_SOURCE_ENTITY_TABLE@ The EntityTable property for the BindingSource
+@BINDING_SOURCE_ENTITY_VIEW@ The EntityView property for the BindingSource
+@BINDINGSOURCE_NUM_FIELDS@ The number of fields in the BindingSource Schema
+@BINDINGSOURCE_NEW_FIELDS@ arrayvar13[1] = NEW Progress.Data.ColumnPropDesc("CustNum":U, "Cust Num":U, Progress.Data.DataType:INTEGER).
+
+@GRID_NUM_COLUMNS@ The number of columns in the Grid
+@GRID_COLUMN_DEFINE_AND_NEW@ The definition and NEWing for the Grid's columns
+@GRID_COLUMN_PROPERTIES@ CellActivation / Header:VisiblePosition
+@GRID_COLUMN_ASSIGN_TO_ARRAY@ arrayvar12[1] = ultraGridColumn1.
+        
+
+@USER@ The current user name
+@USERID@      the current user id
+@DATE@ The current date/time

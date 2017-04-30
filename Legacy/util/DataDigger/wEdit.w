@@ -146,10 +146,10 @@ DEFINE BROWSE brFields
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME frEdit
-     brFields AT Y 5 X 0 WIDGET-ID 200
-     fiNumRecords AT Y 465 X 90 COLON-ALIGNED WIDGET-ID 10
-     btnOk AT Y 465 X 505 WIDGET-ID 6
-     btnClose AT Y 465 X 585 WIDGET-ID 4
+     brFields at row 1.24 col 1 WIDGET-ID 200
+     fiNumRecords at row 23.14 col 19 COLON-ALIGNED WIDGET-ID 10
+     btnOk at row 23.14 col 100 WIDGET-ID 6
+     btnClose AT row 23.14 col 119  WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -194,6 +194,16 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
+/* ************************* Included-Libraries *********************** */
+
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
@@ -230,7 +240,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttField.
 */  /* BROWSE brFields */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -275,23 +285,23 @@ DO:
     btnOk:y    = 1.
     btnClose:x = 1.
     btnClose:y = 1.
-  
+
     /* Set frame width */
     frame frEdit:width-pixels  = wEdit:width-pixels no-error.
     frame frEdit:height-pixels = wEdit:height-pixels no-error.
-  
+
     /* Adjust the browse */
     brFields:width-pixels  = frame frEdit:width-pixels - 3.
     brFields:height-pixels = frame frEdit:height-pixels - 40.
-    
+
     btnOk:x        = brFields:width-pixels  - 160.
     btnOk:y        = frame frEdit:height-pixels - 30.
     btnClose:x     = brFields:width-pixels  - 80.
     btnClose:y     = frame frEdit:height-pixels - 30.
     fiNumRecords:y = frame frEdit:height-pixels - 30.
     fiNumRecords:side-label-handle:y = fiNumRecords:y.
-  
-  
+
+
     /* Save settings */
     setRegistry("DataDigger:Edit", "Window:x", string(wEdit:x) ).                             
     setRegistry("DataDigger:Edit", "Window:y", string(wEdit:y) ).                             
@@ -361,7 +371,7 @@ DO:
    */
   if focus:name = 'cNewValue' then
   do with frame {&frame-name}:
-    
+
     find ttField where ttField.cFullName = brFields:get-browse-column(2):screen-value.
 
     /* See if there is only ONE ttData for this field.
@@ -390,7 +400,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOk wEdit
 ON CHOOSE OF btnOk IN FRAME frEdit /* Ok */
 do:
-  
+
   run btnGoChoose(output polSuccess).
   if not polSuccess then return no-apply.
 
@@ -413,8 +423,9 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE 
+ON CLOSE OF THIS-PROCEDURE DO:
 do:
+END.
   /* Save settings */
   setRegistry("DataDigger:Edit", "Window:x", string(wEdit:x) ).                             
   setRegistry("DataDigger:Edit", "Window:y", string(wEdit:y) ).                             
@@ -547,16 +558,16 @@ PROCEDURE btnGoChoose :
 
   define variable hBuffer as handle      no-undo.
   define variable iRow    as integer     no-undo.
-  
+
   define buffer ttField for ttField. 
 
   hBuffer = pihBrowse:query:get-buffer-handle(1).
-  
+
   commitLoop:
   do transaction:
     for each ttField where ttField.lShow = true
       on error undo commitLoop, leave commitLoop:
-    
+
       do iRow = 1 to pihBrowse:num-selected-rows:
         pihBrowse:fetch-selected-row(iRow).
 
@@ -568,10 +579,10 @@ PROCEDURE btnGoChoose :
         hBuffer:buffer-release.
       end.
     end.
-    
+
     polSuccess = true.
   end. /* transaction */
-  
+
 end procedure. /* btnGoChoose */
 
 /* _UIB-CODE-BLOCK-END */
@@ -627,7 +638,7 @@ PROCEDURE getDataValues :
 ------------------------------------------------------------------------------*/
   define input  parameter phBrowse as handle      no-undo.
   define input  parameter pcColumn as character   no-undo.
-  
+
   define variable hBuffer     as handle      no-undo.
   define variable iRow        as integer     no-undo.
   define variable cRowValue   as character   no-undo.
@@ -691,14 +702,14 @@ PROCEDURE initializeObject :
        or ttField.cFieldName = 'ROWID':
     delete ttField.
   end.
-  
+
   /* Find out max fieldname length */
   for each ttField: 
     ttField.cFilterValue = ''.    /* cFilterValue is now the list of currently used values */
     ttField.lShow        = false. /* lShow now means: "Change this field" */
     iMaxFieldLength      = maximum(iMaxFieldLength,length(ttField.cFullName)).
   end.
-  
+
   /* Collect data for all fields 
    * And  if we only have 1 value for all selected records, let's show that 
    */
@@ -716,7 +727,7 @@ PROCEDURE initializeObject :
   /* Adjust column width to fit precisely */
   do with frame {&frame-name}:
     brFields:get-browse-column(2):width-chars = iMaxFieldLength + 2.
-    
+
     /* Window position and size */
     /* Set title of the window */
     hBuffer = pihBrowse:query:get-buffer-handle(1).

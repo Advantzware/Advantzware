@@ -35,7 +35,7 @@ DEFINE VARIABLE callingprgm AS CHARACTER INITIAL "prgrms." NO-UNDO.
 DEFINE VARIABLE winReSizeDat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE winReSize AS CHARACTER NO-UNDO.
 DEFINE VARIABLE sizeRatio AS DECIMAL NO-UNDO.
-
+DEFINE VARIABLE cWorkDir AS CHARACTER NO-UNDO .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -282,10 +282,22 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       autoMaximize:SCREEN-VALUE = STRING(SEARCH(winReSize) NE ?)
       autoMaximize.
     IF SEARCH(winReSizeDat) NE ? THEN DO:
-      INPUT FROM VALUE(winReSizeDat).
+      INPUT FROM VALUE(SEARCH(winReSizeDat)).
       IMPORT winSize sizeRatio.
       INPUT CLOSE.
     END.
+
+    FILE-INFO:FILE-NAME = '.' .
+    cWorkDir = file-info:FULL-PATHNAME .
+    
+    FILE-INFO:FILE-NAME = cWorkDir + '/' + 'users' .
+    IF FILE-INFO:FULL-PATHNAME EQ ? THEN
+        OS-CREATE-DIR VALUE(string(cWorkDir) + '/' + 'users' ).
+
+    FILE-INFO:FILE-NAME = cWorkDir + '/' + 'users' + USERID('NOSWEAT') .
+    IF FILE-INFO:FULL-PATHNAME EQ ? THEN
+        OS-CREATE-DIR VALUE(string(cWorkDir) + '/' + 'users/' + USERID('NOSWEAT') ).
+   
     winSize:SCREEN-VALUE = STRING(winSize).
     APPLY 'VALUE-CHANGED':U TO winSize.
   END.

@@ -1,0 +1,22 @@
+FOR EACH zipcode NO-LOCK
+city,dst,pref#,pref_type,state,zipcode
+
+Indexed: city,pref#,pref_type,zipcode
+Non-Idx: area_code,dst,state
+
+Generated 04.19.2017 @  4:08:32 am by: nosweat
+Table: zipcode - Records: 1,578
+
+    Index: pi-zipcode
+         Field: zipcode
+         Field: pref_type
+         Field: pref#
+
+    Index: si-city
+         Field: city
+
+    Index: si-rec_key
+         Field: rec_key
+
+    Index: wi-city
+         Field: city

@@ -1,0 +1,22 @@
+FOR EACH shifts NO-LOCK WHERE shifts.company EQ "%company%" AND TRUE
+description,shift
+
+Indexed: description,shift
+Non-Idx: shifts_end_time,shifts_start_time
+
+Generated 04.18.2017 @  6:12:39 am by: nosweat
+Table: shifts - Records: 0
+
+    Index: pi-shifts
+         Field: company
+         Field: shift
+
+    Index: si-description
+         Field: company
+         Field: description
+
+    Index: si-rec_key
+         Field: rec_key
+
+    Index: wi-description
+         Field: description

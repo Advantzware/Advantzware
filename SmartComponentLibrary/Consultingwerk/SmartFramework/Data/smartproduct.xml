@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<dsProduct xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartProduct>
+    <ProductGuid>90ce58db-ca1f-3288-e013-974a20f764f9</ProductGuid>
+    <ProductCode>Demo</ProductCode>
+    <ProductName>Demo Applications</ProductName>
+    <ProductDescription/>
+    <ProductInstalled>true</ProductInstalled>
+  </eSmartProduct>
+  <eSmartProduct>
+    <ProductGuid>90ce58db-ca1f-3288-e013-974a6c73267f</ProductGuid>
+    <ProductCode>SmartFramework</ProductCode>
+    <ProductName>SmartFramework Maintenance</ProductName>
+    <ProductDescription/>
+    <ProductInstalled>true</ProductInstalled>
+  </eSmartProduct>
+</dsProduct>

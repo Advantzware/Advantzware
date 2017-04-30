@@ -1,0 +1,20 @@
+FOR EACH sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ "%company%"
+descrip,module,name
+
+Indexed: module,name
+Non-Idx: char-fld,date-fld,dec-fld,descrip,int-fld,log-fld
+
+Generated 04.18.2017 @  2:42:32 am by: nosweat
+Table: sys-ctrl - Records: 829
+
+    Index: module
+         Field: company
+         Field: module
+         Field: name
+
+    Index: pi-sys-ctrl
+         Field: company
+         Field: name
+
+    Index: rec_key
+         Field: rec_key

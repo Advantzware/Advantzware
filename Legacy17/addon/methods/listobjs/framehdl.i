@@ -1,0 +1,5 @@
+/* framehdl.i */
+
+DEFINE OUTPUT PARAMETER fhandle AS WIDGET-HANDLE NO-UNDO.
+
+fhandle = FRAME {&FRAME-NAME}:HANDLE.

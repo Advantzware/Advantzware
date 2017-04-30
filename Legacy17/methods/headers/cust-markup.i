@@ -1,0 +1,1 @@
+'Company: ' + cust-markup.company + ' - ' + 'Customer: ' + cust-markup.cust-no + ' - ' + 'Style: ' + cust-markup.style + ' - ' + 'Customer: ' + cust-markup.cust-no + ' - ' + 'Category: ' + cust-markup.procat

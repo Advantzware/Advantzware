@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsSmartSchedulerJob" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartSchedulerJob" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartSchedulerJobBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="SchedulerJobGuid" type="xsd:string" nillable="true" prodata:format="x(36)" prodata:label="Job Guid"/>
+              <xsd:element name="SchedulerJobName" type="xsd:string" nillable="true" prodata:format="x(40)" prodata:label="JobName"/>
+              <xsd:element name="Description" type="xsd:string" nillable="true" prodata:format="x(400)"/>
+              <xsd:element name="MaxRuntime" type="xsd:int" nillable="true" prodata:format="zzzz9"/>
+              <xsd:element name="JobCommand" type="xsd:string" nillable="true" prodata:dataType="prodata:clob"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="Job" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartSchedulerJob"/>
+      <xsd:field xpath="SchedulerJobGuid"/>
+    </xsd:unique>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="JobName">
+        <prodata:table name="eSmartSchedulerJob"/>
+        <prodata:field name="SchedulerJobName"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

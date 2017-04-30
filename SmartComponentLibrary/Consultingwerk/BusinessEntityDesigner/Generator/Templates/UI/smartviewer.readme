@@ -1,0 +1,20 @@
+@VIEWER_NAME@ The Name of the generated SmartViewerControl
+@VIEWER_PACKAGE@ The Package Name of the generated SmartViewerControl
+
+@DEFINE_CONTROL_VARIABLES@ The code block that defines the Control Variables 
+@CONTROL_SUPPORT_VARIABLES@ The code block that defines required support variables for the contained Controls
+@CONTROL_NEW@ The code block that News the contained Controls
+@CONTROL_BEGININIT@ The :BeginInit calls for the contained Controls
+@BINDING_SOURCE_ENTITY_JOIN@ The EntityJoin property for the BindingSource
+@BINDING_SOURCE_ENTITY_NAME@ The EntityName property for the BindingSource
+@BINDING_SOURCE_ENTITY_TABLE@ The EntityTable property for the BindingSource
+@BINDING_SOURCE_ENTITY_VIEW@ The EntityView property for the BindingSource
+@BINDINGSOURCE_NUM_FIELDS@ The number of fields in the BindingSource Schema
+@BINDINGSOURCE_NEW_FIELDS@ arrayvar0[1] = NEW Progress.Data.ColumnPropDesc("CustNum":U, "Cust Num":U, Progress.Data.DataType:INTEGER).
+@CONTROLS_PROPERTY_ASSIGN@ The code that assigns the properties to the contained Controls
+@VIEWER_PROPERTIES@ The code that assigns the properties of the Viewer, including Adding the Controls to the Controls-Collection
+@CONTROL_ENDINIT@ The :EndInit calls for the contained Controls
+
+@USER@ The current user name
+@USERID@      the current user id
+@DATE@ The current date/time

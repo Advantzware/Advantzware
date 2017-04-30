@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsCommentRole" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartCommentRole" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartCommentRoleBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="CommentRoleGUID" type="xsd:string" nillable="true" prodata:fieldName="CommentRoleGUID" prodata:format="x(36)"/>
+              <xsd:element name="CommentRoleName" type="xsd:string" nillable="true" prodata:fieldName="CommentRoleName" prodata:format="x(80)" prodata:label="Comment Role"/>
+              <xsd:element name="CommentRoleDescription" type="xsd:string" nillable="true" prodata:fieldName="CommentRoleDescription" prodata:format="x(400)" prodata:label="Description"/>
+              <xsd:element name="CommentRoleImageSmall" type="xsd:base64Binary" nillable="true" prodata:fieldName="CommentRoleImageSmall"/>
+              <xsd:element name="CommentRoleImageLarge" type="xsd:base64Binary" nillable="true" prodata:fieldName="CommentRoleImageLarge"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="CommentRoleGUID">
+      <xsd:selector xpath=".//eSmartCommentRole"/>
+      <xsd:field xpath="CommentRoleGUID"/>
+    </xsd:unique>
+    <xsd:unique name="CommentRoleName" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartCommentRole"/>
+      <xsd:field xpath="CommentRoleName"/>
+    </xsd:unique>
+  </xsd:element>
+</xsd:schema>

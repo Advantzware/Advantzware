@@ -1,0 +1,198 @@
+<?xml version="1.0"?>
+<dsAttributeGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>1.81181</AttributeGroupGuid>
+    <AttributeGroupName>ICF-SmartLookup</AttributeGroupName>
+    <AttributeGroupDescription>Attributes of the SmartComponent Library SmartLookup class</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>1003183341</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Defaults</AttributeGroupName>
+    <AttributeGroupDescription>Default group for all attributes initially</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>1005078412.09</AttributeGroupGuid>
+    <AttributeGroupName>ICF-WidgetAttributes</AttributeGroupName>
+    <AttributeGroupDescription>Attributes for Data Fields</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>1005095446.101</AttributeGroupGuid>
+    <AttributeGroupName>ICF-ViewerAttributes</AttributeGroupName>
+    <AttributeGroupDescription>These are attributes which belong to a Dynamic Viewer</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>1005095447.101</AttributeGroupGuid>
+    <AttributeGroupName>ICF-SdfAttributes</AttributeGroupName>
+    <AttributeGroupDescription>Attributes for Smart Data Fields</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>1005097792.101</AttributeGroupGuid>
+    <AttributeGroupName>ICF-TreeView</AttributeGroupName>
+    <AttributeGroupDescription>TreeView Group</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>1005098168.101</AttributeGroupGuid>
+    <AttributeGroupName>ICF-EditorAttributes</AttributeGroupName>
+    <AttributeGroupDescription>Attributes which are specific to an editor widget</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>11.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Appserver</AttributeGroupName>
+    <AttributeGroupDescription>Appserver attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>12.81181</AttributeGroupGuid>
+    <AttributeGroupName>ICF-SmartComponent</AttributeGroupName>
+    <AttributeGroupDescription>Attributes of the SmartComponent Library</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>152.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Data</AttributeGroupName>
+    <AttributeGroupDescription>SDO Attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>154.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Query</AttributeGroupName>
+    <AttributeGroupDescription>Query object attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>3.81181</AttributeGroupGuid>
+    <AttributeGroupName>ICF-SmartBusinessEntityLookup</AttributeGroupName>
+    <AttributeGroupDescription>Attributes of the SmartComponent Library SmartBusinessEntityLookup class</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>3000002003.09</AttributeGroupGuid>
+    <AttributeGroupName>ICF-ADMAttributes</AttributeGroupName>
+    <AttributeGroupDescription>This group contains all attributes of ADM objects excepts those that can also be Widget Attributes. In that case, they are in the WidgetAttribute group.</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>347.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Container</AttributeGroupName>
+    <AttributeGroupDescription>Container Attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>36427.48</AttributeGroupGuid>
+    <AttributeGroupName>ICF-EntityAttributes</AttributeGroupName>
+    <AttributeGroupDescription>This group contains attributes that are associated with entities. The attributes in this group correspond exactly to the field names in the GSC_ENTITY_MNEMONIC table, excpet that they have had the underscores removed. This convention is used so that it is possible to generically and quickly populate the attributes.</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>428.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-DataContainer</AttributeGroupName>
+    <AttributeGroupDescription>SmartBusinessObject and other Data Container attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>430.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Toolbar</AttributeGroupName>
+    <AttributeGroupDescription>SmartToolbar attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>432.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Field</AttributeGroupName>
+    <AttributeGroupDescription>SmartField Attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>434.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Select</AttributeGroupName>
+    <AttributeGroupDescription>SmartSelect attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>436.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Browser</AttributeGroupName>
+    <AttributeGroupDescription>SmartBrowser attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>438.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Panel</AttributeGroupName>
+    <AttributeGroupDescription>SmartPanel attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>5.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Smart</AttributeGroupName>
+    <AttributeGroupDescription>Smart Object common attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>505.49</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Consumer</AttributeGroupName>
+    <AttributeGroupDescription>SmartConsumer attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>505.7692</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Template</AttributeGroupName>
+    <AttributeGroupDescription>Template group applies to all objects that may be created as a template and used for new objects in the IDE</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>507.49</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Producer</AttributeGroupName>
+    <AttributeGroupDescription>SmartProducer attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>509.49</AttributeGroupGuid>
+    <AttributeGroupName>ICF-MsgHandler</AttributeGroupName>
+    <AttributeGroupDescription>Message Handler attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>511.49</AttributeGroupGuid>
+    <AttributeGroupName>ICF-XML</AttributeGroupName>
+    <AttributeGroupDescription>SmartXML attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>513.49</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Router</AttributeGroupName>
+    <AttributeGroupDescription>SmartRouter attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>515.49</AttributeGroupGuid>
+    <AttributeGroupName>ICF-B2B</AttributeGroupName>
+    <AttributeGroupDescription>SmartB2B attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>608.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Filter</AttributeGroupName>
+    <AttributeGroupDescription>SmartFilter attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>7.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Visual</AttributeGroupName>
+    <AttributeGroupDescription>Visual Smartobject attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>700.7692</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Palette</AttributeGroupName>
+    <AttributeGroupDescription>Palette group for design only attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>731.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-Messaging</AttributeGroupName>
+    <AttributeGroupDescription>Messaging SmartObject attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>8d7dca11-45e7-1ba0-e313-1130040ac4eb</AttributeGroupGuid>
+    <AttributeGroupName>ABL</AttributeGroupName>
+    <AttributeGroupDescription>ABL Default Attribute Group</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>8d7dca11-45e7-1ba0-e313-11300cf4427b</AttributeGroupGuid>
+    <AttributeGroupName>Repository</AttributeGroupName>
+    <AttributeGroupDescription>Meta Attributes for rendering purposes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>8d7dca11-45e7-1ba0-e313-12301cb41e92</AttributeGroupGuid>
+    <AttributeGroupName>Geometry</AttributeGroupName>
+    <AttributeGroupDescription>Geometry related attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>9.7063</AttributeGroupGuid>
+    <AttributeGroupName>ICF-DataVisual</AttributeGroupName>
+    <AttributeGroupDescription>Data visualization object attributes</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>d1ab93dd-33bb-5aaf-1d14-32f114d13905</AttributeGroupGuid>
+    <AttributeGroupName>SmartMetaDataEvents</AttributeGroupName>
+    <AttributeGroupDescription>Events for a UI neutral repository.</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+  <eSmartAttributeGroup>
+    <AttributeGroupGuid>d40245ce-ea68-178a-1a14-dad824c7fd08</AttributeGroupGuid>
+    <AttributeGroupName>SmartMetaData</AttributeGroupName>
+    <AttributeGroupDescription>Attributes for a UI neutral repository.</AttributeGroupDescription>
+  </eSmartAttributeGroup>
+</dsAttributeGroup>

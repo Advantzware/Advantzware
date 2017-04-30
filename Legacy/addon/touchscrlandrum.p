@@ -1,13 +1,29 @@
 /* touchscr.p */
 PROPATH = "..\," + PROPATH.
+&SCOPED-DEFINE loginProcedure nosweat/login.w
+&SCOPED-DEFINE nonPersistProgram touch/touchscr.w
+&SCOPED-DEFINE checkUserRecord YES
+&SCOPED-DEFINE connectDatabases YES
+&SCOPED-DEFINE runAsiLoad YES
+&SCOPED-DEFINE checkExpiredLicense YES
+&GLOBAL-DEFINE checkUserCount YES
+&SCOPED-DEFINE overrideUserID landrum
+&SCOPED-DEFINE overrideUserPasswd landrum
+&SCOPED-DEFINE getCompanyProc sshoot/comp-loc.p
+&SCOPED-DEFINE appName touchscreen
 
+{nosweat.i}
+
+
+/* Original Code */
+/*
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
 
 DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 DEFINE NEW SHARED VARIABLE quit_login AS LOGICAL NO-UNDO.
-DEFINE VARIABLE m_id LIKE NOSWEAT._user._userid NO-UNDO.
+DEFINE VARIABLE m_id AS CHAR NO-UNDO.
 DEF NEW GLOBAL SHARED VAR g-sharpshooter AS LOG NO-UNDO.  /* no, it's yes only from sharpsh.p */
 
 ldummy = SESSION:SET-WAIT-STATE("GENERAL").
@@ -27,7 +43,7 @@ IF ERROR-STATUS:ERROR THEN DO:
    QUIT.
 END.
 
-IF CONNECTED("NOSWEAT") THEN DO:
+IF CONNECTED(ldbname(1)) THEN DO:
     RUN ./nosweat/persist.p PERSISTENT SET Persistent-Handle.
     RUN touch/touchscr.w.
 END.
@@ -40,3 +56,4 @@ END.
 
 ldummy = SESSION:SET-WAIT-STATE("").
 QUIT.
+*/

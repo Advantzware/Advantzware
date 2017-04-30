@@ -1,0 +1,22 @@
+FOR EACH bank NO-LOCK WHERE bank.company EQ "%company%"
+actnum,bank-code,bank-name
+
+Indexed: bank-code,bank-name
+Non-Idx: actnum,phone
+
+Generated 04.18.2017 @  2:36:17 am by: nosweat
+Table: bank - Records: 8
+
+    Index: Bank
+         Field: company
+         Field: bank-code
+
+    Index: bank-name
+         Field: company
+         Field: bank-name
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-bank-name
+         Field: bank-name

@@ -1,0 +1,5 @@
+&1      class name
+&2      package name
+&3      time stamp
+@USER@  the current user name
+@USERID@      the current user id

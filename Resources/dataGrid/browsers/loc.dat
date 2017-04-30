@@ -1,0 +1,22 @@
+FOR EACH loc NO-LOCK WHERE loc.company EQ "%company%"
+dscr,loc
+
+Indexed: dscr,loc
+Non-Idx: ?
+
+Generated 04.18.2017 @  1:34:06 am by: nosweat
+Table: loc - Records: 290
+
+    Index: dscr
+         Field: company
+         Field: dscr
+
+    Index: loc
+         Field: company
+         Field: loc
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-dscr
+         Field: dscr

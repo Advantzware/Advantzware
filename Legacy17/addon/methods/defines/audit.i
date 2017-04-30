@@ -1,0 +1,44 @@
+/* audit.i */
+
+&IF "{&NEW}" = "NEW" &THEN
+DEFINE INPUT PARAMETER m_action_taken AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER m_user_id AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER m_db_table AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER m_field_changed AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER m_show_index AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER m_purge AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER m_begin_date AS DATE NO-UNDO.
+DEFINE INPUT PARAMETER m_end_date AS DATE NO-UNDO.
+&ENDIF
+
+DEFINE {&NEW} SHARED VARIABLE v_action_taken AS CHARACTER NO-UNDO.
+DEFINE {&NEW} SHARED VARIABLE v_user_id AS CHARACTER NO-UNDO.
+DEFINE {&NEW} SHARED VARIABLE v_db_table AS CHARACTER NO-UNDO.
+DEFINE {&NEW} SHARED VARIABLE v_field_changed AS LOGICAL NO-UNDO.
+DEFINE {&NEW} SHARED VARIABLE v_show_index AS LOGICAL NO-UNDO.
+DEFINE {&NEW} SHARED VARIABLE v_purge AS LOGICAL NO-UNDO.
+DEFINE {&NEW} SHARED VARIABLE v_begin_date AS DATE NO-UNDO.
+DEFINE {&NEW} SHARED VARIABLE v_end_date AS DATE NO-UNDO.
+
+&IF "{&NEW}" = "NEW" &THEN
+ASSIGN
+  v_action_taken = m_action_taken
+  v_user_id = m_user_id
+  v_db_table = m_db_table
+  v_field_changed = m_field_changed
+  v_show_index = m_show_index
+  v_purge = m_purge
+  v_begin_date = m_begin_date
+  v_end_date = m_end_date.
+&ENDIF
+
+DEFINE {&NEW} SHARED STREAM s-audit-rpt.
+DEFINE {&NEW} SHARED STREAM s_audit_file.
+
+DEFINE {&NEW} SHARED WORK-TABLE ttbl_header NO-UNDO
+  FIELD v_action AS CHARACTER
+  FIELD v_db AS CHARACTER
+  FIELD v_file AS CHARACTER
+  FIELD v_userid AS CHARACTER
+  FIELD v_date AS DATE
+  FIELD v_time AS INTEGER.

@@ -1,0 +1,33 @@
+/* ---------------------------------------------------------- oe/oe-rell.a bg */
+/*                                                                            */
+/* add module - order entry release lines                                     */
+/*                                                                            */
+/* -------------------------------------------------------------------------- */
+
+/** Find last actual release for this order number and add 1 to
+    the get the next release. **/
+/* === rel-no logic moved to line (oe-rell) ========*/
+DEF BUFFER buf-rell FOR oe-rell .
+DEF VAR li-nxt-rel-no2 AS INT NO-UNDO.
+for each buf-rell
+    where buf-rell.company eq cocode
+      and buf-rell.ord-no  eq oe-rel.ord-no no-lock 
+      by buf-rell.rel-no desc:
+    
+      li-nxt-rel-no2 =  buf-rell.rel-no.
+      leave.  
+end.
+li-nxt-rel-no2 = li-nxt-rel-no2 + 1.
+/*========== */ 
+
+create oe-rell.
+assign
+ oe-rell.company    = cocode
+ fil_id             = recid(oe-rell)
+ oe-rell.loc        = locode
+ nufile             = true
+ oe-rell.r-no       = oe-relh.r-no
+ oe-rell.rel-no     = li-nxt-rel-no2
+ oe-rell.po-no      = oe-relh.po-no.
+
+/* end ---------------------------------- copr. 1993  advanced software, inc. */

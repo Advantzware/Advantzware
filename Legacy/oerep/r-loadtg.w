@@ -466,7 +466,7 @@ DEFINE VARIABLE lbl_po-no AS CHARACTER FORMAT "X(256)":U INITIAL "Print PO from:
      SIZE 14 BY 1 NO-UNDO.
 
 DEFINE VARIABLE scr-label-file AS CHARACTER FORMAT "X(256)":U 
-     LABEL "Label Matrix Label File" 
+     LABEL "Print Format" 
      VIEW-AS FILL-IN 
      SIZE 68 BY 1 NO-UNDO.
 
@@ -576,7 +576,7 @@ DEFINE VARIABLE tb_override-mult AS LOGICAL INITIAL no
      SIZE 37 BY 1 NO-UNDO.
 
 DEFINE VARIABLE tb_print-view AS LOGICAL INITIAL no 
-     LABEL "Xprint Preview?" 
+     LABEL "Preview?" 
      VIEW-AS TOGGLE-BOX
      SIZE 19.6 BY 1 NO-UNDO.
 
@@ -6993,12 +6993,12 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
    
     IF tb_print-view THEN DO:
         IF NOT lBussFormModle THEN
-           PUT "<PREVIEW><MODAL=NO>" FORM "x(30)".
+           PUT "<PREVIEW><MODAL=NO>" FORM "x(50)".
          ELSE
            PUT "<PREVIEW>" FORM "x(30)".
     END.
     ELSE DO:
-       PUT "<PRINTER?>" FORM "x(30)".
+       PUT "<PRINTER?><FORMAT=LEGAL>" FORM "x(30)".
     END.
 
     DO WITH FRAME {&FRAME-NAME}:

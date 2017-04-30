@@ -1,0 +1,11 @@
+&1            business entity name
+&2            package name
+&3            dataset name
+&4            dataset path
+&5            time stamp
+&6            purpose
+&7            description
+&8            data access name
+&9            data access package
+@USER@        the current user name
+@CALC_FIELDS@ the code block to populate calculated fields (in ReceiveData)

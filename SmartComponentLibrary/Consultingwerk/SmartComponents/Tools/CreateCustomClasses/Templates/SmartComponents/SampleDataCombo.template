@@ -1,0 +1,29 @@
+/*------------------------------------------------------------------------
+    File        : &2DataCombo
+    Purpose     : 
+    Syntax      : 
+    Description : 
+    Author(s)   : &3
+    Created     : Sun Aug 07 20:47:23 CEST 2011
+    Notes       : 
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+USING Consultingwerk.SmartComponents.Implementation.* FROM PROPATH .
+USING Progress.Lang.*                                 FROM PROPATH .
+
+CLASS &1.&2DataCombo 
+    INHERITS SmartDataCombo 
+    USE-WIDGET-POOL: 
+	
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &2DataCombo class
+        Notes:   
+    ------------------------------------------------------------------------------*/
+	CONSTRUCTOR PUBLIC &2DataCombo ():
+		SUPER ().
+		
+	END CONSTRUCTOR.
+
+END CLASS.

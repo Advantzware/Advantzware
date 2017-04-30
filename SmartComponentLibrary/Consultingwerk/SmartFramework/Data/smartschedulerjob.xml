@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<dsSchedulerJob xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartSchedulerJob>
+    <SchedulerJobGuid>da9c8a01-173d-8790-1b14-e8ad80089ffe</SchedulerJobGuid>
+    <SchedulerJobName>[SmartFramework] Cleanup Scheduler Job status records</SchedulerJobName>
+    <Description>Cleanup Scheduler Job status records</Description>
+    <MaxRuntime>900</MaxRuntime>
+    <JobCommand>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.SmartFramework.Scheduler.CleanupSchedulerJobCommand&quot;,
+  &quot;DeleteFailedFrom&quot;: 30,
+  &quot;DeleteFinishedFrom&quot;: 30,
+  &quot;DeleteCancelledFrom&quot;: 30,
+  &quot;DeleteRunningFrom&quot;: 30
+}
+</JobCommand>
+  </eSmartSchedulerJob>
+</dsSchedulerJob>

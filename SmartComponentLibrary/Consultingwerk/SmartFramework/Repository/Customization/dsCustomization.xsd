@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsCustomization" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartCustomizationResult" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartCustomizationResultBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="CustomizationResultGuid" type="xsd:string" nillable="true" prodata:format="x(36)" prodata:label="Customization Result"/>
+              <xsd:element name="CustomizationResultCode" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Result Code"/>
+              <xsd:element name="CustomizationResultDescription" type="xsd:string" nillable="true" prodata:format="x(400)" prodata:label="Description"/>
+              <xsd:element name="CustomizationTypeGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="CustomizationTypeCode" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Customization Type"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eSmartCustomization" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartCustomizationBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="CustomizationGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="CustomizationTypeGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="CustomizationResultGuid" type="xsd:string" nillable="true" prodata:format="x(36)" prodata:label="Customization Result"/>
+              <xsd:element name="ReferenceValue" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Reference Value"/>
+              <xsd:element name="CustomizationTypeCode" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Customization Type"/>
+              <xsd:element name="CustomizationResultCode" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Result Code"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="CustomizationResultCode">
+      <xsd:selector xpath=".//eSmartCustomizationResult"/>
+      <xsd:field xpath="CustomizationResultCode"/>
+    </xsd:unique>
+    <xsd:unique name="CustomizationResultGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartCustomizationResult"/>
+      <xsd:field xpath="CustomizationResultGuid"/>
+    </xsd:unique>
+    <xsd:unique name="CustomizationGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartCustomization"/>
+      <xsd:field xpath="CustomizationGuid"/>
+    </xsd:unique>
+    <xsd:keyref name="eSmartCustomizationResulteSmartCustomizationRelation" refer="CustomizationResultGuid">
+      <xsd:selector xpath=".//eSmartCustomization"/>
+      <xsd:field xpath="CustomizationResultGuid"/>
+    </xsd:keyref>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="CustomizationResultDescription">
+        <prodata:table name="eSmartCustomizationResult"/>
+        <prodata:field name="CustomizationResultDescription"/>
+      </prodata:index>
+      <prodata:index name="CustomizationTypeGuid">
+        <prodata:table name="eSmartCustomizationResult"/>
+        <prodata:field name="CustomizationTypeGuid"/>
+      </prodata:index>
+      <prodata:index name="CustomizationResultGuid">
+        <prodata:table name="eSmartCustomization"/>
+        <prodata:field name="CustomizationResultGuid"/>
+      </prodata:index>
+      <prodata:index name="CustomizationTypeGuid">
+        <prodata:table name="eSmartCustomization"/>
+        <prodata:field name="CustomizationTypeGuid"/>
+      </prodata:index>
+      <prodata:index name="ReferenceValue">
+        <prodata:table name="eSmartCustomization"/>
+        <prodata:field name="ReferenceValue"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

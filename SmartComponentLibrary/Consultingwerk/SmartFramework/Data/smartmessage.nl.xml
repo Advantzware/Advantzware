@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<dsMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartMessage>
+    <MessageGuid>c9c3aa5a-0d93-37bb-1914-c19e205f3c80</MessageGuid>
+    <MessageGroup>SFR</MessageGroup>
+    <MessageNumber>1</MessageNumber>
+    <LanguageGuid>cd229641-1db6-81b3-e211-66569ba03908</LanguageGuid>
+    <MessageText>Wens u deze applicatie af te sluiten?</MessageText>
+    <MessageDetail>Wens u deze applicatie &amp;1 af te sluiten?</MessageDetail>
+    <MessageType>Question</MessageType>
+  </eSmartMessage>
+</dsMessage>
