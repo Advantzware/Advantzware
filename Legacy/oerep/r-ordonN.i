@@ -35,7 +35,8 @@
         FIND FIRST itemfg WHERE itemfg.company EQ cocode 
                           AND itemfg.i-no = oe-ordl.i-no NO-LOCK NO-ERROR.
         
-        IF AVAIL itemfg AND itemfg.stat NE "A" AND NOT tb_itm-act THEN NEXT .
+        IF itemfg.stat NE "" THEN
+            IF AVAIL itemfg AND (itemfg.stat NE "A") AND NOT tb_itm-act THEN NEXT .
 
       {oerep/r-ordo1N.i}
     END.
