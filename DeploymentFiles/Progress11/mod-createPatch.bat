@@ -1,5 +1,5 @@
-@ECHO OFF
-
+REM 
+REM ================================================================================ 
 REM ================ Get Information needed from user           ====================
 REM ================ Patch created to be placed next to rcode   ====================
 REM ================ containing resources_version.zip, programs_version.zip ========
@@ -8,81 +8,94 @@ REM ================ and progress-pre.ini and progress-post.ini ================
 REM ================ Steps:                                     ====================
 REM ================ Compress Programs, Resources, Utils        ====================
 REM ================ and progress-pre.ini and progress-post.ini ====================
+set sourceDir=%1
+CLS
+ECHO Install Version is %InstallVersion%
+	
+SET /P InstallVersion="Enter the version number for this patch: "
+SET /P askUpgrade="Do you wish to continue to create patch for version  %InstallVersion%?"
+SET /P compareVersion="Enter the version number for file comparison with this patch: "
+IF NOT %askUpgrade% == Y DO GOTO :exit
 
-@SET patchTemplateDir=P:\ASI\Admin\Programs\patchBuild\template
-@SET DLC10Dir=C:\Progress\OE102B
-@SET DLC11Dir=C:\Progress\OE116_64
-@SET envDir=P:\ASI\Environments
-@SET envObj10=Develop\Object102
-@SET envObj11=Develop\Object116
-@SET patchTopDir=P:\ASI\Releases
 
-@SET /P patchID="Enter the patch identifier (e.g. 16.4.4): "
-@SET /P envParentDir="Enter the enviroment directory for this version: "
-@SET /P compareVersion="Enter the patch version for comparison to this patch: "
+mkdir ..\PATCH%InstallVersion%%sourceDir%
+copy *.p ..\PATCH%InstallVersion%%sourceDir%
+echo %InstallVersion% > asiversion.txt
+copy *.txt ..\PATCH%InstallVersion%%sourceDir%
+copy *.bat ..\PATCH%InstallVersion%%sourceDir%
+xcopy /ad /s * ..\PATCH%InstallVersion%%sourceDir%
+cd ..\PATCH%InstallVersion%%sourceDir%
 
-@SET resourcesDir=%envDir%\%envParentDir%\Develop\Object102\Resources
-@SET patchDir=%patchTopDir%\PATCH%patchID%
-@SET rcode10Dir=%envDir%\%envParentDir%\%envObj10%\Legacy
-@SET rcode11Dir=%envDir%\%envParentDir%\%envObj11%\Legacy
 
-@ECHO .
-@ECHO This function will create a patch in folder: %patchDir%
-@ECHO using the patch template found in: %patchTemplateDir%
-@ECHO with Progress 10 rCode from: %rCode10Dir%
-@ECHO and Progress 11 rCode from: %rCode11Dir%
-@ECHO and Resources files from: %resourcesDir%
-@ECHO .
-@ECHO Patch ID %patchID% will be compared with patch %compareVersion%
-@ECHO .
-@SET /P askUpgrade="Do you wish to continue to create this patch (Y/N)?"
+del /s /q ./programs
+del /s /q ./Resources
 
-IF NOT %askUpgrade% == Y GOTO :exit
+md .\programs
+xcopy /s /E p:\asi10test\branch\master%sourceDir%\rcode\*.* .\programs
 
-ECHO .
-ECHO Creating patch structure...
-rem MKDIR %patchDir% > NUL
-rem XCOPY %patchTemplateDir%\*.* %patchDir% /e /q > NUL
-CD %patchDir% > NUL
+md .\Resources
+xcopy /s /E p:\asi10test\branch\master\resources\*.* .\Resources
 
-IF NOT EXIST "%rCode10Dir%\addon\touch\copynote.r" (
-  ECHO %rCode10Dir%\addon\touch\copynote.r was not found; aborting script
-  pause
+IF NOT EXIST .\programs\addon\touch\copynote.r (
+  ECHO addon/touch/copynote.r not found, aborting script
   GOTO :ERROR
 )
 
-ECHO Compressing files...
-rem .\7-zip\7z a -r programs10.7z %rCode10Dir% > NUL
-rem .\7-zip\7z a -r programs11.7z %rCode11Dir% > NUL
-rem .\7-zip\7z a -r resources.7z %resourcesDir% > NUL
+md .\Deltas
+md .\Deltas\addon
+md .\DataUpdates
+md .\addon
 
-ECHO Creating list files...
-CD %resourcesDir%
-rem FORFILES /s /m *.* /c "cmd /c echo @relpath" > %patchDir%\resourceslist.txt
-CD %rCode10Dir%
-rem FORFILES /s /m *.* /c "cmd /c echo @relpath" > %patchDir%\programslist.txt
-CD %patchDir%
+del programs.7z
+del resources.7z
 
-ECHO Copying menu and structure files...
-rem COPY %resourcesDir%\stdMenu\*.d . > NUL
-rem COPY %resourcesDir%\stdMenu\addon\*.d .\addon > NUL
-rem COPY /Y %resourcesDir%\stdMenu\menu.* . > NUL
-rem COPY /Y %resourcesDir%\stdMenu\addon\menu.* .\addon > NUL
-rem COPY /Y %resourcesDir%\stdMenu\deltas\*.df .\Deltas > NUL
-rem COPY /Y %resourcesDir%\stdMenu\deltas\addon\*.df .\Deltas\addon > NUL
-rem COPY /Y %resourcesDir%\stdMenu\dataUpdates\*.* .\dataUpdates > NUL
+.\7-zip\7z a -r programs.7z .\programs
+.\7-zip\7z a -r resources.7z .\resources
+.\7-zip\7z a -r programs.7z .\programs
+.\7-zip\7z a -r resources.7z .\resources
 
-ECHO Comparing files...
-"C:\Program Files\ExamDiff Pro\ExamDiff.exe" %patchDir%\programslist.txt %patchTopDir%\PATCH%compareVersion%\programslist.txt /i /w /t /o:%patchTopDir%\PATCH%compareVersion%\programslist.txt
-"C:\Program Files\ExamDiff Pro\ExamDiff.exe" %patchDir%\programslist.txt %patchTopDir%\PATCH%compareVersion%\programslist.txt /i /w /t /o:%patchTopDir%\PATCH%compareVersion%\programslist.txt
+REM Visually compare file list changes between versions
+cd resources
+forfiles /s /m *.* /c "cmd /c echo @relpath" > ..\resourceslist.txt
+cd ..
+cd programs
+forfiles /s /m *.* /c "cmd /c echo @relpath" > ..\programslist.txt
+cd ..
 
-FOR %%a IN (*.d) DO (
-    "C:\Program Files\ExamDiff Pro\ExamDiff.exe" %patchDir%\%%a %patchTopDir%\PATCH%compareVersion%\%%a /i /w /t /o:%patchDir%\DIFF%%a
+"C:\Program Files\WinMerge\WinMergeU.exe" programslist.txt ..\Patch%compareVersion%%sourceDir%\programslist.txt
+"C:\Program Files\WinMerge\WinMergeU.exe" resourceslist.txt ..\Patch%compareVersion%%sourceDir%\resourceslist.txt
+
+copy p:\asi10test\branch\develop\resources\stdMenu\*.d .
+copy p:\asi10test\branch\develop\resources\stdMenu\addon\*.d .\addon
+
+copy /Y p:\asi10test\branch\develop\resources\stdMenu\menu.* .
+copy /Y p:\asi10test\branch\develop\resources\stdMenu\addon\menu.* .\addon
+
+copy /Y p:\asi10test\branch\develop\resources\stdMenu\deltas\*.df .\Deltas
+copy /Y p:\asi10test\branch\develop\resources\stdMenu\deltas\addon\*.df .\Deltas\addon
+
+copy /Y p:\asi10test\branch\develop\resources\stdMenu\dataUpdates\*.* .\dataUpdates
+
+REM Compare .d files with earlier release
+for %%a IN (*.d) do (
+  "C:\Program Files\WinMerge\WinMergeU.exe" %%a ..\Patch%compareVersion%%sourceDir%\%%a
 )
 
-FOR %%a IN (menu.*) DO (
-    "C:\Program Files\ExamDiff Pro\ExamDiff.exe" %patchDir%\%%a %patchTopDir%\PATCH%compareVersion%\%%a /i /w /t /o:%patchDir%\DIFF%%a
+REM Compare menu files with earlier release
+for %%a IN (menu.*) do (
+  "C:\Program Files\WinMerge\WinMergeU.exe" %%a ..\Patch%compareVersion%%sourceDir%\%%a
 )
+
+del /s /q .\programs
+del /s /q .\resources
+
+
+rem c:\progress\openedge\bin\prowin32 -b -pf p:\asi10test\rco1010\nosweatbuild.pf -p dumpmenufe.p
+
+
+
+
+
 
 GOTO :NORMALCOMPLETION
 
@@ -90,15 +103,14 @@ GOTO :NORMALCOMPLETION
 CLS
 ECHO An error occurred, aborting install...
 PAUSE 
-EXIT
+exit
 
 :NORMALCOMPLETION
 REM clean up and exit
-ECHO Script completed normally
+ECHO Script completed normally, Press spacebar to exit
 PAUSE
-GOTO EXIT
 
-:DONE
+goto exit
+:done
 REM nothing to do
-
-:EXIT
+:exit

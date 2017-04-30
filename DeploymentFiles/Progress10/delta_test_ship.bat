@@ -1,5 +1,3 @@
-
-
 set DUMP_INC_CODEPAGE=1252 
 set DUMP_INC_INDEXMODE=active 
 set DUMP_INC_RENAMEFILE=.\wrk\renamefile.rf 

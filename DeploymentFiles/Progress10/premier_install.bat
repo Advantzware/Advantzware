@@ -1,10 +1,9 @@
-
 REM ================================================================================ 
 REM ================ For Future Installs                        ====================
 REM ===================DEFINE MSI,MST,UPN,log file & folder here ==================
 REM SET MSINAME=SETUP.MSI
 REM SET MSTNAME=SETUP.MSI
-REM sET UPN=AppID-Vendor-AppName-Version-ReleseVersion
+REM SET UPN=AppID-Vendor-AppName-Version-ReleseVersion
 REM SET LOGSFOLDER="C:\ApplicationLogs\%UPN%_Install.log"
 REM IF NOT EXIST "C:\ApplicationLogs" MD "C:\ApplicationLogs"
 REM ================================================================================
@@ -12,7 +11,6 @@ REM ===================Check if the Product exists already======================
 REM SET PRODUCTKEY=HKEY_LOCAL_MACHINE\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall
 REM REG QUERY %PRODUCTKEY%\{4ECF4BDC-8387-329A-ABE9-CF5798F84BB2} 
 REM IF NOT %ERRORLEVEL% EQU 0 (GOTO :INSTALL) ELSE GOTO :ENDHERE  
-
 
 REM Prevent each command from being echoed to the screen - very annoying otherwise
 @echo off
@@ -42,22 +40,18 @@ ECHO Insert this into rcode\progress.ini N:\programs,N:\programs\addon,N:\Resour
 EHCO Then Press spacebar to continue
 
 ECHO Make sure the asi.pf and nosweat.pf files have -db as the first line, then press spacebar
-EHCO Then Press spacebar to continue
-
 
 SET /P askReady="Are you ready to start install?"
 
 REM ================================================================================ 
 REM ================ Extract utility folder & .r's for use in this script ==========
-
-
-
 REM ================================================================================ 
 REM Clear the DOS Box and display detailed message for End User
 REM Explain what is being installed and why
 REM Give expected duration of install
 REM Include any instructions that the end user needs to know about.
 CLS
+
 echo.
 echo.
 echo.
@@ -75,12 +69,8 @@ echo.
 echo If you have any questions, please contact Wade Kaldawi
 echo.
 echo.
-
-
-
 REM ================================================================================ 
 REM ================ Extract Info from lnk file                           ==========
-
 REM     Run .r to parse the html of lnk information and create advantzware.ini
 REM     Construct advantzware.ini: startin, dlc, executable, ini file, databases+info, database folder, backup folder, tmp folder (individual or shared), windows server version, expected max users, asiftp site, asiftp password, 
 set OldRcode=
@@ -90,7 +80,6 @@ set DbDrive=
 set DbFolder=
 set advIni=
 set DbBackupFolder=
-
 REM ================================================================================ 
 REM ================ Drop a file in the root directory so that the batch file ======
 REM ================ does not run repeatedly at login                         ======
@@ -100,14 +89,10 @@ echo %COMPUTERNAME% >>%InstallLog%
 date /T >>%InstallLog%
 time /T >>%InstallLog%
 
-
-
 REM ================================================================================ 
 REM ================ Collect Windows Server Info and Ftp it ======
 ECHO Capturing system information to systemSummary.txt
 msinfo32 /report .\systemSummary.txt /categories +systemsummary
-
-
 
 REM 	nosweat.p modified to add to propath based on advanztware.ini
 REM 	extract dlc value from advantzware.ini
@@ -119,7 +104,7 @@ REM     Run utility to extract info about extents
 REM run current application, run utility to export current propath, start-in folder
 
 ECHO "resources.zip is file" .\resources.zip
-EcHO "programs.zip is file: " .\programs.zip
+ECHO "programs.zip is file: " .\programs.zip
 
 ECHO "Validating prior install..."
 REM 	Check for existence of databases, rcode folder, DLC folder
