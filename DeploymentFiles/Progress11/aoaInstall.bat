@@ -1,5 +1,5 @@
 set DLC=%1
-set PROEXE=%DLC%\bin\prowin.exe
+set PROEXE=%DLC%\bin\prowin32.exe
 echo "checking status"
 call %DLC%\bin\asbman.bat -name asAOA -query > aoaStatus.txt
 echo "status was checked"

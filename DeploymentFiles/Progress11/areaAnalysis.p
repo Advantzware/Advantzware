@@ -1,15 +1,37 @@
-def var cDb as char.
-def var iFree as int.
+/*---------------------------------------------------------------------------*/
+/*  File:           areaAnalysis.p                                           */
+/*  Copyright:      (c)2017 Advanced Software Services, Inc.All rights rsrvd */
+/*  Description:    Procedure to list available storage areas and limits     */
+/*                                                                           */
+/*  Included files:                                                          */
+/*  External RUN/CALL:                                                       */
+/*  External files:     WRITE <dbname>Areas.txt                              */
+/*                                                                           */
+/*  Revision history:   MM/DD/YY    INIT    TKT    Description               */
+/*                      04/30/17    MYT            cleanup                   */
+/*---------------------------------------------------------------------------*/
 
-cDb = session:param.
+DEF VAR cDb AS CHAR.
+DEF VAR iFree AS INT.
 
-output to value(cDb + "Areas.txt").
+ASSIGN 
+    cDb = SESSION:PARAM.
+
+OUTPUT TO VALUE(cDb + "Areas.txt").
 FOR EACH _AreaStatus:
-iFree = _AreaStatus-TotBlocks - _AreaStatus-Hiwater .
-export delimiter "," "Database" "Area Name" "Total Blocks" "High Watermark" "Free".
-    export delimiter "," cDb _AreaStatus-AreaName
-    _AreaStatus-TotBlocks  
-    _AreaStatus-Hiwater 
-    iFree.
+    ASSIGN 
+        iFree = _AreaStatus-TotBlocks - _AreaStatus-Hiwater .
+    EXPORT DELIMITER "," 
+        "Database" 
+        "Area Name" 
+        "Total Blocks" 
+        "High Watermark" 
+        "Free".
+    EXPORT DELIMITER "," 
+        cDb 
+        _AreaStatus-AreaName
+        _AreaStatus-TotBlocks  
+        _AreaStatus-Hiwater 
+        iFree.
 END.
-output close.
+OUTPUT CLOSE.

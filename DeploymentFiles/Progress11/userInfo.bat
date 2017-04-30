@@ -3,9 +3,8 @@ REM ================ Get Information needed from user           ================
 CLS
 REM ECHO Install Version is %InstallVersion%
 REM 	
+
 SET /P InstallVersion="Enter the version number for this patch: "
-
-
 SET /P askUpgrade="Do you wish to continue to install the patch for version  %InstallVersion%?"
 IF NOT %askUpgrade% == Y GOTO :exit
 
