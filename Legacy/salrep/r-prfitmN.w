@@ -78,18 +78,18 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "Customer,Invoice#,FG Item,Cust Part No,Categ,Qty Shipped,Itm SqFT,Ttl MSF,$/MSF," +
-                           "Unit Price,UOM,Board Cost/M,Order Cost/M,Invoice Cost/M,Margin/M,Cost%,Colors,Order date,Ship Date,Invoice Amt,Estimate#," +
+                           "Unit Price,UOM,Cost/M,Margin/M,Cost%,Colors,Order date,Ship Date,Invoice Amt,Estimate#," +
                            "Style,Flute,Test,Length,Width,Depth"
        cFieldListToSelect = "cust,inv,ino,cust-part,cat,qty-shp,i-sq,ttl-msf,msf," +
-                            "unt-prc,uom,brdcst-m,ordcst-m,invcst-m,mar-m,cst,colr,ord-dt,shp-dt,inv-amt,est," +
+                            "unt-prc,uom,cst-m,mar-m,cst,colr,ord-dt,shp-dt,inv-amt,est," +
                             "styl,flut,tst,lnth,wdth,dpth"
-       cFieldLength = "8,8,15,15,5,12,8,7,5," + "15,3,12,12,14,11,11,6,10,10,15,9," + "6,5,6,6,6,6"
+       cFieldLength = "8,8,15,15,5,12,8,7,5," + "15,3,11,11,11,6,10,10,15,9," + "6,5,6,6,6,6"
        cFieldType = "c,i,c,c,c,i,i,i,i," + "i,c,i,i,i,c,c,c,i,c," + "c,c,c,i,i,i" 
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Customer,Invoice#,FG Item,Cust Part No,Categ,Qty Shipped,Itm SqFT,Ttl MSF,$/MSF," +
-                           "Unit Price,UOM,Board Cost/M,Order Cost/M,Invoice Cost/M,Margin/M,Cost%,Colors,Order date,Ship Date,Invoice Amt,Estimate#," +
+                           "Unit Price,UOM,Cost/M,Margin/M,Cost%,Colors,Order date,Ship Date,Invoice Amt,Estimate#," +
                            "Style,Flute,Test,Length,Width,Depth" .
 
 /* _UIB-CODE-BLOCK-END */
@@ -1523,6 +1523,7 @@ PROCEDURE run-report :
 
 def var v-cuom   like po-ordl.cons-uom.
 def var v-unit   as   char format "!" init "U".
+def var v-cost1  as   char format "!" init "B".
 def var v-cost2  as   log  init yes.
 def var v-cost3  as   char format "!" init "C".
 def var v-label1 as   char format "x(15)".
@@ -1583,6 +1584,7 @@ assign
  fdate          = begin_inv-date
  tdate          = end_inv-date
  sort-by-cust   = rd_sort EQ "Customer#"
+ v-cost1        = "4"      
  /*v-unit         = SUBSTR(rd_show2,1,1)*/
  /*v-cost3        = SUBSTR(rd_show3,1,1)*/
  v-inc-fc       = tb_fin-chg
@@ -1612,7 +1614,7 @@ END.
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-        IF LOOKUP(ttRptSelected.TextList, "Qty Shipped,Ttl MSF,$/MSF,Invoice Amt,Board Cost/M,Order Cost/M,Invoice Cost/M,Margin/M,Cost%") <> 0    THEN
+        IF LOOKUP(ttRptSelected.TextList, "Qty Shipped,Ttl MSF,$/MSF,Invoice Amt,Cost/M,Margin/M,Cost%") <> 0    THEN
          ASSIGN
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE

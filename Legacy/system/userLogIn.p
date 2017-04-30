@@ -45,29 +45,23 @@ ASSIGN
 
 /* System Constant Values  contains user eula file*/
 {system/sysconst.i}
+
+/* Note: cocode may not be available at this point */
 FIND FIRST sys-ctrl NO-LOCK 
-    WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name    EQ "enforceUserCount"
+    WHERE /* sys-ctrl.company EQ cocode
+    AND */ sys-ctrl.name    EQ "enforceUserCount"
     NO-ERROR.
 IF AVAILABLE sys-ctrl THEN DO:
-RUN sys/ref/nk1look.p (INPUT cocode, "enforceUserCount", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT lcNk1Value, OUTPUT llRecFound).
-IF llRecFound THEN
-    enforceUserCount-log = LOGICAL(lcNk1Value) NO-ERROR.
+    enforceUserCount-log = sys-ctrl.log-fld NO-ERROR.
 END. 
 ELSE 
     enforceUserCount-log = TRUE.
 FIND FIRST sys-ctrl NO-LOCK 
-    WHERE sys-ctrl.company EQ cocode
-    AND sys-ctrl.name    EQ "promptMultiSession"
+    WHERE /* sys-ctrl.company EQ cocode
+    AND */ sys-ctrl.name    EQ "promptMultiSession"
     NO-ERROR.
 IF AVAILABLE sys-ctrl THEN DO:
-RUN sys/ref/nk1look.p (INPUT cocode, "promptMultiSession", "L" /* Logical */, NO /* check by cust */, 
-    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-    OUTPUT lcNk1Value, OUTPUT llRecFound).
-IF llRecFound THEN
-    promptMultiSession-log = LOGICAL(lcNk1Value) NO-ERROR.
+    promptMultiSession-log = sys-ctrl.log-fld NO-ERROR.
 END. 
 ELSE
     promptMultiSession-log = YES.
@@ -101,7 +95,6 @@ FIND FIRST asi._connect NO-LOCK WHERE _connect._connect-usr = _myconnection._myc
     NO-ERROR. 
     
 cEulaFile = SEARCH("{&EulaFile}").
-    
 RUN system/checkEula.p (INPUT cEulaFile, OUTPUT lEulaAccepted, OUTPUT cEulaVersion).
 IF NOT lEulaAccepted THEN 
     oplExit = TRUE. 
@@ -114,7 +107,7 @@ END.
 
 /* If user has other sessions open, prompt to add another or close them */
 IF iLoginCnt GT 0 AND promptMultiSession-log THEN DO:
-    RUN system/dSession.w (INPUT iLoginCnt, INPUT iMaxSessionsPerUser, OUTPUT cResponse).
+    RUN system/wSession.w (INPUT iLoginCnt, INPUT iMaxSessionsPerUser, OUTPUT cResponse).
       
     CASE cResponse:
         WHEN "" THEN 
@@ -124,7 +117,9 @@ IF iLoginCnt GT 0 AND promptMultiSession-log THEN DO:
         WHEN "Log Out Other Sessions" THEN DO:
             FOR EACH userLog EXCLUSIVE-LOCK WHERE userLog.userStatus EQ "Logged In" 
                 AND  userLog.user_id EQ cCurrentUserID:
-                userLog.userStatus = "User Logged Out".
+                ASSIGN 
+                    userLog.logoutDateTime = DATETIME(TODAY, MTIME)
+                    userLog.userStatus     = "User Logged Out".
             END.            
         END.
     END CASE.

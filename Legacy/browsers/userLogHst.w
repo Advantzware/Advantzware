@@ -74,9 +74,9 @@ ASSIGN dtStartDate = TODAY
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table userLog.userName ~
-userLog.sessionID userLog.LoginDateTime userLog.logoutDateTime ~
-userLog.EulaVersion userLog.IpAddress 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table userLog.user_id ~
+userLog.userName userLog.sessionID userLog.LoginDateTime ~
+userLog.logoutDateTime userLog.EulaVersion userLog.IpAddress 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH userLog WHERE ~{&KEY-PHRASE} ~
       AND userLog.loginDateTime >= dtStartDate and userLog.loginDateTime <= dtEndDate NO-LOCK ~
@@ -122,7 +122,7 @@ DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 32 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiEndingDate AS DATE FORMAT "99/99/99":U INITIAL ? 
+DEFINE VARIABLE fiEndingDate AS DATE FORMAT "99/99/99":U 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
@@ -148,7 +148,8 @@ DEFINE RECTANGLE RECT-4
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
       userLog
-    FIELDS(userLog.userName
+    FIELDS(userLog.user_id
+      userLog.userName
       userLog.sessionID
       userLog.LoginDateTime
       userLog.logoutDateTime
@@ -160,6 +161,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
+      userLog.user_id FORMAT "X(12)":U
       userLog.userName FORMAT "x(16)":U
       userLog.sessionID FORMAT ">>>>>>>>>>":U
       userLog.LoginDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
@@ -268,13 +270,14 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "userLog.loginDateTime >= dtStartDate and userLog.loginDateTime <= dtEndDate"
-     _FldNameList[1]   = ASI.userLog.userName
-     _FldNameList[2]   = ASI.userLog.sessionID
-     _FldNameList[3]   = ASI.userLog.LoginDateTime
-     _FldNameList[4]   = ASI.userLog.logoutDateTime
-     _FldNameList[5]   > ASI.userLog.EulaVersion
-"userLog.EulaVersion" ? ">>9.99" "character" ? ? ? ? ? ? no ? no no "41.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   = ASI.userLog.IpAddress
+     _FldNameList[1]   = ASI.userLog.user_id
+     _FldNameList[2]   = ASI.userLog.userName
+     _FldNameList[3]   = ASI.userLog.sessionID
+     _FldNameList[4]   = ASI.userLog.LoginDateTime
+     _FldNameList[5]   = ASI.userLog.logoutDateTime
+     _FldNameList[6]   > ASI.userLog.EulaVersion
+"EulaVersion" ? ">>9.99" "character" ? ? ? ? ? ? no ? no no "41.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   = ASI.userLog.IpAddress
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

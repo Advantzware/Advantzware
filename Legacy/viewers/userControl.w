@@ -111,19 +111,15 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     userControl.autoLogoutTime AT ROW 3.38 COL 42 COLON-ALIGNED WIDGET-ID 4
-          LABEL "Auto Logout Time (Hours)"
-          VIEW-AS FILL-IN 
-          SIZE 11 BY 1
-     userControl.maxAllowedUsers AT ROW 5.38 COL 42 COLON-ALIGNED WIDGET-ID 8
-          LABEL "Max Allowed Sessions"
+     userControl.maxAllowedUsers AT ROW 5.38 COL 45.2 COLON-ALIGNED WIDGET-ID 8
+          LABEL "Number Concurrent Users"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     userControl.numUsersOverLimit AT ROW 6.48 COL 42 COLON-ALIGNED WIDGET-ID 12
-          LABEL "Num Users Allowed Over Limit"
+     userControl.numUsersOverLimit AT ROW 6.48 COL 45.2 COLON-ALIGNED WIDGET-ID 12
+          LABEL "Concurrent Users Allowed Over Limit"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     userControl.maxSessionsPerUser AT ROW 8.62 COL 42 COLON-ALIGNED WIDGET-ID 14
+     userControl.maxSessionsPerUser AT ROW 8.62 COL 45.2 COLON-ALIGNED WIDGET-ID 14
           LABEL "Max Sessions Per User"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
@@ -189,11 +185,6 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
-
-/* SETTINGS FOR FILL-IN userControl.autoLogoutTime IN FRAME F-Main
-   NO-DISPLAY NO-ENABLE EXP-LABEL                                       */
-ASSIGN 
-       userControl.autoLogoutTime:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* SETTINGS FOR FILL-IN userControl.maxAllowedUsers IN FRAME F-Main
    EXP-LABEL                                                            */

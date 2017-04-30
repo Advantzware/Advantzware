@@ -19,8 +19,8 @@
     &SCOPED-DEFINE checkBlankCompany YES
     &SCOPED-DEFINE addonPersist YES
     &SCOPED-DEFINE appName(touchscreen, advantzware, sharpshooter)
-    /* Note: user_dir is used in see caselbl3.p */    
-    /* Note: gettime.p used in addon/touchscr.p */
+        
+    Note: gettime.p used in addon/touchscr.p
 */
 
 
@@ -38,18 +38,24 @@ DEFINE                   VARIABLE lFound          AS LOGICAL NO-UNDO.
 DEFINE                   VARIABLE cTsLogin        AS CHARACTER   NO-UNDO.
 
 &IF "{&sharpshooterFlag}" EQ "YES"  &THEN
-
   g-sharpshooter = YES.
-  
 &ELSE
-
   g-sharpshooter = NO.
-  
 &ENDIF
 
 ASSIGN
     ldummy    = SESSION:SET-WAIT-STATE("GENERAL")
     g_version = "2.1A-8.2A".
+
+/* Need databases connect to find nk1 values */
+&IF "{&connectDatabases}" EQ "YES"  &THEN
+RUN connectDatabases.
+&ENDIF
+
+/* Need to obtain the nk1 value without a company # */
+IF "{&appName}" EQ "Touchscreen" THEN
+  RUN sys/inc/tslogin.p (OUTPUT tslogin-log).
+
 
 /* If a login procedure is specified */
 &IF DEFINED(loginProcedure) NE 0  &THEN
@@ -61,38 +67,20 @@ RUN setUserProc.
 RUN setDefaultUser.
 &ENDIF
 
+/* Must have a user id at this point */
 IF USERID(LDBNAME(1)) = "" OR quit_login  THEN
 DO:
     ldummy = SESSION:SET-WAIT-STATE("").
     QUIT.
 END.
 
-&IF "{&connectDatabases}" EQ "YES"  &THEN
-RUN connectDatabases.
-&ENDIF
-
 &IF "{&checkUserRecord}" EQ "YES"  &THEN
 RUN userRecordCheck.
 &ENDIF
 
 
-RUN sys/ref/nk1look.p (INPUT g_company,
-                       INPUT "tslogin",
-                       INPUT "L",
-                       INPUT NO,
-                       INPUT NO,
-                       INPUT "",
-                       INPUT "",
-                       OUTPUT cTsLogin,
-                       OUTPUT lFound).
-IF lFound THEN
-    tslogin-log = cTsLogin EQ "YES".
-
-
 &IF "{&runAsiLoad}" EQ "YES"  &THEN
-
 RUN asiload.p.
-
 &ENDIF
 
 RUN chkdate.p.
@@ -160,7 +148,7 @@ DO:
         QUIT.
     END.
     &ENDIF
-
+    
     &IF DEFINED(execProgram) NE 0  &THEN
     RUN startPersistentMenu.
     &ENDIF
@@ -178,13 +166,15 @@ DO:
         "Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
 END. 
 
-
     
 DO TRANSACTION:
   RUN system/userLogOut.p.
 END.
 ldummy = SESSION:SET-WAIT-STATE("").
 QUIT.
+
+/* End Main Block */
+
 
 
 PROCEDURE checkBlankCompany:
@@ -222,6 +212,8 @@ PROCEDURE connectDatabases:
                 VIEW-AS ALERT-BOX ERROR.
         END.
     END.
+    
+    if connected("asihelp") then create alias asihlp for database asihelp.
     
 END PROCEDURE.
 
@@ -272,7 +264,6 @@ PROCEDURE setLocOverride:
 END PROCEDURE.
     
 PROCEDURE setUserProc:
-
     /* Touchscreen may not prompt so check for tslogin for touch programs */
     IF "{&appName}" NE "touchscreen"  
         OR ("{&appName}" EQ "touchscreen" AND tslogin-log )         

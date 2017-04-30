@@ -1,12 +1,9 @@
-
-
+    
     ASSIGN
      v-qty = 0
      v-msf = 0
      v-amt = 0
      v-cst = 0
-     v-cst1 = 0
-     v-cst2 = 0
      v-style = ""
      v-test = ""
      v-flute = ""
@@ -197,8 +194,6 @@
          v-job-no2  = 0
          v-msf[1]   = 0
          v-cst[1]   = 0
-         v-cst1[1]   = 0
-         v-cst2[1]   = 0
          v-po-no-po = 0
          v-style = ""
          v-test = ""
@@ -287,26 +282,12 @@
               v-est-no = trim(itemfg.est-no) .
         END.
             
-        RUN salrep/salecost.p ("4",
+        RUN salrep/salecost.p (v-cost1,
                                ROWID(ar-invl),
                                v-job-no,
                                v-job-no2,
                                v-qty[1],
                                OUTPUT v-cst[1]).
-
-        RUN salrep/salecost.p ("2",
-                               ROWID(ar-invl),
-                               v-job-no,
-                               v-job-no2,
-                               v-qty[1],
-                               OUTPUT v-cst1[1]).
-
-        RUN salrep/salecost.p ("3",
-                               ROWID(ar-invl),
-                               v-job-no,
-                               v-job-no2,
-                               v-qty[1],
-                               OUTPUT v-cst2[1]).
       end.
 
       else
@@ -320,8 +301,6 @@
          v-uom     = ""
          v-qty[1]  = 0
          v-cst[1]  = 0
-         v-cst1[1]  = 0
-         v-cst2[1]  = 0
          v-amt[1]  = ar-cashl.amt-paid - ar-cashl.amt-disc.
 
         RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
@@ -378,8 +357,6 @@
              v-job-no2 = oe-retl.job-no2
              v-qty[1]  = - oe-retl.tot-qty-return
              v-cst[1]  = oe-retl.cost * v-qty[1] / 1000.
-             v-cst1[1] = oe-retl.cost * v-qty[1] / 1000.
-             v-cst2[1] = oe-retl.cost * v-qty[1] / 1000.
 
           FIND FIRST job-hdr WHERE job-hdr.company = cocode
                                AND job-hdr.job-no  = oe-retl.job-no
@@ -401,24 +378,12 @@
             if avail ar-invl then do:
               v-pric = ar-invl.unit-pr.
 
-              RUN salrep/salecost.p ("4",
+              RUN salrep/salecost.p (v-cost1,
                                      ROWID(ar-invl),
                                      v-job-no,
                                      v-job-no2,
                                      v-qty[1],
                                      OUTPUT v-cst[1]).
-              RUN salrep/salecost.p ("2",
-                                     ROWID(ar-invl),
-                                     v-job-no,
-                                     v-job-no2,
-                                     v-qty[1],
-                                     OUTPUT v-cst1[2]).
-              RUN salrep/salecost.p ("3",
-                                     ROWID(ar-invl),
-                                     v-job-no,
-                                     v-job-no2,
-                                     v-qty[1],
-                                     OUTPUT v-cst2[3]).
               END.
             end.
           end.
@@ -437,9 +402,7 @@
          v-marg = v-amt[1] - v-cst[1].
          
       else do:*/
-      v-brdc = v-cst[1] / (v-qty[1] / 1000).
-      v-ordc = v-cst1[1] / (v-qty[1] / 1000).
-      v-invc = v-cst2[1] / (v-qty[1] / 1000).
+      v-brdc = v-cst[1]   /*/ (v-qty[1] / 1000)*/   .
         
     /*    if v-unit eq "U" then
           v-marg = (v-amt[1] - v-cst[1]) / (v-qty[1] / 1000).
@@ -455,8 +418,6 @@
       v-$msf = v-amt[1] / v-msf[1].
 
       if v-brdc eq ? then v-brdc = 0.
-      if v-ordc eq ? then v-ordc = 0.
-      if v-invc eq ? then v-invc = 0.
       if v-marg eq ? then v-marg = 0.
       if v-brdp eq ? then v-brdp = 0.
       if v-$msf eq ? then v-$msf = 0.
@@ -510,9 +471,7 @@
                         WHEN "msf"         THEN cVarValue = STRING(v-$msf,"->>>9") .
                         WHEN "unt-prc"     THEN cVarValue = STRING(v-pric,"->>>,>>>,>>9.99") .
                         WHEN "uom"         THEN cVarValue = v-uom .
-                        WHEN "brdcst-m"       THEN cVarValue = STRING(v-brdc,"->>>,>>9.99") .
-                        WHEN "ordcst-m"       THEN cVarValue = STRING(v-ordc,"->>>,>>9.99") .
-                        WHEN "invcst-m"       THEN cVarValue = STRING(v-invc,"->>>,>>9.99") .
+                        WHEN "cst-m"       THEN cVarValue = STRING(v-brdc,"->>>,>>9.99") .
                         WHEN "mar-m"       THEN cVarValue = STRING(v-marg,"->>>,>>9.99") .
                         WHEN "cst"         THEN cVarValue = STRING(v-brdp,"->>>,>>9.99") .
                         WHEN "colr"        THEN cVarValue = x-v-color .
@@ -659,8 +618,6 @@
        v-qty[2] = v-qty[2] + v-qty[1]
        v-msf[2] = v-msf[2] + v-msf[1]
        v-cst[2] = v-cst[2] + IF v-cst[1] EQ ? THEN 0 ELSE v-cst[1]
-       v-cst1[2] = v-cst1[2] + IF v-cst1[1] EQ ? THEN 0 ELSE v-cst1[1]
-       v-cst2[2] = v-cst2[2] + IF v-cst2[1] EQ ? THEN 0 ELSE v-cst2[1]
        v-amt[2] = v-amt[2] + v-amt[1].
 
       if last-of(tt-report.key-02) then do:
@@ -677,9 +634,7 @@
              v-marg = v-amt[2] - v-cst[2].
              
           else do:*/
-            v-brdc = v-cst[2] / (v-qty[2] / 1000)  .
-            v-ordc = v-cst1[2] / (v-qty[2] / 1000)  .
-            v-invc = v-cst2[2] / (v-qty[2] / 1000)  .
+            v-brdc = v-cst[2] /*/ (v-qty[2] / 1000)*/  .
         
         /*    if v-unit eq "U" then
               v-marg = (v-amt[2] - v-cst[2]) / (v-qty[2] / 1000).
@@ -695,8 +650,6 @@
           v-$msf = v-amt[2] / v-msf[2].
 
           if v-brdc eq ? then v-brdc = 0.
-          if v-ordc eq ? then v-ordc = 0.
-          if v-invc eq ? then v-invc = 0.
           if v-marg eq ? then v-marg = 0.
           if v-brdp eq ? then v-brdp = 0.
           if v-$msf eq ? then v-$msf = 0.
@@ -734,9 +687,7 @@
                         WHEN "msf"         THEN cVarValue = STRING(v-$msf,"->>>9") .
                         WHEN "unt-prc"     THEN cVarValue = "" .
                         WHEN "uom"         THEN cVarValue = "" .
-                        WHEN "brdcst-m"       THEN cVarValue = STRING(v-brdc,"->>>,>>9.99") .
-                        WHEN "ordcst-m"       THEN cVarValue = STRING(v-ordc,"->>>,>>9.99") .
-                        WHEN "invcst-m"       THEN cVarValue = STRING(v-invc,"->>>,>>9.99") .
+                        WHEN "cst-m"       THEN cVarValue = STRING(v-brdc,"->>>,>>9.99")  .
                         WHEN "mar-m"       THEN cVarValue = STRING(v-marg,"->>>,>>9.99")  .
                         WHEN "cst"         THEN cVarValue = STRING(v-brdp,"->>>,>>9.99")  .
                         WHEN "colr"        THEN cVarValue = "" .
@@ -767,15 +718,11 @@
          v-qty[3] = v-qty[3] + v-qty[2]
          v-msf[3] = v-msf[3] + v-msf[2]
          v-cst[3] = v-cst[3] + v-cst[2]
-         v-cst1[3] = v-cst1[3] + v-cst1[2]
-         v-cst2[3] = v-cst2[3] + v-cst2[2]
          v-amt[3] = v-amt[3] + v-amt[2]
 
          v-qty[2] = 0
          v-msf[2] = 0
          v-cst[2] = 0
-         v-cst1[2] = 0
-         v-cst2[2] = 0
          v-amt[2] = 0.
       end.
 
@@ -793,9 +740,7 @@
              v-marg = v-amt[3] - v-cst[3].
              
           else do:*/
-            v-brdc = v-cst[3] / (v-qty[3] / 1000)  .
-            v-ordc = v-cst1[3] / (v-qty[3] / 1000)  .
-            v-invc = v-cst2[3] / (v-qty[3] / 1000)  .
+            v-brdc = v-cst[3] /*/ (v-qty[3] / 1000)*/  .
         
           /*  if v-unit eq "U" then
               v-marg = (v-amt[3] - v-cst[3]) / (v-qty[3] / 1000).
@@ -811,8 +756,6 @@
           v-$msf = v-amt[3] / v-msf[3].
 
           if v-brdc eq ? then v-brdc = 0.
-          if v-ordc eq ? then v-ordc = 0.
-          if v-invc eq ? then v-invc = 0.
           if v-marg eq ? then v-marg = 0.
           if v-brdp eq ? then v-brdp = 0.
           if v-$msf eq ? then v-$msf = 0.
@@ -852,9 +795,7 @@
                         WHEN "msf"         THEN cVarValue = STRING(v-$msf,"->>>9") .
                         WHEN "unt-prc"     THEN cVarValue =   "" .
                         WHEN "uom"         THEN cVarValue = "" .
-                        WHEN "brdcst-m"       THEN cVarValue = STRING(v-brdc,"->>>,>>9.99") .
-                        WHEN "ordcst-m"       THEN cVarValue = STRING(v-ordc,"->>>,>>9.99") .
-                        WHEN "invcst-m"       THEN cVarValue = STRING(v-invc,"->>>,>>9.99") .
+                        WHEN "cst-m"       THEN cVarValue = STRING(v-brdc,"->>>,>>9.99")  .
                         WHEN "mar-m"       THEN cVarValue = STRING(v-marg,"->>>,>>9.99")  .
                         WHEN "cst"         THEN cVarValue = STRING(v-brdp,"->>>,>>9.99")  .
                         WHEN "colr"        THEN cVarValue = "" .
@@ -886,15 +827,11 @@
          v-qty[4] = v-qty[4] + v-qty[3]
          v-msf[4] = v-msf[4] + v-msf[3]
          v-cst[4] = v-cst[4] + v-cst[3]
-         v-cst1[4] = v-cst1[4] + v-cst1[3]
-         v-cst2[4] = v-cst2[4] + v-cst2[3]
          v-amt[4] = v-amt[4] + v-amt[3]
 
          v-qty[3] = 0
          v-msf[3] = 0
          v-cst[3] = 0
-         v-cst1[3] = 0
-         v-cst2[3] = 0
          v-amt[3] = 0.
       end.
 
@@ -903,7 +840,7 @@
     end.
 
     /* display final totals */
-    if v-qty[4] ne 0 or v-cst[4] ne 0 OR v-cst1[4] ne 0 OR v-cst2[4] ne 0 or v-amt[4] ne 0 then do:
+    if v-qty[4] ne 0 or v-cst[4] ne 0 or v-amt[4] ne 0 then do:
       put skip(1).
 
      /* underline v-qty[1] v-msf[1] with frame itemx.
@@ -919,9 +856,7 @@
       end.
       
       else do:*/
-        v-brdc = v-cst[4] / (v-qty[4] / 1000) .
-        v-ordc = v-cst1[4] / (v-qty[4] / 1000) .
-        v-invc = v-cst2[4] / (v-qty[4] / 1000) .
+        v-brdc = v-cst[4] /*/ (v-qty[4] / 1000)*/ .
         
      /*   if v-unit eq "U" then
           v-marg = (v-amt[4] - v-cst[4]) / (v-qty[4] / 1000).
@@ -937,8 +872,6 @@
       v-$msf = v-amt[4] / v-msf[4].
 
       if v-brdc eq ? then v-brdc = 0.
-      if v-ordc eq ? then v-ordc = 0.
-      if v-invc eq ? then v-invc = 0.
       if v-marg eq ? then v-marg = 0.
       if v-brdp eq ? then v-brdp = 0.
       if v-$msf eq ? then v-$msf = 0.
@@ -973,9 +906,7 @@
                         WHEN "msf"         THEN cVarValue = STRING(v-$msf,"->>>9") .
                         WHEN "unt-prc"     THEN cVarValue = ""  .
                         WHEN "uom"         THEN cVarValue = "" .
-                        WHEN "brdcst-m"       THEN cVarValue = STRING(v-brdc,"->>>,>>9.99") .
-                        WHEN "ordcst-m"       THEN cVarValue = STRING(v-ordc,"->>>,>>9.99") .
-                        WHEN "invcst-m"       THEN cVarValue = STRING(v-invc,"->>>,>>9.99") .
+                        WHEN "cst-m"       THEN cVarValue =  STRING(v-brdc,"->>>,>>9.99")  .
                         WHEN "mar-m"       THEN cVarValue = STRING(v-marg,"->>>,>>9.99")  .
                         WHEN "cst"         THEN cVarValue = STRING(v-brdp,"->>>,>>9.99")  .
                         WHEN "colr"        THEN cVarValue = "" .

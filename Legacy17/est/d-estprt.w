@@ -32,6 +32,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE WinKitDontEmbed
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

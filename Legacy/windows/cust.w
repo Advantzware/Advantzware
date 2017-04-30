@@ -1000,11 +1000,7 @@ PROCEDURE Select_att :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
-  /*RUN Get_Procedure IN Persistent-Handle ('cstattch.',OUTPUT run-proc,no).
-    IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)}.*/
-
-  RUN windows/cstattch.w(rec_key_value,header_value,0).
+    {methods/select_attcust.i rec_key_value header_value 0}
 
 END PROCEDURE.
 

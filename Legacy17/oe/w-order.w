@@ -1521,7 +1521,6 @@ PROCEDURE print_RelTicket :
   DEF VAR li AS INT NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
 
-
   RUN Get_Procedure IN Persistent-Handle ('oe-relh_.',OUTPUT run-proc,yes).
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"relTicket-target",OUTPUT char-hdl).
@@ -1563,9 +1562,9 @@ PROCEDURE select_dept2 :
   ASSIGN iCurrentPage = INTEGER(RETURN-VALUE).
 
   IF iCurrentPage EQ 5 THEN
-    RUN SELECT_notes IN h_b-ordrel.
+    RUN select_notes IN h_b-ordrel.
   ELSE
-    RUN SELECT_notes IN h_b-ordlt.
+    RUN select_notes IN h_b-ordlt.
  /* {methods/run_link.i "relTicket-source" "setEnabled" "(ipEnabled)"} */
 
 END PROCEDURE.
@@ -1597,14 +1596,7 @@ PROCEDURE select_att :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE hAttach AS HANDLE NO-UNDO.
-
-    IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN DO:
-        RUN windows/attach.w PERSISTENT SET hAttach (rec_key_value, header_value).
-        RUN dispatch IN hAttach ("initialize") .
-    END.
-    ELSE
-    RUN windows/attach.w (rec_key_value, header_value).
+    {methods/select_att.i}
 
 END PROCEDURE.
 
@@ -1618,8 +1610,6 @@ PROCEDURE select_attcust :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-     DEFINE VARIABLE hAttach AS HANDLE NO-UNDO. 
-
  DEF BUFFER b-oe-ordl FOR oe-ordl.
  DEF BUFFER b-oe-ord FOR oe-ord.
  DEF BUFFER b-cust FOR cust.
@@ -1646,18 +1636,12 @@ PROCEDURE select_attcust :
             NO-LOCK NO-ERROR.
 
      IF AVAIL b-cust THEN DO:
-         IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN DO:
-             RUN windows/cstattch.w PERSISTENT SET hAttach
-                                (b-cust.rec_key,'Customer: ' + b-cust.cust-no +
-                                ' - ' + 'Name: ' + b-cust.name,b-oe-ord.ord-no).
-             RUN dispatch IN hAttach ("initialize") .
-         END.
-         ELSE
-         RUN windows/cstattch.w (b-cust.rec_key,'Customer: ' + b-cust.cust-no +
-                                 ' - ' + 'Name: ' + b-cust.name,b-oe-ord.ord-no).
+         {methods/select_attcust.i
+            b-cust.rec_key
+            'Customer: ' + b-cust.cust-no + ' - ' + 'Name: ' + b-cust.name
+            b-oe-ord.ord-no}
      END.                          
  END.
-
 
 END PROCEDURE.
 
@@ -1671,13 +1655,7 @@ PROCEDURE select_ONote :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  /*RUN windows/opnotes.w(rec_key_value,HEADER_value).*/
-
-  DEF VAR cHeaderValue AS cha NO-UNDO.
-
-  {methods/run_link.i "record-SOURCE" "get-job-header" "(output cHeaderValue)"}
-  RUN windows/opnotes.w(rec_key_value,cHEADERvalue,"",1).
-
+    {methods/select_ONote.i rec_key_value cHeaderValue """" 1}
 
 END PROCEDURE.
 
