@@ -14,4 +14,4 @@ DEFINE VARIABLE emailList AS CHARACTER NO-UNDO.
 &SCOPED-DEFINE emailList emailList
 &ENDIF
 
-RUN custom/emailConnect.p ({&recKey},{&prgmName},OUTPUT {&emailList}).
+RUN custom/emailList.p ({&recKey},{&prgmName},OUTPUT {&emailList}).
