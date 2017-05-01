@@ -41,8 +41,8 @@ IF NOT %askUpgrade% == Y GOTO :exit
 
 ECHO .
 ECHO Creating patch structure...
-rem MKDIR %patchDir% > NUL
-rem XCOPY %patchTemplateDir%\*.* %patchDir% /e /q > NUL
+MKDIR %patchDir% > NUL
+XCOPY %patchTemplateDir%\*.* %patchDir% /e /q > NUL
 CD %patchDir% > NUL
 
 IF NOT EXIST "%rCode10Dir%\addon\touch\copynote.r" (
@@ -52,25 +52,25 @@ IF NOT EXIST "%rCode10Dir%\addon\touch\copynote.r" (
 )
 
 ECHO Compressing files...
-rem .\7-zip\7z a -r programs10.7z %rCode10Dir% > NUL
-rem .\7-zip\7z a -r programs11.7z %rCode11Dir% > NUL
-rem .\7-zip\7z a -r resources.7z %resourcesDir% > NUL
+.\7-zip\7z a -r programs10.7z %rCode10Dir% > NUL
+.\7-zip\7z a -r programs11.7z %rCode11Dir% > NUL
+.\7-zip\7z a -r resources.7z %resourcesDir% > NUL
 
 ECHO Creating list files...
 CD %resourcesDir%
-rem FORFILES /s /m *.* /c "cmd /c echo @relpath" > %patchDir%\resourceslist.txt
+FORFILES /s /m *.* /c "cmd /c echo @relpath" > %patchDir%\resourceslist.txt
 CD %rCode10Dir%
-rem FORFILES /s /m *.* /c "cmd /c echo @relpath" > %patchDir%\programslist.txt
+FORFILES /s /m *.* /c "cmd /c echo @relpath" > %patchDir%\programslist.txt
 CD %patchDir%
 
 ECHO Copying menu and structure files...
-rem COPY %resourcesDir%\stdMenu\*.d . > NUL
-rem COPY %resourcesDir%\stdMenu\addon\*.d .\addon > NUL
-rem COPY /Y %resourcesDir%\stdMenu\menu.* . > NUL
-rem COPY /Y %resourcesDir%\stdMenu\addon\menu.* .\addon > NUL
-rem COPY /Y %resourcesDir%\stdMenu\deltas\*.df .\Deltas > NUL
-rem COPY /Y %resourcesDir%\stdMenu\deltas\addon\*.df .\Deltas\addon > NUL
-rem COPY /Y %resourcesDir%\stdMenu\dataUpdates\*.* .\dataUpdates > NUL
+COPY %resourcesDir%\stdMenu\*.d . > NUL
+COPY %resourcesDir%\stdMenu\addon\*.d .\addon > NUL
+COPY /Y %resourcesDir%\stdMenu\menu.* . > NUL
+COPY /Y %resourcesDir%\stdMenu\addon\menu.* .\addon > NUL
+COPY /Y %resourcesDir%\stdMenu\deltas\*.df .\Deltas > NUL
+COPY /Y %resourcesDir%\stdMenu\deltas\addon\*.df .\Deltas\addon > NUL
+COPY /Y %resourcesDir%\stdMenu\dataUpdates\*.* .\dataUpdates > NUL
 
 ECHO Comparing files...
 "C:\Program Files\ExamDiff Pro\ExamDiff.exe" %patchDir%\programslist.txt %patchTopDir%\PATCH%compareVersion%\programslist.txt /i /w /t /o:%patchTopDir%\PATCH%compareVersion%\programslist.txt
