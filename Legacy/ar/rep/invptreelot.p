@@ -88,7 +88,7 @@ DEF VAR v-price2    AS DECI NO-UNDO.
 DEF VAR v-soldto-name   AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-soldto-addr   AS CHAR FORMAT "x(30)" extent 2 NO-UNDO.
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
 
 ASSIGN
    
@@ -405,7 +405,8 @@ DEF VAR v-rel AS CHAR FORMAT "x(1)" NO-UNDO.
 
         for each ar-invl no-lock where ar-invl.x-no = ar-inv.x-no
             BREAK BY ar-invl.misc:
-               
+
+          IF ar-invl.inv-qty EQ 0 AND ar-invl.ship-qty EQ 0 THEN NEXT .     
           
           for each oe-boll no-lock where oe-boll.company = ar-invl.company
                         and oe-boll.bol-no = ar-invl.bol-no
