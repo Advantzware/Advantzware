@@ -25,7 +25,7 @@ IF tb_print-view THEN do:
         
          PUT "<R43><C27><P22><FROM><R43><C80><LINE>" SKIP.
         
-         PUT "<FArial><=4><R40> <B><P21> PO# / ORDER#: "  "<C27>"  tt-word-print.ord-no FORMAT ">>>>>>>"    "</B>" SKIP.
+         PUT "<FArial><=4><R40> <B><P21> PO# / ORDER#: "  "<C27>"  tt-word-print.po-no FORMAT ">>>>>>>>>"  "<C40>" "/"  tt-word-print.ord-no FORMAT ">>>>>>>"    "</B>" SKIP.
         
          PUT "<R48><C11><P22><FROM><R48><C80><LINE>" SKIP.
         
@@ -65,7 +65,7 @@ ELSE DO:
         
          PUT "<R53><C27><P22><FROM><R53><C80><LINE>" SKIP.
         
-         PUT "<FArial><=4><R50> <B><P21> PO# / ORDER#: "  "<C27>"  tt-word-print.ord-no FORMAT ">>>>>>>"    "</B>" SKIP.
+         PUT "<FArial><=4><R50> <B><P21> PO# / ORDER#: "  "<C27>"  tt-word-print.po-no FORMAT ">>>>>>>>>"  "<C40>" "/"  tt-word-print.ord-no FORMAT ">>>>>>>"    "</B>" SKIP.
         
          PUT "<R58><C11><P22><FROM><R58><C80><LINE>" SKIP.
         
