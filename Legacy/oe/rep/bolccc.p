@@ -377,7 +377,7 @@ PUT
     "Customer ________________________________________                       Carrier _______________________________________" AT 23 SKIP(1)
     "Date ____________________________________________                       Date __________________________________________" AT 23 SKIP   
     "<C1>" lv-prt-date "  " STRING(lv-prt-time,"HH:MM AM") "  " lv-prt-sts
-    "Page " AT 202 STRING(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" SKIP
+    "Page " AT 202 STRING(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES> "  FORM "x(20)" SKIP
     "<R51><C1><P6>RECEIVED, SUBJECT TO THE CLASSIFCATION AND LAWFULLY FILED TARIFFS IN EFFECT ON THE DATE OF THIS Bill of Lading. The property described above, except as noted, marked or consigned and" 
     "<R51.6><C1>destined as indicated below, which said carrier (the word carrier being understood through this contract as meaning any person or corporation in possession of the property under the contract) agrees to carry to" SKIP
     "<R52.2><C1>its usual place of delivery at said destination. Its is mutually agreed, as to each carrier of all or any property over all or any portion of said route to destination, as to each party at any time interested" SKIP
@@ -407,7 +407,7 @@ PUT "<R57><C48><FROM><R57><C80><LINE><||3>" SKIP
       /*"<=9><C+10><FROM><R+4><C+20><RECT> " */
       "<R57><C5><#15><FROM><R+4><C+25><RECT>" 
       "<=15><R+1>       DO NOT DOUBLE STACK      " SKIP 
-      "<=15><R+2>       DO NOT BREAK DOWN        "  SKIP.
+      "<=15><R+2>       DO NOT BREAK DOWN        " "<FGCOLOR=BLACK><BGCOLOR=BLACK><LINECOLOR=BLACK>"  SKIP.
 
   v-printline = v-printline + 14.
   IF LAST-OF(oe-bolh.bol-no) THEN lv-pg-num = PAGE-NUM .
