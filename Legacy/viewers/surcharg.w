@@ -226,7 +226,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -270,7 +270,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -330,7 +330,7 @@ PROCEDURE disable-fields :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}.
     DISABLE cb_calcon.
   END.
@@ -366,7 +366,7 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -414,7 +414,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   surcharge.company = cocode.
-      
+
   DO WITH FRAME {&FRAME-NAME}:
     cb_calcon:SCREEN-VALUE = "I".
   END.
@@ -442,7 +442,7 @@ PROCEDURE local-display-fields :
   IF AVAIL surcharge THEN DO WITH FRAME {&FRAME-NAME}:
     surcharge.amt:SCREEN-VALUE = STRING(surcharge.amt / 1000).
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -456,7 +456,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   RUN valid-charge NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -468,7 +468,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN disable-fields.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -540,6 +540,7 @@ PROCEDURE valid-charge :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   IF CAN-FIND(FIRST prep WHERE prep.company = g_company
                     AND prep.CODE = surcharge.charge:SCREEN-VALUE IN FRAME {&FRAME-NAME})
   THEN DO:
@@ -547,6 +548,7 @@ PROCEDURE valid-charge :
       APPLY "entry" TO surcharge.charge.
       RETURN ERROR.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -559,6 +561,7 @@ PROCEDURE valid-cust-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   FIND FIRST cust WHERE cust.company = g_company
                     AND cust.cust-no = surcharge.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} 
                     NO-LOCK NO-ERROR.
@@ -567,6 +570,7 @@ PROCEDURE valid-cust-no :
      APPLY "entry" TO surcharge.cust-no .
      RETURN ERROR.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -903,13 +903,13 @@ PROCEDURE pGetDataGridDat :
                 OUTPUT CLOSE.
             END. /* if ne ? */
             ELSE DO:            
-                INPUT FROM VALUE(ipcDataGridInclude) NO-ECHO.
+                INPUT FROM VALUE(SEARCH(ipcDataGridInclude)) NO-ECHO.
                 IMPORT UNFORMATTED dataGridIncludeFields.
                 INPUT CLOSE.
             END. /* else */
     
             ASSIGN
-                dataGridIncludeFile:SCREEN-VALUE   = ipcDataGridInclude
+                dataGridIncludeFile:SCREEN-VALUE   = SEARCH(ipcDataGridInclude)
                 dataGridIncludeFields:SCREEN-VALUE = dataGridIncludeFields
                 .
         END. /* if ne ? */

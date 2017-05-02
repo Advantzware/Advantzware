@@ -563,7 +563,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -712,7 +712,7 @@ ON HELP OF machtran.job_number IN FRAME F-Main /* Job Number */
 DO:
    DEF VAR char-val AS cha NO-UNDO.
    DEF VAR rec-val AS RECID NO-UNDO.
-   
+
    RUN windows/l-jobno.w (g_company,FOCUS:SCREEN-VALUE ,OUTPUT char-val, OUTPUT rec-val).
    IF rec-val <> ? THEN DO:
       FIND job-hdr WHERE RECID(job-hdr) = rec-val NO-LOCK NO-ERROR.
@@ -759,7 +759,7 @@ ON HELP OF machtran.charge_code IN FRAME F-Main /* charge code */
 DO:
    DEF VAR char-val AS cha NO-UNDO.
    DEF VAR rec-val AS RECID NO-UNDO.
-   
+
    RUN windows/l-jobcod.w (FOCUS:SCREEN-VALUE ,OUTPUT char-val).
    IF char-val <> ? THEN DO:
          ASSIGN machtran.charge_code:SCREEN-VALUE = ENTRY(1,char-val)
@@ -910,7 +910,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -978,7 +978,7 @@ PROCEDURE crt-emp-trans :
              RUN Employee-Rate(machtran.company,machemp.employee,machemp.shift,machtran.machine,
                           machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
              {custom/calctime.i &file="machemp"}
-  
+
              FIND FIRST emplogin WHERE emplogin.company = machtran.company
                         AND emplogin.employee = machemp.employee
                         AND emplogin.machine = machtran.machine
@@ -1018,7 +1018,7 @@ PROCEDURE crt-lunch-trans :
   def var bf-machtran-rowid as rowid no-undo.
   def var run-qty like machtran.run_qty no-undo.
   def var waste-qty like machtran.waste_qty no-undo.
-  
+
       find shifts where shifts.company = machtran.company and
                         shifts.shift = machtran.shift
                         no-lock no-error.
@@ -1073,7 +1073,7 @@ PROCEDURE crt-lunch-trans :
           {custom/calctime.i &file="machemp"}                          
       END. /* each emplogin */
     ================================================*/
-    
+
     /* ======= all employee for the machine ===========*/
       for each empmach no-lock where empmach.company = machtran.company
                          and empmach.machine = machtran.machine
@@ -1096,7 +1096,7 @@ PROCEDURE crt-lunch-trans :
              RUN Employee-Rate(machtran.company,machemp.employee,machemp.shift,machtran.machine,
                           machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
              {custom/calctime.i &file="machemp"}
-                          
+
            RELEASE machemp.           
          end. 
       END. /* each emplogin */
@@ -1113,7 +1113,7 @@ PROCEDURE disable-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE fi_shift {&TIME-FIELDS} WITH FRAME {&FRAME-NAME}.
   END.
@@ -1148,7 +1148,7 @@ PROCEDURE enable-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE fi_shift.
   END.
@@ -1167,7 +1167,7 @@ PROCEDURE local-assign-record :
   def var ll-new-record as log no-undo.
   /* Code placed here will execute PRIOR to standard behavior. */
   ll-new-record = adm-new-record.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -1276,7 +1276,7 @@ PROCEDURE local-update-record :
      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
      RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(machtran)).
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1345,7 +1345,7 @@ PROCEDURE upd-emp-trans :
 
         RUN Employee-Rate(machtran.company,machemp.employee,machemp.shift,machtran.machine,
                      machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
-        
+
         {custom/calctime.i &file="machemp"}
     end.                      
 
@@ -1398,11 +1398,12 @@ PROCEDURE valid-sch-machine :
 ------------------------------------------------------------------------------*/
   DEFINE BUFFER buf-mach FOR mach.
 
+  {methods/lValidateError.i YES}
   lv-mach-list = "".
 
   FIND FIRST mach NO-LOCK WHERE mach.company = gcompany
                             AND mach.m-code = machtran.machine:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-ERROR.
-  
+
   IF mach.sch-m-code <> "" THEN
     FOR EACH buf-mach FIELDS(m-code) WHERE
         buf-mach.company EQ mach.company AND
@@ -1412,6 +1413,7 @@ PROCEDURE valid-sch-machine :
         lv-mach-list = lv-mach-list + buf-mach.m-code + ",".
      END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1424,6 +1426,7 @@ PROCEDURE validate-date-time :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   /* task# 10110517 allow duplicate time if gang jobs is yes*/
   DEF BUFFER bf-mach FOR mach.
 
@@ -1476,13 +1479,13 @@ PROCEDURE validate-date-time :
   RUN valid-sch-machine.
 
   EMPTY TEMP-TABLE tt-mach.
-     
+
   CREATE tt-mach.
   ASSIGN tt-mach.machine = bf-mach.m-code.
   RELEASE tt-mach.
 
   DO v-index = 1 TO LENGTH(lv-mach-list):
-     
+
      IF SUBSTRING(lv-mach-list,v-index,1) EQ "," AND
         bf-mach.m-code NE SUBSTRING(lv-mach-list,v-start,v-index - v-start) THEN
         DO:
@@ -1575,9 +1578,10 @@ PROCEDURE validate-date-time :
                            AND bf-machtran.END_time <= v-end-time
                            AND (RECID(bf-machtran) <> recid(machtran) OR adm-new-record)
                            NO-LOCK NO-ERROR.
-      
+
   IF AVAIL bf-machtran THEN DO: */
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1592,7 +1596,7 @@ PROCEDURE check-date-time :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEFINE VARIABLE istarttime AS INTEGER NO-UNDO.
   DEFINE VARIABLE iendtime AS INTEGER NO-UNDO.
   DEFINE VARIABLE dtstartdate AS DATE NO-UNDO.

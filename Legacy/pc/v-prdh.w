@@ -223,7 +223,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -319,7 +319,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -468,7 +468,7 @@ PROCEDURE local-create-record :
   ASSIGN pc-prdh.company = g_company
          pc-prdh.trans-date = TODAY
          pc-prdh.shift = 1.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -577,6 +577,7 @@ PROCEDURE valid-m-code :
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST mach NO-LOCK
         WHERE mach.company EQ g_company
@@ -604,6 +605,7 @@ PROCEDURE valid-m-code :
      pc-prdh.dept:SCREEN-VALUE = mach.dept[1].
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

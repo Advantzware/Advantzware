@@ -259,7 +259,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -430,7 +430,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -490,7 +490,7 @@ PROCEDURE applied-amt :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ld-not-applied = DEC(ar-cash.check-amt:SCREEN-VALUE).
     FOR EACH bf-cashl OF ar-cash NO-LOCK
@@ -515,7 +515,7 @@ PROCEDURE check-applied-amt :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF OUTPUT PARAM op-all-applied AS LOG INIT YES NO-UNDO.
-  
+
 
   IF AVAIL ar-cash AND NOT ar-cash.posted THEN DO:
     RUN applied-amt.
@@ -524,7 +524,7 @@ PROCEDURE check-applied-amt :
       RUN create-onaccount IN WIDGET-HANDLE(char-hdl) (OUTPUT op-all-applied).  
     END.
   END.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -557,7 +557,7 @@ PROCEDURE local-create-record :
   DEF VAR li-next-cno AS INT NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
- 
+
 
   FIND last bf-cash USE-INDEX c-no NO-LOCK NO-ERROR.
   li-next-cno = IF AVAIL bf-cash THEN bf-cash.c-no + 1 ELSE 1.
@@ -585,7 +585,7 @@ PROCEDURE local-create-record :
   RUN get-link-handle IN adm-broker-hdl (this-procedure,"record-target", OUTPUT char-hdl).
   RUN reopen-query IN WIDGET-HANDLE(char-hdl).
 */
-                
+
   RUN dispatch ('row-changed').
 END PROCEDURE.
 
@@ -598,7 +598,7 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
    cust_name = ""
@@ -733,7 +733,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF ll-new-record THEN DO:
-     
+
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"adding-line-target",OUTPUT char-hdl).
      RUN auto-line-add IN WIDGET-HANDLE(char-hdl).
 
@@ -865,6 +865,7 @@ PROCEDURE valid-check-date :
   DEF VAR ll AS LOG INIT NO NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT ll-warned                                                               AND
        NOT CAN-FIND(FIRST period
@@ -884,6 +885,7 @@ PROCEDURE valid-check-date :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -897,6 +899,7 @@ PROCEDURE valid-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF lv-old-cust NE ar-cash.cust-no:SCREEN-VALUE THEN RUN new-cust-no.
 
@@ -910,6 +913,7 @@ PROCEDURE valid-cust-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

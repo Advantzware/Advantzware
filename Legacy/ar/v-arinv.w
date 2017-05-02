@@ -1134,6 +1134,7 @@ PROCEDURE valid-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
      ar-inv.cust-no:SCREEN-VALUE = CAPS(ar-inv.cust-no:SCREEN-VALUE).
 
@@ -1147,6 +1148,7 @@ PROCEDURE valid-cust-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1160,6 +1162,7 @@ PROCEDURE valid-due-date :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DATE(ar-inv.due-date:SCREEN-VALUE) LT DATE(ar-inv.inv-date:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(ar-inv.due-date:LABEL) + " may not be before " +
@@ -1170,6 +1173,7 @@ PROCEDURE valid-due-date :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1188,6 +1192,7 @@ PROCEDURE valid-inv-no :
   DEF BUFFER b-ar-invl FOR ar-invl.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF INT(ar-inv.inv-no:SCREEN-VALUE) LE 0 THEN
       lv-msg = "may not be zero".
@@ -1213,6 +1218,7 @@ PROCEDURE valid-inv-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -493,7 +493,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     
+
      "DEFAULT DEMENSIONS" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 2.43 COL 15
           FGCOLOR 9 
@@ -696,7 +696,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -748,11 +748,11 @@ DO:
        WHEN 'material' THEN DO:
            CASE FOCUS:INDEX:
               WHEN 1 THEN DO: /*board*/
-                 
+
                  ASSIGN
                    ls-cur-val = focus:SCREEN-VALUE
                    lv-ind = style.industry.
-                   
+
                  if style.type = "f" then  /* foam */
                  DO:
                     run windows/l-boardf.w (style.company,lv-ind,ls-cur-val,output char-val).
@@ -973,7 +973,7 @@ DO:
        message "Invalid Machine Code. Try help please." view-as alert-box.
        return no-apply.
     end.
-    
+
     FIND FIRST mach WHERE mach.company = style.company and 
                           mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL mach THEN style.m-dscr[1]:SCREEN-VALUE = mach.m-dscr.
@@ -1211,7 +1211,7 @@ session:data-entry-return = yes.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1355,7 +1355,7 @@ PROCEDURE local-display-fields :
 
 
 IF style.TYPE EQ "P" THEN DO:
-    
+
         ASSIGN
             style.material[1]:LABEL IN FRAME {&FRAME-NAME} = "Paper" 
             style.dim-fit:LABEL IN FRAME {&FRAME-NAME} = "Pocket Size" 
@@ -1405,7 +1405,7 @@ PROCEDURE local-update-record :
   DO i = 1 TO NUM-ENTRIES(char-hdl):
      RUN reopen-query IN WIDGET-HANDLE(ENTRY(i,char-hdl)).
   END.
-  
+
 
 END PROCEDURE.
 
@@ -1485,6 +1485,7 @@ PROCEDURE valid-type :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
       IF style.type:SCREEN-VALUE NE "" THEN do:
@@ -1496,6 +1497,7 @@ PROCEDURE valid-type :
       END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

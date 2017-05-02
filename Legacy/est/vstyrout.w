@@ -678,7 +678,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -693,13 +693,13 @@ DO:
 
 
     lv-focus = FOCUS.
-    
+
     case focus:name :
          when "r-code" then do:
               run windows/l-rout.w (gcompany, gloc, focus:screen-value in frame {&frame-name}, output char-val).      
               if char-val <> "" then lv-focus:screen-value = entry(1,char-val).
          end.
-    
+
     end case.
 END.
 
@@ -1440,7 +1440,7 @@ session:data-entry-return = yes.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1542,7 +1542,7 @@ PROCEDURE local-create-record :
          routing-mtx.style = style.style.
   disp routing-mtx.style with frame {&frame-name}.
 
-         
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1555,7 +1555,7 @@ PROCEDURE local-display-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
   def buffer bf-routing-mtx for routing-mtx.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 /*  
   if not avail style then return.
@@ -1737,13 +1737,13 @@ PROCEDURE local-update-record :
   def var lv-frame-hdl as handle no-undo.
   def var lv-group-hdl as handle no-undo.
   def var lv-field-hdl as handle no-undo.
-   
+
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-frame-hdl = frame {&frame-name}:handle.
   lv-group-hdl = lv-frame-hdl:first-child.
   lv-field-hdl = lv-group-hdl:first-child.
   do while valid-handle(lv-field-hdl):
-     
+
      if lv-field-hdl:name = "r-code" then do:
         run validate-routing (lv-field-hdl:screen-value) no-error.
         if error-status:error then do:
@@ -1754,7 +1754,7 @@ PROCEDURE local-update-record :
         end.
      end.   
      lv-field-hdl = lv-field-hdl:next-sibling.
-        
+
   end.
 
   /* Dispatch standard ADM method.                             */
@@ -1819,7 +1819,8 @@ PROCEDURE validate-routing :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input param ip-r-code as cha no-undo.
-  
+
+  {methods/lValidateError.i YES}
   if  ip-r-code <> "" and
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = ip-r-code)
@@ -1827,6 +1828,7 @@ PROCEDURE validate-routing :
               return error.
     end.                 
     return. 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

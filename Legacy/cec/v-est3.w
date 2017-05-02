@@ -571,7 +571,7 @@ ASSIGN
 */  /* FRAME Corr */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -591,7 +591,7 @@ DO:
   DEF VAR v-cnt3   AS INT NO-UNDO.
   DEF VAR v-loopct AS INT NO-UNDO.
   DEF VAR v-valhld AS CHAR NO-UNDO.
-  
+
   ASSIGN
     v-loopct = INT(eb.i-col:SCREEN-VALUE) + 
                INT(eb.i-coat:SCREEN-VALUE). 
@@ -1394,7 +1394,7 @@ session:data-entry-return = yes.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1454,7 +1454,7 @@ PROCEDURE calc-tr-cnt :
                                        DEC(eb.cas-pal:SCREEN-VALUE))
        eb.cas-wt:SCREEN-VALUE = "0".
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1554,7 +1554,7 @@ PROCEDURE dynamic-labels :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF lv-label[1] EQ "" THEN lv-label[1] = eb.cas-cnt:LABEL.
 
@@ -1615,7 +1615,7 @@ PROCEDURE local-assign-record :
   DEF VAR lv-error AS log NO-UNDO.
   DEF VAR ll-ans AS LOG NO-UNDO.
   DEF VAR ll-assem AS LOG INIT ? NO-UNDO.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN new-carrier.
 
@@ -1680,7 +1680,7 @@ PROCEDURE local-assign-record :
       MESSAGE "Stack under pallet height?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
           UPDATE ll-ans.
-  
+
       ll-ans = NOT ll-ans.
 
       RUN cec/d-layers.w (ll-ans, ROWID(eb), eb.tr-no, eb.tr-dep, eb.cas-cnt,
@@ -1715,12 +1715,12 @@ PROCEDURE local-assign-record :
            MESSAGE "Display pallet stacking options?"
                VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
                UPDATE ll-ans.
-    
+
         IF ll-ans THEN
            RUN cec/d-layers.w (YES, ROWID(eb), eb.tr-no, eb.tr-dep, eb.cas-cnt,
                                eb.stacks, INPUT-OUTPUT eb.tr-cas).
     END.
-    
+
     ASSIGN
      eb.cas-pal = eb.stacks * eb.tr-cas
      eb.tr-cnt  = eb.cas-cnt * eb.cas-pal.
@@ -1739,7 +1739,7 @@ PROCEDURE local-assign-record :
 
       MESSAGE "Copy this form's Packing Info to all other forms?"
           VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans.
-     
+
       IF ll-ans THEN
       FOR EACH b-eb
           WHERE b-eb.company EQ eb.company
@@ -1747,7 +1747,7 @@ PROCEDURE local-assign-record :
             AND b-eb.eqty    EQ eb.eqty
             AND b-eb.form-no NE 0
             AND ROWID(b-eb)  NE ROWID(eb):
-           
+
         ASSIGN
          b-eb.cas-no   = eb.cas-no
          b-eb.cas-cost = eb.cas-cost
@@ -1777,7 +1777,7 @@ PROCEDURE local-assign-record :
       find first bf-eb where bf-eb.company = xest.company and
                          bf-eb.est-no    = xest.est-no and
                          bf-eb.form-no = 0 NO-LOCK NO-ERROR. 
-      
+
       find first b-eb where b-eb.company = xest.company and
                          b-eb.est-no    = xest.est-no and
                          b-eb.form-no = 1 NO-LOCK NO-ERROR. 
@@ -1789,14 +1789,14 @@ PROCEDURE local-assign-record :
               AND bf-eb.pur-man = YES 
               AND bf-eb.set-is-assembled 
               AND bf-eb.stock-no EQ b-eb.stock-no) THEN DO:
-          
+
           /* find eb for other form */
           FIND FIRST bf-eb
               WHERE bf-eb.company EQ eb.company
                 AND bf-eb.est-no  EQ eb.est-no                
                 AND bf-eb.form-no NE eb.form-no
               EXCLUSIVE-LOCK.
-          
+
           IF AVAIL bf-eb THEN
             ASSIGN
              bf-eb.cas-no   = eb.cas-no
@@ -1854,7 +1854,7 @@ PROCEDURE local-cancel-record :
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'tableio-source',OUTPUT char-hdl).
   RUN disable-cancel-button IN WIDGET-HANDLE(char-hdl).
-  
+
   RUN dispatch ('disable-fields').*/
 
   RUN update-ink.  /* to disable unit fields */
@@ -1903,11 +1903,11 @@ PROCEDURE local-display-fields :
   if lv-error THEN
      assign lv-numstack = ?
             lv-stack-code = ?.
- 
+
   {sys/inc/roundup.i lv-numstack}
   IF eb.stack-code = "" THEN eb.stack-code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = lv-stack-code.
   RUN stackImage (eb.stack-code:SCREEN-VALUE).
-  
+
   IF v-cecscrn-char EQ "Decimal" THEN
      ASSIGN
         eb.cas-len:FORMAT = ">9.999999"
@@ -1959,7 +1959,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var li-num-of-code as int no-undo.
-   
+
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
     IF eb.form-no NE 0 THEN DO:
@@ -2151,7 +2151,7 @@ PROCEDURE new-cas-pal :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     lv-layers = INT(eb.cas-pal:SCREEN-VALUE) / INT(eb.stacks:SCREEN-VALUE).
     {sys/inc/roundup.i lv-layers}
@@ -2217,7 +2217,7 @@ PROCEDURE release-shared-buffers :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   RELEASE xest.
   RELEASE xef.
   RELEASE xeb.
@@ -2253,7 +2253,7 @@ IF eb.form-no NE 0 THEN DO:
       def var save_id2 as recid no-undo.
       def buffer alt-item for item .
       def var choice as log no-undo.
-           
+
       find first style where style.company = eb.company and
                  style.style = eb.style no-lock no-error.
       if avail style then do:
@@ -2293,7 +2293,7 @@ IF eb.form-no NE 0 THEN DO:
                                       alt-item.i-no     = ce-ctrl.def-coat
                                       no-lock no-error.
       end.
-   
+
       ASSIGN
       save_id = recid(item)
       save_id2 = recid(alt-item)
@@ -2303,7 +2303,7 @@ IF eb.form-no NE 0 THEN DO:
       counter = 1
       choice = true.
       {sys/inc/roundup.i j}
-      
+
 /*    do i = 1 to 10:
        if eb.i-code[i] ne "" then do:
           choice = no.
@@ -2311,7 +2311,7 @@ IF eb.form-no NE 0 THEN DO:
        end.
       end.     
  commented to recalc every time */
- 
+
       if choice then do i = 1 to 10:
          if i le integer(eb.i-col:screen-value) then do with frame {&frame-name}:
               find item where recid(item) = save_id no-lock no-error.
@@ -2466,11 +2466,11 @@ IF eb.form-no NE 0 THEN DO:
                                         eb.i-%[10]:screen-value    = "0".
 
               end case.       
-                     
+
          end.
          if i modulo j = 0 then counter = counter + 1.
          if counter > integer(eb.i-pass:screen-value) then counter = integer(eb.i-pass:screen-value).
-      
+
       end.
 
    find bf-eb where recid(bf-eb) = recid(eb).
@@ -2516,7 +2516,7 @@ IF eb.form-no NE 0 THEN DO:
           bf-eb.i-%[10] = int(eb.i-%[10]:screen-value )
           .
 END.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2543,7 +2543,7 @@ PROCEDURE run-job-stds :
         AND job.opened  EQ YES
       NO-LOCK
       BREAK BY job.job:
-      
+
     IF LAST(job.job) OR job-hdr.ord-no EQ est.ord-no THEN DO:
       RUN jc/jobstds.p (ROWID(job)).
       LEAVE.
@@ -2613,20 +2613,20 @@ PROCEDURE set-pack :
        NO-LOCK NO-ERROR.
 
   ll-ans = AVAIL b-eb.
-       
+
   IF ll-ans THEN DO:
     ll-ans = NO.
-   
+
     MESSAGE "Ship set assembled?"
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans.
-   
+
     IF ll-ans THEN DO:
       FOR EACH b-eb
           WHERE b-eb.company EQ eb.company
             AND b-eb.est-no  EQ eb.est-no
             AND b-eb.form-no NE 0
             AND b-eb.yld-qty GE 0:
-             
+
         ASSIGN
          b-eb.cas-no   = ""
          b-eb.cas-cost = 0
@@ -2643,7 +2643,7 @@ PROCEDURE set-pack :
          b-eb.tr-wid   = 0
          b-eb.tr-dep   = 0.
       END.
-     
+
       FIND CURRENT eb NO-LOCK.
     END.
   END.
@@ -2686,7 +2686,7 @@ PROCEDURE stack-pattern :
           lv-cmd = ".\custom\mspaint.exe".
           IF SEARCH("c:\winnt\system32\mspaint.exe") <> ? THEN lv-cmd = "c:\winnt\system32\mspaint.exe".
           ELSE IF    SEARCH("c:\windows\system32\mspaint.exe") <> ? THEN lv-cmd = "c:\windows\system32\mspaint.exe".
-          
+
           lv-cmd = lv-cmd + " " + chr(34) + pattern.dscr + CHR(34) .
           OS-COMMAND SILENT   VALUE(lv-cmd).
       END.
@@ -2766,7 +2766,7 @@ PROCEDURE unit-calc :
   END.
 
   {custom/checkuse.i}
-  
+
   /*RUN set-pack (OUTPUT ll-update-pack).*/ ll-unit-calc = YES.
 
   if eb.tr-cas = 0 then eb.tr-cas:screen-value in frame {&frame-name} = "1".
@@ -2806,7 +2806,7 @@ PROCEDURE update-ink :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   disable eb.cas-no eb.cas-cost eb.cas-cnt eb.cas-len eb.cas-wid
           eb.cas-dep eb.cas-pal eb.cas-wt
           eb.tr-no eb.tr-cost eb.tr-cnt eb.tr-len eb.tr-wid eb.tr-dep
@@ -2830,7 +2830,7 @@ PROCEDURE update-pack :
 ------------------------------------------------------------------------------*/
 
   {custom/checkuse.i}
-  
+
   /*RUN set-pack (OUTPUT ll-update-pack).*/ ll-update-pack = YES.
 
   if eb.tr-cas = 0 then eb.tr-cas:screen-value in frame {&frame-name} = "1".
@@ -2870,6 +2870,7 @@ PROCEDURE valid-carrier :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     eb.carrier:SCREEN-VALUE = CAPS(eb.carrier:SCREEN-VALUE).
 
@@ -2884,6 +2885,7 @@ PROCEDURE valid-carrier :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2897,6 +2899,7 @@ PROCEDURE valid-cas-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     if eb.cas-no:screen-value <> "" and
        not can-find(item where item.company = eb.company
@@ -2910,6 +2913,7 @@ PROCEDURE valid-cas-no :
     end.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2924,7 +2928,8 @@ PROCEDURE valid-cas-pal :
 ------------------------------------------------------------------------------*/
   DEF VAR ll-ans AS LOG NO-UNDO.
 
-  
+
+  {methods/lValidateError.i YES}
   /*IF ll-update-pack THEN
   DO WITH FRAME {&FRAME-NAME}:
     lv-layers = INT(eb.cas-pal:SCREEN-VALUE) / INT(eb.stacks:SCREEN-VALUE).
@@ -2942,6 +2947,7 @@ PROCEDURE valid-cas-pal :
     END.
   END.*/
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2955,6 +2961,7 @@ PROCEDURE valid-cas-wt :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(eb.cas-cnt:SCREEN-VALUE) NE 0 AND
        DEC(eb.cas-wt:SCREEN-VALUE)  NE 0 THEN DO:
@@ -2968,6 +2975,7 @@ PROCEDURE valid-cas-wt :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2981,6 +2989,7 @@ PROCEDURE valid-dest-code :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST carr-mtx
                     WHERE carr-mtx.company  EQ cocode 
@@ -2995,6 +3004,7 @@ PROCEDURE valid-dest-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3007,7 +3017,8 @@ PROCEDURE valid-stack-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT ll-foam OR eb.stack-code:SCREEN-VALUE NE "" THEN DO:
       IF NOT CAN-FIND(FIRST reftable 
@@ -3022,6 +3033,7 @@ PROCEDURE valid-stack-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

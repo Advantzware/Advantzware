@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: oe\v-retlin.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -392,7 +392,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -440,7 +440,7 @@ DO:
             END.
         END.
         WHEN "tag" THEN DO:
-            
+
             /* Change from single to multiple to select multiple tags */
           IF adm-new-record THEN
             RUN windows/l-fgtg3.w (g_company,oe-retl.i-no:screen-value,
@@ -455,7 +455,7 @@ DO:
 
 
             IF char-val <> "" THEN do:
-              
+
                IF NUM-ENTRIES(char-val) GT 1 THEN DO:
 
                  run get-link-handle in adm-broker-hdl (this-procedure,"detail-browse-source",output char-hdl).             
@@ -469,7 +469,7 @@ DO:
                    RUN auto-cancel IN widget-handle(char-hdl).
                  IF VALID-HANDLE(widget-handle(char-hdl-window)) THEN
                    RUN local-exit IN widget-handle(char-hdl-window).
-                
+
                END.
 
                /* Process the first one selected */                 
@@ -489,7 +489,7 @@ DO:
                END.
 
                APPLY 'value-changed' TO asi.oe-retl.tag.
-               
+
             END. /* if char-val <> "" */
         END.
         WHEN "loc" THEN DO:
@@ -693,7 +693,7 @@ DO:
         ASSIGN
           oe-retl.uom:SCREEN-VALUE            = ar-invl.pr-uom
           oe-retl.unit-pr:SCREEN-VALUE        = STRING(ar-invl.unit-pr).
-      
+
   END. /* do with frame */
 END.
 
@@ -776,7 +776,7 @@ PROCEDURE disable-fields :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE oe-retl.ord-no oe-retl.po-no.
   END.
@@ -954,7 +954,7 @@ PROCEDURE local-delete-record :
       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"line-browse-target",OUTPUT char-hdl).
       IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
            RUN reopen-query IN WIDGET-HANDLE(char-hdl) (?).
-  
+
 
 END PROCEDURE.
 
@@ -968,7 +968,7 @@ PROCEDURE local-display-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
 
- 
+
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
@@ -1010,7 +1010,7 @@ PROCEDURE local-display-fields :
             lv_s-comm3
             WITH FRAME {&FRAME-NAME}.  
 
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1238,7 +1238,7 @@ DEF VAR lFieldsEnabled AS LOG NO-UNDO.
   ELSE
     lFieldsEnabled = TRUE.
 oplFieldsEnabled = lFieldsEnabled.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1300,6 +1300,7 @@ PROCEDURE valid-i-no :
 
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
+  {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
   FIND FIRST ar-inv NO-LOCK
@@ -1338,6 +1339,7 @@ PROCEDURE valid-i-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1352,6 +1354,7 @@ PROCEDURE valid-loc :
 -----------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
+  {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
   DO WITH FRAME {&FRAME-NAME}:
@@ -1367,6 +1370,7 @@ PROCEDURE valid-loc :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1380,6 +1384,7 @@ PROCEDURE valid-loc-bin :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
+  {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
 
@@ -1399,6 +1404,7 @@ PROCEDURE valid-loc-bin :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1412,7 +1418,8 @@ PROCEDURE valid-ord-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
-      
+
+  {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
   FIND FIRST ar-inv NO-LOCK
@@ -1436,6 +1443,7 @@ PROCEDURE valid-ord-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1449,7 +1457,8 @@ PROCEDURE valid-po-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
-      
+
+  {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
   FIND FIRST ar-inv NO-LOCK
@@ -1474,6 +1483,7 @@ PROCEDURE valid-po-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1489,6 +1499,7 @@ PROCEDURE valid-qty-return-inv :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ip-focus:SCREEN-VALUE) GT
        DEC(oe-retl.tot-qty-return:SCREEN-VALUE) THEN DO:
@@ -1501,6 +1512,7 @@ PROCEDURE valid-qty-return-inv :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1515,6 +1527,7 @@ PROCEDURE valid-tag :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
+  {methods/lValidateError.i YES}
   /* Blank tag is valid */
   IF ip-focus:SCREEN-VALUE EQ "" THEN
     RETURN.
@@ -1531,7 +1544,7 @@ PROCEDURE valid-tag :
          AND fg-bin.i-no EQ asi.oe-retl.i-no:SCREEN-VALUE
          AND fg-bin.tag  EQ ip-focus:SCREEN-VALUE
       NO-LOCK NO-ERROR.
-  
+
     IF ip-focus:SENSITIVE             AND
         NOT AVAIL loadtag AND
         NOT AVAIL fg-bin
@@ -1572,6 +1585,7 @@ PROCEDURE valid-tag :
         RETURN ERROR.
       END. /* if record not found */
   END. /* do with frame */
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1587,9 +1601,10 @@ PROCEDURE valid-tot-qty-return :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
   DEF VAR lv-msg AS CHAR NO-UNDO.
+  {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.      
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     IF lv-msg EQ ""                    AND
        DEC(ip-focus:SCREEN-VALUE) EQ 0 THEN
@@ -1645,6 +1660,7 @@ PROCEDURE valid-tot-qty-return :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -879,6 +879,7 @@ PROCEDURE valid-co-acc :
   DEF BUFFER bf-company FOR company.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF company.co-acc:SCREEN-VALUE NE ""                           AND
        company.co-acc:SCREEN-VALUE NE company.company:SCREEN-VALUE THEN DO:
@@ -894,6 +895,7 @@ PROCEDURE valid-co-acc :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -909,6 +911,7 @@ PROCEDURE valid-curr-code :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -926,6 +929,7 @@ PROCEDURE valid-curr-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -941,6 +945,7 @@ PROCEDURE valid-seq-suffix :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
   DEF VAR iCurrOrd AS INT NO-UNDO.
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
     ip-focus:SCREEN-VALUE = STRING(INTEGER(ip-focus:SCREEN-VALUE), "99") NO-ERROR.
@@ -956,6 +961,7 @@ PROCEDURE valid-seq-suffix :
       RETURN ERROR.
     END.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

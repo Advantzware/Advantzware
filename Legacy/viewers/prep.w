@@ -2141,6 +2141,7 @@ PROCEDURE valid-actnum :
 ------------------------------------------------------------------------------*/
 DEFINE BUFFER bf-account FOR account.
 
+  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST bf-account
         WHERE bf-account.company EQ gcompany
@@ -2163,6 +2164,7 @@ DO WITH FRAME {&FRAME-NAME}:
         END.
 END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2178,6 +2180,7 @@ PROCEDURE valid-code :
   DEF BUFFER b-prep FOR prep.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF CAN-FIND(FIRST b-prep
                 WHERE b-prep.company EQ gcompany
@@ -2191,6 +2194,7 @@ PROCEDURE valid-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2208,6 +2212,7 @@ PROCEDURE valid-dim :
   DEF VAR lv-est-no AS CHAR NO-UNDO.
   DEF VAR ll-corr2 AS LOG NO-UNDO.
 
+  {methods/lValidateError.i YES}
   ASSIGN
      lv-est-no = prep.last-est-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
      lv-est-no = FILL(" ",8 - LENGTH(TRIM(lv-est-no))) + TRIM(lv-est-no)
@@ -2227,6 +2232,7 @@ PROCEDURE valid-dim :
     RETURN ERROR.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2241,6 +2247,7 @@ PROCEDURE valid-fgcat :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iplUpdateAcc AS LOG NO-UNDO.
 
+  {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
 
     IF prep.fgcat:SCREEN-VALUE NE "" THEN DO: 
@@ -2267,6 +2274,7 @@ PROCEDURE valid-fgcat :
 
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2279,6 +2287,7 @@ PROCEDURE valid-rm-i-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
       IF prep.i-no:SCREEN-VALUE NE "" AND 
@@ -2303,6 +2312,7 @@ PROCEDURE valid-rm-i-no :
 
     END.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2315,6 +2325,7 @@ PROCEDURE valid-rmcat :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
     IF prep.procat:SCREEN-VALUE NE "" AND
@@ -2335,6 +2346,7 @@ PROCEDURE valid-rmcat :
     END.
 
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

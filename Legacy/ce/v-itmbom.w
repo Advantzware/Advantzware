@@ -250,7 +250,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -702,6 +702,7 @@ PROCEDURE valid-adh-code :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF fi_adh-code:SCREEN-VALUE NE ""                              AND
        NOT CAN-FIND(FIRST b-item
@@ -715,6 +716,7 @@ PROCEDURE valid-adh-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -728,6 +730,7 @@ PROCEDURE valid-flute :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF fi_flute:SCREEN-VALUE NE ""                             AND
        NOT CAN-FIND(FIRST b-item
@@ -741,6 +744,7 @@ PROCEDURE valid-flute :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -754,6 +758,7 @@ PROCEDURE valid-lam-code :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF fi_lam-code:SCREEN-VALUE NE ""                             AND
        NOT CAN-FIND(FIRST b-item
@@ -767,6 +772,7 @@ PROCEDURE valid-lam-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -780,6 +786,7 @@ PROCEDURE valid-medium :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF fi_medium:SCREEN-VALUE NE ""                             AND
        NOT CAN-FIND(FIRST b-item
@@ -793,6 +800,7 @@ PROCEDURE valid-medium :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

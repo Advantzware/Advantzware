@@ -305,7 +305,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -371,7 +371,7 @@ DO:
         otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-             
+
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
               if lv-handle:name = "cust-no" then do:
@@ -394,7 +394,7 @@ DO:
                                else if cust.frt-pay = "T" then "Third Party"
                                else ""
                      .                
-   
+
                  find sman where sman.company = gcompany and
                               sman.sman = rfq.sman:screen-value
                               no-lock no-error.
@@ -403,7 +403,7 @@ DO:
                      .
               end.  /* cust-no */
            end.   /* g_lookup-var <> "" */
-           
+
         end.   
    end case.
 END.
@@ -423,7 +423,7 @@ DO:
     else do:
         apply lastkey to self.
         return no-apply.
-        
+
     end.
    */
    return. 
@@ -469,7 +469,7 @@ DO:
                       no-lock no-error.
    if not avail cust  then find first cust where cust.cust-no = rfq.cust-no:screen-value in frame {&frame-name}
         no-lock no-error.
-     
+
    if avail cust and self:screen-value <> "TEMP" then do:
       assign rfq.ship-name:screen-value in frame {&frame-name} = cust.name
                              rfq.ship-addr[1]:screen-value in frame {&frame-name}  = cust.addr[1]
@@ -505,7 +505,7 @@ DO:
                                else if cust.frt-pay = "T" then "Third Party"
                                else ""
             .      
-       
+
       find sman where sman.company = gcompany and
                       sman.sman = b-rfq.sman
                       no-lock no-error.
@@ -550,7 +550,7 @@ DO:
       apply "entry" to rfq.ship-name.    
       return no-apply.
    end.                  
-   
+
    if not avail cust and rfq.cust-no:screen-value <> ""  then do:
       message "Invalid Customer number. Please try help!" view-as alert-box.
       apply "entry" to self.
@@ -603,7 +603,7 @@ END.
 ON LEAVE OF rfq.sman IN FRAME F-Main /* Salesman */
 DO:
  {methods/dispflds.i} 
-    
+
  IF LASTKEY <> -1 AND NOT AVAIL sman THEN DO:
     MESSAGE "Invalid Sales Rep." VIEW-AS ALERT-BOX ERROR.
     RETURN NO-APPLY.
@@ -647,7 +647,7 @@ session:data-entry-return = true.  /* return key will be like tab key */
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -721,8 +721,8 @@ PROCEDURE assign-company :
             rfq.ship-state  = rfq.ship-state:screen-value in frame {&frame-name}
             rfq.ship-zip    = rfq.ship-zip:screen-value in frame {&frame-name}
             .
-            
- 
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -754,13 +754,13 @@ PROCEDURE get-next-rfqno :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var new-rfq# like rfq.rfq-no no-undo.
-  
+
   find first rfq-ctrl no-error.
   if avail rfq-ctrl then do:
      new-rfq# = rfq-ctrl.rfq-num.
      rfq-ctrl.rfq-num = rfq-ctrl.rfq-num + 1.   
      release rfq-ctrl.    
-     
+
      return string(new-rfq#).
   end.
 
@@ -820,7 +820,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   do with frame {&frame-name}:
-     
+
      if rfq.cust-no = "temp" or rfq.ship-name:sensitive then                                 
          assign rfq.ship-name:sensitive = no
                 rfq.ship-addr[1]:sensitive = no
@@ -841,7 +841,7 @@ PROCEDURE local-cancel-record :
                 rfq.ship-state:fgcolor = 15   
                 rfq.ship-zip:fgcolor = 15   
             .
- 
+
   end. 
 
 END PROCEDURE.
@@ -859,7 +859,7 @@ PROCEDURE local-create-record :
   DEF VAR ls-key AS cha NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   find first rfq-ctrl no-lock no-error.
   if not avail rfq-ctrl then do:
      message "No RFQ Control Exist. Please Register RFQ Control File First."
@@ -867,13 +867,13 @@ PROCEDURE local-create-record :
      return error.
   end.      
   old-rfq-id = recid(rfq).
-   
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
   /* Code placed here will execute AFTER standard behavior.    */ 
 
   run get-next-rfqno.  /*moved to methods/viewers/add/rfq.i   */
-  
+
   assign rfq.rfq-no:screen-value in frame {&frame-name} = (return-value)
 /*         rfq.rfq-no = integer(rfq.rfq-no:screen-value in frame {&frame-name}) */
          rfq.rfq-no = integer(return-value) 
@@ -915,7 +915,7 @@ PROCEDURE local-create-record :
          create bf-rfqitem.
          buffer-copy rfqitem except rfqitem.rfq-no rfqitem.est-no to bf-rfqitem.
          assign bf-rfqitem.rfq-no = rfq.rfq-no.
-         
+
      end.   
   end.
 
@@ -989,7 +989,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
    def var ll-new-record as log no-undo.
-     
+
   /* Code placed here will execute PRIOR to standard behavior. */
   ll-is-copy = if adm-new-record and not adm-adding-record then yes else no.
   ll-new-record = adm-new-record.
@@ -1022,7 +1022,7 @@ PROCEDURE local-update-record :
                 rfq.ship-state:fgcolor = 15   
                 rfq.ship-zip:fgcolor = 15   
             .
- 
+
   end. 
 
 
@@ -1091,6 +1091,7 @@ PROCEDURE validate-cust :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND (cust where cust.company = gcompany     and
                    cust.cust-no = rfq.cust-no:screen-value in frame {&frame-name} )
      OR rfq.cust-no:SCREEN-VALUE = "" THEN DO:
@@ -1124,7 +1125,7 @@ PROCEDURE validate-cust :
      END.
 
   END.
-                      
+
  FIND sman where sman.company = gcompany and
                  sman.sman = rfq.sman:SCREEN-VALUE no-lock no-error.
  IF NOT AVAIL sman THEN DO:
@@ -1133,6 +1134,7 @@ PROCEDURE validate-cust :
     RETURN ERROR.
  END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
