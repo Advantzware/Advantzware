@@ -53,7 +53,8 @@ DEF BUFFER b-eb FOR eb.
 DEF VAR v-job-cust AS LOG NO-UNDO.
 DEF VAR lv-under-run AS DECIMAL NO-UNDO.
 DEF VAR lv-over-run AS DECIMAL NO-UNDO.
-
+DEFINE VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
+DEFINE  SHARED VARIABLE s-prt-fgimage AS LOGICAL NO-UNDO.
 DO TRANSACTION:
    {sys/inc/tspostfg.i}
 END.
@@ -618,6 +619,17 @@ do v-local-loop = 1 to v-local-copies:
                                    IF AVAIL xeb THEN ROWID(xeb) ELSE ?).
         end.
         ELSE PAGE.
+
+        /* print fgitem's image */
+        IF s-prt-fgimage THEN DO:        
+            ls-fgitem-img = itemfg.box-image.
+
+            PUT UNFORMATTED "<#12><C1><FROM><C81><R+55><RECT><||3><C81>" /*v-qa-text*/ SKIP
+                "<=12><R+1><C5>FG Item: " itemfg.i-no " " itemfg.i-name
+                "<=12><R+3><C1><FROM><C81><LINE><||3>"
+                "<=12><R+5><C5><#21><R+45><C+80><IMAGE#21=" ls-fgitem-img ">" SKIP. 
+            PAGE.
+         END.
        
       end.  /* for each w-ef */
             

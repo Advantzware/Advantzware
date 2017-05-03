@@ -1669,7 +1669,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   ELSE
       dept_codes:HIDDEN IN FRAME FRAME-A = YES.
 
-  IF LOOKUP(lv-format-c,"Artios,Protagon,VINELAND,CapCity,Trilakes2,Suthrlnd,RFC2,Peachtree") > 0 THEN
+   IF LOOKUP(lv-format-c,"Artios,Protagon,VINELAND,CapCity,Trilakes2,Suthrlnd,RFC2,Peachtree,jobcardc 1,xprint") > 0 THEN
      ASSIGN tb_fgimage:SENSITIVE = YES.
 
   IF LOOKUP(lv-format-c,"Protagon") > 0 THEN
