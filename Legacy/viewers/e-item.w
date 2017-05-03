@@ -685,7 +685,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -697,7 +697,7 @@ ON HELP OF FRAME F-Main
 DO:
   DEF VAR char-val AS CHAR NO-UNDO.
   DEF VAR lw-focus AS HANDLE NO-UNDO.
-   
+
 
   lw-focus = FOCUS.
 
@@ -748,7 +748,7 @@ ON LEAVE OF e-item.std-uom IN FRAME F-Main /* Purchased Cost UOM */
 DO:
     find bf-item of e-item no-lock no-error.
     run sys/ref/uom-rm.p (bf-item.mat-type, output uom-list). 
-   
+
     if lastkey <> -1 AND
        E-ITEM.std-uom:screen-value <> "" and
        /* not can-find(uom where uom.uom = self:screen-value)  */
@@ -757,7 +757,7 @@ DO:
        message "Invalid UOM. Try Help." view-as alert-box error.       
        return no-apply.
     end.   
-      
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -800,7 +800,7 @@ session:data-entry-return = yes.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -823,17 +823,17 @@ PROCEDURE add-vend-cost :
   def input param v-term like report.term-id no-undo.
 
   find bf-item where recid(bf-item) = ip-item-recid.
-  
+
   RUN dispatch ("add-records").
 
   FIND e-item WHERE recid(e-item) = ip-eitem-recid NO-LOCK.
   FIND e-item-vend WHERE recid(e-item-vend) = ip-eitem-vend-recid NO-LOCK.
 
   RUN dispatch ("display-fields").
-  
+
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "tableio-source", OUTPUT char-hdl).
   RUN set-buttons IN WIDGET-HANDLE(char-hdl) ("action-chosen").
-  
+
   ASSIGN gTerm = v-term
          gNewVendor = YES.
 
@@ -924,7 +924,7 @@ PROCEDURE label-display :
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
   RUN get-item-record IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-recid).
   FIND bf-item WHERE RECID(bf-item) EQ lv-recid NO-LOCK NO-ERROR.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      fi_width-min:HIDDEN  = YES
@@ -952,7 +952,7 @@ PROCEDURE local-assign-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER bf-evend FOR e-item-vend.
-      
+
   def var i as int no-undo.
   def var lv-recid as recid no-undo.
   DEF VAR v-count AS INT NO-UNDO.
@@ -980,7 +980,7 @@ PROCEDURE local-assign-record :
   RUN reftable-values (NO).
 
   EMPTY TEMP-TABLE tmpfile.
-  
+
   do i = 1 to 26:
      if e-item-vend.roll-w[i] <> 0 then do:
         create tmpfile.
@@ -1033,7 +1033,7 @@ PROCEDURE local-assign-record :
              b-cost.CODE    = e-item-vend.i-no AND
              b-cost.code2   = e-item-vend.vend-no
              NO-ERROR.
-       
+
         FIND FIRST b-setup WHERE
              b-setup.reftable = "vend-setup" AND
              b-setup.company = e-item-vend.company AND
@@ -1052,7 +1052,7 @@ PROCEDURE local-assign-record :
            DO v-count = 1 TO 10:
               b-qty.val[v-count] = b2-qty.val[v-count].
            END.
-       
+
         IF NOT AVAIL b-cost THEN
         DO:
            CREATE b-cost.
@@ -1064,7 +1064,7 @@ PROCEDURE local-assign-record :
            DO v-count = 1 TO 10:
               b-cost.val[v-count] = b2-cost.val[v-count].
            END.
-       
+
         IF NOT AVAIL b-setup THEN
         DO:
            CREATE b-setup.
@@ -1076,7 +1076,7 @@ PROCEDURE local-assign-record :
         DO v-count = 1 TO 10:
            b-setup.val[v-count] = b2-setup.val[v-count].
         END.
-     
+
         IF e-item-vend.vend-no EQ "" THEN
         DO:
            FIND FIRST b-blank-vend-qty WHERE
@@ -1084,7 +1084,7 @@ PROCEDURE local-assign-record :
                 b-blank-vend-qty.company = e-item.company and
                     b-blank-vend-qty.CODE    = e-item.i-no
                 NO-ERROR.
-            
+
            IF NOT AVAIL b-blank-vend-qty THEN
            DO:
               CREATE b-blank-vend-qty.
@@ -1093,7 +1093,7 @@ PROCEDURE local-assign-record :
                  b-blank-vend-qty.company = e-item.company
                      b-blank-vend-qty.CODE    = e-item.i-no.
            END.
-       
+
            DO v-count = 1 TO 10:
               b-blank-vend-qty.val[v-count] = b-qty.val[v-count].
            END.
@@ -1201,7 +1201,7 @@ PROCEDURE local-assign-record :
 
       i = i + 1.       
   end.
-  
+
   RELEASE b-blank-vend-qty.
   RELEASE b-blank-vend-cost.
 
@@ -1302,9 +1302,9 @@ PROCEDURE local-create-record :
   def var lv-recid as recid no-undo.
   def var char-hdl as cha no-undo.
   def var i as int no-undo.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
- 
+
 
    /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
@@ -1314,7 +1314,7 @@ PROCEDURE local-create-record :
  run get-item-record in widget-handle(char-hdl) (output lv-recid).
  find bf-item where recid(bf-item) = lv-recid
                     no-error.
- 
+
  assign e-item-vend.company = e-item.company
         e-item-vend.i-no = e-item.i-no    
         e-item-vend.setup = bf-item.min-sqft
@@ -1362,7 +1362,7 @@ PROCEDURE local-delete-record :
   IF NOT adm-new-record THEN DO:
     {custom/askdel.i}
   END.
-     
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
@@ -1393,7 +1393,7 @@ PROCEDURE local-disable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   disable e-item.std-uom with frame {&frame-name}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1592,23 +1592,23 @@ PROCEDURE price-change :
    def var i as int no-undo.
    def var char-hdl as cha no-undo.
    def buffer bf-e-item-vend for e-item-vend.
-   
-    
+
+
    v-pct = 0.
    message "By what percentage:" update v-pct .
-   
+
    status default "Processing Raw Material: " + string(e-item.i-no).
-   
+
    find bf-e-item-vend where recid(bf-e-item-vend) = recid(e-item-vend).
-   
+
    do i = 1 to 10:
       bf-e-item-vend.run-cost[i] = e-item-vend.run-cost[i] + 
                                 (e-item-vend.run-cost[i] * v-pct / 100).
    end.
-   
+
    run get-link-handle in adm-broker-hdl (this-procedure, "record-source", output char-hdl).
    run dispatch in widget-handle(char-hdl) ('open-query').
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1707,9 +1707,9 @@ PROCEDURE upd-cost-date-proc :
   DEFINE OUTPUT PARAMETER op-cost-diff AS LOG NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-  
+
   IF adm-new-record OR
-      
+
      dec(e-item-vend.run-qty[1]:SCREEN-VALUE) NE e-item-vend.run-qty[1] OR
      dec(e-item-vend.run-cost[1]:SCREEN-VALUE) NE e-item-vend.run-cost[1] OR
      dec(e-item-vend.setups[1]:SCREEN-VALUE) NE e-item-vend.setups[1] OR
@@ -1771,13 +1771,13 @@ PROCEDURE upd-cost-date2-proc :
    FIND b-e-item-vend WHERE
         ROWID(b-e-item-vend) EQ ROWID(e-item-vend)
         EXCLUSIVE-LOCK NO-WAIT NO-ERROR.
-   
+
    IF AVAIL b-e-item-vend THEN
    DO:
       ASSIGN
          b-e-item-vend.updated-id[1] = USERID("NOSWEAT")
          b-e-item-vend.updated-date[1] = TODAY.
-   
+
       FIND CURRENT b-e-item-vend NO-LOCK.
       RELEASE b-e-item-vend.
    END.
@@ -1794,6 +1794,7 @@ PROCEDURE valid-roll-w-27 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(e-item-vend.roll-w[27]:SCREEN-VALUE) GT DEC(e-item-vend.roll-w[28]:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(e-item-vend.roll-w[27]:LABEL) " may not be greater than " TRIM(e-item-vend.roll-w[28]:LABEL).
@@ -1802,6 +1803,7 @@ PROCEDURE valid-roll-w-27 :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1815,6 +1817,7 @@ PROCEDURE valid-roll-w-28 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(e-item-vend.roll-w[28]:SCREEN-VALUE) LT DEC(e-item-vend.roll-w[27]:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(e-item-vend.roll-w[28]:LABEL) " may not be less than " TRIM(e-item-vend.roll-w[27]:LABEL).
@@ -1823,6 +1826,7 @@ PROCEDURE valid-roll-w-28 :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1836,6 +1840,7 @@ PROCEDURE valid-roll-w-29 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(e-item-vend.roll-w[29]:SCREEN-VALUE) GT DEC(e-item-vend.roll-w[30]:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(e-item-vend.roll-w[29]:LABEL) " may not be greater than " TRIM(e-item-vend.roll-w[30]:LABEL).
@@ -1844,6 +1849,7 @@ PROCEDURE valid-roll-w-29 :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1857,6 +1863,7 @@ PROCEDURE valid-roll-w-30 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(e-item-vend.roll-w[30]:SCREEN-VALUE) LT DEC(e-item-vend.roll-w[29]:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(e-item-vend.roll-w[30]:LABEL) " may not be less than " TRIM(e-item-vend.roll-w[29]:LABEL).
@@ -1865,6 +1872,7 @@ PROCEDURE valid-roll-w-30 :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1884,6 +1892,7 @@ PROCEDURE valid-vend-no :
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-focus:SCREEN-VALUE EQ "" THEN
       IF e-item-vend.vend-no NE "" AND NOT adm-new-record THEN
@@ -1918,6 +1927,7 @@ PROCEDURE valid-vend-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

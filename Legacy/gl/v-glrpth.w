@@ -717,7 +717,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -777,7 +777,7 @@ DO:
      END.
   END.
 */
-  
+
   DISABLE v-ch-1 v-ct-1 
           v-ch-2 v-ct-2 
           v-ch-3 v-ct-3 
@@ -801,7 +801,7 @@ DO:
         WHEN 8 THEN enable v-ch-8 v-ct-8 WITH FRAME {&FRAME-NAME}.
         WHEN 9 THEN enable v-ch-9 v-ct-9 WITH FRAME {&FRAME-NAME}.
      END.
-     
+
   END.
 
 
@@ -957,7 +957,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1156,7 +1156,7 @@ PROCEDURE local-assign-record :
      FOR each bf-rpt WHERE bf-rpt.company = g_company
                        AND bf-rpt.rpt = lv-prev-rpt 
                        AND bf-rpt.LINE > 99 NO-LOCK .
-                     
+
          CREATE new-rpt.
          BUFFER-COPY bf-rpt EXCEPT bf-rpt.rpt bf-rpt.rec_key TO new-rpt.
          ASSIGN new-rpt.rpt = gl-rpt.rpt
@@ -1189,7 +1189,7 @@ PROCEDURE local-assign-statement :
      ASSIGN v-vcol-1 v-vcol-2 v-vcol-3
             v-vcol-4 v-vcol-5 v-vcol-6.
   END.
- 
+
   ASSIGN v-hdr[1] = v-hdr-1
        v-hdr[2] = v-hdr-2
        v-hdr[3] = v-hdr-3
@@ -1295,14 +1295,14 @@ PROCEDURE local-create-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- 
+
 
   ASSIGN gl-rpt.company = g_company
          lv-page-length = 66
          lv-p-w = 80.
 
   DISPLAY lv-page-length lv-p-w WITH FRAME {&FRAME-NAME}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1496,7 +1496,7 @@ PROCEDURE proc-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   ENABLE {&list-5} WITH FRAME {&FRAME-NAME}.
 
   DEF VAR i AS INT NO-UNDO.
@@ -1513,7 +1513,7 @@ PROCEDURE proc-enable :
         WHEN 9 THEN DISABLE v-ch-9 v-ct-9 v-per-9 WITH FRAME {&FRAME-NAME}.
      END.
   END.
-  
+
   RUN calc-var (0) NO-ERROR.
 
 END PROCEDURE.
@@ -1571,6 +1571,7 @@ PROCEDURE valid-rpt :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF gl-rpt.rpt:SCREEN-VALUE EQ "" THEN DO:
         MESSAGE "Report ID can not be blank. " VIEW-AS ALERT-BOX ERROR.
@@ -1588,6 +1589,7 @@ PROCEDURE valid-rpt :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

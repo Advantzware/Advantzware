@@ -639,7 +639,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -654,7 +654,7 @@ DO:
 
 
    g_lookup-var = "".
-      
+
    case focus:name :
         when "loc" then do:
              run lookups/loc.p.
@@ -695,7 +695,7 @@ DO:
         otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-             
+
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
            end.  
@@ -720,7 +720,7 @@ DO:
       return no-apply.
     end.
   end.
-  
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -734,16 +734,16 @@ DO:
 
   DEF VAR v-seq LIKE mach.m-seq NO-UNDO.
 
-  
+
   RUN dept-display.
-    
+
   RUN dept-enable. 
 
   FIND FIRST dept WHERE dept.code EQ {&self-name}:SCREEN-VALUE NO-LOCK NO-ERROR.
   IF AVAIL dept THEN DO:
     mach.d-seq:SCREEN-VALUE = STRING(dept.fc).    
   END.
-      
+
   IF adm-new-record THEN
   FOR EACH bf-mach
       WHERE bf-mach.company EQ cocode
@@ -755,7 +755,7 @@ DO:
       mach.m-seq:SCREEN-VALUE = STRING(v-seq + 1).
       LEAVE.
     END.
-    
+
     v-seq = bf-mach.m-seq.
   END.
 
@@ -776,7 +776,7 @@ DO:
          return no-apply.
       end.
 
-  
+
      disable mach.pr-type mach.washup mach.col-pass max-color coater col-wastesh
                 mach.ink-waste mach.col-wastelb   
                 /*mach.tan-mrp*/ mach.tan-mrf with frame {&frame-name}.
@@ -819,7 +819,7 @@ DO:
          return no-apply.
       end.
 
-  
+
      disable mach.pr-type mach.washup mach.col-pass max-color coater col-wastesh
                 mach.ink-waste mach.col-wastelb   
                 /*mach.tan-mrp*/ mach.tan-mrf with frame {&frame-name}.
@@ -864,7 +864,7 @@ DO:
          return no-apply.
       end.
 
-  
+
      disable mach.pr-type mach.washup mach.col-pass max-color coater col-wastesh
                 mach.ink-waste mach.col-wastelb   
                 /*mach.tan-mrp*/ mach.tan-mrf with frame {&frame-name}.
@@ -937,7 +937,7 @@ DO:
                                   .
   */ 
   run calc-rate.                              
-                                
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -968,7 +968,7 @@ DO:
                                   decimal(mach.run-fixoh:screen-value)
                                   )
                                   .
-                                  
+
  */
    run calc-rate.
 END.
@@ -1279,7 +1279,7 @@ IF CAN-FIND(FIRST reftable WHERE reftable.reftable EQ "gangjobs") THEN
 
         mach-1.gang-jobs = LOGICAL(reftable.code2).
       END.
-      
+
       DELETE reftable.
   END.
 
@@ -1291,7 +1291,7 @@ ll-label = CAN-FIND(FIRST sys-ctrl
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1408,7 +1408,7 @@ PROCEDURE dept-display :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   IF AVAIL mach THEN
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
@@ -1419,7 +1419,7 @@ PROCEDURE dept-display :
                           THEN "Changeover Time"
                           ELSE "Tandem MR/Plate".
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1432,7 +1432,7 @@ PROCEDURE dept-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   IF AVAIL mach THEN
   do with frame {&frame-name}:
     disable mach.pr-type
@@ -1445,13 +1445,13 @@ PROCEDURE dept-enable :
             mach.col-wastelb
             /*mach.tan-mrp*/
             mach.tan-mrf.
-            
+
     /*IF LOOKUP(mach.dept[1]:SCREEN-VALUE,"DC,GL,WN,WS") GT 0 OR
        LOOKUP(mach.dept[1]:SCREEN-VALUE,"DC,GL,WN,WS") GT 0 OR
        LOOKUP(mach.dept[1]:SCREEN-VALUE,"DC,GL,WN,WS") GT 0 OR
        LOOKUP(mach.dept[1]:SCREEN-VALUE,"DC,GL,WN,WS") GT 0 THEN
       ENABLE mach.tan-mrp.*/
-      
+
     if mach.dept[1]:screen-value eq "PR" or
        mach.dept[2]:screen-value eq "PR" or
        mach.dept[3]:screen-value eq "PR" or
@@ -1466,7 +1466,7 @@ PROCEDURE dept-enable :
              mach.col-wastelb   
              /*mach.tan-mrp*/
              mach.tan-mrf.
-             
+
     else
       assign
        mach.pr-type:screen-value     = ""
@@ -1514,7 +1514,7 @@ PROCEDURE enable-mach :
 
   DO WITH FRAME {&frame-name}:
     APPLY "value-changed" TO mach.dept[1].
-  
+
     /*IF CAN-FIND(FIRST est-op WHERE est-op.company EQ gcompany
                                AND est-op.m-code  EQ mach.m-code:SCREEN-VALUE)   OR
        CAN-FIND(FIRST job-mch WHERE job-mch.company EQ gcompany
@@ -1559,7 +1559,7 @@ PROCEDURE label-display :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   RUN dept-display.
 
   RUN p-type-display.
@@ -1589,7 +1589,7 @@ PROCEDURE local-assign-record :
   def var old-dept like mach.dept[1] no-undo.
   DEF VAR li AS INT NO-UNDO.
 
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   assign old-m-code = mach.m-code
          old-loc = mach.loc
@@ -1634,7 +1634,7 @@ if adm-adding-record then do:
                               and recid(b-mmtx)    ne recid(mmtx)
                              no-error.
           if avail b-mmtx then delete b-mmtx.
-        
+
           assign mmtx.loc  = mach.loc
                  mmtx.dept = mach.dept[1].
       end.
@@ -1649,14 +1649,14 @@ if adm-adding-record then do:
               and b-mmty.across-no eq mmty.across-no
               and recid(b-mmty)    ne recid(mmty)
             no-error.
-          
+
         if avail b-mmty then delete b-mmty.
-        
+
         assign
          mmty.loc  = mach.loc
          mmty.dept = mach.dept[1].
       end.  /* each mmty */
-      
+
       find first b-mstd where b-mstd.company eq mach.company
                           and b-mstd.loc     eq mach.loc
             and b-mstd.m-code  eq mach.m-code 
@@ -1664,9 +1664,9 @@ if adm-adding-record then do:
             and b-mstd.style   eq mstd.style
             and recid(b-mstd)  ne recid(mstd)
           no-error.
-          
+
       if avail b-mstd then delete b-mstd.
-          
+
       assign  mstd.loc  = mach.loc
               mstd.dept = mach.dept[1].
   end.
@@ -1680,13 +1680,13 @@ if adm-adding-record then do:
  if adm-new-record and not adm-adding-record then do:  /* copy */   
     def buffer bf-mach for mach.
     def var li-next-mmtx as int no-undo.
-    
+
     find bf-mach where bf-mach.company = cocode and
                        bf-mach.m-code = old-m-code
                        no-lock no-error.
     find last b-mmtx use-index mmtx-no no-lock no-error.
     li-next-mmtx = if avail b-mmtx then b-mmtx.mmtx-no + 1 else 1.
-    
+
     for each mstd of bf-mach no-lock:
         for each mmty of mstd no-lock:
             create b-mmty.
@@ -1695,7 +1695,7 @@ if adm-adding-record then do:
                    b-mmty.loc = mach.loc
                    b-mmty.dept = mach.dept[1].    
         end.
-        
+
         for each mmtx of mstd no-lock:
             create b-mmtx.
             buffer-copy mmtx except mmtx.m-code mmtx.mmtx-no to b-mmtx.
@@ -1759,7 +1759,7 @@ if adm-adding-record then do:
                  mstd.dept = mach.dept[1]
                  .
         end.
-        
+
     end.
  end.  /* not new record */
 
@@ -1777,14 +1777,14 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DISABLE ALL WITH FRAME {&FRAME-NAME}.
-  
+
   RUN label-display.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1809,7 +1809,7 @@ PROCEDURE local-create-record :
   ASSIGN
    mach.company = cocode
    mach.loc     = locode.
-      
+
   DO WITH FRAME {&FRAME-NAME}:
     IF adm-adding-record THEN DO:
       DISPLAY mach.loc mach.d-seq mach.m-seq.
@@ -1832,7 +1832,7 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAIL mach THEN DO:
     cb_industry = ENTRY(LOOKUP(TRIM(mach.industry),",1,2,X"),lv-ind-list).
@@ -1845,7 +1845,7 @@ PROCEDURE local-display-fields :
       IF mach.m-code NE "" THEN RUN reftable-values (YES).
     END.
   END.
-                        
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
@@ -1865,7 +1865,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-m-code NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1914,9 +1914,9 @@ PROCEDURE local-update-record :
   RUN valid-m-seq NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   /* ========== end of validation =================*/
-   
+
   disable all with frame {&frame-name}.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -2024,7 +2024,7 @@ PROCEDURE repo-query :
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"Record-Source", OUTPUT char-hdl).
   RUN repo-query IN WIDGET-HANDLE(char-hdl) (INPUT ip-rowid).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2082,6 +2082,7 @@ PROCEDURE valid-fi_sch-m-code :
   DEF BUFFER b-mach FOR mach.
   DEF VAR v-industry AS CHAR NO-UNDO.
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
     ASSIGN
@@ -2104,6 +2105,7 @@ PROCEDURE valid-fi_sch-m-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2119,6 +2121,7 @@ PROCEDURE valid-m-code :
   DEF BUFFER b-mach FOR mach.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     mach.m-code:SCREEN-VALUE = CAPS(mach.m-code:SCREEN-VALUE).
 
@@ -2137,6 +2140,7 @@ PROCEDURE valid-m-code :
       mach.sch-m-code:SCREEN-VALUE = mach.m-code:SCREEN-VALUE.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2152,6 +2156,7 @@ PROCEDURE valid-m-seq :
   DEF BUFFER b-mach FOR mach.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF CAN-FIND(FIRST b-mach
                 WHERE b-mach.company EQ mach.company
@@ -2164,7 +2169,7 @@ PROCEDURE valid-m-seq :
       APPLY "entry" TO mach.m-seq.
       RETURN ERROR.
     END.
-    
+
     IF adm-new-record AND NOT adm-adding-record THEN DO: /* copy */
        IF CAN-FIND(FIRST b-mach WHERE b-mach.company EQ cocode
                           AND b-mach.d-seq   EQ INT(mach.d-seq:SCREEN-VALUE)
@@ -2178,11 +2183,12 @@ PROCEDURE valid-m-seq :
         END.
      END.
 
-      
+
   END.
 
-  
 
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

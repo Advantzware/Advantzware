@@ -474,7 +474,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -539,7 +539,7 @@ END.
 ON LEAVE OF routing.m-code[1] IN FRAME F-Main /* Machine Code[1] */
 DO:
   {methods/dispflds.i}
- 
+
   if not can-find(mach where mach.company = gcompany
               and mach.loc = gloc
               and mach.m-code = self:screen-value) and lastkey <> -1 
@@ -548,7 +548,7 @@ DO:
      message "Invalid Machine Code. Try Help!" view-as alert-box error.
      return no-apply.         
   end.            
-              
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -725,7 +725,7 @@ session:data-entry-return = yes.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -862,7 +862,7 @@ PROCEDURE local-create-record :
              mach_m-dscr10
              with frame {&frame-name}.
   end.                  
-         
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -875,7 +875,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var i as int no-undo.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 do with frame {&frame-name}:
   run validate-machine (input routing.m-code[1]:screen-value) no-error.
@@ -963,7 +963,7 @@ end.
      end.   
   end.
  ============================*/
- 
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1046,7 +1046,8 @@ PROCEDURE validate-machine :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input parameter ip-mach like mach.m-code no-undo.
-  
+
+  {methods/lValidateError.i YES}
   if not can-find(mach where mach.company = gcompany
               and mach.loc = gloc
               and mach.m-code = ip-mach) and ip-mach <> ""
@@ -1054,6 +1055,7 @@ PROCEDURE validate-machine :
      return error.
   end.            
   return.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -433,7 +433,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -476,7 +476,7 @@ DO:
                                      OUTPUT char-val).
              IF char-val <> "" THEN 
                ASSIGN oe-relh.trailer:SCREEN-VALUE = ENTRY(1,char-val).
-             
+
           END.
 
           WHEN "spare-char-1" THEN DO:
@@ -615,11 +615,11 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN              
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF   
-  
 
 
- 
-        
+
+
+
 
 /************************ INTERNAL PROCEDURES ********************/
 
@@ -639,6 +639,7 @@ PROCEDURE valid-rel-date:
     DEFINE VARIABLE lValid    AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
     DEFINE VARIABLE ldDate    AS DATE    NO-UNDO.
+  {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         ldDate = DATE(oe-relh.rel-date:SCREEN-VALUE).
         RUN oe/dateFuture.p (INPUT cocode, INPUT ldDate, INPUT YES /* prompt */, OUTPUT lValid, OUTPUT lContinue).
@@ -647,6 +648,7 @@ PROCEDURE valid-rel-date:
             RETURN ERROR.
         END. 
     END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
@@ -714,7 +716,7 @@ PROCEDURE changed-shipid :
 
     /* 10021210 - Per Joe, if they change the shipto must update the 
        locations on oe-rell and oe-rel                                 */
-       
+
     RUN oe/custxship.p (oe-relh.company,
                         oe-relh.cust-no,
                         oe-relh.ship-id,
@@ -736,15 +738,15 @@ PROCEDURE changed-shipid :
                  AND bf-itemfg-loc.loc     EQ bf-oe-rel.spare-char-1
                EXCLUSIVE-LOCK NO-ERROR.
            IF AVAIL bf-itemfg-loc THEN DO:
-           
+
                FIND itemfg WHERE itemfg.company EQ bf-oe-rel.company
                     AND itemfg.i-no EQ bf-oe-rel.i-no
                    NO-LOCK NO-ERROR.
                IF AVAIL itemfg AND AVAIL(bf-itemfg-loc) THEN
                  RUN fg/calcqabl.p (ROWID(itemfg), bf-oe-rel.spare-char-1, OUTPUT bf-itemfg-loc.q-alloc, OUTPUT v-q-back).
-    
+
                bf-itemfg-loc.q-avail = bf-itemfg-loc.q-onh + bf-itemfg-loc.q-ono - bf-itemfg-loc.q-alloc.
-    
+
                ASSIGN  bf-oe-rel.spare-char-1   = shipto.loc
                        bf-oe-rel.ship-zip       = shipto.ship-zip
                        bf-oe-rel.ship-state     = shipto.ship-state           
@@ -752,12 +754,12 @@ PROCEDURE changed-shipid :
                        bf-oe-rel.ship-addr[1]   = shipto.ship-addr[1]
                        bf-oe-rel.ship-addr[2]   = shipto.ship-addr[2]
                        bf-oe-rel.ship-id        = shipto.ship-id.
-    
-    
+
+
                 RUN fg/fgitmloc.p (INPUT bf-oe-rel.i-no, INPUT ROWID(bf-oe-rel)).  
            END. /* avail itemfg-loc */
         END. /* each bf-oe-rell */
-            
+
     END.
 
 END PROCEDURE.
@@ -825,33 +827,33 @@ PROCEDURE check-hold :
       ELSE
          ASSIGN
             fi_hold = "Approved".
-     
+
       ASSIGN
           fi_hold:SCREEN-VALUE IN FRAME {&FRAME-NAME}= fi_hold.
-     
+
       IF fi_hold = "On Hold"  THEN DO:
-     
+
          /* LABEL CONTROL */
          RUN get-link-handle IN adm-broker-hdl
              (THIS-PROCEDURE,"hold-rel-source",OUTPUT char-hdl).
-     
+
          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
             RUN release-label IN WIDGET-HANDLE(char-hdl).
          /* LABEL CONTROL end*/
-     
+
          /* gdm - 05070905 
          RUN check-cust-holdflg(TRUE).        
          */        
-     
+
       END.
       ELSE DO:
-     
+
          RUN get-link-handle IN adm-broker-hdl
              (THIS-PROCEDURE,"hold-rel-source",OUTPUT char-hdl).
-     
+
          IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
             RUN hold-label IN WIDGET-HANDLE(char-hdl).
-     
+
          /* gdm - 05070905 
          RUN check-cust-holdflg(NO).
          */        
@@ -916,7 +918,7 @@ PROCEDURE display-cust-detail :
               cust_state:screen-value     = cust.state
               cust_zip:screen-value       = cust.zip
               oe-relh.carrier:screen-value = cust.carrier.
-              
+
        FIND FIRST shipto
            WHERE shipto.company EQ cust.company
              AND shipto.cust-no EQ cust.cust-no
@@ -936,7 +938,7 @@ PROCEDURE display-cust-detail :
          RUN new-ship-id.
        END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -960,14 +962,14 @@ PROCEDURE display-items :
          qty-oh = 0.
 
   if ip-recid = ? then return.
-           
+
   find b-oe-rell-2 where recid(b-oe-rell-2) = ip-recid no-lock .
   line_i-no = if avail b-oe-rell-2 then b-oe-rell-2.i-no else "".
   disp line_i-no with frame {&frame-name}.
   find itemfg where itemfg.company = g_company and
                     itemfg.i-no = line_i-no no-lock no-error.
   if not avail itemfg then return.
-  
+
   find first b-oe-ordl-2 where
        b-oe-ordl-2.company = g_company AND
        b-oe-ordl-2.ord-no = b-oe-rell-2.ord-no AND
@@ -1025,9 +1027,9 @@ DEF BUFFER bf-oe-rel FOR oe-rel.
           AND bf-oe-rel.line     EQ bf-oe-rell.line
           AND bf-oe-rel.po-no    EQ bf-oe-rell.po-no        
           USE-INDEX link-ord NO-LOCK NO-ERROR.
-    
+
       IF NOT AVAIL bf-oe-rel THEN
-      
+
         FIND FIRST bf-oe-rel
           WHERE bf-oe-rel.company  EQ bf-oe-rell.company
             AND bf-oe-rel.ord-no   EQ bf-oe-rell.ord-no
@@ -1038,7 +1040,7 @@ DEF BUFFER bf-oe-rel FOR oe-rel.
             AND bf-oe-rel.po-no    EQ bf-oe-rell.po-no
             AND INDEX("SIL", bf-oe-rel.stat) EQ 0
           USE-INDEX ord-item NO-LOCK NO-ERROR.        
-      
+
     END.
     IF AVAIL bf-oe-rel THEN
         op-row = ROWID(bf-oe-rel).
@@ -1063,7 +1065,7 @@ PROCEDURE hold-release :
        ASSIGN
            oe-relh.w-ord = NO
            fi_hold = "Approved".
-           
+
        RUN get-link-handle IN adm-broker-hdl
            (THIS-PROCEDURE,"hold-rel-source",OUTPUT char-hdl).
        IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -1092,7 +1094,7 @@ PROCEDURE hold-release :
    FIND CURRENT oe-relh NO-LOCK.
 
    DISP fi_hold WITH FRAME {&FRAME-NAME}.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1162,7 +1164,7 @@ PROCEDURE local-assign-record :
 
     END.
     IF AVAIL oe-relh AND v-date-change-reason GT "" THEN DO:
-   
+
         FIND CURRENT oe-relh EXCLUSIVE-LOCK.
         IF v-date-change-reason GT "" THEN
             ASSIGN oe-relh.spare-char-1:SCREEN-VALUE = v-date-change-reason
@@ -1220,7 +1222,7 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   if lv-ship-no <> 0 then do:
      oe-relh.ship-no = lv-ship-no.
-  
+
      find shipto where shipto.company = oe-relh.company 
                    and shipto.cust-no = oe-relh.cust-no
                    and shipto.ship-no = lv-ship-no
@@ -1236,7 +1238,7 @@ PROCEDURE local-assign-record :
       RUN changed-shipid.
 
   RUN create-relhold.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1289,7 +1291,7 @@ PROCEDURE local-create-record :
   display oe-relh.rel-date cust_name cust_addr1 cust_addr2 cust_city cust_state cust_zip
           ship_name ship_addr1 ship_addr2 ship_city ship_state ship_zip line_i-no qty-oh qty-ordered qty-rel qty-ship with frame {&frame-name}. 
   run dispatch ('row-changed').
-         
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1315,7 +1317,7 @@ ASSIGN adm-new-record = NO   .
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/deleteAfter.i}
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1396,7 +1398,7 @@ PROCEDURE local-display-fields :
         OR oe-relh.spare-char-1:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN
       ASSIGN oe-relh.spare-char-1:READ-ONLY IN FRAME {&FRAME-NAME} = TRUE 
              oe-relh.spare-char-1:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE.
-          
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1420,7 +1422,7 @@ PROCEDURE local-update-record :
 
   RUN valid-rel-date NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    
+
   RUN valid-date-change NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
    /* ========== end of validation ==========*/
@@ -1450,7 +1452,7 @@ PROCEDURE local-update-record :
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-target",OUTPUT char-hdl).
      RUN add-line IN WIDGET-HANDLE(char-hdl).
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1463,7 +1465,7 @@ PROCEDURE new-cust-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
   DO WITH FRAME {&FRAME-NAME}:
     FIND cust
         WHERE cust.company EQ cocode
@@ -1472,7 +1474,7 @@ PROCEDURE new-cust-no :
         NO-LOCK NO-ERROR.
     IF AVAIL cust THEN RUN display-cust-detail (RECID(cust)).
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1646,7 +1648,8 @@ PROCEDURE valid-cust-no :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
-                                            
+
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     lv-msg = "".
 
@@ -1665,6 +1668,7 @@ PROCEDURE valid-cust-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1677,15 +1681,16 @@ PROCEDURE valid-date-change :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     DEF VAR v-reject-code AS CHAR NO-UNDO.
     v-reject-code = oe-relh.spare-char-1:SCREEN-VALUE.
-                       
+
    FIND FIRST rejct-cd 
        WHERE rejct-cd.TYPE = "R" 
          AND rejct-cd.CODE = v-reject-code
        NO-LOCK NO-ERROR.
-   
+
 
     IF NOT AVAIL rejct-cd AND v-reject-code GT "" THEN DO:
       MESSAGE "Invalid " + TRIM(oe-relh.spare-char-1:LABEL) +
@@ -1695,6 +1700,7 @@ PROCEDURE valid-date-change :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1708,6 +1714,7 @@ PROCEDURE valid-ship-id :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     RUN oe/custxship.p (oe-relh.company,
                         oe-relh.cust-no:SCREEN-VALUE,
@@ -1723,6 +1730,7 @@ PROCEDURE valid-ship-id :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -226,7 +226,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -338,7 +338,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -521,7 +521,7 @@ PROCEDURE valid-acct :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-int AS INT NO-UNDO.
-    
+
   DEF VAR lv-value AS CHAR NO-UNDO.
   DEF VAR lv-label AS CHAR NO-UNDO.
   DEF VAR lv-type AS CHAR INIT "A,E,E,L" NO-UNDO.
@@ -531,6 +531,7 @@ PROCEDURE valid-acct :
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     CASE ip-int:
       WHEN 1 THEN
@@ -596,6 +597,7 @@ PROCEDURE valid-acct :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

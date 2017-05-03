@@ -246,7 +246,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -260,7 +260,7 @@ DO:
        status input "Foldware, Corrware or Both".
   */
    def var ls-name-value as cha form "x(100)" no-undo. 
-     
+
    status input ''.
    if can-do(name-fld-list,sys-ctrl.name:screen-value) then do:
       ls-name-value = str-init[lookup(sys-ctrl.name:screen-value,name-fld-list)].
@@ -304,7 +304,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sys-ctrl.log-fld V-table-Win
 ON LEAVE OF sys-ctrl.log-fld IN FRAME F-Main /* Logical Value */
 DO:
-  
+
   CASE sys-ctrl.NAME:
       WHEN  "RELCREDT" 
           THEN v-msg = "Credit Checks for Past Due Invoices must be purchased, please call ASI."  .
@@ -350,7 +350,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -427,7 +427,7 @@ DEF VAR v-flg AS LOG INIT YES NO-UNDO.
   ASSIGN
       v-secure = NO
       v-secur  = NO.
-      
+
 
 END PROCEDURE.
 
@@ -475,7 +475,7 @@ PROCEDURE local-assign-record :
   END.
 
   IF sys-ctrl.name EQ "OEFGUPDT" THEN SUBSTRING(sys-ctrl.char-fld,8,1) = "N".
-  
+
     IF (sys-ctrl.name EQ "RELCREDT" OR
       /*sys-ctrl.name EQ "SalesMgmt" OR */
       sys-ctrl.name EQ "SalesBudget") THEN DO:  
@@ -508,7 +508,7 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   sys-ctrl.company = gcompany. 
   /* same as {methods/triggers/create.i}   */
-  
+
   assign sys-ctrl.rec_key = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq,NOSWEAT),"99999999").
 
   CREATE rec_key.
@@ -533,7 +533,7 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-    
+
   DO WITH FRAME {&FRAME-NAME}:
 
       IF sys-ctrl.NAME:SCREEN-VALUE  EQ "CHKFMT" OR sys-ctrl.NAME:SCREEN-VALUE  EQ "RelPrint" OR
@@ -622,7 +622,7 @@ PROCEDURE post-enable :
       DISABLE sys-ctrl.log-fld WITH FRAME {&FRAME-NAME}.
 
   END.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -726,8 +726,8 @@ PROCEDURE valid-char-fld :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
-  
+
+
   DEF VAR thisOne AS CHAR NO-UNDO.
   DEF VAR comp-char-val AS CHAR NO-UNDO.
   DEF VAR cEntryTo AS CHAR NO-UNDO.
@@ -735,18 +735,19 @@ PROCEDURE valid-char-fld :
   DEF VAR lValid AS LOG NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
   DEF VAR j AS INT NO-UNDO.  
+  {methods/lValidateError.i YES}
   lValid = TRUE.
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     /* Process NK1 options where user can select more than one */
     /* option - validate each option individually              */
     IF LOOKUP(sys-ctrl.NAME:SCREEN-VALUE, gvcMultiSelect) GT 0 
       AND INDEX(sys-ctrl.char-fld:SCREEN-VALUE, ",") GT 0 THEN DO:
 
         DO i = 1 TO NUM-ENTRIES(sys-ctrl.char-fld:SCREEN-VALUE):
-         
+
           cSingleValue = ENTRY(i, sys-ctrl.char-fld:SCREEN-VALUE).
-            
+
           RUN sys/ref/validSysCtrlChar.p 
             (INPUT g_company,
              INPUT g_loc,
@@ -759,8 +760,8 @@ PROCEDURE valid-char-fld :
                   ELSE ""),
              OUTPUT cEntryTo,
              OUTPUT lValid).
-           
-      
+
+
           IF NOT lValid THEN DO:   
             CASE cEntryTo:
               WHEN "Char" THEN
@@ -770,7 +771,7 @@ PROCEDURE valid-char-fld :
             END CASE.
             LEAVE.
           END. /* if not lvalid */
-         
+
         END. /* do i = ... */
 
     END. /* if multiple values to validate */
@@ -815,7 +816,7 @@ PROCEDURE valid-char-fld :
 
           DO J = 1 TO NUM-ENTRIES(comp-char-val):
               ASSIGN thisOne = ENTRY(j,comp-char-val).          
-     
+
               FIND FIRST company WHERE company.company = thisOne NO-LOCK NO-ERROR.
               IF NOT AVAIL company THEN DO:         
                   MESSAGE   thisOne  "is not a valid company" VIEW-AS ALERT-BOX ERROR.
@@ -838,6 +839,7 @@ PROCEDURE valid-char-fld :
   END.
   */
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -850,8 +852,10 @@ PROCEDURE valid-log-fld :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   {sys/ref/valid-log-fld.i}
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

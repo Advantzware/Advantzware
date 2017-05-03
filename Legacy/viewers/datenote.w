@@ -247,7 +247,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -259,7 +259,7 @@ ON VALUE-CHANGED OF cbTitle IN FRAME F-Main
 DO:
   ASSIGN cbTitle.
   FIND FIRST rejct-cd WHERE rejct-cd.CODE = cbTitle NO-LOCK NO-ERROR.
-  
+
   IF AVAIL(rejct-cd) AND notes.note_text:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN
      notes.note_text:SCREEN-VALUE IN FRAME {&FRAME-NAME} = rejct-cd.dscr.
 END.
@@ -397,7 +397,7 @@ FOR EACH rejct-cd
                                   OR LOOKUP("D", gvcNoteType) GT 0 
                                   OR LOOKUP("L", gvcNoteType) GT 0 THEN "R" ELSE gvcNoteType)
     NO-LOCK WITH FRAME {&FRAME-NAME}.
-  
+
     cbTitle:ADD-LAST(rejct-cd.CODE + " " + rejct-cd.dscr, rejct-cd.CODE).        
 END.
 notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
@@ -467,10 +467,10 @@ PROCEDURE get-title :
 
   IF AVAIL(notes) THEN
   FIND bfNotes WHERE ROWID(bfNotes) = ROWID(notes) NO-LOCK NO-ERROR.
-  
+
   IF AVAIL bfNotes THEN DO WITH FRAME {&FRAME-NAME}:     
       FIND rejct-cd WHERE rejct-cd.CODE = bfNotes.note_title NO-LOCK NO-ERROR.
-     
+
       IF AVAIL rejct-cd THEN
       cbTitle:SCREEN-VALUE = bfNotes.note_title.
   END.
@@ -513,8 +513,8 @@ ASSIGN
   END CASE.
 
 
-   
-    
+
+
  NOSWEAT.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
  NOSWEAT.notes.note_code = ENTRY(1, gvcNoteCode).
  RUN display-note-type.
@@ -542,7 +542,7 @@ PROCEDURE local-display-fields :
     DO:
         ASSIGN 
             NOSWEAT.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
-  
+
         IF gvcNoteCode EQ "RDC" THEN
             spec-desc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Release Date Change" .
         ELSE
@@ -559,7 +559,7 @@ PROCEDURE local-display-fields :
     END.
     ELSE 
     DO:
-      
+
         IF AVAIL notes THEN 
         DO: 
           RUN display-note-type.
@@ -613,18 +613,18 @@ PROCEDURE local-update-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
   BUFFER-COMPARE notes TO tt-notes SAVE RESULT IN ll.
   IF NOT ll THEN RUN custom/notewtrg.p (ROWID(notes)).
- 
+
   IF notes.note_title EQ "" OR notes.note_title = ? THEN DO:
     FIND CURRENT nosweat.notes EXCLUSIVE-LOCK.
     IF cbTitle:SCREEN-VALUE GT "" THEN
     ASSIGN nosweat.notes.note_title = cbTitle:SCREEN-VALUE.
     FIND CURRENT nosweat.notes NO-LOCK.
   END.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -637,7 +637,7 @@ PROCEDURE new-note_code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-                  
+
 /*   DO WITH FRAME {&FRAME-NAME}:                                         */
 /*                                                                        */
 /*     FIND FIRST item-spec NO-LOCK                                       */
@@ -735,6 +735,7 @@ PROCEDURE valid-note_code :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
 /*   DO WITH FRAME {&FRAME-NAME}:                                                 */
 /*     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).                       */
 /*                                                                                */
@@ -749,6 +750,7 @@ PROCEDURE valid-note_code :
 /*      END.                                                                      */
 /*   END.                                                                         */
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

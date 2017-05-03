@@ -766,7 +766,7 @@ ASSIGN
 */  /* FRAME Corr */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -797,7 +797,7 @@ DO:
         end.
         when "req-date" or when "due-date" then do:
              /*{methods/calendar.i}  run on self's help trigger*/
-             
+
         end.
         when "part-no" then do: 
            run est/l-ebrfqP.w (cocode, locode, lw-focus:screen-value, output lv-eb-tmpid) .
@@ -818,7 +818,7 @@ DO:
            find xef of xeb where xef.company = xeb.company and
                                  xef.est-no = xeb.est-no
                           no-lock no-error.
-   
+
            run copy-from-est.
            /*run copy-from-est2. */
       end.
@@ -922,7 +922,7 @@ DO:
                  MUST-EXIST
                  USE-FILENAME
                  UPDATE ll-ok.
-               
+
                  IF ll-ok THEN do:
                     DO li = 1 TO LENGTH(ls-filename):
                        ls-cadimage = ls-cadimage + SUBSTRING(ls-filename,li,1).
@@ -1054,7 +1054,7 @@ DO:
         ASSIGN eb.die-no:SCREEN-VALUE   = lv-code
                v-code = lv-code /* just in cse this is needed somewhere */.
 
-        
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1095,7 +1095,7 @@ ON CHOOSE OF btnCadLookup IN FRAME Corr
 DO:
   DEF VAR initDir AS CHARACTER NO-UNDO.
   DEF VAR okClicked AS LOGICAL NO-UNDO.
- 
+
   FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
                                 AND sys-ctrl.name EQ 'CADFILE' NO-ERROR.
   IF NOT AVAILABLE sys-ctrl THEN DO:
@@ -1109,7 +1109,7 @@ DO:
   ASSIGN
     initDir = sys-ctrl.char-fld
     cadFile = ''.
-  
+
   SYSTEM-DIALOG GET-FILE cadfile 
                 TITLE 'Select Image File to insert'
                 FILTERS 'JPG Files    (*.jpg)' '*.jpg',
@@ -1149,7 +1149,7 @@ DO:
     initDir = sys-ctrl.char-fld
     dieFile = ''
     v-intval = sys-ctrl.int-fld  .
-  
+
   IF v-intval = 0 THEN
      SYSTEM-DIALOG GET-FILE dieFile 
                 TITLE 'Select Image File to insert'
@@ -1200,7 +1200,7 @@ DO:
   IF AVAIL eb THEN
    FIND FIRST itemfg WHERE itemfg.company  = cocode
        AND itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.
-  
+
    IF AVAIL itemfg THEN
    RUN oe/w-estfg.w(RECID(eb)) .
 END.
@@ -1216,7 +1216,7 @@ DO:
   IF AVAIL eb THEN
    FIND FIRST style WHERE style.company  = cocode
        AND style.style = eb.style NO-LOCK NO-ERROR.
-  
+
    IF AVAIL style THEN
    RUN windows/stylec-e.w(RECID(style)) .
 END.
@@ -1232,7 +1232,7 @@ DO:
   IF AVAIL eb THEN
    FIND FIRST ITEM WHERE ITEM.company  = cocode
        AND ITEM.i-no = ef.board NO-LOCK NO-ERROR.
-  
+
    IF AVAIL ITEM THEN
    RUN cec/w-itemc.w(RECID(ITEM)) .
 END.
@@ -1248,7 +1248,7 @@ DO:
   IF AVAIL eb THEN
    FIND FIRST cust WHERE cust.company  = cocode
        AND cust.cust-no = eb.cust-no NO-LOCK NO-ERROR.
-  
+
    IF AVAIL cust THEN
    RUN windows/v-cust.w(RECID(cust)) .
 END.
@@ -1376,7 +1376,7 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR var-num AS INT NO-UNDO.
- 
+
   if lastkey = -1 then return. 
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
   if lastkey <> -1 and
@@ -1443,7 +1443,7 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR var-num AS INT NO-UNDO.
- 
+
    if lastkey = -1 then return.
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
 
@@ -1468,7 +1468,7 @@ DO:
         /*  self:screen-value = string( var-num +  op-dec) . */
       END.
    END.
-   
+
     IF ll-auto-calc-selected AND {&self-name} <> dec(self:SCREEN-VALUE )
     THEN ll-style-is-valid = YES.
 END.
@@ -1485,7 +1485,7 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR var-num AS INT NO-UNDO.
- 
+
    if lastkey = -1 then return.
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
   if lastkey <> -1 and
@@ -1526,7 +1526,7 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR var-num AS INT NO-UNDO.
- 
+
    if lastkey = -1 then return.
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
   if lastkey <> -1 and
@@ -1567,7 +1567,7 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR var-num AS INT NO-UNDO.
- 
+
    if lastkey = -1 then return.
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
   if lastkey <> -1 and
@@ -1608,7 +1608,7 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR len-num AS INT NO-UNDO.
-   
+
     if lastkey = -1 then return.
     v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
    if lastkey <> -1 and
@@ -1630,7 +1630,7 @@ DO:
          RETURN NO-APPLY.
       END.
       ELSE do: 
-          
+
           /* eb.len:screen-value = string( len-num +  op-dec) . */
       END.
    END.
@@ -1664,7 +1664,7 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR var-num AS INT NO-UNDO.
- 
+
    if lastkey = -1 then return.  
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
   if lastkey <> -1 and
@@ -1703,7 +1703,7 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR var-num AS INT NO-UNDO.
- 
+
    if lastkey = -1 then return.
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
   if lastkey <> -1 and
@@ -1727,7 +1727,7 @@ DO:
          /* self:screen-value = string( var-num +  op-dec) .*/
       END.
    END.
-   
+
    IF ll-auto-calc-selected AND {&self-name} <> dec(self:SCREEN-VALUE )
     THEN ll-style-is-valid = YES.
 END.
@@ -1784,10 +1784,10 @@ DO:
           and shipto.cust-no eq eb.cust-no:screen-value
           and shipto.ship-id eq {&self-name}:screen-value
         no-lock no-error.
-            
+
     if not avail shipto then do:
       {&self-name}:screen-value = "TEMP".
-      
+
       if eb.ship-name:screen-value    eq "" and
          eb.ship-addr[1]:screen-value eq "" and
          eb.ship-addr[2]:screen-value eq "" and
@@ -1926,7 +1926,7 @@ DO:
   DEF VAR ld-total AS DEC DECIMALS 6 NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
 
-  
+
     EMPTY TEMP-TABLE tt-array.
 
     DO i = 1 TO EXTENT(ld-k-len-array):
@@ -1992,7 +1992,7 @@ DO:
              lv-wid = trunc(lv-wid,6)
              lv-sqin = ( lv-len * lv-wid )
              eb.t-sqin:screen-value = string( if v-corr then round(lv-sqin * 0.007,6) else round(lv-sqin / 144,6)).
-   
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2005,13 +2005,13 @@ ON ENTRY OF eb.t-wid IN FRAME Corr /* Blank Width */
 DO:
   DEF VAR ld-total AS DEC DECIMALS 6 NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
- 
 
-  
+
+
     EMPTY TEMP-TABLE tt-array.
 
     DO i = 1 TO EXTENT(ld-k-wid-array):
-            
+
       CREATE tt-array.
       ASSIGN
        tt-dec  = ld-k-wid-array[i]
@@ -2120,7 +2120,7 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR var-num AS INT NO-UNDO.
- 
+
    if lastkey = -1 then return.
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
   if lastkey <> -1 and
@@ -2182,7 +2182,7 @@ DO:
          RETURN NO-APPLY.
       END.
       ELSE do: 
-          
+
           /*eb.wid:screen-value = string( wid-num +  op-dec) */.
       END.
    END.
@@ -2230,7 +2230,7 @@ find first sys-ctrl where sys-ctrl.company eq cocode
          UPDATE sys-ctrl.log-fld.
   end.
   ll-warn = sys-ctrl.log-fld.
-  
+
   find first sys-ctrl where sys-ctrl.company eq cocode
                         and sys-ctrl.name    eq "CADFILE"
                         no-lock no-error.
@@ -2250,7 +2250,7 @@ find first sys-ctrl where sys-ctrl.company eq cocode
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -2322,7 +2322,7 @@ PROCEDURE calc-blank-size :
 ------------------------------------------------------------------------------*/
 /*  from rfq not right for corrugate
    /* calc blank W,L SqIn */
-   
+
          find first reftable
           where reftable.reftable eq "STYFLU"
             and reftable.company  eq eb.style
@@ -2346,7 +2346,7 @@ PROCEDURE calc-blank-size :
    if lv-is-corr then string((formule.formule[7] * formule.formule[8]) * 0.007) 
                  else string(formule.formule[7] * formule.formule[8]).
 */   
- 
+
 ======== old */
 
  /* calc blank W,L SqIn */
@@ -2483,7 +2483,7 @@ PROCEDURE calc-blank-size2 :
 ------------------------------------------------------------------------------*/
    FIND CURRENT eb .
    ASSIGN FRAME {&frame-name} {&list-5}.
-           
+
    {sys/inc/k16bb.i eb.wid  } 
    {sys/inc/k16bb.i eb.len  } 
    {sys/inc/k16bb.i eb.dep  } 
@@ -2583,7 +2583,7 @@ PROCEDURE check-flute-test-change :
 ------------------------------------------------------------------------------*/
   DEF VAR ll AS LOG NO-UNDO.
 
-                                                                           
+
   DO WITH FRAME {&FRAME-NAME}:
     ll = NO.
 
@@ -2709,11 +2709,11 @@ DO:
 END.
 RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT "").
 {fg/set-inks1.i itemfg xeb}
- 
+
 {sys/inc/fgcascnt.i itemfg xeb}
 
 {sys/inc/updfgdim.i "xeb"}
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2728,13 +2728,13 @@ PROCEDURE cust-spec :
 ------------------------------------------------------------------------------*/
   DEF VAR rec_key_value as cha no-undo.
   DEF VAR header_value as cha no-undo.
-  
+
   RUN Get_Procedure IN Persistent-Handle ('specnot2.',OUTPUT run-proc,no).
   find itemfg where itemfg.company = eb.company and
                     itemfg.i-no = eb.stock-no:screen-value in frame {&frame-name}
                     no-lock no-error.
   rec_key_value = if avail itemfg then itemfg.rec_key else "".
-  
+
   IF rec_key_value <> "" and run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)}        
   else do:
     message "No FG Item Spec note." rec_key_value view-as alert-box.
@@ -2802,7 +2802,7 @@ PROCEDURE display-matrix :
          eb.t-wid:screen-value = string({sys/inc/k16.i eb.t-wid  } )
          eb.t-sqin:screen-value = if v-corr then string(eb.t-sqin * .007)
                                   else string(eb.t-sqin / 144).
-                                  
+
 
 END PROCEDURE.
 
@@ -2816,7 +2816,7 @@ PROCEDURE display-shipto :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&frame-name}:
     RELEASE shipto.
     IF eb.ship-id:SCREEN-VALUE NE "TEMP" THEN
@@ -2862,9 +2862,9 @@ PROCEDURE get-current-values :
     IF NOT VALID-HANDLE(hProc) THEN
      RETURN.
     hProc = hProc:FIRST-CHILD NO-ERROR.
-    
+
     DO WHILE VALID-HANDLE(hProc):
-    
+
         hProc = hProc:NEXT-SIBLING NO-ERROR.
         IF NOT VALID-HANDLE(hProc) THEN
             LEAVE.
@@ -2876,7 +2876,7 @@ PROCEDURE get-current-values :
             l-was-modified = TRUE.
         IF ERROR-STATUS:ERROR THEN
             NEXT.
-    
+
         IF hProc:SCREEN-VALUE NE ? THEN
           vc-values = vc-values + hProc:SCREEN-VALUE.
     END.
@@ -2937,7 +2937,7 @@ PROCEDURE local-assign-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
   IF ll-new-shipto THEN DO WITH FRAME {&FRAME-NAME}:
     RUN windows/d-shpfly.w (ROWID(eb)).
@@ -2986,7 +2986,7 @@ PROCEDURE local-assign-record :
   {sys/inc/k16bb.i eb.gluelap  } 
   {sys/inc/k16bb.i eb.lock  } 
   {sys/inc/k16bb.i eb.lin-in}
-  
+
   {cec/slotheit.i}  
   {cec/slotwidth.i}
   ASSIGN
@@ -3024,7 +3024,7 @@ PROCEDURE local-assign-record :
      eb.t-wid = eb.wid
      eb.t-len = eb.len
      eb.t-dep = eb.dep.
-  
+
   IF v-cecscrn-char NE "Decimal" THEN
      ASSIGN
         eb.t-wid = TRUNC(eb.t-wid * li-16-32,0) / li-16-32
@@ -3040,7 +3040,7 @@ PROCEDURE local-assign-record :
   IF ll-one-eb-on-ef AND ll-blank-size-changed THEN DO:
     MESSAGE "Do you wish to reset layout screen?"
         VIEW-AS ALERT-BOX BUTTON YES-NO UPDATE ll-ans2 AS LOG.
-    
+
     ef.lsh-lock = NO.    
     IF ll-ans2 THEN RUN update-sheet.    
   END.
@@ -3082,7 +3082,7 @@ PROCEDURE local-assign-record :
 
          FOR EACH box-design-line FIELDS(wscore) of box-design-hdr
              NO-LOCK:
-             
+
              v-dec = DECIMAL(TRIM(box-design-line.wscore)) NO-ERROR.
 
              IF NOT ERROR-STATUS:ERROR AND
@@ -3095,11 +3095,11 @@ PROCEDURE local-assign-record :
          RUN tokenize-proc(box-design-hdr.lscore).
 
          DO v-count = 1 TO 30:
-            
+
             ASSIGN
                v-dec = {sys/inc/k16v.i eb.k-len-array2[v-count]}
                v-dec2 = {sys/inc/k16v.i eb.k-wid-array2[v-count]}.
-               
+
             IF v-l-array[v-count] NE v-dec OR
                v-w-array[v-count] NE v-dec2 THEN
                DO:
@@ -3151,7 +3151,7 @@ PROCEDURE local-assign-record :
             ( ((cadfile NE '') AND SEARCH(cadfile) <> ?) OR
               SEARCH(lv-cad-path + eb.cad-no + lv-cad-ext) <> ? ) THEN 
         DO:
-        
+
            ASSIGN box-design-hdr.box-image = IF cadfile NE '' THEN cadfile
                   ELSE lv-cad-path + eb.cad-no + lv-cad-ext. /*".jpg"*/.
         END.
@@ -3171,7 +3171,7 @@ PROCEDURE local-assign-record :
         IF AVAIL box-design-hdr AND (SEARCH(box-design-hdr.box-image) EQ ? OR cadfile NE '') THEN 
            ASSIGN box-design-hdr.box-image = IF cadfile NE '' THEN cadfile
                                              ELSE xbox-design-hdr.box-image.
-        
+
      END.
      ASSIGN
        cadfile = ''
@@ -3252,8 +3252,8 @@ PROCEDURE local-assign-record :
         b-set.dep = eb.dep.
    END.
   END.
-  
-  
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3269,7 +3269,7 @@ PROCEDURE local-assign-statement :
   /* Code placed here will execute PRIOR to standard behavior. */
   FIND CURRENT ef EXCLUSIVE-LOCK.
   FIND CURRENT est EXCLUSIVE-LOCK.
-  
+
   v-orig-style = eb.style.
 
   /* Dispatch standard ADM method.                             */
@@ -3342,7 +3342,7 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute PRIOR to standard behavior. */
   {cec/msfcalc.i}
 
-      
+
   IF NOT AVAIL est OR NOT AVAIL eb THEN RETURN.
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -3421,7 +3421,7 @@ PROCEDURE local-display-fields :
     END.
     fi_blank-qty = li.
   END.
-  
+
   IF AVAIL est-qty THEN 
     ASSIGN
        tab-inout = IF eb.tab-in EQ YES THEN "In"  ELSE
@@ -3433,7 +3433,7 @@ PROCEDURE local-display-fields :
                      ELSE (est-qty.eqty * fi_per-set)) *
                     (IF v-corr THEN (eb.t-sqin * .007)
                                ELSE (eb.t-sqin / 144)) / 1000.
-  
+
 
   fi_from-est-no = IF eb.master-est-no NE "" AND
                       eb.est-type EQ 8       THEN eb.master-est-no
@@ -3516,14 +3516,14 @@ PROCEDURE local-display-fields :
          btn_fgitem:HIDDEN  = FALSE .
 
     btn_style:LABEL = " " + TRIM(eb.style:LABEL) + ": " /*+ TRIM(eb.style)*/ .
-    
+
     IF eb.style = "" THEN
             btn_style:HIDDEN  = TRUE .
     ELSE 
          btn_style:HIDDEN  = FALSE .
-   
+
     btn_cust:LABEL = " " + TRIM(eb.cust-no:LABEL) + ": " /*+ TRIM(ef.board) */ .
-    
+
     IF eb.cust-no = "" THEN
             btn_cust:HIDDEN  = TRUE .
     ELSE 
@@ -3554,7 +3554,7 @@ PROCEDURE local-display-fields :
           eb.stock-no:BGCOLOR = 11.
        ELSE
           eb.stock-no:BGCOLOR = ?.
-      
+
        RELEASE reftable.
     END.
 
@@ -3604,7 +3604,7 @@ PROCEDURE local-display-fields :
       ef.board:LABEL      =  "Board" .
 
   btn_board:LABEL = " " + TRIM(ef.board:LABEL) + ": " /*+ TRIM(ef.board) */ .
-    
+
     IF ef.board = "" THEN
         btn_board:HIDDEN  = TRUE .
     ELSE 
@@ -3636,7 +3636,7 @@ PROCEDURE local-update-record :
              bt-new-die:SENSITIVE = FALSE
              bt-new-plate:SENSITIVE = FALSE.
   END.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-fi_from-est-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -3708,7 +3708,7 @@ PROCEDURE local-update-record :
 
     RUN valid-sman NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-      
+
     RUN valid-procat NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -3794,7 +3794,7 @@ PROCEDURE local-update-record :
   END.
 
   RUN dispatch ('display-fields').  /* refresh 2nd & all children pages */
- 
+
   RUN release-shared-buffers.
 
   ll-style-is-valid = NO.
@@ -3816,11 +3816,11 @@ PROCEDURE local-update-record :
                AND oe-prmtx.i-no               BEGINS itemfg.i-no
                AND SUBSTR(oe-prmtx.i-no,1,100) EQ itemfg.i-no
                EXCLUSIVE-LOCK:
-               
+
                ASSIGN
                    SUBSTR(oe-prmtx.i-no,1,100) = STRING(itemfg.i-no,"X(100)")
                    oe-prmtx.procat             = itemfg.procat.
-               
+
            END. /* Each oe-prmtx */
        END.
   END.
@@ -3839,7 +3839,7 @@ PROCEDURE new-board :
   Notes:       
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&FRAME-NAME}:
-    
+
     IF ef.board NE ef.board:SCREEN-VALUE THEN DO:
       FIND FIRST item NO-LOCK {sys/look/itemb1W.i}
              AND item.i-no EQ ef.board:SCREEN-VALUE NO-ERROR.
@@ -3917,7 +3917,7 @@ PROCEDURE new-sman :
 
   DEF BUFFER bf-eb FOR eb.
 
-  
+
   DO WITH FRAME {&FRAME-NAME}.
     sman_sname:SCREEN-VALUE = "".
 
@@ -3925,7 +3925,7 @@ PROCEDURE new-sman :
         WHERE sman.company EQ cocode
           AND sman.sman    EQ eb.sman:SCREEN-VALUE
         NO-LOCK NO-ERROR.
-    
+
     IF AVAIL sman THEN DO:
       ASSIGN
        sman_sname:SCREEN-VALUE = sman.sname
@@ -4054,7 +4054,7 @@ PROCEDURE proc-enable :
    ll-blank-size-changed = NO
    ll-new-shipto         = NO
    ll-wid-len-warned     = NO.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN
          btn_style:HIDDEN = TRUE 
@@ -4073,7 +4073,7 @@ PROCEDURE proc-enable :
                       AND reftable.loc      EQ ""
                       AND reftable.code     EQ STRING(job-hdr.job,"999999999")
                       AND reftable.code2    EQ eb.stock-no).
-      
+
       IF ll THEN LEAVE.
     END.
 
@@ -4106,7 +4106,7 @@ PROCEDURE proc-enable :
 
     ef.cad-image:SCREEN-VALUE = ef.cad-image.
   END.
-    
+
   RUN set-hold-values.
 
   RUN release-shared-buffers.
@@ -4140,7 +4140,7 @@ PROCEDURE reopen-eb :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   FIND CURRENT eb NO-LOCK NO-ERROR.
   IF AVAIL eb THEN RUN dispatch ('display-fields').
 
@@ -4310,13 +4310,13 @@ PROCEDURE update-sheet :
           xeb.num-len = 0
           xeb.num-wid = 0
           xeb.num-dep =0.
-   
+
   /*     find xest where recid(xest) = recid(est).  */
 
   IF NOT lv-foam THEN DO:
     {sys/inc/ceroute1.i w id l en}
   END.
-     
+
   RUN cec/calc-dim.p .
 
   IF ceroute-chr NE "" THEN DO:
@@ -4365,13 +4365,15 @@ PROCEDURE valid-64-dec :
    DEFINE INPUT PARAMETER ip-dec AS DEC DECIMALS 6 NO-UNDO.
    DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
    DEFINE OUTPUT PARAMETER op-dec AS DEC DECIMALS 6 NO-UNDO.
-    
+
+  {methods/lValidateError.i YES}
     FIND FIRST tt-64-dec WHERE
       substring(string(tt-64-dec.DEC),1,3) EQ substring(string(ip-dec),1,3) NO-LOCK NO-ERROR.
     IF NOT AVAIL tt-64-dec  THEN
       op-error = YES.
     ELSE  op-dec = tt-64-dec.DEC .
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4387,6 +4389,7 @@ PROCEDURE valid-adhesive :
   DEF INPUT PARAM ip-field AS WIDGET-HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-field:SCREEN-VALUE = CAPS(ip-field:SCREEN-VALUE).
 
@@ -4403,6 +4406,7 @@ PROCEDURE valid-adhesive :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4415,6 +4419,7 @@ PROCEDURE valid-board :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ef.board:SCREEN-VALUE = CAPS(ef.board:SCREEN-VALUE).
 
@@ -4430,6 +4435,7 @@ PROCEDURE valid-board :
     IF ef.brd-dscr:SCREEN-VALUE EQ "" THEN RUN new-board.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4442,9 +4448,10 @@ PROCEDURE valid-dec :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
    /*DEFINE INPUT PARAMETER p-dec AS DEC DECIMALS 6 NO-UNDO.*/
     DEF INPUT PARAM ip-field AS WIDGET-HANDLE NO-UNDO.
-   
+
    DEF VAR v-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
@@ -4464,9 +4471,10 @@ PROCEDURE valid-dec :
        ELSE do: 
          /* ip-field:screen-value = string( len-num +  op-dec) . */
       END.
-       
+
    END.
-    
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4484,7 +4492,8 @@ PROCEDURE valid-fi_from-est-no :
   DEF BUFFER b-est FOR est.
   DEF BUFFER b-eb FOR eb.
 
-                            
+
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     fi_from-est-no:SCREEN-VALUE =
         STRING(INT(fi_from-est-no:SCREEN-VALUE),">>>>>>>>") NO-ERROR.
@@ -4522,6 +4531,7 @@ PROCEDURE valid-fi_from-est-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4535,10 +4545,12 @@ PROCEDURE valid-flute :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   IF NOT lv-foam THEN DO:
     {est/valflute.i "eb.flute" ":SCREEN-VALUE"}
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4558,6 +4570,7 @@ PROCEDURE valid-prep :
   DEF VAR ll AS LOG INIT YES NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   IF addprep-log THEN
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-type EQ 1 THEN
@@ -4594,6 +4607,7 @@ PROCEDURE valid-prep :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4607,6 +4621,7 @@ PROCEDURE valid-procat :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     eb.procat:SCREEN-VALUE = CAPS(eb.procat:SCREEN-VALUE).
 
@@ -4620,6 +4635,7 @@ PROCEDURE valid-procat :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4633,6 +4649,7 @@ PROCEDURE valid-ship-id :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST shipto
                     WHERE shipto.company EQ cocode
@@ -4650,7 +4667,8 @@ PROCEDURE valid-ship-id :
       END.
     END.
   END.
-  
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4663,6 +4681,7 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
    FIND FIRST sman
         WHERE sman.company EQ cocode
           AND sman.sman    EQ eb.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -4675,6 +4694,7 @@ PROCEDURE valid-sman :
     END.
     sman_sname:SCREEN-VALUE = sman.sNAME.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4688,6 +4708,7 @@ PROCEDURE valid-style :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST style
                     WHERE style.company  EQ cocode
@@ -4700,6 +4721,7 @@ PROCEDURE valid-style :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4713,10 +4735,12 @@ PROCEDURE valid-test :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   IF NOT lv-foam THEN DO:
     {est/valtest.i "eb.flute" "eb.test" ":SCREEN-VALUE"}
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4732,6 +4756,7 @@ PROCEDURE valid-wid-len :
   DEF VAR lv-handle AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     lv-handle = IF LOOKUP(FOCUS:NAME,"style,len") GT 0 THEN FOCUS ELSE ?.
     IF NOT VALID-HANDLE(lv-handle) THEN lv-handle = eb.wid:HANDLE.
@@ -4759,6 +4784,7 @@ PROCEDURE valid-wid-len :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4797,7 +4823,7 @@ FUNCTION ImageName RETURNS CHARACTER
     ipImageFileName = SUBSTR(ipImageFileName,1,R-INDEX(ipImageFileName,'.') - 1)
     ipImageFileName = SUBSTR(ipImageFileName,R-INDEX(ipImageFileName,'\') + 1).
   RETURN ipImageFileName.
-      
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

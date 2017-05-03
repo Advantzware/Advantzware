@@ -1041,7 +1041,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -1055,7 +1055,7 @@ DO:
    DEF VAR lv-eb-tmpid AS RECID NO-UNDO.  
    DEF VAR lv-handle AS HANDLE NO-UNDO.          
    DEF VAR char-val AS cha NO-UNDO.
-            
+
    CASE FOCUS:NAME :
      WHEN "flute" OR WHEN "fi_flute" THEN DO:
            /*run est/l-flute.w (output char-val).  using reftable*/
@@ -1082,10 +1082,10 @@ DO:
      OTHERWISE DO:
            lv-handle = FOCUS:HANDLE.
            RUN applhelp.p.
-             
+
            IF g_lookup-var <> "" THEN DO:
               lv-handle:SCREEN-VALUE = g_lookup-var.
-        
+
            END.   /* g_lookup-var <> "" */
            APPLY "entry" TO lv-handle.
            RETURN NO-APPLY.
@@ -1103,7 +1103,7 @@ END.
 ON LEAVE OF item.cost-type IN FRAME F-Main /* Cost Type */
 DO:
   /*{methods/dispflds.i}*/
-  
+
   IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
      NOT CAN-FIND(costtype WHERE costtype.company = gcompany
           AND costtype.loc = gloc
@@ -1114,7 +1114,7 @@ DO:
      RETURN NO-APPLY.
   END.
 
-  
+
    FIND costtype
         WHERE costtype.company = gcompany
           AND costtype.loc = gloc
@@ -1385,7 +1385,7 @@ END.
 ON VALUE-CHANGED OF fi_mat-type IN FRAME F-Main /* Mat'l Type */
 DO:
   &Scoped-define mat-types-enable NO
-  
+
   FIND mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE NO-LOCK NO-ERROR.
 
   IF AVAIL mat THEN DO:
@@ -1629,7 +1629,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1808,7 +1808,7 @@ PROCEDURE local-assign-record :
      lv-cas-pal-w = DEC(fi_cas-pal-w:SCREEN-VALUE)
      lv-ect       = DEC(fi_ect:SCREEN-VALUE).
   END.
-          
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -1821,7 +1821,7 @@ PROCEDURE local-assign-record :
          locode = gloc
          fi_mat-type = lv-mat-type
          item.mat-type = lv-mat-type.
-  
+
   IF adm-new-record AND item.mat-type = "D" THEN DO:  /* from rm/cpall.i */
      FIND FIRST bf-item WHERE bf-item.company = gcompany AND
                               bf-item.mat-type = "D" AND
@@ -1957,7 +1957,7 @@ PROCEDURE local-assign-record :
         {sys/inc/k16bb.i item.case-w}
         {sys/inc/k16bb.i item.case-l}
         {sys/inc/k16bb.i item.case-d}
-        
+
         ASSIGN
          item.basis-w = lv-cas-pal-w
          item.flute   = fi_flute
@@ -1968,7 +1968,7 @@ PROCEDURE local-assign-record :
      IF INDEX("MOXY789@",ITEM.mat-type) GT 0 THEN
         ASSIGN ITEM.cons-uom = "EA"
                ITEM.pur-uom = "EA".
-          
+
   END.
 
   SESSION:SET-WAIT-STATE("").
@@ -2022,7 +2022,7 @@ PROCEDURE local-create-record :
          fi_reg-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}    = item.reg-no.
 
   {custom/newkey.i item.i-no}
-         
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2055,7 +2055,7 @@ PROCEDURE local-display-fields :
       asi.item.spare-char-1:HIDDEN = TRUE.
     ELSE
       asi.item.spare-char-1:HIDDEN = FALSE.
-      
+
     IF INDEX("BAP",fi_mat-type) GT 0 THEN DO:
       ASSIGN
        item.s-wid:screen-value = STRING({sys/inc/k16v.i item.s-wid})
@@ -2103,7 +2103,7 @@ PROCEDURE local-display-fields :
        fi_reg-no:screen-value    = item.reg-no.
     END.
   END.
- 
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
@@ -2112,7 +2112,7 @@ PROCEDURE local-display-fields :
   DO WITH FRAME {&FRAME-NAME}:
     {cec/mattypes.i}  /* folding - custom/mattypes.i enable fields group*/
   END.
- 
+
   &UNDEFINE mat-types-enable
  */
 /*  
@@ -2122,7 +2122,7 @@ PROCEDURE local-display-fields :
         if item.s-len <> 0 then display {sys/inc/k16.i item.s-len} with frame {&frame-name}.
         if item.s-wid <> 0 then display {sys/inc/k16.i item.s-wid} with frame {&frame-name}.
         if item.r-wid <> 0 then display {sys/inc/k16.i item.r-wid} with frame {&frame-name}.
-        
+
      end.   
      else if index("IV1234",fi_mat-type) > 0 then do:
         /* change color head1 head5 */
@@ -2147,8 +2147,8 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR is-new-record AS LOG NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
-  
-  
+
+
   /* Code placed here will execute PRIOR to standard behavior. */
   is-new-record = adm-new-record.
   /*
@@ -2277,7 +2277,7 @@ PROCEDURE local-update-record :
 
      RUN valid-mat-type NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-     
+
      IF /*fi_mat-type:screen-value <> "" and*/
         NOT CAN-FIND(FIRST procat WHERE procat.company = gcompany AND
                                         procat.procat = item.procat:screen-value)
@@ -2313,7 +2313,7 @@ PROCEDURE local-update-record :
      RUN valid-test (fi_reg-no:HANDLE, "C") NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
    END.
-     
+
    IF INDEX("BAP",fi_mat-type:screen-value) > 0 THEN DO:
      IF dec(item.cal:screen-value) = 0 THEN DO:
         MESSAGE "Caliper is mandatory" VIEW-AS ALERT-BOX ERROR.
@@ -2367,13 +2367,13 @@ PROCEDURE local-update-record :
         END. 
    END.
   /* ======== end validation =================== */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   RUN disable-item.
 
-  
+
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
@@ -2472,8 +2472,10 @@ PROCEDURE valid-dimensions :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   {custom/validDim.i}
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2490,6 +2492,7 @@ PROCEDURE valid-flute :
   DEF INPUT PARAM ip-mat-type LIKE item.mat-type NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -2504,6 +2507,7 @@ PROCEDURE valid-flute :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2517,6 +2521,7 @@ PROCEDURE valid-i-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF item.i-no:SCREEN-VALUE EQ "" THEN DO:
       MESSAGE "Item# may not be spaces..." VIEW-AS ALERT-BOX ERROR.
@@ -2525,6 +2530,7 @@ PROCEDURE valid-i-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2538,6 +2544,7 @@ PROCEDURE valid-mat-type :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     fi_mat-type:SCREEN-VALUE = CAPS(fi_mat-type:SCREEN-VALUE).
 
@@ -2547,7 +2554,8 @@ PROCEDURE valid-mat-type :
       RETURN ERROR.
     END.
   END.
-  
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2566,6 +2574,7 @@ PROCEDURE valid-test :
   DEF VAR lv-flute LIKE item.flute NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE)
@@ -2584,6 +2593,7 @@ PROCEDURE valid-test :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2598,6 +2608,7 @@ PROCEDURE valid-16th&32th :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
     IF sys-ctrl.char-fld = "16th's" THEN DO:
         IF DECIMAL(item.s-wid:screen-value) - trunc(DECIMAL(item.s-wid:screen-value),0) >= v-16-or-32 
@@ -2634,7 +2645,7 @@ DO WITH FRAME {&FRAME-NAME}:
         END.
     END.
 
- 
+
     IF sys-ctrl.char-fld = "16th's" THEN DO:
         IF DECIMAL(item.r-wid:screen-value) - trunc(DECIMAL(item.r-wid:screen-value),0) >= v-16-or-32 
             THEN DO:
@@ -2671,4 +2682,5 @@ DO WITH FRAME {&FRAME-NAME}:
     END.
 END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.

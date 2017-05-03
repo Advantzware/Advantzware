@@ -615,7 +615,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -1134,7 +1134,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1301,12 +1301,13 @@ PROCEDURE validate-actall :
  DEF VAR hd2 AS WIDGET-HANDLE NO-UNDO.
  DEF VAR lv-fld AS cha NO-UNDO.
 
+  {methods/lValidateError.i YES}
   /* ==== Corrugated item validation ======== */
      hd1 = frame {&frame-name}:handle.
      hd1 = hd1:first-child.
      hd2 = hd1:first-child.
-     
-     
+
+
 
      do while valid-handle(hd2):
         lv-fld = "prod." + hd2:NAME.
@@ -1327,6 +1328,7 @@ PROCEDURE validate-actall :
         hd2 = hd2:next-sibling.
      end.       
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1339,6 +1341,7 @@ PROCEDURE validate-actnum :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
     FIND FIRST account WHERE account.company = gcompany
                          AND account.actnum = FOCUS:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF (NOT AVAIL account AND focus:SCREEN-VALUE <> "") or
@@ -1350,6 +1353,7 @@ PROCEDURE validate-actnum :
        RETURN ERROR.
     END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -410,7 +410,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -771,7 +771,7 @@ ASSIGN
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF         
-  
+
 /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -859,7 +859,7 @@ PROCEDURE local-assign-record :
  /* if adm-new-record then 
      stax.tax-group = string(gcompany,"x(10)") + trim(ls-tax-group).
  */ 
- 
+
    find first stax-group where stax-group.company = stax.company and
                                stax-group.tax-group = stax.tax-group
                                no-lock no-error.
@@ -868,7 +868,7 @@ PROCEDURE local-assign-record :
       assign stax-group.company = stax.company
              stax-group.tax-group = stax.tax-group
              stax-group.tax-dscr = stax.tax-group.
-             
+
    end.
 END PROCEDURE.
 
@@ -889,7 +889,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/stax.i}  /* assign stax.company = gcompany */
-  
+
 
 END PROCEDURE.
 
@@ -1011,6 +1011,7 @@ PROCEDURE valid-tax-code :
   DEFINE INPUT PARAMETER ip-value  AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ip-widget AS HANDLE    NO-UNDO.
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
     ip-widget:SCREEN-VALUE = CAPS(ip-value).
@@ -1028,6 +1029,7 @@ PROCEDURE valid-tax-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1042,9 +1044,10 @@ PROCEDURE valid-tax-group :
 ------------------------------------------------------------------------------*/ 
   DEFINE BUFFER b-stax FOR stax.
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     stax.tax-group:SCREEN-VALUE = CAPS(stax.tax-group:SCREEN-VALUE).
-    
+
     FOR EACH b-stax NO-LOCK
        WHERE b-stax.company EQ cocode
          AND b-stax.tax-group EQ stax.tax-group:SCREEN-VALUE:
@@ -1057,6 +1060,7 @@ PROCEDURE valid-tax-group :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

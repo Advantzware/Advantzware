@@ -278,7 +278,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -304,7 +304,7 @@ END.
 ON LEAVE OF shift_break.charge_code IN FRAME F-Main /* Charge Code */
 DO:
    IF LASTKEY = -1 THEN return.
-   
+
    RUN valid-chg-code.
    IF RETURN-VALUE <> "" THEN DO:
       MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
@@ -432,7 +432,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -527,9 +527,9 @@ PROCEDURE local-assign-record :
 
   shift_break.end_time = INT(end_hour) * 3600 + INT(end_minute) * 60
                        + INT(end_second).
-  
+
   RUN local-display-fields.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -600,7 +600,7 @@ PROCEDURE local-create-record :
   ASSIGN shift_break.company = shifts.company
          shift_break.shift = shifts.shift
          shift_break.seq = lv-seq + 1.
-        
+
 
 END PROCEDURE.
 
@@ -662,7 +662,7 @@ PROCEDURE local-display-fields :
          end_second:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTRING(STRING(shift_break.end_time,"hh:mm:ss am"),7,2)
          end_ampm:SCREEN-VALUE IN FRAME {&FRAME-NAME} = SUBSTRING(STRING(shift_break.end_time,"hh:mm am"),7,2).
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -696,7 +696,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
- 
+
   RUN valid-hour(START_hour:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
 
   IF RETURN-VALUE <> "" THEN DO:
@@ -740,7 +740,7 @@ PROCEDURE local-update-record :
       MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
       RETURN NO-APPLY.
   END.
-      
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -802,12 +802,14 @@ PROCEDURE valid-chg-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
    IF NOT CAN-FIND(FIRST job-code 
              WHERE job-code.CODE = shift_break.charge_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} )
    THEN RETURN "Invalie Charge Code!.".
    ELSE RETURN "".
-   
-   
+
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -822,11 +824,13 @@ PROCEDURE valid-hour :
 ------------------------------------------------------------------------------*/
  DEF INPUT PARAMETER ip-hour AS CHAR.
 
+  {methods/lValidateError.i YES}
  correct-error = INTEGER(ip-hour) LT 0 OR INTEGER(ip-hour) GT 12.
  IF correct-error THEN
      RETURN "Invalid Hour. Must be between 0 and 12... ".
  ELSE RETURN "". 
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -841,11 +845,13 @@ PROCEDURE valid-min :
 ------------------------------------------------------------------------------*/
  DEF INPUT PARAM ip-min AS cha NO-UNDO.
 
+  {methods/lValidateError.i YES}
  correct-error = INTEGER(ip-min) LT 0 OR INTEGER(ip-min) GT 59.
  IF correct-error THEN
      RETURN "Invalid Hour. Must be between 0 and 59... ".
  ELSE RETURN "".
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -860,10 +866,12 @@ PROCEDURE valid-sec :
 ------------------------------------------------------------------------------*/
    DEF INPUT PARAM ip-sec AS cha NO-UNDO.
 
+  {methods/lValidateError.i YES}
    correct-error = INTEGER(ip-sec) LT 0 OR INTEGER(ip-sec) GT 59.
    IF correct-error THEN
       RETURN "Invalid Second. Must be between 0 and 59... ".
    ELSE RETURN "".
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
