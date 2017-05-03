@@ -878,7 +878,7 @@ FIND FIRST vend WHERE
         attach.company = cocode AND
         attach.rec_key = old-rec-key :
 
-        attach.rec_key = b-vend-new.rec_key .
+        attach.rec_key = b-vend.rec_key .
       END.    
                 
       FOR EACH notes WHERE notes.rec_key EQ vend.rec_key:
