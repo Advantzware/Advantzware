@@ -69,8 +69,8 @@ ASSIGN
   .
 
 PROCEDURE noEmbeddedWindowForm :
-    // here simply as a dummy procedure to prevent folder.w
-    // from attempting to create tabs in non embedded window
+    /* here simply as a dummy procedure to prevent folder.w  */
+    /* from attempting to create tabs in non embedded window */
 END PROCEDURE.
 
 &GLOBAL-DEFINE installDir
