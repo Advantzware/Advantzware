@@ -2998,7 +2998,8 @@ PROCEDURE fg-post :
   DEF BUFFER b-itemfg1 FOR itemfg.
   DEF BUFFER ps-rctd FOR fg-rctd .
   DEF BUFFER b-po-ordl FOR po-ordl.
-  DEF BUFFER b-oe-ordl FOR oe-ordl.  
+  DEF BUFFER b-oe-ordl FOR oe-ordl.
+  DEF BUFFER b-w-fg-rctd FOR w-fg-rctd.  
   DEF VAR v-one-item AS LOG.
   DEF VAR v-dec AS DEC DECIMALS 10.
   DEF VAR v-po-no LIKE rm-rcpt.po-no NO-UNDO.
@@ -3037,6 +3038,7 @@ PROCEDURE fg-post :
   DEF VAR cJob LIKE oe-ordl.job-no  NO-UNDO.
   DEF VAR iJobNo2 LIKE oe-ordl.job-no2 NO-UNDO.
   DEFINE VARIABLE fgPostLog AS LOGICAL NO-UNDO.
+  DEFINE VARIABLE iRNo AS INTEGER NO-UNDO.
   /*##PN - variable for FGSetAssembly setting*/
 
   DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
@@ -3146,15 +3148,20 @@ PROCEDURE fg-post :
    END.
   /* #pn# Setting rita-code to A since the negative R was causing problems */
   /* #pn# task 08211305                                                    */   
-  
-  FOR EACH w-fg-rctd WHERE w-fg-rctd.qty LT 0,
-
-    FIRST reftable NO-LOCK WHERE reftable.reftable EQ "fg-rctd.user-id" 
-      AND reftable.company  EQ w-fg-rctd.company 
-      AND reftable.loc      EQ STRING(w-fg-rctd.r-no,"9999999999")        
-      AND (reftable.dscr EQ "fg-rctd: " + STRING(w-fg-rctd.r-no, "9999999999") AND reftable.dscr BEGINS "fg-rctd: ")  
+  /* b-w-fg-rctd are components with negative qty, w-fg-rctd are sets */
+  FOR EACH b-w-fg-rctd WHERE b-w-fg-rctd.qty LT 0,
+    EACH reftable NO-LOCK WHERE reftable.reftable EQ "fg-rctd.user-id" 
+      AND reftable.company  EQ b-w-fg-rctd.company 
+      AND reftable.loc      EQ STRING(b-w-fg-rctd.r-no,"9999999999")        
+      /* AND (reftable.dscr EQ "fg-rctd: " + STRING(w-fg-rctd.r-no, "9999999999") AND reftable.dscr BEGINS "fg-rctd: ") */  
       USE-INDEX loc    .
-
+      
+    iRNo = INTEGER(SUBSTRING(reftable.dscr, 9, 11)) NO-ERROR.
+    IF ERROR-STATUS:ERROR = NO THEN 
+      FIND FIRST w-fg-rctd NO-LOCK WHERE w-fg-rctd.r-no EQ iRNo NO-ERROR. 
+    IF NOT AVAILABLE w-fg-rctd THEN 
+      NEXT. 
+      
     FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = w-fg-rctd.row-id  NO-ERROR.
     FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode 
                                 AND itemfg.i-no    EQ w-fg-rctd.i-no
