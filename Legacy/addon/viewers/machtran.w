@@ -72,7 +72,7 @@ DEF TEMP-TABLE tt-mach NO-UNDO
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR machtran.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS machtran.form_number machtran.blank_number ~
+&Scoped-Define ENABLED-FIELDS machtran.machine machtran.form_number machtran.blank_number ~
 machtran.pass_sequence machtran.start_date machtran.end_date ~
 machtran.charge_code machtran.run_qty machtran.waste_qty machtran.completed 
 &Scoped-define ENABLED-TABLES machtran
@@ -683,6 +683,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL machtran.form_number V-table-Win
 ON LEAVE OF machtran.form_number IN FRAME F-Main /* Form Number */
 DO:
+    IF s-machine EQ "" THEN
+        ASSIGN
+        s-machine = machtran.machine:SCREEN-VALUE
+        s-job_number = machtran.job_number:SCREEN-VALUE
+        s-job_sub = machtran.job_sub:SCREEN-VALUE.
+ 
   {methods/entryerr.i
       &can-find="FIRST job-mch WHERE job-mch.company = gcompany
                                  AND job-mch.m-code = s-machine
@@ -1151,6 +1157,8 @@ PROCEDURE enable-proc :
 
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE fi_shift.
+    IF NOT adm-new-record THEN
+        DISABLE machtran.machine WITH FRAME {&FRAME-NAME}.
   END.
 
 END PROCEDURE.
