@@ -175,6 +175,10 @@ ELSE do:
    v-packslip = v-packslip + "packslip.txt".
 END.
 
+DO TRANSACTION:
+   {sys/inc/asnsps.i} 
+END.
+
 RELEASE sys-ctrl.
 
 
@@ -3857,6 +3861,9 @@ PROCEDURE run-report :
   ASSIGN td-pck-lst = NO .
 
   for each report where report.term-id eq v-term-id:
+            
+      IF asnsps-log THEN RUN oe/oe856gen.p (report.rec-id, yes,yes).
+      
       delete report.
   end.
 

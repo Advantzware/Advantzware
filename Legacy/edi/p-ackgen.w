@@ -1,18 +1,10 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
-/* Procedure Description
-"NoSweat SmartViewer Object Template with Auto-Field feature.
-
-Use this template to create a new SmartViewer object in which to visualize data. You will automatically be prompted for fields. When completed, this object can be drawn onto any 'smart' container such as a SmartWindow, SmartDialog or SmartFrame."
-*/
 &ANALYZE-RESUME
-/* Connected Databases 
-          asi              PROGRESS
-*/
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
 
-  File: viewers/<table>.w
+  File:
 
   Description: from VIEWER.W - Template for SmartViewer Objects
 
@@ -53,34 +45,14 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 
-/* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES EDPOLine
-&Scoped-define FIRST-EXTERNAL-TABLE EDPOLine
-
-
-/* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR EDPOLine.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS EDPOLine.Partner EDPOLine.Seq ~
-EDPOLine.Item-no EDPOLine.Cust-item-no EDPOLine.Description[1] ~
-EDPOLine.Qty-orig-ord EDPOLine.Unit-price EDPOLine.Uom-code EDPOLine.UPC ~
-EDPOLine.Taxable EDPOLine.St-code 
-&Scoped-define ENABLED-TABLES EDPOLine
-&Scoped-define FIRST-ENABLED-TABLE EDPOLine
-&Scoped-Define ENABLED-OBJECTS RECT-1 btn-order 
-&Scoped-Define DISPLAYED-FIELDS EDPOLine.Partner EDPOLine.Seq ~
-EDPOLine.Item-no EDPOLine.Cust-item-no EDPOLine.Description[1] ~
-EDPOLine.Qty-orig-ord EDPOLine.Unit-price EDPOLine.Uom-code EDPOLine.UPC ~
-EDPOLine.Taxable EDPOLine.St-code 
-&Scoped-define DISPLAYED-TABLES EDPOLine
-&Scoped-define FIRST-DISPLAYED-TABLE EDPOLine
-
+&Scoped-Define ENABLED-OBJECTS RECT-25 btn-Asn 
 
 /* Custom List Definitions                                              */
-/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -112,57 +84,23 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-order 
-     LABEL "Create Order" 
-     SIZE 26 BY 1.38.
+DEFINE BUTTON btn-Asn 
+     LABEL "&ACK Generation" 
+     SIZE 34.4 BY 1.67.
 
-DEFINE RECTANGLE RECT-1
+DEFINE RECTANGLE RECT-25
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 144 BY 17.14.
+     SIZE 36 BY 2.05.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     EDPOLine.Partner AT ROW 1.24 COL 26 COLON-ALIGNED WIDGET-ID 8
-          VIEW-AS FILL-IN 
-          SIZE 8 BY 1
-     EDPOLine.Seq AT ROW 2.24 COL 26 COLON-ALIGNED WIDGET-ID 10
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-     EDPOLine.Item-no AT ROW 3.38 COL 26 COLON-ALIGNED WIDGET-ID 4
-          VIEW-AS FILL-IN 
-          SIZE 21.2 BY 1
-     EDPOLine.Cust-item-no AT ROW 4.38 COL 26 COLON-ALIGNED WIDGET-ID 2
-          VIEW-AS FILL-IN 
-          SIZE 38 BY 1
-     EDPOLine.Description[1] AT ROW 5.52 COL 26 COLON-ALIGNED WIDGET-ID 6
-          VIEW-AS FILL-IN 
-          SIZE 38 BY 1
-     EDPOLine.Qty-orig-ord AT ROW 6.95 COL 26 COLON-ALIGNED WIDGET-ID 22
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     EDPOLine.Unit-price AT ROW 6.95 COL 55 COLON-ALIGNED WIDGET-ID 16
-          VIEW-AS FILL-IN 
-          SIZE 18.8 BY 1
-     EDPOLine.Uom-code AT ROW 8.38 COL 26 COLON-ALIGNED WIDGET-ID 18
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-     EDPOLine.UPC AT ROW 9.38 COL 26 COLON-ALIGNED WIDGET-ID 20
-          VIEW-AS FILL-IN 
-          SIZE 17.6 BY 1
-     EDPOLine.Taxable AT ROW 10.38 COL 26 COLON-ALIGNED WIDGET-ID 14
-          VIEW-AS FILL-IN 
-          SIZE 5.6 BY 1
-     EDPOLine.St-code AT ROW 11.38 COL 26 COLON-ALIGNED WIDGET-ID 12
-          VIEW-AS FILL-IN 
-          SIZE 16.4 BY 1
-     btn-order AT ROW 14.33 COL 50 WIDGET-ID 24
-     RECT-1 AT ROW 1 COL 1
+     btn-Asn AT ROW 1.19 COL 1.6
+     RECT-25 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
+         AT COL 1 ROW 1 SCROLLABLE .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -170,10 +108,9 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: asi.EDPOLine
    Allow: Basic,DB-Fields
    Frames: 1
-   Add Fields to: External-Tables
+   Add Fields to: EXTERNAL-TABLES
    Other Settings: PERSISTENT-ONLY COMPILE
  */
 
@@ -192,8 +129,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 17.14
-         WIDTH              = 144.
+         HEIGHT             = 6.86
+         WIDTH              = 66.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -202,7 +139,6 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
-{methods/template/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -216,13 +152,10 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
-
-ASSIGN 
-       btn-order:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -239,6 +172,24 @@ ASSIGN
 
  
 
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btn-Asn
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-Asn V-table-Win
+ON CHOOSE OF btn-Asn IN FRAME F-Main /* ACK Generation */
+DO:
+    def var char-hdl as cha no-undo.
+    run get-link-handle in adm-broker-hdl (this-procedure, "ack-source", output char-hdl).
+    run GenerateACK in widget-handle(char-hdl).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -270,33 +221,9 @@ PROCEDURE adm-row-available :
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
 
-  /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "EDPOLine"}
-
-  /* Get the record ROWID's from the RECORD-SOURCE.                  */
-  {src/adm/template/row-get.i}
-
-  /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "EDPOLine"}
-
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createOrder V-table-Win 
-PROCEDURE createOrder :
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    FIND EDPOTran OF EDPOLine NO-LOCK.
-    RUN oe/oe850ord.p (RECID(edpotran)).
-    
 
 END PROCEDURE.
 
@@ -329,14 +256,9 @@ PROCEDURE send-records :
   Parameters:  see template/snd-head.i
 ------------------------------------------------------------------------------*/
 
-  /* Define variables needed by this internal procedure.               */
-  {src/adm/template/snd-head.i}
-
-  /* For each requested table, put it's ROWID in the output list.      */
-  {src/adm/template/snd-list.i "EDPOLine"}
-
-  /* Deal with any unexpected table requests before closing.           */
-  {src/adm/template/snd-end.i}
+  /* SEND-RECORDS does nothing because there are no External
+     Tables specified for this SmartViewer, and there are no
+     tables specified in any contained Browse, Query, or Frame. */
 
 END PROCEDURE.
 
