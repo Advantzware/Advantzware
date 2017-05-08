@@ -52,9 +52,9 @@ IF NOT EXIST "%rCode10Dir%\addon\touch\copynote.r" (
 )
 
 ECHO Compressing files...
-.\7-zip\7z a -r programs10.7z %rCode10Dir% > NUL
-.\7-zip\7z a -r programs11.7z %rCode11Dir% > NUL
-.\7-zip\7z a -r resources.7z %resourcesDir% > NUL
+.\7-zip\7z a -r programs10.7z %rCode10Dir%\Legacy > NUL
+.\7-zip\7z a -r programs11.7z %rCode11Dir%\Legacy > NUL
+.\7-zip\7z a -r resources.7z %resourcesDir%\Resources > NUL
 
 ECHO Creating list files...
 CD %resourcesDir%
