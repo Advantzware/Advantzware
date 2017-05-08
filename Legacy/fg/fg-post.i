@@ -1,44 +1,44 @@
 /* fg/fg-post.i   in GUI  copied and changed */ 
 
-  release prod.
-  find first prodl
-      where prodl.company eq cocode
-         and prodl.procat  eq itemfg.procat
-         and can-find(first prod
-                      where prod.company eq cocode
-                        and prod.prolin  eq prodl.prolin)
-      no-lock no-error.
+  RELEASE prod.
+  FIND FIRST prodl
+      WHERE prodl.company EQ cocode
+         AND prodl.procat  EQ itemfg.procat
+         AND CAN-FIND(FIRST prod
+                      WHERE prod.company EQ cocode
+                        AND prod.prolin  EQ prodl.prolin)
+      NO-LOCK NO-ERROR.
 
-  if avail prodl then
-  find first prod
-      where prod.company eq cocode
-        and prod.prolin  eq prodl.prolin
-      no-lock no-error.
+  IF AVAIL prodl THEN
+  FIND FIRST prod
+      WHERE prod.company EQ cocode
+        AND prod.prolin  EQ prodl.prolin
+      NO-LOCK NO-ERROR.
 
-  v-newhdr = no. 
-  release po-ord.
-  if {1}.rita-code ne "E" AND {1}.rita-code ne "I" and int({1}.po-no) ne 0 then
-      find first po-ord   where po-ord.company eq cocode
-                            and po-ord.po-no   eq int({1}.po-no)
-          NO-LOCK no-error.
+  v-newhdr = NO. 
+  RELEASE po-ord.
+  IF {1}.rita-code NE "E" AND {1}.rita-code NE "I" AND int({1}.po-no) NE 0 THEN
+      FIND FIRST po-ord   WHERE po-ord.company EQ cocode
+                            AND po-ord.po-no   EQ int({1}.po-no)
+          NO-LOCK NO-ERROR.
           
  /*     for each {2} where {2}.r-no eq {1}.r-no:  */
-  release po-ordl.
-  if avail po-ord then
-        find first po-ordl where po-ordl.company   eq cocode
-                             and po-ordl.po-no     eq po-ord.po-no
-                             and po-ordl.i-no      eq {1}.i-no
-                             and po-ordl.deleted   eq no
-                             and po-ordl.item-type eq no
+  RELEASE po-ordl.
+  IF AVAIL po-ord THEN
+        FIND FIRST po-ordl WHERE po-ordl.company   EQ cocode
+                             AND po-ordl.po-no     EQ po-ord.po-no
+                             AND po-ordl.i-no      EQ {1}.i-no
+                             AND po-ordl.deleted   EQ NO
+                             AND po-ordl.item-type EQ NO
                              AND po-ordl.stat NE "C"
-             USE-INDEX po-no no-error.
+             USE-INDEX po-no NO-ERROR.
         IF NOT AVAIL po-ordl THEN
-        find first po-ordl  where po-ordl.company   eq cocode
-                              and po-ordl.po-no     eq po-ord.po-no
-                              and po-ordl.i-no      eq {1}.i-no
-                              and po-ordl.deleted   eq no
-                              and po-ordl.item-type eq no
-                        no-error.
+        FIND FIRST po-ordl  WHERE po-ordl.company   EQ cocode
+                              AND po-ordl.po-no     EQ po-ord.po-no
+                              AND po-ordl.i-no      EQ {1}.i-no
+                              AND po-ordl.deleted   EQ NO
+                              AND po-ordl.item-type EQ NO
+                        NO-ERROR.
   
   IF {1}.inv-no GT 0 AND "{1}" = "w-fg-rctd" THEN
     ASSIGN
@@ -134,30 +134,30 @@
   DO:
 
   /** Adjusting the Finish Good item quantitys **/
-  if {1}.rita-code eq "R" then do:           /** RECEIPTS **/
+  IF {1}.rita-code EQ "R" THEN DO:           /** RECEIPTS **/
           v-reduce-qty = 0.
 
           RELEASE job.
 
-          if avail po-ordl then do:
+          IF AVAIL po-ordl THEN DO:
             IF LOOKUP(po-ordl.cons-uom,fg-uom-list) GT 0 THEN
               v-reduce-qty = po-ordl.cons-qty.
             ELSE
-            if po-ordl.cons-qty ne 0 then
-              run sys/ref/convquom.p(input po-ordl.cons-uom,
-                                     input "EA", input 0,
-                                     input po-ordl.s-len,
-                                     input po-ordl.s-wid,
-                                     input 0,
-                                     input po-ordl.cons-qty,
-                                     output v-reduce-qty).
+            IF po-ordl.cons-qty NE 0 THEN
+              RUN sys/ref/convquom.p(INPUT po-ordl.cons-uom,
+                                     INPUT "EA", INPUT 0,
+                                     INPUT po-ordl.s-len,
+                                     INPUT po-ordl.s-wid,
+                                     INPUT 0,
+                                     INPUT po-ordl.cons-qty,
+                                     OUTPUT v-reduce-qty).
 
-            assign v-overrun-qty     = v-reduce-qty * (1 - (po-ordl.over-pct / 100))
+            ASSIGN v-overrun-qty     = v-reduce-qty * (1 - (po-ordl.over-pct / 100))
                    v-underrun-qty    = v-reduce-qty * (1 - (po-ordl.under-pct / 100))
                    po-ordl.t-rec-qty = po-ordl.t-rec-qty + {1}.t-qty.
 
-            if po-ordl.t-rec-qty ge v-underrun-qty then do:
-               assign  v-reduce-qty = min(v-reduce-qty,v-reduce-qty - po-ordl.t-rec-qty + {1}.t-qty)
+            IF po-ordl.t-rec-qty GE v-underrun-qty THEN DO:
+               ASSIGN  v-reduce-qty = min(v-reduce-qty,v-reduce-qty - po-ordl.t-rec-qty + {1}.t-qty)
                        po-ordl.stat = "C".       
                /*find first b-po-ordl  where b-po-ordl.company eq po-ord.company
                                        and b-po-ordl.po-no   eq po-ord.po-no
@@ -166,16 +166,16 @@
                                         and recid(b-po-ordl)  ne recid(po-ordl)
                               no-lock no-error.
                if not avail b-po-ordl then po-ord.stat = "C".*/
-            end.
-            else po-ordl.stat = "P".
-            if v-reduce-qty lt 0 then v-reduce-qty = 0.
-            if po-ordl.stat ne "C" then  v-reduce-qty = min({1}.t-qty,v-reduce-qty). 
+            END.
+            ELSE po-ordl.stat = "P".
+            IF v-reduce-qty LT 0 THEN v-reduce-qty = 0.
+            IF po-ordl.stat NE "C" THEN  v-reduce-qty = min({1}.t-qty,v-reduce-qty). 
 
             {1}.invoiced = YES.
-          end.   /* avail po-ordl */
+          END.   /* avail po-ordl */
 
           ELSE  
-          IF {1}.job-no ne "" THEN
+          IF {1}.job-no NE "" THEN
           FIND FIRST job NO-LOCK
               WHERE job.company EQ cocode
                 AND job.job-no  EQ {1}.job-no
@@ -219,12 +219,12 @@
                 v-reduce-qty = v-reduce-qty - (ACCUM TOTAL fg-act.qty).
             END.
  
-            find first sys-ctrl no-lock
-                where sys-ctrl.company eq job.company
-                  and sys-ctrl.name    eq "AUTOISSU"
-                no-error.
+            FIND FIRST sys-ctrl NO-LOCK
+                WHERE sys-ctrl.company EQ job.company
+                  AND sys-ctrl.name    EQ "AUTOISSU"
+                NO-ERROR.
                 
-            if avail sys-ctrl and sys-ctrl.char-fld eq "FGPost" then do:
+            IF AVAIL sys-ctrl AND sys-ctrl.char-fld EQ "FGPost" THEN DO:
               v-one-item = TRIM(job.est-no) NE "" AND
                            CAN-FIND(FIRST est
                                     WHERE est.company   EQ job.company
@@ -232,14 +232,14 @@
                                       AND (est.est-type EQ 2 OR
                                            est.est-type EQ 6)).
 
-              for each job-hdr no-lock
-                  where job-hdr.company eq job.company
-                    and job-hdr.job     eq job.job
-                    and job-hdr.job-no  eq job.job-no
-                    and job-hdr.job-no2 eq job.job-no2
-                    and job-hdr.i-no    eq {1}.i-no:
-                accumulate job-hdr.qty (total).
-              end.
+              FOR EACH job-hdr NO-LOCK
+                  WHERE job-hdr.company EQ job.company
+                    AND job-hdr.job     EQ job.job
+                    AND job-hdr.job-no  EQ job.job-no
+                    AND job-hdr.job-no2 EQ job.job-no2
+                    AND job-hdr.i-no    EQ {1}.i-no:
+                ACCUMULATE job-hdr.qty (TOTAL).
+              END.
 
               IF (ACCUM TOTAL job-hdr.qty) NE 0 THEN
               FOR EACH job-hdr NO-LOCK
@@ -382,20 +382,20 @@
                   RUN jc/jc-autop.p (ROWID(job-mat), 0, v-dec).
                 END.
               END.
-            end.
-          end.   /* else */
+            END.
+          END.   /* else */
 
-          assign
+          ASSIGN
            itemfg.q-prod     = itemfg.q-prod     + {2}.t-qty
            itemfg.q-prod-ptd = itemfg.q-prod-ptd + {2}.t-qty
            itemfg.q-prod-ytd = itemfg.q-prod-ytd + {2}.t-qty
            itemfg.q-onh      = itemfg.q-onh      + {2}.t-qty
            itemfg.q-ono      = itemfg.q-ono      - v-reduce-qty. 
           RUN fg/chkfgloc.p (INPUT itemfg.i-no, INPUT {2}.loc).
-          if itemfg.def-loc eq "" and itemfg.def-loc-bin eq "" then
-            assign itemfg.def-loc     = {2}.loc
+          IF itemfg.def-loc EQ "" AND itemfg.def-loc-bin EQ "" THEN
+            ASSIGN itemfg.def-loc     = {2}.loc
                    itemfg.def-loc-bin = {2}.loc-bin.          
-          if itemfg.q-ono lt 0 THEN
+          IF itemfg.q-ono LT 0 THEN
               itemfg.q-ono = 0.             
 
           FIND FIRST itemfg-loc 
@@ -405,12 +405,12 @@
               EXCLUSIVE-LOCK NO-ERROR.
           IF AVAIL itemfg-loc THEN DO:
               IF AVAIL job THEN
-                  FIND FIRST job-hdr no-lock
-                    where job-hdr.company eq job.company
-                      and job-hdr.job     eq job.job
-                      and job-hdr.job-no  eq job.job-no
-                      and job-hdr.job-no2 eq job.job-no2
-                      and job-hdr.i-no    eq {1}.i-no
+                  FIND FIRST job-hdr NO-LOCK
+                    WHERE job-hdr.company EQ job.company
+                      AND job-hdr.job     EQ job.job
+                      AND job-hdr.job-no  EQ job.job-no
+                      AND job-hdr.job-no2 EQ job.job-no2
+                      AND job-hdr.i-no    EQ {1}.i-no
                       NO-ERROR.
               IF {2}.po-no GT "" THEN
                   FIND FIRST po-ordl WHERE po-ordl.company EQ {2}.company
@@ -421,7 +421,7 @@
                   FIND po-ord WHERE po-ord.company = po-ordl.company
                     AND po-ord.po-no = po-ordl.po-no 
                   NO-LOCK NO-ERROR.
-              assign
+              ASSIGN
                itemfg-loc.q-prod     = itemfg-loc.q-prod     + {2}.t-qty
                itemfg-loc.q-prod-ptd = itemfg-loc.q-prod-ptd + {2}.t-qty
                itemfg-loc.q-prod-ytd = itemfg-loc.q-prod-ytd + {2}.t-qty
@@ -453,27 +453,27 @@
                     itemfg-loc.q-ono      = itemfg-loc.q-ono      - v-reduce-qty.
                
              END.
-             IF AVAIL itemfg-loc AND itemfg-loc.q-ono lt 0 THEN
+             IF AVAIL itemfg-loc AND itemfg-loc.q-ono LT 0 THEN
                       itemfg-loc.q-ono = 0.
               
               FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
           END.
 
-          run fg/comp-upd.p (recid(itemfg), v-reduce-qty * -1, "q-ono",v-est-no).
+          RUN fg/comp-upd.p (RECID(itemfg), v-reduce-qty * -1, "q-ono",v-est-no).
 
           IF {2}.pur-uom NE itemfg.prod-uom              AND
              (LOOKUP({2}.pur-uom,fg-uom-list)     EQ 0 OR
               LOOKUP(itemfg.prod-uom,fg-uom-list) EQ 0)  THEN
-          run sys/ref/convcuom.p({2}.pur-uom, itemfg.prod-uom, 0, 0, 0, 0,
-                                 itemfg.last-cost, output itemfg.last-cost).
+          RUN sys/ref/convcuom.p({2}.pur-uom, itemfg.prod-uom, 0, 0, 0, 0,
+                                 itemfg.last-cost, OUTPUT itemfg.last-cost).
 
           IF AVAIL job THEN DO:
-              FIND FIRST job-hdr no-lock
-                where job-hdr.company eq job.company
-                  and job-hdr.job     eq job.job
-                  and job-hdr.job-no  eq job.job-no
-                  and job-hdr.job-no2 eq job.job-no2
-                  and job-hdr.i-no    eq {1}.i-no
+              FIND FIRST job-hdr NO-LOCK
+                WHERE job-hdr.company EQ job.company
+                  AND job-hdr.job     EQ job.job
+                  AND job-hdr.job-no  EQ job.job-no
+                  AND job-hdr.job-no2 EQ job.job-no2
+                  AND job-hdr.i-no    EQ {1}.i-no
                   NO-ERROR.
                     
               IF AVAIL job-hdr AND (job-hdr.std-tot-cost GT 0
@@ -497,10 +497,10 @@
           END.
 
                                
-  end.  /* rita-code = "r" */
-  else if {1}.rita-code eq "S" then DO:      /** SHIPPMENTS **/
+  END.  /* rita-code = "r" */
+  ELSE IF {1}.rita-code EQ "S" THEN DO:      /** SHIPPMENTS **/
   
-       assign
+       ASSIGN
            itemfg.q-ytd      = itemfg.q-ytd - {2}.t-qty
            itemfg.q-ship     = itemfg.q-ship + {2}.t-qty
            itemfg.q-ship-ptd = itemfg.q-ship-ptd + {2}.t-qty
@@ -513,7 +513,7 @@
              AND itemfg-loc.i-no    EQ itemfg.i-no
              AND itemfg-loc.loc     EQ {2}.loc
            EXCLUSIVE-LOCK NO-ERROR.
-       assign
+       ASSIGN
            itemfg-loc.q-ytd      = itemfg-loc.q-ytd - {2}.t-qty
            itemfg-loc.q-ship     = itemfg-loc.q-ship + {2}.t-qty
            itemfg-loc.q-ship-ptd = itemfg-loc.q-ship-ptd + {2}.t-qty
@@ -522,8 +522,8 @@
        FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
  
   END.
-  else if {1}.rita-code eq "T" then DO:        /** TRANSFERS **/
-       assign
+  ELSE IF {1}.rita-code EQ "T" THEN DO:        /** TRANSFERS **/
+       ASSIGN
            itemfg.q-tran     = itemfg.q-tran + {2}.t-qty
            itemfg.q-tran-ptd = itemfg.q-tran-ptd + {2}.t-qty.
 
@@ -560,9 +560,9 @@
        END.
 
   END.
-  else if {1}.rita-code eq "A" then DO:       /** ADJUSTMENTS **/
+  ELSE IF {1}.rita-code EQ "A" THEN DO:       /** ADJUSTMENTS **/
   
-       assign
+       ASSIGN
            itemfg.q-adj     = itemfg.q-adj  + {2}.t-qty
            itemfg.q-adj-ytd = itemfg.q-adj-ytd  + {2}.t-qty
            itemfg.q-adj-ptd = itemfg.q-adj-ptd  + {2}.t-qty
@@ -574,7 +574,7 @@
              AND itemfg-loc.loc     EQ {2}.loc
            EXCLUSIVE-LOCK NO-ERROR.
        IF AVAIL itemfg-loc THEN DO:
-         assign
+         ASSIGN
            itemfg-loc.q-adj     = itemfg-loc.q-adj  + {2}.t-qty
            itemfg-loc.q-adj-ytd = itemfg-loc.q-adj-ytd  + {2}.t-qty
            itemfg-loc.q-adj-ptd = itemfg-loc.q-adj-ptd  + {2}.t-qty
@@ -583,9 +583,9 @@
        END.
 
   END.
-  else if {1}.rita-code eq "E" then DO:      /** CREDIT RETURNS **/
+  ELSE IF {1}.rita-code EQ "E" THEN DO:      /** CREDIT RETURNS **/
   
-       assign
+       ASSIGN
            itemfg.q-ytd      = itemfg.q-ytd + {2}.t-qty
            itemfg.q-ship     = itemfg.q-ship - {2}.t-qty
            itemfg.q-ship-ptd = itemfg.q-ship-ptd - {2}.t-qty
@@ -619,13 +619,13 @@
   IF AVAIL itemfg-loc THEN DO:
       itemfg-loc.q-avail = itemfg-loc.q-onh + itemfg-loc.q-ono - itemfg-loc.q-alloc.
   
-      if itemfg.q-ship-ptd lt 0 then DO:
+      IF itemfg.q-ship-ptd LT 0 THEN DO:
           itemfg.q-ship-ptd = 0.
           IF AVAIL itemfg-loc THEN
             itemfg-loc.q-ship-ptd = 0.
       END.
           
-      if itemfg.q-ship-ytd lt 0 then do: 
+      IF itemfg.q-ship-ytd LT 0 THEN DO: 
           itemfg.q-ship-ytd = 0.
           IF AVAIL itemfg-loc THEN
               itemfg-loc.q-ship-ytd = 0.
@@ -633,24 +633,35 @@
       FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
   END.
 
-  find first job-hdr where job-hdr.company eq cocode
-                          and job-hdr.job-no  eq {1}.job-no
-                          and job-hdr.job-no2 eq {1}.job-no2
-                          and job-hdr.i-no    eq {1}.i-no
-                no-lock no-error.
-  find first fg-bin where fg-bin.company eq cocode
-                      and fg-bin.i-no    eq {1}.i-no
-                      and fg-bin.job-no  eq {1}.job-no
-                      and fg-bin.job-no2 eq {1}.job-no2
-                      and fg-bin.loc     eq {2}.loc
-                      and fg-bin.loc-bin eq {2}.loc-bin
-                      and fg-bin.tag     eq {2}.tag
-                      and fg-bin.cust-no eq {2}.cust-no
-            USE-INDEX co-ino no-error.
-  if not avail fg-bin then
-         if INDEX("REA",{1}.rita-code) GT 0 then do:
-            create fg-bin.
-            assign
+  FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
+                          AND job-hdr.job-no  EQ {1}.job-no
+                          AND job-hdr.job-no2 EQ {1}.job-no2
+                          AND job-hdr.i-no    EQ {1}.i-no
+                NO-LOCK NO-ERROR.
+                
+  RUN fg/searchBin (INPUT cocode, INPUT {1}.job-no, INPUT {1}.job-no2,
+      INPUT 0 /* OrdNo */, INPUT {1}.i-no, INPUT ABSOLUTE({1}.qty),
+      INPUT {2}.loc, INPUT {2}.loc-bin, INPUT "" /* bolWhse */, INPUT {2}.tag, 
+      OUTPUT rFgBinRow).
+
+  IF rFgBinRow NE ? THEN 
+      FIND FIRST fg-bin NO-LOCK WHERE ROWID(fg-bin) EQ rFgBinRow NO-ERROR.
+         
+  IF NOT AVAILABLE fg-bin THEN       
+    FIND FIRST fg-bin WHERE fg-bin.company EQ cocode
+                        AND fg-bin.i-no    EQ {1}.i-no
+                        AND fg-bin.job-no  EQ {1}.job-no
+                        AND fg-bin.job-no2 EQ {1}.job-no2
+                        AND fg-bin.loc     EQ {2}.loc
+                        AND fg-bin.loc-bin EQ {2}.loc-bin
+                        AND fg-bin.tag     EQ {2}.tag
+                        AND fg-bin.cust-no EQ {2}.cust-no
+              USE-INDEX co-ino NO-ERROR.
+              
+  IF NOT AVAIL fg-bin THEN
+         IF INDEX("REA",{1}.rita-code) GT 0 THEN DO:
+            CREATE fg-bin.
+            ASSIGN
              fg-bin.company    = cocode
              fg-bin.i-no       = {1}.i-no
              fg-bin.job-no     = {1}.job-no
@@ -659,8 +670,8 @@
              fg-bin.loc-bin    = {2}.loc-bin
              fg-bin.tag        = {2}.tag
              fg-bin.cust-no    = {2}.cust-no.
-         end.
-         else return error.  /*undo {3}, next {3}. */
+         END.
+         ELSE RETURN ERROR.  /*undo {3}, next {3}. */
 
   /* Transfer don't have PO # populated, so take from the "from" bin */
   IF NOT {1}.rita-code EQ "T" AND NOT ({1}.rita-code EQ "A" AND {1}.qty LT 0) THEN
@@ -676,8 +687,8 @@
   IF fg-bin.cases-unit   LE 0 THEN fg-bin.cases-unit   = {2}.cases-unit.
 
   /* For Transfers from & Shipments decrease the quantity in the BIN */
-  if index("TS",{1}.rita-code) ne 0 then
-    assign
+  IF INDEX("TS",{1}.rita-code) NE 0 THEN
+    ASSIGN
      fg-bin.qty           = fg-bin.qty - {2}.t-qty
      fg-bin.partial-count = fg-bin.partial-count - {2}.partial.
 
@@ -686,8 +697,8 @@
       {2}.po-no = fg-bin.po-no.
 
   /* For Receipts increase the quantity in the BIN */
-  else 
-  if {1}.rita-code eq "R" then do:
+  ELSE 
+  IF {1}.rita-code EQ "R" THEN DO:
     ld-cvt-cost = {2}.ext-cost / {2}.t-qty * 1000.
     IF {2}.cost-uom NE "M" THEN
       RUN sys/ref/convcuom.p("M", {2}.cost-uom, 0,
@@ -695,10 +706,10 @@
                              IF AVAIL po-ordl THEN po-ordl.s-wid ELSE 0,
                              0, ld-cvt-cost, OUTPUT ld-cvt-cost).
     {fg/upd-bin.i "fg-bin" "{2}.cost-uom" "ld-cvt-cost" {2}}
-  end.
-  else 
-  if {1}.rita-code eq "A" or {1}.rita-code eq "E" then
-    assign
+  END.
+  ELSE 
+  IF {1}.rita-code EQ "A" OR {1}.rita-code EQ "E" THEN
+    ASSIGN
      fg-bin.qty           = fg-bin.qty + {2}.t-qty
      fg-bin.partial-count = fg-bin.partial-count + {2}.partial.
 
@@ -763,7 +774,7 @@
   IF NOT AVAIL fg-rdtlh THEN DO:
   
 
-    create fg-rdtlh.
+    CREATE fg-rdtlh.
     {fg/fg-rdtl.i fg-rdtlh {2}} /* Create Detail History Records */
     {fg/fg-fgact.i {1} {2}}         /* Create Job Costing F/G WIP Record */
     ASSIGN fg-rdtlh.user-id = USERID('nosweat')
@@ -771,7 +782,7 @@
            fg-rdtlh.upd-time = TIME.
   END.
 
-  create fg-rcpth.
+  CREATE fg-rcpth.
   {fg/fg-rcpts.i fg-rcpth {1}}  /* Create Header History Records */
   ASSIGN fg-rcpth.user-id = USERID('nosweat')
          fg-rcpth.upd-date = TODAY
