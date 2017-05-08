@@ -326,8 +326,9 @@ FOR EACH probeit
 
             dBoardCst = dBoardCst + (brd.cost-m * blk.pct * (t-blkqty[ef.form-no] / 1000)).
         END.
-        dBoardCst = dBoardCst / (v-qty / 1000).
-  
+/*        dBoardCst = dBoardCst / (v-qty / 1000).*/
+
+   
         IF probeit.fact-cost GT 0 THEN 
             dBoardPct = dBoardCst / probeit.fact-cost * 100.
         IF AVAILABLE reftable THEN 
