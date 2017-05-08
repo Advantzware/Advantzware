@@ -330,7 +330,7 @@ FOR EACH probeit
 
    
         IF probeit.fact-cost GT 0 THEN 
-            dBoardPct = dBoardCst / probeit.fact-cost * 100.
+            dBoardPct = (dBoardCst / (v-qty / 1000)) / probeit.fact-cost * 100.
         IF AVAILABLE reftable THEN 
         DO:
             reftable.val[6] = dTotalManHrs.
