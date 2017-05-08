@@ -645,7 +645,7 @@
       OUTPUT rFgBinRow).
 
   IF rFgBinRow NE ? THEN 
-      FIND FIRST fg-bin NO-LOCK WHERE ROWID(fg-bin) EQ rFgBinRow NO-ERROR.
+      FIND FIRST fg-bin EXCLUSIVE-LOCK WHERE ROWID(fg-bin) EQ rFgBinRow NO-ERROR.
          
   IF NOT AVAILABLE fg-bin THEN       
     FIND FIRST fg-bin WHERE fg-bin.company EQ cocode
