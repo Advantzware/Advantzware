@@ -2495,7 +2495,7 @@ PROCEDURE calc-blank-size :
           bf-eb.k-wid-array2 = 0
           bf-eb.k-len-array2 = 0.
       
-      IF NOT lv-panels OR style.type = "F" THEN 
+      if /*not lv-panels or*/ style.type = "F" then 
          ASSIGN bf-eb.k-wid-array2[1] = bf-eb.t-wid
                 bf-eb.k-len-array2[1] = bf-eb.t-len
                 .
