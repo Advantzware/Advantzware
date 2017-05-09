@@ -58,11 +58,11 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "JOB #,CUSTOMER,RM ITEM#,RM QTY RECD,FG ITEM#,FG QTY INVCD," + 
-                           "DIFFERENCE,FG QTY RECD,DIFFERENCE2,WASTE%,BOARD COST,FG MSF,RM MSF"
+                           "DIFFERENCE,FG QTY RECD,DIFFERENCE2,WASTE%,BOARD COST,FG MSF,RM MSF,INVOICE DATE"
        cFieldListToSelect = "job,cust,rm-itm,rm-qty,fg-itm,fg-qty-in," +
-                            "diff,fg-qty-re,diff2,wast,brd-cst,t-msf,t-msf-rm"
-       cFieldLength = "9,25,15,12,15,12," + "12,12,12,11,10,11,11"
-       cFieldType = "c,c,c,i,c,i," + "i,i,i,i,i,i,i" 
+                            "diff,fg-qty-re,diff2,wast,brd-cst,t-msf,t-msf-rm,inv-date"
+       cFieldLength = "9,25,15,12,15,12," + "12,12,12,11,10,11,11,12"
+       cFieldType = "c,c,c,i,c,i," + "i,i,i,i,i,i,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1335,6 +1335,8 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEF VAR dInvdt AS DATE NO-UNDO.
+
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1473,6 +1475,8 @@ ASSIGN
 
       v-job = fill(" ",6 - length(trim(job.job-no))) +
               trim(job.job-no) + "-" + string(job.job-no2,"99").
+        ASSIGN dInvdt = ar-inv.inv-date.
+        
 
       find first tt-report
           where tt-report.term-id EQ ""
@@ -1695,6 +1699,7 @@ ASSIGN
              no-lock:
 
            v-qty = ar-invl.inv-qty.
+           ASSIGN dInvdt = ar-inv.inv-date.
 
            v-in-qty[1] = v-in-qty[1] + v-qty.
          end.
@@ -1794,6 +1799,8 @@ IF tb_excel THEN
                  WHEN "brd-cst"   THEN cVarValue = string(v-brdcst,">>>>>>9.99") . 
                  WHEN "t-msf"     THEN cVarValue = string(v-msf,"->>>,>>9.99") .
                  WHEN "t-msf-rm"  THEN cVarValue = string(v-msf-rm,"->>>,>>9.99") .
+                 WHEN "inv-date"  THEN cVarValue = IF dInvdt <> ? THEN STRING(dInvdt,"99/99/9999") ELSE ""      .
+
 
             END CASE.
 
@@ -1882,6 +1889,7 @@ IF tb_excel THEN
                            WHEN "brd-cst"   THEN cVarValue = "" . 
                            WHEN "t-msf"     THEN cVarValue = "" .
                            WHEN "t-msf-rm"  THEN cVarValue = "" .
+                           WHEN "inv-date"  THEN cVarValue = "" .
 
                       END CASE.
 
@@ -1957,6 +1965,7 @@ IF tb_excel THEN
                            WHEN "brd-cst"   THEN cVarValue = "" . 
                            WHEN "t-msf"     THEN cVarValue = "" .
                            WHEN "t-msf-rm"  THEN cVarValue = "" .
+                           WHEN "inv-date"  THEN cVarValue = "" .
 
                       END CASE.
 
@@ -2029,6 +2038,7 @@ IF tb_excel THEN
                            WHEN "brd-cst"   THEN cVarValue = "" . 
                            WHEN "t-msf"     THEN cVarValue = "" .
                            WHEN "t-msf-rm"  THEN cVarValue = "" .
+                           WHEN "inv-date"  THEN cVarValue = "" .
 
                       END CASE.
 
