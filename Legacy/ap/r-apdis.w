@@ -1098,7 +1098,7 @@ IF td-show-parm THEN RUN show-param.
      {ap/ap-dreg.i "d-no"}
    end.
 
-   display  "** GRAND TOTAL  "  at 90  g2 to 128
+   display  "** GRAND TOTAL  "  at 90  g2 FORMAT "9,999,999.99" to 128
    with no-labels no-underline STREAM-IO width 132 frame gt.
 
    hide frame f-top.
@@ -1149,13 +1149,13 @@ IF td-show-parm THEN RUN show-param.
       accumulate ap-disl.amt (total).
       if last-of(ap-disl.actnum) then do:
          put "** TOTAL "  to 116
-             accum total by ap-disl.actnum ap-disl.amt to 129
+             accum total by ap-disl.actnum ap-disl.amt to 130
                          skip(1).
       end.
       v-postable = YES.
    end.
    put "***** TOTAL FOR ALL ACCOUNTS " to 116
-       accum total ap-disl.amt to 129.
+       accum total ap-disl.amt FORMAT "9,999,999.99" to 129.
 
 
   SESSION:SET-WAIT-STATE ("").

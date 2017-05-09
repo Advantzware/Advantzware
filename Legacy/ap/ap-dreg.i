@@ -32,7 +32,7 @@
       end. /* each ap-disl */
       if last-of(ap-dis.{1}) then do:
 	 if sort-by-vend then
-	   display  "*  VENDOR TOTALS" at 90 v2 to 128 "*" skip(1)
+	   display  "*  VENDOR TOTALS" at 90 v2 FORMAT "9,999,999.99" to 128 "*" skip(1)
 	       with frame vtot-{1} no-box no-labels width 132 STREAM-IO.
 	 g1 = g1 + v1.
 	 g2 = g2 + v2.
