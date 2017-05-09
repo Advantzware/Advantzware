@@ -83,6 +83,9 @@ DEF VAR v-uid-sec AS LOG NO-UNDO.
 DEF VAR v-access-close AS LOG NO-UNDO.
 DEF VAR v-access-list AS CHAR NO-UNDO.
 DEF VAR v-source-handle AS HANDLE NO-UNDO.
+DEFINE VARIABLE cRtnChar          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound         AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE RmKeepZeroBin-log AS LOGICAL   NO-UNDO.
 {jc/jcgl-sh.i NEW}
 
 DEF TEMP-TABLE tt-rctd NO-UNDO LIKE rm-rctd FIELD tt-row-id AS ROWID
@@ -161,7 +164,13 @@ RUN methods/prgsecur.p
      OUTPUT v-uid-sec, /* Allowed? Yes/NO */
      OUTPUT v-access-close, /* used in template/windows.i  */
      OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
-
+     
+RUN sys/ref/nk1look.p (INPUT cocode, "RMKEEPZEROBIN", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    RmKeepZeroBin-log = LOGICAL(cRtnChar) NO-ERROR.
+    
 DEF VAR v-pr-tots AS LOG FORMAT "Y/N" NO-UNDO.
 DEF {1} SHARED VAR v-print-fmt  AS CHAR NO-UNDO.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
@@ -1868,6 +1877,10 @@ v-avg-cst = rm-ctrl.avg-lst-cst.
           item.u-ptd     = item.u-ptd + (rm-rctd.cost * rm-rctd.qty)
           item.u-ytd     = item.u-ytd + (rm-rctd.cost * rm-rctd.qty)
           item.q-avail   = item.q-onh + item.q-ono - item.q-comm.
+          
+          IF NOT RmKeepZeroBin-log AND rm-bin.qty EQ 0 THEN
+            DELETE rm-bin. 
+            
       END.  /* I */
 
       ELSE
