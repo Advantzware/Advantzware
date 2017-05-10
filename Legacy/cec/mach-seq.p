@@ -8,7 +8,7 @@ DEFINE INPUT PARAMETER iplBuildCombo AS LOG NO-UNDO.
 
 {sys/inc/var.i shared}
 
-/*DEFINE VARIABLE riTempRec AS RECID.*/
+DEFINE VARIABLE riTempRec AS RECID.
 
 DEFINE SHARED BUFFER xest FOR est.
 DEFINE SHARED BUFFER xef  FOR ef.
@@ -49,12 +49,6 @@ DEFINE VARIABLE ll-label         AS LOG       NO-UNDO.
 DEFINE VARIABLE op-farmout       AS LOG       NO-UNDO.
 DEFINE VARIABLE op-valid-mach    AS LOG       NO-UNDO.
 
-/*From CEPANEL*/
-DEFINE VARIABLE iCharCounter     AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iPanel           AS INTEGER   NO-UNDO.
-DEFINE VARIABLE cCharPrev        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cCharNext        AS CHARACTER NO-UNDO.
-DEFINE VARIABLE dDimensionToTest AS DECIMAL   NO-UNDO.
 
 DEFINE BUFFER m2-lst FOR m-lst.
 
@@ -71,7 +65,7 @@ DEFINE BUFFER m2-lst FOR m-lst.
 SESSION:SET-WAIT-STATE("general").
 
 {cec/msfcalc.i}
-{sys/inc/cepanel.i}
+/*{sys/inc/cepanel.i}*/
 
 {sys/inc/cercrout.i}
 
