@@ -97,8 +97,8 @@ ASSIGN cTextListToDefault  = "Whse,Item,Description,Bin,Tag," +
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE WINDOW
-&SCOPED-DEFINE DB-AWARE NO
+&SCOPED-DEFINE PROCEDURE-TYPE Window
+&SCOPED-DEFINE DB-AWARE no
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &SCOPED-DEFINE FRAME-NAME FRAME-A
@@ -106,14 +106,14 @@ ASSIGN cTextListToDefault  = "Whse,Item,Description,Bin,Tag," +
 /* Standard List Definitions                                            */
 &SCOPED-DEFINE ENABLED-OBJECTS RECT-6 RECT-7 as-of-date begin_rm-no ~
 end_rm-no begin_whs end_whs begin_procat end_procat begin_mat-type ~
-end_mat-type begin_date end_date tb_zero-bal tb_total-rolls tb_subt tb_grdt ~
-tb_detail tb_estmat sl_avail Btn_Add sl_selected Btn_Remove btn_Up btn_down lv-ornt ~
-lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
-btn-ok btn-cancel Btn_Def
+end_mat-type begin_date end_date rd_item tb_zero-bal tb_total-rolls tb_subt ~
+tb_grdt tb_detail sl_avail Btn_Def Btn_Add sl_selected Btn_Remove btn_Up btn_down ~
+lv-ornt lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel ~
+fi_file btn-ok btn-cancel 
 &SCOPED-DEFINE DISPLAYED-OBJECTS as-of-date begin_rm-no end_rm-no begin_whs ~
 end_whs begin_procat end_procat begin_mat-type end_mat-type begin_date ~
-end_date tb_zero-bal tb_total-rolls tb_subt tb_grdt tb_detail tb_estmat sl_avail ~
-sl_selected lv-ornt lines-per-page rd-dest lv-font-no lv-font-name ~
+end_date rd_item lbl_itm-code-2 tb_zero-bal tb_total-rolls tb_subt tb_grdt ~
+tb_detail sl_avail sl_selected lv-ornt lines-per-page rd-dest lv-font-no lv-font-name ~
 td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
@@ -136,7 +136,7 @@ FUNCTION GetFieldValue RETURNS CHARACTER
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
@@ -228,6 +228,10 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-ibtag.cs
      SIZE 45 BY 1
      FGCOLOR 9 .
 
+DEFINE VARIABLE lbl_itm-code-2 AS CHARACTER FORMAT "X(256)":U INITIAL "Item Code?" 
+     VIEW-AS FILL-IN 
+     SIZE 13 BY .95 NO-UNDO.
+
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
@@ -260,9 +264,17 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
 "To Port Directly", 6
      SIZE 20 BY 6.67 NO-UNDO.
 
+DEFINE VARIABLE rd_item AS CHARACTER INITIAL "Both" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Estimated", "Estimated",
+"Real", "Real",
+"Both", "Both"
+     SIZE 33 BY .95 NO-UNDO.
+
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96 BY 8.33.
+     SIZE 96 BY 8.1.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -280,11 +292,6 @@ DEFINE VARIABLE tb_detail AS LOGICAL INITIAL NO
      LABEL "Show Detail?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tb_estmat AS LOGICAL INITIAL NO 
-     LABEL "Print Est. Mat Only?"   /*Include */
-     VIEW-AS TOGGLE-BOX
-     SIZE 27 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
      LABEL "Export To Excel?" 
@@ -332,34 +339,35 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     as-of-date AT ROW 1.95 COLUMN 72 COLON-ALIGNED
-     begin_rm-no AT ROW 3.14 COLUMN 28 COLON-ALIGNED HELP
+     as-of-date AT ROW 1.52 COLUMN 72 COLON-ALIGNED
+     begin_rm-no AT ROW 2.71 COLUMN 28 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
-     end_rm-no AT ROW 3.14 COLUMN 72 COLON-ALIGNED HELP
+     end_rm-no AT ROW 2.71 COLUMN 72 COLON-ALIGNED HELP
           "Enter Ending Item number"
-     begin_whs AT ROW 4.33 COLUMN 28 COLON-ALIGNED HELP
+     begin_whs AT ROW 3.91 COLUMN 28 COLON-ALIGNED HELP
           "Enter Beginng Warehouse"
-     end_whs AT ROW 4.33 COLUMN 72 COLON-ALIGNED HELP
+     end_whs AT ROW 3.91 COLUMN 72 COLON-ALIGNED HELP
           "Enter Endng Warehouse"
-     begin_procat AT ROW 5.52 COLUMN 28 COLON-ALIGNED HELP
+     begin_procat AT ROW 5.1 COLUMN 28 COLON-ALIGNED HELP
           "Enter Begining Category"
-     end_procat AT ROW 5.52 COLUMN 72 COLON-ALIGNED HELP
+     end_procat AT ROW 5.1 COLUMN 72 COLON-ALIGNED HELP
           "Enter Ending Category"
-     begin_mat-type AT ROW 6.71 COLUMN 28 COLON-ALIGNED HELP
+     begin_mat-type AT ROW 6.29 COLUMN 28 COLON-ALIGNED HELP
           "Enter Beginning Material Type"
-     end_mat-type AT ROW 6.71 COLUMN 72 COLON-ALIGNED HELP
+     end_mat-type AT ROW 6.29 COLUMN 72 COLON-ALIGNED HELP
           "Enter ending Material Type"
-     begin_date AT ROW 7.91 COLUMN 28 COLON-ALIGNED HELP
+     begin_date AT ROW 7.48 COLUMN 28 COLON-ALIGNED HELP
           "Enter Beginning Receipt Date"
-     end_date AT ROW 7.91 COLUMN 72 COLON-ALIGNED HELP
+     end_date AT ROW 7.48 COLUMN 72 COLON-ALIGNED HELP
           "Enter Ending Receipt Date"
-     tb_zero-bal AT ROW 9.33 COLUMN 30
-     tb_total-rolls AT ROW 9.33 COL 58
-     tb_tagask AT ROW 9.33 COLUMN 67
-     tb_subt AT ROW 10.29 COLUMN 30
-     tb_grdt AT ROW 10.29 COLUMN 58
-     tb_detail AT ROW 11.24 COLUMN 30 WIDGET-ID 46 
-     tb_estmat AT ROW 11.24 COLUMN 58 WIDGET-ID 46
+     rd_item AT ROW 8.57 COLUMN 51.4 NO-LABEL WIDGET-ID 52
+     lbl_itm-code-2 AT ROW 8.62 COLUMN 36.2 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     tb_zero-bal AT ROW 9.76 COLUMN 30
+     tb_total-rolls AT ROW 9.76 COLUMN 58.2
+     tb_tagask AT ROW 9.76 COLUMN 64
+     tb_subt AT ROW 10.71 COLUMN 30
+     tb_grdt AT ROW 10.71 COLUMN 58
+     tb_detail AT ROW 11.67 COLUMN 30 WIDGET-ID 46
      sl_avail AT ROW 13.62 COLUMN 7 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 13.67 COLUMN 41 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
@@ -384,14 +392,14 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 28.62 COLUMN 62
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 12.91 COLUMN 3 WIDGET-ID 38
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 12.91 COLUMN 60.4 WIDGET-ID 44
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 20.29 COLUMN 3
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COLUMN 5
           BGCOLOR 2 
-     RECT-6 AT ROW 19.81 COLUMN 1
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 20.29 COLUMN 3
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 12.91 COLUMN 60.4 WIDGET-ID 44
+     RECT-6 AT ROW 20.05 COLUMN 1
      RECT-7 AT ROW 1 COLUMN 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -475,6 +483,14 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_mat-type:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        end_procat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -485,17 +501,16 @@ ASSIGN
 ASSIGN 
        end_whs:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-ASSIGN 
-       end_mat-type:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
 
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+/* SETTINGS FOR FILL-IN lbl_itm-code-2 IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_itm-code-2:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_item".
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
@@ -700,7 +715,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &SCOPED-DEFINE SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
@@ -1270,17 +1284,17 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY as-of-date begin_rm-no end_rm-no begin_whs end_whs begin_procat 
-          end_procat begin_mat-type end_mat-type begin_date end_date tb_zero-bal 
-          tb_total-rolls tb_subt tb_grdt tb_detail tb_estmat sl_avail sl_selected lv-ornt 
-          lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel 
-          tb_runExcel fi_file 
+          end_procat begin_mat-type end_mat-type begin_date end_date rd_item 
+          lbl_itm-code-2 tb_zero-bal tb_total-rolls tb_subt tb_grdt tb_detail 
+          sl_avail sl_selected lv-ornt lines-per-page rd-dest lv-font-no lv-font-name 
+          td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 as-of-date begin_rm-no end_rm-no begin_whs end_whs 
          begin_procat end_procat begin_mat-type end_mat-type begin_date 
-         end_date tb_zero-bal tb_total-rolls tb_subt tb_grdt tb_detail tb_estmat sl_avail 
-         Btn_Add sl_selected Btn_Remove btn_Up btn_down lv-ornt lines-per-page 
-         rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok 
-         btn-cancel Btn_Def
+         end_date rd_item tb_zero-bal tb_total-rolls tb_subt tb_grdt tb_detail 
+         sl_avail Btn_Def Btn_Add sl_selected Btn_Remove btn_Up btn_down lv-ornt 
+         lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel 
+         fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1622,7 +1636,7 @@ DEF BUFFER bf-loadtag FOR loadtag.
 DEFINE VARIABLE chrTotCostVal AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE chrRmBinTag AS CHARACTER FORMAT "x(22)" NO-UNDO.
 DEFINE VARIABLE vpo-gl-act AS CHARACTER NO-UNDO. 
-
+DEFINE VARIABLE ctype AS CHARACTER FORMAT "!"   NO-UNDO INITIAL "B".
 FIND FIRST ce-ctrl NO-LOCK WHERE ce-ctrl.company EQ cocode  NO-ERROR.
 
 ASSIGN
@@ -1640,7 +1654,8 @@ ASSIGN
  zbal    = tb_zero-bal
  psubtot = tb_subt
  pgtot   = tb_grdt
- tagask  = tb_tagask.
+ tagask  = tb_tagask
+ ctype   = substr(rd_item,1,1) .
 
 ASSIGN str-line  = "".
 
@@ -1689,7 +1704,7 @@ SESSION:SET-WAIT-STATE ("general").
   END.
   /* ======= detial ===== */
   ELSE DO:
-  IF NOT tb_estmat THEN do:
+  
   FOR EACH ITEM NO-LOCK
       WHERE ITEM.company           EQ cocode
         AND ITEM.i-no              GE fitm
@@ -1699,10 +1714,10 @@ SESSION:SET-WAIT-STATE ("general").
         AND ITEM.procat            LE tcat
         AND ITEM.mat-type          GE ftyp
         AND ITEM.mat-type          LE ttyp
-        AND ITEM.i-code            EQ "R"  :
+        and (item.i-code  eq ctype or ctype eq "B")  :
      
 
- {custom/statusMsg.i "'Processing Item # ' + string(item.i-no)"} 
+  {custom/statusMsg.i "'Processing Item # ' + string(item.i-no)"} 
 
     RUN rm-mkbin.
 
@@ -1718,40 +1733,8 @@ SESSION:SET-WAIT-STATE ("general").
           RELEASE tt-rm-bin.
        END.
   END.
-  END.
-  ELSE DO: 
-      FOR EACH ITEM  NO-LOCK 
-          WHERE ITEM.company           EQ cocode
-          AND ITEM.i-no              GE fitm
-          AND ITEM.i-no              LE titm
-          AND ITEM.i-no              NE ""
-          AND ITEM.procat            GE fcat
-          AND ITEM.procat            LE tcat
-          AND ITEM.mat-type          GE ftyp
-          AND ITEM.mat-type          LE ttyp
-          AND ITEM.i-code            EQ "E"  :
-        
-
-           {custom/statusMsg.i "'Processing Item # ' + string(item.i-no)"} 
-
-      RUN rm-mkbin.
-      
-      IF zbal AND ITEM.q-onh EQ 0 AND
-          NOT CAN-FIND(FIRST tt-rm-bin WHERE
-                       tt-rm-bin.company EQ ITEM.company AND
-                       tt-rm-bin.i-no EQ ITEM.i-no) THEN
-          DO:
-          CREATE tt-rm-bin.
-          ASSIGN tt-rm-bin.company = ITEM.company
-                 tt-rm-bin.i-no = ITEM.i-no
-                 tt-rm-bin.trans-date = TODAY.
-          RELEASE tt-rm-bin.
-      END.
-     END.
-  END.
-
-  
-  ASSIGN 
+ 
+   ASSIGN 
       vpo-gl-act = "" .
 
   FOR EACH tt-rm-bin  NO-LOCK
@@ -2502,7 +2485,7 @@ DEFINE VARIABLE vpo-gl-act AS CHARACTER NO-UNDO.
 /* rdb 02/06/07 02050701 */
 DEFINE VARIABLE chrTotCostVal AS CHARACTER NO-UNDO.
 DEFINE VARIABLE chrRmBinTag AS CHARACTER FORMAT "x(22)" NO-UNDO.
-
+DEFINE VARIABLE ctype AS CHARACTER FORMAT "!"   NO-UNDO INITIAL "B".
 FIND FIRST ce-ctrl NO-LOCK WHERE ce-ctrl.company EQ cocode NO-ERROR.
 
 ASSIGN
@@ -2520,10 +2503,11 @@ ASSIGN
  zbal    = tb_zero-bal
  psubtot = tb_subt
  pgtot   = tb_grdt
- tagask  = tb_tagask.
+ tagask  = tb_tagask
+ ctype   = substr(rd_item,1,1) .
 
-  IF NOT tb_estmat THEN 
-    FOR EACH ITEM  NO-LOCK 
+  
+ FOR EACH ITEM  NO-LOCK 
     WHERE ITEM.company           EQ cocode
     AND ITEM.i-no              GE fitm
     AND ITEM.i-no              LE titm
@@ -2532,7 +2516,7 @@ ASSIGN
     AND ITEM.procat            LE tcat
     AND ITEM.mat-type          GE ftyp
     AND ITEM.mat-type          LE ttyp
-    AND ITEM.i-code            EQ "R"  :
+    AND (item.i-code  EQ ctype OR ctype EQ "B")  :
   
 
        {custom/statusMsg.i "'Processing Item # ' + string(item.i-no)"} 
@@ -2551,35 +2535,7 @@ ASSIGN
           RELEASE tt-rm-bin.
        END.
     END.
-  ELSE
-      FOR EACH ITEM NO-LOCK 
-       WHERE ITEM.company           EQ cocode
-       AND ITEM.i-no              GE fitm
-       AND ITEM.i-no              LE titm
-       AND ITEM.i-no              NE ""
-       AND ITEM.procat            GE fcat
-       AND ITEM.procat            LE tcat
-       AND ITEM.mat-type          GE ftyp
-       AND ITEM.mat-type          LE ttyp
-       AND ITEM.i-code            EQ "E" :
-     
-
-       {custom/statusMsg.i "'Processing Item # ' + string(item.i-no)"} 
-
-       RUN rm-mkbin.
-       
-       IF zbal AND ITEM.q-onh EQ 0 AND
-          NOT CAN-FIND(FIRST tt-rm-bin WHERE
-          tt-rm-bin.company EQ ITEM.company AND
-          tt-rm-bin.i-no EQ ITEM.i-no) THEN
-          DO:
-             CREATE tt-rm-bin.
-             ASSIGN tt-rm-bin.company = ITEM.company
-                    tt-rm-bin.i-no = ITEM.i-no
-                    tt-rm-bin.trans-date = TODAY.
-             RELEASE tt-rm-bin.
-          END.
-       END.
+  
 
 
   
