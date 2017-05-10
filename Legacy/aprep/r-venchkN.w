@@ -1628,7 +1628,9 @@ DEF VAR cslist AS cha NO-UNDO.
  END.
 
 {sys/inc/print1.i}
-
+IF rd-dest EQ 1 THEN
+    IF lines-per-page GT 90  THEN
+        ASSIGN lines-per-page = 90 .
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
 IF td-show-parm THEN RUN show-param.
