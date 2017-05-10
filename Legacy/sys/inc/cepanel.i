@@ -1,11 +1,5 @@
-
-def var v-int as int no-undo.
-def var v-panel as int no-undo.
 def var v-cepanel-log like sys-ctrl.log-fld no-undo.
 def var v-cepanel-cha like sys-ctrl.char-fld no-undo.
-def var v-prev as char no-undo.
-def var v-next as char no-undo.
-def var v-dec as dec no-undo.
 
 do transaction:
   find first sys-ctrl
