@@ -2069,7 +2069,7 @@ PROCEDURE valid-mach :
   DEFINE BUFFER bf-ef FOR ef.
   
 
-  {sys/inc/cepanel.i}
+/*  {sys/inc/cepanel.i} - deprecated with 17756*/
 
   RUN is-it-foam.
 

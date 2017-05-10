@@ -28,7 +28,7 @@ FIND FIRST style NO-LOCK
    NO-ERROR.
 
 IF AVAIL style THEN DO:
-  {sys/inc/cepanel.i}
+/*  {sys/inc/cepanel.i} - Deprecated with 17756*/
 
   v-on-f = ip-on-f.
 
