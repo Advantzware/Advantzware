@@ -261,17 +261,17 @@ FUNCTION display-cw-dim RETURNS DECIMAL
 
                v-len-array1 = "".
                DO a-i = 1 TO 28:
-                 IF bf-xeb.k-len-array2[a-i] GT 0 THEN
-                 v-len-array1[a-i] = STRING(bf-xeb.k-len-array2[a-i]).
-                 IF bf-xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array1[a-i], ".") EQ 0 THEN
+                 IF bf-xeb.k-wid-array2[a-i] GT 0 THEN
+                 v-len-array1[a-i] = STRING(bf-xeb.k-wid-array2[a-i]).
+                 IF bf-xeb.k-wid-array2[a-i] GT 0 AND INDEX(v-len-array1[a-i], ".") EQ 0 THEN
                  v-len-array1[a-i] = v-len-array1[a-i] + ".0".
                END.
 
                v-len-array2 = "".
                DO a-i = 1 TO 28:
-                 IF bf-xeb.k-wid-array2[a-i] GT 0 THEN
-                 v-len-array2[a-i] = STRING(bf-xeb.k-wid-array2[a-i] /* , ">>.999999" */).
-                 IF bf-xeb.k-wid-array2[a-i] GT 0 AND INDEX(v-len-array2[a-i], ".") EQ 0 THEN
+                 IF bf-xeb.k-len-array2[a-i] GT 0 THEN
+                 v-len-array2[a-i] = STRING(bf-xeb.k-len-array2[a-i] /* , ">>.999999" */).
+                 IF bf-xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array2[a-i], ".") EQ 0 THEN
                  v-len-array2[a-i] = v-len-array2[a-i] + ".0".
                  
                END.
@@ -280,9 +280,9 @@ FUNCTION display-cw-dim RETURNS DECIMAL
                 WHEN 2 THEN DO:
                     v-len-array3 = "".
                     DO a-i = 1 TO 28:
-                      IF bf-xeb.k-len-array2[a-i] GT 0 THEN
-                      v-len-array3[a-i] = STRING(bf-xeb.k-len-array2[a-i] /* , ">>.999999" */).
-                      IF bf-xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array3[a-i], ".") EQ 0 THEN
+                      IF bf-xeb.k-wid-array2[a-i] GT 0 THEN
+                      v-len-array3[a-i] = STRING(bf-xeb.k-wid-array2[a-i] /* , ">>.999999" */).
+                      IF bf-xeb.k-wid-array2[a-i] GT 0 AND INDEX(v-len-array3[a-i], ".") EQ 0 THEN
                       v-len-array3[a-i] = v-len-array3[a-i] + ".0".
                       
                     END.
