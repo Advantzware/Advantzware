@@ -66,7 +66,7 @@ def var v-ord-no like oe-ord.ord-no no-undo.
 def var v-ord-date like oe-ord.ord-date no-undo.
 def var v-ship-i as char format "x(25)" no-undo.
 def var v-rel-po-no like oe-rel.po-no no-undo.
-def var v-price-head as char format "x(5)" no-undo.
+def var v-price-head as char format "x(4)" no-undo.
 DEF VAR v-subtot-lines AS DEC NO-UNDO.
 def TEMP-TABLE w-tax NO-UNDO
     field w-dsc as   char
@@ -404,11 +404,12 @@ ASSIGN
           end.
             
           v-price-head = ar-invl.pr-uom.
-          PUT space(1) v-ship-qty format "->>>>9.9" SPACE(4)
-              v-i-dscr  format "x(30)" SPACE(18)
-               lv-weight FORMAT ">>,>>9" SPACE
-               v-price  format "->,>>9.999" SPACE(4)
-              ar-invl.amt  format "->>>,>>9.99"                
+          PUT space(1) v-ship-qty format "->>>>>9" SPACE(4)
+               v-i-dscr  format "x(30)" SPACE(10)
+               lv-weight FORMAT ">>,>>9" SPACE(3)
+               v-price  format "->>>,>>9.999" SPACE(3)
+               v-price-head FORMAT "x(4)" SPACE(3)
+               ar-invl.amt  format "->>>,>>9.99"                
               SKIP.
           v-printline = v-printline + 1.
 
