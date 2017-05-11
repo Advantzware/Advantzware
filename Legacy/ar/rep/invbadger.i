@@ -53,14 +53,15 @@ PUT "<FArial><=4><R+1>    Ship Date                 FOB                       Sh
 
 PUT "<|10><R25><C1><#5><FROM><R27><C80><RECT>" SKIP    
                 "<R25><C10><FROM><R27><C10><LINE>" SKIP
-	        "<R25><C49><FROM><R27><C49><LINE>" SKIP
-                "<R25><C57><FROM><R27><C57><LINE>" SKIP
-                "<R25><C65><FROM><R27><C65><LINE>" SKIP
+	        "<R25><C43><FROM><R27><C43><LINE>" SKIP
+                "<R25><C50><FROM><R27><C50><LINE>" SKIP
+                "<R25><C63><FROM><R27><C63><LINE>" SKIP
+                "<R25><C70><FROM><R27><C70><LINE>" SKIP
                 /*"<R28><C68><FROM><R30><C68><LINE>" SKIP  */
                 .   
-PUT "<FArial><=5><R+1>     Shipped                                                Description"
-	"<C51>Weight"
-	"<C60>Price                        Amount" SKIP(1).
+PUT "<FArial><=5><R+1>     Shipped                                          Description"
+	"<C44>Weight"
+	"<C55>Price                 UOM              Amount" SKIP(1).
 v-printline = v-printline + 4.
            
 
