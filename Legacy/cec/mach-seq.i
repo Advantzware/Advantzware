@@ -31,7 +31,10 @@ DO:
         RUN est/MachLimitsPanel.p (ROWID(style), ROWID(mach), ROWID(xeb), OUTPUT tt-mach-exc.reason).
     IF tt-mach-exc.reason NE '' THEN RELEASE mach.
            
-    IF AVAILABLE mach AND AVAILABLE tt-mach-exc THEN DELETE tt-mach-exc.
+    IF AVAILABLE mach THEN DO:
+        IF AVAILABLE tt-mach-exc THEN DELETE tt-mach-exc.
+        LEAVE.
+    END.
 END.
 
 /* end ---------------------------------- copr. 1996  advanced software, inc. */
