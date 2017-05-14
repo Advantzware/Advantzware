@@ -52,6 +52,17 @@ ASSIGN
 RUN connectDatabases.
 &ENDIF
 
+if connected(ldbname(1))
+and not connected(ldbname(3)) then do:
+    create alias nosweat for database value(ldbname(1)).
+    create alias emptrack for database value(ldbname(1)).
+    create alias jobs for database value(ldbname(1)).
+    create alias rfq for database value(ldbname(1)).
+    create alias asihelp for database value(ldbname(1)).
+    create alias asihlp for database value(ldbname(1)).
+    create alias asinos for database value(ldbname(1)).
+end.
+
 /* Need to obtain the nk1 value without a company # */
 IF "{&appName}" EQ "Touchscreen" THEN
   RUN sys/inc/tslogin.p (OUTPUT tslogin-log).
@@ -109,12 +120,13 @@ DO:
     RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
     
     &IF "{&checkUserCount}" EQ "YES"  &THEN
-    
-    /* IF NOT (PDBNAME(1) EQ "ASI" OR PDBNAME(2) EQ "ASI" OR PDBNAME(3) EQ "ASI") THEN  */
+
+    /* IF NOT (LDBNAME(1) EQ "ASI" OR LDBNAME(2) EQ "ASI" OR LDBNAME(3) EQ "ASI") THEN  */
     DO TRANSACTION:
             
         /* Check EULA and number of sessions here using combined db or in mainmenu if ASI is physically connected */
         RUN system/userLogin.p (OUTPUT lExit).
+
         IF lExit THEN 
             QUIT. 
     END.

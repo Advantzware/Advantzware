@@ -283,8 +283,8 @@ END.
 ON LEAVE OF begin_emp IN FRAME FRAME-A /* From Employee ID */
 DO:
       assign {&self-name}.
-      find emptrack.employee where emptrack.employee.employee = {&self-name} no-lock no-error.
-      if not avail emptrack.employee then do:
+      find employee where employee.employee = {&self-name} no-lock no-error.
+      if not avail employee then do:
          message "Invalid Employee ID. Please enter correct employee id."
                    view-as alert-box error.
          return no-apply.
@@ -349,8 +349,8 @@ END.
 ON LEAVE OF end_emp IN FRAME FRAME-A /* To Employee ID */
 DO:
       assign {&self-name}.
-      find emptrack.employee where emptrack.employee.employee = {&self-name} no-lock no-error.
-      if not avail emptrack.employee then do:
+      find employee where employee.employee = {&self-name} no-lock no-error.
+      if not avail employee then do:
          message "Invalid Employee ID. Please enter correct employee id."
                    view-as alert-box error.
          return no-apply.
@@ -391,10 +391,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RETURN .
    END.
 
-   find first emptrack.employee no-lock no-error.
-   begin_emp = if avail emptrack.employee then emptrack.employee.employee else "".
-   find last emptrack.employee no-lock no-error.
-   end_emp = if avail emptrack.employee then emptrack.employee.employee else "".
+   find first employee no-lock no-error.
+   begin_emp = if avail employee then employee.employee else "".
+   find last employee no-lock no-error.
+   end_emp = if avail employee then employee.employee else "".
 
    assign begin_date = today
           end_date = today

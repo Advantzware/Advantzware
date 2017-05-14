@@ -235,7 +235,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartNavBrowser
-   External Tables: EMPTRACK.machtran
+   External Tables: machtran
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: External-Tables
@@ -309,32 +309,32 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.machemp WHERE EMPTRACK.machtran <external> ..."
+     _TblList          = "machemp WHERE machtran <external> ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "machemp.table_rec_key = machtran.rec_key AND
 ~{&KEY-PHRASE}"
-     _FldNameList[1]   > EMPTRACK.machemp.employee
+     _FldNameList[1]   > machemp.employee
 "machemp.employee" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > "_<CALC>"
 "Employee-Name(machtran.company,machemp.employee) @ employee-name" "Name" "X(14)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > EMPTRACK.machemp.start_date
+     _FldNameList[3]   > machemp.start_date
 "machemp.start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"
 "STRING(machemp.start_time,'HH:MM am') @ start-time" "Started" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > EMPTRACK.machemp.end_date
+     _FldNameList[5]   > machemp.end_date
 "machemp.end_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
 "Time_String(machemp.end_time,yes) @ end-time" "Ended" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > EMPTRACK.machemp.shift
+     _FldNameList[7]   > machemp.shift
 "machemp.shift" ? "XX" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
 "Time_String(machemp.total_time,no) @ total-time" "Total" "X(5)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > EMPTRACK.machemp.ratetype
+     _FldNameList[9]   > machemp.ratetype
 "machemp.ratetype" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > "_<CALC>"
 "Get_Rate(machemp.rate) @ rate" "Rate" ">>>>9.99<<<" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > EMPTRACK.machemp.posted
+     _FldNameList[11]   > machemp.posted
 "machemp.posted" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

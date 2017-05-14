@@ -19,7 +19,7 @@
 "shifts. " ~
 */
 
-&Scoped-define search-db EMPTRACK.
+&Scoped-define search-db 
 &Scoped-define search-file shifts
 &Scoped-define where-statement TRUE
 &Scoped-define return-field shift

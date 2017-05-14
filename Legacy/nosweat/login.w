@@ -169,7 +169,7 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME DIALOG-1 /* OK */
 DO:                
   ASSIGN m_id m_password.
-  IF NOT SETUSERID(m_id,m_password,"NOSWEAT") THEN
+  IF NOT SETUSERID(m_id,m_password,ldbname(1)) THEN
   MESSAGE "Invalid User ID / Password, Please Re-enter" 
       VIEW-AS ALERT-BOX ERROR.
   ELSE

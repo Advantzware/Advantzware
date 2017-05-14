@@ -41,7 +41,6 @@ ASSIGN
     locode = gloc
     igsSessionID = NEXT-VALUE(session_seq)
     cCurrentUserID = USERID(LDBNAME(1)).
-    
 
 /* System Constant Values  contains user eula file*/
 {system/sysconst.i}
@@ -93,9 +92,14 @@ FIND FIRST asi._myconnection NO-LOCK NO-ERROR.
 
 FIND FIRST asi._connect NO-LOCK WHERE _connect._connect-usr = _myconnection._myconn-userid
     NO-ERROR. 
-    
+        
 cEulaFile = SEARCH("{&EulaFile}").
+if cEulaFile = ""
+or cEulaFile = ? then assign
+    cEulaFile = search("eula.txt").
+
 RUN system/checkEula.p (INPUT cEulaFile, OUTPUT lEulaAccepted, OUTPUT cEulaVersion).
+
 IF NOT lEulaAccepted THEN 
     oplExit = TRUE. 
     

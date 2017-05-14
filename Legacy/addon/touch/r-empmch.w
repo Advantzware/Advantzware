@@ -858,10 +858,10 @@ if td-show-parm then run show-param.
 
 VIEW FRAME r-top.
 
-FOR EACH emptrack.employee FIELDS(employee) WHERE
-    emptrack.employee.company = cocode AND
-    emptrack.employee.employee GE begin_emp-no AND
-    emptrack.employee.employee LE end_emp-no
+FOR EACH employee FIELDS(employee) WHERE
+    employee.company = cocode AND
+    employee.employee GE begin_emp-no AND
+    employee.employee LE end_emp-no
     NO-LOCK,
     EACH machemp NO-LOCK WHERE machemp.employee = employee.employee,      
     EACH machtran NO-LOCK WHERE machtran.rec_key = machemp.TABLE_rec_key 
@@ -1459,8 +1459,8 @@ FOR EACH machemp NO-LOCK WHERE machemp.employee >= begin_emp-no
             BREAK BY machemp.employee BY machtran.machine BY machtran.job_number BY machtran.job_sub by machtran.end_date
                   by machtran.end_time by machtran.charge_code:
 
-      FIND emptrack.employee WHERE emptrack.employee.company = machtran.company
-                      AND emptrack.employee.employee = machemp.employee NO-LOCK NO-ERROR.
+      FIND employee WHERE employee.company = machtran.company
+                      AND employee.employee = machemp.employee NO-LOCK NO-ERROR.
 
       /*Employee#, MachineCode, Job#, Start Date, Start Time, Stop Time,
        ChargeCode, MR Time, Run Time, Total Time, Run Qty, Waste Qty. */
@@ -1507,7 +1507,7 @@ FOR EACH machemp NO-LOCK WHERE machemp.employee >= begin_emp-no
               lv-wqty
               WITH FRAME det DOWN NO-BOX STREAM-IO WIDTH 133.
 
-      /* emptrack.employee.first_name + ' ' + emptrack.employee.last_name FORMAT 'X(30)' LABEL 'Name' 
+      /* employee.first_name + ' ' + employee.last_name FORMAT 'X(30)' LABEL 'Name' 
       machemp.start_date
       STRING(machtran.start_time,'HH:MM am') LABEL 'Started'
       machemp.end_date

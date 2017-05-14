@@ -1311,7 +1311,6 @@ DO:
         RELEASE OBJECT chWorkBook         NO-ERROR.
         RELEASE OBJECT chExcelApplication NO-ERROR.
     END.
-    QUIT.
     APPLY "CLOSE":U TO THIS-PROCEDURE.
     RETURN NO-APPLY.
 END.

@@ -30,7 +30,6 @@ DEFINE                   VARIABLE lEulaAccepted   AS LOGICAL   NO-UNDO.
 DEFINE                   VARIABLE lExit           AS LOGICAL   NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g-sharpshooter  AS LOG       NO-UNDO.  /* no, it's yes only from sharpsh.p */
 
-
 g-sharpshooter = NO.
 
 ASSIGN

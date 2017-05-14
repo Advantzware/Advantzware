@@ -191,7 +191,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartNavBrowser
-   External Tables: EMPTRACK.maillist
+   External Tables: maillist
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: External-Tables
@@ -255,20 +255,20 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.mailcont OF EMPTRACK.maillist"
+     _TblList          = "mailcont OF maillist"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,"
-     _FldNameList[1]   > EMPTRACK.mailcont.last-name
+     _FldNameList[1]   > mailcont.last-name
 "mailcont.last-name" ? "X(15)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[2]   > EMPTRACK.mailcont.first-name
+     _FldNameList[2]   > mailcont.first-name
 "mailcont.first-name" ? "X(15)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[3]   > EMPTRACK.mailcont.cust-no
+     _FldNameList[3]   > mailcont.cust-no
 "mailcont.cust-no" "Customer#" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[4]   > EMPTRACK.mailcont.contact-title
+     _FldNameList[4]   > mailcont.contact-title
 "mailcont.contact-title" ? "X(25)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[5]   > EMPTRACK.mailcont.cust-name
+     _FldNameList[5]   > mailcont.cust-name
 "mailcont.cust-name" ? "X(25)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[6]   > EMPTRACK.mailcont.maillist
+     _FldNameList[6]   > mailcont.maillist
 "mailcont.maillist" "Mail?" ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -717,7 +717,7 @@ PROCEDURE update-maillist :
       
   if lv-ans then do:
   
-     for EACH EMPTRACK.bf-cont OF EMPTRACK.maillist:
+     for EACH bf-cont OF maillist:
          bf-cont.maillist = lv-is-mail-yes. 
      end.
      run dispatch ('open-query').

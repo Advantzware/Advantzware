@@ -860,7 +860,7 @@ PROCEDURE proc-2 :
         break by emplogin.employee by emplogin.start_date by start_time:
 
         if first-of(emplogin.employee) then do:
-           find emptrack.employee where employee.employee = emplogin.employee  no-lock no-error.
+           find employee where employee.employee = emplogin.employee  no-lock no-error.
            if not avail employee then next.
          /*  put "Employee: " employee.employee "  " employee.first_name employee.last_name skip
                "====================================================================" skip.                    
@@ -1021,7 +1021,7 @@ PROCEDURE proc-all :
         break by emplogin.employee by emplogin.start_date by start_time:
 
         if first-of(emplogin.employee) then do:
-           find emptrack.employee where employee.employee = emplogin.employee  no-lock no-error.
+           find employee where employee.employee = emplogin.employee  no-lock no-error.
            if not avail employee then next.
          /*  put "Employee: " employee.employee "  " employee.first_name employee.last_name skip
                "====================================================================" skip.                    
@@ -1171,7 +1171,7 @@ PROCEDURE run-report :
   DEF VAR v-date AS DATE NO-UNDO.
   DEF VAR v-date-2 AS DATE NO-UNDO.
 
-  DEFINE BUFFER bf-employee for emptrack.employee.
+  DEFINE BUFFER bf-employee for employee.
   DEFINE BUFFER bf-machemp for machemp.
 
   SESSION:SET-WAIT-STATE('general').
@@ -1222,7 +1222,7 @@ PROCEDURE run-report :
     STATUS DEFAULT "Processing .. for employee " + tt-emp.emp.
 
     IF FIRST-OF(tt-emp.emp) THEN DO:
-      find emptrack.employee where employee.employee = tt-emp.emp  no-lock no-error.
+      find employee where employee.employee = tt-emp.emp  no-lock no-error.
       put "Employee: " .
       IF AVAIL employee THEN 
             PUT employee.employee "  " employee.first_name employee.last_name.
@@ -1306,7 +1306,7 @@ PROCEDURE run-report :
         break by emplogin.employee by emplogin.start_date by start_time:
 
         if first-of(emplogin.employee) then do:
-          /* find emptrack.employee where employee.employee = emplogin.employee  no-lock no-error.
+          /* find employee where employee.employee = emplogin.employee  no-lock no-error.
            if not avail employee then next.
            put "Employee: " employee.employee "  " employee.first_name employee.last_name skip
                "====================================================================" skip.           

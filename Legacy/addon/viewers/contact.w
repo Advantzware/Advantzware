@@ -322,7 +322,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: EMPTRACK.contact
+   External Tables: contact
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -756,7 +756,7 @@ END.
 ON ENTRY OF contact.ship-id IN FRAME F-Main /* Shipto ID */
 DO:
   ASSIGN
-    s-cust-no = emptrack.contact.cust-no:SCREEN-VALUE.
+    s-cust-no = contact.cust-no:SCREEN-VALUE.
 END.
 
 /* _UIB-CODE-BLOCK-END */

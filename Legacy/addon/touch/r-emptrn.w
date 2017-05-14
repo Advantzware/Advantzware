@@ -372,16 +372,16 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   ASSIGN {&displayed-objects}.
 
-  FIND emptrack.employee WHERE emptrack.employee.company = g_company
-                  AND emptrack.employee.employee = begin_employee
+  FIND employee WHERE employee.company = g_company
+                  AND employee.employee = begin_employee
                 NO-LOCK NO-ERROR.
-  IF NOT AVAILABLE emptrack.employee THEN DO:
+  IF NOT AVAILABLE employee THEN DO:
      MESSAGE "Invalid Employee#. Try help." VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO begin_employee.
      RETURN NO-APPLY.
   END.
 
-  IF v-password NE emptrack.employee.passwd THEN DO:
+  IF v-password NE employee.passwd THEN DO:
      MESSAGE "Invalid Password. Try again. " VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO v-password.
      RETURN NO-APPLY.
@@ -752,7 +752,7 @@ PROCEDURE run-report :
       emplogin.start_date <= end_end_date
       BREAK by emplogin.employee by emplogin.start_date by start_time:
       if first-of(emplogin.employee) then do:
-         find emptrack.employee where employee.employee = emplogin.employee  no-lock no-error.
+         find employee where employee.employee = emplogin.employee  no-lock no-error.
          if not avail employee then next.
          put "Employee: " employee.employee "  " employee.first_name employee.last_name skip
              "====================================================================" skip.           

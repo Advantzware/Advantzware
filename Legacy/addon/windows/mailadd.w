@@ -191,7 +191,7 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX D-Dialog
 /* Query rebuild information for DIALOG-BOX D-Dialog
-     _TblList          = "EMPTRACK.mailcont"
+     _TblList          = "mailcont"
      _Options          = "SHARE-LOCK"
      _Query            is NOT OPENED
 */  /* DIALOG-BOX D-Dialog */

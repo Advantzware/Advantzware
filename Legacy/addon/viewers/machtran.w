@@ -344,7 +344,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: EMPTRACK.machtran
+   External Tables: machtran
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -969,7 +969,7 @@ PROCEDURE crt-emp-trans :
                          and empmach.machine = machtran.machine
                          break by empmach.employee :       
          if first-of(empmach.employee) then do:
-            find emptrack.employee of empmach no-lock .
+            find employee of empmach no-lock .
             CREATE machemp.
             ASSIGN machemp.table_rec_key = machtran.rec_key
                 machemp.employee = empmach.employee
@@ -977,7 +977,7 @@ PROCEDURE crt-emp-trans :
                 machemp.start_time = machtran.start_time
                 machemp.shift = machtran.shift
                 machemp.ratetype = 'Standard' 
-                machemp.rate_usage = emptrack.employee.rate_usage
+                machemp.rate_usage = employee.rate_usage
                 machemp.end_date = machtran.end_date
                 machemp.end_time = machtran.end_time.
 
@@ -1085,7 +1085,7 @@ PROCEDURE crt-lunch-trans :
                          and empmach.machine = machtran.machine
                          break by empmach.employee :       
          if first-of(empmach.employee) then do:
-            find emptrack.employee of empmach no-lock .
+            find employee of empmach no-lock .
             CREATE machemp.
             ASSIGN machemp.table_rec_key = bf-machtran.rec_key
                 machemp.employee = empmach.employee
@@ -1093,7 +1093,7 @@ PROCEDURE crt-lunch-trans :
                 machemp.start_time = bf-machtran.start_time
                 machemp.shift = bf-machtran.shift
                 machemp.ratetype = if shifts.lunch_paid then 'Standard' else ""
-                machemp.rate_usage = emptrack.employee.rate_usage
+                machemp.rate_usage = employee.rate_usage
                 machemp.end_date = bf-machtran.end_date
                 machemp.end_time = bf-machtran.end_time
                 bf-machtran.run_qty = run-qty  /*???*/

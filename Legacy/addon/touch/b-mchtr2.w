@@ -445,7 +445,7 @@ PROCEDURE build-table :
  RUN get-values IN WIDGET-HANDLE(char-hdl) (OUTPUT company_code,OUTPUT machine_code,OUTPUT job_number,OUTPUT job_sub,
       OUTPUT form_number, OUTPUT blank_number,OUTPUT pass_sequence,OUTPUT label_language).
 
-FOR EACH EMPTRACK.machtran WHERE machtran.company = company_code AND
+FOR EACH machtran WHERE machtran.company = company_code AND
                         machtran.machine = machine_code AND
                         machtran.job_number = job_number AND
                         machtran.job_sub = INTEGER(job_sub) AND

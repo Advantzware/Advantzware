@@ -1516,7 +1516,7 @@ PROCEDURE proc-form-cmplt :
 ===*/
 
   /*=========== create fg receipt : from pc/r-wippst.w */
-  /*FOR EACH EMPTRACK.bf-machtran WHERE bf-machtran.company = cocode AND
+  /*FOR EACH bf-machtran WHERE bf-machtran.company = cocode AND
                                       bf-machtran.machine = machine_code AND
                                       bf-machtran.job_number = job_number AND
                                       bf-machtran.job_sub = INTEGER(job_sub) AND
@@ -1922,7 +1922,7 @@ PROCEDURE proc-set-cmplt :
 ===*/
 
   /*=========== create fg receipt : from pc/r-wippst.w */
-  /*FOR EACH EMPTRACK.bf-machtran WHERE bf-machtran.company = cocode AND
+  /*FOR EACH bf-machtran WHERE bf-machtran.company = cocode AND
                                       bf-machtran.machine = machine_code AND
                                       bf-machtran.job_number = job_number AND
                                       bf-machtran.job_sub = INTEGER(job_sub) AND

@@ -171,7 +171,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: NOSWEAT.notes
+   External Tables: notes
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -435,7 +435,7 @@ PROCEDURE display-note-type :
 ------------------------------------------------------------------------------*/
 IF AVAIL notes THEN DO:
       notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = notes.note_code.
-      CASE NOSWEAT.notes.note_code:
+      CASE notes.note_code:
         WHEN "RDC" THEN
           spec-desc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Release Date Change" .
         WHEN "DDC" THEN
@@ -501,7 +501,7 @@ ASSIGN
   notes.note_date = TODAY
   notes.note_time = TIME
   notes.user_id = USERID("NOSWEAT").
-  cScreenNoteCode = NOSWEAT.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
+  cScreenNoteCode = notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
   IF cScreenNoteCode EQ "" THEN 
     cScreenNoteCode = ENTRY(1, gvcNoteCode).
 
@@ -515,8 +515,8 @@ ASSIGN
 
 
 
- NOSWEAT.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
- NOSWEAT.notes.note_code = ENTRY(1, gvcNoteCode).
+ notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
+ notes.note_code = ENTRY(1, gvcNoteCode).
  RUN display-note-type.
 
 END PROCEDURE.
@@ -541,7 +541,7 @@ PROCEDURE local-display-fields :
     IF adm-new-record THEN 
     DO:
         ASSIGN 
-            NOSWEAT.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
+            notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
 
         IF gvcNoteCode EQ "RDC" THEN
             spec-desc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Release Date Change" .
@@ -619,10 +619,10 @@ PROCEDURE local-update-record :
   IF NOT ll THEN RUN custom/notewtrg.p (ROWID(notes)).
 
   IF notes.note_title EQ "" OR notes.note_title = ? THEN DO:
-    FIND CURRENT nosweat.notes EXCLUSIVE-LOCK.
+    FIND CURRENT notes EXCLUSIVE-LOCK.
     IF cbTitle:SCREEN-VALUE GT "" THEN
-    ASSIGN nosweat.notes.note_title = cbTitle:SCREEN-VALUE.
-    FIND CURRENT nosweat.notes NO-LOCK.
+    ASSIGN notes.note_title = cbTitle:SCREEN-VALUE.
+    FIND CURRENT notes NO-LOCK.
   END.
 
 END PROCEDURE.

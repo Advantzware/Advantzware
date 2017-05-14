@@ -198,7 +198,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartNavBrowser
-   External Tables: EMPTRACK.employee
+   External Tables: employee
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: External-Tables
@@ -272,21 +272,21 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.rate OF EMPTRACK.employee"
+     _TblList          = "rate OF employee"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "~{&KEY-PHRASE}"
-     _FldNameList[1]   > EMPTRACK.rate.rate_usage
+     _FldNameList[1]   > rate.rate_usage
 "rate.rate_usage" "Rate Usage" ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > EMPTRACK.rate.shift
+     _FldNameList[2]   > rate.shift
 "rate.shift" ? "XX" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > EMPTRACK.rate.machine
+     _FldNameList[3]   > rate.machine
 "rate.machine" "Mach" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > EMPTRACK.rate.ratetype
+     _FldNameList[4]   > rate.ratetype
 "rate.ratetype" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > EMPTRACK.rate.rate
+     _FldNameList[5]   > rate.rate
 "rate.rate" ? ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > EMPTRACK.rate.factortype
+     _FldNameList[6]   > rate.factortype
 "rate.factortype" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

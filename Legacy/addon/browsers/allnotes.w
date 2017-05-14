@@ -174,7 +174,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartBrowser
-   External Tables: EMPTRACK.machemp
+   External Tables: machemp
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
