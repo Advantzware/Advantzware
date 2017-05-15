@@ -1677,7 +1677,13 @@ for each rm-rcpth where rm-rcpth.company    eq cocode
                      WHEN "cst"      THEN cVarValue = string(rm-rdtlh.cost,"->>>>>9.99<<<<") .
                      WHEN "val"      THEN cVarValue = STRING(v-value,"->,>>>,>>>,>>9.99")    .
                 END CASE.
-
+                IF cTmpField = "i-no" THEN
+                    cExcelVarValue = rm-rcpth.i-no.
+                ELSE IF  cTmpField = "dscr" THEN
+                    cExcelVarValue = rm-rcpth.i-name.
+                ELSE IF  cTmpField = "dat" THEN
+                    cExcelVarValue = IF rm-rcpth.trans-date NE ? THEN string(rm-rcpth.trans-date) ELSE "".
+                ELSE
                 cExcelVarValue = cVarValue.
                 cDisplay = cDisplay + cVarValue +
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
