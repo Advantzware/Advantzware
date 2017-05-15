@@ -785,6 +785,7 @@ DO:
    if lastkey <> -1 and self:screen-value <> "" 
 
    then do:
+{&methods/lValidateError.i YES}
        find first item where item.company = gcompany and
                              ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
                               (index("1234",item.mat-type) > 0 and lv-is-foam) ) and
@@ -848,8 +849,10 @@ DO:
               eb.num-len:screen-value = string(xeb.num-len)
               eb.num-up:screen-value = string(xeb.num-up).
        END. /* ll-auto-calc-selected */
+{&methods/lValidateError.i NO}
    end.  /* lastkey <> -1 */
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -870,6 +873,7 @@ END.
 ON LEAVE OF ef.cost-uom IN FRAME fold /* cost-uom */
 DO:
     if lastkey <> -1 and ef.cost-uom:screen-value <> "" then do:
+{&methods/lValidateError.i YES}
        find first item where item.company = gcompany and
                                 item.i-no = ef.board
                                 no-lock no-error.
@@ -880,9 +884,11 @@ DO:
        then do:
             message "Invalid Cost UOM. Try Help."   view-as alert-box.
             return no-apply.
-       end.                 
+       end. 
+{&methods/lValidateError.i NO}                
     end.  
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -893,6 +899,7 @@ END.
 ON LEAVE OF ef.fr-uom IN FRAME fold /* fr-uom */
 DO:
     if lastkey <> -1 and ef.cost-uom:screen-value <> "" then do:
+{&methods/lValidateError.i YES}
        /*find first item where item.company = gcompany and
                                 item.i-no = ef.board:screen-value
                                 no-lock no-error.
@@ -905,10 +912,12 @@ DO:
        then do:
             message "Invalid Freight UOM. Try Help." view-as alert-box.
             return no-apply.
-       end.                 
+       end.  
+{&methods/lValidateError.i NO}               
     end.  
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -946,11 +955,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-bnum[1] V-table-Win
 ON LEAVE OF ef.leaf-bnum[1] IN FRAME fold /* leaf-bnum */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 THEN DO:  
     RUN valid-leaf-bnum (1) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.  
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -960,11 +970,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-bnum[2] V-table-Win
 ON LEAVE OF ef.leaf-bnum[2] IN FRAME fold /* leaf-bnum */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 THEN DO:   
     RUN valid-leaf-bnum (2) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.  
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -974,11 +985,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-bnum[3] V-table-Win
 ON LEAVE OF ef.leaf-bnum[3] IN FRAME fold /* leaf-bnum */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 THEN DO:  
     RUN valid-leaf-bnum (3) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.  
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -988,11 +1000,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-bnum[4] V-table-Win
 ON LEAVE OF ef.leaf-bnum[4] IN FRAME fold /* leaf-bnum */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 THEN DO:  
     RUN valid-leaf-bnum (4) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1003,16 +1017,17 @@ END.
 ON LEAVE OF ef.leaf-l[1] IN FRAME fold /* Length[1] */
 DO:
      IF LASTKEY = -1 THEN RETURN.
-
+ {&methods/lValidateError.i YES}
   IF ef.leaf[1]:SCREEN-VALUE <> "" and
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Length must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
     END.
 
-
+{&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1023,16 +1038,17 @@ END.
 ON LEAVE OF ef.leaf-l[2] IN FRAME fold /* Length[2] */
 DO:
       IF LASTKEY = -1 THEN RETURN.
-
+  {&methods/lValidateError.i YES}
   IF ef.leaf[2]:SCREEN-VALUE <> "" and
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Length must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
     END.
-
+{&methods/lValidateError.i NO}
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1043,16 +1059,17 @@ END.
 ON LEAVE OF ef.leaf-l[3] IN FRAME fold /* Length[3] */
 DO:
        IF LASTKEY = -1 THEN RETURN.
-
+  {&methods/lValidateError.i YES}
   IF ef.leaf[3]:SCREEN-VALUE <> "" and
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Length must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
     END.
 
-
+{&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1063,6 +1080,7 @@ END.
 ON LEAVE OF ef.leaf-l[4] IN FRAME fold /* Length[4] */
 DO:
        IF LASTKEY = -1 THEN RETURN.
+  {&methods/lValidateError.i YES}
 
   IF ef.leaf[4]:SCREEN-VALUE <> "" and
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
@@ -1070,9 +1088,10 @@ DO:
        RETURN NO-APPLY.
     END.
 
-
+{&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1082,11 +1101,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-snum[1] V-table-Win
 ON LEAVE OF ef.leaf-snum[1] IN FRAME fold /* S/B[1] */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 THEN DO:  
     RUN valid-leaf-snum (1) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.   
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1096,11 +1116,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-snum[2] V-table-Win
 ON LEAVE OF ef.leaf-snum[2] IN FRAME fold /* S/B[2] */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 THEN DO:  
     RUN valid-leaf-snum (2) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.  
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1111,10 +1132,11 @@ END.
 ON LEAVE OF ef.leaf-snum[3] IN FRAME fold /* S/B[3] */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    RUN valid-leaf-snum (3) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+      RUN valid-leaf-snum (3) NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.  
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1124,11 +1146,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.leaf-snum[4] V-table-Win
 ON LEAVE OF ef.leaf-snum[4] IN FRAME fold /* S/B[4] */
 DO:
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 THEN DO:  
     RUN valid-leaf-snum (4) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1139,14 +1163,15 @@ END.
 ON LEAVE OF ef.leaf-w[1] IN FRAME fold /* Width[1] */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+   {&methods/lValidateError.i YES}
    IF ef.leaf[1]:SCREEN-VALUE <> "" and
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Width must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
     END.
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1157,15 +1182,16 @@ END.
 ON LEAVE OF ef.leaf-w[2] IN FRAME fold /* Width[2] */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+  {&methods/lValidateError.i YES}
     IF ef.leaf[2]:SCREEN-VALUE <> "" and
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Width must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
     END.
-
+{&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1176,15 +1202,16 @@ END.
 ON LEAVE OF ef.leaf-w[3] IN FRAME fold /* Width[3] */
 DO:
   IF LASTKEY = -1 THEN RETURN.
-
+ {&methods/lValidateError.i YES}
   IF ef.leaf[3]:SCREEN-VALUE <> "" and
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Width must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
     END.
-
+{&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1195,16 +1222,18 @@ END.
 ON LEAVE OF ef.leaf-w[4] IN FRAME fold /* Width[4] */
 DO:
     IF LASTKEY = -1 THEN RETURN.
+{&methods/lValidateError.i YES}
 
   IF ef.leaf[4]:SCREEN-VALUE <> "" and
        INT(SELF:SCREEN-VALUE) = 0 THEN DO:
        MESSAGE "Width must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
   END.
-
+{&methods/lValidateError.i NO}
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1215,10 +1244,13 @@ END.
 ON LEAVE OF ef.leaf[1] IN FRAME fold /* Leaf/Film[1] */
 DO:
   IF LASTKEY NE -1 THEN DO:
+   {&methods/lValidateError.i YES}
     RUN est/val-leaf.p (FRAME {&FRAME-NAME}:HANDLE, 1) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1239,10 +1271,13 @@ END.
 ON LEAVE OF ef.leaf[2] IN FRAME fold /* Leaf/Film[2] */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
     RUN est/val-leaf.p (FRAME {&FRAME-NAME}:HANDLE, 2) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1263,10 +1298,13 @@ END.
 ON LEAVE OF ef.leaf[3] IN FRAME fold /* Leaf/Film[3] */
 DO:
   IF LASTKEY NE -1 THEN DO:
+   {&methods/lValidateError.i YES}
     RUN est/val-leaf.p (FRAME {&FRAME-NAME}:HANDLE, 3) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1287,10 +1325,13 @@ END.
 ON LEAVE OF ef.leaf[4] IN FRAME fold /* Leaf/Film[4] */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
     RUN est/val-leaf.p (FRAME {&FRAME-NAME}:HANDLE, 4) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1331,12 +1372,15 @@ DO:
                                       mach.loc = eb.loc and
                                       mach.m-code = ef.m-code:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
          message "Invalid Machine Code. Try Help." view-as alert-box error.
          return no-apply.
+    {&methods/lValidateError.i NO}
     end.
 
     if ll-auto-calc-selected then RUN auto-calc2.  /* from ce/uest2.p */
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1357,6 +1401,7 @@ END.
 ON LEAVE OF ef.n-out IN FRAME fold /* #Out */
 DO:
     IF LASTKEY = -1 THEN RETURN.
+   {&methods/lValidateError.i YES}
 
     if avail item and item.i-code = "R" then do:
        if dec(self:screen-value) > ef.n-out then do:
@@ -1364,7 +1409,9 @@ DO:
           return no-apply.
        end.
     end.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1389,12 +1436,15 @@ DO:
    if lastkey <> -1 and 
        ll-auto-calc-selected AND dec(self:screen-value) < dec(ef.trim-l:screen-value) 
    then do:
+   {&methods/lValidateError.i YES}
       message "Net Sheet Size can not be less than Die Size." view-as alert-box error.
-      return no-apply.     
+      return no-apply. 
+   {&methods/lValidateError.i NO}    
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1408,12 +1458,15 @@ DO:
    if lastkey <> -1 and 
        ll-auto-calc-selected AND dec(self:screen-value) < dec(ef.trim-w:screen-value) 
    then do:
+   {&methods/lValidateError.i YES}
       message "Net Sheet Size can not be less than Die Size." view-as alert-box error.
-      return no-apply.     
+      return no-apply. 
+   {&methods/lValidateError.i NO}    
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1467,12 +1520,15 @@ DO:
    if lastkey <> -1 and 
        ll-auto-calc-selected AND dec(self:screen-value) < dec(eb.t-len:screen-value) 
    then do:
+   {&methods/lValidateError.i YES}
       message "Die Size can not be less than Blank Size." view-as alert-box error.
-      return no-apply.     
+      return no-apply.  
+   {&methods/lValidateError.i NO}   
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1487,12 +1543,15 @@ DO:
    if lastkey <> -1 and
        ll-auto-calc-selected AND dec(self:screen-value) < dec(eb.t-wid:screen-value) 
    then do:
+   {&methods/lValidateError.i YES}
       message "Die Size can not be less than Blank Size." view-as alert-box error.
-      return no-apply.     
+      return no-apply. 
+    {&methods/lValidateError.i NO}
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2530,7 +2589,7 @@ PROCEDURE local-update-record :
 
   DEF BUFFER bf-eb FOR eb.
 
-
+{&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   /* ==== Folding  item validation ======== */
   do with frame {&frame-name} :  /* validation */
@@ -2811,8 +2870,10 @@ PROCEDURE local-update-record :
   END.
 
   RUN dispatch ("display-fields").
+{&methods/lValidateError.i NO}
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

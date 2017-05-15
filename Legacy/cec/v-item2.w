@@ -618,11 +618,14 @@ DO:
       /* not can-find(uom where uom.uom = self:screen-value)  */
       LOOKUP(SELF:SCREEN-VALUE,uom-list-con) <= 0
     then do:
+    {&methods/lValidateError.i YES}
        message "Invalid UOM. Try Help." view-as alert-box error.
        return no-apply.
+    {&methods/lValidateError.i NO}
     end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -690,11 +693,14 @@ DO:
       /* not can-find(uom where uom.uom = self:screen-value)  */
        LOOKUP(SELF:SCREEN-VALUE,uom-list) <= 0
     then do:
+    {&methods/lValidateError.i YES}
        message "Invalid UOM. Try Help." view-as alert-box error.
        return no-apply.
+    {&methods/lValidateError.i NO}
     end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1091,18 +1097,22 @@ PROCEDURE local-update-record :
       /* not can-find(uom where uom.uom = self:screen-value)  */
        LOOKUP(ITEM.cons-uom:SCREEN-VALUE,uom-list-con) <= 0
     then do:
+    {&methods/lValidateError.i YES}
        message "Invalid UOM. Try Help." view-as alert-box error.
        APPLY "entry" TO ITEM.cons-uom.
        return no-apply.
+    {&methods/lValidateError.i NO}
     end.
 
     if item.pur-uom:screen-value <> "" and
       /* not can-find(uom where uom.uom = self:screen-value)  */
        LOOKUP(ITEM.pur-uom:SCREEN-VALUE,uom-list) <= 0
     then do:
+    {&methods/lValidateError.i YES}
        message "Invalid UOM. Try Help." view-as alert-box error.
        APPLY "entry" TO ITEM.pur-uom.
        return no-apply.
+    {&methods/lValidateError.i NO}
     end.
   end.  /* do with frame  */
 
@@ -1118,6 +1128,7 @@ PROCEDURE local-update-record :
   DISABLE {&list-3} WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

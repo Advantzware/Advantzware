@@ -226,7 +226,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -256,11 +256,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL jobseq.charge_code V-table-Win
 ON LEAVE OF jobseq.charge_code IN FRAME F-Main /* Charge Code */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   {methods/entryerr.i
       &can-find="job-code WHERE job-code.code = SELF:SCREEN-VALUE"
       &error-message="Invalid Charge Code"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -276,7 +279,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

@@ -1482,6 +1482,7 @@ END.
 ON LEAVE OF fi_side-2 IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
+    {&methods/lValidateError.i YES}
 
       ASSIGN fi_side-2.
 
@@ -1491,8 +1492,10 @@ DO:
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          RETURN NO-APPLY.
       END.
+  {&methods/lValidateError.i NO}
    END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1503,7 +1506,7 @@ END.
 ON LEAVE OF fi_side-3 IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
-
+    {&methods/lValidateError.i YES}
       ASSIGN fi_side-3.
 
       IF fi_side-3 NE "" AND LOOKUP(fi_side-3,"F,B") EQ 0 THEN
@@ -1512,8 +1515,10 @@ DO:
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          RETURN NO-APPLY.
       END.
+  {&methods/lValidateError.i NO}
    END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1524,7 +1529,7 @@ END.
 ON LEAVE OF fi_side-4 IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
-
+   {&methods/lValidateError.i YES}
       ASSIGN fi_side-4.
 
       IF fi_side-4 NE "" AND LOOKUP(fi_side-4,"F,B") EQ 0 THEN
@@ -1533,8 +1538,10 @@ DO:
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          RETURN NO-APPLY.
       END.
+   {&methods/lValidateError.i NO}
    END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1545,7 +1552,7 @@ END.
 ON LEAVE OF fi_side-5 IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
-
+   {&methods/lValidateError.i YES}
       ASSIGN fi_side-5.
 
       IF fi_side-5 NE "" AND LOOKUP(fi_side-5,"F,B") EQ 0 THEN
@@ -1554,8 +1561,10 @@ DO:
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          RETURN NO-APPLY.
       END.
+   {&methods/lValidateError.i NO}
    END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1566,7 +1575,7 @@ END.
 ON LEAVE OF fi_side-6 IN FRAME fold
 DO:
   IF LASTKEY NE -1 THEN DO:
-
+   {&methods/lValidateError.i YES}
      ASSIGN fi_side-6.
 
      IF fi_side-6 NE "" AND LOOKUP(fi_side-6,"F,B") EQ 0 THEN
@@ -1575,8 +1584,10 @@ DO:
            VIEW-AS ALERT-BOX ERROR BUTTONS OK.
         RETURN NO-APPLY.
      END.
+  {&methods/lValidateError.i NO}
    END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1587,7 +1598,7 @@ END.
 ON LEAVE OF fi_side-7 IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
-
+   {&methods/lValidateError.i YES}
       ASSIGN fi_side-7.
 
       IF fi_side-7 NE "" AND LOOKUP(fi_side-7,"F,B") EQ 0 THEN
@@ -1596,8 +1607,10 @@ DO:
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          RETURN NO-APPLY.
       END.
+  {&methods/lValidateError.i NO}
    END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1608,7 +1621,7 @@ END.
 ON LEAVE OF fi_side-8 IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
-
+    {&methods/lValidateError.i YES}
       ASSIGN fi_side-8.
 
       IF fi_side-8 NE "" AND LOOKUP(fi_side-8,"F,B") EQ 0 THEN
@@ -1617,8 +1630,10 @@ DO:
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          RETURN NO-APPLY.
       END.
+   {&methods/lValidateError.i NO}
    END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1629,7 +1644,7 @@ END.
 ON LEAVE OF fi_side-9 IN FRAME fold
 DO:
    IF LASTKEY NE -1 THEN DO:
-
+    {&methods/lValidateError.i YES}
       ASSIGN fi_side-9.
 
       IF fi_side-9 NE "" AND LOOKUP(fi_side-9,"F,B") EQ 0 THEN
@@ -1638,8 +1653,10 @@ DO:
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          RETURN NO-APPLY.
       END.
+   {&methods/lValidateError.i NO}
    END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2183,13 +2200,16 @@ DO:
        IF LASTKEY <> -1 AND 
           eb.tr-no:SCREEN-VALUE <> "" 
          THEN DO:
+      {&methods/lValidateError.i YES}
 
            MESSAGE 
              "Invalid Pallet #. Try Help." 
              VIEW-AS ALERT-BOX ERROR.
            RETURN NO-APPLY.
+       {&methods/lValidateError.i NO}
        END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3342,7 +3362,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR li-num-of-code AS INT NO-UNDO.
 
-
+{&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -3472,7 +3492,7 @@ PROCEDURE local-update-record :
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END.
   END.
-
+{&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -3493,6 +3513,7 @@ PROCEDURE local-update-record :
   RUN disable-inks.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

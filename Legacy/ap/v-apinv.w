@@ -664,7 +664,7 @@ PROCEDURE hold-ap :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER bf-ap-inv FOR ap-inv.
-
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
       IF ap-inv.inv-date:SENSITIVE IN FRAME {&FRAME-NAME} THEN do:
@@ -686,7 +686,9 @@ PROCEDURE hold-ap :
          IF AVAIL ap-inv THEN DISP ap-inv.stat WITH FRAME {&FRAME-NAME}.
       END.
    END.
+   {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

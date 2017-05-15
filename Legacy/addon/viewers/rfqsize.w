@@ -359,12 +359,13 @@ END.
 ON LEAVE OF rfqitem.dep IN FRAME F-Main /* Depth */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    IF lv-is-corr THEN DO:
+        IF lv-is-corr THEN DO:
       RUN valid-16ths (FOCUS) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END.
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

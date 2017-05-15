@@ -702,7 +702,8 @@ END.
 &Scoped-define SELF-NAME style.design-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.design-no V-table-Win
 ON LEAVE OF style.design-no IN FRAME F-Main /* Design # */
-DO:
+DO:    
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first box-design-hdr where /*box-design-hdr.company = style.company */
                      box-design-hdr.design-no = int(self:screen-value))
@@ -710,8 +711,9 @@ DO:
         message "Invalid Box Design Number. Try help." view-as alert-box.
         return no-apply.
      end.                  
-
+     {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -787,6 +789,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[1] V-table-Win
 ON LEAVE OF style.m-code[1] IN FRAME F-Main /* 1 */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -799,7 +802,9 @@ DO:
                           mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL mach THEN style.m-dscr[1]:SCREEN-VALUE = mach.m-dscr.
     ELSE style.m-dscr[1]:SCREEN-VALUE = "".
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -809,6 +814,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[2] V-table-Win
 ON LEAVE OF style.m-code[2] IN FRAME F-Main /* 2 */
 DO:
+      {&methods/lValidateError.i YES}
       if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -821,8 +827,9 @@ DO:
                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[2]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[2]:SCREEN-VALUE = "".
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -832,6 +839,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[3] V-table-Win
 ON LEAVE OF style.m-code[3] IN FRAME F-Main /* 3 */
 DO:
+      {&methods/lValidateError.i YES}
       if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -844,7 +852,9 @@ DO:
                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[3]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[3]:SCREEN-VALUE = "".
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -854,6 +864,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[4] V-table-Win
 ON LEAVE OF style.m-code[4] IN FRAME F-Main /* 4 */
 DO:
+      {&methods/lValidateError.i YES}
       if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -865,8 +876,9 @@ DO:
                           mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL mach THEN style.m-dscr[4]:SCREEN-VALUE = mach.m-dscr.
     ELSE style.m-dscr[4]:SCREEN-VALUE = "".
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -876,6 +888,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[5] V-table-Win
 ON LEAVE OF style.m-code[5] IN FRAME F-Main /* 5 */
 DO:
+      {&methods/lValidateError.i YES}
       if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -888,8 +901,9 @@ DO:
                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[5]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[5]:SCREEN-VALUE = "".
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -899,6 +913,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[6] V-table-Win
 ON LEAVE OF style.m-code[6] IN FRAME F-Main /* 6 */
 DO:
+      {&methods/lValidateError.i YES}
       if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -911,8 +926,9 @@ DO:
                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[6]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[6]:SCREEN-VALUE = "".
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -922,6 +938,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[7] V-table-Win
 ON LEAVE OF style.m-code[7] IN FRAME F-Main /* 7 */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -934,7 +951,9 @@ DO:
                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[7]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[7]:SCREEN-VALUE = "".
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -944,6 +963,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[1] V-table-Win
 ON LEAVE OF style.material[1] IN FRAME F-Main /* Board */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first item where item.company = style.company and 
                   /*item.industry = style.industry and*/
@@ -952,7 +972,9 @@ DO:
        message "Invalid Board Code. Try help please." view-as alert-box.
        return no-apply.
     end.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -962,6 +984,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[2] V-table-Win
 ON LEAVE OF style.material[2] IN FRAME F-Main /* Ink */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first item where item.company = style.company and 
              /*item.industry = style.industry and*/
@@ -970,8 +993,9 @@ DO:
        message "Invalid Ink Code. Try help please." view-as alert-box.
        return no-apply.
     end.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -981,6 +1005,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[4] V-table-Win
 ON LEAVE OF style.material[4] IN FRAME F-Main /* Adder */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first item where item.company = style.company and 
                  /* item.industry = style.industry and */
@@ -989,8 +1014,9 @@ DO:
        message "Invalid Adder Code. Try help please." view-as alert-box.
        return no-apply.
     end.
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1000,6 +1026,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[5] V-table-Win
 ON LEAVE OF style.material[5] IN FRAME F-Main /* Label */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first item where item.company = style.company and 
                  /* item.industry = style.industry and */
@@ -1008,8 +1035,9 @@ DO:
        message "Invalid Label Code. Try help please." view-as alert-box.
        return no-apply.
     end.
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1019,6 +1047,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[6] V-table-Win
 ON LEAVE OF style.material[6] IN FRAME F-Main /* Coating */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first item where item.company = style.company and 
                  /* item.industry = style.industry and */
@@ -1027,8 +1056,9 @@ DO:
        message "Invalid Coating Code. Try help please." view-as alert-box.
        return no-apply.
     end.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1038,6 +1068,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[7] V-table-Win
 ON LEAVE OF style.material[7] IN FRAME F-Main /* Joint Glue */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" and
       not can-find(first item where item.company = style.company and 
                  /* item.industry = style.industry and */
@@ -1046,8 +1077,9 @@ DO:
        message "Invalid Joint Glue Code. Try help please." view-as alert-box.
        return no-apply.
     end.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1057,6 +1089,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.style V-table-Win
 ON LEAVE OF style.style IN FRAME F-Main /* Style No. */
 DO:
+    {&methods/lValidateError.i YES}
     def buffer bf-style for style.
     if lastkey <> -1 and 
        can-find(first bf-style where bf-style.company = style.company and
@@ -1064,8 +1097,10 @@ DO:
     then do:
          message "Style already exists. Try different style code." view-as alert-box.
          return no-apply.
-    end.                  
+    end.     
+   {&methods/lValidateError.i NO}             
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1552,7 +1587,7 @@ PROCEDURE local-delete-record :
   def var j as int no-undo.
   DEF VAR lv-rowid AS ROWID EXTENT 2 NO-UNDO.
 
-
+   {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
 
   find first eb where eb.company = gcompany and
@@ -1573,7 +1608,7 @@ PROCEDURE local-delete-record :
             view-as alert-box question button yes-no update ll-ans .
     if not ll-ans then return no-apply.
   END.
-
+  {&methods/lValidateError.i NO}
   SESSION:SET-WAIT-STATE ("general").
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
@@ -1615,6 +1650,7 @@ PROCEDURE local-delete-record :
   SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1772,7 +1808,7 @@ PROCEDURE local-update-record :
   /* validation check */
   RUN valid-type NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+   {&methods/lValidateError.i YES}
   do with frame {&frame-name}:
      if not can-find(first box-design-hdr where /*box-design-hdr.company = style.company 
                        and*/  box-design-hdr.design-no = int(style.design-no:screen-value))
@@ -1841,7 +1877,7 @@ PROCEDURE local-update-record :
        end.
     end.
   end.   /* do with frame */
-
+   {&methods/lValidateError.i NO}
   /* end of validation */
   ll-new-record = adm-new-record.
 
@@ -1864,6 +1900,7 @@ PROCEDURE local-update-record :
      RUN enable-disable IN WIDGET-HANDLE(char-hdl) ("ENABLE") .
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -306,11 +306,14 @@ DO:
    IF LASTKEY = -1 THEN return.
 
    RUN valid-chg-code.
+   {&methods/lValidateError.i YES}
    IF RETURN-VALUE <> "" THEN DO:
       MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
       RETURN NO-APPLY.
    END.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -322,12 +325,14 @@ ON LEAVE OF end_hour IN FRAME F-Main /* End Time */
 DO:
      IF LASTKEY = -1 THEN RETURN.
   RUN valid-hour(SELF:SCREEN-VALUE).
+  {&methods/lValidateError.i YES}
   IF RETURN-VALUE <> "" THEN DO:
      MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
   END.
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -339,12 +344,14 @@ ON LEAVE OF end_minute IN FRAME F-Main
 DO:
     IF LASTKEY = -1 THEN RETURN.
   RUN valid-min(SELF:SCREEN-VALUE).
+  {&methods/lValidateError.i YES}
   IF RETURN-VALUE <> "" THEN DO:
      MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
   END.
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -357,12 +364,14 @@ DO:
   IF LASTKEY = -1 THEN RETURN.
 
   RUN valid-sec(SELF:SCREEN-VALUE).
+  {&methods/lValidateError.i YES}
   IF RETURN-VALUE <> "" THEN DO:
      MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
   END.
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -374,13 +383,15 @@ ON LEAVE OF start_hour IN FRAME F-Main /* Start Time */
 DO:
   IF LASTKEY = -1 THEN RETURN.
   RUN valid-hour(SELF:SCREEN-VALUE).
+  {&methods/lValidateError.i YES}
   IF RETURN-VALUE <> "" THEN DO:
      MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
   END.
-
+  {&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -393,12 +404,14 @@ DO:
     IF LASTKEY = -1 THEN RETURN.
 
   RUN valid-min(SELF:SCREEN-VALUE).
+  {&methods/lValidateError.i YES}
   IF RETURN-VALUE <> "" THEN DO:
      MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
   END.
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -411,12 +424,14 @@ DO:
   IF LASTKEY = -1 THEN RETURN.
 
   RUN valid-sec(SELF:SCREEN-VALUE).
+  {&methods/lValidateError.i YES}
   IF RETURN-VALUE <> "" THEN DO:
      MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
   END.
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -698,7 +713,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   RUN valid-hour(START_hour:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
-
+  {&methods/lValidateError.i YES}
   IF RETURN-VALUE <> "" THEN DO:
      MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO START_hour.
@@ -740,7 +755,7 @@ PROCEDURE local-update-record :
       MESSAGE RETURN-VALUE VIEW-AS ALERT-BOX ERROR.
       RETURN NO-APPLY.
   END.
-
+  {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -748,6 +763,7 @@ PROCEDURE local-update-record :
    DISABLE {&list-5} WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

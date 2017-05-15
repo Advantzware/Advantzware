@@ -622,7 +622,7 @@ END.
 ON LEAVE OF po-ord.carrier IN FRAME F-Main /* Shipping Carrier */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+    {&methods/lValidateError.i YES}
     IF SELF:MODIFIED THEN DO:
        FIND FIRST carrier WHERE carrier.company = g_company AND
                                 carrier.carrier = SELF:SCREEN-VALUE
@@ -632,7 +632,9 @@ DO:
           RETURN NO-APPLY.
        END.
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -713,6 +715,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.ship-id V-table-Win
 ON LEAVE OF po-ord.ship-id IN FRAME F-Main /* Ship To */
 DO:
+  {&methods/lValidateError.i YES}
   IF LASTKEY NE -1 THEN DO:     
     IF ls-drop-custno NE "" THEN DO:
       FIND FIRST shipto NO-LOCK WHERE shipto.company EQ cocode
@@ -774,7 +777,9 @@ DO:
        APPLY "entry" TO po-ord.ship-name.
     END.
  END. /* modified */
+ {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -820,7 +825,7 @@ END.
 ON LEAVE OF po-ord.terms IN FRAME F-Main /* Payment Terms */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+    {&methods/lValidateError.i YES}
     IF SELF:MODIFIED THEN DO:
        FIND FIRST terms NO-LOCK WHERE terms.company = g_company AND
                               terms.t-code = SELF:SCREEN-VALUE
@@ -830,7 +835,9 @@ DO:
           RETURN NO-APPLY.
        END.
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1045,6 +1052,7 @@ PROCEDURE display-shipto :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME} :
     FIND FIRST shipto WHERE RECID(shipto) = ip-recid
                           NO-LOCK NO-ERROR.
@@ -1069,7 +1077,9 @@ PROCEDURE display-shipto :
               shipPhone:SCREEN-VALUE           = IF AVAILABLE cust THEN cust.phone ELSE "".
     END.
   END.
+  {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1081,7 +1091,7 @@ PROCEDURE display-vend :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&frame-name}:
     FIND FIRST vend NO-LOCK 
         WHERE vend.company EQ po-ord.company
@@ -1105,8 +1115,9 @@ PROCEDURE display-vend :
             VIEW-AS ALERT-BOX WARNING.
     END.
   END.
-
+  {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1236,7 +1247,7 @@ PROCEDURE is-dropship :
          btn_ok AT ROW 6 COL 20
          WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE .
-
+  {&methods/lValidateError.i YES}
   ON "value-changed" OF ship-choice
   DO:
       ASSIGN ship-choice.
@@ -1370,7 +1381,7 @@ PROCEDURE is-dropship :
           END. /* if ship-choice ne "" */
         END. /* do with frame */
   END. /* on-choose */
-
+  {&methods/lValidateError.i NO}
   CREATE WIDGET-POOL "w-drop".
   ASSIGN
    ship-custno = ls-drop-custno
@@ -1384,6 +1395,7 @@ PROCEDURE is-dropship :
   WAIT-FOR GO OF FRAME f-drop.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1792,6 +1804,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   /* == validations ==== */
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME} :
     RUN valid-vend-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1811,10 +1824,7 @@ PROCEDURE local-update-record :
           APPLY "entry" TO po-ord.carrier.
           RETURN NO-APPLY.
        END.
-    END.
-
-    RUN valid-tax-gr (po-ord.tax-gr:HANDLE) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.   
 
     IF po-ord.terms:MODIFIED THEN DO:
        FIND FIRST terms WHERE terms.company = g_company AND
@@ -1826,6 +1836,9 @@ PROCEDURE local-update-record :
           RETURN NO-APPLY.
        END.
     END.
+    {&methods/lValidateError.i NO}
+     RUN valid-tax-gr (po-ord.tax-gr:HANDLE) NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END. /* frame */
 
   ASSIGN ll-is-new-rec = adm-new-record.
@@ -1910,6 +1923,7 @@ PROCEDURE local-update-record :
   ll-got-vendor = NO.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

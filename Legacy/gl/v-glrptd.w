@@ -544,11 +544,14 @@ ON LEAVE OF gl-rpt.acrange1[1] IN FRAME F-Main /* Fr Acct2 */
 DO:
   IF LASTKEY = -1  THEN RETURN.
   RUN validate-acct (gl-rpt.acrange1[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  {&methods/lValidateError.i YES}
   IF ERROR-STATUS:ERROR THEN do:
      APPLY "entry" TO gl-rpt.acrange1[1]. 
      RETURN NO-APPLY.
   END.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -560,11 +563,14 @@ ON LEAVE OF gl-rpt.acrange1[2] IN FRAME F-Main /* To Acct2 */
 DO:
   IF LASTKEY = -1  THEN RETURN.
   RUN validate-acct (gl-rpt.acrange1[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  {&methods/lValidateError.i YES}
   IF ERROR-STATUS:ERROR THEN do:
      APPLY "entry" TO gl-rpt.acrange1[2]. 
      RETURN NO-APPLY.
   END.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -576,12 +582,14 @@ ON LEAVE OF gl-rpt.acrange1[3] IN FRAME F-Main /* Fr Acct3 */
 DO:
     IF LASTKEY = -1 THEN RETURN.
     RUN validate-acct (gl-rpt.acrange1[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+    {&methods/lValidateError.i YES}
     IF ERROR-STATUS:ERROR THEN do:
        APPLY "entry" TO gl-rpt.acrange1[3]. 
        RETURN NO-APPLY.
     END.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -593,11 +601,14 @@ ON LEAVE OF gl-rpt.acrange1[4] IN FRAME F-Main /* To Acct3 */
 DO:
    IF LASTKEY = -1 THEN RETURN.
     RUN validate-acct (gl-rpt.acrange1[4]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+    {&methods/lValidateError.i YES}
     IF ERROR-STATUS:ERROR THEN do:
        APPLY "entry" TO gl-rpt.acrange1[4]. 
        RETURN NO-APPLY.
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -609,11 +620,14 @@ ON LEAVE OF gl-rpt.acrange1[5] IN FRAME F-Main /* Fr Acct4 */
 DO:
    IF LASTKEY = -1 THEN RETURN.
     RUN validate-acct (gl-rpt.acrange1[5]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+    {&methods/lValidateError.i YES}
     IF ERROR-STATUS:ERROR THEN do:
        APPLY "entry" TO gl-rpt.acrange1[5].
        RETURN NO-APPLY.
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -625,11 +639,14 @@ ON LEAVE OF gl-rpt.acrange1[6] IN FRAME F-Main /* To Acct4 */
 DO:
    IF LASTKEY = -1 THEN RETURN.
     RUN validate-acct (gl-rpt.acrange1[6]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+    {&methods/lValidateError.i YES}
     IF ERROR-STATUS:ERROR THEN do:
        APPLY "entry" TO gl-rpt.acrange1[6]. 
        RETURN NO-APPLY.
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -641,11 +658,14 @@ ON LEAVE OF gl-rpt.acrange1[7] IN FRAME F-Main /* Fr Acct5 */
 DO:
    IF LASTKEY = -1 THEN RETURN.
     RUN validate-acct (gl-rpt.acrange1[7]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+    {&methods/lValidateError.i YES}
     IF ERROR-STATUS:ERROR THEN do:
        APPLY "entry" TO gl-rpt.acrange1[7]. 
        RETURN NO-APPLY.
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -657,11 +677,14 @@ ON LEAVE OF gl-rpt.acrange1[8] IN FRAME F-Main /* To Acct5 */
 DO:
    IF LASTKEY = -1 THEN RETURN.
     RUN validate-acct (gl-rpt.acrange1[8]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+    {&methods/lValidateError.i YES}
     IF ERROR-STATUS:ERROR THEN do:
        APPLY "entry" TO gl-rpt.acrange1[8]. 
        RETURN NO-APPLY.
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -673,11 +696,14 @@ ON LEAVE OF gl-rpt.acrange[1] IN FRAME F-Main /* Fr Acct1 */
 DO:
   IF LASTKEY = -1  THEN RETURN.
   RUN validate-acct (gl-rpt.acrange[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  {&methods/lValidateError.i YES}
   IF ERROR-STATUS:ERROR THEN do:
      APPLY "entry" TO gl-rpt.acrange[1]. 
      RETURN NO-APPLY.
   END.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -689,11 +715,14 @@ ON LEAVE OF gl-rpt.acrange[2] IN FRAME F-Main /* To Acct1 */
 DO:
   IF LASTKEY = -1  THEN RETURN.
   RUN validate-acct (gl-rpt.acrange[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}) NO-ERROR.
+  {&methods/lValidateError.i YES}
   IF ERROR-STATUS:ERROR THEN do:
      APPLY "entry" TO gl-rpt.acrange[2]. 
      RETURN NO-APPLY.
   END.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -719,13 +748,16 @@ END.
 ON LEAVE OF lv-d-type IN FRAME F-Main /* Type */
 DO:
     IF LASTKEY = -1 THEN RETURN.
+    {&methods/lValidateError.i YES}
 
     IF LOOKUP(string(lv-gl-type,"99"),"21,22,23,24,60,61,71,73,90") = 0 THEN do:
         MESSAGE "Invalid Type. " VIEW-AS ALERT-BOX.
         RETURN NO-APPLY.
     END.
+    {&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

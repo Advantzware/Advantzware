@@ -354,7 +354,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -384,6 +384,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-end-time V-table-Win
 ON LEAVE OF v-end-time IN FRAME F-Main /* Time */
 DO:
+{&methods/lValidateError.i YES}
   ASSIGN {&SELF-NAME}.
   IF INTEGER(SUBSTR({&SELF-NAME},1,2)) * 3600 +
      INTEGER(SUBSTR({&SELF-NAME},3,2)) * 60 LT 0 OR
@@ -393,7 +394,9 @@ DO:
     APPLY "ENTRY" TO {&SELF-NAME}.
     RETURN NO-APPLY.
   END.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -403,6 +406,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-last-time V-table-Win
 ON LEAVE OF v-last-time IN FRAME F-Main /* Time */
 DO:
+{&methods/lValidateError.i YES}
   ASSIGN {&SELF-NAME}.
   IF INTEGER(SUBSTR({&SELF-NAME},1,2)) * 3600 +
      INTEGER(SUBSTR({&SELF-NAME},3,2)) * 60 LT 0 OR
@@ -412,7 +416,9 @@ DO:
     APPLY "ENTRY" TO {&SELF-NAME}.
     RETURN NO-APPLY.
   END.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -422,6 +428,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-next-time V-table-Win
 ON LEAVE OF v-next-time IN FRAME F-Main /* Time */
 DO:
+{&methods/lValidateError.i YES}
   ASSIGN {&SELF-NAME}.
   IF INTEGER(SUBSTR({&SELF-NAME},1,2)) * 3600 +
      INTEGER(SUBSTR({&SELF-NAME},3,2)) * 60 LT 0 OR
@@ -431,7 +438,9 @@ DO:
     APPLY "ENTRY" TO {&SELF-NAME}.
     RETURN NO-APPLY.
   END.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -441,6 +450,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-start-time V-table-Win
 ON LEAVE OF v-start-time IN FRAME F-Main /* Time */
 DO:
+{&methods/lValidateError.i YES}
   ASSIGN {&SELF-NAME}.
   IF INTEGER(SUBSTR({&SELF-NAME},1,2)) * 3600 +
      INTEGER(SUBSTR({&SELF-NAME},3,2)) * 60 LT 0 OR
@@ -450,7 +460,9 @@ DO:
     APPLY "ENTRY" TO {&SELF-NAME}.
     RETURN NO-APPLY.
   END.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -466,7 +478,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -591,7 +603,7 @@ PROCEDURE local-create-record :
     user-batch.company = user-print.company
     user-batch.batch-seq = user-print.batch-seq
     user-batch.prog-seq = user-print.prog-seq.
-         
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -632,7 +644,7 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
   DEF VAR i AS INT NO-UNDO.
   ed-values = "".
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -689,7 +701,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER bf-prt FOR user-print.
   DEF VAR char-hdl AS cha NO-UNDO.
-
+{&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
     g_batch-rowid = ROWID(user-print)
@@ -713,8 +725,10 @@ PROCEDURE local-update-record :
   ASSIGN
     g_batch = NO
     g_batch-rowid = ?.
+{&methods/lValidateError.i NO}
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -773,7 +787,7 @@ PROCEDURE update-batch :
   DEF VAR RUN-PROC AS cha NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
 
-  
+
   FIND FIRST reftable WHERE reftable.reftable = "Batchrpt"
                         AND reftable.CODE = user-print.program-id NO-LOCK NO-ERROR.
   IF AVAIL reftable THEN DO:
@@ -793,7 +807,7 @@ PROCEDURE update-batch :
     DISPLAY ed-values WITH FRAME {&FRAME-NAME}.
   END.
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

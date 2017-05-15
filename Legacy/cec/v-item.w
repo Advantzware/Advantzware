@@ -1110,8 +1110,10 @@ DO:
           AND costtype.cost-type = {&FIRST-EXTERNAL-TABLE}.cost-type:SCREEN-VALUE
           )
   THEN DO:
+  {&methods/lValidateError.i YES}
      MESSAGE "Invalid Cost Type. Try Help."  VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
+{&methods/lValidateError.i NO}
   END.
 
 
@@ -1125,6 +1127,7 @@ DO:
     DISPLAY costtype_descr WITH FRAME {&frame-name}.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1141,11 +1144,14 @@ DO:
                                  )
                      )
      THEN DO:
+    {&methods/lValidateError.i YES}
           MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
+     {&methods/lValidateError.i NO}
      END.                            
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1162,10 +1168,13 @@ DO:
                                  )
                      )
      THEN DO:
+     {&methods/lValidateError.i YES}
           MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
+     {&methods/lValidateError.i NO}
      END.                            
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1182,11 +1191,14 @@ DO:
                                  )
                      )
      THEN DO:
+     {&methods/lValidateError.i YES}
           MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
+     {&methods/lValidateError.i NO}
      END.                            
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1202,11 +1214,14 @@ DO:
                                  OR dept.therm <> 99      )
                      )
      THEN DO:
+     {&methods/lValidateError.i YES}
           MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
+     {&methods/lValidateError.i NO}
      END.                            
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1223,11 +1238,14 @@ DO:
                                  )
                      )
      THEN DO:
+     {&methods/lValidateError.i YES}
           MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
+     {&methods/lValidateError.i NO}
      END.                            
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1244,11 +1262,14 @@ DO:
                                  )
                      )
      THEN DO:
+     {&methods/lValidateError.i YES}
           MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
+     {&methods/lValidateError.i NO}
      END.                            
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1265,11 +1286,14 @@ DO:
                                  )
                      )
      THEN DO:
+     {&methods/lValidateError.i YES}
           MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
+     {&methods/lValidateError.i NO}
      END.                            
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1286,11 +1310,14 @@ DO:
                                  )
                      )
      THEN DO:
+     {&methods/lValidateError.i YES}
           MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
+     {&methods/lValidateError.i NO}
      END.                            
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1307,11 +1334,14 @@ DO:
                                  )
                      )
      THEN DO:
+     {&methods/lValidateError.i YES}
           MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
+     {&methods/lValidateError.i NO}
      END.                            
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1328,11 +1358,14 @@ DO:
                                  )
                      )
      THEN DO:
+     {&methods/lValidateError.i YES}
           MESSAGE "Invalid Department. Try Help." VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
+     {&methods/lValidateError.i NO}
      END.                            
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1503,6 +1536,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.s-wid V-table-Win
 ON LEAVE OF item.s-wid IN FRAME F-Main /* Test */
 DO:
+
+IF LASTKEY EQ -1 THEN Return .
+{&methods/lValidateError.i YES}
     IF sys-ctrl.char-fld = "16th's" THEN DO:
         IF LASTKEY <> -1 AND
             decimal(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0) >= v-16-or-32 
@@ -1522,7 +1558,9 @@ DO:
         END.
 
     END.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1532,6 +1570,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.s-len V-table-Win
 ON LEAVE OF item.s-len IN FRAME F-Main /* Test */
 DO:
+
+IF LASTKEY EQ -1 THEN Return .
+{&methods/lValidateError.i YES}
     IF sys-ctrl.char-fld = "16th's" THEN DO:
         IF LASTKEY <> -1 AND
             decimal(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0) >= v-16-or-32 
@@ -1551,7 +1592,9 @@ DO:
         END.
 
     END.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1561,6 +1604,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.r-wid V-table-Win
 ON LEAVE OF item.r-wid IN FRAME F-Main /* Test */
 DO:
+IF LASTKEY EQ -1 THEN Return .
+{&methods/lValidateError.i YES}
     IF sys-ctrl.char-fld = "16th's" THEN DO:
         IF LASTKEY <> -1 AND
             decimal(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0) >= v-16-or-32 
@@ -1580,7 +1625,9 @@ DO:
         END.
 
     END.
+{&methods/lValidateError.i NO}
 END.
+
 
 
 /* _UIB-CODE-BLOCK-END */
@@ -1591,6 +1638,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.s-dep V-table-Win
 ON LEAVE OF item.s-dep IN FRAME F-Main /* Test */
 DO:
+IF LASTKEY EQ -1 THEN Return .
+{&methods/lValidateError.i YES}
     IF sys-ctrl.char-fld = "16th's" THEN DO:
         IF LASTKEY <> -1 AND
             decimal(SELF:screen-value) - trunc(DECIMAL(SELF:screen-value),0) >= v-16-or-32 
@@ -1610,7 +1659,9 @@ DO:
         END.
 
     END.
+{&methods/lValidateError.i NO}
 END.
+
 
 
 /* _UIB-CODE-BLOCK-END */
@@ -2163,7 +2214,7 @@ PROCEDURE local-update-record :
 
   RUN valid-16th&32th NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+{&methods/lValidateError.i YES}
      IF item.dept-name[1]:screen-value IN FRAME {&frame-name} <> "" AND
         NOT CAN-FIND(FIRST dept WHERE dept.company = "" AND dept.code = item.dept-name[1]:screen-value
                             AND (dept.setup <> 99 OR dept.fc <> 99 OR dept.corr <> 99
@@ -2274,10 +2325,10 @@ PROCEDURE local-update-record :
           APPLY "entry" TO item.dept-name[10] IN FRAME {&frame-name}.
           RETURN NO-APPLY.
      END.
-
+    {&methods/lValidateError.i NO}
      RUN valid-mat-type NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+   {&methods/lValidateError.i YES}
      IF /*fi_mat-type:screen-value <> "" and*/
         NOT CAN-FIND(FIRST procat WHERE procat.company = gcompany AND
                                         procat.procat = item.procat:screen-value)
@@ -2296,7 +2347,7 @@ PROCEDURE local-update-record :
         APPLY "entry" TO item.cost-type IN FRAME {&frame-name}.
         RETURN NO-APPLY.
      END.
-
+   {&methods/lValidateError.i NO}
    RUN valid-dimensions NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -2313,7 +2364,7 @@ PROCEDURE local-update-record :
      RUN valid-test (fi_reg-no:HANDLE, "C") NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
    END.
-
+   {&methods/lValidateError.i YES}
    IF INDEX("BAP",fi_mat-type:screen-value) > 0 THEN DO:
      IF dec(item.cal:screen-value) = 0 THEN DO:
         MESSAGE "Caliper is mandatory" VIEW-AS ALERT-BOX ERROR.
@@ -2366,6 +2417,7 @@ PROCEDURE local-update-record :
                RETURN NO-APPLY.
         END. 
    END.
+{&methods/lValidateError.i NO}
   /* ======== end validation =================== */
 
   /* Dispatch standard ADM method.                             */
@@ -2384,6 +2436,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ("row-changed").
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

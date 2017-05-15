@@ -231,7 +231,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -246,7 +246,7 @@ DO:
 
   /*FIND LAST b-machseq NO-LOCK WHERE b-machseq.company = gcompany AND 
                                     b-machseq.machine = s-machine NO-ERROR.
-                                    
+
   IF adm-new-record THEN
     ASSIGN machseq.machseq:SCREEN-VALUE = STRING(IF AVAIL b-machseq THEN b-machseq.machseq + 1 ELSE 1).
    */ 
@@ -279,13 +279,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL machseq.charge_code V-table-Win
 ON LEAVE OF machseq.charge_code IN FRAME F-Main /* Charge Code */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   {methods/entryerr.i
       &can-find="machchrg WHERE machchrg.company = gcompany
                             AND machchrg.machine = s-machine
                             AND machchrg.charge_code = SELF:SCREEN-VALUE"
       &error-message="Invalid Charge Code (not found in Machine Assigned Charge Codes"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -303,7 +306,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

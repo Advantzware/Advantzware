@@ -1320,6 +1320,7 @@ DO:
    DEFINE VAR dep-num AS INT NO-UNDO.
 
    if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
    if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
@@ -1347,8 +1348,9 @@ DO:
        ASSIGN
        eb.lin-in:SCREEN-VALUE = eb.dep:SCREEN-VALUE .
    END.
-
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1377,31 +1379,38 @@ DO:
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR var-num AS INT NO-UNDO.
 
-  if lastkey = -1 then return. 
+  if lastkey = -1 then return.
+{&methods/lValidateError.i YES} 
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
   if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+
    end.
    IF v-cecscrn-dec THEN
    DO:
       var-num = INT(self:screen-value) .
       RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
       IF op-error THEN DO:
+
          MESSAGE "Invalid Dimension."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          APPLY "ENTRY" TO SELF.
          RETURN NO-APPLY.
+
       END.
       ELSE do: 
          /* self:screen-value = string( var-num +  op-dec) */.
       END.
    END.
-
+{&methods/lValidateError.i NO}
 END.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1445,24 +1454,29 @@ DO:
    DEFINE VAR var-num AS INT NO-UNDO.
 
    if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
 
   if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+
    end.
    IF v-cecscrn-dec THEN
    DO:
       var-num = INT(self:screen-value) .
       RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
       IF op-error THEN DO:
+
          MESSAGE "Invalid Dimension."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          APPLY "ENTRY" TO SELF.
          RETURN NO-APPLY.
+
       END.
       ELSE do: 
         /*  self:screen-value = string( var-num +  op-dec) . */
@@ -1471,7 +1485,10 @@ DO:
 
     IF ll-auto-calc-selected AND {&self-name} <> dec(self:SCREEN-VALUE )
     THEN ll-style-is-valid = YES.
+{&methods/lValidateError.i NO}
 END.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1487,23 +1504,26 @@ DO:
    DEFINE VAR var-num AS INT NO-UNDO.
 
    if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
   if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+
    end.
    IF v-cecscrn-dec THEN
    DO:
       var-num = INT(self:screen-value) .
       RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-      IF op-error THEN DO:
+      IF op-error THEN DO:     
          MESSAGE "Invalid Dimension."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          APPLY "ENTRY" TO SELF.
-         RETURN NO-APPLY.
+         RETURN NO-APPLY.      
       END.
       ELSE do: 
           self:screen-value = string( var-num +  op-dec) .
@@ -1512,7 +1532,10 @@ DO:
 
    IF ll-auto-calc-selected AND {&self-name} <> dec(self:SCREEN-VALUE )
     THEN ll-style-is-valid = YES.
+ {&methods/lValidateError.i NO}
 END.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1528,23 +1551,26 @@ DO:
    DEFINE VAR var-num AS INT NO-UNDO.
 
    if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
   if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+
    end.
    IF v-cecscrn-dec THEN
    DO:
       var-num = INT(self:screen-value) .
       RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-      IF op-error THEN DO:
+      IF op-error THEN DO:      
          MESSAGE "Invalid Dimension."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          APPLY "ENTRY" TO SELF.
-         RETURN NO-APPLY.
+         RETURN NO-APPLY.     
       END.
       ELSE do: 
           /*self:screen-value = string( var-num +  op-dec) . */
@@ -1553,7 +1579,10 @@ DO:
 
    IF ll-auto-calc-selected AND {&self-name} <> dec(self:SCREEN-VALUE )
     THEN ll-style-is-valid = YES.
+{&methods/lValidateError.i NO}
 END.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1569,23 +1598,26 @@ DO:
    DEFINE VAR var-num AS INT NO-UNDO.
 
    if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
   if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+
    end.
    IF v-cecscrn-dec THEN
    DO:
       var-num = INT(self:screen-value) .
       RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-      IF op-error THEN DO:
+      IF op-error THEN DO:      
          MESSAGE "Invalid Dimension."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          APPLY "ENTRY" TO SELF.
-         RETURN NO-APPLY.
+         RETURN NO-APPLY.     
       END.
       ELSE do: 
          /* self:screen-value = string( var-num +  op-dec) . */
@@ -1594,7 +1626,10 @@ DO:
 
    IF ll-auto-calc-selected AND {&self-name} <> dec(self:SCREEN-VALUE )
     THEN ll-style-is-valid = YES.
+{&methods/lValidateError.i NO}
 END.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1610,13 +1645,16 @@ DO:
    DEFINE VAR len-num AS INT NO-UNDO.
 
     if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
     v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
    if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+
    end.
 
    IF v-cecscrn-dec THEN
@@ -1624,10 +1662,12 @@ DO:
       len-num = INT(self:screen-value) .
       RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
       IF op-error THEN DO:
+
          MESSAGE "Invalid Dimension."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          APPLY "ENTRY" TO SELF.
          RETURN NO-APPLY.
+
       END.
       ELSE do: 
 
@@ -1640,7 +1680,10 @@ DO:
     RUN valid-wid-len NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
+{&methods/lValidateError.i NO}
 END.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1665,31 +1708,37 @@ DO:
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR var-num AS INT NO-UNDO.
 
-   if lastkey = -1 then return.  
+   if lastkey = -1 then return.
+{&methods/lValidateError.i YES}  
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
   if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+
    end.
    IF v-cecscrn-dec THEN
    DO:
       var-num = INT(self:screen-value) .
       RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-      IF op-error THEN DO:
+      IF op-error THEN DO:      
          MESSAGE "Invalid Dimension."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          APPLY "ENTRY" TO SELF.
-         RETURN NO-APPLY.
+         RETURN NO-APPLY.     
       END.
       ELSE do: 
          /* self:screen-value = string( var-num +  op-dec) . */
       END.
    END.
+{&methods/lValidateError.i NO}
 
 END.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1705,23 +1754,24 @@ DO:
    DEFINE VAR var-num AS INT NO-UNDO.
 
    if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
   if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
-   then do:
+   then do:   
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
-      return no-apply.
+      return no-apply.   
    end.
    IF v-cecscrn-dec THEN
    DO:
       var-num = INT(self:screen-value) .
       RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-      IF op-error THEN DO:
+      IF op-error THEN DO:      
          MESSAGE "Invalid Dimension."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          APPLY "ENTRY" TO SELF.
-         RETURN NO-APPLY.
+         RETURN NO-APPLY.     
       END.
       ELSE do: 
          /* self:screen-value = string( var-num +  op-dec) .*/
@@ -1730,7 +1780,10 @@ DO:
 
    IF ll-auto-calc-selected AND {&self-name} <> dec(self:SCREEN-VALUE )
     THEN ll-style-is-valid = YES.
+{&methods/lValidateError.i NO}
 END.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1818,12 +1871,16 @@ DO:
                    eb.sman:SCREEN-VALUE = shipto.spare-char-1 .
                    run new-sman.
                END.
+{&methods/lValidateError.i YES}
     IF eb.ship-name:SENSITIVE THEN DO:
       APPLY "entry" TO eb.ship-name.
       RETURN NO-APPLY.
     END.
+{&methods/lValidateError.i NO}
+
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1873,6 +1930,7 @@ DO:
                       no-lock no-error.
 
     if not avail itemfg and eb.stock-no:screen-value <> "" then do:
+    {&methods/lValidateError.i YES}
     /*   message "Invalid FG Item#. Try Help.".
        return no-apply.
      */
@@ -1884,10 +1942,12 @@ DO:
           find xef where recid(xef) = recid(ef) no-lock no-error.
           run crt-itemfg (input self:screen-value).
        end.   
-       return no-apply.        
+       return no-apply. 
+   {&methods/lValidateError.i NO}       
     end.  
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1966,12 +2026,16 @@ DO:
 ON LEAVE OF eb.t-len IN FRAME Corr /* Blank Length */
 DO:
   {cec/msfcalc.i}
+
+IF LASTKEY EQ -1 THEN Return .
+{&methods/lValidateError.i YES}
+
   if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
-   then do:
+   then do:    
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
-      return no-apply.
+      return no-apply.    
    end.
 
    DEF VAR lv-len as dec no-undo.
@@ -1992,8 +2056,10 @@ DO:
              lv-wid = trunc(lv-wid,6)
              lv-sqin = ( lv-len * lv-wid )
              eb.t-sqin:screen-value = string( if v-corr then round(lv-sqin * 0.007,6) else round(lv-sqin / 144,6)).
-
+{&methods/lValidateError.i NO}
 END.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2050,9 +2116,11 @@ DO:
   if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+   {&methods/lValidateError.i YES}
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+    {&methods/lValidateError.i NO}
    end.
 
    DEF VAR lv-len as dec no-undo.
@@ -2079,6 +2147,7 @@ DO:
          eb.t-sqin:screen-value = string(if v-corr then round(lv-sqin * 0.007,6)
                                          else round(lv-sqin / 144,6)).
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2122,23 +2191,24 @@ DO:
    DEFINE VAR var-num AS INT NO-UNDO.
 
    if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
   if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
-   then do:
+   then do:    
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
-      return no-apply.
+      return no-apply.    
    end.
    IF v-cecscrn-dec THEN
    DO:
       var-num = INT(self:screen-value) .
       RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-      IF op-error THEN DO:
+      IF op-error THEN DO:      
          MESSAGE "Invalid Dimension."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          APPLY "ENTRY" TO SELF.
-         RETURN NO-APPLY.
+         RETURN NO-APPLY.      
       END.
       ELSE do: 
          /* self:screen-value = string( var-num +  op-dec) . */
@@ -2146,7 +2216,10 @@ DO:
    END.
    IF ll-auto-calc-selected AND {&self-name} <> dec(self:SCREEN-VALUE )
     THEN ll-style-is-valid = YES.
+{&methods/lValidateError.i NO}
 END.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2162,24 +2235,27 @@ DO:
    DEFINE VAR wid-num AS INT NO-UNDO.
 
    if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
    v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
     if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+
    end.
 
    IF v-cecscrn-dec THEN
    DO:
       wid-num = INT(self:screen-value) .
       RUN valid-64-dec(INPUT v-dec, OUTPUT op-error, OUTPUT op-dec).
-      IF op-error THEN DO:
+      IF op-error THEN DO:      
          MESSAGE "Invalid Dimension."
             VIEW-AS ALERT-BOX ERROR BUTTONS OK.
          APPLY "ENTRY" TO SELF.
-         RETURN NO-APPLY.
+         RETURN NO-APPLY.      
       END.
       ELSE do: 
 
@@ -2187,15 +2263,17 @@ DO:
       END.
    END.
 
-  IF LASTKEY NE -1 THEN DO:
+  IF LASTKEY NE -1 THEN DO:    
     RUN valid-wid-len NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.   
   END.
   IF ll-auto-calc-selected THEN DO:
      {cec/slotheitD.i "in frame {&frame-name}"}
   END.
-
+{&methods/lValidateError.i NO}
 END.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2728,7 +2806,7 @@ PROCEDURE cust-spec :
 ------------------------------------------------------------------------------*/
   DEF VAR rec_key_value as cha no-undo.
   DEF VAR header_value as cha no-undo.
-
+{&methods/lValidateError.i YES}
   RUN Get_Procedure IN Persistent-Handle ('specnot2.',OUTPUT run-proc,no).
   find itemfg where itemfg.company = eb.company and
                     itemfg.i-no = eb.stock-no:screen-value in frame {&frame-name}
@@ -2740,7 +2818,9 @@ PROCEDURE cust-spec :
     message "No FG Item Spec note." rec_key_value view-as alert-box.
     return.
   end.
+{&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3630,6 +3710,8 @@ PROCEDURE local-update-record :
   DEF VAR hd2 as handle no-undo.
   DEF VAR li AS INT NO-UNDO.
 
+
+{&methods/lValidateError.i YES}
   def buffer bf-eb for eb.
   DO WITH frame {&frame-name}:
       ASSIGN tb-set:SENSITIVE = FALSE
@@ -3824,9 +3906,11 @@ PROCEDURE local-update-record :
            END. /* Each oe-prmtx */
        END.
   END.
-
+{&methods/lValidateError.i NO}
 
 END PROCEDURE.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

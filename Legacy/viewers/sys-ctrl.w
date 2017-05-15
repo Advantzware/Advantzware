@@ -318,7 +318,7 @@ DO:
     RUN valid-log-fld NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
-
+  {&methods/lValidateError.i YES}
    IF (sys-ctrl.name EQ "RELCREDT" OR
       /*sys-ctrl.name EQ "SalesMgmt" OR */
       sys-ctrl.name EQ "SalesBudget") THEN DO:       
@@ -333,8 +333,9 @@ DO:
            RETURN.
        END.       
    END.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -475,7 +476,7 @@ PROCEDURE local-assign-record :
   END.
 
   IF sys-ctrl.name EQ "OEFGUPDT" THEN SUBSTRING(sys-ctrl.char-fld,8,1) = "N".
-
+    {&methods/lValidateError.i YES}
     IF (sys-ctrl.name EQ "RELCREDT" OR
       /*sys-ctrl.name EQ "SalesMgmt" OR */
       sys-ctrl.name EQ "SalesBudget") THEN DO:  
@@ -488,7 +489,9 @@ PROCEDURE local-assign-record :
            RETURN NO-APPLY.
        END.
    END.
+    {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

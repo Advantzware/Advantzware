@@ -753,14 +753,17 @@ END.
 ON LEAVE OF mach.dept[1] IN FRAME F-Main /* Department */
 DO: 
   if lastkey ne -1 then do:
+  {&methods/lValidateError.i YES}
     if self:screen-value ne "" and
        not can-find(dept where dept.code eq self:screen-value) then do:
       message "Invalid entry, try help..." view-as alert-box error.
       return no-apply.
     end.
+    {&methods/lValidateError.i NO}
   end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -808,6 +811,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.dept[2] V-table-Win
 ON LEAVE OF mach.dept[2] IN FRAME F-Main /* Dept[2] */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and self:screen-value <> "" and
       not can-find(dept where dept.code = self:screen-value)
       then do:
@@ -841,7 +845,9 @@ DO:
                mach.ink-waste:screen-value = "0"
                mach.col-wastelb:screen-value = "0"
                .
+      {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -851,6 +857,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.dept[3] V-table-Win
 ON LEAVE OF mach.dept[3] IN FRAME F-Main /* Dept[3] */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and self:screen-value <> "" and
       not can-find(dept where dept.code = self:screen-value)
       then do:
@@ -886,7 +893,9 @@ DO:
                mach.ink-waste:screen-value = "0"
                mach.col-wastelb:screen-value = "0"
                .
+      {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -896,6 +905,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.dept[4] V-table-Win
 ON LEAVE OF mach.dept[4] IN FRAME F-Main /* Dept[4] */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and self:screen-value <> "" and
       not can-find(dept where dept.code = self:screen-value)
       then do:
@@ -931,7 +941,9 @@ DO:
                mach.ink-waste:screen-value = "0"
                mach.col-wastelb:screen-value = "0"
                .
+      {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1032,14 +1044,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.loc V-table-Win
 ON LEAVE OF mach.loc IN FRAME F-Main /* Location */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and self:screen-value <> "" and
       not can-find(loc where loc.company = cocode and loc.loc = self:screen-value)
       then do:
          message "Invalid Loacation. Try Help." view-as alert-box error.
          return no-apply.
       end.
-
+      {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1087,6 +1101,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.max-wid V-table-Win
 ON ENTRY OF mach.max-wid IN FRAME F-Main /* Max Width */
 DO:
+  {&methods/lValidateError.i YES}
   IF mach.min-wid:LABEL EQ lv-label[1] THEN DO:
     RUN est/d-sidsid.w (mach.m-code:SCREEN-VALUE, "Cylinder Diameters",
                         INPUT-OUTPUT TABLE tt-ss).
@@ -1098,7 +1113,9 @@ DO:
     APPLY "leave" TO {&self-name}.
     RETURN NO-APPLY.
   END.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1113,6 +1130,7 @@ DO:
   APPLY "tab" TO SELF.
   RETURN NO-APPLY.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1911,7 +1929,7 @@ PROCEDURE local-update-record :
 
   RUN valid-fi_sch-m-code NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   do with frame {&frame-name}:  /* validation */
       if mach.loc:screen-value <> "" and
          not can-find(loc where loc.company = cocode and loc.loc = mach.loc:screen-value)
@@ -1949,7 +1967,7 @@ PROCEDURE local-update-record :
          return no-apply.
       end.
   end.
-
+  {&methods/lValidateError.i NO}
   RUN valid-m-seq NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   /* ========== end of validation =================*/
@@ -1963,6 +1981,7 @@ PROCEDURE local-update-record :
   IF adm-new-record AND NOT adm-adding-record THEN RUN repo-query (ROWID(mach)).
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

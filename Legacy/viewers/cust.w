@@ -941,6 +941,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.carrier V-table-Win
 ON LEAVE OF cust.carrier IN FRAME F-Main /* Carrier */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 /*and cust.carrier:screen-value <> "" */ and
         not can-find(first carrier where carrier.company = gcompany and 
                                      carrier.loc = cust.loc:screen-value and
@@ -951,7 +952,9 @@ DO:
      end.
 
   {methods/dispflds.i}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -961,6 +964,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.case-bundle V-table-Win
 ON LEAVE OF cust.case-bundle IN FRAME F-Main /* Case/Bundle */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and cust.case-bundle:screen-value <> "" and
         not can-find(first item where item.company = gcompany and item.mat-type = "C" and
                                       item.i-no = cust.case-bundle:screen-value)
@@ -968,9 +972,10 @@ DO:
         message "Invalid Case/Bundle Code. Try Help." view-as alert-box error.
         return no-apply.     
      end.
-
+     {&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1078,13 +1083,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.cust-level V-table-Win
 ON LEAVE OF cust.cust-level IN FRAME F-Main /* Price Level */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and 
        decimal(cust.cust-level:screen-value) > 10 then 
     do:
         message "Price level can not exceed 10." view-as alert-box error.
         return no-apply.
     end.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1094,6 +1102,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.cust-no V-table-Win
 ON LEAVE OF cust.cust-no IN FRAME F-Main /* Customer */
 DO:
+   {&methods/lValidateError.i YES}
    IF LASTKEY = -1 THEN  RETURN.
    IF adm-new-record AND 
       CAN-FIND(FIRST cust WHERE cust.company = gcompany 
@@ -1102,8 +1111,9 @@ DO:
       MESSAGE "Customer already exists. Try other number." VIEW-AS ALERT-BOX ERROR.
       RETURN NO-APPLY.
    END.
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1125,6 +1135,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.del-zone V-table-Win
 ON LEAVE OF cust.del-zone IN FRAME F-Main /* Delivery Zone */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and /*cust.del-zone:screen-value <> "" and*/
         not can-find(first carr-mtx where carr-mtx.company = gcompany and 
                                      carr-mtx.loc = cust.loc:screen-value and
@@ -1136,7 +1147,9 @@ DO:
      end.
 
   {methods/dispflds.i}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1244,6 +1257,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.loc V-table-Win
 ON LEAVE OF cust.loc IN FRAME F-Main /* Location */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and cust.loc:screen-value <> "" and
         not can-find(first loc where loc.company = gcompany and 
                                      loc.loc = cust.loc:screen-value)
@@ -1253,7 +1267,9 @@ DO:
      end.
 
   {methods/dispflds.i}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1291,6 +1307,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.pallet V-table-Win
 ON LEAVE OF cust.pallet IN FRAME F-Main /* Pallet */
 DO:
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and cust.pallet:screen-value <> "" and
         not can-find(first item where item.company = gcompany and item.mat-type = "D" and
                                       item.i-no = cust.pallet:screen-value)
@@ -1298,8 +1315,9 @@ DO:
         message "Invalid Pallet Code. Try Help." view-as alert-box error.
         return no-apply.     
      end.
-
+     {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1347,6 +1365,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.spare-char-1 V-table-Win
 ON LEAVE OF cust.spare-char-1 IN FRAME F-Main /* Tax Prep Code */
 DO:
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and SELF:screen-value <> "" and 
      (
     /* old
@@ -1359,8 +1378,10 @@ DO:
   then do:
      message "Invalid Tax Prep Code. Try Help." self:screen-value view-as alert-box error.
      return no-apply.
-  end.                       
+  end.   
+  {&methods/lValidateError.i NO}                    
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1370,14 +1391,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.state V-table-Win
 ON LEAVE OF cust.state IN FRAME F-Main /* State */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and cust.state:screen-value <> "" and
        not can-find(first state where state.state = cust.state:screen-value )
     then do:
        message "Invalid State Code. Try Help." view-as alert-box error.
        return no-apply.
     end.                                     
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1387,7 +1410,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.tax-gr V-table-Win
 ON LEAVE OF cust.tax-gr IN FRAME F-Main /* Tax Code */
 DO:
-
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and cust.sort:screen-value = "Y" and 
      (
     /* old
@@ -1405,7 +1428,9 @@ DO:
   end.                                     
 
   {methods/dispflds.i}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1431,6 +1456,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.terr V-table-Win
 ON LEAVE OF cust.terr IN FRAME F-Main /* Territory */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and cust.terr:screen-value <> "" and
         not can-find(first terr where terr.company = gcompany and
                                       terr.terr = cust.terr:screen-value)
@@ -1440,7 +1466,9 @@ DO:
      end.
 
   {methods/dispflds.i}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2179,7 +2207,7 @@ PROCEDURE local-update-record :
    ll-new-record = FALSE .
 
   RUN cust-zip.
-
+  {&methods/lValidateError.i YES}
   do with frame {&frame-name}:
      IF adm-new-record THEN DO:
         ll-new-record = TRUE.
@@ -2205,7 +2233,7 @@ PROCEDURE local-update-record :
            RETURN.
         END.
      END.
-
+     {&methods/lValidateError.i NO}
      /*if /*cust.sman:screen-value <> "" and */
         not can-find(first sman where sman.sman = cust.sman:screen-value)
      then do:
@@ -2222,7 +2250,7 @@ PROCEDURE local-update-record :
 
      RUN valid-status NO-ERROR. 
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+     {&methods/lValidateError.i YES}
      if cust.pallet:screen-value <> "" and
         not can-find(first item where item.company = gcompany and item.mat-type = "D" and
                                       item.i-no = cust.pallet:screen-value)
@@ -2307,6 +2335,7 @@ PROCEDURE local-update-record :
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
      END.
   end.
+  {&methods/lValidateError.i NO}
   RUN valid-cr-hold.
   IF NOT v-valid THEN RETURN NO-APPLY.
 
@@ -2405,6 +2434,7 @@ PROCEDURE local-update-record :
   END.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -230,7 +230,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -257,7 +257,7 @@ END.
 ON LEAVE OF ap-pay.vend-no IN FRAME F-Main /* Vendor# */
 DO:
    IF LASTKEY = -1 THEN RETURN.
-
+    {&methods/lValidateError.i YES}
    FIND FIRST vend WHERE vend.company = g_company
                         AND vend.vend-no = ap-pay.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
                         NO-LOCK NO-ERROR.
@@ -275,10 +275,12 @@ DO:
       END.
    END.
    vend_name = IF AVAIL vend THEN vend.NAME ELSE "".
-   
+
    DISP vend_name WITH FRAME {&FRAME-NAME}.
+   {&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -295,7 +297,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -466,7 +468,7 @@ PROCEDURE local-create-record :
 /* Add Mode for AP CR/DB Memo module                                          */
 /* -------------------------------------------------------------------------- */
 
-  
+
 
    ap-pay.check-no = xchk + 1.
    if ap-pay.check-no < 90000001 then ap-pay.check-no = 90000001.
@@ -508,7 +510,7 @@ PROCEDURE local-display-fields :
   FOR EACH bf-payl OF ap-pay NO-LOCK:
     ld-amt = ld-amt - bf-payl.amt-paid + bf-payl.amt-disc.
   END.
- 
+
   DISPLAY ld-amt WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -523,7 +525,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF var ll-new-record AS LOG NO-UNDO.
-
+  {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   FIND FIRST vend WHERE vend.company = ap-pay.company
                         AND vend.vend-no = ap-pay.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -559,8 +561,9 @@ PROCEDURE local-update-record :
       RUN auto-line-add IN WIDGET-HANDLE(char-hdl).
 
    END.
-
+   {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -573,13 +576,13 @@ PROCEDURE proc-enable :
   Notes:       
 ------------------------------------------------------------------------------*/
  IF NOT adm-new-record AND ap-pay.posted THEN do:
-       
+
       DEF VAR char-hdl AS cha NO-UNDO.
       MESSAGE "This Memo has been posted. No changes are allowed!"           
            VIEW-AS ALERT-BOX ERROR.
       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-source", OUTPUT char-hdl).
       RUN apply-cancel IN WIDGET-HANDLE(char-hdl).
-      
+
    END.
 END PROCEDURE.
 

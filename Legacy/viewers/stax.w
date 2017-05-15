@@ -432,6 +432,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[1] V-table-Win
 ON LEAVE OF stax.tax-acc1[1] IN FRAME F-Main /* Sales Tax Account[1] */
 DO:
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and stax.tax-code1[1]:screen-value <> "" then do:
      if not can-find(first account where account.company = gcompany and
                                          account.type <> "T" and
@@ -441,7 +442,9 @@ DO:
          return no-apply.
      end.
   end.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -463,6 +466,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[2] V-table-Win
 ON LEAVE OF stax.tax-acc1[2] IN FRAME F-Main /* Sales Tax Account[2] */
 DO:
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and stax.tax-code1[2]:screen-value <> "" then do:
      if not can-find(first account where account.company = gcompany and
                                          account.type <> "T" and
@@ -472,7 +476,9 @@ DO:
          return no-apply.
      end.
   end.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -494,6 +500,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[3] V-table-Win
 ON LEAVE OF stax.tax-acc1[3] IN FRAME F-Main /* Sales Tax Account[3] */
 DO:
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and stax.tax-code1[3]:screen-value <> "" then do:
      if not can-find(first account where account.company = gcompany and
                                          account.type <> "T" and
@@ -503,7 +510,9 @@ DO:
          return no-apply.
      end.
   end.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -525,6 +534,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[4] V-table-Win
 ON LEAVE OF stax.tax-acc1[4] IN FRAME F-Main /* Sales Tax Account[4] */
 DO:
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and stax.tax-code1[4]:screen-value <> "" then do:
      if not can-find(first account where account.company = gcompany and
                                          account.type <> "T" and
@@ -534,7 +544,9 @@ DO:
          return no-apply.
      end.
   end.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -556,6 +568,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL stax.tax-acc1[5] V-table-Win
 ON LEAVE OF stax.tax-acc1[5] IN FRAME F-Main /* Sales Tax Account[5] */
 DO:
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and stax.tax-code1[5]:screen-value <> "" then do:
      if not can-find(first account where account.company = gcompany and
                                          account.type <> "T" and
@@ -565,7 +578,9 @@ DO:
          return no-apply.
      end.
   end.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -936,7 +951,7 @@ PROCEDURE local-update-record :
       END. /* indexed fields */
       field-handle = field-handle:NEXT-SIBLING.
   END.
-
+  {&methods/lValidateError.i YES}
   /* now check the accounts against the tax codes */
   FOR EACH tt-accounts WHERE tt-accounts.c-code <> "":
       if not can-find(first account where account.company = gcompany and
@@ -948,13 +963,14 @@ PROCEDURE local-update-record :
           return no-apply.
       end.
   END.
-
+  {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -234,7 +234,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -259,6 +259,7 @@ END.
 ON LEAVE OF ap-chk.check-no IN FRAME F-Main /* Check No */
 DO:
    IF LASTKEY = -1 THEN RETURN.
+   {&methods/lValidateError.i YES}
    IF INPUT ap-chk.check-no <> 0 THEN DO:
       FIND FIRST ap-pay WHERE ap-pay.company = g_company
                         AND ap-pay.check-no = INPUT ap-chk.check-no
@@ -275,7 +276,9 @@ DO:
 
 
    END.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -300,9 +303,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-chk.vend-no V-table-Win
 ON LEAVE OF ap-chk.vend-no IN FRAME F-Main /* Vendor */
 DO:
-   
+
    {VALIDATE/vend.i ap-chk.vend-no vend_name:SCREEN-VALUE}
-   
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -312,7 +315,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-chk.vend-no V-table-Win
 ON VALUE-CHANGED OF ap-chk.vend-no IN FRAME F-Main /* Vendor */
 DO:
-  
+
 /* Task# 04030308
     IF ap-chk.vend-no:SCREEN-VALUE <> "" THEN DO:
         FIND FIRST vend WHERE vend.company = g_company
@@ -340,7 +343,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -462,7 +465,7 @@ PROCEDURE local-assign-record :
   ASSIGN
    lv-old-check-no   = ap-chk.check-no
    lv-old-check-date = ap-chk.check-date.
-            
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -486,7 +489,7 @@ PROCEDURE local-assign-record :
      IF ap-chk.check-no > bank.last-chk THEN bank.last-chk = ap-chk.check-no.
      ap-chk.check-act = bank.actnum.
   END.
- 
+
 
 END PROCEDURE.
 
@@ -536,7 +539,7 @@ PROCEDURE local-display-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR ld-tmp-amt AS DEC NO-UNDO.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAIL ap-chk THEN DO:
      FIND FIRST vend WHERE vend.company = g_company
@@ -582,6 +585,7 @@ PROCEDURE local-update-record :
      {VALIDATE/vend-upd.i ap-chk.vend-no vend_name:SCREEN-VALUE}
      {VALIDATE/bank.i ap-chk.bank-code bank_name:SCREEN-VALUE}
      IF INPUT ap-chk.check-no <> 0 THEN DO:
+        {&methods/lValidateError.i YES}
         FIND FIRST ap-pay WHERE ap-pay.company = g_company
                         AND ap-pay.check-no = INPUT ap-chk.check-no
                         AND (ap-pay.check-act = lv-bank-acct OR 
@@ -595,6 +599,7 @@ PROCEDURE local-update-record :
            APPLY "entry" TO ap-chk.check-no.
            RETURN NO-APPLY.
         END.
+	{&methods/lValidateError.i NO}
      END.
   END.
   ll-new-record = adm-new-record.
@@ -610,6 +615,7 @@ PROCEDURE local-update-record :
 
    END.
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -300,7 +300,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -311,11 +311,14 @@ ASSIGN
 ON LEAVE OF phone.attention IN FRAME F-Main /* Attention */
 DO:
  IF LASTKEY = -1 THEN RETURN.
+ {&methods/lValidateError.i YES}
   IF phone.attention:SCREEN-VALUE = "" THEN DO:  /* task 11181301 */
     MESSAGE "Phone Attention field can't be blank.." VIEW-AS ALERT-BOX ERROR.
     return no-apply.  
   END.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -353,7 +356,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -418,9 +421,9 @@ PROCEDURE EmailNotify :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
-  DEFINE INPUT PARAM ilQuietMode  AS LOGICAL NO-UNDO.
 
+  DEFINE INPUT PARAM ilQuietMode  AS LOGICAL NO-UNDO.
+   {&methods/lValidateError.i YES}
   IF tbNotice:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
 
     IF NOT CAN-FIND (FIRST reftable NO-LOCK
@@ -438,23 +441,23 @@ PROCEDURE EmailNotify :
 
     IF AVAIL phone AND phone.table_rec_key NE "" THEN
     DO:
-    
+
     FIND FIRST reftable EXCLUSIVE-LOCK
          WHERE reftable.rec_key = phone.table_rec_key
            AND reftable.CODE    = STRING (phone.rec_key) NO-ERROR.
 
     IF AVAIL reftable THEN DO:
-      
+
       IF CAN-FIND (FIRST reftable NO-LOCK 
                    WHERE reftable.rec_key = STRING (phone.rec_key))
       THEN DO:
         IF NOT ilQuietMode THEN DO:
-        
+
           MESSAGE 'This contact is currently set to receive Advanced Ship Notice(s).'  SKIP
                   'Do you wish to stop sending such notices to this contact?'
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
             UPDATE vlProceed AS LOGICAL.
-  
+
           IF NOT vlProceed THEN DO:
             tbNotice:SCREEN-VALUE = 'YES'. 
             MESSAGE 'Aborted.'
@@ -486,13 +489,14 @@ PROCEDURE EmailNotify :
     END.
     END.
   END.
-  
+  {&methods/lValidateError.i NO}
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"CONTAINER",OUTPUT char-hdl).
 
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN AdvancedNotice IN WIDGET-HANDLE(char-hdl).
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -504,21 +508,21 @@ PROCEDURE local-create-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/phone.i}
-  
- 
+
+
   RUN SetEmailNotify.
   vrPhone = ?.
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"CONTAINER",OUTPUT char-hdl).
 
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN AdvancedNotice IN WIDGET-HANDLE(char-hdl).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -558,7 +562,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR ll-choice AS LOG NO-UNDO.
   DEF VAR ll-new-record AS LOG NO-UNDO.
-
+  {&methods/lValidateError.i YES}
   ll-new-record = adm-new-record.
   /* task 11181301 */
     IF phone.attention:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
@@ -566,7 +570,7 @@ PROCEDURE local-update-record :
          APPLY "entry" TO phone.attention .
          RETURN.
     END.
-
+  {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -605,6 +609,7 @@ PROCEDURE local-update-record :
      {methods/run_link.i "CONTAINER-SOURCE" "setAddStatus" "(INPUT NO)"}
 END PROCEDURE.
 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -639,7 +644,7 @@ PROCEDURE SetEmailNotify :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-  
+
     RUN SetNotifyMode.
 
     IF CAN-FIND (FIRST reftable NO-LOCK
@@ -673,7 +678,7 @@ PROCEDURE SetNotifyMode :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-  
+
     IF phone.e_mail:SENSITIVE THEN tbNotice:SENSITIVE = TRUE.
                               ELSE tbNotice:SENSITIVE = FALSE.
   END.

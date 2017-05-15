@@ -1346,13 +1346,16 @@ DO:
        IF LASTKEY <> -1 AND 
           eb.tr-no:SCREEN-VALUE <> "" 
          THEN DO:
+        {&methods/lValidateError.i YES}
 
            MESSAGE 
              "Invalid Pallet #. Try Help." 
              VIEW-AS ALERT-BOX ERROR.
            RETURN NO-APPLY.
+      {&methods/lValidateError.i NO}
        END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1615,6 +1618,7 @@ PROCEDURE local-assign-record :
   DEF VAR lv-error AS log NO-UNDO.
   DEF VAR ll-ans AS LOG NO-UNDO.
   DEF VAR ll-assem AS LOG INIT ? NO-UNDO.
+{&methods/lValidateError.i YES}
 
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN new-carrier.
@@ -1827,8 +1831,10 @@ PROCEDURE local-assign-record :
   {sys/inc/k16bb.i eb.tr-dep  }*/
 
   RUN dispatch ("display-fields").
+{&methods/lValidateError.i NO}
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1959,7 +1965,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var li-num-of-code as int no-undo.
-
+{&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
     IF eb.form-no NE 0 THEN DO:
@@ -2117,8 +2123,10 @@ PROCEDURE local-update-record :
       WITH FRAME {&FRAME-NAME}.
 
   RUN release-shared-buffers.
+{&methods/lValidateError.i NO}
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2234,7 +2242,7 @@ PROCEDURE reset-ink :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+{&methods/lValidateError.i YES}
 IF eb.form-no NE 0 THEN DO:
   {custom/checkuse.i}
 
@@ -2516,8 +2524,10 @@ IF eb.form-no NE 0 THEN DO:
           bf-eb.i-%[10] = int(eb.i-%[10]:screen-value )
           .
 END.
+{&methods/lValidateError.i NO}
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

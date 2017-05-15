@@ -966,6 +966,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[1] V-table-Win
 ON LEAVE OF style.m-code[1] IN FRAME F-Main /* 1 */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -978,8 +979,10 @@ DO:
                           mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL mach THEN style.m-dscr[1]:SCREEN-VALUE = mach.m-dscr.
     ELSE style.m-dscr[1]:SCREEN-VALUE = "".
+    {&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -989,6 +992,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[2] V-table-Win
 ON LEAVE OF style.m-code[2] IN FRAME F-Main /* 2 */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -1001,8 +1005,9 @@ DO:
                           mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL mach THEN style.m-dscr[2]:SCREEN-VALUE = mach.m-dscr.
     ELSE style.m-dscr[2]:SCREEN-VALUE = "".
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1012,6 +1017,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[3] V-table-Win
 ON LEAVE OF style.m-code[3] IN FRAME F-Main /* 3 */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -1024,8 +1030,9 @@ DO:
                           mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL mach THEN style.m-dscr[3]:SCREEN-VALUE = mach.m-dscr.
     ELSE style.m-dscr[3]:SCREEN-VALUE = "".
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1035,6 +1042,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[4] V-table-Win
 ON LEAVE OF style.m-code[4] IN FRAME F-Main /* 4 */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -1047,8 +1055,9 @@ DO:
                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[4]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[4]:SCREEN-VALUE = "".
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1058,6 +1067,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[5] V-table-Win
 ON LEAVE OF style.m-code[5] IN FRAME F-Main /* 5 */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -1071,8 +1081,9 @@ DO:
     IF AVAIL mach THEN style.m-dscr[5]:SCREEN-VALUE = mach.m-dscr.
     ELSE style.m-dscr[5]:SCREEN-VALUE = "".
 
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1082,6 +1093,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[6] V-table-Win
 ON LEAVE OF style.m-code[6] IN FRAME F-Main /* 6 */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -1094,9 +1106,10 @@ DO:
                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[6]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[6]:SCREEN-VALUE = "".
-
+   {&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1106,6 +1119,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[7] V-table-Win
 ON LEAVE OF style.m-code[7] IN FRAME F-Main /* 7 */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -1118,8 +1132,10 @@ DO:
                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[7]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[7]:SCREEN-VALUE = "".
+   {&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

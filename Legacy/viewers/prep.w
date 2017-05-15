@@ -796,6 +796,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.cost-type V-table-Win
 ON LEAVE OF prep.cost-type IN FRAME F-Main /* Cost Type */
 DO:
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" and
       not can-find(costtype where costtype.company = gcompany and costtype.loc = gloc 
                               and costtype.cost-type= self:screen-value)
@@ -812,7 +813,9 @@ DO:
           costtype_descr = costtype.descr
           costtype_descr:SCREEN-VALUE = costtype.descr .
    end.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -823,7 +826,7 @@ END.
 ON LEAVE OF prep.cust-no IN FRAME F-Main /* Cust. # */
 DO:
   DEF BUFFER b-cust FOR cust.
-
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" THEN
     DO:
       FIND FIRST b-cust where
@@ -837,7 +840,9 @@ DO:
       end.
       ELSE prep.cust-name:SCREEN-VALUE = b-cust.name.
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -997,6 +1002,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.mat-type V-table-Win
 ON LEAVE OF prep.mat-type IN FRAME F-Main /* Material Type */
 DO:
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" and
       not can-find(matprep where matprep.company = gcompany
                              and matprep.mat = self:screen-value)
@@ -1014,8 +1020,10 @@ DO:
        ASSIGN                                                  
            mat_dscr = matprep.dscr                               
            mat_dscr:SCREEN-VALUE = matprep.dscr.                 
-   END.                                                    
+   END.  
+   {&methods/lValidateError.i NO}                                                  
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1104,6 +1112,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.uom V-table-Win
 ON LEAVE OF prep.uom IN FRAME F-Main /* UOM */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" and
       not can-find(uom where uom.uom = self:screen-value)
    then do:
@@ -1112,7 +1121,9 @@ DO:
    end.
 
   {methods/dispflds.i}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1646,7 +1657,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-code NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   do with frame {&frame-name} :
     if prep.mat-type:screen-value <> "" and
        not can-find(matprep where matprep.company = gcompany
@@ -1665,7 +1676,7 @@ PROCEDURE local-update-record :
       return no-apply.
     end.
   end.
-
+  {&methods/lValidateError.i NO}
   RUN valid-rm-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1677,7 +1688,7 @@ PROCEDURE local-update-record :
 
   RUN valid-rmcat NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   if PREP.CUST-no:screen-value <> "" THEN
   DO:
     FIND FIRST bCust where
@@ -1697,7 +1708,7 @@ PROCEDURE local-update-record :
       RELEASE bCust.
     END.
   END.
-
+  {&methods/lValidateError.i NO}
   DO WITH FRAME {&FRAME-NAME}:
     RUN valid-dim (prep.carton-w:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1732,6 +1743,7 @@ PROCEDURE local-update-record :
 
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

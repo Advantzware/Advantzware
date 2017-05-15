@@ -261,7 +261,7 @@ END.
 ON LEAVE OF pc-prdh.dept IN FRAME F-Main /* Department */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+    {&methods/lValidateError.i YES}
     IF pc-prdh.dept:MODIFIED THEN DO:
        FIND FIRST dept WHERE dept.company = g_company AND
                        dept.CODE = pc-prdh.dept:SCREEN-VALUE
@@ -278,7 +278,9 @@ DO:
        lv-dep-dscr:SCREEN-VALUE = dept.dscr.
 
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
