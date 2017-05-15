@@ -1010,6 +1010,8 @@ PROCEDURE calc-var :
   DEF VAR ll AS LOG NO-UNDO.
 
 
+  IF LASTKEY EQ -1 THEN Return .
+  {&methods/lValidateError.i YES}
   IF LASTKEY NE -1 THEN
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
@@ -1110,8 +1112,9 @@ PROCEDURE calc-var :
     IF lv-onevar NE 0 THEN ENABLE v-vcol-1 v-vcol-2 v-vcol-3.
     IF lv-twovar NE 0 THEN ENABLE v-vcol-4 v-vcol-5 v-vcol-6.
   END.
-
+  {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1407,6 +1410,7 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   /* ====== validation ======== */
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
      v-rpt = gl-rpt.rpt.
 
@@ -1434,6 +1438,7 @@ PROCEDURE local-update-record :
         RETURN NO-APPLY.
      END.
   END.
+  {&methods/lValidateError.i NO}
 
   RUN calc-var (1) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1456,6 +1461,7 @@ PROCEDURE local-update-record :
          WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

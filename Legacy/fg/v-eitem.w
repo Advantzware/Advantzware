@@ -1302,7 +1302,7 @@ PROCEDURE local-update-record :
 
   RUN valid-cust-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF e-itemfg-vend.vend-no:SCREEN-VALUE EQ "" THEN DO:
        FIND FIRST bf-evend
@@ -1324,6 +1324,7 @@ PROCEDURE local-update-record :
        END.
      END.
   END.
+  {&methods/lValidateError.i NO}
 
   /* ============= end of validation ================*/
   v-add-record = adm-adding-record.
@@ -1344,6 +1345,7 @@ PROCEDURE local-update-record :
   RUN update-est-matrices-proc.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1372,7 +1374,7 @@ PROCEDURE new-sel :
     ASSIGN
      lv-group-hdl = FRAME {&FRAME-NAME}:FIRST-CHILD
      lv-field-hdl = lv-group-hdl:FIRST-CHILD.
-
+    {&methods/lValidateError.i YES}
     DO WHILE VALID-HANDLE(lv-field-hdl):
       lv-test-valid-widget = lv-field-hdl:NAME NO-ERROR.
       IF ERROR-STATUS:ERROR THEN
@@ -1386,13 +1388,14 @@ PROCEDURE new-sel :
 
       lv-field-hdl = lv-field-hdl:NEXT-SIBLING.
     END.
-
+    {&methods/lValidateError.i NO}
     IF lv-sel NE "" THEN lv-sel-all = lv-sel.
 
     IF lv-sel-all NE "" THEN tb_sel:SCREEN-VALUE = lv-sel-all.
   END.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

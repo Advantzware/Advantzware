@@ -411,7 +411,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -514,6 +514,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-adh-code V-table-Win
 ON LEAVE OF v-adh-code IN FRAME F-Main /* Adhesive */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" AND
       v-adh-code NE v-adh-code:SCREEN-VALUE THEN
    DO:
@@ -522,7 +523,7 @@ DO:
            b-item.i-no     eq self:SCREEN-VALUE AND
            (b-item.mat-type eq "G" OR item.mat-type = 'T')
            NO-LOCK NO-ERROR.
-            
+
       IF NOT AVAIL b-item THEN
       do:
          message " You MUST Enter a Valid Adhesive Code or Blank " view-as alert-box error.
@@ -534,7 +535,9 @@ DO:
 
       ASSIGN v-adh-code.
    END.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -544,6 +547,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-bom-1 V-table-Win
 ON LEAVE OF v-bom-1 IN FRAME F-Main /* Paper 1 */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" AND
        v-bom-1 NE v-bom-1:SCREEN-VALUE THEN
     DO:
@@ -571,7 +575,9 @@ DO:
           v-shrink-1:SCREEN-VALUE = "0".
 
     ASSIGN v-bom-1.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -581,6 +587,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-bom-2 V-table-Win
 ON LEAVE OF v-bom-2 IN FRAME F-Main /* Paper 2 */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" AND
       v-bom-2 NE v-bom-2:SCREEN-VALUE THEN
    DO:
@@ -589,7 +596,7 @@ DO:
            and b-item.i-no     eq self:screen-value
            and b-item.mat-type eq "P" /* Paper */
            NO-LOCK NO-ERROR.
-     
+
       IF NOT AVAIL b-item THEN
       do:
          message "You MUST Enter a Valid Paper Item or Blank " 
@@ -608,7 +615,9 @@ DO:
          v-shrink-2:SCREEN-VALUE = "0".
 
    ASSIGN v-bom-2.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -618,6 +627,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-bom-3 V-table-Win
 ON LEAVE OF v-bom-3 IN FRAME F-Main /* Paper 3 */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" AND
       v-bom-3 NE v-bom-3:SCREEN-VALUE THEN
    DO:
@@ -626,7 +636,7 @@ DO:
            and b-item.i-no     eq self:screen-value
            and b-item.mat-type eq "P" /* Paper */
            NO-LOCK NO-ERROR.
-     
+
       IF NOT AVAIL b-item THEN
       do:
          message "You MUST Enter a Valid Paper Item or Blank " 
@@ -645,7 +655,9 @@ DO:
           v-shrink-3:SCREEN-VALUE = "0".
 
    ASSIGN v-bom-3.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -655,6 +667,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-bom-4 V-table-Win
 ON LEAVE OF v-bom-4 IN FRAME F-Main /* Paper 4 */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" AND
       v-bom-4 NE v-bom-4:SCREEN-VALUE THEN
    DO:
@@ -663,7 +676,7 @@ DO:
            and b-item.i-no     eq self:screen-value
            and b-item.mat-type eq "P" /* Paper */
            NO-LOCK NO-ERROR.
-     
+
       IF NOT AVAIL b-item THEN
       do:
          message "You MUST Enter a Valid Paper Item or Blank " 
@@ -682,7 +695,9 @@ DO:
          v-shrink-4:SCREEN-VALUE = "0".
 
    ASSIGN v-bom-4.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -692,6 +707,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-bom-5 V-table-Win
 ON LEAVE OF v-bom-5 IN FRAME F-Main /* Paper 5 */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" AND
       v-bom-5 NE v-bom-5:SCREEN-VALUE THEN
    DO:
@@ -700,7 +716,7 @@ DO:
            and b-item.i-no     eq self:screen-value
            and b-item.mat-type eq "P" /* Paper */
            NO-LOCK NO-ERROR.
-     
+
       IF NOT AVAIL b-item THEN
       do:
          message "You MUST Enter a Valid Paper Item or Blank " 
@@ -719,7 +735,9 @@ DO:
           v-shrink-5:SCREEN-VALUE = "0".
 
    ASSIGN v-bom-5.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -729,6 +747,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-bom-6 V-table-Win
 ON LEAVE OF v-bom-6 IN FRAME F-Main /* Paper 6 */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" AND
       v-bom-6 NE v-bom-6:SCREEN-VALUE THEN
    DO:
@@ -737,7 +756,7 @@ DO:
            and b-item.i-no     eq self:screen-value
            and b-item.mat-type eq "P" /* Paper */
            NO-LOCK NO-ERROR.
-     
+
       IF NOT AVAIL b-item THEN
       do:
          message "You MUST Enter a Valid Paper Item or Blank " 
@@ -756,7 +775,9 @@ DO:
           v-shrink-6:SCREEN-VALUE = "0".
 
    ASSIGN v-bom-6.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -766,6 +787,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-bom-7 V-table-Win
 ON LEAVE OF v-bom-7 IN FRAME F-Main /* Paper 7 */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" AND
       v-bom-7 NE v-bom-7:SCREEN-VALUE THEN
    DO:
@@ -774,7 +796,7 @@ DO:
            and b-item.i-no     eq self:screen-value
            and b-item.mat-type eq "P" /* Paper */
            NO-LOCK NO-ERROR.
-     
+
       IF NOT AVAIL b-item THEN
       do:
          message "You MUST Enter a Valid Paper Item or Blank " 
@@ -793,7 +815,9 @@ DO:
           v-shrink-7:SCREEN-VALUE = "0".
 
    ASSIGN v-bom-7.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -803,6 +827,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-bom-8 V-table-Win
 ON LEAVE OF v-bom-8 IN FRAME F-Main /* Paper 8 */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" AND
       v-bom-8 NE v-bom-8:SCREEN-VALUE THEN
    DO:
@@ -811,7 +836,7 @@ DO:
            and b-item.i-no     eq self:screen-value
            and b-item.mat-type eq "P" /* Paper */
            NO-LOCK NO-ERROR.
-     
+
       IF NOT AVAIL b-item THEN
       do:
          message "You MUST Enter a Valid Paper Item or Blank " 
@@ -830,7 +855,9 @@ DO:
           v-shrink-8:SCREEN-VALUE = "0".
 
    ASSIGN v-bom-8.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -840,6 +867,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-lam-code V-table-Win
 ON LEAVE OF v-lam-code IN FRAME F-Main /* Laminate */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" AND
       v-lam-code NE v-lam-code:SCREEN-VALUE THEN
    DO:
@@ -860,7 +888,9 @@ DO:
 
       ASSIGN v-lam-code.
    END.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -876,7 +906,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -999,7 +1029,7 @@ PROCEDURE local-assign-record :
             item-bom.line# = lv-bom-count
             item-bom.shrink = v-shrink[lv-bom-count].
   end.
-  
+
   find b-item2 where recid(b-item2) = recid(item) exclusive-lock.
   assign b-item2.avg-cost = 0
          b-item2.last-cost = 0.
@@ -1010,7 +1040,7 @@ PROCEDURE local-assign-record :
       assign b-item2.avg-cost = b-item2.avg-cost + b-item.avg-cost
              b-item2.last-cost = b-item2.last-cost + b-item.last-cost.
   end.       
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1083,7 +1113,7 @@ PROCEDURE local-display-fields :
                          item-bom.line# = lv-bom-count
                          no-error.
      if not avail item-bom then NEXT .
-     
+
      find b-item where b-item.company = item-bom.company and
                        b-item.i-no = item-bom.i-no no-lock no-error.
      if not avail b-item then do:
@@ -1159,7 +1189,7 @@ PROCEDURE local-enable :
             v-bom-dscr-10 with frame {&frame-name}.
   if lv-first then lv-first = no.
   apply "entry" to v-bom-1 in frame {&frame-name}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1192,7 +1222,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-  
+  {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   do with frame {&frame-name}:
      if v-bom-1:screen-value <> "" and
@@ -1299,7 +1329,7 @@ PROCEDURE local-update-record :
       end.
 
   end. /* do */ 
-  
+  {&methods/lValidateError.i NO}
 /*
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -1312,6 +1342,7 @@ PROCEDURE local-update-record :
   run set-label in widget-handle(char-hdl) ("&Update").  
   run set-buttons in widget-handle(char-hdl) ("Initial").
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

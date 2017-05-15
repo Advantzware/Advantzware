@@ -685,13 +685,13 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  {&methods/lValidateError.i YES}
   IF fgcat.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
      MESSAGE "Category cannot be blank. Try again." VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO fgcat.procat.
      RETURN .
   END.
-
+  {&methods/lValidateError.i NO}
   RUN valid-glacc NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN .
 
@@ -710,6 +710,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   DISABLE v-charge v-gl-rm v-gl-fg WITH FRAME {&FRAME-NAME}.
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

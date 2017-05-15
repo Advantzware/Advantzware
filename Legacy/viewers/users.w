@@ -841,6 +841,7 @@ PROCEDURE local-update-record :
 
   IF users.user_program[3]:SCREEN-VALUE NE "" THEN
   DO:
+     {&methods/lValidateError.i YES}
      IF SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "\" OR
         SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "/" THEN
      DO:
@@ -855,6 +856,7 @@ PROCEDURE local-update-record :
              view-as alert-box ERROR BUTTON YES-NO UPDATE v-ans AS LOG.
         IF v-ans THEN OS-CREATE-DIR VALUE(file-info:file-name).
      END.
+    {&methods/lValidateError.i NO}
   END.  
 
   /* Dispatch standard ADM method.                             */
@@ -871,6 +873,7 @@ PROCEDURE local-update-record :
           WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

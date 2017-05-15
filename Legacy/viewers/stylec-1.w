@@ -492,11 +492,14 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.balecount V-table-Win
 ON LEAVE OF style.balecount IN FRAME F-Main /* Bale Count */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and index("12",self:screen-value) <= 0 then do:
       message "Invalid Balecount. Enter 1 or 2." view-as alert-box error.
       return no-apply.
-   end. 
+   end.
+   {&methods/lValidateError.i NO} 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -761,6 +764,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF INDEX("12",style.balecount:SCREEN-VALUE) LE 0 THEN DO:
       MESSAGE "Invalid Balecount, Please enter 1 or 2..."
@@ -778,13 +782,14 @@ PROCEDURE local-update-record :
     RUN valid-dim (style.sqft-wid-trim:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
-
+  {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   disable ld-box-fit with frame {&frame-name}.
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

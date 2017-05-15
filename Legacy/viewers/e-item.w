@@ -746,6 +746,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL e-item.std-uom V-table-Win
 ON LEAVE OF e-item.std-uom IN FRAME F-Main /* Purchased Cost UOM */
 DO:
+    {&methods/lValidateError.i YES}
     find bf-item of e-item no-lock no-error.
     run sys/ref/uom-rm.p (bf-item.mat-type, output uom-list). 
 
@@ -757,8 +758,9 @@ DO:
        message "Invalid UOM. Try Help." view-as alert-box error.       
        return no-apply.
     end.   
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1508,7 +1510,7 @@ PROCEDURE local-update-record :
 
   RUN valid-roll-w-30 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   find bf-item of e-item no-lock no-error.
   run sys/ref/uom-rm.p  (bf-item.mat-type, output uom-list).       
   IF E-ITEM.std-uom:SCREEN-VALUE IN FRAME {&FRAME-NAME} <> "" and
@@ -1528,7 +1530,7 @@ PROCEDURE local-update-record :
         apply "entry" to e-item-vend.vend-no.
         return no-apply.
   end.
-
+  {&methods/lValidateError.i NO}
   lv-new-record = adm-new-record.
   /* ============= end of validation ================*/
 
@@ -1556,6 +1558,7 @@ PROCEDURE local-update-record :
 
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

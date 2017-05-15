@@ -714,12 +714,15 @@ DO:
       if lastkey <> -1 and self:screen-value <> "" and
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
-    then do:
+    then do: 
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -733,11 +736,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -751,11 +757,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -769,11 +778,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -787,11 +799,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -805,11 +820,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -823,11 +841,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -841,11 +862,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -859,11 +883,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -877,11 +904,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -895,11 +925,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -913,10 +946,13 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -930,11 +966,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -948,11 +987,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -966,11 +1008,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}  
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -984,11 +1029,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1002,11 +1050,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1020,11 +1071,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1038,11 +1092,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1056,11 +1113,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1074,11 +1134,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1092,11 +1155,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1110,11 +1176,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1128,11 +1197,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+     {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1146,11 +1218,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1164,11 +1239,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1182,11 +1260,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1200,11 +1281,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1218,11 +1302,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1236,11 +1323,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1254,11 +1344,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1272,11 +1365,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1290,11 +1386,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1308,11 +1407,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1326,11 +1428,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1344,11 +1449,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1362,11 +1470,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1380,11 +1491,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1398,11 +1512,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1416,11 +1533,14 @@ DO:
        not can-find(routing where routing.company = gcompany and routing.loc = gloc
                     and routing.r-code = self:screen-value)
     then do:
+    {&methods/lValidateError.i YES}
         message "Invalid Routing Code. Try Help." view-as alert-box error.
         return no-apply.
+    {&methods/lValidateError.i NO}
     end.                 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1747,10 +1867,12 @@ PROCEDURE local-update-record :
      if lv-field-hdl:name = "r-code" then do:
         run validate-routing (lv-field-hdl:screen-value) no-error.
         if error-status:error then do:
+        {&methods/lValidateError.i YES}
            message "Invalid Routing Code. Try Help." 
                    view-as alert-box error.
            apply "entry" to lv-field-hdl .
            return no-apply.
+        {&methods/lValidateError.i NO}
         end.
      end.   
      lv-field-hdl = lv-field-hdl:next-sibling.
@@ -1764,6 +1886,7 @@ PROCEDURE local-update-record :
   RUN dispatch ('display-fields').
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

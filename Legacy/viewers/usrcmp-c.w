@@ -213,7 +213,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -224,7 +224,7 @@ ASSIGN
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -303,9 +303,9 @@ PROCEDURE local-assign-record :
                             bf-comp.loc = "" AND
                         RECID(bf-comp) <> RECID(usercomp) :
          bf-comp.company_default = NO.
-      
+
      END.
-                       
+
  END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -340,7 +340,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
     IF usercomp.company_default:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "yes" THEN DO:
-
+      {&methods/lValidateError.i YES}
       FIND FIRST bf-comp WHERE bf-comp.USER_id = users.USER_id AND
                            bf-comp.loc = "" AND
                            bf-comp.company_default = YES AND
@@ -352,6 +352,7 @@ PROCEDURE local-update-record :
            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
         IF NOT ll-ans THEN RETURN.
      END.
+      {&methods/lValidateError.i NO}
   END.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -363,6 +364,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ("open-query").
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

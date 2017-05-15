@@ -1106,6 +1106,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.ink-type V-table-Win
 ON VALUE-CHANGED OF item.ink-type IN FRAME F-Main /* Ink Type */
 DO:
+  {&methods/lValidateError.i YES}
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
   lv-msg = "".
@@ -1121,7 +1122,9 @@ DO:
     APPLY "entry" TO {&self-name}.
     RETURN NO-APPLY.
   END.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1646,7 +1649,7 @@ PROCEDURE local-update-record :
   /* ========== validate all inputs =============*/
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+     {&methods/lValidateError.i YES}
      if item.dept-name[1]:screen-value in frame {&frame-name} <> "" and
         not can-find(first dept where dept.company = "" and dept.code = item.dept-name[1]:screen-value
                             and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
@@ -1758,9 +1761,6 @@ PROCEDURE local-update-record :
           return no-apply.
      end.                            
 
-     RUN valid-mat-type NO-ERROR.
-     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
      if /*fi_mat-type:screen-value <> "" and*/
         not can-find(first procat where procat.company = gcompany and
                                         procat.procat = item.procat:screen-value)
@@ -1779,6 +1779,9 @@ PROCEDURE local-update-record :
         apply "entry" to item.cost-type in frame {&frame-name}.
         return no-apply.
      end.
+    {&methods/lValidateError.i NO}
+   RUN valid-mat-type NO-ERROR.
+   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
    RUN valid-dimensions NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1790,7 +1793,7 @@ PROCEDURE local-update-record :
      RUN valid-test (fi_reg-no:HANDLE) NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
    END.
-
+   {&methods/lValidateError.i YES}
    if index("BAPR1234",fi_mat-type:screen-value) > 0 then do:
      if dec(item.cal:screen-value) = 0 then do:
         message "Caliper is mandatory" view-as alert-box error.
@@ -1844,7 +1847,7 @@ PROCEDURE local-update-record :
         end. 
    end.
   /* ======== end validation =================== */
-
+  {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1862,6 +1865,7 @@ PROCEDURE local-update-record :
 
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2042,7 +2046,7 @@ PROCEDURE histblnkmsg :
 
 DEF VAR char-hdl AS CHAR NO-UNDO.  
 define buffer b-poline for po-ordl.
-
+{&methods/lValidateError.i YES}
 find first b-poline where b-poline.company = item.company
                                       and b-poline.i-no    = item.i-no
                                       and b-poline.opened  = yes no-lock no-error.	
@@ -2055,10 +2059,11 @@ IF not avail b-poline and ITEM.i-no <> "" THEN DO:
       return error .                    	      
    END.
 end. 
-
+{&methods/lValidateError.i NO}
 
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -483,6 +483,7 @@ END.
 ON LEAVE OF quotehd.carrier IN FRAME F-Main /* Carrier */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
     carrier_desc:SCREEN-VALUE = ''.
     IF quotehd.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
     FIND FIRST carrier NO-LOCK WHERE carrier.company EQ gcompany
@@ -493,8 +494,10 @@ DO:
       RETURN NO-APPLY.
     END.
     carrier_desc:SCREEN-VALUE = carrier.dscr.
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -532,6 +535,7 @@ END.
 ON LEAVE OF quotehd.del-zone IN FRAME F-Main /* Zone */
 DO:
   IF LASTKEY NE -1 THEN DO:
+   {&methods/lValidateError.i YES}
     zon_desc:SCREEN-VALUE = ''.
     IF quotehd.del-zone:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
     FIND FIRST carr-mtx NO-LOCK WHERE carr-mtx.company EQ gcompany
@@ -543,8 +547,10 @@ DO:
       RETURN NO-APPLY.
     END.
     zon_desc:SCREEN-VALUE = carr-mtx.del-dscr.
+   {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -579,6 +585,7 @@ END.
 ON LEAVE OF quotehd.sman IN FRAME F-Main /* Sales Rep */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
    sman_desc:SCREEN-VALUE = ''.
    IF quotehd.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
    FIND FIRST sman NO-LOCK WHERE sman.sman EQ quotehd.sman:SCREEN-VALUE NO-ERROR.
@@ -587,8 +594,10 @@ DO:
      RETURN NO-APPLY.
    END.
    sman_desc:SCREEN-VALUE = sman.sname.
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -623,6 +632,7 @@ END.
 ON LEAVE OF quotehd.terms IN FRAME F-Main /* Terms */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
     term_desc:SCREEN-VALUE = ''.
     IF quotehd.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
     FIND FIRST terms NO-LOCK WHERE terms.t-code EQ quotehd.terms:SCREEN-VALUE NO-ERROR.
@@ -631,8 +641,10 @@ DO:
       RETURN NO-APPLY.
     END.
     term_desc:SCREEN-VALUE = terms.dscr.
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1166,7 +1178,7 @@ PROCEDURE local-update-record :
 
    RUN valid-sold-id NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+   {&methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
      sman_desc:SCREEN-VALUE = ''.
      IF quotehd.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE '' THEN DO:
@@ -1217,6 +1229,7 @@ PROCEDURE local-update-record :
        zon_desc:SCREEN-VALUE = carr-mtx.del-dscr.
      END.
    END.
+  {&methods/lValidateError.i NO}
   /* end of validation ==== */
 
   /* Dispatch standard ADM method.                             */
@@ -1238,6 +1251,7 @@ PROCEDURE local-update-record :
   END.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1416,6 +1430,7 @@ PROCEDURE print-quote :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {&methods/lValidateError.i YES}
   IF quotehd.sman = "" THEN DO:
      MESSAGE "Invalid Sales Rep!" VIEW-AS ALERT-BOX ERROR.
      RETURN.
@@ -1433,8 +1448,9 @@ PROCEDURE print-quote :
 
   RUN est/r-quoprt.w (ROWID(quotehd)) .
   {methods/run_link.i "CONTAINER-SOURCE" "moveToTop"}
-
+  {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

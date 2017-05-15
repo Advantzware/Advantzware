@@ -444,6 +444,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sys-ctrl-shipto.cust-vend-no V-table-Win
 ON LEAVE OF sys-ctrl-shipto.cust-vend-no IN FRAME F-Main /* Customer/Vendor ID */
 DO:
+  {&methods/lValidateError.i YES}
   IF SELF:SCREEN-VALUE NE '' THEN DO:
     IF {&FIRST-EXTERNAL-TABLE}.cust-vend:SCREEN-VALUE EQ 'Yes' THEN DO:
       {methods/entryerr.i
@@ -461,7 +462,9 @@ DO:
     END.
   END.
   {methods/dispflds.i}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -504,6 +507,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sys-ctrl-shipto.ship-id V-table-Win
 ON LEAVE OF sys-ctrl-shipto.ship-id IN FRAME F-Main /* Ship To ID */
 DO:
+  {&methods/lValidateError.i YES}
   IF {&FIRST-EXTERNAL-TABLE}.cust-vend:SCREEN-VALUE EQ 'Yes' AND
      SELF:SCREEN-VALUE NE '' THEN DO:
     {methods/entryerr.i
@@ -514,7 +518,9 @@ DO:
       &error-message="Invalid Ship To"}
   END.
   {methods/dispflds.i}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

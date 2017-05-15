@@ -511,7 +511,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
@@ -536,7 +536,7 @@ DO:
     def var lv-handle as handle no-undo.
     def var char-val as cha no-undo.    
     lv-handle = focus:handle.
-   
+
     case focus:name :
          when "i-code" then do:
              find style where style.company = eb.company and
@@ -562,7 +562,7 @@ DO:
                   end case.       
              end.         
              return no-apply.                       
-                            
+
          end.
          when "cas-no" then do:
            find style where style.company = eb.company and
@@ -615,11 +615,11 @@ DO:
                        eb.carr-dscr:screen-value in frame {&frame-name} = entry(2,char-val)
                        .
              return no-apply.              
-             
+
         end.
 
-         
-         
+
+
     end case.
 
 END.
@@ -635,10 +635,13 @@ DO:
     if lastkey <> -1 and eb.carrier:screen-value <> "" and
        not can-find(first carrier where carrier.carrier = eb.carrier:screen-value)
     then do:
+     {&methods/lValidateError.i YES}
          message "Invalid Carrier. Try Help." view-as alert-box error.
          return no-apply.
+    {&methods/lValidateError.i NO}
     end.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -648,7 +651,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.cas-no V-table-Win
 ON LEAVE OF eb.cas-no IN FRAME F-Main /* Packing Code */
 DO:
-  
+
               find item where item.company = eb.company and
                               item.i-no = eb.cas-no:screen-value
                               no-lock no-error.
@@ -661,10 +664,13 @@ DO:
                                         eb.cas-wt:Screen-value = string(item.avg-w)         
                                         .
              else if lastkey <> -1 and eb.cas-no:screen-value <> "" then do:
+             {&methods/lValidateError.i YES}
                   message "Invalid Packing Code. Try Help." view-as alert-box.
                   return no-apply.
+             {&methods/lValidateError.i NO}
              end.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -685,9 +691,9 @@ END.
 &Scoped-define SELF-NAME eb.i-code[10]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.i-code[10] V-table-Win
 ON LEAVE OF eb.i-code[10] IN FRAME F-Main /* Code[10] */
-DO:
+DO:  
    if eb.i-ps[10]:screen-value <> "0" and lastkey <> -1  then do:
-
+    {&methods/lValidateError.i YES}
      find item where item.company = eb.company and
                    item.i-no = self:screen-value
                    no-lock no-error.
@@ -699,11 +705,12 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-                   
-     if avail item then  eb.i-dscr[10]:screen-value in frame {&frame-name} = item.i-name.
-  end.
 
+     if avail item then  eb.i-dscr[10]:screen-value in frame {&frame-name} = item.i-name.
+  {&methods/lValidateError.i NO}  
+  end.  
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -712,9 +719,9 @@ END.
 &Scoped-define SELF-NAME eb.i-code[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL eb.i-code[1] V-table-Win
 ON LEAVE OF eb.i-code[1] IN FRAME F-Main /* Code[1] */
-DO:
+DO:  
   if eb.i-ps[1]:screen-value <> "0" and lastkey <> -1  then do:
-
+   {&methods/lValidateError.i YES}
      find item where item.company = eb.company and
                    item.i-no = self:screen-value
                    no-lock no-error.
@@ -726,11 +733,13 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-                   
+
      if avail item then  eb.i-dscr[1]:screen-value in frame {&frame-name} = item.i-name.
+  {&methods/lValidateError.i NO}
   end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -741,7 +750,7 @@ END.
 ON LEAVE OF eb.i-code[2] IN FRAME F-Main /* Code[2] */
 DO:
   if eb.i-ps[2]:screen-value <> "0" and lastkey <> -1  then do:
-
+   {&methods/lValidateError.i YES}
      find item where item.company = eb.company and
                    item.i-no = self:screen-value
                    no-lock no-error.
@@ -753,11 +762,13 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-                   
+
      if avail item then  eb.i-dscr[2]:screen-value in frame {&frame-name} = item.i-name.
+  {&methods/lValidateError.i NO}
   end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -768,7 +779,7 @@ END.
 ON LEAVE OF eb.i-code[3] IN FRAME F-Main /* Code[3] */
 DO:
   if eb.i-ps[3]:screen-value <> "0" and lastkey <> -1  then do:
-
+    {&methods/lValidateError.i YES}
      find item where item.company = eb.company and
                    item.i-no = self:screen-value
                    no-lock no-error.
@@ -780,12 +791,14 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-                   
+
      if avail item then  eb.i-dscr[3]:screen-value in frame {&frame-name} = item.i-name.
+  {&methods/lValidateError.i NO}
   end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -796,7 +809,7 @@ END.
 ON LEAVE OF eb.i-code[4] IN FRAME F-Main /* Code[4] */
 DO:
   if eb.i-ps[4]:screen-value <> "0" and lastkey <> -1  then do:
-
+   {&methods/lValidateError.i YES}
      find item where item.company = eb.company and
                    item.i-no = self:screen-value
                    no-lock no-error.
@@ -808,12 +821,14 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-                   
+
      if avail item then  eb.i-dscr[4]:screen-value in frame {&frame-name} = item.i-name.
+   {&methods/lValidateError.i NO}
   end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -824,6 +839,7 @@ END.
 ON LEAVE OF eb.i-code[5] IN FRAME F-Main /* Code[5] */
 DO:
   if eb.i-ps[5]:screen-value <> "0" and lastkey <> -1  then do:
+   {&methods/lValidateError.i YES}
 
      find item where item.company = eb.company and
                    item.i-no = self:screen-value
@@ -836,12 +852,14 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-                   
+
      if avail item then  eb.i-dscr[5]:screen-value in frame {&frame-name} = item.i-name.
+  {&methods/lValidateError.i NO}
   end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -852,7 +870,7 @@ END.
 ON LEAVE OF eb.i-code[6] IN FRAME F-Main /* Code[6] */
 DO:
   if eb.i-ps[6]:screen-value <> "0" and lastkey <> -1  then do:
-
+  {&methods/lValidateError.i YES}
      find item where item.company = eb.company and
                    item.i-no = self:screen-value
                    no-lock no-error.
@@ -864,12 +882,14 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-                   
+
      if avail item then  eb.i-dscr[6]:screen-value in frame {&frame-name} = item.i-name.
+   {&methods/lValidateError.i NO}
   end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -880,7 +900,7 @@ END.
 ON LEAVE OF eb.i-code[7] IN FRAME F-Main /* Code[7] */
 DO:
   if eb.i-ps[7]:screen-value <> "0" and lastkey <> -1  then do:
-
+   {&methods/lValidateError.i YES}
      find item where item.company = eb.company and
                    item.i-no = self:screen-value
                    no-lock no-error.
@@ -892,12 +912,14 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-                   
+
      if avail item then  eb.i-dscr[7]:screen-value in frame {&frame-name} = item.i-name.
+   {&methods/lValidateError.i NO}
   end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -908,7 +930,7 @@ END.
 ON LEAVE OF eb.i-code[8] IN FRAME F-Main /* Code[8] */
 DO:
   if eb.i-ps[8]:screen-value <> "0" and lastkey <> -1  then do:
-
+   {&methods/lValidateError.i YES}
      find item where item.company = eb.company and
                    item.i-no = self:screen-value
                    no-lock no-error.
@@ -920,12 +942,14 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-                   
+
      if avail item then  eb.i-dscr[8]:screen-value in frame {&frame-name} = item.i-name.
+  {&methods/lValidateError.i NO}
   end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -936,7 +960,7 @@ END.
 ON LEAVE OF eb.i-code[9] IN FRAME F-Main /* Code[9] */
 DO:
   if eb.i-ps[9]:screen-value <> "0" and lastkey <> -1  then do:
-
+  {&methods/lValidateError.i YES}
      find item where item.company = eb.company and
                    item.i-no = self:screen-value
                    no-lock no-error.
@@ -948,12 +972,14 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-                   
+
      if avail item then  eb.i-dscr[9]:screen-value in frame {&frame-name} = item.i-name.
+  {&methods/lValidateError.i NO}
   end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -972,11 +998,14 @@ DO:
                                         eb.tr-dep:Screen-value = string(item.case-d)
                                         .
               else if lastkey <> -1 and eb.tr-no:screen-value <> "" 
-              then do:              
+              then do:   
+               {&methods/lValidateError.i YES}           
                    message "Invalid Unit#. Try Help." view-as alert-box error.
                    return no-apply.
+              {&methods/lValidateError.i NO}
               end.                          
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -992,7 +1021,7 @@ session:data-entry-return = yes.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1072,7 +1101,7 @@ PROCEDURE local-update-record :
      if eb.i-code[8]:screen-value in frame {&frame-name} <> "" then li-num-of-code = li-num-of-code + 1.
      if eb.i-code[9]:screen-value in frame {&frame-name} <> "" then li-num-of-code = li-num-of-code + 1.
      if eb.i-code[10]:screen-value in frame {&frame-name} <> "" then li-num-of-code = li-num-of-code + 1.
-
+   {&methods/lValidateError.i YES}
      if li-num-of-code <> (integer(eb.i-col:screen-value) + 
                           integer(eb.i-coat:screen-value) )
      then do:
@@ -1101,13 +1130,14 @@ PROCEDURE local-update-record :
             apply "entry" to eb.tr-no.
             return no-apply.
     end.
-
+   {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1201,7 +1231,7 @@ PROCEDURE update-pack :
           eb.i-%[1 for 10]
           with frame {&frame-name}.
   apply "entry" to eb.cas-no in frame {&frame-name}.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

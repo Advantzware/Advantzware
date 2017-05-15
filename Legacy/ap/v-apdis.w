@@ -292,7 +292,7 @@ END.
 ON LEAVE OF ap-dis.bank-code IN FRAME F-Main /* Bank Code */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+    {&methods/lValidateError.i YES}
     {VALIDATE/bank.i ap-dis.bank-code bank_name}
 
    IF SELF:modified AND SELF:screen-value <> "" THEN DO:
@@ -302,8 +302,9 @@ DO:
        ASSIGN
            lv-check-no:SCREEN-VALUE  = STRING( IF AVAIL bank THEN bank.last-chk + 1 ELSE 0) .
    END.
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -327,6 +328,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ap-dis.vend-no V-table-Win
 ON LEAVE OF ap-dis.vend-no IN FRAME F-Main /* Vendor# */
 DO:
+    {&methods/lValidateError.i YES}
     IF SELF:SCREEN-VALUE <> "" THEN DO:
         {VALIDATE/vend.i ap-dis.vend-no vend_name }
     end.
@@ -334,8 +336,9 @@ DO:
         RETURN.
     END.
 
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -555,7 +558,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR ll-new-record AS LOG NO-UNDO.
-
+  {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME} :
     IF ap-dis.vend-no:SCREEN-VALUE <> "" THEN DO:
@@ -563,7 +566,7 @@ PROCEDURE local-update-record :
     END.
     {VALIDATE/bank.i ap-dis.bank-code bank_name}
   END.
-
+  {&methods/lValidateError.i NO}
   RUN valid-check-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -583,6 +586,8 @@ PROCEDURE local-update-record :
   END.
 
 END PROCEDURE.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

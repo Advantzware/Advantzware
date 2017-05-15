@@ -326,7 +326,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -347,9 +347,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_hour V-table-Win
 ON LEAVE OF end_hour IN FRAME F-Main /* End Time */
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 12.
   {methods/entryerr.i &error-message="Invalid Hour, range = 0 to 12"}
+   {&methods/lValidateError.iNO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -359,9 +362,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_minute V-table-Win
 ON LEAVE OF end_minute IN FRAME F-Main
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
   {methods/entryerr.i &error-message="Invalid Minute, range = 0 to 59"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -371,12 +377,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL emplogin.machine V-table-Win
 ON LEAVE OF emplogin.machine IN FRAME F-Main /* Machine */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   {methods/entryerr.i
       &can-find="mach WHERE mach.company = gcompany
                         AND mach.m-code = SELF:SCREEN-VALUE"
       &error-message="Invalid Machine Code"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -386,11 +395,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL emplogin.shift V-table-Win
 ON LEAVE OF emplogin.shift IN FRAME F-Main /* Shift */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/entryerr.i
       &can-find="FIRST shifts WHERE shifts.company = gcompany
                                 AND shifts.shift = SELF:SCREEN-VALUE"
       &error-message="Invalid Shift"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -411,9 +423,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_hour V-table-Win
 ON LEAVE OF start_hour IN FRAME F-Main /* Start Time */
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 1 OR INTEGER(SELF:SCREEN-VALUE) GT 12.
   {methods/entryerr.i &error-message="Invalid Hour, range = 1 to 12"}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -423,9 +438,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_minute V-table-Win
 ON LEAVE OF start_minute IN FRAME F-Main
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
   {methods/entryerr.i &error-message="Invalid Minute, range = 0 to 59"}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -443,7 +461,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -491,7 +509,7 @@ PROCEDURE crt-mach-emp-trans :
   Notes:       
 ------------------------------------------------------------------------------*/
   def buffer bf-machtran for machtran.
-  
+
   /* need to create machtran & machemp */
 
   /*for each  w/h machine does not have end_date */
@@ -506,7 +524,7 @@ PROCEDURE crt-mach-emp-trans :
       find employee where employee.company = emplogin.company
                       and employee.employee = emplogin.employee
                       no-lock no-error.                
-                      
+
 /*      CREATE bf-machtran.
       ASSIGN
         bf-machtran.company = machtran.company
@@ -548,13 +566,13 @@ PROCEDURE crt-mach-emp-trans :
             machemp.rate_usage = employee.rate_usage.
           RUN Employee-Rate(emplogin.company,employee.employee,machemp.shift,
                             machtran.machine,machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
-  
+
       {custom/calctime.i &file="machemp"}
-  
+
       RELEASE machemp.
 /*  END. */
 
-      
+
 /*      {methods/run_link.i "CONTAINER" "Set_MachTran_Rowid" "(machtran-rowid)"}
 
      FIND FIRST machemp WHERE machemp.table_rec_key = bf-machtran.rec_key

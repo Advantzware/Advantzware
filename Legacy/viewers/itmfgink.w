@@ -616,7 +616,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-rm-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST b-fgink
         WHERE b-fgink.company EQ itemfg.company
@@ -632,7 +632,7 @@ PROCEDURE local-update-record :
       RETURN ERROR.
     END.
   END.
-
+  {&methods/lValidateError.i NO}
   RUN valid-pass NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
@@ -653,6 +653,7 @@ PROCEDURE local-update-record :
   RUN ebfgBuild.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

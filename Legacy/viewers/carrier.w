@@ -399,6 +399,7 @@ PROCEDURE load-fedex :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+{&methods/lValidateError.i YES}
 IF carrier.carrier = "FEDX" OR INDEX(carrier.dscr, "federal express") > 0
     OR INDEX(carrier.dscr, "fedex") > 0 THEN
 RUN ar/impfedx.w (INPUT carrier.loc, INPUT carrier.carrier).
@@ -407,7 +408,9 @@ ELSE DO:
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
     RETURN NO-APPLY.
 END.
+{&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

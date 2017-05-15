@@ -211,7 +211,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -222,7 +222,7 @@ ASSIGN
 ON HELP OF usercomp.loc IN FRAME F-Main /* Location */
 DO:
    DEF VAR char-val AS cha NO-UNDO.
-  
+
    {methods/run_link.i "RECORD-SOURCE" "Get-Values"
       "(OUTPUT op-user_id,OUTPUT op-company)"}
    RUN windows/l-loc.w (op-company,FOCUS:SCREEN-VALUE,OUTPUT char-val).
@@ -238,7 +238,7 @@ END.
 ON LEAVE OF usercomp.loc IN FRAME F-Main /* Location */
 DO:
   IF LASTKEY = -1 THEN RETURN.
-
+  {&methods/lValidateError.i YES}
   {methods/run_link.i "RECORD-SOURCE" "Get-Values"
       "(OUTPUT op-user_id,OUTPUT op-company)"}
   IF NOT CAN-FIND(loc WHERE loc.company = op-company
@@ -249,7 +249,9 @@ DO:
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}.
     RETURN NO-APPLY.
   END.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -264,7 +266,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -353,6 +355,7 @@ PROCEDURE local-update-record :
  ASSIGN default-val = usercomp.loc_default .
   /* Code placed here will execute PRIOR to standard behavior. */
   {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT op-user_id,OUTPUT op-company)"}
+  {&methods/lValidateError.i YES}
   IF NOT CAN-FIND(loc WHERE loc.company = op-company
                         AND loc.loc = usercomp.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} )
   THEN DO:
@@ -373,7 +376,7 @@ PROCEDURE local-update-record :
     APPLY "entry" TO usercomp.loc.
     RETURN NO-APPLY.
   END.
-  
+  {&methods/lValidateError.i NO}
   IF usercomp.loc_default:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes" THEN DO:  /* task 07071403 */
       find first ce-ctrl where ce-ctrl.company = op-company and
                                   ce-ctrl.loc = usercomp.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -385,13 +388,15 @@ PROCEDURE local-update-record :
                     ce-ctrl.loc     = usercomp.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} .
          end.
   END.
-  
+
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
  /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

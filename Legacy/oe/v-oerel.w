@@ -1114,11 +1114,13 @@ PROCEDURE local-assign-record :
   DEF BUFFER bfNotes FOR notes.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  {&methods/lValidateError.i YES}
   IF oe-relh.posted THEN DO:
       MESSAGE "This release has already been posted, no updates allowed."
           VIEW-AS ALERT-BOX.
       RETURN NO-APPLY.
   END.
+  {&methods/lValidateError.i NO}
   sdate = oe-relh.rel-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
 
   IF oe-relh.rel-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE 
@@ -1240,6 +1242,7 @@ PROCEDURE local-assign-record :
   RUN create-relhold.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1538,7 +1541,7 @@ PROCEDURE security :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEF VAR v-secureflg AS LOG NO-UNDO.
-
+{&methods/lValidateError.i YES}
 RUN sys/ref/d-passwd.w (8, OUTPUT v-secureflg).
 
 IF NOT v-secureflg THEN  DO:
@@ -1552,8 +1555,9 @@ END.
 
 IF v-secureflg THEN
    RUN hold-release.
-
+{&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
