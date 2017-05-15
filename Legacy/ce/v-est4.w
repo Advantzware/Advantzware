@@ -1211,7 +1211,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.spec-no[1] V-table-Win
 ON LEAVE OF ef.spec-no[1] IN FRAME F-Main /* RM Item#[1] */
 DO:
-    if lastkey = -1 then return.{&methods/lValidateError.i YES}
+    if lastkey = -1 then return.
+    
+    {&methods/lValidateError.i YES}
 
     find first item where item.company = ef.company and
                           item.indus = "1" and
