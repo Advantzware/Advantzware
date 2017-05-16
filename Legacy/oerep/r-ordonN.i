@@ -363,6 +363,7 @@
                    WHEN "est-unt"  THEN cVarValue = STRING(tt-report.unit-count,">>>>9") .
                    WHEN "est-palt" THEN cVarValue = STRING(tt-report.units-pallet,">>9") .
                    WHEN "ord-value"  THEN cVarValue =  STRING(dOrdVal,"->>>,>>>,>>9.99") .
+                   WHEN "ack-date" THEN cVarValue = IF oe-ord.ack-prnt-date NE ? THEN STRING(oe-ord.ack-prnt-date) ELSE "".
                   /* WHEN "bin-job"  THEN cVarValue = STRING(v-bin-job)              .
                    WHEN "whs"      THEN cVarValue = STRING(v-whs)              .
                    WHEN "bin"      THEN cVarValue = STRING(v-bin)              .
