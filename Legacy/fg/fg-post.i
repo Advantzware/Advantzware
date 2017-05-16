@@ -639,16 +639,16 @@
                           AND job-hdr.i-no    EQ {1}.i-no
                 NO-LOCK NO-ERROR.
                 
-  RUN fg/searchBin (INPUT cocode, INPUT {1}.job-no, INPUT {1}.job-no2,
+  RUN fg/searchBin.p (INPUT cocode, INPUT {1}.job-no, INPUT {1}.job-no2,
       INPUT 0 /* OrdNo */, INPUT {1}.i-no, INPUT ABSOLUTE({1}.qty),
       INPUT {2}.loc, INPUT {2}.loc-bin, INPUT "" /* bolWhse */, INPUT {2}.tag, 
       OUTPUT rFgBinRow).
-
+  RELEASE fg-bin .
   IF rFgBinRow NE ? THEN 
       FIND FIRST fg-bin EXCLUSIVE-LOCK WHERE ROWID(fg-bin) EQ rFgBinRow NO-ERROR.
          
   IF NOT AVAILABLE fg-bin THEN       
-    FIND FIRST fg-bin WHERE fg-bin.company EQ cocode
+    FIND FIRST fg-bin EXCLUSIVE-LOCK WHERE fg-bin.company EQ cocode
                         AND fg-bin.i-no    EQ {1}.i-no
                         AND fg-bin.job-no  EQ {1}.job-no
                         AND fg-bin.job-no2 EQ {1}.job-no2
