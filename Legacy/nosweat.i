@@ -53,7 +53,7 @@ RUN connectDatabases.
 &ENDIF
 
 if connected(ldbname(1))
-and not connected(ldbname(3)) then do:
+and ldbname(1) = "ASI" then do:
     create alias nosweat for database value(ldbname(1)).
     create alias emptrack for database value(ldbname(1)).
     create alias jobs for database value(ldbname(1)).
