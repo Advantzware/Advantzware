@@ -25,7 +25,7 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-
+&SCOPED-DEFINE autoFind
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -42,7 +42,8 @@ def temp-table w-bin field tag    like fg-bin.tag
                      FIELD loc LIKE fg-bin.loc
                      FIELD loc-bin LIKE fg-bin.loc-bin
                      FIELD cust-no LIKE fg-bin.cust-no
-                     FIELD qty LIKE fg-bin.qty.
+                     FIELD qty LIKE fg-bin.qty
+                     FIELD rec_key LIKE fg-bin.rec_key .
 def var v-i-no  like oe-ordl.i-no NO-UNDO.
 def var v-ord   like oe-ordl.ord-no NO-UNDO.
 def var v-line  like oe-ordl.line NO-UNDO.
@@ -74,12 +75,15 @@ ASSIGN cocode = g_company
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES w-bin
 
+/* Define KEY-PHRASE in case it is used by any query. */
+&Scoped-define KEY-PHRASE TRUE
+
 /* Definitions for BROWSE br-bin                                        */
 &Scoped-define FIELDS-IN-QUERY-br-bin w-bin.job-no w-bin.job-no2 NO-LABEL w-bin.loc w-bin.loc-bin w-bin.tag w-bin.cust-no w-bin.qty   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-bin   
 &Scoped-define SELF-NAME br-bin
-&Scoped-define QUERY-STRING-br-bin FOR EACH w-bin
-&Scoped-define OPEN-QUERY-br-bin OPEN QUERY {&SELF-NAME} FOR EACH w-bin.
+&Scoped-define QUERY-STRING-br-bin FOR EACH w-bin WHERE ~{&KEY-PHRASE} NO-LOCK ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br-bin OPEN QUERY {&SELF-NAME} FOR EACH w-bin WHERE ~{&KEY-PHRASE} NO-LOCK ~{&SORTBY-PHRASE} .
 &Scoped-define TABLES-IN-QUERY-br-bin w-bin
 &Scoped-define FIRST-TABLE-IN-QUERY-br-bin w-bin
 
@@ -89,7 +93,9 @@ ASSIGN cocode = g_company
     ~{&OPEN-QUERY-br-bin}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br-bin Btn_OK Btn_Cancel 
+&Scoped-Define ENABLED-OBJECTS br-bin RECT-4 browse-order Btn_Clear_Find ~
+auto_find Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fi_sortby 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -109,10 +115,35 @@ DEFINE BUTTON Btn_Cancel AUTO-END-KEY
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear" 
+     SIZE 10 BY 1
+     FONT 4.
+
 DEFINE BUTTON Btn_OK AUTO-GO 
      LABEL "OK" 
      SIZE 15 BY 1.14
      BGCOLOR 8 .
+
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Find" 
+     VIEW-AS FILL-IN 
+     SIZE 30.6 BY 1 NO-UNDO.
+
+DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 27.2 BY 1
+     /*BGCOLOR 14*/ FONT 6 NO-UNDO.
+
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 39 BY 1 NO-UNDO.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 116.8 BY 1.67.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -141,9 +172,17 @@ DEFINE BROWSE br-bin
 
 DEFINE FRAME Dialog-Frame
      br-bin AT ROW 1 COL 1
-     Btn_OK AT ROW 17.19 COL 34
-     Btn_Cancel AT ROW 17.19 COL 74
-     SPACE(29.19) SKIP(0.85)
+     browse-order AT ROW 16.62 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     fi_sortby AT ROW 16.71 COL 53 COLON-ALIGNED NO-LABEL
+     Btn_Clear_Find AT ROW 16.62 COL 96.2 HELP
+          "CLEAR AUTO FIND Value"
+     auto_find AT ROW 16.67 COL 60.4 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     Btn_OK AT ROW 18.91 COL 34
+     Btn_Cancel AT ROW 18.91 COL 74
+     RECT-4 AT ROW 16.38 COL 1.2
+     SPACE(0.39) SKIP(2.61)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Bins/Tags for"
@@ -160,6 +199,17 @@ DEFINE FRAME Dialog-Frame
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB Dialog-Frame 
+/* ************************* Included-Libraries *********************** */
+
+{src/adm/method/browser.i}
+{src/adm/method/query.i}
+{methods/template/browser.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
@@ -167,10 +217,13 @@ DEFINE FRAME Dialog-Frame
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
    FRAME-NAME                                                           */
-/* BROWSE-TAB br-bin 1 Dialog-Frame */
+/* BROWSE-TAB br-bin TEXT-1 Dialog-Frame */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
+
+ASSIGN 
+       fi_sortby:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -198,6 +251,41 @@ OPEN QUERY {&SELF-NAME} FOR EACH w-bin
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* Bins/Tags for */
 DO:
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define BROWSE-NAME br-bin
+&Scoped-define SELF-NAME br-bin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-bin Dialog-Frame
+ON ROW-ENTRY OF br-bin IN FRAME Dialog-Frame
+DO:
+  /* This code displays initial values for newly added or copied rows. */
+  {src/adm/template/brsentry.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-bin Dialog-Frame
+ON ROW-LEAVE OF br-bin IN FRAME Dialog-Frame
+DO:
+    /* Do not disable this code or no updates will take place except
+     by pressing the Save button on an Update SmartPanel. */
+   {src/adm/template/brsleave.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-bin Dialog-Frame
+ON START-SEARCH OF br-bin IN FRAME Dialog-Frame
+DO:
+  RUN startSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -339,7 +427,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define BROWSE-NAME br-bin
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
@@ -431,7 +518,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE br-bin Btn_OK Btn_Cancel 
+  DISPLAY browse-order auto_find fi_sortby 
+      WITH FRAME Dialog-Frame.
+  ENABLE br-bin RECT-4 browse-order Btn_Clear_Find auto_find Btn_OK 
+         Btn_Cancel 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
