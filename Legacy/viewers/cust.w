@@ -482,6 +482,7 @@ DEFINE FRAME F-Main
           SIZE 44 BY 1
           BGCOLOR 15 FONT 4
      cust.sman AT ROW 3.86 COL 73 COLON-ALIGNED
+          LABEL "Sales Rep"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
