@@ -427,7 +427,8 @@ DEFINE FRAME Corr
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
           FONT 6
-     ef.cad-image AT ROW 6.95 COL 127 COLON-ALIGNED
+     ef.cad-image AT ROW 6.95 COL 127 COLON-ALIGNED HELP
+          "Filename of the Die image"
           LABEL "Image" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
