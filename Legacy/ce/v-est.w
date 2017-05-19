@@ -363,7 +363,8 @@ DEFINE FRAME fold
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fold
-     ef.cad-image AT ROW 6.95 COL 128.2 COLON-ALIGNED
+     ef.cad-image AT ROW 6.95 COL 128.2 COLON-ALIGNED HELP
+          "Filename of the Die image"
           LABEL "Image" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
