@@ -538,6 +538,9 @@ DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
+    
+  RUN display-qtys.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
