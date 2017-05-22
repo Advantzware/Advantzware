@@ -297,7 +297,8 @@ reftable.code2    EQ STRING(probe.line,"9999999999")  ~
     BY probe.company ~
        BY probe.est-no ~
         BY probe.probe-date ~
-         BY probe.est-qty
+         BY probe.est-qty  ~
+          BY probe.probe.probe-time
 &SCOPED-DEFINE OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH probe NO-LOCK WHERE probe.company EQ eb.company AND ~
 ASI.probe.est-no EQ eb.est-no ~
       AND probe.probe-date NE ? , ~
@@ -309,7 +310,8 @@ reftable.code2    EQ STRING(probe.line,"9999999999") ~
     BY probe.company ~
        BY probe.est-no ~
         BY probe.probe-date ~
-         BY probe.est-qty.
+         BY probe.est-qty ~
+          BY probe.probe.probe-time .
 &SCOPED-DEFINE TABLES-IN-QUERY-br_table probe reftable
 &SCOPED-DEFINE FIRST-TABLE-IN-QUERY-br_table probe
 &SCOPED-DEFINE SECOND-TABLE-IN-QUERY-br_table reftable
