@@ -381,6 +381,15 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dueDateAvailable Include 
+PROCEDURE dueDateAvailable :
+{{&includes}/{&Board}/dueDateAvailable.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE findResource Include 
 PROCEDURE findResource :
 /*------------------------------------------------------------------------------

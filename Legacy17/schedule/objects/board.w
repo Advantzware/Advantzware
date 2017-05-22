@@ -202,10 +202,10 @@ END.
 &Scoped-define FRAME-NAME boardFrame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS resourceGrid scenario btnSave btnRemove ~
-btnReset btnPending btnPendingJobs btnDatePrompt btnShowDowntime btnDetail ~
-btnFlashLight btnJobBrowse btnPrevDate btnNextDate boardDate btnCalendar ~
-btnTimeLine intervals timeValue btnPrevInterval btnNextInterval ~
+&Scoped-Define ENABLED-OBJECTS scenario btnSave btnRemove btnReset ~
+btnPending btnPendingJobs btnDatePrompt btnShowDowntime btnDetail ~
+btnFlashLight btnJobBrowse resourceGrid btnPrevDate btnNextDate boardDate ~
+btnCalendar btnTimeLine intervals timeValue btnPrevInterval btnNextInterval ~
 btnResourceList btnNext btnLast btnSetColorType resourceList 
 &Scoped-Define DISPLAYED-OBJECTS scenario boardDate intervals timeValue ~
 resourceList day-1 day-2 day-3 day-4 day-5 day-6 day-7 day-8 day-9 day-10 ~
@@ -3361,6 +3361,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pDowntimeSpan s-object 
+PROCEDURE pDowntimeSpan :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+{{&includes}/{&Board}/pDowntimeSpan.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFromPending s-object 
 PROCEDURE pFromPending :
 /*------------------------------------------------------------------------------
@@ -3368,15 +3382,15 @@ PROCEDURE pFromPending :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE priorEndDate AS DATE NO-UNDO.
-    DEFINE VARIABLE priorEndTime AS INTEGER NO-UNDO.
+    DEFINE VARIABLE priorEndDate  AS DATE NO-UNDO.
+    DEFINE VARIABLE priorEndTime  AS INTEGER NO-UNDO.
     DEFINE VARIABLE priorDateTime AS INTEGER NO-UNDO INITIAL ?.
 
     DEFINE BUFFER bPendingJob FOR pendingJob.
 
     FOR EACH bPendingJob
-        BY bPendingJob.job
-        BY bPendingJob.resourceSequence
+          BY bPendingJob.job
+          BY bPendingJob.resourceSequence
         :
       ASSIGN
         bPendingJob.startDate = TODAY
@@ -3396,11 +3410,11 @@ PROCEDURE pFromPending :
         ASSIGN
           ttblJob.origStartDate = bPendingJob.startDate
           ttblJob.origStartTime = bPendingJob.startTime
-          ttblJob.origEndDate = bPendingJob.endDate
-          ttblJob.origEndTime = bPendingJob.endTime
+          ttblJob.origEndDate   = bPendingJob.endDate
+          ttblJob.origEndTime   = bPendingJob.endTime
           .
         ttblJob.startDateTime = numericDateTime(ttblJob.startDate,ttblJob.startTime).
-        ttblJob.endDateTime = numericDateTime(ttblJob.endDate,ttblJob.endTime).
+        ttblJob.endDateTime   = numericDateTime(ttblJob.endDate,ttblJob.endTime).
         ASSIGN
           ttblJob.jobBGColor = jobBGColor()
           ttblJob.jobFGColor = jobFGColor()
@@ -3413,7 +3427,7 @@ PROCEDURE pFromPending :
           RUN newEnd (ttblJob.timeSpan,ttblJob.startDate,ttblJob.startTime,
                       OUTPUT ttblJob.endDate,OUTPUT ttblJob.endTime).
           ttblJob.startDateTime = numericDateTime(ttblJob.startDate,ttblJob.startTime).
-          ttblJob.endDateTime = numericDateTime(ttblJob.endDate,ttblJob.endTime).
+          ttblJob.endDateTime   = numericDateTime(ttblJob.endDate,ttblJob.endTime).
           ASSIGN
             ttblJob.jobBGColor = jobBGColor()
             ttblJob.jobFGColor = jobFGColor()
@@ -3440,8 +3454,8 @@ PROCEDURE pFromPending :
           ttblJob.jobFGColor = jobFGColor()
           .
         ASSIGN
-          priorEndDate = ttblJob.endDate
-          priorEndTime = ttblJob.endTime
+          priorEndDate  = ttblJob.endDate
+          priorEndTime  = ttblJob.endTime
           priorDateTime = ttblJob.endDateTime
           .
         
@@ -3452,6 +3466,91 @@ PROCEDURE pFromPending :
         DELETE bPendingJob.
     END. /* each bpendingjob */
     RUN buildBoard (NO).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFromPendingByDueDate s-object 
+PROCEDURE pFromPendingByDueDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE BUFFER bPendingJob FOR pendingJob.
+
+    FOR EACH bPendingJob
+        BREAK BY bPendingJob.dueDate
+              BY bPendingJob.job
+              BY bPendingJob.resourceSeq
+        :
+      IF LAST-OF(bPendingJob.job) THEN DO:
+          ASSIGN
+            bPendingJob.startDate = bPendingJob.dueDate - pendingDays
+            bPendingJob.startTime = 0
+            .
+          RUN newEnd (bPendingJob.timeSpan,bPendingJob.startDate,bPendingJob.startTime,
+                      OUTPUT bPendingJob.endDate,OUTPUT bPendingJob.endTime).
+          CREATE ttblJob.
+          BUFFER-COPY bPendingJob TO ttblJob.
+          ASSIGN
+            ttblJob.origStartDate = bPendingJob.startDate
+            ttblJob.origStartTime = bPendingJob.startTime
+            ttblJob.origEndDate   = bPendingJob.endDate
+            ttblJob.origEndTime   = bPendingJob.endTime
+            .
+          ttblJob.startDateTime = numericDateTime(ttblJob.startDate,ttblJob.startTime).
+          ttblJob.endDateTime   = numericDateTime(ttblJob.endDate,ttblJob.endTime).
+
+          RUN firstAvailable (ttblJob.resource,ROWID(ttblJob),ttblJob.timeSpan,
+                              INPUT-OUTPUT ttblJob.startDateTime,
+                              INPUT-OUTPUT ttblJob.endDateTime,
+                              INPUT-OUTPUT ttblJob.startDate,
+                              INPUT-OUTPUT ttblJob.startTime,
+                              INPUT-OUTPUT ttblJob.endDate,
+                              INPUT-OUTPUT ttblJob.endTime
+                              ).
+          RUN downtimeSpan (ttblJob.resource,ttblJob.timeSpan,ttblJob.startDate,ttblJob.startTime,
+                            OUTPUT ttblJob.endDate,OUTPUT ttblJob.endTime,OUTPUT ttblJob.downtimeSpan).
+          ttblJob.startDateTime = numericDateTime(ttblJob.startDate,ttblJob.startTime).
+          ttblJob.endDateTime = numericDateTime(ttblJob.endDate,ttblJob.endTime).
+
+          IF ttblJob.endDate GT TODAY + pendingLastDay THEN DO:
+              DELETE ttblJob.
+              NEXT.
+          END. /* don't schedule, too far into the future */
+
+          ASSIGN
+            ttblJob.jobBGColor = jobBGColor()
+            ttblJob.jobFGColor = jobFGColor()
+            .
+
+          RUN pSetResourceSequence (bPendingJob.resource).
+          ttblJob.sequenced = YES.
+
+          RUN pSetDueDateJob (ROWID(bPendingJob)).
+
+          DELETE bPendingJob.
+      END. /* last-of */
+    END. /* each bpendingjob */
+    
+    RUN buildBoard (NO).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pPriorAvailable s-object 
+PROCEDURE pPriorAvailable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+{{&includes}/{&Board}/pPriorAvailable.i}
 
 END PROCEDURE.
 
@@ -3481,6 +3580,90 @@ PROCEDURE print :
   RUN {&prompts}/fieldFilter.w PERSISTENT SET hdle ('{&Board}','','',NO,NO,THIS-PROCEDURE,'print').
   RUN setPopup IN containerHandle (4,hdle).
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pSetDueDateJob s-object 
+PROCEDURE pSetDueDateJob :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprRowID AS ROWID NO-UNDO.
+
+    DEFINE VARIABLE priorStartDate AS DATE      NO-UNDO.
+    DEFINE VARIABLE priorStartTime AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE priorDateTime  AS INTEGER   NO-UNDO INITIAL ?.
+    DEFINE VARIABLE dDueDate       AS DATE      NO-UNDO.
+    DEFINE VARIABLE cJob           AS CHARACTER NO-UNDO.
+
+    DEFINE BUFFER bufPendingJob FOR pendingJob.
+
+    ASSIGN
+      dDueDate       = ttblJob.dueDate
+      cJob           = ttblJob.job
+      priorStartDate = ttblJob.startDate
+      priorStartTime = ttblJob.startTime
+      priorDateTime  = ttblJob.startDateTime
+      .
+    FOR EACH bufPendingJob
+        WHERE bufPendingJob.dueDate EQ dDueDate
+          AND bufPendingJob.job     EQ cJob
+          AND ROWID(bufPendingJob)  NE iprRowID
+        BREAK BY bufPendingJob.job
+              BY bufPendingJob.resourceSeq DESCENDING
+        :
+        ASSIGN
+          bufPendingJob.endDate = priorStartDate
+          bufPendingJob.endTime = priorStartTime
+          .
+        RUN newStart (bufPendingJob.timeSpan,bufPendingJob.endDate,bufPendingJob.endTime,
+                      OUTPUT bufPendingJob.startDate,OUTPUT bufPendingJob.startTime).
+        bufPendingJob.startDateTime = numericDateTime(bufPendingJob.startDate,bufPendingJob.startTime).
+        bufPendingJob.endDateTime   = numericDateTime(bufPendingJob.endDate,bufPendingJob.endTime).
+
+        CREATE ttblJob.
+        BUFFER-COPY bufPendingJob TO ttblJob.
+        ASSIGN
+          ttblJob.origStartDate = bufPendingJob.startDate
+          ttblJob.origStartTime = bufPendingJob.startTime
+          ttblJob.origEndDate   = bufPendingJob.endDate
+          ttblJob.origEndTime   = bufPendingJob.endTime
+          .
+        /*
+        RUN pPriorAvailable (ttblJob.resource,ROWID(ttblJob),ttblJob.timeSpan,
+                             INPUT-OUTPUT ttblJob.startDateTime,
+                             INPUT-OUTPUT ttblJob.endDateTime,
+                             INPUT-OUTPUT ttblJob.startDate,
+                             INPUT-OUTPUT ttblJob.startTime,
+                             INPUT-OUTPUT ttblJob.endDate,
+                             INPUT-OUTPUT ttblJob.endTime
+                             ).
+
+        RUN getPriorJobResource (ttblJob.job,ttblJob.resourceSequence,ttblJob.startDateTime,
+                                 INPUT-OUTPUT ttblJob.startDate,INPUT-OUTPUT ttblJob.startTime).
+        */
+        RUN pDowntimeSpan (ttblJob.resource,ttblJob.timeSpan,ttblJob.endDate,ttblJob.endTime,
+                           OUTPUT ttblJob.startDate,OUTPUT ttblJob.startTime,OUTPUT ttblJob.downtimeSpan).
+        ttblJob.startDateTime = numericDateTime(ttblJob.startDate,ttblJob.startTime).
+        ttblJob.endDateTime = numericDateTime(ttblJob.endDate,ttblJob.endTime).
+        
+        ASSIGN
+          ttblJob.jobBGColor = jobBGColor()
+          ttblJob.jobFGColor = jobFGColor()
+          priorStartDate = ttblJob.startDate
+          priorStartTime = ttblJob.startTime
+          priorDateTime  = ttblJob.startDateTime
+          .
+        RUN pSetResourceSequence (bufPendingJob.resource).
+        ttblJob.sequenced = YES.
+
+        DELETE bufPendingJob.
+    END. /* each bufpendingjob */
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
