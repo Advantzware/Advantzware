@@ -3784,12 +3784,16 @@ PROCEDURE create-text-file :
 
 
       output close.
-
-      /* Rename to expected file name / location */
       IF SEARCH(v-out) NE ? THEN
-        OS-DELETE VALUE(v-out).
-      /*IF cBarCodeProgram EQ ""  THEN*/
-      OS-RENAME VALUE(cTmpFile) VALUE(v-out).
+          OS-DELETE VALUE(v-out).
+      /* Rename to expected file name / location */
+      IF cBarCodeProgram EQ ""  THEN DO:
+          OS-RENAME VALUE(cTmpFile) VALUE(v-out).
+      END.
+      ELSE DO:
+        IF SEARCH(cTmpFile) NE ? THEN
+        OS-DELETE VALUE(cTmpFile).
+      END.
 
 
     end.    /* NOT TRIAD */
