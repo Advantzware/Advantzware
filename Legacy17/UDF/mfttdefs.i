@@ -19,7 +19,8 @@
   FIELD attr_enabled AS LOGICAL ~
   FIELD attr_proc AS CHARACTER FORMAT 'X(40)' ~
   FIELD attr_colLabel AS CHARACTER FORMAT 'X(20)' ~
-  FIELD attr_sbField AS INTEGER FORMAT '>9'
+  FIELD attr_sbField AS INTEGER FORMAT '>9' ~
+  FIELD attr_esko AS LOGICAL
 
 &IF "{&NEW}" EQ "NEW SHARED" &THEN
 DEFINE TEMP-TABLE ttMFGroup NO-UNDO LIKE {&dbnm}mfgroup.
