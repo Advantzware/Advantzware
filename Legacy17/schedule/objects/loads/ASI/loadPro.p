@@ -1161,7 +1161,7 @@ FOR EACH job-hdr NO-LOCK
         PUT UNFORMATTED reftable.dscr AT 20 SKIP.
         IF NOT useSalesRep THEN
         DO i = 2 TO NUM-ENTRIES(customValueList):
-          IF ENTRY(i,customValueList) EQ 'H' THEN DO:
+          IF ENTRY(i,customValueList) EQ 'Hold' THEN DO:
             jobStatus[i - 1] = job.stat NE 'H'.
             NEXT.
           END. /* check for hold status */
