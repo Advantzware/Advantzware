@@ -1,0 +1,21 @@
+/*------------------------------------------------------------------------
+    File        : &1.i
+    Purpose     : &7
+
+    Syntax      :
+
+    Description : &8 
+
+    Author(s)   : @USER@
+    Created     : &6
+    Notes       :
+  ----------------------------------------------------------------------*/
+
+/* ***************************  Definitions  ************************** */
+
+@FILEANNOTATION@
+@STARNOVAANNOTATIONS@
+DEFINE {&&ACCESS} TEMP-TABLE &1{&&SUFFIX} NO-UNDO &9{&&REFERENCE-ONLY} &&IF DEFINED (NO-BEFORE) EQ 0 &&THEN &3 &2{&&SUFFIX} &&ENDIF
+&4
+&5
+    .

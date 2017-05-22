@@ -259,7 +259,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -286,7 +286,7 @@ END.
 ON LEAVE OF ar-cash.bank-code IN FRAME F-Main /* Bank Code */
 DO:
   IF LASTKEY = -1 THEN RETURN.
-
+   {&methods/lValidateError.i YES}
    IF SELF:MODIFIED THEN do:
       FIND FIRST bank WHERE bank.company = g_company AND
                             bank.bank-code = ar-cash.bank-code:SCREEN-VALUE NO-LOCK NO-ERROR.
@@ -296,7 +296,9 @@ DO:
       END.
       bank_name:SCREEN-VALUE = bank.bank-NAME.
    END.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -307,6 +309,7 @@ END.
 ON LEAVE OF ar-cash.check-amt IN FRAME F-Main /* Check Amount */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
     IF DEC(ar-cash.check-amt:SCREEN-VALUE) EQ 0 THEN DO:
        MESSAGE "Check Amount cannot be 0." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
@@ -319,7 +322,9 @@ DO:
     END.
 
   END.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -364,7 +369,7 @@ END.
 ON LEAVE OF ar-cash.check-no IN FRAME F-Main /* Check No */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+    {&methods/lValidateError.i YES}
     IF int(ar-cash.check-no:SCREEN-VALUE) = 0 THEN DO:
         MESSAGE "Check number must be entered..." VIEW-AS ALERT-BOX.
         RETURN NO-APPLY.
@@ -389,8 +394,9 @@ DO:
                  " and Check " bf-cash.check-no VIEW-AS ALERT-BOX ERROR.
         RETURN NO-APPLY.
     END.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -430,7 +436,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -490,7 +496,7 @@ PROCEDURE applied-amt :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ld-not-applied = DEC(ar-cash.check-amt:SCREEN-VALUE).
     FOR EACH bf-cashl OF ar-cash NO-LOCK
@@ -515,7 +521,7 @@ PROCEDURE check-applied-amt :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF OUTPUT PARAM op-all-applied AS LOG INIT YES NO-UNDO.
-  
+
 
   IF AVAIL ar-cash AND NOT ar-cash.posted THEN DO:
     RUN applied-amt.
@@ -524,7 +530,7 @@ PROCEDURE check-applied-amt :
       RUN create-onaccount IN WIDGET-HANDLE(char-hdl) (OUTPUT op-all-applied).  
     END.
   END.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -557,7 +563,7 @@ PROCEDURE local-create-record :
   DEF VAR li-next-cno AS INT NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
- 
+
 
   FIND last bf-cash USE-INDEX c-no NO-LOCK NO-ERROR.
   li-next-cno = IF AVAIL bf-cash THEN bf-cash.c-no + 1 ELSE 1.
@@ -585,7 +591,7 @@ PROCEDURE local-create-record :
   RUN get-link-handle IN adm-broker-hdl (this-procedure,"record-target", OUTPUT char-hdl).
   RUN reopen-query IN WIDGET-HANDLE(char-hdl).
 */
-                
+
   RUN dispatch ('row-changed').
 END PROCEDURE.
 
@@ -598,7 +604,7 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
    cust_name = ""
@@ -666,6 +672,7 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   DO WITH FRAME {&FRAME-NAME}:
+     {&methods/lValidateError.i YES}
      IF ar-cash.bank-code:MODIFIED THEN do:
         FIND FIRST bank WHERE bank.company = g_company AND
                             bank.bank-code = ar-cash.bank-code:SCREEN-VALUE NO-LOCK NO-ERROR.
@@ -724,6 +731,7 @@ PROCEDURE local-update-record :
         APPLY "entry" TO ar-cash.check-no.
         RETURN NO-APPLY.
      END.
+  {&methods/lValidateError.i NO}
   END.
   /* ====== end validation =========*/
   ll-new-record = adm-new-record.
@@ -733,12 +741,13 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF ll-new-record THEN DO:
-     
+
      RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"adding-line-target",OUTPUT char-hdl).
      RUN auto-line-add IN WIDGET-HANDLE(char-hdl).
 
   END.
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -865,6 +874,7 @@ PROCEDURE valid-check-date :
   DEF VAR ll AS LOG INIT NO NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT ll-warned                                                               AND
        NOT CAN-FIND(FIRST period
@@ -884,6 +894,7 @@ PROCEDURE valid-check-date :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -897,6 +908,7 @@ PROCEDURE valid-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF lv-old-cust NE ar-cash.cust-no:SCREEN-VALUE THEN RUN new-cust-no.
 
@@ -910,6 +922,7 @@ PROCEDURE valid-cust-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

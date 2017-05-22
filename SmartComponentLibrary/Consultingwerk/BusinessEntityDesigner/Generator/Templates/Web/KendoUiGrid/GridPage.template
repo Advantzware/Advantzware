@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  
+  <head>
+    <title>@PAGE_TITLE@</title>
+    <link rel="stylesheet" href="kendoui/styles/kendo.common.min.css" />
+    <link rel="stylesheet" href="kendoui/styles/kendo.default.min.css" />
+    <script src="kendoui/js/jquery.min.js"></script>
+    <script src="kendoui/js/kendo.all.min.js"></script>
+    <script src="jsdo40/progress.all.js"></script>   
+  </head>
+  
+  <body>
+
+    <div id="example">
+      <div id="grid"></div>
+    </div>
+
+    <script>
+      $(function() {
+      
+                    var jsdosession, dataSource;      
+            	
+                    function createGrid() {
+      				$("#grid").kendoGrid(
+      
+@GRID_DEFINITION@      
+      				); }
+      					
+                    try {
+                        var serviceURI = "http://localhost:8980/SmartJsdoBackendService",
+                            jsdoSettings = {
+                                serviceURI: serviceURI,
+                                catalogURIs: serviceURI + "/rest/SmartJsdoBackendService/Catalog/@DATASOURCE_NAME@"
+                            },                
+                            promise;
+            
+                        // create a new session object
+                        jsdosession = new progress.data.JSDOSession(jsdoSettings);
+                        promise = jsdosession.login("", "");
+                            
+                        promise.done(function(jsdosession, result, info){
+                            jsdosession.addCatalog(jsdoSettings.catalogURIs)
+                                .done(function(jsdosession, result, details){
+            
+                                    dataSource = new kendo.data.DataSource( {
+                                                        type: "jsdo",
+                                                        serverPaging: true,
+                                                        serverFiltering: true,
+                                                        // filter: { field: "Country", operator: "eq", value: "USA" },
+                                                        serverSorting: true,
+                                                        // sort: { field: "State", dir: "desc" },
+                                                        pageSize: 10,
+                                                        transport: {
+                                                            jsdo: "@DATASOURCE_NAME@",
+                                                            tableRef: "@TABLE_NAME@",
+                                                            countFnName: "count"
+                                                        },
+                                                        error: function(e) {
+                                                            console.log ('Error: ', e); 
+                                                        }
+                                                    }
+                                    );
+                                
+                                    createGrid();
+                                })
+                                .fail(function(jsdosession, result, details){
+                                    alert("Error while executing addCatalog().");
+                            });
+                        });
+                        promise.fail(function(jsdosession, result, info){
+                            alert("Error while executing login().");      
+                        });        
+                    }
+                    catch (e) {
+                        alert("Error instantiating objects: " + e);
+                    }      					
+      			});
+    </script>
+  </body>
+
+</html>

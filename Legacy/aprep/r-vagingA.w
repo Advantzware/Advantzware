@@ -1110,7 +1110,7 @@ WITH PAGE-TOP FRAME r-top-1 STREAM-IO WIDTH 200 NO-BOX.
 FORM HEADER SKIP(1)
      "VENDOR#  NAME  TERMS" SKIP
      "PHONE-   TYPE" skip
-     "  INVOICE#      DATE     DUE DATE            AMOUNT #DAYS             0-" + string(period-days-1) + FILL(" ",11) +   
+     "  INVOICE#      DATE                 AMOUNT #DAYS             0-" + string(period-days-1) + FILL(" ",11) +   
                                                                            string(period-days-1 + 1) + "-" + string(period-days-2) + FILL(" ",11) +
                                                                            string(period-days-2 + 1) + "-" + string(period-days-3) + FILL(" ",11) +
                                                                            string(period-days-3 + 1) + "-" + string(period-days-4) + FILL(" ",9) +
@@ -1245,7 +1245,7 @@ VIEW FRAME r-top.
         excelheader = excelheader + "CURRENCY,".
 
      excelheader = excelheader
-                 + "VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,DUE DATE,AMOUNT,#DAYS,"
+                 + "VENDOR#,VENDOR NAME,PHONE,TYPE,TERMS,INVOICE#,DATE,AMOUNT,#DAYS,"
                  + "0-" + STRING(period-days-1) + "," + STRING(period-days-1 + 1) + "-" 
                         + STRING(period-days-2) + "," + STRING(period-days-2 + 1) + "-" 
                         + STRING(period-days-3) + "," + STRING(period-days-3 + 1) + "-" 
@@ -1326,7 +1326,6 @@ VIEW FRAME r-top.
                 '"' ""                                  '",'
                 '"' ""                                  '",'
                 '"' ""                                  '",'
-                '"' ""                                  '",'
                 '"' "CURR TOTALS"                       '",'
                 '"' ""                                  '",'
                 '"' STRING(curr-t[1],"$->>>,>>>,>>9.99") '",'
@@ -1342,7 +1341,6 @@ VIEW FRAME r-top.
                    '"' "" '",'.
 
             PUT STREAM excel UNFORMATTED
-                '"' ""                                  '",'
                 '"' ""                                  '",'
                 '"' ""                                  '",'
                 '"' ""                                  '",'
@@ -1426,7 +1424,6 @@ VIEW FRAME r-top.
            '"' ""                                  '",'
            '"' ""                                  '",'
            '"' ""                                  '",'
-           '"' ""                                  '",'
            '"' ""                                  '",' 
            '"' "GRAND TOTALS"                      '",'
            '"' ""                                  '",'
@@ -1446,7 +1443,6 @@ VIEW FRAME r-top.
               '"' "" '",'.
 
        PUT STREAM excel UNFORMATTED
-           '"' ""                                  '",'
            '"' ""                                  '",'
            '"' ""                                  '",'
            '"' ""                                  '",'

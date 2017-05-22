@@ -700,6 +700,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN enable_UI.
 
+  {methods/nowait.i}
   DO WITH FRAME {&frame-name}:
     {custom/usrprint.i}
 
@@ -714,11 +715,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN
        tran-date:SCREEN-VALUE   = ""
        tran-period:SCREEN-VALUE = "".
-
-    APPLY "entry" TO tran-date.
+      APPLY "entry" TO tran-date.
+    
   END.
 
-  {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

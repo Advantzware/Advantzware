@@ -248,33 +248,33 @@ THEN C-Win:HIDDEN = no.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "emptrack.machtran"
+     _TblList          = "machtran"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _OrdList          = "emptrack.machtran.machine|yes,emptrack.machtran.start_date|yes,emptrack.machtran.start_time|yes,emptrack.machtran.jobseq|yes"
+     _OrdList          = "machtran.machine|yes,machtran.start_date|yes,machtran.start_time|yes,machtran.jobseq|yes"
      _Where[1]         = "machtran.company EQ lvCompany AND
 (machtran.machine EQ resources OR
 resources EQ '<Select ...>') AND
 machtran.job_number EQ lvJobNo AND
 machtran.job_sub EQ lvJobNo2
 USE-INDEX pi-machtran"
-     _FldNameList[1]   = emptrack.machtran.jobseq
-     _FldNameList[2]   = emptrack.machtran.charge_code
-     _FldNameList[3]   > emptrack.machtran.machine
+     _FldNameList[1]   = machtran.jobseq
+     _FldNameList[2]   = machtran.charge_code
+     _FldNameList[3]   > machtran.machine
 "machtran.machine" "Resource" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[4]   = emptrack.machtran.form_number
-     _FldNameList[5]   = emptrack.machtran.blank_number
-     _FldNameList[6]   = emptrack.machtran.pass_sequence
-     _FldNameList[7]   = emptrack.machtran.start_date
+     _FldNameList[4]   = machtran.form_number
+     _FldNameList[5]   = machtran.blank_number
+     _FldNameList[6]   = machtran.pass_sequence
+     _FldNameList[7]   = machtran.start_date
      _FldNameList[8]   > "_<CALC>"
 "STRING(machtran.start_time,'HH:MM am') @ lvStartTime" "Start" "X(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" ""
-     _FldNameList[9]   = emptrack.machtran.end_date
+     _FldNameList[9]   = machtran.end_date
      _FldNameList[10]   > "_<CALC>"
 "STRING(machtran.end_time,'HH:MM am') @ lvEndTime" "End" "X(8)" ? ? ? ? ? ? ? no ? no no "10" yes no no "U" "" ""
-     _FldNameList[11]   = emptrack.machtran.shift
-     _FldNameList[12]   = emptrack.machtran.completed
-     _FldNameList[13]   = emptrack.machtran.posted
-     _FldNameList[14]   = emptrack.machtran.run_qty
-     _FldNameList[15]   = emptrack.machtran.waste_qty
+     _FldNameList[11]   = machtran.shift
+     _FldNameList[12]   = machtran.completed
+     _FldNameList[13]   = machtran.posted
+     _FldNameList[14]   = machtran.run_qty
+     _FldNameList[15]   = machtran.waste_qty
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

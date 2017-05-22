@@ -367,7 +367,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 /*Change similar lines in jcrep\r-tickt2.w can-do ... in multiple places*/
 is-xprint-form = (ip-industry EQ "Corr") OR 
-                  CAN-DO("Interpac,FibreFC,Metro,HPB,Dayton,Livngstn,CentBox,Keystone,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Carded2,Coburn,Knight***",lv-format-f).
+                  CAN-DO("Interpac,FibreFC,Metro,HPB,Dayton,Livngstn,CentBox,Keystone,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2",lv-format-f).
 
 IF is-xprint-form THEN DO:
 
@@ -396,7 +396,7 @@ IF is-xprint-form THEN DO:
        can-do ('Interpac,Frankstn,OTTPkg,Colonial,CCC,Dayton,Livngstn,Shelby,HPB,METRO,FibreFC,PPI,PackRite,Rosmar,Knight,MidYork,Carded,Dee,Badger',lv-format-f)) THEN 
       PUT UNFORMATTED "<OLANDSCAPE>".
     
-    PUT "<PRINT=NO><PDF-LEFT=1mm><PDF-TOP=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(120)".
+    PUT "<PRINT=NO><PDF-LEFT=1mm><PDF-TOP=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
   
   END.
 END.
@@ -574,8 +574,10 @@ IF ip-industry EQ "Fold" THEN DO:
    ELSE IF lv-format-f EQ "Prystup" THEN DO:
       RUN cerep/jobpryst.p (list-name).                
    END.
-   ELSE 
-     RUN cerep/jobtick.p (lv-format-f).
+   ELSE DO:
+      PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".
+      RUN cerep/jobtick.p (lv-format-f).
+   END.
 
 
 END.

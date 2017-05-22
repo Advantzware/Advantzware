@@ -2195,7 +2195,7 @@ PROCEDURE job-start :
             AND emplogin.END_date = ?
             AND emplogin.end_time = 0
             AND emplogin.total_time = 0,
-          FIRST emptrack.employee OF emplogin NO-LOCK:
+          FIRST employee OF emplogin NO-LOCK:
 
         IF NOT CAN-FIND(FIRST machemp WHERE
            machemp.table_rec_key = machtran.rec_key AND
@@ -2934,7 +2934,7 @@ PROCEDURE proc-form-cmplt :
 ===*/
 
   /*=========== create fg receipt : from pc/r-wippst.w */
-  /*FOR EACH EMPTRACK.bf-machtran WHERE bf-machtran.company = company_code AND
+  /*FOR EACH bf-machtran WHERE bf-machtran.company = company_code AND
                                       bf-machtran.machine = machine_code AND
                                       bf-machtran.job_number = job_number AND
                                       bf-machtran.job_sub = INTEGER(job_sub) AND
@@ -3350,7 +3350,7 @@ PROCEDURE proc-set-cmplt :
 ===*/
 
   /*=========== create fg receipt : from pc/r-wippst.w */
-  /*FOR EACH EMPTRACK.bf-machtran WHERE bf-machtran.company = company_code AND
+  /*FOR EACH bf-machtran WHERE bf-machtran.company = company_code AND
                                       bf-machtran.machine = machine_code AND
                                       bf-machtran.job_number = job_number AND
                                       bf-machtran.job_sub = INTEGER(job_sub) AND

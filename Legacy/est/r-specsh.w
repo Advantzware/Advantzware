@@ -1322,7 +1322,7 @@ PROCEDURE run-report :
         ASSIGN
            /*init-dir = v-dir */
            lv-pdf-file = init-dir + "\" + "Est" + TRIM(est.est-no).
-        PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS>" FORM "x(100)".
+        PUT "<PREVIEW><PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf></PROGRESS>" FORM "x(180)".
     END. 
     WHEN 5 THEN RUN custom/d-print.w (list-name).
   END CASE.
@@ -1428,7 +1428,7 @@ PROCEDURE run-report-mail :
   do:
 
     IF IS-xprint-form THEN DO:      
-        PUT "<PDF=DIRECT><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(60)".
+        PUT "<PDF=DIRECT><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
     END.
 
   END.

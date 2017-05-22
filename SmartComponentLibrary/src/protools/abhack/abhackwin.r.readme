@@ -1,0 +1,25 @@
+21-AUG-2007 sla: Reintroduced the usage of .r files.  ABHack will recompile itself automatically.
+This has become important again because pure4gltv is now part of the package
+
+
+IF YOU HAVE ANY .r FILES IN THE abhack DIRECTORY, THEN PLEASE MAKE SURE TO DELETE THEM
+
+
+In version 9, please, delete the abhackwin.r file.
+
+<extract for release notes on 9-Jan-2007>
+.r files are no longer provided to make the updates
+easier in both V9 and OE 10.  A dummy OE 10 abhackwin.r
+is provided to override a possible obsolete one. This guy
+will auto detect and auto delete itself with a little
+message in OE 10 and will fail in V9.  In V9, just delete
+it. I will probably deliver this fake guy for a while in
+the next releases to make sure everyone has delete his .r
+files.  Note the regular abhackwin.w will detect other .r
+files of ABHack at startup to delete them.
+</extract for release notes on 9-Jan-2007>
+
+<extract for release notes on 11-Feb-2007>
+Removed abhackwin.r fake .r file that takes care of removing old .r files.
+It was introduced in on 9-JAN-2007 and people should be up to date now.
+</extract for release notes on 11-Feb-2007>

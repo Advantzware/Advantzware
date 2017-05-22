@@ -1,0 +1,61 @@
+How to show matching open parenthese in the procedure editor (VSLick)
+=====================================================================
+
+It seems there are two possible cases, probably depending on the fact you customized the default config of VSlick with the AppBuilder regular config tool (option->Editing Option)
+
+If you have a 'proedit' sub-directory in your working directory, with a file called user.vlx in it, then do the following:
+1) make a backup copy of the config file <workingDir>\proedit\user.vlx in <workingDir>\proedit\user.vlx.original
+      => The point is just to be safe
+
+2) Open the text file <workingDir>\proedit\user.vlx
+
+3) In the a line close to the bottom:
+punctuation= & ( ) * + , - . / : ; < <= <> = > >= ? @ [ ] ^ { {get {set
+
+Remove the ) character so it becomes
+punctuation= & ( * + , - . / : ; < <= <> = > >= ? @ [ ] ^ { {get {set
+
+4) Save it.
+
+5) Start an AppBuilder/procedure editor.  Then play with the open and close parentheses... you will love it.
+
+
+
+However, if you do not have the <workingDir>\proedit\user.vlx file, then follow these steps:
+1) make a backup copy of <Progress Install Dir>\proedit\vslick.vlx
+
+2) Then modify the following line near the bottom in <Progress Install Dir>\proedit\vslick.vlx :
+
+symbol1= & ( ) * + , - . / : ; < <= <> = > >= ? @ [ ] ^ { {get {set } ~
+
+   Into:
+
+symbol1= & ( * + , - . / : ; < <= <> = > >= ? @ [ ] ^ { {get {set } ~
+
+   ( => just remove the ')' character )
+
+3) Save the file
+
+4) Restart the AppBuilder or Procedure editor
+
+
+Again guys... "hack it or die"  ;p
+
+Kind regards
+
+Sebastien
+
+
+
+--
+Sébastien Lacroix OpenEdge Consultant + 33 (0)6 24 90 20 83
+
+===============================================================
+Author of the following guys on http://www.psdn.com:
+a) ABHack, free best ever made A4GBL hack to make your dreams come
+   true in the AppBuilder http://www.psdn.com/library/entry.jspa?externalID=1886&categoryID=41
+ 
+b) pure4gltv.w, best ever ADM2 Smart Object (treeview in pure 4GL, you never
+   dream that far)
+  
+l) Enhanced Procedure Object Viewer 

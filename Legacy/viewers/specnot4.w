@@ -244,7 +244,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -266,13 +266,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_group V-table-Win
 ON LEAVE OF notes.note_group IN FRAME F-Main /* Group */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and notes.note_group:screen-value <> "" and
        not can-find(first usergrps where usergrps.usergrps = self:screen-value)
     then do:
          message "Invalid Group. Try Help." view-as alert-box error.
          return no-apply.
     end.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -307,7 +310,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -380,7 +383,7 @@ PROCEDURE local-assign-record :
   /* Code placed here will execute AFTER standard behavior.    */
   if notes.note_type = "C" then assign notes.note_group = ""
                                       .
-                                       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -421,7 +424,7 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/notes.i}
    notes.note_source = "vend".
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -435,7 +438,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR ll AS LOG NO-UNDO.
 
-
+   {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   if  notes.note_group:screen-value in frame {&frame-name} <> "" and
       not can-find(first usergrps where usergrps.usergrps = notes.note_group:screen-value)
@@ -444,7 +447,7 @@ PROCEDURE local-update-record :
          apply "entry" to notes.note_group.
          return no-apply.
     end.
-
+     {&methods/lValidateError.i YES}
   FOR EACH tt-notes:
     DELETE tt-notes.
   END.
@@ -462,6 +465,7 @@ PROCEDURE local-update-record :
   disable notes.note_group with frame {&frame-name}.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -1,0 +1,3 @@
+/* packResource.i */
+
+/* static version */

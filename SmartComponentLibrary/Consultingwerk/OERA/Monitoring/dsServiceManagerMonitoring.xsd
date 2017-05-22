@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsServiceManagerMonitoring" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eBusinessServices" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="ServiceName" type="xsd:string" nillable="true"/>
+              <xsd:element name="ClassName" type="xsd:string" nillable="true"/>
+              <xsd:element name="Managed" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="Started" type="xsd:dateTime" nillable="true"/>
+              <xsd:element name="LastRequest" type="xsd:dateTime" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eSessionInfo" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="Pid" type="xsd:int" nillable="true" prodata:initial="prodata:unknown" prodata:format=">,>>>,>>9" prodata:label="Progress ID"/>
+              <xsd:element name="Started" type="xsd:dateTime" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="ServiceName" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eBusinessServices"/>
+      <xsd:field xpath="ServiceName"/>
+    </xsd:unique>
+    <xsd:unique name="Pid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSessionInfo"/>
+      <xsd:field xpath="Pid"/>
+    </xsd:unique>
+  </xsd:element>
+</xsd:schema>

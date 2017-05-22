@@ -1,0 +1,20 @@
+FOR EACH titlcode NO-LOCK
+titlcode,description
+
+Indexed: titlcode,description
+Non-Idx: 
+
+Generated 04.19.2017 @  4:00:17 am by: nosweat
+Table: titlcode - Records: 7
+
+    Index: pi-titlcode
+         Field: titlcode
+
+    Index: si-description
+         Field: description
+
+    Index: si-rec_key
+         Field: rec_key
+
+    Index: wi-description
+         Field: description

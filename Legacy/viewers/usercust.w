@@ -195,7 +195,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -222,7 +222,7 @@ DO:
 
       RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'record-source':U,OUTPUT char-hdl).
       RUN Get-Values in WIDGET-HANDLE(char-hdl) (OUTPUT op-user_id).
-      
+
       FOR EACH tt-cust:
 
           IF NOT CAN-FIND(FIRST usercust WHERE
@@ -257,7 +257,7 @@ DO:
       FOR EACH cust WHERE
           cust.company EQ cocode
           NO-LOCK:
-      
+
           IF NOT CAN-FIND(FIRST usercust WHERE
              usercust.user_id EQ op-user_id AND
              usercust.company EQ cocode AND
@@ -281,7 +281,7 @@ DO:
    ELSE
    IF lv-mode EQ "Select" AND char-val NE "" THEN
       usercust.cust-no:SCREEN-VALUE = char-val.
-   
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -298,7 +298,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -362,7 +362,7 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -384,12 +384,12 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DEF VAR op-user_id AS CHAR NO-UNDO.
-  
+
   RUN valid-cust NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT op-user_id)"}
-
+  {&methods/lValidateError.i YES}
   IF adm-new-record AND CAN-FIND(FIRST usercust WHERE
      usercust.user_id EQ op-user_id AND
      usercust.company EQ g_company AND
@@ -400,7 +400,7 @@ PROCEDURE local-update-record :
         APPLY "ENTRY" TO usercust.cust-no IN FRAME {&FRAME-NAME}.
         RETURN NO-APPLY.
      END.
-
+    {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -410,6 +410,7 @@ PROCEDURE local-update-record :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ("open-query").
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -463,6 +464,7 @@ PROCEDURE valid-cust :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND(FIRST cust WHERE
      cust.company = g_company AND
      cust.cust-no = usercust.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN
@@ -471,6 +473,7 @@ PROCEDURE valid-cust :
         APPLY "entry" TO usercust.cust-no.
         RETURN error.
      END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

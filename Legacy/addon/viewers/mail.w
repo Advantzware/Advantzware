@@ -163,7 +163,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: EMPTRACK.maillist
+   External Tables: maillist
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -249,7 +249,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -301,8 +301,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL maillist.list-for V-table-Win
 ON VALUE-CHANGED OF maillist.list-for IN FRAME F-Main /* List For */
 DO:   
-  
-    
+
+
    if maillist.list-for:screen-value = "S" then 
    do: 
       enable maillist.sman with frame {&frame-name}.
@@ -316,7 +316,7 @@ DO:
               END_type:HIDDEN = NO
               begin_type:SENSITIVE = YES
               END_type:SENSITIVE = YES.
-       
+
       apply "entry" to begin_type in frame {&frame-name}.   
    END.
    else do:
@@ -335,6 +335,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL maillist.list-name V-table-Win
 ON LEAVE OF maillist.list-name IN FRAME F-Main /* Title */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and
        maillist.list-name:screen-value <> "" and
        can-find(first bf-maillist where bf-maillist.list-name = self:screen-value and
@@ -342,8 +343,10 @@ DO:
     then do:
          message "Title already exists. Use other title please." view-as alert-box.
          return no-apply.
-    end.                                    
+    end.    
+    {&methods/lValidateError.i NO}                                
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -372,7 +375,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -470,10 +473,10 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
   def var li-prev-list-no as int no-undo.
   def buffer bf-cont for mailcont .
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   li-prev-list-no = maillist.list-no.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -489,7 +492,7 @@ PROCEDURE local-assign-record :
   if adm-adding-record then do:
      session:set-wait-state("general").
      RUN add-mailcont.
-     
+
      session:set-wait-state("").
   end.
   */
@@ -506,7 +509,7 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
   def buffer bf-maillist for maillist.
   def var li-next-list-no as int no-undo.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -515,7 +518,7 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   find last bf-maillist use-index maillist no-lock no-error.
   li-next-list-no = if avail bf-maillist then  bf-maillist.list-no + 1 else 1.
-  
+
   assign maillist.list-no = li-next-list-no
          maillist.list-date = today
          maillist.active = yes
@@ -563,7 +566,7 @@ PROCEDURE local-enable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   if not avail maillist then return.
-  
+
   if maillist.list-for = "s" then enable maillist.sman with frame {&frame-name}.
   if not adm-adding-record then do: 
      disable maillist.list-for maillist.sman with frame {&frame-name}.
@@ -587,6 +590,7 @@ PROCEDURE local-update-record :
 
   ASSIGN ll-new-record = adm-new-record
          ll-add-record = adm-adding-record.
+  {&methods/lValidateError.i YES}
   do with frame {&frame-name} :
      if maillist.list-name:screen-value <> "" and
         can-find(first bf-maillist where bf-maillist.list-name = maillist.list-name:screen-value and
@@ -618,14 +622,14 @@ PROCEDURE local-update-record :
        END.
     END.
   end.
-
+  {&methods/lValidateError.i NO}
   ASSIGN begin_type END_type.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
- 
+
   if ll-add-record then do:
      RUN add-mailcont.     
   end.
@@ -641,6 +645,7 @@ PROCEDURE local-update-record :
   end.   
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

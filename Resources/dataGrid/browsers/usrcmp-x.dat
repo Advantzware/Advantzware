@@ -1,0 +1,32 @@
+FOR EACH usrx  NO-LOCK usrx.users EQ users.user_id AND usrx.company EQ "%company%" AND usrx.loc NE "",  EACH loc OF usrx  NO-LOCK
+loc,dscr
+
+Indexed: loc,dscr
+Non-Idx: 
+
+Generated 04.19.2017 @  2:31:56 pm by: asi
+Table: usrx - Records: 382
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: usr
+         Field: company
+         Field: loc
+         Field: uid
+
+Table: loc - Records: 290
+
+    Index: dscr
+         Field: company
+         Field: dscr
+
+    Index: loc
+         Field: company
+         Field: loc
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: wi-dscr
+         Field: dscr

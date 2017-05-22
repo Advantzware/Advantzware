@@ -1,0 +1,22 @@
+FOR EACH std-code NO-LOCK
+code,dscr
+
+Indexed: code,dscr
+Non-Idx: fil,fld
+
+Generated 04.18.2017 @  2:52:32 am by: nosweat
+Table: std-code - Records: 30
+
+    Index: dscr
+         Field: company
+         Field: dscr
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: std-code
+         Field: company
+         Field: code
+
+    Index: wi-dscr
+         Field: dscr

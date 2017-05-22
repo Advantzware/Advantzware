@@ -1,0 +1,27 @@
+FOR EACH style NO-LOCK WHERE style.company EQ "%company%" and style.industry EQ "2"
+dscr,style
+
+Indexed: style
+Non-Idx: dscr
+
+Generated 04.18.2017 @ 12:26:30 am by: nosweat
+Table: style - Records: 100
+
+    Index: design-no
+         Field: design-no
+
+    Index: industry
+         Field: company
+         Field: industry
+         Field: style
+         Field: flute
+         Field: test
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: style
+         Field: company
+         Field: style
+         Field: flute
+         Field: test

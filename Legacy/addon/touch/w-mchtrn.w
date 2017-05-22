@@ -129,7 +129,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: EMPTRACK.machtran
+   External Tables: machtran
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 1
    Other Settings: COMPILE
@@ -657,7 +657,7 @@ PROCEDURE Select_att :
 
   rec_key_value = machtran.rec_key.
 
-  RUN windows/ATTACH.w(rec_key_value,HEADER_value).
+  {methods/select_att.i}
   
 END PROCEDURE.
 
@@ -769,9 +769,6 @@ PROCEDURE select_ONote :
   DEF VAR cJobKey AS CHAR NO-UNDO.
 
   IF AVAIL machtran AND machtran.job_number <> "" THEN DO:
-     /*RUN touch/getnote.p (RECID(machtran)).*/
-     
-     /*FIND bf-mtran WHERE RECID(bf-mtran) = RECID(machtran) EXCLUSIVE-LOCK.*/
      FIND FIRST job WHERE job.company EQ machtran.company AND
                           job.job-no = machtran.job_number AND
                           job.job-no2 = machtran.job_sub NO-LOCK NO-ERROR.
@@ -783,30 +780,11 @@ PROCEDURE select_ONote :
 
      RUN touch/getnoteA.p (rec_key_value, HEADER_value).
 
-     /*RUN windows/specnote.w (rec_key_value,HEADER_value).  */
-    
-     RUN windows/opnotes.w (rec_key_value, HEADER_value,machine_code,ForM_number).
+     {methods/select_ONote.i rec_key_value header_value machine_code form_number}
 
      RUN touch/savenoteA.p (job.rec_key, HEADER_value).
 
   END.
-  /*
-  ELSE IF NOT AVAIL machtran THEN
-  DO:
-     FIND FIRST job WHERE
-          job.company EQ company_code AND
-          job.job-no = job_number AND
-          job.job-no2 = INT(job_sub)
-          NO-LOCK NO-ERROR.
-
-     IF AVAIL job THEN
-     DO:
-        RUN touch/getnote.p (job.rec_key).
-        RUN windows/specnott.w (job.rec_key,header_value,machine_code,form_number).
-        RUN touch/savenote.p (job.rec_key).
-     END.
-  END.
-  */
 
 END PROCEDURE.
 

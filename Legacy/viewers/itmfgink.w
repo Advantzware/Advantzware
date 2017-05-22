@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: viewers/itmfgink.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -238,7 +238,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -249,8 +249,8 @@ ASSIGN
 ON HELP OF FRAME F-Main
 DO:
   DEF VAR char-val AS cha NO-UNDO.
-      
-  
+
+
   DO WITH FRAME {&FRAME-NAME}:
     CASE FOCUS:NAME:
       WHEN "rm-i-no" then do:        
@@ -353,11 +353,11 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-  
+
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -616,7 +616,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-rm-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST b-fgink
         WHERE b-fgink.company EQ itemfg.company
@@ -632,7 +632,7 @@ PROCEDURE local-update-record :
       RETURN ERROR.
     END.
   END.
-
+  {&methods/lValidateError.i NO}
   RUN valid-pass NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
@@ -653,6 +653,7 @@ PROCEDURE local-update-record :
   RUN ebfgBuild.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -788,7 +789,8 @@ PROCEDURE valid-cover% :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(itemfg-ink.cover%:SCREEN-VALUE) LT 1   OR
        DEC(itemfg-ink.cover%:SCREEN-VALUE) GT 100 THEN DO:
@@ -799,6 +801,7 @@ PROCEDURE valid-cover% :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -812,6 +815,7 @@ PROCEDURE valid-fi_occurs :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(fi_occurs:SCREEN-VALUE) LT 1 THEN DO:
       MESSAGE TRIM(fi_occurs:LABEL) + " must be greater than zero..."
@@ -821,6 +825,7 @@ PROCEDURE valid-fi_occurs :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -834,6 +839,7 @@ PROCEDURE valid-pass :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(itemfg-ink.pass:SCREEN-VALUE) LT 1 THEN DO:
       MESSAGE TRIM(fi_occurs:LABEL) + " must be greater than zero..."
@@ -843,6 +849,7 @@ PROCEDURE valid-pass :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -855,7 +862,8 @@ PROCEDURE valid-rm-i-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST item
         WHERE item.company EQ g_company
@@ -871,6 +879,7 @@ PROCEDURE valid-rm-i-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -1,0 +1,39 @@
+# protools/abhack/customTabCompletion.ofMine.txt is a list of custom aliases to extend the 
+# standard aliases defined in protools/abhack/customTabCompletion.txt 
+# 
+# This new file introduced on 24-MAR-2007 will help to keep your own aliases when 
+# applying a new release of ABHack with possible changes in the standard 
+# protools/abhack/customTabCompletion.txt 
+# 
+# 
+# Do not forget to put a carriage return at the end of the file
+# Lines that begins with '#' are ignored 
+# This file is reloaded each time you recheck the '&Custom completion' toggle-box 
+# One can define aliases for the matches operator 
+# ~n => insert carriage return 
+# %\d  => date in your *own* format (European, or American) => better than with VSlick 
+# %\c put the cursor there  /* 18-DEC-2006 sla: Improvement: %\c now work for aliases that insert multiple lines */ 
+# %\( will make ABHack insert a '(' in such a way it can guess where to put the matching ')' 
+# %\wBuffer => to be replaced by the next chosen buffer in a popup list  /* 17-FEB-2007 sla: new buffer directive */
+# 
+# Example to disable a standard alias 
+lirtn @dislabledAlias@ 
+# Example to abort the completion process for a given word 
+blockCompletion @abortCompletionProcess@ 
+# 
+# To implement your own, have a look at the standard protools/abhack/customTabCompletion.txt 
+# 
+ordzezetrez @abortCompletionProcess@
+<LargeText StdT* Test StandardFileHeader>
+/*------------------------------------------------------------------------------
+         Test support of large aliases
+         %\fileName   %\d  by %\userName   
+  Purpose: %\c
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+</LargeText StdT* Test StandardFileHeader>
+bps big:pstr(%\c)
+dri /* %\d David R: %\c */
+jcc /* %\d jcc: %\c */
+pmes MESSAGE %\c~n    SKIP REPLACE({&callStack}," | ",CHR(10))~n    VIEW-AS ALERT-BOX INFO BUTTONS OK.

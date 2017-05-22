@@ -206,17 +206,19 @@ ASSIGN
 ON LEAVE OF loc.loc IN FRAME F-Main /* Locations */
 DO:
    IF LASTKEY = -1 THEN  RETURN.
+   {&methods/lValidateError.i YES}
    IF adm-new-record AND loc.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
        THEN DO:
        MESSAGE "Locations must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
    END.
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -227,7 +229,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -305,7 +307,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+  {&methods/lValidateError.i YES}
   do with frame {&frame-name}:
      IF adm-new-record THEN DO:
         IF loc.loc:SCREEN-VALUE = "" THEN DO:
@@ -315,16 +317,17 @@ PROCEDURE local-update-record :
         END.
      END.
   END.
-
+  {&methods/lValidateError.i NO}
   /* ============== end of validations ==================*/
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
-  
+
+
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

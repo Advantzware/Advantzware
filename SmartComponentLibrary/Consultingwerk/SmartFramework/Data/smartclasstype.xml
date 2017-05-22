@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<dsClassType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartClassType>
+    <ClassTypeGuid>fcc2eb89-e3f7-fc94-ff13-bffe400a6ec6</ClassTypeGuid>
+    <ClassTypeName>AVM</ClassTypeName>
+    <ClassTypeDescription>AVM built-in type</ClassTypeDescription>
+    <AvmType>true</AvmType>
+  </eSmartClassType>
+  <eSmartClassType>
+    <ClassTypeGuid>fcc2eb89-e3f7-fc94-ff13-c0fe349023c8</ClassTypeGuid>
+    <ClassTypeName>.NET</ClassTypeName>
+    <ClassTypeDescription>.NET type</ClassTypeDescription>
+    <AvmType>true</AvmType>
+  </eSmartClassType>
+  <eSmartClassType>
+    <ClassTypeGuid>fcc2eb89-e3f7-fc94-ff13-c0feb4f0092f</ClassTypeGuid>
+    <ClassTypeName>ABL</ClassTypeName>
+    <ClassTypeDescription>ABL class</ClassTypeDescription>
+    <AvmType>true</AvmType>
+  </eSmartClassType>
+  <eSmartClassType>
+    <ClassTypeGuid>fcc2eb89-e3f7-fc94-ff13-c1fee0ff7b8f</ClassTypeGuid>
+    <ClassTypeName>Hybrid</ClassTypeName>
+    <ClassTypeDescription>Hybrid type (GUI for .NET)</ClassTypeDescription>
+    <AvmType>true</AvmType>
+  </eSmartClassType>
+  <eSmartClassType>
+    <ClassTypeGuid>fcc2eb89-e3f7-fc94-ff13-c2feb4a1e77a</ClassTypeGuid>
+    <ClassTypeName>Widget</ClassTypeName>
+    <ClassTypeDescription>ABL widget (Handle based)</ClassTypeDescription>
+    <AvmType>true</AvmType>
+  </eSmartClassType>
+  <eSmartClassType>
+    <ClassTypeGuid>fcc2eb89-e3f7-fc94-ff13-c3fe3c6a893c</ClassTypeGuid>
+    <ClassTypeName>JavaScript</ClassTypeName>
+    <ClassTypeDescription>Generic JavaScript object</ClassTypeDescription>
+    <AvmType>false</AvmType>
+  </eSmartClassType>
+  <eSmartClassType>
+    <ClassTypeGuid>fcc2eb89-e3f7-fc94-ff13-c3fe9c5508ea</ClassTypeGuid>
+    <ClassTypeName>JavaScript.KendoUI</ClassTypeName>
+    <ClassTypeDescription>KendoUI widget</ClassTypeDescription>
+    <AvmType>false</AvmType>
+  </eSmartClassType>
+  <eSmartClassType>
+    <ClassTypeGuid>fd175260-faa7-c08c-0214-d78ac43436e0</ClassTypeGuid>
+    <ClassTypeName>unspecified</ClassTypeName>
+    <ClassTypeDescription>Unspecified Class Type</ClassTypeDescription>
+    <AvmType>false</AvmType>
+  </eSmartClassType>
+</dsClassType>

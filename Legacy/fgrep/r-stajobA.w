@@ -1247,7 +1247,7 @@ IF rd_smry-dtl = "S" THEN DO:
 form
     cust.cust-no label "CUSTOMER"
     itemfg.cust-po-no label "PO #" FORMAT "x(15)"
-    v-sales-rep label "SMAN"
+    v-sales-rep label "SREP"
     itemfg.i-no  label "ITEM #"
     itemfg.part-no label "CUST PART #" format "x(15)"
     itemfg.i-name label "DESCRIPTION" format "x(15)"
@@ -1261,7 +1261,7 @@ form
 form
     cust.cust-no label "CUSTOMER"
     oe-ordl.po-no label "PO #"
-    v-sales-rep label "SMAN"
+    v-sales-rep label "SREP"
     oe-ordl.i-no  label "ITEM #"
     oe-ordl.i-name label "DESCRIPTION" format "x(15)"
     fg-bin.loc label "WHSE"
@@ -1275,7 +1275,7 @@ form
 form
     cust.cust-no label "CUSTOMER"
     itemfg.cust-po-no label "PO #"
-    v-sales-rep label "SMAN"
+    v-sales-rep label "SREP"
     itemfg.i-no  label "ITEM #"
     itemfg.i-name label "DESCRIPTION" format "x(15)"
     v-job column-label "  JOB"
@@ -1307,7 +1307,7 @@ ELSE DO:
 form
     cust.cust-no label "CUSTOMER"
     itemfg.cust-po-no label "PO #" FORMAT "x(15)"
-    v-sales-rep label "SMAN"
+    v-sales-rep label "SREP"
     itemfg.i-no  label "ITEM #"
     itemfg.part-no label "CUST PART #" format "x(15)"
     itemfg.i-name label "DESCRIPTION" format "x(15)"
@@ -1323,7 +1323,7 @@ form
 form
     cust.cust-no label "CUSTOMER"
     oe-ordl.po-no label "PO #"
-    v-sales-rep label "SMAN"
+    v-sales-rep label "SREP"
     oe-ordl.i-no  label "ITEM #"
     oe-ordl.i-name label "DESCRIPTION" format "x(15)"
     fg-bin.loc COLUMN-LABEL "WHSE!REL#"
@@ -1337,7 +1337,7 @@ form
 form
     cust.cust-no label "CUSTOMER"
     itemfg.cust-po-no label "PO #"
-    v-sales-rep label "SMAN"
+    v-sales-rep label "SREP"
     itemfg.i-no  label "ITEM #"
     itemfg.i-name label "DESCRIPTION" format "x(15)"
     v-job column-label "JOB!REL#"
@@ -1387,11 +1387,11 @@ IF tb_excel THEN
     IF v-rec-dat THEN
     DO:
         IF v-prt-cpn THEN  /* frame itemx2 */
-          excelheader = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #," + 
+          excelheader = "CUSTOMER,PO #,SREP,ITEM #,CUST PART #," + 
                         "DESCRIPTION,JOB,QTY ON HAND,RECEIPT DATE," + 
                         "SELLING PRICE,TOTAL VALUE".
         ELSE              /* frame itemx4 */
-          excelheader = "CUSTOMER,PO #,SMAN,ITEM #,DESCRIPTION," + 
+          excelheader = "CUSTOMER,PO #,SREP,ITEM #,DESCRIPTION," + 
                         "JOB,QTY ON HAND,RECEIPT DATE," + 
                         "SELLING PRICE,TOTAL VALUE".
     END.
@@ -1402,7 +1402,7 @@ IF tb_excel THEN
                         "DESCRIPTION,JOB #,QTY ORDERED,QTY SHIPPED," +
                         "QTY ON HAND,SELLING PRICE,TOTAL VALUE".
         ELSE
-           excelheader = "CUSTOMER,PO,SMAN,ITEM #,DESCRIPTION," + 
+           excelheader = "CUSTOMER,PO,SREP,ITEM #,DESCRIPTION," + 
                          "WHSE,QTY ORDERED,QTY SHIPPED,QTY ON HAND," +
                          "SELLING PRICE,TOTAL VALUE".
     END.
@@ -1414,14 +1414,14 @@ IF tb_excel THEN
           /*excelheader = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #," + 
                         "DESCRIPTION,JOB# / REL#,QTY ON HAND / REL DATE,RECEIPT DATE / SCHED REL QTY," + 
                         "SELLING PRICE,TOTAL VALUE".*/
-           excelheader = "CUSTOMER,PO #,SMAN,ITEM #,CUST PART #," + 
+           excelheader = "CUSTOMER,PO #,SREP,ITEM #,CUST PART #," + 
                         "DESCRIPTION,JOB#/REL#,QTY ORDERED/REL DATE,QTY SHIPPED/SCHED REL QTY," + 
                         "QTY ON HAND,RECEIPT DATE,SELLING PRICE,TOTAL VALUE".
         ELSE              /* frame itemx4 */
           /*excelheader = "CUSTOMER,PO #,SMAN,ITEM #,DESCRIPTION," + 
                         "JOB# / REL#,QTY ON HAND / REL DATE,RECEIPT DATE / SCHED REL QTY," + 
                         "SELLING PRICE,TOTAL VALUE".*/
-          excelheader = "CUSTOMER,PO #,SMAN,ITEM #,DESCRIPTION," + 
+          excelheader = "CUSTOMER,PO #,SREP,ITEM #,DESCRIPTION," + 
                         "JOB#/REL#,QTY ORDERED/REL DATE,QTY SHIPPED/SCHED REL QTY," + 
                         "QTY ON HAND,RECEIPT DATE,SELLING PRICE,TOTAL VALUE".
     END.
@@ -1432,7 +1432,7 @@ IF tb_excel THEN
                         "DESCRIPTION,JOB#/REL#,QTY ORDERED/REL DATE,QTY SHIPPED/SCHED REL QTY," +
                         "QTY ON HAND,SELLING PRICE,TOTAL VALUE".
         ELSE
-           excelheader = "CUSTOMER,PO,SMAN,ITEM #,DESCRIPTION," + 
+           excelheader = "CUSTOMER,PO,SREP,ITEM #,DESCRIPTION," + 
                          "WHSE/REL#,QTY ORDERED/REL DATE,QTY SHIPPED/SCHED REL QTY,QTY ON HAND," +
                          "SELLING PRICE,TOTAL VALUE".
     END.

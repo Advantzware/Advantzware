@@ -538,6 +538,9 @@ DO:
   /* This ADM trigger code must be preserved in order to notify other
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
+    
+  RUN display-qtys.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1470,7 +1473,8 @@ PROCEDURE connect-asinos :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-IF NOT CONNECTED("asinos") THEN CONNECT value("-pf ../asinos.pf").
+/* wfk - 20281 - could not find where this is called */
+/* IF NOT CONNECTED("asinos") THEN CONNECT value("-pf ../asinos.pf"). */
 
 END PROCEDURE.
 

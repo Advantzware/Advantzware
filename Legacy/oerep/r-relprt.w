@@ -1509,9 +1509,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         ASSIGN 
             rd-print-what:SENSITIVE = NO
             rd-print-what:SCREEN-VALUE = "I"
-            rd-print-what = "I" .
-            tb_p-bin:SCREEN-VALUE = "Yes".
-            tb_p-bin:SENSITIVE = NO .
+            rd-print-what = "I" 
+            tb_p-bin:SCREEN-VALUE = "Yes"
+            tb_p-bin:SENSITIVE = NO 
             tb_p-bin = YES.
 
     IF LOOKUP(v-relprint,"Carded") > 0 THEN
@@ -2132,9 +2132,9 @@ IF IS-xprint-form AND (v-1st-page OR v-multi-cust = NO) THEN DO:
         END.
         WHEN 5 THEN DO:
             IF LOOKUP(v-relprint,"PremierX,Lakeside,Distributor") > 0 THEN
-            PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=-3mm><PDF-TOP=5mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(120)".
+            PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=-3mm><PDF-TOP=5mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
             ELSE
-             PUT "<PREVIEW><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(60)".
+             PUT "<PREVIEW><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
         END.
     END CASE.
 END.

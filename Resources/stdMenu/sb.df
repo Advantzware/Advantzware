@@ -1,0 +1,228 @@
+ADD FIELD "sbLiveUpdate" OF "job-mch" AS logical 
+  FORMAT "yes/no"
+  INITIAL yes
+  LABEL "SB Live"
+  POSITION 2
+  MAX-WIDTH 6
+  COLUMN-LABEL "SB Live"
+  HELP "Toggle SB Live Update"
+  ORDER 810
+
+DROP TABLE "sbStatus"
+
+ADD TABLE "sbNote"
+  AREA "Data"
+  LABEL "SB Note"
+  DESCRIPTION "Schedule Board Note"
+  DUMP-NAME "sbnote"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/sbNote.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/sbNote.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/sbNote.p" CRC "?" 
+
+ADD FIELD "company" OF "sbNote" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company"
+  HELP "Enter Compony Code"
+  ORDER 10
+
+ADD FIELD "m-code" OF "sbNote" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Machine"
+  POSITION 3
+  MAX-WIDTH 12
+  COLUMN-LABEL "Machine"
+  HELP "Enter Machine Code"
+  ORDER 20
+
+ADD FIELD "job-no" OF "sbNote" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Job Number"
+  POSITION 4
+  MAX-WIDTH 12
+  COLUMN-LABEL "Job Number"
+  HELP "Enter Job Number"
+  ORDER 30
+
+ADD FIELD "job-no2" OF "sbNote" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Run"
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL "Run"
+  HELP "Enter Run Number"
+  ORDER 40
+
+ADD FIELD "frm" OF "sbNote" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Form"
+  POSITION 6
+  MAX-WIDTH 4
+  COLUMN-LABEL "Form"
+  HELP "Enter Form Number"
+  ORDER 50
+
+ADD FIELD "jobNote" OF "sbNote" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Job Note"
+  POSITION 7
+  MAX-WIDTH 16
+  COLUMN-LABEL "Job Note"
+  HELP "Enter Job Note"
+  ORDER 80
+
+ADD FIELD "noteDate" OF "sbNote" AS date 
+  FORMAT "99/99/9999"
+  INITIAL ?
+  LABEL "Note Date"
+  POSITION 8
+  MAX-WIDTH 4
+  COLUMN-LABEL "Note Date"
+  HELP "Enter Job Note Date"
+  ORDER 60
+
+ADD FIELD "noteTime" OF "sbNote" AS integer 
+  FORMAT ">>>>9"
+  INITIAL "0"
+  LABEL "Note Time"
+  POSITION 9
+  MAX-WIDTH 4
+  COLUMN-LABEL "Note Time"
+  HELP "Enter Job Note Time"
+  ORDER 70
+
+ADD FIELD "rec_key" OF "sbNote" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 10
+  MAX-WIDTH 40
+  COLUMN-LABEL "Rec Key"
+  HELP "Enter Rec Key Value"
+  ORDER 90
+
+ADD INDEX "sbNote" ON "sbNote" 
+  AREA "Index"
+  PRIMARY
+  DESCRIPTION "SB Job Note Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "m-code" ASCENDING 
+  INDEX-FIELD "job-no" ASCENDING 
+  INDEX-FIELD "job-no2" ASCENDING 
+  INDEX-FIELD "frm" ASCENDING 
+  INDEX-FIELD "noteDate" ASCENDING 
+  INDEX-FIELD "noteTime" ASCENDING 
+
+ADD INDEX "rec_key" ON "sbNote" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+ADD TABLE "sbStatus"
+  AREA "Data"
+  LABEL "SB Job Status"
+  DESCRIPTION "Schedule Board Job Status"
+  DUMP-NAME "sbstatus"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/sbStatus.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/sbStatus.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/sbStatus.p" CRC "?" 
+
+ADD FIELD "company" OF "sbStatus" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "Company"
+  POSITION 2
+  MAX-WIDTH 6
+  COLUMN-LABEL "Company"
+  HELP "Enter Compony Code"
+  ORDER 10
+
+ADD FIELD "m-code" OF "sbStatus" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Machine"
+  POSITION 3
+  MAX-WIDTH 12
+  COLUMN-LABEL "Machine"
+  HELP "Enter Machine Code"
+  ORDER 20
+
+ADD FIELD "job-no" OF "sbStatus" AS character 
+  FORMAT "x(6)"
+  INITIAL ""
+  LABEL "Job Number"
+  POSITION 4
+  MAX-WIDTH 12
+  COLUMN-LABEL "Job Number"
+  HELP "Enter Job Number"
+  ORDER 30
+
+ADD FIELD "job-no2" OF "sbStatus" AS integer 
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Run"
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL "Run"
+  HELP "Enter Run Number"
+  ORDER 40
+
+ADD FIELD "frm" OF "sbStatus" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Form"
+  POSITION 6
+  MAX-WIDTH 4
+  COLUMN-LABEL "Form"
+  HELP "Enter Form Number"
+  ORDER 50
+
+ADD FIELD "rec_key" OF "sbStatus" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "Rec Key"
+  POSITION 7
+  MAX-WIDTH 40
+  COLUMN-LABEL "Rec Key"
+  HELP "Enter Rec Key Value"
+  ORDER 90
+
+ADD FIELD "sbStatus" OF "sbStatus" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "SB Status"
+  POSITION 8
+  MAX-WIDTH 1
+  COLUMN-LABEL "SB Status"
+  HELP "Toggle SB Status"
+  EXTENT 14
+  ORDER 60
+
+ADD INDEX "sbStatus" ON "sbStatus" 
+  AREA "Index"
+  PRIMARY
+  DESCRIPTION "SB Job Status Primary Index"
+  INDEX-FIELD "company" ASCENDING 
+  INDEX-FIELD "m-code" ASCENDING 
+  INDEX-FIELD "job-no" ASCENDING 
+  INDEX-FIELD "job-no2" ASCENDING 
+  INDEX-FIELD "frm" ASCENDING 
+
+ADD INDEX "rec_key" ON "sbStatus" 
+  AREA "Index"
+  DESCRIPTION "Secondary Index by rec_key"
+  INDEX-FIELD "rec_key" ASCENDING 
+
+.
+PSC
+cpstream=ISO8859-1
+.
+0000004304

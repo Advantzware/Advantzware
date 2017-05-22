@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: viewers\stylec.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -115,7 +115,7 @@ style.m-dscr[6] style.m-dscr[7]
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
-    
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "Foreign Keys" V-table-Win _INLINE
 /* Actions: ? adm/support/keyedit.w ? ? ? */
 /* STRUCTURED-DATA
@@ -525,7 +525,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -702,7 +702,8 @@ END.
 &Scoped-define SELF-NAME style.design-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.design-no V-table-Win
 ON LEAVE OF style.design-no IN FRAME F-Main /* Design # */
-DO:
+DO:    
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first box-design-hdr where /*box-design-hdr.company = style.company */
                      box-design-hdr.design-no = int(self:screen-value))
@@ -710,8 +711,9 @@ DO:
         message "Invalid Box Design Number. Try help." view-as alert-box.
         return no-apply.
      end.                  
-
+     {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -787,6 +789,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[1] V-table-Win
 ON LEAVE OF style.m-code[1] IN FRAME F-Main /* 1 */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -799,7 +802,9 @@ DO:
                           mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL mach THEN style.m-dscr[1]:SCREEN-VALUE = mach.m-dscr.
     ELSE style.m-dscr[1]:SCREEN-VALUE = "".
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -809,6 +814,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[2] V-table-Win
 ON LEAVE OF style.m-code[2] IN FRAME F-Main /* 2 */
 DO:
+      {&methods/lValidateError.i YES}
       if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -821,8 +827,9 @@ DO:
                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[2]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[2]:SCREEN-VALUE = "".
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -832,6 +839,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[3] V-table-Win
 ON LEAVE OF style.m-code[3] IN FRAME F-Main /* 3 */
 DO:
+      {&methods/lValidateError.i YES}
       if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -844,7 +852,9 @@ DO:
                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[3]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[3]:SCREEN-VALUE = "".
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -854,6 +864,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[4] V-table-Win
 ON LEAVE OF style.m-code[4] IN FRAME F-Main /* 4 */
 DO:
+      {&methods/lValidateError.i YES}
       if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -865,8 +876,9 @@ DO:
                           mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL mach THEN style.m-dscr[4]:SCREEN-VALUE = mach.m-dscr.
     ELSE style.m-dscr[4]:SCREEN-VALUE = "".
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -876,6 +888,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[5] V-table-Win
 ON LEAVE OF style.m-code[5] IN FRAME F-Main /* 5 */
 DO:
+      {&methods/lValidateError.i YES}
       if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -888,8 +901,9 @@ DO:
                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[5]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[5]:SCREEN-VALUE = "".
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -899,6 +913,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[6] V-table-Win
 ON LEAVE OF style.m-code[6] IN FRAME F-Main /* 6 */
 DO:
+      {&methods/lValidateError.i YES}
       if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -911,8 +926,9 @@ DO:
                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[6]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[6]:SCREEN-VALUE = "".
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -922,6 +938,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[7] V-table-Win
 ON LEAVE OF style.m-code[7] IN FRAME F-Main /* 7 */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first mach where mach.company = style.company and 
                   mach.m-code= self:screen-value )
@@ -934,7 +951,9 @@ DO:
                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[7]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[7]:SCREEN-VALUE = "".
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -944,6 +963,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[1] V-table-Win
 ON LEAVE OF style.material[1] IN FRAME F-Main /* Board */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first item where item.company = style.company and 
                   /*item.industry = style.industry and*/
@@ -952,7 +972,9 @@ DO:
        message "Invalid Board Code. Try help please." view-as alert-box.
        return no-apply.
     end.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -962,6 +984,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[2] V-table-Win
 ON LEAVE OF style.material[2] IN FRAME F-Main /* Ink */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first item where item.company = style.company and 
              /*item.industry = style.industry and*/
@@ -970,8 +993,9 @@ DO:
        message "Invalid Ink Code. Try help please." view-as alert-box.
        return no-apply.
     end.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -981,6 +1005,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[4] V-table-Win
 ON LEAVE OF style.material[4] IN FRAME F-Main /* Adder */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first item where item.company = style.company and 
                  /* item.industry = style.industry and */
@@ -989,8 +1014,9 @@ DO:
        message "Invalid Adder Code. Try help please." view-as alert-box.
        return no-apply.
     end.
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1000,6 +1026,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[5] V-table-Win
 ON LEAVE OF style.material[5] IN FRAME F-Main /* Label */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first item where item.company = style.company and 
                  /* item.industry = style.industry and */
@@ -1008,8 +1035,9 @@ DO:
        message "Invalid Label Code. Try help please." view-as alert-box.
        return no-apply.
     end.
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1019,6 +1047,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[6] V-table-Win
 ON LEAVE OF style.material[6] IN FRAME F-Main /* Coating */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" and
        not can-find(first item where item.company = style.company and 
                  /* item.industry = style.industry and */
@@ -1027,8 +1056,9 @@ DO:
        message "Invalid Coating Code. Try help please." view-as alert-box.
        return no-apply.
     end.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1038,6 +1068,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[7] V-table-Win
 ON LEAVE OF style.material[7] IN FRAME F-Main /* Joint Glue */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" and
       not can-find(first item where item.company = style.company and 
                  /* item.industry = style.industry and */
@@ -1046,8 +1077,9 @@ DO:
        message "Invalid Joint Glue Code. Try help please." view-as alert-box.
        return no-apply.
     end.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1057,6 +1089,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.style V-table-Win
 ON LEAVE OF style.style IN FRAME F-Main /* Style No. */
 DO:
+    {&methods/lValidateError.i YES}
     def buffer bf-style for style.
     if lastkey <> -1 and 
        can-find(first bf-style where bf-style.company = style.company and
@@ -1064,8 +1097,10 @@ DO:
     then do:
          message "Style already exists. Try different style code." view-as alert-box.
          return no-apply.
-    end.                  
+    end.     
+   {&methods/lValidateError.i NO}             
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1129,7 +1164,7 @@ session:data-entry-return = yes.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1226,14 +1261,14 @@ PROCEDURE display-flute-dim :
   Notes:       
 ------------------------------------------------------------------------------*/
   def input param ip-code as int no-undo.
-   
+
   find first reftable where reftable.reftable = "STYFLU" 
                         and reftable.company = style.style
                         and reftable.loc = flute.code
                         and reftable.code = string(ip-code)
                         no-error.
   if not avail reftable then do:
-    
+
      create reftable.
      assign reftable.reftable = "STYFLU" 
             reftable.company = style.style
@@ -1241,7 +1276,7 @@ PROCEDURE display-flute-dim :
             reftable.code = string(ip-code)
             . 
   end.       
- 
+
   case ip-code:
       when 1 then do:
              ld-joint-tab:screen-value in frame {&frame-name} = string(reftable.val[13]).
@@ -1253,7 +1288,7 @@ PROCEDURE display-flute-dim :
       when 6 then ld-stitch-out:screen-value = string(reftable.val[13]).                 
       when 7 then ld-tape-score:screen-value = string(reftable.val[13]).
   end case.
-      
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1267,7 +1302,7 @@ PROCEDURE enable-style-field :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* called from methods/viewers/enable/style.i */
-  
+
   enable ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
           ld-tape-score with frame {&frame-name}.
 
@@ -1289,7 +1324,7 @@ PROCEDURE get-dim-values :
   def output param op-total as dec no-undo.
   def var i as int no-undo.
 
-  
+
   find first reftable where reftable.reftable = "STYFLU" 
                         and reftable.company = ip-style
                         and reftable.loc = ip-flute
@@ -1356,11 +1391,11 @@ PROCEDURE local-assign-record :
                        reftable.code2 = "1"
                        reftable.code = string(j)
                        .
-                       
+
            end. 
         end.  /* do j */
      end.     /* for each bf-flute */
-     
+
      ELSE do: /* === copy style, scoring, & routing-mtx info */
          for each reftable
              where reftable.reftable eq "STYFLU"
@@ -1475,7 +1510,7 @@ PROCEDURE local-assign-record :
   assign
    reftable.dscr     = style.material[1]:screen-value
    style.material[1] = "".
-  
+
   /* ============= end ==============*/
 END PROCEDURE.
 
@@ -1523,7 +1558,7 @@ PROCEDURE local-create-record :
          style.qty-per-set = 1. /* corrugated style */
 
   if adm-adding-record then do:
-         
+
      assign ld-joint-tab = 0
             ld-blank-width = 0
             ld-glue-in = 0
@@ -1531,7 +1566,7 @@ PROCEDURE local-create-record :
             ld-stitch-in = 0
             ld-stitch-out = 0
           ld-tape-score = 0.
-   
+
      display ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
           ld-tape-score with frame {&frame-name}.
 
@@ -1552,9 +1587,9 @@ PROCEDURE local-delete-record :
   def var j as int no-undo.
   DEF VAR lv-rowid AS ROWID EXTENT 2 NO-UNDO.
 
-  
+   {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   find first eb where eb.company = gcompany and
                       eb.loc = gloc and
                       eb.style = style.style
@@ -1573,7 +1608,7 @@ PROCEDURE local-delete-record :
             view-as alert-box question button yes-no update ll-ans .
     if not ll-ans then return no-apply.
   END.
-
+  {&methods/lValidateError.i NO}
   SESSION:SET-WAIT-STATE ("general").
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
@@ -1599,11 +1634,11 @@ PROCEDURE local-delete-record :
          if avail reftable then delete reftable.
       end.
   end.   
-  
+
   for each routing-mtx of style :
       delete routing-mtx.
   end.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
@@ -1611,10 +1646,11 @@ PROCEDURE local-delete-record :
   RUN reset-browse (lv-rowid[2]).
 
   run set-attribute-list in adm-broker-hdl ("IS-DELETED=yes").  /* to force update button to be enabled */
-  
+
   SESSION:SET-WAIT-STATE ("").
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1635,9 +1671,9 @@ PROCEDURE local-display-fields :
  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
  IF AVAIL flute THEN
  ASSIGN flute-val = flute.CODE .
- 
+
   /* Code placed here will execute AFTER standard behavior.    */
-   
+
    if not avail style then return.
 
    DO WITH FRAME {&FRAME-NAME}:
@@ -1664,7 +1700,7 @@ PROCEDURE local-display-fields :
 
 
    END.
-   
+
 
    {viewers/stylec3.i 2}
    {viewers/stylec3.i 3}
@@ -1672,7 +1708,7 @@ PROCEDURE local-display-fields :
    {viewers/stylec3.i 5}
    {viewers/stylec3.i 6}
    {viewers/stylec3.i 7}
-   
+
    def var ld-total as dec DECIMALS 6 no-undo.
    run get-dim-values (style.style,flute.code, "1", output ld-total).                                 
    ld-joint-tab = ld-total.
@@ -1694,7 +1730,7 @@ PROCEDURE local-display-fields :
 
   disable ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
           ld-tape-score with frame {&frame-name}.
-          
+
   find first reftable where reftable.reftable = "STYFLU" and reftable.company = style.style
                         and reftable.loc = flute.code
                         and reftable.code = "BOARD"
@@ -1767,12 +1803,12 @@ PROCEDURE local-update-record :
   def var ls-m-value as cha no-undo.
   DEF VAR ll-new-record AS LOG NO-UNDO.
 
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   /* validation check */
   RUN valid-type NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+   {&methods/lValidateError.i YES}
   do with frame {&frame-name}:
      if not can-find(first box-design-hdr where /*box-design-hdr.company = style.company 
                        and*/  box-design-hdr.design-no = int(style.design-no:screen-value))
@@ -1793,7 +1829,7 @@ PROCEDURE local-update-record :
            when 6 then ls-m-value = style.material[6]:screen-value.
            when 7 then ls-m-value = style.material[7]:screen-value.           
         end case.
-        
+
         if not can-find(first item where item.company = style.company and 
                  /* item.industry = style.industry and */
                   item.i-no = ls-m-value )
@@ -1841,7 +1877,7 @@ PROCEDURE local-update-record :
        end.
     end.
   end.   /* do with frame */
-     
+   {&methods/lValidateError.i NO}
   /* end of validation */
   ll-new-record = adm-new-record.
 
@@ -1864,6 +1900,7 @@ PROCEDURE local-update-record :
      RUN enable-disable IN WIDGET-HANDLE(char-hdl) ("ENABLE") .
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1939,6 +1976,7 @@ PROCEDURE valid-type :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-DO("B,C,D,F,P,R,W",style.type:SCREEN-VALUE) THEN DO:
       MESSAGE "Invalid Type. Type must be 'B'ox, 'D'ie Cut, 'F'oam, 'P'artition, 'R'oll Partition, or 'W'ood..."
@@ -1947,6 +1985,7 @@ PROCEDURE valid-type :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

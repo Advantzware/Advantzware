@@ -64,34 +64,34 @@ define buffer bf-jobs for jobs.  /* for auto-find */
 jobs.cadcam_status jobs.scheduling_status jobs.customer jobs.name 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH jobs ~
-      WHERE ((jobs.jobs.cadcam_status = "Pending" ~
+      WHERE ((jobs.cadcam_status = "Pending" ~
  OR jobs.scheduling_status = "Pending") ~
 and toggle-1 = no) ~
- OR ((jobs.jobs.cadcam_status = "" ~
+ OR ((jobs.cadcam_status = "" ~
  AND jobs.scheduling_status = "") ~
 and toggle-1 = no) ~
 or ~
-((jobs.jobs.cadcam_status = "Exported" or jobs.cadcam_status = "Printed")  ~
+((jobs.cadcam_status = "Exported" or jobs.cadcam_status = "Printed")  ~
  AND jobs.scheduling_status <> "Pending" ~
 and toggle-1 = yes)  ~
 OR ~
- ((jobs.jobs.cadcam_status <> "Pending"  ~
+ ((jobs.cadcam_status <> "Pending"  ~
 AND (jobs.scheduling_status = "Exported" or scheduling_status = "Printed")) ~
 and toggle-1 = yes) ~
  NO-LOCK
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH jobs ~
-      WHERE ((jobs.jobs.cadcam_status = "Pending" ~
+      WHERE ((jobs.cadcam_status = "Pending" ~
  OR jobs.scheduling_status = "Pending") ~
 and toggle-1 = no) ~
- OR ((jobs.jobs.cadcam_status = "" ~
+ OR ((jobs.cadcam_status = "" ~
  AND jobs.scheduling_status = "") ~
 and toggle-1 = no) ~
 or ~
-((jobs.jobs.cadcam_status = "Exported" or jobs.cadcam_status = "Printed")  ~
+((jobs.cadcam_status = "Exported" or jobs.cadcam_status = "Printed")  ~
  AND jobs.scheduling_status <> "Pending" ~
 and toggle-1 = yes)  ~
 OR ~
- ((jobs.jobs.cadcam_status <> "Pending"  ~
+ ((jobs.cadcam_status <> "Pending"  ~
 AND (jobs.scheduling_status = "Exported" or scheduling_status = "Printed")) ~
 and toggle-1 = yes) ~
  NO-LOCK.
@@ -288,32 +288,32 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
-     _TblList          = "jobs.jobs"
+     _TblList          = "jobs"
      _Options          = "NO-LOCK"
      _TblOptList       = "USED"
-     _Where[1]         = "((jobs.jobs.cadcam_status = ""Pending""
- OR jobs.jobs.scheduling_status = ""Pending"")
+     _Where[1]         = "((jobs.cadcam_status = ""Pending""
+ OR jobs.scheduling_status = ""Pending"")
 and toggle-1 = no)
- OR ((jobs.jobs.cadcam_status = """"
- AND jobs.jobs.scheduling_status = """")
+ OR ((jobs.cadcam_status = """"
+ AND jobs.scheduling_status = """")
 and toggle-1 = no)
 or
-((jobs.jobs.cadcam_status = ""Exported"" or jobs.jobs.cadcam_status = ""Printed"") 
- AND jobs.jobs.scheduling_status <> ""Pending""
+((jobs.cadcam_status = ""Exported"" or jobs.cadcam_status = ""Printed"") 
+ AND jobs.scheduling_status <> ""Pending""
 and toggle-1 = yes) 
 OR
- ((jobs.jobs.cadcam_status <> ""Pending"" 
+ ((jobs.cadcam_status <> ""Pending"" 
 AND (jobs.scheduling_status = ""Exported"" or jobs.scheduling_status = ""Printed""))
 and toggle-1 = yes)
 "
-     _FldNameList[1]   = jobs.jobs.job
-     _FldNameList[2]   = jobs.jobs.estimate
-     _FldNameList[3]   > jobs.jobs.cadcam_status
+     _FldNameList[1]   = jobs.job
+     _FldNameList[2]   = jobs.estimate
+     _FldNameList[3]   > jobs.cadcam_status
 "jobs.cadcam_status" "CADCAM" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[4]   > jobs.jobs.scheduling_status
+     _FldNameList[4]   > jobs.scheduling_status
 "jobs.scheduling_status" "Scheduling" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[5]   = jobs.jobs.customer
-     _FldNameList[6]   > jobs.jobs.name
+     _FldNameList[5]   = jobs.customer
+     _FldNameList[6]   > jobs.name
 "jobs.name" ? "X(31)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _Query            is NOT OPENED
 */  /* BROWSE br_table */

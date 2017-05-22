@@ -27,7 +27,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "FGRecptUnit,OeDateWarn,PREPMASTER,POFarmOutScores,OEQtyPerUnitWarn,APMatTypeExceptions," 
             + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
             + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
-            + "KiwiT,BusinessFormModal,FGKEEPZEROBIN,RMKEEPZEROBIN"  .
+            + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN"  .
 
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -276,7 +276,13 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Set Business Form Preview window to Modal (wait to close)?",
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT YES /* Logical value */).
+    WHEN "LoadTagXprintImage" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "Set Logo on xprint loadtag ",
+                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
                            INPUT NO /* Logical value */).
+
     WHEN "FGKEEPZEROBIN" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
                            INPUT "Keep zero FG bins?",
@@ -288,7 +294,22 @@ CASE ip-nk1-value:
                            INPUT "" /* Char Value */, INPUT 0 /* Int value */,
                            INPUT NO /* Logical value */).
 
-
+    WHEN "AsiHelpClientID" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+                           INPUT "Asi Help Client ID ",
+                           INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+                           INPUT YES /* Logical value */).
+    WHEN "CEGotoCalc" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Use enhanced GOTO Screen from Estimate?",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+    WHEN "CEPanel" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Check Panel sizes against limits on Machine File?",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+                                                                      
 END CASE.
 ELSE
 CASE ip-nk1-value:
@@ -329,7 +350,6 @@ CASE ip-nk1-value:
     WHEN "celayout" THEN DO: {sys\inc\celayout.i} END.
     WHEN "cematl" THEN DO: {sys\inc\cematl.i} END.
     WHEN "cemisc" THEN DO: {sys\inc\cemisc.i} END.
-    WHEN "cepanel" THEN DO: {sys\inc\cepanel.i} END.
     WHEN "cepartition" THEN DO: {sys\inc\cepartition.i} END.
     WHEN "cepdies" THEN DO: {sys\inc\cepdies.i} END.
     WHEN "ceprep" THEN DO: {sys\inc\ceprep.i} END.

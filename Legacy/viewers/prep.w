@@ -553,7 +553,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -567,12 +567,12 @@ DO:
   def var v-up like prep.number-up no-undo.
   DEF VAR lw-focus AS WIDGET NO-UNDO.
   DEF VAR look-recid AS RECID NO-UNDO.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     lw-focus = FOCUS.
 
     CASE lw-focus:NAME:
-  
+
       WHEN "i-no" THEN DO:
          RUN windows/l-itmall.w (gcompany, "","", prep.i-no:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
          IF char-val NE "" AND ENTRY(1,char-val) NE lw-focus:SCREEN-VALUE THEN
@@ -586,7 +586,7 @@ DO:
            prep.mat-type:SCREEN-VALUE = ENTRY(1,char-val)
            mat_dscr:SCREEN-VALUE      = ENTRY(2,char-val).
       END.
-  
+
       WHEN "cost-type" THEN DO:         
         RUN windows/l-costtp.w (gcompany, prep.cost-type:SCREEN-VALUE, OUTPUT char-val).
         IF char-val NE "" AND ENTRY(1,char-val) NE prep.cost-type:SCREEN-VALUE THEN
@@ -594,7 +594,7 @@ DO:
            prep.cost-type:SCREEN-VALUE = ENTRY(1,char-val)
            costtype_descr:SCREEN-VALUE = ENTRY(2,char-val).
       END.
-  
+
       WHEN "actnum" THEN DO:         
         IF prep.simon:SCREEN-VALUE EQ "S" THEN 
             RUN windows/l-acct2.w (gcompany, "R", prep.actnum:SCREEN-VALUE, OUTPUT char-val).
@@ -608,7 +608,7 @@ DO:
         run windows/l-est.w (gcompany,gloc,lw-focus:screen-value, output char-val).
         if char-val ne "" then do:
           find eb where recid(eb) eq int(entry(1,char-val)) no-lock no-error.
-          
+
           if avail eb then do:
             assign
              lw-focus:screen-value          = eb.est-no
@@ -617,25 +617,25 @@ DO:
              prep.carton-w:screen-value  = string(eb.wid)
              prep.carton-d:screen-value  = string(eb.dep)
              prep.box-style:screen-value = eb.style.
-             
+
             find first est
                 where est.company eq eb.company
                   and est.est-no  eq eb.est-no
                 no-lock no-error.
             if avail est then do:
               run sys/inc/numup.p (eb.company, eb.est-no, eb.form-no, output v-up).
-               
+
               assign
                prep.last-order:screen-value = string(eb.ord-no)
                prep.number-up:screen-value  = string(v-up).
             end.
-           
+
             find first ef
                 where ef.company eq eb.company
                   and ef.est-no  eq eb.est-no
                   and ef.form-no eq eb.form-no
                 no-lock no-error.
-            
+
             if avail ef then
               assign
                prep.die-w:screen-value = string(ef.trim-w)
@@ -656,14 +656,14 @@ DO:
           end.
         end.
       end.
-      
+
       when "box-style" then do:         
         run windows/l-style.w (gcompany,lw-focus:screen-value, output char-val).
         if char-val ne "" then do: 
           lw-focus:screen-value = entry(1,char-val).
         end.  
       end.
-      
+
       when "cust-no" then do:
         run windows/l-cust.w (gcompany,lw-focus:screen-value, output char-val).
         if char-val ne "" then do:
@@ -682,7 +682,7 @@ DO:
       when "loc-bin" then do:
           run rm/l-locbin.w (gcompany,prep.loc:screen-value, output char-val).
           if char-val <> "" then assign lw-focus:screen-value  = entry(1,char-val).                  
-          
+
       END.
       when "fgcat" then do:
              run windows/l-fgcat.w (gcompany,lw-focus:screen-value, output char-val).
@@ -796,6 +796,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.cost-type V-table-Win
 ON LEAVE OF prep.cost-type IN FRAME F-Main /* Cost Type */
 DO:
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" and
       not can-find(costtype where costtype.company = gcompany and costtype.loc = gloc 
                               and costtype.cost-type= self:screen-value)
@@ -812,7 +813,9 @@ DO:
           costtype_descr = costtype.descr
           costtype_descr:SCREEN-VALUE = costtype.descr .
    end.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -823,7 +826,7 @@ END.
 ON LEAVE OF prep.cust-no IN FRAME F-Main /* Cust. # */
 DO:
   DEF BUFFER b-cust FOR cust.
-
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" THEN
     DO:
       FIND FIRST b-cust where
@@ -837,7 +840,9 @@ DO:
       end.
       ELSE prep.cust-name:SCREEN-VALUE = b-cust.name.
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -935,6 +940,7 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Last Job # Used */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -996,6 +1002,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.mat-type V-table-Win
 ON LEAVE OF prep.mat-type IN FRAME F-Main /* Material Type */
 DO:
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" and
       not can-find(matprep where matprep.company = gcompany
                              and matprep.mat = self:screen-value)
@@ -1005,7 +1012,7 @@ DO:
    end.
 
   {methods/dispflds.i}
-                                                           
+
    FIND LAST matprep WHERE matprep.company = gcompany
       AND matprep.mat = self:screen-value 
                    NO-LOCK NO-ERROR.                       
@@ -1013,8 +1020,10 @@ DO:
        ASSIGN                                                  
            mat_dscr = matprep.dscr                               
            mat_dscr:SCREEN-VALUE = matprep.dscr.                 
-   END.                                                    
+   END.  
+   {&methods/lValidateError.i NO}                                                  
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1103,6 +1112,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL prep.uom V-table-Win
 ON LEAVE OF prep.uom IN FRAME F-Main /* UOM */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and self:screen-value <> "" and
       not can-find(uom where uom.uom = self:screen-value)
    then do:
@@ -1111,7 +1121,9 @@ DO:
    end.
 
   {methods/dispflds.i}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1127,7 +1139,7 @@ session:data-entry-return = yes.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1249,7 +1261,7 @@ PROCEDURE display-dim :
         lv-crt-d = {sys/inc/k16.i lv-crt-d}
         lv-die-w = {sys/inc/k16.i lv-die-w}
         lv-die-l = {sys/inc/k16.i lv-die-l}.
-      
+
        IF v-cecscrn-char NE "Decimal" THEN
           ASSIGN
              prep.carton-w:FORMAT = "->>,>>9.99"
@@ -1294,7 +1306,7 @@ PROCEDURE enable-prep-job :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
    DO WITH FRAME {&FRAME-NAME}:
      ASSIGN fi_job-no:SENSITIVE = YES
             fi_job-no2:SENSITIVE = YES
@@ -1345,12 +1357,12 @@ PROCEDURE local-assign-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* gdm - 12010903*/
   DO WITH FRAME {&FRAME-NAME}:
       ASSIGN fi_cad# fi_fil#. 
   END.
-    
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -1380,7 +1392,7 @@ PROCEDURE local-cancel-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&FRAME-NAME}:
-  
+
     /* Code placed here will execute PRIOR to standard behavior. */
 
     /* Dispatch standard ADM method.                             */
@@ -1388,7 +1400,7 @@ PROCEDURE local-cancel-record :
 
     /* Code placed here will execute AFTER standard behavior.    */
     if li-create-cnt <= 1 then hld-code = "".
-   
+
     ASSIGN fi_job-no:SENSITIVE = NO
            fi_job-no2:SENSITIVE = NO
            /* gdm - 12010903*/
@@ -1415,7 +1427,7 @@ PROCEDURE local-create-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/prep.i}
   ASSIGN
@@ -1424,18 +1436,18 @@ PROCEDURE local-create-record :
     uom_dscr = "Each"
     li-create-cnt = li-create-cnt + 1.  /* to reset hld-code in cancel-record */
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'prepfly-target':U,OUTPUT char-hdl).
-  
-  
+
+
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
     RUN get-defaults IN WIDGET-HANDLE(char-hdl) (INPUT ROWID(prep)).
     FIND CURRENT prep NO-ERROR.
   END.
 
   display prep.uom uom_dscr fi_job-no fi_job-no2 with frame {&frame-name}.
-  
+
   /* auto assign */
   if hld-code EQ "" AND prep.code EQ "" THEN DO:
-  
+
       repeat:
          MESSAGE TRIM(IF addprep-chr EQ "" THEN
                         "Enter 'R'otary Die, 'F'lat Die, 'P'rinting Die/Plate, 'M'=Foam, " +
@@ -1447,7 +1459,7 @@ PROCEDURE local-create-record :
       end.
   END.
   ELSE IF prep.CODE BEGINS "!" AND LOOKUP(prep.code, "!R,!F,!P,!M,!") GT 0 THEN DO:
-      
+
     v-code = substring(CAPS(prep.CODE), 2, 1). 
     IF v-code = "!" THEN
         ASSIGN v-code = ""
@@ -1473,7 +1485,7 @@ PROCEDURE local-create-record :
           and substr(b-prep.code,2,4) le "9999"
           and substr(b-prep.code,5,1) ne ""          
         NO-LOCK USE-INDEX real-index:
- 
+
 
         v-test-int = INT(substr(b-prep.code,2,4)) NO-ERROR.
         IF ERROR-STATUS:ERROR THEN
@@ -1500,7 +1512,7 @@ PROCEDURE local-create-record :
   END.
 
   disp prep.amtz prep.ml prep.simon with frame {&frame-name}.
-  
+
   DO WITH FRAME {&FRAME-NAME}:
 
   IF  prep.mat-type <> "" THEN
@@ -1533,7 +1545,7 @@ PROCEDURE local-create-record :
 /*      mat_dscr:SCREEN-VALUE = matprep.dscr.              */
 /*     END.                                                */
   hld-code = prep.code.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1572,9 +1584,9 @@ PROCEDURE local-enable :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 
@@ -1594,7 +1606,7 @@ PROCEDURE local-enable :
      fi_fil#:SENSITIVE = FALSE.
 
   END.
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1645,7 +1657,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-code NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   do with frame {&frame-name} :
     if prep.mat-type:screen-value <> "" and
        not can-find(matprep where matprep.company = gcompany
@@ -1664,7 +1676,7 @@ PROCEDURE local-update-record :
       return no-apply.
     end.
   end.
-
+  {&methods/lValidateError.i NO}
   RUN valid-rm-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1676,7 +1688,7 @@ PROCEDURE local-update-record :
 
   RUN valid-rmcat NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   if PREP.CUST-no:screen-value <> "" THEN
   DO:
     FIND FIRST bCust where
@@ -1696,7 +1708,7 @@ PROCEDURE local-update-record :
       RELEASE bCust.
     END.
   END.
-
+  {&methods/lValidateError.i NO}
   DO WITH FRAME {&FRAME-NAME}:
     RUN valid-dim (prep.carton-w:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1728,9 +1740,10 @@ PROCEDURE local-update-record :
          /* gdm - 12010903*/
          fi_cad#:SENSITIVE = FALSE
          fi_fil#:SENSITIVE = FALSE.
-  
-  
+
+
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1779,10 +1792,10 @@ PROCEDURE reftable-values :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-display AS LOG NO-UNDO.
-  
+
   /* gdm - */
   DEF BUFFER bf-reftable FOR reftable.
-  
+
   IF AVAIL prep THEN DO:
     FIND FIRST reftable {&where-preplastjob}
          NO-LOCK NO-ERROR.
@@ -1821,19 +1834,19 @@ PROCEDURE reftable-values :
           DO:
              REPEAT:
                 FIND CURRENT reftable EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-               
+
                 IF AVAILABLE reftable THEN
                 DO:
                    ASSIGN
                       reftable.code2 = fi_job-no
                       reftable.val[1] = fi_job-no2.
-               
+
                    FIND CURRENT reftable NO-LOCK.
                    LEAVE.
                 END.
              END.
           END.
-       
+
        /* should be able to save blank cad# and fil# */
        /*IF fi_cad# NE "" OR fi_fil# NE "" THEN DO:*/
 
@@ -1848,7 +1861,7 @@ PROCEDURE reftable-values :
 
           ASSIGN bf-reftable.code  = fi_cad#
                  bf-reftable.code2 = fi_fil#.
-          
+
           RELEASE bf-reftable.
        /*END.*/
     END. /* else */
@@ -1907,7 +1920,7 @@ FIND FIRST sys-ctrl NO-LOCK
     WHERE sys-ctrl.company EQ gcompany
       AND sys-ctrl.name    EQ "CEMENU" NO-ERROR.
 IF AVAIL sys-ctrl THEN DO:
-    
+
     IF sys-ctrl.char-fld EQ "Foldware" 
        THEN ASSIGN v_industry =  "1".
        ELSE IF sys-ctrl.char-fld EQ "Corrware" 
@@ -1919,7 +1932,7 @@ IF v_industry = "B" THEN DO:
 
     IF (prep.last-est-no NE "" OR 
         prep.last-est-no:SCREEN-VALUE NE "") THEN DO:
-        
+
         FIND FIRST est NO-LOCK
             WHERE est.company = prep.company
               AND (est.est-no  = prep.last-est-no OR 
@@ -1942,7 +1955,7 @@ IF v_industry = "B" THEN DO:
               "Is this a Folding Carton Material?"
             VIEW-AS ALERT-BOX INFO BUTTONS YES-NO
             UPDATE v_flg.
-        
+
         IF v_flg THEN ASSIGN v_industry = "1".
 
         IF NOT v_flg THEN ASSIGN v_industry = "2".
@@ -1997,7 +2010,7 @@ IF NOT AVAIL item THEN DO:
                 THEN item.mat-type = 'Y'.
                 ELSE item.mat-type = 'M'.              
     END.    
-                       
+
     FIND FIRST e-item EXCLUSIVE-LOCK
         WHERE e-item.company EQ cocode 
           AND e-item.i-no EQ item.i-no NO-ERROR.
@@ -2088,12 +2101,12 @@ DO WITH FRAME {&FRAME-NAME}:
     ASSIGN 
         dCost =  DEC(prep.cost:SCREEN-VALUE)
         dPrice =  DEC(prep.spare-dec-1:SCREEN-VALUE).
-    
+
     IF glProfit THEN
         dMkup = (1 - dCost / dPrice) * 100. 
     ELSE
         dMkup = (dPrice / dCost - 1) * 100.
-    
+
     prep.mkup:SCREEN-VALUE = STRING(dMkup).
 END.
 
@@ -2139,7 +2152,8 @@ PROCEDURE valid-actnum :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE BUFFER bf-account FOR account.
-    
+
+  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST bf-account
         WHERE bf-account.company EQ gcompany
@@ -2161,7 +2175,8 @@ DO WITH FRAME {&FRAME-NAME}:
             RETURN ERROR.
         END.
 END.
-  
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2177,6 +2192,7 @@ PROCEDURE valid-code :
   DEF BUFFER b-prep FOR prep.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF CAN-FIND(FIRST b-prep
                 WHERE b-prep.company EQ gcompany
@@ -2189,7 +2205,8 @@ PROCEDURE valid-code :
       RETURN ERROR.
     END.
   END.
-  
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2207,6 +2224,7 @@ PROCEDURE valid-dim :
   DEF VAR lv-est-no AS CHAR NO-UNDO.
   DEF VAR ll-corr2 AS LOG NO-UNDO.
 
+  {methods/lValidateError.i YES}
   ASSIGN
      lv-est-no = prep.last-est-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
      lv-est-no = FILL(" ",8 - LENGTH(TRIM(lv-est-no))) + TRIM(lv-est-no)
@@ -2226,6 +2244,7 @@ PROCEDURE valid-dim :
     RETURN ERROR.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2239,9 +2258,10 @@ PROCEDURE valid-fgcat :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iplUpdateAcc AS LOG NO-UNDO.
-  
+
+  {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
-    
+
     IF prep.fgcat:SCREEN-VALUE NE "" THEN DO: 
         FIND FIRST fgcat 
         WHERE fgcat.company EQ gcompany
@@ -2266,6 +2286,7 @@ PROCEDURE valid-fgcat :
 
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2278,6 +2299,7 @@ PROCEDURE valid-rm-i-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
       IF prep.i-no:SCREEN-VALUE NE "" AND 
@@ -2302,6 +2324,7 @@ PROCEDURE valid-rm-i-no :
 
     END.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2314,6 +2337,7 @@ PROCEDURE valid-rmcat :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
     IF prep.procat:SCREEN-VALUE NE "" AND
@@ -2334,6 +2358,7 @@ PROCEDURE valid-rmcat :
     END.
 
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

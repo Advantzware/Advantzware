@@ -50,7 +50,7 @@ DEFINE SHARED TEMP-TABLE tt-note NO-UNDO
   DEFINE VARIABLE v-total-time-hr-min AS CHAR NO-UNDO.
   DEFINE VARIABLE v-total-time-sec AS INT NO-UNDO.
 
-  DEFINE BUFFER bf-employee for emptrack.employee.
+  DEFINE BUFFER bf-employee for employee.
   DEFINE BUFFER bf-machemp for machemp.
   DEFINE BUFFER bf-emplogin FOR emplogin.
 
@@ -126,7 +126,7 @@ DEFINE SHARED TEMP-TABLE tt-note NO-UNDO
 
       if first-of(emplogin.start_date) then do:
          
-         find emptrack.employee where
+         find employee where
               employee.company EQ gcompany AND
               employee.employee = emplogin.employee
               no-lock no-error.

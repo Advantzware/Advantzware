@@ -262,7 +262,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -291,10 +291,10 @@ DO:
      otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-             
+
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
-        
+
            end.   /* g_lookup-var <> "" */
            apply "entry" to lv-handle.
            return no-apply.
@@ -443,7 +443,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -555,7 +555,7 @@ PROCEDURE local-assign-record :
         leave.
       end.
     end.
-    
+
     if last-of(sman-mtx.custype) and v-update eq no then do:
       create sman-mtx-tmp.
       assign
@@ -627,7 +627,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/fgcat.i}
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -657,7 +657,7 @@ PROCEDURE local-display-fields :
          reftable.company  EQ fgcat.company AND
          reftable.loc      EQ fgcat.procat
          NO-LOCK NO-ERROR.
-   
+
     IF AVAIL reftable THEN
        ASSIGN
           v-charge = reftable.CODE
@@ -685,13 +685,13 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+  {&methods/lValidateError.i YES}
   IF fgcat.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
      MESSAGE "Category cannot be blank. Try again." VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO fgcat.procat.
      RETURN .
   END.
-
+  {&methods/lValidateError.i NO}
   RUN valid-glacc NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN .
 
@@ -710,6 +710,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   DISABLE v-charge v-gl-rm v-gl-fg WITH FRAME {&FRAME-NAME}.
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -776,6 +777,7 @@ PROCEDURE valid-charge :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND(FIRST surcharge WHERE surcharge.company = g_company
                          AND surcharge.charge = v-charge:SCREEN-VALUE IN FRAME {&FRAME-NAME})
     AND v-charge:SCREEN-VALUE <> ""
@@ -784,6 +786,7 @@ PROCEDURE valid-charge :
      APPLY "entry" TO v-charge.
      RETURN ERROR.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -796,6 +799,7 @@ PROCEDURE valid-fg-glacc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT v-gl-fg:SCREEN-VALUE EQ "" AND
          NOT CAN-FIND(FIRST account
@@ -808,6 +812,7 @@ PROCEDURE valid-fg-glacc :
          RETURN ERROR.
       END.
    END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -820,7 +825,8 @@ PROCEDURE valid-glacc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST account
                     WHERE account.company EQ cocode
@@ -833,6 +839,7 @@ PROCEDURE valid-glacc :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -845,6 +852,7 @@ PROCEDURE valid-rm-glacc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT v-gl-rm:SCREEN-VALUE EQ "" AND
          NOT CAN-FIND(FIRST account
@@ -857,6 +865,7 @@ PROCEDURE valid-rm-glacc :
          RETURN ERROR.
       END.
    END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

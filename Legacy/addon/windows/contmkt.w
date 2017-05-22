@@ -117,7 +117,7 @@ DEFINE FRAME OPTIONS-FRAME
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: EMPTRACK.contact
+   External Tables: contact
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 2
    Other Settings: COMPILE

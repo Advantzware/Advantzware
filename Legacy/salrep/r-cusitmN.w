@@ -92,6 +92,11 @@ DEFINE TEMP-TABLE w-data NO-UNDO
   FIELD inv-no    LIKE ar-invl.inv-no COLUMN-LABEL "Invoice!Number"
   FIELD rec-id    AS RECID.
 
+DEFINE TEMP-TABLE ttgroup
+    FIELD group-name AS CHARACTER
+    FIELD qty-ship    AS INTEGER
+    FIELD inv-amt     AS DECIMAL .
+
 DEFINE VARIABLE v-print-fmt AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
@@ -1808,6 +1813,7 @@ DEFINE VARIABLE lSelected AS LOG INIT YES NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+EMPTY TEMP-TABLE ttgroup .
 
 FORM cust.cust-no       COLUMN-LABEL "Customer"
      v-name             COLUMN-LABEL "Customer/Item Name"
@@ -2274,6 +2280,20 @@ EMPTY TEMP-TABLE tt-report.
       IF v-disc-p AND v-disc NE 0 THEN
         v-pric = v-pric * (100 - v-disc) / 100.
 
+       FIND FIRST ttgroup NO-LOCK
+           WHERE ttgroup.group-name EQ (IF AVAILABLE cust THEN  STRING(cust.spare-char-2) ELSE "") NO-ERROR.
+
+      IF NOT AVAIL ttgroup THEN DO:
+          CREATE ttgroup .
+          ASSIGN ttgroup.group-name = (IF AVAILABLE cust THEN  STRING(cust.spare-char-2) ELSE "").
+                 ttgroup.qty-ship    =  v-qty[1] .
+                 ttgroup.inv-amt     =  v-amt[1] .
+      END.
+      ELSE DO:
+          ttgroup.qty-ship    = ttgroup.qty-ship  + v-qty[1]  .
+          ttgroup.inv-amt     = ttgroup.inv-amt   + v-amt[1]  .
+      END.
+
        ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -2422,11 +2442,11 @@ EMPTY TEMP-TABLE tt-report.
                          WHEN "fgitem"  THEN cVarValue = "" .
                          WHEN "item-name"   THEN cVarValue = "" .
                          WHEN "ord"  THEN cVarValue = "" .
-                        WHEN "qty-ship"   THEN cVarValue = STRING(v-qty[3],"->>>,>>>,>>9") .
-                        WHEN "unit-pr"  THEN cVarValue = "" .
-                        WHEN "uom"   THEN cVarValue = "" .
-                        WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[3],"->,>>>,>>>,>>9.99") .
-                        WHEN "cust-g"  THEN cVarValue = "" .
+                         WHEN "qty-ship"   THEN cVarValue = STRING(v-qty[3],"->>>,>>>,>>9") .
+                         WHEN "unit-pr"  THEN cVarValue = "" .
+                         WHEN "uom"   THEN cVarValue = "" .
+                         WHEN "inv-amt"  THEN cVarValue = STRING(v-amt[3],"->,>>>,>>>,>>9.99") .
+                         WHEN "cust-g"  THEN cVarValue = "" .
 
                     END CASE.
 
@@ -2568,6 +2588,18 @@ EMPTY TEMP-TABLE tt-report.
                        SUBSTRING(cExcelDisplay,4,350) SKIP.
              END.
 
+             PUT SKIP(1) .
+
+           FOR EACH ttgroup NO-LOCK BY ttgroup.group-name :
+            PUT "Customer Group " + STRING(ttgroup.group-name,"x(8)") + " Grand Totals:"  AT 10 FORMAT "x(37)"
+                SPACE(5)
+                " Qty Shipped: " + STRING(ttgroup.qty-ship,"->>>,>>>,>>9") FORMAT "x(36)"
+                SPACE(1)
+                "Invoice Amt: " + STRING(ttgroup.inv-amt,"->,>>>,>>>,>>9.99")  FORMAT "x(36)"
+                .
+           END.
+           PUT SKIP(1) .
+        
   /*IF tb_excel THEN
      RUN print-excel-1(INPUT NO,
                        INPUT v-qty[5], INPUT v-amt[5]).*/

@@ -115,10 +115,10 @@ DEFINE BROWSE BROWSE-2
 tt-mach-route.blank-no LABEL "B"              FORMAT ">>9"
 tt-mach-route.m-code   LABEL "Machine" WIDTH 10  
 mach.m-dscr          LABEL "Description"    FORMAT "x(30)"
-tt-mach-route.reason   LABEL "Reason"
+tt-mach-route.reason   LABEL "Reason" FORMAT "x(80)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 102 BY 12.38
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 134 BY 12.38
          BGCOLOR 8  FIT-LAST-COLUMN.
 
 
@@ -126,9 +126,9 @@ tt-mach-route.reason   LABEL "Reason"
 
 DEFINE FRAME D-Dialog
      BROWSE-2 AT ROW 1.24 COL 2
-     btn-farmout AT ROW 14.33 COL 24.8 WIDGET-ID 2
-     Btn_valid AT ROW 14.33 COL 54
-     SPACE(26.59) SKIP(0.81)
+     btn-farmout AT ROW 14.33 COL 39 WIDGET-ID 2
+     Btn_valid AT ROW 14.33 COL 68.2
+     SPACE(44.99) SKIP(0.81)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Scheduled Machines".

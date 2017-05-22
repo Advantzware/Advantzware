@@ -181,7 +181,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartBrowser
-   External Tables: EMPTRACK.shifts
+   External Tables: shifts
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -249,9 +249,9 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
-     _TblList          = "EMPTRACK.shift_break OF EMPTRACK.shifts"
+     _TblList          = "shift_break OF shifts"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _FldNameList[1]   > EMPTRACK.shift_break.charge_code
+     _FldNameList[1]   > shift_break.charge_code
 "shift_break.charge_code" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */

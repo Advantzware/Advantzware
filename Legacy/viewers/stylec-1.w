@@ -482,7 +482,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -492,11 +492,14 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.balecount V-table-Win
 ON LEAVE OF style.balecount IN FRAME F-Main /* Bale Count */
 DO:
+   {&methods/lValidateError.i YES}
    if lastkey <> -1 and index("12",self:screen-value) <= 0 then do:
       message "Invalid Balecount. Enter 1 or 2." view-as alert-box error.
       return no-apply.
-   end. 
+   end.
+   {&methods/lValidateError.i NO} 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -569,7 +572,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -663,7 +666,7 @@ PROCEDURE enable-style-formular :
   Notes:       
 ------------------------------------------------------------------------------*/
   /* callled in methods/viewers/enable/style.i */
-  
+
   enable ld-box-fit with frame {&frame-name}.
 
 END PROCEDURE.
@@ -697,7 +700,7 @@ PROCEDURE local-assign-record :
             reftable.code = "DIM-FIT".
   end.
   reftable.val[1] = dec( ld-box-fit:screen-value in frame {&frame-name}) * k_frac. 
-  
+
 
 END PROCEDURE.
 
@@ -737,7 +740,7 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   if not avail style then return.
-  
+
   find first reftable where reftable.reftable = "STYFLU" 
                         and reftable.company = style.style
                         and reftable.loc = flute.code
@@ -761,6 +764,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF INDEX("12",style.balecount:SCREEN-VALUE) LE 0 THEN DO:
       MESSAGE "Invalid Balecount, Please enter 1 or 2..."
@@ -778,13 +782,14 @@ PROCEDURE local-update-record :
     RUN valid-dim (style.sqft-wid-trim:HANDLE) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
-
+  {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   disable ld-box-fit with frame {&frame-name}.
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -841,6 +846,7 @@ PROCEDURE valid-dim :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ip-focus:SCREEN-VALUE) - TRUNC(DEC(ip-focus:SCREEN-VALUE),0) GT .15
     THEN DO:
@@ -852,6 +858,7 @@ PROCEDURE valid-dim :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

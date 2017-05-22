@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<ttDesktopItems xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <ttDesktopItemsRow>
+    <ItemOrder>1</ItemOrder>
+    <ItemText>Business Entity Browser</ItemText>
+    <ItemImage>Consultingwerk/Studio/Desktop/Images/data_view.png</ItemImage>
+    <RunProcedure>Consultingwerk/SmartComponents/Tools/BusinessEntityBrowser/start.p</RunProcedure>
+  </ttDesktopItemsRow>
+  <ttDesktopItemsRow>
+    <ItemOrder>2</ItemOrder>
+    <ItemText>Business Entity Tester</ItemText>
+    <ItemImage>Consultingwerk/Studio/Desktop/Images/crash_test_dummy.png</ItemImage>
+    <RunProcedure>Consultingwerk/SmartComponents/Tools/OERABusinessEntityTester/start.p</RunProcedure>
+  </ttDesktopItemsRow>
+  <ttDesktopItemsRow>
+    <ItemOrder>3</ItemOrder>
+    <ItemText>Business Entity Designer</ItemText>
+    <ItemImage>Consultingwerk/Studio/Desktop/Images/text_tree.png</ItemImage>
+    <RunProcedure>Consultingwerk/BusinessEntityDesigner/start.p</RunProcedure>
+  </ttDesktopItemsRow>
+  <ttDesktopItemsRow>
+    <ItemOrder>4</ItemOrder>
+    <ItemText>Windows Explorer</ItemText>
+    <ItemImage>Consultingwerk/Studio/Desktop/Images/folder.png</ItemImage>
+    <SpecialAction>EXPLORER:.</SpecialAction>
+  </ttDesktopItemsRow>
+  <ttDesktopItemsRow>
+    <ItemOrder>5</ItemOrder>
+    <ItemText>Class Reference</ItemText>
+    <ItemImage>Consultingwerk/Studio/Desktop/Images/class-reference.png</ItemImage>
+    <OpenWebSite>http://help.consultingwerkcloud.com/smartcomponent_library/release/</OpenWebSite>
+  </ttDesktopItemsRow>
+  <ttDesktopItemsRow>
+    <ItemOrder>6</ItemOrder>
+    <ItemText>Developers Reference</ItemText>
+    <ItemImage>Consultingwerk/Studio/Desktop/Images/developers-reference.png</ItemImage>
+    <OpenWebSite>http://confluence.consultingwerkcloud.com/wiki/display/SCL/Developers+Reference</OpenWebSite>
+  </ttDesktopItemsRow>
+  <ttDesktopItemsRow>
+    <ItemOrder>7</ItemOrder>
+    <ItemText>proenv</ItemText>
+    <ItemImage>Consultingwerk/Studio/Desktop/Images/console.png</ItemImage>
+    <SpecialAction>proenv:.</SpecialAction>
+  </ttDesktopItemsRow>
+  <ttDesktopItemsRow>
+    <ItemOrder>8</ItemOrder>
+    <ItemText>Configuration File Editor</ItemText>
+    <ItemImage>Consultingwerk/Studio/Desktop/Images/control_panel.png</ItemImage>
+    <RunProcedure>Consultingwerk/Studio/ConfigurationSettingsEditor/start.p</RunProcedure>
+  </ttDesktopItemsRow>  
+  <ttDesktopItemsRow>
+    <ItemOrder>9</ItemOrder>
+    <ItemText>JIRA</ItemText>
+    <ItemImage>Consultingwerk/Studio/Desktop/Images/jira.png</ItemImage>
+    <OpenWebSite>http://jira.consultingwerkcloud.com/</OpenWebSite>
+  </ttDesktopItemsRow>
+  <ttDesktopItemsRow>
+    <ItemOrder>10</ItemOrder>
+    <ItemText>ESD</ItemText>
+    <ItemImage>Consultingwerk/Studio/Desktop/Images/box_software.png</ItemImage>
+    <OpenWebSite>https://esd.consultingwerkcloud.com/</OpenWebSite>
+  </ttDesktopItemsRow>
+  
+  <ttDesktopItemsRow>
+    <ItemOrder>20</ItemOrder>
+    <ItemText>Legacy GUI FRAME Migraton</ItemText>
+    <ItemImage>Consultingwerk/Studio/Desktop/Images/objects_exchange.png</ItemImage>
+    <RunProcedure>Consultingwerk/Studio/LegacyGuiMigration/Frame/start.p</RunProcedure>
+  </ttDesktopItemsRow>
+  <ttDesktopItemsRow>
+    <ItemOrder>21</ItemOrder>
+    <ItemText>Legacy GUI BROWSE Migraton</ItemText>
+    <ItemImage>Consultingwerk/Studio/Desktop/Images/objects_exchange.png</ItemImage>
+    <RunProcedure>Consultingwerk/Studio/LegacyGuiMigration/Browse/start.p</RunProcedure>
+  </ttDesktopItemsRow>
+  <ttDesktopItemsRow>
+    <ItemOrder>22</ItemOrder>
+    <ItemText>Proparse TreeView</ItemText>
+    <ItemImage>Consultingwerk/Studio/Desktop/Images/genius.png</ItemImage>
+    <RunProcedure>Consultingwerk/Studio/Proparse/start.p</RunProcedure>
+  </ttDesktopItemsRow>
+
+
+
+
+</ttDesktopItems>

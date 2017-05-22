@@ -1,0 +1,6 @@
+&1      model class name
+&2      package name
+&3      filter class name
+&4      table model properties (fields)
+@USER@  the current user name
+@DATE@  time stamp

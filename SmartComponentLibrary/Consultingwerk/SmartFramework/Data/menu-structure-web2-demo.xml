@@ -1,0 +1,256 @@
+<?xml version="1.0"?>
+<dsMenu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartMenu>
+    <MenuGuid>90feedf4-bc84-c7b8-0314-5086342df962</MenuGuid>
+    <ParentMenuGuid>c8f0d5f7-0bbb-0a82-0314-747d2c383b8a</ParentMenuGuid>
+    <MenuName>Customer (static viewer)</MenuName>
+    <MenuStructureType>ITEM</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage/>
+    <MenuLargeImage/>
+    <MenuSequence>3</MenuSequence>
+    <FunctionGuid>90feedf4-bc84-c7b8-0314-4f8640176ae3</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>ba068197-439a-d4b7-0314-887d7821834e</MenuGuid>
+    <ParentMenuGuid>c8f0d5f7-0bbb-0a82-0314-747d2c383b8a</ParentMenuGuid>
+    <MenuName>Salesrep Maintenance</MenuName>
+    <MenuStructureType>ITEM</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage/>
+    <MenuLargeImage/>
+    <MenuSequence>4</MenuSequence>
+    <FunctionGuid>ba068197-439a-d4b7-0314-877dc0bcf346</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>ba068197-439a-d4b7-0314-8d7d8ce4296c</MenuGuid>
+    <ParentMenuGuid>c8f0d5f7-0bbb-0a82-0314-747d2c383b8a</ParentMenuGuid>
+    <MenuName>Customer Maintenance</MenuName>
+    <MenuStructureType>ITEM</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage/>
+    <MenuLargeImage/>
+    <MenuSequence>0</MenuSequence>
+    <FunctionGuid>ba068197-439a-d4b7-0314-8d7dfcc87323</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>c0205cff-1f3c-b2ae-0314-a17e54c222f9</MenuGuid>
+    <ParentMenuGuid>c8f0d5f7-0bbb-0a82-0314-747d2c383b8a</ParentMenuGuid>
+    <MenuName>Salesreps (with Chart)</MenuName>
+    <MenuStructureType>ITEM</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage/>
+    <MenuLargeImage/>
+    <MenuSequence>5</MenuSequence>
+    <FunctionGuid>c0205cff-1f3c-b2ae-0314-a17ed06e4644</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>c0205cff-1f3c-b2ae-0314-aa7eec0895d6</MenuGuid>
+    <ParentMenuGuid>c8f0d5f7-0bbb-0a82-0314-747d2c383b8a</ParentMenuGuid>
+    <MenuName>Customers by Salesrep</MenuName>
+    <MenuStructureType>ITEM</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage/>
+    <MenuLargeImage/>
+    <MenuSequence>1</MenuSequence>
+    <FunctionGuid>c0205cff-1f3c-b2ae-0314-aa7e7815998a</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>c8f0d5f7-0bbb-0a82-0314-747d2c383b8a</MenuGuid>
+    <ParentMenuGuid/>
+    <MenuName>SmartWeb2 Demo</MenuName>
+    <MenuStructureType>Menu</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage/>
+    <MenuLargeImage/>
+    <MenuSequence>4</MenuSequence>
+    <FunctionGuid/>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>d15eee9c-ca57-aea2-1914-304564650c38</MenuGuid>
+    <ParentMenuGuid>c8f0d5f7-0bbb-0a82-0314-747d2c383b8a</ParentMenuGuid>
+    <MenuName>Employee Maintenance</MenuName>
+    <MenuStructureType>ITEM</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage/>
+    <MenuLargeImage/>
+    <MenuSequence>6</MenuSequence>
+    <FunctionGuid>d15eee9c-ca57-aea2-1914-2d4590abb5dd</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>d3c3b65f-7fb0-1892-1b14-b00cbc33b399</MenuGuid>
+    <ParentMenuGuid>c8f0d5f7-0bbb-0a82-0314-747d2c383b8a</ParentMenuGuid>
+    <MenuName>Dynamic Customer Maint</MenuName>
+    <MenuStructureType>ITEM</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage/>
+    <MenuLargeImage/>
+    <MenuSequence>7</MenuSequence>
+    <FunctionGuid>d3c3b65f-7fb0-1892-1b14-af0cd4819197</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartMenu>
+    <MenuGuid>dafb26d2-4188-1fb1-1a14-b0ca3053f213</MenuGuid>
+    <ParentMenuGuid>c8f0d5f7-0bbb-0a82-0314-747d2c383b8a</ParentMenuGuid>
+    <MenuName>Customers by Salesrep (Tabstrip)</MenuName>
+    <MenuStructureType>ITEM</MenuStructureType>
+    <MenuBeginsAGroup>false</MenuBeginsAGroup>
+    <MenuSmallImage/>
+    <MenuLargeImage/>
+    <MenuSequence>2</MenuSequence>
+    <FunctionGuid>dafb26d2-4188-1fb1-1a14-afcaa4fe4001</FunctionGuid>
+    <HasChild>false</HasChild>
+    <FunctionName/>
+    <MenuStyleGuid/>
+    <MenuStyleCode/>
+  </eSmartMenu>
+  <eSmartFunction>
+    <FunctionGuid>90feedf4-bc84-c7b8-0314-4f8640176ae3</FunctionGuid>
+    <FunctionName>Customer (static viewer)</FunctionName>
+    <FunctionDescription/>
+    <FunctionSmallImage/>
+    <FunctionLargeImage/>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Web2.SmartFramework.Menu.LaunchWebViewCallParameter&quot;,
+  &quot;ViewUri&quot;: &quot;Consultingwerk\/SmartComponentsDemo\/Web2\/Views\/customer-sample.html&quot;
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>c8f0d5f7-0bbb-0a82-0314-e87cfc88efdc</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+  <eSmartFunction>
+    <FunctionGuid>ba068197-439a-d4b7-0314-877dc0bcf346</FunctionGuid>
+    <FunctionName>Salesrep Maintenance</FunctionName>
+    <FunctionDescription/>
+    <FunctionSmallImage/>
+    <FunctionLargeImage/>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Web2.SmartFramework.Menu.LaunchWebViewCallParameter&quot;,
+  &quot;ViewUri&quot;: &quot;Consultingwerk\/Web2\/entityview.html&quot;,
+  &quot;EntityName&quot;: &quot;Consultingwerk.SmartComponentsDemo.OERA.Sports2000.SalesRepBusinessEntity&quot;,
+  &quot;EntityTable&quot;: &quot;eSalesrep&quot;,
+  &quot;EntityView&quot;: &quot;salesrep&quot;,
+  &quot;ViewTitle&quot;: &quot;Salesrep Maintenance&quot;
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>c8f0d5f7-0bbb-0a82-0314-e87cfc88efdc</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+  <eSmartFunction>
+    <FunctionGuid>ba068197-439a-d4b7-0314-8d7dfcc87323</FunctionGuid>
+    <FunctionName>Customer Maintenance</FunctionName>
+    <FunctionDescription/>
+    <FunctionSmallImage/>
+    <FunctionLargeImage/>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Web2.SmartFramework.Menu.LaunchWebViewCallParameter&quot;,
+  &quot;ViewUri&quot;: &quot;Consultingwerk\/Web2\/entityview.html&quot;,
+  &quot;EntityName&quot;: &quot;Consultingwerk.SmartComponentsDemo.OERA.Sports2000.CustomerBusinessEntity&quot;,
+  &quot;EntityTable&quot;: &quot;eCustomer&quot;,
+  &quot;EntityViewTables&quot;: &quot;eSalesrep&quot;,
+  &quot;EntityView&quot;: &quot;customer&quot;,
+  &quot;ViewTitle&quot;: &quot;Customer Maintenance&quot;
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>c8f0d5f7-0bbb-0a82-0314-e87cfc88efdc</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+  <eSmartFunction>
+    <FunctionGuid>c0205cff-1f3c-b2ae-0314-a17ed06e4644</FunctionGuid>
+    <FunctionName>Salesreps (with Chart)</FunctionName>
+    <FunctionDescription/>
+    <FunctionSmallImage/>
+    <FunctionLargeImage/>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Web2.SmartFramework.Menu.LaunchWebViewCallParameter&quot;,
+  &quot;ViewUri&quot;: &quot;Consultingwerk\/SmartComponentsDemo\/Web2\/Views\/salesreps.html&quot;
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>c8f0d5f7-0bbb-0a82-0314-e87cfc88efdc</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+  <eSmartFunction>
+    <FunctionGuid>c0205cff-1f3c-b2ae-0314-aa7e7815998a</FunctionGuid>
+    <FunctionName>Customers by Salesrep</FunctionName>
+    <FunctionDescription/>
+    <FunctionSmallImage/>
+    <FunctionLargeImage/>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Web2.SmartFramework.Menu.LaunchWebViewCallParameter&quot;,
+  &quot;ViewUri&quot;: &quot;Consultingwerk\/SmartComponentsDemo\/Web2\/Views\/grid-sample.html&quot;
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>c8f0d5f7-0bbb-0a82-0314-e87cfc88efdc</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+  <eSmartFunction>
+    <FunctionGuid>d15eee9c-ca57-aea2-1914-2d4590abb5dd</FunctionGuid>
+    <FunctionName>Employee Maintenance</FunctionName>
+    <FunctionDescription/>
+    <FunctionSmallImage/>
+    <FunctionLargeImage/>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Web2.SmartFramework.Menu.LaunchWebViewCallParameter&quot;,
+  &quot;ViewUri&quot;: &quot;Consultingwerk\/Web2\/entityview.html&quot;,
+  &quot;EntityName&quot;: &quot;Demo.Gent.Employee.EmployeeBusinessEntity&quot;,
+  &quot;EntityTable&quot;: &quot;eEmployee&quot;,
+  &quot;EntityView&quot;: &quot;employee&quot;,
+  &quot;ViewTitle&quot;: &quot;Employee Maintenance&quot;
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>c8f0d5f7-0bbb-0a82-0314-e87cfc88efdc</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+  <eSmartFunction>
+    <FunctionGuid>dafb26d2-4188-1fb1-1a14-afcaa4fe4001</FunctionGuid>
+    <FunctionName>Customers by Salesrep (Tabstrip)</FunctionName>
+    <FunctionDescription/>
+    <FunctionSmallImage/>
+    <FunctionLargeImage/>
+    <FunctionCallParameter>{
+  &quot;SerializedType&quot;: &quot;Consultingwerk.Web2.SmartFramework.Menu.LaunchWebViewCallParameter&quot;,
+  &quot;ViewUri&quot;: &quot;Consultingwerk\/SmartComponentsDemo\/Web2\/Views\/tabstrip-sample.html&quot;
+}
+</FunctionCallParameter>
+    <FunctionModuleGuid>c8f0d5f7-0bbb-0a82-0314-e87cfc88efdc</FunctionModuleGuid>
+    <ModuleName/>
+    <ExternalId/>
+  </eSmartFunction>
+</dsMenu>

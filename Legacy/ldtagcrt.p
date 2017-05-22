@@ -1,10 +1,24 @@
 /* ldtagcrt.p Loadtag creation program  */
 
+&SCOPED-DEFINE loginProcedure nosweat/login.w
+&SCOPED-DEFINE checkUserRecord YES 
+&SCOPED-DEFINE connectDatabases YES
+&SCOPED-DEFINE runAsiLoad YES
+&SCOPED-DEFINE createSingleUserPFs NO
+&SCOPED-DEFINE nonPersistProgram oerep/r-loadtg.w
+&SCOPED-DEFINE checkExpiredLicense YES
+&SCOPED-DEFINE checkUserCount YES
+&SCOPED-DEFINE getCompanyProc CUSTOM/getcomp.p
+{nosweat.i}
+
+
+/* Original Code */
+/*
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
 
 DEFINE NEW SHARED VARIABLE quit_login AS LOGICAL NO-UNDO.
-DEFINE VARIABLE m_id LIKE NOSWEAT._user._userid NO-UNDO.
+DEFINE VARIABLE m_id AS CHAR NO-UNDO.
 DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
@@ -17,16 +31,16 @@ IF m_id = ? THEN
 m_id = "".
 
 
-IF NOT SETUSERID(m_id,"","NOSWEAT") OR m_id EQ "" THEN
+IF NOT SETUSERID(m_id,"",ldbname(1)) OR m_id EQ "" THEN
 RUN nosweat/login.w.
 
-IF USERID("NOSWEAT") = "" OR quit_login THEN
+IF USERID(ldbname(1)) = "" OR quit_login THEN
 DO:
   ldummy = SESSION:SET-WAIT-STATE("").
   QUIT.
 END.
 
-FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK NO-ERROR.
+FIND users WHERE users.user_id = USERID(ldbname(1)) NO-LOCK NO-ERROR.
 IF NOT AVAILABLE users THEN
 DO:     
   ldummy = SESSION:SET-WAIT-STATE("").
@@ -48,7 +62,7 @@ END.
 
 RUN chkdate.p.
 
-IF CONNECTED("NOSWEAT") THEN
+IF CONNECTED(ldbname(1)) THEN
 DO:
   {methods/setdevid.i}
   RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
@@ -57,7 +71,7 @@ DO:
   g_groups = "". /* YSK need to reset */
   
   FOR EACH usergrps NO-LOCK:
-    IF CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN
+    IF CAN-DO(usergrps.users,USERID(ldbname(1))) THEN
     g_groups = g_groups + usergrps.usergrps + ",".  /* YSK "," added  */
   END.
   
@@ -83,3 +97,4 @@ DO:
 END. 
 ldummy = SESSION:SET-WAIT-STATE("").
 QUIT.
+*/

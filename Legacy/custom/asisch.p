@@ -10,7 +10,17 @@ RUN asiSchWin.w .
 QUIT.
 */
 
+&SCOPED-DEFINE loginProcedure nosweat/login.w
+&SCOPED-DEFINE checkUserRecord YES 
+&SCOPED-DEFINE connectDatabases YES
+&SCOPED-DEFINE nonPersistProgram custom/asiSchW.w
+&SCOPED-DEFINE getCompanyProc CUSTOM/getcomp.p
 
+
+{nosweat.i}
+
+/* Original Code */
+/*    
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
 
@@ -75,3 +85,4 @@ END.
 SESSION:SET-WAIT-STATE("").
 QUIT.
 
+*/

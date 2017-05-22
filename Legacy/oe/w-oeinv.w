@@ -1001,9 +1001,12 @@ PROCEDURE select_attcust :
          b-cust.cust-no EQ b-inv-head.cust-no
          NO-LOCK NO-ERROR.
 
-    IF AVAIL b-cust THEN
-       RUN windows/cstattch.w(b-cust.rec_key,'Customer: ' + b-cust.cust-no +
-                              ' - ' + 'Name: ' + b-cust.name,v-order-no). 
+     IF AVAIL b-cust THEN DO:
+         {methods/select_attcust.i
+            b-cust.rec_key
+            'Customer: ' + b-cust.cust-no + ' - ' + 'Name: ' + b-cust.name
+            v-order-no}
+     END.                          
  END.
 END PROCEDURE.
 

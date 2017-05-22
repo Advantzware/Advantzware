@@ -1,0 +1,76 @@
+FOR EACH machemp NO-LOCK WHERE machemp.posted EQ no USE-INDEX postemp,  EACH machtran NO-LOCK WHERE   machtran.rec_key eq machemp.table_rec_key AND machtran.company EQ "%company%",  FIRST employee  NO-LOCK OUTER-JOIN WHERE   employee.company eq "%company%" AND employee.employee eq machemp.employee
+employee,employee-name,end_date,machine,posted,start_date
+
+Indexed: employee,end_date,machine,posted,start_date
+Non-Idx: employee-name,end-time,ratetype,shift,start-time,total-time
+
+Generated 04.18.2017 @  6:09:17 am by: nosweat
+Table: machemp - Records: 0
+
+    Index: employee
+         Field: employee
+         Field: start_date
+         Field: end_date
+
+    Index: pi-machemp
+         Field: table_rec_key
+         Field: employee
+         Field: start_date
+         Field: start_time
+
+    Index: posted
+         Field: posted
+
+    Index: postemp
+         Field: posted
+         Field: employee
+         Field: start_date
+         Field: start_time
+
+    Index: si-rec_key
+         Field: rec_key
+
+Table: machtran - Records: 0
+
+    Index: enddate
+         Field: company
+         Field: end_date
+         Field: end_time
+         Field: total_time
+
+    Index: menddate
+         Field: company
+         Field: machine
+         Field: end_date
+         Field: end_time
+         Field: total_time
+
+    Index: pi-machtran
+         Field: company
+         Field: machine
+         Field: job_number
+         Field: job_sub
+         Field: form_number
+         Field: blank_number
+         Field: pass_sequence
+         Field: start_date
+         Field: start_time
+         Field: jobseq
+         Field: charge_code
+
+    Index: si-joborder
+         Field: company
+         Field: posted
+         Field: job_number
+         Field: start_date
+         Field: start_time
+
+    Index: si-machorder
+         Field: company
+         Field: posted
+         Field: machine
+         Field: start_date
+         Field: start_time
+
+    Index: si-rec_key
+         Field: rec_key

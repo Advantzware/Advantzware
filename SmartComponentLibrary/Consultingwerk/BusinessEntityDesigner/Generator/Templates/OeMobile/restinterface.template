@@ -1,0 +1,97 @@
+/*------------------------------------------------------------------------
+    File        : &1
+    Purpose     : REST Adapter Service Interface for &3
+    Syntax      : 
+    Description : &4
+    Author(s)   : @USER@
+    Created     : &5
+    Notes       : 
+  ----------------------------------------------------------------------*/
+    
+@program FILE(name="&1.cls", module="&6").
+@openapi.openedge.export FILE(type="REST", executionMode="singleton", useReturnValue="false", writeDataSetBeforeImage="false").
+@progress.service.resource FILE(name="&1", URI="/&7", schemaName="&8", schemaFile="&9").
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+USING Consultingwerk.Assertion.* FROM PROPATH .
+USING Consultingwerk.OERA.*      FROM PROPATH .
+USING Consultingwerk.Util.*      FROM PROPATH .
+USING Progress.Lang.*            FROM PROPATH .
+
+&&SCOPED-DEFINE BusinessEntityName "&3":U
+
+@FILEANNOTATION@
+
+CLASS &2.&1:
+
+	{@INCLUDEFILEPATH@} 
+
+    /*------------------------------------------------------------------------------
+        Purpose: Get one or more records, based on a filter string                                                                     
+        Notes:
+        @param filter The filter for the read operation
+        @param &8 OUTPUT The resulting dataset                                                                         
+    ------------------------------------------------------------------------------*/
+    @openapi.openedge.export(type="REST", useReturnValue="false", writeDataSetBeforeImage="true").
+    @progress.service.resourceMapping(type="REST", operation="read", URI="?filter=~{filter~}", alias="", mediaType="application/json"). 
+    METHOD PUBLIC VOID Read&1 (INPUT filter AS CHARACTER, 
+    		                   OUTPUT DATASET &8):      
+	         
+        DEFINE VARIABLE oFetchDataRequest AS IFetchDataRequest NO-UNDO . 
+        
+        IF filter > "":U THEN 
+            oFetchDataRequest = NEW FetchDataRequest ("@FINDTABLE@":U,
+                                                      SUBSTITUTE ("FOR EACH @FINDTABLE@ WHERE &&1":U, filter),
+                                                      100) .
+        ELSE            
+            oFetchDataRequest = NEW FetchDataRequest ("@FINDTABLE@":U,
+                                                      100) .
+
+        ServiceInterface:FetchData ({&&BusinessEntityName},
+                                    oFetchDataRequest,
+                                    OUTPUT DATASET &8) .
+    END METHOD.
+	  
+    /*------------------------------------------------------------------------------
+        Purpose: Create one or more new records                                                               
+        Notes:                                                                        
+        @param &8 INPUT-OUTPUT Dataset with the records to create
+    ------------------------------------------------------------------------------*/  
+    @openapi.openedge.export(type="REST", useReturnValue="false", writeDataSetBeforeImage="true").
+    @progress.service.resourceMapping(type="REST", operation="create", URI="", alias="", mediaType="application/json").
+    METHOD PUBLIC VOID Create&1 (INPUT-OUTPUT DATASET &8):    		
+	            
+        ServiceInterface:SaveChanges ({&&BusinessEntityName},
+                                      INPUT-OUTPUT DATASET &8) .
+    END METHOD.    
+	
+    /*------------------------------------------------------------------------------
+        Purpose: Update one or more records                                                                  
+        Notes:                                                                        
+        @param &8 INPUT-OUTPUT Dataset with the records to update
+    ------------------------------------------------------------------------------*/
+    @openapi.openedge.export(type="REST", useReturnValue="false", writeDataSetBeforeImage="true").
+    @progress.service.resourceMapping(type="REST", operation="update", URI="", alias="", mediaType="application/json").
+    METHOD PUBLIC VOID Update&1 (INPUT-OUTPUT DATASET &8):    		
+	          
+        ServiceInterface:SaveChanges ({&&BusinessEntityName},
+                                      INPUT-OUTPUT DATASET &8) .
+
+    END METHOD.
+	
+    /*------------------------------------------------------------------------------
+        Purpose: Delete a record                                                               
+        Notes:                                                   
+        @param &8 INPUT-OUTPUT Dataset with the records to delete
+    ------------------------------------------------------------------------------*/
+    @openapi.openedge.export(type="REST", useReturnValue="false", writeDataSetBeforeImage="true").
+    @progress.service.resourceMapping(type="REST", operation="delete", URI="", alias="", mediaType="application/json").
+    METHOD PUBLIC VOID Delete&1 (INPUT-OUTPUT DATASET &8):     		       
+	   
+        ServiceInterface:SaveChanges ({&&BusinessEntityName},
+                                      INPUT-OUTPUT DATASET &8) .
+    END METHOD.
+          
+END CLASS.
+

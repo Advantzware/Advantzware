@@ -748,23 +748,23 @@ PROCEDURE init-proc :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  FIND FIRST emptrack.employee WHERE emptrack.employee.company EQ cocode 
+  FIND FIRST employee WHERE employee.company EQ cocode 
       USE-INDEX pi-employee NO-LOCK NO-ERROR.
 
-  IF AVAIL emptrack.employee THEN
+  IF AVAIL employee THEN
     ASSIGN
-     begin_employee           = emptrack.employee.employee
-     begin_employee_last_name = emptrack.employee.last_name
-     begin_employee_soc_sec   = emptrack.employee.soc_sec.
+     begin_employee           = employee.employee
+     begin_employee_last_name = employee.last_name
+     begin_employee_soc_sec   = employee.soc_sec.
 
-  FIND LAST emptrack.employee WHERE emptrack.employee.company EQ cocode 
+  FIND LAST employee WHERE employee.company EQ cocode 
       USE-INDEX pi-employee NO-LOCK NO-ERROR.
 
-  IF AVAIL emptrack.employee THEN
+  IF AVAIL employee THEN
     ASSIGN
-     end_employee           = emptrack.employee.employee
-     end_employee_last_name = emptrack.employee.last_name
-     end_employee_soc_sec   = emptrack.employee.soc_sec.
+     end_employee           = employee.employee
+     end_employee_last_name = employee.last_name
+     end_employee_soc_sec   = employee.soc_sec.
 
 END PROCEDURE.
 
@@ -913,39 +913,39 @@ IF tb_excel THEN DO:
 END.
 
 /*{methods/lstlogic/custom/employe_.i}*/
-FOR EACH emptrack.employee NO-LOCK WHERE emptrack.employee.company = gcompany
-                            AND emptrack.employee.employee >= begin_employee
-                            AND emptrack.employee.employee <= end_employee
-                            /*AND emptrack.employee.LAST_name >= begin_employee_last_name
-                            AND emptrack.employee.LAST_name <= end_employee_last_name
-                            AND emptrack.employee.LAST_name >= begin_employee_soc_sec
-                            AND emptrack.employee.LAST_name >= END_employee_soc_sec*/
-                           BY emptrack.employee.employee BY emptrack.employee.LAST_name BY emptrack.employee.START_date:
+FOR EACH employee NO-LOCK WHERE employee.company = gcompany
+                            AND employee.employee >= begin_employee
+                            AND employee.employee <= end_employee
+                            /*AND employee.LAST_name >= begin_employee_last_name
+                            AND employee.LAST_name <= end_employee_last_name
+                            AND employee.LAST_name >= begin_employee_soc_sec
+                            AND employee.LAST_name >= END_employee_soc_sec*/
+                           BY employee.employee BY employee.LAST_name BY employee.START_date:
 
 
 DISPLAY
-  emptrack.employee.employee
-  emptrack.employee.last_name LABEL 'Employee Name' FORMAT 'X(25)'
-  emptrack.employee.last_name + ', ' + employee.first_name + ' ' + employee.middle_name @
-  emptrack.employee.last_name
-  emptrack.employee.soc_sec
-  emptrack.employee.emp_type LABEL 'Type'
-  emptrack.employee.actnum
-  emptrack.employee.start_date COLUMN-LABEL "Hire Date"
-  emptrack.employee.ref_no
-  emptrack.employee.rate_usage WITH FRAME emp WIDTH 132 STREAM-IO DOWN.
+  employee.employee
+  employee.last_name LABEL 'Employee Name' FORMAT 'X(25)'
+  employee.last_name + ', ' + employee.first_name + ' ' + employee.middle_name @
+  employee.last_name
+  employee.soc_sec
+  employee.emp_type LABEL 'Type'
+  employee.actnum
+  employee.start_date COLUMN-LABEL "Hire Date"
+  employee.ref_no
+  employee.rate_usage WITH FRAME emp WIDTH 132 STREAM-IO DOWN.
 IF tb_excel THEN PUT STREAM excel UNFORMATTED
-    emptrack.employee.employee ","
-    emptrack.employee.last_name ' - ' employee.first_name ' ' employee.middle_name  ","
-    string(emptrack.employee.soc_sec,"xxx-xx-xxxx") ' ,' /* this ' causes numerics to show as text */
-    emptrack.employee.emp_type  ","
-    emptrack.employee.actnum ","
-    (IF emptrack.employee.start_date <> ? THEN string(emptrack.employee.start_date) ELSE "") ","
-    emptrack.employee.ref_no ","
-    string(emptrack.employee.rate_usage,"Shift/Machine") ",".
+    employee.employee ","
+    employee.last_name ' - ' employee.first_name ' ' employee.middle_name  ","
+    string(employee.soc_sec,"xxx-xx-xxxx") ' ,' /* this ' causes numerics to show as text */
+    employee.emp_type  ","
+    employee.actnum ","
+    (IF employee.start_date <> ? THEN string(employee.start_date) ELSE "") ","
+    employee.ref_no ","
+    string(employee.rate_usage,"Shift/Machine") ",".
 ASSIGN firstlogin = YES.
 IF show-rates THEN
-FOR EACH rate OF emptrack.employee NO-LOCK WITH STREAM-IO TITLE '---- Rates ----' COL 5:
+FOR EACH rate OF employee NO-LOCK WITH STREAM-IO TITLE '---- Rates ----' COL 5:
   DISPLAY
     rate.ratetype
     rate.shift
@@ -956,7 +956,7 @@ FOR EACH rate OF emptrack.employee NO-LOCK WITH STREAM-IO TITLE '---- Rates ----
 END.
 
 IF show-login-logout THEN
-FOR EACH emplogin OF emptrack.employee NO-LOCK WITH STREAM-IO TITLE '---- Login/Logout ----' COL 5:
+FOR EACH emplogin OF employee NO-LOCK WITH STREAM-IO TITLE '---- Login/Logout ----' COL 5:
   DISPLAY
     emplogin.start_date
     STRING(emplogin.start_time,'HH:MM am') LABEL 'Login'
@@ -982,7 +982,7 @@ END.
 IF tb_excel AND firstlogin THEN PUT STREAM excel UNFORMATTED SKIP. 
 
 IF show-machines THEN 
-FOR EACH empmach OF emptrack.employee NO-LOCK WITH STREAM-IO TITLE '---- Assigned Machines ----' COL 5:
+FOR EACH empmach OF employee NO-LOCK WITH STREAM-IO TITLE '---- Assigned Machines ----' COL 5:
   FIND mach WHERE mach.company = empmach.company
               AND mach.m-code = empmach.machine
             NO-LOCK NO-ERROR.
@@ -993,14 +993,14 @@ FOR EACH empmach OF emptrack.employee NO-LOCK WITH STREAM-IO TITLE '---- Assigne
 END.
 
 IF show-emp-notes THEN do :    
-FOR EACH notes where notes.rec_key = emptrack.employee.rec_key  NO-LOCK WITH down STREAM-IO TITLE '---- Notes ----' COL 5
+FOR EACH notes where notes.rec_key = employee.rec_key  NO-LOCK WITH down STREAM-IO TITLE '---- Notes ----' COL 5
           by notes.note_date:
   DISPLAY "Employee   " label "Note Type"
     notes.note_date 
     notes.note_title with width 132.
 END.
 for each emplogin where emplogin.company EQ g_company AND
-                        emplogin.employee = emptrack.employee.employee no-lock:
+                        emplogin.employee = employee.employee no-lock:
     for each notes where notes.rec_key = emplogin.rec_key /*and
                             note.note_date = machemp.start_date */
                        no-lock           by notes.note_date :
@@ -1009,7 +1009,7 @@ for each emplogin where emplogin.company EQ g_company AND
                   notes.note_title with stream-io width 132 no-box no-label.
       end.
 end.    
-for each machemp where machemp.employee = emptrack.employee.employee no-lock:
+for each machemp where machemp.employee = employee.employee no-lock:
     for each notes where notes.rec_key = machemp.rec_key /*and
                           note.note_date = machemp.start_date */
                       no-lock           by notes.note_date :
@@ -1022,10 +1022,10 @@ end.
 end.  /* show-emp-notes */
 put skip(1).
 
-{methods/lstlogic/shownote.i &db_table="emptrack.employee" &col="5" &frame-name="f-notes"}
-{methods/lstlogic/showmisc.i &db_table="emptrack.employee" &col="5" &frame-name="f-miscflds"}
-{methods/lstlogic/showaddr.i &db_table="emptrack.employee" &col="5" &frame-name="f-addresses"}
-{methods/lstlogic/showphon.i &db_table="emptrack.employee" &col="5" &frame-name="f-phones"}
+{methods/lstlogic/shownote.i &db_table="employee" &col="5" &frame-name="f-notes"}
+{methods/lstlogic/showmisc.i &db_table="employee" &col="5" &frame-name="f-miscflds"}
+{methods/lstlogic/showaddr.i &db_table="employee" &col="5" &frame-name="f-addresses"}
+{methods/lstlogic/showphon.i &db_table="employee" &col="5" &frame-name="f-phones"}
 
 END. /* for each employee*/
 

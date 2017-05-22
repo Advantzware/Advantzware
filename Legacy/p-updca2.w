@@ -95,10 +95,10 @@ DO:
     group-ok = yes.
     /*LEAVE. */
   END.
-  IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
-     NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
+  IF NOT CAN-DO(b-prgrms.can_run,USERID(ldbname(1))) AND
+     NOT CAN-DO(b-prgrms.can_update,USERID(ldbname(1))) AND
+     NOT CAN-DO(b-prgrms.can_create,USERID(ldbname(1))) AND
+     NOT CAN-DO(b-prgrms.can_delete,USERID(ldbname(1))) AND NOT group-ok THEN
   DO:
     MESSAGE "Program :" PROGRAM-NAME(1) SKIP "Title :" b-prgrms.prgtitle SKIP(1)
         "Access to this Program Denied - Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
@@ -107,13 +107,13 @@ DO:
 
   END.
   ELSE DO:
-      IF NOT v-can-run AND CAN-DO(b-prgrms.can_run,USERID("NOSWEAT"))
+      IF NOT v-can-run AND CAN-DO(b-prgrms.can_run,USERID(ldbname(1)))
             THEN v-can-run = YES.
-      IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID("NOSWEAT"))
+      IF NOT v-can-update AND CAN-DO(b-prgrms.can_update,USERID(ldbname(1)))
             THEN v-can-update = YES.
-      IF NOT v-can-create AND CAN-DO(b-prgrms.can_create,USERID("NOSWEAT"))
+      IF NOT v-can-create AND CAN-DO(b-prgrms.can_create,USERID(ldbname(1)))
             THEN v-can-create = YES.
-      IF NOT v-can-delete AND CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT"))
+      IF NOT v-can-delete AND CAN-DO(b-prgrms.can_delete,USERID(ldbname(1)))
             THEN v-can-delete = YES.
   END.
 END. 

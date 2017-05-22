@@ -1367,6 +1367,7 @@ PROCEDURE final-steps :
     BUFFER-COPY b-tt-rctd TO rm-rctd
     ASSIGN
      rm-rctd.r-no        = v-int
+     rm-rctd.po-no       = ""
      b-tt-rctd.r-no      = rm-rctd.r-no
      b-tt-rctd.has-rec   = YES
      b-tt-rctd.rm-row-id = ROWID(rm-rctd).    

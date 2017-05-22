@@ -1,0 +1,32 @@
+FOR EACH usersman NO-LOCK WHERE  usersman.user_id EQ users.user_id AND  usersman.company EQ cocode,    FIRST sman NO-LOCK WHERE    sman.company EQ usersman.company AND    sman.sman EQ usersman.sman AND    TRUE
+sman,sname
+
+Indexed: sman,sname
+Non-Idx: sman_default
+
+Generated 04.19.2017 @  2:31:49 pm by: asi
+Table: usersman - Records: 1
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: sman
+         Field: user_id
+         Field: company
+         Field: sman
+
+Table: sman - Records: 85
+
+    Index: rec_key
+         Field: rec_key
+
+    Index: sman
+         Field: company
+         Field: sman
+
+    Index: sname
+         Field: company
+         Field: sname
+
+    Index: wi-sname
+         Field: sname

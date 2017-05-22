@@ -1,0 +1,388 @@
+{
+  "SerializedType": "Consultingwerk.Framework.TypeDescriptor.ClassAnnotationContainer",
+  "ClassName": "Consultingwerk.SmartFramework.Repository.Class.AttributeValueBusinessEntity",
+  "TimeStamp": "2016-12-30T01:08:13.329+01:00",
+  "Methods": [
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "FetchObjectInstanceAttributes",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.ISerializable"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "FetchObjectMasterAttributes",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.ISerializable"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "GetObjectInstanceDesignAttributes",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template",
+              "Value": "invoke-receive-dataset"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.SmartFramework.Repository.Class.GetObjectInstanceDesignAttributesParameter"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "GetObjectMasterDesignAttributes",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template",
+              "Value": "invoke-receive-dataset"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.SmartFramework.Repository.Class.GetObjectMasterDesignAttributesParameter"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "GetObjectTypeDesignAttributes",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template",
+              "Value": "invoke-receive-dataset"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.SmartFramework.Repository.Class.GetObjectTypeDesignAttributesParameter"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "GetObjectMasterAttributeValue",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template",
+              "Value": "invoke-receive-dataset"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.SmartFramework.Repository.Class.GetObjectMasterAttributeValueParameter"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "false"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "GetObjectMasterDesignAttribute",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template",
+              "Value": "invoke-receive-dataset"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.SmartFramework.Repository.Class.GetObjectMasterDesignAttributeParameter"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "GetObjectTypeDesignAttribute",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template",
+              "Value": "invoke-receive-dataset"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.SmartFramework.Repository.Class.GetObjectTypeDesignAttributeParameter"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "StoreObjectMasterAttributes",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.ISerializable"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "StoreObjectInstanceDesignAttributes",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template",
+              "Value": "invoke-receive-dataset"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.SmartFramework.Repository.Class.StoreObjectInstanceDesignAttributeParameter"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "StoreObjectMasterDesignAttributes",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template",
+              "Value": "invoke-receive-dataset"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.SmartFramework.Repository.Class.StoreObjectMasterDesignAttributeParameter"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "StoreObjectTypeDesignAttributes",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template",
+              "Value": "invoke-receive-dataset"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.SmartFramework.Repository.Class.StoreObjectTypeDesignAttributeParameter"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

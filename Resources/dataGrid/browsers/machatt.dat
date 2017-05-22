@@ -1,0 +1,39 @@
+FOR EACH mach-attach NO-LOCK WHERE mach-attach.company EQ cocode,  EACH mach-attach-pat OF mach-attach
+att-dscr,att-type,m-code,style
+
+Indexed: att-dscr,att-type,m-code,style
+Non-Idx: priorityLevel
+
+Generated 04.18.2017 @ 12:50:58 am by: nosweat
+Table: mach-attach - Records: 28
+
+    Index: att-dscr
+         Field: company
+         Field: att-dscr
+
+    Index: m-code
+         Field: company
+         Field: m-code
+         Field: att-type
+
+    Index: mach-attach
+         Field: company
+         Field: att-type
+         Field: m-code
+         Field: style
+
+    Index: style
+         Field: company
+         Field: style
+         Field: att-type
+
+Table: mach-attach-pat - Records: 28
+
+    Index: mach-attach
+         Field: company
+         Field: att-type
+         Field: m-code
+         Field: style
+
+    Index: rec_key
+         Field: rec_key

@@ -1,5 +1,18 @@
 /* nosweat.p */
 
+    &SCOPED-DEFINE loginProcedure nosweat/login.w
+    &SCOPED-DEFINE checkUserRecord YES
+    &SCOPED-DEFINE connectDatabases YES
+    &SCOPED-DEFINE runAsiLoad YES
+    &SCOPED-DEFINE createSingleUserPFs YES
+    &SCOPED-DEFINE execProgram mainmenu.    
+    &SCOPED-DEFINE checkExpiredLicense YES
+    &GLOBAL-DEFINE checkUserCount YES
+   
+{nosweat.i}
+
+
+/*
 &IF DEFINED(execProgram) EQ 0 &THEN
 &SCOPED-DEFINE execProgram mainmenu.
 &ENDIF
@@ -8,15 +21,14 @@
 {methods/defines/hndldefs.i &NEW="NEW"}
 
 DEFINE NEW SHARED        VARIABLE quit_login      AS LOGICAL   NO-UNDO.
-DEFINE                   VARIABLE m_id            LIKE NOSWEAT._user._userid NO-UNDO.
+DEFINE                   VARIABLE m_id            AS CHAR NO-UNDO.
 DEFINE                   VARIABLE ldummy          AS LOGICAL   NO-UNDO.
 DEFINE                   VARIABLE i               AS INTEGER   NO-UNDO.
 DEFINE                   VARIABLE cEulaFile       AS CHARACTER NO-UNDO.
 DEFINE                   VARIABLE cEulaVersion    AS CHARACTER NO-UNDO.
 DEFINE                   VARIABLE lEulaAccepted   AS LOGICAL   NO-UNDO.
-
+DEFINE                   VARIABLE lExit           AS LOGICAL   NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g-sharpshooter  AS LOG       NO-UNDO.  /* no, it's yes only from sharpsh.p */
-
 
 g-sharpshooter = NO.
 
@@ -28,16 +40,16 @@ m_id = OS-GETENV("opsysid").
 
 IF m_id = ? THEN m_id = "".
 
-IF NOT SETUSERID(m_id,"","NOSWEAT") OR m_id EQ "" THEN
+IF NOT SETUSERID(m_id,"",ldbname(1)) OR m_id EQ "" THEN
     RUN nosweat/login.w.
 
-IF USERID("NOSWEAT") = "" OR quit_login  THEN
+IF USERID(ldbname(1)) = "" OR quit_login  THEN
 DO:
     ldummy = SESSION:SET-WAIT-STATE("").
     QUIT.
 END.
 
-FIND users WHERE users.user_id = USERID("NOSWEAT") NO-LOCK NO-ERROR.
+FIND users WHERE users.user_id = USERID(ldbname(1)) NO-LOCK NO-ERROR.
 IF NOT AVAILABLE users THEN
 DO:     
     ldummy = SESSION:SET-WAIT-STATE("").
@@ -73,13 +85,14 @@ END.
   Load program & lookup data 
   =========*/
 
-IF USERID("nosweat") = "ASI" OR USERID("nosweat") = "NOSWEAT" THEN RUN asiload.p.
+IF USERID(ldbname(1)) = "ASI" OR USERID(ldbname(1)) = "NOSWEAT" THEN RUN asiload.p.
 
 RUN chkdate.p.
 cEulaFile = SEARCH("Eula.txt").
   
-IF CONNECTED("NOSWEAT") THEN
+IF CONNECTED(ldbname(1)) THEN
 DO:
+    /*
     lEulaAccepted = NO.
     IF cEulaFile NE ? THEN 
     DO:
@@ -93,17 +106,21 @@ DO:
           
     IF NOT lEulaAccepted THEN 
         QUIT.
-    
-    RUN system/checkExpiredLicense.p.
+    */
+
             
     RUN createSingleUserPFs.
     {methods/setdevid.i}
     RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
     RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
+    /*RUN system/userLogin.p (OUTPUT lExit).
+    IF lExit THEN 
+        QUIT. */
+    RUN system/checkExpiredLicense.p.    
     RUN Get_Procedure IN Persistent-HANDLE ("user_dir.",OUTPUT run-proc,YES).
     g_groups = "". /* YSK need to reset */
     FOR EACH usergrps NO-LOCK:
-        IF CAN-DO(usergrps.users,USERID("NOSWEAT")) THEN
+        IF CAN-DO(usergrps.users,USERID(ldbname(1))) THEN
             g_groups = g_groups + usergrps.usergrps + ",".  /* YSK "," added  */
     END.
   
@@ -133,3 +150,4 @@ PROCEDURE createSingleUserPFs:
         OUTPUT CLOSE.
     END. /* do i */
 END PROCEDURE.
+*/

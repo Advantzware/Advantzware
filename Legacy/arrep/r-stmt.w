@@ -1732,9 +1732,9 @@ IF is-xprint-form THEN DO:
         END.        
         WHEN 5 THEN DO:
             IF NOT tb_BatchMail:CHECKED IN FRAME {&FRAME-NAME} THEN
-               PUT "<PREVIEW><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(80)".              
+               PUT "<PREVIEW><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".              
             ELSE
-               PUT "<PREVIEW=PDF><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(80)".
+               PUT "<PREVIEW=PDF><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
         END.
    END CASE.
    PUT "</PROGRESS>".
@@ -2548,7 +2548,7 @@ IF is-xprint-form THEN DO:
               PUT UNFORMATTED "<PRINT=NO><EXPORT=" Ls-fax-file ",BW></PROGRESS>".
         END.        
         WHEN 5 THEN DO:
-            PUT "<PDF=DIRECT><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(80)".              
+            PUT "<PDF=DIRECT><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".              
         END.
    END CASE.
    PUT "</PROGRESS>".
@@ -3272,9 +3272,9 @@ IF is-xprint-form THEN DO:
         END.        
         WHEN 5 THEN DO:
             IF NOT tb_BatchMail:CHECKED IN FRAME {&FRAME-NAME} THEN
-               PUT "<PREVIEW><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(80)".              
+               PUT "<PREVIEW><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".              
             ELSE
-               PUT "<PREVIEW=PDF><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(80)".
+               PUT "<PREVIEW=PDF><PDF-LEFT=3mm><PDF-TOP=2mm><PDF-OUTPUT=" + list-name + ".pdf>" FORM "x(180)".
         END.
    END CASE.
    PUT "</PROGRESS>".

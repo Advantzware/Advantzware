@@ -109,12 +109,12 @@ DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
 
 ASSIGN cTextListToSelect = "Rep,Cust#,Line Due Dt,Rel Due Dt,Cust Part#,Item Description,FG Item #," +
                            "Order#,CAD#,PO#,Order Qty,Qty OnHand,Qty Shippd,Qty ActRel," +
-                           "Qty WIP,Qty Avail,Unit,Pallet"
+                           "Qty WIP,Qty Avail,Unit,Pallet,Order Value,Ack Date"
        cFieldListToSelect = "rep,cust,l-due-dt,r-due-dt,cust-prt,itm-dscr,fg-itm," +
                             "ord,cad,po,ord-qty,qty-oh,qty-shp,qty-act," +
-                            "qty-wip,qty-avl,est-unt,est-palt"
-       cFieldLength = "3,8,11,10,15,30,20," + "6,14,10,10,10,10,10," + "10,10,5,6"
-       cFieldType = "c,c,c,c,c,c,c," + "c,c,c,i,i,i,i," + "i,i,i,i" 
+                            "qty-wip,qty-avl,est-unt,est-palt,ord-value,ack-date"
+       cFieldLength = "3,8,11,10,15,30,20," + "6,14,10,10,10,10,10," + "10,10,5,6,15,8"
+       cFieldType = "c,c,c,c,c,c,c," + "c,c,c,i,i,i,i," + "i,i,i,i,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -2195,6 +2195,7 @@ DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE VARIABLE dOrdVal AS DECIMAL FORMAT "->>,>>>,>>9.99" NO-UNDO.
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.

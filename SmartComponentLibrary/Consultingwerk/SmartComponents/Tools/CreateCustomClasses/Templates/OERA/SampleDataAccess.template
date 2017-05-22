@@ -1,0 +1,31 @@
+/*------------------------------------------------------------------------
+    File        : &2DataAccess
+    Purpose     : 
+    Syntax      : 
+    Description : 
+    Author(s)   : &3
+    Created     : Sun Aug 07 21:00:55 CEST 2011
+    Notes       : 
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+USING Consultingwerk.OERA.* FROM PROPATH .
+USING Progress.Lang.*       FROM PROPATH .
+
+CLASS &1.&2DataAccess 
+    INHERITS DataAccess 
+    USE-WIDGET-POOL 
+    ABSTRACT: 
+		
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor of the &2DataAccess class                                                                        
+        Notes:   Requires to pass a valid dataset handle                                                                        
+        @param phDataset The handle of the Business Entity dataset 
+    ------------------------------------------------------------------------------*/
+	CONSTRUCTOR PUBLIC &2DataAccess (phDataset AS HANDLE):
+		SUPER (INPUT phDataset).
+		
+	END CONSTRUCTOR.
+
+END CLASS.

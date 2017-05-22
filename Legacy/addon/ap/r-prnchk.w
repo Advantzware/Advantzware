@@ -1175,7 +1175,7 @@ do on error undo outers, leave outers :
 /*          END.                                                                                                               */
           WHEN 5 THEN do:
               gcPDFFile = init-dir + "\RemitRun.pdf".
-              PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + gcPdfFile + ">" FORM "x(100)".
+              PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + gcPdfFile + ">" FORM "x(180)".
 
           END.
         END CASE.

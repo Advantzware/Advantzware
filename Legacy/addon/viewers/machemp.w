@@ -278,7 +278,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: EMPTRACK.machemp
+   External Tables: machemp
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -384,7 +384,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -451,13 +451,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_shift V-table-Win
 ON LEAVE OF fi_shift IN FRAME F-Main /* Shift */
 DO:
+  {&methods/lValidateError.i YES}
   IF LASTKEY NE -1 THEN DO:
     {methods/entryerr.i
         &can-find="FIRST shifts WHERE shifts.company = gcompany
                                   AND shifts.shift = SELF:SCREEN-VALUE"
         &error-message="Invalid Shift"}
   END.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -486,7 +489,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -568,7 +571,7 @@ PROCEDURE enable-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   
+
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE fi_shift.
   END.

@@ -2069,7 +2069,7 @@ PROCEDURE valid-mach :
   DEFINE BUFFER bf-ef FOR ef.
   
 
-  {sys/inc/cepanel.i}
+/*  {sys/inc/cepanel.i} - deprecated with 17756*/
 
   RUN is-it-foam.
 
@@ -2167,7 +2167,9 @@ PROCEDURE valid-mach :
 
         ASSIGN cMachType = IF AVAILABLE mach THEN mach.p-type ELSE "" 
                dMachMaxLen = IF AVAILABLE mach THEN mach.max-len ELSE 0 
-               dMachMaxWid = IF AVAILABLE mach THEN mach.max-wid ELSE 0.
+               dMachMaxWid = IF AVAILABLE mach THEN mach.max-wid ELSE 0
+               qty = lv-eqty. /*20108 - qty variable needed for mach-seq.i->mach-qty.p setting equal to selected routing qty*/
+                 
 
         IF lv-dept EQ "RC" THEN DO:
           xcal = sh-dep.

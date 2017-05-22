@@ -330,7 +330,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -373,7 +373,7 @@ DO:
          OTHERWISE DO:
             lv-handle = focus:handle.
             run applhelp.p.
-             
+
             if g_lookup-var <> "" then do:
                lv-handle:screen-value = g_lookup-var.
             end.  
@@ -392,6 +392,7 @@ END.
 ON LEAVE OF ar-inv.curr-code[1] IN FRAME F-Main /* Currency Code */
 DO:
    IF LASTKEY = -1 THEN RETURN.
+   {&methods/lValidateError.i YES}
    FIND FIRST currency WHERE currency.company = g_company 
                           AND currency.c-code = SELF:SCREEN-VALUE 
                           NO-LOCK NO-ERROR.
@@ -401,7 +402,9 @@ DO:
        MESSAGE "Invalid Currency Code. Try Help. " VIEW-AS ALERT-BOX.
        RETURN NO-APPLY.
    END.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -449,6 +452,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-inv.inv-date V-table-Win
 ON LEAVE OF ar-inv.inv-date IN FRAME F-Main /* Invoice Date */
 DO:
+    {&methods/lValidateError.i YES}
     IF DATE(ar-inv.inv-date:SCREEN-VALUE) > TODAY THEN DO:
         MESSAGE "Invoice Date is Past Today, Continue?" VIEW-AS ALERT-BOX WARNING BUTTON YES-NO
                       UPDATE ll-ans AS LOG.
@@ -457,7 +461,9 @@ DO:
     END.
     {ar/invduedt.i}  /* recalc due-date */
     lv-due-calckt = YES.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -483,6 +489,7 @@ END.
 ON LEAVE OF ar-inv.ship-id IN FRAME F-Main /* Ship-To# */
 DO:
    IF LASTKEY = -1 THEN RETURN.
+   {&methods/lValidateError.i YES}
    FIND FIRST shipto WHERE shipto.company = g_company 
                        AND shipto.cust-no = ar-inv.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
                        AND shipto.ship-id = ar-inv.ship-id:SCREEN-VALUE                
@@ -492,8 +499,9 @@ DO:
       RETURN NO-APPLY.
    END.
    ship_name:SCREEN-VALUE = shipto.ship-name.
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -504,9 +512,11 @@ END.
 ON LEAVE OF ar-inv.tax-code IN FRAME F-Main /* Tax Code */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+    {&methods/lValidateError.i YES}
     {VALIDATE/stax.i ar-inv.tax-code}
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -526,6 +536,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ar-inv.terms V-table-Win
 ON LEAVE OF ar-inv.terms IN FRAME F-Main /* Terms Code */
 DO:
+    {&methods/lValidateError.i YES}
     FIND FIRST terms WHERE terms.t-code = ar-inv.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-LOCK NO-ERROR.
     IF NOT AVAIL terms THEN DO:
        MESSAGE "Invalid Terms. Try Help. " VIEW-AS ALERT-BOX ERROR.
@@ -534,7 +545,9 @@ DO:
 
     {ar/invduedt.i}  /* recalc due-date */
     lv-due-calckt = YES.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -549,6 +562,7 @@ DO:
   RUN new-terms.
 
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 
   DO li = 1 TO LENGTH(TRIM({&self-name}:SCREEN-VALUE)):
     APPLY "cursor-right" TO {&self-name}.
@@ -569,7 +583,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -684,7 +698,7 @@ PROCEDURE local-assign-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
   ar-inv.f-bill = ar-inv.freight GT 0.
 
@@ -744,7 +758,7 @@ PROCEDURE local-assign-record :
   FIND FIRST ar-invl EXCLUSIVE-LOCK
       WHERE ar-invl.x-no EQ ar-inv.x-no NO-ERROR.
   IF AVAIL ar-invl THEN DO:
-      
+
       ASSIGN ar-invl.inv-no = ar-inv.inv-no.         
 
   END.
@@ -870,6 +884,7 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   DO WITH FRAME {&FRAME-NAME}:
+     {&methods/lValidateError.i YES}
      {VALIDATE/stax.i ar-inv.tax-code}
      FIND FIRST shipto WHERE shipto.company = g_company 
                        AND shipto.cust-no = ar-inv.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -895,11 +910,12 @@ PROCEDURE local-update-record :
             APPLY "entry" TO ar-inv.inv-date.
             RETURN NO-APPLY.
         END.
+      {&methods/lValidateError.i NO}
     END.
 
     RUN valid-due-date NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+    {&methods/lValidateError.i YES}
     IF NOT lv-due-calckt THEN DO: {ar/invduedt.i}  /* recalc due-date */
     END.
      FIND FIRST currency WHERE currency.company = g_company 
@@ -914,14 +930,14 @@ PROCEDURE local-update-record :
        RETURN NO-APPLY.
      END.
   END.
-
+  {&methods/lValidateError.i YES}
   /* gdm - 02270909*/
   IF STRING(v-oldinv) NE ar-inv.inv-no:SCREEN-VALUE THEN
   DO:
      RUN valid-inv-no NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
-
+  {&methods/lValidateError.i NO}
   /* ======= end validation========*/
 
   ll-new-record = adm-new-record.
@@ -936,7 +952,7 @@ PROCEDURE local-update-record :
      RUN auto-line-add IN WIDGET-HANDLE(char-hdl).
   END.
   lv-due-calckt = NO.
-  
+
   /* task 02150601 */
   FOR EACH bARInvl WHERE bARInvl.company EQ ar-inv.company
                      AND bARInvl.inv-no EQ ar-inv.inv-no:
@@ -945,6 +961,8 @@ PROCEDURE local-update-record :
   END. /* each barinvl */
 
 END PROCEDURE.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1133,6 +1151,7 @@ PROCEDURE valid-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
      ar-inv.cust-no:SCREEN-VALUE = CAPS(ar-inv.cust-no:SCREEN-VALUE).
 
@@ -1146,6 +1165,7 @@ PROCEDURE valid-cust-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1159,6 +1179,7 @@ PROCEDURE valid-due-date :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DATE(ar-inv.due-date:SCREEN-VALUE) LT DATE(ar-inv.inv-date:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(ar-inv.due-date:LABEL) + " may not be before " +
@@ -1169,6 +1190,7 @@ PROCEDURE valid-due-date :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1187,6 +1209,7 @@ PROCEDURE valid-inv-no :
   DEF BUFFER b-ar-invl FOR ar-invl.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF INT(ar-inv.inv-no:SCREEN-VALUE) LE 0 THEN
       lv-msg = "may not be zero".
@@ -1212,6 +1235,7 @@ PROCEDURE valid-inv-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

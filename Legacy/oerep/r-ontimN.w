@@ -48,6 +48,11 @@ DEFINE TEMP-TABLE tt-date-reasons
     FIELD reason-code AS CHARACTER
     FIELD occurrences AS INTEGER.
 
+DEFINE TEMP-TABLE ttgroup
+    FIELD group-name AS CHARACTER
+    FIELD deliver    AS INTEGER
+    FIELD ontime     AS INTEGER .
+
 DEFINE STREAM excel.
 
 DEFINE VARIABLE ldummy AS LOG NO-UNDO.
@@ -1306,6 +1311,7 @@ FORMAT HEADER
        SKIP
     WITH FRAME r-top.
 EMPTY TEMP-TABLE tt-date-reasons.
+EMPTY TEMP-TABLE ttgroup .
 ASSIGN
  str-tit2 = c-win:TITLE
  str-tit3 = "By Customer"
@@ -1418,6 +1424,7 @@ SESSION:SET-WAIT-STATE ("general").
          v-sqft = IF AVAILABLE itemfg THEN itemfg.t-sqft ELSE 0.
          v-msf = (oe-boll.qty * v-sqft )/ 1000. 
 
+
       IF FIRST-OF(oe-ord.cust-no) THEN DO:
         FIND FIRST cust
             WHERE cust.company EQ cocode
@@ -1449,6 +1456,24 @@ SESSION:SET-WAIT-STATE ("general").
           END.
           tt-date-reasons.occurrences = tt-date-reasons.occurrences + 1.
       END.
+
+      FIND FIRST ttgroup NO-LOCK
+           WHERE ttgroup.group-name EQ (IF AVAILABLE cust THEN  STRING(cust.spare-char-2) ELSE "") NO-ERROR.
+
+      IF NOT AVAIL ttgroup THEN DO:
+          CREATE ttgroup .
+          ASSIGN ttgroup.group-name = (IF AVAILABLE cust THEN  STRING(cust.spare-char-2) ELSE "").
+                 ttgroup.deliver    = 1 .
+                 IF oe-bolh.bol-date LE v-compare-dt THEN
+                     ttgroup.ontime     =  1 .
+      END.
+      ELSE DO:
+                 ttgroup.deliver    = ttgroup.deliver + 1 .
+                 IF oe-bolh.bol-date LE v-compare-dt THEN
+                     ttgroup.ontime     =ttgroup.ontime + 1 .
+      END.
+
+
 
       ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1616,6 +1641,18 @@ SESSION:SET-WAIT-STATE ("general").
                     WITH FRAME f-occurrences WIDTH 132 STREAM-IO.
             END.
         END.
+         PUT SKIP(1) .
+        FOR EACH ttgroup NO-LOCK BY ttgroup.group-name :
+            PUT " Customer Group " + STRING(ttgroup.group-name,"x(8)") + " Grand Totals:"  AT 10 FORMAT "x(40)"
+                SPACE(5)
+                " Deliveries: " + STRING(ttgroup.deliver) FORMAT "x(18)"
+                SPACE(5)
+                "On-Time: " + STRING(ttgroup.ontime)  FORMAT "x(15)"
+                SPACE(5)
+                  STRING(ttgroup.ontime / ttgroup.deliver  * 100,">>9.99%")  FORMAT "x(16)" SKIP .
+        END.
+
+
       END.
     END. /* each oe-ord */
 

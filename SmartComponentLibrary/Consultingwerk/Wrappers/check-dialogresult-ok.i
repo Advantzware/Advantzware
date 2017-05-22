@@ -1,0 +1,1 @@
+{Consultingwerk/check-dialogresult-ok.i {1} {2}} .

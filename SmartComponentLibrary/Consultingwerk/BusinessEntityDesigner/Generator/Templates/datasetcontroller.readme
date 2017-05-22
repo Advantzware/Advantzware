@@ -1,0 +1,7 @@
+&1      dataset controller name
+&2      package name
+&3      dataset name
+&4      dataset path
+&5      time stamp
+@USER@  the current user name
+@USERID@      the current user id

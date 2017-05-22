@@ -1,0 +1,37 @@
+FOR EACH contact NO-LOCK
+contact-title,cust-name,cust-no,first-name,last-name,ship-id
+
+Indexed: cust-no,first-name,last-name,ship-id
+Non-Idx: contact-title,cust-name,maillist
+
+Generated 04.19.2017 @  3:33:45 am by: nosweat
+Table: contact - Records: 0
+
+    Index: pi-contact
+         Field: company
+         Field: cust-no
+         Field: ship-id
+         Field: last-name
+         Field: first-name
+         Field: middle-initial
+
+    Index: si-location
+         Field: company
+         Field: contact-loc
+
+    Index: si-name
+         Field: company
+         Field: last-name
+         Field: first-name
+         Field: middle-initial
+
+    Index: si-rec_key
+         Field: rec_key
+
+    Index: si-sman
+         Field: company
+         Field: sman
+
+    Index: si-type
+         Field: company
+         Field: type

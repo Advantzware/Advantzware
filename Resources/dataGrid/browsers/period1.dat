@@ -1,0 +1,17 @@
+FOR EACH period OF company NO-LOCK
+yr,pnum,pst
+
+Indexed: yr,pnum,pst
+Non-Idx: pend,pstat
+
+Generated 04.19.2017 @  2:35:24 pm by: asi
+Table: period - Records: 264
+
+    Index: period
+         Field: company
+         Field: yr
+         Field: pst
+         Field: pnum
+
+    Index: rec_key
+         Field: rec_key

@@ -1,0 +1,94 @@
+{
+  "SerializedType": "Consultingwerk.Framework.TypeDescriptor.ClassAnnotationContainer",
+  "ClassName": "Consultingwerk.SmartFramework.System.RelationBusinessEntity",
+  "TimeStamp": "2016-09-14T11:50:20.253+02:00",
+  "Annotations": [
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+      "Name": "@BusinessEntityTable",
+      "Parameters": [
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "name",
+          "Value": "eSmartRelation"
+        },
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "MandatoryColumns",
+          "Value": "RelationName"
+        },
+        {
+          "SerializedType": "Consultingwerk.NameValuePair",
+          "Name": "DefaultSort",
+          "Value": "BY eSmartRelation.RelationName"
+        }
+      ]
+    }
+  ],
+  "Methods": [
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "CreateMissingDatabaseRelations",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template",
+              "Value": "invoke-receive-dataset"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.SmartFramework.System.GetMissingDatabaseRelationsParameter"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableClassMemberAnnotation",
+      "Name": "GetMissingDatabaseRelations",
+      "Annotations": [
+        {
+          "SerializedType": "Consultingwerk.Framework.TypeDescriptor.SerializableAnnotation",
+          "Name": "@InvokeMethod",
+          "Parameters": [
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "template",
+              "Value": "invoke-receive-dataset"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "parameterClassName",
+              "Value": "Consultingwerk.SmartFramework.System.GetMissingDatabaseRelationsParameter"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetInput",
+              "Value": "false"
+            },
+            {
+              "SerializedType": "Consultingwerk.NameValuePair",
+              "Name": "datasetOutput",
+              "Value": "true"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

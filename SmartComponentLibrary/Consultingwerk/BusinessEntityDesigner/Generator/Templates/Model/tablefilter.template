@@ -1,0 +1,43 @@
+/*------------------------------------------------------------------------
+    File        : &1
+    Purpose     : Filter class for the &3 
+    Syntax      : 
+    Description : 
+    Author(s)   : @USER@
+    Created     : @DATE@
+    Notes       : 
+  ----------------------------------------------------------------------*/
+
+ROUTINE-LEVEL ON ERROR UNDO, THROW.
+
+USING Consultingwerk.*                                                  FROM PROPATH . 
+USING Consultingwerk.Assertion.*                                        FROM PROPATH . 
+USING Consultingwerk.OERA.*                                             FROM PROPATH . 
+USING Consultingwerk.OERA.ModelFilter.*                                 FROM PROPATH .
+USING &2.* FROM PROPATH .  
+USING Progress.Lang.*                                                   FROM PROPATH .
+
+@FILEANNOTATION@
+
+CLASS &2.&1
+    INHERITS TableModelFilter: 
+
+    DEFINE PRIVATE VARIABLE oTableModel AS &3_Generated NO-UNDO . 
+
+&4
+
+    /*------------------------------------------------------------------------------
+        Purpose: Constructor for the &1 class
+        Notes:   
+        @param poTableModel The reference to the TableModel for this Filter class
+    ------------------------------------------------------------------------------*/
+    CONSTRUCTOR PUBLIC &1 (poTableModel AS &3_Generated):
+        SUPER (poTableModel).
+        
+        ObjectAssert:IsValid (poTableModel, "TableModel":U) .
+        
+        ASSIGN oTableModel = poTableModel.
+        
+    END CONSTRUCTOR.
+
+END CLASS.

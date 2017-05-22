@@ -247,7 +247,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -292,11 +292,11 @@ END.
 /* ***************************  Main Block  *************************** */
 /* {custom/getcmpny.i} */
 
-  
+
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -348,9 +348,9 @@ DO WITH FRAME {&FRAME-NAME}:
   gvhToggleHandles[8] = tgValue8:HANDLE.
   gvhToggleHandles[9] = tgValue9:HANDLE.
   gvhToggleHandles[10] = tgValue10:HANDLE.
-  
-    
-  
+
+
+
   cNk1CurrentValues = TRIM(cNK1CurrentValues).
   cNk1CurrentValues = TRIM(cNK1CurrentValues,",").
   DO i = 1 TO 10:
@@ -406,7 +406,7 @@ DEF VAR v-flg AS LOG INIT YES NO-UNDO.
 /*   ASSIGN                                                                      */
 /*       v-secure = NO                                                           */
 /*       v-secur  = NO.                                                          */
-      
+
 
 END PROCEDURE.
 
@@ -513,7 +513,7 @@ DEF VAR char-hdl AS CHAR NO-UNDO.
 
   /* Code placed here will execute AFTER standard behavior.    */
 
- 
+
   IF cNK1Code EQ "" THEN DO:   
      run get-link-handle in adm-broker-hdl (this-procedure, "container-source", output char-hdl).  
      IF VALID-HANDLE(widget-handle(char-hdl)) THEN
@@ -589,7 +589,7 @@ PROCEDURE post-enable :
 /*       DISABLE sys-ctrl.log-fld WITH FRAME {&FRAME-NAME}.               */
 /*                                                                        */
 /*   END.                                                                 */
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -688,8 +688,9 @@ PROCEDURE valid-char-fld :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
-  
+
+
+  {methods/lValidateError.i YES}
 /*   DEF VAR thisOne AS CHAR NO-UNDO.                                        */
 /*   DEF VAR comp-char-val AS CHAR NO-UNDO.                                  */
 /*   DEF VAR cEntryTo AS CHAR NO-UNDO.                                       */
@@ -730,7 +731,7 @@ PROCEDURE valid-char-fld :
 
           DO J = 1 TO NUM-ENTRIES(comp-char-val):
               ASSIGN thisOne = ENTRY(j,comp-char-val).          
-     
+
               FIND FIRST company WHERE company.company = thisOne NO-LOCK NO-ERROR.
               IF NOT AVAIL company THEN DO:         
                   MESSAGE   thisOne  "is not a valid company" VIEW-AS ALERT-BOX ERROR.
@@ -753,6 +754,7 @@ PROCEDURE valid-char-fld :
   END.
   */
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -765,8 +767,10 @@ PROCEDURE valid-log-fld :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
  /* {sys/ref/valid-log-fld.i} */
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

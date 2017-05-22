@@ -1,0 +1,20 @@
+FOR EACH emp_type NO-LOCK
+description,emp_type
+
+Indexed: description,emp_type
+Non-Idx: ?
+
+Generated 04.18.2017 @  6:27:16 am by: nosweat
+Table: emp_type - Records: 0
+
+    Index: pi-emp_type
+         Field: emp_type
+
+    Index: si-description
+         Field: description
+
+    Index: si-rec_key
+         Field: rec_key
+
+    Index: wi-description
+         Field: description

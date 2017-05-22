@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<dsGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <eSmartGroup>
+    <GroupGuid>9f0b8fc7-b7ce-19a1-e211-b55f47246bff</GroupGuid>
+    <GroupName>Admin</GroupName>
+    <ParentGroupGuid/>
+    <LoginCompanyGuid/>
+    <ParentGroupName/>
+    <LoginCompanyName/>
+  </eSmartGroup>
+  <eSmartGroup>
+    <GroupGuid>9f0b8fc7-b7ce-19a1-e211-b65f78dd0345</GroupGuid>
+    <GroupName>User</GroupName>
+    <ParentGroupGuid/>
+    <LoginCompanyGuid/>
+    <ParentGroupName/>
+    <LoginCompanyName/>
+  </eSmartGroup>
+  <eSmartGroup>
+    <GroupGuid>9f0b8fc7-b7ce-19a1-e211-b65fd249a841</GroupGuid>
+    <GroupName>Translation</GroupName>
+    <ParentGroupGuid>9f0b8fc7-b7ce-19a1-e211-b55f47246bff</ParentGroupGuid>
+    <LoginCompanyGuid/>
+    <ParentGroupName>Admin</ParentGroupName>
+    <LoginCompanyName/>
+  </eSmartGroup>
+</dsGroup>

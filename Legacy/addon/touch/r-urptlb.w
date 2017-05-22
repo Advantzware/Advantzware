@@ -939,7 +939,7 @@ DEF VAR ll-first-emp     AS LOG                  NO-UNDO.
 DEF VAR v-date           AS DATE                 NO-UNDO.
 DEF VAR v-date-2         AS DATE                 NO-UNDO.
 
-DEF BUFFER bf-employee FOR emptrack.employee.            
+DEF BUFFER bf-employee FOR employee.            
 
 FOR EACH machemp NO-LOCK 
     WHERE machemp.employee   EQ ip-emp 
@@ -1087,7 +1087,7 @@ DEF VAR ll-first-emp     AS LOG                  NO-UNDO.
 DEF VAR v-date           AS DATE                 NO-UNDO.
 DEF VAR v-date-2         AS DATE                 NO-UNDO.
 
-DEF BUFFER bf-employee FOR emptrack.employee.            
+DEF BUFFER bf-employee FOR employee.            
 DEF BUFFER bf-machemp  FOR machemp.                      
 
 
@@ -1316,7 +1316,7 @@ DEF VAR ll-first-emp     AS LOG                  NO-UNDO.
 DEF VAR v-date           AS DATE                 NO-UNDO.
 DEF VAR v-date-2         AS DATE                 NO-UNDO.
 
-DEF BUFFER bf-employee FOR emptrack.employee.
+DEF BUFFER bf-employee FOR employee.
 DEF BUFFER bf-machemp  FOR machemp.
 
 SESSION:SET-WAIT-STATE('general').

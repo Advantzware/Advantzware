@@ -58,18 +58,19 @@ DEF STREAM excel.
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 rd_jstat begin_rm-no end_rm-no ~
-begin_procat end_procat begin_inv-date end_inv-date begin_job-no ~
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 rd_jstat rd_ostat begin_rm-no ~
+end_rm-no begin_procat end_procat begin_inv-date end_inv-date begin_job-no ~
 begin_job-no2 end_job-no end_job-no2 rd-dest lv-ornt lines-per-page ~
 lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS lbl_jstat rd_jstat begin_rm-no end_rm-no ~
-begin_procat end_procat begin_inv-date end_inv-date begin_job-no ~
-begin_job-no2 end_job-no end_job-no2 rd-dest lv-ornt lines-per-page ~
-lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+&Scoped-Define DISPLAYED-OBJECTS lbl_jstat rd_jstat lbl_ostat rd_ostat ~
+begin_rm-no end_rm-no begin_procat end_procat begin_inv-date end_inv-date ~
+begin_job-no begin_job-no2 end_job-no end_job-no2 rd-dest lv-ornt ~
+lines-per-page lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel ~
+fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -153,6 +154,10 @@ DEFINE VARIABLE lbl_jstat AS CHARACTER FORMAT "X(256)":U INITIAL "Job Status?"
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
 
+DEFINE VARIABLE lbl_ostat AS CHARACTER FORMAT "X(256)":U INITIAL "Order Status?" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY .95 NO-UNDO.
+
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
@@ -193,12 +198,20 @@ DEFINE VARIABLE rd_jstat AS CHARACTER INITIAL "All"
 "All", "All"
      SIZE 38 BY 1 NO-UNDO.
 
+DEFINE VARIABLE rd_ostat AS CHARACTER INITIAL "All" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Open", "Open",
+"Closed", "Closed",
+"All", "All"
+     SIZE 38 BY .95 NO-UNDO.
+
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 92 BY 10.
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 92 BY 9.05.
 
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
@@ -222,26 +235,28 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     lbl_jstat AT ROW 2.91 COL 26 COLON-ALIGNED NO-LABEL
-     rd_jstat AT ROW 2.91 COL 41 NO-LABEL
-     begin_rm-no AT ROW 4.33 COL 27 COLON-ALIGNED HELP
+     lbl_jstat AT ROW 2.29 COL 26 COLON-ALIGNED NO-LABEL
+     rd_jstat AT ROW 2.29 COL 41 NO-LABEL
+     lbl_ostat AT ROW 3.48 COL 24 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     rd_ostat AT ROW 3.48 COL 41 NO-LABEL WIDGET-ID 60
+     begin_rm-no AT ROW 4.67 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
-     end_rm-no AT ROW 4.33 COL 69 COLON-ALIGNED HELP
+     end_rm-no AT ROW 4.67 COL 69 COLON-ALIGNED HELP
           "Enter Ending Item Number"
-     begin_procat AT ROW 5.52 COL 27 COLON-ALIGNED HELP
+     begin_procat AT ROW 5.86 COL 27 COLON-ALIGNED HELP
           "Enter Begining Category"
-     end_procat AT ROW 5.52 COL 69 COLON-ALIGNED HELP
+     end_procat AT ROW 5.86 COL 69 COLON-ALIGNED HELP
           "Enter Ending Category"
-     begin_inv-date AT ROW 6.71 COL 27 COLON-ALIGNED
-     end_inv-date AT ROW 6.71 COL 69 COLON-ALIGNED HELP
+     begin_inv-date AT ROW 7.05 COL 27 COLON-ALIGNED
+     end_inv-date AT ROW 7.05 COL 69 COLON-ALIGNED HELP
           "Enter Ending Due Date"
-     begin_job-no AT ROW 7.91 COL 27 COLON-ALIGNED HELP
+     begin_job-no AT ROW 8.24 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 7.91 COL 39 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 8.24 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 7.91 COL 69 COLON-ALIGNED HELP
+     end_job-no AT ROW 8.24 COL 69 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 7.91 COL 81 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 8.24 COL 81 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      rd-dest AT ROW 11.71 COL 4 NO-LABEL
      lv-ornt AT ROW 11.71 COL 31 NO-LABEL
@@ -318,17 +333,7 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
-                                                                        */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
+   FRAME-NAME                                                           */
 ASSIGN 
        begin_inv-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -348,6 +353,14 @@ ASSIGN
 ASSIGN 
        begin_rm-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_inv-date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -379,10 +392,20 @@ ASSIGN
        lbl_jstat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "rd_jstat".
 
+/* SETTINGS FOR FILL-IN lbl_ostat IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_ostat:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_ostat".
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
        rd_jstat:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       rd_ostat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
@@ -403,7 +426,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -699,6 +722,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME rd_ostat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_ostat C-Win
+ON VALUE-CHANGED OF rd_ostat IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
@@ -816,15 +850,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY lbl_jstat rd_jstat begin_rm-no end_rm-no begin_procat end_procat 
-          begin_inv-date end_inv-date begin_job-no begin_job-no2 end_job-no 
-          end_job-no2 rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+  DISPLAY lbl_jstat rd_jstat lbl_ostat rd_ostat begin_rm-no end_rm-no 
+          begin_procat end_procat begin_inv-date end_inv-date begin_job-no 
+          begin_job-no2 end_job-no end_job-no2 rd-dest lv-ornt lines-per-page 
+          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 rd_jstat begin_rm-no end_rm-no begin_procat end_procat 
-         begin_inv-date end_inv-date begin_job-no begin_job-no2 end_job-no 
-         end_job-no2 rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
-         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+  ENABLE RECT-6 RECT-7 rd_jstat rd_ostat begin_rm-no end_rm-no begin_procat 
+         end_procat begin_inv-date end_inv-date begin_job-no begin_job-no2 
+         end_job-no end_job-no2 rd-dest lv-ornt lines-per-page lv-font-no 
+         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -916,12 +950,14 @@ def var v-in-qty  like v-rm-qty NO-UNDO.
 def var v-fg-qty  like v-rm-qty NO-UNDO.
 def var v-diff    like v-rm-qty extent 2 NO-UNDO.
 def var v-waste   AS DECIMAL  format "->>>,>>9.99" NO-UNDO.
+DEFINE VARIABLE cOrdStat  AS   CHARACTER FORMAT "!"          INITIAL "O" NO-UNDO.
 
 assign
  str-tit2 = c-win:title
  {sys/inc/ctrtext.i str-tit2 112}
 
   v-stat    = SUBSTR(rd_jstat,1,1)
+  cOrdStat    = SUBSTR(rd_ostat,1,1)
   v-fdate   = begin_inv-date
   v-tdate   = END_inv-date
 
@@ -1011,6 +1047,16 @@ display with frame r-top.
         no-lock:
 
         {custom/statusMsg.i " 'Processing Job#  '  + job.job-no "}
+        
+        FIND FIRST oe-ordl NO-LOCK
+               WHERE oe-ordl.company EQ cocode
+                 AND oe-ordl.ord-no EQ job-hdr.ord-no 
+                 AND oe-ordl.i-no EQ job-hdr.i-no NO-ERROR.
+         IF AVAILABLE oe-ordl THEN DO:
+             IF cOrdStat EQ "C" AND oe-ordl.stat NE "C" THEN NEXT.
+             ELSE IF cOrdStat EQ "O" AND oe-ordl.stat EQ "C" THEN NEXT.
+             ELSE TRUE.
+         END.
 
       v-job = fill(" ",6 - length(trim(job.job-no))) +
               trim(job.job-no) + "-" + string(job.job-no2,"99").

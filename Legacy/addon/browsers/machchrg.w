@@ -275,14 +275,14 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.machchrg Where ASI.company ..."
+     _TblList          = "machchrg Where ASI.company ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "machchrg.company = mach.company
 AND machchrg.machine = mach.m-code
 AND ~{&KEY-PHRASE}"
-     _FldNameList[1]   > EMPTRACK.machchrg.charge_code
-"EMPTRACK.machchrg.charge_code" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[1]   > machchrg.charge_code
+"machchrg.charge_code" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > "_<CALC>"
 "Job-Code_Cat(machchrg.charge_code) @ job-code_cat" "Cat" "X(3)" ? ? ? ? ? ? ? no ? no no "5" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"

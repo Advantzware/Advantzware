@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsSupportedLink" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eSmartSupportedLink" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eSmartSupportedLinkBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="SupportedLinkGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="ObjectTypeGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="LinkTypeGuid" type="xsd:string" nillable="true" prodata:format="x(36)"/>
+              <xsd:element name="LinkSource" type="xsd:boolean" nillable="true" default="true" prodata:label="Supported as source"/>
+              <xsd:element name="LinkTarget" type="xsd:boolean" nillable="true" default="true" prodata:label="Supported as target"/>
+              <xsd:element name="DeactivateOnHide" type="xsd:boolean" nillable="true" prodata:label="DeactivateLinkOnHide"/>
+              <xsd:element name="LinkName" type="xsd:string" nillable="true" prodata:format="x(80)" prodata:label="Link Name"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="LinkTypeObjectType">
+      <xsd:selector xpath=".//eSmartSupportedLink"/>
+      <xsd:field xpath="LinkTypeGuid"/>
+      <xsd:field xpath="ObjectTypeGuid"/>
+    </xsd:unique>
+    <xsd:unique name="ObjectTypeLinkType">
+      <xsd:selector xpath=".//eSmartSupportedLink"/>
+      <xsd:field xpath="ObjectTypeGuid"/>
+      <xsd:field xpath="LinkTypeGuid"/>
+    </xsd:unique>
+    <xsd:unique name="SupportedLinkGuid" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eSmartSupportedLink"/>
+      <xsd:field xpath="SupportedLinkGuid"/>
+    </xsd:unique>
+  </xsd:element>
+</xsd:schema>

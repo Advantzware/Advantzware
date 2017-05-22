@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- http://confluence.consultingwerkcloud.com/wiki/display/SCL/The+Annotation+based+Type+Descriptor -->
+
+<project name="Extract Class Annotations" basedir=".">
+
+    <taskdef resource="PCT.properties" classpath="/Progress/PCT/ant/lib/PCT.jar" />
+
+    <macrodef name="extractClassAnnotations">
+        <attribute name="directory" default="." />
+        <attribute name="fileMask" default="*BusinessEntity.cls" />
+        <attribute name="excludeAnnotations" default="@Test,@TestIgnore,@BusinessEntityGenerator" />
+        <attribute name="overwriteWriteProtected" default="false" />
+        <attribute name="verbose" default="false" />
+        <attribute name="assemblies" default="Assemblies" />
+        <attribute name="tempDir" default="c:\temp" />
+        <attribute name="cpinternal" default="iso8859-1" />
+        <attribute name="cpstream" default="iso8859-1" />
+        <attribute name="iniFile" default="ini/progress.ini" />
+        <attribute name="buildFiles" default="" />
+        <element name="options" optional="true" />
+        <element name="propathentries" optional="true" />
+
+        <sequential>
+
+            <tempfile property="temp.file" destDir="@{tempDir}" />
+
+            <echo file="${temp.file}">@{buildFiles}</echo>
+
+            <PCTRun
+                procedure="Consultingwerk/Studio/ExtractClassAnnotations/extract-class-annotations.p"
+                graphicalMode="true" dlcHome="${progress.DLC}" cpinternal="@{cpinternal}"
+                cpstream="@{cpstream}" compileUnderscore="true" inputchars="2000000"
+                assemblies="@{assemblies}" iniFile="@{iniFile}" token="4000"
+                tempDir="@{tempDir}">
+
+                <propath>
+                    <pathelement path="." />
+                    <propathentries />
+                </propath>
+
+                <options />
+
+                <Parameter name="directory" value="@{directory}" />
+                <Parameter name="fileMask" value="@{fileMask}" />
+                <Parameter name="excludeAnnotations" value="@{excludeAnnotations}" />
+                <Parameter name="overwriteWriteProtected" value="@{overwriteWriteProtected}" />
+                <Parameter name="verbose" value="@{verbose}" />
+                <Parameter name="buildFiles" value="${temp.file}" />
+            </PCTRun>
+
+            <delete file="${temp.file}" />
+
+        </sequential>
+    </macrodef>
+
+</project>

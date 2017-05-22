@@ -1039,18 +1039,18 @@ DO:
           VIEW-AS ALERT-BOX ERROR.
       RETURN NO-APPLY.
     END.
-    IF NOT AVAILABLE emptrack.timesheet THEN
+    IF NOT AVAILABLE timesheet THEN
     DO:
         MESSAGE "No Time Sheet Record available." VIEW-AS ALERT-BOX ERROR.
         RETURN NO-APPLY.
     END.
     
-    FIND CURRENT emptrack.timesheet EXCLUSIVE-LOCK NO-ERROR.
-    IF AVAILABLE emptrack.timesheet THEN
+    FIND CURRENT timesheet EXCLUSIVE-LOCK NO-ERROR.
+    IF AVAILABLE timesheet THEN
     DO:
-      ASSIGN EMPTRACK.TimeSheet.ApprovedBy = LvEmployee:screen-value
-          EMPTRACK.TimeSheet.ApprovedOn = TODAY.
-      RELEASE EmpTrack.TImesheet.
+      ASSIGN TimeSheet.ApprovedBy = LvEmployee:screen-value
+          TimeSheet.ApprovedOn = TODAY.
+      RELEASE TImesheet.
       RUN PROCESS(INPUT NO).
     END.
   END.
@@ -1299,13 +1299,13 @@ DO:
 
     ASSIGN WeekendingDate LvEmployee .
     
-    CREATE EmpTrack.TimeSheet.
+    CREATE TimeSheet.
     ASSIGN 
-      EMPTRACK.TimeSheet.WeekEnding = WeekEndingDate
-      EMPTRACK.TimeSheet.employee  = employee.employee
-      EMPTRACK.TimeSheet.SubmittedBy = LvEmployee
-      EMPTRACK.TimeSheet.SubmittedOn = TODAY
-      emptrack.Timesheet.notes = LvNotes:SCREEN-VALUE.
+      TimeSheet.WeekEnding = WeekEndingDate
+      TimeSheet.employee  = employee.employee
+      TimeSheet.SubmittedBy = LvEmployee
+      TimeSheet.SubmittedOn = TODAY
+      Timesheet.notes = LvNotes:SCREEN-VALUE.
 
     DO j = 1 TO 7 :
       ASSIGN 
@@ -1321,7 +1321,7 @@ DO:
       .
 
     END.
-    RELEASE EmpTrack.TImesheet.
+    RELEASE TImesheet.
 
     RUN PROCESS(INPUT YES).
   END.                   
@@ -2548,22 +2548,22 @@ DO WITH FRAME {&FRAME-NAME} :
     END.
 
     ASSIGN LvNotes:SCREEN-VALUE = timesheet.notes.
-    IF EMPTRACK.TimeSheet.ApprovedBy <> "" THEN
+    IF TimeSheet.ApprovedBy <> "" THEN
     DO:
       ASSIGN BtnApprove:SENSITIVE = FALSE.
 
       FIND FIRST buf-employee NO-LOCK WHERE
            buf-employee.company EQ cocode AND
-           buf-employee.employee = EMPTRACK.TimeSheet.ApprovedBy
+           buf-employee.employee = TimeSheet.ApprovedBy
            NO-ERROR.
 
       IF AVAILABLE buf-employee THEN
       ASSIGN LvStatus:SCREEN-VALUE = "Time Sheet Approved By " +  buf-employee.FIRST_name + " " + buf-employee.last_name +
-                                     " On: " + STRING(EMPTRACK.TimeSheet.ApprovedOn).
+                                     " On: " + STRING(TimeSheet.ApprovedOn).
       ELSE
-      ASSIGN LvStatus:SCREEN-VALUE = "Time Sheet Approved By " +  EMPTRACK.TimeSheet.ApprovedBy +
-                                         " On: " + STRING(EMPTRACK.TimeSheet.ApprovedOn).
-      IF EMPTRACK.TimeSheet.ApprovedBy = LvEmployee THEN
+      ASSIGN LvStatus:SCREEN-VALUE = "Time Sheet Approved By " +  TimeSheet.ApprovedBy +
+                                         " On: " + STRING(TimeSheet.ApprovedOn).
+      IF TimeSheet.ApprovedBy = LvEmployee THEN
       ASSIGN BtnDecline:SENSITIVE = TRUE.
 
     END.
@@ -2584,16 +2584,16 @@ DO WITH FRAME {&FRAME-NAME} :
 
       FIND FIRST buf-employee NO-LOCK WHERE
            buf-employee.company EQ cocode AND
-           buf-employee.employee = EMPTRACK.TimeSheet.SubmittedBy
+           buf-employee.employee = TimeSheet.SubmittedBy
            NO-ERROR.
 
       IF AVAILABLE buf-employee THEN
       ASSIGN LvStatus:SCREEN-VALUE = "Timesheet Submitted By " +  buf-employee.FIRST_name + " " + buf-employee.last_name +
-                                     " On: " + STRING(EMPTRACK.TimeSheet.SubmittedOn).
+                                     " On: " + STRING(TimeSheet.SubmittedOn).
       ELSE
-      ASSIGN LvStatus:SCREEN-VALUE = "Timsheet Submitted By " +  EMPTRACK.TimeSheet.SubmittedBy +
-                                         " On: " + STRING(EMPTRACK.TimeSheet.SubmittedOn).
-      IF EMPTRACK.TimeSheet.SubmittedBy = LvEmployee THEN
+      ASSIGN LvStatus:SCREEN-VALUE = "Timsheet Submitted By " +  TimeSheet.SubmittedBy +
+                                         " On: " + STRING(TimeSheet.SubmittedOn).
+      IF TimeSheet.SubmittedBy = LvEmployee THEN
       ASSIGN BtnDecline:SENSITIVE = TRUE.
     END.
   END.

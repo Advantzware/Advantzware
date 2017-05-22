@@ -96,10 +96,10 @@ IF AVAIL itemfg
               AND fg-rcpts.linker    EQ "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999")
               AND fg-rcpts.rita-code NE "set"
             NO-LOCK,
-            EACH b-fg-rctd
-            WHERE b-fg-rctd.company EQ fg-rcpts.company
-              AND b-fg-rctd.r-no    EQ fg-rcpts.r-no
-            NO-LOCK:
+            EACH b-fg-rctd NO-LOCK WHERE b-fg-rctd.company EQ fg-rcpts.company
+                                     AND b-fg-rctd.r-no    EQ fg-rcpts.r-no
+                                   USE-INDEX fg-rctd:
+                                       
           FIND FIRST b-itemfg WHERE b-itemfg.company EQ fg-rctd.company
                AND b-itemfg.i-no EQ b-fg-rctd.i-no 
                NO-LOCK NO-ERROR.

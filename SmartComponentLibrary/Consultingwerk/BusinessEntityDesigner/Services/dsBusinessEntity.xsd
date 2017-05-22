@@ -1,0 +1,302 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="" xmlns:prodata="urn:schemas-progress-com:xml-prodata:0001">
+  <xsd:element name="dsBusinessEntity" prodata:proDataSet="true">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="eBusinessEntity" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eBusinessEntityBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="BusinessEntityName" type="xsd:string" nillable="true"/>
+              <xsd:element name="BusinessEntityPurpose" type="xsd:string" nillable="true"/>
+              <xsd:element name="BusinessEntityDescription" type="xsd:string" nillable="true"/>
+              <xsd:element name="BusinessEntityPackage" type="xsd:string" nillable="true"/>
+              <xsd:element name="DataAccessName" type="xsd:string" nillable="true"/>
+              <xsd:element name="DataAccessPackage" type="xsd:string" nillable="true"/>
+              <xsd:element name="DatasetControllerName" type="xsd:string" nillable="true"/>
+              <xsd:element name="DatasetControllerPackage" type="xsd:string" nillable="true"/>
+              <xsd:element name="DatasetName" type="xsd:string" nillable="true"/>
+              <xsd:element name="DatasetPath" type="xsd:string" nillable="true"/>
+              <xsd:element name="DefaultTablePath" type="xsd:string" nillable="true"/>
+              <xsd:element name="DefaultTablePrefix" type="xsd:string" nillable="true" default="e"/>
+              <xsd:element name="DefaultTableSuffix" type="xsd:string" nillable="true"/>
+              <xsd:element name="DefaultBeforeTablePrefix" type="xsd:string" nillable="true" default="e"/>
+              <xsd:element name="DefaultBeforeTableSuffix" type="xsd:string" nillable="true" default="Before"/>
+              <xsd:element name="GenerateBusinessEntity" type="xsd:boolean" nillable="true" default="true" prodata:label="Generate Business Entity"/>
+              <xsd:element name="GenerateDataAccess" type="xsd:boolean" nillable="true" default="true" prodata:label="Generate Data Access Class"/>
+              <xsd:element name="GenerateDatasetController" type="xsd:boolean" nillable="true" default="true" prodata:label="Generate Dataset Controller"/>
+              <xsd:element name="DistinctTempTableIncludeFiles" type="xsd:boolean" nillable="true" default="true" prodata:label="Use Distinct Include Files for Temp-Table Definition"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eDataRelation" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eDataRelationBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="BusinessEntityName" type="xsd:string" nillable="true"/>
+              <xsd:element name="DataRelationName" type="xsd:string" nillable="true"/>
+              <xsd:element name="ParentTempTableName" type="xsd:string" nillable="true"/>
+              <xsd:element name="ChildTempTableName" type="xsd:string" nillable="true"/>
+              <xsd:element name="RelationFields" type="xsd:string" nillable="true"/>
+              <xsd:element name="DataRelationDescription" type="xsd:string" nillable="true"/>
+              <xsd:element name="DataRelationReposition" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="DataRelationNested" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="DataRelationForeignKeyHidden" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="DataRelationNotActive" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="DataRelationRecursive" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="ChildCardinality" type="xsd:string" nillable="true" default="MANY" prodata:format="X(4)" prodata:label="Child Cardinality"/>
+              <xsd:element name="ChildPropertyName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Child Property Name"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eDataRelationProperties" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eDataRelationPropertiesBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="DataRelationName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Data Relation"/>
+              <xsd:element name="PropertyName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Property Name"/>
+              <xsd:element name="PropertyValue" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Property Value"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eTable" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eTableBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="BusinessEntityName" type="xsd:string" nillable="true"/>
+              <xsd:element name="TempTableName" type="xsd:string" nillable="true"/>
+              <xsd:element name="SourceTableNames" type="xsd:string" nillable="true"/>
+              <xsd:element name="SourceBufferNames" type="xsd:string" nillable="true"/>
+              <xsd:element name="SourceDefaultQuery" type="xsd:string" nillable="true"/>
+              <xsd:element name="SourceBufferKeys" type="xsd:string" nillable="true" prodata:label="Source Buffer Keys"/>
+              <xsd:element name="TempTablePurpose" type="xsd:string" nillable="true"/>
+              <xsd:element name="TempTableDescription" type="xsd:string" nillable="true"/>
+              <xsd:element name="TempTablePath" type="xsd:string" nillable="true"/>
+              <xsd:element name="TempTableBeforeName" type="xsd:string" nillable="true"/>
+              <xsd:element name="LayoutColumn" type="xsd:int" nillable="true" prodata:format=">>>,>>9"/>
+              <xsd:element name="LayoutRow" type="xsd:int" nillable="true" prodata:format=">>>,>>9"/>
+              <xsd:element name="LayoutWidth" type="xsd:int" nillable="true" prodata:format=">>>,>>9"/>
+              <xsd:element name="LayoutHeight" type="xsd:int" nillable="true" prodata:format=">>>,>>9"/>
+              <xsd:element name="NamespaceUri" type="xsd:string" nillable="true"/>
+              <xsd:element name="NamespacePrefix" type="xsd:string" nillable="true"/>
+              <xsd:element name="XmlNodeName" type="xsd:string" nillable="true"/>
+              <xsd:element name="SerializeName" type="xsd:string" nillable="true"/>
+              <xsd:element name="NoBeforeTable" type="xsd:boolean" nillable="true" prodata:label="No Before Table (read-only)"/>
+              <xsd:element name="EntityPackageName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Table Package Name"/>
+              <xsd:element name="EntityClassName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Table Class Name"/>
+              <xsd:element name="DeletedFields" type="xsd:string" nillable="true" prodata:format="X(60)" prodata:label="Deleted Fields"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eField" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eFieldBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="BusinessEntityName" type="xsd:string" nillable="true"/>
+              <xsd:element name="TempTableName" type="xsd:string" nillable="true"/>
+              <xsd:element name="FieldName" type="xsd:string" nillable="true"/>
+              <xsd:element name="FieldOrder" type="xsd:int" nillable="true" prodata:format=">>>,>>9"/>
+              <xsd:element name="FieldDataType" type="xsd:string" nillable="true"/>
+              <xsd:element name="FieldDescription" type="xsd:string" nillable="true"/>
+              <xsd:element name="FieldInitial" type="xsd:string" nillable="true"/>
+              <xsd:element name="FieldInitialUnknownValue" type="xsd:boolean" nillable="true" prodata:label="Initial Value Unknown"/>
+              <xsd:element name="FieldLabel" type="xsd:string" nillable="true"/>
+              <xsd:element name="FieldFormat" type="xsd:string" nillable="true"/>
+              <xsd:element name="FieldSerializeHidden" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="FieldSerializeName" type="xsd:string" nillable="true"/>
+              <xsd:element name="FieldXmlDataType" type="xsd:string" nillable="true"/>
+              <xsd:element name="FieldXmlNodeType" type="xsd:string" nillable="true"/>
+              <xsd:element name="FieldXmlNodeName" type="xsd:string" nillable="true"/>
+              <xsd:element name="FieldSource" type="xsd:string" nillable="true"/>
+              <xsd:element name="FieldExtent" type="xsd:int" nillable="true" prodata:format=">>9"/>
+              <xsd:element name="FieldGetAccess" type="xsd:string" nillable="true" default="PUBLIC" prodata:label="&amp;Get Access"/>
+              <xsd:element name="FieldSetAccess" type="xsd:string" nillable="true" default="PUBLIC" prodata:label="&amp;Set Access"/>
+              <xsd:element name="FieldCalcExpression" type="xsd:string" nillable="true" prodata:format="X(800)" prodata:label="Calc Expression"/>
+              <xsd:element name="FieldCaseSensitive" type="xsd:boolean" nillable="true" prodata:label="Case Sensitive"/>
+              <xsd:element name="FieldCustomControlName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Field Custom Control Name"/>
+              <xsd:element name="FieldValidationInstance" type="xsd:string" nillable="true" prodata:dataType="prodata:clob" prodata:label="Validation Instance"/>
+              <xsd:element name="FieldSemanticType" type="xsd:string" nillable="true" prodata:format="X(20)" prodata:label="Field Semantic Type"/>
+              <xsd:element name="FieldSkipAssignment" type="xsd:boolean" nillable="true" prodata:label="Add field to AssignSkipDictionary"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eFieldProperties" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eFieldPropertiesBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="TempTableName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Temp Table"/>
+              <xsd:element name="FieldName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Field Name"/>
+              <xsd:element name="PropertyName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Property Name"/>
+              <xsd:element name="PropertyValue" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Property Value"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eIndex" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eIndexBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="BusinessEntityName" type="xsd:string" nillable="true"/>
+              <xsd:element name="TempTableName" type="xsd:string" nillable="true"/>
+              <xsd:element name="IndexOrder" type="xsd:int" nillable="true" prodata:format=">>>,>>9"/>
+              <xsd:element name="IndexName" type="xsd:string" nillable="true"/>
+              <xsd:element name="IndexUnique" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="IndexPrimary" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="IndexWordIndex" type="xsd:boolean" nillable="true"/>
+              <xsd:element name="FieldNames" type="xsd:string" nillable="true"/>
+              <xsd:element name="FieldSort" type="xsd:string" nillable="true"/>
+              <xsd:element name="DefaultSearchCodeGeneration" type="xsd:boolean" nillable="true"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eIndexProperties" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eIndexPropertiesBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="TempTableName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Temp Table"/>
+              <xsd:element name="IndexName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Index Name"/>
+              <xsd:element name="PropertyName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Property Name"/>
+              <xsd:element name="PropertyValue" type="xsd:string" nillable="true" prodata:format="X(80)"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eTableProperties" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eTablePropertiesBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="TempTableName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Temp Table Name"/>
+              <xsd:element name="PropertyName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Property Name"/>
+              <xsd:element name="PropertyValue" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Property Value"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="eBusinessEntityProperties" minOccurs="0" maxOccurs="unbounded" prodata:beforeTable="eBusinessEntityPropertiesBefore">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="PropertyName" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Property Name"/>
+              <xsd:element name="PropertyValue" type="xsd:string" nillable="true" prodata:format="X(80)" prodata:label="Property Value"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+    <xsd:unique name="BusinessEntityName" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eBusinessEntity"/>
+      <xsd:field xpath="BusinessEntityName"/>
+    </xsd:unique>
+    <xsd:unique name="DataRelationName" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eDataRelation"/>
+      <xsd:field xpath="DataRelationName"/>
+    </xsd:unique>
+    <xsd:unique name="Tables">
+      <xsd:selector xpath=".//eDataRelation"/>
+      <xsd:field xpath="ParentTempTableName"/>
+      <xsd:field xpath="ChildTempTableName"/>
+    </xsd:unique>
+    <xsd:unique name="DataRelationProperties" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eDataRelationProperties"/>
+      <xsd:field xpath="DataRelationName"/>
+      <xsd:field xpath="PropertyName"/>
+    </xsd:unique>
+    <xsd:unique name="TempTableName" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eTable"/>
+      <xsd:field xpath="TempTableName"/>
+    </xsd:unique>
+    <xsd:unique name="FieldName" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eField"/>
+      <xsd:field xpath="TempTableName"/>
+      <xsd:field xpath="FieldName"/>
+    </xsd:unique>
+    <xsd:unique name="FieldProperties" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eFieldProperties"/>
+      <xsd:field xpath="TempTableName"/>
+      <xsd:field xpath="FieldName"/>
+      <xsd:field xpath="PropertyName"/>
+    </xsd:unique>
+    <xsd:unique name="IndexName" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eIndex"/>
+      <xsd:field xpath="TempTableName"/>
+      <xsd:field xpath="IndexName"/>
+    </xsd:unique>
+    <xsd:unique name="IndexProperties" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eIndexProperties"/>
+      <xsd:field xpath="TempTableName"/>
+      <xsd:field xpath="IndexName"/>
+      <xsd:field xpath="PropertyName"/>
+    </xsd:unique>
+    <xsd:unique name="TableProperties" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eTableProperties"/>
+      <xsd:field xpath="TempTableName"/>
+      <xsd:field xpath="PropertyName"/>
+    </xsd:unique>
+    <xsd:unique name="BusinessEntityProperties" prodata:primaryIndex="true">
+      <xsd:selector xpath=".//eBusinessEntityProperties"/>
+      <xsd:field xpath="PropertyName"/>
+    </xsd:unique>
+    <xsd:keyref name="DataRelationPropertiesRelation" refer="DataRelationName">
+      <xsd:selector xpath=".//eDataRelationProperties"/>
+      <xsd:field xpath="DataRelationName"/>
+    </xsd:keyref>
+    <xsd:keyref name="DataRelationRelation" refer="BusinessEntityName">
+      <xsd:selector xpath=".//eDataRelation"/>
+      <xsd:field xpath="BusinessEntityName"/>
+    </xsd:keyref>
+    <xsd:keyref name="eFieldeFieldPropertiesRelation" refer="FieldName">
+      <xsd:selector xpath=".//eFieldProperties"/>
+      <xsd:field xpath="TempTableName"/>
+      <xsd:field xpath="FieldName"/>
+    </xsd:keyref>
+    <xsd:keyref name="eIndexeIndexPropertiesRelation" refer="IndexName">
+      <xsd:selector xpath=".//eIndexProperties"/>
+      <xsd:field xpath="TempTableName"/>
+      <xsd:field xpath="IndexName"/>
+    </xsd:keyref>
+    <xsd:keyref name="FieldRelation" refer="TempTableName">
+      <xsd:selector xpath=".//eField"/>
+      <xsd:field xpath="TempTableName"/>
+    </xsd:keyref>
+    <xsd:keyref name="IndexRelation" refer="TempTableName">
+      <xsd:selector xpath=".//eIndex"/>
+      <xsd:field xpath="TempTableName"/>
+    </xsd:keyref>
+    <xsd:keyref name="TablePropertiesRelation" refer="TempTableName">
+      <xsd:selector xpath=".//eTableProperties"/>
+      <xsd:field xpath="TempTableName"/>
+    </xsd:keyref>
+    <xsd:keyref name="TableRelation" refer="BusinessEntityName">
+      <xsd:selector xpath=".//eTable"/>
+      <xsd:field xpath="BusinessEntityName"/>
+    </xsd:keyref>
+  </xsd:element>
+  <xsd:annotation>
+    <xsd:appinfo>
+      <prodata:index name="BusinessEntity">
+        <prodata:table name="eDataRelation"/>
+        <prodata:field name="BusinessEntityName"/>
+        <prodata:field name="DataRelationName"/>
+      </prodata:index>
+      <prodata:index name="ChildTempTableName">
+        <prodata:table name="eDataRelation"/>
+        <prodata:field name="ChildTempTableName"/>
+        <prodata:field name="DataRelationNotActive"/>
+      </prodata:index>
+      <prodata:index name="BusinessEntity">
+        <prodata:table name="eTable"/>
+        <prodata:field name="BusinessEntityName"/>
+        <prodata:field name="TempTableName"/>
+      </prodata:index>
+      <prodata:index name="TempTablePath">
+        <prodata:table name="eTable"/>
+        <prodata:field name="TempTablePath"/>
+      </prodata:index>
+      <prodata:index name="EntityPackageName">
+        <prodata:table name="eTable"/>
+        <prodata:field name="EntityPackageName"/>
+      </prodata:index>
+      <prodata:index name="Order">
+        <prodata:table name="eField"/>
+        <prodata:field name="TempTableName"/>
+        <prodata:field name="FieldOrder"/>
+      </prodata:index>
+      <prodata:index name="Order">
+        <prodata:table name="eIndex"/>
+        <prodata:field name="TempTableName"/>
+        <prodata:field name="IndexOrder"/>
+      </prodata:index>
+      <prodata:index name="DefaultSearchCodeGeneration">
+        <prodata:table name="eIndex"/>
+        <prodata:field name="DefaultSearchCodeGeneration"/>
+      </prodata:index>
+    </xsd:appinfo>
+  </xsd:annotation>
+</xsd:schema>

@@ -1,0 +1,85 @@
+&ANALYZE-SUSPEND _EXPORT-NUMBER UIB_v8r12
+&ANALYZE-RESUME
+&Scoped-define WINDOW-NAME CURRENT-WINDOW
+&ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
+
+/* ********************  Preprocessor Definitions  ******************** */
+
+&Scoped-define PROCEDURE-TYPE SmartViewer
+
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
+
+/* Name of first Frame and/or Browse and/or first Query                 */
+&Scoped-define FRAME-NAME F-Main
+
+/* Standard List Definitions                                            */
+&Scoped-Define ENABLED-FIELDS prgrms.prgtitle prgrms.dir_group prgrms.audit ~
+prgrms.change_lock prgrms.menu_item prgrms.popup prgrms.run_persistent ~
+prgrms.track_usage prgrms.can_run prgrms.can_create prgrms.can_update ~
+prgrms.can_delete prgrms.header_line prgrms.prgm_ver prgrms.mfgroup 
+&Scoped-define FIELD-PAIRS~
+ ~{&FP1}prgtitle ~{&FP2}prgtitle ~{&FP3}~
+ ~{&FP1}dir_group ~{&FP2}dir_group ~{&FP3}~
+ ~{&FP1}header_line ~{&FP2}header_line ~{&FP3}~
+ ~{&FP1}prgm_ver ~{&FP2}prgm_ver ~{&FP3}~
+ ~{&FP1}mfgroup ~{&FP2}mfgroup ~{&FP3}
+&Scoped-define ENABLED-TABLES prgrms
+&Scoped-define FIRST-ENABLED-TABLE prgrms
+&Scoped-Define ENABLED-OBJECTS RECT-5 
+&Scoped-Define DISPLAYED-FIELDS prgrms.prgmname prgrms.prgtitle ~
+prgrms.dir_group prgrms.audit prgrms.change_lock prgrms.menu_item ~
+prgrms.popup prgrms.run_persistent prgrms.track_usage prgrms.can_run ~
+prgrms.can_create prgrms.can_update prgrms.can_delete prgrms.header_line ~
+prgrms.prgm_ver prgrms.mfgroup 
+&Scoped-Define DISPLAYED-OBJECTS F1 
+
+/* Custom List Definitions                                              */
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,List-4,List-5,F1   */
+&Scoped-define ADM-CREATE-FIELDS prgrms.prgmname 
+&Scoped-define F1 F1 
+
+/* _UIB-PREPROCESSOR-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+/* ***********************  Control Definitions  ********************** */
+
+
+/* Definitions of the field level widgets                               */
+DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
+      VIEW-AS TEXT 
+     SIZE 2.2 BY .52
+     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
+
+
+/* ************************  Frame Definitions  *********************** */
+
+FORM
+     F1 AT ROW 1.24 COL 2 NO-LABEL
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+
+
+/* ***************  Runtime Attributes and UIB Settings  ************** */
+
+&ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
+/* SETTINGS FOR WINDOW V-table-Win
+  VISIBLE,,RUN-PERSISTENT                                               */
+/* SETTINGS FOR FRAME F-Main
+                                                                        */
+/* SETTINGS FOR FILL-IN F1 IN FRAME F-Main
+   NO-ENABLE ALIGN-L 6                                                  */
+ASSIGN 
+       F1:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* _RUN-TIME-ATTRIBUTES-END */
+&ANALYZE-RESUME
+
+ 
+
+
+

@@ -1,0 +1,1000 @@
+ADD SEQUENCE "srcId"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT no
+
+ADD TABLE "ahdbversion"
+  AREA "Schema Area"
+  LABEL "ahdbversion (=> field:initial)"
+  DESCRIPTION "dummy table.  See the initial value of the field"
+  DUMP-NAME "ahdbversion"
+
+ADD FIELD "abhackVersion" OF "ahdbversion" AS character 
+  FORMAT "x(11)"
+  INITIAL "13-JAN-2008"
+  POSITION 2
+  MAX-WIDTH 22
+  HELP "I check the INITIAL attribute at connection time"
+  ORDER 10
+
+ADD INDEX "abhackversion" ON "ahdbversion" 
+  AREA "Schema Area"
+  PRIMARY
+  DESCRIPTION "Not used really"
+  INDEX-FIELD "abhackVersion" ASCENDING 
+
+ADD TABLE "ahfld"
+  AREA "Schema Area"
+  LABEL "ahfld (abhack tracked TTField)"
+  DESCRIPTION "Child table of ahtt"
+  DUMP-NAME "ahfld"
+
+ADD FIELD "srcId" OF "ahfld" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "cNarative" OF "ahfld" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 16
+  HELP "Comment nearby the definition"
+  ORDER 60
+
+ADD FIELD "cFldName" OF "ahfld" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 32
+  HELP "Field Name"
+  ORDER 40
+
+ADD FIELD "cDataType" OF "ahfld" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 16
+  ORDER 50
+
+ADD FIELD "ifldSeq" OF "ahfld" AS integer 
+  FORMAT ">,>>9"
+  INITIAL "0"
+  POSITION 6
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "cttname" OF "ahfld" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 32
+  HELP "Temp-table name"
+  ORDER 20
+
+ADD INDEX "idTtnameSeq" ON "ahfld" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cttname" ASCENDING 
+  INDEX-FIELD "ifldSeq" ASCENDING 
+
+ADD TABLE "ahFunc"
+  AREA "Schema Area"
+  LABEL "ahFunc (abhack tracked udf)"
+  DESCRIPTION "child table of ahsrc"
+  DUMP-NAME "ahfunc"
+
+ADD FIELD "srcId" OF "ahFunc" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "cName" OF "ahFunc" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 32
+  HELP "Procedure Name"
+  ORDER 20
+
+ADD FIELD "cParameters" OF "ahFunc" AS character 
+  FORMAT "x(78)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 156
+  ORDER 30
+
+ADD FIELD "cAccessMode" OF "ahFunc" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 24
+  HELP "SHARED PUBLIC PROTECTED PRIVATE"
+  ORDER 40
+
+ADD FIELD "cNarative" OF "ahFunc" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 16
+  HELP "Comment nearby the definition"
+  ORDER 60
+
+ADD FIELD "cReturnType" OF "ahFunc" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 32
+  HELP "Not used yet as per 2-SEP-2007"
+  ORDER 50
+
+ADD INDEX "idName" ON "ahFunc" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cName" ASCENDING 
+
+ADD INDEX "idAccess" ON "ahFunc" 
+  AREA "Schema Area"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cAccessMode" ASCENDING 
+
+ADD TABLE "ahgbuffer"
+  AREA "Schema Area"
+  LABEL "ahgbuffer (abhack globalBuffer"
+  DESCRIPTION "Child table of ahsrc"
+  DUMP-NAME "ahgbuffer"
+
+ADD FIELD "srcId" OF "ahgbuffer" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "cName" OF "ahgbuffer" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 32
+  HELP "Buffer Name"
+  ORDER 20
+
+ADD FIELD "cAccessMode" OF "ahgbuffer" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 24
+  HELP "SHARED PUBLIC PROTECTED PRIVATE"
+  ORDER 60
+
+ADD FIELD "cNarative" OF "ahgbuffer" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 16
+  HELP "Comment nearby the definition"
+  ORDER 120
+
+ADD FIELD "cfor" OF "ahgbuffer" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 32
+  HELP "Target Table of buffer"
+  ORDER 30
+
+ADD FIELD "lExplicitDef" OF "ahgbuffer" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 7
+  MAX-WIDTH 1
+  HELP "Set if the global buffer is defined explicitely"
+  ORDER 50
+
+ADD FIELD "isStatic" OF "ahgbuffer" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 8
+  MAX-WIDTH 1
+  HELP "Option of Class members"
+  ORDER 130
+
+ADD INDEX "idName" ON "ahgbuffer" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cName" ASCENDING 
+
+ADD INDEX "idAccess" ON "ahgbuffer" 
+  AREA "Schema Area"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cAccessMode" ASCENDING 
+
+ADD INDEX "idIsStatic" ON "ahgbuffer" 
+  AREA "Schema Area"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "isStatic" ASCENDING 
+
+ADD TABLE "ahgLibHandle"
+  AREA "Schema Area"
+  LABEL "ahglibHandle (run persist set)"
+  DESCRIPTION "child table of ahsrc
+hold usages of RUN PERSISTENT SET in main block"
+  DUMP-NAME "ahglibhandle"
+
+ADD FIELD "srcId" OF "ahgLibHandle" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "cVar" OF "ahgLibHandle" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 32
+  HELP "Variable Name"
+  ORDER 40
+
+ADD FIELD "lSuperOfThisProc" OF "ahgLibHandle" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 4
+  MAX-WIDTH 1
+  HELP "set if proc added as super of src file (not used yet)"
+  ORDER 50
+
+ADD FIELD "cNarative" OF "ahgLibHandle" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 16
+  HELP "Comment nearby the definition"
+  ORDER 60
+
+ADD FIELD "iLine" OF "ahgLibHandle" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  POSITION 6
+  MAX-WIDTH 4
+  HELP "Mark Line number"
+  ORDER 20
+
+ADD FIELD "cLibFile" OF "ahgLibHandle" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 80
+  HELP "External Procedure File Name of tracked RUN PERSISTENT"
+  ORDER 30
+
+ADD INDEX "idLibFile" ON "ahgLibHandle" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cLibFile" ASCENDING 
+
+ADD INDEX "idLine" ON "ahgLibHandle" 
+  AREA "Schema Area"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "iLine" ASCENDING 
+
+ADD TABLE "ahgvar"
+  AREA "Schema Area"
+  LABEL "ahgvar (abhack tracked globVar"
+  DESCRIPTION "Child table of ahsrc"
+  DUMP-NAME "ahgvar"
+
+ADD FIELD "srcId" OF "ahgvar" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "cVar" OF "ahgvar" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 32
+  HELP "Variable Name"
+  ORDER 20
+
+ADD FIELD "cDataType" OF "ahgvar" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 16
+  ORDER 30
+
+ADD FIELD "cNarative" OF "ahgvar" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 16
+  HELP "Comment nearby the definition"
+  ORDER 80
+
+ADD FIELD "cViewAs" OF "ahgvar" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 24
+  HELP "Widget type in VIEW-AS Phrase to provide completion on colon"
+  ORDER 35
+
+ADD FIELD "cAccessMode" OF "ahgvar" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 24
+  HELP "SHARED PUBLIC PROTECTED PRIVATE"
+  ORDER 60
+
+ADD FIELD "cClassFile" OF "ahgvar" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 40
+  HELP "For non basic data types"
+  ORDER 70
+
+ADD FIELD "isStatic" OF "ahgvar" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 10
+  MAX-WIDTH 1
+  HELP "Option of Class members"
+  ORDER 90
+
+ADD INDEX "idName" ON "ahgvar" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cVar" ASCENDING 
+
+ADD INDEX "idAccessVar" ON "ahgvar" 
+  AREA "Schema Area"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cVar" ASCENDING 
+  INDEX-FIELD "cAccessMode" ASCENDING 
+
+ADD INDEX "idIsStatic" ON "ahgvar" 
+  AREA "Schema Area"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "isStatic" ASCENDING 
+
+ADD TABLE "ahidx"
+  AREA "Schema Area"
+  LABEL "ahidx (abhack tracked TTIndex)"
+  DESCRIPTION "Child table of ahtt"
+  DUMP-NAME "ahidx"
+
+ADD FIELD "srcId" OF "ahidx" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "cttname" OF "ahidx" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 32
+  HELP "Temp-table name"
+  ORDER 20
+
+ADD FIELD "idxSeq" OF "ahidx" AS integer 
+  FORMAT ">,>>9"
+  INITIAL "0"
+  POSITION 4
+  MAX-WIDTH 4
+  ORDER 30
+
+ADD FIELD "cidxName" OF "ahidx" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 32
+  HELP "Index Name"
+  ORDER 40
+
+ADD FIELD "cFieldsInfo" OF "ahidx" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 16
+  HELP "as given by hbuffer:INDEX-INFORMATION(idxSeq)"
+  ORDER 50
+
+ADD FIELD "cNarative" OF "ahidx" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 16
+  HELP "Comment nearby the definition"
+  ORDER 70
+
+ADD FIELD "coptn" OF "ahidx" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 8
+  MAX-WIDTH 40
+  HELP "PRIMARY, UNIQUE ..."
+  ORDER 60
+
+ADD INDEX "idTtNameSeq" ON "ahidx" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cttname" ASCENDING 
+  INDEX-FIELD "idxSeq" ASCENDING 
+
+ADD TABLE "ahMark"
+  AREA "Schema Area"
+  LABEL "ahmark (abhack tracked marks)"
+  DESCRIPTION "Line number associated to block name (used by outline treeview)"
+  DUMP-NAME "ahmark"
+
+ADD FIELD "srcId" OF "ahMark" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "iLine" OF "ahMark" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  POSITION 3
+  MAX-WIDTH 4
+  HELP "Mark Line number"
+  ORDER 20
+
+ADD FIELD "iOffset" OF "ahMark" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  POSITION 4
+  MAX-WIDTH 4
+  HELP "Mark Offset in file"
+  ORDER 30
+
+ADD FIELD "cBlockType" OF "ahMark" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 24
+  HELP "definition, Procedure, Main, Function, Method, Trigger"
+  ORDER 40
+
+ADD FIELD "cBlockName" OF "ahMark" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 50
+  HELP "Name of procedure or trigger..."
+  ORDER 50
+
+ADD INDEX "idName" ON "ahMark" 
+  AREA "Schema Area"
+  PRIMARY
+  DESCRIPTION "Could be unique, but avoid errors with weird code"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cBlockName" ASCENDING 
+
+ADD INDEX "idLine" ON "ahMark" 
+  AREA "Schema Area"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "iLine" ASCENDING 
+
+ADD INDEX "idOffset" ON "ahMark" 
+  AREA "Schema Area"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "iOffset" ASCENDING 
+
+ADD TABLE "ahMethod"
+  AREA "Schema Area"
+  LABEL "ahMethod (abhack tracked meth)"
+  DESCRIPTION "child table of ahsrc"
+  DUMP-NAME "ahmethod"
+
+ADD FIELD "srcId" OF "ahMethod" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "cName" OF "ahMethod" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 32
+  HELP "Procedure Name"
+  ORDER 20
+
+ADD FIELD "cParameters" OF "ahMethod" AS character 
+  FORMAT "x(78)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 156
+  ORDER 30
+
+ADD FIELD "cAccessMode" OF "ahMethod" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 24
+  HELP "SHARED PUBLIC PROTECTED PRIVATE"
+  ORDER 40
+
+ADD FIELD "cReturnType" OF "ahMethod" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 32
+  HELP "Not used yet as per 2-SEP-2007"
+  ORDER 50
+
+ADD FIELD "cNarative" OF "ahMethod" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 7
+  MAX-WIDTH 16
+  HELP "Comment nearby the definition"
+  ORDER 60
+
+ADD FIELD "isStatic" OF "ahMethod" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 8
+  MAX-WIDTH 1
+  HELP "Option of Class members"
+  ORDER 70
+
+ADD INDEX "idName" ON "ahMethod" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cName" ASCENDING 
+
+ADD INDEX "idAccess" ON "ahMethod" 
+  AREA "Schema Area"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cAccessMode" ASCENDING 
+
+ADD INDEX "idIsStatic" ON "ahMethod" 
+  AREA "Schema Area"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "isStatic" ASCENDING 
+
+ADD TABLE "ahpreproc"
+  AREA "Schema Area"
+  LABEL "ahpreproc (preprocessors)"
+  DUMP-NAME "ahpreproc"
+
+ADD FIELD "srcId" OF "ahpreproc" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "cName" OF "ahpreproc" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 32
+  HELP "Procedure Name"
+  ORDER 30
+
+ADD FIELD "cType" OF "ahpreproc" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 16
+  HELP "scoped global or undefine"
+  ORDER 40
+
+ADD FIELD "iLineNum" OF "ahpreproc" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  POSITION 5
+  MAX-WIDTH 4
+  ORDER 20
+
+ADD FIELD "cValue" OF "ahpreproc" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 40
+  ORDER 50
+
+ADD FIELD "iIncludeLevel" OF "ahpreproc" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  POSITION 7
+  MAX-WIDTH 4
+  ORDER 60
+
+ADD INDEX "srcIdLineNum" ON "ahpreproc" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "iLineNum" ASCENDING 
+
+ADD INDEX "cName" ON "ahpreproc" 
+  AREA "Schema Area"
+  DESCRIPTION "Anticipating the need of querying preprocs"
+  INDEX-FIELD "cName" ASCENDING 
+
+ADD INDEX "cValue" ON "ahpreproc" 
+  AREA "Schema Area"
+  WORD
+  DESCRIPTION "Anticipating the need of querying preprocs"
+  INDEX-FIELD "cValue" ASCENDING 
+
+ADD INDEX "srcIdName" ON "ahpreproc" 
+  AREA "Schema Area"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cName" ASCENDING 
+
+ADD TABLE "ahProc"
+  AREA "Schema Area"
+  LABEL "ahProc (abhack tracked IP)"
+  DESCRIPTION "child table of ahsrc"
+  DUMP-NAME "ahproc"
+
+ADD FIELD "srcId" OF "ahProc" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "cName" OF "ahProc" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 32
+  HELP "Procedure Name"
+  ORDER 20
+
+ADD FIELD "cAccessMode" OF "ahProc" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 24
+  HELP "SHARED PUBLIC PROTECTED PRIVATE"
+  ORDER 60
+
+ADD FIELD "cNarative" OF "ahProc" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 16
+  HELP "Comment nearby the definition"
+  ORDER 80
+
+ADD FIELD "cParameters" OF "ahProc" AS character 
+  FORMAT "x(78)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 156
+  ORDER 25
+
+ADD INDEX "idName" ON "ahProc" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cName" ASCENDING 
+
+ADD INDEX "idAccess" ON "ahProc" 
+  AREA "Schema Area"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cAccessMode" ASCENDING 
+
+ADD TABLE "ahReferedBuffer"
+  AREA "Schema Area"
+  LABEL "ahReferedBuffer (buff scope)"
+  DESCRIPTION "child table of ahsrc"
+  DUMP-NAME "ahreferedbuffer"
+
+ADD FIELD "srcId" OF "ahReferedBuffer" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "cBlockType" OF "ahReferedBuffer" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 24
+  HELP "definition, Procedure, Main, Function, Method, Trigger"
+  ORDER 40
+
+ADD FIELD "cBlockName" OF "ahReferedBuffer" AS character 
+  FORMAT "x(25)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 50
+  HELP "Name of procedure or trigger..."
+  ORDER 15
+
+ADD FIELD "cDataBase" OF "ahReferedBuffer" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 24
+  HELP "Target Database of buffer"
+  ORDER 60
+
+ADD FIELD "cBufferName" OF "ahReferedBuffer" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 32
+  HELP "Buffer name"
+  ORDER 70
+
+ADD INDEX "idtypenamedbbuffer" ON "ahReferedBuffer" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cBlockType" ASCENDING 
+  INDEX-FIELD "cBlockName" ASCENDING 
+  INDEX-FIELD "cDataBase" ASCENDING 
+  INDEX-FIELD "cBufferName" ASCENDING 
+
+ADD TABLE "ahsrc"
+  AREA "Schema Area"
+  LABEL "ahsrc (abhack tracked osfile)"
+  DESCRIPTION "One record per source file anaylzed by abhack.  Parent record of all other global resource desciption tables."
+  DUMP-NAME "ahsrc"
+
+ADD FIELD "cFullPathName" OF "ahsrc" AS character 
+  FORMAT "x(76)"
+  INITIAL ""
+  POSITION 2
+  MAX-WIDTH 152
+  ORDER 20
+
+ADD FIELD "srcId" OF "ahsrc" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 3
+  MAX-WIDTH 4
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "isClass" OF "ahsrc" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 4
+  MAX-WIDTH 1
+  HELP "Set for cls files"
+  ORDER 30
+
+ADD FIELD "cInherits" OF "ahsrc" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 40
+  HELP "Set only for cls files"
+  ORDER 40
+
+ADD FIELD "dLastLoadGlobalTime" OF "ahsrc" AS decimal 
+  FORMAT ">>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 6
+  MAX-WIDTH 17
+  HELP "Pseudo date-time compatible with V9"
+  DECIMALS 2
+  ORDER 50
+
+ADD FIELD "iCursorLine" OF "ahsrc" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  POSITION 7
+  MAX-WIDTH 4
+  HELP "Last line when source file was open.  Not used yet"
+  ORDER 60
+
+ADD FIELD "iNumLines" OF "ahsrc" AS integer 
+  FORMAT ">,>>>,>>9"
+  INITIAL "0"
+  POSITION 8
+  MAX-WIDTH 4
+  HELP "Number of lines of source file.  Gives an idea..."
+  ORDER 70
+
+ADD FIELD "cSrcNarative" OF "ahsrc" AS character 
+  DESCRIPTION "Other children tables have an narative field with different name to not copy this one with buffer-copy"
+  FORMAT "x(30)"
+  INITIAL ""
+  POSITION 9
+  MAX-WIDTH 60
+  ORDER 80
+
+ADD FIELD "cFileName" OF "ahsrc" AS character 
+  FORMAT "x(40)"
+  INITIAL ""
+  POSITION 10
+  MAX-WIDTH 80
+  HELP "Relative File Name OK with Propath.  INDEX NON UNIQUE ON THIS"
+  ORDER 90
+
+ADD FIELD "cParameters" OF "ahsrc" AS character 
+  FORMAT "x(78)"
+  INITIAL ""
+  POSITION 11
+  MAX-WIDTH 156
+  HELP "Parameters of external procedure (scope is main block)"
+  ORDER 100
+
+ADD FIELD "fileExtentions" OF "ahsrc" AS character 
+  FORMAT "XXX"
+  INITIAL ""
+  POSITION 12
+  MAX-WIDTH 6
+  HELP ".p .i .w .cls"
+  ORDER 110
+
+ADD INDEX "srcId" ON "ahsrc" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "srcId" ASCENDING 
+
+ADD INDEX "cFileName" ON "ahsrc" 
+  AREA "Schema Area"
+  INDEX-FIELD "cFileName" ASCENDING 
+
+ADD INDEX "cFullPathName" ON "ahsrc" 
+  AREA "Schema Area"
+  UNIQUE
+  INDEX-FIELD "cFullPathName" ASCENDING 
+
+ADD INDEX "dLastLoafGlobalTime" ON "ahsrc" 
+  AREA "Schema Area"
+  INDEX-FIELD "dLastLoadGlobalTime" ASCENDING 
+
+ADD INDEX "extFullPath" ON "ahsrc" 
+  AREA "Schema Area"
+  INDEX-FIELD "fileExtentions" ASCENDING 
+  INDEX-FIELD "cFullPathName" ASCENDING 
+
+ADD TABLE "ahtt"
+  AREA "Schema Area"
+  LABEL "ahtt (abhack tracked TT's)"
+  DUMP-NAME "ahtt"
+
+ADD FIELD "srcId" OF "ahtt" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "cttname" OF "ahtt" AS character 
+  FORMAT "x(16)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 32
+  HELP "Temp-table name"
+  ORDER 20
+
+ADD FIELD "cBeforeTable" OF "ahtt" AS character 
+  FORMAT "x(18)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 36
+  HELP "Associated before table name"
+  ORDER 30
+
+ADD FIELD "cAccessMode" OF "ahtt" AS character 
+  FORMAT "x(12)"
+  INITIAL ""
+  POSITION 5
+  MAX-WIDTH 24
+  HELP "SHARED PUBLIC PROTECTED PRIVATE"
+  ORDER 40
+
+ADD FIELD "cNarative" OF "ahtt" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 6
+  MAX-WIDTH 16
+  HELP "Comment nearby the definition"
+  ORDER 50
+
+ADD FIELD "isStatic" OF "ahtt" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  POSITION 7
+  MAX-WIDTH 1
+  HELP "Option of Class members"
+  ORDER 60
+
+ADD INDEX "idName" ON "ahtt" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cttname" ASCENDING 
+
+ADD INDEX "idAccessMode" ON "ahtt" 
+  AREA "Schema Area"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cAccessMode" ASCENDING 
+
+ADD INDEX "idIsStatic" ON "ahtt" 
+  AREA "Schema Area"
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "isStatic" ASCENDING 
+
+ADD TABLE "ahUsing"
+  AREA "Schema Area"
+  LABEL "ahUsing (abhack class USING)"
+  DESCRIPTION "child table of ahsrc"
+  DUMP-NAME "ahusing"
+
+ADD FIELD "srcId" OF "ahUsing" AS integer 
+  FORMAT ">,>>>,>>>,>>9"
+  INITIAL "0"
+  POSITION 2
+  MAX-WIDTH 4
+  HELP "Source Unique ID.  Limited to 2,4 billions before 10.1B"
+  ORDER 10
+
+ADD FIELD "cNarative" OF "ahUsing" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  POSITION 3
+  MAX-WIDTH 16
+  HELP "Comment nearby the definition"
+  ORDER 30
+
+ADD FIELD "cUsing" OF "ahUsing" AS character 
+  FORMAT "x(50)"
+  INITIAL ""
+  POSITION 4
+  MAX-WIDTH 100
+  HELP "Tracked usage of USING in cls file"
+  ORDER 20
+
+ADD INDEX "isUsing" ON "ahUsing" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "srcId" ASCENDING 
+  INDEX-FIELD "cUsing" ASCENDING 
+
+.
+.
+0000022350
+

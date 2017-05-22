@@ -1,0 +1,32 @@
+UPDATE TABLE "userLog"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/userlog.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/userlog.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/userlog.p" CRC "?" 
+  
+UPDATE TABLE "userControl"
+  TABLE-TRIGGER "CREATE" OVERRIDE PROCEDURE "create.trg/userControl.p" CRC "?" 
+  TABLE-TRIGGER "DELETE" OVERRIDE PROCEDURE "delete.trg/userControl.p" CRC "?" 
+  TABLE-TRIGGER "WRITE" OVERRIDE PROCEDURE "write.trg/userControl.p" CRC "?" 
+  
+ADD FIELD "maxSessionsPerUser" OF "userControl" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Max Sessiosn Per User"
+  POSITION 11
+  MAX-WIDTH 4
+  ORDER 100
+
+ADD INDEX "rec_key" ON "userLog"
+  AREA "Index"
+  INDEX-FIELD "rec_key" ASCENDING
+
+ADD INDEX "StatusUserID" ON "userLog"
+  AREA "Index"
+  INDEX-FIELD "userStatus" ASCENDING
+  INDEX-FIELD "user_id" ASCENDING
+
+ADD SEQUENCE "session_seq"
+  INITIAL 0
+  INCREMENT 1
+  CYCLE-ON-LIMIT yes
+  MAX-VAL 1000000

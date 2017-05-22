@@ -1,0 +1,44 @@
+FOR EACH oe-prmtx NO-LOCK WHERE oe-prmtx.company EQ cocode AND (oe-prmtx.cust-no EQ oe-ordl.cust-no OR oe-ordl.cust-no EQ "" OR oe-prmtx.cust-no EQ "" )
+cust-no,custype,i-no,procat,eff-date
+
+Indexed: cust-no,custype,i-no,procat,eff-date
+Non-Idx: price,price,price,price,price,price,price,price,price,price
+
+Generated 04.19.2017 @  9:16:30 am by: asi
+Table: oe-prmtx - Records: 23,602
+
+    Index: cust-i-no
+         Field: company
+         Field: cust-no
+         Field: i-no
+         Field: eff-date
+         Field: exp-date
+
+    Index: cust-no
+         Field: company
+         Field: cust-no
+         Field: eff-date
+         Field: exp-date
+
+    Index: custitem
+         Field: company
+         Field: custype
+         Field: cust-no
+         Field: procat
+         Field: i-no
+         Field: eff-date
+         Field: exp-date
+
+    Index: eff-date
+         Field: company
+         Field: eff-date
+         Field: exp-date
+
+    Index: i-no
+         Field: company
+         Field: i-no
+         Field: eff-date
+         Field: exp-date
+
+    Index: rec_key
+         Field: rec_key

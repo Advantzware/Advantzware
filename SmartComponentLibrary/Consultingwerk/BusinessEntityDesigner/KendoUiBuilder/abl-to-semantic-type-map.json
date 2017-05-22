@@ -1,0 +1,15 @@
+{
+    "CHARACTER": "Text",
+    "CLOB": "RichText",
+    "COM-HANDLE": "Number",
+    "DATE": "Date",
+    "DATETIME": "Datetime",
+    "DATETIME-TZ": "Datetime",
+    "DECIMAL": "Number",
+    "EXTENT": "Array",
+    "HANDLE" : "Number",
+    "INT64" : "Integer",
+    "INTEGER": "Integer",
+    "LOGICAL": "Boolean",
+    "ROWID": "Text"
+}
