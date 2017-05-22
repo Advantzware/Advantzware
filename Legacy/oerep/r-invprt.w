@@ -852,18 +852,61 @@ DO:
 /*                   AND cust.log-field[1])         */
       AND NOT tb_override-email
   THEN DO:
-      FIND FIRST bf-cust
-          WHERE bf-cust.company EQ cocode
-            AND bf-cust.cust-no GE begin_cust
-            AND bf-cust.cust-no LE end_cust
-            AND bf-cust.log-field[1]
-          NO-LOCK NO-ERROR.
-      IF AVAIL bf-cust THEN DO:
-            MESSAGE 'Customer ' bf-cust.cust-no ' is set as "Paperless Invoice".' SKIP
-                'Please select "Output To Email" or check "Ignore Paperless Setting".'
-                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-            RETURN.
-      END.
+      IF tb_posted THEN do:
+          FOR EACH b-ar-inv FIELDS(company cust-no ship-id) WHERE
+                      b-ar-inv.company EQ cocode AND
+                      b-ar-inv.inv-no GE begin_inv AND
+                      b-ar-inv.inv-no LE end_inv AND
+                      b-ar-inv.cust-no GE begin_cust AND
+                      b-ar-inv.cust-no LE end_cust AND
+                      b-ar-inv.printed EQ tb_reprint
+                      NO-LOCK
+                      BREAK BY b-ar-inv.company
+                            BY b-ar-inv.cust-no:
+                      IF FIRST-OF(b-ar-inv.cust-no) THEN do:      
+                          FIND FIRST bf-cust NO-LOCK 
+                              WHERE bf-cust.company EQ cocode
+                                AND bf-cust.cust-no EQ b-ar-inv.cust-no 
+                                AND bf-cust.log-field[1] NO-ERROR.
+                          IF AVAIL bf-cust THEN DO:
+                                MESSAGE 'Customer ' bf-cust.cust-no ' is set as "Paperless Invoice".' SKIP
+                                    'Please select "Output To Email" or check "Ignore Paperless Setting".'
+                                    VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+                                RETURN.
+                          END.
+                      END.
+          END.  /* for each b-ar-inv */
+      END.  /* tb_posted */
+      ELSE DO:
+          for each buf-inv-head WHERE
+                  buf-inv-head.company eq cocode AND
+                  buf-inv-head.cust-no ge begin_cust AND
+                  buf-inv-head.cust-no le end_cust AND
+                  INDEX(vcHoldStats, buf-inv-head.stat) EQ 0 AND
+                  ((not tb_reprint and buf-inv-head.inv-no eq 0) or
+                   (tb_reprint and buf-inv-head.inv-no ne 0 and
+                   buf-inv-head.inv-no ge begin_inv and
+                   buf-inv-head.inv-no le end_inv)) AND
+                   buf-inv-head.bol-no GE begin_bol AND
+                   buf-inv-head.bol-no LE end_bol
+                   NO-LOCK
+                   BREAK BY buf-inv-head.company
+                         BY buf-inv-head.cust-no:
+                   IF FIRST-OF(buf-inv-head.cust-no) THEN do:
+                   FIND FIRST bf-cust NO-LOCK
+                          WHERE bf-cust.company EQ cocode
+                            AND bf-cust.cust-no EQ buf-inv-head.cust-no 
+                            AND bf-cust.log-field[1] NO-ERROR.
+                      IF AVAIL bf-cust THEN DO:
+                            MESSAGE 'Customer ' bf-cust.cust-no ' is set as "Paperless Invoice".' SKIP
+                                'Please select "Output To Email" or check "Ignore Paperless Setting".'
+                                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+                            RETURN.
+                      END.
+                  END.
+          END.  /* for each buf-inv-head */
+
+      END.    /* else do tb_posted */
   END.
 
 

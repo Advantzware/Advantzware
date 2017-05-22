@@ -247,12 +247,13 @@ DO:
   save-rowid = ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}).
   &ELSEIF "{&IAMWHAT}" = "LOOKUP" &THEN
   ASSIGN
-    g_lookup-var = STRING({&{&IAMWHAT}-file}.{&return-field})
+    g_lookup-var = STRING({&{&IAMWHAT}-file}.{&return-field}).
     &IF "{&{&IAMWHAT}-db}" NE "dictdb." AND "{&{&IAMWHAT}-db}" NE " " &THEN
     FRAME-VALUE = STRING({&{&IAMWHAT}-file}.{&return-field}) NO-ERROR.
-    &ELSE
-    m-{&IAMWHAT}-var = STRING({&{&IAMWHAT}-file}.{&return-field}).
     &ENDIF
+    &IF DEFINED(m-{&IAMWHAT}-var) <> 0 &THEN
+    m-{&IAMWHAT}-var = STRING({&{&IAMWHAT}-file}.{&return-field}).
+    &ENDIF 
   &ENDIF
   
   DO TRANSACTION:
@@ -327,25 +328,25 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   &IF "{&IAMWHAT}" = "LOOKUP" AND "{&{&IAMWHAT}-file}" NE "convfact" &THEN
   IF (FRAME-VALUE) NE "" THEN DO:
     &IF "{&DATATYP1}" = ""   &then
-      FOR EACH {&{&IAMWHAT}-db}{&{&IAMWHAT}-file} WHERE {&where-statement} AND
-      {&{&IAMWHAT}-db}{&{&IAMWHAT}-file}.{&return-field} BEGINS {&DATATYP1}(FRAME-VALUE)
+      FOR EACH {&{&IAMWHAT}-file} WHERE {&where-statement} AND
+      {&{&IAMWHAT}-file}.{&return-field} BEGINS {&DATATYP1}(FRAME-VALUE)
         NO-LOCK {&SORTBY-1}:
         LEAVE.
       END.
     &endif
-    IF NOT AVAIL {&{&IAMWHAT}-db}{&{&IAMWHAT}-file} THEN
-    FOR EACH {&{&IAMWHAT}-db}{&{&IAMWHAT}-file} WHERE {&where-statement} AND
-    {&{&IAMWHAT}-db}{&{&IAMWHAT}-file}.{&return-field} GE {&DATATYP1}(FRAME-VALUE)
+    IF NOT AVAIL {&{&IAMWHAT}-file} THEN
+    FOR EACH {&{&IAMWHAT}-file} WHERE {&where-statement} AND
+    {&{&IAMWHAT}-file}.{&return-field} GE {&DATATYP1}(FRAME-VALUE)
         NO-LOCK {&SORTBY-1}:
       LEAVE.
     END.
   END.
-  IF NOT AVAIL {&{&IAMWHAT}-db}{&{&IAMWHAT}-file} THEN
-  FOR EACH {&{&IAMWHAT}-db}{&{&IAMWHAT}-file} WHERE {&where-statement}
+  IF NOT AVAIL {&{&IAMWHAT}-file} THEN
+  FOR EACH {&{&IAMWHAT}-file} WHERE {&where-statement}
       NO-LOCK {&SORTBY-1}:
     LEAVE.
   END.
-  save-rowid = ROWID({&{&IAMWHAT}-db}{&{&IAMWHAT}-file}).
+  save-rowid = ROWID({&{&IAMWHAT}-file}).
   &ENDIF
   
   RUN enable_UI.

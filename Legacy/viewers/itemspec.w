@@ -210,7 +210,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
@@ -232,7 +232,7 @@ ASSIGN
 ON HELP OF FRAME F-Main
 DO:
     def var char-val as cha no-undo.
-    
+
     case focus:name :
         when "code" then do:
              run cec/l-itspec.w (item.company, focus:screen-value, output char-val).
@@ -240,10 +240,10 @@ DO:
                 assign focus:screen-value = entry(1,char-val)
                        ls-note-dscr:screen-value = entry(2,char-val).
              end.
-             
+
         end.
-    
-    
+
+
     end case.
     return no-apply.
 END.
@@ -256,6 +256,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-spec.code V-table-Win
 ON LEAVE OF item-spec.code IN FRAME F-Main /* Spec */
 DO:
+      {&methods/lValidateError.i YES}
      if lastkey <> -1 and self:screen-value <> "" and
         not can-find(bf-item-spec where bf-item-spec.company = item.company and
                                      bf-item-spec.i-no = "" and
@@ -263,8 +264,10 @@ DO:
      then do:
           message "Invalid RM/FG Specfication. Try Help." view-as alert-box error.
           return no-apply.
-     end.                                
+     end.     
+      {&methods/lValidateError.i NO}                           
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -281,7 +284,7 @@ session:data-entry-return = true.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -361,7 +364,7 @@ PROCEDURE local-create-record :
          item-spec.item-type = yes
          item-spec.notes = ""
          .
-         
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -374,16 +377,16 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   find bf-item-spec where bf-item-spec.company = item-spec.company and
                           bf-item-spec.i-no = "" and
                           bf-item-spec.code = item-spec.code
                           no-lock no-error.
   ls-note-dscr = if avail bf-item-spec then bf-item-spec.notes[1] else "". 
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
@@ -401,7 +404,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   if item-spec.code:screen-value in frame {&frame-name} <> "" and
         not can-find(bf-item-spec where bf-item-spec.company = item.company and
@@ -412,13 +415,14 @@ PROCEDURE local-update-record :
           apply "entry" to item-spec.code in frame {&frame-name}.
           return no-apply.
      end.                          
-
+     {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

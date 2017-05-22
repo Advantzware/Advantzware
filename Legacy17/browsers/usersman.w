@@ -27,6 +27,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\usersman.i
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT
 {methods/defines/winReSize.i}

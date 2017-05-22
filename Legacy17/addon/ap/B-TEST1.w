@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\ap\B-TEST1.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

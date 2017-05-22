@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: viewers/mstd.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -297,7 +297,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -413,14 +413,17 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mstd.mr-x V-table-Win
 ON LEAVE OF mstd.mr-x IN FRAME F-Main /* Make Ready */
 DO:
+     {&methods/lValidateError.i YES}
       find first std-code where std-code.code = self:screen-value no-lock no-error.
       if not avail std-code  and lastkey <> -1 and self:screen-value <> "00" 
       then do:
          message "Invalid code. Try help." view-as alert-box error.
          return no-apply.
       end.
-      mstd.mx-dscr[1]:screen-value = if avail std-code then std-code.dscr else "".  
+      mstd.mx-dscr[1]:screen-value = if avail std-code then std-code.dscr else "".
+      {&methods/lValidateError.i NO}  
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -430,6 +433,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mstd.mr-y V-table-Win
 ON LEAVE OF mstd.mr-y IN FRAME F-Main /* Y Axis */
 DO:
+    {&methods/lValidateError.i YES}
         find first std-code where std-code.code = self:screen-value no-lock no-error.
       if not avail std-code and lastkey <> -1 and self:screen-value <> "00" 
  then do:
@@ -437,8 +441,9 @@ DO:
          return no-apply.
       end.
       mstd.mx-dscr[2]:screen-value = if avail std-code then std-code.dscr else "".  
-
+      {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -448,6 +453,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mstd.rs-x V-table-Win
 ON LEAVE OF mstd.rs-x IN FRAME F-Main /* Run Speed */
 DO:
+      {&methods/lValidateError.i YES}
       find first std-code where std-code.code = self:screen-value no-lock no-error.
       if not avail std-code and lastkey <> -1 and self:screen-value <> "00" 
 then do:
@@ -457,7 +463,9 @@ then do:
       mstd.mx-dscr[3]:screen-value = if avail std-code then std-code.dscr else "".
 
       RUN check-for-special-codes.  
+      {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -467,6 +475,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mstd.rs-y V-table-Win
 ON LEAVE OF mstd.rs-y IN FRAME F-Main /* Y Axis */
 DO:
+     {&methods/lValidateError.i YES}
         find first std-code where std-code.code = self:screen-value no-lock no-error.
       if not avail std-code and lastkey <> -1 and self:screen-value <> "00" 
 then do:
@@ -476,7 +485,9 @@ then do:
       mstd.mx-dscr[4]:screen-value = if avail std-code then std-code.dscr else "".  
 
       RUN check-for-special-codes. 
+      {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -486,6 +497,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mstd.sp-x V-table-Win
 ON LEAVE OF mstd.sp-x IN FRAME F-Main /* Run Spoil */
 DO:
+     {&methods/lValidateError.i YES}
       find first std-code where std-code.code = self:screen-value no-lock no-error.
       if not avail std-code and lastkey <> -1 and self:screen-value <> "00" 
 then do:
@@ -493,8 +505,9 @@ then do:
          return no-apply.
       end.
       sp-dscr1:screen-value = if avail std-code then std-code.dscr else "".  
-
+      {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -504,6 +517,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mstd.sp-y V-table-Win
 ON LEAVE OF mstd.sp-y IN FRAME F-Main /* Y axis */
 DO:
+   {&methods/lValidateError.i YES}
    find first std-code where std-code.code = self:screen-value no-lock no-error.
       if not avail std-code and lastkey <> -1 and self:screen-value <> "00" 
 then do:
@@ -511,7 +525,9 @@ then do:
          return no-apply.
       end.
       sp-dscr2:screen-value = if avail std-code then std-code.dscr else "".  
+      {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -521,6 +537,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mstd.style V-table-Win
 ON LEAVE OF mstd.style IN FRAME F-Main /* Style Code */
 DO:
+  {&methods/lValidateError.i YES}
   IF LASTKEY NE -1 AND {&self-name}:SCREEN-VALUE NE "" THEN DO:
     IF NOT CAN-FIND(FIRST style WHERE style.company EQ gcompany
                                   AND style.style   EQ {&self-name}:SCREEN-VALUE) THEN DO:
@@ -528,7 +545,9 @@ DO:
       RETURN NO-APPLY.
     END.
   END.  
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -562,7 +581,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -710,9 +729,9 @@ IF AVAIL bf-mstd THEN DO:
              mstd.depth-reduc[i] = bf-mstd.depth-reduc[i].
    END.
 
-   
+
 END.
-   
+
 
 END PROCEDURE.
 
@@ -728,7 +747,7 @@ PROCEDURE create-matrix :
 ------------------------------------------------------------------------------*/
   def var tmpstore as cha no-undo.
   def var i as int no-undo.
-  
+
   /* ====== create setup ================*/
   find first mmty of mstd no-lock no-error.
   if not avail mmty then do:
@@ -773,7 +792,7 @@ PROCEDURE create-matrix :
              mmtx.dept    = mstd.dept
              mmtx.style   = mstd.style
              mmtx.mr-run  = no.    /* yes = spoil Mtx *** no = run mtx */
-   
+
      if rs-x ne 0 then do:
         find std-code where std-code.code = string(rs-x,"99") no-lock no-error.
         mmtx.c-title = caps(std-code.dscr).
@@ -879,7 +898,7 @@ PROCEDURE local-assign-record :
   def var ls-old-m-code like mstd.m-code no-undo.
   def var ls-old-dept like mstd.dept no-undo.
   def var ls-old-style like mstd.style no-undo.
-   
+
   /* Code placed here will execute PRIOR to standard behavior. */
   assign
    ll-new-record = adm-new-record
@@ -905,7 +924,7 @@ PROCEDURE local-assign-record :
      else run copy-matrix (ls-old-m-code, ls-old-dept, ls-old-style).
   end.
   else run update-matrix (ls-old-style). 
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -919,12 +938,12 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
   def var lv-mach-recid as recid no-undo.
   def var char-hdl as cha no-undo.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   run get-link-handle in adm-broker-hdl (This-procedure,"Record-Source", output char-hdl).
   run get-recid in widget-handle(char-hdl)  (output lv-mach-recid).
   if not avail mach then find mach where recid(mach) = lv-mach-recid no-lock no-error.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
@@ -941,14 +960,14 @@ PROCEDURE local-create-record :
      find first dept where dept.company = mach.company
                     and dept.code = mstd.dept
                     no-lock no-error.
-                  
+
      assign mcode_dscr = mach.m-dscr
             dept_dscr =  if avail dept then dept.dscr else "".
      disp mcode_dscr dept_dscr with frame {&frame-name}.        
-  
+
    end.  
-  
-  
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -977,10 +996,10 @@ PROCEDURE local-display-fields :
                         dept.code = mstd.dept
                     no-lock no-error.
   dept_dscr:screen-value in frame {&frame-name} = if avail dept then dept.dscr else "".
-  
+
   find first style where style.style = mstd.style no-lock no-error.
   style_dscr:screen-value = if avail style then style.dscr else "".
-  
+
   find FIRST std-code where std-code.code = string(mstd.mr-x:screen-value in frame {&frame-name}, "99")
                 no-lock no-error.
   mx-dscr[1]:screen-value = if avail std-code then std-code.dscr else "".
@@ -1012,7 +1031,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-m-code NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   if can-find(first bf-mstd where bf-mstd.company = mstd.company and
                               bf-mstd.loc = mstd.loc and
                               bf-mstd.m-code = mstd.m-code and
@@ -1105,7 +1124,7 @@ PROCEDURE local-update-record :
      apply "entry" to mstd.sp-y in frame {&frame-name}.
      return no-apply.
   END.
-
+  {&methods/lValidateError.i NO}
   RUN check-for-special-codes.
 
   /* Dispatch standard ADM method.                             */
@@ -1120,6 +1139,7 @@ PROCEDURE local-update-record :
    adm-adding-record = NO.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1322,7 +1342,8 @@ PROCEDURE valid-m-code :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER bf-mach FOR mach.
-  
+
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST bf-mach WHERE bf-mach.company EQ gcompany
                                     AND bf-mach.loc     EQ gloc
@@ -1332,6 +1353,7 @@ PROCEDURE valid-m-code :
       RETURN ERROR.
     END.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -297,7 +297,7 @@ DO:   /* must run from laptop only not from server */
        if not can-do(emp_server.usergrps.users,contact.sman) then next.
 
        /*export contact.*/
-       buffer-copy emp_server.contact to emptrack.contact.
+       buffer-copy emp_server.contact to contact.
 
    end.                               
    output close.

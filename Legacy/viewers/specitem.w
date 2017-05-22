@@ -185,7 +185,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
@@ -206,6 +206,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-spec.code V-table-Win
 ON LEAVE OF item-spec.code IN FRAME F-Main /* Spec Code */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and 
        self:screen-value = "" then do:
        message "Spec Code must be entered. " view-as alert-box error.
@@ -220,9 +221,11 @@ DO:
          message "Spec Code already exists." view-as alert-box error.
          return no-apply.
     end.
-    
-    self:screen-value = caps(self:screen-value).                                 
+
+    self:screen-value = caps(self:screen-value).
+    {&methods/lValidateError.i NO}                                 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -239,7 +242,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -314,7 +317,7 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   assign item-spec.company = gcompany
          item-spec.i-no = "".
-         
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -327,7 +330,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
  do with frame {&frame-name} :
    if item-spec.code:screen-value = "" then do:
@@ -345,12 +348,14 @@ PROCEDURE local-update-record :
          return no-apply.
     end.
  end.
+ {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

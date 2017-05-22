@@ -121,7 +121,7 @@ DEFINE FRAME OPTIONS-FRAME
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartEasyWindow
-   External Tables: EMPTRACK.machemp
+   External Tables: machemp
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Container Links: 
    Design Page: 1

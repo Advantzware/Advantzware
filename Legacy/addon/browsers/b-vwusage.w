@@ -287,38 +287,38 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.vend-whse-trans"
+     _TblList          = "vend-whse-trans"
      _Options          = "SHARE-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Where[1]         = "EMPTRACK.vend-whse-trans.trans-type = ""U"""
-     _FldNameList[1]   > EMPTRACK.vend-whse-trans.r-no
+     _Where[1]         = "vend-whse-trans.trans-type = ""U"""
+     _FldNameList[1]   > vend-whse-trans.r-no
 "vend-whse-trans.r-no" "Seq#" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > EMPTRACK.vend-whse-trans.trans-date
+     _FldNameList[2]   > vend-whse-trans.trans-date
 "vend-whse-trans.trans-date" "Customers!Usage Date" ? "date" ? ? ? 14 ? ? yes "Date Boxes Were Consummed" no no "15.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > EMPTRACK.vend-whse-trans.trans-qty
+     _FldNameList[3]   > vend-whse-trans.trans-qty
 "vend-whse-trans.trans-qty" "Quantity!Used" "->>,>>>,>>9" "decimal" ? ? ? 14 ? ? yes "Quantity Consummed" no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > EMPTRACK.vend-whse-trans.plant-tot-oh-qty
+     _FldNameList[4]   > vend-whse-trans.plant-tot-oh-qty
 "vend-whse-trans.plant-tot-oh-qty" ? "->>,>>>,>>9" "decimal" ? ? ? 14 ? ? no "On Hand Quantity at Customers Plant" no no "15.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > EMPTRACK.vend-whse-trans.item-po-no
+     _FldNameList[5]   > vend-whse-trans.item-po-no
 "vend-whse-trans.item-po-no" ? "x(15)" "character" ? ? ? 14 ? ? yes "Purchase Order Number for Customers Part" no no "14.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > EMPTRACK.vend-whse-trans.cust-part-no
+     _FldNameList[6]   > vend-whse-trans.cust-part-no
 "vend-whse-trans.cust-part-no" ? "x(20)" "character" ? ? ? 14 ? ? yes "Customers Part Number" no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > EMPTRACK.vend-whse-trans.fg-item-no
+     _FldNameList[7]   > vend-whse-trans.fg-item-no
 "vend-whse-trans.fg-item-no" ? "x(20)" "character" ? ? ? 14 ? ? no "Suppliers Finished Goods Part Number" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > EMPTRACK.vend-whse-trans.vendor-code
+     _FldNameList[8]   > vend-whse-trans.vendor-code
 "vend-whse-trans.vendor-code" ? ? "character" ? ? ? 14 ? ? no "A/P Code for Supplier in Customers Vendors File" no no "12.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > EMPTRACK.vend-whse-trans.vendor-plant-code
+     _FldNameList[9]   > vend-whse-trans.vendor-plant-code
 "vend-whse-trans.vendor-plant-code" ? ? "character" ? ? ? 14 ? ? yes ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > EMPTRACK.vend-whse-trans.vendor-dept-code
+     _FldNameList[10]   > vend-whse-trans.vendor-dept-code
 "vend-whse-trans.vendor-dept-code" ? ? "character" ? ? ? 14 ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > EMPTRACK.vend-whse-trans.vend-ord-no
+     _FldNameList[11]   > vend-whse-trans.vend-ord-no
 "vend-whse-trans.vend-ord-no" ? ? "integer" ? ? ? 14 ? ? yes "Suppliers Order Number for Customers Purchase Order" no no "12.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > EMPTRACK.vend-whse-trans.item-line-no
+     _FldNameList[12]   > vend-whse-trans.item-line-no
 "vend-whse-trans.item-line-no" ? ? "integer" ? ? ? ? ? ? no "Line Number for Customers Part" no no "7.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > EMPTRACK.vend-whse-trans.vend-job-no
+     _FldNameList[13]   > vend-whse-trans.vend-job-no
 "vend-whse-trans.vend-job-no" "Suppliers!Job#" ? "character" ? ? ? 14 ? ? yes "Suppliers Job Number for Customers Purchase Order" no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   > EMPTRACK.vend-whse-trans.vend-job-no2
+     _FldNameList[14]   > vend-whse-trans.vend-job-no2
 "vend-whse-trans.vend-job-no2" ? ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[15]   > EMPTRACK.vend-whse-trans.sell-price
+     _FldNameList[15]   > vend-whse-trans.sell-price
 "vend-whse-trans.sell-price" ? ? "decimal" ? ? ? 14 ? ? yes "Cost of Customers Part Number On PO" no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

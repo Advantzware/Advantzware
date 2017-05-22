@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\oe-prmtx.i
 &SCOPED-DEFINE yellowColumnsName oe-prmtx
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}

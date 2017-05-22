@@ -912,7 +912,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -924,7 +924,7 @@ ON HELP OF FRAME F-Main
 DO:
    def var lv-handle as handle no-undo.
    def var char-val as cha no-undo.
-   
+
    CASE Focus:name :
        when "flute" then do:
            /*run est/l-flute.w (output char-val).  using reftable*/
@@ -963,10 +963,10 @@ DO:
      otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-             
+
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
-        
+
            end.   /* g_lookup-var <> "" */
            apply "entry" to lv-handle.
            return no-apply.
@@ -1004,7 +1004,7 @@ DO:
       {custom/mattypes.i}
     END.
     &UNDEFINE mat-types-enable
-    
+
        IF fi_mat-type:SCREEN-VALUE = "R" THEN do:
         ASSIGN
             item.reg-no:LABEL = "Paper Type" 
@@ -1027,7 +1027,7 @@ END.
 ON VALUE-CHANGED OF fi_mat-type IN FRAME F-Main /* Mat'l Type */
 DO:
   &Scoped-define mat-types-enable NO
-  
+
   FIND mat WHERE mat.mat EQ fi_mat-type:SCREEN-VALUE NO-LOCK NO-ERROR.
 
   IF AVAIL mat THEN DO:
@@ -1038,7 +1038,7 @@ DO:
       {custom/mattypes.i}
     END.
     &UNDEFINE mat-types-enable
-    
+
     IF fi_mat-type:SCREEN-VALUE = "R" THEN do:
         ASSIGN
             item.reg-no:LABEL = "Paper Type" .
@@ -1106,6 +1106,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item.ink-type V-table-Win
 ON VALUE-CHANGED OF item.ink-type IN FRAME F-Main /* Ink Type */
 DO:
+  {&methods/lValidateError.i YES}
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
   lv-msg = "".
@@ -1121,7 +1122,9 @@ DO:
     APPLY "entry" TO {&self-name}.
     RETURN NO-APPLY.
   END.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1151,7 +1154,7 @@ session:data-entry-return = yes.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1366,7 +1369,7 @@ PROCEDURE local-assign-record :
      lv-cas-pal-w = DEC(fi_cas-pal-w:SCREEN-VALUE)
      lv-ect       = DEC(fi_ect:SCREEN-VALUE).
   END.
-          
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -1379,7 +1382,7 @@ PROCEDURE local-assign-record :
          locode = gloc
          fi_mat-type = lv-mat-type
          item.mat-type = lv-mat-type.   
-  
+
   if adm-new-record and item.mat-type = "D" then do:  /* from rm/cpall.i */
      find first bf-item where bf-item.company = gcompany and
                               bf-item.mat-type = "D" and
@@ -1451,7 +1454,7 @@ PROCEDURE local-assign-record :
          find bf-item where bf-item.company = gcompany and
                             bf-item.i-no = ls-prev-i-no
                             no-lock no-error.
-         
+
          DO WITH FRAME {&FRAME-NAME}:
            BUFFER-COPY bf-item EXCEPT rec_key TO ITEM
            ASSIGN
@@ -1611,7 +1614,7 @@ PROCEDURE local-display-fields :
         ELSE 
             ASSIGN
                 item.reg-no:LABEL = "Reg.#" .
-            
+
     end.
 
     else
@@ -1621,10 +1624,10 @@ PROCEDURE local-display-fields :
        fi_reg-no /*:screen-value*/    = item.reg-no.
     end.
   END.
- 
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
- 
+
   /* Code placed here will execute AFTER standard behavior.    */
 END PROCEDURE.
 
@@ -1639,14 +1642,14 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   def var is-new-record as log no-undo.
   DEF VAR char-hdl AS CHAR NO-UNDO.
-  
+
 
   /* Code placed here will execute PRIOR to standard behavior. */
   is-new-record = adm-new-record.
   /* ========== validate all inputs =============*/
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+     {&methods/lValidateError.i YES}
      if item.dept-name[1]:screen-value in frame {&frame-name} <> "" and
         not can-find(first dept where dept.company = "" and dept.code = item.dept-name[1]:screen-value
                             and (dept.setup <> 99 or dept.fc <> 99 or dept.corr <> 99
@@ -1758,9 +1761,6 @@ PROCEDURE local-update-record :
           return no-apply.
      end.                            
 
-     RUN valid-mat-type NO-ERROR.
-     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
      if /*fi_mat-type:screen-value <> "" and*/
         not can-find(first procat where procat.company = gcompany and
                                         procat.procat = item.procat:screen-value)
@@ -1779,6 +1779,9 @@ PROCEDURE local-update-record :
         apply "entry" to item.cost-type in frame {&frame-name}.
         return no-apply.
      end.
+    {&methods/lValidateError.i NO}
+   RUN valid-mat-type NO-ERROR.
+   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
    RUN valid-dimensions NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1790,7 +1793,7 @@ PROCEDURE local-update-record :
      RUN valid-test (fi_reg-no:HANDLE) NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
    END.
-
+   {&methods/lValidateError.i YES}
    if index("BAPR1234",fi_mat-type:screen-value) > 0 then do:
      if dec(item.cal:screen-value) = 0 then do:
         message "Caliper is mandatory" view-as alert-box error.
@@ -1844,24 +1847,25 @@ PROCEDURE local-update-record :
         end. 
    end.
   /* ======== end validation =================== */
-
+  {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN disable-item.
-  
+
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
 
   IF is-new-record THEN do:
       RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(item)). 
       RUN reset-init-values IN WIDGET-HANDLE(char-hdl).
    END.
-  
+
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ("row-changed").
 
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1915,8 +1919,10 @@ PROCEDURE valid-dimensions :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   {custom/validDim.i}
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1930,6 +1936,7 @@ PROCEDURE valid-flute :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     item.flute:SCREEN-VALUE = CAPS(item.flute:SCREEN-VALUE).
 
@@ -1944,6 +1951,7 @@ PROCEDURE valid-flute :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1956,7 +1964,8 @@ PROCEDURE valid-i-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF item.i-no:SCREEN-VALUE EQ "" THEN DO:
       MESSAGE "Item# may not be spaces..." VIEW-AS ALERT-BOX ERROR.
@@ -1964,7 +1973,8 @@ PROCEDURE valid-i-no :
       RETURN ERROR.
     END.
   END.
-  
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1978,6 +1988,7 @@ PROCEDURE valid-mat-type :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     fi_mat-type:SCREEN-VALUE = CAPS(fi_mat-type:SCREEN-VALUE).
 
@@ -1987,7 +1998,8 @@ PROCEDURE valid-mat-type :
       RETURN ERROR.
     END.
   END.
-  
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2003,6 +2015,7 @@ PROCEDURE valid-test :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -2016,6 +2029,7 @@ PROCEDURE valid-test :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2032,7 +2046,7 @@ PROCEDURE histblnkmsg :
 
 DEF VAR char-hdl AS CHAR NO-UNDO.  
 define buffer b-poline for po-ordl.
-
+{&methods/lValidateError.i YES}
 find first b-poline where b-poline.company = item.company
                                       and b-poline.i-no    = item.i-no
                                       and b-poline.opened  = yes no-lock no-error.	
@@ -2045,10 +2059,11 @@ IF not avail b-poline and ITEM.i-no <> "" THEN DO:
       return error .                    	      
    END.
 end. 
-
+{&methods/lValidateError.i NO}
 
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

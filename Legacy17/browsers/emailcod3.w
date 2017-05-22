@@ -27,6 +27,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\emailcod3.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

@@ -27,6 +27,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\soldto.i
 &SCOPED-DEFINE cellColumnDat browsers-soldto
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT

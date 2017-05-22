@@ -242,7 +242,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -296,7 +296,7 @@ FOR EACH b-carrier
     WHERE b-carrier.company   EQ carrier.company
       AND b-carrier.by-pallet NE ?
     NO-LOCK:
-    
+
   RUN util/ucarrier.p (RECID(b-carrier)).
 END.
 
@@ -304,7 +304,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -399,6 +399,7 @@ PROCEDURE load-fedex :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+{&methods/lValidateError.i YES}
 IF carrier.carrier = "FEDX" OR INDEX(carrier.dscr, "federal express") > 0
     OR INDEX(carrier.dscr, "fedex") > 0 THEN
 RUN ar/impfedx.w (INPUT carrier.loc, INPUT carrier.carrier).
@@ -407,7 +408,9 @@ ELSE DO:
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
     RETURN NO-APPLY.
 END.
+{&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -429,7 +432,7 @@ PROCEDURE local-assign-record :
          ls-prev-loc = carrier.loc
          vChgMethod = rd_chg-method:SCREEN-VALUE IN FRAME {&FRAME-NAME}
          .
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -453,7 +456,7 @@ PROCEDURE local-assign-record :
   end.
 
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -595,6 +598,7 @@ PROCEDURE valid-loc :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     carrier.loc:SCREEN-VALUE = CAPS(carrier.loc:SCREEN-VALUE).
 
@@ -608,6 +612,7 @@ PROCEDURE valid-loc :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

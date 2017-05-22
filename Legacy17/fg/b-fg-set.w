@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\fg\b-fg-set.i
 &SCOPED-DEFINE noGetCellColumns
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}

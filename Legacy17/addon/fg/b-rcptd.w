@@ -29,6 +29,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\fg\b-rcptd.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

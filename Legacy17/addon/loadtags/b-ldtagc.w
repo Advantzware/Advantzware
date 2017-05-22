@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\loadtags\b-ldtagc.i
 &SCOPED-DEFINE yellowColumnsName loadtag
 /* Parameters Definitions ---                                           */
 

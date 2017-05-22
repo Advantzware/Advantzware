@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\stax.i
 &SCOPED-DEFINE yellowColumnsName stax
 &SCOPED-DEFINE setBrowseFocus
 &SCOPED-DEFINE winReSize

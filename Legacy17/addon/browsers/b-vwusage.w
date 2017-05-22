@@ -26,6 +26,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\b-vwusage.i
 &SCOPED-DEFINE yellowColumnsName vend-whse-trans
 /* Parameters Definitions ---                                           */
 

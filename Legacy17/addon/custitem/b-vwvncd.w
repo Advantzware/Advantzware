@@ -36,6 +36,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\custitem\b-vwvncd.i
 &SCOPED-DEFINE yellowColumnsName vend-code-cust-xref
 
 /* Parameters Definitions ---                                           */

@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\ar\b-arinq.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

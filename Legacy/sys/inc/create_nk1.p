@@ -292,6 +292,11 @@ CASE ip-nk1-value:
         INPUT "Use enhanced GOTO Screen from Estimate?",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).
+    WHEN "CEPanel" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Check Panel sizes against limits on Machine File?",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
 
         
     
@@ -336,7 +341,6 @@ CASE ip-nk1-value:
     WHEN "celayout" THEN DO: {sys\inc\celayout.i} END.
     WHEN "cematl" THEN DO: {sys\inc\cematl.i} END.
     WHEN "cemisc" THEN DO: {sys\inc\cemisc.i} END.
-    WHEN "cepanel" THEN DO: {sys\inc\cepanel.i} END.
     WHEN "cepartition" THEN DO: {sys\inc\cepartition.i} END.
     WHEN "cepdies" THEN DO: {sys\inc\cepdies.i} END.
     WHEN "ceprep" THEN DO: {sys\inc\ceprep.i} END.

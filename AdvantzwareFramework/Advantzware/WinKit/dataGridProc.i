@@ -73,6 +73,9 @@ PROCEDURE pApplyFilterHandler:
         cQuery        = cGridQuery
         cQuery        = REPLACE (cQuery, "%company%", g_company)
         cQuery        = REPLACE (cQuery, "%loc%"    , g_loc    )
+        &IF DEFINED(dataGridInclude) NE 0 &THEN
+        {Advantzware/WinKit/dataGridInclude.i {{&dataGridInclude}}}
+        &ENDIF
         cGridErrors   = SEARCH ("dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".dat")).
         cGridErrors   = REPLACE (cGridErrors, ".dat", ".err")
         .
@@ -108,7 +111,8 @@ PROCEDURE pApplyFilterHandler:
       IF lShowQuery THEN 
       MESSAGE
         "Query:" SKIP(1) cQuery SKIP(2)
-        "Base Template:" SKIP(1) cGridQuery
+        "Base Template:" SKIP(1) cGridQuery SKIP(2)
+        "Include: {{&dataGridInclude}}"
             VIEW-AS ALERT-BOX.
             
       QUERY {&BROWSE-NAME}:QUERY-PREPARE (cQuery) NO-ERROR.      
@@ -135,8 +139,9 @@ PROCEDURE pApplyFilterHandler:
 END PROCEDURE.
 
 PROCEDURE pCreateDataGridDat:
-    DEFINE INPUT PARAMETER ipcGridSearch AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcUserID     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDataGridDat     AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcDataGridInclude AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcUserID          AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE hCellColumn AS HANDLE    NO-UNDO.
     DEFINE VARIABLE cIdxNames   AS CHARACTER NO-UNDO.
@@ -168,28 +173,28 @@ PROCEDURE pCreateDataGridDat:
         ELSE cNonIdx   = cNonIdx + hCellColumn:NAME + ",".
     END. /* do idx */
     ASSIGN
-        cIdxNames     = TRIM (cIdxNames,",")
-        cNonIdx       = TRIM (cNonIdx,",")
-        ipcGridSearch = REPLACE (SEARCH ("dataGrid/dataGrid.dat"),"dataGrid\dataGrid.dat",ipcGridSearch)
-        cQueryStr     = '{&QUERY-STRING-{&BROWSE-NAME}}'
-        cQueryStr     = REPLACE (cQueryStr," NO-LOCK","")
-        cQueryStr     = REPLACE (cQueryStr,"WHERE","NO-LOCK WHERE")
-        cQueryStr     = REPLACE (cQueryStr," TRUE       AND","")
-        cQueryStr     = REPLACE (cQueryStr,"g_company","~"%company%~"")
-        cQueryStr     = REPLACE (cQueryStr,"gcompany","~"%company%~"")
-        cQueryStr     = REPLACE (cQueryStr,"g_loc","~"%loc%~"")
-        cQueryStr     = REPLACE (cQueryStr,"gloc","~"%loc%~"")
-        cQueryStr     = REPLACE (cQueryStr,"=","EQ")
-        cQueryStr     = REPLACE (cQueryStr,"  "," ")
-        cQueryStr     = REPLACE (cQueryStr,"  "," ")
-        cQueryStr     = REPLACE (cQueryStr,"WHERE TRUE AND","WHERE")
-        cQueryStr     = REPLACE (cQueryStr,"WHERE TRUE","WHERE")
-        cQueryStr     =    TRIM (cQueryStr)
+        cIdxNames      = TRIM (cIdxNames,",")
+        cNonIdx        = TRIM (cNonIdx,",")
+        ipcDataGridDat = REPLACE (SEARCH ("dataGrid/dataGrid.dat"),"dataGrid\dataGrid.dat",ipcDataGridDat)
+        cQueryStr      = '{&QUERY-STRING-{&BROWSE-NAME}}'
+        cQueryStr      = REPLACE (cQueryStr," NO-LOCK","")
+        cQueryStr      = REPLACE (cQueryStr,"WHERE","NO-LOCK WHERE")
+        cQueryStr      = REPLACE (cQueryStr," TRUE       AND","")
+        cQueryStr      = REPLACE (cQueryStr,"g_company","~"%company%~"")
+        cQueryStr      = REPLACE (cQueryStr,"gcompany","~"%company%~"")
+        cQueryStr      = REPLACE (cQueryStr,"g_loc","~"%loc%~"")
+        cQueryStr      = REPLACE (cQueryStr,"gloc","~"%loc%~"")
+        cQueryStr      = REPLACE (cQueryStr,"=","EQ")
+        cQueryStr      = REPLACE (cQueryStr,"  "," ")
+        cQueryStr      = REPLACE (cQueryStr,"  "," ")
+        cQueryStr      = REPLACE (cQueryStr,"WHERE TRUE AND","WHERE")
+        cQueryStr      = REPLACE (cQueryStr,"WHERE TRUE","WHERE")
+        cQueryStr      =    TRIM (cQueryStr)
         .
     IF ENTRY (NUM-ENTRIES (cQueryStr, " "), cQueryStr, " ") EQ "WHERE" THEN
     cQueryStr = REPLACE (cQueryStr," WHERE","").
 
-    OUTPUT TO VALUE (ipcGridSearch).
+    OUTPUT TO VALUE (ipcDataGridDat).
     PUT UNFORMATTED
         cQueryStr SKIP
         cIdxNames SKIP(1)
@@ -224,8 +229,13 @@ PROCEDURE pCreateDataGridDat:
         END. /* if avail */
     END. /* do idx */
     OUTPUT CLOSE.
-    RUN util/dataGridDat.w (ipcGridSearch, "{&EXTERNAL-TABLES}", "{&TABLES-IN-QUERY-{&BROWSE-NAME}}").
-    RUN pGetDataGridDat (ipcGridSearch).
+    IF SEARCH (ipcDataGridInclude) EQ ? THEN DO: 
+        OUTPUT TO VALUE(ipcDataGridInclude).
+        PUT UNFORMATTED SKIP(1).
+        OUTPUT CLOSE.
+    END. /* if eq ? */
+    RUN util/dataGridDat.w (ipcDataGridDat, ipcDataGridInclude, "{&EXTERNAL-TABLES}", "{&TABLES-IN-QUERY-{&BROWSE-NAME}}").
+    RUN pGetDataGridDat (ipcDataGridDat).
 
 END PROCEDURE.
 
@@ -257,13 +267,17 @@ PROCEDURE pDataGridDat:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE cGridSearch AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cDataGridDat     AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cDataGridInclude AS CHARACTER NO-UNDO.
 
   IF VALID-OBJECT (oRenderedBrowseControl) THEN DO:
-      cGridSearch = SEARCH ("dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".dat")).
-      IF cGridSearch NE ? THEN DO: 
-          RUN util/dataGridDat.w (cGridSearch, "{&EXTERNAL-TABLES}", "{&TABLES-IN-QUERY-{&BROWSE-NAME}}").
-          RUN pGetDataGridDat (cGridSearch).
+      ASSIGN
+        cDataGridDat     = SEARCH ("dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".dat"))
+        cDataGridInclude = SEARCH ("dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".i"  ))
+        .
+      IF cDataGridDat NE ? THEN DO: 
+          RUN util/dataGridDat.w (cDataGridDat, cDataGridInclude, "{&EXTERNAL-TABLES}", "{&TABLES-IN-QUERY-{&BROWSE-NAME}}").
+          RUN pGetDataGridDat (cDataGridDat).
       END. /* if ne ? */
   END. /* valid-object */
 
@@ -275,14 +289,18 @@ PROCEDURE pDataGridInit:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE cGridSearch AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cDataGridDat     AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cDataGridInclude AS CHARACTER NO-UNDO.
 
   IF VALID-OBJECT (oRenderedBrowseControl) THEN DO:
-      cGridSearch = "dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".dat").
-      IF SEARCH (cGridSearch) EQ ? AND lDeveloper THEN
-      RUN pCreateDataGridDat (cGridSearch, USERID("ASI")).
-      IF SEARCH (cGridSearch) NE ? THEN DO:
-          RUN pGetDataGridDat (cGridSearch).
+      ASSIGN
+        cDataGridDat     = "dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".dat")
+        cDataGridInclude = "dataGrid/" + REPLACE (THIS-PROCEDURE:NAME,".w",".i"  )
+        .
+      IF SEARCH (cDataGridDat) EQ ? AND lDeveloper THEN
+      RUN pCreateDataGridDat (cDataGridDat, cDataGridInclude, USERID("ASI")).
+      IF SEARCH (cDataGridDat) NE ? THEN DO:
+          RUN pGetDataGridDat (cDataGridDat).
           ASSIGN
               cGridQuery = REPLACE (cGridQuery,"%company%", g_company)
               cGridQuery = REPLACE (cGridQuery,"%loc%"    , g_loc    )

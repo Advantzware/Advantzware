@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\util\fgtags-mismatch1.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

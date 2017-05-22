@@ -72,7 +72,7 @@ DEF TEMP-TABLE tt-mach NO-UNDO
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR machtran.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS machtran.form_number machtran.blank_number ~
+&Scoped-Define ENABLED-FIELDS machtran.machine machtran.form_number machtran.blank_number ~
 machtran.pass_sequence machtran.start_date machtran.end_date ~
 machtran.charge_code machtran.run_qty machtran.waste_qty machtran.completed 
 &Scoped-define ENABLED-TABLES machtran
@@ -344,7 +344,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: EMPTRACK.machtran
+   External Tables: machtran
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -563,7 +563,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -587,6 +587,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL machtran.blank_number V-table-Win
 ON LEAVE OF machtran.blank_number IN FRAME F-Main /* Blank Number */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/entryerr.i
       &can-find="FIRST job-mch WHERE job-mch.company = gcompany
                                  AND job-mch.m-code = s-machine
@@ -595,7 +596,9 @@ DO:
                                  AND job-mch.frm = INTEGER(s-form_number)
                                  AND job-mch.blank-no = INTEGER(SELF:SCREEN-VALUE)"
       &error-message="Invalid Blank Number"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -605,11 +608,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL machtran.charge_code V-table-Win
 ON LEAVE OF machtran.charge_code IN FRAME F-Main /* Charge Code */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   {methods/entryerr.i
       &can-find="job-code WHERE job-code.code = SELF:SCREEN-VALUE"
       &error-message="Invalid Charge Code"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -630,9 +636,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_hour V-table-Win
 ON LEAVE OF end_hour IN FRAME F-Main /* End Time */
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 12.
   {methods/entryerr.i &error-message="Invalid Hour, range = 0 to 12"}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -642,9 +651,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_minute V-table-Win
 ON LEAVE OF end_minute IN FRAME F-Main
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
   {methods/entryerr.i &error-message="Invalid Minute, range = 0 to 59"}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -654,13 +666,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_shift V-table-Win
 ON LEAVE OF fi_shift IN FRAME F-Main /* Shift */
 DO:
+  {&methods/lValidateError.i YES}
   IF LASTKEY NE -1 THEN DO:
     {methods/entryerr.i
         &can-find="FIRST shifts WHERE shifts.company = gcompany
                                   AND shifts.shift = SELF:SCREEN-VALUE"
         &error-message="Invalid Shift"}
   END.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -683,6 +698,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL machtran.form_number V-table-Win
 ON LEAVE OF machtran.form_number IN FRAME F-Main /* Form Number */
 DO:
+    {&methods/lValidateError.i YES}
+    IF s-machine EQ "" THEN
+        ASSIGN
+        s-machine = machtran.machine:SCREEN-VALUE
+        s-job_number = machtran.job_number:SCREEN-VALUE
+        s-job_sub = machtran.job_sub:SCREEN-VALUE.
+
   {methods/entryerr.i
       &can-find="FIRST job-mch WHERE job-mch.company = gcompany
                                  AND job-mch.m-code = s-machine
@@ -690,7 +712,9 @@ DO:
                                  AND job-mch.job-no2 = INTEGER(s-job_sub)
                                  AND job-mch.frm = INTEGER(SELF:SCREEN-VALUE)"
       &error-message="Invalid Form Number"}
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -712,7 +736,7 @@ ON HELP OF machtran.job_number IN FRAME F-Main /* Job Number */
 DO:
    DEF VAR char-val AS cha NO-UNDO.
    DEF VAR rec-val AS RECID NO-UNDO.
-   
+
    RUN windows/l-jobno.w (g_company,FOCUS:SCREEN-VALUE ,OUTPUT char-val, OUTPUT rec-val).
    IF rec-val <> ? THEN DO:
       FIND job-hdr WHERE RECID(job-hdr) = rec-val NO-LOCK NO-ERROR.
@@ -729,6 +753,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL machtran.job_number V-table-Win
 ON LEAVE OF machtran.job_number IN FRAME F-Main /* Job Number */
 DO:
+  {&methods/lValidateError.i YES}
   SELF:SCREEN-VALUE = FILL(' ',6 - LENGTH(SELF:SCREEN-VALUE)) + SELF:SCREEN-VALUE.
   /* edit for scheduled machine */
   IF NOT CAN-FIND(FIRST job-mch WHERE job-mch.company = gcompany
@@ -748,7 +773,9 @@ DO:
                                  AND job-mch.m-code = s-machine
                                  AND job-mch.job-no = SELF:SCREEN-VALUE"
       &error-message="Invalid Job Number"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -759,7 +786,7 @@ ON HELP OF machtran.charge_code IN FRAME F-Main /* charge code */
 DO:
    DEF VAR char-val AS cha NO-UNDO.
    DEF VAR rec-val AS RECID NO-UNDO.
-   
+
    RUN windows/l-jobcod.w (FOCUS:SCREEN-VALUE ,OUTPUT char-val).
    IF char-val <> ? THEN DO:
          ASSIGN machtran.charge_code:SCREEN-VALUE = ENTRY(1,char-val)
@@ -787,13 +814,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL machtran.job_sub V-table-Win
 ON LEAVE OF machtran.job_sub IN FRAME F-Main /* Sub */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/entryerr.i
       &can-find="FIRST job-mch WHERE job-mch.company = gcompany
                                  AND job-mch.m-code = s-machine
                                  AND job-mch.job-no = s-job_number
                                  AND job-mch.job-no2 = INTEGER(SELF:SCREEN-VALUE)"
       &error-message="Invalid Job Sub Number"}
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -818,12 +848,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL machtran.machine V-table-Win
 ON LEAVE OF machtran.machine IN FRAME F-Main /* Machine */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   {methods/entryerr.i
       &can-find="mach WHERE mach.company = gcompany
                         AND mach.m-code = SELF:SCREEN-VALUE"
       &error-message="Invalid Machine Code"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -848,6 +881,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL machtran.pass_sequence V-table-Win
 ON LEAVE OF machtran.pass_sequence IN FRAME F-Main /* Pass */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/entryerr.i
       &can-find="FIRST job-mch WHERE job-mch.company = gcompany
                                  AND job-mch.m-code = s-machine
@@ -857,7 +891,9 @@ DO:
                                  AND job-mch.blank-no = INTEGER(s-blank_number)
                                  AND job-mch.pass = INTEGER(SELF:SCREEN-VALUE)"
       &error-message="Invalid Pass Sequence"}
+     {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -878,9 +914,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_hour V-table-Win
 ON LEAVE OF start_hour IN FRAME F-Main /* Start Time */
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 1 OR INTEGER(SELF:SCREEN-VALUE) GT 12.
   {methods/entryerr.i &error-message="Invalid Hour, range = 1 to 12"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -890,9 +929,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_minute V-table-Win
 ON LEAVE OF start_minute IN FRAME F-Main
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
   {methods/entryerr.i &error-message="Invalid Minute, range = 0 to 59"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -910,7 +952,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -963,7 +1005,7 @@ PROCEDURE crt-emp-trans :
                          and empmach.machine = machtran.machine
                          break by empmach.employee :       
          if first-of(empmach.employee) then do:
-            find emptrack.employee of empmach no-lock .
+            find employee of empmach no-lock .
             CREATE machemp.
             ASSIGN machemp.table_rec_key = machtran.rec_key
                 machemp.employee = empmach.employee
@@ -971,14 +1013,14 @@ PROCEDURE crt-emp-trans :
                 machemp.start_time = machtran.start_time
                 machemp.shift = machtran.shift
                 machemp.ratetype = 'Standard' 
-                machemp.rate_usage = emptrack.employee.rate_usage
+                machemp.rate_usage = employee.rate_usage
                 machemp.end_date = machtran.end_date
                 machemp.end_time = machtran.end_time.
 
              RUN Employee-Rate(machtran.company,machemp.employee,machemp.shift,machtran.machine,
                           machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
              {custom/calctime.i &file="machemp"}
-  
+
              FIND FIRST emplogin WHERE emplogin.company = machtran.company
                         AND emplogin.employee = machemp.employee
                         AND emplogin.machine = machtran.machine
@@ -1018,7 +1060,7 @@ PROCEDURE crt-lunch-trans :
   def var bf-machtran-rowid as rowid no-undo.
   def var run-qty like machtran.run_qty no-undo.
   def var waste-qty like machtran.waste_qty no-undo.
-  
+
       find shifts where shifts.company = machtran.company and
                         shifts.shift = machtran.shift
                         no-lock no-error.
@@ -1073,13 +1115,13 @@ PROCEDURE crt-lunch-trans :
           {custom/calctime.i &file="machemp"}                          
       END. /* each emplogin */
     ================================================*/
-    
+
     /* ======= all employee for the machine ===========*/
       for each empmach no-lock where empmach.company = machtran.company
                          and empmach.machine = machtran.machine
                          break by empmach.employee :       
          if first-of(empmach.employee) then do:
-            find emptrack.employee of empmach no-lock .
+            find employee of empmach no-lock .
             CREATE machemp.
             ASSIGN machemp.table_rec_key = bf-machtran.rec_key
                 machemp.employee = empmach.employee
@@ -1087,7 +1129,7 @@ PROCEDURE crt-lunch-trans :
                 machemp.start_time = bf-machtran.start_time
                 machemp.shift = bf-machtran.shift
                 machemp.ratetype = if shifts.lunch_paid then 'Standard' else ""
-                machemp.rate_usage = emptrack.employee.rate_usage
+                machemp.rate_usage = employee.rate_usage
                 machemp.end_date = bf-machtran.end_date
                 machemp.end_time = bf-machtran.end_time
                 bf-machtran.run_qty = run-qty  /*???*/
@@ -1096,7 +1138,7 @@ PROCEDURE crt-lunch-trans :
              RUN Employee-Rate(machtran.company,machemp.employee,machemp.shift,machtran.machine,
                           machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
              {custom/calctime.i &file="machemp"}
-                          
+
            RELEASE machemp.           
          end. 
       END. /* each emplogin */
@@ -1113,7 +1155,7 @@ PROCEDURE disable-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     DISABLE fi_shift {&TIME-FIELDS} WITH FRAME {&FRAME-NAME}.
   END.
@@ -1148,9 +1190,11 @@ PROCEDURE enable-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE fi_shift.
+    IF NOT adm-new-record THEN
+        DISABLE machtran.machine WITH FRAME {&FRAME-NAME}.
   END.
 
 END PROCEDURE.
@@ -1167,7 +1211,7 @@ PROCEDURE local-assign-record :
   def var ll-new-record as log no-undo.
   /* Code placed here will execute PRIOR to standard behavior. */
   ll-new-record = adm-new-record.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
@@ -1276,7 +1320,7 @@ PROCEDURE local-update-record :
      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
      RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(machtran)).
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1345,7 +1389,7 @@ PROCEDURE upd-emp-trans :
 
         RUN Employee-Rate(machtran.company,machemp.employee,machemp.shift,machtran.machine,
                      machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
-        
+
         {custom/calctime.i &file="machemp"}
     end.                      
 
@@ -1361,7 +1405,7 @@ PROCEDURE update-tran :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+{&methods/lValidateError.i YES}
 IF AVAIL machtran AND machtran.posted THEN DO:
    MESSAGE "It's already Posted. Can't Update." VIEW-AS ALERT-BOX ERROR.
    RUN dispatch ('disable-fields').
@@ -1369,8 +1413,9 @@ IF AVAIL machtran AND machtran.posted THEN DO:
    RUN undo-update IN WIDGET-HANDLE(char-hdl).
    RETURN ERROR.
 END.
-
+{&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1398,11 +1443,12 @@ PROCEDURE valid-sch-machine :
 ------------------------------------------------------------------------------*/
   DEFINE BUFFER buf-mach FOR mach.
 
+  {methods/lValidateError.i YES}
   lv-mach-list = "".
 
   FIND FIRST mach NO-LOCK WHERE mach.company = gcompany
                             AND mach.m-code = machtran.machine:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-ERROR.
-  
+
   IF mach.sch-m-code <> "" THEN
     FOR EACH buf-mach FIELDS(m-code) WHERE
         buf-mach.company EQ mach.company AND
@@ -1412,6 +1458,7 @@ PROCEDURE valid-sch-machine :
         lv-mach-list = lv-mach-list + buf-mach.m-code + ",".
      END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1424,6 +1471,7 @@ PROCEDURE validate-date-time :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   /* task# 10110517 allow duplicate time if gang jobs is yes*/
   DEF BUFFER bf-mach FOR mach.
 
@@ -1476,13 +1524,13 @@ PROCEDURE validate-date-time :
   RUN valid-sch-machine.
 
   EMPTY TEMP-TABLE tt-mach.
-     
+
   CREATE tt-mach.
   ASSIGN tt-mach.machine = bf-mach.m-code.
   RELEASE tt-mach.
 
   DO v-index = 1 TO LENGTH(lv-mach-list):
-     
+
      IF SUBSTRING(lv-mach-list,v-index,1) EQ "," AND
         bf-mach.m-code NE SUBSTRING(lv-mach-list,v-start,v-index - v-start) THEN
         DO:
@@ -1575,9 +1623,10 @@ PROCEDURE validate-date-time :
                            AND bf-machtran.END_time <= v-end-time
                            AND (RECID(bf-machtran) <> recid(machtran) OR adm-new-record)
                            NO-LOCK NO-ERROR.
-      
+
   IF AVAIL bf-machtran THEN DO: */
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1592,7 +1641,7 @@ PROCEDURE check-date-time :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DEFINE VARIABLE istarttime AS INTEGER NO-UNDO.
   DEFINE VARIABLE iendtime AS INTEGER NO-UNDO.
   DEFINE VARIABLE dtstartdate AS DATE NO-UNDO.
@@ -1602,7 +1651,7 @@ PROCEDURE check-date-time :
   DEFINE VARIABLE istart AS INTEGER INIT 1 NO-UNDO.
   DEFINE VARIABLE iampm AS INTEGER INIT 43200 NO-UNDO.
   DEFINE VARIABLE lvalid AS LOGICAL INIT TRUE NO-UNDO.
-
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
      ASSIGN START_hour START_minute START_ampm
          end_hour end_minute end_ampm.
@@ -1630,8 +1679,9 @@ PROCEDURE check-date-time :
        APPLY "entry" TO END_hour IN FRAME {&FRAME-NAME}.
        RETURN error.
    END.
-
+   {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

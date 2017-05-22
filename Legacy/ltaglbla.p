@@ -1,5 +1,21 @@
 /* Loadtag lbl.p */
 
+&SCOPED-DEFINE checkUserRecord YES 
+&SCOPED-DEFINE connectDatabases YES
+&SCOPED-DEFINE runAsiLoad YES
+&SCOPED-DEFINE nonPersistProgram oerep/r-loadtg.w
+&SCOPED-DEFINE checkExpiredLicense YES
+&SCOPED-DEFINE checkUserCount YES
+&SCOPED-DEFINE overrideUserID loadtag 
+&SCOPED-DEFINE overrideUserPasswd loadtag
+&SCOPED-DEFINE getCompanyProc CUSTOM/getcomp.p
+
+MESSAGE "test"
+VIEW-AS ALERT-BOX.
+{nosweat.i}
+
+/* Original Code */
+/*    
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
 
@@ -88,3 +104,4 @@ DO:
 END. 
 ldummy = SESSION:SET-WAIT-STATE("").
 QUIT.
+*/

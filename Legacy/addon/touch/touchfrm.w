@@ -402,17 +402,17 @@ PROCEDURE calc-dock-time :
   def var li-dout as int no-undo.
   def var li-out-min as int no-undo.
   
-  find first emptrack.employee where
-       emptrack.employee.company = company_code AND
-       emptrack.employee.employee = employee_code
+  find first employee where
+       employee.company = company_code AND
+       employee.employee = employee_code
        no-lock no-error.
 
-  if avail emptrack.employee and
-     emptrack.employee.dock-time = 0 then
+  if avail employee and
+     employee.dock-time = 0 then
      return.
    
   ASSIGN
-    li-docktime = if avail emptrack.employee then emptrack.employee.dock-time else 15  /* 15 min */
+    li-docktime = if avail employee then employee.dock-time else 15  /* 15 min */
   
     /* login In */
     li-hour = truncate(iop-time / 3600,0)
@@ -479,14 +479,14 @@ PROCEDURE Change_Page :
     DO:
       RUN Set_Title(translate('Employee',NO) + ' - ' +
                     translate('Company',NO) + ': ' + company_name + ' (' + company_code + ')').
-      FIND emptrack.employee WHERE emptrack.employee.company = company_code
-                      AND emptrack.employee.employee = employee_code
+      FIND employee WHERE employee.company = company_code
+                      AND employee.employee = employee_code
                     NO-LOCK NO-ERROR.
-      IF AVAILABLE emptrack.employee THEN
-      RUN Display_Keyboard (emptrack.employee.keyboard_type,h_employee).
+      IF AVAILABLE employee THEN
+      RUN Display_Keyboard (employee.keyboard_type,h_employee).
       ELSE
       RUN Display_Keyboard ('sortpad.',h_employee).
-      RELEASE emptrack.employee.
+      RELEASE employee.
       IF activity_status = 'login' THEN
       RUN Get_Employees IN h_employee.
       ELSE
@@ -498,14 +498,14 @@ PROCEDURE Change_Page :
                     translate('Employee',NO) + ': ' + employee_name + ' (' + employee_code + '), ' +
                     translate('Company',NO) + ': ' + company_name + ' (' + company_code + ')').
       RUN Display_Keyboard ('numeric.',h_password).
-      FIND emptrack.employee WHERE emptrack.employee.company = company_code
-                      AND emptrack.employee.employee = employee_code
+      FIND employee WHERE employee.company = company_code
+                      AND employee.employee = employee_code
                     NO-LOCK NO-ERROR.
-      IF AVAILABLE emptrack.employee THEN
-      RUN Display_Keyboard (emptrack.employee.keyboard_type,h_password).
+      IF AVAILABLE employee THEN
+      RUN Display_Keyboard (employee.keyboard_type,h_password).
       ELSE
       RUN Display_Keyboard ('sortpad.',h_password).
-      RELEASE emptrack.employee.
+      RELEASE employee.
       {methods/run_link.i "passwd-target" "set_focus"}
     END.
     WHEN 5 THEN /* machines */
@@ -552,14 +552,14 @@ PROCEDURE Change_Page :
     WHEN 8 THEN /* allmachs */
     DO:
       RUN Display_Keyboard ('numeric.',h_allmachs).
-      FIND emptrack.employee WHERE emptrack.employee.company = company_code
-                      AND emptrack.employee.employee = employee_code
+      FIND employee WHERE employee.company = company_code
+                      AND employee.employee = employee_code
                     NO-LOCK NO-ERROR.
-      IF AVAILABLE emptrack.employee THEN
-      RUN Display_Keyboard (emptrack.employee.keyboard_type,h_allmachs).
+      IF AVAILABLE employee THEN
+      RUN Display_Keyboard (employee.keyboard_type,h_allmachs).
       ELSE
       RUN Display_Keyboard ('sortpad.',h_allmachs).
-      RELEASE emptrack.employee.
+      RELEASE employee.
       IF activity_status = 'login' THEN
       DO:
         RUN Set_Title(translate('Machine',NO) + ' - ' +
@@ -650,14 +650,14 @@ PROCEDURE Change_Page :
     WHEN 15 THEN /* alljobs */
     DO:
       RUN Display_Keyboard ('numeric.',h_alljobs).
-      FIND emptrack.employee WHERE emptrack.employee.company = company_code
-                      AND emptrack.employee.employee = employee_code
+      FIND employee WHERE employee.company = company_code
+                      AND employee.employee = employee_code
                     NO-LOCK NO-ERROR.
-      IF AVAILABLE emptrack.employee THEN
-      RUN Display_Keyboard (emptrack.employee.keyboard_type,h_alljobs).
+      IF AVAILABLE employee THEN
+      RUN Display_Keyboard (employee.keyboard_type,h_alljobs).
       ELSE
       RUN Display_Keyboard ('sortpad.',h_alljobs).
-      RELEASE emptrack.employee.
+      RELEASE employee.
       RUN Set_Title(translate('Job',NO) + ' - ' +
                     translate('Machine',NO) + ': ' + machine_code + ', ' +
                     translate('Company',NO) + ': ' + company_name + ' (' + company_code + ')').
@@ -666,14 +666,14 @@ PROCEDURE Change_Page :
     WHEN 16 THEN /* manually enter job number */
     DO:
       RUN Display_Keyboard ('numeric.',h_enterjob).
-      FIND emptrack.employee WHERE emptrack.employee.company = company_code
-                      AND emptrack.employee.employee = employee_code
+      FIND employee WHERE employee.company = company_code
+                      AND employee.employee = employee_code
                     NO-LOCK NO-ERROR.
-      IF AVAILABLE emptrack.employee THEN
-      RUN Display_Keyboard (emptrack.employee.keyboard_type,h_enterjob).
+      IF AVAILABLE employee THEN
+      RUN Display_Keyboard (employee.keyboard_type,h_enterjob).
       ELSE
       RUN Display_Keyboard ('sortpad.',h_enterjob).
-      RELEASE emptrack.employee.
+      RELEASE employee.
       RUN Set_Title(translate('Enter Job',NO) + ' - ' +
                     translate('Machine',NO) + ': ' + machine_code + ', ' +
                     translate('Company',NO) + ': ' + company_name + ' (' + company_code + ')').
@@ -758,12 +758,12 @@ PROCEDURE Display_Keyboard :
       DELETE PROCEDURE h_keyboard.
       IF employee_code NE '' THEN
       DO:
-        FIND emptrack.employee WHERE emptrack.employee.company = company_code
-                        AND emptrack.employee.employee = employee_code
+        FIND employee WHERE employee.company = company_code
+                        AND employee.employee = employee_code
                       EXCLUSIVE-LOCK NO-ERROR.
-        IF AVAILABLE emptrack.employee THEN
+        IF AVAILABLE employee THEN
         employee.keyboard_type = Keyboard_Name.
-        RELEASE emptrack.employee.
+        RELEASE employee.
       END.
       Keyboard_Name = 'touch/' + Keyboard_Name + 'w'.      
       RUN VALUE(Keyboard_Name)
@@ -926,16 +926,16 @@ END.
 
   /* ============= end of mods ========= */ 
 
-FIND FIRST emptrack.emplogin WHERE
-     emptrack.emplogin.company = company_code AND
-     emptrack.emplogin.employee = employee_code AND
-     emptrack.emplogin.machine <> "CLOCK" AND
-     emptrack.emplogin.end_date EQ ? AND
-     emptrack.emplogin.end_time = 0 AND
-     emptrack.emplogin.total_time = 0
+FIND FIRST emplogin WHERE
+     emplogin.company = company_code AND
+     emplogin.employee = employee_code AND
+     emplogin.machine <> "CLOCK" AND
+     emplogin.end_date EQ ? AND
+     emplogin.end_time = 0 AND
+     emplogin.total_time = 0
      EXCLUSIVE-LOCK NO-ERROR.
 
-IF AVAILABLE emptrack.emplogin THEN  /* logout */
+IF AVAILABLE emplogin THEN  /* logout */
 DO:
     /* need date loop */
     def var lv-end-date as date no-undo.
@@ -1088,8 +1088,8 @@ DO:
                machemp.end_time = stoptime. /* no shift change, close out current */
             ELSE
             DO: /* shift change, close out current */
-               FIND emptrack.employee WHERE emptrack.employee.company = company_code
-                            AND emptrack.employee.employee = employee_code NO-LOCK NO-ERROR.
+               FIND employee WHERE employee.company = company_code
+                            AND employee.employee = employee_code NO-LOCK NO-ERROR.
                RUN Shift-Data(company_code,machinecode,machemp.shift,
                            OUTPUT starttime,OUTPUT endtime).
               
@@ -1130,7 +1130,7 @@ DO:
                                buf-machemp.end_time = endtime
                                buf-machemp.shift = missingshift
                                buf-machemp.ratetype = 'Standard'
-                               buf-machemp.rate_usage = emptrack.employee.rate_usage.
+                               buf-machemp.rate_usage = employee.rate_usage.
                        
                         RUN Employee-Rate(company_code,employee_code,buf-machemp.shift,machinecode,
                                       buf-machemp.rate_usage,buf-machemp.ratetype,OUTPUT buf-machemp.rate).
@@ -1158,7 +1158,7 @@ DO:
                             buf-machemp.end_time = stoptime
                             buf-machemp.shift = shiftvar
                             buf-machemp.ratetype = 'Standard'
-                            buf-machemp.rate_usage = emptrack.employee.rate_usage.
+                            buf-machemp.rate_usage = employee.rate_usage.
                     
                      RUN Employee-Rate(company_code,employee_code,buf-machemp.shift,machinecode,
                                     buf-machemp.rate_usage,buf-machemp.ratetype,OUTPUT buf-machemp.rate).
@@ -1191,16 +1191,16 @@ DO:
     IF tsclock-log THEN do:
 
        /* check clockin first */
-       FIND FIRST emptrack.emplogin WHERE
-            emptrack.emplogin.company = company_code AND
-            emptrack.emplogin.employee = employee_code AND
-            emptrack.emplogin.machine = "CLOCK" AND
-            emptrack.emplogin.END_date = ? AND
-            emptrack.emplogin.end_time = 0 AND
-            emptrack.emplogin.total_time = 0
+       FIND FIRST emplogin WHERE
+            emplogin.company = company_code AND
+            emplogin.employee = employee_code AND
+            emplogin.machine = "CLOCK" AND
+            emplogin.END_date = ? AND
+            emplogin.end_time = 0 AND
+            emplogin.total_time = 0
             EXCLUSIVE-LOCK NO-ERROR.
 
-       IF NOT AVAILABLE emptrack.emplogin THEN DO:
+       IF NOT AVAILABLE emplogin THEN DO:
           MESSAGE "CLOCK IN First." VIEW-AS ALERT-BOX ERROR.
           RETURN.
        END.
@@ -1244,9 +1244,9 @@ DO:
        END. 
     END. /* end of clockin check*/
 
-    FIND emptrack.employee WHERE
-         emptrack.employee.company = company_code AND
-         emptrack.employee.employee = employee_code
+    FIND employee WHERE
+         employee.company = company_code AND
+         employee.employee = employee_code
          NO-LOCK NO-ERROR.
 
     CREATE emplogin.
@@ -1320,7 +1320,7 @@ DO:
                machemp.start_time = emplogin.start_time
                machemp.shift = emplogin.shift
                machemp.ratetype = 'Standard'
-               machemp.rate_usage = emptrack.employee.rate_usage.
+               machemp.rate_usage = employee.rate_usage.
              RUN Employee-Rate(company_code,machemp.employee,machemp.shift,machine_code,
                                machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
           END.
@@ -1369,7 +1369,7 @@ DO:
               machemp.start_time = emplogin.start_time
               machemp.shift = emplogin.shift
               machemp.ratetype = 'Standard'
-              machemp.rate_usage = emptrack.employee.rate_usage.
+              machemp.rate_usage = employee.rate_usage.
               RUN Employee-Rate(company_code,machemp.employee,machemp.shift,machine_code,
                               machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
            END.

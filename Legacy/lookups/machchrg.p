@@ -18,7 +18,7 @@
 "machchrg. " ~
 */
 
-&Scoped-define lookup-db EMPTRACK.
+&Scoped-define lookup-db 
 &Scoped-define lookup-file machchrg
 &Scoped-define where-statement machchrg.company = gcompany AND machchrg.machine = s-machine
 &Scoped-define return-field charge_code

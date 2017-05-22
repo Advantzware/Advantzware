@@ -1,7 +1,19 @@
 /* touchscr.p */
 /* WFK - 15626 */
 /* PROPATH = "..\," + PROPATH. */
+&SCOPED-DEFINE loginProcedure nosweat/login.w
+&SCOPED-DEFINE nonPersistProgram touch/touchscr.w
+&SCOPED-DEFINE checkUserRecord YES
+&SCOPED-DEFINE connectDatabases YES
+&SCOPED-DEFINE runAsiLoad YES
+&SCOPED-DEFINE checkExpiredLicense YES
+&GLOBAL-DEFINE checkUserCount YES
+&SCOPED-DEFINE getCompanyProc sshoot/comp-loc.p
+&SCOPED-DEFINE appName touchscreen
+{nosweat.i}
 
+/* Original Code */
+/*
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
 
@@ -88,3 +100,4 @@ END.
 
 ldummy = SESSION:SET-WAIT-STATE("").
 QUIT.
+*/

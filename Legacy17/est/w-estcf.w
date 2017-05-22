@@ -1072,7 +1072,8 @@ PROCEDURE select_att :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   RUN windows/ATTACH.w(rec_key_value,HEADER_value).
+    {methods/select_att.i}
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -405,7 +405,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN buildPanels.
   RUN enable_UI.
   RUN Enhance IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
-  INPUT FROM "./menu.lst" NO-ECHO.
+  INPUT FROM value(search("menu.lst")) NO-ECHO.
   RUN Get_Menus.
   INPUT CLOSE.
   {methods/nowait.i}

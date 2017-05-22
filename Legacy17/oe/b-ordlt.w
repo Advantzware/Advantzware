@@ -27,6 +27,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\oe\b-ordlt.i
 &SCOPED-DEFINE yellowColumnsName oe-ordl
 &SCOPED-DEFINE winReSize
 {methods/defines/winReSize.i}

@@ -415,9 +415,9 @@ PROCEDURE Create_Buttons :
             HEIGHT-CHARS = {&button-height}
             WIDTH-CHARS = {&button-width}
             HIDDEN = NO
-            MANUAL-HIGHLIGHT = TRUE
+            /*  MANUAL-HIGHLIGHT = TRUE */
             TRIGGERS:
-                ON CHOOSE
+                ON CHOOSE 
                     PERSISTENT RUN Run_Button IN THIS-PROCEDURE (button-widget:HANDLE).
             END TRIGGERS.
     
@@ -635,8 +635,7 @@ PROCEDURE Run_Button :
             END.
             ELSE
                 ASSIGN
-                    current-widget:FONT = IF current-widget:COLUMN = button-handle:COLUMN THEN ?
-            ELSE current-widget:FONT
+                    current-widget:FONT = IF current-widget:COLUMN = button-handle:COLUMN THEN ? ELSE current-widget:FONT
                     current-widget      = current-widget:NEXT-SIBLING.
         END.
         ELSE
@@ -647,10 +646,11 @@ PROCEDURE Run_Button :
         button-col         = button-handle:COLUMN + {&button-width} + {&button-gap}.
     IF INDEX(button-handle:NAME,'.') = 0 THEN RUN Create_Buttons(button-handle:NAME).
     ELSE DO:
-        /* check module liscense first before run it YSK 08/24/04 TASK# 08060406 */
+        /* check module license first before run it YSK 08/24/04 TASK# 08060406 */
         RUN util/chk-mod.p ("ASI", button-handle:NAME) NO-ERROR.
         IF NOT ERROR-STATUS:ERROR THEN 
         RUN Get_Procedure IN Persistent-Handle(button-handle:NAME,OUTPUT run-proc,YES).
+        
     END.
 
 END PROCEDURE.

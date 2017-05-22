@@ -195,7 +195,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -256,7 +256,7 @@ DO:
       FOR EACH vend WHERE
           vend.company EQ cocode
           NO-LOCK:
-      
+
           IF NOT CAN-FIND(FIRST uservend WHERE
              uservend.user_id EQ op-user_id AND
              uservend.company EQ cocode AND
@@ -296,7 +296,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -360,7 +360,7 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -382,12 +382,12 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DEF VAR op-user_id AS CHAR NO-UNDO.
-  
+
   RUN valid-vend NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT op-user_id)"}
-
+   {&methods/lValidateError.i YES}
   IF adm-new-record AND CAN-FIND(FIRST uservend WHERE
      uservend.user_id EQ op-user_id AND
      uservend.company EQ g_company AND
@@ -398,7 +398,7 @@ PROCEDURE local-update-record :
         APPLY "ENTRY" TO uservend.vend-no IN FRAME {&FRAME-NAME}.
         RETURN NO-APPLY.
      END.
-
+     {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -408,6 +408,7 @@ PROCEDURE local-update-record :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ("open-query").
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -461,6 +462,7 @@ PROCEDURE valid-vend :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND(FIRST vend WHERE
      vend.company = g_company AND
      vend.vend-no = uservend.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN
@@ -469,6 +471,7 @@ PROCEDURE valid-vend :
         APPLY "entry" TO uservend.vend-no.
         RETURN error.
      END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

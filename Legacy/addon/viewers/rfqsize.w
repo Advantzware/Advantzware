@@ -42,7 +42,7 @@ def new shared var cocode as cha no-undo.
 {custom/globdefs.i}
 
 assign cocode = g_company.
- 
+
 {rfq/msfcalc.i}   /* v-corr */
 {sys/inc/f16to32.i}
 
@@ -279,7 +279,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -305,7 +305,7 @@ ON HELP OF FRAME F-Main
 DO:
      def var lv-ind like style.industry no-undo.
      def var char-val as cha no-undo.
-       
+
      case focus:name :
           when "adhesive" then do:
                 find style where style.company = rfq.company and
@@ -328,7 +328,7 @@ DO:
                  ===============  */              
            end.
            return no-apply.   
-          
+
           end.
      end case.
 END.
@@ -359,12 +359,13 @@ END.
 ON LEAVE OF rfqitem.dep IN FRAME F-Main /* Depth */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    IF lv-is-corr THEN DO:
+        IF lv-is-corr THEN DO:
       RUN valid-16ths (FOCUS) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END.
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -504,12 +505,12 @@ ON ENTRY OF rfqitem.t-len IN FRAME F-Main /* Blank Length */
 DO:
    DEF VAR ld-total AS DEC NO-UNDO.
    DEF VAR i AS INT NO-UNDO.
-  
+
    IF lv-is-corr AND
       lv-panels THEN DO:
 
       EMPTY TEMP-TABLE tt-array.
-     
+
       DO i = 1 TO EXTENT(ld-k-len-array):
         CREATE tt-array.
         ASSIGN
@@ -518,7 +519,7 @@ DO:
       END.
                             /*is 16th*/ 
       RUN cec/d-panels.w (YES, "Length Panels", INPUT-OUTPUT TABLE tt-array).
-     
+
       i = 0.
       FOR EACH tt-array:
         i = i + 1.
@@ -528,11 +529,11 @@ DO:
          ld-total             = ld-total + ld-k-len-array[i]
          lv-k-len-scr-type[i] = tt-type.
       END.
-     
+
       SELF:SCREEN-VALUE = STRING({sys/inc/k16.i ld-total}).
 
       RUN leave-dim (SELF) NO-ERROR.
-     
+
       RETURN NO-APPLY.
    END.
 END.
@@ -563,9 +564,9 @@ DO:
 
    IF lv-is-corr AND
       lv-panels THEN DO:
-  
+
       EMPTY TEMP-TABLE tt-array.
-     
+
       DO i = 1 TO EXTENT(ld-k-wid-array):
 
         CREATE tt-array.
@@ -573,9 +574,9 @@ DO:
          tt-dec  = ld-k-wid-array[i]
          tt-type = lv-k-wid-scr-type[i].
       END.
-                         
+
       RUN cec/d-panels.w (YES, "Width Panels", INPUT-OUTPUT TABLE tt-array).
-     
+
       i = 0.
 
       FOR EACH tt-array:
@@ -586,11 +587,11 @@ DO:
          ld-total             = ld-total + ld-k-wid-array[i]
          lv-k-wid-scr-type[i] = tt-type.
       END.
-     
+
       SELF:SCREEN-VALUE = STRING({sys/inc/k16.i ld-total}).
-     
+
       RUN leave-dim (SELF) NO-ERROR.
-     
+
       RETURN NO-APPLY.
    END.
 END.
@@ -652,7 +653,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
   session:data-entry-return = true.  /* return key will be like tab key */
-  
+
   find first sys-ctrl where
        sys-ctrl.company eq cocode AND
        sys-ctrl.name eq "PANELS"
@@ -673,7 +674,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -768,7 +769,7 @@ PROCEDURE calc-blank-size :
    if not avail rfq then find first rfq where rfq.company = rfqitem.company and
                                         rfq.rfq-no = rfqitem.rfq-no
                                         no-lock.        
-   
+
    if lv-is-corr then do:
       find first reftable
           where reftable.reftable eq "STYFLU"
@@ -857,7 +858,7 @@ PROCEDURE calc-blank-size :
    IF AVAIL formule THEN DO:
      rfqitem.t-wid:screen-value in frame {&frame-name} = string(formule.formule[1]).
      rfqitem.t-len:screen-value in frame {&frame-name} = string(formule.formule[2]).
-   
+
      RUN calc-sqin (formule.formule[7], formule.formule[8], NO).
 
      RUN assign-sqin.
@@ -878,7 +879,7 @@ PROCEDURE calc-blank-size2 :
 
    find xritem where recid(xritem) = recid(rfqitem) no-lock.
    {rfq/u2estc.i rfqitem.gluelap 1}
-   
+
    {rfq/u2estc.i rfqitem.k-wid 2}
    find first item where item.company = rfq.company
                     and item.i-no eq rfqitem.adhesive
@@ -994,7 +995,7 @@ PROCEDURE leave-dim :
       RUN valid-16ths (ip-focus) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN ERROR.
     END.
- 
+
     RUN calc-sqin (DEC(rfqitem.t-wid:SCREEN-VALUE),
                    DEC(rfqitem.t-len:SCREEN-VALUE),
                    YES). 
@@ -1036,7 +1037,7 @@ PROCEDURE local-assign-record :
      {sys/inc/k16bb.i rfqitem.gluelap  } 
      {sys/inc/k16bb.i rfqitem.lock  } 
      {sys/inc/k16bb.i rfqitem.lin-in  }
-      
+
   end.
 
   if ll-auto-calc-selected then do:
@@ -1055,7 +1056,7 @@ PROCEDURE local-assign-record :
         IF rfqitem.k-wid-array2[viCount] NE ld-k-wid-array[viCount] THEN
            rfqitem.k-wid-array2[viCount] = ld-k-wid-array[viCount].
      END.
-    
+
      DO viCount = 1 TO EXTENT(ld-k-len-array):
         rfqitem.k-len-scr-type2[viCount] = lv-k-len-scr-type[viCount].
         IF rfqitem.k-len-array2[viCount] NE ld-k-len-array[viCount] THEN
@@ -1084,7 +1085,7 @@ PROCEDURE local-disable-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
    DISABLE lv-sqin WITH FRAME {&FRAME-NAME}.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1101,7 +1102,7 @@ PROCEDURE local-display-fields :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
- 
+
   /* Code placed here will execute AFTER standard behavior.    */
   RUN reset-labels.
 
@@ -1188,7 +1189,7 @@ PROCEDURE local-update-record :
          RUN valid-16ths (hd2) NO-ERROR.
          IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
        END.
- 
+
        hd2 = hd2:NEXT-SIBLING.
      END.       
   END.  /* lv-is-corr */
@@ -1246,15 +1247,15 @@ PROCEDURE reset-labels :
 ------------------------------------------------------------------------------*/
   def var cocode as cha no-undo.
   DEF VAR li AS INT NO-UNDO.
-  
+
   if not avail rfqitem then return.
- 
+
   find style where style.company = rfqitem.company and
                    style.style = rfqitem.style
                    no-lock no-error.
   if avail style then
      style-desc:screen-value in frame {&frame-name} = style.dscr.   
-   
+
   if avail style and style.industry = "2" /* Corrugate Box */ 
   then do:
        assign rfqitem.dust:label in frame {&frame-name} = "Top/Dust Flap"
@@ -1297,7 +1298,7 @@ PROCEDURE reset-labels :
               rfqitem.lin-in:format in frame {&frame-name} = ">>9.999999"
               rfqitem.t-len:format in frame {&frame-name} = ">>9.999999"
               rfqitem.t-wid:format in frame {&frame-name} = ">>9.999999".
-              
+
         assign lv-is-corr = yes
                rfqitem.tab-in:hidden in frame {&frame-name} = NO
                rfqitem.len:screen-value = /*string(trunc(rfqitem.len,0) + ((rfqitem.len - trunc(rfqitem.len,0)) / K_FRAC) ). */
@@ -1409,6 +1410,7 @@ PROCEDURE valid-16ths :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ip-focus:SCREEN-VALUE) - TRUNC(DEC(ip-focus:SCREEN-VALUE),0) GE 0.16
     THEN DO:
@@ -1421,6 +1423,7 @@ PROCEDURE valid-16ths :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

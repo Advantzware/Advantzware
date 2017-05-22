@@ -740,10 +740,8 @@ PROCEDURE select_att :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   /*RUN Get_Procedure IN Persistent-Handle ('attachpo.',OUTPUT run-proc,no).
-   IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .*/
+    {methods/select_att.i}
 
-   RUN windows/attachpo.w(rec_key_value,HEADER_value).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

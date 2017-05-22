@@ -189,7 +189,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartNavBrowser
-   External Tables: EMPTRACK.employee
+   External Tables: employee
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: External-Tables
@@ -263,15 +263,15 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.empmach OF EMPTRACK.employee"
+     _TblList          = "empmach OF employee"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "~{&KEY-PHRASE}"
-     _FldNameList[1]   > EMPTRACK.empmach.machine
+     _FldNameList[1]   > empmach.machine
 "empmach.machine" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > "_<CALC>"
 "Machine_Description(empmach.company,empmach.machine) @ mach_m-dscr" "Description" "X(30)" ? ? ? ? ? ? ? no ? no no "32.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > EMPTRACK.empmach.gl_account
+     _FldNameList[3]   > empmach.gl_account
 "empmach.gl_account" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

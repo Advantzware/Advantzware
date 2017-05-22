@@ -107,11 +107,11 @@ DEFINE FRAME DIALOG-1
      "Enter User Login ID and Password" VIEW-AS TEXT
           SIZE 49 BY 1.24 AT ROW 13.86 COL 21
      RECT-9 AT ROW 17.67 COL 21
-     IMAGE-2 AT ROW 1.24 COL 2 WIDGET-ID 2
-     SPACE(0.19) SKIP(5.65)
+     IMAGE-2 AT ROW 1.24 COL 1.5 WIDGET-ID 2
+     /* SPACE(0.19) SKIP(5.65) */
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
-         TITLE "Advantzware Login"
+         TITLE "Advantzware Login" width 85
          DEFAULT-BUTTON Btn_OK CANCEL-BUTTON Btn_Cancel.
 
 
@@ -169,7 +169,7 @@ END.
 ON CHOOSE OF Btn_OK IN FRAME DIALOG-1 /* OK */
 DO:                
   ASSIGN m_id m_password.
-  IF NOT SETUSERID(m_id,m_password,"NOSWEAT") THEN
+  IF NOT SETUSERID(m_id,m_password,ldbname(1)) THEN
   MESSAGE "Invalid User ID / Password, Please Re-enter" 
       VIEW-AS ALERT-BOX ERROR.
   ELSE

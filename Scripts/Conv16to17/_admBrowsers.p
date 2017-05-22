@@ -2,11 +2,12 @@
 
 {_base.i}
 
-DEF VAR browserFile AS CHAR NO-UNDO.
-DEF VAR cFile       AS CHAR NO-UNDO.
-DEF VAR cFile1      AS CHAR NO-UNDO.
-DEF VAR idx         AS INT  NO-UNDO.
-DEF VAR done        AS LOG  NO-UNDO.
+DEF VAR browserFile      AS CHAR NO-UNDO.
+DEF VAR cFile            AS CHAR NO-UNDO.
+DEF VAR cFile1           AS CHAR NO-UNDO.
+DEF VAR idx              AS INT  NO-UNDO.
+DEF VAR done             AS LOG  NO-UNDO.
+DEF VAR cDataGridInclude AS CHAR NO-UNDO.
 
 {_ttFileCode.i}
 
@@ -29,6 +30,23 @@ REPEAT:
             RUN pCodeFile (INPUT-OUTPUT idx, cFile).
             cFile = "".
             RUN pCodeFile (INPUT-OUTPUT idx, cFile).
+        END.
+        ELSE IF cFile BEGINS "/* ***************************  Definitions" THEN DO:
+            REPEAT:
+                IMPORT UNFORMATTED cFile.
+                IF cFile NE "" THEN DO:
+                    cDataGridInclude = "dataGrid\" + REPLACE(browserFile,".w",".i").
+                    cFile1 = "~&SCOPED-DEFINE dataGridInclude " + cDataGridInclude.
+                    RUN pCodeFile (INPUT-OUTPUT idx, cFile1).
+                    RUN pCodeFile (INPUT-OUTPUT idx, cFile).
+                    IF SEARCH("{&v17}" + cDataGridInclude) EQ ? THEN DO:
+                        OUTPUT TO VALUE("{&v17}" + cDataGridInclude).
+                        OUTPUT CLOSE.
+                    END.
+                    LEAVE.
+                END.
+                RUN pCodeFile (INPUT-OUTPUT idx, cFile).
+            END.
         END.
         ELSE IF cFile EQ "/* ************************* Included-Libraries *********************** */" THEN DO:
             done = FALSE.

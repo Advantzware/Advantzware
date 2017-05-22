@@ -41,8 +41,6 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE WinKitDontEmbed
-
 {system/sysconst.i}
 {schedule/scopDir.i}
 {{&includes}/defBoard.i}
@@ -1739,6 +1737,17 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFromPendingByDueDate W-Win 
+PROCEDURE pFromPendingByDueDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN pFromPendingByDueDate IN h_board.
+END PROCEDURE.
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReload W-Win 
 PROCEDURE pReload :
 /*------------------------------------------------------------------------------

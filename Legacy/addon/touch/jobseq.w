@@ -519,7 +519,7 @@ DO:
                      AND job.job-no2 = int(job_sub)
                    NO-LOCK NO-ERROR.
     rec_key_value = job.rec_key.
-    RUN touch/getnote.p (rec_key_value). 
+     
     RUN jcrep/r-tickt2.w (job_number, int(job_sub)) NO-ERROR.
 END.
 

@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\pc\b-prddj.i
 &SCOPED-DEFINE yellowColumnsName pc-prdd2
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT

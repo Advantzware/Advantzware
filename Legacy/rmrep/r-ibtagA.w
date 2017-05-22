@@ -1,6 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
-&SCOPED-DEFINE WINDOW-NAME C-Win
+&Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
 /*------------------------------------------------------------------------
 
@@ -71,23 +71,23 @@ DEFINE STREAM excel.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE WINDOW 
-&SCOPED-DEFINE DB-AWARE NO 
+&Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&SCOPED-DEFINE FRAME-NAME FRAME-A
+&Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-OBJECTS RECT-6 RECT-7 as-of-date begin_rm-no ~
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 as-of-date begin_rm-no ~
 end_rm-no begin_whs end_whs begin_procat end_procat begin_mat-type ~
-end_mat-type begin_date end_date tb_zero-bal tb_tagask tb_subt ~
-tb_total-rolls tb_grdt tb_estmat lv-ornt lines-per-page rd-dest lv-font-no ~
+end_mat-type begin_date end_date rd_item tb_tagask tb_zero-bal ~
+tb_total-rolls tb_subt tb_grdt lv-ornt lines-per-page rd-dest lv-font-no ~
 td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
-&SCOPED-DEFINE DISPLAYED-OBJECTS as-of-date begin_rm-no end_rm-no begin_whs ~
+&Scoped-Define DISPLAYED-OBJECTS as-of-date begin_rm-no end_rm-no begin_whs ~
 end_whs begin_procat end_procat begin_mat-type end_mat-type begin_date ~
-end_date tb_zero-bal tb_tagask tb_subt tb_total-rolls tb_grdt tb_estmat lv-ornt ~
-lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel ~
-tb_runExcel fi_file 
+end_date lbl_itm-code-2 rd_item tb_tagask tb_zero-bal tb_total-rolls ~
+tb_subt tb_grdt lv-ornt lines-per-page rd-dest lv-font-no lv-font-name ~
+td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -100,7 +100,7 @@ tb_runExcel fi_file
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-cancel AUTO-END-KEY 
@@ -172,6 +172,10 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-ibtag.cs
      SIZE 45 BY 1
      FGCOLOR 9 .
 
+DEFINE VARIABLE lbl_itm-code-2 AS CHARACTER FORMAT "X(256)":U INITIAL "Item Code?" 
+     VIEW-AS FILL-IN 
+     SIZE 13 BY .95 NO-UNDO.
+
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
@@ -204,57 +208,60 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 1
 "To Port Directly", 6
      SIZE 20 BY 6.67 NO-UNDO.
 
+DEFINE VARIABLE rd_item AS CHARACTER INITIAL "Both" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Estimated", "Estimated",
+"Real", "Real",
+"Both", "Both"
+     SIZE 33 BY .95 NO-UNDO.
+
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96 BY 8.33.
+     SIZE 96 BY 8.1.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96 BY 11.91.
+     SIZE 96 BY 13.1.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_grdt AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_grdt AS LOGICAL INITIAL no 
      LABEL "Print Grand Totals?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_estmat AS LOGICAL INITIAL NO 
-     LABEL "Print Est. Mat Only?"  /* Include */
-     VIEW-AS TOGGLE-BOX
-     SIZE 27 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_subt AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_subt AS LOGICAL INITIAL yes 
      LABEL "Print Sub Totals?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_tagask AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_tagask AS LOGICAL INITIAL no 
      LABEL "Print * on Tag?" 
      VIEW-AS TOGGLE-BOX
      SIZE 19.4 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_total-rolls AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_total-rolls AS LOGICAL INITIAL no 
      LABEL "Print Total Rolls?" 
      VIEW-AS TOGGLE-BOX
      SIZE 20.4 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_zero-bal AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_zero-bal AS LOGICAL INITIAL no 
      LABEL "Include Zero Balances?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY .95 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -263,56 +270,57 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     as-of-date AT ROW 1.95 COLUMN 72 COLON-ALIGNED
-     begin_rm-no AT ROW 3.14 COLUMN 28 COLON-ALIGNED HELP
+     as-of-date AT ROW 1.95 COL 72 COLON-ALIGNED
+     begin_rm-no AT ROW 3.14 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
-     end_rm-no AT ROW 3.14 COLUMN 72 COLON-ALIGNED HELP
+     end_rm-no AT ROW 3.14 COL 72 COLON-ALIGNED HELP
           "Enter Ending Item number"
-     begin_whs AT ROW 4.33 COLUMN 28 COLON-ALIGNED HELP
+     begin_whs AT ROW 4.33 COL 28 COLON-ALIGNED HELP
           "Enter Beginng Warehouse"
-     end_whs AT ROW 4.33 COLUMN 72 COLON-ALIGNED HELP
+     end_whs AT ROW 4.33 COL 72 COLON-ALIGNED HELP
           "Enter Endng Warehouse"
-     begin_procat AT ROW 5.52 COLUMN 28 COLON-ALIGNED HELP
+     begin_procat AT ROW 5.52 COL 28 COLON-ALIGNED HELP
           "Enter Begining Category"
-     end_procat AT ROW 5.52 COLUMN 72 COLON-ALIGNED HELP
+     end_procat AT ROW 5.52 COL 72 COLON-ALIGNED HELP
           "Enter Ending Category"
-     begin_mat-type AT ROW 6.71 COLUMN 28 COLON-ALIGNED HELP
+     begin_mat-type AT ROW 6.71 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Material Type"
-     end_mat-type AT ROW 6.71 COLUMN 72 COLON-ALIGNED HELP
+     end_mat-type AT ROW 6.71 COL 72 COLON-ALIGNED HELP
           "Enter ending Material Type"
-     begin_date AT ROW 7.91 COLUMN 28 COLON-ALIGNED HELP
+     begin_date AT ROW 7.91 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Receipt Date"
-     end_date AT ROW 7.91 COLUMN 72 COLON-ALIGNED HELP
+     end_date AT ROW 7.91 COL 72 COLON-ALIGNED HELP
           "Enter Ending Receipt Date"
-     tb_zero-bal AT ROW 9.33 COLUMN 30
-     tb_tagask AT ROW 9.33 COLUMN 58.6
-     tb_subt AT ROW 10.29 COLUMN 30
-     tb_total-rolls AT ROW 10.29 COLUMN 58.6
-     tb_grdt AT ROW 11.24 COLUMN 30
-     tb_estmat AT ROW 11.24 COLUMN 58.6 WIDGET-ID 46
-     lv-ornt AT ROW 13.62 COLUMN 31 NO-LABEL
-     lines-per-page AT ROW 13.62 COLUMN 84 COLON-ALIGNED
-     rd-dest AT ROW 14.33 COLUMN 6 NO-LABEL
-     lv-font-no AT ROW 15.05 COLUMN 35 COLON-ALIGNED
-     lv-font-name AT ROW 16 COLUMN 29 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 17.19 COLUMN 31
-     tb_excel AT ROW 18.62 COLUMN 67 RIGHT-ALIGNED
-     tb_runExcel AT ROW 18.62 COLUMN 90.8 RIGHT-ALIGNED
-     fi_file AT ROW 19.57 COLUMN 45 COLON-ALIGNED HELP
+     lbl_itm-code-2 AT ROW 9.24 COL 35.4 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     rd_item AT ROW 9.33 COL 50.6 NO-LABEL WIDGET-ID 52
+     tb_tagask AT ROW 10.29 COL 61.4
+     tb_zero-bal AT ROW 10.33 COL 30
+     tb_total-rolls AT ROW 11.33 COL 61.4
+     tb_subt AT ROW 11.43 COL 30
+     tb_grdt AT ROW 12.38 COL 30
+     lv-ornt AT ROW 14.57 COL 31 NO-LABEL
+     lines-per-page AT ROW 14.57 COL 84 COLON-ALIGNED
+     rd-dest AT ROW 15.29 COL 6 NO-LABEL
+     lv-font-no AT ROW 16 COL 35 COLON-ALIGNED
+     lv-font-name AT ROW 16.95 COL 29 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 18.14 COL 31
+     tb_excel AT ROW 19.57 COL 67 RIGHT-ALIGNED
+     tb_runExcel AT ROW 19.57 COL 90.8 RIGHT-ALIGNED
+     fi_file AT ROW 20.52 COL 45 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 21.95 COLUMN 21
-     btn-cancel AT ROW 21.95 COLUMN 60
+     btn-ok AT ROW 22.91 COL 21
+     btn-cancel AT ROW 22.91 COL 60
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 13.38 COLUMN 3
+          SIZE 18 BY .62 AT ROW 14.33 COL 3
      "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COLUMN 5
+          SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     RECT-6 AT ROW 12.91 COLUMN 1
-     RECT-7 AT ROW 1 COLUMN 1
+     RECT-6 AT ROW 14.1 COL 1
+     RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COLUMN 1 ROW 1
-         SIZE 96.4 BY 22.91.
+         AT COL 1 ROW 1
+         SIZE 96.4 BY 23.76.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -331,21 +339,21 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "RM Inventory By Bin/Tag"
-         HEIGHT             = 22.95
+         HEIGHT             = 23.76
          WIDTH              = 96.8
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -365,16 +373,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        as-of-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -400,6 +398,22 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_mat-type:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        end_procat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -410,20 +424,23 @@ ASSIGN
 ASSIGN 
        end_whs:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-ASSIGN 
-       end_mat-type:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-ASSIGN 
-       end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
 
 ASSIGN 
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN lbl_itm-code-2 IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_itm-code-2:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_item".
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
+ASSIGN 
+       rd_item:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
@@ -462,13 +479,13 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
 /* ************************  Control Triggers  ************************ */
 
-&SCOPED-DEFINE SELF-NAME C-Win
+&Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON END-ERROR OF C-Win /* RM Inventory By Bin/Tag */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
@@ -494,7 +511,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME as-of-date
+&Scoped-define SELF-NAME as-of-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL as-of-date C-Win
 ON LEAVE OF as-of-date IN FRAME FRAME-A /* As of */
 DO:
@@ -505,7 +522,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_date
+&Scoped-define SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
 ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning Receipt Date */
 DO:
@@ -516,7 +533,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_mat-type
+&Scoped-define SELF-NAME begin_mat-type
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_mat-type C-Win
 ON LEAVE OF begin_mat-type IN FRAME FRAME-A /* Beginning Material Type */
 DO:
@@ -527,7 +544,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_procat
+&Scoped-define SELF-NAME begin_procat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_procat C-Win
 ON LEAVE OF begin_procat IN FRAME FRAME-A /* Beginning  Category */
 DO:
@@ -538,7 +555,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_rm-no
+&Scoped-define SELF-NAME begin_rm-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_rm-no C-Win
 ON LEAVE OF begin_rm-no IN FRAME FRAME-A /* Beginning Item# */
 DO:
@@ -549,7 +566,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME begin_whs
+&Scoped-define SELF-NAME begin_whs
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_whs C-Win
 ON LEAVE OF begin_whs IN FRAME FRAME-A /* Beginning Warehouse */
 DO:
@@ -560,7 +577,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn-cancel
+&Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
@@ -571,7 +588,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME btn-ok
+&Scoped-define SELF-NAME btn-ok
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
@@ -624,7 +641,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_date
+&Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
 ON LEAVE OF end_date IN FRAME FRAME-A /* Ending Receipt Date */
 DO:
@@ -635,7 +652,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_mat-type
+&Scoped-define SELF-NAME end_mat-type
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_mat-type C-Win
 ON LEAVE OF end_mat-type IN FRAME FRAME-A /* Ending Material Type */
 DO:
@@ -646,7 +663,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_procat
+&Scoped-define SELF-NAME end_procat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_procat C-Win
 ON LEAVE OF end_procat IN FRAME FRAME-A /* Ending Category */
 DO:
@@ -657,7 +674,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_rm-no
+&Scoped-define SELF-NAME end_rm-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_rm-no C-Win
 ON LEAVE OF end_rm-no IN FRAME FRAME-A /* Ending Item# */
 DO:
@@ -668,7 +685,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME end_whs
+&Scoped-define SELF-NAME end_whs
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_whs C-Win
 ON LEAVE OF end_whs IN FRAME FRAME-A /* Ending Warehouse */
 DO:
@@ -679,7 +696,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME fi_file
+&Scoped-define SELF-NAME fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
@@ -690,7 +707,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lines-per-page
+&Scoped-define SELF-NAME lines-per-page
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
@@ -701,7 +718,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lv-font-no
+&Scoped-define SELF-NAME lv-font-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
 DO:
@@ -727,7 +744,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME lv-ornt
+&Scoped-define SELF-NAME lv-ornt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
 ON LEAVE OF lv-ornt IN FRAME FRAME-A
 DO:
@@ -748,7 +765,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME rd-dest
+&Scoped-define SELF-NAME rd-dest
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
@@ -759,7 +776,18 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_excel
+&Scoped-define SELF-NAME rd_item
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_item C-Win
+ON VALUE-CHANGED OF rd_item IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
@@ -770,7 +798,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_grdt
+&Scoped-define SELF-NAME tb_grdt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_grdt C-Win
 ON VALUE-CHANGED OF tb_grdt IN FRAME FRAME-A /* Print Grand Totals? */
 DO:
@@ -781,7 +809,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_runExcel
+&Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
@@ -792,7 +820,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_subt
+&Scoped-define SELF-NAME tb_subt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_subt C-Win
 ON VALUE-CHANGED OF tb_subt IN FRAME FRAME-A /* Print Sub Totals? */
 DO:
@@ -803,7 +831,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_tagask
+&Scoped-define SELF-NAME tb_tagask
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_tagask C-Win
 ON VALUE-CHANGED OF tb_tagask IN FRAME FRAME-A /* Print * on Tag? */
 DO:
@@ -814,7 +842,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_total-rolls
+&Scoped-define SELF-NAME tb_total-rolls
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_total-rolls C-Win
 ON VALUE-CHANGED OF tb_total-rolls IN FRAME FRAME-A /* Print Total Rolls? */
 DO:
@@ -825,7 +853,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME tb_zero-bal
+&Scoped-define SELF-NAME tb_zero-bal
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_zero-bal C-Win
 ON VALUE-CHANGED OF tb_zero-bal IN FRAME FRAME-A /* Include Zero Balances? */
 DO:
@@ -836,7 +864,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME td-show-parm
+&Scoped-define SELF-NAME td-show-parm
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
@@ -941,16 +969,16 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY as-of-date begin_rm-no end_rm-no begin_whs end_whs begin_procat 
-          end_procat begin_mat-type end_mat-type begin_date end_date tb_zero-bal 
-          tb_tagask tb_subt tb_total-rolls tb_grdt tb_estmat lv-ornt lines-per-page 
-          rd-dest lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel 
-          fi_file 
+          end_procat begin_mat-type end_mat-type begin_date end_date 
+          lbl_itm-code-2 rd_item tb_tagask tb_zero-bal tb_total-rolls tb_subt 
+          tb_grdt lv-ornt lines-per-page rd-dest lv-font-no lv-font-name 
+          td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 as-of-date begin_rm-no end_rm-no begin_whs end_whs 
          begin_procat end_procat begin_mat-type end_mat-type begin_date 
-         end_date tb_zero-bal tb_tagask tb_subt tb_total-rolls tb_grdt tb_estmat lv-ornt 
-         lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel 
-         fi_file btn-ok btn-cancel 
+         end_date rd_item tb_tagask tb_zero-bal tb_total-rolls tb_subt tb_grdt 
+         lv-ornt lines-per-page rd-dest lv-font-no td-show-parm tb_excel 
+         tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1186,7 +1214,7 @@ DEFINE VARIABLE pgtot AS LOGICAL INITIAL NO.
 DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 DEFINE VARIABLE tagask AS LOGICAL NO-UNDO.
 DEFINE VARIABLE v-lf-qty LIKE rm-bin.qty NO-UNDO.
-
+DEFINE VARIABLE ctype AS CHARACTER FORMAT "!"   NO-UNDO INITIAL "B".
 /* rdb 02/06/07 02050701 */
 DEFINE VARIABLE chrTotCostVal AS CHARACTER  NO-UNDO.
 DEFINE VARIABLE chrRmBinTag AS CHARACTER FORMAT "x(22)" NO-UNDO.
@@ -1210,7 +1238,8 @@ ASSIGN
  zbal    = tb_zero-bal
  psubtot = tb_subt
  pgtot   = tb_grdt
- tagask  = tb_tagask.
+ tagask  = tb_tagask
+ ctype   = substr(rd_item,1,1) .
 
 {sys/inc/print1.i}
 
@@ -1234,7 +1263,7 @@ SESSION:SET-WAIT-STATE ("general").
 
   EMPTY TEMP-TABLE tt-rm-bin.
 
- IF NOT tb_estmat THEN DO:
+ 
   FOR EACH ITEM NO-LOCK 
       WHERE ITEM.company           EQ cocode
         AND ITEM.i-no              GE fitm
@@ -1244,7 +1273,7 @@ SESSION:SET-WAIT-STATE ("general").
         AND ITEM.procat            LE tcat
         AND ITEM.mat-type          GE ftyp
         AND ITEM.mat-type          LE ttyp
-        AND ITEM.i-code            EQ "R" :
+        and (item.i-code  eq ctype or ctype eq "B") :
 
 
        {custom/statusMsg.i "'Processing Item # ' + string(item.i-no)"} 
@@ -1263,37 +1292,7 @@ SESSION:SET-WAIT-STATE ("general").
           RELEASE tt-rm-bin.
        END.
   END.
- END.
- ELSE DO:
-     FOR EACH ITEM NO-LOCK 
-      WHERE ITEM.company           EQ cocode
-        AND ITEM.i-no              GE fitm
-        AND ITEM.i-no              LE titm
-        AND ITEM.i-no              NE ""
-        AND ITEM.procat            GE fcat
-        AND ITEM.procat            LE tcat
-        AND ITEM.mat-type          GE ftyp
-        AND ITEM.mat-type          LE ttyp
-        AND ITEM.i-code            EQ "E"  :
-
-
-          {custom/statusMsg.i "'Processing Item # ' + string(item.i-no)"} 
-
-    RUN rm-mkbin.
-
-    IF zbal AND ITEM.q-onh EQ 0 AND
-       NOT CAN-FIND(FIRST tt-rm-bin WHERE
-       tt-rm-bin.company EQ ITEM.company AND
-       tt-rm-bin.i-no EQ ITEM.i-no) THEN
-       DO:
-          CREATE tt-rm-bin.
-          ASSIGN tt-rm-bin.company = ITEM.company
-                 tt-rm-bin.i-no = ITEM.i-no
-                 tt-rm-bin.trans-date = TODAY.
-          RELEASE tt-rm-bin.
-       END.
-  END.
- END.
+ 
 
   FOR EACH tt-rm-bin NO-LOCK 
       WHERE tt-rm-bin.loc          GE floc

@@ -1,5 +1,18 @@
 /* nosweat.p */
 
+    &SCOPED-DEFINE loginProcedure nosweat/login.w
+    &SCOPED-DEFINE checkUserRecord YES
+    &SCOPED-DEFINE connectDatabases YES
+    &SCOPED-DEFINE runAsiLoad YES
+    &SCOPED-DEFINE createSingleUserPFs YES
+    &SCOPED-DEFINE execProgram mainmenu.    
+    &SCOPED-DEFINE checkExpiredLicense YES
+    &GLOBAL-DEFINE checkUserCount YES
+   
+{nosweat.i}
+
+
+/*
 &IF DEFINED(execProgram) EQ 0 &THEN
 &SCOPED-DEFINE execProgram mainmenu.
 &ENDIF
@@ -16,7 +29,6 @@ DEFINE                   VARIABLE cEulaVersion    AS CHARACTER NO-UNDO.
 DEFINE                   VARIABLE lEulaAccepted   AS LOGICAL   NO-UNDO.
 DEFINE                   VARIABLE lExit           AS LOGICAL   NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g-sharpshooter  AS LOG       NO-UNDO.  /* no, it's yes only from sharpsh.p */
-
 
 g-sharpshooter = NO.
 
@@ -138,3 +150,4 @@ PROCEDURE createSingleUserPFs:
         OUTPUT CLOSE.
     END. /* do i */
 END PROCEDURE.
+*/

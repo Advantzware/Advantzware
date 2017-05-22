@@ -253,6 +253,22 @@ FUNCTION fDateOptionDate RETURNS DATE
             dtDate = TODAY - 6.
         WHEN "Current Date +6" THEN
             dtDate = TODAY + 6.
+        WHEN "Current Date -7" THEN
+            dtDate = TODAY - 7.
+        WHEN "Current Date +7" THEN
+            dtDate = TODAY + 7.
+        WHEN "Current Date -8" THEN
+            dtDate = TODAY - 8.
+        WHEN "Current Date +8" THEN
+            dtDate = TODAY + 8.
+        WHEN "Current Date -9" THEN
+            dtDate = TODAY - 9.
+        WHEN "Current Date +9" THEN
+            dtDate = TODAY + 9.
+        WHEN "Current Date -10" THEN
+            dtDate = TODAY - 10.
+        WHEN "Current Date +10" THEN
+            dtDate = TODAY + 10.
         WHEN "Start of this Month" THEN
             dtDate = DATE(MONTH(TODAY),1,YEAR(TODAY)).
         WHEN "End of this Month" THEN

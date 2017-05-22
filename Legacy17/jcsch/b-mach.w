@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\jcsch\b-mach.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

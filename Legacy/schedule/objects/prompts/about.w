@@ -54,13 +54,15 @@ DEFINE VARIABLE ipContainerHandle AS HANDLE    NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-4 aboutBox btnClearCheckoffs ~
-btnClearNotes btnReturnToPending btnFromPending btnSave btnRestore 
+btnClearNotes btnReturnToPending btnFromPending btnFromPendingByDueDate ~
+btnSave btnRestore 
 &Scoped-Define DISPLAYED-OBJECTS aboutBox version 
 
 /* Custom List Definitions                                              */
 /* adminFunction,List-2,List-3,List-4,List-5,List-6                     */
 &Scoped-define adminFunction btnClearCheckoffs btnClearNotes ~
-btnReturnToPending btnFromPending btnSave btnRestore 
+btnReturnToPending btnFromPending btnFromPendingByDueDate btnSave ~
+btnRestore 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -86,6 +88,11 @@ DEFINE BUTTON btnFromPending
      IMAGE-UP FILE "schedule/images/pendingjobs.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.1 TOOLTIP "Schedule From Pending".
+
+DEFINE BUTTON btnFromPendingByDueDate 
+     IMAGE-UP FILE "schedule/images/date.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.1 TOOLTIP "Schedule From Pending By Due Date".
 
 DEFINE BUTTON btnRestore 
      IMAGE-UP FILE "schedule/images/rollback.bmp":U
@@ -129,11 +136,13 @@ DEFINE FRAME Dialog-Frame
           "Return To Pending" WIDGET-ID 6
      btnFromPending AT ROW 16.76 COL 17 HELP
           "Schedule From Pending" WIDGET-ID 8
+     btnFromPendingByDueDate AT ROW 16.76 COL 22 HELP
+          "Schedule From Pending By Due Date" WIDGET-ID 10
      btnSave AT ROW 16.76 COL 79 HELP
           "Save Configuration Data Files"
      btnRestore AT ROW 16.76 COL 84 HELP
           "Restore Configuration Data Files"
-     version AT ROW 16.95 COL 27 NO-LABEL
+     version AT ROW 16.95 COL 32 NO-LABEL
      RECT-4 AT ROW 16.71 COL 1
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -169,6 +178,8 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnClearNotes IN FRAME Dialog-Frame
    1                                                                    */
 /* SETTINGS FOR BUTTON btnFromPending IN FRAME Dialog-Frame
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnFromPendingByDueDate IN FRAME Dialog-Frame
    1                                                                    */
 /* SETTINGS FOR BUTTON btnRestore IN FRAME Dialog-Frame
    1                                                                    */
@@ -225,6 +236,17 @@ END.
 ON CHOOSE OF btnFromPending IN FRAME Dialog-Frame
 DO:
   RUN pFromPending.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnFromPendingByDueDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFromPendingByDueDate Dialog-Frame
+ON CHOOSE OF btnFromPendingByDueDate IN FRAME Dialog-Frame
+DO:
+  RUN pFromPendingByDueDate.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -327,7 +349,7 @@ PROCEDURE enable_UI :
   DISPLAY aboutBox version 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-4 aboutBox btnClearCheckoffs btnClearNotes btnReturnToPending 
-         btnFromPending btnSave btnRestore 
+         btnFromPending btnFromPendingByDueDate btnSave btnRestore 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -410,6 +432,30 @@ PROCEDURE pFromPending :
     SESSION:SET-WAIT-STATE("General").
     IF VALID-HANDLE(ipContainerHandle) THEN
     RUN pFromPending IN ipContainerHandle.
+    SESSION:SET-WAIT-STATE("").
+    MESSAGE "All Jobs Scheduled from Pending" VIEW-AS ALERT-BOX.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pFromPendingByDueDate Dialog-Frame 
+PROCEDURE pFromPendingByDueDate :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    MESSAGE
+        "WARNING: This process will move all" SKIP
+        "currently Pending Jobs to the Board" SKIP
+        "by Due Date.  Continue?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOGICAL.
+    IF NOT lContinue THEN RETURN.
+    SESSION:SET-WAIT-STATE("General").
+    IF VALID-HANDLE(ipContainerHandle) THEN
+    RUN pFromPendingByDueDate IN ipContainerHandle.
     SESSION:SET-WAIT-STATE("").
     MESSAGE "All Jobs Scheduled from Pending" VIEW-AS ALERT-BOX.
 

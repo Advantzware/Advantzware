@@ -27,6 +27,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\truck.i
 &SCOPED-DEFINE yellowColumnsName truck
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT

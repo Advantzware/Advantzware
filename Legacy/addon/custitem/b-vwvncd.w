@@ -260,16 +260,16 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.vend-code-cust-xref"
+     _TblList          = "vend-code-cust-xref"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   > EMPTRACK.vend-code-cust-xref.cust-no
-"EMPTRACK.vend-code-cust-xref.cust-no" ? ? "character" ? ? ? 14 ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > EMPTRACK.vend-code-cust-xref.vendor-code
-"EMPTRACK.vend-code-cust-xref.vendor-code" ? ? "character" ? ? ? 14 ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > EMPTRACK.vend-code-cust-xref.cust-name
-"EMPTRACK.vend-code-cust-xref.cust-name" ? ? "character" ? ? ? 14 ? ? no ? no no "111.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   = EMPTRACK.vend-code-cust-xref.company
+     _FldNameList[1]   > vend-code-cust-xref.cust-no
+"vend-code-cust-xref.cust-no" ? ? "character" ? ? ? 14 ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > vend-code-cust-xref.vendor-code
+"vend-code-cust-xref.vendor-code" ? ? "character" ? ? ? 14 ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > vend-code-cust-xref.cust-name
+"vend-code-cust-xref.cust-name" ? ? "character" ? ? ? 14 ? ? no ? no no "111.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   = vend-code-cust-xref.company
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -421,7 +421,7 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-   APPLY 'entry' to EMPTRACK.vend-code-cust-xref.cust-no IN BROWSE {&BROWSE-NAME}.
+   APPLY 'entry' to vend-code-cust-xref.cust-no IN BROWSE {&BROWSE-NAME}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

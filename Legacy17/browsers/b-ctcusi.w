@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\b-ctcusi.i
 &SCOPED-DEFINE yellowColumnsName b-ar-inv1
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT

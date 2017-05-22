@@ -1,5 +1,6 @@
 /* scopDir.i */
 
+&GLOBAL-DEFINE WinKitDontEmbed
 &GLOBAL-DEFINE startDir schedule
 &GLOBAL-DEFINE backup c:\sb.dat.backup
 &GLOBAL-DEFINE data {&startDir}/data
@@ -34,16 +35,16 @@ when expanding userExtent, changes need to be made in the following:
    8. viewers/includes/viewersInclude.i (reopenBrowse)
    9. config.w [fieldsFrame] (defs)
 *******************************************************************/
-&GLOBAL-DEFINE version1 v2.013
-&GLOBAL-DEFINE version2 v2.014
-&GLOBAL-DEFINE version3 v2.015
-&GLOBAL-DEFINE version4 v2.016
-&GLOBAL-DEFINE version5 v3.001
-&GLOBAL-DEFINE version6 v3.002
-&GLOBAL-DEFINE version7 v3.003
-&GLOBAL-DEFINE version8 v3.004
-&GLOBAL-DEFINE version9 v3.005
-&GLOBAL-DEFINE version v3.006
+&GLOBAL-DEFINE version1 v2.014
+&GLOBAL-DEFINE version2 v2.015
+&GLOBAL-DEFINE version3 v2.016
+&GLOBAL-DEFINE version4 v3.001
+&GLOBAL-DEFINE version5 v3.002
+&GLOBAL-DEFINE version6 v3.003
+&GLOBAL-DEFINE version7 v3.004
+&GLOBAL-DEFINE version8 v3.005
+&GLOBAL-DEFINE version9 v3.006
+&GLOBAL-DEFINE version v4.000
 
 &IF DEFINED(installDir) EQ 0 &THEN
 DEFINE VARIABLE clientDat AS CHARACTER NO-UNDO.
@@ -66,6 +67,11 @@ ASSIGN
   codeDir = SEARCH('{&startDir}\sbPro.p')
   codeDir = REPLACE(codeDir,'{&startDir}\sbPro.p','')
   .
+
+PROCEDURE noEmbeddedWindowForm :
+    /* here simply as a dummy procedure to prevent folder.w  */
+    /* from attempting to create tabs in non embedded window */
+END PROCEDURE.
 
 &GLOBAL-DEFINE installDir
 &ENDIF

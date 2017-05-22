@@ -393,7 +393,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -475,7 +475,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -621,7 +621,7 @@ PROCEDURE local-display-fields :
                      and cust.cust-no eq input oe-reth.cust-no
                      use-index cust no-lock no-error.
    if avail cust then do:
-      
+
       ASSIGN oe-reth.cust-no:SCREEN-VALUE = cust.cust-no
              lv-cname:SCREEN-VALUE = cust.name
              lv-caddr:SCREEN-VALUE = cust.addr[1]
@@ -664,7 +664,7 @@ PROCEDURE local-update-record :
      RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"add-line-target",OUTPUT char-hdl).
 
      IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
-        
+
         RUN auto-line-add IN WIDGET-HANDLE(char-hdl).
      END.
   END.
@@ -748,6 +748,7 @@ PROCEDURE validate-cust-no :
 DEF INPUT PARAM ip-int AS INT NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
   IF ip-int EQ 1                        OR
      oe-reth.cust-no:SCREEN-VALUE NE "" THEN DO:
@@ -770,6 +771,7 @@ DO WITH FRAME {&FRAME-NAME}:
   END.
 END.  /* frame */
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -785,6 +787,7 @@ PROCEDURE validate-inv-no :
 DEF INPUT PARAM ip-int AS INT NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
   IF ip-int EQ 1                           OR
      INT(oe-reth.inv-no:SCREEN-VALUE) NE 0 THEN DO:
@@ -811,6 +814,7 @@ DO WITH FRAME {&FRAME-NAME}:
   END.
 END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

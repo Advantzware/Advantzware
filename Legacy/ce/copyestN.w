@@ -1134,7 +1134,8 @@ PROCEDURE run-process :
      keb.part-no  = eb.part-no
      keb.stock-no = IF tb_i-no THEN eb.stock-no ELSE keb.stock-no
      keb.part-dscr1 = IF tb_copy-i-name THEN eb.part-dscr1 ELSE keb.part-dscr1
-     keb.part-dscr2 = IF tb_copy-dscr-1 THEN eb.part-dscr2 ELSE keb.part-dscr2.
+     keb.part-dscr2 = IF tb_copy-dscr-1 THEN eb.part-dscr2 ELSE keb.part-dscr2
+     keb.master-est-no = est.est-no  .
 
 
      IF tb_copy-notes AND tb_i-no AND tcom NE fcom THEN do: /* task 05291502 */

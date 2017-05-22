@@ -231,7 +231,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -251,13 +251,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL terms.t-code V-table-Win
 ON LEAVE OF terms.t-code IN FRAME F-Main /* Carrier */
 DO:
-     if lastkey <> -1 and terms.t-code:screen-value EQ "CASH" 
+    IF LASTKEY EQ -1 THEN Return .
+     {&methods/lValidateError.i YES}
+     if terms.t-code:screen-value EQ "CASH" 
      then do:
         message "CASH is reserved for Cash Only process when entering an invoice through OB1 as a cash sale." view-as alert-box error.
         return no-apply.     
      end.
- 
-END.
+     {&methods/lValidateError.i NO}
+END. 
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -273,7 +276,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -392,21 +395,24 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
+   {&methods/lValidateError.i YES}
     IF terms.t-code:SCREEN-VALUE EQ "CASH" AND adm-new-record 
      THEN DO:
         MESSAGE "CASH is reserved for Cash Only process when entering an invoice through OB1 as a cash sale." view-as alert-box error.
         APPLY "entry" TO terms.t-code .
         RETURN NO-APPLY.     
      END.
+    {&methods/lValidateError.i NO}
    END.
 
       /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

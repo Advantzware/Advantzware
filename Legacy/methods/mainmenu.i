@@ -42,7 +42,7 @@
       ELSE
       INPUT FROM VALUE(search(m_menu-lst[1])) NO-ECHO.
     ELSE
-    INPUT FROM popup.lst NO-ECHO.
+    INPUT FROM VALUE(SEARCH ("popup.lst")) NO-ECHO.
     REPEAT:
       ASSIGN
        m_item1 = ""
@@ -63,12 +63,12 @@
 
   DO i = 1 TO j:
     IF i = 1 THEN
-      IF SEARCH("usermenu/" + USERID("ldbname(1)") + "/" + m_menu-lst[1]) NE ? THEN
-      INPUT FROM VALUE(search("usermenu/" + USERID("ldbname(1)") + "/" + m_menu-lst[1])) NO-ECHO.
+      IF SEARCH("usermenu/" + USERID(ldbname(1)) + "/" + m_menu-lst[1]) NE ? THEN
+      INPUT FROM VALUE(search("usermenu/" + USERID(ldbname(1)) + "/" + m_menu-lst[1])) NO-ECHO.
       ELSE
       INPUT FROM VALUE(search(m_menu-lst[1])) NO-ECHO.
     ELSE
-    INPUT FROM popup.lst NO-ECHO.
+    INPUT FROM VALUE(SEARCH ("popup.lst")) NO-ECHO.
     REPEAT:
       ASSIGN
        m_item1 = ""
@@ -146,7 +146,7 @@
 
   RUN enable_UI.
   {methods/enhance.i}
-  users_user_id = USERID("ldbname(1)") /*+ " - " + users.user_name */ .
+  users_user_id = USERID(ldbname(1)) /*+ " - " + users.user_name */ .
   DISPLAY users_user_id
       WITH FRAME {&FRAME-NAME} IN WINDOW {&WINDOW-NAME}.
   v_image_filename = users.image_filename.

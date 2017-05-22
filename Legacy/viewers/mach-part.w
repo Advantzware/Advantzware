@@ -246,7 +246,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -263,7 +263,7 @@ DO:
    lw-focus  = FOCUS.
 
    CASE lw-focus:NAME:
-       
+
        WHEN "rm-part-code" THEN
        DO:
           RUN windows/l-itmall.w (g_company, "","", mach-part.rm-part-code:SCREEN-VALUE, OUTPUT char-val, OUTPUT look-recid).
@@ -287,7 +287,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -414,7 +414,7 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
@@ -447,7 +447,7 @@ PROCEDURE local-display-fields :
              reftable.loc      EQ mach-part.m-code AND
              reftable.code     EQ mach-part.rm-part-code
              EXCLUSIVE-LOCK NO-ERROR.
-            
+
         IF NOT AVAIL reftable THEN DO:
           CREATE reftable.
           ASSIGN
@@ -456,21 +456,21 @@ PROCEDURE local-display-fields :
                reftable.loc      = mach-part.m-code
                reftable.code     = mach-part.rm-part-code.
         END.
-    
+
         ASSIGN
            reftable.val[1] = reftable.val[1] + mach-part.total-hours-of-use
            lv-total-hours = reftable.val[1].
-    
+
         DISPLAY lv-total-hours WITH FRAME {&FRAME-NAME}.
-    
+
         FIND FIRST b-mach-part WHERE ROWID(b-mach-part) EQ ROWID(mach-part)
              EXCLUSIVE-LOCK.
-    
+
         b-mach-part.total-hours-of-use  = 0.
-    
+
         RELEASE b-mach-part.
      END.
-     
+
      IF NOT adm-new-record THEN
         RUN reftable-values (YES).
   END.
@@ -511,9 +511,9 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-  
+
     IF NOT CAN-FIND(FIRST ITEM WHERE
        ITEM.company EQ g_company AND
        ITEM.i-no EQ mach-part.rm-part-code:SCREEN-VALUE) THEN
@@ -524,14 +524,15 @@ PROCEDURE local-update-record :
           RETURN NO-APPLY.
        END.
   END.
-
+  {&methods/lValidateError.i YES}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   lv-total-hours:SENSITIVE = NO.
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -553,7 +554,7 @@ PROCEDURE reftable-values :
           reftable.loc      EQ mach-part.m-code AND
           reftable.code     EQ mach-part.rm-part-code
           EXCLUSIVE-LOCK NO-ERROR.
-         
+
      IF NOT AVAIL reftable THEN DO:
        CREATE reftable.
        ASSIGN
@@ -562,7 +563,7 @@ PROCEDURE reftable-values :
             reftable.loc      = mach-part.m-code
             reftable.code     = mach-part.rm-part-code.
      END.
-    
+
      IF ip-display THEN
         lv-total-hours = reftable.val[1].
      ELSE

@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\cmpltjob.i
 &SCOPED-DEFINE yellowColumnsName cmpltjob
 /* Parameters Definitions ---                                           */
 

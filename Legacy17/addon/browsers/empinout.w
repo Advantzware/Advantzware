@@ -34,6 +34,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\empinout.i
 &SCOPED-DEFINE yellowColumnsName employee
 /* Parameters Definitions ---                                           */
 

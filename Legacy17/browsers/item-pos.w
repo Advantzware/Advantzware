@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\browsers\item-pos.i
 &SCOPED-DEFINE yellowColumnsName item-pos
 &SCOPED-DEFINE autoFind
 &SCOPED-DEFINE winReSize

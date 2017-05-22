@@ -370,7 +370,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -395,9 +395,9 @@ ON HELP OF FRAME F-Main
 DO:
     def var lv-ind like style.industry no-undo.
     def var lv-handle as handle no-undo.
-    
+
     lv-handle = focus:handle.
-   
+
     case focus:name :
          when "i-code" then do:
              find style where style.company = rfqitem.company and
@@ -423,13 +423,13 @@ DO:
                   end case.       
              end.         
              return no-apply.                       
-                            
+
          end.
-         
-         
-         
+
+
+
     end case.
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -452,6 +452,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rfqitem.i-code[10] V-table-Win
 ON LEAVE OF rfqitem.i-code[10] IN FRAME F-Main /* Code[10] */
 DO:
+if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" and rfqitem.i-ps[10]:screen-value = "0" then do:
      message "Enter Valid Pass." view-as alert-box.
      apply "entry" to rfqitem.i-ps[10].
@@ -470,10 +472,12 @@ DO:
         message "Invalid Item. Try Help." view-as alert-box error.
         return no-apply.
      end.
-                   
+
      if avail item then  rfqitem.i-dscr[10]:screen-value in frame {&frame-name} = item.i-name.
   end.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -483,6 +487,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rfqitem.i-code[1] V-table-Win
 ON LEAVE OF rfqitem.i-code[1] IN FRAME F-Main /* Code[1] */
 DO:
+if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" and rfqitem.i-ps[1]:screen-value = "0" then do:
      message "Enter Valid Pass." view-as alert-box.
      apply "entry" to rfqitem.i-ps[1].
@@ -492,7 +498,7 @@ DO:
    find item where item.company = rfqitem.company and
                    item.i-no = self:screen-value
                    no-lock no-error.
-                   
+
    if avail item and item.mat-type  <> "I" and item.mat-type <> "V" then do:
       message "Invalid Material Type. Try Help." view-as alert-box error.
       return no-apply.
@@ -501,11 +507,13 @@ DO:
       message "Invalid Item. Try Help." view-as alert-box error.
       return no-apply.
    end.
-                   
+
    if avail item then  rfqitem.i-dscr[1]:screen-value in frame {&frame-name} = item.i-name.
  end.
-   
+{&methods/lValidateError.i NO}
+
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -515,6 +523,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rfqitem.i-code[2] V-table-Win
 ON LEAVE OF rfqitem.i-code[2] IN FRAME F-Main /* Code[2] */
 DO:
+if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" and rfqitem.i-ps[2]:screen-value = "0" then do:
      message "Enter Valid Pass." view-as alert-box.
      apply "entry" to rfqitem.i-ps[2].
@@ -537,7 +547,10 @@ DO:
 
    if avail item then  rfqitem.i-dscr[2]:screen-value in frame {&frame-name} = item.i-name.
   end.
+ {&methods/lValidateError.i NO}
 END.
+
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -547,6 +560,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rfqitem.i-code[3] V-table-Win
 ON LEAVE OF rfqitem.i-code[3] IN FRAME F-Main /* Code[3] */
 DO:
+if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" and rfqitem.i-ps[3]:screen-value = "0" then do:
      message "Enter Valid Pass." view-as alert-box.
      apply "entry" to rfqitem.i-ps[3].
@@ -569,7 +584,9 @@ DO:
 
    if avail item then  rfqitem.i-dscr[3]:screen-value in frame {&frame-name} = item.i-name.
   end.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -579,6 +596,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rfqitem.i-code[4] V-table-Win
 ON LEAVE OF rfqitem.i-code[4] IN FRAME F-Main /* Code[4] */
 DO:
+if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" and rfqitem.i-ps[4]:screen-value = "0" then do:
      message "Enter Valid Pass." view-as alert-box.
        apply "entry" to rfqitem.i-ps[4].
@@ -601,7 +620,9 @@ DO:
 
      if avail item then  rfqitem.i-dscr[4]:screen-value in frame {&frame-name} = item.i-name.
    end.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -611,6 +632,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rfqitem.i-code[5] V-table-Win
 ON LEAVE OF rfqitem.i-code[5] IN FRAME F-Main /* Code[5] */
 DO:
+if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" and rfqitem.i-ps[5]:screen-value = "0" then do:
      message "Enter Valid Pass." view-as alert-box.
      apply "entry" to rfqitem.i-ps[5].
@@ -633,7 +656,9 @@ DO:
 
      if avail item then  rfqitem.i-dscr[5]:screen-value in frame {&frame-name} = item.i-name.
     end.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -643,6 +668,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rfqitem.i-code[6] V-table-Win
 ON LEAVE OF rfqitem.i-code[6] IN FRAME F-Main /* Code[6] */
 DO:
+if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" and rfqitem.i-ps[6]:screen-value = "0" then do:
      message "Enter Valid Pass." view-as alert-box.
      apply "entry" to rfqitem.i-ps[6].
@@ -665,7 +692,9 @@ DO:
 
      if avail item then  rfqitem.i-dscr[6]:screen-value in frame {&frame-name} = item.i-name.
   end.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -675,6 +704,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rfqitem.i-code[7] V-table-Win
 ON LEAVE OF rfqitem.i-code[7] IN FRAME F-Main /* Code[7] */
 DO:
+if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" and rfqitem.i-ps[7]:screen-value = "0" then do:
      message "Enter Valid Pass." view-as alert-box.
      apply "entry" to rfqitem.i-ps[7].
@@ -695,7 +726,9 @@ DO:
      end.                 
      if avail item then  rfqitem.i-dscr[7]:screen-value in frame {&frame-name} = item.i-name.
    end.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -705,6 +738,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rfqitem.i-code[8] V-table-Win
 ON LEAVE OF rfqitem.i-code[8] IN FRAME F-Main /* Code[8] */
 DO:
+if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" and rfqitem.i-ps[8]:screen-value = "0" then do:
      message "Enter Valid Pass." view-as alert-box.
      apply "entry" to rfqitem.i-ps[8].
@@ -726,7 +761,9 @@ DO:
 
    if avail item then  rfqitem.i-dscr[8]:screen-value in frame {&frame-name} = item.i-name.
   end.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -736,6 +773,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rfqitem.i-code[9] V-table-Win
 ON LEAVE OF rfqitem.i-code[9] IN FRAME F-Main /* Code[9] */
 DO:
+if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
   if lastkey <> -1 and self:screen-value <> "" and rfqitem.i-ps[9]:screen-value = "0" then do:
      message "Enter Valid Pass." view-as alert-box.
      apply "entry" to rfqitem.i-ps[9].
@@ -757,7 +796,9 @@ DO:
 
      if avail item then  rfqitem.i-dscr[9]:screen-value in frame {&frame-name} = item.i-name.
   end.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -834,7 +875,7 @@ PROCEDURE calc-pass :
       def var save_id2 as recid no-undo.
       def buffer alt-item for item .
       def var choice as log no-undo.
-           
+
       find first style where style.company = rfqitem.company and
                  style.style = rfqitem.style no-lock no-error.
       if avail style then do:
@@ -872,7 +913,7 @@ PROCEDURE calc-pass :
                                       alt-item.i-no     = rfq-ctrl.def-coat
                                       no-lock no-error.
       end.
-   
+
       ASSIGN
       save_id = recid(item)
       save_id2 = recid(alt-item)
@@ -883,7 +924,7 @@ PROCEDURE calc-pass :
       choice = true.
 
       {sys/inc/roundup.i j}
-      
+
 /*    do i = 1 to 10:
        if rfqitem.i-code[i] ne "" then do:
           choice = no.
@@ -891,7 +932,7 @@ PROCEDURE calc-pass :
        end.
       end.     
  commented to recalc every time */
- 
+
 /*    find bf-rfqitem of rfqitem exclusive-lock.    */
       if choice then do i = 1 to 10:
          if i le integer(rfqitem.i-col:screen-value) then do with frame {&frame-name}:
@@ -1047,13 +1088,13 @@ PROCEDURE calc-pass :
                                         rfqitem.i-%[10]:screen-value    = "0".
 
               end case.       
-                     
+
          end.
          if i modulo j = 0 then counter = counter + 1.
          if counter > integer(rfqitem.i-pass:screen-value) then counter = integer(rfqitem.i-pass:screen-value).
-      
+
       end.
-   
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1078,7 +1119,7 @@ PROCEDURE calc-pass-update :
       def var save_id2 as recid no-undo.
       def buffer alt-item for item .
       def var choice as log no-undo.
-           
+
       find first style where style.company = rfqitem.company and
                  style.style = rfqitem.style no-lock no-error.
       if avail style then do:
@@ -1106,7 +1147,7 @@ PROCEDURE calc-pass-update :
                                       alt-item.i-no     = rfq-ctrl.def-coat
                                       no-lock no-error.
       end.
-   
+
       save_id = recid(item). save_id2 = recid(alt-item).
       j = (integer(rfqitem.i-col:screen-value in frame {&frame-name})
           + integer(rfqitem.i-coat:screen-value in frame {&frame-name})  ) 
@@ -1121,7 +1162,7 @@ PROCEDURE calc-pass-update :
        end.
       end.     
  commented to recalc every time */
- 
+
 /*    find bf-rfqitem of rfqitem exclusive-lock.    */
       if choice then do i = 1 to 10:
       /*=============== chagned from calc-pass ===========
@@ -1178,7 +1219,7 @@ PROCEDURE calc-pass-update :
          end.
         ======================================*/
          if i lt integer(rfqitem.i-col:screen-value) then do with frame {&frame-name}:
-         
+
          end.
          else if i = integer(rfqitem.i-col:screen-value) /* and ... */ 
          then do with frame {&frame-name}:
@@ -1287,13 +1328,13 @@ PROCEDURE calc-pass-update :
                                         rfqitem.i-%[10]:screen-value    = "0".
 
               end case.       
-                     
+
          end.
          if i modulo j = 0 then counter = counter + 1.
          if counter > integer(rfqitem.i-pass:screen-value) then counter = integer(rfqitem.i-pass:screen-value).
-      
+
       end.
-      
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1372,7 +1413,7 @@ PROCEDURE local-hide :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DEFINE VARIABLE vlChangePages AS LOGICAL NO-UNDO.
-  
+
   RUN GET-ATTRIBUTE("FIELDS-ENABLED":U).
   IF RETURN-VALUE = "YES":U THEN
   DO:
@@ -1423,7 +1464,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var li-num-of-code as int no-undo.
-   
+{&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
      li-num-of-code = 0.
      if rfqitem.i-code[1]:screen-value in frame {&frame-name} <> "" then li-num-of-code = li-num-of-code + 1.
@@ -1443,10 +1484,10 @@ PROCEDURE local-update-record :
           message "Invalid Number of Color and Coating." view-as alert-box.
           return no-apply.
      end.                     
-     
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
   bt-ink-detail:sensitive in frame {&frame-name} = true.
   assign rfqitem.i-dscr[1] = rfqitem.i-dscr[1]:screen-value in frame {&frame-name} 
@@ -1462,8 +1503,9 @@ PROCEDURE local-update-record :
          .
   /* run calc-pass-update. /* update only for new infos */
   */
-
+{&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

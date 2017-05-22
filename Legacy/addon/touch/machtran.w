@@ -237,7 +237,7 @@ THEN C-Win:HIDDEN = no.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "EMPTRACK.machtran"
+     _TblList          = "machtran"
      _Options          = "NO-LOCK"
      _TblOptList       = "USED"
      _Where[1]         = "machtran.company = company_code AND
@@ -247,17 +247,17 @@ machtran.job_sub = INTEGER(job_sub) AND
 machtran.form_number = INTEGER(form_number) AND
 machtran.blank_number = INTEGER(blank_number) AND
 machtran.pass_sequence = INTEGER(pass_sequence)"
-     _FldNameList[1]   = EMPTRACK.machtran.charge_code
-     _FldNameList[2]   = EMPTRACK.machtran.start_date
+     _FldNameList[1]   = machtran.charge_code
+     _FldNameList[2]   = machtran.start_date
      _FldNameList[3]   > "_<CALC>"
 "STRING(machtran.start_time,'HH:MM am') @ start-time" "Log In" "X(8)" ? ? ? ? ? ? ? no ?
-     _FldNameList[4]   = EMPTRACK.machtran.end_date
-     _FldNameList[5]   = EMPTRACK.machtran.shift
+     _FldNameList[4]   = machtran.end_date
+     _FldNameList[5]   = machtran.shift
      _FldNameList[6]   > "_<CALC>"
 "Time_String(machtran.end_time,yes) @ end-time" "Log Out" "X(8)" ? ? ? ? ? ? ? no ?
-     _FldNameList[7]   > EMPTRACK.machtran.run_qty
+     _FldNameList[7]   > machtran.run_qty
 "run_qty" "Run Qty" ? "decimal" ? ? ? ? ? ? no ?
-     _FldNameList[8]   = EMPTRACK.machtran.waste_qty
+     _FldNameList[8]   = machtran.waste_qty
      _FldNameList[9]   > "_<CALC>"
 "Time_String(machtran.total_time,no) @ total-time" "Total" "X(5)" ? ? ? ? ? ? ? no ?
      _Query            is OPENED

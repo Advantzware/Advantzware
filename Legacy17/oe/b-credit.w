@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\oe\b-credit.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

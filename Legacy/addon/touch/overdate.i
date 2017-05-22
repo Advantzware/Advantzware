@@ -159,7 +159,7 @@
                    machemp.end_time = endtime
                    machemp.shift = missingshift
                    machemp.ratetype = 'Standard'
-                   machemp.rate_usage = emptrack.employee.rate_usage.
+                   machemp.rate_usage = employee.rate_usage.
                  RUN Employee-Rate(company_code,employee_code,machemp.shift,machinecode,
                                    machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
                  {custom/calctime.i &file="machemp"}
@@ -215,7 +215,7 @@
                machemp.end_time = stoptime
                machemp.shift = shiftvar
                machemp.ratetype = 'Standard'
-               machemp.rate_usage = emptrack.employee.rate_usage.
+               machemp.rate_usage = employee.rate_usage.
              RUN Employee-Rate(company_code,employee_code,machemp.shift,machinecode,
                                machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
              {custom/calctime.i &file="machemp"}
@@ -281,8 +281,8 @@
           IF shiftvar <> emplogin.shift THEN
           DO:
              /* shift change, close out current */
-             FIND emptrack.employee WHERE emptrack.employee.company = company_code
-                             AND emptrack.employee.employee = employee_code NO-LOCK NO-ERROR.
+             FIND employee WHERE employee.company = company_code
+                             AND employee.employee = employee_code NO-LOCK NO-ERROR.
              RUN Shift-Data(company_code,machinecode,machemp.shift,
                             OUTPUT starttime,OUTPUT endtime).
              
@@ -325,7 +325,7 @@
                         machemp.end_time = endtime
                         machemp.shift = missingshift
                         machemp.ratetype = 'Standard'
-                        machemp.rate_usage = emptrack.employee.rate_usage.
+                        machemp.rate_usage = employee.rate_usage.
                       RUN Employee-Rate(company_code,employee_code,machemp.shift,machinecode,
                                         machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
                       {custom/calctime.i &file="machemp"}
@@ -357,7 +357,7 @@
                    machemp.end_time = stoptime
                    machemp.shift = shiftvar
                    machemp.ratetype = 'Standard'
-                   machemp.rate_usage = emptrack.employee.rate_usage.
+                   machemp.rate_usage = employee.rate_usage.
                    RUN Employee-Rate(company_code,employee_code,machemp.shift,machinecode,
                                      machemp.rate_usage,machemp.ratetype,OUTPUT machemp.rate).
                    {custom/calctime.i &file="machemp"}

@@ -51,7 +51,6 @@ PROCEDURE winkit-enable:
     IF VALID-OBJECT (oForm) THEN
         Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager, FALSE, FALSE) .
 
-
 END PROCEDURE.
 
 PROCEDURE winkit-view:
@@ -94,33 +93,32 @@ PROCEDURE winkit-make-ribbon-group:
 
     ASSIGN cKey = Consultingwerk.Util.ProcedureHelper:ShortDotPName (THIS-PROCEDURE)
            cKey = REPLACE (cKey, ".", "_")
+           cCaption = FRAME {&FRAME-NAME}:PRIVATE-DATA .
 
-           cCaption = FRAME {&frame-name}:PRIVATE-DATA .
-
-    IF cCaption = "" THEN
+    IF cCaption EQ "" THEN
         ASSIGN cCaption = cKey .
+        
+    IF cCaption EQ "ADM-PANEL" THEN
+        cCaption = "".
 
     IF piPage = 0 THEN
         oRibbonTab = poForm:ToolbarsManager:Ribbon:Tabs[0] .
     ELSE DO:
         ASSIGN cTabKey = "page_" + STRING (piPage) .
-
+        
         /* Create contextual ribbon tab */
         IF poForm:ToolbarsManager:Ribbon:Tabs:Exists (cTabKey) THEN
             oRibbonTab = poForm:ToolbarsManager:Ribbon:Tabs [cTabKey].
-
         ELSE DO:
-
             ASSIGN cTabCaption = CAST (poForm,
-                                       Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):TabFolder:Tabs [piPage - 1]:Text .
-
-            oRibbonTab = poForm:ToolbarsManager:Ribbon:Tabs:Add (cTabKey) .
-            oRibbonTab:Caption = cTabCaption .
-
-            oContextual = poForm:ToolbarsManager:Ribbon:ContextualTabGroups:Add (cTabKey) .
+                                       Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):TabFolder:Tabs [piPage - 1]:Text 
+            oRibbonTab         = poForm:ToolbarsManager:Ribbon:Tabs:Add (cTabKey) 
+            oRibbonTab:Caption = cTabCaption 
+            oContextual        = poForm:ToolbarsManager:Ribbon:ContextualTabGroups:Add (cTabKey) .
+            
             oContextual:Tabs:Add (oRibbonTab) .
+            
             oContextual:Caption = cTabCaption .
-
         END.
     END.
 
@@ -143,19 +141,14 @@ PROCEDURE winkit-make-ribbon-group:
                                                                        cPrefix,
                                                                        "":U) .
 
-
-
-
     ASSIGN oPanelRibbonTab = oRibbonTab
            cPanelRibbonGroupKey = cKey .
 
     IF VALID-OBJECT (oForm) THEN
         Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager, FALSE, FALSE) .
 
-
-
-    FRAME {&frame-name}:HIDDEN = TRUE .
-    FRAME {&frame-name}:MOVE-TO-BOTTOM () .
+    FRAME {&FRAME-NAME}:HIDDEN = TRUE .
+    FRAME {&FRAME-NAME}:MOVE-TO-BOTTOM () .
 
 END PROCEDURE.
 

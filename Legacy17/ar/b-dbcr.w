@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE dataGridInclude dataGrid\ar\b-dbcr.i
 &SCOPED-DEFINE yellowColumnsName ar-cash
 &SCOPED-DEFINE winReSize
 &SCOPED-DEFINE sizeOption HEIGHT

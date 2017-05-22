@@ -244,7 +244,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -301,12 +301,12 @@ DO:
     def var ls-header as cha no-undo.
     def var char-hdl as cha no-undo.
     def var char-val as cha no-undo.
-    
+
     run get-link-handle in adm-broker-hdl (this-procedure,"container-source", output char-hdl).
     run get-ip-header in widget-handle(char-hdl) (output ls-header).
     run windows/l-formno.w (g_company, ls-header, output char-val).
     if char-val <> "" then self:screen-value = char-val.
-     
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -336,7 +336,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -425,7 +425,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/notes.i}
-  
+
   notes.note_type = "D".
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
   RUN get-header-value IN WIDGET-HANDLE(char-hdl) (OUTPUT lv-header-value).
@@ -553,6 +553,7 @@ PROCEDURE valid-note_code :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF notes.note_code:SCREEN-VALUE NE '' THEN DO:
       dept-dscr:SCREEN-VALUE = ''.
@@ -568,8 +569,9 @@ PROCEDURE valid-note_code :
       notes.note_title:SCREEN-VALUE = dept.dscr.
     END.
   END.
-    
 
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -585,9 +587,10 @@ PROCEDURE valid-note_form_no PRIVATE :
   DEF VAR ls-header   AS CHAR NO-UNDO.
   DEF VAR ls-header1  AS CHAR NO-UNDO.
   DEF VAR char-hdl    AS CHAR NO-UNDO.
-       
+
   DEFINE BUFFER b1-job  FOR job.
 
+  {methods/lValidateError.i YES}
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source", OUTPUT char-hdl).
   RUN get-ip-header IN WIDGET-HANDLE(char-hdl) (OUTPUT ls-header).
 
@@ -630,6 +633,7 @@ PROCEDURE valid-note_form_no PRIVATE :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
