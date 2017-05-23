@@ -7,7 +7,9 @@
    {sys/inc/ediftp.i}
  END.
   
- 
+ DEFINE TEMP-TABLE ttEdiPo
+        FIELD ttRecid AS RECID.
+         
  DEF TEMP-TABLE ttConfig FIELD exportFormat  AS CHAR
                       FIELD destName AS CHAR FORMAT "x(20)"
                       FIELD ftp-site AS CHAR FORMAT "x(30)"
@@ -21,6 +23,7 @@
                       FIELD ftp-cmd AS CHAR
                       INDEX exportFormat exportFormat
                       INDEX destName IS PRIMARY destName.
+
 
 /* ************************  Function Prototypes ********************** */
 
@@ -47,11 +50,19 @@ PROCEDURE autoImport:
  Notes:
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE cImpxmlfile AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cRecid AS RECID NO-UNDO.
      
   cImpxmlfile = edimonimp-cha.
       
   IF cImpxmlfile <> "" THEN DO:
        RUN oe/oe850imp.p (cImpxmlfile).
+/*       INPUT FROM c:\temp\edirec.tmp.     */
+/*                                          */
+/*          PROMPT cRecid.                  */
+/*          CREATE ttEdiPo.                 */
+/*          ASSIGN ttEdiPo.ttRecid = cRecid.*/
+/*                                          */
+           
        FOR EACH EDPOTran WHERE request-date = TODAY:
          RUN oe/oe850ord.p (recid(edpotran)).
        END.
