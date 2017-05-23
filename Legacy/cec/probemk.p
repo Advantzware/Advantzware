@@ -38,6 +38,8 @@ DEFINE        VARIABLE vn-out             AS INTEGER  NO-UNDO.
 DEFINE        VARIABLE v-max-sheets       AS INTEGER  NO-UNDO.
 DEFINE        VARIABLE v-sheets           AS INTEGER  NO-UNDO.
 DEFINE        VARIABLE dBoardPct          AS DECIMAL  NO-UNDO.
+DEFINE        VARIABLE dMarginCostG       AS DECIMAL  NO-UNDO.
+DEFINE        VARIABLE dMarginCostN       AS DECIMAL  NO-UNDO.
 
 DO TRANSACTION:
     {sys/inc/cerun.i C}
@@ -123,17 +125,6 @@ RUN custom/markup.p (ROWID(xeb),
     INPUT-OUTPUT lv-sell-by,
     INPUT-OUTPUT v-pct).
 
-/*IF lv-sell-by-ce-ctrl NE "B" AND                                   */
-/*   lv-sell-by EQ "B" THEN DO:                                      */
-/*  FIND FIRST probe-board                                           */
-/*      WHERE probe-board.reftable EQ "probe.board"                  */
-/*        AND probe-board.company  EQ probe.company                  */
-/*        AND probe-board.loc      EQ ""                             */
-/*        AND probe-board.code     EQ probe.est-no                   */
-/*        AND probe-board.code2    EQ STRING(probe.line,"9999999999")*/
-/*      NO-ERROR.                                                    */
-/*  IF AVAIL probe-board THEN board-cst = probe-board.val[1].        */
-/*END.                                                               */
 
 IF cerunc EQ "Fibre" THEN
     RUN est/usemargin.p (ROWID(xest), OUTPUT ll-use-margin).
@@ -143,16 +134,24 @@ IF ll-use-margin THEN
         INPUT-OUTPUT v-com,
         INPUT-OUTPUT v-pct).
 
+dMarginCostG = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN board-cst ELSE ord-cost.
+dMarginCostN = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN 0 ELSE tt-tot - ord-cost.
+
+/*Exclude SIMON = M Costs from Price Margin Calculation*/
+dMarginCostG = dMarginCostG - dMCostToExcludeMisc - dMCostToExcludePrep.
+
 RUN custom/sellpric.p (lv-sell-by-ce-ctrl,
     lv-sell-by,
     v-basis,
-    (IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN board-cst ELSE ord-cost),
-    (IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN 0 ELSE (tt-tot - ord-cost)),
+    dMarginCostG,
+    dMarginCostN,
     (IF ll-use-margin OR
     (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN 0 ELSE v-com),
     v-pct,
     OUTPUT v-price,
     OUTPUT v-comm).
+
+ v-price = v-price + dMPriceToAddMisc + dMPriceToAddPrep.
 
 IF ll-use-margin OR
     (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN v-comm = v-price * v-com / 100.

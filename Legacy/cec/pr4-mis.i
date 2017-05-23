@@ -1,5 +1,9 @@
 /* -------------------------------------------------- cec/pr4-mis.i 07/96 JLF */
 
+   ASSIGN 
+        dMCostToExcludeMisc = 0
+        dMPriceToAddMisc = 0
+        .
    DO i = 1 TO 6 WITH FRAME ad2 DOWN NO-LABELS NO-BOX:
     /* only (i)ntegrate and (m)aintenance lines are done here */
     IF INDEX("SON",xef.mis-simon[i]) > 0 THEN NEXT.
@@ -32,8 +36,15 @@
 	   {cec/refest5a.i MAT-CST i "no-lock no-error"}
 
      v-mat-cost = IF AVAIL reftable THEN reftable.val[v] ELSE 0.
-
-     IF ceprepprice-chr EQ "Profit" THEN
+     IF xef.mis-simon[i] = 'M' THEN DO:
+        mis-tot[5] = xef.mis-matf[i] + (v-mat-cost * qty / 1000).
+        dMCostToExcludeMisc = dMCostToExcludeMisc + mis-tot[5].
+        IF ceprepprice-chr EQ 'Profit' THEN 
+            dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[5] / (1 - (xef.mis-mkup[i] / 100)).
+        ELSE 
+            dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[5] * (1 + (xef.mis-mkup[i] / 100)).
+     END.
+     ELSE IF ceprepprice-chr EQ "Profit" THEN
         mis-tot[5] = (xef.mis-matf[i] + (v-mat-cost * qty / 1000)) /
    	        		 (1 - (xef.mis-mkup[i] / 100)).
      ELSE
@@ -55,8 +66,16 @@
 	   {cec/refest5a.i LAB-CST i "no-lock no-error"}
 
      v-lab-cost = IF AVAIL reftable THEN reftable.val[v] ELSE 0.
-
-     IF ceprepprice-chr EQ "Profit" THEN
+    
+     IF xef.mis-simon[i] = 'M' THEN DO:
+        mis-tot[6] = xef.mis-labf[i] + (v-lab-cost * qty / 1000).
+        dMCostToExcludeMisc = dMCostToExcludeMisc + mis-tot[6].
+        IF ceprepprice-chr EQ 'Profit' THEN 
+            dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[6] / (1 - (xef.mis-mkup[i] / 100)).
+        ELSE 
+            dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[6] * (1 + (xef.mis-mkup[i] / 100)).
+     END.
+     ELSE IF ceprepprice-chr EQ "Profit" THEN
 	    mis-tot[6] = (xef.mis-labf[i] + (v-lab-cost * qty / 1000)) /
 	        		 (1 - (xef.mis-mkup[i] / 100)).
      ELSE
