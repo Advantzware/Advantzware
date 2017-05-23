@@ -221,6 +221,46 @@ ADD INDEX "rec_key" ON "sbStatus"
   DESCRIPTION "Secondary Index by rec_key"
   INDEX-FIELD "rec_key" ASCENDING 
 
+ADD FIELD "n_out_div" OF "est-op" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Number Out"
+  POSITION 55
+  MAX-WIDTH 17
+  HELP "Enter Number Out on Sheet"
+  DECIMALS 2
+  ORDER 520
+
+ADD FIELD "n_out" OF "est-op" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Number Out"
+  POSITION 56
+  MAX-WIDTH 17
+  HELP "Enter Number Out on Sheet"
+  DECIMALS 2
+  ORDER 530
+
+ADD FIELD "n_out" OF "job-mch" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Number Out"
+  POSITION 71
+  MAX-WIDTH 17
+  HELP "Enter Number Out on Sheet"
+  DECIMALS 2
+  ORDER 810
+
+ADD FIELD "n_out_div" OF "job-mch" AS decimal 
+  FORMAT "->>,>>9.99"
+  INITIAL "0"
+  LABEL "Number Out"
+  POSITION 72
+  MAX-WIDTH 17
+  HELP "Enter Number Out on Sheet"
+  DECIMALS 2
+  ORDER 820
+
 .
 PSC
 cpstream=ISO8859-1
