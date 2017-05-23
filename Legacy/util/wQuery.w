@@ -2062,13 +2062,15 @@ DO:
     ASSIGN 
         lProcessed = FALSE.
 
+    main-block:
+    DO ON ENDKEY UNDO, LEAVE:
     FIND _file WHERE
         _file._file-name = entry(1,SELF:{&SV})
         NO-LOCK NO-ERROR.
     IF AVAIL _file THEN DO:
         CASE SELF:NAME:
             WHEN "cbFile-1" THEN DO:
-                IF SELF:{&SV} = vcbFile-1 THEN RETURN.
+                IF SELF:{&SV} = vcbFile-1 THEN LEAVE main-block.
                 ASSIGN
                     cbWhere-1:LIST-ITEMS = "-"
                     cbWhere-2:LIST-ITEMS = "-"
@@ -2108,7 +2110,7 @@ DO:
                     .
             END.
             WHEN "cbFile-2" THEN DO:
-                IF SELF:{&SV} = vcbFile-2 THEN RETURN.
+                IF SELF:{&SV} = vcbFile-2 THEN LEAVE main-block.
                 ASSIGN
                     cbWhere-6:LIST-ITEMS = "-"
                     cbWhere-7:LIST-ITEMS = "-"
@@ -2148,7 +2150,7 @@ DO:
                     .
             END.
             WHEN "cbFile-3" THEN DO:
-                IF SELF:{&SV} = vcbFile-3 THEN RETURN.
+                IF SELF:{&SV} = vcbFile-3 THEN LEAVE main-block.
                 ASSIGN
                     cbWhere-11:LIST-ITEMS = "-"
                     cbWhere-12:LIST-ITEMS = "-"
@@ -2188,7 +2190,7 @@ DO:
                     .
             END.
             WHEN "cbFile-4" THEN DO:
-                IF SELF:{&SV} = vcbFile-4 THEN RETURN.
+                IF SELF:{&SV} = vcbFile-4 THEN LEAVE main-block.
                 ASSIGN
                     cbWhere-16:LIST-ITEMS = "-"
                     cbWhere-17:LIST-ITEMS = "-"
@@ -2248,6 +2250,7 @@ DO:
         cbRel-3:{&SV} = IF CAN-DO(cbRel-3:LIST-ITEMS,val3) THEN val3 ELSE "-"
         cbRel-4:{&SV} = IF CAN-DO(cbRel-4:LIST-ITEMS,val4) THEN val4 ELSE "-"
         .
+    END. /* main-block */
     
     IF NOT lLoading THEN
         RUN ipShowQuery IN THIS-PROCEDURE.
