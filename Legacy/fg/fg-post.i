@@ -643,7 +643,7 @@
       INPUT 0 /* OrdNo */, INPUT {1}.i-no, INPUT ABSOLUTE({1}.qty),
       INPUT {2}.loc, INPUT {2}.loc-bin, INPUT "" /* bolWhse */, INPUT {2}.tag, 
       OUTPUT rFgBinRow).
-  RELEASE fg-bin .
+  /* RELEASE fg-bin . */
   IF rFgBinRow NE ? THEN 
       FIND FIRST fg-bin EXCLUSIVE-LOCK WHERE ROWID(fg-bin) EQ rFgBinRow NO-ERROR.
          

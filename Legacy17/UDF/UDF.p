@@ -7,6 +7,7 @@
             ...
    author:  Ron Stark
    date:    12.10.2016
+   updated:  5.22.2017 (esko)
 */   
 
 {UDF/ttUDF.i}
@@ -38,6 +39,7 @@ PROCEDURE pBuildttUDF:
     DEFINE VARIABLE cValue    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cLabel    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iSBField  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE lEsko     AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
     
     FOR EACH ttAttrb
@@ -62,7 +64,8 @@ PROCEDURE pBuildttUDF:
                               cLabel,
                               cValue,
                               "Tab",
-                              0
+                              0,
+                              NO
                               ).
         END. /* first of tab */
         IF NOT CAN-DO("Rectangle,Text",ttAttrb.attr_type) THEN DO:
@@ -95,7 +98,8 @@ PROCEDURE pBuildttUDF:
                                   cLabel,
                                   cValue,
                                   ttAttrb.attr_colLabel,
-                                  ttAttrb.attr_sbField
+                                  ttAttrb.attr_sbField,
+                                  ttAttrb.attr_Esko
                                   ).
             END. /* avail mfvalues */
         END. /* not rect or text */
@@ -113,6 +117,7 @@ PROCEDURE pCreate_ttUDF:
     DEFINE INPUT PARAMETER ipcValue    AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcColLabel AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipiSBField  AS INTEGER   NO-UNDO.
+    DEFINE INPUT PARAMETER iplEsko     AS LOGICAL   NO-UNDO.
 
     CREATE ttUDF.
     ASSIGN
@@ -126,5 +131,6 @@ PROCEDURE pCreate_ttUDF:
         ttUDF.udfValue    = ipcValue
         ttUDF.udfColLabel = ipcColLabel
         ttUDF.udfSBField  = ipiSBField
+        ttUDF.udfEsko     = iplEsko
         .
 END PROCEDURE.
