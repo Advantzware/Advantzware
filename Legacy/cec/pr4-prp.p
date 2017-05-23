@@ -37,12 +37,14 @@ DEF VAR v-prep-lab-orig LIKE prep-lab NO-UNDO.
    ASSIGN
       tprep-mat = 0
       tprep-lab = 0
-      tprep-tot = 0.
+      tprep-tot = 0
+      dMCostToExcludePrep = 0
+      dMPriceToAddPrep = 0.
 
    for each est-prep where est-prep.company = xest.company and
                            est-prep.est-no = xest.est-no 
                            with frame ad down no-labels no-box:
-      /* only (i)ntegrate and (m)aintenance lines are done here */
+      /* only (i)ntegrate and (m)arkup lines are done here */
       if index("SON",est-prep.simon) > 0 then next.
       if est-prep.code ne "" then do:
          ASSIGN
@@ -63,7 +65,14 @@ DEF VAR v-prep-lab-orig LIKE prep-lab NO-UNDO.
             v-prep-lab-orig = prep-lab
             prep-tot = prep-mat + prep-lab.
 
-         IF ceprepprice-chr EQ "Profit" THEN
+        IF est-prep.simon = 'M' THEN DO:
+            dMCostToExcludePrep = dMCostToExcludePrep + prep-tot.
+            IF ceprepprice-chr EQ 'Profit' THEN 
+                dMPriceToAddPrep = dMPriceToAddPrep + prep-tot / (1 - prep-add) * prep-atz.
+            ELSE 
+                dMPriceToAddPrep = dMPriceToAddPrep + prep-tot * (1 + prep-add) * prep-atz.
+        END.
+         ELSE IF ceprepprice-chr EQ "Profit" THEN
             prep-tot  = prep-tot / (1 - prep-add) * prep-atz.
          ELSE
             prep-tot  = prep-tot * (1 + prep-add) * prep-atz.
@@ -78,7 +87,12 @@ DEF VAR v-prep-lab-orig LIKE prep-lab NO-UNDO.
                prep-lab = prep-lab * ld-fac.
          END.
 
-         IF ceprepprice-chr EQ "Profit" THEN
+          IF est-prep.simon = 'M' THEN
+           ASSIGN 
+                tprep-mat = tprep-mat + prep-mat * prep-atz
+                tprep-lab = tprep-lab + prep-lab * prep-atz
+                .
+         ELSE IF ceprepprice-chr EQ "Profit" THEN
             ASSIGN
                tprep-mat = tprep-mat + (prep-mat / (1 - prep-add) * prep-atz)
                tprep-lab = tprep-lab + (prep-lab / (1 - prep-add) * prep-atz).

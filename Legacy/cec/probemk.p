@@ -138,7 +138,7 @@ dMarginCostG = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN board-cst
 dMarginCostN = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN 0 ELSE tt-tot - ord-cost.
 
 /*Exclude SIMON = M Costs from Price Margin Calculation*/
-dMarginCostG = dMarginCostG - dMCostToExcludeMisc - dMCostToExcludePrep. 
+dMarginCostG = dMarginCostG - dMCostToExcludeMisc - dMCostToExcludePrep.
 
 RUN custom/sellpric.p (lv-sell-by-ce-ctrl,
     lv-sell-by,
@@ -150,11 +150,7 @@ RUN custom/sellpric.p (lv-sell-by-ce-ctrl,
     v-pct,
     OUTPUT v-price,
     OUTPUT v-comm).
-MESSAGE "Probemk" skip
-    "calc price" v-price skip
-    "Added Misc" dMPriceToAddMisc skip 
-    "Added Prep" dMpriceToAddPrep skip
-    v-pct VIEW-AS ALERT-BOX.
+
  v-price = v-price + dMPriceToAddMisc + dMPriceToAddPrep.
 
 IF ll-use-margin OR

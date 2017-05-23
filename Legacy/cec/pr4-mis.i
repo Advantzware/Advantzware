@@ -44,8 +44,6 @@
         ELSE 
             dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[5] * (1 + (xef.mis-mkup[i] / 100)).
      END.
-     IF xef.mis-simon[i] = 'M' THEN 
-        mis-tot[5] = xef.mis-matf[i] + (v-mat-cost * qty / 1000).
      ELSE IF ceprepprice-chr EQ "Profit" THEN
         mis-tot[5] = (xef.mis-matf[i] + (v-mat-cost * qty / 1000)) /
    	        		 (1 - (xef.mis-mkup[i] / 100)).

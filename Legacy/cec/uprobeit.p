@@ -40,6 +40,8 @@ DEFINE VARIABLE v-freight          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE v-found            AS LOG       NO-UNDO.
 DEFINE VARIABLE dBoardCst          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dBoardPct          AS DECIMAL   NO-UNDO.
+DEFINE        VARIABLE dMarginCostG       AS DECIMAL  NO-UNDO.
+DEFINE        VARIABLE dMarginCostN       AS DECIMAL  NO-UNDO.
 DEFINE SHARED TEMP-TABLE tt-rel NO-UNDO LIKE reftable.
                               
 
@@ -428,22 +430,28 @@ FOR EACH probeit
     IF xest.est-type EQ 6 AND probe.set-chg NE 0 AND vmclean2 THEN
         v-tmp-set-markup = probe.set-chg.
 
+    dMarginCostG = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN board-cst ELSE probeit.fact-cost.
+    dMarginCostN = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN 0
+        ELSE (IF lv-sell-by = "F" THEN v-freight ELSE (probeit.full-cost - probeit.fact-cost)).
+    
+    /*Exclude SIMON = M Costs from Price Margin Calculation*/
+    dMarginCostG = dMarginCostG - dMCostToExcludeMisc - dMCostToExcludePrep.
+
     /*this commission logic also in oe/ordfrest.i and jc/jc-calc.p*/
     RUN custom/sellpric.p (lv-sell-by-ce-ctrl,
         lv-sell-by,
         v-basis,
-        (IF lv-sell-by-ce-ctrl NE "B" AND
-        lv-sell-by EQ "B" THEN board-cst
-        ELSE probeit.fact-cost),
-        (IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN 0
-        ELSE (IF lv-sell-by = "F" THEN v-freight ELSE (probeit.full-cost - probeit.fact-cost))),
+        dMarginCostG,
+        dMarginCostN,
         (IF ll-use-margin OR
         (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN 0
         ELSE probe.comm),
         v-pct + v-tmp-set-markup,
         OUTPUT probeit.sell-price,
         OUTPUT v-comm).
-
+    
+        probeit.sell-price = probeit.sell-price + dMPriceToAddMisc + dMPriceToAddPrep.
+    
     IF ll-use-margin OR
         (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN
         v-comm = probeit.sell-price * probe.comm / 100.
