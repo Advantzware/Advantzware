@@ -5069,8 +5069,10 @@ PROCEDURE local-add-record :
   ASSIGN
     ll-is-add-from-tool = NO
     cadcamValue = ''.
-
-  IF ls-add-what EQ "est-from-tandem" THEN RUN est-from-tandem.
+  IF ls-add-what EQ "copy-est" THEN do:
+      RUN local-copy-record .
+  END.
+  ELSE IF ls-add-what EQ "est-from-tandem" THEN RUN est-from-tandem.
   ELSE IF ls-add-what = "estCad" THEN DO:
     EMPTY TEMP-TABLE tt-artios.
     RUN est/d-artioscad.w (cocode).
