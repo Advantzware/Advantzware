@@ -84,7 +84,7 @@ ASSIGN cTextListToSelect = "Customer,Invoice#,FG Item,Cust Part No,Categ,Qty Shi
                             "unt-prc,uom,brdcst-m,ordcst-m,invcst-m,mar-m,cst,colr,ord-dt,shp-dt,inv-amt,est," +
                             "styl,flut,tst,lnth,wdth,dpth"
        cFieldLength = "8,8,15,15,5,12,8,7,5," + "15,3,12,12,14,11,11,6,10,10,15,9," + "6,5,6,6,6,6"
-       cFieldType = "c,i,c,c,c,i,i,i,i," + "i,c,i,i,i,c,c,c,i,c," + "c,c,c,i,i,i" 
+       cFieldType = "c,i,c,c,c,i,i,i,i," + "i,c,i,i,i,c,c,c,i,c,i,c," + "c,c,c,i,i,i" 
     .
 
 {sys/inc/ttRptSel.i}
