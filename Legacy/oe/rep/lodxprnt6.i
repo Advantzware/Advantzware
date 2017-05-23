@@ -2,7 +2,7 @@
 
  FIND FIRST cust NO-LOCK
      WHERE cust.company EQ cocode
-       AND cust.cust-no EQ tt-word-print.cust-no NO-ERROR .
+       AND cust.active = "X" NO-ERROR .
  IF AVAIL cust THEN
      ASSIGN
        cEmail = cust.email .
@@ -29,9 +29,9 @@
         
         PUT "<FArial><=4><R11><C5><P18><B>" company.NAME FORMAT "x(25)"  "</B>" SKIP.
         PUT "<FArial><=4><R11><C44><P18><B>" company.NAME FORMAT "x(25)"  "</B>" SKIP.
-        PUT "<FArial><=4><R13><C5><P15><B>" tt-word-print.ship-add1 FORMAT "x(30)" "</B>" .
+        PUT "<FArial><=4><R13><C5><P15><B>" company.addr[1] FORMAT "x(30)" "</B>" .
         PUT "<FArial><=4><R13><C44><P15><B> Phone: " cPhone FORMAT "x(15)"  "</B>" SKIP(2).
-        PUT "<FArial><=4><R15><C5><P15><B>" STRING(tt-word-print.ship-city,"x(15)") " " tt-word-print.ship-state FORMAT "x(2)" " " tt-word-print.ship-zip "</B>" .
+        PUT "<FArial><=4><R15><C5><P15><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip "</B>" .
         PUT "<FArial><=4><R15><C44><P15><B> Fax: " cFax FORMAT "x(15)" "</B>" SKIP(2).
         
         PUT "<R20><C3><#5><FROM><R20><C80><RECT><||3>" SKIP
@@ -137,9 +137,9 @@
         
         PUT "<FArial><=4><R31><C5><P18><B>" company.NAME FORMAT "x(25)"  "</B>" SKIP.
         PUT "<FArial><=4><R31><C44><P18><B>" company.NAME FORMAT "x(25)"  "</B>" SKIP.
-        PUT "<FArial><=4><R33><C5><P15><B>" tt-word-print.ship-add1 FORMAT "x(30)" "</B>" .
+        PUT "<FArial><=4><R33><C5><P15><B>" company.addr[1] FORMAT "x(30)" "</B>" .
         PUT "<FArial><=4><R33><C44><P15><B> Phone: " cPhone FORMAT "x(15)"  "</B>" SKIP(2).
-        PUT "<FArial><=4><R35><C5><P15><B>" STRING(tt-word-print.ship-city,"x(15)") " " tt-word-print.ship-state FORMAT "x(2)" " " tt-word-print.ship-zip "</B>" .
+        PUT "<FArial><=4><R35><C5><P15><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip "</B>" .
         PUT "<FArial><=4><R35><C44><P15><B> Fax: " cFax FORMAT "x(15)" "</B>" SKIP(2).
         
         PUT "<R40><C3><#5><FROM><R40><C80><RECT><||3>" SKIP
@@ -167,7 +167,7 @@
         PUT "<FArial><=7><R55.5><C2><B><P30>  " tt-word-print.i-name FORMAT "x(30)" "</B>" SKIP.
         
         PUT "<R62><C3><#8><FROM><R62><C80><RECT><||3>" SKIP
-            "<R68><C3><FROM><68><C80><LINE><||3>" SKIP  
+            "<R68><C3><FROM><R68><C80><LINE><||3>" SKIP  
             "<R62><C3><FROM><R68><C3><LINE><||3>" SKIP
             "<R62><C80><FROM><R68><C80><LINE><||3>" SKIP.
         

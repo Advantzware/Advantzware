@@ -2,7 +2,7 @@
 
 FIND FIRST cust NO-LOCK
      WHERE cust.company EQ cocode
-       AND cust.cust-no EQ tt-word-print.cust-no NO-ERROR .
+       AND cust.active = "X" NO-ERROR .
  IF AVAIL cust THEN
      ASSIGN
        cEmail = cust.email .
@@ -16,12 +16,12 @@ FIND FIRST cust NO-LOCK
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT UNFORMATTED   
-               "<C4><R4.5><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
+               "<C4><R3><#1><R+9><C+70><IMAGE#1=" ls-full-img1.
         
          PUT "<R17><C3><P25><FROM><R17><C80><LINE>" SKIP.
         
-         PUT "<FArial><R15><C3><p12><B>" tt-word-print.ship-add1 FORMAT "x(30)"  "</B>" .
-         PUT "<FArial><=4><R15><C27><p11><B>" STRING(tt-word-print.ship-city,"x(15)") " " tt-word-print.ship-state FORMAT "x(2)" " " tt-word-print.ship-zip "</B>" .
+         PUT "<FArial><R15><C3><p12><B>" company.addr[1] FORMAT "x(30)"  "</B>" .
+         PUT "<FArial><=4><R15><C27><p11><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip "</B>" .
         
          PUT "<FArial><=4><R15><C44><p12><B>        Phone: " cPhone FORMAT "x(15)"  "</B>" .
          PUT "<FArial><=4><R15><C64><p12><B>   Fax: " cFax FORMAT "x(15)"  "</B>" SKIP.
@@ -105,12 +105,12 @@ FIND FIRST cust NO-LOCK
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT UNFORMATTED   
-               "<C4><R19.5><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
+               "<C4><R15><#1><R+9><C+70><IMAGE#1=" ls-full-img1.
         
          PUT "<R32><C3><P25><FROM><R32><C80><LINE>" SKIP.
         
-         PUT "<FArial><R30><C3><p12><B>" tt-word-print.ship-add1 FORMAT "x(30)"  "</B>" .
-         PUT "<FArial><=4><R30><C27><p11><B>" STRING(tt-word-print.ship-city,"x(15)") " " tt-word-print.ship-state FORMAT "x(2)" " " tt-word-print.ship-zip "</B>" .
+         PUT "<FArial><R30><C3><p12><B>" company.addr[1] FORMAT "x(30)"  "</B>" .
+         PUT "<FArial><=4><R30><C27><p11><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip "</B>" .
         
          PUT "<FArial><=4><R30><C44><p12><B>        Phone: " cPhone FORMAT "x(15)"  "</B>" .
          PUT "<FArial><=4><R30><C64><p12><B>   Fax: " cFax FORMAT "x(15)"  "</B>" SKIP.

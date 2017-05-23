@@ -3,7 +3,7 @@
 
  FIND FIRST cust NO-LOCK
      WHERE cust.company EQ cocode
-       AND cust.cust-no EQ tt-word-print.cust-no NO-ERROR .
+       AND cust.active = "X" NO-ERROR .
  IF AVAIL cust THEN
      ASSIGN
        cEmail = cust.email .
@@ -28,11 +28,11 @@
             "<R11><C3><FROM><R18><C3><LINE><||3>" SKIP
             "<R11><C80><FROM><R18><C80><LINE><||3>" SKIP.
         
-        PUT "<FArial><=4><R+1><C5><B>" tt-word-print.ship-name FORMAT "x(25)"  "</B>" SKIP.
+        PUT "<FArial><=4><R+1><C5><B>" company.name FORMAT "x(25)"  "</B>" SKIP.
         PUT "<FArial><=4><R+1><C40><B> Email: " cEmail FORMAT "x(30)"  "</B>" SKIP(2).
-        PUT "<FArial><=4><R+3><C5><B>" tt-word-print.ship-add1 FORMAT "x(25)" "</B>" .
+        PUT "<FArial><=4><R+3><C5><B>" company.addr[1] FORMAT "x(25)" "</B>" .
         PUT "<FArial><=4><R+3><C40><B> Phone: " cPhone FORMAT "x(15)" "</B>" SKIP(2).
-        PUT "<FArial><=4><R+5><C5><B>" STRING(tt-word-print.ship-city,"x(15)") " " tt-word-print.ship-state FORMAT "x(2)" " " tt-word-print.ship-zip  "</B>" .
+        PUT "<FArial><=4><R+5><C5><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip  "</B>" .
         PUT "<FArial><=4><R+5><C40><B> Fax: " cFax FORMAT "x(15)" "</B>" SKIP(2).
         
         PUT "<R22><C3><#5><FROM><R22><C80><RECT><||3>" SKIP
@@ -157,11 +157,11 @@
             "<R33><C3><FROM><R40><C3><LINE><||3>" SKIP
             "<R33><C80><FROM><R40><C80><LINE><||3>" SKIP.
         
-        PUT "<FArial><=4><R+1><C5><B>" tt-word-print.ship-name FORMAT "x(25)"  "</B>" SKIP.
+        PUT "<FArial><=4><R+1><C5><B>" company.name FORMAT "x(25)"  "</B>" SKIP.
         PUT "<FArial><=4><R+1><C40><B> Email: " cEmail FORMAT "x(30)"  "</B>" SKIP(2).
-        PUT "<FArial><=4><R+3><C5><B>" tt-word-print.ship-add1 FORMAT "x(25)" "</B>" .
+        PUT "<FArial><=4><R+3><C5><B>" company.addr[1] FORMAT "x(25)" "</B>" .
         PUT "<FArial><=4><R+3><C40><B> Phone: " cPhone FORMAT "x(15)" "</B>" SKIP(2).
-        PUT "<FArial><=4><R+5><C5><B>" STRING(tt-word-print.ship-city,"x(15)") " " tt-word-print.ship-state FORMAT "x(2)" " " tt-word-print.ship-zip  "</B>" .
+        PUT "<FArial><=4><R+5><C5><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip  "</B>" .
         PUT "<FArial><=4><R+5><C40><B> Fax: " cFax FORMAT "x(15)" "</B>" SKIP(2).
         
         PUT "<R44><C3><#5><FROM><R44><C80><RECT><||3>" SKIP

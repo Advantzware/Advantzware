@@ -2,7 +2,7 @@
 
  FIND FIRST cust NO-LOCK
      WHERE cust.company EQ cocode
-       AND cust.cust-no EQ tt-word-print.cust-no NO-ERROR .
+       AND cust.active = "X" NO-ERROR .
  IF AVAIL cust THEN
      ASSIGN
        cEmail = cust.email .
@@ -29,9 +29,9 @@ IF tb_print-view THEN do:
         
         PUT "<FArial><=4><R11><C18><P20><B>"    company.NAME FORMAT "x(25)"   "</B>" SKIP.
         
-        PUT "<FArial><=4><R13><C5><P16><B>"  tt-word-print.ship-add1 FORMAT "x(25)"   "</B>" .
+        PUT "<FArial><=4><R13><C5><P16><B>"  company.addr[1] FORMAT "x(25)"   "</B>" .
         PUT "<FArial><=4><R13><C48><P16><B> Phone: " cPhone FORMAT "x(15)"    "</B>" SKIP(2).
-        PUT "<FArial><=4><R15><C5><P16><B>" STRING(tt-word-print.ship-city,"x(15)") " " tt-word-print.ship-state FORMAT "x(2)" " "  tt-word-print.ship-zip "</B>" .
+        PUT "<FArial><=4><R15><C5><P16><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " "  company.zip "</B>" .
         PUT "<FArial><=4><R15><C48><P16><B> Fax: " cFax FORMAT "x(15)"  "</B>" SKIP(2).
         
         PUT "<R20><C3><#5><FROM><R20><C80><RECT><||3>" SKIP
@@ -119,9 +119,9 @@ ELSE DO:
         
         PUT "<FArial><=4><R31><C18><P20><B>"    company.NAME FORMAT "x(25)"   "</B>" SKIP.
         
-        PUT "<FArial><=4><R33><C5><P16><B>"  tt-word-print.ship-add1 FORMAT "x(25)"   "</B>" .
+        PUT "<FArial><=4><R33><C5><P16><B>"  company.addr[1] FORMAT "x(25)"   "</B>" .
         PUT "<FArial><=4><R33><C48><P16><B> Phone: " cPhone FORMAT "x(15)"    "</B>" SKIP(2).
-        PUT "<FArial><=4><R35><C5><P16><B>" STRING(tt-word-print.ship-city,"x(15)") " " tt-word-print.ship-state FORMAT "x(2)" " "  tt-word-print.ship-zip "</B>" .
+        PUT "<FArial><=4><R35><C5><P16><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " "  company.zip "</B>" .
         PUT "<FArial><=4><R35><C48><P16><B> Fax: " cFax FORMAT "x(15)"  "</B>" SKIP(2).
         
         PUT "<R40><C3><#5><FROM><R40><C80><RECT><||3>" SKIP

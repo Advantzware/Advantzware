@@ -7,7 +7,7 @@ IF tb_print-view THEN do:
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT UNFORMATTED   
-               "<C4><R4.5><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
+               "<C4><R3><#1><R+9><C+70><IMAGE#1=" ls-full-img1.
         
          PUT "<R16><C3><P25><FROM><R16><C80><LINE>" SKIP.
         
@@ -81,7 +81,7 @@ ELSE DO:
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT UNFORMATTED   
-               "<C4><R24.5><#1><R+10><C+70><IMAGE#1=" ls-full-img1.
+               "<C4><R23><#1><R+9><C+70><IMAGE#1=" ls-full-img1.
         
          PUT "<R36><C3><P25><FROM><R36><C80><LINE>" SKIP.
         

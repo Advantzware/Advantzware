@@ -6997,12 +6997,12 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
    
     IF tb_print-view THEN DO:
         IF NOT lBussFormModle THEN
-           PUT "<PREVIEW><MODAL=NO>" FORM "x(50)".
+           PUT "<PREVIEW><MODAL=NO></PROGRESS>" FORM "x(50)".
          ELSE
-           PUT "<PREVIEW>" FORM "x(30)".
+           PUT "<PREVIEW></PROGRESS>" FORM "x(50)".
     END.
     ELSE DO:
-       PUT "<PRINTER?><FORMAT=LEGAL>" FORM "x(30)".
+       PUT "<PRINTER?><FORMAT=LEGAL></PROGRESS>" FORM "x(50)".
     END.
 
     DO WITH FRAME {&FRAME-NAME}:
