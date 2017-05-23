@@ -18,8 +18,8 @@ IF tb_print-view THEN DO:
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT "<FArial><=4><R7><C14><P26><B>" company.NAME FORMAT "x(25)" "</B>" SKIP(2).
-        PUT "<FArial><=4><R10><C28><P22><B>" tt-word-print.ship-add1 FORMAT "x(30)" "</B>" .
-        PUT "<FArial><=4><R12><C28><P22><B>" STRING(tt-word-print.ship-city,"x(15)") " " tt-word-print.ship-state FORMAT "x(2)" " " tt-word-print.ship-zip "</B>" .
+        PUT "<FArial><=4><R10><C28><P22><B>" company.addr[1] FORMAT "x(30)" "</B>" .
+        PUT "<FArial><=4><R12><C28><P22><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip "</B>" .
         
         PUT  SKIP(3) "<R17><C3><FROM><R17><C80><LINE>" SKIP .
         
@@ -123,8 +123,8 @@ ELSE DO:
         PUT  "<=1>" SKIP.
         PUT  "<C1><#2>".
         PUT "<FArial><=4><R19><C14><P26><B>" company.NAME FORMAT "x(25)" "</B>" SKIP(2).
-        PUT "<FArial><=4><R22><C28><P22><B>" tt-word-print.ship-add1 FORMAT "x(30)" "</B>" .
-        PUT "<FArial><=4><R24><C28><P22><B>" STRING(tt-word-print.ship-city,"x(15)") " " tt-word-print.ship-state FORMAT "x(2)" " " tt-word-print.ship-zip "</B>" .
+        PUT "<FArial><=4><R22><C28><P22><B>" company.addr[1] FORMAT "x(30)" "</B>" .
+        PUT "<FArial><=4><R24><C28><P22><B>" STRING(company.city,"x(15)") " " company.state FORMAT "x(2)" " " company.zip "</B>" .
         
         PUT  SKIP(3) "<R29><C3><FROM><R29><C80><LINE>" SKIP .
         
