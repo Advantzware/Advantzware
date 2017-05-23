@@ -267,14 +267,16 @@ ASI.probe.est-no = eb.est-no ~
     BY probe.company ~
        BY probe.est-no ~
         BY probe.probe-date ~
-         BY probe.est-qty
+         BY probe.est-qty  ~
+          BY probe.probe-time 
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH probe WHERE probe.company = eb.company and ~
 ASI.probe.est-no = eb.est-no ~
       AND probe.probe-date ne ? NO-LOCK ~
     BY probe.company ~
        BY probe.est-no ~
         BY probe.probe-date ~
-         BY probe.est-qty.
+         BY probe.est-qty  ~
+          BY probe.probe-time  .
 &Scoped-define TABLES-IN-QUERY-br_table probe
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table probe
 
