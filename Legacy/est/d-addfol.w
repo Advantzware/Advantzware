@@ -50,7 +50,7 @@ def SHARED var cocode     as   char  format "x(3)"  no-undo.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-25 Btn_itm /*Btn_itm-cad*/ Btn_tandem ~
-Btn_set Btn_frm-out Btn_est Btn_est-2 Btn_Cancel 
+Btn_set Btn_frm-out Btn_est Btn_est-2 Btn_Cancel Btn-Copy
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -110,6 +110,11 @@ DEFINE BUTTON Btn_tandem AUTO-GO
      SIZE 26 BY 2.14
      BGCOLOR 8 .
 
+DEFINE BUTTON Btn-Copy AUTO-GO
+     LABEL "&Copy" 
+     SIZE 26 BY 2.14
+     BGCOLOR 8 .
+
 DEFINE RECTANGLE RECT-25
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 97 BY 14.76.
@@ -127,6 +132,7 @@ DEFINE FRAME D-Dialog
      Btn_est AT ROW 8.62 COL 18
      Btn_est-2 AT ROW 11 COL 18
      Btn_Cancel AT ROW 13.38 COL 18
+     Btn-Copy AT ROW 8.62 COL 50
      RECT-25 AT ROW 1 COL 1
      SPACE(0.59) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -236,6 +242,17 @@ END.
 ON CHOOSE OF Btn_est-2 IN FRAME D-Dialog /* Add Blank to Form */
 DO:
     assign ls-add-what = "blank".
+    apply "window-close" to this-procedure.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME Btn-Copy
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Copy D-Dialog
+ON CHOOSE OF Btn-Copy IN FRAME D-Dialog /* Add Blank to Form */
+DO:
+    assign ls-add-what = "copy-est".
     apply "window-close" to this-procedure.
 END.
 
@@ -405,7 +422,7 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   ENABLE RECT-25 Btn_itm /*Btn_itm-cad*/ Btn_tandem Btn_set Btn_frm-out Btn_est 
-         Btn_est-2 Btn_Cancel 
+         Btn_est-2 Btn_Cancel Btn-Copy
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
