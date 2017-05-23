@@ -9,8 +9,6 @@ DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
 SESSION:SET-WAIT-STATE("GENERAL").
 
-PROPATH = "p:\asi10test\patch\rco1010,p:\asi10test\rco1010," + PROPATH.
-
 g_version = "2.1A-8.2A".
 
 m_id = OS-GETENV("opsysid").
@@ -48,7 +46,7 @@ IF CONNECTED("NOSWEAT") THEN DO:
   {methods/setdevid.i}
   RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
   RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
-  RUN Get_Procedure IN Persistent-HANDLE ("user_dir.",OUTPUT run-proc,yes). 
+  RUN Get_Procedure IN Persistent-HANDLE ("user_dir.",OUTPUT run-proc,YES). 
   g_groups = "".
   
   FOR EACH usergrps NO-LOCK:
