@@ -65,35 +65,29 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
-/* External Tables                                                      */
-&Scoped-define EXTERNAL-TABLES EDPOTran
-&Scoped-define FIRST-EXTERNAL-TABLE EDPOTran
-
-
-/* Need to scope the external tables to this procedure                  */
-DEFINE QUERY external_tables FOR EDPOTran.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES EDPOLine
+&Scoped-define INTERNAL-TABLES EDPOTran EDDoc
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table EDPOLine.Partner EDPOLine.Seq ~
-EDPOLine.Item-no EDPOLine.Line EDPOLine.Cust-item-no EDPOLine.Qty-orig-ord ~
-EDPOLine.Unit-price EDPOLine.Selling-price EDPOLine.St-code 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table EDPOTran.Cust EDPOTran.Partner ~
+EDPOTran.ack-date EDPOTran.Cust-po EDPOTran.Order-date ~
+EDPOTran.Order-amount EDPOTran.Order-type EDDoc.Unique-Order-No 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH EDPOLine OF EDPOTran WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH EDPOTran WHERE ~{&KEY-PHRASE} NO-LOCK, ~
+      EACH EDDoc OF EDPOTran NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH EDPOLine OF EDPOTran WHERE ~{&KEY-PHRASE} NO-LOCK ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH EDPOTran WHERE ~{&KEY-PHRASE} NO-LOCK, ~
+      EACH EDDoc OF EDPOTran NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table EDPOLine
-&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table EDPOLine
+&Scoped-define TABLES-IN-QUERY-Browser-Table EDPOTran EDDoc
+&Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table EDPOTran
+&Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table EDDoc
 
 
 /* Definitions for FRAME F-Main                                         */
-&Scoped-define OPEN-BROWSERS-IN-QUERY-F-Main ~
-    ~{&OPEN-QUERY-Browser-Table}
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Browser-Table RECT-4 browse-order auto_find ~
@@ -135,34 +129,32 @@ DEFINE RECTANGLE RECT-4
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-      EDPOLine
-    FIELDS(EDPOLine.Partner
-      EDPOLine.Seq
-      EDPOLine.Item-no
-      EDPOLine.Line
-      EDPOLine.Cust-item-no
-      EDPOLine.Qty-orig-ord
-      EDPOLine.Unit-price
-      EDPOLine.Selling-price
-      EDPOLine.St-code) SCROLLING.
+      EDPOTran
+    FIELDS(EDPOTran.Cust
+      EDPOTran.Partner
+      EDPOTran.ack-date
+      EDPOTran.Cust-po
+      EDPOTran.Order-date
+      EDPOTran.Order-amount
+      EDPOTran.Order-type), 
+      EDDoc SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      EDPOLine.Partner FORMAT "x(05)":U
-      EDPOLine.Seq FORMAT ">>>>>>9":U
-      EDPOLine.Item-no FORMAT "x(16)":U
-      EDPOLine.Line FORMAT ">>9":U
-      EDPOLine.Cust-item-no FORMAT "x(30)":U
-      EDPOLine.Qty-orig-ord FORMAT "->>>>>>>>9":U
-      EDPOLine.Unit-price FORMAT "->>,>>>,>>9.99":U
-      EDPOLine.Selling-price FORMAT "->>>,>>>,>>>.99":U
-      EDPOLine.St-code FORMAT "x(12)":U
+      EDPOTran.Cust FORMAT "x(10)":U
+      EDPOTran.Partner FORMAT "x(05)":U
+      EDPOTran.ack-date FORMAT "99/99/99":U
+      EDPOTran.Cust-po FORMAT "x(22)":U
+      EDPOTran.Order-date FORMAT "99/99/9999":U
+      EDPOTran.Order-amount FORMAT "->>>,>>>,>>9.99<<":U
+      EDPOTran.Order-type FORMAT "x(2)":U
+      EDDoc.Unique-Order-No COLUMN-LABEL "Order#" FORMAT ">>>>>9":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 15.48
+    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 18.1
          FONT 2.
 
 
@@ -171,15 +163,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 16.95 COL 6 HELP
+     browse-order AT ROW 19.33 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 16.95 COL 70 COLON-ALIGNED HELP
+     auto_find AT ROW 19.33 COL 70 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 16.95 COL 132 HELP
+     Btn_Clear_Find AT ROW 19.33 COL 132 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 16.91 COL 2
-     RECT-4 AT ROW 16.71 COL 1
+          SIZE 4 BY 1 AT ROW 19.33 COL 2
+     RECT-4 AT ROW 19.1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -191,7 +183,6 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartNavBrowser Template
-   External Tables: asi.EDPOTran
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: External-Tables
@@ -213,7 +204,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 17.29
+         HEIGHT             = 19.52
          WIDTH              = 145.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -239,7 +230,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE Size-to-Fit                                              */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -252,19 +243,19 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "asi.EDPOLine OF asi.EDPOTran"
+     _TblList          = "asi.EDPOTran,asi.EDDoc OF asi.EDPOTran"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _TblOptList       = "USED"
-     _FldNameList[1]   = asi.EDPOLine.Partner
-     _FldNameList[2]   = asi.EDPOLine.Seq
-     _FldNameList[3]   = asi.EDPOLine.Item-no
-     _FldNameList[4]   = asi.EDPOLine.Line
-     _FldNameList[5]   = asi.EDPOLine.Cust-item-no
-     _FldNameList[6]   = asi.EDPOLine.Qty-orig-ord
-     _FldNameList[7]   = asi.EDPOLine.Unit-price
-     _FldNameList[8]   = asi.EDPOLine.Selling-price
-     _FldNameList[9]   = asi.EDPOLine.St-code
-     _Query            is OPENED
+     _TblOptList       = "USED,"
+     _FldNameList[1]   = asi.EDPOTran.Cust
+     _FldNameList[2]   = asi.EDPOTran.Partner
+     _FldNameList[3]   = asi.EDPOTran.ack-date
+     _FldNameList[4]   = asi.EDPOTran.Cust-po
+     _FldNameList[5]   = asi.EDPOTran.Order-date
+     _FldNameList[6]   = asi.EDPOTran.Order-amount
+     _FldNameList[7]   = asi.EDPOTran.Order-type
+     _FldNameList[8]   > asi.EDDoc.Unique-Order-No
+"EDDoc.Unique-Order-No" "Order#" ? "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
 
@@ -413,15 +404,6 @@ PROCEDURE adm-row-available :
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
 
-  /* Create a list of all the tables that we need to get.            */
-  {src/adm/template/row-list.i "EDPOTran"}
-
-  /* Get the record ROWID's from the RECORD-SOURCE.                  */
-  {src/adm/template/row-get.i}
-
-  /* FIND each record specified by the RECORD-SOURCE.                */
-  {src/adm/template/row-find.i "EDPOTran"}
-
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
   {src/adm/template/row-end.i}
@@ -449,6 +431,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateASN B-table-Win 
+PROCEDURE GenerateACK :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  RUN oe/oe850ack.p (EDDoc.unique-order-no).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
@@ -462,7 +457,7 @@ PROCEDURE send-records :
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "EDPOTran"}
-  {src/adm/template/snd-list.i "EDPOLine"}
+  {src/adm/template/snd-list.i "EDDoc"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

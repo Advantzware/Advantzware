@@ -99,6 +99,7 @@ ELSE
 
 DO TRANSACTION:
   {sys/inc/ackmst.i}
+  {sys/inc/acksps.i}  /* SPS ACK xml file generation logic */
 END.
 
 DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
@@ -2876,6 +2877,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id:
    FIND oe-ord WHERE RECID(oe-ord) EQ report.rec-id.
    IF STRING(oe-ord.ack-prnt) <> report.key-01 AND oe-ord.ack-prnt THEN oe-ord.ack-prnt-date = TODAY.
 
+   IF acksps-log THEN RUN oe/oe850ack.p (oe-ord.ord-no).
+   
   DELETE report.
 END.
 
@@ -2885,6 +2888,7 @@ IF tb_prt-bom THEN DO:
    RUN run-report-bom.
    OUTPUT CLOSE.
 END.
+
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 

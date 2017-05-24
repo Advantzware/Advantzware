@@ -76,10 +76,12 @@ CREATE WIDGET-POOL.
 EDPOTran.Seq EDPOTran.Cust-po EDPOTran.Order-date EDPOTran.Order-amount ~
 EDPOTran.Order-type EDDoc.Unique-Order-No 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH EDPOTran WHERE ~{&KEY-PHRASE} NO-LOCK, ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH EDPOTran WHERE ~{&KEY-PHRASE} ~
+      AND ack-date = ? NO-LOCK, ~
       EACH EDDoc OF EDPOTran NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH EDPOTran WHERE ~{&KEY-PHRASE} NO-LOCK, ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH EDPOTran WHERE ~{&KEY-PHRASE} ~
+      AND ack-date = ? NO-LOCK, ~
       EACH EDDoc OF EDPOTran NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table EDPOTran EDDoc
@@ -246,6 +248,7 @@ ASSIGN
      _TblList          = "asi.EDPOTran,asi.EDDoc OF asi.EDPOTran"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,"
+     _Where[1]         = "ack-date = ?"
      _FldNameList[1]   = asi.EDPOTran.Cust
      _FldNameList[2]   = asi.EDPOTran.Partner
      _FldNameList[3]   = asi.EDPOTran.Seq

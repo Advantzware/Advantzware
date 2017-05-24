@@ -14,198 +14,41 @@
 
 /* ***************************  Definitions  ************************** */
 
-/* Xml tables: Header: tOrderHeader, tContacts, tAddress, tReferences, tNotes
-           LineItem: tOrderLine, tProductORItemDescription, tReferences, tQuantitiesSchedulesLocations,
-           Sumary: tSummary          
-*/
 
-DEFINE TEMP-TABLE OrderHeader
-    FIELD TradingPartnerId AS char
-    FIELD PurchaseOrderNumber AS char
-    FIELD TsetPurposeCode AS char
-    FIELD PrimaryPOTypeCode AS char
-    FIELD PrimaryPOTypeDescription AS char
-    FIELD PurchaseOrderDate AS char
-    FIELD PurchaseOrderTime AS char
-    FIELD ReleaseNumber AS char
-    FIELD AcknowledgementNumber AS char
-    FIELD AcknowledgementType AS char
-    FIELD ShipCompleteCode AS char
-    FIELD InternalOrderNumber AS char
-    FIELD InternalOrderDate AS char
-    FIELD AcknowledgementDate AS char
-    FIELD AcknowledgementTime AS char
-    FIELD BuyersCurrency AS char
-    FIELD SellersCurrency AS char
-    FIELD ExchangeRate AS char
-    FIELD Department AS char
-    FIELD DepartmentDescription AS char
-    FIELD Vendor AS char
-    FIELD JobNumber AS char
-    FIELD Division AS char
-    FIELD CustomerAccountNumber AS char
-    FIELD CustomerOrderNumber AS char
-    FIELD DocumentVersion AS char
-    FIELD DocumentRevision AS char
-    .
-
-DEFINE TEMP-TABLE PaymentTerms
-    FIELD TermsType AS char
-    FIELD TermsBasisDateCode AS char
-    FIELD TermsTimeRelationCode AS char
-    FIELD TermsDiscountPercentage AS char
-    FIELD TermsDiscountDate AS char
-    FIELD TermsDiscountDueDays AS char
-    FIELD TermsNetDueDate AS char
-    FIELD TermsNetDays AS char
-    FIELD TermsDiscountAmount AS char
-    FIELD TermsDeferedDueDate AS char
-    FIELD TermsDeferedAmountDue AS char
-    FIELD PercendOfInvoicePayable AS char
-    FIELD TermsDescription AS char
-    FIELD TermsDueDay AS char
-    FIELD PaymentMethodCode AS char
-    FIELD PaymentMethodId AS char
-    FIELD LatePaymentChargePercent AS char
-    FIELD TermsStartDate AS char
-    FIELD TermsDueDateQual AS char
-    FIELD AmountSubjectToDiscount AS char
-    FIELD DiscountAmountDue AS char
-    .
-  
-      
-DEFINE TEMP-TABLE Contacts
-    FIELD ContactTypeCode AS char
-    FIELD ContactName AS char
-    FIELD PrimaryPhone AS char
-    FIELD PrimaryEmail AS char
-    .
-    
-DEFINE TEMP-TABLE Address
-    FIELD AddressTypeCode AS char
-    FIELD LocationCodeQualifier AS char
-    FIELD AddressLocationNumber AS char
-    FIELD AddressName AS char
-    FIELD Address1 AS char
-    FIELD Address2 AS char
-    FIELD City AS char
-    FIELD State AS char
-    FIELD PostalCode AS char
-    FIELD Country AS char
-    .
-    
-DEFINE TEMP-TABLE References
-    FIELD ReferencesQual AS char
-    FIELD ReferenceID AS char
-    .
-    
-DEFINE TEMP-TABLE Notes
-    FIELD NoteCode AS char
-    FIELD Note AS char
-    .            
-    
-DEFINE TEMP-TABLE Taxes
-   FIELD TaxTypeCode AS char
-   FIELD TaxAmount AS char
-   FIELD TaxPercentQual AS char
-   FIELD TaxPercent AS char
-   FIELD JurisdictionQual AS char
-   FIELD JurisdictionCode AS char
-   FIELD TaxExemptCode AS char
-   FIELD TaxId AS char
-   FIELD AssignedID AS char
-   FIELD DESCRIPTION AS char
-   .    
-   
-DEFINE TEMP-TABLE QuantityTotals
-   FIELD QuantityTotalQualifier AS char
-   FIELD Quantity AS char
-   FIELD QuantityUOM AS char
-   FIELD WeightQualifier AS char
-   FIELD WeightUOM AS char
-   FIELD Volumn AS char
-   FIELD VolumeUOM AS char
-   FIELD DESCRIPTION AS char
-   .
-   
-   
-DEFINE TEMP-TABLE OrderLine
-   FIELD LineSequenceNumber AS char
-   FIELD BuyerPartNumber AS char
-   FIELD VendorPartNumber AS char
-   FIELD OrderQty AS char
-   FIELD OrderQtyUOM AS char
-   FIELD PurchasePrice AS char
-   FIELD PurchasePriceBasis AS char
-   .
-   
-DEFINE TEMP-TABLE ProductiOrItemDescription
-   FIELD ProductCharacteristicCode AS char
-   FIELD ProductDescription AS char
-   .
-
-DEFINE TEMP-TABLE QuantitiesSchedulesLocation
-   FIELD TotalQty AS char
-   FIELD TotalQtyUOM AS char
-   .
-DEFINE TEMP-TABLE Dates
-   FIELD DateTimeQualifier AS char
-   FIELD DATE AS char
-   .
-   
-DEFINE TEMP-TABLE Summary
-   FIELD TotalAmount AS char
-   FIELD TotalLineItemNumber AS char
-   .
-         
-        
-DEFINE DATASET dsOrder FOR OrderHeader, Contacts, Address, References, Notes, OrderLine, ProductiOrItemDescription, QuantitiesSchedulesLocation, Dates
-  .
      
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
 
-DEFINE VARIABLE /* input param */ ipOrderNumber AS INTEGER NO-UNDO.
-def VARIABLE /*input param*/ ipXmlFile as cha no-undo.
-DEFINE VARIABLE cSourceType AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cTargetType AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cReadMode AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cSchemaLocation AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hPDS AS HANDLE NO-UNDO.
-DEFINE VARIABLE lReturn AS LOGICAL NO-UNDO. 
-DEFINE VARIABLE lOverrideDefaultMapping AS LOGICAL NO-UNDO.
+DEFINE input param ipOrderNumber AS INTEGER NO-UNDO.
 
-ipXmlFile = "C:\ASIWorks\SPSCommerceOrder7.7.1\asi_files\850Acknowledge.xml".
-hPDS = DATASET dsOrder:HANDLE.
+DEFINE VARIABLE cPartner AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iSeq AS INTEGER  NO-UNDO.
+DEFINE VARIABLE lReturn AS LOGICAL NO-UNDO.
 
-/* create temp-table records and dataset */
-FOR EACH oe-ord WHERE ord-no = ipOrderNumber NO-LOCK:
-    CREATE OrderHeader.
-    ASSIGN OrderHeader.PurchaseOrderNumber = string(oe-ord.ord-no).
-END.
-
-ASSIGN cSourceType = "FILE"
-            /*cFile = "C:\temp\ardenxml\P-ASN-000177_0_Rev.xml"  Single Est Xml*/
-            /*cFile = "C:\temp\ardenxml\Example Tandem Job_0_Rev.xml" */
-            /*cFile = "C:\temp\ardenxml\FC Combo Die_0_Rev.xml" */
-            /*cFile = "C:\temp\ardenxml\Display Set_0_Rev.xml"  */
-            /*=========*/
-            cFile = ipXmlFile /*"C:\ASI\FOL TEST - DO NOT USE_2.xml" */
-            /*cFile = "C:\temp\ardenxml\newxml\Example Tandem Job_0.xml" */
-            /*cFile = "C:\temp\ardenxml\newxml\FC Combo Die_1.xml"*/
-            /*cFile = "C:\temp\ardenxml\newxml\Display Set_0.xml"  */
-              
-            cReadMode = "EMPTY"
-            cSchemaLocation = ?
-            lOverrideDefaultMapping = NO.
-
-
-    lReturn = hPDS:WRITE-XMLSCHEMA(cSourceType,cFile,TRUE,?,FALSE).
-
-MESSAGE lReturn
-VIEW-AS ALERT-BOX.
-IF lReturn THEN DO:
+FIND FIRST EDDoc where EDDoc.Unique-Order-No = ipOrderNumber NO-LOCK NO-ERROR.
+IF NOT AVAILABLE EDDoc THEN DO:
+  IF program-name(2) MATCHES "*edpo*" then  
+     MESSAGE "EDI order is not available for sales order: " ipOrderNumber
+       VIEW-AS ALERT-BOX ERROR.
+   lReturn = NO. 
+END.      
+ELSE DO:
+/*   IF NOT can-find(EDPOTran OF EDDoc WHERE EDPOTran.ack-date = ?) THEN DO:*/
+/*      MESSAGE "ACK already generated. Do you want to re-generate it?"     */
+/*      UPDATE llans AS log                                                 */
+/*      VIEW-AS ALERT-BOX.                                                  */
+/*      IF NOT llans THEN RETURN.                                           */
+/*   END.                                                                   */
+    
+   ASSIGN cPartner = EDDoc.partner
+          iSeq = EDDoc.seq
+          .
+   RUN edi/sp855xml.p (ipOrderNumber, cPartner, iSeq, OUTPUT lReturn).
+   DO TRANSACTION:
+      FIND EDPOTran OF EDDoc EXCLUSIVE-LOCK.
+      ASSIGN EDPOTran.ack-date = TODAY. 
+   END.
+   
 END.
