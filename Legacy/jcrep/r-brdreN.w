@@ -1523,7 +1523,6 @@ ASSIGN
          IF AVAILABLE oe-ordl THEN DO:
              IF cOrdStat EQ "C" AND oe-ordl.stat NE "C" THEN NEXT.
              ELSE IF cOrdStat EQ "O" AND oe-ordl.stat EQ "C" THEN NEXT.
-             ELSE TRUE.
          END.
 
       v-job = fill(" ",6 - length(trim(job.job-no))) +
