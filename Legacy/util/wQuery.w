@@ -360,7 +360,7 @@ DEFINE BUTTON bEditField
      SIZE 17 BY 1.14.
 
 DEFINE BUTTON bExpand 
-     IMAGE-UP FILE "Graphics/16x16/expand.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "images/expand.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Button 1" 
      SIZE 5.2 BY 1.19 TOOLTIP "Expand/Contract Result List".
 
