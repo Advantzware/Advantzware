@@ -172,7 +172,7 @@ DEF VAR vcbFile-1 AS CHAR NO-UNDO.
 DEF VAR vcbFile-2 AS CHAR NO-UNDO.
 DEF VAR vcbFile-3 AS CHAR NO-UNDO.
 DEF VAR vcbFile-4 AS CHAR NO-UNDO.
-
+DEF VAR lContinue AS LOG NO-UNDO.
 
 DEF TEMP-TABLE ttColumns
     FIELD cColLabel AS CHAR
@@ -360,7 +360,7 @@ DEFINE BUTTON bEditField
      SIZE 17 BY 1.14.
 
 DEFINE BUTTON bExpand 
-     IMAGE-UP FILE "images/expand.jpg":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/16x16/expand.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Button 1" 
      SIZE 5.2 BY 1.19 TOOLTIP "Expand/Contract Result List".
 
@@ -1300,18 +1300,18 @@ DEFINE FRAME f-Main
      cbOp-20 AT ROW 31 COL 40 COLON-ALIGNED NO-LABEL
      fiVal-20 AT ROW 31 COL 52 COLON-ALIGNED NO-LABEL
      tCloseParen-20 AT ROW 31 COL 77
-     "RESULT LIST" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 23.52 COL 100
-     "WHERE" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 1.48 COL 47
-     "QUERY STRING:" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 3 COL 100
-     "(Calculated field values are only displayed after Export.)" VIEW-AS TEXT
-          SIZE 55 BY .67 AT ROW 32.19 COL 101
-     "DISPLAY FIELDS" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 10.52 COL 100
      "FOR" VIEW-AS TEXT
           SIZE 5 BY 1.1 AT ROW 1.52 COL 2 WIDGET-ID 4
+     "DISPLAY FIELDS" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 10.52 COL 100
+     "(Calculated field values are only displayed after Export.)" VIEW-AS TEXT
+          SIZE 55 BY .67 AT ROW 32.19 COL 101
+     "QUERY STRING:" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 3 COL 100
+     "WHERE" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 1.48 COL 47
+     "RESULT LIST" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 23.52 COL 100
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -2934,6 +2934,11 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+
+RUN util/chk-mod.p ("ASI","wquery.") NO-ERROR.
+lContinue = NOT ERROR-STATUS:ERROR.
+
+IF lContinue EQ NO THEN QUIT.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm2/windowmn.i}
