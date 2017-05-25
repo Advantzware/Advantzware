@@ -45,7 +45,7 @@ IF lRecFound THEN
     
 cPathIn  = PrePressHotFolderIn-char.
 cPathOut = PrePressHotFolderOut-char.
-            
+PAUSE 30 NO-MESSAGE.            
 RUN monitorActivity ('Check New Jobs ' + monitorImportDir,YES,'').
 FOR EACH job NO-LOCK WHERE job.company EQ g_company 
                        AND job.opened EQ TRUE
@@ -104,7 +104,7 @@ END. /* Each eddoc */
 RUN monitorActivity ('Check dir ' + monitorImportDir,YES,'').
   INPUT FROM OS-DIR(monitorImportDir) NO-ECHO.
   REPEAT:
-    SET monitorFile ^ attrList.
+    IMPORT monitorFile ^ attrList.
     IF attrList NE 'f' OR monitorFile BEGINS '.' OR
        INDEX(monitorFile,'.xml') EQ 0 THEN NEXT.
     cFullFilePath = monitorImportDir + "\" + monitorFile.
@@ -120,7 +120,7 @@ RUN monitorActivity ('Check dir ' + monitorImportDir,YES,'').
   RUN monitorActivity ('Check dir ' + cPathIn,YES,'').
   INPUT FROM OS-DIR(cPathIn).
     REPEAT:
-    SET monitorFile ^ attrList.
+    IMPORT monitorFile ^ attrList.
     IF attrList NE 'f' OR monitorFile BEGINS '.' OR
        INDEX(monitorFile,'.xml') EQ 0 THEN NEXT.
      cFullFilePath = cPathIn + "\" + monitorFile.
