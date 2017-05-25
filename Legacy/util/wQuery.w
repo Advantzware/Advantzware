@@ -3122,6 +3122,7 @@ PROCEDURE initializeObject :
         cbRel-3:LIST-ITEMS = "-"
         cbRel-4:LIST-ITEMS = "-"
         .
+    SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
 
