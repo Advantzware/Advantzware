@@ -46,9 +46,12 @@ cocode = ipcCompany.
 
 /* Open stream for xml */
 {XMLOutput/XMLOutput.i &XMLOutput=XMLJOB &Company=cocode &NEW=}
-    
+
+ /* temp table populated with UDF data */   
 {UDF/ttUDF.i}                
-                         
+
+/* function to get UDF Group */
+{UDF/fUDFGroup.i "itemfg."}                         
 /* ********************  Preprocessor Definitions  ******************** */
 
 
@@ -144,11 +147,20 @@ DO:
         RUN XMLOutput (lXMLOutput,'ItemStatus', ttTempjob.ItemStatus,'Col').  
         
         EMPTY TEMP-TABLE ttUDF.
-        RUN UDF/UDF.p ("Esko", ttTempjob.itemRecKey, OUTPUT TABLE ttUDF).
-        
-        FOR EACH ttUDF NO-LOCK WHERE ttUDF.udfEsko:
-            RUN XMLOutput (lXMLOutput,ttUDF.udfLabel,ttUDF.udfValue,'Col').
-        END. 
+        IF CAN-FIND(FIRST mfvalues
+            WHERE mfvalues.rec_key EQ ttTempjob.itemRecKey) THEN 
+        DO:
+            /* get UDF records for this record */
+            RUN UDF/UDF.p (cUDFGroup, ttTempjob.itemRecKey, OUTPUT TABLE ttUDF).
+             
+            /* process UDF data found */
+            FOR EACH ttUDF NO-LOCK 
+                WHERE ttUDF.udfEsko EQ YES
+                :
+                RUN XMLOutput (lXMLOutput,ttUDF.udfLabel,ttUDF.udfValue,'Col').
+            END.  /* each ttudf */     
+        END.
+    
         RUN XMLOutput (lXMLOutput,'/Product','','Row').                         
         RUN XMLOutput (lXMLOutput,'/ResourcePool','','Row').
         IF LAST(ttTempJob.jobID) THEN
