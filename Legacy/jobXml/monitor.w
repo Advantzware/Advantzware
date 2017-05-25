@@ -24,27 +24,27 @@ PROCEDURE postMonitor:
   DEFINE BUFFER bf-eddoc FOR EDDoc.
   DEFINE VARIABLE cRtnChar     AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
-  DEFINE VARIABLE EskoInbound-char AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE EskoOutbound-char AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE PrePressHotFolderIn-char AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE PrePressHotFolderOut-char AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE cFullFilePath AS CHARACTER   NO-UNDO.
     
-RUN sys/ref/nk1look.p (INPUT cocode, "EskoInbound", "C" /* Char */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT cocode, "PrePressHotFolderIn", "C" /* Char */, NO /* check by cust */, 
    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
    OUTPUT cRtnChar, OUTPUT lRecFound).
     
 IF lRecFound THEN
-   EskoInbound-char = cRtnChar NO-ERROR.
+   PrePressHotFolderIn-char = cRtnChar NO-ERROR.
     
     
-RUN sys/ref/nk1look.p (INPUT cocode, "EskoOutBound", "C" /* Char */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT cocode, "PrePressHotFolderOut", "C" /* Char */, NO /* check by cust */, 
    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
    OUTPUT cRtnChar, OUTPUT lRecFound).
     
 IF lRecFound THEN
-   EskoOutBound-char = cRtnChar NO-ERROR.
+   PrePressHotFolderOut-char = cRtnChar NO-ERROR.
     
-cPathIn  = EskoInbound-char.
-cPathOut = EskoOutBound-char.
+cPathIn  = PrePressHotFolderIn-char.
+cPathOut = PrePressHotFolderOut-char.
             
 RUN monitorActivity ('Check New Jobs ' + monitorImportDir,YES,'').
 FOR EACH job NO-LOCK WHERE job.company EQ g_company 
