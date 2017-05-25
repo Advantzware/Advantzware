@@ -1,5 +1,13 @@
 /* desktop.p */
+&SCOPED-DEFINE loginProcedure nosweat/login.w
+&SCOPED-DEFINE checkUserRecord YES 
+&SCOPED-DEFINE connectDatabases YES
+&SCOPED-DEFINE nonPersistProgram JobXML/monitor.w
+&SCOPED-DEFINE getCompanyProc CUSTOM/getcomp.p
 
+
+{nosweat.i}
+/* 
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
 
@@ -67,3 +75,4 @@ END.
 SESSION:SET-WAIT-STATE("").
 QUIT.
 
+*/
