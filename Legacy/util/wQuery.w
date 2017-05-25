@@ -1300,18 +1300,18 @@ DEFINE FRAME f-Main
      cbOp-20 AT ROW 31 COL 40 COLON-ALIGNED NO-LABEL
      fiVal-20 AT ROW 31 COL 52 COLON-ALIGNED NO-LABEL
      tCloseParen-20 AT ROW 31 COL 77
-     "FOR" VIEW-AS TEXT
-          SIZE 5 BY 1.1 AT ROW 1.52 COL 2 WIDGET-ID 4
-     "DISPLAY FIELDS" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 10.52 COL 100
-     "(Calculated field values are only displayed after Export.)" VIEW-AS TEXT
-          SIZE 55 BY .67 AT ROW 32.19 COL 101
-     "QUERY STRING:" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 3 COL 100
-     "WHERE" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 1.48 COL 47
      "RESULT LIST" VIEW-AS TEXT
           SIZE 17 BY 1 AT ROW 23.52 COL 100
+     "WHERE" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 1.48 COL 47
+     "QUERY STRING:" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 3 COL 100
+     "(Calculated field values are only displayed after Export.)" VIEW-AS TEXT
+          SIZE 55 BY .67 AT ROW 32.19 COL 101
+     "DISPLAY FIELDS" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 10.52 COL 100
+     "FOR" VIEW-AS TEXT
+          SIZE 5 BY 1.1 AT ROW 1.52 COL 2 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -3128,6 +3128,42 @@ PROCEDURE initializeObject :
         cbRel-2:LIST-ITEMS = "-"
         cbRel-3:LIST-ITEMS = "-"
         cbRel-4:LIST-ITEMS = "-"
+        cbOp-1:{&SV} = "="
+        cbOp-2:{&SV} = "="
+        cbOp-3:{&SV} = "="
+        cbOp-4:{&SV} = "="
+        cbOp-5:{&SV} = "="
+        cbOp-6:{&SV} = "="
+        cbOp-7:{&SV} = "="
+        cbOp-8:{&SV} = "="
+        cbOp-9:{&SV} = "="
+        cbOp-10:{&SV} = "="
+        cbOp-11:{&SV} = "="
+        cbOp-12:{&SV} = "="
+        cbOp-13:{&SV} = "="
+        cbOp-14:{&SV} = "="
+        cbOp-15:{&SV} = "="
+        cbOp-16:{&SV} = "="
+        cbOp-17:{&SV} = "="
+        cbOp-18:{&SV} = "="
+        cbOp-19:{&SV} = "="
+        cbOp-20:{&SV} = "="
+        cbAnd-1:{&SV} = "-"
+        cbAnd-2:{&SV} = "-"
+        cbAnd-3:{&SV} = "-"
+        cbAnd-4:{&SV} = "-"
+        cbAnd-6:{&SV} = "-"
+        cbAnd-7:{&SV} = "-"
+        cbAnd-8:{&SV} = "-"
+        cbAnd-9:{&SV} = "-"
+        cbAnd-11:{&SV} = "-"
+        cbAnd-12:{&SV} = "-"
+        cbAnd-13:{&SV} = "-"
+        cbAnd-14:{&SV} = "-"
+        cbAnd-16:{&SV} = "-"
+        cbAnd-17:{&SV} = "-"
+        cbAnd-18:{&SV} = "-"
+        cbAnd-19:{&SV} = "-"
         .
     SESSION:SET-WAIT-STATE("").
 
