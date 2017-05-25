@@ -1425,8 +1425,7 @@ DO:
         RELEASE OBJECT chWorkBook         NO-ERROR.
         RELEASE OBJECT chExcelApplication NO-ERROR.
     END.
-    APPLY "window-CLOSE":U TO THIS-PROCEDURE.
-    IF NOT THIS-PROCEDURE:PERSISTENT THEN quit.
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2938,7 +2937,10 @@ END.
 RUN util/chk-mod.p ("ASI","wquery.") NO-ERROR.
 lContinue = NOT ERROR-STATUS:ERROR.
 
-IF lContinue EQ NO THEN QUIT.
+IF lContinue EQ NO THEN DO:
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN.
+END.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm2/windowmn.i}
