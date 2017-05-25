@@ -298,7 +298,7 @@ reftable.code2    EQ STRING(probe.line,"9999999999")  ~
        BY probe.est-no ~
         BY probe.probe-date ~
          BY probe.est-qty  ~
-          BY probe.probe-time 
+         BY probe.probe-time
 &SCOPED-DEFINE OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH probe NO-LOCK WHERE probe.company EQ eb.company AND ~
 ASI.probe.est-no EQ eb.est-no ~
       AND probe.probe-date NE ? , ~
@@ -311,7 +311,7 @@ reftable.code2    EQ STRING(probe.line,"9999999999") ~
        BY probe.est-no ~
         BY probe.probe-date ~
          BY probe.est-qty ~
-          BY probe.probe-time  .
+         BY probe.probe-time  .
 &SCOPED-DEFINE TABLES-IN-QUERY-br_table probe reftable
 &SCOPED-DEFINE FIRST-TABLE-IN-QUERY-br_table probe
 &SCOPED-DEFINE SECOND-TABLE-IN-QUERY-br_table reftable
@@ -2067,35 +2067,35 @@ PROCEDURE est-summ :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE li AS INTEGER NO-UNDO.
   DEFINE VARIABLE li1 AS INTEGER NO-UNDO.
-
+  DEFINE BUFFER bff-probe FOR probe .
   
   FIND LAST est-summ NO-LOCK
       WHERE est-summ.company EQ est.company
         AND est-summ.est-no  EQ est.est-no
       USE-INDEX est-qty  NO-ERROR.
   li1 = IF AVAILABLE est-summ THEN est-summ.eqty ELSE 0.
-
+  
   FOR EACH mclean:
     DO li = 1 TO 28:
-      FOR EACH probe NO-LOCK
-          WHERE probe.company    EQ est.company
-            AND probe.est-no     EQ est.est-no
-            AND probe.probe-date EQ TODAY
-            AND probe.est-qty    EQ qtty[li]
-            AND probe.freight    EQ IF est.est-type LE 6 THEN rels[li] ELSE 1
+      FOR EACH bff-probe NO-LOCK
+          WHERE bff-probe.company    EQ est.company
+            AND bff-probe.est-no     EQ est.est-no
+            AND bff-probe.probe-date EQ TODAY
+            AND bff-probe.est-qty    EQ qtty[li]
+            AND bff-probe.freight    EQ IF est.est-type LE 6 THEN rels[li] ELSE 1
           
-          BY probe.probe-time DESCENDING:
+          BY bff-probe.probe-time DESCENDING:
 
         CREATE est-summ.
         ASSIGN
-         est-summ.company  = probe.company
-         est-summ.est-no   = probe.est-no
+         est-summ.company  = bff-probe.company
+         est-summ.est-no   = bff-probe.est-no
          li1               = li1 + 1
          est-summ.eqty     = li1
          est-summ.summ-tot = STRING(mclean.rec-type,"x(20)")     +
                              STRING(mclean.form-no,"9999999999") +
                              mclean.descr
-         est-summ.e-num    = probe.line
+         est-summ.e-num    = bff-probe.line
          est-summ.per-m    = mclean.cost[li].
 
         LEAVE.
@@ -2111,18 +2111,18 @@ PROCEDURE est-summ :
   DO li = 1 TO 28:
     IF qtty[li] EQ 0 THEN NEXT.
 
-    FOR EACH probe NO-LOCK
-        WHERE probe.company    EQ xest.company
-          AND probe.est-no     EQ xest.est-no
-          AND probe.probe-date EQ TODAY
-          AND probe.est-qty    EQ qtty[li]
-          AND probe.freight    EQ rels[li]
+    FOR EACH bff-probe NO-LOCK
+        WHERE bff-probe.company    EQ xest.company
+          AND bff-probe.est-no     EQ xest.est-no
+          AND bff-probe.probe-date EQ TODAY
+          AND bff-probe.est-qty    EQ qtty[li]
+          AND bff-probe.freight    EQ rels[li]
         
-        BY probe.probe-time DESCENDING:
+        BY bff-probe.probe-time DESCENDING:
       LEAVE.
     END.
 
-    IF AVAILABLE probe THEN RUN cec/pr4-mcl1.p (ROWID(probe)).
+    IF AVAILABLE bff-probe THEN RUN cec/pr4-mcl1.p (ROWID(bff-probe)).
   END.
 
 END PROCEDURE.
