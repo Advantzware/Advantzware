@@ -77,7 +77,7 @@ DEFINE VARIABLE iLoginCnt AS INTEGER NO-UNDO.
 FIND FIRST userControl NO-LOCK NO-ERROR.
 
 IF NOT AVAILABLE userControl THEN DO:
-    RUN util/createUserControl.
+    RUN util/createUserControl.p.
     FIND FIRST userControl NO-LOCK NO-ERROR.
     IF NOT AVAILABLE userControl THEN DO:
         MESSAGE "User Control Record was not found.  Exiting application."
