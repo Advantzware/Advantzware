@@ -11,7 +11,7 @@
     Created     : Wed Nov 09 19:32:08 EST 2016
     Notes       :
   ----------------------------------------------------------------------*/
-DEFINE INPUT PARAMETER iprJobRowid AS ROWID NO-UNDO.
+DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 
 /* ***************************  Definitions  ************************** */
 DEFINE VARIABLE cTargetType     AS CHARACTER NO-UNDO.
@@ -40,13 +40,12 @@ DEFINE TEMP-TABLE ttTempJob
     FIELD ItemStatus   AS CHARACTER  
     FIELD itemRecKey   AS CHARACTER    
     .
-FIND FIRST job NO-LOCK WHERE ROWID(job) = iprjobRowid
-    NO-ERROR.
+ 
 DEFINE VARIABLE cocode AS CHARACTER NO-UNDO.
-IF AVAILABLE job THEN 
-    cocode = job.company.
+cocode = ipcCompany.
 
-{XMLOutput/XMLOutput.i &XMLOutput=XMLJOB &Company=cocode}
+/* Open stream for xml */
+{XMLOutput/XMLOutput.i &XMLOutput=XMLJOB &Company=cocode &NEW=}
     
 {UDF/ttUDF.i}                
                          
@@ -56,104 +55,89 @@ IF AVAILABLE job THEN
 /* ***************************  Main Block  *************************** */
 
 
-
-        FIND FIRST sys-ctrl NO-LOCK
-             WHERE sys-ctrl.company EQ  cocode
-               AND sys-ctrl.name    EQ 'XMLJOB' NO-ERROR.
-
-        IF AVAILABLE sys-ctrl AND sys-ctrl.log-fld THEN DO:
-          ASSIGN
-            XMLTimeStamp = STRING(YEAR(TODAY),'9999')
-                             + '-'
-                             + STRING(MONTH(TODAY),'99')
-                             + '-'
-                             + STRING(DAY(TODAY),'99')
-                             + 'T'
-                             + STRING(TIME,'hh:mm:ss')
-                             + '-05:00'
-            cXMLOutput = sys-ctrl.char-fld
-            iXMLOutput = sys-ctrl.int-fld
-            .
-          
-          ASSIGN
-            XMLFile = '/XMLJOB.' + STRING(TIME,'99999') + '.xml'
-            XMLTemp = 'XMLOutput' + XMLFile
-            .
-          OUTPUT STREAM XMLOutput TO VALUE(XMLTemp).
-        END.
+FOR EACH EDDoc NO-LOCK WHERE EDDoc.stat EQ 0
+    AND EDDoc.FGID EQ ""
+    AND EDDoc.Partner EQ "Esko",
+    FIRST job NO-LOCK WHERE job.company EQ cocode
+        AND job.job-no EQ EDDoc.setID
+        AND job.job-no2 EQ EDDoc.docSeq
+       :
         
-IF AVAILABLE job THEN 
-DO:
-    FOR EACH job-hdr NO-LOCK WHERE job-hdr.company EQ job.company
-                               AND job-hdr.job-no  EQ job.job-no
-                               AND job-hdr.job-no2 EQ job.job-no2,
-        FIRST itemfg NO-LOCK WHERE itemfg.company EQ job-hdr.company
-                               AND itemfg.i-no    EQ job-hdr.i-no
-                             :
+        FOR EACH job-hdr NO-LOCK WHERE job-hdr.company EQ job.company
+            AND job-hdr.job-no  EQ job.job-no
+            AND job-hdr.job-no2 EQ job.job-no2,
+            FIRST itemfg NO-LOCK WHERE itemfg.company EQ job-hdr.company
+            AND itemfg.i-no    EQ job-hdr.i-no
+            :
                                    
                              
-        cocode = job-hdr.company.
-        FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ job-hdr.company
-            AND sys-ctrl.name EQ "xmljob"
-            NO-ERROR.
-        IF NOT AVAILABLE sys-ctrl THEN RETURN.
+            cocode = job-hdr.company.
+            FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ job-hdr.company
+                AND sys-ctrl.name EQ "xmljob"
+                NO-ERROR.
+            IF NOT AVAILABLE sys-ctrl THEN RETURN.
        
-        FIND FIRST cust NO-LOCK WHERE cust.company EQ job-hdr.company
-            AND cust.cust-no EQ job-hdr.cust-no
-            NO-ERROR.
+            FIND FIRST cust NO-LOCK WHERE cust.company EQ job-hdr.company
+                AND cust.cust-no EQ job-hdr.cust-no
+                NO-ERROR.
     
     
-        cSheetBlank = STRING(job-hdr.frm, "9") + string(job-hdr.blank-no, "9") .
+            cSheetBlank = STRING(job-hdr.frm, "9") + string(job-hdr.blank-no, "9") .
     
-        FIND FIRST ttTempJob EXCLUSIVE-LOCK WHERE ttTempJob.company EQ job-hdr.company
-            AND ttTempJob.jobID = trim(job-hdr.job-no) + "-" + cSheetBlank
-            AND ttTempJob.newProject EQ 1
-            NO-ERROR.
+            FIND FIRST ttTempJob EXCLUSIVE-LOCK WHERE ttTempJob.company EQ job-hdr.company
+                AND ttTempJob.jobID = trim(job-hdr.job-no) + "-" + cSheetBlank
+                AND ttTempJob.newProject EQ 1
+                NO-ERROR.
     
-        IF NOT AVAILABLE ttTempJob THEN 
-        DO:
+            IF NOT AVAILABLE ttTempJob THEN 
+            DO:
     
-            CREATE ttTempJob.
-            ASSIGN
-                ttTempjob.company = job-hdr.company
-                ttTempjob.jobID   = TRIM(job-hdr.job-no) + "-" + cSheetBlank
-                ttTempjob.itemRecKey  = itemfg.rec_key
-                ttTempjob.FGItemCode   = itemfg.i-no
-                ttTempjob.FGName       = itemfg.i-name
-                ttTempjob.CustPart     = itemfg.part-no
-                ttTempjob.ItemStatus   = (IF itemfg.stat EQ "A" THEN "Active" ELSE "Inactive")             
-                .
-            IF AVAILABLE cust THEN 
-                ASSIGN ttTempjob.customerID   = cust.cust-no
-                    ttTempJob.customerName = cust.name
+                CREATE ttTempJob.
+                ASSIGN
+                    ttTempjob.company    = job-hdr.company
+                    ttTempjob.jobID      = TRIM(job-hdr.job-no) + "-" + cSheetBlank
+                    ttTempjob.itemRecKey = itemfg.rec_key
+                    ttTempjob.FGItemCode = itemfg.i-no
+                    ttTempjob.FGName     = itemfg.i-name
+                    ttTempjob.CustPart   = itemfg.part-no
+                    ttTempjob.ItemStatus = (IF itemfg.stat EQ "A" THEN "Active" ELSE "Inactive")             
                     .
+                IF AVAILABLE cust THEN 
+                    ASSIGN ttTempjob.customerID   = cust.cust-no
+                        ttTempJob.customerName = cust.name
+                        .
         
-        END.  /* create ttTempJob */
-    END. /* Each job-hdr of job */ 
+            END.  /* create ttTempJob */
+        END. /* Each job-hdr of job */ 
+
 END.
-ELSE 
-DO:
-    RETURN.
-END.
- 
+
+
+FIND FIRST sys-ctrl NO-LOCK
+    WHERE sys-ctrl.company EQ  cocode
+    AND sys-ctrl.name    EQ 'XMLJOB' NO-ERROR.
+    
 lXmlOutput = TRUE.
 IF AVAILABLE sys-ctrl THEN 
 DO:
-    RUN XMLOutput (lXMLOutput,'JobRow','','Row').
+
+     RUN XMLOutput (lXMLOutput,'','','Header').
+    
     
     FOR EACH ttTempJob BREAK BY ttTempJob.jobID:
         
-        IF FIRST-OF(ttTempJob.jobID) THEN DO:
-                        
+        IF FIRST-OF(ttTempJob.jobID) THEN 
+        DO:                        
+            RUN XMLOutput (lXMLOutput,'JDF','','Row').
             RUN XMLOutput (lXMLOutput,'Company',ttTempJob.company,'Col').
             RUN XMLOutput (lXMLOutput,'JobID',ttTempJob.jobID,'Col').
             RUN XMLOutput (lXMLOutput,'NewProject',0,'Col').
             RUN XMLOutput (lXMLOutput,'CustomerID',ttTempJob.customerID,'Col').
             RUN XMLOutput (lXMLOutput,'CustomerName',ttTempJob.customerName,'Col').
         END.
-        
+        RUN XMLOutput (lXMLOutput,'ResourcePool','','Row').
         /* Process Itemfg Level */
-        RUN XMLOutput (lXMLOutput,'ItemfgRow','','Row').
+        RUN XMLOutput (lXMLOutput,'Product','','Row').
         RUN XMLOutput (lXMLOutput,'FGItemCode', ttTempjob.FGItemCode,'Col').
         RUN XMLOutput (lXMLOutput,'FGName'    , ttTempjob.FGName,'Col').
         RUN XMLOutput (lXMLOutput,'CustPart'  , ttTempjob.CustPart,'Col').     
@@ -165,10 +149,12 @@ DO:
         FOR EACH ttUDF NO-LOCK WHERE ttUDF.udfEsko:
             RUN XMLOutput (lXMLOutput,ttUDF.udfLabel,ttUDF.udfValue,'Col').
         END. 
-        RUN XMLOutput (lXMLOutput,'/ItemfgRow','','Row').                         
-        
+        RUN XMLOutput (lXMLOutput,'/Product','','Row').                         
+        RUN XMLOutput (lXMLOutput,'/ResourcePool','','Row').
+        IF LAST(ttTempJob.jobID) THEN
+          RUN XMLOutput (lXMLOutput,'/JDF','','Row').
     END.
-    RUN XMLOutput (lXMLOutput,'/JobRow','','Row').
+    
     {xmloutput/XMLOutput.i &XMLClose} 
 END.
 

@@ -1,7 +1,8 @@
 /* monitor.w */
 
 {custom/monitor.w "jobXml" "jobXml"}
-{XMLOutput/XMLOutput.i &XMLOutput=XMLJOB &Company=cocode &NEW=NEW}
+{XMLOutput/XMLOutput.i &Company=cocode &NEW=NEW}
+lXmlOutput = TRUE.
 PROCEDURE postMonitor:
 /*------------------------------------------------------------------------------
   Purpose:     import montiored file, create receipt record, post
@@ -18,10 +19,33 @@ PROCEDURE postMonitor:
   DEFINE VARIABLE nextRNo AS INTEGER NO-UNDO.
   DEFINE VARIABLE nextRelease AS INTEGER NO-UNDO.
   DEFINE VARIABLE nextRelNo AS INTEGER NO-UNDO.
-  DEFINE VARIABLE cPathIn AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE cPathIn  AS CHARACTER NO-UNDO.
   DEFINE VARIABLE cPathout AS CHARACTER NO-UNDO.
   DEFINE BUFFER bf-eddoc FOR EDDoc.
-
+  DEFINE VARIABLE cRtnChar     AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
+  DEFINE VARIABLE EskoInbound-char AS CHARACTER   NO-UNDO.
+  DEFINE VARIABLE EskoOutbound-char AS CHARACTER  NO-UNDO.
+  DEFINE VARIABLE cFullFilePath AS CHARACTER   NO-UNDO.
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "EskoInbound", "C" /* Char */, NO /* check by cust */, 
+   INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+   OUTPUT cRtnChar, OUTPUT lRecFound).
+    
+IF lRecFound THEN
+   EskoInbound-char = cRtnChar NO-ERROR.
+    
+    
+RUN sys/ref/nk1look.p (INPUT cocode, "EskoOutBound", "C" /* Char */, NO /* check by cust */, 
+   INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+   OUTPUT cRtnChar, OUTPUT lRecFound).
+    
+IF lRecFound THEN
+   EskoOutBound-char = cRtnChar NO-ERROR.
+    
+cPathIn  = EskoInbound-char.
+cPathOut = EskoOutBound-char.
+            
 RUN monitorActivity ('Check New Jobs ' + monitorImportDir,YES,'').
 FOR EACH job NO-LOCK WHERE job.company EQ g_company 
                        AND job.opened EQ TRUE
@@ -57,7 +81,7 @@ FOR EACH job NO-LOCK WHERE job.company EQ g_company
     
 END.
     
-FOR EACH EDDoc NO-LOCK WHERE EDDoc.stat EQ 0
+FOR FIRST EDDoc NO-LOCK WHERE EDDoc.stat EQ 0
                          AND EDDoc.FGID EQ ""
                          AND EDDoc.Partner EQ "Esko":
     FIND FIRST job NO-LOCK WHERE job.company EQ g_company
@@ -65,7 +89,8 @@ FOR EACH EDDoc NO-LOCK WHERE EDDoc.stat EQ 0
                              AND job.job-no2 EQ EDDoc.docSeq
                            NO-ERROR.
     IF AVAILABLE job THEN DO:
-        RUN oe/oeJobXml.p (ROWID(job)).
+        lXmlOutput = TRUE.
+        RUN oe/oeJobXml.p (INPUT g_company).
      
       FIND FIRST bf-eddoc EXCLUSIVE-LOCK WHERE ROWID(bf-eddoc) EQ rowid(eddoc) NO-ERROR.
       IF AVAILABLE bf-eddoc THEN 
@@ -82,10 +107,11 @@ RUN monitorActivity ('Check dir ' + monitorImportDir,YES,'').
     SET monitorFile ^ attrList.
     IF attrList NE 'f' OR monitorFile BEGINS '.' OR
        INDEX(monitorFile,'.xml') EQ 0 THEN NEXT.
+    cFullFilePath = monitorImportDir + "\" + monitorFile.
+    OS-COPY VALUE(cFullFilePath) VALUE(cPathOut).    
 
-    OS-COPY VALUE(monitorFile) VALUE(cPathOut).    
-    IF OS-ERROR EQ 0 THEN 
-      OS-DELETE VALUE(monitorFile).
+    IF INTEGER(OS-ERROR) EQ 0 THEN 
+      OS-DELETE VALUE(cFullFilePath).
           
     RUN monitorActivity ('Moving ' + monitorFile,YES,'').
   END. /* os-dir repeat */
@@ -97,7 +123,8 @@ RUN monitorActivity ('Check dir ' + monitorImportDir,YES,'').
     SET monitorFile ^ attrList.
     IF attrList NE 'f' OR monitorFile BEGINS '.' OR
        INDEX(monitorFile,'.xml') EQ 0 THEN NEXT.
-     RUN processResultXML (INPUT monitorFile).
+     cFullFilePath = cPathIn + "\" + monitorFile.
+     RUN processResultXML (INPUT cFullFilePath).
 /*    IF OS-ERROR EQ 0 THEN          */
 /*      OS-DELETE VALUE(monitorFile).*/
     RUN monitorActivity ('Processing ' + monitorFile,YES,'').
