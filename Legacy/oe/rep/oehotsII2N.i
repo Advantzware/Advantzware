@@ -3,7 +3,7 @@
 /* -----------------------------------------------------------------*/
 IF v-first THEN 
     PUT UNFORMATTED
-        "<FCourier New><B><C5><P26>Hots <P8>" 
+        "<FCourier New><B><C5><P26>Hots <P7>" 
           SKIP(1)
         STRING(TODAY) AT 3 FORM "x(5)"  
         "Begin Date:" AT 30 
@@ -264,7 +264,7 @@ IF AVAIL itemfg THEN DO:
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "qty-hand"    THEN cVarValue = string(w-ord.onh-qty,">>>,>>>,>>>") .
+                         WHEN "qty-hand"    THEN cVarValue = string(w-ord.onh-qty,"->>>,>>>,>>>") .
                          WHEN "cust-name"   THEN cVarValue = string(w-ord.cust-name,"x(30)").
                          WHEN "item"   THEN cVarValue = STRING(w-ord.i-no ,"x(15)").
                          WHEN "desc"  THEN cVarValue = STRING(w-ord.i-name,"x(30)") .
@@ -277,6 +277,7 @@ IF AVAIL itemfg THEN DO:
                          WHEN "rel-date"   THEN cVarValue = IF w-ord.rel-date NE ? THEN STRING(date(w-ord.rel-date),"99/99/99") ELSE "" .
                          WHEN "rel"  THEN cVarValue = STRING(w-ord.rel-no,"->,>>>>>9") .
                          WHEN "pro-date"   THEN cVarValue = IF w-ord.prom-date NE ? THEN STRING(date(w-ord.prom-date),"99/99/99") ELSE "" .
+                         WHEN "style"   THEN cVarValue = STRING(itemfg.style ,"x(6)").
                          
                     END CASE.
                       
