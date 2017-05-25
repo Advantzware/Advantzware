@@ -136,7 +136,7 @@ ASSIGN
  str-init[53] = "AllItems,POOnly,None" 
  str-init[54] = "Sheet,Blank" 
  str-init[55] = "BLACK,RED"  
- str-init[56] = "WminLmin,PminPmax"
+ str-init[56] = "" /*removed option with ticket 17756*/
  str-init[57] = "Matrix,LastPric"
  str-init[58] = ""
  str-init[59] = "Complete,OnHand=0"
