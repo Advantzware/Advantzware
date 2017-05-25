@@ -268,7 +268,7 @@ ASI.probe.est-no = eb.est-no ~
        BY probe.est-no ~
         BY probe.probe-date ~
          BY probe.est-qty  ~
-          BY probe.probe-time 
+          BY probe.probe-time
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH probe WHERE probe.company = eb.company and ~
 ASI.probe.est-no = eb.est-no ~
       AND probe.probe-date ne ? NO-LOCK ~
@@ -276,7 +276,7 @@ ASI.probe.est-no = eb.est-no ~
        BY probe.est-no ~
         BY probe.probe-date ~
          BY probe.est-qty  ~
-          BY probe.probe-time  .
+         BY probe.probe-time  .
 &Scoped-define TABLES-IN-QUERY-br_table probe
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table probe
 
@@ -2092,6 +2092,7 @@ PROCEDURE est-summ :
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
   DEF VAR li1 AS INT NO-UNDO.
+  DEFINE BUFFER buff-probe FOR probe .
 
   FIND LAST est-summ
       WHERE est-summ.company EQ est.company
@@ -2101,25 +2102,25 @@ PROCEDURE est-summ :
 
   FOR EACH mclean:
     DO li = 1 TO 28:
-      FOR EACH probe
-          WHERE probe.company    EQ est.company
-            AND probe.est-no     EQ est.est-no
-            AND probe.probe-date EQ TODAY
-            AND probe.est-qty    EQ qtty[li]
-            AND probe.freight    EQ IF est.est-type LE 6 THEN rels[li] ELSE 1
+      FOR EACH buff-probe
+          WHERE buff-probe.company    EQ est.company
+            AND buff-probe.est-no     EQ est.est-no
+            AND buff-probe.probe-date EQ TODAY
+            AND buff-probe.est-qty    EQ qtty[li]
+            AND buff-probe.freight    EQ IF est.est-type LE 6 THEN rels[li] ELSE 1
           NO-LOCK
-          BY probe.probe-time DESC:
+          BY buff-probe.probe-time DESC:
 
         CREATE est-summ.
         ASSIGN
-         est-summ.company  = probe.company
-         est-summ.est-no   = probe.est-no
+         est-summ.company  = buff-probe.company
+         est-summ.est-no   = buff-probe.est-no
          li1               = li1 + 1
          est-summ.eqty     = li1
          est-summ.summ-tot = STRING(mclean.rec-type,"x(20)")     +
                              STRING(mclean.form-no,"9999999999") +
                              mclean.descr
-         est-summ.e-num    = probe.line
+         est-summ.e-num    = buff-probe.line
          est-summ.per-m    = mclean.cost[li].
 
         LEAVE.
@@ -2135,18 +2136,18 @@ PROCEDURE est-summ :
   DO li = 1 TO 28:
     IF qtty[li] EQ 0 THEN NEXT.
 
-    FOR EACH probe
-        WHERE probe.company    EQ est.company
-          AND probe.est-no     EQ est.est-no
-          AND probe.probe-date EQ TODAY
-          AND probe.est-qty    EQ qtty[li]
-          AND probe.freight    EQ rels[li]
+    FOR EACH buff-probe
+        WHERE buff-probe.company    EQ est.company
+          AND buff-probe.est-no     EQ est.est-no
+          AND buff-probe.probe-date EQ TODAY
+          AND buff-probe.est-qty    EQ qtty[li]
+          AND buff-probe.freight    EQ rels[li]
         NO-LOCK
-        BY probe.probe-time DESC:
+        BY buff-probe.probe-time DESC:
       LEAVE.
     END.
 
-    IF AVAIL probe THEN RUN ce/pr4-mcl1.p (ROWID(probe)).
+    IF AVAIL buff-probe THEN RUN ce/pr4-mcl1.p (ROWID(buff-probe)).
   END.
 
 END PROCEDURE.

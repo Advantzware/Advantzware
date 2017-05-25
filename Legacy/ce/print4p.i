@@ -886,27 +886,27 @@ end.  /* do k=1to28 */
 if vprint then do k = 1 to 28:
   if qtty[k] eq 0 then leave.
 
-  FOR EACH probe
-      WHERE probe.company    EQ xest.company
-        AND probe.est-no     EQ xest.est-no
-        AND probe.probe-date EQ TODAY
-        AND probe.est-qty    EQ qtty[k]
-        AND probe.freight    EQ rels[k]
+  FOR EACH bf-probe
+      WHERE bf-probe.company    EQ xest.company
+        AND bf-probe.est-no     EQ xest.est-no
+        AND bf-probe.probe-date EQ TODAY
+        AND bf-probe.est-qty    EQ qtty[k]
+        AND bf-probe.freight    EQ rels[k]
       NO-LOCK
-      BY probe.probe-time DESC:
+      BY bf-probe.probe-time DESC:
     LEAVE.
   END.
 
-  IF probe.LINE LT 100 THEN
+  IF bf-probe.LINE LT 100 THEN
      assign
-       outfile1 = tmp-dir + trim(xest.est-no) + ".v" + string(probe.line,"99")
-       outfile2 = tmp-dir + trim(xest.est-no) + ".a" + string(probe.line,"99")
-       outfile3 = tmp-dir + trim(xest.est-no) + ".s" + string(probe.line,"99").
+       outfile1 = tmp-dir + trim(xest.est-no) + ".v" + string(bf-probe.line,"99")
+       outfile2 = tmp-dir + trim(xest.est-no) + ".a" + string(bf-probe.line,"99")
+       outfile3 = tmp-dir + trim(xest.est-no) + ".s" + string(bf-probe.line,"99").
   ELSE
      assign
-       outfile1 = tmp-dir + trim(xest.est-no) + ".v" + string(probe.line,"999")
-       outfile2 = tmp-dir + trim(xest.est-no) + ".a" + string(probe.line,"999")
-       outfile3 = tmp-dir + trim(xest.est-no) + ".s" + string(probe.line,"999").
+       outfile1 = tmp-dir + trim(xest.est-no) + ".v" + string(bf-probe.line,"999")
+       outfile2 = tmp-dir + trim(xest.est-no) + ".a" + string(bf-probe.line,"999")
+       outfile3 = tmp-dir + trim(xest.est-no) + ".s" + string(bf-probe.line,"999").
       
   if vmclean then do:
     output to value(outfile3) append.
@@ -931,15 +931,15 @@ if vprint then do k = 1 to 28:
   else
     dos silent type value(outfile2) >> value(outfile3).
 
-  IF probe.LINE LT 100 THEN
-     ls-outfile = tmp-dir + TRIM(xest.est-no) + ".p" + string(probe.line,"99").
+  IF bf-probe.LINE LT 100 THEN
+     ls-outfile = tmp-dir + TRIM(xest.est-no) + ".p" + string(bf-probe.line,"99").
   ELSE
-     ls-outfile = tmp-dir + TRIM(xest.est-no) + ".p" + string(probe.line,"999").
+     ls-outfile = tmp-dir + TRIM(xest.est-no) + ".p" + string(bf-probe.line,"999").
 
   if search(outfile1) <> ? THEN
     dos silent  type value(outfile3) > value(ls-outfile).
 
-  RUN ce/probeu3.p (ROWID(probe)).
+  RUN ce/probeu3.p (ROWID(bf-probe)).
 end.
 
 DO TRANSACTION:
