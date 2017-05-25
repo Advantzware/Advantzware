@@ -1589,7 +1589,7 @@ IF tb_excel THEN DO:
                  WHEN "sale-value" THEN DO:
                      dSaleValue = dPrice * (mch-act.qty / IF cUOM EQ "M" THEN 1000 ELSE 1).
                      IF CAN-DO("A,R,S",mach.p-type) THEN
-                         dSaleValue = dSaleValue * li-up * (IF AVAIL job-mch THEN job-mch.n-out ELSE 1).
+                         dSaleValue = dSaleValue * li-up * (IF AVAIL job-mch AND job-mch.n-out GT 0 THEN job-mch.n-out ELSE 1).
                      cVarValue = STRING(dSaleValue,">,>>>,>>>,>>9.99<<<<").
                  END. /* sale-value */
             END CASE.
