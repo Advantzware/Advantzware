@@ -24,7 +24,12 @@ message
 output to c:\temp\badreckey.txt.
 
 do i = 1 to num-entries(cFileList):
-    put unformatted "File: " + entry(i,cFileList) + chr(10).
+    if entry(i,cFileList) = "reftable" then do:
+        put unformatted "File: " + entry(i,cFileList) + " SKIPPED" + chr(10).
+        next.
+    end.
+    else
+        put unformatted "File: " + entry(i,cFileList) + chr(10).
     if valid-handle(hBuf) then delete widget hBuf.
     if valid-handle(hQuery) then delete widget hQuery.
     if valid-handle(hField) then delete widget hField.
@@ -32,19 +37,20 @@ do i = 1 to num-entries(cFileList):
     create buffer hBuf for table entry(i,cFileList).
     create query hQuery.
     hQuery:add-buffer(hBuf).
-    hQuery:query-prepare("for each " + entry(i,cFileList) + " where " + 
+    hQuery:query-prepare("preselect each " + entry(i,cFileList) + " exclusive where " + 
                          entry(i,cFileList) + ".rec_key = ''").
     
     hQuery:query-open().
-    hQuery:get-first().
-    if hBuf:rowid <> ? then do while hBuf:rowid <> ?:
+    do j = 1 to hQuery:num-results transaction:
+        hQuery:get-next().
         hField = hBuf:buffer-field("rec_key").
         put unformatted
             entry(i,cFileList) + "," +
             string(hBuf:rowid) + chr(10).
-        if lFix then assign
-            hField:buffer-value = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq),"99999999").
-        hQuery:get-next().
+        if lFix then do:
+            assign
+                hField:buffer-value = STRING(TODAY,"99999999") + STRING(NEXT-VALUE(rec_key_seq),"99999999").
+        end.
     end.    
 end. 
  
