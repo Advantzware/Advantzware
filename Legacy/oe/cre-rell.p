@@ -17,6 +17,8 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+
+
 DEF INPUT PARAMETER in-recid AS RECID.
 
 {sys/inc/VAR.i SHARED}
@@ -41,7 +43,7 @@ DEFINE VARIABLE v-s-code          AS CHARACTER       NO-UNDO.
 DEFINE VARIABLE lrOeRell          AS ROWID           NO-UNDO.
 DEFINE VARIABLE li-nxt-rel-no     AS INTEGER         NO-UNDO.
 DEFINE VARIABLE lcBolWhse         AS CHARACTER       NO-UNDO.
-DEFINE VARIABLE rFgBinRow         AS ROWID           NO-UNDO.
+
      
 DEF BUFFER b-reftable FOR reftable.
 DEF BUFFER bf-rell FOR oe-rell .
@@ -502,15 +504,120 @@ PROCEDURE find-bin-loc :
   END.
   
   ELSE DO:
+    FIND FIRST fg-bin
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.job-no  EQ oe-ordl.job-no
+          AND fg-bin.job-no2 EQ oe-ordl.job-no2
+          AND fg-bin.i-no    EQ oe-rell.i-no
+          AND fg-bin.qty     GE oe-rell.qty
+          AND fg-bin.loc     EQ oe-rell.loc
+        USE-INDEX job NO-LOCK NO-ERROR.
     
-    RUN fg/searchBin (INPUT cocode, INPUT oe-ordl.job-no, INPUT oe-ordl.job-no2,
-                      INPUT oe-ordl.ord-no, INPUT oe-rell.i-no, INPUT oe-rell.qty,
-                      INPUT oe-rell.loc, INPUT "", INPUT lcBolWhse, INPUT "", 
-                      OUTPUT rFgBinRow).
+    IF NOT AVAIL fg-bin AND lcBolWhse NE "ShipFromWhse" THEN
+    FIND FIRST fg-bin
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.job-no  EQ oe-ordl.job-no
+          AND fg-bin.job-no2 EQ oe-ordl.job-no2
+          AND fg-bin.i-no    EQ oe-rell.i-no
+          AND fg-bin.qty     GE oe-rell.qty
+        USE-INDEX job NO-LOCK NO-ERROR.
 
-    IF rFgBinRow NE ? THEN 
-      FIND FIRST fg-bin NO-LOCK WHERE ROWID(fg-bin) EQ rFgBinRow NO-ERROR.
-      
+    IF NOT AVAIL fg-bin THEN
+    FIND FIRST fg-bin
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.job-no  EQ oe-ordl.job-no
+          AND fg-bin.job-no2 EQ oe-ordl.job-no2
+          AND fg-bin.i-no    EQ oe-rell.i-no
+          AND fg-bin.loc     EQ oe-rell.loc
+          AND fg-bin.qty     GT 0
+        USE-INDEX job NO-LOCK NO-ERROR.
+
+    IF NOT AVAIL fg-bin AND lcBolWhse NE "ShipFromWhse" THEN
+    FIND FIRST fg-bin
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.job-no  EQ oe-ordl.job-no
+          AND fg-bin.job-no2 EQ oe-ordl.job-no2
+          AND fg-bin.i-no    EQ oe-rell.i-no
+          AND fg-bin.qty     GT 0
+        USE-INDEX job NO-LOCK NO-ERROR.
+
+    IF NOT AVAIL fg-bin THEN
+    FIND FIRST fg-bin
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.job-no  EQ oe-ordl.job-no
+          AND fg-bin.job-no2 EQ oe-ordl.job-no2
+          AND fg-bin.i-no    EQ oe-rell.i-no
+          AND fg-bin.loc     EQ oe-rell.loc
+        USE-INDEX job NO-LOCK NO-ERROR.
+
+    IF NOT AVAIL fg-bin AND lcBolWhse NE "ShipFromWhse" THEN
+    FIND FIRST fg-bin
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.job-no  EQ oe-ordl.job-no
+          AND fg-bin.job-no2 EQ oe-ordl.job-no2
+          AND fg-bin.i-no    EQ oe-rell.i-no
+        USE-INDEX job NO-LOCK NO-ERROR.
+    
+    IF NOT AVAIL fg-bin AND oe-ordl.job-no EQ "" THEN
+    FIND FIRST fg-bin
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.i-no    EQ oe-rell.i-no
+          AND fg-bin.ord-no  EQ oe-rel.ord-no
+          AND fg-bin.loc     EQ oe-rell.loc
+          AND fg-bin.qty     GT 0
+        USE-INDEX co-ino NO-LOCK NO-ERROR.
+
+    IF NOT AVAIL fg-bin AND oe-ordl.job-no EQ "" THEN
+    FIND FIRST fg-bin
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.i-no    EQ oe-rell.i-no
+          AND fg-bin.ord-no  EQ oe-rel.ord-no
+          AND fg-bin.loc     EQ oe-rell.loc
+        USE-INDEX co-ino NO-LOCK NO-ERROR.
+
+    IF NOT AVAIL fg-bin AND oe-ordl.job-no EQ "" AND lcBolWhse NE "ShipFromWhse" THEN
+    FIND FIRST fg-bin
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.i-no    EQ oe-rell.i-no
+          AND fg-bin.ord-no  EQ oe-rel.ord-no
+          AND fg-bin.qty     GT 0
+        USE-INDEX co-ino NO-LOCK NO-ERROR.
+
+    IF NOT AVAIL fg-bin AND oe-ordl.job-no EQ "" AND lcBolWhse NE "ShipFromWhse" THEN
+    FIND FIRST fg-bin
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.i-no    EQ oe-rell.i-no
+          AND fg-bin.ord-no  EQ oe-rel.ord-no
+        USE-INDEX co-ino NO-LOCK NO-ERROR.
+
+    IF NOT AVAIL fg-bin AND oe-ordl.job-no EQ "" THEN
+    FIND FIRST fg-bin
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.i-no    EQ oe-rell.i-no
+          AND fg-bin.loc     EQ oe-rell.loc
+          AND fg-bin.qty     GT 0
+        USE-INDEX co-ino NO-LOCK NO-ERROR.
+   
+    IF NOT AVAIL fg-bin AND oe-ordl.job-no EQ "" THEN
+    FIND FIRST fg-bin
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.i-no    EQ oe-rell.i-no
+          AND fg-bin.loc     EQ oe-rell.loc
+        USE-INDEX co-ino NO-LOCK NO-ERROR.
+
+    IF NOT AVAIL fg-bin AND oe-ordl.job-no EQ "" AND lcBolWhse NE "ShipFromWhse" THEN
+    FIND FIRST fg-bin
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.i-no    EQ oe-rell.i-no
+          AND fg-bin.qty     GT 0
+        USE-INDEX co-ino NO-LOCK NO-ERROR.
+
+    IF NOT AVAIL fg-bin AND oe-ordl.job-no EQ "" AND lcBolWhse NE "ShipFromWhse" THEN
+    FIND FIRST fg-bin
+        WHERE fg-bin.company EQ cocode
+          AND fg-bin.i-no    EQ oe-rell.i-no
+        USE-INDEX co-ino NO-LOCK NO-ERROR.
+ 
     IF AVAIL fg-bin THEN DO:
         
       IF oe-rell.loc EQ "" OR oe-rell.loc-bin EQ "" THEN
