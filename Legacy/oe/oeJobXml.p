@@ -99,7 +99,7 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE EDDoc.stat EQ 0
                 CREATE ttTempJob.
                 ASSIGN
                     ttTempjob.company    = job-hdr.company
-                    ttTempjob.jobID      = TRIM(job-hdr.job-no) + "-" + cSheetBlank
+                    ttTempjob.jobID      = TRIM(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2, "99") + "-" + cSheetBlank
                     ttTempjob.itemRecKey = itemfg.rec_key
                     ttTempjob.FGItemCode = itemfg.i-no
                     ttTempjob.FGName     = itemfg.i-name
