@@ -1,9 +1,6 @@
 /* -------------------------------------------------- cec/pr4-mis.i 07/96 JLF */
 
-   ASSIGN 
-        dMCostToExcludeMisc = 0
-        dMPriceToAddMisc = 0
-        .
+
    DO i = 1 TO 6 WITH FRAME ad2 DOWN NO-LABELS NO-BOX:
     /* only (i)ntegrate and (m)aintenance lines are done here */
     IF INDEX("SON",xef.mis-simon[i]) > 0 THEN NEXT.

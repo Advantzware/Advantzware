@@ -38,8 +38,7 @@ DEF VAR v-prep-lab-orig LIKE prep-lab NO-UNDO.
       tprep-mat = 0
       tprep-lab = 0
       tprep-tot = 0
-      dMCostToExcludePrep = 0
-      dMPriceToAddPrep = 0.
+    .
 
    for each est-prep where est-prep.company = xest.company and
                            est-prep.est-no = xest.est-no 
