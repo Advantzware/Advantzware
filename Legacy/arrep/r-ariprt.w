@@ -68,13 +68,6 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
 
-DEFINE VARIABLE vcBegCustNo AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE vcEndCustNo AS CHARACTER  NO-UNDO.
-DEFINE VARIABLE vlSkipRec   AS LOGICAL    NO-UNDO.
-DEFINE VARIABLE cActualPdf AS CHARACTER NO-UNDO.
-DEF VAR vSoldToNo AS char NO-UNDO.  /* to hold soldto# for email */
-DEF VAR vShipToNo AS char NO-UNDO.  /* to hold shipto# for email */
-
  RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormModal", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
@@ -117,12 +110,10 @@ DEFINE NEW SHARED VARIABLE svi-print-item AS INTEGER INITIAL 2 NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_inv end_inv begin_cust ~
 end_cust begin_date end_date tb_reprint tb_posted tb_export rd-dest ~
-td-show-parm tb_email-orig tb_AttachBOL tb_BatchMail tb_HideDialog btn-ok ~
-btn-cancel 
+td-show-parm tb_email-orig tb_AttachBOL btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_inv end_inv begin_cust end_cust ~
 begin_date end_date tb_reprint tb_posted tb_export lv-ornt lines-per-page ~
-rd-dest lv-font-no lv-font-name td-show-parm tb_email-orig tb_AttachBOL ~
-tb_BatchMail tb_HideDialog
+rd-dest lv-font-no lv-font-name td-show-parm tb_email-orig tb_AttachBOL 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -242,16 +233,6 @@ DEFINE VARIABLE tb_AttachBOL AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_BatchMail AS LOGICAL INITIAL no 
-     LABEL "&Batch E-Mail" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 19.4 BY 1 NO-UNDO.
-
-DEFINE VARIABLE tb_HideDialog AS LOGICAL INITIAL no 
-     LABEL "&Hide Dialog-Box" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 19.4 BY 1 NO-UNDO.
-
 DEFINE VARIABLE tb_collate AS LOGICAL INITIAL no 
      LABEL "Collate?" 
      VIEW-AS TOGGLE-BOX
@@ -346,8 +327,6 @@ DEFINE FRAME FRAME-A
      td-show-parm AT ROW 18.57 COL 30
      tb_email-orig AT ROW 19.91 COL 30 WIDGET-ID 18
      tb_AttachBOL AT ROW 20.05 COL 57 WIDGET-ID 20
-     tb_BatchMail AT ROW 20.91 COL 48.4 RIGHT-ALIGNED WIDGET-ID 22
-     tb_HideDialog AT ROW 20.91 COL 57
      btn-ok AT ROW 22.71 COL 24
      btn-cancel AT ROW 22.71 COL 57
      "Output Destination" VIEW-AS TEXT
@@ -414,6 +393,16 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+ASSIGN
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
+ASSIGN
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+
 ASSIGN 
        begin_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -425,14 +414,6 @@ ASSIGN
 ASSIGN 
        begin_inv:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-ASSIGN 
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-ASSIGN 
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
 
 ASSIGN 
        end_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -477,17 +458,6 @@ ASSIGN
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        rs_no_PN:HIDDEN IN FRAME FRAME-A           = TRUE.
-
-/* SETTINGS FOR TOGGLE-BOX tb_BatchMail IN FRAME FRAME-A
-   ALIGN-R                                                              */
-ASSIGN 
-       tb_BatchMail:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-
-ASSIGN 
-       tb_HideDialog:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_collate IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
@@ -550,7 +520,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -682,8 +652,6 @@ DO:
       WHEN 6 THEN ASSIGN LvOutputSelection = "Port".
   END CASE.
 
- IF NOT rd-dest:SCREEN-VALUE = '5' THEN DO:
-
   IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
      sys-ctrl-shipto.company = cocode AND
      sys-ctrl-shipto.NAME = "INVPRINT") THEN
@@ -756,22 +724,7 @@ DO:
                         INPUT end_cust,
                         INPUT lv-fax-image).
   END.
- END. /*rd-dest ne 5 */
 
- IF  rd-dest:SCREEN-VALUE = '5' THEN DO:
-     IF NOT tb_BatchMail:CHECKED THEN DO:
-       IF begin_cust <> end_cust THEN DO:
-
-           MESSAGE 'Please check Batch E-Mail to send to multiple customers in the specified range.'
-             VIEW-AS ALERT-BOX INFO BUTTONS OK.
-           APPLY 'ENTRY':U TO end_cust.
-           RETURN NO-APPLY.
-       END.
-       ELSE RUN BatchMail (begin_cust, begin_cust).
-     END.
-     ELSE RUN BatchMail (begin_cust, end_cust).
- END.
-  
   IF v-ftp-done THEN MESSAGE "File Export/FTP is completed." VIEW-AS ALERT-BOX INFORMATION.
   OS-DELETE value(init-dir + "\Invoice.pdf").
 END.
@@ -920,29 +873,6 @@ END.
 ON VALUE-CHANGED OF rs_no_PN IN FRAME FRAME-A
 DO:
   ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_BatchMail
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_BatchMail C-Win
-ON VALUE-CHANGED OF tb_BatchMail IN FRAME FRAME-A /* Batch E-Mail */
-DO:
-  assign {&self-name}.
-/*   tb_Override-email:SCREEN-VALUE = IF tb_BatchMail THEN "Yes" ELSE "No". */
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME tb_HideDialog
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_HideDialog C-Win
-ON VALUE-CHANGED OF tb_HideDialog IN FRAME FRAME-A /* Hide Dialog-Box */
-DO:
-  assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1199,74 +1129,6 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE BatchMail C-Win 
-PROCEDURE BatchMail :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DEFINE INPUT PARAM icBegCustNo  AS CHAR NO-UNDO.
-  DEFINE INPUT PARAM icEndCustNo  AS CHAR NO-UNDO.
-
-  DEFINE BUFFER b1-inv-head       FOR inv-head.
-  DEFINE BUFFER b2-cust           FOR cust.
-  DEFINE BUFFER b1-ar-inv         FOR ar-inv.
-  DEF VAR lEmailed AS LOG NO-UNDO.
-
-  ASSIGN                   
-   finv           = begin_inv
-   tinv           = end_inv
-   v-print-dept   = tb_print-dept.
-
-  IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
-     ASSIGN
-       v-print-dept = LOGICAL(tb_print-dept:SCREEN-VALUE)
-       v-depts = fi_depts:SCREEN-VALUE.
-
-    FOR EACH  b1-ar-inv
-       WHERE  b1-ar-inv.company              EQ cocode
-         AND  b1-ar-inv.inv-no               GE finv
-         AND  b1-ar-inv.inv-no               LE tinv  
-         AND  b1-ar-inv.cust-no              GE icBegCustNo
-         AND  b1-ar-inv.cust-no              LE icEndCustNo
-         /*AND (b1-ar-inv.posted               EQ NO OR
-              b1-ar-inv.posted               EQ v-posted)
-         AND  b1-ar-inv.printed              EQ v-print                                           */
-        AND  b1-ar-inv.printed  = tb_reprint
-         AND CAN-FIND(FIRST ar-invl WHERE ar-invl.x-no = b1-ar-inv.x-no /*AND ar-invl.amt <> 0*/ )
-        USE-INDEX inv-no NO-LOCK,
-        FIRST b2-cust OF b1-ar-inv  NO-LOCK                    
-        BREAK BY b1-ar-inv.cust-no:
-
-      IF FIRST-OF (b1-ar-inv.cust-no) THEN DO:
-
-        ASSIGN  vlSkipRec = YES
-                vcBegCustNo = b1-ar-inv.cust-no
-                vcEndCustNo = b1-ar-inv.cust-no.
-        FIND FIRST ar-invl WHERE ar-invl.x-no = b1-ar-inv.x-no
-                                       NO-LOCK NO-ERROR.
-        assign vSoldToNo = ""
-               vShipToNo = "". 
-        IF AVAIL ar-invl THEN do:
-           FIND oe-ord WHERE oe-ord.company = b1-ar-inv.company
-                     AND oe-ord.ord-no = ar-invl.ord-no
-                     NO-LOCK NO-ERROR.
-           vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
-           vShipToNo = b1-ar-inv.ship-id.
-        END.  
-        RUN output-to-mail (b1-ar-inv.cust-no).
-        
-      END.
-      lEmailed = YES.
-    END.
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -1299,58 +1161,14 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY begin_inv end_inv begin_cust end_cust begin_date end_date tb_reprint 
           tb_posted tb_export lv-ornt lines-per-page rd-dest lv-font-no 
-          lv-font-name td-show-parm tb_email-orig tb_AttachBOL tb_BatchMail 
-          tb_HideDialog
+          lv-font-name td-show-parm tb_email-orig tb_AttachBOL 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_inv end_inv begin_cust end_cust begin_date 
          end_date tb_reprint tb_posted tb_export rd-dest td-show-parm 
-         tb_email-orig tb_AttachBOL tb_BatchMail tb_HideDialog btn-ok
-         btn-cancel 
+         tb_email-orig tb_AttachBOL btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateEmail C-Win 
-PROCEDURE GenerateEmail :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-   DEFINE INPUT PARAMETER icCustNo AS CHAR NO-UNDO.
-
-   DO WITH FRAME {&FRAME-NAME}:
-
-      IF vlSkipRec THEN RETURN.
-  
-      IF v-print-fmt EQ "Southpak-xl" OR v-print-fmt EQ "PrystupExcel" THEN
-      DO:
-        OS-DELETE VALUE(init-dir + "\Invoice").
-        OS-COPY VALUE(init-dir + "\Invoice.pdf") VALUE(init-dir + "\Invoice").
-        ASSIGN list-name = init-dir + "\Invoice".
-      END.
-
-      lv-pdf-file = lv-pdf-file + vcInvNums + '.pdf'.
- 
-      IF is-xprint-form THEN DO:
-         IF v-print-fmt NE "Southpak-xl" AND v-print-fmt NE "PrystupExcel" THEN
-            RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-            
-            IF cActualPDF ne lv-pdf-file AND SEARCH(cActualPDF) NE ? THEN DO:
-              OS-COPY VALUE(cActualPDF) VALUE(lv-pdf-file).
-              OS-DELETE VALUE(cActualPDF).           
-            END.   
-         IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (icCustNo, 'Customer1').
-                                  ELSE RUN SendMail-1 (icCustNo, 'Customer').
-      END.
-      ELSE
-         IF tb_HideDialog:CHECKED THEN RUN SendMail-1 (icCustNo, 'Customer1').
-                                  ELSE RUN SendMail-1 (icCustNo, 'Customer').
-   END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1458,8 +1276,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-fax-prt C-Win 
 PROCEDURE output-to-fax-prt :
 /*------------------------------------------------------------------------------
@@ -1498,101 +1314,6 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
    {custom/out2file.i}
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE output-to-mail C-Win 
-PROCEDURE output-to-mail :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAM icCustNo AS CHAR NO-UNDO.
-
-  DO WITH FRAME {&FRAME-NAME}:
-     
-        IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
-           sys-ctrl-shipto.company = cocode AND
-           sys-ctrl-shipto.NAME = "INVPRINT") THEN
-           FOR EACH b-ar-inv FIELDS(company cust-no ship-id ) WHERE
-               b-ar-inv.company EQ cocode AND
-               b-ar-inv.inv-no GE begin_inv AND
-               b-ar-inv.inv-no LE end_inv AND
-               ((b-ar-inv.cust-no GE begin_cust AND b-ar-inv.cust-no LE end_cust AND NOT tb_BatchMail)
-               OR 
-               (b-ar-inv.cust-no EQ icCustNo AND tb_BatchMail)
-               ) AND
-               b-ar-inv.printed EQ tb_reprint
-               NO-LOCK
-               BREAK BY b-ar-inv.company
-                     BY b-ar-inv.cust-no:
-
-               IF FIRST-OF(b-ar-inv.cust-no) THEN
-               DO:
-                  FIND FIRST sys-ctrl-shipto WHERE
-                       sys-ctrl-shipto.company = cocode AND
-                       sys-ctrl-shipto.NAME = "INVPRINT" AND
-                       sys-ctrl-shipto.cust-vend = YES AND
-                       sys-ctrl-shipto.cust-vend-no = b-ar-inv.cust-no AND
-                       sys-ctrl-shipto.ship-id = b-ar-inv.ship-id AND
-                       sys-ctrl-shipto.char-fld > ''
-                       NO-LOCK NO-ERROR.
-
-                  IF NOT AVAIL sys-ctrl-shipto THEN
-                     FIND FIRST sys-ctrl-shipto WHERE
-                          sys-ctrl-shipto.company = cocode AND
-                          sys-ctrl-shipto.NAME = "INVPRINT" AND
-                          sys-ctrl-shipto.cust-vend = YES AND
-                          sys-ctrl-shipto.cust-vend-no = b-ar-inv.cust-no AND
-                          sys-ctrl-shipto.char-fld > ''
-                          NO-LOCK NO-ERROR.
-
-                  IF AVAIL sys-ctrl-shipto THEN
-                  DO:
-                     RUN SetInvForm(sys-ctrl-shipto.char-fld).
-                     v-print-fmt = sys-ctrl-shipto.char-fld.
-                  END.
-                  ELSE
-                  DO:
-                     RUN SetInvForm(vcDefaultForm).
-                     v-print-fmt = vcDefaultForm.
-                  END.
-
-                  ASSIGN
-                     vcInvNums = ""
-                     lv-pdf-file = init-dir + "\Inv".
-
-                  RUN run-report(b-ar-inv.cust-no,b-ar-inv.ship-id, TRUE).
-                  FIND FIRST ar-invl WHERE ar-invl.x-no = b-ar-inv.x-no
-                                       NO-LOCK NO-ERROR.
-                  vSoldToNo = "". 
-                  IF AVAIL ar-invl THEN do:
-                     FIND oe-ord WHERE oe-ord.company = b-ar-inv.company
-                                   AND oe-ord.ord-no = ar-invl.ord-no
-                                   NO-LOCK NO-ERROR.
-                         vSoldToNo = IF AVAIL oe-ord THEN oe-ord.sold-id ELSE "". 
-                  END.
-                  vShipToNo = b-ar-inv.ship-id.
-                  RUN GenerateEmail(b-ar-inv.cust-no).
-               END.
-           END.
-        ELSE
-        DO:
-           RUN SetInvForm(vcDefaultForm).
-           ASSIGN
-              vcInvNums = ""
-              lv-pdf-file = init-dir + "\Inv"
-              v-print-fmt = vcDefaultForm.
-              
-           RUN run-report("","", FALSE).
-           RUN GenerateEmail(icCustNo).
-        END.
-  END.
 
 END PROCEDURE.
 
@@ -1678,22 +1399,10 @@ ASSIGN
     ASSIGN
        fcust = ip-cust-no
        tcust = ip-cust-no.
- ELSE DO:
-
-     IF rd-dest:SCREEN-VALUE IN FRAME {&FRAME-NAME} = '5' AND 
-      tb_BatchMail:CHECKED THEN
-      ASSIGN
-         vcBegCustNo = vcBegCustNo
-         vcEndCustNo = vcEndCustNo.
-   ELSE
-      ASSIGN
-         vcBegCustNo = begin_cust
-         vcEndCustNo = end_cust.
-
+ ELSE
     ASSIGN
-       fcust = vcEndCustNo
-       tcust = vcEndCustNo .
-END.
+       fcust = begin_cust
+       tcust = end_cust.
 
  IF fi_depts:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
     ASSIGN
@@ -1754,8 +1463,7 @@ FOR EACH ar-inv
    report.key-01  = STRING(ar-inv.inv-no,"9999999999")
    report.rec-id  = RECID(ar-inv)
    vcInvNums      = vcInvNums + '-' + STRING (ar-inv.inv-no)
-   vcInvNums      = LEFT-TRIM (vcInvNums, '-')
-   vlSkipRec      = NO  .
+   vcInvNums      = LEFT-TRIM (vcInvNums, '-').
 
   IF vcInvNums MATCHES '*-*' THEN
      vcInvNums = RIGHT-TRIM (SUBSTRING (vcInvNums, 1, INDEX (vcInvNums,'-')), '-') + SUBSTRING (vcInvNums, R-INDEX (vcInvNums, '-')).
@@ -1849,7 +1557,6 @@ IF is-xprint-form THEN DO:
               PUT "<PDF=DIRECT><FORMAT=LETTER><PDF-LEFT=0.5mm><PDF-TOP=-0.5mm><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
             ELSE
                PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
-            cActualPDF = lv-pdf-file + vcInvNums  + ".pdf".
         END.
    END CASE.
    PUT "</PROGRESS>".
@@ -1934,80 +1641,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE SendMail-1 C-Win 
-PROCEDURE SendMail-1 :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAM icIdxKey   AS CHAR NO-UNDO.
-  DEFINE INPUT PARAM icRecType  AS CHAR NO-UNDO.
-
-  DEFINE VARIABLE vcSubject   AS CHARACTER  NO-UNDO.
-  DEFINE VARIABLE vcMailBody  AS CHARACTER  NO-UNDO.
-  DEFINE VARIABLE vcErrorMsg  AS CHARACTER  NO-UNDO.
-
-  ASSIGN  vcSubject   = "INVOICE:" + vcInvNums + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
-          vcSubject   = IF tb_reprint AND NOT tb_email-orig THEN '[REPRINT] ' + vcSubject ELSE vcSubject
-          vcMailBody  = "Please review attached Invoice(s) for Invoice #: " + vcInvNums.
-
-
-  IF NOT SEARCH (list-name) = ? THEN DO: 
-
-    IF NOT is-xprint-form AND NOT v-print-fmt EQ "Southpak-xl" AND NOT v-print-fmt EQ "PrystupExcel" THEN DO:
-
-      OS-RENAME VALUE (SEARCH (list-name)) VALUE (SEARCH (list-name) + '.txt').
-
-      IF OS-ERROR NE 0 THEN DO:
-        MESSAGE 'Failed to rename TEMP file.' SKIP
-                'OS-ERROR : ' OS-ERROR
-          VIEW-AS ALERT-BOX INFO BUTTONS OK.
-      END.
-
-      ELSE
-        list-name = list-name + '.txt'.
-    END.
-
-    ELSE
-    IF v-print-fmt NE "Southpak-XL" AND v-print-fmt <> "PrystupExcel" THEN
-       list-name = lv-pdf-file.
-    ELSE
-       list-name = list-name + '.pdf'.
-    /* Process attached BOL form */
-
-  END.
-
-  ELSE DO:
-    MESSAGE 'File attachment is missing.' SKIP
-            'FileName: ' list-name
-      VIEW-AS ALERT-BOX INFO BUTTONS OK.
-    RETURN.
-  END.
-
-  IF tb_attachBOL THEN
-      list-name = list-name + "," + TRIM(vcBOLfiles, ",").
-
-  IF vSoldToNo <> "" THEN 
-     ASSIGN icRecType = "SoldTo"     
-            icIdxKey = icIdxKey + "|" + (vSoldToNo) +
-                       if vShipToNo <> "" then "|" + vShipToNo else "".
- RUN custom/xpmail2.p   (input   icRecType,
-                          input   'R-INVPRT.',
-                          input   list-name,
-                          input   icIdxKey,
-                          input   vcSubject,
-                          input   vcMailBody,
-                          OUTPUT  vcErrorMsg).
-  /* for email by sold-to: need type "SoldTo" and icIdxKey(cust-no) and new key
-     to have sold-no */
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE set-broker-bol-proc C-Win 
 PROCEDURE set-broker-bol-proc :
 /*------------------------------------------------------------------------------
@@ -2047,13 +1680,10 @@ PROCEDURE setEmailBoxes :
   Notes:       
 ------------------------------------------------------------------------------*/
   IF rd-dest:SCREEN-VALUE IN FRAME {&FRAME-NAME} = '5' THEN
-     ASSIGN tb_attachBOL:SENSITIVE = TRUE
-            tb_BatchMail:SENSITIVE = YES .
+     ASSIGN tb_attachBOL:SENSITIVE = TRUE.
 
   ELSE ASSIGN tb_attachBOL:SENSITIVE = FALSE
-              tb_attachBOL:CHECKED   = FALSE
-              tb_BatchMail:SENSITIVE  = FALSE
-              tb_BatchMail:CHECKED    = FALSE .
+              tb_attachBOL:CHECKED   = FALSE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
