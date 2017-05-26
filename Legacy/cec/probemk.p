@@ -153,6 +153,13 @@ RUN custom/sellpric.p (lv-sell-by-ce-ctrl,
 
  v-price = v-price + dMPriceToAddMisc + dMPriceToAddPrep.
 
+ASSIGN 
+    dMCostToExcludeMisc = 0
+    dMCostToExcludePrep = 0
+    dMPriceToAddMisc = 0
+    dMPriceToAddPrep = 0
+    .
+    
 IF ll-use-margin OR
     (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN v-comm = v-price * v-com / 100.
 

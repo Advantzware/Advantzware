@@ -430,6 +430,12 @@ FOR EACH probeit
     IF xest.est-type EQ 6 AND probe.set-chg NE 0 AND vmclean2 THEN
         v-tmp-set-markup = probe.set-chg.
 
+    ASSIGN 
+        dMCostToExcludeMisc = dMCostToExcludeMisc / (v-qty / 1000)
+        dMCostToExcludePrep = dMCostToExcludePrep / (v-qty / 1000)
+        dMPriceToAddMisc = dMPriceToAddMisc / (v-qty / 1000)
+        dMPriceToAddPrep = dMPriceToAddPrep / (v-qty / 1000)
+        .
     dMarginCostG = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN board-cst ELSE probeit.fact-cost.
     dMarginCostN = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN 0
         ELSE (IF lv-sell-by = "F" THEN v-freight ELSE (probeit.full-cost - probeit.fact-cost)).
@@ -451,7 +457,12 @@ FOR EACH probeit
         OUTPUT v-comm).
     
         probeit.sell-price = probeit.sell-price + dMPriceToAddMisc + dMPriceToAddPrep.
-    
+    ASSIGN 
+        dMCostToExcludeMisc = 0
+        dMCostToExcludePrep = 0
+        dMPriceToAddMisc = 0
+        dMPriceToAddPrep = 0
+        .
     IF ll-use-margin OR
         (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN
         v-comm = probeit.sell-price * probe.comm / 100.
