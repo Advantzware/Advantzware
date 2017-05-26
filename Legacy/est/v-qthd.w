@@ -988,7 +988,7 @@ PROCEDURE local-assign-record :
                                   quotehd.rfq,bQuoteItm.part-no,bQuoteQty.qty,
                                   bQuoteQty.price,bQuoteQty.uom,TODAY,bQuoteQty.rels).
           END. /* each quoteitm */
-          DISCONNECT rfq.
+          /* DISCONNECT rfq. */
         END. /* if connected */
       END. /* expire-date */
     END. /* avail module */

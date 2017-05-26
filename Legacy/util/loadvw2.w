@@ -372,7 +372,7 @@ PROCEDURE disconnect-db :
   Notes:       
 ------------------------------------------------------------------------------*/
 /* disconnect to rfq database */
-IF CONNECTED('rfq') THEN DISCONNECT rfq.
+/* IF CONNECTED('rfq') THEN DISCONNECT rfq. */
 
 END PROCEDURE.
 

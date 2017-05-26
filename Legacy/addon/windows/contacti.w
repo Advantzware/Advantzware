@@ -337,8 +337,8 @@ DO:
    if connected("emp_server") then
        run system/contup.p (gcompany, input "", input "zzzzz" , output li-num-of-rec, output li-num-of-notes) .
 
-   if connected("emp_server") then disconnect  emp_server.
-   if connected("nos_server") then disconnect  nos_server.
+   /* if connected("emp_server") then disconnect  emp_server. */
+   /* if connected("nos_server") then disconnect  nos_server. */
 
    SESSION:SET-WAIT-STATE("").
    message "Upload Completed. " li-num-of-rec   " Contact Updated. " skip

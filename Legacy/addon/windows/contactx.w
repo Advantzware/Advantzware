@@ -304,8 +304,8 @@ DO:   /* must run from laptop only not from server */
    os-copy value(init-dir) value(session:temp-directory + "\contactx.rpt").
    */
 
-   if connected("emp_server") then disconnect  emp_server.
-   if connected("nos_server") then disconnect  nos_server.
+   /* if connected("emp_server") then disconnect  emp_server. */
+   /* if connected("nos_server") then disconnect  nos_server. */
 
    SESSION:SET-WAIT-STATE("").
    message "Download Completed. " li-num-of-rec   " Contact Updated. " skip
