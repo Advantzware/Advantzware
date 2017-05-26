@@ -164,7 +164,7 @@ DO:
     
         RUN XMLOutput (lXMLOutput,'/Product','','Row').                         
         RUN XMLOutput (lXMLOutput,'/ResourcePool','','Row').
-        IF LAST(ttTempJob.jobID) THEN
+        IF LAST-OF(ttTempJob.jobID) THEN
           RUN XMLOutput (lXMLOutput,'/JDF','','Row').
     END.
     
