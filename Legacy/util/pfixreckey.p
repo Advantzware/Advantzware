@@ -6,6 +6,8 @@ def var hBufField as handle no-undo.
 def var i as int no-undo.
 def var j as int no-undo.
 
+def stream reckeylog.
+
 for each _field where
   _field._field-name = "rec_key":
   find _file of _field no-lock.
@@ -21,15 +23,15 @@ message
     buttons yes-no update lFix as log.
      
  
-output to c:\temp\badreckey.txt.
+output stream reckeylog to c:\temp\badreckey.txt.
 
 do i = 1 to num-entries(cFileList):
     if entry(i,cFileList) = "reftable" then do:
-        put unformatted "File: " + entry(i,cFileList) + " SKIPPED" + chr(10).
+        put stream reckeylog unformatted "File: " + entry(i,cFileList) + " SKIPPED" + chr(10).
         next.
     end.
     else
-        put unformatted "File: " + entry(i,cFileList) + chr(10).
+        put stream reckeylog unformatted "File: " + entry(i,cFileList) + chr(10).
     if valid-handle(hBuf) then delete widget hBuf.
     if valid-handle(hQuery) then delete widget hQuery.
     if valid-handle(hField) then delete widget hField.
@@ -53,4 +55,6 @@ do i = 1 to num-entries(cFileList):
         end.
     end.    
 end. 
+
+output stream reckeylog close.
  
