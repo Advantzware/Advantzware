@@ -57,8 +57,8 @@ cocode = ipcCompany.
 
 /* ***************************  Main Block  *************************** */
 
-
-FOR EACH EDDoc NO-LOCK WHERE EDDoc.stat EQ 0
+EMPTY TEMP-TABLE ttTempjob.
+FOR EACH EDDoc EXCLUSIVE-LOCK WHERE EDDoc.stat EQ 0
     AND EDDoc.FGID EQ ""
     AND EDDoc.Partner EQ "Esko",
     FIRST job NO-LOCK WHERE job.company EQ cocode
@@ -111,8 +111,9 @@ FOR EACH EDDoc NO-LOCK WHERE EDDoc.stat EQ 0
                         .
         
             END.  /* create ttTempJob */
-        END. /* Each job-hdr of job */ 
-
+        END. /* Each job-hdr of job */
+         
+        EDDoc.stat = 1.
 END.
 
 
