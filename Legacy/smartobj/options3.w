@@ -245,6 +245,13 @@ ON CHOOSE OF Select_dept IN FRAME F-Main /* Notes */
 DO:
   
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+ 
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"attach-source",OUTPUT char-hdl).
+ 
+   IF char-hdl NE "" THEN do:
+      RUN value-changed-proc IN WIDGET-HANDLE(char-hdl).
+   END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -287,13 +294,14 @@ END.
 &Scoped-define SELF-NAME Select_spec
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_spec s-object
 ON CHOOSE OF Select_spec IN FRAME F-Main /* Spec Note */
-DO:
+DO:  
    {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
 
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"attach-source",OUTPUT char-hdl).
 
-   IF char-hdl NE "" THEN
+   IF char-hdl NE "" THEN do:
       RUN value-changed-proc IN WIDGET-HANDLE(char-hdl).
+   END.
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -388,7 +388,8 @@ PROCEDURE select_dept :
   Notes:       
 ------------------------------------------------------------------------------*/
     RUN Get_Procedure IN Persistent-Handle ('specnote.',OUTPUT run-proc,no).
-    IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .      
+   /* IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .  */   /* Ticket 20900*/
+    RUN windows/specnote.w(rec_key_value,header_value).
 
 END PROCEDURE.
 

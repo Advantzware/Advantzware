@@ -57,7 +57,7 @@ DEFINE VARIABLE recCount AS INTEGER NO-UNDO.
 DEFINE BUFFER bQuotehd FOR quotehd.
 DEFINE BUFFER bQuoteitm FOR quoteitm.
 DEF VAR lActive AS LOG NO-UNDO.
-
+DEF BUFFER bf-quoteitm FOR quoteitm .
 DO TRANSACTION:
   {sys/inc/custlistform.i ""EQ"" }
   {sys/ref/CustList.i NEW}
@@ -88,7 +88,7 @@ recCount = sys-ctrl.int-fld.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table quotehd.q-no quotehd.quo-date ~
 quotehd.cust-no quotehd.contact quotehd.est-no quotehd.rfq quoteitm.part-no ~
-quoteitm.part-dscr1 quotehd.upd-date ~
+quoteitm.part-dscr1 quotehd.upd-date  ~
 STRING (quotehd.upd-time,'HH:MM:SS') @ quotehd.upd-time quotehd.upd-user 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH quotehd ~
@@ -546,12 +546,95 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
+  IF AVAILABLE quotehd THEN DO:
+  {methods/run_link.i "CONTAINER-SOURCE" "Notes-Message"
+       "(CAN-FIND(FIRST notes WHERE notes.rec_key = quotehd.rec_key))"}
+   
+      RUN dept-image-proc.
+   
+       IF AVAIL quoteitm  THEN
+        DO:
+           FIND FIRST bf-quoteitm NO-LOCK
+                WHERE bf-quoteitm.company EQ cocode
+                  AND ROWID(bf-quoteitm) EQ ROWID(quoteitm) NO-ERROR.
+           IF AVAIL bf-quoteitm THEN
+           FIND FIRST itemfg NO-LOCK
+                WHERE itemfg.company EQ quoteitm.company 
+                  AND itemfg.i-no EQ bf-quoteitm.i-no  NO-ERROR.
+    
+           IF AVAIL itemfg THEN
+           DO:
+              RUN spec-image-proc(INPUT itemfg.rec_key, INPUT YES).
+              RELEASE itemfg.
+           END.
+           ELSE
+              RUN spec-image-proc(INPUT "", INPUT NO).
+        END.
+        ELSE
+           RUN spec-image-proc(INPUT "", INPUT NO).
+
+   END.
+
 
   changeValue = IF AVAILABLE quotehd THEN quotehd.q-no ELSE 0.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
+PROCEDURE dept-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+  
+   FIND FIRST notes WHERE notes.rec_key = quotehd.rec_key
+       NO-LOCK NO-ERROR.
+   
+   IF AVAIL notes THEN
+      v-spec = TRUE.
+   ELSE v-spec = FALSE.
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spec-target':U, OUTPUT char-hdl).
+  
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spec-image-proc B-table-Win 
+PROCEDURE spec-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ip-rec_key AS CHAR NO-UNDO.
+   DEFINE INPUT PARAMETER ip-search AS LOG NO-UNDO.
+
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+  
+   IF ip-search THEN
+      v-spec = CAN-FIND(FIRST notes WHERE
+               notes.rec_key = ip-rec_key AND
+               notes.note_type = "S").
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spec-target':U, OUTPUT char-hdl).
+  
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &Scoped-define SELF-NAME btnGO
@@ -895,7 +978,7 @@ PROCEDURE openQuery :
 ------------------------------------------------------------------------------*/
 DEF VAR v-cust-no AS CHAR NO-UNDO .
 DEF BUFFER bf-quotehd  FOR quotehd .
-DEF BUFFER bf-quoteitm FOR quoteitm .
+
 
 &SCOPED-DEFINE SORTBY-PHRASE BY ~
 IF sortColumn EQ 'Date' THEN STRING(YEAR(quotehd.quo-date)) + ~
@@ -1123,3 +1206,17 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE value-changed-proc B-table-Win 
+PROCEDURE value-changed-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DO WITH FRAME {&FRAME-NAME}:
+      APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
+   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
