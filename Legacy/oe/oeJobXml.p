@@ -88,7 +88,7 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE EDDoc.stat EQ 0
             cSheetBlank = STRING(job-hdr.frm, "9") + string(job-hdr.blank-no, "9") .
     
             FIND FIRST ttTempJob EXCLUSIVE-LOCK WHERE ttTempJob.company EQ job-hdr.company
-                AND ttTempJob.jobID = trim(job-hdr.job-no) + "-" + cSheetBlank
+                AND ttTempJob.jobID = trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2, "99") + "-" + cSheetBlank
                 AND ttTempJob.newProject EQ 1
                 NO-ERROR.
     

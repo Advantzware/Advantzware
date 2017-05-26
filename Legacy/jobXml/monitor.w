@@ -20,39 +20,45 @@ PROCEDURE postMonitor:
   DEFINE VARIABLE nextRelease AS INTEGER NO-UNDO.
   DEFINE VARIABLE nextRelNo AS INTEGER NO-UNDO.
   DEFINE VARIABLE cPathIn  AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE cPathout AS CHARACTER NO-UNDO.
-  DEFINE BUFFER bf-eddoc FOR EDDoc.
-  DEFINE VARIABLE cRtnChar     AS CHARACTER NO-UNDO.
-  DEFINE VARIABLE lRecFound    AS LOGICAL   NO-UNDO.
-  DEFINE VARIABLE PrePressHotFolderIn-char AS CHARACTER   NO-UNDO.
-  DEFINE VARIABLE PrePressHotFolderOut-char AS CHARACTER  NO-UNDO.
-  DEFINE VARIABLE cFullFilePath AS CHARACTER   NO-UNDO.
+    DEFINE VARIABLE cPathout AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-eddoc FOR EDDoc.
+    DEFINE VARIABLE cRtnChar                  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lRecFound                 AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE PrePressHotFolderIn-char  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE PrePressHotFolderOut-char AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFullFilePath             AS CHARACTER NO-UNDO.
     
-RUN sys/ref/nk1look.p (INPUT cocode, "PrePressHotFolderIn", "C" /* Char */, NO /* check by cust */, 
-   INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-   OUTPUT cRtnChar, OUTPUT lRecFound).
+    RUN sys/ref/nk1look.p (INPUT cocode, "PrePressHotFolderIn", "C" /* Char */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cRtnChar, OUTPUT lRecFound).
     
-IF lRecFound THEN
-   PrePressHotFolderIn-char = cRtnChar NO-ERROR.
+    IF lRecFound THEN
+        PrePressHotFolderIn-char = cRtnChar NO-ERROR.
     
     
-RUN sys/ref/nk1look.p (INPUT cocode, "PrePressHotFolderOut", "C" /* Char */, NO /* check by cust */, 
-   INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
-   OUTPUT cRtnChar, OUTPUT lRecFound).
+    RUN sys/ref/nk1look.p (INPUT cocode, "PrePressHotFolderOut", "C" /* Char */, NO /* check by cust */, 
+        INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+        OUTPUT cRtnChar, OUTPUT lRecFound).
     
-IF lRecFound THEN
-   PrePressHotFolderOut-char = cRtnChar NO-ERROR.
+    IF lRecFound THEN
+        PrePressHotFolderOut-char = cRtnChar NO-ERROR.
     
-cPathIn  = PrePressHotFolderIn-char.
-cPathOut = PrePressHotFolderOut-char.
+    cPathIn  = PrePressHotFolderIn-char.
+    cPathOut = PrePressHotFolderOut-char.
+
+/* Pausing because this monitor process outbound records as well as monitoring a folder */
+/* so should not run every second                                                       */
+PROCESS EVENTS.
 PAUSE 30 NO-MESSAGE.            
+PROCESS EVENTS.
+
 RUN monitorActivity ('Check New Jobs ' + monitorImportDir,YES,'').
 FOR EACH job NO-LOCK WHERE job.company EQ g_company 
                        AND job.opened EQ TRUE
                        AND job.due-date GE TODAY:
                            
-    FIND FIRST EDDoc NO-LOCK WHERE EDDoc.SetID EQ job.job-no
-      AND eddoc.docID EQ job.job-no + STRING(job.job-no2) NO-ERROR.
+    FIND FIRST EDDoc NO-LOCK WHERE EDDoc.SetID EQ job.job-no      
+      AND EDDoc.DocSeq EQ job.job-no2 NO-ERROR.
     IF NOT AVAILABLE EDDoc THEN DO:
         
         FIND FIRST EDMast EXCLUSIVE-LOCK WHERE EDMast.Partner EQ "Esko" NO-ERROR.
@@ -62,9 +68,9 @@ FOR EACH job NO-LOCK WHERE job.company EQ g_company
                  .
         END.
         EDMast.Seq = EDMast.Seq + 1.
+        
         FIND CURRENT EDMast NO-LOCK.
-        cPathIn = edmast.path-in.
-        cPathOut = edmast.path-out.
+
         
         CREATE EDDoc.
         ASSIGN EDDoc.Unique-Order-No = EDMast.seq
