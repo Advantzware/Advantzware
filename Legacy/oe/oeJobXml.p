@@ -24,6 +24,7 @@ DEFINE VARIABLE lMinSchema      AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE lRetOK          AS LOGICAL   NO-UNDO.
 
 DEFINE VARIABLE cSheetBlank     AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cUDFString      AS CHARACTER NO-UNDO.
 /* Insert obtaining sys-ctrl values for jobXml */
 
 
@@ -139,31 +140,36 @@ DO:
             RUN XMLOutput (lXMLOutput,'CustomerID',ttTempJob.customerID,'Col').
             RUN XMLOutput (lXMLOutput,'CustomerName',ttTempJob.customerName,'Col').
         END.
-        RUN XMLOutput (lXMLOutput,'ResourcePool','','Row').
-        /* Process Itemfg Level */
-        RUN XMLOutput (lXMLOutput,'Product','','Row').
-        RUN XMLOutput (lXMLOutput,'FGItemCode', ttTempjob.FGItemCode,'Col').
-        RUN XMLOutput (lXMLOutput,'FGName'    , ttTempjob.FGName,'Col').
-        RUN XMLOutput (lXMLOutput,'CustPart'  , ttTempjob.CustPart,'Col').     
-        RUN XMLOutput (lXMLOutput,'ItemStatus', ttTempjob.ItemStatus,'Col').  
         
-        EMPTY TEMP-TABLE ttUDF.
-        IF CAN-FIND(FIRST mfvalues
-            WHERE mfvalues.rec_key EQ ttTempjob.itemRecKey) THEN 
-        DO:
-            /* get UDF records for this record */
-            RUN UDF/UDF.p (cUDFGroup, ttTempjob.itemRecKey, OUTPUT TABLE ttUDF).
-             
-            /* process UDF data found */
-            FOR EACH ttUDF NO-LOCK 
-                WHERE ttUDF.udfEsko EQ YES
-                :
-                RUN XMLOutput (lXMLOutput,ttUDF.udfLabel,ttUDF.udfValue,'Col').
-            END.  /* each ttudf */     
-        END.
-    
-        RUN XMLOutput (lXMLOutput,'/Product','','Row').                         
+        RUN XMLOutput (lXMLOutput,'ResourcePool','','Row').
+        
+            /* Process Itemfg Level */
+            RUN XMLOutput (lXMLOutput,'Product','','Row').
+                RUN XMLOutput (lXMLOutput,'FGItemCode', ttTempjob.FGItemCode,'Col').
+                RUN XMLOutput (lXMLOutput,'FGName'    , ttTempjob.FGName,'Col').
+                RUN XMLOutput (lXMLOutput,'CustPart'  , ttTempjob.CustPart,'Col').     
+                RUN XMLOutput (lXMLOutput,'ItemStatus', ttTempjob.ItemStatus,'Col').  
+                
+                EMPTY TEMP-TABLE ttUDF.
+                IF CAN-FIND(FIRST mfvalues
+                    WHERE mfvalues.rec_key EQ ttTempjob.itemRecKey) THEN 
+                DO:
+                    /* get UDF records for this record */
+                    RUN UDF/UDF.p (cUDFGroup, ttTempjob.itemRecKey, OUTPUT TABLE ttUDF).
+                     
+                     
+                    /* process UDF data found */
+                    FOR EACH ttUDF NO-LOCK 
+                        WHERE ttUDF.udfEsko EQ YES
+                        :                            
+                        cUDFSTring = "SmartName " + 'Name="' + ttUDF.udfLabel + '" Value="' + ttUDF.udfValue + '"/'.
+                        RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
+                    END.  /* each ttudf */     
+                END.        
+            RUN XMLOutput (lXMLOutput,'/Product','','Row').     
+                                
         RUN XMLOutput (lXMLOutput,'/ResourcePool','','Row').
+            
         IF LAST-OF(ttTempJob.jobID) THEN
           RUN XMLOutput (lXMLOutput,'/JDF','','Row').
     END.
