@@ -541,6 +541,7 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
 
+  IF NOT adm-new-record THEN
   RUN display-qtys.
 END.
 
