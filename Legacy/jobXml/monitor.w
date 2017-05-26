@@ -87,21 +87,21 @@ FOR EACH job NO-LOCK WHERE job.company EQ g_company
     
 END.
     
-FOR FIRST EDDoc NO-LOCK WHERE EDDoc.stat EQ 0
+FOR EACH EDDoc NO-LOCK WHERE EDDoc.stat EQ 0
                          AND EDDoc.FGID EQ ""
-                         AND EDDoc.Partner EQ "Esko":
-    FIND FIRST job NO-LOCK WHERE job.company EQ g_company
+                         AND EDDoc.Partner EQ "Esko",
+     FIRST job NO-LOCK WHERE job.company EQ g_company
                              AND job.job-no EQ EDDoc.setID
                              AND job.job-no2 EQ EDDoc.docSeq
-                           NO-ERROR.
-    IF AVAILABLE job THEN DO:
-        lXmlOutput = TRUE.
-        RUN oe/oeJobXml.p (INPUT g_company).
+                           :
+    
+      lXmlOutput = TRUE.
+      RUN oe/oeJobXml.p (INPUT g_company).
      
       FIND FIRST bf-eddoc EXCLUSIVE-LOCK WHERE ROWID(bf-eddoc) EQ rowid(eddoc) NO-ERROR.
       IF AVAILABLE bf-eddoc THEN 
         bf-eddoc.stat = 1.
-    END.
+      LEAVE.
 END. /* Each eddoc */
                   
                 
