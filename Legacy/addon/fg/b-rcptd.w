@@ -2445,9 +2445,6 @@ PROCEDURE local-update-record :
   IF SSPostFG-log THEN
      RUN post-finish-goods.
 
-  IF lvlAutoAdd THEN
-    RUN scan-next.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
