@@ -6,7 +6,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 92
+&SCOPED-DEFINE nextUserField 93
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -892,6 +892,7 @@ FOR EACH job-hdr NO-LOCK
         custNo = cust.cust-no
         custName = cust.name
         salesRep = cust.sman
+        userField[92] = setUserField(92,getSalesRep(job-hdr.company,cust.sman))
         .
     END. /* if ufcust */
     
@@ -1802,6 +1803,7 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[89] = 'Created'         userWidth[89] = 15
     userLabel[90] = 'DC Prod Qty'     userWidth[90] = 12
     userLabel[91] = 'First Release'   userWidth[91] = 15
+    userLabel[92] = 'CSR Name'        userWidth[92] = 30
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1851,7 +1853,7 @@ PROCEDURE setUseFields:
     useField = YES.
 
   ASSIGN
-    ufCust = useField[1] OR useField[2]
+    ufCust = useField[1] OR useField[2] OR useField[92]
     ufBoardName = useField[4]
     ufEB = useField[5]  OR useField[6]  OR useField[8]  OR useField[10] OR useField[11] OR useField[12] OR
            useField[13] OR useField[14] OR useField[24] OR useField[25] OR useField[28] OR useField[35] OR
