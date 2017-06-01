@@ -35,6 +35,8 @@ DEFINE VARIABLE correct-error AS LOGICAL NO-UNDO.
 
 {{&includes}/ttblJob.i}
 
+DEFINE BUFFER bTtblJob FOR ttblJob.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -46,18 +48,19 @@ DEFINE VARIABLE correct-error AS LOGICAL NO-UNDO.
 &Scoped-define PROCEDURE-TYPE DIALOG-BOX
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 newLagHour newLagMinute btnSave ~
-btnRestore btnCancel 
+btnRestore btnCancel applyLagTime 
 &Scoped-Define DISPLAYED-OBJECTS resource jobSequence job resourceSequence ~
-newLagHour newLagMinute origLagHour origLagMinute 
+newLagHour newLagMinute origLagHour origLagMinute applyLagTime 
 
 /* Custom List Definitions                                              */
 /* endDateFields,startDateFields,List-3,List-4,timeFields,List-6        */
-&Scoped-define timeFields newLagHour newLagMinute origLagHour origLagMinute 
+&Scoped-define timeFields newLagHour newLagMinute origLagHour origLagMinute ~
+applyLagTime 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -136,8 +139,13 @@ DEFINE VARIABLE resourceSequence AS INTEGER FORMAT ">>9":U INITIAL 0
      BGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
      SIZE 39 BY 1.91.
+
+DEFINE VARIABLE applyLagTime AS LOGICAL INITIAL no 
+     LABEL "Apply Lag Time to ALL Jobs of this Resource" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 47 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -156,8 +164,9 @@ DEFINE FRAME Dialog-Frame
      btnSave AT ROW 5.05 COL 13
      btnRestore AT ROW 5.05 COL 26
      btnCancel AT ROW 5.05 COL 39
+     applyLagTime AT ROW 6.95 COL 4 WIDGET-ID 2
      RECT-1 AT ROW 4.81 COL 12
-     SPACE(1.19) SKIP(0.22)
+     SPACE(1.19) SKIP(1.03)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Job Lag Time"
@@ -180,11 +189,13 @@ DEFINE FRAME Dialog-Frame
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX Dialog-Frame
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
+/* SETTINGS FOR TOGGLE-BOX applyLagTime IN FRAME Dialog-Frame
+   5                                                                    */
 /* SETTINGS FOR FILL-IN job IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN jobSequence IN FRAME Dialog-Frame
@@ -239,10 +250,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave Dialog-Frame
 ON CHOOSE OF btnSave IN FRAME Dialog-Frame
 DO:
-  FIND CURRENT ttblJob EXCLUSIVE-LOCK.
-  ASSIGN {&timeFields}
-    ttblJob.lagTime = newLagHour * 60 + newLagMinute.
-  FIND CURRENT ttblJob NO-LOCK.
+  ASSIGN
+      {&timeFields}
+      ttblJob.lagTime = newLagHour * 60 + newLagMinute
+      .
+  IF applyLagTime THEN
+  FOR EACH bTtblJob
+      WHERE bTtblJob.resource EQ ttblJob.resource
+      :
+      bTtblJob.lagTime = newLagHour * 60 + newLagMinute.
+  END. /* each ttbljob */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -351,9 +368,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY resource jobSequence job resourceSequence newLagHour newLagMinute 
-          origLagHour origLagMinute 
+          origLagHour origLagMinute applyLagTime 
       WITH FRAME Dialog-Frame.
   ENABLE RECT-1 newLagHour newLagMinute btnSave btnRestore btnCancel 
+         applyLagTime 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
