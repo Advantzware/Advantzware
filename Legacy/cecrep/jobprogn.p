@@ -1156,6 +1156,7 @@ do v-local-loop = 1 to v-local-copies:
                  /*BY xeb.stock-no*/
                    BY xeb.form-no                           /*Task 03191408*/
                    BY xeb.blank-no:
+                 IF xeb.procat BEGINS "Y" THEN NEXT.
 
                  /* gdm - 11030802 */
                  IF s-sample-required = TRUE THEN DO:
