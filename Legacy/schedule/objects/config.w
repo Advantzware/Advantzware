@@ -198,6 +198,15 @@ colorPriorityValue-25 customLabel-14 customValue-14 colorPriorityValue-26
 &ANALYZE-RESUME
 
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCheckCustomValue sObject 
+FUNCTION fCheckCustomValue RETURNS LOGICAL
+  (iphCustomValue AS HANDLE, iphCheckValue AS HANDLE )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -2207,48 +2216,50 @@ DEFINE FRAME colorsFrame
           "Select to Apply Completed Checkoff to Whole Job vs. Each Resour"
      dueDateUsedValue AT ROW 24.1 COL 32 HELP
           "Select Due Date/Production Date" NO-LABEL
-     "<Now><Due><Start--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 6.71 COL 44
+     "Job Color Label" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 1.24 COL 6
+     "<Due><Start--Now--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 16.24 COL 44
           FONT 1
-     "Value" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.24 COL 99
-     "<Start--End><Now><Due>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 11.48 COL 44
-          FONT 1
-     "[External Program Load Setting]" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 20.29 COL 3
-          BGCOLOR 8 
-     "Status Checkoffs:" VIEW-AS TEXT
-          SIZE 17 BY .81 AT ROW 22.19 COL 3
-     "BG   FG" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 112
-          FONT 1
-     "Priority" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.24 COL 121
-     "<Due><Start--End><Now>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 15.05 COL 44
-          FONT 1
-     "<Job Completed>" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 3.14 COL 44
-          FONT 1
-     "Default ~"<Due>~" Value Used:" VIEW-AS TEXT
-          SIZE 28 BY .81 AT ROW 24.1 COL 3
-     "<Now><Start--Due--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 5.52 COL 44
-          FONT 1
-     "<Now><Start--End><Due>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 4.33 COL 44
-          FONT 1
-     "Job Conflict Color" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 19.1 COL 7
-     "[Set Job Color based on <Due>]" VIEW-AS TEXT
-          SIZE 31 BY .62 AT ROW 23.38 COL 3
-          BGCOLOR 8 
      "<Start--Now--Due--End>" VIEW-AS TEXT
           SIZE 25 BY 1 AT ROW 9.1 COL 44
           FONT 1
-     "<Due><Start--Now--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 16.24 COL 44
+     "[Set Job Color based on <Due>]" VIEW-AS TEXT
+          SIZE 31 BY .62 AT ROW 23.38 COL 3
+          BGCOLOR 8 
+     "Job Conflict Color" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 19.1 COL 7
+     "<Now><Start--End><Due>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 4.33 COL 44
+          FONT 1
+     "<Now><Start--Due--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 5.52 COL 44
+          FONT 1
+     "Default ~"<Due>~" Value Used:" VIEW-AS TEXT
+          SIZE 28 BY .81 AT ROW 24.1 COL 3
+     "<Job Completed>" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 3.14 COL 44
+          FONT 1
+     "<Due><Start--End><Now>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 15.05 COL 44
+          FONT 1
+     "Priority" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.24 COL 121
+     "BG   FG" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 112
+          FONT 1
+     "Status Checkoffs:" VIEW-AS TEXT
+          SIZE 17 BY .81 AT ROW 22.19 COL 3
+     "[External Program Load Setting]" VIEW-AS TEXT
+          SIZE 30 BY .62 AT ROW 20.29 COL 3
+          BGCOLOR 8 
+     "<Start--End><Now><Due>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 11.48 COL 44
+          FONT 1
+     "Value" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.24 COL 99
+     "<Now><Due><Start--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 6.71 COL 44
           FONT 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -2257,10 +2268,6 @@ DEFINE FRAME colorsFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME colorsFrame
-     "Priority" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.24 COL 36
-     "Job Color Label" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 1.24 COL 6
      "BG   FG" VIEW-AS TEXT
           SIZE 8 BY .62 AT ROW 1.24 COL 27
           FONT 1
@@ -2291,6 +2298,8 @@ DEFINE FRAME colorsFrame
      "[Status Checkoff Default Settings]" VIEW-AS TEXT
           SIZE 32 BY .62 AT ROW 20.29 COL 83
           BGCOLOR 8 
+     "Priority" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.24 COL 36
      RECT-7 AT ROW 18.62 COL 2
      customBGColor-1 AT ROW 1.95 COL 110
      customBGColor-10 AT ROW 12.67 COL 110
@@ -2336,6 +2345,8 @@ DEFINE FRAME colorsFrame
      jobFGColor-12 AT ROW 15.05 COL 32
      jobFGColor-13 AT ROW 16.24 COL 32
      jobFGColor-14 AT ROW 17.43 COL 32
+     jobConflictFGColorValue AT ROW 18.86 COL 32
+     downtimeConflictFGColorValue AT ROW 18.86 COL 117
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 1.24
@@ -2343,8 +2354,6 @@ DEFINE FRAME colorsFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME colorsFrame
-     jobConflictFGColorValue AT ROW 18.86 COL 32
-     downtimeConflictFGColorValue AT ROW 18.86 COL 117
      customFGColor-1 AT ROW 1.95 COL 117
      customFGColor-2 AT ROW 3.14 COL 117
      customFGColor-3 AT ROW 4.33 COL 117
@@ -2472,9 +2481,6 @@ DEFINE FRAME defaultsFrame
      "[Valid Schedule Board ID's]" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 14.57 COL 50
           BGCOLOR 8 
-     "[Scheduler Re-Start Required to take effect]" VIEW-AS TEXT
-          SIZE 42 BY .62 AT ROW 21.95 COL 54
-          BGCOLOR 8 
      "Job Conflict Settings" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 15.05 COL 91
      "Auto View Refresh Interval (Zero=Off)" VIEW-AS TEXT
@@ -2509,6 +2515,11 @@ DEFINE FRAME defaultsFrame
           BGCOLOR 8 
      "Job on Resource Highlight Color" VIEW-AS TEXT
           SIZE 31 BY .62 AT ROW 9.33 COL 10
+     "[Priority Settings]" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 10.76 COL 91
+          BGCOLOR 8 
+     "Board Background Color" VIEW-AS TEXT
+          SIZE 24 BY .62 AT ROW 4.57 COL 10
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 1.24
@@ -2516,11 +2527,6 @@ DEFINE FRAME defaultsFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME defaultsFrame
-     "[Priority Settings]" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 10.76 COL 91
-          BGCOLOR 8 
-     "Board Background Color" VIEW-AS TEXT
-          SIZE 24 BY .62 AT ROW 4.57 COL 10
      "Downtime Conflict Settings" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 16.95 COL 91
      "Grid Line Color" VIEW-AS TEXT
@@ -2529,6 +2535,9 @@ DEFINE FRAME defaultsFrame
           SIZE 10 BY .62 AT ROW 11.48 COL 91
      "Job Seq.:" VIEW-AS TEXT
           SIZE 9 BY .62 AT ROW 12.43 COL 92
+     "[Scheduler Re-Start Required to take effect]" VIEW-AS TEXT
+          SIZE 42 BY .62 AT ROW 21.95 COL 54
+          BGCOLOR 8 
      RECT-3 AT ROW 21 COL 2
      RECT-1 AT ROW 1.48 COL 2
      rectGrid AT ROW 4.81 COL 91
@@ -2557,46 +2566,6 @@ DEFINE FRAME defaultsFrame
          AT COL 24 ROW 1.24
          SIZE 129 BY 25.24
          TITLE "Default Settings".
-
-DEFINE FRAME colorDisplayFrame
-     "No Color" VIEW-AS TEXT
-          SIZE 9 BY .52 AT ROW 19.33 COL 5
-     colorChoice-0 AT ROW 1.24 COL 2
-     colorChoice-1 AT ROW 2.43 COL 2
-     colorChoice-10 AT ROW 3.62 COL 10
-     colorChoice-11 AT ROW 4.81 COL 10
-     colorChoice-12 AT ROW 6 COL 10
-     colorChoice-13 AT ROW 7.19 COL 10
-     colorChoice-14 AT ROW 8.38 COL 10
-     colorChoice-15 AT ROW 1.24 COL 10
-     colorChoice-30 AT ROW 19.1 COL 2
-     colorChoice-2 AT ROW 3.62 COL 2
-     colorChoice-3 AT ROW 4.81 COL 2
-     colorChoice-4 AT ROW 6 COL 2
-     colorChoice-5 AT ROW 7.19 COL 2
-     colorChoice-6 AT ROW 8.38 COL 2
-     colorChoice-7 AT ROW 9.57 COL 2
-     colorChoice-8 AT ROW 9.57 COL 10
-     colorChoice-9 AT ROW 2.43 COL 10
-     colorChoice-16 AT ROW 10.76 COL 2
-     colorChoice-17 AT ROW 11.95 COL 2
-     colorChoice-18 AT ROW 13.14 COL 2
-     colorChoice-19 AT ROW 14.33 COL 2
-     colorChoice-20 AT ROW 15.52 COL 2
-     colorChoice-21 AT ROW 16.71 COL 2
-     colorChoice-22 AT ROW 17.91 COL 2
-     colorChoice-23 AT ROW 10.76 COL 10
-     colorChoice-24 AT ROW 11.95 COL 10
-     colorChoice-25 AT ROW 13.14 COL 10
-     colorChoice-26 AT ROW 14.33 COL 10
-     colorChoice-27 AT ROW 15.52 COL 10
-     colorChoice-28 AT ROW 16.71 COL 10
-     colorChoice-29 AT ROW 17.91 COL 10
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 3 ROW 4.1
-         SIZE 17 BY 20.24
-         TITLE "Colors".
 
 DEFINE FRAME fieldsFrame
      userField71 AT ROW 1.24 COL 2
@@ -2711,6 +2680,46 @@ DEFINE FRAME fieldsFrame
          AT COL 23 ROW 1.24
          SIZE 129 BY 25
          TITLE "Fields".
+
+DEFINE FRAME colorDisplayFrame
+     "No Color" VIEW-AS TEXT
+          SIZE 9 BY .52 AT ROW 19.33 COL 5
+     colorChoice-0 AT ROW 1.24 COL 2
+     colorChoice-1 AT ROW 2.43 COL 2
+     colorChoice-10 AT ROW 3.62 COL 10
+     colorChoice-11 AT ROW 4.81 COL 10
+     colorChoice-12 AT ROW 6 COL 10
+     colorChoice-13 AT ROW 7.19 COL 10
+     colorChoice-14 AT ROW 8.38 COL 10
+     colorChoice-15 AT ROW 1.24 COL 10
+     colorChoice-30 AT ROW 19.1 COL 2
+     colorChoice-2 AT ROW 3.62 COL 2
+     colorChoice-3 AT ROW 4.81 COL 2
+     colorChoice-4 AT ROW 6 COL 2
+     colorChoice-5 AT ROW 7.19 COL 2
+     colorChoice-6 AT ROW 8.38 COL 2
+     colorChoice-7 AT ROW 9.57 COL 2
+     colorChoice-8 AT ROW 9.57 COL 10
+     colorChoice-9 AT ROW 2.43 COL 10
+     colorChoice-16 AT ROW 10.76 COL 2
+     colorChoice-17 AT ROW 11.95 COL 2
+     colorChoice-18 AT ROW 13.14 COL 2
+     colorChoice-19 AT ROW 14.33 COL 2
+     colorChoice-20 AT ROW 15.52 COL 2
+     colorChoice-21 AT ROW 16.71 COL 2
+     colorChoice-22 AT ROW 17.91 COL 2
+     colorChoice-23 AT ROW 10.76 COL 10
+     colorChoice-24 AT ROW 11.95 COL 10
+     colorChoice-25 AT ROW 13.14 COL 10
+     colorChoice-26 AT ROW 14.33 COL 10
+     colorChoice-27 AT ROW 15.52 COL 10
+     colorChoice-28 AT ROW 16.71 COL 10
+     colorChoice-29 AT ROW 17.91 COL 10
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 3 ROW 4.1
+         SIZE 17 BY 20.24
+         TITLE "Colors".
 
 
 /* *********************** Procedure Settings ************************ */
@@ -4090,6 +4099,216 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME customValue-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-1 sObject
+ON ENTRY OF customValue-1 IN FRAME colorsFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        SELF:PRIVATE-DATA = {&SELF-NAME}
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-1 sObject
+ON VALUE-CHANGED OF customValue-1 IN FRAME colorsFrame
+,customValue-2,customValue-3,customValue-4,customValue-5
+,customValue-6,customValue-7,customValue-8,customValue-9
+,customValue-10,customValue-11,customValue-12
+,customValue-13,customValue-14
+DO:
+  RUN checkCustomValue (SELF).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customValue-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-10 sObject
+ON ENTRY OF customValue-10 IN FRAME colorsFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        SELF:PRIVATE-DATA = {&SELF-NAME}
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customValue-11
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-11 sObject
+ON ENTRY OF customValue-11 IN FRAME colorsFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        SELF:PRIVATE-DATA = {&SELF-NAME}
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customValue-12
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-12 sObject
+ON ENTRY OF customValue-12 IN FRAME colorsFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        SELF:PRIVATE-DATA = {&SELF-NAME}
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customValue-13
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-13 sObject
+ON ENTRY OF customValue-13 IN FRAME colorsFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        SELF:PRIVATE-DATA = {&SELF-NAME}
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customValue-14
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-14 sObject
+ON ENTRY OF customValue-14 IN FRAME colorsFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        SELF:PRIVATE-DATA = {&SELF-NAME}
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customValue-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-2 sObject
+ON ENTRY OF customValue-2 IN FRAME colorsFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        SELF:PRIVATE-DATA = {&SELF-NAME}
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customValue-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-3 sObject
+ON ENTRY OF customValue-3 IN FRAME colorsFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        SELF:PRIVATE-DATA = {&SELF-NAME}
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customValue-4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-4 sObject
+ON ENTRY OF customValue-4 IN FRAME colorsFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        SELF:PRIVATE-DATA = {&SELF-NAME}
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customValue-5
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-5 sObject
+ON ENTRY OF customValue-5 IN FRAME colorsFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        SELF:PRIVATE-DATA = {&SELF-NAME}
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customValue-6
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-6 sObject
+ON ENTRY OF customValue-6 IN FRAME colorsFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        SELF:PRIVATE-DATA = {&SELF-NAME}
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customValue-7
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-7 sObject
+ON ENTRY OF customValue-7 IN FRAME colorsFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        SELF:PRIVATE-DATA = {&SELF-NAME}
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customValue-8
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-8 sObject
+ON ENTRY OF customValue-8 IN FRAME colorsFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        SELF:PRIVATE-DATA = {&SELF-NAME}
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME customValue-9
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL customValue-9 sObject
+ON ENTRY OF customValue-9 IN FRAME colorsFrame
+DO:
+    ASSIGN
+        {&SELF-NAME}
+        SELF:PRIVATE-DATA = {&SELF-NAME}
+        .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define FRAME-NAME defaultsFrame
 &Scoped-define SELF-NAME datePromptValue
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL datePromptValue sObject
@@ -4523,6 +4742,42 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE checkCustomValue sObject 
+PROCEDURE checkCustomValue :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER iphCustomValue AS HANDLE NO-UNDO.
+
+  DO WITH FRAME colorsFrame:
+      IF fCheckCustomValue(iphCustomValue,customValue-1:HANDLE) OR
+         fCheckCustomValue(iphCustomValue,customValue-2:HANDLE) OR
+         fCheckCustomValue(iphCustomValue,customValue-3:HANDLE) OR
+         fCheckCustomValue(iphCustomValue,customValue-4:HANDLE) OR
+         fCheckCustomValue(iphCustomValue,customValue-5:HANDLE) OR
+         fCheckCustomValue(iphCustomValue,customValue-6:HANDLE) OR
+         fCheckCustomValue(iphCustomValue,customValue-7:HANDLE) OR
+         fCheckCustomValue(iphCustomValue,customValue-8:HANDLE) OR
+         fCheckCustomValue(iphCustomValue,customValue-9:HANDLE) OR
+         fCheckCustomValue(iphCustomValue,customValue-10:HANDLE) OR
+         fCheckCustomValue(iphCustomValue,customValue-11:HANDLE) OR
+         fCheckCustomValue(iphCustomValue,customValue-12:HANDLE) OR
+         fCheckCustomValue(iphCustomValue,customValue-13:HANDLE) OR
+         fCheckCustomValue(iphCustomValue,customValue-14:HANDLE) THEN DO:
+          MESSAGE "Selected Value Already Used"
+              VIEW-AS ALERT-BOX TITLE "Duplicate Value".
+          iphCustomValue:SCREEN-VALUE = iphCustomValue:PRIVATE-DATA.
+          APPLY "ENTRY":U TO iphCustomValue.
+      END. /* if fcheckcustomvalue() */
+  END. /* do  */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE containerHandle sObject 
 PROCEDURE containerHandle :
@@ -5021,20 +5276,25 @@ PROCEDURE setPriority :
 
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
-  FIND prioritySort EXCLUSIVE-LOCK WHERE prioritySort.priorityIdx EQ ipPriorityIdx.
+  FIND FIRST prioritySort
+       WHERE prioritySort.priorityIdx EQ ipPriorityIdx.
   ASSIGN
     prioritySort.priority = ipNewPriority
-    prioritySort.prioritySet = NO.
-  FOR EACH prioritySort EXCLUSIVE-LOCK BY prioritySort.priority:
+    prioritySort.prioritySet = NO
+    .
+  FOR EACH prioritySort BY prioritySort.priority
+      :
     ASSIGN
       i = i + 1
-      priorityWidget[prioritySort.priorityIdx]:SCREEN-VALUE = STRING(i).
+      priorityWidget[prioritySort.priorityIdx]:SCREEN-VALUE = STRING(i)
+      .
   END.
   DO i = 1 TO EXTENT(priorityWidget):
     FIND prioritySort EXCLUSIVE-LOCK WHERE prioritySort.priorityIdx EQ i.
     ASSIGN
       prioritySort.priority = INTEGER(priorityWidget[i]:SCREEN-VALUE)
-      prioritySort.prioritySet = YES.
+      prioritySort.prioritySet = YES
+      .
   END.
 
 END PROCEDURE.
@@ -5072,6 +5332,23 @@ PROCEDURE setPriorityValues :
     WITH FRAME defaultsFrame.
 
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCheckCustomValue sObject 
+FUNCTION fCheckCustomValue RETURNS LOGICAL
+  (iphCustomValue AS HANDLE, iphCheckValue AS HANDLE ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  RETURN iphCustomValue NE iphCheckValue AND
+         iphCustomValue:SCREEN-VALUE EQ iphCheckValue:SCREEN-VALUE.
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

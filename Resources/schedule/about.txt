@@ -12,6 +12,9 @@
 
  History:
 
+ r4.001 (updated 5.31.2017)
+ * prevent duplicate status checkoff
+
  r4.000 (updated 5.22.2017)
  * corrected hold status logic
  * process to schedule by due date
