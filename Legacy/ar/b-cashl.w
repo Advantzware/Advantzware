@@ -566,6 +566,9 @@ DO:
       ar-cashl.amt-paid:SCREEN-VALUE IN BROWSE {&browse-name} =
             STRING(DEC(lv-pay-amt:SCREEN-VALUE IN BROWSE {&browse-name}) +
                    DEC(ar-cashl.amt-disc:SCREEN-VALUE IN BROWSE {&browse-name})).
+                   
+       v-inv-bal:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(calc-inv-bal(NO)).
+          
   END.
 END.
 
