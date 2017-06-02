@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
-&Scoped-define WINDOW-NAME wMiscFlds
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS wMiscFlds 
+&Scoped-define WINDOW-NAME W-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS W-Win 
 /*------------------------------------------------------------------------
 
   File:              miscflds.w
@@ -85,6 +85,8 @@ END TRIGGERS.
 
 {methods/lockWindowUpdate.i}
 
+SESSION:SET-WAIT-STATE("").
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -102,9 +104,9 @@ END TRIGGERS.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS btnMFPrgrms tabLabelsRect RECT-5 RECT-4 ~
 widgetRect tabNavRect RECT-2 RECT-3 RECT-8 portRect tabNavRect-3 prgrmsRect ~
-mfgroupList mfgroupTab btnCombo-Box btnAddTab tabLabels btnEditor ~
-btnFill-In btnRadio-Set btnRectangle btnSelection-List btnSlider btnCopy ~
-btnText btnToggle-Box btnCut btnDeleteTab btnDownTab btnExit btnExport ~
+mfgroupList mfgroupTab btnCombo-Box tabLabels btnAddTab btnEditor ~
+btnFill-In btnRadio-Set btnRectangle btnSelection-List btnSlider btnText ~
+btnToggle-Box btnCopy btnCut btnDeleteTab btnDownTab btnExit btnExport ~
 btnImport btnNextTab btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab ~
 btnAddGroup btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave ~
 btnTabOrder btnTest 
@@ -116,7 +118,7 @@ textLabel toggle-BoxLabel gapFieldLabel prgrmsLabel
 /* Custom List Definitions                                              */
 /* notFoundIn234,widgetLabels,widgetButtons,propertyCutCopy,List-5,List-6 */
 &Scoped-define notFoundIn234 widgetRect mfgroupTab btnPointer btnCombo-Box ~
-btnAddTab tabLabels btnEditor btnFill-In btnRadio-Set btnRectangle ~
+tabLabels btnAddTab btnEditor btnFill-In btnRadio-Set btnRectangle ~
 btnSelection-List btnSlider btnText btnToggle-Box btnDeleteTab btnDownTab ~
 btnNextTab btnPrevTab btnRenameTab btnUpTab btnDeleteGroup btnRenameGroup ~
 btnTest widgetLabel pointerLabel tabNavLabel combo-BoxLabel editorLabel ~
@@ -137,7 +139,7 @@ btnRadio-Set btnRectangle btnSelection-List btnSlider btnText btnToggle-Box
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR wMiscFlds AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Menu Definitions                                                     */
 DEFINE SUB-MENU m_File 
@@ -580,10 +582,10 @@ DEFINE RECTANGLE Rect-Top
 DEFINE FRAME fMiscFlds
      btnMFPrgrms AT ROW 23.86 COL 132 HELP
           "Programs" WIDGET-ID 34
-     mfgroupField AT ROW 1.71 COL 8 COLON-ALIGNED HELP
-          "Enter Group Name"
      mfgroupList AT ROW 1.71 COL 8 COLON-ALIGNED HELP
           "Select Group Name"
+     mfgroupField AT ROW 1.71 COL 8 COLON-ALIGNED HELP
+          "Enter Group Name"
      mfgroupTab AT ROW 4.81 COL 133.6 COLON-ALIGNED HELP
           "Select Tab Number" NO-LABEL
      btnPointer AT ROW 5.57 COL 3.2 HELP
@@ -592,10 +594,10 @@ DEFINE FRAME fMiscFlds
           "Create New COMBO-BOX"
      tabField AT ROW 7.19 COL 124 HELP
           "Enter Tab Label" NO-LABEL
-     btnAddTab AT ROW 7.19 COL 125 HELP
-          "ADD New Tab"
      tabLabels AT ROW 8.38 COL 124 HELP
           "Select tab Label" NO-LABEL
+     btnAddTab AT ROW 7.19 COL 125 HELP
+          "ADD New Tab"
      btnEditor AT ROW 8.86 COL 3.2 HELP
           "Create New EDITOR"
      btnFill-In AT ROW 10.52 COL 3.2 HELP
@@ -608,14 +610,14 @@ DEFINE FRAME fMiscFlds
           "Create New SELECTION-LIST"
      btnSlider AT ROW 17.19 COL 3 HELP
           "Create New SLIDER"
-     btnCopy AT ROW 1.48 COL 88 HELP
-          "Copy Selections"
      btnText AT ROW 18.86 COL 3 HELP
           "Create New TEXT"
      btnToggle-Box AT ROW 20.52 COL 3 HELP
           "Create New TOGGLE-BOX"
      gapField AT ROW 22.19 COL 1 COLON-ALIGNED HELP
           "Enter Gap Amount in Pixels" NO-LABEL
+     btnCopy AT ROW 1.48 COL 88 HELP
+          "Copy Selections"
      btnCut AT ROW 1.48 COL 80 HELP
           "Cut Selections"
      btnDeleteTab AT ROW 7.19 COL 135 HELP
@@ -680,9 +682,6 @@ DEFINE FRAME fMiscFlds
      "Tab Order" VIEW-AS TEXT
           SIZE 10 BY .76 AT ROW 3.62 COL 69
           FONT 4
-     "Import" VIEW-AS TEXT
-          SIZE 6 BY .76 AT ROW 26 COL 5 WIDGET-ID 28
-          FONT 4
      "Atrributes" VIEW-AS TEXT
           SIZE 9 BY .76 AT ROW 3.62 COL 59
           FONT 4
@@ -716,10 +715,13 @@ DEFINE FRAME fMiscFlds
      "Delete" VIEW-AS TEXT
           SIZE 7 BY .95 AT ROW 3.19 COL 50
           FONT 4
-     "Copy" VIEW-AS TEXT
-          SIZE 5 BY .95 AT ROW 3.19 COL 25
      "Preview" VIEW-AS TEXT
           SIZE 8 BY .76 AT ROW 3.62 COL 106 WIDGET-ID 6
+          FONT 4
+     "Copy" VIEW-AS TEXT
+          SIZE 5 BY .95 AT ROW 3.19 COL 25
+     "Import" VIEW-AS TEXT
+          SIZE 6 BY .76 AT ROW 26 COL 5 WIDGET-ID 28
           FONT 4
      tabLabelsRect AT ROW 6.24 COL 123
      RECT-1 AT ROW 1.24 COL 2
@@ -764,7 +766,7 @@ DEFINE FRAME folderFrm
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
-  CREATE WINDOW wMiscFlds ASSIGN
+  CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "User Defined Fields Builder"
          HEIGHT             = 26.24
@@ -788,7 +790,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 ASSIGN {&WINDOW-NAME}:MENUBAR    = MENU MENU-BAR-C-Win:HANDLE.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT wMiscFlds:LOAD-ICON("Graphics\asiicon.ico":U) THEN
+IF NOT W-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
@@ -800,7 +802,7 @@ IF NOT wMiscFlds:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW wMiscFlds
+/* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME fMiscFlds
    FRAME-NAME                                                           */
@@ -941,8 +943,8 @@ ASSIGN
 
 /* SETTINGS FOR RECTANGLE Rect-Main IN FRAME folderFrm
    NO-ENABLE                                                            */
-IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wMiscFlds)
-THEN wMiscFlds:HIDDEN = no.
+IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
+THEN W-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -968,9 +970,9 @@ THEN wMiscFlds:HIDDEN = no.
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME wMiscFlds
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wMiscFlds wMiscFlds
-ON END-ERROR OF wMiscFlds /* User Defined Fields Builder */
+&Scoped-define SELF-NAME W-Win
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
+ON END-ERROR OF W-Win /* User Defined Fields Builder */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -982,8 +984,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wMiscFlds wMiscFlds
-ON WINDOW-CLOSE OF wMiscFlds /* User Defined Fields Builder */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
+ON WINDOW-CLOSE OF W-Win /* User Defined Fields Builder */
 DO:
   IF hMFPersist NE ? THEN DELETE PROCEDURE hMFPersist.
   /* This event will close the window and terminate the procedure.  */
@@ -995,8 +997,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wMiscFlds wMiscFlds
-ON WINDOW-RESIZED OF wMiscFlds /* User Defined Fields Builder */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
+ON WINDOW-RESIZED OF W-Win /* User Defined Fields Builder */
 DO:
   RUN winReSize.
 END.
@@ -1006,7 +1008,7 @@ END.
 
 
 &Scoped-define SELF-NAME folderFrm
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL folderFrm wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL folderFrm W-Win
 ON ENTRY OF FRAME folderFrm
 DO:
   FRAME folderFrm:SELECTED = YES.
@@ -1016,7 +1018,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL folderFrm wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL folderFrm W-Win
 ON LEAVE OF FRAME folderFrm
 DO:
   FRAME folderFrm:SELECTED = NO.
@@ -1026,7 +1028,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL folderFrm wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL folderFrm W-Win
 ON MOUSE-SELECT-CLICK OF FRAME folderFrm
 DO:
   /* only done when a new widget is being placed in design folderFrm */
@@ -1041,7 +1043,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnAddGroup
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddGroup wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddGroup W-Win
 ON CHOOSE OF btnAddGroup IN FRAME fMiscFlds /* Add Group */
 DO:
   ASSIGN
@@ -1058,7 +1060,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnAddTab
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddTab wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAddTab W-Win
 ON CHOOSE OF btnAddTab IN FRAME fMiscFlds /* Add */
 DO:
   newTab = YES.
@@ -1072,7 +1074,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnCombo-Box
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCombo-Box wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCombo-Box W-Win
 ON CHOOSE OF btnCombo-Box IN FRAME fMiscFlds /* Combo Box */
 DO:
   RUN selectNewWidgetType ("Combo-Box","images/combbox.cur").
@@ -1083,7 +1085,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnCopy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCopy wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCopy W-Win
 ON CHOOSE OF btnCopy IN FRAME fMiscFlds /* Copy */
 DO:
   RUN copyWidgets.
@@ -1094,7 +1096,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnCopyGroup
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCopyGroup wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCopyGroup W-Win
 ON CHOOSE OF btnCopyGroup IN FRAME fMiscFlds /* Add Group */
 DO:
   ASSIGN
@@ -1110,7 +1112,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnCut
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCut wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCut W-Win
 ON CHOOSE OF btnCut IN FRAME fMiscFlds /* Cut */
 DO:
   RUN cutWidgets.
@@ -1122,7 +1124,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnDeleteGroup
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDeleteGroup wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDeleteGroup W-Win
 ON CHOOSE OF btnDeleteGroup IN FRAME fMiscFlds /* Delete Group */
 DO:
   RUN deleteGroup.
@@ -1134,7 +1136,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnDeleteTab
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDeleteTab wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDeleteTab W-Win
 ON CHOOSE OF btnDeleteTab IN FRAME fMiscFlds /* Delete */
 DO:
   RUN deleteTab.
@@ -1146,7 +1148,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnDownTab
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDownTab wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDownTab W-Win
 ON CHOOSE OF btnDownTab IN FRAME fMiscFlds /* Move Dn */
 DO:
   RUN moveTab ("Down").
@@ -1157,7 +1159,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnEditor
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnEditor wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnEditor W-Win
 ON CHOOSE OF btnEditor IN FRAME fMiscFlds /* Editor */
 DO:
   RUN selectNewWidgetType ("Editor","images/editor.cur").
@@ -1168,7 +1170,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnExit
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExit W-Win
 ON CHOOSE OF btnExit IN FRAME fMiscFlds /* Exit */
 DO:
     IF savePrompt THEN DO:
@@ -1189,7 +1191,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnExport
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExport wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnExport W-Win
 ON CHOOSE OF btnExport IN FRAME fMiscFlds /* Export */
 DO:
   RUN exportLayouts.
@@ -1200,7 +1202,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnFill-In
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFill-In wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnFill-In W-Win
 ON CHOOSE OF btnFill-In IN FRAME fMiscFlds /* Fill In */
 DO:
   RUN selectNewWidgetType ("Fill-In","images/fill_in.cur").
@@ -1211,7 +1213,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnImport
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnImport wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnImport W-Win
 ON CHOOSE OF btnImport IN FRAME fMiscFlds /* Import */
 DO:
   RUN importLayouts.
@@ -1222,7 +1224,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnMFPrgrms
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMFPrgrms wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnMFPrgrms W-Win
 ON CHOOSE OF btnMFPrgrms IN FRAME fMiscFlds /* Programs */
 DO:
     RUN attachPrgrms.
@@ -1233,7 +1235,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnNextTab
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNextTab wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnNextTab W-Win
 ON CHOOSE OF btnNextTab IN FRAME fMiscFlds /* Next Tab */
 DO:
   mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME} =
@@ -1246,7 +1248,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnPaste
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPaste wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPaste W-Win
 ON CHOOSE OF btnPaste IN FRAME fMiscFlds /* Paste */
 DO:
   RUN pasteFromClipboard.
@@ -1258,7 +1260,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnPointer
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPointer wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPointer W-Win
 ON CHOOSE OF btnPointer IN FRAME fMiscFlds /* Pointer */
 DO:
   RUN selectNewWidgetType ("","arrow").
@@ -1269,7 +1271,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnPrevTab
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrevTab wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnPrevTab W-Win
 ON CHOOSE OF btnPrevTab IN FRAME fMiscFlds /* Previous Tab */
 DO:
   mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME} =
@@ -1282,7 +1284,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnProperty
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnProperty wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnProperty W-Win
 ON CHOOSE OF btnProperty IN FRAME fMiscFlds /* Property */
 DO:
   RUN propertySheet.
@@ -1293,7 +1295,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnRadio-Set
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRadio-Set wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRadio-Set W-Win
 ON CHOOSE OF btnRadio-Set IN FRAME fMiscFlds /* Radio Set */
 DO:
   RUN selectNewWidgetType ("Radio-Set","images/radioset.cur").
@@ -1304,7 +1306,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnRectangle
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRectangle wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRectangle W-Win
 ON CHOOSE OF btnRectangle IN FRAME fMiscFlds /* Rectangle */
 DO:
   RUN selectNewWidgetType ("Rectangle","images/rectangle.cur").
@@ -1315,7 +1317,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnRenameGroup
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRenameGroup wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRenameGroup W-Win
 ON CHOOSE OF btnRenameGroup IN FRAME fMiscFlds /* Rename Group */
 DO:
   ASSIGN
@@ -1332,7 +1334,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnRenameTab
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRenameTab wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRenameTab W-Win
 ON CHOOSE OF btnRenameTab IN FRAME fMiscFlds /* Rename */
 DO:
   newTab = NO.
@@ -1350,7 +1352,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnRestore
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestore wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnRestore W-Win
 ON CHOOSE OF btnRestore IN FRAME fMiscFlds /* Reset */
 DO:
   mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "1".
@@ -1363,7 +1365,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnSave
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSave W-Win
 ON CHOOSE OF btnSave IN FRAME fMiscFlds /* Save */
 DO:
   {methods/wait.i}
@@ -1378,7 +1380,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnSelection-List
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSelection-List wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSelection-List W-Win
 ON CHOOSE OF btnSelection-List IN FRAME fMiscFlds /* Selection List */
 DO:
   RUN selectNewWidgetType ("Selection-List","images/slctlist.cur").
@@ -1389,7 +1391,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnSlider
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSlider wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSlider W-Win
 ON CHOOSE OF btnSlider IN FRAME fMiscFlds /* Slider */
 DO:
   RUN selectNewWidgetType ("Slider","images/slider.cur").
@@ -1400,7 +1402,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnTabOrder
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTabOrder wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTabOrder W-Win
 ON CHOOSE OF btnTabOrder IN FRAME fMiscFlds /* Tab Order */
 DO:
   RUN tabOrder.
@@ -1411,7 +1413,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnTest
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTest wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnTest W-Win
 ON CHOOSE OF btnTest IN FRAME fMiscFlds /* Test */
 DO:
   currentWidget = SESSION:FIRST-PROCEDURE.
@@ -1434,7 +1436,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnText
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnText wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnText W-Win
 ON CHOOSE OF btnText IN FRAME fMiscFlds /* Text */
 DO:
   RUN selectNewWidgetType ("Text","images/text.cur").
@@ -1445,7 +1447,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnToggle-Box
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnToggle-Box wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnToggle-Box W-Win
 ON CHOOSE OF btnToggle-Box IN FRAME fMiscFlds /* Toggle Box */
 DO:
   RUN selectNewWidgetType ("Toggle-Box","images/toggle.cur").
@@ -1456,7 +1458,7 @@ END.
 
 
 &Scoped-define SELF-NAME btnUpTab
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUpTab wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnUpTab W-Win
 ON CHOOSE OF btnUpTab IN FRAME fMiscFlds /* Move Up */
 DO:
   RUN moveTab ("Up").
@@ -1467,7 +1469,7 @@ END.
 
 
 &Scoped-define SELF-NAME gapField
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gapField wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gapField W-Win
 ON LEAVE OF gapField IN FRAME fMiscFlds
 DO:
   APPLY "RETURN" TO {&SELF-NAME}.
@@ -1477,7 +1479,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gapField wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL gapField W-Win
 ON RETURN OF gapField IN FRAME fMiscFlds
 DO:
   IF {&SELF-NAME}:SCREEN-VALUE NE "0" THEN
@@ -1491,7 +1493,7 @@ END.
 
 
 &Scoped-define SELF-NAME mfgroupField
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mfgroupField wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mfgroupField W-Win
 ON LEAVE OF mfgroupField IN FRAME fMiscFlds /* Group */
 DO:
   APPLY "RETURN" TO {&SELF-NAME}.
@@ -1501,7 +1503,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mfgroupField wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mfgroupField W-Win
 ON RETURN OF mfgroupField IN FRAME fMiscFlds /* Group */
 DO:
   IF {&SELF-NAME}:SCREEN-VALUE NE "" THEN DO:
@@ -1536,7 +1538,7 @@ END.
 
 
 &Scoped-define SELF-NAME mfgroupList
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mfgroupList wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mfgroupList W-Win
 ON VALUE-CHANGED OF mfgroupList IN FRAME fMiscFlds /* Group */
 DO:
   mfgroupTab:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "1". /* set to first tab */
@@ -1549,7 +1551,7 @@ END.
 
 
 &Scoped-define SELF-NAME mfgroupTab
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mfgroupTab wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mfgroupTab W-Win
 ON VALUE-CHANGED OF mfgroupTab IN FRAME fMiscFlds
 DO:
   DO i = 1 TO tabLabels:NUM-ITEMS: /* get index value of selected label */
@@ -1566,7 +1568,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_1_LeftRight_Sides
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_1_LeftRight_Sides wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_1_LeftRight_Sides W-Win
 ON CHOOSE OF MENU-ITEM m_1_LeftRight_Sides /* 1 Left/Right Sides */
 DO:
   leftright = YES.
@@ -1580,7 +1582,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_2_TopBottom_Sides
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_2_TopBottom_Sides wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_2_TopBottom_Sides W-Win
 ON CHOOSE OF MENU-ITEM m_2_TopBottom_Sides /* 2 Top/Bottom Sides */
 DO:
   leftright = NO.
@@ -1594,7 +1596,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_addGroup
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_addGroup wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_addGroup W-Win
 ON CHOOSE OF MENU-ITEM m_addGroup /* Add Group */
 DO:
   APPLY "CHOOSE" TO btnAddGroup IN FRAME {&FRAME-NAME}.
@@ -1605,7 +1607,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Add_Tab
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Add_Tab wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Add_Tab W-Win
 ON CHOOSE OF MENU-ITEM m_Add_Tab /* Add Tab */
 DO:
   APPLY "CHOOSE" TO btnAddTab IN FRAME {&FRAME-NAME}.
@@ -1616,7 +1618,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Attributes
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Attributes wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Attributes W-Win
 ON CHOOSE OF MENU-ITEM m_Attributes /* Attributes */
 DO:
   APPLY "CHOOSE" TO btnProperty IN FRAME {&FRAME-NAME}.
@@ -1627,7 +1629,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Bottom_Sides
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Bottom_Sides wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Bottom_Sides W-Win
 ON CHOOSE OF MENU-ITEM m_Bottom_Sides /* Bottom Sides */
 DO:
   RUN alignWidgets ("Bottom").
@@ -1638,7 +1640,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Change_Group
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Change_Group wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Change_Group W-Win
 ON CHOOSE OF MENU-ITEM m_Change_Group /* Rename Group */
 DO:
   APPLY "CHOOSE" TO btnRenameGroup IN FRAME {&FRAME-NAME}.
@@ -1649,7 +1651,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Combo_Box
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Combo_Box wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Combo_Box W-Win
 ON CHOOSE OF MENU-ITEM m_Combo_Box /* Combo Box */
 DO:
   APPLY "CHOOSE" TO btnCombo-Box IN FRAME {&FRAME-NAME}.
@@ -1660,7 +1662,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Copy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Copy wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Copy W-Win
 ON CHOOSE OF MENU-ITEM m_Copy /* Copy */
 DO:
   APPLY "CHOOSE" TO btnCopy IN FRAME {&FRAME-NAME}.
@@ -1671,7 +1673,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_copyGroup
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_copyGroup wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_copyGroup W-Win
 ON CHOOSE OF MENU-ITEM m_copyGroup /* Copy Group */
 DO:
   APPLY "CHOOSE" TO btnCopyGroup IN FRAME {&FRAME-NAME}.
@@ -1682,7 +1684,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Cut
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Cut wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Cut W-Win
 ON CHOOSE OF MENU-ITEM m_Cut /* Cut */
 DO:
   APPLY "CHOOSE" TO btnCut IN FRAME {&FRAME-NAME}.
@@ -1693,7 +1695,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_deleteGroup
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_deleteGroup wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_deleteGroup W-Win
 ON CHOOSE OF MENU-ITEM m_deleteGroup /* Delete Group */
 DO:
   APPLY "CHOOSE" TO btnDeleteGroup IN FRAME {&FRAME-NAME}.
@@ -1704,7 +1706,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Delete_Tab
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Delete_Tab wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Delete_Tab W-Win
 ON CHOOSE OF MENU-ITEM m_Delete_Tab /* Delete Tab */
 DO:
   APPLY "CHOOSE" TO btnDeleteTab IN FRAME {&FRAME-NAME}.
@@ -1715,7 +1717,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Editor
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Editor wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Editor W-Win
 ON CHOOSE OF MENU-ITEM m_Editor /* Editor */
 DO:
   APPLY "CHOOSE" TO btnEditor IN FRAME {&FRAME-NAME}.
@@ -1726,7 +1728,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Exit
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Exit wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Exit W-Win
 ON CHOOSE OF MENU-ITEM m_Exit /* Exit */
 DO:
   APPLY "CHOOSE" TO btnExit IN FRAME {&FRAME-NAME}.
@@ -1737,7 +1739,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Fill_In
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Fill_In wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Fill_In W-Win
 ON CHOOSE OF MENU-ITEM m_Fill_In /* Fill In */
 DO:
   APPLY "CHOOSE" TO btnFill-In IN FRAME {&FRAME-NAME}.
@@ -1748,7 +1750,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Left_Sides
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Left_Sides wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Left_Sides W-Win
 ON CHOOSE OF MENU-ITEM m_Left_Sides /* Left Sides */
 DO:
   RUN alignWidgets ("Left").
@@ -1759,7 +1761,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Move_Tab_Down
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Move_Tab_Down wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Move_Tab_Down W-Win
 ON CHOOSE OF MENU-ITEM m_Move_Tab_Down /* Move Tab Down */
 DO:
   APPLY "CHOOSE" TO btnDownTab IN FRAME {&FRAME-NAME}.
@@ -1770,7 +1772,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Move_Tab_Up
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Move_Tab_Up wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Move_Tab_Up W-Win
 ON CHOOSE OF MENU-ITEM m_Move_Tab_Up /* Move Tab Up */
 DO:
   APPLY "CHOOSE" TO btnUpTab IN FRAME {&FRAME-NAME}.
@@ -1781,7 +1783,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Next_Tab
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Next_Tab wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Next_Tab W-Win
 ON CHOOSE OF MENU-ITEM m_Next_Tab /* Next Tab */
 DO:
   APPLY "CHOOSE" TO btnNextTab IN FRAME {&FRAME-NAME}.
@@ -1792,7 +1794,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Paste
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Paste wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Paste W-Win
 ON CHOOSE OF MENU-ITEM m_Paste /* Paste */
 DO:
   APPLY "CHOOSE" TO btnPaste IN FRAME {&FRAME-NAME}.
@@ -1803,7 +1805,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Pointer
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Pointer wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Pointer W-Win
 ON CHOOSE OF MENU-ITEM m_Pointer /* Pointer */
 DO:
   APPLY "CHOOSE" TO btnPointer IN FRAME {&FRAME-NAME}.
@@ -1814,7 +1816,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Previous_Tab
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Previous_Tab wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Previous_Tab W-Win
 ON CHOOSE OF MENU-ITEM m_Previous_Tab /* Previous Tab */
 DO:
   APPLY "CHOOSE" TO btnPrevTab IN FRAME {&FRAME-NAME}.
@@ -1825,7 +1827,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Radio_Set
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Radio_Set wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Radio_Set W-Win
 ON CHOOSE OF MENU-ITEM m_Radio_Set /* Radio Set */
 DO:
   APPLY "CHOOSE" TO btnRadio-Set IN FRAME {&FRAME-NAME}.
@@ -1836,7 +1838,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Rename_Tab
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Rename_Tab wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Rename_Tab W-Win
 ON CHOOSE OF MENU-ITEM m_Rename_Tab /* Rename Tab */
 DO:
   APPLY "CHOOSE" TO btnRenameTab IN FRAME {&FRAME-NAME}.
@@ -1847,7 +1849,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Reset
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Reset wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Reset W-Win
 ON CHOOSE OF MENU-ITEM m_Reset /* Reset */
 DO:
   APPLY "CHOOSE" TO btnRestore IN FRAME {&FRAME-NAME}.
@@ -1858,7 +1860,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Right_Sides
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Right_Sides wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Right_Sides W-Win
 ON CHOOSE OF MENU-ITEM m_Right_Sides /* Right Sides */
 DO:
   RUN alignWidgets ("Right").
@@ -1869,7 +1871,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Save
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Save wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Save W-Win
 ON CHOOSE OF MENU-ITEM m_Save /* Save */
 DO:
   APPLY "CHOOSE" TO btnSave IN FRAME {&FRAME-NAME}.
@@ -1880,7 +1882,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Selection_List
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Selection_List wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Selection_List W-Win
 ON CHOOSE OF MENU-ITEM m_Selection_List /* Selection List */
 DO:
   APPLY "CHOOSE" TO btnSelection-List IN FRAME {&FRAME-NAME}.
@@ -1891,7 +1893,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Slider
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Slider wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Slider W-Win
 ON CHOOSE OF MENU-ITEM m_Slider /* Slider */
 DO:
   APPLY "CHOOSE" TO btnSlider IN FRAME {&FRAME-NAME}.
@@ -1902,7 +1904,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Tab_Order
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Tab_Order wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Tab_Order W-Win
 ON CHOOSE OF MENU-ITEM m_Tab_Order /* Tab Order */
 DO:
   APPLY "CHOOSE" TO btnTabOrder IN FRAME {&FRAME-NAME}.
@@ -1913,7 +1915,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Text
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Text wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Text W-Win
 ON CHOOSE OF MENU-ITEM m_Text /* Text */
 DO:
   APPLY "CHOOSE" TO btnText IN FRAME {&FRAME-NAME}.
@@ -1924,7 +1926,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Toggle_Box
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Toggle_Box wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Toggle_Box W-Win
 ON CHOOSE OF MENU-ITEM m_Toggle_Box /* Toggle Box */
 DO:
   APPLY "CHOOSE" TO btnToggle-Box IN FRAME {&FRAME-NAME}.
@@ -1935,7 +1937,7 @@ END.
 
 
 &Scoped-define SELF-NAME m_Top_Sides
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Top_Sides wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_Top_Sides W-Win
 ON CHOOSE OF MENU-ITEM m_Top_Sides /* Top Sides */
 DO:
   RUN alignWidgets ("Top").
@@ -1946,7 +1948,7 @@ END.
 
 
 &Scoped-define SELF-NAME tabField
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tabField wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tabField W-Win
 ON LEAVE OF tabField IN FRAME fMiscFlds
 DO:
   APPLY "RETURN" TO {&SELF-NAME}.
@@ -1956,7 +1958,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tabField wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tabField W-Win
 ON RETURN OF tabField IN FRAME fMiscFlds
 DO:
   IF {&SELF-NAME}:SCREEN-VALUE NE "" THEN DO:
@@ -1974,7 +1976,7 @@ END.
 
 
 &Scoped-define SELF-NAME tabLabels
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tabLabels wMiscFlds
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tabLabels W-Win
 ON VALUE-CHANGED OF tabLabels IN FRAME fMiscFlds
 DO:
   DO i = 1 TO {&SELF-NAME}:NUM-ITEMS: /* get index value of selected label */
@@ -1993,7 +1995,7 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK W-Win 
 
 
 /* ***************************  Main Block  *************************** */
@@ -2027,9 +2029,6 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   IF continue THEN DO:
-      &IF DEFINED(UIB_is_Running) EQ 0 &THEN
-      MESSAGE "Valid UDF Builder License!" VIEW-AS ALERT-BOX.
-      &ENDIF
       RUN loadImages.
       RUN enable_UI.
       RUN winReSize.
@@ -2053,7 +2052,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE addGroup wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE addGroup W-Win 
 PROCEDURE addGroup :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2074,7 +2073,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE addTab wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE addTab W-Win 
 PROCEDURE addTab :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2101,7 +2100,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE alignWidgets wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE alignWidgets W-Win 
 PROCEDURE alignWidgets :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2210,7 +2209,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE attachPrgrms wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE attachPrgrms W-Win 
 PROCEDURE attachPrgrms :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2226,7 +2225,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE btnMFPrgrmsToolTip wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE btnMFPrgrmsToolTip W-Win 
 PROCEDURE btnMFPrgrmsToolTip :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2249,7 +2248,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clearClipboard wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE clearClipboard W-Win 
 PROCEDURE clearClipboard :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2265,7 +2264,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE copyGroup wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE copyGroup W-Win 
 PROCEDURE copyGroup :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2304,7 +2303,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE copyToClipboard wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE copyToClipboard W-Win 
 PROCEDURE copyToClipboard :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2321,7 +2320,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE copyWidgets wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE copyWidgets W-Win 
 PROCEDURE copyWidgets :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2349,7 +2348,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createLabelWidget wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createLabelWidget W-Win 
 PROCEDURE createLabelWidget :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2388,7 +2387,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createTabs wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createTabs W-Win 
 PROCEDURE createTabs :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2497,7 +2496,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createWidgets wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE createWidgets W-Win 
 PROCEDURE createWidgets :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2523,7 +2522,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cutWidgets wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE cutWidgets W-Win 
 PROCEDURE cutWidgets :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2575,7 +2574,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE deleteGroup wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE deleteGroup W-Win 
 PROCEDURE deleteGroup :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2624,7 +2623,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE deleteMFValues wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE deleteMFValues W-Win 
 PROCEDURE deleteMFValues :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2647,7 +2646,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE deleteTab wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE deleteTab W-Win 
 PROCEDURE deleteTab :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2699,7 +2698,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE deselectWidget wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE deselectWidget W-Win 
 PROCEDURE deselectWidget :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2719,7 +2718,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI wMiscFlds  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI W-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -2730,15 +2729,15 @@ PROCEDURE disable_UI :
                we are ready to "clean-up" after running.
 ------------------------------------------------------------------------------*/
   /* Delete the WINDOW we created */
-  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wMiscFlds)
-  THEN DELETE WIDGET wMiscFlds.
+  IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
+  THEN DELETE WIDGET W-Win.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dynamicWidget wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dynamicWidget W-Win 
 PROCEDURE dynamicWidget :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2908,7 +2907,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI wMiscFlds  _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI W-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -2923,27 +2922,27 @@ PROCEDURE enable_UI :
           tabNavLabel combo-BoxLabel editorLabel fill-InLabel radio-SetLabel 
           rectangleLabel selection-ListLabel sliderLabel textLabel 
           toggle-BoxLabel gapFieldLabel prgrmsLabel 
-      WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
+      WITH FRAME fMiscFlds IN WINDOW W-Win.
   ENABLE btnMFPrgrms tabLabelsRect RECT-5 RECT-4 widgetRect tabNavRect RECT-2 
          RECT-3 RECT-8 portRect tabNavRect-3 prgrmsRect mfgroupList mfgroupTab 
-         btnCombo-Box btnAddTab tabLabels btnEditor btnFill-In btnRadio-Set 
-         btnRectangle btnSelection-List btnSlider btnCopy btnText btnToggle-Box 
+         btnCombo-Box tabLabels btnAddTab btnEditor btnFill-In btnRadio-Set 
+         btnRectangle btnSelection-List btnSlider btnText btnToggle-Box btnCopy 
          btnCut btnDeleteTab btnDownTab btnExit btnExport btnImport btnNextTab 
          btnPaste btnPrevTab btnProperty btnRenameTab btnUpTab btnAddGroup 
          btnCopyGroup btnDeleteGroup btnRenameGroup btnRestore btnSave 
          btnTabOrder btnTest 
-      WITH FRAME fMiscFlds IN WINDOW wMiscFlds.
+      WITH FRAME fMiscFlds IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-fMiscFlds}
   ENABLE Rect-Top Rect-Left Rect-Right Rect-Bottom 
-      WITH FRAME folderFrm IN WINDOW wMiscFlds.
+      WITH FRAME folderFrm IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-folderFrm}
-  VIEW wMiscFlds.
+  VIEW W-Win.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE exportLayouts wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE exportLayouts W-Win 
 PROCEDURE exportLayouts :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2957,7 +2956,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE importLayouts wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE importLayouts W-Win 
 PROCEDURE importLayouts :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2971,7 +2970,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE labelTrigger wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE labelTrigger W-Win 
 PROCEDURE labelTrigger :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -2990,7 +2989,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadImages wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadImages W-Win 
 PROCEDURE loadImages :
 /*------------------------------------------------------------------------------
   Purpose:     Load Button Graphics
@@ -3027,7 +3026,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadWidgetData wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE loadWidgetData W-Win 
 PROCEDURE loadWidgetData :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3114,7 +3113,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE moveObjects wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE moveObjects W-Win 
 PROCEDURE moveObjects :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3160,7 +3159,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE moveTab wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE moveTab W-Win 
 PROCEDURE moveTab :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3212,7 +3211,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE moveWidget wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE moveWidget W-Win 
 PROCEDURE moveWidget :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3245,7 +3244,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE newWidget wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE newWidget W-Win 
 PROCEDURE newWidget :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3298,7 +3297,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pasteFromClipboard wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pasteFromClipboard W-Win 
 PROCEDURE pasteFromClipboard :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3333,7 +3332,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE propertySheet wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE propertySheet W-Win 
 PROCEDURE propertySheet :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3371,7 +3370,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE renameGroup wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE renameGroup W-Win 
 PROCEDURE renameGroup :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3426,7 +3425,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE renameTab wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE renameTab W-Win 
 PROCEDURE renameTab :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3451,7 +3450,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resizeWidget wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE resizeWidget W-Win 
 PROCEDURE resizeWidget :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3468,7 +3467,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE saveLayout wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE saveLayout W-Win 
 PROCEDURE saveLayout :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3542,7 +3541,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE selectNewWidgetType wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE selectNewWidgetType W-Win 
 PROCEDURE selectNewWidgetType :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3631,7 +3630,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE selectWidget wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE selectWidget W-Win 
 PROCEDURE selectWidget :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3648,7 +3647,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Set-Focus W-Win 
 PROCEDURE Set-Focus :
 /*------------------------------------------------------------------------------
   Purpose:     Set Focus
@@ -3662,7 +3661,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setAttrID wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setAttrID W-Win 
 PROCEDURE setAttrID :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3682,7 +3681,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setAttrID-buffer wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setAttrID-buffer W-Win 
 PROCEDURE setAttrID-buffer :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3702,7 +3701,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE tabOrder wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE tabOrder W-Win 
 PROCEDURE tabOrder :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3727,7 +3726,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE updateAttrb wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE updateAttrb W-Win 
 PROCEDURE updateAttrb :
 /*------------------------------------------------------------------------------
   Purpose:     
@@ -3779,7 +3778,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winReSize wMiscFlds 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winReSize W-Win 
 PROCEDURE winReSize :
 /*------------------------------------------------------------------------------
   Purpose:     
