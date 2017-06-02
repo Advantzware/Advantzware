@@ -12,8 +12,11 @@
 
  History:
 
- r4.001 (updated 5.31.2017)
+ r4.001 (updated 6.1.2017)
  * prevent duplicate status checkoff
+ * added field "csr name"
+ * apply lag time to resource jobs
+ * add additional receipted material types
 
  r4.000 (updated 5.22.2017)
  * corrected hold status logic
