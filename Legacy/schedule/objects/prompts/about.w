@@ -54,19 +54,29 @@ DEFINE VARIABLE ipContainerHandle AS HANDLE    NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-4 aboutBox btnClearCheckoffs ~
-btnClearNotes btnReturnToPending btnFromPending btnFromPendingByDueDate ~
-btnSave btnRestore 
-&Scoped-Define DISPLAYED-OBJECTS aboutBox version 
+deleteStatusCheckoffs btnClearNotes deleteJobNotes btnReturnToPending ~
+btnFromPending btnFromPendingByDueDate btnSave btnRestore btnExit 
+&Scoped-Define DISPLAYED-OBJECTS aboutBox deleteStatusCheckoffs ~
+deleteJobNotes version 
 
 /* Custom List Definitions                                              */
 /* adminFunction,List-2,List-3,List-4,List-5,List-6                     */
 &Scoped-define adminFunction btnClearCheckoffs btnClearNotes ~
 btnReturnToPending btnFromPending btnFromPendingByDueDate btnSave ~
-btnRestore 
+btnRestore btnExit 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDeleteRecord Dialog-Frame 
+FUNCTION fDeleteRecord RETURNS LOGICAL
+  (ipcCompany AS CHARACTER, ipcCode AS CHARACTER)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -83,6 +93,11 @@ DEFINE BUTTON btnClearNotes
      IMAGE-UP FILE "schedule/images/notetack.bmp":U
      LABEL "" 
      SIZE 4.6 BY 1.1 TOOLTIP "Clear Notes".
+
+DEFINE BUTTON btnExit AUTO-GO 
+     IMAGE-UP FILE "schedule/images/exit1.bmp":U
+     LABEL "" 
+     SIZE 4.6 BY 1.1 TOOLTIP "Exit".
 
 DEFINE BUTTON btnFromPending 
      IMAGE-UP FILE "schedule/images/pendingjobs.bmp":U
@@ -119,31 +134,63 @@ DEFINE VARIABLE version AS CHARACTER FORMAT "X(256)":U
      SIZE 42 BY .62
      FONT 6 NO-UNDO.
 
+DEFINE VARIABLE deleteJobNotes AS CHARACTER INITIAL "Completed" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Delete ALL", "ALL",
+"Delete Run Completed Only", "COMPLETED"
+     SIZE 48 BY 1 NO-UNDO.
+
+DEFINE VARIABLE deleteStatusCheckoffs AS CHARACTER INITIAL "Completed" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Delete ALL", "ALL",
+"Delete Run Completed Only", "COMPLETED"
+     SIZE 48 BY 1 NO-UNDO.
+
 DEFINE RECTANGLE RECT-4
      EDGE-PIXELS 1 GRAPHIC-EDGE  NO-FILL   
-     SIZE 88 BY 1.19.
+     SIZE 87 BY 8.57.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     aboutBox AT ROW 1.24 COL 2 NO-LABEL
-     btnClearCheckoffs AT ROW 16.76 COL 2 HELP
+     aboutBox AT ROW 1.95 COL 2 NO-LABEL
+     btnClearCheckoffs AT ROW 17.67 COL 3 HELP
           "Clear Status Checkoffs" WIDGET-ID 2
-     btnClearNotes AT ROW 16.76 COL 7 HELP
+     deleteStatusCheckoffs AT ROW 17.67 COL 27 NO-LABEL WIDGET-ID 12
+     btnClearNotes AT ROW 18.86 COL 3 HELP
           "Clear Notes" WIDGET-ID 4
-     btnReturnToPending AT ROW 16.76 COL 12 HELP
+     deleteJobNotes AT ROW 18.86 COL 27 NO-LABEL WIDGET-ID 16
+     btnReturnToPending AT ROW 20.05 COL 3 HELP
           "Return To Pending" WIDGET-ID 6
-     btnFromPending AT ROW 16.76 COL 17 HELP
+     btnFromPending AT ROW 21.24 COL 3 HELP
           "Schedule From Pending" WIDGET-ID 8
-     btnFromPendingByDueDate AT ROW 16.76 COL 22 HELP
+     btnFromPendingByDueDate AT ROW 22.43 COL 3 HELP
           "Schedule From Pending By Due Date" WIDGET-ID 10
-     btnSave AT ROW 16.76 COL 79 HELP
+     btnSave AT ROW 23.62 COL 3 HELP
           "Save Configuration Data Files"
-     btnRestore AT ROW 16.76 COL 84 HELP
+     btnRestore AT ROW 24.81 COL 3 HELP
           "Restore Configuration Data Files"
-     version AT ROW 16.95 COL 32 NO-LABEL
-     RECT-4 AT ROW 16.71 COL 1
+     btnExit AT ROW 24.81 COL 83 HELP
+          "Exit About" WIDGET-ID 34
+     version AT ROW 1.24 COL 28 NO-LABEL
+     "Job Notes:" VIEW-AS TEXT
+          SIZE 11 BY 1 AT ROW 18.86 COL 16 WIDGET-ID 32
+     "Status Checkoffs:" VIEW-AS TEXT
+          SIZE 18 BY 1 AT ROW 17.67 COL 9 WIDGET-ID 30
+     "Restore Custom Configuration .DAT Files" VIEW-AS TEXT
+          SIZE 50 BY 1 AT ROW 24.81 COL 9 WIDGET-ID 28
+     "Create Backup's of Custom Configuration .DAT Files" VIEW-AS TEXT
+          SIZE 50 BY 1 AT ROW 23.62 COL 9 WIDGET-ID 26
+     "Move ALL Pending Jobs to the Board by Due Date" VIEW-AS TEXT
+          SIZE 50 BY 1 AT ROW 22.43 COL 9 WIDGET-ID 24
+     "Move ALL Pending Jobs to the Board" VIEW-AS TEXT
+          SIZE 37 BY 1 AT ROW 21.24 COL 9 WIDGET-ID 22
+     "Return ALL Jobs to Pending" VIEW-AS TEXT
+          SIZE 29 BY 1 AT ROW 20.05 COL 9 WIDGET-ID 20
+     RECT-4 AT ROW 17.43 COL 2
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "About (Support Contact Information)".
@@ -176,6 +223,8 @@ ASSIGN
 /* SETTINGS FOR BUTTON btnClearCheckoffs IN FRAME Dialog-Frame
    1                                                                    */
 /* SETTINGS FOR BUTTON btnClearNotes IN FRAME Dialog-Frame
+   1                                                                    */
+/* SETTINGS FOR BUTTON btnExit IN FRAME Dialog-Frame
    1                                                                    */
 /* SETTINGS FOR BUTTON btnFromPending IN FRAME Dialog-Frame
    1                                                                    */
@@ -286,6 +335,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME deleteJobNotes
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL deleteJobNotes Dialog-Frame
+ON VALUE-CHANGED OF deleteJobNotes IN FRAME Dialog-Frame
+DO:
+  ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME deleteStatusCheckoffs
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL deleteStatusCheckoffs Dialog-Frame
+ON VALUE-CHANGED OF deleteStatusCheckoffs IN FRAME Dialog-Frame
+DO:
+  ASSIGN {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK Dialog-Frame 
@@ -304,7 +375,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   RUN enable_UI.
-  version:SCREEN-VALUE = 'Scheduler ({&version} ' + ipBoard + ')'.
+  version:SCREEN-VALUE = 'Scheduler Release ({&version} ' + ipBoard + ')'.
   aboutBox:READ-FILE('{&startDir}/about.txt').
   IF ipBoard NE 'Pro' THEN
   DISABLE {&adminFunction} WITH FRAME {&FRAME-NAME}.
@@ -346,10 +417,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY aboutBox version 
+  DISPLAY aboutBox deleteStatusCheckoffs deleteJobNotes version 
       WITH FRAME Dialog-Frame.
-  ENABLE RECT-4 aboutBox btnClearCheckoffs btnClearNotes btnReturnToPending 
-         btnFromPending btnFromPendingByDueDate btnSave btnRestore 
+  ENABLE RECT-4 aboutBox btnClearCheckoffs deleteStatusCheckoffs btnClearNotes 
+         deleteJobNotes btnReturnToPending btnFromPending 
+         btnFromPendingByDueDate btnSave btnRestore btnExit 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -367,7 +439,7 @@ PROCEDURE pClearCheckoffs :
 ------------------------------------------------------------------------------*/
     MESSAGE
         "WARNING: This process will DELETE" SKIP
-        "ALL Schedule Board Status Checkoffs." SKIP
+        deleteStatusCheckoffs "Schedule Board Status Checkoffs." SKIP
         "Continue?"
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOGICAL.
     IF NOT lContinue THEN RETURN.
@@ -376,6 +448,8 @@ PROCEDURE pClearCheckoffs :
     FOR EACH reftable EXCLUSIVE-LOCK
         WHERE reftable.reftable BEGINS 'SB: Status'
         :
+        IF deleteStatusCheckoffs EQ "ALL" OR
+           fDeleteRecord(reftable.company,reftable.code) THEN
         DELETE reftable.
     END. /* each reftable */
     RUN pReload IN ipContainerHandle.
@@ -396,7 +470,7 @@ PROCEDURE pClearNotes :
 ------------------------------------------------------------------------------*/
     MESSAGE
         "WARNING: This process will DELETE" SKIP
-        "ALL Schedule Board Job Notes." SKIP
+        deleteJobNotes "Schedule Board Job Notes." SKIP
         "Continue?"
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lContinue AS LOGICAL.
     IF NOT lContinue THEN RETURN.
@@ -405,6 +479,8 @@ PROCEDURE pClearNotes :
     FOR EACH reftable EXCLUSIVE-LOCK
         WHERE reftable.reftable BEGINS 'SB: Note'
         :
+        IF deleteJobNotes EQ "ALL" OR
+           fDeleteRecord(reftable.company,reftable.code) THEN
         DELETE reftable.
     END. /* each reftable */
     RUN pReload IN ipContainerHandle.
@@ -631,6 +707,44 @@ PROCEDURE pSaveDatFiles :
     'Saved in directory "{&backup}"' VIEW-AS ALERT-BOX.
 
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDeleteRecord Dialog-Frame 
+FUNCTION fDeleteRecord RETURNS LOGICAL
+  (ipcCompany AS CHARACTER, ipcCode AS CHARACTER) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lDelete AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cMCode  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJob    AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cJobNo  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJobNo2 AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iFrm    AS INTEGER   NO-UNDO.
+
+    ASSIGN
+        cMCode  = ENTRY(1,ipcCode)
+        iJob    = INTEGER(ENTRY(2,ipcCode))
+        cJobNo  = ENTRY(3,ipcCode)
+        iJobNo2 = INTEGER(ENTRY(4,ipcCode))
+        iFrm    = INTEGER(ENTRY(5,ipcCode))
+        lDelete = CAN-FIND(FIRST job-mch
+                                 WHERE job-mch.company EQ ipcCompany
+                                   AND job-mch.m-code  EQ cMCode
+                                   AND job-mch.job     EQ iJob
+                                   AND job-mch.job-no  EQ cJobNo
+                                   AND job-mch.job-no2 EQ iJobNo2
+                                   AND job-mch.frm     EQ iFrm
+                                   AND job-mch.run-complete EQ YES)
+        .
+    RETURN lDelete.
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

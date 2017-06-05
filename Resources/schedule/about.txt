@@ -17,6 +17,8 @@
  * added field "csr name"
  * apply lag time to resource jobs
  * add additional receipted material types
+ * ability to clear all or completed only checkoffs
+ * ability to clear all or completed only notes
 
  r4.000 (updated 5.22.2017)
  * corrected hold status logic
