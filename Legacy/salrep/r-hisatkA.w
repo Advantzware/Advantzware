@@ -1137,6 +1137,7 @@ def var v-j       as   DEC NO-UNDO.
 DEF VAR lv-sman   AS   CHAR NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE op-zero AS LOGICAL INITIAL YES NO-UNDO.
 
 FORM HEADER
      "Salesrep:"
@@ -1524,7 +1525,13 @@ for each tt-report2,
        v-amt[21] = v-amt[21] + dec(tt-report.dec2).
     end.
   end.
+DO i = 1 TO 21: 
+      IF v-amt[i] NE 0 THEN
+         op-zero = NO.
+      ELSE op-zero = YES.
+  END. 
 
+IF v-inc OR (NOT v-inc AND (op-zero EQ NO)) THEN DO:
   if v-prt le v-custs then do:
      v = 0.
 
@@ -1657,6 +1664,7 @@ for each tt-report2,
      if last-of(tt-report2.key-01) then v-tot-amt = 0.
   end.
 end.
+END.
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.

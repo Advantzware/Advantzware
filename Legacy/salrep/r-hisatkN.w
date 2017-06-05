@@ -1547,6 +1547,9 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE d-gr-tot-amt as   DECIMAL  EXTENT 21 NO-UNDO.
+DEFINE VARIABLE op-zero AS LOGICAL INITIAL YES NO-UNDO.
+
 
 FORM HEADER
      "Salesrep:"
@@ -1725,7 +1728,7 @@ FOR EACH ar-inv
       AND ar-inv.inv-date LE v-date
       AND ar-inv.posted   EQ YES
     USE-INDEX inv-date NO-LOCK,
-    FIRST cust
+    FIRST cust 
     WHERE cust.company EQ ar-inv.company
       AND cust.cust-no EQ ar-inv.cust-no
     NO-LOCK:
@@ -1751,7 +1754,7 @@ FOR EACH ar-inv
                       (ar-invl.s-pct[i] eq 0 and i eq 1) then 100
                    else ar-invl.s-pct[i]
        v-amt1    = ar-invl.amt * v-slsp[1] / 100.
-
+      
       if ar-inv.inv-date ge fdate[v-per-2] and
          ar-inv.inv-date le tdate[v-per-2] then
         v-amt[1] = v-amt[1] + v-amt1.
@@ -1809,7 +1812,6 @@ FOR each cust where cust.company eq cocode
         and ar-invl.i-no    eq oe-retl.i-no
         and (ar-invl.billable or not ar-invl.misc)
       no-lock no-error.
-
   do i = 1 to 3:
      assign
       v-amt     = 0
@@ -1829,7 +1831,7 @@ FOR each cust where cust.company eq cocode
                   else ar-invl.s-pct[i]
       v-amt1    = (ar-cashl.amt-paid - ar-cashl.amt-disc) *
                   v-slsp[1] / 100.
-
+      
      if ar-cash.check-date ge fdate[v-per-2] and
         ar-cash.check-date le tdate[v-per-2] then
        v-amt[1] = v-amt[1] + v-amt1.
@@ -1850,7 +1852,7 @@ FOR each cust where cust.company eq cocode
   end.
 end.
 
-IF v-inc THEN
+IF v-inc THEN 
     FOR each cust where cust.company eq cocode
             AND cust.cust-no  GE fcus
             AND cust.cust-no  LE tcus
@@ -1974,10 +1976,18 @@ for each tt-report2,
        v-amt[21] = v-amt[21] + dec(tt-report.dec2).
     end.
   end.
+   DO i = 1 TO 21: 
+      IF v-amt[i] NE 0 THEN
+         op-zero = NO.
+      ELSE op-zero = YES.
+  END. 
 
+IF v-inc OR (NOT v-inc AND (op-zero EQ NO)) THEN DO:
   if v-prt le v-custs then do:
      v = 0.
 
+     
+    
     /* do i = v1 to v-per-2:
         v = v + 1.
 
@@ -2189,10 +2199,57 @@ for each tt-report2,
           SKIP.
 
      END.*/
+     DO i = 1 to 21:
+      d-gr-tot-amt[i] = d-gr-tot-amt[i] + v-tot-amt[i].
+     end.
 
      if last-of(tt-report2.key-01) then v-tot-amt = 0.
+     
   end.
+END.
 end.
+
+            ASSIGN cDisplay = ""
+                   cTmpField = ""
+                   cVarValue = ""
+                   cExcelDisplay = ""
+                   cExcelVarValue = "".
+
+            DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+                    CASE cTmpField:   
+                         WHEN "rep"    THEN cVarValue = "" .
+                         WHEN "rname"   THEN cVarValue = "".
+                         WHEN "cust"    THEN cVarValue = "" .
+                         WHEN "name"   THEN cVarValue = "".
+                         WHEN "p1"   THEN cVarValue = STRING(d-gr-tot-amt[1],"->,>>>,>>>,>>9.99").
+                         WHEN "p2"  THEN cVarValue = STRING(d-gr-tot-amt[2],"->,>>>,>>>,>>9.99").
+                         WHEN "p3"   THEN cVarValue = STRING(d-gr-tot-amt[3],"->,>>>,>>>,>>9.99").
+                         WHEN "p4"  THEN cVarValue = STRING(d-gr-tot-amt[4],"->,>>>,>>>,>>9.99").
+                         WHEN "p5"   THEN cVarValue = STRING(d-gr-tot-amt[5],"->,>>>,>>>,>>9.99").
+                         WHEN "p6"  THEN cVarValue = STRING(d-gr-tot-amt[6],"->,>>>,>>>,>>9.99").
+                         WHEN "p7"  THEN cVarValue = STRING(d-gr-tot-amt[7],"->,>>>,>>>,>>9.99").
+                         WHEN "p8"   THEN cVarValue = STRING(d-gr-tot-amt[8],"->,>>>,>>>,>>9.99").
+                         WHEN "p9"  THEN cVarValue = STRING(d-gr-tot-amt[9],"->,>>>,>>>,>>9.99").
+                         WHEN "p10"   THEN cVarValue = STRING(d-gr-tot-amt[10],"->,>>>,>>>,>>9.99").
+                         WHEN "p11"  THEN cVarValue = STRING(d-gr-tot-amt[11],"->,>>>,>>>,>>9.99").
+                         WHEN "p12"   THEN cVarValue = STRING(d-gr-tot-amt[12],"->,>>>,>>>,>>9.99").
+                         WHEN "ytd-amt"  THEN cVarValue = STRING(d-gr-tot-amt[21],"->,>>>,>>>,>>9.99").
+
+                    END CASE.
+
+                    cExcelVarValue = cVarValue.
+                    cDisplay = cDisplay + cVarValue +
+                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            END.
+
+            PUT str-line SKIP.
+            PUT UNFORMATTED "   GRAND TOTALS" substring(cDisplay,16,350) SKIP.
+            IF tb_excel THEN DO:
+                 PUT STREAM excel UNFORMATTED  '        GRAND TOTALS ,'
+                       substring(cExcelDisplay,4,350) SKIP(1).
+             END. 
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.
