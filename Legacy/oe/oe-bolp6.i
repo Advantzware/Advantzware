@@ -265,13 +265,23 @@ IF v-fg-qty NE 0 THEN DO:
     END.
 END.
 
-FIND FIRST fg-bin WHERE ROWID(fg-bin) EQ rSaveFgBinRow EXCLUSIVE-LOCK NO-ERROR.
+
 
 /* Delete zero bins unless FgKeepZeroBin is selected */
 IF NOT FgKeepZeroBin-log AND AVAILABLE fg-bin AND fg-bin.qty EQ 0 AND fg-bin.partial-count EQ 0 THEN 
-    DELETE fg-bin.
-FIND CURRENT fg-bin NO-LOCK NO-ERROR.
     
+    
+FIND CURRENT fg-bin NO-LOCK NO-ERROR.
+IF NOT FgKeepZeroBin-log AND CAN-FIND(fg-bin WHERE
+                                               ROWID(fg-bin) = rSaveFgBinRow 
+                                               AND fg-bin.qty EQ 0 
+                                               AND fg-bin.partial-count EQ 0) THEN 
+DO:
+  
+   FIND FIRST fg-bin WHERE ROWID(fg-bin) EQ rSaveFgBinRow EXCLUSIVE-LOCK NO-ERROR.
+   DELETE fg-bin.
+   
+END.    
 /*removed for task 09241404 - reason is that there is now a 0 bin filter 
 and the goal is to preserve original bin cost*/
 /* /* 03301201 - Per Joe, tags should be removed */ */
