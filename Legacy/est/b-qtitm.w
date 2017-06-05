@@ -1131,12 +1131,13 @@ DEFINE VARIABLE lnewRecord AS LOGICAL NO-UNDO .
 
   ASSIGN adm-new-record = NO .
 
-  IF lnewRecord THEN DO:
+  IF lnewRecord THEN DO:  
+      APPLY "value-changed" TO browse-order IN FRAME {&FRAME-NAME}.
       run get-link-handle in adm-broker-hdl
        (this-procedure,"itemqt-TARGET", output char-hdl).
     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
         RUN resetQuery IN WIDGET-HANDLE(char-hdl) (INPUT quotehd.q-no).
-     
+      
        lnewRecord = NO.
   END.
 
