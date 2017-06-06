@@ -106,7 +106,7 @@ AND (quotehd.est-no EQ fi_est-no ~
 OR fi_est-no EQ "") ~
 AND quotehd.rfq BEGINS fi_rfq ~
 ~{&useIndexPhrase} NO-LOCK, ~
-      EACH quoteitm OF quotehd  ~
+      EACH quoteitm OF quotehd OUTER-JOIN  ~
       WHERE (IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no  ~
           ELSE quoteitm.part-no BEGINS fi_part-no) ~
 and (IF fi_item-decr BEGINS "*" THEN quoteitm.part-dscr1 MATCHES fi_item-decr  ~
@@ -127,7 +127,7 @@ AND (quotehd.est-no EQ fi_est-no ~
 OR fi_est-no EQ "") ~
 AND quotehd.rfq BEGINS fi_rfq ~
 ~{&useIndexPhrase} NO-LOCK, ~
-      EACH quoteitm OF quotehd  ~
+      EACH quoteitm OF quotehd OUTER-JOIN ~
       WHERE (IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no  ~
           ELSE quoteitm.part-no BEGINS fi_part-no) ~
 and (IF fi_item-decr BEGINS "*" THEN quoteitm.part-dscr1 MATCHES fi_item-decr  ~
