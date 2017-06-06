@@ -1137,7 +1137,8 @@ def var v-j       as   DEC NO-UNDO.
 DEF VAR lv-sman   AS   CHAR NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
-DEFINE VARIABLE op-zero AS LOGICAL INITIAL YES NO-UNDO.
+DEFINE VARIABLE lp-zero AS LOGICAL INITIAL YES NO-UNDO.
+DEFINE VARIABLE d-gr-tot-amt as   DECIMAL  EXTENT 21 NO-UNDO.
 
 FORM HEADER
      "Salesrep:"
@@ -1273,6 +1274,8 @@ END.
 {sys/inc/outprint.i value(lines-per-page)}
 
 if td-show-parm then run show-param.
+  MESSAGE "fdate[1]  " STRING(fdate[1]) STRING(tdate[1]) STRING(v-date) VIEW-AS ALERT-BOX ERROR.
+
 FOR EACH ar-inv
     WHERE ar-inv.company  EQ cocode
       AND ar-inv.cust-no  GE fcus
@@ -1297,7 +1300,7 @@ FOR EACH ar-inv
     do i = 1 to 3:
       assign
        v-amt     = 0
-       v-slsm[1] = if ar-invl.sman[i] eq "" and i eq 1 then
+       v-slsm[1] = if ar-invl.sman[i] eq "" and i eq 1 AND NOT ar-invl.misc then
                      cust.sman else ar-invl.sman[i].
 
       if v-slsm[1]   lt fsman                         or
@@ -1340,7 +1343,7 @@ FOR each cust where cust.company eq cocode
       and ar-cash.cust-no    eq cust.cust-no
       and ar-cash.check-date ge fdate[1]
       and ar-cash.check-date le v-date
-      and ar-cash.posted     eq yes
+      and ar-cash.posted     eq YES
     use-index ar-cash no-lock,
 
     EACH ar-cashl
@@ -1354,7 +1357,7 @@ FOR each cust where cust.company eq cocode
     NO-LOCK:
   {custom/statusMsg.i " 'Processing Customer#  '  + cust.cust-no "}
   release ar-invl.
-
+ 
   RUN salrep/getoeret.p (ROWID(ar-cashl), BUFFER reftable, BUFFER oe-retl).
 
   if avail oe-retl then
@@ -1493,6 +1496,7 @@ for each tt-report2,
   assign
    v-amt = 0
    v-prt = v-prt + 1.
+  
 
   for each tt-report
       where tt-report.key-01 eq tt-report2.key-01
@@ -1525,13 +1529,13 @@ for each tt-report2,
        v-amt[21] = v-amt[21] + dec(tt-report.dec2).
     end.
   end.
-DO i = 1 TO 21: 
+  ASSIGN lp-zero = YES.
+  DO i = 1 TO 21: 
       IF v-amt[i] NE 0 THEN
-         op-zero = NO.
-      ELSE op-zero = YES.
+        ASSIGN lp-zero = NO.      
   END. 
 
-IF v-inc OR (NOT v-inc AND (op-zero EQ NO)) THEN DO:
+IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
   if v-prt le v-custs then do:
      v = 0.
 
@@ -1636,6 +1640,8 @@ IF v-inc OR (NOT v-inc AND (op-zero EQ NO)) THEN DO:
                  v-tot-amt[21]         when v eq 4 or
                                             (i eq v-per-2 and v lt 4)
                                                                  @ v-amt[21].
+
+
          down.
 
        end.
@@ -1661,9 +1667,49 @@ IF v-inc OR (NOT v-inc AND (op-zero EQ NO)) THEN DO:
 
      END.
 
+     DO i = 1 to 21:
+      d-gr-tot-amt[i] = d-gr-tot-amt[i] + v-tot-amt[i].
+     end.
+
      if last-of(tt-report2.key-01) then v-tot-amt = 0.
   end.
 end.
+END.
+if not v-sort then do:
+         PUT SPACE(9) "------------------------------ ----------------- ----------------- ----------------- ----------------- -----------------" SKIP.
+         PUT space(9) "Grand Totals" SPACE(19)  d-gr-tot-amt[1] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                d-gr-tot-amt[2] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                d-gr-tot-amt[3] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                d-gr-tot-amt[4] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                d-gr-tot-amt[21]FORMAT "->,>>>,>>>,>>9.99" SKIP.
+         PUT space(40) d-gr-tot-amt[5] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                             d-gr-tot-amt[6] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                             d-gr-tot-amt[7] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                             d-gr-tot-amt[8] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)   SKIP.
+         PUT  space(40) d-gr-tot-amt[9] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+              d-gr-tot-amt[10] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+              d-gr-tot-amt[11] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)   SKIP.
+
+
+     IF tb_excel THEN
+     DO:
+        PUT STREAM excel UNFORMATTED
+          '"' ""                                               '",'
+          '"' /*IF not last-of(tt-report2.key-01) THEN
+                 "Grand Totals (Printed Customers)"
+              ELSE*/ "Grand Totals"                                    '",'.
+
+
+        do i = v1 to v-per-2:
+           PUT STREAM excel UNFORMATTED
+             '"' STRING(d-gr-tot-amt[i],"->,>>>,>>>,>>9.99")     '",'.
+        END.
+
+        PUT STREAM excel UNFORMATTED
+          '"' STRING(d-gr-tot-amt[21],"->,>>>,>>>,>>9.99")      '",'
+          SKIP.
+
+     END.
 END.
 
 IF tb_excel THEN DO:

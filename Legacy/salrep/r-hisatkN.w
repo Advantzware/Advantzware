@@ -1548,7 +1548,7 @@ cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEFINE VARIABLE d-gr-tot-amt as   DECIMAL  EXTENT 21 NO-UNDO.
-DEFINE VARIABLE op-zero AS LOGICAL INITIAL YES NO-UNDO.
+DEFINE VARIABLE lp-zero AS LOGICAL INITIAL YES NO-UNDO.
 
 
 FORM HEADER
@@ -1976,13 +1976,13 @@ for each tt-report2,
        v-amt[21] = v-amt[21] + dec(tt-report.dec2).
     end.
   end.
+  ASSIGN lp-zero = YES.
    DO i = 1 TO 21: 
       IF v-amt[i] NE 0 THEN
-         op-zero = NO.
-      ELSE op-zero = YES.
+         ASSIGN lp-zero = NO.
   END. 
 
-IF v-inc OR (NOT v-inc AND (op-zero EQ NO)) THEN DO:
+IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
   if v-prt le v-custs then do:
      v = 0.
 
