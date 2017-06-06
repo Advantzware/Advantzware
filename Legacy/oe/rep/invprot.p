@@ -873,7 +873,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
          
           DO i = 1 TO 4:
            IF inv-head.bill-i[i] NE "" THEN DO:
-             IF v-printline GE 66 THEN do:                                
+             IF v-printline GE 65 THEN do:                                
                 PAGE.                
                 {oe/rep/invprot.i}                
                 v-printline = 29.
@@ -1003,6 +1003,11 @@ PROCEDURE printNotes:
       FOR EACH tt-formtext:
         i = i + 1.
         IF i <= ipiLines AND tt-formtext.tt-text NE "" THEN DO:
+            IF v-printline GE 65 THEN do:                                
+                PAGE.                
+                {oe/rep/invprot.i}                
+                v-printline = 29.
+            END.
             PUT "<C17>" tt-formtext.tt-text FORMAT "X(100)" SKIP.
             v-printline = v-printline + 1.
         END.
