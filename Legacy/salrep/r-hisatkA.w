@@ -1274,8 +1274,7 @@ END.
 {sys/inc/outprint.i value(lines-per-page)}
 
 if td-show-parm then run show-param.
-  MESSAGE "fdate[1]  " STRING(fdate[1]) STRING(tdate[1]) STRING(v-date) VIEW-AS ALERT-BOX ERROR.
-
+  
 FOR EACH ar-inv
     WHERE ar-inv.company  EQ cocode
       AND ar-inv.cust-no  GE fcus
