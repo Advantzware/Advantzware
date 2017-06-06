@@ -1741,7 +1741,7 @@ FOR EACH ar-inv
     do i = 1 to 3:
       assign
        v-amt     = 0
-       v-slsm[1] = if ar-invl.sman[i] eq "" and i eq 1 then
+       v-slsm[1] = if ar-invl.sman[i] eq "" and i eq 1 AND NOT ar-invl.misc then
                      cust.sman else ar-invl.sman[i].
 
       if v-slsm[1]   lt fsman                         or
