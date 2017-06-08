@@ -101,6 +101,8 @@ or cEulaFile = ? then assign
 RUN system/checkEula.p (INPUT cEulaFile, OUTPUT lEulaAccepted, OUTPUT cEulaVersion).
 
 IF NOT lEulaAccepted THEN 
+    RUN windows/wUserEula.w (INPUT cEulaFile, OUTPUT lEulaAccepted).
+IF NOT lEulaAccepted THEN 
     oplExit = TRUE. 
     
 iLoginCnt = 0.
@@ -112,7 +114,7 @@ END.
 /* If user has other sessions open, prompt to add another or close them */
 IF iLoginCnt GT 0 AND promptMultiSession-log THEN DO:
     RUN system/wSession.w (INPUT iLoginCnt, INPUT iMaxSessionsPerUser, OUTPUT cResponse).
-      
+
     CASE cResponse:
         WHEN "" THEN 
           oplExit = TRUE.
