@@ -6,6 +6,7 @@
 DEF VAR lv-line-cnt AS INT NO-UNDO.
 DEF VAR ll-void AS LOG NO-UNDO.
 DEF VAR v-remit LIKE vend.remit NO-UNDO.
+DEF VAR iLineSkipCheck AS INTEGER NO-UNDO .
 
 def workfile wrk-chk
   field inv-no      like ap-sel.inv-no
@@ -68,7 +69,8 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
      if ll eq max-per-chk and not last(ap-sel.inv-no) then
        assign
         stnum = stnum + 1
-        ll    = 0.
+        ll    = 0
+        iLineSkipCheck = iLineSkipCheck + 1 .
    end.
    
    ASSIGN
@@ -93,10 +95,11 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
 
    ASSIGN
     ap-chk.check-date = wdate
-    ap-chk.check-no   = stnum
+    ap-chk.check-no   = stnum - iLineSkipCheck 
     ap-chk.bank-code  = x-bank
     v-vend-no         = vend.vend-no
-    v-vend-name       = vend.name.
+    v-vend-name       = vend.NAME 
+    iLineSkipCheck    = 0 .
 
    IF add1 EQ "" THEN
      ASSIGN
