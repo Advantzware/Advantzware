@@ -75,7 +75,7 @@ HIDE {&mat-types} NO-PAUSE.
 
 CASE fi_mat-type:SCREEN-VALUE:
   &Scoped-define group# 1
-  WHEN 'A' OR WHEN 'B' OR WHEN 'P'  THEN
+  WHEN 'A' OR WHEN 'B' OR WHEN 'P' OR WHEN '1' OR WHEN '2' OR WHEN '3' or when '4' THEN
   DO:
     DISPLAY {&group{&group#}}.
     assign
