@@ -258,31 +258,34 @@ FUNCTION display-cw-dim RETURNS DECIMAL
               bf-xeb.form-no  EQ xeb.form-no : 
               
               DEFINE VARIABLE a-i AS INTEGER.
+            CASE bf-xeb.blank-no:
+                WHEN 1 THEN DO:
+                   v-len-array1 = "".
+                   DO a-i = 1 TO 28:
+                     IF bf-xeb.k-len-array2[a-i] GT 0 THEN
+                     v-len-array1[a-i] = STRING({sys/inc/k16.i bf-xeb.k-len-array2[a-i]}) .
+                     IF bf-xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array1[a-i], ".") EQ 0 THEN
+                     v-len-array1[a-i] = v-len-array1[a-i] + ".0".
+                   END.
+                END.
 
-               v-len-array1 = "".
-               DO a-i = 1 TO 28:
-                 IF bf-xeb.k-wid-array2[a-i] GT 0 THEN
-                 v-len-array1[a-i] = STRING(bf-xeb.k-wid-array2[a-i]).
-                 IF bf-xeb.k-wid-array2[a-i] GT 0 AND INDEX(v-len-array1[a-i], ".") EQ 0 THEN
-                 v-len-array1[a-i] = v-len-array1[a-i] + ".0".
-               END.
-
-               v-len-array2 = "".
-               DO a-i = 1 TO 28:
-                 IF bf-xeb.k-len-array2[a-i] GT 0 THEN
-                 v-len-array2[a-i] = STRING(bf-xeb.k-len-array2[a-i] /* , ">>.999999" */).
-                 IF bf-xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array2[a-i], ".") EQ 0 THEN
-                 v-len-array2[a-i] = v-len-array2[a-i] + ".0".
-                 
-               END.
-
-              CASE bf-xeb.blank-no:
                 WHEN 2 THEN DO:
+                   v-len-array2 = "".
+                   DO a-i = 1 TO 28:
+                     IF bf-xeb.k-len-array2[a-i] GT 0 THEN
+                     v-len-array2[a-i] = STRING({sys/inc/k16.i bf-xeb.k-len-array2[a-i]}).
+                     IF bf-xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array2[a-i], ".") EQ 0 THEN
+                     v-len-array2[a-i] = v-len-array2[a-i] + ".0".
+                     
+                   END.
+                END.
+              
+                WHEN 3 THEN DO:
                     v-len-array3 = "".
                     DO a-i = 1 TO 28:
-                      IF bf-xeb.k-wid-array2[a-i] GT 0 THEN
-                      v-len-array3[a-i] = STRING(bf-xeb.k-wid-array2[a-i] /* , ">>.999999" */).
-                      IF bf-xeb.k-wid-array2[a-i] GT 0 AND INDEX(v-len-array3[a-i], ".") EQ 0 THEN
+                      IF bf-xeb.k-len-array2[a-i] GT 0 THEN
+                      v-len-array3[a-i] = STRING({sys/inc/k16.i bf-xeb.k-len-array2[a-i]}) .
+                      IF bf-xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array3[a-i], ".") EQ 0 THEN
                       v-len-array3[a-i] = v-len-array3[a-i] + ".0".
                       
                     END.
