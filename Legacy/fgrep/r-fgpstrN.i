@@ -3,7 +3,8 @@
 
 ASSIGN 
           v-shipto = ""
-          v-shipto-name =  "" .
+          v-shipto-name =  ""
+          iBol-no = 0 .
 
 for each tt-report where tt-report.term-id eq "" no-lock,
       first fg-rdtlh where recid(fg-rdtlh) eq tt-report.rec-id no-lock,
@@ -76,11 +77,17 @@ for each tt-report where tt-report.term-id eq "" no-lock,
             IF AVAIL shipto THEN
                 ASSIGN 
                 v-shipto = shipto.ship-id
-                v-shipto-name =  shipto.ship-name .
+                v-shipto-name =  shipto.ship-name.
             ELSE
                 ASSIGN 
                     v-shipto = ""
                     v-shipto-name = "" .
+
+            FIND FIRST oe-boll
+               WHERE oe-boll.company EQ oe-bolh.company
+               AND oe-boll.b-no    EQ oe-bolh.b-no NO-LOCK NO-ERROR.
+            IF AVAIL oe-boll THEN
+                  ASSIGN iBol-no = IF AVAIL oe-boll THEN oe-boll.bol-no ELSE 0.
         
 
     find first itemfg
@@ -358,6 +365,7 @@ for each tt-report where tt-report.term-id eq "" no-lock,
                  WHEN "bin-qty" THEN do:
                       cVarValue =  STRING(v-fg-qty - iBinQtyb,"->>>>>>>>9")  .
                  END.
+                  WHEN "bol-no" THEN cVarValue = string(iBol-no,">>>>>>>")  .
             END CASE.
               
             cExcelVarValue = cVarValue.
