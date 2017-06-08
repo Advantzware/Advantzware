@@ -1170,6 +1170,9 @@ ASSIGN
  {sys/inc/ctrtext.i str-tit2 112}. 
 
 {sys/inc/print1.i}
+IF rd-dest EQ 1 THEN
+    IF lines-per-page GT 94  THEN
+        ASSIGN lines-per-page = 94 .
 
 {sys/inc/outprint.i VALUE(lines-per-page)}
 

@@ -36,7 +36,7 @@ DEFINE VARIABLE excelHeader AS CHARACTER NO-UNDO.
 {custom/getloc.i}
 
 {sys/inc/var.i NEW SHARED}
-
+  
 ASSIGN
  cocode = gcompany
  locode = gloc.
@@ -1303,7 +1303,8 @@ PROCEDURE output-to-screen :
   Notes:       
 ------------------------------------------------------------------------------*/
   run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
-END PROCEDURE.
+    
+ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1629,10 +1630,10 @@ DEF VAR cslist AS cha NO-UNDO.
 
 {sys/inc/print1.i}
 IF rd-dest EQ 1 THEN
-    IF lines-per-page GT 90  THEN
-        ASSIGN lines-per-page = 90 .
+    IF lines-per-page GT 94  THEN
+        ASSIGN lines-per-page = 94 .
 {sys/inc/outprint.i VALUE(lines-per-page)}
-
+    
 IF td-show-parm THEN RUN show-param.
 DISPLAY "" WITH FRAME r-top.
 
@@ -1809,7 +1810,7 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
     {custom/statusMsg.i " 'Processing Vendor #  '  + string(tt-report.vend-no) "}
 
   IF tt-report.key-03 EQ FILL("z",100) + "TOTAL" THEN DO:
-   PUT str-line SKIP .
+   PUT str-line FORMAT "x(125)" SKIP .
    /* UNDERLINE tt-report.check-no
               tt-report.check-date
               tt-report.vend-no
@@ -1871,7 +1872,7 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
-            PUT UNFORMATTED cDisplay SKIP.
+            PUT UNFORMATTED cDisplay FORMAT "x(125)" SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
@@ -1895,7 +1896,7 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
   IF LAST-OF(tt-report.key-02) THEN /*DOWN 2*/ PUT SKIP(2) .
 
   IF LAST(tt-report.key-01) THEN DO:
-    PUT str-line2 SKIP .
+    PUT str-line2 FORMAT "x(125)" SKIP .
 
     ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1923,7 +1924,7 @@ FOR EACH tt-report NO-LOCK /*WITH FRAME ap-chk*/
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
-            PUT UNFORMATTED cDisplay SKIP.
+            PUT UNFORMATTED cDisplay FORMAT "x(125)" SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
