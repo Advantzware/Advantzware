@@ -10,10 +10,10 @@
 &GLOBAL-DEFINE checkUserCount YES
 &SCOPED-DEFINE getCompanyProc sshoot/comp-loc.p
 &SCOPED-DEFINE appName touchscreen
-{nosweat.i}
+/* {nosweat.i} */
 
 /* Original Code */
-/*
+
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
 
@@ -85,7 +85,6 @@ END.  /* prompt login */
 
 RUN custom/gettime.p.   /* time-source */
 */
-
 IF CONNECTED(ldbname(1)) THEN DO:
     /* WFK - 15626 - Made path relative */
     RUN addon/nosweat/persist.p PERSISTENT SET Persistent-Handle.
@@ -100,4 +99,4 @@ END.
 
 ldummy = SESSION:SET-WAIT-STATE("").
 QUIT.
-*/
+
