@@ -977,9 +977,9 @@ PROCEDURE adm-disable-fields :
      &IF NUM-ENTRIES("{&adm-first-enabled-table}":U, " ":U) = 1 &THEN
        &IF DEFINED(adm-browser) NE 0 &THEN  
            /* Get focus out of the browser and then make it read-only. */
-           IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN
-           APPLY "ENTRY":U TO FRAME {&FRAME-NAME}.
-           ELSE 
+/*           IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN*/
+/*           APPLY "ENTRY":U TO FRAME {&FRAME-NAME}.                                        */
+/*           ELSE                                                                           */
            RUN notify ('apply-entry, TABLEIO-SOURCE':U).
            {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} = yes.
        &ELSE
