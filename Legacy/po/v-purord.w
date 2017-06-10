@@ -1778,6 +1778,8 @@ PROCEDURE local-display-fields :
 /* IF po-ord.stat <> "H" THEN ENABLE po-ord.approved-date fc_app_time.
  IF po-ord.stat <> "H" THEN ENABLE po-ord.approved-id.*/
 
+ RUN po/po-sysct.p.  /* for vars factor#.... need for vend-cost  */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2365,8 +2367,8 @@ PROCEDURE vend-cost :
     
         ASSIGN
             v-len = DEC(po-ordl.s-len)
-            v-wid = DEC(po-ordl.s-wid)
-            {po/calc10.i v-len}
+            v-wid = DEC(po-ordl.s-wid) .
+            {po/calc10.i v-len} .
             {po/calc10.i v-wid}.
 
         FIND FIRST ITEM NO-LOCK 
@@ -2514,8 +2516,11 @@ PROCEDURE vend-cost :
                 END.
             END.
         END. /* if item-type ne RM */
+        
+            FIND FIRST tt-eiv NO-LOCK NO-ERROR. 
+            
         IF AVAILABLE tt-eiv THEN 
-        DO:                
+        DO:      
             ASSIGN
                 v-cost = 0 /*DEC(po-ordl.cost:SCREEN-VALUE)*/
                 v-qty  = DEC(po-ordl.ord-qty).
@@ -2549,7 +2554,7 @@ PROCEDURE vend-cost :
                     po-ordl.i-no,
                     INT(po-ordl.s-num),
                     INT(po-ordl.b-num),
-                    INPUT-OUTPUT v-qty).
+                    INPUT-OUTPUT v-qty).  
             ASSIGN
                 v-save-qty = v-qty - v-save-qty
                 v-setup    = 0
