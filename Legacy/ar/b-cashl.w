@@ -602,7 +602,7 @@ DO:
       END.
 
       ASSIGN 
-          v-inv-bal:SCREEN-VALUE = STRING(calc-inv-bal(YES), "->>,>>>,>>9.99").
+          v-inv-bal:SCREEN-VALUE = STRING(calc-inv-bal(NO), "->>,>>>,>>9.99").
         
    END.
 END.
