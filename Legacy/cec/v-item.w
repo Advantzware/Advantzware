@@ -1798,6 +1798,7 @@ PROCEDURE enable-item :
     IF INDEX("DC",item.mat-type) GT 0 THEN ENABLE fi_cas-pal-w. 
     IF item.mat-type EQ "C" THEN ENABLE fi_flute fi_reg-no.
     IF INDEX("BAP",item.mat-type) GT 0 THEN ENABLE fi_ect.
+    IF INDEX("1234",item.mat-type) GT 0 THEN ENABLE fi_ect.
   END.
 
 END PROCEDURE.
@@ -2003,6 +2004,7 @@ PROCEDURE local-assign-record :
         {sys/inc/k16bb.i item.s-len}
         {sys/inc/k16bb.i item.s-dep}
         {sys/inc/k16bb.i item.r-wid}
+        item.ect = lv-ect * (IF item.mat-type EQ "P" THEN 10000 ELSE 1).
   END.      
   ELSE IF INDEX("DC",item.mat-type) > 0 THEN DO:  
         {sys/inc/k16bb.i item.case-w}
@@ -2141,6 +2143,27 @@ PROCEDURE local-display-fields :
        item.s-len:screen-value = STRING({sys/inc/k16v.i item.s-len})
        item.s-dep:screen-value = STRING({sys/inc/k16v.i item.s-dep})
        item.r-wid:screen-value = STRING({sys/inc/k16v.i item.r-wid}).
+       
+       IF ect-label EQ "" THEN
+        ASSIGN
+         ect-label  = fi_ect:LABEL
+         ect-help   = fi_ect:HELP
+         ect-format = fi_ect:FORMAT.
+
+      IF fi_mat-type EQ "P" THEN
+        ASSIGN
+         fi_ect:LABEL  = "Core Dia."
+         fi_ect:HELP   = "Please enter the Core Diameter of this roll"
+         fi_ect:FORMAT = ">,>>9.9<<<"
+         fi_ect        = item.ect / 10000.
+
+      ELSE
+        ASSIGN
+         fi_ect:LABEL  = ect-label
+         fi_ect:HELP   = ect-help
+         fi_ect:FORMAT = ect-format
+         fi_ect        = item.ect.
+
     END.
 
     ELSE
