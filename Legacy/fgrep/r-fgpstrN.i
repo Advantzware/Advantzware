@@ -82,15 +82,15 @@ for each tt-report where tt-report.term-id eq "" no-lock,
                 ASSIGN 
                     v-shipto = ""
                     v-shipto-name = "" .
-          IF fg-rcpth.rita-code EQ "R" THEN DO:
-              ASSIGN iBol-no = 0.
-          END.
-          ELSE DO:
-            FIND FIRST oe-boll
+          IF fg-rcpth.rita-code EQ "S" THEN DO:
+              FIND FIRST oe-boll NO-LOCK
                WHERE oe-boll.company EQ oe-bolh.company
-               AND oe-boll.b-no    EQ oe-bolh.b-no NO-LOCK NO-ERROR.
+               AND oe-boll.b-no    EQ oe-bolh.b-no NO-ERROR.
             IF AVAIL oe-boll THEN
                   ASSIGN iBol-no = IF AVAIL oe-boll THEN oe-boll.bol-no ELSE 0.
+          END.
+          ELSE DO:
+            ASSIGN iBol-no = 0.
           END.
 
     find first itemfg
