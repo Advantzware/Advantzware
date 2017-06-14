@@ -27,7 +27,8 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "FGRecptUnit,OeDateWarn,PREPMASTER,POFarmOutScores,OEQtyPerUnitWarn,APMatTypeExceptions," 
             + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
             + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
-            + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,PrePressHotFolderOut"  .
+            + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,PrePressHotFolderOut,"
+            + "METRIC"  .
 
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -317,6 +318,11 @@ CASE ip-nk1-value:
     WHEN "PrePressHotFolderOut" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "PrePress Hot Folder Out",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT YES /* Logical value */).
+   WHEN "METRIC" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Default Metric flag to be set",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT YES /* Logical value */).
         
