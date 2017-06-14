@@ -451,7 +451,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
     "<R59><C1>" "<B>  Signature of Receipt </B>" 
     "<R60><C1>" "Customer ________________________________________                       Carrier _______________________________________" 
     "<R62><C1>" "Date ____________________________________________                       Date _________________________________________" 
-    "<R65><C1>" "NMFC 29250 Subs: 1-10 CLASS 55: Fiberboard, Paper, Paperboard or Pulpboard NOI " 
+    "<R63><C1>" "NMFC 29250 Subs: 1-10 CLASS 55: Fiberboard, Paper, Paperboard or Pulpboard NOI " 
     .
 
   v-printline = v-printline + 14.
