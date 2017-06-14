@@ -17,42 +17,43 @@ if chosen eq 2 then DO:
     /*{oe/rep/schdrel3N.i}*/
 
 /* oe/rep/schdrel3N.i */ 
-      
-       FIND FIRST job-hdr
+       
+       ASSIGN cReasonCode  = ""
+             cReasonDesc  = "".
+
+       FIND FIRST job-hdr NO-LOCK
            WHERE job-hdr.company EQ cocode
-           AND job-hdr.job-no  EQ w-ord.job-no
-           AND job-hdr.job-no2 EQ w-ord.job-no2
-           AND job-hdr.ord-no  EQ w-ord.ord-no
-           AND job-hdr.i-no    EQ w-ord.i-no
-           NO-LOCK NO-ERROR.
+             AND job-hdr.job-no  EQ w-ord.job-no
+             AND job-hdr.job-no2 EQ w-ord.job-no2
+             AND job-hdr.ord-no  EQ w-ord.ord-no
+             AND job-hdr.i-no    EQ w-ord.i-no
+           NO-ERROR.
        IF NOT AVAIL job-hdr THEN
-           FIND FIRST job-hdr
-           WHERE job-hdr.company EQ cocode
-           AND job-hdr.job-no  EQ w-ord.job-no
-           AND job-hdr.job-no2 EQ w-ord.job-no2
-           AND job-hdr.ord-no  EQ w-ord.ord-no
-           NO-LOCK NO-ERROR.
+           FIND FIRST job-hdr NO-LOCK
+                WHERE job-hdr.company EQ cocode
+                  AND job-hdr.job-no  EQ w-ord.job-no
+                  AND job-hdr.job-no2 EQ w-ord.job-no2
+                  AND job-hdr.ord-no  EQ w-ord.ord-no
+                NO-ERROR.
        
        IF AVAIL job-hdr THEN
-           FIND FIRST job
-           WHERE job.company EQ job-hdr.company
-           AND job.job     EQ job-hdr.job
-           AND job.job-no  EQ job-hdr.job-no
-           AND job.job-no2 EQ job-hdr.job-no2
-           NO-LOCK NO-ERROR.
+           FIND FIRST job NO-LOCK
+                WHERE job.company EQ job-hdr.company
+                  AND job.job     EQ job-hdr.job
+                  AND job.job-no  EQ job-hdr.job-no
+                  AND job.job-no2 EQ job-hdr.job-no2
+                NO-ERROR.
 
        IF AVAILABLE job AND job.stat = "H" THEN DO: 
-           FIND FIRST rejct-cd WHERE rejct-cd.type = "JH" 
-               AND rejct-cd.code = job.reason NO-LOCK NO-ERROR.
+           FIND FIRST rejct-cd NO-LOCK
+                WHERE rejct-cd.type = "JH" 
+                  AND rejct-cd.code = job.reason NO-ERROR.
        
-           IF AVAILABLE rejct-cd AND AVAIL job THEN
+           IF AVAILABLE job-hdr AND AVAILABLE rejct-cd AND AVAIL job AND job.job-no NE "" THEN
                ASSIGN cReasonCode = job.reason
-               cReasonDesc  =  rejct-cd.dscr.      
+                     cReasonDesc  =  rejct-cd.dscr.      
            END.
-           ELSE ASSIGN cReasonCode  = ""
-               cReasonDesc   = "".
-
-
+          
        ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
