@@ -533,6 +533,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE cfirst-ship AS CHARACTER NO-UNDO.
+DEFINE VARIABLE clast-ship AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustno AS CHARACTER NO-UNDO.
+GET FIRST Browser-Table .
+ASSIGN cfirst-ship = shipto.ship-id .
+GET LAST Browser-Table .
+ASSIGN clast-ship = shipto.ship-id .
+       cCustno = IF AVAIL cust THEN cust.cust-no ELSE "" .
+
+RUN fg/ship-exp.w ( cCustno,cfirst-ship,clast-ship).
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records B-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
