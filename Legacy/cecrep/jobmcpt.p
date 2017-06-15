@@ -178,6 +178,9 @@ DEFINE VARIABLE v-tmp-line AS INTEGER NO-UNDO.
 DEFINE VARIABLE v-shipto AS cha NO-UNDO.
 
 DEFINE BUFFER bf-xeb FOR eb .
+DEF BUFFER b-eb1 FOR eb.
+DEF BUFFER b-eb2 FOR eb.
+DEF BUFFER b-eb3 FOR eb.
 
 {custom/formtext.i NEW}
 {sys/inc/notes.i}
@@ -252,48 +255,71 @@ FUNCTION display-cw-dim RETURNS DECIMAL
       v-pqty = 1.
       v-cp = "".
       IF AVAILABLE xeb THEN DO:
-          FOR EACH bf-xeb NO-LOCK WHERE 
-              bf-xeb.company  EQ xeb.company AND
-              bf-xeb.est-no   EQ xeb.est-no AND
-              bf-xeb.form-no  EQ xeb.form-no : 
+
+          FIND FIRST b-eb1 NO-LOCK WHERE 
+              b-eb1.company EQ xeb.company AND
+              b-eb1.est-no  EQ xeb.est-no AND
+              b-eb1.form-no NE 0 AND
+              b-eb1.blank-no NE 0
+              USE-INDEX est-qty
+              NO-ERROR.
+
+          IF AVAIL b-eb1 THEN
+              FIND FIRST b-eb2 NO-LOCK WHERE 
+              b-eb2.company EQ xeb.company AND
+              b-eb2.est-no  EQ xeb.est-no AND
+              b-eb2.form-no NE 0 AND
+              b-eb2.blank-no NE 0 AND
+              ROWID(b-eb2) NE ROWID(b-eb1)
+              USE-INDEX est-qty
+               NO-ERROR.
+
+          IF AVAIL b-eb2 THEN
+              FIND FIRST b-eb3 NO-LOCK WHERE 
+              b-eb3.company EQ xeb.company AND
+              b-eb3.est-no  EQ xeb.est-no AND
+              b-eb3.form-no NE 0 AND
+              b-eb3.blank-no NE 0 AND
+              ROWID(b-eb3) NE ROWID(b-eb1) AND
+              ROWID(b-eb3) NE ROWID(b-eb2)
+              USE-INDEX est-qty
+              NO-ERROR.
               
               DEFINE VARIABLE a-i AS INTEGER.
-            CASE bf-xeb.blank-no:
-                WHEN 1 THEN DO:
+            
+                IF AVAIL b-eb1 THEN DO:
                    v-len-array1 = "".
                    DO a-i = 1 TO 28:
-                     IF bf-xeb.k-len-array2[a-i] GT 0 THEN
-                     v-len-array1[a-i] = STRING({sys/inc/k16.i bf-xeb.k-len-array2[a-i]}) .
-                     IF bf-xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array1[a-i], ".") EQ 0 THEN
+                     IF b-eb1.k-len-array2[a-i] GT 0 THEN
+                     v-len-array1[a-i] = STRING({sys/inc/k16.i b-eb1.k-len-array2[a-i]}) .
+                     IF b-eb1.k-len-array2[a-i] GT 0 AND INDEX(v-len-array1[a-i], ".") EQ 0 THEN
                      v-len-array1[a-i] = v-len-array1[a-i] + ".0".
                    END.
                 END.
 
-                WHEN 2 THEN DO:
+                IF AVAIL b-eb2 THEN DO:
                    v-len-array2 = "".
                    DO a-i = 1 TO 28:
-                     IF bf-xeb.k-len-array2[a-i] GT 0 THEN
-                     v-len-array2[a-i] = STRING({sys/inc/k16.i bf-xeb.k-len-array2[a-i]}).
-                     IF bf-xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array2[a-i], ".") EQ 0 THEN
+                     IF b-eb2.k-len-array2[a-i] GT 0 THEN
+                     v-len-array2[a-i] = STRING({sys/inc/k16.i b-eb2.k-len-array2[a-i]}).
+                     IF b-eb2.k-len-array2[a-i] GT 0 AND INDEX(v-len-array2[a-i], ".") EQ 0 THEN
                      v-len-array2[a-i] = v-len-array2[a-i] + ".0".
                      
                    END.
                 END.
               
-                WHEN 3 THEN DO:
+                IF AVAIL b-eb3 THEN DO:
                     v-len-array3 = "".
                     DO a-i = 1 TO 28:
-                      IF bf-xeb.k-len-array2[a-i] GT 0 THEN
-                      v-len-array3[a-i] = STRING({sys/inc/k16.i bf-xeb.k-len-array2[a-i]}) .
-                      IF bf-xeb.k-len-array2[a-i] GT 0 AND INDEX(v-len-array3[a-i], ".") EQ 0 THEN
+                      IF b-eb3.k-len-array2[a-i] GT 0 THEN
+                      v-len-array3[a-i] = STRING({sys/inc/k16.i b-eb3.k-len-array2[a-i]}) .
+                      IF b-eb3.k-len-array2[a-i] GT 0 AND INDEX(v-len-array3[a-i], ".") EQ 0 THEN
                       v-len-array3[a-i] = v-len-array3[a-i] + ".0".
                       
                     END.
-                  END.
-                  
-              END CASE.
+                END.
 
-          END. /* each bf-xeb */
+         
         IF xeb.stock-no NE "" THEN v-fg = xeb.stock-no.
         v-cp = xeb.part-no.
         
