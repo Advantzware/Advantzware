@@ -130,6 +130,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
 
 
         Consultingwerk.SmartComponents.Implementation.SmartDataBrowserSettings:SmartDataBrowserActivated:Subscribe (SmartDataBrowserActivatedHandler) .
+        Consultingwerk.WindowIntegrationKit.Controls.WinKitControls:RenderedBrowseControlActivated:Subscribe (SmartDataBrowserActivatedHandler) . 
 
         SessionManager:LanguageDisplayNameChanged:Subscribe (DisplayLanguageName) .
 
@@ -1984,6 +1985,8 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
 
         IF TYPE-OF (sender, Infragistics.Win.UltraWinGrid.UltraGrid) THEN
             ultraGridColumnChooser1:SourceGrid = CAST (sender, Infragistics.Win.UltraWinGrid.UltraGrid) .
+        ELSE IF NOT VALID-OBJECT (sender) THEN 
+            ultraGridColumnChooser1:SourceGrid = ? .  
 
     END METHOD.
 
