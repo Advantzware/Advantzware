@@ -281,7 +281,7 @@ DEFINE BROWSE Browser-Table
       oe-boll.po-no COLUMN-LABEL "Customer's PO" FORMAT "x(15)":U
             LABEL-BGCOLOR 14
       oe-bolh.cust-no FORMAT "x(8)":U LABEL-BGCOLOR 14
-      itemfg.part-no FORMAT "x(12)":U LABEL-BGCOLOR 14
+      itemfg.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-boll.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       itemfg.i-name COLUMN-LABEL "FG Item Name" FORMAT "x(15)":U
             WIDTH 22 LABEL-BGCOLOR 14
