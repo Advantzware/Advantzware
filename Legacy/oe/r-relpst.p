@@ -1,2 +1,2 @@
 
-RUN oe/r-rele&p.w (YES).
+RUN oe/r-rele&p.w PERSISTENT (YES).

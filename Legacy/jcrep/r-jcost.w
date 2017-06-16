@@ -19,6 +19,6 @@ DO TRANSACTION:
 END.
 
 /*IF SelectRptColumn-log THEN - Only new selectable column  report exists */
-    RUN jcrep/r-jcostN.w.
+    RUN jcrep/r-jcostN.w PERSISTENT.
 
         

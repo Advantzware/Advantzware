@@ -862,38 +862,40 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
   RUN check-date.
 
-  IF ip-post THEN DO:
-    fi_text-1:BGCOLOR = ?.
-    DISPLAY fi_text-1.
-  END.
+/*  IF ip-post THEN DO:     */
+/*    fi_text-1:BGCOLOR = ?.*/
+/*    DISPLAY fi_text-1.    */
+/*  END.                    */
 
   {methods/nowait.i}
 
-  IF NOT ip-post THEN DO WITH FRAME {&FRAME-NAME}:
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:05 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:05 am */
-      {custom/usrprint.i}
-      /*ASSIGN tgMultipleReleases.*/  
-      APPLY "entry" TO begin_relnum.  
-      DISABLE tran-date tran-period.
-      /* In case this changes after usrprint */
-      IF tgMultipleReleases:SCREEN-VALUE NE "YES" THEN DO WITH FRAME {&FRAME-NAME}:
-           ASSIGN END_relnum:VISIBLE = FALSE begin_relnum:LABEL = "Release#".
-           DISABLE END_relnum.
-           END_relnum:SENSITIVE = NO.
+  DO WITH FRAME {&FRAME-NAME}:
+      IF NOT ip-post THEN DO:
+          {custom/usrprint.i}
+          /*ASSIGN tgMultipleReleases.*/  
+          APPLY "entry" TO begin_relnum.  
+          DISABLE tran-date tran-period.
+          /* In case this changes after usrprint */
+          IF tgMultipleReleases:SCREEN-VALUE NE "YES" THEN DO WITH FRAME {&FRAME-NAME}:
+               ASSIGN END_relnum:VISIBLE = FALSE begin_relnum:LABEL = "Release#".
+               DISABLE END_relnum.
+               END_relnum:SENSITIVE = NO.
+          END.    
       END.
-
-  END.
-  ELSE DO:
-      {custom/usrprintv.i "tgMultipleReleases"}
-      /* ASSIGN tgMultipleReleases. */
-      /* In case this changes after usrprint */
-      IF lv-last-assigned NE "YES" THEN DO:
-         RUN disable-multi-release.
+      ELSE DO:
+          fi_text-1:BGCOLOR = ?.
+          DISPLAY fi_text-1.
+          {custom/usrprintv.i "tgMultipleReleases"}
+          /* ASSIGN tgMultipleReleases. */
+          /* In case this changes after usrprint */
+          IF lv-last-assigned NE "YES" THEN DO:
+             RUN disable-multi-release.
+          END.
       END.
+      {methods/setButton.i btn-cancel "Cancel"}
+      {methods/setButton.i btn-ok "OK"}
   END.
-
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
+  {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:08 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

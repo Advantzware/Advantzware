@@ -421,24 +421,22 @@ END.
 ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME} 
        THIS-PROCEDURE:CURRENT-WINDOW = {&WINDOW-NAME}.
 
-lcProgStack =
-PROGRAM-NAME(1) 
-        + (IF PROGRAM-NAME(2) NE ? THEN "," + PROGRAM-NAME(2) ELSE "")
-        + (IF PROGRAM-NAME(3) NE ? THEN "," + PROGRAM-NAME(3) ELSE "")
-        + (IF PROGRAM-NAME(4) NE ? THEN "," + PROGRAM-NAME(4) ELSE "")
-        + (IF PROGRAM-NAME(5) NE ? THEN "," + PROGRAM-NAME(5) ELSE "")
-        + (IF PROGRAM-NAME(6) NE ? THEN "," + PROGRAM-NAME(6) ELSE "")
-        + (IF PROGRAM-NAME(7) NE ? THEN "," + PROGRAM-NAME(7) ELSE "").
-llBatchMode = INDEX(lcProgStack, "mainmenu") EQ 0.
-
-&IF DEFINED(UIB_is_Running) NE 0 &THEN
-llBatchMode = NO.
-&ENDIF
-
-IF llBatchMode THEN
-    CURRENT-WINDOW:HIDDEN = TRUE.
-ELSE
-    CURRENT-WINDOW:HIDDEN = FALSE.
+ASSIGN 
+    lcProgStack = PROGRAM-NAME(1) 
+            + (IF PROGRAM-NAME(2) NE ? THEN "," + PROGRAM-NAME(2) ELSE "")
+            + (IF PROGRAM-NAME(3) NE ? THEN "," + PROGRAM-NAME(3) ELSE "")
+            + (IF PROGRAM-NAME(4) NE ? THEN "," + PROGRAM-NAME(4) ELSE "")
+            + (IF PROGRAM-NAME(5) NE ? THEN "," + PROGRAM-NAME(5) ELSE "")
+            + (IF PROGRAM-NAME(6) NE ? THEN "," + PROGRAM-NAME(6) ELSE "")
+            + (IF PROGRAM-NAME(7) NE ? THEN "," + PROGRAM-NAME(7) ELSE "")
+    llBatchMode = INDEX(lcProgStack, "mainmenu")       EQ 0 AND  
+                  INDEX(lcProgStack, "SmartFrameWork") EQ 0
+    &IF DEFINED(UIB_is_Running) NE 0 &THEN
+    llBatchMode = NO
+    &ENDIF
+    CURRENT-WINDOW:HIDDEN = llBatchMode
+    .
+    
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:

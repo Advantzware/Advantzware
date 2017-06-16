@@ -47,7 +47,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Custom List Definitions                                              */
@@ -128,14 +128,14 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-                                                                        */
+   FRAME-NAME                                                           */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -205,7 +205,7 @@ PROCEDURE adm-create-objects :
              INPUT  '':U ,
              OUTPUT h_optiona ).
        RUN set-position IN h_optiona ( 1.00 , 1.00 ) NO-ERROR.
-       /* Size in UIB:  ( 6.91 , 35.00 ) */
+       /* Size in UIB:  ( 8.81 , 35.00 ) */
 
        /* Adjust the tab order of the smart objects. */
     END. /* Page 0 */
