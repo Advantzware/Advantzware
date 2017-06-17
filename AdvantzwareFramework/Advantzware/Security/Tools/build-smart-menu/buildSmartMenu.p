@@ -114,7 +114,7 @@ PROCEDURE asiMenu:
     DEFINE VARIABLE cMneumonic AS CHARACTER NO-UNDO .
     DEFINE VARIABLE cImage     AS CHARACTER NO-UNDO .
 
-    INPUT FROM C:\Advantzware\v17\AdvantzwareFramework\Advantzware\Security\Tools\build-smart-menu\winKitMenu.txt NO-ECHO .
+    INPUT FROM C:\Advantzware\v16\AdvantzwareFramework\Advantzware\Security\Tools\build-smart-menu\winKitMenu.txt NO-ECHO .
     REPEAT:
         IMPORT cPrgrm cMenu lAdm cType cImage .
         
@@ -205,7 +205,7 @@ PROCEDURE asiSmartFunction:
         oCallParameter               = NEW RunProcedureCallParameter () 
         oCallParameter:AllowMultiple = FALSE 
         oCallParameter:ProcedureName = dirGroup + "/" + prgrms.prgmname + "w"
-        oCallParameter:RunPersistent = TRUE
+        oCallParameter:RunPersistent = NOT CAN-DO("repstinv.,shipmeth.",prgrms.prgmname)
         .
         
     IF iplAdm THEN 

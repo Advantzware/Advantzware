@@ -124,6 +124,9 @@ DO ON ERROR UNDO, THROW:
            oForm:MENU-BAR                  = hWinKitTmpMenuBar
            oForm:OriginalWindowTitle       = {&window-name}:TITLE .
 
+/*    FILE-INFO:FILE-NAME = "Images\asi4.ico" .                              */
+/*    oFormControl:ICON = NEW System.Drawing.Icon (FILE-INFO:FULL-PATHNAME) .*/
+
     /* Mike Fechner, Consultingwerk Ltd. 28.03.2011
        WinKit Windows will get deleted by closewindow.i, the
        new functionality in BaseForm:OnFormClosed / DeleteOnFormClosed
