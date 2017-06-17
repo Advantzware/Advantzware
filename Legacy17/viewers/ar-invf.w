@@ -228,7 +228,6 @@ DO:
   DEF VAR ROWID_list AS cha NO-UNDO.
   DEF VAR TARGET_hdl AS HANDLE NO-UNDO.
 
-
   IF LASTKEY NE -1 THEN DO:
     FIND FIRST ar-inv
         WHERE ar-inv.company EQ cocode

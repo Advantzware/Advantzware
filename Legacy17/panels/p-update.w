@@ -48,6 +48,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE NoWinKit
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -74,12 +76,11 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Add Btn-Copy ~
-Btn-Delete Btn-Cancel 
+&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Cancel 
 
 /* Custom List Definitions                                              */
 /* Box-Rectangle,List-2,List-3,List-4,List-5,List-6                     */
@@ -94,28 +95,8 @@ Btn-Delete Btn-Cancel
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn-Add 
-     LABEL "&Add" 
-     SIZE 9 BY 1.29
-     FONT 4.
-
 DEFINE BUTTON Btn-Cancel 
      LABEL "Ca&ncel" 
-     SIZE 9 BY 1.29
-     FONT 4.
-
-DEFINE BUTTON Btn-Copy 
-     LABEL "&Copy" 
-     SIZE 9 BY 1.29
-     FONT 4.
-
-DEFINE BUTTON Btn-Delete 
-     LABEL "&Delete" 
-     SIZE 9 BY 1.29
-     FONT 4.
-
-DEFINE BUTTON Btn-Reset 
-     LABEL "&Reset" 
      SIZE 9 BY 1.29
      FONT 4.
 
@@ -125,19 +106,15 @@ DEFINE BUTTON Btn-Save
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 82 BY 1.76.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 31 BY 1.76.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Panel-Frame
      Btn-Save AT ROW 1.29 COL 2
-     Btn-Reset AT ROW 1.29 COL 11
-     Btn-Add AT ROW 1.29 COL 20
-     Btn-Copy AT ROW 1.29 COL 29
-     Btn-Delete AT ROW 1.29 COL 38
-     Btn-Cancel AT ROW 1.29 COL 47
+     Btn-Cancel AT ROW 1.29 COL 20.8
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY NO-HELP 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -171,8 +148,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW C-WIn ASSIGN
-         HEIGHT             = 3.05
-         WIDTH              = 92.8.
+         HEIGHT             = 1.86
+         WIDTH              = 31.4.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -180,7 +157,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-WIn 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -195,7 +171,7 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
@@ -221,25 +197,6 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME Btn-Add
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Add C-WIn
-ON CHOOSE OF Btn-Add IN FRAME Panel-Frame /* Add */
-DO:
-
-    IF NOT v-can-create THEN RETURN no-apply.
-
-   add-active = yes.
-
-  RUN notify ('add-record':U).
-  {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:32 am */
-
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:24 am */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME Btn-Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Cancel C-WIn
 ON CHOOSE OF Btn-Cancel IN FRAME Panel-Frame /* Cancel */
@@ -247,50 +204,7 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:32 am */
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:24 am */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn-Copy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Copy C-WIn
-ON CHOOSE OF Btn-Copy IN FRAME Panel-Frame /* Copy */
-DO:
-   IF NOT v-can-create THEN RETURN no-apply.
-
-   RUN notify ('copy-record':U).
-   {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:32 am */
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:24 am */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn-Delete
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Delete C-WIn
-ON CHOOSE OF Btn-Delete IN FRAME Panel-Frame /* Delete */
-DO:
-   IF NOT v-can-delete THEN RETURN no-apply.
-
-   RUN notify ('delete-record':U).  
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:24 am */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn-Reset
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Reset C-WIn
-ON CHOOSE OF Btn-Reset IN FRAME Panel-Frame /* Reset */
-DO:
-  RUN notify ('reset-record':U).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:24 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -319,22 +233,18 @@ DO:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
            RUN new-state('update-begin':U).
-           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:32 am */
            ASSIGN add-active = no.
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:32 am */
         END.                              
      END.
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:32 am */
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:24 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -368,63 +278,25 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:32 am */
-  {methods/setButton.i Btn-Reset "Reset"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:32 am */
-  {methods/setButton.i Btn-Add "Add"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:32 am */
-  {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:32 am */
-  {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:32 am */
-  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:32 am */
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE auto-add C-WIn 
-PROCEDURE auto-add :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-save C-WIn 
+PROCEDURE check-save :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEF OUTPUT PARAM op-ok AS LOG NO-UNDO.
 
-  DO WITH FRAME {&FRAME-NAME}:
-    APPLY "choose" TO Btn-Add.
-  END.
 
-END PROCEDURE.
+  DO WITH FRAME {&frame-name}:
 
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE auto-copy C-WIn 
-PROCEDURE auto-copy :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-    APPLY "choose" TO Btn-Copy.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE auto-save C-WIn 
-PROCEDURE auto-save :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  DO WITH FRAME {&FRAME-NAME}:
-    APPLY "choose" TO Btn-Save.
+    op-ok = Btn-Save:LABEL EQ '&Update' OR btn-save:SENSITIVE = NO.
   END.
 
 END PROCEDURE.
@@ -478,11 +350,6 @@ PROCEDURE local-initialize :
   DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
 
   /* Insert pre-dispatch code here. */ 
-  IF access-close THEN  do:  /* YSK  not leave window on after closed */
-     APPLY 'CLOSE' TO THIS-PROCEDURE.
-     RETURN.
-  END.
-
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT "adm-initialize":U ) .
 
@@ -509,10 +376,6 @@ PROCEDURE local-initialize :
        END.
      END.
      RUN set-buttons (adm-panel-state).
-/*
-message "local-init query-pos:" query-position " panel:" adm-panel-state skip 
-         "table-link:" tab-target-link  "end".
-*/
   END.
 
   IF panel-type = 'SAVE':U AND /* Only enable a Save panel if there's a record */
@@ -521,6 +384,19 @@ message "local-init query-pos:" query-position " panel:" adm-panel-state skip
   /* otherwise disable in case they were already enabled during initialization*/
   ELSE RUN notify('disable-fields, TABLEIO-TARGET':U). 
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-update C-WIn 
+PROCEDURE run-update :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  APPLY "choose" TO btn-save IN FRAME {&FRAME-NAME}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -549,8 +425,6 @@ PROCEDURE set-buttons :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
-
-
 
 DO WITH FRAME Panel-Frame:
 
@@ -668,20 +542,10 @@ DO WITH FRAME Panel-Frame:
   END. /* panel-state = action-chosen */
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF NOT v-can-create THEN ASSIGN btn-add:SENSITIVE = NO
-                                    btn-copy:SENSITIVE = NO.
-
-    IF NOT v-can-update THEN btn-save:SENSITIVE = NO.
-    IF NOT v-can-delete THEN btn-delete:SENSITIVE = NO.
-    /*IF NOT v-can-run THEN btn-save:SENSITIVE = NO. */
+    IF NOT v-can-update THEN ASSIGN btn-save:SENSITIVE = NO.
   END.
 
 END. /* DO WITH FRAME */
-
-/* TO-DO - change upodate button image based on it's "Label" */
-
-{Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:24 am */
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -717,38 +581,11 @@ PROCEDURE state-changed :
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
   DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
 
-
-
   CASE p-state:
       /* Object instance CASEs can go here to replace standard behavior
          or add new cases. */
       {src/adm/template/pustates.i}
   END CASE.
-
-  /* change to force buttons after delete style record */
-  run get-attribute in adm-broker-hdl ('IS-DELETED').
-  if return-value = "yes" and p-state begins "link" then do: 
-    /* message "force to enable button ".
-     run set-attribute-list in adm-broker-hdl ("IS-DELETED=no").  
-    */
-     run set-buttons ('initial'). 
-  end.
-  /* =========== end of mods ========*/
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE undo-update C-WIn 
-PROCEDURE undo-update :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  APPLY "choose" TO btn-save IN FRAME {&FRAME-NAME}.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -85,6 +85,9 @@ PROCEDURE winkit-make-ribbon-group:
     DEFINE VARIABLE cPrefix       AS CHARACTER                                                     NO-UNDO .
     DEFINE VARIABLE hContainer    AS HANDLE                                                        NO-UNDO .
 
+/*    IF NOT VALID-OBJECT (poForm) OR NOT VALID-OBJECT (poForm:ToolbarsManager) THEN*/
+/*        RETURN .                                                                  */
+
     IF lInited THEN
         RETURN .
 
@@ -109,7 +112,12 @@ PROCEDURE winkit-make-ribbon-group:
         /* Create contextual ribbon tab */
         IF poForm:ToolbarsManager:Ribbon:Tabs:Exists (cTabKey) THEN
             oRibbonTab = poForm:ToolbarsManager:Ribbon:Tabs [cTabKey].
-        ELSE DO:
+        ELSE DO ON ERROR UNDO, THROW:
+/*            IF CAST (poForm,                                                                                                   */
+/*                     Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):TabFolder:Tabs:Count < piPage THEN*/
+/*                RETURN .                                                                                                       */
+            
+            
             ASSIGN cTabCaption = CAST (poForm,
                                        Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):TabFolder:Tabs [piPage - 1]:Text 
             oRibbonTab         = poForm:ToolbarsManager:Ribbon:Tabs:Add (cTabKey) 
@@ -119,6 +127,20 @@ PROCEDURE winkit-make-ribbon-group:
             oContextual:Tabs:Add (oRibbonTab) .
             
             oContextual:Caption = cTabCaption .
+            
+            CATCH err AS Progress.Lang.Error :
+            	MESSAGE "Issue accessing tab-page" SKIP 
+            	        "piPage" piPage SKIP 
+            	        "Number of tabs:"	CAST (poForm,
+                                       Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):TabFolder:Tabs:Count SKIP 
+                         err:GetMessage(1)
+                         err:CallStack
+                     VIEW-AS ALERT-BOX . 
+                     
+                 RETURN . 
+                                       
+            END CATCH.
+            
         END.
     END.
 
