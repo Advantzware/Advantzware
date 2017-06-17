@@ -122,6 +122,35 @@ Layout,Create-On-Add,SortBy-Case
 
 /* **********************  Internal Procedures  *********************** */
 
+&IF DEFINED(EXCLUDE-local-destroy) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winkit-destroy Method-Library
+PROCEDURE winkit-destroy:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  IF VALID-OBJECT (oRenderedBrowseControl) THEN 
+    oRenderedBrowseControl:StoreSettings () . 
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'destroy':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
 &IF DEFINED(EXCLUDE-winkit-initialize) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE winkit-initialize Method-Library
@@ -200,6 +229,7 @@ PROCEDURE winkit-initialize:
                 oRenderedBrowseContext:BindingSourceFields = Consultingwerk.WindowIntegrationKit.Controls.BindingSourceFieldsEnum:BrowserFields
                 oRenderedBrowseContext:BrowseHandle        = BROWSE {&BROWSE-NAME}:HANDLE
                 oRenderedBrowseContext:EmbeddedWindowForm  = oForm
+                oRenderedBrowseContext:SettingsKey         = THIS-PROCEDURE:FILE-NAME  
                 oRenderedBrowseContext:CallBackProcedure   = THIS-PROCEDURE
                 oRenderedBrowseContext:EnableSearch        = TRUE
                 oRenderedBrowseControl = NEW Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseWithSearchControl (oRenderedBrowseContext)
