@@ -10,7 +10,7 @@
 
 {sys/inc/var.i new shared}
 
-assign
+ASSIGN 
  cocode = gcompany
  locode = gloc.
 
@@ -19,6 +19,6 @@ DO TRANSACTION:
 END.
 
 /*IF SelectRptColumn-log THEN - Only new selectable column  report exists */
-    RUN jcrep/r-wipjobN.w.
+    RUN jcrep/r-wipjobN.w PERSISTENT.
 
         

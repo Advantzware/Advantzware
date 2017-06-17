@@ -2046,7 +2046,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
 
         /* Initialize WinKit colors */
         Consultingwerk.Util.StyleLibraryHelper:SetProgressColorTable
-            (17, "UltraPanel":U, RoleState:Normal, "WinKit":U) .
+            (31, "UltraPanel":U, RoleState:Normal, "WinKit":U) .
 
     END METHOD .
 

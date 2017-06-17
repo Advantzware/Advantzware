@@ -23,11 +23,6 @@ OUTPUT cRtnChar, OUTPUT lRecFound).
 DO TRANSACTION:
    {sys/inc/selrptcol.i "OR6" }
 END.*/
-IF cRtnChar = "" THEN RUN oerep/r-bolmstA.w.
-ELSE  IF cRtnChar = "Trailer#" THEN RUN oerep/r-bolmstA.w.
-ELSE RUN oerep/r-bolmstN.w.
-        
-
-
-
-
+IF cRtnChar EQ "" THEN RUN oerep/r-bolmstA.w PERSISTENT.
+ELSE  IF cRtnChar EQ "Trailer#" THEN RUN oerep/r-bolmstA.w PERSISTENT.
+ELSE RUN oerep/r-bolmstN.w PERSISTENT.

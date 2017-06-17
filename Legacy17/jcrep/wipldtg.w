@@ -1746,7 +1746,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         APPLY "entry" TO fi_sheets-pallet.
     END. /* IF vl-InputParameters THEN */    
     ELSE APPLY "entry" TO fi_rmtagno.
-
+    {methods/setButton.i btn-cancel "Cancel"}
+    {methods/setButton.i btn-ok "OK"}
   END.
 
     {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:07 am */
