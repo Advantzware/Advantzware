@@ -214,7 +214,7 @@ DEFINE TEMP-TABLE ShipmentHeader /*excel row 159 */
     FIELD ShipNoticeTime AS CHAR
     FIELD ASNStructureCode AS CHAR INIT "0001"  /*SOPI*/
     FIELD BillOfLadingNumber AS CHAR
-    FIELD CarrierProNumber AS CHAR
+    FIELD CarrierProNumber AS CHAR SERIALIZE-HIDDEN
     FIELD CurrentScheduledDeliveryDate AS DATE
     .
 
@@ -638,8 +638,8 @@ PROCEDURE ShipmentHeaderAfterRowFill:
     ASSIGN Address.Partner = shipmentHeader.partner
            Address.shipmentIdentification = shipmentHeader.ShipmentIdentification
            Address.AddressTypeCode = "ST"
-           address.LocationCodeQualifier = "1"  /* 1: DUN#, 6: Plant Code */
-           address.AddressLocationNumber = "DUNS Number"
+           address.LocationCodeQualifier = "6"  /* 1: DUN#, 6: Plant Code */
+           address.AddressLocationNumber = (IF AVAILABLE shipto THEN shipto.ship-id ELSE "Plant")
            address.AddressName = v-ship-name
            address.Address1 = v-ship-addr[1]
            address.Address2 = v-ship-addr[2]
@@ -652,7 +652,7 @@ PROCEDURE ShipmentHeaderAfterRowFill:
     CREATE CarrierInformation.
     ASSIGN CarrierInformation.Partner = shipmentHeader.partner
            CarrierInformation.shipmentIdentification = shipmentHeader.ShipmentIdentification
-           CarrierInformation.CarrierAlphaCode = "SCAC"
+           CarrierInformation.CarrierAlphaCode = (IF AVAILABLE shipto THEN shipto.scac ELSE "SCAC")
            .               
     DEFINE VARIABLE iBolQty AS INTEGER NO-UNDO.
     DEFINE VARIABLE dBolWgt AS DECIMAL NO-UNDO.

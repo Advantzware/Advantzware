@@ -50,7 +50,7 @@ ASSIGN cSourceType = "FILE"
        lOverrideDefaultMapping = NO.
 
 
-    lReturn = hPDS:READ-XML (cSourceType, cFile, cReadMode, cSchemaLocation, lOverrideDefaultMapping).   
+    lReturn = hPDS:READ-XML (cSourceType, cFile, cReadMode, cSchemaLocation, lOverrideDefaultMapping).
     IF lReturn THEN RUN BuildEdiTables. 
    
 /*FOR EACH OrderHeader NO-LOCK :                                                                       */
@@ -221,7 +221,7 @@ PROCEDURE BuildEdiTables:
             edpoline.unit-price = OrderLine.PurchasePrice
             edpotran.order-amount = edpotran.order-amount 
                 + round(edpoline.qty-orig-ord * edpoline.unit-price, 2)
-     edpoline.uom-code = OrderLine.
+     edpoline.uom-code = OrderLine.OrderQtyUOM 
             .
 /*  EDPOLine.cust-po-line                              */
 /*  EDPOLine.cust-item-no                              */
