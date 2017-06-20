@@ -290,6 +290,12 @@ DEFINE VAR hds855xml AS HANDLE NO-UNDO.
     
 /* ********************  Preprocessor Definitions  ******************** */
 
+/* ************************  Function Prototypes ********************** */
+
+
+FUNCTION fnDateToString RETURNS CHARACTER 
+	(ipdDate AS DATE  ) FORWARD.
+
 
 /* ***************************  Main Block  *************************** */
 
@@ -448,10 +454,9 @@ PROCEDURE OrderHeaderAfterRowFill:
   iOrderHeaderCount = iOrderHeaderCount + 1.
   lOrderHeaderDeleted = NO.
   
-  ASSIGN OrderHeader.AcknowledgementDate = STRING(YEAR(TODAY),"9999") + string(MONTH(TODAY),"99")
-                                           + string(DAY(TODAY),"99") 
+  ASSIGN OrderHeader.AcknowledgementDate = fnDateToString(TODAY) 
          OrderHeader.AcknowledgementType = "AD"  /* AC - Ack with detail and change, AD - ACK with detail without change */                                   
-         OrderHeader.PurchaseOrderDate = STRING(YEAR(EDPOTran.Order-date),"9999") + string(MONTH(EDPOTran.order-date),"99") + string(DAY(EDPOTran.order-date),"99")                                   
+         OrderHeader.PurchaseOrderDate = fnDateToString(EDPOTran.Order-Date)                                   
          .
 
 /*
@@ -548,7 +553,7 @@ PROCEDURE OrderLineAfterRowFill:
          LineItemAcknowledgement.ItemScheduleQty = "1"
          LineItemAcknowledgement.ItemScheduleUOM = "EA"
          LineItemAcknowledgement.ItemScheduleQualifier = "017" /* 017: Estimated Delivery Date, 067: Current Scheduled Delivery Date */
-         LineItemAcknowledgement.ItemScheduleDate = STRING(YEAR(TODAY),"9999") + string(MONTH(TODAY),"99") + string(DAY(TODAY),"99")
+         LineItemAcknowledgement.ItemScheduleDate = fnDateToString(TODAY)
          .
       FIND FIRST summary NO-ERROR.
       IF AVAILABLE summary THEN SUMMARY.TotalLineItemNumber = SUMMARY.TotalLineItemNumber + 1.
@@ -623,4 +628,22 @@ PROCEDURE tHeaderAfterFill:
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER DATASET-HANDLE phDataSet.
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fnDateToString RETURNS CHARACTER 
+	(ipdDate AS DATE):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+
+		DEFINE VARIABLE opcDate AS CHARACTER NO-UNDO.
+        opcDate = STRING(YEAR(ipdDate),"9999") 
+                    + "-" + string(MONTH(ipdDate),"99")
+                    + "-" + string(DAY(ipdDate),"99").        
+		RETURN opcDate.
+		
+END FUNCTION.
 
