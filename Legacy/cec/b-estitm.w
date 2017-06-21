@@ -3202,7 +3202,7 @@ PROCEDURE copy-line :
   ll-new-record = YES.
        
   IF ls-add-what EQ "form" THEN
-    RUN cec/new-form.p (ROWID(est), OUTPUT lv-rowid).
+    RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT lv-rowid).
   ELSE
     RUN cec/newblank.p (ROWID(ef), OUTPUT lv-rowid).
 
@@ -3439,8 +3439,9 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
      iCount = iCount + 1.
       
     IF iCount = 1 THEN DO:
-        RUN cec/new-est.p (IF iArtiosCount = 1 THEN 5 ELSE 6,
-                      OUTPUT lv-crt-est-rowid).
+        RUN est/NewEstimate.p ('C',
+                               IF iArtiosCount = 1 THEN 5 ELSE 6,
+                               OUTPUT lv-crt-est-rowid).
      END.
      
      FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid  NO-ERROR.
@@ -3833,8 +3834,9 @@ PROCEDURE createESTfromArtios :
      iCount = iCount + 1.
       
      IF iCount = 1 THEN DO:
-        RUN cec/new-est.p (IF iArtiosCount = 1 THEN 5 ELSE 6,
-                      OUTPUT lv-crt-est-rowid).
+        RUN est/NewEstimate.p ('C',
+                               IF iArtiosCount = 1 THEN 5 ELSE 6,
+                               OUTPUT lv-crt-est-rowid).
      END.
      ELSE DO:
         
@@ -3842,7 +3844,7 @@ PROCEDURE createESTfromArtios :
            FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid NO-LOCK NO-ERROR.
            FIND FIRST est OF ef NO-LOCK NO-ERROR.
 
-           RUN cec/new-form.p (ROWID(est), OUTPUT lv-crt-est-rowid).
+           RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT lv-crt-est-rowid).
            
         END.
         ELSE IF FIRST-OF(tt-artios.blank-num) THEN DO:
@@ -4089,8 +4091,9 @@ PROCEDURE createEstFromImpact :
      iCount = iCount + 1.
       
      IF iCount = 1 THEN DO:
-        RUN cec/new-est.p (IF iArtiosCount = 1 THEN 5 ELSE 6,
-                      OUTPUT lv-crt-est-rowid).
+        RUN est/NewEstimate.p ('C',
+                               IF iArtiosCount = 1 THEN 5 ELSE 6,
+                               OUTPUT lv-crt-est-rowid).
      END.
      ELSE DO:
         
@@ -4098,7 +4101,7 @@ PROCEDURE createEstFromImpact :
            FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid NO-LOCK NO-ERROR.
            FIND FIRST est OF ef NO-LOCK NO-ERROR.
 
-           RUN cec/new-form.p (ROWID(est), OUTPUT lv-crt-est-rowid).
+           RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT lv-crt-est-rowid).
            
         END.
         ELSE IF FIRST-OF(tt-artios.blank-num) THEN DO:
@@ -4470,8 +4473,9 @@ PROCEDURE crt-new-est :
 
   ll-new-record = YES.
   
-  RUN cec/new-est.p (IF ls-add-what EQ "est" THEN 5 ELSE 6,
-                     OUTPUT lv-crt-est-rowid).
+  RUN est/NewEstimate.p ('C',
+                         IF ls-add-what EQ "est" THEN 5 ELSE 6,
+                         OUTPUT lv-crt-est-rowid).
 
   FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid NO-LOCK NO-ERROR.
   FIND FIRST ef OF eb NO-LOCK NO-ERROR.
@@ -4499,7 +4503,7 @@ PROCEDURE crt-new-set :
   RUN set-or-combo.
 
   IF ls-add-what EQ "form" THEN
-     RUN cec/new-form.p (ROWID(est), OUTPUT lv-rowid).
+     RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT lv-rowid).
   ELSE
      RUN cec/newblank.p (ROWID(ef), OUTPUT lv-rowid).
 
