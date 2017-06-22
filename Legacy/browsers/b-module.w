@@ -35,8 +35,6 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-DEF VAR v-db-name AS cha NO-UNDO.
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -64,11 +62,9 @@ module.expire-date module.is-used
 module.expire-date module.is-used 
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table module
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table module
-&Scoped-define QUERY-STRING-br_table FOR EACH module ~
-      WHERE module.db-name = v-db-name NO-LOCK ~
+&Scoped-define QUERY-STRING-br_table FOR EACH module NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH module ~
-      WHERE module.db-name = v-db-name NO-LOCK ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH module NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br_table module
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table module
@@ -273,15 +269,14 @@ ASSIGN
      _TblList          = "asi.module"
      _Options          = "NO-LOCK SORTBY-PHRASE"
      _OrdList          = "asi.module.dscr|yes"
-     _Where[1]         = "asi.module.db-name = v-db-name"
      _FldNameList[1]   > asi.module.dscr
-"dscr" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"module.dscr" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > asi.module.module
-"module" ? "X(40)" "character" ? ? ? 14 ? ? yes ? no no "42" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"module.module" ? "X(40)" "character" ? ? ? 14 ? ? yes ? no no "42" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.module.expire-date
-"expire-date" ? ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"module.expire-date" ? ? "date" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.module.is-used
-"is-used" "Module Purchased?" ? "logical" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"module.is-used" "Module Purchased?" ? "logical" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -398,13 +393,13 @@ DO:
            lv-choice.
 
     IF lv-choice EQ "Description" THEN
-       FIND FIRST asi.bf-mod WHERE asi.bf-mod.db-name = v-db-name AND
-            asi.bf-mod.dscr BEGINS lv-search
-            NO-LOCK NO-ERROR.
+       FIND FIRST asi.bf-mod NO-LOCK
+            WHERE asi.bf-mod.dscr BEGINS lv-search
+           NO-ERROR.
     ELSE
-       FIND FIRST asi.bf-mod WHERE asi.bf-mod.db-name = v-db-name AND
-            asi.bf-mod.module BEGINS lv-search
-            NO-LOCK NO-ERROR.
+       FIND FIRST asi.bf-mod NO-LOCK
+            WHERE asi.bf-mod.module BEGINS lv-search
+           NO-ERROR.
 
     IF AVAIL asi.bf-mod THEN DO:
        REPOSITION {&browse-name} TO ROWID ROWID(bf-mod) NO-ERROR.
@@ -532,9 +527,9 @@ PROCEDURE local-open-query :
   DEF VAR char-hdl AS cha NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
+  /*RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
-       RUN get-db-name IN WIDGET-HANDLE(char-hdl) (OUTPUT v-db-name).
+       RUN get-db-name IN WIDGET-HANDLE(char-hdl) (OUTPUT v-db-name).*/
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
