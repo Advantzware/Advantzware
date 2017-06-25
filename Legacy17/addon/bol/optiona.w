@@ -29,10 +29,9 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-
 {methods/defines/hndldefs.i}
-
 DEF SHARED VAR g-sharpshooter AS LOG NO-UNDO.
+DEFINE VARIABLE hProgram AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -178,13 +177,10 @@ ASSIGN
 &Scoped-define SELF-NAME Btn_bol
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_bol s-object
 ON CHOOSE OF Btn_bol IN FRAME F-Main /* Create BOL */
-DO:
-    
-
-    IF g-sharpshooter THEN RUN addon/bol/s-relbol.w.
-    ELSE RUN addon/bol/w-relbol.w.
-    
-  
+DO:   
+    IF g-sharpshooter THEN RUN addon/bol/s-relbol.w PERSISTENT SET hProgram.
+    ELSE RUN addon/bol/w-relbol.w PERSISTENT SET hProgram.
+    RUN dispatch IN hProgram ("initialize").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -208,10 +204,7 @@ ON CHOOSE OF btn_pick-ticket IN FRAME F-Main /* Print Pick Ticket */
 DO:
    IF CAN-FIND(FIRST asi._file WHERE
       asi._file._File-Name = "ssrelbol") THEN
-   DO:
-       RUN oerep/r-relprt.w.
-      
-   END.
+   RUN oerep/r-relprt.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -224,11 +217,10 @@ ON CHOOSE OF btn_update_rel IN FRAME F-Main /* Update Release */
 DO:
    IF CAN-FIND(FIRST asi._file WHERE
       asi._file._File-Name = "ssrelbol") THEN
-   DO:      
-
-      IF g-sharpshooter THEN RUN addon/bol/s-updrel.w.
-      ELSE RUN addon/bol/w-updrel.w.
-      
+   DO:     
+      IF g-sharpshooter THEN RUN addon/bol/s-updrel.w PERSISTENT SET hProgram.
+      ELSE RUN addon/bol/w-updrel.w PERSISTENT SET hProgram.
+      RUN dispatch IN hProgram ("initialize").
    END.
 END.
 

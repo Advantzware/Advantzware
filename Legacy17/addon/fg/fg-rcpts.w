@@ -498,9 +498,10 @@ PROCEDURE local-view :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  /*RUN auto-add IN  h_p-updbar.*/
-  IF lvlAutoAdd THEN
-    RUN scan-next IN h_b-rcptds.
+  IF lvlAutoAdd THEN DO:
+      {methods/selectTab.i 1}
+      RUN scan-next IN h_b-rcptds.
+  END.
 
 END PROCEDURE.
 

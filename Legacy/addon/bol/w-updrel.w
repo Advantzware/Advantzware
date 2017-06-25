@@ -445,6 +445,7 @@ PROCEDURE local-view :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  {methods/selectTab.i 1}
 
   RUN apply-entry-rel IN h_b-updrel.
 

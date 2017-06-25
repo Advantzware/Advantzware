@@ -982,9 +982,11 @@ PROCEDURE adm-disable-fields :
            IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN
            DO ON ERROR UNDO, THROW:
                DEFINE VARIABLE hSomethingElse AS HANDLE NO-UNDO.
-               CREATE FILL-IN hSomethingElse ASSIGN  
+               CREATE FILL-IN hSomethingElse
+               ASSIGN  
                     FRAME = FRAME {&frame-name}:HANDLE 
-                    VISIBLE = TRUE SENSITIVE = TRUE .                    
+                    VISIBLE = TRUE
+                    SENSITIVE = TRUE .                    
                hSomethingElse:MOVE-TO-TOP () . 
                APPLY "entry" TO hSomethingElse .
                {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} = YES.
