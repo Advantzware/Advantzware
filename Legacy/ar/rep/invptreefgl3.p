@@ -418,7 +418,7 @@ FOR EACH report
   for each ar-invl no-lock where ar-invl.x-no = ar-inv.x-no
       BREAK BY ar-invl.misc:  /* stacey - added */
 
-      IF ar-invl.inv-qty EQ 0 AND ar-invl.ship-qty EQ 0 THEN NEXT .
+      IF ar-invl.inv-qty EQ 0 AND ar-invl.ship-qty EQ 0 AND NOT ar-invl.misc THEN NEXT .
 
     v-po-no = ar-invl.lot-no.
 
