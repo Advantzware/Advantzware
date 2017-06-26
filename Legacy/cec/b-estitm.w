@@ -33,6 +33,7 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}    
 {custom/gloc.i}
 {custom/persist.i}
+{est/ttInputEst.i NEW}
     
 DEF VAR ls-add-what AS cha NO-UNDO.
 DEF VAR ll-add-set AS LOG NO-UNDO INIT NO.
@@ -5088,6 +5089,10 @@ PROCEDURE local-add-record :
      RUN est/d-frmout.w (cocode).
      RUN createESTFarmOut.
   END.
+  ELSE IF ls-add-what = "ImportForm" THEN DO:
+      RUN est/dImportEst.w (cocode).
+      RUN pCreateFormFromImport.
+  END.
   ELSE DO:
     {est/d-cadcamrun.i}
 
@@ -6654,6 +6659,41 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateFormFromImport B-table-Win
+PROCEDURE pCreateFormFromImport:
+/*------------------------------------------------------------------------------
+ Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
+ Notes:
+------------------------------------------------------------------------------*/
+  DEF VAR iCount AS INT NO-UNDO.
+   
+  ASSIGN
+    ll-new-record = YES
+    iCount = 0
+    .
+
+  FOR EACH ttInputEst:
+      ttInputEst.riParentEst = ROWID(est).
+      iCount = iCount + 1.
+  END.
+  
+  RUN est/BuildEstimate.p ("C").
+  
+  
+  IF iCount > 0 THEN DO:
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+     RUN new_record IN WIDGET-HANDLE(char-hdl)  (lv-crt-est-rowid).
+  END. 
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-blanks B-table-Win 
 PROCEDURE redisplay-blanks :
