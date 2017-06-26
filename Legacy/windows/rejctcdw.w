@@ -7,7 +7,7 @@
 /*------------------------------------------------------------------------
 
   File: windows/item-com.w
-          
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -24,14 +24,14 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 
-
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ip-type AS CHARACTER NO-UNDO. /* rjct-cd.type */
-DEFINE INPUT PARAMETER ip-code-label AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ip-desc-label AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ip-win-title AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ip-container-handle AS HANDLE NO-UNDO.
+
 /* Local Variable Definitions ---                                       */
+
+DEFINE VARIABLE ip-type AS CHARACTER NO-UNDO INITIAL "{1}". /* rjct-cd.type */
+DEFINE VARIABLE ip-code-label AS CHARACTER NO-UNDO INITIAL "{2}".
+DEFINE VARIABLE ip-desc-label AS CHARACTER NO-UNDO INITIAL "{3}".
+DEFINE VARIABLE ip-win-title AS CHARACTER NO-UNDO INITIAL "{4}".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -129,11 +129,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon\progress":U) THEN
-    MESSAGE "Unable to load icon: adeicon\progress"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
-&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -197,7 +192,7 @@ THEN W-Win:HIDDEN = YES.
 */  /* FRAME OPTIONS-FRAME */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -236,8 +231,6 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-RUN DISABLE_ui IN ip-container-handle NO-ERROR.
-RUN local-exit IN ip-container-handle NO-ERROR.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}
@@ -462,9 +455,9 @@ PROCEDURE local-exit :
   Notes:    If activated, should APPLY CLOSE, *not* dispatch adm-exit.   
 -------------------------------------------------------------*/
    APPLY "CLOSE":U TO THIS-PROCEDURE.
-   
+
    RETURN.
-       
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
