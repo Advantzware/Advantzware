@@ -1350,16 +1350,7 @@ DO:
            
            IF AVAILABLE fg-rcpth THEN DO:
             
-              IF AVAILABLE fg-rdtlh AND fg-rdtlh.tag GT "" THEN DO:
-                FOR EACH fg-rctd EXCLUSIVE-LOCK 
-                    WHERE fg-rctd.company EQ fg-rdtlh.company
-                      AND fg-rctd.tag     EQ fg-rdtlh.tag
-                      AND fg-rctd.rita-code EQ 'P'
-                    USE-INDEX tag:
-                  DELETE fg-rctd.
-                END.              
-              END.
-              
+            
               FOR EACH bf-fg-rdtlh EXCLUSIVE-LOCK 
                           WHERE bf-fg-rdtlh.r-no EQ fg-rcpth.r-no:
                  DELETE bf-fg-rdtlh.
