@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:25 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -274,27 +274,27 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.machemp,EMPTRACK.machtran WHERE EMPTRACK.machemp ..."
+     _TblList          = "machemp,machtran WHERE machemp ..."
      _Options          = "NO-LOCK KEY-PHRASE"
      _TblOptList       = "USED,"
-     _OrdList          = "EMPTRACK.machemp.employee|yes,EMPTRACK.machemp.start_date|yes,EMPTRACK.machemp.start_time|yes"
+     _OrdList          = "machemp.employee|yes,machemp.start_date|yes,machemp.start_time|yes"
      _Where[1]         = "machemp.posted = no"
      _Where[2]         = "machtran.rec_key eq machemp.table_rec_key
  AND machtran.company = g_company"
-     _FldNameList[1]   = EMPTRACK.machemp.employee
+     _FldNameList[1]   = machemp.employee
      _FldNameList[2]   > "_<CALC>"
 "Employee-Name(machtran.company,machemp.employee) @ employee-name" "Name" "X(14)" ? ? ? ? ? ? ? no ?
-     _FldNameList[3]   = EMPTRACK.machtran.machine
-     _FldNameList[4]   > EMPTRACK.machemp.start_date
+     _FldNameList[3]   = machtran.machine
+     _FldNameList[4]   > machemp.start_date
 "machemp.start_date" "Start Date1" ? "date" ? ? ? ? ? ? no ?
      _FldNameList[5]   > "_<CALC>"
 "STRING(machemp.start_time,'HH:MM am') @ start-time" "Started" "X(8)" ? ? ? ? ? ? ? no ?
-     _FldNameList[6]   = EMPTRACK.machemp.end_date
-     _FldNameList[7]   = EMPTRACK.machemp.shift
+     _FldNameList[6]   = machemp.end_date
+     _FldNameList[7]   = machemp.shift
      _FldNameList[8]   > "_<CALC>"
 "Time_String(machemp.end_time,yes) @ end-time" "Ended" "X(8)" ? ? ? ? ? ? ? no ?
-     _FldNameList[9]   = EMPTRACK.machemp.ratetype
-     _FldNameList[10]   = EMPTRACK.machemp.posted
+     _FldNameList[9]   = machemp.ratetype
+     _FldNameList[10]   = machemp.posted
      _FldNameList[11]   > "_<CALC>"
 "Time_String(machemp.total_time,no) @ total-time" "Total" "X(5)" ? ? ? ? ? ? ? no ?
      _Query            is NOT OPENED

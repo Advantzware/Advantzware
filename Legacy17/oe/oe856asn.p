@@ -13,12 +13,13 @@
 /***************************************************************************/
 
 /* ***************************  Definitions  ************************** */
+
 {edi/sharedv.i}
 {edi/edivars.i}
-DEFINE INPUT PARAMETER ipbol-recid AS RECID NO-UNDO.
-def shared var v-emp-id like soldto.sold-id no-undo.
-def shared var v-emp-recid as recid no-undo.
-def SHARED var v-mast-bol-no like oe-bolh.bol-no format ">>>>>9" no-undo.
+
+def /*shared*/ var v-emp-id like soldto.sold-id no-undo.
+def /*shared*/ var v-emp-recid as recid no-undo.
+def /*SHARED*/ var v-mast-bol-no like oe-bolh.bol-no format ">>>>>9" no-undo.
 def var local-debug as logical no-undo initial false.
 def var i as int no-undo.
 DEF BUFFER dc FOR edshipto.
@@ -26,6 +27,7 @@ def var ws_bol_chardate as char no-undo format "x(08)".
 def var ws_userref like eddoc.userref no-undo.
 DEF VAR ws_pallet-mark LIKE edshline.pallet-mark no-undo.
 DEF VAR ws_carton-mark LIKE edshline.carton-mark no-undo.
+
 /*/*/*DEFINE VARIABLE ws_company AS CHARACTER NO-UNDO.*/*/   */
 /*/*DEFINE VARIABLE ws_partner AS CHARACTER NO-UNDO.    */   */
 /*DEFINE VARIABLE bill_of_lading_number AS CHARACTER NO-UNDO.*/
@@ -34,16 +36,27 @@ DEF VAR ws_carton-mark LIKE edshline.carton-mark no-undo.
 
 
 /* ***************************  Main Block  *************************** */
-FIND oe-bolh WHERE RECID(oe-bolh) = ipbol-recid NO-LOCK NO-ERROR.
+
+FIND oe-bolh WHERE RECID(oe-bolh) = ws_process_rec NO-LOCK NO-ERROR.
 IF NOT AVAIL oe-bolh THEN RETURN.
+
 FIND edmast WHERE RECID(edmast) = ws_edmast_rec
   EXCLUSIVE-LOCK NO-ERROR.
-IF NOT AVAIL edmast THEN
-RETURN.
-FIND edcode WHERE RECID(edcode) = ws_edcode_rec
+IF NOT AVAIL edmast THEN RETURN.
+
+FIND edcode WHERE /*RECID(edcode) = ws_edcode_rec*/
+                  EDCode.Partner = EDMast.Partner 
+              AND EDCode.SetID = "856"
+              AND EDCode.Direction = "o"
+              AND EDCode.Version = 1
   NO-LOCK NO-ERROR.
-IF NOT AVAIL edcode THEN
-RETURN.
+IF NOT AVAIL edcode THEN DO: 
+   CREATE EDCode.
+   ASSIGN EDCode.Partner = EDMast.partner
+          EDCode.SetID = "856"
+          EDCode.Direction = "O" /* for Outbound */
+          EDCode.Version = 1.
+END.
 
 ASSIGN
   ws_company = oe-bolh.company
@@ -52,15 +65,17 @@ ASSIGN
 	= string(year (oe-bolh.bol-date),"9999")
 	+ string(month(oe-bolh.bol-date),"99")
 	+ string(day  (oe-bolh.bol-date),"99")
-  bill_of_lading_number = string(v-mast-bol-no)
+  bill_of_lading_number = string(oe-bolh.bol-no)  /*string(v-mast-bol-no)*/
   ws_userref =
     ws_bol_chardate + '-' + oe-bolh.trailer
     .
     
+
 FOR EACH oe-boll
     WHERE oe-boll.b-no = oe-bolh.b-no
     and can-do("S,B", oe-boll.s-code)   /* not invoice only */
     :
+        
 /*  FIND carrier OF oe-bolh NO-LOCK NO-ERROR. */
   FIND carrier where carrier.company eq oe-bolh.company
 		 and carrier.carrier eq oe-bolh.carrier
@@ -94,6 +109,7 @@ FOR EACH oe-boll
   i1 = 1.
   i2 = 0.
   /* create a string with only numeric digits from the po number */
+  
   do i1 = 1 to length(p1):
     if  substring(p1,i1,1) >= "0"
     and substring(p1,i1,1) <= "9"
@@ -118,7 +134,7 @@ FOR EACH oe-boll
     NO-LOCK NO-ERROR.
   IF AVAIL inv-line THEN
   DO:
-    RUN ed/asi/lkupstby.p
+    RUN edi/ed/asi/lkupstby.p
       (INPUT RECID(inv-line),
       OUTPUT location_number,
       OUTPUT ordering_store_number).
@@ -132,6 +148,7 @@ FOR EACH oe-boll
     AND edshipto.cust = edmast.cust
     AND edshipto.ship-to = oe-bolh.ship-id NO-LOCK NO-ERROR.
   if avail edshipto then ordering_store_number = edshipto.by-code.
+  
   IF local-debug and NOT AVAIL edshipto THEN
   DO:
     BELL.
@@ -141,6 +158,7 @@ FOR EACH oe-boll
   END.
   /* 9706 CAH: v-emp-id overrides st code */
   if v-emp-id > "" then location_number = v-emp-id.
+  
   FIND FIRST edpotran
     WHERE edpotran.partner      = edmast.partner
     AND edpotran.cust-po        = oe-ord.po-no
@@ -187,14 +205,17 @@ FOR EACH oe-boll
     EXCLUSIVE NO-ERROR.
   IF NOT AVAIL edshtran THEN
   DO:
-    run ed/gendoc.p (recid(edcode), bill_of_lading_number, output ws_eddoc_rec).
+      
+    run edi/ed/gendoc.p (recid(edcode), bill_of_lading_number, output ws_eddoc_rec).
     find eddoc where recid(eddoc) = ws_eddoc_rec exclusive.
+    IF AVAILABLE EDDoc then
     ASSIGN
-      eddoc.docseq        = INTEGER(location_number)
+      eddoc.docseq        = ws_eddoc_rec /*INTEGER(location_number)*/
       eddoc.st-code       = location_number
       eddoc.userref       = ws_userref
 	/* "B-NO: " + STRING(oe-bolh.b-no) */
       .
+
     CREATE edshtran.
     ASSIGN
       edshtran.partner  = eddoc.partner
@@ -228,6 +249,7 @@ FOR EACH oe-boll
 	edshtran.routing[i] = oe-bolh.ship-i[i].
       end.
   END.
+
   FIND FIRST edshline
     WHERE edshline.partner = edshtran.partner
     and edshline.seq = edshtran.seq
@@ -268,6 +290,7 @@ FOR EACH oe-boll
       edshtran.lines = edshtran.lines + 1
       .
   END.
+  
   ASSIGN
     {edi/accum.i edshline.qty-shipped "(oe-boll.qty / oe-boll.qty-case)" }
     {edi/accum.i edshline.tot-cartons oe-boll.cases}
@@ -308,6 +331,7 @@ FOR EACH oe-boll
 	if avail itemfg   then itemfg.procat else ""
       .
   END.
+  
   ASSIGN
     {edi/incr.i edshord.lines}
     edshord.last-line = MAX(edshord.last-line,
@@ -332,6 +356,7 @@ FOR EACH oe-boll
       edshtare.package-code = ""
       .
   END.
+  
   ASSIGN
     {edi/accum.i edshtare.tot-cartons edshline.tot-cartons}
     {edi/accum.i edshtare.tot-volume  edshline.tot-volume}
@@ -360,4 +385,8 @@ FOR EACH oe-boll
     {edi/accum.i edshpack.tot-volume  edshline.tot-volume}
     {edi/accum.i edshpack.tot-wght    edshline.tot-wght}
     .
+    
 END.    /* each oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no */
+
+RUN edi/sp856xml.p (oe-bolh.bol-no, EDSHTran.partner, EDSHTran.seq).
+

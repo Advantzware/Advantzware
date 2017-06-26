@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:53 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -259,14 +259,16 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_code V-table-Win
 ON LEAVE OF notes.note_code IN FRAME F-Main /* Dept */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and self:screen-value <> "" and
       not can-find(dept where dept.code = self:screen-value)
       then do:
          message "Invalid Deptartment Code. Try Help." view-as alert-box error.
          return no-apply.
       end.
-
+      {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -288,13 +290,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_group V-table-Win
 ON LEAVE OF notes.note_group IN FRAME F-Main /* Group */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and notes.note_group:screen-value <> "" and
        not can-find(first usergrps where usergrps.usergrps = self:screen-value)
     then do:
          message "Invalid Group. Try Help."  view-as alert-box error.
          return no-apply.
     end.
+     {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -468,7 +473,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR ll AS LOG NO-UNDO.
 
-
+ {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   if notes.note_code:screen-value in frame {&frame-name} <> "" and
      not can-find(dept where dept.code = notes.note_code:screen-value)
@@ -485,7 +490,7 @@ PROCEDURE local-update-record :
          apply "entry" to notes.note_group.
          return no-apply.
     end.
-
+  {&methods/lValidateError.i NO}
   FOR EACH tt-notes:
     DELETE tt-notes.
   END.
@@ -502,6 +507,7 @@ PROCEDURE local-update-record :
 
   disable notes.note_code notes.note_group with frame {&frame-name}.
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

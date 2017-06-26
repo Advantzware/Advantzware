@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:53 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -558,6 +558,7 @@ PROCEDURE valid-note_code :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF notes.note_code:SCREEN-VALUE NE '' THEN DO:
       dept-dscr:SCREEN-VALUE = ''.
@@ -575,6 +576,7 @@ PROCEDURE valid-note_code :
   END.
 
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -594,6 +596,7 @@ PROCEDURE valid-note_form_no PRIVATE :
 
   DEFINE BUFFER b1-job  FOR job.
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source", OUTPUT char-hdl).
   RUN get-ip-header IN WIDGET-HANDLE(char-hdl) (OUTPUT ls-header).
@@ -637,6 +640,7 @@ PROCEDURE valid-note_form_no PRIVATE :
     END.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

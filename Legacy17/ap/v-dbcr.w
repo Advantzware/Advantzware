@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:42 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -261,7 +261,7 @@ END.
 ON LEAVE OF ap-pay.vend-no IN FRAME F-Main /* Vendor# */
 DO:
    IF LASTKEY = -1 THEN RETURN.
-
+    {&methods/lValidateError.i YES}
    FIND FIRST vend WHERE vend.company = g_company
                         AND vend.vend-no = ap-pay.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
                         NO-LOCK NO-ERROR.
@@ -281,8 +281,10 @@ DO:
    vend_name = IF AVAIL vend THEN vend.NAME ELSE "".
 
    DISP vend_name WITH FRAME {&FRAME-NAME}.
+   {&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -527,7 +529,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF var ll-new-record AS LOG NO-UNDO.
-
+  {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   FIND FIRST vend WHERE vend.company = ap-pay.company
                         AND vend.vend-no = ap-pay.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -563,8 +565,9 @@ PROCEDURE local-update-record :
       RUN auto-line-add IN WIDGET-HANDLE(char-hdl).
 
    END.
-
+   {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

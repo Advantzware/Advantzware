@@ -115,7 +115,7 @@ DEFINE FRAME OPTIONS-FRAME
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: EMPTRACK.maillist
+   External Tables: maillist
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Container Links: 
    Design Page: 2

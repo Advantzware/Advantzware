@@ -142,7 +142,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -221,15 +221,15 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-updba2 ).
-       RUN set-position IN h_p-updba2 ( 8.62 , 1.00 ) NO-ERROR.
-       RUN set-size IN h_p-updba2 ( 1.67 , 68.00 ) NO-ERROR.
+       RUN set-position IN h_p-updba2 ( 8.62 , 10.00 ) NO-ERROR.
+       RUN set-size IN h_p-updba2 ( 1.67 , 68.00  ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/exit.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 8.62 , 69.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 8.86 , 1.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        /* Links to SmartBrowser h_b-phyi2. */

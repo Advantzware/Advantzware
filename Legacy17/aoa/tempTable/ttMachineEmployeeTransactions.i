@@ -3,8 +3,8 @@
 /* Machine Transactions.rpa */
 DEFINE TEMP-TABLE ttMachineEmployeeTransactions NO-UNDO
     FIELD employee       LIKE machemp.employee
-    FIELD firstName      LIKE emptrack.employee.first_name
-    FIELD lastName       LIKE emptrack.employee.last_name
+    FIELD firstName      LIKE employee.first_name
+    FIELD lastName       LIKE employee.last_name
     FIELD startDate      LIKE machemp.start_date
     FIELD startTime      AS CHARACTER LABEL "Start Time"        FORMAT "hh:mm am"
     FIELD endDate        LIKE machemp.end_date

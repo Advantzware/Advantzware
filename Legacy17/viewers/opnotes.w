@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:58 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -251,7 +251,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-dept V-table-Win
 ON CHOOSE OF btn-dept IN FRAME F-Main /* Department List */
 DO:
-
+  {&methods/lValidateError.i YES}
   DEF VAR v-deptlst AS cha NO-UNDO.
 
       RUN addon/windows/d-deptlk.w (v-machine,OUTPUT v-deptlst).
@@ -270,7 +270,9 @@ DO:
   END.
   v-got-dept = YES.
   RETURN NO-APPLY.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -307,6 +309,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_code V-table-Win
 ON HELP OF notes.note_code IN FRAME F-Main /* Dept */
 DO:
+  {&methods/lValidateError.i YES}
   RUN lookups/dept.p.
   IF g_lookup-var NE '' AND g_lookup-var NE SELF:SCREEN-VALUE THEN
   DO:
@@ -318,7 +321,9 @@ DO:
   END.
   APPLY 'ENTRY' TO SELF.
   RETURN NO-APPLY.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -571,6 +576,7 @@ PROCEDURE valid-note_code :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF notes.note_code:SCREEN-VALUE NE "" AND
        NOT CAN-FIND(FIRST dept WHERE dept.code EQ notes.note_code:SCREEN-VALUE)
@@ -583,6 +589,7 @@ PROCEDURE valid-note_code :
   END.
 
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

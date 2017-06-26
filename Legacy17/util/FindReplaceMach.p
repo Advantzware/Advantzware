@@ -20,8 +20,6 @@
 
 /* ***************************  Definitions  ************************** */
 
-/*BLOCK-LEVEL ON ERROR UNDO, THROW.*/
-
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcImportFile AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcLogFile AS CHARACTER NO-UNDO.

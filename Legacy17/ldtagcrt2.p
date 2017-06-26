@@ -1,6 +1,14 @@
 /* ldtagcrt.p Loadtag creation program  */
 
-propath = "p:\asi10test\patch\rco1010,p:\asi10test\patch\rco1010\addon,p:\asi10test\rco1010,p:\asi10test\rco1010\addon," + PROPATH.
+&SCOPED-DEFINE loginProcedure nosweat/login.w
+&SCOPED-DEFINE checkUserRecord YES 
+&SCOPED-DEFINE connectDatabases YES
+&SCOPED-DEFINE runAsiLoad YES
+&SCOPED-DEFINE createSingleUserPFs NO
+&SCOPED-DEFINE nonPersistProgram oerep/r-loadtg.w
+&SCOPED-DEFINE checkExpiredLicense YES
+&SCOPED-DEFINE checkUserCount YES
+&SCOPED-DEFINE getCompanyProc CUSTOM/getcomp.p
 
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
@@ -18,8 +26,19 @@ m_id = OS-GETENV("opsysid").
 IF m_id = ? THEN
 m_id = "".
 
+if connected(ldbname(1))
+and ldbname(1) = "ASI" then do:
+    create alias nosweat for database value(ldbname(1)).
+    create alias emptrack for database value(ldbname(1)).
+    create alias jobs for database value(ldbname(1)).
+    create alias rfq for database value(ldbname(1)).
+    create alias asihelp for database value(ldbname(1)).
+    create alias asihlp for database value(ldbname(1)).
+    create alias asinos for database value(ldbname(1)).
+end.
+
 /*
-IF NOT SETUSERID(m_id,"",ldbname(1)) THEN
+IF NOT SETUSERID(m_id,"",ldbname(1)) OR m_id EQ "" THEN
 RUN nosweat/login.w.
 
 IF USERID(ldbname(1)) = "" OR quit_login THEN
@@ -37,7 +56,7 @@ DO:
   QUIT.
 END.
 g_track_usage = users.track_usage.
-*/
+
 
 FOR EACH parmfile NO-LOCK:
   CONNECT -pf VALUE(parmfile.parmfile) NO-ERROR.
@@ -47,7 +66,7 @@ FOR EACH parmfile NO-LOCK:
         VIEW-AS ALERT-BOX ERROR.
   END.
 END.
-
+*/
 RUN chkdate.p.
 
 IF CONNECTED(ldbname(1)) THEN
@@ -55,26 +74,15 @@ DO:
   {methods/setdevid.i}
   RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
   RUN lstlogic/persist.p PERSISTENT SET ListLogic-Handle.
- /* RUN Get_Procedure IN Persistent-HANDLE ("user_dir.",OUTPUT run-proc,yes). */
+  RUN Get_Procedure IN Persistent-HANDLE ("user_dir.",OUTPUT run-proc,yes). 
   g_groups = "". /* YSK need to reset */
-  /*
+  
   FOR EACH usergrps NO-LOCK:
     IF CAN-DO(usergrps.users,USERID(ldbname(1))) THEN
     g_groups = g_groups + usergrps.usergrps + ",".  /* YSK "," added  */
   END.
   
-
-  init_menu = yes.
-  DO WHILE init_menu:
-    init_menu = no.
-   /* RUN Get_Procedure IN Persistent-Handle ("mainmenu.",OUTPUT run-proc,yes).
-   */
-    
-  END.
-  */
-  
-  ASSIGN g_company = "001"
-         g_loc = "MAIN".
+  RUN CUSTOM/getcomp.p.
   RUN oerep/r-loadtg.w .
   
 END.

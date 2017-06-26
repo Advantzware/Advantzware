@@ -7,7 +7,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:54 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -845,6 +845,7 @@ PROCEDURE local-update-record :
 
   IF users.user_program[3]:SCREEN-VALUE NE "" THEN
   DO:
+     {&methods/lValidateError.i YES}
      IF SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "\" OR
         SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "/" THEN
      DO:
@@ -859,6 +860,7 @@ PROCEDURE local-update-record :
              view-as alert-box ERROR BUTTON YES-NO UPDATE v-ans AS LOG.
         IF v-ans THEN OS-CREATE-DIR VALUE(file-info:file-name).
      END.
+    {&methods/lValidateError.i NO}
   END.  
 
   /* Dispatch standard ADM method.                             */
@@ -875,6 +877,7 @@ PROCEDURE local-update-record :
           WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1117,12 +1120,14 @@ PROCEDURE valid-user-id :
   DEF BUFFER bf-users FOR users.
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   FIND FIRST bf-users WHERE bf-users.USER_id = ip-user-id NO-LOCK NO-ERROR.
   IF NOT AVAIL bf-users AND NOT adm-new-record THEN DO:
      MESSAGE "Invalid User ID. " VIEW-AS ALERT-BOX ERROR.     
      RETURN ERROR.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1137,11 +1142,13 @@ PROCEDURE validate-userid :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   IF users.USER_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
      MESSAGE "User Id must be entered. " VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO users.USER_id.
      RETURN ERROR.
   END.
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

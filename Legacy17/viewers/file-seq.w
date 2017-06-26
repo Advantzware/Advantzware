@@ -197,7 +197,7 @@ DO:
      end.
      session:set-wait-state("").
      message "Re-Sequence is completed." view-as alert-box.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */

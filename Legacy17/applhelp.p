@@ -43,12 +43,8 @@ ELSE IF KEYLABEL(LASTKEY) EQ "F1" THEN DO: /* F1 function key */
       CASE lResponse:
         WHEN YES THEN
         RUN pRunLookup (lookups.prgmname).
-        WHEN NO THEN DO: 
-            IF SEARCH("lookups/" + lookups.prgmname + "r") NE ? THEN
-            RUN VALUE(SEARCH("lookups/" + lookups.prgmname + "r")).
-            ELSE IF SEARCH("lookups/" + lookups.prgmname + "p") NE ? THEN  
-            RUN VALUE(SEARCH("lookups/" + lookups.prgmname + "p")).
-        END.
+        WHEN NO THEN
+        RUN VALUE(SEARCH("lookups/" + lookups.prgmname + "p")).
         OTHERWISE DO:
           MESSAGE "Remove Attached Browser from this Field?"
               VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lResponse.

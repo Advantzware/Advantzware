@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:45 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -978,6 +978,7 @@ PROCEDURE valid-machine-code :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
  IF NOT CAN-FIND(FIRST mach where mach.company = g_company AND
           mach.loc = g_loc AND 
           mach.m-code = wiptag-mch.m-code:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -988,6 +989,7 @@ PROCEDURE valid-machine-code :
      RETURN ERROR.
  END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

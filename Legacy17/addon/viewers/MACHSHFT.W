@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:40 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -227,7 +227,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: EMPTRACK.machshft
+   External Tables: machshft
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -331,9 +331,12 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_hour V-table-Win
 ON LEAVE OF end_hour IN FRAME F-Main /* End Time */
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 12.
   {methods/entryerr.i &error-message="Invalid Hour, range = 0 to 12"}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -343,9 +346,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_minute V-table-Win
 ON LEAVE OF end_minute IN FRAME F-Main
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
   {methods/entryerr.i &error-message="Invalid Minute, range = 0 to 59"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -355,9 +361,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_second V-table-Win
 ON LEAVE OF end_second IN FRAME F-Main
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
   {methods/entryerr.i &error-message="Invalid Second, range = 0 to 59"}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -380,7 +389,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_shift V-table-Win
 ON LEAVE OF fi_shift IN FRAME F-Main /* Shift */
 DO:
-
+ {&methods/lValidateError.i YES}
  IF LASTKEY NE -1 THEN DO:
   {methods/entryerr.i
       &can-find="shifts WHERE shifts.company = gcompany
@@ -396,7 +405,9 @@ DO:
   {methods/dispflds.i}   
   ASSIGN {&TIME-FIELDS}.
  END.
+ {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -426,9 +437,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_hour V-table-Win
 ON LEAVE OF start_hour IN FRAME F-Main /* Start Time */
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 1 OR INTEGER(SELF:SCREEN-VALUE) GT 12.
   {methods/entryerr.i &error-message="Invalid Hour, range = 1 to 12"}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -438,9 +452,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_minute V-table-Win
 ON LEAVE OF start_minute IN FRAME F-Main
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
   {methods/entryerr.i &error-message="Invalid Minute, range = 0 to 59"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -450,9 +467,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL start_second V-table-Win
 ON LEAVE OF start_second IN FRAME F-Main
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = INTEGER(SELF:SCREEN-VALUE) LT 0 OR INTEGER(SELF:SCREEN-VALUE) GT 59.
   {methods/entryerr.i &error-message="Invalid Second, range = 0 to 59"}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -673,7 +693,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DEF BUFFER b-shifts FOR shifts.
-
+  {&methods/lValidateError.i YES}  
   DO WITH FRAME {&FRAME-NAME}:
 
     FIND FIRST b-shifts WHERE
@@ -700,7 +720,7 @@ PROCEDURE local-update-record :
        end_ampm:SCREEN-VALUE = SUBSTR(STRING(b-shifts.end_time,"HH:MM AM"),7,2)
        {&TIME-FIELDS}.
   END.
-
+  {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -708,6 +728,7 @@ PROCEDURE local-update-record :
   RUN disable-proc.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

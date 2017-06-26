@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:35 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -276,24 +276,24 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
-     _TblList          = "EMPTRACK.emplogin"
+     _TblList          = "emplogin"
      _Options          = "NO-LOCK KEY-PHRASE"
-     _OrdList          = "EMPTRACK.emplogin.start_date|no,EMPTRACK.emplogin.start_time|yes"
+     _OrdList          = "emplogin.start_date|no,emplogin.start_time|yes"
      _Where[1]         = "emplogin.company = g_company 
 and emplogin.employee = lv-emp
 and emplogin.start_date = lv-date
 "
-     _FldNameList[1]   > EMPTRACK.emplogin.employee
+     _FldNameList[1]   > emplogin.employee
 "emplogin.employee" ? ? "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[2]   > EMPTRACK.emplogin.start_date
+     _FldNameList[2]   > emplogin.start_date
 "emplogin.start_date" ? ? "date" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[3]   > "_<CALC>"
 "Time_String(emplogin.start_time,yes,emplogin.start_date) @ ls-start-time" "Start Time" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[4]   > EMPTRACK.emplogin.end_date
+     _FldNameList[4]   > emplogin.end_date
 "emplogin.end_date" ? ? "date" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[5]   > "_<CALC>"
 "Time_String(emplogin.end_time,yes,emplogin.end_date) @ ls-end-time" "End Time" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[6]   > EMPTRACK.emplogin.shift
+     _FldNameList[6]   > emplogin.shift
 "emplogin.shift" ? "XX" "character" ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""
      _FldNameList[7]   > "_<CALC>"
 "Time_String(emplogin.total_time,no,?) @ ls-total-time" "Total Time" ? ? ? ? 0 ? ? ? no ? no no ? yes no no "U" "" ""

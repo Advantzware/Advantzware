@@ -3,7 +3,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:55 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -695,6 +695,7 @@ PROCEDURE valid-char-fld :
 
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
 /*   DEF VAR thisOne AS CHAR NO-UNDO.                                        */
 /*   DEF VAR comp-char-val AS CHAR NO-UNDO.                                  */
 /*   DEF VAR cEntryTo AS CHAR NO-UNDO.                                       */
@@ -759,6 +760,7 @@ PROCEDURE valid-char-fld :
   */
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -772,8 +774,10 @@ PROCEDURE valid-log-fld :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
  /* {sys/ref/valid-log-fld.i} */
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

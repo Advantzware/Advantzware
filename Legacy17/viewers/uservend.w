@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:55 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -391,7 +391,7 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT op-user_id)"}
-
+   {&methods/lValidateError.i YES}
   IF adm-new-record AND CAN-FIND(FIRST uservend WHERE
      uservend.user_id EQ op-user_id AND
      uservend.company EQ g_company AND
@@ -402,7 +402,7 @@ PROCEDURE local-update-record :
         APPLY "ENTRY" TO uservend.vend-no IN FRAME {&FRAME-NAME}.
         RETURN NO-APPLY.
      END.
-
+     {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -412,6 +412,7 @@ PROCEDURE local-update-record :
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ("open-query").
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -466,6 +467,7 @@ PROCEDURE valid-vend :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND(FIRST vend WHERE
      vend.company = g_company AND
      vend.vend-no = uservend.vend-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN
@@ -474,6 +476,7 @@ PROCEDURE valid-vend :
         APPLY "entry" TO uservend.vend-no.
         RETURN error.
      END.
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

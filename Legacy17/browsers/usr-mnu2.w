@@ -35,7 +35,6 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE dataGridInclude dataGrid\browsers\usr-mnu2.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */

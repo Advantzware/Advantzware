@@ -1,6 +1,25 @@
 /* nosweat.p use addmain.w instead mainmenu.w for help.
              addmain.w and mainmenu.w are exactly same*/
+    &SCOPED-DEFINE loginProcedure nosweat/login.w
+    &SCOPED-DEFINE checkUserRecord YES
+    &SCOPED-DEFINE connectDatabases YES
+    &SCOPED-DEFINE runAsiLoad YES
+    &SCOPED-DEFINE createSingleUserPFs YES
+    &SCOPED-DEFINE execProgram addmain.    
+    &SCOPED-DEFINE checkExpiredLicense YES
+    &GLOBAL-DEFINE checkUserCount YES
+    &SCOPED-DEFINE addonPersist YES
+IF INDEX(PROPATH,'viper') = 0 THEN
+DO:
+    IF OS-GETENV('VIPER') NE ? THEN
+        PROPATH = PROPATH + ',' + OS-GETENV('VIPER').
+    IF OS-GETENV('VIPERVFL') NE ? THEN
+        PROPATH = PROPATH + ',' + OS-GETENV('VIPERVFL').
+END.
+{nosweat.i}
 
+/* Original Code */
+/*
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
 
@@ -117,3 +136,4 @@ PROCEDURE createSingleUserPFs:
         OUTPUT CLOSE.
     END. /* do i */
 END PROCEDURE.
+*/

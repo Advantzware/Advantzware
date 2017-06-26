@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:26 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -270,29 +270,29 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "rfq.rfq,rfq.rfqitem OF rfq.rfq"
+     _TblList          = "rfq,rfqitem OF rfq"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED, OUTER"
-     _Where[2]         = "rfq.rfqitem.seq < 999"
-     _FldNameList[1]   = rfq.rfq.rfq-no
-     _FldNameList[2]   = rfq.rfqitem.part-no
-     _FldNameList[3]   = rfq.rfq.cust-no
-     _FldNameList[4]   = rfq.rfq.req-date
-     _FldNameList[5]   = rfq.rfqitem.style
-     _FldNameList[6]   = rfq.rfqitem.procat
-     _FldNameList[7]   > rfq.rfqitem.qty[1]
+     _Where[2]         = "rfqitem.seq < 999"
+     _FldNameList[1]   = rfq-no
+     _FldNameList[2]   = rfqitem.part-no
+     _FldNameList[3]   = cust-no
+     _FldNameList[4]   = req-date
+     _FldNameList[5]   = rfqitem.style
+     _FldNameList[6]   = rfqitem.procat
+     _FldNameList[7]   > rfqitem.qty[1]
 "rfqitem.qty[1]" "Qty" "->>,>>>,>>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[8]   = rfq.rfqitem.i-col
-     _FldNameList[9]   = rfq.rfqitem.i-coat
+     _FldNameList[8]   = rfqitem.i-col
+     _FldNameList[9]   = rfqitem.i-coat
      _FldNameList[10]   > "_<CALC>"
 "to-corrware-dim(ll-is-corr-style, rfqitem.len) @ rfqitem.len" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[11]   = rfq.rfqitem.board
+     _FldNameList[11]   = rfqitem.board
      _FldNameList[12]   > "_<CALC>"
 "to-corrware-dim(ll-is-corr-style, rfqitem.wid) @ rfqitem.wid" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[13]   = rfq.rfqitem.cal
+     _FldNameList[13]   = rfqitem.cal
      _FldNameList[14]   > "_<CALC>"
 "to-corrware-dim(ll-is-corr-style, rfqitem.dep) @ rfqitem.dep" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[15]   > rfq.rfqitem.est-no
+     _FldNameList[15]   > rfqitem.est-no
 "rfqitem.est-no" ? "x(8)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

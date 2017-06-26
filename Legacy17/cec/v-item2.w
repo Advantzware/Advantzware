@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:58 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -622,11 +622,14 @@ DO:
       /* not can-find(uom where uom.uom = self:screen-value)  */
       LOOKUP(SELF:SCREEN-VALUE,uom-list-con) <= 0
     then do:
+    {&methods/lValidateError.i YES}
        message "Invalid UOM. Try Help." view-as alert-box error.
        return no-apply.
+    {&methods/lValidateError.i NO}
     end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -694,11 +697,14 @@ DO:
       /* not can-find(uom where uom.uom = self:screen-value)  */
        LOOKUP(SELF:SCREEN-VALUE,uom-list) <= 0
     then do:
+    {&methods/lValidateError.i YES}
        message "Invalid UOM. Try Help." view-as alert-box error.
        return no-apply.
+    {&methods/lValidateError.i NO}
     end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1095,18 +1101,22 @@ PROCEDURE local-update-record :
       /* not can-find(uom where uom.uom = self:screen-value)  */
        LOOKUP(ITEM.cons-uom:SCREEN-VALUE,uom-list-con) <= 0
     then do:
+    {&methods/lValidateError.i YES}
        message "Invalid UOM. Try Help." view-as alert-box error.
        APPLY "entry" TO ITEM.cons-uom.
        return no-apply.
+    {&methods/lValidateError.i NO}
     end.
 
     if item.pur-uom:screen-value <> "" and
       /* not can-find(uom where uom.uom = self:screen-value)  */
        LOOKUP(ITEM.pur-uom:SCREEN-VALUE,uom-list) <= 0
     then do:
+    {&methods/lValidateError.i YES}
        message "Invalid UOM. Try Help." view-as alert-box error.
        APPLY "entry" TO ITEM.pur-uom.
        return no-apply.
+    {&methods/lValidateError.i NO}
     end.
   end.  /* do with frame  */
 
@@ -1122,6 +1132,7 @@ PROCEDURE local-update-record :
   DISABLE {&list-3} WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1352,6 +1363,7 @@ PROCEDURE valid-loc :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF item.loc:SCREEN-VALUE NE ""                                 AND
        NOT CAN-FIND(FIRST rm-bin
@@ -1367,6 +1379,7 @@ PROCEDURE valid-loc :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1380,6 +1393,7 @@ PROCEDURE valid-loc-bin :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF item.loc-bin:SCREEN-VALUE NE ""                                 AND
@@ -1398,6 +1412,7 @@ PROCEDURE valid-loc-bin :
     END.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

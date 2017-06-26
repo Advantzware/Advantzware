@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:56 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -367,7 +367,8 @@ DEFINE FRAME fold
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fold
-     ef.cad-image AT ROW 6.95 COL 128.2 COLON-ALIGNED
+     ef.cad-image AT ROW 6.95 COL 128.2 COLON-ALIGNED HELP
+          "Filename of the Die image"
           LABEL "Image" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
@@ -2925,6 +2926,7 @@ PROCEDURE valid-adhesive :
 
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-field:SCREEN-VALUE = CAPS(ip-field:SCREEN-VALUE).
 
@@ -2942,6 +2944,7 @@ PROCEDURE valid-adhesive :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2955,6 +2958,7 @@ PROCEDURE valid-board :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ef.board:SCREEN-VALUE = CAPS(ef.board:SCREEN-VALUE).
@@ -2971,6 +2975,7 @@ PROCEDURE valid-board :
     IF ef.brd-dscr:SCREEN-VALUE EQ "" THEN RUN new-board.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -2990,6 +2995,7 @@ PROCEDURE valid-fi_from-est-no :
   DEF BUFFER b-eb FOR eb.
 
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     fi_from-est-no:SCREEN-VALUE =
@@ -3029,6 +3035,7 @@ PROCEDURE valid-fi_from-est-no :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3048,6 +3055,7 @@ PROCEDURE valid-prep :
   DEF VAR ll AS LOG INIT YES NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   IF addprep-log THEN
   DO WITH FRAME {&FRAME-NAME}:
@@ -3086,6 +3094,7 @@ PROCEDURE valid-prep :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3099,6 +3108,7 @@ PROCEDURE valid-procat :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     eb.procat:SCREEN-VALUE = CAPS(eb.procat:SCREEN-VALUE).
@@ -3114,6 +3124,7 @@ PROCEDURE valid-procat :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3127,6 +3138,7 @@ PROCEDURE valid-ship-id :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST shipto
@@ -3147,6 +3159,7 @@ PROCEDURE valid-ship-id :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3159,6 +3172,7 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   FIND FIRST sman
         WHERE sman.company EQ cocode
@@ -3173,6 +3187,7 @@ PROCEDURE valid-sman :
     sman_sname:SCREEN-VALUE = sman.sNAME.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3186,6 +3201,7 @@ PROCEDURE valid-style :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     eb.style:SCREEN-VALUE = CAPS(eb.style:SCREEN-VALUE).
@@ -3217,6 +3233,7 @@ PROCEDURE valid-style :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3232,6 +3249,7 @@ PROCEDURE valid-wid-len :
   DEF VAR lv-handle AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     lv-handle = IF LOOKUP(FOCUS:NAME,"style,len") GT 0 THEN FOCUS ELSE ?.
@@ -3259,6 +3277,7 @@ PROCEDURE valid-wid-len :
     END.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

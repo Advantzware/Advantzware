@@ -205,7 +205,7 @@ DO:
   END.  
   run get-link-handle in adm-broker-hdl (this-procedure, "cost-source", output char-hdl).  
   run update-cost in widget-handle(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:28 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */

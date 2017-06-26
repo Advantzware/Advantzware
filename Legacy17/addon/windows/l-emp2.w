@@ -195,12 +195,12 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "EMPTRACK.employee"
+     _TblList          = "employee"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "employee.company = ip-company"
-     _FldNameList[1]   = EMPTRACK.employee.employee
-     _FldNameList[2]   = EMPTRACK.employee.last_name
-     _FldNameList[3]   = EMPTRACK.employee.first_name
+     _FldNameList[1]   = employee.employee
+     _FldNameList[2]   = employee.last_name
+     _FldNameList[3]   = employee.first_name
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

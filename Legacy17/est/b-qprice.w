@@ -56,6 +56,8 @@ DEF TEMP-TABLE tt-ordl FIELD tt-recid AS RECID
                        FIELD e-qty  AS DEC
                        FIELD sell-price AS DEC
                        FIELD qt-uom AS CHAR
+                       FIELD part-no LIKE itemfg.part-no 
+                       FIELD cust-no LIKE itemfg.cust-no 
                        INDEX i1 tt-recid.
                        
 
@@ -125,8 +127,8 @@ END.
     IF lv-sort-by EQ "qty"         THEN string(tt-ordl.e-qty,"-9999999999.9999999999")        ELSE ~
     IF lv-sort-by EQ "item no"     THEN string(itemfg.i-no,"x(15)")                           ELSE ~
     IF lv-sort-by EQ "Name"        THEN string(itemfg.i-NAME,"x(20)")                         ELSE ~
-    IF lv-sort-by EQ "Cust. #"     THEN string(itemfg.cust-no,"x(12)")                         ELSE ~
-    IF lv-sort-by EQ "part"        THEN string(itemfg.part-no,"x(12)")                         ELSE ~
+    IF lv-sort-by EQ "Cust. #"     THEN string(tt-ordl.cust-no,"x(12)")                         ELSE ~
+    IF lv-sort-by EQ "part"        THEN string(tt-ordl.part-no,"x(12)")                         ELSE ~
         ""
 
 &SCOPED-DEFINE sortby BY itemfg.i-no
@@ -181,7 +183,7 @@ DEFINE QUERY external_tables FOR cust.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table tt-ordl.IS-SELECTED itemfg.i-no itemfg.i-name tt-ordl.e-qty tt-ordl.sell-price tt-ordl.qt-uom itemfg.cust-no itemfg.part-no   
+&Scoped-define FIELDS-IN-QUERY-br_table tt-ordl.IS-SELECTED itemfg.i-no itemfg.i-name tt-ordl.e-qty tt-ordl.sell-price tt-ordl.qt-uom tt-ordl.cust-no tt-ordl.part-no   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table tt-ordl.e-qty tt-ordl.sell-price tt-ordl.qt-uom tt-ordl.IS-SELECTED   
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table tt-ordl
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table tt-ordl
@@ -193,8 +195,8 @@ DEFINE QUERY external_tables FOR cust.
        "Name") GT 0  THEN         lv-sort-by = "Name".     ELSE IF index(fi_sortby:SCREEN-VALUE, ~
        "Cust. #") GT 0  THEN         lv-sort-by = "Cust. #".     ELSE IF index(fi_sortby:SCREEN-VALUE, ~
        "S") GT 0  THEN         lv-sort-by = "is-selected".      .  END. RUN set-search.  IF lv-search-by = "Item" THEN DO:     v-int = INTEGER(lv-search) NO-ERROR.     IF ERROR-STATUS:ERROR THEN         lv-search-by = "item no". END.   IF ll-sort-asc THEN OPEN QUERY {&SELF-NAME} FOR EACH tt-ordl, ~
-       ~       EACH itemfg NO-LOCK WHERE recid(itemfg) EQ tt-ordl.tt-recid ~        AND (IF lv-search-by = "item no" THEN ~               (itemfg.i-no BEGINS lv-search OR itemfg.i-no MATCHES "*" + lv-search + "*") ~             ELSE ~             IF lv-search-by = "Name" THEN ~             (itemfg.i-name BEGINS lv-search OR itemfg.i-name MATCHES "*" + lv-search + "*") ~           ELSE ~             IF lv-search-by = "Part" THEN ~             (itemfg.part-no BEGINS lv-search OR itemfg.part-no MATCHES "*" + lv-search + "*") ~           ELSE ~             IF lv-search-by = "Cust. #" THEN ~             (itemfg.cust-no BEGINS lv-search OR itemfg.cust-no MATCHES "*" + lv-search + "*") ~           ELSE ~               itemfg.last-count EQ INTEGER(lv-search)) ~      {&sortby-phrase-asc}. ELSE     OPEN QUERY {&SELF-NAME} FOR EACH tt-ordl, ~
-       ~       EACH itemfg NO-LOCK WHERE recid(itemfg) EQ tt-ordl.tt-recid ~        AND (IF lv-search-by = "item no" THEN ~               (itemfg.i-no BEGINS lv-search OR itemfg.i-no MATCHES "*" + lv-search + "*") ~           ELSE ~             IF lv-search-by = "Name" THEN ~               (itemfg.i-name BEGINS lv-search OR itemfg.i-name MATCHES "*" + lv-search + "*") ~           ELSE ~             IF lv-search-by = "Part" THEN ~               (itemfg.part-no BEGINS lv-search OR itemfg.part-no MATCHES "*" + lv-search + "*") ~           ELSE ~             IF lv-search-by = "Cust. #" THEN ~               (itemfg.cust-no BEGINS lv-search OR itemfg.cust-no MATCHES "*" + lv-search + "*") ~             ELSE ~               itemfg.last-count EQ INTEGER(lv-search)) ~      {&sortby-phrase-desc}.
+       ~       EACH itemfg NO-LOCK WHERE recid(itemfg) EQ tt-ordl.tt-recid ~        AND (IF lv-search-by = "item no" THEN ~               (itemfg.i-no BEGINS lv-search OR itemfg.i-no MATCHES "*" + lv-search + "*") ~             ELSE ~             IF lv-search-by = "Name" THEN ~             (itemfg.i-name BEGINS lv-search OR itemfg.i-name MATCHES "*" + lv-search + "*") ~           ELSE ~             IF lv-search-by = "Part" THEN ~             (tt-ordl.part-no BEGINS lv-search OR tt-ordl.part-no MATCHES "*" + lv-search + "*") ~           ELSE ~             IF lv-search-by = "Cust. #" THEN ~             (tt-ordl.cust-no BEGINS lv-search OR tt-ordl.cust-no MATCHES "*" + lv-search + "*") ~           ELSE ~               itemfg.last-count EQ INTEGER(lv-search)) ~      {&sortby-phrase-asc}. ELSE     OPEN QUERY {&SELF-NAME} FOR EACH tt-ordl, ~
+       ~       EACH itemfg NO-LOCK WHERE recid(itemfg) EQ tt-ordl.tt-recid ~        AND (IF lv-search-by = "item no" THEN ~               (itemfg.i-no BEGINS lv-search OR itemfg.i-no MATCHES "*" + lv-search + "*") ~           ELSE ~             IF lv-search-by = "Name" THEN ~               (itemfg.i-name BEGINS lv-search OR itemfg.i-name MATCHES "*" + lv-search + "*") ~           ELSE ~             IF lv-search-by = "Part" THEN ~               (tt-ordl.part-no BEGINS lv-search OR tt-ordl.part-no MATCHES "*" + lv-search + "*") ~           ELSE ~             IF lv-search-by = "Cust. #" THEN ~               (tt-ordl.cust-no BEGINS lv-search OR tt-ordl.cust-no MATCHES "*" + lv-search + "*") ~             ELSE ~               itemfg.last-count EQ INTEGER(lv-search)) ~      {&sortby-phrase-desc}.
 &Scoped-define TABLES-IN-QUERY-br_table tt-ordl itemfg
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table tt-ordl
 &Scoped-define SECOND-TABLE-IN-QUERY-br_table itemfg
@@ -345,8 +347,8 @@ DEFINE BROWSE br_table
       tt-ordl.e-qty COLUMN-LABEL "Qty" FORMAT "->,>>>,>>>" LABEL-BGCOLOR 14
       tt-ordl.sell-price COLUMN-LABEL "Price" FORMAT ">>>,>>>.99" 
       tt-ordl.qt-uom     COLUMN-LABEL "UOM"
-      itemfg.cust-no     COLUMN-LABEL "Cust. #" LABEL-BGCOLOR 14
-      itemfg.part-no     COLUMN-LABEL "Part" LABEL-BGCOLOR 14
+      tt-ordl.cust-no     COLUMN-LABEL "Cust. #" LABEL-BGCOLOR 14
+      tt-ordl.part-no     COLUMN-LABEL "Part" LABEL-BGCOLOR 14
       ENABLE tt-ordl.e-qty tt-ordl.sell-price tt-ordl.qt-uom tt-ordl.IS-SELECTED
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -490,10 +492,10 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-ordl, ~
             (itemfg.i-name BEGINS lv-search OR itemfg.i-name MATCHES "*" + lv-search + "*") ~
           ELSE ~
             IF lv-search-by = "Part" THEN ~
-            (itemfg.part-no BEGINS lv-search OR itemfg.part-no MATCHES "*" + lv-search + "*") ~
+            (tt-ordl.part-no BEGINS lv-search OR tt-ordl.part-no MATCHES "*" + lv-search + "*") ~
           ELSE ~
             IF lv-search-by = "Cust. #" THEN ~
-            (itemfg.cust-no BEGINS lv-search OR itemfg.cust-no MATCHES "*" + lv-search + "*") ~
+            (tt-ordl.cust-no BEGINS lv-search OR tt-ordl.cust-no MATCHES "*" + lv-search + "*") ~
           ELSE ~
               itemfg.last-count EQ INTEGER(lv-search)) ~
      {&sortby-phrase-asc}.
@@ -507,10 +509,10 @@ ELSE
               (itemfg.i-name BEGINS lv-search OR itemfg.i-name MATCHES "*" + lv-search + "*") ~
           ELSE ~
             IF lv-search-by = "Part" THEN ~
-              (itemfg.part-no BEGINS lv-search OR itemfg.part-no MATCHES "*" + lv-search + "*") ~
+              (tt-ordl.part-no BEGINS lv-search OR tt-ordl.part-no MATCHES "*" + lv-search + "*") ~
           ELSE ~
             IF lv-search-by = "Cust. #" THEN ~
-              (itemfg.cust-no BEGINS lv-search OR itemfg.cust-no MATCHES "*" + lv-search + "*") ~
+              (tt-ordl.cust-no BEGINS lv-search OR tt-ordl.cust-no MATCHES "*" + lv-search + "*") ~
             ELSE ~
               itemfg.last-count EQ INTEGER(lv-search)) ~
      {&sortby-phrase-desc}.
@@ -1088,7 +1090,9 @@ ab = lv-search:SCREEN-VALUE IN FRAME {&FRAME-NAME} .
                     tt-ordl.ord-no     = itemfg.last-count
                     tt-ordl.i-no       = itemfg.i-no
                     tt-ordl.ord-date   = itemfg.beg-date
-                    tt-ordl.e-qty      = itemfg.q-ono.
+                    tt-ordl.e-qty      = itemfg.q-ono
+                    tt-ordl.part-no    = itemfg.part-no
+                    tt-ordl.cust-no    = itemfg.cust-no .
          END.
       END.
   END.
@@ -1153,7 +1157,9 @@ DEF BUFFER bfCust FOR Cust.
                     tt-ordl.ord-no     = itemfg.last-count
                     tt-ordl.i-no       = itemfg.i-no
                     tt-ordl.ord-date   = itemfg.beg-date
-                    tt-ordl.e-qty      = itemfg.q-ono.
+                    tt-ordl.e-qty      = itemfg.q-ono
+                    tt-ordl.part-no  = itemfg.part-no 
+                    tt-ordl.cust-no    = itemfg.cust-no  .
          END.
       END.
   END.
@@ -1174,10 +1180,41 @@ DEF BUFFER bfCust FOR Cust.
                       tt-ordl.ord-no     = itemfg.last-count
                       tt-ordl.i-no       = itemfg.i-no
                       tt-ordl.ord-date   = itemfg.beg-date
-                      tt-ordl.e-qty      = itemfg.q-ono.
+                      tt-ordl.e-qty      = itemfg.q-ono
+                      tt-ordl.part-no  = itemfg.part-no 
+                      tt-ordl.cust-no    = itemfg.cust-no   .
            END.
         END.
     END.
+  END.
+
+  FOR EACH cust-part NO-LOCK
+     WHERE cust-part.company = cocode
+       AND cust-part.cust-no = cust.cust-no, 
+           FIRST reftable WHERE reftable.reftable = "cp-lab-p"   
+                     AND reftable.company = cust-part.company
+                     AND reftable.loc = cust-part.i-no   
+                     AND reftable.code = cust-part.cust-no NO-LOCK :
+         FIND FIRST ASI.itemfg NO-LOCK
+              WHERE itemfg.company = cocode 
+                AND itemfg.i-no EQ cust-part.i-no  
+                AND itemfg.stat = "A" NO-ERROR .
+         
+        IF AVAIL itemfg THEN DO:
+           FIND FIRST tt-ordl WHERE tt-ordl.tt-recid = RECID(itemfg)
+                NO-ERROR.
+           IF NOT AVAIL tt-ordl THEN DO:
+             
+               CREATE tt-ordl.
+               ASSIGN tt-ordl.tt-recid   = RECID(itemfg)
+                      tt-ordl.ord-no     = itemfg.last-count
+                      tt-ordl.i-no       = itemfg.i-no
+                      tt-ordl.ord-date   = itemfg.beg-date
+                      tt-ordl.e-qty      = itemfg.q-ono
+                      tt-ordl.part-no  = cust-part.part-no
+                      tt-ordl.cust-no    = cust-part.cust-no  .
+           END.
+        END.
   END.
 
 END PROCEDURE.

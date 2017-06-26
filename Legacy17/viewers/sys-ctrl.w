@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:54 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -322,7 +322,7 @@ DO:
     RUN valid-log-fld NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
-
+  {&methods/lValidateError.i YES}
    IF (sys-ctrl.name EQ "RELCREDT" OR
       /*sys-ctrl.name EQ "SalesMgmt" OR */
       sys-ctrl.name EQ "SalesBudget") THEN DO:       
@@ -337,8 +337,9 @@ DO:
            RETURN.
        END.       
    END.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -479,7 +480,7 @@ PROCEDURE local-assign-record :
   END.
 
   IF sys-ctrl.name EQ "OEFGUPDT" THEN SUBSTRING(sys-ctrl.char-fld,8,1) = "N".
-
+    {&methods/lValidateError.i YES}
     IF (sys-ctrl.name EQ "RELCREDT" OR
       /*sys-ctrl.name EQ "SalesMgmt" OR */
       sys-ctrl.name EQ "SalesBudget") THEN DO:  
@@ -492,7 +493,9 @@ PROCEDURE local-assign-record :
            RETURN NO-APPLY.
        END.
    END.
+    {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -740,6 +743,7 @@ PROCEDURE valid-char-fld :
   DEF VAR i AS INT NO-UNDO.
   DEF VAR j AS INT NO-UNDO.  
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   lValid = TRUE.
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -844,6 +848,7 @@ PROCEDURE valid-char-fld :
   */
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -857,8 +862,10 @@ PROCEDURE valid-log-fld :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   {sys/ref/valid-log-fld.i}
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

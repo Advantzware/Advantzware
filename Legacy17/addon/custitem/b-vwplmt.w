@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:26 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -257,20 +257,20 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.vend-plant"
+     _TblList          = "vend-plant"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   > EMPTRACK.vend-plant.cust-no
+     _FldNameList[1]   > vend-plant.cust-no
 "vend-plant.cust-no" "Suppliers!A/R Code" ? "character" ? ? ? 14 ? ? no ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > EMPTRACK.vend-plant.ship-id
+     _FldNameList[2]   > vend-plant.ship-id
 "vend-plant.ship-id" "Suppliers!Ship ID" ? "character" ? ? ? 14 ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > EMPTRACK.vend-plant.vendor-code
+     _FldNameList[3]   > vend-plant.vendor-code
 "vend-plant.vendor-code" "Customers!A/P Code" ? "character" ? ? ? 14 ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > EMPTRACK.vend-plant.plant-id
+     _FldNameList[4]   > vend-plant.plant-id
 "vend-plant.plant-id" ? ? "character" ? ? ? 14 ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > EMPTRACK.vend-plant.vendor-dept-code
+     _FldNameList[5]   > vend-plant.vendor-dept-code
 "vend-plant.vendor-dept-code" "Customers!Dept Code" ? "character" ? ? ? 14 ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > EMPTRACK.vend-plant.plant-name
+     _FldNameList[6]   > vend-plant.plant-name
 "vend-plant.plant-name" "Customers Plant Name" ? "character" ? ? ? 14 ? ? no ? no no "77.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:53 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -210,6 +210,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-spec.code V-table-Win
 ON LEAVE OF item-spec.code IN FRAME F-Main /* Spec Code */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and 
        self:screen-value = "" then do:
        message "Spec Code must be entered. " view-as alert-box error.
@@ -225,8 +226,10 @@ DO:
          return no-apply.
     end.
 
-    self:screen-value = caps(self:screen-value).                                 
+    self:screen-value = caps(self:screen-value).
+    {&methods/lValidateError.i NO}                                 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -331,7 +334,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
  do with frame {&frame-name} :
    if item-spec.code:screen-value = "" then do:
@@ -349,12 +352,14 @@ PROCEDURE local-update-record :
          return no-apply.
     end.
  end.
+ {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

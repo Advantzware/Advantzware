@@ -38,6 +38,8 @@ DEFINE VARIABLE ll-use-margin      AS LOG       NO-UNDO.
 DEFINE VARIABLE board-cst          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dBoardCst          AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE dBoardPct          AS DECIMAL   NO-UNDO.
+DEFINE        VARIABLE dMarginCostG       AS DECIMAL  NO-UNDO.
+DEFINE        VARIABLE dMarginCostN       AS DECIMAL  NO-UNDO.
 
 DEFINE SHARED TEMP-TABLE tt-rel NO-UNDO LIKE reftable.
                               
@@ -405,15 +407,23 @@ FOR EACH probeit
 
     IF ll-use-margin THEN v-pct[4] = probe.market-price.
 
+    ASSIGN 
+        dMCostToExcludeMisc = dMCostToExcludeMisc / (v-qty / 1000)
+        dMCostToExcludePrep = dMCostToExcludePrep / (v-qty / 1000)
+        dMPriceToAddMisc = dMPriceToAddMisc / (v-qty / 1000)
+        dMPriceToAddPrep = dMPriceToAddPrep / (v-qty / 1000)
+        .
+    dMarginCostG = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN board-cst ELSE probeit.fact-cost.
+    dMarginCostN = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN 0 ELSE (probeit.full-cost - probeit.fact-cost).
+    
+    /*Exclude SIMON = M Costs from Price Margin Calculation*/
+    dMarginCostG = dMarginCostG - dMCostToExcludeMisc - dMCostToExcludePrep.
+
     RUN custom/sellpric.p (lv-sell-by-ce-ctrl,
         lv-sell-by,
         v-basis,
-        (IF lv-sell-by-ce-ctrl NE "B" AND
-        lv-sell-by EQ "B" THEN board-cst
-        ELSE probeit.fact-cost),
-        (IF lv-sell-by-ce-ctrl NE "B" AND
-        lv-sell-by EQ "B" THEN 0
-        ELSE (probeit.full-cost - probeit.fact-cost)),
+        dMarginCostG,
+        dMarginCostN,
         (IF ll-use-margin OR
         (lv-sell-by-ce-ctrl NE "B" AND
         lv-sell-by EQ "B") THEN 0
@@ -421,6 +431,15 @@ FOR EACH probeit
         v-pct[4],
         OUTPUT probeit.sell-price,
         OUTPUT v-comm).
+
+      probeit.sell-price = probeit.sell-price + dMPriceToAddMisc + dMPriceToAddPrep.
+
+    ASSIGN 
+        dMCostToExcludeMisc = 0
+        dMCostToExcludePrep = 0
+        dMPriceToAddMisc = 0
+        dMPriceToAddPrep = 0
+        .
 
     IF ll-use-margin OR
         (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN

@@ -33,7 +33,7 @@ DEFINE TEMP-TABLE translations NO-UNDO
   FIELD translations AS CHARACTER
     INDEX translations IS PRIMARY UNIQUE idxString.
 
-INPUT FROM VALUE('touch/translations.txt') NO-ECHO.
+INPUT FROM VALUE(search('touch/translations.txt')) NO-ECHO.
 IMPORT UNFORMATTED languageList. /* first row is list of avail languages */
 REPEAT:
   IMPORT UNFORMATTED transString.

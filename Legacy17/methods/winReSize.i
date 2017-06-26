@@ -7,22 +7,6 @@ PROCEDURE winReSize:
 
   DEFINE VARIABLE currentWidget AS WIDGET-HANDLE NO-UNDO.
   DEFINE VARIABLE oGrid         AS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseControl NO-UNDO.
-
-/*  MESSAGE                                                                          */
-/*      1 PROGRAM-NAME (1) SKIP                                                      */
-/*      2 PROGRAM-NAME (2) SKIP                                                      */
-/*      3 PROGRAM-NAME (3) SKIP                                                      */
-/*      4 PROGRAM-NAME (4) SKIP                                                      */
-/*      5 PROGRAM-NAME (5) SKIP                                                      */
-/*      6 PROGRAM-NAME (6) SKIP                                                      */
-/*      7 PROGRAM-NAME (7) SKIP (1)                                                  */
-/*      "FRAME {&FRAME-NAME}:HEIGHT:" FRAME {&FRAME-NAME}:HEIGHT SKIP                */
-/*      "FRAME {&FRAME-NAME}:WIDTH:" FRAME {&FRAME-NAME}:WIDTH SKIP (1)              */
-/*      "FRAME {&FRAME-NAME}:WINDOW:HEIGHT:" FRAME {&FRAME-NAME}:WINDOW:HEIGHT SKIP  */
-/*      "FRAME {&FRAME-NAME}:WINDOW:WIDTH:" FRAME {&FRAME-NAME}:WINDOW:WIDTH SKIP (1)*/
-/*      "FRAME {&FRAME-NAME}:WINDOW:NAME:" FRAME {&FRAME-NAME}:WINDOW:Name SKIP (1)  */
-/*      "FRAME {&FRAME-NAME}:WINDOW:HWND:" FRAME {&FRAME-NAME}:WINDOW:HWND SKIP (1)  */
-/*  VIEW-AS ALERT-BOX TITLE "Browser winReSize".                                     */
   
   // No matter what resizing we need to ensure, the virtual size of the frame
   // is large enough here to contain all widgets

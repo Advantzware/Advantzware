@@ -18,7 +18,7 @@
 "emp_type. " ~
 */
 
-&Scoped-define lookup-db ASI.
+&Scoped-define lookup-db 
 &Scoped-define lookup-file emp_type
 &Scoped-define where-statement TRUE
 &Scoped-define return-field description

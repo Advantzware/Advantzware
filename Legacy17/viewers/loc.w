@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:51 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -210,13 +210,15 @@ ASSIGN
 ON LEAVE OF loc.loc IN FRAME F-Main /* Locations */
 DO:
    IF LASTKEY = -1 THEN  RETURN.
+   {&methods/lValidateError.i YES}
    IF adm-new-record AND loc.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
        THEN DO:
        MESSAGE "Locations must be entered." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
    END.
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -309,7 +311,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  {&methods/lValidateError.i YES}
   do with frame {&frame-name}:
      IF adm-new-record THEN DO:
         IF loc.loc:SCREEN-VALUE = "" THEN DO:
@@ -319,7 +321,7 @@ PROCEDURE local-update-record :
         END.
      END.
   END.
-
+  {&methods/lValidateError.i NO}
   /* ============== end of validations ==================*/
 
   /* Dispatch standard ADM method.                             */
@@ -329,6 +331,7 @@ PROCEDURE local-update-record :
 
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

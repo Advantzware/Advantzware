@@ -47,7 +47,7 @@ FOR EACH emplogin WHERE
 
     IF v-start-date-1 GT v-start-date-2 THEN NEXT.
 
-    FIND FIRST emptrack.employee WHERE
+    FIND FIRST employee WHERE
          employee.company EQ emplogin.company and
          employee.employee EQ emplogin.employee
          NO-LOCK.

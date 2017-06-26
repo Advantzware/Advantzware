@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:39 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -73,9 +73,8 @@ CREATE WIDGET-POOL.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table userLog.userName ~
-userLog.sessionID userLog.LoginDateTime userLog.EulaVersion ~
-userLog.IpAddress 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table userLog.user_id ~
+userLog.userName userLog.sessionID userLog.LoginDateTime userLog.IpAddress 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH userLog WHERE ~{&KEY-PHRASE} ~
       AND userLog.logoutDateTime = ? NO-LOCK ~
@@ -134,10 +133,10 @@ DEFINE RECTANGLE RECT-4
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
       userLog
-    FIELDS(userLog.userName
+    FIELDS(userLog.user_id
+      userLog.userName
       userLog.sessionID
       userLog.LoginDateTime
-      userLog.EulaVersion
       userLog.IpAddress) SCROLLING.
 &ANALYZE-RESUME
 
@@ -145,10 +144,10 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
+      userLog.user_id FORMAT "X(12)":U
       userLog.userName FORMAT "x(16)":U
       userLog.sessionID FORMAT ">>>>>>>>>>":U
       userLog.LoginDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
-      userLog.EulaVersion FORMAT ">>9.99":U
       userLog.IpAddress FORMAT "x(15)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -252,11 +251,10 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "userLog.logoutDateTime = ?"
-     _FldNameList[1]   = ASI.userLog.userName
-     _FldNameList[2]   = ASI.userLog.sessionID
-     _FldNameList[3]   = ASI.userLog.LoginDateTime
-     _FldNameList[4]   > ASI.userLog.EulaVersion
-"userLog.EulaVersion" ? ">>9.99" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[1]   = ASI.userLog.user_id
+     _FldNameList[2]   = ASI.userLog.userName
+     _FldNameList[3]   = ASI.userLog.sessionID
+     _FldNameList[4]   = ASI.userLog.LoginDateTime
      _FldNameList[5]   = ASI.userLog.IpAddress
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -320,6 +318,13 @@ DO:
   DEF BUFFER bf-userLog FOR userLog.
   DEFINE VARIABLE li AS INTEGER     NO-UNDO.
   DEFINE VARIABLE lAns AS LOGICAL     NO-UNDO.
+
+  IF NOT USERID(LDBNAME(1)) EQ "ASI" THEN DO:
+    MESSAGE "Please contact your administrator to delete session records."
+      VIEW-AS ALERT-BOX INFO BUTTONS OK.
+    RETURN NO-APPLY.
+
+  END.
 
   DO WITH FRAME {&frame-name}:
 
@@ -421,6 +426,8 @@ PROCEDURE local-open-query :
   /* Code placed here will execute AFTER standard behavior.    */
   APPLY "value-changed" TO BROWSE {&browse-name}.
   APPLY "entry" TO BROWSE {&browse-name}.
+  IF USERID(LDBNAME(1)) NE "ASI" THEN
+    DISABLE btDelSelected.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

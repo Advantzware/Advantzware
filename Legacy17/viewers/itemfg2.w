@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:58 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -658,13 +658,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.vend-no V-table-Win
 ON LEAVE OF itemfg.vend-no IN FRAME F-Main /* Vendor 1 */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and itemfg.vend-no:screen-value <> "" and
        not can-find(first vend where vend.vend-no = itemfg.vend-no:screen-value)
     then do:
          message "Invalid Vendor. Try Help." view-as alert-box error .
          return no-apply.
     end.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -674,14 +677,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.vend2-no V-table-Win
 ON LEAVE OF itemfg.vend2-no IN FRAME F-Main /* Vendor 2 */
 DO:
+      {&methods/lValidateError.i YES}
       if lastkey <> -1 and itemfg.vend2-no:screen-value <> "" and
        not can-find(first vend where vend.vend-no = itemfg.vend2-no:screen-value)
     then do:
          message "Invalid Vendor. Try Help." view-as alert-box error .
          return no-apply.
     end.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1091,7 +1096,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+   {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   do with frame {&frame-name}:
     if itemfg.vend-no:screen-value in frame {&frame-name} <> "" and
@@ -1109,7 +1114,7 @@ PROCEDURE local-update-record :
          return no-apply.
     end.
   end.   /* with frame */
-
+  {&methods/lValidateError.i NO}
   RUN valid-pur-uom NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1122,6 +1127,7 @@ PROCEDURE local-update-record :
   END.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1264,6 +1270,7 @@ PROCEDURE valid-pur-uom :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     itemfg.pur-uom:SCREEN-VALUE = CAPS(itemfg.pur-uom:SCREEN-VALUE).
     /* take out per Joe - task 10021210 */
@@ -1275,6 +1282,7 @@ PROCEDURE valid-pur-uom :
 /*     end.                                                                     */
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

@@ -17,7 +17,9 @@ IF rd_qty BEGINS "P" THEN DO:
           item.company EQ cocode AND
           item.i-no    EQ work-mat.i-no
           NO-LOCK NO-ERROR.
-    
+
+     v-est-mat-cost = v-est-mat-cost +  work-mat.est-cost . /* ticket 17911 */
+   
      IF work-mat.prd-qty NE 0 AND
         work-mat.act-qty NE 0 AND
         work-mat.est-qty NE 0 THEN DO:
@@ -27,12 +29,12 @@ IF rd_qty BEGINS "P" THEN DO:
                                   work-mat.len, work-mat.wid, item.s-dep,
                                   work-mat.prd-qty, OUTPUT work-mat.prd-qty).
     
-        work-mat.est-cost = work-mat.est-cost / work-mat.est-qty *
-                            work-mat.prd-qty.
+        /*work-mat.est-cost = work-mat.est-cost / work-mat.est-qty *
+                            work-mat.prd-qty .*/ /* ticket 17911 */
      END.
 
     ASSIGN
-     v-est-mat-cost = v-est-mat-cost + work-mat.est-cost
+    /* v-est-mat-cost = v-est-mat-cost + work-mat.est-cost*/
      v-act-mat-cost = v-act-mat-cost + work-mat.act-cost.
 
     IF tb_sep_board THEN

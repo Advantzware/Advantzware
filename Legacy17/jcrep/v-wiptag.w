@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:45 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -630,12 +630,12 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-
+  {&methods/lValidateError.i YES} 
    IF USERID("NOSWEAT") NE "ASI" THEN do:
        MESSAGE "User not ASI update not allow... " VIEW-AS ALERT-BOX ERROR .
        RETURN NO-APPLY.
    END.
-
+   {&methods/lValidateError.i NO}
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -643,6 +643,7 @@ PROCEDURE local-update-record :
   RUN local-display-fields.
   DISABLE v-tagtime-2 fi_sht-wid fi_sht-len WITH FRAME {&FRAME-NAME}.
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

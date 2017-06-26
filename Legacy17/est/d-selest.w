@@ -289,8 +289,15 @@ DO:
     ASSIGN {&displayed-objects}.
 
     RUN build-table.
-
-    {&OPEN-BROWSERS-IN-QUERY-{&FRAME-NAME}}
+    IF NOT CAN-FIND (FIRST tt-est) THEN 
+        MESSAGE "Estimate does not qualify as a Master Tandem.  Review that estimate and parts meet the following criteria:" SKIP 
+             " * Must be an original estimate (no Estimate # shown in the 'From:' field on the Specs Tab)" SKIP 
+             " * All parts must be the same style" SKIP
+             " * All parts must be the same dimensions" SKIP 
+             " * All parts must be separate forms (no combos)" SKIP 
+             " * All forms must have the same dimensions"
+             VIEW-AS ALERT-BOX TITLE "Not a Master Tandem Estimate" .
+        {&OPEN-BROWSERS-IN-QUERY-{&FRAME-NAME}}
 
     RUN dispatch ("enable").
   END.
@@ -332,9 +339,9 @@ DO:
 
   IF ip-rowid EQ ? AND AVAIL tt-est THEN
     IF lv-est-type EQ 4 THEN
-      RUN ce/new-est.p (lv-est-type, OUTPUT ip-rowid).
+      RUN est/NewEstimate.p ('F', lv-est-type, OUTPUT ip-rowid).
     ELSE
-      RUN cec/new-est.p (lv-est-type, OUTPUT ip-rowid).
+      RUN est/NewEstimate.p ('C', lv-est-type, OUTPUT ip-rowid).
 
   op-rowid = ip-rowid.
 

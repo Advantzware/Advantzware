@@ -1230,6 +1230,23 @@ PROCEDURE openQuery:
      IF sortColumn EQ 'Length'          THEN STRING(eb.len, '>>9.99')    ELSE ~
      IF sortColumn EQ 'Width'           THEN STRING(eb.wid, '>>9.99')    ELSE ~
         STRING(eb.dep, '>>9.99') ~{&SORTED}
+/* Ticket 20737 */
+&ELSEIF '{&yellowColumnsName}' EQ 'w-bin' &THEN
+  &SCOPED-DEFINE SORTBY-PHRASE BY ~
+     IF sortColumn EQ "Job#"    THEN w-bin.job-no + STRING(w-bin.job-no2, "99") ELSE ~
+    IF sortColumn EQ "WHS"       THEN w-bin.loc                                  ELSE ~
+    IF sortColumn EQ "Receipt Date" THEN STRING(w-bin.last-rct-date)            ELSE ~
+    IF sortColumn EQ "Bin"   THEN w-bin.loc-bin                              ELSE ~
+    IF sortColumn EQ "tag"       THEN w-bin.tag                                  ELSE ~
+    IF sortColumn EQ "rfid"       THEN w-bin.rfid                                ELSE ~
+    IF sortColumn EQ "FG Lot" THEN w-bin.stack-code                          ELSE ~
+    IF sortColumn EQ "Customer#"   THEN w-bin.cust-no                              ELSE ~
+    IF sortColumn EQ "Bol Qty"    THEN STRING(w-bin.to-bol, "9999999999")         ELSE ~
+    IF sortColumn EQ "Released Qty"    THEN STRING(w-bin.to-rel, "9999999999")         ELSE ~
+    IF sortColumn EQ "Quantity"       THEN STRING(9999999999.9999999999 + w-bin.qty, "-9999999999.9999999999") ELSE ~
+    IF sortColumn EQ "units"     THEN STRING(9999999999 + w-bin.units, "-9999999999")                     ELSE ~
+    IF sortColumn EQ "Unit Count" THEN STRING(w-bin.case-count, "9999999999")                             ELSE ~
+                                       STRING(w-bin.partial-count, "-9999999999")  ~{&SORTED}
 
 /* btr - 02/15/2011  */
 &ELSEIF '{&yellowColumnsName}' EQ 'b-wipmach' &THEN

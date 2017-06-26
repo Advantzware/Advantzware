@@ -76,7 +76,7 @@ ASSIGN cTextListToSelect = "Qty OnHand,Customer Name,Ship To,PO#,Order#,Rel#,Ite
                            "Rel Qty,Rel Date,Ship Date,Due Alert,Carrier,Sales Value,Order Qty,MSF,Job#,Shipped Qty,Cust#,Part Number#," + /*12*/
                            "Del Zone,Terr,Skids"  /*Credit Rating,Routing,Rel Stat,Tot Qty OH*/
            cFieldListToSelect = "w-ord.onh-qty,w-ord.cust-name,w-ord.ship-id,w-ord.po-num,w-ord.ord-no,w-ord.rel-no,w-ord.i-no,w-ord.i-name,style," +
-                                "w-ord.rel-qty,w-ord.xls-rel-date,w-ord.last-date,w-ord.prom-code,w-ord.carrier,w-ord.t-price,w-ord.ord-qty,w-ord.msf,w-ord.job,w-ord.shp-qty,w-ord.cust-no,w-ord.part-no," +
+                                "w-ord.rel-qty,w-ord.xls-rel-date,w-ord-last-date,w-ord.prom-code,w-ord.carrier,w-ord.t-price,w-ord.ord-qty,w-ord.msf,w-ord.job,w-ord.shp-qty,w-ord.cust-no,w-ord.part-no," +
                                 "v-del-zone,v-terr,w-ord.palls" /* v-crRate,routing,w-ord.xls-status,w-ord.tot-qty*/
            cFieldLength = "10,30,8,15,6,6,15,25,8," + "11,8,9,9,7,11,13,8,9,14,9,15," + "8,4,6"  /*13,25,8,10*/
            cFieldType = "i,c,c,c,i,i,c,c,c," + "i,c,c,c,c,i,i,i,c,i,c,c," + "c,c,i"  /* c,c,c,i*/
@@ -800,7 +800,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -851,7 +851,7 @@ DO:
        END. 
   end case. 
   SESSION:SET-WAIT-STATE ("").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -878,7 +878,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -894,7 +894,7 @@ DO:
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -906,7 +906,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -923,7 +923,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -935,7 +935,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1341,7 +1341,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -1368,14 +1368,14 @@ RUN DisplaySelectionList.
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:10 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:10 am */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p */
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_cust-no.
   END.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

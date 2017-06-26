@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:53 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -401,12 +401,12 @@ PROCEDURE local-delete-record :
 ------------------------------------------------------------------------------*/
   DEFINE VAR thisOne AS CHAR NO-UNDO.
   DEFINE BUFFER buff-soldto FOR soldto .
-
+  {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT adm-new-record THEN DO:
     {custom/askdel.i}
   END.
-
+  {&methods/lValidateError.i NO}
     /* Code placed here will execute BEFORE standard behavior.    */ 
    IF v-cust-log THEN do:
       FIND CURRENT soldto NO-LOCK NO-ERROR.
@@ -424,6 +424,7 @@ PROCEDURE local-delete-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
 END PROCEDURE.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

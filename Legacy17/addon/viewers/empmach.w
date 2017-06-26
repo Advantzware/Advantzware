@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:40 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -156,7 +156,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: EMPTRACK.empmach
+   External Tables: empmach
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -254,6 +254,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL empmach.gl_account V-table-Win
 ON LEAVE OF empmach.gl_account IN FRAME F-Main /* G/L Account */
 DO:
+  {&methods/lValidateError.i YES}
   {custom/actleave.i}
   IF TRIM(SELF:SCREEN-VALUE) = "-" OR TRIM(SELF:SCREEN-VALUE) = "" THEN SELF:FORMAT = "x(25)".
 
@@ -262,8 +263,9 @@ DO:
       &can-find="first account WHERE (account.company = gcompany
                            AND account.actnum = SELF:SCREEN-VALUE) OR self:SCREEN-VALUE = '' OR trim(SELF:SCREEN-VALUE) = '-' "
      &error-message="Invalid G/L Account"}
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -273,12 +275,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL empmach.machine V-table-Win
 ON LEAVE OF empmach.machine IN FRAME F-Main /* Machine */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   {methods/entryerr.i
       &can-find="mach WHERE mach.company = gcompany
                         AND mach.m-code = SELF:SCREEN-VALUE"
       &error-message="Invalid Machine Code"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
