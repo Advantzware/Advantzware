@@ -821,10 +821,10 @@ do k = 1 to 28:
   run ce/pr4-mis2.p.
   v-dec = qtty[k] / (xeb.num-up * xef.n-out * xef.n-out-l).
   {sys/inc/roundup.i v-dec}
+  IF xef.gsh-qty EQ 0 THEN 
   do transaction:
     xef.gsh-qty = v-dec + spo + r-spo[1].
   end.
-
   run ce/probemk.p (ROWID(probe)).
 
   find first blk where blk.id eq xeb.part-no no-error.

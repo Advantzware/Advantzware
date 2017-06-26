@@ -114,26 +114,21 @@ PROCEDURE asiMenu:
     DEFINE VARIABLE cMneumonic AS CHARACTER NO-UNDO .
     DEFINE VARIABLE cImage     AS CHARACTER NO-UNDO .
 
-    INPUT FROM C:\Advantzware\v17\AdvantzwareFramework\Advantzware\Security\Tools\build-smart-menu\winKitMenu.txt NO-ECHO .
+    INPUT FROM VALUE(SEARCH("AdvantzwareFramework\Advantzware\Security\Tools\build-smart-menu\winKitMenu.txt")) NO-ECHO .
     REPEAT:
         IMPORT cPrgrm cMenu lAdm cType cImage .
         
         IF CAN-DO ("mainmenu",cMenu) THEN NEXT .
         IF CAN-DO ("rule,skip",cPrgrm) THEN NEXT .
         
-        /*IF cMenu EQ "file" THEN ASSIGN cMenu = cPrgrm .*/
+/*        IF cMenu EQ "file" THEN ASSIGN cMenu = cPrgrm .*/
         
         FIND FIRST prgrms NO-LOCK WHERE prgrms.prgmname EQ cPrgrm NO-ERROR .
-        /*
-        ASSIGN cMneumonic = SUBSTRING (prgrms.prgtitle,1,1) WHEN AVAILABLE prgrms .
-        */
+/*        ASSIGN cMneumonic = SUBSTRING (prgrms.prgtitle,1,1) WHEN AVAILABLE prgrms .*/
 
         FIND FIRST ttblMenu WHERE ttblMenu.menuName EQ cMenu NO-ERROR .
-
-        /*
-        IF  AVAILABLE ttblMenu THEN
-        ASSIGN cMneumonic = ttblMenu.mneumonic + cMneumonic .
-        */
+/*        IF  AVAILABLE ttblMenu THEN                          */
+/*        ASSIGN cMneumonic = ttblMenu.mneumonic + cMneumonic .*/
 
         IF INDEX (cPrgrm,".") EQ 0 THEN DO:
             FIND FIRST ttblMenu WHERE ttblMenu.menuName EQ cPrgrm NO-ERROR .
@@ -150,13 +145,11 @@ PROCEDURE asiMenu:
         
         IF NOT CAN-FIND (FIRST prgrms WHERE prgrms.prgmname EQ cPrgrm) THEN NEXT .
 
-        /*
-        IF LENGTH (cMneumonic) EQ 3 THEN
-        ASSIGN cMneumonic = SUBSTRING (cMneumonic,1,2) + STRING (ttblMenu.menuCount) .
-        
-        IF LENGTH (cMneumonic) GT 4 THEN
-        cMneumonic = SUBSTRING (cMneumonic,1,4) .
-        */
+/*        IF LENGTH (cMneumonic) EQ 3 THEN                                              */
+/*        ASSIGN cMneumonic = SUBSTRING (cMneumonic,1,2) + STRING (ttblMenu.menuCount) .*/
+/*                                                                                      */
+/*        IF LENGTH (cMneumonic) GT 4 THEN                                              */
+/*        cMneumonic = SUBSTRING (cMneumonic,1,4) .                                     */
 
         CREATE ttblItem .
         ASSIGN 
@@ -205,7 +198,7 @@ PROCEDURE asiSmartFunction:
         oCallParameter               = NEW RunProcedureCallParameter () 
         oCallParameter:AllowMultiple = FALSE 
         oCallParameter:ProcedureName = dirGroup + "/" + prgrms.prgmname + "w"
-        oCallParameter:RunPersistent = TRUE
+        oCallParameter:RunPersistent = NOT CAN-DO("repstinv.,shipmeth.",prgrms.prgmname)
         .
         
     IF iplAdm THEN 

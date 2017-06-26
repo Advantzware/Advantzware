@@ -167,8 +167,8 @@ ASSIGN
  str-init[85] = "Penny,Dollar,FiveDollar" /* ceprep */  
  str-init[86] = ",16th's,32nd's,Decimal" /* cecscrn */
  str-init[87] = "RunOnly,MR+Run" /* ceprice */
- str-init[88] = ",AllOrders,SameOrderOnly,SamePo#Only,AllOrders&ShipFromWhse,SamePO#&ShipFromWhse,SameOrder&SameShipFrom,SameOrder&SameShipFrom&SamePO,AllOrders&NotRunShip," + /* relmerge */       
-                "stmtprint 1,stmtprint 2"
+ str-init[88] = ",AllOrders,SameOrderOnly,SamePo#Only,AllOrders&ShipFromWhse,SamePO#&ShipFromWhse,SameOrder&SameShipFrom,SameOrder&SameShipFrom&SamePO,AllOrders&NotRunShip"  /* relmerge */       
+                
  str-init[89] = ",ASI,ASIXprnt,Premier,ASIExcel,Loylang,Printers,Protagon,Badger,Soule,RFC,SouleMed,stmtprint 1,stmtprint 2"  /*stmtprin*/
  str-init[90] = "All Machines,Last Machine,NO"  /*TSFinish*/
  str-init[91] = "MSF,PO UOM"  /*appaper*/

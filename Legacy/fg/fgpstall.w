@@ -4297,8 +4297,8 @@ PROCEDURE print-and-post :
 
       MESSAGE "Posting completed..." VIEW-AS ALERT-BOX.
       IF fgpost-cha EQ "After" OR fgpost-cha EQ "Both" THEN RUN show-report (2).
-      IF CAN-FIND(FIRST w-fg-rctd WHERE w-fg-rctd.rita-code EQ "T")
-         THEN RUN ReprintTag.
+      /*IF CAN-FIND(FIRST w-fg-rctd WHERE w-fg-rctd.rita-code EQ "T")
+         THEN RUN ReprintTag.*/ /* Ticket - 20469 */
 
     END.
 

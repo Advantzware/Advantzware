@@ -288,8 +288,15 @@ DO:
     ASSIGN {&displayed-objects}.
 
     RUN build-table.
-
-    {&OPEN-BROWSERS-IN-QUERY-{&FRAME-NAME}}
+    IF NOT CAN-FIND (FIRST tt-est) THEN 
+        MESSAGE "Estimate does not qualify as a Master Tandem.  Review that estimate and parts meet the following criteria:" SKIP 
+             " * Must be an original estimate (no Estimate # shown in the 'From:' field on the Specs Tab)" SKIP 
+             " * All parts must be the same style" SKIP
+             " * All parts must be the same dimensions" SKIP 
+             " * All parts must be separate forms (no combos)" SKIP 
+             " * All forms must have the same dimensions"
+             VIEW-AS ALERT-BOX TITLE "Not a Master Tandem Estimate" .
+        {&OPEN-BROWSERS-IN-QUERY-{&FRAME-NAME}}
 
     RUN dispatch ("enable").
   END.

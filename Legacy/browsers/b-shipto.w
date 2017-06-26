@@ -1747,16 +1747,16 @@ PROCEDURE export-xl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR first-cust AS CHAR NO-UNDO.
-DEF VAR last-cust AS CHAR NO-UNDO.
-/*
-GET FIRST Browser-Table .
-ASSIGN first-cust = cust.cust-no .
-GET LAST Browser-Table .
-ASSIGN last-cust = cust.cust-no .
+DEFINE VARIABLE cfirst-ship AS CHARACTER NO-UNDO.
+DEFINE VARIABLE clast-ship AS CHARACTER NO-UNDO.
 
-RUN fg/cust-exp.w (first-cust ,last-cust).
-*/
+GET FIRST Browser-Table .
+ASSIGN cfirst-ship = shipto.ship-id .
+GET LAST Browser-Table .
+ASSIGN clast-ship = shipto.ship-id .
+       
+RUN fg/ship-exp.w ( "","","").
+
 
 END PROCEDURE.
 

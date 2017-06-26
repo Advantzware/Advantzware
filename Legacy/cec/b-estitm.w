@@ -3727,7 +3727,7 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
                      NO-LOCK NO-ERROR.
      ASSIGN
      eb.cas-no = IF AVAIL cust AND cust.case-bundle <> "" THEN cust.case-bundle ELSE eb.cas-no
-     eb.tr-no = IF AVAIL cust AND cust.pallet <> "" THEN cust.pallet ELSE eb.tr-no.      
+     eb.tr-no = IF AVAIL shipto AND shipto.pallet <> "" THEN shipto.pallet ELSE IF AVAIL cust AND cust.pallet <> "" THEN cust.pallet ELSE eb.tr-no.      
      FIND item WHERE item.company = eb.company AND
                      item.i-no = eb.cas-no
               NO-LOCK NO-ERROR.
@@ -3956,7 +3956,7 @@ PROCEDURE createESTfromArtios :
                      NO-LOCK NO-ERROR.
      ASSIGN
      eb.cas-no = IF AVAIL cust AND cust.case-bundle <> "" THEN cust.case-bundle ELSE eb.cas-no
-     eb.tr-no = IF AVAIL cust AND cust.pallet <> "" THEN cust.pallet ELSE eb.tr-no.      
+     eb.tr-no = IF AVAIL shipto AND shipto.pallet <> "" THEN shipto.pallet ELSE IF AVAIL cust AND cust.pallet <> "" THEN cust.pallet ELSE eb.tr-no.      
      FIND item WHERE item.company = eb.company AND
                      item.i-no = eb.cas-no
               NO-LOCK NO-ERROR.
@@ -4219,7 +4219,7 @@ PROCEDURE createEstFromImpact :
                      NO-LOCK NO-ERROR.
      ASSIGN
      eb.cas-no = IF AVAIL cust AND cust.case-bundle <> "" THEN cust.case-bundle ELSE eb.cas-no
-     eb.tr-no = IF AVAIL cust AND cust.pallet <> "" THEN cust.pallet ELSE eb.tr-no.      
+     eb.tr-no = IF AVAIL shipto AND shipto.pallet <> "" THEN shipto.pallet ELSE IF AVAIL cust AND cust.pallet <> "" THEN cust.pallet ELSE eb.tr-no.      
      FIND item WHERE item.company = eb.company AND
                      item.i-no = eb.cas-no
               NO-LOCK NO-ERROR.

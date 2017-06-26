@@ -1,2 +1,2 @@
 
-RUN oe/r-orde&p.w (YES).
+RUN oe/r-orde&p.w PERSISTENT (YES).

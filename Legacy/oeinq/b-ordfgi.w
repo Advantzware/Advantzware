@@ -427,7 +427,7 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       fg-rdtlh.qty-case COLUMN-LABEL "Qty/Unit" FORMAT "->>>,>>9":U
             LABEL-BGCOLOR 14
-      get-pallet-info (output li-qty-pal) @ li-pallets COLUMN-LABEL "Pallets" FORMAT "->>>>>>":U
+      get-pallet-info (OUTPUT li-qty-pal) @ li-pallets COLUMN-LABEL "Pallets" FORMAT "->>>>>>":U
             WIDTH 9.4 LABEL-BGCOLOR 14
       fg-rdtlh.stacks-unit COLUMN-LABEL "Units/Pallet" FORMAT ">,>>9":U
             LABEL-BGCOLOR 14
@@ -1255,7 +1255,7 @@ DO:
 
        RUN oeinq/d-cpyopn.w (OUTPUT op-all, OUTPUT op-whbn) .
 
-    IF op-all THEN do:
+    IF op-all THEN DO:
          FIND LAST fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
          IF AVAIL fg-rctd AND fg-rctd.r-no GT v-rcpth-no THEN v-rcpth-no = fg-rctd.r-no.
          FIND LAST b-fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
@@ -1337,7 +1337,7 @@ END.
 ON CHOOSE OF btn_del IN FRAME F-Main /* Delete */
 DO:
    DEF VAR confirm AS LOG NO-UNDO.
-
+   DEFINE BUFFER bf-fg-rdtlh FOR fg-rdtlh.
    IF v-upd-perms THEN DO:
      IF AVAIL fg-rcpth THEN
      DO:
@@ -1347,8 +1347,29 @@ DO:
         IF confirm THEN
         DO:
            FIND CURRENT fg-rcpth EXCLUSIVE-LOCK NO-ERROR.
-           DELETE fg-rcpth.
-           RUN local-open-query.
+           
+           IF AVAILABLE fg-rcpth THEN DO:
+            
+              IF AVAILABLE fg-rdtlh AND fg-rdtlh.tag GT "" THEN DO:
+                FOR EACH fg-rctd EXCLUSIVE-LOCK 
+                    WHERE fg-rctd.company EQ fg-rdtlh.company
+                      AND fg-rctd.tag     EQ fg-rdtlh.tag
+                      AND fg-rctd.rita-code EQ 'P'
+                    USE-INDEX tag:
+                  DELETE fg-rctd.
+                END.              
+              END.
+              
+              FOR EACH bf-fg-rdtlh EXCLUSIVE-LOCK 
+                          WHERE bf-fg-rdtlh.r-no EQ fg-rcpth.r-no:
+                 DELETE bf-fg-rdtlh.
+              END.
+                            
+              DELETE fg-rcpth.
+              
+          END.
+          
+          RUN local-open-query.
         END.
      END.
    END.
@@ -1582,7 +1603,7 @@ FIND FIRST sys-ctrl WHERE sys-ctrl.company = g_company AND
    IF AVAIL sys-ctrl AND sys-ctrl.log-fld THEN
         fi_date = sys-ctrl.date-fld.
    ELSE
-      fi_date = date("01/01/" + SUBSTRING(string(TODAY),7,11)).
+      fi_date = DATE("01/01/" + SUBSTRING(STRING(TODAY),7,11)).
 
 IF fgsecurity-log THEN
 DO:
@@ -2312,7 +2333,7 @@ FUNCTION display-ship RETURNS CHARACTER
           WHERE oe-bolh.company EQ cocode
             AND oe-bolh.b-no    EQ fg-rcpth.b-no NO-LOCK NO-ERROR.
 
-  IF AVAIL oe-bolh THEN do:
+  IF AVAIL oe-bolh THEN DO:
      RETURN STRING(oe-bolh.cust-no)    .
   END.
   ELSE
@@ -2331,16 +2352,16 @@ FUNCTION get-pallet-info RETURNS INTEGER
     Notes:  
 ------------------------------------------------------------------------------*/
 
-find first fg-bin
-    where fg-bin.company eq cocode
-      and fg-bin.i-no    eq fg-rcpth.i-no
-      and fg-bin.job-no  eq fg-rcpth.job-no
-      and fg-bin.job-no2 eq fg-rcpth.job-no2
-      and fg-bin.loc     eq fg-rdtlh.loc
-      and fg-bin.loc-bin eq fg-rdtlh.loc-bin
-      and fg-bin.tag     eq fg-rdtlh.tag
-      and fg-bin.cust-no eq fg-rdtlh.cust-no
-    no-lock no-error.  
+FIND FIRST fg-bin
+    WHERE fg-bin.company EQ cocode
+      AND fg-bin.i-no    EQ fg-rcpth.i-no
+      AND fg-bin.job-no  EQ fg-rcpth.job-no
+      AND fg-bin.job-no2 EQ fg-rcpth.job-no2
+      AND fg-bin.loc     EQ fg-rdtlh.loc
+      AND fg-bin.loc-bin EQ fg-rdtlh.loc-bin
+      AND fg-bin.tag     EQ fg-rdtlh.tag
+      AND fg-bin.cust-no EQ fg-rdtlh.cust-no
+    NO-LOCK NO-ERROR.  
 
 /*if avail fg-bin then
   assign
@@ -2387,10 +2408,10 @@ FUNCTION get-vend-no RETURNS CHAR
     Notes:  
 ------------------------------------------------------------------------------*/
 
-find first po-ord
-    where po-ord.company eq cocode
-      and po-ord.po-no    eq int(fg-rcpth.po-no)
-    no-lock no-error.  
+FIND FIRST po-ord
+    WHERE po-ord.company EQ cocode
+      AND po-ord.po-no    EQ int(fg-rcpth.po-no)
+    NO-LOCK NO-ERROR.  
 
 IF AVAIL po-ord THEN
     RETURN STRING(po-ord.vend-no) .
@@ -2471,16 +2492,16 @@ FUNCTION get-vend-info RETURNS CHAR
     Notes:  
 ------------------------------------------------------------------------------*/
 
-find first po-ord
-    where po-ord.company eq cocode
-      and po-ord.po-no    eq int(fg-rcpth.po-no)
-    no-lock no-error.  
+FIND FIRST po-ord
+    WHERE po-ord.company EQ cocode
+      AND po-ord.po-no    EQ int(fg-rcpth.po-no)
+    NO-LOCK NO-ERROR.  
 
-IF AVAIL po-ord THEN do:
-    find first vend
-        where vend.company eq cocode
-        and vend.vend-no    eq po-ord.vend-no
-        no-lock no-error.  
+IF AVAIL po-ord THEN DO:
+    FIND FIRST vend
+        WHERE vend.company EQ cocode
+        AND vend.vend-no    EQ po-ord.vend-no
+        NO-LOCK NO-ERROR.  
 
     IF AVAIL vend THEN
         RETURN STRING(vend.NAME) .

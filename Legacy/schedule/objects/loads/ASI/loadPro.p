@@ -551,8 +551,10 @@ FOR EACH job-hdr NO-LOCK
       AND job-hdr.job-no GE '{&jobNo}'
       &ENDIF
    ,EACH job OF job-hdr NO-LOCK
-   ,FIRST est OF job NO-LOCK
-    WHERE est.est-type GE beginEstType
+   ,FIRST est NO-LOCK
+    WHERE est.company EQ job.company
+      AND est.est-no EQ job.est-no
+      AND est.est-type GE beginEstType
       AND est.est-type LE endEstType
     BREAK BY est.est-type
           BY job-hdr.job-no

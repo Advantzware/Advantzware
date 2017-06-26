@@ -786,7 +786,7 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseControl
 
         InitializeGrid (phBrowse, poEmbeddedWindowForm, poParent, plUseBatching) .
 
-        SynchronizeVisibleColumns ().
+       // SynchronizeVisibleColumns ().
 
         THIS-OBJECT:DoubleClickRow:Subscribe (DefaultActionHandler).
 
@@ -2449,7 +2449,7 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseControl
     METHOD PROTECTED OVERRIDE VOID OnVisibleChanged (e AS System.EventArgs):
 
         SUPER:OnVisibleChanged (e) .
-
+        
         /* Mike Fechner / Consultingwerk Ltd. / WinKit 7 Jun 2013
            Fix for calc-fields of first row being replicated in 2nd row on
            some (???) browser instances */
@@ -3246,6 +3246,8 @@ CLASS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseControl
 
         ASSIGN cSettings = LoadSettings ()
                oSettings = NEW UltraGridSettings (THIS-OBJECT) .
+
+
 
         oSettings:ApplyStoredSettings (cSettings) .
 

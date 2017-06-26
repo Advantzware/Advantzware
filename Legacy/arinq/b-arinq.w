@@ -597,6 +597,10 @@ DO:
      fi_part-no
      fi_date
      ll-first = NO.
+     IF fi_cust-no EQ "" AND fi_i-no EQ "" AND fi_po-no EQ "" AND
+        fi_inv-no:SCREEN-VALUE EQ "" AND fi_ord-no:SCREEN-VALUE EQ "" AND fi_bol-no:SCREEN-VALUE EQ "" AND 
+        fi_est-no:SCREEN-VALUE EQ "" AND fi_actnum:SCREEN-VALUE EQ "" AND fi_part-no EQ "" AND
+        fi_date:SCREEN-VALUE  EQ "" THEN ll-first = YES.
     RUN dispatch ('open-query').
     APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
   END.

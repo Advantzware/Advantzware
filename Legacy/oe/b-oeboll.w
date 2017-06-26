@@ -293,7 +293,7 @@ DEFINE BROWSE Browser-Table
             WIDTH 20
       get-cost() @ li-cost COLUMN-LABEL "Cost/M" FORMAT "->>>,>>>,>>9.99":U
             WIDTH 12
-      display-cust-item(0) @ lv-part-no
+      display-cust-item(0) @ lv-part-no FORMAT "x(15)":U
       get-release() @ lv-relase COLUMN-LABEL "Release" FORMAT "x(8)":U
   ENABLE
       oe-boll.ord-no

@@ -49,12 +49,12 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER DIALOG-BOX
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS rd-db-name v-password Btn_OK Btn_Cancel 
-&Scoped-Define DISPLAYED-OBJECTS rd-db-name v-password 
+&Scoped-Define ENABLED-OBJECTS v-password Btn_OK Btn_Cancel 
+&Scoped-Define DISPLAYED-OBJECTS v-password 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -85,24 +85,14 @@ DEFINE VARIABLE v-password AS CHARACTER FORMAT "X(256)":U
      SIZE 34 BY 1
      FONT 6 NO-UNDO.
 
-DEFINE VARIABLE rd-db-name AS CHARACTER 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Advantzware", "ASI",
-"ADDON", "ADDON"
-     SIZE 35 BY 1.19 NO-UNDO.
-
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     rd-db-name AT ROW 1.71 COL 21 NO-LABEL
      v-password AT ROW 3.62 COL 19 COLON-ALIGNED BLANK 
-     Btn_OK AT ROW 9.1 COL 10
-     Btn_Cancel AT ROW 9.1 COL 42
-     "Database:" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 1.95 COL 8
-     SPACE(46.13) SKIP(9.71)
+     Btn_OK AT ROW 8.1 COL 10
+     Btn_Cancel AT ROW 8.1 COL 42
+     SPACE(10.19) SKIP(3.32)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Module Maintenance"
@@ -134,7 +124,7 @@ DEFINE FRAME D-Dialog
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR DIALOG-BOX D-Dialog
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
@@ -174,9 +164,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
-    ASSIGN v-password rd-db-name.
+    ASSIGN v-password  .
 
-    IF v-password = "advance4me" THEN RUN util/module2.w (rd-db-name) .
+    IF v-password = "advance4me" THEN RUN util/module2.w ("ASI")  .
     ELSE DO:
         MESSAGE "Invalid Password!" VIEW-AS ALERT-BOX.
         RETURN NO-APPLY.
@@ -266,9 +256,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY rd-db-name v-password 
+  DISPLAY v-password 
       WITH FRAME D-Dialog.
-  ENABLE rd-db-name v-password Btn_OK Btn_Cancel 
+  ENABLE v-password Btn_OK Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}

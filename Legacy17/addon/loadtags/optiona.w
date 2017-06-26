@@ -29,8 +29,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-
 {methods/defines/hndldefs.i}
+DEFINE VARIABLE hProgram AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -200,8 +200,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_fgord s-object
 ON CHOOSE OF btn_fgord IN FRAME F-Main /* Make FG Load Tags */
 DO:
-    run  /* for addon loadtags/r-ldtaga.w. */
-        oerep/r-loadtg.w. /* same as gui */
+    RUN oerep/r-loadtg.w. /* same as gui */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -213,8 +212,6 @@ END.
 ON CHOOSE OF btn_rmpo IN FRAME F-Main /* Make Raw Mat'l Tags */
 DO:
     RUN rmrep/rmloadtg.w.
-    /*run loadtags/loadtags.w.*/
-    /*run rm/w-rmtrs.w.*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -225,13 +222,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_scan s-object
 ON CHOOSE OF btn_scan IN FRAME F-Main /* Scan Case Label */
 DO:
-   /* RUN loadtags/d-ldfgit.w (OUTPUT v-fg-loadtag).
-
-    IF v-fg-loadtag THEN run loadtags/w-ldtag.w.
-    ELSE RUN loadtags/w-ldtagi.w.
-   */
-    RUN loadtags/scanlbl.w.
-
+    RUN loadtags/scanlbl.w PERSISTENT SET hProgram.
+    RUN dispatch IN hProgram ("initialize").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -242,15 +234,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_tag s-object
 ON CHOOSE OF btn_tag IN FRAME F-Main /* File Maintenance */
 DO:
-    DEF VAR v-fg-loadtag AS cha NO-UNDO.
+    DEFINE VARIABLE v-fg-loadtag AS CHARACTER NO-UNDO.    
 
     RUN loadtags/d-ldfgit.w (OUTPUT v-fg-loadtag).
 
-    IF v-fg-loadtag = "F" THEN run loadtags/w-ldtag.w.
-    ELSE IF v-fg-loadtag = "R" THEN RUN loadtags/w-ldtagi.w.
-    ELSE IF v-fg-loadtag = "C" THEN RUN loadtags/w-ldtagc.w.
-    ELSE IF v-fg-loadtag = "W" THEN RUN jcrep/w-wipmt.w.
-
+    IF v-fg-loadtag = "F" THEN RUN loadtags/w-ldtag.w PERSISTENT SET hProgram.
+    ELSE IF v-fg-loadtag = "R" THEN RUN loadtags/w-ldtagi.w PERSISTENT SET hProgram.
+    ELSE IF v-fg-loadtag = "C" THEN RUN loadtags/w-ldtagc.w PERSISTENT SET hProgram.
+    ELSE IF v-fg-loadtag = "W" THEN RUN jcrep/w-wipmt.w PERSISTENT SET hProgram.
+    
+    IF VALID-HANDLE (hProgram) THEN DO:
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -5096,6 +5096,8 @@ PROCEDURE display-est-detail :
 
   IF INT(oe-ordl.cases-unit:SCREEN-VALUE) EQ 0 THEN
      oe-ordl.cases-unit:SCREEN-VALUE = "1".
+  IF AVAIL itemfg THEN
+      IF itemfg.CLASS EQ "*" OR itemfg.exempt-disc THEN oe-ordl.disc:SCREEN-VALUE = "0".
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

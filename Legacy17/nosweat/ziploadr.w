@@ -251,48 +251,50 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK C-Win
 ON CHOOSE OF Btn_OK IN FRAME DEFAULT-FRAME /* OK */
 DO:
-  {methods/wait.i}
-  CREATE ttbl-zipcode.
-  INPUT FROM "zipcodes.txt" NO-ECHO.
-  IMPORT ^.
-  IMPORT ^.
-  IMPORT ^.
-  IMPORT ^.
-  REPEAT WITH FRAME {&FRAME-NAME}:
-    IMPORT DELIMITER "," ttbl-zipcode.
-    IF (preferred:SCREEN-VALUE = "no" AND ttbl-zipcode.pref_type = "P") OR
-       (approved:SCREEN-VALUE = "no" AND ttbl-zipcode.pref_type = "A") OR
-       (nonapproved:SCREEN-VALUE = "no" AND ttbl-zipcode.pref_type = "N") THEN
-    NEXT.
-    IF ttbl-zipcode.zipcode NE save-zipcode AND
-       ttbl-zipcode.pref_type NE save-pref_type THEN
-    RUN Purge-ZipCodes.
-    i = 1.
-    DO WHILE CAN-FIND(zipcode
-        WHERE zipcode.zipcode = ttbl-zipcode.zipcode
-          AND zipcode.pref_type = ttbl-zipcode.pref_type
-          AND zipcode.pref# = i):
-      i = i + 1.
-    END.
-    CREATE zipcode.
-    ASSIGN
-      zipcode.zipcode = ttbl-zipcode.zipcode
-      zipcode.pref_type = ttbl-zipcode.pref_type
-      zipcode.pref# = i
-      zipcode.city = ttbl-zipcode.city
-      zipcode.state = ttbl-zipcode.state
-      zipcode.area_code = INTEGER(ttbl-zipcode.area_code)
-      zipcode.fips_code = INTEGER(ttbl-zipcode.fips_code)
-      zipcode.county = ttbl-zipcode.county
-      zipcode.time_zone = ttbl-zipcode.time_zone
-      zipcode.dst = IF ttbl-zipcode.dst = "y" THEN yes ELSE no
-      zipcode.country = "US"
-      zipcode.carrier = ttbl-zipcode.carrier
-      zipcode.del-zone = ttbl-zipcode.del-zone.
+  IF SEARCH ("zipcodes.txt") NE ? THEN DO:
+      {methods/wait.i}
+      CREATE ttbl-zipcode.
+      INPUT FROM VALUE(SEARCH("zipcodes.txt")) NO-ECHO.
+      IMPORT ^.
+      IMPORT ^.
+      IMPORT ^.
+      IMPORT ^.
+      REPEAT WITH FRAME {&FRAME-NAME}:
+        IMPORT DELIMITER "," ttbl-zipcode.
+        IF (preferred:SCREEN-VALUE = "no" AND ttbl-zipcode.pref_type = "P") OR
+           (approved:SCREEN-VALUE = "no" AND ttbl-zipcode.pref_type = "A") OR
+           (nonapproved:SCREEN-VALUE = "no" AND ttbl-zipcode.pref_type = "N") THEN
+        NEXT.
+        IF ttbl-zipcode.zipcode NE save-zipcode AND
+           ttbl-zipcode.pref_type NE save-pref_type THEN
+        RUN Purge-ZipCodes.
+        i = 1.
+        DO WHILE CAN-FIND(zipcode
+            WHERE zipcode.zipcode = ttbl-zipcode.zipcode
+              AND zipcode.pref_type = ttbl-zipcode.pref_type
+              AND zipcode.pref# = i):
+          i = i + 1.
+        END.
+        CREATE zipcode.
+        ASSIGN
+          zipcode.zipcode = ttbl-zipcode.zipcode
+          zipcode.pref_type = ttbl-zipcode.pref_type
+          zipcode.pref# = i
+          zipcode.city = ttbl-zipcode.city
+          zipcode.state = ttbl-zipcode.state
+          zipcode.area_code = INTEGER(ttbl-zipcode.area_code)
+          zipcode.fips_code = INTEGER(ttbl-zipcode.fips_code)
+          zipcode.county = ttbl-zipcode.county
+          zipcode.time_zone = ttbl-zipcode.time_zone
+          zipcode.dst = IF ttbl-zipcode.dst = "y" THEN yes ELSE no
+          zipcode.country = "US"
+          zipcode.carrier = ttbl-zipcode.carrier
+          zipcode.del-zone = ttbl-zipcode.del-zone.
+      END.
+      INPUT CLOSE.
+      {methods/nowait.i}
+      MESSAGE "Zip Codes Loader Complete!" VIEW-AS ALERT-BOX INFORMATION.
   END.
-  INPUT CLOSE.
-  {methods/nowait.i}
-  MESSAGE "Zip Codes Loader Complete!" VIEW-AS ALERT-BOX INFORMATION.
   APPLY "CLOSE" TO THIS-PROCEDURE.
     {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:44 pm */
 END.
@@ -327,14 +329,16 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  INPUT FROM "zipcodes.txt" NO-ECHO.
-  IMPORT i.
-  preferred:LABEL = preferred:LABEL + " (" + TRIM(STRING(i,">>>,>>9")) + ")".
-  IMPORT i.
-  approved:LABEL = approved:LABEL + " (" + TRIM(STRING(i,">>>,>>9")) + ")".
-  IMPORT i.
-  nonapproved:LABEL = nonapproved:LABEL + " (" + TRIM(STRING(i,">>>,>>9")) + ")".
-  INPUT CLOSE.
+  IF SEARCH("zipcodes.txt") NE ? THEN DO:
+      INPUT FROM VALUE(SEARCH("zipcodes.txt")) NO-ECHO.
+      IMPORT i.
+      preferred:LABEL = preferred:LABEL + " (" + TRIM(STRING(i,">>>,>>9")) + ")".
+      IMPORT i.
+      approved:LABEL = approved:LABEL + " (" + TRIM(STRING(i,">>>,>>9")) + ")".
+      IMPORT i.
+      nonapproved:LABEL = nonapproved:LABEL + " (" + TRIM(STRING(i,">>>,>>9")) + ")".
+      INPUT CLOSE.
+  END.
   RUN enable_UI.
   {methods/nowait.i}
     {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.07.2017 @  2:07:14 pm */

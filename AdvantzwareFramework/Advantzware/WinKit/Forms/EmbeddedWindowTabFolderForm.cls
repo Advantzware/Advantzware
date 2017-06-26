@@ -116,6 +116,8 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
 
         DEFINE VARIABLE iPage AS INTEGER NO-UNDO.
 
+        Consultingwerk.WindowIntegrationKit.Controls.WinKitControls:OnRenderedBrowseControlActivated (?, ?) . 
+
         /* prevent recursion / infinitive loop */
         IF lSelectingTab THEN RETURN .
 

@@ -274,6 +274,7 @@ PROCEDURE local-initialize :
      SEARCH('users/' + v-prgmname + 'winReSize') NE ? OR
         /* check if maximized for all users all programs */
      SEARCH('users/winReSizeAll') NE ? OR 
+        /* maximize when running MDI mode */
      VALID-OBJECT (oForm) THEN DO:
     {&WINDOW-NAME}:WINDOW-STATE = 1.
     RUN winReSize.

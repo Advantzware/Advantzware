@@ -30,7 +30,6 @@ addon\nosweat\ziploadr.w
 addon\oe\r-bole&p.w
 addon\rm\r-recven.w
 addon\sshoot\sshoot.w
-addon\sshoot\sssetups.w
 addon\touch\clockio.w
 addon\touch\purgeemp.w
 addon\touch\r-daysum.w
@@ -130,6 +129,7 @@ jc\impjobs.w
 jcrep\r-bj.w
 jcrep\r-brdrc1.w
 jcrep\r-jobprep.w
+jcrep\wipldtg.w
 jcrep\r-wipmt.w
 jcrep\r-wiptagA.w
 jcsch\r-sb.w
@@ -143,12 +143,16 @@ nosweat\ziploadr.w
 nosweat\_wizxtbl.w
 oe\globpric.w
 oe\r-invedb.w
+oe\r-orde&p.w
+oe\r-rele&p.w
 oe\r-retedt.w
 oe\r-retpst.w
 oe\r-rtne&p.w
 oerep\cXMLCInv.w
 oerep\d-fibreci.w
 oerep\r-bolcre.w
+oerep\r-bolmstA.w
+oerep\r-bolmstN.w
 oerep\r-BOLtag.w
 oerep\r-fgreq.w
 oerep\r-in.w

@@ -1,2 +1,2 @@
 
-RUN ar/r-arve&p.w (NO).
+RUN ar/r-arve&p.w PERSISTENT (NO).

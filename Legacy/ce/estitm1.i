@@ -12,7 +12,7 @@
                       cust.cust-no = eb.cust-no
                       no-lock no-error.
       eb.cas-no = if avail cust and cust.case-bundle <> "" then cust.case-bundle else eb.cas-no.
-      eb.tr-no = if avail cust and cust.pallet <> "" then cust.pallet else eb.tr-no.      
+      eb.tr-no = if AVAIL shipto AND shipto.pallet <> "" THEN shipto.pallet ELSE IF avail cust and cust.pallet <> "" then cust.pallet else eb.tr-no.      
       /* get default values from rm table */
       find item where item.company = eb.company and
                       item.i-no = eb.cas-no

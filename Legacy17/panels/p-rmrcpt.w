@@ -550,6 +550,8 @@ PROCEDURE set-buttons :
 ------------------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER panel-state AS CHARACTER NO-UNDO.
 
+
+
 DO WITH FRAME Panel-Frame:
 
   IF panel-state = 'disable-all':U THEN DO:
@@ -675,6 +677,10 @@ DO WITH FRAME Panel-Frame:
   END.
 
 END. /* DO WITH FRAME */
+
+/* TO-DO - change upodate button image based on it's "Label" */
+
+{Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:24 am */
 
 END PROCEDURE.
 

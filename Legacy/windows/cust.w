@@ -495,6 +495,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 17.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/cust.w':U ,
              INPUT  {&WINDOW-NAME} ,
              INPUT  'Layout = ':U ,
@@ -556,6 +564,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_shipto. */
        RUN add-link IN adm-broker-hdl ( h_cust , 'Record':U , h_shipto ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'shipto':U , h_shipto ).
+
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_shipto , 'export-xl':U , h_export ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_shipto-2 ,
