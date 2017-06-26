@@ -37,6 +37,7 @@ DEF VAR li-new-estnum AS INT NO-UNDO.
 DEF VAR ll-new-record AS LOG NO-UNDO.
 DEF VAR ll-is-copy-record AS LOG NO-UNDO.
 DEF VAR char-val AS cha NO-UNDO.
+DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
 DEF NEW SHARED BUFFER xest FOR est.
 DEF NEW SHARED BUFFER xef FOR ef.
 DEF NEW SHARED BUFFER xeb FOR eb.
@@ -2559,9 +2560,9 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
         eb.stock-no   = CAPS(itemfg.i-no)
      /*  eb.style      = itemfg.style*/
         eb.procat     = itemfg.procat
-      /*  eb.len        = (itemfg.l-score[50])
-        eb.wid        = (itemfg.w-score[50])
-        eb.dep        = (itemfg.d-score[50]) */ .
+                /*  eb.len        = (itemfg.l-score[50])
+                  eb.wid        = (itemfg.w-score[50])
+                  eb.dep        = (itemfg.d-score[50]) */ .
         eb.pur-man  = TRUE .
 
    /*  IF AVAIL itemfg AND eb.part-no = "" THEN
@@ -3337,7 +3338,7 @@ PROCEDURE local-add-record :
   ASSIGN
     ll-is-add-from-tool = NO
     cadcamValue = ''.
-  IF ls-add-what EQ "copy-est" THEN do:
+  IF ls-add-what EQ "copy-est" THEN DO:
       RUN local-copy-record .
   END.
   ELSE IF ls-add-what EQ "est-from-tandem" THEN RUN est-from-tandem.
@@ -5271,10 +5272,10 @@ PROCEDURE update-e-itemfg-vend :
                    WHERE e-itemfg-vend.company EQ eb.company
                      AND e-itemfg-vend.est-no = eb.est-no
                      AND e-itemfg-vend.eqty = viEQtyPrev
-                    /* AND e-itemfg-vend.form-no = eb.form-no
-                     AND e-itemfg-vend.blank-no = eb.blank-no
-                     AND e-itemfg-vend.i-no    EQ eb.stock-no*/
-                     /*AND e-itemfg-vend.vend-no EQ ""*/  :
+            /* AND e-itemfg-vend.form-no = eb.form-no
+             AND e-itemfg-vend.blank-no = eb.blank-no
+             AND e-itemfg-vend.i-no    EQ eb.stock-no*/
+            /*AND e-itemfg-vend.vend-no EQ ""*/  :
 
        CREATE bf-e-itemfg-vend.
        BUFFER-COPY e-itemfg-vend TO bf-e-itemfg-vend.
@@ -5329,7 +5330,7 @@ PROCEDURE update-e-itemfg-vend :
                      AND e-itemfg-vend.form-no = eb.form-no
                      AND e-itemfg-vend.blank-no = eb.blank-no
                      AND e-itemfg-vend.i-no    EQ eb.stock-no
-                     /*AND e-itemfg-vend.vend-no EQ ""*/  :
+            /*AND e-itemfg-vend.vend-no EQ ""*/  :
 
        CREATE bf-e-itemfg-vend.
        BUFFER-COPY e-itemfg-vend TO bf-e-itemfg-vend.

@@ -9,6 +9,7 @@ DEF VAR prev-cust LIKE eb.cust-no NO-UNDO.
 DEF VAR prev-ship LIKE eb.ship-id NO-UNDO.
 DEF VAR prev-yrprice LIKE eb.yrprice NO-UNDO.
 DEF VAR ls-part-no AS cha NO-UNDO.
+DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 
 
@@ -75,33 +76,37 @@ ASSIGN
  eb.i-pass   = 0
  eb.cust-%   = INT(ef.est-type EQ 2).
 
+RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
+IF cPackCodeOverride GT "" THEN 
+    eb.cas-no = cPackCodeOverride.
+    
 FIND FIRST ITEM WHERE ITEM.company = ef.company
                   AND ITEM.mat-type = "C"
-                  AND item.i-no eq eb.cas-no no-lock no-error.
-if avail item then do:
-   find first e-item
-          where e-item.company eq item.company
-            and e-item.loc     eq item.loc
-            and e-item.i-no    eq item.i-no   no-lock no-error.
-   find first itemfg
-          where itemfg.company eq cocode
-            and itemfg.i-no    eq eb.stock-no   no-lock no-error.
-   if avail e-item then
+                  AND item.i-no EQ eb.cas-no NO-LOCK NO-ERROR.
+IF AVAIL item THEN DO:
+   FIND FIRST e-item
+          WHERE e-item.company EQ item.company
+            AND e-item.loc     EQ item.loc
+            AND e-item.i-no    EQ item.i-no   NO-LOCK NO-ERROR.
+   FIND FIRST itemfg
+          WHERE itemfg.company EQ cocode
+            AND itemfg.i-no    EQ eb.stock-no   NO-LOCK NO-ERROR.
+   IF AVAIL e-item THEN
       ASSIGN eb.cas-len = e-item.case-l
                  eb.cas-wid = e-item.case-w
                  eb.cas-dep = e-item.case-d
                  eb.cas-wt  = e-item.avg-w
                  eb.cas-pal = e-item.case-pall
-                 eb.cas-cnt = if avail itemfg then   itemfg.case-count else e-item.box-case.
+                 eb.cas-cnt = IF AVAIL itemfg THEN   itemfg.case-count ELSE e-item.box-case.
 
-   if eb.cas-len eq 0 then eb.cas-len = item.case-l.
-   if eb.cas-wid eq 0 then eb.cas-wid = item.case-w.
-   if eb.cas-dep eq 0 then eb.cas-dep = item.case-d.
-   if eb.cas-wt  eq 0 then eb.cas-wt  = item.avg-w.
-   if eb.cas-pal eq 0 then eb.cas-pal = item.case-pall.
-   if eb.cas-cnt eq 0 then eb.cas-cnt =
-            if avail itemfg then itemfg.case-count else item.box-case.
-end.
+   IF eb.cas-len EQ 0 THEN eb.cas-len = item.case-l.
+   IF eb.cas-wid EQ 0 THEN eb.cas-wid = item.case-w.
+   IF eb.cas-dep EQ 0 THEN eb.cas-dep = item.case-d.
+   IF eb.cas-wt  EQ 0 THEN eb.cas-wt  = item.avg-w.
+   IF eb.cas-pal EQ 0 THEN eb.cas-pal = item.case-pall.
+   IF eb.cas-cnt EQ 0 THEN eb.cas-cnt =
+            IF AVAIL itemfg THEN itemfg.case-count ELSE item.box-case.
+END.
 
 IF eb.est-type EQ 2 THEN DO:
   DEF BUFFER bfx-eb FOR eb.

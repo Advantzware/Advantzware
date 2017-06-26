@@ -36,20 +36,20 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/gcompany.i}
 {custom/gloc.i}
-def var li-new-estnum like ce-ctrl.e-num no-undo.
-def var ll-new-record as log no-undo.
-def var ll-is-copy-record as log no-undo.
-def var char-val as cha no-undo.
-def var ll-auto-calc-selected as log no-undo.
-def buffer bf-est for est.
-def buffer bf-eb for eb.
-def new shared buffer xest for est.
-def new shared buffer xef for ef.
-def new shared buffer xeb for eb.
-def new shared buffer xqty for est-qty.
-def new shared var formule as de extent 12 .
-def new shared var cocode as cha no-undo.
-def new shared var locode as cha no-undo.
+DEF VAR li-new-estnum LIKE ce-ctrl.e-num NO-UNDO.
+DEF VAR ll-new-record AS LOG NO-UNDO.
+DEF VAR ll-is-copy-record AS LOG NO-UNDO.
+DEF VAR char-val AS cha NO-UNDO.
+DEF VAR ll-auto-calc-selected AS LOG NO-UNDO.
+DEF BUFFER bf-est FOR est.
+DEF BUFFER bf-eb FOR eb.
+DEF NEW SHARED BUFFER xest FOR est.
+DEF NEW SHARED BUFFER xef FOR ef.
+DEF NEW SHARED BUFFER xeb FOR eb.
+DEF NEW SHARED BUFFER xqty FOR est-qty.
+DEF NEW SHARED VAR formule AS de EXTENT 12 .
+DEF NEW SHARED VAR cocode AS cha NO-UNDO.
+DEF NEW SHARED VAR locode AS cha NO-UNDO.
 DEF BUFFER recalc-mr FOR reftable.
 
 &IF DEFINED(UIB_is_Running) NE 0 &THEN
@@ -486,37 +486,37 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Fold V-table-Win
 ON HELP OF FRAME Fold
 DO:
-   def var lv-handle as widget-handle no-undo.
-   case focus:name :
-        when "sman" then do:
-             run windows/l-sman.w (gcompany, output char-val).
-             if char-val <> "" then 
-                assign focus:screen-value = entry(1,char-val)
-                       sman_sname:screen-value = entry(2,char-val)
-                       eb.comm:screen-value = entry(3,char-val).
-             return no-apply.          
-        end.
-        when "req-date" or when "due-date" then do:
+   DEF VAR lv-handle AS WIDGET-HANDLE NO-UNDO.
+   CASE FOCUS:NAME :
+        WHEN "sman" THEN DO:
+             RUN windows/l-sman.w (gcompany, OUTPUT char-val).
+             IF char-val <> "" THEN 
+                ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
+                       sman_sname:screen-value = ENTRY(2,char-val)
+                       eb.comm:screen-value = ENTRY(3,char-val).
+             RETURN NO-APPLY.          
+        END.
+        WHEN "req-date" OR WHEN "due-date" THEN DO:
              /*{methods/calendar.i}  run on self's help trigger*/
              
-        end.
-        otherwise do:
-           lv-handle = focus:handle.
-           run applhelp.p.
+        END.
+        OTHERWISE DO:
+           lv-handle = FOCUS:HANDLE.
+           RUN applhelp.p.
              
-           if g_lookup-var <> "" then do:
-              lv-handle:screen-value = g_lookup-var.
-              if lv-handle:name = "cust-no" then do:
-                 find cust where cust.company = gcompany and
-                              cust.cust-no = lv-handle:screen-value 
-                              no-lock no-error.
-                 assign eb.ship-name:screen-value = cust.name
+           IF g_lookup-var <> "" THEN DO:
+              lv-handle:SCREEN-VALUE = g_lookup-var.
+              IF lv-handle:NAME = "cust-no" THEN DO:
+                 FIND cust WHERE cust.company = gcompany AND
+                              cust.cust-no = lv-handle:SCREEN-VALUE 
+                              NO-LOCK NO-ERROR.
+                 ASSIGN eb.ship-name:screen-value = cust.name
                      eb.ship-addr[1]:screen-value = cust.addr[1]
                      eb.ship-addr[2]:screen-value = cust.addr[2]
                      eb.ship-city:screen-value =    cust.city
                      eb.ship-state:screen-value =   cust.state
                      eb.ship-zip:screen-value =     cust.zip
-                     eb.sman:screen-value in frame {&frame-name} = if avail cust then cust.sman else ""
+                     eb.sman:screen-value IN FRAME {&frame-name} = IF AVAIL cust THEN cust.sman ELSE ""
             /*         eb.dest-code:screen-value in frame {&frame-name} = if cust.fob-code = "Dest" then "D"
                                                                         else if cust.fob-code = "orig" then "O"
                                                                         else ""
@@ -528,17 +528,17 @@ DO:
               */
                      .                
    
-                 find sman where sman.company = gcompany and
+                 FIND sman WHERE sman.company = gcompany AND
                               sman.sman = eb.sman:screen-value
-                              no-lock no-error.
-                 assign sman_sname:screen-value = if avail sman then sman.sname else ""
-                     eb.comm:screen-value = if avail sman then string(sman.scomm) else "0"
+                              NO-LOCK NO-ERROR.
+                 ASSIGN sman_sname:screen-value = IF AVAIL sman THEN sman.sname ELSE ""
+                     eb.comm:screen-value = IF AVAIL sman THEN STRING(sman.scomm) ELSE "0"
                      .
-              end.  /* cust-no */
-           end.   /* g_lookup-var <> "" */
+              END.  /* cust-no */
+           END.   /* g_lookup-var <> "" */
            
-        end.   
-   end case.
+        END.   
+   END CASE.
 
 END.
 
@@ -554,7 +554,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {custom/getcmpny.i}
 {custom/getloc.i}
-assign cocode = gcompany
+ASSIGN cocode = gcompany
        locode = gloc.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -612,10 +612,10 @@ PROCEDURE auto-calc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   ll-auto-calc-selected = yes.
-   run dispatch ('enable-fields').
-   disable eb.t-wid eb.t-len eb.t-sqin
-           with frame {&frame-name}.
+   ll-auto-calc-selected = YES.
+   RUN dispatch ('enable-fields').
+   DISABLE eb.t-wid eb.t-len eb.t-sqin
+           WITH FRAME {&frame-name}.
 
 END PROCEDURE.
 
@@ -631,23 +631,23 @@ PROCEDURE calc-blank-size :
 ------------------------------------------------------------------------------*/
  /* calc blank W,L SqIn */
    
-   find xest where recid(xest) = recid(est) no-lock.
-   find xef where recid(xef) = recid(ef) no-lock.
-   find xeb where recid(xeb) = recid(eb) no-lock.
+   FIND xest WHERE RECID(xest) = recid(est) NO-LOCK.
+   FIND xef WHERE RECID(xef) = recid(ef) NO-LOCK.
+   FIND xeb WHERE RECID(xeb) = recid(eb) NO-LOCK.
    
-   find style where style.company = eb.company and
+   FIND style WHERE style.company = eb.company AND
                     style.style = eb.style
-                    no-lock no-error.
-   if avail style then do:
-      run est/u2kinc1.p .
-      run est/u2kinc2.p .
+                    NO-LOCK NO-ERROR.
+   IF AVAIL style THEN DO:
+      RUN est/u2kinc1.p .
+      RUN est/u2kinc2.p .
       
-      find bf-eb of eb exclusive-lock.    
-      assign bf-eb.t-wid = (formule[1])
+      FIND bf-eb OF eb EXCLUSIVE-LOCK.    
+      ASSIGN bf-eb.t-wid = (formule[1])
           bf-eb.t-len = (formule[2])
           bf-eb.t-sqin = (formule[7] * formule[8])
           .
-   end.
+   END.
 
 END PROCEDURE.
 
@@ -661,11 +661,12 @@ PROCEDURE create-childrecord :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var i as int no-undo.
-  def buffer bb for eb.
+  DEF VAR i AS INT NO-UNDO.
+    DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
+  DEF BUFFER bb FOR eb.
   
-  create ef.
-  assign
+  CREATE ef.
+  ASSIGN
    ef.est-type  = 1
    ef.company   = gcompany
    ef.loc       = gloc
@@ -677,59 +678,62 @@ PROCEDURE create-childrecord :
    ef.lsh-len   = ce-ctrl.ls-length
    ef.lsh-wid   = ce-ctrl.ls-width.
 
-  for each bb where bb.e-num = 0 or bb.e-num = est.e-num:
-      message "BB crt1 : " bb.est-no bb.e-num view-as alert-box.
-  end.
+  FOR EACH bb WHERE bb.e-num = 0 OR bb.e-num = est.e-num:
+      MESSAGE "BB crt1 : " bb.est-no bb.e-num VIEW-AS ALERT-BOX.
+  END.
 
 
 
-  create eb.
-  assign  eb.est-type = 1
+  CREATE eb.
+  ASSIGN  eb.est-type = 1
           eb.company  = gcompany
    eb.loc      = gloc
    eb.e-num    = est.e-num
    eb.est-no   = est.est-no
-   eb.est-int  = integer(est.est-no)
+   eb.est-int  = INTEGER(est.est-no)
    eb.form-no  = 1
    eb.cust-seq = 1
    eb.blank-no = 1
    eb.cas-no   = ce-ctrl.def-case
    eb.tr-no    = ce-ctrl.def-pal
    eb.i-pass   = 0.
-
+    
+   RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
+   IF cPackCodeOverride GT "" THEN 
+       eb.cas-no = cPackCodeOverride.
   /* ???? bugs : 2 records are created  , delete one ========== */
-  for each bb where bb.e-num = 0 :
-      delete bb.
-  end.
+  FOR EACH bb WHERE bb.e-num = 0 :
+      DELETE bb.
+  END.
   /*========*/
-  find first item where item.company = gcompany
-                    and item.mat-type = "C"  /* Case/Bundle */
-                    and item.i-no eq eb.cas-no
-      no-lock no-error.
-  if avail item then do:
-     find first e-item where e-item.company eq item.company
-                         and e-item.loc     eq item.loc
-                         and e-item.i-no    eq item.i-no
-        no-lock no-error.
-     find first itemfg  where itemfg.company eq gcompany
-                          and itemfg.i-no    eq eb.stock-no
-        no-lock no-error.
-     if avail e-item then
-        assign  eb.cas-len = e-item.case-l
+  FIND FIRST item WHERE item.company = gcompany
+                    AND item.mat-type = "C"  /* Case/Bundle */
+                    AND item.i-no EQ eb.cas-no
+      NO-LOCK NO-ERROR.
+  IF AVAIL item THEN DO:
+     FIND FIRST e-item WHERE e-item.company EQ item.company
+                         AND e-item.loc     EQ item.loc
+                         AND e-item.i-no    EQ item.i-no
+        NO-LOCK NO-ERROR.
+     FIND FIRST itemfg  WHERE itemfg.company EQ gcompany
+                          AND itemfg.i-no    EQ eb.stock-no
+        NO-LOCK NO-ERROR.
+     IF AVAIL e-item THEN
+        ASSIGN  eb.cas-len = e-item.case-l
                 eb.cas-wid = e-item.case-w
                 eb.cas-dep = e-item.case-d
                 eb.cas-wt  = e-item.avg-w
                 eb.cas-pal = e-item.case-pall
-                eb.cas-cnt = if avail itemfg then itemfg.case-count else e-item.box-case
+                eb.cas-cnt = IF AVAIL itemfg THEN itemfg.case-count ELSE e-item.box-case
                 .
-     if eb.cas-len eq 0 then eb.cas-len = item.case-l.
-     if eb.cas-wid eq 0 then eb.cas-wid = item.case-w.
-     if eb.cas-dep eq 0 then eb.cas-dep = item.case-d.
-     if eb.cas-wt  eq 0 then eb.cas-wt  = item.avg-w.
-     if eb.cas-pal eq 0 then eb.cas-pal = item.case-pall.
-     if eb.cas-cnt eq 0 then eb.cas-cnt =
-              if avail itemfg then itemfg.case-count else item.box-case.
-  end.  /* avail item */
+     IF eb.cas-len EQ 0 THEN eb.cas-len = item.case-l.
+     IF eb.cas-wid EQ 0 THEN eb.cas-wid = item.case-w.
+     IF eb.cas-dep EQ 0 THEN eb.cas-dep = item.case-d.
+     IF eb.cas-wt  EQ 0 THEN eb.cas-wt  = item.avg-w.
+     IF eb.cas-pal EQ 0 THEN eb.cas-pal = item.case-pall.
+     IF eb.cas-cnt EQ 0 THEN eb.cas-cnt =
+              IF AVAIL itemfg THEN itemfg.case-count ELSE item.box-case.
+  END.  /* avail item */
 
     RUN est/BuildDefaultPreps.p(BUFFER est,
                               BUFFER ef,
@@ -798,9 +802,9 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  find bf-est where recid(bf-est) = recid(est) exclusive-lock.
-  assign bf-est.mod-date = today
-         est.mod-date:screen-value in frame {&frame-name} = string(today)
+  FIND bf-est WHERE RECID(bf-est) = recid(est) EXCLUSIVE-LOCK.
+  ASSIGN bf-est.mod-date = TODAY
+         est.mod-date:screen-value IN FRAME {&frame-name} = STRING(TODAY)
          .
 
 
@@ -815,10 +819,10 @@ PROCEDURE local-create-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var li-enum like est.e-num no-undo.
-  def var cocode as cha no-undo.
-  def buffer bf-est for est.
-  def buffer bb for eb.
+  DEF VAR li-enum LIKE est.e-num NO-UNDO.
+  DEF VAR cocode AS cha NO-UNDO.
+  DEF BUFFER bf-est FOR est.
+  DEF BUFFER bb FOR eb.
   
   /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -830,29 +834,29 @@ PROCEDURE local-create-record :
   find last bf-est use-index e-num no-lock no-error.
   li-enum = if avail bf-est then bf-est.e-num else 0.
   */
-  find first ce-ctrl where ce-ctrl.company = gcompany and
+  FIND FIRST ce-ctrl WHERE ce-ctrl.company = gcompany AND
                            ce-ctrl.loc = gloc
-                           no-lock.
+                           NO-LOCK.
   li-new-estnum = ce-ctrl.e-num + 1.
-  ll-new-record = yes.
+  ll-new-record = YES.
     
-  assign est.est-type = 1
+  ASSIGN est.est-type = 1
          est.company = gcompany
          est.loc = gloc
          est.e-num = li-enum + 1
-         est.est-no = string(li-new-estnum,">>>>>>>>")
+         est.est-no = STRING(li-new-estnum,">>>>>>>>")
          est.form-qty = 1
-         est.est-date = today
+         est.est-date = TODAY
          est.mod-date = ?
          .
-   display est.est-no est.est-date with frame {&frame-name}.
+   DISPLAY est.est-no est.est-date WITH FRAME {&frame-name}.
             
-   assign cocode = gcompany
+   ASSIGN cocode = gcompany
          .      
 
    {sys/ref/est-add.i est}     
 
-   run create-childrecord.  /* create ef,eb,est-prep */
+   RUN create-childrecord.  /* create ef,eb,est-prep */
 
 END PROCEDURE.
 
@@ -872,16 +876,16 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  if ll-auto-calc-selected then do:
-     run calc-blank-size.
-     find bf-eb of eb no-lock.
-     assign eb.t-len = bf-eb.t-len   /* decimal(eb.t-len:screen-value in frame {&frame-name})*/
+  IF ll-auto-calc-selected THEN DO:
+     RUN calc-blank-size.
+     FIND bf-eb OF eb NO-LOCK.
+     ASSIGN eb.t-len = bf-eb.t-len   /* decimal(eb.t-len:screen-value in frame {&frame-name})*/
             eb.t-wid = bf-eb.t-wid   /*decimal(eb.t-wid:screen-value in frame {&frame-name})*/
             eb.t-sqin = eb.t-len * eb.t-wid .
-     ll-auto-calc-selected = no.
-  end.
+     ll-auto-calc-selected = NO.
+  END.
   
-  run dispatch ('display-fields').  /* refresh 2nd & all children pages */
+  RUN dispatch ('display-fields').  /* refresh 2nd & all children pages */
 
 END PROCEDURE.
 

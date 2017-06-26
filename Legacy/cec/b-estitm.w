@@ -72,6 +72,7 @@ DEF VAR v-part-no2 AS CHAR NO-UNDO.
 DEF VAR v-assem-grain AS CHAR NO-UNDO.
 DEF VAR v-auto-add-item AS LOG NO-UNDO.
 DEF VAR v-ds AS LOG VIEW-AS TOGGLE-BOX NO-UNDO.
+DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
 DEF NEW SHARED VAR s-est-no AS cha NO-UNDO.  /* for fgadd2.p */
 DEF NEW SHARED VAR fil_id AS RECID NO-UNDO.
 DEF NEW SHARED VAR v-i-item LIKE eb.stock-no NO-UNDO. /* INPUT ITEM */
@@ -840,37 +841,37 @@ DO:
                             lv-copy-qty[18] = INTEGER(ENTRY(8,char-val2))
                             lv-copy-qty[19] = INTEGER(ENTRY(9,char-val2))
                             lv-copy-qty[20] = INTEGER(ENTRY(10,char-val2))
-                            /*lv-copy-pr[11] = decimal(entry(11,char-val2))
-                            lv-copy-pr[12] = decimal(entry(12,char-val2))
-                            lv-copy-pr[13] = decimal(entry(13,char-val2))
-                            lv-copy-pr[14] = decimal(entry(14,char-val2))
-                            lv-copy-pr[15] = decimal(entry(15,char-val2))
-                            lv-copy-pr[16] = decimal(entry(16,char-val2))
-                            lv-copy-pr[17] = decimal(entry(17,char-val2))
-                            lv-copy-pr[18] = decimal(entry(18,char-val2))
-                            lv-copy-pr[19] = decimal(entry(19,char-val2))
-                            lv-copy-pr[20] = decimal(entry(20,char-val2))
-                            lv-copy-uom[11] = entry(21,char-val2)
-                            lv-copy-uom[12] = entry(22,char-val2)
-                            lv-copy-uom[13] = entry(23,char-val2)
-                            lv-copy-uom[14] = entry(24,char-val2)
-                            lv-copy-uom[15] = entry(25,char-val2)
-                            lv-copy-uom[16] = entry(26,char-val2)
-                            lv-copy-uom[17] = entry(27,char-val2)
-                            lv-copy-uom[18] = entry(28,char-val2)
-                            lv-copy-uom[19] = entry(29,char-val2)
-                            lv-copy-uom[20] = entry(30,char-val2)
-                            lv-copy-date[11] = date(entry(1,date-val2))
-                            lv-copy-date[12] = date(entry(2,date-val2))
-                            lv-copy-date[13] = date(entry(3,date-val2))
-                            lv-copy-date[14] = date(entry(4,date-val2))
-                            lv-copy-date[15] = date(entry(5,date-val2))
-                            lv-copy-date[16] = date(entry(6,date-val2))
-                            lv-copy-date[17] = date(entry(7,date-val2))
-                            lv-copy-date[18] = date(entry(8,date-val2))
-                            lv-copy-date[19] = date(entry(9,date-val2))
-                            lv-copy-date[20] = date(entry(1,date-val2))
-                            */.
+                                /*lv-copy-pr[11] = decimal(entry(11,char-val2))
+                                lv-copy-pr[12] = decimal(entry(12,char-val2))
+                                lv-copy-pr[13] = decimal(entry(13,char-val2))
+                                lv-copy-pr[14] = decimal(entry(14,char-val2))
+                                lv-copy-pr[15] = decimal(entry(15,char-val2))
+                                lv-copy-pr[16] = decimal(entry(16,char-val2))
+                                lv-copy-pr[17] = decimal(entry(17,char-val2))
+                                lv-copy-pr[18] = decimal(entry(18,char-val2))
+                                lv-copy-pr[19] = decimal(entry(19,char-val2))
+                                lv-copy-pr[20] = decimal(entry(20,char-val2))
+                                lv-copy-uom[11] = entry(21,char-val2)
+                                lv-copy-uom[12] = entry(22,char-val2)
+                                lv-copy-uom[13] = entry(23,char-val2)
+                                lv-copy-uom[14] = entry(24,char-val2)
+                                lv-copy-uom[15] = entry(25,char-val2)
+                                lv-copy-uom[16] = entry(26,char-val2)
+                                lv-copy-uom[17] = entry(27,char-val2)
+                                lv-copy-uom[18] = entry(28,char-val2)
+                                lv-copy-uom[19] = entry(29,char-val2)
+                                lv-copy-uom[20] = entry(30,char-val2)
+                                lv-copy-date[11] = date(entry(1,date-val2))
+                                lv-copy-date[12] = date(entry(2,date-val2))
+                                lv-copy-date[13] = date(entry(3,date-val2))
+                                lv-copy-date[14] = date(entry(4,date-val2))
+                                lv-copy-date[15] = date(entry(5,date-val2))
+                                lv-copy-date[16] = date(entry(6,date-val2))
+                                lv-copy-date[17] = date(entry(7,date-val2))
+                                lv-copy-date[18] = date(entry(8,date-val2))
+                                lv-copy-date[19] = date(entry(9,date-val2))
+                                lv-copy-date[20] = date(entry(1,date-val2))
+                                */.
            END.
            RETURN NO-APPLY.
        END.
@@ -2496,7 +2497,7 @@ PROCEDURE calc-blank-size :
           bf-eb.k-wid-array2 = 0
           bf-eb.k-len-array2 = 0.
       
-      if /*not lv-panels or*/ style.type = "F" then 
+      IF /*not lv-panels or*/ style.type = "F" THEN 
          ASSIGN bf-eb.k-wid-array2[1] = bf-eb.t-wid
                 bf-eb.k-len-array2[1] = bf-eb.t-len
                 .
@@ -3537,9 +3538,9 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
         eb.stock-no   = CAPS(itemfg.i-no)
      /*  eb.style      = itemfg.style*/
         eb.procat     = itemfg.procat
-      /*  eb.len        = (itemfg.l-score[50])
-        eb.wid        = (itemfg.w-score[50])
-        eb.dep        = (itemfg.d-score[50]) */ .
+                /*  eb.len        = (itemfg.l-score[50])
+                  eb.wid        = (itemfg.w-score[50])
+                  eb.dep        = (itemfg.d-score[50]) */ .
         eb.pur-man  = TRUE .
 
    /*  IF AVAIL itemfg AND eb.part-no = "" THEN
@@ -3726,9 +3727,12 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
      FIND FIRST cust WHERE cust.company = gcompany AND
                      cust.cust-no = eb.cust-no
                      NO-LOCK NO-ERROR.
-     ASSIGN
-     eb.cas-no = IF AVAIL cust AND cust.case-bundle <> "" THEN cust.case-bundle ELSE eb.cas-no
-     eb.tr-no = IF AVAIL shipto AND shipto.pallet <> "" THEN shipto.pallet ELSE IF AVAIL cust AND cust.pallet <> "" THEN cust.pallet ELSE eb.tr-no.      
+     ASSIGN     
+       eb.tr-no = IF AVAIL shipto AND shipto.pallet <> "" THEN shipto.pallet ELSE IF AVAIL cust AND cust.pallet <> "" THEN cust.pallet ELSE eb.tr-no.
+       
+     RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
+     IF cPackCodeOverride GT "" THEN 
+       eb.cas-no = cPackCodeOverride.             
      FIND item WHERE item.company = eb.company AND
                      item.i-no = eb.cas-no
               NO-LOCK NO-ERROR.
@@ -3823,7 +3827,7 @@ PROCEDURE createESTfromArtios :
   DEF VAR v-cust-no AS CHAR NO-UNDO.
   DEF VAR v-tmp LIKE eb.t-wid NO-UNDO.
   DEF VAR lv-layers AS DEC NO-UNDO.
-
+  DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
   FOR EACH tt-artios NO-LOCK:
       iArtiosCount = iArtiosCount + 1.
   END.
@@ -3936,7 +3940,7 @@ PROCEDURE createESTfromArtios :
         ASSIGN ef.board = item.i-no
                ef.cal = item.cal
                eb.flute = ITEM.flute
-               eb.test = ITEM.reg-no.
+              eb.test = ITEM.reg-no.
 
      RUN calc-blank-size.
      RUN calc-layout4Artios (YES).
@@ -3955,9 +3959,12 @@ PROCEDURE createESTfromArtios :
      FIND FIRST cust WHERE cust.company = gcompany AND
                      cust.cust-no = eb.cust-no
                      NO-LOCK NO-ERROR.
-     ASSIGN
-     eb.cas-no = IF AVAIL cust AND cust.case-bundle <> "" THEN cust.case-bundle ELSE eb.cas-no
-     eb.tr-no = IF AVAIL shipto AND shipto.pallet <> "" THEN shipto.pallet ELSE IF AVAIL cust AND cust.pallet <> "" THEN cust.pallet ELSE eb.tr-no.      
+     ASSIGN     
+       eb.tr-no = IF AVAIL shipto AND shipto.pallet <> "" THEN shipto.pallet ELSE IF AVAIL cust AND cust.pallet <> "" THEN cust.pallet ELSE eb.tr-no.
+     
+     RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
+     IF cPackCodeOverride GT "" THEN 
+         eb.cas-no = cPackCodeOverride.           
      FIND item WHERE item.company = eb.company AND
                      item.i-no = eb.cas-no
               NO-LOCK NO-ERROR.
@@ -4080,7 +4087,7 @@ PROCEDURE createEstFromImpact :
   DEF VAR v-cust-no AS CHAR NO-UNDO.
   DEF VAR v-tmp LIKE eb.t-wid NO-UNDO.
   DEF VAR lv-layers AS DEC NO-UNDO.
-
+  DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
   FOR EACH tt-artios NO-LOCK:
       iArtiosCount = iArtiosCount + 1.
   END.
@@ -4218,9 +4225,13 @@ PROCEDURE createEstFromImpact :
      FIND FIRST cust WHERE cust.company = gcompany AND
                      cust.cust-no = eb.cust-no
                      NO-LOCK NO-ERROR.
-     ASSIGN
-     eb.cas-no = IF AVAIL cust AND cust.case-bundle <> "" THEN cust.case-bundle ELSE eb.cas-no
-     eb.tr-no = IF AVAIL shipto AND shipto.pallet <> "" THEN shipto.pallet ELSE IF AVAIL cust AND cust.pallet <> "" THEN cust.pallet ELSE eb.tr-no.      
+     ASSIGN     
+     eb.tr-no = IF AVAIL shipto AND shipto.pallet <> "" THEN shipto.pallet ELSE IF AVAIL cust AND cust.pallet <> "" THEN cust.pallet ELSE eb.tr-no.
+      
+     RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
+     IF cPackCodeOverride GT "" THEN 
+         eb.cas-no = cPackCodeOverride.
+                     
      FIND item WHERE item.company = eb.company AND
                      item.i-no = eb.cas-no
               NO-LOCK NO-ERROR.
@@ -5074,7 +5085,7 @@ PROCEDURE local-add-record :
   ASSIGN
     ll-is-add-from-tool = NO
     cadcamValue = ''.
-  IF ls-add-what EQ "copy-est" THEN do:
+  IF ls-add-what EQ "copy-est" THEN DO:
       RUN local-copy-record .
   END.
   ELSE IF ls-add-what EQ "est-from-tandem" THEN RUN est-from-tandem.
@@ -5755,7 +5766,7 @@ PROCEDURE local-create-record :
   
    ls-set-part-no    = ""
    ll-add-set        = NO
-   /*ll-add-set-part   = NO*/ .
+        /*ll-add-set-part   = NO*/ .
 
   IF ll-is-copy-record THEN DO:  /* works like adding new form */
      ls-add-what = lv-copy-what.
@@ -7158,7 +7169,7 @@ PROCEDURE set-auto-add-item :
                  AND xeb.est-no  = eb.est-no
                  AND xeb.stock-no = ""
                  AND (xeb.form-no = 0 
-                       /* OR (l-est-type NE 2 AND l-est-type NE 6) */)
+        /* OR (l-est-type NE 2 AND l-est-type NE 6) */)
                NO-LOCK.
 
       IF v-est-fg THEN lv-i-no = xeb.part-no.
@@ -7274,7 +7285,7 @@ PROCEDURE set-or-combo :
        
   ASSIGN
      ll-add-set = NO
-     /*ll-add-set-part = NO*/ .
+        /*ll-add-set-part = NO*/ .
 
   IF est.est-type NE 8                               OR
      CAN-FIND(b-eb WHERE b-eb.company EQ est.company
@@ -7567,10 +7578,10 @@ PROCEDURE update-e-itemfg-vend :
                 WHERE e-itemfg-vend.company EQ eb.company
                   AND e-itemfg-vend.est-no = eb.est-no
                   AND e-itemfg-vend.eqty = viEQtyPrev
-               /* AND e-itemfg-vend.form-no = eb.form-no
-                AND e-itemfg-vend.blank-no = eb.blank-no
-                AND e-itemfg-vend.i-no    EQ eb.stock-no*/
-                /*AND e-itemfg-vend.vend-no EQ ""*/  :
+            /* AND e-itemfg-vend.form-no = eb.form-no
+             AND e-itemfg-vend.blank-no = eb.blank-no
+             AND e-itemfg-vend.i-no    EQ eb.stock-no*/
+            /*AND e-itemfg-vend.vend-no EQ ""*/  :
 
       CREATE tt-e-vend .
       e-vend-row = ROWID(e-itemfg-vend) .
@@ -7637,8 +7648,8 @@ PROCEDURE update-e-itemfg-vend :
                      AND e-itemfg-vend.eqty = viEQtyPrev
                      AND e-itemfg-vend.form-no = eb.form-no
                      AND e-itemfg-vend.blank-no = eb.blank-no
-                     /*AND e-itemfg-vend.i-no    EQ eb.stock-no*/
-                     /*AND e-itemfg-vend.vend-no EQ ""*/  :
+            /*AND e-itemfg-vend.i-no    EQ eb.stock-no*/
+            /*AND e-itemfg-vend.vend-no EQ ""*/  :
 
        CREATE bf-e-itemfg-vend.
        BUFFER-COPY e-itemfg-vend TO bf-e-itemfg-vend.

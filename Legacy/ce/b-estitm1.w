@@ -37,6 +37,7 @@ DEF VAR li-new-estnum AS INT NO-UNDO.
 DEF VAR ll-new-record AS LOG NO-UNDO.
 DEF VAR ll-is-copy-record AS LOG NO-UNDO.
 DEF VAR char-val AS cha NO-UNDO.
+DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
 DEF NEW SHARED BUFFER xest FOR est.
 DEF NEW SHARED BUFFER xef FOR ef.
 DEF NEW SHARED BUFFER xeb FOR eb.
@@ -3368,7 +3369,7 @@ PROCEDURE local-add-record :
   ASSIGN
     ll-is-add-from-tool = NO
     cadcamValue = ''.
-  IF ls-add-what EQ "copy-est" THEN do:
+  IF ls-add-what EQ "copy-est" THEN DO:
       RUN local-copy-record .
   END.
   ELSE IF ls-add-what EQ "est-from-tandem" THEN RUN est-from-tandem.
