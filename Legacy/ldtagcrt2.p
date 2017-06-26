@@ -26,6 +26,17 @@ m_id = OS-GETENV("opsysid").
 IF m_id = ? THEN
 m_id = "".
 
+if connected(ldbname(1))
+and ldbname(1) = "ASI" then do:
+    create alias nosweat for database value(ldbname(1)).
+    create alias emptrack for database value(ldbname(1)).
+    create alias jobs for database value(ldbname(1)).
+    create alias rfq for database value(ldbname(1)).
+    create alias asihelp for database value(ldbname(1)).
+    create alias asihlp for database value(ldbname(1)).
+    create alias asinos for database value(ldbname(1)).
+end.
+
 /*
 IF NOT SETUSERID(m_id,"",ldbname(1)) OR m_id EQ "" THEN
 RUN nosweat/login.w.
