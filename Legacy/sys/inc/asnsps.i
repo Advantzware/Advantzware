@@ -1,25 +1,25 @@
 /* sys/inc/asnsps.i*/
 
-def VAR ASNSPS-log like sys-ctrl.log-fld no-undo.
-def var ASNSPS-cha like sys-ctrl.char-fld no-undo.
-def var ASNSPS-int like sys-ctrl.int-fld no-undo.
+ DEF VAR ASNSPS-log LIKE sys-ctrl.log-fld NO-UNDO.
+DEF VAR ASNSPS-cha LIKE sys-ctrl.char-fld NO-UNDO.
+DEF VAR ASNSPS-int LIKE sys-ctrl.int-fld NO-UNDO.
 
 
-find first sys-ctrl
-    where sys-ctrl.company eq cocode
-      and sys-ctrl.name    eq "ASNSPS"
-    no-lock no-error.
-if not avail sys-ctrl then do:
-  create sys-ctrl.
-  assign
+FIND FIRST sys-ctrl
+    WHERE sys-ctrl.company EQ cocode
+      AND sys-ctrl.name    EQ "ASNSPS"
+    NO-LOCK NO-ERROR.
+IF NOT AVAIL sys-ctrl THEN DO:
+  CREATE sys-ctrl.
+  ASSIGN
    sys-ctrl.company  = cocode
    sys-ctrl.name     = "ASNSPS"
-   sys-ctrl.log-fld  = no
+   sys-ctrl.log-fld  = NO
    sys-ctrl.char-fld = "c:\temp\"
    sys-ctrl.descrip  = "Generate SPS ASN?".
  
-end.
-assign
+END.
+ASSIGN
  ASNSPS-log = sys-ctrl.log-fld
  ASNSPS-cha = sys-ctrl.char-fld
  ASNSPS-int = sys-ctrl.int-fld .
