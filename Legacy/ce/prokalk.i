@@ -37,6 +37,9 @@
    {sys/inc/roundup.i cumul}
 
    est-op.num-sh = cumul.
+   
+    /*for ticket 19774 - Reduction for assembler machine*/
+   IF est-op.n_out_div GT 1 THEN est-op.num-sh = est-op.num-sh * est-op.n_out_div.
 
    qty = est-op.num-sh *
          v-num-up * (if xef.n-out   eq 0 then 1 else xef.n-out) *
