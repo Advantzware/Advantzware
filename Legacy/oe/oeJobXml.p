@@ -12,6 +12,7 @@
     Notes       :
   ----------------------------------------------------------------------*/
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+DEFINE INPUT  PARAMETER iprEddoc AS ROWID NO-UNDO.
 
 /* ***************************  Definitions  ************************** */
 DEFINE VARIABLE cTargetType     AS CHARACTER NO-UNDO.
@@ -59,9 +60,7 @@ cocode = ipcCompany.
 /* ***************************  Main Block  *************************** */
 
 EMPTY TEMP-TABLE ttTempjob.
-FOR EACH EDDoc EXCLUSIVE-LOCK WHERE EDDoc.stat EQ 0
-    AND EDDoc.FGID EQ ""
-    AND EDDoc.Partner EQ "Esko",
+FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
     FIRST job NO-LOCK WHERE job.company EQ cocode
         AND job.job-no EQ EDDoc.setID
         AND job.job-no2 EQ EDDoc.docSeq
