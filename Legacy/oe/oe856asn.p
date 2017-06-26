@@ -71,8 +71,7 @@ ASSIGN
     ws_userref            = ws_bol_chardate + '-' + oe-bolh.trailer
     .
     
-MESSAGE "going into each oe-boll"
-VIEW-AS ALERT-BOX.
+
 FOR EACH oe-boll
     WHERE oe-boll.b-no = oe-bolh.b-no
     AND can-do("S,B", oe-boll.s-code)   /* not invoice only */
@@ -292,8 +291,7 @@ FOR EACH oe-boll
             edshtran.lines        = edshtran.lines + 1
             .
     END.
-  MESSAGE "addong to qty-shipped" oe-boll.qty oe-boll.line
-  VIEW-AS ALERT-BOX.
+
     ASSIGN
     {edi/accum.i edshline.qty-shipped "oe-boll.qty" }
     {edi/accum.i edshline.tot-cartons oe-boll.cases}
