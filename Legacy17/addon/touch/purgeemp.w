@@ -289,8 +289,8 @@ END.
 ON LEAVE OF begin_emp IN FRAME FRAME-A /* From Employee ID */
 DO:
       assign {&self-name}.
-      find emptrack.employee where emptrack.employee.employee = {&self-name} no-lock no-error.
-      if not avail emptrack.employee then do:
+      find employee where employee.employee = {&self-name} no-lock no-error.
+      if not avail employee then do:
          message "Invalid Employee ID. Please enter correct employee id."
                    view-as alert-box error.
          return no-apply.
@@ -310,7 +310,7 @@ ON CHOOSE OF btn_cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure. 
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -334,7 +334,7 @@ DO:
 
   run purge-trans.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -357,8 +357,8 @@ END.
 ON LEAVE OF end_emp IN FRAME FRAME-A /* To Employee ID */
 DO:
       assign {&self-name}.
-      find emptrack.employee where emptrack.employee.employee = {&self-name} no-lock no-error.
-      if not avail emptrack.employee then do:
+      find employee where employee.employee = {&self-name} no-lock no-error.
+      if not avail employee then do:
          message "Invalid Employee ID. Please enter correct employee id."
                    view-as alert-box error.
          return no-apply.
@@ -385,7 +385,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -401,10 +401,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       RETURN .
    END.
 
-   find first emptrack.employee no-lock no-error.
-   begin_emp = if avail emptrack.employee then emptrack.employee.employee else "".
-   find last emptrack.employee no-lock no-error.
-   end_emp = if avail emptrack.employee then emptrack.employee.employee else "".
+   find first employee no-lock no-error.
+   begin_emp = if avail employee then employee.employee else "".
+   find last employee no-lock no-error.
+   end_emp = if avail employee then employee.employee else "".
 
    assign begin_date = today
           end_date = today
@@ -412,9 +412,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    RUN enable_UI.
 
   {methods/nowait.i}
-    {methods/setButton.i btn_cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:36 am */
-    {methods/setButton.i btn_ok "OK"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:36 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {methods/setButton.i btn_cancel "Cancel"} /* added by script _nonAdm1Images1.p */
+    {methods/setButton.i btn_ok "OK"} /* added by script _nonAdm1Images1.p */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

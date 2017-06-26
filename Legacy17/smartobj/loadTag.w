@@ -155,7 +155,7 @@ ASSIGN
 ON CHOOSE OF loadTag IN FRAME F-Main
 DO:
   {methods/run_link.i "LOADTAG-SOURCE" "{&SELF-NAME}"}
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:24 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */

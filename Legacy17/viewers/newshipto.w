@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:52 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -687,6 +687,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.pallet V-table-Win
 ON LEAVE OF shipto.pallet IN FRAME F-Main /* Pallet */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and shipto.pallet:screen-value <> "" and
           not can-find(first item where item.company = gcompany and item.mat-type = "D" and
                                         item.i-no = shipto.pallet:screen-value)
@@ -694,8 +695,9 @@ DO:
           message "Invalid Pallet Code. Try Help." view-as alert-box error.
           return no-apply.     
        end.
-
+       {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1070,7 +1072,7 @@ PROCEDURE local-update-record :
 
   RUN valid-dest-code NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   if shipto.pallet:screen-value IN FRAME {&FRAME-NAME} <> "" and
         not can-find(first item where item.company = gcompany and item.mat-type = "D" and
                                       item.i-no = shipto.pallet:screen-value)
@@ -1079,7 +1081,7 @@ PROCEDURE local-update-record :
         apply "entry" to shipto.pallet.
         return .     
      end.
-
+  {&methods/lValidateError.i NO}
   IF adm-new-record and 
      shipto.bill:SCREEN-VALUE IN FRAME {&FRAME-NAME} <> "Yes" THEN DO:
 
@@ -1093,6 +1095,7 @@ PROCEDURE local-update-record :
   ASSIGN v-ship-no = shipto.ship-no.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1295,6 +1298,7 @@ PROCEDURE valid-carrier :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     shipto.carrier:SCREEN-VALUE = CAPS(shipto.carrier:SCREEN-VALUE).
 
@@ -1309,6 +1313,7 @@ PROCEDURE valid-carrier :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1322,6 +1327,7 @@ PROCEDURE valid-dest-code :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     shipto.dest-code:SCREEN-VALUE = CAPS(shipto.dest-code:SCREEN-VALUE).
@@ -1338,6 +1344,7 @@ PROCEDURE valid-dest-code :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1352,6 +1359,7 @@ PROCEDURE valid-loc :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     shipto.loc:SCREEN-VALUE = CAPS(shipto.loc:SCREEN-VALUE).
 
@@ -1364,6 +1372,7 @@ PROCEDURE valid-loc :
     END.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1379,6 +1388,7 @@ PROCEDURE valid-loc-bin :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     shipto.loc-bin:SCREEN-VALUE = CAPS(shipto.loc-bin:SCREEN-VALUE).
 
@@ -1391,6 +1401,7 @@ PROCEDURE valid-loc-bin :
     END.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1408,6 +1419,7 @@ PROCEDURE valid-ship-id :
   DEF BUFFER b-cust   FOR cust.
 
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     shipto.ship-id:SCREEN-VALUE = CAPS(shipto.ship-id:SCREEN-VALUE).
@@ -1437,6 +1449,7 @@ PROCEDURE valid-ship-id :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1451,6 +1464,7 @@ PROCEDURE valid-ship-state :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     shipto.ship-state:SCREEN-VALUE = CAPS(shipto.ship-state:SCREEN-VALUE).
 
@@ -1462,6 +1476,7 @@ PROCEDURE valid-ship-state :
     END.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1476,6 +1491,7 @@ PROCEDURE valid-tax-code :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     shipto.tax-code:SCREEN-VALUE = CAPS(shipto.tax-code:SCREEN-VALUE).
@@ -1497,6 +1513,7 @@ PROCEDURE valid-tax-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

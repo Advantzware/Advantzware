@@ -55,12 +55,12 @@ DEF VAR cFieldListToSelect AS cha NO-UNDO.
 ASSIGN cTextListToSelect = "Vendor,Name,Status,Address1,Address2,City,State,Zip,Country,Postal Code,Tax ID#,Type,Type Name,Contact,Buyer,Buyer Name,Area code,Phone," +
                            "Fax Area Code,Fax,Fax prefix,Fax Country,Overrun Percentage,Underrun Percentage,Default G/L#,G/L Dscr,Remit to,Remit Address1,Remit Address2,Remit City," +
                            "Remit State,Remit Zip,Remit Country,Remit Postal Code,Check Memo,Currency Code,Currency Dscr,Tax,1099 Code,EDI,Credit Card/ACH,Terms,Terms Dscr,Discount%,POEXPORT," +
-                           "Whs,Max PO Cost,Freight Pay,Lead Time Days,Carrier,Carrier Dscr,FOB "
+                           "Whs,Max PO Cost,Freight Pay,Lead Time Days,Carrier,Carrier Dscr,FOB,Pay Type "
 
       cFieldListToSelect = "vend-no,name,active,add1,add2,city,state,zip,country,postal,tax-id,type,type-dscr,contact,buyer,buyer-dscr,area-code,phone," +
                            "fax-area,fax,fax-prefix,fax-country,over-pct,under-pct,actnum,actdscr,remit,r-add1,r-add2,r-city," +
                            "r-state,r-zip,r-country,r-postal,check-memo,curr-code,curr-dscr,tax-gr,code-1099,an-edi-vend,tb-cc,terms,terms-dscr,disc-%,po-export," +
-                           "loc,rebate-%,frt-pay,disc-days,carrier,carrier-dscr,fob-code " .
+                           "loc,rebate-%,frt-pay,disc-days,carrier,carrier-dscr,fob-code,pay-type " .
 {sys/inc/ttRptSel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -1043,6 +1043,20 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                     lc-return = "Inactive".
             END CASE.
         END.
+        
+                
+        WHEN "pay-type"  THEN DO:
+            FIND FIRST vend WHERE vend.company EQ ipb-itemfg.company
+                AND vend.vend-no EQ ipb-itemfg.vend-no NO-LOCK NO-ERROR.
+            IF AVAIL vend THEN 
+                lc-return = vend.payment-type.
+            ELSE
+                lc-return = "".
+                      
+        END.
+
+
+        
         WHEN "dfuncTotMSFPTD"  THEN DO:
             /*IF g_period NE 0 THEN lc-return = STRING(ipb-itemfg.ptd-msf[g_period]).*/
         END.

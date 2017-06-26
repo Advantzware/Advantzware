@@ -59,10 +59,19 @@ def var xtrnum      as INT NO-UNDO.
 def var v-tot-chks  as int format ">>>,>>9" NO-UNDO.
 
 def TEMP-TABLE xtemp NO-UNDO field vend-no like vend.vend-no.
+DEFINE VARIABLE vcDefaultForm AS CHAR NO-UNDO.
 
 ASSIGN
 time_stamp = string(time,"hh:mmam")
 tmpstore   = fill("_",125).
+
+find first sys-ctrl NO-LOCK 
+     WHERE sys-ctrl.company eq cocode
+     and sys-ctrl.name    eq "CHKFMT" 
+    no-error.
+  IF AVAIL sys-ctrl THEN
+      vcDefaultForm = sys-ctrl.char-fld. 
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -314,7 +323,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -371,7 +380,7 @@ DO:
   ELSE MESSAGE "No Payments available for posting..." VIEW-AS ALERT-BOX ERROR.
  */
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:46 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -500,7 +509,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:46 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -524,15 +533,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:36:47 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:36:47 am */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p */
     {custom/usrprint.i}
     tran-date:SCREEN-VALUE = STRING(TODAY).
     RUN check-date.
     APPLY "entry" TO tran-date.
   END.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:46 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -690,7 +699,8 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-report C-Win 
 PROCEDURE run-report :
 {sys/form/r-top3w.f}
-
+DEFINE VARIABLE iVoidpage AS INTEGER NO-UNDO .
+DEFINE VARIABLE iCount    AS INTEGER NO-UNDO .
 form header
    "Vendor#  Name                           Invoice#     Inv Date  Due Date  Dsc Date            Amount    Discount            Paid" skip
    fill("-",130) format "x(130)"
@@ -699,7 +709,8 @@ form header
 ASSIGN t1 = 0
        t2 = 0
        t3 = 0
-       v-tot-chks = 0.
+       v-tot-chks = 0
+       iVoidpage = 1.
 
 SESSION:SET-WAIT-STATE("general").
 
@@ -725,7 +736,7 @@ SESSION:SET-WAIT-STATE("general").
   for each ap-sel
       where ap-sel.company   eq cocode
         and ap-sel.vend-no   ne "z9x9"
-        and ap-sel.man-check eq no
+        and ap-sel.man-check eq NO
         NO-LOCK
       break by ap-sel.vend-no
             by ap-sel.inv-no:
@@ -757,6 +768,27 @@ SESSION:SET-WAIT-STATE("general").
      v2 = v2 + ap-sel.disc-amt
      v3 = v3 + ap-sel.amt-paid.
 
+    FIND FIRST sys-ctrl-shipto
+        WHERE sys-ctrl-shipto.company      = cocode
+        AND sys-ctrl-shipto.NAME         = "CHKFMT"
+        AND sys-ctrl-shipto.cust-vend    = NO
+        AND sys-ctrl-shipto.cust-vend-no = ap-sel.vend-no 
+        AND sys-ctrl-shipto.char-fld > '' 
+         NO-LOCK NO-ERROR.
+    IF AVAIL sys-ctrl-shipto THEN
+        vcDefaultForm = sys-ctrl-shipto.char-fld .
+
+    IF FIRST-OF(ap-sel.vend-no) THEN iCount = 0 .
+    ASSIGN iCount = iCount + 1.
+
+    IF vcDefaultForm EQ "Woodland"  THEN DO:
+        if iCount eq 12 THEN
+           ASSIGN 
+            iVoidpage = iVoidpage + 1
+            iCount = 0 .
+    END.
+
+
     if last-of(ap-sel.vend-no) then do:
       put  "** VENDOR TOTALS"   to 83
            v1                   to 99
@@ -770,17 +802,22 @@ SESSION:SET-WAIT-STATE("general").
         create xtemp.
         xtemp.vend-no = ap-sel.vend-no.
       end.
-
+      IF vcDefaultForm EQ "Woodland"  THEN
+          ASSIGN v-tot-chks = v-tot-chks + iVoidpage .
+      ELSE
       assign
-       v-tot-chks = v-tot-chks + 1
+       v-tot-chks = v-tot-chks + 1  .
 
+      ASSIGN
        t1 = t1 + v1
        t2 = t2 + v2
        t3 = t3 + v3
 
        v1 = 0
        v2 = 0
-       v3 = 0.
+       v3 = 0
+       iVoidpage = 1 
+       iCount = 0 .
     end.
 
     if last(ap-sel.vend-no) then do:

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:28 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -299,7 +299,7 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.machtran"
+     _TblList          = "machtran"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "machtran.company = company_code AND
@@ -309,19 +309,19 @@ machtran.job_sub = INTEGER(job_sub) AND
 machtran.form_number = INTEGER(form_number) AND
 machtran.blank_number = INTEGER(blank_number) AND
 machtran.pass_sequence = INTEGER(pass_sequence)"
-     _FldNameList[1]   = EMPTRACK.machtran.charge_code
-     _FldNameList[2]   = EMPTRACK.machtran.start_date
+     _FldNameList[1]   = machtran.charge_code
+     _FldNameList[2]   = machtran.start_date
      _FldNameList[3]   > "_<CALC>"
 "STRING(machtran.start_time,'HH:MM am') @ start-time" "Log In" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[4]   = EMPTRACK.machtran.end_date
-     _FldNameList[5]   = EMPTRACK.machtran.shift
+     _FldNameList[4]   = machtran.end_date
+     _FldNameList[5]   = machtran.shift
      _FldNameList[6]   > "_<CALC>"
 "Time_String(machtran.end_time,yes,machtran.end_date) @ end-time" "Log Out" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[7]   = EMPTRACK.machtran.run_qty
-     _FldNameList[8]   = EMPTRACK.machtran.waste_qty
+     _FldNameList[7]   = machtran.run_qty
+     _FldNameList[8]   = machtran.waste_qty
      _FldNameList[9]   > "_<CALC>"
 "Time_String(machtran.total_time,no,machtran.end_date) @ total-time" "Total" "X(5)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[10]   = EMPTRACK.machtran.completed
+     _FldNameList[10]   = machtran.completed
      _FldNameList[11]   > "_<CALC>"
 "display-run-total() @ lv-run-total" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _Query            is NOT OPENED

@@ -73,14 +73,16 @@ ASSIGN cTextListToSelect = "Job Qty OH,Tot Qty OH,Customer Name,Ship To,PO#,Orde
                            "Rel Qty,Rel Date,Due Alert,Carrier,Sales Value,Order Qty,MSF,Job#,Shipped Qty,Rel Stat,Cust#,Customer Part#," + /*12*/
                            "Del Zone,Terr,Credit Rating,Routing,Skid Qty,OH-Rel Qty," +
                            "Sample Date,Dock Date,Early Date,Late Date,Transit Days,State,Total Alloc,Total Avail,Ship From,Dock Note," +
-                           "Sal Rep,Last User ID,Ship To Add1,Ship To Add2,ShipTo City,ShipTo State,Ship To Zip,Ship To Name,Due Date,Style,Run Complete,FG Category,OverRun %"
+                           "Sal Rep,Last User ID,Ship To Add1,Ship To Add2,ShipTo City,ShipTo State,Ship To Zip,Ship To Name,Due Date,Style,Run Complete,FG Category,OverRun %," +
+                           "Job Hold Code,Job Hold Desc"
            cFieldListToSelect = "w-ord.onh-qty,w-ord.tot-qty,w-ord.cust-name,w-ord.ship-id,w-ord.po-num,w-ord.ord-no,w-ord.rel-no,w-ord.i-no,w-ord.i-name," +
                                 "w-ord.rel-qty,w-ord.xls-rel-date,w-ord.prom-code,w-ord.carrier,w-ord.t-price,w-ord.ord-qty,w-ord.msf,w-ord.job,w-ord.shp-qty,w-ord.xls-status,w-ord.cust-no,w-ord.part-no," +
                                 "v-del-zone,v-terr,v-crRate,routing,w-ord.palls,oh-relqty," +
                                 "sa-ship-date,dock-ship-date,ear-ship-date,lat-ship-date,trans-day,stat,ttl-alc,ttl-avl,w-ord.ship-from,notes," +
-                                "w-ord.sman,w-ord.upd-user,ship-add1,ship-add2,ship-cty,ship-stat,ship-zip,ship-name,due-dt,style,run-comp,fg-cat,over-run"
-           cFieldLength = "10,10,15,8,15,6,6,15,15," + "11,8,9,7,11,13,8,9,14,8,9,15," + "8,4,13,35,8,11," + "11,10,10,10,12,5,11,11,11,20," + "7,12,30,30,15,12,15,30,10,5,12,11,9"
-           cFieldType = "i,i,c,c,c,i,i,c,c," + "i,c,c,c,i,i,i,c,i,c,c,c," + "c,c,c,c,i,i," + "c,c,c,c,i,c,i,i,c,c,"  + "c,c,c,c,c,c,c,c,c,c,c,c,i"
+                                "w-ord.sman,w-ord.upd-user,ship-add1,ship-add2,ship-cty,ship-stat,ship-zip,ship-name,due-dt,style,run-comp,fg-cat,over-run," +
+                                "job-h-code,job-h-desc" 
+           cFieldLength = "10,10,15,8,15,6,6,15,15," + "11,8,9,7,11,13,8,9,14,8,9,15," + "8,4,13,35,8,11," + "11,10,10,10,12,5,11,11,11,20," + "7,12,30,30,15,12,15,30,10,5,12,11,9," + "13,15"
+           cFieldType = "i,i,c,c,c,i,i,c,c," + "i,c,c,c,i,i,i,c,i,c,c,c," + "c,c,c,c,i,i," + "c,c,c,c,i,c,i,i,c,c,"  + "c,c,c,c,c,c,c,c,c,c,c,c,i," + "c,c"
            .
 
 {sys/inc/ttRptSel.i}
@@ -1035,7 +1037,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1090,7 +1092,7 @@ DO:
       WHEN 6 THEN RUN output-to-port.
   end case. 
   SESSION:SET-WAIT-STATE ("").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1117,7 +1119,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1133,7 +1135,7 @@ DO:
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1145,7 +1147,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1162,7 +1164,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1174,7 +1176,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1647,7 +1649,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -1672,14 +1674,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:10 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:10 am */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p */
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_cust-no.
   END.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

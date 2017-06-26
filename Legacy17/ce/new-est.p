@@ -7,7 +7,13 @@ DEF OUTPUT PARAM op-rowid AS ROWID NO-UNDO.
 DEF BUFFER recalc-mr FOR reftable.
 
 def var li-new-estnum as int no-undo.
-
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lMetric AS LOGICAL     NO-UNDO.
+RUN sys/ref/nk1look.p (INPUT cocode, "METRIC", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+ASSIGN lMetric = LOGICAL(cRtnChar) .
 REPEAT:
 
 FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
@@ -31,6 +37,7 @@ assign est.est-type = ip-est-type
        est.form-qty = 1
        est.est-date = today
        est.mod-date = ?
+       est.metric = IF lMetric THEN TRUE ELSE FALSE 
        .
 {sys/ref/est-add.i est F} 
 

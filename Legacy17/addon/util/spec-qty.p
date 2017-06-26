@@ -1,7 +1,5 @@
-
-
-    
-CONNECT -pf VALUE(".\addon\rfq.pf") NO-ERROR.
+   
+/* CONNECT -pf VALUE(".\addon\rfq.pf") NO-ERROR. */
 IF CONNECTED("rfq") THEN do:
     
     RUN addon/util/spec-qt2.p.
@@ -20,5 +18,5 @@ HIDE ALL NO-PAUSE.
 */
 
     MESSAGE "Utility Completed..." VIEW-AS ALERT-BOX.
-    DISCONNECT rfq.
+/*    DISCONNECT rfq. */
 END.

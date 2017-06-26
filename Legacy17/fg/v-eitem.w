@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:44 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1306,7 +1306,7 @@ PROCEDURE local-update-record :
 
   RUN valid-cust-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF e-itemfg-vend.vend-no:SCREEN-VALUE EQ "" THEN DO:
        FIND FIRST bf-evend
@@ -1328,6 +1328,7 @@ PROCEDURE local-update-record :
        END.
      END.
   END.
+  {&methods/lValidateError.i NO}
 
   /* ============= end of validation ================*/
   v-add-record = adm-adding-record.
@@ -1348,6 +1349,7 @@ PROCEDURE local-update-record :
   RUN update-est-matrices-proc.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1376,7 +1378,7 @@ PROCEDURE new-sel :
     ASSIGN
      lv-group-hdl = FRAME {&FRAME-NAME}:FIRST-CHILD
      lv-field-hdl = lv-group-hdl:FIRST-CHILD.
-
+    {&methods/lValidateError.i YES}
     DO WHILE VALID-HANDLE(lv-field-hdl):
       lv-test-valid-widget = lv-field-hdl:NAME NO-ERROR.
       IF ERROR-STATUS:ERROR THEN
@@ -1390,13 +1392,14 @@ PROCEDURE new-sel :
 
       lv-field-hdl = lv-field-hdl:NEXT-SIBLING.
     END.
-
+    {&methods/lValidateError.i NO}
     IF lv-sel NE "" THEN lv-sel-all = lv-sel.
 
     IF lv-sel-all NE "" THEN tb_sel:SCREEN-VALUE = lv-sel-all.
   END.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1596,6 +1599,7 @@ PROCEDURE valid-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
       IF e-itemfg-vend.cust-no:SCREEN-VALUE NE "" AND
          NOT CAN-FIND(FIRST cust WHERE
@@ -1608,6 +1612,7 @@ PROCEDURE valid-cust-no :
          RETURN ERROR.
       END.
   END.
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1624,6 +1629,7 @@ PROCEDURE valid-std-uom :
   DEF VAR uom-list AS CHAR INIT "" NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     e-itemfg.std-uom:SCREEN-VALUE = CAPS(e-itemfg.std-uom:SCREEN-VALUE).
@@ -1653,6 +1659,7 @@ PROCEDURE valid-std-uom :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1670,6 +1677,7 @@ PROCEDURE valid-vend-no :
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-focus:SCREEN-VALUE NE "" THEN
@@ -1690,6 +1698,7 @@ PROCEDURE valid-vend-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

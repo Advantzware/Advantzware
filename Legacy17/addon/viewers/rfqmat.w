@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:41 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -839,11 +839,14 @@ DO:
      if avail item and item.mat-type = "A" 
      then    rfqitem.adder[7]:screen-value = item.i-name. 
        else if lastkey <> -1 then do:
+        {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+       {&methods/lValidateError.i NO}
        end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -860,11 +863,14 @@ DO:
      if avail item and item.mat-type = "A" 
      then    rfqitem.adder[8]:screen-value = item.i-name. 
        else if lastkey <> -1 then do:
+       {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+       {&methods/lValidateError.i NO}
        end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -881,11 +887,14 @@ DO:
      if avail item and item.mat-type = "A" 
      then    rfqitem.adder[9]:screen-value = item.i-name. 
        else if lastkey <> -1 then do:
+       {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+       {&methods/lValidateError.i NO}
        end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -902,11 +911,14 @@ DO:
      if avail item and item.mat-type = "A" 
      then    rfqitem.adder[10]:screen-value = item.i-name. 
        else if lastkey <> -1 then do:
+       {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+        {&methods/lValidateError.i NO}
        end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -923,11 +935,14 @@ DO:
      if avail item and item.mat-type = "A" 
      then    rfqitem.adder[11]:screen-value = item.i-name. 
        else if lastkey <> -1 then do:
+       {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+       {&methods/lValidateError.i NO}
        end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -944,11 +959,14 @@ DO:
      if avail item and item.mat-type = "A" 
      then    rfqitem.adder[12]:screen-value = item.i-name. 
        else if lastkey <> -1 then do:
+       {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+       {&methods/lValidateError.i NO}
        end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -999,12 +1017,15 @@ DO:
                .             
       end.
       else if lastkey <> -1 then do:
+           {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+           {&methods/lValidateError.i NO}
       end.
    end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1021,13 +1042,16 @@ DO:
                               reftable.code = self:screen-value
          no-lock no-error.                          
     if not avail reftable and lastkey <> -1 then do:
+    {&methods/lValidateError.i YES}
        message "Invalid Flute. Try Help." view-as alert-box error.
        return no-apply.
+     {&methods/lValidateError.i NO}
     end.     
 
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1066,12 +1090,15 @@ DO:
        end.
        else if lastkey <> -1 then
        do:
+       {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+       {&methods/lValidateError.i NO}
        end.
    end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1110,13 +1137,16 @@ DO:
        end.
        else if lastkey <> -1 then
        do:
+        {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+       {&methods/lValidateError.i NO}
        end.
 
    end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1145,14 +1175,17 @@ DO:
        end.
        else if lastkey <> -1 then
        do:
+        {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+        {&methods/lValidateError.i NO}
        end.
 
    end.
 .
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1191,13 +1224,16 @@ DO:
        end.
        else if lastkey <> -1 then 
        do:
+        {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+        {&methods/lValidateError.i NO}
        end.
 
    end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1214,11 +1250,14 @@ DO:
      if avail item and INDEX("MOXY789@",ITEM.mat-type) GT 0
      then    rfqitem.spec-dscr[1]:screen-value = item.i-name. 
      else if lastkey <> -1 then do:
+      {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+       {&methods/lValidateError.i NO}
     end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1235,12 +1274,15 @@ DO:
      if avail item and INDEX("MOXY789",ITEM.mat-type) GT 0 
      then    rfqitem.spec-dscr[2]:screen-value = item.i-name. 
      else if lastkey <> -1 then do:
+     {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+     {&methods/lValidateError.i NO}
      end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1257,11 +1299,14 @@ DO:
      if avail item and INDEX("MOXY789",ITEM.mat-type) GT 0 
      then    rfqitem.spec-dscr[3]:screen-value = item.i-name. 
        else if lastkey <> -1 then do:
+       {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+      {&methods/lValidateError.i NO}
        end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1278,12 +1323,15 @@ DO:
      if avail item and INDEX("MOXY789",ITEM.mat-type) GT 0 
      then    rfqitem.spec-dscr[4]:screen-value = item.i-name.
      else if lastkey <> -1 then do:
+     {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+      {&methods/lValidateError.i NO}
      end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1300,11 +1348,14 @@ DO:
      if avail item and INDEX("MOXY789",ITEM.mat-type) GT 0 
      then    rfqitem.spec-dscr[5]:screen-value = item.i-name. 
      else if lastkey <> -1 then do:
+     {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+     {&methods/lValidateError.i NO}
      end.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1321,12 +1372,15 @@ DO:
      if avail item and INDEX("MOXY789",ITEM.mat-type) GT 0 
      then    rfqitem.spec-dscr[6]:screen-value = item.i-name. 
        else if lastkey <> -1 then do:
+        {&methods/lValidateError.i YES}
            message "Invalid Material. Try Help." view-as alert-box error.
            return no-apply.
+        {&methods/lValidateError.i NO}
        end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1349,11 +1403,14 @@ DO:
             report.key-02 = self:screen-value
       NO-LOCK no-error.
   if not avail report and lastkey <> -1 then do:
+    {&methods/lValidateError.i YES}
      message "Invalid Test. Try Help." view-as alert-box error.
      return no-apply.
+     {&methods/lValidateError.i NO}
 
   end.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:50 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -732,6 +732,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.case-count V-table-Win
 ON LEAVE OF itemfg.case-count IN FRAME F-Main /* Count */
 DO:
+    {&methods/lValidateError.i YES}
     IF LASTKEY <> -1 AND 
        (/*itemfg.i-code:screen-value = "S" and*/
          int(itemfg.case-count:screen-value) < 1 ) 
@@ -739,8 +740,9 @@ DO:
          MESSAGE "Case count can not less than ONE !!! " VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
     END.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -786,13 +788,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.def-loc V-table-Win
 ON LEAVE OF itemfg.def-loc IN FRAME F-Main /* Warehse */
 DO:
+    {&methods/lValidateError.i YES}
     IF LASTKEY <> -1 AND itemfg.def-loc:screen-value <> "" AND
     NOT CAN-FIND(FIRST loc WHERE loc.company = gcompany AND loc.loc = itemfg.def-loc:screen-value)
     THEN DO:
          MESSAGE "Invalid Warehouse. Try Help." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -802,6 +807,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.def-loc-bin V-table-Win
 ON LEAVE OF itemfg.def-loc-bin IN FRAME F-Main /* Bin */
 DO:
+    {&methods/lValidateError.i YES}
     IF LASTKEY <> -1 AND itemfg.def-loc-bin:screen-value <> "" AND
        NOT CAN-FIND(FIRST fg-bin WHERE fg-bin.company = gcompany AND fg-bin.loc = itemfg.def-loc:screen-value AND
                           fg-bin.loc-bin = itemfg.def-loc-bin:screen-value)
@@ -809,8 +815,9 @@ DO:
          MESSAGE "Invalid Warehouse Bin. Try Help." VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
     END.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -950,6 +957,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.procat V-table-Win
 ON LEAVE OF itemfg.procat IN FRAME F-Main /* Category */
 DO:
+    {&methods/lValidateError.i YES}
     IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
        NOT CAN-FIND(FIRST fgcat WHERE fgcat.company = gcompany AND
                                       fgcat.procat = SELF:screen-value)
@@ -962,7 +970,9 @@ DO:
                            fgcat.procat = SELF:screen-value
                            NO-LOCK NO-ERROR.
    itemfg.procat-desc:screen-value = IF AVAIL fgcat THEN fgcat.dscr ELSE "".
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -972,7 +982,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.prod-uom V-table-Win
 ON LEAVE OF itemfg.prod-uom IN FRAME F-Main /* Cost UOM */
 DO:
-
+    {&methods/lValidateError.i YES}
     IF LASTKEY <> -1 AND 
        ( (itemfg.i-code:screen-value = "S" AND
           can-do("EA,M",itemfg.prod-uom:screen-value )) OR
@@ -1061,8 +1071,9 @@ DO:
          fg-bin.pur-uom      = INPUT itemfg.prod-uom.
 
     END.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1093,6 +1104,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.sell-uom V-table-Win
 ON LEAVE OF itemfg.sell-uom IN FRAME F-Main /* UOM */
 DO:
+    {&methods/lValidateError.i YES}
     IF LASTKEY <> -1 THEN DO:
       IF SELF:screen-value EQ "" THEN DO:
         MESSAGE 
@@ -1111,7 +1123,9 @@ DO:
           RETURN NO-APPLY.
       END.
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1165,6 +1179,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.style V-table-Win
 ON LEAVE OF itemfg.style IN FRAME F-Main /* Style */
 DO:  
+    {&methods/lValidateError.i YES}
     IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
        NOT CAN-FIND(FIRST style WHERE style.company = gcompany AND
                                       style.style = SELF:screen-value)
@@ -1177,8 +1192,10 @@ DO:
                                       style.style = SELF:screen-value
                                       NO-LOCK NO-ERROR.
     itemfg.style-desc:screen-value = IF AVAIL style THEN style.dscr ELSE "".
+    {&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1865,7 +1882,7 @@ PROCEDURE local-update-record :
 
   RUN valid-cust-part NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&frame-name}:
     IF itemfg.style:screen-value <> "" AND
        NOT CAN-FIND(FIRST style WHERE style.company = gcompany AND
@@ -1943,7 +1960,7 @@ PROCEDURE local-update-record :
      VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
   END.
-
+  {&methods/lValidateError.i NO}
   RUN calc-std-cost.
 
   ASSIGN
@@ -2064,6 +2081,7 @@ PROCEDURE local-update-record :
           THEN RUN disable-folder-page IN WIDGET-HANDLE(char-hdl) (INPUT 6).
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2504,6 +2522,7 @@ PROCEDURE valid-cust-no :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF (itemfg.cust-no:SCREEN-VALUE EQ "" AND
         itemfg.i-code:SCREEN-VALUE  EQ "C")                              OR
@@ -2523,6 +2542,7 @@ PROCEDURE valid-cust-no :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2537,6 +2557,7 @@ PROCEDURE valid-cust-part :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
        IF itemfg.part-no:screen-value EQ "" THEN
            ASSIGN itemfg.part-no:SCREEN-VALUE = itemfg.i-no:SCREEN-VALUE .
@@ -2550,6 +2571,7 @@ PROCEDURE valid-cust-part :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2562,6 +2584,7 @@ PROCEDURE valid-cust-user :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
 custcount = "".
 DEF VAR lActive AS LOG NO-UNDO.
@@ -2583,6 +2606,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
     END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2596,6 +2620,7 @@ PROCEDURE valid-est-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&frame-name}:
     IF INT(old-est-no) NE INT(itemfg.est-no:SCREEN-VALUE) THEN RUN new-est-no.
@@ -2612,6 +2637,7 @@ PROCEDURE valid-est-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -2630,6 +2656,7 @@ PROCEDURE valid-i-no :
   DEF VAR v-msg AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     v-msg = "".
@@ -2651,6 +2678,7 @@ PROCEDURE valid-i-no :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2665,6 +2693,7 @@ PROCEDURE valid-type :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF TRIM(itemfg.type-code:SCREEN-VALUE) NE ""                AND
        LOOKUP(itemfg.type-code:SCREEN-VALUE,lv-type-codes) LE 0 THEN DO:
@@ -2674,6 +2703,7 @@ PROCEDURE valid-type :
     END.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

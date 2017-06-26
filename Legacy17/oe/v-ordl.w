@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:47 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -619,6 +619,7 @@ END.
 ON LEAVE OF oe-ordl.est-no IN FRAME F-Main /* Estimate # */
 DO:
     if lastkey = -1 then return.
+    {&methods/lValidateError.i YES}
 
     if oe-ordl.est-no:screen-value <> "" then do:
        v-est-no = oe-ordl.est-no:screen-value.
@@ -637,7 +638,9 @@ DO:
           if avail eb then run display-est-detail (string(recid(eb))).
        end.
     end.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -732,6 +735,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.job-no2 V-table-Win
 ON LEAVE OF oe-ordl.job-no2 IN FRAME F-Main /* Run # */
 DO:
+    {&methods/lValidateError.i YES}
     run util/rjust.p (input-output v-bld-job, input 6).
     find first job-hdr where job-hdr.company = cocode and
                              job-hdr.job-no = v-bld-job and
@@ -743,8 +747,9 @@ DO:
                   view-as alert-box error  .
           return no-apply.
     end.        
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -755,6 +760,7 @@ END.
 ON LEAVE OF oe-ordl.part-no IN FRAME F-Main /* Cust Part # */
 DO:
       if lastkey = -1 then return.
+  {&methods/lValidateError.i YES}
   if self:modified then do:    
       find first itemfg where itemfg.company = gcompany 
                           and itemfg.part-no = oe-ordl.part-no:screen-value
@@ -787,7 +793,9 @@ DO:
       apply "entry" to oe-ordl.price.
       return no-apply.
   end.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -798,7 +806,7 @@ END.
 ON LEAVE OF oe-ordl.po-no-po IN FRAME F-Main /* Board PO # */
 DO:
     if lastkey = -1 then return.
-
+    {&methods/lValidateError.i YES}
     def var ld-cost as dec no-undo.
 
     if self:screen-value ne "0" then do:
@@ -858,8 +866,9 @@ DO:
             end.
 
           end.  
-
+          {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -872,6 +881,7 @@ DO:
     def var lv-out-cost as dec no-undo.
 
     if lastkey = -1 then return.
+    {&methods/lValidateError.i YES}
 
     if oe-ordl.pr-uom:screen-value <> "" then do:
        find first uom where uom.uom eq oe-ordl.pr-uom:screen-value
@@ -891,8 +901,9 @@ DO:
      assign oe-ordl.cost:screen-value = string(lv-out-cost).
 
     {oe/ordltot.i oe-ordl qty oe-ordl}
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1020,12 +1031,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.s-pct[1] V-table-Win
 ON LEAVE OF oe-ordl.s-pct[1] IN FRAME F-Main /* Pct of Sale[1] */
 DO:
+    {&methods/lValidateError.i YES}
     if int(self:screen-value) < 0 or int(self:screen-value) > 100 then do:
        message "Percent of Sales Out of Range (0 - 100). Please ReEnter. "
               view-as alert-box error.
        return no-apply.
     end.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1035,13 +1049,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.tax V-table-Win
 ON VALUE-CHANGED OF oe-ordl.tax IN FRAME F-Main /* Tax */
 DO:
+    {&methods/lValidateError.i YES}
     if not avail oe-ord then find oe-ord where oe-ord.company = gcompany and
                                   oe-ord.ord-no = oe-ordl.ord-no no-lock no-error. 
     if self:screen-value = "yes" and oe-ord.tax-gr = "" then do:
        message "Invalid tax code on order header. " view-as alert-box error.
        return no-apply.
     end.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1051,6 +1068,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordl.vend-no V-table-Win
 ON LEAVE OF oe-ordl.vend-no IN FRAME F-Main /* Board Vendor */
 DO:
+   {&methods/lValidateError.i YES}
   if self:screen-value <> "" then do:
      find first vend where vend.company eq cocode
                        and vend.vend-no eq input oe-ordl.vend-no
@@ -1060,8 +1078,10 @@ DO:
                    view-as alert-box error.
          return no-apply.
      end.
-  end.   
+  end. 
+   {&methods/lValidateError.i NO}  
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2305,6 +2325,7 @@ def var v-est-no as cha no-undo.
 def buffer xeb for eb.
 def buffer xoe-ordl for oe-ordl.
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
 {oe/oe-sysct.i}
 if not avail oe-ord then do:
    if not avail oe-ordl then find oe-ordl where recid(oe-ordl) = lv-ordl-recid no-lock.
@@ -2368,6 +2389,7 @@ do with frame {&frame-name} :
    end. /* not avail */
 
 end. /* frame {&frame-name} */
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

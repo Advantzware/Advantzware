@@ -55,7 +55,7 @@ DEF VAR ls-prev-po AS cha NO-UNDO.
 DEF VAR hd-post AS WIDGET-HANDLE NO-UNDO.
 DEF VAR hd-post-child AS WIDGET-HANDLE NO-UNDO.
 DEF VAR ll-help-run AS LOG NO-UNDO.  /* set on browse help, reset row-entry */
-
+DEFINE VARIABLE lCheckConf AS LOGICAL NO-UNDO .
 DEFINE VARIABLE unitsOH LIKE fg-rctd.t-qty NO-UNDO.
 cocode = g_company.
 locode = g_loc.
@@ -421,6 +421,7 @@ ON HELP OF Browser-Table IN FRAME F-Main
 DO:
  DEF VAR lv-rowid AS ROWID NO-UNDO.
  DEF VAR rec-val AS RECID NO-UNDO.
+ DEFINE VARIABLE lConfirm AS LOGICAL NO-UNDO.
  DEF BUFFER bf-tmp FOR fg-rctd.
 
  IF NOT AVAIL fg-rctd THEN FIND fg-rctd WHERE RECID(fg-rctd) = lv-recid NO-LOCK NO-ERROR. 
@@ -531,6 +532,15 @@ DO:
                   MESSAGE "Item is different."
                       VIEW-AS ALERT-BOX ERROR.
                       RETURN NO-APPLY.
+               END.
+               IF fg-rctd.job-no:SCREEN-VALUE <> loadtag.job-no THEN DO:
+                  MESSAGE "Warning: Tags entered are from different jobs. This may result in multiple bins for the same tag. Continue?"
+                      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                      UPDATE lConfirm .
+                      IF NOT lConfirm THEN do:
+                          APPLY "entry" TO fg-rctd.tag2.
+                          RETURN "ERROR".
+                      END.
                END.
              END.
              RUN leave-tag.
@@ -749,6 +759,18 @@ DO:
     IF LASTKEY NE -1 THEN DO:
     RUN leave-tag2.
     IF RETURN-VALUE <> "" THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME   
+
+&Scoped-define SELF-NAME fg-rctd.tag2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rctd.tag2 Browser-Table _BROWSE-COLUMN B-table-Win
+ON VALUE-CHANGED OF fg-rctd.tag2 IN BROWSE Browser-Table /* To!Tag */
+DO:
+    IF LASTKEY NE -1 THEN DO:
+    lCheckConf = NO .
   END.
 END.
 
@@ -1254,7 +1276,7 @@ PROCEDURE leave-tag2 :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+     DEFINE VARIABLE lConfirm AS LOGICAL NO-UNDO.
      FIND FIRST loadtag WHERE loadtag.company = g_company
                     AND loadtag.ITEM-type = NO
                     AND loadtag.tag-no = fg-rctd.tag2:SCREEN-VALUE IN BROWSE {&browse-name} NO-LOCK NO-ERROR.
@@ -1279,6 +1301,19 @@ PROCEDURE leave-tag2 :
                       APPLY "entry" TO fg-rctd.tag2.
                       RETURN "ERROR".
      END.
+     IF fg-rctd.job-no:SCREEN-VALUE <> loadtag.job-no THEN DO:
+         IF NOT lCheckConf THEN do:
+                  MESSAGE "Warning: Tags entered are from different jobs. This may result in multiple bins for the same tag. Continue?"
+                      VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
+                      UPDATE lConfirm .
+                      IF lConfirm THEN ASSIGN lCheckConf = YES .
+                      IF NOT lConfirm THEN do:
+                          APPLY "entry" TO fg-rctd.tag2.
+                          RETURN "ERROR".
+                      END.
+         END.
+     END.
+
 /* Per Joe, this is not required, can consolidate to a bin that     */
 /* has no inventory - task 02261302                                 */
 /*      FIND FIRST fg-bin WHERE fg-bin.company = g_company          */

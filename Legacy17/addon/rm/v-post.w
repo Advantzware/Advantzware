@@ -196,7 +196,7 @@ DO:
   RUN VALUE(runWhichPost).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ("open-query").
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:25 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */

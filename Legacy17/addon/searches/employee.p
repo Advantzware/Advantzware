@@ -19,7 +19,7 @@
 "employee. " ~
 */
 
-&Scoped-define search-db EMPTRACK.
+&Scoped-define search-db 
 &Scoped-define search-file employee
 &Scoped-define where-statement employee.company = gcompany
 &Scoped-define return-field employee

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:42 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -263,6 +263,7 @@ END.
 ON LEAVE OF ap-chk.check-no IN FRAME F-Main /* Check No */
 DO:
    IF LASTKEY = -1 THEN RETURN.
+   {&methods/lValidateError.i YES}
    IF INPUT ap-chk.check-no <> 0 THEN DO:
       FIND FIRST ap-pay WHERE ap-pay.company = g_company
                         AND ap-pay.check-no = INPUT ap-chk.check-no
@@ -279,7 +280,9 @@ DO:
 
 
    END.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -586,6 +589,7 @@ PROCEDURE local-update-record :
      {VALIDATE/vend-upd.i ap-chk.vend-no vend_name:SCREEN-VALUE}
      {VALIDATE/bank.i ap-chk.bank-code bank_name:SCREEN-VALUE}
      IF INPUT ap-chk.check-no <> 0 THEN DO:
+        {&methods/lValidateError.i YES}
         FIND FIRST ap-pay WHERE ap-pay.company = g_company
                         AND ap-pay.check-no = INPUT ap-chk.check-no
                         AND (ap-pay.check-act = lv-bank-acct OR 
@@ -599,6 +603,7 @@ PROCEDURE local-update-record :
            APPLY "entry" TO ap-chk.check-no.
            RETURN NO-APPLY.
         END.
+	{&methods/lValidateError.i NO}
      END.
   END.
   ll-new-record = adm-new-record.
@@ -614,6 +619,7 @@ PROCEDURE local-update-record :
 
    END.
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -430,7 +430,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:45 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -486,7 +486,7 @@ DO:
 
   end case. 
   SESSION:SET-WAIT-STATE("").
-     {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:45 am */
+     {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
  END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -621,7 +621,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:45 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -645,12 +645,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   {methods/nowait.i}
   DO WITH FRAME {&frame-name}:
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:36:46 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:36:46 am */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p */
     {custom/usrprint.i}
     APPLY 'ENTRY' TO begin_machine.
   END.
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:45 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1331,10 +1331,10 @@ PROCEDURE show-employees :
          v-emp-displayed = NO.
          FOR EACH machemp NO-LOCK WHERE machemp.table_rec_key = machtran.rec_key
              WITH FRAME machemp2 STREAM-IO NO-BOX COLUMN 9 WIDTH 132:
-             FIND emptrack.employee WHERE emptrack.employee.company = machtran.company
-                        AND emptrack.employee.employee = machemp.employee NO-LOCK NO-ERROR.
+             FIND employee WHERE employee.company = machtran.company
+                        AND employee.employee = machemp.employee NO-LOCK NO-ERROR.
              DISPLAY machemp.employee
-                    emptrack.employee.first_name + ' ' + emptrack.employee.last_name FORMAT 'X(30)' LABEL 'Name'
+                    employee.first_name + ' ' + employee.last_name FORMAT 'X(30)' LABEL 'Name'
                 machemp.start_date
                 STRING(machemp.start_time,'HH:MM am') LABEL 'Started'
                 machemp.end_date
@@ -1347,7 +1347,7 @@ PROCEDURE show-employees :
              IF tb_excel THEN PUT STREAM excel UNFORMATTED
                (IF v-emp-displayed THEN FILL(",",14) ELSE ",") /* get across from parent line */
                 machemp.employee ","
-                emptrack.employee.first_name + ' ' + emptrack.employee.last_name  ","
+                employee.first_name + ' ' + employee.last_name  ","
                 machemp.start_date ","
                 trim(STRING(machemp.start_time,'HH:MM am')) ","
                 machemp.end_date ","

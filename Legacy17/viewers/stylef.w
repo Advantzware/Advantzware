@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:54 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -66,41 +66,41 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR style.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS style.dscr style.type style.design-no style.royalty ~
-style.dim-gl style.dim-tk style.dim-dkl style.dim-dkw style.dim-pan5 ~
-style.dim-fit style.material[1] style.material[2] style.material[3] ~
-style.material[4] style.material[5] style.material[6] style.material[7] ~
-style.m-code[1] style.m-code[2] style.m-code[3] style.m-code[4] ~
-style.m-code[5] style.m-code[6] style.m-code[7] style.formula[9] ~
-style.formula[10] style.formula[11] style.formula[12] style.formula[1] ~
-style.formula[2] style.formula[3] style.formula[4] style.formula[5] ~
-style.formula[6] style.formula[7] style.formula[8] style.use-w[2] ~
-style.use-w[3] style.use-w[4] style.use-w[5] style.use-w[6] style.use-w[7] ~
-style.use-w[8] style.use-w[9] style.use-w[10] style.use-w[11] ~
-style.use-w[12] style.use-w[13] style.use-l[2] style.use-l[3] ~
-style.use-l[4] style.use-l[5] style.use-l[6] style.use-l[7] style.use-l[8] ~
-style.use-l[9] style.use-l[10] style.use-l[11] style.use-l[12] ~
-style.use-l[13] style.qty-per-set 
-&Scoped-define ENABLED-TABLES style
-&Scoped-define FIRST-ENABLED-TABLE style
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-10 RECT-11 RECT-7 RECT-8 RECT-9 
-&Scoped-Define DISPLAYED-FIELDS style.style style.dscr style.type style.design-no ~
+&Scoped-Define ENABLED-FIELDS style.dscr style.type style.design-no ~
 style.royalty style.dim-gl style.dim-tk style.dim-dkl style.dim-dkw ~
 style.dim-pan5 style.dim-fit style.material[1] style.material[2] ~
 style.material[3] style.material[4] style.material[5] style.material[6] ~
-style.material[7] style.m-code[1] style.m-dscr[1] style.m-code[2] ~
-style.m-dscr[2] style.m-code[3] style.m-dscr[3] style.m-code[4] ~
-style.m-dscr[4] style.m-code[5] style.m-dscr[5] style.m-code[6] ~
-style.m-dscr[6] style.m-code[7] style.m-dscr[7] style.formula[9] ~
-style.formula[10] style.formula[11] style.formula[12] style.formula[1] ~
-style.formula[2] style.formula[3] style.formula[4] style.formula[5] ~
-style.formula[6] style.formula[7] style.formula[8] style.use-w[2] ~
-style.use-w[3] style.use-w[4] style.use-w[5] style.use-w[6] style.use-w[7] ~
-style.use-w[8] style.use-w[9] style.use-w[10] style.use-w[11] ~
-style.use-w[12] style.use-w[13] style.use-l[2] style.use-l[3] ~
-style.use-l[4] style.use-l[5] style.use-l[6] style.use-l[7] style.use-l[8] ~
-style.use-l[9] style.use-l[10] style.use-l[11] style.use-l[12] ~
-style.use-l[13] style.qty-per-set 
+style.material[7] style.qty-per-set style.m-code[1] style.m-code[2] ~
+style.m-code[3] style.m-code[4] style.m-code[5] style.m-code[6] ~
+style.m-code[7] style.formula[9] style.formula[10] style.formula[11] ~
+style.formula[12] style.formula[1] style.formula[2] style.formula[3] ~
+style.formula[4] style.formula[5] style.formula[6] style.formula[7] ~
+style.formula[8] style.use-w[2] style.use-w[3] style.use-w[4] ~
+style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] style.use-w[9] ~
+style.use-w[10] style.use-w[11] style.use-w[12] style.use-w[13] ~
+style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] style.use-l[6] ~
+style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
+style.use-l[11] style.use-l[12] style.use-l[13] style.defaultPackCode 
+&Scoped-define ENABLED-TABLES style
+&Scoped-define FIRST-ENABLED-TABLE style
+&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-10 RECT-11 RECT-7 RECT-8 RECT-9 
+&Scoped-Define DISPLAYED-FIELDS style.style style.dscr style.type ~
+style.design-no style.royalty style.dim-gl style.dim-tk style.dim-dkl ~
+style.dim-dkw style.dim-pan5 style.dim-fit style.material[1] ~
+style.material[2] style.material[3] style.material[4] style.material[5] ~
+style.material[6] style.material[7] style.qty-per-set style.m-code[1] ~
+style.m-dscr[1] style.m-code[2] style.m-dscr[2] style.m-code[3] ~
+style.m-dscr[3] style.m-code[4] style.m-dscr[4] style.m-code[5] ~
+style.m-dscr[5] style.m-code[6] style.m-dscr[6] style.m-code[7] ~
+style.m-dscr[7] style.formula[9] style.formula[10] style.formula[11] ~
+style.formula[12] style.formula[1] style.formula[2] style.formula[3] ~
+style.formula[4] style.formula[5] style.formula[6] style.formula[7] ~
+style.formula[8] style.use-w[2] style.use-w[3] style.use-w[4] ~
+style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] style.use-w[9] ~
+style.use-w[10] style.use-w[11] style.use-w[12] style.use-w[13] ~
+style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] style.use-l[6] ~
+style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
+style.use-l[11] style.use-l[12] style.use-l[13] style.defaultPackCode 
 &Scoped-define DISPLAYED-TABLES style
 &Scoped-define FIRST-DISPLAYED-TABLE style
 
@@ -174,13 +174,13 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
           BGCOLOR 15 FONT 4
-     style.dscr AT ROW 1.24 COL 46.80 COLON-ALIGNED 
+     style.dscr AT ROW 1.24 COL 46.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 37 BY 1
           BGCOLOR 15 FONT 4
      style.type AT ROW 1.24 COL 93 COLON-ALIGNED HELP
-     "'B'ox, 'D'ie Cut, 'P'ocket Folder, 'R'igid Box, 'S'ignature, 'J'ig Saw or '' "
-          LABEL "Type" 
+          "'B'ox, 'D'ie Cut, 'P'ocket Folder, 'R'igid Box, 'S'ignature, 'J'ig Saw or '' "
+          LABEL "Type" FORMAT "x(1)"
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
      style.design-no AT ROW 1.24 COL 112 COLON-ALIGNED
@@ -250,7 +250,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
-    style.qty-per-set AT ROW 10.05 COL 66 COLON-ALIGNED
+     style.qty-per-set AT ROW 10.05 COL 66 COLON-ALIGNED
           LABEL "Qty/Set"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
@@ -269,6 +269,13 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      style.m-dscr[2] AT ROW 11.62 COL 19.2 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
@@ -282,13 +289,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
           BGCOLOR 15 FONT 4
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      style.m-code[4] AT ROW 13.48 COL 5.2 COLON-ALIGNED
           LABEL "4"
           VIEW-AS FILL-IN 
@@ -370,6 +370,13 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
           BGCOLOR 15 FONT 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      style.formula[6] AT ROW 12.62 COL 106.4 COLON-ALIGNED
           LABEL "Len"
           VIEW-AS FILL-IN 
@@ -380,13 +387,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
           BGCOLOR 15 FONT 4
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      style.formula[8] AT ROW 14.52 COL 106.4 COLON-ALIGNED
           LABEL "Len"
           VIEW-AS FILL-IN 
@@ -466,6 +466,13 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      style.use-l[8] AT ROW 17.81 COL 116 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
@@ -474,13 +481,6 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      style.use-l[10] AT ROW 17.81 COL 124 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
@@ -497,27 +497,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-
+     style.defaultPackCode AT ROW 17.91 COL 30 COLON-ALIGNED WIDGET-ID 2
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
      "DEFAULT DEMENSIONS" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 2.43 COL 15
-          FGCOLOR 9 
-     "4" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 15.91 COL 103
-     "13" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 15.91 COL 138
-     "12" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 15.91 COL 134
-     "2" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 15.91 COL 95
-     "11" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 15.91 COL 130
-     "10" VIEW-AS TEXT
-          SIZE 3 BY .62 AT ROW 15.91 COL 126
-     "DIE && RULE FORMULAS" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 2.43 COL 104
-          FGCOLOR 9 
-     "LAYOUT FORMULAS" VIEW-AS TEXT
-          SIZE 25 BY .62 AT ROW 7.24 COL 103.4
           FGCOLOR 9 
      "DEFAULT MACHINE ROUTING" VIEW-AS TEXT
           SIZE 39 BY .62 AT ROW 9.91 COL 9.2
@@ -541,6 +525,24 @@ DEFINE FRAME F-Main
           SIZE 3 BY .62 AT ROW 15.91 COL 119
      "7" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 15.91 COL 115
+     "4" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 15.91 COL 103
+     "13" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 15.91 COL 138
+     "12" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 15.91 COL 134
+     "2" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 15.91 COL 95
+     "11" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 15.91 COL 130
+     "10" VIEW-AS TEXT
+          SIZE 3 BY .62 AT ROW 15.91 COL 126
+     "DIE && RULE FORMULAS" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 2.43 COL 104
+          FGCOLOR 9 
+     "LAYOUT FORMULAS" VIEW-AS TEXT
+          SIZE 25 BY .62 AT ROW 7.24 COL 103.4
+          FGCOLOR 9 
      RECT-1 AT ROW 1.1 COL 2
      RECT-10 AT ROW 7.38 COL 85
      RECT-11 AT ROW 2.67 COL 85
@@ -681,12 +683,12 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN style.style IN FRAME F-Main
    NO-ENABLE 1                                                          */
+/* SETTINGS FOR FILL-IN style.type IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN style.use-l[2] IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN style.use-w[2] IN FRAME F-Main
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN style.type IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -710,24 +712,24 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-   def var char-val as cha no-undo.   
-   def var ls-cur-val as cha no-undo.
-   def var lv-foam as log no-undo.
-   def var lv-icode as cha no-undo.
-   def var lv-mat-type as cha no-undo.
-   def var lv-rowid as rowid no-undo.
-   def var lv-ind like style.industry no-undo.
+   DEF VAR char-val AS cha NO-UNDO.   
+   DEF VAR ls-cur-val AS cha NO-UNDO.
+   DEF VAR lv-foam AS LOG NO-UNDO.
+   DEF VAR lv-icode AS cha NO-UNDO.
+   DEF VAR lv-mat-type AS cha NO-UNDO.
+   DEF VAR lv-rowid AS ROWID NO-UNDO.
+   DEF VAR lv-ind LIKE style.industry NO-UNDO.
 
-   case focus:name :
-        when 'design-no' then do:
-             run windows/l-boxdes.w (focus:screen-value, output char-val).
-             if char-val <> "" then focus:screen-value = entry(1,char-val).    
-        end.
+   CASE FOCUS:NAME :
+        WHEN 'design-no' THEN DO:
+             RUN windows/l-boxdes.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
+             IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).    
+        END.
        WHEN 'type' THEN DO:
-           run windows/l-typcod.w (output char-val).
-             if char-val <> "" then focus:screen-value = entry(1,char-val).   
+           RUN windows/l-typcod.w (OUTPUT char-val).
+             IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).   
 
-             IF focus:SCREEN-VALUE EQ "P" THEN DO:
+             IF FOCUS:SCREEN-VALUE EQ "P" THEN DO:
                  ASSIGN
                      style.material[1]:LABEL = "Paper" 
                      style.dim-fit:LABEL = "Pocket Size" 
@@ -754,28 +756,28 @@ DO:
               WHEN 1 THEN DO: /*board*/
 
                  ASSIGN
-                   ls-cur-val = focus:SCREEN-VALUE
+                   ls-cur-val = FOCUS:SCREEN-VALUE
                    lv-ind = style.industry.
 
-                 if style.type = "f" then  /* foam */
+                 IF style.type = "f" THEN  /* foam */
                  DO:
-                    run windows/l-boardf.w (style.company,lv-ind,ls-cur-val,output char-val).
-                    focus:screen-value in frame {&frame-name} = char-val.
+                    RUN windows/l-boardf.w (style.company,lv-ind,ls-cur-val,OUTPUT char-val).
+                    FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = char-val.
                  END.
-                 else
+                 ELSE
                  DO:
-                    run windows/l-board1.w (style.company,lv-ind,ls-cur-val, output lv-rowid).
+                    RUN windows/l-board1.w (style.company,lv-ind,ls-cur-val, OUTPUT lv-rowid).
                     FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
                     IF AVAIL ITEM AND ITEM.i-no NE FOCUS:SCREEN-VALUE THEN 
-                       focus:screen-value in frame {&frame-name} = item.i-no.
+                       FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = item.i-no.
                  END.
               END.
 
               WHEN 2 THEN DO: /*ink*/
                  lv-ind = style.industry.
-                 run windows/l-item2.w (style.company, lv-ind, "I",focus:screen-value, output char-val).
-                 if char-val <> "" THEN
-                    focus:screen-value in frame {&frame-name} = entry(1,char-val).
+                 RUN windows/l-item2.w (style.company, lv-ind, "I",FOCUS:SCREEN-VALUE, OUTPUT char-val).
+                 IF char-val <> "" THEN
+                    FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
               END.
 
               WHEN 4 THEN DO: /* film */
@@ -784,29 +786,29 @@ DO:
                      IF char-val NE "" AND FOCUS:SCREEN-VALUE NE ENTRY(1,char-val) THEN
                         FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
               END.
-              when 5 then do: /* leaf */
+              WHEN 5 THEN DO: /* leaf */
                     lv-ind = style.industry.
                     lv-mat-type =  "WLF".
-                    run windows/l-itmsty.w (style.company, lv-ind, lv-mat-type, focus:screen-value,lv-foam,lv-icode,
-                                     output char-val).
-                    if char-val <> "" then 
-                       focus:screen-value in frame {&frame-name} = entry(1,char-val).
-              end.
+                    RUN windows/l-itmsty.w (style.company, lv-ind, lv-mat-type, FOCUS:SCREEN-VALUE,lv-foam,lv-icode,
+                                     OUTPUT char-val).
+                    IF char-val <> "" THEN 
+                       FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
+              END.
 
-              when 6 then do: /* coating */
+              WHEN 6 THEN DO: /* coating */
                  ASSIGN
                    lv-ind = style.industry
                    lv-mat-type =  "V".
-                 run windows/l-itmsty.w (style.company, lv-ind, lv-mat-type, focus:screen-value,lv-foam,lv-icode,
-                                         output char-val).
-                 if char-val <> "" then 
-                    focus:screen-value in frame {&frame-name} = entry(1,char-val).
-              end.
+                 RUN windows/l-itmsty.w (style.company, lv-ind, lv-mat-type, FOCUS:SCREEN-VALUE,lv-foam,lv-icode,
+                                         OUTPUT char-val).
+                 IF char-val <> "" THEN 
+                    FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
+              END.
 
-              when 7 then do: /*adhesive*/
-                 RUN windows/l-item.w (style.company,"","G,T",focus:SCREEN-VALUE,OUTPUT char-val).
+              WHEN 7 THEN DO: /*adhesive*/
+                 RUN windows/l-item.w (style.company,"","G,T",FOCUS:SCREEN-VALUE,OUTPUT char-val).
                  IF char-val <> "" THEN FOCUS:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1,char-val).
-              end.
+              END.
            END CASE.
        END.
 
@@ -935,29 +937,37 @@ DO:
                 end case.
         end.  /* m-code */
         */
-         when 'm-code' then do:
-             run windows/l-mach.w (style.company, gloc, focus:screen-value, output char-val).
-             if char-val <> "" then 
-                case focus:index :
-                     when 1 then assign style.m-code[1]:screen-value in frame {&frame-name} = entry(1,char-val)
-                                        style.m-dscr[1]:screen-value = entry(2,char-val).
-                     when 2 then assign style.m-code[2]:screen-value = entry(1,char-val)
-                                        style.m-dscr[2]:screen-value = entry(2,char-val).
-                     when 3 then assign style.m-code[3]:screen-value = entry(1,char-val)
-                                        style.m-dscr[3]:screen-value = entry(2,char-val).
-                     when 4 then assign style.m-code[4]:screen-value = entry(1,char-val)
-                                        style.m-dscr[4]:screen-value = entry(2,char-val).
-                     when 5 then assign style.m-code[5]:screen-value = entry(1,char-val)
-                                        style.m-dscr[5]:screen-value = entry(2,char-val).
-                     when 6 then assign style.m-code[6]:screen-value = entry(1,char-val)
-                                        style.m-dscr[6]:screen-value = entry(2,char-val).
-                     when 7 then assign style.m-code[7]:screen-value = entry(1,char-val)
-                                        style.m-dscr[7]:screen-value = entry(2,char-val).
+         WHEN 'm-code' THEN DO:
+             RUN windows/l-mach.w (style.company, gloc, FOCUS:SCREEN-VALUE, OUTPUT char-val).
+             IF char-val <> "" THEN 
+                CASE FOCUS:INDEX :
+                     WHEN 1 THEN ASSIGN style.m-code[1]:screen-value IN FRAME {&frame-name} = ENTRY(1,char-val)
+                                        style.m-dscr[1]:screen-value = ENTRY(2,char-val).
+                     WHEN 2 THEN ASSIGN style.m-code[2]:screen-value = ENTRY(1,char-val)
+                                        style.m-dscr[2]:screen-value = ENTRY(2,char-val).
+                     WHEN 3 THEN ASSIGN style.m-code[3]:screen-value = ENTRY(1,char-val)
+                                        style.m-dscr[3]:screen-value = ENTRY(2,char-val).
+                     WHEN 4 THEN ASSIGN style.m-code[4]:screen-value = ENTRY(1,char-val)
+                                        style.m-dscr[4]:screen-value = ENTRY(2,char-val).
+                     WHEN 5 THEN ASSIGN style.m-code[5]:screen-value = ENTRY(1,char-val)
+                                        style.m-dscr[5]:screen-value = ENTRY(2,char-val).
+                     WHEN 6 THEN ASSIGN style.m-code[6]:screen-value = ENTRY(1,char-val)
+                                        style.m-dscr[6]:screen-value = ENTRY(2,char-val).
+                     WHEN 7 THEN ASSIGN style.m-code[7]:screen-value = ENTRY(1,char-val)
+                                        style.m-dscr[7]:screen-value = ENTRY(2,char-val).
 
-                end case.
-        end.  /* m-code */
+                END CASE.
+        END.  /* m-code */
 
-
+       WHEN "defaultPackCode" THEN 
+           DO:
+               RUN windows/l-item.w (style.company, "", "C", FOCUS:SCREEN-VALUE, OUTPUT char-val).
+               IF char-val NE "" AND FOCUS:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
+               DO:
+                   FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+                   APPLY "value-changed" TO style.defaultPackCode.
+               END.
+           END.  
    END.
 
 END.
@@ -970,18 +980,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[1] V-table-Win
 ON LEAVE OF style.m-code[1] IN FRAME F-Main /* 1 */
 DO:
-    if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
-                  mach.m-code= self:screen-value )
-    then do:
-       message "Invalid Machine Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
+    {&methods/lValidateError.i YES}
+    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
+                  mach.m-code= SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
 
-    FIND FIRST mach WHERE mach.company = style.company and 
-                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
+    FIND FIRST mach WHERE mach.company = style.company AND 
+                          mach.m-code= SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL mach THEN style.m-dscr[1]:SCREEN-VALUE = mach.m-dscr.
     ELSE style.m-dscr[1]:SCREEN-VALUE = "".
+    {&methods/lValidateError.i NO}
 
 END.
 
@@ -993,19 +1005,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[2] V-table-Win
 ON LEAVE OF style.m-code[2] IN FRAME F-Main /* 2 */
 DO:
-    if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
-                  mach.m-code= self:screen-value )
-    then do:
-       message "Invalid Machine Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
+    {&methods/lValidateError.i YES}
+    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
+                  mach.m-code= SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
 
-    FIND FIRST mach WHERE mach.company = style.company and 
-                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
+    FIND FIRST mach WHERE mach.company = style.company AND 
+                          mach.m-code= SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL mach THEN style.m-dscr[2]:SCREEN-VALUE = mach.m-dscr.
     ELSE style.m-dscr[2]:SCREEN-VALUE = "".
-
+    {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1016,19 +1029,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[3] V-table-Win
 ON LEAVE OF style.m-code[3] IN FRAME F-Main /* 3 */
 DO:
-    if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
-                  mach.m-code= self:screen-value )
-    then do:
-       message "Invalid Machine Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
+    {&methods/lValidateError.i YES}
+    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
+                  mach.m-code= SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
 
-    FIND FIRST mach WHERE mach.company = style.company and 
-                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
+    FIND FIRST mach WHERE mach.company = style.company AND 
+                          mach.m-code= SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL mach THEN style.m-dscr[3]:SCREEN-VALUE = mach.m-dscr.
     ELSE style.m-dscr[3]:SCREEN-VALUE = "".
-
+    {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1039,19 +1053,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[4] V-table-Win
 ON LEAVE OF style.m-code[4] IN FRAME F-Main /* 4 */
 DO:
-    if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
-                  mach.m-code= self:screen-value )
-    then do:
-       message "Invalid Machine Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
+    {&methods/lValidateError.i YES}
+    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
+                  mach.m-code= SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
 
-    FIND FIRST mach WHERE mach.company = style.company and 
-                         mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
+    FIND FIRST mach WHERE mach.company = style.company AND 
+                         mach.m-code= SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[4]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[4]:SCREEN-VALUE = "".
-
+   {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1062,20 +1077,21 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[5] V-table-Win
 ON LEAVE OF style.m-code[5] IN FRAME F-Main /* 5 */
 DO:
-    if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
-                  mach.m-code= self:screen-value )
-    then do:
-       message "Invalid Machine Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
+    {&methods/lValidateError.i YES}
+    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
+                  mach.m-code= SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
 
-    FIND FIRST mach WHERE mach.company = style.company and 
-                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
+    FIND FIRST mach WHERE mach.company = style.company AND 
+                          mach.m-code= SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL mach THEN style.m-dscr[5]:SCREEN-VALUE = mach.m-dscr.
     ELSE style.m-dscr[5]:SCREEN-VALUE = "".
 
-
+    {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1086,19 +1102,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[6] V-table-Win
 ON LEAVE OF style.m-code[6] IN FRAME F-Main /* 6 */
 DO:
-    if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
-                  mach.m-code= self:screen-value )
-    then do:
-       message "Invalid Machine Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
+    {&methods/lValidateError.i YES}
+    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
+                  mach.m-code= SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
 
-    FIND FIRST mach WHERE mach.company = style.company and 
-                         mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
+    FIND FIRST mach WHERE mach.company = style.company AND 
+                         mach.m-code= SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[6]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[6]:SCREEN-VALUE = "".
-
+   {&methods/lValidateError.i NO}
 
 END.
 
@@ -1110,23 +1127,26 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[7] V-table-Win
 ON LEAVE OF style.m-code[7] IN FRAME F-Main /* 7 */
 DO:
-    if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
-                  mach.m-code= self:screen-value )
-    then do:
-       message "Invalid Machine Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
+    {&methods/lValidateError.i YES}
+    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
+                  mach.m-code= SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
 
-    FIND FIRST mach WHERE mach.company = style.company and 
-                         mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
+    FIND FIRST mach WHERE mach.company = style.company AND 
+                         mach.m-code= SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[7]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[7]:SCREEN-VALUE = "".
+   {&methods/lValidateError.i NO}
 
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME style.type
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.type V-table-Win
@@ -1134,12 +1154,12 @@ ON LEAVE OF style.type IN FRAME F-Main /* Type */
 DO:
   IF LASTKEY NE -1 THEN DO:
 
-    self:SCREEN-VALUE = CAPS(self:screen-value) .
+    SELF:SCREEN-VALUE = CAPS(SELF:screen-value) .
 
     RUN valid-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-    IF self:SCREEN-VALUE EQ "P" THEN DO:
+    IF SELF:SCREEN-VALUE EQ "P" THEN DO:
         ASSIGN
             style.material[1]:LABEL = "Paper" 
             style.dim-fit:LABEL = "Pocket Size" 
@@ -1167,15 +1187,14 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME style.type
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.type V-table-Win
-ON VALUE-CHANGED  OF style.type IN FRAME F-Main /* Type */
+ON VALUE-CHANGED OF style.type IN FRAME F-Main /* Type */
 DO:
   IF LASTKEY NE -1 THEN DO:
 
-    self:SCREEN-VALUE = CAPS(self:screen-value) .
+    SELF:SCREEN-VALUE = CAPS(SELF:screen-value) .
 
-    IF self:SCREEN-VALUE EQ "P" THEN DO:
+    IF SELF:SCREEN-VALUE EQ "P" THEN DO:
         ASSIGN
             style.material[1]:LABEL = "Paper" 
             style.dim-fit:LABEL = "Pocket Size" 
@@ -1202,6 +1221,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
@@ -1210,7 +1230,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {custom/getcmpny.i}
 {custom/getloc.i}
-session:data-entry-return = yes.
+SESSION:DATA-ENTRY-RETURN = YES.
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1480,7 +1500,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-type V-table-Win 
 PROCEDURE valid-type :
 /*------------------------------------------------------------------------------
@@ -1490,9 +1509,10 @@ PROCEDURE valid-type :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
-      IF style.type:SCREEN-VALUE NE "" THEN do:
+      IF style.type:SCREEN-VALUE NE "" THEN DO:
           IF NOT CAN-DO("B,D,P,R,S,J",style.type:SCREEN-VALUE) THEN DO:
               MESSAGE "Invalid Type. Type must be 'B'ox, 'D'ie Cut, 'P'ocket Folder, 'R'igid Box, 'S'ignature or 'J'ig Saw..."
                   VIEW-AS ALERT-BOX ERROR.
@@ -1501,6 +1521,7 @@ PROCEDURE valid-type :
       END.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

@@ -1521,6 +1521,7 @@ PROCEDURE print_RelTicket :
   DEF VAR li AS INT NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
 
+
   RUN Get_Procedure IN Persistent-Handle ('oe-relh_.',OUTPUT run-proc,yes).
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"relTicket-target",OUTPUT char-hdl).
@@ -1562,9 +1563,9 @@ PROCEDURE select_dept2 :
   ASSIGN iCurrentPage = INTEGER(RETURN-VALUE).
 
   IF iCurrentPage EQ 5 THEN
-    RUN select_notes IN h_b-ordrel.
+    RUN SELECT_notes IN h_b-ordrel.
   ELSE
-    RUN select_notes IN h_b-ordlt.
+    RUN SELECT_notes IN h_b-ordlt.
  /* {methods/run_link.i "relTicket-source" "setEnabled" "(ipEnabled)"} */
 
 END PROCEDURE.
@@ -1610,6 +1611,7 @@ PROCEDURE select_attcust :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+
  DEF BUFFER b-oe-ordl FOR oe-ordl.
  DEF BUFFER b-oe-ord FOR oe-ord.
  DEF BUFFER b-cust FOR cust.
@@ -1638,9 +1640,9 @@ PROCEDURE select_attcust :
      IF AVAIL b-cust THEN DO:
          {methods/select_attcust.i
             b-cust.rec_key
-            'Customer: ' + b-cust.cust-no + ' - ' + 'Name: ' + b-cust.name
+            "'Customer: ' + b-cust.cust-no + ' - ' + 'Name: ' + b-cust.name"
             b-oe-ord.ord-no}
-     END.                          
+     END.
  END.
 
 END PROCEDURE.
@@ -1655,7 +1657,9 @@ PROCEDURE select_ONote :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+
     {methods/select_ONote.i rec_key_value cHeaderValue """" 1}
+
 
 END PROCEDURE.
 

@@ -63,7 +63,7 @@
 
       for each box-design-line of box-design-hdr no-lock:
         if box-design-line.wcum-score ne "" then
-          v-cum-wid = dec(box-design-line.wcum-score).
+          v-cum-wid = dec(box-design-line.wcum-score) NO-ERROR.
       end.
 
       if box-design-hdr.lcum-score ne "" then do:

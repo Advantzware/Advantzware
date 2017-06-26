@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:54 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -255,13 +255,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL terms.t-code V-table-Win
 ON LEAVE OF terms.t-code IN FRAME F-Main /* Carrier */
 DO:
-     if lastkey <> -1 and terms.t-code:screen-value EQ "CASH" 
+    IF LASTKEY EQ -1 THEN Return .
+     {&methods/lValidateError.i YES}
+     if terms.t-code:screen-value EQ "CASH" 
      then do:
         message "CASH is reserved for Cash Only process when entering an invoice through OB1 as a cash sale." view-as alert-box error.
         return no-apply.     
      end.
+     {&methods/lValidateError.i NO}
+END. 
 
-END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -396,12 +399,14 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
+   {&methods/lValidateError.i YES}
     IF terms.t-code:SCREEN-VALUE EQ "CASH" AND adm-new-record 
      THEN DO:
         MESSAGE "CASH is reserved for Cash Only process when entering an invoice through OB1 as a cash sale." view-as alert-box error.
         APPLY "entry" TO terms.t-code .
         RETURN NO-APPLY.     
      END.
+    {&methods/lValidateError.i NO}
    END.
 
       /* Dispatch standard ADM method.                             */
@@ -411,6 +416,7 @@ PROCEDURE local-update-record :
 
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

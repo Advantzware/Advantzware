@@ -87,7 +87,7 @@ DEFINE QUERY external_tables FOR machemp.
 &QUERY-NAME
 </KEY-OBJECT>
 <FOREIGN-KEYS>
-emp_type||y|EMPTRACK.employee.emp_type
+emp_type||y|employee.emp_type
 </FOREIGN-KEYS> 
 <EXECUTING-CODE>
 **************************
@@ -142,7 +142,7 @@ DEFINE QUERY Query-Main FOR
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartQuery
-   External Tables: EMPTRACK.machemp
+   External Tables: machemp
    Allow: Basic,Query
    Frames: 1
    Add Fields to: NEITHER
@@ -194,9 +194,9 @@ END.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK QUERY Query-Main
 /* Query rebuild information for QUERY Query-Main
-     _TblList          = "EMPTRACK.employee WHERE EMPTRACK.machemp <external> ..."
+     _TblList          = "employee WHERE machemp <external> ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _JoinCode[1]      = "EMPTRACK.employee.employee = EMPTRACK.machemp.employee"
+     _JoinCode[1]      = "employee.employee = machemp.employee"
      _Design-Parent    is WINDOW q-tables @ ( 1.14 , 9.8 )
 */  /* QUERY Query-Main */
 &ANALYZE-RESUME

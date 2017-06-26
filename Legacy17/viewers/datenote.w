@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:50 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -175,7 +175,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: ASI.notes
+   External Tables: notes
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -439,7 +439,7 @@ PROCEDURE display-note-type :
 ------------------------------------------------------------------------------*/
 IF AVAIL notes THEN DO:
       notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = notes.note_code.
-      CASE ASI.notes.note_code:
+      CASE notes.note_code:
         WHEN "RDC" THEN
           spec-desc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Release Date Change" .
         WHEN "DDC" THEN
@@ -505,7 +505,7 @@ ASSIGN
   notes.note_date = TODAY
   notes.note_time = TIME
   notes.user_id = USERID("NOSWEAT").
-  cScreenNoteCode = ASI.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
+  cScreenNoteCode = notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
   IF cScreenNoteCode EQ "" THEN 
     cScreenNoteCode = ENTRY(1, gvcNoteCode).
 
@@ -519,8 +519,8 @@ ASSIGN
 
 
 
- ASI.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
- ASI.notes.note_code = ENTRY(1, gvcNoteCode).
+ notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
+ notes.note_code = ENTRY(1, gvcNoteCode).
  RUN display-note-type.
 
 END PROCEDURE.
@@ -545,7 +545,7 @@ PROCEDURE local-display-fields :
     IF adm-new-record THEN 
     DO:
         ASSIGN 
-            ASI.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
+            notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
 
         IF gvcNoteCode EQ "RDC" THEN
             spec-desc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Release Date Change" .
@@ -623,10 +623,10 @@ PROCEDURE local-update-record :
   IF NOT ll THEN RUN custom/notewtrg.p (ROWID(notes)).
 
   IF notes.note_title EQ "" OR notes.note_title = ? THEN DO:
-    FIND CURRENT ASI.notes EXCLUSIVE-LOCK.
+    FIND CURRENT notes EXCLUSIVE-LOCK.
     IF cbTitle:SCREEN-VALUE GT "" THEN
-    ASSIGN ASI.notes.note_title = cbTitle:SCREEN-VALUE.
-    FIND CURRENT ASI.notes NO-LOCK.
+    ASSIGN notes.note_title = cbTitle:SCREEN-VALUE.
+    FIND CURRENT notes NO-LOCK.
   END.
 
 END PROCEDURE.
@@ -740,6 +740,7 @@ PROCEDURE valid-note_code :
 
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
 /*   DO WITH FRAME {&FRAME-NAME}:                                                 */
 /*     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).                       */
 /*                                                                                */
@@ -754,6 +755,7 @@ PROCEDURE valid-note_code :
 /*      END.                                                                      */
 /*   END.                                                                         */
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

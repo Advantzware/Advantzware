@@ -29,14 +29,19 @@ def var lv-type-dscr as cha no-undo.
 
 &scoped-define SORTBY-1 BY shipto.ship-id
 &scoped-define SORTBY-2 BY shipto.ship-name {&SORTBY-1} 
+&scoped-define SORTBY-3 BY shipto.ship-city
 &scoped-define fld-name-1 shipto.ship-id
 &scoped-define fld-name-2 shipto.ship-name
+&scoped-define fld-name-3 shipto.ship-city
 &scoped-define IDXNAME-1 ship-id
 &scoped-define IDXNAME-2 ship-name
+&scoped-define IDXNAME-3 ship-city
 &scoped-define ASCDSC-1 ASC
 &scoped-define ASCDSC-2 ASC
+&scoped-define ASCDSC-3 ASC
 &SCOPED-DEFINE DATATYPE-1 STRING
 &SCOPED-DEFINE DATATYPE-2 STRING
+&SCOPED-DEFINE DATATYPE-3 STRING
 
 &scoped-define IAMWHAT LOOKUP
 
@@ -140,7 +145,8 @@ DEFINE VARIABLE rd-sort AS INTEGER
      VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Ship To", 1,
-"Name", 2
+"Name", 2,
+    "City", 3
      SIZE 45 BY .95 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -280,6 +286,7 @@ DO:
     case rd-sort:
         {srtord2.i 1}
         {srtord2.i 2}
+        {srtord2.i 3}
     end.
 END.
 
@@ -365,7 +372,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         NO-ERROR.
     IF AVAIL shipto THEN
       lv-search = IF rd-sort:SCREEN-VALUE EQ "2" THEN shipto.ship-name
-                                                 ELSE shipto.ship-id.
+                  ELSE IF rd-sort:SCREEN-VALUE EQ "3" THEN shipto.ship-city 
+                  ELSE shipto.ship-id.
 
     lv-search:SCREEN-VALUE = lv-search.
 
@@ -442,6 +450,7 @@ PROCEDURE new-rd-sort :
     CASE rd-sort:
         {srtord2.i 1}
         {srtord2.i 2}
+        {srtord2.i 3}
     END.    
   END.
 
@@ -471,6 +480,7 @@ PROCEDURE new-search :
     CASE rd-sort:
       {srtord2.i 1}
       {srtord2.i 2}
+      {srtord2.i 3}
     END. 
   END.
 

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:49 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -403,6 +403,7 @@ PROCEDURE load-fedex :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+{&methods/lValidateError.i YES}
 IF carrier.carrier = "FEDX" OR INDEX(carrier.dscr, "federal express") > 0
     OR INDEX(carrier.dscr, "fedex") > 0 THEN
 RUN ar/impfedx.w (INPUT carrier.loc, INPUT carrier.carrier).
@@ -411,7 +412,9 @@ ELSE DO:
         VIEW-AS ALERT-BOX INFO BUTTONS OK.
     RETURN NO-APPLY.
 END.
+{&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -600,6 +603,7 @@ PROCEDURE valid-loc :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     carrier.loc:SCREEN-VALUE = CAPS(carrier.loc:SCREEN-VALUE).
 
@@ -613,6 +617,7 @@ PROCEDURE valid-loc :
     END.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

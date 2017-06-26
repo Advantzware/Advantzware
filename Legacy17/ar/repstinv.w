@@ -70,7 +70,7 @@ CREATE WIDGET-POOL.
 /* Define a dialog box                                                  */
 
 /* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE h_p-update AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updcan AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_repstin1 AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
@@ -125,7 +125,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -186,20 +186,20 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_repstin1 ( 18.81 , 141.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-update.w':U ,
+             INPUT  'p-updcan.w':U ,
              INPUT  FRAME D-Dialog:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
-             OUTPUT h_p-update ).
-       RUN set-position IN h_p-update ( 20.52 , 55.00 ) NO-ERROR.
-       RUN set-size IN h_p-update ( 1.76 , 31.00 ) NO-ERROR.
+             OUTPUT h_p-updcan ).
+       RUN set-position IN h_p-updcan ( 20.52 , 55.00 ) NO-ERROR.
+       RUN set-size IN h_p-updcan ( 1.76 , 31.00 ) NO-ERROR.
 
        /* Links to SmartBrowser h_repstin1. */
-       RUN add-link IN adm-broker-hdl ( h_p-update , 'TableIO':U , h_repstin1 ).
+       RUN add-link IN adm-broker-hdl ( h_p-updcan , 'TableIO':U , h_repstin1 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-update ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan ,
              h_repstin1 , 'AFTER':U ).
     END. /* Page 0 */
 

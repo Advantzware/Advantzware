@@ -3,6 +3,7 @@ DEF VAR li-rels AS INT NO-UNDO.
 DEF VAR lv-time AS INT NO-UNDO.
 
 DEF BUFFER probe-board FOR reftable.
+DEF BUFFER bff-probe for probe .
 
 
 li-rels = IF xest.est-type EQ 2 OR xest.est-type EQ 5 OR xest.est-type EQ 6
@@ -11,7 +12,8 @@ li-rels = IF xest.est-type EQ 2 OR xest.est-type EQ 5 OR xest.est-type EQ 6
           IF xest.est-type EQ 1 THEN rels[k]
                                 ELSE 1.
 
-DO TRANSACTION:     
+DO TRANSACTION:   
+
   RELEASE probe.
 
   lv-time = TIME.
@@ -44,16 +46,18 @@ DO TRANSACTION:
 
   ELSE DO:
     v-line = 1.
-    FOR EACH probe
-        WHERE probe.company EQ xest.company
-          AND probe.est-no  EQ xest.est-no
+
+    FOR EACH bff-probe
+        WHERE bff-probe.company EQ xest.company
+          AND bff-probe.est-no  EQ xest.est-no
         NO-LOCK
-        BY probe.line DESC:
-      v-line = probe.line + 1.
+        BY bff-probe.line DESC:
+      v-line = bff-probe.line + 1.
       LEAVE.
     END.
+ 
     RELEASE probe.
-    
+
     CREATE probe.
     ASSIGN
      probe.company      = xest.company
@@ -95,3 +99,4 @@ END.
 
 IF vprint AND xest.est-type GE 5 AND xest.est-type LE 6 THEN
   RUN est/upestqty.p (ROWID(xest)).
+

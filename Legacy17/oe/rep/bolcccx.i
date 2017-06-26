@@ -158,7 +158,7 @@ for each report where report.term-id eq v-term-id,
     
     IF v-printline >= 33 THEN DO:
              PUT {1} "<R49><C1>" lv-prt-date "  " STRING(lv-prt-time,"HH:MM AM") "  " lv-prt-sts
-                     "<C69>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
+                     "<C69>Page " /*string(PAGE-NUM - lv-pg-num,">>9")*/ STRING(PAGE-NUMBER) + " of <#PAGES> "  FORM "x(20)" .
              PAGE {1}.
              v-printline = 0.
              {oe/rep/bolcent2.i}
@@ -232,7 +232,7 @@ for each report where report.term-id eq v-term-id,
 
           IF v-printline >= 33 THEN DO:
              PUT {1} "<R49><C1>" lv-prt-date "  " STRING(lv-prt-time,"HH:MM AM") "  " lv-prt-sts
-                 "<C69>Page " string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" .
+                 "<C69>Page " /*string(PAGE-NUM - lv-pg-num,">>9")*/ STRING(PAGE-NUMBER) + " of <#PAGES> "  FORM "x(20)" .
             /* PUT {1} SKIP(5) "*CONTINUED*" AT 52.*/
              PAGE {1}.
              v-printline = 0.

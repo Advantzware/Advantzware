@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:33 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -36,10 +36,10 @@ CREATE WIDGET-POOL.
 {custom/gloc.i}
 {sys/inc/var.i new shared}
 {sys/inc/varasgn.i}
-def var li-new-estnum like  ce-ctrl.e-num no-undo.
-def var ll-new-record as log no-undo.
-def var lv-frst-rowid2 as rowid no-undo.
-def var lv-last-rowid2 as rowid no-undo.
+DEF VAR li-new-estnum LIKE  ce-ctrl.e-num NO-UNDO.
+DEF VAR ll-new-record AS LOG NO-UNDO.
+DEF VAR lv-frst-rowid2 AS ROWID NO-UNDO.
+DEF VAR lv-last-rowid2 AS ROWID NO-UNDO.
 
 DEF BUFFER recalc-mr FOR reftable.
 
@@ -124,7 +124,7 @@ Btn_Clear_Find
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD display-cw-dim B-table-Win 
 FUNCTION display-cw-dim RETURNS DECIMAL
-  ( input ip-is-corr-style as log, input  ip-dim as decimal )  FORWARD.
+  ( INPUT ip-is-corr-style AS LOG, INPUT  ip-dim AS DECIMAL )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -440,9 +440,9 @@ PROCEDURE create-est :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var cocode as cha no-undo.
-  def buffer bf-est for est.
-  def buffer bb for eb.
+  DEF VAR cocode AS cha NO-UNDO.
+  DEF BUFFER bf-est FOR est.
+  DEF BUFFER bb FOR eb.
 
 
   /*  don't use e-num any more as key index
@@ -452,8 +452,8 @@ PROCEDURE create-est :
 
   REPEAT:
 
-    find first ce-ctrl where
-         ce-ctrl.company = gcompany and
+    FIND FIRST ce-ctrl WHERE
+         ce-ctrl.company = gcompany AND
          ce-ctrl.loc = gloc
          EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
 
@@ -468,15 +468,15 @@ PROCEDURE create-est :
     END.
   END.
 
-  create est.  
-  assign ll-new-record = yes
+  CREATE est.  
+  ASSIGN ll-new-record = YES
          est.est-type = 1
          est.company = gcompany
          est.loc = gloc
        /*  est.e-num = li-enum + 1 */
-         est.est-no = string(li-new-estnum,">>>>>>>9")
+         est.est-no = STRING(li-new-estnum,">>>>>>>9")
          est.form-qty = 1
-         est.est-date = today
+         est.est-date = TODAY
          est.mod-date = ?
          cocode = gcompany.
 
@@ -484,11 +484,11 @@ PROCEDURE create-est :
 
    {sys/ref/est-add.i est}     
 
-   run crt-est-childrecord.  /* create ef,eb,est-prep */
+   RUN crt-est-childrecord.  /* create ef,eb,est-prep */
 
 
-   run local-open-query.  
-   RUN set-attribute-list in adm-broker-hdl ('Is-First-Est = Yes').
+   RUN local-open-query.  
+   RUN set-attribute-list IN adm-broker-hdl ('Is-First-Est = Yes').
 
 END PROCEDURE.
 
@@ -502,16 +502,17 @@ PROCEDURE crt-est-childrecord :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var i as int no-undo.
-  def buffer bb for eb.
+  DEF VAR i AS INT NO-UNDO.
+  DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
+  DEF BUFFER bb FOR eb.
 
-  create est-qty.
-  assign est-qty.company = gcompany
+  CREATE est-qty.
+  ASSIGN est-qty.company = gcompany
          est-qty.est-no =  est.est-no
          est-qty.eqty = 0.
 
-  create ef.
-  assign
+  CREATE ef.
+  ASSIGN
    ef.est-type  = 1
    ef.company   = gcompany
    ef.loc       = gloc
@@ -523,13 +524,13 @@ PROCEDURE crt-est-childrecord :
    ef.lsh-len   = ce-ctrl.ls-length
    ef.lsh-wid   = ce-ctrl.ls-width.
 
-  create eb.
-  assign  eb.est-type = 1
+  CREATE eb.
+  ASSIGN  eb.est-type = 1
           eb.company  = gcompany
    eb.loc      = gloc
    eb.e-num    = est.e-num
    eb.est-no   = est.est-no
-   eb.est-int  = integer(est.est-no)
+   eb.est-int  = INTEGER(est.est-no)
    eb.form-no  = 1
    eb.cust-seq = 1
    eb.blank-no = 1
@@ -537,39 +538,42 @@ PROCEDURE crt-est-childrecord :
    eb.tr-no    = ce-ctrl.def-pal
    eb.i-pass   = 0.
 
+   RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
+   IF cPackCodeOverride GT "" THEN 
+       eb.cas-no = cPackCodeOverride.
   /* ???? bugs : 2 records are created  , delete one ========== 
   for each bb where bb.e-num = 0 :
       delete bb.
   end.
   ========*/
-  find first item where item.company = gcompany
-                    and item.mat-type = "C"  /* Case/Bundle */
-                    and item.i-no eq eb.cas-no
-      no-lock no-error.
-  if avail item then do:
-     find first e-item where e-item.company eq item.company
-                         and e-item.loc     eq item.loc
-                         and e-item.i-no    eq item.i-no
-        no-lock no-error.
-     find first itemfg  where itemfg.company eq gcompany
-                          and itemfg.i-no    eq eb.stock-no
-        no-lock no-error.
-     if avail e-item then
-        assign  eb.cas-len = e-item.case-l
+  FIND FIRST item WHERE item.company = gcompany
+                    AND item.mat-type = "C"  /* Case/Bundle */
+                    AND item.i-no EQ eb.cas-no
+      NO-LOCK NO-ERROR.
+  IF AVAIL item THEN DO:
+     FIND FIRST e-item WHERE e-item.company EQ item.company
+                         AND e-item.loc     EQ item.loc
+                         AND e-item.i-no    EQ item.i-no
+        NO-LOCK NO-ERROR.
+     FIND FIRST itemfg  WHERE itemfg.company EQ gcompany
+                          AND itemfg.i-no    EQ eb.stock-no
+        NO-LOCK NO-ERROR.
+     IF AVAIL e-item THEN
+        ASSIGN  eb.cas-len = e-item.case-l
                 eb.cas-wid = e-item.case-w
                 eb.cas-dep = e-item.case-d
                 eb.cas-wt  = e-item.avg-w
                 eb.cas-pal = e-item.case-pall
-                eb.cas-cnt = if avail itemfg then itemfg.case-count else e-item.box-case
+                eb.cas-cnt = IF AVAIL itemfg THEN itemfg.case-count ELSE e-item.box-case
                 .
-     if eb.cas-len eq 0 then eb.cas-len = item.case-l.
-     if eb.cas-wid eq 0 then eb.cas-wid = item.case-w.
-     if eb.cas-dep eq 0 then eb.cas-dep = item.case-d.
-     if eb.cas-wt  eq 0 then eb.cas-wt  = item.avg-w.
-     if eb.cas-pal eq 0 then eb.cas-pal = item.case-pall.
-     if eb.cas-cnt eq 0 then eb.cas-cnt =
-              if avail itemfg then itemfg.case-count else item.box-case.
-  end.  /* avail item */
+     IF eb.cas-len EQ 0 THEN eb.cas-len = item.case-l.
+     IF eb.cas-wid EQ 0 THEN eb.cas-wid = item.case-w.
+     IF eb.cas-dep EQ 0 THEN eb.cas-dep = item.case-d.
+     IF eb.cas-wt  EQ 0 THEN eb.cas-wt  = item.avg-w.
+     IF eb.cas-pal EQ 0 THEN eb.cas-pal = item.case-pall.
+     IF eb.cas-cnt EQ 0 THEN eb.cas-cnt =
+              IF AVAIL itemfg THEN itemfg.case-count ELSE item.box-case.
+  END.  /* avail item */
 
   RUN est/BuildDefaultPreps.p(BUFFER est,
                               BUFFER ef,
@@ -630,17 +634,17 @@ PROCEDURE local-hide :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def buffer bf-first for est.
+  DEF BUFFER bf-first FOR est.
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-  find first bf-first where bf-first.company = gcompany and
-                            bf-first.loc = gloc and
+  FIND FIRST bf-first WHERE bf-first.company = gcompany AND
+                            bf-first.loc = gloc AND
                             bf-first.est-type >= 1 AND
                             bf-first.est-type <= 4
-                            no-lock no-error.
-  if not avail bf-first then run create-est.
+                            NO-LOCK NO-ERROR.
+  IF NOT AVAIL bf-first THEN RUN create-est.
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'hide':U ) .
 
@@ -664,7 +668,7 @@ PROCEDURE local-open-query :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  apply "value-changed" to browse-order in frame {&frame-name}.
+  APPLY "value-changed" TO browse-order IN FRAME {&frame-name}.
 
   RUN dispatch ('get-last':U).
   IF AVAIL eb THEN
@@ -686,37 +690,37 @@ PROCEDURE navigate-browser :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def input  parameter ip-nav-type as char.
-  def output parameter op-nav-type as char.
+  DEF INPUT  PARAMETER ip-nav-type AS CHAR.
+  DEF OUTPUT PARAMETER op-nav-type AS CHAR.
 
-  def var lv-rowid      as rowid no-undo.
-  def var lv-frst-rowid as rowid no-undo.
-  def var lv-last-rowid as rowid no-undo.
+  DEF VAR lv-rowid      AS ROWID NO-UNDO.
+  DEF VAR lv-frst-rowid AS ROWID NO-UNDO.
+  DEF VAR lv-last-rowid AS ROWID NO-UNDO.
 
 
-  lv-rowid = if avail est then rowid(est) else ?.
+  lv-rowid = IF AVAIL est THEN ROWID(est) ELSE ?.
 
-  run dispatch ('get-last':U).
-  if avail est then lv-last-rowid = rowid(est).
+  RUN dispatch ('get-last':U).
+  IF AVAIL est THEN lv-last-rowid = ROWID(est).
 
-  run dispatch ('get-first':U).
-  if avail est then lv-frst-rowid = rowid(est).
+  RUN dispatch ('get-first':U).
+  IF AVAIL est THEN lv-frst-rowid = ROWID(est).
 
-  if lv-rowid ne ? then
-    reposition {&browse-name} to rowid lv-rowid.
+  IF lv-rowid NE ? THEN
+    REPOSITION {&browse-name} TO ROWID lv-rowid.
 
-  case ip-nav-type:
-    when "F" then run dispatch ('get-first':U).
-    when "L" then run dispatch ('get-last':U).
-    when "N" then run dispatch ('get-next':U).
-    when "P" then run dispatch ('get-prev':U).
-  end case.
+  CASE ip-nav-type:
+    WHEN "F" THEN RUN dispatch ('get-first':U).
+    WHEN "L" THEN RUN dispatch ('get-last':U).
+    WHEN "N" THEN RUN dispatch ('get-next':U).
+    WHEN "P" THEN RUN dispatch ('get-prev':U).
+  END CASE.
 
-  if rowid(est) eq lv-last-rowid then
+  IF ROWID(est) EQ lv-last-rowid THEN
     op-nav-type = "L".
 
-  if rowid(est) eq lv-frst-rowid then
-    op-nav-type = if op-nav-type eq "L" then "B" else "F".
+  IF ROWID(est) EQ lv-frst-rowid THEN
+    op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
 
 END PROCEDURE.
 
@@ -769,18 +773,18 @@ PROCEDURE New_Record :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def input parameter ip-rowid as rowid no-undo.
+  DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
 
 
-  run local-open-query.
+  RUN local-open-query.
 
-  do with frame {&frame-name}:
-    reposition {&browse-name} to rowid ip-rowid no-error.
-    run dispatch ('row-changed').
+  DO WITH FRAME {&frame-name}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+    RUN dispatch ('row-changed').
 
-    apply "value-changed" to {&browse-name}.
-    return no-apply.  
-  end.
+    APPLY "value-changed" TO {&browse-name}.
+    RETURN NO-APPLY.  
+  END.
 
 
 END PROCEDURE.
@@ -795,14 +799,14 @@ PROCEDURE RefreshRow :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  define input parameter pcMode     as character no-undo.
-  define input parameter prRowIdent as rowid     no-undo.
+  DEFINE INPUT PARAMETER pcMode     AS CHARACTER NO-UNDO.
+  DEFINE INPUT PARAMETER prRowIdent AS ROWID     NO-UNDO.
 
-  if pcMode = 'newRecord':U then do:
+  IF pcMode = 'newRecord':U THEN DO:
 
-    run local-open-query.
+    RUN local-open-query.
 
-    reposition browser-table to rowid prrowident.
+    REPOSITION browser-table TO ROWID prrowident.
 
     /*do while true:
       if available est then
@@ -815,7 +819,7 @@ PROCEDURE RefreshRow :
 
     RUN dispatch ('row-changed':U).
 
-  end.
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -870,18 +874,18 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION display-cw-dim B-table-Win 
 FUNCTION display-cw-dim RETURNS DECIMAL
-  ( input ip-is-corr-style as log, input  ip-dim as decimal ) :
+  ( INPUT ip-is-corr-style AS LOG, INPUT  ip-dim AS DECIMAL ) :
 /*------------------------------------------------------------------------------
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-  def var out-dim as dec no-undo.
-  def var k_frac as dec init 6.25 no-undo.
+  DEF VAR out-dim AS DEC NO-UNDO.
+  DEF VAR k_frac AS DEC INIT 6.25 NO-UNDO.
 
-  if ip-is-corr-style and ip-dim <> 0 then 
+  IF ip-is-corr-style AND ip-dim <> 0 THEN 
      /*round(trunc({1},0) + (({1} - trunc({1},0)) / K_FRAC),2)   sys/inc/k16.i */
-     out-dim = round(trunc(ip-dim,0) + ((ip-dim - trunc(ip-dim,0)) / K_FRAC),2).
-  else out-dim = ip-dim.
+     out-dim = ROUND(trunc(ip-dim,0) + ((ip-dim - trunc(ip-dim,0)) / K_FRAC),2).
+  ELSE out-dim = ip-dim.
   RETURN out-dim.   /* Function return value. */
 
 END FUNCTION.

@@ -14,7 +14,8 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-
+&SCOPED-DEFINE yellowColumnsName w-bin
+&SCOPED-DEFINE autoFind
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -68,7 +69,7 @@ ll-sort-asc = NO.
 
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
-&SCOPED-DEFINE sortby-log                                                                                                                                  ~
+/*&SCOPED-DEFINE sortby-log                                                                                                                                  ~
     IF lv-sort-by EQ "job-no"    THEN w-bin.job-no + STRING(w-bin.job-no2, "99") ELSE ~
     IF lv-sort-by EQ "loc"       THEN w-bin.loc                                  ELSE ~
     IF lv-sort-by EQ "last-rct-date" THEN STRING(w-bin.last-rct-date)            ELSE ~
@@ -93,7 +94,7 @@ FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 
 &SCOPED-DEFINE sortby-phrase-desc  ~
     BY ({&sortby-log}) DESC        ~
-    {&sortby}
+    {&sortby}*/
 
 /*Pulled from SetCellColumns.i since this dialog is not ADM compatible*/
 DEFINE VARIABLE cellColumn AS WIDGET-HANDLE NO-UNDO EXTENT 200.
@@ -125,6 +126,9 @@ DEFINE VARIABLE cellColumnDat AS CHARACTER NO-UNDO.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES w-bin
 
+/* Define KEY-PHRASE in case it is used by any query. */
+&Scoped-define KEY-PHRASE TRUE
+
 /* Definitions for BROWSE br-bin                                        */
 &Scoped-define FIELDS-IN-QUERY-br-bin w-bin.job-no w-bin.job-no2 NO-LABEL w-bin.last-rct-date w-bin.loc w-bin.loc-bin w-bin.tag w-bin.rfid w-bin.cust-no w-bin.to-rel w-bin.to-bol w-bin.qty w-bin.units w-bin.case-count w-bin.partial-count w-bin.stack-code   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-bin w-bin.job-no   w-bin.job-no2   w-bin.last-rct-date   w-bin.loc ~
@@ -137,8 +141,8 @@ w-bin.units ~
 &Scoped-define ENABLED-TABLES-IN-QUERY-br-bin w-bin
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br-bin w-bin
 &Scoped-define SELF-NAME br-bin
-&Scoped-define QUERY-STRING-br-bin FOR EACH w-bin
-&Scoped-define OPEN-QUERY-br-bin OPEN QUERY {&SELF-NAME} FOR EACH w-bin.
+&Scoped-define QUERY-STRING-br-bin FOR EACH w-bin WHERE ~{&KEY-PHRASE} NO-LOCK ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-br-bin OPEN QUERY {&SELF-NAME} FOR EACH w-bin WHERE ~{&KEY-PHRASE} NO-LOCK ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-br-bin w-bin
 &Scoped-define FIRST-TABLE-IN-QUERY-br-bin w-bin
 
@@ -148,8 +152,10 @@ w-bin.units ~
     ~{&OPEN-QUERY-br-bin}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS br-bin Btn_OK Btn_Cancel Btn_move-sort 
-&Scoped-Define DISPLAYED-OBJECTS fi_seq v-help 
+&Scoped-Define ENABLED-OBJECTS br-bin RECT-4 browse-order Btn_Clear_Find ~
+auto_find Btn_OK Btn_Cancel Btn_move-sort 
+&Scoped-Define DISPLAYED-OBJECTS browse-order auto_find fi_sortby fi_seq ~
+v-help 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -178,6 +184,11 @@ DEFINE BUTTON Btn_Cancel AUTO-END-KEY
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
+DEFINE BUTTON Btn_Clear_Find 
+     LABEL "&Clear" 
+     SIZE 8 BY 1
+     FONT 4.
+
 DEFINE BUTTON Btn_move-sort 
      LABEL "Move Columns" 
      SIZE 16 BY 1.14.
@@ -187,14 +198,34 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14
      BGCOLOR 8 .
 
+DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Find" 
+     VIEW-AS FILL-IN 
+     SIZE 24.6 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fi_seq AS INTEGER FORMAT "->,>>>,>>>":U INITIAL 0 
      LABEL "Sequence#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
+DEFINE VARIABLE fi_sortby AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS FILL-IN 
+     SIZE 31.2 BY 1
+     BGCOLOR 14 FONT 6 NO-UNDO.
+
 DEFINE VARIABLE v-help AS CHARACTER FORMAT "X(256)":U INITIAL "Click Tag to Select or Cntrl and Click for Random Tags. For Range of Tags, click 1st Record, Press Shift and Click on Last Record." 
       VIEW-AS TEXT 
      SIZE 128 BY .95 NO-UNDO.
+
+DEFINE VARIABLE browse-order AS INTEGER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "N/A", 1
+     SIZE 56 BY 1 NO-UNDO.
+
+DEFINE RECTANGLE RECT-4
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 144 BY 1.67.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -256,12 +287,22 @@ DEFINE BROWSE br-bin
 
 DEFINE FRAME Dialog-Frame
      br-bin AT ROW 1 COL 1
-     fi_seq AT ROW 17.43 COL 13 COLON-ALIGNED
-     Btn_OK AT ROW 17.43 COL 54
-     Btn_Cancel AT ROW 17.43 COL 85
-     Btn_move-sort AT ROW 17.43 COL 134 WIDGET-ID 4
+     browse-order AT ROW 17.71 COL 6 HELP
+          "Select Browser Sort Order" NO-LABEL
+     Btn_Clear_Find AT ROW 17.71 COL 130.6 HELP
+          "CLEAR AUTO FIND Value"
+     auto_find AT ROW 17.76 COL 100 COLON-ALIGNED HELP
+          "Enter Auto Find Value"
+     fi_sortby AT ROW 17.81 COL 61.8 COLON-ALIGNED NO-LABEL
+     fi_seq AT ROW 19.71 COL 13 COLON-ALIGNED
+     Btn_OK AT ROW 19.71 COL 54
+     Btn_Cancel AT ROW 19.71 COL 85
+     Btn_move-sort AT ROW 19.71 COL 129.2 WIDGET-ID 4
      v-help AT ROW 16.24 COL 1.6 NO-LABEL
-     SPACE(22.59) SKIP(1.75)
+     "Sort By:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 17.81 COL 55
+     RECT-4 AT ROW 17.48 COL 1.2
+     SPACE(6.80) SKIP(2.22)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Bins/Tags for"
@@ -278,6 +319,18 @@ DEFINE FRAME Dialog-Frame
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB Dialog-Frame 
+/* ************************* Included-Libraries *********************** */
+
+{src/adm/method/browser.i}
+{src/adm/method/query.i}
+{custom/yellowColumns.i}
+{methods/template/browser.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
@@ -292,6 +345,9 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN fi_seq IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+ASSIGN 
+       fi_sortby:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
 /* SETTINGS FOR FILL-IN v-help IN FRAME Dialog-Frame
    NO-ENABLE ALIGN-L                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -367,37 +423,46 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-1 Dialog-Frame
+ON DEFAULT-ACTION OF br-bin IN FRAME Dialog-Frame
+DO:
+   DO WITH FRAME {&FRAME-NAME}:
+    APPLY "choose" TO Btn_OK.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-bin Dialog-Frame
+ON ROW-ENTRY OF br-bin IN FRAME Dialog-Frame
+DO:
+  /* This code displays initial values for newly added or copied rows. */
+  {src/adm/template/brsentry.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-bin Dialog-Frame
+ON ROW-LEAVE OF br-bin IN FRAME Dialog-Frame
+DO:
+    /* Do not disable this code or no updates will take place except
+     by pressing the Save button on an Update SmartPanel. */
+   {src/adm/template/brsleave.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br-bin Dialog-Frame
 ON START-SEARCH OF br-bin IN FRAME Dialog-Frame
 DO:
-  DEF VAR lh-column AS HANDLE NO-UNDO.
-  DEF VAR lv-column-nam AS CHAR NO-UNDO.
-  DEF VAR lv-column-lab AS CHAR NO-UNDO.
-
-  lh-column = {&BROWSE-NAME}:CURRENT-COLUMN.
-  IF lh-column:LABEL-BGCOLOR NE 14 THEN RETURN NO-APPLY.
-
-  ASSIGN
-   lv-column-nam = lh-column:NAME
-   lv-column-lab = lh-column:LABEL.
-
-  IF lv-column-nam BEGINS "job-no" THEN
-    ASSIGN
-     lv-column-nam = "job-no"
-     lv-column-lab = "Job#".
-
-  IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
-
-  ELSE
-    ASSIGN
-     lv-sort-by     = lv-column-nam
-     lv-sort-by-lab = lv-column-lab.
-
-  APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
-
-  IF ll-sort-asc THEN OPEN QUERY br-bin {&QUERY-STRING-br-bin} {&sortby-phrase-asc}.
-                 ELSE OPEN QUERY br-bin {&QUERY-STRING-br-bin} {&sortby-phrase-desc}.
+  RUN startSearch.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -940,9 +1005,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY fi_seq v-help 
+  DISPLAY browse-order auto_find fi_sortby fi_seq v-help 
       WITH FRAME Dialog-Frame.
-  ENABLE br-bin Btn_OK Btn_Cancel Btn_move-sort 
+  ENABLE br-bin RECT-4 browse-order Btn_Clear_Find auto_find Btn_OK 
+         Btn_Cancel Btn_move-sort 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

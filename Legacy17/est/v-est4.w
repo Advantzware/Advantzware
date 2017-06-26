@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:44 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1243,7 +1243,7 @@ END.
 ON LEAVE OF ef.spec-no[1] IN FRAME F-Main /* RM Item#[1] */
 DO:
     if lastkey = -1 then return.
-
+   {&methods/lValidateError.i YES}
     find first item where item.company = ef.company and
                           item.indus = "2" and
                           INDEX("MOXY789@",ITEM.mat-type) GT 0 and
@@ -1258,8 +1258,9 @@ DO:
        return no-apply.
     end.                          
     ef.spec-dscr[1]:screen-value = item.i-name.                      
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1270,7 +1271,7 @@ END.
 ON LEAVE OF ef.spec-no[2] IN FRAME F-Main /* RM Item#[2] */
 DO:
     if lastkey = -1 then return.
-
+    {&methods/lValidateError.i YES}
     find first item where item.company = ef.company and
                           item.indus = "2" and
                           INDEX("MOXY789@",ITEM.mat-type) GT 0 and
@@ -1285,8 +1286,9 @@ DO:
        return no-apply.
     end.                          
     ef.spec-dscr[2]:screen-value = item.i-name.      
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1297,7 +1299,7 @@ END.
 ON LEAVE OF ef.spec-no[3] IN FRAME F-Main /* RM Item#[3] */
 DO:
       if lastkey = -1 then return.
-
+    {&methods/lValidateError.i YES}
     find first item where item.company = ef.company and
                           item.indus = "2" and
                           INDEX("MOXY789@",ITEM.mat-type) GT 0 and
@@ -1312,8 +1314,9 @@ DO:
        return no-apply.
     end.                          
     ef.spec-dscr[3]:screen-value = item.i-name.                      
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1324,7 +1327,7 @@ END.
 ON LEAVE OF ef.spec-no[4] IN FRAME F-Main /* RM Item#[4] */
 DO:
       if lastkey = -1 then return.
-
+    {&methods/lValidateError.i YES}
     find first item where item.company = ef.company and
                           item.indus = "2" and
                           INDEX("MOXY789@",ITEM.mat-type) GT 0 and
@@ -1339,8 +1342,9 @@ DO:
        return no-apply.
     end.                          
     ef.spec-dscr[4]:screen-value = item.i-name.                      
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1351,7 +1355,7 @@ END.
 ON LEAVE OF ef.spec-no[5] IN FRAME F-Main /* RM Item#[5] */
 DO:
       if lastkey = -1 then return.
-
+    {&methods/lValidateError.i YES}
     find first item where item.company = ef.company and
                           item.indus = "2" and
                           INDEX("MOXY789@",ITEM.mat-type) GT 0 and
@@ -1366,8 +1370,9 @@ DO:
        return no-apply.
     end.                          
     ef.spec-dscr[5]:screen-value = item.i-name.                      
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1378,7 +1383,7 @@ END.
 ON LEAVE OF ef.spec-no[6] IN FRAME F-Main /* RM Item#[6] */
 DO:
       if lastkey = -1 then return.
-
+    {&methods/lValidateError.i YES}
     find first item where item.company = ef.company and
                           item.indus = "2" and
                           INDEX("MOXY789@",ITEM.mat-type) GT 0 and
@@ -1393,8 +1398,9 @@ DO:
        return no-apply.
     end.                          
     ef.spec-dscr[6]:screen-value = item.i-name.                      
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1405,7 +1411,7 @@ END.
 ON LEAVE OF ef.spec-no[7] IN FRAME F-Main /* RM Item#[7] */
 DO:
       if lastkey = -1 then return.
-
+    {&methods/lValidateError.i YES}
     find first item where item.company = ef.company and
                           item.indus = "2" and
                           INDEX("MOXY789@",ITEM.mat-type) GT 0 and
@@ -1420,8 +1426,9 @@ DO:
        return no-apply.
     end.                          
     ef.spec-dscr[7]:screen-value = item.i-name.                      
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1432,7 +1439,7 @@ END.
 ON LEAVE OF ef.spec-no[8] IN FRAME F-Main /* RM Item#[8] */
 DO:
       if lastkey = -1 then return.
-
+    {&methods/lValidateError.i YES}
     find first item where item.company = ef.company and
                           item.indus = "2" and
                           INDEX("MOXY789@",ITEM.mat-type) GT 0 and
@@ -1447,8 +1454,9 @@ DO:
        return no-apply.
     end.                          
     ef.spec-dscr[8]:screen-value = item.i-name.                      
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1761,7 +1769,7 @@ PROCEDURE local-update-record :
      RUN valid-markup(0,OUTPUT op-error).
      IF op-error THEN RETURN NO-APPLY.
   END.
-
+{&methods/lValidateError.i YES}
   if ef.spec-no[1]:screen-value in frame {&frame-name} <> "" then do:
      find first item where item.company = ef.company and
                         item.indus = "2" and
@@ -1865,7 +1873,8 @@ PROCEDURE local-update-record :
          return no-apply.
       end.                          
       ef.spec-dscr[8]:screen-value = item.i-name.              
-  end.    
+  end.
+  {&methods/lValidateError.i NO}    
   /* validation ==*/
 
   DISABLE ALL WITH FRAME {&FRAME-NAME}.
@@ -1876,6 +1885,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2051,6 +2061,7 @@ PROCEDURE valid-markup :
   DEF VAR lv AS DEC NO-UNDO.
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   li = ip-int.
 
   IF li EQ 0 THEN
@@ -2086,6 +2097,7 @@ PROCEDURE valid-markup :
 
   END.
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2104,6 +2116,7 @@ PROCEDURE valid-mis-simon :
   DEF VAR lv AS CHAR NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   li = ip-int.
 
@@ -2148,6 +2161,7 @@ PROCEDURE valid-mis-simon :
     END.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

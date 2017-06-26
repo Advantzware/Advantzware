@@ -191,7 +191,7 @@ DO:
     DEF VAR char-hdl AS cha NO-UNDO.
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"spec-card-target",OUTPUT char-hdl).
     RUN print-speccard IN WIDGET-HANDLE(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:21 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */

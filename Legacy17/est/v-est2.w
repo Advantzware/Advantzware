@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:44 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -588,13 +588,16 @@ DO:
    if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= 0.16 
    then do:
+    {&methods/lValidateError.i YES}
       message "Can not have more than .15 as decimal, field is (inches.16ths) "
           view-as alert-box error.
       return no-apply.
+   {&methods/lValidateError.i NO}
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -607,13 +610,16 @@ DO:
    if lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= 0.16 
    then do:
+    {&methods/lValidateError.i YES}
       message "Can not have more than .15 as decimal, field is (inches.16ths) "
           view-as alert-box error.
       return no-apply.
+    {&methods/lValidateError.i NO}
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

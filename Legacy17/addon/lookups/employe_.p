@@ -18,7 +18,7 @@
 "employee. " ~
 */
 
-&Scoped-define lookup-db ASI.
+&Scoped-define lookup-db 
 &Scoped-define lookup-file employee
 &Scoped-define where-statement employee.company = gcompany
 &Scoped-define return-field last_name

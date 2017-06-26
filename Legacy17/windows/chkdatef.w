@@ -69,7 +69,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_chkdatef AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_chkdatef-2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-update AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updcan AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -141,7 +141,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -225,7 +225,7 @@ PROCEDURE adm-create-objects :
 
   CASE adm-current-page: 
 
-    WHEN 0 THEN DO:
+    WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/chkdatef.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -243,25 +243,21 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 3.57 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-update.w':U ,
+             INPUT  'p-updcan.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
-             OUTPUT h_p-update ).
-       RUN set-position IN h_p-update ( 6.71 , 59.00 ) NO-ERROR.
-       RUN set-size IN h_p-update ( 1.76 , 31.00 ) NO-ERROR.
+             OUTPUT h_p-updcan ).
+       RUN set-position IN h_p-updcan ( 6.71 , 59.00 ) NO-ERROR.
+       RUN set-size IN h_p-updcan ( 1.76 , 31.00 ) NO-ERROR.
 
        /* Links to SmartViewer h_chkdatef. */
        RUN add-link IN adm-broker-hdl ( h_chkdatef-2 , 'Record':U , h_chkdatef ).
-       RUN add-link IN adm-broker-hdl ( h_p-update , 'TableIO':U , h_chkdatef ).
+       RUN add-link IN adm-broker-hdl ( h_p-updcan , 'TableIO':U , h_chkdatef ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_chkdatef ,
-             h_chkdatef-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-update ,
-             h_chkdatef , 'AFTER':U ).
-    END. /* Page 0 */
+    END. /* Page 1 */
 
   END CASE.
   /* Select a Startup page. */

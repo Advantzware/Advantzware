@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:45 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -265,10 +265,13 @@ DO:
                                      bf-item-spec.i-no = "" and
                                      bf-item-spec.code = self:screen-value)
      then do:
+     {&methods/lValidateError.i YES}
           message "Invalid RM/FG Specfication. Try Help." view-as alert-box error.
           return no-apply.
+     {&methods/lValidateError.i NO}
      end.                                
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -435,7 +438,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   if item-spec.code:screen-value in frame {&frame-name} <> "" and
         not can-find(bf-item-spec where bf-item-spec.company = itemfg.company and
@@ -451,8 +454,9 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

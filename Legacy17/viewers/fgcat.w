@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:50 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -689,13 +689,13 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  {&methods/lValidateError.i YES}
   IF fgcat.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
      MESSAGE "Category cannot be blank. Try again." VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO fgcat.procat.
      RETURN .
   END.
-
+  {&methods/lValidateError.i NO}
   RUN valid-glacc NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN .
 
@@ -714,6 +714,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   DISABLE v-charge v-gl-rm v-gl-fg WITH FRAME {&FRAME-NAME}.
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -781,6 +782,7 @@ PROCEDURE valid-charge :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND(FIRST surcharge WHERE surcharge.company = g_company
                          AND surcharge.charge = v-charge:SCREEN-VALUE IN FRAME {&FRAME-NAME})
     AND v-charge:SCREEN-VALUE <> ""
@@ -789,6 +791,7 @@ PROCEDURE valid-charge :
      APPLY "entry" TO v-charge.
      RETURN ERROR.
   END.
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -803,6 +806,7 @@ PROCEDURE valid-fg-glacc :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT v-gl-fg:SCREEN-VALUE EQ "" AND
          NOT CAN-FIND(FIRST account
@@ -815,6 +819,7 @@ PROCEDURE valid-fg-glacc :
          RETURN ERROR.
       END.
    END.
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -830,6 +835,7 @@ PROCEDURE valid-glacc :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST account
                     WHERE account.company EQ cocode
@@ -842,6 +848,7 @@ PROCEDURE valid-glacc :
     END.
   END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -856,6 +863,7 @@ PROCEDURE valid-rm-glacc :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
       IF NOT v-gl-rm:SCREEN-VALUE EQ "" AND
          NOT CAN-FIND(FIRST account
@@ -868,6 +876,7 @@ PROCEDURE valid-rm-glacc :
          RETURN ERROR.
       END.
    END.
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:57 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -580,7 +580,8 @@ if avail xbox-design-hdr then do:
            box-design-hdr.wscore = xbox-design-hdr.wscore
            box-design-hdr.wcum-score = xbox-design-hdr.wcum-score
            box-design-hdr.box-text = xbox-design-hdr.box-text
-           .
+           .        
+
 
    for each xbox-design-line of xbox-design-hdr no-lock:
       create box-design-line.
@@ -594,6 +595,8 @@ if avail xbox-design-hdr then do:
 
       find first w-box-design-line
            where w-box-design-line.line-no eq box-design-line.line-no   no-error.
+
+
       if avail w-box-design-line then
          assign  box-design-line.wscore     = w-box-design-line.wscore-c
                  box-design-line.wcum-score = w-box-design-line.wcum-score-c.
@@ -608,8 +611,7 @@ if avail xbox-design-hdr then do:
                    box-design-hdr.wcum-score  = w-box-h.wcum-score.
 
       for each w-box-l of box-design-hdr no-lock,
-          first box-design-line of w-box-l:
-
+          first box-design-line of w-box-l:                   
           if v-rebuild eq "S" then
              assign box-design-line.line-no    = w-box-l.line-no
                      box-design-line.line-text  = w-box-l.line-text.
@@ -629,6 +631,7 @@ run get-link-handle in adm-broker-hdl (this-procedure,"record-source", output ch
 run dispatch in widget-handle(char-hdl) ('open-query').  
 */
 run build-screen.
+
 session:set-wait-state("").
 
 END PROCEDURE.
@@ -705,7 +708,7 @@ PROCEDURE build-screen :
              li-line-no[li-cnt] = box-design-line.line-no
              .
 
-  end.
+  end.  
   /*
   display lv-wscore lv-wcum-score with frame {&frame-name}.
   */
@@ -831,7 +834,16 @@ PROCEDURE local-assign-record :
   do i = 1 to length(ls-wcum-value):         
      ls-key = substring(ls-wcum-value,i,1).
      if asc(ls-key) < 17 then do:  /* control key */
-        find box-design-line of box-design-hdr where box-design-line.line-no = li-ln.
+        find box-design-line of box-design-hdr where box-design-line.line-no = li-ln NO-ERROR.
+        if not avail box-design-line then do:
+           create box-design-line.
+           assign box-design-line.company = box-design-hdr.company
+                  box-design-line.design-no = box-design-hdr.design-no
+                  box-design-line.line-no = li-ln
+                  box-design-line.est-no     = box-design-hdr.est-no
+                  box-design-line.form-no   = box-design-hdr.form-no
+                  box-design-line.blank-no  = box-design-hdr.blank-no.
+        end.
         assign box-design-line.wcum-score =  (ls-wscore)
                ls-wscore = ""
                li-ln = li-ln + 1.       
@@ -984,6 +996,7 @@ PROCEDURE local-display-fields :
    if not avail box-design-hdr and avail eb then do:
      run build-box ("B") .
    end.   
+
    run build-screen.  
 
    DEF VAR ll-dummy AS LOG NO-UNDO.

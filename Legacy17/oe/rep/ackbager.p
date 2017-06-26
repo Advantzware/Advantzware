@@ -593,6 +593,10 @@ PUT "<FCourier New>"          .
         if oe-ordm.bill ne "N" THEN assign v-totord = v-totord + oe-ordm.amt.
       end. /* each oe-ordm */
            
+       IF oe-ord.frt-pay EQ "B" THEN DO:
+          PUT "<C7>Plus Freight Charges" .
+          v-printline = v-printline + 1.
+      END.
       /* print billing notes */
       ASSIGN v-billinst = "".
 

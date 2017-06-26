@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:58 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -51,6 +51,36 @@ DEFINE            VARIABLE v-order-list        AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE v-copied-from       AS INTEGER   NO-UNDO.
 DEFINE            VARIABLE ll-ord-no-override  AS LOG       NO-UNDO.
 
+/* Used in vend-cost */
+DEFINE            VARIABLE v-qty              AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE v-cost             AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE v-pb-qty           AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE v-pb-stp           AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE v-pb-cst           AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE v-pb-cns           AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE v-save-qty         AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE v-setup            AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE li                 AS INTEGER   NO-UNDO.
+DEFINE            VARIABLE lv-added-cost      AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE lv-added-cons-cost AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE lv-adder-setup     AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE lv-recid           AS RECID     NO-UNDO.
+DEFINE            VARIABLE lv-t-cost          AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE ld-dim-charge      AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE v-index            AS INTEGER   NO-UNDO.
+DEFINE            VARIABLE fg-uom-list        AS CHARACTER NO-UNDO.
+
+RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
+
+DEFINE TEMP-TABLE tt-ei NO-UNDO
+FIELD std-uom AS CHARACTER.
+
+DEFINE TEMP-TABLE tt-eiv NO-UNDO
+FIELD run-qty  AS DECIMAL   DECIMALS 3 EXTENT 20
+FIELD run-cost AS DECIMAL   DECIMALS 4 EXTENT 20
+FIELD setups   AS DECIMAL   DECIMALS 2 EXTENT 20
+FIELD rec_key  AS CHARACTER.
+
 DEFINE NEW SHARED VARIABLE factor#             AS DECIMAL   NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-default-gl-log    AS LOG       NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-default-gl-cha    AS cha       NO-UNDO.
@@ -68,6 +98,7 @@ ASSIGN
 DO TRANSACTION:
     {sys/inc/aptax.i}
     {sys/ref/postatus.i} 
+    {sys/inc/poqty.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -626,7 +657,7 @@ END.
 ON LEAVE OF po-ord.carrier IN FRAME F-Main /* Shipping Carrier */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+    {&methods/lValidateError.i YES}
     IF SELF:MODIFIED THEN DO:
        FIND FIRST carrier WHERE carrier.company = g_company AND
                                 carrier.carrier = SELF:SCREEN-VALUE
@@ -636,7 +667,9 @@ DO:
           RETURN NO-APPLY.
        END.
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -717,6 +750,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL po-ord.ship-id V-table-Win
 ON LEAVE OF po-ord.ship-id IN FRAME F-Main /* Ship To */
 DO:
+  {&methods/lValidateError.i YES}
   IF LASTKEY NE -1 THEN DO:     
     IF ls-drop-custno NE "" THEN DO:
       FIND FIRST shipto NO-LOCK WHERE shipto.company EQ cocode
@@ -778,7 +812,9 @@ DO:
        APPLY "entry" TO po-ord.ship-name.
     END.
  END. /* modified */
+ {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -824,7 +860,7 @@ END.
 ON LEAVE OF po-ord.terms IN FRAME F-Main /* Payment Terms */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+    {&methods/lValidateError.i YES}
     IF SELF:MODIFIED THEN DO:
        FIND FIRST terms NO-LOCK WHERE terms.company = g_company AND
                               terms.t-code = SELF:SCREEN-VALUE
@@ -834,7 +870,9 @@ DO:
           RETURN NO-APPLY.
        END.
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1049,6 +1087,7 @@ PROCEDURE display-shipto :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME} :
     FIND FIRST shipto WHERE RECID(shipto) = ip-recid
                           NO-LOCK NO-ERROR.
@@ -1073,7 +1112,9 @@ PROCEDURE display-shipto :
               shipPhone:SCREEN-VALUE           = IF AVAILABLE cust THEN cust.phone ELSE "".
     END.
   END.
+  {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1085,7 +1126,7 @@ PROCEDURE display-vend :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&frame-name}:
     FIND FIRST vend NO-LOCK 
         WHERE vend.company EQ po-ord.company
@@ -1109,8 +1150,9 @@ PROCEDURE display-vend :
             VIEW-AS ALERT-BOX WARNING.
     END.
   END.
-
+  {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1240,7 +1282,7 @@ PROCEDURE is-dropship :
          btn_ok AT ROW 6 COL 20
          WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE .
-
+  {&methods/lValidateError.i YES}
   ON "value-changed" OF ship-choice
   DO:
       ASSIGN ship-choice.
@@ -1374,7 +1416,7 @@ PROCEDURE is-dropship :
           END. /* if ship-choice ne "" */
         END. /* do with frame */
   END. /* on-choose */
-
+  {&methods/lValidateError.i NO}
   CREATE WIDGET-POOL "w-drop".
   ASSIGN
    ship-custno = ls-drop-custno
@@ -1388,6 +1430,7 @@ PROCEDURE is-dropship :
   WAIT-FOR GO OF FRAME f-drop.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1593,45 +1636,7 @@ PROCEDURE local-assign-record :
      IF ll-anse THEN 
          FOR EACH po-ordl EXCLUSIVE-LOCK WHERE po-ordl.company = po-ord.company
                             AND po-ordl.po-no = po-ord.po-no:
-          IF po-ordl.item-type EQ YES THEN DO:
-              FIND FIRST ITEM NO-LOCK 
-                  WHERE ITEM.i-no EQ po-ordl.i-no
-                    AND ITEM.company EQ cocode NO-ERROR.
-              IF AVAIL ITEM THEN
-              FOR EACH e-item OF item NO-LOCK, 
-                  EACH e-item-vend OF e-item 
-                  WHERE e-item-vend.item-type = yes 
-                  AND e-item-vend.vend-no EQ po-ord.vend-no NO-LOCK:
-                  DO i = 1 TO 10:
-                      IF po-ordl.ord-qty LE  e-item-vend.run-qty[i]  THEN do:
-                          ASSIGN
-                              po-ordl.cost = e-item-vend.run-cost[i] .
-                          LEAVE.
-                      END.
-                  END.
-              END.
-
-          END.  /* if po-ordl.item-type */
-          ELSE DO:
-              FIND FIRST itemfg NO-LOCK
-                   WHERE itemfg.company EQ cocode 
-                     AND itemfg.i-no EQ po-ordl.i-no NO-ERROR .
-              IF AVAIL itemfg THEN
-              FOR EACH e-itemfg OF itemfg NO-LOCK, 
-                  EACH e-itemfg-vend OF e-itemfg 
-                  WHERE e-itemfg-vend.est-no eq ""
-                    AND e-itemfg-vend.vend-no EQ po-ord.vend-no NO-LOCK :
-                  DO i = 1 TO 10:
-                      IF po-ordl.ord-qty LE  e-itemfg-vend.run-qty[i]  THEN do:
-                          ASSIGN
-                              po-ordl.cost = e-itemfg-vend.run-cost[i] .
-                          LEAVE.
-                      END.
-                  END.
-              END. /* for each */
-
-          END.  /* else ddo*/
-
+          {po/vend-cost.i YES }
      END.
   END.  /* change vender */
 
@@ -1777,6 +1782,8 @@ PROCEDURE local-display-fields :
 /* IF po-ord.stat <> "H" THEN ENABLE po-ord.approved-date fc_app_time.
  IF po-ord.stat <> "H" THEN ENABLE po-ord.approved-id.*/
 
+ RUN po/po-sysct.p.  /* for vars factor#.... need for vend-cost  */
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1796,6 +1803,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   /* == validations ==== */
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME} :
     RUN valid-vend-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1815,10 +1823,7 @@ PROCEDURE local-update-record :
           APPLY "entry" TO po-ord.carrier.
           RETURN NO-APPLY.
        END.
-    END.
-
-    RUN valid-tax-gr (po-ord.tax-gr:HANDLE) NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    END.   
 
     IF po-ord.terms:MODIFIED THEN DO:
        FIND FIRST terms WHERE terms.company = g_company AND
@@ -1830,6 +1835,9 @@ PROCEDURE local-update-record :
           RETURN NO-APPLY.
        END.
     END.
+    {&methods/lValidateError.i NO}
+     RUN valid-tax-gr (po-ord.tax-gr:HANDLE) NO-ERROR.
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END. /* frame */
 
   ASSIGN ll-is-new-rec = adm-new-record.
@@ -1914,6 +1922,7 @@ PROCEDURE local-update-record :
   ll-got-vendor = NO.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2231,6 +2240,8 @@ PROCEDURE valid-tax-gr :
   DEFINE INPUT PARAMETER ip-focus AS HANDLE NO-UNDO.
 
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-focus:SCREEN-VALUE NE "" AND
        NOT CAN-FIND(FIRST stax
@@ -2245,6 +2256,8 @@ PROCEDURE valid-tax-gr :
   END.
   {methods/lValidateError.i NO}
 
+  {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2258,6 +2271,8 @@ PROCEDURE valid-type :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     po-ord.type:SCREEN-VALUE = CAPS(po-ord.type:SCREEN-VALUE).
@@ -2274,6 +2289,8 @@ PROCEDURE valid-type :
   END.
   {methods/lValidateError.i NO}
 
+  {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2287,6 +2304,8 @@ PROCEDURE valid-vend-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST vend
@@ -2307,8 +2326,13 @@ PROCEDURE valid-vend-no :
   END.
   {methods/lValidateError.i NO}
 
+  {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+
 

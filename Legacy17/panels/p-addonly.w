@@ -47,7 +47,6 @@ to its TABLEIO-TARGET. "
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-&SCOPED-DEFINE DontValidateError /* added by script _dontValidatePanels.p */
 
 /* Parameters Definitions ---                                           */
 

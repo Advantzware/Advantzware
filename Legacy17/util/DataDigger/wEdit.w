@@ -198,6 +198,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* ************************* Included-Libraries *********************** */
 
 {Advantzware/WinKit/embedwindow-nonadm.i}
+{Advantzware/WinKit/embedwindow-nonadm.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -392,6 +393,7 @@ DO:
 
   apply 'close' to this-procedure. 
     {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:34 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -407,6 +409,7 @@ do:
   if not polSuccess then return no-apply.
 
     {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:34 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 end.
 
 /* _UIB-CODE-BLOCK-END */
@@ -429,6 +432,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 ON CLOSE OF THIS-PROCEDURE DO:
 do:
    {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:34 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
   /* Save settings */
   setRegistry("DataDigger:Edit", "Window:x", string(wEdit:x) ).                             
@@ -542,6 +546,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   run initializeObject.
 
     {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:34 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

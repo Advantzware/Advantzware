@@ -63,6 +63,8 @@ DEF VAR v-dept-inst AS cha FORM "x(80)" EXTENT 6 NO-UNDO.
 DEF VAR v-inst2 AS cha EXTENT 6 NO-UNDO.    
 DEF BUFFER b-eb FOR eb.
 DEF VAR v-job-cust AS LOG NO-UNDO.
+DEFINE VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
+DEF  SHARED VAR s-prt-fgimage AS LOG NO-UNDO.
 DO TRANSACTION:
    {sys/inc/tspostfg.i}
 END.
@@ -589,6 +591,16 @@ do v-local-loop = 1 to v-local-copies:
            PAGE.
         end.
         ELSE PAGE.
+        /* print fgitem's image */
+        IF s-prt-fgimage THEN DO:        
+            ls-fgitem-img = itemfg.box-image.
+
+            PUT UNFORMATTED "<#12><C1><FROM><C106><R+47><RECT><||3><C80>" /*v-qa-text*/ SKIP
+                "<=12><R+1><C5>FG Item: " itemfg.i-no " " itemfg.i-name
+                "<=12><R+3><C1><FROM><C106><LINE><||3>"
+                "<=12><R+5><C5><#21><R+40><C+90><IMAGE#21=" ls-fgitem-img ">" SKIP. 
+            PAGE.
+         END.
       end.  /* for each w-ef */
 
       IF s-prt-set-header AND last-of(job.job-no2) AND est.est-type = 6 THEN DO: /* print set header */
@@ -647,7 +659,7 @@ do v-local-loop = 1 to v-local-copies:
              FOR EACH xeb WHERE xeb.company = est.company
                              AND xeb.est-no = est.est-no
                              AND xeb.form-no > 0 NO-LOCK:
-                 PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.yld-qty SKIP.
+                 PUT xeb.stock-no AT 3 space(14) xeb.part-dscr1 space(5) xeb.yld-qty FORMAT "->>>>>>>9" SKIP.
                  v-tmp-line = v-tmp-line + 1.
              END.
              v-tmp-line = v-tmp-line + 1.

@@ -2,7 +2,7 @@
 
 /* ensure _base.i scoped-define test value is set correctly */
 
-RUN _scriptsDat.p
+RUN _scriptsDat.p.
 RUN _globdefs.p.
 RUN _lookups.p.
 RUN _nonAdm1.p.

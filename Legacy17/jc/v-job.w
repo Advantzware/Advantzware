@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:45 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -977,7 +977,7 @@ PROCEDURE local-delete-record :
   DEFINE VARIABLE char-hdl AS cha NO-UNDO.
   DEFINE VARIABLE ll-warn AS LOG NO-UNDO.
 
-
+  {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   /*IF NOT adm-new-record THEN DO:*/
     ASSIGN
@@ -1041,8 +1041,9 @@ PROCEDURE local-delete-record :
 
   RUN dispatch IN WIDGET-HANDLE(ENTRY(1,char-hdl)) ('open-query'). 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1219,7 +1220,7 @@ PROCEDURE local-update-record :
 
   /* Deal with blank item number here so that can undo the add */
   /* begin insert */
-
+  {&methods/lValidateError.i YES}
   DEFINE BUFFER xest FOR est.
   IF adm-new-record THEN DO:
     FIND FIRST xest WHERE xest.company EQ job.company
@@ -1285,6 +1286,7 @@ PROCEDURE local-update-record :
       END.      
     END. /* each xeb */
   END. /* if adm-new-record */
+  {&methods/lValidateError.i NO}
       /* end insert */
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -1406,6 +1408,7 @@ PROCEDURE local-update-record :
   END.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1624,7 +1627,7 @@ PROCEDURE unapprove :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.  
-
+   {&methods/lValidateError.i YES}
    IF v-unapp-security THEN DO:
       IF USERID("nosweat") NE job.cs-user-id-t THEN DO:
          FIND FIRST usergrps WHERE usergrps.usergrps = "JU2" NO-LOCK NO-ERROR.
@@ -1667,8 +1670,9 @@ PROCEDURE unapprove :
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
     RUN reopen-query IN WIDGET-HANDLE(char-hdl) (?) .
   END.
-
+  {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1900,6 +1904,7 @@ PROCEDURE valid-cust-user :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
 custcount = "".
 DEFINE VARIABLE lActive AS LOG NO-UNDO.
 DEFINE VARIABLE v-cust-chk AS CHARACTER NO-UNDO.
@@ -1938,6 +1943,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1950,6 +1956,7 @@ PROCEDURE valid-due-date :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DATE(job.due-date:SCREEN-VALUE) LT DATE(job.start-date:SCREEN-VALUE) THEN DO:
@@ -1964,6 +1971,7 @@ PROCEDURE valid-due-date :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1977,6 +1985,7 @@ PROCEDURE valid-job-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   ll-valid = YES.
 
@@ -1994,6 +2003,7 @@ PROCEDURE valid-job-no :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2007,6 +2017,7 @@ PROCEDURE valid-job-no2 :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   ll-valid = YES.
 
@@ -2025,6 +2036,7 @@ PROCEDURE valid-job-no2 :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2037,6 +2049,7 @@ PROCEDURE valid-whse :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   ll-valid = YES.
 
@@ -2061,6 +2074,7 @@ PROCEDURE valid-whse :
 
   END.
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2080,6 +2094,7 @@ PROCEDURE validate-est :
   DEFINE VARIABLE ll AS LOG NO-UNDO.
   DEFINE VARIABLE lActive AS LOG NO-UNDO.
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   ll-valid = YES.
 
@@ -2241,6 +2256,7 @@ PROCEDURE validate-est :
   END.
 
   {methods/lValidateError.i NO}
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2254,6 +2270,7 @@ PROCEDURE validate-start-date :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         RUN jc/validStartDate.p (INPUT job.start-date:SCREEN-VALUE,
@@ -2283,6 +2300,7 @@ PROCEDURE validate-start-date :
 /*     END.                                                     */
 /*   END.                                                       */
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

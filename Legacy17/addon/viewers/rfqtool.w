@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:41 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -467,6 +467,7 @@ DO:
    if ls-prev-cust = self:screen-value and
       self:screen-value <> "Temp"   
    then return.
+   {&methods/lValidateError.i YES}
 
    find cust where cust.company = gcompany     and
                    cust.cust-no = rfq.cust-no:screen-value in frame {&frame-name}
@@ -560,7 +561,9 @@ DO:
       apply "entry" to self.
       return no-apply.
    end.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -607,8 +610,9 @@ END.
 ON LEAVE OF rfq.sman IN FRAME F-Main /* Salesman */
 DO:
  {methods/dispflds.i} 
-
- IF LASTKEY <> -1 AND NOT AVAIL sman THEN DO:
+ IF LASTKEY EQ -1 THEN Return .
+ {&methods/lValidateError.i YES}
+ IF NOT AVAIL sman THEN DO:
     MESSAGE "Invalid Sales Rep." VIEW-AS ALERT-BOX ERROR.
     RETURN NO-APPLY.
  END.
@@ -618,7 +622,9 @@ DO:
  IF AVAIL sman THEN 
     FIND FIRST sman-mtx OF sman WHERE sman-mtx.custype = cust.type NO-LOCK NO-ERROR.
  IF AVAIL sman-mtx THEN ASSIGN rfq.comm:screen-value in frame {&frame-name} = string(sman-mtx.type-comm,">>9.99").
+ {&methods/lValidateError.i NO}
  END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1096,6 +1102,7 @@ PROCEDURE validate-cust :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND (cust where cust.company = gcompany     and
                    cust.cust-no = rfq.cust-no:screen-value in frame {&frame-name} )
      OR rfq.cust-no:SCREEN-VALUE = "" THEN DO:
@@ -1138,6 +1145,7 @@ PROCEDURE validate-cust :
     RETURN ERROR.
  END.
 
+  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
