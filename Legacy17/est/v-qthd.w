@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1575,7 +1575,6 @@ PROCEDURE valid-cust-no :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     quotehd.cust-no:SCREEN-VALUE = CAPS(quotehd.cust-no:SCREEN-VALUE).
 
@@ -1601,7 +1600,6 @@ PROCEDURE valid-cust-no :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1614,7 +1612,6 @@ PROCEDURE valid-cust-user :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
 custcount = "".
 DEF VAR lActive AS LOG NO-UNDO.
@@ -1635,7 +1632,6 @@ RUN sys/ref/CustList.p (INPUT cocode,
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1649,7 +1645,6 @@ PROCEDURE valid-ship-id :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     quotehd.ship-id:SCREEN-VALUE = CAPS(quotehd.ship-id:SCREEN-VALUE).
@@ -1670,7 +1665,6 @@ PROCEDURE valid-ship-id :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1684,7 +1678,6 @@ PROCEDURE valid-sold-id :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     quotehd.sold-id:SCREEN-VALUE = CAPS(quotehd.sold-id:SCREEN-VALUE).
@@ -1705,7 +1698,6 @@ PROCEDURE valid-sold-id :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

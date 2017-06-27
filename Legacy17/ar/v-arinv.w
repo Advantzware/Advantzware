@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -566,7 +566,6 @@ DO:
   RUN new-terms.
 
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 
   DO li = 1 TO LENGTH(TRIM({&self-name}:SCREEN-VALUE)):
@@ -1157,7 +1156,6 @@ PROCEDURE valid-cust-no :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
      ar-inv.cust-no:SCREEN-VALUE = CAPS(ar-inv.cust-no:SCREEN-VALUE).
 
@@ -1171,7 +1169,6 @@ PROCEDURE valid-cust-no :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1187,7 +1184,6 @@ PROCEDURE valid-due-date :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DATE(ar-inv.due-date:SCREEN-VALUE) LT DATE(ar-inv.inv-date:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(ar-inv.due-date:LABEL) + " may not be before " +
@@ -1198,7 +1194,6 @@ PROCEDURE valid-due-date :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1218,7 +1213,6 @@ PROCEDURE valid-inv-no :
   DEF BUFFER b-ar-invl FOR ar-invl.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF INT(ar-inv.inv-no:SCREEN-VALUE) LE 0 THEN
@@ -1245,7 +1239,6 @@ PROCEDURE valid-inv-no :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

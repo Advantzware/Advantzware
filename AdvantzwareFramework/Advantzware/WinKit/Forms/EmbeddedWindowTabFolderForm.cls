@@ -211,6 +211,10 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
         DEFINE VARIABLE oWindowContainer AS Progress.Windows.WindowContainer             NO-UNDO.
 
         FIND ttFolderPages WHERE ttFolderPages.PageNum = piTabKey NO-ERROR .
+        
+/*        MESSAGE                                         */
+/*            "piTabKey:" piTabKey AVAILABLE ttFolderPages*/
+/*        VIEW-AS ALERT-BOX.                              */
 
         IF NOT AVAILABLE ttFolderPages THEN DO:
             CreateTabPageFrame (piTabKey) .
@@ -294,6 +298,17 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
         oWindowContainer:Dock = DockStyle:FILL .
 
         THIS-OBJECT:WindowContainers:Add (oWindowContainer) .
+
+/*MESSAGE                                      */
+/*    "piPage:" piPage SKIP (1)                */
+/*    1 PROGRAM-NAME (1) SKIP                  */
+/*    2 PROGRAM-NAME (2) SKIP                  */
+/*    3 PROGRAM-NAME (3) SKIP                  */
+/*    4 PROGRAM-NAME (4) SKIP                  */
+/*    5 PROGRAM-NAME (5) SKIP                  */
+/*    6 PROGRAM-NAME (6) SKIP                  */
+/*    7 PROGRAM-NAME (7)                       */
+/*VIEW-AS ALERT-BOX TITLE "CreateTabPageFrame".*/
 
         CREATE ttFolderPages .
         ASSIGN ttFolderPages.PageNum         = piPage

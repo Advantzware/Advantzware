@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1072,7 +1072,6 @@ PROCEDURE validate-machine :
   def input parameter ip-mach like mach.m-code no-undo.
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   if not can-find(mach where mach.company = gcompany
               and mach.loc = gloc
               and mach.m-code = ip-mach) and ip-mach <> ""
@@ -1080,7 +1079,6 @@ PROCEDURE validate-machine :
      return error.
   end.            
   return.
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

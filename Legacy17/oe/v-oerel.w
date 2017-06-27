@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -644,7 +644,6 @@ PROCEDURE valid-rel-date:
     DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
     DEFINE VARIABLE ldDate    AS DATE    NO-UNDO.
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         ldDate = DATE(oe-relh.rel-date:SCREEN-VALUE).
         RUN oe/dateFuture.p (INPUT cocode, INPUT ldDate, INPUT YES /* prompt */, OUTPUT lValid, OUTPUT lContinue).
@@ -653,7 +652,6 @@ PROCEDURE valid-rel-date:
             RETURN ERROR.
         END. 
     END.
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 	
@@ -1660,7 +1658,6 @@ PROCEDURE valid-cust-no :
 
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     lv-msg = "".
 
@@ -1680,7 +1677,6 @@ PROCEDURE valid-cust-no :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1693,7 +1689,6 @@ PROCEDURE valid-date-change :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     DEF VAR v-reject-code AS CHAR NO-UNDO.
@@ -1714,7 +1709,6 @@ PROCEDURE valid-date-change :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1728,7 +1722,6 @@ PROCEDURE valid-ship-id :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     RUN oe/custxship.p (oe-relh.company,
@@ -1745,7 +1738,6 @@ PROCEDURE valid-ship-id :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

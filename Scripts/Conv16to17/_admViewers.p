@@ -3,8 +3,9 @@
 {_base.i}
 
 DEFINE VARIABLE viewerFile AS CHARACTER   NO-UNDO.
-DEFINE VARIABLE cFile  AS CHARACTER   NO-UNDO.
-DEFINE VARIABLE idx    AS INTEGER     NO-UNDO.
+DEFINE VARIABLE cFile      AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cFile1     AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE idx        AS INTEGER     NO-UNDO.
 
 {_ttFileCode.i}
 
@@ -28,6 +29,22 @@ REPEAT:
             cFile = "".
             RUN pCodeFile (INPUT-OUTPUT idx, cFile).
         END.
+        ELSE IF cFile BEGINS "ON CHOOSE OF btn" THEN DO:
+            REPEAT:
+                IMPORT UNFORMATTED cFile.
+                IF TRIM (cFile) BEGINS "RUN" AND INDEX(cFile,".w") NE 0 THEN DO:
+                    cFile1 = "    DO:".
+                    RUN pCodeFile (INPUT-OUTPUT idx, cFile1).
+                    cFile1 = "        " + REPLACE (TRIM (cFile),".w",".w PERSISTENT SET hProgram ").
+                    RUN pCodeFile (INPUT-OUTPUT idx, cFile1).
+                    cFile1 = "        RUN dispatch IN hProgram (~"initialize~").".
+                    RUN pCodeFile (INPUT-OUTPUT idx, cFile1). 
+                    cFile  = "    END.".                    
+                END.
+                RUN pCodeFile (INPUT-OUTPUT idx, cFile).
+                IF cFile BEGINS "/* _UIB-CODE-BLOCK-END */" THEN LEAVE.
+            END.
+        END.        
     END.
     INPUT CLOSE.
     OUTPUT TO VALUE("{&v17}" + viewerFile).

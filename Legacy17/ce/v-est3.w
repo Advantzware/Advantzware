@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -4449,7 +4449,6 @@ PROCEDURE valid-carrier :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     eb.carrier:SCREEN-VALUE = CAPS(eb.carrier:SCREEN-VALUE).
 
@@ -4465,7 +4464,6 @@ PROCEDURE valid-carrier :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4479,7 +4477,6 @@ PROCEDURE valid-cas-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     if eb.cas-no:screen-value <> "" and
@@ -4495,7 +4492,6 @@ PROCEDURE valid-cas-no :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4509,7 +4505,6 @@ PROCEDURE valid-cas-wt :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(eb.cas-cnt:SCREEN-VALUE) NE 0 AND
@@ -4525,7 +4520,6 @@ PROCEDURE valid-cas-wt :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4539,7 +4533,6 @@ PROCEDURE valid-dest-code :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST carr-mtx
@@ -4556,7 +4549,6 @@ PROCEDURE valid-dest-code :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4569,7 +4561,6 @@ PROCEDURE valid-divider :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
     if eb.divider:screen-value <> "" and
@@ -4584,7 +4575,6 @@ DO WITH FRAME {&FRAME-NAME}:
     end.
   END.
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4598,7 +4588,6 @@ PROCEDURE valid-layer-pad :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
     if eb.layer-pad:screen-value <> "" and
        not can-find(item where item.company = eb.company
@@ -4611,7 +4600,6 @@ DO WITH FRAME {&FRAME-NAME}:
       return ERROR.
     end.
   END.
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -4630,7 +4618,6 @@ DEF VAR cLayPer AS CHAR NO-UNDO.
 DEF VAR cMsg AS CHAR NO-UNDO.
 DEF VAR cValidValues AS CHAR INIT "C,P" NO-UNDO.
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         IF eb.spare-char-3:SCREEN-VALUE = "" THEN eb.spare-char-3:SCREEN-VALUE = "C".
@@ -4656,7 +4643,6 @@ DEF VAR cValidValues AS CHAR INIT "C,P" NO-UNDO.
         END.
     END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

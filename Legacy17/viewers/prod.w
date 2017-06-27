@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1306,7 +1306,6 @@ PROCEDURE validate-actall :
  DEF VAR lv-fld AS cha NO-UNDO.
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   /* ==== Corrugated item validation ======== */
      hd1 = frame {&frame-name}:handle.
      hd1 = hd1:first-child.
@@ -1334,7 +1333,6 @@ PROCEDURE validate-actall :
      end.       
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1348,7 +1346,6 @@ PROCEDURE validate-actnum :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
     FIND FIRST account WHERE account.company = gcompany
                          AND account.actnum = FOCUS:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF (NOT AVAIL account AND focus:SCREEN-VALUE <> "") or
@@ -1360,7 +1357,6 @@ PROCEDURE validate-actnum :
        RETURN ERROR.
     END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

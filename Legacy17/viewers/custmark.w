@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -955,7 +955,6 @@ PROCEDURE valid-key :
 
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         IF CAN-FIND(FIRST b-cust-markup
             WHERE b-cust-markup.company EQ cocode
@@ -973,7 +972,6 @@ PROCEDURE valid-key :
     END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -986,7 +984,6 @@ PROCEDURE valid-markup :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
 
@@ -1072,7 +1069,6 @@ PROCEDURE valid-markup :
     END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1086,7 +1082,6 @@ PROCEDURE valid-procat :
       Notes:       
     ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         cust-markup.procat:SCREEN-VALUE =
@@ -1109,7 +1104,6 @@ PROCEDURE valid-procat :
     END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1123,7 +1117,6 @@ PROCEDURE valid-style :
       Notes:       
     ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         cust-markup.style:SCREEN-VALUE =
@@ -1145,7 +1138,6 @@ PROCEDURE valid-style :
         IF ERROR-STATUS:ERROR THEN RETURN ERROR.
     END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

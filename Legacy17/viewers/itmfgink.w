@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -795,7 +795,6 @@ PROCEDURE valid-cover% :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(itemfg-ink.cover%:SCREEN-VALUE) LT 1   OR
        DEC(itemfg-ink.cover%:SCREEN-VALUE) GT 100 THEN DO:
@@ -806,7 +805,6 @@ PROCEDURE valid-cover% :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -822,7 +820,6 @@ PROCEDURE valid-fi_occurs :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(fi_occurs:SCREEN-VALUE) LT 1 THEN DO:
       MESSAGE TRIM(fi_occurs:LABEL) + " must be greater than zero..."
@@ -832,7 +829,6 @@ PROCEDURE valid-fi_occurs :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -848,7 +844,6 @@ PROCEDURE valid-pass :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(itemfg-ink.pass:SCREEN-VALUE) LT 1 THEN DO:
       MESSAGE TRIM(fi_occurs:LABEL) + " must be greater than zero..."
@@ -858,7 +853,6 @@ PROCEDURE valid-pass :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -873,7 +867,6 @@ PROCEDURE valid-rm-i-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST item
@@ -890,7 +883,6 @@ PROCEDURE valid-rm-i-no :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

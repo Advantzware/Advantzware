@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -573,7 +573,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnAvailable V-table-Win
 ON CHOOSE OF btnAvailable IN FRAME F-Main /* Available */
 DO:
-  RUN rm/w-rminq.w ('RM Balance Inquiry','rminq/b-rmcoinq.w',ROWID(item)).
+    DO:
+        RUN rm/w-rminq.w PERSISTENT SET hProgram  ('RM Balance Inquiry','rminq/b-rmcoinq.w PERSISTENT SET hProgram ',ROWID(item)).
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -584,7 +587,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCommitted V-table-Win
 ON CHOOSE OF btnCommitted IN FRAME F-Main /* Committed */
 DO:
-  RUN rm/w-rminq.w ('RM Committed Inquiry','rminq/b-rmainq.w',ROWID(item)).
+    DO:
+        RUN rm/w-rminq.w PERSISTENT SET hProgram  ('RM Committed Inquiry','rminq/b-rmainq.w PERSISTENT SET hProgram ',ROWID(item)).
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -595,7 +601,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOnHand V-table-Win
 ON CHOOSE OF btnOnHand IN FRAME F-Main /* On Hand */
 DO:
-  RUN rm/w-rminq.w ('RM On Hand Inquiry','browsers/rm-ibin.w',ROWID(item)).
+    DO:
+        RUN rm/w-rminq.w PERSISTENT SET hProgram  ('RM On Hand Inquiry','browsers/rm-ibin.w PERSISTENT SET hProgram ',ROWID(item)).
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -606,7 +615,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnOnOrder V-table-Win
 ON CHOOSE OF btnOnOrder IN FRAME F-Main /* On Order */
 DO:
-  RUN rm/w-rminq.w ('RM On Order Inquiry','browsers/item-pos.w',ROWID(item)).
+    DO:
+        RUN rm/w-rminq.w PERSISTENT SET hProgram  ('RM On Order Inquiry','browsers/item-pos.w PERSISTENT SET hProgram ',ROWID(item)).
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1363,7 +1375,6 @@ PROCEDURE valid-loc :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF item.loc:SCREEN-VALUE NE ""                                 AND
        NOT CAN-FIND(FIRST rm-bin
@@ -1379,7 +1390,6 @@ PROCEDURE valid-loc :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1393,7 +1403,6 @@ PROCEDURE valid-loc-bin :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF item.loc-bin:SCREEN-VALUE NE ""                                 AND
@@ -1412,7 +1421,6 @@ PROCEDURE valid-loc-bin :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

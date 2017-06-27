@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -707,7 +707,6 @@ PROCEDURE valid-adh-code :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF fi_adh-code:SCREEN-VALUE NE ""                              AND
        NOT CAN-FIND(FIRST b-item
@@ -721,7 +720,6 @@ PROCEDURE valid-adh-code :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -737,7 +735,6 @@ PROCEDURE valid-flute :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF fi_flute:SCREEN-VALUE NE ""                             AND
        NOT CAN-FIND(FIRST b-item
@@ -751,7 +748,6 @@ PROCEDURE valid-flute :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -767,7 +763,6 @@ PROCEDURE valid-lam-code :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF fi_lam-code:SCREEN-VALUE NE ""                             AND
        NOT CAN-FIND(FIRST b-item
@@ -781,7 +776,6 @@ PROCEDURE valid-lam-code :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -797,7 +791,6 @@ PROCEDURE valid-medium :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF fi_medium:SCREEN-VALUE NE ""                             AND
        NOT CAN-FIND(FIRST b-item
@@ -811,7 +804,6 @@ PROCEDURE valid-medium :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

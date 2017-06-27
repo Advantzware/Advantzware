@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -944,7 +944,6 @@ END.
 ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main /* Last Job # Used */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
@@ -2159,7 +2158,6 @@ PROCEDURE valid-actnum :
 DEFINE BUFFER bf-account FOR account.
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST bf-account
         WHERE bf-account.company EQ gcompany
@@ -2183,7 +2181,6 @@ DO WITH FRAME {&FRAME-NAME}:
 END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2200,7 +2197,6 @@ PROCEDURE valid-code :
 
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF CAN-FIND(FIRST b-prep
                 WHERE b-prep.company EQ gcompany
@@ -2214,7 +2210,6 @@ PROCEDURE valid-code :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -2233,7 +2228,6 @@ PROCEDURE valid-dim :
   DEF VAR lv-est-no AS CHAR NO-UNDO.
   DEF VAR ll-corr2 AS LOG NO-UNDO.
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   ASSIGN
      lv-est-no = prep.last-est-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -2255,7 +2249,6 @@ PROCEDURE valid-dim :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2270,7 +2263,6 @@ PROCEDURE valid-fgcat :
 ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER iplUpdateAcc AS LOG NO-UNDO.
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
 
@@ -2299,7 +2291,6 @@ PROCEDURE valid-fgcat :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2312,7 +2303,6 @@ PROCEDURE valid-rm-i-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -2339,7 +2329,6 @@ PROCEDURE valid-rm-i-no :
     END.
   END.
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2352,7 +2341,6 @@ PROCEDURE valid-rmcat :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -2374,7 +2362,6 @@ PROCEDURE valid-rmcat :
     END.
 
   END.
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

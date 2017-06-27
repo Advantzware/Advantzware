@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -522,13 +522,19 @@ DO:
                                    AND job.job-no2 EQ job-hdr.job-no2)
         NO-LOCK NO-ERROR.
     IF AVAIL job-hdr THEN 
-        RUN jc/w-inqjob.w (ROWID(itemfg), YES).
+    DO:
+        RUN jc/w-inqjob.w PERSISTENT SET hProgram  (ROWID(itemfg), YES).
+        RUN dispatch IN hProgram ("initialize").
+    END.
     ELSE DO:
         FIND FIRST fg-set WHERE fg-set.company EQ itemfg.company
                             AND fg-set.part-no EQ itemfg.i-no
                           NO-LOCK NO-ERROR.
         IF AVAIL fg-set THEN DO:
-           RUN jc/w-inqjbc.w (ROWID(itemfg), YES).
+    DO:
+        RUN jc/w-inqjbc.w PERSISTENT SET hProgram  (ROWID(itemfg), YES).
+        RUN dispatch IN hProgram ("initialize").
+    END.
         END.
     END.
 
@@ -1270,7 +1276,6 @@ PROCEDURE valid-pur-uom :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     itemfg.pur-uom:SCREEN-VALUE = CAPS(itemfg.pur-uom:SCREEN-VALUE).
     /* take out per Joe - task 10021210 */
@@ -1282,7 +1287,6 @@ PROCEDURE valid-pur-uom :
 /*     end.                                                                     */
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

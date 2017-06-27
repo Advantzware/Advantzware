@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1207,7 +1207,10 @@ DO:
        AND itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.
 
    IF AVAIL itemfg THEN
-   RUN oe/w-estfg.w(RECID(eb)) .
+    DO:
+        RUN oe/w-estfg.w PERSISTENT SET hProgram (RECID(eb)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1223,7 +1226,10 @@ DO:
        AND style.style = eb.style NO-LOCK NO-ERROR.
 
    IF AVAIL style THEN
-   RUN windows/stylec-e.w(RECID(style)) .
+    DO:
+        RUN windows/stylec-e.w PERSISTENT SET hProgram (RECID(style)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1239,7 +1245,10 @@ DO:
        AND ITEM.i-no = ef.board NO-LOCK NO-ERROR.
 
    IF AVAIL ITEM THEN
-   RUN cec/w-itemc.w(RECID(ITEM)) .
+    DO:
+        RUN cec/w-itemc.w PERSISTENT SET hProgram (RECID(ITEM)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1255,7 +1264,10 @@ DO:
        AND cust.cust-no = eb.cust-no NO-LOCK NO-ERROR.
 
    IF AVAIL cust THEN
-   RUN windows/v-cust.w(RECID(cust)) .
+    DO:
+        RUN windows/v-cust.w PERSISTENT SET hProgram (RECID(cust)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4456,14 +4468,12 @@ PROCEDURE valid-64-dec :
    DEFINE OUTPUT PARAMETER op-dec AS DEC DECIMALS 6 NO-UNDO.
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
     FIND FIRST tt-64-dec WHERE
       substring(string(tt-64-dec.DEC),1,3) EQ substring(string(ip-dec),1,3) NO-LOCK NO-ERROR.
     IF NOT AVAIL tt-64-dec  THEN
       op-error = YES.
     ELSE  op-dec = tt-64-dec.DEC .
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -4480,7 +4490,6 @@ PROCEDURE valid-adhesive :
   DEF INPUT PARAM ip-field AS WIDGET-HANDLE NO-UNDO.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-field:SCREEN-VALUE = CAPS(ip-field:SCREEN-VALUE).
@@ -4499,7 +4508,6 @@ PROCEDURE valid-adhesive :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4512,7 +4520,6 @@ PROCEDURE valid-board :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ef.board:SCREEN-VALUE = CAPS(ef.board:SCREEN-VALUE).
@@ -4530,7 +4537,6 @@ PROCEDURE valid-board :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4543,7 +4549,6 @@ PROCEDURE valid-dec :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
    /*DEFINE INPUT PARAMETER p-dec AS DEC DECIMALS 6 NO-UNDO.*/
     DEF INPUT PARAM ip-field AS WIDGET-HANDLE NO-UNDO.
@@ -4571,7 +4576,6 @@ PROCEDURE valid-dec :
    END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4590,7 +4594,6 @@ PROCEDURE valid-fi_from-est-no :
   DEF BUFFER b-eb FOR eb.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     fi_from-est-no:SCREEN-VALUE =
@@ -4630,7 +4633,6 @@ PROCEDURE valid-fi_from-est-no :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4645,12 +4647,10 @@ PROCEDURE valid-flute :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   IF NOT lv-foam THEN DO:
     {est/valflute.i "eb.flute" ":SCREEN-VALUE"}
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -4671,7 +4671,6 @@ PROCEDURE valid-prep :
   DEF VAR ll AS LOG INIT YES NO-UNDO.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   IF addprep-log THEN
   DO WITH FRAME {&FRAME-NAME}:
@@ -4710,7 +4709,6 @@ PROCEDURE valid-prep :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4724,7 +4722,6 @@ PROCEDURE valid-procat :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     eb.procat:SCREEN-VALUE = CAPS(eb.procat:SCREEN-VALUE).
@@ -4740,7 +4737,6 @@ PROCEDURE valid-procat :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4754,7 +4750,6 @@ PROCEDURE valid-ship-id :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST shipto
@@ -4775,7 +4770,6 @@ PROCEDURE valid-ship-id :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4789,7 +4783,6 @@ PROCEDURE valid-sman :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
    FIND FIRST sman
         WHERE sman.company EQ cocode
           AND sman.sman    EQ eb.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -4802,7 +4795,6 @@ PROCEDURE valid-sman :
     END.
     sman_sname:SCREEN-VALUE = sman.sNAME.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -4818,7 +4810,6 @@ PROCEDURE valid-style :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST style
                     WHERE style.company  EQ cocode
@@ -4831,7 +4822,6 @@ PROCEDURE valid-style :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -4847,12 +4837,10 @@ PROCEDURE valid-test :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   IF NOT lv-foam THEN DO:
     {est/valtest.i "eb.flute" "eb.test" ":SCREEN-VALUE"}
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -4869,7 +4857,6 @@ PROCEDURE valid-wid-len :
   DEF VAR lv-handle AS HANDLE NO-UNDO.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     lv-handle = IF LOOKUP(FOCUS:NAME,"style,len") GT 0 THEN FOCUS ELSE ?.
@@ -4898,7 +4885,6 @@ PROCEDURE valid-wid-len :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

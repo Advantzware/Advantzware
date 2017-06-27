@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -495,7 +495,6 @@ PROCEDURE valid-carrier :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
       zipcode.carrier:SCREEN-VALUE = CAPS(zipcode.carrier:SCREEN-VALUE).
 
@@ -511,7 +510,6 @@ PROCEDURE valid-carrier :
          END.
   END.
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -524,7 +522,6 @@ PROCEDURE valid-dest-code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
       zipcode.del-zone:SCREEN-VALUE = CAPS(zipcode.del-zone:SCREEN-VALUE).
@@ -541,7 +538,6 @@ PROCEDURE valid-dest-code :
             RETURN ERROR.
          END.
   END.
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
