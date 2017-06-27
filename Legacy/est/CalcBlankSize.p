@@ -99,101 +99,102 @@ ASSIGN
     bf-eb.k-wid-array2 = 0
     bf-eb.k-len-array2 = 0.
       
-/*Calculate Panels and Box Design*/
-IF style.type EQ "F" THEN  /*Is Foam*/ 
-    ASSIGN 
+/*REFACTOR - Calculate Panels and Box Design*/
+/*IF style.type EQ "F" THEN  /*Is Foam*/                                                                      */
+    ASSIGN
         bf-eb.k-wid-array2[1] = bf-eb.t-wid
         bf-eb.k-len-array2[1] = bf-eb.t-len
         .
-ELSE 
-DO:
-    RUN cec/descalc.p (RECID(est),RECID(bf-eb)).
-
-    DO iCount = 1 TO EXTENT(bf-eb.k-wid-scr-type2):
-        ASSIGN
-            bf-eb.k-wid-scr-type2[iCount] = lv-k-wid-scr-type[iCount]
-            bf-eb.k-len-scr-type2[iCount] = lv-k-len-scr-type[iCount].
-    END.
-
-    IF v-lscore-c BEGINS "No" THEN
-        ASSIGN  eb.k-wid-array2[1] = eb.t-wid
-            eb.k-len-array2[1] = eb.t-len.
-    ELSE 
-    DO:
-        iCount = 0.
-        FOR EACH w-box-design-line:
-            ASSIGN
-                iCount                   = iCount + 1
-                eb.k-wid-array2[iCount] = w-box-design-line.wscore-d.
-           
-            {sys/inc/k16bb.i eb.k-wid-array2[iCount]}
-        END.
-           
-        ASSIGN  
-            v-score-char = ""
-            iCount2      = 1.
-        DO iCount = 1 TO 80:
-            IF substr(v-lscore-c,i,1) NE "" THEN 
-            DO:
-                v-score-char[iCount2] = v-score-char[iCount2] + substr(v-lscore-c,i,1).
-                IF substr(v-lscore-c,iCount + 1,1) EQ "" THEN
-                    ASSIGN  v-score-char[iCount2] = TRIM(v-score-char[iCount2])
-                        iCount2               = iCount2 + 1.
-            END.
-            IF iCount2 GT 12 THEN LEAVE.
-        END.
-
-/*REFACTOR*/
-/*        IF ll-add-set-part EQ NO AND ll-add-set-part-2 EQ NO THEN*/
-/*        DO iCount = 1 TO EXTENT(xeb.k-len-array2):                                                      */
-/*                                                                                                        */
-/*            IF v-cecscrn-dec AND v-score-char[iCount] NE "" THEN                                        */
-/*                ASSIGN                                                                                  */
-/*                    v-index                            = INDEX(v-score-char[iCount],".")                */
-/*                    v-str                              = SUBSTRING(v-score-char[iCount],v-index + 1)    */
-/*                    v-str                              = LEFT-TRIM(STRING(INT(v-str) / 64.0,">.999999"))*/
-/*                    SUBSTRING(v-score-char[iCount],v-index) = v-str.                                    */
-/*                                                                                                        */
-/*            eb.k-len-array2[iCount] = DECIMAL(v-score-char[iCount]).                                    */
-/*            {sys/inc/k16bb.i eb.k-len-array2[iCount]}.                                                  */
-/*        END.                                                                                            */
-/*        ELSE                                                                           */
-/*        DO:                                                                            */
-/*            ld-total = 0.                                                              */
-/*            IF AVAILABLE style THEN                                                    */
-/*            DO iCount = 1 TO style.dim-df + 1:                                         */
-/*                                                                                       */
-/*                IF iCount EQ 1 THEN                                                    */
-/*                DO:                                                                    */
-/*                    IF ll-add-set-part EQ YES AND ll-add-set-part-2 EQ NO THEN         */
-/*                        eb.k-len-array2[iCount] = tt-eb-set-part.end-cell-length-1.    */
-/*                    ELSE                                                               */
-/*                        eb.k-len-array2[iCount] = v-end-cell-w1.                       */
-/*                END.                                                                   */
-/*                ELSE IF iCount EQ style.dim-df + 1 THEN                                */
-/*                    DO:                                                                */
-/*                        IF ll-add-set-part EQ YES AND ll-add-set-part-2 EQ NO THEN     */
-/*                            eb.k-len-array2[iCount] = tt-eb-set-part.end-cell-length-2.*/
-/*                        ELSE                                                           */
-/*                            eb.k-len-array2[iCount] = v-end-cell-w2.                   */
-/*                    END.                                                               */
-/*                    ELSE                                                               */
-/*                    DO:                                                                */
-/*                        IF ll-add-set-part EQ YES AND ll-add-set-part-2 EQ NO THEN     */
-/*                            eb.k-len-array2[iCount] = tt-eb-set-part.in-cell-length.   */
-/*                        ELSE                                                           */
-/*                            eb.k-len-array2[iCount] = v-in-cell-w.                     */
-/*                    END.                                                               */
-/*                                                                                       */
-/*                  {sys/inc/k16bb.i eb.k-len-array2[iCount]}.                           */
-/*                ld-total = ld-total + eb.k-len-array2[iCount].                         */
-/*            END.                                                                       */
-/*                                */
-/*            eb.t-len = ld-total.*/
-/*                                */
-/*        END.                    */
-    END.  /* else v-lscore */
-END. /* panels or not foam */
+/*ELSE                                                                                                        */
+/*DO:                                                                                                         */
+/*    RUN cec/descalc.p (RECID(est),RECID(bf-eb)).                                                            */
+/*                                                                                                            */
+/*    DO iCount = 1 TO EXTENT(bf-eb.k-wid-scr-type2):                                                         */
+/*        ASSIGN                                                                                              */
+/*            bf-eb.k-wid-scr-type2[iCount] = lv-k-wid-scr-type[iCount]                                       */
+/*            bf-eb.k-len-scr-type2[iCount] = lv-k-len-scr-type[iCount].                                      */
+/*    END.                                                                                                    */
+/*                                                                                                            */
+/*    IF v-lscore-c BEGINS "No" THEN                                                                          */
+/*        ASSIGN  eb.k-wid-array2[1] = eb.t-wid                                                               */
+/*            eb.k-len-array2[1] = eb.t-len.                                                                  */
+/*    ELSE                                                                                                    */
+/*    DO:                                                                                                     */
+/*        iCount = 0.                                                                                         */
+/*        FOR EACH w-box-design-line:                                                                         */
+/*            ASSIGN                                                                                          */
+/*                iCount                   = iCount + 1                                                       */
+/*                eb.k-wid-array2[iCount] = w-box-design-line.wscore-d.                                       */
+/*                                                                                                            */
+/*            {sys/inc/k16bb.i eb.k-wid-array2[iCount]}                                                       */
+/*        END.                                                                                                */
+/*                                                                                                            */
+/*        ASSIGN                                                                                              */
+/*            v-score-char = ""                                                                               */
+/*            iCount2      = 1.                                                                               */
+/*        MESSAGE v-lscore-c VIEW-AS ALERT-BOX.                                                               */
+/*        DO iCount = 1 TO 80:                                                                                */
+/*            IF SUBSTRING(v-lscore-c,i,1) NE "" THEN                                                         */
+/*            DO:                                                                                             */
+/*                v-score-char[iCount2] = v-score-char[iCount2] + substr(v-lscore-c,i,1).                     */
+/*                IF substr(v-lscore-c,iCount + 1,1) EQ "" THEN                                               */
+/*                    ASSIGN  v-score-char[iCount2] = TRIM(v-score-char[iCount2])                             */
+/*                        iCount2               = iCount2 + 1.                                                */
+/*            END.                                                                                            */
+/*            IF iCount2 GT 12 THEN LEAVE.                                                                    */
+/*        END.                                                                                                */
+/*                                                                                                            */
+/*/*REFACTOR*/                                                                                                */
+/*/*        IF ll-add-set-part EQ NO AND ll-add-set-part-2 EQ NO THEN*/                                       */
+/*/*        DO iCount = 1 TO EXTENT(xeb.k-len-array2):                                                      */*/
+/*/*                                                                                                        */*/
+/*/*            IF v-cecscrn-dec AND v-score-char[iCount] NE "" THEN                                        */*/
+/*/*                ASSIGN                                                                                  */*/
+/*/*                    v-index                            = INDEX(v-score-char[iCount],".")                */*/
+/*/*                    v-str                              = SUBSTRING(v-score-char[iCount],v-index + 1)    */*/
+/*/*                    v-str                              = LEFT-TRIM(STRING(INT(v-str) / 64.0,">.999999"))*/*/
+/*/*                    SUBSTRING(v-score-char[iCount],v-index) = v-str.                                    */*/
+/*/*                                                                                                        */*/
+/*/*            eb.k-len-array2[iCount] = DECIMAL(v-score-char[iCount]).                                    */*/
+/*/*            {sys/inc/k16bb.i eb.k-len-array2[iCount]}.                                                  */*/
+/*/*        END.                                                                                            */*/
+/*/*        ELSE                                                                           */                 */
+/*/*        DO:                                                                            */                 */
+/*/*            ld-total = 0.                                                              */                 */
+/*/*            IF AVAILABLE style THEN                                                    */                 */
+/*/*            DO iCount = 1 TO style.dim-df + 1:                                         */                 */
+/*/*                                                                                       */                 */
+/*/*                IF iCount EQ 1 THEN                                                    */                 */
+/*/*                DO:                                                                    */                 */
+/*/*                    IF ll-add-set-part EQ YES AND ll-add-set-part-2 EQ NO THEN         */                 */
+/*/*                        eb.k-len-array2[iCount] = tt-eb-set-part.end-cell-length-1.    */                 */
+/*/*                    ELSE                                                               */                 */
+/*/*                        eb.k-len-array2[iCount] = v-end-cell-w1.                       */                 */
+/*/*                END.                                                                   */                 */
+/*/*                ELSE IF iCount EQ style.dim-df + 1 THEN                                */                 */
+/*/*                    DO:                                                                */                 */
+/*/*                        IF ll-add-set-part EQ YES AND ll-add-set-part-2 EQ NO THEN     */                 */
+/*/*                            eb.k-len-array2[iCount] = tt-eb-set-part.end-cell-length-2.*/                 */
+/*/*                        ELSE                                                           */                 */
+/*/*                            eb.k-len-array2[iCount] = v-end-cell-w2.                   */                 */
+/*/*                    END.                                                               */                 */
+/*/*                    ELSE                                                               */                 */
+/*/*                    DO:                                                                */                 */
+/*/*                        IF ll-add-set-part EQ YES AND ll-add-set-part-2 EQ NO THEN     */                 */
+/*/*                            eb.k-len-array2[iCount] = tt-eb-set-part.in-cell-length.   */                 */
+/*/*                        ELSE                                                           */                 */
+/*/*                            eb.k-len-array2[iCount] = v-in-cell-w.                     */                 */
+/*/*                    END.                                                               */                 */
+/*/*                                                                                       */                 */
+/*/*                  {sys/inc/k16bb.i eb.k-len-array2[iCount]}.                           */                 */
+/*/*                ld-total = ld-total + eb.k-len-array2[iCount].                         */                 */
+/*/*            END.                                                                       */                 */
+/*/*                                */                                                                        */
+/*/*            eb.t-len = ld-total.*/                                                                        */
+/*/*                                */                                                                        */
+/*/*        END.                    */                                                                        */
+/*    END.  /* else v-lscore */*/
+/*END. /* panels or not foam */*/
 
 /* **********************  Internal Procedures  *********************** */
 

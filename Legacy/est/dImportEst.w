@@ -51,6 +51,16 @@ btn-cancel
 /* ************************  Function Prototypes ********************** */
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fConvertFileName C-Win
+FUNCTION fConvertFileName RETURNS CHARACTER 
+  (ipcFilename AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetDefaultImportFolder C-Win
 FUNCTION fGetDefaultImportFolder RETURNS CHARACTER 
   ( ipcCompany AS CHARACTER ) FORWARD.
@@ -64,6 +74,14 @@ FUNCTION fGetImportFormat RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fIsExcel C-Win
+FUNCTION fIsExcel RETURNS LOGICAL 
+  (ipcFileName AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -237,7 +255,7 @@ DO:
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}.
         END.
-  
+        
         IF fcFileName <> "" AND SEARCH(fcFileName) = ? THEN 
         DO:
             MESSAGE "Import file not found "
@@ -271,7 +289,8 @@ DO:
         cDefault = fGetDefaultImportFolder(ipcCompany).
         SYSTEM-DIALOG GET-FILE cFileName 
             TITLE "Select Image File to insert"
-            FILTERS "Excel Comma delimited Files    (*.csv)" "*.csv",
+            FILTERS "Excel Comma delimited Files  (*.csv)" "*.csv",
+                    "Excel Files (*.xls,*.xlsx)" "*.xls,*.xlsx",
             "All Files    (*.*) " "*.*"
             INITIAL-DIR  cDefault
             MUST-EXIST
@@ -377,6 +396,71 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pConvertXLStoCSV C-Win
+PROCEDURE pConvertXLStoCSV:
+/*------------------------------------------------------------------------------
+  Purpose:     Convert an excel file to a csv format.
+  Parameters:  Input - Excel file name
+               Output - Csv file name
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ipcInputFile AS CHAR NO-UNDO.
+  DEFINE OUTPUT PARAMETER ipcOutputFile AS CHAR NO-UNDO INIT "".
+
+  DEF VAR chExcel     AS COM-HANDLE NO-UNDO.
+  DEF VAR chWorkBook  AS COM-HANDLE NO-UNDO.
+  DEF VAR chWorkSheet AS COM-HANDLE NO-UNDO.
+
+  /* Start Excel */
+  CREATE "Excel.Application" chExcel.
+  ASSIGN chExcel:Visible = FALSE.
+  
+  /* Open the file. */
+  chExcel:Workbooks:Open(ipcInputFile,2,TRUE,,,,TRUE).
+
+  /* Get the sheet. */
+  ASSIGN chWorkbook = chExcel:WorkBooks:Item(1).
+/*         chWorkSheet = chExcel:Sheets:Item(1).*/
+  
+  
+
+  /* Convert the filename. */
+  ASSIGN ipcOutputFile = fConvertFileName(ipcInputFile). 
+
+  /* Delete if already exists. */
+  OS-COMMAND SILENT DEL VALUE(ipcOutputFile).
+/*  IF SEARCH(pcInFile) <> ? THEN
+    OS-DELETE value(pcInfile) NO-ERROR. */
+
+  /* Turn off alerts */
+  chExcel:DisplayAlerts = FALSE.
+
+  /* Save the new file in csv format. */
+  chWorkBook:SaveAs(ipcOutputFile,6,,,,,,, TRUE).
+
+  /* Close the workbook. */
+  chWorkBook:Close().
+  
+  /* Release objects. */
+  RELEASE OBJECT chWorkSheet NO-ERROR.
+  RELEASE OBJECT chWorkBook NO-ERROR.
+
+  /* Quit Excel */
+  chExcel:QUIT.
+  RELEASE OBJECT chExcel.
+
+  RETURN.
+
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pImport C-Win 
 PROCEDURE pImport :
 /*------------------------------------------------------------------------------
@@ -388,10 +472,16 @@ PROCEDURE pImport :
     
     DEFINE VARIABLE cImportFormat AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cInput AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cInput AS CHARACTER FORMAT "x(2000)" NO-UNDO.
     DEFINE VARIABLE iLines AS INTEGER NO-UNDO.
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     
+    DEFINE VARIABLE cForm AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPartID AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPartDesc AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cQtyPerSet AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cLength AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cWidth AS CHARACTER NO-UNDO.
 
     cImportFormat = fGetImportFormat(ipcCompany).
     cFile = ipcFileName.
@@ -400,23 +490,27 @@ PROCEDURE pImport :
         INPUT FROM VALUE(cFile) NO-ECHO.
         REPEAT:
             iLines = iLines + 1.
-            IMPORT UNFORMAT cInput.
-            IF iLines = 1 AND lHeaderRow THEN NEXT.
-             DO iIndex = 1 TO LENGTH(cInput):
-                IF KEYCODE(SUBSTRING(cInput,iIndex,1)) = 13  /*Return*/ 
-                OR KEYCODE(SUBSTRING(cInput,iIndex,1)) = 10 /*Return*/ THEN
-                cInput = SUBSTRING(cInput,1,iIndex - 1) + SUBSTRING(cInput,iIndex + 1).
-             END.
-            CREATE ttInputEst.
-            CASE cImportFormat:
+             CASE cImportFormat:
                 WHEN "Protagon" THEN DO:
+                    IMPORT DELIMITER ","
+                        cForm
+                        cPartID
+                        cPartDesc
+                        cQtyPerSet
+                        cLength
+                        cWidth
+                         .
+                    IF iLines = 1 AND lHeaderRow THEN NEXT.
+                       
+                   CREATE ttInputEst.
+               
                    ASSIGN 
-                    ttInputEst.iFormNo = INTEGER(ENTRY(1,cInput))
-                    ttInputEst.cPartID = ENTRY(2,cInput)
-                    ttInputEst.cPartDescription = ENTRY(3,cInput)
-                    ttInputEst.iQuantityYield = INTEGER(ENTRY(4,cInput)) 
-                    ttInputEst.dLength = DECIMAL(TRIM(ENTRY(5,cInput),'"'))
-                    ttInputEst.dWidth = DECIMAL(TRIM(ENTRY(6,cInput),'"'))  
+                    ttInputEst.iFormNo = INTEGER(cForm)
+                    ttInputEst.cPartID = cPartID
+                    ttInputEst.cPartDescription = SUBSTRING(cPartDesc,1,30)
+                    ttInputEst.iQuantityYield = INTEGER(cQtyPerSet)
+                    ttInputEst.dLength = DECIMAL(TRIM(cLength,'"'))
+                    ttInputEst.dWidth = DECIMAL(TRIM(cWidth,'"'))
                     ttInputEst.cStyle = "MISC"
                     ttInputEst.cBoard = "NC"
                     .
@@ -443,7 +537,8 @@ PROCEDURE pRunProcess :
     DEFINE INPUT PARAMETER ipcImportFileName  AS CHARACTER NO-UNDO.
     
     SESSION:SET-WAIT-STATE("general").   
-    
+    IF fIsExcel(ipcImportFileName) THEN 
+        RUN pConvertXLStoCSV(ipcImportFileName, OUTPUT ipcImportFileName).
     RUN pImport (ipcImportFileName).
     RUN pValidateImportedData. 
     
@@ -459,13 +554,13 @@ PROCEDURE pValidateImportedData :
  Notes:
 ------------------------------------------------------------------------------*/
 FOR EACH ttInputEst:
-    MESSAGE 
-        "Form" ttInputEst.iFormNo SKIP 
-        "Part" ttInputEst.cPartID SKIP
-        "Desc" ttInputEst.cPartDescription skip
-        "Length" ttInputEst.dLength skip
-        "Width" ttInputEst.dWidth
-        VIEW-AS ALERT-BOX.     
+/*    MESSAGE                                    */
+/*        "Form" ttInputEst.iFormNo SKIP         */
+/*        "Part" ttInputEst.cPartID SKIP         */
+/*        "Desc" ttInputEst.cPartDescription skip*/
+/*        "Length" ttInputEst.dLength skip       */
+/*        "Width" ttInputEst.dWidth              */
+/*        VIEW-AS ALERT-BOX.                     */
 END.
 
 END PROCEDURE.
@@ -475,6 +570,28 @@ END PROCEDURE.
 
 
 /* ************************  Function Implementations ***************** */
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fConvertFileName C-Win
+FUNCTION fConvertFileName RETURNS CHARACTER 
+ ( INPUT ipcfileName AS CHAR ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cBaseFileName  AS CHAR NO-UNDO.
+
+
+  ASSIGN cBaseFileName = TRIM(ENTRY(1,ipcfileName,".") + ".csv").
+
+  RETURN cBaseFileName.   /* Function return value. */
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetDefaultImportFolder C-Win
@@ -534,6 +651,27 @@ END FUNCTION.
 	
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fIsExcel C-Win
+FUNCTION fIsExcel RETURNS LOGICAL 
+  ( INPUT ipcfileName AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cExt AS CHARACTER NO-UNDO INIT "".
+
+  ASSIGN cExt = TRIM(ENTRY(2,ipcfileName,".")).
+
+  IF LOOKUP(cExt, "xls,xlsx") > 0 THEN 
+      RETURN TRUE.
+  ELSE
+      RETURN FALSE.   /* Function return value. */
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 
