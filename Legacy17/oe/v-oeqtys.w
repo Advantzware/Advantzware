@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -288,7 +288,10 @@ DO:
                             AND fg-set.part-no EQ itemfg.i-no
                           NO-LOCK NO-ERROR.
         IF AVAIL fg-set THEN DO:
-           RUN jc/w-inqjbc.w (ROWID(itemfg), YES).
+    DO:
+        RUN jc/w-inqjbc.w PERSISTENT SET hProgram  (ROWID(itemfg), YES).
+        RUN dispatch IN hProgram ("initialize").
+    END.
         END.
     END.
     FIND FIRST po-ordl

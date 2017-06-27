@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -743,7 +743,6 @@ PROCEDURE valid-char-fld :
   DEF VAR i AS INT NO-UNDO.
   DEF VAR j AS INT NO-UNDO.  
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   lValid = TRUE.
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -848,7 +847,6 @@ PROCEDURE valid-char-fld :
   */
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -862,10 +860,8 @@ PROCEDURE valid-log-fld :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   {sys/ref/valid-log-fld.i}
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

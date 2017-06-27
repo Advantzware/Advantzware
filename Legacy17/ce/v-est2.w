@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1614,7 +1614,10 @@ DO:
        AND ITEM.i-no = ef.board NO-LOCK NO-ERROR.
 
    IF AVAIL ITEM THEN
-   RUN windows/item-fe.w(RECID(ITEM)) .
+    DO:
+        RUN windows/item-fe.w PERSISTENT SET hProgram (RECID(ITEM)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3639,7 +3642,6 @@ PROCEDURE valid-gsh-len :
 
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF ll-auto-calc-selected                                                    AND
        ((DEC(ef.gsh-len:SCREEN-VALUE) LT DEC(ef.nsh-len:SCREEN-VALUE) AND
@@ -3652,7 +3654,6 @@ PROCEDURE valid-gsh-len :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -3672,7 +3673,6 @@ PROCEDURE valid-gsh-wid :
   DEF BUFFER bf-eb FOR eb.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO TRANSACTION:
     {sys/inc/celayout.i}
@@ -3724,7 +3724,6 @@ PROCEDURE valid-gsh-wid :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3746,7 +3745,6 @@ PROCEDURE valid-leaf-bnum :
   DEF VAR lv-bnum AS CHAR NO-UNDO.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     CASE ip-int:
@@ -3791,7 +3789,6 @@ PROCEDURE valid-leaf-bnum :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3812,7 +3809,6 @@ PROCEDURE valid-leaf-snum :
   DEF VAR lv-snum AS CHAR NO-UNDO.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     CASE ip-int:
@@ -3856,7 +3852,6 @@ PROCEDURE valid-leaf-snum :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

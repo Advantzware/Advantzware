@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1629,7 +1629,6 @@ PROCEDURE valid-carrier :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
      FIND FIRST carrier WHERE carrier.company = g_company
                           AND carrier.carrier = inv-head.carrier:SCREEN-VALUE
@@ -1641,7 +1640,6 @@ PROCEDURE valid-carrier :
      END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1656,7 +1654,6 @@ PROCEDURE valid-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     v-msg = "".
@@ -1699,7 +1696,6 @@ PROCEDURE valid-cust-no :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1713,7 +1709,6 @@ PROCEDURE valid-fob :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
  DO WITH FRAME {&FRAME-NAME}:
     IF INDEX("ORIG,DEST",inv-head.fob-code:SCREEN-VALUE) <= 0 THEN DO:
        MESSAGE "Invalid FOB Code. Enter ORIG or DEST ." VIEW-AS ALERT-BOX ERROR.
@@ -1721,7 +1716,6 @@ PROCEDURE valid-fob :
        RETURN ERROR.
     END.
  END.
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1735,7 +1729,6 @@ PROCEDURE valid-freight :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF (inv-head.t-inv-freight:SCREEN-VALUE NE "0.00" ) AND
@@ -1751,7 +1744,6 @@ PROCEDURE valid-freight :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1771,7 +1763,6 @@ PROCEDURE valid-sold-no :
   DEF VAR lv-ship-id    LIKE shipto.ship-id    NO-UNDO.
   DEF VAR lv-ship-state LIKE shipto.ship-state NO-UNDO.
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
      IF (ll-use-soldto AND 
@@ -1841,7 +1832,6 @@ PROCEDURE valid-sold-no :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1855,7 +1845,6 @@ PROCEDURE valid-tax-gr :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF inv-head.tax-gr:SCREEN-VALUE NE "" AND
@@ -1871,7 +1860,6 @@ PROCEDURE valid-tax-gr :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1886,7 +1874,6 @@ PROCEDURE valid-terms :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF inv-head.terms:SCREEN-VALUE NE "CASH" AND
        NOT CAN-FIND(FIRST terms WHERE terms.company EQ g_company
@@ -1898,7 +1885,6 @@ PROCEDURE valid-terms :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

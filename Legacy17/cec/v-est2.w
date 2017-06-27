@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1115,7 +1115,10 @@ DO:
        AND ITEM.i-no = ef.board NO-LOCK NO-ERROR.
 
    IF AVAIL ITEM THEN
-   RUN cec/w-itemc.w(RECID(ITEM)) .
+    DO:
+        RUN cec/w-itemc.w PERSISTENT SET hProgram (RECID(ITEM)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4827,7 +4830,6 @@ PROCEDURE valid-adder :
 
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -4863,7 +4865,6 @@ PROCEDURE valid-adder :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4879,7 +4880,6 @@ PROCEDURE valid-gsh-dep :
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ef.gsh-dep:SCREEN-VALUE) - TRUNC(DEC(ef.gsh-dep:SCREEN-VALUE),0) GE v-16-or-32 THEN
@@ -4898,7 +4898,6 @@ PROCEDURE valid-gsh-dep :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4914,7 +4913,6 @@ PROCEDURE valid-gsh-len :
   DEF VAR lv-msg AS CHAR NO-UNDO.
   DEF VAR v-s-len LIKE ITEM.s-len NO-UNDO.
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ef.gsh-len:SCREEN-VALUE) - TRUNC(DEC(ef.gsh-len:SCREEN-VALUE),0) GE v-16-or-32 THEN
@@ -4951,7 +4949,6 @@ PROCEDURE valid-gsh-len :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4976,7 +4973,6 @@ PROCEDURE valid-gsh-wid :
   DEF VAR v-item-len LIKE ITEM.s-len NO-UNDO.
   DEF VAR v-item-dep LIKE ITEM.s-dep NO-UNDO.
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ef.gsh-wid:SCREEN-VALUE) - TRUNC(DEC(ef.gsh-wid:SCREEN-VALUE),0) GE v-16-or-32 THEN
@@ -5074,7 +5070,6 @@ PROCEDURE valid-gsh-wid :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5096,7 +5091,6 @@ PROCEDURE valid-leaf-bnum :
   DEF VAR lv-bnum AS CHAR NO-UNDO.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     CASE ip-int:
@@ -5141,7 +5135,6 @@ PROCEDURE valid-leaf-bnum :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5162,7 +5155,6 @@ PROCEDURE valid-leaf-snum :
   DEF VAR lv-snum AS CHAR NO-UNDO.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     CASE ip-int:
@@ -5207,7 +5199,6 @@ PROCEDURE valid-leaf-snum :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5221,7 +5212,6 @@ PROCEDURE valid-trim-d :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
@@ -5242,7 +5232,6 @@ PROCEDURE valid-trim-d :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5256,7 +5245,6 @@ PROCEDURE valid-trim-l :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ef.trim-l:SCREEN-VALUE) - TRUNC(DEC(ef.trim-l:SCREEN-VALUE),0) GT v-16-or-32
@@ -5276,7 +5264,6 @@ PROCEDURE valid-trim-l :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -5290,7 +5277,6 @@ PROCEDURE valid-trim-w :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ef.trim-w:SCREEN-VALUE) - TRUNC(DEC(ef.trim-w:SCREEN-VALUE),0) GT v-16-or-32
@@ -5309,7 +5295,6 @@ PROCEDURE valid-trim-w :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

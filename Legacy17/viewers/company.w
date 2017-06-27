@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -444,7 +444,6 @@ DO:
 
   IF {&self-name}:SCREEN-VALUE NE "" THEN DO:
     {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 
     FIND FIRST bf-company
@@ -885,7 +884,6 @@ PROCEDURE valid-co-acc :
 
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF company.co-acc:SCREEN-VALUE NE ""                           AND
        company.co-acc:SCREEN-VALUE NE company.company:SCREEN-VALUE THEN DO:
@@ -902,7 +900,6 @@ PROCEDURE valid-co-acc :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -918,7 +915,6 @@ PROCEDURE valid-curr-code :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
@@ -938,7 +934,6 @@ PROCEDURE valid-curr-code :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -955,7 +950,6 @@ PROCEDURE valid-seq-suffix :
   DEF VAR iCurrOrd AS INT NO-UNDO.
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
     ip-focus:SCREEN-VALUE = STRING(INTEGER(ip-focus:SCREEN-VALUE), "99") NO-ERROR.
@@ -971,7 +965,6 @@ PROCEDURE valid-seq-suffix :
       RETURN ERROR.
     END.
   END.
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

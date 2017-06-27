@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -2325,7 +2325,6 @@ def var v-est-no as cha no-undo.
 def buffer xeb for eb.
 def buffer xoe-ordl for oe-ordl.
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
 {oe/oe-sysct.i}
 if not avail oe-ord then do:
    if not avail oe-ordl then find oe-ordl where recid(oe-ordl) = lv-ordl-recid no-lock.
@@ -2389,7 +2388,6 @@ do with frame {&frame-name} :
    end. /* not avail */
 
 end. /* frame {&frame-name} */
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1325,7 +1325,6 @@ PROCEDURE validate-acct :
   DEF INPUT PARAMETER ip-account LIKE account.actnum.
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   FIND FIRST account WHERE account.company = g_company
                          AND account.type <> "T" AND
                              account.actnum =     ip-account NO-LOCK NO-ERROR.
@@ -1334,7 +1333,6 @@ PROCEDURE validate-acct :
       RETURN ERROR.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1349,7 +1347,6 @@ PROCEDURE validate-line# :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER bf-glrpt FOR gl-rpt.
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
      IF INT(gl-rpt.LINE:SCREEN-VALUE) < 100 THEN DO:
@@ -1370,7 +1367,6 @@ PROCEDURE validate-line# :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1384,7 +1380,6 @@ PROCEDURE validate-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
     IF LOOKUP(string(lv-gl-type,"99"),"21,22,23,24,60,61,71,73,90") = 0 THEN do:
         MESSAGE "Invalid Type. Type must be 22 or 24 or 73 or 90. " VIEW-AS ALERT-BOX.
         APPLY "entry" TO lv-d-type IN FRAME {&FRAME-NAME}.
@@ -1392,7 +1387,6 @@ PROCEDURE validate-record :
     END.
 
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

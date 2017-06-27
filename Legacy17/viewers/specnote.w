@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -172,7 +172,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: ASI.notes
+   External Tables: NOSWEAT.notes
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -558,7 +558,6 @@ PROCEDURE valid-note_code :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF notes.note_code:SCREEN-VALUE NE '' THEN DO:
       dept-dscr:SCREEN-VALUE = ''.
@@ -576,7 +575,6 @@ PROCEDURE valid-note_code :
   END.
 
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -596,7 +594,6 @@ PROCEDURE valid-note_form_no PRIVATE :
 
   DEFINE BUFFER b1-job  FOR job.
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"container-source", OUTPUT char-hdl).
   RUN get-ip-header IN WIDGET-HANDLE(char-hdl) (OUTPUT ls-header).
@@ -640,7 +637,6 @@ PROCEDURE valid-note_form_no PRIVATE :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

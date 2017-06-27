@@ -15,4 +15,4 @@ RUN _admPanels.p.
 RUN _admTransPanels.p.
 RUN _caps.p.
 RUN _dontValidatePanels.p.
-RUN _procValidate.p.
+/*RUN _procValidate.p.*/

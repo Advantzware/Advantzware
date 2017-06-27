@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -987,7 +987,10 @@ DO:
        AND ITEM.i-no = ef.board NO-LOCK NO-ERROR.
 
    IF AVAIL ITEM THEN
-   RUN windows/item-fe.w(RECID(ITEM)) .
+    DO:
+        RUN windows/item-fe.w PERSISTENT SET hProgram (RECID(ITEM)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1003,7 +1006,10 @@ DO:
        AND cust.cust-no = eb.cust-no NO-LOCK NO-ERROR.
 
    IF AVAIL cust THEN
-   RUN windows/v-cust.w(RECID(cust)) .
+    DO:
+        RUN windows/v-cust.w PERSISTENT SET hProgram (RECID(cust)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1019,7 +1025,10 @@ DO:
        AND itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.
 
    IF AVAIL itemfg THEN
-   RUN oe/w-estfg.w(RECID(eb)) .
+    DO:
+        RUN oe/w-estfg.w PERSISTENT SET hProgram (RECID(eb)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1036,7 +1045,10 @@ DO:
        AND bf-est.est-no = FILL(" ",8 - LENGTH(TRIM(INPUT fi_from-est-no))) + TRIM(INPUT fi_from-est-no) NO-LOCK NO-ERROR.
 
    IF AVAIL bf-est THEN
-   RUN est/w-estesf.w(RECID(bf-est)) .
+    DO:
+        RUN est/w-estesf.w PERSISTENT SET hProgram (RECID(bf-est)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1052,7 +1064,10 @@ DO:
        AND style.style = eb.style NO-LOCK NO-ERROR.
 
    IF AVAIL style THEN
-   RUN windows/stylef-e.w(RECID(style)) .
+    DO:
+        RUN windows/stylef-e.w PERSISTENT SET hProgram (RECID(style)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2926,7 +2941,6 @@ PROCEDURE valid-adhesive :
 
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-field:SCREEN-VALUE = CAPS(ip-field:SCREEN-VALUE).
 
@@ -2944,7 +2958,6 @@ PROCEDURE valid-adhesive :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2958,7 +2971,6 @@ PROCEDURE valid-board :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ef.board:SCREEN-VALUE = CAPS(ef.board:SCREEN-VALUE).
@@ -2975,7 +2987,6 @@ PROCEDURE valid-board :
     IF ef.brd-dscr:SCREEN-VALUE EQ "" THEN RUN new-board.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -2995,7 +3006,6 @@ PROCEDURE valid-fi_from-est-no :
   DEF BUFFER b-eb FOR eb.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     fi_from-est-no:SCREEN-VALUE =
@@ -3035,7 +3045,6 @@ PROCEDURE valid-fi_from-est-no :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3055,7 +3064,6 @@ PROCEDURE valid-prep :
   DEF VAR ll AS LOG INIT YES NO-UNDO.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   IF addprep-log THEN
   DO WITH FRAME {&FRAME-NAME}:
@@ -3094,7 +3102,6 @@ PROCEDURE valid-prep :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3108,7 +3115,6 @@ PROCEDURE valid-procat :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     eb.procat:SCREEN-VALUE = CAPS(eb.procat:SCREEN-VALUE).
@@ -3124,7 +3130,6 @@ PROCEDURE valid-procat :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3138,7 +3143,6 @@ PROCEDURE valid-ship-id :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT CAN-FIND(FIRST shipto
@@ -3159,7 +3163,6 @@ PROCEDURE valid-ship-id :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3172,7 +3175,6 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   FIND FIRST sman
         WHERE sman.company EQ cocode
@@ -3187,7 +3189,6 @@ PROCEDURE valid-sman :
     sman_sname:SCREEN-VALUE = sman.sNAME.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3201,7 +3202,6 @@ PROCEDURE valid-style :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     eb.style:SCREEN-VALUE = CAPS(eb.style:SCREEN-VALUE).
@@ -3233,7 +3233,6 @@ PROCEDURE valid-style :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3249,7 +3248,6 @@ PROCEDURE valid-wid-len :
   DEF VAR lv-handle AS HANDLE NO-UNDO.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     lv-handle = IF LOOKUP(FOCUS:NAME,"style,len") GT 0 THEN FOCUS ELSE ?.
@@ -3277,7 +3275,6 @@ PROCEDURE valid-wid-len :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

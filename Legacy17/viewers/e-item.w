@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -738,7 +738,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_more-breaks V-table-Win
 ON CHOOSE OF btn_more-breaks IN FRAME F-Main /* More Breaks */
 DO:
-   RUN rm/d-rmbreaks.w(INPUT ROWID(e-item-vend),
+    DO:
+        RUN rm/d-rmbreaks.w PERSISTENT SET hProgram (INPUT ROWID(e-item-vend),
+        RUN dispatch IN hProgram ("initialize").
+    END.
                        INPUT ROWID(e-item)).
 END.
 
@@ -1802,7 +1805,6 @@ PROCEDURE valid-roll-w-27 :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(e-item-vend.roll-w[27]:SCREEN-VALUE) GT DEC(e-item-vend.roll-w[28]:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(e-item-vend.roll-w[27]:LABEL) " may not be greater than " TRIM(e-item-vend.roll-w[28]:LABEL).
@@ -1811,7 +1813,6 @@ PROCEDURE valid-roll-w-27 :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1827,7 +1828,6 @@ PROCEDURE valid-roll-w-28 :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(e-item-vend.roll-w[28]:SCREEN-VALUE) LT DEC(e-item-vend.roll-w[27]:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(e-item-vend.roll-w[28]:LABEL) " may not be less than " TRIM(e-item-vend.roll-w[27]:LABEL).
@@ -1836,7 +1836,6 @@ PROCEDURE valid-roll-w-28 :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1852,7 +1851,6 @@ PROCEDURE valid-roll-w-29 :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(e-item-vend.roll-w[29]:SCREEN-VALUE) GT DEC(e-item-vend.roll-w[30]:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(e-item-vend.roll-w[29]:LABEL) " may not be greater than " TRIM(e-item-vend.roll-w[30]:LABEL).
@@ -1861,7 +1859,6 @@ PROCEDURE valid-roll-w-29 :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1877,7 +1874,6 @@ PROCEDURE valid-roll-w-30 :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(e-item-vend.roll-w[30]:SCREEN-VALUE) LT DEC(e-item-vend.roll-w[29]:SCREEN-VALUE) THEN DO:
       MESSAGE TRIM(e-item-vend.roll-w[30]:LABEL) " may not be less than " TRIM(e-item-vend.roll-w[29]:LABEL).
@@ -1886,7 +1882,6 @@ PROCEDURE valid-roll-w-30 :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1907,7 +1902,6 @@ PROCEDURE valid-vend-no :
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-focus:SCREEN-VALUE EQ "" THEN
@@ -1943,7 +1937,6 @@ PROCEDURE valid-vend-no :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -200,7 +200,10 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-print V-table-Win
 ON CHOOSE OF btn-print IN FRAME F-Main /* Print */
 DO:
-  RUN oerep/r-onhold.w.
+    DO:
+        RUN oerep/r-onhold.w PERSISTENT SET hProgram .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -6057,7 +6057,6 @@ PROCEDURE valid-cust-no :
 
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF lv-old-cust-no NE oe-ord.cust-no:SCREEN-VALUE THEN RUN new-cust-no.
 
@@ -6091,7 +6090,6 @@ PROCEDURE valid-cust-no :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6107,7 +6105,6 @@ PROCEDURE valid-cust-user :
     DEF INPUT PARAMETER ip-est AS CHAR NO-UNDO .
     DEF VAR v-cust-chk AS CHAR NO-UNDO .
     DEF VAR v-est-no AS CHAR NO-UNDO .
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
 custcount = "".
 DEF VAR lActive AS LOG NO-UNDO.
@@ -6148,7 +6145,6 @@ RUN sys/ref/CustList.p (INPUT cocode,
     END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6163,7 +6159,6 @@ PROCEDURE valid-due-date :
     DEFINE VARIABLE lValid    AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
     DEFINE VARIABLE ldDate    AS DATE    NO-UNDO.
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
 
@@ -6181,7 +6176,6 @@ PROCEDURE valid-due-date :
 
     END.
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6198,7 +6192,6 @@ PROCEDURE valid-entered-ord-no :
   DEF OUTPUT PARAMETER oplGoodOrder AS LOG NO-UNDO.
   DEF BUFFER b-oe-ord FOR oe-ord.
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF ipiOrdNo EQ 0 OR
@@ -6220,7 +6213,6 @@ PROCEDURE valid-entered-ord-no :
 
   END.
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6234,7 +6226,6 @@ PROCEDURE valid-est-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
  /* IF adm-new-record THEN*/
  DO WITH FRAME {&FRAME-NAME}:
@@ -6274,7 +6265,6 @@ PROCEDURE valid-est-no :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6289,13 +6279,11 @@ PROCEDURE valid-job-no :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     oe-ord.job-no:SCREEN-VALUE = FILL(" ",6 - LENGTH(TRIM(oe-ord.job-no:SCREEN-VALUE))) +
                                  TRIM(oe-ord.job-no:SCREEN-VALUE).
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -6311,7 +6299,6 @@ PROCEDURE valid-job-no2 :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF oe-ord.est-no:SCREEN-VALUE NE "" AND
        oe-ord.job-no:SCREEN-VALUE NE "" AND
@@ -6326,7 +6313,6 @@ PROCEDURE valid-job-no2 :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -6344,7 +6330,6 @@ PROCEDURE valid-ord-no :
 
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF INT(oe-ord.ord-no:SCREEN-VALUE) EQ 0 OR
        CAN-FIND(FIRST b-oe-ord
@@ -6360,7 +6345,6 @@ PROCEDURE valid-ord-no :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -6378,7 +6362,6 @@ PROCEDURE valid-po-no :
   DEF BUFFER cust-po-mand FOR reftable.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST cust NO-LOCK
@@ -6422,7 +6405,6 @@ PROCEDURE valid-po-no :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6441,7 +6423,6 @@ PROCEDURE valid-sman :
   DEF VAR lv-sman LIKE sman.sman NO-UNDO.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   li = ip-int.
 
@@ -6493,7 +6474,6 @@ PROCEDURE valid-sman :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6507,7 +6487,6 @@ PROCEDURE valid-tax-gr :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF oe-ord.tax-gr:SCREEN-VALUE NE "" AND
@@ -6523,7 +6502,6 @@ PROCEDURE valid-tax-gr :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -6538,7 +6516,6 @@ PROCEDURE valid-type :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF LOOKUP(fi_type:SCREEN-VALUE,lv-type-codes) LE 0 OR
        (fi_type:SCREEN-VALUE EQ "T" AND
@@ -6551,7 +6528,6 @@ PROCEDURE valid-type :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

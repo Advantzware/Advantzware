@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1448,7 +1448,6 @@ PROCEDURE valid-sch-machine :
   DEFINE BUFFER buf-mach FOR mach.
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   lv-mach-list = "".
 
   FIND FIRST mach NO-LOCK WHERE mach.company = gcompany
@@ -1464,7 +1463,6 @@ PROCEDURE valid-sch-machine :
      END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1477,7 +1475,6 @@ PROCEDURE validate-date-time :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   /* task# 10110517 allow duplicate time if gang jobs is yes*/
   DEF BUFFER bf-mach FOR mach.
@@ -1633,7 +1630,6 @@ PROCEDURE validate-date-time :
 
   IF AVAIL bf-machtran THEN DO: */
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

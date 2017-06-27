@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -173,7 +173,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: ASI.notes
+   External Tables: NOSWEAT.notes
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -485,7 +485,7 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN new-note_code.
-  ASSIGN ASI.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RDC" 
+  ASSIGN NOSWEAT.notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "RDC" 
          spec-desc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Release Date Change" .
 
   IF AVAIL notes THEN DO:     
@@ -634,7 +634,6 @@ PROCEDURE valid-note_code :
 
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -649,7 +648,6 @@ PROCEDURE valid-note_code :
      END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

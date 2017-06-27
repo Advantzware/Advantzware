@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -357,7 +357,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-exrate V-table-Win
 ON CHOOSE OF btn-exrate IN FRAME F-Main /* ExRate */
 DO:
-  RUN windows/d-exrate.w ("ap-inv", RECID(ap-inv)).
+    DO:
+        RUN windows/d-exrate.w PERSISTENT SET hProgram  ("ap-inv", RECID(ap-inv)).
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1173,7 +1176,6 @@ PROCEDURE valid-inv-date :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   IF NOT ll-recur THEN
   DO WITH FRAME {&FRAME-NAME}:
     IF DATE(ap-inv.inv-date:SCREEN-VALUE) GT TODAY THEN DO:
@@ -1190,7 +1192,6 @@ PROCEDURE valid-inv-date :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1205,7 +1206,6 @@ PROCEDURE valid-inv-no :
 ------------------------------------------------------------------------------*/
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   IF NOT ll-recur THEN
   DO WITH FRAME {&FRAME-NAME}:
     IF ap-inv.inv-no:SCREEN-VALUE EQ "" THEN DO:
@@ -1218,7 +1218,6 @@ PROCEDURE valid-inv-no :
     IF ERROR-STATUS:ERROR THEN RETURN ERROR.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1236,7 +1235,6 @@ PROCEDURE valid-tax-gr :
 
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -1253,7 +1251,6 @@ PROCEDURE valid-tax-gr :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1269,7 +1266,6 @@ PROCEDURE valid-vend-inv :
   DEF VAR ll AS LOG NO-UNDO.
 
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST bf-inv
@@ -1294,7 +1290,6 @@ PROCEDURE valid-vend-inv :
 
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1308,7 +1303,6 @@ PROCEDURE valid-vend-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST vend
@@ -1333,7 +1327,6 @@ PROCEDURE valid-vend-no :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

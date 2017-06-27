@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1305,7 +1305,6 @@ PROCEDURE valid-i-no :
   DEF VAR lv-msg AS CHAR NO-UNDO.
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
   FIND FIRST ar-inv NO-LOCK
@@ -1345,7 +1344,6 @@ PROCEDURE valid-i-no :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1360,7 +1358,6 @@ PROCEDURE valid-loc :
 -----------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
@@ -1378,7 +1375,6 @@ PROCEDURE valid-loc :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1392,7 +1388,6 @@ PROCEDURE valid-loc-bin :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
@@ -1414,7 +1409,6 @@ PROCEDURE valid-loc-bin :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1429,7 +1423,6 @@ PROCEDURE valid-ord-no :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
@@ -1455,7 +1448,6 @@ PROCEDURE valid-ord-no :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1470,7 +1462,6 @@ PROCEDURE valid-po-no :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.
@@ -1497,7 +1488,6 @@ PROCEDURE valid-po-no :
   END.
 
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1514,7 +1504,6 @@ PROCEDURE valid-qty-return-inv :
 
 
   {methods/lValidateError.i YES}
-  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF DEC(ip-focus:SCREEN-VALUE) GT
        DEC(oe-retl.tot-qty-return:SCREEN-VALUE) THEN DO:
@@ -1527,7 +1516,6 @@ PROCEDURE valid-qty-return-inv :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
@@ -1543,7 +1531,6 @@ PROCEDURE valid-tag :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   /* Blank tag is valid */
   IF ip-focus:SCREEN-VALUE EQ "" THEN
@@ -1603,7 +1590,6 @@ PROCEDURE valid-tag :
       END. /* if record not found */
   END. /* do with frame */
   {methods/lValidateError.i NO}
-  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1619,7 +1605,6 @@ PROCEDURE valid-tot-qty-return :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
   DEF VAR lv-msg AS CHAR NO-UNDO.
-  {methods/lValidateError.i YES}
   {methods/lValidateError.i YES}
   IF NOT AVAIL oe-reth THEN
     FIND oe-reth WHERE ROWID(oe-reth) EQ rOeReth NO-LOCK NO-ERROR.      
@@ -1679,7 +1664,6 @@ PROCEDURE valid-tot-qty-return :
     END.
   END.
 
-  {methods/lValidateError.i NO}
   {methods/lValidateError.i NO}
 END PROCEDURE.
 
