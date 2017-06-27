@@ -28,7 +28,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
             + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
             + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,PrePressHotFolderOut,"
-            + "METRIC"  .
+            + "METRIC,CEImportForm,CEImportFormFolder"  .
 
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -320,11 +320,21 @@ CASE ip-nk1-value:
         INPUT "PrePress Hot Folder Out",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT YES /* Logical value */).
-   WHEN "METRIC" THEN 
+    WHEN "METRIC" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Default Metric flag to be set",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT YES /* Logical value */).
+    WHEN "CEImportForm" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Enable Import Estimate Form from Excel",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+    WHEN "CEImportFormFolder" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Default Folder for Import Estimate Form",
+        INPUT "C:\temp\" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
         
 END CASE.
 ELSE

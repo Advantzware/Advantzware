@@ -50,7 +50,7 @@ def SHARED var cocode     as   char  format "x(3)"  no-undo.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-25 Btn_itm Btn_itm-cad Btn_tandem ~
-Btn_set Btn_frm-out Btn_est Btn-Copy Btn_est-2 btnImportForm Btn_Cancel 
+Btn_set Btn_frm-out Btn_est Btn-Copy Btn_est-2 Btn_Cancel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -58,6 +58,15 @@ Btn_set Btn_frm-out Btn_est Btn-Copy Btn_est-2 btnImportForm Btn_Cancel
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fEnableImportForm D-Dialog 
+FUNCTION fEnableImportForm RETURNS LOGICAL
+  (ipcCompany AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -176,6 +185,11 @@ DEFINE FRAME D-Dialog
 ASSIGN 
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
+
+/* SETTINGS FOR BUTTON btnImportForm IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnImportForm:HIDDEN IN FRAME D-Dialog           = TRUE.
 
 /* SETTINGS FOR BUTTON Btn_part IN FRAME D-Dialog
    NO-ENABLE                                                            */
@@ -357,13 +371,16 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-IF ip-corr = YES THEN
+IF ip-corr = YES THEN DO:
    ASSIGN
       btn_part:HIDDEN = NO
       btn_part:SENSITIVE = YES
-   .
-ELSE 
-     btnImportForm:HIDDEN = YES.
+      .
+END.
+IF fEnableImportForm(cocode) THEN 
+    ASSIGN  
+        btnImportForm:HIDDEN = NO
+        btnImportForm:SENSITIVE = YES .
     
 {src/adm/template/dialogmn.i}
 
@@ -437,7 +454,7 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   ENABLE RECT-25 Btn_itm Btn_itm-cad Btn_tandem Btn_set Btn_frm-out Btn_est 
-         Btn-Copy Btn_est-2 btnImportForm Btn_Cancel 
+         Btn-Copy Btn_est-2 Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -473,6 +490,39 @@ PROCEDURE state-changed :
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
   DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fEnableImportForm D-Dialog 
+FUNCTION fEnableImportForm RETURNS LOGICAL
+  (ipcCompany AS CHARACTER):
+
+ /*------------------------------------------------------------------------------
+     Purpose: Returns a logical value based on the value of the CEImportForm NK1 
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE lResult AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO. 
+    
+    RUN sys\ref\nk1look.p (ipcCompany,
+        'CEImportForm',
+        'L',
+        NO,
+        NO,
+        '',
+        '', 
+        OUTPUT cReturn,
+        OUTPUT lFound).
+
+    lResult = lFound AND cReturn EQ 'YES'.
+    RETURN lResult.
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

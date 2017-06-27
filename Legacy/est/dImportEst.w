@@ -21,108 +21,7 @@ DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 
 {est\ttInputEst.i}
 
-/*/* Local Variable Definitions ---                                       */     */
-/*{methods/defines/hndldefs.i}                                                   */
-/*{methods/prgsecur.i}                                                           */
-/*                                                                               */
-/*{custom/gcompany.i}                                                            */
-/*{custom/getcmpny.i}                                                            */
-/*{custom/gloc.i}                                                                */
-/*{custom/getloc.i}                                                              */
-/*                                                                               */
-/*{sys/inc/var.i new shared}                                                     */
-/*                                                                               */
-/*def new shared buffer xest for est.                                            */
-/*def new shared buffer xef for ef.                                              */
-/*def new shared buffer xeb for eb.                                              */
-/*                                                                               */
-/*def buffer xop for est-op.                                                     */
-/*                                                                               */
-/*def new shared var xcal    as de no-undo.                                      */
-/*def new shared var sh-wid  as de no-undo.                                      */
-/*def new shared var sh-len  as de no-undo.                                      */
-/*def new shared var fil_id  as recid no-undo.                                   */
-/*def new shared var maxco   as int no-undo.                                     */
-/*def new shared var qty     as int no-undo.                                     */
-/*def new shared var v-qty-mod as log no-undo.                                   */
-/*def new shared var nufile as log INITIAL YES no-undo.                          */
-/*def NEW shared var v-create-job as   log    no-undo.  /* for job oe/estupl.p */*/
-/*                                                                               */
-/*DEF BUFFER oe-ord-whs-order FOR reftable.                                      */
-/*DEF BUFFER oe-ordl-whs-item FOR reftable.                                      */
-/*                                                                               */
-/*ASSIGN                                                                         */
-/*  cocode = gcompany                                                            */
-/*  locode = gloc.                                                               */
-/*                                                                               */
-/*DEF BUFFER bf-oe-rel FOR oe-rel.                                               */
-/*                                                                               */
-/*DEF TEMP-TABLE ttHeader                                                        */
-/*       FIELD Order# AS INT                                                     */
-/*       FIELD BillTo AS cha                                                     */
-/*       FIELD SoldTo AS cha                                                     */
-/*       FIELD ShipTo AS cha                                                     */
-/*       FIELD DueDate AS DATE                                                   */
-/*       FIELD Customer# AS cha                                                  */
-/*       FIELD CreditCard AS cha                                                 */
-/*       FIELD VCode AS cha                                                      */
-/*       FIELD CCExpDate AS DATE                                                 */
-/*       FIELD CCType AS cha                                                     */
-/*       FIELD Est# AS cha                                                       */
-/*       FIELD CustomerValid AS LOG                                              */
-/*       FIELD po-no AS CHAR                                                     */
-/*       FIELD Quote# AS INT                                                     */
-/*       .                                                                       */
-/*                                                                               */
-/*DEF TEMP-TABLE ttDetail                                                        */
-/*      FIELD Order# AS INT                                                      */
-/*      FIELD FgItem AS CHAR                                                     */
-/*      FIELD CustPart AS CHAR                                                   */
-/*      FIELD ItemQty AS INT                                                     */
-/*      FIELD ItemUom AS CHAR                                                    */
-/*      FIELD ItemPrice AS DEC                                                   */
-/*      FIELD ItemPO# AS CHAR                                                    */
-/*      FIELD ItemDueDate AS DATE                                                */
-/*      FIELD ItemEst# AS CHAR                                                   */
-/*      FIELD ItemValid AS LOG                                                   */
-/*      FIELD NoteTITLE AS CHAR                                                  */
-/*      FIELD notes AS CHAR                                                      */
-/*      FIELD ShipTo AS CHAR                                                     */
-/*      FIELD ShipFrom AS CHAR                                                   */
-/*      FIELD ItemQuote# AS INT                                                  */
-/*      .                                                                        */
-/*                                                                               */
-/*/* rstark 05291402 */                                                          */
-/*{XMLOutput/ttNodes.i NEW}                                                      */
-/*{cXML/cXMLOrderFunc.i}                                                         */
-/*/* rstark 05291402 */                                                          */
-/*                                                                               */
-/*DO TRANSACTION:                                                                */
-/*    {sys/inc/oereleas.i}                                                       */
-/*    {sys/inc/oeimport.i}                                                       */
-/*END.                                                                           */
-/*                                                                               */
-/*DEF VAR oeimportCompleted AS cha NO-UNDO.                                      */
-/*DEF VAR gImportMultiFile AS LOG NO-UNDO.                                       */
-/*DEF VAR gcImportError AS cha NO-UNDO.                                          */
-/*                                                                               */
-/*/* for oe/oe-price.p ========*/                                                */
-/*DEF NEW SHARED BUFFER xoe-ord FOR oe-ord.    /* BUFFER WITH ORDER HEADER */    */
-/*DEF NEW SHARED VAR save_id AS RECID NO-UNDO.  /* RECORD ID FOR ORDER LINE */   */
-/*DEF NEW SHARED VAR v-i-item LIKE oe-ordl.i-no NO-UNDO. /* INPUT ITEM */        */
-/*DEF NEW SHARED VAR v-i-qty LIKE oe-ordl.qty NO-UNDO. /* INPUT QUANTITY */      */
-/*DEF NEW SHARED VAR price-ent AS LOG NO-UNDO.                                   */
-/*DEF NEW SHARED VAR matrixExists AS LOG NO-UNDO.                                */
-/*DEF NEW SHARED VAR lv-qty AS INT NO-UNDO.                                      */
-/*DEF VAR llBatchMode AS LOG NO-UNDO.                                            */
-/*DEF VAR lcProgStack AS CHAR NO-UNDO.                                           */
-/*                                                                               */
-/*{ce/print4a.i "new shared"}                                                    */
-/*                                                                               */
-/*find first sys-ctrl where sys-ctrl.company eq cocode                           */
-/*                        and sys-ctrl.name    eq "JOBCREAT"                     */
-/*                        no-lock no-error.                                      */
-/*v-create-job = IF AVAIL sys-ctrl THEN sys-ctrl.log-fld ELSE NO.                */
+/* Local Variable Definitions ---                                       */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -149,6 +48,22 @@ btn-cancel
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+/* ************************  Function Prototypes ********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetDefaultImportFolder C-Win
+FUNCTION fGetDefaultImportFolder RETURNS CHARACTER 
+  ( ipcCompany AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetImportFormat C-Win
+FUNCTION fGetImportFormat RETURNS CHARACTER 
+  ( ipcCompany AS CHARACTER ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 
 /* ***********************  Control Definitions  ********************** */
@@ -178,7 +93,7 @@ DEFINE RECTANGLE RECT-19
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 98 BY 3.33.
 
-DEFINE VARIABLE lHeaderRow AS LOGICAL INITIAL no 
+DEFINE VARIABLE lHeaderRow AS LOGICAL INITIAL yes 
      LABEL "First Row is Header" 
      VIEW-AS TOGGLE-BOX
      SIZE 43 BY .81 NO-UNDO.
@@ -340,7 +255,6 @@ DO:
         APPLY "close" TO THIS-PROCEDURE.
    
     END.
-    
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -352,12 +266,14 @@ ON HELP OF fcFileName IN FRAME FRAME-A /* Import File: */
 DO:
         DEFINE VARIABLE cFileName AS CHARACTER NO-UNDO.
         DEFINE VARIABLE lOK       AS LOGICAL  NO-UNDO.
-   
+        DEFINE VARIABLE cDefault AS CHARACTER NO-UNDO.
+        
+        cDefault = fGetDefaultImportFolder(ipcCompany).
         SYSTEM-DIALOG GET-FILE cFileName 
             TITLE "Select Image File to insert"
             FILTERS "Excel Comma delimited Files    (*.csv)" "*.csv",
             "All Files    (*.*) " "*.*"
-/*            INITIAL-DIR  oeimport-cha*/
+            INITIAL-DIR  cDefault
             MUST-EXIST
             USE-FILENAME
             UPDATE lOK.
@@ -470,13 +386,14 @@ PROCEDURE pImport :
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
     
-    DEFINE VARIABLE cImportFormat AS CHARACTER NO-UNDO INIT "Protagon".
+    DEFINE VARIABLE cImportFormat AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cInput AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iLines AS INTEGER NO-UNDO.
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     
 
+    cImportFormat = fGetImportFormat(ipcCompany).
     cFile = ipcFileName.
     IF SEARCH(cFile) NE ? THEN 
     DO:
@@ -555,4 +472,71 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+/* ************************  Function Implementations ***************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetDefaultImportFolder C-Win
+FUNCTION fGetDefaultImportFolder RETURNS CHARACTER 
+  (ipcCompany AS CHARACTER ):
+/*------------------------------------------------------------------------------
+     Purpose: Returns the character value for CEImportFormFolder NK1 
+     Notes: Default path when launching lookup on import file
+    ------------------------------------------------------------------------------*/    
+    
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO. 
+    
+    RUN sys\ref\nk1look.p (ipcCompany,
+        'CEImportFormFolder',
+        'C',
+        NO,
+        NO,
+        '',
+        '', 
+        OUTPUT cReturn,
+        OUTPUT lFound).
+    
+    IF lFound THEN 
+        RETURN cReturn.
+
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetImportFormat C-Win
+FUNCTION fGetImportFormat RETURNS CHARACTER 
+  ( ipcCompany AS CHARACTER ):
+/*------------------------------------------------------------------------------
+     Purpose: Returns the format for importing forms
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO. 
+    
+    RUN sys\ref\nk1look.p (ipcCompany,
+        'CEImportForm',
+        'C',
+        NO,
+        NO,
+        '',
+        '', 
+        OUTPUT cReturn,
+        OUTPUT lFound).
+    
+    IF lFound THEN 
+        RETURN cReturn.
+    
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+
 
