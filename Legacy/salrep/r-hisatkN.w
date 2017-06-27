@@ -2175,6 +2175,7 @@ IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
 
             PUT str-line SKIP.
             PUT UNFORMATTED "         TOTALS" substring(cDisplay,16,350) SKIP.
+            PUT str-line SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  '               TOTALS ,'
                        substring(cExcelDisplay,4,350) SKIP(1).
@@ -2244,7 +2245,7 @@ end.
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
-            PUT str-line SKIP.
+           /* PUT str-line SKIP.*/
             PUT UNFORMATTED "   GRAND TOTALS" substring(cDisplay,16,350) SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  '        GRAND TOTALS ,'
