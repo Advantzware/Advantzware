@@ -76,11 +76,9 @@ DEFINE VARIABLE h_bedshtr AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-asngen AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_vedorder AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_vedpoln AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -94,8 +92,8 @@ DEFINE FRAME F-Main
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 68 ROW 2.91
-         SIZE 83 BY 1.43
+         AT COL 47 ROW 2.91
+         SIZE 104 BY 1.43
          BGCOLOR 4 .
 
 DEFINE FRAME OPTIONS-FRAME
@@ -112,7 +110,7 @@ DEFINE FRAME OPTIONS-FRAME
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 2
+   Design Page: 1
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -336,7 +334,7 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_bedshln ).
        RUN set-position IN h_bedshln ( 4.81 , 3.00 ) NO-ERROR.
-       RUN set-size IN h_bedshln ( 19.52 , 145.00 ) NO-ERROR.
+       RUN set-size IN h_bedshln ( 16.91 , 145.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
@@ -349,14 +347,12 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             INPUT  'edi/p-asngen.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-updsav ).
-       RUN set-position IN h_p-updsav ( 22.19 , 92.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
+             INPUT  'Layout = ':U ,
+             OUTPUT h_p-asngen ).
+       RUN set-position IN h_p-asngen ( 22.19 , 89.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.05 , 36.00 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -364,46 +360,17 @@ PROCEDURE adm-create-objects :
        /* Links to SmartNavBrowser h_bedshln. */
        RUN add-link IN adm-broker-hdl ( h_bedshtr , 'Record':U , h_bedshln ).
 
+       /* Links to SmartViewer h_p-asngen. */
+       RUN add-link IN adm-broker-hdl ( h_bedshtr , 'asn':U , h_p-asngen ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_bedshln ,
              h_folder , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
              h_bedshln , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-asngen ,
              h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
-    WHEN 3 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'edi/vedpoln.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_vedpoln ).
-       RUN set-position IN h_vedpoln ( 4.81 , 4.00 ) NO-ERROR.
-       /* Size in UIB:  ( 17.14 , 144.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'edi/vedorder.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_vedorder ).
-       RUN set-position IN h_vedorder ( 18.86 , 46.00 ) NO-ERROR.
-       /* Size in UIB:  ( 1.91 , 20.00 ) */
-
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
-
-       /* Links to SmartViewer h_vedpoln. */
-       RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_vedpoln ).
-
-       /* Links to SmartViewer h_vedorder. */
-       RUN add-link IN adm-broker-hdl ( h_vedpoln , 'createOrder':U , h_vedorder ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_vedpoln ,
-             h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_vedorder ,
-             h_vedpoln , 'AFTER':U ).
-    END. /* Page 3 */
 
   END CASE.
   /* Select a Startup page. */

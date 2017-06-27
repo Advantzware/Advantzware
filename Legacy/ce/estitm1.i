@@ -1,23 +1,25 @@
 
-  if not ll-is-copy-record and not ll-copied-from-eb THEN DO:
-    IF (ll-new-record or is-first-record) then do:
-      if eb.stock-no = "" then do:
-        find first ce-ctrl where ce-ctrl.company = gcompany and
+  IF NOT ll-is-copy-record AND NOT ll-copied-from-eb THEN DO:
+    IF (ll-new-record OR is-first-record) THEN DO:
+      IF eb.stock-no = "" THEN DO:
+        FIND FIRST ce-ctrl WHERE ce-ctrl.company = gcompany AND
                                  ce-ctrl.loc = gloc
-                                 no-lock no-error.
+                                 NO-LOCK NO-ERROR.
         eb.cas-no = ce-ctrl.def-case.
         eb.tr-no = ce-ctrl.def-pal.      
-      end.
-      find cust where cust.company = gcompany and
+      END.
+      FIND cust WHERE cust.company = gcompany AND
                       cust.cust-no = eb.cust-no
-                      no-lock no-error.
-      eb.cas-no = if avail cust and cust.case-bundle <> "" then cust.case-bundle else eb.cas-no.
-      eb.tr-no = if AVAIL shipto AND shipto.pallet <> "" THEN shipto.pallet ELSE IF avail cust and cust.pallet <> "" then cust.pallet else eb.tr-no.      
+                      NO-LOCK NO-ERROR.
+      RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
+      IF cPackCodeOverride GT "" THEN 
+          eb.cas-no = cPackCodeOverride.
+      eb.tr-no = IF AVAIL shipto AND shipto.pallet <> "" THEN shipto.pallet ELSE IF AVAIL cust AND cust.pallet <> "" THEN cust.pallet ELSE eb.tr-no.      
       /* get default values from rm table */
-      find item where item.company = eb.company and
+      FIND item WHERE item.company = eb.company AND
                       item.i-no = eb.cas-no
-               no-lock no-error.
-      if avail item then assign /*eb.cas-cost:Screen-value = */
+               NO-LOCK NO-ERROR.
+      IF AVAIL item THEN ASSIGN /*eb.cas-cost:Screen-value = */
                                eb.cas-cnt = (item.box-case)
                                eb.cas-len = (item.case-l)
                                eb.cas-wid = (item.case-w)
@@ -25,10 +27,10 @@
                                eb.cas-pal = (item.case-pall)
                                eb.cas-wt = (item.avg-w)         
                                .
-      find item where item.company = eb.company and
+      FIND item WHERE item.company = eb.company AND
                       item.i-no = eb.tr-no
-               no-lock no-error.
-      if avail item then assign /*eb.cas-cost:Screen-value = */
+               NO-LOCK NO-ERROR.
+      IF AVAIL item THEN ASSIGN /*eb.cas-cost:Screen-value = */
                                eb.tr-len = (item.case-l)
                                eb.tr-wid = (item.case-w)
                                eb.tr-dep = (item.case-d)
@@ -37,11 +39,11 @@
        eb.tr-cnt = eb.cas-cnt * eb.cas-pal
        eb.tr-cas = 1.
 
-      find style where style.company = est.company and
-                       style.style = eb.style:screen-value in browse {&browse-name}
-                       no-lock no-error.
-      if avail style then do:
-        assign eb.adhesive = style.material[7]
+      FIND style WHERE style.company = est.company AND
+                       style.style = eb.style:screen-value IN BROWSE {&browse-name}
+                       NO-LOCK NO-ERROR.
+      IF AVAIL style THEN DO:
+        ASSIGN eb.adhesive = style.material[7]
                eb.gluelap = style.dim-gl
                eb.k-len = style.dim-dkl
                eb.k-wid = style.dim-dkw
@@ -53,23 +55,23 @@
                           AND ITEM.i-no = eb.adhesive NO-LOCK NO-ERROR.
         IF AVAIL ITEM AND index("G,S,T",ITEM.mat-type) > 0 AND ITEM.i-no <> "No Joint"
         THEN eb.lin-in = eb.dep.
-      end.  /* avail style */ 
+      END.  /* avail style */ 
 
-      run calc-pass.
-      run calc-blank-size.
+      RUN calc-pass.
+      RUN calc-blank-size.
 
       /*if eb.gluelap <> 0 then eb.lin-in = eb.dep.    old logic, new in style block*/
 
-      if not avail cust then find cust where cust.company = eb.company and
+      IF NOT AVAIL cust THEN FIND cust WHERE cust.company = eb.company AND
                                   cust.cust-no = eb.cust-no
-                                  no-lock no-error.
+                                  NO-LOCK NO-ERROR.
 
       RUN ce/markup.p (eb.company, ROWID(eb), OUTPUT ld-markup).
 
-      if v-shiptorep-log then  /* task 05301401 */
+      IF v-shiptorep-log THEN  /* task 05301401 */
       RUN sys/inc/getsmncm-2.p (eb.cust-no, INPUT-OUTPUT eb.sman, eb.procat, ld-markup,
                               OUTPUT eb.comm,eb.ship-id).
-	else
+	ELSE
 	  RUN sys/inc/getsmncm.p (eb.cust-no, INPUT-OUTPUT eb.sman, eb.procat, ld-markup,
                               OUTPUT eb.comm).
 		
@@ -86,48 +88,48 @@
             WHERE item.company EQ gcompany
               AND item.i-no    EQ ef.board
             NO-ERROR.
-        if avail item then do:
-           assign /*ef.board = item.i-no */
+        IF AVAIL item THEN DO:
+           ASSIGN /*ef.board = item.i-no */
                   ef.i-code = item.i-code
                   ef.flute = item.flute
                   ef.test = item.reg-no
                   ef.weight = item.basis-w.
-           RUN sys/ref/uom-rm.p (item.mat-type, output uom-list).
+           RUN sys/ref/uom-rm.p (item.mat-type, OUTPUT uom-list).
            IF uom-list NE "" THEN ef.cost-uom = ENTRY(1,uom-list).
-           if item.i-code = "R" then assign ef.lsh-len = item.s-len
+           IF item.i-code = "R" THEN ASSIGN ef.lsh-len = item.s-len
                                             ef.lsh-wid = item.s-wid
                                             ef.gsh-wid = item.s-wid.
-           if item.r-wid <> 0 then assign ef.roll = true
+           IF item.r-wid <> 0 THEN ASSIGN ef.roll = TRUE
                                           ef.roll-wid = item.r-wid
                                           ef.lsh-wid = item.r-wid
                                           ef.gsh-wid = item.r-wid.   
            FIND FIRST e-item OF item NO-LOCK NO-ERROR.
            IF AVAIL e-item THEN ef.cost-uom = e-item.std-uom.
-        end.          
+        END.          
      /*end.  /* avail reftable */*/
 
-      if style.material[5] ne "" then do:  /* leaf label */
-               find first item  where item.company eq cocode
-                                  and item.i-no    eq style.material[5]
-                   no-lock no-error.
-               if avail item then /*leaf-block:
+      IF style.material[5] NE "" THEN DO:  /* leaf label */
+               FIND FIRST item  WHERE item.company EQ cocode
+                                  AND item.i-no    EQ style.material[5]
+                   NO-LOCK NO-ERROR.
+               IF AVAIL item THEN /*leaf-block:
                for each ef where ef.company eq xest.company and
                                  ef.est-no = xest.est-no,
                    first eb of ef no-lock:  */
-                  do i = 1 to 2:
-                     if ef.leaf[i] = "" then do:
-                        assign ef.leaf-snum[i] = ef.form-no
+                  DO i = 1 TO 2:
+                     IF ef.leaf[i] = "" THEN DO:
+                        ASSIGN ef.leaf-snum[i] = ef.form-no
                                ef.leaf-bnum[i] = 1
                                ef.leaf[i]      = item.i-no
                                ef.leaf-dscr[i] = item.est-dscr
                                ef.leaf-l[i] = eb.t-len
                                ef.leaf-w[i] = eb.t-wid
                                .
-                         leave.
-                     end.   
-                  end.
+                         LEAVE.
+                     END.   
+                  END.
             /*   end. */
-      end.
+      END.
 
       RUN calc-layout (YES).
     END. /* not new or first */

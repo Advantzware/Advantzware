@@ -14,7 +14,7 @@ IF AVAILABLE module AND module.is-used THEN DO:
       RUN custom/rfq-qty.p (quotehd.company,quotehd.loc,quotehd.est-no,
                             quotehd.rfq,quoteitm.part-no,quoteqty.qty,
                             quoteqty.price,quoteqty.uom,TODAY,quoteqty.rels).
-      DISCONNECT rfq.
+      /* DISCONNECT rfq. */
     END. /* if connected */
   END. /* expire-date */
 END. /* avail module */

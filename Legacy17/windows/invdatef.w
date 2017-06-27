@@ -69,7 +69,7 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_ar-invf AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_invdatef-2 AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_p-update AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updcan AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -141,7 +141,7 @@ THEN W-Win:HIDDEN = yes.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -225,7 +225,7 @@ PROCEDURE adm-create-objects :
 
   CASE adm-current-page: 
 
-    WHEN 0 THEN DO:
+    WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/invdatef.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -243,25 +243,21 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 4.76 , 29.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'panels/p-update.w':U ,
+             INPUT  'p-updcan.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
-             OUTPUT h_p-update ).
-       RUN set-position IN h_p-update ( 8.62 , 40.00 ) NO-ERROR.
-       RUN set-size IN h_p-update ( 1.76 , 31.00 ) NO-ERROR.
+             OUTPUT h_p-updcan ).
+       RUN set-position IN h_p-updcan ( 8.62 , 40.00 ) NO-ERROR.
+       RUN set-size IN h_p-updcan ( 1.76 , 31.00 ) NO-ERROR.
 
        /* Links to SmartViewer h_invdatef-2. */
        RUN add-link IN adm-broker-hdl ( h_ar-invf , 'Record':U , h_invdatef-2 ).
-       RUN add-link IN adm-broker-hdl ( h_p-update , 'TableIO':U , h_invdatef-2 ).
+       RUN add-link IN adm-broker-hdl ( h_p-updcan , 'TableIO':U , h_invdatef-2 ).
 
        /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_ar-invf ,
-             h_invdatef-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-update ,
-             h_ar-invf , 'AFTER':U ).
-    END. /* Page 0 */
+    END. /* Page 1 */
 
   END CASE.
   /* Select a Startup page. */

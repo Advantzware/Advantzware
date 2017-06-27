@@ -13,7 +13,7 @@
 
 /* revised by DGD on 04/01/2007 */
 CONNECT -H asisbs -N TCP -S 3703 -db nosweat   -ld NOSWEAT.
-CONNECT -H asisbs -N tcp -S 3701 -db	asi       -ld ASI.
+CONNECT -H asisbs -N tcp -S 3701 -db asi       -ld ASI.
 CONNECT -H asisbs -N tcp -S 3714 -db asihelp   -ld ASIHLP.
 CONNECT -H asisbs -N tcp -S 3706 -db emptrack  -ld EMPTRACK.
 CONNECT -H asisbs -N tcp -S 3705 -db jobs      -ld JOBS.

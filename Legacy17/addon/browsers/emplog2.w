@@ -34,7 +34,6 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\emplog2.i
 &SCOPED-DEFINE yellowColumnsName emplogin
 /* Parameters Definitions ---                                           */
 

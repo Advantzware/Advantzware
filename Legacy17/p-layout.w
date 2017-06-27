@@ -239,7 +239,7 @@ DO:
      run auto-calc in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -258,7 +258,7 @@ DO:
      run update-bom in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -277,9 +277,9 @@ DO:
              btn-stds:sensitive = yes.
 
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -298,7 +298,7 @@ DO:
       IF VALID-HANDLE(widget-handle(source-str)) THEN 
           run run-form-copy in widget-handle(source-str). 
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -327,7 +327,7 @@ DO:
         IF Btn-Save:LABEL = '&Override' /*'&Update'*/ THEN 
         DO:
            RUN new-state('update-begin':U).
-           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p */
            ASSIGN add-active = no.
            assign btn-auto-calc:sensitive = no
                   btn-bom:sensitive = no
@@ -337,7 +337,7 @@ DO:
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
            assign btn-auto-calc:sensitive = yes
                   btn-bom:sensitive = yes
                   btn-sht-calc:sensitive = yes
@@ -347,14 +347,14 @@ DO:
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
         assign btn-auto-calc:sensitive = yes
                btn-bom:sensitive = yes
                btn-sht-calc:sensitive = yes
                btn-stds:sensitive = yes.
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -376,7 +376,7 @@ DO:
      run sheet-calc in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -395,7 +395,7 @@ DO:
       IF VALID-HANDLE(widget-handle(source-str)) THEN 
           run run-job-stds in widget-handle(source-str). 
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -429,9 +429,9 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
-  {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
-  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
+  {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p */
+  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

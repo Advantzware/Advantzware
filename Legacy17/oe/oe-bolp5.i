@@ -161,6 +161,11 @@ DO li-{2} = 1 TO 5:
            fg-bin.qty           = fg-bin.qty - lv-qty
            v-partial            = v-partial - lv-partial
            fg-bin.partial-count = fg-bin.partial-count - lv-partial.
+           
+           /* Delete zero bins unless FgKeepZeroBin is selected */
+           IF NOT FgKeepZeroBin-log AND fg-bin.qty EQ 0 AND fg-bin.partial-count EQ 0 THEN 
+              DELETE fg-bin.
+              
         END. /* avail fg-bin */
       END. /* if save bin is not blank */
 

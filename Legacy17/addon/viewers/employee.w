@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:40 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -242,7 +242,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: EMPTRACK.employee
+   External Tables: employee
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -340,11 +340,14 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL employee.emp_type V-table-Win
 ON LEAVE OF employee.emp_type IN FRAME F-Main /* Employee Type */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   {methods/entryerr.i
       &can-find="emp_type WHERE emp_type.emp_type = SELF:SCREEN-VALUE"
       &error-message="Invalid Employee Type"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -368,6 +371,7 @@ ON LEAVE OF pass-word IN FRAME F-Main /* Password */
 DO:
   IF SELF:MODIFIED THEN
   DO:
+    {&methods/lValidateError.i YES}
     is-password-changed = yes.
     ASSIGN
       {&SELF-NAME}
@@ -375,8 +379,10 @@ DO:
     ENABLE verify-passwd WITH FRAME {&FRAME-NAME}.
     APPLY 'ENTRY' TO verify-passwd.
     RETURN NO-APPLY.
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -419,6 +425,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL verify-passwd V-table-Win
 ON LEAVE OF verify-passwd IN FRAME F-Main /* Verify Password */
 DO:
+  {&methods/lValidateError.i YES}
   ASSIGN {&SELF-NAME}.
   HIDE {&SELF-NAME}.
   IF {&SELF-NAME} = pass-word THEN
@@ -426,7 +433,9 @@ DO:
   MESSAGE 'PASSWORD VERIFICATION FAILED - PLEASE TRY AGAIN' VIEW-AS ALERT-BOX.
   APPLY 'ENTRY' TO pass-word.
   RETURN NO-APPLY.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -584,7 +593,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  {&methods/lValidateError.i YES}
   /*=== validate password ===*/
   if is-password-changed then do with frame {&frame-name}:  
      is-password-changed = no.
@@ -596,13 +605,14 @@ PROCEDURE local-update-record :
         RETURN NO-APPLY.
      end.
   end.
-
+  {&methods/lValidateError.i NO} 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

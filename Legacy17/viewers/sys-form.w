@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:54 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -448,6 +448,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sys-ctrl-shipto.cust-vend-no V-table-Win
 ON LEAVE OF sys-ctrl-shipto.cust-vend-no IN FRAME F-Main /* Customer/Vendor ID */
 DO:
+  {&methods/lValidateError.i YES}
   IF SELF:SCREEN-VALUE NE '' THEN DO:
     IF {&FIRST-EXTERNAL-TABLE}.cust-vend:SCREEN-VALUE EQ 'Yes' THEN DO:
       {methods/entryerr.i
@@ -465,7 +466,9 @@ DO:
     END.
   END.
   {methods/dispflds.i}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -508,6 +511,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sys-ctrl-shipto.ship-id V-table-Win
 ON LEAVE OF sys-ctrl-shipto.ship-id IN FRAME F-Main /* Ship To ID */
 DO:
+  {&methods/lValidateError.i YES}
   IF {&FIRST-EXTERNAL-TABLE}.cust-vend:SCREEN-VALUE EQ 'Yes' AND
      SELF:SCREEN-VALUE NE '' THEN DO:
     {methods/entryerr.i
@@ -518,7 +522,9 @@ DO:
       &error-message="Invalid Ship To"}
   END.
   {methods/dispflds.i}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

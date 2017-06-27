@@ -214,7 +214,7 @@ DO:
     IF g-sharpshooter THEN RUN addon/fg/fg-physs.w PERSISTENT SET hProgram.
     ELSE RUN addon/fg/fg-phys.w PERSISTENT SET hProgram.
    RUN dispatch IN hProgram ("initialize").
-/*   RUN dispatch IN hProgram ("view").*/
+   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -239,7 +239,7 @@ DO:
   /* IF g-sharpshooter THEN RUN addon/fg/fg-conss.w.
    ELSE */ RUN addon/fg/fg-cons.w PERSISTENT SET hProgram.
    RUN dispatch IN hProgram ("initialize").
-/*   RUN dispatch IN hProgram ("view").*/
+   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -254,7 +254,7 @@ DO:
    IF g-sharpshooter THEN RUN addon/fg/fg-rcpts.w PERSISTENT SET hProgram ("Delete").
    ELSE RUN addon/fg/fg-rcpt.w PERSISTENT SET hProgram ("Delete").
    RUN dispatch IN hProgram ("initialize").
-/*   RUN dispatch IN hProgram ("view").*/
+   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -297,7 +297,7 @@ DO:
    IF g-sharpshooter THEN RUN addon/fg/fg-rcpts.w PERSISTENT SET hProgram ("Receipt").
    ELSE RUN addon/fg/fg-rcpt.w PERSISTENT SET hProgram ("Receipt").
    RUN dispatch IN hProgram ("initialize").
-/*   RUN dispatch IN hProgram ("view").*/
+   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -324,7 +324,7 @@ DO:
    IF g-sharpshooter THEN RUN addon/fg/fg-trnss.w PERSISTENT SET hProgram.
    ELSE RUN addon/fg/fg-trans.w PERSISTENT SET hProgram.
    RUN dispatch IN hProgram ("initialize").
-/*   RUN dispatch IN hProgram ("view").*/
+   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -339,7 +339,7 @@ DO:
    IF g-sharpshooter THEN RUN addon/fg/fg-ucpts.w PERSISTENT SET hProgram.
    ELSE RUN addon/fg/fg-ucpt.w PERSISTENT SET hProgram.
    RUN dispatch IN hProgram ("initialize").
-/*   RUN dispatch IN hProgram ("view").*/
+   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */

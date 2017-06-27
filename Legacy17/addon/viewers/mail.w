@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:40 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -167,7 +167,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: EMPTRACK.maillist
+   External Tables: maillist
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -339,6 +339,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL maillist.list-name V-table-Win
 ON LEAVE OF maillist.list-name IN FRAME F-Main /* Title */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and
        maillist.list-name:screen-value <> "" and
        can-find(first bf-maillist where bf-maillist.list-name = self:screen-value and
@@ -346,8 +347,10 @@ DO:
     then do:
          message "Title already exists. Use other title please." view-as alert-box.
          return no-apply.
-    end.                                    
+    end.    
+    {&methods/lValidateError.i NO}                                
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -591,6 +594,7 @@ PROCEDURE local-update-record :
 
   ASSIGN ll-new-record = adm-new-record
          ll-add-record = adm-adding-record.
+  {&methods/lValidateError.i YES}
   do with frame {&frame-name} :
      if maillist.list-name:screen-value <> "" and
         can-find(first bf-maillist where bf-maillist.list-name = maillist.list-name:screen-value and
@@ -622,7 +626,7 @@ PROCEDURE local-update-record :
        END.
     END.
   end.
-
+  {&methods/lValidateError.i NO}
   ASSIGN begin_type END_type.
 
   /* Dispatch standard ADM method.                             */
@@ -645,6 +649,7 @@ PROCEDURE local-update-record :
   end.   
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

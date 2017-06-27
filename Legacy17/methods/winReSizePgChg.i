@@ -16,11 +16,15 @@
 
   IF VALID-OBJECT (oFormControl) THEN DO:
       ASSIGN
-          hWinKitFrame   = oFormControl:GetTabPageFrame   (iWinKitCurrentPage)
-          oWinKitControl = oFormControl:GetTabPageControl (iWinKitCurrentPage)
-          .
+        hWinKitFrame   = oFormControl:GetTabPageFrame   (iWinKitCurrentPage)
+        oWinKitControl = oFormControl:GetTabPageControl (iWinKitCurrentPage)
+        .
       IF oWinKitControl:Width NE 0 AND oWinKitControl:Height NE 0 THEN DO:
           ASSIGN
+/*              iPageColDiff = IF iWinKitCurrentPage EQ 1 THEN iPage1ColDiff                                      */
+/*                             ELSE oWinKitControl:Width  - hWinKitFrame:WIDTH-PIXELS // SESSION:PIXELS-PER-COLUMN*/
+/*              iPageRowDiff = IF iWinKitCurrentPage EQ 1 THEN iPage1RowDiff                                      */
+/*                             ELSE oWinKitControl:Height - hWinKitFrame:HEIGHT-PIXELS // SESSION:PIXELS-PER-ROW  */
               iPageColDiff = iPage1ColDiff                
               iPageRowDiff = iPage1RowDiff
               hWinKitFrame:VIRTUAL-HEIGHT-PIXELS = MAXIMUM (hWinKitFrame:HEIGHT-PIXELS, hWinKitFrame:HEIGHT-PIXELS + iPageRowDiff)
@@ -49,20 +53,20 @@
               {methods/moveObject.i 19}
               {methods/moveObject.i 20}
             ASSIGN
-                hWinKitFrame:HEIGHT-PIXELS  = oWinKitControl:Height
-                hWinKitFrame:WIDTH-PIXELS   = oWinKitControl:Width
-                hWinKitFrame:VIRTUAL-HEIGHT = hWinKitFrame:HEIGHT
-                hWinKitFrame:VIRTUAL-WIDTH  = hWinKitFrame:WIDTH
-                .
+              hWinKitFrame:HEIGHT-PIXELS  = oWinKitControl:Height
+              hWinKitFrame:WIDTH-PIXELS   = oWinKitControl:Width
+              hWinKitFrame:VIRTUAL-HEIGHT = hWinKitFrame:HEIGHT
+              hWinKitFrame:VIRTUAL-WIDTH  = hWinKitFrame:WIDTH
+              .
           END. // NE 0 and NE 0
       END.
   END.
   ELSE DO:
       ASSIGN 
-          hWinKitFrame = FRAME {&FRAME-NAME}:HANDLE
-          iPageRowDiff = rowDiff
-          iPageColDiff = colDiff
-          .
+            hWinKitFrame = FRAME {&FRAME-NAME}:HANDLE
+            iPageRowDiff = rowDiff
+            iPageColDiff = colDiff
+            .
       /* scop-def h_ObjectXX in window container */
       {methods/moveObject.i 01}
       {methods/moveObject.i 02}

@@ -1,0 +1,19 @@
+  FIELD Asset-code LIKE fa-jrnl.Asset-code VALIDATE ~
+  FIELD Credit-amt LIKE fa-jrnl.Credit-amt VALIDATE ~
+  FIELD Currency-cod LIKE fa-jrnl.Currency-cod VALIDATE ~
+  FIELD Debit-amt LIKE fa-jrnl.Debit-amt VALIDATE ~
+  FIELD Entity-code LIKE fa-jrnl.Entity-code VALIDATE ~
+  FIELD Entry-no LIKE fa-jrnl.Entry-no VALIDATE ~
+  FIELD Explanation LIKE fa-jrnl.Explanation VALIDATE ~
+  FIELD fa-entity LIKE fa-jrnl.fa-entity VALIDATE ~
+  FIELD Gl-code LIKE fa-jrnl.Gl-code VALIDATE ~
+  FIELD hm-credit-amt LIKE fa-jrnl.hm-credit-amt VALIDATE ~
+  FIELD hm-debit-amt LIKE fa-jrnl.hm-debit-amt VALIDATE ~
+  FIELD Job-no LIKE fa-jrnl.Job-no VALIDATE ~
+  FIELD Line-no LIKE fa-jrnl.Line-no VALIDATE ~
+  FIELD method LIKE fa-jrnl.method VALIDATE ~
+  FIELD not-used LIKE fa-jrnl.not-used VALIDATE ~
+  FIELD Prd LIKE fa-jrnl.Prd VALIDATE ~
+  FIELD rev LIKE fa-jrnl.rev VALIDATE ~
+  FIELD Trans-date LIKE fa-jrnl.Trans-date VALIDATE ~
+  FIELD Yr LIKE fa-jrnl.Yr VALIDATE 

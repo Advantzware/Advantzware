@@ -258,7 +258,7 @@ ON WINDOW-CLOSE OF C-Win /* Transaction Monitor */
 ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
     DO:
         APPLY 'CLOSE' TO THIS-PROCEDURE.
-        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:31 am */
+        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -273,7 +273,7 @@ ON CHOOSE OF btnCompareSchema IN FRAME DEFAULT-FRAME /* Compare Schema */
         RUN pShowNeededDeltas.
         RETURN NO-APPLY.
 
-        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:31 am */
+        {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -295,7 +295,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
     DO:
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:31 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
         RUN disable_UI.
     END.
@@ -313,7 +313,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN pCreateObjectReferences.
     RUN readDeltaFiles.
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:31 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
 

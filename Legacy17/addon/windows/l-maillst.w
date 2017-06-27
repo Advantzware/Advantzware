@@ -187,12 +187,12 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "EMPTRACK.maillist"
+     _TblList          = "maillist"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _FldNameList[1]   = EMPTRACK.maillist.list-no
-     _FldNameList[2]   > EMPTRACK.maillist.list-name
+     _FldNameList[1]   = maillist.list-no
+     _FldNameList[2]   > maillist.list-name
 "list-name" "Title" ? "character" ? ? ? ? ? ? no ?
-     _FldNameList[3]   > EMPTRACK.maillist.list-date
+     _FldNameList[3]   > maillist.list-date
 "list-date" ? ? "date" ? ? 2 ? ? ? no ?
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */

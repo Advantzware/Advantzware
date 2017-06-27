@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:26 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -307,28 +307,28 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.vend-whse-item"
+     _TblList          = "vend-whse-item"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   > EMPTRACK.vend-whse-item.cust-no
+     _FldNameList[1]   > vend-whse-item.cust-no
 "cust-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > EMPTRACK.vend-whse-item.revision
+     _FldNameList[2]   > vend-whse-item.revision
 "revision" "REV" ? "character" ? ? ? 14 ? ? yes ? no no "5.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > EMPTRACK.vend-whse-item.fg-item-no
+     _FldNameList[3]   > vend-whse-item.fg-item-no
 "fg-item-no" ? ? "character" ? ? ? 14 ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > EMPTRACK.vend-whse-item.cust-part-no
+     _FldNameList[4]   > vend-whse-item.cust-part-no
 "cust-part-no" ? "x(15)" "character" ? ? ? 14 ? ? yes ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > EMPTRACK.vend-whse-item.vendor-code
+     _FldNameList[5]   > vend-whse-item.vendor-code
 "vendor-code" ? ? "character" ? ? ? 14 ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > EMPTRACK.vend-whse-item.vendor-plant-code
+     _FldNameList[6]   > vend-whse-item.vendor-plant-code
 "vendor-plant-code" ? ? "character" ? ? ? 14 ? ? yes ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > EMPTRACK.vend-whse-item.vendor-dept-code
+     _FldNameList[7]   > vend-whse-item.vendor-dept-code
 "vendor-dept-code" ? ? "character" ? ? ? 14 ? ? yes ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > EMPTRACK.vend-whse-item.obsolete-date
+     _FldNameList[8]   > vend-whse-item.obsolete-date
 "obsolete-date" "Obsolete!Date" ? "date" ? ? ? 14 ? ? yes ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > EMPTRACK.vend-whse-item.est-annual-usage
+     _FldNameList[9]   > vend-whse-item.est-annual-usage
 "est-annual-usage" "Customers Est.!Annual Usage" ? "decimal" ? ? ? ? ? ? yes ? no no "20.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > EMPTRACK.vend-whse-item.plant-tot-oh-qty
+     _FldNameList[10]   > vend-whse-item.plant-tot-oh-qty
 "plant-tot-oh-qty" ? ? "decimal" ? ? ? ? ? ? yes ? no no "21.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

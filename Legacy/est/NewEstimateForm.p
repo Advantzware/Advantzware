@@ -21,10 +21,10 @@ DEFINE OUTPUT PARAMETER opriEb AS ROWID NO-UNDO.
 
 DEFINE VARIABLE iForm AS INTEGER NO-UNDO.
 
+
 DEFINE BUFFER bf-est FOR est.
 DEFINE BUFFER bf-ef FOR ef.
 DEFINE BUFFER bf-est-qty FOR est-qty.
-
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -35,6 +35,7 @@ DEFINE BUFFER bf-est-qty FOR est-qty.
 FIND FIRST ce-ctrl NO-LOCK 
     {sys/look/ce-ctrlW.i}
     NO-ERROR.
+
 
 FIND bf-est NO-LOCK 
     WHERE ROWID(bf-est) EQ ipriEst
@@ -69,6 +70,7 @@ ASSIGN
     ef.lsh-wid   = ce-ctrl.ls-length
     ef.lsh-len   = ce-ctrl.ls-width
     ef.cost-uom  = "MSF".
+
 
 IF ipcIndustry EQ 'C' THEN
     RUN cec/newblank.p (ROWID(ef), OUTPUT opriEb).

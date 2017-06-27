@@ -144,7 +144,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartListObject
-   External Tables: EMPTRACK.cmpltjob
+   External Tables: cmpltjob
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: Neither

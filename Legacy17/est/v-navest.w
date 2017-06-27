@@ -208,7 +208,7 @@ ASSIGN
 ON CHOOSE OF Btn-First IN FRAME F-Main /* First */
 DO:
   RUN do-button ("F").
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:21 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -220,7 +220,7 @@ END.
 ON CHOOSE OF Btn-Last IN FRAME F-Main /* Last */
 DO:
   RUN do-button ("L").
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:21 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -232,7 +232,7 @@ END.
 ON CHOOSE OF Btn-Next IN FRAME F-Main /* Next */
 DO:
   RUN do-button ("N").
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:21 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -244,7 +244,7 @@ END.
 ON CHOOSE OF Btn-Prev IN FRAME F-Main /* Prev */
 DO:
   RUN do-button ("P").
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:21 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */

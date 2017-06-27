@@ -1,7 +1,7 @@
 /* arrep/r-pstdue.w */
 
 {methods/defines/hndldefs.i}
-{methods/prgsecur.i}
+{methods/prgsecur.i} 
 
 {custom/gcompany.i}
 {custom/gloc.i}

@@ -5,6 +5,10 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -36,6 +40,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i} /* added by script _globdefs.p */
 
 
 DEFINE VARIABLE mach_m-dscr AS CHARACTER NO-UNDO.
@@ -233,6 +238,8 @@ END.
 
 {src/adm/method/navbrows.i}
 
+{Advantzware/WinKit/dataGridProc.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -268,12 +275,12 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
-     _TblList          = "EMPTRACK.machshft WHERE ASI.mach <external> ..."
+     _TblList          = "machshft WHERE ASI.mach <external> ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _JoinCode[1]      = "EMPTRACK.machshft.company = ASI.mach.company
-  AND EMPTRACK.machshft.machine = ASI.mach.m-code"
-     _FldNameList[1]   > EMPTRACK.machshft.shift
-"EMPTRACK.machshft.shift" ? "xx" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _JoinCode[1]      = "machshft.company = ASI.mach.company
+  AND machshft.machine = ASI.mach.m-code"
+     _FldNameList[1]   > machshft.shift
+"machshft.shift" ? "xx" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > "_<CALC>"
 "shift_description(machshft.shift) @ shifts_description" "Description" "x(40)" ? ? ? ? ? ? ? no ? no no "40.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"

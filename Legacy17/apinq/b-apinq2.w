@@ -978,7 +978,7 @@ PROCEDURE navigate-browser :
       
   IF ROWID({&FIRST-TABLE-IN-QUERY-{&browse-name}}) EQ lv-frst-rowid THEN
     op-nav-type = IF op-nav-type EQ "L" THEN "B" ELSE "F".
-
+  RUN dispatch ("row-changed").
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

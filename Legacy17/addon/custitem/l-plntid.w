@@ -201,21 +201,21 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "EMPTRACK.vend-plant"
+     _TblList          = "vend-plant"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Where[1]         = "EMPTRACK.vend-plant.company = ip-company
- AND EMPTRACK.vend-plant.cust-no = ip-cur-val"
-     _FldNameList[1]   > EMPTRACK.vend-plant.cust-no
+     _Where[1]         = "vend-plant.company = ip-company
+ AND vend-plant.cust-no = ip-cur-val"
+     _FldNameList[1]   > vend-plant.cust-no
 "vend-plant.cust-no" ? ? "character" ? ? ? ? ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > EMPTRACK.vend-plant.plant-id
+     _FldNameList[2]   > vend-plant.plant-id
 "vend-plant.plant-id" ? ? "character" ? ? ? ? ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > EMPTRACK.vend-plant.vendor-dept-code
+     _FldNameList[3]   > vend-plant.vendor-dept-code
 "vend-plant.vendor-dept-code" ? ? "character" ? ? ? ? ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > EMPTRACK.vend-plant.plant-name
+     _FldNameList[4]   > vend-plant.plant-name
 "vend-plant.plant-name" "Customers!Plant Name" ? "character" ? ? ? ? ? ? no ? no no "49.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > EMPTRACK.vend-plant.ship-id
+     _FldNameList[5]   > vend-plant.ship-id
 "vend-plant.ship-id" ? ? "character" ? ? ? ? ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > EMPTRACK.vend-plant.vendor-code
+     _FldNameList[6]   > vend-plant.vendor-code
 "vend-plant.vendor-code" ? ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */

@@ -399,7 +399,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME DEFAULT-FRAME /* Cancel */
 DO:
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:52 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -411,7 +411,7 @@ END.
 ON CHOOSE OF Btn_Help IN FRAME DEFAULT-FRAME /* Help */
 DO: /* Call Help Function (or a simple message). */
 MESSAGE "Help for File: {&FILE-NAME}":U VIEW-AS ALERT-BOX INFORMATION.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:52 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -581,7 +581,7 @@ DO:
   SESSION:SET-WAIT-STATE("").
   message num-imports " Contacts Downloaded." view-as alert-box.
   APPLY "CLOSE" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:52 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -685,7 +685,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:52 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -710,10 +710,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    tit-code:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE
    list-name:HIDDEN IN FRAME DEFAULT-FRAME          = TRUE.
    APPLY "entry" TO begin_cust-no.
-    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:37 am */
-    {methods/setButton.i Btn_Help "Help"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:37 am */
-    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:37 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:52 am */
+    {methods/setButton.i Btn_Cancel "Cancel"} /* added by script _nonAdm1Images1.p */
+    {methods/setButton.i Btn_Help "Help"} /* added by script _nonAdm1Images1.p */
+    {methods/setButton.i Btn_OK "OK"} /* added by script _nonAdm1Images1.p */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

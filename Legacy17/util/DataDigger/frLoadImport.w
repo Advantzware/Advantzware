@@ -32,6 +32,7 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 &SCOPED-DEFINE DontValidateError /* added by script _dontValidatePanels.p */
+&SCOPED-DEFINE DontValidateError /* added by script _dontValidatePanels.p */
 
 /* Parameters Definitions ---                                           */
 define input  parameter phParent as handle      no-undo.
@@ -163,6 +164,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* ************************* Included-Libraries *********************** */
 
 {Advantzware/WinKit/embedwindow-nonadm.i}
+{Advantzware/WinKit/embedwindow-nonadm.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -256,6 +258,7 @@ DELETE WIDGET  {&WINDOW-NAME}.
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
    {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* General procedures for all viewers in the MVC */
@@ -273,7 +276,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
     {methods/setButton.i btnLoad "Load"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:45 am */
+    {methods/setButton.i btnLoad "Load"} /* added by script _nonAdm1Images1.p */
     {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
+    {methods/setButton.i btnLoad "Load"} /* added by script _nonAdm1Images1.p */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

@@ -9,7 +9,7 @@
 DEFINE VARIABLE vlc-output AS CHAR INIT "" NO-UNDO.
 
 RUN jcrep/wipldtg.w PERSISTENT 
-                    (INPUT "",    
+                    (INPUT "",
                      INPUT "",
                      INPUT 0,
                      INPUT "",

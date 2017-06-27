@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:58 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -738,7 +738,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_more-breaks V-table-Win
 ON CHOOSE OF btn_more-breaks IN FRAME F-Main /* More Breaks */
 DO:
-   RUN rm/d-rmbreaks.w(INPUT ROWID(e-item-vend),
+    DO:
+        RUN rm/d-rmbreaks.w PERSISTENT SET hProgram (INPUT ROWID(e-item-vend),
+        RUN dispatch IN hProgram ("initialize").
+    END.
                        INPUT ROWID(e-item)).
 END.
 
@@ -750,6 +753,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL e-item.std-uom V-table-Win
 ON LEAVE OF e-item.std-uom IN FRAME F-Main /* Purchased Cost UOM */
 DO:
+    {&methods/lValidateError.i YES}
     find bf-item of e-item no-lock no-error.
     run sys/ref/uom-rm.p (bf-item.mat-type, output uom-list). 
 
@@ -761,8 +765,9 @@ DO:
        message "Invalid UOM. Try Help." view-as alert-box error.       
        return no-apply.
     end.   
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1512,7 +1517,7 @@ PROCEDURE local-update-record :
 
   RUN valid-roll-w-30 NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   find bf-item of e-item no-lock no-error.
   run sys/ref/uom-rm.p  (bf-item.mat-type, output uom-list).       
   IF E-ITEM.std-uom:SCREEN-VALUE IN FRAME {&FRAME-NAME} <> "" and
@@ -1532,7 +1537,7 @@ PROCEDURE local-update-record :
         apply "entry" to e-item-vend.vend-no.
         return no-apply.
   end.
-
+  {&methods/lValidateError.i NO}
   lv-new-record = adm-new-record.
   /* ============= end of validation ================*/
 
@@ -1560,6 +1565,7 @@ PROCEDURE local-update-record :
 
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

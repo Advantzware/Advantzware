@@ -673,12 +673,12 @@ PROCEDURE display_keyboard :
       DELETE PROCEDURE h_keyboard.
       IF employee_code NE '' THEN
       DO:
-        FIND emptrack.employee WHERE emptrack.employee.company = company_code
-                        AND emptrack.employee.employee = employee_code
+        FIND employee WHERE employee.company = company_code
+                        AND employee.employee = employee_code
                       EXCLUSIVE-LOCK NO-ERROR.
-        IF AVAILABLE emptrack.employee THEN
-           emptrack.employee.keyboard_type = Keyboard_Name.
-        RELEASE emptrack.employee.
+        IF AVAILABLE employee THEN
+           employee.keyboard_type = Keyboard_Name.
+        RELEASE employee.
       END.
       Keyboard_Name = 'touch/' + Keyboard_Name + 'w'.      
       RUN VALUE(Keyboard_Name) PERSISTENT SET h_keyboard (Frame_Handle, FRAME {&frame-name}:ROW).

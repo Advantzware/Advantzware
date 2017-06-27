@@ -11,7 +11,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:33 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -85,10 +85,10 @@ DEFINE QUERY external_tables FOR EDSHTran.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table EDSHTran.Partner EDSHTran.Seq ~
-EDSHTran.BOL-No EDSHTran.Sf-code EDSHTran.Ship-Date EDSHTran.Carrier ~
-EDSHLine.Order-no EDSHLine.Item-no EDSHLine.Qty-orig-ord ~
+EDSHTran.BOL-No EDSHTran.Ship-Date EDSHLine.Item-no EDSHLine.Order-no ~
+EDSHLine.Cust-po EDSHTran.Carrier EDSHTran.Sf-code EDSHLine.Qty-orig-ord ~
 EDSHLine.Qty-shipped EDSHLine.Tot-wght EDSHLine.Tot-volume ~
-EDSHLine.Uom-code EDSHLine.Cust-po EDSHLine.Cust-item-no 
+EDSHLine.Uom-code EDSHLine.Cust-item-no 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH EDSHLine OF EDSHTran WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -143,14 +143,14 @@ DEFINE RECTANGLE RECT-4
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
       EDSHLine
-    FIELDS(EDSHLine.Order-no
-      EDSHLine.Item-no
+    FIELDS(EDSHLine.Item-no
+      EDSHLine.Order-no
+      EDSHLine.Cust-po
       EDSHLine.Qty-orig-ord
       EDSHLine.Qty-shipped
       EDSHLine.Tot-wght
       EDSHLine.Tot-volume
       EDSHLine.Uom-code
-      EDSHLine.Cust-po
       EDSHLine.Cust-item-no) SCROLLING.
 &ANALYZE-RESUME
 
@@ -161,21 +161,21 @@ DEFINE BROWSE Browser-Table
       EDSHTran.Partner FORMAT "x(05)":U
       EDSHTran.Seq FORMAT ">>>>>>9":U
       EDSHTran.BOL-No FORMAT "x(30)":U
-      EDSHTran.Sf-code FORMAT "x(12)":U
       EDSHTran.Ship-Date FORMAT "99/99/9999":U
-      EDSHTran.Carrier FORMAT "x(30)":U
-      EDSHLine.Order-no FORMAT "x(15)":U
       EDSHLine.Item-no FORMAT "x(16)":U
+      EDSHLine.Order-no FORMAT "x(15)":U
+      EDSHLine.Cust-po FORMAT "x(22)":U
+      EDSHTran.Carrier FORMAT "x(30)":U
+      EDSHTran.Sf-code FORMAT "x(12)":U
       EDSHLine.Qty-orig-ord FORMAT "->>>>>>>>9":U
       EDSHLine.Qty-shipped FORMAT "->>>,>>>,>>>.99":U
       EDSHLine.Tot-wght FORMAT ">>>>>>>9":U
       EDSHLine.Tot-volume FORMAT "->>>>>>9":U
       EDSHLine.Uom-code FORMAT "x(2)":U
-      EDSHLine.Cust-po FORMAT "x(22)":U
       EDSHLine.Cust-item-no FORMAT "x(30)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 145 BY 15.48
          FONT 2.
 
 
@@ -184,15 +184,15 @@ DEFINE BROWSE Browser-Table
 DEFINE FRAME F-Main
      Browser-Table AT ROW 1 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     browse-order AT ROW 19.33 COL 6 HELP
+     browse-order AT ROW 16.71 COL 6 HELP
           "Select Browser Sort Order" NO-LABEL
-     auto_find AT ROW 19.33 COL 70 COLON-ALIGNED HELP
+     auto_find AT ROW 16.71 COL 70 COLON-ALIGNED HELP
           "Enter Auto Find Value"
-     Btn_Clear_Find AT ROW 19.33 COL 132 HELP
+     Btn_Clear_Find AT ROW 16.71 COL 132 HELP
           "CLEAR AUTO FIND Value"
      "By:" VIEW-AS TEXT
-          SIZE 4 BY 1 AT ROW 19.33 COL 2
-     RECT-4 AT ROW 19.1 COL 1
+          SIZE 4 BY 1 AT ROW 16.71 COL 2
+     RECT-4 AT ROW 16.48 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -226,7 +226,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.52
+         HEIGHT             = 17.14
          WIDTH              = 145.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -273,17 +273,17 @@ ASSIGN
      _FldNameList[1]   = asi.EDSHTran.Partner
      _FldNameList[2]   = asi.EDSHTran.Seq
      _FldNameList[3]   = asi.EDSHTran.BOL-No
-     _FldNameList[4]   = asi.EDSHTran.Sf-code
-     _FldNameList[5]   = asi.EDSHTran.Ship-Date
-     _FldNameList[6]   = asi.EDSHTran.Carrier
-     _FldNameList[7]   = asi.EDSHLine.Order-no
-     _FldNameList[8]   = asi.EDSHLine.Item-no
-     _FldNameList[9]   = asi.EDSHLine.Qty-orig-ord
-     _FldNameList[10]   = asi.EDSHLine.Qty-shipped
-     _FldNameList[11]   = asi.EDSHLine.Tot-wght
-     _FldNameList[12]   = asi.EDSHLine.Tot-volume
-     _FldNameList[13]   = asi.EDSHLine.Uom-code
-     _FldNameList[14]   = asi.EDSHLine.Cust-po
+     _FldNameList[4]   = asi.EDSHTran.Ship-Date
+     _FldNameList[5]   = asi.EDSHLine.Item-no
+     _FldNameList[6]   = asi.EDSHLine.Order-no
+     _FldNameList[7]   = asi.EDSHLine.Cust-po
+     _FldNameList[8]   = asi.EDSHTran.Carrier
+     _FldNameList[9]   = asi.EDSHTran.Sf-code
+     _FldNameList[10]   = asi.EDSHLine.Qty-orig-ord
+     _FldNameList[11]   = asi.EDSHLine.Qty-shipped
+     _FldNameList[12]   = asi.EDSHLine.Tot-wght
+     _FldNameList[13]   = asi.EDSHLine.Tot-volume
+     _FldNameList[14]   = asi.EDSHLine.Uom-code
      _FldNameList[15]   = asi.EDSHLine.Cust-item-no
      _Query            is OPENED
 */  /* BROWSE Browser-Table */

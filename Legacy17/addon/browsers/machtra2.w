@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:25 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -310,38 +310,38 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.machtran"
+     _TblList          = "machtran"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _OrdList          = "EMPTRACK.machtran.machine|yes,EMPTRACK.machtran.start_date|yes,EMPTRACK.machtran.start_time|yes"
+     _OrdList          = "machtran.machine|yes,machtran.start_date|yes,machtran.start_time|yes"
      _Where[1]         = "machtran.company = gcompany
 AND machtran.posted = yes
 AND ~{&KEY-PHRASE}"
-     _FldNameList[1]   > EMPTRACK.machtran.machine
+     _FldNameList[1]   > machtran.machine
 "machtran.machine" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > EMPTRACK.machtran.job_number
+     _FldNameList[2]   > machtran.job_number
 "machtran.job_number" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > EMPTRACK.machtran.job_sub
+     _FldNameList[3]   > machtran.job_sub
 "machtran.job_sub" ? ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > EMPTRACK.machtran.form_number
+     _FldNameList[4]   > machtran.form_number
 "machtran.form_number" ? ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > EMPTRACK.machtran.blank_number
+     _FldNameList[5]   > machtran.blank_number
 "machtran.blank_number" "Blk" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > EMPTRACK.machtran.pass_sequence
+     _FldNameList[6]   > machtran.pass_sequence
 "machtran.pass_sequence" ? ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > EMPTRACK.machtran.charge_code
+     _FldNameList[7]   > machtran.charge_code
 "machtran.charge_code" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > EMPTRACK.machtran.start_date
+     _FldNameList[8]   > machtran.start_date
 "machtran.start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > "_<CALC>"
 "STRING(machtran.start_time,'HH:MM am') @ start-time" "Log In" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > EMPTRACK.machtran.end_date
+     _FldNameList[10]   > machtran.end_date
 "machtran.end_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > EMPTRACK.machtran.shift
+     _FldNameList[11]   > machtran.shift
 "machtran.shift" ? "xx" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > "_<CALC>"
 "Time_String(machtran.end_time,yes) @ end-time" "Log Out" "X(8)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > EMPTRACK.machtran.run_qty
+     _FldNameList[13]   > machtran.run_qty
 "machtran.run_qty" ? ? "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > "_<CALC>"
 "Time_String(machtran.total_time,no) @ total-time" "Total" "X(5)" ? ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no

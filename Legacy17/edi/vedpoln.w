@@ -294,7 +294,8 @@ PROCEDURE createOrder :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-    RUN oe/oe850ord.p.
+    FIND EDPOTran OF EDPOLine NO-LOCK.
+    RUN oe/oe850ord.p (RECID(edpotran)).
     
 
 END PROCEDURE.

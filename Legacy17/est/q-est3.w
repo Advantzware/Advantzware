@@ -36,10 +36,10 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 
-def var lv-frst-rowid as rowid no-undo.
-def var lv-last-rowid as rowid no-undo.
-def var lv-frst-rowid2 as rowid no-undo.
-def var lv-last-rowid2 as rowid no-undo.
+DEF VAR lv-frst-rowid AS ROWID NO-UNDO.
+DEF VAR lv-last-rowid AS ROWID NO-UNDO.
+DEF VAR lv-frst-rowid2 AS ROWID NO-UNDO.
+DEF VAR lv-last-rowid2 AS ROWID NO-UNDO.
 
 DEF VAR ll-first AS LOG INIT YES NO-UNDO.
 DEF VAR lv-repo AS CHAR INIT "ON" NO-UNDO.
@@ -225,7 +225,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 DEF VAR container-hdl AS HANDLE.
-run get-link-handle in adm-broker-hdl(this-procedure,"container-source", output container-hdl).
+RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"container-source", OUTPUT container-hdl).
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).
   &ENDIF

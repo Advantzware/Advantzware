@@ -25,7 +25,7 @@ IF tb_print-view THEN do:
         
          PUT "<R43><C27><P22><FROM><R43><C80><LINE>" SKIP.
         
-         PUT "<FArial><=4><R40> <B><P21> PO# / ORDER#: "  "<C27>"  tt-word-print.ord-no FORMAT ">>>>>>>"    "</B>" SKIP.
+         PUT "<FArial><=4><R40> <B><P21> PO# / ORDER#: "  "<C27>"  tt-word-print.po-no FORMAT ">>>>>>>>>"  "<C40>" "/"  tt-word-print.ord-no FORMAT ">>>>>>>"    "</B>" SKIP.
         
          PUT "<R48><C11><P22><FROM><R48><C80><LINE>" SKIP.
         
@@ -39,8 +39,8 @@ IF tb_print-view THEN do:
         
          PUT "<FArial><=7><R56><B><P21> QUANTITY: "   "<C20>"  tt-word-print.ord-qty FORMAT "->,>>>,>>9"    "</B>".
         
-         PUT "<FArial><=9><R64><C7> <B><P22> "    tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99")  "</B>" SKIP.
-         PUT "<FArial><=9><R64><C37> <B><P22> "    tt-word-print.i-no FORMAT "x(15)"  "</B>" SKIP.
+         PUT "<FArial><=9><R62.5><C7> <B><P22> "    tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99")  "</B>" SKIP.
+         PUT "<FArial><=9><R62.6><C37> <B><P22> "    tt-word-print.i-no FORMAT "x(15)"  "</B>" SKIP.
          .
         
         PUT "<FCourier New>".
@@ -65,7 +65,7 @@ ELSE DO:
         
          PUT "<R53><C27><P22><FROM><R53><C80><LINE>" SKIP.
         
-         PUT "<FArial><=4><R50> <B><P21> PO# / ORDER#: "  "<C27>"  tt-word-print.ord-no FORMAT ">>>>>>>"    "</B>" SKIP.
+         PUT "<FArial><=4><R50> <B><P21> PO# / ORDER#: "  "<C27>"  tt-word-print.po-no FORMAT ">>>>>>>>>"  "<C40>" "/"  tt-word-print.ord-no FORMAT ">>>>>>>"    "</B>" SKIP.
         
          PUT "<R58><C11><P22><FROM><R58><C80><LINE>" SKIP.
         
@@ -79,8 +79,8 @@ ELSE DO:
         
          PUT "<FArial><=7><R66><B><P21> QUANTITY: "   "<C20>"  tt-word-print.ord-qty FORMAT "->,>>>,>>9"    "</B>".
         
-         PUT "<FArial><=9><R74><C7> <B><P22> "    tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99")  "</B>" SKIP.
-         PUT "<FArial><=9><R74><C37> <B><P22> "    tt-word-print.i-no FORMAT "x(15)"  "</B>" SKIP.
+         PUT "<FArial><=9><R72.5><C7> <B><P22> "    tt-word-print.job-no FORMAT "x(6)" "-" STRING(tt-word-print.job-no2,"99")  "</B>" SKIP.
+         PUT "<FArial><=9><R72.5><C37> <B><P22> "    tt-word-print.i-no FORMAT "x(15)"  "</B>" SKIP.
          .
         
         PUT "<FCourier New>".

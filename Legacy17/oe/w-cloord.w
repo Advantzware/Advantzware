@@ -668,7 +668,7 @@ PROCEDURE select_att :
   Notes:       
 ------------------------------------------------------------------------------*/
     {methods/select_att.i}
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

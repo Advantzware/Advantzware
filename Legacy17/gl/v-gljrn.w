@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:45 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -285,14 +285,17 @@ DO:
   DEF VAR char-hdl AS cha NO-UNDO.
 
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
     RUN check-date NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     READKEY PAUSE 0. 
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
     RUN finish-new-record IN WIDGET-HANDLE (char-hdl).
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -429,7 +432,7 @@ PROCEDURE check-date :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR choice AS LOG NO-UNDO.
-
+  {&methods/lValidateError.i YES}
   IF NOT ll-recur THEN
   DO WITH FRAME {&FRAME-NAME}:
          find first period where period.company  =  g_company  and
@@ -455,8 +458,10 @@ PROCEDURE check-date :
            RETURN ERROR.
          END.
   END.
+  {&methods/lValidateError.i NO}
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -472,7 +477,7 @@ PROCEDURE check-date-excel :
    DEFINE OUTPUT PARAMETER op-period AS INT NO-UNDO.
 
    DEF VAR choice AS LOG NO-UNDO.
-
+   {&methods/lValidateError.i YES}
    IF NOT ll-recur THEN
    DO WITH FRAME {&FRAME-NAME}:
       find first period where period.company  =  g_company  and
@@ -488,7 +493,9 @@ PROCEDURE check-date-excel :
          RETURN ERROR.
       end.
    END.
+   {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -548,7 +555,7 @@ PROCEDURE import-excel :
    DEF VAR v-rowid AS ROWID NO-UNDO.
    DEF VAR v-id AS CHAR NO-UNDO.
    DEF VAR i-actnum AS INTE NO-UNDO.
-
+   {&methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
 
       system-dialog get-file chFile 
@@ -768,7 +775,9 @@ PROCEDURE import-excel :
          END.
       END.
    END.
+   {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

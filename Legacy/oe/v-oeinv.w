@@ -1663,6 +1663,9 @@ PROCEDURE valid-cust-no :
     IF v-msg EQ "" THEN
       IF cust.active eq "I" THEN v-msg = "Orders may not be processed for inactive customers...".
 
+     IF v-msg EQ "" THEN
+      IF cust.active eq "X" THEN v-msg = "Orders may not be processed for Inhouse customers...".
+
     IF v-msg EQ "" THEN
       IF ll-cred-lim AND inv-status:SCREEN-VALUE NE "ON HOLD" THEN DO:
         RUN oe/creditck.p (ROWID(cust), NO).

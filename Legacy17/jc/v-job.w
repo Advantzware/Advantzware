@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:45 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -977,7 +977,7 @@ PROCEDURE local-delete-record :
   DEFINE VARIABLE char-hdl AS cha NO-UNDO.
   DEFINE VARIABLE ll-warn AS LOG NO-UNDO.
 
-
+  {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   /*IF NOT adm-new-record THEN DO:*/
     ASSIGN
@@ -1041,8 +1041,9 @@ PROCEDURE local-delete-record :
 
   RUN dispatch IN WIDGET-HANDLE(ENTRY(1,char-hdl)) ('open-query'). 
   /* Code placed here will execute AFTER standard behavior.    */
-
+  {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1219,7 +1220,7 @@ PROCEDURE local-update-record :
 
   /* Deal with blank item number here so that can undo the add */
   /* begin insert */
-
+  {&methods/lValidateError.i YES}
   DEFINE BUFFER xest FOR est.
   IF adm-new-record THEN DO:
     FIND FIRST xest WHERE xest.company EQ job.company
@@ -1285,6 +1286,7 @@ PROCEDURE local-update-record :
       END.      
     END. /* each xeb */
   END. /* if adm-new-record */
+  {&methods/lValidateError.i NO}
       /* end insert */
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -1406,6 +1408,7 @@ PROCEDURE local-update-record :
   END.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1624,7 +1627,7 @@ PROCEDURE unapprove :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.  
-
+   {&methods/lValidateError.i YES}
    IF v-unapp-security THEN DO:
       IF USERID("nosweat") NE job.cs-user-id-t THEN DO:
          FIND FIRST usergrps WHERE usergrps.usergrps = "JU2" NO-LOCK NO-ERROR.
@@ -1667,8 +1670,9 @@ PROCEDURE unapprove :
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
     RUN reopen-query IN WIDGET-HANDLE(char-hdl) (?) .
   END.
-
+  {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

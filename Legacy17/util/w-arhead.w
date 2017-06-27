@@ -290,7 +290,7 @@ DEFINE FRAME fMain
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 155.2 BY 27.67.
+         SIZE 156.2 BY 27.67.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fMain
@@ -384,7 +384,7 @@ DEFINE FRAME fMain
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 155.2 BY 27.67.
+         SIZE 156.2 BY 27.67.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fMain
@@ -474,7 +474,7 @@ DEFINE FRAME fMain
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 155.2 BY 27.67.
+         SIZE 156.2 BY 27.67.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -493,9 +493,9 @@ DEFINE FRAME fMain
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wWin ASSIGN
          HIDDEN             = YES
-         TITLE              = "Restotre AR Invoices"
+         TITLE              = "Restore AR Invoices"
          HEIGHT             = 27.67
-         WIDTH              = 155.2
+         WIDTH              = 156.2
          MAX-HEIGHT         = 45.05
          MAX-WIDTH          = 256
          VIRTUAL-HEIGHT     = 45.05

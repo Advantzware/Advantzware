@@ -186,7 +186,7 @@ DO:
     IF valid-handle(widget-handle(char-hdl))
            THEN RUN trans-count IN WIDGET-HANDLE(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:26 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */

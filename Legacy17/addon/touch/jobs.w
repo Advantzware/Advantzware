@@ -28,7 +28,21 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
+ DEFINE VARIABLE v-autopo-sec AS LOGICAL NO-UNDO.
+ DEFINE VARIABLE v-access-close AS LOGICAL.
+ DEFINE VARIABLE v-access-list AS CHARACTER.
+ /* Check if authorized enter job */
+    
+RUN methods/prgsecur.p
+    (INPUT "TSEntJob",
+     INPUT "ACCESS",
+     INPUT YES,
+     INPUT YES,
+     INPUT YES,
+     OUTPUT v-autopo-sec,
+     OUTPUT v-access-close,
+     OUTPUT v-access-list).
+  
 {touch/touchdef.i}
 
 &Scoped-define BUTTON-INCLUDE JOBS
@@ -55,7 +69,7 @@ def temp-table tt-job field job-no like job.job-no
 &Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Button-1 Btn_Button-6 ~
 Btn_Button-11 Btn_Button-16 Btn_Button-21 Btn_Button-26 Btn_schedule ~
 Btn_Close Btn_Button-2 Btn_Button-7 Btn_Button-12 Btn_Button-17 ~
-Btn_Button-22 Btn_Button-27 Btn_Job_List Btn_Enter_Job Btn_Page_Up ~
+Btn_Button-22 Btn_Button-27 Btn_Job_List /*Btn_Enter_Job*/ Btn_Page_Up ~
 Btn_Page_Down Btn_Button-3 Btn_Button-8 Btn_Button-13 Btn_Button-18 ~
 Btn_Button-23 Btn_Button-28 Btn_First Btn_Last Btn_Button-4 Btn_Button-9 ~
 Btn_Button-14 Btn_Button-19 Btn_Button-24 Btn_Button-29 Btn_sort ~
@@ -448,6 +462,7 @@ ASSIGN
 ASSIGN 
        Btn_sort:PRIVATE-DATA IN FRAME F-Main     = 
                 "SORT / JOB".
+
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -928,12 +943,21 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+ 
+IF v-autopo-sec THEN do:
+    ASSIGN
+        Btn_Enter_Job:SENSITIVE IN FRAME F-Main         = YES .
+END.
+ELSE
+    ASSIGN 
+        Btn_Enter_Job:SENSITIVE IN FRAME F-Main         = NO .
 
-/* If testing in the UIB, initialize the SmartObject. */  
+
+/* If testing in the UIB, initialize the SmartObject. */ 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
-
+  
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 

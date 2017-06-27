@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:57 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -549,7 +549,7 @@ END.
 ON LEAVE OF box-design-hdr.lscore IN FRAME F-Main /* Length!Score */
 DO:
     if lastkey = -1 then return.
-
+    {&methods/lValidateError.i YES}
     def var i as int no-undo.
     def var ls-string as cha init "0,1,2,3,4,5,6,7,8,9" no-undo.
     do i = 1 to length(self:screen-value) :
@@ -559,8 +559,9 @@ DO:
       end. 
     end.
 
-
+   {&methods/lValidateError.i NO} 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

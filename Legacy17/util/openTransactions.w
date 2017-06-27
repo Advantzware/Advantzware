@@ -201,7 +201,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
     apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:31 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -215,7 +215,7 @@ DO:
   def var v-process as log no-undo.
 
   run run-process.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:31 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -237,7 +237,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:31 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -253,7 +253,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN enable_UI.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:31 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -439,15 +439,15 @@ if connected("emptrack") then do:
 FOR EACH emptrack._trans WHERE  .
 
 form
- emptrack._connect._connect-name
- emptrack._connect._connect-device
- emptrack._trans._trans-id 
- emptrack._trans._trans-num 
- emptrack._trans._trans-txtime 
- emptrack._trans._trans-duration 
- emptrack._trans._trans-usrnum
- emptrack._lock._lock-table
- emptrack._file._file-name
+emptrack._connect._connect-name
+emptrack._connect._connect-device
+emptrack._trans._trans-id 
+emptrack._trans._trans-num 
+emptrack._trans._trans-txtime 
+emptrack._trans._trans-duration 
+emptrack._trans._trans-usrnum
+emptrack._lock._lock-table
+emptrack._file._file-name
  with frame xyzz width 200 20 down stream-io.
 
   if emptrack._trans._trans-num eq 0 then leave.

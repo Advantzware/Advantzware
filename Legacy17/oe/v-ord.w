@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:46 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1026,7 +1026,7 @@ END.
 ON LEAVE OF oe-ord.carrier IN FRAME F-Main /* Carrier */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-    {methods/lValidateError.i YES}
+    {&methods/lValidateError.i YES}
     IF oe-ord.carrier:screen-value <> "" AND
        NOT CAN-FIND(FIRST carrier WHERE carrier.company = g_company AND
                                   carrier.loc = g_loc AND
@@ -1035,8 +1035,9 @@ DO:
          MESSAGE "Invalid Carrier. Try help. " VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.                                
     END.
-    {methods/lValidateError.i NO}       
+    {&methods/lValidateError.i NO}       
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1099,15 +1100,16 @@ END.
 ON LEAVE OF oe-ord.due-code IN FRAME F-Main /* Due Date */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-    {methods/lValidateError.i YES}
+    {&methods/lValidateError.i YES}
     IF oe-ord.due-code:screen-value <> "" AND
        lookup(oe-ord.due-code:screen-value,v-duelist) = 0 THEN 
     DO:
        MESSAGE "Invalid Due Code. Try help. " VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
     END.
-    {methods/lValidateError.i NO}
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1127,20 +1129,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.due-date V-table-Win
 ON LEAVE OF oe-ord.due-date IN FRAME F-Main /* Due Date */
 DO:
+
   IF LASTKEY = -1 THEN RETURN.
-  {methods/lValidateError.i YES}
+  {&methods/lValidateError.i YES}
   dueDateChanged = SELF:MODIFIED. /* used in proc local-assign-record */
   IF SELF:modified AND date(SELF:screen-value) < date(oe-ord.ord-date:screen-value) THEN DO:
      MESSAGE "Due Date can not be earlier than Order Date(" oe-ord.ord-date:SCREEN-VALUE ")." VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
   END.
+  {&methods/lValidateError.i NO}
   RUN valid-due-date NO-ERROR.
   IF ERROR-STATUS:ERROR THEN
     RETURN NO-APPLY.
   IF DATE(oe-ord.due-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} ) > DATE(oe-ord.last-date:SCREEN-VALUE) 
   THEN oe-ord.last-date:SCREEN-VALUE = oe-ord.due-date:SCREEN-VALUE.
-  {methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1167,17 +1171,15 @@ END.
 ON LEAVE OF oe-ord.est-no IN FRAME F-Main /* Estimate # */
 DO:
   IF LASTKEY NE -1 THEN DO:
-     RUN valid-cust-user("est") NO-ERROR.
+      RUN valid-cust-user("est") NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     RUN valid-est-no NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
     IF ll-est-no-mod AND TRIM({&self-name}:SCREEN-VALUE) NE "" THEN DO:
-      {methods/lValidateError.i YES}
       RUN get-from-est.
       IF RETURN-VALUE NE "" THEN RETURN NO-APPLY.
-      {methods/lValidateError.i NO}
     END.
   END.
 END.
@@ -1242,8 +1244,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ord.fob-code V-table-Win
 ON RETURN OF oe-ord.fob-code IN FRAME F-Main /* FOB Code */
 DO:
-   APPLY "tab" TO SELF.
+     APPLY "tab" TO SELF.
    RETURN NO-APPLY.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1281,6 +1284,7 @@ ON LEAVE OF oe-ord.job-no IN FRAME F-Main /* Job Num */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-job-no NO-ERROR.
+
   END.
 END.
 
@@ -1330,13 +1334,14 @@ END.
 ON LEAVE OF oe-ord.last-date IN FRAME F-Main /* Last Ship */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-    {methods/lValidateError.i YES}
+    {&methods/lValidateError.i YES}
     IF SELF:modified AND date(SELF:screen-value) < TODAY THEN DO:
        MESSAGE "Last Ship Date can not be earlier than TODAY." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
     END.
-    {methods/lValidateError.i NO}
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1412,14 +1417,15 @@ END.
 ON LEAVE OF oe-ord.prod-date IN FRAME F-Main /* Prod. Date */
 DO:
   IF LASTKEY = -1 THEN RETURN.
-  {methods/lValidateError.i YES}
+  {&methods/lValidateError.i YES}
   prodDateChanged = SELF:MODIFIED AND SELF:SCREEN-VALUE NE "". /* used in proc local-assign-record */
   IF SELF:modified AND date(SELF:screen-value) < TODAY THEN DO:
      MESSAGE "Prod. Date can not be earlier than TODAY." VIEW-AS ALERT-BOX ERROR.
      RETURN NO-APPLY.
   END.
-  {methods/lValidateError.i NO}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1513,7 +1519,7 @@ END.
 ON LEAVE OF oe-ord.sold-id IN FRAME F-Main /* Sold To */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    {methods/lValidateError.i YES}
+   {&methods/lValidateError.i YES}
     FIND FIRST soldto WHERE soldto.company = g_company AND
                             soldto.cust-no = oe-ord.cust-no:screen-value
                         AND trim(soldto.sold-id) = trim(oe-ord.sold-id:screen-value)
@@ -1533,9 +1539,10 @@ DO:
          MESSAGE "Invalid Sold To. Try help. " VIEW-AS ALERT-BOX ERROR.
          RETURN NO-APPLY.
     END.
-    {methods/lValidateError.i NO}
+   {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1547,16 +1554,14 @@ ON LEAVE OF oe-ord.spare-char-2 IN FRAME F-Main /* Type */
 DO:
     /* If the hold type value was changed, determine if line items need to be changed. */
 IF LASTKEY NE -1 THEN DO:
-
+    {&methods/lValidateError.i YES}
     IF oe-ord.spare-char-2:SCREEN-VALUE <> "" THEN DO:  /* task 08011408 */
         IF LOOKUP(oe-ord.spare-char-2:SCREEN-VALUE,gcOrdStatList) = 0  THEN DO:
-            {methods/lValidateError.i YES}
-            MESSAGE "Invalid Type. Try help. " VIEW-AS ALERT-BOX ERROR.
-            RETURN NO-APPLY.
+          MESSAGE "Invalid Type. Try help. " VIEW-AS ALERT-BOX ERROR.
+         RETURN NO-APPLY.
         END.
 
     END.
-    {methods/lValidateError.i NO}
 
   IF oe-ord.spare-char-2:SCREEN-VALUE <> oe-ord.spare-char-2 THEN DO:
 
@@ -1577,8 +1582,10 @@ IF LASTKEY NE -1 THEN DO:
 
 
   END.
+  {&methods/lValidateError.i NO}
 END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1603,7 +1610,7 @@ END.
 ON LEAVE OF oe-ord.terms IN FRAME F-Main /* Pay Terms */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-    {methods/lValidateError.i YES}
+    {&methods/lValidateError.i YES}
     IF oe-ord.terms:screen-value <> "" AND
        NOT CAN-FIND(FIRST terms WHERE terms.t-code = oe-ord.terms:screen-value)
     THEN DO:
@@ -1614,8 +1621,9 @@ DO:
 
     FIND FIRST terms WHERE terms.t-code = oe-ord.terms:screen-value NO-LOCK NO-ERROR.
     IF AVAIL terms THEN oe-ord.terms-d:screen-value = terms.dscr.
-    {methods/lValidateError.i NO}
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3485,7 +3493,7 @@ DEF VAR ld-marg% AS DEC NO-UNDO.
 DEF VAR v-com AS DEC NO-UNDO.
 DEFINE VARIABLE lActive AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE cEstNo AS CHARACTER   NO-UNDO.
-
+{&methods/lValidateError.i YES}
 DO:
 v-est-no = oe-ord.est-no:screen-value IN FRAME {&frame-name}.
 RUN util/rjust.p (INPUT-OUTPUT v-est-no,8).
@@ -3735,6 +3743,7 @@ RUN release-shared-buffers.
 
 END PROCEDURE.
 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -3861,7 +3870,7 @@ PROCEDURE hold-approve :
             RETURN ERROR.
     END.
 
-
+    {&methods/lValidateError.i YES}
     IF AVAIL oe-ord 
         AND can-do("W",oe-ord.stat) 
         AND oe-ord.po-no NE '' THEN 
@@ -3907,7 +3916,7 @@ PROCEDURE hold-approve :
             END.
     END. /* ord.stat = W */
 
-
+    {&methods/lValidateError.i NO}
     /* wfk - changed from exclusive */
     IF AVAIL oe-ord THEN
         FIND b-oe-ord WHERE ROWID(b-oe-ord) EQ ROWID(oe-ord)
@@ -4222,6 +4231,7 @@ PROCEDURE hold-approve :
 
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -4793,7 +4803,6 @@ DEF VAR orig-ord LIKE oe-ord.ord-no.
 DEF VAR v-deleted AS LOG NO-UNDO.
 DEF VAR ll-ans AS LOG NO-UNDO.
 DEF BUFFER bf-oe-ord FOR oe-ord.
-
 /* Code placed here will execute PRIOR to standard behavior. */
     RUN pre-del-validate.
 
@@ -4850,6 +4859,8 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
         END. /* if avail itemfg */
     END. /* each ordl of ord */
 
+  {&methods/lValidateError.i YES}
+
     /* {oe/v-ord-d.i} */
     RUN del-detail-recs.
     IF RETURN-VALUE EQ "ERROR" OR RETURN-VALUE EQ "ADM-ERROR" THEN
@@ -4886,8 +4897,9 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
 
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
     RUN reopen-query IN WIDGET-HANDLE(char-hdl).
-
+{&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -5082,7 +5094,7 @@ PROCEDURE local-update-record :
      RUN valid-due-date.
      IF ERROR-STATUS:ERROR THEN
         RETURN NO-APPLY.
-
+     {&methods/lValidateError.i YES}
      IF oe-ord.carrier:screen-value <> "" AND
         NOT CAN-FIND(FIRST carrier WHERE carrier.company = g_company AND
                                   carrier.loc = g_loc AND
@@ -5134,7 +5146,7 @@ PROCEDURE local-update-record :
         APPLY "entry" TO oe-ord.due-date.
         RETURN NO-APPLY.
      END.
-
+     {&methods/lValidateError.i NO}
   END.  /* frame {&frame-name} */
 
   RUN valid-sman (0) NO-ERROR.
@@ -5228,6 +5240,7 @@ PROCEDURE local-update-record :
 
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -5509,6 +5522,7 @@ PROCEDURE pre-del-validate :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+{&methods/lValidateError.i YES}
 IF CAN-FIND(FIRST ar-invl
     WHERE ar-invl.company EQ oe-ord.company
     AND ar-invl.ord-no  EQ oe-ord.ord-no) THEN DO:
@@ -5626,9 +5640,10 @@ IF NOT adm-new-record THEN DO:
   IF ERROR-STATUS:ERROR THEN RETURN "ADM-ERROR".
 END.
 
-
+{&methods/lValidateError.i NO}
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -6170,14 +6185,14 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-due-date V-table-Win 
 PROCEDURE valid-due-date :
-/*------------------------------------------------------------------------------  
+/*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE lValid    AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
     DEFINE VARIABLE ldDate    AS DATE    NO-UNDO.
-    {methods/lValidateError.i YES}
+  {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
 
         ASSIGN 

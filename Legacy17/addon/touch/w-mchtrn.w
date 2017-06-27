@@ -151,14 +151,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 119.2
          VIRTUAL-HEIGHT     = 11.76
          VIRTUAL-WIDTH      = 119.2
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = no
+         RESIZE             = NO
+         SCROLL-BARS        = NO
+         STATUS-AREA        = NO
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 /* END WINDOW DEFINITION                                                */
@@ -190,7 +190,7 @@ ASSIGN FRAME message-frame:FRAME = FRAME F-Main:HANDLE.
 /* SETTINGS FOR FRAME message-frame
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = yes.
+THEN W-Win:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -440,7 +440,7 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF adm-current-page eq 0 
+  IF adm-current-page EQ 0 
   THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
@@ -671,8 +671,7 @@ PROCEDURE select_dept2 :
 
   /*DEF BUFFER bf-mtran FOR machtran.*/
 
-  IF AVAIL machtran AND machtran.job_number <> "" THEN DO:
-     /*RUN touch/getnote.p (RECID(machtran)).*/
+  IF AVAIL machtran AND machtran.job_number <> "" THEN DO:     
 
      /*FIND bf-mtran WHERE RECID(bf-mtran) = RECID(machtran) EXCLUSIVE-LOCK.*/
      FIND FIRST job WHERE job.company EQ machtran.company AND
@@ -681,30 +680,12 @@ PROCEDURE select_dept2 :
 
      /*IF AVAIL job THEN bf-mtran.rec_key = job.rec_key.*/
 
-     RUN touch/getnote.p (job.rec_key).
-
-     /* touch/getnote.p
-        CONNECT -pf VALUE("..\nosweat-asi.pf") NO-ERROR. /* DBNAME nosweat-asi */     
-        RUN touch/copynote.p (job.rec_key).
-       /* move to touch/copynote.p
-        FOR EACH nosweat-asi.notes WHERE asi.notes.rec_key = job.rec_key NO-LOCK:
-           BUFFER-COPY ASI-asi.notes TO ASI.notes. 
-        END.
-       */     
-     */
-
      /*rec_key_value = machtran.rec_key.*/
      rec_key_value = job.rec_key.
-
-    /* savenote.p is not working as intended. 
-     RUN Get_Procedure IN Persistent-Handle ('specnote.',OUTPUT run-proc,no).
-     IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .      
-    */
 
      /*RUN windows/specnote.w (rec_key_value,HEADER_value).  */
      RUN windows/specnott.w (rec_key_value,HEADER_value,machine_code,ForM_number).
 
-     RUN touch/savenote.p (job.rec_key).
   END.
   ELSE IF NOT AVAIL machtran THEN
   DO:
@@ -715,10 +696,8 @@ PROCEDURE select_dept2 :
           NO-LOCK NO-ERROR.
 
      IF AVAIL job THEN
-     DO:
-        RUN touch/getnote.p (job.rec_key).
-        RUN windows/specnott.w (job.rec_key,header_value,machine_code,form_number).
-        RUN touch/savenote.p (job.rec_key).
+     DO:        
+        RUN windows/specnott.w (job.rec_key,header_value,machine_code,form_number).       
      END.
   END.
 
@@ -745,8 +724,7 @@ PROCEDURE select_jobrel :
 
      IF AVAIL job THEN
      DO:
-       rec_key_value = job.rec_key.
-       RUN touch/getnote.p (rec_key_value).       
+       rec_key_value = job.rec_key.             
        RUN jcrep/r-tickt2.w (job_number, int(job_sub)) NO-ERROR.
      END.
 
@@ -772,13 +750,10 @@ PROCEDURE select_ONote :
 
      ASSIGN cJobKey = job.company + string(job.job,"9999999") /*job.rec_key*/ 
             rec_key_value = job.rec_key
-            HEADER_value =  string(job.job) /*job.job-no + STRING(job.job-no2)*/.
-
-     RUN touch/getnoteA.p (rec_key_value, HEADER_value).
+            HEADER_value =  STRING(job.job) /*job.job-no + STRING(job.job-no2)*/.     
 
      {methods/select_ONote.i rec_key_value header_value machine_code form_number}
 
-     RUN touch/savenoteA.p (job.rec_key, HEADER_value).
 
   END.
 

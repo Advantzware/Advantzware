@@ -96,12 +96,12 @@ FOR EACH EDDoc NO-LOCK WHERE EDDoc.stat EQ 0
                            :
     
       lXmlOutput = TRUE.
-      RUN oe/oeJobXml.p (INPUT g_company).
-     
+      RUN oe/oeJobXml.p (INPUT g_company, INPUT ROWID(eddoc)).
+      PAUSE 1. /* Because file name is based on time */
       FIND FIRST bf-eddoc EXCLUSIVE-LOCK WHERE ROWID(bf-eddoc) EQ rowid(eddoc) NO-ERROR.
       IF AVAILABLE bf-eddoc THEN 
         bf-eddoc.stat = 1.
-      LEAVE.
+      
 END. /* Each eddoc */
                   
                 

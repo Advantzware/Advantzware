@@ -1078,7 +1078,7 @@ PROCEDURE select_ONote :
   Notes:       
 ------------------------------------------------------------------------------*/
     {methods/select_ONote.i rec_key_value cHeaderValue """" 1}
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
