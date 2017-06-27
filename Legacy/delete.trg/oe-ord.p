@@ -6,6 +6,7 @@ TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
 
 DEF BUFFER oe-ord-close-checked FOR reftable.
 DEF BUFFER oe-ord-whs-order FOR reftable.
+DEFINE BUFFER bf-oe-ord FOR oe-ord .
 
 
 /* not delete if estimate exists */
@@ -19,7 +20,15 @@ FOR EACH eb
     WHERE eb.company EQ {&TABLENAME}.company
       AND eb.ord-no  EQ {&TABLENAME}.ord-no
     USE-INDEX ord-no:
-  eb.ord-no = 0.
+  eb.ord-no = 0. 
+  
+  FOR EACH bf-oe-ord NO-LOCK 
+      WHERE bf-oe-ord.company EQ {&TABLENAME}.company
+        AND bf-oe-ord.est-no  EQ eb.est-no
+        AND ROWID(bf-oe-ord) NE ROWID({&TABLENAME}) BREAK BY bf-oe-ord.ord-date DESC:
+       eb.ord-no = bf-oe-ord.ord-no .
+       LEAVE .
+  END.
 END.
 
 FOR EACH oe-ord-close-checked
