@@ -76,7 +76,7 @@ style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] style.use-w[9] ~
 style.use-w[10] style.use-w[11] style.use-w[12] style.use-w[13] ~
 style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] style.use-l[6] ~
 style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
-style.use-l[11] style.use-l[12] style.use-l[13] style.defaultPackCode 
+style.use-l[11] style.use-l[12] style.use-l[13] style.spare-char-5 
 &Scoped-define ENABLED-TABLES style
 &Scoped-define FIRST-ENABLED-TABLE style
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-10 RECT-11 RECT-7 RECT-8 RECT-9 
@@ -96,7 +96,7 @@ style.use-w[5] style.use-w[6] style.use-w[7] style.use-w[8] style.use-w[9] ~
 style.use-w[10] style.use-w[11] style.use-w[12] style.use-w[13] ~
 style.use-l[2] style.use-l[3] style.use-l[4] style.use-l[5] style.use-l[6] ~
 style.use-l[7] style.use-l[8] style.use-l[9] style.use-l[10] ~
-style.use-l[11] style.use-l[12] style.use-l[13] style.defaultPackCode 
+style.use-l[11] style.use-l[12] style.use-l[13] style.spare-char-5 
 &Scoped-define DISPLAYED-TABLES style
 &Scoped-define FIRST-DISPLAYED-TABLE style
 
@@ -493,7 +493,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.defaultPackCode AT ROW 17.91 COL 30 COLON-ALIGNED WIDGET-ID 2
+     style.spare-char-5 AT ROW 17.91 COL 30 COLON-ALIGNED WIDGET-ID 2
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      "DEFAULT DEMENSIONS" VIEW-AS TEXT
@@ -961,7 +961,7 @@ DO:
                IF char-val NE "" AND FOCUS:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
                DO:
                    FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-                   APPLY "value-changed" TO style.defaultPackCode.
+                   APPLY "value-changed" TO style.spare-char-5.
                END.
            END.  
    END.
