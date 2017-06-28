@@ -739,10 +739,9 @@ END.
 ON CHOOSE OF btn_more-breaks IN FRAME F-Main /* More Breaks */
 DO:
     DO:
-        RUN rm/d-rmbreaks.w PERSISTENT SET hProgram (INPUT ROWID(e-item-vend),
+        RUN rm/d-rmbreaks.w PERSISTENT SET hProgram (INPUT ROWID(e-item-vend), INPUT ROWID(e-item)).
         RUN dispatch IN hProgram ("initialize").
-    END.
-                       INPUT ROWID(e-item)).
+    END.                       
 END.
 
 /* _UIB-CODE-BLOCK-END */

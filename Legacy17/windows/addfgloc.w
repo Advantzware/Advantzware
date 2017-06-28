@@ -498,9 +498,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
   RUN enable_UI.
-
-
-
+  {Advantzware/WinKit/embedfinalize-nonadm.i}
   WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
