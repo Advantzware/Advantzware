@@ -478,7 +478,7 @@ PROCEDURE pImport :
     
     DEFINE VARIABLE cForm AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPartID AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cPartDesc AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPartName AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cQtyPerSet AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cLength AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cWidth AS CHARACTER NO-UNDO.
@@ -495,7 +495,7 @@ PROCEDURE pImport :
                     IMPORT DELIMITER ","
                         cForm
                         cPartID
-                        cPartDesc
+                        cPartName
                         cQtyPerSet
                         cLength
                         cWidth
@@ -507,7 +507,7 @@ PROCEDURE pImport :
                    ASSIGN 
                     ttInputEst.iFormNo = INTEGER(cForm)
                     ttInputEst.cPartID = cPartID
-                    ttInputEst.cPartDescription = SUBSTRING(cPartDesc,1,30)
+                    ttInputEst.cPartName = SUBSTRING(cPartName,1,30)
                     ttInputEst.iQuantityYield = INTEGER(cQtyPerSet)
                     ttInputEst.dLength = DECIMAL(TRIM(cLength,'"'))
                     ttInputEst.dWidth = DECIMAL(TRIM(cWidth,'"'))
