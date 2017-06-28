@@ -1205,9 +1205,9 @@ PROCEDURE broker-set-attribute-list :
           IF VALID-HANDLE(object-hdl) THEN DO:
               ASSIGN parent-hdl = WIDGET-HANDLE(attr-value).
               IF CAN-DO( "DIALOG-BOX,FRAME":U, parent-hdl:TYPE) THEN
-                  ASSIGN object-hdl:FRAME = parent-hdl.
+                  ASSIGN object-hdl:FRAME = parent-hdl NO-ERROR.
               ELSE
-                  ASSIGN object-hdl:PARENT = parent-hdl.
+                  ASSIGN object-hdl:PARENT = parent-hdl NO-ERROR.
           END.
       END.
       WHEN "CONTAINER-HIDDEN":U THEN DO:
