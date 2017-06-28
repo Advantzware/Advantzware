@@ -195,13 +195,13 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "EMPTRACK.vend-code-cust-xref"
+     _TblList          = "vend-code-cust-xref"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _FldNameList[1]   > EMPTRACK.vend-code-cust-xref.cust-no
+     _FldNameList[1]   > vend-code-cust-xref.cust-no
 "vend-code-cust-xref.cust-no" ? ? "character" ? ? ? ? ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > EMPTRACK.vend-code-cust-xref.vendor-code
+     _FldNameList[2]   > vend-code-cust-xref.vendor-code
 "vend-code-cust-xref.vendor-code" ? ? "character" ? ? ? ? ? ? no ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > EMPTRACK.vend-code-cust-xref.cust-name
+     _FldNameList[3]   > vend-code-cust-xref.cust-name
 "vend-code-cust-xref.cust-name" ? ? "character" ? ? ? ? ? ? no ? no no "87.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */

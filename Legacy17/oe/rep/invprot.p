@@ -45,6 +45,7 @@ DEF VAR v-pc            AS CHAR NO-UNDO. /* partial or complete */
 
 DEF buffer xinv-head FOR inv-head .
 DEF buffer xinv-line FOR inv-line .
+DEF BUFFER b-inv-head FOR inv-head.
 
 DEF TEMP-TABLE w-sman NO-UNDO
   FIELD sman AS CHAR FORMAT "x(4)".
@@ -68,6 +69,7 @@ DEF VAR v-ship-i       AS CHAR FORMAT "x(25)" NO-UNDO.
 DEF VAR v-rel-po-no    LIKE oe-rel.po-no NO-UNDO.
 DEF VAR v-price-head   AS CHAR FORMAT "x(5)" NO-UNDO.
 DEF VAR v-subtot-lines AS DEC NO-UNDO.
+DEF VARIABLE cBillNotes LIKE inv-head.bill-i NO-UNDO.
 
 DEF TEMP-TABLE w-tax NO-UNDO
     FIELD w-dsc AS CHAR
@@ -675,7 +677,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             WHERE reftable.reftable EQ "inv-line.lot-no" 
               AND reftable.rec_key EQ inv-line.rec_key
               USE-INDEX rec_key NO-LOCK NO-ERROR.
-          IF v-printline GE 63 THEN DO:             
+          IF v-printline GE 62 THEN DO:             
             PAGE.
             {oe/rep/invprot.i}
             v-printline = 29.
@@ -774,7 +776,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     
               v-printline = v-printline + 5.
     
-              IF v-printline GE 63 THEN DO:             
+              IF v-printline GE 62 THEN DO:             
                  PAGE.
                  {oe/rep/invprot.i}
                  v-printline = 29.
@@ -797,7 +799,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                 ASSIGN v-printline = v-printline + 2.
             END.                 
 
-            IF v-printline GE 63 THEN do:                                               
+            IF v-printline GE 62 THEN do:                                               
                 PAGE.                
                 {oe/rep/invprot.i}                
                 v-printline = 29.
@@ -823,6 +825,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
             ASSIGN 
               v-subtot-lines = v-subtot-lines + inv-misc.amt
               v-printline = v-printline + 2.
+            
 
             IF inv-misc.tax AND 
                AVAIL stax 
@@ -843,7 +846,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                 END.
             END.
 
-            IF v-printline GE 66 THEN do:                                
+            IF v-printline GE 62 THEN do:                                
                 PAGE.                
                 {oe/rep/invprot.i}                
                 v-printline = 29.
@@ -861,25 +864,56 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         v-printline = v-printline + 1.
         RUN printNotes ("IN",4).
         IF v-prntinst THEN DO:
+          
+            ASSIGN 
+            cBillNotes[1] = ""
+            cBillNotes[2] = ""
+            cBillNotes[3] = ""
+            cBillNotes[4] = "".
+            
+        IF inv-head.multi-invoice THEN
+            FOR EACH b-inv-head WHERE b-inv-head.company = inv-head.company
+              AND b-inv-head.inv-no = inv-head.inv-no
+              /*AND b-inv-head.bol-no EQ inv-head.bol-no*/
 
-          IF TRIM(inv-head.bill-i[1]) NE "" OR
-             TRIM(inv-head.bill-i[2]) NE "" OR
-             TRIM(inv-head.bill-i[3]) NE "" OR
-             TRIM(inv-head.bill-i[4]) NE "" 
+              AND b-inv-head.cust-no = inv-head.cust-no  
+              AND b-inv-head.stat NE "H" 
+              AND NOT b-inv-head.multi-invoice NO-LOCK
+              BREAK BY b-inv-head.inv-date DESC:
+                ASSIGN 
+                    cBillNotes[1] = b-inv-head.bill-i[1]
+                    cBillNotes[2] = b-inv-head.bill-i[2]
+                    cBillNotes[3] = b-inv-head.bill-i[3]
+                    cBillNotes[4] = b-inv-head.bill-i[4]
+                    .
+                LEAVE.
+        END.
+        ELSE 
+            ASSIGN
+                cBillNotes[1] = inv-head.bill-i[1]
+                cBillNotes[2] = inv-head.bill-i[2]
+                cBillNotes[3] = inv-head.bill-i[3]
+                cBillNotes[4] = inv-head.bill-i[4]
+                .
+
+
+          IF TRIM(cBillNotes[1]) NE "" OR
+             TRIM(cBillNotes[2]) NE "" OR
+             TRIM(cBillNotes[3]) NE "" OR
+             TRIM(cBillNotes[4]) NE "" 
             THEN DO:
               PUT SKIP(1).
               ASSIGN v-printline = v-printline + 1.
           END.
-         
           DO i = 1 TO 4:
-           IF inv-head.bill-i[i] NE "" THEN DO:
-             IF v-printline GE 66 THEN do:                                
+           IF cBillNotes[i] NE "" THEN DO:
+             IF v-printline GE 63 THEN do:                                
                 PAGE.                
                 {oe/rep/invprot.i}                
                 v-printline = 29.
              END.
 
-             PUT inv-head.bill-i[i] AT 18
+             PUT cBillNotes[i] FORMAT "x(100)" AT 18
               SKIP.
              ASSIGN v-printline = v-printline + 1.
            END.
@@ -1003,6 +1037,11 @@ PROCEDURE printNotes:
       FOR EACH tt-formtext:
         i = i + 1.
         IF i <= ipiLines AND tt-formtext.tt-text NE "" THEN DO:
+            IF v-printline GE 62 THEN do:                                
+                PAGE.                
+                {oe/rep/invprot.i}                
+                v-printline = 29.
+            END.
             PUT "<C17>" tt-formtext.tt-text FORMAT "X(100)" SKIP.
             v-printline = v-printline + 1.
         END.

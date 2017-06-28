@@ -62,7 +62,7 @@ DO:
    END.
    
    IF v-valid THEN
-      run cec/est-vend.p (recid(xest),output v-vend-no,output lv-error ) no-error.
+      run cec/est-vend.w (recid(xest),output v-vend-no,output lv-error ) no-error.
 END.
 
 if lv-error then do:

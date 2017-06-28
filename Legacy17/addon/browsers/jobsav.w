@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:36 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -39,7 +39,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i} /* added by script _globdefs.p on 04.18.2017 @ 11:35:37 am */
+{custom/globdefs.i} /* added by script _globdefs.p */
 
 DEFINE VARIABLE job-number AS CHARACTER NO-UNDO.
 
@@ -508,7 +508,7 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-  RUN pDataGridInit. /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:36 am */
+  RUN pDataGridInit. /* added by script _admBrowsers.p */
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF selected-option:NUM-ITEMS IN FRAME {&FRAME-NAME} = 0 THEN

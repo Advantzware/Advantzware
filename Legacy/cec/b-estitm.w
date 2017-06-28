@@ -33,6 +33,7 @@ CREATE WIDGET-POOL.
 {custom/gcompany.i}    
 {custom/gloc.i}
 {custom/persist.i}
+{est/ttInputEst.i NEW}
     
 DEF VAR ls-add-what AS cha NO-UNDO.
 DEF VAR ll-add-set AS LOG NO-UNDO INIT NO.
@@ -3203,7 +3204,7 @@ PROCEDURE copy-line :
   ll-new-record = YES.
        
   IF ls-add-what EQ "form" THEN
-    RUN cec/new-form.p (ROWID(est), OUTPUT lv-rowid).
+    RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT lv-rowid).
   ELSE
     RUN cec/newblank.p (ROWID(ef), OUTPUT lv-rowid).
 
@@ -3440,8 +3441,9 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
      iCount = iCount + 1.
       
     IF iCount = 1 THEN DO:
-        RUN cec/new-est.p (IF iArtiosCount = 1 THEN 5 ELSE 6,
-                      OUTPUT lv-crt-est-rowid).
+        RUN est/NewEstimate.p ('C',
+                               IF iArtiosCount = 1 THEN 5 ELSE 6,
+                               OUTPUT lv-crt-est-rowid).
      END.
      
      FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid  NO-ERROR.
@@ -3837,8 +3839,9 @@ PROCEDURE createESTfromArtios :
      iCount = iCount + 1.
       
      IF iCount = 1 THEN DO:
-        RUN cec/new-est.p (IF iArtiosCount = 1 THEN 5 ELSE 6,
-                      OUTPUT lv-crt-est-rowid).
+        RUN est/NewEstimate.p ('C',
+                               IF iArtiosCount = 1 THEN 5 ELSE 6,
+                               OUTPUT lv-crt-est-rowid).
      END.
      ELSE DO:
         
@@ -3846,7 +3849,7 @@ PROCEDURE createESTfromArtios :
            FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid NO-LOCK NO-ERROR.
            FIND FIRST est OF ef NO-LOCK NO-ERROR.
 
-           RUN cec/new-form.p (ROWID(est), OUTPUT lv-crt-est-rowid).
+           RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT lv-crt-est-rowid).
            
         END.
         ELSE IF FIRST-OF(tt-artios.blank-num) THEN DO:
@@ -4096,8 +4099,9 @@ PROCEDURE createEstFromImpact :
      iCount = iCount + 1.
       
      IF iCount = 1 THEN DO:
-        RUN cec/new-est.p (IF iArtiosCount = 1 THEN 5 ELSE 6,
-                      OUTPUT lv-crt-est-rowid).
+        RUN est/NewEstimate.p ('C',
+                               IF iArtiosCount = 1 THEN 5 ELSE 6,
+                               OUTPUT lv-crt-est-rowid).
      END.
      ELSE DO:
         
@@ -4105,7 +4109,7 @@ PROCEDURE createEstFromImpact :
            FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid NO-LOCK NO-ERROR.
            FIND FIRST est OF ef NO-LOCK NO-ERROR.
 
-           RUN cec/new-form.p (ROWID(est), OUTPUT lv-crt-est-rowid).
+           RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT lv-crt-est-rowid).
            
         END.
         ELSE IF FIRST-OF(tt-artios.blank-num) THEN DO:
@@ -4481,8 +4485,9 @@ PROCEDURE crt-new-est :
 
   ll-new-record = YES.
   
-  RUN cec/new-est.p (IF ls-add-what EQ "est" THEN 5 ELSE 6,
-                     OUTPUT lv-crt-est-rowid).
+  RUN est/NewEstimate.p ('C',
+                         IF ls-add-what EQ "est" THEN 5 ELSE 6,
+                         OUTPUT lv-crt-est-rowid).
 
   FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid NO-LOCK NO-ERROR.
   FIND FIRST ef OF eb NO-LOCK NO-ERROR.
@@ -4510,7 +4515,7 @@ PROCEDURE crt-new-set :
   RUN set-or-combo.
 
   IF ls-add-what EQ "form" THEN
-     RUN cec/new-form.p (ROWID(est), OUTPUT lv-rowid).
+     RUN est/NewEstimateForm.p ('C', ROWID(est), OUTPUT lv-rowid).
   ELSE
      RUN cec/newblank.p (ROWID(ef), OUTPUT lv-rowid).
 
@@ -5098,6 +5103,10 @@ PROCEDURE local-add-record :
      EMPTY TEMP-TABLE tt-frmout.
      RUN est/d-frmout.w (cocode).
      RUN createESTFarmOut.
+  END.
+  ELSE IF ls-add-what = "ImportForm" THEN DO:
+      RUN est/dImportEst.w (cocode).
+      RUN pCreateFormFromImport.
   END.
   ELSE DO:
     {est/d-cadcamrun.i}
@@ -6665,6 +6674,41 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pCreateFormFromImport B-table-Win
+PROCEDURE pCreateFormFromImport:
+/*------------------------------------------------------------------------------
+ Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
+ Notes:
+------------------------------------------------------------------------------*/
+  DEF VAR iCount AS INT NO-UNDO.
+   
+  ASSIGN
+    ll-new-record = YES
+    iCount = 0
+    .
+
+  FOR EACH ttInputEst:
+      ttInputEst.riParentEst = ROWID(est).
+      iCount = iCount + 1.
+  END.
+  
+  RUN est/BuildEstimate.p ("C").
+  
+  
+  IF iCount > 0 THEN DO:
+     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+     RUN new_record IN WIDGET-HANDLE(char-hdl)  (lv-crt-est-rowid).
+  END. 
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE redisplay-blanks B-table-Win 
 PROCEDURE redisplay-blanks :

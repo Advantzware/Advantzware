@@ -38,6 +38,7 @@ DO:
         FIND FIRST style NO-LOCK WHERE style.company EQ ipcCompany
             AND style.style EQ ipcStyle
             NO-ERROR.
+
     IF AVAILABLE style AND style.spare-char-5 GT "" THEN 
         opcPackCode = style.spare-char-5.
 

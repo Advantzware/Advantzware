@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:53 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -542,6 +542,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL routing.m-code[1] V-table-Win
 ON LEAVE OF routing.m-code[1] IN FRAME F-Main /* Machine Code[1] */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
 
   if not can-find(mach where mach.company = gcompany
@@ -552,8 +553,9 @@ DO:
      message "Invalid Machine Code. Try Help!" view-as alert-box error.
      return no-apply.         
   end.            
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -563,6 +565,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL routing.m-code[2] V-table-Win
 ON LEAVE OF routing.m-code[2] IN FRAME F-Main /* Machine Code[2] */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   if not can-find(mach where mach.company = gcompany
               and mach.loc = gloc
@@ -572,8 +575,9 @@ DO:
      message "Invalid Machine Code. Try Help!" view-as alert-box error.
      return no-apply.         
   end.            
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -583,6 +587,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL routing.m-code[3] V-table-Win
 ON LEAVE OF routing.m-code[3] IN FRAME F-Main /* Machine Code[3] */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   if not can-find(mach where mach.company = gcompany
               and mach.loc = gloc
@@ -592,8 +597,9 @@ DO:
      message "Invalid Machine Code. Try Help!" view-as alert-box error.
      return no-apply.         
   end.            
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -603,6 +609,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL routing.m-code[4] V-table-Win
 ON LEAVE OF routing.m-code[4] IN FRAME F-Main /* Machine Code[4] */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   if not can-find(mach where mach.company = gcompany
               and mach.loc = gloc
@@ -612,8 +619,9 @@ DO:
      message "Invalid Machine Code. Try Help!" view-as alert-box error.
      return no-apply.         
   end.            
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -623,6 +631,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL routing.m-code[5] V-table-Win
 ON LEAVE OF routing.m-code[5] IN FRAME F-Main /* Machine Code[5] */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   if not can-find(mach where mach.company = gcompany
               and mach.loc = gloc
@@ -632,8 +641,9 @@ DO:
      message "Invalid Machine Code. Try Help!" view-as alert-box error.
      return no-apply.         
   end.            
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -643,6 +653,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL routing.m-code[6] V-table-Win
 ON LEAVE OF routing.m-code[6] IN FRAME F-Main /* Machine Code[6] */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   if not can-find(mach where mach.company = gcompany
               and mach.loc = gloc
@@ -652,8 +663,9 @@ DO:
      message "Invalid Machine Code. Try Help!" view-as alert-box error.
      return no-apply.         
   end.            
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -663,6 +675,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL routing.m-code[7] V-table-Win
 ON LEAVE OF routing.m-code[7] IN FRAME F-Main /* Machine Code[7] */
 DO:
+   {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   if not can-find(mach where mach.company = gcompany
               and mach.loc = gloc
@@ -672,8 +685,9 @@ DO:
      message "Invalid Machine Code. Try Help!" view-as alert-box error.
      return no-apply.         
   end.            
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -683,6 +697,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL routing.m-code[8] V-table-Win
 ON LEAVE OF routing.m-code[8] IN FRAME F-Main /* Machine Code[8] */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   if not can-find(mach where mach.company = gcompany
               and mach.loc = gloc
@@ -692,8 +707,9 @@ DO:
      message "Invalid Machine Code. Try Help!" view-as alert-box error.
      return no-apply.         
   end.            
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -703,6 +719,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL routing.m-code[9] V-table-Win
 ON LEAVE OF routing.m-code[9] IN FRAME F-Main /* Machine Code[9] */
 DO:
+   {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   if not can-find(mach where mach.company = gcompany
               and mach.loc = gloc
@@ -712,8 +729,9 @@ DO:
      message "Invalid Machine Code. Try Help!" view-as alert-box error.
      return no-apply.         
   end.            
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -879,7 +897,7 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var i as int no-undo.
-
+  {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
 do with frame {&frame-name}:
   run validate-machine (input routing.m-code[1]:screen-value) no-error.
@@ -966,6 +984,7 @@ end.
         end.            
      end.   
   end.
+  {&methods/lValidateError.i NO}
  ============================*/
 
   /* Dispatch standard ADM method.                             */
@@ -974,6 +993,7 @@ end.
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -406,7 +406,7 @@ DEF VAR v-rel AS CHAR FORMAT "x(1)" NO-UNDO.
         for each ar-invl no-lock where ar-invl.x-no = ar-inv.x-no
             BREAK BY ar-invl.misc:
 
-          IF ar-invl.inv-qty EQ 0 AND ar-invl.ship-qty EQ 0 THEN NEXT .     
+          IF ar-invl.inv-qty EQ 0 AND ar-invl.ship-qty EQ 0 AND NOT ar-invl.misc THEN NEXT .     
           
           for each oe-boll no-lock where oe-boll.company = ar-invl.company
                         and oe-boll.bol-no = ar-invl.bol-no

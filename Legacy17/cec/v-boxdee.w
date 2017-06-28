@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:57 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -550,7 +550,7 @@ END.
 ON LEAVE OF box-design-hdr.lscore IN FRAME F-Main /* Length!Score */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+    {&methods/lValidateError.i YES}
     DEFINE VARIABLE i         AS INTEGER NO-UNDO.
     DEFINE VARIABLE ls-string AS cha     INIT "0,1,2,3,4,5,6,7,8,9" NO-UNDO.
     DO i = 1 TO LENGTH(SELF:screen-value) :
@@ -559,9 +559,10 @@ DO:
          RETURN NO-APPLY.
       END. 
     END.
-
+    {&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

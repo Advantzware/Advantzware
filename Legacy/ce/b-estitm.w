@@ -2784,7 +2784,7 @@ PROCEDURE crt-est-childrecord :
   DEF VAR lv-rowid AS ROWID NO-UNDO.
  
 
-  RUN ce/new-form.p (ROWID(est), OUTPUT lv-rowid).
+  RUN est/NewEstimateForm.p ('F', ROWID(est), OUTPUT lv-rowid).
 
   FIND eb WHERE ROWID(eb) EQ lv-rowid NO-LOCK NO-ERROR.
   lv-eb-recid = RECID(eb).
@@ -2937,9 +2937,10 @@ PROCEDURE crt-new-est :
   DEF BUFFER bf FOR ef.
 
   ll-new-record = YES.
-
-  RUN ce/new-est.p (IF ls-add-what EQ "est" THEN 1 ELSE 2,
-                    OUTPUT lv-crt-est-rowid).
+  
+  RUN est/NewEstimate.p ('F', 
+                         IF ls-add-what EQ "est" THEN 1 ELSE 2,
+                         OUTPUT lv-crt-est-rowid).
 
   FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid NO-LOCK NO-ERROR.
   FIND FIRST ef OF eb NO-LOCK NO-ERROR.

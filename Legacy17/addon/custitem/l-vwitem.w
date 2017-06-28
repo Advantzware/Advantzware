@@ -199,20 +199,20 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "EMPTRACK.vend-whse-item"
+     _TblList          = "vend-whse-item"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Where[1]         = "EMPTRACK.vend-whse-item.company = ip-company"
-     _FldNameList[1]   > EMPTRACK.vend-whse-item.cust-part-no
+     _Where[1]         = "vend-whse-item.company = ip-company"
+     _FldNameList[1]   > vend-whse-item.cust-part-no
 "vend-whse-item.cust-part-no" ? ? "character" ? ? ? ? ? ? no ? no no "27.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > EMPTRACK.vend-whse-item.fg-item-no
+     _FldNameList[2]   > vend-whse-item.fg-item-no
 "vend-whse-item.fg-item-no" ? ? "character" ? ? ? ? ? ? no ? no no "27.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > EMPTRACK.vend-whse-item.vendor-code
+     _FldNameList[3]   > vend-whse-item.vendor-code
 "vend-whse-item.vendor-code" ? ? "character" ? ? ? ? ? ? no ? no no "13.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > EMPTRACK.vend-whse-item.vendor-plant-code
+     _FldNameList[4]   > vend-whse-item.vendor-plant-code
 "vend-whse-item.vendor-plant-code" ? ? "character" ? ? ? ? ? ? no ? no no "15.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > EMPTRACK.vend-whse-item.vendor-dept-code
+     _FldNameList[5]   > vend-whse-item.vendor-dept-code
 "vend-whse-item.vendor-dept-code" ? ? "character" ? ? ? ? ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > EMPTRACK.vend-whse-item.cust-no
+     _FldNameList[6]   > vend-whse-item.cust-no
 "vend-whse-item.cust-no" ? ? "character" ? ? ? ? ? ? no ? no no "15.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */

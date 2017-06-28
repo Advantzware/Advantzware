@@ -320,27 +320,7 @@ ON WINDOW-CLOSE OF {&WINDOW-NAME}
         IF NOT closeMenu THEN RETURN NO-APPLY.
         
         RUN system/userLogOut.p.
-        /*
-        FIND FIRST asi._myconnection NO-LOCK.  
-
-        FIND FIRST asi._connect NO-LOCK WHERE _connect._connect-id = _myconnection._myconn-id
-            NO-ERROR. 
-  
-        FIND FIRST userLog NO-LOCK 
-            WHERE userLog.user_id       = USERID("NOSWEAT")       
-            AND userLog.sessionID     = asi._connect._connect-pid
-            NO-ERROR.
         
-  
-        IF AVAILABLE  userLog THEN DO:
-            FIND CURRENT userLog EXCLUSIVE-LOCK.  
-            ASSIGN userLog.logoutDateTime = DATETIME(TODAY, MTIME)
-                   userLog.userStatus = "User Logged Out".
-            FIND CURRENT userLog NO-LOCK.
-        END.
-        */
-/*      APPLY "CLOSE":U TO THIS-PROCEDURE. */
-/*      RETURN NO-APPLY. */
         QUIT. /* kills all processes */
     END.
 
@@ -374,35 +354,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     END.
     IF AVAILABLE sys-ctrl AND sys-ctrl.DESCrip <> "" THEN
         boxes:LOAD-IMAGE(sys-ctrl.DESCrip).
-    /*
-    /* Track users */
-    FIND FIRST asi._myconnection NO-LOCK.  
-
-    FIND FIRST asi._connect NO-LOCK WHERE _connect._connect-usr = _myconnection._myconn-userid
-        NO-ERROR.
-    */ 
-    RUN system/checkEula.p (INPUT cEulaFile, OUTPUT lEulaAccepted, OUTPUT cEulaVersion).
-    RUN system/userLogIn.p (OUTPUT lUserExit).
     
-    /* User over limit or choose not to connect */
-    IF lUserExit THEN 
-      QUIT.
-      
-    /*
-    DO TRANSACTION:
-        CREATE userLog.
-        ASSIGN 
-            userLog.user_id       = USERID("NOSWEAT")       
-            userLog.sessionID     = asi._myconnection._myconn-pid 
-            userLog.userName      = asi._connect._connect-name
-            userLog.IpAddress     = asi._connect._connect-ip
-            userLog.deviceName    = asi._connect._connect-device    
-            userLog.EulaVersion   = DECIMAL(cEulaVersion)
-            userLog.userStatus    = "Logged In"
-            userLog.loginDateTime = DATETIME(TODAY, MTIME).
-    END.  
-    FIND CURRENT userLog NO-LOCK.
-    */ 
+          
     {methods/mainmenu.i}
     
     RUN Read_Menus.
@@ -462,9 +415,9 @@ PROCEDURE Create_Buttons :
             HEIGHT-CHARS = {&button-height}
             WIDTH-CHARS = {&button-width}
             HIDDEN = NO
-            MANUAL-HIGHLIGHT = TRUE
+            /*  MANUAL-HIGHLIGHT = TRUE */
             TRIGGERS:
-                ON CHOOSE
+                ON CHOOSE 
                     PERSISTENT RUN Run_Button IN THIS-PROCEDURE (button-widget:HANDLE).
             END TRIGGERS.
     
@@ -682,8 +635,7 @@ PROCEDURE Run_Button :
             END.
             ELSE
                 ASSIGN
-                    current-widget:FONT = IF current-widget:COLUMN = button-handle:COLUMN THEN ?
-            ELSE current-widget:FONT
+                    current-widget:FONT = IF current-widget:COLUMN = button-handle:COLUMN THEN ? ELSE current-widget:FONT
                     current-widget      = current-widget:NEXT-SIBLING.
         END.
         ELSE
@@ -694,10 +646,11 @@ PROCEDURE Run_Button :
         button-col         = button-handle:COLUMN + {&button-width} + {&button-gap}.
     IF INDEX(button-handle:NAME,'.') = 0 THEN RUN Create_Buttons(button-handle:NAME).
     ELSE DO:
-        /* check module liscense first before run it YSK 08/24/04 TASK# 08060406 */
+        /* check module license first before run it YSK 08/24/04 TASK# 08060406 */
         RUN util/chk-mod.p ("ASI", button-handle:NAME) NO-ERROR.
         IF NOT ERROR-STATUS:ERROR THEN 
         RUN Get_Procedure IN Persistent-Handle(button-handle:NAME,OUTPUT run-proc,YES).
+        
     END.
 
 END PROCEDURE.

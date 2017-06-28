@@ -25,7 +25,8 @@ DEF VAR v-orig-prep-lab LIKE prep-lab NO-UNDO.
 assign
  tprep-mat = 0
  tprep-lab = 0
- tprep-tot = 0.
+ tprep-tot = 0
+.
      
 for each est-prep 
     where est-prep.company = xest.company
@@ -68,7 +69,14 @@ for each est-prep
      v-orig-prep-lab = prep-lab
      prep-tot = prep-mat + prep-lab.
 
-  IF ceprepprice-chr EQ "Profit" THEN
+   IF est-prep.simon = 'M' THEN DO:
+        dMCostToExcludePrep = dMCostToExcludePrep + prep-tot.
+        IF ceprepprice-chr EQ 'Profit' THEN 
+            dMPriceToAddPrep = dMPriceToAddPrep + prep-tot / (1 - prep-add) * prep-atz.
+        ELSE 
+            dMPriceToAddPrep = dMPriceToAddPrep + prep-tot * (1 + prep-add) * prep-atz.
+    END.
+    ELSE IF ceprepprice-chr EQ "Profit" THEN
      prep-tot  = prep-tot / (1 - prep-add) * prep-atz.
   ELSE
      prep-tot  = prep-tot * (1 + prep-add) * prep-atz.
@@ -83,7 +91,12 @@ for each est-prep
         prep-lab = prep-lab * ld-fac.
   END.
 
-  IF ceprepprice-chr EQ "Profit" THEN
+  IF est-prep.simon = 'M' THEN
+       ASSIGN 
+            tprep-mat = tprep-mat + prep-mat * prep-atz
+            tprep-lab = tprep-lab + prep-lab * prep-atz
+            .
+     ELSE IF ceprepprice-chr EQ "Profit" THEN
      ASSIGN
         tprep-mat = tprep-mat + (prep-mat / (1 - prep-add) * prep-atz)
         tprep-lab = tprep-lab + (prep-lab / (1 - prep-add) * prep-atz).

@@ -35,7 +35,9 @@ item.avg-w item.box-case item.case-pall fi_cas-pal-w fi_flute fi_reg-no
 
 &Scoped-define group# 5
 &Scoped-define group{&group#}-misc RECT-{&group#} group{&group#}-text
-&Scoped-define group{&group#}-fields item.s-dep item.s-wid item.s-len item.r-wid ~
+&Scoped-define group{&group#}-FIELDS item.flute item.reg-no item.cal ~
+item.basis-w fi_ect item.shrink ~
+item.s-dep item.s-wid item.s-len item.r-wid ~
 item.density item.color-1 item.dept-name[1] item.dept-name[2] item.dept-name[3] ~
 item.dept-name[4] item.dept-name[5] item.dept-name[6] item.dept-name[7] ~
 item.dept-name[8] item.dept-name[9] item.dept-name[10] item.speed%[1] ~
@@ -75,7 +77,7 @@ HIDE {&mat-types} NO-PAUSE.
 
 CASE fi_mat-type:SCREEN-VALUE:
   &Scoped-define group# 1
-  WHEN 'A' OR WHEN 'B' OR WHEN 'P'  THEN
+  WHEN 'A' OR WHEN 'B' OR WHEN 'P' THEN
   DO:
     DISPLAY {&group{&group#}}.
     assign
@@ -129,7 +131,8 @@ CASE fi_mat-type:SCREEN-VALUE:
        item.s-wid:screen-value in frame {&frame-name} = string({sys/inc/k16v.i item.s-wid})
        item.s-len:screen-value in frame {&frame-name} = string({sys/inc/k16v.i item.s-len})
        item.s-dep:screen-value in frame {&frame-name} = string({sys/inc/k16v.i item.s-dep})
-       item.r-wid:screen-value in frame {&frame-name} = string({sys/inc/k16v.i item.r-wid}).
+       item.r-wid:screen-value in frame {&frame-name} = string({sys/inc/k16v.i item.r-wid})
+       fi_ect:screen-value in frame {&frame-name}     = string(item.ect / IF fi_mat-type EQ "P" THEN 10000 ELSE 1).
 
     &IF '{&mat-types-enable}' = 'yes' &THEN
     ENABLE {&group{&group#}-fields}.

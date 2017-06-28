@@ -163,7 +163,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartListObject
-   External Tables: EMPTRACK.emp_type
+   External Tables: emp_type
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: Neither

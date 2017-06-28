@@ -1692,6 +1692,7 @@ if not v-sort then do:
 
      IF tb_excel THEN
      DO:
+        PUT STREAM excel UNFORMATTED SKIP(1). 
         PUT STREAM excel UNFORMATTED
           '"' ""                                               '",'
           '"' /*IF not last-of(tt-report2.key-01) THEN

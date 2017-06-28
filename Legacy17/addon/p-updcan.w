@@ -200,9 +200,9 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:19 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -231,22 +231,22 @@ DO:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
            RUN new-state('update-begin':U).
-           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p */
            ASSIGN add-active = no.
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
         END.                              
      END.
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:19 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -280,8 +280,8 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
-  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
+  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

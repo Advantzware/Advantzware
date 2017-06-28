@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:50 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -689,13 +689,13 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  {&methods/lValidateError.i YES}
   IF fgcat.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
      MESSAGE "Category cannot be blank. Try again." VIEW-AS ALERT-BOX ERROR.
      APPLY "entry" TO fgcat.procat.
      RETURN .
   END.
-
+  {&methods/lValidateError.i NO}
   RUN valid-glacc NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN .
 
@@ -714,6 +714,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   DISABLE v-charge v-gl-rm v-gl-fg WITH FRAME {&FRAME-NAME}.
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

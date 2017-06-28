@@ -202,10 +202,10 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "EMPTRACK.machchrg"
+     _TblList          = "machchrg"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _Where[1]         = "EMPTRACK.machchrg.machine = ip-machine"
-     _FldNameList[1]   > EMPTRACK.machchrg.charge_code
+     _Where[1]         = "machchrg.machine = ip-machine"
+     _FldNameList[1]   > machchrg.charge_code
 "charge_code" ? ? "character" ? ? ? ? ? ? no ? no no "7" yes no no "U" "" ""
      _FldNameList[2]   > "_<CALC>"
 "job-code_dscr(machchrg.charge_code) @ v-job-dscr" "Description" "x(30)" ? ? ? ? ? ? ? no ? no no "34" yes no no "U" "" ""

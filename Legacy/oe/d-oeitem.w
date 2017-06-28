@@ -6955,7 +6955,7 @@ PROCEDURE new-tandem :
                               AND oe-ord.ord-no  EQ oe-ordl.ord-no
                             NO-ERROR.
 
-  RUN ce/new-form.p (ROWID(est), OUTPUT lv-new-tandem).
+  RUN est/NewEstimateForm.p ('F',ROWID(est), OUTPUT lv-new-tandem).
 
   FIND eb WHERE ROWID(eb) EQ lv-new-tandem NO-ERROR.
 
@@ -7351,7 +7351,7 @@ PROCEDURE upd-new-tandem :
 
         IF AVAIL xest THEN DO:
           FIND FIRST ef OF eb NO-LOCK NO-ERROR.
-          RUN ce/new-form.p (ROWID(xest), OUTPUT lv-master).
+          RUN est/NewEstimateForm.p ('F', ROWID(xest), OUTPUT lv-master).
 
           FIND b-eb WHERE ROWID(b-eb) EQ lv-master NO-ERROR.
 

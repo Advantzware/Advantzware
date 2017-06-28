@@ -33,6 +33,9 @@ DEFINE VARIABLE hPDS AS HANDLE NO-UNDO.
 DEFINE VARIABLE lReturn AS LOGICAL NO-UNDO. 
 DEFINE VARIABLE lOverrideDefaultMapping AS LOGICAL NO-UNDO.
 
+DEFINE STREAM stEDI.
+OUTPUT STREAM stEDI TO c:\temp\edirec.tmp.
+
 /*ipXmlFile = "C:\ASIWorks\SPSCommerceOrder7.7.1\asi_files\POdc4-e43d6789-e152-425e-b45a-a4f63bdf4492.p.xml".*/
 /*ipXmlFile = "C:\ASIWorks\SPSCommerceOrder7.7.1\asi_files\PO_test1.xml".                                    */
 /*  ipxmlFile = "C:\ASIWorks\SPSCommerceOrder7.7.1\7.7.1_Orders.xml".*/
@@ -50,22 +53,24 @@ ASSIGN cSourceType = "FILE"
     lReturn = hPDS:READ-XML (cSourceType, cFile, cReadMode, cSchemaLocation, lOverrideDefaultMapping).   
     IF lReturn THEN RUN BuildEdiTables. 
    
-FOR EACH OrderHeader NO-LOCK :
-   DISPLAY orderheader.header1_id orderHeader.TradingPartnerId PurchaseOrderNumber PurchaseOrderDate.             
-END.
-FOR EACH orderline:
-   DISPLAY orderline.lineitem_id orderline.orderqty 
-           orderline.buyerpartnumber WITH TITLE "orderline".
-END.
-
-FOR EACH contacts:
-    DISPLAY contacttypecode contactname WITH TITLE "contacts".
-END.
-
-FOR EACH address:
-    DISPLAY addresstypecode addressname addressLocationNumber WITH TITLE "address".
+/*FOR EACH OrderHeader NO-LOCK :                                                                       */
+/*   DISPLAY orderheader.header1_id orderHeader.TradingPartnerId PurchaseOrderNumber PurchaseOrderDate.*/
+/*END.                                                                                                 */
+/*FOR EACH orderline:                                                                                  */
+/*   DISPLAY orderline.lineitem_id orderline.orderqty                                                  */
+/*           orderline.buyerpartnumber WITH TITLE "orderline".                                         */
+/*END.                                                                                                 */
+/*                                                                                                     */
+/*FOR EACH contacts:                                                                                   */
+/*    DISPLAY contacttypecode contactname WITH TITLE "contacts".                                       */
+/*END.                                                                                                 */
+/*                                                                                                     */
+/*FOR EACH address:                                                                                    */
+/*    DISPLAY addresstypecode addressname addressLocationNumber WITH TITLE "address".                  */
+/*                                                                                                     */
+/*END.                                                                                                 */
     
-END.
+OUTPUT STREAM stEDI CLOSE.
     
 /* **********************  Internal Procedures  *********************** */
 
@@ -192,7 +197,9 @@ PROCEDURE BuildEdiTables:
    CREATE EDDoc.
    ASSIGN EDDoc.Partner = EDPOTran.Partner
           EDDoc.Seq = EDPOTran.Seq.
-          
+
+   put STREAM stEDI recid(edpotran) skip.
+             
 /*  /* edpoline */                                     */
    FOR /*EACH lineitem,*/
        EACH orderline NO-LOCK:

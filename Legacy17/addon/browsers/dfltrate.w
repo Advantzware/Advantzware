@@ -34,7 +34,6 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\dfltrate.i
 &SCOPED-DEFINE yellowColumnsName rate
 /* Parameters Definitions ---                                           */
 

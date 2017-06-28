@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:39 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -50,7 +50,10 @@ CREATE WIDGET-POOL.
 {sys/inc/varasgn.i}
 
 DEFINE VARIABLE dtStartDate AS DATETIME    NO-UNDO.
-dtStartDate = TODAY.
+DEFINE VARIABLE dtEndDate AS DATETIME    NO-UNDO.
+
+ASSIGN dtStartDate = TODAY
+       dtEndDate   = TODAY.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -76,15 +79,15 @@ dtStartDate = TODAY.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table userLog.userName ~
-userLog.sessionID userLog.LoginDateTime userLog.logoutDateTime ~
-userLog.EulaVersion userLog.IpAddress 
+&Scoped-define FIELDS-IN-QUERY-Browser-Table userLog.user_id ~
+userLog.userName userLog.sessionID userLog.LoginDateTime ~
+userLog.logoutDateTime userLog.EulaVersion userLog.IpAddress 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH userLog WHERE ~{&KEY-PHRASE} ~
-      AND userLog.loginDateTime >= dtStartDate NO-LOCK ~
+      AND userLog.loginDateTime >= dtStartDate and userLog.loginDateTime <= dtEndDate NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH userLog WHERE ~{&KEY-PHRASE} ~
-      AND userLog.loginDateTime >= dtStartDate NO-LOCK ~
+      AND userLog.loginDateTime >= dtStartDate and userLog.loginDateTime <= dtEndDate NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table userLog
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table userLog
@@ -93,9 +96,10 @@ userLog.EulaVersion userLog.IpAddress
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-4 fiStartingDate Browser-Table ~
-browse-order auto_find Btn_Clear_Find 
-&Scoped-Define DISPLAYED-OBJECTS fiStartingDate browse-order auto_find 
+&Scoped-Define ENABLED-OBJECTS RECT-4 fiStartingDate fiEndingDate btSearch ~
+Browser-Table browse-order auto_find Btn_Clear_Find 
+&Scoped-Define DISPLAYED-OBJECTS fiStartingDate fiEndingDate browse-order ~
+auto_find 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -114,12 +118,22 @@ DEFINE BUTTON Btn_Clear_Find
      SIZE 13 BY 1
      FONT 4.
 
+DEFINE BUTTON btSearch 
+     LABEL "Search" 
+     SIZE 15 BY 1.14.
+
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
      LABEL "Auto Find" 
      VIEW-AS FILL-IN 
      SIZE 32 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiStartingDate AS DATE FORMAT "99/99/99":U INITIAL ? 
+DEFINE VARIABLE fiEndingDate AS DATE FORMAT "99/99/99":U 
+     LABEL "Ending Date" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1
+     BGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE fiStartingDate AS DATE FORMAT "99/99/99":U 
      LABEL "Starting Date" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1
@@ -139,7 +153,8 @@ DEFINE RECTANGLE RECT-4
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
       userLog
-    FIELDS(userLog.userName
+    FIELDS(userLog.user_id
+      userLog.userName
       userLog.sessionID
       userLog.LoginDateTime
       userLog.logoutDateTime
@@ -151,6 +166,7 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
+      userLog.user_id FORMAT "X(12)":U
       userLog.userName FORMAT "x(16)":U
       userLog.sessionID FORMAT ">>>>>>>>>>":U
       userLog.LoginDateTime FORMAT "99/99/9999 HH:MM:SS.SSS":U
@@ -166,7 +182,9 @@ DEFINE BROWSE Browser-Table
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fiStartingDate AT ROW 1.24 COL 16 COLON-ALIGNED WIDGET-ID 2
+     fiStartingDate AT ROW 1.14 COL 17 COLON-ALIGNED WIDGET-ID 2
+     fiEndingDate AT ROW 1.14 COL 51 COLON-ALIGNED WIDGET-ID 4
+     btSearch AT ROW 1.14 COL 76 WIDGET-ID 6
      Browser-Table AT ROW 2.43 COL 2 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
      browse-order AT ROW 19.33 COL 6 HELP
@@ -238,7 +256,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table fiStartingDate F-Main */
+/* BROWSE-TAB Browser-Table btSearch F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -258,14 +276,15 @@ ASSIGN
      _TblList          = "ASI.userLog"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _Where[1]         = "userLog.loginDateTime >= dtStartDate"
-     _FldNameList[1]   = ASI.userLog.userName
-     _FldNameList[2]   = ASI.userLog.sessionID
-     _FldNameList[3]   = ASI.userLog.LoginDateTime
-     _FldNameList[4]   = ASI.userLog.logoutDateTime
-     _FldNameList[5]   > ASI.userLog.EulaVersion
+     _Where[1]         = "userLog.loginDateTime >= dtStartDate and userLog.loginDateTime <= dtEndDate"
+     _FldNameList[1]   = ASI.userLog.user_id
+     _FldNameList[2]   = ASI.userLog.userName
+     _FldNameList[3]   = ASI.userLog.sessionID
+     _FldNameList[4]   = ASI.userLog.LoginDateTime
+     _FldNameList[5]   = ASI.userLog.logoutDateTime
+     _FldNameList[6]   > ASI.userLog.EulaVersion
 "EulaVersion" ? ">>9.99" "character" ? ? ? ? ? ? no ? no no "41.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   = ASI.userLog.IpAddress
+     _FldNameList[7]   = ASI.userLog.IpAddress
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -321,6 +340,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btSearch
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btSearch B-table-Win
+ON CHOOSE OF btSearch IN FRAME F-Main /* Search */
+DO:
+   RUN local-open-query.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiEndingDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiEndingDate B-table-Win
+ON LEAVE OF fiEndingDate IN FRAME F-Main /* Ending Date */
+DO:
+  /* RUN local-open-query. */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME fiStartingDate
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiStartingDate B-table-Win
 ON ENTRY OF fiStartingDate IN FRAME F-Main /* Starting Date */
@@ -335,7 +376,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiStartingDate B-table-Win
 ON LEAVE OF fiStartingDate IN FRAME F-Main /* Starting Date */
 DO:
-  RUN local-open-query.
+/*  RUN local-open-query. */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -410,8 +451,10 @@ PROCEDURE local-open-query :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN fiStartingDate.
-    dtStartDate = DATETIME(fiStartingDate).
+    ASSIGN fiStartingDate fiEndingDate.
+    ASSIGN
+           dtStartDate = DATETIME(fiStartingDate)
+           dtEndDate   = DATETIME(fiEndingDate).
   END.
 
   /* Dispatch standard ADM method.                             */

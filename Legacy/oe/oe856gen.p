@@ -39,7 +39,9 @@ DO:
 
   find edco where edco.company = oe-bolh.company no-lock no-error.
   ASSIGN ws_edmast_rec = RECID(edmast) .
-  
+  find first edcode where edcode.partner eq edmast.partner
+   and edcode.setid = "856" no-lock no-error.
+
   /* 856 process (shipment advice) */
   IF original_print OR force_asn THEN
   EDI-856-LOOP: /* 9601 CAH: No ASN on reprinted oe-bolh */

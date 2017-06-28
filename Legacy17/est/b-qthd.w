@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:34 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -111,7 +111,7 @@ AND (quotehd.est-no EQ fi_est-no ~
 OR fi_est-no EQ "") ~
 AND quotehd.rfq BEGINS fi_rfq ~
 ~{&useIndexPhrase} NO-LOCK, ~
-      EACH quoteitm OF quotehd  ~
+      EACH quoteitm OF quotehd OUTER-JOIN  ~
       WHERE (IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no  ~
           ELSE quoteitm.part-no BEGINS fi_part-no) ~
 and (IF fi_item-decr BEGINS "*" THEN quoteitm.part-dscr1 MATCHES fi_item-decr  ~
@@ -132,7 +132,7 @@ AND (quotehd.est-no EQ fi_est-no ~
 OR fi_est-no EQ "") ~
 AND quotehd.rfq BEGINS fi_rfq ~
 ~{&useIndexPhrase} NO-LOCK, ~
-      EACH quoteitm OF quotehd  ~
+      EACH quoteitm OF quotehd OUTER-JOIN ~
       WHERE (IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no  ~
           ELSE quoteitm.part-no BEGINS fi_part-no) ~
 and (IF fi_item-decr BEGINS "*" THEN quoteitm.part-dscr1 MATCHES fi_item-decr  ~

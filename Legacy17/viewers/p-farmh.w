@@ -199,7 +199,7 @@ DO:
 
   run get-link-handle in adm-broker-hdl (this-procedure, "history-source", output char-hdl).
   run show-history in widget-handle(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */

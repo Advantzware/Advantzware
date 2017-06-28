@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:51 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -620,7 +620,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-rm-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
-
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST b-fgink
         WHERE b-fgink.company EQ itemfg.company
@@ -636,7 +636,7 @@ PROCEDURE local-update-record :
       RETURN ERROR.
     END.
   END.
-
+  {&methods/lValidateError.i NO}
   RUN valid-pass NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
@@ -657,6 +657,7 @@ PROCEDURE local-update-record :
   RUN ebfgBuild.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

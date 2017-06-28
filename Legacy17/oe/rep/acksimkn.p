@@ -412,7 +412,7 @@ FOR EACH report
          WHERE oe-ordl.company EQ oe-ord.company
            AND oe-ordl.ord-no  EQ oe-ord.ord-no NO-LOCK NO-ERROR.
        IF AVAIL oe-ordl THEN
-       FIND FIRST  ASI.notes NO-LOCK
+       FIND FIRST  notes NO-LOCK
          WHERE notes.rec_key = oe-ordl.rec_key
            AND TRIM(notes.note_text) NE "" NO-ERROR.
        IF AVAIL notes THEN DO:
@@ -421,7 +421,7 @@ FOR EACH report
 
          ASSIGN  v-printline = v-printline + 1.
 
-         FOR EACH ASI.notes NO-LOCK
+         FOR EACH notes NO-LOCK
            WHERE notes.rec_key = oe-ordl.rec_key
               BY note_date BY note_time:
 

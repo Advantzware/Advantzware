@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:25 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -213,7 +213,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartNavBrowser
-   External Tables: EMPTRACK.employee
+   External Tables: employee
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: External-Tables
@@ -302,7 +302,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH machemp WHERE machemp.employee = employee.emplo
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE"
      _TblOptList       = "USED,"
-     _OrdList          = "EMPTRACK.machemp.employee|yes,EMPTRACK.machemp.start_date|yes,EMPTRACK.machemp.start_time|yes"
+     _OrdList          = "machemp.employee|yes,machemp.start_date|yes,machemp.start_time|yes"
      _Where[1]         = "machtran.rec_key eq machemp.table_rec_key
  AND machtran.company = gcompany"
      _Query            is NOT OPENED

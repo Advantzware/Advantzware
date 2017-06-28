@@ -83,19 +83,17 @@ DEFINE VAR W-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Menu Definitions                                                     */
 DEFINE MENU POPUP-MENU-btDataDigger 
-       MENU-ITEM m_DataDigger2  LABEL "DataDigger"    
        MENU-ITEM m_ProTools2    LABEL "ProTools"      
        MENU-ITEM m_Program_Stack LABEL "Program Stack" 
        MENU-ITEM m_Trans        LABEL "Transactions and Locks Window".
 
 DEFINE MENU POPUP-MENU-lv-program 
-       MENU-ITEM m_datadigger   LABEL "datadigger"    
        MENU-ITEM m_ProTools     LABEL "ProTools"      .
 
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btDataDigger 
-     LABEL "DD" 
+     LABEL "Admin" 
      SIZE 11 BY 1.14.
 
 DEFINE BUTTON btn-print 
@@ -170,14 +168,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 119.6
          VIRTUAL-HEIGHT     = 23.38
          VIRTUAL-WIDTH      = 119.6
-         RESIZE             = NO
-         SCROLL-BARS        = NO
-         STATUS-AREA        = NO
+         RESIZE             = no
+         SCROLL-BARS        = no
+         STATUS-AREA        = no
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
@@ -218,7 +216,7 @@ ASSIGN
        lv-program:POPUP-MENU IN FRAME F-Main       = MENU POPUP-MENU-lv-program:HANDLE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = YES.
+THEN W-Win:HIDDEN = yes.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -258,25 +256,10 @@ END.
 
 &Scoped-define SELF-NAME btDataDigger
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btDataDigger W-Win
-ON CHOOSE OF btDataDigger IN FRAME F-Main /* DD */
+ON CHOOSE OF btDataDigger IN FRAME F-Main /* Admin */
 DO:
-     /* need security check */
-    DEF VAR lv-password AS cha NO-UNDO.
-    DEF VAR op-ed-text AS cha NO-UNDO.
-
-    ASSIGN ll-secure = NO
-           op-ed-text = ed-text.
-
-    IF NOT ll-secure THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure).
-
-    IF ll-secure EQ YES THEN DO:
-
-        IF INDEX(PROPATH, "DataDig") EQ 0 THEN
-          PROPATH = PROPATH + "," + ENTRY(1, PROPATH) + "\" + "util\datadigger".
-
-        RUN util/dataview.p.
-
-    END.
+  MESSAGE "Datadigger is replaced with the query tool on the advantzware menu."
+  VIEW-AS ALERT-BOX.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -354,34 +337,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME m_DataDigger2
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_DataDigger2 W-Win
-ON CHOOSE OF MENU-ITEM m_DataDigger2 /* DataDigger */
-DO:
-     /* need security check */
-    DEF VAR lv-password AS cha NO-UNDO.
-    DEF VAR op-ed-text AS cha NO-UNDO.
-
-    ASSIGN ll-secure = NO
-           op-ed-text = ed-text.
-
-    IF NOT ll-secure THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure).
-
-    IF ll-secure EQ YES THEN DO:
-
-        IF INDEX(PROPATH, "DataDig") EQ 0 THEN
-          PROPATH = PROPATH + "," + ENTRY(1, PROPATH) + "\" + "util\datadigger".
-
-        RUN util/dataview.p.
-
-    END.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME m_ProTools2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL m_ProTools2 W-Win
 ON CHOOSE OF MENU-ITEM m_ProTools2 /* ProTools */
@@ -435,7 +390,7 @@ FIND FIRST sys-ctrl  NO-LOCK
        AND sys-ctrl.company EQ g_company  NO-ERROR.
   IF AVAIL sys-ctrl THEN
       ASSIGN vconn = sys-ctrl.char-fld .
-  ELSE do:
+  ELSE DO:
       vconn = "".
       RUN sys/ref/nk1look.p (INPUT g_company, "AsiHelpService", "C" /* Logical */, NO /* check by cust */, 
         INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,

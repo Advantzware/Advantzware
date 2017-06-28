@@ -281,7 +281,7 @@ DEFINE BROWSE Browser-Table
       oe-boll.po-no COLUMN-LABEL "Customer's PO" FORMAT "x(15)":U
             LABEL-BGCOLOR 14
       oe-bolh.cust-no FORMAT "x(8)":U LABEL-BGCOLOR 14
-      itemfg.part-no FORMAT "x(12)":U LABEL-BGCOLOR 14
+      itemfg.part-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-boll.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       itemfg.i-name COLUMN-LABEL "FG Item Name" FORMAT "x(15)":U
             WIDTH 22 LABEL-BGCOLOR 14
@@ -624,6 +624,7 @@ ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -635,6 +636,7 @@ END.
 ON VALUE-CHANGED OF fi_i-name IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
@@ -671,6 +673,7 @@ ON VALUE-CHANGED OF fi_part-no IN FRAME F-Main
 DO:
  IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -682,6 +685,7 @@ END.
 ON VALUE-CHANGED OF fi_po-no IN FRAME F-Main
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 

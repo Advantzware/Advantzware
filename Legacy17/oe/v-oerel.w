@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:46 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -636,7 +636,6 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-rel-date V-table-Win
 PROCEDURE valid-rel-date:
-  {methods/lValidateError.i YES}
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
@@ -644,6 +643,7 @@ PROCEDURE valid-rel-date:
     DEFINE VARIABLE lValid    AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
     DEFINE VARIABLE ldDate    AS DATE    NO-UNDO.
+  {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         ldDate = DATE(oe-relh.rel-date:SCREEN-VALUE).
         RUN oe/dateFuture.p (INPUT cocode, INPUT ldDate, INPUT YES /* prompt */, OUTPUT lValid, OUTPUT lContinue).
@@ -1118,11 +1118,13 @@ PROCEDURE local-assign-record :
   DEF BUFFER bfNotes FOR notes.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  {&methods/lValidateError.i YES}
   IF oe-relh.posted THEN DO:
       MESSAGE "This release has already been posted, no updates allowed."
           VIEW-AS ALERT-BOX.
       RETURN NO-APPLY.
   END.
+  {&methods/lValidateError.i NO}
   sdate = oe-relh.rel-date:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
 
   IF oe-relh.rel-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE 
@@ -1244,6 +1246,7 @@ PROCEDURE local-assign-record :
   RUN create-relhold.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1542,7 +1545,7 @@ PROCEDURE security :
   Notes:       
 ------------------------------------------------------------------------------*/
 DEF VAR v-secureflg AS LOG NO-UNDO.
-
+{&methods/lValidateError.i YES}
 RUN sys/ref/d-passwd.w (8, OUTPUT v-secureflg).
 
 IF NOT v-secureflg THEN  DO:
@@ -1556,8 +1559,9 @@ END.
 
 IF v-secureflg THEN
    RUN hold-release.
-
+{&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

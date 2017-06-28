@@ -36,7 +36,6 @@ addon\browsers\machemp1.w
 addon\browsers\machemp2.w
 addon\browsers\machemp3.w
 addon\browsers\machseq.w
-addon\browsers\machsft2.w
 addon\browsers\MACHSHFT.W
 addon\browsers\machtra2.w
 addon\browsers\machtran.w
@@ -81,8 +80,6 @@ addon\fg\b-physi.w
 addon\fg\b-physs.w
 addon\fg\b-rcptd.w
 addon\fg\b-trans.w
-addon\fg\f-rcptd.w
-addon\fg\f-rcptds.w
 addon\loadtags\b-ldtagc.w
 addon\loadtags\b-ldtagi.w
 addon\touch\b-mchtrn.w
@@ -285,7 +282,6 @@ addon\browsers\jobsheet.w
 addon\browsers\jobstack.w
 addon\browsers\job_2.w
 addon\browsers\rfqitem.w
-addon\fg\b-phyi2.w
 addon\fg\b-rcptds.w
 addon\fg\b-ucptd.w
 addon\fg\b-ucptds.w

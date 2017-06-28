@@ -113,7 +113,7 @@ DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_soldto AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_soldto-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-ctcusi AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -339,6 +339,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 0 */
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 12.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/movecol.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  'Layout = ':U ,
@@ -357,12 +365,16 @@ PROCEDURE adm-create-objects :
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
+        /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_cust , 'export-xl':U , h_export ).
+
        /* Links to SmartViewer h_movecol-3. */
        RUN add-link IN adm-broker-hdl ( h_cust , 'move-columns':U , h_movecol-3 ).
 
        /* Links to SmartNavBrowser h_cust. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_cust ).
        RUN add-link IN adm-broker-hdl ( h_cust , 'Record':U , THIS-PROCEDURE ).
+
 
        RUN adjust-tab-order IN adm-broker-hdl ( h_cust ,
              h_folder , 'AFTER':U ).

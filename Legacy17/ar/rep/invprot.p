@@ -830,6 +830,11 @@ PROCEDURE printNotes:
       FOR EACH tt-formtext:
         i = i + 1.
         IF i <= ipiLines AND tt-formtext.tt-text NE "" THEN DO:
+            IF v-printline GE 57 THEN do:           
+                PAGE.
+                {ar/rep/invprot.i}
+                v-printline = 29.
+            END.
             PUT "<C17>" tt-formtext.tt-text FORMAT "X(100)" SKIP.
             v-printline = v-printline + 1.
         END.

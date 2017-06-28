@@ -140,7 +140,7 @@
           ASSIGN
              v-program = "oe/rep/bolccc.p"
              is-xprint-form = YES
-             lines-per-page = 64.
+             lines-per-page = 74.
        WHEN "Xprint" OR WHEN "bolfmt 1" THEN
           ASSIGN
              v-program = "oe/rep/bolxprnt.p"

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:51 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -260,6 +260,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL item-spec.code V-table-Win
 ON LEAVE OF item-spec.code IN FRAME F-Main /* Spec */
 DO:
+      {&methods/lValidateError.i YES}
      if lastkey <> -1 and self:screen-value <> "" and
         not can-find(bf-item-spec where bf-item-spec.company = item.company and
                                      bf-item-spec.i-no = "" and
@@ -267,8 +268,10 @@ DO:
      then do:
           message "Invalid RM/FG Specfication. Try Help." view-as alert-box error.
           return no-apply.
-     end.                                
+     end.     
+      {&methods/lValidateError.i NO}                           
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -405,7 +408,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   if item-spec.code:screen-value in frame {&frame-name} <> "" and
         not can-find(bf-item-spec where bf-item-spec.company = item.company and
@@ -416,13 +419,14 @@ PROCEDURE local-update-record :
           apply "entry" to item-spec.code in frame {&frame-name}.
           return no-apply.
      end.                          
-
+     {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

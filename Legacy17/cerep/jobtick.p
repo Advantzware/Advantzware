@@ -34,6 +34,8 @@ def new shared var v-tandem as log.
 def new shared var v-form-no like eb.form-no.
 def new shared var v-fup as char.
 def new shared var v-layout as char format "x(27)".
+def new shared var v-out1-id       as   recid    no-undo.  /* YSK 06/08/01  was~ local var */
+def new shared var v-out2-id       as   recid    no-undo.  /* YSK 06/08/01  was~ local var */
 
 def var v-line as int init 1 no-undo.
 def var v-gsh-qty as int no-undo.
@@ -55,6 +57,7 @@ def workfile w-lo
 def new shared buffer xjob-hdr for job-hdr.
 
 def buffer b-eb for eb.
+def buffer b-ef for ef.
 
 def new shared workfile wrk-op
   field m-dscr like est-op.m-dscr
@@ -140,9 +143,13 @@ DEF VAR lv-is-set AS LOG NO-UNDO.
 DEF VAR ld-yld AS DEC NO-UNDO.
 DEF VAR ld-sqin AS DEC NO-UNDO.
 DEF VAR ld-msf AS DEC NO-UNDO.
+DEFINE VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE v-lines AS INTEGER NO-UNDO .
+DEFINE  SHARED VARIABLE s-prt-fgimage AS LOGICAL NO-UNDO.
+DEF VAR v-printline AS INT NO-UNDO.
 {cec/msfcalc.i}
 DEF BUFFER bf-eb FOR eb.
-
+DEF BUFFER bf-jobhdr FOR job-hdr.
 v-fill = fill("=",132).
 
 def new shared frame head.
@@ -242,6 +249,7 @@ ASSIGN
 
         if not first(job-hdr.job-no) then page.
         view frame head.
+        v-printline = 5 .
         if v-format eq "Fibre" then view frame bott.
 
         v-line = if avail est                            and
@@ -558,7 +566,7 @@ ASSIGN
                  FIND FIRST bf-eb WHERE bf-eb.company = ef.company
                                     AND bf-eb.est-no = ef.est-no
                                     AND bf-eb.form-no = 0 NO-LOCK NO-ERROR.
-                 IF AVAIL bf-eb THEN
+                 IF AVAIL bf-eb THEN do:
                      PUT "SET Header:" AT 5 
                          "  Item#:" bf-eb.stock-no
                          "  Customer Part#:" bf-eb.part-no
@@ -569,17 +577,23 @@ ASSIGN
                          "    Depth:" bf-eb.dep
                          "    Qty:" eb.eqty /*  "   MSF:" ld-msf FORMAT "->>,>>9.999" */ SKIP
                          FILL("-",115) AT 5 FORM "x(115)" SKIP.
+                     v-printline = v-printline + 3.
+                 END.
             END.
 
-            if v-first then
+            if v-first THEN do:
               put " Item # / Qty         Description" "Size / Style" at 50
                   "   Est #" at 72 " Case Cnt Code" "Layout # On Per Form" at 106
                   skip "--------------   -------------------------"
                   "-------------------------" at 44 "--------" at 72
                   " -------- ---------------"
                   "---------------------------" at 106 SKIP.
-            else
+              v-printline = v-printline + 2.
+            END.
+            ELSE do:
               put fill("-",132) format "x(132)"  SKIP.
+              v-printline = v-printline + 1.
+            END.
 
             IF lv-is-set THEN v-first = NO.
 
@@ -615,7 +629,7 @@ ASSIGN
                     w-lo.layout when avail w-lo @ v-layout
                     skip
                 with stream-io width 135 no-labels no-box frame line-det1.
-                
+                v-printline = v-printline + 1.
             find first item
                 where item.company eq cocode
                   and item.i-no    eq eb.cas-no
@@ -631,11 +645,12 @@ ASSIGN
                     w-lo.layout when avail w-lo @ v-layout
                     skip
                 with stream-io width 135 no-labels no-box frame line-det2.
-
+                v-printline = v-printline + 1.
             find next w-lo no-error.
 
             do while avail w-lo:
               put w-lo.layout at 103 skip.
+              v-printline = v-printline + 1.
               find next w-lo no-error.
             end.
 
@@ -671,6 +686,7 @@ ASSIGN
                     skip
                     v-ovund
                 with stream-io width 135 no-labels no-box frame line-det3.
+                v-printline = v-printline + 4.
           /*end. /* last-of(eb.form-no) */ ysk*/
         end. /* each eb , ebloop*/
         END. /* do: */
@@ -681,6 +697,7 @@ ASSIGN
 
         if last(ef.form-no) and last-of(job-hdr.job-no2) then do:
           put v-fill at 1 skip.
+          v-printline = v-printline + 1.
           /** PRINT DIE **/
           x = 2.
           for each wrk-die:
@@ -688,9 +705,15 @@ ASSIGN
             put "Die Number:" wrk-die.die-no
                 "  Size:"  wrk-die.die-size
                 space(17).
-            if x eq 0 then put skip.
+            if x eq 0 THEN do:
+                 put skip.
+                 v-printline = v-printline + 1.
+            END.
           end. /* each wrk-die */
-          if x ne 2 then put v-fill at 1 skip.
+          if x ne 2 THEN do:
+               put v-fill at 1 skip.
+               v-printline = v-printline + 1.
+          END.
 
           /** PRINT INK **/
           x = 2.
@@ -729,17 +752,25 @@ ASSIGN
             else
               put space(7).
 
-            if x eq 0 or last-of(wrk-ink.blank-no) then
+            if x eq 0 or last-of(wrk-ink.blank-no) THEN do:
               put skip.
+              v-printline = v-printline + 1.
+            END.
             else
               put space(6).
 
-            if last-of(wrk-ink.blank-no) then put skip(1).
+            if last-of(wrk-ink.blank-no) THEN do:
+                put skip(1).
+                v-printline = v-printline + 2.
+            END.
 
             delete wrk-ink.
           end. /* each wrk-ink */
 
-          if x ne 2 then put v-fill at 1 skip.
+          if x ne 2 THEN do:
+               put v-fill at 1 skip.
+               v-printline = v-printline + 1.
+          END.
 
           /** PRINT LEAF/FILM **/
           x = 2.
@@ -749,9 +780,18 @@ ASSIGN
                 " Leaf/Window Film: " wrk-film.leaf  space(2)
                 "Length: " at 68 wrk-film.leaf-l " stream-io width: "
                 wrk-film.leaf-w skip.
+            v-printline = v-printline + 1.
             x = 1.
           end. /* each wrk-film */
-          if x ne 2 then put v-fill at 1 skip.
+          if x ne 2 THEN do:
+              put v-fill at 1 skip.
+              v-printline = v-printline + 1.
+          END.
+
+          IF v-printline >= 40 THEN DO:
+                v-printline = 0.
+                PAGE {1}.
+            END.
 
           /** PRINT PREP MATERIAL **/
           x = 2.
@@ -762,10 +802,16 @@ ASSIGN
                 wrk-prep.b-num
                 space(2) "Prep Material: " wrk-prep.code space(1)
                 wrk-prep.dscr.
-            if x eq 0 then put skip.
+            if x eq 0 THEN do:
+                 put skip.
+                 v-printline = v-printline + 1.
+            END.
             else put space(13).
           end. /* each wrk-prep */
-          if x ne 2 then put v-fill at 1 skip.
+          if x ne 2 THEN do:
+              put v-fill at 1 skip.
+              v-printline = v-printline + 1.
+          END.
 
           /** PRINT SPECIAL MATERIAL **/
           x = 2.
@@ -775,7 +821,15 @@ ASSIGN
                 wrk-spec.dscr "Qty:" at 68 wrk-spec.qty wrk-spec.uom.
             x = 1.
           end. /* each wrk-spec */
-          if x ne 2 then put v-fill at 1 skip.
+          if x ne 2 THEN do:
+               put v-fill at 1 skip.
+               v-printline = v-printline + 1.
+          END.
+
+          IF v-printline >= 40 THEN DO:
+                v-printline = 0.
+                PAGE {1}.
+            END.
 
           /** PRINT SHEET **/
           x = 2.
@@ -787,8 +841,12 @@ ASSIGN
                     wrk-sheet.brd-dscr "Form:" AT 123 wrk-sheet.form-no
                 with stream-io width 132 no-labels no-box frame sheet.
             x = 1.
+            v-printline = v-printline + 1.
           end. /* each wrk-sheet */
-          if x ne 2 then put v-fill at 1 skip.
+          if x ne 2 THEN do: 
+              PUT v-fill at 1 skip.
+              v-printline = v-printline + 1.
+          END.
 
           /** PRINT PREP LABOR **/
           x = 2.
@@ -798,10 +856,16 @@ ASSIGN
                 wrk-prep.b-num
                 space(2) "Prep Labor: " wrk-prep.code space(1)
                 wrk-prep.dscr.
-            if x eq 0 then put skip.
+            if x eq 0 THEN do: 
+                put skip.
+                v-printline = v-printline + 1.
+            END.
             else put space(13).
           end. /* each wrk-prep */
-          if x ne 2 then put v-fill at 1 skip.
+          if x ne 2 THEN do:
+               put v-fill at 1 skip.
+               v-printline = v-printline + 1.
+          END.
         end. /* last(ef.form-no) */
       end. /* each ef */
 
@@ -840,7 +904,11 @@ ASSIGN
           FOR EACH tt-formtext WHERE tt-text NE "" BREAK BY tt-line-no:
             IF FIRST(tt-line) THEN PUT "Instructions:".
             PUT tt-formtext.tt-text FORMAT "x(80)" AT 15 SKIP.
-            IF LAST(tt-line) THEN PUT v-fill SKIP.
+            v-printline = v-printline + 1.
+            IF LAST(tt-line) THEN do:
+                PUT v-fill SKIP.
+                v-printline = v-printline + 1.
+            END.
           END.
         END.
 
@@ -879,7 +947,11 @@ ASSIGN
           FOR EACH tt-formtext WHERE tt-text NE "" BREAK BY tt-line-no:
             IF FIRST(tt-line) THEN PUT "Spec Notes:".
             PUT tt-formtext.tt-text FORMAT "x(80)" AT 13 SKIP.
-            IF LAST(tt-line) THEN PUT v-fill SKIP.
+            v-printline = v-printline + 1.
+            IF LAST(tt-line) THEN do:
+                PUT v-fill SKIP.
+                v-printline = v-printline + 1.
+            END.
           END.
         END.
 
@@ -897,7 +969,11 @@ ASSIGN
             end.
             if not v-ok then next.
 
-            if v-frst then
+            IF v-printline >= 40 THEN DO:
+                v-printline = 0.
+                PAGE {1}.
+            END.
+            if v-frst THEN do:
             put "Machine Description"
                 "Form " at 23 j       format ">>9"
                 "Form " at 34 (j + 1) format ">>9"
@@ -911,6 +987,8 @@ ASSIGN
                 "Form " at 122 (j + 9) format ">>9" skip
                 " M I N I M U M   R E Q U I R E D   S T A R T I N G " at 20
                 " C O U N T   P E R   O P E R A T I O N" skip(1).
+             v-printline = v-printline + 3.
+            END.
 
             assign
              v-frst = no
@@ -920,7 +998,10 @@ ASSIGN
                 wrk-op.num-sh[j for 10] format ">>>,>>>,>>>".
           end.
 
-          if v-skip then put skip(1).
+          if v-skip THEN do: 
+              put skip(1).
+              v-printline = v-printline + 2.
+          END.
         end.
 
         do i = 1 to 10:
@@ -929,7 +1010,7 @@ ASSIGN
            v-ok   = no
            v-skip = no
            j      = ((i - 1) * 10) + 1.
-
+          
           for each wrk-op break by wrk-op.s-num by wrk-op.d-seq by wrk-op.b-num:
             do k = 0 to 9:
               if first(wrk-op.d-seq) then v-frst = yes.
@@ -937,7 +1018,12 @@ ASSIGN
             end.
             if not v-ok then next.
 
-            if v-frst then
+            IF v-printline >= 40 THEN DO:
+                v-printline = 0.
+                PAGE {1}.
+              END.
+             
+            if v-frst THEN DO:
             put "Machine Description"
                 "Form " at 23 j       format ">>9"
                 "Form " at 34 (j + 1) format ">>9"
@@ -951,6 +1037,8 @@ ASSIGN
                 "Form " at 122 (j + 9) format ">>9" skip
                 " E S T I M A T E D   M A K E   R E A D Y   H O U R " at 20
                 " S   A N D   R U N   S P E E D" skip(1).
+              v-printline = v-printline + 3.
+            END.
 
             assign
              v-frst = no
@@ -965,24 +1053,59 @@ ASSIGN
               put v-mrhr        
                   space(1)
                   wrk-op.speed[k] format ">>>>>".
+              v-printline = v-printline + 1.
             end.
           end.
 
-          if v-skip then put skip(1).
+          if v-skip THEN do:
+               put skip(1).
+               v-printline = v-printline + 2.
+          END.
         end.
 
         /** PRINT MISC/SUBCONTRACT **/
         x = 2.
         for each wrk-misc break by wrk-misc.form-no:
           x = (if x eq 1 then 0 else 1).
-          if first(wrk-misc.form-no) then
+          if first(wrk-misc.form-no) THEN do:
           put v-fill format "x(50)" at 1 "  Miscellaneous - Subcontract  "
               v-fill format "x(50)" skip.
+          v-printline = v-printline + 1.
+          END.
           put "Form:" wrk-misc.form-no space(2) wrk-misc.cost.
-          if x eq 0 then put skip.
+          if x eq 0 THEN do:
+              put skip.
+              v-printline = v-printline + 1.
+          END.
           else put space(16).
         end. /* each wrk-misc */
+
       end. /* last-of job-hdr.job-no2 */
+
+
+     IF LAST(job-hdr.job-no2) THEN do:
+
+         FOR EACH bf-jobhdr NO-LOCK WHERE bf-jobhdr.company = job-hdr.company
+                             AND bf-jobhdr.job-no = job-hdr.job-no
+                             AND bf-jobhdr.job-no2 = job-hdr.job-no2
+                             BREAK BY bf-jobhdr.blank-no:
+           IF FIRST-OF(bf-jobhdr.blank-no) THEN DO:
+                 IF s-prt-fgimage THEN DO:  
+                     FIND FIRST itemfg NO-LOCK
+                          WHERE itemfg.company EQ job-hdr.company 
+                            AND itemfg.i-no    EQ bf-jobhdr.i-no NO-ERROR.
+                     ls-fgitem-img = IF AVAIL itemfg THEN itemfg.box-image ELSE "" .
+                     PAGE.
+                     PUT UNFORMATTED "<#12><C1><FROM><C100><R+48><RECT><||3><C100>" /*v-qa-text*/ SKIP
+                         "<=12><R+1><C5>FG Item: " itemfg.i-no " " itemfg.i-name
+                         "<=12><R+3><C1><FROM><C100><LINE><||3>"
+                         "<=12><R+5><C5><#21><R+42><C+80><IMAGE#21=" ls-fgitem-img ">" SKIP. 
+                     PAGE.
+                 END.
+           END. /* FIRST-OF(bf-jobhdr.frm) */
+         END. /* bf-jobhdr */
+
+     END. /* last(job-hdr.job-no2)*/
 
       /** PRINT MULT COPIES OF TICKETS **/
       save_id = recid(job-hdr).

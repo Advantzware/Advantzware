@@ -46,8 +46,8 @@ ASSIGN
  gcompany = g_company
  gloc = g_loc   .
 
-def var li-new-estnum like  ce-ctrl.e-num no-undo.
-def var ll-new-record as log no-undo.
+DEF VAR li-new-estnum LIKE  ce-ctrl.e-num NO-UNDO.
+DEF VAR ll-new-record AS LOG NO-UNDO.
 
 DEF VAR lv-frst-rowid AS ROWID NO-UNDO.
 DEF VAR lv-last-rowid AS ROWID NO-UNDO.
@@ -67,7 +67,7 @@ DEF VAR lv-show-prev AS LOG NO-UNDO.
 DEF VAR lv-show-next AS LOG NO-UNDO.
 DEF VAR lv-last-show-est-no AS cha NO-UNDO.
 DEF VAR lv-first-show-est-no AS cha NO-UNDO.
-def var k_frac as dec init 6.25 no-undo.
+DEF VAR k_frac AS DEC INIT 6.25 NO-UNDO.
 DEF VAR v-col-move AS LOG INIT TRUE NO-UNDO.
 {sys/inc/f16to32.i}
 
@@ -340,7 +340,7 @@ FUNCTION display-combo-qty RETURNS DECIMAL
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD display-cw-dim B-table-Win 
 FUNCTION display-cw-dim RETURNS DECIMAL
-    ( input ip-is-corr-style as log, input  ip-dim as decimal )  FORWARD.
+    ( INPUT ip-is-corr-style AS LOG, INPUT  ip-dim AS DECIMAL )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -470,22 +470,22 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 151 BY 5.24.
 
-DEFINE VARIABLE tb_set AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_set AS LOGICAL INITIAL YES 
      LABEL "Set" 
      VIEW-AS TOGGLE-BOX
      SIZE 8 BY .86 NO-UNDO.
 
-DEFINE VARIABLE tb_single AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_single AS LOGICAL INITIAL YES 
      LABEL "Single" 
      VIEW-AS TOGGLE-BOX
      SIZE 10 BY .86 NO-UNDO.
 
-DEFINE VARIABLE tb_tancom AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_tancom AS LOGICAL INITIAL YES 
      LABEL "Tandem/Combo" 
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY .86 NO-UNDO.
 
-DEFINE VARIABLE TG_exact-match AS LOGICAL INITIAL no 
+DEFINE VARIABLE TG_exact-match AS LOGICAL INITIAL NO 
      LABEL "Exact" 
      VIEW-AS TOGGLE-BOX
      SIZE 9.6 BY .81 TOOLTIP "Exact Match" NO-UNDO.
@@ -541,9 +541,9 @@ DEFINE BROWSE Browser-Table
       eb.flute FORMAT "XXX":U LABEL-BGCOLOR 14
       eb.test FORMAT "x(6)":U LABEL-BGCOLOR 14
       eb.yld-qty COLUMN-LABEL "Qty/Set" FORMAT "->>>>>>9":U LABEL-BGCOLOR 14
-      display-cw-dim(yes,eb.len) @ eb.len FORMAT ">>9.99":U LABEL-BGCOLOR 14
-      display-cw-dim(yes,eb.wid) @ eb.wid FORMAT ">>9.99":U LABEL-BGCOLOR 14
-      display-cw-dim(yes,eb.dep) @ eb.dep FORMAT ">>9.99":U LABEL-BGCOLOR 14
+      display-cw-dim(YES,eb.len) @ eb.len FORMAT ">>9.99":U LABEL-BGCOLOR 14
+      display-cw-dim(YES,eb.wid) @ eb.wid FORMAT ">>9.99":U LABEL-BGCOLOR 14
+      display-cw-dim(YES,eb.dep) @ eb.dep FORMAT ">>9.99":U LABEL-BGCOLOR 14
       eb.die-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       eb.cad-no COLUMN-LABEL "Cad #" FORMAT "x(15)":U LABEL-BGCOLOR 14
       eb.plate-no FORMAT "x(15)":U LABEL-BGCOLOR 14
@@ -846,8 +846,8 @@ END.
 ON HELP OF begin_cust-no IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
-   RUN windows/l-cust2.w (INPUT g_company, INPUT focus:screen-value,"", OUTPUT char-val).
-          if char-val <> "" then
+   RUN windows/l-cust2.w (INPUT g_company, INPUT FOCUS:SCREEN-VALUE,"", OUTPUT char-val).
+          IF char-val <> "" THEN
           DO:
             /* 11121503 Was moving to previous field for some reason */
             APPLY 'entry' TO begin_cust-no IN FRAME F-MAIN.
@@ -1096,8 +1096,8 @@ DO:
 
     GET FIRST Browser-Table .
             
-     IF NOT AVAIL est THEN do:
-         IF begin_cust-no <> "" THEN dO:
+     IF NOT AVAIL est THEN DO:
+         IF begin_cust-no <> "" THEN DO:
              v-cust-no =begin_cust-no  .
          END.
          ELSE DO:
@@ -1202,7 +1202,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL TG_exact-match B-table-Win
 ON VALUE-CHANGED OF TG_exact-match IN FRAME F-Main /* Exact */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
    IF TG_exact-match = NO THEN DO:
       IF INDEX(vi_die-no:SCREEN-VALUE,"*") = 0 THEN
          vi_die-no:SCREEN-VALUE = CAPS(vi_die-no:SCREEN-VALUE + "*"). 
@@ -1305,9 +1305,9 @@ ON HELP OF vi_stock-no IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
 
-    run windows/l-itemfg.w (g_company,"","", output char-val).
-    if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-    return no-apply.
+    RUN windows/l-itemfg.w (g_company,"","", OUTPUT char-val).
+    IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1319,9 +1319,9 @@ ON HELP OF vi_est-no IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
 
-    run windows/l-esttyp.w (g_company,g_loc,"568","EST",focus:screen-value, output char-val).
-    if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-    return no-apply.
+    RUN windows/l-esttyp.w (g_company,g_loc,"568","EST",FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1390,9 +1390,9 @@ ON HELP OF vi_part-no IN FRAME F-Main
 DO:
   DEF VAR char-val AS cha NO-UNDO.
 
-    run windows/l-esttyp.w (g_company,g_loc,"568","part",focus:screen-value, output char-val).
-    if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(2,char-val).
-    return no-apply.
+    RUN windows/l-esttyp.w (g_company,g_loc,"568","part",FOCUS:SCREEN-VALUE, OUTPUT char-val).
+    IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(2,char-val).
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1449,9 +1449,9 @@ ON HELP OF vi_style IN FRAME F-Main
 DO:
    DEF VAR char-val AS cha NO-UNDO.
    
-   run windows/l-stylec.w (gcompany,focus:screen-value, output char-val).
-   if char-val <> "" then FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-   return no-apply.
+   RUN windows/l-stylec.w (gcompany,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+   IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+   RETURN NO-APPLY.
 
 END.
 
@@ -1565,9 +1565,9 @@ PROCEDURE create-est :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var cocode as cha no-undo.
-  def buffer bf-est for est.
-  def buffer bb for eb.
+  DEF VAR cocode AS cha NO-UNDO.
+  DEF BUFFER bf-est FOR est.
+  DEF BUFFER bb FOR eb.
   DEF BUFFER recalc-mr FOR reftable.
 
 
@@ -1578,8 +1578,8 @@ PROCEDURE create-est :
 
   REPEAT:
   
-    find first ce-ctrl where
-         ce-ctrl.company = gcompany and
+    FIND FIRST ce-ctrl WHERE
+         ce-ctrl.company = gcompany AND
          ce-ctrl.loc = gloc
          EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
    
@@ -1593,25 +1593,25 @@ PROCEDURE create-est :
     END.
   END.
 
-  create est.  
-  assign 
-         ll-new-record = yes
+  CREATE est.  
+  ASSIGN 
+         ll-new-record = YES
          est.est-type = 5
          est.company = gcompany
          est.loc = gloc
        /*  est.e-num = li-enum + 1 */
          est.est-no = STRING(li-new-estnum,">>>>>>>9")
          est.form-qty = 1
-         est.est-date = today
+         est.est-date = TODAY
          est.mod-date = ?
          cocode = gcompany.      
 
    {sys/ref/est-add.i est}     
 
-   run crt-est-childrecord.  /* create ef,eb,est-prep */
+   RUN crt-est-childrecord.  /* create ef,eb,est-prep */
 
-  run local-open-query.  
-  RUN set-attribute-list in adm-broker-hdl ('Is-First-Est = Yes').
+  RUN local-open-query.  
+  RUN set-attribute-list IN adm-broker-hdl ('Is-First-Est = Yes').
 
 END PROCEDURE.
 
@@ -1625,16 +1625,17 @@ PROCEDURE crt-est-childrecord :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-def var i as int no-undo.
-  def buffer bb for eb.
+  DEF VAR i AS INT NO-UNDO.
+  DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
+  DEF BUFFER bb FOR eb.
  
-  create est-qty.
-  assign est-qty.company = gcompany
+  CREATE est-qty.
+  ASSIGN est-qty.company = gcompany
          est-qty.est-no =  est.est-no
          est-qty.eqty = 0.
           
-  create ef.
-  assign
+  CREATE ef.
+  ASSIGN
    ef.est-type  = 5
    ef.company   = gcompany
    ef.loc       = gloc
@@ -1646,53 +1647,57 @@ def var i as int no-undo.
    ef.lsh-len   = ce-ctrl.ls-length
    ef.lsh-wid   = ce-ctrl.ls-width.
 
-  create eb.
-  assign  eb.est-type = 5
+  CREATE eb.
+  ASSIGN  eb.est-type = 5
           eb.company  = gcompany
    eb.loc      = gloc
    eb.e-num    = est.e-num
    eb.est-no   = est.est-no
-   eb.est-int  = integer(est.est-no)
+   eb.est-int  = INTEGER(est.est-no)
    eb.form-no  = 1
    eb.cust-seq = 1
    eb.blank-no = 1
    eb.cas-no   = ce-ctrl.def-case
    eb.tr-no    = ce-ctrl.def-pal
    eb.i-pass   = 0.
-
+    
+  RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
+  IF cPackCodeOverride GT "" THEN 
+      eb.cas-no = cPackCodeOverride.
+      
   /* ???? bugs : 2 records are created  , delete one ========== 
   for each bb where bb.e-num = 0 :
       delete bb.
   end.
   ========*/
-  find first item where item.company = gcompany
-                    and item.mat-type = "C"  /* Case/Bundle */
-                    and item.i-no eq eb.cas-no
-      no-lock no-error.
-  if avail item then do:
-     find first e-item where e-item.company eq item.company
-                         and e-item.loc     eq item.loc
-                         and e-item.i-no    eq item.i-no
-        no-lock no-error.
-     find first itemfg  where itemfg.company eq gcompany
-                          and itemfg.i-no    eq eb.stock-no
-        no-lock no-error.
-     if avail e-item then
-        assign  eb.cas-len = e-item.case-l
+  FIND FIRST item WHERE item.company = gcompany
+                    AND item.mat-type = "C"  /* Case/Bundle */
+                    AND item.i-no EQ eb.cas-no
+      NO-LOCK NO-ERROR.
+  IF AVAIL item THEN DO:
+     FIND FIRST e-item WHERE e-item.company EQ item.company
+                         AND e-item.loc     EQ item.loc
+                         AND e-item.i-no    EQ item.i-no
+        NO-LOCK NO-ERROR.
+     FIND FIRST itemfg  WHERE itemfg.company EQ gcompany
+                          AND itemfg.i-no    EQ eb.stock-no
+        NO-LOCK NO-ERROR.
+     IF AVAIL e-item THEN
+        ASSIGN  eb.cas-len = e-item.case-l
                 eb.cas-wid = e-item.case-w
                 eb.cas-dep = e-item.case-d
                 eb.cas-wt  = e-item.avg-w
                 eb.cas-pal = e-item.case-pall
-                eb.cas-cnt = if avail itemfg then itemfg.case-count else e-item.box-case
+                eb.cas-cnt = IF AVAIL itemfg THEN itemfg.case-count ELSE e-item.box-case
                 .
-     if eb.cas-len eq 0 then eb.cas-len = item.case-l.
-     if eb.cas-wid eq 0 then eb.cas-wid = item.case-w.
-     if eb.cas-dep eq 0 then eb.cas-dep = item.case-d.
-     if eb.cas-wt  eq 0 then eb.cas-wt  = item.avg-w.
-     if eb.cas-pal eq 0 then eb.cas-pal = item.case-pall.
-     if eb.cas-cnt eq 0 then eb.cas-cnt =
-              if avail itemfg then itemfg.case-count else item.box-case.
-  end.  /* avail item */
+     IF eb.cas-len EQ 0 THEN eb.cas-len = item.case-l.
+     IF eb.cas-wid EQ 0 THEN eb.cas-wid = item.case-w.
+     IF eb.cas-dep EQ 0 THEN eb.cas-dep = item.case-d.
+     IF eb.cas-wt  EQ 0 THEN eb.cas-wt  = item.avg-w.
+     IF eb.cas-pal EQ 0 THEN eb.cas-pal = item.case-pall.
+     IF eb.cas-cnt EQ 0 THEN eb.cas-cnt =
+              IF AVAIL itemfg THEN itemfg.case-count ELSE item.box-case.
+  END.  /* avail item */
 
     
   RUN est/BuildDefaultPreps.p(BUFFER est,
@@ -1832,12 +1837,12 @@ DEF VAR lv-est-no AS CHAR INIT "" NO-UNDO.
 
 
 RUN set-defaults.
-find first sys-ctrl where sys-ctrl.company eq cocode
-                      and sys-ctrl.name    eq "CEBROWSE"
-                        no-lock no-error.
-if not avail sys-ctrl then do transaction:
-        create sys-ctrl.
-        assign sys-ctrl.company = cocode
+FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+                      AND sys-ctrl.name    EQ "CEBROWSE"
+                        NO-LOCK NO-ERROR.
+IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
+        CREATE sys-ctrl.
+        ASSIGN sys-ctrl.company = cocode
                sys-ctrl.name    = "CEBROWSE"
                sys-ctrl.descrip = "# of Records to be displayed in browser"
                sys-ctrl.log-fld = YES
@@ -1845,7 +1850,7 @@ if not avail sys-ctrl then do transaction:
                sys-ctrl.int-fld = 30.
         /*message "Sys-ctrl record NOT found. " sys-ctrl.descrip
                 update sys-ctrl.log-fld. */
-end.
+END.
   
 IF ll-initial THEN DO:
   li = 0.
@@ -1868,7 +1873,7 @@ IF ll-initial THEN DO:
           IF li GE sys-ctrl.int-fld THEN LEAVE.
       END.
   END.
-  ELSE do:
+  ELSE DO:
       FIND LAST est {&where-first1} NO-LOCK NO-ERROR.
       DO WHILE AVAIL est:
           IF est.est-no NE lv-est-no THEN li = li + 1.
@@ -1962,16 +1967,16 @@ PROCEDURE local-hide :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
- def buffer bf-first for est.
+ DEF BUFFER bf-first FOR est.
   
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-  find first bf-first where bf-first.company = gcompany and
-                            bf-first.loc = gloc and
+  FIND FIRST bf-first WHERE bf-first.company = gcompany AND
+                            bf-first.loc = gloc AND
                             bf-first.est-type >= 5 
-                            no-lock no-error.
-  if not avail bf-first then run create-est.
+                            NO-LOCK NO-ERROR.
+  IF NOT AVAIL bf-first THEN RUN create-est.
   
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'hide':U ) .
 
@@ -2201,22 +2206,22 @@ PROCEDURE New_record :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def input parameter ip-rowid as rowid no-undo.
+  DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
   
 
   vi_est-no = "".
   lv-first-run = YES.
 
-  run local-open-query.
+  RUN local-open-query.
 
-  DO with frame {&frame-name}:      
+  DO WITH FRAME {&frame-name}:      
 
-    reposition {&browse-name} to rowid ip-rowid no-error.
-    run dispatch ('row-changed').
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
+    RUN dispatch ('row-changed').
 
-    apply "value-changed" to {&browse-name}.
-    return no-apply.  
-  end.
+    APPLY "value-changed" TO {&browse-name}.
+    RETURN NO-APPLY.  
+  END.
   
 
 END PROCEDURE.
@@ -2232,25 +2237,25 @@ PROCEDURE New_record-user :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- def input parameter ip-rowid as rowid no-undo.
+ DEF INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
  DEF VAR v-custcount AS CHAR NO-UNDO . 
   lv-first-run = YES.
   ASSIGN
        v-custcount = custcount 
       custcount    = "" .
-  run local-open-query.
+  RUN local-open-query.
   
   /*
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"itemrec-target",OUTPUT char-hdl).
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ('open-query').
   */
 ASSIGN custcount = v-custcount .
-  do with frame {&frame-name}:
-    reposition {&browse-name} to rowid ip-rowid no-error.  
-    run dispatch ('row-changed').
-    apply "value-changed" to {&browse-name}.
-    return no-apply.  
-  end.
+  DO WITH FRAME {&frame-name}:
+    REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.  
+    RUN dispatch ('row-changed').
+    APPLY "value-changed" TO {&browse-name}.
+    RETURN NO-APPLY.  
+  END.
 
 END PROCEDURE.
 
@@ -2275,20 +2280,20 @@ PROCEDURE paper-clip-image-proc :
   
    IF v-est-no <> "" AND v-i-no <> "" THEN
       v-att = CAN-FIND(FIRST asi.attach WHERE
-              attach.company = cocode and
-              (LOOKUP(attach.rec_key,v-rec-key-list) gt 0 AND
-              (trim(attach.est-no) = trim(v-est-no)) or 
-               (index(v-i-no,attach.i-no) > 0))).
+              attach.company = cocode AND
+              (LOOKUP(attach.rec_key,v-rec-key-list) GT 0 AND
+              (TRIM(attach.est-no) = trim(v-est-no)) OR 
+               (INDEX(v-i-no,attach.i-no) > 0))).
    ELSE
       IF v-est-no <> "" /*AND v-i-no EQ ""*/ THEN
          v-att = CAN-FIND(FIRST asi.attach WHERE
-              attach.company = cocode and
-              LOOKUP(attach.rec_key,v-rec-key-list) gt 0 AND
+              attach.company = cocode AND
+              LOOKUP(attach.rec_key,v-rec-key-list) GT 0 AND
               trim(attach.est-no) = trim(v-est-no)).
    ELSE
       IF v-est-no EQ "" AND v-i-no <> "" THEN
          v-att = CAN-FIND(FIRST asi.attach WHERE
-              attach.company = cocode and
+              attach.company = cocode AND
               index(v-i-no,attach.i-no) > 0).
 
    RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
@@ -2399,12 +2404,12 @@ PROCEDURE show-all :
 DEF VAR li AS INT NO-UNDO.
 DEF VAR lv-est-no AS cha NO-UNDO.
 
-find first sys-ctrl where sys-ctrl.company eq cocode
-                      and sys-ctrl.name    eq "CEBROWSE"
-                        no-lock no-error.
-if not avail sys-ctrl then do transaction:
-        create sys-ctrl.
-        assign sys-ctrl.company = cocode
+FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
+                      AND sys-ctrl.name    EQ "CEBROWSE"
+                        NO-LOCK NO-ERROR.
+IF NOT AVAIL sys-ctrl THEN DO TRANSACTION:
+        CREATE sys-ctrl.
+        ASSIGN sys-ctrl.company = cocode
                sys-ctrl.name    = "CEBROWSE"
                sys-ctrl.descrip = "# of Records to be displayed in browser"
                sys-ctrl.log-fld = YES
@@ -2412,7 +2417,7 @@ if not avail sys-ctrl then do transaction:
                sys-ctrl.int-fld = 30.
         /*message "Sys-ctrl record NOT found. " sys-ctrl.descrip
                 update sys-ctrl.log-fld. */
-end.
+END.
 
 RUN set-defaults.
   
@@ -2423,7 +2428,7 @@ IF lv-show-prev THEN DO:
                 AND est.est-type >= 5  NO-LOCK,
       FIRST eb WHERE eb.company = g_company
           AND eb.est-no = est.est-no 
-          AND ( (lookup(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "") OR custcount = "") NO-LOCK BY est.est-no DESC:
+          AND ( (LOOKUP(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "") OR custcount = "") NO-LOCK BY est.est-no DESC:
 
      li = li + 1.
      lv-est-no = est.est-no.
@@ -2456,7 +2461,7 @@ ELSE IF lv-show-next THEN DO:
                   AND est.est-type >= 5  NO-LOCK,
         FIRST eb WHERE eb.company = g_company
           AND eb.est-no = est.est-no 
-          AND ( (lookup(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "") OR custcount = "") NO-LOCK BY est.est-no  :
+          AND ( (LOOKUP(eb.cust-no,custcount) <> 0 AND eb.cust-no <> "") OR custcount = "") NO-LOCK BY est.est-no  :
 
        li = li + 1.
        lv-est-no = est.est-no.
@@ -2605,16 +2610,16 @@ END FUNCTION.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION display-cw-dim B-table-Win 
 FUNCTION display-cw-dim RETURNS DECIMAL
-    ( input ip-is-corr-style as log, input  ip-dim as decimal ) :
+    ( INPUT ip-is-corr-style AS LOG, INPUT  ip-dim AS DECIMAL ) :
   /*------------------------------------------------------------------------------
     Purpose:  
       Notes:  
   ------------------------------------------------------------------------------*/
-    def var out-dim as DEC DECIMALS 6 no-undo.
+    DEF VAR out-dim AS DEC DECIMALS 6 NO-UNDO.
     
-    if ip-is-corr-style and ip-dim <> 0 AND v-cecscrn-char NE "Decimal" THEN
-       out-dim = round(trunc(ip-dim,0) + ((ip-dim - trunc(ip-dim,0)) / K_FRAC),2).
-    else out-dim = ip-dim.
+    IF ip-is-corr-style AND ip-dim <> 0 AND v-cecscrn-char NE "Decimal" THEN
+       out-dim = ROUND(trunc(ip-dim,0) + ((ip-dim - trunc(ip-dim,0)) / K_FRAC),2).
+    ELSE out-dim = ip-dim.
     RETURN out-dim.   /* Function return value. */
 
 END FUNCTION.

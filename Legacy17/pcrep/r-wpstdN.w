@@ -99,10 +99,10 @@ ASSIGN cTextListToSelect = "Machine#,DP,S,B,P,Charge Code,Charge Cat,Date,Job#,S
            .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "Machine#,DP,S,B,P,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Start,Stop,CR,Qty," +  /*14*/     
-                           "Waste,C,FG Item,Style,Length,Width,Depth,Blank Len,Blank Wid," +  /*9*/     
-                           "Blank Sq In.,Board,Board Cal,MSF,Wgt/MSF,Roll Width," +  /*6*/     
-                           "Gross S Wid,Gross S Len,Net Sht Wid,Net Sht Len," +  /*4*/     
+ASSIGN cTextListToDefault = "Machine#,DP,S,B,P,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Start,Stop,CR,Qty," +  /*14*/     
+                            "Waste,C,FG Item,Style,Length,Width,Depth,Blank Len,Blank Wid," +  /*9*/     
+                            "Blank Sq In.,Board,Board Cal,MSF,Wgt/MSF,Roll Width," +  /*6*/     
+                            "Gross S Wid,Gross S Len,Net Sht Wid,Net Sht Len," +  /*4*/     
                             "Film Wid,Film Len,# Colors,Die Inches,Number Up,Number Out,Glue Inches" /*7*/
                             .
 
@@ -430,16 +430,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -451,6 +441,14 @@ ASSIGN
 ASSIGN 
        begin_shift:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -582,7 +580,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:17 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -608,7 +606,7 @@ DO:
        WHEN 2 THEN RUN output-to-screen.
        WHEN 3 THEN RUN output-to-file.
   END CASE. 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:17 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -635,7 +633,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:17 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -651,7 +649,7 @@ DO:
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:17 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -663,7 +661,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:17 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -680,7 +678,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:17 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -692,7 +690,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:17 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -934,7 +932,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:17 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -966,14 +964,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:13 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:13 am */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p */
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_mach.
   END.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:17 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1304,7 +1302,7 @@ DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR cSelectedList AS cha NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-DEF VAR tot-job-qty AS INT NO-UNDO .
+DEF VAR tot-job-qty AS INT NO-UNDO.
 DEF VAR cUOM AS CHARACTER NO-UNDO.
 DEF VAR dPrice AS DECIMAL NO-UNDO.
 DEF VAR dSaleValue AS DECIMAL NO-UNDO.
@@ -1409,6 +1407,7 @@ IF tb_excel THEN DO:
           AND job-mch.m-code   EQ mch-act.m-code
           AND job-mch.pass     EQ mch-act.pass
         NO-ERROR.
+
     FIND FIRST cust NO-LOCK
          WHERE cust.company EQ mch-act.company
            AND cust.cust-no EQ job-hdr.cust-no
@@ -1421,7 +1420,7 @@ IF tb_excel THEN DO:
     FIND FIRST itemfg NO-LOCK
          WHERE itemfg.company EQ mch-act.company
            AND itemfg.i-no    EQ mch-act.i-no
-        NO-ERROR.
+         NO-ERROR.
 
     RELEASE est.
     RELEASE ef.
@@ -1511,9 +1510,6 @@ IF tb_excel THEN DO:
          tot-job-qty =  tot-job-qty +  bf-mch-act.qty .
     END.
 
-
-
-
      IF AVAIL mch-act THEN
           BUFFER b-mch-act:FIND-BY-ROWID(ROWID(mch-act), NO-LOCK) .
        ASSIGN cDisplay = ""
@@ -1573,7 +1569,6 @@ IF tb_excel THEN DO:
                  WHEN "cal" THEN cVarValue = IF AVAIL ef THEN string(ef.cal,">>>>9.9<<") ELSE "".
                  WHEN "ld-msf" THEN cVarValue = IF AVAIL ef THEN string(ld-msf,">>>>9.9<<") ELSE "".
                  WHEN "weight" THEN cVarValue = IF AVAIL ef THEN string(ef.weight,">>>>9.9<<") ELSE "".
-
                  WHEN "roll-wid" THEN cVarValue = IF AVAIL ef THEN string(ef.roll-wid,">>>>>9.9<<") ELSE "".
                  WHEN "gsh-wid" THEN cVarValue = IF AVAIL ef THEN string(ef.gsh-wid,">>>>9.9<<") ELSE "".
                  WHEN "gsh-len" THEN cVarValue = IF AVAIL ef THEN string(ef.gsh-len,">>>>9.9<<") ELSE "".
@@ -1592,7 +1587,7 @@ IF tb_excel THEN DO:
                  WHEN "stop" THEN cVarValue = IF AVAIL mch-act THEN cvt-time-to-string('',mch-act.stopp,0.00) ELSE "".
                  WHEN "crew" THEN cVarValue = IF AVAIL mch-act THEN STRING(mch-act.crew,">>") ELSE "".
                  WHEN "comp" THEN cVarValue = IF AVAIL mch-act AND mch-act.COMPLETE THEN "Y" ELSE "N".  
-                 WHEN "tot-job-qty" THEN cVarValue = string(tot-job-qty,"->>,>>>,>>>,>>9") .
+                 WHEN "tot-job-qty" THEN cVarValue = string(tot-job-qty,"->>,>>>,>>>,>>9").
                  WHEN "cust-no" THEN cVarValue = job-hdr.cust-no.
                  WHEN "name" THEN cVarValue = IF AVAIL cust THEN cust.name ELSE "".
                  WHEN "price" THEN
@@ -1612,7 +1607,7 @@ IF tb_excel THEN DO:
                  WHEN "sale-value" THEN DO:
                      dSaleValue = dPrice * (mch-act.qty / IF cUOM EQ "M" THEN 1000 ELSE 1).
                      IF CAN-DO("A,R,S",mach.p-type) THEN
-                         dSaleValue = dSaleValue * li-up * (IF AVAIL job-mch THEN job-mch.n-out ELSE 1).
+                         dSaleValue = dSaleValue * li-up * (IF AVAIL job-mch AND job-mch.n-out GT 0 THEN job-mch.n-out ELSE 1).
                      cVarValue = STRING(dSaleValue,">,>>>,>>>,>>9.99<<<<").
                  END. /* sale-value */
             END CASE.

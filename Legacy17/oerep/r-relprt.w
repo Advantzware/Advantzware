@@ -720,7 +720,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -983,7 +983,7 @@ END CASE.
     MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
   END.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1354,7 +1354,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -1443,8 +1443,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         OR v-relprint EQ "StClair" THEN
        rd-print-what:ADD-LAST("Summary of Bins On Hand","S").
 
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:10 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:10 am */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p */
     {custom/usrprint.i}
 
      IF v-relprint EQ "Prystup" OR v-relprint EQ "NStock" THEN
@@ -1578,7 +1578,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   END.    
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:14 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

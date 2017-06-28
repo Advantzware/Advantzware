@@ -115,13 +115,14 @@ est-op.m-code est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr ~
 est-op.op-waste est-op.op-speed est-op.op-spoil est-op.op-crew[1] ~
 est-op.op-crew[2] est-op.op-rate[1] est-op.op-rate[2] est-op.plates ~
 est-op.fountains est-op.att-type[1] est-op.att-qty[1] est-op.att-type[2] ~
-est-op.att-qty[2] est-op.att-type[3] est-op.att-qty[3] est-op.spare-char-1  
+est-op.att-qty[2] est-op.att-type[3] est-op.att-qty[3] est-op.spare-char-1 ~
+est-op.n_out_div 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
 est-op.m-code est-op.m-dscr est-op.op-pass est-op.n-out est-op.op-mr ~
 est-op.op-waste est-op.op-speed est-op.op-spoil est-op.op-crew[1] ~
 est-op.op-crew[2] est-op.plates est-op.fountains est-op.att-type[1] ~
 est-op.att-qty[1] est-op.att-type[2] est-op.att-qty[2] est-op.att-type[3] ~
-est-op.att-qty[3] est-op.spare-char-1
+est-op.att-qty[3] est-op.spare-char-1 est-op.n_out_div 
 &Scoped-define ENABLED-TABLES-IN-QUERY-br_table est-op
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table est-op
 &Scoped-define QUERY-STRING-br_table FOR EACH est-op WHERE est-op.company = est-qty.company ~
@@ -245,6 +246,7 @@ DEFINE BROWSE br_table
             WIDTH 11.2
       est-op.att-qty[3] COLUMN-LABEL "Qty" FORMAT ">>,>>>":U
       est-op.spare-char-1 COLUMN-LABEL "Feed" FORMAT "x(1)":U
+      est-op.n_out_div COLUMN-LABEL "Out Divisor" FORMAT "->>,>>9.99":U
   ENABLE
       est-op.s-num
       est-op.b-num
@@ -267,6 +269,7 @@ DEFINE BROWSE br_table
       est-op.att-type[3]
       est-op.att-qty[3]
       est-op.spare-char-1
+      est-op.n_out_div HELP "Enter Divisor for Out Reduction"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 130 BY 7.14
@@ -408,6 +411,8 @@ ASSIGN
 "est-op.att-qty[3]" "Qty" ">>,>>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > ASI.est-op.spare-char-1
 "est-op.spare-char-1" "Re" "N/R" "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[24]   > ASI.est-op.n_out_div
+"est-op.n_out_div" "Out Divisor" ? "decimal" ? ? ? ? ? ? yes "Enter Divisor for Out Reduction" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -2069,7 +2074,7 @@ PROCEDURE valid-mach :
   DEFINE BUFFER bf-ef FOR ef.
   
 
-  {sys/inc/cepanel.i}
+/*  {sys/inc/cepanel.i} - deprecated with 17756*/
 
   RUN is-it-foam.
 
@@ -2167,7 +2172,9 @@ PROCEDURE valid-mach :
 
         ASSIGN cMachType = IF AVAILABLE mach THEN mach.p-type ELSE "" 
                dMachMaxLen = IF AVAILABLE mach THEN mach.max-len ELSE 0 
-               dMachMaxWid = IF AVAILABLE mach THEN mach.max-wid ELSE 0.
+               dMachMaxWid = IF AVAILABLE mach THEN mach.max-wid ELSE 0
+               qty = lv-eqty. /*20108 - qty variable needed for mach-seq.i->mach-qty.p setting equal to selected routing qty*/
+                 
 
         IF lv-dept EQ "RC" THEN DO:
           xcal = sh-dep.

@@ -18,11 +18,13 @@
 */
 
 &Global-define FLDNAME1 edshline.order-no
+&Global-define FORMAT-1 x(8)
+&Global-define DATATYP1  
 &Global-define IDXNAME1 
 &Global-define DESCRIP1 Order#
-&Global-define FLDNAME2 edpoline.item-no
+&Global-define FLDNAME2 edshline.item-no
 &Global-define FORMAT-2 x(15)
-&Global-define SORTBY-2 BY edpoline.item-no
+&Global-define SORTBY-2 BY edshline.item-no
 &Global-define IDXNAME2 
 &Global-define DESCRIP2 Item#
 &Global-define FLDNAME3 

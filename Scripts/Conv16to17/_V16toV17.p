@@ -2,7 +2,7 @@
 
 /* ensure _base.i scoped-define test value is set correctly */
 
-RUN _scriptsDat.p
+RUN _scriptsDat.p.
 RUN _globdefs.p.
 RUN _lookups.p.
 RUN _nonAdm1.p.
@@ -15,4 +15,4 @@ RUN _admPanels.p.
 RUN _admTransPanels.p.
 RUN _caps.p.
 RUN _dontValidatePanels.p.
-RUN _procValidate.p.
+/*RUN _procValidate.p.*/

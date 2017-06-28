@@ -18,7 +18,7 @@
 "employee. " ~
 */
 
-&Scoped-define lookup-db ASI.
+&Scoped-define lookup-db 
 &Scoped-define lookup-file employee
 &Scoped-define where-statement TRUE
 &Scoped-define return-field soc_sec

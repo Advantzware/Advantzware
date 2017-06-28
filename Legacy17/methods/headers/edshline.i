@@ -1,1 +1,1 @@
- (edshline.order-no) + '-' +  (edshline.item-no)
+ string(edshline.order-no) + '-' +  (edshline.item-no)

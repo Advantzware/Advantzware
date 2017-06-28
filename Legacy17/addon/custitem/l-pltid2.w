@@ -210,9 +210,9 @@ OPEN QUERY {&SELF-NAME} FOR EACH vend-whse-item WHERE ~{&KEY-PHRASE}
                                                 ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _Where[1]         = "EMPTRACK.vend-whse-item.company = ip-company
- AND EMPTRACK.vend-whse-item.vendor-code = ip-cur-val
- AND EMPTRACK.vend-whse-item.fg-item-no = ip-fg-item-no"
+     _Where[1]         = "vend-whse-item.company = ip-company
+ AND vend-whse-item.vendor-code = ip-cur-val
+ AND vend-whse-item.fg-item-no = ip-fg-item-no"
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

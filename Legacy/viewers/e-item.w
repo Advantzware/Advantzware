@@ -734,8 +734,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_more-breaks V-table-Win
 ON CHOOSE OF btn_more-breaks IN FRAME F-Main /* More Breaks */
 DO:
-   RUN rm/d-rmbreaks.w(INPUT ROWID(e-item-vend),
-                       INPUT ROWID(e-item)).
+   RUN rm/d-rmbreaks.w(INPUT ROWID(e-item-vend), INPUT ROWID(e-item)).
 END.
 
 /* _UIB-CODE-BLOCK-END */

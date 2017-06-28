@@ -120,7 +120,7 @@ DEFINE FRAME OPTIONS-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "FINISHED GOODS WAREHOUSE TRANSACTION TRANSFER"
+         TITLE              = "CONSOLIDATE FINISHED GOODS TAGS "
          HEIGHT             = 24
          WIDTH              = 150
          MAX-HEIGHT         = 33.29

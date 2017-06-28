@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:42 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -357,7 +357,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-exrate V-table-Win
 ON CHOOSE OF btn-exrate IN FRAME F-Main /* ExRate */
 DO:
-  RUN windows/d-exrate.w ("ap-inv", RECID(ap-inv)).
+    DO:
+        RUN windows/d-exrate.w PERSISTENT SET hProgram  ("ap-inv", RECID(ap-inv)).
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -668,7 +671,7 @@ PROCEDURE hold-ap :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER bf-ap-inv FOR ap-inv.
-
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
       IF ap-inv.inv-date:SENSITIVE IN FRAME {&FRAME-NAME} THEN do:
@@ -690,7 +693,9 @@ PROCEDURE hold-ap :
          IF AVAIL ap-inv THEN DISP ap-inv.stat WITH FRAME {&FRAME-NAME}.
       END.
    END.
+   {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

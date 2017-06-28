@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:48 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -265,7 +265,7 @@ END.
 ON LEAVE OF pc-prdh.dept IN FRAME F-Main /* Department */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+    {&methods/lValidateError.i YES}
     IF pc-prdh.dept:MODIFIED THEN DO:
        FIND FIRST dept WHERE dept.company = g_company AND
                        dept.CODE = pc-prdh.dept:SCREEN-VALUE
@@ -282,7 +282,9 @@ DO:
        lv-dep-dscr:SCREEN-VALUE = dept.dscr.
 
     END.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

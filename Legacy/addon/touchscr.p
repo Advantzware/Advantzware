@@ -34,6 +34,17 @@ FOR EACH parmfile NO-LOCK:
   END.
 END.
 
+if connected(ldbname(1))
+and ldbname(1) = "ASI" then do:
+    create alias nosweat for database value(ldbname(1)).
+    create alias emptrack for database value(ldbname(1)).
+    create alias jobs for database value(ldbname(1)).
+    create alias rfq for database value(ldbname(1)).
+    create alias asihelp for database value(ldbname(1)).
+    create alias asihlp for database value(ldbname(1)).
+    create alias asinos for database value(ldbname(1)).
+end.
+
 RUN touch/touchscr2.p NO-ERROR.
 IF ERROR-STATUS:ERROR THEN DO: 
    ldummy = SESSION:SET-WAIT-STATE("").

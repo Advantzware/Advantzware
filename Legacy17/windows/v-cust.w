@@ -873,7 +873,7 @@ PROCEDURE Select_att :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEF VAR header_value AS CHAR NO-UNDO.
-    
+
     {methods/select_attcust.i rec_key_value header_value 0}
 
 END PROCEDURE.

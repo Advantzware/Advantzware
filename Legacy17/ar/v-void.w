@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:56 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -465,6 +465,7 @@ DO:
   END.
 END.
 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -476,6 +477,7 @@ DO:
    DO WITH FRAME {&FRAME-NAME}:
 
       IF LASTKEY = -1 THEN RETURN.
+     {&methods/lValidateError.i YES}
 
       IF int(fi_fchk:SCREEN-VALUE) = 0 THEN DO:
          MESSAGE "Check number must be entered..." VIEW-AS ALERT-BOX.
@@ -488,8 +490,10 @@ DO:
              MESSAGE "This number reserved for CR/DB memos." VIEW-AS ALERT-BOX ERROR.
              RETURN NO-APPLY.
           END.
+      {&methods/lValidateError.i NO}
    END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

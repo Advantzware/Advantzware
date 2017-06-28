@@ -10,7 +10,7 @@ DEF VAR prev-cust LIKE eb.cust-no NO-UNDO.
 DEF VAR prev-ship LIKE eb.ship-id NO-UNDO.
 DEF VAR ls-part-no AS cha NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
-
+DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
 
 FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
@@ -70,6 +70,9 @@ ASSIGN
  eb.test      = ef.test.
 
 
+RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
+IF cPackCodeOverride GT "" THEN 
+    eb.cas-no = cPackCodeOverride.
 IF ef.est-type EQ 6 AND ls-part-no NE "" THEN DO:
   li = 1.
   FOR EACH bb

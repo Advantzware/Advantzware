@@ -38,7 +38,7 @@
   IF AVAIL itemfg THEN
     RUN sys/ref/ea-um-fg.p (po-ordl.pr-qty-uom{2}, OUTPUT ll-ea).
 
-  IF ll-ea THEN
+  IF ll-ea AND ip-type NE "view" THEN
     ASSIGN
      lv-uom                = po-ordl.pr-qty-uom{2}
      po-ordl.pr-qty-uom{2} = "EA".
@@ -54,7 +54,7 @@
                 uom.uom EQ "ROLL"
                 NO-LOCK NO-ERROR.
 
-           IF AVAIL uom THEN
+           IF AVAIL uom AND ip-type NE "view" THEN
               ASSIGN
                  po-ordl.pr-qty-uom{2} = "LF".
                  v-ord-qty = v-ord-qty * uom.mult.
@@ -70,10 +70,10 @@
      v-tot-msf = IF v-corr THEN ((v-len * v-wid * .007 * dec(po-ordl.ord-qty{2})) / 1000)
                            ELSE ((((v-len * v-wid) / 144) * dec(po-ordl.ord-qty{2})) / 1000).
   END.
-  else do:
+  ELSE DO:
      /*convert whatever the UOM is into "EACH" first*/     
      v-tot-msf = 0.
-     if po-ordl.pr-qty-uom{2} NE "EA" then do:
+     IF po-ordl.pr-qty-uom{2} NE "EA" THEN DO:
         v-tot-msf = 0.
         IF po-ordl.pr-qty-uom{2} EQ "CS" THEN DO:
            IF AVAIL(itemfg) THEN
@@ -81,25 +81,25 @@
         END.
         ELSE DO:
         
-          run sys/ref/convquom.p(po-ordl.pr-qty-uom{2},
+          RUN sys/ref/convquom.p(po-ordl.pr-qty-uom{2},
                                  "EA",
                                  v-basis-w,
                                  v-len,
                                  v-wid,
                                  v-dep,
                                  v-ord-qty,
-                                 output v-out-qty).
+                                 OUTPUT v-out-qty).
         END.
         /*now convert from "EACH" into MSF*/   
-        v-tot-msf = if v-corr THEN
+        v-tot-msf = IF v-corr THEN
                        ((v-len * v-wid * .007 * v-out-qty) / 1000)
-                    else
+                    ELSE
                        ((((v-len * v-wid) / 144) * v-out-qty) / 1000).
         
           IF po-ordl.pr-qty-uom{2} EQ "ROLL" THEN
              v-tot-msf = v-tot-msf * (12 / v-len).
-     end. 
-  end.
+     END. 
+  END.
 
   lv-cons-qty = v-ord-qty.
   
@@ -131,8 +131,8 @@
     END.
 
   END.
-    
-  po-ordl.cons-qty{2} = {1}(lv-cons-qty).
+  IF ip-type NE "view" THEN 
+    po-ordl.cons-qty{2} = {1}(lv-cons-qty).
 
   /**  Calculate Extended cost, order quantity is based on UOM **/
   IF LOOKUP({3} po-ordl.pr-uom,"L,LOT") GT 0 THEN
@@ -182,13 +182,14 @@
     
     lv-t-cost = (v-ord-qty * {3} po-ordl.cost) + {3} po-ordl.setup.
   END.
-
+IF ip-type NE "view" THEN
   po-ordl.cons-cost{2} = {1}(lv-t-cost / lv-cons-qty).
 
   IF {3} po-ordl.disc NE 0 THEN lv-t-cost = lv-t-cost * (1 - ({3} po-ordl.disc / 100)).
-
+IF ip-type NE "view" THEN
   ASSIGN
      po-ordl.t-cost{2} = {1}(lv-t-cost)
      po-ordl.pr-qty-uom{2} = lv-orig-uom.
 
-  IF ll-ea THEN po-ordl.pr-qty-uom{2} = lv-uom.
+  IF ll-ea AND ip-type NE "view" THEN po-ordl.pr-qty-uom{2} = lv-uom.
+

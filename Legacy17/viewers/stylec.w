@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:54 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -39,9 +39,9 @@ RUN nosweat/persist.p PERSISTENT SET Persistent-Handle.
 {custom/gloc.i}
 /* style-maint preprocedure is for enable/disble variables */
 &global-define style-maint Corr
-def var ll-deleted as log no-undo.  /* reopen query to enable update buttons when user delete style */
-def var char-hdl as cha no-undo.
-def var k_frac as dec init "6.25" no-undo.
+DEF VAR ll-deleted AS LOG NO-UNDO.  /* reopen query to enable update buttons when user delete style */
+DEF VAR char-hdl AS cha NO-UNDO.
+DEF VAR k_frac AS DEC INIT "6.25" NO-UNDO.
 DEF VAR ld-2-array LIKE eb.k-wid-array NO-UNDO.
 DEF VAR ld-3-array LIKE eb.k-len-array NO-UNDO.
 DEF VAR ld-4-array LIKE eb.k-len-array NO-UNDO.
@@ -91,7 +91,7 @@ style.royalty style.dim-tk style.dim-pan5 style.dim-fit style.material[1] ~
 style.material[2] style.material[3] style.material[4] style.material[5] ~
 style.material[6] style.material[7] style.qty-per-set style.dim-df ~
 style.m-code[1] style.m-code[2] style.m-code[3] style.m-code[4] ~
-style.m-code[5] style.m-code[6] style.m-code[7] 
+style.m-code[5] style.m-code[6] style.m-code[7] style.defaultPackCode 
 &Scoped-define ENABLED-TABLES style
 &Scoped-define FIRST-ENABLED-TABLE style
 &Scoped-Define ENABLED-OBJECTS RECT-19 RECT-7 RECT-8 RECT-9 
@@ -102,7 +102,8 @@ style.material[4] style.material[5] style.material[6] style.material[7] ~
 style.qty-per-set style.dim-df style.m-code[1] style.m-code[2] ~
 style.m-code[3] style.m-code[4] style.m-code[5] style.m-code[6] ~
 style.m-code[7] style.m-dscr[1] style.m-dscr[2] style.m-dscr[3] ~
-style.m-dscr[4] style.m-dscr[5] style.m-dscr[6] style.m-dscr[7] 
+style.m-dscr[4] style.m-dscr[5] style.m-dscr[6] style.m-dscr[7] ~
+style.defaultPackCode 
 &Scoped-define DISPLAYED-TABLES style flute
 &Scoped-define FIRST-DISPLAYED-TABLE style
 &Scoped-define SECOND-DISPLAYED-TABLE flute
@@ -368,6 +369,9 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
           BGCOLOR 15 FONT 4
+     style.defaultPackCode AT ROW 11.95 COL 117 COLON-ALIGNED WIDGET-ID 6
+          VIEW-AS FILL-IN 
+          SIZE 11.6 BY 1
      "DEFAULT MATERIAL CODES" VIEW-AS TEXT
           SIZE 35 BY .62 AT ROW 2.91 COL 47
           FGCOLOR 9 
@@ -539,68 +543,68 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL F-Main V-table-Win
 ON HELP OF FRAME F-Main
 DO:
-   def var char-val as cha no-undo.   
-   def var ls-cur-val as cha no-undo.
-   def var lv-foam as log no-undo.
-   def var lv-icode as cha no-undo.
-   def var lv-mat-type as cha no-undo.
-   def var lv-rowid as rowid no-undo.
+   DEF VAR char-val AS cha NO-UNDO.   
+   DEF VAR ls-cur-val AS cha NO-UNDO.
+   DEF VAR lv-foam AS LOG NO-UNDO.
+   DEF VAR lv-icode AS cha NO-UNDO.
+   DEF VAR lv-mat-type AS cha NO-UNDO.
+   DEF VAR lv-rowid AS ROWID NO-UNDO.
 
 
-   case focus:name :
-        when 'design-no' then do:
-             run windows/l-boxdes.w (focus:screen-value, output char-val).
-             if char-val <> "" then focus:screen-value = entry(1,char-val).    
-        end.
-        when 'code' then do:
-           run windows/l-flute.w (style.company,output char-val).
-           if char-val <> "" then 
-              focus:screen-value in frame {&frame-name} = entry(1,char-val).
-           return no-apply.   
+   CASE FOCUS:NAME :
+        WHEN 'design-no' THEN DO:
+             RUN windows/l-boxdes.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
+             IF char-val <> "" THEN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).    
+        END.
+        WHEN 'code' THEN DO:
+           RUN windows/l-flute.w (style.company,OUTPUT char-val).
+           IF char-val <> "" THEN 
+              FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
+           RETURN NO-APPLY.   
 
-        end.
+        END.
         WHEN "type" THEN DO:
-              RUN windows/l-stytyp.w (output char-val).
+              RUN windows/l-stytyp.w (OUTPUT char-val).
               IF char-val <> "" THEN DO:
                 FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = entry(1,char-val).
-                IF FOCUS:screen-value = "W" THEN
+                IF FOCUS:SCREEN-VALUE = "W" THEN
                     style.material[1]:LABEL = "Wood" .
-                ELSE IF FOCUS:screen-value = "F" THEN
+                ELSE IF FOCUS:SCREEN-VALUE = "F" THEN
                     style.material[1]:LABEL = "Foam" .
-                ELSE IF FOCUS:screen-value = "C" THEN
+                ELSE IF FOCUS:SCREEN-VALUE = "C" THEN
                     style.material[1]:LABEL = "PolyBag" .
                 ELSE
                      style.material[1]:LABEL = "Board" .
               END.
          END.
-        when 'material' then do:
-             case focus:index :
-                  when 1 then do:  /* board */
-                         def var lv-ind like style.industry no-undo.
-                         ls-cur-val = focus:screen-value.
-                         if avail style then lv-ind = style.industry.
-                         else lv-ind = "".  
-                         if avail style and style.type:screen-value = "f" then  /* foam */
-                            run windows/l-boardf.w (style.company,lv-ind,ls-cur-val,output char-val).
-                         else run windows/l-board1.w (cocode,lv-ind,focus:screen-value, output lv-rowid).
+        WHEN 'material' THEN DO:
+             CASE FOCUS:INDEX :
+                  WHEN 1 THEN DO:  /* board */
+                         DEF VAR lv-ind LIKE style.industry NO-UNDO.
+                         ls-cur-val = FOCUS:SCREEN-VALUE.
+                         IF AVAIL style THEN lv-ind = style.industry.
+                         ELSE lv-ind = "".  
+                         IF AVAIL style AND style.type:screen-value = "f" THEN  /* foam */
+                            RUN windows/l-boardf.w (style.company,lv-ind,ls-cur-val,OUTPUT char-val).
+                         ELSE RUN windows/l-board1.w (cocode,lv-ind,FOCUS:SCREEN-VALUE, OUTPUT lv-rowid).
                          FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
                          IF AVAIL ITEM AND ITEM.i-no NE FOCUS:SCREEN-VALUE THEN
-                           assign focus:screen-value in frame {&frame-name} = item.i-no
+                           ASSIGN FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = item.i-no
                             .
-                        return no-apply.                  
-                  end.
-                  when 4 then do:  /* adder */
-                    if avail style then assign lv-ind = style.industry
+                        RETURN NO-APPLY.                  
+                  END.
+                  WHEN 4 THEN DO:  /* adder */
+                    IF AVAIL style THEN ASSIGN lv-ind = style.industry
                                                lv-foam = style.type:screen-value = "F" .
-                    else assign lv-ind = ""
-                                lv-foam = no.
-                    run windows/l-boarda.w (style.company,lv-ind, focus:screen-value, output char-val).
-                    if char-val <> "" then 
-                        assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
+                    ELSE ASSIGN lv-ind = ""
+                                lv-foam = NO.
+                    RUN windows/l-boarda.w (style.company,lv-ind, FOCUS:SCREEN-VALUE, OUTPUT char-val).
+                    IF char-val <> "" THEN 
+                        ASSIGN FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val)
                       .
-                    return no-apply.
+                    RETURN NO-APPLY.
 
-                  end.
+                  END.
                   /*=====????
                   when 2 or when 5 or when 6 or when 7 then do:
                      if avail style then assign lv-ind = style.industry
@@ -624,78 +628,87 @@ DO:
 
                   end.
                   */
-                  when 2 then do:
-                     if avail style then assign lv-ind = style.industry.
-                     else assign lv-ind = ""                     .
+                  WHEN 2 THEN DO:
+                     IF AVAIL style THEN ASSIGN lv-ind = style.industry.
+                     ELSE ASSIGN lv-ind = ""                     .
                      lv-mat-type =  "I".
-                     run windows/l-itmsty.w (style.company, lv-ind, lv-mat-type, focus:screen-value,lv-foam,lv-icode,
-                                      output char-val).
-                     if char-val <> "" then 
-                         assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
+                     RUN windows/l-itmsty.w (style.company, lv-ind, lv-mat-type, FOCUS:SCREEN-VALUE,lv-foam,lv-icode,
+                                      OUTPUT char-val).
+                     IF char-val <> "" THEN 
+                         ASSIGN FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val)
                          .
-                     return no-apply.
-                  end.
-                  when 5 then do:
-                     if avail style then assign lv-ind = style.industry.
-                     else assign lv-ind = ""                     .
+                     RETURN NO-APPLY.
+                  END.
+                  WHEN 5 THEN DO:
+                     IF AVAIL style THEN ASSIGN lv-ind = style.industry.
+                     ELSE ASSIGN lv-ind = ""                     .
                      lv-ind = "".
                      lv-mat-type =  "WLF".
-                     run windows/l-itmsty.w (style.company, lv-ind, lv-mat-type, focus:screen-value,lv-foam,lv-icode,
-                                      output char-val).
-                     if char-val <> "" then 
-                         assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
+                     RUN windows/l-itmsty.w (style.company, lv-ind, lv-mat-type, FOCUS:SCREEN-VALUE,lv-foam,lv-icode,
+                                      OUTPUT char-val).
+                     IF char-val <> "" THEN 
+                         ASSIGN FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val)
                          .
-                     return no-apply.
-                  end.
-                  when 6 then do:
-                     if avail style then assign lv-ind = style.industry.
-                     else assign lv-ind = ""                     .
+                     RETURN NO-APPLY.
+                  END.
+                  WHEN 6 THEN DO:
+                     IF AVAIL style THEN ASSIGN lv-ind = style.industry.
+                     ELSE ASSIGN lv-ind = ""                     .
                      lv-ind = "".
                      lv-mat-type =  "V".
-                     run windows/l-itmsty.w (style.company, lv-ind, lv-mat-type, focus:screen-value,lv-foam,lv-icode,
-                                      output char-val).
-                     if char-val <> "" then 
-                         assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
+                     RUN windows/l-itmsty.w (style.company, lv-ind, lv-mat-type, FOCUS:SCREEN-VALUE,lv-foam,lv-icode,
+                                      OUTPUT char-val).
+                     IF char-val <> "" THEN 
+                         ASSIGN FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val)
                          .
-                     return no-apply.
-                  end.
-                  when 7 then do:
-                     if avail style then assign lv-ind = style.industry.
-                     else assign lv-ind = ""                     .
+                     RETURN NO-APPLY.
+                  END.
+                  WHEN 7 THEN DO:
+                     IF AVAIL style THEN ASSIGN lv-ind = style.industry.
+                     ELSE ASSIGN lv-ind = ""                     .
                      lv-ind = "".
                      lv-mat-type =  "GTS".
-                     run windows/l-itmsty.w (style.company, lv-ind, lv-mat-type, focus:screen-value,lv-foam,lv-icode,
-                                      output char-val).
-                     if char-val <> "" then 
-                         assign focus:screen-value in frame {&frame-name} = entry(1,char-val)
+                     RUN windows/l-itmsty.w (style.company, lv-ind, lv-mat-type, FOCUS:SCREEN-VALUE,lv-foam,lv-icode,
+                                      OUTPUT char-val).
+                     IF char-val <> "" THEN 
+                         ASSIGN FOCUS:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val)
                          .
-                     return no-apply.
-                  end.
+                     RETURN NO-APPLY.
+                  END.
 
-             end case.
-        end.  /* material*/
-        when 'm-code' then do:
-             run windows/l-mach.w (style.company, gloc, focus:screen-value, output char-val).
-             if char-val <> "" then 
-                case focus:index :
-                     when 1 then assign style.m-code[1]:screen-value in frame {&frame-name} = entry(1,char-val)
-                                        style.m-dscr[1]:screen-value = entry(2,char-val).
-                     when 2 then assign style.m-code[2]:screen-value = entry(1,char-val)
-                                        style.m-dscr[2]:screen-value = entry(2,char-val).
-                     when 3 then assign style.m-code[3]:screen-value = entry(1,char-val)
-                                        style.m-dscr[3]:screen-value = entry(2,char-val).
-                     when 4 then assign style.m-code[4]:screen-value = entry(1,char-val)
-                                        style.m-dscr[4]:screen-value = entry(2,char-val).
-                     when 5 then assign style.m-code[5]:screen-value = entry(1,char-val)
-                                        style.m-dscr[5]:screen-value = entry(2,char-val).
-                     when 6 then assign style.m-code[6]:screen-value = entry(1,char-val)
-                                        style.m-dscr[6]:screen-value = entry(2,char-val).
-                     when 7 then assign style.m-code[7]:screen-value = entry(1,char-val)
-                                        style.m-dscr[7]:screen-value = entry(2,char-val).
+             END CASE.
+        END.  /* material*/
+        WHEN 'm-code' THEN DO:
+             RUN windows/l-mach.w (style.company, gloc, FOCUS:SCREEN-VALUE, OUTPUT char-val).
+             IF char-val <> "" THEN 
+                CASE FOCUS:INDEX :
+                     WHEN 1 THEN ASSIGN style.m-code[1]:screen-value IN FRAME {&frame-name} = ENTRY(1,char-val)
+                                        style.m-dscr[1]:screen-value = ENTRY(2,char-val).
+                     WHEN 2 THEN ASSIGN style.m-code[2]:screen-value = ENTRY(1,char-val)
+                                        style.m-dscr[2]:screen-value = ENTRY(2,char-val).
+                     WHEN 3 THEN ASSIGN style.m-code[3]:screen-value = ENTRY(1,char-val)
+                                        style.m-dscr[3]:screen-value = ENTRY(2,char-val).
+                     WHEN 4 THEN ASSIGN style.m-code[4]:screen-value = ENTRY(1,char-val)
+                                        style.m-dscr[4]:screen-value = ENTRY(2,char-val).
+                     WHEN 5 THEN ASSIGN style.m-code[5]:screen-value = ENTRY(1,char-val)
+                                        style.m-dscr[5]:screen-value = ENTRY(2,char-val).
+                     WHEN 6 THEN ASSIGN style.m-code[6]:screen-value = ENTRY(1,char-val)
+                                        style.m-dscr[6]:screen-value = ENTRY(2,char-val).
+                     WHEN 7 THEN ASSIGN style.m-code[7]:screen-value = ENTRY(1,char-val)
+                                        style.m-dscr[7]:screen-value = ENTRY(2,char-val).
 
-                end case.
-        end.  /* m-code */
-   end case.
+                END CASE.
+        END.  /* m-code */
+        WHEN "defaultPackCode" THEN 
+           DO:
+               RUN windows/l-item.w (style.company, "", "C", FOCUS:SCREEN-VALUE, OUTPUT char-val).
+               IF char-val NE "" AND FOCUS:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
+               DO:
+                   FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+                   APPLY "value-changed" TO style.defaultPackCode.
+               END.
+           END.        
+   END CASE.
 
 END.
 
@@ -706,15 +719,16 @@ END.
 &Scoped-define SELF-NAME style.design-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.design-no V-table-Win
 ON LEAVE OF style.design-no IN FRAME F-Main /* Design # */
-DO:
-    if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first box-design-hdr where /*box-design-hdr.company = style.company */
-                     box-design-hdr.design-no = int(self:screen-value))
-     then do:
-        message "Invalid Box Design Number. Try help." view-as alert-box.
-        return no-apply.
-     end.                  
-
+DO:    
+    {&methods/lValidateError.i YES}
+    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST box-design-hdr WHERE /*box-design-hdr.company = style.company */
+                     box-design-hdr.design-no = int(SELF:screen-value))
+     THEN DO:
+        MESSAGE "Invalid Box Design Number. Try help." VIEW-AS ALERT-BOX.
+        RETURN NO-APPLY.
+     END.                  
+     {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -791,18 +805,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[1] V-table-Win
 ON LEAVE OF style.m-code[1] IN FRAME F-Main /* 1 */
 DO:
-    if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
-                  mach.m-code= self:screen-value )
-    then do:
-       message "Invalid Machine Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
+    {&methods/lValidateError.i YES}
+    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
+                  mach.m-code= SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
 
-    FIND FIRST mach WHERE mach.company = style.company and 
-                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
+    FIND FIRST mach WHERE mach.company = style.company AND 
+                          mach.m-code= SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL mach THEN style.m-dscr[1]:SCREEN-VALUE = mach.m-dscr.
     ELSE style.m-dscr[1]:SCREEN-VALUE = "".
+    {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -813,19 +829,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[2] V-table-Win
 ON LEAVE OF style.m-code[2] IN FRAME F-Main /* 2 */
 DO:
-      if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
-                  mach.m-code= self:screen-value )
-    then do:
-       message "Invalid Machine Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
+      {&methods/lValidateError.i YES}
+      IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
+                  mach.m-code= SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
 
-    FIND FIRST mach WHERE mach.company = style.company and 
-                         mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
+    FIND FIRST mach WHERE mach.company = style.company AND 
+                         mach.m-code= SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[2]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[2]:SCREEN-VALUE = "".
-
+   {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -836,18 +853,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[3] V-table-Win
 ON LEAVE OF style.m-code[3] IN FRAME F-Main /* 3 */
 DO:
-      if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
-                  mach.m-code= self:screen-value )
-    then do:
-       message "Invalid Machine Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
+      {&methods/lValidateError.i YES}
+      IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
+                  mach.m-code= SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
 
-    FIND FIRST mach WHERE mach.company = style.company and 
-                         mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
+    FIND FIRST mach WHERE mach.company = style.company AND 
+                         mach.m-code= SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[3]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[3]:SCREEN-VALUE = "".
+   {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -858,18 +877,19 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[4] V-table-Win
 ON LEAVE OF style.m-code[4] IN FRAME F-Main /* 4 */
 DO:
-      if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
-                  mach.m-code= self:screen-value )
-    then do:
-       message "Invalid Machine Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
-    FIND FIRST mach WHERE mach.company = style.company and 
-                          mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
+      {&methods/lValidateError.i YES}
+      IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
+                  mach.m-code= SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
+    FIND FIRST mach WHERE mach.company = style.company AND 
+                          mach.m-code= SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL mach THEN style.m-dscr[4]:SCREEN-VALUE = mach.m-dscr.
     ELSE style.m-dscr[4]:SCREEN-VALUE = "".
-
+    {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -880,19 +900,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[5] V-table-Win
 ON LEAVE OF style.m-code[5] IN FRAME F-Main /* 5 */
 DO:
-      if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
-                  mach.m-code= self:screen-value )
-    then do:
-       message "Invalid Machine Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
+      {&methods/lValidateError.i YES}
+      IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
+                  mach.m-code= SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
 
-    FIND FIRST mach WHERE mach.company = style.company and 
-                         mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
+    FIND FIRST mach WHERE mach.company = style.company AND 
+                         mach.m-code= SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[5]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[5]:SCREEN-VALUE = "".
-
+   {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -903,19 +924,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[6] V-table-Win
 ON LEAVE OF style.m-code[6] IN FRAME F-Main /* 6 */
 DO:
-      if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
-                  mach.m-code= self:screen-value )
-    then do:
-       message "Invalid Machine Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
+      {&methods/lValidateError.i YES}
+      IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
+                  mach.m-code= SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
 
-    FIND FIRST mach WHERE mach.company = style.company and 
-                         mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
+    FIND FIRST mach WHERE mach.company = style.company AND 
+                         mach.m-code= SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[6]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[6]:SCREEN-VALUE = "".
-
+   {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -926,18 +948,20 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.m-code[7] V-table-Win
 ON LEAVE OF style.m-code[7] IN FRAME F-Main /* 7 */
 DO:
-    if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
-                  mach.m-code= self:screen-value )
-    then do:
-       message "Invalid Machine Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
+    {&methods/lValidateError.i YES}
+    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
+                  mach.m-code= SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
 
-    FIND FIRST mach WHERE mach.company = style.company and 
-                         mach.m-code= self:SCREEN-VALUE NO-LOCK NO-ERROR.
+    FIND FIRST mach WHERE mach.company = style.company AND 
+                         mach.m-code= SELF:SCREEN-VALUE NO-LOCK NO-ERROR.
    IF AVAIL mach THEN style.m-dscr[7]:SCREEN-VALUE = mach.m-dscr.
    ELSE style.m-dscr[7]:SCREEN-VALUE = "".
+   {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -948,14 +972,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[1] V-table-Win
 ON LEAVE OF style.material[1] IN FRAME F-Main /* Board */
 DO:
-    if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first item where item.company = style.company and 
+    {&methods/lValidateError.i YES}
+    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST item WHERE item.company = style.company AND 
                   /*item.industry = style.industry and*/
-                  item.i-no = self:screen-value )
-    then do:
-       message "Invalid Board Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
+                  item.i-no = SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Board Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
+    {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -966,15 +992,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[2] V-table-Win
 ON LEAVE OF style.material[2] IN FRAME F-Main /* Ink */
 DO:
-    if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first item where item.company = style.company and 
+    {&methods/lValidateError.i YES}
+    IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST item WHERE item.company = style.company AND 
              /*item.industry = style.industry and*/
-             item.i-no = self:screen-value )
-    then do:
-       message "Invalid Ink Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
-
+             item.i-no = SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Ink Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
+    {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -985,15 +1012,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[4] V-table-Win
 ON LEAVE OF style.material[4] IN FRAME F-Main /* Adder */
 DO:
-   if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first item where item.company = style.company and 
+   {&methods/lValidateError.i YES}
+   IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST item WHERE item.company = style.company AND 
                  /* item.industry = style.industry and */
-                  item.i-no = self:screen-value )
-    then do:
-       message "Invalid Adder Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
-
+                  item.i-no = SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Adder Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
+   {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1004,15 +1032,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[5] V-table-Win
 ON LEAVE OF style.material[5] IN FRAME F-Main /* Label */
 DO:
-   if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first item where item.company = style.company and 
+   {&methods/lValidateError.i YES}
+   IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST item WHERE item.company = style.company AND 
                  /* item.industry = style.industry and */
-                  item.i-no = self:screen-value )
-    then do:
-       message "Invalid Label Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
-
+                  item.i-no = SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Label Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
+   {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1023,15 +1052,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[6] V-table-Win
 ON LEAVE OF style.material[6] IN FRAME F-Main /* Coating */
 DO:
-   if lastkey <> -1 and self:screen-value <> "" and
-       not can-find(first item where item.company = style.company and 
+   {&methods/lValidateError.i YES}
+   IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+       NOT CAN-FIND(FIRST item WHERE item.company = style.company AND 
                  /* item.industry = style.industry and */
-                  item.i-no = self:screen-value )
-    then do:
-       message "Invalid Coating Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
-
+                  item.i-no = SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Coating Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
+    {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1042,15 +1072,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.material[7] V-table-Win
 ON LEAVE OF style.material[7] IN FRAME F-Main /* Joint Glue */
 DO:
-   if lastkey <> -1 and self:screen-value <> "" and
-      not can-find(first item where item.company = style.company and 
+   {&methods/lValidateError.i YES}
+   IF LASTKEY <> -1 AND SELF:screen-value <> "" AND
+      NOT CAN-FIND(FIRST item WHERE item.company = style.company AND 
                  /* item.industry = style.industry and */
-                  item.i-no = self:screen-value )
-    then do:
-       message "Invalid Joint Glue Code. Try help please." view-as alert-box.
-       return no-apply.
-    end.
-
+                  item.i-no = SELF:screen-value )
+    THEN DO:
+       MESSAGE "Invalid Joint Glue Code. Try help please." VIEW-AS ALERT-BOX.
+       RETURN NO-APPLY.
+    END.
+    {&methods/lValidateError.i NO}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1061,14 +1092,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.style V-table-Win
 ON LEAVE OF style.style IN FRAME F-Main /* Style No. */
 DO:
-    def buffer bf-style for style.
-    if lastkey <> -1 and 
-       can-find(first bf-style where bf-style.company = style.company and
-                      bf-style.style = self:screen-value)
-    then do:
-         message "Style already exists. Try different style code." view-as alert-box.
-         return no-apply.
-    end.                  
+    {&methods/lValidateError.i YES}
+    DEF BUFFER bf-style FOR style.
+    IF LASTKEY <> -1 AND 
+       CAN-FIND(FIRST bf-style WHERE bf-style.company = style.company AND
+                      bf-style.style = SELF:screen-value)
+    THEN DO:
+         MESSAGE "Style already exists. Try different style code." VIEW-AS ALERT-BOX.
+         RETURN NO-APPLY.
+    END.     
+   {&methods/lValidateError.i NO}             
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1082,11 +1115,11 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    IF self:screen-value = "W" THEN
+    IF SELF:screen-value = "W" THEN
           style.material[1]:LABEL = "Wood" .
-      ELSE IF self:screen-value = "F" THEN
+      ELSE IF SELF:screen-value = "F" THEN
           style.material[1]:LABEL = "Foam" .
-      ELSE IF self:screen-value = "C" THEN
+      ELSE IF SELF:screen-value = "C" THEN
           style.material[1]:LABEL = "PolyBag" .
       ELSE
            style.material[1]:LABEL = "Board" .
@@ -1097,18 +1130,18 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&Scoped-define SELF-NAME style.type
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style.type V-table-Win
 ON VALUE-CHANGED OF style.type IN FRAME F-Main /* Type */
 DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-type NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-    IF self:screen-value = "W" THEN
+    IF SELF:screen-value = "W" THEN
           style.material[1]:LABEL = "Wood" .
-      ELSE IF self:screen-value = "F" THEN
+      ELSE IF SELF:screen-value = "F" THEN
           style.material[1]:LABEL = "Foam" .
-      ELSE IF self:screen-value = "C" THEN
+      ELSE IF SELF:screen-value = "C" THEN
           style.material[1]:LABEL = "PolyBag" .
       ELSE
            style.material[1]:LABEL = "Board" .
@@ -1128,7 +1161,7 @@ END.
 /* ***************************  Main Block  *************************** */
 {custom/getcmpny.i}
 {custom/getloc.i}
-session:data-entry-return = yes.
+SESSION:DATA-ENTRY-RETURN = YES.
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1229,34 +1262,34 @@ PROCEDURE display-flute-dim :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def input param ip-code as int no-undo.
+  DEF INPUT PARAM ip-code AS INT NO-UNDO.
 
-  find first reftable where reftable.reftable = "STYFLU" 
-                        and reftable.company = style.style
-                        and reftable.loc = flute.code
-                        and reftable.code = string(ip-code)
-                        no-error.
-  if not avail reftable then do:
+  FIND FIRST reftable WHERE reftable.reftable = "STYFLU" 
+                        AND reftable.company = style.style
+                        AND reftable.loc = flute.code
+                        AND reftable.code = string(ip-code)
+                        NO-ERROR.
+  IF NOT AVAIL reftable THEN DO:
 
-     create reftable.
-     assign reftable.reftable = "STYFLU" 
+     CREATE reftable.
+     ASSIGN reftable.reftable = "STYFLU" 
             reftable.company = style.style
             reftable.loc = flute.code
-            reftable.code = string(ip-code)
+            reftable.code = STRING(ip-code)
             . 
-  end.       
+  END.       
 
-  case ip-code:
-      when 1 then do:
-             ld-joint-tab:screen-value in frame {&frame-name} = string(reftable.val[13]).
-      end.
-      when 2 then ld-blank-width:screen-value in frame {&frame-name} = string(reftable.val[13]).
-      when 3 then ld-glue-in:screen-value = string(reftable.val[13]).
-      when 4 then ld-glue-out:screen-value = string(reftable.val[13]).
-      when 5 then ld-stitch-in:screen-value = string(reftable.val[13]).
-      when 6 then ld-stitch-out:screen-value = string(reftable.val[13]).                 
-      when 7 then ld-tape-score:screen-value = string(reftable.val[13]).
-  end case.
+  CASE ip-code:
+      WHEN 1 THEN DO:
+             ld-joint-tab:screen-value IN FRAME {&frame-name} = string(reftable.val[13]).
+      END.
+      WHEN 2 THEN ld-blank-width:screen-value IN FRAME {&frame-name} = string(reftable.val[13]).
+      WHEN 3 THEN ld-glue-in:screen-value = STRING(reftable.val[13]).
+      WHEN 4 THEN ld-glue-out:screen-value = STRING(reftable.val[13]).
+      WHEN 5 THEN ld-stitch-in:screen-value = STRING(reftable.val[13]).
+      WHEN 6 THEN ld-stitch-out:screen-value = STRING(reftable.val[13]).                 
+      WHEN 7 THEN ld-tape-score:screen-value = STRING(reftable.val[13]).
+  END CASE.
 
 END PROCEDURE.
 
@@ -1272,8 +1305,8 @@ PROCEDURE enable-style-field :
 ------------------------------------------------------------------------------*/
   /* called from methods/viewers/enable/style.i */
 
-  enable ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
-          ld-tape-score with frame {&frame-name}.
+  ENABLE ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
+          ld-tape-score WITH FRAME {&frame-name}.
 
 END PROCEDURE.
 
@@ -1287,19 +1320,19 @@ PROCEDURE get-dim-values :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def input param ip-style like style.style no-undo.
-  def input param ip-flute as cha no-undo.
-  def input param ip-code as cha no-undo.
-  def output param op-total as dec no-undo.
-  def var i as int no-undo.
+  DEF INPUT PARAM ip-style LIKE style.style NO-UNDO.
+  DEF INPUT PARAM ip-flute AS cha NO-UNDO.
+  DEF INPUT PARAM ip-code AS cha NO-UNDO.
+  DEF OUTPUT PARAM op-total AS DEC NO-UNDO.
+  DEF VAR i AS INT NO-UNDO.
 
 
-  find first reftable where reftable.reftable = "STYFLU" 
-                        and reftable.company = ip-style
-                        and reftable.loc = ip-flute
-                        and reftable.code = ip-code
-                        no-error.
-  if  avail reftable then op-total = reftable.val[13].
+  FIND FIRST reftable WHERE reftable.reftable = "STYFLU" 
+                        AND reftable.company = ip-style
+                        AND reftable.loc = ip-flute
+                        AND reftable.code = ip-code
+                        NO-ERROR.
+  IF  AVAIL reftable THEN op-total = reftable.val[13].
 
   /*  same val[13] is sum of [1 for 12]
   do i = 1 to 12:
@@ -1318,14 +1351,14 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def buffer bf-flute for flute.
-  def buffer bf-reftable for reftable.
-  def buffer bf-routing-mtx for routing-mtx.
-  def buffer old-style for style .
-  def var i as int no-undo.
-  def var ls-old-style as cha no-undo.
-  def var j as int no-undo.
-  def var ld-joint-val as decimal no-undo.
+  DEF BUFFER bf-flute FOR flute.
+  DEF BUFFER bf-reftable FOR reftable.
+  DEF BUFFER bf-routing-mtx FOR routing-mtx.
+  DEF BUFFER old-style FOR style .
+  DEF VAR i AS INT NO-UNDO.
+  DEF VAR ls-old-style AS cha NO-UNDO.
+  DEF VAR j AS INT NO-UNDO.
+  DEF VAR ld-joint-val AS DECIMAL NO-UNDO.
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
@@ -1338,59 +1371,59 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   /* ======== create flute for the style ==========*/
-  if adm-new-record then do:
-     IF adm-adding-record then
-     for each bf-flute no-lock:  /* used be reftable */
-        do j = 1 to 7:
-           if not can-find(first reftable where reftable.reftable = "STYFLU"
-                               and reftable.company = style.style
-                               and reftable.loc = bf-flute.code
-                               and reftable.code = string(j) )
-           then do:
-                create reftable.
-                assign reftable.reftable = "STYFLU"
+  IF adm-new-record THEN DO:
+     IF adm-adding-record THEN
+     FOR EACH bf-flute NO-LOCK:  /* used be reftable */
+        DO j = 1 TO 7:
+           IF NOT CAN-FIND(FIRST reftable WHERE reftable.reftable = "STYFLU"
+                               AND reftable.company = style.style
+                               AND reftable.loc = bf-flute.code
+                               AND reftable.code = string(j) )
+           THEN DO:
+                CREATE reftable.
+                ASSIGN reftable.reftable = "STYFLU"
                        reftable.company = style.style
                        reftable.loc = bf-flute.code
-                       reftable.code = string(j)
+                       reftable.code = STRING(j)
                        .
-                create reftable.
-                assign reftable.reftable = "STYFLU"
+                CREATE reftable.
+                ASSIGN reftable.reftable = "STYFLU"
                        reftable.company = style.style
                        reftable.loc = bf-flute.code
                        reftable.code2 = "1"
-                       reftable.code = string(j)
+                       reftable.code = STRING(j)
                        .
 
-           end. 
-        end.  /* do j */
-     end.     /* for each bf-flute */
+           END. 
+        END.  /* do j */
+     END.     /* for each bf-flute */
 
-     ELSE do: /* === copy style, scoring, & routing-mtx info */
-         for each reftable
-             where reftable.reftable eq "STYFLU"
-               and reftable.company  eq ls-old-style
-             no-lock:
+     ELSE DO: /* === copy style, scoring, & routing-mtx info */
+         FOR EACH reftable
+             WHERE reftable.reftable EQ "STYFLU"
+               AND reftable.company  EQ ls-old-style
+             NO-LOCK:
 
-           find first bf-reftable
-               where bf-reftable.reftable eq "STYFLU"
-                 and bf-reftable.company  eq style.style
-                 and bf-reftable.loc      eq reftable.loc
-                 and bf-reftable.code     eq reftable.code
-                 and bf-reftable.code2    eq reftable.code2
-               no-lock no-error.
+           FIND FIRST bf-reftable
+               WHERE bf-reftable.reftable EQ "STYFLU"
+                 AND bf-reftable.company  EQ style.style
+                 AND bf-reftable.loc      EQ reftable.loc
+                 AND bf-reftable.code     EQ reftable.code
+                 AND bf-reftable.code2    EQ reftable.code2
+               NO-LOCK NO-ERROR.
 
-           if not avail bf-reftable then do:
-             create bf-reftable.
-             buffer-copy reftable to bf-reftable
-             assign
+           IF NOT AVAIL bf-reftable THEN DO:
+             CREATE bf-reftable.
+             BUFFER-COPY reftable TO bf-reftable
+             ASSIGN
               bf-reftable.company  = style.style.
-           end.
-         end.
+           END.
+         END.
 
-              find old-style where old-style.company = gcompany 
-                               and old-style.style = ls-old-style
-                               no-lock .
-              assign style.formula[1] = old-style.formula[1]
+              FIND old-style WHERE old-style.company = gcompany 
+                               AND old-style.style = ls-old-style
+                               NO-LOCK .
+              ASSIGN style.formula[1] = old-style.formula[1]
                      style.formula[2] = old-style.formula[2]
                      style.formula[3] = old-style.formula[3]
                      style.formula[4] = old-style.formula[4]
@@ -1427,27 +1460,27 @@ PROCEDURE local-assign-record :
                      style.use-w[12] = old-style.use-w[12]
                      style.use-w[13] = old-style.use-w[13]
                      .            
-                 for each routing-mtx of old-style no-lock:
-                     create bf-routing-mtx.
-                     buffer-copy routing-mtx except routing-mtx.style to bf-routing-mtx.
+                 FOR EACH routing-mtx OF old-style NO-LOCK:
+                     CREATE bf-routing-mtx.
+                     BUFFER-COPY routing-mtx EXCEPT routing-mtx.style TO bf-routing-mtx.
                      bf-routing-mtx.style = style.style.
-                 end.
-     end.  /* copy */
-  end.  /* adm-new */
+                 END.
+     END.  /* copy */
+  END.  /* adm-new */
 
-  find first reftable where reftable.reftable = "STYFLU" 
-                         and reftable.company = style.style
-                         and reftable.loc = flute.code
-                         and reftable.code = "1"  /* joint tab */
-                         no-error
+  FIND FIRST reftable WHERE reftable.reftable = "STYFLU" 
+                         AND reftable.company = style.style
+                         AND reftable.loc = flute.code
+                         AND reftable.code = "1"  /* joint tab */
+                         NO-ERROR
                          .
-  if not avail reftable then do:
-     create reftable.
-     assign reftable.reftable = "STYFLU"
+  IF NOT AVAIL reftable THEN DO:
+     CREATE reftable.
+     ASSIGN reftable.reftable = "STYFLU"
             reftable.company = style.style
             reftable.loc = flute.code
             reftable.code = "1".  
-  end.
+  END.
   reftable.val[13] = ld-joint-val.
 
   {viewers/stylec2.i 2}
@@ -1464,19 +1497,19 @@ PROCEDURE local-assign-record :
   {sys/inc/k16bb.i style.dim-pan5  } 
   {sys/inc/k16bb.i style.dim-fit  }                                              
 
-  find first reftable where reftable.reftable = "STYFLU" 
-                        and reftable.company = style.style
-                        and reftable.loc = flute.code
-                        and reftable.code = "BOARD"
-                        no-error.
-  if not avail reftable then do:
-     create reftable.
-     assign reftable.reftable = "STYFLU"
+  FIND FIRST reftable WHERE reftable.reftable = "STYFLU" 
+                        AND reftable.company = style.style
+                        AND reftable.loc = flute.code
+                        AND reftable.code = "BOARD"
+                        NO-ERROR.
+  IF NOT AVAIL reftable THEN DO:
+     CREATE reftable.
+     ASSIGN reftable.reftable = "STYFLU"
             reftable.company = style.style
             reftable.loc = flute.code
             reftable.code = "BOARD".  
-  end. 
-  assign
+  END. 
+  ASSIGN
    reftable.dscr     = style.material[1]:screen-value
    style.material[1] = "".
 
@@ -1498,8 +1531,8 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  disable ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
-          ld-tape-score with frame {&frame-name}.
+  DISABLE ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
+          ld-tape-score WITH FRAME {&frame-name}.
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"scores-source", OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -1522,13 +1555,13 @@ PROCEDURE local-create-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  assign style.company = gcompany
+  ASSIGN style.company = gcompany
          style.industry = "2"
          style.qty-per-set = 1. /* corrugated style */
 
-  if adm-adding-record then do:
+  IF adm-adding-record THEN DO:
 
-     assign ld-joint-tab = 0
+     ASSIGN ld-joint-tab = 0
             ld-blank-width = 0
             ld-glue-in = 0
             ld-glue-out = 0 
@@ -1536,10 +1569,10 @@ PROCEDURE local-create-record :
             ld-stitch-out = 0
           ld-tape-score = 0.
 
-     display ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
-          ld-tape-score with frame {&frame-name}.
+     DISPLAY ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
+          ld-tape-score WITH FRAME {&frame-name}.
 
-  end.
+  END.
 
 END PROCEDURE.
 
@@ -1552,32 +1585,32 @@ PROCEDURE local-delete-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def buffer bf-flute for flute.
-  def var j as int no-undo.
+  DEF BUFFER bf-flute FOR flute.
+  DEF VAR j AS INT NO-UNDO.
   DEF VAR lv-rowid AS ROWID EXTENT 2 NO-UNDO.
 
-
+   {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
 
-  find first eb where eb.company = gcompany and
-                      eb.loc = gloc and
+  FIND FIRST eb WHERE eb.company = gcompany AND
+                      eb.loc = gloc AND
                       eb.style = style.style
-                      no-lock no-error.
-  if avail eb then do:
-     message "You must remove all references to this 'Style' - " style.style " in the " skip
-             "database files (edtimates, quotes,etc.) before you delete it." skip
+                      NO-LOCK NO-ERROR.
+  IF AVAIL eb THEN DO:
+     MESSAGE "You must remove all references to this 'Style' - " style.style " in the " SKIP
+             "database files (edtimates, quotes,etc.) before you delete it." SKIP
              "Delete this style anyway?"
-             view-as alert-box error button yes-no update ll-ans as log.
-     if not ll-ans then return no-apply.        
-  end.
-
-  IF NOT adm-new-record THEN DO:
-    ll-ans = no.
-    message "Are you sure you want to delete style " style.style "?"
-            view-as alert-box question button yes-no update ll-ans .
-    if not ll-ans then return no-apply.
+             VIEW-AS ALERT-BOX ERROR BUTTON YES-NO UPDATE ll-ans AS LOG.
+     IF NOT ll-ans THEN RETURN NO-APPLY.        
   END.
 
+  IF NOT adm-new-record THEN DO:
+    ll-ans = NO.
+    MESSAGE "Are you sure you want to delete style " style.style "?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans .
+    IF NOT ll-ans THEN RETURN NO-APPLY.
+  END.
+  {&methods/lValidateError.i NO}
   SESSION:SET-WAIT-STATE ("general").
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE, "record-source", OUTPUT char-hdl).
@@ -1593,20 +1626,20 @@ PROCEDURE local-delete-record :
 
   RUN reset-browse (lv-rowid[1]).
 
-  for each bf-flute no-lock:  /* used be reftable */
-      do j = 1 to 7:
-         find first reftable where reftable.reftable = "STYFLU"
-                               and reftable.company = style.style
-                               and reftable.loc = bf-flute.code
-                               and reftable.code = string(j) 
-                               no-error.
-         if avail reftable then delete reftable.
-      end.
-  end.   
+  FOR EACH bf-flute NO-LOCK:  /* used be reftable */
+      DO j = 1 TO 7:
+         FIND FIRST reftable WHERE reftable.reftable = "STYFLU"
+                               AND reftable.company = style.style
+                               AND reftable.loc = bf-flute.code
+                               AND reftable.code = string(j) 
+                               NO-ERROR.
+         IF AVAIL reftable THEN DELETE reftable.
+      END.
+  END.   
 
-  for each routing-mtx of style :
-      delete routing-mtx.
-  end.
+  FOR EACH routing-mtx OF style :
+      DELETE routing-mtx.
+  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
@@ -1614,7 +1647,7 @@ PROCEDURE local-delete-record :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN reset-browse (lv-rowid[2]).
 
-  run set-attribute-list in adm-broker-hdl ("IS-DELETED=yes").  /* to force update button to be enabled */
+  RUN set-attribute-list IN adm-broker-hdl ("IS-DELETED=yes").  /* to force update button to be enabled */
 
   SESSION:SET-WAIT-STATE ("").
 
@@ -1629,9 +1662,9 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var i as int no-undo.
+  DEF VAR i AS INT NO-UNDO.
 
-  def buffer bf-reftable for reftable.
+  DEF BUFFER bf-reftable FOR reftable.
 /*MESSAGE "start " + STRING(flute.code) VIEW-AS ALERT-BOX ERROR.*/
   /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -1642,7 +1675,7 @@ PROCEDURE local-display-fields :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-   if not avail style then return.
+   IF NOT AVAIL style THEN RETURN.
 
    DO WITH FRAME {&FRAME-NAME}:
       IF v-cecscrn-char EQ "Decimal" THEN
@@ -1677,39 +1710,39 @@ PROCEDURE local-display-fields :
    {viewers/stylec3.i 6}
    {viewers/stylec3.i 7}
 
-   def var ld-total as dec DECIMALS 6 no-undo.
-   run get-dim-values (style.style,flute.code, "1", output ld-total).                                 
+   DEF VAR ld-total AS DEC DECIMALS 6 NO-UNDO.
+   RUN get-dim-values (style.style,flute.code, "1", OUTPUT ld-total).                                 
    ld-joint-tab = ld-total.
-   run get-dim-values (    style.style,flute.code, "2", output ld-total).                                 
+   RUN get-dim-values (    style.style,flute.code, "2", OUTPUT ld-total).                                 
    ld-blank-width = (ld-total).
-   run get-dim-values (    style.style,flute.code, "3", output ld-total).                                 
+   RUN get-dim-values (    style.style,flute.code, "3", OUTPUT ld-total).                                 
    ld-glue-in = (ld-total).
-   run get-dim-values (    style.style,flute.code, "4", output ld-total).                                 
+   RUN get-dim-values (    style.style,flute.code, "4", OUTPUT ld-total).                                 
    ld-glue-out = (ld-total).
-   run get-dim-values (    style.style,flute.code, "5", output ld-total).                                 
+   RUN get-dim-values (    style.style,flute.code, "5", OUTPUT ld-total).                                 
    ld-stitch-in = (ld-total).
-   run get-dim-values (    style.style,flute.code, "6", output ld-total).                                 
+   RUN get-dim-values (    style.style,flute.code, "6", OUTPUT ld-total).                                 
    ld-stitch-out = (ld-total).
-   run get-dim-values (    style.style,flute.code, "7", output ld-total).                                 
+   RUN get-dim-values (    style.style,flute.code, "7", OUTPUT ld-total).                                 
    ld-tape-score = (ld-total).
 
-  display ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
-          ld-tape-score with frame {&frame-name}.
+  DISPLAY ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
+          ld-tape-score WITH FRAME {&frame-name}.
 
-  disable ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
-          ld-tape-score with frame {&frame-name}.
+  DISABLE ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
+          ld-tape-score WITH FRAME {&frame-name}.
 
-  find first reftable where reftable.reftable = "STYFLU" and reftable.company = style.style
-                        and reftable.loc = flute.code
-                        and reftable.code = "BOARD"
-                        no-lock no-error.
-  style.material[1]:screen-value = if avail reftable then reftable.dscr else style.material[1].        
+  FIND FIRST reftable WHERE reftable.reftable = "STYFLU" AND reftable.company = style.style
+                        AND reftable.loc = flute.code
+                        AND reftable.code = "BOARD"
+                        NO-LOCK NO-ERROR.
+  style.material[1]:screen-value = IF AVAIL reftable THEN reftable.dscr ELSE style.material[1].        
 
   ASSIGN
-   style.dim-tk:screen-value = string( {sys/inc/k16.i style.dim-tk } )
+   style.dim-tk:screen-value = STRING( {sys/inc/k16.i style.dim-tk } )
    /*style.dim-dkl:screen-value = string( {sys/inc/k16.i style.dim-dkl } ) 
    style.dim-dkw:screen-value = string( {sys/inc/k16.i style.dim-dkw } )*/
-   style.dim-pan5:screen-value = string( {sys/inc/k16.i style.dim-pan5 } ) 
+   style.dim-pan5:screen-value = STRING( {sys/inc/k16.i style.dim-pan5 } ) 
    style.dim-fit:screen-value = string( {sys/inc/k16.i style.dim-fit } ).
 END PROCEDURE.
 
@@ -1729,7 +1762,7 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  run enable-style-field.
+  RUN enable-style-field.
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"scores-source", OUTPUT char-hdl).
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN enable-disable IN WIDGET-HANDLE(char-hdl) ("DISABLE").
@@ -1752,8 +1785,8 @@ PROCEDURE local-reset-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'reset-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-   enable ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
-          ld-tape-score with frame {&frame-name}.
+   ENABLE ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
+          ld-tape-score WITH FRAME {&frame-name}.
 
 
 END PROCEDURE.
@@ -1767,8 +1800,8 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var i as int no-undo.
-  def var ls-m-value as cha no-undo.
+  DEF VAR i AS INT NO-UNDO.
+  DEF VAR ls-m-value AS cha NO-UNDO.
   DEF VAR ll-new-record AS LOG NO-UNDO.
 
 
@@ -1776,76 +1809,76 @@ PROCEDURE local-update-record :
   /* validation check */
   RUN valid-type NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
-  do with frame {&frame-name}:
-     if not can-find(first box-design-hdr where /*box-design-hdr.company = style.company 
+   {&methods/lValidateError.i YES}
+  DO WITH FRAME {&frame-name}:
+     IF NOT CAN-FIND(FIRST box-design-hdr WHERE /*box-design-hdr.company = style.company 
                        and*/  box-design-hdr.design-no = int(style.design-no:screen-value))
-     then do:
-        message "Invalid Box Design Number. Try help." view-as alert-box.
-        apply "entry" to style.design-no .
-        return no-apply.
-     end.                  
+     THEN DO:
+        MESSAGE "Invalid Box Design Number. Try help." VIEW-AS ALERT-BOX.
+        APPLY "entry" TO style.design-no .
+        RETURN NO-APPLY.
+     END.                  
      /* style.material validation */
      ls-m-value = "".   
-     do i = 1 to 7:
-        case i:
-           when 1 then ls-m-value = style.material[1]:screen-value.
-           when 2 then ls-m-value = style.material[2]:screen-value.
-           when 3 then next.
-           when 4 then ls-m-value = style.material[4]:screen-value.
-           when 5 then ls-m-value = style.material[5]:screen-value.
-           when 6 then ls-m-value = style.material[6]:screen-value.
-           when 7 then ls-m-value = style.material[7]:screen-value.           
-        end case.
+     DO i = 1 TO 7:
+        CASE i:
+           WHEN 1 THEN ls-m-value = style.material[1]:screen-value.
+           WHEN 2 THEN ls-m-value = style.material[2]:screen-value.
+           WHEN 3 THEN NEXT.
+           WHEN 4 THEN ls-m-value = style.material[4]:screen-value.
+           WHEN 5 THEN ls-m-value = style.material[5]:screen-value.
+           WHEN 6 THEN ls-m-value = style.material[6]:screen-value.
+           WHEN 7 THEN ls-m-value = style.material[7]:screen-value.           
+        END CASE.
 
-        if not can-find(first item where item.company = style.company and 
+        IF NOT CAN-FIND(FIRST item WHERE item.company = style.company AND 
                  /* item.industry = style.industry and */
                   item.i-no = ls-m-value )
-           and ls-m-value <> ""       
-        then do:
-          message "Invalid Material Code. Try help please." ls-m-value view-as alert-box.
-          case i:
-             when 1 then apply "entry" to style.material[1] in frame {&frame-name}.
-             when 2 then apply "entry" to style.material[2] in frame {&frame-name}.
-             when 4 then apply "entry" to style.material[4] in frame {&frame-name}.
-             when 5 then apply "entry" to style.material[5] in frame {&frame-name}.
-             when 6 then apply "entry" to style.material[6] in frame {&frame-name}.
-             when 7 then apply "entry" to style.material[7] in frame {&frame-name}.
-          end.
-          return no-apply.
-        end.
-    end.
+           AND ls-m-value <> ""       
+        THEN DO:
+          MESSAGE "Invalid Material Code. Try help please." ls-m-value VIEW-AS ALERT-BOX.
+          CASE i:
+             WHEN 1 THEN APPLY "entry" TO style.material[1] IN FRAME {&frame-name}.
+             WHEN 2 THEN APPLY "entry" TO style.material[2] IN FRAME {&frame-name}.
+             WHEN 4 THEN APPLY "entry" TO style.material[4] IN FRAME {&frame-name}.
+             WHEN 5 THEN APPLY "entry" TO style.material[5] IN FRAME {&frame-name}.
+             WHEN 6 THEN APPLY "entry" TO style.material[6] IN FRAME {&frame-name}.
+             WHEN 7 THEN APPLY "entry" TO style.material[7] IN FRAME {&frame-name}.
+          END.
+          RETURN NO-APPLY.
+        END.
+    END.
     /* style.m-code validation */
     ls-m-value = "".
-    do i = 1 to 7:
-       case i:
-          when 1 then ls-m-value = style.m-code[1]:screen-value.
-          when 2 then ls-m-value = style.m-code[2]:screen-value.
-          when 3 then ls-m-value = style.m-code[3]:screen-value.
-          when 4 then ls-m-value = style.m-code[4]:screen-value.
-          when 5 then ls-m-value = style.m-code[5]:screen-value.
-          when 6 then ls-m-value = style.m-code[6]:screen-value.
-          when 7 then ls-m-value = style.m-code[7]:screen-value.          
-       end case.
-       if ls-m-value <> "" and
-       not can-find(first mach where mach.company = style.company and 
+    DO i = 1 TO 7:
+       CASE i:
+          WHEN 1 THEN ls-m-value = style.m-code[1]:screen-value.
+          WHEN 2 THEN ls-m-value = style.m-code[2]:screen-value.
+          WHEN 3 THEN ls-m-value = style.m-code[3]:screen-value.
+          WHEN 4 THEN ls-m-value = style.m-code[4]:screen-value.
+          WHEN 5 THEN ls-m-value = style.m-code[5]:screen-value.
+          WHEN 6 THEN ls-m-value = style.m-code[6]:screen-value.
+          WHEN 7 THEN ls-m-value = style.m-code[7]:screen-value.          
+       END CASE.
+       IF ls-m-value <> "" AND
+       NOT CAN-FIND(FIRST mach WHERE mach.company = style.company AND 
                   mach.m-code= ls-m-value )
-       then do:
-           message "Invalid Machine Code. Try help please." view-as alert-box.
-           case i :
-              when 1 then apply "entry" to style.m-code[1].
-              when 2 then apply "entry" to style.m-code[2]. 
-              when 3 then apply "entry" to style.m-code[3]. 
-              when 4 then apply "entry" to style.m-code[4].
-              when 5 then apply "entry" to style.m-code[5].              
-              when 6 then apply "entry" to style.m-code[6].
-              when 7 then apply "entry" to style.m-code[7].
-           end case.
-           return no-apply.
-       end.
-    end.
-  end.   /* do with frame */
-
+       THEN DO:
+           MESSAGE "Invalid Machine Code. Try help please." VIEW-AS ALERT-BOX.
+           CASE i :
+              WHEN 1 THEN APPLY "entry" TO style.m-code[1].
+              WHEN 2 THEN APPLY "entry" TO style.m-code[2]. 
+              WHEN 3 THEN APPLY "entry" TO style.m-code[3]. 
+              WHEN 4 THEN APPLY "entry" TO style.m-code[4].
+              WHEN 5 THEN APPLY "entry" TO style.m-code[5].              
+              WHEN 6 THEN APPLY "entry" TO style.m-code[6].
+              WHEN 7 THEN APPLY "entry" TO style.m-code[7].
+           END CASE.
+           RETURN NO-APPLY.
+       END.
+    END.
+  END.   /* do with frame */
+   {&methods/lValidateError.i NO}
   /* end of validation */
   ll-new-record = adm-new-record.
 
@@ -1855,8 +1888,8 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   IF ll-new-record THEN RUN reset-browse (ROWID(style)).
 
-  disable ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
-          ld-tape-score with frame {&frame-name}.
+  DISABLE ld-joint-tab ld-blank-width ld-glue-in ld-glue-out ld-stitch-in ld-stitch-out
+          ld-tape-score WITH FRAME {&frame-name}.
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"record-target",OUTPUT char-hdl).
   DO i = 1 TO NUM-ENTRIES(char-hdl):

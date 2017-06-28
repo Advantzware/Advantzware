@@ -192,7 +192,7 @@ DO:
     run get-mail-recid in widget-handle(char-hdl) (output lv-mail-rec).
     run windows/mailadd.w (lv-mail-rec).
     run dispatch in widget-handle(char-hdl) ('open-query').
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:25 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -211,7 +211,7 @@ DO:
 
     run windows/maildel.w (lv-mail-rec).
     run dispatch in widget-handle(char-hdl) ('open-query').
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:25 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */

@@ -4,10 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:36 am */
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -27,7 +23,6 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE dataGridInclude dataGrid\addon\fg\b-phyi2.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -276,8 +271,6 @@ END.
 
 {src/adm/method/browser.i}
 
-{Advantzware/WinKit/dataGridProc.i}
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -356,7 +349,7 @@ and fg-rctd.rita-code = ""I"""
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -372,7 +365,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-
+   
    RUN new-state in phandle ('update-begin':U).
 END.
 
@@ -471,7 +464,7 @@ DO:
            lv-prev-job2 = fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}
            lv-job-no = fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
            lv-job-no2 = fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}.
-
+           
            RUN get-fg-bin-cost.      
            APPLY "entry" TO fg-rctd.loc.
            RETURN NO-APPLY.
@@ -850,7 +843,7 @@ DEF VAR lv-rowid AS ROWID NO-UNDO.
         FILL(" ",6 - LENGTH(TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) +
         TRIM(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
-
+    
     RUN windows/l-fgibn2.w (g_company, fg-rctd.i-no:screen-value in browse {&browse-name}, fg-rctd.job-no:screen-value in browse {&browse-name}, INT(fg-rctd.job-no2:screen-value in browse {&browse-name}), fg-rctd.loc:screen-value in browse {&browse-name}, fg-rctd.loc-bin:screen-value in browse {&browse-name}, fg-rctd.tag:screen-value in browse {&browse-name}, output lv-rowid).
     FIND fg-bin WHERE ROWID(fg-bin) EQ lv-rowid NO-LOCK NO-ERROR.
 
@@ -891,14 +884,14 @@ PROCEDURE get-def-values :
         and itemfg.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
       no-lock no-error.
   fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
-
+      
   IF adm-new-record THEN DO:
     find first fg-ctrl where fg-ctrl.company eq cocode no-lock no-error.
     assign
      /*fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(itemfg.case-count)*/
      fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}      = ""
      fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}  = "".
-
+       
      do:
       find first fg-bin
           where fg-bin.company eq cocode
@@ -918,13 +911,13 @@ PROCEDURE get-def-values :
           where cust.company eq cocode
             and cust.active  eq "X"
           no-lock no-error.
-
+                                
       if avail cust then do:
         find first shipto
             where shipto.company eq cocode
               and shipto.cust-no eq cust.cust-no  
             no-lock no-error.
-
+           
         if avail shipto then do:
           find first fg-bin
               where fg-bin.company eq cocode
@@ -939,7 +932,7 @@ PROCEDURE get-def-values :
         end.                                  
       end.
     end.    
-
+    
   END.
 
   if fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}  eq "" then do:
@@ -969,7 +962,7 @@ PROCEDURE get-def-values :
   ELSE if avail itemfg AND fg-rctd.loc:SCREEN-VALUE = "" THEN
     ASSIGN fg-rctd.loc:SCREEN-VALUE     = itemfg.def-loc
            fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin
-
+  
            /*fg-rctd.qty-case:SCREEN-VALUE = /*IF fg-rctd.po-no:SCREEN-VALUE = "" and
                                               fg-rctd.job-no:SCREEN-VALUE = "" 
                                            THEN   STRING(itemfg.case-count)
@@ -1017,7 +1010,7 @@ PROCEDURE get-fg-bin-cost :
                   AND fg-bin.loc-bin EQ fg-rctd.loc-bin:SCREEN-VALUE 
                   AND fg-bin.tag     EQ fg-rctd.tag:SCREEN-VALUE 
                   NO-LOCK NO-ERROR.
-
+                  
     END.
     IF AVAIL fg-bin THEN
       ASSIGN
@@ -1062,7 +1055,7 @@ PROCEDURE get-fg-bin-cost :
             and po-ordl.i-no      eq fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
             and po-ordl.item-type eq no
           no-lock no-error.
-
+          
       if avail po-ordl THEN DO:
         run sys/ref/convcuom.p(po-ordl.pr-uom, fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name}, 0,
                                po-ordl.s-len, po-ordl.s-wid, 0,
@@ -1070,14 +1063,14 @@ PROCEDURE get-fg-bin-cost :
 
         fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(v-cost).
       END.
-
+     
       else */
       if avail itemfg then
         assign
          fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.prod-uom
          fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(itemfg.total-std-cost).
     end.
-
+   
    IF NOT AVAIL job-hdr OR dec(fg-rctd.std-cost:SCREEN-VALUE) = 0 THEN DO:
       IF fg-rctd.job-no:SCREEN-VALUE <> ""  THEN
          FIND FIRST oe-ordl WHERE oe-ordl.company = g_company
@@ -1166,7 +1159,7 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
                        and po-ordl.job-no2 = integer(fg-rctd.job-no2:screen-value)
                        and po-ordl.item-type = no
                        no-lock no-error.
-
+  
   IF AVAIL po-ordl THEN DO:
     ASSIGN
      v-len = po-ordl.s-len
@@ -1208,17 +1201,17 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
                   WHERE oe-ord.company EQ job-hdr.company
                     AND oe-ord.ord-no  EQ job-hdr.ord-no
                   NO-ERROR.
-
+              
               v-rec-qty = (job-hdr.qty * (1 + (IF AVAIL oe-ordl THEN oe-ordl.over-pct ELSE
                                                IF AVAIL oe-ord  THEN oe-ord.over-pct  ELSE 0 / 100))).
-
+      
           END.
           IF v-rec-qty <  int(fg-rctd.t-qty:SCREEN-VALUE) AND NOT lv-overrun-checked THEN DO:
              MESSAGE "Receipt quantity exceeds job quantity." VIEW-AS ALERT-BOX Warning.
              /*RETURN ERROR.*/
              lv-overrun-checked = YES.
           END.
-
+          
        END.
   END.
   */
@@ -1354,7 +1347,7 @@ PROCEDURE local-create-record :
          lv-recid = recid(fg-rctd).
 
   disp fg-rctd.rct-date with browse {&browse-name}. 
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1433,7 +1426,6 @@ PROCEDURE local-initialize :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
-  RUN pDataGridInit. /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:36 am */
 
   /* Code placed here will execute AFTER standard behavior.    */
   IF ssfgretc-log EQ NO THEN
@@ -1539,11 +1531,11 @@ PROCEDURE post-record :
 
   /*RUN custom/d-msg.w ("Warning","","Are you ready to post FG Physical Count?","",2,"YES,NO", OUTPUT v-done).
   IF v-done >= 2 THEN RETURN.*/
-
+  
   /*RUN addon/fg/fgpstall.w (?,"C"). */
 
   RUN fg/fgpstall.w (?, "SETUP").
-
+  
   RUN dispatch ('open-query').
 
 END PROCEDURE.
@@ -1564,7 +1556,7 @@ PROCEDURE repo-query :
   RUN dispatch ('open-query').
 
   REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
-
+  
   RUN dispatch ('row-changed').
 
 END PROCEDURE.
@@ -1668,7 +1660,7 @@ DO WITH FRAME {&FRAME-NAME}:
        RETURN ERROR.
     END.
   END.
-
+      
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1733,7 +1725,7 @@ IF (NOT CAN-FIND(FIRST loadtag WHERE
    fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = "" THEN DO:
     /*MESSAGE "Invalid Tag#. Try help or Scan valid tag#..." VIEW-AS ALERT-BOX ERROR.*/
    RUN custom/d-msg.w ("Error","","","Invalid Tag#. Try help or Scan valid tag#...",1,"OK", OUTPUT v-out).
-
+     
    APPLY "entry" TO fg-rctd.tag IN BROWSE {&browse-name}.
    RETURN ERROR.
 END.
@@ -1776,7 +1768,7 @@ PROCEDURE validate-record :
         END.
      END.
   END.
-
+  
   IF NOT CAN-FIND(FIRST loc WHERE
      loc.company = g_company AND
      loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}) THEN
@@ -1785,7 +1777,7 @@ PROCEDURE validate-record :
         APPLY "entry" TO fg-rctd.loc.
         RETURN ERROR.
      END.
-
+  
   IF NOT CAN-FIND(FIRST fg-bin WHERE
      fg-bin.company = g_company AND
      fg-bin.i-no = "" AND

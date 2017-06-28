@@ -431,7 +431,8 @@ PROCEDURE build-table :
     /* gdm - 08260916 end */
   END.
   ELSE IF ip-job-no <> "" THEN FOR EACH job-hdr WHERE job-hdr.company = ip-company
-                                                  AND job-hdr.job-no = ip-job-no NO-LOCK:
+                                                  AND job-hdr.job-no = ip-job-no
+                                                  AND job-hdr.job-no2 = ip-job-no2 NO-LOCK:
        FIND FIRST itemfg WHERE itemfg.company = job-hdr.company
                            AND itemfg.i-no = job-hdr.i-no NO-LOCK NO-ERROR.
        CREATE tt-itg.
