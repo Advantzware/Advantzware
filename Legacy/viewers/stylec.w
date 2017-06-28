@@ -87,7 +87,7 @@ style.royalty style.dim-tk style.dim-pan5 style.dim-fit style.material[1] ~
 style.material[2] style.material[3] style.material[4] style.material[5] ~
 style.material[6] style.material[7] style.qty-per-set style.dim-df ~
 style.m-code[1] style.m-code[2] style.m-code[3] style.m-code[4] ~
-style.m-code[5] style.m-code[6] style.m-code[7] style.defaultPackCode 
+style.m-code[5] style.m-code[6] style.m-code[7] style.spare-char-5 
 &Scoped-define ENABLED-TABLES style
 &Scoped-define FIRST-ENABLED-TABLE style
 &Scoped-Define ENABLED-OBJECTS RECT-19 RECT-7 RECT-8 RECT-9 
@@ -99,7 +99,7 @@ style.qty-per-set style.dim-df style.m-code[1] style.m-code[2] ~
 style.m-code[3] style.m-code[4] style.m-code[5] style.m-code[6] ~
 style.m-code[7] style.m-dscr[1] style.m-dscr[2] style.m-dscr[3] ~
 style.m-dscr[4] style.m-dscr[5] style.m-dscr[6] style.m-dscr[7] ~
-style.defaultPackCode 
+style.spare-char-5 
 &Scoped-define DISPLAYED-TABLES style flute
 &Scoped-define FIRST-DISPLAYED-TABLE style
 &Scoped-define SECOND-DISPLAYED-TABLE flute
@@ -365,7 +365,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
           BGCOLOR 15 FONT 4
-     style.defaultPackCode AT ROW 11.95 COL 117 COLON-ALIGNED WIDGET-ID 6
+     style.spare-char-5 AT ROW 11.95 COL 117 COLON-ALIGNED WIDGET-ID 6
           VIEW-AS FILL-IN 
           SIZE 11.6 BY 1
      "DEFAULT MATERIAL CODES" VIEW-AS TEXT
@@ -701,7 +701,7 @@ DO:
                IF char-val NE "" AND FOCUS:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
                DO:
                    FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
-                   APPLY "value-changed" TO style.defaultPackCode.
+                   APPLY "value-changed" TO style.spare-char-5.
                END.
            END.        
    END CASE.
