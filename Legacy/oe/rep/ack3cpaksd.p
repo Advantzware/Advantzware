@@ -192,8 +192,7 @@ find first company where company.company eq cocode no-lock no-error.
           NO-LOCK NO-ERROR .
          IF AVAIL oe-rell THEN
           FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR .
-          ld-date = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE bf-oe-rel.rel-date.
-       MESSAGE "ld-date" STRING(ld-date) VIEW-AS ALERT-BOX ERROR.
+          ld-date = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE bf-oe-rel.rel-date.       
           find first shipto where shipto.company eq cocode
                                   and shipto.cust-no eq bf-oe-rel.cust-no
                                   and shipto.ship-id eq bf-oe-rel.ship-id
@@ -442,8 +441,7 @@ find first company where company.company eq cocode no-lock no-error.
           {oe/rel-stat.i lv-stat}
           IF AVAIL oe-rell THEN
           FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rell.r-no NO-LOCK NO-ERROR.
-          ld-date = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
-        MESSAGE "test" VIEW-AS ALERT-BOX ERROR.
+          ld-date = IF AVAIL oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.       
           /*put lcnt AT 46 SPACE(3) ld-date  oe-rel.qty  SKIP. */
           /*down with frame sched-rel. */
 
