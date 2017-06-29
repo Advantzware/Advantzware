@@ -279,6 +279,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
+  {methods/setButton.i Btn-Goto "Goto"}
 
   /************************ INTERNAL PROCEDURES ********************/
 

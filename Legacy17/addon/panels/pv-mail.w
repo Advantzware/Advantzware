@@ -200,6 +200,7 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+  {methods/setButton.i btn_mail "Mail?"}
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         

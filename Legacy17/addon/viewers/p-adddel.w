@@ -225,6 +225,8 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+  {methods/setButton.i btn-add "Add"}
+  {methods/setButton.i btn-delete "Delete"}
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
