@@ -657,9 +657,11 @@ DO:
              fg-rctd.tag:SCREEN-VALUE = ENTRY(1,char-val).
              /*  ===*/
              IF (lv-do-what <> "Delete" AND
-                CAN-FIND(FIRST b-fg-rctd WHERE b-fg-rctd.company = g_company AND
-                           b-fg-rctd.tag = SELF:SCREEN-VALUE
-                       AND RECID(b-fg-rctd) <> RECID(fg-rctd))) OR
+                CAN-FIND(FIRST b-fg-rctd 
+                           WHERE b-fg-rctd.company = g_company 
+                             AND b-fg-rctd.tag = SELF:SCREEN-VALUE
+                             AND b-fg-rctd.rita-code NE "P"
+                             AND RECID(b-fg-rctd) <> RECID(fg-rctd))) OR
                  (lv-do-what EQ "Delete" AND CAN-FIND(FIRST b-fg-rctd WHERE b-fg-rctd.company = g_company AND
                            b-fg-rctd.tag = SELF:SCREEN-VALUE
                        AND b-fg-rctd.rita-code <> "P"
@@ -3542,10 +3544,11 @@ PROCEDURE valid-tag# :
 
       IF lv-do-what NE "Delete" AND NOT ll-set-parts THEN
        DO:
-          IF (CAN-FIND(FIRST b-fg-rctd WHERE
-              b-fg-rctd.company     EQ cocode AND
-              b-fg-rctd.tag         EQ ip-focus:SCREEN-VALUE AND
-              RECID(b-fg-rctd)      NE RECID(fg-rctd)) OR
+          IF (CAN-FIND(FIRST b-fg-rctd 
+                 WHERE b-fg-rctd.company     EQ cocode 
+                   AND b-fg-rctd.rita-code   NE "P"
+                   AND b-fg-rctd.tag         EQ ip-focus:SCREEN-VALUE 
+                   AND RECID(b-fg-rctd)      NE RECID(fg-rctd)) OR
            CAN-FIND(FIRST b-fg-rdtlh
                     WHERE b-fg-rdtlh.company   EQ cocode
                       AND b-fg-rdtlh.tag       EQ ip-focus:SCREEN-VALUE
