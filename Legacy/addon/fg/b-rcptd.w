@@ -660,10 +660,11 @@ DO:
               fg-rctd.tag:SCREEN-VALUE = ENTRY(1,char-val).
               /*  ===*/
               IF CAN-FIND(FIRST b-fg-rctd 
-                          WHERE b-fg-rctd.company = cocode 
-                            AND b-fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE
-                            AND ((lv-do-what = "delete" 
-                            AND b-fg-rctd.rita-code <> "P") OR lv-do-what <> "delete" )
+                          WHERE b-fg-rctd.company   EQ cocode 
+                            AND b-fg-rctd.tag       EQ fg-rctd.tag:SCREEN-VALUE
+                            AND b-fg-rctd.rita-code NE "P"
+                            AND ((lv-do-what        EQ "delete" 
+                            AND b-fg-rctd.rita-code NE "P") OR lv-do-what <> "delete" )
                             AND RECID(b-fg-rctd) <> RECID(fg-rctd)) THEN DO:
                  MESSAGE "This Tag Number Has Already Been Used." SKIP
                          "Please Enter A Unique Tag Number."    
@@ -3532,10 +3533,11 @@ PROCEDURE valid-tag :
        
          IF lv-do-what NE "Delete" AND NOT ll-set-parts THEN
          DO:
-            IF (CAN-FIND(FIRST b-fg-rctd WHERE
-                b-fg-rctd.company     EQ cocode AND
-                b-fg-rctd.tag         EQ ip-focus:SCREEN-VALUE AND
-                RECID(b-fg-rctd)      NE RECID(fg-rctd)) OR
+            IF (CAN-FIND(FIRST b-fg-rctd 
+                           WHERE b-fg-rctd.company     EQ cocode 
+                             AND b-fg-rctd.tag         EQ ip-focus:SCREEN-VALUE 
+                             AND b-fg-rctd.rita-code   NE "P"
+                             AND RECID(b-fg-rctd)      NE RECID(fg-rctd)) OR
              CAN-FIND(FIRST b-fg-rdtlh
                       WHERE b-fg-rdtlh.company   EQ cocode
                         AND b-fg-rdtlh.tag       EQ ip-focus:SCREEN-VALUE
