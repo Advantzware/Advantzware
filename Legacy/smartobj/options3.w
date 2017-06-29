@@ -98,10 +98,10 @@ DEFINE BUTTON Select_help
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
 DEFINE BUTTON UDF 
-     IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Home" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Home Key".
+     LABEL "UDF" 
+     SIZE 7.8 BY 1.81 TOOLTIP "UDF Viewer".
 
 DEFINE BUTTON Select_spec 
      IMAGE-UP FILE "Graphics/32x32/book_open.ico":U
@@ -120,7 +120,8 @@ DEFINE FRAME F-Main
      Select_frac AT ROW 1 COL 57
      Select_appl AT ROW 1 COL 33
      Select_help AT ROW 1 COL 41
-     UDF AT ROW 1 COL 49
+     UDF AT ROW 1 COL 49 HELP
+          "Access UDF Viewer"
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
