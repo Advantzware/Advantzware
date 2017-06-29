@@ -197,7 +197,7 @@ DEFINE TEMP-TABLE references  /* excel row 337 */
        FIELD Partner AS CHARACTER SERIALIZE-HIDDEN
        FIELD seq AS INTEGER SERIALIZE-HIDDEN
        FIELD ReferenceQual AS CHAR INIT "MR"
-       FIELD ReferenceId AS CHARACTER INIT "R1"
+       FIELD ReferenceID AS CHARACTER INIT "R1"
        .
 
 DEFINE TEMP-TABLE QuantityTotals  /* excel row 436 */
@@ -240,7 +240,7 @@ DEFINE TEMP-TABLE LineItemReferences XML-NODE-NAME "References"  /* excel row 65
      FIELD seq AS INTEGER SERIALIZE-HIDDEN
      FIELD item-no AS CHARACTER SERIALIZE-HIDDEN
      FIELD ReferenceQual AS CHARACTER INIT "DRRN"
-     FIELD ReferenceId AS CHAR
+     FIELD ReferenceID AS CHAR
      .
           
 DEFINE TEMP-TABLE Notes   /* excel row 666 */
@@ -489,21 +489,21 @@ PROCEDURE OrderHeaderAfterRowFill:
   ASSIGN References.Partner = OrderHeader.Partner
          References.seq = OrderHeader.seq
          References.ReferenceQual = "MR"
-         References.ReferenceId = "Merchandise Type Code"
+         References.ReferenceID = "Merchandise Type Code"
          .
          
   CREATE References.
   ASSIGN References.Partner = OrderHeader.Partner
          References.seq = OrderHeader.seq
          References.ReferenceQual = "19"
-         References.ReferenceId = "Division-19"       
+         References.ReferenceID = "Division-19"       
          .
          
   CREATE References.
   ASSIGN References.Partner = OrderHeader.Partner
          References.seq = OrderHeader.seq
          References.ReferenceQual = "TPP"
-         References.ReferenceId = "Third Party Payment"       
+         References.ReferenceID = "Third Party Payment"       
          .       
   
   CREATE QuantityTotals.
@@ -565,7 +565,7 @@ PROCEDURE OrderLineAfterRowFill:
    CREATE LineItemReferences.
    ASSIGN LineItemReferences.Partner =  phDataSet:get-buffer-handle("OrderAck"):buffer-field("Partner"):buffer-value
          LineItemReferences.item-no = OrderLine.item-no
-         LineItemReferences.ReferenceId = "R-" + OrderLine.item-no 
+         LineItemReferences.ReferenceID = "R-" + OrderLine.item-no 
          .
   END.
   IF orderline.item-no <> "" AND
