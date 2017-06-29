@@ -770,6 +770,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   lv-cancel = NO.
+  adm-adding-record = NO .
 
   FIND CURRENT ap-inv NO-ERROR.
   IF AVAIL ap-inv THEN ap-inv.ex-rate = lv-prev-exrate.
