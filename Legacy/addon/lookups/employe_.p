@@ -1,6 +1,6 @@
 /* employe_.p - Generated 07/31/2000 -  4:25 pm by NoSweat
 "employe_. " ~
-"EMPTRACK " ~
+"ASI " ~
 "employee " ~
 "employee.company = gcompany " ~
 "last_name " ~
@@ -18,7 +18,7 @@
 "employee. " ~
 */
 
-&Scoped-define lookup-db 
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file employee
 &Scoped-define where-statement employee.company = gcompany
 &Scoped-define return-field last_name
