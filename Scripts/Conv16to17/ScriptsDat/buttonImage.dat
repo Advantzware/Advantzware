@@ -1,0 +1,25 @@
+// tab delimited format: Label<tab>Image --- do not delete this line
+Add	document_empty
+Cancel	error
+Close	door_exit
+Copy	copy
+Delete	delete
+Done	door_exit
+Down	nav_down
+First	navigate_beginning
+Goto	queue
+Last	navigate_end
+Left	navigate_left
+Print	printer
+Mail?	mail
+No Note	sign_forbidden
+No UDF	sign_forbidden
+Note	edit
+OK	checkbox
+Reset	undo_32
+Right	navigate_right
+Save	floppy_disk
+Start	checkbox
+Up	nav_up
+UDF	window_dialog
+Update	pencil
