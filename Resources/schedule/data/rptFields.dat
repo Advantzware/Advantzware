@@ -136,7 +136,7 @@
 "ASI" "Created" "userField89" "XXXXXXXXXX" no "job"
 "ASI" "DC Prod Qty" "userField90" "XXXXXXXXXXXXX" no "DC"
 "ASI" "First Release" "userField91" "XXXXXXXXXX" no "oe-rel"
-"ASI" "CSR Name" "userField92" "XXXXXXXXXXXXXXXXXXXX" no "cust"
+"ASI" "EmpAlert CSR" "userField92" "XXXXXXXXXXXXXXXXXXXX" no "cust"
 "Demo/Jobs" "User Field" "userField01" "XXXXXXXX" yes ""
 "Demo/Service" "User Field" "userField01" "XXXXXXXX" yes ""
 "MXP/SO" "Item" "userField01" "XXXXXXXXXXXXXXXXXXXXXXXX" no ""

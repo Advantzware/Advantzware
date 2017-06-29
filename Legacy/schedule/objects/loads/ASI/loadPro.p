@@ -366,6 +366,28 @@ FUNCTION getLiveUpdate RETURNS LOGICAL
   ELSE RETURN YES.
 END FUNCTION.
 
+FUNCTION getEmpAlert RETURNS CHARACTER
+        (ipRecKey AS CHARACTER):
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    
+    FIND FIRST empalert NO-LOCK 
+         WHERE empalert.table_rec_key EQ ipRecKey
+           AND empalert.spare-char-1  EQ "yes"
+         NO-ERROR.
+    IF NOT AVAILABLE empalert THEN 
+    FIND FIRST empalert NO-LOCK 
+         WHERE empalert.table_rec_key EQ ipRecKey
+         NO-ERROR.
+    IF AVAILABLE empalert THEN DO:
+        FIND FIRST users NO-LOCK 
+             WHERE users.user_id EQ empalert.user-id
+             NO-ERROR.
+        IF AVAILABLE users THEN 
+        cReturn = users.user_name.
+    END.    
+    RETURN cReturn.
+END FUNCTION.
+
 FUNCTION getSalesRep RETURNS CHARACTER
         (ipCompany AS CHARACTER,ipSalesRep AS CHARACTER):
   IF NOT ufGetSalesRep THEN RETURN ''.
@@ -894,7 +916,7 @@ FOR EACH job-hdr NO-LOCK
         custNo = cust.cust-no
         custName = cust.name
         salesRep = cust.sman
-        userField[92] = setUserField(92,getSalesRep(job-hdr.company,cust.sman))
+        userField[92] = setUserField(92,getEmpAlert(cust.rec_key))
         .
     END. /* if ufcust */
     
@@ -1805,7 +1827,7 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[89] = 'Created'         userWidth[89] = 15
     userLabel[90] = 'DC Prod Qty'     userWidth[90] = 12
     userLabel[91] = 'First Release'   userWidth[91] = 15
-    userLabel[92] = 'CSR Name'        userWidth[92] = 30
+    userLabel[92] = 'EmpAlert CSR'    userWidth[92] = 30
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */

@@ -12,9 +12,9 @@
 
  History:
 
- r4.001 (updated 6.1.2017)
+ r4.001 (updated 6.28.2017)
  * prevent duplicate status checkoff
- * added field "csr name"
+ * added field "empalert csr"
  * apply lag time to resource jobs
  * add additional receipted material types
  * ability to clear all or completed only checkoffs
