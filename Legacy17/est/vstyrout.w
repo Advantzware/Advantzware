@@ -1953,9 +1953,10 @@ PROCEDURE validate-routing :
                     and routing.r-code = ip-r-code)
     then do:
               return error.
-    end.                 
+    end.
+    {methods/lValidateError.i NO}                 
     return. 
-  {methods/lValidateError.i NO}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

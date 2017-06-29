@@ -18,7 +18,7 @@
 " " ~
 */
 
-&Scoped-define lookup-db 
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file shifts
 &Scoped-define where-statement shifts.company EQ gcompany
 &Scoped-define return-field shift

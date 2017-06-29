@@ -961,6 +961,8 @@ do with frame {&frame-name}:
      return no-apply.
   end.
 end.
+{&methods/lValidateError.i NO}
+
 /* ======== not working input ================
   do i = 1 to 10 with frame {&frame-name}:  
      if input routing.m-code[i] <> "" then do:        
@@ -984,9 +986,8 @@ end.
         end.            
      end.   
   end.
-  {&methods/lValidateError.i NO}
  ============================*/
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1078,8 +1079,8 @@ PROCEDURE validate-machine :
   then do:
      return error.
   end.            
-  return.
   {methods/lValidateError.i NO}
+  return.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
