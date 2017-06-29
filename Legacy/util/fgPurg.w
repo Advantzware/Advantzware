@@ -334,10 +334,11 @@ ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 
 
         RUN run-report. 
-
+        
         IF VALID-HANDLE(hStatus) THEN
             DELETE OBJECT hStatus.
-
+        MESSAGE "Please post physical count records that were created."
+        VIEW-AS ALERT-BOX.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -478,6 +479,26 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE numDel C-Win 
+PROCEDURE numDel :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      Parameters:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER ipcTable AS CHAR NO-UNDO.
+    DEF INPUT PARAMETER ipiCnt AS INT NO-UNDO.
+    RUN LockWindowUpdate(INPUT CURRENT-WINDOW:HWND). 
+    IF VALID-HANDLE(hStatus) THEN
+        RUN process-message IN hStatus (INPUT ipcTable + ": " + STRING(ipiCnt)).
+    RUN LockWindowUpdate(INPUT 0).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE show-param C-Win 
 PROCEDURE show-param :

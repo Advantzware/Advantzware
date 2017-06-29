@@ -28,7 +28,8 @@ DEFINE VARIABLE fi_days-old AS INTEGER.
 DEFINE VARIABLE v-custown   AS LOG.
 DEFINE VARIABLE cFileExt    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cLogDir     AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+DEFINE VARIABLE jCnt AS INTEGER NO-UNDO.
 DEFINE VARIABLE lv-rno      AS INTEGER.  
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -117,7 +118,14 @@ FOR EACH itemfg NO-LOCK
         FOR EACH fg-rcpth EXCLUSIVE-LOCK WHERE fg-rcpth.company EQ tt-fg-bin.compan
             AND fg-rcpth.i-no EQ tt-fg-bin.i-no
             AND  fg-rcpth.trans-date LT dtCutOff:
-                
+            iCnt = iCnt + 1. 
+            IF iCnt GT 999 THEN 
+            DO:  
+                iCnt = 0. 
+                PROCESS EVENTS. 
+                jCnt = jCnt + 1000. 
+                PUBLISH "NUMDEL" (fg-rcpth.i-no, jCnt). 
+            END.                 
             FOR EACH fg-rdtlh EXCLUSIVE-LOCK WHERE fg-rdtlh.r-no EQ fg-rcpth.r-no:
                 EXPORT STREAM sFg-rdtlh fg-rdtlh.
                 DELETE fg-rdtlh.
