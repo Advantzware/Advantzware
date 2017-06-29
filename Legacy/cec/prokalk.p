@@ -113,7 +113,7 @@ r-spo[1] = cumul - (spo + hld-shqty * dOutDivisor).
 
 IF r-spo[1] LT 0 THEN r-spo[1] = 0.
 
-spo = cumul - (hld-shqty + r-spo[1]).
+spo = cumul - (hld-shqty * dOutDivisor + r-spo[1]).
 
 IF spo LT 0 THEN spo = 0.
 
