@@ -353,8 +353,8 @@ PROCEDURE New_Record :
 
     RUN dispatch ('open-query').
 
-    REPOSITION {&QUERY-NAME} TO ROWID iprRowID NO-ERROR.
-    RUN dispatch ('row-changed').
+/*    REPOSITION {&QUERY-NAME} TO ROWID iprRowID NO-ERROR.*/
+/*    RUN dispatch ('row-changed').                       */
 
 END PROCEDURE.
 
@@ -372,8 +372,8 @@ PROCEDURE New_Record-User :
 
     RUN dispatch ('open-query').
 
-    REPOSITION {&QUERY-NAME} TO ROWID iprRowID NO-ERROR.
-    RUN dispatch ('row-changed').
+/*    REPOSITION {&QUERY-NAME} TO ROWID iprRowID NO-ERROR.*/
+/*    RUN dispatch ('row-changed').                       */
     
 END PROCEDURE.
 
