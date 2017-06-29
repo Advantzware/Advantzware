@@ -195,7 +195,7 @@ DEFINE RECTANGLE RECT-7
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 40 BY 8.81.
+     SIZE 40 BY 9.29.
 
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -289,7 +289,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
           BGCOLOR 15 FONT 4
-     style.dim-df AT ROW 12.24 COL 62 COLON-ALIGNED HELP
+     style.dim-df AT ROW 12.43 COL 62 COLON-ALIGNED HELP
           "" WIDGET-ID 4
           LABEL "# Slots" FORMAT ">9"
           VIEW-AS FILL-IN 
@@ -365,9 +365,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
           BGCOLOR 15 FONT 4
-     style.spare-char-5 AT ROW 11.95 COL 117 COLON-ALIGNED WIDGET-ID 6
+     style.spare-char-5 AT ROW 11.24 COL 62 COLON-ALIGNED WIDGET-ID 6
+          LABEL "Packing Code"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 14 BY 1
+          BGCOLOR 15 
      "DEFAULT MATERIAL CODES" VIEW-AS TEXT
           SIZE 35 BY .62 AT ROW 2.91 COL 47
           FGCOLOR 9 
@@ -511,6 +513,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN style.qty-per-set IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN style.royalty IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN style.spare-char-5 IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN style.style IN FRAME F-Main
    NO-ENABLE 1                                                          */
@@ -695,9 +699,9 @@ DO:
 
                 END CASE.
         END.  /* m-code */
-        WHEN "defaultPackCode" THEN 
+        WHEN "spare-char-5" THEN /*Pack Code*/
            DO:
-               RUN windows/l-item.w (style.company, "", "C", FOCUS:SCREEN-VALUE, OUTPUT char-val).
+               RUN windows/l-item.w (style.company, "2", "C", FOCUS:SCREEN-VALUE, OUTPUT char-val).
                IF char-val NE "" AND FOCUS:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
                DO:
                    FOCUS:SCREEN-VALUE = ENTRY(1,char-val).

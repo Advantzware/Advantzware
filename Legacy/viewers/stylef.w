@@ -156,7 +156,7 @@ DEFINE RECTANGLE RECT-7
 
 DEFINE RECTANGLE RECT-8
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 31 BY 8.81.
+     SIZE 31 BY 9.76.
 
 DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -493,11 +493,19 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
           BGCOLOR 15 FONT 4
-     style.spare-char-5 AT ROW 17.91 COL 30 COLON-ALIGNED WIDGET-ID 2
+     style.spare-char-5 AT ROW 11 COL 66 COLON-ALIGNED WIDGET-ID 2
+          LABEL "Pack Code"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
+          SIZE 14 BY 1
+          BGCOLOR 15 
      "DEFAULT DEMENSIONS" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 2.43 COL 15
+          FGCOLOR 9 
+     "DIE && RULE FORMULAS" VIEW-AS TEXT
+          SIZE 29 BY .62 AT ROW 2.43 COL 104
+          FGCOLOR 9 
+     "LAYOUT FORMULAS" VIEW-AS TEXT
+          SIZE 25 BY .62 AT ROW 7.24 COL 103.4
           FGCOLOR 9 
      "DEFAULT MACHINE ROUTING" VIEW-AS TEXT
           SIZE 39 BY .62 AT ROW 9.91 COL 9.2
@@ -533,12 +541,6 @@ DEFINE FRAME F-Main
           SIZE 3 BY .62 AT ROW 15.91 COL 130
      "10" VIEW-AS TEXT
           SIZE 3 BY .62 AT ROW 15.91 COL 126
-     "DIE && RULE FORMULAS" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 2.43 COL 104
-          FGCOLOR 9 
-     "LAYOUT FORMULAS" VIEW-AS TEXT
-          SIZE 25 BY .62 AT ROW 7.24 COL 103.4
-          FGCOLOR 9 
      RECT-1 AT ROW 1.1 COL 2
      RECT-10 AT ROW 7.38 COL 85
      RECT-11 AT ROW 2.67 COL 85
@@ -676,6 +678,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN style.material[7] IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN style.qty-per-set IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN style.spare-char-5 IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN style.style IN FRAME F-Main
    NO-ENABLE 1                                                          */
@@ -955,9 +959,9 @@ DO:
                 END CASE.
         END.  /* m-code */
 
-       WHEN "defaultPackCode" THEN 
+       WHEN "spare-char-5" THEN /*Pack Code*/
            DO:
-               RUN windows/l-item.w (style.company, "", "C", FOCUS:SCREEN-VALUE, OUTPUT char-val).
+               RUN windows/l-item.w (style.company, "1", "C", FOCUS:SCREEN-VALUE, OUTPUT char-val).
                IF char-val NE "" AND FOCUS:SCREEN-VALUE NE ENTRY(1,char-val) THEN 
                DO:
                    FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
