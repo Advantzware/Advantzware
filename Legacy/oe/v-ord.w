@@ -4794,16 +4794,28 @@ DEFINE VARIABLE v-continue        AS LOGICAL          NO-UNDO.
 DEFINE VARIABLE v-blank-fg-on-est AS INTEGER          NO-UNDO.
 DEFINE VARIABLE char-hdl          AS cha              NO-UNDO.
 DEFINE VARIABLE loop-limit        AS INTEGER          NO-UNDO.
+DEFINE VARIABLE cEstNO            AS CHARACTER        NO-UNDO.
 
 DEF VAR orig-ord LIKE oe-ord.ord-no.
 DEF VAR v-deleted AS LOG NO-UNDO.
 DEF VAR ll-ans AS LOG NO-UNDO.
 DEF BUFFER bf-oe-ord FOR oe-ord.
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+DEFINE BUFFER bf-eb FOR eb .
 /* Code placed here will execute PRIOR to standard behavior. */
     RUN pre-del-validate.
 
     IF RETURN-VALUE EQ "ERROR" OR RETURN-VALUE EQ "ADM-ERROR" THEN
         RETURN NO-APPLY.
+    
+    IF AVAIL oe-ord THEN 
+        FOR EACH bf-eb NO-LOCK
+           WHERE bf-eb.company EQ cocode
+             AND bf-eb.ord-no  EQ oe-ord.ord-no 
+        USE-INDEX ord-no:
+        cEstNO = bf-eb.est-no .
+        LEAVE.
+    END.
 
     FOR EACH oe-ordl OF oe-ord NO-LOCK:
 
@@ -4883,6 +4895,27 @@ DEF BUFFER bf-oe-ord FOR oe-ord.
       bf-oe-ord.deleted = v-deleted.
       FIND CURRENT bf-oe-ord NO-LOCK.
     END.
+
+    /* assign last order to eb */
+    FOR EACH bf-eb EXCLUSIVE-LOCK
+        WHERE bf-eb.company EQ cocode
+          AND bf-eb.est-no  EQ cEstNO
+        USE-INDEX ord-no:
+
+        FOR EACH  bf-oe-ord NO-LOCK
+            WHERE bf-oe-ord.company EQ cocode ,
+             EACH bf-oe-ordl NO-LOCK 
+            WHERE bf-oe-ordl.company EQ cocode
+              AND bf-oe-ordl.ord-no  EQ bf-oe-ord.ord-no
+              AND bf-oe-ordl.est-no  EQ bf-eb.est-no
+              AND bf-oe-ordl.est-no NE "" 
+            BREAK BY bf-oe-ord.ord-date DESC:
+            bf-eb.ord-no = bf-oe-ordl.ord-no .
+            LEAVE .
+        END.
+    END.  /* for each eb*/
+    RELEASE bf-eb .
+    RELEASE bf-oe-ord .
 
     /* RELEASE oe-ord. */
     RELEASE itemfg.
