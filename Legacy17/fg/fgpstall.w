@@ -1085,8 +1085,10 @@ IF ip-run-what EQ "" THEN DO:
 
   /* The CLOSE event can be used from inside or outside the procedure to  */
   /* terminate it.                                                        */
-  ON CLOSE OF THIS-PROCEDURE 
+  ON CLOSE OF THIS-PROCEDURE DO: 
      RUN disable_UI.
+     {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
+  END.
 
   /* Best default for GUI applications is...                              */
   PAUSE 0 BEFORE-HIDE.

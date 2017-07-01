@@ -161,6 +161,8 @@ viewers\p-calcc.w
 viewers\runbtn.w
 addon\loadtags\vp-print.w
 addon\rfq\v-set.w
+addon\fg\v-post.w
+addon\fg\v-postct.w
 addon\rm\v-post.w
 addon\viewers\empinout.w
 addon\viewers\lunch.w

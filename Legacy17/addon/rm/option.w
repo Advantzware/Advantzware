@@ -29,8 +29,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-
 {methods/defines/hndldefs.i}
+DEFINE VARIABLE hProgram AS HANDLE NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -214,7 +214,8 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Adjust-3 s-object
 ON CHOOSE OF Btn_Adjust-3 IN FRAME F-Main /* Count Materials */
 DO:
-  RUN addon/rm/w-phycnt.w.
+  RUN addon/rm/w-phycnt.w PERSISTENT SET hProgram.
+  RUN dispatch IN hProgram ("initialize").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -236,7 +237,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Delete s-object
 ON CHOOSE OF Btn_Delete IN FRAME F-Main /* Delete Materials */
 DO:
-  RUN addon/rm/w-rcpt.w ('Delete').
+  RUN addon/rm/w-rcpt.w PERSISTENT SET hProgram ('Delete').
+  RUN dispatch IN hProgram ("initialize").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -247,7 +249,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Issues s-object
 ON CHOOSE OF Btn_Issues IN FRAME F-Main /* Issue Materials */
 DO:
-  RUN addon/rm/w-issue.w.
+  RUN addon/rm/w-issue.w PERSISTENT SET hProgram.
+  RUN dispatch IN hProgram ("initialize").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -258,7 +261,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_jobreturns s-object
 ON CHOOSE OF Btn_jobreturns IN FRAME F-Main /* Job Returns */
 DO:
-  RUN addon/rm/w-jobret.w.
+  RUN addon/rm/w-jobret.w PERSISTENT SET hProgram.
+  RUN dispatch IN hProgram ("initialize").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -269,7 +273,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Move s-object
 ON CHOOSE OF Btn_Move IN FRAME F-Main /* Move Materials */
 DO:
-  RUN rm/rm-ucpt.w.
+  RUN addon/rm/rm-ucpt.w PERSISTENT SET hProgram.
+  RUN dispatch IN hProgram ("initialize").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -280,7 +285,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Post s-object
 ON CHOOSE OF Btn_Post IN FRAME F-Main /* Post Materials */
 DO:
-    RUN rm/r-rmte&p.w.
+    RUN rm/r-rmte&p.w PERSISTENT SET hProgram.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -291,7 +296,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Rcpt s-object
 ON CHOOSE OF Btn_Rcpt IN FRAME F-Main /* Receive Materials */
 DO:
-  RUN addon/rm/w-rcpt.w ('Receipt').
+  RUN addon/rm/w-rcpt.w PERSISTENT SET hProgram ('Receipt').
+  RUN dispatch IN hProgram ("initialize").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -302,7 +308,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_scan-vend s-object
 ON CHOOSE OF Btn_scan-vend IN FRAME F-Main /* Scan Vendor Tag */
 DO:
-    RUN addon/rm/w-recven.w.
+    RUN addon/rm/w-recven.w PERSISTENT SET hProgram.
+    RUN dispatch IN hProgram ("initialize").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -313,7 +320,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Transfers s-object
 ON CHOOSE OF Btn_Transfers IN FRAME F-Main /* Transfer Materials */
 DO:
-  RUN addon/rm/w-trans.w. 
+  RUN addon/rm/w-trans.w PERSISTENT SET hProgram.
+  RUN dispatch IN hProgram ("initialize").
 END.
 
 /* _UIB-CODE-BLOCK-END */

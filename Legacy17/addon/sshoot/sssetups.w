@@ -216,7 +216,6 @@ DO:
    RUN /* addon/fg/fg-physi.w.  /* for window screen*/  */
        addon/fg/fg-phyi2.w PERSISTENT SET hProgram . /* pocket pc */  
    RUN dispatch IN hProgram ("initialize").
-   RUN dispatch IN hProgram ("view").
    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
 END.
 

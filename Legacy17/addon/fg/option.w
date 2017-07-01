@@ -210,11 +210,9 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Adjust-3 s-object
 ON CHOOSE OF Btn_Adjust-3 IN FRAME F-Main /* Count Goods */
 DO:
-  /*run /*rm/rmadjt.w.*/ rm/w-phys.w.*/
     IF g-sharpshooter THEN RUN addon/fg/fg-physs.w PERSISTENT SET hProgram.
     ELSE RUN addon/fg/fg-phys.w PERSISTENT SET hProgram.
    RUN dispatch IN hProgram ("initialize").
-   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -236,10 +234,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Consol s-object
 ON CHOOSE OF Btn_Consol IN FRAME F-Main /* Consolidate Tags */
 DO:
-  /* IF g-sharpshooter THEN RUN addon/fg/fg-conss.w.
-   ELSE */ RUN addon/fg/fg-cons.w PERSISTENT SET hProgram.
+   RUN addon/fg/fg-cons.w PERSISTENT SET hProgram.
    RUN dispatch IN hProgram ("initialize").
-   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -250,11 +246,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_delete s-object
 ON CHOOSE OF Btn_delete IN FRAME F-Main /* Delete Goods */
 DO:
-   /*run fg/fg-rcpt.w. */
    IF g-sharpshooter THEN RUN addon/fg/fg-rcpts.w PERSISTENT SET hProgram ("Delete").
    ELSE RUN addon/fg/fg-rcpt.w PERSISTENT SET hProgram ("Delete").
    RUN dispatch IN hProgram ("initialize").
-   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -280,7 +274,7 @@ RUN methods/prgsecur.p
      OUTPUT v-access-close, /* used in template/windows.i  */
      OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
     IF v-post-sec THEN
-      RUN fg/fgpstall.w (?, "").
+      RUN fg/fgpstall.w PERSISTENT (?, "").
     ELSE
       MESSAGE "Authorization required to post." VIEW-AS ALERT-BOX.
 END.
@@ -293,11 +287,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Rcpt s-object
 ON CHOOSE OF Btn_Rcpt IN FRAME F-Main /* Receive Goods */
 DO:
-   /*run fg/fg-rcpt.w. */
    IF g-sharpshooter THEN RUN addon/fg/fg-rcpts.w PERSISTENT SET hProgram ("Receipt").
    ELSE RUN addon/fg/fg-rcpt.w PERSISTENT SET hProgram ("Receipt").
    RUN dispatch IN hProgram ("initialize").
-   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -308,9 +300,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_return s-object
 ON CHOOSE OF Btn_return IN FRAME F-Main /* Return Goods */
 DO:
-   /*run fg/fg-rcpt.w. */
-   /*IF g-sharpshooter THEN RUN addon/fg/fg-rcpts.w ("Delete").
-   ELSE*/ RUN addon/sshoot/sssetups.w.
+   RUN addon/sshoot/sssetups.w.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -324,7 +314,6 @@ DO:
    IF g-sharpshooter THEN RUN addon/fg/fg-trnss.w PERSISTENT SET hProgram.
    ELSE RUN addon/fg/fg-trans.w PERSISTENT SET hProgram.
    RUN dispatch IN hProgram ("initialize").
-   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -335,11 +324,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_update s-object
 ON CHOOSE OF Btn_update IN FRAME F-Main /* Move Receipts */
 DO:
-   /*run fg/fg-rcpt.w. */
    IF g-sharpshooter THEN RUN addon/fg/fg-ucpts.w PERSISTENT SET hProgram.
    ELSE RUN addon/fg/fg-ucpt.w PERSISTENT SET hProgram.
    RUN dispatch IN hProgram ("initialize").
-   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
