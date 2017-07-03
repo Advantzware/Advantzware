@@ -1,5 +1,5 @@
 /*{rc/loginv.i}*/
-/*  RPro EDI Shared Variables */
+/*  EDI Shared Variables */
 def {1} shared var ws_company   like edco.company   no-undo label "Company".
 def {1} shared var ws_partner   like edmast.partner no-undo.
 def {1} shared var ws_docid     like eddoc.docid    no-undo
@@ -34,3 +34,5 @@ def {1} shared var ws_edi_path  like edco.path-in   no-undo label "EDI Path".
 
 /* 9704 CAH: If set true then 856 is generated simultaneous with invoice */
 def {1} shared var ws_856_from_invoice as logical no-undo initial false.
+def {1} shared var ws_process_rec  as recid no-undo.
+

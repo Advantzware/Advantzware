@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:26 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -295,39 +295,39 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.vend-whse-trans-hist"
+     _TblList          = "vend-whse-trans-hist"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   > EMPTRACK.vend-whse-trans-hist.r-no
+     _FldNameList[1]   > vend-whse-trans-hist.r-no
 "vend-whse-trans-hist.r-no" "Seq#" ? "integer" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[2]   > EMPTRACK.vend-whse-trans-hist.trans-type
+     _FldNameList[2]   > vend-whse-trans-hist.trans-type
 "vend-whse-trans-hist.trans-type" "Trans!Type" ? "character" ? ? ? 14 ? ? no ? no no "7.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > EMPTRACK.vend-whse-trans-hist.trans-date
+     _FldNameList[3]   > vend-whse-trans-hist.trans-date
 "vend-whse-trans-hist.trans-date" "Trans!Date" ? "date" ? ? ? 14 ? ? no ? no no "10.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > EMPTRACK.vend-whse-trans-hist.trans-qty
+     _FldNameList[4]   > vend-whse-trans-hist.trans-qty
 "vend-whse-trans-hist.trans-qty" "Trans!Quantity" ? "decimal" ? ? ? 14 ? ? no ? no no "11.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > EMPTRACK.vend-whse-trans-hist.item-po-no
+     _FldNameList[5]   > vend-whse-trans-hist.item-po-no
 "vend-whse-trans-hist.item-po-no" ? ? "character" ? ? ? 14 ? ? no ? no no "13" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > EMPTRACK.vend-whse-trans-hist.item-line-no
+     _FldNameList[6]   > vend-whse-trans-hist.item-line-no
 "vend-whse-trans-hist.item-line-no" ? ? "integer" ? ? ? 14 ? ? no ? no no "13.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > EMPTRACK.vend-whse-trans-hist.cust-part-no
+     _FldNameList[7]   > vend-whse-trans-hist.cust-part-no
 "vend-whse-trans-hist.cust-part-no" ? ? "character" ? ? ? 14 ? ? no ? no no "13.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[8]   > EMPTRACK.vend-whse-trans-hist.fg-item-no
+     _FldNameList[8]   > vend-whse-trans-hist.fg-item-no
 "vend-whse-trans-hist.fg-item-no" "Suppliers!FG Item" ? "character" ? ? ? 14 ? ? no ? no no "14" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > EMPTRACK.vend-whse-trans-hist.vendor-code
+     _FldNameList[9]   > vend-whse-trans-hist.vendor-code
 "vend-whse-trans-hist.vendor-code" "Custmers!A/P Code" ? "character" ? ? ? 14 ? ? no ? no no "12.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > EMPTRACK.vend-whse-trans-hist.vendor-plant-code
+     _FldNameList[10]   > vend-whse-trans-hist.vendor-plant-code
 "vend-whse-trans-hist.vendor-plant-code" ? ? "character" ? ? ? 14 ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[11]   > EMPTRACK.vend-whse-trans-hist.vendor-dept-code
+     _FldNameList[11]   > vend-whse-trans-hist.vendor-dept-code
 "vend-whse-trans-hist.vendor-dept-code" ? ? "character" ? ? ? 14 ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > EMPTRACK.vend-whse-trans-hist.vend-ord-no
+     _FldNameList[12]   > vend-whse-trans-hist.vend-ord-no
 "vend-whse-trans-hist.vend-ord-no" "Suppliers!Order#" ? "integer" ? ? ? 14 ? ? no ? no no "13.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[13]   > EMPTRACK.vend-whse-trans-hist.vend-job-no
+     _FldNameList[13]   > vend-whse-trans-hist.vend-job-no
 "vend-whse-trans-hist.vend-job-no" "Suppliers!Job#" ? "character" ? ? ? 14 ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[14]   = EMPTRACK.vend-whse-trans-hist.vend-job-no2
-     _FldNameList[15]   > EMPTRACK.vend-whse-trans-hist.sell-price
+     _FldNameList[14]   = vend-whse-trans-hist.vend-job-no2
+     _FldNameList[15]   > vend-whse-trans-hist.sell-price
 "vend-whse-trans-hist.sell-price" "Suppliers Item!Sell Price" ? "decimal" ? ? ? 14 ? ? no ? no no "20" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[16]   > EMPTRACK.vend-whse-trans-hist.plant-tot-oh-qty
+     _FldNameList[16]   > vend-whse-trans-hist.plant-tot-oh-qty
 "vend-whse-trans-hist.plant-tot-oh-qty" ? ? "decimal" ? ? ? 14 ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

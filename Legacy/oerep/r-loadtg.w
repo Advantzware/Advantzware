@@ -3784,12 +3784,16 @@ PROCEDURE create-text-file :
 
 
       output close.
-
-      /* Rename to expected file name / location */
       IF SEARCH(v-out) NE ? THEN
-        OS-DELETE VALUE(v-out).
-      /*IF cBarCodeProgram EQ ""  THEN*/
-      OS-RENAME VALUE(cTmpFile) VALUE(v-out).
+          OS-DELETE VALUE(v-out).
+      /* Rename to expected file name / location */
+      IF cBarCodeProgram EQ ""  THEN DO:
+          OS-RENAME VALUE(cTmpFile) VALUE(v-out).
+      END.
+      ELSE DO:
+        IF SEARCH(cTmpFile) NE ? THEN
+        OS-DELETE VALUE(cTmpFile).
+      END.
 
 
     end.    /* NOT TRIAD */
@@ -6993,12 +6997,12 @@ DEFINE VARIABLE cFax   AS CHARACTER NO-UNDO.
    
     IF tb_print-view THEN DO:
         IF NOT lBussFormModle THEN
-           PUT "<PREVIEW><MODAL=NO>" FORM "x(50)".
+           PUT "<PREVIEW><MODAL=NO></PROGRESS>" FORM "x(50)".
          ELSE
-           PUT "<PREVIEW>" FORM "x(30)".
+           PUT "<PREVIEW></PROGRESS>" FORM "x(50)".
     END.
     ELSE DO:
-       PUT "<PRINTER?><FORMAT=LEGAL>" FORM "x(30)".
+       PUT "<PRINTER?><FORMAT=LEGAL></PROGRESS>" FORM "x(50)".
     END.
 
     DO WITH FRAME {&FRAME-NAME}:

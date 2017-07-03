@@ -254,7 +254,7 @@ ON CHOOSE OF btReset IN FRAME F-Main /* Reset All */
 ON CHOOSE OF btSaveAll IN FRAME F-Main /* Save All */
     DO:
         RUN saveAll IN h_b-multiv.
-        btSaveAll:SENSITIVE = NO.
+        /* btSaveAll:SENSITIVE = NO. */
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -295,7 +295,7 @@ PROCEDURE adm-create-objects :
         WHEN 0 THEN 
             DO:
                 RUN init-object IN THIS-PROCEDURE (
-                    INPUT  'p:/asi10test/branch/develop/src/est/b-multiv.w':U ,
+                    INPUT  'est/b-multiv.w':U ,
                     INPUT  FRAME F-Main:HANDLE ,
                     INPUT  'Layout = ':U ,
                     OUTPUT h_b-multiv ).

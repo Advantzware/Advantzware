@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:36 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -39,7 +39,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-{custom/globdefs.i} /* added by script _globdefs.p on 04.18.2017 @ 11:35:37 am */
+{custom/globdefs.i} /* added by script _globdefs.p */
 
 DEFINE VARIABLE jobs_cadcam_status AS CHARACTER NO-UNDO.
 DEFINE VARIABLE jobs_scheduling_status AS CHARACTER NO-UNDO.
@@ -296,7 +296,7 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
-     _TblList          = "jobs.jobs"
+     _TblList          = "jobs"
      _Options          = "NO-LOCK"
      _TblOptList       = "USED"
      _Where[1]         = "((jobs.cadcam_status = ""Pending""

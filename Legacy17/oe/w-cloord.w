@@ -667,10 +667,7 @@ PROCEDURE select_att :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   /*RUN Get_Procedure IN Persistent-Handle ('attach.',OUTPUT run-proc,no).
-   IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .*/
-
-   RUN windows/ATTACH.w(rec_key_value,HEADER_value).
+    {methods/select_att.i}
 
 END PROCEDURE.
 

@@ -4,7 +4,7 @@ case browse-order:
        OPEN QUERY {&browse-name}   
          for EACH rfq WHERE rfq.company = g_company and 
                             rfq.loc = g_loc and rfq.rfq-no >= int(auto_find) NO-LOCK,
-             EACH rfqitem OF rfq.rfq WHERE rfqitem.seq < 999
+             EACH rfqitem OF rfq WHERE rfqitem.seq < 999
                   outer-join NO-LOCK by rfq.rfq-no DESC.
     
     END.
@@ -12,7 +12,7 @@ case browse-order:
        OPEN QUERY {&browse-name}   
          for EACH rfq WHERE rfq.company = g_company and 
                             rfq.loc = g_loc and rfq.cust-no begins auto_find NO-LOCK,
-             EACH rfqitem OF rfq.rfq WHERE rfqitem.seq < 999
+             EACH rfqitem OF rfq WHERE rfqitem.seq < 999
                   outer-join NO-LOCK by rfq.cust-no DESC.
 
     END.

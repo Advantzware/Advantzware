@@ -71,7 +71,7 @@ rfqitem.stock-no rfqitem.i-name rfqitem.part-no
 &Scoped-define FIELD-PAIRS-IN-QUERY-BROWSE-1
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH rfqitem WHERE ~{&KEY-PHRASE} ~
       AND recid(rfqitem) <> ip-cur-recid and ~
-rfq.rfqitem.company = ip-company  ~
+rfqitem.company = ip-company  ~
  NO-LOCK, ~
       EACH rfq OF rfqitem ~
       WHERE cust-no = ip-cust-no NO-LOCK ~
@@ -199,18 +199,18 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "rfq.rfqitem,rfq.rfq OF rfq.rfqitem"
+     _TblList          = "rfqitem,rfq OF rfqitem"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _Where[1]         = "recid(rfqitem) <> ip-cur-recid and
-rfq.rfqitem.company = ip-company 
+rfqitem.company = ip-company 
 "
      _Where[2]         = "rfq.cust-no = ip-cust-no"
-     _FldNameList[1]   = rfq.rfqitem.rfq-no
-     _FldNameList[2]   = rfq.rfq.cust-no
-     _FldNameList[3]   > rfq.rfqitem.stock-no
+     _FldNameList[1]   = rfqitem.rfq-no
+     _FldNameList[2]   = rfq.cust-no
+     _FldNameList[3]   > rfqitem.stock-no
 "rfqitem.stock-no" "FG Item#" ? "character" ? ? ? ? ? ? no ?
-     _FldNameList[4]   = rfq.rfqitem.i-name
-     _FldNameList[5]   > rfq.rfqitem.part-no
+     _FldNameList[4]   = rfqitem.i-name
+     _FldNameList[5]   > rfqitem.part-no
 "rfqitem.part-no" "Customer Part#" ? "character" ? ? ? ? ? ? no ?
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */

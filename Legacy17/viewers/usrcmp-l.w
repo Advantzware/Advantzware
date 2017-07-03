@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:55 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -242,7 +242,7 @@ END.
 ON LEAVE OF usercomp.loc IN FRAME F-Main /* Location */
 DO:
   IF LASTKEY = -1 THEN RETURN.
-
+  {&methods/lValidateError.i YES}
   {methods/run_link.i "RECORD-SOURCE" "Get-Values"
       "(OUTPUT op-user_id,OUTPUT op-company)"}
   IF NOT CAN-FIND(loc WHERE loc.company = op-company
@@ -253,7 +253,9 @@ DO:
     {&SELF-NAME}:SCREEN-VALUE = {&SELF-NAME}.
     RETURN NO-APPLY.
   END.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -357,6 +359,7 @@ PROCEDURE local-update-record :
  ASSIGN default-val = usercomp.loc_default .
   /* Code placed here will execute PRIOR to standard behavior. */
   {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT op-user_id,OUTPUT op-company)"}
+  {&methods/lValidateError.i YES}
   IF NOT CAN-FIND(loc WHERE loc.company = op-company
                         AND loc.loc = usercomp.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME} )
   THEN DO:
@@ -377,7 +380,7 @@ PROCEDURE local-update-record :
     APPLY "entry" TO usercomp.loc.
     RETURN NO-APPLY.
   END.
-
+  {&methods/lValidateError.i NO}
   IF usercomp.loc_default:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Yes" THEN DO:  /* task 07071403 */
       find first ce-ctrl where ce-ctrl.company = op-company and
                                   ce-ctrl.loc = usercomp.loc:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -390,12 +393,14 @@ PROCEDURE local-update-record :
          end.
   END.
 
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
  /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

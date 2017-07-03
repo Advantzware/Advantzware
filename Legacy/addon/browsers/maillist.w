@@ -249,22 +249,22 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.contact"
+     _TblList          = "contact"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   > EMPTRACK.contact.last-name
+     _FldNameList[1]   > contact.last-name
 "contact.last-name" ? "X(15)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[2]   > EMPTRACK.contact.first-name
+     _FldNameList[2]   > contact.first-name
 "contact.first-name" ? "X(15)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[3]   > EMPTRACK.contact.cust-no
+     _FldNameList[3]   > contact.cust-no
 "contact.cust-no" "Customer" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[4]   > EMPTRACK.contact.contact-title
+     _FldNameList[4]   > contact.contact-title
 "contact.contact-title" ? "X(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[5]   > EMPTRACK.contact.cust-name
+     _FldNameList[5]   > contact.cust-name
 "contact.cust-name" ? "X(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[6]   > EMPTRACK.contact.ship-id
+     _FldNameList[6]   > contact.ship-id
 "contact.ship-id" "Shipto" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[7]   > EMPTRACK.contact.maillist
+     _FldNameList[7]   > contact.maillist
 "contact.maillist" "Mail?" ? "logical" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" ""
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

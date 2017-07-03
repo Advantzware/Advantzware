@@ -69,7 +69,7 @@ DEF BUFFER mach-1 FOR mach.
 
 {est/d-sidsid.i}
 
-{sys/inc/cepanel.i}
+/*{sys/inc/cepanel.i} - Use of CEPANEL Character value deprecated with ticket 17756*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -104,7 +104,9 @@ mach.mr-fixoh mach.mr-trate mach.run-varoh mach.run-fixoh mach.run-trate ~
 mach.min-len mach.max-len mach.min-trimw mach.min-wid mach.max-wid ~
 mach.min-triml mach.min-cal mach.max-cal mach.min-pan-l mach.max-pan-l ~
 mach.min-pan-w mach.max-pan-w mach.min-dep mach.max-dep mach.min-run ~
-mach.max-run mach.tan-mrp mach.num-wid mach.num-len mach.spare-int-1 
+mach.max-run mach.tan-mrp mach.num-wid mach.num-len mach.spare-int-1 ~
+mach.max_hd_hd mach.max_pan_lw mach.max_slot_score mach.min_hd_hd ~
+mach.min_pan_lw mach.min_slot_score 
 &Scoped-define ENABLED-TABLES mach
 &Scoped-define FIRST-ENABLED-TABLE mach
 &Scoped-Define ENABLED-OBJECTS RECT-10 RECT-11 RECT-12 
@@ -120,7 +122,8 @@ mach.min-cal mach.max-cal mach.min-pan-l mach.max-pan-l mach.min-pan-w ~
 mach.max-pan-w mach.min-dep mach.max-dep mach.min-run mach.max-run ~
 mach.pr-type mach.washup mach.col-pass mach.max-color mach.coater ~
 mach.col-wastesh mach.ink-waste mach.col-wastelb mach.tan-mrp mach.tan-mrf ~
-mach.num-wid mach.num-len mach.spare-int-1 
+mach.num-wid mach.num-len mach.spare-int-1 mach.max_hd_hd mach.max_pan_lw ~
+mach.max_slot_score mach.min_hd_hd mach.min_pan_lw mach.min_slot_score 
 &Scoped-define DISPLAYED-TABLES mach
 &Scoped-define FIRST-DISPLAYED-TABLE mach
 &Scoped-Define DISPLAYED-OBJECTS cb_industry tb_plain-jobs tb_obsolete ~
@@ -183,11 +186,11 @@ DEFINE RECTANGLE RECT-10
 
 DEFINE RECTANGLE RECT-11
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 71 BY 8.33.
+     SIZE 71 BY 9.19.
 
 DEFINE RECTANGLE RECT-12
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 68 BY 7.14.
+     SIZE 70 BY 7.14.
 
 DEFINE VARIABLE tb_obsolete AS LOGICAL INITIAL no 
      LABEL "Obsolete?" 
@@ -333,58 +336,58 @@ DEFINE FRAME F-Main
           LABEL "Total" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     mach.min-len AT ROW 10.76 COL 22 COLON-ALIGNED
+     mach.min-len AT ROW 10.38 COL 22 COLON-ALIGNED
           LABEL "Front-To-Back"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     mach.max-len AT ROW 10.76 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>9.99999"
+          SIZE 14 BY .81
+     mach.max-len AT ROW 10.38 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>9.99999"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     mach.min-trimw AT ROW 10.76 COL 56 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY .81
+     mach.min-trimw AT ROW 10.38 COL 56 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 12.8 BY 1
-     mach.min-wid AT ROW 11.71 COL 22 COLON-ALIGNED
+          SIZE 12.8 BY .81
+     mach.min-wid AT ROW 11.19 COL 22 COLON-ALIGNED
           LABEL "Side-To-Side"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     mach.max-wid AT ROW 11.71 COL 40 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY .81
+     mach.max-wid AT ROW 11.19 COL 40 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     mach.min-triml AT ROW 11.71 COL 56 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY .81
+     mach.min-triml AT ROW 11.19 COL 56 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 12.8 BY 1
-     mach.min-cal AT ROW 12.67 COL 22 COLON-ALIGNED
+          SIZE 12.8 BY .81
+     mach.min-cal AT ROW 12 COL 22 COLON-ALIGNED
           LABEL "Caliper/Depth" FORMAT ">>9.99999"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     mach.max-cal AT ROW 12.67 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>9.99999"
+          SIZE 14 BY .81
+     mach.max-cal AT ROW 12 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>9.99999"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     mach.min-pan-l AT ROW 13.62 COL 22 COLON-ALIGNED
-          LABEL "Slot/Score Panel"
+          SIZE 14 BY .81
+     mach.min-pan-l AT ROW 12.81 COL 22 COLON-ALIGNED
+          LABEL "Box Length"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     mach.max-pan-l AT ROW 13.62 COL 40 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY .81
+     mach.max-pan-l AT ROW 12.81 COL 40 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     mach.min-pan-w AT ROW 14.57 COL 22 COLON-ALIGNED
-          LABEL "Panel (Hd-Hd)"
+          SIZE 14 BY .81
+     mach.min-pan-w AT ROW 13.62 COL 22 COLON-ALIGNED
+          LABEL "Box Width"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     mach.max-pan-w AT ROW 14.57 COL 40 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY .81
+     mach.max-pan-w AT ROW 13.62 COL 40 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     mach.min-dep AT ROW 15.52 COL 22 COLON-ALIGNED
+          SIZE 14 BY .81
+     mach.min-dep AT ROW 16.86 COL 22 COLON-ALIGNED
           LABEL "Slot Size"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     mach.max-dep AT ROW 15.52 COL 40 COLON-ALIGNED NO-LABEL
+          SIZE 14 BY .81
+     mach.max-dep AT ROW 16.86 COL 40 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-     mach.min-run AT ROW 16.48 COL 22 COLON-ALIGNED
-          LABEL "Run Qty"
+          SIZE 14 BY .81
+     mach.min-run AT ROW 17.67 COL 22 COLON-ALIGNED
+          LABEL "Run Qty" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 14 BY .81
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -392,9 +395,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
-     mach.max-run AT ROW 16.48 COL 40 COLON-ALIGNED NO-LABEL
+     mach.max-run AT ROW 17.67 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
+          SIZE 14 BY .81
      mach.pr-type AT ROW 10.76 COL 99 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
@@ -434,7 +437,7 @@ DEFINE FRAME F-Main
           LABEL "Max Num  Width"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     ls-limit-lbl AT ROW 9.81 COL 9 COLON-ALIGNED NO-LABEL
+     ls-limit-lbl AT ROW 9.76 COL 9 COLON-ALIGNED NO-LABEL
      mach.num-len AT ROW 16.95 COL 127 COLON-ALIGNED
           LABEL "Max Num Length"
           VIEW-AS FILL-IN 
@@ -444,6 +447,27 @@ DEFINE FRAME F-Main
           LABEL "Kicks/Hr" FORMAT ">>,>>9"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
+     mach.max_hd_hd AT ROW 16.05 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
+     mach.max_pan_lw AT ROW 14.43 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 6
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
+     mach.max_slot_score AT ROW 15.24 COL 40 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
+     mach.min_hd_hd AT ROW 16.05 COL 22 COLON-ALIGNED WIDGET-ID 10
+          LABEL "Panel (Hd-Hd)"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
+     mach.min_pan_lw AT ROW 14.43 COL 22 COLON-ALIGNED WIDGET-ID 12
+          LABEL "Box L + W"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
+     mach.min_slot_score AT ROW 15.24 COL 22 COLON-ALIGNED WIDGET-ID 14
+          LABEL "Slot/Score Panel"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
      "Printing Press" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 9.81 COL 81
           FGCOLOR 9 
@@ -451,17 +475,24 @@ DEFINE FRAME F-Main
           SIZE 12 BY .62 AT ROW 5.05 COL 72
           FGCOLOR 9 
      "Max" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 9.81 COL 46
+          SIZE 6 BY .62 AT ROW 9.76 COL 46
           FGCOLOR 9 
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      "Min" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 9.81 COL 28
+          SIZE 5 BY .62 AT ROW 9.76 COL 28
           FGCOLOR 9 
      "Trim" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 9.81 COL 61
+          SIZE 8 BY .62 AT ROW 9.76 COL 61
           FGCOLOR 9 
      RECT-10 AT ROW 5.29 COL 1
      RECT-11 AT ROW 9.57 COL 1
-     RECT-12 AT ROW 9.57 COL 74
+     RECT-12 AT ROW 9.57 COL 72
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -495,7 +526,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 17.62
+         HEIGHT             = 17.86
          WIDTH              = 146.4.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -564,6 +595,8 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.max-len IN FRAME F-Main
    EXP-FORMAT                                                           */
+/* SETTINGS FOR FILL-IN mach.max-run IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN mach.min-cal IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.min-dep IN FRAME F-Main
@@ -575,12 +608,18 @@ ASSIGN
 /* SETTINGS FOR FILL-IN mach.min-pan-w IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.min-run IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.min-triml IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.min-trimw IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.min-wid IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN mach.min_hd_hd IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN mach.min_pan_lw IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN mach.min_slot_score IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.mr-crusiz IN FRAME F-Main
    EXP-LABEL                                                            */
@@ -639,7 +678,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -654,7 +693,7 @@ DO:
 
 
    g_lookup-var = "".
-      
+
    case focus:name :
         when "loc" then do:
              run lookups/loc.p.
@@ -695,7 +734,7 @@ DO:
         otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-             
+
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
            end.  
@@ -714,14 +753,17 @@ END.
 ON LEAVE OF mach.dept[1] IN FRAME F-Main /* Department */
 DO: 
   if lastkey ne -1 then do:
+  {&methods/lValidateError.i YES}
     if self:screen-value ne "" and
        not can-find(dept where dept.code eq self:screen-value) then do:
       message "Invalid entry, try help..." view-as alert-box error.
       return no-apply.
     end.
+    {&methods/lValidateError.i NO}
   end.
-  
+
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -734,16 +776,16 @@ DO:
 
   DEF VAR v-seq LIKE mach.m-seq NO-UNDO.
 
-  
+
   RUN dept-display.
-    
+
   RUN dept-enable. 
 
   FIND FIRST dept WHERE dept.code EQ {&self-name}:SCREEN-VALUE NO-LOCK NO-ERROR.
   IF AVAIL dept THEN DO:
     mach.d-seq:SCREEN-VALUE = STRING(dept.fc).    
   END.
-      
+
   IF adm-new-record THEN
   FOR EACH bf-mach
       WHERE bf-mach.company EQ cocode
@@ -755,7 +797,7 @@ DO:
       mach.m-seq:SCREEN-VALUE = STRING(v-seq + 1).
       LEAVE.
     END.
-    
+
     v-seq = bf-mach.m-seq.
   END.
 
@@ -769,6 +811,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.dept[2] V-table-Win
 ON LEAVE OF mach.dept[2] IN FRAME F-Main /* Dept[2] */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and self:screen-value <> "" and
       not can-find(dept where dept.code = self:screen-value)
       then do:
@@ -776,7 +819,7 @@ DO:
          return no-apply.
       end.
 
-  
+
      disable mach.pr-type mach.washup mach.col-pass max-color coater col-wastesh
                 mach.ink-waste mach.col-wastelb   
                 /*mach.tan-mrp*/ mach.tan-mrf with frame {&frame-name}.
@@ -802,7 +845,9 @@ DO:
                mach.ink-waste:screen-value = "0"
                mach.col-wastelb:screen-value = "0"
                .
+      {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -812,6 +857,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.dept[3] V-table-Win
 ON LEAVE OF mach.dept[3] IN FRAME F-Main /* Dept[3] */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and self:screen-value <> "" and
       not can-find(dept where dept.code = self:screen-value)
       then do:
@@ -819,7 +865,7 @@ DO:
          return no-apply.
       end.
 
-  
+
      disable mach.pr-type mach.washup mach.col-pass max-color coater col-wastesh
                 mach.ink-waste mach.col-wastelb   
                 /*mach.tan-mrp*/ mach.tan-mrf with frame {&frame-name}.
@@ -847,7 +893,9 @@ DO:
                mach.ink-waste:screen-value = "0"
                mach.col-wastelb:screen-value = "0"
                .
+      {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -857,6 +905,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.dept[4] V-table-Win
 ON LEAVE OF mach.dept[4] IN FRAME F-Main /* Dept[4] */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and self:screen-value <> "" and
       not can-find(dept where dept.code = self:screen-value)
       then do:
@@ -864,7 +913,7 @@ DO:
          return no-apply.
       end.
 
-  
+
      disable mach.pr-type mach.washup mach.col-pass max-color coater col-wastesh
                 mach.ink-waste mach.col-wastelb   
                 /*mach.tan-mrp*/ mach.tan-mrf with frame {&frame-name}.
@@ -892,7 +941,9 @@ DO:
                mach.ink-waste:screen-value = "0"
                mach.col-wastelb:screen-value = "0"
                .
+      {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -937,7 +988,7 @@ DO:
                                   .
   */ 
   run calc-rate.                              
-                                
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -968,7 +1019,7 @@ DO:
                                   decimal(mach.run-fixoh:screen-value)
                                   )
                                   .
-                                  
+
  */
    run calc-rate.
 END.
@@ -993,14 +1044,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.loc V-table-Win
 ON LEAVE OF mach.loc IN FRAME F-Main /* Location */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and self:screen-value <> "" and
       not can-find(loc where loc.company = cocode and loc.loc = self:screen-value)
       then do:
          message "Invalid Loacation. Try Help." view-as alert-box error.
          return no-apply.
       end.
-
+      {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1048,6 +1101,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL mach.max-wid V-table-Win
 ON ENTRY OF mach.max-wid IN FRAME F-Main /* Max Width */
 DO:
+  {&methods/lValidateError.i YES}
   IF mach.min-wid:LABEL EQ lv-label[1] THEN DO:
     RUN est/d-sidsid.w (mach.m-code:SCREEN-VALUE, "Cylinder Diameters",
                         INPUT-OUTPUT TABLE tt-ss).
@@ -1059,7 +1113,9 @@ DO:
     APPLY "leave" TO {&self-name}.
     RETURN NO-APPLY.
   END.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1074,6 +1130,7 @@ DO:
   APPLY "tab" TO SELF.
   RETURN NO-APPLY.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1279,7 +1336,7 @@ IF CAN-FIND(FIRST reftable WHERE reftable.reftable EQ "gangjobs") THEN
 
         mach-1.gang-jobs = LOGICAL(reftable.code2).
       END.
-      
+
       DELETE reftable.
   END.
 
@@ -1291,7 +1348,7 @@ ll-label = CAN-FIND(FIRST sys-ctrl
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1408,7 +1465,7 @@ PROCEDURE dept-display :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   IF AVAIL mach THEN
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
@@ -1419,7 +1476,7 @@ PROCEDURE dept-display :
                           THEN "Changeover Time"
                           ELSE "Tandem MR/Plate".
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1432,7 +1489,7 @@ PROCEDURE dept-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   IF AVAIL mach THEN
   do with frame {&frame-name}:
     disable mach.pr-type
@@ -1445,13 +1502,13 @@ PROCEDURE dept-enable :
             mach.col-wastelb
             /*mach.tan-mrp*/
             mach.tan-mrf.
-            
+
     /*IF LOOKUP(mach.dept[1]:SCREEN-VALUE,"DC,GL,WN,WS") GT 0 OR
        LOOKUP(mach.dept[1]:SCREEN-VALUE,"DC,GL,WN,WS") GT 0 OR
        LOOKUP(mach.dept[1]:SCREEN-VALUE,"DC,GL,WN,WS") GT 0 OR
        LOOKUP(mach.dept[1]:SCREEN-VALUE,"DC,GL,WN,WS") GT 0 THEN
       ENABLE mach.tan-mrp.*/
-      
+
     if mach.dept[1]:screen-value eq "PR" or
        mach.dept[2]:screen-value eq "PR" or
        mach.dept[3]:screen-value eq "PR" or
@@ -1466,7 +1523,7 @@ PROCEDURE dept-enable :
              mach.col-wastelb   
              /*mach.tan-mrp*/
              mach.tan-mrf.
-             
+
     else
       assign
        mach.pr-type:screen-value     = ""
@@ -1514,7 +1571,7 @@ PROCEDURE enable-mach :
 
   DO WITH FRAME {&frame-name}:
     APPLY "value-changed" TO mach.dept[1].
-  
+
     /*IF CAN-FIND(FIRST est-op WHERE est-op.company EQ gcompany
                                AND est-op.m-code  EQ mach.m-code:SCREEN-VALUE)   OR
        CAN-FIND(FIRST job-mch WHERE job-mch.company EQ gcompany
@@ -1559,17 +1616,17 @@ PROCEDURE label-display :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   RUN dept-display.
 
   RUN p-type-display.
 
-  DO WITH FRAME {&FRAME-NAME}:
-    IF v-cepanel-cha EQ "WminLmin" THEN
-      ASSIGN
-       mach.min-pan-l:LABEL = "Box Length"
-       mach.min-pan-w:LABEL = "Box Width".
-  END.
+/*  DO WITH FRAME {&FRAME-NAME}:            */
+/*    IF v-cepanel-cha EQ "WminLmin" THEN   */
+/*      ASSIGN                              */
+/*       mach.min-pan-l:LABEL = "Box Length"*/
+/*       mach.min-pan-w:LABEL = "Box Width".*/
+/*  END.                                    */
 
 END PROCEDURE.
 
@@ -1589,7 +1646,7 @@ PROCEDURE local-assign-record :
   def var old-dept like mach.dept[1] no-undo.
   DEF VAR li AS INT NO-UNDO.
 
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   assign old-m-code = mach.m-code
          old-loc = mach.loc
@@ -1634,7 +1691,7 @@ if adm-adding-record then do:
                               and recid(b-mmtx)    ne recid(mmtx)
                              no-error.
           if avail b-mmtx then delete b-mmtx.
-        
+
           assign mmtx.loc  = mach.loc
                  mmtx.dept = mach.dept[1].
       end.
@@ -1649,14 +1706,14 @@ if adm-adding-record then do:
               and b-mmty.across-no eq mmty.across-no
               and recid(b-mmty)    ne recid(mmty)
             no-error.
-          
+
         if avail b-mmty then delete b-mmty.
-        
+
         assign
          mmty.loc  = mach.loc
          mmty.dept = mach.dept[1].
       end.  /* each mmty */
-      
+
       find first b-mstd where b-mstd.company eq mach.company
                           and b-mstd.loc     eq mach.loc
             and b-mstd.m-code  eq mach.m-code 
@@ -1664,9 +1721,9 @@ if adm-adding-record then do:
             and b-mstd.style   eq mstd.style
             and recid(b-mstd)  ne recid(mstd)
           no-error.
-          
+
       if avail b-mstd then delete b-mstd.
-          
+
       assign  mstd.loc  = mach.loc
               mstd.dept = mach.dept[1].
   end.
@@ -1680,13 +1737,13 @@ if adm-adding-record then do:
  if adm-new-record and not adm-adding-record then do:  /* copy */   
     def buffer bf-mach for mach.
     def var li-next-mmtx as int no-undo.
-    
+
     find bf-mach where bf-mach.company = cocode and
                        bf-mach.m-code = old-m-code
                        no-lock no-error.
     find last b-mmtx use-index mmtx-no no-lock no-error.
     li-next-mmtx = if avail b-mmtx then b-mmtx.mmtx-no + 1 else 1.
-    
+
     for each mstd of bf-mach no-lock:
         for each mmty of mstd no-lock:
             create b-mmty.
@@ -1695,7 +1752,7 @@ if adm-adding-record then do:
                    b-mmty.loc = mach.loc
                    b-mmty.dept = mach.dept[1].    
         end.
-        
+
         for each mmtx of mstd no-lock:
             create b-mmtx.
             buffer-copy mmtx except mmtx.m-code mmtx.mmtx-no to b-mmtx.
@@ -1759,7 +1816,7 @@ if adm-adding-record then do:
                  mstd.dept = mach.dept[1]
                  .
         end.
-        
+
     end.
  end.  /* not new record */
 
@@ -1777,14 +1834,14 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   DISABLE ALL WITH FRAME {&FRAME-NAME}.
-  
+
   RUN label-display.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1809,7 +1866,7 @@ PROCEDURE local-create-record :
   ASSIGN
    mach.company = cocode
    mach.loc     = locode.
-      
+
   DO WITH FRAME {&FRAME-NAME}:
     IF adm-adding-record THEN DO:
       DISPLAY mach.loc mach.d-seq mach.m-seq.
@@ -1832,7 +1889,7 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   IF AVAIL mach THEN DO:
     cb_industry = ENTRY(LOOKUP(TRIM(mach.industry),",1,2,X"),lv-ind-list).
@@ -1845,7 +1902,7 @@ PROCEDURE local-display-fields :
       IF mach.m-code NE "" THEN RUN reftable-values (YES).
     END.
   END.
-                        
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
@@ -1865,14 +1922,14 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-m-code NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   RUN valid-fi_sch-m-code NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   do with frame {&frame-name}:  /* validation */
       if mach.loc:screen-value <> "" and
          not can-find(loc where loc.company = cocode and loc.loc = mach.loc:screen-value)
@@ -1910,13 +1967,13 @@ PROCEDURE local-update-record :
          return no-apply.
       end.
   end.
-
+  {&methods/lValidateError.i NO}
   RUN valid-m-seq NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   /* ========== end of validation =================*/
-   
+
   disable all with frame {&frame-name}.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1924,6 +1981,7 @@ PROCEDURE local-update-record :
   IF adm-new-record AND NOT adm-adding-record THEN RUN repo-query (ROWID(mach)).
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2024,7 +2082,7 @@ PROCEDURE repo-query :
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"Record-Source", OUTPUT char-hdl).
   RUN repo-query IN WIDGET-HANDLE(char-hdl) (INPUT ip-rowid).
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2082,6 +2140,7 @@ PROCEDURE valid-fi_sch-m-code :
   DEF BUFFER b-mach FOR mach.
   DEF VAR v-industry AS CHAR NO-UNDO.
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
     ASSIGN
@@ -2104,6 +2163,7 @@ PROCEDURE valid-fi_sch-m-code :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2119,6 +2179,7 @@ PROCEDURE valid-m-code :
   DEF BUFFER b-mach FOR mach.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     mach.m-code:SCREEN-VALUE = CAPS(mach.m-code:SCREEN-VALUE).
 
@@ -2137,6 +2198,7 @@ PROCEDURE valid-m-code :
       mach.sch-m-code:SCREEN-VALUE = mach.m-code:SCREEN-VALUE.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2152,6 +2214,7 @@ PROCEDURE valid-m-seq :
   DEF BUFFER b-mach FOR mach.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF CAN-FIND(FIRST b-mach
                 WHERE b-mach.company EQ mach.company
@@ -2164,7 +2227,7 @@ PROCEDURE valid-m-seq :
       APPLY "entry" TO mach.m-seq.
       RETURN ERROR.
     END.
-    
+
     IF adm-new-record AND NOT adm-adding-record THEN DO: /* copy */
        IF CAN-FIND(FIRST b-mach WHERE b-mach.company EQ cocode
                           AND b-mach.d-seq   EQ INT(mach.d-seq:SCREEN-VALUE)
@@ -2178,11 +2241,12 @@ PROCEDURE valid-m-seq :
         END.
      END.
 
-      
+
   END.
 
-  
 
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

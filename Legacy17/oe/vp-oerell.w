@@ -255,7 +255,7 @@ DO:
        RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -324,7 +324,7 @@ DO:
        RUN repo-query IN WIDGET-HANDLE(char-hdl) (lv-rowid).
       END.
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -339,7 +339,7 @@ DO:
       RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source", OUTPUT char-hdl).
       RUN delete_item IN WIDGET-HANDLE(char-hdl).
     END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -355,7 +355,7 @@ DO:
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"tableio-target", OUTPUT char-hdl).
     RUN select-bintags IN WIDGET-HANDLE(char-hdl) .
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -387,7 +387,7 @@ DO:
        /*RUN reopen-po-ord-query.*/
       END.
     END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -401,7 +401,7 @@ DO:
   DEFINE VARIABLE lv-rowid AS ROWID NO-UNDO.
   IF AVAILABLE oe-rell THEN
       RUN oe/d-oerell.w (RECID(oe-rell), RECID(oe-relh), "view",OUTPUT lv-rowid). 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */

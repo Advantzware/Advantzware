@@ -248,7 +248,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -434,10 +434,10 @@ PROCEDURE get-title :
 
   IF AVAIL(notes) THEN
   FIND bfNotes WHERE ROWID(bfNotes) = ROWID(notes) NO-LOCK NO-ERROR.
-  
+
   IF AVAIL bfNotes THEN DO WITH FRAME {&FRAME-NAME}:     
       FIND rejct-cd WHERE rejct-cd.CODE = bfNotes.note_title NO-LOCK NO-ERROR.
-     
+
       IF AVAIL rejct-cd THEN
       cbTitle:SCREEN-VALUE = bfNotes.note_title.
   END.
@@ -460,7 +460,7 @@ PROCEDURE local-create-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/notes.i}
-  
+
   notes.note_type = "R".
 END PROCEDURE.
 
@@ -489,7 +489,7 @@ PROCEDURE local-display-fields :
       IF AVAIL rejct-cd THEN
       cbTitle:SCREEN-VALUE = notes.note_title.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -555,7 +555,7 @@ PROCEDURE new-note_code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-                  
+
   DO WITH FRAME {&FRAME-NAME}:
 
     FIND FIRST item-spec NO-LOCK
@@ -629,6 +629,7 @@ PROCEDURE valid-note_code :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -643,6 +644,7 @@ PROCEDURE valid-note_code :
      END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

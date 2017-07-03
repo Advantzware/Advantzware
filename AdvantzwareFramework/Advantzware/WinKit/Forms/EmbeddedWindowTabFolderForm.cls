@@ -116,6 +116,8 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
 
         DEFINE VARIABLE iPage AS INTEGER NO-UNDO.
 
+        Consultingwerk.WindowIntegrationKit.Controls.WinKitControls:OnRenderedBrowseControlActivated (?, ?) . 
+
         /* prevent recursion / infinitive loop */
         IF lSelectingTab THEN RETURN .
 
@@ -209,7 +211,7 @@ CLASS Advantzware.WinKit.Forms.EmbeddedWindowTabFolderForm
         DEFINE VARIABLE oWindowContainer AS Progress.Windows.WindowContainer             NO-UNDO.
 
         FIND ttFolderPages WHERE ttFolderPages.PageNum = piTabKey NO-ERROR .
-
+        
         IF NOT AVAILABLE ttFolderPages THEN DO:
             CreateTabPageFrame (piTabKey) .
 

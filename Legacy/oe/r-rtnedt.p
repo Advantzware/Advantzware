@@ -1,2 +1,2 @@
 
-RUN oe/r-rtne&p.w (NO).
+RUN oe/r-rtne&p.w PERSISTENT (NO).

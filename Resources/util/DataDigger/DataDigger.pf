@@ -1,5 +1,0 @@
--pf .\sports.pf
--s 1000 
--d dmy
--rereadnolock
--p DataDigger.p

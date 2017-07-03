@@ -178,19 +178,19 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
      SIZE 23 BY 7.86 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 95 BY 9.52.
 
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 11.67.
 
 DEFINE RECTANGLE RECT-8
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 46 BY 3.1.
 
 DEFINE RECTANGLE RECT-9
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 87 BY 6.91.
 
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
@@ -242,12 +242,12 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 23.14 COL 61
      "DISTRIBUTION CENTER ID AND ADDRESS" VIEW-AS TEXT
           SIZE 45 BY 1 AT ROW 6 COL 24
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .71 AT ROW 1.24 COL 5
-     "Master Bill of Lading/Shipping Manifest Trailer" VIEW-AS TEXT
-          SIZE 44 BY 1 AT ROW 2.43 COL 25
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 12.91 COL 5
+     "Master Bill of Lading/Shipping Manifest Trailer" VIEW-AS TEXT
+          SIZE 44 BY 1 AT ROW 2.43 COL 25
+     "Selection Parameters" VIEW-AS TEXT
+          SIZE 21 BY .71 AT ROW 1.24 COL 5
      RECT-6 AT ROW 12.67 COL 1
      RECT-7 AT ROW 1 COL 1
      RECT-8 AT ROW 2.19 COL 24
@@ -291,11 +291,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
 /* ************************* Included-Libraries *********************** */
@@ -330,6 +327,14 @@ ASSIGN
        begin_trailer:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN soldto.sold-addr[1] IN FRAME FRAME-A
@@ -360,7 +365,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME FRAME-A */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -676,8 +681,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
            soldto.sold-city:SCREEN-VALUE = ""
            soldto.sold-state:SCREEN-VALUE = ""
            soldto.sold-zip:SCREEN-VALUE = "".
-
-
+      {methods/setButton.i btn-cancel "Cancel"}
+      {methods/setButton.i btn-ok "OK"}
   END.
 
     {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:09 am */

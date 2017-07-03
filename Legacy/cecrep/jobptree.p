@@ -416,7 +416,8 @@ ASSIGN
                         ELSE itemfg.part-no
            lv-cust-set = lv-part-no
            lv-au = IF itemfg.alloc THEN "U" ELSE "A"
-           vll-is-a-set = itemfg.isaset.
+           vll-is-a-set = itemfg.isaset
+           v-dept-note[31] = "CSR: " + IF AVAILABLE xoe-ord THEN xoe-ord.user-id ELSE job.user-id.
 
        IF est.est-type = 6 THEN
           ASSIGN
@@ -915,10 +916,9 @@ ASSIGN
         v-count = v-count + 1.
     END.                       
     /***************************/
-
         ASSIGN
         v-inst = ""
-        v-dept-note[31] = "CSR: " + IF AVAILABLE xoe-ord THEN xoe-ord.user-id ELSE job.user-id.
+        /*v-dept-note[31] = "CSR: " + IF AVAILABLE xoe-ord THEN xoe-ord.user-id ELSE job.user-id */ .
         IF s-prt-ship-split THEN
            FIND FIRST tt-fibre WHERE tt-fibre.tt-job-no = job-hdr.job-no
                          AND tt-fibre.tt-job-no2 = job-hdr.job-no2
@@ -951,7 +951,7 @@ ASSIGN
             "<=1><R+26><C33>" v-dept-note[18] FORM "x(39)" /*"  " /* v-dept-note[43]*/ */
             "<=1><R+27><C33>" v-dept-note[19] FORM "x(39)" /*"  " /*v-dept-note[44]*/   */
             "<=1><R+28><C33>" v-dept-note[20] FORM "x(39)" /*"  " /* v-dept-note[45] */  */
-            "<=1><R+29><C33>" v-dept-note[21] FORM "x(39)" 
+            /*"<=1><R+29><C33>" v-dept-note[21] FORM "x(39)" 
             "<=1><R+30><C33>" v-dept-note[22] FORM "x(39)" 
             "<=1><R+31><C33>" v-dept-note[23] FORM "x(39)" 
             "<=1><R+32><C33>" v-dept-note[24] FORM "x(39)" 
@@ -961,7 +961,7 @@ ASSIGN
             "<=1><R+36><C33>" v-dept-note[28] FORM "x(39)"
             "<=1><R+37><C33>" v-dept-note[29] FORM "x(39)"
             "<=1><R+38><C33>" v-dept-note[30] FORM "x(39)"
-            "<=1><R+4><C75>" v-dept-note[31] FORM "x(39)" 
+            "<=1><R+4><C75>" v-dept-note[31] FORM "x(39)" */
             "<=1><R+40.8><C33><FROM><R+4.2><C65><RECT><||3>"
             "<=1><R+41><C33><P8>  Bundles: ________ @ _______          TOTAL"
             "<=1><R+42><C40> ________ @ _______"

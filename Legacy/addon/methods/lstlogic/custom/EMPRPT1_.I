@@ -33,12 +33,12 @@ DEFINE VARIABLE emp-time AS INTEGER NO-UNDO.
 DEFINE VARIABLE op-base LIKE rate.rate NO-UNDO.
 DEFINE VARIABLE op-rate LIKE rate.rate NO-UNDO.
 
-FOR EACH emptrack.employee WHERE
-    emptrack.employee.company = cocode AND
-    emptrack.employee.employee GE begin_employee AND
-    emptrack.employee.employee LE end_employee NO-LOCK,
+FOR EACH employee WHERE
+    employee.company = cocode AND
+    employee.employee GE begin_employee AND
+    employee.employee LE end_employee NO-LOCK,
     EACH machemp NO-LOCK
-    WHERE emptrack.machemp.employee EQ employee.employee
+    WHERE machemp.employee EQ employee.employee
       AND machemp.start_date GE begin-date
       AND machemp.start_date LE end-date,
     FIRST machtran WHERE machtran.rec_key = machemp.table_rec_key
@@ -47,18 +47,18 @@ FOR EACH emptrack.employee WHERE
                    AND machtran.job_sub GE int(begin_job-no2)
                    AND machtran.job_sub LE int(end_job-no2)
      NO-LOCK
-    BREAK BY emptrack.machemp.employee by machemp.start_date by machemp.start_time
+    BREAK BY machemp.employee by machemp.start_date by machemp.start_time
     WITH FRAME daysum STREAM-IO NO-BOX WIDTH 150 :
 
-  IF FIRST-OF(emptrack.machemp.employee) THEN
+  IF FIRST-OF(machemp.employee) THEN
   DO:
     DISPLAY
-      emptrack.machemp.employee label "Emp!ID"
-      emptrack.employee.first_name + ' ' + emptrack.employee.last_name LABEL 'Name' FORMAT 'X(30)'.
+      machemp.employee label "Emp!ID"
+      employee.first_name + ' ' + employee.last_name LABEL 'Name' FORMAT 'X(30)'.
     IF tb_excel THEN
        PUT STREAM excel UNFORMATTED 
-       emptrack.machemp.employee ","
-       emptrack.employee.first_name ' ' emptrack.employee.last_name ",".
+       machemp.employee ","
+       employee.first_name ' ' employee.last_name ",".
     ASSIGN
       emp-time = 0
       line-cnt = 0.
@@ -67,9 +67,9 @@ FOR EACH emptrack.employee WHERE
   ASSIGN
     emp-time = emp-time + machemp.total_time
     line-cnt = line-cnt + 1.
-  FIND empmach OF emptrack.employee WHERE empmach.machine = machtran.machine NO-LOCK NO-ERROR.
+  FIND empmach OF employee WHERE empmach.machine = machtran.machine NO-LOCK NO-ERROR.
   RUN Employee-Rate IN Persistent-Handle
-     (emptrack.employee.company,emptrack.employee.employee,machemp.shift,
+     (employee.company,employee.employee,machemp.shift,
       machtran.machine,machemp.rate_usage,'Standard',OUTPUT op-rate).
   DISPLAY
     line-cnt label "Cnt" form ">>9"
@@ -115,7 +115,7 @@ FOR EACH emptrack.employee WHERE
     grand-total-time = grand-total-time + emp-time.
     IF tb_excel THEN PUT STREAM excel UNFORMATTED SKIP FILL('-',132) SKIP.
   END.
-  IF LAST(emptrack.machemp.employee) THEN DO:
+  IF LAST(machemp.employee) THEN DO:
       PUT UNFORMATTED SKIP FILL('=',132) SKIP
           'Grand Total: ' AT 123 STRING(grand-total-time / 3600,'>>,>>>.99') TO 146.
       IF tb_excel THEN PUT STREAM excel UNFORMATTED SKIP FILL('=',132) SKIP

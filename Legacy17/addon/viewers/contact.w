@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:39 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -483,7 +483,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL contact.contact-loc V-table-Win
 ON LEAVE OF contact.contact-loc IN FRAME F-Main /* Location */
 DO:
-
+  {&methods/lValidateError.i YES}
   if SELF:SCREEN-VALUE eq "C" and contact.cust-no:SCREEN-VALUE eq "" then
   do:
     message "Location May no be 'C' when Customer is Blank" 
@@ -537,8 +537,10 @@ DO:
   END.
 
   {methods/dispflds.i}
+  {&methods/lValidateError.i NO}
 
  END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -547,7 +549,7 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL contact.contact-loc V-table-Win
 ON VALUE-CHANGED OF contact.contact-loc IN FRAME F-Main /* Location */
 DO:
-
+  {&methods/lValidateError.i YES}
   if SELF:SCREEN-VALUE eq "C" and contact.cust-no:SCREEN-VALUE eq "" then
   do:
     message "Location May no be 'C' when Customer is Blank" 
@@ -657,8 +659,10 @@ DO:
   END.
 
   {methods/dispflds.i}
+  {&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -668,6 +672,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL contact.cust-no V-table-Win
 ON LEAVE OF contact.cust-no IN FRAME F-Main /* Customer */
 DO:
+  {&methods/lValidateError.i YES}
   if SELF:SCREEN-VALUE ne "" then
   do:
     {methods/entryerr.i
@@ -699,7 +704,9 @@ DO:
      WITH FRAME {&FRAME-NAME}.
 
   end.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -709,14 +716,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL contact.first-name V-table-Win
 ON LEAVE OF contact.first-name IN FRAME F-Main /* Contact Name */
 DO:
+  {&methods/lValidateError.i YES}
   correct-error = false.
   if contact.first-name:SCREEN-VALUE in frame {&frame-name} eq '' then
     assign correct-error = true.
 
   {methods/entryerr.i
             &error-message="First Name CANNOT be Blank"}
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -726,13 +735,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL contact.last-name V-table-Win
 ON LEAVE OF contact.last-name IN FRAME F-Main /* Last Name */
 DO:
+  {&methods/lValidateError.i YES}
   if contact.last-name:SCREEN-VALUE in frame {&frame-name} eq '' then
     assign correct-error = true.
 
   {methods/entryerr.i
             &error-message="Last Name CANNOT be Blank"}
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -742,14 +753,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL contact.maillist V-table-Win
 ON LEAVE OF contact.maillist IN FRAME F-Main /* Mail List */
 DO:
+  {&methods/lValidateError.i YES}
   if  SELF:SCREEN-VALUE eq "yes" and 
      (contact_addr1:screen-value in frame {&frame-name} eq '' or
       contact_city:screen-value  in frame {&frame-name} eq '' or 
       contact_state:screen-value in frame {&frame-name} eq '' or
       contact_zip:screen-value   in frame {&frame-name} eq '') then
     message "Remember to Complete the Contact Address Information Below." view-as alert-box.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -770,6 +783,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL contact.ship-id V-table-Win
 ON LEAVE OF contact.ship-id IN FRAME F-Main /* Shipto ID */
 DO:
+  {&methods/lValidateError.i YES}
   if SELF:SCREEN-VALUE ne "" then
   do:
     {methods/entryerr.i
@@ -786,8 +800,9 @@ DO:
       enable contact.contact-loc with frame {&frame-name}.
     APPLY 'VALUE-CHANGED' TO contact.contact-loc.
   end.
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

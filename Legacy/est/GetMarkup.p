@@ -18,8 +18,6 @@
 
 /* ***************************  Definitions  ************************** */
 
-/*BLOCK-LEVEL ON ERROR UNDO, THROW.*/
-
 DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcCustID AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcProductCategory AS CHARACTER NO-UNDO.

@@ -276,7 +276,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -309,7 +309,7 @@ DO:
                        carr-dscr:screen-value in frame {&frame-name} = entry(2,char-val)
                        .
              return no-apply.              
-             
+
         end.
         when "cas-no" then do:
            find style where style.company = rfqitem.company and
@@ -366,7 +366,7 @@ DO:
                                  carrier.carrier = rfqitem.carrier:screen-value in frame {&frame-name}
                                  no-lock no-error.
                carr-dscr:screen-value in frame {&frame-name} = if avail carrier then carrier.dscr else "".
-                                 
+
            end.
            return no-apply.   
      end.
@@ -382,7 +382,7 @@ ON return OF FRAME F-Main
 anywhere
 DO:
   /*  use     session:data-entry-return = true.  /* return key will be like tab key */
-  
+
    def var lv-wh as handle no-undo.
 
     lv-wh = focus:next-tab-item.
@@ -392,7 +392,7 @@ DO:
     apply "entry" to lv-wh.
     return no-apply.
     */
-    
+
     return .
 END.
 
@@ -417,11 +417,14 @@ DO:
                               rfqitem.cas-wt:Screen-value = string(item.avg-w)         
                               .
     else if lastkey <> -1 and rfqitem.cas-no:screen-value <> "" then do:
+    {&methods/lValidateError.i YES}
          message "Invalid Packing Code. Try Help." view-as alert-box error.
          return  no-apply.
+    {&methods/lValidateError.i NO}
     end.                           
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -441,12 +444,15 @@ DO:
                               rfqitem.tr-dep:Screen-value = string(item.case-d)
                               .
     else if lastkey <> -1 and rfqitem.tr-no:screen-value <> "" then do:
+     {&methods/lValidateError.i YES}
          message "Invalid Unit#. Try Help." view-as alert-box error.
          return  no-apply.
+     {&methods/lValidateError.i NO}
     end.                           
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -463,7 +469,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -539,13 +545,13 @@ PROCEDURE local-display-fields :
                     shipto.ship-id = rfqitem.ship-id
                     no-lock no-error.
   ship-name:screen-value in frame {&frame-name} = if avail shipto then shipto.ship-name else "".
-                                      
+
   find carrier where carrier.company = rfqitem.company and 
                      carrier.loc     = rfqitem.loc and
                      carrier.carrier = rfqitem.carrier
                                  no-lock no-error.
   carr-dscr:screen-value in frame {&frame-name} = if avail carrier then carrier.dscr else "".
-                 
+
 
 
 END PROCEDURE.
@@ -591,7 +597,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+{&methods/lValidateError.i YES}{&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   do with frame {&frame-name}:
      if rfqitem.cas-no:screen-value <> "" 
@@ -618,8 +624,10 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+{&methods/lValidateError.i NO}
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

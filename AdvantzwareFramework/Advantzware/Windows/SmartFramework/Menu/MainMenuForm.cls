@@ -24,6 +24,7 @@
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
+{system/sysconst.i}
 
 USING Consultingwerk.*                                                    FROM PROPATH .
 USING Consultingwerk.Framework.*                                          FROM PROPATH .
@@ -130,6 +131,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
 
 
         Consultingwerk.SmartComponents.Implementation.SmartDataBrowserSettings:SmartDataBrowserActivated:Subscribe (SmartDataBrowserActivatedHandler) .
+        Consultingwerk.WindowIntegrationKit.Controls.WinKitControls:RenderedBrowseControlActivated:Subscribe (SmartDataBrowserActivatedHandler) . 
 
         SessionManager:LanguageDisplayNameChanged:Subscribe (DisplayLanguageName) .
 
@@ -1322,7 +1324,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         THIS-OBJECT:Icon = CAST(resources:GetObject("$this.Icon"), System.Drawing.Icon).
         THIS-OBJECT:IsMdiContainer = TRUE.
         THIS-OBJECT:Name = "MainMenuForm".
-        THIS-OBJECT:Text = "Advantzware Manufacturing & Distribution Software".
+        THIS-OBJECT:Text = "Advantzware Manufacturing & Distribution Software v{&awversion}".
         THIS-OBJECT:WindowPositionRegistryKey = "CustomerExplorer".
         CAST(THIS-OBJECT:ultraExplorerBar1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:ultraGridColumnChooser1, System.ComponentModel.ISupportInitialize):EndInit().
@@ -1984,6 +1986,8 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
 
         IF TYPE-OF (sender, Infragistics.Win.UltraWinGrid.UltraGrid) THEN
             ultraGridColumnChooser1:SourceGrid = CAST (sender, Infragistics.Win.UltraWinGrid.UltraGrid) .
+        ELSE IF NOT VALID-OBJECT (sender) THEN 
+            ultraGridColumnChooser1:SourceGrid = ? .  
 
     END METHOD.
 
@@ -2046,7 +2050,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
 
         /* Initialize WinKit colors */
         Consultingwerk.Util.StyleLibraryHelper:SetProgressColorTable
-            (17, "UltraPanel":U, RoleState:Normal, "WinKit":U) .
+            (31, "UltraPanel":U, RoleState:Normal, "WinKit":U) .
 
     END METHOD .
 

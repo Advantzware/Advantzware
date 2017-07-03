@@ -156,18 +156,18 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-2
 /* Query rebuild information for BROWSE BROWSE-2
-     _TblList          = "EMPTRACK.machemp"
+     _TblList          = "machemp"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _Where[1]         = "machemp.table_rec_key = ip-machtran-reckey"
-     _FldNameList[1]   = EMPTRACK.machemp.employee
-     _FldNameList[2]   = EMPTRACK.machemp.start_date
+     _FldNameList[1]   = machemp.employee
+     _FldNameList[2]   = machemp.start_date
      _FldNameList[3]   > "_<CALC>"
 "string(start_time,""hh:mm:ss"") @ start_time" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   = EMPTRACK.machemp.end_date
+     _FldNameList[4]   = machemp.end_date
      _FldNameList[5]   > "_<CALC>"
 "string(end_time,""hh:mm:ss"") @ end_time" ? ? ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   = EMPTRACK.machemp.rate
-     _FldNameList[7]   = EMPTRACK.machemp.shift
+     _FldNameList[6]   = machemp.rate
+     _FldNameList[7]   = machemp.shift
      _FldNameList[8]   > "_<CALC>"
 "string(total_time,""hh:mm:ss"") @ total_time" ? ? ? ? ? ? ? ? ? no ? no no "44.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is OPENED

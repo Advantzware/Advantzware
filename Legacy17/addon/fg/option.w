@@ -29,9 +29,9 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-
-DEF NEW SHARED VAR choice AS LOG NO-UNDO. /* for post fg */
-DEF SHARED VAR g-sharpshooter AS LOG NO-UNDO.
+DEFINE NEW SHARED VARIABLE choice         AS LOG NO-UNDO. /* for post fg */
+DEFINE     SHARED VARIABLE g-sharpshooter AS LOG NO-UNDO.
+DEFINE            VARIABLE hProgram       AS HANDLE NO-UNDO.
 
 {methods/defines/hndldefs.i}
 
@@ -66,47 +66,47 @@ Btn_Adjust-3 Btn_delete Btn_return Btn_Post Btn_Consol Btn_Close
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Adjust-3 
-     LABEL "&4.      Count  Goods" 
+     LABEL "Count Goods" 
      SIZE 35 BY 1.52
      FONT 6.
 
 DEFINE BUTTON Btn_Close 
-     LABEL "&9.      Close" 
+     LABEL "Close" 
      SIZE 35 BY 1.52
      FONT 6.
 
 DEFINE BUTTON Btn_Consol 
-     LABEL "&8.   Consolidate Tags" 
+     LABEL "Consolidate Tags" 
      SIZE 35 BY 1.52
      FONT 6.
 
 DEFINE BUTTON Btn_delete 
-     LABEL "&5.     Delete  Goods" 
+     LABEL "Delete Goods" 
      SIZE 35 BY 1.52
      FONT 6.
 
 DEFINE BUTTON Btn_Post 
-     LABEL "&7.        Post Goods" 
+     LABEL "Post Goods" 
      SIZE 35 BY 1.52
      FONT 6.
 
 DEFINE BUTTON Btn_Rcpt 
-     LABEL "&1.  Receive Goods" 
+     LABEL "Receive Goods" 
      SIZE 35 BY 1.52
      FONT 6.
 
 DEFINE BUTTON Btn_return 
-     LABEL "&6.    Return  Goods" 
+     LABEL "Return Goods" 
      SIZE 35 BY 1.52
      FONT 6.
 
 DEFINE BUTTON Btn_Transfers 
-     LABEL "&3.   Transfer  Goods" 
+     LABEL "Transfer Goods" 
      SIZE 35 BY 1.52
      FONT 6.
 
 DEFINE BUTTON Btn_update 
-     LABEL "&2.   Move  Receipts" 
+     LABEL "Move Receipts" 
      SIZE 35 BY 1.52
      FONT 6.
 
@@ -208,12 +208,13 @@ ASSIGN
 
 &Scoped-define SELF-NAME Btn_Adjust-3
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Adjust-3 s-object
-ON CHOOSE OF Btn_Adjust-3 IN FRAME F-Main /* 4.      Count  Goods */
+ON CHOOSE OF Btn_Adjust-3 IN FRAME F-Main /* Count Goods */
 DO:
   /*run /*rm/rmadjt.w.*/ rm/w-phys.w.*/
-    IF g-sharpshooter THEN RUN addon/fg/fg-physs.w.
-    ELSE RUN addon/fg/fg-phys.w.
-
+    IF g-sharpshooter THEN RUN addon/fg/fg-physs.w PERSISTENT SET hProgram.
+    ELSE RUN addon/fg/fg-phys.w PERSISTENT SET hProgram.
+   RUN dispatch IN hProgram ("initialize").
+   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -222,7 +223,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_Close
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Close s-object
-ON CHOOSE OF Btn_Close IN FRAME F-Main /* 9.      Close */
+ON CHOOSE OF Btn_Close IN FRAME F-Main /* Close */
 DO:
   {methods/run_link.i "CONTAINER" "Close_RM_Whse"}
 END.
@@ -233,11 +234,12 @@ END.
 
 &Scoped-define SELF-NAME Btn_Consol
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Consol s-object
-ON CHOOSE OF Btn_Consol IN FRAME F-Main /* 8.   Consolidate Tags */
+ON CHOOSE OF Btn_Consol IN FRAME F-Main /* Consolidate Tags */
 DO:
   /* IF g-sharpshooter THEN RUN addon/fg/fg-conss.w.
-   ELSE */ RUN addon/fg/fg-cons.w.
-  
+   ELSE */ RUN addon/fg/fg-cons.w PERSISTENT SET hProgram.
+   RUN dispatch IN hProgram ("initialize").
+   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -246,11 +248,13 @@ END.
 
 &Scoped-define SELF-NAME Btn_delete
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_delete s-object
-ON CHOOSE OF Btn_delete IN FRAME F-Main /* 5.     Delete  Goods */
+ON CHOOSE OF Btn_delete IN FRAME F-Main /* Delete Goods */
 DO:
    /*run fg/fg-rcpt.w. */
-   IF g-sharpshooter THEN RUN addon/fg/fg-rcpts.w ("Delete").
-   ELSE RUN addon/fg/fg-rcpt.w ("Delete").
+   IF g-sharpshooter THEN RUN addon/fg/fg-rcpts.w PERSISTENT SET hProgram ("Delete").
+   ELSE RUN addon/fg/fg-rcpt.w PERSISTENT SET hProgram ("Delete").
+   RUN dispatch IN hProgram ("initialize").
+   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -259,7 +263,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_Post
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Post s-object
-ON CHOOSE OF Btn_Post IN FRAME F-Main /* 7.        Post Goods */
+ON CHOOSE OF Btn_Post IN FRAME F-Main /* Post Goods */
 DO:
 DEF VAR v-post-sec AS LOG NO-UNDO.
 DEF VAR v-access-close AS LOG NO-UNDO.
@@ -276,7 +280,7 @@ RUN methods/prgsecur.p
      OUTPUT v-access-close, /* used in template/windows.i  */
      OUTPUT v-access-list). /* list 1's and 0's indicating yes or no to run, create, update, delete */
     IF v-post-sec THEN
-      run fg/fgpstall.w (?, "").
+      RUN fg/fgpstall.w (?, "").
     ELSE
       MESSAGE "Authorization required to post." VIEW-AS ALERT-BOX.
 END.
@@ -287,11 +291,13 @@ END.
 
 &Scoped-define SELF-NAME Btn_Rcpt
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Rcpt s-object
-ON CHOOSE OF Btn_Rcpt IN FRAME F-Main /* 1.  Receive Goods */
+ON CHOOSE OF Btn_Rcpt IN FRAME F-Main /* Receive Goods */
 DO:
    /*run fg/fg-rcpt.w. */
-   IF g-sharpshooter THEN RUN addon/fg/fg-rcpts.w ("Receipt").
-   ELSE RUN addon/fg/fg-rcpt.w ("Receipt").
+   IF g-sharpshooter THEN RUN addon/fg/fg-rcpts.w PERSISTENT SET hProgram ("Receipt").
+   ELSE RUN addon/fg/fg-rcpt.w PERSISTENT SET hProgram ("Receipt").
+   RUN dispatch IN hProgram ("initialize").
+   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -300,7 +306,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_return
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_return s-object
-ON CHOOSE OF Btn_return IN FRAME F-Main /* 6.    Return  Goods */
+ON CHOOSE OF Btn_return IN FRAME F-Main /* Return Goods */
 DO:
    /*run fg/fg-rcpt.w. */
    /*IF g-sharpshooter THEN RUN addon/fg/fg-rcpts.w ("Delete").
@@ -313,11 +319,12 @@ END.
 
 &Scoped-define SELF-NAME Btn_Transfers
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Transfers s-object
-ON CHOOSE OF Btn_Transfers IN FRAME F-Main /* 3.   Transfer  Goods */
+ON CHOOSE OF Btn_Transfers IN FRAME F-Main /* Transfer Goods */
 DO:
-   IF g-sharpshooter THEN RUN addon/fg/fg-trnss.w.
-   ELSE RUN addon/fg/fg-trans.w.
-  
+   IF g-sharpshooter THEN RUN addon/fg/fg-trnss.w PERSISTENT SET hProgram.
+   ELSE RUN addon/fg/fg-trans.w PERSISTENT SET hProgram.
+   RUN dispatch IN hProgram ("initialize").
+   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -326,11 +333,13 @@ END.
 
 &Scoped-define SELF-NAME Btn_update
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_update s-object
-ON CHOOSE OF Btn_update IN FRAME F-Main /* 2.   Move  Receipts */
+ON CHOOSE OF Btn_update IN FRAME F-Main /* Move Receipts */
 DO:
    /*run fg/fg-rcpt.w. */
-   IF g-sharpshooter THEN RUN addon/fg/fg-ucpts.w.
-   ELSE RUN addon/fg/fg-ucpt.w.
+   IF g-sharpshooter THEN RUN addon/fg/fg-ucpts.w PERSISTENT SET hProgram.
+   ELSE RUN addon/fg/fg-ucpt.w PERSISTENT SET hProgram.
+   RUN dispatch IN hProgram ("initialize").
+   RUN dispatch IN hProgram ("view").
 END.
 
 /* _UIB-CODE-BLOCK-END */

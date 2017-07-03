@@ -1,2 +1,2 @@
 
-RUN oe/r-orde&p.w (NO).
+RUN oe/r-orde&p.w PERSISTENT (NO).

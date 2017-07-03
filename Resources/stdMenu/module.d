@@ -80,6 +80,7 @@
 "" "prgrms." "Program Master" yes 12/31/17 "ADDON"
 "" "prgrms_." "Program Master List" yes 12/31/17 "ADDON"
 "" "purgeemp." "TS Purge Employee Transaction" yes 12/31/17 "ADDON"
+"" "wquery." "Query Builder" no 12/31/17 "ASI"
 "" "r-cstit2." "WM Customer Inventory Report 2" yes 12/31/17 "ADDON"
 "" "r-cstitm." "WM Customer Inventory Report" yes 12/31/17 "ADDON"
 "" "r-daysum." "TS Daily Summary by Employee" yes 12/31/17 "ADDON"

@@ -619,9 +619,12 @@ ON LEAVE OF tt-eb.yld-qty IN BROWSE br_table /* Yield Qty */
 
 ON LEAVE OF tt-eb.yrprice IN BROWSE br_table 
     DO:
-        RUN dispatch('update-record':U).
-        IF RETURN-VALUE = "ADM-ERROR":U THEN 
-           RETURN NO-APPLY.
+
+        /* user must press save otherwise browse loses focus*/
+/*        RUN dispatch('update-record':U).*/
+/*        IF RETURN-VALUE = "ADM-ERROR":U THEN*/
+/*           RETURN NO-APPLY.                 */
+       
     END.
 
 
@@ -2530,7 +2533,9 @@ PROCEDURE valid-frm-bl :
 
 
         IF FIRST-OF(bf-tt-eb.form-no) THEN 
-        DO:
+        DO: 
+            /* Form may start at # 0, so don't make iFormCnt 1 in that case */
+            IF NOT (iFormCnt EQ 0 AND bf-tt-eb.form-no EQ 0) THEN 
             iFormCnt = iFormCnt + 1.
             IF bf-tt-eb.form-no NE iFormCnt THEN 
             DO:

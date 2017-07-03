@@ -152,7 +152,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: EMPTRACK.empmach
+   External Tables: empmach
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -230,7 +230,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -250,16 +250,18 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL empmach.gl_account V-table-Win
 ON LEAVE OF empmach.gl_account IN FRAME F-Main /* G/L Account */
 DO:
+  {&methods/lValidateError.i YES}
   {custom/actleave.i}
   IF TRIM(SELF:SCREEN-VALUE) = "-" OR TRIM(SELF:SCREEN-VALUE) = "" THEN SELF:FORMAT = "x(25)".
-  
-  
+
+
   {methods/entryerr.i
       &can-find="first account WHERE (account.company = gcompany
                            AND account.actnum = SELF:SCREEN-VALUE) OR self:SCREEN-VALUE = '' OR trim(SELF:SCREEN-VALUE) = '-' "
      &error-message="Invalid G/L Account"}
-  
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -269,12 +271,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL empmach.machine V-table-Win
 ON LEAVE OF empmach.machine IN FRAME F-Main /* Machine */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   {methods/entryerr.i
       &can-find="mach WHERE mach.company = gcompany
                         AND mach.m-code = SELF:SCREEN-VALUE"
       &error-message="Invalid Machine Code"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -292,7 +297,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

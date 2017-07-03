@@ -36,11 +36,11 @@ CREATE WIDGET-POOL.
 
 {sys/inc/var.i new shared}
 
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
-def var v-process as log no-undo.
+DEF VAR v-process AS LOG NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -168,15 +168,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 98.2
          VIRTUAL-HEIGHT     = 19.76
          VIRTUAL-WIDTH      = 98.2
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 /* END WINDOW DEFINITION                                                */
@@ -215,7 +215,7 @@ ASSIGN
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -256,9 +256,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_vend-no C-Win
 ON LEAVE OF begin_vend-no IN FRAME FRAME-A /* Old Vendor # */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 
-  {&self-name}:screen-value = caps({&self-name}).
+  {&self-name}:screen-value = CAPS({&self-name}).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -269,8 +269,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
+    APPLY "close" TO THIS-PROCEDURE.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -281,41 +281,41 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
-  if not can-find(first vend
-                  where vend.company eq cocode
-                    and vend.vend-no eq begin_vend-no) then do:
-    message "You must enter a valid vendor number" view-as alert-box error.
-    apply "entry" to begin_vend-no.
-    return no-apply.
-  end.
+  IF NOT CAN-FIND(FIRST vend
+                  WHERE vend.company EQ cocode
+                    AND vend.vend-no EQ begin_vend-no) THEN DO:
+    MESSAGE "You must enter a valid vendor number" VIEW-AS ALERT-BOX ERROR.
+    APPLY "entry" TO begin_vend-no.
+    RETURN NO-APPLY.
+  END.
 
   IF begin_vend-no EQ end_vend-no THEN
   DO:
     MESSAGE "Old and New Vendor #s are the same.  Cannot Process."
         VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-    apply "entry" to end_vend-no.
-    return no-apply.
+    APPLY "entry" TO end_vend-no.
+    RETURN NO-APPLY.
   END.
 
-  if can-find(first vend
-              where vend.company eq cocode
-                and vend.vend-no eq end_vend-no) then do:
-    v-process = no.
+  IF CAN-FIND(FIRST vend
+              WHERE vend.company EQ cocode
+                AND vend.vend-no EQ end_vend-no) THEN DO:
+    v-process = NO.
 
-    message "The new Vendor # already exists, merge old Vendor # into new Vendor #?"
-            view-as alert-box question button yes-no update v-process.
+    MESSAGE "The new Vendor # already exists, merge old Vendor # into new Vendor #?"
+            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
 
-    if not v-process then return no-apply.
-  end.
+    IF NOT v-process THEN RETURN NO-APPLY.
+  END.
 
-  v-process  = no.
+  v-process  = NO.
 
-  message "Are you sure you want change vendor number" trim(caps(begin_vend-no))
-          "to" trim(caps(end_vend-no)) + "?"       
-          view-as alert-box question button yes-no update v-process.
+  MESSAGE "Are you sure you want change vendor number" TRIM(CAPS(begin_vend-no))
+          "to" TRIM(CAPS(end_vend-no)) + "?"       
+          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
 
-  if v-process then run run-process.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
+  IF v-process THEN RUN run-process.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -326,9 +326,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_vend-no C-Win
 ON LEAVE OF end_vend-no IN FRAME FRAME-A /* New Vendor # */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 
-  {&self-name}:screen-value = caps({&self-name}).
+  {&self-name}:screen-value = CAPS({&self-name}).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -350,7 +350,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -367,11 +367,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-  apply "entry" to begin_vend-no.
+  APPLY "entry" TO begin_vend-no.
   {methods/nowait.i}
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:45 am */
-    {methods/setButton.i btn-process "Start"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:45 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:33 am */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images1.p */
+    {methods/setButton.i btn-process "Start"} /* added by script _nonAdm1Images1.p */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -427,8 +427,8 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-def var v-vend      like vend.vend-no NO-UNDO.
-def var v-new-vend  like vend.vend-no NO-UNDO.
+DEF VAR v-vend      LIKE vend.vend-no NO-UNDO.
+DEF VAR v-new-vend  LIKE vend.vend-no NO-UNDO.
 DEF BUFFER b-vend FOR vend.
 DEF VAR old-rec-key AS CHAR NO-UNDO.
 
@@ -448,41 +448,41 @@ DEF BUFFER b2-setup FOR reftable.
 
 DISABLE TRIGGERS FOR LOAD OF vend.
 
-assign
+ASSIGN
  v-vend     = begin_vend-no
  v-new-vend = end_vend-no.
 
-session:set-wait-state("General").
+SESSION:SET-WAIT-STATE("General").
 
-for each ITEM where
-    ITEM.company eq cocode AND
-    ITEM.vend-no eq v-vend
+FOR EACH ITEM WHERE
+    ITEM.company EQ cocode AND
+    ITEM.vend-no EQ v-vend
     EXCLUSIVE-LOCK:
 
     DISPLAY ITEM.i-no WITH DOWN.
 
     ITEM.vend-no = v-new-vend.
-end.
+END.
 
-for each ITEM where
-    ITEM.company eq cocode AND
-    ITEM.vend2-no eq v-vend
+FOR EACH ITEM WHERE
+    ITEM.company EQ cocode AND
+    ITEM.vend2-no EQ v-vend
     EXCLUSIVE-LOCK:
 
     DISPLAY ITEM.i-no WITH DOWN.
 
     ITEM.vend2-no = v-new-vend.
-end.
+END.
 
-for each ef where
-    ef.company eq cocode AND
-    ef.vend-no eq v-vend
+FOR EACH ef WHERE
+    ef.company EQ cocode AND
+    ef.vend-no EQ v-vend
     EXCLUSIVE-LOCK:
 
     DISPLAY ef.est-no FORMAT "X(10)" WITH DOWN.
 
     ef.vend-no = v-new-vend.
-end.
+END.
 
 FOR EACH prep WHERE
     prep.company EQ cocode AND
@@ -543,22 +543,22 @@ FOR EACH ap-inv WHERE
     IF NOT CAN-FIND(FIRST b-ap-inv WHERE
        b-ap-inv.company EQ ap-inv.company AND
        b-ap-inv.vend-no EQ v-new-vend AND
-       b-ap-inv.inv-no EQ ap-inv.inv-no) THEN do:
+       b-ap-inv.inv-no EQ ap-inv.inv-no) THEN DO:
         ap-inv.vend-no = v-new-vend.
 
-        FIND FIRST bf-vend-new WHERE
-            bf-vend-new.company EQ ap-inv.company AND
-            bf-vend-new.vend-no EQ v-new-vend
-            NO-LOCK NO-ERROR.
-
-        FOR EACH attach WHERE
-            attach.company = ap-inv.company and
-            attach.rec_key = old-rec-key EXCLUSIVE-LOCK:
-
-           attach.rec_key = bf-vend-new.rec_key .
-       END.
+/*        FIND FIRST bf-vend-new WHERE                    */
+/*            bf-vend-new.company EQ ap-inv.company AND   */
+/*            bf-vend-new.vend-no EQ v-new-vend           */
+/*            NO-LOCK NO-ERROR.                           */
+/*                                                        */
+/*        FOR EACH attach WHERE                           */
+/*            attach.company = ap-inv.company AND         */
+/*            attach.rec_key = old-rec-key EXCLUSIVE-LOCK:*/
+/*                                                        */
+/*           attach.rec_key = bf-vend-new.rec_key .       */
+/*        END.                                            */
     END.
-    ELSE do:
+    ELSE DO:
        DELETE ap-inv.
     END.
 END.
@@ -617,25 +617,25 @@ FOR EACH fg-hist WHERE
     fg-hist.vend-number = v-new-vend.
 END.
 
-for each itemfg where
-    itemfg.company eq cocode AND
-    itemfg.vend-no eq v-vend
+FOR EACH itemfg WHERE
+    itemfg.company EQ cocode AND
+    itemfg.vend-no EQ v-vend
     EXCLUSIVE-LOCK:
 
     DISPLAY itemfg.i-no WITH DOWN.
 
     itemfg.vend-no = v-new-vend.
-end.
+END.
 
-for each itemfg where
-    itemfg.company eq cocode AND
-    itemfg.vend2-no eq v-vend
+FOR EACH itemfg WHERE
+    itemfg.company EQ cocode AND
+    itemfg.vend2-no EQ v-vend
     EXCLUSIVE-LOCK:
 
     DISPLAY itemfg.i-no WITH DOWN.
 
     itemfg.vend2-no = v-new-vend.
-end.
+END.
 
 FOR EACH oe-ordl WHERE
     oe-ordl.company EQ cocode AND
@@ -870,20 +870,33 @@ FOR EACH sys-ctrl-shipto WHERE
     sys-ctrl-shipto.cust-vend-no = v-new-vend.
 END.
 
-find first vend WHERE
-     vend.company eq cocode AND
-     vend.vend-no eq v-vend
-     EXCLUSIVE-LOCK no-error.
+FIND FIRST vend WHERE
+     vend.company EQ cocode AND
+     vend.vend-no EQ v-vend
+     EXCLUSIVE-LOCK NO-ERROR.
 
-  if avail vend then do:
-    find first b-vend WHERE
-         b-vend.company eq cocode AND
-         b-vend.vend-no eq v-new-vend
-        no-lock no-error.                   
-    if avail b-vend then do:
-      for each notes where notes.rec_key eq vend.rec_key:
+
+  IF AVAIL vend THEN DO:
+
+    /* Used for attach records below */
+    old-rec-key = vend.rec_key .
+
+    FIND FIRST b-vend WHERE
+         b-vend.company EQ cocode AND
+         b-vend.vend-no EQ v-new-vend
+        NO-LOCK NO-ERROR.                   
+    IF AVAIL b-vend THEN DO:
+
+      FOR EACH attach EXCLUSIVE-LOCK WHERE
+        attach.company = cocode AND
+        attach.rec_key = old-rec-key :
+
+        attach.rec_key = b-vend.rec_key .
+      END.    
+
+      FOR EACH notes WHERE notes.rec_key EQ vend.rec_key:
         notes.rec_key = b-vend.rec_key.
-      end.
+      END.
 
       FOR EACH reftable WHERE
           reftable.reftable EQ "vend.poexport" AND
@@ -893,16 +906,18 @@ find first vend WHERE
           DELETE reftable.
       END.
 
-      delete vend.
-    end.
-    else vend.vend-no = v-new-vend.
-  end.
+      DELETE vend.
+    END.
+    ELSE vend.vend-no = v-new-vend.
+  END.
 
-session:set-wait-state("").
 
-message trim(c-win:title) + " Process Complete..." view-as alert-box.
 
-apply "close" to this-procedure.
+SESSION:SET-WAIT-STATE("").
+
+MESSAGE TRIM(c-win:TITLE) + " Process Complete..." VIEW-AS ALERT-BOX.
+
+APPLY "close" TO THIS-PROCEDURE.
 
 /* end ---------------------------------- copr. 2001  advanced software, inc. */
 

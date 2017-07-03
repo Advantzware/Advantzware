@@ -214,7 +214,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -224,6 +224,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL reftable.loc V-table-Win
 ON LEAVE OF reftable.loc IN FRAME F-Main /* Date */
 DO:
+  {&methods/lValidateError.i YES}
   DEF VAR dTempDate AS DATE INIT ?.
   dTempDate = DATE(SELF:SCREEN-VALUE) NO-ERROR.
   IF dTempDate EQ ? THEN DO:
@@ -231,9 +232,9 @@ DO:
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
     RETURN NO-APPLY.
   END.
-
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -249,7 +250,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */

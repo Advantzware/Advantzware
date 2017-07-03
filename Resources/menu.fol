@@ -47,7 +47,6 @@ r-reledt. b2
 r-relprt. b2
 r-relpst. b2
 r-trksch. b2
-w-oerelw. b2
 b3 b
 w-oebolh. b3
 r-boledt. b3
@@ -125,12 +124,9 @@ rmglobpr. c
 r-rmphct. c2
 w-phycnt. c2
 r-pce&p. c2
-c3. c
-c6. c
 ci c
 w-rmiinq. ci
 w-rmainq. ci
-ci2. ci
 cr c
 r-rmcost. cr
 r-reordr. cr
@@ -150,13 +146,11 @@ cf c est
 item. cf est
 procat. cf est
 costtype. cf est
-cf4. cf est
 rm-ctrl. cf est
 loc. cf est
 d file est
 d1 d
 fg-rcpt. d1
-fg-ship. d1
 fg-trans. d1
 fg-adj. d1
 r-edtlst. d1
@@ -249,7 +243,6 @@ r-inctsh. er
 r-yrtoyr. er
 r-slsper. er
 r-scomsr. er
-f file est
 g file est
 w-prdhj. g
 w-prdh. g
@@ -307,7 +300,6 @@ r-bckmch. hr
 r-msfkic. hr
 r-wipbct. hr
 r-jobmsf. hr
-r-fibaud. hr
 r-wiptag. hr
 hl h
 r-jobdue. hl
@@ -456,7 +448,6 @@ r-taxmon. kr
 r-taxdis. kr
 r-mtdsub. kr
 r-taxcus. kr
-r-gljorn. kr
 r-v1099. kr
 r-venacc. kr
 r-veninv. kr
@@ -591,6 +582,7 @@ wedpotr. sr est
 wedpoak. sr est
 wedshtr. sr est
 impspxml. sr est
+wQuery. sr est
 RULE file est
 user mainmenu est
 comp_loc. user est

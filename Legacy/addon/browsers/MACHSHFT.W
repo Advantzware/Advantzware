@@ -260,13 +260,13 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.machshft WHERE ASI.mach <external> ..."
+     _TblList          = "machshft WHERE ASI.mach <external> ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,"
      _Where[1]         = "machshft.company = mach.company
 AND machshft.machine = mach.m-code
 AND ~{&KEY-PHRASE}"
-     _FldNameList[1]   = EMPTRACK.machshft.shift
+     _FldNameList[1]   = machshft.shift
      _FldNameList[2]   > "_<CALC>"
 "Shifts_Description(machshft.shift) @ shifts_description" "Description" "X(40)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"

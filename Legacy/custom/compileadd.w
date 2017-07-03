@@ -285,7 +285,7 @@ DISCONNECT nosweat NO-ERROR.
 CONNECT -pf {&dbDir}/addon/nosweat.pf. /* ??????? */
 CONNECT -pf {&dbDir}/asi.pf.
 CONNECT -pf {&dbDir}/asihelp.pf.
-CONNECT -pf {&dbDir}/addon/emptrack.pf.
+CONNECT -pf {&dbDir}/addon/pf.
 CONNECT -pf {&dbDir}/addon/jobs.pf.
 CONNECT -pf {&dbDir}/addon/rfq.pf.
 

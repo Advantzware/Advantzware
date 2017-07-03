@@ -5,16 +5,20 @@ PROCEDURE winReSize:
   DEFINE INPUT PARAMETER ipRowDiff AS DECIMAL NO-UNDO.
   DEFINE INPUT PARAMETER ipColDiff AS DECIMAL NO-UNDO.
 
+  DEFINE VARIABLE iWindowHeight AS INTEGER       NO-UNDO.
+  DEFINE VARIABLE iWindowWidth  AS INTEGER       NO-UNDO.
   DEFINE VARIABLE currentWidget AS WIDGET-HANDLE NO-UNDO.
   DEFINE VARIABLE oGrid         AS Consultingwerk.WindowIntegrationKit.Controls.RenderedBrowseControl NO-UNDO.
   
   // No matter what resizing we need to ensure, the virtual size of the frame
   // is large enough here to contain all widgets
   ASSIGN 
-      FRAME {&FRAME-NAME}:FRAME:VIRTUAL-HEIGHT = FRAME {&FRAME-NAME}:WINDOW:HEIGHT
-      FRAME {&FRAME-NAME}:FRAME:VIRTUAL-WIDTH  = FRAME {&FRAME-NAME}:WINDOW:WIDTH
-      FRAME {&FRAME-NAME}:FRAME:HEIGHT         = FRAME {&FRAME-NAME}:WINDOW:HEIGHT
-      FRAME {&FRAME-NAME}:FRAME:WIDTH          = FRAME {&FRAME-NAME}:WINDOW:WIDTH
+      iWindowHeight                            = IF iWindowHeight EQ 0 THEN {&WINDOW-NAME}:HEIGHT ELSE iWindowHeight 
+      iWindowWidth                             = IF iWindowWidth  EQ 0 THEN {&WINDOW-NAME}:WIDTH  ELSE iWindowWidth
+      FRAME {&FRAME-NAME}:FRAME:VIRTUAL-HEIGHT = iWindowHeight
+      FRAME {&FRAME-NAME}:FRAME:VIRTUAL-WIDTH  = iWindowWidth
+      FRAME {&FRAME-NAME}:FRAME:HEIGHT         = iWindowHeight
+      FRAME {&FRAME-NAME}:FRAME:WIDTH          = iWindowWidth
       winReSize = YES
       /* shouldn't be needed, but here because of .net object sizing setting */
       FRAME {&FRAME-NAME}:SCROLLABLE     = YES

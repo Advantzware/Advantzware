@@ -237,7 +237,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -247,11 +247,11 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-dept V-table-Win
 ON CHOOSE OF btn-dept IN FRAME F-Main /* Department List */
 DO:
-  
+  {&methods/lValidateError.i YES}
   DEF VAR v-deptlst AS cha NO-UNDO.
-  
+
       RUN addon/windows/d-deptlk.w (v-machine,OUTPUT v-deptlst).
-  
+
   IF v-deptlst <> "" THEN DO:
      FIND FIRST mach WHERE mach.company = g_company AND
                            mach.m-code = v-machine NO-LOCK NO-ERROR.
@@ -262,11 +262,13 @@ DO:
      FIND FIRST dept WHERE dept.code EQ notes.note_code:SCREEN-VALUE NO-LOCK NO-ERROR.
      dept-dscr:screen-value in frame {&frame-name} = if avail dept then dept.dscr else "".
      APPLY "leave" TO notes.note_code.
-     
+
   END.
   v-got-dept = YES.
   RETURN NO-APPLY.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -303,6 +305,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_code V-table-Win
 ON HELP OF notes.note_code IN FRAME F-Main /* Dept */
 DO:
+  {&methods/lValidateError.i YES}
   RUN lookups/dept.p.
   IF g_lookup-var NE '' AND g_lookup-var NE SELF:SCREEN-VALUE THEN
   DO:
@@ -314,7 +317,9 @@ DO:
   END.
   APPLY 'ENTRY' TO SELF.
   RETURN NO-APPLY.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -340,11 +345,11 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-  
+
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -477,7 +482,7 @@ IF v-machine EQ "" THEN
 DO WITH FRAME {&FRAME-NAME}:
 btn-dept:HIDDEN = YES.
 END.
-                                      
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -566,6 +571,7 @@ PROCEDURE valid-note_code :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     IF notes.note_code:SCREEN-VALUE NE "" AND
        NOT CAN-FIND(FIRST dept WHERE dept.code EQ notes.note_code:SCREEN-VALUE)
@@ -576,8 +582,9 @@ PROCEDURE valid-note_code :
       RETURN ERROR.
     END.
   END.
-    
 
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

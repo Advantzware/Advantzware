@@ -76,14 +76,14 @@ notes.user_id notes.note_code get-note() @ v-disp-note
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH notes WHERE ~{&KEY-PHRASE} ~
       AND notes.rec_key = ip-rec_key ~
- AND LOOKUP(NOSWEAT.notes.note_type, ip-notetype) GT 0 ~
- AND (LOOKUP(nosweat.notes.note_code, ip-notecode) GT 0 ~
+ AND LOOKUP(notes.note_type, ip-notetype) GT 0 ~
+ AND (LOOKUP(notes.note_code, ip-notecode) GT 0 ~
       or LOOKUP("RDC", ip-notecode) GT 0 and notes.note_code = "") NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH notes WHERE ~{&KEY-PHRASE} ~
       AND notes.rec_key = ip-rec_key ~
- AND LOOKUP(NOSWEAT.notes.note_type, ip-notetype) GT 0 ~
- AND (LOOKUP(nosweat.notes.note_code, ip-notecode) GT 0 ~
+ AND LOOKUP(notes.note_type, ip-notetype) GT 0 ~
+ AND (LOOKUP(notes.note_code, ip-notecode) GT 0 ~
       or LOOKUP("RDC", ip-notecode) GT 0 and notes.note_code = "") NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table notes
@@ -258,20 +258,20 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "NOSWEAT.notes"
+     _TblList          = "notes"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "notes.rec_key = ip-rec_key
- AND LOOKUP(NOSWEAT.notes.note_type, ip-notetype) GT 0
- AND (LOOKUP(nosweat.notes.note_code, ip-notecode) GT 0
-      or LOOKUP(""RDC"", ip-notecode) GT 0 and nosweat.notes.note_code = """")"
-     _FldNameList[1]   = NOSWEAT.notes.note_date
+ AND LOOKUP(notes.note_type, ip-notetype) GT 0
+ AND (LOOKUP(notes.note_code, ip-notecode) GT 0
+      or LOOKUP(""RDC"", ip-notecode) GT 0 and notes.note_code = """")"
+     _FldNameList[1]   = notes.note_date
      _FldNameList[2]   > "_<CALC>"
 "STRING(notes.note_time,'HH:MM:SS am') @ notetime" "Note Time" "X(11)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > NOSWEAT.notes.note_title
+     _FldNameList[3]   > notes.note_title
 "notes.note_title" ? "X(50)" "character" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   = NOSWEAT.notes.user_id
-     _FldNameList[5]   > NOSWEAT.notes.note_code
+     _FldNameList[4]   = notes.user_id
+     _FldNameList[5]   > notes.note_code
 "notes.note_code" "Spec" "X(3)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
 "get-note() @ v-disp-note" "Title" "x(40)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no

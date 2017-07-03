@@ -1111,7 +1111,7 @@ PROCEDURE select_att :
    /*RUN Get_Procedure IN Persistent-Handle ('attach.',OUTPUT run-proc,no).
    IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .*/
 
-   RUN windows/ATTACH.w(rec_key_value,HEADER_value).
+   {methods/select_att.i}
 
 END PROCEDURE.
 
@@ -1151,9 +1151,12 @@ PROCEDURE select_attcust :
             b-cust.cust-no EQ b-oe-ord.cust-no
             NO-LOCK NO-ERROR.
 
-     IF AVAIL b-cust THEN
-       RUN windows/cstattch.w(b-cust.rec_key,'Customer: ' + b-cust.cust-no +
-                              ' - ' + 'Name: ' + b-cust.name,b-oe-ord.ord-no). 
+     IF AVAIL b-cust THEN DO:
+         {methods/select_attcust.i
+            b-cust.rec_key
+            "'Customer: ' + b-cust.cust-no + ' - ' + 'Name: ' + b-cust.name"
+            b-oe-ord.ord-no}
+     END.                          
  END.
  
  
@@ -1169,10 +1172,7 @@ PROCEDURE select_ONote :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cHeaderValue AS cha NO-UNDO.
-
-  {methods/run_link.i "record-SOURCE" "get-job-header" "(output cHeaderValue)"}
-  RUN windows/opnotes.w(rec_key_value,cHEADERvalue,"",1).
+    {methods/select_ONote.i rec_key_value cHeaderValue """" 1}
 
 END PROCEDURE.
 

@@ -1,6 +1,18 @@
 /* touchscr.p */
 /* WFK - 15626 */
 /* PROPATH = "..\," + PROPATH. */
+&SCOPED-DEFINE loginProcedure nosweat/login.w
+&SCOPED-DEFINE nonPersistProgram touch/touchscr.w
+&SCOPED-DEFINE checkUserRecord YES
+&SCOPED-DEFINE connectDatabases YES
+&SCOPED-DEFINE runAsiLoad YES
+&SCOPED-DEFINE checkExpiredLicense YES
+&GLOBAL-DEFINE checkUserCount YES
+&SCOPED-DEFINE getCompanyProc sshoot/comp-loc.p
+&SCOPED-DEFINE appName touchscreen
+/* {nosweat.i} */
+
+/* Original Code */
 
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
@@ -21,6 +33,17 @@ FOR EACH parmfile NO-LOCK:
         VIEW-AS ALERT-BOX ERROR.
   END.
 END.
+
+if connected(ldbname(1))
+and ldbname(1) = "ASI" then do:
+    create alias nosweat for database value(ldbname(1)).
+    create alias emptrack for database value(ldbname(1)).
+    create alias jobs for database value(ldbname(1)).
+    create alias rfq for database value(ldbname(1)).
+    create alias asihelp for database value(ldbname(1)).
+    create alias asihlp for database value(ldbname(1)).
+    create alias asinos for database value(ldbname(1)).
+end.
 
 RUN touch/touchscr2.p NO-ERROR.
 IF ERROR-STATUS:ERROR THEN DO: 
@@ -73,7 +96,6 @@ END.  /* prompt login */
 
 RUN custom/gettime.p.   /* time-source */
 */
-
 IF CONNECTED(ldbname(1)) THEN DO:
     /* WFK - 15626 - Made path relative */
     RUN addon/nosweat/persist.p PERSISTENT SET Persistent-Handle.
@@ -88,3 +110,4 @@ END.
 
 ldummy = SESSION:SET-WAIT-STATE("").
 QUIT.
+

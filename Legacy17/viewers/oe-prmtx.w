@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:52 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -547,7 +547,7 @@ DO:
   def var char-val as cha no-undo.
   def var lv-handle as handle no-undo.
 
-
+  {&methods/lValidateError.i YES}
   case focus:name :
     when "uom" then do:
       run windows/l-stduom.w (cocode, uom-list, focus:screen-value, output char-val).
@@ -565,7 +565,9 @@ DO:
       return no-apply.
     end.
   end case.  
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -586,6 +588,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-prmtx.cust-no V-table-Win
 ON LEAVE OF oe-prmtx.cust-no IN FRAME F-Main /* Customer */
 DO:
+   {&methods/lValidateError.i YES}
    IF LASTKEY <> -1 AND oe-prmtx.cust-no:SCREEN-VALUE <> "" THEN do:
       RUN valid-cust-no NO-ERROR.
       IF ERROR-STATUS:ERROR THEN DO:
@@ -605,7 +608,9 @@ DO:
     oe-prmtx.custype:sensitive = no.
     apply "entry" to oe-prmtx.i-no.
   end.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -615,6 +620,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-prmtx.custype V-table-Win
 ON LEAVE OF oe-prmtx.custype IN FRAME F-Main /* Type */
 DO:
+   {&methods/lValidateError.i YES}
    IF LASTKEY <> -1 AND oe-prmtx.custype:SCREEN-VALUE <> "" THEN do:
        RUN valid-custtype NO-ERROR.
        IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -630,8 +636,10 @@ DO:
 
     oe-prmtx.procat:sensitive = no.
     apply "entry" to oe-prmtx.meth.
-  end.
+  end. 
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:42 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -388,6 +388,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-end-time V-table-Win
 ON LEAVE OF v-end-time IN FRAME F-Main /* Time */
 DO:
+{&methods/lValidateError.i YES}
   ASSIGN {&SELF-NAME}.
   IF INTEGER(SUBSTR({&SELF-NAME},1,2)) * 3600 +
      INTEGER(SUBSTR({&SELF-NAME},3,2)) * 60 LT 0 OR
@@ -397,7 +398,9 @@ DO:
     APPLY "ENTRY" TO {&SELF-NAME}.
     RETURN NO-APPLY.
   END.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -407,6 +410,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-last-time V-table-Win
 ON LEAVE OF v-last-time IN FRAME F-Main /* Time */
 DO:
+{&methods/lValidateError.i YES}
   ASSIGN {&SELF-NAME}.
   IF INTEGER(SUBSTR({&SELF-NAME},1,2)) * 3600 +
      INTEGER(SUBSTR({&SELF-NAME},3,2)) * 60 LT 0 OR
@@ -416,7 +420,9 @@ DO:
     APPLY "ENTRY" TO {&SELF-NAME}.
     RETURN NO-APPLY.
   END.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -426,6 +432,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-next-time V-table-Win
 ON LEAVE OF v-next-time IN FRAME F-Main /* Time */
 DO:
+{&methods/lValidateError.i YES}
   ASSIGN {&SELF-NAME}.
   IF INTEGER(SUBSTR({&SELF-NAME},1,2)) * 3600 +
      INTEGER(SUBSTR({&SELF-NAME},3,2)) * 60 LT 0 OR
@@ -435,7 +442,9 @@ DO:
     APPLY "ENTRY" TO {&SELF-NAME}.
     RETURN NO-APPLY.
   END.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -445,6 +454,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-start-time V-table-Win
 ON LEAVE OF v-start-time IN FRAME F-Main /* Time */
 DO:
+{&methods/lValidateError.i YES}
   ASSIGN {&SELF-NAME}.
   IF INTEGER(SUBSTR({&SELF-NAME},1,2)) * 3600 +
      INTEGER(SUBSTR({&SELF-NAME},3,2)) * 60 LT 0 OR
@@ -454,7 +464,9 @@ DO:
     APPLY "ENTRY" TO {&SELF-NAME}.
     RETURN NO-APPLY.
   END.
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -693,7 +705,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF BUFFER bf-prt FOR user-print.
   DEF VAR char-hdl AS cha NO-UNDO.
-
+{&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   ASSIGN
     g_batch-rowid = ROWID(user-print)
@@ -717,8 +729,10 @@ PROCEDURE local-update-record :
   ASSIGN
     g_batch = NO
     g_batch-rowid = ?.
+{&methods/lValidateError.i NO}
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

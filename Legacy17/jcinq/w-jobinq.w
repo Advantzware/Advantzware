@@ -1077,10 +1077,7 @@ PROCEDURE select_ONote :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF VAR cHeaderValue AS cha NO-UNDO.
-
-  {methods/run_link.i "record-SOURCE" "get-job-header" "(output cHeaderValue)"}
-  RUN windows/opnotes.w(rec_key_value,cHEADERvalue,"",1).
+    {methods/select_ONote.i rec_key_value cHeaderValue """" 1}
 
 END PROCEDURE.
 

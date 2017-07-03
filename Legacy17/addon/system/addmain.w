@@ -295,8 +295,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:17 pm */
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* These events will close the window and terminate the procedure.      */
@@ -330,8 +329,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         boxes:LOAD-IMAGE(sys-ctrl.DESCrip).
   {addon/methods/mainmenu.i}
   RUN Read_Menus.
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.07.2017 @  2:06:17 pm */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -371,7 +369,7 @@ PROCEDURE Create_Buttons :
         HEIGHT-CHARS = {&button-height}
         WIDTH-CHARS = {&button-width}
         HIDDEN = NO
-        MANUAL-HIGHLIGHT = TRUE
+        /* MANUAL-HIGHLIGHT = TRUE */
       TRIGGERS:
         ON CHOOSE
           PERSISTENT RUN Run_Button IN THIS-PROCEDURE (button-widget:HANDLE).

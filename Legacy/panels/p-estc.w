@@ -78,7 +78,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Add Btn-Copy ~
+&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Add /*Btn-Copy*/ ~
 Btn-Delete Btn-Cancel 
 
 /* Custom List Definitions                                              */
@@ -104,10 +104,10 @@ DEFINE BUTTON Btn-Cancel
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-Copy 
+/*DEFINE BUTTON Btn-Copy 
      LABEL "&Copy" 
      SIZE 9 BY 1.29
-     FONT 4.
+     FONT 4.*/
 
 DEFINE BUTTON Btn-Delete 
      LABEL "&Delete" 
@@ -135,7 +135,7 @@ DEFINE FRAME Panel-Frame
      Btn-Save AT ROW 1.29 COL 2
      Btn-Reset AT ROW 1.29 COL 11
      Btn-Add AT ROW 1.29 COL 20
-     Btn-Copy AT ROW 1.29 COL 29
+     /*Btn-Copy AT ROW 1.29 COL 29*/
      Btn-Delete AT ROW 1.29 COL 38
      Btn-Cancel AT ROW 1.29 COL 47
      RECT-1 AT ROW 1 COL 1
@@ -251,7 +251,7 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn-Copy
+/*&Scoped-define SELF-NAME Btn-Copy
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Copy C-WIn
 ON CHOOSE OF Btn-Copy IN FRAME Panel-Frame /* Copy */
 DO:
@@ -261,7 +261,7 @@ DO:
 END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME*/
 
 
 &Scoped-define SELF-NAME Btn-Delete
@@ -514,9 +514,9 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Add:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+/*&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Copy:SENSITIVE = NO.
-&ENDIF
+&ENDIF*/
 &IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Reset:SENSITIVE = NO.
 &ENDIF
@@ -541,9 +541,9 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Add:SENSITIVE = YES.
 &ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+/*&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Copy:SENSITIVE = YES.
-&ENDIF
+&ENDIF*/
 &IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
        IF panel-type = 'Update':U THEN
              Btn-Reset:SENSITIVE = NO.
@@ -571,9 +571,9 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Add:SENSITIVE = YES.
 &ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+/*&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Copy:SENSITIVE = NO.
-&ENDIF
+&ENDIF*/
 &IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Reset:SENSITIVE = NO.
 &ENDIF
@@ -601,9 +601,9 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Add:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+/*&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Copy:SENSITIVE = NO.
-&ENDIF
+&ENDIF*/
 &IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Reset:SENSITIVE = YES.
 &ENDIF
@@ -619,7 +619,7 @@ DO WITH FRAME Panel-Frame:
     IF NOT v-can-create THEN
       ASSIGN
        btn-add:SENSITIVE  = NO
-       btn-copy:SENSITIVE = NO.
+       /*btn-copy:SENSITIVE = NO*/ .
 
     IF NOT v-can-update THEN btn-save:SENSITIVE = NO.
     IF NOT v-can-delete THEN btn-delete:SENSITIVE = NO.

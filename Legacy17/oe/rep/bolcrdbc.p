@@ -82,8 +82,8 @@ def workfile w3 no-undo
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
 ASSIGN ls-image1 = "images\Carded.jpg"
        ls-image2 = "images\Carded.jpg".
 
@@ -495,6 +495,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
     "<R59><C1>" "<B>  Signature of Receipt </B>" 
     "<R60><C1>" "Customer ________________________________________                       Carrier _______________________________________" 
     "<R62><C1>" "Date ____________________________________________                       Date _________________________________________" 
+    "<R63><C1>" "NMFC 29250 Subs: 1-10 CLASS 55: Fiberboard, Paper, Paperboard or Pulpboard NOI " 
     .
 
   v-printline = v-printline + 14.

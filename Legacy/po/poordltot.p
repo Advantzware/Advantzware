@@ -15,7 +15,8 @@ DEF VAR v-dep LIKE po-ordl.s-len NO-UNDO.
 DEF VAR fg-uom-list AS CHAR NO-UNDO.
 DEF VAR v-ord-qty AS DEC NO-UNDO.
 DEF VAR v-tot-msf AS DEC NO-UNDO.
-
+/* ip-type needed for include file podisdet2 */
+DEFINE VARIABLE ip-type AS CHARACTER NO-UNDO.
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 

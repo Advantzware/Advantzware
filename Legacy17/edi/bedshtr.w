@@ -11,7 +11,7 @@ Use this template to create a new SmartNavBrowser object with the assistance of 
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:33 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -146,10 +146,10 @@ DEFINE QUERY Browser-Table FOR
 DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
-      EDSHTran.Partner FORMAT "x(05)":U
+      EDSHTran.Partner FORMAT "x(08)":U
       EDSHTran.Seq FORMAT ">>>>>>9":U
       EDSHTran.BOL-No FORMAT "x(30)":U
-      EDSHTran.BOL-Adddate FORMAT "99/99/9999":U
+      EDSHTran.BOL-Adddate COLUMN-LABEL "BOL-Date" FORMAT "99/99/9999":U
       EDSHTran.Pro-Number FORMAT "x(30)":U
       EDSHTran.Ship-Date FORMAT "99/99/9999":U
       EDSHTran.St-code FORMAT "x(12)":U
@@ -250,10 +250,12 @@ ASSIGN
      _TblList          = "asi.EDSHTran"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,"
-     _FldNameList[1]   = asi.EDSHTran.Partner
+     _FldNameList[1]   > asi.EDSHTran.Partner
+"Partner" ? "x(08)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   = asi.EDSHTran.Seq
      _FldNameList[3]   = asi.EDSHTran.BOL-No
-     _FldNameList[4]   = asi.EDSHTran.BOL-Adddate
+     _FldNameList[4]   > asi.EDSHTran.BOL-Adddate
+"BOL-Adddate" "BOL-Date" ? "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   = asi.EDSHTran.Pro-Number
      _FldNameList[6]   = asi.EDSHTran.Ship-Date
      _FldNameList[7]   = asi.EDSHTran.St-code
@@ -429,6 +431,21 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE GenerateASN B-table-Win 
+PROCEDURE GenerateASN :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  FIND FIRST oe-bolh WHERE oe-bolh.company = g_company AND oe-bolh.bol-no = int(EDSHTran.BOL-No) NO-LOCK NO-ERROR.
+  IF AVAILABLE oe-bolh THEN 
+     RUN oe/oe856gen.p  (recid(oe-bolh), yes, no).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

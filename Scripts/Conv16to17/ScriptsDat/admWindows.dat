@@ -142,7 +142,6 @@ apinq\w-pcminq.w
 ar\d-selinl.w
 ar\d-selinv.w
 ar\d-selinvD.w
-ar\repstinv.w
 ar\w-arinq.w
 ar\w-arinv.w
 ar\w-aronac.w
@@ -277,7 +276,6 @@ jcsch\w-jchtab.w
 jcsch\w-jobsc2.w
 jcsch\w-jobsc3.w
 jcsch\w-jobsch.w
-nosweat\template\window.w
 oe\d-addlin.w
 oe\d-citmfg.w
 oe\d-close.w
@@ -383,7 +381,6 @@ util\module.w
 util\module2.w
 util\ohshiped.w
 util\settype.w
-util\shipmeth.w
 util\showFtpFiles.w
 util\updapinv.w
 util\updateFG.w
@@ -467,9 +464,6 @@ windows\prgrms.w
 windows\procat.w
 windows\prod.w
 windows\reftable.w
-windows\rejct-cd.w
-windows\rejctcdj.w
-windows\rejctcdr.w
 windows\rejctcdw.w
 windows\routing.w
 windows\saddress.w

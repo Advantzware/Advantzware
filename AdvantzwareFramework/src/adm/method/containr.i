@@ -440,6 +440,7 @@ PROCEDURE winkit-initialize:
         Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager, FALSE, FALSE) .
     &ENDIF
 
+    &IF DEFINED (WinKitActive) NE 0 &THEN
     /* https://github.com/advantzwareWinKit/Advantzware/issues/61 */
     IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive AND VALID-OBJECT (oFormControl) THEN DO:
 
@@ -452,6 +453,7 @@ PROCEDURE winkit-initialize:
                    FRAME {&frame-name}:HEIGHT-PIXELS = MAXIMUM (FRAME {&frame-name}:HEIGHT-PIXELS, {&window-name}:HEIGHT-PIXELS) .
         END.
     END.
+    &ENDIF
 
 END PROCEDURE.
 

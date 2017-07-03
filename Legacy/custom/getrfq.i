@@ -8,7 +8,7 @@ IF AVAILABLE module AND module.is-used THEN DO:
     IF CONNECTED('rfq') THEN DO:
       RUN custom/getrfq.p (quotehd.company,quotehd.loc,quotehd.est-no,
                            OUTPUT quotehd.rfq).
-      DISCONNECT rfq.
+      /* DISCONNECT rfq. */
     END. /* connected rfq db */
   END. /* expire-date */
 END. /* avail module */

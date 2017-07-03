@@ -657,9 +657,11 @@ DO:
              fg-rctd.tag:SCREEN-VALUE = ENTRY(1,char-val).
              /*  ===*/
              IF (lv-do-what <> "Delete" AND
-                CAN-FIND(FIRST b-fg-rctd WHERE b-fg-rctd.company = g_company AND
-                           b-fg-rctd.tag = SELF:SCREEN-VALUE
-                       AND RECID(b-fg-rctd) <> RECID(fg-rctd))) OR
+                CAN-FIND(FIRST b-fg-rctd 
+                           WHERE b-fg-rctd.company = g_company 
+                             AND b-fg-rctd.tag = SELF:SCREEN-VALUE
+                             AND b-fg-rctd.rita-code NE "P"
+                             AND RECID(b-fg-rctd) <> RECID(fg-rctd))) OR
                  (lv-do-what EQ "Delete" AND CAN-FIND(FIRST b-fg-rctd WHERE b-fg-rctd.company = g_company AND
                            b-fg-rctd.tag = SELF:SCREEN-VALUE
                        AND b-fg-rctd.rita-code <> "P"
@@ -781,8 +783,8 @@ DO:
        RETURN NO-APPLY.
 
     END.
-    IF CAN-FIND(FIRST b-fg-rctd WHERE b-fg-rctd.company = g_company AND
-                            b-fg-rctd.tag = SELF:SCREEN-VALUE
+    IF CAN-FIND(FIRST b-fg-rctd WHERE b-fg-rctd.company = g_company 
+                        AND b-fg-rctd.tag = SELF:SCREEN-VALUE
                         AND b-fg-rctd.rita-code <> "P"
                         AND RECID(b-fg-rctd) <> RECID(fg-rctd)) THEN DO:
         
@@ -1218,7 +1220,7 @@ PROCEDURE adm-open-query-cases :
   RUN get-attribute ('Key-Name':U).
   CASE RETURN-VALUE:
     WHEN 'r-no':U THEN DO:
-       &Scope KEY-PHRASE fg-rctd.r-no eq INTEGER(key-value)
+       &Scope KEY-PHRASE fg-rctd.r-no EQ INTEGER(key-value)
        {&OPEN-QUERY-{&BROWSE-NAME}}
     END. /* r-no */
     OTHERWISE DO:
@@ -3469,9 +3471,10 @@ PROCEDURE valid-record :
   /* ===== tag validation =====*/
   IF TRUE /* 08211410 fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> "" */ THEN DO:
   
-    IF CAN-FIND(FIRST b-fg-rctd WHERE b-fg-rctd.company = g_company AND
-                            b-fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE
-                        AND RECID(b-fg-rctd) <> RECID(fg-rctd)) THEN DO:
+    IF CAN-FIND(FIRST b-fg-rctd WHERE b-fg-rctd.company = g_company 
+                      AND b-fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE
+                      AND b-fg-rctd.rita-code NE "P"
+                      AND RECID(b-fg-rctd) <> RECID(fg-rctd)) THEN DO:
        RUN custom/d-msg.w ("Error","This Tag Number Has Already Been Used.","Please Enter A Unique Tag Number.","",1,"OK", OUTPUT v-msgreturn).
        APPLY "entry" TO fg-rctd.tag.
        RETURN ERROR.
@@ -3541,10 +3544,11 @@ PROCEDURE valid-tag# :
 
       IF lv-do-what NE "Delete" AND NOT ll-set-parts THEN
        DO:
-          IF (CAN-FIND(FIRST b-fg-rctd WHERE
-              b-fg-rctd.company     EQ cocode AND
-              b-fg-rctd.tag         EQ ip-focus:SCREEN-VALUE AND
-              RECID(b-fg-rctd)      NE RECID(fg-rctd)) OR
+          IF (CAN-FIND(FIRST b-fg-rctd 
+                 WHERE b-fg-rctd.company     EQ cocode 
+                   AND b-fg-rctd.rita-code   NE "P"
+                   AND b-fg-rctd.tag         EQ ip-focus:SCREEN-VALUE 
+                   AND RECID(b-fg-rctd)      NE RECID(fg-rctd)) OR
            CAN-FIND(FIRST b-fg-rdtlh
                     WHERE b-fg-rdtlh.company   EQ cocode
                       AND b-fg-rdtlh.tag       EQ ip-focus:SCREEN-VALUE
@@ -3555,11 +3559,11 @@ PROCEDURE valid-tag# :
        END. /*lv-do-what NE "Delete"*/
        ELSE IF NOT ll-set-parts  THEN
        DO:
-          IF CAN-FIND(FIRST b-fg-rctd WHERE
-             b-fg-rctd.company     EQ cocode AND
-             b-fg-rctd.tag         EQ ip-focus:SCREEN-VALUE AND
-             b-fg-rctd.rita-code NE "P" AND
-             RECID(b-fg-rctd)      NE RECID(fg-rctd)) THEN
+          IF CAN-FIND(FIRST b-fg-rctd 
+                      WHERE b-fg-rctd.company     EQ cocode 
+                        AND b-fg-rctd.tag         EQ ip-focus:SCREEN-VALUE 
+                        AND b-fg-rctd.rita-code NE "P" 
+                        AND RECID(b-fg-rctd)      NE RECID(fg-rctd)) THEN
              lv-msg = "Tag# has already been used, please re-enter".
        END. /*lv-do-what eq "Delete"*/
        IF ip-focus:SCREEN-VALUE EQ "" THEN

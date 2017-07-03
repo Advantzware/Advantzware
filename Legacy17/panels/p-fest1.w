@@ -78,7 +78,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Add Btn-Copy ~
+&Scoped-Define ENABLED-OBJECTS Btn-Save Btn-Reset Btn-Add /*Btn-Copy*/ ~
 Btn-Delete Btn-Cancel 
 
 /* Custom List Definitions                                              */
@@ -104,10 +104,10 @@ DEFINE BUTTON Btn-Cancel
      SIZE 9 BY 1.29
      FONT 4.
 
-DEFINE BUTTON Btn-Copy 
+/*DEFINE BUTTON Btn-Copy 
      LABEL "&Copy" 
      SIZE 9 BY 1.29
-     FONT 4.
+     FONT 4.*/
 
 DEFINE BUTTON Btn-Delete 
      LABEL "&Delete" 
@@ -135,7 +135,7 @@ DEFINE FRAME Panel-Frame
      Btn-Save AT ROW 1.29 COL 2
      Btn-Reset AT ROW 1.29 COL 11
      Btn-Add AT ROW 1.29 COL 20
-     Btn-Copy AT ROW 1.29 COL 29
+     /*Btn-Copy AT ROW 1.29 COL 29*/
      Btn-Delete AT ROW 1.29 COL 38
      Btn-Cancel AT ROW 1.29 COL 47
      RECT-1 AT ROW 1 COL 1
@@ -231,9 +231,9 @@ DO:
    add-active = yes.
 
   RUN notify ('add-record':U).
-  {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:31 am */
+  {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p */
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:23 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -247,28 +247,28 @@ DO:
   DO WITH FRAME Panel-Frame:
       add-active = no.
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:31 am */
+      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:23 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn-Copy
+/*&Scoped-define SELF-NAME Btn-Copy
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Copy C-WIn
 ON CHOOSE OF Btn-Copy IN FRAME Panel-Frame /* Copy */
 DO:
    IF NOT v-can-create THEN RETURN no-apply.
 
    RUN notify ('copy-record':U).
-   {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:31 am */
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:23 am */
+   {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME*/
 
 
 &Scoped-define SELF-NAME Btn-Delete
@@ -278,7 +278,7 @@ DO:
    IF NOT v-can-delete THEN RETURN no-apply.
 
    RUN notify ('delete-record':U).  
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:23 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -290,7 +290,7 @@ END.
 ON CHOOSE OF Btn-Reset IN FRAME Panel-Frame /* Reset */
 DO:
   RUN notify ('reset-record':U).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:23 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -319,22 +319,22 @@ DO:
         IF Btn-Save:LABEL = '&Update' THEN 
         DO:
            RUN new-state('update-begin':U).
-           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:31 am */
+           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p */
            ASSIGN add-active = no.
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:31 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
         END.                              
      END.
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:31 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:23 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -368,12 +368,11 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:31 am */
-  {methods/setButton.i Btn-Reset "Reset"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:31 am */
-  {methods/setButton.i Btn-Add "Add"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:31 am */
-  {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:31 am */
-  {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:31 am */
-  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:31 am */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
+  {methods/setButton.i Btn-Reset "Reset"} /* added by script _admTransPanels.p */
+  {methods/setButton.i Btn-Add "Add"} /* added by script _admTransPanels.p */
+  {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p */
+  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -515,9 +514,9 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Add:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+/*&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Copy:SENSITIVE = NO.
-&ENDIF
+&ENDIF*/
 &IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Reset:SENSITIVE = NO.
 &ENDIF
@@ -542,9 +541,9 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Add:SENSITIVE = YES.
 &ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+/*&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Copy:SENSITIVE = YES.
-&ENDIF
+&ENDIF*/
 &IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
        IF panel-type = 'Update':U THEN
              Btn-Reset:SENSITIVE = NO.
@@ -572,9 +571,9 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Add:SENSITIVE = YES.
 &ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+/*&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Copy:SENSITIVE = NO.
-&ENDIF
+&ENDIF*/
 &IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Reset:SENSITIVE = NO.
 &ENDIF
@@ -602,9 +601,9 @@ DO WITH FRAME Panel-Frame:
 &IF LOOKUP("Btn-Add":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Add:SENSITIVE = NO.
 &ENDIF
-&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
+/*&IF LOOKUP("Btn-Copy":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Copy:SENSITIVE = NO.
-&ENDIF
+&ENDIF*/
 &IF LOOKUP("Btn-Reset":U, "{&ENABLED-OBJECTS}":U," ":U) NE 0 &THEN
              Btn-Reset:SENSITIVE = YES.
 &ENDIF
@@ -620,7 +619,7 @@ DO WITH FRAME Panel-Frame:
     IF NOT v-can-create THEN
       ASSIGN
        btn-add:SENSITIVE  = NO
-       btn-copy:SENSITIVE = NO.
+       /*btn-copy:SENSITIVE = NO*/ .
 
     IF NOT v-can-update THEN btn-save:SENSITIVE = NO.
     IF NOT v-can-delete THEN btn-delete:SENSITIVE = NO.

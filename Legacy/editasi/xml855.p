@@ -12,7 +12,7 @@
     Notes       :
        
        SPS edi 855 sturctures:
-   /*      OrderAck
+   /*       OrderAck
              Meta
              Header
                 OrderHeader

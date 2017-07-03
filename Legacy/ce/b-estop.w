@@ -233,6 +233,7 @@ DEFINE BROWSE br_table
       est-op.num-coat COLUMN-LABEL "Varnish" FORMAT ">>>":U WIDTH 12
       est-op.plates FORMAT ">>>":U
       est-op.fountains FORMAT ">>>":U
+      est-op.n_out_div COLUMN-LABEL "Out Divisor" FORMAT "->>,>>9.99":U
   ENABLE
       est-op.s-num
       est-op.b-num
@@ -249,6 +250,7 @@ DEFINE BROWSE br_table
       est-op.num-coat
       est-op.plates
       est-op.fountains
+      est-op.n_out_div HELP "Enter Divisor for Out Reduction"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 128 BY 7.14
@@ -379,6 +381,8 @@ ASSIGN
 "est-op.plates" ? ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.est-op.fountains
 "est-op.fountains" ? ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[18]   > ASI.est-op.n_out_div
+"est-op.n_out_div" "Out Divisor" ? "decimal" ? ? ? ? ? ? yes "Enter Divisor for Out Reduction" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME

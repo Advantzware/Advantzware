@@ -119,7 +119,7 @@ DO TRANSACTION:
              v-cust-log = sys-ctrl.log-fld 
              v-cust-fmt = sys-ctrl.char-fld.
    /* gdm - 12221003 end */
-  
+
 END.
 
 /* gdm - 11190903 */
@@ -482,6 +482,7 @@ DEFINE FRAME F-Main
           SIZE 44 BY 1
           BGCOLOR 15 FONT 4
      cust.sman AT ROW 3.86 COL 73 COLON-ALIGNED
+          LABEL "Sales Rep"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
           BGCOLOR 15 FONT 4
@@ -823,7 +824,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -835,7 +836,7 @@ ON HELP OF FRAME F-Main
 DO:
    def var lv-handle as handle no-undo.
    def var char-val as cha no-undo.
-   
+
    CASE Focus:name :
      when "del-zone" then do:
            run windows/l-delzon.w 
@@ -875,10 +876,10 @@ DO:
      otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-             
+
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
-        
+
            end.   /* g_lookup-var <> "" */
            apply "entry" to lv-handle.
            return no-apply.
@@ -941,6 +942,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.carrier V-table-Win
 ON LEAVE OF cust.carrier IN FRAME F-Main /* Carrier */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 /*and cust.carrier:screen-value <> "" */ and
         not can-find(first carrier where carrier.company = gcompany and 
                                      carrier.loc = cust.loc:screen-value and
@@ -951,7 +953,9 @@ DO:
      end.
 
   {methods/dispflds.i}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -961,6 +965,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.case-bundle V-table-Win
 ON LEAVE OF cust.case-bundle IN FRAME F-Main /* Case/Bundle */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and cust.case-bundle:screen-value <> "" and
         not can-find(first item where item.company = gcompany and item.mat-type = "C" and
                                       item.i-no = cust.case-bundle:screen-value)
@@ -968,9 +973,10 @@ DO:
         message "Invalid Case/Bundle Code. Try Help." view-as alert-box error.
         return no-apply.     
      end.
-
+     {&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -986,7 +992,7 @@ DO:
 
   IF cust.zip:SCREEN-VALUE NE cust.zip THEN
      RUN zip-carrier.
-  
+
   RETURN NO-APPLY.
 END.
 
@@ -1078,13 +1084,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.cust-level V-table-Win
 ON LEAVE OF cust.cust-level IN FRAME F-Main /* Price Level */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and 
        decimal(cust.cust-level:screen-value) > 10 then 
     do:
         message "Price level can not exceed 10." view-as alert-box error.
         return no-apply.
     end.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1094,6 +1103,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.cust-no V-table-Win
 ON LEAVE OF cust.cust-no IN FRAME F-Main /* Customer */
 DO:
+   {&methods/lValidateError.i YES}
    IF LASTKEY = -1 THEN  RETURN.
    IF adm-new-record AND 
       CAN-FIND(FIRST cust WHERE cust.company = gcompany 
@@ -1102,8 +1112,9 @@ DO:
       MESSAGE "Customer already exists. Try other number." VIEW-AS ALERT-BOX ERROR.
       RETURN NO-APPLY.
    END.
-
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1125,6 +1136,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.del-zone V-table-Win
 ON LEAVE OF cust.del-zone IN FRAME F-Main /* Delivery Zone */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and /*cust.del-zone:screen-value <> "" and*/
         not can-find(first carr-mtx where carr-mtx.company = gcompany and 
                                      carr-mtx.loc = cust.loc:screen-value and
@@ -1136,7 +1148,9 @@ DO:
      end.
 
   {methods/dispflds.i}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1244,6 +1258,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.loc V-table-Win
 ON LEAVE OF cust.loc IN FRAME F-Main /* Location */
 DO:
+     {&methods/lValidateError.i YES}
      if lastkey <> -1 and cust.loc:screen-value <> "" and
         not can-find(first loc where loc.company = gcompany and 
                                      loc.loc = cust.loc:screen-value)
@@ -1253,7 +1268,9 @@ DO:
      end.
 
   {methods/dispflds.i}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1291,6 +1308,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.pallet V-table-Win
 ON LEAVE OF cust.pallet IN FRAME F-Main /* Pallet */
 DO:
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and cust.pallet:screen-value <> "" and
         not can-find(first item where item.company = gcompany and item.mat-type = "D" and
                                       item.i-no = cust.pallet:screen-value)
@@ -1298,8 +1316,9 @@ DO:
         message "Invalid Pallet Code. Try Help." view-as alert-box error.
         return no-apply.     
      end.
-
+     {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1347,6 +1366,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.spare-char-1 V-table-Win
 ON LEAVE OF cust.spare-char-1 IN FRAME F-Main /* Tax Prep Code */
 DO:
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and SELF:screen-value <> "" and 
      (
     /* old
@@ -1359,8 +1379,10 @@ DO:
   then do:
      message "Invalid Tax Prep Code. Try Help." self:screen-value view-as alert-box error.
      return no-apply.
-  end.                       
+  end.   
+  {&methods/lValidateError.i NO}                    
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1370,14 +1392,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.state V-table-Win
 ON LEAVE OF cust.state IN FRAME F-Main /* State */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and cust.state:screen-value <> "" and
        not can-find(first state where state.state = cust.state:screen-value )
     then do:
        message "Invalid State Code. Try Help." view-as alert-box error.
        return no-apply.
     end.                                     
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1387,7 +1411,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.tax-gr V-table-Win
 ON LEAVE OF cust.tax-gr IN FRAME F-Main /* Tax Code */
 DO:
-
+  {&methods/lValidateError.i YES}
   if lastkey <> -1 and cust.sort:screen-value = "Y" and 
      (
     /* old
@@ -1403,9 +1427,11 @@ DO:
      message "Invalid Tax Code. Try Help." self:screen-value view-as alert-box error.
      return no-apply.
   end.                                     
-                                   
+
   {methods/dispflds.i}
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1431,6 +1457,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.terr V-table-Win
 ON LEAVE OF cust.terr IN FRAME F-Main /* Territory */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and cust.terr:screen-value <> "" and
         not can-find(first terr where terr.company = gcompany and
                                       terr.terr = cust.terr:screen-value)
@@ -1440,7 +1467,9 @@ DO:
      end.
 
   {methods/dispflds.i}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1474,16 +1503,16 @@ DO:
   DEF VAR city-val AS cha NO-UNDO.
   DEF VAR state-val AS cha NO-UNDO.
   DEF VAR rec-val AS RECID NO-UNDO.
-  
+
        RUN windows/l-zipcod.w (FOCUS:SCREEN-VALUE,OUTPUT char-val,OUTPUT city-val,OUTPUT state-val,OUTPUT rec-val).
        IF char-val NE "" THEN cust.zip:SCREEN-VALUE = ENTRY(1,char-val).
        IF city-val NE "" THEN cust.city:SCREEN-VALUE = ENTRY(1,city-val).
        IF state-val NE "" THEN cust.state:SCREEN-VALUE = ENTRY(1,state-val).
 
-    
+
   IF cust.zip:SCREEN-VALUE NE cust.zip THEN
      RUN zip-carrier.
-  
+
   RETURN NO-APPLY.
 END.
 
@@ -1545,7 +1574,7 @@ if not avail sys-ctrl then DO TRANSACTION:
    v-prompt          = NO
    sys-ctrl.log-fld  = v-prompt
    sys-ctrl.char-fld = "".
-   
+
   do i = 1 to 8:
     sys-ctrl.char-fld = sys-ctrl.char-fld + string(v-flag[i],"Y/N").
   end. 
@@ -1577,7 +1606,7 @@ session:data-entry-return = yes.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -1637,7 +1666,7 @@ PROCEDURE cust-city :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-     
+
   DO WITH FRAME {&FRAME-NAME}:
     IF cust.city:SCREEN-VALUE NE "" THEN
     FIND FIRST nosweat.zipcode
@@ -1661,7 +1690,7 @@ PROCEDURE cust-new-log :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- 
+
 DEF VAR thisOne AS CHAR NO-UNDO.
  DEFINE BUFFER buff-cust FOR cust .
  DEFINE BUFFER buff-shipto FOR shipto .
@@ -1695,7 +1724,7 @@ PROCEDURE cust-update-log :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
  FIND CURRENT cust NO-LOCK.
  DEF VAR thisOne AS CHAR NO-UNDO.
  DEFINE BUFFER buff-cust FOR cust .
@@ -1740,7 +1769,7 @@ PROCEDURE cust-zip :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-     
+
   DO WITH FRAME {&FRAME-NAME}:
     IF cust.zip:SCREEN-VALUE NE "" THEN
     FIND FIRST nosweat.zipcode
@@ -1874,7 +1903,7 @@ PROCEDURE local-assign-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   RUN reftable-values (NO).
-  
+
   {methods/viewers/assign/cust.i}
 
   assign
@@ -1907,10 +1936,10 @@ PROCEDURE local-assign-record :
   END.
   /* gdm - 11190903 end */
 
-  
+
   if adm-new-record and not adm-adding-record then do:  /* copy */
     FIND FIRST bf-cust WHERE RECID(bf-cust) = v-cust-recid-prev NO-LOCK NO-ERROR.
-    
+
     for each bf-shipto of bf-cust NO-LOCK BY bf-shipto.ship-no:
         create shipto.
         buffer-copy bf-shipto except bf-shipto.cust-no to shipto.
@@ -1947,7 +1976,7 @@ PROCEDURE local-assign-record :
 
 
    IF adm-new-record THEN DO:
-       
+
        FOR EACH bf-usercust WHERE bf-usercust.company = cocode
                  AND bf-usercust.USER_id EQ USERID("nosweat") NO-LOCK,
             FIRST bff-cust WHERE bff-cust.company EQ bf-usercust.company 
@@ -2010,7 +2039,7 @@ PROCEDURE local-assign-record :
                 soldto.sold-zip = cust.zip.
      END.
   END.*/
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2053,7 +2082,7 @@ PROCEDURE local-create-record :
   IF cust.date-field[2] EQ TODAY THEN
       cust.date-field[2] = ?.
   DO WITH FRAME {&FRAME-NAME}:
-   
+
      if adm-new-record and adm-adding-record THEN /*adding, not copying*/
      DO: /*ESP need both statements due to how cust.fax is populated*/
         ASSIGN
@@ -2068,7 +2097,7 @@ PROCEDURE local-create-record :
   END.
 
   RUN display-active.
-     
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2099,11 +2128,11 @@ PROCEDURE local-delete-record :
               DELETE buff-cust .
       END.
    END.
-     
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2123,7 +2152,7 @@ PROCEDURE local-display-fields :
      tb_po-mand   = NO
      tb_show-set = YES
      fi_flat-comm = 0.
-     
+
     IF cust.cust-no NE "" THEN RUN reftable-values (YES).
         ASSIGN 
             fl_custemail = cust.email
@@ -2179,7 +2208,7 @@ PROCEDURE local-update-record :
    ll-new-record = FALSE .
 
   RUN cust-zip.
-
+  {&methods/lValidateError.i YES}
   do with frame {&frame-name}:
      IF adm-new-record THEN DO:
         ll-new-record = TRUE.
@@ -2205,7 +2234,7 @@ PROCEDURE local-update-record :
            RETURN.
         END.
      END.
-    
+     {&methods/lValidateError.i NO}
      /*if /*cust.sman:screen-value <> "" and */
         not can-find(first sman where sman.sman = cust.sman:screen-value)
      then do:
@@ -2222,7 +2251,7 @@ PROCEDURE local-update-record :
 
      RUN valid-status NO-ERROR. 
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+     {&methods/lValidateError.i YES}
      if cust.pallet:screen-value <> "" and
         not can-find(first item where item.company = gcompany and item.mat-type = "D" and
                                       item.i-no = cust.pallet:screen-value)
@@ -2307,12 +2336,13 @@ PROCEDURE local-update-record :
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
      END.
   end.
+  {&methods/lValidateError.i NO}
   RUN valid-cr-hold.
   IF NOT v-valid THEN RETURN NO-APPLY.
-  
+
   RUN valid-cr-hold-invdays.
   IF NOT v-valid THEN RETURN NO-APPLY.
-  
+
   RUN valid-cr-lim.
   IF NOT v-valid THEN RETURN NO-APPLY.
 
@@ -2333,7 +2363,7 @@ PROCEDURE local-update-record :
 
   RUN valid-markup.
   IF NOT v-valid THEN RETURN NO-APPLY.
-  
+
 
   /* ============== end of validations ==================*/
 
@@ -2341,13 +2371,13 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   RUN disable-fields.
- 
+
   /*if adm-new-record and not adm-adding-record then do:  /* copy */
     find bf-cust where bf-cust.company = cust.company and
                        bf-cust.cust-no = ls-prev-cust-no no-lock no-error.
-    
+
     for each bf-shipto of bf-cust NO-LOCK BY bf-shipto.ship-no
          /* WHERE bf-shipto.ship-id = bf-cust.cust-no*/ :
         create shipto.
@@ -2398,13 +2428,14 @@ PROCEDURE local-update-record :
      IF ll-ans THEN 
          RUN update-sman.
   END.
-  
+
   IF ll-new-record THEN DO:
     /* Reposition browse to new record so other tabs are refreshed */
     {methods/run_link.i "RECORD-SOURCE" "repo-query2" "(INPUT ROWID(cust))"} 
   END.
-  
+
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2533,7 +2564,7 @@ PROCEDURE update-sman :
            eb.sman = cust.sman.
 
            RUN ce/markup.p (eb.company, ROWID(eb), OUTPUT ld-markup).
-           
+
            run sys/inc/getsmncm.p (eb.cust-no,
                                    INPUT-OUTPUT eb.sman,
                                    eb.procat,
@@ -2561,7 +2592,8 @@ PROCEDURE valid-cr-hold :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:    
@@ -2582,6 +2614,7 @@ PROCEDURE valid-cr-hold :
     IF NOT v-valid THEN APPLY "entry" TO cust.cr-hold.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2594,7 +2627,8 @@ PROCEDURE valid-cr-hold-invdays :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2616,6 +2650,7 @@ PROCEDURE valid-cr-hold-invdays :
     IF NOT v-valid THEN APPLY "entry" TO cust.cr-hold-invdays.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2629,6 +2664,7 @@ PROCEDURE valid-cr-lim :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2640,7 +2676,7 @@ PROCEDURE valid-cr-lim :
        v-custpass                                   THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                  = NO
@@ -2650,6 +2686,7 @@ PROCEDURE valid-cr-lim :
     IF NOT v-valid THEN APPLY "entry" TO cust.cr-lim.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2663,6 +2700,7 @@ PROCEDURE valid-currency :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
  FIND FIRST currency WHERE currency.company = g_company
                        AND currency.c-code = cust.curr-code:SCREEN-VALUE IN FRAME {&FRAME-NAME}
                        NO-LOCK NO-ERROR.
@@ -2672,6 +2710,7 @@ PROCEDURE valid-currency :
     RETURN error.
  END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2684,6 +2723,7 @@ PROCEDURE valid-custtype :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   IF NOT CAN-FIND(FIRST custype WHERE custype.company = cocode
                        AND custype.custype = cust.TYPE:SCREEN-VALUE IN FRAME {&FRAME-NAME}
                         )
@@ -2691,6 +2731,7 @@ PROCEDURE valid-custtype :
      MESSAGE "Invalid customer type. Try help." VIEW-AS ALERT-BOX ERROR.
      RETURN ERROR.
   END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2704,6 +2745,7 @@ PROCEDURE valid-disc :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2715,7 +2757,7 @@ PROCEDURE valid-disc :
        v-custpass                               THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                = NO
@@ -2725,6 +2767,7 @@ PROCEDURE valid-disc :
     IF NOT v-valid THEN APPLY "entry" TO cust.disc.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2738,6 +2781,7 @@ PROCEDURE valid-fin-chg :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   v-valid = YES.
   DO WITH FRAME {&frame-name}:
     IF NOT ll-secure                                              AND
@@ -2748,7 +2792,7 @@ PROCEDURE valid-fin-chg :
        v-custpass                                                 THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                   = NO
@@ -2758,6 +2802,7 @@ PROCEDURE valid-fin-chg :
     IF NOT v-valid THEN APPLY "entry" TO cust.fin-chg.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2770,6 +2815,7 @@ PROCEDURE valid-inv-meth :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2782,7 +2828,7 @@ PROCEDURE valid-inv-meth :
        v-custpass                                      THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                  = NO
@@ -2792,6 +2838,7 @@ PROCEDURE valid-inv-meth :
     IF NOT v-valid THEN APPLY "entry" TO rd_inv-meth.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2805,6 +2852,7 @@ PROCEDURE valid-markup :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2816,7 +2864,7 @@ PROCEDURE valid-markup :
        v-custpass                                   THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                  = NO
@@ -2826,6 +2874,7 @@ PROCEDURE valid-markup :
     IF NOT v-valid THEN APPLY "entry" TO cust.markup.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2839,6 +2888,7 @@ PROCEDURE valid-ord-lim :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2850,7 +2900,7 @@ PROCEDURE valid-ord-lim :
        v-custpass                                     THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                   = NO
@@ -2860,6 +2910,7 @@ PROCEDURE valid-ord-lim :
     IF NOT v-valid THEN APPLY "entry" TO cust.ord-lim.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2872,6 +2923,7 @@ PROCEDURE valid-sman :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
   FIND FIRST sman
         WHERE sman.company EQ cocode
           AND sman.sman    EQ cust.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME}
@@ -2884,6 +2936,7 @@ PROCEDURE valid-sman :
     END.
     sman_sname:SCREEN-VALUE = sman.sNAME.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2896,6 +2949,7 @@ PROCEDURE valid-status :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
 IF cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(X)" 
   THEN 
     FIND FIRST bf-cust NO-LOCK
@@ -2915,6 +2969,7 @@ IF cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(X)"
     END.
 
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2927,7 +2982,8 @@ PROCEDURE valid-terms :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
+  {methods/lValidateError.i YES}
   v-valid = YES.
 
   DO WITH FRAME {&frame-name}:
@@ -2939,13 +2995,13 @@ PROCEDURE valid-terms :
        v-custpass                            THEN DO:
 
       RUN sys/ref/d-passwd.w (2, OUTPUT ll-secure).
-      
+
       IF NOT ll-secure THEN
         ASSIGN
          v-valid                   = NO
          cust.terms:SCREEN-VALUE = cust.terms.
     END. 
-   
+
     IF v-valid                                                                 AND
        NOT CAN-FIND(FIRST terms WHERE terms.t-code EQ cust.terms:SCREEN-VALUE) THEN DO:
 
@@ -2956,6 +3012,7 @@ PROCEDURE valid-terms :
     IF NOT v-valid THEN APPLY "entry" TO cust.terms.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2969,7 +3026,7 @@ PROCEDURE zip-carrier :
   Notes:       
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
-   
+
    /* gdm - 10010913 */
    FIND FIRST nosweat.zipcode
         WHERE nosweat.zipcode.zipcode EQ cust.zip:SCREEN-VALUE

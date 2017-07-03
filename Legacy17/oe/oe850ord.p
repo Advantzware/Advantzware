@@ -12,6 +12,8 @@
     Notes       :
   ----------------------------------------------------------------------*/
 
+DEFINE INPUT PARAMETER ipEdpotranRecid AS RECID.
+
 /* ***************************  Definitions  ************************** */
 /*DEFINE NEW SHARED VARIABLE g_company AS cha INIT "001" NO-UNDO.*/
 /*DEFINE NEW SHARED VARIABLE g_loc AS cha INIT "main" NO-UNDO.   */
@@ -48,7 +50,7 @@ FUNCTION getNextOrderNum RETURNS INTEGER
 	(  ) FORWARD.
 
 
-/* ***************************  Main Block  *************************** */
+/* ***************************  Main Block  *************************** */ 
 
 RUN createOrder.
 
@@ -62,10 +64,12 @@ PROCEDURE CreateOrder:
 
   /* create oe-ord */
   
-  FOR EACH EDPOTran NO-LOCK WHERE can-find(FIRST EDDoc OF EDPOTran WHERE EDDoc.Unique-Order-No = ? ):  
+/*  FOR EACH EDPOTran NO-LOCK WHERE can-find(FIRST EDDoc OF EDPOTran WHERE EDDoc.Unique-Order-No = ? ): */
+FOR EACH EDPOTran NO-LOCK WHERE recid(edpotran) = ipEdpotranRecid:  
     
     FIND cust WHERE cust.company = g_company and
-                    cust.cust-no = EDPOTran.cust NO-LOCK NO-ERROR.   
+                    cust.cust-no = EDPOTran.cust NO-LOCK NO-ERROR.
+                       
 /*    FIND FIRST oe-ctrl WHERE oe-ctrl.company = g_company .*/
     FIND FIRST EDMast WHERE EDMast.Partner = EDPOTran.Partner NO-LOCK NO-ERROR.
                     
@@ -261,7 +265,7 @@ PROCEDURE CreateOrder:
             oe-rel.ship-id      = shipto.ship-id
             oe-rel.ship-no      = shipto.ship-no
             oe-rel.sold-no      = oe-ord.sold-no
-            oe-rel.qty          = oe-ordl.qty
+            oe-rel.tot-qty          = oe-ordl.qty
             oe-rel.po-no        = oe-ord.po-no
             oe-rel.i-no         = oe-ordl.i-no
             oe-rel.rel-date     = edpotran.request-date
@@ -316,10 +320,11 @@ PROCEDURE CreateOrder:
             oe-rel.ship-i[i] = shipto.notes[i].
           END.
 
-          IF AVAIL itemfg then do:  
-            /* 9805 CAH: update the itemfg.q-alloc field, per Joe Hentz ... */
-             Assign itemfg.q-alloc = itemfg.q-alloc + oe-ordl.qty.
-          END.
+/*          IF AVAIL itemfg then do:                                            */
+/*            /* 9805 CAH: update the itemfg.q-alloc field, per Joe Hentz ... */*/
+/*             Assign itemfg.q-alloc = itemfg.q-alloc + oe-ordl.qty.            */
+/*          END.                                                                */
+
 /*    FOR EACH edpoaddon OF edpotran:                                     */
 /*      erclist = "".                                                     */
 /*      IF pass = 2 THEN                                                  */

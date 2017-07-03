@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:25 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -237,14 +237,14 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.maillist"
+     _TblList          = "maillist"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _FldNameList[1]   = EMPTRACK.maillist.list-no
-     _FldNameList[2]   = EMPTRACK.maillist.list-date
-     _FldNameList[3]   = EMPTRACK.maillist.list-name
-     _FldNameList[4]   = EMPTRACK.maillist.purpose
-     _FldNameList[5]   = EMPTRACK.maillist.active
+     _FldNameList[1]   = maillist.list-no
+     _FldNameList[2]   = maillist.list-date
+     _FldNameList[3]   = maillist.list-name
+     _FldNameList[4]   = maillist.purpose
+     _FldNameList[5]   = maillist.active
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

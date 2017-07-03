@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: ap\v-apinv.w
-  
+
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -317,7 +317,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -514,7 +514,7 @@ PROCEDURE add-inv :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
    RUN dispatch ('add-record').
 
 END PROCEDURE.
@@ -631,19 +631,19 @@ for each po-ord
     use-index po-no no-lock:
 
   RUN po/rec-inv.p (ROWID(po-ordl), OUTPUT v-qty).
-    
+
   if v-qty gt 0 then do:
     /*  create report.
     assign
      report.term-id = v-term
      report.key-01  = string(po-ord.po-no,">>>>>>")
      report.rec-id  = recid(po-ord).
-       
+
     if po-ord.po-no ge ip-po-no and v-po ne 0 then
       assign
        fil_id = recid(report)
        v-po   = 0.
-         
+
     if program-name(2) begins "ap/ap-inv." then leave blok. else leave.  */
 
     op-recid = RECID(po-ord).
@@ -664,9 +664,9 @@ PROCEDURE hold-ap :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER bf-ap-inv FOR ap-inv.
-  
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-  
+
       IF ap-inv.inv-date:SENSITIVE IN FRAME {&FRAME-NAME} THEN do:
          MESSAGE "You can not change status middle of modification. "
             VIEW-AS ALERT-BOX ERROR.
@@ -686,7 +686,9 @@ PROCEDURE hold-ap :
          IF AVAIL ap-inv THEN DISP ap-inv.stat WITH FRAME {&FRAME-NAME}.
       END.
    END.
+   {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -721,7 +723,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   ap-inv.freq = cb_freq.
 
   IF scr-manual-check-no:HIDDEN IN FRAME {&FRAME-NAME} = NO THEN
@@ -732,7 +734,7 @@ PROCEDURE local-assign-record :
         AND vend.vend-no EQ ap-inv.vend-no
       NO-LOCK NO-ERROR.
   ap-inv.terms = vend.terms.
-       
+
   lv-got-exrate = NO.
 
   IF adm-new-record THEN DO:
@@ -759,7 +761,7 @@ PROCEDURE local-cancel-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-cancel = YES.
 
@@ -768,13 +770,14 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   lv-cancel = NO.
+  adm-adding-record = NO .
 
   FIND CURRENT ap-inv NO-ERROR.
   IF AVAIL ap-inv THEN ap-inv.ex-rate = lv-prev-exrate.
   FIND CURRENT ap-inv NO-LOCK NO-ERROR.
 
   RUN disable-fields.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -814,7 +817,7 @@ PROCEDURE local-create-record :
   END. 
 
   RUN dispatch ('row-changed').
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -911,7 +914,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-po-recid AS RECID NO-UNDO.
   DEF VAR ll-new-record AS LOG NO-UNDO.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
   ll-new-record = adm-new-record.
 
@@ -956,7 +959,7 @@ PROCEDURE local-update-record :
   END.
 
   RUN dispatch ("display-fields").
- 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1014,7 +1017,7 @@ PROCEDURE new-vend-no :
         NO-LOCK NO-ERROR.
     IF AVAIL vend THEN DO:
       FIND FIRST terms WHERE terms.t-code EQ vend.terms NO-LOCK NO-ERROR.
-      
+
       ASSIGN
        vend_name:SCREEN-VALUE        = vend.name
        ap-inv.disc-%:SCREEN-VALUE    = STRING(vend.disc-%)
@@ -1029,7 +1032,7 @@ PROCEDURE new-vend-no :
          ap-inv.disc-days:SCREEN-VALUE = STRING(terms.disc-days).
     END.
   END.
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1068,7 +1071,7 @@ PROCEDURE proc-enable :
     IF ll-recur THEN ENABLE cb_freq.
     IF apautocheck-log THEN ENABLE scr-manual-check-no.
   END.
-  
+
   ASSIGN
    ll-first        = YES
    ll-date-warning = NO.
@@ -1104,7 +1107,7 @@ PROCEDURE reopen-query :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   IF AVAIL ap-inv THEN DO:
     /*RUN reopen-browser.*/
     RUN dispatch ('display-fields').
@@ -1152,7 +1155,7 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1166,6 +1169,7 @@ PROCEDURE valid-inv-date :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   IF NOT ll-recur THEN
   DO WITH FRAME {&FRAME-NAME}:
     IF DATE(ap-inv.inv-date:SCREEN-VALUE) GT TODAY THEN DO:
@@ -1181,6 +1185,7 @@ PROCEDURE valid-inv-date :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1194,6 +1199,7 @@ PROCEDURE valid-inv-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   IF NOT ll-recur THEN
   DO WITH FRAME {&FRAME-NAME}:
     IF ap-inv.inv-no:SCREEN-VALUE EQ "" THEN DO:
@@ -1206,6 +1212,7 @@ PROCEDURE valid-inv-no :
     IF ERROR-STATUS:ERROR THEN RETURN ERROR.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1221,6 +1228,7 @@ PROCEDURE valid-tax-gr :
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).
 
@@ -1236,6 +1244,7 @@ PROCEDURE valid-tax-gr :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1251,6 +1260,7 @@ PROCEDURE valid-vend-inv :
   DEF VAR ll AS LOG NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST bf-inv
           WHERE bf-inv.company EQ cocode
@@ -1273,6 +1283,7 @@ PROCEDURE valid-vend-inv :
   END.
 
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1286,6 +1297,7 @@ PROCEDURE valid-vend-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST vend
         WHERE vend.company EQ cocode
@@ -1309,6 +1321,7 @@ PROCEDURE valid-vend-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

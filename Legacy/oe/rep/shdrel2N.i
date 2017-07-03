@@ -13,7 +13,8 @@ DEF VAR style AS cha FORM "x(8)" NO-UNDO.
 DEF VAR v-crRate AS cha NO-UNDO.
 DEF VAR v-sb AS cha NO-UNDO.
 DEF VAR v-routing AS cha NO-UNDO.
- 
+DEFINE  VARIABLE cShip-date AS CHARACTER NO-UNDO.
+DEFINE BUFFER bf-oe-rell FOR oe-rell .
 {sys/form/r-top5DL2.f}
 
    /* form header 
@@ -434,8 +435,10 @@ DEF VAR v-routing AS cha NO-UNDO.
             and oe-ordl.line    eq oe-rel.line
           no-lock.
     end.
-    
+
+    IF NOT AVAIL oe-rell THEN
     find oe-rell where recid(oe-rell) eq tt-report.rec-id no-lock no-error.
+
     if avail oe-rell then do:    
       if index("SLI",tt-report.key-06) gt 0 then
         tt-report.key-06 = if oe-rell.b-ord-no eq 0 then "A" else "B" .
@@ -461,7 +464,7 @@ DEF VAR v-routing AS cha NO-UNDO.
         where cust.company eq cocode
           and cust.cust-no eq oe-ord.cust-no
         no-lock no-error.
-
+    
     if avail oe-relh then
       assign
        v-qty     = IF tt-report.qty NE 0 THEN tt-report.qty ELSE oe-rell.qty
@@ -482,13 +485,47 @@ DEF VAR v-routing AS cha NO-UNDO.
        v-ship-id = oe-rel.ship-id
        v-carrier = oe-rel.carrier.
 
-    create w-ord.
-
     if avail oe-ordl then do:
       find first itemfg
           where itemfg.company eq cocode
             and itemfg.i-no    eq oe-ordl.i-no
           no-lock.
+ 
+  cShip-date = "" .
+  
+   FOR EACH oe-boll NO-LOCK
+        WHERE oe-boll.company  EQ oe-ordl.company
+          AND oe-boll.ord-no   EQ oe-ordl.ord-no
+          AND oe-boll.i-no     EQ oe-ordl.i-no
+          AND oe-boll.LINE     EQ oe-ordl.LINE 
+        /*and oe-boll.po-no    eq oe-rel.po-no 
+        and oe-boll.rel-no eq oe-rel.rel-no*/ 
+      USE-INDEX ord-no,
+      
+      FIRST oe-bolh WHERE oe-bolh.b-no EQ oe-boll.b-no NO-LOCK,
+      
+      first bf-oe-rell NO-LOCK
+        WHERE bf-oe-rell.company  EQ oe-boll.company
+          AND bf-oe-rell.ord-no   EQ oe-boll.ord-no
+          AND bf-oe-rell.LINE     EQ oe-boll.LINE
+          AND bf-oe-rell.i-no     EQ oe-boll.i-no
+          AND bf-oe-rell.r-no     EQ oe-boll.r-no
+          AND bf-oe-rell.rel-no   EQ oe-boll.rel-no
+          AND bf-oe-rell.b-ord-no EQ oe-boll.b-ord-no
+          AND bf-oe-rell.po-no    EQ oe-boll.po-no
+      USE-INDEX ord-no,
+      
+      FIRST oe-relh NO-LOCK WHERE oe-relh.r-no EQ bf-oe-rell.r-no
+      
+      BREAK BY bf-oe-rell.r-no
+      BY bf-oe-rell.rel-no
+      BY bf-oe-rell.b-ord-no
+      BY bf-oe-rell.po-no  :
+       IF v-rel-no EQ oe-relh.release# THEN
+           ASSIGN cShip-date = STRING(oe-bolh.bol-date) .
+     END.
+
+      create w-ord.
 
       assign
        w-ord.ord-no        = oe-ord.ord-no
@@ -517,7 +554,7 @@ DEF VAR v-routing AS cha NO-UNDO.
        w-ord.shp-qty       = oe-ordl.ship-qty
        w-ord.msf           = w-ord.rel-qty * itemfg.t-sqft / 1000
        w-ord.prom-code     = oe-ordl.prom-code
-       w-ord.last-date     = oe-ord.last-date
+       w-ord.last-date     = DATE(cShip-date)
        w-ord.carrier       = v-carrier
        w-ord.is-a-component = oe-ordl.is-a-component
        ld-palls            = w-ord.rel-qty /

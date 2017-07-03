@@ -74,24 +74,37 @@ ASSIGN cTextListToSelect = "Machine#,DP,S,B,P,Charge Code,Charge Cat,Date,Job#,S
                            "Waste,C,FG Item,Style,Length,Width,Depth,Blank Len,Blank Wid," +  /*9*/     
                            "Blank Sq In.,Board,Board Cal,MSF,Wgt/MSF,Roll Width," +  /*6*/     
                            "Gross S Wid,Gross S Len,Net Sht Wid,Net Sht Len," +  /*4*/     
-                           "Film Wid,Film Len,# Colors,Die Inches,Number Up,Number Out,Glue Inches,Tot Job Run Qty" /*8*/     
+                           "Film Wid,Film Len,# Colors,Die Inches,Number Up,Number Out,Glue Inches,Tot Job Run Qty," + /*8*/     
+                           "Cust#,Cust Name,Price,UOM,Sales Value" /* 5 */
 
 
            cFieldListToSelect = "mch-act.m-code,deprt,mch-act.frm,mch-act.blank-no,pass,mch-act.code,job-code,mch-act.op-date,job-no,mch-act.shift,mch-act.hours,start,stop,crew,mch-act.qty," +
                                 "mch-act.waste,comp,stock-no,style,len,wid,dep,t-len,t-wid," +
                                 "t-sqin,board,cal,ld-msf,weight,roll-wid," +
                                 "gsh-wid,gsh-len,nsh-wid,nsh-len," +
-                                "flm-len,flm-wid,inkc,die-in,li-up,n-out,lin-in,tot-job-qty"
-           cFieldLength = "8,2,3,2,3,11,10,8,10,5,8,5,5,2,10," + "6,1,15,8,7,7,7,9,9," + "12,8,9,9,9,10," + "11,11,11,11," + "9,9,8,10,9,10,11,15"
-           cFieldType = "c,c,i,i,i,c,c,c,c,i,i,c,c,i,i," + "i,c,c,c,i,i,i,i,i," + "i,c,i,i,i,i,"    +  "i,i,i,i," + "i,i,i,i,i,i,i,i"
+                                "flm-len,flm-wid,inkc,die-in,li-up,n-out,lin-in,tot-job-qty," +
+                                "cust-no,name,price,uom,sale-value"
+           cFieldLength = "8,2,3,2,3,11,10,8,10,5,8,5,5,2,10,"
+                        + "6,1,15,8,7,7,7,9,9,"
+                        + "12,8,9,9,9,10,"
+                        + "11,11,11,11,"
+                        + "9,9,8,10,9,10,11,15,"
+                        + "8,30,17,4,20"
+           cFieldType = "c,c,i,i,i,c,c,c,c,i,i,c,c,i,i,"
+                      + "i,c,c,c,i,i,i,i,i,"
+                      + "i,c,i,i,i,i,"
+                      + "i,i,i,i,"
+                      + "i,i,i,i,i,i,i,i,"
+                      + "c,c,i,c,i"
            .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "Machine#,DP,S,B,P,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Start,Stop,CR,Qty," +  /*14*/     
-                           "Waste,C,FG Item,Style,Length,Width,Depth,Blank Len,Blank Wid," +  /*9*/     
-                           "Blank Sq In.,Board,Board Cal,MSF,Wgt/MSF,Roll Width," +  /*6*/     
-                           "Gross S Wid,Gross S Len,Net Sht Wid,Net Sht Len," +  /*4*/     
-                           "Film Wid,Film Len,# Colors,Die Inches,Number Up,Number Out,Glue Inches" /*7*/          .
+ASSIGN cTextListToDefault = "Machine#,DP,S,B,P,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Start,Stop,CR,Qty," +  /*14*/     
+                            "Waste,C,FG Item,Style,Length,Width,Depth,Blank Len,Blank Wid," +  /*9*/     
+                            "Blank Sq In.,Board,Board Cal,MSF,Wgt/MSF,Roll Width," +  /*6*/     
+                            "Gross S Wid,Gross S Len,Net Sht Wid,Net Sht Len," +  /*4*/     
+                            "Film Wid,Film Len,# Colors,Die Inches,Number Up,Number Out,Glue Inches" /*7*/
+                            .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -411,16 +424,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -432,6 +435,14 @@ ASSIGN
 ASSIGN 
        begin_shift:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -493,7 +504,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1273,7 +1284,10 @@ DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR cSelectedList AS cha NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
-DEF VAR tot-job-qty AS INT NO-UNDO .
+DEF VAR tot-job-qty AS INT NO-UNDO.
+DEF VAR cUOM AS CHARACTER NO-UNDO.
+DEF VAR dPrice AS DECIMAL NO-UNDO.
+DEF VAR dSaleValue AS DECIMAL NO-UNDO.
 DEF BUFFER b-mch-act FOR mch-act.
 DEF BUFFER bf-mch-act FOR mch-act.
 
@@ -1289,7 +1303,7 @@ ASSIGN
          ",Blank Square Inches,Board Code,Board Caliper,MSF,Wgt/MSF,Roll Wi" +
          "dth,Gross Sheet Width,Gross Sheet Length,Net Sheet Width,Net Shee" +
          "t Length,Film Width,Film Length,# Colors,Die Inches,Number Up,Num" +
-         "ber Out,Glue Inches".
+         "ber Out,Glue Inches,Cust#,Cust Name,Price,UOM,Sales Value".
 
 do with frame {&frame-name}:  
   do i = 1 to select-mach:num-items:
@@ -1354,10 +1368,12 @@ IF tb_excel THEN DO:
       WHERE job.company EQ mch-act.company
         AND job.job     EQ mch-act.job
         AND job.job-no  EQ mch-act.job-no
-        AND job.job-no2 EQ mch-act.job-no2
+        AND job.job-no2 EQ mch-act.job-no2,
+      FIRST job-hdr OF job NO-LOCK
       USE-INDEX job BY (IF rd_sort BEGINS "M" THEN mch-act.m-code ELSE "")
                     BY (IF rd_sort BEGINS "J" THEN STRING(mch-act.job-no,"x(6)") + STRING(mch-act.job-no2,"99") ELSE "")
-                    BY (IF rd_sort BEGINS "D" THEN STRING(YEAR(mch-act.op-date),"9999") + STRING(MONTH(mch-act.op-date),"99") + STRING(DAY(mch-act.op-date),"99") + STRING(mch-act.start,"999999") ELSE "") :
+                    BY (IF rd_sort BEGINS "D" THEN STRING(YEAR(mch-act.op-date),"9999") + STRING(MONTH(mch-act.op-date),"99") + STRING(DAY(mch-act.op-date),"99") + STRING(mch-act.start,"999999") ELSE "")
+      :
 
       {custom/statusMsg.i "'Processing Machine # ' + string(mch-act.m-code)"} 
 
@@ -1373,6 +1389,20 @@ IF tb_excel THEN DO:
           AND job-mch.m-code   EQ mch-act.m-code
           AND job-mch.pass     EQ mch-act.pass
         NO-ERROR.
+    
+    FIND FIRST cust NO-LOCK
+         WHERE cust.company EQ mch-act.company
+           AND cust.cust-no EQ job-hdr.cust-no
+         NO-ERROR.
+    FIND FIRST oe-ordl NO-LOCK
+         WHERE oe-ordl.company EQ mch-act.company
+           AND oe-ordl.i-no    EQ mch-act.i-no
+           AND oe-ordl.ord-no  EQ job-hdr.ord-no
+         NO-ERROR.
+    FIND FIRST itemfg NO-LOCK
+         WHERE itemfg.company EQ mch-act.company
+           AND itemfg.i-no    EQ mch-act.i-no
+         NO-ERROR.
 
     RELEASE est.
     RELEASE ef.
@@ -1462,59 +1492,6 @@ IF tb_excel THEN DO:
          tot-job-qty =  tot-job-qty +  bf-mch-act.qty .
     END.
 
-
-   /* IF tb_excel THEN DO:
-      lv-out =
-          TRIM(mch-act.m-code)                                          + "," +
-          TRIM(STRING(mch-act.frm,">>9"))                               + "," +
-          TRIM(STRING(mch-act.blank-no,">>9"))                          + "," +
-          TRIM(mch-act.code)                                            + "," +
-          TRIM(IF AVAIL job-code THEN job-code.cat ELSE "")             + "," +
-          TRIM(STRING(mch-act.op-date,"99/99/99"))                      + "," +
-          TRIM(job.job-no) + "-" + STRING(job.job-no2,"99")             + "," +
-          TRIM(STRING(mch-act.shift,">>"))                              + "," +
-          TRIM(STRING(mch-act.hours,">>>>>>>>>9.9<<"))                  + "," +
-          TRIM(STRING(mch-act.qty,">>>>>>>>>>"))                        + "," +
-          TRIM(STRING(mch-act.waste,">>>>>>>>>>"))                      + "," +
-          TRIM(IF AVAIL eb THEN eb.stock-no ELSE "")                    + "," +
-          TRIM(IF AVAIL eb THEN eb.style ELSE "")                       + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.len,">>>>9.9<<<<") ELSE "")   + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.wid,">>>>9.9<<<<") ELSE "")   + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.dep,">>>>9.9<<<<") ELSE "")   + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.t-len,">>>>9.9<<<<") ELSE "") + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.t-wid,">>>>9.9<<<<") ELSE "") + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.t-sqin,">>>>9.9<<<<")
-                           ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN ef.board ELSE "")                       + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.cal,">>>>9.9<<<<") ELSE "")   + "," +
-          TRIM(STRING(ld-msf,">>>>9.9<<<<"))                            + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.weight,">>>>9.9<<<<")
-                           ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.roll-wid,">>>>9.9<<<<")
-                           ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.gsh-wid,">>>>9.9<<<<")
-                           ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.gsh-len,">>>>9.9<<<<")
-                           ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.nsh-wid,">>>>9.9<<<<")
-                           ELSE "")                                     + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.nsh-len,">>>>9.9<<<<")
-                           ELSE "")                                     + "," +
-          TRIM(IF AVAIL est-flm THEN STRING(est-flm.len,">>>>9.9<<<<")
-                                ELSE "")                                + "," +
-          TRIM(IF AVAIL est-flm THEN STRING(est-flm.wid,">>>>9.9<<<<")
-                                ELSE "")                                + "," +
-          TRIM(IF AVAIL w-ink THEN STRING(w-ink.inks + w-ink.varn,">>")
-                              ELSE "")                                  + "," +
-          TRIM(IF AVAIL ef THEN STRING(ef.die-in,">>>>9") ELSE "")      + "," +
-          TRIM(STRING(li-up,">>>"))                                     + "," +
-          TRIM(IF AVAIL job-mch THEN STRING(job-mch.n-out,">>>") ELSE "")
-                                                                        + "," +
-          TRIM(IF AVAIL eb THEN STRING(eb.lin-in,">>>>9.9<<<<") ELSE "").
-
-      IF lv-out NE ? THEN PUT STREAM st-excell UNFORMATTED lv-out SKIP.
-    END.*/
-
      IF AVAIL mch-act THEN
           BUFFER b-mch-act:FIND-BY-ROWID(ROWID(mch-act), NO-LOCK) .
        ASSIGN cDisplay = ""
@@ -1574,7 +1551,6 @@ IF tb_excel THEN DO:
                  WHEN "cal" THEN cVarValue = IF AVAIL ef THEN string(ef.cal,">>>>9.9<<") ELSE "".
                  WHEN "ld-msf" THEN cVarValue = IF AVAIL ef THEN string(ld-msf,">>>>9.9<<") ELSE "".
                  WHEN "weight" THEN cVarValue = IF AVAIL ef THEN string(ef.weight,">>>>9.9<<") ELSE "".
-
                  WHEN "roll-wid" THEN cVarValue = IF AVAIL ef THEN string(ef.roll-wid,">>>>>9.9<<") ELSE "".
                  WHEN "gsh-wid" THEN cVarValue = IF AVAIL ef THEN string(ef.gsh-wid,">>>>9.9<<") ELSE "".
                  WHEN "gsh-len" THEN cVarValue = IF AVAIL ef THEN string(ef.gsh-len,">>>>9.9<<") ELSE "".
@@ -1593,8 +1569,29 @@ IF tb_excel THEN DO:
                  WHEN "stop" THEN cVarValue = IF AVAIL mch-act THEN cvt-time-to-string('',mch-act.stopp,0.00) ELSE "".
                  WHEN "crew" THEN cVarValue = IF AVAIL mch-act THEN STRING(mch-act.crew,">>") ELSE "".
                  WHEN "comp" THEN cVarValue = IF AVAIL mch-act AND mch-act.COMPLETE THEN "Y" ELSE "N".  
-                 WHEN "tot-job-qty" THEN cVarValue = string(tot-job-qty,"->>,>>>,>>>,>>9") .
-
+                 WHEN "tot-job-qty" THEN cVarValue = string(tot-job-qty,"->>,>>>,>>>,>>9").
+                 WHEN "cust-no" THEN cVarValue = job-hdr.cust-no.
+                 WHEN "name" THEN cVarValue = IF AVAIL cust THEN cust.name ELSE "".
+                 WHEN "price" THEN
+                     ASSIGN
+                        dPrice = IF AVAIL oe-ordl THEN oe-ordl.price
+                            ELSE IF AVAIL itemfg THEN itemfg.sell-price
+                            ELSE 0
+                        cVarValue = STRING(dPrice,">>,>>>,>>9.99<<<<")
+                        .
+                 WHEN "uom" THEN
+                     ASSIGN
+                        cUOM = IF AVAIL oe-ordl THEN oe-ordl.pr-uom
+                          ELSE IF AVAIL itemfg THEN itemfg.pur-uom
+                          ELSE ""
+                        cVarValue = cUOM
+                       .
+                 WHEN "sale-value" THEN DO:
+                     dSaleValue = dPrice * (mch-act.qty / IF cUOM EQ "M" THEN 1000 ELSE 1).
+                     IF CAN-DO("A,R,S",mach.p-type) THEN
+                         dSaleValue = dSaleValue * li-up * (IF AVAIL job-mch AND job-mch.n-out GT 0 THEN job-mch.n-out ELSE 1).
+                     cVarValue = STRING(dSaleValue,">,>>>,>>>,>>9.99<<<<").
+                 END. /* sale-value */
             END CASE.
 
             cExcelVarValue = cVarValue.

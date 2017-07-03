@@ -126,7 +126,7 @@ RUN set-attribute-list (
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartQuery
-   External Tables: EMPTRACK.machemp
+   External Tables: machemp
    Allow: Basic,Query
    Frames: 1
    Add Fields to: NEITHER

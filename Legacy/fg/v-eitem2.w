@@ -498,7 +498,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -676,7 +676,7 @@ ON LEAVE OF e-itemfg-vend.vend-no IN FRAME F-Main /* Vendor */
 DO:
     IF LASTKEY = -1 THEN RETURN.
     ls-vend-name = "".
-
+    {&methods/lValidateError.i YES}
     if self:screen-value <> "" and
        not can-find(first vend where vend.company = g_company and
                                      vend.vend-no = self:screen-value) then
@@ -684,13 +684,14 @@ DO:
         message "Invalid Vendor. Try help." view-as alert-box error.
         return no-apply.
     end.
-
+     {&methods/lValidateError.i NO}
     FIND FIRST vend WHERE vend.company = g_company
                       AND vend.vend-no = e-itemfg-vend.vend-no:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL vend THEN ls-vend-name = vend.NAME.
     DISP ls-vend-name WITH FRAME {&FRAME-NAME}.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -719,7 +720,7 @@ session:data-entry-return = yes.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -816,7 +817,7 @@ PROCEDURE disp-vend-name :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
   DO WITH FRAME {&FRAME-NAME}:
     FIND FIRST vend
         WHERE vend.company EQ gcompany
@@ -838,7 +839,7 @@ PROCEDURE local-add-record :
 ------------------------------------------------------------------------------*/
   def buffer bf-e-vend for e-itemfg-vend.
   def var char-hdl as cha no-undo.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
  /*find first bf-e-vend where bf-e-vend.company = e-itemfg.company
                           and bf-e-vend.i-no = e-itemfg.i-no   
@@ -869,7 +870,7 @@ PROCEDURE local-assign-record :
   def var i as int no-undo.
   def var lv-eb-recid as recid no-undo.
   DEF VAR char-hdl AS cha NO-UNDO.
-  
+
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -890,7 +891,7 @@ PROCEDURE local-assign-record :
             e-itemfg-vend.selected[10] = tb_sel-10:SCREEN-VALUE EQ "YES"
             .
   END.
-  
+
   RUN reftable-values (NO).
   for each tmpfile: delete tmpfile .  end.
 
@@ -922,7 +923,7 @@ PROCEDURE local-assign-record :
                e-itemfg-vend.eqty = eb.eqty
                e-itemfg-vend.form-no = eb.form-no
                e-itemfg-vend.blank-no = eb.blank-no.
-             
+
   END.
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
@@ -943,7 +944,7 @@ PROCEDURE local-assign-record :
      IF lans THEN RUN UpdateFGItemVendCost.
 
   END.
-  
+
 
 END PROCEDURE.
 
@@ -982,7 +983,7 @@ PROCEDURE local-create-record :
   DEF BUFFER bf-eitemfg FOR e-itemfg.
 
   /* Code placed here will execute PRIOR to standard behavior. */
- 
+
    /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
@@ -1014,7 +1015,7 @@ PROCEDURE local-create-record :
             e-itemfg-vend.run-cost[i] = IF AVAIL e-itemfg THEN e-itemfg.run-cost[i] ELSE 0
             .
   end.
-  
+
   /*IF adm-adding-record THEN DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      fi_std-uom:SCREEN-VALUE            = ""
@@ -1037,7 +1038,7 @@ PROCEDURE local-delete-record :
   IF NOT adm-new-record THEN DO:
     {custom/askdel.i}
   END.
-     
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
@@ -1045,10 +1046,10 @@ PROCEDURE local-delete-record :
 /*  find first e-itemfg-vend of e-itemfg no-lock no-error.
   if not avail e-itemfg-vend then do:  /* no e-itemfg-vend then delete e-itemfg */
      def buffer bf-e-itemfg for e-itemfg.
-     
+
      find bf-e-itemfg  where recid(bf-e-itemfg) = recid(e-itemfg) no-error.
      if avail bf-e-itemfg then delete bf-e-itemfg.
-     
+
   end.
 */  
 if not avail e-item then do:
@@ -1101,7 +1102,7 @@ PROCEDURE local-display-fields :
       lv-field-hdl = lv-field-hdl:NEXT-SIBLING.
     END.
   END.
- 
+
   ASSIGN
    tb_sel-01 = NO
    tb_sel-02 = NO
@@ -1206,10 +1207,10 @@ PROCEDURE local-update-record :
   /* ============= validateion ================= */
   RUN valid-std-uom NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
-    
-    
+
+
     if   e-itemfg-vend.vend-no:screen-value <> "" and
          not can-find(first vend where vend.company = g_company and
                                        vend.vend-no = e-itemfg-vend.vend-no:screen-value) 
@@ -1239,7 +1240,8 @@ PROCEDURE local-update-record :
        END.
      END.
   END.
-  
+  {&methods/lValidateError.i NO}
+
   /* ============= end of validation ================*/
   v-add-record = adm-adding-record.
 
@@ -1257,6 +1259,7 @@ PROCEDURE local-update-record :
   ELSE RUN dispatch ("display-fields").
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1315,7 +1318,7 @@ PROCEDURE new-vend :
 
   DO WITH FRAME {&FRAME-NAME}:
     RUN disp-vend-name.
-    
+
     IF adm-new-record                             OR
        (e-itemfg-vend.vend-no EQ ""               AND
         e-itemfg-vend.vend-no:SCREEN-VALUE NE "") THEN
@@ -1353,20 +1356,20 @@ PROCEDURE price-change :
    def var i as int no-undo.
    def var char-hdl as cha no-undo.
    def buffer bf-e-itemfg-vend for e-itemfg-vend.
-   
-    
+
+
    v-pct = 0.
    message "By what percentage:" update v-pct .
-   
+
    status default "Processing Raw Material: " + string(e-itemfg.i-no).
-   
+
    find bf-e-itemfg-vend where recid(bf-e-itemfg-vend) = recid(e-itemfg-vend).
-   
+
    do i = 1 to 10:
       bf-e-itemfg-vend.run-cost[i] = e-itemfg-vend.run-cost[i] + 
                                 (e-itemfg-vend.run-cost[i] * v-pct / 100).
    end.
-   
+
    run get-link-handle in adm-broker-hdl (this-procedure, "record-source", output char-hdl).
    run reopen-and-repo in widget-handle(char-hdl) (rowid(bf-e-itemfg-vend)).
 
@@ -1464,7 +1467,7 @@ PROCEDURE UpdateFGItemVendCost :
 ------------------------------------------------------------------------------*/
   DEF BUFFER bfRef FOR reftable.
   DEF BUFFER bfEItemfg FOR e-itemfg.
- 
+
   FIND FIRST bfEVend WHERE bfEVend.company = eb.company
                        AND bfEVend.item-type = NO
                        AND bfEvend.i-no = eb.stock-no /*e-itemfg.i-no*/
@@ -1476,7 +1479,7 @@ PROCEDURE UpdateFGItemVendCost :
      ASSIGN bfEVend.i-no = eb.stock-no.     
   END.
   BUFFER-COPY e-itemfg-vend EXCEPT e-itemfg-vend.i-no e-itemfg-vend.est-no e-itemfg-vend.eqty e-itemfg-vend.form-no e-itemfg-vend.blank-no TO bfEVend.
-  
+
   IF NOT CAN-FIND(FIRST bfEItemfg OF bfEVend) THEN DO:
      CREATE bfEItemfg.
      ASSIGN bfEitemfg.company = e-itemfg-vend.company
@@ -1493,7 +1496,7 @@ PROCEDURE UpdateFGItemVendCost :
 DO WITH FRAME {&FRAME-NAME}:
    bfEvend.std-uom = fi_std-uom:SCREEN-VALUE.
 END.
- 
+
 IF AVAIL bfRef AND bfRef.code2 NE "" AND bfEvend.std-uom EQ "" THEN
     bfEVend.std-uom = bfRef.code2.
 
@@ -1502,7 +1505,7 @@ IF AVAIL bfEItemfg AND bfEItemfg.std-uom EQ "" THEN DO:
     bfEItemfg.std-uom = bfEVend.std-uom.
     FIND CURRENT bfEItemfg NO-LOCK.
 END.
-      
+
 
 
   /* there is no GS&A markup % in EST
@@ -1518,7 +1521,7 @@ END.
       bfRef.loc = e-itemfg-vend.i-no
       bfRef.code = e-itemfg-vend.vend-no.
   END.
-  
+
   bfRef.val[1] = INT(fi_oh-markup:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
   */
 
@@ -1537,6 +1540,7 @@ PROCEDURE valid-std-uom :
   DEF VAR uom-list AS CHAR INIT "" NO-UNDO.
 
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     fi_std-uom:SCREEN-VALUE = CAPS(fi_std-uom:SCREEN-VALUE).
 
@@ -1564,6 +1568,7 @@ PROCEDURE valid-std-uom :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

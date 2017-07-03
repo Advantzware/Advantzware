@@ -41,7 +41,6 @@ ASSIGN
     locode = gloc
     igsSessionID = NEXT-VALUE(session_seq)
     cCurrentUserID = USERID(LDBNAME(1)).
-    
 
 /* System Constant Values  contains user eula file*/
 {system/sysconst.i}
@@ -78,7 +77,7 @@ DEFINE VARIABLE iLoginCnt AS INTEGER NO-UNDO.
 FIND FIRST userControl NO-LOCK NO-ERROR.
 
 IF NOT AVAILABLE userControl THEN DO:
-    RUN util/createUserControl.
+    RUN util/createUserControl.p.
     FIND FIRST userControl NO-LOCK NO-ERROR.
     IF NOT AVAILABLE userControl THEN DO:
         MESSAGE "User Control Record was not found.  Exiting application."
@@ -93,9 +92,16 @@ FIND FIRST asi._myconnection NO-LOCK NO-ERROR.
 
 FIND FIRST asi._connect NO-LOCK WHERE _connect._connect-usr = _myconnection._myconn-userid
     NO-ERROR. 
-    
+        
 cEulaFile = SEARCH("{&EulaFile}").
+if cEulaFile = ""
+or cEulaFile = ? then assign
+    cEulaFile = search("eula.txt").
+
 RUN system/checkEula.p (INPUT cEulaFile, OUTPUT lEulaAccepted, OUTPUT cEulaVersion).
+
+IF NOT lEulaAccepted THEN 
+    RUN windows/wUserEula.w (INPUT cEulaFile, OUTPUT lEulaAccepted).
 IF NOT lEulaAccepted THEN 
     oplExit = TRUE. 
     
@@ -108,7 +114,7 @@ END.
 /* If user has other sessions open, prompt to add another or close them */
 IF iLoginCnt GT 0 AND promptMultiSession-log THEN DO:
     RUN system/wSession.w (INPUT iLoginCnt, INPUT iMaxSessionsPerUser, OUTPUT cResponse).
-      
+
     CASE cResponse:
         WHEN "" THEN 
           oplExit = TRUE.

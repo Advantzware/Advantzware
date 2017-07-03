@@ -530,11 +530,11 @@ PROCEDURE Read_Menus :
 
     ls-menu-lst[1] = TRIM(ls-menu-lst[1]) + "." + TRIM(ls-menu-lst[2]).
     /* ========== end of mods =========================*/
-    IF SEARCH(ls-menu-lst[1]) <> ? THEN
-        ls-menu-lst[1] = SEARCH(ls-menu-lst[1]) .
 
     IF SEARCH("usermenu\" + USERID("nosweat") + "\" + ls-menu-lst[1]) <> ? THEN
         ls-menu-lst[1] = SEARCH("usermenu\" + USERID("nosweat") + "\" + ls-menu-lst[1]).
+    ELSE IF SEARCH(ls-menu-lst[1]) <> ? THEN
+        ls-menu-lst[1] = SEARCH(ls-menu-lst[1]) .
 
     INPUT FROM VALUE(ls-menu-lst[1]) NO-ECHO.
     REPEAT:

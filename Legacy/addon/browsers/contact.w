@@ -238,24 +238,24 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.contact"
+     _TblList          = "contact"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
-     _OrdList          = "EMPTRACK.contact.last-name|yes"
-     _FldNameList[1]   > EMPTRACK.contact.last-name
+     _OrdList          = "contact.last-name|yes"
+     _FldNameList[1]   > contact.last-name
 "contact.last-name" ? "X(20)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[2]   > EMPTRACK.contact.first-name
+     _FldNameList[2]   > contact.first-name
 "contact.first-name" ? "X(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[3]   > EMPTRACK.contact.cust-no
+     _FldNameList[3]   > contact.cust-no
 "contact.cust-no" "Customer" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[4]   = EMPTRACK.contact.cust-name
-     _FldNameList[5]   = EMPTRACK.contact.ship-id
-     _FldNameList[6]   > EMPTRACK.contact.contact-title
+     _FldNameList[4]   = contact.cust-name
+     _FldNameList[5]   = contact.ship-id
+     _FldNameList[6]   > contact.contact-title
 "contact.contact-title" ? "X(25)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[7]   > EMPTRACK.contact.type
+     _FldNameList[7]   > contact.type
 "contact.type" ? "X(5)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[8]   = EMPTRACK.contact.phone
-     _FldNameList[9]   > EMPTRACK.contact.extension
+     _FldNameList[8]   = contact.phone
+     _FldNameList[9]   > contact.extension
 "contact.extension" "Ext." ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */

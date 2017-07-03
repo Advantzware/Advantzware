@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:49 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -953,7 +953,8 @@ PROCEDURE valid-key :
     ------------------------------------------------------------------------------*/
     DEF BUFFER b-cust-markup FOR cust-markup.
 
-    {methods/lValidateError.i YES}
+
+  {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         IF CAN-FIND(FIRST b-cust-markup
             WHERE b-cust-markup.company EQ cocode
@@ -1080,6 +1081,7 @@ PROCEDURE valid-procat :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+
   {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         cust-markup.procat:SCREEN-VALUE =
@@ -1114,6 +1116,7 @@ PROCEDURE valid-style :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
+
   {methods/lValidateError.i YES}
     DO WITH FRAME {&FRAME-NAME}:
         cust-markup.style:SCREEN-VALUE =

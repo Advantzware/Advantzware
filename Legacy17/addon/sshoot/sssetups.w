@@ -36,10 +36,10 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-
 {methods/defines/globdefs.i}
 {methods/defines/hndldefs.i}
-DEF NEW SHARED VAR choice AS LOG NO-UNDO.
+DEFINE NEW SHARED VARIABLE choice   AS LOGICAL NO-UNDO.
+DEFINE            VARIABLE hProgram AS HANDLE  NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -56,7 +56,7 @@ DEF NEW SHARED VAR choice AS LOG NO-UNDO.
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-11 btn-count btn-post btn-close 
+&Scoped-Define ENABLED-OBJECTS btn-count RECT-11 btn-post btn-close 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -88,7 +88,7 @@ DEFINE BUTTON btn-post
      FONT 6.
 
 DEFINE RECTANGLE RECT-11
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 37 BY 10.95.
 
 
@@ -141,8 +141,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
 /* ************************* Included-Libraries *********************** */
 
@@ -161,28 +159,13 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
                                                                         */
-ASSIGN
-       btn-close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-count:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-post:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
-                "ribbon-button".
-
-
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -219,7 +202,7 @@ END.
 ON CHOOSE OF btn-close IN FRAME DEFAULT-FRAME /* Close */
 DO:
    APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+   {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -231,8 +214,10 @@ END.
 ON CHOOSE OF btn-count IN FRAME DEFAULT-FRAME /* Setup / Returns */
 DO:
    RUN /* addon/fg/fg-physi.w.  /* for window screen*/  */
-       addon/fg/fg-phyi2.w. /* pocket pc */  
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+       addon/fg/fg-phyi2.w PERSISTENT SET hProgram . /* pocket pc */  
+   RUN dispatch IN hProgram ("initialize").
+   RUN dispatch IN hProgram ("view").
+   {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -243,7 +228,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-post C-Win
 ON CHOOSE OF btn-post IN FRAME DEFAULT-FRAME /* Post Returns */
 DO:
-     RUN fg/fgpstall.w PERSISTENT (?,"SETUP").
+    RUN fg/fgpstall.w PERSISTENT (?,"SETUP").
     {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
 END.
 
@@ -283,10 +268,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
   {methods/nowait.i}
   APPLY "entry" TO btn-count.
-    {methods/setButton.i btn-close "Close"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:36 am */
-    {methods/setButton.i btn-count "Setup"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:36 am */
-    {methods/setButton.i btn-post "Post"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:36 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+  {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 
@@ -328,7 +310,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE RECT-11 btn-count btn-post btn-close 
+  ENABLE btn-count RECT-11 btn-post btn-close 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

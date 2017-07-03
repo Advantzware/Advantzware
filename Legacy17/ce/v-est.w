@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:56 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -367,7 +367,8 @@ DEFINE FRAME fold
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fold
-     ef.cad-image AT ROW 6.95 COL 128.2 COLON-ALIGNED
+     ef.cad-image AT ROW 6.95 COL 128.2 COLON-ALIGNED HELP
+          "Filename of the Die image"
           LABEL "Image" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 23 BY 1
@@ -986,7 +987,10 @@ DO:
        AND ITEM.i-no = ef.board NO-LOCK NO-ERROR.
 
    IF AVAIL ITEM THEN
-   RUN windows/item-fe.w(RECID(ITEM)) .
+    DO:
+        RUN windows/item-fe.w PERSISTENT SET hProgram (RECID(ITEM)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1002,7 +1006,10 @@ DO:
        AND cust.cust-no = eb.cust-no NO-LOCK NO-ERROR.
 
    IF AVAIL cust THEN
-   RUN windows/v-cust.w(RECID(cust)) .
+    DO:
+        RUN windows/v-cust.w PERSISTENT SET hProgram (RECID(cust)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1018,7 +1025,10 @@ DO:
        AND itemfg.i-no = eb.stock-no NO-LOCK NO-ERROR.
 
    IF AVAIL itemfg THEN
-   RUN oe/w-estfg.w(RECID(eb)) .
+    DO:
+        RUN oe/w-estfg.w PERSISTENT SET hProgram (RECID(eb)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1035,7 +1045,10 @@ DO:
        AND bf-est.est-no = FILL(" ",8 - LENGTH(TRIM(INPUT fi_from-est-no))) + TRIM(INPUT fi_from-est-no) NO-LOCK NO-ERROR.
 
    IF AVAIL bf-est THEN
-   RUN est/w-estesf.w(RECID(bf-est)) .
+    DO:
+        RUN est/w-estesf.w PERSISTENT SET hProgram (RECID(bf-est)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1051,7 +1064,10 @@ DO:
        AND style.style = eb.style NO-LOCK NO-ERROR.
 
    IF AVAIL style THEN
-   RUN windows/stylef-e.w(RECID(style)) .
+    DO:
+        RUN windows/stylef-e.w PERSISTENT SET hProgram (RECID(style)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */

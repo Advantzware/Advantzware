@@ -90,6 +90,7 @@ DEFINE VARIABLE h_cust-6 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_cust-tot AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_custmark AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_custmark-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_empalert AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_export AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
@@ -319,6 +320,14 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_folder ( 23.67 , 155.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/empalert.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_empalert ).
+       RUN set-position IN h_empalert ( 1.00 , 25.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'panels/p-crm.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
@@ -402,7 +411,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_export ).
-       RUN set-position IN h_export ( 1.00 , 17.00 ) NO-ERROR.
+       RUN set-position IN h_export ( 1.00 , 9.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -410,7 +419,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_movecol-3 ).
-       RUN set-position IN h_movecol-3 ( 1.00 , 25.00 ) NO-ERROR.
+       RUN set-position IN h_movecol-3 ( 1.00 , 17.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -491,6 +500,14 @@ PROCEDURE adm-create-objects :
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/export.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_export ).
+       RUN set-position IN h_export ( 1.00 , 9.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewerid/cust.w':U ,
              INPUT  {&WINDOW-NAME} ,
              INPUT  'Layout = ':U ,
@@ -503,7 +520,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_movecol-4 ).
-       RUN set-position IN h_movecol-4 ( 1.00 , 25.00 ) NO-ERROR.
+       RUN set-position IN h_movecol-4 ( 1.00 , 17.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -553,6 +570,9 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_cust , 'Record':U , h_shipto ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'shipto':U , h_shipto ).
 
+       /* Links to SmartObject h_export. */
+       RUN add-link IN adm-broker-hdl ( h_shipto , 'export-xl':U , h_export ).
+
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_shipto-2 ,
              h_folder , 'AFTER':U ).
@@ -567,7 +587,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_movecol-5 ).
-       RUN set-position IN h_movecol-5 ( 1.00 , 25.00 ) NO-ERROR.
+       RUN set-position IN h_movecol-5 ( 1.00 , 17.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -686,7 +706,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_movecol-6 ).
-       RUN set-position IN h_movecol-6 ( 1.00 , 25.00 ) NO-ERROR.
+       RUN set-position IN h_movecol-6 ( 1.00 , 17.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -996,16 +1016,36 @@ PROCEDURE Select_att :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
-  /*RUN Get_Procedure IN Persistent-Handle ('cstattch.',OUTPUT run-proc,no).
-    IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)}.*/
-
-  RUN windows/cstattch.w(rec_key_value,header_value,0).
+    {methods/select_attcust.i rec_key_value header_value 0}
 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_empalert W-Win
+PROCEDURE select_empalert:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE hProgram AS HANDLE NO-UNDO.
+    
+    IF CAN-FIND (asi._file WHERE asi._file._file-name EQ "empalert") THEN DO:
+        RUN windows/empalert.w PERSISTENT SET hProgram (rec_key_value, "").
+        RUN dispatch IN hProgram ("initialize").
+    END.
+    ELSE 
+        MESSAGE "Database Change Needed.  Contact ASI"
+        VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :

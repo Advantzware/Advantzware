@@ -1,7 +1,8 @@
 /* ----------------------------------------------- oe/rep/schdrel.i 02/99 JLF */
 /* Schedule Release Report                                                    */
 /* -------------------------------------------------------------------------- */
-
+DEFINE VARIABLE cReasonCode AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cReasonDesc AS CHARACTER NO-UNDO .
 if chosen eq 2 then DO:
     
     IF rd_printOnhand = "z" AND w-ord.tot-qty <> 0 THEN NEXT.
@@ -16,7 +17,43 @@ if chosen eq 2 then DO:
     /*{oe/rep/schdrel3N.i}*/
 
 /* oe/rep/schdrel3N.i */ 
+       
+       ASSIGN cReasonCode  = ""
+             cReasonDesc  = "".
 
+       FIND FIRST job-hdr NO-LOCK
+           WHERE job-hdr.company EQ cocode
+             AND job-hdr.job-no  EQ w-ord.job-no
+             AND job-hdr.job-no2 EQ w-ord.job-no2
+             AND job-hdr.ord-no  EQ w-ord.ord-no
+             AND job-hdr.i-no    EQ w-ord.i-no
+           NO-ERROR.
+       IF NOT AVAIL job-hdr THEN
+           FIND FIRST job-hdr NO-LOCK
+                WHERE job-hdr.company EQ cocode
+                  AND job-hdr.job-no  EQ w-ord.job-no
+                  AND job-hdr.job-no2 EQ w-ord.job-no2
+                  AND job-hdr.ord-no  EQ w-ord.ord-no
+                NO-ERROR.
+       
+       IF AVAIL job-hdr THEN
+           FIND FIRST job NO-LOCK
+                WHERE job.company EQ job-hdr.company
+                  AND job.job     EQ job-hdr.job
+                  AND job.job-no  EQ job-hdr.job-no
+                  AND job.job-no2 EQ job-hdr.job-no2
+                NO-ERROR.
+
+       IF AVAILABLE job AND job.stat = "H" THEN DO: 
+           FIND FIRST rejct-cd NO-LOCK
+                WHERE rejct-cd.type = "JH" 
+                  AND rejct-cd.code = job.reason NO-ERROR.
+       
+           IF AVAILABLE job-hdr AND AVAILABLE rejct-cd AND AVAIL job AND job.job-no NE "" THEN
+               ASSIGN cReasonCode = job.reason
+                     cReasonDesc  =  rejct-cd.dscr.      
+           END.
+          
        ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -115,6 +152,12 @@ if chosen eq 2 then DO:
                   IF AVAIL shipto THEN
                       cVarValue = STRING(shipto.ship-stat,"x(5)") .
                   ELSE cVarValue = "" .
+                END.
+                WHEN "job-h-code" THEN DO:
+                    cVarValue = cReasonCode .
+                END.
+                 WHEN "job-h-desc" THEN DO:
+                    cVarValue = string(cReasonDesc,"x(15)") .
                 END.
                 WHEN "run-comp" THEN do: 
                         ASSIGN v-lst-m-code = "" .

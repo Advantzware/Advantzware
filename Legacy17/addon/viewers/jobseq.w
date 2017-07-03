@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:40 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -155,7 +155,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: EMPTRACK.jobseq
+   External Tables: jobseq
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -260,11 +260,14 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL jobseq.charge_code V-table-Win
 ON LEAVE OF jobseq.charge_code IN FRAME F-Main /* Charge Code */
 DO:
+  {&methods/lValidateError.i YES}
   {methods/dispflds.i}
   {methods/entryerr.i
       &can-find="job-code WHERE job-code.code = SELF:SCREEN-VALUE"
       &error-message="Invalid Charge Code"}
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

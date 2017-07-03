@@ -113,7 +113,8 @@ DEFINE FRAME F-Main
      Select_spec AT ROW 1 COL 9
      Select_appl AT ROW 1 COL 17
      Select_help AT ROW 1 COL 25
-     UDF AT ROW 1 COL 33
+     UDF AT ROW 1 COL 33 HELP 
+          "Access UDF Viewer"
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -361,7 +362,6 @@ PROCEDURE Init-Buttons :
   DISABLE UDF WITH FRAME {&FRAME-NAME}.
   IF NOT spec-note THEN
   DISABLE select_spec WITH FRAME {&FRAME-NAME}.
-
   {methods/run_link.i "note-link-target" "disable-note" "(output notes-button)"}
   IF NOT notes-button THEN
   DISABLE select_dept WITH FRAME {&FRAME-NAME}.

@@ -396,7 +396,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:45 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -513,7 +513,7 @@ END.
       MESSAGE "No Cash Disbursements  available for posting..." VIEW-AS ALERT-BOX ERROR.
       RUN undo-trnum.
   END.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:45 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -665,7 +665,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:45 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -692,9 +692,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN check-date.
 
   {methods/nowait.i}
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:36 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:36 am */
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:45 am */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images1.p */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images1.p */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1111,7 +1111,7 @@ IF td-show-parm THEN RUN show-param.
      {ap/ap-dreg.i "d-no"}
    end.
 
-   display  "** GRAND TOTAL  "  at 90  g2 to 128
+   display  "** GRAND TOTAL  "  at 90  g2 FORMAT "-9,999,999.99" to 128
    with no-labels no-underline STREAM-IO width 132 frame gt.
 
    hide frame f-top.
@@ -1162,13 +1162,13 @@ IF td-show-parm THEN RUN show-param.
       accumulate ap-disl.amt (total).
       if last-of(ap-disl.actnum) then do:
          put "** TOTAL "  to 116
-             accum total by ap-disl.actnum ap-disl.amt to 129
+             accum total by ap-disl.actnum ap-disl.amt FORMAT "-9,999,999.99" to 131
                          skip(1).
       end.
       v-postable = YES.
    end.
    put "***** TOTAL FOR ALL ACCOUNTS " to 116
-       accum total ap-disl.amt to 129.
+       accum total ap-disl.amt FORMAT "-9,999,999.99" to 129.
 
 
   SESSION:SET-WAIT-STATE ("").

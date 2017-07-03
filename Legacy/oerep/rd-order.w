@@ -80,15 +80,17 @@ DEF TEMP-TABLE tt-report NO-UNDO
 ASSIGN cTextListToSelect  = "Order#,Customer#,Order Date,FG Item#,Cust Part#,Item Name,Cust PO#,Ordered Qty,Prod. Qty," +
                             "Shipped Qty,Job On Hand,Sell Price,UOM,Unit Count,Pallet Count,Skids,Status,Due Date," +
                             "Customer Name,Est#,Job#,CAD#,Invoice Qty,Act. Rel. Quantity,Production Balance,O/U%,Rep," +
-                            "Rep Name,Release Date,Carrier,Ship To,FG On Hand,Orders Due,Items Due,Last User ID,Hold Reason Code,Hold/Approved Date" 
+                            "Rep Name,Release Date,Carrier,Ship To,FG On Hand,Orders Due,Items Due,Last User ID,Hold Reason Code,Hold/Approved Date," +
+                            "Scheduled Rel. Qty"
 
        cFieldListToSelect = "oe-ordl.ord-no,oe-ordl.cust-no,oe-ord.ord-date,oe-ordl.i-no,oe-ordl.part-no,oe-ordl.i-name,oe-ordl.po-no,oe-ordl.qty,v-prod-qty," +
                             "oe-ordl.ship-qty,v-bal,oe-ordl.price,oe-ordl.pr-uom,case-count,pallet-count,skid-count,oe-ord.stat,oe-ordl.req-date," +
                             "oe-ord.cust-name,oe-ordl.est-no,job,cad-no,oe-ordl.inv-qty,act-rel-qty,wip-qty,pct,sman," +
-                            "sname,reldate,carrier,shipid,fg-oh,oe-ord.due-date,oe-ordl.req-date,oe-ord.user-id,oe-ord.spare-char-2,approved-date"
+                            "sname,reldate,carrier,shipid,fg-oh,oe-ord.due-date,oe-ordl.req-date,oe-ord.user-id,oe-ord.spare-char-2,approved-date," +
+                            "sch-rel-qty"
                             
-        cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18"
-           cFieldType = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c"
+        cFieldLength = "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,15,20," + "15,15,15,20,15,30,15,8,16,18," + "18"
+           cFieldType = "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c," + "c,c,c,c,c,c,c,c,c,c," + "c"
        .
 
 {sys/inc/ttRptSel.i}
@@ -1092,7 +1094,7 @@ DEF VAR vshipid  AS CHAR NO-UNDO.
 DEF VAR vreldate AS CHAR NO-UNDO.
 DEF VAR vsman  AS CHAR NO-UNDO .
 DEF VAR vsname  AS CHAR NO-UNDO .
-
+DEFINE VARIABLE dSchRelQty AS DECIMAL NO-UNDO.
 ASSIGN
    v-fcust[1]   = begin_cust-no
    v-fcust[2]   = end_cust-no
@@ -1167,7 +1169,8 @@ IF tb_excel THEN
          v-case-count = 0
          v-pallet-count = 0
          v-skid-count = 0
-         v-cnt = v-cnt + 1.
+         v-cnt = v-cnt + 1
+         dSchRelQty = 0 .
 
         DEF VAR li AS INT NO-UNDO.
 
@@ -1347,11 +1350,20 @@ IF tb_excel THEN
            no-lock no-error.
        IF AVAIL carrier THEN
            ASSIGN vcarrier = carrier.dscr .
+
        RUN oe/rel-stat.p (tt-report.row-id, OUTPUT v-stat).
+       FIND FIRST oe-rel NO-LOCK 
+           WHERE oe-rel.company EQ g_company 
+             AND ROWID(oe-rel) EQ  tt-report.row-id NO-ERROR.
        
-       IF INDEX("A,B,P",v-stat) > 0 AND AVAIL oe-rel THEN
-           v-act-rel-qty = oe-rel.qty.
-       ELSE v-act-rel-qty = 0 .
+       IF AVAIL oe-rel THEN
+           ASSIGN
+           v-act-rel-qty = oe-rel.qty
+           dSchRelQty    = oe-rel.tot-qty .
+       ELSE ASSIGN
+           v-act-rel-qty = 0 
+           dSchRelQty    = 0.
+
 
       ASSIGN cDisplay = ""
            cTmpField = ""
@@ -1404,6 +1416,7 @@ IF tb_excel THEN
                   WHEN "shipid" THEN cVarValue = string(vshipid) .
                   WHEN "v-prod-qty" THEN cVarValue = STRING(v-prod-qty) .
                   WHEN "approved-date" THEN cVarValue = IF oe-ord.approved-date NE ? THEN STRING(oe-ord.approved-date) ELSE ""    .
+                  WHEN "sch-rel-qty" THEN cVarValue = string(dSchRelQty).
              END CASE.
 
              cExcelVarValue = cVarValue.

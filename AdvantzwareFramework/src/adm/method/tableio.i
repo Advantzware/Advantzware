@@ -977,11 +977,26 @@ PROCEDURE adm-disable-fields :
      &IF NUM-ENTRIES("{&adm-first-enabled-table}":U, " ":U) = 1 &THEN
        &IF DEFINED(adm-browser) NE 0 &THEN  
            /* Get focus out of the browser and then make it read-only. */
-           IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN
-           APPLY "ENTRY":U TO FRAME {&FRAME-NAME}.
-           ELSE 
            RUN notify ('apply-entry, TABLEIO-SOURCE':U).
-           {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} = yes.
+           
+           IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN
+           DO ON ERROR UNDO, THROW:
+               DEFINE VARIABLE hSomethingElse AS HANDLE NO-UNDO.
+               CREATE FILL-IN hSomethingElse
+               ASSIGN  
+                    FRAME = FRAME {&frame-name}:HANDLE 
+                    VISIBLE = TRUE
+                    SENSITIVE = TRUE .                    
+               hSomethingElse:MOVE-TO-TOP () . 
+               APPLY "entry" TO hSomethingElse .
+               {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} = YES.
+               FINALLY:
+                   IF VALID-HANDLE (hSomethingElse) THEN
+                   DELETE OBJECT hSomethingElse.
+               END FINALLY.
+           END.
+           ELSE 
+           {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} = YES.
        &ELSE
            DISABLE {&UNLESS-HIDDEN} {&adm-tableio-fields} 
              WITH FRAME {&FRAME-NAME}.

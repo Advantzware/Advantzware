@@ -48,7 +48,7 @@ DEFINE {&NEW} SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 ASSIGN
    cocode = g_company
    locode = g_loc.
- 
+
 DEF VAR v-invalid   AS LOG  NO-UNDO.
 DEF VAR v-cust-no  AS CHAR NO-UNDO.
 
@@ -299,7 +299,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -363,7 +363,7 @@ DO:
          RETURN NO-APPLY.
       END.
    END.
- 
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -401,7 +401,7 @@ DO:
    DEF VAR v-char-val AS CHAR FORMAT "X(10)" NO-UNDO.
 
    RUN windows/l-itemfg.w (cocode, "", FOCUS:SCREEN-VALUE, OUTPUT v-char-val).
-   
+
    IF v-char-val NE "" AND FOCUS:SCREEN-VALUE NE ENTRY(1,v-char-val) THEN DO:
       FOCUS:SCREEN-VALUE = ENTRY(1,v-char-val).
       FIND FIRST itemfg WHERE itemfg.company EQ cocode
@@ -428,7 +428,7 @@ DO:
          RETURN NO-APPLY.
       END.
    END.
-   
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -527,7 +527,7 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).
 
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -651,7 +651,7 @@ PROCEDURE local-assign-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
-   
+
   /* Code placed here will execute AFTER standard behavior.    */
   item-comm.zz-char[2] = CAPS(item-comm.zz-char[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
   item-comm.zz-char[3] = CAPS(item-comm.zz-char[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME}).
@@ -675,7 +675,7 @@ PROCEDURE local-cancel-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   disable all with frame {&frame-name}.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
@@ -736,7 +736,7 @@ PROCEDURE local-display-fields :
   ELSE
      TG_lock-base-cost:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -754,7 +754,7 @@ PROCEDURE local-update-record :
   RUN valid-cust-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN 
      RETURN NO-APPLY.
-  
+
   RUN valid-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN 
      RETURN NO-APPLY.
@@ -766,10 +766,10 @@ PROCEDURE local-update-record :
   disable all with frame {&frame-name}.
 
   IF adm-adding-record THEN v-cust-no = item-comm.cust-no:SCREEN-VALUE.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-  
+
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
@@ -845,6 +845,7 @@ PROCEDURE valid-base-cost-uom :
 ------------------------------------------------------------------------------*/
 DEF VAR v-msg AS CHAR FORMAT "X(15)".
 
+  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
    v-msg = "".
 
@@ -867,6 +868,7 @@ DO WITH FRAME {&FRAME-NAME}:
    ELSE
       ASSIGN item-comm.zz-char[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = CAPS(item-comm.zz-char[3]:SCREEN-VALUE).
 END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -881,6 +883,7 @@ PROCEDURE valid-cust-no :
 ------------------------------------------------------------------------------*/
    DEF BUFFER b-cust FOR cust.
 
+  {methods/lValidateError.i YES}
    IF NOT CAN-FIND(FIRST cust WHERE cust.company = g_company
                                 AND cust.cust-no = item-comm.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}) THEN DO:
       MESSAGE "Invalid Customer#. " VIEW-AS ALERT-BOX ERROR.
@@ -889,7 +892,7 @@ PROCEDURE valid-cust-no :
    ELSE DO:
       FIND FIRST b-cust WHERE b-cust.company = cocode
                           AND b-cust.cust-no EQ item-comm.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} NO-LOCK NO-ERROR.
-      
+
       IF AVAIL b-cust THEN DO:
          ASSIGN
             item-comm.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} = b-cust.cust-no
@@ -898,6 +901,7 @@ PROCEDURE valid-cust-no :
       END.
    END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -915,6 +919,7 @@ PROCEDURE valid-i-no :
 
    DEF VAR v-msg AS CHAR NO-UNDO.
 
+  {methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
       v-msg = "".
 
@@ -951,6 +956,7 @@ PROCEDURE valid-i-no :
                item-comm.zz-char[3]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = b-itemfg.prod-uom.
       END.
    END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -965,6 +971,7 @@ PROCEDURE valid-set-sales-price-uom :
 ------------------------------------------------------------------------------*/
 DEF VAR v-msg AS CHAR FORMAT "X(15)".
 
+  {methods/lValidateError.i YES}
 DO WITH FRAME {&FRAME-NAME}:
    v-msg = "".
 
@@ -987,6 +994,7 @@ DO WITH FRAME {&FRAME-NAME}:
    ELSE
       ASSIGN item-comm.zz-char[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} = CAPS(item-comm.zz-char[2]:SCREEN-VALUE).
 END.
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

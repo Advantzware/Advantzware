@@ -89,7 +89,7 @@ DEFINE VARIABLE svEndCustNo AS CHARACTER FORMAT "X(8)"
      SIZE 15.6 BY 1.
 
 DEFINE VARIABLE svInventoryClasses AS CHARACTER FORMAT "X(256)" 
-     LABEL "Inventory Class (es)" 
+     LABEL "Inventory Class(es)" 
      VIEW-AS FILL-IN 
      SIZE 61 BY 1.
 
@@ -299,7 +299,7 @@ END.
 
 &Scoped-define SELF-NAME svInventoryClasses
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svInventoryClasses sObject
-ON LEAVE OF svInventoryClasses IN FRAME F-Main /* Inventory Class (es) */
+ON LEAVE OF svInventoryClasses IN FRAME F-Main /* Inventory Class(es) */
 DO:
     ASSIGN {&SELF-NAME}.
     FIND FIRST cust NO-LOCK

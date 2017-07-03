@@ -405,7 +405,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -460,18 +460,18 @@ DO:
        otherwise do:
            lv-handle = focus:handle.
            run applhelp.p.
-             
+
            if g_lookup-var <> "" then do:
               lv-handle:screen-value = g_lookup-var.
-        
+
            end.   /* g_lookup-var <> "" */
            apply "entry" to lv-handle.
            return no-apply.
        end.  /* otherwise */
 
-         
+
    end case. 
-    
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -483,6 +483,7 @@ END.
 ON LEAVE OF quotehd.carrier IN FRAME F-Main /* Carrier */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
     carrier_desc:SCREEN-VALUE = ''.
     IF quotehd.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
     FIND FIRST carrier NO-LOCK WHERE carrier.company EQ gcompany
@@ -493,8 +494,10 @@ DO:
       RETURN NO-APPLY.
     END.
     carrier_desc:SCREEN-VALUE = carrier.dscr.
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -532,6 +535,7 @@ END.
 ON LEAVE OF quotehd.del-zone IN FRAME F-Main /* Zone */
 DO:
   IF LASTKEY NE -1 THEN DO:
+   {&methods/lValidateError.i YES}
     zon_desc:SCREEN-VALUE = ''.
     IF quotehd.del-zone:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
     FIND FIRST carr-mtx NO-LOCK WHERE carr-mtx.company EQ gcompany
@@ -543,8 +547,10 @@ DO:
       RETURN NO-APPLY.
     END.
     zon_desc:SCREEN-VALUE = carr-mtx.del-dscr.
+   {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -579,6 +585,7 @@ END.
 ON LEAVE OF quotehd.sman IN FRAME F-Main /* Sales Rep */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
    sman_desc:SCREEN-VALUE = ''.
    IF quotehd.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
    FIND FIRST sman NO-LOCK WHERE sman.sman EQ quotehd.sman:SCREEN-VALUE NO-ERROR.
@@ -587,8 +594,10 @@ DO:
      RETURN NO-APPLY.
    END.
    sman_desc:SCREEN-VALUE = sman.sname.
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -623,6 +632,7 @@ END.
 ON LEAVE OF quotehd.terms IN FRAME F-Main /* Terms */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
     term_desc:SCREEN-VALUE = ''.
     IF quotehd.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN RETURN.
     FIND FIRST terms NO-LOCK WHERE terms.t-code EQ quotehd.terms:SCREEN-VALUE NO-ERROR.
@@ -631,8 +641,10 @@ DO:
       RETURN NO-APPLY.
     END.
     term_desc:SCREEN-VALUE = terms.dscr.
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -653,7 +665,7 @@ ASSIGN cocode = gcompany
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -680,7 +692,7 @@ FUNCTION are-items-for-cust RETURNS LOGICAL
        RESULT = TRUE.
        LEAVE.
      END.
-        
+
     IF RESULT = FALSE THEN DO:
     FOR EACH bfCust WHERE bfCust.ACTIVE = "X"
       NO-LOCK,
@@ -691,7 +703,7 @@ FUNCTION are-items-for-cust RETURNS LOGICAL
         LEAVE.
       END.
     END.
-    
+
     RETURN result.
 
 END FUNCTION.
@@ -778,15 +790,15 @@ PROCEDURE create-line-items :
   FIND cust WHERE cust.company EQ quotehd.company
    AND cust.cust-no EQ quotehd.cust-no
    NO-LOCK NO-ERROR.
-  
+
   IF are-items-for-cust() THEN 
       RUN est/d-qpriceType.w (OUTPUT cPriceType).
   ELSE
       cPriceType = "Manual".
-      
+
   IF NOT cPriceType EQ "Manual" THEN DO:
       RUN est/addQuoteItems.p (INPUT ROWID(quotehd), INPUT cPriceType).
-      
+
      /* {methods/run_link.i "bottom-TARGET" "add-items-by-selecting" "(cPriceType)"} */
       FIND FIRST quoteitm OF quotehd NO-LOCK NO-ERROR.
       IF AVAIL quoteitm THEN DO:
@@ -806,7 +818,7 @@ PROCEDURE create-line-items :
   /* If 'manual' was selected, no quoteitm records will be created and local-update */
   /* will then run local-add in the quoteitm browse                                 */
 
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -850,13 +862,13 @@ PROCEDURE dispNewRep :
 
   /* This is to prevent an error message about current buffer different */
   /* then result list */
-  
+
   /*  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:   
     hWinHandle = WIDGET-HANDLE(char-hdl).
     IF INDEX(hWinHandle:NAME, "w-quote") GT 0 THEN
       RUN switchTabs IN WIDGET-HANDLE(char-hdl).
   END.*/
-    
+
 
 END PROCEDURE.
 
@@ -870,7 +882,7 @@ PROCEDURE enable-detail :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   
+
  IF quotehd.est-no <> "" AND NOT adm-new-record THEN  /* update with est#*/
       DISABLE /*quotehd.cust-no quotehd.billto[1] quotehd.billto[2]
               quotehd.billto[3] quotehd.billto[4]
@@ -920,7 +932,7 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
   quotehd.est-no = FILL(" ",8 - LENGTH(TRIM(quotehd.est-no))) + TRIM(quotehd.est-no).
 
   IF quotehd.est-no <> "" THEN DO:
@@ -957,7 +969,7 @@ PROCEDURE local-assign-record :
           bf-eb.sman = quotehd.sman.        
      END.       
   END.  /* est-no <> "" */
-  
+
   /* update rfqitem qty - start */
 
   IF quotehd.rfq NE '' THEN DO:
@@ -976,7 +988,7 @@ PROCEDURE local-assign-record :
                                   quotehd.rfq,bQuoteItm.part-no,bQuoteQty.qty,
                                   bQuoteQty.price,bQuoteQty.uom,TODAY,bQuoteQty.rels).
           END. /* each quoteitm */
-          DISCONNECT rfq.
+          /* DISCONNECT rfq. */
         END. /* if connected */
       END. /* expire-date */
     END. /* avail module */
@@ -1034,12 +1046,12 @@ PROCEDURE local-create-record :
   def var li-next-qno as int no-undo.
   def buffer bf-hd for quotehd.
     DEFINE VARIABLE cNotes LIKE quotehd.comment   NO-UNDO.
-    
+
   /* Code placed here will execute PRIOR to standard behavior. */
   /*find last quotehd use-index q-no where quotehd.company = gcompany and
                                    quotehd.loc = gloc no-lock no-error.
   li-next-qno = if avail quotehd then quotehd.q-no + 1 else 1.  */          
-                       
+
 /*   find first bf-hd use-index q-no where bf-hd.company = gcompany and       */
 /*                                         bf-hd.loc = gloc no-lock no-error. */
 /*                                                                            */
@@ -1066,7 +1078,7 @@ PROCEDURE local-create-record :
 /*                              quotehd.comment[4] = bf-hd.comment[4] */
 /*                              quotehd.comment[5] = bf-hd.comment[5] */
                              .          
-  
+
   IF adm-new-record AND NOT adm-adding-record THEN DO WITH FRAME {&FRAME-NAME}:
      ASSIGN {&ENABLED-FIELDS}.
   END.
@@ -1087,7 +1099,7 @@ PROCEDURE local-display-fields :
   DEF VAR lv-ship-id LIKE quotehd.ship-id NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
@@ -1153,7 +1165,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
    newRecord = adm-new-record.
-  
+
   /* validation ===*/
    RUN valid-cust-no NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -1166,7 +1178,7 @@ PROCEDURE local-update-record :
 
    RUN valid-sold-id NO-ERROR.
    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+   {&methods/lValidateError.i YES}
    DO WITH FRAME {&FRAME-NAME}:
      sman_desc:SCREEN-VALUE = ''.
      IF quotehd.sman:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE '' THEN DO:
@@ -1178,7 +1190,7 @@ PROCEDURE local-update-record :
        END.
        sman_desc:SCREEN-VALUE = sman.sname.
      END.
-     
+
      term_desc:SCREEN-VALUE = ''.
      IF quotehd.terms:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE '' THEN DO:
        FIND FIRST terms NO-LOCK WHERE terms.t-code EQ quotehd.terms:SCREEN-VALUE NO-ERROR.
@@ -1189,7 +1201,7 @@ PROCEDURE local-update-record :
        END.
        term_desc:SCREEN-VALUE = terms.dscr.
      END.
-     
+
      carrier_desc:SCREEN-VALUE = ''.
      IF quotehd.carrier:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ '' THEN DO:
        FIND FIRST carrier NO-LOCK WHERE carrier.company EQ gcompany
@@ -1217,6 +1229,7 @@ PROCEDURE local-update-record :
        zon_desc:SCREEN-VALUE = carr-mtx.del-dscr.
      END.
    END.
+  {&methods/lValidateError.i NO}
   /* end of validation ==== */
 
   /* Dispatch standard ADM method.                             */
@@ -1238,6 +1251,7 @@ PROCEDURE local-update-record :
   END.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1271,7 +1285,7 @@ PROCEDURE new-cust-no :
           quotehd.contact:SCREEN-VALUE   = cust.contact
           quotehd.del-zone:SCREEN-VALUE  = cust.del-zone
           quotehd.carrier:SCREEN-VALUE   = cust.carrier.
-      
+
          FIND FIRST shipto
              WHERE shipto.company EQ gcompany
                AND shipto.cust-no EQ quotehd.cust-no:SCREEN-VALUE
@@ -1287,7 +1301,7 @@ PROCEDURE new-cust-no :
            RUN new-ship-id.
            LEAVE.
          END.
-      
+
          FIND FIRST soldto
              WHERE soldto.company EQ gcompany
                AND soldto.cust-no EQ quotehd.cust-no:SCREEN-VALUE
@@ -1388,7 +1402,7 @@ PROCEDURE output-to-file :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-          
+
      if init-dir = "" then init-dir = "c:\temp" .
      SYSTEM-DIALOG GET-FILE list-name
          TITLE      "Enter Listing Name to SAVE AS ..."
@@ -1398,9 +1412,9 @@ PROCEDURE output-to-file :
          ASK-OVERWRITE
          SAVE-AS
          USE-FILENAME
-   
+
          UPDATE OKpressed.
-         
+
      IF NOT OKpressed THEN  RETURN NO-APPLY.
 
 
@@ -1416,6 +1430,7 @@ PROCEDURE print-quote :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {&methods/lValidateError.i YES}
   IF quotehd.sman = "" THEN DO:
      MESSAGE "Invalid Sales Rep!" VIEW-AS ALERT-BOX ERROR.
      RETURN.
@@ -1430,11 +1445,12 @@ PROCEDURE print-quote :
      MESSAGE "Invalid Terms!" VIEW-AS ALERT-BOX ERROR.
      RETURN.
   END.
-  
+
   RUN est/r-quoprt.w (ROWID(quotehd)) .
   {methods/run_link.i "CONTAINER-SOURCE" "moveToTop"}
-
+  {&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1468,7 +1484,7 @@ run get-link-handle in adm-broker-hdl
        RUN quoteitm-check-new IN WIDGET-HANDLE(char-hdl) (OUTPUT lCheckNew).
      IF lCheckNew THEN
          oplExists = YES . 
-     
+
 
 END PROCEDURE.
 
@@ -1554,6 +1570,7 @@ PROCEDURE valid-cust-no :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     quotehd.cust-no:SCREEN-VALUE = CAPS(quotehd.cust-no:SCREEN-VALUE).
 
@@ -1578,6 +1595,7 @@ PROCEDURE valid-cust-no :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1590,6 +1608,7 @@ PROCEDURE valid-cust-user :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
 custcount = "".
 DEF VAR lActive AS LOG NO-UNDO.
 RUN sys/ref/CustList.p (INPUT cocode,
@@ -1608,6 +1627,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1620,7 +1640,8 @@ PROCEDURE valid-ship-id :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     quotehd.ship-id:SCREEN-VALUE = CAPS(quotehd.ship-id:SCREEN-VALUE).
 
@@ -1639,6 +1660,7 @@ PROCEDURE valid-ship-id :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1651,7 +1673,8 @@ PROCEDURE valid-sold-id :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  
+
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     quotehd.sold-id:SCREEN-VALUE = CAPS(quotehd.sold-id:SCREEN-VALUE).
 
@@ -1671,6 +1694,7 @@ PROCEDURE valid-sold-id :
     END.
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

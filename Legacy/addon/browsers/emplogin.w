@@ -198,7 +198,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartNavBrowser
-   External Tables: EMPTRACK.employee
+   External Tables: employee
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: External-Tables
@@ -270,21 +270,21 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.emplogin OF EMPTRACK.employee"
+     _TblList          = "emplogin OF employee"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED"
      _Where[1]         = "~{&KEY-PHRASE}"
-     _FldNameList[1]   > EMPTRACK.emplogin.start_date
+     _FldNameList[1]   > emplogin.start_date
 "emplogin.start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > "_<CALC>"
 "STRING(emplogin.start_time,'HH:MM:SS am') @ start-time" "Logged In" "X(11)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   > EMPTRACK.emplogin.machine
+     _FldNameList[3]   > emplogin.machine
 "emplogin.machine" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[4]   > EMPTRACK.emplogin.end_date
+     _FldNameList[4]   > emplogin.end_date
 "emplogin.end_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
 "Time_String(emplogin.end_time,yes) @ end-time" "Logged Out" "X(11)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > EMPTRACK.emplogin.shift
+     _FldNameList[6]   > emplogin.shift
 "emplogin.shift" ? "XX" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > "_<CALC>"
 "Time_String(emplogin.total_time,no) @ total-time" "Total" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no

@@ -23,7 +23,7 @@
 
 
 /* ***************************  Main Block  *************************** */
-def /* variable */ input param ipXmlFile as cha no-undo.
+DEF /* variable */ INPUT PARAM ipXmlFile AS cha NO-UNDO.
 DEFINE VARIABLE cSourceType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTargetType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
@@ -32,6 +32,9 @@ DEFINE VARIABLE cSchemaLocation AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hPDS AS HANDLE NO-UNDO.
 DEFINE VARIABLE lReturn AS LOGICAL NO-UNDO. 
 DEFINE VARIABLE lOverrideDefaultMapping AS LOGICAL NO-UNDO.
+
+DEFINE STREAM stEDI.
+OUTPUT STREAM stEDI TO c:\temp\edirec.tmp.
 
 /*ipXmlFile = "C:\ASIWorks\SPSCommerceOrder7.7.1\asi_files\POdc4-e43d6789-e152-425e-b45a-a4f63bdf4492.p.xml".*/
 /*ipXmlFile = "C:\ASIWorks\SPSCommerceOrder7.7.1\asi_files\PO_test1.xml".                                    */
@@ -47,25 +50,27 @@ ASSIGN cSourceType = "FILE"
        lOverrideDefaultMapping = NO.
 
 
-    lReturn = hPDS:READ-XML (cSourceType, cFile, cReadMode, cSchemaLocation, lOverrideDefaultMapping).   
+    lReturn = hPDS:READ-XML (cSourceType, cFile, cReadMode, cSchemaLocation, lOverrideDefaultMapping).
     IF lReturn THEN RUN BuildEdiTables. 
    
-FOR EACH OrderHeader NO-LOCK :
-   DISPLAY orderheader.header1_id orderHeader.TradingPartnerId PurchaseOrderNumber PurchaseOrderDate.             
-END.
-FOR EACH orderline:
-   DISPLAY orderline.lineitem_id orderline.orderqty 
-           orderline.buyerpartnumber WITH TITLE "orderline".
-END.
-
-FOR EACH contacts:
-    DISPLAY contacttypecode contactname WITH TITLE "contacts".
-END.
-
-FOR EACH address:
-    DISPLAY addresstypecode addressname addressLocationNumber WITH TITLE "address".
+/*FOR EACH OrderHeader NO-LOCK :                                                                       */
+/*   DISPLAY orderheader.header1_id orderHeader.TradingPartnerId PurchaseOrderNumber PurchaseOrderDate.*/
+/*END.                                                                                                 */
+/*FOR EACH orderline:                                                                                  */
+/*   DISPLAY orderline.lineitem_id orderline.orderqty                                                  */
+/*           orderline.buyerpartnumber WITH TITLE "orderline".                                         */
+/*END.                                                                                                 */
+/*                                                                                                     */
+/*FOR EACH contacts:                                                                                   */
+/*    DISPLAY contacttypecode contactname WITH TITLE "contacts".                                       */
+/*END.                                                                                                 */
+/*                                                                                                     */
+/*FOR EACH address:                                                                                    */
+/*    DISPLAY addresstypecode addressname addressLocationNumber WITH TITLE "address".                  */
+/*                                                                                                     */
+/*END.                                                                                                 */
     
-END.
+OUTPUT STREAM stEDI CLOSE.
     
 /* **********************  Internal Procedures  *********************** */
 
@@ -105,7 +110,7 @@ PROCEDURE BuildEdiTables:
           EDPOTran.Seq = li-seq
           edpotran.cust-po = OrderHeader.PurchaseOrderNumber
           edpotran.order-date = OrderHeader.PurchaseOrderDate
-          edpotran.request-date = today
+          edpotran.request-date = TODAY
 /*          edpotran.sf-code =                                                          */
 /*                          if edmast.sf-code > "" then edmast.sf-code else edco.sf-code*/
 /*          edpotran.by-code = ordering_store_number                                    */
@@ -117,7 +122,7 @@ PROCEDURE BuildEdiTables:
   FIND FIRST Address WHERE Address.AddressTypeCode = "ST" /* ship-to */
            NO-LOCK NO-ERROR.
   IF AVAILABLE address THEN 
-     assign EDPOTran.Ship-name = address.addressName                           
+     ASSIGN EDPOTran.Ship-name = address.addressName                           
             EDPOTran.Ship-address[1] = address.Address1                         
             EDPOTran.Ship-address[2] = address.address2                         
             EDPOTran.Ship-city      = address.city                           
@@ -192,7 +197,9 @@ PROCEDURE BuildEdiTables:
    CREATE EDDoc.
    ASSIGN EDDoc.Partner = EDPOTran.Partner
           EDDoc.Seq = EDPOTran.Seq.
-          
+
+   PUT STREAM stEDI RECID(edpotran) SKIP.
+             
 /*  /* edpoline */                                     */
    FOR /*EACH lineitem,*/
        EACH orderline NO-LOCK:
@@ -205,7 +212,7 @@ PROCEDURE BuildEdiTables:
               edpoline.line = edpotran.last-line
               edpoline.item-no = OrderLine.VendorPartNumber
             edpoline.cust-item-no = OrderLine.BuyerPartNumber
-            edpoline.cust-po-line = string(edpoline.line,"99")
+            edpoline.cust-po-line = STRING(edpoline.line,"99")
             edpoline.qty-orig-ord = OrderLine.OrderQty
             edpoline.by-code = edpotran.by-code            
             edpoline.st-code = edpotran.st-code
@@ -214,6 +221,7 @@ PROCEDURE BuildEdiTables:
             edpoline.unit-price = OrderLine.PurchasePrice
             edpotran.order-amount = edpotran.order-amount 
                 + round(edpoline.qty-orig-ord * edpoline.unit-price, 2)
+     edpoline.uom-code = OrderLine.OrderQtyUOM 
             .
 /*  EDPOLine.cust-po-line                              */
 /*  EDPOLine.cust-item-no                              */

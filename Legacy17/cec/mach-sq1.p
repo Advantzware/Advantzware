@@ -45,7 +45,7 @@ DEF VAR ll-foam AS LOG NO-UNDO.
 
 {est/d-machex.i}
 
-{sys/inc/cepanel.i}
+/*{sys/inc/cepanel.i} - Deprecated with 17756*/
 
 find first dept where dept.code eq "RC" no-lock no-error.
 if avail dept then v-rc-seq = dept.fc.

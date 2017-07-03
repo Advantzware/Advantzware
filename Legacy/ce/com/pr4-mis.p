@@ -188,7 +188,15 @@ for each xef where xef.company = xest.company AND xef.est-no eq xest.est-no:
 
      v-mat-cost = if avail reftable then reftable.val[v] else 0.
 
-     IF ceprepprice-chr EQ "Profit" THEN
+    IF xef.mis-simon[i] = 'M' THEN DO:
+        mis-tot[5] = xef.mis-matf[i] + (v-mat-cost * qm / 1000).
+        dMCostToExcludeMisc = dMCostToExcludeMisc + mis-tot[5].
+        IF ceprepprice-chr EQ 'Profit' THEN 
+            dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[5] / (1 - (xef.mis-mkup[i] / 100)).
+        ELSE 
+            dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[5] * (1 + (xef.mis-mkup[i] / 100)).
+     END.
+     ELSE IF ceprepprice-chr EQ "Profit" THEN
         mis-tot[5] = (xef.mis-matf[i] + (v-mat-cost * (qm / 1000))) /
                                         (1 - (xef.mis-mkup[i] / 100)).
      ELSE
@@ -211,7 +219,15 @@ for each xef where xef.company = xest.company AND xef.est-no eq xest.est-no:
 
      v-lab-cost = if avail reftable then reftable.val[v] else 0.
 
-     IF ceprepprice-chr EQ "Profit" THEN
+      IF xef.mis-simon[i] = 'M' THEN DO:
+        mis-tot[6] = xef.mis-labf[i] + (v-lab-cost * qty / 1000).
+        dMCostToExcludeMisc = dMCostToExcludeMisc + mis-tot[6].
+        IF ceprepprice-chr EQ 'Profit' THEN 
+            dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[6] / (1 - (xef.mis-mkup[i] / 100)).
+        ELSE 
+            dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[6] * (1 + (xef.mis-mkup[i] / 100)).
+     END.
+     ELSE IF ceprepprice-chr EQ "Profit" THEN
         mis-tot[6] = (xef.mis-labf[i] + (v-lab-cost * (qm / 1000))) /
                                         (1 - (xef.mis-mkup[i] / 100)).
      ELSE

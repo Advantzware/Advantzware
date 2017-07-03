@@ -79,7 +79,7 @@ DEFINE VARIABLE lBussFormModle AS LOGICAL NO-UNDO.
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
-    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.                      
+    lBussFormModle = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -137,7 +137,7 @@ browse-machine rd-dest btn-ok btn-cancel
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -195,10 +195,12 @@ DEFINE BROWSE browse-machine
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
+     btn-show AT ROW 2.67 COL 49.2 WIDGET-ID 2
      fi_ship-id AT ROW 2.81 COL 27 COLON-ALIGNED
-     btn-show AT ROW 2.67 COL 49.2 WIDGET-ID 2  
      browse-machine AT ROW 4.67 COL 5.2
      rd-dest AT ROW 14.38 COL 11.4 NO-LABEL
+     btn-ok AT ROW 20.24 COL 20.6
+     btn-cancel AT ROW 20.24 COL 36
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 3
           BGCOLOR 2 
@@ -206,8 +208,6 @@ DEFINE FRAME FRAME-A
           SIZE 19 BY .71 AT ROW 13.62 COL 10 WIDGET-ID 6
      RECT-9 AT ROW 1 COL 1
      RECT-10 AT ROW 13.86 COL 6 WIDGET-ID 4
-     btn-ok AT ROW 20.24 COL 20.6
-     btn-cancel AT ROW 20.24 COL 36
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -247,11 +247,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MESSAGE-AREA       = no
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
-
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
 /* ************************* Included-Libraries *********************** */
@@ -272,6 +269,14 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
 /* BROWSE-TAB browse-machine fi_ship-id FRAME-A */
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
 ASSIGN 
        fi_ship-id:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -300,7 +305,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-oe-bolh, EACH oe-bolh WHERE
 */  /* BROWSE browse-machine */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -516,13 +521,14 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   CLOSE QUERY browse-machine.
    RUN build-table. 
   DO WITH FRAME {&FRAME-NAME}:
-
-  OPEN QUERY browse-machine FOR EACH tt-oe-bolh, EACH oe-bolh WHERE
-       recid(oe-bolh) EQ tt-oe-bolh.tt-recid AND
-       oe-bolh.company = cocode  AND
-       oe-bolh.ship-id = fi_ship-id:SCREEN-VALUE AND 
-       oe-bolh.posted EQ NO 
-       NO-LOCK BY oe-bolh.bol-no.
+      {methods/setButton.i btn-cancel "Cancel"}
+      {methods/setButton.i btn-ok "OK"}
+      OPEN QUERY browse-machine FOR EACH tt-oe-bolh, EACH oe-bolh WHERE
+           recid(oe-bolh) EQ tt-oe-bolh.tt-recid AND
+           oe-bolh.company = cocode  AND
+           oe-bolh.ship-id = fi_ship-id:SCREEN-VALUE AND 
+           oe-bolh.posted EQ NO 
+           NO-LOCK BY oe-bolh.bol-no.
   END.
 
     {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:09 am */

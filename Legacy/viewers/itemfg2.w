@@ -423,7 +423,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -435,20 +435,20 @@ ON HELP OF FRAME F-Main
 DO:
   def var char-val as cha no-undo.
 
-    
+
   case focus:name:
     when 'vend-no' or when 'vend2-no' then do:
       APPLY 'entry' TO FOCUS.
       run windows/l-vendno.w (gcompany, "", focus:screen-value, output char-val).
       if char-val <> "" then focus:screen-value = entry(1,char-val).
-      
+
     end.
     when "pur-uom" then do:
       run windows/l-stduom.w (gcompany,uom-list, focus:screen-value, output char-val).
       if char-val <> "" then focus:screen-value = caps(entry(1,char-val)).
     end.
   end case.
-    
+
   RETURN NO-APPLY.
 END.
 
@@ -465,7 +465,7 @@ DO:
   SESSION:SUPPRESS-WARNINGS = TRUE.
   C-Win:SHOW-IN-TASKBAR=FALSE.
   C-Win:SENSITIVE = FALSE.
-  
+
   v-whseadded = NO.
   IF AVAIL itemfg THEN
     RUN windows/addfgloc.w (INPUT ROWID(itemfg), OUTPUT v-whseadded).
@@ -496,7 +496,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_onh V-table-Win
 ON CHOOSE OF btn_onh IN FRAME F-Main /* On Hand */
 DO:
-  IF itemfg.q-onh NE 0 THEN RUN fg/w-inqonh.w (ROWID(itemfg), NO).
+  IF itemfg.q-onh NE 0 THEN
+  RUN fg/w-inqonh.w (ROWID(itemfg), NO).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -523,9 +524,8 @@ DO:
         FIND FIRST fg-set WHERE fg-set.company EQ itemfg.company
                             AND fg-set.part-no EQ itemfg.i-no
                           NO-LOCK NO-ERROR.
-        IF AVAIL fg-set THEN DO:
-           RUN jc/w-inqjbc.w (ROWID(itemfg), YES).
-        END.
+        IF AVAIL fg-set THEN
+        RUN jc/w-inqjbc.w (ROWID(itemfg), YES).
     END.
 
     FIND FIRST po-ordl
@@ -536,7 +536,8 @@ DO:
           AND CAN-FIND(FIRST po-ord WHERE po-ord.company EQ po-ordl.company
                                       AND po-ord.po-no   EQ po-ordl.po-no)
         NO-LOCK NO-ERROR.
-    IF AVAIL po-ordl THEN RUN po/w-inqpo.w (ROWID(itemfg), YES).
+    IF AVAIL po-ordl THEN
+    RUN po/w-inqpo.w (ROWID(itemfg), YES).
   END.
 END.
 
@@ -562,7 +563,7 @@ ON VALUE-CHANGED OF itemfg.isaset IN FRAME F-Main /* Set Header? */
 DO:
   DO WITH FRAME {&FRAME-NAME}:
       RUN SetPurMan(itemfg.isaset:SCREEN-VALUE = "Y").
-      
+
   END.
 END.
 
@@ -654,13 +655,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.vend-no V-table-Win
 ON LEAVE OF itemfg.vend-no IN FRAME F-Main /* Vendor 1 */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and itemfg.vend-no:screen-value <> "" and
        not can-find(first vend where vend.vend-no = itemfg.vend-no:screen-value)
     then do:
          message "Invalid Vendor. Try Help." view-as alert-box error .
          return no-apply.
     end.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -670,14 +674,16 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL itemfg.vend2-no V-table-Win
 ON LEAVE OF itemfg.vend2-no IN FRAME F-Main /* Vendor 2 */
 DO:
+      {&methods/lValidateError.i YES}
       if lastkey <> -1 and itemfg.vend2-no:screen-value <> "" and
        not can-find(first vend where vend.vend-no = itemfg.vend2-no:screen-value)
     then do:
          message "Invalid Vendor. Try Help." view-as alert-box error .
          return no-apply.
     end.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -702,7 +708,7 @@ RUN sys/ref/uom-fg.p (NO, OUTPUT uom-list).
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -770,12 +776,12 @@ PROCEDURE calc-qty :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var char-hdl as cha no-undo.
-  
+
   IF AVAIL itemfg THEN
     run fg/d-reqtys.w (ROWID(itemfg), yes).
-  
+
   run get-link-handle in adm-broker-hdl (this-procedure, "record-source", output char-hdl).
-  
+
   run repo-query in widget-handle(char-hdl) (ROWID(itemfg)).
 
 END PROCEDURE.
@@ -838,7 +844,7 @@ PROCEDURE local-assign-record :
  /*Task# 04121312*/
  FIND FIRST fg-set WHERE fg-set.company = itemfg.company 
      AND fg-set.set-no = itemfg.i-no NO-LOCK NO-ERROR.
- 
+
  IF AVAIL itemfg AND AVAIL fg-set THEN
    FOR EACH eb NO-LOCK      
        WHERE eb.company EQ itemfg.company
@@ -850,7 +856,7 @@ PROCEDURE local-assign-record :
        ASSIGN bf-eb.pur-man = itemfg.pur-man.
      END.
    END. /* each eb */
- 
+
 
 END PROCEDURE.
 
@@ -906,7 +912,7 @@ PROCEDURE local-display-fields :
     RELEASE b-itemfg.
     FIND CURRENT itemfg NO-LOCK.
   END.
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
@@ -928,7 +934,7 @@ PROCEDURE local-display-fields :
 
       v-return = cbLoc:ADD-LAST("ALL", "ALL"). 
       IF AVAIL itemfg THEN DO:
-      
+
           FOR EACH itemfg-loc WHERE itemfg-loc.company EQ itemfg.company
                AND itemfg-loc.i-no EQ itemfg.i-no
               NO-LOCK:
@@ -940,7 +946,7 @@ PROCEDURE local-display-fields :
               v-return = cbLoc:ADD-LAST(itemfg-loc.loc + " " + replace(loc.dscr, ",", " "), itemfg-loc.loc).            
           END.
       END.
-      
+
       cbLoc:SCREEN-VALUE = "ALL".
       cbLoc = "ALL".
 
@@ -959,12 +965,12 @@ PROCEDURE local-display-fields :
      END.
 
   END.
-  
+
   IF cbLoc NE "ALL" AND AVAIL itemfg THEN DO:
     FIND FIRST itemfg-loc WHERE itemfg-loc.company EQ itemfg.company
         AND itemfg-loc.i-no EQ itemfg.i-no
         AND itemfg-loc.loc  EQ cbLoc NO-LOCK NO-ERROR.
-    
+
     IF AVAIL itemfg-loc THEN do:
         RUN fg/calcqabl.p (ROWID(itemfg), itemfg-loc.loc, OUTPUT v-q-alloc, OUTPUT v-q-back).
 
@@ -984,11 +990,11 @@ PROCEDURE local-display-fields :
     END.
   END.
   ELSE IF AVAIL itemfg THEN DO:
-  
+
       DISPLAY itemfg.pur-uom itemfg.beg-date WITH FRAME {&FRAME-NAME}.
       RUN SetPurMan(itemfg.isaset).
   END.  
- 
+
   END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1022,7 +1028,7 @@ PROCEDURE local-hide :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   RUN GET-ATTRIBUTE("FIELDS-ENABLED":U).
   IF RETURN-VALUE = "YES":U THEN
   DO:
@@ -1053,7 +1059,7 @@ PROCEDURE local-initialize :
 DEF VAR v-return AS LOG NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
-  
+
       /* Empty the selection-list or combo-box */
       cbLoc:LIST-ITEM-PAIRS = ?.
       cbLoc:SCREEN-VALUE = "":U.
@@ -1087,7 +1093,7 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+   {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   do with frame {&frame-name}:
     if itemfg.vend-no:screen-value in frame {&frame-name} <> "" and
@@ -1105,7 +1111,7 @@ PROCEDURE local-update-record :
          return no-apply.
     end.
   end.   /* with frame */
-
+  {&methods/lValidateError.i NO}
   RUN valid-pur-uom NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -1118,6 +1124,7 @@ PROCEDURE local-update-record :
   END.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1160,7 +1167,7 @@ PROCEDURE reset-cbloc :
 ------------------------------------------------------------------------------*/
   DEF VAR v-return AS LOG NO-UNDO.
   IF AVAIL itemfg THEN DO WITH FRAME {&FRAME-NAME}:
-  
+
       /* Empty the selection-list or combo-box */
       cbLoc:LIST-ITEM-PAIRS = ?.
       cbLoc:SCREEN-VALUE = "":U.
@@ -1170,7 +1177,7 @@ PROCEDURE reset-cbloc :
           NO-LOCK:
           v-return = cbLoc:ADD-LAST(itemfg-loc.loc, itemfg-loc.loc).            
       END.
-      
+
       cbLoc:SCREEN-VALUE = "ALL".
       cbLoc = "ALL".
 
@@ -1245,7 +1252,7 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/vstates.i}
   END CASE.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1259,6 +1266,7 @@ PROCEDURE valid-pur-uom :
   Notes:       
 ------------------------------------------------------------------------------*/
 
+  {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     itemfg.pur-uom:SCREEN-VALUE = CAPS(itemfg.pur-uom:SCREEN-VALUE).
     /* take out per Joe - task 10021210 */
@@ -1270,6 +1278,7 @@ PROCEDURE valid-pur-uom :
 /*     end.                                                                     */
   END.
 
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1294,7 +1303,7 @@ FUNCTION get-alloc RETURNS INTEGER
 
   ASSIGN
    lv-q-all = 0.
-  
+
   IF NOT AVAIL itemfg THEN
       RETURN 0.
 
@@ -1320,7 +1329,7 @@ FUNCTION get-alloc RETURNS INTEGER
      ASSIGN lv-q-all = b-itemfg.q-alloc.
     ELSE IF cbLoc NE "ALL" AND AVAIL b-itemfg-loc THEN
       lv-q-all = b-itemfg-loc.q-alloc.
-  
+
     IF AVAIL b-itemfg AND b-itemfg.isaset = NO      
        AND lv-q-all = 0 THEN DO:
 
@@ -1330,7 +1339,7 @@ FUNCTION get-alloc RETURNS INTEGER
                 AND b2-itemfg.i-no    EQ fg-set.set-no
                 AND b2-itemfg.isaset  EQ YES
               NO-LOCK NO-ERROR.
-    
+
           IF AVAIL b2-itemfg THEN DO:
             FOR EACH oe-ordl WHERE oe-ordl.company = fg-set.company 
                                AND oe-ordl.i-no = b2-itemfg.i-no
@@ -1351,9 +1360,9 @@ FUNCTION get-alloc RETURNS INTEGER
             /* AND b2-itemfg.isaset EQ YES */
             AND b2-itemfg-loc.loc  EQ cbLoc 
           NO-LOCK NO-ERROR.
-          
+
           IF AVAIL b2-itemfg-loc THEN DO:
-          
+
 
             /* check of oe-rel seems to be here to confirm rel qty is real */
             FOR EACH oe-ordl WHERE oe-ordl.company = fg-set.company 
@@ -1370,7 +1379,7 @@ FUNCTION get-alloc RETURNS INTEGER
           END. /* avail b2-itemfg-loc */
 
     END. /* ... else if avail(fg-set) */
-      
+
   END. /* if cbloc EQ ALL */
 
   RETURN lv-q-all.   /* Function return value. */

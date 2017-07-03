@@ -304,7 +304,7 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "EMPTRACK.machemp,EMPTRACK.machtran WHERE EMPTRACK.machemp ... ...,EMPTRACK.employee WHERE EMPTRACK.machemp ..."
+     _TblList          = "machemp,machtran WHERE machemp ... ...,employee WHERE machemp ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED,, FIRST OUTER"
      _Where[1]         = "machemp.posted = no USE-INDEX postemp"
@@ -312,24 +312,24 @@ ASSIGN
  AND machtran.company = gcompany"
      _Where[3]         = "employee.company eq gcompany AND
 employee.employee eq machemp.employee"
-     _FldNameList[1]   > EMPTRACK.machemp.employee
+     _FldNameList[1]   > machemp.employee
 "machemp.employee" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > "_<CALC>"
 "Employee-Name(machtran.company,machemp.employee) @ employee-name" "Name" "X(14)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[3]   = EMPTRACK.machtran.machine
-     _FldNameList[4]   > EMPTRACK.machemp.start_date
+     _FldNameList[3]   = machtran.machine
+     _FldNameList[4]   > machemp.start_date
 "machemp.start_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
 "STRING(machemp.start_time,'HH:MM am') @ start-time" "Started" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   > EMPTRACK.machemp.end_date
+     _FldNameList[6]   > machemp.end_date
 "machemp.end_date" ? ? "date" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[7]   > EMPTRACK.machemp.shift
+     _FldNameList[7]   > machemp.shift
 "machemp.shift" ? "XX" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
 "Time_String(machemp.end_time,yes) @ end-time" "Ended" "X(8)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[9]   > EMPTRACK.machemp.ratetype
+     _FldNameList[9]   > machemp.ratetype
 "machemp.ratetype" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[10]   > EMPTRACK.machemp.posted
+     _FldNameList[10]   > machemp.posted
 "machemp.posted" ? ? "logical" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > "_<CALC>"
 "Time_String(machemp.total_time,no) @ total-time" "Total" "X(5)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no

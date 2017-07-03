@@ -28,7 +28,7 @@ DEFINE VARIABLE dShrink AS DECIMAL     NO-UNDO.
 DEF BUFFER bf-oe-ord FOR oe-ord.
 DEF BUFFER bf-oe-ordl FOR oe-ordl.
 DEF BUFFER bf-est FOR est.
-
+DEF BUFFER bf-probe FOR probe.
 IF xest.metric THEN
   ASSIGN
    ld-metric = 25.4
@@ -546,7 +546,7 @@ with frame brd no-labels no-box width 82 stream-io down:
        t-blkqty[xeb.form-no] = t-blkqty[xeb.form-no] + (qtty[vmcl] * v-yld)
        brd-l[4]  = xeb.t-len
        brd-w[4]  = xeb.t-wid
-       brd-sq[4] = brd-l[4] * brd-w[4]
+       brd-sq[4] = xeb.t-sqin  /*brd-l[4] * brd-w[4]*/ 
        brd-sf[4] = if v-corr then (brd-sq[4] * .007) else (brd-sq[4] / 144)
        brd-wu[4] = brd-sf[4] * item.basis-w
 
@@ -969,35 +969,35 @@ end.  /* do vmcl = 1 to 28: */
 if vprint then do vmcl = 1 to 28:
   if qtty[vmcl] eq 0 then next.
 
-  FOR EACH probe
-      WHERE probe.company    EQ xest.company
-        AND probe.est-no     EQ xest.est-no
-        AND probe.probe-date EQ TODAY
-        AND probe.est-qty    EQ qtty[vmcl]
-        AND probe.freight    EQ rels[vmcl]
+  FOR EACH bf-probe
+      WHERE bf-probe.company    EQ xest.company
+        AND bf-probe.est-no     EQ xest.est-no
+        AND bf-probe.probe-date EQ TODAY
+        AND bf-probe.est-qty    EQ qtty[vmcl]
+        AND bf-probe.freight    EQ rels[vmcl]
       NO-LOCK
-      BY probe.probe-time DESC:
+      BY bf-probe.probe-time DESC:
     LEAVE.
   END.
 
-  IF probe.LINE LT 100 THEN
+  IF bf-probe.LINE LT 100 THEN
      assign outfile1 = tmp-dir + trim(xest.est-no) + "-"  +
-                       string(1,"99")     + ".v" + string(probe.line,"99")
+                       string(1,"99")     + ".v" + string(bf-probe.line,"99")
            outfile2 = tmp-dir + trim(xest.est-no) + "-"  +
-                      string(1,"99")     + ".a" + string(probe.line,"99")
+                      string(1,"99")     + ".a" + string(bf-probe.line,"99")
            outfile3 = tmp-dir + trim(xest.est-no) + "-"  +
-                      string(1,"99")     + ".s" + string(probe.line,"99")
+                      string(1,"99")     + ".s" + string(bf-probe.line,"99")
            ls-outfile = tmp-dir + trim(xest.est-no) + "-"  +
-                      string(1,"99")     + ".p" + string(probe.line,"99").
+                      string(1,"99")     + ".p" + string(bf-probe.line,"99").
   ELSE
      assign outfile1 = tmp-dir + trim(xest.est-no) + "-"  +
-                       string(1,"99")     + ".v" + string(probe.line,"999")
+                       string(1,"99")     + ".v" + string(bf-probe.line,"999")
             outfile2 = tmp-dir + trim(xest.est-no) + "-"  +
-                       string(1,"99")     + ".a" + string(probe.line,"999")
+                       string(1,"99")     + ".a" + string(bf-probe.line,"999")
             outfile3 = tmp-dir + trim(xest.est-no) + "-"  +
-                       string(1,"99")     + ".s" + string(probe.line,"999")
+                       string(1,"99")     + ".s" + string(bf-probe.line,"999")
             ls-outfile = tmp-dir + trim(xest.est-no) + "-"  +
-                       string(1,"99")     + ".p" + string(probe.line,"999").
+                       string(1,"99")     + ".p" + string(bf-probe.line,"999").
 
   if vmclean then do:
     output to value(outfile3) append.
@@ -1018,7 +1018,7 @@ if vprint then do vmcl = 1 to 28:
 
   dos silent type value(outfile3) > value(ls-outfile).
 
-  RUN ce/probeu3.p (ROWID(probe)).
+  RUN ce/probeu3.p (ROWID(bf-probe)).
 end.
 
 DO TRANSACTION:

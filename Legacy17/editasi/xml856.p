@@ -152,6 +152,9 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+DEFINE /*INPUT PARAMETER */ VARIABLE ipPartner AS CHARACTER.
+DEFINE /*INPUT PARAMETER*/  VARIABLE ipSeq AS INTEGER.
+
 
 define temp-table ShipmentHeader /*excel row 159 */
     field Partner as CHARACTER XML-NODE-NAME "TradingPartnerId"
@@ -215,15 +218,17 @@ define temp-table FOBRelatedInstruction   /* excel row 429 */
 
 define temp-table OrderHeader /* OrderLevel */   /* excel row 461 */
     field Partner as CHARACTER XML-NODE-NAME "TradingPartnerId"
+    FIELD seq AS INTEGER 
     field ShipmentIdentification as char
-    field PrchaseOrderNumber as char
-    field PurchaseOrderDate as char
+    field cust-po as CHARACTER XML-NODE-NAME "PrchaseOrderNumber"
+    field cust-po-date as date XML-NODE-NAME "PurchaseOrderDate"
     .
 
 Define temp-table ChargesAllowances   /* excel row 654 */
     field Partner as CHARACTER XML-NODE-NAME "TradingPartnerId"
+    FIELD seq AS INTEGER 
     field ShipmentIdentification as char
-    field PrchaseOrderNumber as char
+    field cust-po as CHARACTER XML-NODE-NAME "PrchaseOrderNumber"
     field AllowChrgIndicator as char
     field AllowChrgCode as char
     field AllowChrgAmt as char
@@ -233,6 +238,7 @@ Define temp-table ChargesAllowances   /* excel row 654 */
 define temp-table Pack    /* excel row 706 */
         /* children table - Pack, PhysicalDetails, MarksAndNumbersCollection */
     field Partner as CHARACTER XML-NODE-NAME "TradingPartnerId"
+    FIELD seq AS INTEGER 
     field ShipmentIdentification as char        
     field PackLevelType as char init "P"
     field CarrierPackageID as char
@@ -240,6 +246,7 @@ define temp-table Pack    /* excel row 706 */
     
 define temp-table PhysicalDetail    /* excel row 712 */
     field Partner as CHARACTER XML-NODE-NAME "TradingPartnerId"
+    FIELD seq AS INTEGER 
     field ShipmentIdentification as char        
     field PackLevelType as char init "P"
     field PackQualifier as char
@@ -248,6 +255,7 @@ define temp-table PhysicalDetail    /* excel row 712 */
      
 define temp-table MarksAndNumbersCollection    /* excel row 733 */
     field Partner as CHARACTER XML-NODE-NAME "TradingPartnerId"
+    FIELD seq AS INTEGER 
     field ShipmentIdentification as char        
     field PackLevelType as char init "P"
     field MarksAndNumbersQualifier1 as char init "CA"
@@ -256,20 +264,21 @@ define temp-table MarksAndNumbersCollection    /* excel row 733 */
                   /* ItemLevel */
 define temp-table ShipmentLine    /* excel row 976 */
     field Partner as CHARACTER XML-NODE-NAME "TradingPartnerId"
+    FIELD seq AS INTEGER 
     field ShipmentIdentification as char        
     field PackLevelType as char init "P"
     field LineSequenceNumber as char
     field BuyerPartNumber as char
-    field OrderQty as char
+    field OrderQty as integer
     field OrderQtyUOM as char
-    field ShipQty as char
+    field ShipQty as integer
     field ShipQtyUOM as char
     .
        
 define temp-table summary   /* excel row 1462 */
     field Partner as CHARACTER XML-NODE-NAME "TradingPartnerId"
     field ShipmentIdentification as char
-    field TotalLineItemNumber as char 
+    field TotalLineItemNumber as INTEGER  
     .
        
 
@@ -288,22 +297,26 @@ DEFINE DATASET ds856xml
        DATA-RELATION rShipCarrier FOR shipmentHeader, CarrierInformation relation-fields(Partner,Partner,ShipmentIdentification,ShipmentIdentification) nested
        DATA-RELATION rShipQtyWgt FOR shipmentHeader, QuantityAndWeight RELATION-FIELDS(Partner,Partner,ShipmentIdentification,ShipmentIdentification) nested
        DATA-RELATION rShipFob FOR shipmentHeader, FOBRelatedInstruction RELATION-FIELDS(Partner,Partner,ShipmentIdentification,ShipmentIdentification) nested
-       DATA-RELATION rShipOrderH FOR shipmentHeader, OrderHeader RELATION-FIELDS(Partner,Partner,ShipmentIdentification,ShipmentIdentification) nested
-       DATA-RELATION rOrderHChg FOR OrderHeader, ChargesAllowances RELATION-FIELDS(Partner,Partner,ShipmentIdentification,ShipmentIdentification,PrchaseOrderNumber,PrchaseOrderNumber) nested
-       DATA-RELATION rShipPack FOR shipmentHeader, Pack RELATION-FIELDS(Partner,Partner,ShipmentIdentification,ShipmentIdentification) nested
-       DATA-RELATION rPackDet FOR Pack, PhysicalDetail RELATION-FIELDS(Partner,Partner,ShipmentIdentification,ShipmentIdentification,PackLevelType,PackLevelType) nested
-       DATA-RELATION rPackMark FOR Pack, MarksAndNumbersCollection RELATION-FIELDS(Partner,Partner,ShipmentIdentification,ShipmentIdentification,PackLevelType,PackLevelType) nested
-       DATA-RELATION rPackLine FOR Pack, ShipmentLine RELATION-FIELDS(Partner,Partner,ShipmentIdentification,ShipmentIdentification,PackLevelType,PackLevelType) nested
+       DATA-RELATION rShipOrderH FOR shipmentHeader, OrderHeader RELATION-FIELDS(Partner,Partner,Seq,Seq) nested
+       /*DATA-RELATION rOrderHChg FOR OrderHeader, ChargesAllowances RELATION-FIELDS(Partner,Partner,Seq,Seq,cust-po,cust-po) nested*/
+       DATA-RELATION rOrderHChg FOR OrderHeader, ChargesAllowances RELATION-FIELDS(Partner,Partner,Seq,Seq) nested
+       DATA-RELATION rShipPack FOR shipmentHeader, Pack RELATION-FIELDS(Partner,Partner,Seq,Seq) nested
+/*       DATA-RELATION rPackDet FOR Pack, PhysicalDetail RELATION-FIELDS(Partner,Partner,Seq,Seq,PackLevelType,PackLevelType) nested            */
+/*       DATA-RELATION rPackMark FOR Pack, MarksAndNumbersCollection RELATION-FIELDS(Partner,Partner,Seq,Seq,PackLevelType,PackLevelType) nested*/
+/*       DATA-RELATION rPackLine FOR Pack, ShipmentLine RELATION-FIELDS(Partner,Partner,Seq,Seq,PackLevelType,PackLevelType) nested             */
+       DATA-RELATION rPackDet FOR Pack, PhysicalDetail RELATION-FIELDS(Partner,Partner,Seq,Seq) nested
+       DATA-RELATION rPackMark FOR Pack, MarksAndNumbersCollection RELATION-FIELDS(Partner,Partner,Seq,Seq) nested
+       DATA-RELATION rPackLine FOR Pack, ShipmentLine RELATION-FIELDS(Partner,Partner,Seq,Seq) nested
        .
         
 define var hds856xml as handle no-undo.
+DEFINE VARIABLE iTotalItem# AS INTEGER NO-UNDO.
     
 /* ********************  Preprocessor Definitions  ******************** */
 
 
 /* ***************************  Main Block  *************************** */
-MESSAGE 1
-VIEW-AS ALERT-BOX.
+
 hds856xml = dataset ds856xml:handle.
 
 Run BuildData.
@@ -322,7 +335,10 @@ PROCEDURE BuildData:
  Notes:
 ------------------------------------------------------------------------------*/
   BUFFER ShipmentHeader:attach-data-source(DATA-SOURCE dsShipmentHeader:handle, "Partner,Partner,Seq,seq").
-
+  BUFFER OrderHeader:attach-data-source(DATA-SOURCE dsOrderHeader:handle, "Partner,Partner,Seq,seq").
+  BUFFER Pack:attach-data-source(DATA-SOURCE dsPack:handle, "Partner,Partner,Seq,seq").
+  BUFFER ShipmentLine:attach-data-source(DATA-SOURCE dsItem:handle, "Partner,Partner,Seq,seq").
+  
   DATASET ds856xml:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "ds856xmlBeforeFill", this-procedure).
   BUFFER ShipmentHeader:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "ShipmentHeaderBeforeFill", this-procedure ).
   BUFFER ShipmentHeader:SET-CALLBACK-PROCEDURE ("After-Row-FILL", "ShipmentHeaderAfterRowFill", this-procedure ).
@@ -334,15 +350,20 @@ PROCEDURE BuildData:
   
   BUFFER OrderHeader:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "OrderHeaderBeforeFill", this-procedure ).
   BUFFER ChargesAllowances:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "OrderHeaderBeforeFill", this-procedure ).
+  BUFFER OrderHeader:SET-CALLBACK-PROCEDURE ("After-Row-FILL", "OrderHeaderAfterRowFill", this-procedure ).
   
   BUFFER Pack:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "PackBeforeFill", this-procedure ).
   BUFFER PhysicalDetail:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "PackBeforeFill", this-procedure ).
   BUFFER MarksAndNumbersCollection:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "PackBeforeFill", this-procedure ).
   BUFFER ShipmentLine:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "PackBeforeFill", this-procedure ).
+  BUFFER Pack:SET-CALLBACK-PROCEDURE ("After-Row-FILL", "PackAfterRowFill", this-procedure ).
+  BUFFER ShipmentLine:SET-CALLBACK-PROCEDURE ("After-Row-FILL", "ShipmentLineAfterRowFill", this-procedure ).
   
   BUFFER Summary:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "SummaryBeforeFill", this-procedure ).
     
-  DATA-SOURCE dsShipmentHeader:FILL-WHERE-STRING = " where Partner = 'Matt21' and seq = 1 ".
+  DATA-SOURCE dsShipmentHeader:FILL-WHERE-STRING = " where Partner = 'Matt21' and seq = 2 "
+                                                   /*" where Partner = '" + ipPartner + '" SEQ = " + ipSeq + ".  */
+                                                   .
   
   DATASET ds856xml:fill().
 
@@ -387,7 +408,29 @@ PROCEDURE GenerateXmlFiles:
 
 END PROCEDURE.
 
+PROCEDURE OrderheaderAfterRowFill:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER DATASET-HANDLE phDataSet.
+
+  MESSAGE "oeheadafterrowfill: " orderheader.cust-po
+  VIEW-AS ALERT-BOX.
+  
+END PROCEDURE.
+
 PROCEDURE OrderHeaderBeforeFill:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER DATASET-HANDLE phDataSet.
+
+  
+END PROCEDURE.
+
+PROCEDURE PackAfterRowFill:
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
@@ -448,7 +491,12 @@ PROCEDURE ShipmentHeaderAfterRowFill:
            FOBRelatedInstruction.shipmentIdentification = shipmentHeader.ShipmentIdentification
            .       
                                 
-                                
+   IF NOT can-find(FIRST SUMMARY WHERE summary.partner = shipmentHeader.partner) THEN DO:
+      CREATE SUMMARY.
+      ASSIGN summary.partner = shipmentHeader.partner.
+      
+   END.  
+                              
 END PROCEDURE.
 
 PROCEDURE ShipmentHeaderBeforeFill:
@@ -457,6 +505,26 @@ PROCEDURE ShipmentHeaderBeforeFill:
  Notes:
 ------------------------------------------------------------------------------*/
  DEFINE INPUT PARAMETER DATASET-HANDLE phDataSet.
+ 
+END PROCEDURE.
+
+PROCEDURE ShipmentLineAfterRowFill:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+ DEFINE INPUT PARAMETER DATASET-HANDLE phDataSet.
+ 
+ ASSIGN shipmentLine.BuyerPartNumber = EDSHLine.Item-no
+        shipmentLine.LineSequenceNumber = EDSHLine.cust-po-line
+        shipmentLine.OrderQty = EDSHLine.Qty-orig-ord
+        shipmentLine.OrderQtyUOM = EDSHLine.uom
+        shipmentLine.ShipQty = EDSHLine.Qty-shipped
+        shipmentLine.ShipQtyUOM = EDSHLine.uom-code
+        .
+ iTotalItem# = iTotalItem# + 1.
+ FIND FIRST summary NO-ERROR.
+ IF AVAILABLE summary THEN SUMMARY.TotalLineItemNumber = SUMMARY.TotalLineItemNumber + 1.
  
 END PROCEDURE.
 

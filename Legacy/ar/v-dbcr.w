@@ -248,7 +248,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -294,7 +294,7 @@ SESSION:DATA-ENTRY-RETURN = YES.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -415,7 +415,7 @@ PROCEDURE hold-ar :
         RUN reftable-values (NO).
      END.
   END.
-  
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -463,11 +463,11 @@ PROCEDURE local-create-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  
+
    xchk = xchk + 1.
 
    if xchk < 90000001 then xchk = 90000001.
-  
+
    find first bank where bank.company = g_company no-lock no-error.
    FIND FIRST company WHERE company.company = g_company NO-LOCK NO-ERROR.
    FIND FIRST currency WHERE currency.company = g_company AND
@@ -500,7 +500,7 @@ PROCEDURE local-display-fields :
   DEF BUFFER bf-cashl FOR ar-cashl.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  
+
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
@@ -513,7 +513,7 @@ PROCEDURE local-display-fields :
   END.
   ld-not-applied = ar-cash.check-amt - ld-not-applied.
   DISPLAY ld-not-applied WITH FRAME {&FRAME-NAME}.
- 
+
   RUN reftable-values (YES).
 END PROCEDURE.
 
@@ -586,16 +586,16 @@ PROCEDURE reftable-values :
   Notes:       
 ------------------------------------------------------------------------------*/
   DO WITH FRAME {&FRAME-NAME}:
-  
+
     DEF INPUT PARAM ip-display AS LOG NO-UNDO.
-   
+
     IF AVAIL ar-cash THEN DO:
       FIND FIRST reftable WHERE
            reftable.reftable = "ARCASHHOLD" AND
            reftable.rec_key = ar-cash.rec_key
            USE-INDEX rec_key
            EXCLUSIVE-LOCK NO-ERROR.
-   
+
       IF NOT AVAIL reftable THEN DO:
         CREATE reftable.
         ASSIGN
@@ -603,7 +603,7 @@ PROCEDURE reftable-values :
          reftable.rec_key  = ar-cash.rec_key
          reftable.CODE     = "N".
       END.
-   
+
       IF ip-display THEN
         lv-status:SCREEN-VALUE = IF reftable.CODE EQ "H" THEN "ON HOLD"
                                  ELSE "RELEASED".
@@ -709,6 +709,7 @@ PROCEDURE valid-cust-no :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
 /* === validation ====*/
   DO WITH FRAME {&FRAME-NAME}:
      IF ar-cash.cust-no:MODIFIED THEN DO:
@@ -723,9 +724,10 @@ PROCEDURE valid-cust-no :
         END.
         cust_name:SCREEN-VALUE = cust.NAME.
      END.
-     
+
   END.
   /* ====== end validation =========*/
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

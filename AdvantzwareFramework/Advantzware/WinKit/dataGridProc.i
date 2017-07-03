@@ -229,6 +229,11 @@ PROCEDURE pCreateDataGridDat:
         END. /* if avail */
     END. /* do idx */
     OUTPUT CLOSE.
+    IF SEARCH (ipcDataGridInclude) EQ ? THEN DO: 
+        OUTPUT TO VALUE(ipcDataGridInclude).
+        PUT UNFORMATTED SKIP(1).
+        OUTPUT CLOSE.
+    END. /* if eq ? */
     RUN util/dataGridDat.w (ipcDataGridDat, ipcDataGridInclude, "{&EXTERNAL-TABLES}", "{&TABLES-IN-QUERY-{&BROWSE-NAME}}").
     RUN pGetDataGridDat (ipcDataGridDat).
 

@@ -27,7 +27,6 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE dataGridInclude dataGrid\jcinq\b-jmchvi.i
 &SCOPED-DEFINE yellowColumnsName b-jmchvi
 &SCOPED-DEFINE noSortByField
 &SCOPED-DEFINE SORTBY-PHRASE ~

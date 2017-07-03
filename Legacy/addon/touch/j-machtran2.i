@@ -3,7 +3,7 @@
 CASE browse-order :
      WHEN 1 THEN DO:
         OPEN QUERY {&browse-name}
-            FOR EACH EMPTRACK.machtran NO-LOCK
+            FOR EACH machtran NO-LOCK
                 WHERE machtran.company EQ gcompany
                   AND machtran.posted EQ Yes
                   AND machtran.machine BEGINS auto_find
@@ -11,7 +11,7 @@ CASE browse-order :
     END.
     WHEN 2 THEN DO:
         OPEN QUERY {&browse-name}
-            FOR EACH EMPTRACK.machtran NO-LOCK
+            FOR EACH machtran NO-LOCK
                 WHERE machtran.company EQ gcompany
                   AND  machtran.posted EQ Yes
                   AND (machtran.job_number BEGINS auto_find

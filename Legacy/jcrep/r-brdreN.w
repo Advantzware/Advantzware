@@ -58,16 +58,17 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "JOB #,CUSTOMER,RM ITEM#,RM QTY RECD,FG ITEM#,FG QTY INVCD," + 
-                           "DIFFERENCE,FG QTY RECD,DIFFERENCE2,WASTE%,BOARD COST,FG MSF,RM MSF"
+                           "DIFFERENCE,FG QTY RECD,DIFFERENCE2,WASTE%,BOARD COST,FG MSF,RM MSF,INVOICE DATE"
        cFieldListToSelect = "job,cust,rm-itm,rm-qty,fg-itm,fg-qty-in," +
-                            "diff,fg-qty-re,diff2,wast,brd-cst,t-msf,t-msf-rm"
-       cFieldLength = "9,25,15,12,15,12," + "12,12,12,11,10,11,11"
-       cFieldType = "c,c,c,i,c,i," + "i,i,i,i,i,i,i" 
+                            "diff,fg-qty-re,diff2,wast,brd-cst,t-msf,t-msf-rm,inv-date"
+       cFieldLength = "9,25,15,12,15,12," + "12,12,12,11,10,11,11,12"
+       cFieldType = "c,c,c,i,c,i," + "i,i,i,i,i,i,i,c" 
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "JOB #,CUSTOMER,RM ITEM#,RM QTY RECD,FG ITEM#,FG QTY INVCD," + 
                            "DIFFERENCE,FG QTY RECD,DIFFERENCE2,WASTE%" .
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -79,26 +80,27 @@ ASSIGN cTextListToDefault  = "JOB #,CUSTOMER,RM ITEM#,RM QTY RECD,FG ITEM#,FG QT
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 rd_jstat begin_rm-no end_rm-no ~
-begin_procat end_procat begin_inv-date end_inv-date begin_job-no ~
-begin_job-no2 end_job-no end_job-no2 sl_avail Btn_Add sl_selected ~
-Btn_Remove Btn_Def btn_down btn_Up rd-dest lv-ornt lines-per-page ~
-lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS lbl_jstat rd_jstat begin_rm-no end_rm-no ~
-begin_procat end_procat begin_inv-date end_inv-date begin_job-no ~
-begin_job-no2 end_job-no end_job-no2 sl_avail sl_selected rd-dest lv-ornt ~
-lines-per-page lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel ~
-fi_file 
+&Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 rd_jstat rd_ostat begin_rm-no ~
+end_rm-no begin_procat end_procat begin_inv-date end_inv-date begin_job-no ~
+begin_job-no2 end_job-no end_job-no2 sl_avail Btn_Def sl_selected Btn_Add ~
+Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no ~
+td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS lbl_jstat rd_jstat lbl_ostat rd_ostat ~
+begin_rm-no end_rm-no begin_procat end_procat begin_inv-date end_inv-date ~
+begin_job-no begin_job-no2 end_job-no end_job-no2 sl_avail sl_selected ~
+rd-dest lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm ~
+tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Prototypes ********************** */
 
@@ -108,6 +110,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -203,6 +206,10 @@ DEFINE VARIABLE lbl_jstat AS CHARACTER FORMAT "X(256)":U INITIAL "Job Status?"
      VIEW-AS FILL-IN 
      SIZE 13 BY 1 NO-UNDO.
 
+DEFINE VARIABLE lbl_ostat AS CHARACTER FORMAT "X(256)":U INITIAL "Order Status?" 
+     VIEW-AS FILL-IN 
+     SIZE 15 BY .95 NO-UNDO.
+
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
@@ -243,6 +250,14 @@ DEFINE VARIABLE rd_jstat AS CHARACTER INITIAL "All"
 "All", "All"
      SIZE 38 BY 1 NO-UNDO.
 
+DEFINE VARIABLE rd_ostat AS CHARACTER INITIAL "All" 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Open", "Open",
+"Closed", "Closed",
+"All", "All"
+     SIZE 29 BY .95 NO-UNDO.
+
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 92 BY 9.19.
@@ -280,33 +295,35 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     lbl_jstat AT ROW 2.91 COL 26 COLON-ALIGNED NO-LABEL
-     rd_jstat AT ROW 2.91 COL 41 NO-LABEL
-     begin_rm-no AT ROW 4.33 COL 27 COLON-ALIGNED HELP
+     lbl_jstat AT ROW 2.14 COL 26 COLON-ALIGNED NO-LABEL
+     rd_jstat AT ROW 2.14 COL 41 NO-LABEL
+     lbl_ostat AT ROW 3.43 COL 24 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     rd_ostat AT ROW 3.43 COL 41 NO-LABEL WIDGET-ID 60
+     begin_rm-no AT ROW 4.67 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Item Number"
-     end_rm-no AT ROW 4.33 COL 69 COLON-ALIGNED HELP
+     end_rm-no AT ROW 4.67 COL 69 COLON-ALIGNED HELP
           "Enter Ending Item Number"
-     begin_procat AT ROW 5.52 COL 27 COLON-ALIGNED HELP
+     begin_procat AT ROW 5.86 COL 27 COLON-ALIGNED HELP
           "Enter Begining Category"
-     end_procat AT ROW 5.52 COL 69 COLON-ALIGNED HELP
+     end_procat AT ROW 5.86 COL 69 COLON-ALIGNED HELP
           "Enter Ending Category"
-     begin_inv-date AT ROW 6.71 COL 27 COLON-ALIGNED
-     end_inv-date AT ROW 6.71 COL 69 COLON-ALIGNED HELP
+     begin_inv-date AT ROW 7.05 COL 27 COLON-ALIGNED
+     end_inv-date AT ROW 7.05 COL 69 COLON-ALIGNED HELP
           "Enter Ending Due Date"
-     begin_job-no AT ROW 7.91 COL 27 COLON-ALIGNED HELP
+     begin_job-no AT ROW 8.24 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     begin_job-no2 AT ROW 7.91 COL 39 COLON-ALIGNED HELP
+     begin_job-no2 AT ROW 8.24 COL 39 COLON-ALIGNED HELP
           "Enter Beginning Job Number"
-     end_job-no AT ROW 7.91 COL 69 COLON-ALIGNED HELP
+     end_job-no AT ROW 8.24 COL 69 COLON-ALIGNED HELP
           "Enter Ending Job Number"
-     end_job-no2 AT ROW 7.91 COL 81 COLON-ALIGNED HELP
+     end_job-no2 AT ROW 8.24 COL 81 COLON-ALIGNED HELP
           "Enter Ending Job Number"
      sl_avail AT ROW 10.81 COL 3.6 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 10.81 COL 39.8 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
+     sl_selected AT ROW 10.81 COL 59 NO-LABEL WIDGET-ID 28
      Btn_Add AT ROW 11.81 COL 39.8 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     sl_selected AT ROW 10.81 COL 59 NO-LABEL WIDGET-ID 28
      Btn_Remove AT ROW 12.81 COL 39.8 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
      btn_Up AT ROW 13.86 COL 39.8 WIDGET-ID 40
@@ -325,13 +342,13 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 25.43 COL 56
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 10.1 COL 4.4 WIDGET-ID 38
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 16.33 COL 3
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 10.05 COL 58.6 WIDGET-ID 44
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 10.05 COL 58.6 WIDGET-ID 44
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 16.33 COL 3
      RECT-6 AT ROW 16 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -390,17 +407,7 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
-                                                                        */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
+   FRAME-NAME                                                           */
 ASSIGN 
        begin_inv-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -420,6 +427,14 @@ ASSIGN
 ASSIGN 
        begin_rm-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_inv-date:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -451,10 +466,20 @@ ASSIGN
        lbl_jstat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "rd_jstat".
 
+/* SETTINGS FOR FILL-IN lbl_ostat IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_ostat:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_ostat".
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
        rd_jstat:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       rd_ostat:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
@@ -475,7 +500,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -624,6 +649,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
@@ -701,6 +727,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME end_inv-date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_inv-date C-Win
@@ -847,6 +874,18 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME rd_ostat
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_ostat C-Win
+ON VALUE-CHANGED OF rd_ostat IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
@@ -908,6 +947,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
@@ -1146,16 +1186,17 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY lbl_jstat rd_jstat begin_rm-no end_rm-no begin_procat end_procat 
-          begin_inv-date end_inv-date begin_job-no begin_job-no2 end_job-no 
-          end_job-no2 rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file sl_avail sl_selected
+  DISPLAY lbl_jstat rd_jstat lbl_ostat rd_ostat begin_rm-no end_rm-no 
+          begin_procat end_procat begin_inv-date end_inv-date begin_job-no 
+          begin_job-no2 end_job-no end_job-no2 sl_avail sl_selected rd-dest 
+          lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-6 RECT-7 rd_jstat begin_rm-no end_rm-no begin_procat end_procat 
-         begin_inv-date end_inv-date begin_job-no begin_job-no2 end_job-no 
-         end_job-no2 rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
-         tb_excel tb_runExcel fi_file btn-ok btn-cancel sl_avail sl_selected
-         Btn_Def Btn_Add Btn_Remove btn_Up btn_down
+  ENABLE RECT-6 RECT-7 rd_jstat rd_ostat begin_rm-no end_rm-no begin_procat 
+         end_procat begin_inv-date end_inv-date begin_job-no begin_job-no2 
+         end_job-no end_job-no2 sl_avail Btn_Def sl_selected Btn_Add Btn_Remove 
+         btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no td-show-parm 
+         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1335,6 +1376,9 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEF VAR dInvdt AS DATE NO-UNDO.
+DEFINE VARIABLE cOrdStat  AS   CHARACTER FORMAT "!"          INITIAL "O" NO-UNDO.
+
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -1375,6 +1419,8 @@ assign
  {sys/inc/ctrtext.i str-tit2 112}
 
   v-stat    = SUBSTR(rd_jstat,1,1)
+  cOrdStat    = SUBSTR(rd_ostat,1,1)
+
   v-fdate   = begin_inv-date
   v-tdate   = END_inv-date
 
@@ -1470,9 +1516,19 @@ ASSIGN
         no-lock:
 
         {custom/statusMsg.i " 'Processing Job#  '  + job.job-no "}
+          FIND FIRST oe-ordl NO-LOCK
+               WHERE oe-ordl.company EQ cocode
+                 AND oe-ordl.ord-no EQ job-hdr.ord-no 
+                 AND oe-ordl.i-no EQ job-hdr.i-no NO-ERROR.
+         IF AVAILABLE oe-ordl THEN DO:
+             IF cOrdStat EQ "C" AND oe-ordl.stat NE "C" THEN NEXT.
+             ELSE IF cOrdStat EQ "O" AND oe-ordl.stat EQ "C" THEN NEXT.
+         END.
 
       v-job = fill(" ",6 - length(trim(job.job-no))) +
               trim(job.job-no) + "-" + string(job.job-no2,"99").
+        ASSIGN dInvdt = ar-inv.inv-date.
+        
 
       find first tt-report
           where tt-report.term-id EQ ""
@@ -1695,6 +1751,7 @@ ASSIGN
              no-lock:
 
            v-qty = ar-invl.inv-qty.
+           ASSIGN dInvdt = ar-inv.inv-date.
 
            v-in-qty[1] = v-in-qty[1] + v-qty.
          end.
@@ -1794,6 +1851,8 @@ IF tb_excel THEN
                  WHEN "brd-cst"   THEN cVarValue = string(v-brdcst,">>>>>>9.99") . 
                  WHEN "t-msf"     THEN cVarValue = string(v-msf,"->>>,>>9.99") .
                  WHEN "t-msf-rm"  THEN cVarValue = string(v-msf-rm,"->>>,>>9.99") .
+                 WHEN "inv-date"  THEN cVarValue = IF dInvdt <> ? THEN STRING(dInvdt,"99/99/9999") ELSE ""      .
+
 
             END CASE.
 
@@ -1882,6 +1941,7 @@ IF tb_excel THEN
                            WHEN "brd-cst"   THEN cVarValue = "" . 
                            WHEN "t-msf"     THEN cVarValue = "" .
                            WHEN "t-msf-rm"  THEN cVarValue = "" .
+                           WHEN "inv-date"  THEN cVarValue = "" .
 
                       END CASE.
 
@@ -1957,6 +2017,7 @@ IF tb_excel THEN
                            WHEN "brd-cst"   THEN cVarValue = "" . 
                            WHEN "t-msf"     THEN cVarValue = "" .
                            WHEN "t-msf-rm"  THEN cVarValue = "" .
+                           WHEN "inv-date"  THEN cVarValue = "" .
 
                       END CASE.
 
@@ -2029,6 +2090,7 @@ IF tb_excel THEN
                            WHEN "brd-cst"   THEN cVarValue = "" . 
                            WHEN "t-msf"     THEN cVarValue = "" .
                            WHEN "t-msf-rm"  THEN cVarValue = "" .
+                           WHEN "inv-date"  THEN cVarValue = "" .
 
                       END CASE.
 
@@ -2145,3 +2207,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+

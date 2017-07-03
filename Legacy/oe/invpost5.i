@@ -31,11 +31,18 @@ DEF VAR li-stupid LIKE v-partial NO-UNDO.
 DEF VAR lcShipJobNo AS CHAR NO-UNDO.
 DEF VAR liShipJobNo2 AS INT NO-UNDO.
 DEF VAR lcShipLoc AS CHAR NO-UNDO.
-
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE FgKeepZeroBin-log AS LOGICAL NO-UNDO.
 DEF SHARED TEMP-TABLE tt-bolh NO-UNDO LIKE oe-bolh.
 DEF SHARED TEMP-TABLE tt-boll NO-UNDO LIKE oe-boll.
 
-
+RUN sys/ref/nk1look.p (INPUT cocode, "FGKEEPZEROBIN", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+     FgKeepZeroBin-log = LOGICAL(cRtnChar) NO-ERROR.
+     
 FIND tt-boll WHERE RECID(tt-boll) EQ v-recid1.
 FIND {1}     WHERE RECID({1})     EQ v-recid2.
 

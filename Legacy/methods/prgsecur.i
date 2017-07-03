@@ -19,7 +19,7 @@ ELSE
 ASSIGN
 /*   period_pos = INDEX(PROGRAM-NAME(1),".")                                             */
 /*   v-prgmname = SUBSTR(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 10) + 1) */
-  v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1).
+  v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1)
   v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
 
 FIND b-prgrms WHERE b-prgrms.prgmname = v-prgmname NO-LOCK NO-ERROR.

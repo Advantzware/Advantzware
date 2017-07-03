@@ -505,12 +505,24 @@ for each xef where xef.company = xest.company
       assign
        prep-mat = 0
        prep-lab = est-prep.cost * est-prep.qty.
-     
-    IF ceprepprice-chr EQ "Profit" THEN
-       assign
-          prep-tot  = (prep-mat + prep-lab) / (1 - prep-add) * prep-atz
-          tprep-mat = tprep-mat + (prep-mat / (1 - prep-add) * prep-atz)
-          tprep-lab = tprep-lab + (prep-lab / (1 - prep-add) * prep-atz).
+    
+    IF est-prep.simon = 'M' THEN DO:
+        ASSIGN 
+            prep-tot = prep-mat + prep-lab
+            tprep-mat = tprep-mat + prep-mat
+            tprep-lab = tprep-lab + prep-lab
+            .
+        dMCostToExcludePrep = dMCostToExcludePrep + prep-tot.
+        IF ceprepprice-chr EQ 'Profit' THEN 
+            dMPriceToAddPrep = dMPriceToAddPrep + prep-tot / (1 - prep-add) * prep-atz.
+        ELSE 
+            dMPriceToAddPrep = dMPriceToAddPrep + prep-tot * (1 + prep-add) * prep-atz.
+        END.
+    ELSE IF ceprepprice-chr EQ "Profit" THEN
+        assign
+            prep-tot  = (prep-mat + prep-lab) / (1 - prep-add) * prep-atz
+            tprep-mat = tprep-mat + (prep-mat / (1 - prep-add) * prep-atz)
+            tprep-lab = tprep-lab + (prep-lab / (1 - prep-add) * prep-atz).
     ELSE
        assign
           prep-tot  = (prep-mat + prep-lab) * (1 + prep-add) * prep-atz
@@ -873,7 +885,23 @@ for each xef where xef.company = xest.company
   do i = 1 to 6 with frame ah down no-labels no-box:
     if index("SON",xef.mis-simon[i]) eq 0 or xef.mis-cost[i] eq "" then next.
     
-    IF ceprepprice-chr EQ "Profit" THEN
+    IF xef.mis-simon[i] = 'M' THEN DO:
+        mis-tot[5] = xef.mis-matf[i] + (xef.mis-matm[i] * qty / 1000).
+        dMCostToExcludeMisc = dMCostToExcludeMisc + mis-tot[5].
+        mis-tot[6] = xef.mis-labf[i] + (xef.mis-labm[i] * qty / 1000).
+        dMCostToExcludeMisc = dMCostToExcludeMisc + mis-tot[6].
+        IF ceprepprice-chr EQ 'Profit' THEN 
+            ASSIGN 
+                dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[5] / (1 - (xef.mis-mkup[i] / 100))
+                dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[6] / (1 - (xef.mis-mkup[i] / 100))
+                .
+        ELSE 
+            ASSIGN 
+                dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[5] * (1 + (xef.mis-mkup[i] / 100))
+                dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[6] * (1 + (xef.mis-mkup[i] / 100))
+                .
+     END.
+  ELSE IF ceprepprice-chr EQ "Profit" THEN
        ASSIGN
           mis-tot[5] = (xef.mis-matf[i] + (xef.mis-matm[i] * (qty / 1000))) /
                                           (1 - (xef.mis-mkup[i] / 100))

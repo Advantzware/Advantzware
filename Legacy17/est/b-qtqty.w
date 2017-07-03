@@ -726,7 +726,7 @@ PROCEDURE reprice-quote :
         END. /* each quotehd */
         
         /* disconnect to rfq database */
-        IF CONNECTED('rfq') THEN DISCONNECT rfq.
+        /* IF CONNECTED('rfq') THEN DISCONNECT rfq. */
 
     END. /* if a reprice method was chosen */
 

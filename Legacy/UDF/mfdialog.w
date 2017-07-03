@@ -49,14 +49,15 @@ DEFINE VARIABLE idx AS INTEGER NO-UNDO.
 &Scoped-define FRAME-NAME Dialog-Frame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnOK horz-bar vert-bar attr_enabled ~
-attr_label attr_colLabel attr_name attr_values attr_default x-coord y-coord ~
-min_value attr_sbField pixel-height pixel-width max_value font-setting ~
-data_type data_format attr_proc btnCancel 
+&Scoped-Define ENABLED-OBJECTS btnCancel btnOK horz-bar vert-bar ~
+attr_enabled attr_label attr_colLabel attr_name attr_values attr_default ~
+x-coord y-coord min_value attr_sbField pixel-height pixel-width max_value ~
+font-setting attr_esko data_type data_format attr_proc 
 &Scoped-Define DISPLAYED-OBJECTS attr_id attr_order attr_type horz-bar ~
 vert-bar attr_enabled attr_label attr_colLabel attr_name attr_values ~
 attr_default x-coord y-coord min_value attr_sbField pixel-height ~
-pixel-width max_value font-setting data_type data_format attr_proc 
+pixel-width max_value font-setting attr_esko data_type data_format ~
+attr_proc 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -95,7 +96,7 @@ DEFINE VARIABLE attr_sbField AS INTEGER FORMAT "z9":U INITIAL 0
      VIEW-AS COMBO-BOX INNER-LINES 21
      LIST-ITEMS "0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20" 
      DROP-DOWN-LIST
-     SIZE 7.8 BY 1 NO-UNDO.
+     SIZE 8.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE data_type AS CHARACTER FORMAT "X(256)":U INITIAL "Character" 
      LABEL "Data Type" 
@@ -119,7 +120,7 @@ DEFINE VARIABLE attr_colLabel AS CHARACTER FORMAT "X(20)":U
 DEFINE VARIABLE attr_default AS CHARACTER FORMAT "X(256)" 
      LABEL "Attribute Default" 
      VIEW-AS FILL-IN 
-     SIZE 89.6 BY 1.
+     SIZE 93 BY 1.
 
 DEFINE VARIABLE attr_id AS CHARACTER FORMAT "X(20)":U 
      LABEL "Attribute ID" 
@@ -130,12 +131,12 @@ DEFINE VARIABLE attr_id AS CHARACTER FORMAT "X(20)":U
 DEFINE VARIABLE attr_label AS CHARACTER FORMAT "X(256)" 
      LABEL "Attribute Label" 
      VIEW-AS FILL-IN 
-     SIZE 89.6 BY 1.
+     SIZE 92.8 BY 1.
 
 DEFINE VARIABLE attr_name AS CHARACTER FORMAT "X(256)" 
      LABEL "Attribute Name" 
      VIEW-AS FILL-IN 
-     SIZE 89.8 BY 1.
+     SIZE 93 BY 1.
 
 DEFINE VARIABLE attr_order AS INTEGER FORMAT "zzz9":U INITIAL 0 
      LABEL "Tab Order" 
@@ -152,7 +153,7 @@ DEFINE VARIABLE attr_type AS CHARACTER FORMAT "X(14)"
 DEFINE VARIABLE attr_values AS CHARACTER FORMAT "X(256)" 
      LABEL "Attribute Values" 
      VIEW-AS FILL-IN 
-     SIZE 89.8 BY 1.
+     SIZE 93 BY 1.
 
 DEFINE VARIABLE data_format AS CHARACTER FORMAT "X(256)":U 
      LABEL "Format" 
@@ -162,12 +163,12 @@ DEFINE VARIABLE data_format AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE max_value AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Maximum Values" 
      VIEW-AS FILL-IN 
-     SIZE 18.2 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE min_value AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
      LABEL "Minimum Value" 
      VIEW-AS FILL-IN 
-     SIZE 18.2 BY 1 NO-UNDO.
+     SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE pixel-height AS INTEGER FORMAT "zzz9":U INITIAL 0 
      LABEL "Pixel Height" 
@@ -194,6 +195,11 @@ DEFINE VARIABLE attr_enabled AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 11 BY 1 NO-UNDO.
 
+DEFINE VARIABLE attr_esko AS LOGICAL INITIAL no 
+     LABEL "Esko" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 9 BY 1 NO-UNDO.
+
 DEFINE VARIABLE horz-bar AS LOGICAL INITIAL no 
      LABEL "Horizontal Scrollbar" 
      VIEW-AS TOGGLE-BOX
@@ -208,7 +214,9 @@ DEFINE VARIABLE vert-bar AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     btnOK AT ROW 1.24 COL 92 HELP
+     btnCancel AT ROW 1.24 COL 104 HELP
+          "CANCEL Edit Function"
+     btnOK AT ROW 1.24 COL 96 HELP
           "OK to Save Edit Function Settings"
      attr_id AT ROW 1.24 COL 17.2 COLON-ALIGNED HELP
           "Enter Attribute Identifier"
@@ -218,7 +226,7 @@ DEFINE FRAME Dialog-Frame
           "Set Horizontal Scrollbar"
      vert-bar AT ROW 3.62 COL 66 HELP
           "Set Vertical Scrollbar"
-     attr_enabled AT ROW 3.62 COL 97 HELP
+     attr_enabled AT ROW 3.62 COL 101 HELP
           "Enable Attribute"
      attr_label AT ROW 4.81 COL 17.2 COLON-ALIGNED HELP
           "Enter Attribute Label"
@@ -234,27 +242,27 @@ DEFINE FRAME Dialog-Frame
           "Enter X Coordinate"
      y-coord AT ROW 10.76 COL 40 COLON-ALIGNED HELP
           "Enter Y Coordinate"
-     min_value AT ROW 10.76 COL 67 COLON-ALIGNED HELP
+     min_value AT ROW 10.76 COL 66 COLON-ALIGNED HELP
           "Enter Slider's Minimum Value"
-     attr_sbField AT ROW 10.76 COL 99 COLON-ALIGNED HELP
+     attr_sbField AT ROW 10.76 COL 101 COLON-ALIGNED HELP
           "Select Schedule Board Field Number" WIDGET-ID 2
      pixel-height AT ROW 11.95 COL 17 COLON-ALIGNED HELP
           "Enter Pixel Height"
      pixel-width AT ROW 11.95 COL 40 COLON-ALIGNED HELP
           "Enter Pixel Width"
-     max_value AT ROW 11.95 COL 67 COLON-ALIGNED HELP
+     max_value AT ROW 11.95 COL 66 COLON-ALIGNED HELP
           "Enter Slider's Maximum Value"
-     font-setting AT ROW 11.95 COL 99 COLON-ALIGNED HELP
+     font-setting AT ROW 11.95 COL 88 COLON-ALIGNED HELP
           "Select Font Size"
+     attr_esko AT ROW 11.95 COL 103 HELP
+          "Toggle to Include with Esko" WIDGET-ID 6
      data_type AT ROW 13.14 COL 17 COLON-ALIGNED HELP
           "Select Data Type"
      data_format AT ROW 13.14 COL 67 COLON-ALIGNED HELP
           "Enter Data Format"
-     attr_proc AT ROW 13.14 COL 67 COLON-ALIGNED HELP
+     attr_proc AT ROW 13.14 COL 71 COLON-ALIGNED HELP
           "Select Display/Load Values Procedure Name"
-     btnCancel AT ROW 1.24 COL 100 HELP
-          "CANCEL Edit Function"
-     SPACE(1.00) SKIP(11.09)
+     SPACE(0.00) SKIP(0.09)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "User Defined Fields Attribute Editor"
@@ -381,6 +389,7 @@ DO:
     ttAttrb.attr_proc = attr_proc:SCREEN-VALUE
     ttAttrb.attr_colLabel = attr_colLabel:SCREEN-VALUE
     ttAttrb.attr_sbField = INTEGER(attr_sbField:SCREEN-VALUE)
+    ttAttrb.attr_esko = attr_esko:SCREEN-VALUE EQ "YES"
     ioplSavePrompt = YES
     .
   CASE ttAttrb.attr_type:
@@ -495,6 +504,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     attr_proc:SCREEN-VALUE = ttAttrb.attr_proc
     attr_sbField:SCREEN-VALUE = STRING(ttAttrb.attr_sbField)
     attr_colLabel:SCREEN-VALUE = ttAttrb.attr_colLabel
+    attr_esko:SCREEN-VALUE = STRING(ttAttrb.attr_esko)
     .
   CASE ttAttrb.attr_type:
     WHEN "COMBO-BOX" THEN
@@ -524,6 +534,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       attr_enabled:HIDDEN = YES
       attr_proc:HIDDEN = YES
       attr_sbField:HIDDEN = YES
+      attr_esko:HIDDEN = YES
       attr_colLabel:HIDDEN = YES
       .
     WHEN "RADIO-SET" THEN
@@ -548,6 +559,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       attr_enabled:HIDDEN = YES
       attr_proc:HIDDEN = YES
       attr_sbField:HIDDEN = YES
+      attr_esko:HIDDEN = YES
       attr_colLabel:HIDDEN = YES
       .
   END CASE.
@@ -592,12 +604,12 @@ PROCEDURE enable_UI :
   DISPLAY attr_id attr_order attr_type horz-bar vert-bar attr_enabled attr_label 
           attr_colLabel attr_name attr_values attr_default x-coord y-coord 
           min_value attr_sbField pixel-height pixel-width max_value font-setting 
-          data_type data_format attr_proc 
+          attr_esko data_type data_format attr_proc 
       WITH FRAME Dialog-Frame.
-  ENABLE btnOK horz-bar vert-bar attr_enabled attr_label attr_colLabel 
-         attr_name attr_values attr_default x-coord y-coord min_value 
-         attr_sbField pixel-height pixel-width max_value font-setting data_type 
-         data_format attr_proc btnCancel 
+  ENABLE btnCancel btnOK horz-bar vert-bar attr_enabled attr_label 
+         attr_colLabel attr_name attr_values attr_default x-coord y-coord 
+         min_value attr_sbField pixel-height pixel-width max_value font-setting 
+         attr_esko data_type data_format attr_proc 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}

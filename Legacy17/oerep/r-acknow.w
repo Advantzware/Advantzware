@@ -99,6 +99,7 @@ ELSE
 
 DO TRANSACTION:
   {sys/inc/ackmst.i}
+  {sys/inc/acksps.i}  /* SPS ACK xml file generation logic */
 END.
 
 DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
@@ -722,7 +723,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
   APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:09 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -910,7 +911,7 @@ DO:
     END. /* else of v-ack-master  */
   END.  /* NOT output to email */
 
-                         {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:09 am */
+                         {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.  /* end of btn-ok */
 
 /* _UIB-CODE-BLOCK-END */
@@ -1686,7 +1687,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:09 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -1734,8 +1735,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}
 
   DO WITH FRAME {&frame-name}:
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:05 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:05 am */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p */
     {custom/usrprint.i}
     ASSIGN
       lines-per-page:SCREEN-VALUE = STRING(viDefaultLinesPerPage)
@@ -1972,7 +1973,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_ord-no.
   END.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:09 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -2889,6 +2890,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id:
    FIND oe-ord WHERE RECID(oe-ord) EQ report.rec-id.
    IF STRING(oe-ord.ack-prnt) <> report.key-01 AND oe-ord.ack-prnt THEN oe-ord.ack-prnt-date = TODAY.
 
+   IF acksps-log THEN RUN oe/oe850ack.p (oe-ord.ord-no).
+
   DELETE report.
 END.
 
@@ -2898,6 +2901,7 @@ IF tb_prt-bom THEN DO:
    RUN run-report-bom.
    OUTPUT CLOSE.
 END.
+
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 

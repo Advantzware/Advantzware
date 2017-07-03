@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:52 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -687,6 +687,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.pallet V-table-Win
 ON LEAVE OF shipto.pallet IN FRAME F-Main /* Pallet */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and shipto.pallet:screen-value <> "" and
           not can-find(first item where item.company = gcompany and item.mat-type = "D" and
                                         item.i-no = shipto.pallet:screen-value)
@@ -694,8 +695,9 @@ DO:
           message "Invalid Pallet Code. Try Help." view-as alert-box error.
           return no-apply.     
        end.
-
+       {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1070,7 +1072,7 @@ PROCEDURE local-update-record :
 
   RUN valid-dest-code NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   if shipto.pallet:screen-value IN FRAME {&FRAME-NAME} <> "" and
         not can-find(first item where item.company = gcompany and item.mat-type = "D" and
                                       item.i-no = shipto.pallet:screen-value)
@@ -1079,7 +1081,7 @@ PROCEDURE local-update-record :
         apply "entry" to shipto.pallet.
         return .     
      end.
-
+  {&methods/lValidateError.i NO}
   IF adm-new-record and 
      shipto.bill:SCREEN-VALUE IN FRAME {&FRAME-NAME} <> "Yes" THEN DO:
 
@@ -1093,6 +1095,7 @@ PROCEDURE local-update-record :
   ASSIGN v-ship-no = shipto.ship-no.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

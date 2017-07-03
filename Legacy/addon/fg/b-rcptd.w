@@ -659,10 +659,13 @@ DO:
            IF char-val <> "" THEN DO :
               fg-rctd.tag:SCREEN-VALUE = ENTRY(1,char-val).
               /*  ===*/
-              IF CAN-FIND(FIRST b-fg-rctd WHERE b-fg-rctd.company = cocode AND
-                                      b-fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE
-                                  AND ((lv-do-what = "delete" AND b-fg-rctd.rita-code <> "P") OR lv-do-what <> "delete" )
-                        AND RECID(b-fg-rctd) <> RECID(fg-rctd)) THEN DO:
+              IF CAN-FIND(FIRST b-fg-rctd 
+                          WHERE b-fg-rctd.company   EQ cocode 
+                            AND b-fg-rctd.tag       EQ fg-rctd.tag:SCREEN-VALUE
+                            AND b-fg-rctd.rita-code NE "P"
+                            AND ((lv-do-what        EQ "delete" 
+                            AND b-fg-rctd.rita-code NE "P") OR lv-do-what <> "delete" )
+                            AND RECID(b-fg-rctd) <> RECID(fg-rctd)) THEN DO:
                  MESSAGE "This Tag Number Has Already Been Used." SKIP
                          "Please Enter A Unique Tag Number."    
                          VIEW-AS ALERT-BOX ERROR.
@@ -766,11 +769,11 @@ DO:
 
     END.
     IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> "" AND
-       CAN-FIND(FIRST b-fg-rctd WHERE
-       b-fg-rctd.company = cocode AND
-       b-fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} AND
-       b-fg-rctd.rita-code <> "P" AND
-       RECID(b-fg-rctd) <> RECID(fg-rctd)) THEN
+       CAN-FIND(FIRST b-fg-rctd 
+                WHERE b-fg-rctd.company = cocode 
+                AND b-fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} 
+                AND b-fg-rctd.rita-code <> "P" 
+                AND RECID(b-fg-rctd) <> RECID(fg-rctd)) THEN
        DO:
           MESSAGE "This Tag Number Has Already Been Used." SKIP
                   "Please Enter A Unique Tag Number." 
@@ -2445,9 +2448,6 @@ PROCEDURE local-update-record :
   IF SSPostFG-log THEN
      RUN post-finish-goods.
 
-  IF lvlAutoAdd THEN
-    RUN scan-next.
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3533,10 +3533,11 @@ PROCEDURE valid-tag :
        
          IF lv-do-what NE "Delete" AND NOT ll-set-parts THEN
          DO:
-            IF (CAN-FIND(FIRST b-fg-rctd WHERE
-                b-fg-rctd.company     EQ cocode AND
-                b-fg-rctd.tag         EQ ip-focus:SCREEN-VALUE AND
-                RECID(b-fg-rctd)      NE RECID(fg-rctd)) OR
+            IF (CAN-FIND(FIRST b-fg-rctd 
+                           WHERE b-fg-rctd.company     EQ cocode 
+                             AND b-fg-rctd.tag         EQ ip-focus:SCREEN-VALUE 
+                             AND b-fg-rctd.rita-code   NE "P"
+                             AND RECID(b-fg-rctd)      NE RECID(fg-rctd)) OR
              CAN-FIND(FIRST b-fg-rdtlh
                       WHERE b-fg-rdtlh.company   EQ cocode
                         AND b-fg-rdtlh.tag       EQ ip-focus:SCREEN-VALUE
@@ -3547,11 +3548,11 @@ PROCEDURE valid-tag :
          END. /*lv-do-what NE "Delete"*/
          ELSE IF NOT ll-set-parts THEN
          DO:
-            IF CAN-FIND(FIRST b-fg-rctd WHERE
-               b-fg-rctd.company     EQ cocode AND
-               b-fg-rctd.tag         EQ ip-focus:SCREEN-VALUE AND
-               b-fg-rctd.rita-code NE "P" AND
-               RECID(b-fg-rctd)      NE RECID(fg-rctd)) THEN
+            IF CAN-FIND(FIRST b-fg-rctd 
+                        WHERE b-fg-rctd.company     EQ cocode 
+                          AND b-fg-rctd.tag         EQ ip-focus:SCREEN-VALUE 
+                          AND b-fg-rctd.rita-code NE "P" 
+                          AND RECID(b-fg-rctd)      NE RECID(fg-rctd)) THEN
                lv-msg = "Tag# has already been used, please re-enter".
          END. /*lv-do-what eq "Delete"*/
 
@@ -3784,10 +3785,11 @@ PROCEDURE validate-record :
   IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN
   DO:
   
-    IF CAN-FIND(FIRST b-fg-rctd WHERE b-fg-rctd.company = cocode AND
-                            b-fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE
-                        AND b-fg-rctd.rita-code <> "P"
-                        AND RECID(b-fg-rctd) <> RECID(fg-rctd)) THEN DO:
+    IF CAN-FIND(FIRST b-fg-rctd 
+                WHERE b-fg-rctd.company = cocode 
+                  AND b-fg-rctd.tag = fg-rctd.tag:SCREEN-VALUE
+                  AND b-fg-rctd.rita-code <> "P"
+                  AND RECID(b-fg-rctd) <> RECID(fg-rctd)) THEN DO:
        MESSAGE "This Tag Number Has Already Been Used." SKIP
                "Please Enter A Unique Tag Number." 
            VIEW-AS ALERT-BOX ERROR.
@@ -3837,8 +3839,7 @@ PROCEDURE validate-record :
       APPLY "entry" TO fg-rctd.cases-unit .
       op-error = YES.
       LEAVE.
-   END.
-
+   END. 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
