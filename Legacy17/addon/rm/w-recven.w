@@ -442,7 +442,7 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   /*RUN auto-add IN h_p-updsav.*/
-
+  {methods/selectTab.i 1}
   RUN entry-vend-tag-proc IN h_v-recven.
 END PROCEDURE.
 

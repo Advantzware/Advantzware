@@ -444,6 +444,7 @@ PROCEDURE local-view :
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
     RUN init-focus IN WIDGET-HANDLE(char-hdl).
   */
+  {methods/selectTab.i 1}
   RUN auto-add IN h_p-updsav.
 
 END PROCEDURE.

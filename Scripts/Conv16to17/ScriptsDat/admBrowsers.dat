@@ -75,11 +75,7 @@ addon\custitem\b-vwplmt.w
 addon\custitem\b-vwvncd.w
 addon\fg\b-delt.w
 addon\fg\b-issue.w
-addon\fg\b-phys.w
 addon\fg\b-physi.w
-addon\fg\b-physs.w
-addon\fg\b-rcptd.w
-addon\fg\b-trans.w
 addon\loadtags\b-ldtagc.w
 addon\loadtags\b-ldtagi.w
 addon\touch\b-mchtrn.w
@@ -282,9 +278,6 @@ addon\browsers\jobsheet.w
 addon\browsers\jobstack.w
 addon\browsers\job_2.w
 addon\browsers\rfqitem.w
-addon\fg\b-rcptds.w
-addon\fg\b-ucptd.w
-addon\fg\b-ucptds.w
 addon\touch\b-sftbrk.w
 arinq\b-arcusi.w
 browsers\b-ctcusi.w
