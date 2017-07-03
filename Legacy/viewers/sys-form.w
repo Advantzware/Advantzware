@@ -322,7 +322,13 @@ DO:
 
          RETURN NO-APPLY.
       END.
+      ELSE IF opName EQ 'BOLPrint' THEN DO: 
+         RUN windows/l-fgbin2.w (gcompany,"",FOCUS:SCREEN-VALUE,OUTPUT char-val1).
+         IF char-val1 NE '' THEN
+            sys-ctrl-shipto.char-fld:SCREEN-VALUE = ENTRY(1,char-val1).
 
+         RETURN NO-APPLY.
+      END.
       /* gdm - 11050804 */
       ELSE IF opName EQ 'CASLABEL' THEN DO:          
 
