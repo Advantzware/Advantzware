@@ -33,23 +33,11 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE cControl FA
-&SCOPED-DEFINE cEntity1 {&cControl}
-&SCOPED-DEFINE cEntity2
-&SCOPED-DEFINE cTable fa-control-d
-&SCOPED-DEFINE lLarge FALSE
-&SCOPED-DEFINE initQuery ""
-&SCOPED-DEFINE initSort ""
-&SCOPED-DEFINE lJump TRUE
-&SCOPED-DEFINE keyField1 fa-entity
-&SCOPED-DEFINE keyType1 CHAR
-&SCOPED-DEFINE byEntity 
+/* Parameters Definitions ---                                           */
 
-DEF BUFFER bTable FOR {&cTable}.
-DEF VAR cKeyValue1 AS {&keyType1}.
-DEF VAR rFileRowid AS ROWID.
+/* Local Variable Definitions ---                                       */
 
-{src/asicommon.i}
+&glob DATA-LOGIC-PROCEDURE .p
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -76,30 +64,34 @@ DEF VAR rFileRowid AS ROWID.
 &Scoped-define QUERY-NAME Query-Main
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES fa-control-d
+&Scoped-define INTERNAL-TABLES fa-mast-rep
 
 /* Definitions for QUERY Query-Main                                     */
-&Scoped-Define ENABLED-FIELDS  dep-a-no fa-a-no FA-entity gl-dist-gno gl-dist-no gl-mast-no glcode-a-no~
- jrnl-no loc-a-no Next-seq-no sort1-no sort2-no tag-no tax-a-no
-&Scoped-define ENABLED-FIELDS-IN-fa-control-d dep-a-no fa-a-no FA-entity ~
-gl-dist-gno gl-dist-no gl-mast-no glcode-a-no jrnl-no loc-a-no Next-seq-no ~
-sort1-no sort2-no tag-no tax-a-no 
-&Scoped-Define DATA-FIELDS  dep-a-no fa-a-no FA-entity gl-dist-gno gl-dist-no gl-mast-no glcode-a-no~
- jrnl-no loc-a-no Next-seq-no sort1-no sort2-no tag-no tax-a-no
-&Scoped-define DATA-FIELDS-IN-fa-control-d dep-a-no fa-a-no FA-entity ~
-gl-dist-gno gl-dist-no gl-mast-no glcode-a-no jrnl-no loc-a-no Next-seq-no ~
-sort1-no sort2-no tag-no tax-a-no 
-&Scoped-Define MANDATORY-FIELDS 
+&Scoped-Define ENABLED-FIELDS  Ap-entity Asset-code Cost-book Description1 Description2 Entity-code~
+ fa-entity Item-no Line-no Purch-order# Reference Release-no Trans-date~
+ Vendor-code Voucher-no
+&Scoped-define ENABLED-FIELDS-IN-fa-mast-rep Ap-entity Asset-code Cost-book ~
+Description1 Description2 Entity-code fa-entity Item-no Line-no ~
+Purch-order# Reference Release-no Trans-date Vendor-code Voucher-no 
+&Scoped-Define DATA-FIELDS  Ap-entity Asset-code Cost-book Description1 Description2 Entity-code~
+ fa-entity Item-no Line-no Purch-order# Reference Release-no Trans-date~
+ Vendor-code Voucher-no
+&Scoped-define DATA-FIELDS-IN-fa-mast-rep Ap-entity Asset-code Cost-book ~
+Description1 Description2 Entity-code fa-entity Item-no Line-no ~
+Purch-order# Reference Release-no Trans-date Vendor-code Voucher-no 
+&Scoped-Define MANDATORY-FIELDS  Ap-entity Description1 Description2 Entity-code Item-no Line-no Reference~
+ Release-no Vendor-code Voucher-no
 &Scoped-Define APPLICATION-SERVICE 
-&Scoped-Define ASSIGN-LIST 
-&Scoped-Define DATA-FIELD-DEFS "fa/sdoFaCtrlD.i"
+&Scoped-Define ASSIGN-LIST   rowObject.Description1 = fa-mast-rep.Description[1]~
+  rowObject.Description2 = fa-mast-rep.Description[2]
+&Scoped-Define DATA-FIELD-DEFS "fa/sdoMastRep.i"
 &Scoped-Define DATA-TABLE-NO-UNDO NO-UNDO
-&Scoped-define QUERY-STRING-Query-Main FOR EACH fa-control-d NO-LOCK INDEXED-REPOSITION
+&Scoped-define QUERY-STRING-Query-Main FOR EACH fa-mast-rep NO-LOCK INDEXED-REPOSITION
 {&DB-REQUIRED-START}
-&Scoped-define OPEN-QUERY-Query-Main OPEN QUERY Query-Main FOR EACH fa-control-d NO-LOCK INDEXED-REPOSITION.
+&Scoped-define OPEN-QUERY-Query-Main OPEN QUERY Query-Main FOR EACH fa-mast-rep NO-LOCK INDEXED-REPOSITION.
 {&DB-REQUIRED-END}
-&Scoped-define TABLES-IN-QUERY-Query-Main fa-control-d
-&Scoped-define FIRST-TABLE-IN-QUERY-Query-Main fa-control-d
+&Scoped-define TABLES-IN-QUERY-Query-Main fa-mast-rep
+&Scoped-define FIRST-TABLE-IN-QUERY-Query-Main fa-mast-rep
 
 
 /* Custom List Definitions                                              */
@@ -117,7 +109,7 @@ sort1-no sort2-no tag-no tax-a-no
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Query-Main FOR 
-      fa-control-d SCROLLING.
+      fa-mast-rep SCROLLING.
 &ANALYZE-RESUME
 {&DB-REQUIRED-END}
 
@@ -181,36 +173,38 @@ END.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK QUERY Query-Main
 /* Query rebuild information for SmartDataObject Query-Main
-     _TblList          = "ASI.fa-control-d"
+     _TblList          = "ASI.fa-mast-rep"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _FldNameList[1]   > ASI.fa-control-d.dep-a-no
-"dep-a-no" "dep-a-no" ? ? "integer" ? ? ? ? ? ? yes ? no 12.4 yes ?
-     _FldNameList[2]   > ASI.fa-control-d.fa-a-no
-"fa-a-no" "fa-a-no" ? ? "integer" ? ? ? ? ? ? yes ? no 12.4 yes ?
-     _FldNameList[3]   > ASI.fa-control-d.FA-entity
-"FA-entity" "FA-entity" ? ? "character" ? ? ? ? ? ? yes ? no 8.8 yes ?
-     _FldNameList[4]   > ASI.fa-control-d.gl-dist-gno
-"gl-dist-gno" "gl-dist-gno" ? ? "integer" ? ? ? ? ? ? yes ? no 11.8 yes ?
-     _FldNameList[5]   > ASI.fa-control-d.gl-dist-no
-"gl-dist-no" "gl-dist-no" ? ? "integer" ? ? ? ? ? ? yes ? no 10.2 yes ?
-     _FldNameList[6]   > ASI.fa-control-d.gl-mast-no
-"gl-mast-no" "gl-mast-no" ? ? "integer" ? ? ? ? ? ? yes ? no 10.8 yes ?
-     _FldNameList[7]   > ASI.fa-control-d.glcode-a-no
-"glcode-a-no" "glcode-a-no" ? ? "integer" ? ? ? ? ? ? yes ? no 13.2 yes ?
-     _FldNameList[8]   > ASI.fa-control-d.jrnl-no
-"jrnl-no" "jrnl-no" ? ? "integer" ? ? ? ? ? ? yes ? no 12.4 yes ?
-     _FldNameList[9]   > ASI.fa-control-d.loc-a-no
-"loc-a-no" "loc-a-no" ? ? "integer" ? ? ? ? ? ? yes ? no 12.4 yes ?
-     _FldNameList[10]   > ASI.fa-control-d.Next-seq-no
-"Next-seq-no" "Next-seq-no" ? ? "integer" ? ? ? ? ? ? yes ? no 12.4 yes ?
-     _FldNameList[11]   > ASI.fa-control-d.sort1-no
-"sort1-no" "sort1-no" ? ? "integer" ? ? ? ? ? ? yes ? no 9.2 yes ?
-     _FldNameList[12]   > ASI.fa-control-d.sort2-no
-"sort2-no" "sort2-no" ? ? "integer" ? ? ? ? ? ? yes ? no 9.2 yes ?
-     _FldNameList[13]   > ASI.fa-control-d.tag-no
-"tag-no" "tag-no" ? ? "integer" ? ? ? ? ? ? yes ? no 12 yes ?
-     _FldNameList[14]   > ASI.fa-control-d.tax-a-no
-"tax-a-no" "tax-a-no" ? ? "integer" ? ? ? ? ? ? yes ? no 12.4 yes ?
+     _FldNameList[1]   > ASI.fa-mast-rep.Ap-entity
+"Ap-entity" "Ap-entity" ? ? "character" ? ? ? ? ? ? yes ? yes 8 yes ?
+     _FldNameList[2]   > ASI.fa-mast-rep.Asset-code
+"Asset-code" "Asset-code" ? ? "character" ? ? ? ? ? ? yes ? no 11 yes ?
+     _FldNameList[3]   > ASI.fa-mast-rep.Cost-book
+"Cost-book" "Cost-book" ? ? "decimal" ? ? ? ? ? ? yes ? no 18.8 yes ?
+     _FldNameList[4]   > ASI.fa-mast-rep.Description[1]
+"Description[1]" "Description1" ? ? "character" ? ? ? ? ? ? yes ? yes 30 yes ?
+     _FldNameList[5]   > ASI.fa-mast-rep.Description[2]
+"Description[2]" "Description2" ? ? "character" ? ? ? ? ? ? yes ? yes 30 yes ?
+     _FldNameList[6]   > ASI.fa-mast-rep.Entity-code
+"Entity-code" "Entity-code" ? ? "character" ? ? ? ? ? ? yes ? yes 8.8 yes ?
+     _FldNameList[7]   > ASI.fa-mast-rep.fa-entity
+"fa-entity" "fa-entity" ? ? "character" ? ? ? ? ? ? yes ? no 8.8 yes ?
+     _FldNameList[8]   > ASI.fa-mast-rep.Item-no
+"Item-no" "Item-no" ? ? "character" ? ? ? ? ? ? yes ? yes 16 yes ?
+     _FldNameList[9]   > ASI.fa-mast-rep.Line-no
+"Line-no" "Line-no" ? ? "integer" ? ? ? ? ? ? yes ? yes 7 yes ?
+     _FldNameList[10]   > ASI.fa-mast-rep.Purch-order#
+"Purch-order#" "Purch-order#" ? ? "character" ? ? ? ? ? ? yes ? no 12 yes ?
+     _FldNameList[11]   > ASI.fa-mast-rep.Reference
+"Reference" "Reference" ? ? "character" ? ? ? ? ? ? yes ? yes 12 yes ?
+     _FldNameList[12]   > ASI.fa-mast-rep.Release-no
+"Release-no" "Release-no" ? ? "integer" ? ? ? ? ? ? yes ? yes 6.2 yes ?
+     _FldNameList[13]   > ASI.fa-mast-rep.Trans-date
+"Trans-date" "Trans-date" ? ? "date" ? ? ? ? ? ? yes ? no 10.6 yes ?
+     _FldNameList[14]   > ASI.fa-mast-rep.Vendor-code
+"Vendor-code" "Vendor-code" ? ? "character" ? ? ? ? ? ? yes ? yes 12.4 yes ?
+     _FldNameList[15]   > ASI.fa-mast-rep.Voucher-no
+"Voucher-no" "Voucher-no" ? ? "integer" ? ? ? ? ? ? yes ? yes 11 yes ?
      _Design-Parent    is WINDOW dTables @ ( 1.14 , 2.6 )
 */  /* QUERY Query-Main */
 &ANALYZE-RESUME
@@ -226,8 +220,6 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN initializeObject.
   &ENDIF
-
-{src/sdoComProcs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

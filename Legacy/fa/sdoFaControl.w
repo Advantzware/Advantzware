@@ -38,25 +38,6 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 &glob DATA-LOGIC-PROCEDURE .p
-/*
-&SCOPED-DEFINE cControl FA
-&SCOPED-DEFINE cEntity1 {&cControl}
-&SCOPED-DEFINE cEntity2
-&SCOPED-DEFINE cTable fa-control
-&SCOPED-DEFINE lLarge FALSE
-&SCOPED-DEFINE initQuery ""
-&SCOPED-DEFINE initSort ""
-&SCOPED-DEFINE lJump TRUE
-&SCOPED-DEFINE keyField1 fa-entity
-&SCOPED-DEFINE keyType1 CHAR
-&SCOPED-DEFINE byEntity 
-
-DEF BUFFER bTable FOR {&cTable}.
-DEF VAR cKeyValue1 AS {&keyType1}.
-DEF VAR rFileRowid AS ROWID.
-
-{src/asicommon.i}
-*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -83,7 +64,7 @@ DEF VAR rFileRowid AS ROWID.
 &Scoped-define QUERY-NAME Query-Main
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES fa-control
+&Scoped-define INTERNAL-TABLES fa-control fa-control-d
 
 /* Definitions for QUERY Query-Main                                     */
 &Scoped-Define ENABLED-FIELDS  aqui-service calc-mode Currency-cod Entity-name FA-entity fa-gl-clear~
@@ -92,7 +73,9 @@ DEF VAR rFileRowid AS ROWID.
  not-used19 not-used110 not-used111 not-used112 not-used113 not-used21~
  not-used22 not-used23 not-used24 not-used25 not-used26 not-used27~
  not-used28 not-used29 not-used210 not-used211 not-used212 not-used213~
- Number-prd Prd state-fed tag-update View-login Yr
+ Number-prd Prd state-fed tag-update View-login Yr dep-a-no fa-a-no~
+ FA-entity-2 gl-dist-gno gl-dist-no gl-mast-no glcode-a-no jrnl-no loc-a-no~
+ Next-seq-no sort1-no sort2-no tag-no tax-a-no
 &Scoped-define ENABLED-FIELDS-IN-fa-control aqui-service calc-mode ~
 Currency-cod Entity-name FA-entity fa-gl-clear fa-gl-disp gl-installed ~
 Job-no last-ad last-prd not-used11 not-used12 not-used13 not-used14 ~
@@ -101,13 +84,18 @@ not-used111 not-used112 not-used113 not-used21 not-used22 not-used23 ~
 not-used24 not-used25 not-used26 not-used27 not-used28 not-used29 ~
 not-used210 not-used211 not-used212 not-used213 Number-prd Prd state-fed ~
 tag-update View-login Yr 
+&Scoped-define ENABLED-FIELDS-IN-fa-control-d dep-a-no fa-a-no FA-entity-2 ~
+gl-dist-gno gl-dist-no gl-mast-no glcode-a-no jrnl-no loc-a-no Next-seq-no ~
+sort1-no sort2-no tag-no tax-a-no 
 &Scoped-Define DATA-FIELDS  aqui-service calc-mode Currency-cod Entity-name FA-entity fa-gl-clear~
  fa-gl-disp gl-installed Job-no last-ad last-prd not-used11 not-used12~
  not-used13 not-used14 not-used15 not-used16 not-used17 not-used18~
  not-used19 not-used110 not-used111 not-used112 not-used113 not-used21~
  not-used22 not-used23 not-used24 not-used25 not-used26 not-used27~
  not-used28 not-used29 not-used210 not-used211 not-used212 not-used213~
- Number-prd Prd state-fed tag-update View-login Yr
+ Number-prd Prd state-fed tag-update View-login Yr dep-a-no fa-a-no~
+ FA-entity-2 gl-dist-gno gl-dist-no gl-mast-no glcode-a-no jrnl-no loc-a-no~
+ Next-seq-no sort1-no sort2-no tag-no tax-a-no
 &Scoped-define DATA-FIELDS-IN-fa-control aqui-service calc-mode ~
 Currency-cod Entity-name FA-entity fa-gl-clear fa-gl-disp gl-installed ~
 Job-no last-ad last-prd not-used11 not-used12 not-used13 not-used14 ~
@@ -116,6 +104,9 @@ not-used111 not-used112 not-used113 not-used21 not-used22 not-used23 ~
 not-used24 not-used25 not-used26 not-used27 not-used28 not-used29 ~
 not-used210 not-used211 not-used212 not-used213 Number-prd Prd state-fed ~
 tag-update View-login Yr 
+&Scoped-define DATA-FIELDS-IN-fa-control-d dep-a-no fa-a-no FA-entity-2 ~
+gl-dist-gno gl-dist-no gl-mast-no glcode-a-no jrnl-no loc-a-no Next-seq-no ~
+sort1-no sort2-no tag-no tax-a-no 
 &Scoped-Define MANDATORY-FIELDS  Currency-cod Job-no state-fed
 &Scoped-Define APPLICATION-SERVICE 
 &Scoped-Define ASSIGN-LIST   rowObject.not-used11 = fa-control.not-used1[1]~
@@ -143,15 +134,19 @@ tag-update View-login Yr
   rowObject.not-used210 = fa-control.not-used2[10]~
   rowObject.not-used211 = fa-control.not-used2[11]~
   rowObject.not-used212 = fa-control.not-used2[12]~
-  rowObject.not-used213 = fa-control.not-used2[13]
-&Scoped-Define DATA-FIELD-DEFS "fa/sdoFaCtrl.i"
+  rowObject.not-used213 = fa-control.not-used2[13]~
+  rowObject.FA-entity-2 = fa-control-d.FA-entity
+&Scoped-Define DATA-FIELD-DEFS "fa/sdoFaControl.i"
 &Scoped-Define DATA-TABLE-NO-UNDO NO-UNDO
-&Scoped-define QUERY-STRING-Query-Main FOR EACH fa-control NO-LOCK INDEXED-REPOSITION
+&Scoped-define QUERY-STRING-Query-Main FOR EACH fa-control NO-LOCK, ~
+      EACH fa-control-d OF fa-control NO-LOCK INDEXED-REPOSITION
 {&DB-REQUIRED-START}
-&Scoped-define OPEN-QUERY-Query-Main OPEN QUERY Query-Main FOR EACH fa-control NO-LOCK INDEXED-REPOSITION.
+&Scoped-define OPEN-QUERY-Query-Main OPEN QUERY Query-Main FOR EACH fa-control NO-LOCK, ~
+      EACH fa-control-d OF fa-control NO-LOCK INDEXED-REPOSITION.
 {&DB-REQUIRED-END}
-&Scoped-define TABLES-IN-QUERY-Query-Main fa-control
+&Scoped-define TABLES-IN-QUERY-Query-Main fa-control fa-control-d
 &Scoped-define FIRST-TABLE-IN-QUERY-Query-Main fa-control
+&Scoped-define SECOND-TABLE-IN-QUERY-Query-Main fa-control-d
 
 
 /* Custom List Definitions                                              */
@@ -169,7 +164,8 @@ tag-update View-login Yr
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Query-Main FOR 
-      fa-control SCROLLING.
+      fa-control, 
+      fa-control-d SCROLLING.
 &ANALYZE-RESUME
 {&DB-REQUIRED-END}
 
@@ -233,7 +229,7 @@ END.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK QUERY Query-Main
 /* Query rebuild information for SmartDataObject Query-Main
-     _TblList          = "ASI.fa-control"
+     _TblList          = "ASI.fa-control,ASI.fa-control-d OF ASI.fa-control"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _FldNameList[1]   > ASI.fa-control.aqui-service
 "aqui-service" "aqui-service" ? ? "logical" ? ? ? ? ? ? yes ? no 16.2 yes ?
@@ -321,6 +317,34 @@ END.
 "View-login" "View-login" ? ? "logical" ? ? ? ? ? ? yes ? no 10 yes ?
      _FldNameList[43]   > ASI.fa-control.Yr
 "Yr" "Yr" ? ? "integer" ? ? ? ? ? ? yes ? no 6 yes ?
+     _FldNameList[44]   > ASI.fa-control-d.dep-a-no
+"dep-a-no" "dep-a-no" ? ? "integer" ? ? ? ? ? ? yes ? no 12.4 yes ?
+     _FldNameList[45]   > ASI.fa-control-d.fa-a-no
+"fa-a-no" "fa-a-no" ? ? "integer" ? ? ? ? ? ? yes ? no 12.4 yes ?
+     _FldNameList[46]   > ASI.fa-control-d.FA-entity
+"FA-entity" "FA-entity-2" ? ? "character" ? ? ? ? ? ? yes ? no 8.8 yes ?
+     _FldNameList[47]   > ASI.fa-control-d.gl-dist-gno
+"gl-dist-gno" "gl-dist-gno" ? ? "integer" ? ? ? ? ? ? yes ? no 11.8 yes ?
+     _FldNameList[48]   > ASI.fa-control-d.gl-dist-no
+"gl-dist-no" "gl-dist-no" ? ? "integer" ? ? ? ? ? ? yes ? no 10.2 yes ?
+     _FldNameList[49]   > ASI.fa-control-d.gl-mast-no
+"gl-mast-no" "gl-mast-no" ? ? "integer" ? ? ? ? ? ? yes ? no 10.8 yes ?
+     _FldNameList[50]   > ASI.fa-control-d.glcode-a-no
+"glcode-a-no" "glcode-a-no" ? ? "integer" ? ? ? ? ? ? yes ? no 13.2 yes ?
+     _FldNameList[51]   > ASI.fa-control-d.jrnl-no
+"jrnl-no" "jrnl-no" ? ? "integer" ? ? ? ? ? ? yes ? no 12.4 yes ?
+     _FldNameList[52]   > ASI.fa-control-d.loc-a-no
+"loc-a-no" "loc-a-no" ? ? "integer" ? ? ? ? ? ? yes ? no 12.4 yes ?
+     _FldNameList[53]   > ASI.fa-control-d.Next-seq-no
+"Next-seq-no" "Next-seq-no" ? ? "integer" ? ? ? ? ? ? yes ? no 12.4 yes ?
+     _FldNameList[54]   > ASI.fa-control-d.sort1-no
+"sort1-no" "sort1-no" ? ? "integer" ? ? ? ? ? ? yes ? no 9.2 yes ?
+     _FldNameList[55]   > ASI.fa-control-d.sort2-no
+"sort2-no" "sort2-no" ? ? "integer" ? ? ? ? ? ? yes ? no 9.2 yes ?
+     _FldNameList[56]   > ASI.fa-control-d.tag-no
+"tag-no" "tag-no" ? ? "integer" ? ? ? ? ? ? yes ? no 12 yes ?
+     _FldNameList[57]   > ASI.fa-control-d.tax-a-no
+"tax-a-no" "tax-a-no" ? ? "integer" ? ? ? ? ? ? yes ? no 12.4 yes ?
      _Design-Parent    is WINDOW dTables @ ( 1.14 , 2.6 )
 */  /* QUERY Query-Main */
 &ANALYZE-RESUME
@@ -336,9 +360,6 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN initializeObject.
   &ENDIF
-/*
-{src/sdoComProcs.i}
-*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

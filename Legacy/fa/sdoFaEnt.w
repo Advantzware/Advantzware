@@ -33,23 +33,11 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE cControl FA
-&SCOPED-DEFINE cEntity1 {&cControl}
-&SCOPED-DEFINE cEntity2
-&SCOPED-DEFINE cTable fa-entry
-&SCOPED-DEFINE lLarge FALSE
-&SCOPED-DEFINE initQuery ""
-&SCOPED-DEFINE initSort ""
-&SCOPED-DEFINE lJump TRUE
-&SCOPED-DEFINE keyField1 fa-entity
-&SCOPED-DEFINE keyType1 CHAR
-&SCOPED-DEFINE byEntity 
+/* Parameters Definitions ---                                           */
 
-DEF BUFFER bTable FOR {&cTable}.
-DEF VAR cKeyValue1 AS {&keyType1}.
-DEF VAR rFileRowid AS ROWID.
+/* Local Variable Definitions ---                                       */
 
-{src/asicommon.i}
+&glob DATA-LOGIC-PROCEDURE .p
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -95,7 +83,7 @@ hm-debit-amt Job-no method origin prd rev Seq-no trans-date yr
 &Scoped-Define MANDATORY-FIELDS  Currency-cod Entity-code Job-no Seq-no
 &Scoped-Define APPLICATION-SERVICE 
 &Scoped-Define ASSIGN-LIST 
-&Scoped-Define DATA-FIELD-DEFS "fa/sdoFaEntry.i"
+&Scoped-Define DATA-FIELD-DEFS "fa/sdoFaEnt.i"
 &Scoped-Define DATA-TABLE-NO-UNDO NO-UNDO
 &Scoped-define QUERY-STRING-Query-Main FOR EACH fa-entry NO-LOCK INDEXED-REPOSITION
 {&DB-REQUIRED-START}
@@ -237,8 +225,6 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN initializeObject.
   &ENDIF
-
-{src/sdoComProcs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

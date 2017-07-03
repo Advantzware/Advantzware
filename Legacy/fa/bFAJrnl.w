@@ -1,10 +1,10 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
 &ANALYZE-RESUME
 /* Connected Databases 
-          ptdb1            PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS bTableWin 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS bTable 
 /*------------------------------------------------------------------------
 
   File: adm2\src\browser.w
@@ -35,6 +35,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+{src/adm2/widgetprto.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -49,9 +51,9 @@ CREATE WIDGET-POOL.
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Target,Data-Target,Update-Source
 
 /* Include file with RowObject temp-table definition */
-&Scoped-define DATA-FIELD-DEFS "fa/sdoloc.i"
+&Scoped-define DATA-FIELD-DEFS "fa/sdofajrnl.i"
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
@@ -59,8 +61,9 @@ CREATE WIDGET-POOL.
 &Scoped-define INTERNAL-TABLES rowObject
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table location description room building ~
-work-center city state county entity Country-code 
+&Scoped-define FIELDS-IN-QUERY-br_table fa-entity Asset-code rev Trans-date ~
+Yr Prd Gl-code Debit-amt Credit-amt Currency-cod Explanation Entry-no ~
+Line-no method 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH rowObject
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH rowObject.
@@ -87,7 +90,7 @@ work-center city state county entity Country-code
 /* Definitions of the field level widgets                               */
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE TEMP-TABLE RowObject
+DEFINE TEMP-TABLE RowObject NO-UNDO
     {{&DATA-FIELD-DEFS}}
     {src/adm2/robjflds.i}.
 
@@ -97,31 +100,35 @@ DEFINE QUERY br_table FOR
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table bTableWin _STRUCTURED
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table bTable _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      location FORMAT "x(4)":U
-      description FORMAT "x(30)":U
-      room FORMAT "x(4)":U
-      building FORMAT "x(10)":U
-      work-center FORMAT "x(10)":U
-      city FORMAT "x(20)":U
-      state FORMAT "x(3)":U
-      county FORMAT "x(20)":U
-      entity FORMAT "x(8)":U
-      Country-code FORMAT "x(4)":U
+      fa-entity COLUMN-LABEL "Company" FORMAT "x(8)":U WIDTH 14.2
+      Asset-code FORMAT "x(8)":U WIDTH 22.2
+      rev FORMAT "yes/no":U WIDTH 9.2
+      Trans-date FORMAT "99/99/99":U WIDTH 15.2
+      Yr FORMAT ">>>9":U WIDTH 8.2
+      Prd FORMAT "99":U WIDTH 6.2
+      Gl-code FORMAT "x(8)":U WIDTH 13.2
+      Debit-amt FORMAT ">>,>>>,>>9.99":U WIDTH 24.2
+      Credit-amt FORMAT ">>,>>>,>>9.99":U WIDTH 20.2
+      Currency-cod FORMAT "x(3)":U
+      Explanation FORMAT "x(30)":U WIDTH 51.4
+      Entry-no FORMAT ">>>>9":U WIDTH 11.6
+      Line-no FORMAT ">>>9":U WIDTH 12.4
+      method FORMAT "x(4)":U WIDTH 5.2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN NO-AUTO-VALIDATE NO-ROW-MARKERS SEPARATORS SIZE 66 BY 6.67
-         BGCOLOR 8  EXPANDABLE.
+    WITH NO-ASSIGN NO-AUTO-VALIDATE NO-ROW-MARKERS SEPARATORS SIZE 219 BY 6.67
+         BGCOLOR 8 FONT 3 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     br_table AT ROW 1 COL 1
+     br_table AT ROW 1 COL 1 WIDGET-ID 200
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -129,7 +136,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartDataBrowser
-   Data Source: "fa/sdoloc.w"
+   Data Source: "fa\sdofajrnl.w"
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: Neither
@@ -150,14 +157,14 @@ END.
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
-  CREATE WINDOW bTableWin ASSIGN
-         HEIGHT             = 6.88
-         WIDTH              = 66.
+  CREATE WINDOW bTable ASSIGN
+         HEIGHT             = 6.86
+         WIDTH              = 219.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB bTableWin 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB bTable 
 /* ************************* Included-Libraries *********************** */
 
 {src/adm2/browser.i}
@@ -171,10 +178,10 @@ END.
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW bTableWin
+/* SETTINGS FOR WINDOW bTable
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -190,16 +197,33 @@ ASSIGN
 /* Query rebuild information for BROWSE br_table
      _TblList          = "rowObject"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _FldNameList[1]   = _<SDO>.rowObject.location
-     _FldNameList[2]   = _<SDO>.rowObject.description
-     _FldNameList[3]   = _<SDO>.rowObject.room
-     _FldNameList[4]   = _<SDO>.rowObject.building
-     _FldNameList[5]   = _<SDO>.rowObject.work-center
-     _FldNameList[6]   = _<SDO>.rowObject.city
-     _FldNameList[7]   = _<SDO>.rowObject.state
-     _FldNameList[8]   = _<SDO>.rowObject.county
-     _FldNameList[9]   = _<SDO>.rowObject.entity
-     _FldNameList[10]   = _<SDO>.rowObject.Country-code
+     _FldNameList[1]   > _<SDO>.rowObject.fa-entity
+"fa-entity" "Company" ? "character" ? ? ? ? ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > _<SDO>.rowObject.Asset-code
+"Asset-code" ? ? "character" ? ? ? ? ? ? no ? no no "22.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > _<SDO>.rowObject.rev
+"rev" ? ? "logical" ? ? ? ? ? ? no ? no no "9.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > _<SDO>.rowObject.Trans-date
+"Trans-date" ? ? "date" ? ? ? ? ? ? no ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > _<SDO>.rowObject.Yr
+"Yr" ? ? "integer" ? ? ? ? ? ? no ? no no "8.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > _<SDO>.rowObject.Prd
+"Prd" ? ? "integer" ? ? ? ? ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > _<SDO>.rowObject.Gl-code
+"Gl-code" ? ? "character" ? ? ? ? ? ? no ? no no "13.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > _<SDO>.rowObject.Debit-amt
+"Debit-amt" ? ? "decimal" ? ? ? ? ? ? no ? no no "24.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > _<SDO>.rowObject.Credit-amt
+"Credit-amt" ? ? "decimal" ? ? ? ? ? ? no ? no no "20.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   = _<SDO>.rowObject.Currency-cod
+     _FldNameList[11]   > _<SDO>.rowObject.Explanation
+"Explanation" ? ? "character" ? ? ? ? ? ? no ? no no "51.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[12]   > _<SDO>.rowObject.Entry-no
+"Entry-no" ? ? "integer" ? ? ? ? ? ? no ? no no "11.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[13]   > _<SDO>.rowObject.Line-no
+"Line-no" ? ? "integer" ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[14]   > _<SDO>.rowObject.method
+"method" ? ? "character" ? ? ? ? ? ? no ? no no "5.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -219,7 +243,7 @@ ASSIGN
 
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON CTRL-END OF br_table IN FRAME F-Main
 DO:
   APPLY "END":U TO BROWSE {&BROWSE-NAME}.
@@ -229,7 +253,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON CTRL-HOME OF br_table IN FRAME F-Main
 DO:
   APPLY "HOME":U TO BROWSE {&BROWSE-NAME}.
@@ -239,7 +263,17 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
+ON DEFAULT-ACTION OF br_table IN FRAME F-Main
+DO:
+  {src/adm2/brsdefault.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON END OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsend.i}
@@ -249,7 +283,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON HOME OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brshome.i}
@@ -259,7 +293,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON OFF-END OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsoffnd.i}
@@ -269,7 +303,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON OFF-HOME OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsoffhm.i}
@@ -279,7 +313,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsentry.i}
@@ -289,7 +323,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON ROW-LEAVE OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsleave.i}
@@ -299,7 +333,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON SCROLL-NOTIFY OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsscrol.i}
@@ -309,7 +343,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON VALUE-CHANGED OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brschnge.i}
@@ -321,7 +355,7 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK bTableWin 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK bTable 
 
 
 /* ***************************  Main Block  *************************** */
@@ -336,7 +370,7 @@ RUN initializeObject.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI bTableWin  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI bTable  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface

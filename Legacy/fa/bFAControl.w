@@ -1,10 +1,10 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
 &ANALYZE-RESUME
 /* Connected Databases 
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS bTableWin 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS bTable 
 /*------------------------------------------------------------------------
 
   File: adm2\src\browser.w
@@ -35,6 +35,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+{src/adm2/widgetprto.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -49,9 +51,9 @@ CREATE WIDGET-POOL.
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Target,Data-Target,Update-Source
 
 /* Include file with RowObject temp-table definition */
-&Scoped-define DATA-FIELD-DEFS "fa/sdoFaCtrl.i"
+&Scoped-define DATA-FIELD-DEFS "fa/sdofacontrol.i"
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
@@ -60,13 +62,7 @@ CREATE WIDGET-POOL.
 
 /* Definitions for BROWSE br_table                                      */
 &Scoped-define FIELDS-IN-QUERY-br_table FA-entity Entity-name Yr Prd ~
-Number-prd calc-mode aqui-service tag-update fa-gl-disp fa-gl-clear ~
-Currency-cod gl-installed Job-no last-ad last-prd not-used11 not-used12 ~
-not-used13 not-used14 not-used15 not-used16 not-used17 not-used18 ~
-not-used19 not-used110 not-used111 not-used112 not-used113 not-used21 ~
-not-used22 not-used23 not-used24 not-used25 not-used26 not-used27 ~
-not-used28 not-used29 not-used210 not-used211 not-used212 not-used213 ~
-state-fed View-login 
+Currency-cod fa-gl-clear fa-gl-disp calc-mode state-fed 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH rowObject
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH rowObject.
@@ -93,7 +89,7 @@ state-fed View-login
 /* Definitions of the field level widgets                               */
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE TEMP-TABLE RowObject
+DEFINE TEMP-TABLE RowObject NO-UNDO
     {{&DATA-FIELD-DEFS}}
     {src/adm2/robjflds.i}.
 
@@ -103,64 +99,30 @@ DEFINE QUERY br_table FOR
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table bTableWin _STRUCTURED
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table bTable _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      FA-entity FORMAT "x(8)":U WIDTH 11.43
-      Entity-name FORMAT "x(40)":U
-      Yr FORMAT ">>>9":U
-      Prd FORMAT "99":U
-      Number-prd FORMAT "99":U
-      calc-mode FORMAT "x(3)":U WIDTH 20.72
-      aqui-service FORMAT "Acquired/Service":U WIDTH 22.43
-      tag-update FORMAT "Yes/No":U WIDTH 11.43
-      fa-gl-disp FORMAT "x(8)":U WIDTH 13.57
-      fa-gl-clear FORMAT "x(8)":U WIDTH 13.43
-      Currency-cod FORMAT "x(3)":U
-      gl-installed FORMAT "yes/no":U
-      Job-no FORMAT "x(8)":U
-      last-ad FORMAT "99":U
-      last-prd FORMAT "99":U
-      not-used11 FORMAT "99/99/99":U
-      not-used12 FORMAT "99/99/99":U
-      not-used13 FORMAT "99/99/99":U
-      not-used14 FORMAT "99/99/99":U
-      not-used15 FORMAT "99/99/99":U
-      not-used16 FORMAT "99/99/99":U
-      not-used17 FORMAT "99/99/99":U
-      not-used18 FORMAT "99/99/99":U
-      not-used19 FORMAT "99/99/99":U
-      not-used110 FORMAT "99/99/99":U
-      not-used111 FORMAT "99/99/99":U
-      not-used112 FORMAT "99/99/99":U
-      not-used113 FORMAT "99/99/99":U
-      not-used21 FORMAT "99/99/99":U
-      not-used22 FORMAT "99/99/99":U
-      not-used23 FORMAT "99/99/99":U
-      not-used24 FORMAT "99/99/99":U
-      not-used25 FORMAT "99/99/99":U
-      not-used26 FORMAT "99/99/99":U
-      not-used27 FORMAT "99/99/99":U
-      not-used28 FORMAT "99/99/99":U
-      not-used29 FORMAT "99/99/99":U
-      not-used210 FORMAT "99/99/99":U
-      not-used211 FORMAT "99/99/99":U
-      not-used212 FORMAT "99/99/99":U
-      not-used213 FORMAT "99/99/99":U
-      state-fed FORMAT "x(1)":U
-      View-login FORMAT "yes/no":U
+      FA-entity COLUMN-LABEL "Company" FORMAT "x(8)":U WIDTH 12.2
+      Entity-name COLUMN-LABEL "Name" FORMAT "x(40)":U
+      Yr FORMAT ">>>9":U WIDTH 7.2
+      Prd FORMAT "99":U WIDTH 8.2
+      Currency-cod FORMAT "x(3)":U WIDTH 14.4
+      fa-gl-clear FORMAT "x(8)":U WIDTH 18.2
+      fa-gl-disp FORMAT "x(8)":U WIDTH 18.2
+      calc-mode FORMAT "x(3)":U WIDTH 26.2
+      state-fed FORMAT "x(1)":U WIDTH 39.4
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN NO-AUTO-VALIDATE NO-ROW-MARKERS SEPARATORS SIZE 66 BY 6.67
-         BGCOLOR 8 FONT 3 EXPANDABLE.
+    WITH NO-ASSIGN NO-AUTO-VALIDATE NO-ROW-MARKERS SEPARATORS SIZE 195 BY 6.67
+         BGCOLOR 8 FONT 3 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     br_table AT ROW 1 COL 1
+     br_table AT ROW 1 COL 1 WIDGET-ID 200
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -168,7 +130,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartDataBrowser
-   Data Source: "fa/sdoFaCtrl.w"
+   Data Source: "fa\sdofacontrol.w"
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: Neither
@@ -189,14 +151,14 @@ END.
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
-  CREATE WINDOW bTableWin ASSIGN
-         HEIGHT             = 6.88
-         WIDTH              = 66.
+  CREATE WINDOW bTable ASSIGN
+         HEIGHT             = 6.86
+         WIDTH              = 195.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB bTableWin 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB bTable 
 /* ************************* Included-Libraries *********************** */
 
 {src/adm2/browser.i}
@@ -210,10 +172,10 @@ END.
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW bTableWin
+/* SETTINGS FOR WINDOW bTable
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -230,54 +192,23 @@ ASSIGN
      _TblList          = "rowObject"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _FldNameList[1]   > _<SDO>.rowObject.FA-entity
-"FA-entity" ? ? "character" ? ? ? ? ? ? no ? no no "11.43" yes no no "U" "" ""
-     _FldNameList[2]   = _<SDO>.rowObject.Entity-name
-     _FldNameList[3]   = _<SDO>.rowObject.Yr
-     _FldNameList[4]   = _<SDO>.rowObject.Prd
-     _FldNameList[5]   = _<SDO>.rowObject.Number-prd
-     _FldNameList[6]   > _<SDO>.rowObject.calc-mode
-"calc-mode" ? ? "character" ? ? ? ? ? ? no ? no no "20.72" yes no no "U" "" ""
-     _FldNameList[7]   > _<SDO>.rowObject.aqui-service
-"aqui-service" ? ? "logical" ? ? ? ? ? ? no ? no no "22.43" yes no no "U" "" ""
-     _FldNameList[8]   > _<SDO>.rowObject.tag-update
-"tag-update" ? ? "logical" ? ? ? ? ? ? no ? no no "11.43" yes no no "U" "" ""
-     _FldNameList[9]   > _<SDO>.rowObject.fa-gl-disp
-"fa-gl-disp" ? ? "character" ? ? ? ? ? ? no ? no no "13.57" yes no no "U" "" ""
-     _FldNameList[10]   > _<SDO>.rowObject.fa-gl-clear
-"fa-gl-clear" ? ? "character" ? ? ? ? ? ? no ? no no "13.43" yes no no "U" "" ""
-     _FldNameList[11]   = _<SDO>.rowObject.Currency-cod
-     _FldNameList[12]   = _<SDO>.rowObject.gl-installed
-     _FldNameList[13]   = _<SDO>.rowObject.Job-no
-     _FldNameList[14]   = _<SDO>.rowObject.last-ad
-     _FldNameList[15]   = _<SDO>.rowObject.last-prd
-     _FldNameList[16]   = _<SDO>.rowObject.not-used11
-     _FldNameList[17]   = _<SDO>.rowObject.not-used12
-     _FldNameList[18]   = _<SDO>.rowObject.not-used13
-     _FldNameList[19]   = _<SDO>.rowObject.not-used14
-     _FldNameList[20]   = _<SDO>.rowObject.not-used15
-     _FldNameList[21]   = _<SDO>.rowObject.not-used16
-     _FldNameList[22]   = _<SDO>.rowObject.not-used17
-     _FldNameList[23]   = _<SDO>.rowObject.not-used18
-     _FldNameList[24]   = _<SDO>.rowObject.not-used19
-     _FldNameList[25]   = _<SDO>.rowObject.not-used110
-     _FldNameList[26]   = _<SDO>.rowObject.not-used111
-     _FldNameList[27]   = _<SDO>.rowObject.not-used112
-     _FldNameList[28]   = _<SDO>.rowObject.not-used113
-     _FldNameList[29]   = _<SDO>.rowObject.not-used21
-     _FldNameList[30]   = _<SDO>.rowObject.not-used22
-     _FldNameList[31]   = _<SDO>.rowObject.not-used23
-     _FldNameList[32]   = _<SDO>.rowObject.not-used24
-     _FldNameList[33]   = _<SDO>.rowObject.not-used25
-     _FldNameList[34]   = _<SDO>.rowObject.not-used26
-     _FldNameList[35]   = _<SDO>.rowObject.not-used27
-     _FldNameList[36]   = _<SDO>.rowObject.not-used28
-     _FldNameList[37]   = _<SDO>.rowObject.not-used29
-     _FldNameList[38]   = _<SDO>.rowObject.not-used210
-     _FldNameList[39]   = _<SDO>.rowObject.not-used211
-     _FldNameList[40]   = _<SDO>.rowObject.not-used212
-     _FldNameList[41]   = _<SDO>.rowObject.not-used213
-     _FldNameList[42]   = _<SDO>.rowObject.state-fed
-     _FldNameList[43]   = _<SDO>.rowObject.View-login
+"FA-entity" "Company" ? "character" ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > _<SDO>.rowObject.Entity-name
+"Entity-name" "Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > _<SDO>.rowObject.Yr
+"Yr" ? ? "integer" ? ? ? ? ? ? no ? no no "7.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > _<SDO>.rowObject.Prd
+"Prd" ? ? "integer" ? ? ? ? ? ? no ? no no "8.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > _<SDO>.rowObject.Currency-cod
+"Currency-cod" ? ? "character" ? ? ? ? ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > _<SDO>.rowObject.fa-gl-clear
+"fa-gl-clear" ? ? "character" ? ? ? ? ? ? no ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > _<SDO>.rowObject.fa-gl-disp
+"fa-gl-disp" ? ? "character" ? ? ? ? ? ? no ? no no "18.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > _<SDO>.rowObject.calc-mode
+"calc-mode" ? ? "character" ? ? ? ? ? ? no ? no no "26.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > _<SDO>.rowObject.state-fed
+"state-fed" ? ? "character" ? ? ? ? ? ? no ? no no "39.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -297,7 +228,7 @@ ASSIGN
 
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON CTRL-END OF br_table IN FRAME F-Main
 DO:
   APPLY "END":U TO BROWSE {&BROWSE-NAME}.
@@ -307,7 +238,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON CTRL-HOME OF br_table IN FRAME F-Main
 DO:
   APPLY "HOME":U TO BROWSE {&BROWSE-NAME}.
@@ -317,7 +248,17 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
+ON DEFAULT-ACTION OF br_table IN FRAME F-Main
+DO:
+  {src/adm2/brsdefault.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON END OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsend.i}
@@ -327,7 +268,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON HOME OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brshome.i}
@@ -337,7 +278,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON OFF-END OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsoffnd.i}
@@ -347,7 +288,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON OFF-HOME OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsoffhm.i}
@@ -357,7 +298,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsentry.i}
@@ -367,7 +308,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON ROW-LEAVE OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsleave.i}
@@ -377,7 +318,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON SCROLL-NOTIFY OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsscrol.i}
@@ -387,7 +328,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON VALUE-CHANGED OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brschnge.i}
@@ -399,7 +340,7 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK bTableWin 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK bTable 
 
 
 /* ***************************  Main Block  *************************** */
@@ -414,7 +355,7 @@ RUN initializeObject.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI bTableWin  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI bTable  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface

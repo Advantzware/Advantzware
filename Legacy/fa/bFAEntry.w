@@ -1,10 +1,10 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
 &ANALYZE-RESUME
 /* Connected Databases 
-          ptdb1            PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS bTableWin 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS bTable 
 /*------------------------------------------------------------------------
 
   File: adm2\src\browser.w
@@ -35,6 +35,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+{src/adm2/widgetprto.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -49,9 +51,9 @@ CREATE WIDGET-POOL.
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Target,Data-Target,Update-Source
 
 /* Include file with RowObject temp-table definition */
-&Scoped-define DATA-FIELD-DEFS "fa/sdodeptab.i"
+&Scoped-define DATA-FIELD-DEFS "fa/sdofaent.i"
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
@@ -59,11 +61,9 @@ CREATE WIDGET-POOL.
 &Scoped-define INTERNAL-TABLES rowObject
 
 /* Definitions for BROWSE br_table                                      */
-&Scoped-define FIELDS-IN-QUERY-br_table method Auto-sl Ratio Conv Manual ~
-soyd Depr1 Depr2 Depr3 Depr4 Depr5 Depr6 Depr7 Depr8 Depr9 Depr10 Depr11 ~
-Depr12 Depr13 Depr14 Depr15 Depr16 Depr17 Depr18 Depr19 Depr20 Depr21 ~
-Depr22 Depr23 Depr24 Depr25 Depr26 Depr27 Depr28 Depr29 Depr30 Depr31 ~
-Depr32 Depr33 Depr34 Depr35 Depr36 Depr37 Depr38 Depr39 Depr40 
+&Scoped-define FIELDS-IN-QUERY-br_table fa-entity asset-code rev trans-date ~
+yr prd gl-code debit-amt credit-amt Currency-cod Seq-no Explanation method ~
+origin 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH rowObject
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH rowObject.
@@ -90,7 +90,7 @@ Depr32 Depr33 Depr34 Depr35 Depr36 Depr37 Depr38 Depr39 Depr40
 /* Definitions of the field level widgets                               */
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
-DEFINE TEMP-TABLE RowObject
+DEFINE TEMP-TABLE RowObject NO-UNDO
     {{&DATA-FIELD-DEFS}}
     {src/adm2/robjflds.i}.
 
@@ -100,67 +100,35 @@ DEFINE QUERY br_table FOR
 
 /* Browse definitions                                                   */
 DEFINE BROWSE br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table bTableWin _STRUCTURED
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table bTable _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      method FORMAT "x(5)":U WIDTH 8.43
-      Auto-sl FORMAT "Straight line/Declining":U
-      Ratio FORMAT "9.99":U WIDTH 15.86
-      Conv FORMAT "x(3)":U
-      Manual FORMAT "yes/no":U WIDTH 9.43
-      soyd FORMAT "Yes/No":U
-      Depr1 COLUMN-LABEL "Yr 1" FORMAT ">>,>>>,>>9.99":U
-      Depr2 COLUMN-LABEL "Yr 2" FORMAT ">>,>>>,>>9.99":U
-      Depr3 COLUMN-LABEL "Yr 3" FORMAT ">>,>>>,>>9.99":U
-      Depr4 COLUMN-LABEL "Yr 4" FORMAT ">>,>>>,>>9.99":U
-      Depr5 COLUMN-LABEL "Yr 5" FORMAT ">>,>>>,>>9.99":U
-      Depr6 FORMAT ">>,>>>,>>9.99":U
-      Depr7 FORMAT ">>,>>>,>>9.99":U
-      Depr8 FORMAT ">>,>>>,>>9.99":U
-      Depr9 FORMAT ">>,>>>,>>9.99":U
-      Depr10 FORMAT ">>,>>>,>>9.99":U
-      Depr11 FORMAT ">>,>>>,>>9.99":U
-      Depr12 FORMAT ">>,>>>,>>9.99":U
-      Depr13 FORMAT ">>,>>>,>>9.99":U
-      Depr14 FORMAT ">>,>>>,>>9.99":U
-      Depr15 FORMAT ">>,>>>,>>9.99":U
-      Depr16 FORMAT ">>,>>>,>>9.99":U
-      Depr17 FORMAT ">>,>>>,>>9.99":U
-      Depr18 FORMAT ">>,>>>,>>9.99":U
-      Depr19 FORMAT ">>,>>>,>>9.99":U
-      Depr20 FORMAT ">>,>>>,>>9.99":U
-      Depr21 FORMAT ">>,>>>,>>9.99":U
-      Depr22 FORMAT ">>,>>>,>>9.99":U
-      Depr23 FORMAT ">>,>>>,>>9.99":U
-      Depr24 FORMAT ">>,>>>,>>9.99":U
-      Depr25 FORMAT ">>,>>>,>>9.99":U
-      Depr26 FORMAT ">>,>>>,>>9.99":U
-      Depr27 FORMAT ">>,>>>,>>9.99":U
-      Depr28 FORMAT ">>,>>>,>>9.99":U
-      Depr29 FORMAT ">>,>>>,>>9.99":U
-      Depr30 FORMAT ">>,>>>,>>9.99":U
-      Depr31 FORMAT ">>,>>>,>>9.99":U
-      Depr32 FORMAT ">>,>>>,>>9.99":U
-      Depr33 FORMAT ">>,>>>,>>9.99":U
-      Depr34 FORMAT ">>,>>>,>>9.99":U
-      Depr35 FORMAT ">>,>>>,>>9.99":U
-      Depr36 FORMAT ">>,>>>,>>9.99":U
-      Depr37 FORMAT ">>,>>>,>>9.99":U
-      Depr38 FORMAT ">>,>>>,>>9.99":U
-      Depr39 FORMAT ">>,>>>,>>9.99":U
-      Depr40 FORMAT ">>,>>>,>>9.99":U
+      fa-entity COLUMN-LABEL "Company" FORMAT "x(8)":U WIDTH 12.2
+      asset-code FORMAT "x(8)":U WIDTH 16.2
+      rev FORMAT "yes/no":U WIDTH 7.2
+      trans-date FORMAT "99/99/99":U WIDTH 14.2
+      yr FORMAT ">>>9":U WIDTH 6.2
+      prd FORMAT "99":U WIDTH 5.4
+      gl-code FORMAT "x(8)":U WIDTH 10
+      debit-amt FORMAT ">>,>>>,>>9.99":U WIDTH 19.2
+      credit-amt FORMAT ">>,>>>,>>9.99":U WIDTH 20.2
+      Currency-cod FORMAT "x(3)":U
+      Seq-no FORMAT ">>>>>>>>9.999":U
+      Explanation FORMAT "x(30)":U WIDTH 42.6
+      method FORMAT "x(4)":U WIDTH 9.8
+      origin COLUMN-LABEL "Origin" FORMAT "x(4)":U WIDTH 13.8
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN NO-AUTO-VALIDATE NO-ROW-MARKERS SEPARATORS SIZE 66 BY 6.67
-         BGCOLOR 8 FONT 3 EXPANDABLE.
+    WITH NO-ASSIGN NO-AUTO-VALIDATE NO-ROW-MARKERS SEPARATORS SIZE 217 BY 6.67
+         BGCOLOR 8 FONT 3 FIT-LAST-COLUMN.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     br_table AT ROW 1 COL 1
+     br_table AT ROW 1 COL 1 WIDGET-ID 200
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE .
+         AT COL 1 ROW 1 SCROLLABLE  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -168,7 +136,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartDataBrowser
-   Data Source: "fa/sdodeptab.w"
+   Data Source: "fa\sdofaent.w"
    Allow: Basic,Browse
    Frames: 1
    Add Fields to: Neither
@@ -189,14 +157,14 @@ END.
 
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
-  CREATE WINDOW bTableWin ASSIGN
-         HEIGHT             = 6.88
-         WIDTH              = 66.
+  CREATE WINDOW bTable ASSIGN
+         HEIGHT             = 6.86
+         WIDTH              = 218.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB bTableWin 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB bTable 
 /* ************************* Included-Libraries *********************** */
 
 {src/adm2/browser.i}
@@ -210,10 +178,10 @@ END.
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
-/* SETTINGS FOR WINDOW bTableWin
+/* SETTINGS FOR WINDOW bTable
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -229,60 +197,32 @@ ASSIGN
 /* Query rebuild information for BROWSE br_table
      _TblList          = "rowObject"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _FldNameList[1]   > _<SDO>.rowObject.method
-"method" ? ? "character" ? ? ? ? ? ? no ? no no "8.43" yes no no "U" "" ""
-     _FldNameList[2]   = _<SDO>.rowObject.Auto-sl
-     _FldNameList[3]   > _<SDO>.rowObject.Ratio
-"Ratio" ? ? "decimal" ? ? ? ? ? ? no ? no no "15.86" yes no no "U" "" ""
-     _FldNameList[4]   = _<SDO>.rowObject.Conv
-     _FldNameList[5]   > _<SDO>.rowObject.Manual
-"Manual" ? ? "logical" ? ? ? ? ? ? no ? no no "9.43" yes no no "U" "" ""
-     _FldNameList[6]   = _<SDO>.rowObject.soyd
-     _FldNameList[7]   > _<SDO>.rowObject.Depr1
-"Depr1" "Yr 1" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[8]   > _<SDO>.rowObject.Depr2
-"Depr2" "Yr 2" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[9]   > _<SDO>.rowObject.Depr3
-"Depr3" "Yr 3" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[10]   > _<SDO>.rowObject.Depr4
-"Depr4" "Yr 4" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[11]   > _<SDO>.rowObject.Depr5
-"Depr5" "Yr 5" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
-     _FldNameList[12]   = _<SDO>.rowObject.Depr6
-     _FldNameList[13]   = _<SDO>.rowObject.Depr7
-     _FldNameList[14]   = _<SDO>.rowObject.Depr8
-     _FldNameList[15]   = _<SDO>.rowObject.Depr9
-     _FldNameList[16]   = _<SDO>.rowObject.Depr10
-     _FldNameList[17]   = _<SDO>.rowObject.Depr11
-     _FldNameList[18]   = _<SDO>.rowObject.Depr12
-     _FldNameList[19]   = _<SDO>.rowObject.Depr13
-     _FldNameList[20]   = _<SDO>.rowObject.Depr14
-     _FldNameList[21]   = _<SDO>.rowObject.Depr15
-     _FldNameList[22]   = _<SDO>.rowObject.Depr16
-     _FldNameList[23]   = _<SDO>.rowObject.Depr17
-     _FldNameList[24]   = _<SDO>.rowObject.Depr18
-     _FldNameList[25]   = _<SDO>.rowObject.Depr19
-     _FldNameList[26]   = _<SDO>.rowObject.Depr20
-     _FldNameList[27]   = _<SDO>.rowObject.Depr21
-     _FldNameList[28]   = _<SDO>.rowObject.Depr22
-     _FldNameList[29]   = _<SDO>.rowObject.Depr23
-     _FldNameList[30]   = _<SDO>.rowObject.Depr24
-     _FldNameList[31]   = _<SDO>.rowObject.Depr25
-     _FldNameList[32]   = _<SDO>.rowObject.Depr26
-     _FldNameList[33]   = _<SDO>.rowObject.Depr27
-     _FldNameList[34]   = _<SDO>.rowObject.Depr28
-     _FldNameList[35]   = _<SDO>.rowObject.Depr29
-     _FldNameList[36]   = _<SDO>.rowObject.Depr30
-     _FldNameList[37]   = _<SDO>.rowObject.Depr31
-     _FldNameList[38]   = _<SDO>.rowObject.Depr32
-     _FldNameList[39]   = _<SDO>.rowObject.Depr33
-     _FldNameList[40]   = _<SDO>.rowObject.Depr34
-     _FldNameList[41]   = _<SDO>.rowObject.Depr35
-     _FldNameList[42]   = _<SDO>.rowObject.Depr36
-     _FldNameList[43]   = _<SDO>.rowObject.Depr37
-     _FldNameList[44]   = _<SDO>.rowObject.Depr38
-     _FldNameList[45]   = _<SDO>.rowObject.Depr39
-     _FldNameList[46]   = _<SDO>.rowObject.Depr40
+     _FldNameList[1]   > _<SDO>.rowObject.fa-entity
+"fa-entity" "Company" ? "character" ? ? ? ? ? ? no ? no no "12.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[2]   > _<SDO>.rowObject.asset-code
+"asset-code" ? ? "character" ? ? ? ? ? ? no ? no no "16.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[3]   > _<SDO>.rowObject.rev
+"rev" ? ? "logical" ? ? ? ? ? ? no ? no no "7.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[4]   > _<SDO>.rowObject.trans-date
+"trans-date" ? ? "date" ? ? ? ? ? ? no ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[5]   > _<SDO>.rowObject.yr
+"yr" ? ? "integer" ? ? ? ? ? ? no ? no no "6.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[6]   > _<SDO>.rowObject.prd
+"prd" ? ? "integer" ? ? ? ? ? ? no ? no no "5.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[7]   > _<SDO>.rowObject.gl-code
+"gl-code" ? ? "character" ? ? ? ? ? ? no ? no no "10" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[8]   > _<SDO>.rowObject.debit-amt
+"debit-amt" ? ? "decimal" ? ? ? ? ? ? no ? no no "19.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[9]   > _<SDO>.rowObject.credit-amt
+"credit-amt" ? ? "decimal" ? ? ? ? ? ? no ? no no "20.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[10]   = _<SDO>.rowObject.Currency-cod
+     _FldNameList[11]   = _<SDO>.rowObject.Seq-no
+     _FldNameList[12]   > _<SDO>.rowObject.Explanation
+"Explanation" ? ? "character" ? ? ? ? ? ? no ? no no "42.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[13]   > _<SDO>.rowObject.method
+"method" ? ? "character" ? ? ? ? ? ? no ? no no "9.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _FldNameList[14]   > _<SDO>.rowObject.origin
+"origin" "Origin" ? "character" ? ? ? ? ? ? no ? no no "13.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -302,7 +242,7 @@ ASSIGN
 
 &Scoped-define BROWSE-NAME br_table
 &Scoped-define SELF-NAME br_table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON CTRL-END OF br_table IN FRAME F-Main
 DO:
   APPLY "END":U TO BROWSE {&BROWSE-NAME}.
@@ -312,7 +252,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON CTRL-HOME OF br_table IN FRAME F-Main
 DO:
   APPLY "HOME":U TO BROWSE {&BROWSE-NAME}.
@@ -322,7 +262,17 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
+ON DEFAULT-ACTION OF br_table IN FRAME F-Main
+DO:
+  {src/adm2/brsdefault.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON END OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsend.i}
@@ -332,7 +282,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON HOME OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brshome.i}
@@ -342,7 +292,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON OFF-END OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsoffnd.i}
@@ -352,7 +302,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON OFF-HOME OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsoffhm.i}
@@ -362,7 +312,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON ROW-ENTRY OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsentry.i}
@@ -372,7 +322,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON ROW-LEAVE OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsleave.i}
@@ -382,7 +332,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON SCROLL-NOTIFY OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brsscrol.i}
@@ -392,7 +342,7 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTableWin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table bTable
 ON VALUE-CHANGED OF br_table IN FRAME F-Main
 DO:
   {src/adm2/brschnge.i}
@@ -404,7 +354,7 @@ END.
 
 &UNDEFINE SELF-NAME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK bTableWin 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK bTable 
 
 
 /* ***************************  Main Block  *************************** */
@@ -419,7 +369,7 @@ RUN initializeObject.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI bTableWin  _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI bTable  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
