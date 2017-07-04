@@ -23,6 +23,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+&GLOBAL-DEFINE summary-sheet 1
 DEFINE VARIABLE list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 
@@ -71,8 +72,29 @@ DEFINE NEW SHARED VARIABLE gEstSummaryOnly AS LOG NO-UNDO.
 DEFINE NEW SHARED BUFFER xest FOR est.
 DEFINE NEW SHARED BUFFER xef FOR ef.
 DEFINE NEW SHARED BUFFER xeb FOR eb.
+DEFINE NEW SHARED BUFFER xop FOR est-op.
+
 DEFINE BUFFER bf-probe FOR probe .
 DEFINE STREAM st-excel.
+
+DEFINE NEW SHARED VARIABLE chExcelApplication   AS COMPONENT-HANDLE                                             NO-UNDO.
+DEFINE NEW SHARED VARIABLE chWorkBook           AS COMPONENT-HANDLE                                                   NO-UNDO.
+DEFINE NEW SHARED VARIABLE chWorksheet          AS COMPONENT-HANDLE                                                   NO-UNDO.
+DEFINE NEW SHARED VARIABLE chHyper              AS COMPONENT-HANDLE                                                   NO-UNDO. 
+DEFINE VARIABLE v-cell                          AS CHARACTER                                                    NO-UNDO.
+DEFINE VARIABLE t-dwg                           AS CHARACTER                                                         NO-UNDO.
+DEFINE VARIABLE t-name                          AS CHARACTER FORMAT "x(40)" NO-UNDO.
+DEFINE VARIABLE t-fnd                           AS LOGICAL  INIT "False"    NO-UNDO.
+DEFINE VARIABLE t-seq                           AS INTEGER                                                              NO-UNDO.
+DEFINE VARIABLE inRowCount                      AS INTEGER                                                      NO-UNDO    INITIAL 1.
+DEFINE VARIABLE chFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE LvLineCnt AS INTEGER NO-UNDO.
+DEFINE VARIABLE CurrDir AS CHARACTER NO-UNDO.
+DEFINE VARIABLE LvCtr AS INTEGER NO-UNDO.
+DEFINE VARIABLE v-dir AS CHARACTER FORMAT "X(80)" NO-UNDO.
+DEFINE VARIABLE vcTemplateFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE row-count AS INTEGER INIT 6 NO-UNDO.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -85,18 +107,15 @@ DEFINE STREAM st-excel.
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS begin_cust-no end_cust-no begin_slsmn ~
+&Scoped-Define ENABLED-OBJECTS RECT-7 begin_cust-no end_cust-no begin_slsmn ~
 end_slsmn begin_est end_est begin_date end_date begin_date-2 end_date-2 ~
-tb_runExcel fi_file rd-dest lv-ornt lines-per-page lv-font-no ~
-td-show-parm btn-ok btn-cancel RECT-6 RECT-7 
+btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_slsmn ~
-end_slsmn begin_est end_est begin_date end_date begin_date-2 end_date-2 ~
-tb_runExcel fi_file rd-dest lv-ornt lines-per-page lv-font-no ~
-lv-font-name td-show-parm 
+end_slsmn begin_est end_est begin_date end_date begin_date-2 end_date-2 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -170,59 +189,9 @@ DEFINE VARIABLE end_slsmn AS CHARACTER FORMAT "XXX" INITIAL "zzz"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-cust-marging.csv" 
-     LABEL "If Yes, File Name" 
-     VIEW-AS FILL-IN 
-     SIZE 65 BY 1.
-
-DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
-     LABEL "Lines Per Page" 
-     VIEW-AS FILL-IN 
-     SIZE 4 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-font-name AS CHARACTER FORMAT "X(256)":U INITIAL "Courier New Size=7 (17 cpi for 132 column Report)" 
-     VIEW-AS FILL-IN 
-     SIZE 62 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-font-no AS CHARACTER FORMAT "X(256)":U INITIAL "11" 
-     LABEL "Font" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
-
-DEFINE VARIABLE lv-ornt AS CHARACTER INITIAL "P" 
-     VIEW-AS RADIO-SET HORIZONTAL
-     RADIO-BUTTONS 
-          "Portrait", "P",
-"Landscape", "L"
-     SIZE 30 BY .95 NO-UNDO.
-
-DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2 
-     VIEW-AS RADIO-SET VERTICAL
-     RADIO-BUTTONS 
-          "To Screen", 2,
-"To File", 3,
-"To Fax", 4,
-"To Email", 5,
-"To Port Directly", 6
-     SIZE 20 BY 6.19 NO-UNDO.
-
-DEFINE RECTANGLE RECT-6
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 94 BY 7.62.
-
 DEFINE RECTANGLE RECT-7
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 94 BY 11.43.
-              
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
-     LABEL "Auto Run Excel?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 21 BY 1 NO-UNDO.
-
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL YES 
-     LABEL "Show Parameters?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .81 NO-UNDO.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 94 BY 8.1.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -248,29 +217,16 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Date"
      end_date-2 AT ROW 6.95 COL 69 COLON-ALIGNED HELP
           "Enter Ending Date"
-     
-     tb_runExcel AT ROW 9.1 COL 43 RIGHT-ALIGNED
-     fi_file AT ROW 10.29 COL 21 COLON-ALIGNED HELP
-          "Enter File Name"
-     rd-dest AT ROW 13.38 COL 4 NO-LABELS
-     lv-ornt AT ROW 14.33 COL 31 NO-LABELS
-     lines-per-page AT ROW 14.33 COL 84 COLON-ALIGNED
-     lv-font-no AT ROW 15.76 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 16.71 COL 28 COLON-ALIGNED NO-LABELS
-     td-show-parm AT ROW 18.14 COL 30
-     btn-ok AT ROW 21 COL 26
-     btn-cancel AT ROW 21 COL 56
-     RECT-6 AT ROW 12.43 COL 1
-     RECT-7 AT ROW 1 COL 1
+     btn-ok AT ROW 10.29 COL 26
+     btn-cancel AT ROW 10.29 COL 56
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 12.67 COL 2
+     RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 94.4 BY 22.24.
+         SIZE 94.4 BY 12.29.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -290,7 +246,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Customer Margin Analysis"
-         HEIGHT             = 22.62
+         HEIGHT             = 13.1
          WIDTH              = 95.6
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -323,17 +279,7 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
-                                                                        */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
+   FRAME-NAME                                                           */
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -355,6 +301,14 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -374,26 +328,13 @@ ASSIGN
        end_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-ASSIGN 
-       fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
-/* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
-   NO-ENABLE                                                            */
-
-/* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
-   ALIGN-R                                                              */
-ASSIGN 
-       tb_runExcel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "parm".
-
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -401,7 +342,7 @@ THEN C-Win:HIDDEN = NO.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Estimates List w/Margins */
+ON END-ERROR OF C-Win /* Customer Margin Analysis */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -414,7 +355,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Estimates List w/Margins */
+ON WINDOW-CLOSE OF C-Win /* Customer Margin Analysis */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -492,7 +433,7 @@ END.
 
 &Scoped-define SELF-NAME begin_slsmn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_slsmn C-Win
-ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning SalesRep# */
+ON LEAVE OF begin_slsmn IN FRAME FRAME-A /* Beginning Sales Rep# */
 DO:
      ASSIGN {&self-name}.
 END.
@@ -523,10 +464,10 @@ DO:
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
 
-    IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    /*IF tb_runExcel THEN
+    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).*/
 
-  CASE rd-dest:
+  /*CASE rd-dest:
        WHEN 1 THEN RUN output-to-printer.
        WHEN 2 THEN RUN output-to-screen.
        WHEN 3 THEN RUN output-to-file.
@@ -559,7 +500,7 @@ DO:
            END.
        END. 
        WHEN 6 THEN RUN OUTPUT-to-port.
-  END CASE. 
+  END CASE.                           */
 
 END.
 
@@ -634,133 +575,9 @@ END.
 
 &Scoped-define SELF-NAME end_slsmn
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_slsmn C-Win
-ON LEAVE OF end_slsmn IN FRAME FRAME-A /* Ending SalesRep# */
+ON LEAVE OF end_slsmn IN FRAME FRAME-A /* Ending Sales Rep# */
 DO:
      ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fi_file
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON HELP OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
-DO:
-   DEFINE VARIABLE ls-filename AS cha NO-UNDO.
-   DEFINE VARIABLE ll-ok AS LOG NO-UNDO.
-
-   SYSTEM-DIALOG GET-FILE ls-filename 
-                 TITLE "Select File to Save "
-                 FILTERS "Excel Files    (*.csv)" "*.csv",
-                         "All Files    (*.*) " "*.*"
-                 INITIAL-DIR "c:\tmp"
-                 MUST-EXIST
-                 USE-FILENAME
-                 UPDATE ll-ok.
-
-    IF ll-ok THEN SELF:screen-value = ls-filename.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
-ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
-DO:
-     ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME lines-per-page
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
-ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
-DO:
-  ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME lv-font-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
-ON HELP OF lv-font-no IN FRAME FRAME-A /* Font */
-DO:
-    DEFINE VARIABLE char-val AS cha NO-UNDO.
-
-    RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
-                                  LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
-ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
-DO:
-   ASSIGN lv-font-no.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME lv-ornt
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
-ON LEAVE OF lv-ornt IN FRAME FRAME-A
-DO:
-  ASSIGN lv-ornt.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-ornt C-Win
-ON VALUE-CHANGED OF lv-ornt IN FRAME FRAME-A
-DO:
-  {custom/chgfont.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME rd-dest
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
-ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
-DO:
-  ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tb_runExcel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
-ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
-DO:
-  ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME td-show-parm
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
-ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
-DO:
-    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -848,14 +665,10 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_slsmn end_slsmn begin_est end_est 
-          begin_date end_date begin_date-2 end_date-2 tb_runExcel 
-          fi_file rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
-          td-show-parm 
+          begin_date end_date begin_date-2 end_date-2 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE begin_cust-no end_cust-no begin_slsmn end_slsmn begin_est end_est 
-         begin_date end_date begin_date-2 end_date-2 tb_runExcel 
-         fi_file rd-dest lv-ornt lines-per-page lv-font-no td-show-parm btn-ok 
-         btn-cancel RECT-6 RECT-7 
+  ENABLE RECT-7 begin_cust-no end_cust-no begin_slsmn end_slsmn begin_est 
+         end_est begin_date end_date begin_date-2 end_date-2 btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -885,7 +698,7 @@ PROCEDURE output-to-port :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-RUN custom/d-print.w (fi_file).
+/*RUN custom/d-print.w (fi_file).*/
 
 END PROCEDURE.
 
@@ -913,7 +726,7 @@ PROCEDURE output-to-printer :
                             INPUT 3, INPUT 1, INPUT 0, INPUT 0, OUTPUT result).
                           /* font #*/ /* use-dialog(1) and landscape(2) */
                           */
- RUN custom/prntproc.p (fi_file,int(lv-font-no),lv-ornt).
+ /*RUN custom/prntproc.p (fi_file,int(lv-font-no),lv-ornt).*/
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -952,9 +765,60 @@ DEFINE VARIABLE ld-mar AS DECIMAL FORMAT "->>,>>>,>>9.99" EXTENT 7 NO-UNDO.
 DEFINE VARIABLE ld-pct AS DECIMAL NO-UNDO.
 DEFINE VARIABLE k_frac AS DECIMAL INIT "6.25" NO-UNDO.
 DEFINE VARIABLE v-tons AS DECIMAL NO-UNDO .
-DEFINE VARIABLE derpmargin AS DECIMAL NO-UNDO .
-DEFINE VARIABLE destcost AS DECIMAL NO-UNDO .
+DEFINE VARIABLE qm AS DECIMAL.
+DEFINE VARIABLE lv-eqty LIKE est-op.qty NO-UNDO.
+DEFINE VARIABLE v-brd-cost AS DECIMAL NO-UNDO.
+DEFINE VARIABLE CALL_id AS RECID NO-UNDO.
 DEFINE BUFFER reftable-fm FOR reftable.
+DEFINE BUFFER probe-ref FOR reftable.
+ASSIGN row-count = 6 .
+
+/**************************** Excel Initilization Starts *********************************/
+
+FIND FIRST users WHERE
+     users.user_id EQ USERID("NOSWEAT")
+     NO-LOCK NO-ERROR.
+
+IF AVAILABLE users AND users.user_program[2] NE "" THEN
+   v-dir = users.user_program[2] + "\".
+ELSE
+   v-dir = "c:\tmp\".
+
+/* Connect to the running Excel session. */
+  CREATE "Excel.Application" chExcelApplication.
+
+  FILE-INFO:FILE-NAME = "template\CustMarginAnalysis.xlt". /* CustMarginAnalysis*/
+
+  /* Set the Excel Template to be used. */
+  ASSIGN chFile = SEARCH (FILE-INFO:FULL-PATHNAME) no-error.
+  
+  IF SEARCH (chFile) = ? THEN DO:
+    MESSAGE 'Spreadsheet File: ' FILE-INFO:FULL-PATHNAME
+            'cannot be found. Please verify that the file exists.'
+      VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
+    APPLY 'CLOSE':U TO THIS-PROCEDURE.
+  END.
+
+  /* Make Excel visible. */
+  ASSIGN
+     chFile = FILE-INFO:FULL-PATHNAME.
+
+
+ /* Open our Excel Template. */  
+  ASSIGN chWorkbook = chExcelApplication:Workbooks:Open(chfile)  no-error.
+
+  chExcelApplication:VISIBLE = TRUE.
+  
+  /* Do not display Excel error messages. */
+  chExcelApplication:DisplayAlerts = FALSE  NO-ERROR.
+  
+  /* Disable screen updating so it will go faster */
+  chExcelApplication:ScreenUpdating = FALSE.
+
+  chWorkbook:WorkSheets({&summary-sheet}):Activate NO-ERROR.
+   ASSIGN
+     chWorkSheet = chExcelApplication:Sheets:item({&summary-sheet})  .
+/**************************** Excel Initilization End *********************************/
 
 
 ASSIGN
@@ -966,25 +830,14 @@ ASSIGN
 
 {sys/inc/print1.i}
 
-{sys/inc/outprint.i  VALUE(lines-per-page)}
-
-
-  OUTPUT STREAM st-excel TO VALUE(fi_file).
-  PUT STREAM st-excel UNFORMATTED
-      ",,Estimate # /,,,Board Cost /,Board Cost /,,,,,,ERP Margin,ERP Margin,,Est. Margin,Est. Margin ,,,,," +
-      ","
-      SKIP
-      "Customer,Date, Order #,Selling Price,Board Tons, Ton (ERP),Ton (Actual)," +
-      "Board Pad,GSA MU B,GSA MU M,GSA Labor,ERP Cost,($),(%)," +
-      "Est. Cost,($),(%)" 
-      SKIP.
+{sys/inc/outprint.i  VALUE(74)}
 
 SESSION:SET-WAIT-STATE ("general").
 
-IF td-show-parm THEN RUN show-param.
+/*IF td-show-parm THEN RUN show-param.*/
 
 VIEW FRAME r-top.
-
+MAIN-LOOP:
 FOR EACH est NO-LOCK
     WHERE est.company  EQ cocode
       AND est.est-no   GE fest
@@ -1028,12 +881,51 @@ FOR EACH est NO-LOCK
           BY probe.probe-time:
 
     {custom/statusMsg.i " 'Processing Estimate#:  '  + eb.est-no  "}
+        FIND FIRST job-hdr NO-LOCK 
+             WHERE job-hdr.company EQ cocode
+               AND job-hdr.est-no EQ est.est-no NO-ERROR .
+    
+    IF NOT AVAILABLE job-hdr THEN  NEXT MAIN-LOOP .
 
   IF LAST-OF(probe.est-qty) THEN DO:
+
+    FOR EACH kli:
+        DELETE kli.
+    END.
+
+    FOR EACH ink:
+        DELETE ink.
+    END.
+
+    FOR EACH flm:
+        DELETE flm.
+    END.
+
+    FOR EACH cas:
+        DELETE cas.
+    END.
+    
+    FOR EACH car:
+        DELETE car.
+    END.
+    
+    FOR EACH brd:
+        DELETE brd.
+    END.
+
+    FOR EACH blk:
+        DELETE blk.
+    END.
+
+    FOR EACH xjob:
+        DELETE xjob.
+    END.
+
+
     
     li-colors =  0.
-    derpmargin = 0 .
-    destcost   = 0.
+    op-tot    =  0.
+    v-tons    =  0.
     
     RELEASE probeit.
     IF est.est-type EQ 3 OR est.est-type EQ 4 OR
@@ -1069,6 +961,110 @@ FOR EACH est NO-LOCK
     FIND xef  NO-LOCK WHERE RECID(xef) = recid(ef)  NO-ERROR.
     FIND xeb  NO-LOCK WHERE RECID(xeb) = recid(eb)  NO-ERROR.
 
+    DO TRANSACTION:
+        FOR EACH est-op
+            WHERE est-op.company EQ xest.company 
+            AND est-op.est-no  EQ xest.est-no
+            AND est-op.line    GT 500:
+            DELETE est-op.
+         END.
+         FOR EACH est-op
+             WHERE est-op.company EQ xest.company
+             AND est-op.est-no  EQ xest.est-no
+             AND est-op.line    LT 500
+             BY est-op.qty:
+             lv-eqty = est-op.qty.
+             LEAVE.
+          END.
+          FOR EACH est-op
+              WHERE est-op.company EQ xest.company 
+              AND est-op.est-no  EQ xest.est-no
+              AND est-op.qty     EQ lv-eqty
+              AND est-op.line    LT 500:
+              CREATE xop.
+              BUFFER-COPY est-op EXCEPT rec_key TO xop.
+              xop.line = est-op.line + 500.
+          END.
+      END.
+
+
+    /* run ce/com/prokalk.p.*/
+    FOR EACH xef WHERE xef.company = xest.company
+                   AND xef.est-no EQ xest.est-no:
+    
+       xxx = 0.
+       FOR EACH xeb WHERE xeb.company = xest.company
+                   AND xeb.est-no EQ xest.est-no AND xeb.form-no = xef.form-no
+           BY xeb.blank-no:
+          FIND FIRST kli WHERE kli.cust-no = xeb.cust-no NO-ERROR.
+          IF NOT AVAILABLE kli THEN DO:
+             FIND FIRST sman   WHERE sman.company = cocode AND  
+                                     sman.sman    = xeb.sman NO-LOCK NO-ERROR.
+             FIND FIRST cust   WHERE   cust.company = cocode AND
+                                       cust.cust-no = xeb.cust-no NO-LOCK NO-ERROR.
+             FIND FIRST shipto WHERE shipto.company = cust.company AND
+                                     shipto.cust-no = cust.cust-no AND
+                                     shipto.ship-id = xeb.ship-id NO-LOCK NO-ERROR.
+             CREATE kli.
+             IF AVAILABLE sman THEN ASSIGN kli.sman    = sman.sman
+                                         kli.sname   = sman.sname.
+             IF xeb.cust-no NE "Temp" THEN ASSIGN
+             kli.cust-no = xeb.cust-no
+             kli.cust-add[1] = cust.name
+             kli.cust-add[2] = cust.addr[1]
+             kli.cust-add[3] = cust.addr[2]
+             kli.cust-add[4] = cust.city + ", " + cust.state + " " + cust.zip.
+             ELSE ASSIGN
+             kli.cust-no = xeb.cust-no
+             kli.cust-add[1] = xeb.ship-name
+             kli.cust-add[2] = xeb.ship-addr[1]
+             kli.cust-add[3] = xeb.ship-addr[2]
+             kli.cust-add[4] = xeb.ship-city + ", " + xeb.ship-state + " " +
+                               xeb.ship-zip.
+    
+             IF kli.cust-add[3] = "" THEN ASSIGN
+                kli.cust-add[3] = kli.cust-add[4] kli.cust-add[4] = "".
+             IF kli.cust-add[2] = "" THEN ASSIGN
+                kli.cust-add[2] = kli.cust-add[3] kli.cust-add[3] = kli.cust-add[4]
+                kli.cust-add[4] = "".
+             ASSIGN
+             kli.ship-add[1] = shipto.ship-name
+             kli.ship-add[2] = shipto.ship-addr[1]
+             kli.ship-add[3] = shipto.ship-addr[2]
+             kli.ship-add[4] = shipto.ship-city + ", " + shipto.ship-state +
+                                                             " " + shipto.ship-zip.
+             IF kli.ship-add[3] = "" THEN
+             ASSIGN kli.ship-add[3] = kli.ship-add[4] kli.ship-add[4] = "".
+             IF kli.ship-add[2] = "" THEN
+             ASSIGN kli.ship-add[2] = kli.ship-add[3]
+                    kli.ship-add[3] = kli.ship-add[4] kli.ship-add[4] = "".
+          END.
+          FIND FIRST blk WHERE blk.snum = xeb.form-no AND
+                               blk.bnum = xeb.blank-no NO-ERROR.
+          IF NOT AVAILABLE blk THEN DO:
+             CREATE blk.
+             ASSIGN
+              blk.kli      = kli.cust-no
+              blk.id       = xeb.part-no
+              blk.snum     = xeb.form-no
+              blk.bnum     = xeb.blank-no
+              blk.qreq     = xeb.bl-qty
+              blk.qyld     = xeb.yld-qty
+              blk.yr$      = xeb.yrprice
+              blk.stock-no = xeb.stock-no.
+          END.
+          xxx = xxx + (xeb.t-sqin * xeb.num-up).
+       END.
+       FOR EACH xeb WHERE xeb.company = xest.company
+                      AND xeb.est-no EQ xest.est-no
+                      AND xeb.form-no EQ xef.form-no NO-LOCK,
+           FIRST blk  WHERE blk.snum EQ xeb.form-no
+                        AND blk.bnum EQ xeb.blank-no:
+           blk.pct = (xeb.t-sqin * xeb.num-up) / xxx.
+       END.
+    END.
+    
+
     ASSIGN t-blksht = 0
            tt-blk   = 0
            t-blkqty = 0
@@ -1092,8 +1088,13 @@ FOR EACH est NO-LOCK
         ctrl[17] = int(ce-ctrl.spec-add[7])
         ctrl[18] = int(ce-ctrl.spec-add[8]).
 
-
+    FOR EACH xef WHERE xef.company = xest.company
+               AND xef.est-no EQ xest.est-no
+               BREAK BY xef.form-no :
     FOR EACH xeb OF xef BY xeb.blank-no:
+
+      FIND FIRST item {sys/look/itemW.i} AND item.i-no = xef.board NO-LOCK NO-ERROR.
+      IF AVAILABLE item THEN FIND FIRST e-item OF item NO-LOCK NO-ERROR.
       /* set total # of blanks on all forms */
 
       ASSIGN
@@ -1109,7 +1110,7 @@ FOR EACH est NO-LOCK
       {sys/inc/roundup.i zzz}
       ASSIGN
       t-shtfrm[xeb.form-no] = zzz
-      /*call_id = recid(xeb)*/
+      call_id = RECID(xeb)
       vbsf = vbsf + IF v-corr THEN (xeb.t-sqin * .007) ELSE (xeb.t-sqin / 144)
       brd-l[4]  = xeb.t-len
       brd-w[4]  = xeb.t-wid
@@ -1118,19 +1119,88 @@ FOR EACH est NO-LOCK
       brd-wu[4] = brd-sf[4] * item.basis-w.
      
    END.
-   
+   FIND xeb WHERE RECID(xeb) = call_id NO-LOCK NO-ERROR. qty = xeb.yld-qty.
 
+   RUN ce/com/prokalk.p.
+
+    v-tons = v-tons + (IF v-corr THEN (xef.gsh-len * xef.gsh-wid * .007)
+                          ELSE (xef.gsh-len * xef.gsh-wid / 144) ) * xef.gsh-qty  / 1000 * item.basis-w / 2000 .
+ 
    qty = IF eb.yrprice /*AND NOT ll-tandem*/ THEN eb.yld-qty ELSE eb.bl-qty.
    
-   {est/calcpcts.i est}
+   
    dm-tot[3] = 0. dm-tot[4] = 0. dm-tot[5] = 0.
+    
+   /* b o a r d        */  RUN ce/com/pr4-brd.p ("").
+     
+   /* i n k s          */ RUN ce/com/pr4-ink.p.
+    
+      /* film             */ RUN ce/com/pr4-flm.p.
+    
+      /* case/tray/pallet */ RUN ce/com/pr4-cas.p.
+     
+      /* special          */ RUN ce/com/pr4-spe.p.
+      
 
-   RUN ce/com/pr4-brd.p ("").
-   /* mat */
-      ctrl[9] = ce-ctrl.mat-pct[1] .
-   /* lab */
-      ctrl[10] = ce-ctrl.lab-pct[1] .
+    END. /* for each xef */
+
+
+
+      qm = probe.est-qty / 1000.
+
+      v-brd-cost = v-brd-cost + dm-tot[5].
+      FOR EACH blk:
+          FIND FIRST xjob
+              WHERE xjob.i-no     EQ blk.id
+              AND xjob.form-no  EQ blk.snum
+              AND xjob.blank-no EQ blk.bnum
+              NO-ERROR.
+
+          IF NOT AVAILABLE xjob THEN DO:
+              CREATE xjob.
+              ASSIGN
+                  xjob.form-no  = blk.snum
+                  xjob.blank-no = blk.bnum
+                  xjob.cust-no  = blk.kli.
+          END.
+
+          ASSIGN
+              xjob.mat      = blk.cost - blk.lab
+              xjob.lab      = blk.lab
+              xjob.i-no     = blk.id
+              xjob.pct      = blk.pct
+              xjob.stock-no = blk.stock-no.
+     END.
+       
+      /* prep      */ RUN ce/com/pr4-prp.p.
+      
+      
+      /* machines */ RUN ce/com/pr4-mch.p.
+
+      IF ctrl2[2] NE 0 OR ctrl2[3] NE 0 THEN DO:
+          op-tot[5] = op-tot[5] + (ctrl2[2] + ctrl2[3]).
+      END.
   
+   
+   /* mat */
+   DO i = 1 TO 6:
+      ctrl[9] = ce-ctrl.mat-pct[i] / 100.
+      IF ce-ctrl.mat-cost[i] > dm-tot[5]  THEN LEAVE.
+   END.
+
+    /* lab */
+   DO i = 1 TO 6:
+      ctrl[10] = ce-ctrl.lab-pct[i] / 100.
+      IF ce-ctrl.lab-cost[i] > op-tot[5]  THEN LEAVE.
+   END.
+   
+  DO TRANSACTION:
+     {est/calcpcts.i xest}
+     ASSIGN
+      calcpcts.val[1] = ctrl[9] * 100
+      calcpcts.val[2] = v-brd-cost.
+     FIND CURRENT calcpcts NO-LOCK NO-ERROR.
+   END.
   ASSIGN
        gsa-mat = ctrl[9]  * 100
        gsa-lab = ctrl[10] * 100
@@ -1149,10 +1219,29 @@ FOR EACH est NO-LOCK
        gsa-fm = reftable-fm.val[1].
    ELSE
        gsa-fm = ctrl[19].
+
+    
+       ASSIGN
+        gsa-mat = probe.gsa-mat
+        gsa-lab = probe.gsa-lab .
+
+       FIND FIRST probe-ref NO-LOCK
+          WHERE probe-ref.reftable EQ "probe-ref"
+            AND probe-ref.company  EQ probe.company
+            AND probe-ref.loc      EQ ""
+            AND probe-ref.code     EQ probe.est-no
+            AND probe-ref.code2    EQ STRING(probe.line,"9999999999")
+          NO-ERROR.
+      IF AVAILABLE probe-ref THEN 
+          DO TRANSACTION:
+            FIND CURRENT calcpcts NO-ERROR.
+            calcpcts.val[1] = probe-ref.val[1] .
+            FIND CURRENT calcpcts NO-LOCK NO-ERROR.
+          END.
    
    ASSIGN
-       ctrl[9]  = gsa-mat / 100
-       ctrl[10] = gsa-lab / 100
+       ctrl[9]  = gsa-mat / 100 
+       ctrl[10] = gsa-lab / 100 
        ctrl[1]  = gsa-war / 100
        ctrl[19] = gsa-fm / 100.
    
@@ -1165,12 +1254,7 @@ FOR EACH est NO-LOCK
 
    IF ctrl2[9] EQ ? THEN ctrl2[9] = 0.
    IF ctrl2[10] EQ ? THEN ctrl2[10] = 0.
-    v-tons = (IF v-corr THEN (ef.gsh-len * ef.gsh-wid * .007)
-                          ELSE (ef.gsh-len * ef.gsh-wid / 144) ) * probe.gsh-qty  / 1000 * item.basis-w / 2000 .
-   
-    derpmargin = (probe.sell-price - probe.full-cost) .
-    destcost   = probe.full-cost - (0 + calcpcts.val[2] + ctrl2[9] + ctrl2[10]) .
-    IF v-tons EQ ? THEN v-tons = 0 .
+   IF v-tons EQ ? THEN v-tons = 0 .
 
     DISPLAY eb.cust-no            FORMAT "x(8)" COLUMN-LABEL "Customer"
             est.est-date           COLUMN-LABEL "date"
@@ -1184,41 +1268,63 @@ FOR EACH est NO-LOCK
             calcpcts.val[2]        COLUMN-LABEL "GSA MU B"
             ctrl2[9]               COLUMN-LABEL "GSA MU M"
             ctrl2[10]              COLUMN-LABEL "GSA Labor"
-            probe.full-cost              COLUMN-LABEL "ERP Cost"
-            derpmargin                 COLUMN-LABEL "ERP Margin ($)"
-            derpmargin * 100 / probe.sell-price           COLUMN-LABEL "ERP Margin (%)"
-            destcost              COLUMN-LABEL "Est. Cost"
-             probe.sell-price - destcost            COLUMN-LABEL "Est. Margin ($)"
-            (probe.sell-price - destcost) * 100 /  probe.sell-price            COLUMN-LABEL "Est. Margin (%)"
+            probe.full-cost * qm             COLUMN-LABEL "ERP Cost"
+            ""                    COLUMN-LABEL "ERP Margin ($)"
+            ""           COLUMN-LABEL "ERP Margin (%)"
+            ""              COLUMN-LABEL "Est. Cost"
+            ""           COLUMN-LABEL "Est. Margin ($)"
+            ""            COLUMN-LABEL "Est. Margin (%)"
            
 
            WITH FRAME est DOWN NO-BOX STREAM-IO WIDTH 300.
-
-    
-      PUT STREAM st-excel UNFORMATTED
-          '"'   eb.cust-no                '",'
-          '"'   est.est-date              '",'
-          '"'   TRIM(eb.est-no)           '",'
-          '"'   probe.sell-price          '",' 
-          '"'   v-tons                    '",' 
-          '"'   probe.full-cost           '",'
-          '"'   ""           '",'
-          '"'   ""           '",' 
-          '"'   calcpcts.val[2]                        '",'    
-          '"'   ctrl2[9]                               '",' 
-          '"'   ctrl2[10]                              '",'  
-          '"'   probe.full-cost                        '",' 
-          '"'   derpmargin                             '",'            
-          '"'   derpmargin * 100 / probe.sell-price FORMAT "->>>9.99%"   '",'             
-          '"'   destcost                               '",'        
-          '"'    probe.sell-price - destcost           '",'       
-          '"'   (probe.sell-price - destcost) * 100 /  probe.sell-price  FORMAT "->>>9.99%"          '",'        
+        
+    ASSIGN
+          chWorkSheet:Range("C" + STRING(row-count)):VALUE = eb.cust-no .
+          chWorkSheet:Range("D" + STRING(row-count)):VALUE = est.est-date .
+          chWorkSheet:Range("E" + STRING(row-count)):VALUE = TRIM(eb.est-no) .
+          chWorkSheet:Range("F" + STRING(row-count)):VALUE = STRING(probe.sell-price, "->>>>>>>9.99") .
+          chWorkSheet:Range("G" + STRING(row-count)):VALUE = STRING(v-tons, "->>9.99999") .
+          chWorkSheet:Range("H" + STRING(row-count)):VALUE = STRING(probe.full-cost, "->>>>>>>9.99") .
+          /*chWorkSheet:Range("I" + STRING(row-count)):VALUE = "" .*/
+          /*chWorkSheet:Range("J" + STRING(row-count)):VALUE = "" .*/
+          chWorkSheet:Range("K" + STRING(row-count)):VALUE =  calcpcts.val[2] .
+          chWorkSheet:Range("L" + STRING(row-count)):VALUE = ctrl2[9] .
+          chWorkSheet:Range("M" + STRING(row-count)):VALUE = ctrl2[10]  .
+          chWorkSheet:Range("N" + STRING(row-count)):VALUE = probe.full-cost * qm .
+          /*chWorkSheet:Range("O" + STRING(row-count)):VALUE = "" .
+          chWorkSheet:Range("P" + STRING(row-count)):VALUE = "" .
+          chWorkSheet:Range("Q" + STRING(row-count)):VALUE = "" .
+          chWorkSheet:Range("R" + STRING(row-count)):VALUE = "" .
+          chWorkSheet:Range("S" + STRING(row-count)):VALUE = "" .*/
           
-          SKIP.
-  END.
+
+           row-count = row-count + 1 .
+    
+      END.
 END.
 
-OUTPUT STREAM st-excel CLOSE.
+chWorkSheet:Range ("A" + string(row-count) + "..S1020" ):delete     NO-ERROR.
+
+/*OUTPUT STREAM st-excel CLOSE.*/
+/* RELEASE OBJECTS */
+
+/* size the columns automatically */
+  chWorkbook:WorkSheets({&summary-sheet}):Columns("D:I"):AutoFit.
+  
+
+  /* let the user in */
+  ASSIGN chExcelApplication:VISIBLE = TRUE.
+  chWorkbook:WorkSheets({&summary-sheet}):Activate NO-ERROR.
+
+  ASSIGN
+     chWorkSheet = chExcelApplication:Sheets:item({&summary-sheet})
+     /* enable screen updating */
+     chExcelApplication:ScreenUpdating = TRUE.
+
+
+  RELEASE OBJECT chWorkbook         NO-ERROR.
+  RELEASE OBJECT chWorkSheet        NO-ERROR.
+  RELEASE OBJECT chExcelApplication NO-ERROR.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
