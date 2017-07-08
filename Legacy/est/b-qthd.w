@@ -910,7 +910,7 @@ IF sortColumn EQ 'Item Description' THEN quoteitm.part-dscr1 ELSE ~
 IF sortColumn EQ 'Updated Date'     THEN STRING(YEAR(quotehd.upd-date),"9999") + STRING(MONTH(quotehd.upd-date),"99") + STRING(DAY(quotehd.upd-date),"99")   ELSE ~
 IF sortColumn EQ 'Updated User'     THEN quotehd.upd-user   ELSE ~
 STRING(quotehd.q-no,'>>>>>9') ~{&SORTED}
-MESSAGE "sortColumn  " STRING(sortColumn) VIEW-AS ALERT-BOX ERROR.
+
 &SCOPED-DEFINE openQuery ~
   OPEN QUERY {&BROWSE-NAME} ~
     FOR EACH quotehd NO-LOCK ~
