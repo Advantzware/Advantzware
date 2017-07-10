@@ -178,7 +178,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -215,7 +214,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -231,7 +230,7 @@ DO:
     IF tb_cpywhbn:SCREEN-VALUE EQ "YES" THEN
         ip-whbn = YES .
     ELSE ip-whbn = NO .
-
+       
     IF tb_cpyspcnts:SCREEN-VALUE EQ "YES" THEN do:
         ASSIGN
             ip-cpyspc = YES 
@@ -296,7 +295,7 @@ DO:
             ip-endspc = "" .
 
  RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-
+     
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -361,7 +360,7 @@ DEF VAR ll-tandem AS LOG NO-UNDO.
     RUN enable_UI.
 
 /*{methods/nowait.i}*/
-
+    
  /* IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE. */
 END.
@@ -465,7 +464,7 @@ PROCEDURE local-initialize :
       {custom/usrprint.i}
           APPLY "entry" TO begin_spec.
   END.
-
+  
   IF tb_cpyspcnts:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "Yes" THEN
       ASSIGN
       begin_spec:SENSITIVE IN FRAME {&FRAME-NAME} = YES

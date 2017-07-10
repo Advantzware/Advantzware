@@ -113,7 +113,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -144,7 +143,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -287,7 +286,7 @@ PROCEDURE Allow-Create :
   DEFINE OUTPUT PARAMETER op-flag AS LOGICAL NO-UNDO.
 
   op-flag = yes.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -396,7 +395,7 @@ PROCEDURE get-item-record :
   Notes:       
 ------------------------------------------------------------------------------*/
 def output parameter op-item-recid as recid no-undo.
-
+  
 FIND FIRST item WHERE
   item.company EQ cocode AND
   item.i-no EQ ip-i-no
@@ -454,7 +453,7 @@ PROCEDURE local-initialize :
       e-item.company = item.company AND
       e-item.i-no = ip-i-no
       EXCLUSIVE-LOCK NO-ERROR.
-
+   
     if not avail e-item then do:
       create e-item.
       assign e-item.company = item.company
@@ -462,13 +461,13 @@ PROCEDURE local-initialize :
              e-item.i-no = item.i-no
              e-item.std-uom = item.pur-uom.
     end.
-
+   
     FIND FIRST e-item-vend WHERE
          e-item-vend.company = item.company AND
          e-item-vend.i-no = ip-i-no AND
          e-item-vend.vend-no = ""
          EXCLUSIVE-LOCK NO-ERROR.
-
+   
     IF NOT AVAILABLE e-item-vend THEN DO:
       create e-item-vend.
       assign e-item-vend.company = e-item.company
@@ -481,7 +480,7 @@ PROCEDURE local-initialize :
     if e-item-vend.setup = 0 and item.min-sqft <> 0 then 
       assign e-item-vend.setup = item.min-sqft
              bf-item.min-sqft = 0.
-
+    
     RUN dispatch IN WIDGET-HANDLE(char-hdl) ("add-record").
     RUN add-vend-cost IN WIDGET-HANDLE(char-hdl) (INPUT RECID(ITEM),
                                                   INPUT RECID(e-item),

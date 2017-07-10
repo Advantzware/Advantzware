@@ -162,7 +162,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -195,7 +194,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -306,7 +305,7 @@ DO:
     END.
 
     SESSION:SET-WAIT-STATE("").
-
+        
     APPLY "close" TO THIS-PROCEDURE.
   END.
 END.
@@ -396,7 +395,7 @@ PROCEDURE close-buttons :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-all AS LOG NO-UNDO.
 
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     DO i = 1 TO open-list:NUM-ITEMS WITH FRAME {&FRAME-NAME}:
       IF open-list:IS-SELECTED(i) OR ip-all THEN DO:
@@ -439,7 +438,7 @@ PROCEDURE enable-buttons :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DO WITH FRAME {&frame-name}:
     DISABLE btn_close btn_open btn_close-all btn_open-all.
 
@@ -481,7 +480,7 @@ PROCEDURE init-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   RUN load-list (YES).
 
   RUN load-list (NO).
@@ -507,7 +506,7 @@ PROCEDURE load-list :
   DEF INPUT PARAMETER ip-close AS LOG no-undo.
   DEF VAR v-list AS CHAR NO-UNDO.
 
-
+  
   v-list = "".
 
   FOR EACH w-file WHERE w-file.cloze EQ ip-close,
@@ -535,7 +534,7 @@ PROCEDURE load-list :
   IF v-list NE "" THEN
     IF SUBSTR(v-list,LENGTH(TRIM(v-list)),1) EQ "," THEN
       SUBSTR(v-list,LENGTH(TRIM(v-list)),1) = "".
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     IF ip-close THEN
       close-list:LIST-ITEMS = v-list.
@@ -615,7 +614,7 @@ PROCEDURE open-buttons :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-all AS LOG NO-UNDO.
 
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     DO i = 1 TO close-list:NUM-ITEMS:
       IF close-list:IS-SELECTED(i) OR ip-all THEN DO:
