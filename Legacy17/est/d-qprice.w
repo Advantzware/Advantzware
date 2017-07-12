@@ -125,7 +125,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -156,7 +155,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -193,9 +192,9 @@ DO:
   RUN clear-line IN h_b-qprice-2.
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"row-id-source",OUTPUT char-hdl).
-
+  
   RUN get-row-id IN WIDGET-HANDLE(char-hdl) (OUTPUT io-rowid-list, OUTPUT io-qty-list, OUTPUT io-price-list, OUTPUT io-uom-list).
-
+  
   DO li = 1 TO NUM-ENTRIES(io-rowid-list):
       io-rowid = TO-ROWID(ENTRY(li, io-rowid-list)).
       IF VALID-HANDLE(ip-handle) THEN DO:

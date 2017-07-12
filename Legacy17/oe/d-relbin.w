@@ -157,7 +157,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -198,7 +197,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -365,7 +364,7 @@ PROCEDURE local-initialize :
      v-po-no  = "PO#: " + ip-po-no
      v-job-no = "Job#: " + ip-job-no
      v-qty    = "Qty: " + TRIM(STRING(ip-qty,"->>>,>>>,>>9")).
-
+    
   END.
 
   /* Dispatch standard ADM method.                             */
@@ -443,7 +442,7 @@ FUNCTION getJobOnly RETURNS LOGICAL
                            INPUT "", 
                            OUTPUT cReturn, 
                            OUTPUT lReturn).
-
+    
     lReturn = INT(cReturn) EQ 0.
 
     RETURN lReturn.   /* Function return value. */

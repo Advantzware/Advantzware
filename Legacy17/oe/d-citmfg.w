@@ -135,7 +135,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -168,7 +167,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -212,7 +211,7 @@ DO:
     do with frame {&frame-name} :
        assign ls-i-no ls-part-no ls-uom.
     end.
-
+    
     FIND FIRST ITEMfg WHERE itemfg.company = g_company
                        AND itemfg.i-no = ls-i-no
                        NO-LOCK NO-ERROR.
@@ -274,7 +273,7 @@ DO:
 
     run windows/l-stduom.w (g_company,lv-uom-list,ls-uom:screen-value, output char-val).
     IF char-val <> "" then self:screen-value = entry(1,char-val).
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -303,7 +302,7 @@ END.
 assign ls-i-no = iop-i-no
        ls-part-no = iop-part-no
        ls-uom = IF ip-est-no EQ "" AND iop-uom NE "" THEN iop-uom ELSE "M".
-
+       
 {src/adm/template/dialogmn.i}
 
 /* _UIB-CODE-BLOCK-END */

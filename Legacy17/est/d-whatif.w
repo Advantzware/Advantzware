@@ -154,7 +154,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -189,7 +188,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -270,7 +269,7 @@ IF AVAIL probe THEN DO:
       FIRST style NO-LOCK
       WHERE style.company EQ eb.company
         AND style.style   EQ eb.style:
-
+    
     FIND FIRST reftable NO-LOCK
         WHERE reftable.reftable EQ "style.per-msf"
           AND reftable.company  EQ style.company
@@ -310,7 +309,7 @@ IF AVAIL probe THEN DO:
   ASSIGN
    fi_price = io-price
    fi_msf   = ld-msf.
-
+  
   {src/adm/template/dialogmn.i}
 END.
 

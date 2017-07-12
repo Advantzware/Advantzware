@@ -44,7 +44,7 @@ def input parameter v-recid2 as recid.
 assign
  cocode = g_company
  locode = g_loc.
-
+ 
 def buffer xrout-mtx for routing-mtx.
 
 def var v-invalid as log no-undo.
@@ -160,7 +160,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -201,7 +200,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -248,7 +247,7 @@ END.
 ON LEAVE OF begin_msf IN FRAME D-Dialog /* From MSF */
 DO: 
   assign {&self-name}.
-
+  
   if lastkey ne -1 then do:
     run valid-begin_msf.
     if v-invalid then return no-apply.
@@ -276,7 +275,7 @@ END.
 ON LEAVE OF begin_style IN FRAME D-Dialog /* From Style */
 DO:
   assign {&self-name}.
-
+  
   if lastkey ne -1 then do:
     run valid-begin_style.
     if v-invalid then return no-apply.
@@ -304,14 +303,14 @@ ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
 DO:
   if begin_msf:hidden or end_msf:hidden then
     apply "close" to this-procedure.
-
+    
   else do:
     assign
      begin_style:sensitive = yes
      end_style:sensitive   = yes
      begin_msf:hidden      = yes
      end_msf:hidden        = yes.
-
+        
     apply "entry" to begin_style.
     return no-apply.
   end.
@@ -327,10 +326,10 @@ ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
   run valid-begin_style.
   if v-invalid then return no-apply.
-
+  
   run valid-end_style.
   if v-invalid then return no-apply.
-
+  
   if begin_style eq end_style then do:
     if begin_msf:hidden or end_msf:hidden then do:
       assign
@@ -338,33 +337,33 @@ DO:
        end_style:sensitive = no
        begin_msf:hidden      = no
        end_msf:hidden      = no.
-
+       
       find first routing-mtx
           where routing-mtx.company eq cocode
              and routing-mtx.loc    eq locode
              and routing-mtx.style  eq begin_style
           no-lock.
       begin_msf = routing-mtx.msf.
-
+       
       display begin_msf end_msf
           with frame {&frame-name}.
-
+        
       ENABLE begin_msf end_msf 
           with frame {&frame-name}.
-
+        
       apply "entry" to begin_msf.
       return no-apply.
     end.
-
+    
     else do:
       run valid-begin_msf.
       if v-invalid then return no-apply.
-
+  
       run valid-end_msf.
       if v-invalid then return no-apply.
     end.   
   end.
-
+  
   run copy-records.
 END.
 
@@ -377,7 +376,7 @@ END.
 ON LEAVE OF end_msf IN FRAME D-Dialog /* Into MSF */
 DO: 
   assign {&self-name}.
-
+  
   if lastkey ne -1 then do:
     run valid-end_msf.
     if v-invalid then return no-apply.
@@ -405,7 +404,7 @@ END.
 ON LEAVE OF end_style IN FRAME D-Dialog /* Into Style */
 DO: 
   assign {&self-name}.
-
+  
   if lastkey ne -1 then do:
     run valid-end_style.
     if v-invalid then return no-apply.
@@ -447,13 +446,13 @@ END.
 /* ***************************  Main Block  *************************** */
 find style       where recid(style)       eq v-recid2.
 find routing-mtx where recid(routing-mtx) eq v-recid1 no-lock no-error.
-
+   
 assign
  lv-style    = style.style
  lv-industry = style.industry
  begin_style  = lv-style
  end_style  = lv-style.
-
+ 
 if avail routing-mtx then begin_msf = routing-mtx.msf.
 
 {src/adm/template/dialogmn.i}
@@ -509,7 +508,7 @@ v-process = no.
 
 message "Are you sure you want to copy using these parameters?"
         view-as alert-box question button yes-no update v-process.
-
+        
 if v-process then do:
   for each routing-mtx
       where routing-mtx.company eq cocode
@@ -546,7 +545,7 @@ if v-process then do:
           xrout-mtx.style = end_style.
     END.
   end.
-
+   
   message "Copy Process Is Completed" view-as alert-box.
   apply "close" to this-procedure.
 end.
@@ -653,7 +652,7 @@ if not avail routing-mtx then do:
           view-as alert-box error.
   v-invalid = yes.
 end.
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -679,7 +678,7 @@ if not avail routing-mtx then do:
           view-as alert-box error.
   v-invalid = yes.    
 end.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -734,7 +733,7 @@ find first style
       and style.style    eq end_style
       and style.industry eq lv-industry
     no-lock no-error.
-
+      
 if end_style eq "" or not avail style then do:
   if end_style eq "" then
     message "Into Style may not be spaces"
@@ -745,7 +744,7 @@ if end_style eq "" or not avail style then do:
         view-as alert-box error.
   v-invalid = yes.    
 end.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -209,7 +209,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -242,7 +241,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -321,7 +320,7 @@ END.
 ON HELP OF lv-font-no IN FRAME D-Dialog /* Font */
 DO:
   DEF VAR char-val AS CHAR NO-UNDO.
-
+  
   RUN windows/l-fonts.w (SELF:SCREEN-VALUE,OUTPUT char-val).
   IF char-val NE "" THEN DO:
     ASSIGN

@@ -177,7 +177,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -221,7 +220,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-est,
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -236,7 +235,7 @@ DO:
     DEF VAR lw-focus AS HANDLE NO-UNDO.
 
     lw-focus = FOCUS.
-
+    
     case lw-focus:name :
          when "fi_est-no" then do:
               IF lv-both EQ NO THEN
@@ -326,7 +325,7 @@ DO:
   DEF VAR lj AS INT NO-UNDO.
   DEF VAR lv-ef-rowid AS ROWID NO-UNDO.
   DEF VAR lv-msg AS CHAR NO-UNDO.
-
+  
   RELEASE eb.
   RELEASE ef.
   RELEASE est-qty.
@@ -618,7 +617,7 @@ PROCEDURE build-table :
   DEF VAR lv-loc LIKE eb.loc INIT "" NO-UNDO.
 
   EMPTY TEMP-TABLE tt-est.
-
+                             
   IF fi_est-no NE "" THEN
   FOR EACH eb
       WHERE eb.company  EQ cocode
@@ -678,7 +677,7 @@ PROCEDURE create-tt :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR ll-valid AS LOG NO-UNDO.
-
+  
   FIND FIRST est
       WHERE est.company EQ eb.company
         AND est.est-no  EQ eb.est-no
@@ -767,7 +766,7 @@ PROCEDURE local-enable :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 

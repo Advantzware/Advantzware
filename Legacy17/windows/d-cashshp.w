@@ -121,7 +121,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -152,7 +151,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -207,10 +206,10 @@ DO:
 END.
 ELSE 
 DO:
-
+  
   FIND FIRST cust WHERE ROWID(cust) = ip-rowid NO-LOCK NO-ERROR.
    ASSIGN lv-cust-no      = cust.cust-no.
-
+        
 END.
 
 IF NOT AVAIL cust THEN RETURN.
@@ -329,7 +328,7 @@ PROCEDURE Allow-Create :
   DEFINE OUTPUT PARAMETER op-flag AS LOGICAL NO-UNDO.
 
   op-flag = yes.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
