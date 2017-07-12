@@ -769,6 +769,8 @@ DEFINE VARIABLE qm AS DECIMAL.
 DEFINE VARIABLE lv-eqty LIKE est-op.qty NO-UNDO.
 DEFINE VARIABLE v-brd-cost AS DECIMAL NO-UNDO.
 DEFINE VARIABLE CALL_id AS RECID NO-UNDO.
+DEFINE VARIABLE dTonCost AS DECIMAL NO-UNDO .
+DEFINE VARIABLE iAvg AS INTEGER NO-UNDO INIT 0 .
 DEFINE BUFFER reftable-fm FOR reftable.
 DEFINE BUFFER probe-ref FOR reftable.
 ASSIGN row-count = 6 .
@@ -1068,7 +1070,9 @@ FOR EACH est NO-LOCK
     ASSIGN t-blksht = 0
            tt-blk   = 0
            t-blkqty = 0
-           vbsf     = 0 .
+           vbsf     = 0 
+           dTonCost = 0 
+           iAvg     = 0.
     FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
     ASSIGN
         ctrl[1]  = ce-ctrl.whse-mrkup / 100
@@ -1128,7 +1132,7 @@ FOR EACH est NO-LOCK
  
    qty = IF eb.yrprice /*AND NOT ll-tandem*/ THEN eb.yld-qty ELSE eb.bl-qty.
    
-   
+   iAvg = iAvg + 1.
    dm-tot[3] = 0. dm-tot[4] = 0. dm-tot[5] = 0.
     
    /* b o a r d        */  RUN ce/com/pr4-brd.p ("").
@@ -1140,11 +1144,12 @@ FOR EACH est NO-LOCK
       /* case/tray/pallet */ RUN ce/com/pr4-cas.p.
      
       /* special          */ RUN ce/com/pr4-spe.p.
+       
+      ASSIGN dTonCost = dTonCost + b-msh .
       
-
     END. /* for each xef */
 
-
+    ASSIGN dTonCost = dTonCost / iAvg .
 
       qm = probe.est-qty / 1000.
 
@@ -1284,7 +1289,7 @@ FOR EACH est NO-LOCK
           chWorkSheet:Range("E" + STRING(row-count)):VALUE = TRIM(eb.est-no) .
           chWorkSheet:Range("F" + STRING(row-count)):VALUE = STRING(probe.sell-price, "->>>>>>>9.99") .
           chWorkSheet:Range("G" + STRING(row-count)):VALUE = STRING(v-tons, "->>9.99999") .
-          chWorkSheet:Range("H" + STRING(row-count)):VALUE = STRING(probe.full-cost, "->>>>>>>9.99") .
+          chWorkSheet:Range("H" + STRING(row-count)):VALUE = STRING(dTonCost, "->>>>>>>9.99") .
           /*chWorkSheet:Range("I" + STRING(row-count)):VALUE = "" .*/
           /*chWorkSheet:Range("J" + STRING(row-count)):VALUE = "" .*/
           chWorkSheet:Range("K" + STRING(row-count)):VALUE =  calcpcts.val[2] .
