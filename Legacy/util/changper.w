@@ -78,7 +78,7 @@ DEFINE BUTTON btn-process
      LABEL "&Start Process" 
      SIZE 18 BY 1.14.
 
-DEFINE VARIABLE begin_run-no AS INTEGER FORMAT ">>>>>>":U INITIAL 0 
+DEFINE VARIABLE begin_run-no AS INTEGER FORMAT ">>>>>>>>":U INITIAL 0 
      LABEL "Run#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
