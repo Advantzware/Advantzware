@@ -42,6 +42,38 @@ def var lv-first-time as log init yes no-undo.
 &scoped-define SORTBY-2 BY cust.name
 &global-define IAMWHAT LOOKUP
 
+{custom/globdefs.i}
+{sys/inc/VAR.i NEW SHARED}
+{sys/inc/varasgn.i}
+
+DEF VAR v-prgmname LIKE prgrms.prgmname NO-UNDO.
+DEF VAR period_pos AS INTEGER NO-UNDO.
+DEF VAR lActive AS LOGICAL NO-UNDO.
+DEF VAR v-check-page AS LOGICAL INITIAL NO NO-UNDO .
+DEFINE VARIABLE ou-log like sys-ctrl.log-fld INIT NO NO-UNDO.
+DEFINE VARIABLE ou-cust-int AS INTEGER NO-UNDO .
+DEF VAR v-file-name AS CHARACTER NO-UNDO .
+
+IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
+   INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
+   INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
+v-prgmname = USERID("NOSWEAT") + "..".
+ELSE
+ASSIGN
+  period_pos = INDEX(PROGRAM-NAME(1),".")
+  v-prgmname = SUBSTR(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 9) + 1)
+  v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
+
+ASSIGN cocode = ip-company .
+
+IF  PROGRAM-NAME(2) MATCHES "*/b-relinq.w*"  OR PROGRAM-NAME(2) MATCHES "*/v-oerel.w*" 
+    THEN
+    v-check-page = YES .
+
+DO TRANSACTION:
+     {sys/ref/CustList.i NEW}
+END.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -68,13 +100,15 @@ def var lv-first-time as log init yes no-undo.
 cust.addr[2] cust.city cust.state cust.zip 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define QUERY-STRING-BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
-      AND cust.company = ip-company and ~
+      AND cust.company = ip-company  ~
+      AND ((v-check-page AND ( LOOKUP(cust.cust-no,custcount) NE 0 OR custcount = "")) OR NOT v-check-page) AND ~
 CAN-DO("A,X,S,E",cust.active) NO-LOCK, ~
       FIRST oe-ord OF cust ~
       WHERE index("CZ",oe-ord.stat) <= 0 NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH cust WHERE ~{&KEY-PHRASE} ~
-      AND cust.company = ip-company and ~
+      AND cust.company = ip-company  ~
+      AND ((v-check-page AND ( LOOKUP(cust.cust-no,custcount) NE 0 OR custcount = "")) OR NOT v-check-page) AND ~
 CAN-DO("A,X,S,E",cust.active) NO-LOCK, ~
       FIRST oe-ord OF cust ~
       WHERE index("CZ",oe-ord.stat) <= 0 NO-LOCK ~
@@ -384,6 +418,20 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
+
+    IF  PROGRAM-NAME(2) MATCHES "*/b-relinq.w*" OR PROGRAM-NAME(2) MATCHES "*/v-oerel.w*" THEN DO:
+    v-file-name  = "OT1" .
+    RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'OT1',
+                            INPUT YES,
+                            OUTPUT lActive).
+END.
+ 
+
+  RUN sys/inc/custlistform.p (INPUT v-file-name , INPUT cocode , OUTPUT ou-log , OUTPUT ou-cust-int) .
+  {sys/inc/chblankcust.i "v-file-name"}
+    IF ou-cust-int = 0 THEN
+        custcount = "".
   
 
   &scoped-define key-phrase {&fld-name-1} >= ip-cur-val  
