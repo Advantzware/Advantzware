@@ -52,16 +52,16 @@ ASSIGN
 RUN connectDatabases.
 &ENDIF
 
-if connected(ldbname(1))
-and ldbname(1) = "ASI" then do:
-    create alias nosweat for database value(ldbname(1)).
-    create alias emptrack for database value(ldbname(1)).
-    create alias jobs for database value(ldbname(1)).
-    create alias rfq for database value(ldbname(1)).
-    create alias asihelp for database value(ldbname(1)).
-    create alias asihlp for database value(ldbname(1)).
-    create alias asinos for database value(ldbname(1)).
-end.
+IF CONNECTED(LDBNAME(1))
+AND ldbname(1) = "ASI" THEN DO:
+    CREATE ALIAS nosweat FOR DATABASE VALUE(LDBNAME(1)).
+    CREATE ALIAS emptrack FOR DATABASE VALUE(LDBNAME(1)).
+    CREATE ALIAS jobs FOR DATABASE VALUE(LDBNAME(1)).
+    CREATE ALIAS rfq FOR DATABASE VALUE(LDBNAME(1)).
+    CREATE ALIAS asihelp FOR DATABASE VALUE(LDBNAME(1)).
+    CREATE ALIAS asihlp FOR DATABASE VALUE(LDBNAME(1)).
+    CREATE ALIAS asinos FOR DATABASE VALUE(LDBNAME(1)).
+END.
 
 /* Need to obtain the nk1 value without a company # */
 IF "{&appName}" EQ "Touchscreen" THEN
@@ -225,7 +225,7 @@ PROCEDURE connectDatabases:
         END.
     END.
     
-    if connected("asihelp") then create alias asihlp for database asihelp.
+    IF CONNECTED("asihelp") AND NOT CONNECTED("asihlp") THEN CREATE ALIAS asihlp FOR DATABASE asihelp.
     
 END PROCEDURE.
 
