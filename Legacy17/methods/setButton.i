@@ -6,6 +6,8 @@
 
 DO:
     IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN DO:
+        IF CAN-DO ("Save,Update","{2}") AND hUpdateButton EQ ? THEN 
+        hUpdateButton = {1}:HANDLE.
         {methods/loadImageLabel.i {1} "{2}"}
     END.
     IF {1}:LABEL NE "" THEN 
