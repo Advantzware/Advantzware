@@ -363,6 +363,11 @@ DO:
       /* gdm - 12170903 */
       ELSE IF opName EQ 'BARDIR' THEN DO:
 
+          MESSAGE "Do you want to display Xprint Values.... "
+              VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+              TITLE "" UPDATE lChoiceXprnt AS LOGICAL.
+
+        IF NOT lChoiceXprnt THEN do:
           ASSIGN i-chrfld = ""
                  i-chrfld = TRIM(sys-ctrl-shipto.char-fld:SCREEN-VALUE).
 
@@ -382,6 +387,13 @@ DO:
 
           IF TRIM(v_chrfld1) NE "" THEN
              ASSIGN sys-ctrl-shipto.char-fld:SCREEN-VALUE = v_chrfld1.
+        END.
+        ELSE DO:
+            RUN windows/l-typxpr.w (OUTPUT char-val1).
+            IF char-val1 NE '' THEN
+                sys-ctrl-shipto.char-fld:SCREEN-VALUE = char-val1.
+            RETURN NO-APPLY.
+        END.
 
       END. /* gdm - 12170903 end */
 

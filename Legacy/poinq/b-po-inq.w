@@ -160,6 +160,8 @@ DEF VAR v-paidflg AS LOG NO-UNDO.
 &SCOPED-DEFINE sortby-log2                                                                                                             ~
     IF lv-sort-by EQ "po-no"     THEN STRING(po-ordl.po-no,"9999999999")                                                          ELSE ~
     IF lv-sort-by EQ "vend-no"   THEN po-ord.vend-no                                                                              ELSE ~
+    IF lv-sort-by EQ "ship-id"   THEN po-ord.ship-id                                                                              ELSE ~
+    IF lv-sort-by EQ "ship-name"   THEN po-ord.ship-name                                                                          ELSE ~
     IF lv-sort-by EQ "job-no"    THEN STRING(po-ordl.job-no,"x(6)") + STRING(po-ordl.job-no2,"99") + STRING(po-ordl.s-num,"999")  ELSE ~
     IF lv-sort-by EQ "i-no"      THEN po-ordl.i-no                                                                                ELSE ~
     IF lv-sort-by EQ "i-name"    THEN po-ordl.i-name                                                                              ELSE ~

@@ -978,7 +978,7 @@ PROCEDURE adm-disable-fields :
        &IF DEFINED(adm-browser) NE 0 &THEN  
            /* Get focus out of the browser and then make it read-only. */
            IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE AND
-              {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} = NO THEN DO:
+              {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} EQ NO THEN DO:
                DEFINE VARIABLE hSomethingElse AS HANDLE NO-UNDO.
                CREATE FILL-IN hSomethingElse
                ASSIGN
@@ -992,7 +992,7 @@ PROCEDURE adm-disable-fields :
                IF VALID-HANDLE (hSomethingElse) THEN
                DELETE OBJECT hSomethingElse.
            END.
-           ELSE DO: 
+           ELSE IF {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} EQ NO THEN DO: 
                RUN notify ('apply-entry, TABLEIO-SOURCE':U).
                {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} = YES.
            END.
@@ -1112,7 +1112,7 @@ PROCEDURE adm-enable-fields :
                   BROWSE {&BROWSE-NAME}:NUM-SELECTED-ROWS = 1.
                 /* Get focus out of the browser and then make it read-only. */
            IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE AND
-              {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} = YES THEN DO:
+              {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} EQ YES THEN DO:
                DEFINE VARIABLE hSomethingElse AS HANDLE NO-UNDO.
                CREATE FILL-IN hSomethingElse
                ASSIGN
@@ -1126,7 +1126,7 @@ PROCEDURE adm-enable-fields :
                IF VALID-HANDLE (hSomethingElse) THEN
                DELETE OBJECT hSomethingElse.
            END.
-           ELSE DO: 
+           ELSE IF {&BROWSE-NAME}:READ-ONLY IN FRAME {&FRAME-NAME} EQ YES THEN DO: 
                 RUN notify ('apply-entry, TABLEIO-SOURCE':U).
                 {&BROWSE-NAME}:READ-ONLY = NO.
            END.
@@ -1313,6 +1313,11 @@ PROCEDURE adm-update-record :
             RETURN "ADM-ERROR":U.
       END.
       
+      /* because transaction panal is no longer present, updatable browser's are
+         left with last field seemingly enabled... this work around fixes that */
+      IF Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive EQ TRUE THEN
+          RUN dispatch ("enable-fields").
+
       /* Do final update processing, unless there is a larger transaction
          open elsewhere, in which case it must be done when the
          transaction is ended. */
