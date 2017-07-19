@@ -358,6 +358,9 @@ PROCEDURE adm-create-objects :
 
        /* Links to SmartObject h_attach. */
        RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'attach':U , h_attach ).
+       
+        /* Links to SmartObject h_options. */
+       RUN add-link IN adm-broker-hdl ( h_b-po-inq , 'spec':U , h_options ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
@@ -517,6 +520,9 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_vp-poord. */
        RUN add-link IN adm-broker-hdl ( h_bi-poord , 'buttons':U , h_vp-poord ).
        RUN add-link IN adm-broker-hdl ( h_bi-poord , 'Record':U , h_vp-poord ).
+
+       /* Links to SmartObject h_options. */
+       RUN add-link IN adm-broker-hdl (  h_bi-poord  , 'specpo':U , h_options ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_vi-poord ,
