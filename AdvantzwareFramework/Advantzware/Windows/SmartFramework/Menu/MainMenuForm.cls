@@ -2109,7 +2109,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
                                                 e AS System.EventArgs):
 
         Consultingwerk.Windows.API.Win32:ShellExecute ("open":U,
-                                                       "http://www.facebook.com/Consultingwerk":U) .
+                                                       "http://www.advantzware.com":U) .
 
     END METHOD.
 
