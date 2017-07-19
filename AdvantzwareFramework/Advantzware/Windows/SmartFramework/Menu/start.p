@@ -239,13 +239,9 @@ FrameworkSettings:WaitStateManager = NEW NotifyIconWaitStateManager
    Map Enter to Tab */
 SmartWindowFormController:MapEnterKeyToTab = TRUE .
 
-
-
-
 Consultingwerk.Framework.FrameworkSettings:StoreWindowPosition = TRUE .
 Consultingwerk.WindowIntegrationKit.WinKitSettings:WinKitActive = TRUE .
 Consultingwerk.WindowIntegrationKit.Forms.WinKitForms:TabFolderBGColor = 31 .
-
 
 WAIT-FOR System.Windows.Forms.Application:Run (oForm) .
 
