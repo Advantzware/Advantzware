@@ -1111,6 +1111,10 @@ PROCEDURE local-open-query :
 
   RUN dispatch ("row-changed").
 
+   DO WITH FRAME {&FRAME-NAME}:
+      APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
+   END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1131,6 +1135,9 @@ PROCEDURE local-view :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/setvalue.i}
   APPLY 'ENTRY':U TO fi_inv-no IN FRAME {&FRAME-NAME}.
+  DO WITH FRAME {&FRAME-NAME}:
+      APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
+   END.
 
 END PROCEDURE.
 
