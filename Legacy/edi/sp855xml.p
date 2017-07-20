@@ -349,13 +349,15 @@ PROCEDURE BuildData:
   BUFFER Summary:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "SummaryBeforeFill", THIS-PROCEDURE ).
   .
   
+  DATA-SOURCE dsOrderAck:FILL-WHERE-STRING = " where Partner = " + quoter(ipPartner)  .
+
                                                                                                                                      
   DATA-SOURCE dsOrderHeader:FILL-WHERE-STRING = " where Partner = " + quoter(ipPartner) + " and seq = " + string(ipSeq) .
                                                 
   DATA-SOURCE dsOrderLine:FILL-WHERE-STRING =  " where Partner = " + quoter(ipPartner) + " and seq = " + string(ipSeq).
   
   DATASET ds855xml:FILL().
-     
+  
 END PROCEDURE.
 
 PROCEDURE ds855xmlBeforeFill:
