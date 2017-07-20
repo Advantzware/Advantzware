@@ -95,6 +95,13 @@ DEFINE VARIABLE v-dir AS CHARACTER FORMAT "X(80)" NO-UNDO.
 DEFINE VARIABLE vcTemplateFile AS CHARACTER NO-UNDO.
 DEFINE VARIABLE row-count AS INTEGER INIT 6 NO-UNDO.
 
+DEFINE VARIABLE lv-brd-l           like eb.len no-undo.
+DEFINE VARIABLE lv-brd-w           like lv-brd-l no-undo.
+DEFINE VARIABLE lv-brd-sq          as dec format ">>>>9.9<<<<" no-undo.
+DEFINE VARIABLE lv-brd-sf          as dec format ">>>>>9.9<<"  no-undo.
+DEFINE VARIABLE lv-brd-wu          like lv-brd-sq no-undo.
+DEF BUFFER bf-est FOR est.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -464,44 +471,7 @@ DO:
   RUN run-report.
   STATUS DEFAULT "Processing Complete".
 
-    /*IF tb_runExcel THEN
-    OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).*/
-
-  /*CASE rd-dest:
-       WHEN 1 THEN RUN output-to-printer.
-       WHEN 2 THEN RUN output-to-screen.
-       WHEN 3 THEN RUN output-to-file.
-       WHEN 4 THEN DO:
-           /*run output-to-fax.*/
-           {custom/asifax.i &type=" "
-                            &begin_cust="begin_cust-no"
-                            &end_cust="begin_cust-no" 
-                            &fax-subject=c-win:title
-                            &fax-body=c-win:title
-                            &fax-file=fi_file }
-       END. 
-       WHEN 5 THEN DO:
-           IF is-xprint-form THEN DO:
-              {custom/asimail.i &TYPE=" "
-                             &begin_cust="begin_cust-no"
-                             &end_cust="begin_cust-no"
-                             &mail-subject=c-win:title
-                             &mail-body=c-win:title
-                             &mail-file=fi_file }
-           END.
-           ELSE DO:
-               {custom/asimailr.i &TYPE=" "
-                                  &begin_cust="begin_cust-no"
-                                  &end_cust="begin_cust-no"
-                                  &mail-subject=c-win:title
-                                  &mail-body=c-win:title
-                                  &mail-file=fi_file }
-
-           END.
-       END. 
-       WHEN 6 THEN RUN OUTPUT-to-port.
-  END CASE.                           */
-
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -773,6 +743,7 @@ DEFINE VARIABLE dTonCost AS DECIMAL NO-UNDO .
 DEFINE VARIABLE iAvg AS INTEGER NO-UNDO INIT 0 .
 DEFINE BUFFER reftable-fm FOR reftable.
 DEFINE BUFFER probe-ref FOR reftable.
+DEFINE BUFFER probe-fm FOR reftable.
 ASSIGN row-count = 6 .
 
 /**************************** Excel Initilization Starts *********************************/
@@ -889,7 +860,7 @@ FOR EACH est NO-LOCK
     
     IF NOT AVAILABLE job-hdr THEN  NEXT MAIN-LOOP .
 
-  IF LAST-OF(probe.est-qty) THEN DO:
+    IF LAST-OF(probe.est-qty) THEN DO:
 
     FOR EACH kli:
         DELETE kli.
@@ -922,8 +893,39 @@ FOR EACH est NO-LOCK
     FOR EACH xjob:
         DELETE xjob.
     END.
+    FIND xest NO-LOCK WHERE RECID(xest) = recid(est)  NO-ERROR.
+    FIND xef  NO-LOCK WHERE RECID(xef) = recid(ef)  NO-ERROR.
+    FIND xeb  NO-LOCK WHERE RECID(xeb) = recid(eb)  NO-ERROR.
 
+   save-lock = xef.op-lock.
+   {est/recalc-mr.i xest}
+  FIND CURRENT recalc-mr NO-LOCK.
 
+  ASSIGN
+   do-speed = xest.recalc
+   do-mr    = recalc-mr.val[1] EQ 1
+   do-gsa   = xest.override.
+
+  {sys/inc/cerun.i F}
+  vmclean = LOOKUP(cerunf,"McLean,HOP") GT 0.
+
+  {ce/msfcalc.i}
+
+   DO TRANSACTION:
+  {est/op-lock.i xest}
+  FIND bf-est WHERE RECID(bf-est) EQ RECID(xest).
+  FIND CURRENT recalc-mr.
+  ASSIGN
+   bf-est.recalc    = do-speed
+   recalc-mr.val[1] = INT(do-mr)
+   bf-est.override  = do-gsa
+   op-lock.val[1]   = INT(bf-est.recalc)
+   op-lock.val[2]   = recalc-mr.val[1].
+  FIND CURRENT bf-est NO-LOCK.
+  FIND CURRENT recalc-mr NO-LOCK.
+  FIND CURRENT op-lock NO-LOCK.
+  /*FIND xest WHERE RECID(xest) EQ RECID(bf-est).   */
+  END.
     
     li-colors =  0.
     op-tot    =  0.
@@ -958,10 +960,6 @@ FOR EACH est NO-LOCK
        ld-mar[li] = (ld-costt / ld-pct * 1.01) - ld-costt
        ld-pct     = ld-pct - .05.
     END.
-
-    FIND xest NO-LOCK WHERE RECID(xest) = recid(est)  NO-ERROR.
-    FIND xef  NO-LOCK WHERE RECID(xef) = recid(ef)  NO-ERROR.
-    FIND xeb  NO-LOCK WHERE RECID(xeb) = recid(eb)  NO-ERROR.
 
     DO TRANSACTION:
         FOR EACH est-op
@@ -1095,6 +1093,8 @@ FOR EACH est NO-LOCK
     FOR EACH xef WHERE xef.company = xest.company
                AND xef.est-no EQ xest.est-no
                BREAK BY xef.form-no :
+    
+
     FOR EACH xeb OF xef BY xeb.blank-no:
 
       FIND FIRST item {sys/look/itemW.i} AND item.i-no = xef.board NO-LOCK NO-ERROR.
@@ -1128,9 +1128,9 @@ FOR EACH est NO-LOCK
    RUN ce/com/prokalk.p.
 
     v-tons = v-tons + (IF v-corr THEN (xef.gsh-len * xef.gsh-wid * .007)
-                          ELSE (xef.gsh-len * xef.gsh-wid / 144) ) * xef.gsh-qty  / 1000 * item.basis-w / 2000 .
+                          ELSE (xef.gsh-len * xef.gsh-wid / 144) ) * xef.gsh-qty  / 1000 * ( IF AVAIL ITEM THEN item.basis-w ELSE 0) / 2000 .
  
-   qty = IF eb.yrprice /*AND NOT ll-tandem*/ THEN eb.yld-qty ELSE eb.bl-qty.
+   qty = IF eb.yrprice /*AND NOT ll-tandem*/ THEN eb.yld-qty ELSE eb.bl-qty.  
    
    iAvg = iAvg + 1.
    dm-tot[3] = 0. dm-tot[4] = 0. dm-tot[5] = 0.
@@ -1139,11 +1139,11 @@ FOR EACH est NO-LOCK
      
    /* i n k s          */ RUN ce/com/pr4-ink.p.
     
-      /* film             */ RUN ce/com/pr4-flm.p.
-    
-      /* case/tray/pallet */ RUN ce/com/pr4-cas.p.
+   /* film             */ RUN ce/com/pr4-flm.p.
+      
+   /* case/tray/pallet */ RUN ce/com/pr4-cas.p.
      
-      /* special          */ RUN ce/com/pr4-spe.p.
+   /* special          */ RUN ce/com/pr4-spe.p.
        
       ASSIGN dTonCost = dTonCost + b-msh .
       
@@ -1179,13 +1179,12 @@ FOR EACH est NO-LOCK
        
       /* prep      */ RUN ce/com/pr4-prp.p.
       
-      
       /* machines */ RUN ce/com/pr4-mch.p.
-
+    
       IF ctrl2[2] NE 0 OR ctrl2[3] NE 0 THEN DO:
           op-tot[5] = op-tot[5] + (ctrl2[2] + ctrl2[3]).
       END.
-  
+   
    
    /* mat */
    DO i = 1 TO 6:
@@ -1206,6 +1205,7 @@ FOR EACH est NO-LOCK
       calcpcts.val[2] = v-brd-cost.
      FIND CURRENT calcpcts NO-LOCK NO-ERROR.
    END.
+   
   ASSIGN
        gsa-mat = ctrl[9]  * 100
        gsa-lab = ctrl[10] * 100
@@ -1228,7 +1228,8 @@ FOR EACH est NO-LOCK
     
        ASSIGN
         gsa-mat = probe.gsa-mat
-        gsa-lab = probe.gsa-lab .
+        gsa-lab = probe.gsa-lab 
+        gsa-war = probe.gsa-war  .
 
        FIND FIRST probe-ref NO-LOCK
           WHERE probe-ref.reftable EQ "probe-ref"
@@ -1243,6 +1244,16 @@ FOR EACH est NO-LOCK
             calcpcts.val[1] = probe-ref.val[1] .
             FIND CURRENT calcpcts NO-LOCK NO-ERROR.
           END.
+
+          FIND FIRST probe-fm NO-LOCK
+          WHERE probe-fm.reftable EQ "gsa-fm"
+            AND probe-fm.company  EQ probe.company
+            AND probe-fm.loc      EQ ""
+            AND probe-fm.code     EQ probe.est-no
+          NO-ERROR.
+
+      IF AVAIL probe-fm THEN
+         gsa-fm = probe-fm.val[1].
    
    ASSIGN
        ctrl[9]  = gsa-mat / 100 
@@ -1260,6 +1271,8 @@ FOR EACH est NO-LOCK
    IF ctrl2[9] EQ ? THEN ctrl2[9] = 0.
    IF ctrl2[10] EQ ? THEN ctrl2[10] = 0.
    IF v-tons EQ ? THEN v-tons = 0 .
+
+  
 
     DISPLAY eb.cust-no            FORMAT "x(8)" COLUMN-LABEL "Customer"
             est.est-date           COLUMN-LABEL "date"
@@ -1287,7 +1300,7 @@ FOR EACH est NO-LOCK
           chWorkSheet:Range("C" + STRING(row-count)):VALUE = eb.cust-no .
           chWorkSheet:Range("D" + STRING(row-count)):VALUE = est.est-date .
           chWorkSheet:Range("E" + STRING(row-count)):VALUE = TRIM(eb.est-no) .
-          chWorkSheet:Range("F" + STRING(row-count)):VALUE = STRING(probe.sell-price, "->>>>>>>9.99") .
+          chWorkSheet:Range("F" + STRING(row-count)):VALUE = STRING(probe.sell-price * qm, "->>>>>>>9.99") .
           chWorkSheet:Range("G" + STRING(row-count)):VALUE = STRING(v-tons, "->>9.99999") .
           chWorkSheet:Range("H" + STRING(row-count)):VALUE = STRING(dTonCost, "->>>>>>>9.99") .
           /*chWorkSheet:Range("I" + STRING(row-count)):VALUE = "" .*/
@@ -1295,14 +1308,11 @@ FOR EACH est NO-LOCK
           chWorkSheet:Range("K" + STRING(row-count)):VALUE =  calcpcts.val[2] .
           chWorkSheet:Range("L" + STRING(row-count)):VALUE = ctrl2[9] .
           chWorkSheet:Range("M" + STRING(row-count)):VALUE = ctrl2[10]  .
-          chWorkSheet:Range("N" + STRING(row-count)):VALUE = probe.full-cost * qm .
-          /*chWorkSheet:Range("O" + STRING(row-count)):VALUE = "" .
-          chWorkSheet:Range("P" + STRING(row-count)):VALUE = "" .
-          chWorkSheet:Range("Q" + STRING(row-count)):VALUE = "" .
-          chWorkSheet:Range("R" + STRING(row-count)):VALUE = "" .
-          chWorkSheet:Range("S" + STRING(row-count)):VALUE = "" .*/
+          chWorkSheet:Range("N" + STRING(row-count)):VALUE = ctrl2[1] .
+          chWorkSheet:Range("O" + STRING(row-count)):VALUE = probe.full-cost * qm . 
+          chWorkSheet:Range("P" + STRING(row-count)):VALUE = probe.sell-price * (probe.net-profit / 100) * qm .
+          chWorkSheet:Range("Q" + STRING(row-count)):VALUE = string(probe.net-profit,"->>9.99%") .
           
-
            row-count = row-count + 1 .
     
       END.
@@ -1330,6 +1340,11 @@ chWorkSheet:Range ("A" + string(row-count) + "..S1020" ):delete     NO-ERROR.
   RELEASE OBJECT chWorkbook         NO-ERROR.
   RELEASE OBJECT chWorkSheet        NO-ERROR.
   RELEASE OBJECT chExcelApplication NO-ERROR.
+  RELEASE xeb .
+  RELEASE xop .
+  RELEASE eb.
+  RELEASE ef.
+  RELEASE probe .
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
