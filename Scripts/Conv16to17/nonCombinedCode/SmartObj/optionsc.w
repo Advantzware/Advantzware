@@ -346,6 +346,7 @@ PROCEDURE Init-Buttons :
   DEFINE VARIABLE notes-button AS LOGICAL NO-UNDO.
   DEFINE VARIABLE misc_fields-button AS LOGICAL NO-UNDO.
   DEFINE VARIABLE spec-note AS LOGICAL NO-UNDO.
+  {methods/calcBtnImage.i}
 
   {methods/run_link.i "CONTAINER-SOURCE" "Init-Options-Panel"
     "(OUTPUT search-button,OUTPUT list-button,OUTPUT notes-button,OUTPUT misc_fields-button, output spec-note)"}

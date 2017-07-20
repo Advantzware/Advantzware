@@ -65,11 +65,15 @@ g_track_usage = users.track_usage.
   Load program & lookup data 
   =========*/
   
-IF CONNECTED("ASI") THEN DO:
-    CREATE ALIAS NoSweat  FOR DATABASE ASI NO-ERROR.
-    CREATE ALIAS EmpTrack FOR DATABASE ASI NO-ERROR.
-    CREATE ALIAS Jobs     FOR DATABASE ASI NO-ERROR.
-    CREATE ALIAS RFQ      FOR DATABASE ASI NO-ERROR.
+if connected(ldbname(1))
+and ldbname(1) = "ASI" then do:
+    create alias nosweat for database value(ldbname(1)).
+    create alias emptrack for database value(ldbname(1)).
+    create alias jobs for database value(ldbname(1)).
+    create alias rfq for database value(ldbname(1)).
+    create alias asihelp for database value(ldbname(1)).
+    create alias asihlp for database value(ldbname(1)).
+    create alias asinos for database value(ldbname(1)).
     
     IF USERID("ASI") EQ "ASI" OR USERID("ASI") EQ "NOSWEAT" THEN RUN asiload.p.
 
