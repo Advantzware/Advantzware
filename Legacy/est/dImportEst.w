@@ -472,9 +472,7 @@ PROCEDURE pImport :
     
     DEFINE VARIABLE cImportFormat AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cInput AS CHARACTER FORMAT "x(2000)" NO-UNDO.
     DEFINE VARIABLE iLines AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE cForm AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPartID AS CHARACTER NO-UNDO.
@@ -563,15 +561,15 @@ PROCEDURE pValidateImportedData :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-FOR EACH ttInputEst:
-/*    MESSAGE                                    */
-/*        "Form" ttInputEst.iFormNo SKIP         */
-/*        "Part" ttInputEst.cPartID SKIP         */
-/*        "Desc" ttInputEst.cPartDescription skip*/
-/*        "Length" ttInputEst.dLength skip       */
-/*        "Width" ttInputEst.dWidth              */
-/*        VIEW-AS ALERT-BOX.                     */
-END.
+/*FOR EACH ttInputEst:                               */
+/*/*    MESSAGE                                    */*/
+/*/*        "Form" ttInputEst.iFormNo SKIP         */*/
+/*/*        "Part" ttInputEst.cPartID SKIP         */*/
+/*/*        "Desc" ttInputEst.cPartDescription skip*/*/
+/*/*        "Length" ttInputEst.dLength skip       */*/
+/*/*        "Width" ttInputEst.dWidth              */*/
+/*/*        VIEW-AS ALERT-BOX.                     */*/
+/*END.                                               */
 
 END PROCEDURE.
 
