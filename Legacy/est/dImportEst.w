@@ -472,9 +472,7 @@ PROCEDURE pImport :
     
     DEFINE VARIABLE cImportFormat AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cInput AS CHARACTER FORMAT "x(2000)" NO-UNDO.
     DEFINE VARIABLE iLines AS INTEGER NO-UNDO.
-    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     
     DEFINE VARIABLE cForm AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cPartID AS CHARACTER NO-UNDO.
@@ -489,7 +487,6 @@ PROCEDURE pImport :
     DO:
         INPUT FROM VALUE(cFile) NO-ECHO.
         REPEAT:
-            iLines = iLines + 1.
              CASE cImportFormat:
                 WHEN "Protagon" THEN DO:
                     IMPORT DELIMITER ","
@@ -500,8 +497,12 @@ PROCEDURE pImport :
                         cLength
                         cWidth
                          .
+                    iLines = iLines + 1.
                     IF iLines = 1 AND lHeaderRow THEN NEXT.
-                       
+                    IF iLines EQ 100 THEN DO: 
+                        MESSAGE "Import limit of " iLines " lines reached" VIEW-AS ALERT-BOX. 
+                        RETURN. 
+                    END.                       
                    CREATE ttInputEst.
                
                    ASSIGN 
@@ -516,9 +517,15 @@ PROCEDURE pImport :
                     .
                    
                 END. 
+                OTHERWISE RETURN.
             END CASE.
         END.
         INPUT CLOSE.
+        
+        IF lHeaderRow THEN iLines = iLines - 1.
+        MESSAGE "Import Completed" SKIP
+            iLines " forms have been imported to this estimate." 
+            VIEW-AS ALERT-BOX.
     END.           
 
 
@@ -541,6 +548,7 @@ PROCEDURE pRunProcess :
         RUN pConvertXLStoCSV(ipcImportFileName, OUTPUT ipcImportFileName).
     RUN pImport (ipcImportFileName).
     RUN pValidateImportedData. 
+    SESSION:SET-WAIT-STATE(""). 
     
 END PROCEDURE.
 
@@ -553,15 +561,15 @@ PROCEDURE pValidateImportedData :
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-FOR EACH ttInputEst:
-/*    MESSAGE                                    */
-/*        "Form" ttInputEst.iFormNo SKIP         */
-/*        "Part" ttInputEst.cPartID SKIP         */
-/*        "Desc" ttInputEst.cPartDescription skip*/
-/*        "Length" ttInputEst.dLength skip       */
-/*        "Width" ttInputEst.dWidth              */
-/*        VIEW-AS ALERT-BOX.                     */
-END.
+/*FOR EACH ttInputEst:                               */
+/*/*    MESSAGE                                    */*/
+/*/*        "Form" ttInputEst.iFormNo SKIP         */*/
+/*/*        "Part" ttInputEst.cPartID SKIP         */*/
+/*/*        "Desc" ttInputEst.cPartDescription skip*/*/
+/*/*        "Length" ttInputEst.dLength skip       */*/
+/*/*        "Width" ttInputEst.dWidth              */*/
+/*/*        VIEW-AS ALERT-BOX.                     */*/
+/*END.                                               */
 
 END PROCEDURE.
 
