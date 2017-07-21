@@ -1006,7 +1006,7 @@ PROCEDURE run-report :
 
         IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(buf-{&line})) OR {&head}.{&multiinvoice} ) THEN DO:
            NEXT.            
-        end.
+        END.
 
         vcBOLFiles = "".    
         IF {&head}.{&multiinvoice} THEN 
@@ -1426,16 +1426,24 @@ PROCEDURE setBolDates:
              opcBeginCust = begin_cust-SCREEN-VALUE
              opcEndCust   = end_cust-SCREEN-VALUE
              .
-
-    IF AVAILABLE {&head} AND {&head}.{&bolno} NE 0 THEN
-        FIND FIRST oe-bolh
-            WHERE oe-bolh.company EQ cocode
-            AND oe-bolh.{&bolno}  EQ {&head}.{&bolno}
-            NO-LOCK NO-ERROR.
-
-    IF AVAILABLE oe-bolh THEN
-        ASSIGN opdBeginDate = STRING(oe-bolh.bol-date)
-            opdEndDate   = STRING(oe-bolh.bol-date).
+    IF "{&head}" EQ "inv-head" THEN DO:
+        IF AVAILABLE {&head} AND {&head}.{&bolno} NE 0 THEN
+            FIND FIRST oe-bolh
+                WHERE oe-bolh.company EQ cocode
+                AND oe-bolh.{&bolno}  EQ {&head}.{&bolno}
+                NO-LOCK NO-ERROR.
+    
+        IF AVAILABLE oe-bolh THEN
+            ASSIGN opdBeginDate = STRING(oe-bolh.bol-date)
+                opdEndDate   = STRING(oe-bolh.bol-date).
+    END.
+    ELSE 
+    DO:
+        /* ar-inv case */
+        IF AVAILABLE {&head} THEN 
+            ASSIGN opdBeginDate = STRING({&head}.inv-date)
+                   opdEndDate   = STRING({&head}.inv-date).
+    END. 
 END.
 
 PROCEDURE setBOLRange:

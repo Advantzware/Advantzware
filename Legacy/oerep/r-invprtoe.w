@@ -163,13 +163,15 @@ DEF VAR vShipToNo AS CHAR NO-UNDO.  /* to hold shipto# for email */
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust end_cust begin_inv ~
-end_inv begin_date end_date tb_reprint tb_prt-inst tb_setcomp rd_sort ~
-tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page ~
-lv-font-no tb_email-orig tb_override-email td-show-parm btn-ok btn-cancel 
+end_inv begin_date end_date tb_reprint tb_posted tb_prt-inst tb_setcomp ~
+rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt ~
+lines-per-page lv-font-no tb_email-orig tb_override-email td-show-parm ~
+btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_inv end_inv ~
-begin_date end_date tb_reprint tb_prt-inst tb_setcomp lbl_sort rd_sort ~
-tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page ~
-lv-font-no lv-font-name tb_email-orig tb_override-email td-show-parm 
+begin_date end_date tb_reprint tb_posted tb_prt-inst tb_setcomp lbl_sort ~
+rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt ~
+lines-per-page lv-font-no lv-font-name tb_email-orig tb_override-email ~
+td-show-parm 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -626,10 +628,7 @@ ASSIGN
        tb_override-email:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
-/* SETTINGS FOR TOGGLE-BOX tb_posted IN FRAME FRAME-A
-   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
-       tb_posted:HIDDEN IN FRAME FRAME-A           = TRUE
        tb_posted:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -1227,10 +1226,21 @@ DO:
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_posted C-Win
 ON VALUE-CHANGED OF tb_posted IN FRAME FRAME-A /* Reprint Posted Invoices? */
 DO:
-        ASSIGN {&self-name}.
-        IF tb_posted THEN ASSIGN tb_reprint              = YES
-                tb_reprint:SCREEN-VALUE = "YES".
+    ASSIGN {&self-name}.
+    IF tb_posted THEN 
+      ASSIGN tb_reprint              = YES
+             tb_reprint:SCREEN-VALUE = "YES".
+    IF VALID-HANDLE(hSuperProc) THEN DO:
+       THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hSuperProc).
+       DELETE OBJECT hSuperProc.
     END.
+    if ipcInvoiceType eq "inv-head" AND NOT tb_posted then 
+      RUN oerep/r-invprtOESuper.p PERSISTENT SET hSuperProc.
+    else
+     RUN oerep/r-invprtARSuper.p PERSISTENT SET hSuperProc.
+    
+    THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hSuperProc).
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1547,14 +1557,15 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust end_cust begin_inv end_inv begin_date end_date tb_reprint 
-          tb_prt-inst tb_setcomp lbl_sort rd_sort tb_BatchMail tb_HideDialog 
-          tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
-          tb_email-orig tb_override-email td-show-parm 
+          tb_posted tb_prt-inst tb_setcomp lbl_sort rd_sort tb_BatchMail 
+          tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no 
+          lv-font-name tb_email-orig tb_override-email td-show-parm 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust end_cust begin_inv end_inv begin_date 
-         end_date tb_reprint tb_prt-inst tb_setcomp rd_sort tb_BatchMail 
-         tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no 
-         tb_email-orig tb_override-email td-show-parm btn-ok btn-cancel 
+         end_date tb_reprint tb_posted tb_prt-inst tb_setcomp rd_sort 
+         tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page 
+         lv-font-no tb_email-orig tb_override-email td-show-parm btn-ok 
+         btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
