@@ -6,7 +6,7 @@
 
   File:
 
-  Description: from VIEWER.W - Template for SmartViewer Objects
+  Description: from VIEWER.W - Template for SmartPanel Objects
 
   Input Parameters:
       <none>
@@ -45,11 +45,11 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn_pattn RECT-8 
+&Scoped-Define ENABLED-OBJECTS RECT-8 btn_pattn 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -89,7 +89,7 @@ DEFINE BUTTON btn_pattn
      SIZE 16 BY 1.24.
 
 DEFINE RECTANGLE RECT-8
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 18 BY 1.71.
 
 
@@ -107,7 +107,7 @@ DEFINE FRAME F-Main
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartViewer
+   Type: SmartPanel
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -153,10 +153,14 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+ASSIGN 
+       btn_pattn:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -206,6 +210,8 @@ END.
   &ENDIF         
 
   /************************ INTERNAL PROCEDURES ********************/
+
+  {methods/setButton.i btn_pattn "Stack Pattern"} /* added by script c:\tmp\p64604__panelImages.ped */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -262,7 +268,7 @@ PROCEDURE send-records :
 ------------------------------------------------------------------------------*/
 
   /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartViewer, and there are no
+     Tables specified for this SmartPanel, and there are no
      tables specified in any contained Browse, Query, or Frame. */
 
 END PROCEDURE.

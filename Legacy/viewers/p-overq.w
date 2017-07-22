@@ -95,7 +95,7 @@ DEFINE BUTTON btn-override-qty
      SIZE 16 BY 1.67.
 
 DEFINE RECTANGLE RECT-25
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 17.2 BY 2.14.
 
 
@@ -162,6 +162,10 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+ASSIGN 
+       btn-override-qty:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME

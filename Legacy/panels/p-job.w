@@ -132,7 +132,7 @@ DEFINE BUTTON Btn-Save
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 84 BY 1.91.
 
 
@@ -208,6 +208,14 @@ ASSIGN
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
 
+ASSIGN 
+       btn-rebuild:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
+ASSIGN 
+       btn-recalc:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
    NO-ENABLE 1                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -282,7 +290,7 @@ END.
 
 &Scoped-define SELF-NAME btn-rebuild
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-rebuild C-WIn
-ON CHOOSE OF btn-rebuild IN FRAME Panel-Frame /* Rebuild Stds */
+ON CHOOSE OF btn-rebuild IN FRAME Panel-Frame /* Rebuild Std */
 DO:
     def var char-hdl as cha no-undo.
     run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
@@ -296,7 +304,7 @@ END.
 
 &Scoped-define SELF-NAME btn-recalc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-recalc C-WIn
-ON CHOOSE OF btn-recalc IN FRAME Panel-Frame /* Recalc Costs */
+ON CHOOSE OF btn-recalc IN FRAME Panel-Frame /* Recalc Cost */
 DO:
     def var char-hdl as cha no-undo.
     run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
