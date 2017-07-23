@@ -144,7 +144,7 @@ DEFINE FRAME F-Main
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartViewer
+   Type: SmartPanel
    External Tables: ASI.oe-ordl,ASI.oe-ord
    Allow: Basic,DB-Fields
    Frames: 1
@@ -198,10 +198,38 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON Btn-Add IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       Btn-Add:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* SETTINGS FOR BUTTON Btn-Delete IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       Btn-Delete:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       btn-his:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       btn-price:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* SETTINGS FOR BUTTON Btn-Save IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       Btn-Save:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       btn-stat:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       Btn-View:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -334,6 +362,14 @@ END.
   &ENDIF         
 
   /************************ INTERNAL PROCEDURES ********************/
+
+  {methods/setButton.i Btn-Add "Add"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i Btn-Delete "Delete"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i btn-his "History"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i btn-price "Price"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i Btn-Save "Update"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i btn-stat "Stat"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i Btn-View "View"} /* added by script c:\tmp\p64604__panelImages.ped */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

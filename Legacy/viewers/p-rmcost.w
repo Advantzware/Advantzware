@@ -49,7 +49,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-Cost RECT-25 
+&Scoped-Define ENABLED-OBJECTS RECT-25 btn-Cost 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -89,7 +89,7 @@ DEFINE BUTTON btn-Cost
      SIZE 34.4 BY 1.67.
 
 DEFINE RECTANGLE RECT-25
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 36 BY 2.05.
 
 
@@ -156,6 +156,10 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+ASSIGN 
+       btn-Cost:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME

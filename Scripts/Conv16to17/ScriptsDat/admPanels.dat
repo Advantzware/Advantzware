@@ -219,12 +219,10 @@ rm\v-trpost.w
 rm\vp-price.w
 viewers\delsel.w
 viewers\expsurchrg.w
-viewers\file-seq.w
 viewers\impexcel.w
 viewers\import.w
 viewers\p-calcq.w
 viewers\p-farmh.w
-viewers\p-fg-bj-2.w
 viewers\p-fg-bj-l.w
 viewers\p-fg-bj.w
 viewers\p-overq.w

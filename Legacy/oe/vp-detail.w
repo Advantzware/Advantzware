@@ -61,7 +61,7 @@ ASSIGN cocode = g_company
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR oe-ordl.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-4 Btn-Detail 
+&Scoped-Define ENABLED-OBJECTS Btn-Detail RECT-4 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -170,6 +170,10 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+ASSIGN 
+       Btn-Detail:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME

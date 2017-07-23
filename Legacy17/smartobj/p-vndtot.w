@@ -13,7 +13,7 @@ to its TABLEIO-TARGET. "
 
         This is the standard version of the database
         update SmartPanel. It uses the TABLEIO link
-        to communicate with SmartViewers and Smart-
+        to communicate with SmartPanels and Smart-
         Browsers.
 
         There are two styles of this SmartPanel
@@ -111,7 +111,7 @@ DEFINE BUTTON Btn-Save
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 59 BY 1.76.
 
 
@@ -183,6 +183,10 @@ END.
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
+
+ASSIGN 
+       btn-recalc:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
 
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
    NO-ENABLE 1                                                          */
@@ -323,6 +327,8 @@ END.
   {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
   {methods/setButton.i Btn-Reset "Reset"} /* added by script _admTransPanels.p */
   {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p */
+
+  {methods/setButton.i btn-recalc "Last YR and YTD Balances"} /* added by script c:\tmp\p64604__panelImages.ped */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

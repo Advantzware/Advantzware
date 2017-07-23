@@ -184,6 +184,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       btnHold:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

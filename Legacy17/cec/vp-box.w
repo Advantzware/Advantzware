@@ -6,7 +6,7 @@
 
   File:
 
-  Description: from VIEWER.W - Template for SmartViewer Objects
+  Description: from VIEWER.W - Template for SmartPanel Objects
 
   Input Parameters:
       <none>
@@ -86,10 +86,10 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON print-box 
      LABEL "Print &Box" 
-     SIZE 13 BY 1.91.
+     SIZE 13 BY 1.9.
 
 DEFINE RECTANGLE RECT-41
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 14.8 BY 2.33.
 
 
@@ -107,7 +107,7 @@ DEFINE FRAME F-Main
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartViewer
+   Type: SmartPanel
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -158,6 +158,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       print-box:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -206,6 +210,8 @@ END.
   &ENDIF         
 
   /************************ INTERNAL PROCEDURES ********************/
+
+  {methods/setButton.i print-box "Print Box"} /* added by script c:\tmp\p64604__panelImages.ped */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -262,7 +268,7 @@ PROCEDURE send-records :
 ------------------------------------------------------------------------------*/
 
   /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartViewer, and there are no
+     Tables specified for this SmartPanel, and there are no
      tables specified in any contained Browse, Query, or Frame. */
 
 END PROCEDURE.

@@ -8,6 +8,7 @@ RUN _lookups.p.
 RUN _nonAdm1.p.
 RUN _nonAdm1Images1.p.
 RUN _nonAdm1Images2.p.
+RUN _panelImages.p.
 RUN _admBrowsers.p.
 RUN _admViewers.p.
 RUN _admWindows.p.

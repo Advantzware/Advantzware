@@ -45,7 +45,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
@@ -115,7 +115,7 @@ DEFINE BUTTON Btn-Prev
      SIZE 8 BY 1 TOOLTIP "Previous".
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 42 BY 1.43.
 
 
@@ -182,10 +182,14 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+ASSIGN 
+       Btn-Goto:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
 
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME F-Main
    NO-ENABLE 1                                                          */

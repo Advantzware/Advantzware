@@ -28,6 +28,8 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE NoWinKit 
+
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -170,7 +172,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/winkit-panel.i}
 {src/adm/method/panel.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -257,7 +258,6 @@ DO:
   APPLY 'ENTRY':U TO fi_tag#.
   RETURN NO-APPLY.
     END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */

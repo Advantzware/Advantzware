@@ -107,7 +107,7 @@ DEFINE BUTTON Btn-Update
      FONT 4.
 
 DEFINE RECTANGLE RECT-4
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 20 BY 1.67.
 
 
@@ -175,6 +175,10 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+ASSIGN 
+       Btn-Update:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME

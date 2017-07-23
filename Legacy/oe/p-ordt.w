@@ -108,7 +108,7 @@ DEFINE BUTTON btn_frt
      SIZE 9 BY 1.29.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 31 BY 1.76.
 
 
@@ -178,6 +178,10 @@ END.
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
+
+ASSIGN 
+       btn_frt:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
 
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
    NO-ENABLE 1                                                          */

@@ -899,6 +899,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     RUN enable_UI.
 
+    /* {custom/usrprint.i} */
+
     IF v-loadtag NE "TRIAD" THEN HIDE {&triad}.
 
     FIND FIRST sys-ctrl NO-LOCK 

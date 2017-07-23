@@ -196,12 +196,40 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       Btn-Add:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       Btn-Delete:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* SETTINGS FOR BUTTON btn-his IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       btn-his:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* SETTINGS FOR BUTTON btn-misc IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       btn-misc:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       Btn-Save:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* SETTINGS FOR BUTTON btn-ship IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       btn-ship:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       Btn-View:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

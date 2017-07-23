@@ -9,7 +9,7 @@
 
   File:
 
-  Description: from VIEWER.W - Template for SmartViewer Objects
+  Description: from VIEWER.W - Template for SmartPanel Objects
 
   Input Parameters:
       <none>
@@ -131,7 +131,7 @@ DEFINE FRAME F-Main
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartViewer
+   Type: SmartPanel
    External Tables: asi.quotehd
    Allow: Basic,DB-Fields
    Frames: 1
@@ -182,6 +182,14 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+ASSIGN 
+       Btn-print:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       Btn-Update:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -249,6 +257,9 @@ END.
   &ENDIF         
 
   /************************ INTERNAL PROCEDURES ********************/
+
+  {methods/setButton.i Btn-print "Print Price List"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i Btn-Update "Update Price Matrix"} /* added by script c:\tmp\p64604__panelImages.ped */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

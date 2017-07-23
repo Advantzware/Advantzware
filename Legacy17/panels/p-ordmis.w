@@ -13,7 +13,7 @@ to its TABLEIO-TARGET. "
 
         This is the standard version of the database
         update SmartPanel. It uses the TABLEIO link
-        to communicate with SmartViewers and Smart-
+        to communicate with SmartPanels and Smart-
         Browsers.
 
         There are two styles of this SmartPanel
@@ -76,7 +76,7 @@ DEF VAR lv-char-hdl AS cha NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
@@ -131,7 +131,7 @@ DEFINE BUTTON Btn-Save
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 82 BY 1.76.
 
 
@@ -202,10 +202,14 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
+
+ASSIGN 
+       Btn-Inv:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
 
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
    NO-ENABLE 1                                                          */
@@ -396,6 +400,8 @@ END.
   {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p */
   {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p */
   {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p */
+
+  {methods/setButton.i Btn-Inv "Invoice"} /* added by script c:\tmp\p64604__panelImages.ped */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

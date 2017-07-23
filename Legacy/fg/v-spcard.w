@@ -96,7 +96,7 @@ DEFINE BUTTON btn-card
      SIZE 13 BY 1.67.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 15 BY 2.14.
 
 
@@ -163,6 +163,10 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+ASSIGN 
+       btn-card:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
