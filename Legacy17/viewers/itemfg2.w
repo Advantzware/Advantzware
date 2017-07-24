@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -472,7 +472,7 @@ DO:
 
   v-whseadded = NO.
   IF AVAIL itemfg THEN
-      RUN windows/addfgloc.w (ROWID(itemfg), OUTPUT v-whseadded).
+    RUN windows/addfgloc.w (INPUT ROWID(itemfg), OUTPUT v-whseadded).
   IF v-whseadded THEN
       RUN reset-cbloc.
   C-Win:SHOW-IN-TASKBAR=TRUE.
@@ -501,10 +501,10 @@ END.
 ON CHOOSE OF btn_onh IN FRAME F-Main /* On Hand */
 DO:
   IF itemfg.q-onh NE 0 THEN
-  DO:
-      RUN fg/w-inqonh.w PERSISTENT SET hProgram (ROWID(itemfg), NO).
-      RUN dispatch IN hProgram ("initialize").
-  END.
+    DO:
+        RUN fg/w-inqonh.w PERSISTENT SET hProgram  (ROWID(itemfg), NO).
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -534,10 +534,11 @@ DO:
         FIND FIRST fg-set WHERE fg-set.company EQ itemfg.company
                             AND fg-set.part-no EQ itemfg.i-no
                           NO-LOCK NO-ERROR.
-        IF AVAIL fg-set THEN DO:
-            RUN jc/w-inqjbc.w PERSISTENT SET hProgram  (ROWID(itemfg), YES).
-            RUN dispatch IN hProgram ("initialize").
-        END.
+        IF AVAIL fg-set THEN
+    DO:
+        RUN jc/w-inqjbc.w PERSISTENT SET hProgram  (ROWID(itemfg), YES).
+        RUN dispatch IN hProgram ("initialize").
+    END.
     END.
 
     FIND FIRST po-ordl
@@ -548,8 +549,9 @@ DO:
           AND CAN-FIND(FIRST po-ord WHERE po-ord.company EQ po-ordl.company
                                       AND po-ord.po-no   EQ po-ordl.po-no)
         NO-LOCK NO-ERROR.
-    IF AVAIL po-ordl THEN DO:
-        RUN po/w-inqpo.w PERSISTENT SET hProgram (ROWID(itemfg), YES).
+    IF AVAIL po-ordl THEN
+    DO:
+        RUN po/w-inqpo.w PERSISTENT SET hProgram  (ROWID(itemfg), YES).
         RUN dispatch IN hProgram ("initialize").
     END.
   END.

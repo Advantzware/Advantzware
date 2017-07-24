@@ -124,15 +124,15 @@ btnCustList tb_cust-list begin_cust-no end_cust-no begin_slsmn end_slsmn ~
 begin_curr end_curr begin_term end_term trend_days as-of-date period-days-1 ~
 period-days-2 period-days-3 rs_detail rd_sort rd_sort2 tb_paid ~
 tb_include-factored tb_fuel tb_separate-fc begin_inv-date end_inv-date ~
-tgInactiveCust btn_SelectColumns lv-ornt lines-per-page rd-dest ~
-lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+tgInactiveCust btn_SelectColumns lv-ornt lines-per-page rd-dest lv-font-no ~
+td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_comp end_comp tb_cust-list ~
 begin_cust-no end_cust-no begin_slsmn end_slsmn begin_curr end_curr ~
 begin_term end_term trend_days as-of-date period-days-1 period-days-2 ~
 period-days-3 rs_detail lbl_sort rd_sort lbl_sort2 rd_sort2 tb_paid ~
 tb_include-factored tb_fuel tb_separate-fc begin_inv-date end_inv-date ~
-tgInactiveCust lv-ornt lines-per-page rd-dest lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+tgInactiveCust lv-ornt lines-per-page rd-dest lv-font-no lv-font-name ~
+td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -157,7 +157,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON btn-cancel /*AUTO-END-KEY */ /* task 12031502 */
+DEFINE BUTTON btn-cancel 
      LABEL "&Cancel" 
      SIZE 15 BY 1.14.
 
@@ -244,13 +244,13 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-araged.c
      SIZE 44 BY 1
      FGCOLOR 9 .
 
-DEFINE VARIABLE lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Sort 1?" 
+DEFINE VARIABLE lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Sorted By?" 
      VIEW-AS FILL-IN 
-     SIZE 8 BY 1 NO-UNDO.
+     SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE lbl_sort2 AS CHARACTER FORMAT "X(256)":U INITIAL "Sort 2?" 
+DEFINE VARIABLE lbl_sort2 AS CHARACTER FORMAT "X(256)":U INITIAL "Aged By?" 
      VIEW-AS FILL-IN 
-     SIZE 8 BY 1 NO-UNDO.
+     SIZE 10.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
@@ -309,16 +309,16 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Name"
      RADIO-BUTTONS 
           "Customer#", "#Number",
 "Name", "Name",
-"SalesRep#", "SalesRep#"
-     SIZE 44 BY 1 NO-UNDO.
+"SalesRep#", "SalesRep#",
+"Invoice#", "Invoice#"
+     SIZE 48 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rd_sort2 AS CHARACTER INITIAL "InvDate" 
-     VIEW-AS RADIO-SET HORIZONTAL
+     VIEW-AS RADIO-SET VERTICAL
      RADIO-BUTTONS 
           "Due Date", "DueDate",
-"Invoice Date", "InvDate",
-"Invoice#", "Invoice#"
-     SIZE 51 BY 1 NO-UNDO.
+"Invoice Date", "InvDate"
+     SIZE 16 BY 1.71 NO-UNDO.
 
 DEFINE VARIABLE rs_detail AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -330,11 +330,11 @@ DEFINE VARIABLE rs_detail AS INTEGER
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 93 BY 8.1.
+     SIZE 96 BY 8.1.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 18.48.
+     SIZE 97 BY 18.48.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -344,49 +344,49 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
 
-DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
      LABEL "Use Defined Customer List" 
      VIEW-AS TOGGLE-BOX
      SIZE 31.8 BY .62 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .95
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_fuel AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_fuel AS LOGICAL INITIAL yes 
      LABEL "Include Fuel Surcharges?" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_include-factored AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_include-factored AS LOGICAL INITIAL no 
      LABEL "Include Factored FG Items?" 
      VIEW-AS TOGGLE-BOX
      SIZE 31 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_paid AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_paid AS LOGICAL INITIAL no 
      LABEL "Include Paid Invoices?" 
      VIEW-AS TOGGLE-BOX
      SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .95
      BGCOLOR 3  NO-UNDO.
 
-DEFINE VARIABLE tb_separate-fc AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_separate-fc AS LOGICAL INITIAL no 
      LABEL "Separate Finance Charges?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tgInactiveCust AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tgInactiveCust AS LOGICAL INITIAL no 
      LABEL "Inactive Customers?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .81 NO-UNDO.
@@ -421,20 +421,20 @@ DEFINE FRAME FRAME-A
      period-days-2 AT ROW 9.05 COL 39 COLON-ALIGNED
      period-days-3 AT ROW 9.05 COL 51 COLON-ALIGNED
      rs_detail AT ROW 10 COL 29 NO-LABEL WIDGET-ID 6
-     lbl_sort AT ROW 11.19 COL 19 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 11.19 COL 29 NO-LABEL
-     lbl_sort2 AT ROW 12.14 COL 19 COLON-ALIGNED NO-LABEL
-     rd_sort2 AT ROW 12.14 COL 29 NO-LABEL
-     tb_paid AT ROW 13.1 COL 29
-     tb_include-factored AT ROW 13.1 COL 59.6
-     tb_fuel AT ROW 14.05 COL 29
-     tb_separate-fc AT ROW 14.05 COL 59.6
-     begin_inv-date AT ROW 15.05 COL 27 COLON-ALIGNED HELP
+     lbl_sort AT ROW 11.19 COL 5.2 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 11.19 COL 19.2 NO-LABEL
+     lbl_sort2 AT ROW 11.19 COL 66.4 COLON-ALIGNED NO-LABEL
+     rd_sort2 AT ROW 11.19 COL 80.2 NO-LABEL
+     tb_paid AT ROW 12.91 COL 29
+     tb_include-factored AT ROW 12.91 COL 59.6
+     tb_fuel AT ROW 13.86 COL 29
+     tb_separate-fc AT ROW 13.86 COL 59.6
+     begin_inv-date AT ROW 14.86 COL 27 COLON-ALIGNED HELP
           "Enter Beginning Invoice Date"
-     end_inv-date AT ROW 15.05 COL 70 COLON-ALIGNED HELP
+     end_inv-date AT ROW 14.86 COL 70 COLON-ALIGNED HELP
           "Enter Ending Invoice Date"
-     tgInactiveCust AT ROW 16.29 COL 29 WIDGET-ID 20
-     btn_SelectColumns AT ROW 17.57 COL 29 WIDGET-ID 10
+     tgInactiveCust AT ROW 16.1 COL 29 WIDGET-ID 20
+     btn_SelectColumns AT ROW 17.38 COL 29 WIDGET-ID 10
      sl_avail AT ROW 19.76 COL 3 NO-LABEL WIDGET-ID 26
      lv-ornt AT ROW 20.19 COL 32 NO-LABEL
      lines-per-page AT ROW 20.19 COL 84.8 COLON-ALIGNED
@@ -459,7 +459,7 @@ DEFINE FRAME FRAME-A
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 94.4 BY 28.86.
+         SIZE 97.6 BY 28.86.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -480,20 +480,20 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          HIDDEN             = YES
          TITLE              = "AR Aged Receivables"
          HEIGHT             = 29.1
-         WIDTH              = 96
+         WIDTH              = 98.2
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 /* END WINDOW DEFINITION                                                */
@@ -519,16 +519,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        as-of-date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -556,6 +546,14 @@ ASSIGN
 ASSIGN 
        begin_term:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_comp:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -622,6 +620,7 @@ ASSIGN
 ASSIGN 
        rs_detail:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm,Report Type".
+
 /* SETTINGS FOR SELECTION-LIST sl_avail IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -673,7 +672,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -777,6 +776,22 @@ END.
 
 
 &Scoped-define SELF-NAME begin_term
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_term C-Win
+ON HELP OF begin_term IN FRAME FRAME-A /* Beginning Terms */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN windows/l-terms.w 
+               (gcompany,{&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT char-val).
+           IF char-val <> "" THEN 
+              ASSIGN {&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_term C-Win
 ON LEAVE OF begin_term IN FRAME FRAME-A /* Beginning Terms */
 DO:
@@ -950,7 +965,23 @@ END.
 
 &Scoped-define SELF-NAME end_term
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_term C-Win
-ON LEAVE OF end_term IN FRAME FRAME-A /* Ending Currency */
+ON HELP OF end_term IN FRAME FRAME-A /* Ending Terms */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+    RUN windows/l-terms.w 
+               (gcompany,{&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT char-val).
+           IF char-val <> "" THEN 
+              ASSIGN {&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_term C-Win
+ON LEAVE OF end_term IN FRAME FRAME-A /* Ending Terms */
 DO:
   ASSIGN {&self-name}.
 END.
@@ -990,40 +1021,6 @@ DO:
     RUN WINDOWS/l-fonts.w ({&SELF-NAME}:SCREEN-VALUE, OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN {&SELF-NAME}:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME begin_term
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_term C-Win
-ON HELP OF begin_term IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN windows/l-terms.w 
-               (gcompany,{&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT char-val).
-           IF char-val <> "" THEN 
-              ASSIGN {&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val) .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_term
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_term C-Win
-ON HELP OF end_term IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-    RUN windows/l-terms.w 
-               (gcompany,{&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name}, OUTPUT char-val).
-           IF char-val <> "" THEN 
-              ASSIGN {&SELF-NAME}:SCREEN-VALUE IN FRAME {&frame-name} = ENTRY(1,char-val) .
 
 END.
 
@@ -1327,6 +1324,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     as-of-date:SCREEN-VALUE = STRING(TODAY).
+    lbl_sort:SCREEN-VALUE =  "Sorted By?:" .
+    lbl_sort2:SCREEN-VALUE =  "Aged By?:" .
     IF v-count LE 1 THEN
         ASSIGN
           begin_comp:SENSITIVE = NO
@@ -1590,8 +1589,8 @@ PROCEDURE enable_UI :
           as-of-date period-days-1 period-days-2 period-days-3 rs_detail 
           lbl_sort rd_sort lbl_sort2 rd_sort2 tb_paid tb_include-factored 
           tb_fuel tb_separate-fc begin_inv-date end_inv-date tgInactiveCust 
-          lv-ornt lines-per-page rd-dest lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+          lv-ornt lines-per-page rd-dest lv-font-no lv-font-name td-show-parm 
+          tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_comp end_comp btnCustList tb_cust-list 
          begin_cust-no end_cust-no begin_slsmn end_slsmn begin_curr end_curr 
@@ -1951,16 +1950,19 @@ ASSIGN grand-t = 0
   END.
 
 
-  IF v-sort2 BEGINS "Due" THEN
+  IF v-sort2 BEGINS "Due" THEN do:
     IF v-sort EQ "Name" THEN
         RUN ar/ar-agng1N.p.
     ELSE
     IF v-sort EQ "#Number" THEN
        RUN ar/ar-agng2N.p.
-    ELSE
+    ELSE IF v-sort EQ "SalesRep#" THEN
       RUN ar/ar-agng7N.p.
+    ELSE
+        RUN ar/ar-agng5N.p. 
+  END.
 
-  ELSE
+  ELSE do:
   IF v-sort2 BEGINS "InvD" THEN
     IF v-sort EQ "Name" THEN
       RUN ar/ar-agng3N.p.
@@ -1969,20 +1971,11 @@ ASSIGN grand-t = 0
     IF v-sort EQ "#Number" THEN
       RUN ar/ar-agng4N.p.
 
-    ELSE
+    ELSE IF v-sort EQ "SalesRep#" THEN
       RUN ar/ar-agng8N.p.
-
-  ELSE
-    IF v-sort EQ "Name" THEN
-      RUN ar/ar-agng5N.p.
-
     ELSE
-    IF v-sort EQ "#Number" THEN
-      RUN ar/ar-agng6N.p.
-
-    ELSE
-      RUN ar/ar-agng9N.p.
-
+        RUN ar/ar-agng6N.p. 
+  END.
 
   IF tb_excel THEN DO:
     OUTPUT STREAM s-temp CLOSE.

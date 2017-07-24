@@ -395,7 +395,7 @@ END.
   {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p */
   {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p */
 
-  {methods/setButton.i btn-sch "Schedule"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i btn-sch "Schedule"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

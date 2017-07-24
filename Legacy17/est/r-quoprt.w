@@ -2257,6 +2257,21 @@ FOR EACH tt-quote,
         ELSE DO:
             FIND FIRST est WHERE est.company = quotehd.company 
                 AND est.est-no EQ quotehd.est-no NO-LOCK NO-ERROR.
+           IF v-print-fmt EQ "midwest" THEN do:
+            IF AVAIL est THEN DO:
+                FIND FIRST oe-ordl NO-LOCK
+                     WHERE oe-ordl.company EQ cocode
+                       AND oe-ordl.i-no EQ quoteitm.i-no 
+                    NO-ERROR.
+                FIND FIRST itemfg NO-LOCK
+                     WHERE itemfg.company EQ cocode
+                       AND itemfg.i-no EQ quoteitm.i-no 
+                     NO-ERROR .
+                IF AVAIL itemfg AND itemfg.stocked AND AVAIL oe-ordl THEN TRUE .
+                ELSE IF AVAIL est AND est.ord-no EQ 0 THEN NEXT. 
+            END.
+           END.
+           ELSE
             IF AVAIL est AND est.ord-no EQ 0 THEN NEXT.
         END.
     END.

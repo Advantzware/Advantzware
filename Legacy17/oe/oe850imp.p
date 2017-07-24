@@ -23,7 +23,7 @@
 
 
 /* ***************************  Main Block  *************************** */
-def /* variable */ input param ipXmlFile as cha no-undo.
+DEF /* variable */ INPUT PARAM ipXmlFile AS cha NO-UNDO.
 DEFINE VARIABLE cSourceType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cTargetType AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
@@ -50,7 +50,7 @@ ASSIGN cSourceType = "FILE"
        lOverrideDefaultMapping = NO.
 
 
-    lReturn = hPDS:READ-XML (cSourceType, cFile, cReadMode, cSchemaLocation, lOverrideDefaultMapping).   
+    lReturn = hPDS:READ-XML (cSourceType, cFile, cReadMode, cSchemaLocation, lOverrideDefaultMapping).
     IF lReturn THEN RUN BuildEdiTables. 
    
 /*FOR EACH OrderHeader NO-LOCK :                                                                       */
@@ -110,7 +110,7 @@ PROCEDURE BuildEdiTables:
           EDPOTran.Seq = li-seq
           edpotran.cust-po = OrderHeader.PurchaseOrderNumber
           edpotran.order-date = OrderHeader.PurchaseOrderDate
-          edpotran.request-date = today
+          edpotran.request-date = TODAY
 /*          edpotran.sf-code =                                                          */
 /*                          if edmast.sf-code > "" then edmast.sf-code else edco.sf-code*/
 /*          edpotran.by-code = ordering_store_number                                    */
@@ -122,7 +122,7 @@ PROCEDURE BuildEdiTables:
   FIND FIRST Address WHERE Address.AddressTypeCode = "ST" /* ship-to */
            NO-LOCK NO-ERROR.
   IF AVAILABLE address THEN 
-     assign EDPOTran.Ship-name = address.addressName                           
+     ASSIGN EDPOTran.Ship-name = address.addressName                           
             EDPOTran.Ship-address[1] = address.Address1                         
             EDPOTran.Ship-address[2] = address.address2                         
             EDPOTran.Ship-city      = address.city                           
@@ -198,7 +198,7 @@ PROCEDURE BuildEdiTables:
    ASSIGN EDDoc.Partner = EDPOTran.Partner
           EDDoc.Seq = EDPOTran.Seq.
 
-   put STREAM stEDI recid(edpotran) skip.
+   PUT STREAM stEDI RECID(edpotran) SKIP.
              
 /*  /* edpoline */                                     */
    FOR /*EACH lineitem,*/
@@ -212,7 +212,7 @@ PROCEDURE BuildEdiTables:
               edpoline.line = edpotran.last-line
               edpoline.item-no = OrderLine.VendorPartNumber
             edpoline.cust-item-no = OrderLine.BuyerPartNumber
-            edpoline.cust-po-line = string(edpoline.line,"99")
+            edpoline.cust-po-line = STRING(edpoline.line,"99")
             edpoline.qty-orig-ord = OrderLine.OrderQty
             edpoline.by-code = edpotran.by-code            
             edpoline.st-code = edpotran.st-code
@@ -221,6 +221,7 @@ PROCEDURE BuildEdiTables:
             edpoline.unit-price = OrderLine.PurchasePrice
             edpotran.order-amount = edpotran.order-amount 
                 + round(edpoline.qty-orig-ord * edpoline.unit-price, 2)
+     edpoline.uom-code = OrderLine.OrderQtyUOM 
             .
 /*  EDPOLine.cust-po-line                              */
 /*  EDPOLine.cust-item-no                              */

@@ -446,8 +446,8 @@ END.
   {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p */
   {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p */
 
-  {methods/setButton.i btn-alloc "Allocation"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i btn-sht-calc "Sheet Calc"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i btn-alloc "Allocation"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-sht-calc "Sheet Calc"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

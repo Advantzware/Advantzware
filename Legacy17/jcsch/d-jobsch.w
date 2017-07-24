@@ -259,7 +259,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -299,7 +299,7 @@ DO:
     ASSIGN v-st-hr v-st-mn v-st-ampm
            v-end-hr v-end-mn v-end-ampm
            v-st-date v-end-date v-due-sdate v-due-edate v-sch-date.
-
+    
 
    /* validation */
     IF v-end-date < v-st-date THEN DO:
@@ -383,7 +383,7 @@ DO:
       DISPLAY v-sch-date WITH FRAME {&FRAME-NAME}.
    END.
 
-
+   
 
    ASSIGN v-st-hr = TRUNCATE(mach-calendar.START / 3600,0)        
           v-st-mn = (mach-calendar.START - (v-st-hr * 3600)) / 60
@@ -476,7 +476,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-st-hr D-Dialog
 ON LEAVE OF v-st-hr IN FRAME D-Dialog /* Work Start Time */
 DO:
-
+    
     IF int(SELF:SCREEN-VALUE) > 12 OR int(SELF:SCREEN-VALUE) < 0  THEN DO:
        MESSAGE "Invalid Time Value. " VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
@@ -512,7 +512,7 @@ END.
 ASSIGN v-mach = ip-m-code
        v-st-date = iop-date-wkst
        v-end-date = iop-date-wkend.
-
+       
 {src/adm/template/dialogmn.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -621,7 +621,7 @@ PROCEDURE local-initialize :
                                   v-end-hr = v-end-hr - 12.
      ELSE v-end-ampm = "AM".
   END.
-
+  
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .

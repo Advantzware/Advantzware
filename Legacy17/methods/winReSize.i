@@ -13,8 +13,10 @@ PROCEDURE winReSize:
   // No matter what resizing we need to ensure, the virtual size of the frame
   // is large enough here to contain all widgets
   ASSIGN 
-      iWindowHeight                            = IF iWindowHeight EQ 0 THEN {&WINDOW-NAME}:HEIGHT ELSE iWindowHeight 
-      iWindowWidth                             = IF iWindowWidth  EQ 0 THEN {&WINDOW-NAME}:WIDTH  ELSE iWindowWidth
+      iWindowHeight = IF iWindowHeight EQ 0 THEN {&WINDOW-NAME}:HEIGHT
+                      ELSE iWindowHeight 
+      iWindowWidth  = IF iWindowWidth  EQ 0 THEN {&WINDOW-NAME}:WIDTH
+                      ELSE iWindowWidth
       FRAME {&FRAME-NAME}:FRAME:VIRTUAL-HEIGHT = iWindowHeight
       FRAME {&FRAME-NAME}:FRAME:VIRTUAL-WIDTH  = iWindowWidth
       FRAME {&FRAME-NAME}:FRAME:HEIGHT         = iWindowHeight

@@ -39,7 +39,7 @@ DEF OUTPUT PARAMETER op-validated AS LOG INIT NO NO-UNDO.
 {custom/globdefs.i}
 
 {sys/inc/var.i new shared}
-
+    
 DEF VAR v-psswrd AS CHAR INIT "advance4me" NO-UNDO.
 
 ASSIGN 
@@ -156,7 +156,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 

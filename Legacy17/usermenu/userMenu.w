@@ -148,10 +148,10 @@ SESSION:SET-WAIT-STATE('').
     ~{&OPEN-QUERY-ttUserMenu}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS userName showOption filterMenu btnLoadMenu ~
-loadMenu filterItem btnReset ttMenu ttUserMenu ttItem btnAddItem btnAddMenu ~
-btnDefault btnExit btnMoveDown btnMoveUp btnRemove btnSave btnShiftLeft ~
-btnShiftRight 
+&Scoped-Define ENABLED-OBJECTS userName btnReset showOption filterMenu ~
+btnLoadMenu loadMenu filterItem ttMenu ttUserMenu ttItem btnAddItem ~
+btnAddMenu btnDefault btnExit btnMoveDown btnMoveUp btnRemove btnSave ~
+btnShiftLeft btnShiftRight 
 &Scoped-Define DISPLAYED-OBJECTS userName showOption filterMenu loadMenu ~
 filterItem 
 
@@ -322,13 +322,13 @@ DEFINE BROWSE ttUserMenu
 DEFINE FRAME DEFAULT-FRAME
      userName AT ROW 1.48 COL 63 COLON-ALIGNED HELP
           "Select User Account ID" WIDGET-ID 4
+     btnReset AT ROW 1 COL 47 HELP
+          "RESET Menu Structure from Last Saved File" WIDGET-ID 8
      showOption AT ROW 1.48 COL 138 COLON-ALIGNED NO-LABEL WIDGET-ID 38
      filterMenu AT ROW 3.14 COL 6 COLON-ALIGNED WIDGET-ID 42
      btnLoadMenu AT ROW 3.14 COL 69 WIDGET-ID 50
      loadMenu AT ROW 3.14 COL 87 NO-LABEL WIDGET-ID 44
      filterItem AT ROW 3.14 COL 181 COLON-ALIGNED WIDGET-ID 40
-     btnReset AT ROW 1 COL 47 HELP
-          "RESET Menu Structure from Last Saved File" WIDGET-ID 8
      ttMenu AT ROW 4.33 COL 2 WIDGET-ID 300
      ttUserMenu AT ROW 4.33 COL 48 WIDGET-ID 200
      ttItem AT ROW 4.33 COL 177 WIDGET-ID 400
@@ -394,6 +394,8 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
 /* ************************* Included-Libraries *********************** */
 
@@ -412,7 +414,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB ttMenu btnReset DEFAULT-FRAME */
+/* BROWSE-TAB ttMenu filterItem DEFAULT-FRAME */
 /* BROWSE-TAB ttUserMenu ttMenu DEFAULT-FRAME */
 /* BROWSE-TAB ttItem ttUserMenu DEFAULT-FRAME */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -451,7 +453,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttUserMenu.
 */  /* BROWSE ttUserMenu */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -537,6 +539,7 @@ END.
 ON CHOOSE OF btnLoadMenu IN FRAME DEFAULT-FRAME /* Load Menu */
 DO:
     RUN pLoadMenu.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -845,8 +848,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY userName showOption filterMenu loadMenu filterItem 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE userName showOption filterMenu btnLoadMenu loadMenu filterItem 
-         btnReset ttMenu ttUserMenu ttItem btnAddItem btnAddMenu btnDefault 
+  ENABLE userName btnReset showOption filterMenu btnLoadMenu loadMenu 
+         filterItem ttMenu ttUserMenu ttItem btnAddItem btnAddMenu btnDefault 
          btnExit btnMoveDown btnMoveUp btnRemove btnSave btnShiftLeft 
          btnShiftRight 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.

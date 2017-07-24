@@ -1356,7 +1356,7 @@ IF tb_excel THEN
            WHERE oe-rel.company EQ g_company 
              AND ROWID(oe-rel) EQ  tt-report.row-id NO-ERROR.
        
-       IF INDEX("A,B,P",v-stat) > 0 AND AVAIL oe-rel THEN
+       IF AVAIL oe-rel THEN
            ASSIGN
            v-act-rel-qty = oe-rel.qty
            dSchRelQty    = oe-rel.tot-qty .

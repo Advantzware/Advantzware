@@ -85,6 +85,12 @@ IF lRecFound THEN
 /* gdm - 02020902 */
 DEF VAR v-hldflg AS LOG NO-UNDO.
 DEF VAR v-chkflg AS LOG NO-UNDO.
+DEF VAR lActive AS LOG NO-UNDO.
+DEFINE VARIABLE  ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
+DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
+DO TRANSACTION:
+     {sys/ref/CustList.i NEW}
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1102,6 +1108,34 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
+ON HELP OF begin_cust-no IN FRAME FRAME-A /* Font */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+   RUN windows/l-cust2.w (INPUT cocode, INPUT begin_cust-no:SCREEN-VALUE,"", OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN begin_cust-no:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
+ON HELP OF end_cust-no IN FRAME FRAME-A /* Font */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+   RUN windows/l-cust2.w (INPUT cocode, INPUT end_cust-no:SCREEN-VALUE,"", OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN end_cust-no:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lv-font-no C-Win
 ON LEAVE OF lv-font-no IN FRAME FRAME-A /* Font */
@@ -1173,8 +1207,13 @@ END.
 ON VALUE-CHANGED OF tb_excl_cust IN FRAME FRAME-A /* Exclude Specific Customers */
 DO:
   ASSIGN {&self-name}.
-  IF tb_excl_cust THEN
-      RUN windows/d-custlist.w(INPUT cocode,INPUT-OUTPUT cCustList).
+  IF tb_excl_cust THEN do:
+       IF custcount NE "" AND ou-log THEN
+           cCustList =  custcount .
+
+      RUN windows/d-custlist.w(INPUT cocode, INPUT-OUTPUT cCustList).
+  END.
+
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1372,6 +1411,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
      RETURN .
   END.
 
+  RUN sys/inc/custlistform.p (INPUT "OT1" , INPUT cocode , OUTPUT ou-log , OUTPUT ou-cust-int) .
+  custcount = "".
+
+  RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'OT1',
+                            INPUT YES,
+                            OUTPUT lActive).
+ {sys/inc/chblankcust.i ""OT1""}
+
   FIND FIRST sys-ctrl
       WHERE sys-ctrl.company EQ cocode
         AND sys-ctrl.name    EQ "RELPACK"
@@ -1446,6 +1494,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
     {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p */
     {custom/usrprint.i}
+
+      IF tb_excl_cust:SCREEN-VALUE EQ "Yes" THEN do:
+       IF custcount NE "" AND ou-log THEN
+           cCustList =  custcount .
+      END.
 
      IF v-relprint EQ "Prystup" OR v-relprint EQ "NStock" THEN
          ASSIGN  rd-print-what:SCREEN-VALUE = "R"

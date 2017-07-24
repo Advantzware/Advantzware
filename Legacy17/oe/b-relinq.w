@@ -54,6 +54,11 @@ DEF VAR lv-show-prev AS LOG NO-UNDO.
 DEF VAR lv-show-next AS LOG NO-UNDO.
 DEF VAR lv-last-show-rel-no AS int NO-UNDO.
 DEF VAR lv-first-show-rel-no AS int NO-UNDO.
+DEF VAR lActive AS LOGICAL NO-UNDO.
+DO TRANSACTION:
+     {sys/ref/CustList.i NEW}
+    {sys/inc/custlistform.i ""OT1"" }
+END.
 
 &SCOPED-DEFINE key-phrase oe-relh.company EQ cocode AND oe-relh.stat NE "W"
 
@@ -61,6 +66,7 @@ DEF VAR lv-first-show-rel-no AS int NO-UNDO.
         WHERE {&key-phrase}       ~
           AND oe-relh.deleted EQ NO              ~
           AND (oe-relh.posted  EQ NO  OR tb_posted = TRUE)    ~
+          AND ( (lookup(oe-relh.cust-no,custcount) <> 0 AND oe-relh.cust-no <> "")  OR custcount = "")             ~
           AND oe-relh.cust-no BEGINS fi_cust-no
 
 &SCOPED-DEFINE for-each1                         ~
@@ -79,6 +85,7 @@ DEF VAR lv-first-show-rel-no AS int NO-UNDO.
 
 &SCOPED-DEFINE where1blank oe-relh               ~
         WHERE {&key-phrase}       ~
+          AND ( (lookup(oe-relh.cust-no,custcount) <> 0 AND oe-relh.cust-no <> "")  OR custcount = "")             ~
           AND oe-relh.deleted EQ NO              ~
           AND oe-relh.posted LE tb_posted 
 
@@ -642,6 +649,10 @@ DO:
      "(CAN-FIND(FIRST notes WHERE notes.rec_key = oe-relh.rec_key))"}
   {methods/run_link.i "CONTAINER-SOURCE" "MF-Message"
      "(CAN-FIND(FIRST mfvalues WHERE mfvalues.rec_key = oe-relh.rec_key))"}
+
+       RUN dept-pan-image-proc.
+       RUN spec-book-image-proc .
+
   END.
 END.
 
@@ -653,6 +664,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_go B-table-Win
 ON CHOOSE OF btn_go IN FRAME F-Main /* Go */
 DO:
+  DEFINE VARIABLE cCustno AS CHARACTER NO-UNDO .
+  DEFINE BUFFER bf-oe-rell FOR oe-rell .
+  DEFINE BUFFER bf-oe-relh FOR oe-relh .
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
      tb_posted
@@ -669,6 +683,43 @@ DO:
     /*RUN dispatch ("open-query").*/
 
    RUN query-proc.
+
+   GET FIRST Browser-Table .
+
+   IF NOT AVAIL oe-relh THEN DO:
+       IF fi_cust-no <> "" THEN DO:
+           cCustno = fi_cust-no  .
+       END.
+       ELSE DO:
+           FIND FIRST  bf-oe-rell NO-LOCK  
+               WHERE bf-oe-rell.company   EQ cocode  
+                 AND bf-oe-rell.i-no      BEGINS fi_i-no      
+                 AND (bf-oe-rell.ord-no   EQ fi_ord-no OR fi_ord-no EQ 0) 
+                 AND bf-oe-rell.po-no     BEGINS fi_po-no    
+                 AND bf-oe-rell.job-no    BEGINS fi_job-no   
+                 AND (bf-oe-rell.job-no2  EQ fi_job-no2 OR fi_job-no2 EQ 0 OR fi_job-no EQ "")
+               NO-ERROR.
+           IF AVAIL bf-oe-rell THEN
+               FIND FIRST  bf-oe-relh USE-INDEX r-no NO-LOCK        
+                     WHERE bf-oe-relh.company   EQ cocode
+                       AND bf-oe-relh.r-no      EQ oe-relh.r-no 
+                    NO-ERROR .
+
+           IF AVAIL bf-oe-relh THEN
+                 cCustno = bf-oe-relh.cust-no .
+             ELSE cCustno = "".
+       END.
+
+       FIND FIRST cust WHERE cust.company = cocode 
+             AND cust.cust-no = cCustno NO-LOCK NO-ERROR.
+         IF AVAIL cust AND ou-log AND LOOKUP(cust.cust-no,custcount) = 0 THEN
+             MESSAGE "Customer is not on Users Customer List.  "  SKIP
+              "Please add customer to Network Admin - Users Customer List."  VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+         ELSE
+         MESSAGE "No Order Release Found, please update your Search Criteria."
+                VIEW-AS ALERT-BOX ERROR.
+
+   END. /* not avail oe-relh */
 
   END.
 END.
@@ -727,6 +778,24 @@ DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cust-no B-table-Win
+ON HELP OF fi_cust-no IN FRAME F-Main
+DO:
+   DEF VAR char-val AS cha NO-UNDO.
+   RUN windows/l-cust2.w (INPUT g_company, INPUT FOCUS:SCREEN-VALUE,"", OUTPUT char-val).
+          IF char-val <> "" THEN
+          DO:
+            APPLY 'entry' TO fi_cust-no IN FRAME F-MAIN.
+            FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
+          END.
+          /* return no-apply. */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -792,6 +861,13 @@ END.
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3help.i}
 SESSION:DATA-ENTRY-RETURN = YES.
+
+RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'OT1',
+                            INPUT YES,
+                            OUTPUT lActive).
+{sys/inc/chblankcust.i ""OT1""}
+
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -1149,7 +1225,7 @@ PROCEDURE local-open-query :
       ASSIGN lv-frst-rowid = ROWID({&first-table-in-query-{&browse-name}})
              lv-first-show-rel-no = oe-relh.release#.
   END.
-
+   APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
   ASSIGN
      lv-show-prev = NO
      lv-show-next = NO.
@@ -1481,6 +1557,64 @@ ELSE IF lv-show-next THEN DO:
                  ELSE {&open-query} {&sortby-phrase-desc}.
 END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
+PROCEDURE dept-pan-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   FIND FIRST notes WHERE notes.rec_key = oe-relh.rec_key
+       NO-LOCK NO-ERROR.
+
+   IF AVAIL notes THEN
+      v-spec = TRUE.
+   ELSE v-spec = FALSE.
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do:
+      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spec-book-image-proc B-table-Win 
+PROCEDURE spec-book-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   DEF BUFFER bf2-itemfg FOR itemfg.
+
+   FIND FIRST bf2-itemfg WHERE
+        bf2-itemfg.company = oe-rell.company AND
+        bf2-itemfg.i-no EQ oe-rell.i-no
+        NO-LOCK NO-ERROR.
+
+   IF AVAIL bf2-itemfg THEN
+      v-spec = CAN-FIND(FIRST notes WHERE
+               notes.rec_key = bf2-itemfg.rec_key AND
+               notes.note_type = "S").
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

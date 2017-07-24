@@ -2,7 +2,6 @@
 
 &SCOPED-DEFINE imageType .png
 
-&IF "{&ADM-DISPATCH-QUALIFIER}" EQ "winkit" OR DEFINED(winkitactive) NE 0 &THEN
 {methods/buttonImage.i {1} "{2}" {3}}
 
 DO:
@@ -14,4 +13,3 @@ DO:
     IF {1}:LABEL NE "" THEN 
     {1}:LABEL = (IF {1}:LABEL BEGINS "~&" THEN "~&" ELSE "") + "{2}".
 END.
-&ENDIF

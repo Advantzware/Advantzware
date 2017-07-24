@@ -48,7 +48,7 @@ lNew = iplNew
     WHERE bf-eb.company EQ eb.company
     AND bf-eb.est-no  EQ eb.est-no
     AND bf-eb.form-no EQ eb.form-no
-    AND ROWID(bf-eb)  NE ROWID(eb)).
+    AND ROWID(bf-eb)  NE ROWID(eb)) /*not a combo*/.
 
 IF NOT lNew THEN
 DO:
@@ -108,6 +108,8 @@ DO:
                 eb.num-up  = eb.num-wid * eb.num-len.
         END.
         /*Refactor*/
+        FIND xeb WHERE ROWID(xeb) EQ ROWID(eb).
+        FIND xef WHERE ROWID(xef) EQ ROWID(ef).
         RUN cec/calc-dim.p.
     END.
 END.

@@ -325,6 +325,5 @@ util\updvend#.w
 util\w-updsmn.w
 util\zeroBin.w
 util\zeroparts.w
-util\DataDigger\frLoadImport.w
 windows\contacts.w
 windows\w-updsmn.w

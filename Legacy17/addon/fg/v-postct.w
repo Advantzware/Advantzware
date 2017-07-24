@@ -186,7 +186,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -210,6 +210,7 @@ DO:
       THEN RUN post IN WIDGET-HANDLE(char-hdl).
 /*     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN              */
 /*        RUN dispatch IN WIDGET-HANDLE(char-hdl) ("open-query"). */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -226,7 +227,7 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
-  
+
   /************************ INTERNAL PROCEDURES ********************/
 
 /* _UIB-CODE-BLOCK-END */
@@ -292,7 +293,7 @@ DEF VAR v-source-handle AS HANDLE NO-UNDO.
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"state-target",OUTPUT char-hdl).
   /* Security is on all post buttons except in scan label */
   v-source-handle = WIDGET-HANDLE(char-hdl) NO-ERROR.
-  
+
   IF VALID-HANDLE(v-source-handle) THEN DO:
     IF INDEX(v-source-handle:NAME, "phys") EQ 0  THEN
       v-post-sec = YES.
