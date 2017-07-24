@@ -649,6 +649,10 @@ DO:
      "(CAN-FIND(FIRST notes WHERE notes.rec_key = oe-relh.rec_key))"}
   {methods/run_link.i "CONTAINER-SOURCE" "MF-Message"
      "(CAN-FIND(FIRST mfvalues WHERE mfvalues.rec_key = oe-relh.rec_key))"}
+
+       RUN dept-pan-image-proc.
+       RUN spec-book-image-proc .
+  
   END.
 END.
 
@@ -1218,7 +1222,7 @@ PROCEDURE local-open-query :
       ASSIGN lv-frst-rowid = ROWID({&first-table-in-query-{&browse-name}})
              lv-first-show-rel-no = oe-relh.release#.
   END.
-
+   APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
   ASSIGN
      lv-show-prev = NO
      lv-show-next = NO.
@@ -1550,6 +1554,64 @@ ELSE IF lv-show-next THEN DO:
                  ELSE {&open-query} {&sortby-phrase-desc}.
 END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
+PROCEDURE dept-pan-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   FIND FIRST notes WHERE notes.rec_key = oe-relh.rec_key
+       NO-LOCK NO-ERROR.
+
+   IF AVAIL notes THEN
+      v-spec = TRUE.
+   ELSE v-spec = FALSE.
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN do:
+      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spec-book-image-proc B-table-Win 
+PROCEDURE spec-book-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   DEF BUFFER bf2-itemfg FOR itemfg.
+
+   FIND FIRST bf2-itemfg WHERE
+        bf2-itemfg.company = oe-rell.company AND
+        bf2-itemfg.i-no EQ oe-rell.i-no
+        NO-LOCK NO-ERROR.
+
+   IF AVAIL bf2-itemfg THEN
+      v-spec = CAN-FIND(FIRST notes WHERE
+               notes.rec_key = bf2-itemfg.rec_key AND
+               notes.note_type = "S").
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'attach-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
