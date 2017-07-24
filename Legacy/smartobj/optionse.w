@@ -421,6 +421,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pen-image s-object 
+PROCEDURE dept-pen-image :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.
+
+   DO WITH FRAME {&FRAME-NAME}:
+
+      IF NOT ip-log THEN
+         Select_dept:LOAD-IMAGE("Graphics/32x32/edit.ico").
+      ELSE
+         Select_dept:LOAD-IMAGE("Graphics/32x32/edit_star.ico").
+   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed s-object 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
