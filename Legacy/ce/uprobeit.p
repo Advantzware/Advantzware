@@ -374,6 +374,8 @@ FOR EACH probeit
     
     RUN custom/markup.p (ROWID(eb),
         dBoardCst,
+        probeit.fact-cost * (v-qty / 1000),
+        probeit.full-cost * (v-qty / 1000),
         dBoardPct,
         INPUT-OUTPUT lv-sell-by,
         INPUT-OUTPUT v-pct[3]).

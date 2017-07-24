@@ -109,6 +109,8 @@ IF ord-cost GT 0 AND qm GT 0 THEN
     
 RUN custom/markup.p (ROWID(xeb),
     board-cst,
+    fac-tot,
+    tt-tot,
     dBoardPct,
     INPUT-OUTPUT lv-sell-by,
     INPUT-OUTPUT v-pct[3]).

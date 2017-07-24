@@ -1,6 +1,8 @@
 
 DEFINE INPUT PARAMETER ipriEb AS ROWID NO-UNDO.
 DEFINE INPUT PARAMETER ipdBoardCost AS DECIMAL NO-UNDO.
+DEFINE INPUT PARAMETER ipdFactCost AS DECIMAL NO-UNDO.
+DEFINE INPUT PARAMETER ipdFullCost AS DECIMAL NO-UNDO.
 DEFINE INPUT PARAMETER ipdBoardPct AS DECIMAL NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopcMarkupOn AS CHARACTER NO-UNDO.
 DEFINE INPUT-OUTPUT PARAMETER iopdMarkup AS DECIMAL NO-UNDO.
@@ -33,20 +35,26 @@ DO:
 
     IF NOT lFound OR cLookup EQ "" THEN 
         cLookup = "Square Feet".
-    IF cLookup EQ "Square Feet" THEN 
-    DO:
-        ASSIGN
-            dYieldQty = IF eb.est-type LE 4 THEN
+    CASE cLookup:
+        WHEN "Square Feet" THEN 
+            DO:
+                ASSIGN
+                    dYieldQty = IF eb.est-type LE 4 THEN
                   IF eb.cust-% LT 0 THEN -1 / eb.cust-% ELSE
                   IF eb.cust-% EQ 0 THEN 1              ELSE eb.cust-%
                 ELSE                  
                   IF eb.yld-qty LT 0 THEN -1 / eb.yld-qty ELSE
                   IF eb.yld-qty EQ 0 THEN 1               ELSE eb.yld-qty
-            dSqf      = eb.t-sqin * qty * dYieldQty
-            dLookup   = IF v-corr THEN (dSqf * .007) ELSE (dSqf / 144).
-    END.
-    ELSE 
-        dLookup = ipdBoardCost.
+                    dSqf      = eb.t-sqin * qty * dYieldQty
+                    dLookup   = IF v-corr THEN (dSqf * .007) ELSE (dSqf / 144).
+            END.
+        WHEN "Board Cost" THEN 
+            dLookup = ipdBoardCost.
+        WHEN "Factory Cost" THEN 
+            dLookup = ipdFactCost.
+        WHEN "Full Cost" THEN 
+            dlookup = ipdFullCost.
+    END CASE. 
     
     RUN est/GetMarkup.p (eb.company,
         eb.cust-no,
