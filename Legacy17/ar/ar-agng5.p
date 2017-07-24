@@ -3,6 +3,6 @@
 /*     Sort by Customer Name by Inv Number                                    */
 /* -------------------------------------------------------------------------- */
 
-{ar/ar-aging.i &sort-by="cust.name" &sort-by2="inv-no" &date="inv-date"}
+{ar/ar-aging.i &sort-by="cust.cust-no" &sort-by2="inv-no" &date="due-date"}
 
 /* End ---------------------------------- Copr. 1998  Advanced Software, Inc. */

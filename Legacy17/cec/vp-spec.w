@@ -57,7 +57,7 @@ cocode = gcompany.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-41 print-box 
+&Scoped-Define ENABLED-OBJECTS print-box RECT-41 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -103,7 +103,7 @@ FUNCTION GetCESample RETURNS CHARACTER
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON print-box 
      LABEL "Sample" 
-     SIZE 13 BY 1.9.
+     SIZE 13 BY 1.91.
 
 DEFINE RECTANGLE RECT-41
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -125,9 +125,9 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartPanel
-   Allow: Basic
+   Allow: Basic,DB-Fields
    Frames: 1
-   Add Fields to: NEITHER
+   Add Fields to: EXTERNAL-TABLES
    Other Settings: PERSISTENT-ONLY COMPILE
  */
 
@@ -192,7 +192,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
- 
+
 
 
 
@@ -232,7 +232,7 @@ END.
       print-box:LABEL = "Spec/NOC".
   ELSE print-box:LABEL = "Sample".
 
-  {methods/setButton.i print-box "Sample"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i print-box "Sample"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -9,7 +9,7 @@
 /*------------------------------------------------------------------------
 
   File: ap\d-selpos.w
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -247,7 +247,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-pol ,
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -276,7 +276,7 @@ DO:
           EACH rm-rdtlh
           WHERE rm-rdtlh.r-no      EQ rm-rcpth.r-no
             AND rm-rdtlh.rita-code EQ rm-rcpth.rita-code:
-
+          
         IF tt-rec.selekt THEN
           ASSIGN
            rm-rdtlh.receiver-no = (STRING(ap-inv.i-no,"9999999999") +
@@ -295,7 +295,7 @@ DO:
         EACH fg-rdtlh
         WHERE fg-rdtlh.r-no      EQ fg-rcpth.r-no
           AND fg-rdtlh.rita-code EQ fg-rcpth.rita-code:
-
+          
       IF tt-rec.selekt THEN
         ASSIGN
          fg-rdtlh.receiver-no = (STRING(ap-inv.i-no,"9999999999") +
@@ -532,7 +532,7 @@ FOR EACH tt-pol,
               rm-rcpth.job-no2   EQ po-ordl.job-no2 AND
               rm-rcpth.rita-code EQ "R"
               NO-LOCK NO-ERROR.
-
+      
           IF AVAIL rm-rcpth THEN
              tt-rec.rcpt-date = rm-rcpth.trans-date.
        END.
@@ -576,7 +576,7 @@ FOR EACH tt-pol,
       IF rd_qty EQ 1 THEN
       DO:
          v-pur-qty = po-ordl.cons-qty.
-
+      
          IF po-ordl.cons-uom NE lv-uom THEN
             RUN sys/ref/convquom.p (po-ordl.cons-uom, lv-uom,
                                     v-bwt, v-len, v-wid, v-dep,
@@ -589,7 +589,7 @@ FOR EACH tt-pol,
                                  v-qty, OUTPUT v-qty).
 
       /* gdm - 05200908 end */  
-
+      
       CREATE tt-rec.
       ASSIGN
        tt-rec.rec-id     = RECID(rm-rcpth)
@@ -629,7 +629,7 @@ FOR EACH tt-pol,
                                            AND b-ap-invl.line  EQ (po-ordl.po-no * 1000) + po-ordl.line)
       NO-LOCK:
     IF NOT CAN-FIND(FIRST tt-rec WHERE tt-rec.rec-id EQ RECID(fg-rcpth)) THEN DO:
-
+        
         CREATE tt-rec.
         ASSIGN
          tt-rec.rec-id     = RECID(fg-rcpth)
@@ -649,13 +649,13 @@ FOR EACH tt-pol,
   FOR EACH tt-rec WHERE tt-rec.rec-id EQ ?:
     lv-num-rec = lv-num-rec + 1.
   END.
-
+  
   FOR EACH tt-rec WHERE tt-rec.rec-id EQ ?:
     lv-num-rec = lv-num-rec + 1.
   END.
 
   FOR EACH tt-rec WHERE tt-rec.rec-id NE ? BREAK BY tt-rec.rec-id:
-
+      
     ASSIGN
      ld[1] = ld[1] + tt-rec.qty-rec
      ld[2] = ld[2] + tt-rec.qty-inv.
@@ -727,13 +727,13 @@ PROCEDURE local-initialize :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   /*RUN build-table. built from b-apinvl.w */
-
+  
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+ 
 
 
 END PROCEDURE.

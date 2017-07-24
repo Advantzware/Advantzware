@@ -50,7 +50,7 @@ def var char-hdl as cha no-undo.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -166,7 +166,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -221,7 +221,7 @@ END.
 
   /************************ INTERNAL PROCEDURES ********************/
 
-  {methods/setButton.i btn-his "History"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i btn-his "History"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

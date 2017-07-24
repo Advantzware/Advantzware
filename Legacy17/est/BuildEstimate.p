@@ -63,12 +63,17 @@ FOR EACH ttInputEst NO-LOCK:
         
      IF eb.eqty EQ 0 THEN 
         eb.eqty         = ttInputEst.iQuantity.
+     ASSIGN 
+        est-qty.eqty    = eb.eqty
+        est.est-qty[1]  = eb.eqty
+        ef.eqty         = eb.eqty
+        .
+        
     ASSIGN 
         eb.part-no      = ttInputEst.cPartID
         eb.part-dscr1   = ttInputEst.cPartName
         eb.part-dscr2   = ttInputEst.cPartDescription
         eb.style        = ttInputEst.cStyle
-        eb.procat       = ttInputEst.cCategory
         eb.sman         = ttInputEst.cSalesManID
         eb.die-in       = ttInputEst.dDieInches
         eb.cad-no       = ttInputEst.cCadID
@@ -89,9 +94,10 @@ FOR EACH ttInputEst NO-LOCK:
         ef.blank-qty    = 1
         ef.trim-w       = ttInputEst.dWidthDie
         ef.trim-l       = ttInputEst.dLengthDie
-        est-qty.eqty    = ttInputEst.iQuantity
-        est.est-qty[1]  = ttInputEst.iQuantity  /* request qty */
+
         .
+    IF ttInputEst.cCategory NE '' THEN 
+        eb.procat       = ttInputEst.cCategory.
     IF ttInputEst.iQuantityYield GT 0 THEN 
         eb.yld-qty      = ttInputEst.iQuantityYield.
     ELSE 
@@ -130,7 +136,7 @@ FOR EACH ttInputEst NO-LOCK:
     ELSE 
         eb.tab-in = ttInputEst.cTab EQ "In".
     
-/*    RUN est/CalcBlankSize.p (ipcIndustry, ROWID(eb)).*/
+    RUN est/CalcBlankSize.p (ipcIndustry, ROWID(eb)).
    
     IF ttInputEst.dLengthBlank GT 0 THEN 
         eb.t-len = ttInputEst.dLengthBlank.
@@ -161,13 +167,12 @@ FOR EACH ttInputEst NO-LOCK:
             eb.flute = item.flute
             eb.test  = item.reg-no
             .
-            
-/*    RUN est/CalcLayout.p (ipcIndustry,                                                         */
-/*                         ROWID(ef),                                                            */
-/*                         ROWID(eb),                                                            */
-/*                         YES,  /*New Layout vs. Recalculation*/                                */
-/*                         NO, /*Prompt to Reset*/                                               */
-/*                         YES /*Recalc dimensions - Refactor - should be no if Style is foam*/).*/
+    RUN est/CalcLayout.p (ipcIndustry,
+                         ROWID(ef),
+                         ROWID(eb),
+                         YES,  /*New Layout vs. Recalculation*/
+                         NO, /*Prompt to Reset*/
+                         YES /*Recalc dimensions - Refactor - should be no if Style is foam*/).
         
     RUN est/BuildDefaultPreps.p (BUFFER est,
         BUFFER ef,

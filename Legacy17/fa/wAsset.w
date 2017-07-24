@@ -1,4 +1,4 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
 &ANALYZE-RESUME
 &Scoped-define WINDOW-NAME wWin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS wWin 
@@ -49,12 +49,11 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-SUPPORTED-LINKS Data-Target,Data-Source,Page-Target,Update-Source,Update-Target,Filter-target,Filter-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME fMain
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS IMAGE-1 FILL-IN-1 FILL-IN-2 FILL-IN-3 ~
-FILL-IN-4 
+&Scoped-Define ENABLED-OBJECTS FILL-IN-1 FILL-IN-2 FILL-IN-3 FILL-IN-4 
 &Scoped-Define DISPLAYED-OBJECTS FILL-IN-1 FILL-IN-2 FILL-IN-3 FILL-IN-4 
 
 /* Custom List Definitions                                              */
@@ -77,7 +76,7 @@ DEFINE MENU MENU-BAR-wWin MENUBAR
 
 
 /* Definitions of handles for SmartObjects                              */
-DEFINE VARIABLE h_bfamast2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_bfamast AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_pnavico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_pupdsav AS HANDLE NO-UNDO.
@@ -101,21 +100,14 @@ DEFINE VARIABLE FILL-IN-4 AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE IMAGE IMAGE-1
-     FILENAME "C:/MXP/10_7/src/10_7000/img/capture.jpg":U
-     SIZE 77 BY 1.75.
-
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME fMain
-     FILL-IN-1 AT ROW 4.75 COL 13 COLON-ALIGNED NO-LABEL
-     FILL-IN-2 AT ROW 4.75 COL 34 COLON-ALIGNED NO-LABEL
-     FILL-IN-3 AT ROW 4.75 COL 56 COLON-ALIGNED NO-LABEL
-     FILL-IN-4 AT ROW 4.75 COL 79 COLON-ALIGNED NO-LABEL
-     "Location" VIEW-AS TEXT
-          SIZE 15 BY .67 AT ROW 4 COL 81
-          BGCOLOR 21 FGCOLOR 9 FONT 6
+     FILL-IN-1 AT ROW 4.76 COL 13 COLON-ALIGNED NO-LABEL
+     FILL-IN-2 AT ROW 4.76 COL 34 COLON-ALIGNED NO-LABEL
+     FILL-IN-3 AT ROW 4.76 COL 56 COLON-ALIGNED NO-LABEL
+     FILL-IN-4 AT ROW 4.76 COL 79 COLON-ALIGNED NO-LABEL
      "GL Code" VIEW-AS TEXT
           SIZE 15 BY .67 AT ROW 4 COL 58
           BGCOLOR 21 FGCOLOR 9 FONT 6
@@ -128,7 +120,9 @@ DEFINE FRAME fMain
      "Filters:" VIEW-AS TEXT
           SIZE 8 BY .67 AT ROW 4 COL 3
           BGCOLOR 21 FGCOLOR 9 FONT 6
-     IMAGE-1 AT ROW 1 COL 39
+     "Location" VIEW-AS TEXT
+          SIZE 15 BY .67 AT ROW 4 COL 81
+          BGCOLOR 21 FGCOLOR 9 FONT 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -143,6 +137,7 @@ DEFINE FRAME fMain
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Container Links: Data-Target,Data-Source,Page-Target,Update-Source,Update-Target,Filter-target,Filter-Source
+   Design Page: 1
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
 
@@ -153,12 +148,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wWin ASSIGN
          HIDDEN             = YES
          TITLE              = "Fixed Assets"
-         HEIGHT             = 21.54
-         WIDTH              = 115.14
-         MAX-HEIGHT         = 36.54
-         MAX-WIDTH          = 228.57
-         VIRTUAL-HEIGHT     = 36.54
-         VIRTUAL-WIDTH      = 228.57
+         HEIGHT             = 21.52
+         WIDTH              = 115.2
+         MAX-HEIGHT         = 36.52
+         MAX-WIDTH          = 228.6
+         VIRTUAL-HEIGHT     = 36.52
+         VIRTUAL-WIDTH      = 228.6
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -172,13 +167,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 ASSIGN {&WINDOW-NAME}:MENUBAR    = MENU MENU-BAR-wWin:HANDLE.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _XFTR "SmartWindowCues" wWin _INLINE
-/* Actions: adecomm/_so-cue.w ? adecomm/_so-cued.p ? adecomm/_so-cuew.p */
-/* SmartWindow,ab,49271
-Destroy on next read */
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB wWin 
 /* ************************* Included-Libraries *********************** */
@@ -197,7 +185,7 @@ Destroy on next read */
 /* SETTINGS FOR WINDOW wWin
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME fMain
-                                                                        */
+   FRAME-NAME                                                           */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(wWin)
 THEN wWin:HIDDEN = yes.
 
@@ -270,34 +258,34 @@ PROCEDURE adm-create-objects :
        RUN constructObject (
              INPUT  'fa/sdofamast.wDB-AWARE':U ,
              INPUT  FRAME fMain:HANDLE ,
-             INPUT  'AppServiceASUsePromptASInfoForeignFieldsRowsToBatch200CheckCurrentChangedyesRebuildOnReposnoServerOperatingModeNONEDestroyStatelessnoDisconnectAppServernoObjectNamesdofamastUpdateFromSourcenoToggleDataTargetsyesOpenOnInityesPromptOnDeleteyesPromptColumns(NONE)':U ,
+             INPUT  'AppServiceASInfoASUsePrompt?CacheDuration0CheckCurrentChangedyesDestroyStatelessnoDisconnectAppServernoServerOperatingModeNONEShareDatanoUpdateFromSourcenoForeignFieldsObjectNamesdofamastOpenOnInityesPromptColumns(NONE)PromptOnDeleteyesRowsToBatch200RebuildOnReposnoToggleDataTargetsyes':U ,
              OUTPUT h_sdofamast ).
        RUN repositionObject IN h_sdofamast ( 1.00 , 2.00 ) NO-ERROR.
-       /* Size in AB:  ( 1.63 , 7.72 ) */
+       /* Size in AB:  ( 1.62 , 7.80 ) */
 
        RUN constructObject (
              INPUT  'adm2/folder.w':U ,
              INPUT  FRAME fMain:HANDLE ,
              INPUT  'FolderLabels':U + 'Brws Assets|Asset|Details|Stats' + 'FolderTabWidth0FolderFont-1HideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_folder ).
-       RUN repositionObject IN h_folder ( 2.75 , 1.00 ) NO-ERROR.
-       RUN resizeObject IN h_folder ( 19.75 , 115.00 ) NO-ERROR.
+       RUN repositionObject IN h_folder ( 2.76 , 1.00 ) NO-ERROR.
+       RUN resizeObject IN h_folder ( 19.76 , 115.00 ) NO-ERROR.
 
        RUN constructObject (
              INPUT  'adm2/pnavico.w':U ,
              INPUT  FRAME fMain:HANDLE ,
-             INPUT  'RightToLeftEdgePixels2PanelTypeNav-IconDeactivateTargetOnHidenoDisabledActionsNavigationTargetNameHideOnInitnoDisableOnInitnoObjectLayout':U ,
+             INPUT  'RightToLeftPanelTypeNav-IconAddFunctionEdgePixels2DeactivateTargetOnHidenoDisabledActionsFlatButtonsyesMenuyesShowBorderyesToolbaryesActionGroupsTableio,NavigationTableIOTypeSupportedLinksNavigation-SourceToolbarBandsToolbarAutoSizenoToolbarDrawDirectionhorizontalLogicalObjectNameDisabledActionsHiddenActionsHiddenToolbarBandsHiddenMenuBandsMenuMergeOrder0RemoveMenuOnHidenoCreateSubMenuOnConflictyesNavigationTargetNameHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_pnavico ).
-       RUN repositionObject IN h_pnavico ( 20.50 , 8.00 ) NO-ERROR.
-       RUN resizeObject IN h_pnavico ( 1.75 , 18.00 ) NO-ERROR.
+       RUN repositionObject IN h_pnavico ( 20.52 , 8.00 ) NO-ERROR.
+       RUN resizeObject IN h_pnavico ( 1.76 , 18.00 ) NO-ERROR.
 
        RUN constructObject (
              INPUT  'adm2/pupdsav.w':U ,
              INPUT  FRAME fMain:HANDLE ,
-             INPUT  'AddFunctionOne-RecordEdgePixels2PanelTypeUpdateDeactivateTargetOnHidenoDisabledActionsHideOnInitnoDisableOnInitnoObjectLayout':U ,
+             INPUT  'AddFunctionOne-RecordPanelTypeUpdateAddFunctionOne-RecordEdgePixels2DeactivateTargetOnHidenoDisabledActionsFlatButtonsyesMenuyesShowBorderyesToolbaryesActionGroupsTableio,NavigationTableIOTypeUpdateSupportedLinksTableIO-SourceToolbarBandsToolbarAutoSizenoToolbarDrawDirectionhorizontalLogicalObjectNameDisabledActionsHiddenActionsHiddenToolbarBandsHiddenMenuBandsMenuMergeOrder0RemoveMenuOnHidenoCreateSubMenuOnConflictyesNavigationTargetNameHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_pupdsav ).
-       RUN repositionObject IN h_pupdsav ( 20.50 , 50.00 ) NO-ERROR.
-       RUN resizeObject IN h_pupdsav ( 1.75 , 65.57 ) NO-ERROR.
+       RUN repositionObject IN h_pupdsav ( 20.52 , 50.00 ) NO-ERROR.
+       RUN resizeObject IN h_pupdsav ( 1.76 , 65.60 ) NO-ERROR.
 
        /* Links to SmartDataObject h_sdofamast. */
        RUN addLink ( h_pnavico , 'Navigation':U , h_sdofamast ).
@@ -305,37 +293,48 @@ PROCEDURE adm-create-objects :
        /* Links to SmartFolder h_folder. */
        RUN addLink ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjustTabOrder ( h_folder ,
+             FILL-IN-1:HANDLE IN FRAME fMain , 'BEFORE':U ).
+       RUN adjustTabOrder ( h_pnavico ,
+             FILL-IN-4:HANDLE IN FRAME fMain , 'AFTER':U ).
+       RUN adjustTabOrder ( h_pupdsav ,
+             h_pnavico , 'AFTER':U ).
     END. /* Page 0 */
-
     WHEN 1 THEN DO:
        RUN constructObject (
-             INPUT  'fa/bfamast2.w':U ,
+             INPUT  'fa/bfamast.w':U ,
              INPUT  FRAME fMain:HANDLE ,
-             INPUT  'ScrollRemotenoNumDown0CalcWidthnoMaxWidth80FetchOnReposToEndyesDataSourceNamesUpdateTargetNamesLogicalObjectNameHideOnInitnoDisableOnInitnoObjectLayout':U ,
-             OUTPUT h_bfamast2 ).
-       RUN repositionObject IN h_bfamast2 ( 6.50 , 2.00 ) NO-ERROR.
-       RUN resizeObject IN h_bfamast2 ( 15.50 , 113.00 ) NO-ERROR.
+             INPUT  'ScrollRemotenoNumDown0CalcWidthnoMaxWidth80FetchOnReposToEndyesUseSortIndicatoryesSearchFieldDataSourceNames?UpdateTargetNames?LogicalObjectNameHideOnInitnoDisableOnInitnoObjectLayout':U ,
+             OUTPUT h_bfamast ).
+       RUN repositionObject IN h_bfamast ( 3.86 , 1.00 ) NO-ERROR.
+       RUN resizeObject IN h_bfamast ( 16.19 , 115.20 ) NO-ERROR.
 
-       /* Links to SmartDataBrowser h_bfamast2. */
-       RUN addLink ( h_sdofamast , 'Data':U , h_bfamast2 ).
-       RUN addLink ( h_bfamast2 , 'Update':U , h_sdofamast ).
+       /* Links to SmartDataBrowser h_bfamast. */
+       RUN addLink ( h_sdofamast , 'Data':U , h_bfamast ).
+       RUN addLink ( h_bfamast , 'Update':U , h_sdofamast ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjustTabOrder ( h_bfamast ,
+             h_folder , 'AFTER':U ).
     END. /* Page 1 */
-
     WHEN 2 THEN DO:
        RUN constructObject (
              INPUT  'fa/vfamast2.w':U ,
              INPUT  FRAME fMain:HANDLE ,
-             INPUT  'EnabledObjFldsToDisable(None)DataSourceNamesUpdateTargetNamesLogicalObjectNameLogicalObjectNamePhysicalObjectNameDynamicObjectnoRunAttributeHideOnInitnoDisableOnInitnoObjectLayout':U ,
+             INPUT  'EnabledObjFldsToDisable(None)ModifyFields(All)DataSourceNamesUpdateTargetNamesLogicalObjectNameLogicalObjectNamePhysicalObjectNameDynamicObjectnoRunAttributeHideOnInitnoDisableOnInitnoObjectLayout':U ,
              OUTPUT h_vfamast2 ).
-       RUN repositionObject IN h_vfamast2 ( 3.75 , 2.00 ) NO-ERROR.
-       /* Size in AB:  ( 16.50 , 110.00 ) */
+       RUN repositionObject IN h_vfamast2 ( 3.76 , 2.00 ) NO-ERROR.
+       /* Size in AB:  ( 16.52 , 110.00 ) */
 
        /* Links to SmartDataViewer h_vfamast2. */
        RUN addLink ( h_pupdsav , 'TableIO':U , h_vfamast2 ).
        RUN addLink ( h_sdofamast , 'Data':U , h_vfamast2 ).
+       RUN addLink ( h_vfamast2 , 'Update':U , h_sdofamast ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjustTabOrder ( h_vfamast2 ,
+             h_folder , 'AFTER':U ).
     END. /* Page 2 */
 
   END CASE.
@@ -380,7 +379,7 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY FILL-IN-1 FILL-IN-2 FILL-IN-3 FILL-IN-4 
       WITH FRAME fMain IN WINDOW wWin.
-  ENABLE IMAGE-1 FILL-IN-1 FILL-IN-2 FILL-IN-3 FILL-IN-4 
+  ENABLE FILL-IN-1 FILL-IN-2 FILL-IN-3 FILL-IN-4 
       WITH FRAME fMain IN WINDOW wWin.
   {&OPEN-BROWSERS-IN-QUERY-fMain}
   VIEW wWin.

@@ -58,7 +58,7 @@ DEF TEMP-TABLE tt-po-ordl NO-UNDO LIKE po-ordl.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -205,7 +205,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -481,13 +481,13 @@ END.
 
   /************************ INTERNAL PROCEDURES ********************/
 
-  {methods/setButton.i Btn-Add "Add"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i Btn-copy "Copy"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i Btn-Delete "Delete"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i btn-recost "Recost Board"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i Btn-Save "Update"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i btn-scores "Scores"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i Btn-View "View"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i Btn-Add "Add"} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-copy "Copy"} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-Delete "Delete"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-recost "Recost Board"} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-scores "Scores"} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-View "View"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -2498,7 +2498,7 @@ if td-show-parm then run show-param.
 v-term-id = v-term + USERID("nosweat").
 
 SESSION:SET-WAIT-STATE ("general").
-
+vcBOLFiles = "".   
 build-report:
 for each inv-head
     where inv-head.company         eq cocode
@@ -2523,7 +2523,7 @@ for each inv-head
            (cust.inv-meth NE ? AND NOT inv-head.multi-invoice))
     NO-LOCK BY inv-head.bol-no :
 
-  vcBOLFiles = "".    
+
   IF inv-head.multi-invoice THEN DO:
       dtl-ctr = 0.
       FOR EACH b-inv-head NO-LOCK

@@ -395,6 +395,8 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   {methods/template/local/setvalue.i}
+
+  RUN spec-book-image-proc.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -636,6 +638,8 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   RUN po/po-sysct.p.  /* for vars factor#.... need for d-poordl.w  */
 
+  RUN spec-book-image-proc.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -760,6 +764,51 @@ PROCEDURE set-rec-key :
     APPLY "value-changed" TO BROWSE {&browse-name}.
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spec-book-image-proc B-table-Win 
+PROCEDURE spec-book-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   DEF BUFFER bf2-itemfg FOR itemfg.
+   DEF BUFFER bf2-item FOR ITEM.
+ IF AVAIL po-ordl THEN
+   FIND FIRST bf2-itemfg WHERE
+        bf2-itemfg.company = po-ordl.company AND
+        bf2-itemfg.i-no EQ po-ordl.i-no
+        NO-LOCK NO-ERROR.
+
+   IF AVAIL bf2-itemfg THEN
+      v-spec = CAN-FIND(FIRST notes WHERE
+               notes.rec_key = bf2-itemfg.rec_key AND
+               notes.note_type = "S").
+   IF NOT AVAIL bf2-itemfg THEN DO:
+       FIND FIRST bf2-item WHERE
+        bf2-item.company = po-ordl.company AND
+        bf2-item.i-no EQ po-ordl.i-no
+        NO-LOCK NO-ERROR.
+
+   IF AVAIL bf2-item THEN
+      v-spec = CAN-FIND(FIRST notes WHERE
+               notes.rec_key = bf2-item.rec_key AND
+               notes.note_type = "S").
+
+   END.
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'specpo-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -5,7 +5,6 @@
           emptrack         PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -32,7 +31,6 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\machsft2.i
 &SCOPED-DEFINE yellowColumnsName machshft
 /* Parameters Definitions ---                                           */
 

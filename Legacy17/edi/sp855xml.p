@@ -149,15 +149,15 @@ OrderAck
 
 /* ***************************  Definitions  ************************** */
 
-DEFINE input param ipOrderNumber AS INTEGER NO-UNDO.
-DEFINE input param  ipPartner AS CHARACTER  NO-UNDO.
-DEFINE input param  ipSeq AS INTEGER  NO-UNDO.
+DEFINE INPUT PARAM ipOrderNumber AS INTEGER NO-UNDO.
+DEFINE INPUT PARAM  ipPartner AS CHARACTER  NO-UNDO.
+DEFINE INPUT PARAM  ipSeq AS INTEGER  NO-UNDO.
 DEFINE OUTPUT PARAMETER opReturn AS LOG NO-UNDO.
 
 {custom/globdefs.i}
 {sys/inc/var.i new shared}
 
-assign
+ASSIGN
  cocode = g_company
  locode = g_loc.
 
@@ -174,38 +174,38 @@ DEFINE TEMP-TABLE tHeader XML-NODE-NAME "Header"
       FIELD Partner AS CHARACTER SERIALIZE-HIDDEN
       .
       
-define temp-table OrderHeader  /* excel row 126 */
-       field Partner AS CHARACTER XML-NODE-NAME "TradingPartnerId"
-       FIELD Seq AS int
-       field cust-po AS CHARACTER XML-NODE-NAME "PurchaseOrderNumber"
-       field TsetPurposeCode as CHARACTER INIT "00"
+DEFINE TEMP-TABLE OrderHeader  /* excel row 126 */
+       FIELD Partner AS CHARACTER XML-NODE-NAME "TradingPartnerId"
+       FIELD Seq AS INT
+       FIELD cust-po AS CHARACTER XML-NODE-NAME "PurchaseOrderNumber"
+       FIELD TsetPurposeCode AS CHARACTER INIT "00"
        FIELD PurchaseOrderDate AS CHARACTER /* format CCYYMMDD */
-       field AcknowledgementType as char  /* AC,AD,AK,RJ   AC - with change, AD - without change */
-       field AcknowledgementDate as CHARACTER  /* CCYYMMDD */
+       FIELD AcknowledgementType AS CHAR  /* AC,AD,AK,RJ   AC - with change, AD - without change */
+       FIELD AcknowledgementDate AS CHARACTER  /* CCYYMMDD */
        .
        
-define temp-table Address /* excel row 208 */
+DEFINE TEMP-TABLE Address /* excel row 208 */
        FIELD Partner AS CHARACTER SERIALIZE-HIDDEN
        FIELD seq AS INTEGER SERIALIZE-HIDDEN
-       field AddressTypeCode as CHARACTER 
-       field LocationCodeQualifier as CHARACTER 
-       field AddressLocationNumber as CHARACTER 
+       FIELD AddressTypeCode AS CHARACTER 
+       FIELD LocationCodeQualifier AS CHARACTER 
+       FIELD AddressLocationNumber AS CHARACTER 
        FIELD AddressName AS CHARACTER 
        .
                
-define temp-table references  /* excel row 337 */
+DEFINE TEMP-TABLE references  /* excel row 337 */
        FIELD Partner AS CHARACTER SERIALIZE-HIDDEN
        FIELD seq AS INTEGER SERIALIZE-HIDDEN
-       field ReferenceQual as char init "MR"
-       field ReferenceId as CHARACTER INIT "R1"
+       FIELD ReferenceQual AS CHAR INIT "MR"
+       FIELD ReferenceID AS CHARACTER INIT "R1"
        .
 
-define temp-table QuantityTotals  /* excel row 436 */
+DEFINE TEMP-TABLE QuantityTotals  /* excel row 436 */
        FIELD Partner AS CHARACTER SERIALIZE-HIDDEN
        FIELD seq AS INTEGER SERIALIZE-HIDDEN
-       field QuantityTotalQualifier as CHARACTER INIT "SQT"
-       field Quantity as char
-       field Description as CHARACTER INIT "Quantity Description"
+       FIELD QuantityTotalQualifier AS CHARACTER INIT "SQT"
+       FIELD Quantity AS CHAR
+       FIELD Description AS CHARACTER INIT "Quantity Description"
        .
        
 /*define temp-table lineItem  When AcknowledgementType = AK or RJ, then the detail record is not required. */
@@ -213,49 +213,49 @@ DEFINE TEMP-TABLE LineItem
       FIELD Partner AS CHARACTER SERIALIZE-HIDDEN
       .
       
-define temp-table OrderLine   /* excel row 456 */
-     field Partner AS CHARACTER XML-NODE-NAME "TradingPartnerId"    SERIALIZE-HIDDEN
-     field seq AS INTEGER XML-NODE-NAME "LineSequenceNumber"
-     field cust-item-no AS CHARACTER XML-NODE-NAME "BuyerPartNumber"
-     field item-no AS CHARACTER XML-NODE-NAME "VendorPartNumber"
-     field qty-orig-ord AS int XML-NODE-NAME "OrderQty"
-     field uom-code AS CHARACTER XML-NODE-NAME "OrderQtyUom"
-     field unit-price AS DECIMAL XML-NODE-NAME "PurchasePrice"
-     field PurchasePriceBasis as CHARACTER INIT "PE" /* Price per each */
+DEFINE TEMP-TABLE OrderLine   /* excel row 456 */
+     FIELD Partner AS CHARACTER XML-NODE-NAME "TradingPartnerId"    SERIALIZE-HIDDEN
+     FIELD seq AS INTEGER XML-NODE-NAME "LineSequenceNumber"
+     FIELD cust-item-no AS CHARACTER XML-NODE-NAME "BuyerPartNumber"
+     FIELD item-no AS CHARACTER XML-NODE-NAME "VendorPartNumber"
+     FIELD qty-orig-ord AS INT XML-NODE-NAME "OrderQty"
+     FIELD uom-code AS CHARACTER XML-NODE-NAME "OrderQtyUom"
+     FIELD unit-price AS DECIMAL XML-NODE-NAME "PurchasePrice"
+     FIELD PurchasePriceBasis AS CHARACTER INIT "PE" /* Price per each */
      .
      
-define temp-table LineItemAcknowledgement   /* excel row 514 */
-     field Partner AS CHARACTER XML-NODE-NAME "TradingPartnerId"  SERIALIZE-HIDDEN
-     field seq AS INTEGER SERIALIZE-HIDDEN
-     field item-no AS CHARACTER SERIALIZE-HIDDEN
-     field ItemStatusCode as char init "IA" /* DR,IA,IC,IP */
-     field ItemScheduleQty as char
-     field ItemScheduleUOM as char
-     field ItemScheduleQualifier as char
-     field ItemScheduleDate as char
+DEFINE TEMP-TABLE LineItemAcknowledgement   /* excel row 514 */
+     FIELD Partner AS CHARACTER XML-NODE-NAME "TradingPartnerId"  SERIALIZE-HIDDEN
+     FIELD seq AS INTEGER SERIALIZE-HIDDEN
+     FIELD item-no AS CHARACTER SERIALIZE-HIDDEN
+     FIELD ItemStatusCode AS CHAR INIT "IA" /* DR,IA,IC,IP */
+     FIELD ItemScheduleQty AS CHAR
+     FIELD ItemScheduleUOM AS CHAR
+     FIELD ItemScheduleQualifier AS CHAR
+     FIELD ItemScheduleDate AS CHAR
      .
      
-define temp-table LineItemReferences   /* excel row 652 */
-     field Partner AS CHARACTER XML-NODE-NAME "TradingPartnerId"  SERIALIZE-HIDDEN
-     field seq AS INTEGER SERIALIZE-HIDDEN
-     field item-no AS CHARACTER SERIALIZE-HIDDEN
-     field ReferenceQual as CHARACTER INIT "DRRN"
-     field ReferenceId as char
+DEFINE TEMP-TABLE LineItemReferences XML-NODE-NAME "References"  /* excel row 652 */
+     FIELD Partner AS CHARACTER XML-NODE-NAME "TradingPartnerId"  SERIALIZE-HIDDEN
+     FIELD seq AS INTEGER SERIALIZE-HIDDEN
+     FIELD item-no AS CHARACTER SERIALIZE-HIDDEN
+     FIELD ReferenceQual AS CHARACTER INIT "DRRN"
+     FIELD ReferenceID AS CHAR
      .
           
-define temp-table Notes   /* excel row 666 */
-     field Partner AS CHARACTER XML-NODE-NAME "TradingPartnerId"  SERIALIZE-HIDDEN
-     field seq AS INTEGER SERIALIZE-HIDDEN
-     field item-no AS CHARACTER SERIALIZE-HIDDEN
-     field NoteCode as char
-     field Note as char
+DEFINE TEMP-TABLE Notes   /* excel row 666 */
+     FIELD Partner AS CHARACTER XML-NODE-NAME "TradingPartnerId"  SERIALIZE-HIDDEN
+     FIELD seq AS INTEGER SERIALIZE-HIDDEN
+     FIELD item-no AS CHARACTER SERIALIZE-HIDDEN
+     FIELD NoteCode AS CHAR
+     FIELD Note AS CHAR
      .
           
-define temp-table Summary  /* excel row 1153 */ 
-     field Partner AS CHARACTER XML-NODE-NAME "TradingPartnerId"  SERIALIZE-HIDDEN
-     field item-no AS CHARACTER SERIALIZE-HIDDEN
-     field TotalAmount as CHARACTER SERIALIZE-HIDDEN
-     field TotalLineItemNumber as int
+DEFINE TEMP-TABLE Summary  /* excel row 1153 */ 
+     FIELD Partner AS CHARACTER XML-NODE-NAME "TradingPartnerId"  SERIALIZE-HIDDEN
+     FIELD item-no AS CHARACTER SERIALIZE-HIDDEN
+     FIELD TotalAmount AS CHARACTER SERIALIZE-HIDDEN
+     FIELD TotalLineItemNumber AS INT
      .     
 
 DEFINE DATA-SOURCE dsOrderAck FOR EDCode. 
@@ -268,35 +268,41 @@ DEFINE DATA-SOURCE dsOrderHeader FOR EDPOTran.
 /*DEFINE DATA-SOURCE dsAddress FOR EDPOTran.*/
 DEFINE DATA-SOURCE dsOrderLine FOR EDPOLine.
 
-define dataset ds855xml XML-NODE-NAME "OrderAcks"
-   for OrderAck,
+DEFINE DATASET ds855xml XML-NODE-NAME "OrderAcks"
+   FOR OrderAck,
        tHeader, OrderHeader, Address, References, QuantityTotals,
        lineitem, OrderLine, LineItemAcknowledgement, LineItemReferences, Notes, Summary       
-       DATA-RELATION dr1 FOR OrderAck, tHeader relation-fields(Partner,Partner) nested
-       DATA-RELATION drOrderHd FOR tHeader, OrderHeader relation-fields(Partner,Partner) nested 
-       DATA-RELATION drOrderAddress FOR tHeader, Address relation-fields(Partner,Partner) nested
-       DATA-RELATION drOrderReferences FOR tHeader, References relation-fields(Partner,Partner) nested  
-       DATA-RELATION drOrderTotal FOR tHeader, QuantityTotals relation-fields(Partner,Partner) nested
-       DATA-RELATION dr2 FOR OrderAck, LineItem relation-fields(Partner,Partner) nested
-       DATA-RELATION drOrderLine FOR LineItem, OrderLine RELATION-FIELDS(Partner,Partner) nested 
-       DATA-RELATION drLineLineItemAcknowledgement FOR LineItem, LineItemAcknowledgement relation-fields(Partner,Partner) NESTED
-       DATA-RELATION drLineLineItemReferences FOR LineItem, LineItemReferences relation-fields(Partner,Partner) nested
-       DATA-RELATION drLineLineNotes FOR LineItem, Notes relation-fields(Partner,Partner) nested
+       DATA-RELATION dr1 FOR OrderAck, tHeader RELATION-FIELDS(Partner,Partner) NESTED
+       DATA-RELATION drOrderHd FOR tHeader, OrderHeader RELATION-FIELDS(Partner,Partner) NESTED 
+       DATA-RELATION drOrderAddress FOR tHeader, Address RELATION-FIELDS(Partner,Partner) NESTED
+       DATA-RELATION drOrderReferences FOR tHeader, References RELATION-FIELDS(Partner,Partner) NESTED  
+       DATA-RELATION drOrderTotal FOR tHeader, QuantityTotals RELATION-FIELDS(Partner,Partner) NESTED
+       DATA-RELATION dr2 FOR OrderAck, LineItem RELATION-FIELDS(Partner,Partner) NESTED
+       DATA-RELATION drOrderLine FOR LineItem, OrderLine RELATION-FIELDS(Partner,Partner) NESTED 
+       DATA-RELATION drLineLineItemAcknowledgement FOR LineItem, LineItemAcknowledgement RELATION-FIELDS(Partner,Partner) NESTED
+       DATA-RELATION drLineLineItemReferences FOR LineItem, LineItemReferences RELATION-FIELDS(Partner,Partner) NESTED
+       DATA-RELATION drLineLineNotes FOR LineItem, Notes RELATION-FIELDS(Partner,Partner) NESTED
        
-       DATA-RELATION drLineLineSummary FOR lineItem, Summary relation-fields(Partner,Partner) nested
+       DATA-RELATION drLineLineSummary FOR lineItem, Summary RELATION-FIELDS(Partner,Partner) NESTED
        .
 
-define var hds855xml as handle no-undo.
+DEFINE VAR hds855xml AS HANDLE NO-UNDO.
     
 /* ********************  Preprocessor Definitions  ******************** */
+
+/* ************************  Function Prototypes ********************** */
+
+
+FUNCTION fnDateToString RETURNS CHARACTER 
+	(ipdDate AS DATE  ) FORWARD.
 
 
 /* ***************************  Main Block  *************************** */
 
-hds855xml = dataset ds855xml:handle.
+hds855xml = DATASET ds855xml:HANDLE.
 
-Run BuildData.
-run GenerateXmlFiles.
+RUN BuildData.
+RUN GenerateXmlFiles.
 
 
 /* **********************  Internal Procedures  *********************** */
@@ -317,37 +323,41 @@ PROCEDURE BuildData:
 ------------------------------------------------------------------------------*/
 
 
-  BUFFER OrderAck:attach-data-source(DATA-SOURCE dsOrderAck:handle, "Partner,Partner").
-  BUFFER tHeader:attach-data-source(DATA-SOURCE dstHeader:handle, "Partner,Partner").
-  BUFFER LineItem:attach-data-source(DATA-SOURCE dsLineItem:handle, "Partner,Partner").
-  BUFFER OrderHeader:attach-data-source(DATA-SOURCE dsOrderHeader:handle, "Partner,Partner,Seq,seq").
-  BUFFER OrderLine:attach-data-source(DATA-SOURCE dsOrderLine:handle, "Partner,Partner,Seq,seq").
+  BUFFER OrderAck:ATTACH-DATA-SOURCE(DATA-SOURCE dsOrderAck:handle, "Partner,Partner").
+  BUFFER tHeader:ATTACH-DATA-SOURCE(DATA-SOURCE dstHeader:handle, "Partner,Partner").
+  BUFFER LineItem:ATTACH-DATA-SOURCE(DATA-SOURCE dsLineItem:handle, "Partner,Partner").
+  BUFFER OrderHeader:ATTACH-DATA-SOURCE(DATA-SOURCE dsOrderHeader:handle, "Partner,Partner,Seq,seq").
+  BUFFER OrderLine:ATTACH-DATA-SOURCE(DATA-SOURCE dsOrderLine:handle, "Partner,Partner,Seq,seq").
   
-  DATASET ds855xml:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "ds855xmlBeforeFill", this-procedure).
-  BUFFER OrderAck:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "OrderAckBeforeFill", this-procedure).
-  BUFFER tHeader:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "tHeaderBeforeFill", this-procedure).
-  BUFFER LineItem:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "LineItemBeforeFill", this-procedure).
+  DATASET ds855xml:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "ds855xmlBeforeFill", THIS-PROCEDURE).
+  BUFFER OrderAck:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "OrderAckBeforeFill", THIS-PROCEDURE).
+  BUFFER tHeader:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "tHeaderBeforeFill", THIS-PROCEDURE).
+  BUFFER tHeader:SET-CALLBACK-PROCEDURE ("AFTER-ROW-FILL", "tHeaderAfterFill", THIS-PROCEDURE).
   
-  BUFFER OrderHeader:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "OrderHeaderBeforeFill", this-procedure ).
-  BUFFER OrderHeader:SET-CALLBACK-PROCEDURE ("After-Row-FILL", "OrderHeaderAfterRowFill", this-procedure ).
-  BUFFER Address:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "AddressBeforeFill", this-procedure ).
-  BUFFER References:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "ReferencesBeforeFill", this-procedure ).
-  BUFFER QuantityTotals:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "QuantityTotalsBeforeFill", this-procedure ).
-  BUFFER OrderLine:SET-CALLBACK-PROCEDURE ("After-Row-FILL", "OrderLineAfterRowFill", this-procedure ).        
-  BUFFER LineItemAcknowledgement:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "LineItemAcknowledgementBeforeFill", this-procedure ).
-  BUFFER LineItemAcknowledgement:SET-CALLBACK-PROCEDURE ("After-Row-FILL", "LineItemAcknowledgementAfterRowFill", this-procedure ).
-  BUFFER LineItemReferences:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "LineItemReferencesBeforeFill", this-procedure ).
-  BUFFER Notes:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "NotesBeforeFill", this-procedure ).
-  BUFFER Summary:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "SummaryBeforeFill", this-procedure ).
+  BUFFER LineItem:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "LineItemBeforeFill", THIS-PROCEDURE).
+  
+  BUFFER OrderHeader:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "OrderHeaderBeforeFill", THIS-PROCEDURE ).
+  BUFFER OrderHeader:SET-CALLBACK-PROCEDURE ("After-Row-FILL", "OrderHeaderAfterRowFill", THIS-PROCEDURE ).
+  BUFFER Address:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "AddressBeforeFill", THIS-PROCEDURE ).
+  BUFFER References:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "ReferencesBeforeFill", THIS-PROCEDURE ).
+  BUFFER QuantityTotals:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "QuantityTotalsBeforeFill", THIS-PROCEDURE ).
+  BUFFER OrderLine:SET-CALLBACK-PROCEDURE ("After-Row-FILL", "OrderLineAfterRowFill", THIS-PROCEDURE ).        
+  BUFFER LineItemAcknowledgement:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "LineItemAcknowledgementBeforeFill", THIS-PROCEDURE ).
+  BUFFER LineItemAcknowledgement:SET-CALLBACK-PROCEDURE ("After-Row-FILL", "LineItemAcknowledgementAfterRowFill", THIS-PROCEDURE ).
+  BUFFER LineItemReferences:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "LineItemReferencesBeforeFill", THIS-PROCEDURE ).
+  BUFFER Notes:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "NotesBeforeFill", THIS-PROCEDURE ).
+  BUFFER Summary:SET-CALLBACK-PROCEDURE ("BEFORE-FILL", "SummaryBeforeFill", THIS-PROCEDURE ).
   .
   
+  DATA-SOURCE dsOrderAck:FILL-WHERE-STRING = " where Partner = " + quoter(ipPartner)  .
+
                                                                                                                                      
   DATA-SOURCE dsOrderHeader:FILL-WHERE-STRING = " where Partner = " + quoter(ipPartner) + " and seq = " + string(ipSeq) .
                                                 
   DATA-SOURCE dsOrderLine:FILL-WHERE-STRING =  " where Partner = " + quoter(ipPartner) + " and seq = " + string(ipSeq).
   
-  DATASET ds855xml:fill().
-     
+  DATASET ds855xml:FILL().
+  
 END PROCEDURE.
 
 PROCEDURE ds855xmlBeforeFill:
@@ -364,18 +374,18 @@ PROCEDURE GenerateXMLfiles:
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
-   define var cXMLOutputfile as char no-undo.
+   DEFINE VAR cXMLOutputfile AS CHAR NO-UNDO.
    
-   cXMLOutputfile = (if acksps-cha <> "" then acksps-cha else "c:\temp\")  +
+   cXMLOutputfile = (IF acksps-cha <> "" THEN acksps-cha ELSE "c:\temp\")  +
                  "SPS855_Order#_" + string(ipOrderNumber) + ".xml".
    
-   hds855xml:write-xml("file",
+   hds855xml:WRITE-XML("file",
        cXMLOutputfile,
-       false,
-       ?,?,false, FALSE, false, FALSE )
+       FALSE,
+       ?,?,FALSE, FALSE, FALSE, FALSE )
        .
        
-   MESSAGE "xml file generated: " cXMLOutputfile skip
+   MESSAGE "xml file generated: " cXMLOutputfile SKIP
      VIEW-AS ALERT-BOX.    
    
 
@@ -446,19 +456,18 @@ PROCEDURE OrderHeaderAfterRowFill:
   iOrderHeaderCount = iOrderHeaderCount + 1.
   lOrderHeaderDeleted = NO.
   
-  ASSIGN OrderHeader.AcknowledgementDate = string(year(today),"9999") + string(month(today),"99")
-                                           + string(day(TODAY),"99") 
+  ASSIGN OrderHeader.AcknowledgementDate = fnDateToString(TODAY) 
          OrderHeader.AcknowledgementType = "AD"  /* AC - Ack with detail and change, AD - ACK with detail without change */                                   
-         OrderHeader.PurchaseOrderDate = string(year(EDPOTran.Order-date),"9999") + string(month(EDPOTran.order-date),"99") + string(day(EDPOTran.order-date),"99")                                   
+         OrderHeader.PurchaseOrderDate = fnDateToString(EDPOTran.Order-Date)                                   
          .
 
-
+/*
   IF iOrderHeaderCount = 1 THEN DO:
      DELETE OrderHeader.
      lOrderHeaderDeleted = YES. 
      RETURN. 
   END.                                         
-                                            
+  */                                          
   /* Address, References, QuantityTotals */
   CREATE address.
   ASSIGN address.Partner = OrderHeader.Partner
@@ -482,21 +491,21 @@ PROCEDURE OrderHeaderAfterRowFill:
   ASSIGN References.Partner = OrderHeader.Partner
          References.seq = OrderHeader.seq
          References.ReferenceQual = "MR"
-         References.ReferenceId = "Merchandise Type Code"
+         References.ReferenceID = "Merchandise Type Code"
          .
          
   CREATE References.
   ASSIGN References.Partner = OrderHeader.Partner
          References.seq = OrderHeader.seq
          References.ReferenceQual = "19"
-         References.ReferenceId = "Division-19"       
+         References.ReferenceID = "Division-19"       
          .
          
   CREATE References.
   ASSIGN References.Partner = OrderHeader.Partner
          References.seq = OrderHeader.seq
          References.ReferenceQual = "TPP"
-         References.ReferenceId = "Third Party Payment"       
+         References.ReferenceID = "Third Party Payment"       
          .       
   
   CREATE QuantityTotals.
@@ -504,7 +513,7 @@ PROCEDURE OrderHeaderAfterRowFill:
          QuantityTotals.seq = OrderHeader.seq
          .              
          
-   IF NOT can-find(FIRST SUMMARY WHERE summary.partner = OrderHeader.partner) THEN DO:
+   IF NOT CAN-FIND(FIRST SUMMARY WHERE summary.partner = OrderHeader.partner) THEN DO:
       CREATE SUMMARY.
       ASSIGN summary.partner = OrderHeader.partner.
       
@@ -518,7 +527,6 @@ PROCEDURE OrderHeaderBeforeFill:
  Notes:
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER DATASET-HANDLE phDataSet.
-
 END PROCEDURE.
 
 PROCEDURE OrderLineAfterRowFill:
@@ -539,27 +547,31 @@ PROCEDURE OrderLineAfterRowFill:
 /*  MESSAGE "OL after: " orderline.item-no orderline.partner         */
 /*  VIEW-AS ALERT-BOX.                                               */
   
-  IF orderline.item-no <> "" and
-    NOT can-find(FIRST LineItemAcknowledgement WHERE LineItemAcknowledgement.item-no = orderline.item-no) THEN DO: 
+  IF orderline.item-no <> "" AND
+    NOT CAN-FIND(FIRST LineItemAcknowledgement WHERE LineItemAcknowledgement.item-no = orderline.item-no) THEN DO: 
    CREATE LineItemAcknowledgement.
    ASSIGN LineItemAcknowledgement.Partner = phDataSet:get-buffer-handle("OrderAck"):buffer-field("Partner"):buffer-value
          LineItemAcknowledgement.item-no = OrderLine.item-no
          LineItemAcknowledgement.ItemScheduleQty = "1"
          LineItemAcknowledgement.ItemScheduleUOM = "EA"
          LineItemAcknowledgement.ItemScheduleQualifier = "017" /* 017: Estimated Delivery Date, 067: Current Scheduled Delivery Date */
-         LineItemAcknowledgement.ItemScheduleDate = string(year(today),"9999") + string(month(today),"99") + string(day(today),"99")
+         LineItemAcknowledgement.ItemScheduleDate = fnDateToString(TODAY)
          .
+      FIND FIRST summary NO-ERROR.
+      IF AVAILABLE summary THEN SUMMARY.TotalLineItemNumber = SUMMARY.TotalLineItemNumber + 1.
+         
   END.
-  IF orderline.item-no <> "" and
-     NOT can-find(FIRST LineItemAcknowledgement WHERE LineItemAcknowledgement.item-no = orderline.item-no) THEN DO:               
+  
+  IF orderline.item-no <> "" AND
+     NOT CAN-FIND(FIRST LineItemReferences WHERE LineItemReferences.item-no = orderline.item-no) THEN DO:               
    CREATE LineItemReferences.
    ASSIGN LineItemReferences.Partner =  phDataSet:get-buffer-handle("OrderAck"):buffer-field("Partner"):buffer-value
          LineItemReferences.item-no = OrderLine.item-no
-         LineItemReferences.ReferenceId = "R-" + OrderLine.item-no 
+         LineItemReferences.ReferenceID = "R-" + OrderLine.item-no 
          .
   END.
-  IF orderline.item-no <> "" and
-     NOT can-find(FIRST LineItemAcknowledgement WHERE LineItemAcknowledgement.item-no = orderline.item-no) THEN DO:   
+  IF orderline.item-no <> "" AND
+     NOT CAN-FIND(FIRST LineItemAcknowledgement WHERE LineItemAcknowledgement.item-no = orderline.item-no) THEN DO:   
    CREATE Notes.
    ASSIGN Notes.Partner = phDataSet:get-buffer-handle("OrderAck"):buffer-field("Partner"):buffer-value
          Notes.item-no = OrderLine.item-no
@@ -572,9 +584,6 @@ PROCEDURE OrderLineAfterRowFill:
 /*  ASSIGN Summary.item-no = OrderLine.item-no*/
          .
                   
- FIND FIRST summary NO-ERROR.
- IF AVAILABLE summary THEN SUMMARY.TotalLineItemNumber = SUMMARY.TotalLineItemNumber + 1.
-
 
          
 END PROCEDURE.
@@ -612,6 +621,31 @@ PROCEDURE tHeaderBeforeFill:
  Notes:
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAMETER DATASET-HANDLE phDataSet.
-
 END PROCEDURE.
+
+PROCEDURE tHeaderAfterFill:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER DATASET-HANDLE phDataSet.
+END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fnDateToString RETURNS CHARACTER 
+	(ipdDate AS DATE):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/	
+
+		DEFINE VARIABLE opcDate AS CHARACTER NO-UNDO.
+        opcDate = STRING(YEAR(ipdDate),"9999") 
+                    + "-" + string(MONTH(ipdDate),"99")
+                    + "-" + string(DAY(ipdDate),"99").        
+		RETURN opcDate.
+		
+END FUNCTION.
 

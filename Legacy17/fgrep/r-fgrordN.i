@@ -17,6 +17,8 @@ for each itemfg
      AND itemfg.CLASS      LE v-class[2]
      AND itemfg.spare-char-1 GE v-group[1]
      AND itemfg.spare-char-1 LE v-group[2]
+     AND itemfg.loc          GE begin_whse
+     AND itemfg.loc          LE end_whse
      AND (itemfg.stat EQ "A" OR tb_inactive)
 
      and ((itemfg.ord-policy     and v-lot-reo eq "R") or

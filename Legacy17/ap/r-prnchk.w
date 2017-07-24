@@ -455,6 +455,16 @@ END.
 ON LEAVE OF begin_vend-no IN FRAME FRAME-A /* Beginning Vendor# */
 DO:
    assign {&self-name}.
+   ASSIGN end_vend-no:SCREEN-VALUE = begin_vend-no:SCREEN-VALUE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_vend-no C-Win
+ON VALUE-CHANGED OF begin_vend-no IN FRAME FRAME-A /* Check Date */
+DO:
+  ASSIGN end_vend-no:SCREEN-VALUE = begin_vend-no:SCREEN-VALUE.
 END.
 
 /* _UIB-CODE-BLOCK-END */

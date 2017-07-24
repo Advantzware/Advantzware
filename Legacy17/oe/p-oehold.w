@@ -60,6 +60,12 @@ DEFINE VARIABLE char-hdl AS CHAR NO-UNDO.
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
+/* External Tables                                                      */
+&Scoped-define EXTERNAL-TABLES oe-ord
+&Scoped-define FIRST-EXTERNAL-TABLE oe-ord
+
+/* Need to scope the external tables to this procedure                  */
+DEFINE QUERY external_tables FOR oe-ord.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 btnHold 
 
@@ -227,7 +233,7 @@ END.
 
   /************************ INTERNAL PROCEDURES ********************/
 
-  {methods/setButton.i btnHold "Hold"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i btnHold "Hold"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -247,6 +253,15 @@ PROCEDURE adm-row-available :
 
   /* Define variables needed by this internal procedure.             */
   {src/adm/template/row-head.i}
+
+ /* Create a list of all the tables that we need to get.            */
+  {src/adm/template/row-list.i "oe-ord"}
+
+  /* Get the record ROWID's from the RECORD-SOURCE.                  */
+  {src/adm/template/row-get.i}
+
+  /* FIND each record specified by the RECORD-SOURCE.                */
+  {src/adm/template/row-find.i "oe-ord"}
 
   /* Process the newly available records (i.e. display fields,
      open queries, and/or pass records on to any RECORD-TARGETS).    */
@@ -356,6 +371,30 @@ PROCEDURE Process-Hold-Status :
 
    RETURN.
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available V-table-Win 
+PROCEDURE local-row-available :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:
+    ENABLE btnHold.
+    IF AVAIL oe-ord THEN
+      btnHold:LABEL = IF oe-ord.stat EQ "H" THEN "Re&lease" ELSE "&Hold".
+  END.
 
 END PROCEDURE.
 

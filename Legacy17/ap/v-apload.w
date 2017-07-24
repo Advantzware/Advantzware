@@ -49,7 +49,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-update RECT-5 
+&Scoped-Define ENABLED-OBJECTS RECT-5 btn-update 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -90,7 +90,7 @@ DEFINE BUTTON btn-update
      FONT 6.
 
 DEFINE RECTANGLE RECT-5
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 44 BY 2.14.
 
 
@@ -213,7 +213,7 @@ END.
 
   /************************ INTERNAL PROCEDURES ********************/
 
-  {methods/setButton.i btn-update "Load Highlighted Invoices"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i btn-update "Load Highlighted Invoices"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

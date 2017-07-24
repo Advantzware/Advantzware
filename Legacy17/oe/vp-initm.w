@@ -364,13 +364,13 @@ END.
 
   /************************ INTERNAL PROCEDURES ********************/
 
-  {methods/setButton.i Btn-Add "Add"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i Btn-Delete "Delete"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i btn-his "History"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i btn-misc "Misc"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i Btn-Save "Update"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i btn-ship "Shipped"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i Btn-View "View"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i Btn-Add "Add"} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-Delete "Delete"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-his "History"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-misc "Misc"} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-ship "Shipped"} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-View "View"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

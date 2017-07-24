@@ -239,7 +239,7 @@ END.
   &ENDIF
 
 
-  {methods/setButton.i btn-release "Release"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i btn-release "Release"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

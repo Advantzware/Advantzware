@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script c:\tmp\p42959__V16toV17.ped */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1467,7 +1467,8 @@ PROCEDURE recalc-costs :
 ------------------------------------------------------------------------------*/
   DEFINE VARIABLE hld-stat AS CHARACTER NO-UNDO.
   DEFINE VARIABLE ll AS LOG NO-UNDO.
-
+  DEF VAR iQty     AS INTEGER NO-UNDO .
+  DEF BUFFER bf-job-hdr FOR job-hdr .
 
   IF AVAILABLE job AND job.est-no NE "" THEN DO:
     MESSAGE "Recalculate Job Cost?"
@@ -1478,6 +1479,14 @@ PROCEDURE recalc-costs :
       ASSIGN
        nufile   = NO
        hld-stat = job.stat.
+       FOR EACH bf-job-hdr NO-LOCK 
+            WHERE bf-job-hdr.company EQ job.company 
+             AND bf-job-hdr.job     EQ job.job
+             AND bf-job-hdr.job-no  EQ job.job-no
+             AND bf-job-hdr.job-no2 EQ job.job-no2 :
+            iQty = iQty + bf-job-hdr.qty .
+        END.
+        IF iQty EQ 0 THEN nufile = YES .
 
       RUN jc/jc-calc.p (RECID(job), NO).
 

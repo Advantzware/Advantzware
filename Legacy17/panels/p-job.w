@@ -74,7 +74,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
@@ -133,7 +133,7 @@ DEFINE BUTTON Btn-Save
      FONT 4.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 84 BY 1.91.
 
 
@@ -205,7 +205,7 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
@@ -299,7 +299,7 @@ END.
 
 &Scoped-define SELF-NAME btn-rebuild
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-rebuild C-WIn
-ON CHOOSE OF btn-rebuild IN FRAME Panel-Frame /* Rebuild Stds */
+ON CHOOSE OF btn-rebuild IN FRAME Panel-Frame /* Rebuild Std */
 DO:
     def var char-hdl as cha no-undo.
     run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
@@ -314,7 +314,7 @@ END.
 
 &Scoped-define SELF-NAME btn-recalc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-recalc C-WIn
-ON CHOOSE OF btn-recalc IN FRAME Panel-Frame /* Recalc Costs */
+ON CHOOSE OF btn-recalc IN FRAME Panel-Frame /* Recalc Cost */
 DO:
     def var char-hdl as cha no-undo.
     run get-link-handle in adm-broker-hdl (this-procedure,"tableio-target",output char-hdl).
@@ -417,8 +417,8 @@ END.
   {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p */
   {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p */
 
-  {methods/setButton.i btn-rebuild "Rebuild Std"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i btn-recalc "Recalc Cost"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i btn-rebuild "Rebuild Std"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-recalc "Recalc Cost"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

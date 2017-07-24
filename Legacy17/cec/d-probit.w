@@ -134,7 +134,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -254,7 +254,7 @@ PROCEDURE close-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+ 
   apply "go" to frame {&frame-name}.
   return no-apply.
 END PROCEDURE.

@@ -494,12 +494,12 @@ END.
   {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p */
   {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p */
 
-  {methods/setButton.i btn-auto-calc "Auto-Calc"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i btn-bom "Bom"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i btn-flm "Leaf/Film"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i btn-goto "Goto"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i btn-sht-calc "Sheet Calc"} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i btn-stds "Job Stds"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i btn-auto-calc "Auto-Calc"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-bom "Bom"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-flm "Leaf/Film"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-goto "Goto"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-sht-calc "Sheet Calc"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-stds "Job Stds"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

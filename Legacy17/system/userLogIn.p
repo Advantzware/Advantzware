@@ -94,9 +94,9 @@ FIND FIRST asi._connect NO-LOCK WHERE _connect._connect-usr = _myconnection._myc
     NO-ERROR. 
         
 cEulaFile = SEARCH("{&EulaFile}").
-if cEulaFile = ""
-or cEulaFile = ? then assign
-    cEulaFile = search("eula.txt").
+IF cEulaFile = ""
+OR cEulaFile = ? THEN ASSIGN
+    cEulaFile = SEARCH("eula.txt").
 
 RUN system/checkEula.p (INPUT cEulaFile, OUTPUT lEulaAccepted, OUTPUT cEulaVersion).
 
@@ -138,7 +138,9 @@ IF NOT oplExit AND enforceUserCount-log THEN DO:
     
     iAllUserCount = 0.
     FOR EACH userLog NO-LOCK WHERE userLog.userStatus EQ "Logged In" 
-        BREAK BY userLog.user_id:
+        BREAK BY userLog.IpAddress 
+              BY userLog.deviceName 
+              BY userLog.user_id:
         IF FIRST-OF(userLog.user_id) THEN 
           iAllUserCount = iAllUserCount + 1.
     END.            

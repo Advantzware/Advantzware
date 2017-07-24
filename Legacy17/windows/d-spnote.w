@@ -112,7 +112,7 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartDialog
-   External Tables: NOSWEAT.notes
+   External Tables: ASI.notes
    Allow: Basic,Browse,DB-Fields,Query,Smart
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -150,7 +150,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
- 
+
 
 
 

@@ -7,43 +7,37 @@
 {adecomm/appserv.i}
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS dTables 
 /*------------------------------------------------------------------------
+
   File:  
-  Copyright:            (c)2016 Foresight Software LLC - All rights reserved
-  Version:              10.7000 - 06/01/2016 - tyndmar
-  Description:          from DATA.W - Template For SmartData objects in the ADM
-  Input Parameters:     <none>
-  Output Parameters:    <none>
-  Modified:             06/01/2016
-  Notes:                1 - set lLarge = TRUE if large dataset expected, else false
-                        2 - populate initQuery, initSort if constants to be set, else use ""
-                        3 - cControl specifies which control record
-                        4 - cEntity1 specifies which entity code
-                        5 - include {pt/sdoComProcs.i} in main block
+
+  Description: from DATA.W - Template For SmartData objects in the ADM
+
+  Input Parameters:
+      <none>
+
+  Output Parameters:
+      <none>
+
+  Modified:     February 24, 1999
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
+
+/* Create an unnamed pool to store all the widgets created 
+     by this procedure. This is a good default which assures
+     that this procedure's triggers and internal procedures 
+     will execute in this procedure's storage, and that proper
+     cleanup will occur on deletion of the procedure. */
 
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE cControl FA
-&SCOPED-DEFINE cEntity1 {&cControl}
-&SCOPED-DEFINE cEntity2
-&SCOPED-DEFINE cTable fa-mast
-&SCOPED-DEFINE lLarge FALSE
-&SCOPED-DEFINE initQuery "fa-mast.fa-entity = '" + STRING(cCompany) + "'" 
-&SCOPED-DEFINE initSort ""
-&SCOPED-DEFINE lJump TRUE
-&SCOPED-DEFINE keyField1 asset-code
-&SCOPED-DEFINE keyType1 CHAR
-&SCOPED-DEFINE byEntity bTable.{&cEntity1}-entity = cCompany AND
+/* Parameters Definitions ---                                           */
 
-DEF BUFFER bTable FOR {&cTable}.
-DEF VAR cKeyValue1 AS {&keyType1}.
-DEF VAR rFileRowid AS ROWID.
+/* Local Variable Definitions ---                                       */
 
-{src/asicommon.i}
+&glob DATA-LOGIC-PROCEDURE .p
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -52,8 +46,6 @@ DEF VAR rFileRowid AS ROWID.
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
-
-&Global-define DATA-LOGIC-PROCEDURE .p
 
 &Scoped-define PROCEDURE-TYPE SmartDataObject
 &Scoped-define DB-AWARE yes
@@ -82,16 +74,16 @@ DEF VAR rFileRowid AS ROWID.
  gl-code group-code itc-amt itc-recap Job-no last-autodepr-date life-amt~
  life-book life-tax-1 life-tax-2 location memo method-book method-tax-1~
  method-tax-2 mth-year multiple new-used obal-acc-bk obal-acc-t1 obal-acc-t2~
- par-asset proceeds processed profit-bk profit-t1 profit-t2 purch-order#~
- recalc ret-code ret-prd Sale-date salvage sec-179 serial# Sl-conv-amt~
- sort-code1 sort-code2 start-prd tag-nof tag-not yr-of-depr period1 period2~
- period3 period4 period5 period6 period7 period8 period9 period10 period11~
- period12 period13 tax1-period1 tax1-period2 tax1-period3 tax1-period4~
- tax1-period5 tax1-period6 tax1-period7 tax1-period8 tax1-period9~
- tax1-period10 tax1-period11 tax1-period12 tax1-period13 tax2-period1~
- tax2-period2 tax2-period3 tax2-period4 tax2-period5 tax2-period6~
- tax2-period7 tax2-period8 tax2-period9 tax2-period10 tax2-period11~
- tax2-period12 tax2-period13
+ par-asset period1 period2 period3 period4 period5 period6 period7 period8~
+ period9 period10 period11 period12 period13 proceeds processed profit-bk~
+ profit-t1 profit-t2 purch-order# recalc ret-code ret-prd Sale-date salvage~
+ sec-179 serial# Sl-conv-amt sort-code1 sort-code2 start-prd tag-nof tag-not~
+ tax1-period1 tax1-period2 tax1-period3 tax1-period4 tax1-period5~
+ tax1-period6 tax1-period7 tax1-period8 tax1-period9 tax1-period10~
+ tax1-period11 tax1-period12 tax1-period13 tax2-period1 tax2-period2~
+ tax2-period3 tax2-period4 tax2-period5 tax2-period6 tax2-period7~
+ tax2-period8 tax2-period9 tax2-period10 tax2-period11 tax2-period12~
+ tax2-period13 yr-of-depr
 &Scoped-define ENABLED-FIELDS-IN-fa-mast acc-dep-book acc-dep-tax1 ~
 acc-dep-tax2 asset-code asset-desc asset-status auto business-% child-par ~
 cost-book Cust-no cy-dep-book cy-dep-tax-1 cy-dep-tax-2 date-aquired ~
@@ -99,17 +91,17 @@ date-retired date-service dep-basis-bk dep-basis-t1 dep-basis-t2 Depr-alt ~
 Document Entity-code Exch-rate fa-entity gl-code group-code itc-amt ~
 itc-recap Job-no last-autodepr-date life-amt life-book life-tax-1 ~
 life-tax-2 location memo method-book method-tax-1 method-tax-2 mth-year ~
-multiple new-used obal-acc-bk obal-acc-t1 obal-acc-t2 par-asset proceeds ~
-processed profit-bk profit-t1 profit-t2 purch-order# recalc ret-code ~
-ret-prd Sale-date salvage sec-179 serial# Sl-conv-amt sort-code1 sort-code2 ~
-start-prd tag-nof tag-not yr-of-depr period1 period2 period3 period4 ~
-period5 period6 period7 period8 period9 period10 period11 period12 period13 ~
-tax1-period1 tax1-period2 tax1-period3 tax1-period4 tax1-period5 ~
-tax1-period6 tax1-period7 tax1-period8 tax1-period9 tax1-period10 ~
-tax1-period11 tax1-period12 tax1-period13 tax2-period1 tax2-period2 ~
-tax2-period3 tax2-period4 tax2-period5 tax2-period6 tax2-period7 ~
-tax2-period8 tax2-period9 tax2-period10 tax2-period11 tax2-period12 ~
-tax2-period13 
+multiple new-used obal-acc-bk obal-acc-t1 obal-acc-t2 par-asset period1 ~
+period2 period3 period4 period5 period6 period7 period8 period9 period10 ~
+period11 period12 period13 proceeds processed profit-bk profit-t1 profit-t2 ~
+purch-order# recalc ret-code ret-prd Sale-date salvage sec-179 serial# ~
+Sl-conv-amt sort-code1 sort-code2 start-prd tag-nof tag-not tax1-period1 ~
+tax1-period2 tax1-period3 tax1-period4 tax1-period5 tax1-period6 ~
+tax1-period7 tax1-period8 tax1-period9 tax1-period10 tax1-period11 ~
+tax1-period12 tax1-period13 tax2-period1 tax2-period2 tax2-period3 ~
+tax2-period4 tax2-period5 tax2-period6 tax2-period7 tax2-period8 ~
+tax2-period9 tax2-period10 tax2-period11 tax2-period12 tax2-period13 ~
+yr-of-depr 
 &Scoped-Define DATA-FIELDS  acc-dep-book acc-dep-tax1 acc-dep-tax2 asset-code asset-desc asset-status~
  auto business-% child-par cost-book Cust-no cy-dep-book cy-dep-tax-1~
  cy-dep-tax-2 date-aquired date-retired date-service dep-basis-bk~
@@ -117,16 +109,16 @@ tax2-period13
  gl-code group-code itc-amt itc-recap Job-no last-autodepr-date life-amt~
  life-book life-tax-1 life-tax-2 location memo method-book method-tax-1~
  method-tax-2 mth-year multiple new-used obal-acc-bk obal-acc-t1 obal-acc-t2~
- par-asset proceeds processed profit-bk profit-t1 profit-t2 purch-order#~
- recalc ret-code ret-prd Sale-date salvage sec-179 serial# Sl-conv-amt~
- sort-code1 sort-code2 start-prd tag-nof tag-not yr-of-depr period1 period2~
- period3 period4 period5 period6 period7 period8 period9 period10 period11~
- period12 period13 tax1-period1 tax1-period2 tax1-period3 tax1-period4~
- tax1-period5 tax1-period6 tax1-period7 tax1-period8 tax1-period9~
- tax1-period10 tax1-period11 tax1-period12 tax1-period13 tax2-period1~
- tax2-period2 tax2-period3 tax2-period4 tax2-period5 tax2-period6~
- tax2-period7 tax2-period8 tax2-period9 tax2-period10 tax2-period11~
- tax2-period12 tax2-period13
+ par-asset period1 period2 period3 period4 period5 period6 period7 period8~
+ period9 period10 period11 period12 period13 proceeds processed profit-bk~
+ profit-t1 profit-t2 purch-order# recalc ret-code ret-prd Sale-date salvage~
+ sec-179 serial# Sl-conv-amt sort-code1 sort-code2 start-prd tag-nof tag-not~
+ tax1-period1 tax1-period2 tax1-period3 tax1-period4 tax1-period5~
+ tax1-period6 tax1-period7 tax1-period8 tax1-period9 tax1-period10~
+ tax1-period11 tax1-period12 tax1-period13 tax2-period1 tax2-period2~
+ tax2-period3 tax2-period4 tax2-period5 tax2-period6 tax2-period7~
+ tax2-period8 tax2-period9 tax2-period10 tax2-period11 tax2-period12~
+ tax2-period13 yr-of-depr
 &Scoped-define DATA-FIELDS-IN-fa-mast acc-dep-book acc-dep-tax1 ~
 acc-dep-tax2 asset-code asset-desc asset-status auto business-% child-par ~
 cost-book Cust-no cy-dep-book cy-dep-tax-1 cy-dep-tax-2 date-aquired ~
@@ -134,17 +126,17 @@ date-retired date-service dep-basis-bk dep-basis-t1 dep-basis-t2 Depr-alt ~
 Document Entity-code Exch-rate fa-entity gl-code group-code itc-amt ~
 itc-recap Job-no last-autodepr-date life-amt life-book life-tax-1 ~
 life-tax-2 location memo method-book method-tax-1 method-tax-2 mth-year ~
-multiple new-used obal-acc-bk obal-acc-t1 obal-acc-t2 par-asset proceeds ~
-processed profit-bk profit-t1 profit-t2 purch-order# recalc ret-code ~
-ret-prd Sale-date salvage sec-179 serial# Sl-conv-amt sort-code1 sort-code2 ~
-start-prd tag-nof tag-not yr-of-depr period1 period2 period3 period4 ~
-period5 period6 period7 period8 period9 period10 period11 period12 period13 ~
-tax1-period1 tax1-period2 tax1-period3 tax1-period4 tax1-period5 ~
-tax1-period6 tax1-period7 tax1-period8 tax1-period9 tax1-period10 ~
-tax1-period11 tax1-period12 tax1-period13 tax2-period1 tax2-period2 ~
-tax2-period3 tax2-period4 tax2-period5 tax2-period6 tax2-period7 ~
-tax2-period8 tax2-period9 tax2-period10 tax2-period11 tax2-period12 ~
-tax2-period13 
+multiple new-used obal-acc-bk obal-acc-t1 obal-acc-t2 par-asset period1 ~
+period2 period3 period4 period5 period6 period7 period8 period9 period10 ~
+period11 period12 period13 proceeds processed profit-bk profit-t1 profit-t2 ~
+purch-order# recalc ret-code ret-prd Sale-date salvage sec-179 serial# ~
+Sl-conv-amt sort-code1 sort-code2 start-prd tag-nof tag-not tax1-period1 ~
+tax1-period2 tax1-period3 tax1-period4 tax1-period5 tax1-period6 ~
+tax1-period7 tax1-period8 tax1-period9 tax1-period10 tax1-period11 ~
+tax1-period12 tax1-period13 tax2-period1 tax2-period2 tax2-period3 ~
+tax2-period4 tax2-period5 tax2-period6 tax2-period7 tax2-period8 ~
+tax2-period9 tax2-period10 tax2-period11 tax2-period12 tax2-period13 ~
+yr-of-depr 
 &Scoped-Define MANDATORY-FIELDS  Cust-no Entity-code Job-no
 &Scoped-Define APPLICATION-SERVICE 
 &Scoped-Define ASSIGN-LIST   rowObject.period1 = fa-mast.period[1]~
@@ -187,6 +179,7 @@ tax2-period13
   rowObject.tax2-period12 = fa-mast.tax2-period[12]~
   rowObject.tax2-period13 = fa-mast.tax2-period[13]
 &Scoped-Define DATA-FIELD-DEFS "fa/sdoFaMast.i"
+&Scoped-Define DATA-TABLE-NO-UNDO NO-UNDO
 &Scoped-define QUERY-STRING-Query-Main FOR EACH fa-mast NO-LOCK INDEXED-REPOSITION
 {&DB-REQUIRED-START}
 &Scoped-define OPEN-QUERY-Query-Main OPEN QUERY Query-Main FOR EACH fa-mast NO-LOCK INDEXED-REPOSITION.
@@ -277,218 +270,218 @@ END.
      _TblList          = "ASI.fa-mast"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
      _FldNameList[1]   > ASI.fa-mast.acc-dep-book
-"acc-dep-book" "acc-dep-book" ? ? "decimal" ? ? ? ? ? ? yes ? no 12.43 yes ""
+"acc-dep-book" "acc-dep-book" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
      _FldNameList[2]   > ASI.fa-mast.acc-dep-tax1
-"acc-dep-tax1" "acc-dep-tax1" ? ? "decimal" ? ? ? ? ? ? yes ? no 12.14 yes ""
+"acc-dep-tax1" "acc-dep-tax1" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
      _FldNameList[3]   > ASI.fa-mast.acc-dep-tax2
-"acc-dep-tax2" "acc-dep-tax2" ? ? "decimal" ? ? ? ? ? ? yes ? no 12.14 yes ""
+"acc-dep-tax2" "acc-dep-tax2" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
      _FldNameList[4]   > ASI.fa-mast.asset-code
-"asset-code" "asset-code" ? ? "character" ? ? ? ? ? ? yes ? no 10 yes ""
+"asset-code" "asset-code" ? ? "character" ? ? ? ? ? ? yes ? no 11 yes ?
      _FldNameList[5]   > ASI.fa-mast.asset-desc
-"asset-desc" "asset-desc" ? ? "character" ? ? ? ? ? ? yes ? no 30 yes ""
+"asset-desc" "asset-desc" ? ? "character" ? ? ? ? ? ? yes ? no 30 yes ?
      _FldNameList[6]   > ASI.fa-mast.asset-status
-"asset-status" "asset-status" ? ? "character" ? ? ? ? ? ? yes ? no 10.57 yes ""
+"asset-status" "asset-status" ? ? "character" ? ? ? ? ? ? yes ? no 12.2 yes ?
      _FldNameList[7]   > ASI.fa-mast.auto
-"auto" "auto" ? ? "logical" ? ? ? ? ? ? yes ? no 9.72 yes ""
+"auto" "auto" ? ? "logical" ? ? ? ? ? ? yes ? no 10.6 yes ?
      _FldNameList[8]   > ASI.fa-mast.business-%
-"business-%" "business-%" ? ? "integer" ? ? ? ? ? ? yes ? no 10 yes ""
+"business-%" "business-%" ? ? "integer" ? ? ? ? ? ? yes ? no 11 yes ?
      _FldNameList[9]   > ASI.fa-mast.child-par
-"child-par" "child-par" ? ? "logical" ? ? ? ? ? ? yes ? no 7.86 yes ""
+"child-par" "child-par" ? ? "logical" ? ? ? ? ? ? yes ? no 8.6 yes ?
      _FldNameList[10]   > ASI.fa-mast.cost-book
-"cost-book" "cost-book" ? ? "decimal" ? ? ? ? ? ? yes ? no 11.86 yes ""
+"cost-book" "cost-book" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
      _FldNameList[11]   > ASI.fa-mast.Cust-no
-"Cust-no" "Cust-no" ? ? "character" ? ? ? ? ? ? yes ? yes 8 yes ""
+"Cust-no" "Cust-no" ? ? "character" ? ? ? ? ? ? yes ? yes 8 yes ?
      _FldNameList[12]   > ASI.fa-mast.cy-dep-book
-"cy-dep-book" "cy-dep-book" ? ? "decimal" ? ? ? ? ? ? yes ? no 13.29 yes ""
+"cy-dep-book" "cy-dep-book" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
      _FldNameList[13]   > ASI.fa-mast.cy-dep-tax-1
-"cy-dep-tax-1" "cy-dep-tax-1" ? ? "decimal" ? ? ? ? ? ? yes ? no 12.29 yes ""
+"cy-dep-tax-1" "cy-dep-tax-1" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
      _FldNameList[14]   > ASI.fa-mast.cy-dep-tax-2
-"cy-dep-tax-2" "cy-dep-tax-2" ? ? "decimal" ? ? ? ? ? ? yes ? no 12.29 yes ""
+"cy-dep-tax-2" "cy-dep-tax-2" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
      _FldNameList[15]   > ASI.fa-mast.date-aquired
-"date-aquired" "date-aquired" ? ? "date" ? ? ? ? ? ? yes ? no 12.29 yes ""
+"date-aquired" "date-aquired" ? ? "date" ? ? ? ? ? ? yes ? no 13.6 yes ?
      _FldNameList[16]   > ASI.fa-mast.date-retired
-"date-retired" "date-retired" ? ? "date" ? ? ? ? ? ? yes ? no 10.86 yes ""
+"date-retired" "date-retired" ? ? "date" ? ? ? ? ? ? yes ? no 12.2 yes ?
      _FldNameList[17]   > ASI.fa-mast.date-service
-"date-service" "date-service" ? ? "date" ? ? ? ? ? ? yes ? no 11.14 yes ""
+"date-service" "date-service" ? ? "date" ? ? ? ? ? ? yes ? no 12.2 yes ?
      _FldNameList[18]   > ASI.fa-mast.dep-basis-bk
-"dep-basis-bk" "dep-basis-bk" ? ? "decimal" ? ? ? ? ? ? yes ? no 15 yes ""
+"dep-basis-bk" "dep-basis-bk" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
      _FldNameList[19]   > ASI.fa-mast.dep-basis-t1
-"dep-basis-t1" "dep-basis-t1" ? ? "decimal" ? ? ? ? ? ? yes ? no 14.72 yes ""
+"dep-basis-t1" "dep-basis-t1" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
      _FldNameList[20]   > ASI.fa-mast.dep-basis-t2
-"dep-basis-t2" "dep-basis-t2" ? ? "decimal" ? ? ? ? ? ? yes ? no 14.72 yes ""
+"dep-basis-t2" "dep-basis-t2" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
      _FldNameList[21]   > ASI.fa-mast.Depr-alt
-"Depr-alt" "Depr-alt" ? ? "decimal" ? ? ? ? ? ? yes ? no 15.72 yes ""
+"Depr-alt" "Depr-alt" ? ? "decimal" ? ? ? ? ? ? yes ? no 19 yes ?
      _FldNameList[22]   > ASI.fa-mast.Document
-"Document" "Document" ? ? "integer" ? ? ? ? ? ? yes ? no 8.72 yes ""
+"Document" "Document" ? ? "integer" ? ? ? ? ? ? yes ? no 9.6 yes ?
      _FldNameList[23]   > ASI.fa-mast.Entity-code
-"Entity-code" "Entity-code" ? ? "character" ? ? ? ? ? ? yes ? yes 8 yes ""
+"Entity-code" "Entity-code" ? ? "character" ? ? ? ? ? ? yes ? yes 8.8 yes ?
      _FldNameList[24]   > ASI.fa-mast.Exch-rate
-"Exch-rate" "Exch-rate" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.86 yes ""
+"Exch-rate" "Exch-rate" ? ? "decimal" ? ? ? ? ? ? yes ? no 15.2 yes ?
      _FldNameList[25]   > ASI.fa-mast.fa-entity
-"fa-entity" "fa-entity" ? ? "character" ? ? ? ? ? ? yes ? no 8 yes ""
+"fa-entity" "fa-entity" ? ? "character" ? ? ? ? ? ? yes ? no 8.8 yes ?
      _FldNameList[26]   > ASI.fa-mast.gl-code
-"gl-code" "gl-code" ? ? "character" ? ? ? ? ? ? yes ? no 8 yes ""
+"gl-code" "gl-code" ? ? "character" ? ? ? ? ? ? yes ? no 8 yes ?
      _FldNameList[27]   > ASI.fa-mast.group-code
-"group-code" "group-code" ? ? "character" ? ? ? ? ? ? yes ? no 5.29 yes ""
+"group-code" "group-code" ? ? "character" ? ? ? ? ? ? yes ? no 5.8 yes ?
      _FldNameList[28]   > ASI.fa-mast.itc-amt
-"itc-amt" "itc-amt" ? ? "decimal" ? ? ? ? ? ? yes ? no 11.86 yes ""
+"itc-amt" "itc-amt" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
      _FldNameList[29]   > ASI.fa-mast.itc-recap
-"itc-recap" "itc-recap" ? ? "decimal" ? ? ? ? ? ? yes ? no 14.14 yes ""
+"itc-recap" "itc-recap" ? ? "decimal" ? ? ? ? ? ? yes ? no 16.2 yes ?
      _FldNameList[30]   > ASI.fa-mast.Job-no
-"Job-no" "Job-no" ? ? "character" ? ? ? ? ? ? yes ? yes 8 yes ""
+"Job-no" "Job-no" ? ? "character" ? ? ? ? ? ? yes ? yes 8 yes ?
      _FldNameList[31]   > ASI.fa-mast.last-autodepr-date
-"last-autodepr-date" "last-autodepr-date" ? ? "date" ? ? ? ? ? ? yes ? no 17.14 yes ""
+"last-autodepr-date" "last-autodepr-date" ? ? "date" ? ? ? ? ? ? yes ? no 19.6 yes ?
      _FldNameList[32]   > ASI.fa-mast.life-amt
-"life-amt" "life-amt" ? ? "integer" ? ? ? ? ? ? yes ? no 6.72 yes ""
+"life-amt" "life-amt" ? ? "integer" ? ? ? ? ? ? yes ? no 7.8 yes ?
      _FldNameList[33]   > ASI.fa-mast.life-book
-"life-book" "life-book" ? ? "integer" ? ? ? ? ? ? yes ? no 9.14 yes ""
+"life-book" "life-book" ? ? "integer" ? ? ? ? ? ? yes ? no 10.2 yes ?
      _FldNameList[34]   > ASI.fa-mast.life-tax-1
-"life-tax-1" "life-tax-1" ? ? "integer" ? ? ? ? ? ? yes ? no 8.86 yes ""
+"life-tax-1" "life-tax-1" ? ? "integer" ? ? ? ? ? ? yes ? no 10.4 yes ?
      _FldNameList[35]   > ASI.fa-mast.life-tax-2
-"life-tax-2" "life-tax-2" ? ? "integer" ? ? ? ? ? ? yes ? no 8.86 yes ""
+"life-tax-2" "life-tax-2" ? ? "integer" ? ? ? ? ? ? yes ? no 10.4 yes ?
      _FldNameList[36]   > ASI.fa-mast.location
-"location" "location" ? ? "character" ? ? ? ? ? ? yes ? no 7.29 yes ""
+"location" "location" ? ? "character" ? ? ? ? ? ? yes ? no 8 yes ?
      _FldNameList[37]   > ASI.fa-mast.memo
-"memo" "memo" ? ? "character" ? ? ? ? ? ? yes ? no 25 yes ""
+"memo" "memo" ? ? "character" ? ? ? ? ? ? yes ? no 25 yes ?
      _FldNameList[38]   > ASI.fa-mast.method-book
-"method-book" "method-book" ? ? "character" ? ? ? ? ? ? yes ? no 12.57 yes ""
+"method-book" "method-book" ? ? "character" ? ? ? ? ? ? yes ? no 14 yes ?
      _FldNameList[39]   > ASI.fa-mast.method-tax-1
-"method-tax-1" "method-tax-1" ? ? "character" ? ? ? ? ? ? yes ? no 12.29 yes ""
+"method-tax-1" "method-tax-1" ? ? "character" ? ? ? ? ? ? yes ? no 14.2 yes ?
      _FldNameList[40]   > ASI.fa-mast.method-tax-2
-"method-tax-2" "method-tax-2" ? ? "character" ? ? ? ? ? ? yes ? no 12.29 yes ""
+"method-tax-2" "method-tax-2" ? ? "character" ? ? ? ? ? ? yes ? no 14.2 yes ?
      _FldNameList[41]   > ASI.fa-mast.mth-year
-"mth-year" "mth-year" ? ? "logical" ? ? ? ? ? ? yes ? no 9.86 yes ""
+"mth-year" "mth-year" ? ? "logical" ? ? ? ? ? ? yes ? no 11.2 yes ?
      _FldNameList[42]   > ASI.fa-mast.multiple
-"multiple" "multiple" ? ? "integer" ? ? ? ? ? ? yes ? no 11.29 yes ""
+"multiple" "multiple" ? ? "integer" ? ? ? ? ? ? yes ? no 13 yes ?
      _FldNameList[43]   > ASI.fa-mast.new-used
-"new-used" "new-used" ? ? "character" ? ? ? ? ? ? yes ? no 9.14 yes ""
+"new-used" "new-used" ? ? "character" ? ? ? ? ? ? yes ? no 9.8 yes ?
      _FldNameList[44]   > ASI.fa-mast.obal-acc-bk
-"obal-acc-bk" "obal-acc-bk" ? ? "decimal" ? ? ? ? ? ? yes ? no 12.29 yes ""
+"obal-acc-bk" "obal-acc-bk" ? ? "decimal" ? ? ? ? ? ? yes ? no 18.8 yes ?
      _FldNameList[45]   > ASI.fa-mast.obal-acc-t1
-"obal-acc-t1" "obal-acc-t1" ? ? "decimal" ? ? ? ? ? ? yes ? no 12.29 yes ""
+"obal-acc-t1" "obal-acc-t1" ? ? "decimal" ? ? ? ? ? ? yes ? no 18.8 yes ?
      _FldNameList[46]   > ASI.fa-mast.obal-acc-t2
-"obal-acc-t2" "obal-acc-t2" ? ? "decimal" ? ? ? ? ? ? yes ? no 12.29 yes ""
+"obal-acc-t2" "obal-acc-t2" ? ? "decimal" ? ? ? ? ? ? yes ? no 18.8 yes ?
      _FldNameList[47]   > ASI.fa-mast.par-asset
-"par-asset" "par-asset" ? ? "character" ? ? ? ? ? ? yes ? no 8.29 yes ""
-     _FldNameList[48]   > ASI.fa-mast.proceeds
-"proceeds" "proceeds" ? ? "decimal" ? ? ? ? ? ? yes ? no 11.86 yes ""
-     _FldNameList[49]   > ASI.fa-mast.processed
-"processed" "processed" ? ? "logical" ? ? ? ? ? ? yes ? no 9.43 yes ""
-     _FldNameList[50]   > ASI.fa-mast.profit-bk
-"profit-bk" "profit-bk" ? ? "decimal" ? ? ? ? ? ? yes ? no 11.86 yes ""
-     _FldNameList[51]   > ASI.fa-mast.profit-t1
-"profit-t1" "profit-t1" ? ? "decimal" ? ? ? ? ? ? yes ? no 11.86 yes ""
-     _FldNameList[52]   > ASI.fa-mast.profit-t2
-"profit-t2" "profit-t2" ? ? "decimal" ? ? ? ? ? ? yes ? no 11.86 yes ""
-     _FldNameList[53]   > ASI.fa-mast.purch-order#
-"purch-order#" "purch-order#" ? ? "character" ? ? ? ? ? ? yes ? no 10 yes ""
-     _FldNameList[54]   > ASI.fa-mast.recalc
-"recalc" "recalc" ? ? "logical" ? ? ? ? ? ? yes ? no 6.14 yes ""
-     _FldNameList[55]   > ASI.fa-mast.ret-code
-"ret-code" "ret-code" ? ? "integer" ? ? ? ? ? ? yes ? no 14.43 yes ""
-     _FldNameList[56]   > ASI.fa-mast.ret-prd
-"ret-prd" "ret-prd" ? ? "integer" ? ? ? ? ? ? yes ? no 12.43 yes ""
-     _FldNameList[57]   > ASI.fa-mast.Sale-date
-"Sale-date" "Sale-date" ? ? "date" ? ? ? ? ? ? yes ? no 8.57 yes ""
-     _FldNameList[58]   > ASI.fa-mast.salvage
-"salvage" "salvage" ? ? "decimal" ? ? ? ? ? ? yes ? no 12.72 yes ""
-     _FldNameList[59]   > ASI.fa-mast.sec-179
-"sec-179" "sec-179" ? ? "decimal" ? ? ? ? ? ? yes ? no 11.86 yes ""
-     _FldNameList[60]   > ASI.fa-mast.serial#
-"serial#" "serial#" ? ? "character" ? ? ? ? ? ? yes ? no 20 yes ""
-     _FldNameList[61]   > ASI.fa-mast.Sl-conv-amt
-"Sl-conv-amt" "Sl-conv-amt" ? ? "decimal" ? ? ? ? ? ? yes ? no 12.57 yes ""
-     _FldNameList[62]   > ASI.fa-mast.sort-code1
-"sort-code1" "sort-code1" ? ? "character" ? ? ? ? ? ? yes ? no 9.57 yes ""
-     _FldNameList[63]   > ASI.fa-mast.sort-code2
-"sort-code2" "sort-code2" ? ? "character" ? ? ? ? ? ? yes ? no 9.57 yes ""
-     _FldNameList[64]   > ASI.fa-mast.start-prd
-"start-prd" "start-prd" ? ? "integer" ? ? ? ? ? ? yes ? no 7.29 yes ""
-     _FldNameList[65]   > ASI.fa-mast.tag-nof
-"tag-nof" "tag-nof" ? ? "integer" ? ? ? ? ? ? yes ? no 10 yes ""
-     _FldNameList[66]   > ASI.fa-mast.tag-not
-"tag-not" "tag-not" ? ? "integer" ? ? ? ? ? ? yes ? no 10 yes ""
-     _FldNameList[67]   > ASI.fa-mast.yr-of-depr
-"yr-of-depr" "yr-of-depr" ? ? "integer" ? ? ? ? ? ? yes ? no 8.29 yes ""
-     _FldNameList[68]   > ASI.fa-mast.period[1]
-"period[1]" "period1" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.72 yes ""
-     _FldNameList[69]   > ASI.fa-mast.period[2]
-"period[2]" "period2" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.72 yes ""
-     _FldNameList[70]   > ASI.fa-mast.period[3]
-"period[3]" "period3" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.72 yes ""
-     _FldNameList[71]   > ASI.fa-mast.period[4]
-"period[4]" "period4" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.72 yes ""
-     _FldNameList[72]   > ASI.fa-mast.period[5]
-"period[5]" "period5" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.72 yes ""
-     _FldNameList[73]   > ASI.fa-mast.period[6]
-"period[6]" "period6" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.72 yes ""
-     _FldNameList[74]   > ASI.fa-mast.period[7]
-"period[7]" "period7" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.72 yes ""
-     _FldNameList[75]   > ASI.fa-mast.period[8]
-"period[8]" "period8" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.72 yes ""
-     _FldNameList[76]   > ASI.fa-mast.period[9]
-"period[9]" "period9" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.72 yes ""
-     _FldNameList[77]   > ASI.fa-mast.period[10]
-"period[10]" "period10" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.72 yes ""
-     _FldNameList[78]   > ASI.fa-mast.period[11]
-"period[11]" "period11" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.72 yes ""
-     _FldNameList[79]   > ASI.fa-mast.period[12]
-"period[12]" "period12" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.72 yes ""
-     _FldNameList[80]   > ASI.fa-mast.period[13]
-"period[13]" "period13" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.72 yes ""
-     _FldNameList[81]   > ASI.fa-mast.tax1-period[1]
-"tax1-period[1]" "tax1-period1" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[82]   > ASI.fa-mast.tax1-period[2]
-"tax1-period[2]" "tax1-period2" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[83]   > ASI.fa-mast.tax1-period[3]
-"tax1-period[3]" "tax1-period3" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[84]   > ASI.fa-mast.tax1-period[4]
-"tax1-period[4]" "tax1-period4" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[85]   > ASI.fa-mast.tax1-period[5]
-"tax1-period[5]" "tax1-period5" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[86]   > ASI.fa-mast.tax1-period[6]
-"tax1-period[6]" "tax1-period6" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[87]   > ASI.fa-mast.tax1-period[7]
-"tax1-period[7]" "tax1-period7" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[88]   > ASI.fa-mast.tax1-period[8]
-"tax1-period[8]" "tax1-period8" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[89]   > ASI.fa-mast.tax1-period[9]
-"tax1-period[9]" "tax1-period9" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[90]   > ASI.fa-mast.tax1-period[10]
-"tax1-period[10]" "tax1-period10" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[91]   > ASI.fa-mast.tax1-period[11]
-"tax1-period[11]" "tax1-period11" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[92]   > ASI.fa-mast.tax1-period[12]
-"tax1-period[12]" "tax1-period12" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[93]   > ASI.fa-mast.tax1-period[13]
-"tax1-period[13]" "tax1-period13" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[94]   > ASI.fa-mast.tax2-period[1]
-"tax2-period[1]" "tax2-period1" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[95]   > ASI.fa-mast.tax2-period[2]
-"tax2-period[2]" "tax2-period2" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[96]   > ASI.fa-mast.tax2-period[3]
-"tax2-period[3]" "tax2-period3" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[97]   > ASI.fa-mast.tax2-period[4]
-"tax2-period[4]" "tax2-period4" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[98]   > ASI.fa-mast.tax2-period[5]
-"tax2-period[5]" "tax2-period5" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[99]   > ASI.fa-mast.tax2-period[6]
-"tax2-period[6]" "tax2-period6" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[100]   > ASI.fa-mast.tax2-period[7]
-"tax2-period[7]" "tax2-period7" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[101]   > ASI.fa-mast.tax2-period[8]
-"tax2-period[8]" "tax2-period8" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[102]   > ASI.fa-mast.tax2-period[9]
-"tax2-period[9]" "tax2-period9" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[103]   > ASI.fa-mast.tax2-period[10]
-"tax2-period[10]" "tax2-period10" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[104]   > ASI.fa-mast.tax2-period[11]
-"tax2-period[11]" "tax2-period11" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[105]   > ASI.fa-mast.tax2-period[12]
-"tax2-period[12]" "tax2-period12" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _FldNameList[106]   > ASI.fa-mast.tax2-period[13]
-"tax2-period[13]" "tax2-period13" ? ? "decimal" ? ? ? ? ? ? yes ? no 10.43 yes ""
-     _Design-Parent    is WINDOW dTables @ ( 1.33 , 2.8 )
+"par-asset" "par-asset" ? ? "character" ? ? ? ? ? ? yes ? no 9.2 yes ?
+     _FldNameList[48]   > ASI.fa-mast.period[1]
+"period[1]" "period1" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[49]   > ASI.fa-mast.period[2]
+"period[2]" "period2" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[50]   > ASI.fa-mast.period[3]
+"period[3]" "period3" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[51]   > ASI.fa-mast.period[4]
+"period[4]" "period4" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[52]   > ASI.fa-mast.period[5]
+"period[5]" "period5" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[53]   > ASI.fa-mast.period[6]
+"period[6]" "period6" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[54]   > ASI.fa-mast.period[7]
+"period[7]" "period7" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[55]   > ASI.fa-mast.period[8]
+"period[8]" "period8" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[56]   > ASI.fa-mast.period[9]
+"period[9]" "period9" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[57]   > ASI.fa-mast.period[10]
+"period[10]" "period10" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[58]   > ASI.fa-mast.period[11]
+"period[11]" "period11" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[59]   > ASI.fa-mast.period[12]
+"period[12]" "period12" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[60]   > ASI.fa-mast.period[13]
+"period[13]" "period13" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[61]   > ASI.fa-mast.proceeds
+"proceeds" "proceeds" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
+     _FldNameList[62]   > ASI.fa-mast.processed
+"processed" "processed" ? ? "logical" ? ? ? ? ? ? yes ? no 9.8 yes ?
+     _FldNameList[63]   > ASI.fa-mast.profit-bk
+"profit-bk" "profit-bk" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
+     _FldNameList[64]   > ASI.fa-mast.profit-t1
+"profit-t1" "profit-t1" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
+     _FldNameList[65]   > ASI.fa-mast.profit-t2
+"profit-t2" "profit-t2" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
+     _FldNameList[66]   > ASI.fa-mast.purch-order#
+"purch-order#" "purch-order#" ? ? "character" ? ? ? ? ? ? yes ? no 10 yes ?
+     _FldNameList[67]   > ASI.fa-mast.recalc
+"recalc" "recalc" ? ? "logical" ? ? ? ? ? ? yes ? no 6.2 yes ?
+     _FldNameList[68]   > ASI.fa-mast.ret-code
+"ret-code" "ret-code" ? ? "integer" ? ? ? ? ? ? yes ? no 16.2 yes ?
+     _FldNameList[69]   > ASI.fa-mast.ret-prd
+"ret-prd" "ret-prd" ? ? "integer" ? ? ? ? ? ? yes ? no 13.6 yes ?
+     _FldNameList[70]   > ASI.fa-mast.Sale-date
+"Sale-date" "Sale-date" ? ? "date" ? ? ? ? ? ? yes ? no 9.2 yes ?
+     _FldNameList[71]   > ASI.fa-mast.salvage
+"salvage" "salvage" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
+     _FldNameList[72]   > ASI.fa-mast.sec-179
+"sec-179" "sec-179" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
+     _FldNameList[73]   > ASI.fa-mast.serial#
+"serial#" "serial#" ? ? "character" ? ? ? ? ? ? yes ? no 20 yes ?
+     _FldNameList[74]   > ASI.fa-mast.Sl-conv-amt
+"Sl-conv-amt" "Sl-conv-amt" ? ? "decimal" ? ? ? ? ? ? yes ? no 18 yes ?
+     _FldNameList[75]   > ASI.fa-mast.sort-code1
+"sort-code1" "sort-code1" ? ? "character" ? ? ? ? ? ? yes ? no 10.8 yes ?
+     _FldNameList[76]   > ASI.fa-mast.sort-code2
+"sort-code2" "sort-code2" ? ? "character" ? ? ? ? ? ? yes ? no 10.8 yes ?
+     _FldNameList[77]   > ASI.fa-mast.start-prd
+"start-prd" "start-prd" ? ? "integer" ? ? ? ? ? ? yes ? no 8.6 yes ?
+     _FldNameList[78]   > ASI.fa-mast.tag-nof
+"tag-nof" "tag-nof" ? ? "integer" ? ? ? ? ? ? yes ? no 12 yes ?
+     _FldNameList[79]   > ASI.fa-mast.tag-not
+"tag-not" "tag-not" ? ? "integer" ? ? ? ? ? ? yes ? no 12 yes ?
+     _FldNameList[80]   > ASI.fa-mast.tax1-period[1]
+"tax1-period[1]" "tax1-period1" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[81]   > ASI.fa-mast.tax1-period[2]
+"tax1-period[2]" "tax1-period2" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[82]   > ASI.fa-mast.tax1-period[3]
+"tax1-period[3]" "tax1-period3" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[83]   > ASI.fa-mast.tax1-period[4]
+"tax1-period[4]" "tax1-period4" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[84]   > ASI.fa-mast.tax1-period[5]
+"tax1-period[5]" "tax1-period5" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[85]   > ASI.fa-mast.tax1-period[6]
+"tax1-period[6]" "tax1-period6" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[86]   > ASI.fa-mast.tax1-period[7]
+"tax1-period[7]" "tax1-period7" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[87]   > ASI.fa-mast.tax1-period[8]
+"tax1-period[8]" "tax1-period8" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[88]   > ASI.fa-mast.tax1-period[9]
+"tax1-period[9]" "tax1-period9" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[89]   > ASI.fa-mast.tax1-period[10]
+"tax1-period[10]" "tax1-period10" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[90]   > ASI.fa-mast.tax1-period[11]
+"tax1-period[11]" "tax1-period11" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[91]   > ASI.fa-mast.tax1-period[12]
+"tax1-period[12]" "tax1-period12" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[92]   > ASI.fa-mast.tax1-period[13]
+"tax1-period[13]" "tax1-period13" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[93]   > ASI.fa-mast.tax2-period[1]
+"tax2-period[1]" "tax2-period1" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[94]   > ASI.fa-mast.tax2-period[2]
+"tax2-period[2]" "tax2-period2" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[95]   > ASI.fa-mast.tax2-period[3]
+"tax2-period[3]" "tax2-period3" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[96]   > ASI.fa-mast.tax2-period[4]
+"tax2-period[4]" "tax2-period4" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[97]   > ASI.fa-mast.tax2-period[5]
+"tax2-period[5]" "tax2-period5" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[98]   > ASI.fa-mast.tax2-period[6]
+"tax2-period[6]" "tax2-period6" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[99]   > ASI.fa-mast.tax2-period[7]
+"tax2-period[7]" "tax2-period7" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[100]   > ASI.fa-mast.tax2-period[8]
+"tax2-period[8]" "tax2-period8" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[101]   > ASI.fa-mast.tax2-period[9]
+"tax2-period[9]" "tax2-period9" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[102]   > ASI.fa-mast.tax2-period[10]
+"tax2-period[10]" "tax2-period10" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[103]   > ASI.fa-mast.tax2-period[11]
+"tax2-period[11]" "tax2-period11" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[104]   > ASI.fa-mast.tax2-period[12]
+"tax2-period[12]" "tax2-period12" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[105]   > ASI.fa-mast.tax2-period[13]
+"tax2-period[13]" "tax2-period13" ? ? "decimal" ? ? ? ? ? ? yes ? no 14 yes ?
+     _FldNameList[106]   > ASI.fa-mast.yr-of-depr
+"yr-of-depr" "yr-of-depr" ? ? "integer" ? ? ? ? ? ? yes ? no 9.6 yes ?
+     _Design-Parent    is WINDOW dTables @ ( 1.14 , 2.6 )
 */  /* QUERY Query-Main */
 &ANALYZE-RESUME
 
@@ -503,8 +496,6 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN initializeObject.
   &ENDIF
-
-{src/sdoComProcs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
