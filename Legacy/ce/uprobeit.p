@@ -419,7 +419,7 @@ FOR EACH probeit
     /*Exclude SIMON = M Costs from Price Margin Calculation*/
     dMarginCostG = dMarginCostG - dMCostToExcludeMisc - dMCostToExcludePrep.
 
-    RUN custom/sellpric.p (lv-sell-by-ce-ctrl,
+    RUN custom/CalcSellPrice.p (lv-sell-by-ce-ctrl,
         lv-sell-by,
         v-basis,
         dMarginCostG,
@@ -429,10 +429,9 @@ FOR EACH probeit
         lv-sell-by EQ "B") THEN 0
         ELSE probe.comm),
         v-pct[4],
+        dMPriceToAddMisc + dMPriceToAddPrep,
         OUTPUT probeit.sell-price,
         OUTPUT v-comm).
-
-      probeit.sell-price = probeit.sell-price + dMPriceToAddMisc + dMPriceToAddPrep.
 
     ASSIGN 
         dMCostToExcludeMisc = 0

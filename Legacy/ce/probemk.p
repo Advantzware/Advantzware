@@ -149,7 +149,7 @@ dMarginCostN = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN 0 ELSE tt
 /*Exclude SIMON = M Costs from Price Margin Calculation*/
 dMarginCostG = dMarginCostG - dMCostToExcludeMisc - dMCostToExcludePrep.
 
-RUN custom/sellpric.p (lv-sell-by-ce-ctrl,
+RUN custom/CalcSellPrice.p (lv-sell-by-ce-ctrl,
     lv-sell-by,
     v-basis,
     dMarginCostG,
@@ -159,6 +159,7 @@ RUN custom/sellpric.p (lv-sell-by-ce-ctrl,
     lv-sell-by EQ "B") THEN 0
     ELSE v-com),
     v-pct[1],
+    dMPriceToAddMisc + dMPriceToAddPrep,
     OUTPUT v-price,
     OUTPUT v-comm).
 
