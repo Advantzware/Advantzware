@@ -6682,7 +6682,8 @@ PROCEDURE pCreateFormFromImport:
  Purpose: Processes ttInputEst temp-table, adding forms to the estimate in context
  Notes:
 ------------------------------------------------------------------------------*/
-  DEF VAR iCount AS INT NO-UNDO.
+  DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lDummy AS LOGICAL NO-UNDO.
    
   ASSIGN
     ll-new-record = YES
@@ -6696,12 +6697,9 @@ PROCEDURE pCreateFormFromImport:
   
   RUN est/BuildEstimate.p ("C").
   
+  RUN dispatch('open-query').
+    lDummy = {&browse-name}:REFRESH() IN FRAME {&FRAME-NAME}.
   
-  IF iCount > 0 THEN DO:
-     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
-     RUN new_record IN WIDGET-HANDLE(char-hdl)  (lv-crt-est-rowid).
-  END. 
-
 
 END PROCEDURE.
 	
