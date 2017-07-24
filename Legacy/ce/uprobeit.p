@@ -419,7 +419,7 @@ FOR EACH probeit
     /*Exclude SIMON = M Costs from Price Margin Calculation*/
     dMarginCostG = dMarginCostG - dMCostToExcludeMisc - dMCostToExcludePrep.
 
-    RUN custom/CalcSellPrice.p (lv-sell-by-ce-ctrl,
+    RUN est/CalcSellPrice.p (lv-sell-by-ce-ctrl,
         lv-sell-by,
         v-basis,
         dMarginCostG,

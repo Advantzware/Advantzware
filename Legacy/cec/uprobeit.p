@@ -444,7 +444,7 @@ FOR EACH probeit
     dMarginCostG = dMarginCostG - dMCostToExcludeMisc - dMCostToExcludePrep.
 
     /*this commission logic also in oe/ordfrest.i and jc/jc-calc.p*/
-    RUN custom/CalcSellPrice.p (lv-sell-by-ce-ctrl,
+    RUN est/CalcSellPrice.p (lv-sell-by-ce-ctrl,
         lv-sell-by,
         v-basis,
         dMarginCostG,
