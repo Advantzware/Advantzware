@@ -208,7 +208,7 @@ END.
 
   /************************ INTERNAL PROCEDURES ********************/
 
-  {methods/setButton.i btn-Cost "Update Cost/Unit/Count"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i btn-Cost "Update Cost/Unit/Count"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

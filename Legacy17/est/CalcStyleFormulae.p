@@ -200,13 +200,12 @@ PROCEDURE pCalcFormula:
     DEFINE VARIABLE cFormulaCharacter AS CHARACTER.
     DEFINE VARIABLE lInsideParen      AS LOGICAL   INIT NO NO-UNDO.
 
-
     /* Remove any blank/space or invalid character in formula */
     DO iIndex = 1 TO LENGTH(ipcFormula):
         IF KEYCODE(SUBSTRING(ipcFormula,iIndex,1)) = 32  /*space character*/ 
             OR INDEX("0123456789.+-*/LWDTFJBOSI", SUBSTRING(ipcFormula,iIndex,1)) = 0 /*Invalid*/ 
             THEN
-            ipcFormula = SUBSTRING(ipcFormula,1,iIndex - 1) + substring(ipcFormula,iIndex + 1).
+            ipcFormula = SUBSTRING(ipcFormula,1,iIndex - 1) + SUBSTRING(ipcFormula,iIndex + 1).
     END.
 
     ASSIGN /*initialize arrays and counters*/

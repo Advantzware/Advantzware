@@ -211,7 +211,7 @@ OPEN QUERY {&SELF-NAME}
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -368,7 +368,7 @@ PROCEDURE build-table :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF BUFFER b-eb FOR eb.
-
+      
   DEF VAR li AS INT NO-UNDO.
   DEF VAR ld-layer-height AS DEC NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO INIT YES.

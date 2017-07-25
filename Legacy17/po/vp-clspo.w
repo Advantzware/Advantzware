@@ -55,7 +55,7 @@ ASSIGN cocode = g_company
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of designated FRAME-NAME and/or first browse and/or first query */
+/* Name of first Frame and/or Browse and/or first Query                 */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -66,7 +66,7 @@ ASSIGN cocode = g_company
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR po-ord.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-4 Btn-Update 
+&Scoped-Define ENABLED-OBJECTS Btn-Update RECT-4 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -172,7 +172,7 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -226,7 +226,7 @@ END.
 
   /************************ INTERNAL PROCEDURES ********************/
 
-  {methods/setButton.i Btn-Update "Close"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i Btn-Update "Close"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

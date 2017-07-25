@@ -4907,16 +4907,15 @@ PROCEDURE display-est-detail :
                         INPUT-OUTPUT v-job-no2,
                         INPUT v-disp-prod-cat,
                         INPUT FILL(" ",6 - LENGTH(TRIM(oe-ordl.est-no:SCREEN-VALUE))) + TRIM(oe-ordl.est-no:SCREEN-VALUE)).
-      
        IF v-job-no NE "" THEN DO:
          ASSIGN
-          oe-ordl.job-no  = v-job-no
-          oe-ordl.job-no2 = v-job-no2.
-         DISPLAY oe-ordl.job-no
-                 oe-ordl.job-no2.
+          oe-ordl.job-no:SCREEN-VALUE  = v-job-no
+          oe-ordl.job-no2:SCREEN-VALUE = string(v-job-no2) .
+         /*DISPLAY oe-ordl.job-no
+                 oe-ordl.job-no2.*/
        END.
       FOR EACH job-hdr  WHERE job-hdr.company EQ cocode
-                           AND job-hdr.job-no  EQ oe-ordl.job-no
+                           AND job-hdr.job-no  EQ oe-ordl.job-no:SCREEN-VALUE
                            USE-INDEX job-no NO-LOCK
                          BY job-hdr.job-no DESC BY job-hdr.job-no2 DESC:
          oe-ordl.job-no2:SCREEN-VALUE = STRING(IF AVAIL job-hdr THEN job-hdr.job-no2 + 1 ELSE 0).

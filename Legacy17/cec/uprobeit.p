@@ -368,6 +368,8 @@ FOR EACH probeit
  
     RUN custom/markup.p (ROWID(eb),
         dBoardCst,
+        probeit.fact-cost * (v-qty / 1000),
+        probeit.full-cost * (v-qty / 1000),
         dBoardPct,
         INPUT-OUTPUT lv-sell-by,
         INPUT-OUTPUT v-pct).
@@ -444,7 +446,7 @@ FOR EACH probeit
     dMarginCostG = dMarginCostG - dMCostToExcludeMisc - dMCostToExcludePrep.
 
     /*this commission logic also in oe/ordfrest.i and jc/jc-calc.p*/
-    RUN custom/sellpric.p (lv-sell-by-ce-ctrl,
+    RUN custom/CalcSellPrice.p (lv-sell-by-ce-ctrl,
         lv-sell-by,
         v-basis,
         dMarginCostG,
@@ -453,10 +455,10 @@ FOR EACH probeit
         (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN 0
         ELSE probe.comm),
         v-pct + v-tmp-set-markup,
+        dMPriceToAddMisc + dMPriceToAddPrep,
         OUTPUT probeit.sell-price,
         OUTPUT v-comm).
     
-        probeit.sell-price = probeit.sell-price + dMPriceToAddMisc + dMPriceToAddPrep.
     ASSIGN 
         dMCostToExcludeMisc = 0
         dMCostToExcludePrep = 0

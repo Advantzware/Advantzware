@@ -17,7 +17,7 @@
 /*----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
-{pt/comVarsGlob.i {1}}
+{fa/comVarsGlob.i {1}}
 
 DEF BUFFER entity# FOR entity.
 DEF BUFFER fa-mast# FOR fa-mast.
@@ -35,8 +35,6 @@ DEF VAR m AS INT NO-UNDO.
 DEF VAR loop1 AS INT NO-UNDO.
 DEF VAR basis# AS INT NO-UNDO.
 DEF VAR iTest AS INT NO-UNDO.
-
-{pt/getControlRecord.i "FA"}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

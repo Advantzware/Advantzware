@@ -226,9 +226,7 @@ END.
 
   /************************ INTERNAL PROCEDURES ********************/
 
-  {methods/setButton.i Btn-Detail "Detail"} /* added by script c:\tmp\p64604__panelImages.ped */
-
-  {methods/setButton.i Btn-Detail "Detail"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i Btn-Detail "Detail"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

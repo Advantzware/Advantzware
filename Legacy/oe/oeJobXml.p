@@ -40,7 +40,19 @@ DEFINE TEMP-TABLE ttTempJob
     FIELD FGName       AS CHARACTER
     FIELD CustPart     AS CHARACTER 
     FIELD ItemStatus   AS CHARACTER  
-    FIELD itemRecKey   AS CHARACTER    
+    FIELD itemRecKey   AS CHARACTER
+    FIELD DateIssued   AS CHARACTER   
+    FIELD ebWIDTH      AS CHARACTER 
+    FIELD ebLENGTH     AS CHARACTER
+    FIELD ebDepth      AS CHARACTER  
+    FIELD FlatWidth    AS CHARACTER
+    FIELD FlatLength   AS CHARACTER
+    FIELD ColorsCoat   AS CHARACTER
+    FIELD CCNumber     AS CHARACTER
+    FIELD Weight       AS CHARACTER
+    FIELD Caliper      AS CHARACTER
+    FIELD Structure    AS CHARACTER
+    FIELD Board        AS CHARACTER
     .
  
 DEFINE VARIABLE cocode AS CHARACTER NO-UNDO.
@@ -72,8 +84,34 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
             FIRST itemfg NO-LOCK WHERE itemfg.company EQ job-hdr.company
             AND itemfg.i-no    EQ job-hdr.i-no
             :
-                                   
-                             
+
+            FIND FIRST eb NO-LOCK 
+              WHERE eb.company EQ job-hdr.company
+                AND eb.est-no  EQ job-hdr.est-no
+                AND eb.stock-no = job-hdr.i-no
+              NO-ERROR.
+            IF AVAILABLE eb THEN DO:        
+                FIND FIRST oe-ord NO-LOCK
+                    WHERE oe-ord.company EQ eb.company
+                      AND oe-ord.est-no  EQ eb.est-no                  
+                    NO-ERROR.             
+                FIND FIRST ef NO-LOCK 
+                   WHERE ef.company EQ eb.company
+                     AND ef.est-no EQ eb.est-no
+                     AND ef.form-no = eb.form-no
+                   NO-ERROR.
+                IF NOT AVAILABLE ef THEN 
+                    FIND FIRST ef NO-LOCK 
+                       WHERE ef.company EQ eb.company
+                         AND ef.est-no EQ eb.est-no
+                       NO-ERROR.
+                
+                FIND style NO-LOCK 
+                           WHERE style.company = eb.company 
+                             AND style.style = eb.style
+                           NO-ERROR.   
+            END.
+            
             cocode = job-hdr.company.
             FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ job-hdr.company
                 AND sys-ctrl.name EQ "xmljob"
@@ -109,7 +147,29 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                     ASSIGN ttTempjob.customerID   = cust.cust-no
                         ttTempJob.customerName = cust.name
                         .
-        
+                IF AVAILABLE eb THEN 
+                  ASSIGN                   
+                    ttTempJob.ebWIDTH      = STRING(eb.wid)
+                    ttTempJob.ebLENGTH     = STRING(eb.len)
+                    ttTempJob.ebDepth      = STRING(eb.dep)
+                    ttTempJob.FlatWidth    = STRING(eb.t-len)
+                    ttTempJob.FlatLength   = STRING(eb.t-wid)
+                    ttTempJob.ColorsCoat   = eb.i-dscr2[1]
+                    ttTempJob.CCNumber     = eb.cad-no                  
+                  .
+                IF AVAILABLE ef THEN 
+                  ASSIGN  ttTempJob.Weight       = STRING(ef.weight)
+                          ttTempJob.Caliper      = STRING(ef.cal)                    
+                          ttTempJob.Board        = ef.brd-dscr
+                          .
+                IF AVAILABLE oe-ord THEN 
+                 ASSIGN 
+                   ttTempJob.DateIssued   = STRING(oe-ord.ord-date)
+                 .
+                IF AVAILABLE style THEN 
+                  ASSIGN 
+                  ttTempJob.Structure    = style.dscr
+                  .      
             END.  /* create ttTempJob */
         END. /* Each job-hdr of job */
          
@@ -165,6 +225,33 @@ DO:
                         RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
                     END.  /* each ttudf */     
                 END.        
+                
+                /* Estimate Values */
+                cUDFSTring = "SmartName " + 'Name="Date Issued" Value="' + ttTempJob.DateIssued + '"/'.
+                RUN XMLOutput (lXMLOutput,cUDFString,'','Row').   
+                cUDFSTring = "SmartName " + 'Name="Width" Value="' + ttTempJob.ebWIDTH    + '"/'.
+                RUN XMLOutput (lXMLOutput,cUDFString,'','Row'). 
+                cUDFSTring = "SmartName " + 'Name="Length" Value="' + ttTempJob.ebLENGTH   + '"/'.
+                RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
+                cUDFSTring = "SmartName " + 'Name="Depth" Value="' + ttTempJob.ebDepth    + '"/'.
+                RUN XMLOutput (lXMLOutput,cUDFString,'','Row').  
+                cUDFSTring = "SmartName " + 'Name="Flat Width" Value="' + ttTempJob.FlatWidth  + '"/'.
+                RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
+                cUDFSTring = "SmartName " + 'Name="Flat Length" Value="' + ttTempJob.FlatLength + '"/'.
+                RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
+                cUDFSTring = "SmartName " + 'Name="Colors/Coating" Value="' + ttTempJob.ColorsCoat + '"/'.
+                RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
+                cUDFSTring = "SmartName " + 'Name="CC#" Value="' + ttTempJob.CCNumber   + '"/'.
+                RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
+                cUDFSTring = "SmartName " + 'Name="Weight" Value="' + ttTempJob.Weight     + '"/'.
+                RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
+                cUDFSTring = "SmartName " + 'Name="Caliper" Value="' + ttTempJob.Caliper    + '"/'.
+                RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
+                cUDFSTring = "SmartName " + 'Name="Seal End Full Overlap" Value="' + ttTempJob.Structure  + '"/'.
+                RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
+                cUDFSTring = "SmartName " + 'Name="Board" Value="' + ttTempJob.Board      + '"/'.
+                RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
+       
             RUN XMLOutput (lXMLOutput,'/Product','','Row').     
                                 
         RUN XMLOutput (lXMLOutput,'/ResourcePool','','Row').

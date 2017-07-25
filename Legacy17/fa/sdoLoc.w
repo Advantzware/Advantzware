@@ -1,61 +1,43 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
 &ANALYZE-RESUME
 /* Connected Databases 
-          ptdb1            PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 {adecomm/appserv.i}
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS dTables 
 /*------------------------------------------------------------------------
+
   File:  
-  Copyright:            (c)2016 Foresight Software LLC - All rights reserved
-  Version:              10.7000 - 06/01/2016 - tyndmar
-  Description:          from DATA.W - Template For SmartData objects in the ADM
-  Input Parameters:     <none>
-  Output Parameters:    <none>
-  Modified:             06/01/2016
-  Notes:                1 - set lLarge = TRUE if large dataset expected, else false
-                        2 - populate initQuery, initSort if constants to be set, else use ""
-                        3 - cControl specifies which control record
-                        4 - cEntity1 specifies which entity code
-                        5 - include {pt/sdoComProcs.i} in main block
+
+  Description: from DATA.W - Template For SmartData objects in the ADM
+
+  Input Parameters:
+      <none>
+
+  Output Parameters:
+      <none>
+
+  Modified:     February 24, 1999
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AppBuilder.      */
 /*----------------------------------------------------------------------*/
+
+/* Create an unnamed pool to store all the widgets created 
+     by this procedure. This is a good default which assures
+     that this procedure's triggers and internal procedures 
+     will execute in this procedure's storage, and that proper
+     cleanup will occur on deletion of the procedure. */
 
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&GLOB DATA-LOGIC-PROCEDURE .p
+/* Parameters Definitions ---                                           */
 
-&SCOPED-DEFINE cControl FA
-&SCOPED-DEFINE cEntity1 {&cControl}
-&SCOPED-DEFINE cEntity2
-&SCOPED-DEFINE cTable location
-&SCOPED-DEFINE lLarge FALSE
-&SCOPED-DEFINE initQuery "" 
-&SCOPED-DEFINE initSort ""
-&SCOPED-DEFINE lJump FALSE
-&SCOPED-DEFINE keyField1 location
-&SCOPED-DEFINE keyType1 CHAR
-&SCOPED-DEFINE byEntity bTable.{&cEntity1}-entity = v-{&cEntity1}-entity AND
+/* Local Variable Definitions ---                                       */
 
-DEF BUFFER bTable FOR {&cTable}.
-DEF SHARED VAR v-ap-entity AS CHAR NO-UNDO.
-DEF SHARED VAR v-ar-entity AS CHAR NO-UNDO.
-DEF SHARED VAR v-fa-entity AS CHAR NO-UNDO.
-DEF SHARED VAR v-gl-entity AS CHAR NO-UNDO.
-DEF SHARED VAR v-in-entity AS CHAR NO-UNDO.
-DEF SHARED VAR terminalid  AS CHAR NO-UNDO.
-DEF SHARED VAR condition AS CHAR NO-UNDO.
-DEF SHARED VAR init-val AS CHAR EXTENT 250 NO-UNDO.
-DEF VAR cKeyValue1 AS {&keyType1}.
-DEF VAR rFileRowid AS ROWID.
-
-{pt/getControlRecord.i "{&cControl}"}
-IF AVAIL {&cControl}-control THEN ASSIGN
-    v-{&cEntity1}-entity = {&cControl}-control.{&cEntity1}-entity.
+&glob DATA-LOGIC-PROCEDURE .p
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -82,27 +64,25 @@ IF AVAIL {&cControl}-control THEN ASSIGN
 &Scoped-define QUERY-NAME Query-Main
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES location
+&Scoped-define INTERNAL-TABLES loc
 
 /* Definitions for QUERY Query-Main                                     */
-&Scoped-Define ENABLED-FIELDS  location description room building work-center city state county entity~
- Country-code
-&Scoped-define ENABLED-FIELDS-IN-location location description room ~
-building work-center city state county entity Country-code 
-&Scoped-Define DATA-FIELDS  location description room building work-center city state county entity~
- Country-code
-&Scoped-define DATA-FIELDS-IN-location location description room building ~
-work-center city state county entity Country-code 
-&Scoped-Define MANDATORY-FIELDS 
+&Scoped-Define ENABLED-FIELDS  company dscr loc rec_key wc-uom whs-chg
+&Scoped-define ENABLED-FIELDS-IN-loc company dscr loc rec_key wc-uom ~
+whs-chg 
+&Scoped-Define DATA-FIELDS  company dscr loc rec_key wc-uom whs-chg
+&Scoped-define DATA-FIELDS-IN-loc company dscr loc rec_key wc-uom whs-chg 
+&Scoped-Define MANDATORY-FIELDS  company dscr loc
 &Scoped-Define APPLICATION-SERVICE 
 &Scoped-Define ASSIGN-LIST 
 &Scoped-Define DATA-FIELD-DEFS "fa/sdoLoc.i"
-&Scoped-define QUERY-STRING-Query-Main FOR EACH location NO-LOCK INDEXED-REPOSITION
+&Scoped-Define DATA-TABLE-NO-UNDO NO-UNDO
+&Scoped-define QUERY-STRING-Query-Main FOR EACH loc NO-LOCK INDEXED-REPOSITION
 {&DB-REQUIRED-START}
-&Scoped-define OPEN-QUERY-Query-Main OPEN QUERY Query-Main FOR EACH location NO-LOCK INDEXED-REPOSITION.
+&Scoped-define OPEN-QUERY-Query-Main OPEN QUERY Query-Main FOR EACH loc NO-LOCK INDEXED-REPOSITION.
 {&DB-REQUIRED-END}
-&Scoped-define TABLES-IN-QUERY-Query-Main location
-&Scoped-define FIRST-TABLE-IN-QUERY-Query-Main location
+&Scoped-define TABLES-IN-QUERY-Query-Main loc
+&Scoped-define FIRST-TABLE-IN-QUERY-Query-Main loc
 
 
 /* Custom List Definitions                                              */
@@ -120,7 +100,7 @@ work-center city state county entity Country-code
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Query-Main FOR 
-      location SCROLLING.
+      loc SCROLLING.
 &ANALYZE-RESUME
 {&DB-REQUIRED-END}
 
@@ -154,8 +134,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW dTables ASSIGN
-         HEIGHT             = 1.63
-         WIDTH              = 46.57.
+         HEIGHT             = 1.62
+         WIDTH              = 46.6.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -184,29 +164,21 @@ END.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK QUERY Query-Main
 /* Query rebuild information for SmartDataObject Query-Main
-     _TblList          = "ptdb1.location"
+     _TblList          = "ASI.loc"
      _Options          = "NO-LOCK INDEXED-REPOSITION"
-     _FldNameList[1]   > ptdb1.location.location
-"location" "location" ? ? "character" ? ? ? ? ? ? yes ? no 7.4 yes
-     _FldNameList[2]   > ptdb1.location.description
-"description" "description" ? ? "character" ? ? ? ? ? ? yes ? no 30 yes
-     _FldNameList[3]   > ptdb1.location.room
-"room" "room" ? ? "character" ? ? ? ? ? ? yes ? no 5.6 yes
-     _FldNameList[4]   > ptdb1.location.building
-"building" "building" ? ? "character" ? ? ? ? ? ? yes ? no 10 yes
-     _FldNameList[5]   > ptdb1.location.work-center
-"work-center" "work-center" ? ? "character" ? ? ? ? ? ? yes ? no 12 yes
-     _FldNameList[6]   > ptdb1.location.city
-"city" "city" ? ? "character" ? ? ? ? ? ? yes ? no 20 yes
-     _FldNameList[7]   > ptdb1.location.state
-"state" "state" ? ? "character" ? ? ? ? ? ? yes ? no 5 yes
-     _FldNameList[8]   > ptdb1.location.county
-"county" "county" ? ? "character" ? ? ? ? ? ? yes ? no 20 yes
-     _FldNameList[9]   > ptdb1.location.entity
-"entity" "entity" ? ? "character" ? ? ? ? ? ? yes ? no 8 yes
-     _FldNameList[10]   > ptdb1.location.Country-code
-"Country-code" "Country-code" ? ? "character" ? ? ? ? ? ? yes ? no 9.43 yes
-     _Design-Parent    is WINDOW dTables @ ( 1.17 , 2.57 )
+     _FldNameList[1]   > ASI.loc.company
+"company" "company" ? ? "character" ? ? ? ? ? ? yes ? yes 9 yes ?
+     _FldNameList[2]   > ASI.loc.dscr
+"dscr" "dscr" ? ? "character" ? ? ? ? ? ? yes ? yes 30 yes ?
+     _FldNameList[3]   > ASI.loc.loc
+"loc" "loc" ? ? "character" ? ? ? ? ? ? yes ? yes 8 yes ?
+     _FldNameList[4]   > ASI.loc.rec_key
+"rec_key" "rec_key" ? ? "character" ? ? ? ? ? ? yes ? no 20 yes ?
+     _FldNameList[5]   > ASI.loc.wc-uom
+"wc-uom" "wc-uom" ? ? "character" ? ? ? ? ? ? yes ? no 12.2 yes ?
+     _FldNameList[6]   > ASI.loc.whs-chg
+"whs-chg" "whs-chg" ? ? "decimal" ? ? ? ? ? ? yes ? no 18.6 yes ?
+     _Design-Parent    is WINDOW dTables @ ( 1.14 , 2.6 )
 */  /* QUERY Query-Main */
 &ANALYZE-RESUME
 
@@ -221,8 +193,6 @@ END.
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN initializeObject.
   &ENDIF
-
-{pt/sdoComProcs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

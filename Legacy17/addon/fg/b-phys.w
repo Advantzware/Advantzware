@@ -4,7 +4,6 @@
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -24,7 +23,6 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
-&SCOPED-DEFINE dataGridInclude dataGrid\addon\fg\b-phys.i
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
@@ -339,7 +337,7 @@ fg-rctd.rita-code = ""C"""
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -355,7 +353,7 @@ DO:
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
-
+   
    RUN new-state in phandle ('update-begin':U).
 
 END.
@@ -373,7 +371,7 @@ DO:
 
 
   IF NOT AVAIL fg-rctd THEN FIND fg-rctd WHERE RECID(fg-rctd) EQ lv-recid NO-LOCK NO-ERROR. 
-
+ 
   ll-help-run = YES.
 
   CASE FOCUS:NAME:
@@ -442,7 +440,7 @@ DO:
                         VIEW-AS ALERT-BOX ERROR.
                 RETURN NO-APPLY.
              END.
-
+             
              FIND FIRST loadtag WHERE loadtag.company = g_company
                         AND loadtag.ITEM-type = NO
                         AND loadtag.tag-no = fg-rctd.tag:SCREEN-VALUE NO-LOCK NO-ERROR.
@@ -483,7 +481,7 @@ DO:
                                 INT(fg-rctd.qty-case:SCREEN-VALUE) +
                                 INT(fg-rctd.partial:SCREEN-VALUE)
                                 ,"->>>,>>>,>>9.99").
-
+              
              /*
              IF INT(fg-rctd.t-qty:SCREEN-VALUE) = 0 THEN APPLY "entry" TO fg-rctd.t-qty.
              ELSE APPLY "row-leave" TO BROWSE {&browse-name}.
@@ -526,7 +524,7 @@ ON ROW-DISPLAY OF Browser-Table IN FRAME F-Main
 DO:  /* display calculated field */
   /* def var ii as int.
    ii = if avail rm-rctd then integer(rm-rctd.po-no) else 0.
-
+   
    if avail rm-rctd then    run get-matrix (true).
 */
 END.
@@ -540,7 +538,7 @@ ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
   /* This code displays initial values for newly added or copied rows. */
   {src/adm/template/brsentry.i}
-
+  
   ll-help-run = no.
 END.
 
@@ -706,7 +704,7 @@ DO:
   END.
 
   /*  IF LASTKEY = -1 THEN RETURN.
-
+      
   find first itemfg {sys/look/itemfgrlW.i}
              and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
                  no-lock no-error.
@@ -903,7 +901,7 @@ PROCEDURE crt-transfer :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   DEF VAR lv-rno LIKE fg-rctd.r-no NO-UNDO.
   DEF BUFFER b-fg-rctd FOR fg-rctd.
   DEF VAR lv-rctd-rowid AS ROWID NO-UNDO.
@@ -1020,7 +1018,7 @@ PROCEDURE fgbin-help :
       RUN new-bin.
     END.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1039,7 +1037,7 @@ PROCEDURE get-def-values :
         and itemfg.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
       no-lock no-error.
   fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = itemfg.i-name.
-
+      
   IF adm-new-record THEN DO:
     find first fg-ctrl where fg-ctrl.company eq cocode no-lock no-error.
     /*assign
@@ -1071,13 +1069,13 @@ PROCEDURE get-def-values :
           where cust.company eq cocode
             and cust.active  eq "X"
           no-lock no-error.
-
+                                
       if avail cust then do:
         find first shipto
             where shipto.company eq cocode
               and shipto.cust-no eq cust.cust-no  
             no-lock no-error.
-
+           
         if avail shipto then do:
           find first fg-bin
               where fg-bin.company eq cocode
@@ -1094,7 +1092,7 @@ PROCEDURE get-def-values :
         end.                                  
       end.
     end.    
-
+    
   END.
 
   /*if fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name}  eq "" then do:*/
@@ -1124,7 +1122,7 @@ PROCEDURE get-def-values :
                                                 */
                                                 STRING(itemfg.case-count)*/
                .
-
+  
   RUN new-bin.
 END PROCEDURE.
 
@@ -1189,9 +1187,9 @@ PROCEDURE local-assign-record :
   DEF VAR lcINo LIKE fg-rctd.i-no NO-UNDO.
   DEF VAR lcIName LIKE fg-rctd.i-name NO-UNDO.
 
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
-
+ 
     DO WITH FRAME {&FRAME-NAME}:
         IF length(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}) < 6 THEN
             fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} =
@@ -1261,7 +1259,7 @@ PROCEDURE local-create-record :
 ------------------------------------------------------------------------------*/
   DEF VAR lv-rno LIKE fg-rctd.r-no NO-UNDO.
   DEF BUFFER b-fg-rctd FOR fg-rctd.
-
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-rno = 0.
   FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
@@ -1332,7 +1330,7 @@ PROCEDURE local-enable-fields :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
-
+   
   /* Code placed here will execute PRIOR to standard behavior. */
   DO WITH FRAME {&FRAME-NAME}:
     DO li = 1 TO {&BROWSE-NAME}:NUM-COLUMNS:
@@ -1369,7 +1367,7 @@ PROCEDURE local-enable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   apply "entry" to fg-rctd.tag in browse {&browse-name}.
   return no-apply.
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1383,7 +1381,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR li AS INT NO-UNDO.
   DEF VAR lv-add-mode AS LOG NO-UNDO.
-
+   
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-add-mode = adm-new-record.
 
@@ -1408,7 +1406,7 @@ PROCEDURE local-update-record :
  */
 
   RUN calc-t-qty.
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1442,7 +1440,7 @@ PROCEDURE local-update-record :
        RUN crt-transfer.
     END.
   END.
-
+ 
   RUN repo-query (ROWID(fg-rctd)).
 
   DO WITH FRAME {&FRAME-NAME}:
@@ -1642,7 +1640,7 @@ DEF VAR lv-wh-list AS cha  NO-UNDO.
                fg-rctd.loc-bin:SCREEN-VALUE + "," +
                fg-rctd.loc:SCREEN-VALUE + "," +
                fg-rctd.loc-bin:SCREEN-VALUE .
-
+             
   RUN fg/d-phys.w (INPUT-OUTPUT lv-wh-list).
   IF lv-wh-list <> "" THEN DO:
      MESSAGE "Are you sure you want to transfer all physical counts for item "
@@ -1653,14 +1651,14 @@ DEF VAR lv-wh-list AS cha  NO-UNDO.
 
         DEF VAR lv-rno LIKE fg-rctd.r-no NO-UNDO.
         DEF VAR lv-rctd-rowid AS ROWID NO-UNDO.
-
+        
         lv-rno = 0.
         FIND LAST b-fg-rctd USE-INDEX fg-rctd NO-LOCK NO-ERROR.
         IF AVAIL b-fg-rctd AND b-fg-rctd.r-no GT lv-rno THEN lv-rno = b-fg-rctd.r-no.
-
+    
         FIND LAST fg-rcpth USE-INDEX r-no NO-LOCK NO-ERROR.
         IF AVAIL fg-rcpth AND fg-rcpth.r-no GT lv-rno THEN lv-rno = fg-rcpth.r-no.
-
+    
         DO WHILE TRUE:
           lv-rno = lv-rno + 1.
           FIND FIRST fg-rcpth WHERE fg-rcpth.r-no EQ lv-rno USE-INDEX r-no NO-LOCK NO-ERROR.
@@ -1669,7 +1667,7 @@ DEF VAR lv-wh-list AS cha  NO-UNDO.
           IF AVAIL b-fg-rctd THEN NEXT.
           LEAVE.
         END.
-
+    
         /*FOR EACH b-fg-rctd WHERE recid(b-fg-rctd) <> RECID(fg-rctd) 
                            AND b-fg-rctd.i-no = fg-rctd.i-no
                            AND b-fg-rctd.tag = fg-rctd.tag:
@@ -1691,7 +1689,7 @@ DEF VAR lv-wh-list AS cha  NO-UNDO.
                           /*AND fg-bin.qty > 0*/  NO-LOCK:  
          IF fg-bin.loc NE b-fg-rctd.loc OR  fg-bin.loc-bin NE b-fg-rctd.loc-bin
          THEN DO:
-
+         
              CREATE b2-fg-rctd.
              BUFFER-COPY b-fg-rctd EXCEPT b-fg-rctd.r-no TO b2-fg-rctd.
              ASSIGN b2-fg-rctd.r-no = lv-rno
@@ -1703,7 +1701,7 @@ DEF VAR lv-wh-list AS cha  NO-UNDO.
                     b2-fg-rctd.partial = 0
                     b2-fg-rctd.t-qty = 0.
              lv-rno = lv-rno + 1.
-
+             
          END. */
              CREATE b2-fg-rctd.
              BUFFER-COPY b-fg-rctd EXCEPT b-fg-rctd.r-no TO b2-fg-rctd.
@@ -1714,12 +1712,12 @@ DEF VAR lv-wh-list AS cha  NO-UNDO.
                     b-fg-rctd.partial = 0
                     b-fg-rctd.t-qty = 0.
              lv-rno = lv-rno + 1.
-
+            
         END.  /* for each fg-bin*/
         RUN repo-query (ROWID(fg-rctd)).
      END. /* ll-ans */
   END. /*lv-wh-list <> ""*/
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1744,7 +1742,7 @@ PROCEDURE valid-i-no :
       RETURN ERROR.
     END.
   END.
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2084,7 +2082,7 @@ PROCEDURE validate-record :
         END.
      END.
   END.
-
+  
   FIND FIRST loc WHERE loc.company = cocode
                         AND loc.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
                         NO-LOCK NO-ERROR.
@@ -2093,7 +2091,7 @@ PROCEDURE validate-record :
           APPLY "entry" TO fg-rctd.loc.
           RETURN ERROR.
   END.
-
+  
   FIND FIRST fg-bin WHERE fg-bin.company = cocode 
                       AND fg-bin.i-no = ""
                       AND fg-bin.loc = fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2107,7 +2105,7 @@ PROCEDURE validate-record :
   /* ===== tag validation =====*/
   IF fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} <> ""
   THEN DO:
-
+  
     FIND FIRST bf-tmp WHERE bf-tmp.company = cocode AND
                             bf-tmp.tag = fg-rctd.tag:SCREEN-VALUE
                         AND RECID(bf-tmp) <> RECID(fg-rctd)

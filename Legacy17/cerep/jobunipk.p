@@ -172,7 +172,7 @@ DEF VAR v-ink1 AS cha EXTENT 20 NO-UNDO.
 DEF VAR v-ink2 AS cha EXTENT 20 NO-UNDO.
 DEF VAR v-ink10 AS cha EXTENT 20 NO-UNDO.
 DEF VAR v-ink20 AS cha EXTENT 20 NO-UNDO.
-DEF VAR v-po-no LIKE oe-ordl.po-no NO-UNDO.
+DEF VAR v-po-no AS CHAR  NO-UNDO.
 DEF VAR lv-mat-dept-list AS cha INIT "FB,FS,WN,WS,GL" NO-UNDO.
 DEF VAR v-mat-for-mach AS cha NO-UNDO.
 DEF BUFFER xjob-mat FOR job-mat.
@@ -183,6 +183,8 @@ DEF VAR v-pono LIKE oe-ordl.po-no EXTENT 15 NO-UNDO.
 DEF VAR v-part-no LIKE eb.part-no EXTENT 15 NO-UNDO.
 DEF VAR v-cas-pal LIKE eb.cas-cnt EXTENT 15 NO-UNDO.
 DEF VAR v-cas-cnt LIKE eb.cas-cnt EXTENT 15 NO-UNDO.
+DEFINE VARIABLE dPromDate AS DATE NO-UNDO.
+DEFINE VARIABLE cCsr AS CHARACTER NO-UNDO.
 
 DEF VAR v-num-of-fgitm AS INT NO-UNDO.
 DEF TEMP-TABLE tt-fgitm NO-UNDO FIELD i-no AS cha FORM "x(15)"
@@ -205,8 +207,8 @@ DEF VAR v-cust-name LIKE oe-ord.cust-name NO-UNDO.
 DEF VAR v-cust-name2 LIKE oe-ord.cust-name NO-UNDO.
 DEF VAR v-cust-name3 LIKE oe-ord.cust-name NO-UNDO.
 DEF VAR v-last-j AS INT NO-UNDO.
-DEF VAR v-po-no2 LIKE v-po-no NO-UNDO.
-DEF VAR v-po-no3 LIKE v-po-no NO-UNDO.
+DEF VAR v-po-no2 LIKE oe-ordl.po-no NO-UNDO.
+DEF VAR v-po-no3 LIKE oe-ordl.po-no NO-UNDO.
 DEF VAR v-num-of-inks AS INT NO-UNDO.
 DEF VAR v-bar-no AS cha NO-UNDO.
 
@@ -233,11 +235,14 @@ DEF VAR lv-prt-time AS cha NO-UNDO.
 DEF VAR lv-cad-image AS cha NO-UNDO.
 DEF VAR lv-cad-image-list AS cha NO-UNDO.
 DEF VAR v-output AS INT FORM ">,>>>,>>9" NO-UNDO.
+DEF VAR dCasCnt AS DECIMAL NO-UNDO . 
 
 format HEADER 
-       "<OLANDSCAPE><P10>" skip
+       "<OLANDSCAPE><FArial><R+1><P12>" skip
+       "CSR:<B>" cCsr "</B>"
+       "<C80>JOB START DATE:"  v-start-date skip
        "JOB NUMBER:<B>" v-job-no space(0) "-" space(0) v-job-no2 format "99" "</B>"
-       "<B><P12>F A C T O R Y   T I C K E T</B><P10>" at 52  "JOB START DATE:" at 120 v-start-date skip
+       "<B><P14>F A C T O R Y   T I C K E T</B><P12>" at 52  "<C80>  PROMISE DATE:" dPromDate skip
        v-fill
     with no-box frame head no-labels stream-io width 155.
 
@@ -447,8 +452,8 @@ for each job-hdr NO-LOCK
         /*v-due-date = if avail oe-ord then oe-ord.due-date else ?.*/
         v-start-date = job-hdr.start-date.
 
-        if not first(job-hdr.job-no) then page.
-        view frame head.
+       /* if not first(job-hdr.job-no) then page.
+        view frame head.*/
        
         v-shipto = "".
         find first oe-ordl
@@ -481,13 +486,16 @@ for each job-hdr NO-LOCK
 
         ASSIGN
            v-due-date = IF AVAIL oe-ordl THEN oe-ordl.req-date
-                        ELSE job-hdr.due-date.
+                        ELSE job-hdr.due-date
+           dPromDate = IF AVAIL oe-ordl THEN oe-ordl.prom-date
+                        ELSE IF AVAIL oe-ord THEN oe-ord.due-date ELSE ?   .
 
         FIND FIRST cust WHERE cust.company = job-hdr.company AND
                               cust.cust-no = job-hdr.cust-no NO-LOCK NO-ERROR.
         v-cust-name = IF AVAIL oe-ord THEN oe-ord.cust-name 
                       ELSE IF AVAIL cust THEN cust.name
                       ELSE job-hdr.cust-no.
+        cCsr = cust.spare-char-2.
         FIND first eb WHERE eb.company     EQ job-hdr.company
                         AND eb.est-no      eq job-hdr.est-no
                         and eb.form-no     eq reftable-frm-int
@@ -498,21 +506,25 @@ for each job-hdr NO-LOCK
                         AND eb.blank-no > 0 NO-LOCK NO-ERROR.
         v-bar-no = IF AVAIL eb THEN eb.spc-no ELSE trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99").
 
+
+       if not first(job-hdr.job-no) THEN 
+           page.
+       view frame head.
         
 
-        PUT "<R-1><#1><C91>Date/Time Generated:" SKIP
-            "<B>CUSTOMER NAME:</B>" v-cust-name "<B> DUE DATE:     ESTIMATE:" lv-prt-date AT 119 space(1) lv-prt-time SKIP
-            "SHIPTO:</B>" v-shipto[1] v-due-date AT 49 trim(job-hdr.est-no) FORM "x(8)" AT 66
-            "<C91.7>Status" SKIP
-            v-shipto[2] AT 7 "<C91.7>" lv-prt-sts SKIP
+        PUT "<R-1><#1><C91.5>Date/Time Generated:" SKIP
+            "<B>CUSTOMER NAME:</B>" v-cust-name "<B> DUE DATE:     ESTIMATE:" "<C91.5>" lv-prt-date space(1) lv-prt-time SKIP
+            "SHIPTO:</B>" v-shipto[1] v-due-date AT 57 trim(job-hdr.est-no) FORM "x(8)" AT 74
+            "<C91.9>Status" SKIP
+            v-shipto[2] AT 7 "<C91.9>" lv-prt-sts SKIP
             v-shipto[4] AT 7 SKIP
             v-fill SKIP.     
         /* barcode print */
-        PUT UNFORMATTED "<UNITS=INCHES><AT=.54,7><FROM><AT=+.6,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
+        PUT UNFORMATTED "<UNITS=INCHES><AT=.70,7><FROM><AT=+.6,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
         /*    trim(job-hdr.job-no) "-" STRING(job-hdr.job-no2,"99") ">"
             "<AT=,8.8>" trim(job-hdr.job-no) "-" STRING(job-hdr.job-no2,"99") */
               v-bar-no ">" "   Page#:" string(lv-pg-num2,">>9") + " of " + string(lv-tot-pg) FORM "x(20)"
-            "<AT=,7.8>" v-bar-no "<=#1><R+5>".
+            "<AT=,7.8>" v-bar-no  "<=#1><R+5>".
 
         v-line = if avail est                            and
                  est.est-type gt 2 and est.est-type lt 5 then 500 else 50.
@@ -813,8 +825,8 @@ for each job-hdr NO-LOCK
             /*v-upc-lbl = IF s-prt-sellprc THEN "Sell Price" ELSE "   UPC#". */
             v-upc-lbl = "    QC#".
             IF FIRST-OF(eb.form-no) THEN
-              PUT /*"<R-1>" "Case" AT 97 SKIP */
-                "<P9><B>F/B   DESCRIPTION        O/U%  JOB QTY  PO#            FG ITEM#        STYLE  CARTON SIZE          COUNT CASE CODE           #UP" v-upc-lbl "</B>" SKIP.
+              PUT  /*"<R-1>" "Case" AT 97 SKIP */
+                "<P11><B>F/B   DESCRIPTION        O/U%  JOB QTY  PO#            FG ITEM#            STYLE  CARTON SIZE          COUNT CASE CODE           #UP" v-upc-lbl "</B>" SKIP.
             /*else
               put fill("-",132) format "x(132)". */
             v-job-qty = 0.
@@ -850,26 +862,24 @@ for each job-hdr NO-LOCK
             v-up = eb.num-up.
             v-po-no = IF AVAIL oe-ordl THEN oe-ordl.po-no ELSE "".
             v-upc-no = eb.spc-no.
-            display trim(string(eb.form-no,">>9")) + "-" +
-                    trim(string(eb.blank-no,">>9")) FORM "x(5)" 
-                    v-dsc[1] FORM "x(17)" /* was 19, b4 that 21*/
-                    v-ovund  FORM "x(5)"
-                    v-job-qty /** v-fac*/ format "->>>>>>9"
-                    oe-ordl.po-no when avail oe-ordl 
-                    eb.stock-no @ job-hdr.i-no 
-                    eb.style /*v-stypart */
-                    v-size[1] FORM "x(19)"
-                    oe-ordl.cas-cnt when avail oe-ordl FORM ">>>>>9"
-                    eb.cas-cnt when (not avail oe-ordl) or oe-ordl.cas-cnt eq 0 @ oe-ordl.cas-cnt 
-                    /*PACE(4)*/
-                    eb.cas-no /*v-case-size*/  FORM "x(19)" /* was 15 */
-                    v-up   
-                    /*eb.upc-no 
-                    string(oe-ordl.price,">>>,>>9.99<<<<") WHEN AVAIL oe-ordl AND s-prt-sellprc @ eb.upc-no
-                    */
-                    v-upc-no FORM "x(15)"
+            dCasCnt = IF AVAIL oe-ordl THEN oe-ordl.cas-cnt ELSE eb.cas-cnt .
+
+            PUT  trim(string(eb.form-no,">>9")) + "-" +
+                    trim(string(eb.blank-no,">>9")) FORM "x(5)" SPACE(1)
+                    "<C5>" v-dsc[1] FORMAT "x(19)" /* was 19, b4 that 21*/ SPACE(1)
+                    "<C19>"  v-ovund FORMAT "x(7)"  SPACE(3)
+                    "<C24>"  v-job-qty FORMAT "->>>>>>>>9" SPACE(1)
+                    "<C31>"  v-po-no  FORMat "x(10)" SPACE(1)
+                    "<C39>"  eb.stock-no FORM "x(15)" /*@ job-hdr.i-no */ SPACE(1)
+                    "<C52>"  eb.style FORMAT "x(6)" /*v-stypart */
+                    "<C58>"  v-size[1] FORM "x(19)" SPACE(1)
+                    "<C73>"  dCasCnt FORM ">>>>>9" SPACE(1)
+                    "<C79>" eb.cas-no /*v-case-size*/  FORM "x(19)" /* was 15 */ SPACE(4)
+                    "<C92>" v-up   
+                    
+                    "<C97>" v-upc-no FORM "x(15)"
                     skip
-                with stream-io width 175 no-labels no-box frame line-det1.
+                .
 
             v-itm-printed = v-itm-printed + 1.    
 
@@ -900,7 +910,7 @@ for each job-hdr NO-LOCK
 
              v-po-duedate = IF AVAIL po-ordl THEN po-ordl.due-date ELSE ?.
 
-             PUT "<P10>" v-fill SKIP                       /*REQ'D*/                 
+             PUT "<P12>" v-fill SKIP                       /*REQ'D*/                 
                  "<B>BOARD CODE            DUE DATE   SHEETS SHEET SIZE       CALIPER DIE SIZE      BOARD PO# VENDOR#  DIE#     PRE-PRESS CAD#</B>"
                  SKIP.
             /** PRINT SHEET **/
@@ -914,24 +924,21 @@ for each job-hdr NO-LOCK
                        NO-LOCK NO-ERROR. 
 
                v-po-duedate = IF AVAIL po-ordl THEN po-ordl.due-date ELSE ?.
-               display wrk-sheet.brd-dscr
-                    v-po-duedate wrk-sheet.gsh-qty 
-                    string(wrk-sheet.sh-wid) + "x" + string(wrk-sheet.sh-len)
+               PUT  wrk-sheet.brd-dscr FORMAT "x(20)"
+                    "<C18>" v-po-duedate "<C27>" wrk-sheet.gsh-qty 
+                    "<C35>" string(wrk-sheet.sh-wid) + "x" + string(wrk-sheet.sh-len)
                     format "x(16)"
-                    wrk-sheet.cal
-                 /*   string(ef.nsh-wid) + "x" + string(ef.nsh-len) FORM "x(13)" */
-                    string(ef.trim-w) + "x" + string(ef.trim-l) FORM "x(16)"
-                    v-board-po  
-                    v-vend  
-                    eb.die-no FORM "x(8)"
-                    eb.plate-no FORM "x(8)" SPACE(2)
-                    eb.cad-no FORM "x(6)"
-                    /*"Caliper:" AT 68 wrk-sheet.cal space(5) "Board:"
-                    wrk-sheet.brd-dscr "Form:" AT 123 wrk-sheet.form-no*/
-                    with stream-io width 170 no-labels no-box frame sheet.
+                    "<C48>" wrk-sheet.cal
+                    "<C55.5>" string(ef.trim-w) + "x" + string(ef.trim-l) FORM "x(16)"
+                    "<C65.5>" v-board-po 
+                    "<C76>" v-vend  
+                    "<C85>" eb.die-no  FORM "x(8)"
+                    "<C91.5>" eb.plate-no FORM "x(8)" SPACE(2)
+                    "<C101.5>" eb.cad-no FORM "x(6)" SKIP
+                   .
                x = 1.
              end. /* each wrk-sheet */
-             if x ne 2 then put v-fill at 1 skip.
+             if x ne 2 then put v-fill at 1 skip(1).
             /*         
              /** PRINT INK **/
              PUT "<B>UNIT INK             INK NAME                      UNIT  INK             INK NAME                          PLATE #</B>"
@@ -1137,10 +1144,10 @@ for each job-hdr NO-LOCK
       if last-of(tt-reftable.val[12]) then do:
          PUT "<R-1>".
          IF s-run-speed THEN
-            PUT "<B>MACHINE                 MR WASTE   MR HRS  RUN SPEED   SPOIL%         INPUT      OUTPUT</B>"
+            PUT "<B>MACHINE                        MR WASTE    MR HRS   RUN SPEED    SPOIL%          INPUT      OUTPUT</B>"
                 SKIP.
          else
-            PUT "<B>MACHINE                 MR WASTE   MR HRS   RUN HOUR    SPOIL%          INPUT      OUTPUT</B>"
+            PUT "<B>MACHINE                        MR WASTE    MR HRS    RUN HOUR     SPOIL%           INPUT      OUTPUT</B>"
                 SKIP.
          FOR EACH wrk-op WHERE wrk-op.s-num = tt-reftable.val[12] BREAK by wrk-op.d-seq by wrk-op.b-num:
              v-mat-for-mach = "".
@@ -1184,22 +1191,22 @@ for each job-hdr NO-LOCK
              IF s-prt-mstandard THEN DO:
                 IF s-run-speed THEN
                    PUT wrk-op.m-dscr   SPACE(5)
-                       wrk-op.mr-waste[reftable-frm-int]   SPACE(5)
-                       wrk-op.mr[reftable-frm-int]         SPACE(5)
-                       wrk-op.speed[reftable-frm-int]      SPACE(5)
-                       /*wrk-op.spoil[job-hdr.frm]*/ v-spoil FORM ">>,>>9"     SPACE(5)
-                       wrk-op.num-sh[reftable-frm-int] SPACE(3)
+                       "<C25>" wrk-op.mr-waste[reftable-frm-int]   SPACE(5)
+                       "<C33>" wrk-op.mr[reftable-frm-int]         SPACE(5)
+                       "<C44>" wrk-op.speed[reftable-frm-int]      SPACE(5)
+                       "<C52>" /*wrk-op.spoil[job-hdr.frm]*/ v-spoil FORM ">>,>>9"     SPACE(5)
+                       "<C60>" wrk-op.num-sh[reftable-frm-int] SPACE(3)
                        /* v-mat-for-mach FORM "x(60)"*/
-                       v-output 
+                       "<C70>" v-output 
                        . 
                ELSE
                    PUT wrk-op.m-dscr   SPACE(5)
-                       wrk-op.mr-waste[reftable-frm-int]   SPACE(5)
-                       wrk-op.mr[reftable-frm-int]         SPACE(5)
-                       wrk-op.run-hr[reftable-frm-int]     SPACE(5)
-                       /*wrk-op.spoil[job-hdr.frm]*/ v-spoil   FORM ">>,>>9"   SPACE(5)
-                       wrk-op.num-sh[reftable-frm-int] SPACE(3)
-                       v-output 
+                      "<C25>" wrk-op.mr-waste[reftable-frm-int]   SPACE(5)
+                      "<C33>" wrk-op.mr[reftable-frm-int]         SPACE(5)
+                      "<C44>"  wrk-op.run-hr[reftable-frm-int]     SPACE(5)
+                      "<C52>" /*wrk-op.spoil[job-hdr.frm]*/ v-spoil   FORM ">>,>>9"   SPACE(5)
+                      "<C60>" wrk-op.num-sh[reftable-frm-int] SPACE(3)
+                      "<C70>" v-output 
                        /*v-mat-for-mach FORM "x(60)"    */
                        .
              END.
@@ -1210,7 +1217,8 @@ for each job-hdr NO-LOCK
                       /*wrk-op.spoil[job-hdr.frm]   >>9.99*/   SPACE(12)
                      /* v-mat-for-mach FORM "x(60)" */
                       .
-             IF first(wrk-op.d-seq) THEN PUT "   Copy approval _______________________" SKIP.
+             IF first(wrk-op.d-seq) AND  s-prt-mstandard THEN PUT "<C75>   Copy approval _____________________" SKIP.
+             ELSE IF first(wrk-op.d-seq)  THEN PUT "<C60>   Copy approval _______________________" SKIP.
              ELSE PUT SKIP.
         end. /* each wrk-op*/
 

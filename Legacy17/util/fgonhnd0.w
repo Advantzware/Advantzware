@@ -434,8 +434,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   RUN enable_UI.
 
-  {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
-  {methods/setButton.i btn-process "Start Process"} /* added by script _nonAdm1Images2.p */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
+    {methods/setButton.i btn-process "Start"} /* added by script _nonAdm1Images2.p */
   /* {custom/usrprint.i} */
 
   {methods/nowait.i}

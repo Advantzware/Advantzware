@@ -195,7 +195,7 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
+   NOT-VISIBLE Size-to-Fit                                              */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
@@ -382,8 +382,8 @@ END.
   {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p */
   {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p */
 
-  {methods/setButton.i Btn-bom "B.O.M."} /* added by script c:\tmp\p64604__panelImages.ped */
-  {methods/setButton.i Btn-est "EstimateBuild"} /* added by script c:\tmp\p64604__panelImages.ped */
+  {methods/setButton.i Btn-bom "B.O.M."} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-est "EstimateBuild"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

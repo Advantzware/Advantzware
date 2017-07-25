@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: ar\d-selinv.w
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -237,7 +237,7 @@ OPEN QUERY {&SELF-NAME} FOR  EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -260,24 +260,24 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
 ON START-SEARCH OF BROWSE-2 IN FRAME D-Dialog
 DO:
-
+  
   DEF VAR lh-column AS HANDLE NO-UNDO.
   DEF VAR lv-column-nam AS CHAR NO-UNDO.
   DEF VAR lv-column-lab AS CHAR NO-UNDO.
 
-
+  
   ASSIGN
    lh-column     = {&BROWSE-NAME}:CURRENT-COLUMN 
    lv-column-nam = lh-column:NAME
    lv-column-lab = lh-column:LABEL.
 
-
+  
   IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
-
+  
   ASSIGN
      lv-sort-by     = lv-column-nam
      lv-sort-by-lab = lv-column-lab.
-
+  
   IF ll-sort-asc THEN
   CASE lv-column-nam:
       WHEN "inv-no" THEN
@@ -299,7 +299,7 @@ DO:
       WHEN "est-no" THEN
           OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.est-no.
   END CASE.
-
+  
   ELSE   /*descending*/
       CASE lv-column-nam:
       WHEN "inv-no" THEN
@@ -321,10 +321,10 @@ DO:
       WHEN "est-no" THEN
           OPEN QUERY {&SELF-NAME} PRESELECT EACH tt-inv, EACH tt-invl OUTER-JOIN WHERE tt-invl.x-no = tt-inv.x-no BY tt-invl.est-no DESC.
   END CASE.
-
+    
   APPLY 'END-SEARCH' TO {&BROWSE-NAME}.
 
-
+  
 
 END.
 
@@ -402,7 +402,7 @@ DO:
             li-seq-no       = li-seq-no + 1
             tt-inv.seq-no   = li-seq-no
             tt-inv.amt-disc = 0.
-
+           
            IF NOT ip-is-memo AND
               (ll-ans OR
                (ar-inv.disc-days NE 0 AND ar-inv.due GT 0 AND
@@ -420,7 +420,7 @@ DO:
              ld-due = (ar-inv.due -
                       (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0) - 
                       ar-inv.tax-amt) * (IF ld-net1 = 0 OR ld-net2 = 0 THEN 1 ELSE ld-net2 / ld-net1).
-
+                                                 
              IF ld-due NE 0 THEN
                tt-inv.amt-disc = IF ar-inv.disc-% = 0 THEN 0 ELSE ROUND(ld-due * (ar-inv.disc-% / 100),2).
            END.
@@ -450,7 +450,7 @@ DO:
         END.
 
         FOR EACH tt-inv WHERE tt-inv.selekt:
-
+         
            FOR EACH ar-cashl OF ar-cash NO-LOCK BY ar-cashl.line DESCENDING:
               li-next-line = ar-cashl.LINE.
               LEAVE.
@@ -557,7 +557,7 @@ END.*/
 
 SESSION:DEBUG-ALERT = YES. 
 RUN build-table.
-
+ 
 IF lv-num-rec GT 0 THEN DO:
   /*{src/adm/template/dialogmn.i}*/
    MAIN-BLOCK:
@@ -566,7 +566,7 @@ IF lv-num-rec GT 0 THEN DO:
 
        RUN enable_UI.
        RUN Initproc.
-
+      
        WAIT-FOR GO OF FRAME {&FRAME-NAME}.
      END.
 
@@ -625,7 +625,7 @@ PROCEDURE build-table :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   FIND ar-cash WHERE RECID(ar-cash) EQ ip-cash-recid NO-LOCK NO-ERROR.
   EMPTY TEMP-TABLE tt-inv.
   EMPTY TEMP-TABLE tt-invl.
@@ -658,7 +658,7 @@ PROCEDURE build-table :
        FOR EACH ar-invl WHERE ar-invl.X-no = ar-inv.x-no NO-LOCK.
            CREATE tt-invl.
            BUFFER-COPY ar-invl TO tt-invl.
-
+                  
        END.
      END.
 /*10151511 - removing per Julie - on-account cash memos should not be listed for selection*/

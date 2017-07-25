@@ -28,6 +28,12 @@ DEFINE VARIABLE iNextEstNum AS INTEGER NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
+/* ************************  Function Prototypes ********************** */
+
+
+FUNCTION fDefaultMetric RETURNS LOGICAL 
+	( ipcCompany AS CHARACTER ) FORWARD.
+
 
 /* ***************************  Main Block  *************************** */
 
@@ -44,6 +50,7 @@ ASSIGN
     est.form-qty = 1
     est.est-date = TODAY
     est.mod-date = ?
+    est.metric   = fDefaultMetric(cocode)
     .
 
 CREATE est-qty.
@@ -93,4 +100,35 @@ REPEAT:
 END.
 
 END PROCEDURE.
+
+
+/* ************************  Function Implementations ***************** */
+
+FUNCTION fDefaultMetric RETURNS LOGICAL 
+	( ipcCompany AS CHARACTER  ):
+/*------------------------------------------------------------------------------
+ Purpose: Returns the value of NK1 METRIC for purposes of defaulting new estimates
+ Notes: est.metric field is updated
+------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO. 
+    DEFINE VARIABLE lMetric  AS LOGICAL   NO-UNDO. 
+    
+    RUN sys\ref\nk1look.p (ipcCompany,
+        'METRIC',
+        'L',
+        NO,
+        NO,
+        '',
+        '', 
+        OUTPUT cReturn,
+        OUTPUT lFound).
+    
+    lMetric = lFound AND (cReturn EQ "YES").
+    
+    RETURN lMetric.
+        		
+
+END FUNCTION.
+
 

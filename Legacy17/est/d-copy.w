@@ -6,7 +6,7 @@
 /*------------------------------------------------------------------------
 
   File: est/d-copy.w
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -251,7 +251,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -407,7 +407,7 @@ PROCEDURE do-copy :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ip-ok AS LOG NO-UNDO.
-
+  
   DEF VAR ll AS LOG NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
 
@@ -444,9 +444,9 @@ PROCEDURE do-copy :
     IF ip-ok THEN
     DO:
        IF tb_die THEN io-eb.die-no = eb.die-no.
-
+      
        IF tb_cad THEN io-eb.cad-no = eb.cad-no.
-
+      
        IF tb_inks THEN DO:
          ASSIGN
           io-eb.i-col     = eb.i-col
@@ -454,7 +454,7 @@ PROCEDURE do-copy :
           io-eb.i-coat    = eb.i-coat
           io-eb.i-coat-p  = eb.i-coat-p
           io-eb.i-coldscr = eb.i-coldscr.
-
+      
          DO li = 1 TO EXTENT(eb.i-ps):
            ASSIGN
             io-eb.i-ps[li]   = eb.i-ps[li]
@@ -509,7 +509,7 @@ PROCEDURE do-copy :
             END.
          END.
        END.
-
+      
        IF tb_case THEN
        DO:
          ASSIGN
@@ -565,7 +565,7 @@ PROCEDURE do-copy :
             END.
          END.
        END.
-
+      
        IF tb_pallet THEN
          ASSIGN
           io-eb.tr-no      = eb.tr-no
@@ -577,7 +577,7 @@ PROCEDURE do-copy :
           io-eb.tr-cas     = eb.tr-cas
           io-eb.stacks     = eb.stacks
           io-eb.stack-code = eb.stack-code.
-
+      
        IF tb_freight THEN
          ASSIGN
           io-eb.chg-method = eb.chg-method
@@ -587,7 +587,7 @@ PROCEDURE do-copy :
           io-eb.dest-code  = eb.dest-code
           io-eb.fr-out-c   = eb.fr-out-c
           io-eb.fr-out-m   = eb.fr-out-m.
-
+      
        IF tb_design THEN
        FOR EACH box-design-hdr NO-LOCK
            WHERE box-design-hdr.design-no EQ 0
@@ -600,7 +600,7 @@ PROCEDURE do-copy :
          ASSIGN
           b-box-h.form-no  = io-eb.form-no
           b-box-h.blank-no = io-eb.blank-no.
-
+      
          FOR EACH box-design-line NO-LOCK
              WHERE box-design-line.design-no EQ 0
                AND box-design-line.company   EQ eb.company
@@ -615,7 +615,7 @@ PROCEDURE do-copy :
          END.
        END.
     END.
-
+    
     IF ip-add-what EQ "form" AND AVAIL io-ef THEN DO:
       FIND ef WHERE RECID(ef) EQ ip-recid-ef NO-LOCK.
       FIND CURRENT io-ef.

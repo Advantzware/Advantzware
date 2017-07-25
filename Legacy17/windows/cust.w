@@ -1031,7 +1031,7 @@ PROCEDURE select_empalert:
  Notes:
 ------------------------------------------------------------------------------*/
     DEFINE VARIABLE hProgram AS HANDLE NO-UNDO.
-    
+
     IF CAN-FIND (asi._file WHERE asi._file._file-name EQ "empalert") THEN DO:
         RUN windows/empalert.w PERSISTENT SET hProgram (rec_key_value, "").
         RUN dispatch IN hProgram ("initialize").

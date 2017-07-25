@@ -416,8 +416,7 @@ PROCEDURE select_frac :
   Parameters:  <none>
   Notes:
 ------------------------------------------------------------------------------*/
-    {methods/calcBtnLink.i}
-
+  run windows/d-frac.w.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

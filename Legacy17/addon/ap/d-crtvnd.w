@@ -136,7 +136,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -262,7 +262,7 @@ PROCEDURE Allow-update :
 ------------------------------------------------------------------------------*/
   &Scoped-define ACCESSTYPE update
   {methods/template/security.i}
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
