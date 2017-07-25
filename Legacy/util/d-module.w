@@ -230,7 +230,7 @@ DEF BUFFER bf-module FOR module.
 
 SESSION:SET-WAIT-STATE("General").
 
-FOR EACH bf-module WHERE bf-module.db-name EQ ipvDBName EXCLUSIVE-LOCK:
+FOR EACH bf-module /* WHERE bf-module.db-name EQ ipvDBName */ EXCLUSIVE-LOCK:
     IF bf-module.expire-date NE fiExpDate THEN
         bf-module.expire-date = fiExpDate.
         
@@ -238,7 +238,7 @@ END.
 
 SESSION:SET-WAIT-STATE("").
 
-MESSAGE "Process Is Completed." VIEW-AS ALERT-BOX.
+MESSAGE "Process Completed." VIEW-AS ALERT-BOX.
 
 APPLY "close" TO THIS-PROCEDURE.
 
