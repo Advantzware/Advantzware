@@ -1490,7 +1490,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              tb_posted:SENSITIVE = YES
              tbPostedAr:HIDDEN = NO
              tbPostedAR:SENSITIVE = YES
-
              .
     
     IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
