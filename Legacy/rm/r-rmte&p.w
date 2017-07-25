@@ -2239,7 +2239,8 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
             b-tt-rctd.tt-row-id = ROWID(tt-rctd)
             b-tt-rctd.seq-no    = 2
             b-tt-rctd.s-num     = tt-mat.frm
-            b-tt-rctd.qty       = tt-mat.qty.
+            b-tt-rctd.qty       = tt-mat.qty
+            b-tt-rctd.po-no     = "" .
           DELETE tt-mat.
         END. /* FOR EACH tt-mat */
 
