@@ -39,6 +39,7 @@ DEFINE VARIABLE fi_broker-bol-sensitive    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE fi_broker-bol-screen-value AS CHARACTER NO-UNDO.
 DEFINE VARIABLE tb_collate-hidden          AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE tb_HideDialog-Checked      AS LOGICAL NO-UNDO.
+DEFINE VARIABLE tbPostedAR                 AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE c-win-title                AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCheckHoldStat             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE list-name                  AS cha       NO-UNDO.
@@ -212,6 +213,7 @@ PROCEDURE assignSelections:
     DEFINE INPUT PARAMETER iptb_setcomp         AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptb_sman-copy       AS LOGICAL INITIAL NO               .
     DEFINE INPUT PARAMETER iptd-show-parm       AS LOGICAL INITIAL NO               .
+    DEFINE INPUT PARAMETER iptbPostedAR         AS LOGICAL INITIAL NO               .
     
     ASSIGN
     begin_bol          = ipbegin_bol        
@@ -248,7 +250,8 @@ PROCEDURE assignSelections:
     tb_reprint         = iptb_reprint       
     tb_setcomp         = iptb_setcomp       
     tb_sman-copy       = iptb_sman-copy     
-    td-show-parm       = iptd-show-parm   
+    td-show-parm       = iptd-show-parm  
+    tbPostedAR         = iptbPostedAR
     .
 END. 
 /* end input parameters */
@@ -982,7 +985,10 @@ PROCEDURE run-report :
         AND {&head}.cust-no         LE tcust 
         AND (STRING({&head}.sold-no)         EQ ip-sold-no OR ip-sold-no = "")
         AND INDEX(vcHoldStats, {&head}.stat) EQ 0
-        AND ("{&head}" NE "ar-inv" OR {&head}.posted = tb_posted)
+        AND ("{&head}" NE "ar-inv" 
+               OR ({&head}.posted = tb_posted AND tbPostedAR EQ ?)
+               OR ({&head}.posted = tbPostedAR AND tbPostedAR NE ?)
+             )
         AND (IF "{&head}" EQ "ar-inv" THEN {&head}.inv-date GE begin_date
         AND {&head}.inv-date LE end_date ELSE TRUE)        
         AND (((NOT v-reprint) AND {&head}.inv-no EQ 0) OR

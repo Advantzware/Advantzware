@@ -163,15 +163,15 @@ DEF VAR vShipToNo AS CHAR NO-UNDO.  /* to hold shipto# for email */
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust end_cust begin_inv ~
-end_inv begin_date end_date tb_reprint tb_posted tb_prt-inst tb_setcomp ~
+end_inv begin_date end_date tb_reprint tb_posted tb_setcomp tb_prt-inst ~
 rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt ~
 lines-per-page lv-font-no tb_email-orig tb_override-email td-show-parm ~
 btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_inv end_inv ~
-begin_date end_date tb_reprint tb_posted tb_prt-inst tb_setcomp lbl_sort ~
-rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt ~
+begin_date end_date tb_reprint tb_posted tbPostedAR tb_setcomp tb_prt-inst ~
+lbl_sort rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt ~
 lines-per-page lv-font-no lv-font-name tb_email-orig tb_override-email ~
-td-show-parm 
+td-show-parm fiEndDateLabel fiBeginDateLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -215,7 +215,6 @@ DEFINE VARIABLE begin_cust AS CHARACTER FORMAT "X(8)"
      SIZE 17 BY 1.
 
 DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Beginning BOL Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY .95 NO-UNDO.
 
@@ -235,7 +234,6 @@ DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz"
      SIZE 17 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
-     LABEL "Ending BOL Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -243,6 +241,14 @@ DEFINE VARIABLE end_inv AS INTEGER FORMAT ">>>>>>>>" INITIAL 99999999
      LABEL "Ending Invoice#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
+
+DEFINE VARIABLE fiBeginDateLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Beginning Bol Date:" 
+      VIEW-AS TEXT 
+     SIZE 19 BY .62 NO-UNDO.
+
+DEFINE VARIABLE fiEndDateLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Ending BOL Date:" 
+      VIEW-AS TEXT 
+     SIZE 17 BY .62 NO-UNDO.
 
 DEFINE VARIABLE fi_broker-bol AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
      LABEL "Broker BOL#" 
@@ -314,7 +320,12 @@ DEFINE RECTANGLE RECT-6
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 94 BY 13.1.
+     SIZE 94 BY 13.81.
+
+DEFINE VARIABLE tbPostedAR AS LOGICAL INITIAL no 
+     LABEL "Posted AR Invoices" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 30.8 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tb_attachBOL AS LOGICAL INITIAL no 
      LABEL "Attach Signed BOL" 
@@ -409,55 +420,58 @@ DEFINE FRAME FRAME-A
      end_inv AT ROW 3.38 COL 69 COLON-ALIGNED HELP
           "Enter Ending Invoice Number"
      begin_date AT ROW 4.33 COL 26 COLON-ALIGNED HELP
-          "Enter Beginning BOL Date"
+          "Enter Beginning BOL Date" NO-LABEL
      end_date AT ROW 4.33 COL 69 COLON-ALIGNED HELP
-          "Enter Ending BOL Date"
+          "Enter Ending BOL Date" NO-LABEL
      begin_bol AT ROW 5.29 COL 26 COLON-ALIGNED HELP
           "Enter Beginning BOL Number"
      end_bol AT ROW 5.29 COL 69 COLON-ALIGNED HELP
           "Enter Ending BOL Number"
+     lv-scr-num-copies AT ROW 6.62 COL 69.8 COLON-ALIGNED
      tb_reprint AT ROW 6.71 COL 28.2
-     lv-scr-num-copies AT ROW 6.71 COL 68 COLON-ALIGNED
-     tb_posted AT ROW 7.67 COL 28.2
-     tb_collate AT ROW 7.67 COL 57.6
-     tb_prt-inst AT ROW 8.62 COL 49 RIGHT-ALIGNED
-     tb_setcomp AT ROW 8.62 COL 57.4 WIDGET-ID 2
-     tb_print-dept AT ROW 9.48 COL 49 RIGHT-ALIGNED
-     fi_depts AT ROW 9.48 COL 48.4 COLON-ALIGNED HELP
+     tb_posted AT ROW 7.48 COL 28.2
+     tb_collate AT ROW 7.48 COL 59.4
+     tbPostedAR AT ROW 8.38 COL 28.2 WIDGET-ID 24
+     tb_setcomp AT ROW 8.43 COL 59.2 WIDGET-ID 2
+     tb_prt-inst AT ROW 9.1 COL 49 RIGHT-ALIGNED
+     tb_print-dept AT ROW 9.95 COL 49 RIGHT-ALIGNED
+     fi_depts AT ROW 9.95 COL 48.4 COLON-ALIGNED HELP
           "Enter Departments separated by commas" NO-LABEL
-     tb_prt-zero-qty AT ROW 10.48 COL 56 RIGHT-ALIGNED WIDGET-ID 12
-     lbl_sort AT ROW 11.52 COL 26.2 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 11.52 COL 39 NO-LABEL
-     fi_broker-bol AT ROW 11.52 COL 75 COLON-ALIGNED HELP
+     tb_prt-zero-qty AT ROW 10.95 COL 56 RIGHT-ALIGNED WIDGET-ID 12
+     lbl_sort AT ROW 12 COL 26.2 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 12 COL 39 NO-LABEL
+     fi_broker-bol AT ROW 12 COL 75 COLON-ALIGNED HELP
           "Enter Beginning Invoice Number" WIDGET-ID 6
-     rs_no_PN AT ROW 12.52 COL 28.2 NO-LABEL WIDGET-ID 8
-     tb_cust-copy AT ROW 13.38 COL 12
-     tb_office-copy AT ROW 13.38 COL 39
-     tb_sman-copy AT ROW 13.38 COL 64
-     tb_BatchMail AT ROW 15.05 COL 48.8 RIGHT-ALIGNED
-     tb_HideDialog AT ROW 15.05 COL 48
-     tb_attachBOL AT ROW 15.05 COL 69 WIDGET-ID 16
-     rd-dest AT ROW 15.52 COL 5 NO-LABEL
-     lv-ornt AT ROW 16.24 COL 30 NO-LABEL
-     lines-per-page AT ROW 16.24 COL 83 COLON-ALIGNED
-     lv-font-no AT ROW 17.48 COL 33 COLON-ALIGNED
-     lv-font-name AT ROW 18.43 COL 27 COLON-ALIGNED NO-LABEL
-     tb_email-orig AT ROW 19.76 COL 30.2 WIDGET-ID 14
-     tb_override-email AT ROW 19.81 COL 60 WIDGET-ID 18
-     td-show-parm AT ROW 21.14 COL 30
-     btn-ok AT ROW 22.95 COL 23
-     btn-cancel AT ROW 22.95 COL 56
+     rs_no_PN AT ROW 13 COL 28.2 NO-LABEL WIDGET-ID 8
+     tb_cust-copy AT ROW 13.91 COL 12
+     tb_office-copy AT ROW 13.91 COL 39
+     tb_sman-copy AT ROW 13.91 COL 64
+     tb_BatchMail AT ROW 15.86 COL 48.8 RIGHT-ALIGNED
+     tb_HideDialog AT ROW 15.86 COL 48
+     tb_attachBOL AT ROW 15.86 COL 69 WIDGET-ID 16
+     rd-dest AT ROW 16.33 COL 5 NO-LABEL
+     lv-ornt AT ROW 17.05 COL 30 NO-LABEL
+     lines-per-page AT ROW 17.05 COL 83 COLON-ALIGNED
+     lv-font-no AT ROW 18.29 COL 33 COLON-ALIGNED
+     lv-font-name AT ROW 19.24 COL 27 COLON-ALIGNED NO-LABEL
+     tb_email-orig AT ROW 20.57 COL 30.2 WIDGET-ID 14
+     tb_override-email AT ROW 20.62 COL 60 WIDGET-ID 18
+     td-show-parm AT ROW 21.95 COL 30
+     btn-ok AT ROW 23.86 COL 23
+     btn-cancel AT ROW 23.86 COL 56
+     fiEndDateLabel AT ROW 4.52 COL 51.4 COLON-ALIGNED NO-LABEL WIDGET-ID 22
+     fiBeginDateLabel AT ROW 4.57 COL 6.8 COLON-ALIGNED NO-LABEL WIDGET-ID 20
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.43 COL 4
           BGCOLOR 2 
      "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 14.57 COL 4
-     RECT-6 AT ROW 14.38 COL 1.4
-     RECT-7 AT ROW 1.24 COL 1.4
+          SIZE 18 BY .62 AT ROW 15.38 COL 4
+     RECT-6 AT ROW 15.19 COL 1.4
+     RECT-7 AT ROW 1.24 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24
-         SIZE 95.2 BY 23.76.
+         SIZE 95.2 BY 24.43.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -477,8 +491,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Invoicing"
-         HEIGHT             = 24
-         WIDTH              = 95.8
+         HEIGHT             = 24.67
+         WIDTH              = 96.2
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
@@ -557,6 +571,16 @@ ASSIGN
        end_inv:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN fiBeginDateLabel IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiBeginDateLabel:READ-ONLY IN FRAME FRAME-A        = TRUE.
+
+/* SETTINGS FOR FILL-IN fiEndDateLabel IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       fiEndDateLabel:READ-ONLY IN FRAME FRAME-A        = TRUE.
+
 /* SETTINGS FOR FILL-IN fi_broker-bol IN FRAME FRAME-A
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -592,6 +616,11 @@ ASSIGN
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        rs_no_PN:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR TOGGLE-BOX tbPostedAR IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       tbPostedAR:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX tb_BatchMail IN FRAME FRAME-A
    ALIGN-R                                                              */
@@ -724,7 +753,7 @@ DO:
 
 &Scoped-define SELF-NAME begin_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_date C-Win
-ON LEAVE OF begin_date IN FRAME FRAME-A /* Beginning BOL Date */
+ON LEAVE OF begin_date IN FRAME FRAME-A
 DO:
         ASSIGN {&self-name}.
     END.
@@ -773,7 +802,7 @@ DO:
             ASSIGN {&DISPLAYED-OBJECTS}
                 tb_collate lv-scr-num-copies
                 tb_cust-copy tb_office-copy tb_sman-copy
-                /* gdm - 12080817 */ tb_setcomp.
+                /* gdm - 12080817 */ tb_setcomp tbPostedAR.
 
             IF fi_broker-bol:SENSITIVE THEN
                 ASSIGN fi_broker-bol.
@@ -804,6 +833,10 @@ DO:
         IF is-xprint-form AND rd-dest = 4 THEN lv-multi-faxout = YES.
 
         lv-fax-type = IF lv-multi-faxout THEN "MULTI" ELSE "CUSTOMER".
+
+        /* To indicate whether to use this or tb_posted */
+        IF tbPostedAR:HIDDEN = YES THEN 
+          tbPostedAR = ?.
 
         IF lv-multi-faxout AND rd_sort <> "Customer" THEN 
         DO:
@@ -872,7 +905,8 @@ DO:
             tb_reprint         ,
             tb_setcomp         ,
             tb_sman-copy       ,
-            td-show-parm       
+            td-show-parm       ,
+            tbPostedAR
             ).
     
         IF begin_bol EQ end_bol THEN 
@@ -1007,7 +1041,7 @@ DO:
 
 &Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
-ON LEAVE OF end_date IN FRAME FRAME-A /* Ending BOL Date */
+ON LEAVE OF end_date IN FRAME FRAME-A
 DO:
         ASSIGN {&self-name}.
     END.
@@ -1234,10 +1268,27 @@ DO:
        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hSuperProc).
        DELETE OBJECT hSuperProc.
     END.
-    if ipcInvoiceType eq "inv-head" AND NOT tb_posted then 
-      RUN oerep/r-invprtOESuper.p PERSISTENT SET hSuperProc.
-    else
-     RUN oerep/r-invprtARSuper.p PERSISTENT SET hSuperProc.
+  IF ipcInvoiceType eq "inv-head" AND NOT tb_posted THEN DO:
+
+    ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning BOL Date:"
+           fiEndDateLabel:SCREEN-VALUE = "Ending BOL Date:"
+           tbPostedAr:HIDDEN = YES
+           tbPostedAR:SENSITIVE = NO
+           .
+    RUN oerep/r-invprtOESuper.p PERSISTENT SET hSuperProc.
+  END.
+
+
+  ELSE DO:
+   RUN oerep/r-invprtARSuper.p PERSISTENT SET hSuperProc.
+   ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Inv Date:"
+          fiEndDateLabel:SCREEN-VALUE = "Ending Inv Date:"
+          tbPostedAr:HIDDEN = NO
+          tbPostedAR:SENSITIVE = YES
+          .
+
+  END.
+
     
     THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hSuperProc).
 END.
@@ -1335,10 +1386,22 @@ end.
 PAUSE 0 BEFORE-HIDE.
 
 /* {oerep/r-invprt.i} */
-if ipcInvoiceType eq "inv-head" then 
+if ipcInvoiceType eq "inv-head" then DO:
+  ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning BOL Date:"
+         fiEndDateLabel:SCREEN-VALUE = "Ending BOL Date:"
+         .
   RUN oerep/r-invprtOESuper.p PERSISTENT SET hSuperProc.
-else
+END.
+
+
+ELSE DO:
  RUN oerep/r-invprtARSuper.p PERSISTENT SET hSuperProc.
+ ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Date:"
+        fiEndDateLabel:SCREEN-VALUE = "Ending Date:"
+        .
+
+END.
+
 
 THIS-PROCEDURE:ADD-SUPER-PROCEDURE (hSuperProc).
 
@@ -1398,10 +1461,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              begin_bol:SENSITIVE = YES
              end_bol:HIDDEN = NO
              end_bol:SENSITIVE = YES
-             .            
+            .            
     ELSE
       ASSIGN tb_posted:HIDDEN = NO
              tb_posted:SENSITIVE = YES
+             tbPostedAr:HIDDEN = NO
+             tbPostedAR:SENSITIVE = YES
+
              .  
         
     IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
@@ -1557,12 +1623,13 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust end_cust begin_inv end_inv begin_date end_date tb_reprint 
-          tb_posted tb_prt-inst tb_setcomp lbl_sort rd_sort tb_BatchMail 
-          tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no 
-          lv-font-name tb_email-orig tb_override-email td-show-parm 
+          tb_posted tbPostedAR tb_setcomp tb_prt-inst lbl_sort rd_sort 
+          tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page 
+          lv-font-no lv-font-name tb_email-orig tb_override-email td-show-parm 
+          fiEndDateLabel fiBeginDateLabel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust end_cust begin_inv end_inv begin_date 
-         end_date tb_reprint tb_posted tb_prt-inst tb_setcomp rd_sort 
+         end_date tb_reprint tb_posted tb_setcomp tb_prt-inst rd_sort 
          tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page 
          lv-font-no tb_email-orig tb_override-email td-show-parm btn-ok 
          btn-cancel 
