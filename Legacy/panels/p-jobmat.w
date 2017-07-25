@@ -99,7 +99,7 @@ DEFINE BUTTON Btn-Add
      FONT 4.
 
 DEFINE BUTTON btn-alloc 
-     LABEL "A&lllocation" 
+     LABEL "A&llocation" 
      SIZE 16 BY 1.29.
 
 DEFINE BUTTON Btn-Cancel 
@@ -132,7 +132,7 @@ DEFINE BUTTON btn-sht-calc
      SIZE 15 BY 1.29.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 92 BY 1.76.
 
 
@@ -208,6 +208,14 @@ ASSIGN
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
 
+ASSIGN 
+       btn-alloc:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
+ASSIGN 
+       btn-sht-calc:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
    NO-ENABLE 1                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -245,7 +253,7 @@ END.
 
 &Scoped-define SELF-NAME btn-alloc
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-alloc C-WIn
-ON CHOOSE OF btn-alloc IN FRAME Panel-Frame /* Alllocation */
+ON CHOOSE OF btn-alloc IN FRAME Panel-Frame /* Allocation */
 DO:
     DEF VAR char-hdl AS cha NO-UNDO.
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-target",OUTPUT char-hdl).

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:42 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -290,7 +290,7 @@ END.
 ON LEAVE OF ar-cash.bank-code IN FRAME F-Main /* Bank Code */
 DO:
   IF LASTKEY = -1 THEN RETURN.
-
+   {&methods/lValidateError.i YES}
    IF SELF:MODIFIED THEN do:
       FIND FIRST bank WHERE bank.company = g_company AND
                             bank.bank-code = ar-cash.bank-code:SCREEN-VALUE NO-LOCK NO-ERROR.
@@ -300,7 +300,9 @@ DO:
       END.
       bank_name:SCREEN-VALUE = bank.bank-NAME.
    END.
+   {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -311,6 +313,7 @@ END.
 ON LEAVE OF ar-cash.check-amt IN FRAME F-Main /* Check Amount */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
     IF DEC(ar-cash.check-amt:SCREEN-VALUE) EQ 0 THEN DO:
        MESSAGE "Check Amount cannot be 0." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
@@ -323,7 +326,9 @@ DO:
     END.
 
   END.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -368,7 +373,7 @@ END.
 ON LEAVE OF ar-cash.check-no IN FRAME F-Main /* Check No */
 DO:
     IF LASTKEY = -1 THEN RETURN.
-
+    {&methods/lValidateError.i YES}
     IF int(ar-cash.check-no:SCREEN-VALUE) = 0 THEN DO:
         MESSAGE "Check number must be entered..." VIEW-AS ALERT-BOX.
         RETURN NO-APPLY.
@@ -393,8 +398,9 @@ DO:
                  " and Check " bf-cash.check-no VIEW-AS ALERT-BOX ERROR.
         RETURN NO-APPLY.
     END.
-
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -670,6 +676,7 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   DO WITH FRAME {&FRAME-NAME}:
+     {&methods/lValidateError.i YES}
      IF ar-cash.bank-code:MODIFIED THEN do:
         FIND FIRST bank WHERE bank.company = g_company AND
                             bank.bank-code = ar-cash.bank-code:SCREEN-VALUE NO-LOCK NO-ERROR.
@@ -728,6 +735,7 @@ PROCEDURE local-update-record :
         APPLY "entry" TO ar-cash.check-no.
         RETURN NO-APPLY.
      END.
+  {&methods/lValidateError.i NO}
   END.
   /* ====== end validation =========*/
   ll-new-record = adm-new-record.
@@ -743,6 +751,7 @@ PROCEDURE local-update-record :
 
   END.
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

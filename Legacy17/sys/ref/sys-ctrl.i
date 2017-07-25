@@ -84,7 +84,7 @@ ASSIGN
                 "Century,Oracle,PremierX,Frankstn,Mirpkg,Unipak,OTTPkg,Shelby," +
                 "RUDDX,APC,Imperial,Indiana,Fibrex,PPI,HPB,Albert,ContSvc,Triad,Packrite,Dee," +
                 "Allwest,Simkins,HOPX,PremierCX,Accord,Soule,ACPI,Hughes,Carded,SouleUOM,Badger,Axis," +
-                "3CPack,Perform,ackhead 1,ackhead 2"
+                "3CPack,3CPackSD,Perform,ackhead 1,ackhead 2"
  str-init[14] = "10 Pitch,17 Pitch,Boxtech,Phoenix,TriState,Triad,RFC,HOP," +
                 "Brick,Hartford"
  str-init[15] = "Inches,MM,Both"
@@ -136,7 +136,7 @@ ASSIGN
  str-init[53] = "AllItems,POOnly,None" 
  str-init[54] = "Sheet,Blank" 
  str-init[55] = "BLACK,RED"  
- str-init[56] = "WminLmin,PminPmax"
+ str-init[56] = "" /*removed option with ticket 17756*/
  str-init[57] = "Matrix,LastPric"
  str-init[58] = ""
  str-init[59] = "Complete,OnHand=0"
@@ -167,8 +167,8 @@ ASSIGN
  str-init[85] = "Penny,Dollar,FiveDollar" /* ceprep */  
  str-init[86] = ",16th's,32nd's,Decimal" /* cecscrn */
  str-init[87] = "RunOnly,MR+Run" /* ceprice */
- str-init[88] = ",AllOrders,SameOrderOnly,SamePo#Only,AllOrders&ShipFromWhse,SamePO#&ShipFromWhse,SameOrder&SameShipFrom,SameOrder&SameShipFrom&SamePO,AllOrders&NotRunShip," + /* relmerge */       
-                "stmtprint 1,stmtprint 2"
+ str-init[88] = ",AllOrders,SameOrderOnly,SamePo#Only,AllOrders&ShipFromWhse,SamePO#&ShipFromWhse,SameOrder&SameShipFrom,SameOrder&SameShipFrom&SamePO,AllOrders&NotRunShip"  /* relmerge */       
+                
  str-init[89] = ",ASI,ASIXprnt,Premier,ASIExcel,Loylang,Printers,Protagon,Badger,Soule,RFC,SouleMed,stmtprint 1,stmtprint 2"  /*stmtprin*/
  str-init[90] = "All Machines,Last Machine,NO"  /*TSFinish*/
  str-init[91] = "MSF,PO UOM"  /*appaper*/
@@ -235,7 +235,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[151] = "Xprint,bolfmt1,GPI"
        str-init[152] = ",Open,Hold"
        str-init[153] = "Trailer#,ShipTo,Indiana"
-       str-init[154] = "Square Feet,Board Cost"
+       str-init[154] = "Square Feet,Board Cost,Factory Cost,Full Cost"
        .
 
 	

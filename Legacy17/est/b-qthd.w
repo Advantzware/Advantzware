@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:34 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -111,7 +111,7 @@ AND (quotehd.est-no EQ fi_est-no ~
 OR fi_est-no EQ "") ~
 AND quotehd.rfq BEGINS fi_rfq ~
 ~{&useIndexPhrase} NO-LOCK, ~
-      EACH quoteitm OF quotehd  ~
+      EACH quoteitm OF quotehd OUTER-JOIN  ~
       WHERE (IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no  ~
           ELSE quoteitm.part-no BEGINS fi_part-no) ~
 and (IF fi_item-decr BEGINS "*" THEN quoteitm.part-dscr1 MATCHES fi_item-decr  ~
@@ -132,7 +132,7 @@ AND (quotehd.est-no EQ fi_est-no ~
 OR fi_est-no EQ "") ~
 AND quotehd.rfq BEGINS fi_rfq ~
 ~{&useIndexPhrase} NO-LOCK, ~
-      EACH quoteitm OF quotehd  ~
+      EACH quoteitm OF quotehd OUTER-JOIN ~
       WHERE (IF fi_part-no BEGINS "*" THEN quoteitm.part-no MATCHES fi_part-no  ~
           ELSE quoteitm.part-no BEGINS fi_part-no) ~
 and (IF fi_item-decr BEGINS "*" THEN quoteitm.part-dscr1 MATCHES fi_item-decr  ~
@@ -905,16 +905,16 @@ DEF BUFFER bf-quotehd  FOR quotehd .
 DEF BUFFER bf-quoteitm FOR quoteitm .
 
 &SCOPED-DEFINE SORTBY-PHRASE BY ~
-IF sortColumn EQ 'Date' THEN STRING(YEAR(quotehd.quo-date)) + ~
-                             STRING(MONTH(quotehd.quo-date)) + ~
-                             STRING(DAY(quotehd.quo-date))  ELSE ~
+IF sortColumn EQ 'Date' THEN STRING(YEAR(quotehd.quo-date),"9999") + ~
+                             STRING(MONTH(quotehd.quo-date),"99") + ~
+                             STRING(DAY(quotehd.quo-date),"99")  ELSE ~
 IF sortColumn EQ 'Cust'             THEN quotehd.cust-no    ELSE ~
 IF sortColumn EQ 'Contact'          THEN quotehd.contact    ELSE ~
 IF sortColumn EQ 'Estimate'         THEN quotehd.est-no     ELSE ~
 IF sortColumn EQ 'RFQ'              THEN quotehd.rfq        ELSE ~
 IF sortColumn EQ 'Cust Part'        THEN quoteitm.part-no   ELSE ~
 IF sortColumn EQ 'Item Description' THEN quoteitm.part-dscr1 ELSE ~
-IF sortColumn EQ 'Updated Date'     THEN STRING(quotehd.upd-date, "99/99/9999")   ELSE ~
+IF sortColumn EQ 'Updated Date'     THEN STRING(YEAR(quotehd.upd-date),"9999") + STRING(MONTH(quotehd.upd-date),"99") + STRING(DAY(quotehd.upd-date),"99")   ELSE ~
 IF sortColumn EQ 'Updated User'     THEN quotehd.upd-user   ELSE ~
 STRING(quotehd.q-no,'>>>>>9') ~{&SORTED}
 

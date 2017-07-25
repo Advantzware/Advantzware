@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:52 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -315,11 +315,14 @@ ASSIGN
 ON LEAVE OF phone.attention IN FRAME F-Main /* Attention */
 DO:
  IF LASTKEY = -1 THEN RETURN.
+ {&methods/lValidateError.i YES}
   IF phone.attention:SCREEN-VALUE = "" THEN DO:  /* task 11181301 */
     MESSAGE "Phone Attention field can't be blank.." VIEW-AS ALERT-BOX ERROR.
     return no-apply.  
   END.
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -345,6 +348,24 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME phone.titlcode
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL phone.titlcode V-table-Win
+ON HELP OF phone.titlcode IN FRAME F-Main /* Title Code */
+DO:
+   DEF VAR v-title AS cha NO-UNDO.
+
+   RUN windows/l-ttlcod.w (phone.titlcode:SCREEN-VALUE, OUTPUT v-title).
+   IF v-title <> "" THEN
+       ASSIGN
+       phone.titlcode:SCREEN-VALUE = entry(1,v-title)
+       titlcode_description:SCREEN-VALUE = entry(2,v-title) .
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 
 &UNDEFINE SELF-NAME
@@ -424,7 +445,7 @@ PROCEDURE EmailNotify :
 ------------------------------------------------------------------------------*/
 
   DEFINE INPUT PARAM ilQuietMode  AS LOGICAL NO-UNDO.
-
+   {&methods/lValidateError.i YES}
   IF tbNotice:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
 
     IF NOT CAN-FIND (FIRST reftable NO-LOCK
@@ -490,13 +511,14 @@ PROCEDURE EmailNotify :
     END.
     END.
   END.
-
+  {&methods/lValidateError.i NO}
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"CONTAINER",OUTPUT char-hdl).
 
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN AdvancedNotice IN WIDGET-HANDLE(char-hdl).
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -562,7 +584,7 @@ PROCEDURE local-update-record :
 ------------------------------------------------------------------------------*/
   DEF VAR ll-choice AS LOG NO-UNDO.
   DEF VAR ll-new-record AS LOG NO-UNDO.
-
+  {&methods/lValidateError.i YES}
   ll-new-record = adm-new-record.
   /* task 11181301 */
     IF phone.attention:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
@@ -570,7 +592,7 @@ PROCEDURE local-update-record :
          APPLY "entry" TO phone.attention .
          RETURN.
     END.
-
+  {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -608,6 +630,7 @@ PROCEDURE local-update-record :
      END.
      {methods/run_link.i "CONTAINER-SOURCE" "setAddStatus" "(INPUT NO)"}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

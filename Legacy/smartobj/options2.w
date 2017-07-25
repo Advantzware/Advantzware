@@ -86,10 +86,10 @@ DEFINE BUTTON Select_help
      SIZE 7.8 BY 1.81 TOOLTIP "Help".
 
 DEFINE BUTTON UDF 
-     IMAGE-UP FILE "Graphics/32x32/refresh.ico":U
+     IMAGE-UP FILE "Graphics/32x32/window_dialog.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "Home" 
-     SIZE 7.8 BY 1.81 TOOLTIP "Home Key".
+     LABEL "UDF" 
+     SIZE 7.8 BY 1.81 TOOLTIP "UDF Viewer".
 
 DEFINE BUTTON Select_list 
      IMAGE-UP FILE "Graphics/32x32/printer.ico":U
@@ -113,7 +113,8 @@ DEFINE FRAME F-Main
      Select_spec AT ROW 1 COL 9
      Select_appl AT ROW 1 COL 17
      Select_help AT ROW 1 COL 25
-     UDF AT ROW 1 COL 33
+     UDF AT ROW 1 COL 33 HELP
+          "Access UDF Viewer"
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -340,6 +341,7 @@ PROCEDURE Init-Buttons :
   DEFINE VARIABLE notes-button AS LOGICAL NO-UNDO.
   DEFINE VARIABLE misc_fields-button AS LOGICAL NO-UNDO.
   DEFINE VARIABLE spec-note AS LOGICAL NO-UNDO.
+  {methods/calcBtnImage.i}
   
   {methods/run_link.i "CONTAINER-SOURCE" "Init-Options-Panel"
     "(OUTPUT search-button,OUTPUT list-button,OUTPUT notes-button,OUTPUT misc_fields-button, output spec-note)"}

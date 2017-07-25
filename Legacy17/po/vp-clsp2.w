@@ -9,7 +9,7 @@
 
   File:
 
-  Description: from VIEWER.W - Template for SmartViewer Objects
+  Description: from VIEWER.W - Template for SmartPanel Objects
 
   Input Parameters:
       <none>
@@ -120,7 +120,7 @@ DEFINE FRAME F-Main
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartViewer
+   Type: SmartPanel
    External Tables: ASI.po-ord,asi.po-ordl
    Allow: Basic,DB-Fields
    Frames: 1
@@ -172,6 +172,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       Btn-Update:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -197,7 +201,7 @@ ON CHOOSE OF Btn-Update IN FRAME F-Main /* Close */
 DO:
    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
    RUN close-reopen IN WIDGET-HANDLE(char-hdl). 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -216,6 +220,8 @@ END.
   &ENDIF         
 
   /************************ INTERNAL PROCEDURES ********************/
+
+  {methods/setButton.i Btn-Update "Close"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

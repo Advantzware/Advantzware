@@ -14,5 +14,4 @@ assign
  cocode = gcompany
  locode = gloc.
 
-
 RUN oerep/r-invprtoe.w  PERSISTENT (input "inv-head").

@@ -31,7 +31,23 @@ do i = 1 to 6 with frame ad2 down no-labels no-box:
   /* only (i)ntegrate and (m)aintenance lines are done here */
   if index("IM",xef.mis-simon[i]) eq 0 or xef.mis-cost[i] eq "" then next.
   
-  IF ceprepprice-chr EQ "Profit" THEN
+  IF xef.mis-simon[i] = 'M' THEN DO:
+        mis-tot[5] = xef.mis-matf[i] + (xef.mis-matm[i] * qty / 1000).
+        dMCostToExcludeMisc = dMCostToExcludeMisc + mis-tot[5].
+        mis-tot[6] = xef.mis-labf[i] + (xef.mis-labm[i] * qty / 1000).
+        dMCostToExcludeMisc = dMCostToExcludeMisc + mis-tot[6].
+        IF ceprepprice-chr EQ 'Profit' THEN 
+            ASSIGN 
+                dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[5] / (1 - (xef.mis-mkup[i] / 100))
+                dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[6] / (1 - (xef.mis-mkup[i] / 100))
+                .
+        ELSE 
+            ASSIGN 
+                dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[5] * (1 + (xef.mis-mkup[i] / 100))
+                dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[6] * (1 + (xef.mis-mkup[i] / 100))
+                .
+     END.
+  ELSE IF ceprepprice-chr EQ "Profit" THEN
      ASSIGN
         mis-tot[5] = (xef.mis-matf[i] + (xef.mis-matm[i] * (qty / 1000))) /
                                         (1 - (xef.mis-mkup[i] / 100))

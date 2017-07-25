@@ -34,7 +34,7 @@ DEF VAR v-ship-i       AS CHAR FORMAT "x(25)" NO-UNDO.
 DEF VAR v-price-head   AS CHAR FORMAT "x(5)"  NO-UNDO.
 DEF VAR v-notes        AS CHAR FORMAT "x(80)" NO-UNDO EXTENT 4 .
 DEF VAR ls-image1      AS CHAR                NO-UNDO.
-DEF VAR ls-full-img1   AS CHAR FORMAT "x(50)" NO-UNDO.
+DEF VAR ls-full-img1   AS CHAR FORMAT "x(150)" NO-UNDO.
 DEF VAR v-comp-add1    AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-comp-add2    AS CHAR FORMAT "x(30)" NO-UNDO.
 DEF VAR v-comp-add3    AS CHAR FORMAT "x(30)" NO-UNDO.
@@ -417,6 +417,8 @@ FOR EACH report
 
   for each ar-invl no-lock where ar-invl.x-no = ar-inv.x-no
       BREAK BY ar-invl.misc:  /* stacey - added */
+
+      IF ar-invl.inv-qty EQ 0 AND ar-invl.ship-qty EQ 0 AND NOT ar-invl.misc THEN NEXT .
 
     v-po-no = ar-invl.lot-no.
 

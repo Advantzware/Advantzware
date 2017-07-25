@@ -492,7 +492,7 @@ PROCEDURE create-tt-boll.
      tt-boll.qty      = 0
      tt-boll.weight   = 0
      tt-boll.qty-sum = ip-qty-case * ip-cases
-     /*tt-boll.partial  = 0*/ .
+     tt-boll.partial  = 0 .
    
   END.
 
@@ -501,7 +501,7 @@ PROCEDURE create-tt-boll.
    tt-boll.qty    = tt-boll.qty + (ip-qty-case * ip-cases)
    tt-boll.weight = tt-boll.weight + 
                     ((ip-qty-case * ip-cases) / oe-boll.qty * oe-boll.weight)
-   /*tt-boll.partial = oe-boll.partial */ 
+   tt-boll.partial = tt-boll.partial + oe-boll.partial 
    tt-boll.unitCount =  tt-boll.unitCount + 1 .
 
   IF oe-boll.p-c THEN tt-boll.p-c = YES.

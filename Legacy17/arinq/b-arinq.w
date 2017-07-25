@@ -597,6 +597,10 @@ DO:
      fi_part-no
      fi_date
      ll-first = NO.
+     IF fi_cust-no EQ "" AND fi_i-no EQ "" AND fi_po-no EQ "" AND
+        fi_inv-no:SCREEN-VALUE EQ "" AND fi_ord-no:SCREEN-VALUE EQ "" AND fi_bol-no:SCREEN-VALUE EQ "" AND 
+        fi_est-no:SCREEN-VALUE EQ "" AND fi_actnum:SCREEN-VALUE EQ "" AND fi_part-no EQ "" AND
+        fi_date:SCREEN-VALUE  EQ "" THEN ll-first = YES.
     RUN dispatch ('open-query').
     APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
   END.
@@ -685,6 +689,7 @@ ON VALUE-CHANGED OF fi_cust-no IN FRAME F-Main /* Customer# */
 DO:
   {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -737,6 +742,7 @@ END.
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main /* FG Item# */
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
@@ -791,6 +797,7 @@ ON VALUE-CHANGED OF fi_part-no IN FRAME F-Main /* Cust Part# */
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -815,6 +822,7 @@ END.
 ON VALUE-CHANGED OF fi_po-no IN FRAME F-Main /* Cust PO# */
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
@@ -1107,6 +1115,10 @@ PROCEDURE local-open-query :
 
   RUN dispatch ("row-changed").
 
+   DO WITH FRAME {&FRAME-NAME}:
+      APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
+   END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1127,6 +1139,9 @@ PROCEDURE local-view :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/setvalue.i}
   APPLY 'ENTRY':U TO fi_inv-no IN FRAME {&FRAME-NAME}.
+  DO WITH FRAME {&FRAME-NAME}:
+      APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
+   END.
 
 END PROCEDURE.
 

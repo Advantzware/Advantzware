@@ -89,7 +89,7 @@ DEFINE BUTTON btn-set-base-cost
      SIZE 21 BY 1.43 TOOLTIP "Set all Base Cost from FG Item Average Cost".
 
 DEFINE RECTANGLE RECT-40
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 23 BY 1.81.
 
 
@@ -157,6 +157,10 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+ASSIGN 
+       btn-set-base-cost:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME

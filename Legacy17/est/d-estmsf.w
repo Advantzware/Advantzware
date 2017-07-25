@@ -153,7 +153,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -194,7 +193,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-msf NO-LOCK.
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -281,8 +280,8 @@ DEF BUFFER b-eb FOR eb.
 
 DEF VAR li AS INT NO-UNDO.
 DEF VAR ld AS DEC NO-UNDO.
-
-
+    
+    
 FIND eb WHERE ROWID(eb) EQ ip-rowid NO-LOCK NO-ERROR.
 
 IF AVAIL eb THEN DO:

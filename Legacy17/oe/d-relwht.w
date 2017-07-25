@@ -130,13 +130,12 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -176,7 +175,7 @@ END.
 ON CHOOSE OF Btn_Cancel IN FRAME D-Dialog /* Cancel */
 DO:
    assign ls-add-what = "".
-
+ 
 END.
 
 /* _UIB-CODE-BLOCK-END */

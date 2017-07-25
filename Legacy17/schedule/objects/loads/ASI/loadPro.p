@@ -6,7 +6,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 92
+&SCOPED-DEFINE nextUserField 93
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -366,6 +366,28 @@ FUNCTION getLiveUpdate RETURNS LOGICAL
   ELSE RETURN YES.
 END FUNCTION.
 
+FUNCTION getEmpAlert RETURNS CHARACTER
+        (ipRecKey AS CHARACTER):
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    
+    FIND FIRST empalert NO-LOCK 
+         WHERE empalert.table_rec_key EQ ipRecKey
+           AND empalert.spare-char-1  EQ "yes"
+         NO-ERROR.
+    IF NOT AVAILABLE empalert THEN 
+    FIND FIRST empalert NO-LOCK 
+         WHERE empalert.table_rec_key EQ ipRecKey
+         NO-ERROR.
+    IF AVAILABLE empalert THEN DO:
+        FIND FIRST users NO-LOCK 
+             WHERE users.user_id EQ empalert.user-id
+             NO-ERROR.
+        IF AVAILABLE users THEN 
+        cReturn = users.user_name.
+    END.    
+    RETURN cReturn.
+END FUNCTION.
+
 FUNCTION getSalesRep RETURNS CHARACTER
         (ipCompany AS CHARACTER,ipSalesRep AS CHARACTER):
   IF NOT ufGetSalesRep THEN RETURN ''.
@@ -551,8 +573,10 @@ FOR EACH job-hdr NO-LOCK
       AND job-hdr.job-no GE '{&jobNo}'
       &ENDIF
    ,EACH job OF job-hdr NO-LOCK
-   ,FIRST est OF job NO-LOCK
-    WHERE est.est-type GE beginEstType
+   ,FIRST est NO-LOCK
+    WHERE est.company EQ job.company
+      AND est.est-no EQ job.est-no
+      AND est.est-type GE beginEstType
       AND est.est-type LE endEstType
     BREAK BY est.est-type
           BY job-hdr.job-no
@@ -892,6 +916,7 @@ FOR EACH job-hdr NO-LOCK
         custNo = cust.cust-no
         custName = cust.name
         salesRep = cust.sman
+        userField[92] = setUserField(92,getEmpAlert(cust.rec_key))
         .
     END. /* if ufcust */
     
@@ -1802,6 +1827,7 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[89] = 'Created'         userWidth[89] = 15
     userLabel[90] = 'DC Prod Qty'     userWidth[90] = 12
     userLabel[91] = 'First Release'   userWidth[91] = 15
+    userLabel[92] = 'EmpAlert CSR'    userWidth[92] = 30
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1851,7 +1877,7 @@ PROCEDURE setUseFields:
     useField = YES.
 
   ASSIGN
-    ufCust = useField[1] OR useField[2]
+    ufCust = useField[1] OR useField[2] OR useField[92]
     ufBoardName = useField[4]
     ufEB = useField[5]  OR useField[6]  OR useField[8]  OR useField[10] OR useField[11] OR useField[12] OR
            useField[13] OR useField[14] OR useField[24] OR useField[25] OR useField[28] OR useField[35] OR

@@ -770,6 +770,7 @@ DO:
    DO WITH FRAME F-Main:
      ASSIGN {&self-name} = CAPS({&self-name}:SCREEN-VALUE). 
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
      DISP {&self-name} WITH FRAME F-MAIN.
    END.
 END.
@@ -784,6 +785,7 @@ ON VALUE-CHANGED OF fi_i-name IN FRAME F-Main
 DO:
    DO WITH FRAME F-Main:
      ASSIGN {&self-name} = CAPS({&self-name}:SCREEN-VALUE). 
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
      DISP {&self-name} WITH FRAME F-MAIN.
    END.
@@ -804,6 +806,7 @@ DO:
    DO WITH FRAME F-Main:
      ASSIGN {&self-name} = CAPS({&self-name}:SCREEN-VALUE). 
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
      DISP {&self-name} WITH FRAME F-MAIN.
    END.
 
@@ -819,6 +822,7 @@ ON VALUE-CHANGED OF fi_part-no IN FRAME F-Main
 DO:
    DO WITH FRAME F-Main:
      ASSIGN {&self-name} = CAPS({&self-name}:SCREEN-VALUE). 
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
      DISP {&self-name} WITH FRAME F-MAIN.
    END.

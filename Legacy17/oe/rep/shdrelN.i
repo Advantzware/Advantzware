@@ -49,7 +49,9 @@
                 WHEN "v-del-zone" THEN cVarValue = string(v-del-zone).
                 WHEN "style" THEN cVarValue = string(style).
                 WHEN "v-terr" THEN cVarValue = string(v-terr).                
-                WHEN "v-crRate" THEN cVarValue = string(v-crRate). 
+                WHEN "v-crRate" THEN cVarValue = string(v-crRate).
+                WHEN "w-ord-last-date" THEN cVarValue = IF w-ord.last-date NE ? THEN STRING(w-ord.last-date) ELSE "".
+                    
                 WHEN "routing" THEN do:  /* task 04091206*/
                         ASSIGN v-m-code = "" .
                         FOR EACH tt-fg-set:

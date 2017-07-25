@@ -9,7 +9,7 @@
 /*------------------------------------------------------------------------
 
   File: est\d-machex2.w
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -115,10 +115,10 @@ DEFINE BROWSE BROWSE-2
 tt-mach-route.blank-no LABEL "B"              FORMAT ">>9"
 tt-mach-route.m-code   LABEL "Machine" WIDTH 10  
 mach.m-dscr          LABEL "Description"    FORMAT "x(30)"
-tt-mach-route.reason   LABEL "Reason"
+tt-mach-route.reason   LABEL "Reason" FORMAT "x(80)"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 102 BY 12.38
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 134 BY 12.38
          BGCOLOR 8  FIT-LAST-COLUMN.
 
 
@@ -126,9 +126,9 @@ tt-mach-route.reason   LABEL "Reason"
 
 DEFINE FRAME D-Dialog
      BROWSE-2 AT ROW 1.24 COL 2
-     btn-farmout AT ROW 14.33 COL 24.8 WIDGET-ID 2
-     Btn_valid AT ROW 14.33 COL 54
-     SPACE(26.59) SKIP(0.81)
+     btn-farmout AT ROW 14.33 COL 39 WIDGET-ID 2
+     Btn_valid AT ROW 14.33 COL 68.2
+     SPACE(44.99) SKIP(0.81)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Scheduled Machines".
@@ -147,7 +147,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -192,7 +191,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-mach-route NO-LOCK,
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -277,7 +276,7 @@ END.
             tt-mach-route.m-code EQ tt-mach-exc.m-code AND
             tt-mach-route.form-no EQ tt-mach-exc.form-no AND
             tt-mach-route.blank-no EQ tt-mach-exc.blank-no:
-
+      
       ASSIGN
          tt-mach-route.reason = tt-mach-exc.reason
          tt-mach-route.dept = tt-mach-exc.dept
@@ -296,7 +295,7 @@ END.
       tt-mach-route.reason EQ "":
       tt-mach-route.reason = "Valid Machine".
   END.
-
+  
   {src/adm/template/dialogmn.i}
 
 /* _UIB-CODE-BLOCK-END */

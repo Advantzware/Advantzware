@@ -84,7 +84,11 @@ ELSE IF ls-cur-val = 'GRAPHIC' THEN DO:
 END.
 /* gdm - 12170903 */
 ELSE IF ls-cur-val = 'BARDIR' THEN DO:
-
+   
+  MESSAGE "Do you want to display Xprint Values.... "
+    VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+    TITLE "" UPDATE lChoice AS LOGICAL.
+  if not lChoice then Do:
     ASSIGN ip-chrfld = {&tableName}.descrip. 
     
     RUN sys\ref\char-fld-help.w(INPUT gcompany,
@@ -92,7 +96,14 @@ ELSE IF ls-cur-val = 'BARDIR' THEN DO:
                                 OUTPUT v_chrfld).
 
     IF TRIM(v_chrfld) NE ''
-      THEN ASSIGN {&tableName}.char-fld:SCREEN-VALUE = v_chrfld.      
+      THEN ASSIGN {&tableName}.char-fld:SCREEN-VALUE = v_chrfld. 
+  END.
+  ELSE DO: 
+  	RUN windows/l-typxpr.w (OUTPUT char-val).
+  	IF char-val NE '' THEN
+  	{&tableName}.char-fld:SCREEN-VALUE = char-val.
+  	RETURN NO-APPLY.    
+  END.
 
 END.
 ELSE IF ls-cur-val = 'SALESREP' THEN DO:

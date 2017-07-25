@@ -12,11 +12,8 @@
 /*------------------------------------------------------------------------
     File        : mainmenu_stub.p
     Purpose     : 
-
     Syntax      :
-
     Description : 
-
     Author(s)   : 
     Created     : Mon Feb 08 15:50:55 CET 2016
     Notes       :
@@ -26,10 +23,7 @@
 
 {methods/defines/mainmenu.i}
 
-
 /* ***************************  Main Block  *************************** */
-
-
 
 PROCEDURE Set-comp_loc :
 /*------------------------------------------------------------------------------
@@ -44,19 +38,11 @@ PROCEDURE Set-comp_loc :
 
   DEFINE BUFFER sys-ctrl FOR sys-ctrl . 
 
-/*  DO WITH FRAME {&FRAME-NAME}:*/
     ASSIGN
-      /*company_company:SCREEN-VALUE = ip-company  */
-/*      company_name:SCREEN-VALUE = ip-company_name*/
-/*      loc_loc:SCREEN-VALUE = ip-loc              */
-/*      loc_dscr:SCREEN-VALUE = ip-loc_dscr  */
-     /* company_company */
-/*      company_name*/
-/*      loc_loc     */
-    /*  loc_dscr */
       g_company = ip-company
-      g_loc = ip-loc.
-/*  END.*/
+      g_loc = ip-loc
+      .
+
   FIND FIRST sys-ctrl WHERE sys-ctrl.company = g_company AND
      sys-ctrl.NAME = "bitmap" NO-LOCK NO-ERROR.
 
@@ -68,8 +54,5 @@ PROCEDURE Set-comp_loc :
          sys-ctrl.name     = "bitmap"
          sys-ctrl.descrip  = "images\bigboxes".
    END.
-/*  IF AVAIL sys-ctrl AND sys-ctrl.DESCrip <> "" THEN*/
-/*        boxes:LOAD-IMAGE(sys-ctrl.DESCrip).        */
-
 
 END PROCEDURE.

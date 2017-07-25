@@ -3,11 +3,12 @@
 &Scoped-define WINDOW-NAME wWin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS wWin 
 /*------------------------------------------------------------------------
-  File: pt/wQueryBuilder.w
+  File: pt/wQuery.w
   Description: Generic Program to allow users to build/save/open reports for display in Excel
   Input Parameters: <none>
   Output Parameters: <none>
   History: First draft - MYT - 9/22/16
+           Revision: MYT - 5/14/17 - clean up build query issues
   Notes:
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress AB.              */
@@ -29,6 +30,109 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE FRAME-NAME f-main
 &SCOPED-DEFINE IN IN FRAME {&FRAME-NAME}
 &SCOPED-DEFINE SV SCREEN-VALUE {&IN}
+&SCOPED-DEFINE LeaveList ~
+tOpenParen-1,~
+tOpenParen-2,~
+tOpenParen-3,~
+tOpenParen-4,~
+tOpenParen-5,~
+tOpenParen-6,~
+tOpenParen-7,~
+tOpenParen-8,~
+tOpenParen-9,~
+tOpenParen-10,~
+tOpenParen-11,~
+tOpenParen-12,~
+tOpenParen-13,~
+tOpenParen-14,~
+tOpenParen-15,~
+tOpenParen-16,~
+tOpenParen-17,~
+tOpenParen-18,~
+tOpenParen-19,~
+tOpenParen-20,~
+tCloseParen-1,~
+tCloseParen-2,~
+tCloseParen-3,~
+tCloseParen-4,~
+tCloseParen-5,~
+tCloseParen-6,~
+tCloseParen-7,~
+tCloseParen-8,~
+tCloseParen-9,~
+tCloseParen-10,~
+tCloseParen-11,~
+tCloseParen-12,~
+tCloseParen-13,~
+tCloseParen-14,~
+tCloseParen-15,~
+tCloseParen-16,~
+tCloseParen-17,~
+tCloseParen-18,~
+tCloseParen-19,~
+tCloseParen-20,~
+cbWhere-1,~
+cbWhere-2,~
+cbWhere-3,~
+cbWhere-4,~
+cbWhere-5,~
+cbWhere-6,~
+cbWhere-7,~
+cbWhere-8,~
+cbWhere-9,~
+cbWhere-10,~
+cbWhere-11,~
+cbWhere-12,~
+cbWhere-13,~
+cbWhere-14,~
+cbWhere-15,~
+cbWhere-16,~
+cbWhere-17,~
+cbWhere-18,~
+cbWhere-19,~
+cbWhere-20,~
+cbOp-1,~
+cbOp-2,~
+cbOp-3,~
+cbOp-4,~
+cbOp-5,~
+cbOp-6,~
+cbOp-7,~
+cbOp-8,~
+cbOp-9,~
+cbOp-10,~
+cbOp-11,~
+cbOp-12,~
+cbOp-13,~
+cbOp-14,~
+cbOp-15,~
+cbOp-16,~
+cbOp-17,~
+cbOp-18,~
+cbOp-19,~
+cbOp-20,~
+cbAnd-1,~
+cbAnd-2,~
+cbAnd-3,~
+cbAnd-4,~
+cbAnd-6,~
+cbAnd-7,~
+cbAnd-8,~
+cbAnd-9,~
+cbAnd-11,~
+cbAnd-12,~
+cbAnd-13,~
+cbAnd-14,~
+cbAnd-16,~
+cbAnd-17,~
+cbAnd-18,~
+cbAnd-19,~
+cbOf-2,~
+cbOf-3,~
+cbOf-4,~
+cbRel-2,~
+cbRel-3,~
+cbRel-4
 
 DEF VAR cDataType AS CHAR EXTENT 20 NO-UNDO.
 DEF VAR cColList AS CHAR NO-UNDO.
@@ -64,6 +168,11 @@ DEF VAR lQueryOK AS LOG NO-UNDO.
 DEF VAR cDataString AS CHAR NO-UNDO.
 DEF VAR cTempString AS CHAR NO-UNDO.
 DEF VAR lSlide AS LOG NO-UNDO.
+DEF VAR vcbFile-1 AS CHAR NO-UNDO.
+DEF VAR vcbFile-2 AS CHAR NO-UNDO.
+DEF VAR vcbFile-3 AS CHAR NO-UNDO.
+DEF VAR vcbFile-4 AS CHAR NO-UNDO.
+DEF VAR lContinue AS LOG NO-UNDO.
 
 DEF TEMP-TABLE ttColumns
     FIELD cColLabel AS CHAR
@@ -183,6 +292,7 @@ tCloseParen-20
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
+&Scoped-define List-1 cbWhere-1 cbWhere-2 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -220,7 +330,7 @@ DEFINE MENU MENU-BAR-wWin MENUBAR
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON bCalcField 
      LABEL "Add Calc Field" 
-     SIZE 17 BY 1.15.
+     SIZE 17 BY 1.14.
 
 DEFINE BUTTON bCheckSyntax 
      LABEL "Check syntax" 
@@ -233,46 +343,46 @@ DEFINE BUTTON bClear
 DEFINE BUTTON bDown-1 
      IMAGE-UP FILE "images/down.bmp":U
      LABEL "Down" 
-     SIZE 4 BY 1.12.
+     SIZE 4 BY 1.14.
 
 DEFINE BUTTON bDown-2 
      IMAGE-UP FILE "images/down.bmp":U
      LABEL "Down" 
-     SIZE 4 BY 1.12.
+     SIZE 4 BY 1.14.
 
 DEFINE BUTTON bDown-3 
      IMAGE-UP FILE "images/down.bmp":U
      LABEL "Down" 
-     SIZE 4 BY 1.12.
+     SIZE 4 BY 1.14.
 
 DEFINE BUTTON bEditField 
      LABEL "Edit Field" 
-     SIZE 17 BY 1.15.
+     SIZE 17 BY 1.14.
 
 DEFINE BUTTON bExpand 
      IMAGE-UP FILE "images/expand.jpg":U NO-FOCUS FLAT-BUTTON
      LABEL "Button 1" 
-     SIZE 5.14 BY 1.19 TOOLTIP "Expand/Contract Result List".
+     SIZE 5.2 BY 1.19 TOOLTIP "Expand/Contract Result List".
 
 DEFINE BUTTON bFields-1 
      LABEL "F" 
-     SIZE 4 BY 1.15 TOOLTIP "Select Fields to Display".
+     SIZE 4 BY 1.14 TOOLTIP "Select Fields to Display".
 
 DEFINE BUTTON bFields-2 
      LABEL "F" 
-     SIZE 4 BY 1.15 TOOLTIP "Select Fields to Display".
+     SIZE 4 BY 1.14 TOOLTIP "Select Fields to Display".
 
 DEFINE BUTTON bFields-3 
      LABEL "F" 
-     SIZE 4 BY 1.15 TOOLTIP "Select Fields to Display".
+     SIZE 4 BY 1.14 TOOLTIP "Select Fields to Display".
 
 DEFINE BUTTON bFields-4 
      LABEL "F" 
-     SIZE 4 BY 1.15 TOOLTIP "Select Fields to Display".
+     SIZE 4 BY 1.14 TOOLTIP "Select Fields to Display".
 
 DEFINE BUTTON bLineBreak 
      LABEL "Insert Line Break" 
-     SIZE 17 BY 1.15.
+     SIZE 17 BY 1.14.
 
 DEFINE BUTTON bMoveDown 
      LABEL "Move Down" 
@@ -288,22 +398,22 @@ DEFINE BUTTON bProcess
 
 DEFINE BUTTON bRemove 
      LABEL "Remove Field" 
-     SIZE 17 BY 1.15.
+     SIZE 17 BY 1.14.
 
 DEFINE BUTTON bUp-2 
      IMAGE-UP FILE "images/up.bmp":U
      LABEL "Up" 
-     SIZE 4 BY 1.12.
+     SIZE 4 BY 1.14.
 
 DEFINE BUTTON bUp-3 
      IMAGE-UP FILE "images/up.bmp":U
      LABEL "Up" 
-     SIZE 4 BY 1.12.
+     SIZE 4 BY 1.14.
 
 DEFINE BUTTON bUp-4 
      IMAGE-UP FILE "images/up.bmp":U
      LABEL "Up" 
-     SIZE 4 BY 1.12.
+     SIZE 4 BY 1.14.
 
 DEFINE VARIABLE cbAnd-1 AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 3
@@ -676,11 +786,11 @@ DEFINE VARIABLE cbWhere-9 AS CHARACTER FORMAT "X(256)":U
 
 DEFINE VARIABLE eDummy AS CHARACTER 
      VIEW-AS EDITOR NO-WORD-WRAP SCROLLBAR-HORIZONTAL SCROLLBAR-VERTICAL
-     SIZE 62 BY 7.54 NO-UNDO.
+     SIZE 62 BY 7.52 NO-UNDO.
 
 DEFINE VARIABLE eQuery AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 62 BY 6.23 NO-UNDO.
+     SIZE 62 BY 6.24 NO-UNDO.
 
 DEFINE VARIABLE fiLockedCols AS INTEGER FORMAT ">9":U INITIAL 1 
      LABEL "Locked Cols" 
@@ -791,7 +901,7 @@ DEFINE VARIABLE fiWhere-4 AS CHARACTER FORMAT "X(256)":U INITIAL "WHERE"
 
 DEFINE VARIABLE slDisplayFields AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 42 BY 11.77 NO-UNDO.
+     SIZE 42 BY 11.76 NO-UNDO.
 
 DEFINE VARIABLE tCloseParen-1 AS LOGICAL INITIAL no 
      LABEL ")" 
@@ -1017,18 +1127,18 @@ DEFINE VARIABLE tOpenParen-9 AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME f-Main
-     bExpand AT ROW 24.69 COL 96
-     bFields-1 AT ROW 1.27 COL 42
-     cbFile-1 AT ROW 1.46 COL 14 COLON-ALIGNED NO-LABEL
-     tMore-0 AT ROW 1.54 COL 7 WIDGET-ID 2
-     fiRptName AT ROW 1.54 COL 70 COLON-ALIGNED
-     tOpenParen-1 AT ROW 2.77 COL 16
-     cbWhere-1 AT ROW 2.77 COL 18 COLON-ALIGNED NO-LABEL
-     cbOp-1 AT ROW 2.77 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-1 AT ROW 2.77 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-1 AT ROW 2.77 COL 77
-     cbAnd-1 AT ROW 2.77 COL 80 COLON-ALIGNED NO-LABEL
-     bCheckSyntax AT ROW 2.77 COL 145
+     bExpand AT ROW 24.67 COL 96
+     bFields-1 AT ROW 1.29 COL 42
+     cbFile-1 AT ROW 1.48 COL 14 COLON-ALIGNED NO-LABEL
+     tMore-0 AT ROW 1.52 COL 7 WIDGET-ID 2
+     fiRptName AT ROW 1.52 COL 70 COLON-ALIGNED
+     tOpenParen-1 AT ROW 2.76 COL 16
+     cbWhere-1 AT ROW 2.76 COL 18 COLON-ALIGNED NO-LABEL
+     cbOp-1 AT ROW 2.76 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-1 AT ROW 2.76 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-1 AT ROW 2.76 COL 77
+     cbAnd-1 AT ROW 2.76 COL 80 COLON-ALIGNED NO-LABEL
+     bCheckSyntax AT ROW 2.76 COL 145
      tOpenParen-2 AT ROW 4 COL 16
      cbWhere-2 AT ROW 4 COL 18 COLON-ALIGNED NO-LABEL
      cbOp-2 AT ROW 4 COL 40 COLON-ALIGNED NO-LABEL
@@ -1036,55 +1146,55 @@ DEFINE FRAME f-Main
      tCloseParen-2 AT ROW 4 COL 77
      cbAnd-2 AT ROW 4 COL 80 COLON-ALIGNED NO-LABEL
      eQuery AT ROW 4 COL 101 NO-LABEL
-     bDown-1 AT ROW 4.23 COL 7 WIDGET-ID 8
-     tOpenParen-3 AT ROW 5.23 COL 16
-     cbWhere-3 AT ROW 5.23 COL 18 COLON-ALIGNED NO-LABEL
-     cbOp-3 AT ROW 5.23 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-3 AT ROW 5.23 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-3 AT ROW 5.23 COL 77
-     cbAnd-3 AT ROW 5.23 COL 80 COLON-ALIGNED NO-LABEL
-     tOpenParen-4 AT ROW 6.54 COL 16
-     cbWhere-4 AT ROW 6.54 COL 18 COLON-ALIGNED NO-LABEL
-     cbOp-4 AT ROW 6.54 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-4 AT ROW 6.54 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-4 AT ROW 6.54 COL 77
-     cbAnd-4 AT ROW 6.54 COL 80 COLON-ALIGNED NO-LABEL
-     tOpenParen-5 AT ROW 7.77 COL 16
-     cbWhere-5 AT ROW 7.77 COL 18 COLON-ALIGNED NO-LABEL
-     cbOp-5 AT ROW 7.77 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-5 AT ROW 7.77 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-5 AT ROW 7.77 COL 77
-     bFields-2 AT ROW 9.08 COL 42
-     tMore-1 AT ROW 9.35 COL 7
-     cbFile-2 AT ROW 9.35 COL 14 COLON-ALIGNED NO-LABEL
-     cbOf-2 AT ROW 9.35 COL 45 COLON-ALIGNED NO-LABEL
-     cbRel-2 AT ROW 9.35 COL 57 COLON-ALIGNED NO-LABEL
-     fiWhere-2 AT ROW 9.35 COL 82 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     tOpenParen-6 AT ROW 10.54 COL 16
-     cbWhere-6 AT ROW 10.54 COL 18 COLON-ALIGNED NO-LABEL
-     cbOp-6 AT ROW 10.54 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-6 AT ROW 10.54 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-6 AT ROW 10.54 COL 77
-     cbAnd-6 AT ROW 10.54 COL 80 COLON-ALIGNED NO-LABEL
-     bUp-2 AT ROW 10.69 COL 7 WIDGET-ID 12
-     fiLockedCols AT ROW 11.46 COL 155 COLON-ALIGNED
-     slDisplayFields AT ROW 11.54 COL 101 NO-LABEL
-     tOpenParen-7 AT ROW 11.77 COL 16
-     cbWhere-7 AT ROW 11.77 COL 18 COLON-ALIGNED NO-LABEL
-     cbOp-7 AT ROW 11.77 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-7 AT ROW 11.77 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-7 AT ROW 11.77 COL 77
-     cbAnd-7 AT ROW 11.77 COL 80 COLON-ALIGNED NO-LABEL
-     bDown-2 AT ROW 12.04 COL 7 WIDGET-ID 10
-     fiPagesWide AT ROW 12.96 COL 155 COLON-ALIGNED
+     bDown-1 AT ROW 4.24 COL 7 WIDGET-ID 8
+     tOpenParen-3 AT ROW 5.24 COL 16
+     cbWhere-3 AT ROW 5.24 COL 18 COLON-ALIGNED NO-LABEL
+     cbOp-3 AT ROW 5.24 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-3 AT ROW 5.24 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-3 AT ROW 5.24 COL 77
+     cbAnd-3 AT ROW 5.24 COL 80 COLON-ALIGNED NO-LABEL
+     tOpenParen-4 AT ROW 6.52 COL 16
+     cbWhere-4 AT ROW 6.52 COL 18 COLON-ALIGNED NO-LABEL
+     cbOp-4 AT ROW 6.52 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-4 AT ROW 6.52 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-4 AT ROW 6.52 COL 77
+     cbAnd-4 AT ROW 6.52 COL 80 COLON-ALIGNED NO-LABEL
+     tOpenParen-5 AT ROW 7.76 COL 16
+     cbWhere-5 AT ROW 7.76 COL 18 COLON-ALIGNED NO-LABEL
+     cbOp-5 AT ROW 7.76 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-5 AT ROW 7.76 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-5 AT ROW 7.76 COL 77
+     bFields-2 AT ROW 9.1 COL 42
+     tMore-1 AT ROW 9.33 COL 7
+     cbFile-2 AT ROW 9.33 COL 14 COLON-ALIGNED NO-LABEL
+     cbOf-2 AT ROW 9.33 COL 45 COLON-ALIGNED NO-LABEL
+     cbRel-2 AT ROW 9.33 COL 57 COLON-ALIGNED NO-LABEL
+     fiWhere-2 AT ROW 9.33 COL 82 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     tOpenParen-6 AT ROW 10.52 COL 16
+     cbWhere-6 AT ROW 10.52 COL 18 COLON-ALIGNED NO-LABEL
+     cbOp-6 AT ROW 10.52 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-6 AT ROW 10.52 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-6 AT ROW 10.52 COL 77
+     cbAnd-6 AT ROW 10.52 COL 80 COLON-ALIGNED NO-LABEL
+     bUp-2 AT ROW 10.67 COL 7 WIDGET-ID 12
+     fiLockedCols AT ROW 11.48 COL 155 COLON-ALIGNED
+     slDisplayFields AT ROW 11.52 COL 101 NO-LABEL
+     tOpenParen-7 AT ROW 11.76 COL 16
+     cbWhere-7 AT ROW 11.76 COL 18 COLON-ALIGNED NO-LABEL
+     cbOp-7 AT ROW 11.76 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-7 AT ROW 11.76 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-7 AT ROW 11.76 COL 77
+     cbAnd-7 AT ROW 11.76 COL 80 COLON-ALIGNED NO-LABEL
+     bDown-2 AT ROW 12.05 COL 7 WIDGET-ID 10
+     fiPagesWide AT ROW 12.95 COL 155 COLON-ALIGNED
      tOpenParen-8 AT ROW 13 COL 16
      cbWhere-8 AT ROW 13 COL 18 COLON-ALIGNED NO-LABEL
      cbOp-8 AT ROW 13 COL 40 COLON-ALIGNED NO-LABEL
      fiVal-8 AT ROW 13 COL 52 COLON-ALIGNED NO-LABEL
      tCloseParen-8 AT ROW 13 COL 77
      cbAnd-8 AT ROW 13 COL 80 COLON-ALIGNED NO-LABEL
-     tOpenParen-9 AT ROW 14.23 COL 16
-     cbWhere-9 AT ROW 14.23 COL 18 COLON-ALIGNED NO-LABEL
+     tOpenParen-9 AT ROW 14.24 COL 16
+     cbWhere-9 AT ROW 14.24 COL 18 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1092,67 +1202,67 @@ DEFINE FRAME f-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME f-Main
-     cbOp-9 AT ROW 14.23 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-9 AT ROW 14.23 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-9 AT ROW 14.23 COL 77
-     cbAnd-9 AT ROW 14.23 COL 80 COLON-ALIGNED NO-LABEL
-     bMoveUp AT ROW 14.46 COL 146
-     tOpenParen-10 AT ROW 15.54 COL 16
-     cbWhere-10 AT ROW 15.54 COL 18 COLON-ALIGNED NO-LABEL
-     cbOp-10 AT ROW 15.54 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-10 AT ROW 15.54 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-10 AT ROW 15.54 COL 77
-     bMoveDown AT ROW 15.69 COL 146
-     tMore-2 AT ROW 16.88 COL 7
-     bFields-3 AT ROW 16.88 COL 42
-     fiWhere-3 AT ROW 16.88 COL 82 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     cbFile-3 AT ROW 16.96 COL 14 COLON-ALIGNED NO-LABEL
-     cbOf-3 AT ROW 16.96 COL 45 COLON-ALIGNED NO-LABEL
-     cbRel-3 AT ROW 16.96 COL 57 COLON-ALIGNED NO-LABEL
-     bRemove AT ROW 16.96 COL 146
-     tOpenParen-11 AT ROW 18.23 COL 16
-     cbWhere-11 AT ROW 18.23 COL 18 COLON-ALIGNED NO-LABEL
-     cbOp-11 AT ROW 18.23 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-11 AT ROW 18.23 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-11 AT ROW 18.23 COL 77
-     cbAnd-11 AT ROW 18.23 COL 80 COLON-ALIGNED NO-LABEL
-     bCalcField AT ROW 18.46 COL 146
-     bUp-3 AT ROW 18.5 COL 7 WIDGET-ID 16
-     tOpenParen-12 AT ROW 19.54 COL 16
-     cbWhere-12 AT ROW 19.54 COL 18 COLON-ALIGNED NO-LABEL
-     cbOp-12 AT ROW 19.54 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-12 AT ROW 19.54 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-12 AT ROW 19.54 COL 77
-     cbAnd-12 AT ROW 19.54 COL 80 COLON-ALIGNED NO-LABEL
-     bDown-3 AT ROW 19.85 COL 7 WIDGET-ID 14
-     bEditField AT ROW 19.96 COL 146
-     tOpenParen-13 AT ROW 20.77 COL 16
-     cbWhere-13 AT ROW 20.77 COL 18 COLON-ALIGNED NO-LABEL
-     cbOp-13 AT ROW 20.77 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-13 AT ROW 20.77 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-13 AT ROW 20.77 COL 77
-     cbAnd-13 AT ROW 20.77 COL 80 COLON-ALIGNED NO-LABEL
-     bLineBreak AT ROW 21.46 COL 146
+     cbOp-9 AT ROW 14.24 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-9 AT ROW 14.24 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-9 AT ROW 14.24 COL 77
+     cbAnd-9 AT ROW 14.24 COL 80 COLON-ALIGNED NO-LABEL
+     bMoveUp AT ROW 14.48 COL 146
+     tOpenParen-10 AT ROW 15.52 COL 16
+     cbWhere-10 AT ROW 15.52 COL 18 COLON-ALIGNED NO-LABEL
+     cbOp-10 AT ROW 15.52 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-10 AT ROW 15.52 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-10 AT ROW 15.52 COL 77
+     bMoveDown AT ROW 15.67 COL 146
+     tMore-2 AT ROW 16.86 COL 7
+     bFields-3 AT ROW 16.86 COL 42
+     fiWhere-3 AT ROW 16.86 COL 82 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     cbFile-3 AT ROW 16.95 COL 14 COLON-ALIGNED NO-LABEL
+     cbOf-3 AT ROW 16.95 COL 45 COLON-ALIGNED NO-LABEL
+     cbRel-3 AT ROW 16.95 COL 57 COLON-ALIGNED NO-LABEL
+     bRemove AT ROW 16.95 COL 146
+     tOpenParen-11 AT ROW 18.24 COL 16
+     cbWhere-11 AT ROW 18.24 COL 18 COLON-ALIGNED NO-LABEL
+     cbOp-11 AT ROW 18.24 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-11 AT ROW 18.24 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-11 AT ROW 18.24 COL 77
+     cbAnd-11 AT ROW 18.24 COL 80 COLON-ALIGNED NO-LABEL
+     bCalcField AT ROW 18.48 COL 146
+     bUp-3 AT ROW 18.52 COL 7 WIDGET-ID 16
+     tOpenParen-12 AT ROW 19.52 COL 16
+     cbWhere-12 AT ROW 19.52 COL 18 COLON-ALIGNED NO-LABEL
+     cbOp-12 AT ROW 19.52 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-12 AT ROW 19.52 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-12 AT ROW 19.52 COL 77
+     cbAnd-12 AT ROW 19.52 COL 80 COLON-ALIGNED NO-LABEL
+     bDown-3 AT ROW 19.86 COL 7 WIDGET-ID 14
+     bEditField AT ROW 19.95 COL 146
+     tOpenParen-13 AT ROW 20.76 COL 16
+     cbWhere-13 AT ROW 20.76 COL 18 COLON-ALIGNED NO-LABEL
+     cbOp-13 AT ROW 20.76 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-13 AT ROW 20.76 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-13 AT ROW 20.76 COL 77
+     cbAnd-13 AT ROW 20.76 COL 80 COLON-ALIGNED NO-LABEL
+     bLineBreak AT ROW 21.48 COL 146
      tOpenParen-14 AT ROW 22 COL 16
      cbWhere-14 AT ROW 22 COL 18 COLON-ALIGNED NO-LABEL
      cbOp-14 AT ROW 22 COL 40 COLON-ALIGNED NO-LABEL
      fiVal-14 AT ROW 22 COL 52 COLON-ALIGNED NO-LABEL
      tCloseParen-14 AT ROW 22 COL 77
      cbAnd-14 AT ROW 22 COL 80 COLON-ALIGNED NO-LABEL
-     tOpenParen-15 AT ROW 23.23 COL 16
-     cbWhere-15 AT ROW 23.23 COL 18 COLON-ALIGNED NO-LABEL
-     cbOp-15 AT ROW 23.23 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-15 AT ROW 23.23 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-15 AT ROW 23.23 COL 77
-     bProcess AT ROW 23.54 COL 124
+     tOpenParen-15 AT ROW 23.24 COL 16
+     cbWhere-15 AT ROW 23.24 COL 18 COLON-ALIGNED NO-LABEL
+     cbOp-15 AT ROW 23.24 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-15 AT ROW 23.24 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-15 AT ROW 23.24 COL 77
+     bProcess AT ROW 23.52 COL 124
      bClear AT ROW 23.62 COL 148
-     bFields-4 AT ROW 24.42 COL 42
-     tMore-3 AT ROW 24.69 COL 7
-     cbFile-4 AT ROW 24.69 COL 14 COLON-ALIGNED NO-LABEL
-     cbOf-4 AT ROW 24.69 COL 45 COLON-ALIGNED NO-LABEL
-     fiWhere-4 AT ROW 24.69 COL 82 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
-     cbRel-4 AT ROW 24.73 COL 57 COLON-ALIGNED NO-LABEL
-     eDummy AT ROW 24.77 COL 101 NO-LABEL NO-TAB-STOP 
+     bFields-4 AT ROW 24.43 COL 42
+     tMore-3 AT ROW 24.67 COL 7
+     cbFile-4 AT ROW 24.67 COL 14 COLON-ALIGNED NO-LABEL
+     cbOf-4 AT ROW 24.67 COL 45 COLON-ALIGNED NO-LABEL
+     fiWhere-4 AT ROW 24.67 COL 82 COLON-ALIGNED NO-LABEL NO-TAB-STOP 
+     cbRel-4 AT ROW 24.71 COL 57 COLON-ALIGNED NO-LABEL
+     eDummy AT ROW 24.76 COL 101 NO-LABEL NO-TAB-STOP 
      tOpenParen-16 AT ROW 26 COL 16
      cbWhere-16 AT ROW 26 COL 18 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -1166,42 +1276,42 @@ DEFINE FRAME f-Main
      fiVal-16 AT ROW 26 COL 52 COLON-ALIGNED NO-LABEL
      tCloseParen-16 AT ROW 26 COL 77
      cbAnd-16 AT ROW 26 COL 80 COLON-ALIGNED NO-LABEL
-     bUp-4 AT ROW 26.04 COL 7 WIDGET-ID 20
-     tOpenParen-17 AT ROW 27.23 COL 16
-     cbWhere-17 AT ROW 27.23 COL 18 COLON-ALIGNED NO-LABEL
-     cbOp-17 AT ROW 27.23 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-17 AT ROW 27.23 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-17 AT ROW 27.23 COL 77
-     cbAnd-17 AT ROW 27.23 COL 80 COLON-ALIGNED NO-LABEL
-     tOpenParen-18 AT ROW 28.54 COL 16
-     cbWhere-18 AT ROW 28.54 COL 18 COLON-ALIGNED NO-LABEL
-     cbOp-18 AT ROW 28.54 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-18 AT ROW 28.54 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-18 AT ROW 28.54 COL 77
-     cbAnd-18 AT ROW 28.54 COL 80 COLON-ALIGNED NO-LABEL
-     tOpenParen-19 AT ROW 29.77 COL 16
-     cbWhere-19 AT ROW 29.77 COL 18 COLON-ALIGNED NO-LABEL
-     cbOp-19 AT ROW 29.77 COL 40 COLON-ALIGNED NO-LABEL
-     fiVal-19 AT ROW 29.77 COL 52 COLON-ALIGNED NO-LABEL
-     tCloseParen-19 AT ROW 29.77 COL 77
-     cbAnd-19 AT ROW 29.77 COL 80 COLON-ALIGNED NO-LABEL
+     bUp-4 AT ROW 26.05 COL 7 WIDGET-ID 20
+     tOpenParen-17 AT ROW 27.24 COL 16
+     cbWhere-17 AT ROW 27.24 COL 18 COLON-ALIGNED NO-LABEL
+     cbOp-17 AT ROW 27.24 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-17 AT ROW 27.24 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-17 AT ROW 27.24 COL 77
+     cbAnd-17 AT ROW 27.24 COL 80 COLON-ALIGNED NO-LABEL
+     tOpenParen-18 AT ROW 28.52 COL 16
+     cbWhere-18 AT ROW 28.52 COL 18 COLON-ALIGNED NO-LABEL
+     cbOp-18 AT ROW 28.52 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-18 AT ROW 28.52 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-18 AT ROW 28.52 COL 77
+     cbAnd-18 AT ROW 28.52 COL 80 COLON-ALIGNED NO-LABEL
+     tOpenParen-19 AT ROW 29.76 COL 16
+     cbWhere-19 AT ROW 29.76 COL 18 COLON-ALIGNED NO-LABEL
+     cbOp-19 AT ROW 29.76 COL 40 COLON-ALIGNED NO-LABEL
+     fiVal-19 AT ROW 29.76 COL 52 COLON-ALIGNED NO-LABEL
+     tCloseParen-19 AT ROW 29.76 COL 77
+     cbAnd-19 AT ROW 29.76 COL 80 COLON-ALIGNED NO-LABEL
      tOpenParen-20 AT ROW 31 COL 16
      cbWhere-20 AT ROW 31 COL 18 COLON-ALIGNED NO-LABEL
      cbOp-20 AT ROW 31 COL 40 COLON-ALIGNED NO-LABEL
      fiVal-20 AT ROW 31 COL 52 COLON-ALIGNED NO-LABEL
      tCloseParen-20 AT ROW 31 COL 77
+     "RESULT LIST" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 23.52 COL 100
      "WHERE" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 1.46 COL 47
+          SIZE 8 BY 1 AT ROW 1.48 COL 47
      "QUERY STRING:" VIEW-AS TEXT
           SIZE 17 BY 1 AT ROW 3 COL 100
      "(Calculated field values are only displayed after Export.)" VIEW-AS TEXT
-          SIZE 55 BY .65 AT ROW 32.19 COL 101
+          SIZE 55 BY .67 AT ROW 32.19 COL 101
      "DISPLAY FIELDS" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 10.54 COL 100
+          SIZE 17 BY 1 AT ROW 10.52 COL 100
      "FOR" VIEW-AS TEXT
-          SIZE 5 BY 1.08 AT ROW 1.54 COL 2 WIDGET-ID 4
-     "RESULT LIST" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 23.54 COL 100
+          SIZE 5 BY 1.1 AT ROW 1.52 COL 2 WIDGET-ID 4
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -1225,12 +1335,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW wWin ASSIGN
          HIDDEN             = YES
          TITLE              = "Advantzware Query Builder"
-         HEIGHT             = 31.96
+         HEIGHT             = 31.95
          WIDTH              = 164
-         MAX-HEIGHT         = 44.04
-         MAX-WIDTH          = 274.14
-         VIRTUAL-HEIGHT     = 44.04
-         VIRTUAL-WIDTH      = 274.14
+         MAX-HEIGHT         = 44.05
+         MAX-WIDTH          = 274.2
+         VIRTUAL-HEIGHT     = 44.05
+         VIRTUAL-WIDTH      = 274.2
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -1263,6 +1373,10 @@ ASSIGN {&WINDOW-NAME}:MENUBAR    = MENU MENU-BAR-wWin:HANDLE.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME f-Main
    FRAME-NAME                                                           */
+/* SETTINGS FOR COMBO-BOX cbWhere-1 IN FRAME f-Main
+   1                                                                    */
+/* SETTINGS FOR COMBO-BOX cbWhere-2 IN FRAME f-Main
+   1                                                                    */
 /* SETTINGS FOR EDITOR eDummy IN FRAME f-Main
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
@@ -1311,9 +1425,7 @@ DO:
         RELEASE OBJECT chWorkBook         NO-ERROR.
         RELEASE OBJECT chExcelApplication NO-ERROR.
     END.
-    QUIT.
     APPLY "CLOSE":U TO THIS-PROCEDURE.
-    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1919,6 +2031,24 @@ END.
 
 &Scoped-define SELF-NAME cbFile-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbFile-1 wWin
+ON ENTRY OF cbFile-1 IN FRAME f-Main
+OR ENTRY of cbFile-2
+OR ENTRY of cbFile-3
+OR ENTRY of cbFile-4
+DO:
+    CASE SELF:NAME:
+        WHEN "cbFile-1" THEN ASSIGN vcbFile-1 = SELF:{&SV}.
+        WHEN "cbFile-2" THEN ASSIGN vcbFile-2 = SELF:{&SV}.
+        WHEN "cbFile-3" THEN ASSIGN vcbFile-3 = SELF:{&SV}.
+        WHEN "cbFile-4" THEN ASSIGN vcbFile-4 = SELF:{&SV}.
+    END CASE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbFile-1 wWin
 ON LEAVE OF cbFile-1 IN FRAME f-Main
 OR leave OF cbFile-2
 OR leave OF cbFile-3
@@ -1931,12 +2061,15 @@ DO:
     ASSIGN 
         lProcessed = FALSE.
 
+    main-block:
+    DO ON ENDKEY UNDO, LEAVE:
     FIND _file WHERE
         _file._file-name = entry(1,SELF:{&SV})
         NO-LOCK NO-ERROR.
     IF AVAIL _file THEN DO:
         CASE SELF:NAME:
             WHEN "cbFile-1" THEN DO:
+                IF SELF:{&SV} = vcbFile-1 THEN LEAVE main-block.
                 ASSIGN
                     cbWhere-1:LIST-ITEMS = "-"
                     cbWhere-2:LIST-ITEMS = "-"
@@ -1976,6 +2109,7 @@ DO:
                     .
             END.
             WHEN "cbFile-2" THEN DO:
+                IF SELF:{&SV} = vcbFile-2 THEN LEAVE main-block.
                 ASSIGN
                     cbWhere-6:LIST-ITEMS = "-"
                     cbWhere-7:LIST-ITEMS = "-"
@@ -2015,6 +2149,7 @@ DO:
                     .
             END.
             WHEN "cbFile-3" THEN DO:
+                IF SELF:{&SV} = vcbFile-3 THEN LEAVE main-block.
                 ASSIGN
                     cbWhere-11:LIST-ITEMS = "-"
                     cbWhere-12:LIST-ITEMS = "-"
@@ -2054,6 +2189,7 @@ DO:
                     .
             END.
             WHEN "cbFile-4" THEN DO:
+                IF SELF:{&SV} = vcbFile-4 THEN LEAVE main-block.
                 ASSIGN
                     cbWhere-16:LIST-ITEMS = "-"
                     cbWhere-17:LIST-ITEMS = "-"
@@ -2113,6 +2249,7 @@ DO:
         cbRel-3:{&SV} = IF CAN-DO(cbRel-3:LIST-ITEMS,val3) THEN val3 ELSE "-"
         cbRel-4:{&SV} = IF CAN-DO(cbRel-4:LIST-ITEMS,val4) THEN val4 ELSE "-"
         .
+    END. /* main-block */
     
     IF NOT lLoading THEN
         RUN ipShowQuery IN THIS-PROCEDURE.
@@ -2361,6 +2498,12 @@ OR LEAVE OF fiVal-18
 OR LEAVE OF fiVal-19
 OR LEAVE OF fiVal-20
 DO:
+    ASSIGN lProcessed = FALSE.
+    IF NOT lLoading THEN
+        RUN ipShowQuery IN THIS-PROCEDURE.
+END.
+
+ON LEAVE OF {&LeaveList} DO:
     ASSIGN lProcessed = FALSE.
     IF NOT lLoading THEN
         RUN ipShowQuery IN THIS-PROCEDURE.
@@ -2791,6 +2934,14 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+RUN util/chk-mod.p ("ASI","wquery.") NO-ERROR.
+lContinue = NOT ERROR-STATUS:ERROR.
+
+IF lContinue EQ NO THEN DO:
+    APPLY "CLOSE":U TO THIS-PROCEDURE.
+    RETURN.
+END.
+
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm2/windowmn.i}
 
@@ -2977,7 +3128,44 @@ PROCEDURE initializeObject :
         cbRel-2:LIST-ITEMS = "-"
         cbRel-3:LIST-ITEMS = "-"
         cbRel-4:LIST-ITEMS = "-"
+        cbOp-1:{&SV} = "="
+        cbOp-2:{&SV} = "="
+        cbOp-3:{&SV} = "="
+        cbOp-4:{&SV} = "="
+        cbOp-5:{&SV} = "="
+        cbOp-6:{&SV} = "="
+        cbOp-7:{&SV} = "="
+        cbOp-8:{&SV} = "="
+        cbOp-9:{&SV} = "="
+        cbOp-10:{&SV} = "="
+        cbOp-11:{&SV} = "="
+        cbOp-12:{&SV} = "="
+        cbOp-13:{&SV} = "="
+        cbOp-14:{&SV} = "="
+        cbOp-15:{&SV} = "="
+        cbOp-16:{&SV} = "="
+        cbOp-17:{&SV} = "="
+        cbOp-18:{&SV} = "="
+        cbOp-19:{&SV} = "="
+        cbOp-20:{&SV} = "="
+        cbAnd-1:{&SV} = "-"
+        cbAnd-2:{&SV} = "-"
+        cbAnd-3:{&SV} = "-"
+        cbAnd-4:{&SV} = "-"
+        cbAnd-6:{&SV} = "-"
+        cbAnd-7:{&SV} = "-"
+        cbAnd-8:{&SV} = "-"
+        cbAnd-9:{&SV} = "-"
+        cbAnd-11:{&SV} = "-"
+        cbAnd-12:{&SV} = "-"
+        cbAnd-13:{&SV} = "-"
+        cbAnd-14:{&SV} = "-"
+        cbAnd-16:{&SV} = "-"
+        cbAnd-17:{&SV} = "-"
+        cbAnd-18:{&SV} = "-"
+        cbAnd-19:{&SV} = "-"
         .
+    SESSION:SET-WAIT-STATE("").
 
 END PROCEDURE.
 
@@ -3142,6 +3330,21 @@ PROCEDURE ipClearQuery :
         cbRel-4:LIST-ITEMS = "-"
         .
         
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCopyToClip wWin 
+PROCEDURE ipCopyToClip :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    MESSAGE
+        "Copying to the clipboard is not available in this version."
+        VIEW-AS ALERT-BOX.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3514,6 +3717,19 @@ PROCEDURE ipExcel :
     SESSION:SET-WAIT-STATE("").
     STATUS DEFAULT cStatus.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGetAll wWin 
+PROCEDURE ipGetAll :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    hBrowse:select-all.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4500,6 +4716,8 @@ PROCEDURE ipProcessQuery :
         VISIBLE = TRUE
         NO-VALIDATE = TRUE
         TRIGGERS:
+            ON CTRL-A PERSISTENT RUN ipGetAll.
+            ON CTRL-C PERSISTENT RUN ipCopyToClip.
         END TRIGGERS.
         . 
 

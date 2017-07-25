@@ -20,6 +20,7 @@ DEF VAR v-b-word-created AS LOG NO-UNDO.
 DEF VAR lv-message AS cha NO-UNDO.
 DEF VAR op-warning AS LOG NO-UNDO.
 DEF VAR var-display-warning AS LOG NO-UNDO.
+DEFINE VARIABLE cLoadtagFile AS CHARACTER NO-UNDO.
 
 SESSION:SET-WAIT-STATE ("general").
 
@@ -286,12 +287,14 @@ ASSIGN
   {sys/inc/outprint.i value(lines-per-page)} 
       VIEW FRAME r-top.
       VIEW FRAME top.
-  IF v-out = "" THEN v-out = "c:~\ba~\label~\loadtag.txt".
+  IF cBarCodeProgram EQ 'Loftware' then cLoadtagFile = 'loadtag.lt'.
+  ELSE cLoadtagFile EQ 'loadtag.txt'.
+  IF v-out = "" THEN v-out = "c:~\ba~\label~\" + cLoadtagFile.
   ELSE do:
      IF SUBSTRING(v-out,LENGTH(v-out),1) = "/" OR
         SUBSTRING(v-out,LENGTH(v-out),1) = "\" THEN .
      ELSE v-out = v-out + "/".
-     v-out = v-out + "loadtag.txt".
+     v-out = v-out + cLoadtagFile.
   END.
   IF choice THEN DO:
     IF OPSYS eq "UNIX" and v-loadtag ne "TRIAD" THEN DO:

@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:50 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -228,6 +228,7 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL reftable.loc V-table-Win
 ON LEAVE OF reftable.loc IN FRAME F-Main /* Date */
 DO:
+  {&methods/lValidateError.i YES}
   DEF VAR dTempDate AS DATE INIT ?.
   dTempDate = DATE(SELF:SCREEN-VALUE) NO-ERROR.
   IF dTempDate EQ ? THEN DO:
@@ -235,9 +236,9 @@ DO:
       VIEW-AS ALERT-BOX INFO BUTTONS OK.
     RETURN NO-APPLY.
   END.
-
-
+  {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

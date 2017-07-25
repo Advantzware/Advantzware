@@ -31,11 +31,11 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
-&SCOPED-DEFINE dataGridInclude dataGrid\addon\browsers\machsft2.i
 &SCOPED-DEFINE yellowColumnsName machshft
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i} /* added by script _globdefs.p */
 
 
 DEFINE VARIABLE mach_m-dscr AS CHARACTER NO-UNDO.
@@ -268,12 +268,12 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE br_table
 /* Query rebuild information for BROWSE br_table
-     _TblList          = "EMPTRACK.machshft WHERE ASI.mach <external> ..."
+     _TblList          = "machshft WHERE ASI.mach <external> ..."
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _JoinCode[1]      = "EMPTRACK.machshft.company = ASI.mach.company
-  AND EMPTRACK.machshft.machine = ASI.mach.m-code"
-     _FldNameList[1]   > EMPTRACK.machshft.shift
-"EMPTRACK.machshft.shift" ? "xx" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+     _JoinCode[1]      = "machshft.company = ASI.mach.company
+  AND machshft.machine = ASI.mach.m-code"
+     _FldNameList[1]   > machshft.shift
+"machshft.shift" ? "xx" "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > "_<CALC>"
 "shift_description(machshft.shift) @ shifts_description" "Description" "x(40)" ? ? ? ? ? ? ? no ? no no "40.6" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"

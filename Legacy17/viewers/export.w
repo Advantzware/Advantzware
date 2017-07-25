@@ -158,7 +158,7 @@ DO:
 
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,'export-xl-source':U,OUTPUT char-hdl).
     RUN export-xl in WIDGET-HANDLE(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:25 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */

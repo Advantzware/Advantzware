@@ -81,7 +81,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
    v-outfile[1] = trim(hrms-dir) + v-slash + "dataxfer" +
                   v-slash + "in" + v-slash
    v-outfile[2] = v-outfile[1] + string(time,"99999999")
-   v-outfile[3] = "po_" + trim(v-format) + "philcor" +
+   v-outfile[3] = "po_" + trim(v-format) + vend.vend-no +
                   substr(string(year(today),"9999"),3,2) +
                   string(month(today),"99") +
                   string(day(today),"99") +

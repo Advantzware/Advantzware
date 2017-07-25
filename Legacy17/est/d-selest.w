@@ -177,7 +177,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -221,7 +220,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-est,
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -236,7 +235,7 @@ DO:
     DEF VAR lw-focus AS HANDLE NO-UNDO.
 
     lw-focus = FOCUS.
-
+    
     case lw-focus:name :
          when "fi_est-no" then do:
               IF lv-both EQ NO THEN
@@ -289,8 +288,15 @@ DO:
     ASSIGN {&displayed-objects}.
 
     RUN build-table.
-
-    {&OPEN-BROWSERS-IN-QUERY-{&FRAME-NAME}}
+    IF NOT CAN-FIND (FIRST tt-est) THEN 
+        MESSAGE "Estimate does not qualify as a Master Tandem.  Review that estimate and parts meet the following criteria:" SKIP 
+             " * Must be an original estimate (no Estimate # shown in the 'From:' field on the Specs Tab)" SKIP 
+             " * All parts must be the same style" SKIP
+             " * All parts must be the same dimensions" SKIP 
+             " * All parts must be separate forms (no combos)" SKIP 
+             " * All forms must have the same dimensions"
+             VIEW-AS ALERT-BOX TITLE "Not a Master Tandem Estimate" .
+        {&OPEN-BROWSERS-IN-QUERY-{&FRAME-NAME}}
 
     RUN dispatch ("enable").
   END.
@@ -319,7 +325,7 @@ DO:
   DEF VAR lj AS INT NO-UNDO.
   DEF VAR lv-ef-rowid AS ROWID NO-UNDO.
   DEF VAR lv-msg AS CHAR NO-UNDO.
-
+  
   RELEASE eb.
   RELEASE ef.
   RELEASE est-qty.
@@ -332,9 +338,9 @@ DO:
 
   IF ip-rowid EQ ? AND AVAIL tt-est THEN
     IF lv-est-type EQ 4 THEN
-      RUN ce/new-est.p (lv-est-type, OUTPUT ip-rowid).
+      RUN est/NewEstimate.p ('F', lv-est-type, OUTPUT ip-rowid).
     ELSE
-      RUN cec/new-est.p (lv-est-type, OUTPUT ip-rowid).
+      RUN est/NewEstimate.p ('C', lv-est-type, OUTPUT ip-rowid).
 
   op-rowid = ip-rowid.
 
@@ -611,7 +617,7 @@ PROCEDURE build-table :
   DEF VAR lv-loc LIKE eb.loc INIT "" NO-UNDO.
 
   EMPTY TEMP-TABLE tt-est.
-
+                             
   IF fi_est-no NE "" THEN
   FOR EACH eb
       WHERE eb.company  EQ cocode
@@ -671,7 +677,7 @@ PROCEDURE create-tt :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR ll-valid AS LOG NO-UNDO.
-
+  
   FIND FIRST est
       WHERE est.company EQ eb.company
         AND est.est-no  EQ eb.est-no
@@ -760,7 +766,7 @@ PROCEDURE local-enable :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable':U ) .
 

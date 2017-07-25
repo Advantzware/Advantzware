@@ -101,7 +101,7 @@ DEFINE FRAME F-Main
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartViewer
+   Type: SmartPanel
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -152,6 +152,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       btn_hold:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -182,7 +186,7 @@ DO:
     RUN get-status IN WIDGET-HANDLE(char-hdl) (OUTPUT v-status).
     RUN set-status-btn-lbl(INPUT v-status).
     SESSION:SET-WAIT-STATE("").
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -201,6 +205,8 @@ END.
   &ENDIF
 
   /************************ INTERNAL PROCEDURES ********************/
+
+  {methods/setButton.i btn_hold "Hold"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -257,7 +263,7 @@ PROCEDURE send-records :
 ------------------------------------------------------------------------------*/
 
   /* SEND-RECORDS does nothing because there are no External
-     Tables specified for this SmartViewer, and there are no
+     Tables specified for this SmartPanel, and there are no
      tables specified in any contained Browse, Query, or Frame. */
 
 END PROCEDURE.

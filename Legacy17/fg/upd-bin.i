@@ -1,9 +1,9 @@
 
-if {1}.pur-uom eq "" then {1}.pur-uom = itemfg.prod-uom.
+IF {1}.pur-uom EQ "" THEN {1}.pur-uom = itemfg.prod-uom.
 
-assign
- v-binqty = {1}.qty   * (if {1}.qty   lt 0 then -1 else 1)
- v-qty    = {4}.t-qty * (if {4}.t-qty lt 0 then -1 else 1).
+ASSIGN
+ v-binqty = {1}.qty   * (IF {1}.qty   LT 0 THEN -1 ELSE 1)
+ v-qty    = {4}.t-qty * (IF {4}.t-qty LT 0 THEN -1 ELSE 1).
 
 IF {1}.pur-uom EQ "M" THEN
   v-tagcost = {1}.std-tot-cost.
@@ -44,7 +44,7 @@ IF {4}.job-no NE "" AND NOT AVAIL job-hdr THEN DO:
       WHERE job.company EQ {4}.company
         AND job.job-no  EQ {4}.job-no
         AND job.job-no2 EQ {4}.job-no2
-      USE-INDEX job NO-LOCK NO-ERROR.
+      NO-LOCK NO-ERROR.
   IF AVAIL job THEN
   FIND FIRST reftable
       WHERE reftable.reftable EQ "jc/jc-calc.p"

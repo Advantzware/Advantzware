@@ -35,7 +35,8 @@
         FIND FIRST itemfg WHERE itemfg.company EQ cocode 
                           AND itemfg.i-no = oe-ordl.i-no NO-LOCK NO-ERROR.
         
-        IF AVAIL itemfg AND itemfg.stat NE "A" AND NOT tb_itm-act THEN NEXT .
+        IF itemfg.stat NE "" THEN
+            IF AVAIL itemfg AND (itemfg.stat NE "A") AND NOT tb_itm-act THEN NEXT .
 
       {oerep/r-ordo1N.i}
     END.
@@ -362,6 +363,7 @@
                    WHEN "est-unt"  THEN cVarValue = STRING(tt-report.unit-count,">>>>9") .
                    WHEN "est-palt" THEN cVarValue = STRING(tt-report.units-pallet,">>9") .
                    WHEN "ord-value"  THEN cVarValue =  STRING(dOrdVal,"->>>,>>>,>>9.99") .
+                   WHEN "ack-date" THEN cVarValue = IF oe-ord.ack-prnt-date NE ? THEN STRING(oe-ord.ack-prnt-date) ELSE "".
                   /* WHEN "bin-job"  THEN cVarValue = STRING(v-bin-job)              .
                    WHEN "whs"      THEN cVarValue = STRING(v-whs)              .
                    WHEN "bin"      THEN cVarValue = STRING(v-bin)              .

@@ -13,7 +13,7 @@ to its TABLEIO-TARGET. "
 
         This is the standard version of the database
         update SmartPanel. It uses the TABLEIO link
-        to communicate with SmartViewers and Smart-
+        to communicate with SmartPanels and Smart-
         Browsers.
 
         There are two styles of this SmartPanel
@@ -75,7 +75,7 @@ DEF VAR lv-auto-calc AS LOG NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
@@ -134,7 +134,7 @@ DEFINE BUTTON btn-stds
      SIZE 11 BY 1.14.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 118 BY 1.67.
 
 
@@ -207,10 +207,34 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
+
+ASSIGN 
+       btn-auto-calc:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
+ASSIGN 
+       btn-bom:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
+ASSIGN 
+       btn-flm:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
+ASSIGN 
+       btn-goto:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
+ASSIGN 
+       btn-sht-calc:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
+ASSIGN 
+       btn-stds:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
 
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
    NO-ENABLE 1                                                          */
@@ -248,7 +272,7 @@ DO:
      run auto-calc in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -267,7 +291,7 @@ DO:
      run update-bom in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -283,9 +307,9 @@ DO:
       btn-auto-calc:sensitive = yes.
       btn-stds:sensitive = yes.
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -304,7 +328,7 @@ DO:
       IF VALID-HANDLE(widget-handle(source-str)) THEN 
           run run-form-copy in widget-handle(source-str). 
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -322,7 +346,7 @@ DO:
       IF VALID-HANDLE(widget-handle(source-str)) THEN 
           run update-film in widget-handle(source-str). 
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -341,7 +365,7 @@ DO:
       IF VALID-HANDLE(widget-handle(source-str)) THEN 
           run run-goto in widget-handle(source-str). 
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -370,14 +394,14 @@ DO:
         IF Btn-Save:LABEL = '&Override' /*'&Update'*/ THEN 
         DO:
            RUN new-state('update-begin':U).
-           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p */
            ASSIGN add-active = no
                   btn-stds:sensitive = no.
         END.
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
            IF lv-auto-calc THEN assign btn-auto-calc:sensitive = yes.
            btn-stds:sensitive = yes.
         END.                              
@@ -385,12 +409,12 @@ DO:
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
         IF lv-auto-calc THEN assign btn-auto-calc:sensitive = yes.
         btn-stds:sensitive = yes.
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -413,7 +437,7 @@ DO:
      run sheet-calc in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -432,7 +456,7 @@ DO:
       IF VALID-HANDLE(widget-handle(source-str)) THEN 
           run run-job-stds in widget-handle(source-str). 
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -466,9 +490,16 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
-  {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
-  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:28 am */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
+  {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p */
+  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p */
+
+  {methods/setButton.i btn-auto-calc "Auto-Calc"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-bom "Bom"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-flm "Leaf/Film"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-goto "Goto"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-sht-calc "Sheet Calc"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-stds "Job Stds"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -9,7 +9,7 @@
 /*------------------------------------------------------------------------
 
   File: est\d-multbl.w
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -86,11 +86,12 @@ DEFINE QUERY external_tables FOR est.
 
 /* Definitions of handles for SmartObjects                              */
 DEFINE VARIABLE h_b-multbl AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updcan AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME D-Dialog
-     SPACE(112.21) SKIP(20.11)
+     SPACE(112.20) SKIP(20.10)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          TITLE "Items for Estimate #".
@@ -110,7 +111,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -141,7 +141,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -206,12 +206,12 @@ DO:
         BY est-op.d-seq
         BY est-op.op-pass
         BY est-op.rec_key:
-
+      
       {sys/inc/outstrPL.i est-op SHARE}
       ASSIGN
        li          = li + 1
        est-op.line = li.
-
+     
       IF AVAIL reftable THEN reftable.loc = STRING(est-op.line,"9999999999"). 
     END.
   END.
@@ -305,10 +305,23 @@ PROCEDURE adm-create-objects :
        RUN set-position IN h_b-multbl ( 1.00 , 1.00 ) NO-ERROR.
        RUN set-size IN h_b-multbl ( 16.91 , 112.00 ) NO-ERROR.
 
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'p-updcan.w':U ,
+             INPUT  FRAME D-Dialog:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updcan ).
+       RUN set-position IN h_p-updcan ( 18.62 , 40.00 ) NO-ERROR.
+       RUN set-size IN h_p-updcan ( 1.76 , 31.00 ) NO-ERROR.
+
        /* Links to SmartBrowser h_b-multbl. */
+       RUN add-link IN adm-broker-hdl ( h_p-updcan , 'TableIO':U , h_b-multbl ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'Record':U , h_b-multbl ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan ,
+             h_b-multbl , 'AFTER':U ).
     END. /* Page 0 */
 
   END CASE.
@@ -410,7 +423,7 @@ PROCEDURE get-eb-rowid :
 ------------------------------------------------------------------------------*/
   DEF OUTPUT PARAMETER op-rowid AS ROWID NO-UNDO.
 
-
+  
   op-rowid = io-rowid.
 
 END PROCEDURE.
@@ -429,7 +442,7 @@ PROCEDURE new-forms :
 
   DEF VAR li AS INT NO-UNDO.
 
-
+  
   FOR EACH multbl {&where-multbl} USE-INDEX reftable,
       FIRST eb
       WHERE RECID(eb) EQ INT(multbl.val[3])

@@ -13,7 +13,7 @@ to its TABLEIO-TARGET. "
 
         This is the standard version of the database
         update SmartPanel. It uses the TABLEIO link
-        to communicate with SmartViewers and Smart-
+        to communicate with SmartPanels and Smart-
         Browsers.
 
         There are two styles of this SmartPanel
@@ -176,6 +176,10 @@ ASSIGN
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
 
+ASSIGN 
+       btn-bol:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
    NO-ENABLE 1                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -204,7 +208,7 @@ DO:
     run get-link-handle in adm-broker-hdl(this-procedure, "ordbol-target", output lv-char-hdl).
     run create-bol in widget-handle(lv-char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:23 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -230,14 +234,14 @@ END.
      then enable the usage of the Save button as the default button. (Note that in
      8.0, the Save button was *always* the default button.) */
 
-  DO WITH FRAME {&FRAME-NAME}:
-    lv-bol-label = btn-bol:LABEL.
-  END.
+  lv-bol-label = btn-bol:LABEL IN FRAME {&FRAME-NAME}.
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
+
+  {methods/setButton.i btn-bol "BOL/INV"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

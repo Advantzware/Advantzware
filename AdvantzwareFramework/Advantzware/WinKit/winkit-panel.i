@@ -32,6 +32,8 @@ DEFINE VARIABLE oForm   AS Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWi
 DEFINE VARIABLE oPanelRibbonTab AS Infragistics.Win.UltraWinToolbars.RibbonTab NO-UNDO .
 DEFINE VARIABLE cPanelRibbonGroupKey AS CHARACTER NO-UNDO .
 
+DEFINE VARIABLE hUpdateButton AS HANDLE NO-UNDO.
+
 {methods/defines/lValidateError.i}
 
 /* ***************************  Main Block  *************************** */
@@ -51,6 +53,25 @@ PROCEDURE winkit-enable:
     IF VALID-OBJECT (oForm) THEN
         Consultingwerk.Util.UltraToolbarsHelper:RefreshTools (oForm:ToolbarsManager, FALSE, FALSE) .
 
+END PROCEDURE.
+
+PROCEDURE winkit-update-button:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcState AS CHARACTER NO-UNDO.
+    
+    IF VALID-HANDLE (hUpdateButton) THEN DO:
+        CASE ipcState:
+            WHEN "update-begin" THEN
+            {methods/setButton.i hUpdateButton "Save"} 
+            WHEN "update-complete" THEN
+            {methods/setButton.i hUpdateButton "Update"} 
+        END CASE.
+        RUN winkit-view IN THIS-PROCEDURE.
+    END.
+    
 END PROCEDURE.
 
 PROCEDURE winkit-view:
@@ -85,8 +106,8 @@ PROCEDURE winkit-make-ribbon-group:
     DEFINE VARIABLE cPrefix       AS CHARACTER                                                     NO-UNDO .
     DEFINE VARIABLE hContainer    AS HANDLE                                                        NO-UNDO .
 
-/*    IF NOT VALID-OBJECT (poForm) OR NOT VALID-OBJECT (poForm:ToolbarsManager) THEN*/
-/*        RETURN .                                                                  */
+    IF NOT VALID-OBJECT (poForm) OR NOT VALID-OBJECT (poForm:ToolbarsManager) THEN
+        RETURN .
 
     IF lInited THEN
         RETURN .
@@ -103,7 +124,7 @@ PROCEDURE winkit-make-ribbon-group:
         
     IF cCaption EQ "ADM-PANEL" THEN
         cCaption = "".
-
+        
     IF piPage = 0 THEN
         oRibbonTab = poForm:ToolbarsManager:Ribbon:Tabs[0] .
     ELSE DO:
@@ -113,10 +134,9 @@ PROCEDURE winkit-make-ribbon-group:
         IF poForm:ToolbarsManager:Ribbon:Tabs:Exists (cTabKey) THEN
             oRibbonTab = poForm:ToolbarsManager:Ribbon:Tabs [cTabKey].
         ELSE DO ON ERROR UNDO, THROW:
-/*            IF CAST (poForm,                                                                                                   */
-/*                     Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):TabFolder:Tabs:Count < piPage THEN*/
-/*                RETURN .                                                                                                       */
-            
+            IF CAST (poForm,
+                     Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):TabFolder:Tabs:Count < piPage THEN
+            RETURN .
             
             ASSIGN cTabCaption = CAST (poForm,
                                        Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):TabFolder:Tabs [piPage - 1]:Text 
@@ -129,13 +149,13 @@ PROCEDURE winkit-make-ribbon-group:
             oContextual:Caption = cTabCaption .
             
             CATCH err AS Progress.Lang.Error :
-            	MESSAGE "Issue accessing tab-page" SKIP 
-            	        "piPage" piPage SKIP 
+            	MESSAGE "Issue accessing tab-page" SKIP
+            	        "piPage" piPage SKIP
             	        "Number of tabs:"	CAST (poForm,
-                                       Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):TabFolder:Tabs:Count SKIP 
+                                       Consultingwerk.WindowIntegrationKit.Forms.IEmbeddedWindowTabFolderForm):TabFolder:Tabs:Count SKIP
                          err:GetMessage(1)
                          err:CallStack
-                     VIEW-AS ALERT-BOX . 
+                     VIEW-AS ALERT-BOX .
                      
                  RETURN . 
                                        

@@ -57,7 +57,7 @@ cocode = gcompany.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-41 print-box 
+&Scoped-Define ENABLED-OBJECTS print-box RECT-41 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -102,7 +102,7 @@ FUNCTION GetCESample RETURNS CHARACTER
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON print-box 
-     LABEL "Spec Sheet" 
+     LABEL "Sample" 
      SIZE 13 BY 1.91.
 
 DEFINE RECTANGLE RECT-41
@@ -174,6 +174,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       print-box:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -195,7 +199,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME print-box
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL print-box V-table-Win
-ON CHOOSE OF print-box IN FRAME F-Main /* Spec Sheet */
+ON CHOOSE OF print-box IN FRAME F-Main /* Sample */
 DO:
     DEF VAR char-hdl AS cha NO-UNDO.
 

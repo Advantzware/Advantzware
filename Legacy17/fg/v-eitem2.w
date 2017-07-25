@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:45 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -680,7 +680,7 @@ ON LEAVE OF e-itemfg-vend.vend-no IN FRAME F-Main /* Vendor */
 DO:
     IF LASTKEY = -1 THEN RETURN.
     ls-vend-name = "".
-
+    {&methods/lValidateError.i YES}
     if self:screen-value <> "" and
        not can-find(first vend where vend.company = g_company and
                                      vend.vend-no = self:screen-value) then
@@ -688,13 +688,14 @@ DO:
         message "Invalid Vendor. Try help." view-as alert-box error.
         return no-apply.
     end.
-
+     {&methods/lValidateError.i NO}
     FIND FIRST vend WHERE vend.company = g_company
                       AND vend.vend-no = e-itemfg-vend.vend-no:SCREEN-VALUE NO-LOCK NO-ERROR.
     IF AVAIL vend THEN ls-vend-name = vend.NAME.
     DISP ls-vend-name WITH FRAME {&FRAME-NAME}.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1210,7 +1211,7 @@ PROCEDURE local-update-record :
   /* ============= validateion ================= */
   RUN valid-std-uom NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
 
@@ -1243,6 +1244,7 @@ PROCEDURE local-update-record :
        END.
      END.
   END.
+  {&methods/lValidateError.i NO}
 
   /* ============= end of validation ================*/
   v-add-record = adm-adding-record.
@@ -1261,6 +1263,7 @@ PROCEDURE local-update-record :
   ELSE RUN dispatch ("display-fields").
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

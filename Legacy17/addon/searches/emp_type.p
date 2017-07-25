@@ -19,7 +19,7 @@
 "emp_type. " ~
 */
 
-&Scoped-define search-db EMPTRACK.
+&Scoped-define search-db 
 &Scoped-define search-file emp_type
 &Scoped-define where-statement TRUE
 &Scoped-define return-field emp_type

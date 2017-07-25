@@ -41,7 +41,7 @@ DEF BUFFER bf-tag FOR loadtag.
 DEF VAR tb_16ths AS log NO-UNDO.
 
 
-
+ 
 /* Local Variable Definitions ---                                       */
 def var list-name as cha no-undo.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
@@ -341,7 +341,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -381,7 +380,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -420,7 +419,7 @@ DO:
 
 
   ASSIGN {&displayed-objects}.
-
+  
   v-auto-print = scr-auto-print.
 
   IF tb_reprint-tag AND begin_tag:SCREEN-VALUE = "" THEN DO:
@@ -475,7 +474,7 @@ DEF VAR chFile AS CHAR FORMAT "X(80)" NO-UNDO.
                                 INPUT v-path,
                                 OUTPUT chFile).
 
-
+  
       ASSIGN scr-label-file:SCREEN-VALUE = chFile.
  END.
 
@@ -693,7 +692,7 @@ PROCEDURE create-text-file :
             /* 9901 CAH: Only room for 19 chars in the standard 48 pt font */
             if length(w-ord.ship-name) > 19
             then w-ord.ship-name = substring(w-ord.ship-name,1,19).
-
+            
             def var vcFGItem as char no-undo.
             vcFGItem = 
                 if avail itemfg then itemfg.i-no else w-ord.i-no.
@@ -738,7 +737,7 @@ PROCEDURE create-text-file :
          PUT UNFORMATTED ",COUNTER#,RFIDTag".
 
       PUT UNFORMATTED ",DUEDATEJOBLINE,DUEDATEJOB,LINE#,UnitWt,PalletWt,FGdesc1,FGdesc2,FGdesc3,FG Lot#,PalletCode,PalletID".
-
+      
       PUT SKIP.
 
       FOR EACH w-ord:
@@ -891,10 +890,10 @@ PROCEDURE create-text-file :
              END.
 
              IF LOOKUP(v-loadtag,"ASI,SSLABEL") GT 0 THEN DO:
-
+                
                 FIND FIRST rfidtag OF loadtag NO-LOCK NO-ERROR.
                 cRFIDTag = IF AVAIL rfidtag THEN rfidtag.rfidtag ELSE "".
-
+ 
              END.
              cTotalUnit = string(w-ord.total-unit, ">>>>>>>9").
              RUN write-loadtag-line (INPUT cRFIDTag, INPUT cTotalUnit, INPUT iPalletID).
@@ -903,14 +902,14 @@ PROCEDURE create-text-file :
 
           IF lookup(v-loadtag,"SSLABEL,CentBox") = 0 THEN DO:
 
-
+  
               RUN incrementPalletID (BUFFER bf-cust, w-ord.mult,
                        OUTPUT iStartPalletID, OUTPUT iEndPalletID).
               IF iEndPalletID EQ -1 THEN DO:
                    RUN askNextPalletID (INPUT w-ord.cust-no, OUTPUT vError).
                    RETURN.
               END.
-
+                     
 
               iPalletId = iStartPalletID.
               do v-count = 1 to w-ord.mult: /* for partial print */
@@ -928,7 +927,7 @@ PROCEDURE create-text-file :
       output close.
     end.    /* NOT TRIAD */
 
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -944,7 +943,7 @@ PROCEDURE create-w-ord :
   DEF VAR lv-rel-date AS DATE NO-UNDO.
    DEF BUFFER b-job FOR job.
    DEF BUFFER b-job-hdr FOR job-hdr.
-
+   
    FIND FIRST company WHERE company.company = loadtag.company NO-LOCK NO-ERROR.
    FIND FIRST itemfg WHERE itemfg.company = loadtag.company
                        AND itemfg.i-no = loadtag.i-no NO-LOCK NO-ERROR.
@@ -967,7 +966,7 @@ PROCEDURE create-w-ord :
                                 AND b-job-hdr.job-no  EQ b-job.job-no
                                 AND b-job-hdr.job-no2 EQ b-job.job-no2
                                 AND b-job-hdr.i-no    EQ loadtag.i-no NO-LOCK NO-ERROR.
-
+      
 
       CREATE w-ord.
       ASSIGN w-ord.ord-no      = loadtag.ord-no
@@ -1010,7 +1009,7 @@ PROCEDURE create-w-ord :
          w-ord.due-date-jobhdr = IF b-job-hdr.due-date <> ? THEN STRING(b-job-hdr.due-date, "99/99/9999") ELSE "".
       IF AVAIL b-job THEN
          w-ord.due-date-job = IF b-job.due-date <> ? THEN STRING(b-job.due-date, "99/99/9999") ELSE "".
-
+             
       RUN get-rel-info (OUTPUT w-ord.cust-po-no,
                         OUTPUT w-ord.rel-date,
                         OUTPUT w-ord.rel-lot#).
@@ -1094,12 +1093,12 @@ PROCEDURE create-w-ord :
                           AND job-hdr.job-no2 EQ job.job-no2
                           NO-LOCK NO-ERROR.
       IF AVAIL job-hdr THEN DO:
-
+      
          FIND FIRST cust WHERE cust.company eq cocode
                           AND cust.cust-no eq job-hdr.cust-no NO-LOCK NO-ERROR.
          FIND FIRST itemfg WHERE itemfg.company eq cocode
                             AND itemfg.i-no    eq loadtag.i-no NO-LOCK NO-ERROR.
-
+         
          CREATE w-ord.
          ASSIGN
             w-ord.ord-no       = job-hdr.ord-no
@@ -1205,7 +1204,7 @@ PROCEDURE create-w-ord :
                                 AND vend.vend-no EQ po-ord.vend-no NO-ERROR.
          FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode
                                   AND itemfg.i-no EQ po-ordl.i-no NO-ERROR.
-
+         
          CREATE w-ord.
          ASSIGN
             w-ord.cust-name = IF AVAILABLE cust THEN cust.name ELSE ''
@@ -1239,7 +1238,7 @@ PROCEDURE create-w-ord :
                  style.company EQ cocode AND
                  style.style EQ w-ord.style
                  NO-LOCK NO-ERROR.
-
+         
             IF AVAIL style THEN
             DO:
                w-ord.style-desc = style.dscr.
@@ -1270,7 +1269,7 @@ PROCEDURE create-w-ord :
                     w-ord.ship-city = shipto.ship-city
                     w-ord.ship-state = shipto.ship-state
                     w-ord.ship-zip = shipto.ship-zip.
-
+      
          ASSIGN w-ord.total-tags = 1
             w-ord.ord-qty = loadtag.qty 
             w-ord.pcs = loadtag.qty-case
@@ -1288,7 +1287,7 @@ PROCEDURE create-w-ord :
                               AND vend.vend-no EQ itemfg.vend-no NO-ERROR.
           FIND FIRST cust NO-LOCK WHERE cust.company EQ cocode
                               AND cust.cust-no EQ itemfg.cust-no NO-ERROR.
-
+          
           CREATE w-ord.
           ASSIGN w-ord.i-no = itemfg.i-no
                  w-ord.i-name = itemfg.i-name
@@ -1323,7 +1322,7 @@ PROCEDURE create-w-ord :
                   style.company EQ cocode AND
                   style.style EQ w-ord.style
                   NO-LOCK NO-ERROR.
-
+          
              IF AVAIL style THEN
              DO:
                 w-ord.style-desc = style.dscr.
@@ -1398,11 +1397,11 @@ PROCEDURE get-label-file :
   Notes:       
 ------------------------------------------------------------------------------*/
  /* IF v-auto-print AND LOGICAL(scr-freeze-label) EQ NO THEN */
-
+ 
   DO WITH FRAME {&FRAME-NAME}:
     FIND bf-tag WHERE RECID(bf-tag) = ip-recid .
     DEF VAR v-cust-no AS CHAR NO-UNDO.
-
+  
 
     IF bf-tag.ord-no GT 0 THEN DO:
         FIND FIRST oe-ord WHERE oe-ord.company EQ cocode
@@ -1412,7 +1411,7 @@ PROCEDURE get-label-file :
             v-cust-no = oe-ord.cust-no.
     END.
     ELSE DO:
-
+    
         IF bf-tag.job-no GT "" THEN DO:
            FIND FIRST job-hdr WHERE job-hdr.company EQ cocode
                 AND job-hdr.job-no EQ bf-tag.job-no
@@ -1445,7 +1444,7 @@ PROCEDURE get-label-file :
                 oe-rel.ord-no  GE INT(bf-tag.ord-no) AND
                 oe-rel.ord-no  LE INT(bf-tag.ord-no)
                 NO-LOCK NO-ERROR.
-
+           
            IF AVAIL oe-rel THEN 
               FIND FIRST shipto NO-LOCK 
                WHERE shipto.company EQ cocode 
@@ -1458,11 +1457,11 @@ PROCEDURE get-label-file :
                  AND shipto.cust-no EQ v-cust-no 
                  AND shipto.ship-id EQ v-cust-no
                   USE-INDEX ship-id NO-ERROR.
-
+           
               IF AVAIL shipto THEN DO:
                  IF AVAIL oe-rel THEN
                     v-cust-no = oe-rel.cust-no.
-
+           
                  FIND FIRST sys-ctrl-shipto NO-LOCK
                    WHERE sys-ctrl-shipto.company      EQ cocode 
                      AND sys-ctrl-shipto.NAME         EQ "BARDIR" 
@@ -1551,7 +1550,7 @@ PROCEDURE get-label-file :
                    NO-LOCK NO-ERROR.
 
               IF AVAIL shipto THEN DO:
-
+                 
                  FIND FIRST sys-ctrl-shipto WHERE
                       sys-ctrl-shipto.company      EQ cocode AND
                       sys-ctrl-shipto.NAME         EQ "BARDIR" AND
@@ -1637,7 +1636,7 @@ PROCEDURE get-label-file :
            scr-label-file:SCREEN-VALUE = scr-label-file.
     END.
 
-
+    
 
 END PROCEDURE.
 
@@ -1854,11 +1853,11 @@ PROCEDURE ok-button :
   IF begin_filename:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" AND
      userLabelPath <> "" THEN        
      begin_filename:SCREEN-VALUE = userLabelPath.
-
+  
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN {&displayed-objects}.
   END.
-
+  
   /* gdm - 04090909 */
   ASSIGN v-out = begin_filename.
   IF v-out EQ ""  THEN DO:
@@ -1896,7 +1895,7 @@ PROCEDURE ok-button :
   /*wfk  */
   IF tb_reprint-tag THEN RUN reprint-tag.
   ELSE RUN run-report NO-ERROR. 
-
+  
   IF NOT ERROR-STATUS:ERROR THEN lv-ok-ran = YES.
 
   APPLY "entry" TO begin_tag IN FRAME {&FRAME-NAME}.
@@ -1937,7 +1936,7 @@ PROCEDURE print-loadtag :
   DEF VAR v-rel-date LIKE oe-rel.rel-date NO-UNDO.
   DEF VAR v-cust-po-no LIKE oe-ordl.po-no NO-UNDO.
   DEF VAR i AS INT NO-UNDO.
-
+  
   DEF VAR v-count AS INT NO-UNDO.
 
   IF v-out = "" THEN v-out = "c:~\ba~\label~\loadtag.txt".
@@ -1977,12 +1976,12 @@ PROCEDURE print-loadtag :
             where itemfg.company eq cocode
               and itemfg.i-no    eq w-ord.i-no
             no-lock no-error.
-
+              
         if avail itemfg then
           assign
            w-ord.net-wt   = itemfg.weight-100 * w-ord.total-unit / 100.
            w-ord.sheet-wt = itemfg.weight-100 / 100.
-
+                   
         w-ord.gross-wt = w-ord.net-wt + w-ord.tare-wt.
 
         v-job = w-ord.job-no + "-" + string(w-ord.job-no2,"99").
@@ -2144,7 +2143,7 @@ PROCEDURE print-loadtag :
       end.
 
       IF bf-tag.sts BEGINS "Transfer" THEN bf-tag.sts = "Printed".
-
+      
   end.  /* avail bf-tag */
   output close.
   IF scr-auto-print THEN
@@ -2169,7 +2168,7 @@ PROCEDURE reprint-tag :
       APPLY "entry" TO scr-label-file.
       RETURN ERROR.
   END.       
-
+  
   RUN create-w-ord.
 
   SESSION:SET-WAIT-STATE ("general").
@@ -2186,7 +2185,7 @@ PROCEDURE reprint-tag :
   END.
   IF begin_filename:SCREEN-VALUE = "" THEN 
        begin_filename:SCREEN-VALUE = v-out.
-
+  
   RUN create-text-file.
   IF NOT is-from-addon() THEN
   MESSAGE "Loadtag reprint is completed." VIEW-AS ALERT-BOX INFORMATION.
@@ -2312,7 +2311,7 @@ PROCEDURE write-loadtag-line :
   "~""  removeChars(w-ord.ord-desc2)    "~","
   .
  IF LOOKUP(v-loadtag,"ASI,SSLABEL") GT 0 THEN DO:
-
+    
 /*    FIND FIRST rfidtag OF loadtag NO-LOCK NO-ERROR.
     cRFIDTag = IF AVAIL rfidtag THEN rfidtag.rfidtag ELSE "".  */
 
@@ -2327,7 +2326,7 @@ PROCEDURE write-loadtag-line :
  /* gdm - 07170905 */
     "~"" w-ord.unit-wt  "~","
     "~"" w-ord.pallt-wt  "~","          
-
+ 
  /* gdm - 10160905 */
     "~"" removeChars(v-fgdsc1) "~","
     "~"" removeChars(v-fgdsc2) "~","
@@ -2364,7 +2363,7 @@ DO WHILE VALID-HANDLE(hProc):
           lWasFound = YES.
           LEAVE. /* found it. */
     END.
-
+    
     hProc = hProc:NEXT-SIBLING.
 END.
 RETURN lWasFound.

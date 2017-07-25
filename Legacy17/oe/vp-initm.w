@@ -145,7 +145,7 @@ DEFINE FRAME F-Main
 
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
-   Type: SmartViewer
+   Type: SmartPanel
    External Tables: ASI.inv-head,ASI.inv-line
    Allow: Basic,DB-Fields
    Frames: 1
@@ -197,12 +197,40 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       Btn-Add:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       Btn-Delete:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* SETTINGS FOR BUTTON btn-his IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       btn-his:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* SETTINGS FOR BUTTON btn-misc IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       btn-misc:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       Btn-Save:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* SETTINGS FOR BUTTON btn-ship IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       btn-ship:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       Btn-View:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -234,7 +262,7 @@ DO:
    run oe/d-invitm.w (?, inv-head.r-no,"ADD").  
    run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
    run reopen-query in widget-handle(char-hdl) (?).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -247,7 +275,7 @@ ON CHOOSE OF Btn-Delete IN FRAME F-Main /* Delete */
 DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
    run delete-item in widget-handle(char-hdl).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -261,7 +289,7 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
    run select-his in widget-handle(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -275,7 +303,7 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
    run select-price in widget-handle(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -289,7 +317,7 @@ DO:
     run oe/d-invitm.w (recid(inv-line), inv-line.r-no,"Update").
     run get-link-handle in adm-broker-hdl(this-procedure,"record-source", output char-hdl).
     run reopen-query in widget-handle(char-hdl) (recid(inv-line)).
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -303,7 +331,7 @@ DO:
    run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
    run select-stat in widget-handle(char-hdl).
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -316,7 +344,7 @@ ON CHOOSE OF Btn-View IN FRAME F-Main /* View */
 DO:
    run oe/d-invitm.w (recid(inv-line), inv-line.r-no,"view").
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:27 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -335,6 +363,14 @@ END.
   &ENDIF         
 
   /************************ INTERNAL PROCEDURES ********************/
+
+  {methods/setButton.i Btn-Add "Add"} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-Delete "Delete"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-his "History"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-misc "Misc"} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-ship "Shipped"} /* added by script _panelImages.p */
+  {methods/setButton.i Btn-View "View"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

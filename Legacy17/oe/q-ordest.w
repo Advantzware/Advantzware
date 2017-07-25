@@ -262,37 +262,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-open-query-cases q-tables  adm/support/_adm-opn.p
-PROCEDURE New_record :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
- def input parameter ip-rowid as rowid no-undo.
-  
-  /*lv-first-run = YES.
-  
-  run local-open-query.
-  
-  /*
-  RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"itemrec-target",OUTPUT char-hdl).
-  RUN dispatch IN WIDGET-HANDLE(char-hdl) ('open-query').
-  */
-
-  do with frame {&frame-name}:
-    reposition {&browse-name} to rowid ip-rowid no-error.  
-    run dispatch ('row-changed').
-    apply "value-changed" to {&browse-name}.
-    return no-apply.  
-  end.*/
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available q-tables  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
@@ -341,6 +310,76 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE first-run q-tables 
+PROCEDURE first-run :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    RUN dispatch ('open-query').
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-num-records q-tables 
+PROCEDURE get-num-records :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT  PARAMETER iprRowID      AS ROWID   NO-UNDO.
+    DEFINE OUTPUT PARAMETER opiNumRecords AS INTEGER NO-UNDO.
+
+    opiNumRecords = NUM-RESULTS("{&QUERY-NAME}") - 1.
+    IF opiNumRecords LT 1 THEN opiNumRecords = 1.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE New_Record q-tables 
+PROCEDURE New_Record :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprRowID AS ROWID NO-UNDO.
+
+    RUN dispatch ('open-query').
+
+/*    REPOSITION {&QUERY-NAME} TO ROWID iprRowID NO-ERROR.*/
+/*    RUN dispatch ('row-changed').                       */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE New_Record-User q-tables 
+PROCEDURE New_Record-User :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER iprRowID AS ROWID NO-UNDO.
+
+    RUN dispatch ('open-query').
+
+/*    REPOSITION {&QUERY-NAME} TO ROWID iprRowID NO-ERROR.*/
+/*    RUN dispatch ('row-changed').                       */
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-key q-tables  adm/support/_key-snd.p
 PROCEDURE send-key :
 /*------------------------------------------------------------------------------
@@ -383,6 +422,20 @@ PROCEDURE send-records :
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setEstNoSearch q-tables 
+PROCEDURE setEstNoSearch :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipiEstNo LIKE eb.est-no NO-UNDO.
 
 END PROCEDURE.
 

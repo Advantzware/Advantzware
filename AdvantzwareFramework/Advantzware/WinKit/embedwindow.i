@@ -122,10 +122,10 @@ DO ON ERROR UNDO, THROW:
            oForm:WindowPositionRegistryKey = THIS-PROCEDURE:FILE-NAME
            oForm:ProcedureHandle           = THIS-PROCEDURE
            oForm:MENU-BAR                  = hWinKitTmpMenuBar
-           oForm:OriginalWindowTitle       = {&window-name}:TITLE .
-
-/*    FILE-INFO:FILE-NAME = "Images\asi4.ico" .                              */
-/*    oFormControl:ICON = NEW System.Drawing.Icon (FILE-INFO:FULL-PATHNAME) .*/
+           oForm:OriginalWindowTitle       = {&window-name}:TITLE
+           FILE-INFO:FILE-NAME = "Graphics\asiicon.ico"
+           oFormControl:ICON = NEW System.Drawing.Icon (FILE-INFO:FULL-PATHNAME)
+           .
 
     /* Mike Fechner, Consultingwerk Ltd. 28.03.2011
        WinKit Windows will get deleted by closewindow.i, the
@@ -146,7 +146,6 @@ END.
 
 // Trigger for resizable windows
 ON "window-resized":U OF {&WINDOW-NAME} DO:
-    IF CAN-DO (THIS-PROCEDURE:INTERNAL-ENTRIES, "winReSize") THEN 
-    RUN winReSize .
+/*    RUN winReSize .*/
 END.
 

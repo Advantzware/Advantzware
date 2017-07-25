@@ -37,8 +37,8 @@ ASSIGN cocode = g_company
        locode = g_loc.
 
 DEFINE VARIABLE poSelected AS INTEGER NO-UNDO.
-def var ll-help-run as log no-undo.  /* set on browse help, reset row-entry */
-def var ls-prev-po as cha no-undo.
+DEF VAR ll-help-run AS LOG NO-UNDO.  /* set on browse help, reset row-entry */
+DEF VAR ls-prev-po AS cha NO-UNDO.
 DEF VAR lv-overrun-checked AS LOG NO-UNDO.
 DEF VAR lv-closed-checked AS LOG NO-UNDO.
 DEF VAR lv-job-no AS CHAR NO-UNDO.
@@ -56,7 +56,7 @@ DEF VAR lv-prev-job2 AS cha NO-UNDO.
 DEF VAR lv-new-job-ran AS LOG NO-UNDO.
 DEF VAR ll-qty-case-ent AS LOG NO-UNDO.
 DEF VAR lv-num-rec AS INT NO-UNDO.
-def var fg-uom-list  as char NO-UNDO.
+DEF VAR fg-uom-list  AS CHAR NO-UNDO.
 DEF VAR lv-frst-rno LIKE fg-rctd.r-no NO-UNDO.
 DEF VAR lv-rct-date-checked AS LOG NO-UNDO.
 DEF VAR ll-set-parts AS LOG NO-UNDO.
@@ -96,10 +96,10 @@ END.
 
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 {fg/fullset.i NEW}
-find first sys-ctrl
-    where sys-ctrl.company eq cocode
-      and sys-ctrl.name    eq "FGPOTAG#"
-    no-lock no-error.
+FIND FIRST sys-ctrl
+    WHERE sys-ctrl.company EQ cocode
+      AND sys-ctrl.name    EQ "FGPOTAG#"
+    NO-LOCK NO-ERROR.
 v-auto-add-tag = NO.
 IF AVAIL sys-ctrl THEN
   v-auto-add-tag = sys-ctrl.log-fld.
@@ -117,12 +117,12 @@ DEF VAR lvFound AS LOG NO-UNDO.
 DEF VAR fgRecptPassWord-log AS LOGICAL NO-UNDO.
 DEF VAR fgRecptPassWord-char AS CHARACTER NO-UNDO.
 
-RUN sys/ref/nk1look.p (cocode, "FGRecptPassWord", "L", no, no, "", "", 
-    Output lvReturnChar, output lvFound).
+RUN sys/ref/nk1look.p (cocode, "FGRecptPassWord", "L", NO, NO, "", "", 
+    OUTPUT lvReturnChar, OUTPUT lvFound).
 IF lvFound THEN
     fgRecptPassWord-log = LOGICAL(lvReturnChar).
-RUN sys/ref/nk1look.p (cocode, "FGRecptPassWord", "C", no, no, "", "", 
-    Output fgRecptPassWord-char, output lvFound).
+RUN sys/ref/nk1look.p (cocode, "FGRecptPassWord", "C", NO, NO, "", "", 
+    OUTPUT fgRecptPassWord-char, OUTPUT lvFound).
 
 
 DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
@@ -530,13 +530,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON DEFAULT-ACTION OF Browser-Table IN FRAME F-Main
 DO:
-    def var phandle as widget-handle no-undo.
-   def var char-hdl as cha no-undo.   
+    DEF VAR phandle AS WIDGET-HANDLE NO-UNDO.
+   DEF VAR char-hdl AS cha NO-UNDO.   
    RUN get-link-handle IN adm-broker-hdl
       (THIS-PROCEDURE,'TableIO-source':U,OUTPUT char-hdl).
    phandle = WIDGET-HANDLE(char-hdl).
    
-   RUN new-state in phandle ('update-begin':U).
+   RUN new-state IN phandle ('update-begin':U).
 
 
 END.
@@ -548,71 +548,71 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON HELP OF Browser-Table IN FRAME F-Main
 DO: 
-   def var ll-tag# as log no-undo.
+   DEF VAR ll-tag# AS LOG NO-UNDO.
    DEF VAR rec-val AS RECID NO-UNDO.
    DEF VAR char-val AS cha NO-UNDO.
    DEF VAR lv-cost AS DEC DECIMALS 4 NO-UNDO.
 
    DO WITH FRAME {&FRAME-NAME}:
-     ll-help-run = yes.
-     case focus:name:
-        when "po-no" then do:
-             run windows/l-pofg.w (fg-rctd.company,fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}, output char-val).
-             if char-val <> "" then do:
-                assign fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val)
-                       fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = entry(2,char-val)
-                       fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = entry(3,char-val)
-                       fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = entry(4,char-val)
-                       fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = entry(5,char-val)
+     ll-help-run = YES.
+     CASE FOCUS:NAME:
+        WHEN "po-no" THEN DO:
+             RUN windows/l-pofg.w (fg-rctd.company,fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
+             IF char-val <> "" THEN DO:
+                ASSIGN fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val)
+                       fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(2,char-val)
+                       fg-rctd.i-name:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(3,char-val)
+                       fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(4,char-val)
+                       fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(5,char-val)
                        .
-               find po-ordl where po-ordl.company = cocode and
-                                  po-ordl.po-no = integer(entry(1,char-val)) and
-                                  po-ordl.line = integer(entry(6,char-val))
-                                  no-lock no-error.
-               if avail po-ordl then do:
-                  assign /*-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.cons-uom /*pr-qty-uom */*/
+               FIND po-ordl WHERE po-ordl.company = cocode AND
+                                  po-ordl.po-no = integer(ENTRY(1,char-val)) AND
+                                  po-ordl.line = integer(ENTRY(6,char-val))
+                                  NO-LOCK NO-ERROR.
+               IF AVAIL po-ordl THEN DO:
+                  ASSIGN /*-rctd.pur-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.cons-uom /*pr-qty-uom */*/
                          fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name} = po-ordl.pr-uom
                          lv-cost = po-ordl.cost * (IF po-ordl.disc NE 0 THEN (1 - (po-ordl.disc / 100)) ELSE 1).
 
                   RUN convert-vend-comp-curr(INPUT-OUTPUT lv-cost).
                   fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost).
-               end. /* if avail po-ordl */
+               END. /* if avail po-ordl */
 
-               find first itemfg where itemfg.company = cocode and
+               FIND FIRST itemfg WHERE itemfg.company = cocode AND
                                         itemfg.i-no = entry(2,char-val)
-                                        no-lock no-error.
-               if avail itemfg then do:                         
-                  assign fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} =  itemfg.def-loc
+                                        NO-LOCK NO-ERROR.
+               IF AVAIL itemfg THEN DO:                         
+                  ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} =  itemfg.def-loc
                          fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} =  itemfg.def-loc-bin
-                         fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = string(itemfg.case-count)
+                         fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(itemfg.case-count)
                        /*  fg-rctd.cost-uom = if itemfg.pur-man = itemfg.pur-uom
                                             else itemfg.prod-uom  */                        
                          .
-               end. /* if avail itemfg */
+               END. /* if avail itemfg */
                fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name} = "0".
 
-             end.  /* char-val <> "" */
-             return no-apply.   
-       end.
-       when "i-no" then do:
+             END.  /* char-val <> "" */
+             RETURN NO-APPLY.   
+       END.
+       WHEN "i-no" THEN DO:
              IF fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO:
-                RUN windows/l-poitem.w (fg-rctd.company,fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}, focus:SCREEN-VALUE IN BROWSE {&browse-name}, output char-val).
-                if char-val <> "" then do :
-                   assign focus:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val)
-                       fg-rctd.i-name:screen-value = entry(2,char-val)
-                       fg-rctd.job-no:screen-value = entry(3,char-val)
-                       fg-rctd.job-no2:screen-value = entry(4,char-val)
+                RUN windows/l-poitem.w (fg-rctd.company,fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}, FOCUS:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
+                IF char-val <> "" THEN DO :
+                   ASSIGN FOCUS:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val)
+                       fg-rctd.i-name:screen-value = ENTRY(2,char-val)
+                       fg-rctd.job-no:screen-value = ENTRY(3,char-val)
+                       fg-rctd.job-no2:screen-value = ENTRY(4,char-val)
                        .
-                end.
+                END.
              END.
              ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN DO:
-                  RUN windows/l-jobit1.w (fg-rctd.company,fg-rctd.job-no:SCREEN-VALUE,fg-rctd.job-no2:screen-value, focus:screen-value, OUTPUT char-val,OUTPUT rec-val).
+                  RUN windows/l-jobit1.w (fg-rctd.company,fg-rctd.job-no:SCREEN-VALUE,fg-rctd.job-no2:screen-value, FOCUS:SCREEN-VALUE, OUTPUT char-val,OUTPUT rec-val).
                   IF char-val <> ""  THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val).
                   IF rec-val <> ? THEN DO:
                      FIND tt-job-hdr WHERE RECID(tt-job-hdr) = rec-val NO-LOCK NO-ERROR.
 
                      IF AVAIL tt-job-hdr THEN 
-                         ASSIGN fg-rctd.std-cost:SCREEN-VALUE = string(tt-job-hdr.std-mat-cost +
+                         ASSIGN fg-rctd.std-cost:SCREEN-VALUE = STRING(tt-job-hdr.std-mat-cost +
                                                               tt-job-hdr.std-lab-cost +
                                                               tt-job-hdr.std-fix-cost +
                                                               tt-job-hdr.std-var-cost)
@@ -629,84 +629,84 @@ DO:
                        fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name
                        fg-rctd.loc:SCREEN-VALUE = itemfg.def-loc
                        fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin
-                       fg-rctd.std-cost:SCREEN-VALUE = string(itemfg.avg-cost)
+                       fg-rctd.std-cost:SCREEN-VALUE = STRING(itemfg.avg-cost)
                        fg-rctd.cost-uom:SCREEN-VALUE = itemfg.prod-uom  .
                   END.
              END.
-             return no-apply.   
-       end.
-       when "job-no" /*or when "job-no2" */ then do:
-             run windows/l-jobno.w (fg-rctd.company, focus:screen-value,output char-val, OUTPUT rec-val).
-             if char-val <> "" THEN
-                assign /*focus:screen-value in frame {&frame-name} = entry(1,char-val)
+             RETURN NO-APPLY.   
+       END.
+       WHEN "job-no" /*or when "job-no2" */ THEN DO:
+             RUN windows/l-jobno.w (fg-rctd.company, FOCUS:SCREEN-VALUE,OUTPUT char-val, OUTPUT rec-val).
+             IF char-val <> "" THEN
+                ASSIGN /*focus:screen-value in frame {&frame-name} = entry(1,char-val)
                        */ 
-                       fg-rctd.job-no:screen-value = entry(1,char-val)
-                       fg-rctd.job-no2:screen-value = entry(2,char-val)
+                       fg-rctd.job-no:screen-value = ENTRY(1,char-val)
+                       fg-rctd.job-no2:screen-value = ENTRY(2,char-val)
                        fg-rctd.i-no:SCREEN-VALUE = ENTRY(3,char-val)
                        .
              IF rec-val <> ? THEN DO:
                 FIND job-hdr WHERE RECID(job-hdr) = rec-val NO-LOCK NO-ERROR.
 
                 IF AVAIL job-hdr THEN 
-                   fg-rctd.std-cost:SCREEN-VALUE = string(job-hdr.std-mat-cost +
+                   fg-rctd.std-cost:SCREEN-VALUE = STRING(job-hdr.std-mat-cost +
                                                           job-hdr.std-lab-cost +
                                                           job-hdr.std-fix-cost +
                                                           job-hdr.std-var-cost)
                           .
-             end.
+             END.
              FIND FIRST itemfg WHERE itemfg.company = g_company
                            AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE  NO-LOCK NO-ERROR.
              IF AVAIL ITEMfg THEN
                  ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name
                         fg-rctd.cost-uom:SCREEN-VALUE = itemfg.prod-uom  .
 
-             return no-apply.   
-       end.  
-       when "job-no2" then do:
-             run windows/l-jobno2.w (fg-rctd.company, fg-rctd.job-no:screen-value,focus:screen-value,output char-val, OUTPUT rec-val).
-             if char-val <> "" THEN
-                assign /*focus:screen-value in frame {&frame-name} = entry(1,char-val)
+             RETURN NO-APPLY.   
+       END.  
+       WHEN "job-no2" THEN DO:
+             RUN windows/l-jobno2.w (fg-rctd.company, fg-rctd.job-no:screen-value,FOCUS:SCREEN-VALUE,OUTPUT char-val, OUTPUT rec-val).
+             IF char-val <> "" THEN
+                ASSIGN /*focus:screen-value in frame {&frame-name} = entry(1,char-val)
                        fg-rctd.job-no:screen-value = entry(1,char-val) */
-                       fg-rctd.job-no2:screen-value = entry(2,char-val)
+                       fg-rctd.job-no2:screen-value = ENTRY(2,char-val)
                        fg-rctd.i-no:SCREEN-VALUE = ENTRY(3,char-val)
                        .
              IF rec-val <> ? THEN DO:
                 FIND job-hdr WHERE RECID(job-hdr) = rec-val NO-LOCK NO-ERROR.
 
                 IF AVAIL job-hdr THEN 
-                   fg-rctd.std-cost:SCREEN-VALUE = string(job-hdr.std-mat-cost +
+                   fg-rctd.std-cost:SCREEN-VALUE = STRING(job-hdr.std-mat-cost +
                                                           job-hdr.std-lab-cost +
                                                           job-hdr.std-fix-cost +
                                                           job-hdr.std-var-cost)
                    .
-             end.
+             END.
              FIND itemfg WHERE itemfg.company = g_company
                            AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE  NO-LOCK NO-ERROR.
              IF AVAIL ITEMfg THEN
                  ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name
                         fg-rctd.cost-uom:SCREEN-VALUE = itemfg.prod-uom  .
-             return no-apply.   
-       end.  
-       when "loc" then do:
-             run windows/l-loc.w (fg-rctd.company,focus:screen-value, output char-val).
-             if char-val <> "" then do :
-                assign focus:screen-value in  browse {&browse-name}  = entry(1,char-val)
+             RETURN NO-APPLY.   
+       END.  
+       WHEN "loc" THEN DO:
+             RUN windows/l-loc.w (fg-rctd.company,FOCUS:SCREEN-VALUE, OUTPUT char-val).
+             IF char-val <> "" THEN DO :
+                ASSIGN FOCUS:SCREEN-VALUE IN  BROWSE {&browse-name}  = ENTRY(1,char-val)
                        .
 
-             end.
-             return no-apply.   
-       end.
-       when "loc-bin" then do:
-             run windows/l-fgbin.w (fg-rctd.company,fg-rctd.loc:screen-value, fg-rctd.loc-bin:screen-value,output char-val).
-             if char-val <> "" then do :
-                assign focus:screen-value  = entry(1,char-val)
+             END.
+             RETURN NO-APPLY.   
+       END.
+       WHEN "loc-bin" THEN DO:
+             RUN windows/l-fgbin.w (fg-rctd.company,fg-rctd.loc:screen-value, fg-rctd.loc-bin:screen-value,OUTPUT char-val).
+             IF char-val <> "" THEN DO :
+                ASSIGN FOCUS:SCREEN-VALUE  = ENTRY(1,char-val)
                        /*fg-rctd.loc:screen-value = entry(2,char-val)
                         fg-rctd.tag:screen-value = entry(4,char-val)*/
                        .
 
-             end.
-             return no-apply.   
-       end.  
+             END.
+             RETURN NO-APPLY.   
+       END.  
          WHEN "tag" THEN DO:  /* task 11111306 */
              IF ll-set-parts THEN DO:
                   DEF VAR lv-all-or-one AS cha NO-UNDO.
@@ -720,23 +720,23 @@ DO:
                  lv-all-or-one = IF lchk THEN "ALL" ELSE "ONE".*/
                  lv-all-or-one = "ALL" .
                    
-                 FIND FIRST b-tag-rctd WHERE  b-tag-rctd.company eq cocode and 
-                       b-tag-rctd.r-no EQ int(SUBSTRING(reftable.dscr,9,35)) and 
-                       (b-tag-rctd.rita-code eq "R" or b-tag-rctd.rita-code eq "E")  NO-LOCK NO-ERROR.
+                 FIND FIRST b-tag-rctd WHERE  b-tag-rctd.company EQ cocode AND 
+                       b-tag-rctd.r-no EQ int(SUBSTRING(reftable.dscr,9,35)) AND 
+                       (b-tag-rctd.rita-code EQ "R" OR b-tag-rctd.rita-code EQ "E")  NO-LOCK NO-ERROR.
                 
                  IF AVAIL b-tag-rctd THEN ASSIGN fg-item-name = b-tag-rctd.i-no .
                  ELSE fg-item-name = ""  .
                     
                  RUN oe/l-tagnew.w (6, ROWID(fg-rctd), lv-all-or-one,fg-rctd.i-no:screen-value ,fg-rctd.job-no:screen-value,fg-rctd.job-no2:screen-value,
-                                    lv-linker, output char-val).
-                   if char-val <> "" then do :
-                       ASSIGN fg-rctd.tag:SCREEN-VALUE =  entry(1,char-val)
-                           fg-rctd.loc:SCREEN-VALUE =  entry(2,char-val)
-                           fg-rctd.loc-bin:SCREEN-VALUE =  entry(3,char-val) .
+                                    lv-linker, OUTPUT char-val).
+                   IF char-val <> "" THEN DO :
+                       ASSIGN fg-rctd.tag:SCREEN-VALUE =  ENTRY(1,char-val)
+                           fg-rctd.loc:SCREEN-VALUE =  ENTRY(2,char-val)
+                           fg-rctd.loc-bin:SCREEN-VALUE =  ENTRY(3,char-val) .
                    END.
              END.
          END.   /* task 11111306 */
-     end case.
+     END CASE.
    END.
 
 END.
@@ -940,11 +940,11 @@ DO:
   IF AVAIL po-ord THEN DO:
 
       /* 10021210 */
-      find first shipto where shipto.company eq cocode
-                          and shipto.cust-no eq po-ord.cust-no
-                          and shipto.ship-id eq po-ord.ship-id
-                          no-lock no-error.
-         IF avail shipto AND shipto.loc GT "" then
+      FIND FIRST shipto WHERE shipto.company EQ cocode
+                          AND shipto.cust-no EQ po-ord.cust-no
+                          AND shipto.ship-id EQ po-ord.ship-id
+                          NO-LOCK NO-ERROR.
+         IF AVAIL shipto AND shipto.loc GT "" THEN
              ASSIGN
              fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} = shipto.loc
              fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} = shipto.loc-bin.
@@ -1088,14 +1088,14 @@ DO:
     END.
   END.
 
-  find first itemfg {sys/look/itemfgrlW.i}
-             and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                 no-lock no-error.
+  FIND FIRST itemfg {sys/look/itemfgrlW.i}
+             AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+                 NO-LOCK NO-ERROR.
   IF NOT AVAIL itemfg THEN DO:
      IF fg-rctd.i-no:SCREEN-VALUE = "" THEN DO:
         MESSAGE "Invalid Item. Try help. " VIEW-AS ALERT-BOX.
         APPLY "entry" TO fg-rctd.i-no IN BROWSE {&browse-name}.
-        RETURN NO-apply.
+        RETURN NO-APPLY.
      END.
      ELSE DO:
        MESSAGE  " F/G Item is not on file.  Would you like to add it? "
@@ -1106,9 +1106,9 @@ DO:
        END.
        ELSE DO:
            RUN fg/d-crtitm.w (SELF:SCREEN-VALUE) .
-           find first itemfg {sys/look/itemfgrlW.i}
-                     and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                     no-lock no-error.
+           FIND FIRST itemfg {sys/look/itemfgrlW.i}
+                     AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+                     NO-LOCK NO-ERROR.
            IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name
                                        fg-rctd.loc:SCREEN-VALUE = itemfg.def-loc
                                        fg-rctd.loc-bin:SCREEN-VALUE = itemfg.def-loc-bin
@@ -1202,7 +1202,7 @@ END.
 ON LEAVE OF fg-rctd.cases IN BROWSE Browser-Table /* Units */
 DO:
   /* If it's in cases, needs to validate before continuing */
-  IF LASTKEY = -1 AND NOT focus:NAME EQ "cases" THEN RETURN .
+  IF LASTKEY = -1 AND NOT FOCUS:NAME EQ "cases" THEN RETURN .
   RUN new-qty.
  
   RUN valid-cases (FOCUS) NO-ERROR.
@@ -1554,7 +1554,7 @@ dMaxCompQty = maxComponentQty().
 IF AVAIL bfFgBin  THEN DO:
   
   /* dTotalQty is the qty in other lines with the same item number */
-  RUN get-selected-full-qty (INPUT bfFgBin.std-tot-cost, INPUT no, OUTPUT dTotalQty).
+  RUN get-selected-full-qty (INPUT bfFgBin.std-tot-cost, INPUT NO, OUTPUT dTotalQty).
   
   dTotalQty = ABS(dTotalQty).
   IF iprFgRctd EQ ? THEN
@@ -1627,8 +1627,8 @@ IF AVAIL bfFgBin  THEN DO:
       IF iprFgRctd EQ ? THEN
         ASSIGN
           fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = bfFgBin.job-no
-          fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(string(bfFgBin.job-no2)))) +
-                                                            TRIM(string(bfFgBin.job-no2)).
+          fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(STRING(bfFgBin.job-no2)))) +
+                                                            TRIM(STRING(bfFgBin.job-no2)).
       ELSE
         ASSIGN
           fg-rctd.job-no = bfFgBin.job-no
@@ -1733,8 +1733,8 @@ ASSIGN
 v-fgrecpt = AVAIL sys-ctrl AND sys-ctrl.char-fld EQ "LoadTag".
 
 FIND FIRST sys-ctrl
-  WHERE sys-ctrl.company eq cocode
-    AND sys-ctrl.name    eq "LOADTAG"
+  WHERE sys-ctrl.company EQ cocode
+    AND sys-ctrl.name    EQ "LOADTAG"
   NO-LOCK NO-ERROR.
 IF AVAIL sys-ctrl THEN
 ASSIGN v-loadtag = sys-ctrl.char-fld
@@ -1807,7 +1807,7 @@ IF RFIDTag-log THEN DO:
                      NO-ERROR.
   dRFIDTag = IF AVAIL oe-ctrl AND oe-ctrl.spare-char-1 <> ""
              THEN dec(oe-ctrl.spare-char-1) ELSE 111110000000000000000001.
-  oe-ctrl.spare-char-1 = string(dRFIDTag + 1).
+  oe-ctrl.spare-char-1 = STRING(dRFIDTag + 1).
   CREATE rfidtag.
   ASSIGN rfidtag.company   = loadtag.company
          rfidtag.item-type = loadtag.item-type
@@ -1919,13 +1919,13 @@ PROCEDURE display-po :
 
     fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-cost).
 
-    find first itemfg where itemfg.company = fg-rctd.company and
+    FIND FIRST itemfg WHERE itemfg.company = fg-rctd.company AND
                         itemfg.i-no = po-ordl.i-no
-                        no-lock no-error.
-    if avail itemfg then 
-       assign fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} =  itemfg.def-loc
+                        NO-LOCK NO-ERROR.
+    IF AVAIL itemfg THEN 
+       ASSIGN fg-rctd.loc:SCREEN-VALUE IN BROWSE {&browse-name} =  itemfg.def-loc
               fg-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&browse-name} =  itemfg.def-loc-bin
-              fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = string(itemfg.case-count)
+              fg-rctd.qty-case:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(itemfg.case-count)
             /*  fg-rctd.cost-uom = if itemfg.pur-man = itemfg.pur-uom
                             else itemfg.prod-uom  */.
 
@@ -2170,7 +2170,7 @@ PROCEDURE get-matrix :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def input parameter ip-first-disp as log no-undo.
+  DEF INPUT PARAMETER ip-first-disp AS LOG NO-UNDO.
 
   DEFINE VARIABLE v-len             LIKE po-ordl.s-len    NO-UNDO.
   DEFINE VARIABLE v-wid             LIKE po-ordl.s-len    NO-UNDO.
@@ -2210,12 +2210,12 @@ PROCEDURE get-matrix :
   DEF VAR lvSetupPerCostUom AS DEC NO-UNDO.
 
   DEF BUFFER b-job-hdr FOR job-hdr.
-  if not avail fg-rctd then return.  /* no records */
+  IF NOT AVAIL fg-rctd THEN RETURN.  /* no records */
 
 DO WITH FRAME {&FRAME-NAME}:
-find itemfg where itemfg.company eq cocode
-              and itemfg.i-no  eq fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-            use-index i-no no-lock no-error.
+FIND itemfg WHERE itemfg.company EQ cocode
+              AND itemfg.i-no  EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+            USE-INDEX i-no NO-LOCK NO-ERROR.
 
 ASSIGN
   v-bwt             = 0
@@ -2240,20 +2240,20 @@ IF AVAIL itemfg THEN
          lv-cost-uom = itemfg.prod-uom.
 
 /* Always find just to get quantity */
-find first po-ordl where po-ordl.company = cocode
-                     and po-ordl.po-no = int(fg-rctd.po-no)
-                     and po-ordl.i-no  = fg-rctd.i-no
-                     and po-ordl.job-no = fg-rctd.job-no
-                     and po-ordl.job-no2 = fg-rctd.job-no2
-                     and po-ordl.item-type = no
-                     no-lock no-error.
+FIND FIRST po-ordl WHERE po-ordl.company = cocode
+                     AND po-ordl.po-no = int(fg-rctd.po-no)
+                     AND po-ordl.i-no  = fg-rctd.i-no
+                     AND po-ordl.job-no = fg-rctd.job-no
+                     AND po-ordl.job-no2 = fg-rctd.job-no2
+                     AND po-ordl.item-type = NO
+                     NO-LOCK NO-ERROR.
 IF NOT AVAIL po-ordl THEN
-    find first po-ordl where po-ordl.company = cocode
-                         and po-ordl.po-no 
+    FIND FIRST po-ordl WHERE po-ordl.company = cocode
+                         AND po-ordl.po-no 
                              = int(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
-                         and po-ordl.i-no  = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                         and po-ordl.item-type = no
-                         no-lock no-error.
+                         AND po-ordl.i-no  = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+                         AND po-ordl.item-type = NO
+                         NO-LOCK NO-ERROR.
 
 IF AVAIL(po-ordl) THEN DO:
 
@@ -2264,7 +2264,7 @@ IF AVAIL(po-ordl) THEN DO:
 END.
 
 
-if ip-first-disp  and avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" then do: /* for row-display */  
+IF ip-first-disp  AND AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO: /* for row-display */  
   IF AVAIL po-ordl THEN
     ASSIGN
      v-len = po-ordl.s-len
@@ -2277,14 +2277,14 @@ if ip-first-disp  and avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&br
 END. /* avail fg-rctd */
 /* ======================================================================= */
 ELSE
-if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode - use screen-value */
-  find first po-ordl where po-ordl.company = fg-rctd.company
-                       and po-ordl.po-no = INT(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
-                       and po-ordl.i-no  = fg-rctd.i-no:screen-value
-                       and po-ordl.job-no = (fg-rctd.job-no:screen-value)
-                       and po-ordl.job-no2 = integer(fg-rctd.job-no2:screen-value)
-                       and po-ordl.item-type = no
-                       no-lock no-error.
+IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode - use screen-value */
+  FIND FIRST po-ordl WHERE po-ordl.company = fg-rctd.company
+                       AND po-ordl.po-no = INT(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
+                       AND po-ordl.i-no  = fg-rctd.i-no:screen-value
+                       AND po-ordl.job-no = (fg-rctd.job-no:screen-value)
+                       AND po-ordl.job-no2 = integer(fg-rctd.job-no2:screen-value)
+                       AND po-ordl.item-type = NO
+                       NO-LOCK NO-ERROR.
   v-rec-qty = INT(fg-rctd.t-qty:SCREEN-VALUE).
 
   FOR EACH b-fg-rctd
@@ -2314,12 +2314,12 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
     END.
     IF v-rec-qty GT (po-ordl.ord-qty * (1 + (po-ordl.over-pct / 100))) AND
        NOT lv-overrun-checked                                          THEN DO:
-       message "The PO Qty + overrun has been exceeded..."
+       MESSAGE "The PO Qty + overrun has been exceeded..."
                   VIEW-AS ALERT-BOX WARNING .
        lv-overrun-checked = YES.
        /*APPLY "entry" TO fg-rctd.cases.
        RETURN ERROR.  */
-    end.
+    END.
     DEF VAR lv-use-full-qty AS LOG.
     DEF VAR lv-full-qty AS DEC NO-UNDO.
     /* Created task 09261318 to be used by receiving screens in addition */            
@@ -2327,13 +2327,13 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
       (INPUT cocode ,
       INPUT ROWID(po-ordl),
       INPUT ROWID(fg-rctd),
-      INPUT fg-rctd.qty-case:screen-value in browse {&browse-name},
-      INPUT fg-rctd.cases:screen-value in browse {&browse-name},
-      INPUT fg-rctd.partial:screen-value in browse {&browse-name},
-      INPUT fg-rctd.job-no:screen-value in browse {&browse-name},
-      INPUT fg-rctd.job-no2:screen-value in browse {&browse-name},
-      INPUT fg-rctd.cost-uom:screen-value in browse {&browse-name},
-      INPUT fg-rctd.t-qty:screen-value in browse {&browse-name},
+      INPUT fg-rctd.qty-case:screen-value IN BROWSE {&browse-name},
+      INPUT fg-rctd.cases:screen-value IN BROWSE {&browse-name},
+      INPUT fg-rctd.partial:screen-value IN BROWSE {&browse-name},
+      INPUT fg-rctd.job-no:screen-value IN BROWSE {&browse-name},
+      INPUT fg-rctd.job-no2:screen-value IN BROWSE {&browse-name},
+      INPUT fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name},
+      INPUT fg-rctd.t-qty:screen-value IN BROWSE {&browse-name},
       OUTPUT lv-use-full-qty,
       OUTPUT lv-full-qty,
       OUTPUT lvCalcCostUom,
@@ -2344,9 +2344,9 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
       
     ASSIGN
       lvlTotalCostCalculated = TRUE
-      fg-rctd.cost-uom:screen-value in browse {&browse-name} = lvCalcCostUom
-      fg-rctd.std-cost:screen-value in browse {&browse-name} = string(lvCalcStdCost)
-      fg-rctd.ext-cost:screen-value in browse {&browse-name} = string(lvCalcExtCost).
+      fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
+      fg-rctd.std-cost:screen-value IN BROWSE {&browse-name} = STRING(lvCalcStdCost)
+      fg-rctd.ext-cost:screen-value IN BROWSE {&browse-name} = STRING(lvCalcExtCost).
   ASSIGN
    lv-out-qty  = DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name})
    lv-from-uom = fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2354,11 +2354,11 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
   END. /* IF AVAIL po-ordl */
   /* Else if not available PO orderline and job number is entered... */
   ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN DO:
-       find first job-hdr where job-hdr.company = fg-rctd.company                       
-                       and job-hdr.i-no  = fg-rctd.i-no:screen-value
-                       and job-hdr.job-no = (fg-rctd.job-no:screen-value)
-                       and job-hdr.job-no2 = integer(fg-rctd.job-no2:screen-value)
-                       no-lock no-error.
+       FIND FIRST job-hdr WHERE job-hdr.company = fg-rctd.company                       
+                       AND job-hdr.i-no  = fg-rctd.i-no:screen-value
+                       AND job-hdr.job-no = (fg-rctd.job-no:screen-value)
+                       AND job-hdr.job-no2 = integer(fg-rctd.job-no2:screen-value)
+                       NO-LOCK NO-ERROR.
        IF AVAIL job-hdr THEN DO:
 
 /*           FOR EACH fg-act                                                                         */
@@ -2479,7 +2479,7 @@ IF LOOKUP(lv-cost-uom,fg-uom-list) EQ 0 THEN
    lv-adjusted-ea = v-ord-qty.
 
  /* Calculate quantity of other matching lines to get a full qty */
- RUN get-set-full-qty (INPUT 0, INPUT yes, OUTPUT v-full-qty).
+ RUN get-set-full-qty (INPUT 0, INPUT YES, OUTPUT v-full-qty).
 
  IF v-full-qty GT lv-adjusted-ea THEN
     ASSIGN lv-adjusted-ea = v-full-qty
@@ -2513,14 +2513,14 @@ ASSIGN
                   DEC(fg-rctd.frt-cost:SCREEN-VALUE IN BROWSE {&browse-name})).
 
 /* Override this with code from addons that works properly */
-if ip-first-disp  and avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" then do: /* for row-display */  
-  find first po-ordl where po-ordl.company = cocode
-                       and po-ordl.po-no = int(fg-rctd.po-no)
-                       and po-ordl.i-no  = fg-rctd.i-no
-                       and po-ordl.job-no = fg-rctd.job-no
-                       and po-ordl.job-no2 = fg-rctd.job-no2
-                       and po-ordl.item-type = no
-                       no-lock no-error.
+IF ip-first-disp  AND AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO: /* for row-display */  
+  FIND FIRST po-ordl WHERE po-ordl.company = cocode
+                       AND po-ordl.po-no = int(fg-rctd.po-no)
+                       AND po-ordl.i-no  = fg-rctd.i-no
+                       AND po-ordl.job-no = fg-rctd.job-no
+                       AND po-ordl.job-no2 = fg-rctd.job-no2
+                       AND po-ordl.item-type = NO
+                       NO-LOCK NO-ERROR.
 
   IF AVAIL po-ordl THEN
     ASSIGN
@@ -2538,17 +2538,17 @@ if ip-first-disp  and avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&br
     RUN rm/convcuom.p(fg-rctd.cost-uom, lv-cost-uom,                   
                       v-bwt, v-len, v-wid, v-dep,
                       fg-rctd.std-cost, OUTPUT lv-out-cost).
-end. /* avail fg-rctd */
+END. /* avail fg-rctd */
 /* ======================================================================= */
-else
-if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode - use screen-value */
-  find first po-ordl where po-ordl.company = cocode
-                       and po-ordl.po-no = integer(fg-rctd.po-no:screen-value in browse {&browse-name}) 
-                       and po-ordl.i-no  = fg-rctd.i-no:screen-value
-                       and po-ordl.job-no = (fg-rctd.job-no:screen-value)
-                       and po-ordl.job-no2 = integer(fg-rctd.job-no2:screen-value)
-                       and po-ordl.item-type = no
-                       no-lock no-error.
+ELSE
+IF AVAIL fg-rctd AND fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode - use screen-value */
+  FIND FIRST po-ordl WHERE po-ordl.company = cocode
+                       AND po-ordl.po-no = integer(fg-rctd.po-no:screen-value IN BROWSE {&browse-name}) 
+                       AND po-ordl.i-no  = fg-rctd.i-no:screen-value
+                       AND po-ordl.job-no = (fg-rctd.job-no:screen-value)
+                       AND po-ordl.job-no2 = integer(fg-rctd.job-no2:screen-value)
+                       AND po-ordl.item-type = NO
+                       NO-LOCK NO-ERROR.
   
   IF AVAIL po-ordl THEN DO:
     ASSIGN
@@ -2557,16 +2557,16 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
      v-rec-qty = po-ordl.t-rec-qty + int(fg-rctd.t-qty:SCREEN-VALUE).
 
     IF LOOKUP(po-ordl.pr-qty-uom,fg-uom-list) EQ 0 THEN
-       run sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
-                              v-rec-qty, output v-rec-qty).
-    if v-rec-qty gt (po-ordl.ord-qty * 
+       RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
+                              v-rec-qty, OUTPUT v-rec-qty).
+    IF v-rec-qty GT (po-ordl.ord-qty * 
                     (1 + (po-ordl.over-pct / 100)))
        AND NOT lv-overrun-checked
-    then do:
-       message "The PO Qty + overrun has been exceeded. "
+    THEN DO:
+       MESSAGE "The PO Qty + overrun has been exceeded. "
                   VIEW-AS ALERT-BOX WARNING .
        lv-overrun-checked = YES.
-    end.
+    END.
 
     
 
@@ -2576,13 +2576,13 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
       (INPUT cocode ,
       INPUT ROWID(po-ordl),
       INPUT ROWID(fg-rctd),
-      INPUT fg-rctd.qty-case:screen-value in browse {&browse-name},
-      INPUT fg-rctd.cases:screen-value in browse {&browse-name},
-      INPUT fg-rctd.partial:screen-value in browse {&browse-name},
-      INPUT fg-rctd.job-no:screen-value in browse {&browse-name},
-      INPUT fg-rctd.job-no2:screen-value in browse {&browse-name},
-      INPUT fg-rctd.cost-uom:screen-value in browse {&browse-name},
-      INPUT fg-rctd.t-qty:screen-value in browse {&browse-name},
+      INPUT fg-rctd.qty-case:screen-value IN BROWSE {&browse-name},
+      INPUT fg-rctd.cases:screen-value IN BROWSE {&browse-name},
+      INPUT fg-rctd.partial:screen-value IN BROWSE {&browse-name},
+      INPUT fg-rctd.job-no:screen-value IN BROWSE {&browse-name},
+      INPUT fg-rctd.job-no2:screen-value IN BROWSE {&browse-name},
+      INPUT fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name},
+      INPUT fg-rctd.t-qty:screen-value IN BROWSE {&browse-name},
       OUTPUT lv-use-full-qty,
       OUTPUT lv-full-qty,
       OUTPUT lvCalcCostUom,
@@ -2592,9 +2592,9 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
       OUTPUT lvSetupPerCostUom).
     
     ASSIGN
-      fg-rctd.cost-uom:screen-value in browse {&browse-name} = lvCalcCostUom
-      fg-rctd.std-cost:screen-value in browse {&browse-name} = string(lvCalcStdCost)
-      fg-rctd.ext-cost:screen-value in browse {&browse-name} = string(lvCalcExtCost).
+      fg-rctd.cost-uom:screen-value IN BROWSE {&browse-name} = lvCalcCostUom
+      fg-rctd.std-cost:screen-value IN BROWSE {&browse-name} = STRING(lvCalcStdCost)
+      fg-rctd.ext-cost:screen-value IN BROWSE {&browse-name} = STRING(lvCalcExtCost).
     ASSIGN
      lv-out-qty  = DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name})
      lv-cost-uom = fg-rctd.cost-uom:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -2602,11 +2602,11 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
 
   END.
   ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN DO:
-       find first job-hdr where job-hdr.company = cocode                       
-                       and job-hdr.i-no  = fg-rctd.i-no:screen-value
-                       and job-hdr.job-no = (fg-rctd.job-no:screen-value)
-                       and job-hdr.job-no2 = integer(fg-rctd.job-no2:screen-value)
-                       no-lock no-error.
+       FIND FIRST job-hdr WHERE job-hdr.company = cocode                       
+                       AND job-hdr.i-no  = fg-rctd.i-no:screen-value
+                       AND job-hdr.job-no = (fg-rctd.job-no:screen-value)
+                       AND job-hdr.job-no2 = integer(fg-rctd.job-no2:screen-value)
+                       NO-LOCK NO-ERROR.
        IF AVAIL job-hdr THEN DO: 
           FIND FIRST sys-ctrl WHERE sys-ctrl.company = cocode AND
                                     sys-ctrl.name = "JOB QTY" 
@@ -2628,7 +2628,7 @@ if avail fg-rctd and fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode 
       
           END.
           IF v-rec-qty <  int(fg-rctd.t-qty:SCREEN-VALUE) AND NOT lv-overrun-checked THEN DO:
-             MESSAGE "Receipt quantity exceeds job quantity." VIEW-AS ALERT-BOX Warning.
+             MESSAGE "Receipt quantity exceeds job quantity." VIEW-AS ALERT-BOX WARNING.
              lv-overrun-checked = YES.
           END.
           
@@ -2657,7 +2657,7 @@ ASSIGN
  fg-rctd.std-cost:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-out-cost)
  fg-rctd.ext-cost:SCREEN-VALUE IN BROWSE {&browse-name} =
        STRING((lv-out-qty * lv-out-cost) +
-           dec(fg-rctd.frt-cost:screen-value in browse {&browse-name})).
+           dec(fg-rctd.frt-cost:screen-value IN BROWSE {&browse-name})).
 
 
 END.
@@ -2674,13 +2674,13 @@ PROCEDURE get-matrix-all :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def input parameter ip-first-disp as log no-undo.
-  def var v-len like po-ordl.s-len no-undo.
-  def var v-wid like po-ordl.s-len no-undo.
-  def var v-dep like po-ordl.s-len no-undo. 
-  def var v-bwt like po-ordl.s-len no-undo.
-  def var lv-out-qty as dec no-undo.
-  def var lv-out-cost as dec no-undo.
+  DEF INPUT PARAMETER ip-first-disp AS LOG NO-UNDO.
+  DEF VAR v-len LIKE po-ordl.s-len NO-UNDO.
+  DEF VAR v-wid LIKE po-ordl.s-len NO-UNDO.
+  DEF VAR v-dep LIKE po-ordl.s-len NO-UNDO. 
+  DEF VAR v-bwt LIKE po-ordl.s-len NO-UNDO.
+  DEF VAR lv-out-qty AS DEC NO-UNDO.
+  DEF VAR lv-out-cost AS DEC NO-UNDO.
   DEF VAR v-rec-qty AS INT NO-UNDO.
   DEF VAR ll-ea AS LOG NO-UNDO.
 
@@ -2690,12 +2690,12 @@ PROCEDURE get-matrix-all :
   cocode = g_company.
 
   lv-out-qty = 0.
-  FOR EACH b-fg-rctd WHERE b-fg-rctd.company eq g_company and
-           (b-fg-rctd.rita-code eq "R" or b-fg-rctd.rita-code eq "E")
+  FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company AND
+           (b-fg-rctd.rita-code EQ "R" OR b-fg-rctd.rita-code EQ "E")
            AND trim(b-fg-rctd.job-no) = trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
            AND b-fg-rctd.job-no2 = INT(fg-rctd.job-no2:SCREEN-VALUE)
            AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE 
-           AND (recid(b-fg-rctd) <> recid(fg-rctd) 
+           AND (RECID(b-fg-rctd) <> recid(fg-rctd) 
                 OR (adm-new-record AND NOT adm-adding-record))
            NO-LOCK :
 
@@ -2704,39 +2704,39 @@ PROCEDURE get-matrix-all :
   
   lv-out-qty = lv-out-qty + int(fg-rctd.t-qty:SCREEN-VALUE).
 
-  IF fg-rctd.i-no:SCREEN-VALUE <> "" then do: /* in update mode - use screen-value */
-       find itemfg  where itemfg.company eq cocode
-                and itemfg.i-no  eq fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                      use-index i-no no-lock no-error.
-       find first po-ordl where po-ordl.company = fg-rctd.company
-                       and po-ordl.po-no = integer(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
-                       and po-ordl.i-no  = fg-rctd.i-no:screen-value
-                       and po-ordl.job-no = (fg-rctd.job-no:screen-value)
-                       and po-ordl.job-no2 = integer(fg-rctd.job-no2:screen-value)
-                       and po-ordl.item-type = no
-                       no-lock no-error.
+  IF fg-rctd.i-no:SCREEN-VALUE <> "" THEN DO: /* in update mode - use screen-value */
+       FIND itemfg  WHERE itemfg.company EQ cocode
+                AND itemfg.i-no  EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+                      USE-INDEX i-no NO-LOCK NO-ERROR.
+       FIND FIRST po-ordl WHERE po-ordl.company = fg-rctd.company
+                       AND po-ordl.po-no = integer(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}) 
+                       AND po-ordl.i-no  = fg-rctd.i-no:screen-value
+                       AND po-ordl.job-no = (fg-rctd.job-no:screen-value)
+                       AND po-ordl.job-no2 = integer(fg-rctd.job-no2:screen-value)
+                       AND po-ordl.item-type = NO
+                       NO-LOCK NO-ERROR.
   
        IF AVAIL po-ordl THEN DO:
           v-rec-qty = po-ordl.t-rec-qty + lv-out-qty.
           RUN sys/ref/ea-um-fg.p (po-ordl.pr-qty-uom, OUTPUT ll-ea).
           IF NOT ll-ea THEN
-            run sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
-                                   v-rec-qty, output v-rec-qty).
-         if v-rec-qty gt (po-ordl.ord-qty * 
+            RUN sys/ref/convquom.p("EA", po-ordl.pr-qty-uom, 0, 0, 0, 0,
+                                   v-rec-qty, OUTPUT v-rec-qty).
+         IF v-rec-qty GT (po-ordl.ord-qty * 
                     (1 + (po-ordl.over-pct / 100)))
             AND NOT lv-overrun-checked
-          then do:
-             message "The PO Qty + overrun has been exceeded. "
+          THEN DO:
+             MESSAGE "The PO Qty + overrun has been exceeded. "
                      VIEW-AS ALERT-BOX WARNING .
              lv-overrun-checked = YES.
-          end.
+          END.
        END.
        ELSE IF fg-rctd.job-no:SCREEN-VALUE <> "" THEN DO:
-         find first job-hdr where job-hdr.company = fg-rctd.company                       
-                       and job-hdr.i-no  = fg-rctd.i-no:screen-value
-                       and job-hdr.job-no = (fg-rctd.job-no:screen-value)
-                       and job-hdr.job-no2 = integer(fg-rctd.job-no2:screen-value)
-                       no-lock no-error.
+         FIND FIRST job-hdr WHERE job-hdr.company = fg-rctd.company                       
+                       AND job-hdr.i-no  = fg-rctd.i-no:screen-value
+                       AND job-hdr.job-no = (fg-rctd.job-no:screen-value)
+                       AND job-hdr.job-no2 = integer(fg-rctd.job-no2:screen-value)
+                       NO-LOCK NO-ERROR.
          IF AVAIL job-hdr THEN DO: 
            FIND FIRST sys-ctrl WHERE sys-ctrl.company = g_company AND
                                     sys-ctrl.name = "JOB QTY" 
@@ -2757,7 +2757,7 @@ PROCEDURE get-matrix-all :
                                                 IF AVAIL oe-ord  THEN oe-ord.over-pct  ELSE 0) / 100))).
            END.
            IF v-rec-qty <  lv-out-qty AND NOT lv-overrun-checked THEN DO:
-              MESSAGE "Receipt Qty has exceeded Job Qty. " VIEW-AS ALERT-BOX Warning.
+              MESSAGE "Receipt Qty has exceeded Job Qty. " VIEW-AS ALERT-BOX WARNING.
              /*RETURN ERROR.*/
               lv-overrun-checked = YES.
            END.
@@ -2842,8 +2842,8 @@ FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company
   FIRST ASI.reftable WHERE reftable.reftable EQ "fg-rctd.user-id" AND
     reftable.company  EQ b-fg-rctd.company AND
     reftable.loc      EQ STRING(b-fg-rctd.r-no,"9999999999")  AND
-    (reftable.dscr    EQ lv-linker AND reftable.dscr begins "fg-rctd: ")  
-    use-index loc NO-LOCK :
+    (reftable.dscr    EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ")  
+    USE-INDEX loc NO-LOCK :
 
 
   
@@ -2927,13 +2927,13 @@ PROCEDURE get-set-full-qty :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAMETER ip-cost-to-set AS DEC NO-UNDO.
   DEF INPUT PARAMETER ip-on-screen AS LOG NO-UNDO.
-  def OUTPUT parameter op-out-qty as DEC no-undo.
-  def var v-len like po-ordl.s-len no-undo.
-  def var v-wid like po-ordl.s-len no-undo.
-  def var v-dep like po-ordl.s-len no-undo. 
-  def var v-bwt like po-ordl.s-len no-undo.
-  def var lv-out-qty as dec no-undo.
-  def var lv-out-cost as dec no-undo.
+  DEF OUTPUT PARAMETER op-out-qty AS DEC NO-UNDO.
+  DEF VAR v-len LIKE po-ordl.s-len NO-UNDO.
+  DEF VAR v-wid LIKE po-ordl.s-len NO-UNDO.
+  DEF VAR v-dep LIKE po-ordl.s-len NO-UNDO. 
+  DEF VAR v-bwt LIKE po-ordl.s-len NO-UNDO.
+  DEF VAR lv-out-qty AS DEC NO-UNDO.
+  DEF VAR lv-out-cost AS DEC NO-UNDO.
   DEF VAR lv-calc-cost AS DEC.
   DEF VAR lv-recalc-cost AS DEC.
   DEF VAR lv-ext-cost AS DEC.
@@ -2947,19 +2947,19 @@ PROCEDURE get-set-full-qty :
   cocode = g_company.
 
   lv-out-qty = 0.
-  FOR EACH b-fg-rctd WHERE b-fg-rctd.company eq g_company and
-           (b-fg-rctd.rita-code eq "R" or b-fg-rctd.rita-code eq "E")
+  FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company AND
+           (b-fg-rctd.rita-code EQ "R" OR b-fg-rctd.rita-code EQ "E")
            AND trim(b-fg-rctd.job-no) = trim(fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name})
            AND b-fg-rctd.job-no2 = INT(fg-rctd.job-no2:SCREEN-VALUE)
            AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE 
-           AND (recid(b-fg-rctd) <> recid(fg-rctd) 
+           AND (RECID(b-fg-rctd) <> recid(fg-rctd) 
                 OR (adm-new-record AND NOT adm-adding-record))
            NO-LOCK,     
     FIRST ASI.reftable WHERE reftable.reftable EQ "fg-rctd.user-id" AND
       reftable.company  EQ fg-rctd.company AND
       reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999")  AND
-      (reftable.dscr    EQ lv-linker AND reftable.dscr begins "fg-rctd: ")  
-    use-index loc:
+      (reftable.dscr    EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ")  
+    USE-INDEX loc:
 
       lv-out-qty = lv-out-qty + b-fg-rctd.t-qty.     
       IF ip-cost-to-set GT 0 THEN DO:
@@ -2970,9 +2970,9 @@ PROCEDURE get-set-full-qty :
               EXCLUSIVE-LOCK NO-ERROR.
           IF AVAIL b1-fg-rctd THEN DO WITH FRAME {&FRAME-NAME}:
         
-            find itemfg where itemfg.company eq cocode
-                          and itemfg.i-no  eq b-fg-rctd.i-no
-                        use-index i-no no-lock no-error.
+            FIND itemfg WHERE itemfg.company EQ cocode
+                          AND itemfg.i-no  EQ b-fg-rctd.i-no
+                        USE-INDEX i-no NO-LOCK NO-ERROR.
             
             ASSIGN
               v-bwt             = 0
@@ -2983,19 +2983,19 @@ PROCEDURE get-set-full-qty :
                      v-wid       = itemfg.t-wid.
             
             /* Always find just to get quantity */
-            find first po-ordl where po-ordl.company = cocode
-                                 and po-ordl.po-no   = int(b-fg-rctd.po-no)
-                                 and po-ordl.i-no    = b-fg-rctd.i-no
-                                 and po-ordl.job-no  = b-fg-rctd.job-no
-                                 and po-ordl.job-no2 = b-fg-rctd.job-no2
-                                 and po-ordl.item-type = no
-                                 no-lock no-error.
+            FIND FIRST po-ordl WHERE po-ordl.company = cocode
+                                 AND po-ordl.po-no   = int(b-fg-rctd.po-no)
+                                 AND po-ordl.i-no    = b-fg-rctd.i-no
+                                 AND po-ordl.job-no  = b-fg-rctd.job-no
+                                 AND po-ordl.job-no2 = b-fg-rctd.job-no2
+                                 AND po-ordl.item-type = NO
+                                 NO-LOCK NO-ERROR.
             IF NOT AVAIL po-ordl THEN
-                find first po-ordl where po-ordl.company = cocode
-                                     and po-ordl.po-no   = integer(b-fg-rctd.po-no)
-                                     and po-ordl.i-no    = b-fg-rctd.i-no
-                                     and po-ordl.item-type = no
-                                     no-lock no-error.
+                FIND FIRST po-ordl WHERE po-ordl.company = cocode
+                                     AND po-ordl.po-no   = integer(b-fg-rctd.po-no)
+                                     AND po-ordl.i-no    = b-fg-rctd.i-no
+                                     AND po-ordl.item-type = NO
+                                     NO-LOCK NO-ERROR.
             
             
             IF AVAIL po-ordl THEN
@@ -3045,10 +3045,10 @@ PROCEDURE get-values :
   DEF VAR ll-ea AS LOG NO-UNDO.
 
   DO WITH FRAME {&FRAME-NAME}:
-    find first itemfg
+    FIND FIRST itemfg
         {sys/look/itemfgrlW.i}
-          and itemfg.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-        no-lock no-error.
+          AND itemfg.i-no EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+        NO-LOCK NO-ERROR.
     IF AVAIL itemfg THEN DO:
         
         /* Assign from itemfg only if blank. Don't overwrite if name already set from PO. */
@@ -3058,26 +3058,26 @@ PROCEDURE get-values :
     
     /*     find first fg-ctrl where fg-ctrl.company eq cocode no-lock no-error.  */
         
-        assign
-         lv-qty-case = string(itemfg.case-count)
-         lv-cost-uom = if itemfg.pur-man then itemfg.pur-uom else itemfg.prod-uom.
+        ASSIGN
+         lv-qty-case = STRING(itemfg.case-count)
+         lv-cost-uom = IF itemfg.pur-man THEN itemfg.pur-uom ELSE itemfg.prod-uom.
     
         RUN fg/autopost.p (ROWID(itemfg),
                            fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name},
                            INT(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}),
                            OUTPUT lv-loc, OUTPUT lv-loc-bin).
         
-        find first fg-bin
-            where fg-bin.company eq cocode
-              and fg-bin.loc     eq lv-loc
-              and fg-bin.loc-bin eq lv-loc-bin
-              and fg-bin.i-no    eq ""
-            no-lock no-error.
-        if avail fg-bin then 
-          assign
-           lv-std-cost = IF fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" and
+        FIND FIRST fg-bin
+            WHERE fg-bin.company EQ cocode
+              AND fg-bin.loc     EQ lv-loc
+              AND fg-bin.loc-bin EQ lv-loc-bin
+              AND fg-bin.i-no    EQ ""
+            NO-LOCK NO-ERROR.
+        IF AVAIL fg-bin THEN 
+          ASSIGN
+           lv-std-cost = IF fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" AND
                                                       fg-rctd.job-no:SCREEN-VALUE = "" 
-                                                   THEN string(itemfg.last-cost) 
+                                                   THEN STRING(itemfg.last-cost) 
                                                    ELSE lv-std-cost
            lv-qty-case = /*IF fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name} = "" and
                                                       fg-rctd.job-no:SCREEN-VALUE = "" 
@@ -3102,12 +3102,12 @@ PROCEDURE get-values :
 
     /**  Find the Job Header record in then job file and use Standard Cost
          from that job. **/
-    find first job-hdr
-        where job-hdr.company eq cocode
-          and job-hdr.i-no    eq fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          and job-hdr.job-no  eq fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
-          and job-hdr.job-no2 eq int(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
-        NO-LOCK no-error.
+    FIND FIRST job-hdr
+        WHERE job-hdr.company EQ cocode
+          AND job-hdr.i-no    EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND job-hdr.job-no  EQ fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+          AND job-hdr.job-no2 EQ int(fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name})
+        NO-LOCK NO-ERROR.
 
     IF NOT AVAIL job-hdr THEN DO:
       FIND FIRST job
@@ -3125,27 +3125,27 @@ PROCEDURE get-values :
           NO-LOCK NO-ERROR.
     END.
 
-    if avail job-hdr and job-hdr.std-tot-cost gt 0 THEN
+    IF AVAIL job-hdr AND job-hdr.std-tot-cost GT 0 THEN
       ASSIGN
        lv-cost-uom = "M"
-       lv-std-cost = string(job-hdr.std-tot-cost).
+       lv-std-cost = STRING(job-hdr.std-tot-cost).
     ELSE
     IF AVAIL reftable-job AND reftable-job.val[5] GT 0 THEN
       ASSIGN
        lv-cost-uom = "M"
-       lv-std-cost = string(reftable-job.val[5]).
+       lv-std-cost = STRING(reftable-job.val[5]).
 
     /** If no Job Header is avail for this Job# then Find the Item
         record for then item and use Standard Cost from that item. **/
-    else do:
-      find first po-ordl
-          where po-ordl.company   eq cocode           
-            and po-ordl.po-no     eq int(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
-            and po-ordl.i-no      eq fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-            and po-ordl.item-type eq no
-          no-lock no-error.
+    ELSE DO:
+      FIND FIRST po-ordl
+          WHERE po-ordl.company   EQ cocode           
+            AND po-ordl.po-no     EQ int(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name})
+            AND po-ordl.i-no      EQ fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND po-ordl.item-type EQ NO
+          NO-LOCK NO-ERROR.
           
-      if avail po-ordl THEN DO:
+      IF AVAIL po-ordl THEN DO:
         ASSIGN
          lv-cost-uom = po-ordl.pr-uom.
          lv-std-cost = STRING(po-ordl.cost * (IF po-ordl.disc NE 0 THEN (1 - (po-ordl.disc / 100)) ELSE 1)).
@@ -3156,10 +3156,10 @@ PROCEDURE get-values :
         
       END.
      
-      else
-      if avail itemfg          AND
+      ELSE
+      IF AVAIL itemfg          AND
          DEC(lv-std-cost) EQ 0 THEN DO:
-        assign
+        ASSIGN
          lv-cost-uom = itemfg.prod-uom
          lv-std-cost = STRING(itemfg.total-std-cost).
 
@@ -3443,7 +3443,7 @@ PROCEDURE local-create-record :
   END.
 
   ELSE
-  IF adm-adding-record THEN do:
+  IF adm-adding-record THEN DO:
     ASSIGN
      fg-rctd.rct-date    = TODAY
      fg-rctd.trans-time   = TIME
@@ -3483,7 +3483,7 @@ PROCEDURE local-create-record :
    fg-rctd.trans-time   = TIME
    .   
 
-  IF adm-adding-record THEN disp fg-rctd.rct-date  fg-rctd.cases-unit with browse {&browse-name}. 
+  IF adm-adding-record THEN DISP fg-rctd.rct-date  fg-rctd.cases-unit WITH BROWSE {&browse-name}. 
 
 
 /*
@@ -3546,9 +3546,9 @@ PROCEDURE local-enable-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var out-hd-lst as cha no-undo.
-  def var ii as int no-undo.
-  def var hd-next as widget-handle no-undo.
+  DEF VAR out-hd-lst AS cha NO-UNDO.
+  DEF VAR ii AS INT NO-UNDO.
+  DEF VAR hd-next AS WIDGET-HANDLE NO-UNDO.
 
   lv-rct-date-checked = NO.
 
@@ -3715,7 +3715,7 @@ PROCEDURE local-update-record :
   
 
   /* Run with check on password, if relevant */
-  RUN valid-job-no (INPUT yes) NO-ERROR.
+  RUN valid-job-no (INPUT YES) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
 
   RUN valid-job-no2 NO-ERROR.
@@ -3739,7 +3739,7 @@ PROCEDURE local-update-record :
 
   RUN validate-record NO-ERROR.
 
-  IF ERROR-STATUS:ERROR THEN do:
+  IF ERROR-STATUS:ERROR THEN DO:
     RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"tableio-source",OUTPUT char-hdl).
      
     IF VALID-HANDLE(HANDLE(char-hdl)) THEN DO:
@@ -3944,8 +3944,8 @@ DO WITH FRAME {&FRAME-NAME}:
             IF loadtag.job-no <> "" THEN DO:
                 ASSIGN
                     fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = loadtag.job-no
-                    fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(string(loadtag.job-no2)))) +
-                                                                           TRIM(string(loadtag.job-no2)).
+                    fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(STRING(loadtag.job-no2)))) +
+                                                                           TRIM(STRING(loadtag.job-no2)).
                 IF NOT fgRecptPassWord-log THEN
                     RUN get-job-no (INPUT YES) NO-ERROR.
                 ELSE
@@ -3969,7 +3969,7 @@ DO WITH FRAME {&FRAME-NAME}:
         IF AVAIL fg-bin  THEN DO:
 
           /* dTotalQty is the qty in other lines with the same item number */
-          RUN get-set-full-qty (INPUT fg-bin.std-tot-cost, INPUT yes, OUTPUT dTotalQty).
+          RUN get-set-full-qty (INPUT fg-bin.std-tot-cost, INPUT YES, OUTPUT dTotalQty).
           
           dTotalQty = dTotalQty - DEC(fg-rctd.t-qty:SCREEN-VALUE IN BROWSE {&browse-name}).
           
@@ -4000,8 +4000,8 @@ DO WITH FRAME {&FRAME-NAME}:
             IF fg-bin.job-no <> "" THEN
                 ASSIGN
                   fg-rctd.job-no:SCREEN-VALUE IN BROWSE {&browse-name} = fg-bin.job-no
-                  fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(string(fg-bin.job-no2)))) +
-                                                                          TRIM(string(fg-bin.job-no2)).
+                  fg-rctd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name} = FILL(" ",6 - LENGTH(TRIM(STRING(fg-bin.job-no2)))) +
+                                                                          TRIM(STRING(fg-bin.job-no2)).
         END.
     END.
 END.
@@ -4143,7 +4143,7 @@ gvcCurrentItem = fg-rctd.i-no.
          FOR EACH ASI.reftable WHERE reftable.reftable EQ "fg-rctd.user-id" 
            AND reftable.company  EQ fg-rctd.company 
            AND reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999") 
-           AND (reftable.dscr    EQ lv-linker AND reftable.dscr begins "fg-rctd: ")
+           AND (reftable.dscr    EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ")
            EXCLUSIVE-LOCK:
            DELETE reftable.
          END.
@@ -4451,36 +4451,36 @@ PROCEDURE tag-sequence :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var v-tag-seq as int no-undo.
-  def var v-locode as cha no-undo.
+  DEF VAR v-tag-seq AS INT NO-UNDO.
+  DEF VAR v-locode AS cha NO-UNDO.
 
   
-  assign v-tag-seq = 0
+  ASSIGN v-tag-seq = 0
          v-locode  = "".
 
-  do while TRUE WITH FRAME {&FRAME-NAME}:
-    find first b-fg-rctd
-        where b-fg-rctd.company eq fg-rctd.company
-          and b-fg-rctd.loc     gt v-locode
-        no-lock no-error.
+  DO WHILE TRUE WITH FRAME {&FRAME-NAME}:
+    FIND FIRST b-fg-rctd
+        WHERE b-fg-rctd.company EQ fg-rctd.company
+          AND b-fg-rctd.loc     GT v-locode
+        NO-LOCK NO-ERROR.
 
-    if avail b-fg-rctd then do:
+    IF AVAIL b-fg-rctd THEN DO:
       v-locode = b-fg-rctd.loc.
 
-      for each b-fg-rctd where b-fg-rctd.company eq fg-rctd.company
-            and b-fg-rctd.loc     eq v-locode
-            and b-fg-rctd.tag     begins string(int(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}),"999999")
-            use-index tag no-lock
-            by b-fg-rctd.tag desc:
+      FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ fg-rctd.company
+            AND b-fg-rctd.loc     EQ v-locode
+            AND b-fg-rctd.tag     BEGINS string(int(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}),"999999")
+            USE-INDEX tag NO-LOCK
+            BY b-fg-rctd.tag DESC:
 
-           if int(substr(b-fg-rctd.tag,7,2)) gt v-tag-seq then
+           IF int(substr(b-fg-rctd.tag,7,2)) GT v-tag-seq THEN
            v-tag-seq = int(substr(b-fg-rctd.tag,7,2)).
-            leave.
-      end.
-    end.
+            LEAVE.
+      END.
+    END.
 
-    else leave.
-  end.  /* do while */
+    ELSE LEAVE.
+  END.  /* do while */
 /* ======= may not need any more 
   v-locode = "".
   if v-tag-seq eq 0 then do while true:
@@ -4507,7 +4507,7 @@ PROCEDURE tag-sequence :
     else leave.
   end.
 ============================== */
-  assign
+  ASSIGN
    v-tag-seq   = v-tag-seq + 1.
 /*   fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
           = string(int(fg-rctd.po-no:SCREEN-VALUE IN BROWSE {&browse-name}),"999999") + string(v-tag-seq,"99").
@@ -4595,9 +4595,10 @@ PROCEDURE valid-cases :
   
         IF lv-msg EQ "" AND NOT ll-set-parts AND
            (CAN-FIND(FIRST b-fg-rctd
-                     WHERE b-fg-rctd.company EQ cocode
-                       AND b-fg-rctd.tag     EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
-                     AND RECID(b-fg-rctd)  NE RECID(fg-rctd)) OR
+                     WHERE b-fg-rctd.company   EQ cocode
+                       AND b-fg-rctd.tag       EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+                       AND b-fg-rctd.rita-code NE "P"
+                       AND RECID(b-fg-rctd)    NE RECID(fg-rctd)) OR
             CAN-FIND(FIRST b-fg-rdtlh
                      WHERE b-fg-rdtlh.company   EQ cocode
                        AND b-fg-rdtlh.tag       EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
@@ -4615,6 +4616,7 @@ PROCEDURE valid-cases :
            CAN-FIND(FIRST b-fg-rctd
                      WHERE b-fg-rctd.company EQ cocode
                        AND b-fg-rctd.tag     EQ fg-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}
+                       AND b-fg-rctd.rita-code NE "P"
                        AND b-fg-rctd.r-no    NE 0) THEN
            ASSIGN lv-msg = "Tag# has already been used, please re-enter".
         
@@ -4919,7 +4921,7 @@ PROCEDURE valid-po-no :
           
       IF AVAILABLE po-ord AND po-ord.stat = "H" AND POHoldRct-log THEN DO: /* ticket 17372 */
          MESSAGE "Unable to receive goods or materials for a purchase order that is on hold!"
-         VIEW-AS ALERT-BOX error. 
+         VIEW-AS ALERT-BOX ERROR. 
          RETURN ERROR.
       END.
       
@@ -5011,6 +5013,7 @@ PROCEDURE valid-tag :
          (CAN-FIND(FIRST b-fg-rctd
                    WHERE b-fg-rctd.company EQ cocode
                      AND b-fg-rctd.tag     EQ ip-focus:SCREEN-VALUE
+                     AND b-fg-rctd.rita-code NE "P"
                      AND RECID(b-fg-rctd)  NE RECID(fg-rctd)) OR
           CAN-FIND(FIRST b-fg-rdtlh
                    WHERE b-fg-rdtlh.company   EQ cocode
@@ -5030,6 +5033,7 @@ PROCEDURE valid-tag :
          CAN-FIND(FIRST b-fg-rctd
                    WHERE b-fg-rctd.company EQ cocode
                      AND b-fg-rctd.tag     EQ ip-focus:SCREEN-VALUE
+                     AND b-fg-rctd.rita-code NE "P"
                      AND b-fg-rctd.r-no    NE 0) THEN
          ASSIGN lv-msg = "Tag# has already been used, please re-enter"
                 lTagError = TRUE.
@@ -5206,9 +5210,9 @@ PROCEDURE validate-record :
         END.
         ELSE DO:
             RUN fg/d-crtitm.w (fg-rctd.i-no:SCREEN-VALUE).
-            FIND first itemfg {sys/look/itemfgrlW.i}
-                       and itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                       no-lock no-error.
+            FIND FIRST itemfg {sys/look/itemfgrlW.i}
+                       AND itemfg.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+                       NO-LOCK NO-ERROR.
             IF AVAIL itemfg THEN ASSIGN fg-rctd.i-name:SCREEN-VALUE = itemfg.i-name.
         END.
      END.

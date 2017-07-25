@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:57 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -1115,7 +1115,10 @@ DO:
        AND ITEM.i-no = ef.board NO-LOCK NO-ERROR.
 
    IF AVAIL ITEM THEN
-   RUN cec/w-itemc.w(RECID(ITEM)) .
+    DO:
+        RUN cec/w-itemc.w PERSISTENT SET hProgram (RECID(ITEM)) .
+        RUN dispatch IN hProgram ("initialize").
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1128,6 +1131,7 @@ ON LEAVE OF ef.board IN FRAME Corr /* Board */
 DO:
    if lastkey <> -1 and self:screen-value <> "" 
    then do:
+  {&methods/lValidateError.i YES}
        find first item where item.company = gcompany and
                              ((index("BPR",item.mat-type) > 0 and not lv-is-foam) or
                               (index("1234",item.mat-type) > 0 and lv-is-foam) ) and
@@ -1205,8 +1209,10 @@ DO:
                   ef.n-out-d:screen-value = string(xef.n-out-d)
                   .
        END.
+{&methods/lValidateError.i NO}
    end.  /* lastkey <> -1 */
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1227,6 +1233,7 @@ END.
 ON LEAVE OF ef.cost-uom IN FRAME Corr /* cost-uom */
 DO:
     if lastkey <> -1 and ef.cost-uom:screen-value <> "" then do:
+{&methods/lValidateError.i YES}
        find first item where item.company = gcompany and
                                 item.i-no = ef.board
                                 no-lock no-error.
@@ -1239,7 +1246,9 @@ DO:
             return no-apply.
        end.                 
     end.  
+{&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1250,6 +1259,7 @@ END.
 ON LEAVE OF ef.fr-uom IN FRAME Corr /* fr-uom */
 DO:
     if lastkey <> -1 and ef.fr-uom:screen-value <> "" then do:
+ {&methods/lValidateError.i YES}
        /*find first item where item.company = gcompany and
                                 item.i-no = ef.board:screen-value
                                 no-lock no-error.
@@ -1262,10 +1272,12 @@ DO:
        then do:
             message "Invalid Freight UOM. Try Help." view-as alert-box.
             return no-apply.
-       end.                 
+       end. 
+{&methods/lValidateError.i NO}                
     end.  
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1380,13 +1392,16 @@ DO:
   IF lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+   {&methods/lValidateError.i YES}
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+   {&methods/lValidateError.i NO}
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1399,13 +1414,16 @@ DO:
   IF lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+   {&methods/lValidateError.i YES}
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+   {&methods/lValidateError.i NO}
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1418,13 +1436,16 @@ DO:
   IF lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+   {&methods/lValidateError.i YES}
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+  {&methods/lValidateError.i NO}
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1437,13 +1458,16 @@ DO:
   IF lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+   {&methods/lValidateError.i YES}
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+   {&methods/lValidateError.i NO}
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1512,13 +1536,16 @@ DO:
   IF lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+   {&methods/lValidateError.i YES}
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+    {&methods/lValidateError.i NO}
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1531,13 +1558,16 @@ DO:
    IF lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+   {&methods/lValidateError.i YES}
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+   {&methods/lValidateError.i NO}
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1550,13 +1580,16 @@ DO:
    IF lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+   {&methods/lValidateError.i YES}
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+   {&methods/lValidateError.i NO}
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1569,13 +1602,16 @@ DO:
   IF lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+   {&methods/lValidateError.i YES}
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+   {&methods/lValidateError.i NO}
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1586,10 +1622,13 @@ END.
 ON LEAVE OF ef.leaf[1] IN FRAME Corr /* Leaf/Film[1] */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
     RUN est/val-leaf.p (FRAME {&FRAME-NAME}:HANDLE, 1) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1610,10 +1649,13 @@ END.
 ON LEAVE OF ef.leaf[2] IN FRAME Corr /* Leaf/Film[2] */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
     RUN est/val-leaf.p (FRAME {&FRAME-NAME}:HANDLE, 2) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1634,10 +1676,13 @@ END.
 ON LEAVE OF ef.leaf[3] IN FRAME Corr /* Leaf/Film[3] */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
     RUN est/val-leaf.p (FRAME {&FRAME-NAME}:HANDLE, 3) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+   {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1658,10 +1703,13 @@ END.
 ON LEAVE OF ef.leaf[4] IN FRAME Corr /* Leaf/Film[4] */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
     RUN est/val-leaf.p (FRAME {&FRAME-NAME}:HANDLE, 4) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  {&methods/lValidateError.i NO}
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1700,6 +1748,7 @@ ON LEAVE OF ef.m-code IN FRAME Corr /* Machine */
 DO:
 
     if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
 
     if ll-is-sheet-calc then do:
           def var source-str as cha no-undo.   
@@ -1778,9 +1827,10 @@ DO:
                  eb.num-dep:screen-value = string(xeb.num-dep)
                  .
     end. /* ll-auto-calc-selected */
-
+{&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1811,6 +1861,7 @@ END.
 ON LEAVE OF ef.n-out IN FRAME Corr /* #Out */
 DO:
   IF LASTKEY NE -1 THEN DO:
+{&methods/lValidateError.i YES}
     if avail item and item.i-code = "R" /*AND ll-auto-calc-selected*/ then do:
        if dec(self:screen-value) > ef.n-out AND dec(self:screen-value) > lv-n-out then do:
           message "Cannot be greater than what was calculated." view-as alert-box error.
@@ -1865,9 +1916,11 @@ DO:
        message "Invalid Number Out. " view-as alert-box.
        return no-apply.
     end.*/
+{&methods/lValidateError.i NO}
   END.
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1898,12 +1951,14 @@ END.
 ON LEAVE OF ef.n-out-d IN FRAME Corr /* Number Out/Depth */
 DO:
   IF LASTKEY NE -1 THEN DO:
+ {&methods/lValidateError.i YES}
     if avail item and item.i-code = "R" /*AND ll-auto-calc-selected*/ then do:
        if dec(self:screen-value) > ef.n-out-d AND dec(self:screen-value) > lv-n-out-d then do:
           message "Cannot be greater than what was calculated." view-as alert-box error.
           return no-apply.
        end.
     end.
+{&methods/lValidateError.i NO}
 /*
     if ll-auto-calc-selected and self:modified then do:
        ll-num-out-changed  = yes.
@@ -1950,6 +2005,7 @@ DO:
 
 END.
 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1979,12 +2035,14 @@ END.
 ON LEAVE OF ef.n-out-l IN FRAME Corr /* # out on Length */
 DO:
   IF LASTKEY NE -1 THEN DO:
+  {&methods/lValidateError.i YES}
     if avail item and item.i-code = "R" /*AND ll-auto-calc-selected*/ then do:
          if dec(self:screen-value) > ef.n-out-l AND dec(self:screen-value) > lv-n-out-l then do:
             message "Cannot be greater than what was calculated." view-as alert-box error.
             return no-apply.
          end.
     end.
+ {&methods/lValidateError.i NO}
 /*       
     if ef.m-code:screen-value in frame {&frame-name} <> "" then do:
        find first mach where mach.company = gcompany and
@@ -2038,6 +2096,7 @@ DO:
 
 END.
 
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -2069,6 +2128,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.nsh-dep V-table-Win
 ON LEAVE OF ef.nsh-dep IN FRAME Corr /* Depth */
 DO:
+if lastkey = -1 then return.
+
+{&methods/lValidateError.i YES}
    IF lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
@@ -2082,8 +2144,10 @@ DO:
       message "Net Sheet Size can not be less than Die Size." view-as alert-box error.
       return no-apply.     
    end.
+{&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2106,6 +2170,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.nsh-len V-table-Win
 ON LEAVE OF ef.nsh-len IN FRAME Corr /* Length */
 DO:
+if lastkey = -1 then return.
+{&methods/lValidateError.i YES}
    IF lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
@@ -2120,9 +2186,10 @@ DO:
       message "Net Sheet Size can not be less than Die Size." view-as alert-box error.
       return no-apply.     
    end.
-
+{&methods/lValidateError.i NO}
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2146,6 +2213,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.nsh-wid V-table-Win
 ON LEAVE OF ef.nsh-wid IN FRAME Corr /* Net Sheet */
 DO:
+if lastkey = -1 then return.
+
+{&methods/lValidateError.i YES}
    IF lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
@@ -2159,9 +2229,11 @@ DO:
       message "Net Sheet Size can not be less than Die Size." view-as alert-box error.
       return no-apply.     
    end.
+{&methods/lValidateError.i NO}
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2340,13 +2412,16 @@ DO:
   IF lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+   {&methods/lValidateError.i YES}
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+   {&methods/lValidateError.i NO}
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2359,13 +2434,16 @@ DO:
   IF lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+    {&methods/lValidateError.i YES}
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+   {&methods/lValidateError.i NO}
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2378,13 +2456,16 @@ DO:
  IF lastkey <> -1 and
       decimal(self:screen-value) - trunc(decimal(self:screen-value),0) >= v-16-or-32 
    then do:
+   {&methods/lValidateError.i YES}
       message "Can not have more than " v-16-or-32 - 0.01 " as decimal, field is (inches.16ths/32nd's) "
           view-as alert-box error.
       return no-apply.
+   {&methods/lValidateError.i NO}
    end.
 
 
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3005,15 +3086,58 @@ PROCEDURE get-ef-nsh :
   Notes:       sys/inc/k16.i:
                Formula to display fractions as 16ths of an inch 
 ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE lUpdateNetSheet AS LOG INIT TRUE NO-UNDO.
-
   DEFINE VARIABLE v-n-out-l LIKE ef-nsh.n-out-l NO-UNDO INIT 0.
   DEFINE VARIABLE v-n-out-w LIKE ef-nsh.n-out-w NO-UNDO INIT 0.
   DEFINE VARIABLE v-n-out-d LIKE ef-nsh.n-out-d NO-UNDO INIT 0.
+  DEFINE VARIABLE lUpdateNetSheet AS LOGICAL INIT TRUE NO-UNDO.
+  DEFINE VARIABLE lResetEfNsh AS LOGICAL INIT TRUE NO-UNDO.
+  DEFINE VARIABLE dNewWid AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dNewLen AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE dNewDep AS DECIMAL NO-UNDO.
 
+  DEFINE BUFFER bf-ef-nsh FOR ef-nsh.
 
  DO WITH FRAME {&FRAME-NAME}:
+    FIND FIRST ef-nsh OF ef NO-LOCK 
+        WHERE ef-nsh.pass-no EQ 1 
+        NO-ERROR.
+    IF AVAILABLE ef-nsh 
+        AND  (TRIM(ef.gsh-wid:SCREEN-VALUE) NE TRIM(STRING({sys/inc/k16.i ef-nsh.wid-in},">>>>9.99"))
+              OR TRIM(ef.gsh-len:SCREEN-VALUE) NE TRIM(STRING({sys/inc/k16.i ef-nsh.len-in},">>>>9.99"))
+              OR TRIM(ef.gsh-dep:SCREEN-VALUE) NE TRIM(STRING({sys/inc/k16.i ef-nsh.dep-in},">>>>9.99"))) THEN DO:
 
+        MESSAGE "Gross Sheet has changed. Reset Net Sheet Passes?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lResetEfNsh.
+        IF lResetEfNsh THEN DO: 
+            FOR EACH ef-nsh OF ef EXCLUSIVE-LOCK:
+                IF ef-nsh.pass-no EQ 1 THEN DO: 
+                    ASSIGN 
+                        dNewWid = DEC(ef.gsh-wid:SCREEN-VALUE)
+                        dNewLen = DEC(ef.gsh-len:SCREEN-VALUE)
+                        dNewDep = DEC(ef.gsh-dep:SCREEN-VALUE)
+                        .
+                    {sys/inc/k16bb.i dNewWid}
+                    {sys/inc/k16bb.i dNewLen}
+                    {sys/inc/k16bb.i dNewDep}
+
+                    ASSIGN 
+                        ef-nsh.wid-in = dNewWid
+                        ef-nsh.len-in = dNewLen
+                        ef-nsh.dep-in = dNewDep
+                        ef-nsh.wid-out = dNewWid
+                        ef-nsh.len-out = dNewLen
+                        ef-nsh.dep-out = dNewDep
+                        ef-nsh.n-out-w = 1
+                        ef-nsh.n-out-l = 1
+                        ef-nsh.n-out-d = 1
+                        . 
+
+                END.
+                ELSE 
+                    DELETE ef-nsh.
+            END.
+        END.
+    END.
     RUN est/d-ef-nsh.w (ROWID(ef)) NO-ERROR.
 
     /* Find first pass and transfer IN values to screen gross sheet values */
@@ -3551,7 +3675,7 @@ PROCEDURE local-update-record :
   DEF VAR l-fit-len AS DEC NO-UNDO.
   DEF VAR l-fit-wid AS DEC NO-UNDO.
   def buffer bf-eb for eb.
-
+{&methods/lValidateError.i YES}
 IF NOT ll-auto-calc-selected THEN
   ef.spare-int-1:SENSITIVE IN frame {&frame-name} = TRUE.
 
@@ -3795,7 +3919,9 @@ IF NOT ll-auto-calc-selected THEN
   END.
 
   RUN dispatch ("display-fields").
+{&methods/lValidateError.i NO}
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

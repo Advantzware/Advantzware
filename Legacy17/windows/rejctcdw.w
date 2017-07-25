@@ -24,14 +24,14 @@ CREATE WIDGET-POOL.
 
 &SCOPED-DEFINE winReSize
 
-
 /* Parameters Definitions ---                                           */
-DEFINE INPUT PARAMETER ip-type AS CHARACTER NO-UNDO. /* rjct-cd.type */
-DEFINE INPUT PARAMETER ip-code-label AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ip-desc-label AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ip-win-title AS CHARACTER NO-UNDO.
-DEFINE INPUT PARAMETER ip-container-handle AS HANDLE NO-UNDO.
+
 /* Local Variable Definitions ---                                       */
+
+DEFINE VARIABLE ip-type AS CHARACTER NO-UNDO INITIAL "{1}". /* rjct-cd.type */
+DEFINE VARIABLE ip-code-label AS CHARACTER NO-UNDO INITIAL "{2}".
+DEFINE VARIABLE ip-desc-label AS CHARACTER NO-UNDO INITIAL "{3}".
+DEFINE VARIABLE ip-win-title AS CHARACTER NO-UNDO INITIAL "{4}".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -232,8 +232,6 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-RUN DISABLE_ui IN ip-container-handle NO-ERROR.
-RUN local-exit IN ip-container-handle NO-ERROR.
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}

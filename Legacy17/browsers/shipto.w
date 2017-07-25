@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p on 04.18.2017 @ 11:37:32 am */
+{Advantzware\WinKit\admBrowserUsing.i} /* added by script _admBrowsers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
@@ -535,6 +535,31 @@ DO WITH FRAME {&FRAME-NAME}:
      FI_moveCol = IF v-col-move = NO THEN "Move" ELSE "Sort".
   DISPLAY FI_moveCol.
 END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE cfirst-ship AS CHARACTER NO-UNDO.
+DEFINE VARIABLE clast-ship AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCustno AS CHARACTER NO-UNDO.
+GET FIRST Browser-Table .
+ASSIGN cfirst-ship = shipto.ship-id .
+GET LAST Browser-Table .
+ASSIGN clast-ship = shipto.ship-id .
+       cCustno = IF AVAIL cust THEN cust.cust-no ELSE "" .
+
+RUN fg/ship-exp.w ( cCustno,cfirst-ship,clast-ship).
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

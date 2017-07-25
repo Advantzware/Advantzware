@@ -37,6 +37,7 @@ DEF VAR li-new-estnum AS INT NO-UNDO.
 DEF VAR ll-new-record AS LOG NO-UNDO.
 DEF VAR ll-is-copy-record AS LOG NO-UNDO.
 DEF VAR char-val AS cha NO-UNDO.
+DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
 DEF NEW SHARED BUFFER xest FOR est.
 DEF NEW SHARED BUFFER xef FOR ef.
 DEF NEW SHARED BUFFER xeb FOR eb.
@@ -563,10 +564,10 @@ DO:
       END.
       WHEN "style" THEN DO:
      
-           ls-cur-val = eb.style:SCREEN-VALUE in browse {&browse-name}.
+           ls-cur-val = eb.style:SCREEN-VALUE IN BROWSE {&browse-name}.
            RUN windows/l-stylef.w (gcompany,ls-cur-val, OUTPUT char-val).
            IF char-val <> "" THEN DO:
-              eb.style:SCREEN-VALUE in browse {&browse-name} = entry(1,char-val).
+              eb.style:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val).
               FIND style WHERE style.company = gcompany AND
                                style.style = eb.style:screen-value IN BROWSE {&browse-name}
                          NO-LOCK NO-ERROR.             
@@ -595,9 +596,9 @@ DO:
            ELSE lv-ind = "".  
            IF AVAIL style AND style.type = "f" THEN  /* foam */
                  RUN windows/l-boardf.w (gcompany,lv-ind,ls-cur-val,OUTPUT char-val).
-           else run windows/l-board1.w (eb.company,lv-ind,ef.board:SCREEN-VALUE IN BROWSE {&browse-name}, output lv-rowid).
+           ELSE RUN windows/l-board1.w (eb.company,lv-ind,ef.board:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT lv-rowid).
            FIND FIRST ITEM WHERE ROWID(item) EQ lv-rowid NO-LOCK NO-ERROR.
-           IF AVAIL ITEM AND ITEM.i-no NE ef.board:SCREEN-VALUE in browse {&browse-name} THEN DO:
+           IF AVAIL ITEM AND ITEM.i-no NE ef.board:SCREEN-VALUE IN BROWSE {&browse-name} THEN DO:
              ef.board:SCREEN-VALUE IN BROWSE {&browse-name} = item.i-no.
              RUN new-board.
            END.
@@ -605,9 +606,9 @@ DO:
            RETURN NO-APPLY.   
        END.
        WHEN "medium" THEN DO:
-         RUN windows/l-paper.w (gcompany, "1",ef.medium:SCREEN-VALUE in browse {&browse-name}, OUTPUT char-val).
-         IF char-val NE "" AND char-val NE ef.medium:SCREEN-VALUE in browse {&browse-name} THEN 
-           ef.medium:SCREEN-VALUE in browse {&browse-name} = ENTRY(1,char-val).
+         RUN windows/l-paper.w (gcompany, "1",ef.medium:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
+         IF char-val NE "" AND char-val NE ef.medium:SCREEN-VALUE IN BROWSE {&browse-name} THEN 
+           ef.medium:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val).
        END.
        WHEN "flute" THEN DO:
          RUN windows/l-paper.w (gcompany, "1",ef.flute:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}, OUTPUT char-val).
@@ -638,7 +639,7 @@ DO:
              lv-estqty-recid = IF AVAIL est-qty THEN RECID(est-qty) ELSE ?.
              RUN est/estqtyd.w (lv-estqty-recid, RECID(eb),eb.bl-qty:screen-value IN BROWSE {&browse-name}, OUTPUT char-val, OUTPUT char-val2, OUTPUT date-val, OUTPUT date-val2) .
              IF char-val <> "?" 
-                then assign eb.bl-qty:screen-value in browse {&browse-name} = entry(1,char-val)
+                THEN ASSIGN eb.bl-qty:screen-value IN BROWSE {&browse-name} = ENTRY(1,char-val)
                             lv-copy-qty[2] = INTEGER(ENTRY(2,char-val))
                             lv-copy-qty[3] = INTEGER(ENTRY(3,char-val))
                             lv-copy-qty[4] = INTEGER(ENTRY(4,char-val))
@@ -2825,7 +2826,7 @@ PROCEDURE crt-est-childrecord :
   DEF VAR lv-rowid AS ROWID NO-UNDO.
  
 
-  RUN ce/new-form.p (ROWID(est), OUTPUT lv-rowid).
+  RUN est/NewEstimateForm.p ('F', ROWID(est), OUTPUT lv-rowid).
 
   FIND eb WHERE ROWID(eb) EQ lv-rowid NO-LOCK NO-ERROR.
   lv-eb-recid = RECID(eb).
@@ -2979,8 +2980,9 @@ PROCEDURE crt-new-est :
 
   ll-new-record = YES.
 
-  RUN ce/new-est.p (IF ls-add-what EQ "est" THEN 1 ELSE 2,
-                    OUTPUT lv-crt-est-rowid).
+  RUN est/NewEstimate.p ('F',
+                         IF ls-add-what EQ "est" THEN 1 ELSE 2,
+                         OUTPUT lv-crt-est-rowid).
 
   FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid NO-LOCK NO-ERROR.
   FIND FIRST ef OF eb NO-LOCK NO-ERROR.
@@ -3051,15 +3053,7 @@ PROCEDURE custom-row-changed :
       RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
     END.
   END.
-  ELSE IF AVAIL eb AND eb.est-type EQ 2 THEN DO:
-       RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"form-blank-target",OUTPUT char-hdl).
 
-    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
-      RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("OFF").
-      RUN repo-query IN WIDGET-HANDLE(char-hdl) (ROWID(eb)).
-      RUN repo-on-off IN WIDGET-HANDLE(char-hdl) ("ON").
-    END.
-  END.
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"container-source",OUTPUT char-hdl).
 
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
@@ -3375,8 +3369,10 @@ PROCEDURE local-add-record :
   ASSIGN
     ll-is-add-from-tool = NO
     cadcamValue = ''.
-
-  IF ls-add-what EQ "est-from-tandem" THEN RUN est-from-tandem.
+  IF ls-add-what EQ "copy-est" THEN DO:
+      RUN local-copy-record .
+  END.
+  ELSE IF ls-add-what EQ "est-from-tandem" THEN RUN est-from-tandem.
   ELSE IF ls-add-what = "farm" THEN DO:
      EMPTY TEMP-TABLE tt-frmout.
      RUN est/d-frmout.w (cocode).

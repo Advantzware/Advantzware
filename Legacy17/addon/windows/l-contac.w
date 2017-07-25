@@ -196,17 +196,17 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE BROWSE-1
 /* Query rebuild information for BROWSE BROWSE-1
-     _TblList          = "EMPTRACK.contact"
+     _TblList          = "contact"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
-     _FldNameList[1]   = EMPTRACK.contact.first-name
-     _FldNameList[2]   = EMPTRACK.contact.middle-initial
-     _FldNameList[3]   = EMPTRACK.contact.last-name
-     _FldNameList[4]   = EMPTRACK.contact.cust-no
-     _FldNameList[5]   = EMPTRACK.contact.cust-name
-     _FldNameList[6]   = EMPTRACK.contact.addr1
-     _FldNameList[7]   = EMPTRACK.contact.city
-     _FldNameList[8]   = EMPTRACK.contact.state
-     _FldNameList[9]   = EMPTRACK.contact.zip
+     _FldNameList[1]   = contact.first-name
+     _FldNameList[2]   = contact.middle-initial
+     _FldNameList[3]   = contact.last-name
+     _FldNameList[4]   = contact.cust-no
+     _FldNameList[5]   = contact.cust-name
+     _FldNameList[6]   = contact.addr1
+     _FldNameList[7]   = contact.city
+     _FldNameList[8]   = contact.state
+     _FldNameList[9]   = contact.zip
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

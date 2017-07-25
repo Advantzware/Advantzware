@@ -338,9 +338,9 @@ DO:
 
   IF ip-rowid EQ ? AND AVAIL tt-est THEN
     IF lv-est-type EQ 4 THEN
-      RUN ce/new-est.p (lv-est-type, OUTPUT ip-rowid).
+      RUN est/NewEstimate.p ('F', lv-est-type, OUTPUT ip-rowid).
     ELSE
-      RUN cec/new-est.p (lv-est-type, OUTPUT ip-rowid).
+      RUN est/NewEstimate.p ('C', lv-est-type, OUTPUT ip-rowid).
 
   op-rowid = ip-rowid.
 

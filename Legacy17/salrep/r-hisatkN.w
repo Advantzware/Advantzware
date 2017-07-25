@@ -584,7 +584,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -645,7 +645,7 @@ DO:
        WHEN 6 THEN run output-to-port.
   end case. 
   SESSION:SET-WAIT-STATE ("").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -658,7 +658,7 @@ ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -685,7 +685,7 @@ DO:
   sl_selected:LIST-ITEM-PAIRS = cSelectedList.
   sl_avail:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
   */
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -701,7 +701,7 @@ DO:
   RUN DisplaySelectionDefault.  /* task 04041406 */ 
   RUN DisplaySelectionList2 .
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -713,7 +713,7 @@ END.
 ON CHOOSE OF btn_down IN FRAME FRAME-A /* Move Down */
 DO:
   RUN Move-Field ("Down").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -730,7 +730,7 @@ DO:
   END
   */
   APPLY "DEFAULT-ACTION" TO sl_selected  .
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -742,7 +742,7 @@ END.
 ON CHOOSE OF btn_Up IN FRAME FRAME-A /* Move Up */
 DO:
   RUN Move-Field ("Up").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1044,7 +1044,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -1084,8 +1084,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                OUTPUT ou-cust-int) .
 
    DO WITH FRAME {&FRAME-NAME}:
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:19 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:19 am */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p */
     {custom/usrprint.i}
      RUN DisplaySelectionList2.
 
@@ -1125,7 +1125,7 @@ RUN sys/ref/CustList.p (INPUT cocode,
    END.
 
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1566,6 +1566,9 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE d-gr-tot-amt as   DECIMAL  EXTENT 21 NO-UNDO.
+DEFINE VARIABLE lp-zero AS LOGICAL INITIAL YES NO-UNDO.
+
 
 FORM HEADER
      "Salesrep:"
@@ -1744,7 +1747,7 @@ FOR EACH ar-inv
       AND ar-inv.inv-date LE v-date
       AND ar-inv.posted   EQ YES
     USE-INDEX inv-date NO-LOCK,
-    FIRST cust
+    FIRST cust 
     WHERE cust.company EQ ar-inv.company
       AND cust.cust-no EQ ar-inv.cust-no
     NO-LOCK:
@@ -1757,7 +1760,7 @@ FOR EACH ar-inv
     do i = 1 to 3:
       assign
        v-amt     = 0
-       v-slsm[1] = if ar-invl.sman[i] eq "" and i eq 1 then
+       v-slsm[1] = if ar-invl.sman[i] eq "" and i eq 1 AND NOT ar-invl.misc then
                      cust.sman else ar-invl.sman[i].
 
       if v-slsm[1]   lt fsman                         or
@@ -1828,7 +1831,6 @@ FOR each cust where cust.company eq cocode
         and ar-invl.i-no    eq oe-retl.i-no
         and (ar-invl.billable or not ar-invl.misc)
       no-lock no-error.
-
   do i = 1 to 3:
      assign
       v-amt     = 0
@@ -1869,7 +1871,7 @@ FOR each cust where cust.company eq cocode
   end.
 end.
 
-IF v-inc THEN
+IF v-inc THEN 
     FOR each cust where cust.company eq cocode
             AND cust.cust-no  GE fcus
             AND cust.cust-no  LE tcus
@@ -1993,9 +1995,17 @@ for each tt-report2,
        v-amt[21] = v-amt[21] + dec(tt-report.dec2).
     end.
   end.
+  ASSIGN lp-zero = YES.
+   DO i = 1 TO 21: 
+      IF v-amt[i] NE 0 THEN
+         ASSIGN lp-zero = NO.
+  END. 
 
+IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
   if v-prt le v-custs then do:
      v = 0.
+
+
 
     /* do i = v1 to v-per-2:
         v = v + 1.
@@ -2089,7 +2099,7 @@ for each tt-report2,
      END.*/
 
 
-     put skip(1).
+     put SKIP.
      IF tb_excel THEN
         PUT STREAM excel UNFORMATTED SKIP(1).
   end.
@@ -2183,7 +2193,7 @@ for each tt-report2,
             END.
 
             PUT str-line SKIP.
-            PUT UNFORMATTED "         TOTALS" substring(cDisplay,16,350) SKIP.
+            PUT UNFORMATTED "         TOTALS" substring(cDisplay,16,350) SKIP(1).
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  '               TOTALS ,'
                        substring(cExcelDisplay,4,350) SKIP(1).
@@ -2208,10 +2218,57 @@ for each tt-report2,
           SKIP.
 
      END.*/
+     DO i = 1 to 21:
+      d-gr-tot-amt[i] = d-gr-tot-amt[i] + v-tot-amt[i].
+     end.
 
      if last-of(tt-report2.key-01) then v-tot-amt = 0.
+
   end.
+END.
 end.
+
+            ASSIGN cDisplay = ""
+                   cTmpField = ""
+                   cVarValue = ""
+                   cExcelDisplay = ""
+                   cExcelVarValue = "".
+
+            DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+                    CASE cTmpField:   
+                         WHEN "rep"    THEN cVarValue = "" .
+                         WHEN "rname"   THEN cVarValue = "".
+                         WHEN "cust"    THEN cVarValue = "" .
+                         WHEN "name"   THEN cVarValue = "".
+                         WHEN "p1"   THEN cVarValue = STRING(d-gr-tot-amt[1],"->,>>>,>>>,>>9.99").
+                         WHEN "p2"  THEN cVarValue = STRING(d-gr-tot-amt[2],"->,>>>,>>>,>>9.99").
+                         WHEN "p3"   THEN cVarValue = STRING(d-gr-tot-amt[3],"->,>>>,>>>,>>9.99").
+                         WHEN "p4"  THEN cVarValue = STRING(d-gr-tot-amt[4],"->,>>>,>>>,>>9.99").
+                         WHEN "p5"   THEN cVarValue = STRING(d-gr-tot-amt[5],"->,>>>,>>>,>>9.99").
+                         WHEN "p6"  THEN cVarValue = STRING(d-gr-tot-amt[6],"->,>>>,>>>,>>9.99").
+                         WHEN "p7"  THEN cVarValue = STRING(d-gr-tot-amt[7],"->,>>>,>>>,>>9.99").
+                         WHEN "p8"   THEN cVarValue = STRING(d-gr-tot-amt[8],"->,>>>,>>>,>>9.99").
+                         WHEN "p9"  THEN cVarValue = STRING(d-gr-tot-amt[9],"->,>>>,>>>,>>9.99").
+                         WHEN "p10"   THEN cVarValue = STRING(d-gr-tot-amt[10],"->,>>>,>>>,>>9.99").
+                         WHEN "p11"  THEN cVarValue = STRING(d-gr-tot-amt[11],"->,>>>,>>>,>>9.99").
+                         WHEN "p12"   THEN cVarValue = STRING(d-gr-tot-amt[12],"->,>>>,>>>,>>9.99").
+                         WHEN "ytd-amt"  THEN cVarValue = STRING(d-gr-tot-amt[21],"->,>>>,>>>,>>9.99").
+
+                    END CASE.
+
+                    cExcelVarValue = cVarValue.
+                    cDisplay = cDisplay + cVarValue +
+                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            END.
+
+            PUT str-line SKIP.
+            PUT UNFORMATTED "   GRAND TOTALS" substring(cDisplay,16,350) SKIP.
+            IF tb_excel THEN DO:
+                 PUT STREAM excel UNFORMATTED  '        GRAND TOTALS ,'
+                       substring(cExcelDisplay,4,350) SKIP(1).
+             END. 
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.

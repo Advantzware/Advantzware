@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:41 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -363,12 +363,13 @@ END.
 ON LEAVE OF rfqitem.dep IN FRAME F-Main /* Depth */
 DO:
   IF LASTKEY NE -1 THEN DO:
-    IF lv-is-corr THEN DO:
+        IF lv-is-corr THEN DO:
       RUN valid-16ths (FOCUS) NO-ERROR.
       IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
     END.
   END.
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

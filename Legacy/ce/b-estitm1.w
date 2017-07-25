@@ -37,6 +37,7 @@ DEF VAR li-new-estnum AS INT NO-UNDO.
 DEF VAR ll-new-record AS LOG NO-UNDO.
 DEF VAR ll-is-copy-record AS LOG NO-UNDO.
 DEF VAR char-val AS cha NO-UNDO.
+DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
 DEF NEW SHARED BUFFER xest FOR est.
 DEF NEW SHARED BUFFER xef FOR ef.
 DEF NEW SHARED BUFFER xeb FOR eb.
@@ -2825,7 +2826,7 @@ PROCEDURE crt-est-childrecord :
   DEF VAR lv-rowid AS ROWID NO-UNDO.
  
 
-  RUN ce/new-form.p (ROWID(est), OUTPUT lv-rowid).
+  RUN est/NewEstimateForm.p ('F', ROWID(est), OUTPUT lv-rowid).
 
   FIND eb WHERE ROWID(eb) EQ lv-rowid NO-LOCK NO-ERROR.
   lv-eb-recid = RECID(eb).
@@ -2979,8 +2980,9 @@ PROCEDURE crt-new-est :
 
   ll-new-record = YES.
 
-  RUN ce/new-est.p (IF ls-add-what EQ "est" THEN 1 ELSE 2,
-                    OUTPUT lv-crt-est-rowid).
+  RUN est/NewEstimate.p ('F',
+                         IF ls-add-what EQ "est" THEN 1 ELSE 2,
+                         OUTPUT lv-crt-est-rowid).
 
   FIND eb WHERE ROWID(eb) EQ lv-crt-est-rowid NO-LOCK NO-ERROR.
   FIND FIRST ef OF eb NO-LOCK NO-ERROR.
@@ -3367,7 +3369,7 @@ PROCEDURE local-add-record :
   ASSIGN
     ll-is-add-from-tool = NO
     cadcamValue = ''.
-  IF ls-add-what EQ "copy-est" THEN do:
+  IF ls-add-what EQ "copy-est" THEN DO:
       RUN local-copy-record .
   END.
   ELSE IF ls-add-what EQ "est-from-tandem" THEN RUN est-from-tandem.

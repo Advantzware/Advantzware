@@ -27,7 +27,7 @@ ASSIGN
                 "Frankstn,Mirpkg,APC,FibreX,PPI,Fibre-Excel,Packrite,Knight-Excel," + 
                 "MSPACK-Excel,AllWest,Simkins,CCC,Soule,SouleMed,MWFIBRE,Loylang,Protagon," +
                 "PeachTree,LoylangBSF,Premier-Excel,Oklahoma,Accord,Hughes,Sultana,CCC-Excel,Axis,Boss,Bell-Excel,Perform," +
-                "Printers,quoprint 1,quoprint 2"
+                "Printers,quoprint 1,quoprint 2,quoprint 10,quoprint 20"
  str-init[2]  = "Capitol,ASI,Beeler,Argrov,ILWalker,1/2 Page,Phoenix,Color,Interpac,Royal,Keystone," +
                 "Livngstn,ContSrvc,Rudd,Premier,MultiWll,Imperial,PAC 1/2," +
                 "Colonial,Clev 1/2,Triad,Danbury,TriState,Blueridg,Sonoco," +  
@@ -42,7 +42,7 @@ ASSIGN
                 "ColonialLot#,LoylangJIT,Carded,CCCFGLot,CSC-GA,CCCFGL3,Adapt,Soule,SouleMed,CapCityIN," +
                 "Peachtreefgl3,Peachtree,DEE,CSC-GASummary,TrilakesBroker,Accord,NStock,LoylangBSF,PremierS,Printers," +
                 "Protagon,Protagon2,SoulePO,RFCX,Central,Bell,PrestigeLLB,Axis,Boss,CSCINStamp,PrystupExcel,Coburn," +
-                "invprint 1,invprint 2"
+                "invprint 1,invprint 2,invprint 10,invprint 20"
  str-init[3]  = "ASI,Clevelnd,McLean,Suthrlnd,HOP,Brick,Peachtre"
  str-init[4]  = "Foldware,Corrware"
  str-init[5]  = "D Pallet,Z Trailr"
@@ -53,7 +53,7 @@ ASSIGN
               + "PremierX,CSC,Elite,OTTPkg,APC,ConsBox,FibreX,ASIXprnt,Valley,PPI,CSC-GA,"
               + "HPB,Indiana,MWFibre,Packrite,Allwest,ACPI,Badger,CCC,Soule,SouleMed,"
               + "Protagon,Protagon2,PremierCX,PeachTree,PremierXFGItems,Hughes,Boss,Bell,StClair,Sultana,"
-              + "Coburn,poprint 1,poprint 2"
+              + "Coburn,poprint 1,poprint 2,poprint 10,poprint 20"
  str-init[9]  = "ASI,Argrov,Century,HOP,MultiWll,Sonoco,TriState,Fibre," +
                 "Premier,Pacific,Xprint,CentBox,HOPX,Xprint2,Frankstn,APC,FibreX,Indiana,PPI," +
                 "HPB,Keystone,Hughes,Allwest,Rosmar,Loylang,Carded,PremierX,CSC-GA,CardedX," +
@@ -69,7 +69,7 @@ ASSIGN
                 "Allwest,COLOR,Badger,LoyLang,Carded,Metro,Knight,CSC-GA,KDWILLSX,Peachtree,Protagon," +
                 "PremierCX,PeachTreeBC,ACCORDBC,Soule,NSTOCK,TrilakesLot#,Multicell,MetroTags,AllPkg2,PremierBroker,SouleMed,Chillicothe," +
                 "CapitolBC,CardedBC,Axis,BadgerSoldTo,PeachtreeLotPO,Lakeside,CSCINStamp,CCCWPP,Prystup-Excel,Printers,Printers2,RFCX," +
-                "bolfmt 1,bolfmt 2"
+                "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20"
  str-init[11] = "ASI,Laser,P&P,n,Raritan,ContSrvc,Royal,Triad,Rudd,"   +
                 "Hartford,AIHalper,Brick,Fibre,Herman,ASILaser,TriadLas,"      +
                 "Chillic,Middlesx,Hughes,ASI2000,Unipak,RFC,Inland,Prefered,"  +
@@ -84,7 +84,7 @@ ASSIGN
                 "Century,Oracle,PremierX,Frankstn,Mirpkg,Unipak,OTTPkg,Shelby," +
                 "RUDDX,APC,Imperial,Indiana,Fibrex,PPI,HPB,Albert,ContSvc,Triad,Packrite,Dee," +
                 "Allwest,Simkins,HOPX,PremierCX,Accord,Soule,ACPI,Hughes,Carded,SouleUOM,Badger,Axis," +
-                "3CPack,Perform,ackhead 1,ackhead 2"
+                "3CPack,3CPackSD,Perform,ackhead 1,ackhead 2,ackhead 10,ackhead 20"
  str-init[14] = "10 Pitch,17 Pitch,Boxtech,Phoenix,TriState,Triad,RFC,HOP," +
                 "Brick,Hartford"
  str-init[15] = "Inches,MM,Both"
@@ -235,19 +235,19 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[151] = "Xprint,bolfmt1,GPI"
        str-init[152] = ",Open,Hold"
        str-init[153] = "Trailer#,ShipTo,Indiana"
-       str-init[154] = "Square Feet,Board Cost"
+       str-init[154] = "Square Feet,Board Cost,Factory Cost,Full Cost"
        .
 
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:
      ASSIGN
-	   str-init[1]  = "quoprint 1,quoprint 2"
-       str-init[2]  = "invprint 1,invprint 2"
-       str-init[8]  = "poprint 1,poprint 2"
+	   str-init[1]  = "quoprint 1,quoprint 2,quoprint 10,quoprint 20"
+       str-init[2]  = "invprint 1,invprint 2,invprint 10,invprint 20"
+       str-init[8]  = "poprint 1,poprint 2,poprint 10,poprint 20"
        str-init[9]  = "relprint 1,relprint 2"
-       str-init[10] = "bolfmt 1,bolfmt 2"
+       str-init[10] = "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20"
        str-init[11] = "chkfmt 1,chkfmt 2"
-       str-init[13] = "ackhead 1,ackhead 2"
+       str-init[13] = "ackhead 1,ackhead 2,ackhead 10,ackhead 20"
        str-init[29] = "bolcert 1,bolcert 2"
        str-init[30] = "cerunc 1,cerunc 2"
        str-init[31] = "cerunf 1,cerunf 2"

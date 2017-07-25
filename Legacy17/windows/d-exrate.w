@@ -124,7 +124,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -159,7 +158,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -190,7 +189,7 @@ DO:
      END.
 
  END CASE.
-
+ 
 
 END.
 
@@ -321,7 +320,7 @@ PROCEDURE get-record :
        AND currency.c-code  EQ lv-curr-code
      NO-ERROR.
  lv-exrate = IF AVAIL currency THEN currency.ex-rate ELSE 1.
-
+ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

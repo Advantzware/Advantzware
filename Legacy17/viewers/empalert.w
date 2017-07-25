@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:50 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -225,14 +225,16 @@ ASSIGN
 ON HELP OF empalert.user-id IN FRAME F-Main /* User ID */
 DO:
    def var char-val as cha no-undo.
-
+    {&methods/lValidateError.i YES}
     run windows/l-users.w (self:screen-value, output char-val).
     if char-val <> "" then 
        ASSIGN
           empalert.USER-ID:screen-value = entry(1,char-val)
           fi_username:SCREEN-VALUE = ENTRY(2,char-val).
     return no-apply.
+    {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -472,7 +474,7 @@ PROCEDURE local-update-record :
   DEF BUFFER bf-empalert FOR empalert .
 
   ll-new-record = adm-new-record.
-
+  {&methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
 
      {methods/run_link.i "CONTAINER-SOURCE" "Get-ip-rec_key" "(OUTPUT ip-rec_key)"}
@@ -497,7 +499,7 @@ PROCEDURE local-update-record :
         END.
 
   END.
-
+  {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.      */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -506,6 +508,7 @@ PROCEDURE local-update-record :
    ASSIGN tb_pricnt:SENSITIVE = NO . 
   RUN SetEmailNotify.
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

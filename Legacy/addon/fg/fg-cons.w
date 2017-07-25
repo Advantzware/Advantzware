@@ -120,7 +120,7 @@ DEFINE FRAME OPTIONS-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "FINISHED GOODS WAREHOUSE TRANSACTION TRANSFER"
+         TITLE              = "CONSOLIDATE FINISHED GOODS TAGS "
          HEIGHT             = 24
          WIDTH              = 150
          MAX-HEIGHT         = 33.29
@@ -499,7 +499,8 @@ PROCEDURE local-view :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-   RUN auto-ADD IN h_p-updbar.
+  {methods/selectTab.i 1}
+  RUN auto-ADD IN h_p-updbar.
 
 END PROCEDURE.
 

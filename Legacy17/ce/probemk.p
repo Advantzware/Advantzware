@@ -38,6 +38,9 @@ DEFINE        VARIABLE v-pct              LIKE eb.comm INIT 0 EXTENT 3 NO-UNDO.
 DEFINE        VARIABLE ll-use-margin      AS LOG       NO-UNDO.
 DEFINE        VARIABLE board-cst          AS DECIMAL   NO-UNDO.
 DEFINE        VARIABLE dBoardPct          AS DECIMAL   NO-UNDO.
+DEFINE        VARIABLE dMarginCostG       AS DECIMAL  NO-UNDO.
+DEFINE        VARIABLE dMarginCostN       AS DECIMAL  NO-UNDO.
+
 
 
 DO TRANSACTION:
@@ -106,6 +109,8 @@ IF ord-cost GT 0 AND qm GT 0 THEN
     
 RUN custom/markup.p (ROWID(xeb),
     board-cst,
+    fac-tot,
+    tt-tot,
     dBoardPct,
     INPUT-OUTPUT lv-sell-by,
     INPUT-OUTPUT v-pct[3]).
@@ -140,24 +145,35 @@ IF ll-use-margin THEN
     RUN est/getsmanmtrx.p (ROWID(xest), "M",
         INPUT-OUTPUT v-com,
         INPUT-OUTPUT v-pct[1]).
+dMarginCostG = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN board-cst ELSE fac-tot.
+dMarginCostN = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN 0 ELSE tt-tot - fac-tot.
 
-RUN custom/sellpric.p (lv-sell-by-ce-ctrl,
+/*Exclude SIMON = M Costs from Price Margin Calculation*/
+dMarginCostG = dMarginCostG - dMCostToExcludeMisc - dMCostToExcludePrep.
+
+RUN custom/CalcSellPrice.p (lv-sell-by-ce-ctrl,
     lv-sell-by,
     v-basis,
-    (IF lv-sell-by-ce-ctrl NE "B" AND
-    lv-sell-by EQ "B" THEN board-cst
-    ELSE fac-tot),
-    (IF lv-sell-by-ce-ctrl NE "B" AND
-    lv-sell-by EQ "B" THEN 0
-    ELSE (tt-tot - fac-tot)),
+    dMarginCostG,
+    dMarginCostN,
     (IF ll-use-margin OR
     (lv-sell-by-ce-ctrl NE "B" AND
     lv-sell-by EQ "B") THEN 0
     ELSE v-com),
     v-pct[1],
+    dMPriceToAddMisc + dMPriceToAddPrep,
     OUTPUT v-price,
     OUTPUT v-comm).
 
+ v-price = v-price + dMPriceToAddMisc + dMPriceToAddPrep.
+
+ASSIGN 
+    dMCostToExcludeMisc = 0
+    dMCostToExcludePrep = 0
+    dMPriceToAddMisc = 0
+    dMPriceToAddPrep = 0
+    .
+    
 IF ll-use-margin OR
     (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B")
     THEN v-comm = v-price * v-com / 100.

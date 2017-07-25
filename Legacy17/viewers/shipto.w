@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:53 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -283,7 +283,7 @@ DEFINE FRAME F-Main
      faxAreaCode AT ROW 12.05 COL 68.6 COLON-ALIGNED AUTO-RETURN 
      faxNumber AT ROW 12.05 COL 76.4 COLON-ALIGNED NO-LABEL
      shipto.spare-char-1 AT ROW 13 COL 68.6 COLON-ALIGNED
-          LABEL "Salesman" FORMAT "xxx"
+          LABEL "Sales Rep" FORMAT "xxx"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
      shipto.tax-code AT ROW 13.95 COL 68.6 COLON-ALIGNED
@@ -792,6 +792,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL shipto.pallet V-table-Win
 ON LEAVE OF shipto.pallet IN FRAME F-Main /* Pallet */
 DO:
+    {&methods/lValidateError.i YES}
     if lastkey <> -1 and shipto.pallet:screen-value <> "" and
           not can-find(first item where item.company = gcompany and item.mat-type = "D" and
                                         item.i-no = shipto.pallet:screen-value)
@@ -799,8 +800,9 @@ DO:
           message "Invalid Pallet Code. Try Help." view-as alert-box error.
           return no-apply.     
        end.
-
+     {&methods/lValidateError.i NO}
 END.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1198,7 +1200,7 @@ PROCEDURE local-delete-record :
   DEFINE BUFFER buff-shipto FOR shipto .
   DEF BUFFER b-shipto FOR shipto.
   DEF BUFFER b-cust   FOR cust.
-
+  {&methods/lValidateError.i YES}
   /* Code placed here will execute PRIOR to standard behavior. */
   IF shipto.cust-no EQ shipto.ship-id THEN DO:
 
@@ -1272,12 +1274,13 @@ PROCEDURE local-delete-record :
               DELETE buff-shipto .
       END.
    END.
-
+  {&methods/lValidateError.i NO}
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1346,7 +1349,7 @@ DEF VAR ip-shipnotes AS CHAR NO-UNDO.
 
   RUN valid-dest-code NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
+  {&methods/lValidateError.i YES}
   if shipto.pallet:screen-value IN FRAME {&FRAME-NAME} <> "" and
         not can-find(first item where item.company = gcompany and item.mat-type = "D" and
                                       item.i-no = shipto.pallet:screen-value)
@@ -1355,7 +1358,7 @@ DEF VAR ip-shipnotes AS CHAR NO-UNDO.
         apply "entry" to shipto.pallet.
         return .     
      end.
-
+   {&methods/lValidateError.i NO}
   IF adm-new-record and 
      shipto.bill:SCREEN-VALUE IN FRAME {&FRAME-NAME} <> "Yes" THEN DO:
 
@@ -1378,6 +1381,7 @@ DEF VAR ip-shipnotes AS CHAR NO-UNDO.
   RUN disable-shipto.
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

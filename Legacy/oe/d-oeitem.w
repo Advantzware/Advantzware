@@ -4907,16 +4907,15 @@ PROCEDURE display-est-detail :
                         INPUT-OUTPUT v-job-no2,
                         INPUT v-disp-prod-cat,
                         INPUT FILL(" ",6 - LENGTH(TRIM(oe-ordl.est-no:SCREEN-VALUE))) + TRIM(oe-ordl.est-no:SCREEN-VALUE)).
-      
        IF v-job-no NE "" THEN DO:
          ASSIGN
-          oe-ordl.job-no  = v-job-no
-          oe-ordl.job-no2 = v-job-no2.
-         DISPLAY oe-ordl.job-no
-                 oe-ordl.job-no2.
+          oe-ordl.job-no:SCREEN-VALUE  = v-job-no
+          oe-ordl.job-no2:SCREEN-VALUE = string(v-job-no2) .
+         /*DISPLAY oe-ordl.job-no
+                 oe-ordl.job-no2.*/
        END.
       FOR EACH job-hdr  WHERE job-hdr.company EQ cocode
-                           AND job-hdr.job-no  EQ oe-ordl.job-no
+                           AND job-hdr.job-no  EQ oe-ordl.job-no:SCREEN-VALUE
                            USE-INDEX job-no NO-LOCK
                          BY job-hdr.job-no DESC BY job-hdr.job-no2 DESC:
          oe-ordl.job-no2:SCREEN-VALUE = STRING(IF AVAIL job-hdr THEN job-hdr.job-no2 + 1 ELSE 0).
@@ -6955,7 +6954,7 @@ PROCEDURE new-tandem :
                               AND oe-ord.ord-no  EQ oe-ordl.ord-no
                             NO-ERROR.
 
-  RUN ce/new-form.p (ROWID(est), OUTPUT lv-new-tandem).
+  RUN est/NewEstimateForm.p ('F',ROWID(est), OUTPUT lv-new-tandem).
 
   FIND eb WHERE ROWID(eb) EQ lv-new-tandem NO-ERROR.
 
@@ -7351,7 +7350,7 @@ PROCEDURE upd-new-tandem :
 
         IF AVAIL xest THEN DO:
           FIND FIRST ef OF eb NO-LOCK NO-ERROR.
-          RUN ce/new-form.p (ROWID(xest), OUTPUT lv-master).
+          RUN est/NewEstimateForm.p ('F', ROWID(xest), OUTPUT lv-master).
 
           FIND b-eb WHERE ROWID(b-eb) EQ lv-master NO-ERROR.
 

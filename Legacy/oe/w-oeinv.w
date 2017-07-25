@@ -1004,7 +1004,7 @@ PROCEDURE select_attcust :
      IF AVAIL b-cust THEN DO:
          {methods/select_attcust.i
             b-cust.rec_key
-            'Customer: ' + b-cust.cust-no + ' - ' + 'Name: ' + b-cust.name
+            "'Customer: ' + b-cust.cust-no + ' - ' + 'Name: ' + b-cust.name"
             v-order-no}
      END.                          
  END.

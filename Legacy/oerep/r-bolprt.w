@@ -1699,6 +1699,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   IF v-print-fmt EQ "XPRINT"   OR
      v-print-fmt EQ "bolfmt 1"   OR
+     v-print-fmt EQ "bolfmt 10"   OR
      v-print-fmt EQ "Lakeside"   OR
      v-print-fmt EQ "ACCORDBC"   OR
      v-print-fmt EQ "Protagon" OR
@@ -1742,7 +1743,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_post-bol:SCREEN-VALUE = "no"
        tb_post-bol:HIDDEN       = YES.
 
-    IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,Lakeside,Soule,SouleMed,Accordbc,Protagon,Xprint2,bolfmt 2,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
+    IF LOOKUP(v-print-fmt,"SouthPak,Xprint,bolfmt 1,bolfmt 10,Lakeside,Soule,SouleMed,Accordbc,Protagon,Xprint2,bolfmt 2,bolfmt 20,Chillicothe,NSTOCK,Frankstn,Fibre,Ottpkg,Consbox,CapitolBC,ContSrvc,CapCityIN,Axis,Allwest,COLOR,AllPkg2,Loylang,Printers,Printers2,PEACHTREE,PeachTreeBC,Multicell") LE 0 THEN DO:
       tb_print-component:SCREEN-VALUE = "no".
       DISABLE tb_print-component.
     END.
@@ -1750,6 +1751,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     IF v-print-fmt = "Xprint"    or
        v-print-fmt = "bolfmt 1"    or
+       v-print-fmt = "bolfmt 10"    or
        v-print-fmt = "Lakeside"    or
        v-print-fmt = "Accordbc"    or
        v-print-fmt = "Protagon"  or
@@ -1787,7 +1789,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_print-spec:HIDDEN = YES
         fi_specs:HIDDEN = YES.
 
-   IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" THEN  /* task 01121601 */
+   IF v-print-fmt = "XPrint2" OR v-print-fmt = "bolfmt 2" OR v-print-fmt = "bolfmt 20" THEN  /* task 01121601 */
        ASSIGN
         lbl_bolsort:HIDDEN = NO
         rd_bol-sort:HIDDEN = NO .

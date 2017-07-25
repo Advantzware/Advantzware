@@ -116,7 +116,7 @@ DEFINE FRAME message-frame
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
-   External Tables: EMPTRACK.machshft
+   External Tables: machshft
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
    Design Page: 2
    Other Settings: COMPILE

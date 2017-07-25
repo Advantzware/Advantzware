@@ -6,7 +6,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:58 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -271,7 +271,10 @@ DO:
 
   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,'container-source', OUTPUT char-hdl).
   RUN get-ip-machine IN WIDGET-HANDLE(char-hdl) (OUTPUT v-machine).
-  RUN addon/windows/d-deptlk.w (v-machine,OUTPUT v-deptlst).
+    DO:
+        RUN addon/windows/d-deptlk.w PERSISTENT SET hProgram  (v-machine,OUTPUT v-deptlst).
+        RUN dispatch IN hProgram ("initialize").
+    END.
 
   IF v-deptlst <> "" THEN DO:
      FIND FIRST mach WHERE mach.company = g_company AND

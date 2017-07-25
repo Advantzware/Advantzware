@@ -34,6 +34,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE hUpdateButton AS HANDLE NO-UNDO.
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
@@ -153,9 +154,6 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
-IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
-    MESSAGE "Unable to load icon: Graphics\asiicon.ico"
-            VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
@@ -245,7 +243,7 @@ DO:
     IF run-proc NE "" THEN
     RUN VALUE(run-proc) (INPUT m_lookup_prgm:SCREEN-VALUE).
   END.
-  Btn_Cancel:LABEL = "&Close".
+    {methods/setButton.i Btn_Cancel "Close"} /* added by script _nonAdm1Images1.p on 04.18.2017 @ 11:36:35 am */
   APPLY "ENTRY" TO m_lookup_prgm.
 END.
 

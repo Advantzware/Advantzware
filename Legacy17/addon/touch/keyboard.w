@@ -600,7 +600,7 @@ END.
 ON CHOOSE OF Btn_A IN FRAME DEFAULT-FRAME /* A */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -612,7 +612,7 @@ END.
 ON CHOOSE OF Btn_Alpha IN FRAME DEFAULT-FRAME /* ALPHA */
 DO:
   RUN Apply_Key (SELF:TOOLTIP).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -624,7 +624,7 @@ END.
 ON CHOOSE OF Btn_And IN FRAME DEFAULT-FRAME /*  */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -636,7 +636,7 @@ END.
 ON CHOOSE OF Btn_Asterisk IN FRAME DEFAULT-FRAME /* * */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -648,7 +648,7 @@ END.
 ON CHOOSE OF Btn_Atsign IN FRAME DEFAULT-FRAME /* @ */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -660,7 +660,7 @@ END.
 ON CHOOSE OF Btn_B IN FRAME DEFAULT-FRAME /* B */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -672,7 +672,7 @@ END.
 ON CHOOSE OF Btn_Backspace IN FRAME DEFAULT-FRAME /* BACKSPACE */
 DO:
   RUN Apply_Key (SELF:TOOLTIP).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -684,7 +684,7 @@ END.
 ON CHOOSE OF Btn_bckslash IN FRAME DEFAULT-FRAME /* \ */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -696,7 +696,7 @@ END.
 ON CHOOSE OF Btn_C IN FRAME DEFAULT-FRAME /* C */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -715,7 +715,7 @@ DO:
   {touch/kbLanguage.i}
   SELF:LABEL = SELF:LABEL + ' ' + STRING(capsLock,'(ON)/(OFF)').
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -727,7 +727,7 @@ END.
 ON CHOOSE OF Btn_Carot IN FRAME DEFAULT-FRAME /* ^ */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -739,7 +739,7 @@ END.
 ON CHOOSE OF Btn_Clear IN FRAME DEFAULT-FRAME /* CLEAR */
 DO:
   RUN Apply_Key (SELF:TOOLTIP).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -751,7 +751,7 @@ END.
 ON CHOOSE OF Btn_Colon IN FRAME DEFAULT-FRAME /* : */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -763,7 +763,7 @@ END.
 ON CHOOSE OF Btn_Comma IN FRAME DEFAULT-FRAME /* , */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -775,7 +775,7 @@ END.
 ON CHOOSE OF Btn_D IN FRAME DEFAULT-FRAME /* D */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -787,7 +787,7 @@ END.
 ON CHOOSE OF Btn_Dblquote IN FRAME DEFAULT-FRAME /* DQ */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -799,7 +799,7 @@ END.
 ON CHOOSE OF Btn_Dollar IN FRAME DEFAULT-FRAME /* $ */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -811,7 +811,7 @@ END.
 ON CHOOSE OF Btn_E IN FRAME DEFAULT-FRAME /* E */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -823,7 +823,7 @@ END.
 ON CHOOSE OF Btn_Equal IN FRAME DEFAULT-FRAME /* = */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -835,7 +835,7 @@ END.
 ON CHOOSE OF Btn_Exclaim IN FRAME DEFAULT-FRAME /* ! */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -847,7 +847,7 @@ END.
 ON CHOOSE OF Btn_F IN FRAME DEFAULT-FRAME /* F */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -859,7 +859,7 @@ END.
 ON CHOOSE OF Btn_fwdslash IN FRAME DEFAULT-FRAME /* / */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -871,7 +871,7 @@ END.
 ON CHOOSE OF Btn_G IN FRAME DEFAULT-FRAME /* G */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -883,7 +883,7 @@ END.
 ON CHOOSE OF Btn_Grtrthan IN FRAME DEFAULT-FRAME /* > */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -895,7 +895,7 @@ END.
 ON CHOOSE OF Btn_H IN FRAME DEFAULT-FRAME /* H */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -907,7 +907,7 @@ END.
 ON CHOOSE OF Btn_I IN FRAME DEFAULT-FRAME /* I */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -919,7 +919,7 @@ END.
 ON CHOOSE OF Btn_J IN FRAME DEFAULT-FRAME /* J */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -931,7 +931,7 @@ END.
 ON CHOOSE OF Btn_K IN FRAME DEFAULT-FRAME /* K */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -943,7 +943,7 @@ END.
 ON CHOOSE OF Btn_L IN FRAME DEFAULT-FRAME /* L */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -955,7 +955,7 @@ END.
 ON CHOOSE OF Btn_Lbox IN FRAME DEFAULT-FRAME /* [ */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -967,7 +967,7 @@ END.
 ON CHOOSE OF Btn_lcurly IN FRAME DEFAULT-FRAME /* { */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -979,7 +979,7 @@ END.
 ON CHOOSE OF Btn_Lessthan IN FRAME DEFAULT-FRAME /* < */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -991,7 +991,7 @@ END.
 ON CHOOSE OF Btn_lparenth IN FRAME DEFAULT-FRAME /* ( */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1003,7 +1003,7 @@ END.
 ON CHOOSE OF Btn_M IN FRAME DEFAULT-FRAME /* M */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1015,7 +1015,7 @@ END.
 ON CHOOSE OF Btn_Minus IN FRAME DEFAULT-FRAME /* - */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1027,7 +1027,7 @@ END.
 ON CHOOSE OF Btn_N IN FRAME DEFAULT-FRAME /* N */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1039,7 +1039,7 @@ END.
 ON CHOOSE OF Btn_O IN FRAME DEFAULT-FRAME /* O */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1051,7 +1051,7 @@ END.
 ON CHOOSE OF Btn_P IN FRAME DEFAULT-FRAME /* P */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1063,7 +1063,7 @@ END.
 ON CHOOSE OF Btn_Percent IN FRAME DEFAULT-FRAME /* % */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1075,7 +1075,7 @@ END.
 ON CHOOSE OF Btn_Period IN FRAME DEFAULT-FRAME /* . */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1087,7 +1087,7 @@ END.
 ON CHOOSE OF Btn_Pipe IN FRAME DEFAULT-FRAME /* | */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1099,7 +1099,7 @@ END.
 ON CHOOSE OF Btn_Plus IN FRAME DEFAULT-FRAME /* + */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1111,7 +1111,7 @@ END.
 ON CHOOSE OF Btn_Pound IN FRAME DEFAULT-FRAME /* # */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1123,7 +1123,7 @@ END.
 ON CHOOSE OF Btn_Q IN FRAME DEFAULT-FRAME /* Q */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1135,7 +1135,7 @@ END.
 ON CHOOSE OF Btn_Question IN FRAME DEFAULT-FRAME /* ? */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1147,7 +1147,7 @@ END.
 ON CHOOSE OF Btn_R IN FRAME DEFAULT-FRAME /* R */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1159,7 +1159,7 @@ END.
 ON CHOOSE OF Btn_rbox IN FRAME DEFAULT-FRAME /* ] */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1171,7 +1171,7 @@ END.
 ON CHOOSE OF Btn_rcurly IN FRAME DEFAULT-FRAME /* } */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1183,7 +1183,7 @@ END.
 ON CHOOSE OF Btn_rparenth IN FRAME DEFAULT-FRAME /* ) */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1195,7 +1195,7 @@ END.
 ON CHOOSE OF Btn_S IN FRAME DEFAULT-FRAME /* S */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1207,7 +1207,7 @@ END.
 ON CHOOSE OF Btn_semicoln IN FRAME DEFAULT-FRAME /* ; */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1219,7 +1219,7 @@ END.
 ON CHOOSE OF Btn_Sglquote IN FRAME DEFAULT-FRAME /* ' */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1231,7 +1231,7 @@ END.
 ON CHOOSE OF Btn_Sort IN FRAME DEFAULT-FRAME /* SORT */
 DO:
   RUN Apply_Key (SELF:TOOLTIP).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1243,7 +1243,7 @@ END.
 ON CHOOSE OF Btn_Space IN FRAME DEFAULT-FRAME /* SPACE */
 DO:
   RUN Apply_Key (SELF:TOOLTIP).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1255,7 +1255,7 @@ END.
 ON CHOOSE OF Btn_T IN FRAME DEFAULT-FRAME /* T */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1267,7 +1267,7 @@ END.
 ON CHOOSE OF Btn_U IN FRAME DEFAULT-FRAME /* U */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1279,7 +1279,7 @@ END.
 ON CHOOSE OF Btn_underln IN FRAME DEFAULT-FRAME /* _ */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1291,7 +1291,7 @@ END.
 ON CHOOSE OF Btn_V IN FRAME DEFAULT-FRAME /* V */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1303,7 +1303,7 @@ END.
 ON CHOOSE OF Btn_W IN FRAME DEFAULT-FRAME /* W */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1315,7 +1315,7 @@ END.
 ON CHOOSE OF Btn_X IN FRAME DEFAULT-FRAME /* X */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1327,7 +1327,7 @@ END.
 ON CHOOSE OF Btn_Y IN FRAME DEFAULT-FRAME /* Y */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1339,7 +1339,7 @@ END.
 ON CHOOSE OF Btn_Z IN FRAME DEFAULT-FRAME /* Z */
 DO:
   RUN Apply_Key (SELF:LABEL).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1361,7 +1361,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -1375,7 +1375,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   CURRENT-WINDOW:ROW = parents_row + 14.
   RUN enable_UI.
   {touch/kbLanguage.i}
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:35:44 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.

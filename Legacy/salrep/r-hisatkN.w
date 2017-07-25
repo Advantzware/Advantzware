@@ -2080,7 +2080,7 @@ IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
      END.*/
 
 
-     put skip(1).
+     put SKIP.
      IF tb_excel THEN
         PUT STREAM excel UNFORMATTED SKIP(1).
   end.
@@ -2174,7 +2174,7 @@ IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
             END.
 
             PUT str-line SKIP.
-            PUT UNFORMATTED "         TOTALS" substring(cDisplay,16,350) SKIP.
+            PUT UNFORMATTED "         TOTALS" substring(cDisplay,16,350) SKIP(1).
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  '               TOTALS ,'
                        substring(cExcelDisplay,4,350) SKIP(1).

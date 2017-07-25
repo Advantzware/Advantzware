@@ -142,7 +142,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -173,7 +172,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -230,7 +229,7 @@ DO:
 
   IF v-process THEN DO WITH FRAME {&FRAME-NAME}:
     SESSION:SET-WAIT-STATE("general").
-
+    
     order-close:
     FOR EACH oe-ord NO-LOCK
         WHERE oe-ord.company     EQ cocode
@@ -303,7 +302,7 @@ DO:
     END.
 
     SESSION:SET-WAIT-STATE("").
-
+        
     APPLY "close" TO THIS-PROCEDURE.
   END.
 END.

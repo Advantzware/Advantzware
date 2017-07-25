@@ -485,7 +485,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   END.
 
   RUN enable_UI.
-
+  
+  /* {custom/usrprint.i} */
+  
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:

@@ -168,6 +168,10 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON Btn-Update IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       Btn-Update:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

@@ -6,7 +6,7 @@
 /*------------------------------------------------------------------------
 
   File: est/d-frmout.w
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -284,7 +284,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -317,7 +316,7 @@ ASSIGN
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -341,7 +340,7 @@ ON HELP OF bndl-cod IN FRAME D-Dialog /* Bundle Code */
 DO:
    def var char-val as cha no-undo.
    def var look-recid as recid no-undo.
-
+   
    RUN windows/l-item.w (gcompany,"","C",focus:SCREEN-VALUE,OUTPUT char-val).
    if char-val <> "" and self:screen-value <> entry(1,char-val) then 
                         ASSIGN
@@ -379,7 +378,7 @@ ON HELP OF board IN FRAME D-Dialog /* Board */
 DO:
    def var char-val as cha no-undo.
    def var look-recid as recid no-undo.
-
+   
    run windows/l-board.w (gcompany,"",focus:SCREEN-VALUE,output char-val).
    if char-val <> "" and self:screen-value <> entry(1,char-val) then 
                         ASSIGN
@@ -440,17 +439,17 @@ DO:
 
     assign iFormNumber = 0
          iBlankNumber = 0 .
-
+ 
     session:set-wait-state("general").
-
+  
      run create-ttfrmout.
 
      RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE). 
-
+  
  SESSION:set-wait-state("").
-
+  
  APPLY "close" TO THIS-PROCEDURE.
-
+   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -496,7 +495,7 @@ ON HELP OF cust-no IN FRAME D-Dialog /* Cust# */
 DO:
    def var char-val as cha no-undo.
    def var look-recid as recid no-undo.
-
+   
    RUN windows/l-custact.w (gcompany,"", OUTPUT char-val, OUTPUT look-recid).
    if char-val <> "" and self:screen-value <> entry(1,char-val) then 
                         ASSIGN
@@ -514,7 +513,7 @@ ON HELP OF dep IN FRAME D-Dialog /* Depth */
 DO:
    def var char-val as cha no-undo.
    def var look-recid as recid no-undo.
-
+   
  /*  RUN windows/l-item.w (gcompany,"","G,S,T",focus:SCREEN-VALUE,OUTPUT char-val).
    if char-val <> "" and self:screen-value <> entry(1,char-val) then 
                         ASSIGN
@@ -532,7 +531,7 @@ ON HELP OF f-tab IN FRAME D-Dialog /* Tab */
 DO:
    def var char-val as cha no-undo.
    def var look-recid as recid no-undo.
-
+   
    /*RUN windows/l-item.w (gcompany,"","G,S,T",focus:SCREEN-VALUE,OUTPUT char-val).
    if char-val <> "" and self:screen-value <> entry(1,char-val) then 
                         ASSIGN
@@ -591,7 +590,7 @@ DO:
               FIND FIRST itemfg WHERE RECID(itemfg) = look-recid NO-LOCK NO-ERROR.
              IF AVAIL itemfg THEN
              cst-part:SCREEN-VALUE = itemfg.part-no .
-
+               
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -618,7 +617,7 @@ ON HELP OF flue IN FRAME D-Dialog /* Flute */
 DO:
    def var char-val as cha no-undo.
    def var look-recid as recid no-undo.
-
+   
    run windows/l-flute.w (gcompany,output char-val).
    if char-val <> "" and self:screen-value <> entry(1,char-val) then 
                         ASSIGN
@@ -655,7 +654,7 @@ DO:
           AND item.reg-no    EQ test:SCREEN-VALUE
         USE-INDEX mat-type NO-LOCK
         BY item.i-no:
-
+       
       board:SCREEN-VALUE = item.i-no.
     /*  RUN new-board.*/
       LEAVE.
@@ -677,7 +676,7 @@ ON HELP OF glu-cod IN FRAME D-Dialog /* Glue Code */
 DO:
    def var char-val as cha no-undo.
    def var look-recid as recid no-undo.
-
+   
    RUN windows/l-item.w (gcompany,"","G,S,T",focus:SCREEN-VALUE,OUTPUT char-val).
    if char-val <> "" and self:screen-value <> entry(1,char-val) then 
                         ASSIGN
@@ -717,7 +716,7 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR len-num AS INT NO-UNDO.
-
+   
     if lastkey = -1 then return.
     v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
    if lastkey <> -1 and
@@ -739,7 +738,7 @@ DO:
          RETURN NO-APPLY.
       END.
       ELSE do: 
-
+          
           /* eb.len:screen-value = string( len-num +  op-dec) . */
       END.
    END.     
@@ -757,7 +756,7 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR len-num AS INT NO-UNDO.
-
+   
     if lastkey = -1 then return.
     v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
    if lastkey <> -1 and
@@ -779,7 +778,7 @@ DO:
          RETURN NO-APPLY.
       END.
       ELSE do: 
-
+          
           /* eb.len:screen-value = string( len-num +  op-dec) . */
       END.
    END.     
@@ -797,7 +796,7 @@ DO:
    DEF VAR op-dec AS DEC DECIMALS 6 NO-UNDO.
    DEF VAR op-error AS LOG NO-UNDO.
    DEFINE VAR len-num AS INT NO-UNDO.
-
+   
     if lastkey = -1 then return.
     v-dec = decimal(self:screen-value) - trunc(decimal(self:screen-value),0).
    if lastkey <> -1 and
@@ -819,7 +818,7 @@ DO:
          RETURN NO-APPLY.
       END.
       ELSE do: 
-
+          
           /* eb.len:screen-value = string( len-num +  op-dec) . */
       END.
    END.     
@@ -835,7 +834,7 @@ ON HELP OF plat-cod IN FRAME D-Dialog /* Pallet Code */
 DO:
    def var char-val as cha no-undo.
    def var look-recid as recid no-undo.
-
+   
    RUN windows/l-item.w (gcompany,"","D",focus:SCREEN-VALUE,OUTPUT char-val).
    if char-val <> "" and self:screen-value <> entry(1,char-val) then 
                         ASSIGN
@@ -924,7 +923,7 @@ DO:
                             lv-copy-rel[20] = integer(entry(20,char-val2)) 
                  .
         /*   END.*/
-
+               
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -936,9 +935,9 @@ ON HELP OF ship-to IN FRAME D-Dialog /* Ship To */
 DO:
    def var char-val as cha no-undo.
    def var look-recid as recid no-undo.
-
+   
    RUN windows/l-shipto.w (gcompany,"",cust-no:SCREEN-VALUE,"", OUTPUT char-val).
-
+   
    if char-val <> "" and self:screen-value <> entry(1,char-val) then 
                         ASSIGN
                           self:screen-value  = entry(1,char-val)
@@ -971,7 +970,7 @@ ON HELP OF style-cod IN FRAME D-Dialog /* Style Code */
 DO:
    def var char-val as cha no-undo.
    def var look-recid as recid no-undo.
-
+   
    run windows/l-stylec.w (gcompany,focus:SCREEN-VALUE, output char-val).
    if char-val <> "" and self:screen-value <> entry(1,char-val) then 
                         ASSIGN
@@ -993,7 +992,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL style-cod D-Dialog
 ON LEAVE OF style-cod IN FRAME D-Dialog /* Style Code */
 DO:
-
+       
     IF self:SCREEN-VALUE NE "" THEN DO:
         RUN valid-style NO-ERROR.
         IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. 
@@ -1018,7 +1017,7 @@ ON HELP OF test IN FRAME D-Dialog /* Test */
 DO:
    def var char-val as cha no-undo.
    def var look-recid as recid no-undo.
-
+   
    run windows/l-test.w (gcompany,locode,flue:SCREEN-VALUE,output char-val).
    if char-val <> "" and self:screen-value <> entry(1,char-val) then 
                         ASSIGN
@@ -1052,7 +1051,7 @@ DO:
           AND item.reg-no    EQ test:SCREEN-VALUE
         USE-INDEX mat-type NO-LOCK
         BY item.i-no:
-
+        
       board:SCREEN-VALUE = item.i-no.
     /*  RUN new-board.*/
       LEAVE.
@@ -1082,7 +1081,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    RUN enable_UI.
 
   {methods/nowait.i}
-
+     
   DO WITH FRAME {&frame-name}:
     {custom/usrprint.i}
 
@@ -1157,17 +1156,17 @@ PROCEDURE create-ttfrmout :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    
 
-
-
+                            
 
   ASSIGN
    iFormNumber = iFormNumber + 1
    iBlankNumber = 1             .
-
+  
   CREATE tt-frmout.
   ASSIGN 
-
+      
          tt-frmout.part-no       = cst-part
          tt-frmout.stack-no  = fg-no
          tt-frmout.colr-dscr     = colr-dscr
@@ -1199,7 +1198,7 @@ PROCEDURE create-ttfrmout :
          tt-frmout.copy-qty[8] = lv-copy-qty[8] 
          tt-frmout.copy-qty[9] = lv-copy-qty[9] 
          tt-frmout.copy-qty[10] = lv-copy-qty[10]
-
+         
          tt-frmout.copy-qty[11] = lv-copy-qty[11] 
          tt-frmout.copy-qty[12] = lv-copy-qty[12] 
          tt-frmout.copy-qty[13] = lv-copy-qty[13] 
@@ -1221,7 +1220,7 @@ PROCEDURE create-ttfrmout :
          tt-frmout.copy-rel[8] = lv-copy-rel[8] 
          tt-frmout.copy-rel[9] = lv-copy-rel[9] 
          tt-frmout.copy-rel[10] = lv-copy-rel[10]
-
+         
          tt-frmout.copy-rel[11] = lv-copy-rel[11] 
          tt-frmout.copy-rel[12] = lv-copy-rel[12] 
          tt-frmout.copy-rel[13] = lv-copy-rel[13] 
@@ -1232,7 +1231,7 @@ PROCEDURE create-ttfrmout :
          tt-frmout.copy-rel[18] = lv-copy-rel[18] 
          tt-frmout.copy-rel[19] = lv-copy-rel[19] 
          tt-frmout.copy-rel[20] = lv-copy-rel[20]  .
-
+   
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1306,7 +1305,7 @@ PROCEDURE valid-fgitem :
   Notes:       
 ------------------------------------------------------------------------------*/
    DO WITH FRAME {&FRAME-NAME}:
-
+     
          IF fg-no:SCREEN-VALUE  NE "" THEN DO:
            FIND FIRST itemfg
                WHERE itemfg.company  EQ gcompany
@@ -1393,7 +1392,7 @@ PROCEDURE valid-ship-id :
       MESSAGE "            Invalid entry, try help...             "  VIEW-AS ALERT-BOX ERROR.
         APPLY "entry" TO ship-to .
         RETURN ERROR.
-
+      
     END.
   END.
 
@@ -1462,7 +1461,7 @@ PROCEDURE valid-64-dec :
    DEFINE INPUT PARAMETER ip-dec AS DEC DECIMALS 6 NO-UNDO.
    DEFINE OUTPUT PARAMETER op-error AS LOG NO-UNDO.
    DEFINE OUTPUT PARAMETER op-dec AS DEC DECIMALS 6 NO-UNDO.
-
+    
     FIND FIRST tt-64-dec WHERE
       substring(string(tt-64-dec.DEC),1,3) EQ substring(string(ip-dec),1,3) NO-LOCK NO-ERROR.
     IF NOT AVAIL tt-64-dec  THEN

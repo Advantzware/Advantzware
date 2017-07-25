@@ -197,10 +197,38 @@ ASSIGN
 
 /* SETTINGS FOR BUTTON Btn-Add IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       Btn-Add:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* SETTINGS FOR BUTTON Btn-Delete IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       Btn-Delete:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       btn-his:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       btn-price:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* SETTINGS FOR BUTTON Btn-Save IN FRAME F-Main
    NO-ENABLE                                                            */
+ASSIGN 
+       Btn-Save:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       btn-stat:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
+ASSIGN 
+       Btn-View:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 

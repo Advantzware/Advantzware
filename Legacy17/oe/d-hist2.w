@@ -193,7 +193,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -249,7 +248,7 @@ AND oe-ordl.qty NE 0"
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -448,8 +447,8 @@ FUNCTION get-price RETURNS DECIMAL
   */
   v-price = oe-ordl.price.
   return v-price.   
-
-
+  
+            
 
 END FUNCTION.
 
@@ -465,7 +464,7 @@ FUNCTION get-prof RETURNS DECIMAL
 ------------------------------------------------------------------------------*/
   def var v-price as dec no-undo.
   def var v-prof as dec no-undo.
-
+  
   v-price = get-price().
 
   IF oe-ordl.pr-uom NE "M" THEN
@@ -474,7 +473,7 @@ FUNCTION get-prof RETURNS DECIMAL
 
   v-prof = (v-price - oe-ordl.cost) / v-price * 100.
   if v-prof = ? then v-prof = 0.
-
+  
   return v-prof.
 
 END FUNCTION.

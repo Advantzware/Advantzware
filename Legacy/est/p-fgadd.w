@@ -181,6 +181,10 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+ASSIGN 
+       btn-add:PRIVATE-DATA IN FRAME F-Main     = 
+                "panel-image".
+
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -202,7 +206,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME btn-add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-add V-table-Win
-ON CHOOSE OF btn-add IN FRAME F-Main /* Hold */
+ON CHOOSE OF btn-add IN FRAME F-Main /* +FG# */
 DO: 
     DEF VAR char-hdl AS cha NO-UNDO.
     DEF VAR l-is-updating AS LOG NO-UNDO.

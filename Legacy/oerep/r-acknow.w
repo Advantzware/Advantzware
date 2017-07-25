@@ -2853,7 +2853,7 @@ IF IS-xprint-form THEN DO:
            IF TG_preview THEN PUT "<PREVIEW>". ELSE PUT "<PRINT=NO>".
             IF LOOKUP(v-print-fmt,"Century,Unipak,Axis,Soule,SouleUOM,APC,Perform,Fibrex,Allwest,Simkins,HOPX,Carded") > 0 THEN
                 PUT "<FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-            ELSE IF LOOKUP(v-print-fmt,"Frankstn,3CPack") > 0 THEN /* task 07211402 */
+            ELSE IF LOOKUP(v-print-fmt,"Frankstn,3CPack,3CPackSD") > 0 THEN /* task 07211402 */
                  PUT "<PDF-LEFT=2mm><PDF-TOP=5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE PUT "<PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
        END.
@@ -2865,11 +2865,10 @@ IF v-ack-master THEN DO:
     RUN VALUE(v-program).
 END.
 ELSE DO:
-    IF CAN-DO("Frankstn,3CPack,Mirpkg,PPI,Indiana,ContSvc,HPB,Packrite",v-print-fmt) THEN RUN VALUE(v-program) (v-print-fmt).
+    IF CAN-DO("Frankstn,3CPack,3CPackSD,Mirpkg,PPI,Indiana,ContSvc,HPB,Packrite",v-print-fmt) THEN RUN VALUE(v-program) (v-print-fmt).
     ELSE IF LOOKUP(v-print-fmt,"Century,Unipak,Axis,Soule,SouleUOM,APC,Perform,Fibrex,Dee,Allwest,Accord") > 0 THEN RUN VALUE(v-program) (tb_prt-revise).
     ELSE RUN VALUE(v-program).
 END.
-
 
 OUTPUT CLOSE.
 
@@ -2990,6 +2989,7 @@ PROCEDURE SetOEAckForm :
        WHEN "Hopx" THEN ASSIGN v-program = "oe/rep/ackhopx.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Carded" THEN ASSIGN v-program = "oe/rep/ackcared.p" is-xprint-form = YES lines-per-page = 68.  /* Task 09181303  */
        WHEN "XPrint" OR WHEN "ackhead 1" OR WHEN "ackhead 2" THEN ASSIGN v-program = "oe/rep/ackxprnt.p" is-xprint-form = YES lines-per-page = 65.
+       WHEN "ackhead 10" OR WHEN "ackhead 20" THEN ASSIGN v-program = "oe/rep/ackxprnt10.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Badger" THEN ASSIGN v-program = "oe/rep/ackbager.p" is-xprint-form = YES lines-per-page = 67. /* task 04021401 */
        WHEN "Hughes" THEN ASSIGN v-program = "oe/rep/ackhughes.p" is-xprint-form = YES lines-per-page = 65. 
        WHEN "Accord" THEN ASSIGN v-program = "oe/rep/ackacord.p" is-xprint-form = YES lines-per-page = 72.
@@ -3010,7 +3010,8 @@ PROCEDURE SetOEAckForm :
        WHEN "OTTPkg" THEN ASSIGN v-program = "oe/rep/ackottpk.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Frankstn" OR WHEN "MirPkg" THEN ASSIGN v-program = "oe/rep/ackfrank.p" is-xprint-form = YES
                                                     lines-per-page = 65.
-       WHEN "3CPack" THEN ASSIGN v-program = "oe/rep/ack3cpak.p" is-xprint-form = YES lines-per-page = 65.
+       WHEN "3CPack" THEN ASSIGN v-program = "oe/rep/ack3cpak.p" is-xprint-form = YES lines-per-page = 75.
+       WHEN "3CPackSD" THEN ASSIGN v-program = "oe/rep/ack3cpaksd.p" is-xprint-form = YES lines-per-page = 75.
        WHEN "HPB" THEN ASSIGN v-program = "oe/rep/ackhpb.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "PPI" THEN ASSIGN v-program = "oe/rep/ackppi.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Southpak" THEN ASSIGN v-program = "oe/rep/acksthpk.p" is-xprint-form = YES lines-per-page = 65.

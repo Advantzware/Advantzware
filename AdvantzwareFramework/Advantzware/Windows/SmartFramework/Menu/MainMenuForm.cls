@@ -24,6 +24,7 @@
 ROUTINE-LEVEL ON ERROR UNDO, THROW.
 
 {Consultingwerk/products.i}
+{system/sysconst.i}
 
 USING Consultingwerk.*                                                    FROM PROPATH .
 USING Consultingwerk.Framework.*                                          FROM PROPATH .
@@ -1323,7 +1324,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
         THIS-OBJECT:Icon = CAST(resources:GetObject("$this.Icon"), System.Drawing.Icon).
         THIS-OBJECT:IsMdiContainer = TRUE.
         THIS-OBJECT:Name = "MainMenuForm".
-        THIS-OBJECT:Text = "Advantzware Manufacturing & Distribution Software".
+        THIS-OBJECT:Text = "Advantzware Manufacturing & Distribution Software v{&awversion}".
         THIS-OBJECT:WindowPositionRegistryKey = "CustomerExplorer".
         CAST(THIS-OBJECT:ultraExplorerBar1, System.ComponentModel.ISupportInitialize):EndInit().
         CAST(THIS-OBJECT:ultraGridColumnChooser1, System.ComponentModel.ISupportInitialize):EndInit().
@@ -2108,7 +2109,7 @@ CLASS Advantzware.Windows.SmartFramework.Menu.MainMenuForm
                                                 e AS System.EventArgs):
 
         Consultingwerk.Windows.API.Win32:ShellExecute ("open":U,
-                                                       "http://www.facebook.com/Consultingwerk":U) .
+                                                       "http://www.advantzware.com":U) .
 
     END METHOD.
 

@@ -7,7 +7,7 @@
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DECLARATIONS B-table-Win
-{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p on 04.18.2017 @ 11:37:55 am */
+{Advantzware\WinKit\admViewersUsing.i} /* added by script _admViewers.p */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
 /*------------------------------------------------------------------------
@@ -344,7 +344,7 @@ PROCEDURE local-update-record :
 
   /* Code placed here will execute PRIOR to standard behavior. */
     IF usercomp.company_default:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "yes" THEN DO:
-
+      {&methods/lValidateError.i YES}
       FIND FIRST bf-comp WHERE bf-comp.USER_id = users.USER_id AND
                            bf-comp.loc = "" AND
                            bf-comp.company_default = YES AND
@@ -356,6 +356,7 @@ PROCEDURE local-update-record :
            VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
         IF NOT ll-ans THEN RETURN.
      END.
+      {&methods/lValidateError.i NO}
   END.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
@@ -367,6 +368,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN WIDGET-HANDLE(char-hdl) ("open-query").
 
 END PROCEDURE.
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

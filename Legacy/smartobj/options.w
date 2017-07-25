@@ -359,6 +359,7 @@ PROCEDURE Init-Buttons :
   DEFINE VARIABLE notes-button AS LOGICAL NO-UNDO.
   DEFINE VARIABLE misc_fields-button AS LOGICAL NO-UNDO.
   DEFINE VARIABLE spec-note AS LOGICAL NO-UNDO.
+  {methods/calcBtnImage.i}
 
   {methods/run_link.i "CONTAINER-SOURCE" "Init-Options-Panel"
     "(OUTPUT search-button,OUTPUT list-button,OUTPUT notes-button,OUTPUT misc_fields-button, output spec-note)"}
@@ -375,7 +376,11 @@ PROCEDURE Init-Buttons :
 
   {methods/run_link.i "note-link-target" "disable-note" "(output notes-button)"}
   IF NOT notes-button THEN
-  DISABLE select_notes WITH FRAME {&FRAME-NAME}.
+  DISABLE select_notes WITH FRAME {&FRAME-NAME}.   
+
+  {methods/run_link.i "note-link-target" "image-change-note" "(output notes-button)"}
+  IF NOT notes-button THEN
+  RUN spec-book-image-change(NO) .
 
 END PROCEDURE.
 
@@ -416,6 +421,27 @@ PROCEDURE Spec-Book-Image :
          SELECT_spec:LOAD-IMAGE("Graphics\32x32\book_open.ico").
       ELSE
          SELECT_spec:LOAD-IMAGE("Graphics\32x32\book_open_star.ico").
+   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE spec-book-image-change s-object 
+PROCEDURE spec-book-image-change :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.
+
+   DO WITH FRAME {&FRAME-NAME}:
+
+      IF NOT ip-log THEN
+         SELECT_spec:LOAD-IMAGE("Graphics/32x32/edit.ico").
+      ELSE
+         SELECT_spec:LOAD-IMAGE("Graphics/32x32/edit_star.ico").
    END.
 END PROCEDURE.
 

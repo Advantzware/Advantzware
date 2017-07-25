@@ -70,7 +70,8 @@ ASSIGN cocode = ip-company .
 IF  PROGRAM-NAME(2) MATCHES "*/b-itemfg.w*"  OR PROGRAM-NAME(2) MATCHES "*/b-estq.w*" OR
     PROGRAM-NAME(2) MATCHES "*/b-estq1.w*" OR PROGRAM-NAME(2) MATCHES "*/b-qthd.w*" OR
     PROGRAM-NAME(2) MATCHES "*/b-jobinq.w*" OR PROGRAM-NAME(2) MATCHES "*/b-ordinq.w*" OR
-    PROGRAM-NAME(2) MATCHES "*/b-estitm.w*" THEN
+    PROGRAM-NAME(2) MATCHES "*/b-estitm.w*" OR PROGRAM-NAME(2) MATCHES "*/b-relinq.w*" OR
+    PROGRAM-NAME(2) MATCHES "*oerep/r-relprt.w*" OR PROGRAM-NAME(2) MATCHES "*/oe-relh_.w*" THEN
     v-check-page = YES .
 
 DO TRANSACTION:
@@ -457,6 +458,14 @@ END.
      v-file-name  = "OU1" .
      RUN sys/ref/CustList.p (INPUT cocode,
                             INPUT 'OU1',
+                            INPUT YES,
+                            OUTPUT lActive).
+ END.
+ IF PROGRAM-NAME(2) MATCHES "*oe/b-relinq.w*" OR PROGRAM-NAME(2) MATCHES "*oerep/r-relprt.w*" 
+      OR PROGRAM-NAME(2) MATCHES "*/oe-relh_.w*" THEN DO:
+     v-file-name  = "OT1" .
+     RUN sys/ref/CustList.p (INPUT cocode,
+                            INPUT 'OT1',
                             INPUT YES,
                             OUTPUT lActive).
  END.

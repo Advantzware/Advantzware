@@ -1,5 +1,21 @@
 /* caselbl.p */
 
+&SCOPED-DEFINE loginProcedure nosweat/login.w
+&SCOPED-DEFINE checkUserRecord YES 
+&SCOPED-DEFINE connectDatabases YES
+&SCOPED-DEFINE runAsiLoad NO
+&SCOPED-DEFINE createSingleUserPFs NO
+&SCOPED-DEFINE nonPersistProgram oerep/r-casetg.w
+&SCOPED-DEFINE checkExpiredLicense YES
+&SCOPED-DEFINE checkUserCount YES
+&SCOPED-DEFINE getCompanyProc CUSTOM/getcomp.p
+
+    
+{nosweat.i}
+
+/* Original code */
+/*
+
 {methods/defines/globdefs.i &NEW="NEW GLOBAL"}
 {methods/defines/hndldefs.i &NEW="NEW"}
 
@@ -86,3 +102,4 @@ DO:
 END. 
 ldummy = SESSION:SET-WAIT-STATE("").
 QUIT.
+*/

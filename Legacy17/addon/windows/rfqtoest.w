@@ -17,7 +17,7 @@
   Output Parameters:
       <none>
 
-
+ 
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -123,7 +123,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB F-Frame-Win 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -152,7 +151,7 @@ END.
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -163,7 +162,7 @@ END.
 ON CHOOSE OF bt-to-est IN FRAME F-Main /* Transfer To Estimate */
 DO:
     run windows/rfqest2.w (recid(rfq),recid(rfqitem)).
-
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */

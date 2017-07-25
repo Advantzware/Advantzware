@@ -99,6 +99,7 @@ ELSE
 
 DO TRANSACTION:
   {sys/inc/ackmst.i}
+  {sys/inc/acksps.i}  /* SPS ACK xml file generation logic */
 END.
 
 DEFINE VARIABLE retcode AS INTEGER   NO-UNDO.
@@ -722,7 +723,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
   APPLY "close" TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:09 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -910,7 +911,7 @@ DO:
     END. /* else of v-ack-master  */
   END.  /* NOT output to email */
 
-                         {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:09 am */
+                         {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.  /* end of btn-ok */
 
 /* _UIB-CODE-BLOCK-END */
@@ -1686,7 +1687,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:09 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -1734,8 +1735,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}
 
   DO WITH FRAME {&frame-name}:
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:05 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:05 am */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p */
     {custom/usrprint.i}
     ASSIGN
       lines-per-page:SCREEN-VALUE = STRING(viDefaultLinesPerPage)
@@ -1972,7 +1973,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY "entry" TO begin_ord-no.
   END.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:09 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -2865,7 +2866,7 @@ IF IS-xprint-form THEN DO:
            IF TG_preview THEN PUT "<PREVIEW>". ELSE PUT "<PRINT=NO>".
             IF LOOKUP(v-print-fmt,"Century,Unipak,Axis,Soule,SouleUOM,APC,Perform,Fibrex,Allwest,Simkins,HOPX,Carded") > 0 THEN
                 PUT "<FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-            ELSE IF LOOKUP(v-print-fmt,"Frankstn,3CPack") > 0 THEN /* task 07211402 */
+            ELSE IF LOOKUP(v-print-fmt,"Frankstn,3CPack,3CPackSD") > 0 THEN /* task 07211402 */
                  PUT "<PDF-LEFT=2mm><PDF-TOP=5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
             ELSE PUT "<PDF-LEFT=5mm><PDF-TOP=10mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
        END.
@@ -2877,17 +2878,18 @@ IF v-ack-master THEN DO:
     RUN VALUE(v-program).
 END.
 ELSE DO:
-    IF CAN-DO("Frankstn,3CPack,Mirpkg,PPI,Indiana,ContSvc,HPB,Packrite",v-print-fmt) THEN RUN VALUE(v-program) (v-print-fmt).
+    IF CAN-DO("Frankstn,3CPack,3CPackSD,Mirpkg,PPI,Indiana,ContSvc,HPB,Packrite",v-print-fmt) THEN RUN VALUE(v-program) (v-print-fmt).
     ELSE IF LOOKUP(v-print-fmt,"Century,Unipak,Axis,Soule,SouleUOM,APC,Perform,Fibrex,Dee,Allwest,Accord") > 0 THEN RUN VALUE(v-program) (tb_prt-revise).
     ELSE RUN VALUE(v-program).
 END.
-
 
 OUTPUT CLOSE.
 
 FOR EACH report WHERE report.term-id EQ v-term-id:
    FIND oe-ord WHERE RECID(oe-ord) EQ report.rec-id.
    IF STRING(oe-ord.ack-prnt) <> report.key-01 AND oe-ord.ack-prnt THEN oe-ord.ack-prnt-date = TODAY.
+
+   IF acksps-log THEN RUN oe/oe850ack.p (oe-ord.ord-no).
 
   DELETE report.
 END.
@@ -2898,6 +2900,7 @@ IF tb_prt-bom THEN DO:
    RUN run-report-bom.
    OUTPUT CLOSE.
 END.
+
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
@@ -3019,7 +3022,8 @@ PROCEDURE SetOEAckForm :
        WHEN "OTTPkg" THEN ASSIGN v-program = "oe/rep/ackottpk.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Frankstn" OR WHEN "MirPkg" THEN ASSIGN v-program = "oe/rep/ackfrank.p" is-xprint-form = YES
                                                     lines-per-page = 65.
-       WHEN "3CPack" THEN ASSIGN v-program = "oe/rep/ack3cpak.p" is-xprint-form = YES lines-per-page = 65.
+       WHEN "3CPack" THEN ASSIGN v-program = "oe/rep/ack3cpak.p" is-xprint-form = YES lines-per-page = 75.
+       WHEN "3CPackSD" THEN ASSIGN v-program = "oe/rep/ack3cpaksd.p" is-xprint-form = YES lines-per-page = 75.
        WHEN "HPB" THEN ASSIGN v-program = "oe/rep/ackhpb.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "PPI" THEN ASSIGN v-program = "oe/rep/ackppi.p" is-xprint-form = YES lines-per-page = 65.
        WHEN "Southpak" THEN ASSIGN v-program = "oe/rep/acksthpk.p" is-xprint-form = YES lines-per-page = 65.

@@ -160,6 +160,8 @@ DEF VAR v-paidflg AS LOG NO-UNDO.
 &SCOPED-DEFINE sortby-log2                                                                                                             ~
     IF lv-sort-by EQ "po-no"     THEN STRING(po-ordl.po-no,"9999999999")                                                          ELSE ~
     IF lv-sort-by EQ "vend-no"   THEN po-ord.vend-no                                                                              ELSE ~
+    IF lv-sort-by EQ "ship-id"   THEN po-ord.ship-id                                                                              ELSE ~
+    IF lv-sort-by EQ "ship-name"   THEN po-ord.ship-name                                                                          ELSE ~
     IF lv-sort-by EQ "job-no"    THEN STRING(po-ordl.job-no,"x(6)") + STRING(po-ordl.job-no2,"99") + STRING(po-ordl.s-num,"999")  ELSE ~
     IF lv-sort-by EQ "i-no"      THEN po-ordl.i-no                                                                                ELSE ~
     IF lv-sort-by EQ "i-name"    THEN po-ordl.i-name                                                                              ELSE ~
@@ -843,6 +845,9 @@ DO:
      objects when the browser's current row changes. */
   {src/adm/template/brschnge.i}
   RUN set-value.
+
+  RUN dept-pan-image-proc.
+
 END.
 
 /*DO:
@@ -981,6 +986,7 @@ ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1010,6 +1016,7 @@ ON VALUE-CHANGED OF fi_job-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1022,6 +1029,7 @@ ON VALUE-CHANGED OF fi_vend-i-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1033,6 +1041,7 @@ END.
 ON VALUE-CHANGED OF fi_vend-no IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
 END.
 
@@ -2645,6 +2654,34 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
+PROCEDURE dept-pan-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   FIND FIRST notes WHERE notes.rec_key = po-ord.rec_key
+       NO-LOCK NO-ERROR.
+
+   IF AVAIL notes THEN
+      v-spec = TRUE.
+   ELSE v-spec = FALSE.
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'spec-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed B-table-Win 
 PROCEDURE state-changed :

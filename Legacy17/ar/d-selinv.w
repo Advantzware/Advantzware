@@ -8,7 +8,7 @@
 /*------------------------------------------------------------------------
 
   File: ar\d-selinv.w
-
+  
 ------------------------------------------------------------------------*/
 /*          This .W file was created with the Progress UIB.             */
 /*----------------------------------------------------------------------*/
@@ -165,7 +165,6 @@ DEFINE FRAME D-Dialog
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB D-Dialog 
 /* ************************* Included-Libraries *********************** */
 
-{Advantzware/WinKit/embedwindow.i}
 {src/adm/method/containr.i}
 
 /* _UIB-CODE-BLOCK-END */
@@ -206,7 +205,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-inv.
 */  /* DIALOG-BOX D-Dialog */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -295,7 +294,7 @@ DO:
             li-seq-no       = li-seq-no + 1
             tt-inv.seq-no   = li-seq-no
             tt-inv.amt-disc = 0.
-
+           
            IF NOT ip-is-memo AND
               (ll-ans OR
                (ar-inv.disc-days NE 0 AND ar-inv.due GT 0 AND
@@ -312,7 +311,7 @@ DO:
              ld-due = (ar-inv.due -
                       (IF ar-inv.f-bill THEN ar-inv.freight ELSE 0) - 
                       ar-inv.tax-amt) * (IF ld-net1 = 0 OR ld-net2 = 0 THEN 1 ELSE ld-net2 / ld-net1).
-
+                                                 
              IF ld-due NE 0 THEN
                tt-inv.amt-disc = IF ar-inv.disc-% = 0 THEN 0 ELSE ROUND(ld-due * (ar-inv.disc-% / 100),2).
            END.
@@ -343,7 +342,7 @@ DO:
         END.
 
         FOR EACH tt-inv WHERE tt-inv.selekt:
-
+         
            FOR EACH ar-cashl OF ar-cash NO-LOCK BY ar-cashl.line DESCENDING:
               li-next-line = ar-cashl.LINE.
               LEAVE.
@@ -501,7 +500,7 @@ PROCEDURE build-table :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+  
   FIND ar-cash WHERE RECID(ar-cash) EQ ip-cash-recid NO-LOCK NO-ERROR.
 
   IF AVAIL ar-cash THEN DO:

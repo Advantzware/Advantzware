@@ -49,8 +49,8 @@ def SHARED var cocode     as   char  format "x(3)"  no-undo.
 &Scoped-define FRAME-NAME D-Dialog
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-25 Btn_itm /*Btn_itm-cad*/ Btn_tandem ~
-Btn_set Btn_frm-out Btn_est Btn_est-2 Btn_Cancel Btn-Copy
+&Scoped-Define ENABLED-OBJECTS RECT-25 Btn_itm Btn_itm-cad Btn_tandem ~
+Btn_set Btn_frm-out Btn_est Btn-Copy Btn_est-2 Btn_Cancel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -59,12 +59,31 @@ Btn_set Btn_frm-out Btn_est Btn_est-2 Btn_Cancel Btn-Copy
 &ANALYZE-RESUME
 
 
+/* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fEnableImportForm D-Dialog 
+FUNCTION fEnableImportForm RETURNS LOGICAL
+  (ipcCompany AS CHARACTER) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
 /* Define a dialog box                                                  */
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON Btn-Copy AUTO-GO 
+     LABEL "&Copy" 
+     SIZE 26 BY 2.14
+     BGCOLOR 8 .
+
+DEFINE BUTTON btnImportForm AUTO-GO 
+     LABEL "&Import Form to Estimate" 
+     SIZE 26 BY 2.14
+     BGCOLOR 8 .
+
 DEFINE BUTTON Btn_Cancel AUTO-END-KEY 
      LABEL "Ca&ncel" 
      SIZE 26 BY 2.14
@@ -110,11 +129,6 @@ DEFINE BUTTON Btn_tandem AUTO-GO
      SIZE 26 BY 2.14
      BGCOLOR 8 .
 
-DEFINE BUTTON Btn-Copy AUTO-GO
-     LABEL "&Copy" 
-     SIZE 26 BY 2.14
-     BGCOLOR 8 .
-
 DEFINE RECTANGLE RECT-25
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 97 BY 14.76.
@@ -130,9 +144,10 @@ DEFINE FRAME D-Dialog
      Btn_set AT ROW 6.24 COL 18
      Btn_frm-out AT ROW 6.24 COL 50 WIDGET-ID 6
      Btn_est AT ROW 8.62 COL 18
-     Btn_est-2 AT ROW 11 COL 18
-     Btn_Cancel AT ROW 13.38 COL 18
      Btn-Copy AT ROW 8.62 COL 50
+     Btn_est-2 AT ROW 11 COL 18
+     btnImportForm AT ROW 11 COL 50 WIDGET-ID 8
+     Btn_Cancel AT ROW 13.38 COL 18
      RECT-25 AT ROW 1 COL 1
      SPACE(0.59) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
@@ -171,17 +186,15 @@ ASSIGN
        FRAME D-Dialog:SCROLLABLE       = FALSE
        FRAME D-Dialog:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON btnImportForm IN FRAME D-Dialog
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnImportForm:HIDDEN IN FRAME D-Dialog           = TRUE.
+
 /* SETTINGS FOR BUTTON Btn_part IN FRAME D-Dialog
    NO-ENABLE                                                            */
 ASSIGN 
        Btn_part:HIDDEN IN FRAME D-Dialog           = TRUE.
-
-IF cadcam-log = NO THEN
-    ASSIGN
-        Btn_itm-cad:SENSITIVE IN FRAME D-Dialog         = NO .
-ELSE
-    ASSIGN 
-        Btn_itm-cad:SENSITIVE IN FRAME D-Dialog         = YES .
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -208,6 +221,30 @@ ON WINDOW-CLOSE OF FRAME D-Dialog /* Adding Option */
 DO:  
   /* Add Trigger to equate WINDOW-CLOSE to END-ERROR. */
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn-Copy
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Copy D-Dialog
+ON CHOOSE OF Btn-Copy IN FRAME D-Dialog /* Copy */
+DO:
+    assign ls-add-what = "copy-est".
+    apply "window-close" to this-procedure.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnImportForm
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnImportForm D-Dialog
+ON CHOOSE OF btnImportForm IN FRAME D-Dialog /* Import Form to Estimate */
+DO:
+    assign ls-add-what = "ImportForm".
+    apply "window-close" to this-procedure.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -242,17 +279,6 @@ END.
 ON CHOOSE OF Btn_est-2 IN FRAME D-Dialog /* Add Blank to Form */
 DO:
     assign ls-add-what = "blank".
-    apply "window-close" to this-procedure.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME Btn-Copy
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Copy D-Dialog
-ON CHOOSE OF Btn-Copy IN FRAME D-Dialog /* Add Blank to Form */
-DO:
-    assign ls-add-what = "copy-est".
     apply "window-close" to this-procedure.
 END.
 
@@ -345,10 +371,16 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-IF ip-corr = YES THEN
+IF ip-corr = YES THEN DO:
    ASSIGN
       btn_part:HIDDEN = NO
-      btn_part:SENSITIVE = YES.
+      btn_part:SENSITIVE = YES
+      .
+END.
+IF fEnableImportForm(cocode) THEN 
+    ASSIGN  
+        btnImportForm:HIDDEN = NO
+        btnImportForm:SENSITIVE = YES .
     
 {src/adm/template/dialogmn.i}
 
@@ -421,8 +453,8 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE RECT-25 Btn_itm /*Btn_itm-cad*/ Btn_tandem Btn_set Btn_frm-out Btn_est 
-         Btn_est-2 Btn_Cancel Btn-Copy
+  ENABLE RECT-25 Btn_itm Btn_itm-cad Btn_tandem Btn_set Btn_frm-out Btn_est 
+         Btn-Copy Btn_est-2 Btn_Cancel 
       WITH FRAME D-Dialog.
   VIEW FRAME D-Dialog.
   {&OPEN-BROWSERS-IN-QUERY-D-Dialog}
@@ -458,6 +490,39 @@ PROCEDURE state-changed :
   DEFINE INPUT PARAMETER p-issuer-hdl AS HANDLE NO-UNDO.
   DEFINE INPUT PARAMETER p-state AS CHARACTER NO-UNDO.
 END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fEnableImportForm D-Dialog 
+FUNCTION fEnableImportForm RETURNS LOGICAL
+  (ipcCompany AS CHARACTER):
+
+ /*------------------------------------------------------------------------------
+     Purpose: Returns a logical value based on the value of the CEImportForm NK1 
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE lResult AS LOGICAL   NO-UNDO.
+    
+    DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lFound  AS LOGICAL   NO-UNDO. 
+    
+    RUN sys\ref\nk1look.p (ipcCompany,
+        'CEImportForm',
+        'L',
+        NO,
+        NO,
+        '',
+        '', 
+        OUTPUT cReturn,
+        OUTPUT lFound).
+
+    lResult = lFound AND cReturn EQ 'YES'.
+    RETURN lResult.
+
+END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

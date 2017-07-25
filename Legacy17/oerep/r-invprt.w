@@ -732,7 +732,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:12 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -859,18 +859,61 @@ DO:
 /*                   AND cust.log-field[1])         */
       AND NOT tb_override-email
   THEN DO:
-      FIND FIRST bf-cust
-          WHERE bf-cust.company EQ cocode
-            AND bf-cust.cust-no GE begin_cust
-            AND bf-cust.cust-no LE end_cust
-            AND bf-cust.log-field[1]
-          NO-LOCK NO-ERROR.
-      IF AVAIL bf-cust THEN DO:
-            MESSAGE 'Customer ' bf-cust.cust-no ' is set as "Paperless Invoice".' SKIP
-                'Please select "Output To Email" or check "Ignore Paperless Setting".'
-                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-            RETURN.
-      END.
+      IF tb_posted THEN do:
+          FOR EACH b-ar-inv FIELDS(company cust-no ship-id) WHERE
+                      b-ar-inv.company EQ cocode AND
+                      b-ar-inv.inv-no GE begin_inv AND
+                      b-ar-inv.inv-no LE end_inv AND
+                      b-ar-inv.cust-no GE begin_cust AND
+                      b-ar-inv.cust-no LE end_cust AND
+                      b-ar-inv.printed EQ tb_reprint
+                      NO-LOCK
+                      BREAK BY b-ar-inv.company
+                            BY b-ar-inv.cust-no:
+                      IF FIRST-OF(b-ar-inv.cust-no) THEN do:      
+                          FIND FIRST bf-cust NO-LOCK 
+                              WHERE bf-cust.company EQ cocode
+                                AND bf-cust.cust-no EQ b-ar-inv.cust-no 
+                                AND bf-cust.log-field[1] NO-ERROR.
+                          IF AVAIL bf-cust THEN DO:
+                                MESSAGE 'Customer ' bf-cust.cust-no ' is set as "Paperless Invoice".' SKIP
+                                    'Please select "Output To Email" or check "Ignore Paperless Setting".'
+                                    VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+                                RETURN.
+                          END.
+                      END.
+          END.  /* for each b-ar-inv */
+      END.  /* tb_posted */
+      ELSE DO:
+          for each buf-inv-head WHERE
+                  buf-inv-head.company eq cocode AND
+                  buf-inv-head.cust-no ge begin_cust AND
+                  buf-inv-head.cust-no le end_cust AND
+                  INDEX(vcHoldStats, buf-inv-head.stat) EQ 0 AND
+                  ((not tb_reprint and buf-inv-head.inv-no eq 0) or
+                   (tb_reprint and buf-inv-head.inv-no ne 0 and
+                   buf-inv-head.inv-no ge begin_inv and
+                   buf-inv-head.inv-no le end_inv)) AND
+                   buf-inv-head.bol-no GE begin_bol AND
+                   buf-inv-head.bol-no LE end_bol
+                   NO-LOCK
+                   BREAK BY buf-inv-head.company
+                         BY buf-inv-head.cust-no:
+                   IF FIRST-OF(buf-inv-head.cust-no) THEN do:
+                   FIND FIRST bf-cust NO-LOCK
+                          WHERE bf-cust.company EQ cocode
+                            AND bf-cust.cust-no EQ buf-inv-head.cust-no 
+                            AND bf-cust.log-field[1] NO-ERROR.
+                      IF AVAIL bf-cust THEN DO:
+                            MESSAGE 'Customer ' bf-cust.cust-no ' is set as "Paperless Invoice".' SKIP
+                                'Please select "Output To Email" or check "Ignore Paperless Setting".'
+                                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+                            RETURN.
+                      END.
+                  END.
+          END.  /* for each buf-inv-head */
+
+      END.    /* else do tb_posted */
   END.
 
 
@@ -1173,7 +1216,7 @@ IF rd-dest:SCREEN-VALUE = '1' then do:
   RELEASE inv-line .
   RELEASE inv-misc .
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:12 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1507,7 +1550,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:12 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -1617,8 +1660,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
           tb_setcomp = NO.
     DISABLE lines-per-page.
 
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:08 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:08 am */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p */
     {custom/usrprint.i}
 
     lines-per-page:SCREEN-VALUE = STRING(lines-per-page).
@@ -1697,7 +1740,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         tb_email-orig = NO.
   END.
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:12 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
      WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -2455,7 +2498,7 @@ if td-show-parm then run show-param.
 v-term-id = v-term + USERID("nosweat").
 
 SESSION:SET-WAIT-STATE ("general").
-
+vcBOLFiles = "".   
 build-report:
 for each inv-head
     where inv-head.company         eq cocode
@@ -2480,7 +2523,7 @@ for each inv-head
            (cust.inv-meth NE ? AND NOT inv-head.multi-invoice))
     NO-LOCK BY inv-head.bol-no :
 
-  vcBOLFiles = "".    
+
   IF inv-head.multi-invoice THEN DO:
       dtl-ctr = 0.
       FOR EACH b-inv-head NO-LOCK

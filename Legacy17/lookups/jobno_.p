@@ -20,7 +20,7 @@
 
 &Scoped-define lookup-db asi.
 &Scoped-define lookup-file job-hdr
-&Scoped-define where-statement job-hdr.company = gcompany and job-hdr.opened = yes
+&Scoped-define where-statement job-hdr.company = gcompany AND job-hdr.job-no NE "" and job-hdr.opened = yes
 &Scoped-define return-field ftick-prnt
 &Scoped-define font 4
 &Scoped-define height-size 19

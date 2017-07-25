@@ -1,7 +1,7 @@
 EMPTY TEMP-TABLE tt-report.
 DEF VAR v-i-name AS CHAR NO-UNDO.
 DEF VAR v-vend-name AS CHAR NO-UNDO.
-
+DEFINE VARIABLE lCheckRec AS LOGICAL NO-UNDO .
    if tb_excel then
    do:
       output stream s-temp TO VALUE(fi_file).
@@ -320,39 +320,10 @@ DEF VAR v-vend-name AS CHAR NO-UNDO.
            v-i-name = REPLACE(REPLACE(v-i-name,'"', " "),","," ")
            v-vend-name = REPLACE(REPLACE(v-vend-name,'"', " "),","," ") .
         
-
-   /*  if tb_excel THEN
-     DO:
-        
-        IF AVAIL vend AND vend.NAME <> "" THEN
-           v-vend-name = vend.NAME.
-        ELSE
-           v-vend-name = po-ord.vend-no.
-
-        /*if avail itemfg THEN*/
-         ASSIGN  v-i-name = po-ordl.i-name.
-       /* ELSE
-           v-i-name = ITEM.i-name.*/
-
-        ASSIGN
-           v-i-name = REPLACE(REPLACE(v-i-name,'"', " "),","," ")
-           v-vend-name = REPLACE(REPLACE(v-vend-name,'"', " "),","," ")
-           str_buffa = tt-report.key-09 + v-comma +
-                       string(po-ord.po-no,">>>>>9") + v-comma +
-                       v-vend-name + v-comma +
-                       tt-report.key-04 + v-comma +
-                       v-i-name + v-comma +
-                       string(po-ordl.s-wid,">>9.9999") + v-comma +
-                       string(po-ordl.s-len,">>9.9999") + v-comma +
-                       string(po-ordl.cost,"->>>9.99")  + v-comma +
-                       po-ordl.pr-uom .
-       
-        PUT STREAM s-temp UNFORMATTED '"' REPLACE(str_buffa,',','","') '"' SKIP.
-     END. */
  
      ASSIGN v-cons-qty2 = 0 
           v-trns-date = "" .
-
+     ASSIGN lCheckRec = FALSE .
      if po-ordl.item-type then
      for each rm-rcpth no-lock {&where-rm},
 
@@ -366,33 +337,6 @@ DEF VAR v-vend-name AS CHAR NO-UNDO.
 
        if not first(rm-rcpth.trans-date) then do:
           v-first[4] = "".
-        /*  IF TB_separate-dates = NO THEN DO:
-         
-            IF rd_show-2 = "FG Item#" THEN
-            DO:
-               down with frame main.
-               clear frame main.
-            END.
-            ELSE
-            DO:
-               down with frame main-2.
-               clear frame main-2.
-            END.
-         
-          END.
-          ELSE DO:
-         
-            IF rd_show-2 = "FG Item#" THEN
-            DO:
-               down with frame main2.
-               clear frame main2.
-            END.
-            ELSE
-            DO:
-               down with frame main2-2.
-               clear frame main2-2.
-            END.
-          END.*/
        end.
        
        v-cons-qty = rm-rdtlh.qty.
@@ -428,60 +372,47 @@ DEF VAR v-vend-name AS CHAR NO-UNDO.
 
        ASSIGN v-cons-qty2 = v-cons-qty 
               v-trns-date = string(rm-rcpth.trans-date) .
-     
-    /*   IF TB_separate-dates = NO THEN DO:
 
-          IF rd_show-2 = "FG Item#" THEN
-             display rm-rcpth.trans-date FORMAT "99/99/99"
-                     v-cons-qty @ v-fg-rdtlhqty
-                with frame main NO-ERROR.
-          ELSE
-             display rm-rcpth.trans-date FORMAT "99/99/99"
-                     v-cons-qty @ v-fg-rdtlhqty
-                with frame main-2 NO-ERROR.
-            
-          if tb_excel then
-          DO:
-             ASSIGN
-             str_buffb = str_buffa + v-comma +
-                         (if rm-rcpth.trans-date <> ? 
-                         then string(rm-rcpth.trans-date,"99/99/9999")
-                         else string(po-ordl.due-date,"99/99/9999")) + v-comma +
-                         string( v-cons-qty,"->>>>>>9.999").
-            PUT STREAM s-temp UNFORMATTED '"' REPLACE(str_buffb,',','","') '"' SKIP.
-            /*PUT STREAM s-temp UNFORMATTED str_buffb SKIP.*/
-             
-          END.
-       END.
-       ELSE DO:
-          IF rd_show-2 = "FG Item#" THEN
-             display 
-                po-ordl.due-date FORMAT "99/99/99" 
-                rm-rcpth.trans-date FORMAT "99/99/99"
-                v-cons-qty @ v-fg-rdtlhqty
-                with frame main2 NO-ERROR.
-          ELSE
-             display 
-                po-ordl.due-date FORMAT "99/99/99" 
-                rm-rcpth.trans-date FORMAT "99/99/99"
-                v-cons-qty @ v-fg-rdtlhqty
-                with frame main2-2 NO-ERROR.
-                  
-          if tb_excel then
-          DO:
-              
-             ASSIGN
-             str_buffb = str_buffa + v-comma
-                       + STRING(po-ordl.due-date,"99/99/9999")
-                       + v-comma
-                       + STRING(rm-rcpth.trans-date,"99/99/9999")
-                       + v-comma 
-                       + STRING(v-cons-qty,"->>>>>>9.999").
-            
-             PUT STREAM s-temp UNFORMATTED '"' REPLACE(str_buffb,',','","') '"' SKIP.
-             /*PUT STREAM s-temp UNFORMATTED str_buffb SKIP.*/
-          END.
-       END.*/
+               ASSIGN cDisplay = ""
+                  cTmpField = ""
+                  cVarValue = ""
+                  cExcelDisplay = ""
+                  cExcelVarValue = ""
+                  lCheckRec = TRUE .
+        
+           DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+              cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+                   CASE cTmpField:             
+                        WHEN "cust"      THEN cVarValue = string(tt-report.key-09)   .
+                        WHEN "po"        THEN cVarValue = string(po-ord.po-no)   .
+                        WHEN "vend"      THEN cVarValue = string(po-ord.vend-no) .
+                        WHEN "vend-nam"  THEN cVarValue = string(v-vend-name,"x(25)") .
+                        WHEN "cst-prt"   THEN cVarValue = string(tt-report.key-04) /*IF po-ordl.item-type THEN "" ELSE IF AVAIL oe-ordl THEN oe-ordl.part-no ELSE itemfg.part-no */ .
+                        WHEN "ino"       THEN cVarValue = STRING(po-ordl.i-no) .
+                        WHEN "iname"     THEN cVarValue = STRING(v-i-name)  .
+                        WHEN "wid"       THEN cVarValue = string(po-ordl.s-wid,">>>>>9.9<<<")  .
+                        WHEN "len"       THEN cVarValue = string(po-ordl.s-len,">>>>>9.9<<<")  .
+                        WHEN "po-cst"    THEN cVarValue = string(po-ordl.cost,"->>>9.99") .
+                        WHEN "uom"       THEN cVarValue = STRING(po-ordl.pr-uom) .
+                        WHEN "du-dt"     THEN cVarValue = IF po-ordl.due-date NE ? THEN STRING(po-ordl.due-date) ELSE "" .
+                        WHEN "rcp-dt"    THEN cVarValue = IF v-trns-date NE ? THEN STRING(v-trns-date) ELSE "" .
+                        WHEN "rcp-qty"   THEN cVarValue = IF v-cons-qty2 NE 0 THEN STRING(v-cons-qty2,"->>>>>>9.999")  ELSE "" .
+        
+                   END CASE.
+        
+                   cExcelVarValue = cVarValue.
+                   cDisplay = cDisplay + cVarValue +
+                              FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                   cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+           END.
+        
+           PUT UNFORMATTED cDisplay SKIP.
+           IF tb_excel THEN DO:
+                PUT STREAM s-temp UNFORMATTED  
+                      cExcelDisplay SKIP.
+           END.
+
+
      end.                                
 
      else
@@ -495,17 +426,6 @@ DEF VAR v-vend-name AS CHAR NO-UNDO.
 
          if not first(fg-rcpth.trans-date) then do:
             v-first[4] = "".
-         
-          /*  IF rd_show-2 = "FG Item#" THEN
-            DO:
-               down with frame main.
-               clear frame main.
-            END.
-            ELSE
-            DO:
-               down with frame main-2.
-               clear frame main-2.
-            END.*/
           end.
          
           assign
@@ -515,65 +435,13 @@ DEF VAR v-vend-name AS CHAR NO-UNDO.
          
           ASSIGN v-cons-qty2 = v-fg-rdtlhqty .
                  v-trns-date = string(fg-rcpth.trans-date) .
-
-        /*  IF TB_separate-dates = NO THEN DO:
-         
-             IF rd_show-2 = "FG Item#" THEN
-                display fg-rcpth.trans-date FORMAT "99/99/99" @ rm-rcpth.trans-date
-                        v-fg-rdtlhqty  
-                with frame main NO-ERROR.
-             ELSE
-                display fg-rcpth.trans-date FORMAT "99/99/99" @ rm-rcpth.trans-date
-                        v-fg-rdtlhqty  
-                with frame main-2 NO-ERROR.
-         
-             if tb_excel then
-             DO:
-                ASSIGN
-                str_buffb = str_buffa + v-comma +
-                            (if fg-rcpth.trans-date <> ? 
-                            then string(fg-rcpth.trans-date,"99/99/9999")
-                            else string(po-ordl.due-date,"99/99/9999")) + v-comma +
-                            string(fg-rdtlh.qty,"->>>>>>9.999").
-                PUT STREAM s-temp UNFORMATTED '"' REPLACE(str_buffb,',','","') '"' SKIP.
-                /*PUT STREAM s-temp UNFORMATTED str_buffb SKIP.                           */
-             END.
-          END.
-          ELSE DO:
-             IF rd_show-2 = "FG Item#" THEN
-                display 
-                   po-ordl.due-date
-                   fg-rcpth.trans-date FORMAT "99/99/99" @ rm-rcpth.trans-date
-                   v-fg-rdtlhqty  
-                   with frame main2 NO-ERROR. 
-             ELSE
-                display 
-                   po-ordl.due-date
-                   fg-rcpth.trans-date FORMAT "99/99/99" @ rm-rcpth.trans-date
-                   v-fg-rdtlhqty  
-                   with frame main2-2 NO-ERROR. 
-              
-             if tb_excel then
-             DO:
-                ASSIGN
-                str_buffb = str_buffa + v-comma
-                          + STRING(po-ordl.due-date,"99/99/9999") 
-                          + v-comma
-                          + STRING(fg-rcpth.trans-date,"99/99/9999")
-                          + v-comma 
-                          + STRING(fg-rdtlh.qty,"->>>>>>9.999").
-
-                PUT STREAM s-temp UNFORMATTED '"' REPLACE(str_buffb,',','","') '"' SKIP.
-                /*PUT STREAM s-temp UNFORMATTED str_buffb SKIP.                           */
-             END.
-          END.*/
-     end. /*end for each fg-rcpth*/
-
-        ASSIGN cDisplay = ""
+        
+          ASSIGN cDisplay = ""
                cTmpField = ""
                cVarValue = ""
                cExcelDisplay = ""
-               cExcelVarValue = "".
+               cExcelVarValue = ""
+               lCheckRec = TRUE .
         
         DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
            cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
@@ -606,33 +474,50 @@ DEF VAR v-vend-name AS CHAR NO-UNDO.
              PUT STREAM s-temp UNFORMATTED  
                    cExcelDisplay SKIP.
         END.
+     end. /*end for each fg-rcpth*/
+
+    IF NOT lCheckRec THEN DO:
+        ASSIGN cDisplay = ""
+               cTmpField = ""
+               cVarValue = ""
+               cExcelDisplay = ""
+               cExcelVarValue = "" .
+        
+        DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+                CASE cTmpField:             
+                     WHEN "cust"      THEN cVarValue = string(tt-report.key-09)  .
+                     WHEN "po"        THEN cVarValue = string(po-ord.po-no)  .
+                     WHEN "vend"      THEN cVarValue = string(po-ord.vend-no) .
+                     WHEN "vend-nam"  THEN cVarValue = string(v-vend-name,"x(25)") .
+                     WHEN "cst-prt"   THEN cVarValue = string(tt-report.key-04) /*IF po-ordl.item-type THEN "" ELSE IF AVAIL oe-ordl THEN oe-ordl.part-no ELSE itemfg.part-no */ .
+                     WHEN "ino"       THEN cVarValue = STRING(po-ordl.i-no) .
+                     WHEN "iname"     THEN cVarValue = STRING(v-i-name)  .
+                     WHEN "wid"       THEN cVarValue = string(po-ordl.s-wid,">>>>>9.9<<<")  .
+                     WHEN "len"       THEN cVarValue = string(po-ordl.s-len,">>>>>9.9<<<")  .
+                     WHEN "po-cst"    THEN cVarValue = string(po-ordl.cost,"->>>9.99") .
+                     WHEN "uom"       THEN cVarValue = STRING(po-ordl.pr-uom) .
+                     WHEN "du-dt"     THEN cVarValue = IF po-ordl.due-date NE ? THEN STRING(po-ordl.due-date) ELSE "" .
+                     WHEN "rcp-dt"    THEN cVarValue = IF v-trns-date NE ? THEN STRING(v-trns-date) ELSE "" .
+                     WHEN "rcp-qty"   THEN cVarValue = IF v-cons-qty2 NE 0 THEN STRING(v-cons-qty2,"->>>>>>9.999")  ELSE "" .
+                     
+                END CASE.
+                  
+                cExcelVarValue = cVarValue.
+                cDisplay = cDisplay + cVarValue +
+                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+        END.
+        
+        PUT UNFORMATTED cDisplay SKIP.
+        IF tb_excel THEN DO:
+             PUT STREAM s-temp UNFORMATTED  
+                   cExcelDisplay SKIP.
+        END.  
+
+    END.  /* not lCheckRec  */
      
-   /*  IF TB_separate-dates = NO THEN DO:
-        IF rd_show-2 = "FG Item#" THEN
-        DO:
-           down with frame main.
-           clear frame main.
-        END.
-        ELSE
-        DO:
-           down with frame main-2.
-           clear frame main-2.
-        END.
-        put fill("-",135) format "x(135)" skip.
-     END.
-     ELSE DO:
-        IF rd_show-2 = "FG Item#" THEN
-        DO:
-           down with frame main2.
-           clear frame main2.
-        END.
-        ELSE
-        DO:
-           down with frame main2-2.
-           clear frame main2-2. 
-        END.
-        put fill("-",143) format "x(143)" skip.
-     END.*/
+   
 
      PUT str-line SKIP.
      

@@ -1555,7 +1555,8 @@ PROCEDURE crt-est-childrecord :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
+  DEFINE VARIABLE cPackCodeOverride AS CHARACTER NO-UNDO.
   DEFINE BUFFER bb FOR eb.
  
   CREATE est-qty.
@@ -1589,7 +1590,11 @@ DEFINE VARIABLE i AS INTEGER NO-UNDO.
    eb.cas-no   = ce-ctrl.def-case
    eb.tr-no    = ce-ctrl.def-pal
    eb.i-pass   = 0.
-
+    
+   RUN est/packCodeOverride.p (INPUT eb.company, eb.cust-no, eb.style, OUTPUT cPackCodeOverride).
+   IF cPackCodeOverride GT "" THEN 
+       eb.cas-no = cPackCodeOverride.
+       
   /* ???? bugs : 2 records are created  , delete one ========== 
   for each bb where bb.e-num = 0 :
       delete bb.

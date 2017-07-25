@@ -148,10 +148,12 @@ SESSION:SET-WAIT-STATE('').
     ~{&OPEN-QUERY-ttUserMenu}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnReset btnAddItem userName showOption ~
-btnAddMenu filterMenu btnDefault ttUserMenu btnExit filterItem btnMoveDown ~
-btnMoveUp ttMenu btnRemove ttItem btnSave btnShiftLeft btnShiftRight 
-&Scoped-Define DISPLAYED-OBJECTS userName showOption filterMenu filterItem 
+&Scoped-Define ENABLED-OBJECTS userName btnReset showOption filterMenu ~
+btnLoadMenu loadMenu filterItem ttMenu ttUserMenu ttItem btnAddItem ~
+btnAddMenu btnDefault btnExit btnMoveDown btnMoveUp btnRemove btnSave ~
+btnShiftLeft btnShiftRight 
+&Scoped-Define DISPLAYED-OBJECTS userName showOption filterMenu loadMenu ~
+filterItem 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -190,6 +192,10 @@ DEFINE BUTTON btnExit
      LABEL "" 
      SIZE 8.4 BY 2 TOOLTIP "Exit"
      FONT 4.
+
+DEFINE BUTTON btnLoadMenu 
+     LABEL "Load Menu" 
+     SIZE 14 BY 1.
 
 DEFINE BUTTON btnMoveDown 
      IMAGE-UP FILE "Graphics/32x32/nav_down.ico":U NO-FOCUS FLAT-BUTTON
@@ -256,6 +262,14 @@ DEFINE VARIABLE filterMenu AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 39 BY 1 NO-UNDO.
 
+DEFINE VARIABLE loadMenu AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Base Only", "",
+"Addon Only", "_addon",
+"Combined", "_plus"
+     SIZE 52 BY 1 NO-UNDO.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY ttItem FOR 
@@ -299,38 +313,40 @@ DEFINE BROWSE ttUserMenu
     ttUserMenu.level[3] LABEL "[Level 3]: Item"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SIZE 128 BY 20
+    WITH NO-ROW-MARKERS SIZE 128 BY 18.81
          TITLE "Double Click to Remove Menu / Item".
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     btnReset AT ROW 1 COL 48 HELP
-          "RESET Menu Structure from Last Saved File" WIDGET-ID 8
-     btnAddItem AT ROW 1 COL 194 HELP
-          "SAVE Menu Structure" WIDGET-ID 32
      userName AT ROW 1.48 COL 63 COLON-ALIGNED HELP
           "Select User Account ID" WIDGET-ID 4
+     btnReset AT ROW 1 COL 47 HELP
+          "RESET Menu Structure from Last Saved File" WIDGET-ID 8
      showOption AT ROW 1.48 COL 138 COLON-ALIGNED NO-LABEL WIDGET-ID 38
+     filterMenu AT ROW 3.14 COL 6 COLON-ALIGNED WIDGET-ID 42
+     btnLoadMenu AT ROW 3.14 COL 69 WIDGET-ID 50
+     loadMenu AT ROW 3.14 COL 87 NO-LABEL WIDGET-ID 44
+     filterItem AT ROW 3.14 COL 181 COLON-ALIGNED WIDGET-ID 40
+     ttMenu AT ROW 4.33 COL 2 WIDGET-ID 300
+     ttUserMenu AT ROW 4.33 COL 48 WIDGET-ID 200
+     ttItem AT ROW 4.33 COL 177 WIDGET-ID 400
+     btnAddItem AT ROW 1 COL 194 HELP
+          "SAVE Menu Structure" WIDGET-ID 32
      btnAddMenu AT ROW 1 COL 20 HELP
           "SAVE Menu Structure" WIDGET-ID 34
-     filterMenu AT ROW 3.14 COL 6 COLON-ALIGNED WIDGET-ID 42
-     btnDefault AT ROW 1 COL 2 HELP
+     btnDefault AT ROW 1 COL 1 HELP
           "Load Menu Structure from System DEFAULT Menu List" WIDGET-ID 6
-     ttUserMenu AT ROW 3.14 COL 48 WIDGET-ID 200
-     btnExit AT ROW 1 COL 213 HELP
+     btnExit AT ROW 1 COL 214 HELP
           "SAVE Menu Structure" WIDGET-ID 20
-     filterItem AT ROW 3.14 COL 181 COLON-ALIGNED WIDGET-ID 40
      btnMoveDown AT ROW 1 COL 96 HELP
           "RESET Menu Structure from Last Saved File" WIDGET-ID 28
      btnMoveUp AT ROW 1 COL 87 HELP
           "RESET Menu Structure from Last Saved File" WIDGET-ID 30
-     ttMenu AT ROW 4.33 COL 2 WIDGET-ID 300
      btnRemove AT ROW 1 COL 107 HELP
           "SAVE Menu Structure" WIDGET-ID 36
-     ttItem AT ROW 4.33 COL 177 WIDGET-ID 400
-     btnSave AT ROW 1 COL 167 HELP
+     btnSave AT ROW 1 COL 168 HELP
           "SAVE Menu Structure" WIDGET-ID 10
      btnShiftLeft AT ROW 1 COL 118 HELP
           "RESET Menu Structure from Last Saved File" WIDGET-ID 24
@@ -398,9 +414,9 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB ttUserMenu btnDefault DEFAULT-FRAME */
-/* BROWSE-TAB ttMenu btnMoveUp DEFAULT-FRAME */
-/* BROWSE-TAB ttItem btnRemove DEFAULT-FRAME */
+/* BROWSE-TAB ttMenu filterItem DEFAULT-FRAME */
+/* BROWSE-TAB ttUserMenu ttMenu DEFAULT-FRAME */
+/* BROWSE-TAB ttItem ttUserMenu DEFAULT-FRAME */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -474,7 +490,7 @@ END.
 ON CHOOSE OF btnAddItem IN FRAME DEFAULT-FRAME
 DO:
     RUN pInsert (ttItem.prgmName,ttItem.prgTitle,"").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -486,7 +502,7 @@ END.
 ON CHOOSE OF btnAddMenu IN FRAME DEFAULT-FRAME
 DO:
     RUN pInsert (ttMenu.prgmName,ttMenu.prgTitle,"[MENU]").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -499,7 +515,7 @@ ON CHOOSE OF btnDefault IN FRAME DEFAULT-FRAME
 DO:
   OS-COPY "./menu.lst" VALUE("usermenu/" + userName + "/menu.lst").
   RUN pReset.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -511,7 +527,19 @@ END.
 ON CHOOSE OF btnExit IN FRAME DEFAULT-FRAME
 DO:
     APPLY "CLOSE":U TO THIS-PROCEDURE.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnLoadMenu
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnLoadMenu C-Win
+ON CHOOSE OF btnLoadMenu IN FRAME DEFAULT-FRAME /* Load Menu */
+DO:
+    RUN pLoadMenu.
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -523,7 +551,7 @@ END.
 ON CHOOSE OF btnMoveDown IN FRAME DEFAULT-FRAME
 DO:
     RUN pMove (1).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -535,7 +563,7 @@ END.
 ON CHOOSE OF btnMoveUp IN FRAME DEFAULT-FRAME
 DO:
     RUN pMove (-1).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -547,7 +575,7 @@ END.
 ON CHOOSE OF btnRemove IN FRAME DEFAULT-FRAME
 DO:
     RUN pRemove.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -559,7 +587,7 @@ END.
 ON CHOOSE OF btnReset IN FRAME DEFAULT-FRAME
 DO:
     RUN pReset.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -578,7 +606,7 @@ DO:
   OS-COPY VALUE("usermenu/" + userName + "/menu.lst") VALUE("usermenu/" + userName + "/menu.fol").
   OS-COPY VALUE("usermenu/" + userName + "/menu.lst") VALUE("usermenu/" + userName + "/menu.cor") .
   RUN pReset.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -590,7 +618,7 @@ END.
 ON CHOOSE OF btnShiftLeft IN FRAME DEFAULT-FRAME
 DO:
     RUN pShift (-1).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -602,7 +630,7 @@ END.
 ON CHOOSE OF btnShiftRight IN FRAME DEFAULT-FRAME
 DO:
     RUN pShift (1).
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -669,6 +697,17 @@ END.
 ON RETURN OF filterMenu IN FRAME DEFAULT-FRAME /* Filter */
 DO:
   APPLY "LEAVE":U TO {&SELF-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME loadMenu
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL loadMenu C-Win
+ON VALUE-CHANGED OF loadMenu IN FRAME DEFAULT-FRAME
+DO:
+    ASSIGN {&SELF-NAME}.  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -751,7 +790,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -766,7 +805,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN pGetUsers.
   RUN enable_UI.
   RUN pReset.
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:27 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -807,11 +846,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY userName showOption filterMenu filterItem 
+  DISPLAY userName showOption filterMenu loadMenu filterItem 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE btnReset btnAddItem userName showOption btnAddMenu filterMenu 
-         btnDefault ttUserMenu btnExit filterItem btnMoveDown btnMoveUp ttMenu 
-         btnRemove ttItem btnSave btnShiftLeft btnShiftRight 
+  ENABLE userName btnReset showOption filterMenu btnLoadMenu loadMenu 
+         filterItem ttMenu ttUserMenu ttItem btnAddItem btnAddMenu btnDefault 
+         btnExit btnMoveDown btnMoveUp btnRemove btnSave btnShiftLeft 
+         btnShiftRight 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -1034,6 +1074,30 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLoadMenu C-Win
+PROCEDURE pLoadMenu:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DO WITH FRAME {&FRAME-NAME}:
+        sourceMenu = SEARCH("stdMenu/menu" + loadMenu + ".lst").
+        IF sourceMenu EQ ? THEN RETURN.
+        INPUT FROM VALUE(sourceMenu) NO-ECHO.
+        RUN pGetMenu.
+        INPUT CLOSE.
+        {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+        RUN pGetPrgrms.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMove C-Win 
 PROCEDURE pMove :

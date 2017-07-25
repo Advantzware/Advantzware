@@ -511,7 +511,7 @@ END.
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
    apply "close" to this-procedure.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -571,7 +571,7 @@ DO:
        WHEN 6 THEN run output-to-port.
   end case. 
   SESSION:SET-WAIT-STATE ("").
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -584,7 +584,7 @@ ON CHOOSE OF btnCustList IN FRAME FRAME-A /* Preview */
 DO:
   RUN CustList.
 
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -823,7 +823,7 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -862,8 +862,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                                OUTPUT ou-cust-int) .
 
    DO WITH FRAME {&FRAME-NAME}:
-    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:18 am */
-    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p on 04.18.2017 @ 11:37:18 am */
+    {methods/setButton.i btn-cancel "Cancel"} /* added by script _nonAdm1Images2.p */
+    {methods/setButton.i btn-ok "OK"} /* added by script _nonAdm1Images2.p */
     {custom/usrprint.i}
 /*
     ASSIGN
@@ -912,7 +912,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
 
 
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p on 04.18.2017 @ 11:36:23 am */
+    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1151,6 +1151,8 @@ def var v-j       as   DEC NO-UNDO.
 DEF VAR lv-sman   AS   CHAR NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE lp-zero AS LOGICAL INITIAL YES NO-UNDO.
+DEFINE VARIABLE d-gr-tot-amt as   DECIMAL  EXTENT 21 NO-UNDO.
 
 FORM HEADER
      "Salesrep:"
@@ -1286,6 +1288,7 @@ END.
 {sys/inc/outprint.i value(lines-per-page)}
 
 if td-show-parm then run show-param.
+
 FOR EACH ar-inv
     WHERE ar-inv.company  EQ cocode
       AND ar-inv.cust-no  GE fcus
@@ -1310,7 +1313,7 @@ FOR EACH ar-inv
     do i = 1 to 3:
       assign
        v-amt     = 0
-       v-slsm[1] = if ar-invl.sman[i] eq "" and i eq 1 then
+       v-slsm[1] = if ar-invl.sman[i] eq "" and i eq 1 AND NOT ar-invl.misc then
                      cust.sman else ar-invl.sman[i].
 
       if v-slsm[1]   lt fsman                         or
@@ -1353,7 +1356,7 @@ FOR each cust where cust.company eq cocode
       and ar-cash.cust-no    eq cust.cust-no
       and ar-cash.check-date ge fdate[1]
       and ar-cash.check-date le v-date
-      and ar-cash.posted     eq yes
+      and ar-cash.posted     eq YES
     use-index ar-cash no-lock,
 
     EACH ar-cashl
@@ -1507,6 +1510,7 @@ for each tt-report2,
    v-amt = 0
    v-prt = v-prt + 1.
 
+
   for each tt-report
       where tt-report.key-01 eq tt-report2.key-01
         and tt-report.key-02 eq tt-report2.key-02:
@@ -1538,7 +1542,13 @@ for each tt-report2,
        v-amt[21] = v-amt[21] + dec(tt-report.dec2).
     end.
   end.
+  ASSIGN lp-zero = YES.
+  DO i = 1 TO 21: 
+      IF v-amt[i] NE 0 THEN
+        ASSIGN lp-zero = NO.      
+  END. 
 
+IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
   if v-prt le v-custs then do:
      v = 0.
 
@@ -1643,6 +1653,8 @@ for each tt-report2,
                  v-tot-amt[21]         when v eq 4 or
                                             (i eq v-per-2 and v lt 4)
                                                                  @ v-amt[21].
+
+
          down.
 
        end.
@@ -1668,9 +1680,51 @@ for each tt-report2,
 
      END.
 
+     DO i = 1 to 21:
+      d-gr-tot-amt[i] = d-gr-tot-amt[i] + v-tot-amt[i].
+     end.
+
      if last-of(tt-report2.key-01) then v-tot-amt = 0.
   end.
 end.
+END.
+if not v-sort then do:
+         PUT SPACE(9) "------------------------------ ----------------- ----------------- ----------------- ----------------- -----------------" SKIP.
+         PUT space(9) "Grand Totals" SPACE(19)  d-gr-tot-amt[1] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                d-gr-tot-amt[2] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                d-gr-tot-amt[3] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                d-gr-tot-amt[4] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                d-gr-tot-amt[21]FORMAT "->,>>>,>>>,>>9.99" SKIP.
+         PUT space(40) d-gr-tot-amt[5] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                             d-gr-tot-amt[6] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                             d-gr-tot-amt[7] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+                             d-gr-tot-amt[8] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)   SKIP.
+         PUT  space(40) d-gr-tot-amt[9] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+              d-gr-tot-amt[10] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)
+              d-gr-tot-amt[11] FORMAT "->,>>>,>>>,>>9.99" SPACE(1)   SKIP.
+
+
+     IF tb_excel THEN
+     DO:
+        PUT STREAM excel UNFORMATTED SKIP(1). 
+        PUT STREAM excel UNFORMATTED
+          '"' ""                                               '",'
+          '"' /*IF not last-of(tt-report2.key-01) THEN
+                 "Grand Totals (Printed Customers)"
+              ELSE*/ "Grand Totals"                                    '",'.
+
+
+        do i = v1 to v-per-2:
+           PUT STREAM excel UNFORMATTED
+             '"' STRING(d-gr-tot-amt[i],"->,>>>,>>>,>>9.99")     '",'.
+        END.
+
+        PUT STREAM excel UNFORMATTED
+          '"' STRING(d-gr-tot-amt[21],"->,>>>,>>>,>>9.99")      '",'
+          SKIP.
+
+     END.
+END.
 
 IF tb_excel THEN DO:
    OUTPUT STREAM excel CLOSE.

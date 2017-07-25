@@ -13,7 +13,7 @@ to its TABLEIO-TARGET. "
 
         This is the standard version of the database
         update SmartPanel. It uses the TABLEIO link
-        to communicate with SmartViewers and Smart-
+        to communicate with SmartPanels and Smart-
         Browsers.
 
         There are two styles of this SmartPanel
@@ -74,7 +74,7 @@ DEFINE VARIABLE add-active   AS LOGICAL NO-UNDO INIT no.
 
 &Scoped-define ADM-SUPPORTED-LINKS TableIO-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Panel-Frame
 
 /* Standard List Definitions                                            */
@@ -138,7 +138,7 @@ DEFINE BUTTON btn-whatif
      SIZE 10 BY 1.29.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 120 BY 1.76.
 
 
@@ -212,10 +212,34 @@ END.
 /* SETTINGS FOR WINDOW C-WIn
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME Panel-Frame
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
+
+ASSIGN 
+       btn-imp-price:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
+ASSIGN 
+       btn-item:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
+ASSIGN 
+       btn-print:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
+ASSIGN 
+       btn-quote:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
+ASSIGN 
+       btn-view:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
+ASSIGN 
+       btn-whatif:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
 
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
    NO-ENABLE 1                                                          */
@@ -244,13 +268,13 @@ ON CHOOSE OF Btn-Cancel IN FRAME Panel-Frame /* Cancel */
 DO:
   DO WITH FRAME Panel-Frame:
       RUN notify ('cancel-record':U).
-      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:29 am */
+      {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
       enable btn-imp-price btn-view btn-item btn-print btn-quote btn-whatif
              with frame {&frame-name}.
 
 
    END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -272,7 +296,7 @@ DO:
      run copy-item in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -287,7 +311,7 @@ DO:
    enable btn-imp-price btn-view btn-item btn-print btn-quote btn-whatif
              with frame {&frame-name}.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -311,7 +335,7 @@ DO:
      run import-price in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -333,7 +357,7 @@ DO:
      run update-item in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -358,7 +382,7 @@ DO:
      run print-probe in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -383,7 +407,7 @@ DO:
      run update-quote in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -412,7 +436,7 @@ DO:
         IF Btn-Save:LABEL = '&What If' THEN 
         DO:
            RUN new-state('update-begin':U).
-           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:29 am */
+           {methods/setButton.i Btn-Save "Save"} /* added by script _admTransPanels.p */
            assign btn-item:sensitive = no
                   btn-view:sensitive = no
                   btn-print:sensitive = no
@@ -425,7 +449,7 @@ DO:
         ELSE 
         DO: /* Save */
            RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:29 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
            assign btn-item:sensitive = yes
                   btn-view:sensitive = yes
                   btn-print:sensitive = yes
@@ -438,7 +462,7 @@ DO:
      ELSE 
      DO: /* Normal 'Save'-style SmartPanel */
         RUN notify ('update-record':U).
-           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:29 am */
+           {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
            assign btn-item:sensitive = yes
                   btn-view:sensitive = yes
                   btn-print:sensitive = yes
@@ -447,7 +471,7 @@ DO:
                   .
      END.
   END.
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -471,7 +495,7 @@ DO:
      run display-probe in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -496,7 +520,7 @@ DO:
      run run-whatif in widget-handle(source-str). 
   END.
 
-  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p on 04.18.2017 @ 11:38:20 am */
+  {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _admPanels.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -530,10 +554,17 @@ END.
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF
 
-  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:29 am */
-  {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:29 am */
-  {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:29 am */
-  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p on 04.18.2017 @ 11:38:29 am */
+  {methods/setButton.i Btn-Save "Update"} /* added by script _admTransPanels.p */
+  {methods/setButton.i Btn-Copy "Copy"} /* added by script _admTransPanels.p */
+  {methods/setButton.i Btn-Delete "Delete"} /* added by script _admTransPanels.p */
+  {methods/setButton.i Btn-Cancel "Cancel"} /* added by script _admTransPanels.p */
+
+  {methods/setButton.i btn-imp-price "Import Price"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-item "Item"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-print "Hard Copy"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-quote "Quote"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-view "View"} /* added by script _panelImages.p */
+  {methods/setButton.i btn-whatif "Calculate"} /* added by script _panelImages.p */
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -650,6 +681,49 @@ PROCEDURE local-initialize :
               btn-whatif:COLUMN = btn-whatif:COLUMN - btn-copy:WIDTH 
               rect-1:WIDTH = rect-1:WIDTH - (btn-copy:WIDTH).    
   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-init C-WIn 
+PROCEDURE reopen-init :
+/*------------------------------------------------------------------------------
+  Purpose:     This procedure sets the value of the panel-type variable 
+               whenever the SmartPanelType ADM attribute is set. This is
+               used internally within this object to know whether the
+               SmartPanel is in "Save" or "Update" mode.
+  Parameters:  new attribute value.
+  Notes:       This replaces code in local-initialize which set panel-type,
+               but which did not always get executed early enough.
+------------------------------------------------------------------------------*/
+
+  DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
+
+  RUN get-attribute IN THIS-PROCEDURE ('UIB-MODE':U).
+  IF RETURN-VALUE <> 'DESIGN':U THEN DO:
+     IF VALID-HANDLE (adm-broker-hdl) THEN DO:
+       DEFINE VAR tab-target-link AS CHARACTER NO-UNDO.
+       RUN get-link-handle IN adm-broker-hdl
+           (INPUT THIS-PROCEDURE, 'TABLEIO-TARGET':U, OUTPUT tab-target-link).
+       IF (tab-target-link EQ "":U) THEN
+         adm-panel-state = 'disable-all':U.
+       ELSE DO:
+         RUN request-attribute IN adm-broker-hdl
+            (INPUT THIS-PROCEDURE, INPUT 'TABLEIO-TARGET':U,
+             INPUT 'Query-Position':U).
+         query-position = RETURN-VALUE.
+         IF query-position = 'no-record-available':U THEN 
+           adm-panel-state = 'add-only':U.
+         ELSE IF query-position = 'no-external-record-available':U THEN 
+           adm-panel-state = 'disable-all':U.
+         ELSE adm-panel-state = 'initial':U.
+       END.
+     END.
+     RUN set-buttons (adm-panel-state).
+  END.
+
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -891,48 +965,5 @@ PROCEDURE use-smartpaneltype :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME       
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reopen-init C-WIn 
-PROCEDURE reopen-init :
-/*------------------------------------------------------------------------------
-  Purpose:     This procedure sets the value of the panel-type variable 
-               whenever the SmartPanelType ADM attribute is set. This is
-               used internally within this object to know whether the
-               SmartPanel is in "Save" or "Update" mode.
-  Parameters:  new attribute value.
-  Notes:       This replaces code in local-initialize which set panel-type,
-               but which did not always get executed early enough.
-------------------------------------------------------------------------------*/
-
-  DEFINE VARIABLE query-position AS CHARACTER NO-UNDO.
-
-  RUN get-attribute IN THIS-PROCEDURE ('UIB-MODE':U).
-  IF RETURN-VALUE <> 'DESIGN':U THEN DO:
-     IF VALID-HANDLE (adm-broker-hdl) THEN DO:
-       DEFINE VAR tab-target-link AS CHARACTER NO-UNDO.
-       RUN get-link-handle IN adm-broker-hdl
-           (INPUT THIS-PROCEDURE, 'TABLEIO-TARGET':U, OUTPUT tab-target-link).
-       IF (tab-target-link EQ "":U) THEN
-         adm-panel-state = 'disable-all':U.
-       ELSE DO:
-         RUN request-attribute IN adm-broker-hdl
-            (INPUT THIS-PROCEDURE, INPUT 'TABLEIO-TARGET':U,
-             INPUT 'Query-Position':U).
-         query-position = RETURN-VALUE.
-         IF query-position = 'no-record-available':U THEN 
-           adm-panel-state = 'add-only':U.
-         ELSE IF query-position = 'no-external-record-available':U THEN 
-           adm-panel-state = 'disable-all':U.
-         ELSE adm-panel-state = 'initial':U.
-       END.
-     END.
-     RUN set-buttons (adm-panel-state).
-  END.
-
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
