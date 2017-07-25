@@ -3297,6 +3297,11 @@ PROCEDURE SetInvForm :
              v-program = "oe/rep/invxprnt.p"
              lines-per-page = 66
              is-xprint-form = YES.
+      WHEN  "invprint 10" OR WHEN "invprint 20" THEN
+          ASSIGN
+             v-program = "oe/rep/invxprnt10.p"
+             lines-per-page = 66
+             is-xprint-form = YES.
        WHEN "Boss" THEN
           ASSIGN
              v-program = "oe/rep/invboss.p"
@@ -3846,6 +3851,11 @@ PROCEDURE SetInvPostForm :
        WHEN "Xprint" OR WHEN "invprint 1" OR WHEN "invprint 2" THEN
           ASSIGN
              v-program = "ar/rep/invxprnt.p"
+             lines-per-page = 66
+             is-xprint-form = YES.
+        WHEN "invprint 10" OR WHEN "invprint 20" THEN
+          ASSIGN
+             v-program = "ar/rep/invxprnt10.p"
              lines-per-page = 66
              is-xprint-form = YES.
        WHEN "Boss" THEN
