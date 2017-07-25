@@ -1852,6 +1852,11 @@ PROCEDURE SetInvForm :
              v-program = "ar/rep/invxprnt.p"
              lines-per-page = 66
              is-xprint-form = YES.
+      WHEN  "invprint 10" OR WHEN "invprint 20" THEN
+          ASSIGN
+             v-program = "ar/rep/invxprnt10.p"
+             lines-per-page = 66
+             is-xprint-form = YES.
        WHEN "Boss" THEN
           ASSIGN
              v-program = "ar/rep/invboss.p"
