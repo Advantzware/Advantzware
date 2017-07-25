@@ -246,7 +246,8 @@ ASSIGN
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_all V-table-Win
 ON CHOOSE OF btn_all IN FRAME F-Main /* Allocated */
 DO:
-  IF li-all NE 0 THEN RUN oe/w-inqord.w (ROWID(itemfg), YES).
+  IF li-all NE 0 THEN
+  RUN oe/w-inqord.w (ROWID(itemfg), YES).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -257,7 +258,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn_onh V-table-Win
 ON CHOOSE OF btn_onh IN FRAME F-Main /* On Hand */
 DO:
-  IF li-onh NE 0 THEN RUN fg/w-inqonh.w (ROWID(itemfg), NO).
+  IF li-onh NE 0 THEN
+  RUN fg/w-inqonh.w (ROWID(itemfg), NO).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -278,14 +280,14 @@ DO:
                                    AND job.job-no  EQ job-hdr.job-no
                                    AND job.job-no2 EQ job-hdr.job-no2)
         NO-LOCK NO-ERROR.
-    IF AVAIL job-hdr THEN RUN jc/w-inqjob.w (ROWID(itemfg), YES).
+    IF AVAIL job-hdr THEN
+    RUN jc/w-inqjob.w (ROWID(itemfg), YES).
     ELSE DO:
         FIND FIRST fg-set WHERE fg-set.company EQ itemfg.company
                             AND fg-set.part-no EQ itemfg.i-no
                           NO-LOCK NO-ERROR.
-        IF AVAIL fg-set THEN DO:
-           RUN jc/w-inqjbc.w (ROWID(itemfg), YES).
-        END.
+        IF AVAIL fg-set THEN
+        RUN jc/w-inqjbc.w (ROWID(itemfg), YES).
     END.
     FIND FIRST po-ordl
         WHERE po-ordl.company   EQ itemfg.company
@@ -295,7 +297,8 @@ DO:
           AND CAN-FIND(FIRST po-ord WHERE po-ord.company EQ po-ordl.company
                                       AND po-ord.po-no   EQ po-ordl.po-no)
         NO-LOCK NO-ERROR.
-    IF AVAIL po-ordl THEN RUN po/w-inqpo.w (ROWID(itemfg), YES).
+    IF AVAIL po-ordl THEN
+    RUN po/w-inqpo.w (ROWID(itemfg), YES).
   END.
 END.
 
