@@ -1367,7 +1367,6 @@ PROCEDURE final-steps :
     BUFFER-COPY b-tt-rctd TO rm-rctd
     ASSIGN
      rm-rctd.r-no        = v-int
-     rm-rctd.po-no       = ""
      b-tt-rctd.r-no      = rm-rctd.r-no
      b-tt-rctd.has-rec   = YES
      b-tt-rctd.rm-row-id = ROWID(rm-rctd).    
@@ -2239,8 +2238,15 @@ FORM v-disp-actnum LABEL "G/L ACCOUNT NUMBER"
             b-tt-rctd.tt-row-id = ROWID(tt-rctd)
             b-tt-rctd.seq-no    = 2
             b-tt-rctd.s-num     = tt-mat.frm
-            b-tt-rctd.qty       = tt-mat.qty
-            b-tt-rctd.po-no     = "" .
+            b-tt-rctd.qty       = tt-mat.qty .
+            IF AVAIL po-ordl THEN do:
+             FIND FIRST po-ord NO-LOCK 
+                    WHERE po-ord.company EQ po-ordl.company 
+                      AND po-ord.po-no EQ po-ordl.po-no NO-ERROR.
+            
+             IF AVAIL po-ord AND po-ord.TYPE <> "S" THEN
+                 ASSIGN b-tt-rctd.po-no     = ""  .
+            END.
           DELETE tt-mat.
         END. /* FOR EACH tt-mat */
 
