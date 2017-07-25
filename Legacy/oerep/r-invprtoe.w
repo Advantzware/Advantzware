@@ -168,10 +168,10 @@ rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt ~
 lines-per-page lv-font-no tb_email-orig tb_override-email td-show-parm ~
 btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust end_cust begin_inv end_inv ~
-begin_date end_date tb_reprint tb_posted tbPostedAR tb_setcomp tb_prt-inst ~
-lbl_sort rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt ~
+begin_date end_date tb_reprint tb_posted tb_setcomp tb_prt-inst lbl_sort ~
+rd_sort tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt ~
 lines-per-page lv-font-no lv-font-name tb_email-orig tb_override-email ~
-td-show-parm fiEndDateLabel fiBeginDateLabel 
+td-show-parm tb_splitPDF fiEndDateLabel fiBeginDateLabel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -402,6 +402,11 @@ DEFINE VARIABLE tb_sman-copy AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81 NO-UNDO.
 
+DEFINE VARIABLE tb_splitPDF AS LOGICAL INITIAL no 
+     LABEL "PDF Per Invoice" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 20 BY .81 NO-UNDO.
+
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
@@ -457,6 +462,7 @@ DEFINE FRAME FRAME-A
      tb_email-orig AT ROW 20.57 COL 30.2 WIDGET-ID 14
      tb_override-email AT ROW 20.62 COL 60 WIDGET-ID 18
      td-show-parm AT ROW 21.95 COL 30
+     tb_splitPDF AT ROW 21.95 COL 60 WIDGET-ID 26
      btn-ok AT ROW 23.86 COL 23
      btn-cancel AT ROW 23.86 COL 56
      fiEndDateLabel AT ROW 4.52 COL 51.4 COLON-ALIGNED NO-LABEL WIDGET-ID 22
@@ -618,7 +624,7 @@ ASSIGN
        rs_no_PN:HIDDEN IN FRAME FRAME-A           = TRUE.
 
 /* SETTINGS FOR TOGGLE-BOX tbPostedAR IN FRAME FRAME-A
-   NO-ENABLE                                                            */
+   NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        tbPostedAR:HIDDEN IN FRAME FRAME-A           = TRUE.
 
@@ -689,6 +695,13 @@ ASSIGN
    NO-DISPLAY NO-ENABLE                                                 */
 ASSIGN 
        tb_sman-copy:HIDDEN IN FRAME FRAME-A           = TRUE.
+
+/* SETTINGS FOR TOGGLE-BOX tb_splitPDF IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       tb_splitPDF:HIDDEN IN FRAME FRAME-A           = TRUE
+       tb_splitPDF:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -906,7 +919,8 @@ DO:
             tb_setcomp         ,
             tb_sman-copy       ,
             td-show-parm       ,
-            tbPostedAR
+            tbPostedAR         ,
+            tb_splitPDF
             ).
     
         IF begin_bol EQ end_bol THEN 
@@ -1205,7 +1219,16 @@ ON VALUE-CHANGED OF tb_BatchMail IN FRAME FRAME-A /* Batch E-Mail */
 DO:
         ASSIGN {&self-name}.
     /*   tb_Override-email:SCREEN-VALUE = IF tb_BatchMail THEN "Yes" ELSE "No". */
-
+        IF tb_BatchMail THEN
+          ASSIGN 
+             tb_splitPDF:HIDDEN = NO
+             tb_splitPDF:SENSITIVE = YES
+             .
+        ELSE
+          ASSIGN 
+             tb_splitPDF:HIDDEN = YES
+             tb_splitPDF:SENSITIVE = NO
+             .
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1467,9 +1490,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
              tb_posted:SENSITIVE = YES
              tbPostedAr:HIDDEN = NO
              tbPostedAR:SENSITIVE = YES
-
-             .  
-        
+             .
+    
     IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
 
     IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
@@ -1526,6 +1548,17 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         DISABLE lines-per-page.
 
         {custom/usrprint.i}
+
+          IF tb_BatchMail:SCREEN-VALUE = "YES" THEN
+  ASSIGN 
+     tb_splitPDF:HIDDEN = NO
+     tb_splitPDF:SENSITIVE = YES
+     .
+ELSE
+  ASSIGN 
+     tb_splitPDF:HIDDEN = YES
+     tb_splitPDF:SENSITIVE = NO
+     .        
 
 lines-per-page:SCREEN-VALUE = STRING(lines-per-page).
 IF glPaperless THEN 
@@ -1623,9 +1656,9 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust end_cust begin_inv end_inv begin_date end_date tb_reprint 
-          tb_posted tbPostedAR tb_setcomp tb_prt-inst lbl_sort rd_sort 
-          tb_BatchMail tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page 
-          lv-font-no lv-font-name tb_email-orig tb_override-email td-show-parm 
+          tb_posted tb_setcomp tb_prt-inst lbl_sort rd_sort tb_BatchMail 
+          tb_HideDialog tb_attachBOL rd-dest lv-ornt lines-per-page lv-font-no 
+          lv-font-name tb_email-orig tb_override-email td-show-parm tb_splitPDF 
           fiEndDateLabel fiBeginDateLabel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust end_cust begin_inv end_inv begin_date 
