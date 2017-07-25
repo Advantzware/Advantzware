@@ -525,7 +525,7 @@ PROCEDURE pImport :
                             ASSIGN 
                                 ttInputEst.iFormNo        = INTEGER(cForm)
                                 ttInputEst.cPartID        = cPartID
-                                ttInputEst.cDieID         = cPartID
+                                ttInputEst.cCadID         = cPartID
                                 ttInputEst.cPartName      = SUBSTRING(cPartName,1,30)
                                 ttInputEst.iQuantityYield = INTEGER(cQtyPerSet)
                                 ttInputEst.dLength        = DECIMAL(TRIM(cLength,'"'))
