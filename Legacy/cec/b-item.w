@@ -77,7 +77,7 @@ DEF VAR v-col-move AS LOG NO-UNDO INIT TRUE.
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table item.i-no item.i-name ~
 item.i-code item.mat-type item.procat item.i-dscr item.cost-type item.q-onh ~
-item.q-ono item.q-comm item.cons-uom item.r-wid item.s-wid item.s-dep item.s-len  
+item.q-ono item.q-comm item.cons-uom 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH item WHERE ~{&KEY-PHRASE} ~
       AND item.company = gcompany ~
@@ -148,11 +148,7 @@ DEFINE QUERY Browser-Table FOR
       item.q-onh
       item.q-ono
       item.q-comm
-      item.cons-uom
-      item.r-wid
-      item.s-wid
-      item.s-dep
-      item.s-len) SCROLLING.
+      item.cons-uom) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -172,10 +168,6 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       item.q-comm FORMAT ">>>,>>>,>>9.99":U LABEL-BGCOLOR 14
       item.cons-uom COLUMN-LABEL "C-UOM" FORMAT "x(3)":U LABEL-BGCOLOR 14
-      item.r-wid FORMAT ">>,>>9.99":U LABEL-BGCOLOR 14
-      item.s-wid FORMAT ">>,>>9.99":U LABEL-BGCOLOR 14
-      item.s-dep FORMAT ">>,>>9.99":U LABEL-BGCOLOR 14
-      item.s-len FORMAT ">>,>>9.99":U LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 143 BY 16.67
@@ -306,14 +298,6 @@ ASSIGN
 "item.q-comm" ? ">>>,>>>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.item.cons-uom
 "item.cons-uom" "C-UOM" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[12]   > ASI.item.r-wid
-"item.r-wid" ? ">>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-   _FldNameList[13]   > ASI.item.s-wid
-"item.s-wid" ? ">>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-   _FldNameList[14]   > ASI.item.s-dep
-"item.s-dep" ? ">>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-   _FldNameList[15]   > ASI.item.s-len
-"item.s-len" ? ">>,>>9.99" "decimal" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
