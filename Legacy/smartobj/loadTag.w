@@ -63,7 +63,7 @@ CREATE WIDGET-POOL.
 DEFINE BUTTON loadTag 
      IMAGE-UP FILE "Graphics/32x32/printer_barcode.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
-     LABEL "" 
+     LABEL "Print" 
      SIZE 7.8 BY 1.81 TOOLTIP "Load Tag Creation".
 
 
@@ -151,7 +151,7 @@ ASSIGN
 
 &Scoped-define SELF-NAME loadTag
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL loadTag s-object
-ON CHOOSE OF loadTag IN FRAME F-Main
+ON CHOOSE OF loadTag IN FRAME F-Main /* Print */
 DO:
   {methods/run_link.i "LOADTAG-SOURCE" "{&SELF-NAME}"}
 END.

@@ -1,5 +1,9 @@
 addon\p-updprt.w
+addon\fg\v-post.w
+addon\fg\v-postct.w
+addon\loadtags\vp-print.w
 addon\rfq\v-set.w
+addon\rm\v-post.w
 addon\viewers\empinout.w
 p-estbox.w
 p-fgset.w
@@ -22,6 +26,7 @@ est\vp-prmtx.w
 est\vp-qtrpc.w
 est\vp-score.w
 est\vp-stkpn.w
+fg\pv-trans.w
 fg\v-spcard.w
 fg\vp-selbin.w
 gl\v-glload.w
@@ -56,6 +61,8 @@ panels\p-oebolh.w
 panels\p-ordmis.w
 panels\p-ordrel.w
 panels\p-orel.w
+panels\p-relbol.w
+panels\p-updba2.w
 panels\pv-graph.w
 panels\pv-grap2.w
 po\v-pohold.w
