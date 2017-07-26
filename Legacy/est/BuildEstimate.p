@@ -275,6 +275,7 @@ PROCEDURE pCalcPacking:
     DEFINE VARIABLE iLayers         AS INTEGER NO-UNDO.
     DEFINE VARIABLE iStacks         AS INTEGER NO-UNDO.
     DEFINE VARIABLE cStackCode    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cPackCode     AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lError        AS LOGICAL NO-UNDO.
     
     FIND eb WHERE ROWID(eb) EQ ipriEb.
@@ -302,6 +303,8 @@ PROCEDURE pCalcPacking:
             eb.cas-no = IF cust.case-bundle NE '' THEN cust.case-bundle ELSE eb.cas-no 
             eb.tr-no  = IF cust.pallet NE '' THEN cust.pallet ELSE eb.tr-no
             .
+        RUN est/packCodeOverride.p (eb.company, eb.cust-no, eb.style, OUTPUT cPackCode).
+        IF cPackCode NE '' THEN eb.cas-no = cPackCode.
         FIND FIRST shipto NO-LOCK 
             WHERE shipto.company EQ cust.company
             AND shipto.ship-id EQ eb.ship-id
