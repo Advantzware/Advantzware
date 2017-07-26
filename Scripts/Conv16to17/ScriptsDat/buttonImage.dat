@@ -68,14 +68,17 @@ OK	checkbox
 Override	window_environment
 Override Qtys	window_environment
 Override Unit	window_star
+Post	data_floppy_disk
 Prior Yr/Ytd Bal	book_bookmark
 Prefix Fg Item#	bookmark
 Price	money_dollar
 Price Change	money_bill_cut
 Price Mtx	money_coins
 Print	printer
+Print BOL	print_layout_single
 Print Box	print_layout_continous
 Print Price List	print_layout_single
+Qty	symbol_sum
 Quote	document_information
 Re-Sequence	sort_up_down
 Rebuild	tools
@@ -112,6 +115,7 @@ Stack Pattern	memory
 Start	checkbox
 Start Process	checkbox
 Stat	chart_column
+Transfer	arrow_mix
 UDF	window_dialog
 Unapprove	undo 
 Unit Calc	calculator

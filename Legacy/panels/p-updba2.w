@@ -211,6 +211,10 @@ ASSIGN
        FRAME Panel-Frame:SCROLLABLE       = FALSE
        FRAME Panel-Frame:HIDDEN           = TRUE.
 
+ASSIGN 
+       Btn-post:PRIVATE-DATA IN FRAME Panel-Frame     = 
+                "panel-image".
+
 /* SETTINGS FOR RECTANGLE RECT-1 IN FRAME Panel-Frame
    NO-ENABLE 1                                                          */
 /* _RUN-TIME-ATTRIBUTES-END */
