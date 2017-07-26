@@ -1220,8 +1220,8 @@ VIEW FRAME r-top.
              (vend.curr-code EQ ""            AND
               company.curr-code GE begin_curr AND
               company.curr-code LE end_curr))
-       AND ((vend.spare-int-1 NE 1 AND tb_ACH-excl) OR NOT tb_ACH-excl)
-       AND ((vend.spare-int-1 EQ 1 AND tb_ACH-only) OR NOT tb_ACH-only):
+        AND ((vend.payment-type NE "ACH" AND tb_ACH-excl) OR NOT tb_ACH-excl)
+        AND ((vend.payment-type EQ "ACH" AND tb_ACH-only) OR NOT tb_ACH-only):
        {custom/statusMsg.i " 'Processing Vendor#  '  + string(vend.vend-no) "}
     FOR EACH ap-inv
         WHERE ap-inv.company   EQ company.company

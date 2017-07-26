@@ -1388,10 +1388,6 @@ ELSE cPaymentList = "".
 fi_amt = 0.
     for each vend where vend.company eq cocode
                       and vend.acc-bal gt 0
-/*                      AND ((vend.spare-int-1 NE 1 AND tb_cc) OR NOT tb_cc)          */
-/*                      AND ((vend.spare-int-1 EQ 1 AND tb_cc-only) OR NOT tb_cc-only)*/
-/*                      AND ((vend.spare-int-2 NE 1 AND tb_cc) OR NOT tb_cc)          */
-/*                      AND ((vend.spare-int-2 EQ 1 AND tb_bp-only) OR NOT tb_bp-only)*/
                         AND ( (vend.payment-type = cb_paytype )
                               OR cb_paytype = "All payment types"
                               OR (can-do(cPaymentList, vend.payment-type) AND cPaymentList <> "")
