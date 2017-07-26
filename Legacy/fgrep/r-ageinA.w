@@ -32,7 +32,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-def var list-name as cha no-undo.
+DEF VAR list-name AS cha NO-UNDO.
 DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
 DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
@@ -62,7 +62,7 @@ DEF VAR v-rec-found AS LOG NO-UNDO.
 
 {sys/inc/var.i new shared}
 
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
@@ -71,15 +71,15 @@ assign
 {sys/ref/CustList.i NEW}
 DEFINE VARIABLE glCustListActive AS LOGICAL     NO-UNDO.
 
-RUN sys/ref/nk1look.p (cocode, "IR12", "L", no, no, "", "", 
-                   Output v-rtn-char, output v-rec-found).
+RUN sys/ref/nk1look.p (cocode, "IR12", "L", NO, NO, "", "", 
+                   OUTPUT v-rtn-char, OUTPUT v-rec-found).
 IF v-rec-found THEN
     IR12-log = LOGICAL(v-rtn-char).
 ELSE
     IR12-log = NO.
 
-RUN sys/ref/nk1look.p (cocode, "IR12", "C", no, no, "", "", 
-                   Output v-rtn-char, output v-rec-found).
+RUN sys/ref/nk1look.p (cocode, "IR12", "C", NO, NO, "", "", 
+                   OUTPUT v-rtn-char, OUTPUT v-rec-found).
 IF v-rec-found THEN
 IR12-char = v-rtn-char.
 
@@ -92,13 +92,13 @@ DEF NEW SHARED TEMP-TABLE tt-fg-bin NO-UNDO LIKE fg-bin
                    FIELD aged-qty   AS DEC EXTENT 6.
 
 DEF BUFFER bf-tt-fg-bin FOR tt-fg-bin.
-DEF NEW SHARED temp-table tt-file no-undo
-                       field tt-sman like sman.sman
-                       field tt-cust-no like cust.cust-no
-                       field tt-i-no like itemfg.i-no
-                       field tt-qohi AS DEC EXTENT 5
-                       field tt-cst AS DEC EXTENT 4
-                       field tt-val AS DEC EXTENT 4
+DEF NEW SHARED TEMP-TABLE tt-file NO-UNDO
+                       FIELD tt-sman LIKE sman.sman
+                       FIELD tt-cust-no LIKE cust.cust-no
+                       FIELD tt-i-no LIKE itemfg.i-no
+                       FIELD tt-qohi AS DEC EXTENT 5
+                       FIELD tt-cst AS DEC EXTENT 4
+                       FIELD tt-val AS DEC EXTENT 4
                        FIELD tt-sell-price AS DEC EXTENT 5
                        FIELD tt-days AS INT.
 DEF TEMP-TABLE tt-items 
@@ -150,47 +150,47 @@ DEF TEMP-TABLE tt-fghist
      FIELD trans-time LIKE fg-rdtlh.trans-time
      FIELD r-no       LIKE fg-rcpth.r-no.
 
-def var vdat        as   date                   format "99/99/9999" init TODAY NO-UNDO.
-def var fslm        like sman.sman NO-UNDO.
-def var tslm        like fslm                   init "zzz" NO-UNDO.
-def var fcus        like cust.cust-no NO-UNDO.
-def var tcus        like fcus                   init "zzzzzzzz" NO-UNDO.
-def var fitm        like itemfg.i-no NO-UNDO.
-def var titm        like fitm                   init "zzzzzzzzzzzzzzz" NO-UNDO.
-def var fjob        like fg-bin.job-no NO-UNDO.
-def var tjob        like fjob                   init "zzzzzz" NO-UNDO.
-def var fjob2       like fg-bin.job-no2         format "99" NO-UNDO.
-def var tjob2       like fjob2                  init 99 NO-UNDO.
-def var v-q-or-v    as   log                    format "Qty/Value" init YES NO-UNDO.
-def var v-sub-t     as   log                    format "Yes/No"    init NO NO-UNDO.
-def var v-break     as   log                    format "Yes/No"    init YES NO-UNDO.
-def var v-cost      as   log                    format "Yes/No"    init NO NO-UNDO.
-def var v-curr      as   log                    format "Yes/No"    init YES NO-UNDO.
-def var v-cpart     as   log                    format "Yes/No"    init NO NO-UNDO.
-def var v-sdate     as   log                    format "Yes/No"    init NO NO-UNDO.
+DEF VAR vdat        AS   DATE                   FORMAT "99/99/9999" INIT TODAY NO-UNDO.
+DEF VAR fslm        LIKE sman.sman NO-UNDO.
+DEF VAR tslm        LIKE fslm                   INIT "zzz" NO-UNDO.
+DEF VAR fcus        LIKE cust.cust-no NO-UNDO.
+DEF VAR tcus        LIKE fcus                   INIT "zzzzzzzz" NO-UNDO.
+DEF VAR fitm        LIKE itemfg.i-no NO-UNDO.
+DEF VAR titm        LIKE fitm                   INIT "zzzzzzzzzzzzzzz" NO-UNDO.
+DEF VAR fjob        LIKE fg-bin.job-no NO-UNDO.
+DEF VAR tjob        LIKE fjob                   INIT "zzzzzz" NO-UNDO.
+DEF VAR fjob2       LIKE fg-bin.job-no2         FORMAT "99" NO-UNDO.
+DEF VAR tjob2       LIKE fjob2                  INIT 99 NO-UNDO.
+DEF VAR v-q-or-v    AS   LOG                    FORMAT "Qty/Value" INIT YES NO-UNDO.
+DEF VAR v-sub-t     AS   LOG                    FORMAT "Yes/No"    INIT NO NO-UNDO.
+DEF VAR v-break     AS   LOG                    FORMAT "Yes/No"    INIT YES NO-UNDO.
+DEF VAR v-cost      AS   LOG                    FORMAT "Yes/No"    INIT NO NO-UNDO.
+DEF VAR v-curr      AS   LOG                    FORMAT "Yes/No"    INIT YES NO-UNDO.
+DEF VAR v-cpart     AS   LOG                    FORMAT "Yes/No"    INIT NO NO-UNDO.
+DEF VAR v-sdate     AS   LOG                    FORMAT "Yes/No"    INIT NO NO-UNDO.
 
-def var v-label     as   char                   format "x(8)"  extent 15 NO-UNDO.
-def var v-label1    as   char                   format "x(13)" extent 13 NO-UNDO.
-def var v-label2    as   char                   format "x(13)" extent 4 NO-UNDO.
-def var v-label3    as   char                   format "x(4)" extent 4 NO-UNDO.
-def var v-qohj      LIKE tt-qohi                extent 6 NO-UNDO.
-def var v-qohi      like v-qohj NO-UNDO.
-def var v-qohc      like v-qohj                 extent 5 NO-UNDO.
-def var v-qohs      like v-qohj                 extent 5 NO-UNDO.
-def var v-qohg      like v-qohj                 extent 5 NO-UNDO.
-def var v-qty       as   INT NO-UNDO.
-def var v-qty1      like v-qty NO-UNDO.
-def var v-qtyc      like v-qty NO-UNDO.
-def var v-red       like v-qty NO-UNDO.
-def var v           as   INT NO-UNDO.
-def var v-cus       like cust.cust-no NO-UNDO.
-def var v-val       as   dec          FORMAT "->,>>>,>>9.99"          extent 4 NO-UNDO.
-def var v-cst       as   dec                    extent 4 NO-UNDO.
-def var v-u-val     as   DEC NO-UNDO.
-def var v-u-cst     as   DEC NO-UNDO.
-def var v-date      as   DATE NO-UNDO.
-def var v-class     as   CHAR NO-UNDO.
-def var sort-opt as char no-undo init "I" FORMAT "!".
+DEF VAR v-label     AS   CHAR                   FORMAT "x(8)"  EXTENT 15 NO-UNDO.
+DEF VAR v-label1    AS   CHAR                   FORMAT "x(13)" EXTENT 13 NO-UNDO.
+DEF VAR v-label2    AS   CHAR                   FORMAT "x(13)" EXTENT 4 NO-UNDO.
+DEF VAR v-label3    AS   CHAR                   FORMAT "x(4)" EXTENT 4 NO-UNDO.
+DEF VAR v-qohj      LIKE tt-qohi                EXTENT 6 NO-UNDO.
+DEF VAR v-qohi      LIKE v-qohj NO-UNDO.
+DEF VAR v-qohc      LIKE v-qohj                 EXTENT 5 NO-UNDO.
+DEF VAR v-qohs      LIKE v-qohj                 EXTENT 5 NO-UNDO.
+DEF VAR v-qohg      LIKE v-qohj                 EXTENT 5 NO-UNDO.
+DEF VAR v-qty       AS   INT NO-UNDO.
+DEF VAR v-qty1      LIKE v-qty NO-UNDO.
+DEF VAR v-qtyc      LIKE v-qty NO-UNDO.
+DEF VAR v-red       LIKE v-qty NO-UNDO.
+DEF VAR v           AS   INT NO-UNDO.
+DEF VAR v-cus       LIKE cust.cust-no NO-UNDO.
+DEF VAR v-val       AS   DEC          FORMAT "->,>>>,>>9.99"          EXTENT 4 NO-UNDO.
+DEF VAR v-cst       AS   DEC                    EXTENT 4 NO-UNDO.
+DEF VAR v-u-val     AS   DEC NO-UNDO.
+DEF VAR v-u-cst     AS   DEC NO-UNDO.
+DEF VAR v-date      AS   DATE NO-UNDO.
+DEF VAR v-class     AS   CHAR NO-UNDO.
+DEF VAR sort-opt AS CHAR NO-UNDO INIT "I" FORMAT "!".
 DEF VAR lv-tag      LIKE fg-rdtlh.tag NO-UNDO.
 DEF VAR ld-last     AS   DATE NO-UNDO.
 DEF VAR lv-last-fld AS   CHAR FORMAT "x(13)" EXTENT 2 NO-UNDO.
@@ -228,8 +228,8 @@ DEF NEW SHARED STREAM excel.
 DEF STREAM sTest1.
 
 
-def buffer b-f-rc for fg-rcpth.
-def buffer b-f-rd for fg-rdtlh.
+DEF BUFFER b-f-rc FOR fg-rcpth.
+DEF BUFFER b-f-rd FOR fg-rdtlh.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -491,79 +491,79 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 19.71.
 
-DEFINE VARIABLE tb_break AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_break AS LOGICAL INITIAL YES 
      LABEL "Page Break By Customer?" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_cost AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_cost AS LOGICAL INITIAL NO 
      LABEL "Print Cost?" 
      VIEW-AS TOGGLE-BOX
      SIZE 16 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_curr AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_curr AS LOGICAL INITIAL YES 
      LABEL "Print Items <90 Days Old?" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_cust-list AS LOGICAL INITIAL NO 
      LABEL "Use Defined Customer List" 
      VIEW-AS TOGGLE-BOX
      SIZE 30.2 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_cust-whse AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_cust-whse AS LOGICAL INITIAL NO 
      LABEL "Include Customer Owned Warehouse?" 
      VIEW-AS TOGGLE-BOX
      SIZE 42 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_custpart AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_custpart AS LOGICAL INITIAL YES 
      LABEL "Print Customer Part#?" 
      VIEW-AS TOGGLE-BOX
      SIZE 36 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_excel AS LOGICAL INITIAL YES 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3 FGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE tb_grand_tots AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_grand_tots AS LOGICAL INITIAL NO 
      LABEL "Print Grand Totals?" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_include_old_items AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_include_old_items AS LOGICAL INITIAL NO 
      LABEL "Include Inactive Items?" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_last-ship-date AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_last-ship-date AS LOGICAL INITIAL NO 
      LABEL "Print Last Shipment Date?" 
      VIEW-AS TOGGLE-BOX
      SIZE 35 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_neg-sale AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_neg-sale AS LOGICAL INITIAL NO 
      LABEL "Exclude Negative Sell Value from Totals?" 
      VIEW-AS TOGGLE-BOX
      SIZE 44 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL NO 
      LABEL "Auto Run Excel?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3 FGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE tb_sls_tots AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_sls_tots AS LOGICAL INITIAL NO 
      LABEL "Print Salesrep Totals?" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_val-cust AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_val-cust AS LOGICAL INITIAL NO 
      LABEL "Subtotal Value By Customer?" 
      VIEW-AS TOGGLE-BOX
      SIZE 35 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL YES 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -684,15 +684,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 336
          VIRTUAL-HEIGHT     = 47.91
          VIRTUAL-WIDTH      = 336
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -903,7 +903,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = yes.
+THEN C-Win:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -944,7 +944,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL aged-days-1 C-Win
 ON LEAVE OF aged-days-1 IN FRAME FRAME-A /* Aged Days 1 */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -955,7 +955,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL aged-days-2 C-Win
 ON LEAVE OF aged-days-2 IN FRAME FRAME-A /* 2 */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -966,7 +966,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL aged-days-3 C-Win
 ON LEAVE OF aged-days-3 IN FRAME FRAME-A /* 3 */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -977,7 +977,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL aged-days-4 C-Win
 ON LEAVE OF aged-days-4 IN FRAME FRAME-A /* 4 */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -988,7 +988,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL as-of-date C-Win
 ON LEAVE OF as-of-date IN FRAME FRAME-A /* As of */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -999,7 +999,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1010,7 +1010,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_i-no C-Win
 ON LEAVE OF begin_i-no IN FRAME FRAME-A /* Beginning Item# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1021,7 +1021,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no C-Win
 ON LEAVE OF begin_job-no IN FRAME FRAME-A /* Beginning Job# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1032,7 +1032,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_job-no2 C-Win
 ON LEAVE OF begin_job-no2 IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1043,7 +1043,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_loc-bin C-Win
 ON LEAVE OF begin_loc-bin IN FRAME FRAME-A /* Beginning Bin */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1054,7 +1054,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_slm C-Win
 ON LEAVE OF begin_slm IN FRAME FRAME-A /* Beginning Sales Rep# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1065,7 +1065,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_whse C-Win
 ON LEAVE OF begin_whse IN FRAME FRAME-A /* Beginning Warehouse */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1076,7 +1076,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-   apply "close" to this-procedure.
+   APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1093,23 +1093,23 @@ DO:
 
   SESSION:SET-WAIT-STATE("general").
   FIND FIRST  ttCustList NO-LOCK NO-ERROR.
-  IF NOT AVAIL ttCustList AND tb_cust-list THEN do:
+  IF NOT AVAIL ttCustList AND tb_cust-list THEN DO:
   EMPTY TEMP-TABLE ttCustList.
   RUN BuildCustList(INPUT cocode,
                     INPUT tb_cust-list AND glCustListActive ,
                     INPUT begin_cust-no,
                     INPUT end_cust-no).
   END.
-  run run-report. 
+  RUN run-report. 
 
   STATUS DEFAULT "Processing Complete". 
   SESSION:SET-WAIT-STATE("").
 
-  case rd-dest:
-       when 1 then run output-to-printer.
-       when 2 then run output-to-screen.
-       when 3 then run output-to-file.
-       when 4 then do:
+  CASE rd-dest:
+       WHEN 1 THEN RUN output-to-printer.
+       WHEN 2 THEN RUN output-to-screen.
+       WHEN 3 THEN RUN output-to-file.
+       WHEN 4 THEN DO:
            /*run output-to-fax.*/
            {custom/asifax.i &begin_cust=begin_cust-no
                             &END_cust=END_cust-no
@@ -1117,7 +1117,7 @@ DO:
                             &fax-body= "Aged Inventory Report" 
                             &fax-file=list-name }
        END.
-       when 5 then do:
+       WHEN 5 THEN DO:
           {custom/asimailr2.i &TYPE = "CUSTOMER"
                              &group-title= 'r-Ageinv.'
                              &begin_cust= begin_cust-no
@@ -1127,8 +1127,8 @@ DO:
                              &mail-file=list-name }
 
        END. 
-       WHEN 6 THEN run output-to-port.
-  end case. 
+       WHEN 6 THEN RUN output-to-port.
+  END CASE. 
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1151,7 +1151,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1162,7 +1162,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_i-no C-Win
 ON LEAVE OF end_i-no IN FRAME FRAME-A /* Ending Item# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1173,7 +1173,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no C-Win
 ON LEAVE OF end_job-no IN FRAME FRAME-A /* Ending Job# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1184,7 +1184,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_job-no2 C-Win
 ON LEAVE OF end_job-no2 IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1195,7 +1195,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_loc-bin C-Win
 ON LEAVE OF end_loc-bin IN FRAME FRAME-A /* Ending Bin */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1206,7 +1206,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_slm C-Win
 ON LEAVE OF end_slm IN FRAME FRAME-A /* Ending Sales Rep# */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1217,7 +1217,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_whse C-Win
 ON LEAVE OF end_whse IN FRAME FRAME-A /* Ending Warehouse */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1228,7 +1228,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file C-Win
 ON LEAVE OF fi_file IN FRAME FRAME-A /* If Yes, File Name */
 DO:
-     assign {&self-name}.
+     ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1239,7 +1239,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL lines-per-page C-Win
 ON LEAVE OF lines-per-page IN FRAME FRAME-A /* Lines Per Page */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1250,7 +1250,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL list_class C-Win
 ON LEAVE OF list_class IN FRAME FRAME-A /* Inventory Class(es) */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1339,7 +1339,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd-dest C-Win
 ON VALUE-CHANGED OF rd-dest IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1350,7 +1350,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_price C-Win
 ON VALUE-CHANGED OF rd_price IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1361,7 +1361,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_show C-Win
 ON VALUE-CHANGED OF rd_show IN FRAME FRAME-A
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1372,7 +1372,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_break C-Win
 ON VALUE-CHANGED OF tb_break IN FRAME FRAME-A /* Page Break By Customer? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1383,7 +1383,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cost C-Win
 ON VALUE-CHANGED OF tb_cost IN FRAME FRAME-A /* Print Cost? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1394,7 +1394,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_curr C-Win
 ON VALUE-CHANGED OF tb_curr IN FRAME FRAME-A /* Print Items <90 Days Old? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1405,7 +1405,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_cust-list C-Win
 ON VALUE-CHANGED OF tb_cust-list IN FRAME FRAME-A /* Use Defined Customer List */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
   EMPTY TEMP-TABLE ttCustList.
   RUN SetCustRange(INPUT tb_cust-list).
 END.
@@ -1418,7 +1418,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_custpart C-Win
 ON VALUE-CHANGED OF tb_custpart IN FRAME FRAME-A /* Print Customer Part#? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1429,7 +1429,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
 ON VALUE-CHANGED OF tb_excel IN FRAME FRAME-A /* Export To Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1440,7 +1440,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_last-ship-date C-Win
 ON VALUE-CHANGED OF tb_last-ship-date IN FRAME FRAME-A /* Print Last Shipment Date? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1451,7 +1451,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_neg-sale C-Win
 ON VALUE-CHANGED OF tb_neg-sale IN FRAME FRAME-A /* Exclude Negative Sell Value from Totals? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1462,7 +1462,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1473,7 +1473,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_val-cust C-Win
 ON VALUE-CHANGED OF tb_val-cust IN FRAME FRAME-A /* Subtotal Value By Customer? */
 DO:
-  assign {&self-name}.
+  ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1484,7 +1484,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL td-show-parm C-Win
 ON VALUE-CHANGED OF td-show-parm IN FRAME FRAME-A /* Show Parameters? */
 DO:
-    assign {&self-name}.
+    ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1506,7 +1506,7 @@ v-custom = YES.
 IF ir12-log THEN DO:
    THIS-PROCEDURE:CURRENT-WINDOW:VISIBLE = NO.
    v-custom = ?.
-   run fgrep/d-custom.w (OUTPUT v-custom).
+   RUN fgrep/d-custom.w (OUTPUT v-custom).
 
 END.
 
@@ -1601,7 +1601,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
             .
 
-       IF ou-log AND ou-cust-int = 0 THEN do:
+       IF ou-log AND ou-cust-int = 0 THEN DO:
            ASSIGN 
             tb_cust-list:SENSITIVE IN FRAME {&FRAME-NAME} = YES
             btnCustList:SENSITIVE IN FRAME {&FRAME-NAME} = NO
@@ -1784,44 +1784,44 @@ DEF INPUT PARAMETER rd_sort AS CHARACTER INITIAL "Item#"
      NO-UNDO.
 
 
-DEF INPUT PARAMETER tb_break AS LOGICAL INITIAL yes 
+DEF INPUT PARAMETER tb_break AS LOGICAL INITIAL YES 
      LABEL "Page Break By Customer?" 
      NO-UNDO.
 
-DEF INPUT PARAMETER tb_cost AS LOGICAL INITIAL no 
+DEF INPUT PARAMETER tb_cost AS LOGICAL INITIAL NO 
      LABEL "Print Cost?" 
     NO-UNDO.
 
-DEF INPUT PARAMETER tb_curr AS LOGICAL INITIAL yes 
+DEF INPUT PARAMETER tb_curr AS LOGICAL INITIAL YES 
      LABEL "Print Items <90 Days Old?" 
     NO-UNDO.
 
-DEF INPUT PARAMETER tb_cust-whse AS LOGICAL INITIAL no 
+DEF INPUT PARAMETER tb_cust-whse AS LOGICAL INITIAL NO 
      LABEL "Include Customer Owned Warehouse?" 
     NO-UNDO.
 
-DEF INPUT PARAMETER tb_custpart AS LOGICAL INITIAL yes 
+DEF INPUT PARAMETER tb_custpart AS LOGICAL INITIAL YES 
      LABEL "Print Customer Part#?" 
     NO-UNDO.
 
-DEF INPUT PARAMETER tb_excel AS LOGICAL INITIAL yes 
+DEF INPUT PARAMETER tb_excel AS LOGICAL INITIAL YES 
      LABEL "Export To Excel?" 
     NO-UNDO.
 
-DEF INPUT PARAMETER tb_last-ship-date AS LOGICAL INITIAL no 
+DEF INPUT PARAMETER tb_last-ship-date AS LOGICAL INITIAL NO 
      LABEL "Print Last Shipment Date?" NO-UNDO.
 
-DEF INPUT PARAMETER tb_neg-sale AS LOGICAL INITIAL no 
+DEF INPUT PARAMETER tb_neg-sale AS LOGICAL INITIAL NO 
      LABEL "Exclude Negative Sell Value from Totals?" 
       NO-UNDO.
 
-DEF INPUT PARAMETER tb_runExcel AS LOGICAL INITIAL no 
+DEF INPUT PARAMETER tb_runExcel AS LOGICAL INITIAL NO 
      LABEL "Auto Run Excel?" NO-UNDO.
 
-DEF INPUT PARAMETER tb_val-cust AS LOGICAL INITIAL no 
+DEF INPUT PARAMETER tb_val-cust AS LOGICAL INITIAL NO 
      LABEL "Subtotal Value By Customer?" NO-UNDO.
 
-DEF INPUT PARAMETER td-show-parm AS LOGICAL INITIAL yes 
+DEF INPUT PARAMETER td-show-parm AS LOGICAL INITIAL YES 
      LABEL "Show Parameters?" NO-UNDO.
 ASSIGN
  v-qohg = 0
@@ -1918,10 +1918,10 @@ REPEAT:
       /* to the degree possible */
       v-qty-to-process = MIN(- v-neg-qty, v-pos-qty).
       v-qty = v-qty-to-process.
-      do v = 5 to 1 by -1:
-        if v-qohi[v] gt 0 then
+      DO v = 5 TO 1 BY -1:
+        IF v-qohi[v] GT 0 THEN
         DO:
-            assign
+            ASSIGN
               v-red     = min(v-qty,v-qohi[v])
               v-qohi[v] = v-qohi[v] - v-red
               v-qty     = v-qty     - v-red.
@@ -1930,17 +1930,17 @@ REPEAT:
               v-sell-price[v] = v-sell-price[v] - (v-price * v-red).
         END.
 
-        if v-qty le 0 then leave.
-      end.
+        IF v-qty LE 0 THEN LEAVE.
+      END.
 
-      if v-qty gt 0 then v-qohi[6] = v-qohi[6] - v-qty.
+      IF v-qty GT 0 THEN v-qohi[6] = v-qohi[6] - v-qty.
 
       /* Reduce the negative quantity the same way */
       v-qty = v-qty-to-process.
-      do v = 5 to 1 by -1:
-        if v-qohi[v] LT 0 then
+      DO v = 5 TO 1 BY -1:
+        IF v-qohi[v] LT 0 THEN
         DO:
-            assign
+            ASSIGN
               /* eg. if we have -20 and -10, only process the -10 */
               v-red     = MAX(- v-qty,v-qohi[v])
               /* v-red is a negative number, so this reduces the neg. 
@@ -1953,10 +1953,10 @@ REPEAT:
               v-sell-price[v] = v-sell-price[v] - (v-price * v-red).
         END.
 
-        if v-qty le 0 then leave.
-      end.
+        IF v-qty LE 0 THEN LEAVE.
+      END.
 
-      if v-qty gt 0 then v-qohi[6] = v-qohi[6] + v-qty.
+      IF v-qty GT 0 THEN v-qohi[6] = v-qohi[6] + v-qty.
 
   END. /* negative found to reduce */
 
@@ -2090,7 +2090,7 @@ PROCEDURE output-to-screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  run scr-rpt.w (list-name,c-win:title,int(lv-font-no),lv-ornt). /* open file-name, title */ 
+  RUN scr-rpt.w (list-name,c-win:TITLE,int(lv-font-no),lv-ornt). /* open file-name, title */ 
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2142,19 +2142,19 @@ DEF VAR v-tot-ext AS DEC EXTENT 10 NO-UNDO.
 FIND bf-tt-fg-bin WHERE ROWID(bf-tt-fg-bin) EQ ipr-tt-fg-bin-row NO-LOCK NO-ERROR.
 
 
-    do:
-      assign
-       v-first[1] = yes
+    DO:
+      ASSIGN
+       v-first[1] = YES
        v-tot-sum  = 0
        v-ext-sum  = 0
        v-qoh      = 0.
 
-      if v-sort-by-cust eq "Wh" then v-first[2] = yes.
-    end.
+      IF v-sort-by-cust EQ "Wh" THEN v-first[2] = YES.
+    END.
 
-    assign
+    ASSIGN
      v-procat = itemfg.procat
-     v-bin    = no.
+     v-bin    = NO.
 
     IF v-summ-bin /* AND FIRST-OF(tt-itemfg.job-no2) */ THEN DO:
         ASSIGN v-tot-bin-sum  = 0
@@ -2166,41 +2166,41 @@ FIND bf-tt-fg-bin WHERE ROWID(bf-tt-fg-bin) EQ ipr-tt-fg-bin-row NO-LOCK NO-ERRO
 
       lv-rct-date = bf-tt-fg-bin.first-date.
 
-      assign
+      ASSIGN
        v-costl = bf-tt-fg-bin.std-lab-cost * bf-tt-fg-bin.qty
        v-costm = bf-tt-fg-bin.std-mat-cost * bf-tt-fg-bin.qty 
-       v-cost1 = if v-dl-mat then (bf-tt-fg-bin.std-lab-cost + bf-tt-fg-bin.std-mat-cost)
-                             else bf-tt-fg-bin.std-tot-cost
+       v-cost1 = IF v-dl-mat THEN (bf-tt-fg-bin.std-lab-cost + bf-tt-fg-bin.std-mat-cost)
+                             ELSE bf-tt-fg-bin.std-tot-cost
        v-cost  = v-cost1             * bf-tt-fg-bin.qty.
 
                                                   /* Calculate Cost */
-      if bf-tt-fg-bin.pur-uom eq "CS" and bf-tt-fg-bin.case-count ne 0 then
-        assign
+      IF bf-tt-fg-bin.pur-uom EQ "CS" AND bf-tt-fg-bin.case-count NE 0 THEN
+        ASSIGN
          v-costl = v-costl / bf-tt-fg-bin.case-count
          v-costm = v-costm / bf-tt-fg-bin.case-count
          v-cost  = v-cost  / bf-tt-fg-bin.case-count.
-      else
-      if bf-tt-fg-bin.pur-uom eq "L" then
-        assign
+      ELSE
+      IF bf-tt-fg-bin.pur-uom EQ "L" THEN
+        ASSIGN
          v-costl = v-costl / bf-tt-fg-bin.qty
          v-costm = v-costm / bf-tt-fg-bin.qty
          v-cost  = v-costm / bf-tt-fg-bin.qty.
-      else do:
-        find first uom
-            where uom.uom  eq itemfg.prod-uom
-              and uom.mult ne 0
-            no-lock no-error.
-        if avail uom then
-          assign
+      ELSE DO:
+        FIND FIRST uom
+            WHERE uom.uom  EQ itemfg.prod-uom
+              AND uom.mult NE 0
+            NO-LOCK NO-ERROR.
+        IF AVAIL uom THEN
+          ASSIGN
            v-costl = v-costl / uom.mult
            v-costm = v-costm / uom.mult
            v-cost  = v-cost  / uom.mult.
-        else
-          assign
+        ELSE
+          ASSIGN
            v-costl = v-costl / 1000
            v-costm = v-costm / 1000
            v-cost  = v-cost  / 1000.
-      end.
+      END.
 
       ASSIGN
        lv-sell-price = itemfg.sell-price
@@ -2279,32 +2279,32 @@ FIND bf-tt-fg-bin WHERE ROWID(bf-tt-fg-bin) EQ ipr-tt-fg-bin-row NO-LOCK NO-ERRO
          END.
       END.
                                          /* Calculate Selling Price */
-      if lv-sell-uom eq "CS" and lv-case-count ne 0 then
+      IF lv-sell-uom EQ "CS" AND lv-case-count NE 0 THEN
         v-ext = (bf-tt-fg-bin.qty * lv-sell-price) / lv-case-count.
-      else do:
-        find first uom
-            where uom.uom  eq lv-sell-uom
-              and uom.mult ne 0
-            no-lock no-error.
+      ELSE DO:
+        FIND FIRST uom
+            WHERE uom.uom  EQ lv-sell-uom
+              AND uom.mult NE 0
+            NO-LOCK NO-ERROR.
         v-ext = bf-tt-fg-bin.qty * lv-sell-price /
-                (if avail uom then uom.mult else 1000).
-      end.
+                (IF AVAIL uom THEN uom.mult ELSE 1000).
+      END.
 
-      if itemfg.sell-uom eq "L" then
-        if bf-tt-fg-bin.qty le 0 then v-ext = 0.
-        else v-ext = lv-sell-price.
+      IF itemfg.sell-uom EQ "L" THEN
+        IF bf-tt-fg-bin.qty LE 0 THEN v-ext = 0.
+        ELSE v-ext = lv-sell-price.
 
-      v-ext = round(v-ext,2).  
+      v-ext = ROUND(v-ext,2).  
 
-      if v-costl eq ? then v-costl = 0.
-      if v-costm eq ? then v-costm = 0.
-      if v-cost  eq ? then v-cost  = 0.
-      if v-ext   eq ? then v-ext   = 0.
+      IF v-costl EQ ? THEN v-costl = 0.
+      IF v-costm EQ ? THEN v-costm = 0.
+      IF v-cost  EQ ? THEN v-cost  = 0.
+      IF v-ext   EQ ? THEN v-ext   = 0.
 
-      assign
+      ASSIGN
        v-qoh     = bf-tt-fg-bin.qty
-       v-tot-sum = if v-dl-mat then v-costl else v-cost
-       v-ext-sum = if v-dl-mat then v-costm else v-ext.
+       v-tot-sum = IF v-dl-mat THEN v-costl ELSE v-cost
+       v-ext-sum = IF v-dl-mat THEN v-costm ELSE v-ext.
 
       IF v-prt-msf THEN v-qoh = v-qoh * itemfg.t-sqft / 1000.
 
@@ -2313,7 +2313,7 @@ FIND bf-tt-fg-bin WHERE ROWID(bf-tt-fg-bin) EQ ipr-tt-fg-bin-row NO-LOCK NO-ERRO
        v-tot-bin-sum = v-tot-bin-sum + v-tot-sum
        v-ext-bin-sum = v-ext-bin-sum + v-ext-sum.
 
-      assign
+      ASSIGN
        v-tot-qty[1] = v-tot-qty[1] + v-qoh
        v-tot-cst[1] = v-tot-cst[1] + v-tot-sum
        v-tot-ext[1] = v-tot-ext[1] + v-ext-sum.
@@ -2336,23 +2336,23 @@ PROCEDURE print_report :
 DEF VAR lv-comm-tail AS CHAR NO-UNDO. /* end of comment */
 {sys/form/r-topw.f}
 
-form  header
-      skip(1)
+FORM  HEADER
+      SKIP(1)
       day_str
-      str-tit  format "x(112)"
-      "Page" at 123
-      page-number format ">>9"
-      skip
+      str-tit  FORMAT "x(112)"
+      "Page" AT 123
+      PAGE-NUMBER FORMAT ">>9"
+      SKIP
       tim_str
-      str-tit2 format "x(112)"   "{1}" at 123
-      skip(1)
+      str-tit2 FORMAT "x(112)"   "{1}" AT 123
+      SKIP(1)
 
-     with frame r-top2 row 1 column 1 stream-io width 150
-           no-labels no-box no-underline page-top.
+     WITH FRAME r-top2 ROW 1 COLUMN 1 STREAM-IO WIDTH 150
+           NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP.
 
 FIND FIRST tt-file NO-LOCK NO-ERROR.
-assign
- str-tit2 = c-win:title
+ASSIGN
+ str-tit2 = c-win:TITLE
  {sys/inc/ctrtext.i str-tit2 112}
 
  vdat      = as-of-date
@@ -2362,9 +2362,9 @@ assign
  tcus      = end_cust-no
  fitm      = begin_i-no
  titm      = end_i-no
- fjob      = fill(" ",6 - length(trim(begin_job-no))) +
+ fjob      = FILL(" ",6 - length(TRIM(begin_job-no))) +
                 trim(begin_job-no) + string(int(begin_job-no2),"99")
- tjob      = fill(" ",6 - length(trim(end_job-no)))   +
+ tjob      = FILL(" ",6 - length(TRIM(end_job-no)))   +
                 trim(end_job-no)   + string(int(end_job-no2),"99") 
  v-q-or-v  = rd_show EQ "Quantity"
  v-sub-t   = tb_val-cust
@@ -2374,7 +2374,7 @@ assign
  v-cpart   = tb_custpart
  v-sdate   = tb_last-ship-date
 
- v-label    = string(v-q-or-v,"    Qty/  Value")
+ v-label    = STRING(v-q-or-v,"    Qty/  Value")
  v-class    = list_class
  list_class = ""
  sort-opt    = SUBSTR(rd_sort,1,1) 
@@ -2469,8 +2469,8 @@ DO li = 6 TO 10:
   v-label[li] = FILL(" ",8 - LENGTH(TRIM(v-label[li]))) + TRIM(v-label[li]).
 END.
 
-if v-curr then
-  assign
+IF v-curr THEN
+  ASSIGN
    v-label[01] = v-label[01]
    v-label[02] = v-label[02]
    v-label[03] = v-label[03]
@@ -2482,8 +2482,8 @@ if v-curr then
    v-label[14] = "--------"
    v-label[15] = "--------".
 
-else
-  assign
+ELSE
+  ASSIGN
    v-label[01] = "        "
    v-label[02] = "        "
    v-label[03] = "        "
@@ -2495,15 +2495,15 @@ else
    v-label[14] = "--------"
    v-label[15] = "--------".
 
-IF v-cost THEN do:
-form header
+IF v-cost THEN DO:
+FORM HEADER
      "As of:"
      vdat
-     skip(1)
+     SKIP(1)
 
     /* "Salesperson:"
      tt-sman 
-     lv-sname */                           skip
+     lv-sname */                           SKIP
 
      "Sls"
      "            "
@@ -2516,7 +2516,7 @@ form header
      v-label[05]
      v-label1[1]
      v-label1[2]
-     v-label1[7]                        skip
+     v-label1[7]                        SKIP
 
      "Rep"
      "Customer    "
@@ -2531,7 +2531,7 @@ form header
      v-label1[4]
      v-label3[1]  
      v-label1[10]
-     v-label1[12]                       skip
+     v-label1[12]                       SKIP
 
      "---"
      "------------"
@@ -2546,21 +2546,21 @@ form header
      v-label1[6]
      v-label3[2]
      v-label1[11]
-     v-label1[13]                       skip
+     v-label1[13]                       SKIP
 
-     skip(1)
+     SKIP(1)
 
-    with frame r-top WIDTH 200.
+    WITH FRAME r-top WIDTH 200.
 END.
 ELSE DO:                                                /*Task# 02041406*/
-    form header
+    FORM HEADER
      "As of:"
      vdat
-     skip(1)
+     SKIP(1)
 
     /* "Salesperson:"
      tt-sman 
-     lv-sname */                           skip
+     lv-sname */                           SKIP
 
      "Sls"
      "            "
@@ -2573,7 +2573,7 @@ ELSE DO:                                                /*Task# 02041406*/
      v-label[05]
      v-label1[1]
      v-label1[2]
-     v-label1[7]                        skip
+     v-label1[7]                        SKIP
 
      "Rep"
      "Customer    "
@@ -2588,7 +2588,7 @@ ELSE DO:                                                /*Task# 02041406*/
      v-label3[1] 
      v-label1[8]  
      v-label1[10]
-     v-label1[12]                       skip
+     v-label1[12]                       SKIP
 
      "---"
      "------------"
@@ -2603,11 +2603,11 @@ ELSE DO:                                                /*Task# 02041406*/
      v-label3[2]
      v-label1[9]
      v-label1[11]
-     v-label1[13]                       skip
+     v-label1[13]                       SKIP
 
-     skip(1)
+     SKIP(1)
 
-    with frame r-top2 WIDTH 200.
+    WITH FRAME r-top2 WIDTH 200.
 END.
 
 
@@ -2615,7 +2615,7 @@ END.
 
 {sys/inc/outprint.i value(lines-per-page)}
 
-if td-show-parm then run show-param.
+IF td-show-parm THEN RUN show-param.
 
 DO WITH FRAME {&FRAME-NAME}:
   list_class:SCREEN-VALUE = v-class.
@@ -2626,7 +2626,7 @@ READKEY PAUSE 0.
 
 SESSION:SET-WAIT-STATE ("general").
 
-IF v-cost THEN do:
+IF v-cost THEN DO:
     IF tb_excel THEN DO:
         OUTPUT STREAM excel TO VALUE(fi_file).
         excelheader = "Salesperson,Customer,Item #,Description," + TRIM(v-label[1]) + " "
@@ -2665,7 +2665,7 @@ END.
     END.
 END.*/
 
-for each tt-file WHERE
+FOR EACH tt-file WHERE
     (tt-qohi[1] NE 0 OR
     tt-qohi[2] NE 0 OR
     tt-qohi[3] NE 0 OR
@@ -2676,18 +2676,18 @@ for each tt-file WHERE
     AND NOT (NOT v-curr AND (tt-qohi[1] + tt-qohi[2] + tt-qohi[3]) GT 0)
     AND tt-file.tt-sman GE fslm
     AND tt-file.tt-sman LE tslm ,    
-    first itemfg
-    where itemfg.company eq cocode
-      and itemfg.i-no    eq tt-i-no
+    FIRST itemfg
+    WHERE itemfg.company EQ cocode
+      AND itemfg.i-no    EQ tt-i-no
     NO-LOCK    
-    break by tt-sman
-          by tt-cust-no
+    BREAK BY tt-sman
+          BY tt-cust-no
           /*by tt-i-no*/
-          by (IF sort-opt EQ "I" THEN itemfg.i-no ELSE  itemfg.part-no ):
+          BY (IF sort-opt EQ "I" THEN itemfg.i-no ELSE  itemfg.part-no ):
 
-  FIND first cust NO-LOCK
-       where cust.company eq cocode
-         and cust.cust-no eq tt-cust-no
+  FIND FIRST cust NO-LOCK
+       WHERE cust.company EQ cocode
+         AND cust.cust-no EQ tt-cust-no
     NO-ERROR.
 
   FIND FIRST sman NO-LOCK
@@ -2698,9 +2698,9 @@ for each tt-file WHERE
   lv-sname = IF AVAIL sman AND sman.sname NE "" THEN sman.sname ELSE
              IF AVAIL cust AND cust.sman EQ "" THEN "No Sales Rep Name" ELSE "Not on File".
 
-  if first-of(tt-sman)                  or
-     (first-of(tt-cust-no) and v-break) then do:
-    IF FIRST(tt-sman) THEN do: 
+  IF FIRST-OF(tt-sman)                  OR
+     (FIRST-OF(tt-cust-no) AND v-break) THEN DO:
+    IF FIRST(tt-sman) THEN DO: 
         IF v-cost THEN DISPLAY WITH FRAME r-top.
         ELSE DISPLAY WITH FRAME r-top2.
     END.
@@ -2744,55 +2744,55 @@ for each tt-file WHERE
 
     RUN SET_column_values.
 {custom/statusMsg.i "'Printing Report: Item ' + itemfg.i-no"}
-IF v-cost THEN do:
-  display /* 11091201 - sales man on each line */
+IF v-cost THEN DO:
+  DISPLAY /* 11091201 - sales man on each line */
           tt-sman  FORMAT "x(3)"
-          v-cus                   format "x(12)"
-          itemfg.i-no             format "x(15)"
-          itemfg.i-name           format "x(30)"
-          v-qohi[1] when v-curr   format "->>>>>>9"
-          v-qohi[2] when v-curr   format "->>>>>>9"
-          v-qohi[3] when v-curr   format "->>>>>>9"
-          v-qohi[4]               format "->>>>>>9"
-          v-qohi[5]               format "->>>>>>9"
-          v-cst[1]  when v-cost   format "->,>>>,>>9.99"
-              v-val[1] when not v-cost @ v-cst[1]
+          v-cus                   FORMAT "x(12)"
+          itemfg.i-no             FORMAT "x(15)"
+          itemfg.i-name           FORMAT "x(30)"
+          v-qohi[1] WHEN v-curr   FORMAT "->>>>>>9"
+          v-qohi[2] WHEN v-curr   FORMAT "->>>>>>9"
+          v-qohi[3] WHEN v-curr   FORMAT "->>>>>>9"
+          v-qohi[4]               FORMAT "->>>>>>9"
+          v-qohi[5]               FORMAT "->>>>>>9"
+          v-cst[1]  WHEN v-cost   FORMAT "->,>>>,>>9.99"
+              v-val[1] WHEN NOT v-cost @ v-cst[1]
           lv-last-fld[1] FORMAT "x(4)" 
-              v-val[1] when v-cost     @ lv-last-fld[1]
+              v-val[1] WHEN v-cost     @ lv-last-fld[1]
           SPACE(1)
           /*lv-comm-tail WHEN rd_show2 BEGINS "COM"*/
           lv-last-fld[2] FORMAT "x(4)"                     /*Task# 02041406*/
-          v-custpart[1] WHEN  v-cpart format "x(13)" 
+          v-custpart[1] WHEN  v-cpart FORMAT "x(13)" 
           v-shipdt[1]  WHEN NOT v-cpart @ v-custpart[1]
           v-shipdt[2] WHEN v-cost
           /* 11091201 - customer name on 2nd line */
           SKIP          
-      with frame detail no-box no-labels no-attr-space stream-io width 200 down.
-  down with frame detail.
+      WITH FRAME detail NO-BOX NO-LABELS NO-ATTR-SPACE STREAM-IO WIDTH 200 DOWN.
+  DOWN WITH FRAME detail.
 END.
 ELSE DO:
-    display /* 11091201 - sales man on each line */
+    DISPLAY /* 11091201 - sales man on each line */
           tt-sman  FORMAT "x(3)"
-          v-cus                   format "x(12)"
-          itemfg.i-no             format "x(15)"
-          itemfg.i-name           format "x(30)"
-          v-qohi[1] when v-curr   format "->>>>>>9"
-          v-qohi[2] when v-curr   format "->>>>>>9"
-          v-qohi[3] when v-curr   format "->>>>>>9"
-          v-qohi[4]               format "->>>>>>9"
-          v-qohi[5]               format "->>>>>>9"
-          v-cst[1]  when v-cost   format "->,>>>,>>9.99"
-              v-val[1] when not v-cost @ v-cst[1] 
+          v-cus                   FORMAT "x(12)"
+          itemfg.i-no             FORMAT "x(15)"
+          itemfg.i-name           FORMAT "x(30)"
+          v-qohi[1] WHEN v-curr   FORMAT "->>>>>>9"
+          v-qohi[2] WHEN v-curr   FORMAT "->>>>>>9"
+          v-qohi[3] WHEN v-curr   FORMAT "->>>>>>9"
+          v-qohi[4]               FORMAT "->>>>>>9"
+          v-qohi[5]               FORMAT "->>>>>>9"
+          v-cst[1]  WHEN v-cost   FORMAT "->,>>>,>>9.99"
+              v-val[1] WHEN NOT v-cost @ v-cst[1] 
           lv-last-fld[1] FORMAT "x(4)" 
           SPACE(1)
           lv-last-fld[2] FORMAT "x(13)"                 /*Task# 02041406*/
-          v-custpart[1] WHEN  v-cpart format "x(13)" 
+          v-custpart[1] WHEN  v-cpart FORMAT "x(13)" 
           v-shipdt[1]  WHEN NOT v-cpart @ v-custpart[1]
           v-shipdt[2] WHEN v-cost
           /* 11091201 - customer name on 2nd line */
           SKIP          
-      with frame detail2 no-box no-labels no-attr-space stream-io width 200 down.
-  down with frame detail2.
+      WITH FRAME detail2 NO-BOX NO-LABELS NO-ATTR-SPACE STREAM-IO WIDTH 200 DOWN.
+  DOWN WITH FRAME detail2.
 END.
 
 
@@ -2831,21 +2831,21 @@ END.
    v-qohi           = 0      
    lv-last-fld      = "".
 
-  if last-of(tt-cust-no) then do:
-    if v-sub-t then do:
-      display "            Customer Subtotal:"  @ itemfg.i-name
-              v-qohc[1] when v-curr             @ v-qohi[1]
-              v-qohc[2] when v-curr             @ v-qohi[2]
-              v-qohc[3] when v-curr             @ v-qohi[3]
+  IF LAST-OF(tt-cust-no) THEN DO:
+    IF v-sub-t THEN DO:
+      DISPLAY "            Customer Subtotal:"  @ itemfg.i-name
+              v-qohc[1] WHEN v-curr             @ v-qohi[1]
+              v-qohc[2] WHEN v-curr             @ v-qohi[2]
+              v-qohc[3] WHEN v-curr             @ v-qohi[3]
               v-qohc[4]                         @ v-qohi[4]
               v-qohc[5]                         @ v-qohi[5]
-              v-cst[2]  when v-cost             @ v-cst[1]
-                  v-val[2] when not v-cost      @ v-cst[1]
+              v-cst[2]  WHEN v-cost             @ v-cst[1]
+                  v-val[2] WHEN NOT v-cost      @ v-cst[1]
               lv-last-fld[1]
-                  v-val[2] when v-cost          @ lv-last-fld[1]
+                  v-val[2] WHEN v-cost          @ lv-last-fld[1]
 
-          with frame detail.
-      down with frame detail.
+          WITH FRAME detail.
+      DOWN WITH FRAME detail.
 
       IF tb_excel THEN 
          PUT STREAM excel UNFORMATTED
@@ -2863,9 +2863,9 @@ END.
                   ELSE STRING(v-val[2],"->,>>>,>>9.99"))               '",'
              '"' (IF v-cost THEN STRING(v-val[2],"->,>>>,>>9.99") ELSE lv-last-fld[1]) '",'
              SKIP(1).
-    end.
+    END.
 
-    assign
+    ASSIGN
      v-cst[3]  = v-cst[3]  + v-cst[2]
      v-val[3]  = v-val[3]  + v-val[2]
      v-qohs[1] = v-qohs[1] + v-qohc[1]
@@ -2877,24 +2877,24 @@ END.
      v-cst[2] = 0
      v-val[2] = 0
      v-qohc   = 0.
-  end.
+  END.
 
-  if last-of(tt-sman) then do:
+  IF LAST-OF(tt-sman) THEN DO:
     IF  v-print-sls-tots THEN DO:
     /* 11091201 - option to supress sales rep totals */
-    display "         Salesperson Subtotal:"    @ itemfg.i-name
-            v-qohs[1] when v-sub-t and v-curr   @ v-qohi[1]
-            v-qohs[2] when v-sub-t and v-curr   @ v-qohi[2]
-            v-qohs[3] when v-sub-t and v-curr   @ v-qohi[3]
-            v-qohs[4] when v-sub-t              @ v-qohi[4]
-            v-qohs[5] when v-sub-t              @ v-qohi[5]
-            v-cst[3]  when v-cost               @ v-cst[1]
-            v-val[3] when not v-cost        @ v-cst[1]
+    DISPLAY "         Salesperson Subtotal:"    @ itemfg.i-name
+            v-qohs[1] WHEN v-sub-t AND v-curr   @ v-qohi[1]
+            v-qohs[2] WHEN v-sub-t AND v-curr   @ v-qohi[2]
+            v-qohs[3] WHEN v-sub-t AND v-curr   @ v-qohi[3]
+            v-qohs[4] WHEN v-sub-t              @ v-qohi[4]
+            v-qohs[5] WHEN v-sub-t              @ v-qohi[5]
+            v-cst[3]  WHEN v-cost               @ v-cst[1]
+            v-val[3] WHEN NOT v-cost        @ v-cst[1]
             lv-last-fld[1]
-            v-val[3] when v-cost            @ lv-last-fld[1]
+            v-val[3] WHEN v-cost            @ lv-last-fld[1]
 
-        with frame detail.
-    down with frame detail.
+        WITH FRAME detail.
+    DOWN WITH FRAME detail.
 
     IF tb_excel THEN 
        PUT STREAM excel UNFORMATTED
@@ -2914,7 +2914,7 @@ END.
            SKIP(1).
     END.
 
-    assign
+    ASSIGN
      v-cst[4]  = v-cst[4]  + v-cst[3]
      v-val[4]  = v-val[4]  + v-val[3]
      v-qohg[1] = v-qohg[1] + v-qohs[1]
@@ -2926,37 +2926,37 @@ END.
      v-cst[3] = 0
      v-val[3] = 0
      v-qohs   = 0.
-  end.
+  END.
              DEF VAR v-all-tot AS DEC.
   /* 11091201 */
-  if last(tt-sman) AND v-print-grand-tots then do:
-    display "                  Grand Total:"    @ itemfg.i-name
+  IF LAST(tt-sman) AND v-print-grand-tots THEN DO:
+    DISPLAY "                  Grand Total:"    @ itemfg.i-name
             v-qohg[1]  @ v-qohi[1]
             v-qohg[2]  @ v-qohi[2]
             v-qohg[3]  @ v-qohi[3]
             v-qohg[4]  @ v-qohi[4]
             v-qohg[5]  @ v-qohi[5]
-            v-cst[4]  when v-cost           @ v-cst[1]
-            v-val[4] when not v-cost        @ v-cst[1]
+            v-cst[4]  WHEN v-cost           @ v-cst[1]
+            v-val[4] WHEN NOT v-cost        @ v-cst[1]
             lv-last-fld[1]
-            v-val[4] when v-cost            @ lv-last-fld[1]
+            v-val[4] WHEN v-cost            @ lv-last-fld[1]
 
-        with frame detail.
-    down with frame detail.
+        WITH FRAME detail.
+    DOWN WITH FRAME detail.
 
     v-all-tot = v-qohg[1] + v-qohg[2] + v-qohg[3] + v-qohg[4] + v-qohg[5].
     IF v-all-tot EQ 0 THEN
         v-all-tot = 1.
      DISPLAY
      "             % of Grand Total:"    @ itemfg.i-name 
-            string(v-qohg[1] / v-all-tot * 100, "->>9.99%")  @ v-qohi[1] 
-            string(v-qohg[2] / v-all-tot * 100, "->>9.99%")  @ v-qohi[2]
-            string(v-qohg[3] / v-all-tot * 100, "->>9.99%")  @ v-qohi[3]
-            string(v-qohg[4] / v-all-tot * 100, "->>9.99%")  @ v-qohi[4]
-            string(v-qohg[5] / v-all-tot * 100, "->>9.99%")  @ v-qohi[5]
+            STRING(v-qohg[1] / v-all-tot * 100, "->>9.99%")  @ v-qohi[1] 
+            STRING(v-qohg[2] / v-all-tot * 100, "->>9.99%")  @ v-qohi[2]
+            STRING(v-qohg[3] / v-all-tot * 100, "->>9.99%")  @ v-qohi[3]
+            STRING(v-qohg[4] / v-all-tot * 100, "->>9.99%")  @ v-qohi[4]
+            STRING(v-qohg[5] / v-all-tot * 100, "->>9.99%")  @ v-qohi[5]
 
-        with frame detail.
-    down with frame detail.
+        WITH FRAME detail.
+    DOWN WITH FRAME detail.
 
     IF tb_excel THEN 
        PUT STREAM excel UNFORMATTED
@@ -2974,10 +2974,10 @@ END.
                 ELSE STRING(v-val[4],"->,>>>,>>9.99"))               '",'
            '"' (IF v-cost THEN STRING(v-val[4],"->,>>>,>>9.99") ELSE lv-last-fld[1]) '",'
            SKIP(1).
-  end.
+  END.
 
-  delete tt-file.
-end. /* each tt-file */
+  DELETE tt-file.
+END. /* each tt-file */
 
 /* If utilizing a special user id, don't save parameters to that record */
 IF v-custom-user EQ USERID("NOSWEAT") THEN DO:
@@ -3131,7 +3131,7 @@ PROCEDURE produce-report :
 
           FOR EACH itemfg WHERE itemfg.company = cocode 
               AND (itemfg.spare-char-3 GT "" OR itemfg.cust-no GT "" )
-
+              AND (itemfg.stat EQ "A" OR lvlIncludeOld)
               NO-LOCK: 
 
               IF itemfg.cust-no GT "" THEN 
@@ -3183,8 +3183,8 @@ PROCEDURE produce-report :
         WHERE cust.company        EQ cocode
         AND cust.cust-no          GE fcus
         AND cust.cust-no          LE tcus
-        AND (if lselected then can-find(first ttCustList where ttCustList.cust-no eq cust.cust-no
-        AND ttCustList.log-fld no-lock) else true),
+        AND (IF lselected THEN CAN-FIND(FIRST ttCustList WHERE ttCustList.cust-no EQ cust.cust-no
+        AND ttCustList.log-fld NO-LOCK) ELSE TRUE),
 /*        AND cust.sman             GE fslm */
 /*        AND cust.sman             LE tslm,*/
 
@@ -3295,20 +3295,20 @@ PROCEDURE produce-report :
   DEF VAR v-max-days AS INT NO-UNDO.
   v-max-days = 0.
   /* Per IR2 code, now ready to report based on tt-fg-bin and tt-itemfg */
-  for each tt-itemfg use-index cust-no no-lock,
-      first itemfg where rowid(itemfg) eq tt-itemfg.row-id no-lock,
-         each tt-fg-bin
-        where tt-fg-bin.company eq itemfg.company
-          and tt-fg-bin.i-no    eq itemfg.i-no
-          and tt-fg-bin.job-no  eq tt-itemfg.job-no
-          and tt-fg-bin.job-no2 eq tt-itemfg.job-no2
-          and tt-fg-bin.loc     eq tt-itemfg.loc
-          and tt-fg-bin.loc-bin eq tt-itemfg.loc-bin
-          and tt-fg-bin.tag     eq tt-itemfg.tag
-          and tt-fg-bin.cust-no eq tt-itemfg.bin-cust-no
-        use-index co-ino NO-LOCK
-      break by tt-itemfg.cust-no
-            by tt-itemfg.i-no
+  FOR EACH tt-itemfg USE-INDEX cust-no NO-LOCK,
+      FIRST itemfg WHERE ROWID(itemfg) EQ tt-itemfg.row-id NO-LOCK,
+         EACH tt-fg-bin
+        WHERE tt-fg-bin.company EQ itemfg.company
+          AND tt-fg-bin.i-no    EQ itemfg.i-no
+          AND tt-fg-bin.job-no  EQ tt-itemfg.job-no
+          AND tt-fg-bin.job-no2 EQ tt-itemfg.job-no2
+          AND tt-fg-bin.loc     EQ tt-itemfg.loc
+          AND tt-fg-bin.loc-bin EQ tt-itemfg.loc-bin
+          AND tt-fg-bin.tag     EQ tt-itemfg.tag
+          AND tt-fg-bin.cust-no EQ tt-itemfg.bin-cust-no
+        USE-INDEX co-ino NO-LOCK
+      BREAK BY tt-itemfg.cust-no
+            BY tt-itemfg.i-no
             BY tt-itemfg.loc
             BY tt-itemfg.loc-bin
             BY tt-itemfg.job-no
@@ -3330,7 +3330,7 @@ PROCEDURE produce-report :
                      INPUT "",
                      INPUT itemfg.i-no,
                      OUTPUT cNewRep).        
-        IF AVAIL cust AND cust.ACTIVE NE "X" AND cNewRep EQ "" THEN do:
+        IF AVAIL cust AND cust.ACTIVE NE "X" AND cNewRep EQ "" THEN DO:
 
           FOR EACH cust-part WHERE cust-part.company = itemfg.company   
               AND cust-part.i-no = itemfg.i-no
@@ -3340,7 +3340,7 @@ PROCEDURE produce-report :
               AND reftable.company = cust-part.company  
               AND reftable.loc = cust-part.i-no   AND reftable.code = cust-part.cust-no NO-LOCK:
 
-              IF cust-part.spare-char-1 NE "" THEN do:
+              IF cust-part.spare-char-1 NE "" THEN DO:
                   FIND FIRST sman WHERE sman.company = itemfg.company
                       AND sman.sman = cust-part.spare-char-1 NO-LOCK NO-ERROR.
                   IF AVAIL sman THEN v-sales-rep = sman.sman.
@@ -3423,7 +3423,7 @@ PROCEDURE produce-report :
 
 
         END.
-        IF avail oe-ordl THEN DO:
+        IF AVAIL oe-ordl THEN DO:
 
           ASSIGN v-u-val  = oe-ordl.t-price / oe-ordl.qty
                  lv-case-count = oe-ordl.cas-cnt.
@@ -3644,7 +3644,7 @@ FOR EACH tt-items.
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
-end procedure.
+END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3735,12 +3735,12 @@ PROCEDURE set_column_values :
   Notes:       
 ------------------------------------------------------------------------------*/
     IF NOT v-cost THEN DO:
-        IF v-cpart AND v-sdate  THEN do: 
+        IF v-cpart AND v-sdate  THEN DO: 
             ASSIGN 
                 lv-last-fld[2]  = itemfg.part-no 
                 v-custpart[1]   = v-shipdt[1] .
          END.
-         ELSE IF v-cpart AND NOT v-sdate  THEN do:
+         ELSE IF v-cpart AND NOT v-sdate  THEN DO:
              ASSIGN
                  lv-last-fld[2]  = itemfg.part-no
                  v-custpart[1] = "" .
@@ -3751,7 +3751,7 @@ PROCEDURE set_column_values :
                  v-shipdt[1]     = ""
                  v-shipdt[2]     = ""  .
          END.
-         ELSE IF NOT v-sdate and NOT v-cpart then DO:
+         ELSE IF NOT v-sdate AND NOT v-cpart THEN DO:
              ASSIGN
                  lv-last-fld[2] = "".
          END.
@@ -3766,7 +3766,7 @@ PROCEDURE set_column_values :
             ASSIGN
                 v-custpart = itemfg.part-no .
         END.
-        ELSE IF NOT v-cpart AND v-sdate THEN do:
+        ELSE IF NOT v-cpart AND v-sdate THEN DO:
             ASSIGN
                 v-custpart  = v-shipdt[1]  
                 v-shipdt[2] = "".
@@ -3785,61 +3785,61 @@ PROCEDURE show-param :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  def var lv-frame-hdl as handle no-undo.
-  def var lv-group-hdl as handle no-undo.
-  def var lv-field-hdl as handle no-undo.
-  def var lv-field2-hdl as handle no-undo.
-  def var parm-fld-list as cha no-undo.
-  def var parm-lbl-list as cha no-undo.
-  def var i as int no-undo.
-  def var lv-label as cha NO-UNDO.
+  DEF VAR lv-frame-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
+  DEF VAR lv-field2-hdl AS HANDLE NO-UNDO.
+  DEF VAR parm-fld-list AS cha NO-UNDO.
+  DEF VAR parm-lbl-list AS cha NO-UNDO.
+  DEF VAR i AS INT NO-UNDO.
+  DEF VAR lv-label AS cha NO-UNDO.
 
   ASSIGN
-  lv-frame-hdl = frame {&frame-name}:HANDLE
-  lv-group-hdl = lv-frame-hdl:first-child
-  lv-field-hdl = lv-group-hdl:first-child.
+  lv-frame-hdl = FRAME {&frame-name}:HANDLE
+  lv-group-hdl = lv-frame-hdl:FIRST-CHILD
+  lv-field-hdl = lv-group-hdl:FIRST-CHILD.
 
-  do while true:
-     if not valid-handle(lv-field-hdl) then leave.
-     if lookup(lv-field-hdl:private-data,"parm") > 0
-        then do:
-           if lv-field-hdl:label <> ? then 
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     parm-lbl-list = parm-lbl-list + lv-field-hdl:label + ",".
-           else do:  /* radio set */
-              assign parm-fld-list = parm-fld-list + lv-field-hdl:screen-value + ","
-                     lv-field2-hdl = lv-group-hdl:first-child.
-              repeat:
-                  if not valid-handle(lv-field2-hdl) then leave. 
-                  if lv-field2-hdl:private-data = lv-field-hdl:name then do:
-                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:screen-value + ",".
-                  end.
-                  lv-field2-hdl = lv-field2-hdl:next-sibling.                 
-              end.       
-           end.                 
-        end.            
-     lv-field-hdl = lv-field-hdl:next-sibling.   
-  end.
+  DO WHILE TRUE:
+     IF NOT VALID-HANDLE(lv-field-hdl) THEN LEAVE.
+     IF LOOKUP(lv-field-hdl:PRIVATE-DATA,"parm") > 0
+        THEN DO:
+           IF lv-field-hdl:LABEL <> ? THEN 
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     parm-lbl-list = parm-lbl-list + lv-field-hdl:LABEL + ",".
+           ELSE DO:  /* radio set */
+              ASSIGN parm-fld-list = parm-fld-list + lv-field-hdl:SCREEN-VALUE + ","
+                     lv-field2-hdl = lv-group-hdl:FIRST-CHILD.
+              REPEAT:
+                  IF NOT VALID-HANDLE(lv-field2-hdl) THEN LEAVE. 
+                  IF lv-field2-hdl:PRIVATE-DATA = lv-field-hdl:NAME THEN DO:
+                     parm-lbl-list = parm-lbl-list + lv-field2-hdl:SCREEN-VALUE + ",".
+                  END.
+                  lv-field2-hdl = lv-field2-hdl:NEXT-SIBLING.                 
+              END.       
+           END.                 
+        END.            
+     lv-field-hdl = lv-field-hdl:NEXT-SIBLING.   
+  END.
 
-  put space(28)
+  PUT SPACE(28)
       "< Selection Parameters >"
-      skip(1).
+      SKIP(1).
 
-  do i = 1 to num-entries(parm-fld-list,","):
-    if entry(i,parm-fld-list) ne "" or
-       entry(i,parm-lbl-list) ne "" then do:
+  DO i = 1 TO NUM-ENTRIES(parm-fld-list,","):
+    IF ENTRY(i,parm-fld-list) NE "" OR
+       entry(i,parm-lbl-list) NE "" THEN DO:
 
-      lv-label = fill(" ",34 - length(trim(entry(i,parm-lbl-list)))) +
-                 trim(entry(i,parm-lbl-list)) + ":".
+      lv-label = FILL(" ",34 - length(TRIM(ENTRY(i,parm-lbl-list)))) +
+                 trim(ENTRY(i,parm-lbl-list)) + ":".
 
-      put lv-label format "x(35)" at 5
-          space(1)
-          trim(entry(i,parm-fld-list)) format "x(40)"
-          skip.              
-    end.
-  end.
+      PUT lv-label FORMAT "x(35)" AT 5
+          SPACE(1)
+          TRIM(ENTRY(i,parm-fld-list)) FORMAT "x(40)"
+          SKIP.              
+    END.
+  END.
 
-  put fill("-",80) format "x(80)" skip.
+  PUT FILL("-",80) FORMAT "x(80)" SKIP.
 
 END PROCEDURE.
 
