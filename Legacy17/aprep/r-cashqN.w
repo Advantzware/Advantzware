@@ -1565,7 +1565,7 @@ SESSION:SET-WAIT-STATE ("general").
 
                             WHEN "terms" THEN cVarValue = IF AVAIL vend THEN vend.terms ELSE "" . 
                             WHEN "dy-old" THEN cVarValue =  STRING(TODAY - ap-inv.inv-date ,">>>>>>>9") .
-                            WHEN "cc-ach" THEN cVarValue = IF AVAIL vend AND vend.spare-int-1 = 1 THEN "Yes" ELSE "No". 
+                            WHEN "cc-ach" THEN cVarValue = IF AVAIL vend AND vend.payment-type EQ "ACH" THEN "Yes" ELSE "No".  
 
                        END CASE.
                        cExcelVarValue = cVarValue.  

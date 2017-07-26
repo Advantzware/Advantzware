@@ -976,13 +976,8 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
         WHEN "tb-cc"  THEN DO:
             FIND FIRST vend WHERE vend.company EQ ipb-itemfg.company
                 AND vend.vend-no EQ ipb-itemfg.vend-no NO-LOCK NO-ERROR.
-            IF AVAIL vend THEN do:
-                IF vend.spare-int-1 EQ 1 THEN
-                    lc-return = "Yes".
-                ELSE
-                    lc-return = "No".
-            END.
-            
+            IF AVAIL vend THEN
+            lc-return = IF vend.payment-type EQ "ACH" THEN "Yes" ELSE "No".
         END.
         WHEN "terms-dscr"  THEN DO:
             FIND terms WHERE terms.company EQ ipb-itemfg.company

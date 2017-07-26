@@ -1757,7 +1757,7 @@ FOR EACH ap-chk
                    vend.vend-no eq ap-chk.vend-no
     NO-LOCK:
     lCheckSelected = YES.
-    IF vend.spare-int-1 NE 1 AND vend.spare-int-2 NE 1 THEN DO: 
+    IF vend.payment-type NE "ACH" AND vend.payment-type NE "Bill Pay" THEN DO: 
         lNonACHVendorFound = YES.
         LEAVE.
     END.
