@@ -2389,6 +2389,14 @@ PROCEDURE auto-create-item :
       IF v-est-fg1 EQ "Hughes" THEN DO:
           RUN fg/hughesfg.p (ROWID(xeb), OUTPUT lv-i-no).
       END.
+      ELSE DO:
+          RUN fg/autofg.p ( ROWID(xeb),
+              v-est-fg1, 
+              xeb.procat,
+              IF xest.est-type LE 4 THEN "F" ELSE "C",
+              xeb.cust-no,
+              OUTPUT lv-i-no).
+      END.
   END.
 
   FIND FIRST tt-stock-no WHERE tt-stock-no.eb-row-id = ROWID(xeb)
@@ -7139,11 +7147,10 @@ PROCEDURE set-auto-add-item :
                         AND xest.est-no  = xeb.est-no
                       NO-LOCK NO-ERROR.
                                                 
-      lv-num-created = lv-num-created + 1.      
+      lv-num-created = lv-num-created + 1.   
       RUN auto-create-item (INPUT lv-i-no).      
       FIND FIRST tt-stock-no WHERE tt-stock-no.eb-row-id = ROWID(xeb)
                              NO-ERROR.      
-
       IF AVAIL tt-stock-no THEN DO:
         xeb.stock-no = tt-stock-no.stock-no.                
         RUN fg/ce-addfg.p (xeb.stock-no).
