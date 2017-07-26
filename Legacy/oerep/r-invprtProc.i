@@ -939,8 +939,6 @@ PROCEDURE output-to-mail :
                             LEAVE.
                         END. /* Each bf-tt-list */
 
-=======
- 
                     END.
                 END.
 
