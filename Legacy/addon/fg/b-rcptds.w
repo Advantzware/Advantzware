@@ -2589,7 +2589,10 @@ PROCEDURE post-finish-goods :
   
    DISABLE TRIGGERS FOR LOAD OF itemfg.
    DISABLE TRIGGERS FOR LOAD OF b-oe-ordl.
-  
+   
+   FOR EACH w-fg-rctd:
+       DELETE w-fg-rctd.
+   END.
   
    /* Create a single workfile record for the finished good being posted */
    CREATE w-fg-rctd.
