@@ -28,7 +28,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
             + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
             + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,PrePressHotFolderOut,"
-            + "METRIC,CEImportForm,CEImportFormFolder,CalcBtnImage,CalcBtnLink"  .
+            + "METRIC,CEImportForm,CEImportFormFolder,BusinessFromLogo,CalcBtnImage,CalcBtnLink"  .
 
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -334,6 +334,11 @@ CASE ip-nk1-value:
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Default Folder for Import Estimate Form",
         INPUT "C:\temp\" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+    WHEN "BusinessFromLogo" THEN 
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Define the path to the logo to be used on the standard Business forms",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).
     WHEN "CalcBtnImage" THEN 
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
