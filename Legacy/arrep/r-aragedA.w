@@ -1459,8 +1459,9 @@ PROCEDURE run-report :
 /* --------------------------------------------------- ar/ar-aging.p  9/94 RM */
 /* A/R Aged Receivables Report Program - A/R Module                           */
 /* -------------------------------------------------------------------------- */
-
-{sys/form/r-top3w.f}
+DEF  VAR  str-tit4 AS cha FORM "x(300)" NO-UNDO.
+DEF  VAR str-tit5 AS cha FORM "x(300)" NO-UNDO.
+{sys/form/r-top5L3.f}
 DEF VAR li AS INT NO-UNDO.
 DEF VAR v-hdr AS CHAR INIT "Customer,Name,Contact,SalesRep,Terms,Address1,Address2,City,State,Zip,Credit Limit,Phone,Fax,Check/Memo,DaysOld,Type,Invoice#,InvoiceDate,InvoiceAmt,Current,ADTP,TD," NO-UNDO.  /*Task# 11151304*/
 DEF VAR v-hdr2 AS CHAR NO-UNDO.
@@ -1517,6 +1518,8 @@ ASSIGN
 
  str-tit3 = "Company From: " + STRING(begin_comp) + " To: " + STRING(end_comp) +  "    As of Date: " + STRING(v-date)
  {sys/inc/ctrtext.i str-tit3 132}.
+ str-tit4 = "Shorted By: " + STRING(rd_sort) + "     "   +  "Aged By : " + STRING(rd_sort2) .
+ {sys/inc/ctrtext.i str-tit4 132}.
 
 SESSION:SET-WAIT-STATE ("general").
 
