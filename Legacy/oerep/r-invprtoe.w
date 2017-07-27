@@ -881,6 +881,8 @@ DO:
             init-dir                  ,
             cActualPdf                ,
             vcDefaultForm             ,
+            v-prgmname                ,
+            ipcInvoiceType            ,
             THIS-PROCEDURE:HANDLE).
         
         RUN assignSelections
@@ -1305,10 +1307,20 @@ DO:
   ELSE DO:
    RUN oerep/r-invprtARSuper.p PERSISTENT SET hSuperProc.
    ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Inv Date:"
-          fiEndDateLabel:SCREEN-VALUE = "Ending Inv Date:"
-          tbPostedAr:HIDDEN = NO
-          tbPostedAR:SENSITIVE = YES
-          .
+          fiEndDateLabel:SCREEN-VALUE = "Ending Inv Date:".
+   /* Posted AR not needed from A-U-3 */
+   IF ipcInvoiceType eq "ar-inv"  THEN
+     ASSIGN
+            tbPostedAr:HIDDEN = YES
+            tbPostedAR:SENSITIVE = NO
+            .
+   ELSE DO:
+        /* using inv-head and tb_posted is yes */
+        ASSIGN
+            tbPostedAr:HIDDEN = NO 
+            tbPostedAR:SENSITIVE = YES
+            .
+   END.
 
   END.
 
@@ -1488,8 +1500,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ELSE
       ASSIGN tb_posted:HIDDEN = NO
              tb_posted:SENSITIVE = YES
-             tbPostedAr:HIDDEN = NO
-             tbPostedAR:SENSITIVE = YES
+             tbPostedAr:HIDDEN = YES
+             tbPostedAR:SENSITIVE = NO
              .
     
     IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
@@ -1548,7 +1560,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         DISABLE lines-per-page.
 
         {custom/usrprint.i}
-
+        IF ipcInvoiceType EQ "inv-head" THEN
+          tb_posted:SCREEN-VALUE = "NO".
           IF tb_BatchMail:SCREEN-VALUE = "YES" THEN
   ASSIGN 
      tb_splitPDF:HIDDEN = NO
