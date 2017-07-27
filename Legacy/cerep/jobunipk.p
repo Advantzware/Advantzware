@@ -504,7 +504,7 @@ for each job-hdr NO-LOCK
                         AND eb.est-no      eq job-hdr.est-no
                         and eb.form-no     eq reftable-frm-int
                         AND eb.blank-no > 0 NO-LOCK NO-ERROR.
-        v-bar-no = IF AVAIL eb THEN eb.spc-no ELSE trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99").
+        v-bar-no = IF AVAIL eb AND eb.spc-no NE "" THEN eb.spc-no ELSE trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99").
 
 
        if not first(job-hdr.job-no) THEN 
