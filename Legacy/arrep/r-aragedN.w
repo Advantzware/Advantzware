@@ -85,6 +85,13 @@ DEF NEW SHARED VAR cTextListToDefault AS cha NO-UNDO.
 DEF NEW SHARED VAR cColumnInit AS LOG INIT YES NO-UNDO.
 DEF NEW SHARED VAR cSelectedList AS cha NO-UNDO.
 DEF NEW SHARED VAR str-line AS cha FORM "x(300)" NO-UNDO.
+DEFINE NEW SHARED VARIABLE  str-tit4 AS cha FORM "x(300)" NO-UNDO.
+DEFINE NEW SHARED VARIABLE str-tit5 AS cha FORM "x(300)" NO-UNDO.
+DEFINE NEW SHARED VARIABLE str-tit6 AS cha FORM "x(300)" NO-UNDO.
+DEFINE NEW SHARED VARIABLE str-tit7 AS cha FORM "x(300)" NO-UNDO.
+DEFINE NEW SHARED VARIABLE cstrtit AS CHARACTER NO-UNDO .
+DEFINE NEW SHARED VARIABLE cstrtit2 AS CHARACTER NO-UNDO .
+DEFINE NEW SHARED VARIABLE iline AS INTEGER NO-UNDO .
 
 ASSIGN cTextListToSelect = "CUSTOMER,CUST NAME,CONTACT,SALES REP,TERMS,ADDRESS1,ADDRESS2,CITY,STATE,ZIP,CREDIT LIM,PHONE,FAX,CHECK/MEMO," +
                            "DAYS OLD,TYPE,INV#,INV DATE,AMOUNT,CURRENT,ADTP,TD,"
@@ -581,13 +588,13 @@ ASSIGN
    NO-ENABLE                                                            */
 ASSIGN 
        lbl_sort:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "rd_sort".
+                "pram".
 
 /* SETTINGS FOR FILL-IN lbl_sort2 IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
        lbl_sort2:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "rd_sort2".
+                "pram".
 
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
@@ -1748,10 +1755,8 @@ DEF VAR cTmpField AS CHA NO-UNDO.
 DEF VAR cVarValue AS cha NO-UNDO.
 DEF VAR cExcelVarValue AS cha NO-UNDO.
 DEF VAR cFieldName AS cha NO-UNDO.
-DEF VAR str-tit4 AS cha FORM "x(300)" NO-UNDO.
-DEF VAR str-tit5 AS cha FORM "x(300)" NO-UNDO.
 
-{sys/form/r-top5DL2.f} 
+{sys/form/r-top5L3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
 
@@ -1810,7 +1815,11 @@ ASSIGN
 
  str-tit3 = "Company From: " + STRING(begin_comp) + " To: " + STRING(end_comp) +  "    As of Date: " + STRING(v-date) 
  {sys/inc/ctrtext.i str-tit3 132}.
-
+ str-tit4 = "Shorted By: " + STRING(rd_sort) + "     "   +  "Aged By : " + STRING(rd_sort2) .
+ {sys/inc/ctrtext.i str-tit4 132}.
+ cstrtit = str-tit2 .
+ cstrtit2 = str-tit3 .
+ iline    = lines-per-page .
 SESSION:SET-WAIT-STATE ("general").
 
 DO WITH FRAME {&frame-name}:
@@ -1854,38 +1863,38 @@ DEF VAR cslist AS cha NO-UNDO.
      END.
 
    IF LENGTH(ttRptSelected.TextList) = ttRptSelected.FieldLength 
-   THEN ASSIGN str-tit4 = str-tit4 + ttRptSelected.TextList + " "
-               str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+   THEN ASSIGN str-tit6 = str-tit6 + ttRptSelected.TextList + " "
+               str-tit7 = str-tit7 + FILL("-",ttRptSelected.FieldLength) + " "
                excelheader = excelHeader + ttRptSelected.TextList + "," .        
    ELSE DO: 
        IF ttRptSelected.TextList =  "PERIOD DAY1" THEN
-           ASSIGN str-tit4 = str-tit4 + 
+           ASSIGN str-tit6 = str-tit6 + 
            (IF ttRptSelected.HeadingFromLeft THEN
                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
                ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + "         " + string(v-days[1])) + " "
-           str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+           str-tit7 = str-tit7 + FILL("-",ttRptSelected.FieldLength) + " "
            excelheader = excelHeader + string(v-days[1]) + "," .       
 
          ELSE IF ttRptSelected.TextList =  "PERIOD DAY2" THEN
-             ASSIGN str-tit4 = str-tit4 + 
+             ASSIGN str-tit6 = str-tit6 + 
            (IF ttRptSelected.HeadingFromLeft THEN
                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
                ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + "         " + string(v-days[2])) + " "
-           str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+           str-tit7 = str-tit7 + FILL("-",ttRptSelected.FieldLength) + " "
            excelheader = excelHeader + string(v-days[2]) + "," .
         ELSE IF ttRptSelected.TextList =  "PERIOD DAY3" THEN
-            ASSIGN str-tit4 = str-tit4 + 
+            ASSIGN str-tit6 = str-tit6 + 
             (IF ttRptSelected.HeadingFromLeft THEN
                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
                ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + "         " + string(v-days[3])) + " "
-           str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+           str-tit7 = str-tit7 + FILL("-",ttRptSelected.FieldLength) + " "
            excelheader = excelHeader + string(v-days[3]) + "," .
         ELSE
-             ASSIGN str-tit4 = str-tit4 + 
+             ASSIGN str-tit6 = str-tit6 + 
            (IF ttRptSelected.HeadingFromLeft THEN
                ttRptSelected.TextList + FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList))
                ELSE FILL(" ",ttRptSelected.FieldLength - LENGTH(ttRptSelected.TextList)) + ttRptSelected.TextList) + " "
-           str-tit5 = str-tit5 + FILL("-",ttRptSelected.FieldLength) + " "
+           str-tit7 = str-tit7 + FILL("-",ttRptSelected.FieldLength) + " "
            excelheader = excelHeader + ttRptSelected.TextList + "," . 
 
 
@@ -1903,7 +1912,7 @@ DEF VAR cslist AS cha NO-UNDO.
 
 {sys/inc/outprint.i value(lines-per-page)}
 
-VIEW FRAME r-top.
+/*VIEW FRAME r-top.*/
 
 ASSIGN grand-t = 0
        grand-t-pri = 0
