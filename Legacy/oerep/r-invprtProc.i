@@ -51,7 +51,8 @@ DEFINE VARIABLE cAccumFileList             AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cAccumPdfFileList          AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cAccumInvNums              AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE lSupressEmail              AS LOGICAL     NO-UNDO.
-
+DEFINE VARIABLE iFileCount                 AS INTEGER     NO-UNDO.
+DEFINE VARIABLE cInvoiceType               AS CHARACTER   NO-UNDO.
 
 {methods/defines/hndldefs.i}
 /*{methods/prgsecur.i} */ 
@@ -303,6 +304,8 @@ PROCEDURE assignScreenValues:
     DEFINE INPUT PARAMETER ipinit-dir                   AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcActualPdf                 AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipVcDefaultForm                 AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipPrgmName                 AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipInvoiceType                 AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iphCallingProc               AS HANDLE NO-UNDO.
     
     ASSIGN 
@@ -323,7 +326,12 @@ PROCEDURE assignScreenValues:
     cActualPdf                =   ipcActualPdf
     hCallingProc              =   iphCallingProc    
     vcDefaultForm             =   ipVcDefaultForm
+    v-prgmname                =   ipPrgmname
+    cInvoiceType              =   ipInvoiceType
+    rCurrentInvoice           =   ? 
     .
+    EMPTY TEMP-TABLE tt-list.
+
 END PROCEDURE.
 
 PROCEDURE BatchMail :
@@ -656,7 +664,7 @@ PROCEDURE runReport5:
             buf-{&head}.cust-no GE begin_cust AND
             buf-{&head}.cust-no LE end_cust AND
             ("{&head}" NE "ar-inv" OR buf-{&head}.posted = tb_posted) AND 
-                  INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 AND
+                  (INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 OR "{&head}" EQ "ar-inv") AND
             ((NOT tb_reprint AND buf-{&head}.inv-no EQ 0) OR
             (tb_reprint AND buf-{&head}.inv-no NE 0 AND
             buf-{&head}.inv-no GE begin_inv AND
@@ -670,7 +678,7 @@ PROCEDURE runReport5:
             b-cust.company EQ cocode AND
             b-cust.cust-no EQ buf-{&head}.cust-no AND
             ((b-cust.inv-meth EQ ? AND buf-{&head}.{&multiinvoice}) OR
-            (b-cust.inv-meth NE ? AND NOT buf-{&head}.{&multiinvoice})) 
+            (b-cust.inv-meth NE ? AND NOT buf-{&head}.{&multiinvoice}) OR "{&head}" EQ "ar-inv") 
             NO-LOCK
             BREAK BY buf-{&head}.company
             BY buf-{&head}.cust-no
@@ -891,7 +899,7 @@ PROCEDURE output-to-mail :
 
                         FOR EACH bf-tt-list 
                            BREAK BY bf-tt-list.rec-row:
-
+                          
                           /* for lSplitPDF, call run-report for a speoific invoice */
                           IF tb_splitPDF THEN
                             rCurrentInvoice = bf-tt-list.rec-row.
@@ -1025,11 +1033,11 @@ PROCEDURE build-list1:
        AND {&head}.inv-no GE finv
        AND {&head}.inv-no LE tinv 
         AND (STRING({&head}.sold-no)         EQ ip-sold-no OR ip-sold-no = "")
-        AND INDEX(vcHoldStats, {&head}.stat) EQ 0
+        AND (INDEX(vcHoldStats, {&head}.stat) EQ 0 OR "{&head}" EQ "ar-inv")
         AND ("{&head}" NE "ar-inv" 
-               OR ({&head}.posted = tb_posted AND tbPostedAR EQ ?)
-               OR ({&head}.posted = tbPostedAR AND tbPostedAR NE ?)
-             )
+               OR ({&head}.posted = tb_posted AND cInvoiceType EQ "ar-inv")
+               OR ({&head}.posted = tbPostedAR AND cInvoiceType EQ "inv-head")
+             ) 
         AND (IF "{&head}" EQ "ar-inv" THEN {&head}.inv-date GE begin_date
         AND {&head}.inv-date LE end_date ELSE TRUE)        
         AND (((NOT v-reprint) AND {&head}.inv-no EQ 0) OR
@@ -1050,10 +1058,11 @@ PROCEDURE build-list1:
             AND buf-{&line}.bol-no LE tbol 
             NO-ERROR. 
 
-        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(buf-{&line})) OR {&head}.{&multiinvoice} ) THEN DO:
+        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(buf-{&line})) OR {&head}.{&multiinvoice} )  THEN DO:
+          IF "{&head}" EQ "inv-head" THEN
            NEXT.            
         END.
-
+        
         CREATE tt-list.
         tt-list.rec-row = ROWID({&head}).
 
@@ -1124,8 +1133,9 @@ PROCEDURE run-report :
             v-print-dept = LOGICAL(tb_print-dept-screen-value)
             v-depts      = fi_depts-screen-value.
 
-
-    {sys/inc/print1.i}
+    /* Make sure file is unique */
+    iFileCount = iFileCount + 1. 
+    {sys/inc/print1.i "+ string(iFileCount)"}
 
     {sys/inc/outprint.i value(lines-per-page)}
 
@@ -1147,7 +1157,6 @@ PROCEDURE run-report :
       ip-sys-ctrl-shipto 
 
       ).
-
 
     build-report:
     FOR EACH tt-list WHERE (IF rCurrentInvoice EQ ? THEN TRUE ELSE

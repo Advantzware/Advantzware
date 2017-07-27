@@ -11,7 +11,7 @@ DO:
    ELSE
       tmp-dir = "c:\tmp".
 END.
-assign list-name = tmp-dir + "\tmp" + string(time)
+assign list-name = tmp-dir + "\tmp" + string(time) {1}
        init-dir = tmp-dir.
 
 
