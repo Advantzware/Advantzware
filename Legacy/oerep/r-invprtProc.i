@@ -1131,10 +1131,10 @@ PROCEDURE build-list1:
         tt-list.rec-row = ROWID({&head}).
 
         DEFINE VARIABLE ti AS INTEGER.
-        /* For testing only!!!!*/
+        /* For testing only!!!!
         ti = ti + 1.
         IF ti GE 3 THEN
-            LEAVE.
+            LEAVE. */
     END. /* for each */
 END PROCEDURE.
 
