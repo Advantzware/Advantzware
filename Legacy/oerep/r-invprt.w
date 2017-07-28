@@ -9,9 +9,13 @@
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-
-assign
+DEFINE VARIABLE vPrgmnameOverride AS CHARACTER NO-UNDO.
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
-RUN oerep/r-invprtoe.w  PERSISTENT (input "inv-head").
+&IF DEFINED(vprgmname) = 0 &THEN 
+&global-define vprgmname "r-invprt."
+&ENDIF
+vPrgmnameOverride = {&vprgmname}.
+RUN oerep/r-invprtoe.w  PERSISTENT (INPUT "inv-head", {&vprgmname}).
