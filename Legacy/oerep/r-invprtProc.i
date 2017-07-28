@@ -16,12 +16,13 @@
 &IF DEFINED(head) = 0 &THEN 
 &global-define LINE inv-line
 &global-define head inv-head
-&global-define bolno bol-no
+&global-define bolno bol-no  
 &global-define multiinvoice multi-invoice
 &global-define soldno sold-no
 &global-define rno r-no
 &global-define bno b-no
 &global-define miscrno r-no
+&global-define vprgmname "r-invprt."
 &ENDIF
 DEFINE BUFFER b-{&head}1   FOR {&head}.
 DEFINE BUFFER buf-{&head}  FOR {&head}.
