@@ -186,12 +186,10 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-araged.c
      FGCOLOR 9 .
 
 DEFINE VARIABLE lbl_sort AS CHARACTER FORMAT "X(256)":U INITIAL "Sorted By?" 
-     LABEL "Sorted By?" 
      VIEW-AS FILL-IN 
      SIZE 12 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lbl_sort2 AS CHARACTER FORMAT "X(256)":U INITIAL "Aged By?" 
-     LABEL "Aged By?" 
      VIEW-AS FILL-IN 
      SIZE 10.8 BY 1 NO-UNDO.
 
@@ -254,14 +252,14 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Name"
 "Name", "Name",
 "SalesRep#", "SalesRep#",
 "Invoice#", "Invoice#"
-     SIZE 48 BY 1 NO-UNDO.
+     SIZE 56.6 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rd_sort2 AS CHARACTER INITIAL "InvDate" 
-     VIEW-AS RADIO-SET VERTICAL
+     VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Due Date", "DueDate",
 "Invoice Date", "InvDate"
-     SIZE 18 BY 1.67 NO-UNDO.
+     SIZE 32 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rs_detail AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -382,10 +380,10 @@ DEFINE FRAME FRAME-A
      period-days-2 AT ROW 8.1 COL 39 COLON-ALIGNED
      period-days-3 AT ROW 8.1 COL 51 COLON-ALIGNED
      rs_detail AT ROW 9.05 COL 29 NO-LABEL WIDGET-ID 6
-     lbl_sort AT ROW 10.24 COL 4.4 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 10.24 COL 18.4 NO-LABEL
-     lbl_sort2 AT ROW 10.24 COL 66.2 COLON-ALIGNED NO-LABEL
-     rd_sort2 AT ROW 10.29 COL 79.4 NO-LABEL
+     lbl_sort AT ROW 10 COL 15 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 10 COL 29 NO-LABEL
+     lbl_sort2 AT ROW 11 COL 15.8 COLON-ALIGNED NO-LABEL
+     rd_sort2 AT ROW 11.05 COL 29 NO-LABEL
      tb_paid AT ROW 11.95 COL 29
      tb_include-factored AT ROW 11.95 COL 59.6
      tb_fuel AT ROW 12.91 COL 29
@@ -416,12 +414,12 @@ DEFINE FRAME FRAME-A
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 3
           BGCOLOR 2 
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 20.05 COL 4
      "Detail Only" VIEW-AS TEXT
           SIZE 17 BY .62 AT ROW 15.71 COL 32.8 WIDGET-ID 4
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 20.05 COL 4
      RECT-6 AT ROW 19.81 COL 2
-     RECT-7 AT ROW 1.24 COL 1
+     RECT-7 AT ROW 1.05 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1.6 ROW 1.24

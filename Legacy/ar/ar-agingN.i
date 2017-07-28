@@ -414,9 +414,6 @@ END.
        d      = v-date - ar-inv.{&date}
        ni     = ni + 1
        v-type = IF ar-inv.terms EQ "FCHG" THEN "FC" ELSE "IN".
-  
-        IF ar-inv.{&date} GT TODAY  THEN
-            ASSIGN d = - d .
         
       for each ar-cashl
           where ar-cashl.company  eq ar-inv.company
