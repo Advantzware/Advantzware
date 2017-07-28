@@ -318,14 +318,14 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Name"
 "Name", "Name",
 "SalesRep#", "SalesRep#",
 "Invoice#", "Invoice#"
-     SIZE 48 BY 1 NO-UNDO.
+     SIZE 54.8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE rd_sort2 AS CHARACTER INITIAL "InvDate" 
-     VIEW-AS RADIO-SET VERTICAL
+     VIEW-AS RADIO-SET HORIZONTAL
      RADIO-BUTTONS 
           "Due Date", "DueDate",
 "Invoice Date", "InvDate"
-     SIZE 16 BY 1.71 NO-UNDO.
+     SIZE 32 BY .86 NO-UNDO.
 
 DEFINE VARIABLE rs_detail AS INTEGER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -428,10 +428,10 @@ DEFINE FRAME FRAME-A
      period-days-2 AT ROW 9.05 COL 39 COLON-ALIGNED
      period-days-3 AT ROW 9.05 COL 51 COLON-ALIGNED
      rs_detail AT ROW 10 COL 29 NO-LABEL WIDGET-ID 6
-     lbl_sort AT ROW 11.19 COL 5.2 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 11.19 COL 19.2 NO-LABEL
-     lbl_sort2 AT ROW 11.19 COL 66.4 COLON-ALIGNED NO-LABEL
-     rd_sort2 AT ROW 11.19 COL 80.2 NO-LABEL
+     lbl_sort AT ROW 11 COL 14 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 11 COL 29 NO-LABEL
+     lbl_sort2 AT ROW 12.05 COL 15.2 COLON-ALIGNED NO-LABEL
+     rd_sort2 AT ROW 12.05 COL 29 NO-LABEL
      tb_paid AT ROW 12.91 COL 29
      tb_include-factored AT ROW 12.91 COL 59.6
      tb_fuel AT ROW 13.86 COL 29
