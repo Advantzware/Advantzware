@@ -1010,7 +1010,10 @@ PROCEDURE output-to-mail :
                         /* for lSplitPDF, call run-report for a speoific invoice */
                         IF tb_splitPDF THEN
                             rCurrentInvoice = bf-tt-list.rec-row.
-           
+                        ASSIGN                            
+                            vcInvNums   = ""
+                            lv-pdf-file = init-dir + "\Inv"
+                            .
                         RUN run-report("","", FALSE).
                              
                              
@@ -1132,10 +1135,7 @@ PROCEDURE build-list1:
         tt-list.rec-row = ROWID({&head}).
 
         DEFINE VARIABLE ti AS INTEGER.
-        /* For testing only!!!!
-        ti = ti + 1.
-        IF ti GE 3 THEN
-            LEAVE. */
+
     END. /* for each */
 END PROCEDURE.
 
