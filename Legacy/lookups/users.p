@@ -1,6 +1,6 @@
-/* users.p - Generated 12/15/2004 -  4:23 pm by nosweat
+/* users.p - Generated 07/28/2017 -  1:06 pm by NoSweat
 "users. " ~
-"NOSWEAT " ~
+"ASI " ~
 "users " ~
 " " ~
 "user_id " ~
@@ -18,7 +18,7 @@
 "users. " ~
 */
 
-&Scoped-define lookup-db NOSWEAT.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file users
 &Scoped-define where-statement TRUE
 &Scoped-define return-field user_id
@@ -26,21 +26,22 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 44
 &Scoped-define show-fields users.user_id users.user_name
+&Scoped-define show-fields-yellow users.user_id LABEL-BGCOLOR 14 users.user_name LABEL-BGCOLOR 14
 &Scoped-define frame-title User ID Lookup
 &Scoped-define top-include ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname users.
-&Scoped-define window-size 23
+&Scoped-define window-size 23.7
 &Scoped-define window-col 53
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 38
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 35
-&Scoped-define btn-cancel-col 24
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 37
+&Scoped-define btn-cancel-col 30
+&Scoped-define auto-find-row 23.6
 
 &Global-define FORMAT-1 X(8)
 &Scoped-define FLDNAME1 users.user_id

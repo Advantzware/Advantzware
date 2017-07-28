@@ -1,4 +1,4 @@
-/* users.p - Generated 12/15/2004 -  4:23 pm by nosweat
+/* users.p - Generated 07/28/2017 -  1:06 pm by NoSweat
 "users. " ~
 "ASI " ~
 "users " ~
@@ -26,6 +26,7 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 44
 &Scoped-define show-fields users.user_id users.user_name
+&Scoped-define show-fields-yellow users.user_id LABEL-BGCOLOR 14 users.user_name LABEL-BGCOLOR 14
 &Scoped-define frame-title User ID Lookup
 &Scoped-define top-include ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{sys/inc/var.i new shared}
