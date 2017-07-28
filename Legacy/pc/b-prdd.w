@@ -46,6 +46,15 @@ DEF VAR ll-no-frm AS LOG NO-UNDO.
 DEF VAR ll-no-blk AS LOG NO-UNDO.
 DEF VAR ll-skip AS LOG NO-UNDO.
 DEF VAR lv-crt-rowid AS ROWID NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE oeDateAuto-log AS LOGICAL NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT g_company, "PreventDataCollection", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    oeDateAuto-log = LOGICAL(cRtnChar) NO-ERROR.
 
 DEF TEMP-TABLE tt-job-mch NO-UNDO LIKE job-mch 
     FIELD row-id AS ROWID
@@ -2936,15 +2945,20 @@ PROCEDURE valid-job-no :
         FILL(" ",6 - LENGTH(TRIM(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}))) + 
         TRIM(pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}).
 
-    IF NOT CAN-FIND(FIRST job
-                    WHERE job.company  EQ g_company
-                      AND job.job-no   EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
-                      AND (job.job-no2 EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) OR
-                           ip-log))
-    THEN DO:
+     FIND FIRST job NO-LOCK 
+          WHERE job.company  EQ g_company
+            AND job.job-no   EQ pc-prdd.job-no:SCREEN-VALUE IN BROWSE {&browse-name}
+            AND (job.job-no2 EQ INT(pc-prdd.job-no2:SCREEN-VALUE IN BROWSE {&browse-name}) OR
+                           ip-log) NO-ERROR .
+    IF NOT AVAIL job THEN DO:
       MESSAGE "Invalid Job#, Try help..." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO pc-prdd.job-no IN BROWSE {&browse-name}.
       RETURN ERROR.
+    END.
+    ELSE IF AVAIL job AND job.opened EQ NO AND oeDateAuto-log THEN DO:
+        MESSAGE "Job " STRING(job.job-no) " is currently closed.  Cannot add data collection data." VIEW-AS ALERT-BOX INFO.
+        APPLY "entry" TO pc-prdd.job-no IN BROWSE {&browse-name}.
+       RETURN ERROR.
     END.
 
     ll-skip = YES.
