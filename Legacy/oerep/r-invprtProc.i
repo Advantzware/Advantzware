@@ -23,36 +23,36 @@
 &global-define bno b-no
 &global-define miscrno r-no
 &ENDIF
-DEFINE BUFFER b-{&head}1    FOR {&head}.
-DEFINE BUFFER buf-{&head}   FOR {&head}.
-DEFINE BUFFER b2-{&head}    FOR {&head}.
+DEFINE BUFFER b-{&head}1   FOR {&head}.
+DEFINE BUFFER buf-{&head}  FOR {&head}.
+DEFINE BUFFER b2-{&head}   FOR {&head}.
 DEFINE BUFFER buf-{&line}  FOR {&line}.
 DEFINE BUFFER buf-{&line}1 FOR {&line}.
 
 DEFINE VARIABLE fi_depts-hidden            AS LOG       NO-UNDO.
 DEFINE VARIABLE tb_print-dept-screen-value AS CHARACTER NO-UNDO.
 DEFINE VARIABLE fi_depts-screen-value      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hFrame-Handle               AS HANDLE    NO-UNDO.
+DEFINE VARIABLE hFrame-Handle              AS HANDLE    NO-UNDO.
 DEFINE VARIABLE rd-dest-screen-value       AS CHARACTER NO-UNDO.
 DEFINE VARIABLE tb_batchMail-checked       AS LOGICAL   NO-UNDO. 
 DEFINE VARIABLE fi_broker-bol-sensitive    AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE fi_broker-bol-screen-value AS CHARACTER NO-UNDO.
 DEFINE VARIABLE tb_collate-hidden          AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE tb_HideDialog-Checked      AS LOGICAL NO-UNDO.
-DEFINE VARIABLE tbPostedAR                 AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE tb_HideDialog-Checked      AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE tbPostedAR                 AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE c-win-title                AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lCheckHoldStat             AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE list-name                  AS cha       NO-UNDO.
 DEFINE VARIABLE init-dir                   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cActualPdf                 AS CHARACTER NO-UNDO.
-DEFINE VARIABLE hCallingProc               AS HANDLE NO-UNDO.
+DEFINE VARIABLE hCallingProc               AS HANDLE    NO-UNDO.
 
-DEFINE VARIABLE cAccumFileList             AS CHARACTER   NO-UNDO.
-DEFINE VARIABLE cAccumPdfFileList          AS CHARACTER   NO-UNDO.
-DEFINE VARIABLE cAccumInvNums              AS CHARACTER   NO-UNDO.
-DEFINE VARIABLE lSupressEmail              AS LOGICAL     NO-UNDO.
-DEFINE VARIABLE iFileCount                 AS INTEGER     NO-UNDO.
-DEFINE VARIABLE cInvoiceType               AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE cAccumFileList             AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAccumPdfFileList          AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cAccumInvNums              AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lSupressEmail              AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE iFileCount                 AS INTEGER   NO-UNDO.
+DEFINE VARIABLE cInvoiceType               AS CHARACTER NO-UNDO.
 
 {methods/defines/hndldefs.i}
 /*{methods/prgsecur.i} */ 
@@ -89,7 +89,7 @@ DEFINE VARIABLE vcBOLSignDir    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-rec-found     AS LOG       NO-UNDO.
 
 DEFINE VARIABLE tb_splitPDF     AS LOG       NO-UNDO.
-DEFINE VARIABLE rCurrentInvoice AS ROWID NO-UNDO.
+DEFINE VARIABLE rCurrentInvoice AS ROWID     NO-UNDO.
 
 DEFINE BUFFER save-line    FOR reftable.
 DEFINE BUFFER b1-cust      FOR cust.
@@ -144,7 +144,7 @@ DEFINE            VARIABLE vcHoldStats       AS CHARACTER INIT "H,W" NO-UNDO.
 DEFINE            VARIABLE glPaperless       AS LOGICAL   NO-UNDO.
 
 DEFINE TEMP-TABLE tt-list
-  FIELD rec-row AS ROWID.
+    FIELD rec-row AS ROWID.
 
 {XMLOutput/XMLOutput.i &NEW=NEW &XMLSysCtrl=XMLInvoice &Company=cocode} /* rstark 05181205 */
 {XMLOutput/XMLOutput.i &NEW=NEW &cXMLSysCtrl=cXMLInvoice &Company=cocode &c=c} /* rstark 05291402 */
@@ -232,45 +232,45 @@ PROCEDURE assignSelections:
     DEFINE INPUT PARAMETER iptbSplitPDF         AS LOGICAL INITIAL NO               .
     
     ASSIGN
-    begin_bol          = ipbegin_bol        
-    begin_cust         = ipbegin_cust       
-    begin_date         = ipbegin_date       
-    begin_inv          = ipbegin_inv        
-    end_bol            = ipend_bol          
-    end_cust           = ipend_cust         
-    end_date           = ipend_date         
-    end_inv            = ipend_inv          
-    fi_broker-bol      = ipfi_broker-bol    
-    fi_depts           = ipfi_depts         
-    lbl_sort           = iplbl_sort         
-    lines-per-page     = iplines-per-page   
-    lv-font-name       = iplv-font-name     
-    lv-font-no         = iplv-font-no       
-    lv-scr-num-copies  = iplv-scr-num-copies
-    lv-ornt            = iplv-ornt          
-    rd-dest            = iprd-dest          
-    rd_sort            = iprd_sort          
-    rs_no_PN           = iprs_no_PN         
-    tb_attachBOL       = iptb_attachBOL     
-    tb_BatchMail       = iptb_BatchMail     
-    tb_collate         = iptb_collate       
-    tb_cust-copy       = iptb_cust-copy     
-    tb_email-orig      = iptb_email-orig    
-    tb_HideDialog      = iptb_HideDialog    
-    tb_office-copy     = iptb_office-copy   
-    tb_override-email  = iptb_override-email
-    tb_posted          = iptb_posted        
-    tb_print-dept      = iptb_print-dept    
-    tb_prt-inst        = iptb_prt-inst      
-    tb_prt-zero-qty    = iptb_prt-zero-qty  
-    tb_reprint         = iptb_reprint       
-    tb_setcomp         = iptb_setcomp       
-    tb_sman-copy       = iptb_sman-copy     
-    td-show-parm       = iptd-show-parm  
-    tbPostedAR         = iptbPostedAR
+        begin_bol         = ipbegin_bol        
+        begin_cust        = ipbegin_cust       
+        begin_date        = ipbegin_date       
+        begin_inv         = ipbegin_inv        
+        end_bol           = ipend_bol          
+        end_cust          = ipend_cust         
+        end_date          = ipend_date         
+        end_inv           = ipend_inv          
+        fi_broker-bol     = ipfi_broker-bol    
+        fi_depts          = ipfi_depts         
+        lbl_sort          = iplbl_sort         
+        lines-per-page    = iplines-per-page   
+        lv-font-name      = iplv-font-name     
+        lv-font-no        = iplv-font-no       
+        lv-scr-num-copies = iplv-scr-num-copies
+        lv-ornt           = iplv-ornt          
+        rd-dest           = iprd-dest          
+        rd_sort           = iprd_sort          
+        rs_no_PN          = iprs_no_PN         
+        tb_attachBOL      = iptb_attachBOL     
+        tb_BatchMail      = iptb_BatchMail     
+        tb_collate        = iptb_collate       
+        tb_cust-copy      = iptb_cust-copy     
+        tb_email-orig     = iptb_email-orig    
+        tb_HideDialog     = iptb_HideDialog    
+        tb_office-copy    = iptb_office-copy   
+        tb_override-email = iptb_override-email
+        tb_posted         = iptb_posted        
+        tb_print-dept     = iptb_print-dept    
+        tb_prt-inst       = iptb_prt-inst      
+        tb_prt-zero-qty   = iptb_prt-zero-qty  
+        tb_reprint        = iptb_reprint       
+        tb_setcomp        = iptb_setcomp       
+        tb_sman-copy      = iptb_sman-copy     
+        td-show-parm      = iptd-show-parm  
+        tbPostedAR        = iptbPostedAR
 
-    tb_splitPDF        = iptbSplitPDF
-    .
+        tb_splitPDF       = iptbSplitPDF
+        .
 END. 
 /* end input parameters */
 /* ********************  Preprocessor Definitions  ******************** */
@@ -309,27 +309,27 @@ PROCEDURE assignScreenValues:
     DEFINE INPUT PARAMETER iphCallingProc               AS HANDLE NO-UNDO.
     
     ASSIGN 
-    fi_depts-hidden           =   ipfi_depts-hidden            
-    tb_print-dept-screen-value =  iptb_print-dept-screen-value 
-    fi_depts-screen-value     =   ipfi_depts-screen-value      
-    hFrame-Handle              =   iphFrame-Handle               
-    rd-dest-screen-value      =   iprd-dest-screen-value       
-    tb_batchMail-checked      =   iptb_batchMail-checked       
-    fi_broker-bol-sensitive   =   ipfi_broker-bol-sensitive    
-    fi_broker-bol-screen-value=   ipfi_broker-bol-screen-value 
-    tb_collate-hidden         =   iptb_collate-hidden          
-    tb_HideDialog-Checked     =   iptb_HideDialog-Checked      
-    c-win-title               =   ipc-win-title                
-    lCheckHoldStat            =   iplCheckHoldStat             
-    list-name                 =   iplist-name                  
-    init-dir                  =   ipinit-dir                   
-    cActualPdf                =   ipcActualPdf
-    hCallingProc              =   iphCallingProc    
-    vcDefaultForm             =   ipVcDefaultForm
-    v-prgmname                =   ipPrgmname
-    cInvoiceType              =   ipInvoiceType
-    rCurrentInvoice           =   ? 
-    .
+        fi_depts-hidden            = ipfi_depts-hidden            
+        tb_print-dept-screen-value = iptb_print-dept-screen-value 
+        fi_depts-screen-value      = ipfi_depts-screen-value      
+        hFrame-Handle              = iphFrame-Handle               
+        rd-dest-screen-value       = iprd-dest-screen-value       
+        tb_batchMail-checked       = iptb_batchMail-checked       
+        fi_broker-bol-sensitive    = ipfi_broker-bol-sensitive    
+        fi_broker-bol-screen-value = ipfi_broker-bol-screen-value 
+        tb_collate-hidden          = iptb_collate-hidden          
+        tb_HideDialog-Checked      = iptb_HideDialog-Checked      
+        c-win-title                = ipc-win-title                
+        lCheckHoldStat             = iplCheckHoldStat             
+        list-name                  = iplist-name                  
+        init-dir                   = ipinit-dir                   
+        cActualPdf                 = ipcActualPdf
+        hCallingProc               = iphCallingProc    
+        vcDefaultForm              = ipVcDefaultForm
+        v-prgmname                 = ipPrgmname
+        cInvoiceType               = ipInvoiceType
+        rCurrentInvoice            = ? 
+        .
     EMPTY TEMP-TABLE tt-list.
 
 END PROCEDURE.
@@ -345,8 +345,8 @@ PROCEDURE BatchMail :
     DEFINE INPUT PARAMETER icEndCustNo  AS CHARACTER NO-UNDO.
 
     DEFINE BUFFER b1-{&head}2 FOR {&head}.
-    DEFINE BUFFER b2-cust    FOR cust.
-    DEFINE BUFFER b1-ar-inv  FOR ar-inv.
+    DEFINE BUFFER b2-cust      FOR cust.
+    DEFINE BUFFER b1-ar-inv    FOR ar-inv.
     DEFINE VARIABLE lEmailed AS LOG NO-UNDO.
 
     ASSIGN                   
@@ -385,11 +385,11 @@ PROCEDURE BatchMail :
             AND b2-cust.cust-no EQ b1-{&head}2.cust-no
             AND (b2-cust.log-field[1] OR NOT tb_Batchmail OR tb_override-email)
             AND ((b2-cust.inv-meth EQ ? AND b1-{&head}2.{&multiinvoice}) OR
-            (b2-cust.inv-meth NE ? AND NOT b1-{&head}2.{&multiinvoice}))
+            (b2-cust.inv-meth NE ? AND NOT b1-{&head}2.{&multiinvoice}) OR "{&head}" EQ "ar-inv")  
             /*AND CAN-FIND(FIRST {&line} OF b1-{&head}2)*/
             NO-LOCK
             BREAK BY b2-cust.cust-no :
-
+            
             IF FIRST-OF (b2-cust.cust-no) THEN 
             DO:
 
@@ -418,7 +418,6 @@ PROCEDURE BatchMail :
                     vSoldToNo = IF AVAILABLE oe-ord THEN oe-ord.sold-id ELSE "". 
                     vShipToNo = STRING(b1-{&head}2.sold-no).
                 END.
-
                 RUN output-to-mail (b1-{&head}2.cust-no).
             END.
             lEmailed = YES.
@@ -532,7 +531,7 @@ PROCEDURE GenerateEmail:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER icCustNo AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER icCustNo AS CHARACTER NO-UNDO.
 
     DO WITH FRAME {&FRAME-NAME}:
 
@@ -559,12 +558,12 @@ PROCEDURE GenerateEmail:
                 OS-DELETE VALUE(cActualPDF).           
             END.
 
-              IF tb_HideDialog-Checked THEN RUN SendMail-1 (icCustNo, 'Customer1').
-              ELSE RUN SendMail-1 (icCustNo, 'Customer').
+            IF tb_HideDialog-Checked THEN RUN SendMail-1 (icCustNo, 'Customer1').
+            ELSE RUN SendMail-1 (icCustNo, 'Customer').
         END.
         ELSE
-              IF tb_HideDialog-Checked THEN RUN SendMail-1 (icCustNo, 'Customer1').
-              ELSE RUN SendMail-1 (icCustNo, 'Customer').
+            IF tb_HideDialog-Checked THEN RUN SendMail-1 (icCustNo, 'Customer1').
+            ELSE RUN SendMail-1 (icCustNo, 'Customer').
     END.
 
 
@@ -576,8 +575,8 @@ PROCEDURE output-to-fax-prt:
      Notes:
     ------------------------------------------------------------------------------*/
 
-    DEF VAR lv-file-name AS cha FORM "x(60)" NO-UNDO.
-    DEF VAR lv-xpr-file  AS cha FORM "x(60)" NO-UNDO.
+    DEFINE VARIABLE lv-file-name AS cha FORM "x(60)" NO-UNDO.
+    DEFINE VARIABLE lv-xpr-file  AS cha FORM "x(60)" NO-UNDO.
 
     IF is-xprint-form THEN 
     DO:
@@ -664,7 +663,7 @@ PROCEDURE runReport5:
             buf-{&head}.cust-no GE begin_cust AND
             buf-{&head}.cust-no LE end_cust AND
             ("{&head}" NE "ar-inv" OR buf-{&head}.posted = tb_posted) AND 
-                  (INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 OR "{&head}" EQ "ar-inv") AND
+            (INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 OR "{&head}" EQ "ar-inv") AND
             ((NOT tb_reprint AND buf-{&head}.inv-no EQ 0) OR
             (tb_reprint AND buf-{&head}.inv-no NE 0 AND
             buf-{&head}.inv-no GE begin_inv AND
@@ -677,8 +676,8 @@ PROCEDURE runReport5:
             FIRST b-cust WHERE
             b-cust.company EQ cocode AND
             b-cust.cust-no EQ buf-{&head}.cust-no AND
-            ((b-cust.inv-meth EQ ? AND buf-{&head}.{&multiinvoice}) OR
-            (b-cust.inv-meth NE ? AND NOT buf-{&head}.{&multiinvoice}) OR "{&head}" EQ "ar-inv") 
+            /* out temp  */ ((b-cust.inv-meth EQ ? AND buf-{&head}.{&multiinvoice}) OR
+            (b-cust.inv-meth NE ? AND NOT buf-{&head}.{&multiinvoice}) OR "{&head}" EQ "ar-inv")
             NO-LOCK
             BREAK BY buf-{&head}.company
             BY buf-{&head}.cust-no
@@ -814,230 +813,294 @@ PROCEDURE output-to-mail :
       Notes:       
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER icCustNo AS CHARACTER NO-UNDO.
-    DEF BUFFER bf-tt-list FOR tt-list.
+    DEFINE BUFFER bf-tt-list FOR tt-list.
 
+      
     DO WITH FRAME {&FRAME-NAME}:
-        DO:         
-            IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
-                sys-ctrl-shipto.company = cocode AND
-                sys-ctrl-shipto.NAME = "INVPRINT") THEN
-                FOR EACH buf-{&head} FIELDS(company cust-no sold-no) WHERE
-                    buf-{&head}.company EQ cocode AND
-                    ((buf-{&head}.cust-no GE begin_cust AND buf-{&head}.cust-no LE end_cust AND NOT tb_BatchMail)
-                    OR
-                    (buf-{&head}.cust-no EQ icCustNo AND tb_BatchMail)
-                    ) AND
-               INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 AND 
-                    (((NOT tb_reprint) AND buf-{&head}.inv-no EQ 0) OR
-                    (tb_reprint AND buf-{&head}.inv-no NE 0 AND
-                    (IF "{&head}" EQ "ar-inv" THEN buf-{&head}.inv-date GE begin_date
-                    AND buf-{&head}.inv-date LE end_date ELSE TRUE) AND                    
-                    buf-{&head}.inv-no GE begin_inv AND
-                    buf-{&head}.inv-no LE end_inv))
-                    NO-LOCK,
-                    FIRST b-cust WHERE
-                    b-cust.company EQ cocode AND
-                    b-cust.cust-no EQ buf-{&head}.cust-no AND
-                    ((b-cust.inv-meth EQ ? AND buf-{&head}.{&multiinvoice}) OR
-                    (b-cust.inv-meth NE ? AND NOT buf-{&head}.{&multiinvoice}))
-                    NO-LOCK
-                    BREAK BY buf-{&head}.company
-                    BY buf-{&head}.cust-no:
+                 
+        IF CAN-FIND(FIRST sys-ctrl-shipto WHERE
+            sys-ctrl-shipto.company = cocode AND
+            sys-ctrl-shipto.NAME = "INVPRINT") THEN
+            FOR EACH buf-{&head} FIELDS(company cust-no sold-no) WHERE
+                buf-{&head}.company EQ cocode AND
+                ((buf-{&head}.cust-no GE begin_cust AND buf-{&head}.cust-no LE end_cust AND NOT tb_BatchMail)
+                OR
+                (buf-{&head}.cust-no EQ icCustNo AND tb_BatchMail)) 
+                AND  INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 
+                AND  (((NOT tb_reprint) AND buf-{&head}.inv-no EQ 0) OR
+                (tb_reprint AND buf-{&head}.inv-no NE 0 AND
+                (IF "{&head}" EQ "ar-inv" THEN buf-{&head}.inv-date GE begin_date
+                AND buf-{&head}.inv-date LE end_date ELSE TRUE) AND                    
+                buf-{&head}.inv-no GE begin_inv AND
+                buf-{&head}.inv-no LE end_inv))
+                NO-LOCK,
+                FIRST b-cust WHERE
+                b-cust.company EQ cocode AND
+                b-cust.cust-no EQ buf-{&head}.cust-no  AND
+                ((b-cust.inv-meth EQ ? AND buf-{&head}.{&multiinvoice}) OR
+                (b-cust.inv-meth NE ? AND NOT buf-{&head}.{&multiinvoice}) OR "{&head}" EQ "ar-inv") 
+                NO-LOCK
+                BREAK BY buf-{&head}.company
+                BY buf-{&head}.cust-no:
+                    
+                IF FIRST-OF(buf-{&head}.cust-no) THEN
+                DO:
+                    FIND FIRST sys-ctrl-shipto WHERE
+                        sys-ctrl-shipto.company = cocode AND
+                        sys-ctrl-shipto.NAME = "INVPRINT" AND
+                        sys-ctrl-shipto.cust-vend = YES AND
+                        sys-ctrl-shipto.cust-vend-no = buf-{&head}.cust-no AND
+                        sys-ctrl-shipto.ship-id = STRING(buf-{&head}.sold-no) AND
+                        sys-ctrl-shipto.char-fld > ''
+                        NO-LOCK NO-ERROR.
 
-                    IF FIRST-OF(buf-{&head}.cust-no) THEN
-                    DO:
+                    IF NOT AVAILABLE sys-ctrl-shipto THEN
                         FIND FIRST sys-ctrl-shipto WHERE
                             sys-ctrl-shipto.company = cocode AND
                             sys-ctrl-shipto.NAME = "INVPRINT" AND
                             sys-ctrl-shipto.cust-vend = YES AND
                             sys-ctrl-shipto.cust-vend-no = buf-{&head}.cust-no AND
-                            sys-ctrl-shipto.ship-id = STRING(buf-{&head}.sold-no) AND
                             sys-ctrl-shipto.char-fld > ''
                             NO-LOCK NO-ERROR.
 
-                        IF NOT AVAILABLE sys-ctrl-shipto THEN
-                            FIND FIRST sys-ctrl-shipto WHERE
-                                sys-ctrl-shipto.company = cocode AND
-                                sys-ctrl-shipto.NAME = "INVPRINT" AND
-                                sys-ctrl-shipto.cust-vend = YES AND
-                                sys-ctrl-shipto.cust-vend-no = buf-{&head}.cust-no AND
-                                sys-ctrl-shipto.char-fld > ''
-                                NO-LOCK NO-ERROR.
+                    IF AVAILABLE sys-ctrl-shipto THEN
+                    DO:
+                        IF "{&head}" EQ "ar-inv" THEN
+                            RUN SetInvPostForm(sys-ctrl-shipto.char-fld). 
+                        ELSE                               
+                            RUN SetInvForm(sys-ctrl-shipto.char-fld).
+                        v-print-fmt = sys-ctrl-shipto.char-fld.
+                    END.
+                    ELSE
+                    DO:
+                        IF "{&head}" EQ "ar-inv" THEN
+                            RUN SetInvPostForm(vcDefaultForm). 
+                        ELSE                               
+                            RUN SetInvForm(vcDefaultForm).
+                        v-print-fmt = vcDefaultForm.
+                    END.
 
-                        IF AVAILABLE sys-ctrl-shipto THEN
-                        DO:
-                            IF "{&head}" EQ "ar-inv" THEN
-                                RUN SetInvPostForm(sys-ctrl-shipto.char-fld). 
-                            ELSE                               
-                                RUN SetInvForm(sys-ctrl-shipto.char-fld).
-                            v-print-fmt = sys-ctrl-shipto.char-fld.
-                        END.
-                        ELSE
-                        DO:
-                            IF "{&head}" EQ "ar-inv" THEN
-                                RUN SetInvPostForm(vcDefaultForm). 
-                            ELSE                               
-                                RUN SetInvForm(vcDefaultForm).
-                            v-print-fmt = vcDefaultForm.
-                        END.
-
-                        /* Use tt-list to select records so that run-report can be called one invoice at a time */
-                        IF NOT AVAIL tt-list THEN
-                          RUN build-list1 (buf-{&head}.cust-no,
-                                           "",
-                                           TRUE
-                                          ).
+                    /* Use tt-list to select records so that run-report can be called one invoice at a time */
+                    IF NOT AVAILABLE tt-list THEN
+                        RUN build-list1 (buf-{&head}.cust-no,
+                            "",
+                            TRUE
+                            ).
                         
-                        ASSIGN 
-                          rCurrentInvoice = ?
-                          cAccumFileList = ""                       
-                          cAccumPDFFileList = ""
-                          cAccumInvNums = ""
-                          .
-                        IF tb_splitPDF THEN
-                          lSupressEmail = TRUE.
+                    ASSIGN 
+                        rCurrentInvoice   = ?
+                        cAccumFileList    = ""                       
+                        cAccumPDFFileList = ""
+                        cAccumInvNums     = ""
+                        .
+                    IF tb_splitPDF THEN
+                        lSupressEmail = TRUE.
 
-                        FOR EACH bf-tt-list 
-                           BREAK BY bf-tt-list.rec-row:
+                    FOR EACH bf-tt-list 
+                        BREAK BY bf-tt-list.rec-row:
                           
-                          /* for lSplitPDF, call run-report for a speoific invoice */
-                          IF tb_splitPDF THEN
+                        /* for lSplitPDF, call run-report for a speoific invoice */
+                        IF tb_splitPDF THEN
                             rCurrentInvoice = bf-tt-list.rec-row.
 
-                          ASSIGN                            
+                        ASSIGN                            
                             vcInvNums   = ""
                             lv-pdf-file = init-dir + "\Inv"
                             .
 
-                          RUN run-report(buf-{&head}.cust-no,"", TRUE).
+                        RUN run-report(buf-{&head}.cust-no,"", TRUE).
 
-                          ASSIGN 
-                              vSoldToNo = ""
-                              vShipToNo = "".
+                        ASSIGN 
+                            vSoldToNo = ""
+                            vShipToNo = "".
 
-                          IF buf-{&head}.{&multiinvoice} THEN 
-                          DO: 
-                              FIND FIRST b2-{&head} 
-                                  WHERE b2-{&head}.company       EQ buf-{&head}.company
-                                  AND b2-{&head}.cust-no       EQ buf-{&head}.cust-no
-                                  AND b2-{&head}.inv-no        EQ buf-{&head}.inv-no
-                                  AND b2-{&head}.{&multiinvoice} EQ NO            
-                                  AND INDEX(vcHoldStats, b2-{&head}.stat) EQ 0 NO-LOCK NO-ERROR.
-                              IF AVAILABLE b2-{&head} THEN
-                                  FIND FIRST {&line} NO-LOCK WHERE {&line}.{&rno} EQ b2-{&head}.{&rno} 
-                                      AND {&line}.ord-no NE 0 NO-ERROR.  
-                          END.  
-                          ELSE         
-                              FIND FIRST {&line} NO-LOCK WHERE {&line}.{&rno} EQ buf-{&head}.{&rno}
-                                  NO-ERROR.
-                          IF AVAILABLE {&line} THEN 
-                          DO:
-                              FIND oe-ord WHERE oe-ord.company = buf-{&head}.company
-                                  AND oe-ord.ord-no = {&line}.ord-no
-                                  NO-LOCK NO-ERROR.
-                              vSoldToNo = IF AVAILABLE oe-ord THEN oe-ord.sold-id ELSE "". 
-                          END.
-                          vShipToNo = STRING(buf-{&head}.sold-no).
+                        IF buf-{&head}.{&multiinvoice} THEN 
+                        DO: 
+                            FIND FIRST b2-{&head} 
+                                WHERE b2-{&head}.company       EQ buf-{&head}.company
+                                AND b2-{&head}.cust-no       EQ buf-{&head}.cust-no
+                                AND b2-{&head}.inv-no        EQ buf-{&head}.inv-no
+                                AND b2-{&head}.{&multiinvoice} EQ NO            
+                                AND INDEX(vcHoldStats, b2-{&head}.stat) EQ 0 NO-LOCK NO-ERROR.
+                            IF AVAILABLE b2-{&head} THEN
+                                FIND FIRST {&line} NO-LOCK WHERE {&line}.{&rno} EQ b2-{&head}.{&rno} 
+                                    AND {&line}.ord-no NE 0 NO-ERROR.  
+                        END.  
+                        ELSE         
+                            FIND FIRST {&line} NO-LOCK WHERE {&line}.{&rno} EQ buf-{&head}.{&rno}
+                                NO-ERROR.
+                        IF AVAILABLE {&line} THEN 
+                        DO:
+                            FIND oe-ord WHERE oe-ord.company = buf-{&head}.company
+                                AND oe-ord.ord-no = {&line}.ord-no
+                                NO-LOCK NO-ERROR.
+                            vSoldToNo = IF AVAILABLE oe-ord THEN oe-ord.sold-id ELSE "". 
+                        END.
+                        vShipToNo = STRING(buf-{&head}.sold-no).
 
-                          IF LAST(bf-tt-list.rec-row) THEN
+                        IF LAST(bf-tt-list.rec-row) THEN
                             lSupressEmail = FALSE.
-                          RUN GenerateEmail(buf-{&head}.cust-no).
+                        RUN GenerateEmail(buf-{&head}.cust-no).
 
-                          IF NOT tb_splitPDF THEN
+                        IF NOT tb_splitPDF THEN
                             LEAVE.
-                        END. /* Each bf-tt-list */
+                    END. /* Each bf-tt-list */
 
-                    END.
                 END.
-
-            ELSE
-            DO:
-                IF "{&head}" EQ "ar-inv" THEN
-                    RUN SetInvPostForm(vcDefaultForm). 
-                ELSE                   
-                    RUN SetInvForm(vcDefaultForm).
-
-                ASSIGN
-                    v-print-fmt = vcDefaultForm
-                    vcInvNums   = ""
-                    lv-pdf-file = init-dir + "\Inv".
-
-                RUN run-report("","", FALSE).
-                RUN GenerateEmail(icCustNo).
             END.
-        END.
-    END.
+
+        ELSE
+        DO:
+            FOR EACH buf-{&head} FIELDS(company cust-no sold-no) WHERE
+                buf-{&head}.company EQ cocode AND
+                ((buf-{&head}.cust-no GE begin_cust AND buf-{&head}.cust-no LE end_cust AND NOT tb_BatchMail)
+                OR
+                (buf-{&head}.cust-no EQ icCustNo AND tb_BatchMail)
+                ) AND
+                   INDEX(vcHoldStats, buf-{&head}.stat) EQ 0 AND 
+                (((NOT tb_reprint) AND buf-{&head}.inv-no EQ 0) OR
+                (tb_reprint AND buf-{&head}.inv-no NE 0 AND
+                (IF "{&head}" EQ "ar-inv" THEN buf-{&head}.inv-date GE begin_date
+                AND buf-{&head}.inv-date LE end_date ELSE TRUE) AND                    
+                buf-{&head}.inv-no GE begin_inv AND
+                buf-{&head}.inv-no LE end_inv))
+                NO-LOCK,
+                FIRST b-cust WHERE
+                    b-cust.company EQ cocode AND
+                    b-cust.cust-no EQ buf-{&head}.cust-no  AND
+                    ((b-cust.inv-meth EQ ? AND buf-{&head}.{&multiinvoice}) OR
+                    (b-cust.inv-meth NE ? AND NOT buf-{&head}.{&multiinvoice}) OR "{&head}" EQ "ar-inv") 
+                NO-LOCK
+                BREAK BY buf-{&head}.company
+                BY buf-{&head}.cust-no:
+   
+                IF FIRST-OF(buf-{&head}.cust-no) THEN
+                DO: 
+                    IF "{&head}" EQ "ar-inv" THEN
+                        RUN SetInvPostForm(vcDefaultForm). 
+                    ELSE                   
+                        RUN SetInvForm(vcDefaultForm).
+                      
+                    ASSIGN
+                        v-print-fmt = vcDefaultForm
+                        vcInvNums   = ""
+                        lv-pdf-file = init-dir + "\Inv".
+                               
+                    /* Use tt-list to select records so that run-report can be called one invoice at a time */
+                    IF NOT AVAILABLE tt-list THEN
+                        RUN build-list1 (buf-{&head}.cust-no,
+                            "",
+                            TRUE
+                            ).
+           
+                    ASSIGN 
+                        rCurrentInvoice   = ?
+                        cAccumFileList    = ""                       
+                        cAccumPDFFileList = ""
+                        cAccumInvNums     = ""
+                        .
+                             
+                    IF tb_splitPDF THEN
+                        lSupressEmail = TRUE.
+           
+                    FOR EACH bf-tt-list 
+                        BREAK BY bf-tt-list.rec-row:
+                             
+                        /* for lSplitPDF, call run-report for a speoific invoice */
+                        IF tb_splitPDF THEN
+                            rCurrentInvoice = bf-tt-list.rec-row.
+           
+                        RUN run-report("","", FALSE).
+                             
+                             
+                        /* On last one, allow email to be sent */
+                        IF LAST(bf-tt-list.rec-row) THEN
+                            lSupressEmail = FALSE.
+                                
+                        RUN GenerateEmail(icCustNo).
+                             
+                        IF NOT tb_splitPDF THEN
+                            LEAVE.                            
+                    END. /* each tt-list */
+                           
+                END. /* if first-of cust */
+                       
+            END. /* each invoice */
+            
+        END. /* else...no sys-ship-ctrl */
+        
+    END. /* DO with frame */
 
 END PROCEDURE.
 
 PROCEDURE build-list1:
 
-      DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
-      DEFINE INPUT PARAMETER ip-sold-no AS CHARACTER NO-UNDO.
-      DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
+    DEFINE INPUT PARAMETER ip-cust-no AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ip-sold-no AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ip-sys-ctrl-shipto AS LOG NO-UNDO.
       
-      DEFINE BUFFER bf-{&line} FOR {&line}.
+    DEFINE BUFFER bf-{&line} FOR {&line}.
       
-      DEFINE VARIABLE ll-consolidate AS LOG     NO-UNDO.
-      DEFINE VARIABLE lv-copy#       AS INTEGER NO-UNDO.      
-      DEFINE VARIABLE dtl-ctr        AS INTEGER NO-UNDO.
+    DEFINE VARIABLE ll-consolidate AS LOG     NO-UNDO.
+    DEFINE VARIABLE lv-copy#       AS INTEGER NO-UNDO.      
+    DEFINE VARIABLE dtl-ctr        AS INTEGER NO-UNDO.
       
-      EMPTY TEMP-TABLE tt-list.
+    EMPTY TEMP-TABLE tt-list.
 
-      ASSIGN                   
-          finv           = begin_inv
-          tinv           = end_inv
-          fdate          = begin_date
-          tdate          = end_date
-          fbol           = begin_bol
-          tbol           = end_bol
-          v-reprint      = tb_reprint
-          v-sort         = rd_sort BEGINS "Customer"
-          v-prntinst     = tb_prt-inst
-          v-print-dept   = tb_print-dept
-          ll-consolidate = rd_sort EQ "Customer2".
+    ASSIGN                   
+        finv           = begin_inv
+        tinv           = end_inv
+        fdate          = begin_date
+        tdate          = end_date
+        fbol           = begin_bol
+        tbol           = end_bol
+        v-reprint      = tb_reprint
+        v-sort         = rd_sort BEGINS "Customer"
+        v-prntinst     = tb_prt-inst
+        v-print-dept   = tb_print-dept
+        ll-consolidate = rd_sort EQ "Customer2".
       
-      /* gdm - 12080807 */
-      ASSIGN 
-          nsv_setcomp = tb_setcomp.
+    /* gdm - 12080807 */
+    ASSIGN 
+        nsv_setcomp = tb_setcomp.
       
-      IF ip-sys-ctrl-shipto THEN
-          ASSIGN
-              fcust = ip-cust-no
-              tcust = ip-cust-no.
-      ELSE
-      DO:
-          IF rd-dest-screen-value = '5' AND 
-              tb_BatchMail-CHECKED THEN
-              ASSIGN
-                  vcBegCustNo = vcBegCustNo
-                  vcEndCustNo = vcEndCustNo.
-          ELSE
-              ASSIGN
-                  vcBegCustNo = begin_cust
-                  vcEndCustNo = end_cust.
-      
-          ASSIGN
-              fcust = vcBegCustNo
-              tcust = vcEndCustNo.
-      END.
-      IF fi_depts-hidden = NO THEN
+    IF ip-sys-ctrl-shipto THEN
         ASSIGN
-        v-print-dept = LOGICAL(tb_print-dept-screen-value)
-        v-depts      = fi_depts-screen-value.
+            fcust = ip-cust-no
+            tcust = ip-cust-no.
+    ELSE
+    DO:
+        IF rd-dest-screen-value = '5' AND 
+            tb_BatchMail-CHECKED THEN
+            ASSIGN
+                vcBegCustNo = vcBegCustNo
+                vcEndCustNo = vcEndCustNo.
+        ELSE
+            ASSIGN
+                vcBegCustNo = begin_cust
+                vcEndCustNo = end_cust.
+      
+        ASSIGN
+            fcust = vcBegCustNo
+            tcust = vcEndCustNo.
+    END.
+    IF fi_depts-hidden = NO THEN
+        ASSIGN
+            v-print-dept = LOGICAL(tb_print-dept-screen-value)
+            v-depts      = fi_depts-screen-value.
 
-     FOR EACH {&head} NO-LOCK
+    FOR EACH {&head} NO-LOCK
         WHERE {&head}.company         EQ cocode
         AND {&head}.cust-no         GE fcust
         AND {&head}.cust-no         LE tcust 
-       AND {&head}.inv-no GE finv
-       AND {&head}.inv-no LE tinv 
+        AND {&head}.inv-no GE finv
+        AND {&head}.inv-no LE tinv 
         AND (STRING({&head}.sold-no)         EQ ip-sold-no OR ip-sold-no = "")
         AND (INDEX(vcHoldStats, {&head}.stat) EQ 0 OR "{&head}" EQ "ar-inv")
         AND ("{&head}" NE "ar-inv" 
-               OR ({&head}.posted = tb_posted AND cInvoiceType EQ "ar-inv")
-               OR ({&head}.posted = tbPostedAR AND cInvoiceType EQ "inv-head")
-             ) 
+        OR ({&head}.posted = tb_posted AND cInvoiceType EQ "ar-inv")
+        OR ({&head}.posted = tbPostedAR AND cInvoiceType EQ "inv-head")
+        ) 
         AND (IF "{&head}" EQ "ar-inv" THEN {&head}.inv-date GE begin_date
         AND {&head}.inv-date LE end_date ELSE TRUE)        
         AND (((NOT v-reprint) AND {&head}.inv-no EQ 0) OR
@@ -1058,19 +1121,20 @@ PROCEDURE build-list1:
             AND buf-{&line}.bol-no LE tbol 
             NO-ERROR. 
 
-        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(buf-{&line})) OR {&head}.{&multiinvoice} )  THEN DO:
-          IF "{&head}" EQ "inv-head" THEN
-           NEXT.            
+        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(buf-{&line})) OR {&head}.{&multiinvoice} )  THEN 
+        DO:
+            IF "{&head}" EQ "inv-head" THEN
+                NEXT.            
         END.
         
         CREATE tt-list.
         tt-list.rec-row = ROWID({&head}).
 
-        DEF VAR ti AS INT.
+        DEFINE VARIABLE ti AS INTEGER.
         /* For testing only!!!!*/
         ti = ti + 1.
         IF ti GE 3 THEN
-          LEAVE.
+            LEAVE.
     END. /* for each */
 END PROCEDURE.
 
@@ -1088,6 +1152,7 @@ PROCEDURE run-report :
     DEFINE VARIABLE ll-consolidate AS LOG     NO-UNDO.
     DEFINE VARIABLE lv-copy#       AS INTEGER NO-UNDO.      
     DEFINE VARIABLE dtl-ctr        AS INTEGER NO-UNDO.
+    DEFINE VARIABLE iBol           AS INTEGER NO-UNDO.
 
     {sys/form/r-top.i}
 
@@ -1150,51 +1215,52 @@ PROCEDURE run-report :
     FIND FIRST tt-list NO-ERROR.
     
 
-    IF NOT AVAIL tt-list THEN
-    RUN build-list1 (
-      ip-cust-no,
-      ip-sold-no,
-      ip-sys-ctrl-shipto 
+    IF NOT AVAILABLE tt-list THEN
+        RUN build-list1 (
+            ip-cust-no,
+            ip-sold-no,
+            ip-sys-ctrl-shipto 
 
-      ).
-
+            ).
+    vcBOLFiles = "".
     build-report:
     FOR EACH tt-list WHERE (IF rCurrentInvoice EQ ? THEN TRUE ELSE
-                            tt-list.rec-row = rCurrentInvoice),
-       FIRST {&head} NO-LOCK
-         WHERE ROWID({&head}) EQ tt-list.rec-row,
-         FIRST cust
-         WHERE cust.company EQ cocode
-         AND cust.cust-no EQ {&head}.cust-no
-         AND ((cust.inv-meth EQ ? AND {&head}.{&multiinvoice}) OR
-         (cust.inv-meth NE ? AND NOT {&head}.{&multiinvoice}) OR
-         "{&head}" EQ "ar-inv"
-         )
-         NO-LOCK BY {&head}.{&bolno} :
+        tt-list.rec-row = rCurrentInvoice),
+        FIRST {&head} NO-LOCK
+        WHERE ROWID({&head}) EQ tt-list.rec-row,
+        FIRST cust
+        WHERE cust.company EQ cocode
+        AND cust.cust-no EQ {&head}.cust-no
+        AND ((cust.inv-meth EQ ? AND {&head}.{&multiinvoice}) OR
+        (cust.inv-meth NE ? AND NOT {&head}.{&multiinvoice}) OR
+        "{&head}" EQ "ar-inv"
+        )
+        NO-LOCK BY {&head}.{&bolno} :
 
-            FIND FIRST buf-{&line} NO-LOCK 
-              WHERE buf-{&line}.{&rno} EQ {&head}.{&rno}
-              AND buf-{&line}.bol-no GE fbol
-              AND buf-{&line}.bol-no LE tbol 
-              NO-ERROR. 
+        FIND FIRST buf-{&line} NO-LOCK 
+            WHERE buf-{&line}.{&rno} EQ {&head}.{&rno}
+            AND buf-{&line}.bol-no GE fbol
+            AND buf-{&line}.bol-no LE tbol 
+            NO-ERROR. 
     
                      
-            IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(buf-{&line})) OR {&head}.{&multiinvoice} ) THEN DO:
-               NEXT.            
-            END.
+        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(buf-{&line})) OR {&head}.{&multiinvoice} ) THEN 
+        DO:
+            NEXT.            
+        END.
             
-            vcBOLFiles = "".    
-            IF {&head}.{&multiinvoice} THEN 
-            DO:
-                dtl-ctr = 0.
-                FOR EACH b-{&head}1 NO-LOCK
-                    WHERE b-{&head}1.company       EQ {&head}.company
-                    AND b-{&head}1.cust-no       EQ {&head}.cust-no
-                    AND b-{&head}1.inv-no        EQ {&head}.inv-no
-                    AND b-{&head}1.{&multiinvoice} EQ NO            
-                    AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0,
-                    EACH buf-{&line}1 NO-LOCK 
-                    WHERE buf-{&line}1.{&rno} EQ b-{&head}1.{&rno} :
+                
+        IF {&head}.{&multiinvoice} THEN 
+        DO:
+            dtl-ctr = 0.
+            FOR EACH b-{&head}1 NO-LOCK
+                WHERE b-{&head}1.company       EQ {&head}.company
+                AND b-{&head}1.cust-no       EQ {&head}.cust-no
+                AND b-{&head}1.inv-no        EQ {&head}.inv-no
+                AND b-{&head}1.{&multiinvoice} EQ NO            
+                AND INDEX(vcHoldStats, b-{&head}1.stat) EQ 0,
+                EACH buf-{&line}1 NO-LOCK 
+                WHERE buf-{&line}1.{&rno} EQ b-{&head}1.{&rno} :
     
                     /*
                      {oe/rep/bolcheck.i b-{&head}1 build-report} */
@@ -1212,59 +1278,73 @@ PROCEDURE run-report :
                              NEXT build-report.
                     
                     
-                    RELEASE oe-bolh.
+                RELEASE oe-bolh.
                       
-                    IF buf-{&line}1.{&bolno} EQ 0 THEN
+                IF buf-{&line}1.{&bolno} EQ 0 THEN
                         
-                        FOR EACH oe-bolh NO-LOCK 
-                            WHERE  oe-bolh.b-no EQ buf-{&line}1.{&bno}:
+                    FOR EACH oe-bolh NO-LOCK 
+                        WHERE  oe-bolh.b-no EQ buf-{&line}1.{&bno}:
                             
-                            {&bol-check}
-                        END.
+                        {&bol-check}
+            END.
                     
                     ELSE
                         FOR EACH oe-bolh NO-LOCK
                             WHERE  oe-bolh.b-no  EQ buf-{&line}1.{&bno}
                             BREAK BY oe-bolh.b-no:
                                                         
-                           {&bol-check}
-                        END.
-                                                       
-                IF tb_attachBOL AND SEARCH(vcBOLSignDir + "\" + string(b-{&head}1.{&bolno}) + ".pdf") NE ?  THEN 
-                    vcBOLFiles = vcBOLFiles + "," + SEARCH(vcBOLSignDir + "\" + string(buf-{&line}1.bol-no) + ".pdf").
+        {&bol-check}
+END.
+iBol = 0.
+IF buf-{&line}1.bol-no GT 0 THEN
+    iBol = buf-{&line}1.bol-no.
+ELSE 
+    IF b-{&head}1.{&bolno} GT 0 THEN
+        iBol = b-{&head}1.{&bolno}.
+
+
+IF tb_attachBOL AND SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf") NE ?  THEN 
+    vcBOLFiles = vcBOLFiles + "," + SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf").
+
+RUN create-save-line.
                 
-                RUN create-save-line.
-                
-                ASSIGN 
-                    dtl-ctr = dtl-ctr + 1.
-               END. /* Each b-{&head}1 */
-            END. /* If multi-invoice */
+ASSIGN 
+    dtl-ctr = dtl-ctr + 1.
+END. /* Each b-{&head}1 */
+END. /* If multi-invoice */
 
         ELSE 
         DO:
-          /* Not multi-invoice */
-            /* Was bolcheck.i */
+/* Not multi-invoice */
+/* Was bolcheck.i */
                                     
-            RELEASE oe-bolh.
+RELEASE oe-bolh.
                           
-            IF buf-{&line}.bol-no EQ 0 THEN
-                FOR EACH oe-bolh NO-LOCK 
-                    WHERE oe-bolh.b-no EQ buf-{&line}1.{&bno}:
+IF buf-{&line}.bol-no EQ 0 THEN
+    FOR EACH oe-bolh NO-LOCK 
+        WHERE oe-bolh.b-no EQ buf-{&line}.{&bno}:
                                 
-                    {&bol-check}
-                END.
+        {&bol-check}
+END.
             
             ELSE
               FOR EACH oe-bolh NO-LOCK
-                  WHERE  oe-bolh.b-no  EQ buf-{&line}1.{&bno}
+                  WHERE  oe-bolh.b-no  EQ buf-{&line}.{&bno}
                   BREAK BY oe-bolh.b-no:
                       
-              {&bol-check}
-              END.
+{&bol-check}
+END.
             
-IF tb_attachBOL AND SEARCH(vcBOLSignDir + "\" + string(buf-{&line}1.bol-no) + ".pdf") NE ?  THEN 
-    vcBOLFiles = vcBOLFiles + "," + SEARCH(vcBOLSignDir + "\" + string(buf-{&line}1.bol-no) + ".pdf").
+iBol = 0.
+IF buf-{&line}.bol-no GT 0 THEN
+    iBol = buf-{&line}.bol-no.
+ELSE 
+    IF {&head}.{&bolno} GT 0 THEN
+        iBol = {&head}.{&bolno}.
 
+
+IF tb_attachBOL AND SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf") NE ?  THEN 
+    vcBOLFiles = vcBOLFiles + "," + SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf").
 
 END. /* else do: not for multi-invoice */
 
@@ -1274,9 +1354,10 @@ END. /* else do: not for multi-invoice */
 IF cust.inv-meth EQ ? 
     AND {&head}.{&multiinvoice} 
     AND dtl-ctr LE 0 
-    AND NOT "{&head}" EQ "ar-inv" THEN DO:
-     NEXT.
-     END.
+    AND NOT "{&head}" EQ "ar-inv" THEN 
+DO:
+    NEXT.
+END.
 
 vlSkipRec = NO.
 CREATE report.
@@ -1292,7 +1373,7 @@ ASSIGN
     vcInvNums      = LEFT-TRIM (vcInvNums, '-')  
     report.key-03  = IF v-sort THEN STRING({&head}.inv-no,"9999999999") ELSE ""  .
 
- IF vcInvNums MATCHES '*-*' THEN
+IF vcInvNums MATCHES '*-*' THEN
     vcInvNums = RIGHT-TRIM (SUBSTRING (vcInvNums, 1, INDEX (vcInvNums,'-')), '-') + SUBSTRING (vcInvNums, R-INDEX (vcInvNums, '-')).
 
 /* update loadtag status - Bill of lading task#: 10190414 */
@@ -1513,8 +1594,8 @@ PROCEDURE SendMail-1:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAM icIdxKey   AS CHAR NO-UNDO.
-    DEFINE INPUT PARAM icRecType  AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER icIdxKey   AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER icRecType  AS CHARACTER NO-UNDO.
 
     DEFINE VARIABLE vcSubject  AS CHARACTER NO-UNDO.
     DEFINE VARIABLE vcMailBody AS CHARACTER NO-UNDO.
@@ -1537,7 +1618,7 @@ PROCEDURE SendMail-1:
             DO:
                 MESSAGE 'Failed to rename TEMP file.' SKIP
                     'OS-ERROR : ' OS-ERROR
-                    VIEW-AS ALERT-BOX INFO BUTTONS OK.
+                    VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
             END.
 
             ELSE
@@ -1557,7 +1638,7 @@ PROCEDURE SendMail-1:
     DO:
         MESSAGE 'File attachment is missing.' SKIP
             'FileName: ' list-name
-            VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
         RETURN.
     END.
 
@@ -1572,25 +1653,31 @@ PROCEDURE SendMail-1:
     cAccumInvNums = TRIM(cAccumInvNums + "," + vcInvNums, ",").
 
     IF tb_splitPDF THEN
-    ASSIGN  
-        vcSubject  = "INVOICE:" + cAccumInvNums + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
-        vcSubject  = IF tb_reprint AND NOT tb_email-orig THEN '[REPRINT] ' + vcSubject ELSE vcSubject
-        vcMailBody = "Please review attached Invoice(s) for Invoice #: " + cAccumInvNums
-        list-name = cAccumFileList.
+        ASSIGN  
+            vcSubject  = "INVOICE:" + cAccumInvNums + '   ' + STRING (TODAY, '99/99/9999') + STRING (TIME, 'HH:MM:SS AM')
+            vcSubject  = IF tb_reprint AND NOT tb_email-orig THEN '[REPRINT] ' + vcSubject ELSE vcSubject
+            vcMailBody = "Please review attached Invoice(s) for Invoice #: " + cAccumInvNums
+            list-name  = cAccumFileList.
 
 
     IF vSoldToNo <> "" THEN 
         ASSIGN icRecType = "SoldTo"     
             icIdxKey  = icIdxKey + "|" + (vSoldToNo) +
                        IF vShipToNo <> "" THEN "|" + vShipToNo ELSE "".
+    IF list-name EQ ? OR icIdxKey EQ ? OR vcSubject = ? OR vcMailBody = ? THEN 
+    DO:
+        MESSAGE "Error Encountered: file not found for email." 
+            VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
+        RETURN. 
+    END.
     IF NOT lSupressEmail THEN
-    RUN custom/xpmail2.p   (INPUT   icRecType,
-        INPUT   'R-INVPRT.',
-        INPUT   list-name,
-        INPUT   icIdxKey,
-        INPUT   vcSubject,
-        INPUT   vcMailBody,
-        OUTPUT  vcErrorMsg).
+        RUN custom/xpmail2.p   (INPUT   icRecType,
+            INPUT   'R-INVPRT.',
+            INPUT   list-name,
+            INPUT   icIdxKey,
+            INPUT   vcSubject,
+            INPUT   vcMailBody,
+            OUTPUT  vcErrorMsg).
 /* for email by sold-to: need type "SoldTo" and icIdxKey(cust-no) and new key
    to have sold-no */
 
@@ -1614,12 +1701,13 @@ PROCEDURE setBolDates:
     FIND FIRST {&head} WHERE {&head}.company = g_company
         AND {&head}.inv-no = integer(begin_inv-screen-value) NO-LOCK NO-ERROR.
     IF AVAILABLE {&head} THEN 
-      ASSIGN begin_cust-SCREEN-VALUE = {&head}.cust-no
-             end_cust-SCREEN-VALUE   = {&head}.cust-no
-             opcBeginCust = begin_cust-SCREEN-VALUE
-             opcEndCust   = end_cust-SCREEN-VALUE
-             .
-    IF "{&head}" EQ "inv-head" THEN DO:
+        ASSIGN begin_cust-SCREEN-VALUE = {&head}.cust-no
+            end_cust-SCREEN-VALUE   = {&head}.cust-no
+            opcBeginCust            = begin_cust-SCREEN-VALUE
+            opcEndCust              = end_cust-SCREEN-VALUE
+            .
+    IF "{&head}" EQ "inv-head" THEN 
+    DO:
         IF AVAILABLE {&head} AND {&head}.{&bolno} NE 0 THEN
             FIND FIRST oe-bolh
                 WHERE oe-bolh.company EQ cocode
@@ -1635,7 +1723,7 @@ PROCEDURE setBolDates:
         /* ar-inv case */
         IF AVAILABLE {&head} THEN 
             ASSIGN opdBeginDate = STRING({&head}.inv-date)
-                   opdEndDate   = STRING({&head}.inv-date).
+                opdEndDate   = STRING({&head}.inv-date).
     END. 
 END.
 
@@ -1743,7 +1831,7 @@ PROCEDURE SetInvForm:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER icFormName AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER icFormName AS CHARACTER NO-UNDO.
 
     is-xprint-form = NO.
 
@@ -2331,7 +2419,7 @@ PROCEDURE SetInvPostForm:
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER icFormName AS CHAR NO-UNDO.
+    DEFINE INPUT PARAMETER icFormName AS CHARACTER NO-UNDO.
 
     is-xprint-form = NO.
 
