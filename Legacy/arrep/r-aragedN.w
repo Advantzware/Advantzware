@@ -1815,7 +1815,7 @@ ASSIGN
 
  str-tit3 = "Company From: " + STRING(begin_comp) + " To: " + STRING(end_comp) +  "    As of Date: " + STRING(v-date) 
  {sys/inc/ctrtext.i str-tit3 132}.
- str-tit4 = "Shorted By: " + STRING(rd_sort) + "     "   +  "Aged By : " + STRING(rd_sort2) .
+ str-tit4 = "Sorted By: " + STRING(rd_sort) + "     "   +  "Aged By : " + STRING(rd_sort2) .
  {sys/inc/ctrtext.i str-tit4 132}.
  cstrtit = str-tit2 .
  cstrtit2 = str-tit3 .
