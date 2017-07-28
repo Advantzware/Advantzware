@@ -159,7 +159,7 @@ form header
 {custom/notesdef.i}
 DEF VAR v-inst2 AS cha EXTENT 20 NO-UNDO.    
 DEF VAR v-dept-inst AS cha FORM "x(80)" EXTENT 20 NO-UNDO.
-DEF VAR v-spec-inst AS cha FORM "x(80)" EXTENT 10 NO-UNDO.
+DEF VAR v-spec-inst AS cha FORM "x(80)" EXTENT 20 NO-UNDO.
 DEF VAR v-note-length AS INT INIT 80 NO-UNDO.
 
 DEF VAR v-start-date AS DATE NO-UNDO.
@@ -510,21 +510,21 @@ for each job-hdr NO-LOCK
        if not first(job-hdr.job-no) THEN 
            page.
        view frame head.
-        
 
+       
         PUT "<R-1><#1><C91.5>Date/Time Generated:" SKIP
             "<B>CUSTOMER NAME:</B>" v-cust-name "<B> DUE DATE:     ESTIMATE:" "<C91.5>" lv-prt-date space(1) lv-prt-time SKIP
-            "SHIPTO:</B>" v-shipto[1] v-due-date AT 57 trim(job-hdr.est-no) FORM "x(8)" AT 74
+            "SHIPTO:</B>" v-shipto[1] "<C44>" v-due-date "<C57>" trim(job-hdr.est-no) FORM "x(8)" 
             "<C91.9>Status" SKIP
             v-shipto[2] AT 7 "<C91.9>" lv-prt-sts SKIP
             v-shipto[4] AT 7 SKIP
             v-fill SKIP.     
         /* barcode print */
-        PUT UNFORMATTED "<UNITS=INCHES><AT=.70,7><FROM><AT=+.6,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
+        PUT UNFORMATTED "<r-5.6><#1><UNITS=INCHES><C70><FROM><c90.2><r+3.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
         /*    trim(job-hdr.job-no) "-" STRING(job-hdr.job-no2,"99") ">"
             "<AT=,8.8>" trim(job-hdr.job-no) "-" STRING(job-hdr.job-no2,"99") */
               v-bar-no ">" "   Page#:" string(lv-pg-num2,">>9") + " of " + string(lv-tot-pg) FORM "x(20)"
-            "<AT=,7.8>" v-bar-no  "<=#1><R+5>".
+            "<C78>" v-bar-no  "<=#1><R+5>".
 
         v-line = if avail est                            and
                  est.est-type gt 2 and est.est-type lt 5 then 500 else 50.
@@ -1134,7 +1134,7 @@ for each job-hdr NO-LOCK
              END.
              */
 
-             PUT "<FGColor=Black><BGcolor=White>" SKIP v-fill at 1 skip.
+             PUT "<FGColor=Black><BGcolor=White>" SKIP v-fill at 1 skip(1).
           END. /* last-of(eb.form-no) */
           
         end. /* each eb */
@@ -1142,7 +1142,7 @@ for each job-hdr NO-LOCK
       end. /* first job-no */
 
       if last-of(tt-reftable.val[12]) then do:
-         PUT "<R-1>".
+         PUT "<R-1.4>".
          IF s-run-speed THEN
             PUT "<B>MACHINE                        MR WASTE    MR HRS   RUN SPEED    SPOIL%          INPUT      OUTPUT</B>"
                 SKIP.
