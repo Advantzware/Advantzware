@@ -290,7 +290,7 @@ DEFINE FRAME fMain
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 156.2 BY 27.67.
+         SIZE 160 BY 27.67.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fMain
@@ -384,7 +384,7 @@ DEFINE FRAME fMain
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 156.2 BY 27.67.
+         SIZE 160 BY 27.67.
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME fMain
@@ -474,7 +474,7 @@ DEFINE FRAME fMain
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 156.2 BY 27.67.
+         SIZE 160 BY 27.67.
 
 
 /* *********************** Procedure Settings ************************ */
