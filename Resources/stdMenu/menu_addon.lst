@@ -110,13 +110,7 @@ RULE file
 user mainmenu
 comp_loc. user
 RULE user
-u-fntclr. user
 usermenu. user
-password. user
-RULE user
-saddress. user
-snotes. user
-sphone. user
 codes mainmenu
 statecod. codes
 titlcode. codes
