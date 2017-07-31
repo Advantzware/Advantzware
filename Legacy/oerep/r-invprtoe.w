@@ -36,10 +36,13 @@ CREATE WIDGET-POOL.
 &global-define soldno sold-no
 &global-define rno x-no
 &global-define miscrno r-no
+&global-define vprgmname "r-invprt."
 &ENDIF
 
 /* Parameters Definitions ---                                           */
-define input parameter ipcInvoiceType as char no-undo.
+DEFINE INPUT PARAMETER ipcInvoiceType AS CHAR NO-UNDO.
+DEFINE INPUT PARAMETER ipcPrgmnameOverride AS CHAR NO-UNDO.
+
 
 /* Local Variable Definitions ---                                       */
 DEF    VAR      list-name  AS cha       NO-UNDO.
@@ -47,7 +50,7 @@ DEFINE VARIABLE init-dir   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cActualPdf AS CHARACTER NO-UNDO.
 DEFINE VARIABLE hSuperProc AS HANDLE.
 {methods/defines/hndldefs.i}
-&global-define vprgmname "r-invprt."
+
 {custom/prgsecur.i}
 
 {custom/gcompany.i}
@@ -146,7 +149,8 @@ DEFINE            VARIABLE glPaperless       AS LOGICAL   NO-UNDO.
 
 DEF VAR vSoldToNo AS CHAR NO-UNDO.  /* to hold soldto# for email */
 DEF VAR vShipToNo AS CHAR NO-UNDO.  /* to hold shipto# for email */
-
+/* Allows for other names besides r-invprt. */
+v-prgmname = ipcPrgmnameOverride.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -322,92 +326,92 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 13.81.
 
-DEFINE VARIABLE tbPostedAR AS LOGICAL INITIAL no 
+DEFINE VARIABLE tbPostedAR AS LOGICAL INITIAL NO 
      LABEL "Posted AR Invoices" 
      VIEW-AS TOGGLE-BOX
      SIZE 30.8 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_attachBOL AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_attachBOL AS LOGICAL INITIAL NO 
      LABEL "Attach Signed BOL" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_BatchMail AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_BatchMail AS LOGICAL INITIAL NO 
      LABEL "&Batch E-Mail" 
      VIEW-AS TOGGLE-BOX
      SIZE 19.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_collate AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_collate AS LOGICAL INITIAL NO 
      LABEL "Collate?" 
      VIEW-AS TOGGLE-BOX
      SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_cust-copy AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_cust-copy AS LOGICAL INITIAL NO 
      LABEL "Customer Copy?" 
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_email-orig AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_email-orig AS LOGICAL INITIAL NO 
      LABEL "Email as Original?" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_HideDialog AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_HideDialog AS LOGICAL INITIAL NO 
      LABEL "&Hide Dialog-Box" 
      VIEW-AS TOGGLE-BOX
      SIZE 19.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_office-copy AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_office-copy AS LOGICAL INITIAL NO 
      LABEL "Office Copy?" 
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_override-email AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_override-email AS LOGICAL INITIAL YES 
      LABEL "Ignore Paperless Setting?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_posted AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_posted AS LOGICAL INITIAL NO 
      LABEL "Reprint Posted Invoices?" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_print-dept AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_print-dept AS LOGICAL INITIAL NO 
      LABEL "Print Dept Notes?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_prt-inst AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_prt-inst AS LOGICAL INITIAL YES 
      LABEL "Print Instructions?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_prt-zero-qty AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tb_prt-zero-qty AS LOGICAL INITIAL YES 
      LABEL "Print if Inv/Ship Qty = 0?" 
      VIEW-AS TOGGLE-BOX
      SIZE 28.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_reprint AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_reprint AS LOGICAL INITIAL NO 
      LABEL "Reprint Invoices?" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_setcomp AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_setcomp AS LOGICAL INITIAL NO 
      LABEL "Print Set Component?" 
      VIEW-AS TOGGLE-BOX
      SIZE 25.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_sman-copy AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_sman-copy AS LOGICAL INITIAL NO 
      LABEL "SalesRep Copy?" 
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_splitPDF AS LOGICAL INITIAL no 
+DEFINE VARIABLE tb_splitPDF AS LOGICAL INITIAL NO 
      LABEL "PDF Per Invoice" 
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -503,15 +507,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -704,7 +708,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -815,7 +819,10 @@ DO:
             ASSIGN {&DISPLAYED-OBJECTS}
                 tb_collate lv-scr-num-copies
                 tb_cust-copy tb_office-copy tb_sman-copy
-                /* gdm - 12080817 */ tb_setcomp tbPostedAR.
+                /* gdm - 12080817 */ tb_setcomp tbPostedAR
+                .
+            if begin_bol:SENSITIVE THEN 
+                ASSIGN begin_bol end_bol.
 
             IF fi_broker-bol:SENSITIVE THEN
                 ASSIGN fi_broker-bol.
@@ -1081,13 +1088,13 @@ DO:
 
        IF begin_inv = END_inv THEN DO:
 
-          RUN setBolDates (INPUT begin_inv:screen-value, input end_inv:screen-value, INPUT begin_cust:SCREEN-VALUE, INPUT end_cust:SCREEN-VALUE, 
+          RUN setBolDates (INPUT begin_inv:screen-value, INPUT end_inv:screen-value, INPUT begin_cust:SCREEN-VALUE, INPUT end_cust:SCREEN-VALUE, 
                            OUTPUT cBeginBolDate, OUTPUT cEndBolDate,
                            OUTPUT cBeginCustomer, OUTPUT cEndCustomer).
 
           IF cBeginBolDate NE ? THEN ASSIGN begin_date:SCREEN-VALUE = cBeginBolDate
                                             end_date:SCREEN-VALUE   = cEndBolDate.
-          if cBeginCustomer ne ? and cEndCustomer ne ? THEN 
+          IF cBeginCustomer NE ? AND cEndCustomer NE ? THEN 
              ASSIGN begin_cust:SCREEN-VALUE = cBeginCustomer
                     end_cust:SCREEN-VALUE   = cEndCustomer.
                     
@@ -1293,7 +1300,7 @@ DO:
        THIS-PROCEDURE:REMOVE-SUPER-PROCEDURE (hSuperProc).
        DELETE OBJECT hSuperProc.
     END.
-  IF ipcInvoiceType eq "inv-head" AND NOT tb_posted THEN DO:
+  IF ipcInvoiceType EQ "inv-head" AND NOT tb_posted THEN DO:
 
     ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning BOL Date:"
            fiEndDateLabel:SCREEN-VALUE = "Ending BOL Date:"
@@ -1309,7 +1316,7 @@ DO:
    ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Inv Date:"
           fiEndDateLabel:SCREEN-VALUE = "Ending Inv Date:".
    /* Posted AR not needed from A-U-3 */
-   IF ipcInvoiceType eq "ar-inv"  THEN
+   IF ipcInvoiceType EQ "ar-inv"  THEN
      ASSIGN
             tbPostedAr:HIDDEN = YES
             tbPostedAR:SENSITIVE = NO
@@ -1411,17 +1418,17 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 
 /* The CLOSE event can be used from inside or outside the procedure to  */
 /* terminate it.                                                        */
-ON CLOSE OF THIS-PROCEDURE do:
+ON CLOSE OF THIS-PROCEDURE DO:
     
     DELETE OBJECT hSuperProc.
     RUN disable_UI.
-end.
+END.
 
 /* Best default for GUI applications is...                              */
 PAUSE 0 BEFORE-HIDE.
 
 /* {oerep/r-invprt.i} */
-if ipcInvoiceType eq "inv-head" then DO:
+IF ipcInvoiceType EQ "inv-head" THEN DO:
   ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning BOL Date:"
          fiEndDateLabel:SCREEN-VALUE = "Ending BOL Date:"
          .
@@ -1491,6 +1498,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ASSIGN
         begin_date = TODAY
         end_date   = TODAY.
+        
     IF ipcInvoiceType EQ "inv-head" THEN 
       ASSIGN begin_bol:HIDDEN = NO
              begin_bol:SENSITIVE = YES
