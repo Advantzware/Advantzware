@@ -819,7 +819,10 @@ DO:
             ASSIGN {&DISPLAYED-OBJECTS}
                 tb_collate lv-scr-num-copies
                 tb_cust-copy tb_office-copy tb_sman-copy
-                /* gdm - 12080817 */ tb_setcomp tbPostedAR.
+                /* gdm - 12080817 */ tb_setcomp tbPostedAR
+                .
+            if begin_bol:SENSITIVE THEN 
+                ASSIGN begin_bol end_bol.
 
             IF fi_broker-bol:SENSITIVE THEN
                 ASSIGN fi_broker-bol.
@@ -1495,6 +1498,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     ASSIGN
         begin_date = TODAY
         end_date   = TODAY.
+        
     IF ipcInvoiceType EQ "inv-head" THEN 
       ASSIGN begin_bol:HIDDEN = NO
              begin_bol:SENSITIVE = YES

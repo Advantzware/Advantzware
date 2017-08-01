@@ -272,6 +272,7 @@ PROCEDURE assignSelections:
 
         tb_splitPDF       = iptbSplitPDF
         .
+
 END. 
 /* end input parameters */
 /* ********************  Preprocessor Definitions  ******************** */
@@ -1092,7 +1093,6 @@ PROCEDURE build-list1:
         ASSIGN
             v-print-dept = LOGICAL(tb_print-dept-screen-value)
             v-depts      = fi_depts-screen-value.
-
     FOR EACH {&head} NO-LOCK
         WHERE {&head}.company         EQ cocode
         AND {&head}.cust-no         GE fcust
@@ -1119,18 +1119,23 @@ PROCEDURE build-list1:
         "{&head}" EQ "ar-inv"
         )
         NO-LOCK BY {&head}.{&bolno} :
+        
         FIND FIRST buf-{&line} NO-LOCK 
             WHERE buf-{&line}.{&rno} EQ {&head}.{&rno}
-            AND buf-{&line}.bol-no GE fbol
-            AND buf-{&line}.bol-no LE tbol 
+            no-error.
+            
+        if avail buf-{&line} THEN 
+            FIND FIRST oe-boll where oe-boll.b-no eq buf-{&line}.{&bno}
+            AND oe-boll.bol-no GE fbol
+            AND oe-boll.bol-no LE tbol 
             NO-ERROR. 
 
-        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(buf-{&line})) OR {&head}.{&multiinvoice} )  THEN 
+        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(oe-boll)) OR {&head}.{&multiinvoice} )  THEN 
         DO:
             IF "{&head}" EQ "inv-head" THEN
                 NEXT.            
         END.
-        
+
         CREATE tt-list.
         tt-list.rec-row = ROWID({&head}).
 
@@ -1237,15 +1242,25 @@ PROCEDURE run-report :
         "{&head}" EQ "ar-inv"
         )
         NO-LOCK BY {&head}.{&bolno} :
-
+/*
         FIND FIRST buf-{&line} NO-LOCK 
             WHERE buf-{&line}.{&rno} EQ {&head}.{&rno}
             AND buf-{&line}.bol-no GE fbol
             AND buf-{&line}.bol-no LE tbol 
             NO-ERROR. 
+*/
+        FIND FIRST buf-{&line} NO-LOCK 
+            WHERE buf-{&line}.{&rno} EQ {&head}.{&rno}
+            no-error.
+            
+        if avail buf-{&line} THEN 
+            FIND FIRST oe-boll where oe-boll.b-no eq buf-{&line}.{&bno}
+              AND oe-boll.bol-no GE fbol
+              AND oe-boll.bol-no LE tbol 
+            NO-ERROR. 
     
                      
-        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(buf-{&line})) OR {&head}.{&multiinvoice} ) THEN 
+        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(oe-boll)) OR {&head}.{&multiinvoice} ) THEN 
         DO:
             NEXT.            
         END.
