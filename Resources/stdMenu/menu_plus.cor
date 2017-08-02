@@ -619,7 +619,6 @@ utlookmn. s8 est
 wNewLic. s8 est
 userCtrl. s8 est
 custproc. s est
-u-fntclr. s est
 s11 s est
 patchhst. s11 est
 updcust#. s11 est
@@ -666,13 +665,7 @@ RULE file est
 user mainmenu est
 comp_loc. user est
 RULE user est
-u-fntclr. user est
 usermenu. user est
-password. user est
-RULE user est
-saddress. user est
-snotes. user est
-sphone. user est
 codes mainmenu est
 statecod. codes est
 titlcode. codes est
