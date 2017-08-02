@@ -442,10 +442,13 @@ ASSIGN
                            AND reftable.loc EQ ''
                            AND reftable.code EQ b-eb.stack-code NO-ERROR.
        IF AVAILABLE reftable AND SEARCH(reftable.dscr) NE ? THEN lv-spattern-img =  reftable.dscr.
-
-       PUT "<P10></PROGRESS>" SKIP "<FCourier New><C2><B>" lv-au "<C33>" lv-est-type "</B>"
-       "<P12><B><C90>JOB TICKET" /*AT 140*/  /*caps(SUBSTRING(v-fg,1,1)) FORM "x" AT 40*/       
-       SKIP
+       
+       PUT "<P10></PROGRESS>" SKIP(0.5) "<FCourier New><C2><B>" lv-au "<C33>" lv-est-type "</B>".
+       PUT "<P12><B><C94>JOB TICKET" SKIP. /*AT 140*/  /*caps(SUBSTRING(v-fg,1,1)) FORM "x" AT 40*/       
+      
+       PUT UNFORMATTED "<r-2><UNITS=INCHES><C75><FROM><c92><r+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
+              v-job-prt ">" SKIP "<r-1>".
+       PUT
        "<#1><C1><FROM><C106><R+45><RECT><||3><C80><P10></B>" v-qa-text "<B>"
        "<=1><R-2><C33><B><P12>" v-managed-order "</B>"
        "<=1><C32><FROM><R+45><C32><LINE><||3>"
@@ -462,8 +465,9 @@ ASSIGN
        "<=1><R+27><C1><FROM><C32><LINE><||3>"   /*packing*/
        {cecrep/p-wastebox.i} 
        "<=1><R+28><C66><FROM><C106><LINE><||3>"   /*Printint*/
+       "<=1><R+28><C96><FROM><R+11><LINE><||3>"
        "<=1><R+35><C1><FROM><C32><LINE><||3>"   /*machine routing*/
-       "<=1><R+35><C20.8><FROM><R+10><LINE><||3>"
+      /* "<=1><R+35><C20.8><FROM><R+10><LINE><||3>" */
        "<=1><R+40><C66><FROM><C106><LINE><||3>"   /*sheets ordered*/
        "<=1><R+40><C71><P8><U>Sheets Ordered:</U>          <U>Due Date:</U>      <U>Supplier:</U>"
        "<=1><R+40><C86><FROM><R+5><LINE><||3>"   
@@ -748,10 +752,11 @@ ASSIGN
 
 
       DISPLAY "<P8><U>Packing:</U>" AT 13
-              "<U>Printing:</U>" AT 125
+              "<U>Printing:</U>                   <U>Sheets:</U>" AT 125
               "<P10>"SKIP
               v-cas-desc AT 3 FORM "x(25)"
-              "<B>PRINTING PLATE #:" AT 80 xeb.plate-no WHEN AVAILABLE xeb "</B>"
+              "<B>PRINTING PLATE #:" AT 80 xeb.plate-no FORMAT "x(15)" WHEN AVAILABLE xeb "</B>"
+              "<P8><U>Received:</U></P8>" AT 123
               SKIP
               "# Per Bndl:"        AT 3
               xeb.cas-cnt WHEN AVAILABLE xeb
@@ -788,7 +793,7 @@ ASSIGN
          i = 0.
 
       PUT SKIP(3)
-          "<R-3><P8>        <U>Machine Routing:</U>              <U>Sheets</U>"
+          "<R-3><P8>     <U>Machine Routing:</U>       <U>MR STD</U>    <U>RUN STD</U>"
           "<P10>"  SKIP.
       
       FOR EACH w-m BY w-m.dseq:
@@ -798,7 +803,7 @@ ASSIGN
            v-letter = substr("UTE",i,1)
            v-lines = v-lines + 1.
 
-        DISPLAY w-m.dscr AT 3   "<P8><U>Received:</U><P10>" WHEN i = 1 AT 29
+        DISPLAY "<C2>" w-m.dscr FORMAT "x(20)" "<C18>" w-m.s-hr FORMAT ">>9.99" "<C25>" w-m.r-hr FORMAT ">>9.99"   /*"<P8><U>Received:</U><P10>" WHEN i = 1 AT 29*/
             WITH NO-BOX NO-LABELS FRAME oo1 WIDTH 150 NO-ATTR-SPACE DOWN STREAM-IO.
         
       END.
