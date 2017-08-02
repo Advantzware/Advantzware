@@ -1,4 +1,6 @@
 /* inv-hea_.w */
+ 
+&global-define vprgmname "inv-hea_."
 
 {oerep/r-invprt.w}
 

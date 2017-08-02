@@ -354,7 +354,7 @@ END.
        d      = v-date - ar-inv.{&date}
        ni     = ni + 1
        v-type = IF ar-inv.terms EQ "FCHG" THEN "FC" ELSE "IN".
-
+       
       for each ar-cashl
           where ar-cashl.company  eq ar-inv.company
             and ar-cashl.posted   eq yes

@@ -109,7 +109,7 @@ ASSIGN cTextListToSelect = "Job#,Job#2,Item Code,Description,Cust. #,Customer Na
                        "TotaL ACT Cost,Total Stnd Cost,Total Var,Total Var%," +
                        "MAT Usage,Board Usage,Other Usage,Labor Eff,Fixed O/H Eff,Var O/H Eff,Total Var," +
                        "SP Standard,SP Actual,COS Stand,COS Actual," +
-                       "Cont. Stand,Cont. Actual,%Cont. Stand,%Cont Actual,Total Variance" 
+                       "Cont. Stand,Cont. Actual,%Cont. Stand,%Cont Actual,Total Variance,Job Close Date,Ship To,Release Date,Prod. Com. Date,Manufacturing Date" 
 
        cFieldListToSelect = "job,job2,ino,dscr,cust,cust-name,qty-ord,qty-pro,mat-act-cst," +
                                         "mat-stnd-cost,mat-var,mar-%-var,brd-act-cst,oth-act-cst,brd-stnd-cost,oth-stnd-cost,brd-var," +
@@ -120,10 +120,10 @@ ASSIGN cTextListToSelect = "Job#,Job#2,Item Code,Description,Cust. #,Customer Na
                                         "ttl-act-cost,ttl-stnd-cst,ttl-var,ttl-%var," + 
                                         "mat-usg,brd-usg,oth-usg,lbr-eff,fix-oh-eff,var-on-eff,ttl-var," + 
                                         "sp-stnd,sp-act,cos-stnd,cos-act," + 
-                                        "cnt-stnd,cnt-acl,%-cnt-stnd,%cnt-acl,ttl-varnc" 
+                                        "cnt-stnd,cnt-acl,%-cnt-stnd,%cnt-acl,ttl-varnc,job-cls-date,shp-to,rel-date,prd-cmp-date,mfg-date" 
        cFieldLength = "6,5,15,30,8,30,13,13,15," + "15,15,9,15,15,15,15,15,"  + "15,11,11,15,15,15," + "9,18,19,"  
-                                + "15,15,16," + "17,15,13,"  + "15,15,15,10," + "15,15,15,15,15,15,15,"  + "15,15,15,15," + "15,15,15,15,15"  
-       cFieldType = "c,c,c,c,c,c,i,i,i," + "i,i,i,i,i,i,i,i,"  + "i,i,i,i,i,i," + "i,i,i,"  + "i,i,i," + "i,i,i,"  + "i,i,i,i," + "i,i,i,i,i,i,i,"  + "i,i,i,i," + "i,i,i,i,i" 
+                                + "15,15,16," + "17,15,13,"  + "15,15,15,10," + "15,15,15,15,15,15,15,"  + "15,15,15,15," + "15,15,15,15,15,14,8,12,15,18"  
+       cFieldType = "c,c,c,c,c,c,i,i,i," + "i,i,i,i,i,i,i,i,"  + "i,i,i,i,i,i," + "i,i,i,"  + "i,i,i," + "i,i,i,"  + "i,i,i,i," + "i,i,i,i,i,i,i,"  + "i,i,i,i," + "i,i,i,i,i,c,c,c,c,18" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -2006,6 +2006,8 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(2000)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(2000)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(3000)" NO-UNDO.
+DEFINE VARIABLE cRelDate AS DATE NO-UNDO.
+DEFINE VARIABLE cProdDate AS DATE NO-UNDO.
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -2222,6 +2224,36 @@ FOR EACH tt-report,
             FIND itemfg NO-LOCK 
                 WHERE itemfg.company = cocode 
                   AND itemfg.i-no    = work-item.i-no NO-ERROR.
+       
+            FIND FIRST oe-ordl NO-LOCK
+              WHERE oe-ordl.company EQ cocode
+                AND oe-ordl.job-no  EQ job-hdr.job-no
+                AND oe-ordl.job-no2 EQ job-hdr.job-no2
+                AND oe-ordl.ord-no  EQ job-hdr.ord-no
+                AND oe-ordl.i-no    EQ job-hdr.i-no NO-ERROR.
+          IF AVAILABLE oe-ordl THEN
+          FIND FIRST oe-rel NO-LOCK
+            WHERE oe-rel.company   EQ oe-ordl.company
+              AND oe-rel.ord-no    EQ oe-ordl.ord-no
+              AND oe-rel.i-no      EQ oe-ordl.i-no
+              AND oe-rel.line      EQ oe-ordl.LINE NO-ERROR.
+
+          IF AVAILABLE oe-rel THEN
+             FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rel.r-no NO-LOCK NO-ERROR.
+
+          cRelDate = IF AVAILABLE oe-relh THEN oe-relh.rel-date ELSE IF AVAILABLE oe-rell THEN oe-rel.rel-date ELSE ?. 
+          cProdDate = ?.
+          FOR EACH fg-rcpth NO-LOCK
+            WHERE fg-rcpth.company   EQ job.company
+              AND fg-rcpth.job-no    EQ job.job-no
+              AND fg-rcpth.job-no2   EQ job.job-no2
+              AND fg-rcpth.i-no      EQ job-hdr.i-no
+              AND fg-rcpth.rita-code EQ "R"
+              USE-INDEX job
+              BY fg-rcpth.trans-date DESC:
+              cProdDate = fg-rcpth.trans-date.
+              LEAVE.
+          END.
 
           IF NOT tgl_SumTot THEN do:
             ASSIGN cDisplay = ""
@@ -2266,13 +2298,13 @@ FOR EACH tt-report,
                          WHEN "var-oh-var"              THEN cVarValue = STRING((v-est-voh-cost - v-act-voh-cost),"->>>,>>>,>>9.99") .                                                                                                                                                                                                                                
                          WHEN "var-oh-%-var"            THEN cVarValue = IF v-act-voh-cost NE 0 THEN STRING((((v-est-voh-cost - v-act-voh-cost) / v-act-voh-cost) * 100),"->>>>>9.9") ELSE "" .                                                                                                                                           
                          WHEN "ttl-act-cost"            THEN cVarValue = STRING((v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost),"->>>,>>>,>>9.99") .                                                                                                                                            
-                         WHEN "ttl-stnd-cst"                THEN cVarValue = STRING((v-est-mAT-cost + v-est-lab-cost + v-est-foh-cost + v-est-voh-cost),"->>>,>>>,>>9.99")     .                                                                                                                                               
-                         WHEN "ttl-var"                        THEN cVarValue = STRING(((v-est-mAT-cost + v-est-lab-cost + v-est-foh-cost + v-est-voh-cost) - (v-act-mAT-cost + v-act-lab-cost +  v-act-foh-cost + v-act-voh-cost)),"->>>,>>>,>>9.99")  .                                                                                                                                     
+                         WHEN "ttl-stnd-cst"            THEN cVarValue = STRING((v-est-mAT-cost + v-est-lab-cost + v-est-foh-cost + v-est-voh-cost),"->>>,>>>,>>9.99")     .                                                                                                                                               
+                         WHEN "ttl-var"                 THEN cVarValue = STRING(((v-est-mAT-cost + v-est-lab-cost + v-est-foh-cost + v-est-voh-cost) - (v-act-mAT-cost + v-act-lab-cost +  v-act-foh-cost + v-act-voh-cost)),"->>>,>>>,>>9.99")  .                                                                                                                                     
                          WHEN "ttl-%var"                THEN cVarValue = IF v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost NE 0 THEN STRING(((((v-est-mAT-cost + v-est-lab-cost + v-est-foh-cost + v-est-voh-cost) - (v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost)) / (v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost)) * 100.00),"->>>>>9.9") ELSE "".
                          WHEN "mat-usg"                 THEN cVarValue = STRING((v-est-mAT-cost - v-act-mAT-cost),"->>>,>>>,>>9.99") .
                          WHEN "brd-usg"                 THEN cVarValue = STRING((v-est-board-mat-cost - v-act-board-mat-cost),"->>>,>>>,>>9.99") .                                                                                                                                                                                                                       
                          WHEN "oth-usg"                 THEN cVarValue = STRING((v-est-other-mat-cost - v-act-other-mat-cost),"->>>,>>>,>>9.99") .                                                                                                                                                                                                                       
-                         WHEN "lbr-eff"                  THEN cVarValue = STRING((v-est-lab-cost - v-act-lab-cost),"->>>,>>>,>>9.99") .                                                                                                                                                                                                                      
+                         WHEN "lbr-eff"                 THEN cVarValue = STRING((v-est-lab-cost - v-act-lab-cost),"->>>,>>>,>>9.99") .                                                                                                                                                                                                                      
                          WHEN "fix-oh-eff"              THEN cVarValue = STRING((v-est-foh-cost - v-act-foh-cost),"->>>,>>>,>>9.99") .                                                                                                                                                                                                                   
                          WHEN "var-on-eff"              THEN cVarValue = STRING((v-est-voh-cost - v-act-voh-cost),"->>>,>>>,>>9.99") .                                                                                                                                                                                                                                
                          WHEN "ttl-var"                 THEN cVarValue = STRING(((v-est-mAT-cost + v-est-lab-cost + v-est-foh-cost + v-est-voh-cost) - (v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost)),"->>>,>>>,>>9.99") .                                                                                                                          
@@ -2285,7 +2317,11 @@ FOR EACH tt-report,
                          WHEN "%-cnt-stnd"              THEN cVarValue = IF v-std-price NE 0 THEN STRING((((v-std-price - (v-est-mAT-cost + v-est-lab-cost + v-est-foh-cost + v-est-voh-cost)) / v-std-price) * 100.00),"->>>>>9.9") ELSE "".  
                          WHEN "%cnt-acl"                THEN cVarValue = IF v-act-price NE 0 THEN STRING((((v-act-price - (v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost)) / v-act-price) * 100.00),"->>>>>9.9") ELSE "" .
                          WHEN "ttl-varnc"               THEN cVarValue = STRING(((v-est-mAT-cost + v-est-lab-cost + v-est-foh-cost + v-est-voh-cost) - (v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost)),"->>>,>>>,>>9.99").                                                                                                                                                                                                                                
-                                                                                                                                                                                                                        
+                         WHEN "job-cls-date"            THEN cVarValue = IF job.close-date <> ? THEN STRING(job.close-date,"99/99/9999") ELSE ""  .
+                         WHEN "shp-to"                  THEN cVarValue = IF AVAILABLE oe-rel THEN STRING(oe-rel.ship-id,"x(8)") ELSE ""  .
+                         WHEN "rel-date"                THEN cVarValue = IF cRelDate <> ? THEN STRING(cRelDate,"99/99/9999") ELSE ""  .
+                         WHEN "prd-cmp-date"            THEN cVarValue = IF cProdDate <> ? THEN STRING(cProdDate,"99/99/9999") ELSE "" .
+                         WHEN "mfg-date"                THEN cVarValue = IF AVAILABLE oe-ordl AND oe-ordl.prom-date <> ? THEN STRING(oe-ordl.prom-date,"99/99/9999") ELSE ""  .
                                                                                                                                                                                                                                                                  
                     END CASE.                                                                                                                                                                                                                                  
                                                                                                                                                                                                                                                                 

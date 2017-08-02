@@ -2254,8 +2254,15 @@ FOR EACH tt-quote,
                      WHERE itemfg.company EQ cocode
                        AND itemfg.i-no EQ quoteitm.i-no 
                      NO-ERROR .
-                IF AVAIL itemfg AND itemfg.stocked AND AVAIL oe-ordl THEN TRUE .
-                ELSE IF AVAIL est AND est.ord-no EQ 0 THEN NEXT. 
+                /* This... */
+                IF NOT AVAIL itemfg
+                OR (AVAIL itemfg AND NOT itemfg.stocked)
+                OR NOT AVAIL oe-ordl THEN DO:
+                    IF AVAIL est AND est.ord-no EQ 0 THEN NEXT. 
+                END.
+                /* Should be functionally equivalent to this: (which throws a compile warning) */
+/*                IF AVAIL itemfg AND itemfg.stocked AND AVAIL oe-ordl THEN TRUE . */
+/*                ELSE IF AVAIL est AND est.ord-no EQ 0 THEN NEXT.                 */
             END.
            END.
            ELSE

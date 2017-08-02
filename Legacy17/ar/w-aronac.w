@@ -502,7 +502,7 @@ PROCEDURE local-change-page :
   DEF VAR lv-ok AS LOG NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  {methods/winReSizePgChg.i}
+/*  {methods/winReSizePgChg.i}*/
 
   RUN GET-ATTRIBUTE ('current-page').
   ASSIGN lv-prev-page = lv-curr-page

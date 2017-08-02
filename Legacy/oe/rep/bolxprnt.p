@@ -188,7 +188,6 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
     IF v-phone = "" THEN v-phone = "(" + shipto.area-code + ")" + string(shipto.phone,"xxx-xxxx").
     IF v-shipto-contact = "" THEN v-shipto-contact = shipto.contact.
-
     if shipto.broker then DO:
        ASSIGN v-comp-add1 = cust.addr[1]
               v-comp-add2 = cust.addr[2]
@@ -220,13 +219,28 @@ for each xxreport where xxreport.term-id eq v-term-id,
                 v-comp-add5 = v-cusx-add5
                 lv-email    = v-cusx-email
                 lv-comp-name = v-cusx-name.
-    assign
+
+    FIND FIRST oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK NO-ERROR.
+    IF AVAIL oe-boll THEN DO:
+        FIND FIRST oe-ord WHERE oe-ord.company = oe-bolh.company
+            AND oe-ord.ord-no = oe-boll.ord-no NO-LOCK NO-ERROR.
+        IF AVAIL oe-ord THEN
+            assign
+            v-comp-name    = oe-ord.sold-name
+            v-comp-addr[1] = oe-ord.sold-addr[1]
+            v-comp-addr[2] = oe-ord.sold-addr[2]
+            v-comp-addr3   = oe-ord.sold-city + ", " +
+                             oe-ord.sold-state + "  " +
+                             oe-ord.sold-zip.
+    END.
+
+  /*  assign
        v-comp-name    = cust.name
        v-comp-addr[1] = cust.addr[1]
        v-comp-addr[2] = cust.addr[2]
        v-comp-addr3   = cust.city + ", " +
                         cust.state + "  " +
-                        cust.zip.
+                        cust.zip. */
 
     if trim(v-comp-addr3) eq "," then v-comp-addr3 = "".
               

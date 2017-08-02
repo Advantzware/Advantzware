@@ -17,25 +17,13 @@ DEFINE VARIABLE cCustPartNo AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustName   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemFG     AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJobNo      AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iStartTime  AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iEndTime    AS INTEGER   NO-UNDO INITIAL 86400.
 
 /* subject business logic */
-FIND FIRST shifts NO-LOCK
-     WHERE shifts.company EQ ipcCompany
-       AND shifts.shift   EQ STRING(iStartShift)
-     NO-ERROR.
-IF AVAILABLE shifts THEN
-iStartTime = shifts.start_time.
+{aoa/includes/shiftStartEndTime.i}
 
-IF iStartShift NE iEndShift THEN DO:
-    FIND FIRST shifts NO-LOCK
-         WHERE shifts.company EQ ipcCompany
-           AND shifts.shift   EQ STRING(iEndShift)
-         NO-ERROR.
-    IF AVAILABLE shifts THEN
-    iEndTime = shifts.end_time.
-END. /* different shifts */
+IF dtStartMachTranDate EQ dtEndMachTranDate AND
+   iShiftEndTime LT iShiftStartTime THEN
+iShiftEndTime = 86400.
 
 FOR EACH machtran NO-LOCK
     WHERE machtran.company    EQ ipcCompany
@@ -45,10 +33,8 @@ FOR EACH machtran NO-LOCK
       AND machtran.start_date LE dtEndMachTranDate
       AND machtran.shift      GE STRING(iStartShift)
       AND machtran.shift      LE STRING(iEndShift)
-      AND DATETIME(machtran.start_date,machtran.start_time)
-       GE DATETIME(dtStartMachTranDate,iStartTime)
-      AND DATETIME(machtran.start_date,machtran.start_time)
-       LE DATETIME(dtEndMachTranDate,iEndTime)
+      AND DATETIME(machtran.start_date,machtran.start_time) GE DATETIME(dtStartMachTranDate,iShiftStartTime)
+      AND DATETIME(machtran.start_date,machtran.start_time) LE DATETIME(dtEndMachTranDate,iShiftEndTime)
     :
     cJobNo = machtran.job_number + "-" + STRING(machtran.job_sub,"99").
     FIND FIRST ttMachineTransactionSummary

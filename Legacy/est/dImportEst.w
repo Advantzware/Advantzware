@@ -512,7 +512,7 @@ PROCEDURE pImport :
                             cSkipImport
                             .
                        
-                        IF TRIM(cSkipImport) NE "Y" THEN DO:           
+                        IF NOT TRIM(cSkipImport) BEGINS "Y" THEN DO:           
                             iLines = iLines + 1.
                             IF iLines = 1 AND lHeaderRow THEN NEXT.
                             IF iLines EQ 100 THEN 

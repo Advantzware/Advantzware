@@ -609,7 +609,7 @@ DO:
   DEFINE VARIABLE cGetField AS CHARACTER NO-UNDO.
 
   IF svLookupDB EQ "" THEN
-  svLookupDB = "NOSWEAT".
+  svLookupDB = "ASI".
   CREATE ALIAS dictdb FOR DATABASE VALUE(svLookupDB).
   cGetField = svLookupDB:SCREEN-VALUE + "."
             + svLookupFile:SCREEN-VALUE + "."

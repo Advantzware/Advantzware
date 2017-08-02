@@ -247,7 +247,7 @@ DO:
                 RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
                 cUDFSTring = "SmartName " + 'Name="Caliper" Value="' + ttTempJob.Caliper    + '"/'.
                 RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
-                cUDFSTring = "SmartName " + 'Name="Seal End Full Overlap" Value="' + ttTempJob.Structure  + '"/'.
+                cUDFSTring = "SmartName " + 'Name="Style Code" Value="' + ttTempJob.Structure  + '"/'.
                 RUN XMLOutput (lXMLOutput,cUDFString,'','Row').
                 cUDFSTring = "SmartName " + 'Name="Board" Value="' + ttTempJob.Board      + '"/'.
                 RUN XMLOutput (lXMLOutput,cUDFString,'','Row').

@@ -287,8 +287,9 @@ ASSIGN
   {sys/inc/outprint.i value(lines-per-page)} 
       VIEW FRAME r-top.
       VIEW FRAME top.
-  IF cBarCodeProgram EQ 'Loftware' then cLoadtagFile = 'loadtag.lt'.
-  ELSE cLoadtagFile EQ 'loadtag.txt'.
+  IF cBarCodeProgram EQ 'Loftware' then 
+        cLoadtagFile = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY),"99") + STRING(TIME) + SUBSTRING(STRING(NOW),21,3) + '.lt'.
+  ELSE cLoadtagFile = 'loadtag.txt'.
   IF v-out = "" THEN v-out = "c:~\ba~\label~\" + cLoadtagFile.
   ELSE do:
      IF SUBSTRING(v-out,LENGTH(v-out),1) = "/" OR

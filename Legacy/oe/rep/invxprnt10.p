@@ -730,23 +730,23 @@ find first company where company.company eq cocode NO-LOCK.
     v-inv-freight = if inv-head.f-bill THEN inv-head.t-inv-freight ELSE 0.
 
     IF v-bot-lab[4] <> "" THEN
-    PUT "<R58><C60><#8><FROM><R+8><C+20><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
+    PUT "<R56><C60><#8><FROM><R+8><C+22><RECT> " 
+        "<=8> Sub Total  :" v-subtot-lines FORM "->,>>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
         "<=8><R+5> " v-bot-lab[4]
         "<=8><R+6> " v-bot-lab[5]
-        "<=8><R+7> Grand Total:" inv-head.t-inv-rev FORM "->>,>>9.99" .
+        "<=8><R+7> Grand Total:" inv-head.t-inv-rev FORM "->,>>>,>>9.99" .
 ELSE
-    PUT "<R58><C60><#8><FROM><R+6><C+20><RECT> " 
-        "<=8> Sub Total  :" v-subtot-lines FORM "->>,>>9.99"
+    PUT "<R56><C60><#8><FROM><R+6><C+22><RECT> " 
+        "<=8> Sub Total  :" v-subtot-lines FORM "->,>>>,>>9.99"
         "<=8><R+1> Freight    :" v-inv-freight
         "<=8><R+2> " v-bot-lab[1] 
         "<=8><R+3> " v-bot-lab[2]
         "<=8><R+4> " v-bot-lab[3]
-        "<=8><R+5> Grand Total:" inv-head.t-inv-rev FORM "->>,>>9.99" .
+        "<=8><R+5> Grand Total:" inv-head.t-inv-rev FORM "->,>>>,>>9.99" .
 
     ASSIGN
        v-printline = v-printline + 6

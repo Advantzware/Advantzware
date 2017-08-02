@@ -18,32 +18,13 @@ DEFINE OUTPUT PARAMETER TABLE FOR ttMachineEmployeeTransactions.
 DEFINE VARIABLE cCustPartNo AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCustName   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cItemFG     AS CHARACTER NO-UNDO.
-DEFINE VARIABLE iStartTime  AS INTEGER   NO-UNDO.
-DEFINE VARIABLE iEndTime    AS INTEGER   NO-UNDO INITIAL 86400.
 
 /* subject business logic */
-FIND FIRST shifts NO-LOCK
-     WHERE shifts.company EQ ipcCompany
-       AND shifts.shift   EQ STRING(iStartShift)
-     NO-ERROR.
-IF AVAILABLE shifts THEN
-ASSIGN
-    iStartTime = shifts.start_time
-    iEndTime = shifts.end_time
-    .
-
-IF iStartShift NE iEndShift THEN DO:
-    FIND FIRST shifts NO-LOCK
-         WHERE shifts.company EQ ipcCompany
-           AND shifts.shift   EQ STRING(iEndShift)
-         NO-ERROR.
-    IF AVAILABLE shifts THEN
-    iEndTime = shifts.end_time.
-END. /* different shifts */
+{aoa/includes/shiftStartEndTime.i}
 
 IF dtStartMachTranDate EQ dtEndMachTranDate AND
-   iEndTime LT iStartTime THEN
-iEndTime = 86400.
+   iShiftEndTime LT iShiftStartTime THEN
+iShiftEndTime = 86400.
 
 FOR EACH machtran NO-LOCK
     WHERE machtran.company    EQ ipcCompany
@@ -53,10 +34,8 @@ FOR EACH machtran NO-LOCK
       AND machtran.start_date LE dtEndMachTranDate
       AND machtran.shift      GE STRING(iStartShift)
       AND machtran.shift      LE STRING(iEndShift)
-      AND DATETIME(machtran.start_date,machtran.start_time)
-       GE DATETIME(dtStartMachTranDate,iStartTime)
-      AND DATETIME(machtran.start_date,machtran.start_time)
-       LE DATETIME(dtEndMachTranDate,iEndTime)
+      AND DATETIME(machtran.start_date,machtran.start_time) GE DATETIME(dtStartMachTranDate,iShiftStartTime)
+      AND DATETIME(machtran.start_date,machtran.start_time) LE DATETIME(dtEndMachTranDate,iShiftEndTime)
     BREAK BY machtran.machine
           BY machtran.job_number
           BY machtran.job_sub
@@ -89,11 +68,11 @@ FOR EACH machtran NO-LOCK
         ttMachineTransactions.runComplete    = machtran.completed
         ttMachineTransactions.xxRecKey       = machtran.rec_key
         ttMachineTransactions.xxSort         = IF cSort EQ "Start Date / Time" THEN
-                                             STRING(machtran.start_date,"99/99/9999")
+                                               STRING(machtran.start_date,"99/99/9999")
                                              + STRING(machtran.start_time,"99999")
                                              + machtran.machine
                                           ELSE IF cSort EQ "Start Date / Job#" THEN
-                                             STRING(machtran.start_date,"99/99/9999")
+                                               STRING(machtran.start_date,"99/99/9999")
                                              + machtran.job_number
                                              + machtran.machine
                                              + STRING(machtran.start_time,"99999")
