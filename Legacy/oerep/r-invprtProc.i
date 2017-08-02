@@ -452,7 +452,10 @@ END PROCEDURE.
 
 PROCEDURE bolValidate:
     /* Run from OK button trigger */
-            
+    DEFINE OUTPUT PARAMETER oplBadStatus AS LOGICAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcInvoice AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcBol AS CHARACTER NO-UNDO.
+    oplBadStatus = FALSE.         
     FOR EACH buf-{&head} WHERE
         buf-{&head}.company EQ cocode AND
         buf-{&head}.cust-no GE begin_cust AND
@@ -482,16 +485,12 @@ PROCEDURE bolValidate:
             buf-{&head}.inv-no LE end_inv)) AND
             buf-{&head}.{&bolno} EQ begin_bol
             NO-LOCK:
-                        
-        /* TBD Handle this in calling procedure */
-        /*
-        MESSAGE "Invoice " + STRING(buf-{&head}.inv-no) + " with Bol " +
-                     
-            STRING(buf-{&head}.{&bolno}) + " will not print, status must be approved" 
-            VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO begin_inv.
-        RETURN.
-        */
+            ASSIGN                         
+            oplBadStatus = TRUE
+            opcInvoice = STRING(buf-{&head}.inv-no)
+            opcBol     = STRING(buf-{&head}.{&bolno})
+            .
+
         END.
                  
 END.
@@ -1122,10 +1121,10 @@ PROCEDURE build-list1:
         
         FIND FIRST buf-{&line} NO-LOCK 
             WHERE buf-{&line}.{&rno} EQ {&head}.{&rno}
-            no-error.
+            NO-ERROR.
             
-        if avail buf-{&line} THEN 
-            FIND FIRST oe-boll where oe-boll.b-no eq buf-{&line}.{&bno}
+        IF AVAIL buf-{&line} THEN 
+            FIND FIRST oe-boll WHERE oe-boll.b-no EQ buf-{&line}.{&bno}
             AND oe-boll.bol-no GE fbol
             AND oe-boll.bol-no LE tbol 
             NO-ERROR. 
@@ -1251,16 +1250,16 @@ PROCEDURE run-report :
 */
         FIND FIRST buf-{&line} NO-LOCK 
             WHERE buf-{&line}.{&rno} EQ {&head}.{&rno}
-            no-error.
+            NO-ERROR.
             
-        if avail buf-{&line} THEN 
-            FIND FIRST oe-boll where oe-boll.b-no eq buf-{&line}.{&bno}
+        IF AVAIL buf-{&line} THEN 
+            FIND FIRST oe-boll WHERE oe-boll.b-no EQ buf-{&line}.{&bno}
               AND oe-boll.bol-no GE fbol
               AND oe-boll.bol-no LE tbol 
             NO-ERROR. 
     
                               
-        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(oe-boll)) OR {&head}.{&multiinvoice} OR "{&head}" eq "AR-INV") THEN 
+        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(oe-boll)) OR {&head}.{&multiinvoice} OR "{&head}" EQ "AR-INV") THEN 
         DO:
             NEXT.            
         END.
@@ -2437,8 +2436,10 @@ PROCEDURE SetInvPostForm:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER icFormName AS CHARACTER NO-UNDO.
 
-    is-xprint-form = NO.
-
+    ASSIGN
+        lv-prt-bypass  = NO
+        is-xprint-form = NO.
+        
     CASE icFormName:
         WHEN "Allpkg" THEN
             ASSIGN
@@ -2542,7 +2543,7 @@ PROCEDURE SetInvPostForm:
         WHEN "Triad" THEN
             ASSIGN
                 v-program      = "ar/rep/invtriad.p"
-                lines-per-page = 62.
+                lines-per-page = 52.
         WHEN "Danbury" THEN
             ASSIGN
                 v-program      = "ar/rep/invdnbry.p"
@@ -2615,7 +2616,7 @@ PROCEDURE SetInvPostForm:
         WHEN "Fibrex" THEN
             ASSIGN
                 v-program      = "ar/rep/invfibrex.p"   /*Xprint format*/
-                lines-per-page = 66
+                lines-per-page = 69
                 is-xprint-form = YES.
         WHEN "ImperiaX" THEN
             ASSIGN
@@ -2635,7 +2636,7 @@ PROCEDURE SetInvPostForm:
         WHEN "CSCIN" THEN
             ASSIGN
                 v-program      = "ar/rep/invcscin.p"   /*CSCIN  format*/
-                lines-per-page = 66
+                lines-per-page = 64
                 is-xprint-form = YES.
         WHEN "CSCINStamp" THEN
             ASSIGN
@@ -2901,7 +2902,7 @@ PROCEDURE SetInvPostForm:
         WHEN "loylang" THEN /* LOYLANG gmd 11200902 */
             ASSIGN
                 v-program      = "ar/rep/invloyln.p"
-                lines-per-page = 78             
+                lines-per-page = 71           
                 is-xprint-form = YES.
         WHEN "PrestigeLLB" THEN /* Task# 08271402*/
             ASSIGN
@@ -2916,7 +2917,7 @@ PROCEDURE SetInvPostForm:
         WHEN "LoylangBSF" THEN /* small mod to Loylang with Price/BSF instead of price */
             ASSIGN
                 v-program      = "ar/rep/invloyln.p"
-                lines-per-page = 78             
+                lines-per-page = 71             
                 is-xprint-form = YES.
         WHEN "Protagon" THEN /* Copied form LoyLangBSF */
             ASSIGN
@@ -2972,8 +2973,10 @@ PROCEDURE SetInvPostForm:
         ASSIGN
             v-program      = "ar/rep/invasi.p"
             lines-per-page = 66.
-
+          
     END CASE.
+    IF icFormName = "BOXTECH" THEN
+        lv-prt-bypass = YES.
 
 
 END PROCEDURE.
