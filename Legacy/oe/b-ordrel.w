@@ -2658,6 +2658,9 @@ DEF VAR lv-selected-value AS cha NO-UNDO. /*all,one,notag*/
 DEF VAR v-s-code AS CHAR NO-UNDO.
 DEF BUFFER b-reftable FOR reftable.
 DEF BUFFER bf-oe-rel FOR oe-rel.
+DEFINE BUFFER bf-notes FOR notes .
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+DEFINE BUFFER bf-oe-relh FOR oe-relh .
 
 IF NOT AVAIL oe-rel THEN
     RETURN.
@@ -2671,6 +2674,22 @@ FIND FIRST oe-relh WHERE oe-relh.company   = oe-rel.company
                    NO-LOCK NO-ERROR.
 IF NOT AVAIL oe-relh THEN DO:
     RUN oe/cre-relh.p (INPUT RECID(oe-rel)).
+    FIND FIRST bf-oe-ordl NO-LOCK
+          WHERE bf-oe-ordl.company EQ oe-rel.company
+            AND bf-oe-ordl.ord-no  EQ oe-rel.ord-no
+            AND bf-oe-ordl.line    EQ oe-rel.line
+          NO-ERROR.
+      FIND bf-oe-relh WHERE RECID(bf-oe-relh) EQ relh-recid NO-LOCK.
+      IF AVAIL bf-oe-ordl THEN 
+        FOR EACH notes NO-LOCK WHERE notes.rec_key = bf-oe-ordl.rec_key 
+                 AND notes.note_type <> "S" and notes.note_type <> "o"  :
+             IF AVAILABLE bf-oe-relh THEN DO:
+                 CREATE bf-notes .
+                 BUFFER-COPY notes EXCEPT rec_key TO bf-notes .
+                 ASSIGN bf-notes.rec_key = bf-oe-relh.rec_key .
+             END.
+        END.
+
     FIND FIRST oe-relh WHERE oe-relh.company   = oe-rel.company
                      AND oe-relh.cust-no   = oe-rel.cust-no
     /*
