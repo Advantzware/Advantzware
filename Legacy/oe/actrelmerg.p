@@ -203,8 +203,9 @@ FUNCTION run-from-bol RETURNS LOGICAL
 DEFINE VARIABLE llReady    AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE lcFobDscr2 AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE llPromptByItem AS LOG NO-UNDO.
-
-
+DEFINE BUFFER bf-notes FOR notes .
+DEFINE BUFFER bf-oe-ordl FOR oe-ordl.
+DEFINE BUFFER bf-oe-relh FOR oe-relh .
 FIND oe-rel WHERE ROWID(oe-rel) EQ ip-rowid NO-LOCK NO-ERROR.
 
 opr-oerelh-row = ?. /* initial value */
@@ -368,8 +369,24 @@ IF choice AND llReady THEN DO:
   IF v-dlg-sel EQ 3 THEN RETURN.
   
   /* Answered 'NO', so a separate release is created */
-  IF v-dlg-sel EQ 2 OR NOT AVAIL oe-relh THEN 
+  IF v-dlg-sel EQ 2 OR NOT AVAIL oe-relh THEN do: 
       RUN oe/cre-relh.p (RECID(oe-rel)).
+      FIND FIRST bf-oe-ordl NO-LOCK
+          WHERE bf-oe-ordl.company EQ oe-rel.company
+            AND bf-oe-ordl.ord-no  EQ oe-rel.ord-no
+            AND bf-oe-ordl.line    EQ oe-rel.line
+          NO-ERROR.
+      FIND bf-oe-relh WHERE RECID(bf-oe-relh) EQ relh-recid NO-LOCK.
+      IF AVAIL bf-oe-ordl THEN 
+        FOR EACH notes NO-LOCK WHERE notes.rec_key = bf-oe-ordl.rec_key 
+                 AND notes.note_type <> "S" and notes.note_type <> "o"  :
+             IF AVAILABLE bf-oe-relh THEN DO:
+                 CREATE bf-notes .
+                 BUFFER-COPY notes EXCEPT rec_key TO bf-notes .
+                 ASSIGN bf-notes.rec_key = bf-oe-relh.rec_key .
+             END.
+        END.
+  END.
   ELSE
   /* If merging, set the recid of the one that was found since it */
   /* may not be the last one                                      */
