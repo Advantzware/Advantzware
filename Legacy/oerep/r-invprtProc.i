@@ -1129,7 +1129,7 @@ PROCEDURE build-list1:
             AND oe-boll.bol-no GE fbol
             AND oe-boll.bol-no LE tbol 
             NO-ERROR. 
-
+            
         IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(oe-boll)) OR {&head}.{&multiinvoice} )  THEN 
         DO:
             IF "{&head}" EQ "inv-head" THEN
@@ -1259,8 +1259,8 @@ PROCEDURE run-report :
               AND oe-boll.bol-no LE tbol 
             NO-ERROR. 
     
-                     
-        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(oe-boll)) OR {&head}.{&multiinvoice} ) THEN 
+                              
+        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(oe-boll)) OR {&head}.{&multiinvoice} OR "{&head}" eq "AR-INV") THEN 
         DO:
             NEXT.            
         END.
@@ -1309,24 +1309,24 @@ PROCEDURE run-report :
                             WHERE  oe-bolh.b-no  EQ buf-{&line}1.{&bno}
                             BREAK BY oe-bolh.b-no:
                                                         
-        {&bol-check}
-END.
-iBol = 0.
-IF buf-{&line}1.bol-no GT 0 THEN
-    iBol = buf-{&line}1.bol-no.
-ELSE 
-    IF b-{&head}1.{&bolno} GT 0 THEN
-        iBol = b-{&head}1.{&bolno}.
-
-
-IF tb_attachBOL AND SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf") NE ?  THEN 
-    vcBOLFiles = vcBOLFiles + "," + SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf").
-
-RUN create-save-line.
+                  {&bol-check}
+            END.
+            iBol = 0.
+            IF buf-{&line}1.bol-no GT 0 THEN
+                iBol = buf-{&line}1.bol-no.
+            ELSE 
+                IF b-{&head}1.{&bolno} GT 0 THEN
+                    iBol = b-{&head}1.{&bolno}.
+            
+            
+            IF tb_attachBOL AND SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf") NE ?  THEN 
+                vcBOLFiles = vcBOLFiles + "," + SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf").
+            
+            RUN create-save-line.
                 
-ASSIGN 
-    dtl-ctr = dtl-ctr + 1.
-END. /* Each b-{&head}1 */
+            ASSIGN 
+                dtl-ctr = dtl-ctr + 1.
+            END. /* Each b-{&head}1 */
 END. /* If multi-invoice */
 
         ELSE 
