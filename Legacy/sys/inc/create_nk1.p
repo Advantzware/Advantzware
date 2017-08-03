@@ -28,7 +28,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
             + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
             + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,PrePressHotFolderOut,"
-            + "METRIC,CEImportForm,CEImportFormFolder,BusinessFromLogo,CalcBtnImage,CalcBtnLink,PreventDataCollection"  .
+            + "METRIC,CEImportForm,CEImportFormFolder,BusinessFromLogo,CalcBtnImage,CalcBtnLink,DCClosedJobs"  .
 
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -350,7 +350,7 @@ CASE ip-nk1-value:
         INPUT "Calculator Factor Button Link",
         INPUT "http://www.metric-conversions.org/length/millimeters-to-inches.htm" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).
-    WHEN "PreventDataCollection" THEN   
+    WHEN "DCClosedJobs" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Prevent Data Collection on Closed Jobs",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,

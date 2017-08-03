@@ -50,7 +50,7 @@ DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
 DEFINE VARIABLE oeDateAuto-log AS LOGICAL NO-UNDO.
 
-RUN sys/ref/nk1look.p (INPUT g_company, "PreventDataCollection", "L" /* Logical */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT g_company, "DCClosedJobs", "L" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 IF lRecFound THEN
@@ -2956,7 +2956,7 @@ PROCEDURE valid-job-no :
       RETURN ERROR.
     END.
     ELSE IF AVAIL job AND job.opened EQ NO AND oeDateAuto-log THEN DO:
-        MESSAGE "Job " STRING(job.job-no) " is currently closed.  Cannot add data collection data." VIEW-AS ALERT-BOX INFO.
+        MESSAGE "Job " STRING(job.job-no) " is currently closed. You must re-open the job to add data collection data." VIEW-AS ALERT-BOX INFO.
         APPLY "entry" TO pc-prdd.job-no IN BROWSE {&browse-name}.
        RETURN ERROR.
     END.
