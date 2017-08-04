@@ -2614,8 +2614,8 @@ PROCEDURE post-finish-goods :
           {fg/fg-post.i w-fg-rctd w-fg-rctd}
 
           FIND CURRENT po-ordl NO-LOCK NO-ERROR.
-          FIND CURRENT fg-bin NO-LOCK NO-ERROR.
-
+          FIND CURRENT fg-bin NO-LOCK NO-ERROR.         
+          FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
           IF fgPostLog THEN RUN fgPostLog ('End fg/fg-post.i - Start fg/fgemails.i').
           IF w-fg-rctd.rita-code = "R" THEN DO:
              {fg/fgemails.i}
