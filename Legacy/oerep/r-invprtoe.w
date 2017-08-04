@@ -809,19 +809,22 @@ DO:
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   
-        DEFINE    VARIABLE      lv-fax-type    AS cha     NO-UNDO.
-        DEFINE    VARIABLE      vlSkipRec      AS LOG     NO-UNDO.
-        DEFINE    VARIABLE      ll-secure      AS LOG     INIT YES NO-UNDO.
-        DEFINE VARIABLE lCheckHoldStat AS LOGICAL NO-UNDO .
+        DEFINE    VARIABLE      lv-fax-type       AS cha     NO-UNDO.
+        DEFINE    VARIABLE      vlSkipRec         AS LOG     NO-UNDO.
+        DEFINE    VARIABLE      ll-secure         AS LOG     INIT YES NO-UNDO.
+        DEFINE    VARIABLE      lBadStatus        AS LOGICAL   NO-UNDO.
+        DEFINE    VARIABLE      cBadStatusInvoice AS CHARACTER NO-UNDO.
+        DEFINE    VARIABLE      cBadStatusBol     AS CHARACTER NO-UNDO.
+        DEFINE    VARIABLE      lCheckHoldStat    AS LOGICAL NO-UNDO .
         DEFINE BUFFER bf-cust FOR cust.
 
         DO WITH FRAME {&FRAME-NAME}:
             ASSIGN {&DISPLAYED-OBJECTS}
                 tb_collate lv-scr-num-copies
                 tb_cust-copy tb_office-copy tb_sman-copy
-                /* gdm - 12080817 */ tb_setcomp tbPostedAR
+            /* gdm - 12080817 */ tb_setcomp tbPostedAR
                 .
-            if begin_bol:SENSITIVE THEN 
+            IF begin_bol:SENSITIVE THEN 
                 ASSIGN begin_bol end_bol.
 
             IF fi_broker-bol:SENSITIVE THEN
@@ -931,11 +934,20 @@ DO:
             tbPostedAR         ,
             tb_splitPDF
             ).
-    
+
         IF begin_bol EQ end_bol THEN 
         DO:
-            RUN bolValidate.
+            
+            RUN bolValidate (OUTPUT lBadStatus, OUTPUT cBadStatusInvoice, OUTPUT cBadStatusBol).
+            IF lBadStatus THEN DO:        
+                MESSAGE "Invoice " + cBadStatusInvoice + " with Bol " +                             
+                    cBadStatusBol + " will not print, status must be approved" 
+                    VIEW-AS ALERT-BOX ERROR.
+                APPLY "entry" TO begin_inv.
+                RETURN.
+            END.
 
+        
         END.
 
         CASE rd-dest:
