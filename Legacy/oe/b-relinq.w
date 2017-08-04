@@ -1311,7 +1311,7 @@ PROCEDURE query-proc :
       ASSIGN lv-frst-rowid = ROWID({&first-table-in-query-{&browse-name}})
              lv-first-show-rel-no = oe-relh.release#.
   END.
-
+  APPLY "VALUE-CHANGED" TO BROWSE {&browse-name}.
   ASSIGN
      lv-show-prev = NO
      lv-show-next = NO.
