@@ -37,6 +37,15 @@ CREATE WIDGET-POOL.
 {custom/globdefs.i}
 DEF VAR li-help-job AS INT NO-UNDO.
 DEF VAR ll-new-record AS LOG NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE oeDateAuto-log AS LOGICAL NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT g_company, "DCClosedJobs", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+IF lRecFound THEN
+    oeDateAuto-log = LOGICAL(cRtnChar) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -250,8 +259,13 @@ DO:
     FIND FIRST job WHERE job.company = g_company AND
                          job.job-no = pc-prdd.job-no:SCREEN-VALUE
                          NO-LOCK NO-ERROR.
+    
     IF NOT AVAIL job THEN DO:
        MESSAGE "Invalid Job#. Try Help" VIEW-AS ALERT-BOX ERROR.
+       RETURN NO-APPLY.
+    END.
+    ELSE IF AVAIL job AND job.opened EQ NO AND oeDateAuto-log THEN DO:
+        MESSAGE "Job " STRING(job.job-no) " is currently closed. You must re-open the job to add data collection data." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
     END.
     ELSE li-help-job = job.job.
@@ -511,6 +525,11 @@ PROCEDURE local-update-record :
      APPLY "entry" TO pc-prdd.job-no.
      return .
   end.
+  IF AVAIL job AND job.opened EQ NO AND oeDateAuto-log THEN DO:
+      MESSAGE "Job " STRING(job.job-no) " is currently closed. You must re-open the job to add data collection data." VIEW-AS ALERT-BOX .
+      APPLY "entry" TO pc-prdd.job-no.
+      return .
+  END.
  END. /* do */
 
   /* Dispatch standard ADM method.                             */
