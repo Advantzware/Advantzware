@@ -136,10 +136,10 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       style.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 9
-      style.dscr COLUMN-LABEL "Description" FORMAT "x(30)":U WIDTH 33
+      style.dscr COLUMN-LABEL "Description" FORMAT "x(35)":U 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 48 BY 18.1
+    WITH NO-ASSIGN SEPARATORS SIZE 70 BY 18.1
          FONT 2.
 
 
@@ -240,7 +240,7 @@ ASSIGN
      _FldNameList[1]   > ASI.style.style
 "style.style" "Style" ? "character" ? ? ? ? ? ? no ? no no "9" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.style.dscr
-"style.dscr" "Description" "x(30)" "character" ? ? ? ? ? ? no ? no no "33" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"style.dscr" "Description" "x(35)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
