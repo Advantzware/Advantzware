@@ -602,8 +602,6 @@ PROCEDURE local-assign-record :
   DEF VAR v-new-pass AS cha FORM "x(30)" NO-UNDO.
   DEF VAR cOldUserID AS CHARACTER FORM "x(30)" NO-UNDO.
   DEFINE BUFFER bf-usercust FOR usercust .
-  DEFINE  BUFFER bf-uservend FOR uservend .
-  DEFINE BUFFER bf-usersman FOR usersman .
   DEFINE BUFFER bf-usrx FOR usrx .
   /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -667,7 +665,7 @@ PROCEDURE local-assign-record :
               bf-usercust.user_id = users.USER_id .
 
       END.
-      FOR EACH uservend WHERE      uservend.user_id EQ cOldUserID AND
+      /*FOR EACH uservend WHERE      uservend.user_id EQ cOldUserID AND
                 uservend.company EQ cocode NO-LOCK, 
           FIRST vend WHERE             vend.company EQ uservend.company AND
              vend.vend-no EQ uservend.vend-no  NO-LOCK    :
@@ -687,7 +685,7 @@ PROCEDURE local-assign-record :
           BUFFER-COPY usersman EXCEPT rec_key user_id TO bf-usersman.
           ASSIGN
               bf-usersman.user_id = users.USER_id .
-      END.
+      END.*/ /*Ticket - 22100*/
 
       FOR EACH usrx 
           WHERE usrx.uid = cOldUserID AND usrx.company = cocode AND 
