@@ -46,6 +46,7 @@ IF NOT xeb.pur-man AND (ceboard-log EQ NO OR v-vend-no EQ "") AND xef.cost-msh G
 RUN sys/ref/convquom.p("MSF", "EA", item.basis-w,
                        xef.gsh-len, xef.gsh-wid, xef.gsh-dep,
                        b-qty, OUTPUT save-qty).
+save-qty = ROUND(save-qty ,0).  /*Rounding/precision error from ticket 22421*/
 
 RUN sys/inc/numup.p (xef.company, xef.est-no, xef.form-no, OUTPUT v-num-up).
 
