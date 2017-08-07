@@ -683,7 +683,7 @@ IF NOT del-valid THEN
   Btn-Delete:SENSITIVE = NO.
 
 FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID("NOSWEAT") NO-ERROR.
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
 
 IF AVAIL users AND users.securityLevel LE 999 THEN
     DO WITH FRAME Panel-Frame:
