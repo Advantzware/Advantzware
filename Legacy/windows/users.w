@@ -152,7 +152,7 @@ DEFINE FRAME OPTIONS-FRAME
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 118 ROW 2.91
+         AT COL 118 ROW 2.51
          SIZE 33 BY 1.43
          BGCOLOR 15 .
 
@@ -345,7 +345,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse Users|View User|Compny/Locatn|Popup Menu|Customers|Vendors|Sales Rep|Ship From' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse Users|View User|Compny/Locatn|Popup Menu|Customers|Ship From' + ',
                      FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 2.91 , 1.00 ) NO-ERROR.
@@ -566,110 +566,8 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-popup ,
              h_b-usrmnu , 'AFTER':U ).
     END. /* Page 4 */
+    
     WHEN 5 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/usercust.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_usercust ).
-       RUN set-position IN h_usercust ( 4.81 , 35.00 ) NO-ERROR.
-       RUN set-size IN h_usercust ( 10.57 , 90.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/usercust.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_usercust-2 ).
-       RUN set-position IN h_usercust-2 ( 16.48 , 52.00 ) NO-ERROR.
-       /* Size in UIB:  ( 4.05 , 34.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'p-updsav.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-updsav-4 ).
-       RUN set-position IN h_p-updsav-4 ( 21.24 , 27.40 ) NO-ERROR.
-       RUN set-size IN h_p-updsav-4 ( 1.76 , 82.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/delsel.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_delsel ).
-       RUN set-position IN h_delsel ( 21.24 , 108.40 ) NO-ERROR.
-       /* Size in UIB:  ( 1.76 , 14.00 ) */
-
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
-
-       /* Links to SmartNavBrowser h_usercust. */
-       RUN add-link IN adm-broker-hdl ( h_users , 'Record':U , h_usercust ).
-
-       /* Links to SmartViewer h_usercust-2. */
-       RUN add-link IN adm-broker-hdl ( h_p-updsav-4 , 'TableIO':U , h_usercust-2 ).
-       RUN add-link IN adm-broker-hdl ( h_usercust , 'Record':U , h_usercust-2 ).
-
-       /* Links to SmartViewer h_delsel. */
-       RUN add-link IN adm-broker-hdl ( h_usercust , 'del':U , h_delsel ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_usercust ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_usercust-2 ,
-             h_usercust , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-4 ,
-             h_usercust-2 , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_delsel ,
-             h_p-updsav-4 , 'AFTER':U ).
-    END. /* Page 5 */
-    WHEN 6 THEN DO:
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/uservend.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_uservend ).
-       RUN set-position IN h_uservend ( 4.81 , 34.00 ) NO-ERROR.
-       RUN set-size IN h_uservend ( 10.57 , 90.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/uservend.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_uservend-2 ).
-       RUN set-position IN h_uservend-2 ( 16.48 , 52.00 ) NO-ERROR.
-       /* Size in UIB:  ( 4.05 , 34.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'p-updsav.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-updsav-5 ).
-       RUN set-position IN h_p-updsav-5 ( 21.48 , 35.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav-5 ( 1.76 , 82.00 ) NO-ERROR.
-
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
-
-       /* Links to SmartNavBrowser h_uservend. */
-       RUN add-link IN adm-broker-hdl ( h_users , 'Record':U , h_uservend ).
-
-       /* Links to SmartViewer h_uservend-2. */
-       RUN add-link IN adm-broker-hdl ( h_p-updsav-5 , 'TableIO':U , h_uservend-2 ).
-       RUN add-link IN adm-broker-hdl ( h_uservend , 'Record':U , h_uservend-2 ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_uservend ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_uservend-2 ,
-             h_uservend , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-5 ,
-             h_uservend-2 , 'AFTER':U ).
-    END. /* Page 6 */
-    WHEN 7 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/usersman.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -713,8 +611,8 @@ PROCEDURE adm-create-objects :
              h_usersman , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-6 ,
              h_usersman-2 , 'AFTER':U ).
-    END. /* Page 7 */
-    WHEN 8 THEN DO:
+    END. /* Page 5 */
+    WHEN 6 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/usrcmp-x.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
@@ -758,7 +656,7 @@ PROCEDURE adm-create-objects :
              h_usrcmp-x , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-7 ,
              h_usrcmp-x-2 , 'AFTER':U ).
-    END. /* Page 8 */
+    END. /* Page 6 */
 
   END CASE.
   /* Select a Startup page. */
