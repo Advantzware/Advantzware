@@ -22,8 +22,8 @@ DEFINE VARIABLE cJobNo      AS CHARACTER NO-UNDO.
 {aoa/includes/shiftStartEndTime.i}
 
 IF dtStartMachTranDate EQ dtEndMachTranDate AND
-   iEndTime LT iStartTime THEN
-iEndTime = 86400.
+   iShiftEndTime LT iShiftStartTime THEN
+iShiftEndTime = 86400.
 
 FOR EACH machtran NO-LOCK
     WHERE machtran.company    EQ ipcCompany
@@ -33,8 +33,8 @@ FOR EACH machtran NO-LOCK
       AND machtran.start_date LE dtEndMachTranDate
       AND machtran.shift      GE STRING(iStartShift)
       AND machtran.shift      LE STRING(iEndShift)
-      AND DATETIME(machtran.start_date,machtran.start_time) GE DATETIME(dtStartMachTranDate,iStartTime)
-      AND DATETIME(machtran.start_date,machtran.start_time) LE DATETIME(dtEndMachTranDate,iEndTime)
+      AND DATETIME(machtran.start_date,machtran.start_time) GE DATETIME(dtStartMachTranDate,iShiftStartTime)
+      AND DATETIME(machtran.start_date,machtran.start_time) LE DATETIME(dtEndMachTranDate,iShiftEndTime)
     :
     cJobNo = machtran.job_number + "-" + STRING(machtran.job_sub,"99").
     FIND FIRST ttMachineTransactionSummary
