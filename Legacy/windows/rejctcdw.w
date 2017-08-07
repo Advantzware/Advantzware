@@ -112,7 +112,7 @@ DEFINE FRAME message-frame
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Job Hold Reason Codes"
+         TITLE              = ip-win-title /*"Job Hold Reason Codes"*/
          HEIGHT             = 24
          WIDTH              = 149.8
          MAX-HEIGHT         = 320
