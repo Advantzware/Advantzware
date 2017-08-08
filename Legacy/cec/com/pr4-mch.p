@@ -216,7 +216,9 @@ FOR EACH est-op WHERE est-op.company = xest.company
             op.run-rate  = mach.run-rate
             op.run-varoh = mach.run-varoh
             op.wst-prct  = est-op.op-spoil
-            op.speed     = opsp.
+            op.speed     = opsp
+            op.rec_key   = est-op.rec_key
+            .
 
         IF est-op.op-sb THEN
             op.run-qty = est-op.num-sh * v-on-f.

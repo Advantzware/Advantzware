@@ -135,28 +135,7 @@ FUNCTION getItemName RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHARAC
 
   RETURN itemName.
 END FUNCTION.
-/*
-FUNCTION getItemNo RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHARACTER,
-                                      ipJobNo2 AS INTEGER,ipForm AS INTEGER,
-                                      ipItemNo AS CHARACTER):
-  DEFINE VARIABLE itemNo AS CHARACTER NO-UNDO.
 
-  FOR EACH bJobMch NO-LOCK
-     WHERE bJobMch.company EQ ipCompany
-       AND bJobMch.job-no EQ ipJobNo
-       AND bJobMch.job-no2 EQ ipJobNo2
-       AND bJobMch.frm EQ ipForm
-       AND bJobMch.i-no GT '':
-    IF bJobMch.i-no NE '' AND bJobMch.i-no NE itemNo THEN
-    itemNo = IF itemNo EQ '' THEN bJobMch.i-no
-        ELSE IF itemNo NE bJobMch.i-no THEN '<Multi Item>'
-        ELSE ''.
-    IF itemNo EQ '<Multi Item>' THEN LEAVE.
-  END. /* each bjobmch */
-  IF itemNo EQ '' THEN itemNo = ipItemNo.
-  RETURN itemNo.
-END FUNCTION.
-*/
 FUNCTION getSetPOQtyRec RETURNS CHARACTER (ipCompany AS CHARACTER,ipJobNo AS CHARACTER,
                                            ipJobNo2 AS INTEGER,ipForm AS INTEGER,
                                            ipINo AS CHARACTER):
@@ -608,6 +587,23 @@ FOR EACH job-hdr NO-LOCK
 
     IF FIRST-OF(job-mch.frm) OR cascadeJob EQ NO THEN resSeq = 0.
 
+    IF job-mch.est-op_rec_key EQ "" THEN DO:
+        FIND FIRST est-op NO-LOCK
+             WHERE est-op.company EQ est.company
+               AND est-op.est-no EQ est.est-no
+               AND est-op.m-code EQ job-mch.m-code
+               AND est-op.s-num EQ job-mch.frm
+               AND est-op.b-num EQ job-mch.blank-no
+               AND est-op.op-pass EQ job-mch.pass
+               AND est-op.line LT 500
+             NO-ERROR.
+        FIND FIRST bJobMch EXCLUSIVE-LOCK
+             WHERE ROWID(bJobMch) EQ ROWID(job-mch).
+        bJobMch.est-op_rec_key = IF AVAILABLE est-op THEN est-op.rec_key
+                                 ELSE "None".
+        RELEASE bJobMch.
+    END. /* est-op_rec_key eq "" */
+
     IF traceON THEN DO:
       debugCount = debugCount + 1.
       PUT UNFORMATTED
@@ -652,7 +648,7 @@ FOR EACH job-hdr NO-LOCK
       salesRepFound = NO
       startDate = job-mch.start-date-su
       startTime = fixTime(job-mch.start-time-su)
-      strRowID = STRING(ROWID(job)) + ',' + STRING(ROWID(job-mch))
+      strRowID = STRING(ROWID(job)) + ',' + STRING(ROWID(job-mch)) + ',' + job-mch.est-op_rec_key
       keyValues = job-mch.company + ','
                 + STRING(job-mch.line) + ','
                 + job-mch.m-code + ','
@@ -1346,7 +1342,7 @@ PROCEDURE ipJobMaterial:
   PUT UNFORMATTED 'Procedure ipJobMaterial @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME.
   
   FOR EACH job-mat NO-LOCK
-      WHERE job-mat.company eq ipCompany
+      WHERE job-mat.company EQ ipCompany
         AND job-mat.job EQ ipJob
         AND job-mat.job-no EQ ipJobNo
         AND job-mat.job-no2 EQ ipJobNo2

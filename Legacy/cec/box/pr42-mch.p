@@ -303,7 +303,9 @@ FOR EACH xef
                 op.run-fixoh = mach.run-fixoh
                 op.run-rate  = mach.run-rate
                 op.run-varoh = mach.run-varoh
-                op.wst-prct  = est-op.op-spoil.
+                op.wst-prct  = est-op.op-spoil
+                op.rec_key   = est-op.rec_key
+                .
 
             IF mach.p-type EQ "P" THEN 
             DO:
