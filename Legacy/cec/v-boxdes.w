@@ -333,6 +333,7 @@ END.
 ON CHOOSE OF btn_left IN FRAME F-Main
 DO:
   /* APPLY KEYCODE('home') TO box-design-hdr.lscore. */
+   IF AVAIL box-design-hdr THEN
    ASSIGN
    box-design-hdr.lscore:SCREEN-VALUE = 
                substring(box-design-hdr.lscore,1,80)
@@ -364,7 +365,8 @@ DO:
    END.
    */
    */
-  ASSIGN  box-design-hdr.lscore:SCREEN-VALUE = SUBSTRING(box-design-hdr.lscore,51,80).
+  IF AVAIL box-design-hdr THEN
+  ASSIGN  box-design-hdr.lscore:SCREEN-VALUE = SUBSTRING(box-design-hdr.lscore,51,80)
     box-design-hdr.lcum-score:SCREEN-VALUE = SUBSTRING(box-design-hdr.lcum-score,51,80).
 
 END.
@@ -998,7 +1000,7 @@ PROCEDURE local-display-fields :
    DEF VAR ll-dummy AS LOG NO-UNDO.
    ll-dummy = box-image-2:load-image("") in frame {&frame-name} no-error.
   
-   if box-design-hdr.box-image <> "" then do:
+   IF AVAIL box-design-hdr AND box-design-hdr.box-image <> "" then do:
       ASSIGN box-design-hdr.box-text:HIDDEN = YES
              box-image-2:HIDDEN = NO
      /*  box-image:auto-resize = yes. */
@@ -1008,10 +1010,13 @@ PROCEDURE local-display-fields :
             
      */
    end.
-   ELSE DO:
+   ELSE IF AVAIL box-design-hdr THEN DO:
         ASSIGN box-design-hdr.box-text:HIDDEN = NO
                box-image-2:HIDDEN = YES .
         DISPLAY box-design-hdr.box-text WITH FRAME {&FRAME-NAME}.
+   END.
+   ELSE DO:
+       box-image-2:HIDDEN = YES .
    END.
 END PROCEDURE.
 
@@ -1103,7 +1108,7 @@ PROCEDURE refresh-boximg :
    FIND CURRENT box-design-hdr NO-LOCK NO-ERROR.
    ll-dummy = box-image:load-image("") in frame {&frame-name} no-error.
   
-   if box-design-hdr.box-image <> "" then do:
+   IF AVAIL box-design-hdr AND box-design-hdr.box-image <> "" then do:
      /*  box-image:auto-resize = yes. */
      ll-dummy = box-image:load-image(box-design-hdr.box-image) in frame {&frame-name}.
      /*assign box-image:height-pixels = box-image:height-pixels - 10

@@ -1378,7 +1378,7 @@ PROCEDURE local-display-fields :
 
 
 
-IF style.TYPE EQ "P" THEN DO:
+IF AVAIL style AND style.TYPE EQ "P" THEN DO:
 
         ASSIGN
             style.material[1]:LABEL IN FRAME {&FRAME-NAME} = "Paper" 
