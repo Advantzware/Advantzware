@@ -30,10 +30,17 @@ PUT UNFORMATTED 'Start Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:
 
 FOR EACH pendingJob NO-LOCK:
   jobMchRowID = TO-ROWID(ENTRY(2,pendingJob.rowIDs)).
-  /*
-  FIND job-mch EXCLUSIVE-LOCK WHERE ROWID(job-mch) EQ jobMchRowID NO-ERROR.
-  IF NOT AVAILABLE job-mch AND pendingJob.keyValue NE '' THEN
-  */
+  FIND FIRST job-mch EXCLUSIVE-LOCK 
+       WHERE job-mch.est-op_rec_key EQ ENTRY(3,pendingJob.rowIDs)
+         AND job-mch.company EQ ENTRY(1,pendingJob.keyValue)
+         AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,pendingJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,pendingJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN 
   FIND FIRST job-mch EXCLUSIVE-LOCK
        WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
          AND job-mch.m-code EQ ENTRY(3,pendingJob.keyValue)
@@ -106,10 +113,17 @@ END. /* each pendingJob */
 
 FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
   jobMchRowID = TO-ROWID(ENTRY(2,ttblJob.rowIDs)).
-  /*
-  FIND job-mch EXCLUSIVE-LOCK WHERE ROWID(job-mch) EQ jobMchRowID NO-ERROR.
-  IF NOT AVAILABLE job-mch AND ttblJob.keyValue NE '' THEN
-  */
+  FIND FIRST job-mch EXCLUSIVE-LOCK 
+       WHERE job-mch.est-op_rec_key EQ ENTRY(3,ttblJob.rowIDs)
+         AND job-mch.company EQ ENTRY(1,ttblJob.keyValue)
+         AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN 
   FIND FIRST job-mch EXCLUSIVE-LOCK
        WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
          AND job-mch.m-code EQ ENTRY(3,ttblJob.keyValue)
