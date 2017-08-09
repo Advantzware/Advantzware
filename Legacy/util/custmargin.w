@@ -59,13 +59,13 @@ ASSIGN
  cocode = gcompany
  locode = gloc.
 
-{ce/msfcalc.i}
+/* {ce/msfcalc.i} */
 {ce/print4.i "new shared" "new shared"}
 
 
 DEFINE VARIABLE ls-fax-file    AS CHARACTER NO-UNDO.
 DEFINE VARIABLE is-xprint-form AS LOGICAL NO-UNDO.
-DEFINE NEW SHARED VARIABLE qty AS INTEGER NO-UNDO.
+/*DEFINE NEW SHARED VARIABLE qty AS INTEGER NO-UNDO.
 DEFINE NEW SHARED VARIABLE v-summ AS LOG INIT NO NO-UNDO.
 DEFINE NEW SHARED VARIABLE fr-tot-pre AS DECIMAL.
 DEFINE NEW SHARED VARIABLE gEstSummaryOnly AS LOG NO-UNDO.
@@ -73,7 +73,7 @@ DEFINE NEW SHARED BUFFER xest FOR est.
 DEFINE NEW SHARED BUFFER xef FOR ef.
 DEFINE NEW SHARED BUFFER xeb FOR eb.
 DEFINE NEW SHARED BUFFER xop FOR est-op.
-
+  */
 DEFINE BUFFER bf-probe FOR probe .
 DEFINE STREAM st-excel.
 
@@ -852,441 +852,73 @@ FOR EACH est NO-LOCK
           BY probe.est-qty
           BY probe.probe-date
           BY probe.probe-time:
+    IF NOT LAST-OF(probe.est-qty) THEN NEXT.
 
     {custom/statusMsg.i " 'Processing Estimate#:  '  + eb.est-no  "}
-        FIND FIRST job-hdr NO-LOCK 
-             WHERE job-hdr.company EQ cocode
-               AND job-hdr.est-no EQ est.est-no NO-ERROR .
-    
-    IF NOT AVAILABLE job-hdr THEN  NEXT MAIN-LOOP .
+        DEF VARIABLE iprEstRowid AS ROWID NO-UNDO.
+DEF VARIABLE iprEstQtyRowid AS ROWID NO-UNDO.
+DEF VARIABLE iprEbRowid AS ROWID NO-UNDO.
+DEF VARIABLE iprEfRowid AS ROWID NO-UNDO.
+DEF VARIABLE iprProbeRowid AS ROWID NO-UNDO.
 
-    IF LAST-OF(probe.est-qty) THEN DO:
+DEFINE VARIABLE opcCust           AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE opdEstDate        AS DATE    NO-UNDO.
+DEFINE VARIABLE opcEstNo          AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE opcSellPrice      AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE opcTonCost        AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE opcTons           AS CHARACTER     NO-UNDO.
+DEFINE VARIABLE opdCalcPctsVal2   AS DECIMAL     NO-UNDO.
+DEFINE VARIABLE opdCtrl2-9        AS DECIMAL     NO-UNDO.
+DEFINE VARIABLE opdCtrl2-10       AS DECIMAL     NO-UNDO.
+DEFINE VARIABLE opdCtrl2-1        AS DECIMAL     NO-UNDO.
+DEFINE VARIABLE opdFullCost       AS DECIMAL     NO-UNDO.
+DEFINE VARIABLE opdNetProfitDol   AS DECIMAL     NO-UNDO.
+DEFINE VARIABLE opcNetProfitPct   AS CHARACTER     NO-UNDO.
 
-    FOR EACH kli:
-        DELETE kli.
-    END.
+        ASSIGN
+               iprEstRowid = ROWID(est)
+               iprEstQtyRowid = ROWID(est-qty)
+               iprEbRowid = ROWID(eb)
+               iprEfRowid = ROWID(ef)
+               iprProbeRowid = ROWID(probe)
+               .
 
-    FOR EACH ink:
-        DELETE ink.
-    END.
+         
+RUN util/custMarginCalc.p (
+ INPUT  iprEstRowid,
+ INPUT  iprEstQtyRowid,
+ INPUT  iprEbRowid,
+ INPUT  iprEfRowid,
+ INPUT  iprProbeRowid,
 
-    FOR EACH flm:
-        DELETE flm.
-    END.
+ OUTPUT  opcCust,
+ OUTPUT  opdEstDate,
+ OUTPUT  opcEstNo,
+ OUTPUT  opcSellPrice,
+ OUTPUT  opcTonCost,
+ OUTPUT  opcTons,
+ OUTPUT  opdCalcPctsVal2,
+ OUTPUT  opdCtrl2-9 ,
+ OUTPUT  opdCtrl2-10,
+ OUTPUT  opdCtrl2-1,
+ OUTPUT  opdFullCost,
+ OUTPUT  opdNetProfitDol,
+ OUTPUT  opcNetProfitPct
+  ).
 
-    FOR EACH cas:
-        DELETE cas.
-    END.
-    
-    FOR EACH car:
-        DELETE car.
-    END.
-    
-    FOR EACH brd:
-        DELETE brd.
-    END.
-
-    FOR EACH blk:
-        DELETE blk.
-    END.
-
-    FOR EACH xjob:
-        DELETE xjob.
-    END.
-    FIND xest NO-LOCK WHERE RECID(xest) = recid(est)  NO-ERROR.
-    FIND xef  NO-LOCK WHERE RECID(xef) = recid(ef)  NO-ERROR.
-    FIND xeb  NO-LOCK WHERE RECID(xeb) = recid(eb)  NO-ERROR.
-
-   save-lock = xef.op-lock.
-   {est/recalc-mr.i xest}
-  FIND CURRENT recalc-mr NO-LOCK.
-
-  ASSIGN
-   do-speed = xest.recalc
-   do-mr    = recalc-mr.val[1] EQ 1
-   do-gsa   = xest.override.
-
-  {sys/inc/cerun.i F}
-  vmclean = LOOKUP(cerunf,"McLean,HOP") GT 0.
-
-  {ce/msfcalc.i}
-
-   DO TRANSACTION:
-  {est/op-lock.i xest}
-  FIND bf-est WHERE RECID(bf-est) EQ RECID(xest).
-  FIND CURRENT recalc-mr.
-  ASSIGN
-   bf-est.recalc    = do-speed
-   recalc-mr.val[1] = INT(do-mr)
-   bf-est.override  = do-gsa
-   op-lock.val[1]   = INT(bf-est.recalc)
-   op-lock.val[2]   = recalc-mr.val[1].
-  FIND CURRENT bf-est NO-LOCK.
-  FIND CURRENT recalc-mr NO-LOCK.
-  FIND CURRENT op-lock NO-LOCK.
-  /*FIND xest WHERE RECID(xest) EQ RECID(bf-est).   */
-  END.
-    
-    li-colors =  0.
-    op-tot    =  0.
-    v-tons    =  0.
-    
-    RELEASE probeit.
-    IF est.est-type EQ 3 OR est.est-type EQ 4 OR
-       est.est-type EQ 7 OR est.est-type EQ 8 THEN
-      FIND FIRST probeit NO-LOCK
-          WHERE probeit.company EQ probe.company
-            AND probeit.est-no  EQ probe.est-no
-            AND probeit.line    EQ probe.line
-            AND probeit.part-no EQ eb.part-no
-          NO-ERROR.
-
-    IF AVAILABLE probeit THEN
-      ASSIGN
-       li-qty   = IF probeit.yrprice THEN probeit.yld-qty ELSE probeit.bl-qty
-       ld-costm = probeit.full-cost
-       ld-price = probeit.sell-price.
-    ELSE
-      ASSIGN
-       li-qty   = probe.est-qty
-       ld-costm = probe.full-cost
-       ld-price = probe.sell-price.
-
-    ld-costt = li-qty / 1000 * ld-costm.
-
-    ld-pct = .85.
-    DO li = 1 TO EXTENT(ld-mar):
-      ASSIGN
-       ld-mar[li] = (ld-costt / ld-pct * 1.01) - ld-costt
-       ld-pct     = ld-pct - .05.
-    END.
-
-    DO TRANSACTION:
-        FOR EACH est-op
-            WHERE est-op.company EQ xest.company 
-            AND est-op.est-no  EQ xest.est-no
-            AND est-op.line    GT 500:
-            DELETE est-op.
-         END.
-         FOR EACH est-op
-             WHERE est-op.company EQ xest.company
-             AND est-op.est-no  EQ xest.est-no
-             AND est-op.line    LT 500
-             BY est-op.qty:
-             lv-eqty = est-op.qty.
-             LEAVE.
-          END.
-          FOR EACH est-op
-              WHERE est-op.company EQ xest.company 
-              AND est-op.est-no  EQ xest.est-no
-              AND est-op.qty     EQ lv-eqty
-              AND est-op.line    LT 500:
-              CREATE xop.
-              BUFFER-COPY est-op EXCEPT rec_key TO xop.
-              xop.line = est-op.line + 500.
-          END.
-      END.
-
-
-    /* run ce/com/prokalk.p.*/
-    FOR EACH xef WHERE xef.company = xest.company
-                   AND xef.est-no EQ xest.est-no:
-    
-       xxx = 0.
-       FOR EACH xeb WHERE xeb.company = xest.company
-                   AND xeb.est-no EQ xest.est-no AND xeb.form-no = xef.form-no
-           BY xeb.blank-no:
-          FIND FIRST kli WHERE kli.cust-no = xeb.cust-no NO-ERROR.
-          IF NOT AVAILABLE kli THEN DO:
-             FIND FIRST sman   WHERE sman.company = cocode AND  
-                                     sman.sman    = xeb.sman NO-LOCK NO-ERROR.
-             FIND FIRST cust   WHERE   cust.company = cocode AND
-                                       cust.cust-no = xeb.cust-no NO-LOCK NO-ERROR.
-             FIND FIRST shipto WHERE shipto.company = cust.company AND
-                                     shipto.cust-no = cust.cust-no AND
-                                     shipto.ship-id = xeb.ship-id NO-LOCK NO-ERROR.
-             CREATE kli.
-             IF AVAILABLE sman THEN ASSIGN kli.sman    = sman.sman
-                                         kli.sname   = sman.sname.
-             IF xeb.cust-no NE "Temp" THEN ASSIGN
-             kli.cust-no = xeb.cust-no
-             kli.cust-add[1] = cust.name
-             kli.cust-add[2] = cust.addr[1]
-             kli.cust-add[3] = cust.addr[2]
-             kli.cust-add[4] = cust.city + ", " + cust.state + " " + cust.zip.
-             ELSE ASSIGN
-             kli.cust-no = xeb.cust-no
-             kli.cust-add[1] = xeb.ship-name
-             kli.cust-add[2] = xeb.ship-addr[1]
-             kli.cust-add[3] = xeb.ship-addr[2]
-             kli.cust-add[4] = xeb.ship-city + ", " + xeb.ship-state + " " +
-                               xeb.ship-zip.
-    
-             IF kli.cust-add[3] = "" THEN ASSIGN
-                kli.cust-add[3] = kli.cust-add[4] kli.cust-add[4] = "".
-             IF kli.cust-add[2] = "" THEN ASSIGN
-                kli.cust-add[2] = kli.cust-add[3] kli.cust-add[3] = kli.cust-add[4]
-                kli.cust-add[4] = "".
-             ASSIGN
-             kli.ship-add[1] = shipto.ship-name
-             kli.ship-add[2] = shipto.ship-addr[1]
-             kli.ship-add[3] = shipto.ship-addr[2]
-             kli.ship-add[4] = shipto.ship-city + ", " + shipto.ship-state +
-                                                             " " + shipto.ship-zip.
-             IF kli.ship-add[3] = "" THEN
-             ASSIGN kli.ship-add[3] = kli.ship-add[4] kli.ship-add[4] = "".
-             IF kli.ship-add[2] = "" THEN
-             ASSIGN kli.ship-add[2] = kli.ship-add[3]
-                    kli.ship-add[3] = kli.ship-add[4] kli.ship-add[4] = "".
-          END.
-          FIND FIRST blk WHERE blk.snum = xeb.form-no AND
-                               blk.bnum = xeb.blank-no NO-ERROR.
-          IF NOT AVAILABLE blk THEN DO:
-             CREATE blk.
-             ASSIGN
-              blk.kli      = kli.cust-no
-              blk.id       = xeb.part-no
-              blk.snum     = xeb.form-no
-              blk.bnum     = xeb.blank-no
-              blk.qreq     = xeb.bl-qty
-              blk.qyld     = xeb.yld-qty
-              blk.yr$      = xeb.yrprice
-              blk.stock-no = xeb.stock-no.
-          END.
-          xxx = xxx + (xeb.t-sqin * xeb.num-up).
-       END.
-       FOR EACH xeb WHERE xeb.company = xest.company
-                      AND xeb.est-no EQ xest.est-no
-                      AND xeb.form-no EQ xef.form-no NO-LOCK,
-           FIRST blk  WHERE blk.snum EQ xeb.form-no
-                        AND blk.bnum EQ xeb.blank-no:
-           blk.pct = (xeb.t-sqin * xeb.num-up) / xxx.
-       END.
-    END.
-    
-
-    ASSIGN t-blksht = 0
-           tt-blk   = 0
-           t-blkqty = 0
-           vbsf     = 0 
-           dTonCost = 0 
-           iAvg     = 0.
-    FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
-    ASSIGN
-        ctrl[1]  = ce-ctrl.whse-mrkup / 100
-        ctrl[2]  = ce-ctrl.hand-pct / 100
-        ctrl[3]  = ce-ctrl.rm-rate
-        ctrl[4]  = ce-ctrl.spec-%[1]
-        ctrl[5]  = int(ce-ctrl.comm-add)
-        ctrl[6]  = int(ce-ctrl.shp-add)
-        ctrl[7]  = int(ce-ctrl.sho-labor)
-        ctrl[8]  = int(ce-ctrl.trunc-99)
-        ctrl[11] = ce-ctrl.spec-%[2]
-        ctrl[12] = ce-ctrl.spec-%[3]
-        ctrl[13] = int(ce-ctrl.spec-add[1])
-        ctrl[14] = int(ce-ctrl.spec-add[2])
-        ctrl[15] = int(ce-ctrl.spec-add[3])
-        ctrl[16] = int(ce-ctrl.spec-add[6])
-        ctrl[17] = int(ce-ctrl.spec-add[7])
-        ctrl[18] = int(ce-ctrl.spec-add[8]).
-
-    FOR EACH xef WHERE xef.company = xest.company
-               AND xef.est-no EQ xest.est-no
-               BREAK BY xef.form-no :
-    
-
-    FOR EACH xeb OF xef BY xeb.blank-no:
-
-      FIND FIRST item {sys/look/itemW.i} AND item.i-no = xef.board NO-LOCK NO-ERROR.
-      IF AVAILABLE item THEN FIND FIRST e-item OF item NO-LOCK NO-ERROR.
-      /* set total # of blanks on all forms */
-
-      ASSIGN
-      tt-blk = tt-blk + IF xeb.yrprice /*AND NOT ll-tandem*/ THEN xeb.yld-qty ELSE xeb.bl-qty
-      /* set total # of blanks on this form */
-      t-blksht[xef.form-no] = t-blksht[xef.form-no] + xeb.num-up
-      /* set total qty of all blanks for this form */
-      t-blkqty[xeb.form-no] = t-blkqty[xeb.form-no] +
-                              IF xeb.yrprice THEN xeb.yld-qty ELSE xeb.bl-qty.
-      /* find sheet qty needed for this form (without spoil)*/
-      IF (xeb.yld-qty / xeb.num-up) > zzz THEN
-      ASSIGN zzz = (xeb.yld-qty / xeb.num-up).
-      {sys/inc/roundup.i zzz}
-      ASSIGN
-      t-shtfrm[xeb.form-no] = zzz
-      call_id = RECID(xeb)
-      vbsf = vbsf + IF v-corr THEN (xeb.t-sqin * .007) ELSE (xeb.t-sqin / 144)
-      brd-l[4]  = xeb.t-len
-      brd-w[4]  = xeb.t-wid
-      brd-sq[4] = xeb.t-sqin  /*brd-l[4] * brd-w[4]*/
-      brd-sf[4] = IF v-corr THEN (brd-sq[4] * .007) ELSE (brd-sq[4] / 144)
-      brd-wu[4] = brd-sf[4] * item.basis-w.
-     
-   END.
-   FIND xeb WHERE RECID(xeb) = call_id NO-LOCK NO-ERROR. qty = xeb.yld-qty.
-
-   RUN ce/com/prokalk.p.
-
-    v-tons = v-tons + (IF v-corr THEN (xef.gsh-len * xef.gsh-wid * .007)
-                          ELSE (xef.gsh-len * xef.gsh-wid / 144) ) * xef.gsh-qty  / 1000 * ( IF AVAIL ITEM THEN item.basis-w ELSE 0) / 2000 .
- 
-   qty = IF eb.yrprice /*AND NOT ll-tandem*/ THEN eb.yld-qty ELSE eb.bl-qty.  
-   
-   iAvg = iAvg + 1.
-   dm-tot[3] = 0. dm-tot[4] = 0. dm-tot[5] = 0.
-    
-   /* b o a r d        */  RUN ce/com/pr4-brd.p ("").
-     
-   /* i n k s          */ RUN ce/com/pr4-ink.p.
-    
-   /* film             */ RUN ce/com/pr4-flm.p.
-      
-   /* case/tray/pallet */ RUN ce/com/pr4-cas.p.
-     
-   /* special          */ RUN ce/com/pr4-spe.p.
-       
-      ASSIGN dTonCost = dTonCost + b-msh .
-      
-    END. /* for each xef */
-
-    ASSIGN dTonCost = dTonCost / iAvg .
-
-      qm = probe.est-qty / 1000.
-
-      v-brd-cost = v-brd-cost + dm-tot[5].
-      FOR EACH blk:
-          FIND FIRST xjob
-              WHERE xjob.i-no     EQ blk.id
-              AND xjob.form-no  EQ blk.snum
-              AND xjob.blank-no EQ blk.bnum
-              NO-ERROR.
-
-          IF NOT AVAILABLE xjob THEN DO:
-              CREATE xjob.
-              ASSIGN
-                  xjob.form-no  = blk.snum
-                  xjob.blank-no = blk.bnum
-                  xjob.cust-no  = blk.kli.
-          END.
-
-          ASSIGN
-              xjob.mat      = blk.cost - blk.lab
-              xjob.lab      = blk.lab
-              xjob.i-no     = blk.id
-              xjob.pct      = blk.pct
-              xjob.stock-no = blk.stock-no.
-     END.
-       
-      /* prep      */ RUN ce/com/pr4-prp.p.
-      
-      /* machines */ RUN ce/com/pr4-mch.p.
-    
-      IF ctrl2[2] NE 0 OR ctrl2[3] NE 0 THEN DO:
-          op-tot[5] = op-tot[5] + (ctrl2[2] + ctrl2[3]).
-      END.
-   
-   
-   /* mat */
-   DO i = 1 TO 6:
-      ctrl[9] = ce-ctrl.mat-pct[i] / 100.
-      IF ce-ctrl.mat-cost[i] > dm-tot[5]  THEN LEAVE.
-   END.
-
-    /* lab */
-   DO i = 1 TO 6:
-      ctrl[10] = ce-ctrl.lab-pct[i] / 100.
-      IF ce-ctrl.lab-cost[i] > op-tot[5]  THEN LEAVE.
-   END.
-   
-  DO TRANSACTION:
-     {est/calcpcts.i xest}
-     ASSIGN
-      calcpcts.val[1] = ctrl[9] * 100
-      calcpcts.val[2] = v-brd-cost.
-     FIND CURRENT calcpcts NO-LOCK NO-ERROR.
-   END.
-   
-  ASSIGN
-       gsa-mat = ctrl[9]  * 100
-       gsa-lab = ctrl[10] * 100
-       gsa-com = ce-ctrl.comm-mrkup
-       gsa-war = ce-ctrl.whse-mrkup
-        .
-
-   FIND FIRST reftable-fm NO-LOCK
-       WHERE reftable-fm.reftable EQ "gsa-fm"
-       AND reftable-fm.company  EQ xest.company
-       AND reftable-fm.loc      EQ ""
-       AND reftable-fm.code     EQ xest.est-no
-       NO-ERROR.
-
-   IF AVAILABLE reftable-fm THEN
-       gsa-fm = reftable-fm.val[1].
-   ELSE
-       gsa-fm = ctrl[19].
-
-    
-       ASSIGN
-        gsa-mat = probe.gsa-mat
-        gsa-lab = probe.gsa-lab 
-        gsa-war = probe.gsa-war  .
-
-       FIND FIRST probe-ref NO-LOCK
-          WHERE probe-ref.reftable EQ "probe-ref"
-            AND probe-ref.company  EQ probe.company
-            AND probe-ref.loc      EQ ""
-            AND probe-ref.code     EQ probe.est-no
-            AND probe-ref.code2    EQ STRING(probe.line,"9999999999")
-          NO-ERROR.
-      IF AVAILABLE probe-ref THEN 
-          DO TRANSACTION:
-            FIND CURRENT calcpcts NO-ERROR.
-            calcpcts.val[1] = probe-ref.val[1] .
-            FIND CURRENT calcpcts NO-LOCK NO-ERROR.
-          END.
-
-          FIND FIRST probe-fm NO-LOCK
-          WHERE probe-fm.reftable EQ "gsa-fm"
-            AND probe-fm.company  EQ probe.company
-            AND probe-fm.loc      EQ ""
-            AND probe-fm.code     EQ probe.est-no
-          NO-ERROR.
-
-      IF AVAIL probe-fm THEN
-         gsa-fm = probe-fm.val[1].
-   
-   ASSIGN
-       ctrl[9]  = gsa-mat / 100 
-       ctrl[10] = gsa-lab / 100 
-       ctrl[1]  = gsa-war / 100
-       ctrl[19] = gsa-fm / 100.
-   
-   RUN ce/com/pr4-tots.p.
-
-   FIND FIRST item NO-LOCK
-        WHERE ITEM.company EQ eb.company
-          AND item.i-no = ef.board NO-ERROR.
-   IF AVAILABLE item THEN FIND FIRST e-item OF item NO-LOCK NO-ERROR.
-
-   IF ctrl2[9] EQ ? THEN ctrl2[9] = 0.
-   IF ctrl2[10] EQ ? THEN ctrl2[10] = 0.
-   IF v-tons EQ ? THEN v-tons = 0 .
-
-  
-
-    DISPLAY eb.cust-no            FORMAT "x(8)" COLUMN-LABEL "Customer"
-            est.est-date           COLUMN-LABEL "date"
-            TRIM(eb.est-no)       FORMAT "x(8)"
+    DISPLAY opcCust            FORMAT "x(8)" COLUMN-LABEL "Customer"
+            opdEstDate           COLUMN-LABEL "date"
+            opcEstNo       FORMAT "x(8)"
                                   COLUMN-LABEL "Est#"
-            probe.sell-price      COLUMN-LABEL "Selling Price"
-            v-tons                COLUMN-LABEL "Board Tons"
+            opcSellPrice      COLUMN-LABEL "Selling Price"
+            opcTons                COLUMN-LABEL "Board Tons"
             ""                    COLUMN-LABEL "Board Cost / Ton (ERP)"
             ""                     COLUMN-LABEL "Board Cost / Ton (Actual)"
             ""                    COLUMN-LABEL  "Board Pad"
-            calcpcts.val[2]        COLUMN-LABEL "GSA MU B"
-            ctrl2[9]               COLUMN-LABEL "GSA MU M"
-            ctrl2[10]              COLUMN-LABEL "GSA Labor"
-            probe.full-cost * qm             COLUMN-LABEL "ERP Cost"
+            opdCalcPctsVal2        COLUMN-LABEL "GSA MU B"
+            opdCtrl2-9               COLUMN-LABEL "GSA MU M"
+            opdCtrl2-10              COLUMN-LABEL "GSA Labor"
+            opdFullCost             COLUMN-LABEL "ERP Cost"
             ""                    COLUMN-LABEL "ERP Margin ($)"
             ""           COLUMN-LABEL "ERP Margin (%)"
             ""              COLUMN-LABEL "Est. Cost"
@@ -1297,25 +929,25 @@ FOR EACH est NO-LOCK
            WITH FRAME est DOWN NO-BOX STREAM-IO WIDTH 300.
         
     ASSIGN
-          chWorkSheet:Range("C" + STRING(row-count)):VALUE = eb.cust-no .
-          chWorkSheet:Range("D" + STRING(row-count)):VALUE = est.est-date .
-          chWorkSheet:Range("E" + STRING(row-count)):VALUE = TRIM(eb.est-no) .
-          chWorkSheet:Range("F" + STRING(row-count)):VALUE = STRING(probe.sell-price * qm, "->>>>>>>9.99") .
-          chWorkSheet:Range("G" + STRING(row-count)):VALUE = STRING(v-tons, "->>9.99999") .
-          chWorkSheet:Range("H" + STRING(row-count)):VALUE = STRING(dTonCost, "->>>>>>>9.99") .
+          chWorkSheet:Range("C" + STRING(row-count)):VALUE = opcCust .
+          chWorkSheet:Range("D" + STRING(row-count)):VALUE = opdEstDate .
+          chWorkSheet:Range("E" + STRING(row-count)):VALUE = opcEstNo .
+          chWorkSheet:Range("F" + STRING(row-count)):VALUE = opcSellPrice .
+          chWorkSheet:Range("G" + STRING(row-count)):VALUE = opcTons .
+          chWorkSheet:Range("H" + STRING(row-count)):VALUE =  opcTonCost .
           /*chWorkSheet:Range("I" + STRING(row-count)):VALUE = "" .*/
           /*chWorkSheet:Range("J" + STRING(row-count)):VALUE = "" .*/
-          chWorkSheet:Range("K" + STRING(row-count)):VALUE =  calcpcts.val[2] .
-          chWorkSheet:Range("L" + STRING(row-count)):VALUE = ctrl2[9] .
-          chWorkSheet:Range("M" + STRING(row-count)):VALUE = ctrl2[10]  .
-          chWorkSheet:Range("N" + STRING(row-count)):VALUE = ctrl2[1] .
-          chWorkSheet:Range("O" + STRING(row-count)):VALUE = probe.full-cost * qm . 
-          chWorkSheet:Range("P" + STRING(row-count)):VALUE = probe.sell-price * (probe.net-profit / 100) * qm .
-          chWorkSheet:Range("Q" + STRING(row-count)):VALUE = string(probe.net-profit,"->>9.99%") .
+          chWorkSheet:Range("K" + STRING(row-count)):VALUE =  opdCalcPctsVal2 .
+          chWorkSheet:Range("L" + STRING(row-count)):VALUE = opdCtrl2-9 .
+          chWorkSheet:Range("M" + STRING(row-count)):VALUE = opdCtrl2-10  .
+          chWorkSheet:Range("N" + STRING(row-count)):VALUE = opdCtrl2-1 .
+          chWorkSheet:Range("O" + STRING(row-count)):VALUE = opdFullCost . 
+          chWorkSheet:Range("P" + STRING(row-count)):VALUE = opdNetProfitDol .
+          chWorkSheet:Range("Q" + STRING(row-count)):VALUE = opcNetProfitPct .
           
            row-count = row-count + 1 .
-    
-      END.
+   
+/*      END. */
 END.
 
 chWorkSheet:Range ("A" + string(row-count) + "..S1020" ):delete     NO-ERROR.
@@ -1340,12 +972,13 @@ chWorkSheet:Range ("A" + string(row-count) + "..S1020" ):delete     NO-ERROR.
   RELEASE OBJECT chWorkbook         NO-ERROR.
   RELEASE OBJECT chWorkSheet        NO-ERROR.
   RELEASE OBJECT chExcelApplication NO-ERROR.
+  /*
   RELEASE xeb .
   RELEASE xop .
   RELEASE eb.
   RELEASE ef.
   RELEASE probe .
-
+    */
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 SESSION:SET-WAIT-STATE ("").
