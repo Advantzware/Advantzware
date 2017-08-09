@@ -3071,8 +3071,8 @@ PROCEDURE check-cr-bal :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/lValidateError.i YES}
-IF cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(I)" 
-  THEN 
+IF AVAIL cust AND cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(I)" 
+  THEN do: 
     IF AVAIL cust AND cust.acc-bal GT 0 THEN DO:
       MESSAGE 
         "Customer " + cust.cust-no + " - " + cust.NAME 
@@ -3083,6 +3083,35 @@ IF cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(I)"
         APPLY "entry" TO cust.active .
       RETURN ERROR.
     END.
+    FIND FIRST ar-inv NO-LOCK 
+        WHERE ar-inv.company EQ cust.company
+          AND ar-inv.cust-no EQ cust.cust-no 
+          AND ar-inv.posted EQ NO NO-ERROR .
+    IF AVAIL ar-inv THEN DO:
+        MESSAGE 
+        "Customer " + cust.cust-no + " - " + cust.NAME 
+        " is have Open Invoice ." SKIP 
+        "You can not change it Inactive account. Please select another status."
+       VIEW-AS ALERT-BOX ERROR.
+
+        APPLY "entry" TO cust.active .
+      RETURN ERROR.
+    END.      
+    FIND FIRST oe-ord NO-LOCK
+        WHERE oe-ord.company EQ cust.company
+          AND oe-ord.cust-no EQ cust.cust-no
+          AND INDEX("CZ",oe-ord.stat) EQ 0 NO-ERROR.
+    IF AVAIL oe-ord THEN DO:
+        MESSAGE 
+        "Customer " + cust.cust-no + " - " + cust.NAME 
+        " is have Open Order ." SKIP 
+        "You can not change it Inactive account. Please select another status."
+       VIEW-AS ALERT-BOX ERROR.
+
+        APPLY "entry" TO cust.active .
+      RETURN ERROR.
+    END.
+END.
 
 
   {methods/lValidateError.i NO}
