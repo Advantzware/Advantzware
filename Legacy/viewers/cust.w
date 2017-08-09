@@ -903,6 +903,17 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME cust.active
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.active V-table-Win
+ON VALUE-CHANGED OF cust.active IN FRAME F-Main /* Status */
+DO:
+    RUN check-cr-bal .
+    IF NOT v-valid THEN RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME cust.an-edi-cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.an-edi-cust V-table-Win
@@ -2243,6 +2254,9 @@ PROCEDURE local-update-record :
         return .
      end.*/
 
+     RUN check-cr-bal NO-ERROR .
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
      RUN valid-custtype NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -3043,6 +3057,35 @@ PROCEDURE zip-carrier :
                                      ELSE cust.del-zone:SCREEN-VALUE.
       /* gdm - 10010913 end*/
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-cr-bal V-table-Win 
+PROCEDURE check-cr-bal :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+IF cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(I)" 
+  THEN 
+    IF AVAIL cust AND cust.acc-bal GT 0 THEN DO:
+      MESSAGE 
+        "Customer " + cust.cust-no + " - " + cust.NAME 
+        " is have Account Balance ." SKIP 
+        "You can not change it Inactive account. Please select another status."
+       VIEW-AS ALERT-BOX ERROR.
+
+        APPLY "entry" TO cust.active .
+      RETURN ERROR.
+    END.
+
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
