@@ -519,8 +519,8 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_fg-set ).
-       RUN set-position IN h_fg-set ( 7.19 , 21.00 ) NO-ERROR.
-       RUN set-size IN h_fg-set ( 8.62 , 102.00 ) NO-ERROR.
+       RUN set-position IN h_fg-set ( 7.19 , 9.00 ) NO-ERROR.
+       RUN set-size IN h_fg-set ( 8.62 , 141.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-fgset.w':U ,

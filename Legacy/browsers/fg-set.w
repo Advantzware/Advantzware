@@ -178,19 +178,19 @@ DEFINE QUERY br_table FOR
 DEFINE BROWSE br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS br_table B-table-Win _STRUCTURED
   QUERY br_table NO-LOCK DISPLAY
-      fg-set.part-qty COLUMN-LABEL "Qty per Set" FORMAT "->>,>>9":U
-            WIDTH 15.2
+      fg-set.part-qty COLUMN-LABEL "Qty/Set" FORMAT "->>9":U
+            WIDTH 11.2
       fg-set.part-no FORMAT "x(15)":U
       get-itemfg () @ lv-i-name COLUMN-LABEL "Name" FORMAT "x(25)":U
-      lv-q-onh @ lv-q-onh COLUMN-LABEL "On Hand" FORMAT "->,>>>,>>>,>>9":U
-            WIDTH 14.4
-      lv-q-ono @ lv-q-ono COLUMN-LABEL "POs/Jobs!On Order" FORMAT "->,>>>,>>>,>>9":U
-      lv-q-all @ lv-q-all COLUMN-LABEL "Allocated!To Orders" FORMAT "->,>>>,>>>,>>9":U
-            WIDTH 14.4
-      lv-q-bak @ lv-q-bak COLUMN-LABEL "Backorder" FORMAT "->,>>>,>>>,>>9":U
-            WIDTH 14.4
-      lv-q-onh + lv-q-ono - lv-q-all @ lv-q-avl COLUMN-LABEL "Available" FORMAT "->,>>>,>>>,>>9":U
-            WIDTH 14.4
+      lv-q-onh @ lv-q-onh COLUMN-LABEL "On Hand" FORMAT "->>>,>>9":U
+            WIDTH 12.4
+      lv-q-ono @ lv-q-ono COLUMN-LABEL "POs/Jobs!On Order" FORMAT "->>>,>>9":U
+      lv-q-all @ lv-q-all COLUMN-LABEL "Allocated!To Orders" FORMAT "->>>,>>9":U
+            WIDTH 12.4
+      lv-q-bak @ lv-q-bak COLUMN-LABEL "Backorder" FORMAT "->>>,>>9":U
+            WIDTH 12.4
+      lv-q-onh + lv-q-ono - lv-q-all @ lv-q-avl COLUMN-LABEL "Available" FORMAT "->>>,>>9":U
+            WIDTH 12.4
   ENABLE
       fg-set.part-qty
       fg-set.part-no
@@ -279,21 +279,21 @@ ASSIGN
      _JoinCode[1]      = "ASI.fg-set.company = ASI.itemfg.company
   AND ASI.fg-set.set-no = ASI.itemfg.i-no"
      _FldNameList[1]   > ASI.fg-set.part-qty
-"fg-set.part-qty" "Qty per Set" "->>,>>9" "integer" ? ? ? ? ? ? yes ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fg-set.part-qty" "Qty per Set" "->>9" "integer" ? ? ? ? ? ? yes ? no no "15.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-set.part-no
 "fg-set.part-no" ? ? "character" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"
 "get-itemfg () @ lv-i-name" "Name" "x(25)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"
-"lv-q-onh @ lv-q-onh" "On Hand" "->,>>>,>>>,>>9" ? ? ? ? ? ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"lv-q-onh @ lv-q-onh" "On Hand" "->>>,>>9" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > "_<CALC>"
-"lv-q-ono @ lv-q-ono" "POs/Jobs!On Order" "->,>>>,>>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"lv-q-ono @ lv-q-ono" "POs/Jobs!On Order" "->>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > "_<CALC>"
-"lv-q-all @ lv-q-all" "Allocated!To Orders" "->,>>>,>>>,>>9" ? ? ? ? ? ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"lv-q-all @ lv-q-all" "Allocated!To Orders" "->>>,>>9" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > "_<CALC>"
-"lv-q-bak @ lv-q-bak" "Backorder" "->,>>>,>>>,>>9" ? ? ? ? ? ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"lv-q-bak @ lv-q-bak" "Backorder" "->>>,>>9" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > "_<CALC>"
-"lv-q-onh + lv-q-ono - lv-q-all @ lv-q-avl" "Available" "->,>>>,>>>,>>9" ? ? ? ? ? ? ? no ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"lv-q-onh + lv-q-ono - lv-q-all @ lv-q-avl" "Available" "->>>,>>9" ? ? ? ? ? ? ? no ? no no "12.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
