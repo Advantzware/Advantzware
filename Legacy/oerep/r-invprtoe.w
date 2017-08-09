@@ -250,7 +250,7 @@ DEFINE VARIABLE fiBeginDateLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Beginni
       VIEW-AS TEXT 
      SIZE 19 BY .62 NO-UNDO.
 
-DEFINE VARIABLE fiEndDateLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Ending BOL Date:" 
+DEFINE VARIABLE fiEndDateLabel AS CHARACTER FORMAT "X(256)":U INITIAL "Ending Bol Date:" 
       VIEW-AS TEXT 
      SIZE 17 BY .62 NO-UNDO.
 
@@ -1314,8 +1314,8 @@ DO:
     END.
   IF ipcInvoiceType EQ "inv-head" AND NOT tb_posted THEN DO:
 
-    ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning BOL Date:"
-           fiEndDateLabel:SCREEN-VALUE = "Ending BOL Date:"
+    ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Bol Date:"
+           fiEndDateLabel:SCREEN-VALUE = "Ending Bol Date:"
            tbPostedAr:HIDDEN = YES
            tbPostedAR:SENSITIVE = NO
            .
@@ -1441,8 +1441,8 @@ PAUSE 0 BEFORE-HIDE.
 
 /* {oerep/r-invprt.i} */
 IF ipcInvoiceType EQ "inv-head" THEN DO:
-  ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning BOL Date:"
-         fiEndDateLabel:SCREEN-VALUE = "Ending BOL Date:"
+  ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Bol Date:"
+         fiEndDateLabel:SCREEN-VALUE = "Ending Bol Date:"
          .
   RUN oerep/r-invprtOESuper.p PERSISTENT SET hSuperProc.
 END.
@@ -1450,8 +1450,8 @@ END.
 
 ELSE DO:
  RUN oerep/r-invprtARSuper.p PERSISTENT SET hSuperProc.
- ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Date:"
-        fiEndDateLabel:SCREEN-VALUE = "Ending Date:"
+ ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Inv Date:"
+        fiEndDateLabel:SCREEN-VALUE = "Ending Inv Date:"
         .
 
 END.
@@ -1580,8 +1580,18 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         DISABLE lines-per-page.
 
         {custom/usrprint.i}
+        
         IF ipcInvoiceType EQ "inv-head" THEN
-          tb_posted:SCREEN-VALUE = "NO".
+          ASSIGN tb_posted:SCREEN-VALUE = "NO"
+                 fiBeginDateLabel:SCREEN-VALUE = "Beginning Bol Date:"
+                 fiEndDateLabel:SCREEN-VALUE = "Ending Bol Date:"          
+                 .
+        IF ipcInvoiceType NE "inv-head" THEN 
+         ASSIGN fiBeginDateLabel:SCREEN-VALUE = "Beginning Inv Date:"
+                fiEndDateLabel:SCREEN-VALUE = "Ending Inv Date:"
+                .
+
+
           IF tb_BatchMail:SCREEN-VALUE = "YES" THEN
   ASSIGN 
      tb_splitPDF:HIDDEN = NO

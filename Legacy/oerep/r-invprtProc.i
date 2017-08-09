@@ -1299,7 +1299,7 @@ PROCEDURE run-report :
                         
                     FOR EACH oe-bolh NO-LOCK 
                         WHERE  oe-bolh.b-no EQ buf-{&line}1.{&bno}:
-                            
+
                         {&bol-check}
             END.
                     
@@ -1318,7 +1318,8 @@ PROCEDURE run-report :
                     iBol = b-{&head}1.{&bolno}.
             
             
-            IF tb_attachBOL AND SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf") NE ?  THEN 
+            IF tb_attachBOL AND SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf") NE ? 
+              AND INDEX(vcBolFiles, SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf")) EQ 0 THEN 
                 vcBOLFiles = vcBOLFiles + "," + SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf").
             
             RUN create-save-line.
@@ -1362,7 +1363,7 @@ IF tb_attachBOL AND SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf") NE ?  THE
     vcBOLFiles = vcBOLFiles + "," + SEARCH(vcBOLSignDir + "\" + string(iBol) + ".pdf").
 
 END. /* else do: not for multi-invoice */
-
+ 
 
 /* dont include {&head} on printing when it's a MASTER invoice (multi-inv) AND 
    no SLAVE invoices found which is NOT on HOLD Status ({&head}.stat NE "H") AH 07/08/10 */
@@ -1713,32 +1714,53 @@ PROCEDURE setBolDates:
     ASSIGN 
         opdBeginDate = ?
         opdEndDate   = ?.
-    FIND FIRST {&head} WHERE {&head}.company = g_company
-        AND {&head}.inv-no = integer(begin_inv-screen-value) NO-LOCK NO-ERROR.
-    IF AVAILABLE {&head} THEN 
-        ASSIGN begin_cust-SCREEN-VALUE = {&head}.cust-no
-            end_cust-SCREEN-VALUE   = {&head}.cust-no
-            opcBeginCust            = begin_cust-SCREEN-VALUE
-            opcEndCust              = end_cust-SCREEN-VALUE
-            .
-    IF "{&head}" EQ "inv-head" THEN 
-    DO:
-        IF AVAILABLE {&head} AND {&head}.{&bolno} NE 0 THEN
-            FIND FIRST oe-bolh
-                WHERE oe-bolh.company EQ cocode
-                AND oe-bolh.{&bolno}  EQ {&head}.{&bolno}
-                NO-LOCK NO-ERROR.
-    
-        IF AVAILABLE oe-bolh THEN
-            ASSIGN opdBeginDate = STRING(oe-bolh.bol-date)
-                opdEndDate   = STRING(oe-bolh.bol-date).
-    END.
-    ELSE 
-    DO:
-        /* ar-inv case */
+    FOR EACH {&head} NO-LOCK WHERE {&head}.company = g_company
+        AND {&head}.inv-no = integer(begin_inv-screen-value)
+        AND {&head}.{&multiinvoice} EQ NO 
+        :
         IF AVAILABLE {&head} THEN 
-            ASSIGN opdBeginDate = STRING({&head}.inv-date)
-                opdEndDate   = STRING({&head}.inv-date).
+            ASSIGN begin_cust-SCREEN-VALUE = {&head}.cust-no
+                end_cust-SCREEN-VALUE   = {&head}.cust-no
+                opcBeginCust            = begin_cust-SCREEN-VALUE
+                opcEndCust              = end_cust-SCREEN-VALUE
+                .
+        IF "{&head}" EQ "inv-head" THEN 
+        DO:
+            IF AVAILABLE {&head} AND {&head}.{&bolno} NE 0 THEN
+                FIND FIRST oe-bolh
+                    WHERE oe-bolh.company EQ cocode
+                    AND oe-bolh.{&bolno}  EQ {&head}.{&bolno}
+                    NO-LOCK NO-ERROR.
+        
+            IF AVAILABLE oe-bolh AND opdBeginDate EQ ? THEN
+                ASSIGN opdBeginDate = STRING(oe-bolh.bol-date)
+                       opdEndDate   = STRING(oe-bolh.bol-date).
+      
+            
+                FOR EACH {&line} NO-LOCK WHERE {&line}.{&rno} EQ {&head}.{&rno},
+                  FIRST oe-boll NO-LOCK WHERE oe-boll.{&bno} EQ {&line}.{&bno}:
+                  FIND FIRST oe-bolh NO-LOCK WHERE oe-bolh.{&bno} EQ oe-boll.{&bno} NO-ERROR.
+                  IF AVAILABLE oe-bolh THEN DO:
+                      IF opdBeginDate EQ ? THEN 
+                          ASSIGN opdBeginDate = STRING(oe-bolh.bol-date)
+                                 opdEndDate   = STRING(oe-bolh.bol-date).
+                      ELSE DO:
+                          IF oe-bolh.bol-date LT DATE(opdBeginDate) THEN 
+                            opdBeginDate = STRING(oe-bolh.bol-date).
+                          IF oe-bolh.bol-date GT DATE(opdEndDate) THEN 
+                            opdEndDate = STRING(oe-bolh.bol-date). 
+                      END.
+                  END.
+                END.            
+           
+        END.
+        ELSE 
+        DO:
+            /* ar-inv case */
+            IF AVAILABLE {&head} THEN 
+                ASSIGN opdBeginDate = STRING({&head}.inv-date)
+                    opdEndDate   = STRING({&head}.inv-date).
+        END.
     END. 
 END.
 
