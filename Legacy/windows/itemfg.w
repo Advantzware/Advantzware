@@ -751,7 +751,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = Yes':U ,
              OUTPUT h_fg-set ).
        RUN set-position IN h_fg-set ( 8.86 , 9.00 ) NO-ERROR.
-       RUN set-size IN h_fg-set ( 8.62 , 133.00 ) NO-ERROR.
+       RUN set-size IN h_fg-set ( 8.62 , 141.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-fgset.w':U ,
