@@ -903,6 +903,17 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME cust.active
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.active V-table-Win
+ON VALUE-CHANGED OF cust.active IN FRAME F-Main /* Status */
+DO:
+    RUN check-cr-bal .
+    IF NOT v-valid THEN RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME cust.an-edi-cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cust.an-edi-cust V-table-Win
@@ -2243,6 +2254,9 @@ PROCEDURE local-update-record :
         return .
      end.*/
 
+     RUN check-cr-bal NO-ERROR .
+     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
      RUN valid-custtype NO-ERROR.
      IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
@@ -3043,6 +3057,64 @@ PROCEDURE zip-carrier :
                                      ELSE cust.del-zone:SCREEN-VALUE.
       /* gdm - 10010913 end*/
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-cr-bal V-table-Win 
+PROCEDURE check-cr-bal :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  {methods/lValidateError.i YES}
+IF AVAIL cust AND cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(I)" 
+  THEN do: 
+    IF AVAIL cust AND cust.acc-bal GT 0 THEN DO:
+      MESSAGE 
+        "Customer " + cust.cust-no + " - " + cust.NAME 
+        " has a non-zero Account Balance ." SKIP 
+        "You can not make it Inactive. Please select another status."
+       VIEW-AS ALERT-BOX ERROR.
+
+        APPLY "entry" TO cust.active .
+      RETURN ERROR.
+    END.
+    FIND FIRST ar-inv NO-LOCK 
+        WHERE ar-inv.company EQ cust.company
+          AND ar-inv.cust-no EQ cust.cust-no 
+          AND ar-inv.posted EQ NO NO-ERROR .
+    IF AVAIL ar-inv THEN DO:
+        MESSAGE 
+        "Customer " + cust.cust-no + " - " + cust.NAME 
+        " has at least one Open Invoice ." SKIP 
+        "You can not make it Inactive. Please select another status."
+       VIEW-AS ALERT-BOX ERROR.
+
+        APPLY "entry" TO cust.active .
+      RETURN ERROR.
+    END.      
+    FIND FIRST oe-ord NO-LOCK
+        WHERE oe-ord.company EQ cust.company
+          AND oe-ord.cust-no EQ cust.cust-no
+          AND INDEX("CZ",oe-ord.stat) EQ 0 NO-ERROR.
+    IF AVAIL oe-ord THEN DO:
+        MESSAGE 
+        "Customer " + cust.cust-no + " - " + cust.NAME 
+        " has at least one Open Order ." SKIP 
+        "You can not make it Inactive. Please select another status."
+       VIEW-AS ALERT-BOX ERROR.
+
+        APPLY "entry" TO cust.active .
+      RETURN ERROR.
+    END.
+END.
+
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
