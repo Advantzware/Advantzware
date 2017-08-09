@@ -3076,7 +3076,7 @@ IF AVAIL cust AND cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(I)"
     IF AVAIL cust AND cust.acc-bal GT 0 THEN DO:
       MESSAGE 
         "Customer " + cust.cust-no + " - " + cust.NAME 
-        " is have Account Balance ." SKIP 
+        " has an Account Balance ." SKIP 
         "You can not change it Inactive account. Please select another status."
        VIEW-AS ALERT-BOX ERROR.
 
@@ -3090,7 +3090,7 @@ IF AVAIL cust AND cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(I)"
     IF AVAIL ar-inv THEN DO:
         MESSAGE 
         "Customer " + cust.cust-no + " - " + cust.NAME 
-        " is have Open Invoice ." SKIP 
+        " has at least one Open Invoice ." SKIP 
         "You can not change it Inactive account. Please select another status."
        VIEW-AS ALERT-BOX ERROR.
 
@@ -3104,7 +3104,7 @@ IF AVAIL cust AND cust.active:SCREEN-VALUE IN FRAME {&FRAME-NAME} BEGINS "(I)"
     IF AVAIL oe-ord THEN DO:
         MESSAGE 
         "Customer " + cust.cust-no + " - " + cust.NAME 
-        " is have Open Order ." SKIP 
+        " has at least one Open Order ." SKIP 
         "You can not change it Inactive account. Please select another status."
        VIEW-AS ALERT-BOX ERROR.
 
