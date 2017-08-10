@@ -260,7 +260,7 @@ do v-local-loop = 1 to v-local-copies:
                     lv-under-run = trim(string(cust.under-pct,">>9.99%")) .
 
        PUT    "</PROGRESS>"
-       "<P10><R1><C1>F-750-001-A    <P12><B>JOB TICKET" AT 9
+       "<P10><R1><C1>F-850-001-A    <P12><B>JOB TICKET" AT 9
        "<C40>Production Specification </B><P10>Part item name:" lv-part-name SKIP
        "<#1><C1><FROM><C105><R+45><RECT><|3>" 
        "<=1><C32><FROM><R+19><C32><LINE><|3>"
@@ -608,7 +608,7 @@ do v-local-loop = 1 to v-local-copies:
             v-spec-note[4] FORM "x(122)" AT 2 SKIP
             v-spec-note[5] FORM "x(122)" AT 2 SKIP
             v-spec-note[6] FORM "x(122)" AT 2 SKIP
-            "<C1><R48>F-750-001-A".
+            "<C1><R48>F-850-001-A".
         if print-box and avail xest then do:
             
            run cec/desprntLa.p (recid(xef),
