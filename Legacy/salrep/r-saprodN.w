@@ -72,7 +72,7 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "Catgy,Dly Sq Ft/M,Dly Amount,Dly $/MSF,"
-              + "PTD Sq Ft/M,PTD Amount,PTD $/MSF,YTD Sq Ft/M,YTD Amount,YTD $/MSF"
+              + "PTD Sq Ft/M,PTD Amount,PTD $/MSF,YTD Sq Ft/M,Daily Total,YTD $/MSF"
        cFieldListToSelect = "cat,dly-sf,dly-amt,dly-msf," +
                             "ptd-sf,ptd-amt,ptd-msf,ytd-sf,ytd-amt,ytd-msf"
        cFieldLength = "5,12,13,13," + "12,13,13,12,13,13" 
@@ -1148,6 +1148,8 @@ def var v-gtot-ytd-msf   like v-gtot-msf NO-UNDO.
 def var v-procat like fgcat.procat NO-UNDO.
 def var v-sqft like itemfg.t-sqft NO-UNDO.
 def var v-amt  like ar-inv.gross NO-UNDO.
+def var dPtdAmt  like ar-inv.gross NO-UNDO.
+def var dfriAmt  like ar-inv.gross NO-UNDO.
 def var v-msf  like v-tot-msf NO-UNDO.
 def var v-ytd-first as DATE NO-UNDO.
 def var v-ytd-last  as DATE NO-UNDO.
@@ -1258,7 +1260,7 @@ assign
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-        IF LOOKUP(ttRptSelected.TextList, "Dly Sq Ft/M,Dly Amount,Dly $/MSF,PTD Sq Ft/M,PTD Amount,PTD $/MSF,YTD Sq Ft/M,YTD Amount,YTD $/MSF") <> 0    THEN
+        IF LOOKUP(ttRptSelected.TextList, "Dly Sq Ft/M,Dly Amount,Dly $/MSF,PTD Sq Ft/M,PTD Amount,PTD $/MSF,YTD Sq Ft/M,Daily Total,YTD $/MSF") <> 0    THEN
          ASSIGN
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
