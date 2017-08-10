@@ -1,5 +1,7 @@
 /* monitor.w */
+/* Count up to iWaitSeconds, then continue processing */ 
 DEFINE VARIABLE iWaitCount AS INTEGER NO-UNDO.
+DEFINE VARIABLE iWaitSeconds AS INTEGER INIT 30 NO-UNDO.
 {custom/monitor.w "jobXml" "jobXml"}
 {XMLOutput/XMLOutput.i &Company=cocode &NEW=NEW}
 lXmlOutput = TRUE.
@@ -47,13 +49,13 @@ PROCEDURE postMonitor:
     cPathOut = PrePressHotFolderOut-char.
 
     /* Pausing because this monitor process outbound records as well as monitoring a folder */
-    /* so should not run every second                                                       */
-    PROCESS EVENTS.
+    /* so should not run every second                                                       */    
     iWaitCount = iWaitCount + 1.
-    IF iWaitCount GE 30 THEN 
+    IF iWaitCount GE iWaitSeconds THEN 
     DO:
-        RUN monitorActivity ('Waiting for count ' + STRING(iWaitCount),YES,'').
-      iWaitCount = 1. 
+      IF iWaitCount EQ 1 THEN 
+        RUN monitorActivity ('Pausing for ' + STRING(iWaitSeconds),YES,'').
+      iWaitCount = 0. 
       RETURN.      
     END. 
     PROCESS EVENTS.
