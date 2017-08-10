@@ -1424,13 +1424,7 @@ DO:
   DEF VAR lActive AS LOG NO-UNDO.
 
   IF LASTKEY NE -1 THEN DO:
-    IF eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
-/*         FIND FIRST reftable WHERE reftable.reftable EQ "FGSTATUS" */
-/*                        AND reftable.company  EQ g_company         */
-/*                        AND reftable.loc      EQ ""                */
-/*                        AND reftable.code     EQ SELF:SCREEN-VALUE */
-/*                        NO-LOCK NO-ERROR.                          */
-/*         IF AVAIL reftable AND reftable.code2 EQ "I" THEN DO:      */
+    /*IF eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
        RUN fg/GetItemfgActInact.p (INPUT g_company,
                                    INPUT eb.stock-no:SCREEN-VALUE,
                                    OUTPUT lActive).
@@ -1439,7 +1433,7 @@ DO:
                    VIEW-AS ALERT-BOX ERROR.
            RETURN NO-APPLY.
         END.        
-    END.
+    END.*/  /* Ticket 22498 */
    
     ll-copy-fg = CAN-FIND(FIRST itemfg
                           WHERE itemfg.company EQ g_company
@@ -6215,13 +6209,8 @@ PROCEDURE local-update-record :
 
   RUN check-flute-test-change.
   /* == validation ===== */
-   IF eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO:
-/*         FIND FIRST reftable WHERE reftable.reftable EQ "FGSTATUS"     */
-/*                     AND reftable.company  EQ g_company                */
-/*                     AND reftable.loc      EQ ""                       */
-/*                     AND reftable.code     EQ eb.stock-no:SCREEN-VALUE */
-/*                     NO-LOCK NO-ERROR.                                 */
-/*         IF AVAIL reftable AND reftable.code2 = "I" THEN DO:           */
+/*   IF eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO:
+
        RUN fg/GetItemfgActInact.p (INPUT g_company,
                                    INPUT eb.stock-no:SCREEN-VALUE,
                                    OUTPUT lActive).
@@ -6231,7 +6220,7 @@ PROCEDURE local-update-record :
            APPLY "entry" TO eb.stock-no.
            RETURN ERROR.
         END.
-    END.
+    END.*/ /* Ticket 22498  */
 
      RUN blank-cp (NO).
 
