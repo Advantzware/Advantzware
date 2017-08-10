@@ -66,6 +66,10 @@ DEF VAR v-constn        AS DEC FORMAT "->>>>>9.9" NO-UNDO.
 DEF VAR v-conact        AS DEC FORMAT "->>>>>9.9" NO-UNDO.
 /*var declarations for compiling - used in job-clsr.i*/
 DEF VAR tb_exclude_run_if_no_prod AS LOG INIT NO NO-UNDO.
+DEFINE TEMP-TABLE tt-oerel
+    FIELD cItemNo AS CHAR
+    FIELD cShipId AS CHAR
+    FIELD dRelDt AS DATE .
 
 DEF VAR tb_exclude_prep AS LOG NO-UNDO.
 {methods/defines/hndldefs.i}
@@ -2008,6 +2012,7 @@ DEF VAR str-tit5 AS cha FORM "x(2000)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(3000)" NO-UNDO.
 DEFINE VARIABLE cRelDate AS DATE NO-UNDO.
 DEFINE VARIABLE cProdDate AS DATE NO-UNDO.
+DEFINE VARIABLE cShip-id AS CHARACTER NO-UNDO.
 
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
@@ -2224,24 +2229,41 @@ FOR EACH tt-report,
             FIND itemfg NO-LOCK 
                 WHERE itemfg.company = cocode 
                   AND itemfg.i-no    = work-item.i-no NO-ERROR.
-       
+
             FIND FIRST oe-ordl NO-LOCK
               WHERE oe-ordl.company EQ cocode
                 AND oe-ordl.job-no  EQ job-hdr.job-no
                 AND oe-ordl.job-no2 EQ job-hdr.job-no2
                 AND oe-ordl.ord-no  EQ job-hdr.ord-no
                 AND oe-ordl.i-no    EQ job-hdr.i-no NO-ERROR.
+
+            ASSIGN cRelDate = ?
+                   cShip-id = "".
+
+            EMPTY TEMP-TABLE tt-oerel.
+
           IF AVAILABLE oe-ordl THEN
-          FIND FIRST oe-rel NO-LOCK
-            WHERE oe-rel.company   EQ oe-ordl.company
-              AND oe-rel.ord-no    EQ oe-ordl.ord-no
-              AND oe-rel.i-no      EQ oe-ordl.i-no
-              AND oe-rel.line      EQ oe-ordl.LINE NO-ERROR.
+            FOR EACH oe-rel NO-LOCK
+              WHERE oe-rel.company   EQ oe-ordl.company
+                AND oe-rel.ord-no    EQ oe-ordl.ord-no
+                AND oe-rel.i-no      EQ oe-ordl.i-no
+                AND oe-rel.line      EQ oe-ordl.LINE :
+                FIND FIRST oe-relh NO-LOCK
+                   WHERE oe-relh.r-no EQ oe-rel.r-no  NO-ERROR.
 
-          IF AVAILABLE oe-rel THEN
-             FIND FIRST oe-relh WHERE oe-relh.r-no EQ oe-rel.r-no NO-LOCK NO-ERROR.
-
-          cRelDate = IF AVAILABLE oe-relh THEN oe-relh.rel-date ELSE IF AVAILABLE oe-rell THEN oe-rel.rel-date ELSE ?. 
+              CREATE tt-oerel.
+              ASSIGN
+                  tt-oerel.cItemNo =  oe-rel.i-no  
+                  tt-oerel.cShipId =  IF AVAILABLE oe-rel THEN oe-rel.ship-id ELSE ""
+                  tt-oerel.dRelDt  =  IF AVAILABLE oe-relh THEN oe-relh.rel-date ELSE oe-rel.rel-date.
+            END.
+            FOR EACH tt-oerel NO-LOCK BREAK BY tt-oerel.dRelDt:
+             ASSIGN
+                 cRelDate = tt-oerel.dRelDt
+                 cShip-id = tt-oerel.cShipId.
+             LEAVE.
+            END.
+             
           cProdDate = ?.
           FOR EACH fg-rcpth NO-LOCK
             WHERE fg-rcpth.company   EQ job.company
@@ -2318,7 +2340,7 @@ FOR EACH tt-report,
                          WHEN "%cnt-acl"                THEN cVarValue = IF v-act-price NE 0 THEN STRING((((v-act-price - (v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost)) / v-act-price) * 100.00),"->>>>>9.9") ELSE "" .
                          WHEN "ttl-varnc"               THEN cVarValue = STRING(((v-est-mAT-cost + v-est-lab-cost + v-est-foh-cost + v-est-voh-cost) - (v-act-mAT-cost + v-act-lab-cost + v-act-foh-cost + v-act-voh-cost)),"->>>,>>>,>>9.99").                                                                                                                                                                                                                                
                          WHEN "job-cls-date"            THEN cVarValue = IF job.close-date <> ? THEN STRING(job.close-date,"99/99/9999") ELSE ""  .
-                         WHEN "shp-to"                  THEN cVarValue = IF AVAILABLE oe-rel THEN STRING(oe-rel.ship-id,"x(8)") ELSE ""  .
+                         WHEN "shp-to"                  THEN cVarValue =  STRING( cShip-id,"x(8)") .
                          WHEN "rel-date"                THEN cVarValue = IF cRelDate <> ? THEN STRING(cRelDate,"99/99/9999") ELSE ""  .
                          WHEN "prd-cmp-date"            THEN cVarValue = IF cProdDate <> ? THEN STRING(cProdDate,"99/99/9999") ELSE "" .
                          WHEN "mfg-date"                THEN cVarValue = IF AVAILABLE oe-ordl AND oe-ordl.prom-date <> ? THEN STRING(oe-ordl.prom-date,"99/99/9999") ELSE ""  .
