@@ -2294,7 +2294,22 @@ DEF INPUT PARAM ipiEstNo LIKE eb.est-no NO-UNDO.
 ASSIGN vi_est-no = ipiEstNo
        tb_single = YES 
        tb_set    = YES 
-       tb_tancom = YES   .
+       tb_tancom = YES  
+       begin_cust-no = ""
+       begin_ship = ""
+       vi_part-no = ""
+       vi_stock-no = ""
+       vi_part-dscr1 = ""
+       vi_style = ""
+       vi_len = 0
+       vi_wid = 0
+       vi_dep = 0
+       vi_len-2 = 9999.99999
+       vi_wid-2 = 9999.99999
+       vi_dep-2 = 9999.99999
+       vi_die-no   = "*" 
+       vi_cad-no   = ""
+       vi_plate-no = "" .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
