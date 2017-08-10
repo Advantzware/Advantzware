@@ -64,6 +64,10 @@ DEFINE NEW SHARED VARIABLE v-adder-6 AS CHARACTER FORMAT "X(10)" NO-UNDO.
 DEFINE VARIABLE ls-image1 AS cha NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
 
+DEFINE VARIABLE cStdHours AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cRunHours AS CHARACTER NO-UNDO.
+
+
 ASSIGN ls-image1 = "images\Quality-Check-Initials-Ptree.png".
 
 FILE-INFO:FILE-NAME = ls-image1.
@@ -797,13 +801,14 @@ ASSIGN
           "<P10>"  SKIP.
       
       FOR EACH w-m BY w-m.dseq:
-
+       RUN pConvertToHours(INPUT string(w-m.s-hr,"999.99"), OUTPUT cStdHours).
+       RUN pConvertToHours(INPUT string(w-m.r-hr,"999.99"), OUTPUT cRunHours).
         ASSIGN
            i = i + 1
            v-letter = substr("UTE",i,1)
            v-lines = v-lines + 1.
-
-        DISPLAY "<C2>" w-m.dscr FORMAT "x(20)" "<C18>" w-m.s-hr FORMAT ">>9.99" "<C25>" w-m.r-hr FORMAT ">>9.99"   /*"<P8><U>Received:</U><P10>" WHEN i = 1 AT 29*/
+        IF w-m.dscr <> "" THEN
+        DISPLAY "<C2>" w-m.dscr FORMAT "x(20)" "<C18>" cStdHours FORMAT "x(6)" "<C25>" cRunHours FORMAT "x(6)"   /*"<P8><U>Received:</U><P10>" WHEN i = 1 AT 29*/
             WITH NO-BOX NO-LABELS FRAME oo1 WIDTH 150 NO-ATTR-SPACE DOWN STREAM-IO.
         
       END.
@@ -1246,6 +1251,34 @@ ASSIGN
        END. /* set header printing  est.est-type = 6 */
     END.  /* each job */
 /*    end.  /* end v-local-loop  */*/
+
+PROCEDURE pConvertToHours:
+    DEFINE INPUT PARAMETER ipdHours AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER ipcOoutputHour AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE cHours AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iHours AS INTEGER.
+    DEFINE VARIABLE dResult AS DECIMAL.
+    DEFINE VARIABLE cRoundHour AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCheckdec AS INTEGER.
+
+    ASSIGN cHours = STRING(ipdHours) .
+    ASSIGN iHours =  INT( SUBSTRING(cHours,1,LENGTH(cHours) - 1)  ).
+
+    cRoundHour = SUBSTRING(cHours,INDEX(cHours,".") + 1).
+
+    ASSIGN dResult = (int(cRoundHour) * 60) / 100.
+
+    IF INDEX(string(dResult),".") > 0 THEN
+        iCheckdec = int(SUBSTRING(string(dResult),INDEX(string(dResult),".") + 1)).
+    
+    dResult = INT( SUBSTRING(STRING(dResult),1,LENGTH(string(cHours)) - 1) ) .
+
+    IF iCheckdec GT 0 THEN
+        dResult = dResult + 1 .
+    ipcOoutputHour =   string(iHours) + ":" +  string(int(dResult)) .
+
+END PROCEDURE.
  
         HIDE ALL NO-PAUSE.
 
