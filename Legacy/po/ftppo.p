@@ -208,23 +208,23 @@ IF AVAIL sys-ctrl THEN DO:
     OUTPUT CLOSE.
   END. /* CorSuply */
 
-  ELSE
-  IF ip-ftp-where EQ "HRMS" THEN DO:
-    v-ftp-file = "c:\tmp\RFC" + STRING(TIME).
-
-    OS-COPY VALUE(ip-exp-file) VALUE(v-ftp-file).
-
-    OUTPUT TO VALUE(".\po\ftphrms.txt").    /* ftp text file */
-
-    PUT UNFORMATTED 
-        "open 216.127.228.181"       SKIP   /* ftp server ip address */
-        "advance"                    SKIP   /* userid*/
-        "phl20corr40"                SKIP   /* password */
-        "cd /usr/lib/basic/WORK/xmt" SKIP
-        "put " v-ftp-file            SKIP   /* file to transfer */
-        "quit" .
-    OUTPUT CLOSE.
-  END. /* HRMS */
+/*  ELSE                                                                 */
+/*  IF ip-ftp-where EQ "HRMS" THEN DO:                                   */
+/*    v-ftp-file = "c:\tmp\RFC" + STRING(TIME).                          */
+/*                                                                       */
+/*    OS-COPY VALUE(ip-exp-file) VALUE(v-ftp-file).                      */
+/*                                                                       */
+/*    OUTPUT TO VALUE(".\po\ftphrms.txt").    /* ftp text file */        */
+/*                                                                       */
+/*    PUT UNFORMATTED                                                    */
+/*        "open 216.127.228.181"       SKIP   /* ftp server ip address */*/
+/*        "advance"                    SKIP   /* userid*/                */
+/*        "phl20corr40"                SKIP   /* password */             */
+/*        "cd /usr/lib/basic/WORK/xmt" SKIP                              */
+/*        "put " v-ftp-file            SKIP   /* file to transfer */     */
+/*        "quit" .                                                       */
+/*    OUTPUT CLOSE.                                                      */
+/*  END. /* HRMS */                                                      */
 
   ELSE
   IF ip-ftp-where EQ "Pratt" THEN DO:
@@ -246,7 +246,7 @@ IF AVAIL sys-ctrl THEN DO:
 
   ELSE
   IF ip-ftp-where EQ "GP" THEN DO:
-    IF LOOKUP(sys-ctrl.char-fld, "PremierPkg,Woodland,Trilakes,Michcor,ST.Clair,NStock") GT 0 THEN do:
+    IF LOOKUP(sys-ctrl.char-fld, "PremierPkg,Woodland,Trilakes,Michcor,ST.Clair,NStock") GT 0 THEN DO:
 
       OUTPUT TO VALUE(".\po\ftpcmdgp.txt").   /* ftp text file */
   
@@ -488,10 +488,20 @@ IF AVAIL sys-ctrl THEN DO:
   IF lSendTheFile THEN DO:
   
     CASE ip-ftp-where:    
-      WHEN "HRMS" THEN
-          /*OS-COMMAND value("ftp -v -i -s:.\po\ftpcmd.txt 216.127.228.178"). old */
-        OS-COMMAND VALUE("ftp -v -i -s:.\po\ftphrms.txt"). 
-  
+      WHEN "HRMS" THEN DO:
+          
+        /* OS-COMMAND VALUE("ftp -v -i -s:.\po\ftphrms.txt"). */ 
+        IF AVAIL(sys-ctrl) /* AND sys-ctrl.int-fld EQ 1 */ 
+            AND  getWinScpFile() NE ?
+            THEN 
+        DO:
+            cExec = getWinScpFile().
+            IF cWinScpIniFile GT "" THEN 
+                cExec = cExec + " " + "/ini=" + cWinScpIniFile.  
+            
+            OS-COMMAND VALUE(cExec + " /script=.\po\ftphrms.txt").
+        END.
+      END.
       WHEN "Pratt" THEN
         OS-COMMAND VALUE("ftp -v -i -s:.\po\ftppratt.txt").
   
