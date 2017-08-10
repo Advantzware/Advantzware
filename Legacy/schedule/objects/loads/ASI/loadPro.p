@@ -721,6 +721,16 @@ FOR EACH job-hdr NO-LOCK
             userField[63] = setUserField(63,oe-ordl.po-no)
             .
         END. /* each oe-rel */
+        IF userField[91] EQ "" THEN 
+        FOR EACH oe-rel NO-LOCK
+            WHERE oe-rel.company EQ oe-ordl.company
+              AND oe-rel.ord-no EQ oe-ordl.ord-no
+            BREAK BY oe-rel.rel-date:
+            IF FIRST-OF(oe-rel.rel-date) THEN DO:  
+                userField[91] = setUserField(91,STRING(oe-rel.rel-date,'99.99.9999')).
+                LEAVE.
+            END. /* first-of */
+        END. /* each oe0rel */
       END. /* ufoerel */
     END. /* avail oe-ordl */
     
