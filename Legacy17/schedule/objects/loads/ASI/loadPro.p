@@ -6,7 +6,7 @@
 &SCOPED-DEFINE Fleetwood ASI/Fleetwood
 /* add new fields to procedures loadUserFieldLabelWidth & setUseFields below */
 /* add userField to rptFields.dat, see config.w definitions section to enable field */
-&SCOPED-DEFINE nextUserField 93
+&SCOPED-DEFINE nextUserField 96
 
 /* when expanding userFields mod the following:
    1. scopDir.i (userExtent)
@@ -1088,13 +1088,16 @@ FOR EACH job-hdr NO-LOCK
                        OUTPUT userField[55], /* D */
                        OUTPUT userField[56], /* D */
                        OUTPUT userField[61], /* 5 */
+                       OUTPUT userField[93], /* 5 */
                        OUTPUT userField[62], /* 6 */
+                       OUTPUT userField[94], /* 6 */
                        OUTPUT userField[70], /* V */
                        OUTPUT userField[71], /* A */
                        OUTPUT userField[78], /* C */
                        OUTPUT userField[79], /* C */
-                       OUTPUT userField[81]) /* W */
-                       .
+                       OUTPUT userField[81], /* W */
+                       OUTPUT userField[95]  /* Required Qty */
+                       ).
 
     RUN ipJobMatField (job-mch.company,
                        job-mch.j-no,
@@ -1332,19 +1335,25 @@ PROCEDURE ipJobMaterial:
   DEFINE OUTPUT PARAMETER opBoardLength AS DECIMAL NO-UNDO.
   DEFINE OUTPUT PARAMETER opBoardWidth AS DECIMAL NO-UNDO.
   DEFINE OUTPUT PARAMETER opJobBoard AS LOGICAL NO-UNDO.
-  DEFINE OUTPUT PARAMETER opBoard AS CHARACTER NO-UNDO.     /*  3,B */
-  DEFINE OUTPUT PARAMETER opInk AS CHARACTER NO-UNDO.       /* 14,I */
-  DEFINE OUTPUT PARAMETER opPallet AS CHARACTER NO-UNDO.    /* 55,D */
-  DEFINE OUTPUT PARAMETER opTotMRP AS CHARACTER NO-UNDO.    /* 56,D */
-  DEFINE OUTPUT PARAMETER opMatType5 AS CHARACTER NO-UNDO.  /* 61,5 */
-  DEFINE OUTPUT PARAMETER opMatType6 AS CHARACTER NO-UNDO.  /* 62,6 */
-  DEFINE OUTPUT PARAMETER opVarnish AS CHARACTER NO-UNDO.   /* 70,V */
-  DEFINE OUTPUT PARAMETER opAdders AS CHARACTER NO-UNDO.    /* 71,A */
-  DEFINE OUTPUT PARAMETER opNoCases AS CHARACTER NO-UNDO.   /* 78,C */
-  DEFINE OUTPUT PARAMETER opCasesName AS CHARACTER NO-UNDO. /* 79,C */
-  DEFINE OUTPUT PARAMETER opFilmName AS CHARACTER NO-UNDO.  /* 81,W */
+  DEFINE OUTPUT PARAMETER opBoard AS CHARACTER NO-UNDO.        /*  3,B */
+  DEFINE OUTPUT PARAMETER opInk AS CHARACTER NO-UNDO.          /* 14,I */
+  DEFINE OUTPUT PARAMETER opPallet AS CHARACTER NO-UNDO.       /* 55,D */
+  DEFINE OUTPUT PARAMETER opTotMRP AS CHARACTER NO-UNDO.       /* 56,D */
+  DEFINE OUTPUT PARAMETER opMatType5 AS CHARACTER NO-UNDO.     /* 61,5 */
+  DEFINE OUTPUT PARAMETER opMatType5Qty AS CHARACTER NO-UNDO.  /* 93,5 */
+  DEFINE OUTPUT PARAMETER opMatType6 AS CHARACTER NO-UNDO.     /* 62,6 */
+  DEFINE OUTPUT PARAMETER opMatType6Qty AS CHARACTER NO-UNDO.  /* 94,6 */
+  DEFINE OUTPUT PARAMETER opVarnish AS CHARACTER NO-UNDO.      /* 70,V */
+  DEFINE OUTPUT PARAMETER opAdders AS CHARACTER NO-UNDO.       /* 71,A */
+  DEFINE OUTPUT PARAMETER opNoCases AS CHARACTER NO-UNDO.      /* 78,C */
+  DEFINE OUTPUT PARAMETER opCasesName AS CHARACTER NO-UNDO.    /* 79,C */
+  DEFINE OUTPUT PARAMETER opFilmName AS CHARACTER NO-UNDO.     /* 81,W */
+  DEFINE OUTPUT PARAMETER opRequiredQty AS CHARACTER NO-UNDO.  /* 95   */
 
   DEFINE VARIABLE noCases AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE matType5Qty AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE matType6Qty AS DECIMAL NO-UNDO.
+  DEFINE VARIABLE requiredQty AS DECIMAL NO-UNDO.
   
   IF NOT ufIPJobMaterial THEN RETURN.
 
@@ -1360,12 +1369,18 @@ PROCEDURE ipJobMaterial:
       :
     FOR EACH item OF job-mat NO-LOCK:
       CASE item.mat-type:
-        WHEN '5' THEN
+        WHEN '5' THEN DO:
           IF NOT CAN-DO(opMatType5,job-mat.i-no) THEN
           opMatType5 = opMatType5 + comma(opMatType5) + job-mat.i-no.
-        WHEN '6' THEN
+          IF ipBlankNo EQ job-mat.blank-no THEN
+          matType5Qty = matType5Qty + job-mat.qty.
+        END.
+        WHEN '6' THEN DO:
           IF NOT CAN-DO(opMatType6,job-mat.i-no) THEN
           opMatType6 = opMatType6 + comma(opMatType6) + job-mat.i-no.
+          IF ipBlankNo EQ job-mat.blank-no THEN
+          matType6Qty = matType6Qty + job-mat.qty.
+        END.
         WHEN 'A' THEN
           IF NOT CAN-DO(opAdders,job-mat.i-no) THEN
           opAdders = opAdders + comma(opAdders) + job-mat.i-no.
@@ -1405,12 +1420,18 @@ PROCEDURE ipJobMaterial:
         opFilmName = REPLACE(item.i-name,'"','').
       END CASE.
     END. /* each item */
+    requiredQty = requiredQty + job-mat.qty.
   END. /* each job-mat */
-  opNoCases = STRING(noCases,'>,>>>,>>9.9<<<<<').
+  ASSIGN 
+    opNoCases = STRING(noCases,'>,>>>,>>9.9<<<<<')
+    opMatType5Qty = STRING(matType5Qty,'>,>>>,>>9.9<<<<<')
+    opMatType6Qty = STRING(matType6Qty,'>,>>>,>>9.9<<<<<')
+    opRequiredQty = STRING(requiredQty,'>,>>>,>>9.9<<<<<')
+    .
   IF traceON THEN
   PUT UNFORMATTED
-    '5 ' AT 20 opMatType5
-    '6 ' AT 20 opMatType6
+    '5 ' AT 20 opMatType5 ' ' opMatType5Qty
+    '6 ' AT 20 opMatType6 ' ' opMatType6Qty
     'A ' AT 20 opAdders
     'B ' AT 20 opBoard
     'C ' AT 20 opNoCases ' ' opCasesName
@@ -1418,6 +1439,7 @@ PROCEDURE ipJobMaterial:
     'I ' AT 20 opInk
     'V ' AT 20 opVarnish
     'W ' AT 20 opFilmName
+    'Req Qty ' AT 20 opRequiredQty
     'Time: ' AT 20 ETIME
     SKIP.
 END PROCEDURE.
@@ -1834,6 +1856,9 @@ PROCEDURE loadUserFieldLabelWidth:
     userLabel[90] = 'DC Prod Qty'     userWidth[90] = 12
     userLabel[91] = 'First Release'   userWidth[91] = 15
     userLabel[92] = 'EmpAlert CSR'    userWidth[92] = 30
+    userLabel[93] = 'MatType5 Qty'    userWidth[93] = 12
+    userLabel[94] = 'MatType6 Qty'    userWidth[94] = 12
+    userLabel[95] = 'Required Qty'    userWidth[95] = 12  
     .
   /* add userField to rptFields.dat, see config.w definitions section
      to enable field */
@@ -1893,7 +1918,7 @@ PROCEDURE setUseFields:
     ufEF = useField[3] OR useField[22] OR useField[23] OR useField[58] OR useField[59]
     ufEst = useField[26] OR useField[27]
     ufGetSalesRep = useField[36]
-    ufIPJobMaterial = useField[3] OR useField[14] OR useField[55] OR useField[56] OR useField[61] OR useField[62] OR useField[70] OR useField[71] OR useField[78] OR useField[79] OR useField[81]
+    ufIPJobMaterial = useField[3] OR useField[14] OR useField[55] OR useField[56] OR useField[61] OR useField[62] OR useField[70] OR useField[71] OR useField[78] OR useField[79] OR useField[81] OR useField[93] OR useField[94] OR useField[95]
     ufIPJobMatField = useField[29] OR useField[30] OR useField[31] OR useField[32] OR useField[33]
     ufIPJobSet = useField[65] OR useField[66] OR useField[67] OR useField[68]
     ufItemFG = useField[21] OR useField[34] OR useField[52] OR useField[54] OR useField[64]

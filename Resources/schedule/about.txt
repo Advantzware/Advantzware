@@ -12,6 +12,12 @@
 
  History:
 
+ r4.002 (updated 8.10.2017)
+ * utilize est-op_rec_key during save operation
+ * added field "mat type 5 qty"
+ * added field "mat type 6 qty"
+ * added field "required qty"
+
  r4.001 (updated 6.28.2017)
  * prevent duplicate status checkoff
  * added field "empalert csr"
