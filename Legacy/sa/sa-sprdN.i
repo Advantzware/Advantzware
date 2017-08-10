@@ -25,8 +25,16 @@
             where itemfg.company eq cocode
               and itemfg.i-no    eq ar-invl.i-no
             no-lock no-error.
+        IF ar-inv.cust-no <> "" THEN
+          find first cust no-lock
+            where cust.company eq cocode
+              and cust.cust-no    eq ar-inv.cust-no 
+            no-error.
 
         assign
+         dfriAmt = if (ar-inv.f-bill OR (AVAIL cust AND cust.frt-pay = "B" AND ar-inv.ord-no = 0))
+                    THEN ar-inv.freight ELSE 0
+         dPtdAmt = ar-invl.amt -  dfriAmt 
          v-amt  = ar-invl.amt
          v-sqft = if ar-invl.amt-msf ne 0 then ar-invl.amt-msf
                   else
@@ -43,7 +51,7 @@
            ar-inv.inv-date le v-ptd-last  then
           assign
            w-ptd-sqft = w-ptd-sqft + v-sqft
-           w-ptd-amt  = w-ptd-amt  + v-amt.
+           w-ptd-amt  = w-ptd-amt  + /*v-amt*/ dPtdAmt .
 
         if tdate eq ar-inv.inv-date then
           assign
