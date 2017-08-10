@@ -46,7 +46,7 @@ DEFINE OUTPUT PARAMETER opcNetProfitPct   AS CHARACTER     NO-UNDO.
 &GLOBAL-DEFINE summary-sheet 1
 DEFINE VARIABLE list-name AS cha       NO-UNDO.
 DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
-
+DEFINE VARIABLE dSaveBrd AS DECIMAL NO-UNDO.
 {methods/defines/hndldefs.i}
 {methods/defines/globdefs.i}
 
@@ -535,6 +535,7 @@ DEF BUFFER bf-est FOR est.
                 ctrl[17] = int(ce-ctrl.spec-add[7])
                 ctrl[18] = int(ce-ctrl.spec-add[8]).
               
+              dSaveBrd = 0.
             FOR EACH xef WHERE xef.company = xest.company
                 AND xef.est-no EQ xest.est-no
                 BREAK BY xef.form-no :
@@ -582,7 +583,7 @@ DEF BUFFER bf-est FOR est.
                 dm-tot[3] = 0. 
                 dm-tot[4] = 0. 
                 dm-tot[5] = 0.
-    
+
                 /* b o a r d        */  RUN ce/com/pr4-brd.p ("").
      
                 /* i n k s          */ RUN ce/com/pr4-ink.p.
@@ -592,18 +593,23 @@ DEF BUFFER bf-est FOR est.
                 /* case/tray/pallet */ RUN ce/com/pr4-cas.p.
      
                 /* special          */ RUN ce/com/pr4-spe.p.
-       
+                
+                /* Taking the first value found since program was running pr4-brd many time unnecessarily */
+                IF dSaveBrd EQ 0 THEN
+                  dSaveBrd = dm-tot[5].
+                  
                 ASSIGN 
                     dTonCost = dTonCost + b-msh .
-      
-            END. /* for each xef */
 
+            END. /* for each xef */
+             dm-tot[5] = dSaveBrd.
             ASSIGN 
                 dTonCost = dTonCost / iAvg .
 
             qm = probe.est-qty / 1000.
 
             v-brd-cost = v-brd-cost + dm-tot[5].
+
             FOR EACH blk:
                 FIND FIRST xjob
                     WHERE xjob.i-no     EQ blk.id
