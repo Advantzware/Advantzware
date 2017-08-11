@@ -255,6 +255,7 @@ IF AVAIL itemfg THEN DO:
       FIND FIRST po-ord WHERE 
                  po-ord.company = cocode
              AND po-ord.po-no = tt-ord.tt-po-no NO-LOCK NO-ERROR.
+    IF AVAILABLE po-ord THEN
       lv-vend-no = po-ord.vend-no.
    END.
 
