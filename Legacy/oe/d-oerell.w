@@ -1559,6 +1559,8 @@ DO WITH FRAME {&FRAME-NAME}:
   ASSIGN oe-rell.i-no:screen-value  = STRING(bf-ordl.i-no).
          oe-rell.qty:SCREEN-VALUE = IF AVAILABLE oe-rel THEN STRING(oe-rel.qty) ELSE STRING(bf-ordl.qty).
          oe-rell.qty-case:SCREEN-VALUE = STRING(bf-ordl.cas-cnt).
+         oe-rell.job-no:SCREEN-VALUE = STRING(bf-ordl.job-no).
+         oe-rell.job-no2:SCREEN-VALUE = STRING(bf-ordl.job-no2).
          oe-rell.po-no:SCREEN-VALUE = IF AVAILABLE oe-rel THEN oe-rel.po-no
                                       ELSE
                                       IF bf-ordl.po-no NE "" THEN bf-ordl.po-no
