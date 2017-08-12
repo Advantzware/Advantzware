@@ -41,7 +41,7 @@ DEFINE OUTPUT PARAMETER opdCtrl2-1        AS DECIMAL     NO-UNDO.
 DEFINE OUTPUT PARAMETER opdFullCost       AS DECIMAL     NO-UNDO.
 DEFINE OUTPUT PARAMETER opdNetProfitDol   AS DECIMAL     NO-UNDO.
 DEFINE OUTPUT PARAMETER opcNetProfitPct   AS CHARACTER     NO-UNDO.
-
+DEFINE OUTPUT PARAMETER opcOrdNo AS CHARACTER NO-UNDO.
 /* Local Variable Definitions ---                                       */
 &GLOBAL-DEFINE summary-sheet 1
 DEFINE VARIABLE list-name AS cha       NO-UNDO.
@@ -282,10 +282,7 @@ DEF BUFFER bf-est FOR est.
 
         EACH probe NO-LOCK
     
-        WHERE probe.company   EQ est.company
-          AND probe.est-no    EQ est.est-no
-          AND probe.full-cost NE ? 
-
+        WHERE ROWID(probe) EQ iprProbeRowid
         BREAK BY est.est-no DESCENDING
         BY probe.est-qty
         BY probe.probe-date
@@ -776,7 +773,8 @@ DEF BUFFER bf-est FOR est.
             ASSIGN
                 opcCust         = eb.cust-no 
                 opdEstDate      = est.est-date 
-                opcEstNo        = TRIM(eb.est-no) 
+                opcEstNo        = TRIM(eb.est-no)
+                opcOrdNo        = STRING(eb.ord-no) 
                 opcSellPrice    = STRING(probe.sell-price * qm, "->>>>>>>9.99") 
                 opcTons         = STRING(v-tons, "->>9.99999") 
                 opcTonCost      = STRING(dTonCost, "->>>>>>>9.99")
