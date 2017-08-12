@@ -1268,11 +1268,12 @@ PROCEDURE pConvertToHours:
     cRoundHour = SUBSTRING(cHours,INDEX(cHours,".") + 1).
 
     ASSIGN dResult = (int(cRoundHour) * 60) / 100.
-
+    
     IF INDEX(string(dResult),".") > 0 THEN
         iCheckdec = int(SUBSTRING(string(dResult),INDEX(string(dResult),".") + 1)).
     
-    dResult = INT( SUBSTRING(STRING(dResult),1,LENGTH(string(cHours)) - 1) ) .
+    IF INDEX(string(dResult),".") > 0 THEN
+    dResult = INT( SUBSTRING(STRING(dResult),1,LENGTH(string(dResult)) - 1) ) .
 
     IF iCheckdec GT 0 THEN
         dResult = dResult + 1 .
