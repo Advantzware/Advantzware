@@ -515,7 +515,7 @@ PROCEDURE calc-cost :
   FIND FIRST users NO-LOCK
      WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
 
-IF AVAIL users AND users.securityLevel GT 900 THEN
+IF AVAIL users AND users.securityLevel GE 900 THEN
     ASSIGN v-override = YES.
 IF not(v-override) THEN DO:
   IF v-acs-code NE "YORKIE" THEN RUN windows/chkcode.w (OUTPUT v-acs-code).
