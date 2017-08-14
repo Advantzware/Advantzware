@@ -365,7 +365,7 @@ for each {1}report where {1}report.term-id eq v-term,
         DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
            cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                 CASE cTmpField:             
-                     WHEN "job"   THEN cVarValue = IF first-of({1}report.key-01) THEN v-job ELSE ""  .
+                     WHEN "job"   THEN cVarValue = /*IF first-of({1}report.key-01) THEN*/ string(v-job) /* ELSE "" */ .
                      WHEN "ino"   THEN cVarValue = IF v-itm EQ "" THEN "PendingJob" ELSE IF first-of({1}report.key-02) THEN v-itm ELSE ""  .
                      WHEN "uom"   THEN cVarValue = IF first-of({1}report.key-02) and v-itm ne "" THEN v-uom ELSE "" .
                      WHEN "reqr"  THEN cVarValue = IF first-of({1}report.key-02) and v-itm ne "" THEN STRING(v-qty[1],"->>,>>>,>>9.999") ELSE "" .
