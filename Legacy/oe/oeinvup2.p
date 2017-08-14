@@ -79,13 +79,10 @@ IF AVAIL inv-head THEN DO:
           NO-ERROR.
       v-charge-code = IF AVAIL reftable THEN reftable.CODE ELSE "".
    
-      IF v-charge-code NE "" THEN
-      DO:
          v-found-cust-charge = NO.
 
          FOR EACH surcharge NO-LOCK
              WHERE surcharge.company  EQ inv-head.company
-               AND surcharge.charge   EQ v-charge-code
                AND surcharge.calc-on  EQ "I"
                AND surcharge.cust-no EQ inv-head.cust-no:
 
@@ -97,14 +94,12 @@ IF AVAIL inv-head THEN DO:
          IF v-found-cust-charge = NO THEN
             FOR EACH surcharge NO-LOCK
                 WHERE surcharge.company  EQ inv-head.company
-                  AND surcharge.charge   EQ v-charge-code
                   AND surcharge.calc-on  EQ "I"
                   AND surcharge.cust-no EQ "":
            
               RUN inv-surcharge.
               LEAVE.
             END.
-      END.
     END.
     /* end of surchage mods*/
   END.
@@ -190,11 +185,12 @@ PROCEDURE inv-surcharge:
   DEF VAR ld-charge AS DEC NO-UNDO.
   DEF VAR ld-factor AS DEC NO-UNDO.
 
-
   ld-charge = surcharge.amt / 1000.
 
   CASE surcharge.calc-on:
-    WHEN "I" THEN ld-factor = (IF ld-charge GE 1 THEN 1 ELSE inv-line.t-price).
+    WHEN "I" THEN do:
+            ld-factor = ld-factor + ( /*IF ld-charge GE 1 THEN 1 ELSE*/ inv-line.t-price).
+    END.
     OTHERWISE
     FOR EACH inv-line WHERE inv-line.r-no EQ inv-head.r-no NO-LOCK,
         FIRST oe-bolh WHERE oe-bolh.b-no EQ inv-line.b-no NO-LOCK
@@ -212,8 +208,10 @@ PROCEDURE inv-surcharge:
     END.
   END CASE.
 
-  ld-charge = ld-charge * ld-factor.
-  IF ld-charge EQ ? THEN ld-charge = 0.
+  IF surcharge.calc-on EQ "I" THEN
+  ld-charge = ld-charge * ld-factor / 100  .
+  ELSE ld-charge = ld-charge * ld-factor . 
+  IF ld-charge EQ ? THEN ld-charge = 0.    
 
   IF ld-charge NE 0 THEN DO:
 
