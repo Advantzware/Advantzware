@@ -108,6 +108,7 @@ DEF VAR lv-char-list AS cha NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEFINE VARIABLE dCoreDia LIKE ITEM.ect NO-UNDO.
 DEF TEMP-TABLE tt-text NO-UNDO
     FIELD TYPE AS cha
     FIELD tt-line AS INT
@@ -550,6 +551,7 @@ v-printline = 0.
         IF AVAIL ITEM THEN
            ASSIGN v-basis-w = item.basis-w
                   v-dep     = ITEM.s-dep.
+                  
 
         IF po-ordl.pr-qty-uom EQ "MSF" THEN v-qty = po-ordl.ord-qty.
         ELSE RUN sys/ref/convquom.p(po-ordl.pr-qty-uom, "MSF",
@@ -559,6 +561,11 @@ v-printline = 0.
         v-tot-sqft = v-tot-sqft + (v-qty * 1000)
         v-setup = po-ordl.setup
         v-cost = lv-cost. /* reclac cost from setup */
+        dCoreDia = 0.
+        IF AVAIL ITEM AND ITEM.industry EQ "2" THEN
+            ASSIGN dCoreDia =  IF item.mat-type EQ "P" THEN (item.ect / 10000) ELSE item.ect.
+        ELSE dCoreDia =  IF item.mat-type NE "A" THEN (item.ect / 10000) ELSE item.ect.
+
 
         IF AVAIL ITEM AND ITEM.mat-type EQ "B" AND ITEM.industry EQ "2" THEN
           ASSIGN lv-flute = "  Flute: " + ITEM.flute
@@ -580,6 +587,15 @@ v-printline = 0.
             /*PUT STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" +
                STRING(v-setup) + "SETUP" FORM "x(25)" SKIP.*/
             PUT "<FCourier New><C61>" STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" + STRING(v-setup) + "SETUP" FORM "x(25)"  "" SKIP.
+        END.
+        ELSE
+           PUT SKIP.
+         /*dCoreDia = 0.*/
+        IF dCoreDia GT 0 THEN DO:
+            put "Core Dia: " AT 25 dCoreDia FORMAT ">,>>9.9<<<" SKIP.
+            ASSIGN
+                v-line-number = v-line-number + 1
+                v-printline = v-printline + 1.
         END.
         ELSE
            PUT SKIP.

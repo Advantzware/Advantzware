@@ -51,7 +51,7 @@ DEF VAR v-inst AS cha FORM "x(80)" EXTENT 4 NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(60)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
 DEF VAR v-signature AS cha FORM "x(100)" NO-UNDO.
 
 ASSIGN ls-image1 = "images\cccpo.jpg"
@@ -83,6 +83,7 @@ DEF VAR v-overrun AS DECI NO-UNDO.
 DEF VAR v-underrun AS DECI NO-UNDO.
 DEF VAR v-inst2 AS cha EXTENT 25 NO-UNDO. 
 DEF VAR v-wld AS CHAR FORM "x(50)" NO-UNDO.
+DEFINE VARIABLE dCoreDia LIKE ITEM.ect NO-UNDO.
 
 v-dash-line = fill ("_",80).
 
@@ -353,6 +354,11 @@ assign
 
         v-setup = po-ordl.setup.
 
+        dCoreDia = 0.
+        IF AVAIL ITEM AND ITEM.industry EQ "2" THEN
+            ASSIGN dCoreDia =  IF item.mat-type EQ "P" THEN (item.ect / 10000) ELSE item.ect.
+        ELSE dCoreDia =  IF item.mat-type NE "A" THEN (item.ect / 10000) ELSE item.ect.
+
         IF po-ordl.item-type THEN DO:
            ASSIGN v-wld = "".
            IF ITEM.mat-type = "C" OR ITEM.mat-type = "5"  OR item.mat-type = "6" THEN
@@ -378,6 +384,15 @@ assign
             assign v-line-number = v-line-number + 1
                    v-printline = v-printline + 1.
         END.
+
+        IF dCoreDia GT 0 THEN DO:
+            put "Core Dia: " AT 25 dCoreDia FORMAT ">,>>9.9<<<" SKIP.
+            ASSIGN
+                v-line-number = v-line-number + 1
+                v-printline = v-printline + 1.
+        END.
+        ELSE
+           PUT SKIP.
 
         /* added this over/underrun row */
         IF po-ordl.item-type THEN DO:

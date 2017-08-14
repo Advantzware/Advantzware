@@ -111,6 +111,7 @@ DEF VAR lv-item-rec AS cha NO-UNDO.
 def var v-dec-fld as decimal no-undo.
 DEF VAR lv-dep AS DEC NO-UNDO.
 DEF VAR lv-dep2 AS DEC NO-UNDO.
+DEFINE VARIABLE dCoreDia LIKE ITEM.ect NO-UNDO.
 
 v-dash-line = fill ("_",80).
 
@@ -472,6 +473,10 @@ v-printline = 0.
                              po-ordl.ord-qty, OUTPUT v-qty).
 
        v-tot-sqft = v-tot-sqft + (v-qty * 1000).
+       dCoreDia = 0.
+        IF AVAIL ITEM AND ITEM.industry EQ "2" THEN
+            ASSIGN dCoreDia =  IF item.mat-type EQ "P" THEN (item.ect / 10000) ELSE item.ect.
+        ELSE dCoreDia =  IF item.mat-type NE "A" THEN (item.ect / 10000) ELSE item.ect.
 
 
        RUN calc-cost (recid(po-ordl),OUTPUT v-cost,OUTPUT v-setup).                    
@@ -560,6 +565,15 @@ v-printline = 0.
           assign v-line-number = v-line-number + 1
                  v-printline = v-printline + 1.
         END.
+
+        IF dCoreDia GT 0 THEN DO:
+            put "Core Dia: " AT 25 dCoreDia FORMAT ">,>>9.9<<<" SKIP.
+            ASSIGN
+                v-line-number = v-line-number + 1
+                v-printline = v-printline + 1.
+        END.
+        ELSE
+           PUT SKIP.
 
         len-score = "".   
         run po/po-ordls.p (recid(po-ordl)).
