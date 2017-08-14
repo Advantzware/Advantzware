@@ -185,6 +185,16 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
+FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+
+IF AVAIL users AND users.securityLevel GE 1000 THEN DO:
+    RUN util/module2.w ("ASI").
+    APPLY 'CLOSE' TO THIS-PROCEDURE. /*task 10020703*/
+    RETURN.
+END.
+
+
 {src/adm/template/dialogmn.i}
 
 /* _UIB-CODE-BLOCK-END */

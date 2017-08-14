@@ -1735,8 +1735,14 @@ PROCEDURE valid-po-sec :
 
   {methods/lValidateError.i YES}
   l-valid = YES.
+  FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
 
-  DO WITH FRAME {&frame-name}:    
+IF AVAIL users AND users.securityLevel GE 1000 THEN
+    ASSIGN ll-secure = YES.
+
+  DO WITH FRAME {&frame-name}:  
+
     IF NOT ll-secure                                              AND
        STRING(vend.po-export) NE vend.po-export:SCREEN-VALUE   THEN DO:
 
