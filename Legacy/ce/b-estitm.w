@@ -1126,23 +1126,17 @@ DO:
   DEF VAR lActive AS LOG NO-UNDO.
 
   IF LASTKEY NE -1 THEN DO:
-    IF eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
+    /*IF eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN DO:
         RUN fg/GetItemfgActInact.p (INPUT g_company,
                                     INPUT SELF:SCREEN-VALUE,
                                     OUTPUT lActive).
         IF NOT lActive THEN DO:
-/*                                                                   */
-/*         FIND FIRST reftable WHERE reftable.reftable EQ "FGSTATUS" */
-/*                        AND reftable.company  EQ g_company         */
-/*                        AND reftable.loc      EQ ""                */
-/*                        AND reftable.code     EQ SELF:SCREEN-VALUE */
-/*                        NO-LOCK NO-ERROR.                          */
-/*         IF AVAIL reftable AND reftable.code2 = "I" THEN DO:       */
+
            MESSAGE eb.stock-no:SCREEN-VALUE + " has InActive Status. Order cannot be placed for the Inactive Item."
                    VIEW-AS ALERT-BOX ERROR.
            RETURN NO-APPLY.
         END.        
-    END.
+    END.*/ /* ticket 22498*/
    
     ll-copy-fg = CAN-FIND(FIRST itemfg
                           WHERE itemfg.company EQ g_company
@@ -4310,23 +4304,17 @@ PROCEDURE local-update-record :
     RUN valid-cust-user NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-     IF eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO:
+     /*IF eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO:
         RUN fg/GetItemfgActInact.p (INPUT g_company,
                                     INPUT eb.stock-no:SCREEN-VALUE,
                                     OUTPUT lActive).
         IF NOT lActive THEN DO:
-/*         FIND FIRST reftable WHERE reftable.reftable EQ "FGSTATUS"     */
-/*                     AND reftable.company  EQ g_company                */
-/*                     AND reftable.loc      EQ ""                       */
-/*                     AND reftable.code     EQ eb.stock-no:SCREEN-VALUE */
-/*                     NO-LOCK NO-ERROR.                                 */
-/*         IF AVAIL reftable AND reftable.code2 = "I" THEN DO:           */
            MESSAGE eb.stock-no:SCREEN-VALUE + " has InActive Status. Order cannot be placed for the Inactive Item."
                 VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO eb.stock-no.
            RETURN .
         END.
-    END.
+    END.*/ /* Ticket - 22498 */
 
     RUN blank-cp (NO).
 
