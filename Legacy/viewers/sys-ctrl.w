@@ -402,6 +402,12 @@ DEF VAR v-flg AS LOG INIT YES NO-UNDO.
 
   v-valid = YES.
 
+  FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+
+IF AVAIL users AND users.securityLevel GE 1000 THEN
+    ASSIGN v-secure = YES.
+
   DO WITH FRAME {&frame-name}:    
     IF NOT v-secure                                                       AND
        NOT adm-new-record                                                 AND       

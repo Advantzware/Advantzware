@@ -179,6 +179,12 @@ PROCEDURE local-enable-fields :
   {methods/template/local/update.i}
 
 IF PROGRAM-NAME(3) MATCHES "*help/v-head.w*"  THEN DO:
+  FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+
+IF AVAIL users AND users.securityLevel GE 1000 THEN
+    ASSIGN ll-secure-check = YES.
+
   IF NOT ll-secure-check THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure-check).
    IF  ll-secure-check EQ No THEN  
 	return error.

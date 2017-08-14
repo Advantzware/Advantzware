@@ -512,6 +512,12 @@ PROCEDURE calc-cost :
 
   v-override = NO.
 
+  FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+
+IF AVAIL users AND users.securityLevel GT 900 THEN
+    ASSIGN v-override = YES.
+IF not(v-override) THEN DO:
   IF v-acs-code NE "YORKIE" THEN RUN windows/chkcode.w (OUTPUT v-acs-code).
 
   IF v-acs-code EQ "YORKIE" THEN v-override = YES.
@@ -520,6 +526,7 @@ PROCEDURE calc-cost :
         VIEW-AS ALERT-BOX ERROR.
     RETURN NO-APPLY.
   END.
+END.
      
   IF v-override THEN DO:
     /*find bf-rm-bin where recid(bf-rm-bin) = recid(rm-bin).
