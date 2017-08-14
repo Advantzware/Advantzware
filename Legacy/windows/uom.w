@@ -352,7 +352,8 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 5.00 , 55.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             /*INPUT  'adm/objects/p-updsav.r':U ,*/
+             INPUT  'p-updsav.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
