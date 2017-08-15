@@ -569,48 +569,61 @@ PROCEDURE adm-create-objects :
     
     WHEN 5 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'browsers/usersman.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_usersman ).
-       RUN set-position IN h_usersman ( 5.29 , 33.00 ) NO-ERROR.
-       RUN set-size IN h_usersman ( 10.57 , 90.00 ) NO-ERROR.
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'viewers/usersman.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_usersman-2 ).
-       RUN set-position IN h_usersman-2 ( 16.71 , 52.00 ) NO-ERROR.
-       /* Size in UIB:  ( 4.05 , 34.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
-             INPUT  'p-updsav.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Edge-Pixels = 2,
-                     SmartPanelType = Update,
-                     AddFunction = One-Record':U ,
-             OUTPUT h_p-updsav-6 ).
-       RUN set-position IN h_p-updsav-6 ( 21.48 , 34.00 ) NO-ERROR.
-       RUN set-size IN h_p-updsav-6 ( 1.76 , 82.00 ) NO-ERROR.
-
-       /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
-
-       /* Links to SmartNavBrowser h_usersman. */
-       RUN add-link IN adm-broker-hdl ( h_users , 'Record':U , h_usersman ).
-
-       /* Links to SmartViewer h_usersman-2. */
-       RUN add-link IN adm-broker-hdl ( h_p-updsav-6 , 'TableIO':U , h_usersman-2 ).
-       RUN add-link IN adm-broker-hdl ( h_usersman , 'Record':U , h_usersman-2 ).
-
-       /* Adjust the tab order of the smart objects. */
-       RUN adjust-tab-order IN adm-broker-hdl ( h_usersman ,
-             FRAME message-frame:HANDLE , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_usersman-2 ,
-             h_usersman , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-6 ,
-             h_usersman-2 , 'AFTER':U ).
+              INPUT  'browsers/usercust.w':U ,
+              INPUT  FRAME F-Main:HANDLE ,
+              INPUT  'Layout = ':U ,
+              OUTPUT h_usercust ).
+        RUN set-position IN h_usercust ( 4.81 , 35.00 ) NO-ERROR.
+        RUN set-size IN h_usercust ( 10.57 , 90.00 ) NO-ERROR.
+ 
+        RUN init-object IN THIS-PROCEDURE (
+              INPUT  'viewers/usercust.w':U ,
+              INPUT  FRAME F-Main:HANDLE ,
+              INPUT  'Layout = ':U ,
+              OUTPUT h_usercust-2 ).
+        RUN set-position IN h_usercust-2 ( 16.48 , 52.00 ) NO-ERROR.
+        /* Size in UIB:  ( 4.05 , 34.00 ) */
+ 
+        RUN init-object IN THIS-PROCEDURE (
+              INPUT  'p-updsav.w':U ,
+              INPUT  FRAME F-Main:HANDLE ,
+              INPUT  'Edge-Pixels = 2,
+                      SmartPanelType = Update,
+                      AddFunction = One-Record':U ,
+              OUTPUT h_p-updsav-4 ).
+        RUN set-position IN h_p-updsav-4 ( 21.24 , 27.40 ) NO-ERROR.
+        RUN set-size IN h_p-updsav-4 ( 1.76 , 82.00 ) NO-ERROR.
+ 
+        RUN init-object IN THIS-PROCEDURE (
+              INPUT  'viewers/delsel.w':U ,
+              INPUT  FRAME F-Main:HANDLE ,
+              INPUT  'Layout = ':U ,
+              OUTPUT h_delsel ).
+        RUN set-position IN h_delsel ( 21.24 , 108.40 ) NO-ERROR.
+        /* Size in UIB:  ( 1.76 , 14.00 ) */
+ 
+        /* Initialize other pages that this page requires. */
+        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
+ 
+        /* Links to SmartNavBrowser h_usercust. */
+        RUN add-link IN adm-broker-hdl ( h_users , 'Record':U , h_usercust ).
+ 
+        /* Links to SmartViewer h_usercust-2. */
+        RUN add-link IN adm-broker-hdl ( h_p-updsav-4 , 'TableIO':U , h_usercust-2 ).
+        RUN add-link IN adm-broker-hdl ( h_usercust , 'Record':U , h_usercust-2 ).
+ 
+        /* Links to SmartViewer h_delsel. */
+        RUN add-link IN adm-broker-hdl ( h_usercust , 'del':U , h_delsel ).
+ 
+        /* Adjust the tab order of the smart objects. */
+        RUN adjust-tab-order IN adm-broker-hdl ( h_usercust ,
+              FRAME message-frame:HANDLE , 'AFTER':U ).
+        RUN adjust-tab-order IN adm-broker-hdl ( h_usercust-2 ,
+              h_usercust , 'AFTER':U ).
+        RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav-4 ,
+              h_usercust-2 , 'AFTER':U ).
+        RUN adjust-tab-order IN adm-broker-hdl ( h_delsel ,
+              h_p-updsav-4 , 'AFTER':U ).
     END. /* Page 5 */
     WHEN 6 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
