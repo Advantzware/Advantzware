@@ -577,6 +577,7 @@ DO WITH FRAME Panel-Frame:
 
 END. /* DO WITH FRAME */
 
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
