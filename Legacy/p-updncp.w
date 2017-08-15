@@ -577,18 +577,6 @@ DO WITH FRAME Panel-Frame:
 
 END. /* DO WITH FRAME */
 
-FIND FIRST users NO-LOCK
-     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
-
-IF AVAIL users AND users.securityLevel LE 999 THEN
-    DO WITH FRAME Panel-Frame:
-             Btn-Save:SENSITIVE = NO.
-             Btn-Delete:SENSITIVE = NO.
-             Btn-Add:SENSITIVE = NO.
-             Btn-Copy:SENSITIVE = NO.
-             Btn-Reset:SENSITIVE = NO.
-             Btn-Cancel:SENSITIVE = NO.
-    END.
 
 END PROCEDURE.
 
