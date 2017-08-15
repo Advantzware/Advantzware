@@ -1419,7 +1419,7 @@ PROCEDURE valid-s-pct :
     IF (inv-misc.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name} NE "" OR
         inv-misc.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name} NE "" OR
         inv-misc.s-man[3]:SCREEN-VALUE IN BROWSE {&browse-name} NE "")   AND
-       ((ip-int EQ 0 AND ld-pct NE 100) OR
+       ((ip-int EQ 0 AND ld-pct LT 100) OR
         (ip-int NE 0 AND ld-pct GT 100)) THEN DO:
       MESSAGE "% of Sales for all sales reps must total 100..." VIEW-AS ALERT-BOX ERROR.
       IF ip-int EQ 3 THEN APPLY "entry" TO inv-misc.s-pct[3] IN BROWSE {&browse-name}.
