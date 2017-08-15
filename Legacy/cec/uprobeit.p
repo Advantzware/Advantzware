@@ -365,7 +365,23 @@ FOR EACH probeit
             AND eb.part-no EQ probeit.part-no
             AND eb.form-no GT 0
             NO-ERROR.
- 
+    IF AVAILABLE eb THEN DO:
+        ASSIGN 
+            dMCostToExcludeMisc = 0
+            dMPriceToAddMisc = 0
+            .
+        FOR EACH ttPrepMiscM NO-LOCK 
+            WHERE ttPrepMiscM.iForm EQ eb.form-no
+            AND (ttPrepMiscM.iBlank EQ eb.blank-no
+                OR ttPrepMiscM.iBlank EQ 0):
+                ASSIGN  
+                    dMCostToExcludeMisc = dMCostToExcludeMisc + ttPrepMiscM.dCostTotal
+                    dMPriceToAddMisc = dMPriceToAddMisc + ttPrepMiscM.dPriceTotal
+                    .
+            DELETE ttPrepMiscM.
+        END.
+        
+    END.
     RUN custom/markup.p (ROWID(eb),
         dBoardCst,
         probeit.fact-cost * (v-qty / 1000),
@@ -432,20 +448,24 @@ FOR EACH probeit
     IF xest.est-type EQ 6 AND probe.set-chg NE 0 AND vmclean2 THEN
         v-tmp-set-markup = probe.set-chg.
 
-    ASSIGN 
-        dMCostToExcludeMisc = dMCostToExcludeMisc / (v-qty / 1000)
-        dMCostToExcludePrep = dMCostToExcludePrep / (v-qty / 1000)
-        dMPriceToAddMisc = dMPriceToAddMisc / (v-qty / 1000)
-        dMPriceToAddPrep = dMPriceToAddPrep / (v-qty / 1000)
-        .
+/*    ASSIGN                                                        */
+/*        dMCostToExcludeMisc = dMCostToExcludeMisc / (v-qty / 1000)*/
+/*        dMCostToExcludePrep = dMCostToExcludePrep / (v-qty / 1000)*/
+/*        dMPriceToAddMisc = dMPriceToAddMisc / (v-qty / 1000)      */
+/*        dMPriceToAddPrep = dMPriceToAddPrep / (v-qty / 1000)      */
+/*        .                                                         */
     dMarginCostG = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN board-cst ELSE probeit.fact-cost.
     dMarginCostN = IF lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B" THEN 0
         ELSE (IF lv-sell-by = "F" THEN v-freight ELSE (probeit.full-cost - probeit.fact-cost)).
     
+    ASSIGN /*calculate totals before price/commission calc*/
+    dMarginCostG = dMarginCostG * (v-qty / 1000)
+    dMarginCostN = dMarginCostN * (v-qty / 1000)
+    .
+
     /*Exclude SIMON = M Costs from Price Margin Calculation*/
     dMarginCostG = dMarginCostG - dMCostToExcludeMisc - dMCostToExcludePrep.
-
-    /*this commission logic also in oe/ordfrest.i and jc/jc-calc.p*/
+     /*this commission logic also in oe/ordfrest.i and jc/jc-calc.p*/
     RUN est/CalcSellPrice.p (lv-sell-by-ce-ctrl,
         lv-sell-by,
         v-basis,
@@ -460,11 +480,14 @@ FOR EACH probeit
         OUTPUT v-comm).
     
     ASSIGN 
+        v-comm = v-comm / (v-qty / 1000)
+        probeit.sell-price = probeit.sell-price / (v-qty / 1000)
         dMCostToExcludeMisc = 0
         dMCostToExcludePrep = 0
         dMPriceToAddMisc = 0
         dMPriceToAddPrep = 0
         .
+
     IF ll-use-margin OR
         (lv-sell-by-ce-ctrl NE "B" AND lv-sell-by EQ "B") THEN
         v-comm = probeit.sell-price * probe.comm / 100.

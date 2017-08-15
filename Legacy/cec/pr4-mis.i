@@ -35,11 +35,26 @@
      v-mat-cost = IF AVAIL reftable THEN reftable.val[v] ELSE 0.
      IF xef.mis-simon[i] = 'M' THEN DO:
         mis-tot[5] = xef.mis-matf[i] + (v-mat-cost * qty / 1000).
+        CREATE ttPrepMiscM.
+        ASSIGN 
+          ttPrepMiscM.iForm = xef.mis-snum[i]
+          ttPrepMiscM.iBlank = xef.mis-bnum[i]
+          ttPrepMiscM.dCostTotal = mis-tot[5]
+          ttPrepMiscM.dCostM = mis-tot[5] / (qty / 1000 )
+          ttPrepMiscM.lMatLab  = YES
+          ttPrepMiscM.cSIMON = 'M'
+          ttPrepMiscM.cCode     = "MISM" + string(i,"9")
+          . 
         dMCostToExcludeMisc = dMCostToExcludeMisc + mis-tot[5].
-        IF ceprepprice-chr EQ 'Profit' THEN 
-            dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[5] / (1 - (xef.mis-mkup[i] / 100)).
+        IF ceprepprice-chr EQ 'Profit' THEN
+            ASSIGN 
+                ttPrepMiscM.dPriceTotal =  mis-tot[5] / (1 - (xef.mis-mkup[i] / 100))
+                dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[5] / (1 - (xef.mis-mkup[i] / 100)).
         ELSE 
-            dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[5] * (1 + (xef.mis-mkup[i] / 100)).
+            ASSIGN
+                ttPrepMiscM.dPriceTotal =  mis-tot[5] * (1 + (xef.mis-mkup[i] / 100))
+                dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[5] * (1 + (xef.mis-mkup[i] / 100)).
+        ttPrepMiscM.dPriceM = ttPrepMiscM.dPriceTotal / (qty / 1000).
      END.
      ELSE IF ceprepprice-chr EQ "Profit" THEN
         mis-tot[5] = (xef.mis-matf[i] + (v-mat-cost * qty / 1000)) /
@@ -66,11 +81,26 @@
     
      IF xef.mis-simon[i] = 'M' THEN DO:
         mis-tot[6] = xef.mis-labf[i] + (v-lab-cost * qty / 1000).
+        CREATE ttPrepMiscM.
+        ASSIGN 
+          ttPrepMiscM.iForm = xef.mis-snum[i]
+          ttPrepMiscM.iBlank = xef.mis-bnum[i]
+          ttPrepMiscM.dCostTotal = mis-tot[6]
+          ttPrepMiscM.dCostM = mis-tot[6] / (qty / 1000 )
+          ttPrepMiscM.lMatLab  = NO
+          ttPrepMiscM.cSIMON = 'M'
+          ttPrepMiscM.cCode     = "MISL" + string(i,"9")
+          . 
         dMCostToExcludeMisc = dMCostToExcludeMisc + mis-tot[6].
         IF ceprepprice-chr EQ 'Profit' THEN 
-            dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[6] / (1 - (xef.mis-mkup[i] / 100)).
+            ASSIGN 
+                ttPrepMiscM.dPriceTotal =  mis-tot[6] / (1 - (xef.mis-mkup[i] / 100))
+                dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[6] / (1 - (xef.mis-mkup[i] / 100)).
         ELSE 
-            dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[6] * (1 + (xef.mis-mkup[i] / 100)).
+            ASSIGN 
+                ttPrepMiscM.dPriceTotal =  mis-tot[6] * (1 + (xef.mis-mkup[i] / 100))
+                dMPriceToAddMisc = dMPriceToAddMisc + mis-tot[6] * (1 + (xef.mis-mkup[i] / 100)).
+        ttPrepMiscM.dPriceM = ttPrepMiscM.dPriceTotal / (qty / 1000).
      END.
      ELSE IF ceprepprice-chr EQ "Profit" THEN
 	    mis-tot[6] = (xef.mis-labf[i] + (v-lab-cost * qty / 1000)) /
