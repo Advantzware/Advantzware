@@ -972,7 +972,7 @@ DO:
         END CASE.
 
         /*#BL# - If not emailing and a customer in the range is "Paperless" then abort */
-        IF rd-dest <> 5 
+       /* IF rd-dest <> 5 
             /*       AND CAN-FIND(FIRST cust                    */
             /*                 WHERE cust.company EQ cocode     */
             /*                   AND cust.cust-no GE begin_cust */
@@ -983,7 +983,7 @@ DO:
 
            RUN validateCustPaper.
 
-        END.
+        END.*/  /* ticket 22557 */ 
 
 
         IF NOT rd-dest:SCREEN-VALUE = '5' AND NOT rd-dest:SCREEN-VALUE = '1' THEN
