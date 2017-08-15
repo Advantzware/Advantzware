@@ -37,7 +37,7 @@ CREATE WIDGET-POOL.
 &SCOPED-DEFINE h_Browse01 h_uom
 
 /* Parameters Definitions ---                                           */
-
+DEFINE VARIABLE il-cur-page AS INTEGER INIT 1 NO-UNDO.
 /* Local Variable Definitions ---                                       */
 
 /* _UIB-CODE-BLOCK-END */
@@ -352,8 +352,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 5.00 , 55.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             /*INPUT  'adm/objects/p-updsav.r':U ,*/
-             INPUT  'p-updsav.w':U ,
+             INPUT  'adm/objects/p-updsav.r':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -479,9 +478,20 @@ PROCEDURE local-change-page :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  
+   run get-attribute ("current-page").
+   assign il-cur-page = int(return-value).
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+  
+  IF il-cur-page = 2 THEN DO:
+     FIND FIRST users NO-LOCK WHERE 
+         users.user_id EQ USERID(LDBNAME(1)) 
+         NO-ERROR.
+     IF AVAIL users AND users.securityLevel LE 999 THEN
+         RUN set-buttons IN h_p-updsav ('disable-all').
+  END.
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
