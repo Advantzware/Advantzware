@@ -967,3 +967,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-buttons V-table-Win 
+PROCEDURE valid-buttons :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   /*add and delete not valid buttons*/
+
+   DEF OUTPUT PARAMETER op-add-valid AS LOG NO-UNDO.
+   DEF OUTPUT PARAMETER op-delete-valid AS LOG INIT YES NO-UNDO.
+   FIND FIRST users NO-LOCK WHERE 
+         users.user_id EQ USERID(LDBNAME(1)) 
+         NO-ERROR.
+     IF AVAIL users AND users.securityLevel LE 999 THEN
+        ASSIGN op-add-valid = NO.
+     ELSE op-add-valid = YES .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
