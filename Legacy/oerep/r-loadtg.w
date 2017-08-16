@@ -2401,7 +2401,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        begin_form:VISIBLE = NO.
 
      ASSIGN
-       fi_cas-lab:SCREEN-VALUE = "" /*calling from OU1 brings back old wrong value*/
        begin_filename:SCREEN-VALUE = bardir-desc.
 
     IF bardir-int = 1 THEN DO:
@@ -2409,85 +2408,41 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        IF AVAIL users AND users.user_program[3] NE "" THEN
            ASSIGN begin_filename:SCREEN-VALUE = users.user_program[3].                  
     END.
-
-    /* gdm - 06100901 */
-    IF SEARCH('OU1-loadtag.txt') NE ? OR
-       SEARCH('IU2-loadtag.txt') NE ?
-      THEN ASSIGN v-txtflg = YES.
-    /* gdm - 06100901 end */
-
-    IF SEARCH('OU1-loadtag.txt') NE ? THEN DO:
-      /* gdm - 06100901 end */
+     
+    IF  PROGRAM-NAME(3) MATCHES "*/b-ordlt.*" THEN DO: 
+      
       ASSIGN
         v-ord-list     = ""
         v-job-list     = ""
         v-ord-list:SCREEN-VALUE   = ""
         v-job-list:SCREEN-VALUE   = ""
-        begin_ord-no:SCREEN-VALUE = ""
-        end_ord-no:SCREEN-VALUE   = "" 
-        begin_job:SCREEN-VALUE    = ""
-        begin_job:SCREEN-VALUE    = ""
-        end_job:SCREEN-VALUE      = ""
-        begin_job2:SCREEN-VALUE   = ""
-        end_job2:SCREEN-VALUE     = ""  
-        begin_i-no:SCREEN-VALUE   = ""  
-        end_i-no:SCREEN-VALUE     = "" .
+        fi_cas-lab:SCREEN-VALUE   = "" .
       /* gdm - 06100901 end */
+      
 
-      INPUT FROM 'OU1-loadtag.txt' NO-ECHO.
-      IMPORT ordNo jobNo jobNo2 iNo poNoPo.
-      INPUT CLOSE.
-      OS-DELETE 'OU1-loadtag.txt'.
-      IF ordNo NE '' THEN
-      ASSIGN
-        begin_ord-no:SCREEN-VALUE = ordNo
-        end_ord-no:SCREEN-VALUE   = ordNo.
-      IF jobNo NE '' THEN
-      ASSIGN
-        begin_job:SCREEN-VALUE    = jobNo
-        begin_job:SCREEN-VALUE    = jobNo
-        end_job:SCREEN-VALUE      = jobNo
-        begin_job2:SCREEN-VALUE   = jobNo2
-        end_job2:SCREEN-VALUE     = jobNo2.
-
-      IF iNo NE '' THEN DO:      
-        ASSIGN
-          begin_i-no:SCREEN-VALUE   = iNo
-          end_i-no:SCREEN-VALUE     = iNo.
+      IF  begin_i-no:SCREEN-VALUE NE '' THEN DO:  
         FIND FIRST po-ordl WHERE po-ordl.company EQ cocode
-          AND po-ordl.po-no = poNoPo NO-LOCK NO-ERROR.
+          AND po-ordl.po-no = int(begin_ord-no:SCREEN-VALUE) NO-LOCK NO-ERROR.
         IF AVAIL po-ordl THEN DO:
           FIND itemfg WHERE itemfg.company EQ cocode
-                AND itemfg.i-no EQ iNo
+                AND itemfg.i-no EQ begin_i-no:SCREEN-VALUE
               NO-LOCK NO-ERROR.
         END.
 
-
         IF (AVAIL itemfg AND itemfg.pur-man AND NOT itemfg.isaset)            
-            AND poNoPo GT 0 THEN
+            AND AVAIL po-ordl THEN
           ASSIGN loadtagFunction:SCREEN-VALUE = "Po"
-                 begin_ord-no:SCREEN-VALUE    = STRING(poNoPo, ">>>>>>>>>")
-                 end_ord-no:SCREEN-VALUE      = STRING(poNoPo, ">>>>>>>>>")
                  begin_job:SCREEN-VALUE       = ""
                  end_job:SCREEN-VALUE         = "".
-/*         ELSE DO:                                                            */
-/*           FIND FIRST itemfg WHERE itemfg.company EQ cocode                  */
-/*               AND itemfg.i-no EQ iNo                                        */
-/*             NO-LOCK NO-ERROR.                                               */
-/*           /* Unassembled sets were not defaulting from-to item # */         */
-/*           IF AVAIL itemfg AND itemfg.isaset AND itemfg.alloc = YES THEN DO: */
-/*             loadtagFunction:SCREEN-VALUE = "order".                         */
-/*             RUN get-import-ord (INPUT INTEGER(begin_ord-no:SCREEN-VALUE)).  */
-/*           END.                                                              */
-/*         END.                                                                */
 
       END. /* i-no ne '' */
       ELSE
         loadtagFunction:SCREEN-VALUE = "order".
 
-    END.    
+    END.   
 
-    IF SEARCH('IU2-loadtag.txt') NE ? THEN DO:
+    /*IF SEARCH('IU2-loadtag.txt') NE ? THEN DO:*/
+    IF  PROGRAM-NAME(3) MATCHES "*/b-trans.*" THEN DO:
       /* gdm - 06100901 end */
       ASSIGN
         v-ord-list     = ""
@@ -2504,16 +2459,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         begin_i-no:SCREEN-VALUE   = ""  
         end_i-no:SCREEN-VALUE     = "" .
       /* gdm - 06100901 end */
-
-      DEF VAR v-fg-tag AS cha FORM "x(25)" NO-UNDO.
-      INPUT FROM 'IU2-loadtag.txt' NO-ECHO.
-      IMPORT v-fg-tag.
-      INPUT CLOSE.
-      OS-DELETE 'IU2-loadtag.txt'.
-      IF v-fg-tag NE '' THEN
+       
+      IF fi_cas-lab:SCREEN-VALUE NE "" THEN
       ASSIGN tb_reprint-tag = YES
              tb_reprint-tag:SCREEN-VALUE = "Yes"
-             fi_cas-lab:SCREEN-VALUE = v-fg-tag
              .
       loadtagFunction:SCREEN-VALUE = "order".
       /* APPLY 'value-changed' TO tb_reprint-tag. */
@@ -2554,7 +2503,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 */  
 
     /* gdm - 06100901 */
-    IF NOT v-txtflg  THEN DO:
+    IF  PROGRAM-NAME(3) MATCHES "*/mainmenu.*" THEN do:
 
        /* gdm - 06050908 */
        ASSIGN
