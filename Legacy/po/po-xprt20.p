@@ -121,7 +121,8 @@ DEF VAR lv-item-rec AS cha NO-UNDO.
 def var v-dec-fld as decimal no-undo.
 DEF VAR lv-dep AS DEC NO-UNDO.
 DEF VAR lv-dep2 AS DEC NO-UNDO.
-DEFINE VARIABLE dCoreDia LIKE ITEM.ect NO-UNDO.
+DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
+DEFINE VARIABLE cFlueTest AS CHARACTER  NO-UNDO.
 
 v-dash-line = fill ("_",80).
 
@@ -493,10 +494,14 @@ v-printline = 0.
        RUN calc-cost (recid(po-ordl),OUTPUT v-cost,OUTPUT v-setup).                    
 
        v-cost = po-ordl.cost - (ROUND(v-setup /  v-qty,4)). /* reclac cost from setup */
-       IF AVAIL ITEM THEN ASSIGN lv-flute = "  Flute: " + ITEM.flute
+       IF AVAIL ITEM AND ITEM.mat-type NE "C" AND ITEM.flute NE "" THEN ASSIGN lv-flute = "  Flute: " + ITEM.flute
                                   lv-reg-no = "Test: " + ITEM.reg-no.
        ELSE assign lv-flute = ""
                    lv-reg-no = "".
+       ASSIGN cFlueTest = string(lv-flute,"x(11)") + string(lv-reg-no,"x(10)").
+       IF lv-flute EQ "" AND lv-reg-no EQ "" THEN
+              ASSIGN cFlueTest = " Core Dia: " + STRING(dCoreDia,">,>>9.99<<")
+                     dCoreDia = 0.
 
        /* check whether i-no is roll */
        FIND FIRST job-hdr WHERE job-hdr.company = po-ordl.company
@@ -517,15 +522,17 @@ v-printline = 0.
         END.
         ELSE IF AVAIL ITEM AND ITEM.mat-type = "C" THEN DO:
              if v-dec-fld = 0.08 then
-                 PUT   "W:  " at 25 v-wid FORM ">>>9.99"  space(2) "L:  " v-len FORM "->,>>9.99"  
-                  SPACE(2) "D: " lv-dep FORM ">>>9.99<<" SPACE(9)
+                 PUT   "W: " at 25 v-wid FORM ">>>9.99"  space(1) "L: " v-len FORM "->,>>9.99"  
+                  SPACE(1) "D: " lv-dep FORM ">>>9.99<<" SPACE(1)
+                  cFlueTest FORMAT "x(20)"
                /* lv-flute FORM "x(13)"  lv-reg-no FORM "x(10)"*/
                 STRING(v-cost,">>,>>9.99<<") + po-ordl.pr-uom + " $" +
                 STRING(v-setup) + "SETUP" FORM "x(25)"   
                 SKIP.
              ELSE
-                 PUT   "W:  " at 25 v-wid FORM ">>>9.99<<<"  space(2) "L:  " v-len FORM "->,>>9.99<<<"  
-                  SPACE(2) "D: " lv-dep FORM ">>>9.99<<" SPACE(9)
+                 PUT   "W: " at 25 v-wid FORM ">>>9.99<<<"  space(1) "L: " v-len FORM "->,>>9.99<<<"  
+                  SPACE(1) "D: " lv-dep FORM ">>>9.99<<" SPACE(1)
+                  cFlueTest FORMAT "x(20)"
                /* lv-flute FORM "x(13)"  lv-reg-no FORM "x(10)"*/
                 STRING(v-cost,">>,>>9.99<<") + po-ordl.pr-uom + " $" +
                 STRING(v-setup) + "SETUP" FORM "x(25)"   
@@ -541,32 +548,36 @@ v-printline = 0.
            IF (AVAIL ITEM AND ITEM.r-wid > 0) or
               (AVAIL ef AND ef.roll) THEN do:  /* no length for Roll*/
                 if v-dec-fld = 0.08 then
-              PUT    "W:   " at 25 v-wid FORM ">>>9.99"  space(12) 
-                     lv-flute FORM "x(13)" lv-reg-no FORM "x(10)"
+              PUT    "W:   " at 25 v-wid FORM ">>>9.99"  space(10) 
+                    /* lv-flute FORM "x(13)" lv-reg-no FORM "x(10)"*/
+                    cFlueTest FORMAT "x(27)"
                 STRING(v-cost,">>,>>9.99<<") + po-ordl.pr-uom + " $" +
                 STRING(v-setup) + "SETUP" FORM "x(25)"   
                 SKIP.
                 ELSE
-                PUT    "W:   " at 25 v-wid FORM ">>>9.99<<<"  space(12) 
-                     lv-flute FORM "x(13)" lv-reg-no FORM "x(10)"
+                PUT    "W:   " at 25 v-wid FORM ">>>9.99<<<"  space(10) 
+                    /* lv-flute FORM "x(13)" lv-reg-no FORM "x(10)"*/
+                    cFlueTest FORMAT "x(27)"
                 STRING(v-cost,">>,>>9.99<<") + po-ordl.pr-uom + " $" +
                 STRING(v-setup) + "SETUP" FORM "x(25)"   
                 SKIP.
            END.
 
            ELSE do:
-               if v-dec-fld = 0.08 then
-                PUT    "W: " at 25 v-wid FORM ">>>9.99" space(3) "L: " v-len FORM "->,>>9.99"
+                if v-dec-fld = 0.08 then
+                PUT    "W: " at 25 v-wid FORM ">>>9.99" space(1) "L: " v-len FORM "->,>>9.99"
                  /*"                   "*/
-              /*  "  Flute:"*/  lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)"
+            /*  /*  "  Flute:"*/  lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)"*/
+                cFlueTest FORMAT "x(27)"
                 STRING(v-cost,">>,>>9.99<<") + po-ordl.pr-uom + " $" +
                 STRING(v-setup) + "SETUP" FORM "x(25)"   
                 SKIP
                /* space(2) v-vend-item FORM "x(20)" */  .
                ELSE
-                   PUT    "W: " at 25 v-wid FORM ">>>9.99<<<" space(3) "L: " v-len FORM "->,>>9.99<<<"
+                   PUT    "W: " at 25 v-wid FORM ">>>9.99<<<" space(1) "L: " v-len FORM "->,>>9.99<<<"
                  /*"                   "*/
-              /*  "  Flute:"*/  lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)"
+            /*  /*  "  Flute:"*/  lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)"*/
+                cFlueTest FORMAT "x(27)"
                 STRING(v-cost,">>,>>9.99<<") + po-ordl.pr-uom + " $" +
                 STRING(v-setup) + "SETUP" FORM "x(25)"   
                 SKIP

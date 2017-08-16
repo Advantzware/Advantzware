@@ -82,8 +82,9 @@ DEF VAR lv-item-rec AS cha NO-UNDO.
 DEF VAR v-overrun AS DECI NO-UNDO.
 DEF VAR v-underrun AS DECI NO-UNDO.
 DEF VAR v-inst2 AS cha EXTENT 25 NO-UNDO. 
-DEF VAR v-wld AS CHAR FORM "x(50)" NO-UNDO.
-DEFINE VARIABLE dCoreDia LIKE ITEM.ect NO-UNDO.
+DEF VAR v-wld AS CHAR  FORM "x(30)"  NO-UNDO.
+DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
+DEFINE VARIABLE cFlueTest AS CHARACTER  NO-UNDO.
 
 v-dash-line = fill ("_",80).
 
@@ -362,19 +363,21 @@ assign
         IF po-ordl.item-type THEN DO:
            ASSIGN v-wld = "".
            IF ITEM.mat-type = "C" OR ITEM.mat-type = "5"  OR item.mat-type = "6" THEN
-             ASSIGN v-wld = "W: " + STRING(v-wid,">>9.99") + "  L: " + string(v-len,">>9.99") +
-                            "  D: " + string(item.case-d,">>9.99").
+             ASSIGN v-wld = "W: " + STRING(v-wid,">>9.99") + " L: " + string(v-len,">>9.99") +
+                            " D: " + string(item.case-d,">>9.99").
            ELSE
            IF ITEM.mat-type = "P" THEN
-             ASSIGN v-wld = "W: " + STRING(v-wid,">>9.99").
+             ASSIGN v-wld = "W:" + STRING(v-wid,">>9.99").
            ELSE
            IF ITEM.mat-type = "B" OR item.mat-type = "D" THEN
-             ASSIGN v-wld = "W: " + STRING(v-wid,">>9.99") + "  L: " + string(v-len,">>9.99").
+             ASSIGN v-wld = "W: " + STRING(v-wid,">>9.99") + " L: " + string(v-len,">>9.99").
 
-           IF LENGTH(TRIM(v-wld)) < 50 THEN
+           IF LENGTH(TRIM(v-wld)) < 30 THEN DO:
                ASSIGN v-wld = v-wld + FILL(" ":U, 50 - LENGTH(TRIM(v-wld))).
+           END.
 
            PUT v-wld AT 25
+               "Core Dia: " dCoreDia FORMAT ">,>>9.9<<<" SPACE(3)
                /*"W: " at 25 v-wid space(2) "L: " v-len  
                "                          "*/
                 STRING(v-cost) + " " + po-ordl.pr-uom + " $" +
@@ -385,14 +388,14 @@ assign
                    v-printline = v-printline + 1.
         END.
 
-        IF dCoreDia GT 0 THEN DO:
+       /* IF dCoreDia GT 0 THEN DO:
             put "Core Dia: " AT 25 dCoreDia FORMAT ">,>>9.9<<<" SKIP.
             ASSIGN
                 v-line-number = v-line-number + 1
                 v-printline = v-printline + 1.
         END.
         ELSE
-           PUT SKIP.
+           PUT SKIP.*/
 
         /* added this over/underrun row */
         IF po-ordl.item-type THEN DO:
