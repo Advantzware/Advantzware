@@ -105,7 +105,8 @@ DEF VAR lv-text-line AS INT NO-UNDO.
 DEF VAR lv-text-line-length AS INT NO-UNDO.
 DEF VAR lv-char AS cha NO-UNDO.
 DEF VAR lv-char-list AS cha NO-UNDO.
-DEFINE VARIABLE dCoreDia LIKE ITEM.ect NO-UNDO.
+DEFINE VARIABLE dCoreDia AS DECIMAL FORMAT ">,>>9.99<<" NO-UNDO.
+DEFINE VARIABLE cFlueTest AS CHARACTER FORMAT "x(25)" NO-UNDO.
 DEF TEMP-TABLE tt-text NO-UNDO
     FIELD TYPE AS cha
     FIELD tt-line AS INT
@@ -570,6 +571,7 @@ v-printline = 0.
         v-cost = lv-cost. /* reclac cost from setup */
 
         dCoreDia = 0.
+        
         IF AVAIL ITEM AND ITEM.industry EQ "2" THEN
             ASSIGN dCoreDia =  IF item.mat-type EQ "P" THEN (item.ect / 10000) ELSE item.ect.
         ELSE dCoreDia =  IF item.mat-type NE "A" THEN (item.ect / 10000) ELSE item.ect.
@@ -580,32 +582,43 @@ v-printline = 0.
         ELSE
           ASSIGN lv-flute = ""
                  lv-reg-no = "".
+
+          IF AVAIL ITEM AND ITEM.mat-type EQ "B" AND ITEM.industry = "2" AND  ITEM.flute NE "" AND ITEM.reg-no NE "" THEN
+          ASSIGN cFlueTest = string(lv-flute,"x(13)") + string(lv-reg-no,"x(10)").
+          ELSE
+              ASSIGN cFlueTest = "Core Dia: " + string(dCoreDia,">,>>9.99<<")
+                     dCoreDia = 0.
+
+
         IF v-wid GT 0 THEN DO:
           PUT "W: " AT 25 FNmetric(v-wid, v-wid2, "W") FORMAT "x(8)" SPACE(1).
           IF v-len GT 0 THEN
-          PUT "L: "       FNmetric(v-len, v-len2, "L") FORMAT "x(10)" SPACE(2).
+          PUT "L: "  FNmetric(v-len, v-len2, "L") FORMAT "x(8)" SPACE(1).
           IF lv-dep GT 0 THEN
-          PUT "D: "       FNmetric(lv-dep, lv-dep2, "D") FORMAT "x(8)" SPACE(7).
+          PUT "D: "  FNmetric(lv-dep, lv-dep2, "D") FORMAT "x(8)" SPACE(1).
         END.
-
-        IF AVAIL ITEM AND ITEM.mat-type EQ "B" AND ITEM.industry = "2" THEN
-           PUT lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)".
+        
+        /* PUT lv-flute FORM "x(13)" /*"Test:" */ lv-reg-no FORM "x(10)".*/
+        PUT cFlueTest .
+        
         IF v-cost GT 0 AND v-setup GT 0 THEN DO:
             /*PUT STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" +
                STRING(v-setup) + "SETUP" FORM "x(25)" SKIP.*/
-            PUT "<FCourier New><C61>" STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" + STRING(v-setup) + "SETUP" FORM "x(25)"  "" SKIP.
+            PUT "<FCourier New><C64>" STRING(v-cost,">>,>>9.99<<") + lv-pr-uom + " $" + STRING(v-setup) + "SETUP" FORM "x(25)"  "" SKIP.
         END.
         ELSE
            PUT SKIP.
-
+      /* IF ITEM.flute NE "" AND ITEM.reg-no NE "" THEN DO:*/
         IF dCoreDia GT 0 THEN DO:
-            put "Core Dia: " AT 25 dCoreDia FORMAT ">,>>9.9<<<" SKIP.
+            put "Core Dia: " AT 25 dCoreDia FORMAT ">,>>9.99<<" SKIP.
             ASSIGN
                 v-line-number = v-line-number + 1
                 v-printline = v-printline + 1.
         END.
         ELSE
            PUT SKIP.
+     /* END.*/
+      
 
         assign v-line-number = v-line-number + 1
                v-printline = v-printline + 1
