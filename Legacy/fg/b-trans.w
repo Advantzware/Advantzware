@@ -895,9 +895,11 @@ PROCEDURE loadtag :
   Notes:       
 ------------------------------------------------------------------------------*/
   IF NOT AVAILABLE fg-rctd THEN RETURN.
-  OUTPUT TO 'IU2-loadtag.txt'.
-  EXPORT fg-rctd.tag2.
-  OUTPUT CLOSE.
+  RUN custom/setUserPrint.p (INPUT fg-rctd.company,
+                           INPUT 'r-loadtg.',
+                           INPUT 'fi_cas-lab',
+                           INPUT STRING(fg-rctd.tag2)).
+
   RUN Get_Procedure IN Persistent-Handle ('r-loadtg.',OUTPUT run-proc,yes).
 
 
