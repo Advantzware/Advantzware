@@ -74,7 +74,7 @@ FOR EACH eb BY eb.company BY eb.est-no:
     END.
 
     IF CAN-FIND(FIRST tt-array) THEN DO:
-      RUN 16-to-dec.
+      RUN ip16-to-dec.
 
       ASSIGN
        eb.k-len-array2 = 0
@@ -116,7 +116,7 @@ FOR EACH eb BY eb.company BY eb.est-no:
     END.
 
     IF CAN-FIND(FIRST tt-array) THEN DO:
-      RUN 16-to-dec.
+      RUN ip16-to-dec.
 
       ASSIGN
        eb.k-wid-array2 = 0
@@ -137,7 +137,7 @@ MESSAGE "Process Complete" VIEW-AS ALERT-BOX.
 
 RETURN.
 
-PROCEDURE 16-to-dec:
+PROCEDURE ip16-to-dec:
 
   FOR EACH tt-array:
     li = TRUNC(tt-dec,0).
