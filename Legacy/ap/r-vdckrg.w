@@ -536,10 +536,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RELEASE sys-ctrl.
 
   RUN enable_UI.
+  {methods/nowait.i}
 
   RUN check-date.
+  APPLY "entry" TO tran-date.
 
-  {methods/nowait.i}
+  
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
