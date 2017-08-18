@@ -1277,7 +1277,7 @@ PROCEDURE pConvertToHours:
 
     IF iCheckdec GT 0 THEN
         dResult = dResult + 1 .
-    ipcOoutputHour =   string(iHours) + ":" +  string(int(dResult)) .
+    ipcOoutputHour =   string(iHours) + ":" +  string(int(dResult),"99") .
 
 END PROCEDURE.
  
