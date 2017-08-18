@@ -1,6 +1,6 @@
 /* machchrg.p - Generated 08/29/2000 - 11:34 am by NoSweat
 "machchrg. " ~
-"EMPTRACK " ~
+"ASI " ~
 "machchrg " ~
 "machchrg.company = gcompany AND machchrg.machine = s-machine " ~
 "charge_code " ~
@@ -31,16 +31,16 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared} ~{methods/defines/machine.i}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname machchrg.
-&Scoped-define window-size 23
+&Scoped-define window-size 23.7
 &Scoped-define window-col 57.5
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 29
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 26
-&Scoped-define btn-cancel-col 15
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 28
+&Scoped-define btn-cancel-col 21
+&Scoped-define auto-find-row 23.6
 
 &Global-define FORMAT-1 X(5)
 &Scoped-define FLDNAME1 machchrg.charge_code

@@ -1,6 +1,6 @@
 /* parmfile.p - Generated 07/25/1998 -  1:19 am by NoSweat
 "parmfile. " ~
-"NOSWEAT " ~
+"ASI " ~
 "parmfile " ~
 " " ~
 "parmfile " ~
@@ -18,7 +18,7 @@
 "parmfile. " ~
 */
 
-&Scoped-define lookup-db NOSWEAT.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file parmfile
 &Scoped-define where-statement TRUE
 &Scoped-define return-field parmfile
@@ -31,16 +31,16 @@
 &Scoped-define def-include ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname parmfile.
-&Scoped-define window-size 14
+&Scoped-define window-size 14.7
 &Scoped-define window-col 52
 &Scoped-define rect-1-row 11.15
 &Scoped-define by-row 11.42
 &Scoped-define browse-order-width 40
 &Scoped-define browse-order-row 11.42
-&Scoped-define btn-row 12.77
-&Scoped-define btn-ok-col 37
-&Scoped-define btn-cancel-col 26
-&Scoped-define auto-find-row 13.85
+&Scoped-define btn-row 12.7
+&Scoped-define btn-ok-col 39
+&Scoped-define btn-cancel-col 32
+&Scoped-define auto-find-row 14.6
 
 &Global-define FORMAT-1 X(40)
 &Scoped-define FLDNAME1 parmfile.parmfile
