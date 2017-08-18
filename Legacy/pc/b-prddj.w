@@ -47,6 +47,11 @@ CREATE WIDGET-POOL.
 DEF VAR ls-start AS cha FORM "x(5)" NO-UNDO.
 DEF VAR ls-stop AS cha FORM "x(5)" NO-UNDO.
 DEF VAR li-help-job LIKE job.job NO-UNDO.
+DEFINE VARIABLE cRecId AS CHARACTER NO-UNDO .
+
+FOR EACH _Lock: 
+ cRecId = cRecId + string(_Lock._Lock-RECID) + "," .
+END.
 
 FOR EACH pc-prdd
     WHERE pc-prdd.company EQ cocode
@@ -55,8 +60,11 @@ FOR EACH pc-prdd
                          AND pc-prdh.m-code     EQ pc-prdd.m-code
                          AND pc-prdh.trans-date EQ pc-prdd.op-date
                          AND pc-prdh.shift      EQ pc-prdd.shift):
-  DELETE pc-prdd.
+    IF LOOKUP(STRING(RECID(pc-prdd)),cRecId ) > 0 THEN LEAVE .
+    DELETE pc-prdd.
 END.
+   
+   
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

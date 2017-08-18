@@ -2638,6 +2638,11 @@ PROCEDURE undo-added :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+DEFINE VARIABLE cRecId AS CHARACTER NO-UNDO .
+
+  FOR EACH _Lock: 
+   cRecId = cRecId + string(_Lock._Lock-RECID) + "," .
+  END.
 
   IF adm-new-record THEN RUN dispatch ("cancel-record").
 
@@ -2647,6 +2652,7 @@ PROCEDURE undo-added :
                    AND bf-prdd.op-date = pc-prdd.op-date
                    AND bf-prdd.shift = pc-prdd.shift
                    AND bf-prdd.m-code = "":
+      IF LOOKUP(STRING(RECID(bf-prdd)),cRecId ) > 0 THEN LEAVE .
     DELETE bf-prdd.
   END.
 
