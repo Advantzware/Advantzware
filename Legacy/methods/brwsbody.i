@@ -70,18 +70,21 @@ DEFINE VAR {&WINDOW-NAME} AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Cancel 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Cancel" 
-     SIZE 9.72 BY 1
+     SIZE 8 BY 1.91
      FONT 4.
 
 DEFINE BUTTON Btn_Clear_Find 
+     IMAGE-UP FILE "Graphics/32x32/close.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Clear &Find" 
-     SIZE 13 BY 1
+     SIZE 8 BY 1.91
      FONT 4.
 
 DEFINE BUTTON Btn_OK 
+     IMAGE-UP FILE "Graphics/32x32/checkbox.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&OK" 
-     SIZE 9.72 BY 1
+     SIZE 8 BY 1.91
      FONT 4.
 
 DEFINE VARIABLE auto_find AS CHARACTER FORMAT "X(256)":U 
@@ -103,8 +106,9 @@ DEFINE VARIABLE word_search AS CHARACTER FORMAT "X(256)":U
      SIZE {&width-size} BY 1 NO-UNDO.
 
 DEFINE BUTTON Btn_Clear_Search 
+     IMAGE-UP FILE "Graphics/32x32/error.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "Clear &Search" 
-     SIZE 13 BY 1
+     SIZE 8 BY 1.91
      FONT 4.
 &ENDIF
 
@@ -247,13 +251,12 @@ DO:
   save-rowid = ROWID({&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}).
   &ELSEIF "{&IAMWHAT}" = "LOOKUP" &THEN
   ASSIGN
-    g_lookup-var = STRING({&{&IAMWHAT}-file}.{&return-field}).
+    g_lookup-var = STRING({&{&IAMWHAT}-file}.{&return-field})
     &IF "{&{&IAMWHAT}-db}" NE "dictdb." AND "{&{&IAMWHAT}-db}" NE " " &THEN
     FRAME-VALUE = STRING({&{&IAMWHAT}-file}.{&return-field}) NO-ERROR.
-    &ENDIF
-    &IF DEFINED(m-{&IAMWHAT}-var) <> 0 &THEN
+    &ELSE
     m-{&IAMWHAT}-var = STRING({&{&IAMWHAT}-file}.{&return-field}).
-    &ENDIF 
+    &ENDIF
   &ENDIF
   
   DO TRANSACTION:
@@ -328,25 +331,25 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   &IF "{&IAMWHAT}" = "LOOKUP" AND "{&{&IAMWHAT}-file}" NE "convfact" &THEN
   IF (FRAME-VALUE) NE "" THEN DO:
     &IF "{&DATATYP1}" = ""   &then
-      FOR EACH {&{&IAMWHAT}-file} WHERE {&where-statement} AND
-      {&{&IAMWHAT}-file}.{&return-field} BEGINS {&DATATYP1}(FRAME-VALUE)
+      FOR EACH {&{&IAMWHAT}-db}{&{&IAMWHAT}-file} WHERE {&where-statement} AND
+      {&{&IAMWHAT}-db}{&{&IAMWHAT}-file}.{&return-field} BEGINS {&DATATYP1}(FRAME-VALUE)
         NO-LOCK {&SORTBY-1}:
         LEAVE.
       END.
     &endif
-    IF NOT AVAIL {&{&IAMWHAT}-file} THEN
-    FOR EACH {&{&IAMWHAT}-file} WHERE {&where-statement} AND
-    {&{&IAMWHAT}-file}.{&return-field} GE {&DATATYP1}(FRAME-VALUE)
+    IF NOT AVAIL {&{&IAMWHAT}-db}{&{&IAMWHAT}-file} THEN
+    FOR EACH {&{&IAMWHAT}-db}{&{&IAMWHAT}-file} WHERE {&where-statement} AND
+    {&{&IAMWHAT}-db}{&{&IAMWHAT}-file}.{&return-field} GE {&DATATYP1}(FRAME-VALUE)
         NO-LOCK {&SORTBY-1}:
       LEAVE.
     END.
   END.
-  IF NOT AVAIL {&{&IAMWHAT}-file} THEN
-  FOR EACH {&{&IAMWHAT}-file} WHERE {&where-statement}
+  IF NOT AVAIL {&{&IAMWHAT}-db}{&{&IAMWHAT}-file} THEN
+  FOR EACH {&{&IAMWHAT}-db}{&{&IAMWHAT}-file} WHERE {&where-statement}
       NO-LOCK {&SORTBY-1}:
     LEAVE.
   END.
-  save-rowid = ROWID({&{&IAMWHAT}-file}).
+  save-rowid = ROWID({&{&IAMWHAT}-db}{&{&IAMWHAT}-file}).
   &ENDIF
   
   RUN enable_UI.
