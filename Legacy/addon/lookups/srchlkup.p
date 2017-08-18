@@ -1,6 +1,6 @@
 /* srchlkup.p - Generated 02/13/1998 -  4:25 pm by Exitt
 "srchlkup. " ~
-"NOSWEAT " ~
+"ASI " ~
 "prgrms " ~
 "INDEX(prgrms.prgmname,'.') NE 0 AND prgrms.dir_group = 'windows' AND SEARCH('searches/' + prgrms.prgmname + 'p') NE ? " ~
 "prgmname " ~
@@ -18,7 +18,7 @@
 " " ~
 */
 
-&Scoped-define lookup-db NOSWEAT.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file prgrms
 &Scoped-define where-statement INDEX(prgrms.prgmname,'.') NE 0 AND prgrms.dir_group = 'windows' AND SEARCH('searches/' + prgrms.prgmname + 'p') NE ?
 &Scoped-define return-field prgmname
@@ -31,16 +31,16 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i NEW SHARED}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname 
-&Scoped-define window-size 23
+&Scoped-define window-size 23.7
 &Scoped-define window-col 52
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 40
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 37
-&Scoped-define btn-cancel-col 26
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 39
+&Scoped-define btn-cancel-col 32
+&Scoped-define auto-find-row 23.6
 
 &Global-define FORMAT-1 X(10)
 &Scoped-define FLDNAME1 prgrms.prgmname

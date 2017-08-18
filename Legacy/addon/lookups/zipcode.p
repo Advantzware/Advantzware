@@ -1,6 +1,6 @@
 /* zipcode.p - Generated 06/12/1998 -  8:38 pm by NOSWEAT
 "zipcode. " ~
-"NOSWEAT " ~
+"ASI " ~
 "zipcode " ~
 " " ~
 "zipcode " ~
@@ -18,7 +18,7 @@
 "zipcode. " ~
 */
 
-&Scoped-define lookup-db NOSWEAT.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file zipcode
 &Scoped-define where-statement TRUE
 &Scoped-define return-field zipcode
@@ -31,16 +31,16 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i NEW SHARED}
 &Scoped-define end-include
 &Scoped-define ui-prgmname zipcode.
-&Scoped-define window-size 23
+&Scoped-define window-size 23.7
 &Scoped-define window-col 44
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 56
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 53
-&Scoped-define btn-cancel-col 42
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 55
+&Scoped-define btn-cancel-col 48
+&Scoped-define auto-find-row 23.6
 
 &Global-define FORMAT-1 X(10)
 &Scoped-define FLDNAME1 zipcode.zipcode
