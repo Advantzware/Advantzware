@@ -649,8 +649,8 @@ DO:
         RETURN NO-APPLY.
     END.
 
-    IF CAN-FIND(FIRST _file WHERE
-       _file._File-Name = "ssrelbol") THEN
+    IF CAN-FIND(FIRST asi._file WHERE
+       asi._file._File-Name = "ssrelbol") THEN
        DO:
           RUN addon/bol/find-ssrelbol.p(INPUT cocode,
                                         INPUT INT(SELF:SCREEN-VALUE),
