@@ -697,6 +697,8 @@ PROCEDURE local-row-available :
   Notes:       
 ------------------------------------------------------------------------------*/
 /* Code placed here will execute PRIOR to standard behavior. */
+ DEFINE VARIABLE v-prgmname LIKE b-prgrms.prgmname INIT "vend-tot." NO-UNDO.
+ DEFINE BUFFER b-prgrms FOR prgrms.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .
@@ -713,6 +715,23 @@ PROCEDURE local-row-available :
   
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
      RUN pushpin-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
+
+
+  FIND b-prgrms WHERE b-prgrms.prgmname = v-prgmname NO-LOCK NO-ERROR.
+  IF AVAILABLE b-prgrms THEN
+  DO:
+    IF NOT CAN-DO(b-prgrms.can_run,USERID(LDBNAME(1))) AND
+       NOT CAN-DO(b-prgrms.can_update,USERID(LDBNAME(1))) AND
+       NOT CAN-DO(b-prgrms.can_create,USERID(LDBNAME(1))) AND
+       NOT CAN-DO(b-prgrms.can_delete,USERID(LDBNAME(1))) THEN
+    DO:
+       RUN disable-folder-page IN h_folder (3) .
+    END.
+  END. 
+  ELSE
+  DO:
+      RUN disable-folder-page IN h_folder (3) .
+  END.
 
 END PROCEDURE.
 
