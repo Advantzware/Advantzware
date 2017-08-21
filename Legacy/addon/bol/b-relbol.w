@@ -262,7 +262,8 @@ tt-relbol.trailer  tt-relbol.cases  tt-relbol.loc  tt-relbol.loc-bin  tt-relbol.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS br_table 
-&Scoped-Define DISPLAYED-OBJECTS v-job-qty v-qoh v-rel-qty v-scan-qty 
+&Scoped-Define DISPLAYED-OBJECTS v-job-qty v-qoh v-rel-qty v-scan-qty ~
+v-pallet-qty v-pallet-qoh v-pallet-rel-qty 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -320,11 +321,25 @@ FUNCTION comma RETURNS CHARACTER
   (ipValue AS CHARACTER)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
+&ANALYZE-RESUME  
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-bal B-table-Win 
 FUNCTION get-bal RETURNS INTEGER
   ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-job-pallet B-table-Win 
+FUNCTION get-job-pallet RETURNS INTEGER
+  ( /* parameter-definitions */ )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD roundUp B-table-Win 
+FUNCTION roundUp RETURNS INTEGER
+  ( ipround AS DECIMAL  )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -338,6 +353,23 @@ DEFINE VARIABLE v-job-qty AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0
      LABEL "Job Qty" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1
+     BGCOLOR 14  NO-UNDO.
+
+DEFINE VARIABLE v-pallet-qoh AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1
+     BGCOLOR 14  NO-UNDO.
+
+DEFINE VARIABLE v-pallet-qty AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     LABEL "Pallets" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1
+     BGCOLOR 14  NO-UNDO.
+
+DEFINE VARIABLE v-pallet-rel-qty AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
+     VIEW-AS FILL-IN 
+     SIZE 19 BY 1
      BGCOLOR 14  NO-UNDO.
 
 DEFINE VARIABLE v-qoh AS INTEGER FORMAT "->,>>>,>>9":U INITIAL 0 
@@ -407,7 +439,10 @@ DEFINE FRAME F-Main
      v-qoh AT ROW 1 COL 31 COLON-ALIGNED WIDGET-ID 4
      v-rel-qty AT ROW 1 COL 61 COLON-ALIGNED
      v-scan-qty AT ROW 1 COL 94 COLON-ALIGNED
-     br_table AT ROW 1.95 COL 1
+     v-pallet-qty AT ROW 2.05 COL 8 COLON-ALIGNED WIDGET-ID 6
+     v-pallet-qoh AT ROW 2.05 COL 31 COLON-ALIGNED WIDGET-ID 8
+     v-pallet-rel-qty AT ROW 2.05 COL 61 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     br_table AT ROW 3.38 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
@@ -439,7 +474,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 10.24
+         HEIGHT             = 11.48
          WIDTH              = 114.2.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -463,12 +498,18 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB br_table v-scan-qty F-Main */
+/* BROWSE-TAB br_table v-pallet-rel-qty F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
 /* SETTINGS FOR FILL-IN v-job-qty IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN v-pallet-qoh IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN v-pallet-qty IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN v-pallet-rel-qty IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN v-qoh IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -608,8 +649,8 @@ DO:
         RETURN NO-APPLY.
     END.
 
-    IF CAN-FIND(FIRST asi._file WHERE
-       asi._file._File-Name = "ssrelbol") THEN
+    IF CAN-FIND(FIRST _file WHERE
+       _file._File-Name = "ssrelbol") THEN
        DO:
           RUN addon/bol/find-ssrelbol.p(INPUT cocode,
                                         INPUT INT(SELF:SCREEN-VALUE),
@@ -633,7 +674,10 @@ DO:
     lv-num-item = 0
     v-rel-qty = 0
     v-job-qty = 0
-    v-qoh     = 0.
+    v-qoh     = 0
+    v-pallet-qty = 0
+    v-pallet-qoh = 0
+    v-pallet-rel-qty = 0.
 
     RUN ordStatCheck (OUTPUT lOrderOnHold).
         
@@ -652,21 +696,28 @@ DO:
         USE-INDEX r-no NO-LOCK BREAK BY oe-rell.i-no BY oe-rell.LINE:
         IF FIRST-OF(oe-rell.i-no) THEN lv-num-item = lv-num-item + 1.
         v-rel-qty = v-rel-qty + oe-rell.qty.
+        v-pallet-rel-qty = v-pallet-rel-qty +  roundUp( oe-rell.qty / (oe-rell.cases * oe-rell.qty-case) ) .
+        IF v-pallet-rel-qty EQ ? THEN v-pallet-rel-qty = 0 .
         IF LAST-OF(oe-rell.LINE) THEN DO:
             FIND FIRST b-oe-ordl WHERE b-oe-ordl.company EQ oe-relh.company
                                    AND b-oe-ordl.ord-no  EQ oe-rell.ord-no
                                    AND b-oe-ordl.LINE    EQ oe-rell.LINE
                                  NO-LOCK NO-ERROR.
-            IF AVAIL b-oe-ordl THEN
+            IF AVAIL b-oe-ordl THEN do:
                 v-job-qty = get-bal().
+                v-pallet-qty = roundUp( v-job-qty / get-job-pallet() ) . 
+                IF v-pallet-qty EQ ? THEN v-pallet-qty = 0.
+            END.
             FIND FIRST b-itemfg WHERE b-itemfg.company EQ oe-relh.company
                                   AND b-itemfg.i-no    EQ oe-rell.i-no
                               NO-LOCK NO-ERROR.
-            IF AVAIL b-itemfg THEN
+            IF AVAIL b-itemfg THEN DO:
                 v-qoh = b-itemfg.q-onh.
+                v-pallet-qoh = roundUp( v-qoh / (b-itemfg.case-count * b-itemfg.case-pall) ) .
+            END.
         END.
     END.
-    IF lv-num-item = 1 THEN DISPLAY v-rel-qty v-job-qty v-qoh WITH FRAME {&FRAME-NAME}.
+    IF lv-num-item = 1 THEN DISPLAY v-rel-qty v-job-qty v-qoh v-pallet-qty v-pallet-qoh v-pallet-rel-qty WITH FRAME {&FRAME-NAME}.
     RETURN .
 END.
 
@@ -1083,41 +1134,6 @@ DO:
 
 
 /* **********************  Internal Procedures  *********************** */
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE restoreSavedRecs B-table-Win
-PROCEDURE restoreSavedRecs:
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-/* RUN addon\bol\relfileselect.w (INPUT "relbol*", OUTPUT cTmpSaveFile). */
-/*  DEF VAR cTmpSaveFile AS CHAR NO-UNDO.*/
-  DEF VAR lFileSelected AS LOG NO-UNDO.
-  SYSTEM-DIALOG GET-FILE cTmpSaveFile   
-    FILTERS "restore (relbol*)" "relbol*"
-    INITIAL-DIR ".\logs"
-    UPDATE lFileSelected
-    MUST-EXIST
-    TITLE "Select Restore File". 
-     
-IF lFileSelected THEN DO: 
-    INPUT STREAM sTmpSaveInfo FROM VALUE(cTmpSaveFile).
-    REPEAT:
-        CREATE tt-relbol. 
-        IMPORT STREAM sTmpSaveInfo tt-relbol EXCEPT tt-relbol.oerell-row . 
-         
-    END.
-    INPUT STREAM sTmpSaveInfo CLOSE.
-    
-    RUN dispatch ('open-query').
-END.
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available B-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
@@ -1755,7 +1771,10 @@ PROCEDURE display-qtys :
      v-job-qty   = 0
      v-qoh       = 0
      lv-release# = INT(tt-relbol.release#:SCREEN-VALUE IN BROWSE {&browse-name})
-     lv-i-no     = tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name}.
+     lv-i-no     = tt-relbol.i-no:SCREEN-VALUE IN BROWSE {&browse-name}
+     v-pallet-qty     = 0
+     v-pallet-qoh     = 0
+     v-pallet-rel-qty = 0.
 
     IF lv-release# NE 0 AND TRIM(lv-i-no) NE "" THEN DO:
       FOR EACH bf-tmp
@@ -1774,23 +1793,31 @@ PROCEDURE display-qtys :
           BREAK BY b-rell.ord-no
                 BY b-rell.LINE:
         v-rel-qty = v-rel-qty + b-rell.qty.
+         v-pallet-rel-qty = v-pallet-rel-qty +  roundUp( oe-rell.qty / (oe-rell.cases * oe-rell.qty-case) ) .
+         IF v-pallet-rel-qty EQ ? THEN v-pallet-rel-qty = 0 .
         IF LAST-OF(b-rell.LINE) THEN DO:
             FIND FIRST b-oe-ordl WHERE b-oe-ordl.company EQ b-relh.company
                                    AND b-oe-ordl.ord-no  EQ b-rell.ord-no
                                    AND b-oe-ordl.LINE    EQ b-rell.LINE
                                  NO-LOCK NO-ERROR.
-            IF AVAIL b-oe-ordl THEN
+            IF AVAIL b-oe-ordl THEN do:
                 v-job-qty = get-bal().
+                v-pallet-qty = roundUp( v-job-qty / get-job-pallet()) . 
+                IF v-pallet-qty EQ ? THEN v-pallet-qty = 0.
+            END.
             FIND FIRST b-itemfg WHERE b-itemfg.company EQ b-relh.company
                                 AND b-itemfg.i-no    EQ b-rell.i-no
                               NO-LOCK NO-ERROR.
-            IF AVAIL b-itemfg THEN
+            IF AVAIL b-itemfg THEN do:
                 v-qoh = b-itemfg.q-onh.
+                v-pallet-qoh = roundUp( v-qoh / (b-itemfg.case-count * b-itemfg.case-pall)) .
+            END.
+               
         END.
       END.
     END.
 
-    DISPLAY v-job-qty v-qoh v-rel-qty v-scan-qty.
+    DISPLAY v-job-qty v-qoh v-rel-qty v-scan-qty v-pallet-qty v-pallet-qoh v-pallet-rel-qty.
     IF v-scan-qty <> v-rel-qty  THEN  
         v-scan-qty:BGCOLOR =  12 .
     ELSE v-scan-qty:BGCOLOR =  10 .
@@ -2875,6 +2902,38 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE restoreSavedRecs B-table-Win 
+PROCEDURE restoreSavedRecs :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+/* RUN addon\bol\relfileselect.w (INPUT "relbol*", OUTPUT cTmpSaveFile). */
+/*  DEF VAR cTmpSaveFile AS CHAR NO-UNDO.*/
+  DEF VAR lFileSelected AS LOG NO-UNDO.
+  SYSTEM-DIALOG GET-FILE cTmpSaveFile   
+    FILTERS "restore (relbol*)" "relbol*"
+    INITIAL-DIR ".\logs"
+    UPDATE lFileSelected
+    MUST-EXIST
+    TITLE "Select Restore File". 
+     
+IF lFileSelected THEN DO: 
+    INPUT STREAM sTmpSaveInfo FROM VALUE(cTmpSaveFile).
+    REPEAT:
+        CREATE tt-relbol. 
+        IMPORT STREAM sTmpSaveInfo tt-relbol EXCEPT tt-relbol.oerell-row . 
+         
+    END.
+    INPUT STREAM sTmpSaveInfo CLOSE.
+    
+    RUN dispatch ('open-query').
+END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE save-relbol B-table-Win 
 PROCEDURE save-relbol :
 /*------------------------------------------------------------------------------
@@ -3452,6 +3511,51 @@ FUNCTION get-bal RETURNS INTEGER
   END.
 
   RETURN li.    /* Function return value. */
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-job-pallet B-table-Win 
+FUNCTION get-job-pallet RETURNS INTEGER
+  ( /* parameter-definitions */ ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+  DEF VAR li AS INT NO-UNDO.
+  
+  IF AVAIL b-oe-ordl AND b-oe-ordl.job-no NE "" THEN
+  FOR EACH fg-bin NO-LOCK
+      WHERE fg-bin.company EQ cocode
+        AND fg-bin.job-no  EQ b-oe-ordl.job-no
+        AND fg-bin.job-no2 EQ b-oe-ordl.job-no2
+        AND fg-bin.i-no    EQ b-oe-ordl.i-no:
+      
+    li = TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) * fg-bin.case-count .
+    LEAVE .
+  END.
+
+  RETURN li.    /* Function return value. */
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION roundUp B-table-Win 
+FUNCTION roundUp RETURNS INTEGER
+  (  ipround as decimal ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+
+  IF ipround = truncate( ipround, 0 ) then
+    return integer( ipround ).
+   else
+    return integer( truncate( ipround, 0 ) + 1 ).
+
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
