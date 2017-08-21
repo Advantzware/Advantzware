@@ -825,7 +825,6 @@ PROCEDURE run-report :
     SESSION:SET-WAIT-STATE ("general").
 
     /*IF td-show-parm THEN RUN show-param.*/
-
     VIEW FRAME r-top.
     MAIN-LOOP:
     FOR EACH est NO-LOCK
@@ -872,6 +871,7 @@ PROCEDURE run-report :
               
         IF LAST-OF(probe.est-qty) THEN 
         DO:
+
         {custom/statusMsg.i " 'Processing Estimate#:  '  + eb.est-no  "}
 
             ASSIGN
@@ -905,7 +905,7 @@ PROCEDURE run-report :
                 OUTPUT  cNetProfitPct,
                 OUTPUT  cOrdNo
                 ).
-
+if cCust <> "" then do:
             DISPLAY cCust            FORMAT "x(8)" COLUMN-LABEL "Customer"
                 dEstDate           COLUMN-LABEL "date"
                 cOrdNo             COLUMN-LABEL "Ord#"
@@ -946,11 +946,11 @@ PROCEDURE run-report :
                 chWorkSheet:Range("R" + STRING(row-count)):VALUE = cNetProfitPct .
           
             row-count = row-count + 1 .
-   
+end.   
         END. 
     END.
 
-    chWorkSheet:Range ("A" + string(row-count) + "..S1020" ):delete     NO-ERROR.
+    chWorkSheet:ROWS(string(row-count) + ":1200"):EntireRow:Delete.
 
     /*OUTPUT STREAM st-excel CLOSE.*/
     /* RELEASE OBJECTS */

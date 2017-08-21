@@ -173,6 +173,7 @@ DEF BUFFER bf-est FOR est.
     DEFINE BUFFER probe-ref   FOR reftable.
     DEFINE BUFFER probe-fm    FOR reftable.
     ASSIGN 
+        gEstSummaryOnly = TRUE
         row-count = 6 .
 
     /**************************** Excel Initilization Starts *********************************/
@@ -287,14 +288,13 @@ DEF BUFFER bf-est FOR est.
         BY probe.est-qty
         BY probe.probe-date
         BY probe.probe-time:
-    
+
         {custom/statusMsg.i " 'Processing Estimate#:  '  + eb.est-no  "}
         FIND FIRST job-hdr NO-LOCK 
             WHERE job-hdr.company EQ cocode
             AND job-hdr.est-no EQ est.est-no NO-ERROR .
     
         IF NOT AVAILABLE job-hdr THEN DO:
-            
              NEXT MAIN-LOOP .
         END.
 
@@ -350,7 +350,7 @@ DEF BUFFER bf-est FOR est.
 
   /* {ce/msfcalc.i} */
 
-            DO TRANSACTION:
+            DO:
             {est/op-lock.i xest}
                 FIND bf-est WHERE RECID(bf-est) EQ RECID(xest).
                 FIND CURRENT recalc-mr.
@@ -400,7 +400,7 @@ DEF BUFFER bf-est FOR est.
                     ld-pct     = ld-pct - .05.
             END.
 
-            DO TRANSACTION:
+            DO:
                 FOR EACH est-op
                     WHERE est-op.company EQ xest.company 
                     AND est-op.est-no  EQ xest.est-no
@@ -630,8 +630,8 @@ DEF BUFFER bf-est FOR est.
                     xjob.pct      = blk.pct
                     xjob.stock-no = blk.stock-no.
             END.
-            
-            /* prep      */ RUN ce/com/pr4-prp.p.
+           
+            /* prep      */  RUN ce/com/pr4-prp.p. 
       
             /* machines */ RUN ce/com/pr4-mch.p.
     
@@ -640,20 +640,21 @@ DEF BUFFER bf-est FOR est.
                 op-tot[5] = op-tot[5] + (ctrl2[2] + ctrl2[3]).
             END.
    
-   
             /* mat */
+            MAT:
             DO i = 1 TO 6:
                 ctrl[9] = ce-ctrl.mat-pct[i] / 100.
-                IF ce-ctrl.mat-cost[i] > dm-tot[5]  THEN LEAVE.
+                IF ce-ctrl.mat-cost[i] > dm-tot[5]  THEN LEAVE MAT.
             END.
 
             /* lab */
+            LAB:
             DO i = 1 TO 6:
                 ctrl[10] = ce-ctrl.lab-pct[i] / 100.
-                IF ce-ctrl.lab-cost[i] > op-tot[5]  THEN LEAVE.
+                IF ce-ctrl.lab-cost[i] > op-tot[5]  THEN LEAVE LAB.
             END.
    
-            DO TRANSACTION:
+            DO:
                 {est/calcpcts.i xest}
                 ASSIGN
                     calcpcts.val[1] = ctrl[9] * 100
@@ -680,7 +681,6 @@ DEF BUFFER bf-est FOR est.
             ELSE
                 gsa-fm = ctrl[19].
 
-    
             ASSIGN
                 gsa-mat = probe.gsa-mat
                 gsa-lab = probe.gsa-lab 
@@ -694,7 +694,7 @@ DEF BUFFER bf-est FOR est.
                 AND probe-ref.code2    EQ STRING(probe.line,"9999999999")
                 NO-ERROR.
             IF AVAILABLE probe-ref THEN 
-            DO TRANSACTION:
+            DO:
                 FIND CURRENT calcpcts NO-ERROR.
                 calcpcts.val[1] = probe-ref.val[1] .
                 FIND CURRENT calcpcts NO-LOCK NO-ERROR.
@@ -715,7 +715,7 @@ DEF BUFFER bf-est FOR est.
                 ctrl[10] = gsa-lab / 100 
                 ctrl[1]  = gsa-war / 100
                 ctrl[19] = gsa-fm / 100.
-            RUN ce/com/pr4-tots.p.
+        /*    RUN ce/com/pr4-tots.p. */
             
             FIND FIRST item NO-LOCK
                 WHERE ITEM.company EQ eb.company
@@ -726,7 +726,6 @@ DEF BUFFER bf-est FOR est.
             IF ctrl2[10] EQ ? THEN ctrl2[10] = 0.
             IF v-tons EQ ? THEN v-tons = 0 .
 
-  
             /*
                 DISPLAY eb.cust-no            FORMAT "x(8)" COLUMN-LABEL "Customer"
                         est.est-date           COLUMN-LABEL "date"
@@ -769,7 +768,7 @@ DEF BUFFER bf-est FOR est.
                    chWorkSheet:Range("P" + STRING(row-count)):VALUE = probe.sell-price * (probe.net-profit / 100) * qm .
                    chWorkSheet:Range("Q" + STRING(row-count)):VALUE = string(probe.net-profit,"->>9.99%") .
               */     
-            
+
             ASSIGN
                 opcCust         = eb.cust-no 
                 opdEstDate      = est.est-date 
