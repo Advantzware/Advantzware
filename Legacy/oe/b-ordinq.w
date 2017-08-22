@@ -1089,16 +1089,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
+/*
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
 ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
 DO:
-  IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
+  /*IF LASTKEY <> 32 THEN */{&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1. /* added by script _caps.p */
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+*/
+
 
 
 &Scoped-define SELF-NAME fi_job-no
@@ -1156,7 +1159,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
+/*
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_part-no B-table-Win
 ON VALUE-CHANGED OF fi_part-no IN FRAME F-Main
 DO:
@@ -1178,6 +1181,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+*/
 
 
 &Scoped-define SELF-NAME fi_sman
