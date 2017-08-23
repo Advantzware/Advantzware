@@ -3,11 +3,12 @@
 FIND FIRST cust NO-LOCK
      WHERE cust.company EQ cocode
        AND cust.cust-no EQ tt-word-print.cust-no NO-ERROR .
- IF AVAIL cust THEN
+ IF AVAIL cust THEN DO:
      ASSIGN
        cEmail = cust.email .
        cPhone = string(cust.area-code,"(xxx)") +  string(cust.phone,"xxx-xxxx") .
        cFax   = STRING(SUBSTR(cust.fax,1,3),"(xxx)") + "-" + STRING(SUBSTR(cust.fax,4),"xxx-xxxx")   .
+ END.
      FIND FIRST company NO-LOCK
           WHERE company.company  = cocode  NO-ERROR. 
 

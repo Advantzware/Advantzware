@@ -3813,7 +3813,7 @@ PROCEDURE create-w-ord :
             w-ord.vendor       = company.name
             w-ord.tare-wt      = 10
             w-ord.uom          = "EA"
-            w-ord.mult         = if cust.int-field[1] ne 0 AND NOT glOverrideMult then
+            w-ord.mult         = IF AVAIL cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult then
                                    cust.int-field[1] else v-mult
             w-ord.dont-run-set = IF AVAIL oe-ordl THEN oe-ordl.is-a-component ELSE NO
             w-ord.ord-desc1    = IF AVAIL oe-ordl THEN oe-ordl.part-dscr1 ELSE ""
@@ -3931,7 +3931,7 @@ PROCEDURE create-w-ord :
             w-ord.job-no       = job-hdr.job-no
             w-ord.job-no2      = job-hdr.job-no2
             w-ord.cust-no      = cust.cust-no
-            w-ord.cust-name    = cust.name
+            w-ord.cust-name    = IF AVAIL cust THEN cust.NAME ELSE ""
             w-ord.i-no         = loadtag.i-no
             w-ord.ord-qty      = job-hdr.qty
             w-ord.due-date     = job.start-date
@@ -3940,7 +3940,7 @@ PROCEDURE create-w-ord :
             w-ord.vendor       = company.name
             w-ord.tare-wt      = 10
             w-ord.uom          = "EA"
-            w-ord.mult         = if cust.int-field[1] ne 0 AND NOT glOverrideMult THEN
+            w-ord.mult         = IF AVAIL cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult THEN
                                    cust.int-field[1] else v-mult
             w-ord.lot          = loadtag.misc-char[2].
 
@@ -4803,7 +4803,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
             w-ord.vendor       = company.name
             w-ord.tare-wt      = 10
             w-ord.uom          = "EA"
-            w-ord.mult         = if cust.int-field[1] ne 0 AND NOT glOverrideMult then
+            w-ord.mult         = IF AVAILABLE cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult then
                                    cust.int-field[1] else v-mult
             w-ord.dont-run-set = oe-ordl.is-a-component
             w-ord.ord-desc1    = oe-ordl.part-dscr1
@@ -5039,7 +5039,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
           w-ord.vendor       = company.name
           w-ord.tare-wt      = 10
           w-ord.uom          = "EA"
-          w-ord.mult         = if cust.int-field[1] ne 0 AND NOT glOverrideMult then
+          w-ord.mult         = IF AVAIL cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult then
                                  cust.int-field[1] else v-mult
           w-ord.dont-run-set = oe-ordl.is-a-component
           w-ord.ord-desc1    = oe-ordl.part-dscr1
