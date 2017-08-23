@@ -54,7 +54,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
   ELSE
     ASSIGN
      ld-metric = 1
-     lv-format = ">>>>>9.9<<<<".
+     lv-format = ">>>>>9.99<<<".
   END.
 
   /*IF numfit LT 5 THEN numfit = 5 + INT(ll-prt-dscr2).*/
