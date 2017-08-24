@@ -16,9 +16,7 @@ for each itemfg
      AND itemfg.CLASS      GE v-class[1]
      AND itemfg.CLASS      LE v-class[2]
      AND itemfg.spare-char-1 GE v-group[1]
-     AND itemfg.spare-char-1 LE v-group[2]
-     AND itemfg.loc          GE begin_whse
-     AND itemfg.loc          LE end_whse
+     AND itemfg.spare-char-1 LE v-group[2]     
      AND (itemfg.stat EQ "A" OR tb_inactive)
 
      and ((itemfg.ord-policy     and v-lot-reo eq "R") or
@@ -85,9 +83,9 @@ for each itemfg
             AND sman.sman = cust.sman NO-LOCK NO-ERROR.
         IF AVAIL sman THEN v-sales-rep = sman.sname.
    END.
-
+   ASSIGN cItemLoc = "" .
     IF v-custown = NO THEN
-       FOR EACH fg-bin FIELDS(qty)
+       FOR EACH fg-bin FIELDS(qty loc)
            WHERE fg-bin.company EQ itemfg.company
              AND fg-bin.i-no    EQ itemfg.i-no
              AND fg-bin.loc     GE begin_whse
@@ -96,10 +94,11 @@ for each itemfg
              NO-LOCK:
          ASSIGN
             v-qty-onh = v-qty-onh + fg-bin.qty
-            v-whse-bin-found = YES.
+            v-whse-bin-found = YES
+            cItemLoc = fg-bin.loc .
        END.
     ELSE
-       FOR EACH fg-bin FIELDS(qty)
+       FOR EACH fg-bin FIELDS(qty loc)
            WHERE fg-bin.company EQ itemfg.company
              AND fg-bin.i-no    EQ itemfg.i-no
              AND fg-bin.loc     GE begin_whse
@@ -107,7 +106,8 @@ for each itemfg
              NO-LOCK:
          ASSIGN
             v-qty-onh = v-qty-onh + fg-bin.qty
-            v-whse-bin-found = YES.
+            v-whse-bin-found = YES
+            cItemLoc = fg-bin.loc .
        END.
 
     IF v-whse-bin-found = NO AND
@@ -349,7 +349,7 @@ for each itemfg
                               ASSIGN cVarValue = STRING(v-reord-qty - li-avg-hist,"->,>>>,>>9")  
                                  cExcelVarValue = "".
                           END.
-                           WHEN "whse" THEN ASSIGN cVarValue = STRING(itemfg.loc,"x(5)") 
+                           WHEN "whse" THEN ASSIGN cVarValue = STRING(cItemLoc,"x(5)") 
                               cExcelVarValue = "".
                           WHEN "li-hist" THEN 
                               ASSIGN cVarValue = STRING(li-hist[1],"->>>>>9") + " "  + STRING(li-hist[2],"->>>>>9") + " "  + STRING(li-hist[3],"->>>>>9") + " "  +
@@ -379,441 +379,15 @@ for each itemfg
               END.
            END.
            PUT UNFORMATTED cDisplay SKIP.
-           
-           /*DISPLAY itemfg.i-no
-                   itemfg.i-name         FORMAT "x(20)"
-                   itemfg.procat
-                   itemfg.sell-uom
-                   itemfg.ord-level      FORMAT "->>>>>9"
-                   v-qty-onh             FORMAT "->>>>>9"
-                   v-alloc-qty           FORMAT "->>>>>9"
-                   itemfg.q-ono          FORMAT "->>>>>9"
-                   itemfg.ord-min        FORMAT ">>>>>>>9"
-                   v-qty-avail           FORMAT "->>>>>>9"
-                   itemfg.vend-item      FORMAT "x(15)"
-                   v-reord-qty
-                   li-hist
-                 WITH FRAME itemhist NO-BOX DOWN STREAM-IO NO-LABELS WIDTH 180.
-           DOWN WITH FRAME itemhist.
-           */
 
            IF tb_dash THEN PUT FILL("-",300) FORMAT "x(300)" SKIP.
            
            IF tb_excel THEN 
-             /*EXPORT STREAM excel DELIMITER ","
-               itemfg.i-no itemfg.i-name itemfg.procat itemfg.sell-uom
-               itemfg.ord-level v-qty-onh v-alloc-qty itemfg.q-ono 
-               itemfg.ord-min v-qty-avail itemfg.vend-item v-reord-qty li-hist
-               itemfg.cust-no v-sales-rep itemfg.total-std-cost itemfg.prod-uom*/
              PUT STREAM excel UNFORMATTED  
                cExcelDisplay SKIP.
        END.
        ELSE DO:                 
-          /*
-           if v-prt-cpn then
-               if v-prt-qty then
-                   if v-prt-prc eq "P" then do:           
-                       display itemfg.i-no           column-label "ITEM #"
-                               itemfg.part-no        format "x(15)"
-                                                     column-label "CUST PART #"
-                               itemfg.i-name         format "x(20)"
-                                                     column-label "DESCRIPTION"
-                               itemfg.procat         column-label "PROD!CAT"
-                               itemfg.sell-uom       column-label "UOM"
-                               itemfg.ord-level      format "->>>>>9"
-                                                     column-label "REORDER!LEVEL"
-                               v-qty-onh             format "->>>>>9"
-                                                     column-label "QTY!ON HAND"
-                               v-alloc-qty           format "->>>>>9"
-                                                     column-label "QTY!ALLOC"
-                               itemfg.q-ono          format "->>>>>9"    
-                                                     column-label "QTY!ON ORD"
-                               itemfg.ord-min        format ">>>>>>>9"
-                                                     column-label "MINIMUM!ORDER"
-                               v-qty-avail           format "->>>>>>9"
-                                                     column-label "QTY!AVAIL"
-                               itemfg.sell-price     column-label "SELLING PRICE"
-                               v-reord-qty           column-label "SUGGESTED!REORDER"
-                          with frame itemx100 no-box down stream-io width 150.
-                       down with frame itemx100.
-                       
-                       IF tb_excel THEN 
-                         EXPORT STREAM excel DELIMITER ","
-                           itemfg.i-no itemfg.part-no  itemfg.i-name 
-                           itemfg.procat itemfg.sell-uom itemfg.ord-level
-                           v-qty-onh v-alloc-qty itemfg.q-ono itemfg.ord-min
-                           v-qty-avail itemfg.sell-price v-reord-qty
-                           itemfg.cust-no v-sales-rep itemfg.total-std-cost itemfg.prod-uom.
-                   end.
-                   else
-                     if v-prt-prc eq "V" then do:
-                       display itemfg.i-no           column-label "ITEM #"
-                               itemfg.part-no        format "x(15)"
-                                                     column-label "CUST PART #"
-                               itemfg.i-name         format "x(20)"
-                                                     column-label "DESCRIPTION"
-                               itemfg.procat         column-label "PROD!CAT"
-                               itemfg.sell-uom       column-label "UOM"
-                               itemfg.ord-level      format "->>>>>9"
-                                                     column-label "REORDER!LEVEL"
-                               v-qty-onh             format "->>>>>9"
-                                                     column-label "QTY!ON HAND"
-                               v-alloc-qty           format "->>>>>9"
-                                                     column-label "QTY!ALLOC"
-                               itemfg.q-ono          format "->>>>>9"    
-                                                     column-label "QTY!ON ORD"
-                               itemfg.ord-min        format ">>>>>>>9" 
-                                                     column-label "MINIMUM!ORDER"
-                               v-qty-avail           format "->>>>>>9"
-                                                     column-label "QTY!AVAIL"
-                               itemfg.vend-item      FORMAT "x(15)"
-                                                     column-label "VENDOR!ITEM NUMBER"
-                               v-reord-qty           column-label "SUGGESTED!REORDER"
-                           with frame itemx200 no-box down stream-io width 150.
-                       down with frame itemx200.
-
-                       IF tb_excel THEN 
-                         EXPORT STREAM excel DELIMITER ","
-                           itemfg.i-no itemfg.part-no  itemfg.i-name 
-                           itemfg.procat itemfg.sell-uom itemfg.ord-level
-                           v-qty-onh v-alloc-qty itemfg.q-ono itemfg.ord-min
-                           v-qty-avail itemfg.vend-item v-reord-qty
-                           itemfg.cust-no v-sales-rep itemfg.total-std-cost itemfg.prod-uom.
-
-                     end.
-                   else do:
-                       display itemfg.i-no           column-label "ITEM #"
-                               itemfg.part-no        format "x(15)"
-                                                     column-label "CUST PART #"
-                               itemfg.i-name         format "x(20)"
-                                                     column-label "DESCRIPTION"
-                               itemfg.procat         column-label "PROD!CAT"
-                               itemfg.sell-uom       column-label "UOM"
-                               itemfg.ord-level      format "->>>>>9"
-                                                     column-label "REORDER!LEVEL"
-                               v-qty-onh             format "->>>>>9"
-                                                     column-label "QTY!ON HAND"
-                               v-alloc-qty           format "->>>>>9"
-                                                     column-label "QTY!ALLOC"
-                               itemfg.q-ono          format "->>>>>9"    
-                                                     column-label "QTY!ON ORD"
-                               itemfg.ord-min        format ">>>>>>>9" 
-                                                     column-label "MINIMUM!ORDER"
-                               v-qty-avail           format "->>>>>>9"
-                                                     column-label "QTY!AVAIL"
-                               itemfg.ord-max        format ">>>>>>>9"
-                                                     column-label "MAXIMUM!ORDER"
-                               v-reord-qty           column-label "SUGGESTED!REORDER"
-                           with frame itemx250 no-box down stream-io width 150.
-                       down with frame itemx250.
-
-                       IF tb_excel THEN 
-                         EXPORT STREAM excel DELIMITER ","
-                           itemfg.i-no itemfg.part-no itemfg.i-name
-                           itemfg.procat itemfg.sell-uom itemfg.ord-level
-                           v-qty-onh v-alloc-qty itemfg.q-ono itemfg.ord-min
-                           v-qty-avail itemfg.ord-max v-reord-qty
-                           itemfg.cust-no v-sales-rep itemfg.total-std-cost itemfg.prod-uom.
-                   end.
-               else
-                 if v-prt-prc eq "P" then do:
-                     display itemfg.i-no           column-label "ITEM #"
-                             itemfg.part-no        format "x(15)"
-                                                   column-label "CUST PART #"
-                             itemfg.i-name         format "x(20)"
-                                                   column-label "DESCRIPTION"
-                             itemfg.procat         column-label "PROD!CAT"
-                             itemfg.sell-uom       column-label "UOM"
-                             itemfg.ord-level      format "->>>>>9"
-                                                   column-label "REORDER!LEVEL"
-                             v-qty-onh             format "->>>>>9"
-                                                   column-label "QTY!ON HAND"
-                             v-alloc-qty           format "->>>>>9"
-                                                   column-label "QTY!ALLOC"
-                             itemfg.q-ono          format "->>>>>9"    
-                                                   column-label "QTY!ON ORD"
-                             itemfg.ord-min        format ">>>>>>>9" 
-                                                   column-label "MINIMUM!ORDER"
-                             itemfg.vend-no        format "x(12)"
-                                                   column-label "!VENDOR"
-                             itemfg.sell-price     column-label "SELLING PRICE"
-                             v-reord-qty           column-label "SUGGESTED!REORDER"
-                         with frame itemx300 no-box down stream-io width 150.
-                     down with frame itemx300.
-
-                     IF tb_excel THEN 
-                         EXPORT STREAM excel DELIMITER ","
-                           itemfg.i-no itemfg.part-no itemfg.i-name 
-                           itemfg.procat itemfg.sell-uom itemfg.ord-level
-                           v-qty-onh v-alloc-qty itemfg.q-ono itemfg.ord-min
-                           itemfg.vend-no itemfg.sell-price v-reord-qty
-                           itemfg.cust-no v-sales-rep itemfg.total-std-cost itemfg.prod-uom.
-                 end.
-               else
-                 if v-prt-prc eq "V" then do:
-                     display itemfg.i-no           column-label "ITEM #"
-                             itemfg.part-no        format "x(15)"
-                                                   column-label "CUST PART #"
-                             itemfg.i-name         format "x(20)"
-                                                   column-label "DESCRIPTION"
-                             itemfg.procat         column-label "PROD!CAT"
-                             itemfg.sell-uom       column-label "UOM"
-                             itemfg.ord-level      format "->>>>>9"
-                                                   column-label "REORDER!LEVEL"
-                             v-qty-onh             format "->>>>>9"
-                                                   column-label "QTY!ON HAND"
-                             v-alloc-qty           format "->>>>>9"
-                                                   column-label "QTY!ALLOC"
-                             itemfg.q-ono          format "->>>>>9"    
-                                                   column-label "QTY!ON ORD"
-                             itemfg.ord-min        format ">>>>>>>9" 
-                                                   column-label "MINIMUM!ORDER"
-                             itemfg.vend-no        format "x(10)"
-                                                   column-label "!VENDOR"
-                             itemfg.vend-item      format "x(15)"
-                                                   column-label "VENDOR!ITEM NUMBER"
-                             v-reord-qty           column-label "SUGGESTED!REORDER"
-                         with frame itemx400 no-box down stream-io width 150.
-                     down with frame itemx400.
-
-                     IF tb_excel THEN 
-                         EXPORT STREAM excel DELIMITER ","
-                           itemfg.i-no itemfg.part-no itemfg.i-name
-                           itemfg.procat itemfg.sell-uom itemfg.ord-level
-                           v-qty-onh v-alloc-qty itemfg.q-ono itemfg.ord-min
-                           itemfg.vend-no itemfg.vend-item v-reord-qty
-                           itemfg.cust-no v-sales-rep itemfg.total-std-cost itemfg.prod-uom.
-                 end.
-                 else do:
-                     display itemfg.i-no           column-label "ITEM #"
-                             itemfg.part-no        format "x(15)"
-                                                   column-label "CUST PART #"
-                             itemfg.i-name         format "x(20)"
-                                                   column-label "DESCRIPTION"
-                             itemfg.procat         column-label "PROD!CAT"
-                             itemfg.sell-uom       column-label "UOM"
-                             itemfg.ord-level      format "->>>>>9"
-                                                   column-label "REORDER!LEVEL"
-                             v-qty-onh             format "->>>>>9"
-                                                   column-label "QTY!ON HAND"
-                             v-alloc-qty           format "->>>>>9"
-                                                   column-label "QTY!ALLOC"
-                             itemfg.q-ono          format "->>>>>9"    
-                                                   column-label "QTY!ON ORD"
-                             itemfg.ord-min        format ">>>>>>>9" 
-                                                   column-label "MINIMUM!ORDER"
-                             itemfg.vend-no        format "x(12)"
-                                                   column-label "!VENDOR"
-                             itemfg.ord-max        format ">>>>>>>9"
-                                                   column-label "MAXIMUM!ORDER"
-                             v-reord-qty           column-label "SUGGESTED!REORDER"
-                         with frame itemx450 no-box down stream-io width 150.
-                     down with frame itemx450.
-
-                     IF tb_excel THEN 
-                         EXPORT STREAM excel DELIMITER ","
-                           itemfg.i-no itemfg.part-no itemfg.i-name
-                           itemfg.procat itemfg.sell-uom itemfg.ord-level
-                           v-qty-onh v-alloc-qty itemfg.q-ono itemfg.ord-min
-                           itemfg.vend-no itemfg.ord-max v-reord-qty
-                           itemfg.cust-no v-sales-rep itemfg.total-std-cost itemfg.prod-uom.
-                 end.
-           else
-             if v-prt-qty then
-               if v-prt-prc eq "P" then do:
-                   display itemfg.i-no           column-label "ITEM #"
-                           itemfg.i-name         format "x(20)"
-                                                 column-label "DESCRIPTION"
-                           itemfg.procat         column-label "PROD!CAT"
-                           itemfg.sell-uom       column-label "UOM"
-                           itemfg.ord-level      format "->>>>>9"
-                                                 column-label "REORDER!LEVEL"
-                           v-qty-onh             format "->>>>>9"
-                                                 column-label "QTY!ON HAND"
-                           v-alloc-qty           format "->>>>>9"
-                                                 column-label "QTY!ALLOC"
-                           itemfg.q-ono          format "->>>>>9"    
-                                                 column-label "QTY!ON ORD"
-                           itemfg.ord-min        format ">>>>>>>9" 
-                                                 column-label "MINIMUM!ORDER"
-                           v-qty-avail           format "->>>>>>9"
-                                                 column-label "QTY!AVAIL"
-                           itemfg.sell-price     column-label "SELLING PRICE"
-                           v-reord-qty           column-label "SUGGESTED!REORDER"
-                       with frame itemx500 no-box down stream-io width 150.
-                   down with frame itemx500.
-
-                   IF tb_excel THEN 
-                     EXPORT STREAM excel DELIMITER ","
-                       itemfg.i-no itemfg.i-name itemfg.procat
-                       itemfg.sell-uom itemfg.ord-level v-qty-onh
-                       v-alloc-qty itemfg.q-ono itemfg.ord-min v-qty-avail
-                       itemfg.sell-price v-reord-qty
-                       itemfg.cust-no v-sales-rep itemfg.total-std-cost itemfg.prod-uom.
-               end.
-               else
-                 if v-prt-prc eq "V" then do:
-                     display itemfg.i-no           column-label "ITEM #"
-                             itemfg.i-name         format "x(20)"
-                                                   column-label "DESCRIPTION"
-                             itemfg.procat         column-label "PROD!CAT"
-                             itemfg.sell-uom       column-label "UOM"
-                             itemfg.ord-level      format "->>>>>9"
-                                                   column-label "REORDER!LEVEL"
-                             v-qty-onh             format "->>>>>9"
-                                                   column-label "QTY!ON HAND"
-                             v-alloc-qty           format "->>>>>9"
-                                                   column-label "QTY!ALLOC"
-                             itemfg.q-ono          format "->>>>>9"    
-                                                   column-label "QTY!ON ORD"
-                             itemfg.ord-min        format ">>>>>>>9" 
-                                                   column-label "MINIMUM!ORDER"
-                             v-qty-avail           format "->>>>>>9"
-                                                   column-label "QTY!AVAIL"
-                             itemfg.vend-item      FORMAT "x(15)"
-                                                   column-label "VENDOR!ITEM NUMBER"
-                             v-reord-qty           column-label "SUGGESTED!REORDER"
-                         with frame itemx600 no-box down stream-io width 150.
-                     down with frame itemx600.
-
-                     IF tb_excel THEN 
-                       EXPORT STREAM excel DELIMITER ","
-                         itemfg.i-no itemfg.i-name itemfg.procat itemfg.sell-uom
-                         itemfg.ord-level v-qty-onh v-alloc-qty itemfg.q-ono
-                         itemfg.ord-min v-qty-avail itemfg.vend-item v-reord-qty
-                         itemfg.cust-no v-sales-rep itemfg.total-std-cost itemfg.prod-uom.
-                 end.
-                 else do:
-                     display itemfg.i-no           column-label "ITEM #"
-                             itemfg.i-name         format "x(20)"
-                                                   column-label "DESCRIPTION"
-                             itemfg.procat         column-label "PROD!CAT"
-                             itemfg.sell-uom       column-label "UOM"
-                             itemfg.ord-level      format "->>>>>9"
-                                                   column-label "REORDER!LEVEL"
-                             v-qty-onh             format "->>>>>9"
-                                                   column-label "QTY!ON HAND"
-                             v-alloc-qty           format "->>>>>9"
-                                                   column-label "QTY!ALLOC"
-                             itemfg.q-ono          format "->>>>>9"    
-                                                   column-label "QTY!ON ORD"
-                             itemfg.ord-min        format ">>>>>>>9" 
-                                                   column-label "MINIMUM!ORDER"
-                             v-qty-avail           format "->>>>>>9"
-                                                   column-label "QTY!AVAIL"
-                             itemfg.ord-max        format ">>>>>>>9"
-                                                   column-label "MAXIMUM!ORDER"
-                             v-reord-qty           column-label "SUGGESTED!REORDER"
-                         with frame itemx650 no-box down stream-io width 150.
-                     down with frame itemx650.
-
-                     IF tb_excel THEN 
-                       EXPORT STREAM excel DELIMITER ","
-                         itemfg.i-no itemfg.i-name itemfg.procat itemfg.sell-uom
-                         itemfg.ord-level v-qty-onh v-alloc-qty itemfg.q-ono
-                         itemfg.ord-min v-qty-avail itemfg.ord-max v-reord-qty
-                         itemfg.cust-no v-sales-rep itemfg.total-std-cost itemfg.prod-uom.
-                 end.
-             else
-               if v-prt-prc eq "P" then DO:
-                   display itemfg.i-no           column-label "ITEM #"
-                           itemfg.i-name         format "x(20)"
-                                                 column-label "DESCRIPTION"
-                           itemfg.procat         column-label "PROD!CAT"
-                           itemfg.sell-uom       column-label "UOM"
-                           itemfg.ord-level      format "->>>>>9"
-                                                 column-label "REORDER!LEVEL"
-                           v-qty-onh             format "->>>>>9"
-                                                 column-label "QTY!ON HAND"
-                           v-alloc-qty           format "->>>>>9"
-                                                 column-label "QTY!ALLOC"
-                           itemfg.q-ono          format "->>>>>9"    
-                                                 column-label "QTY!ON ORD"
-                           itemfg.ord-min        format ">>>>>>>9" 
-                                                 column-label "MINIMUM!ORDER"
-                           itemfg.vend-no        format "x(12)"
-                                                 column-label "!VENDOR"
-                           itemfg.sell-price     column-label "SELLING PRICE"
-                           v-reord-qty           column-label "SUGGESTED!REORDER"
-                       with frame itemx700 no-box down stream-io width 150.
-                   down with frame itemx700.
-
-                   IF tb_excel THEN 
-                     EXPORT STREAM excel DELIMITER ","
-                       itemfg.i-no itemfg.i-name itemfg.procat itemfg.sell-uom
-                       itemfg.ord-level v-qty-onh v-alloc-qty itemfg.q-ono
-                       itemfg.ord-min itemfg.vend-no 
-                       itemfg.sell-price v-reord-qty
-                       itemfg.cust-no v-sales-rep itemfg.total-std-cost itemfg.prod-uom.
-               end.
-               else
-                 if v-prt-prc eq "V" then do:
-                     display itemfg.i-no           column-label "ITEM #"
-                             itemfg.i-name         format "x(20)"
-                                                   column-label "DESCRIPTION"
-                             itemfg.procat         column-label "PROD!CAT"
-                             itemfg.sell-uom       column-label "UOM"
-                             itemfg.ord-level      format "->>>>>9"
-                                                   column-label "REORDER!LEVEL"
-                             v-qty-onh             format "->>>>>9"
-                                                   column-label "QTY!ON HAND"
-                             v-alloc-qty           format "->>>>>9"
-                                                   column-label "QTY!ALLOC"
-                             itemfg.q-ono          format "->>>>>9"    
-                                                   column-label "QTY!ON ORD"
-                             itemfg.ord-min        format ">>>>>>>9" 
-                                                   column-label "MINIMUM!ORDER"
-                             itemfg.vend-no        format "x(10)"
-                                                   column-label "!VENDOR"
-                             itemfg.vend-item      FORMAT "x(15)"
-                                                   column-label "VENDOR!ITEM NUMBER"
-                             v-reord-qty           column-label "SUGGESTED!REORDER"
-                         with frame itemx800 no-box down stream-io width 150.
-                     down with frame itemx800.
-
-                   IF tb_excel THEN 
-                     EXPORT STREAM excel DELIMITER ","
-                       itemfg.i-no itemfg.i-name itemfg.procat itemfg.sell-uom
-                       itemfg.ord-level v-qty-onh v-alloc-qty itemfg.q-ono
-                       itemfg.ord-min itemfg.vend-no 
-                       itemfg.vend-item v-reord-qty
-                       itemfg.cust-no v-sales-rep itemfg.total-std-cost itemfg.prod-uom.
-
-                 end.
-                 else do:
-                     display itemfg.i-no           column-label "ITEM #"
-                             itemfg.i-name         format "x(20)"
-                                                   column-label "DESCRIPTION"
-                             itemfg.procat         column-label "PROD!CAT"
-                             itemfg.sell-uom       column-label "UOM"
-                             itemfg.ord-level      format "->>>>>9"
-                                                   column-label "REORDER!LEVEL"
-                             v-qty-onh             format "->>>>>9"
-                                                   column-label "QTY!ON HAND"
-                             v-alloc-qty           format "->>>>>9"
-                                                   column-label "QTY!ALLOC"
-                             itemfg.q-ono          format "->>>>>9"    
-                                                   column-label "QTY!ON ORD"
-                             itemfg.ord-min        format ">>>>>>>9" 
-                                                   column-label "MINIMUM!ORDER"
-                             itemfg.vend-no        format "x(12)"
-                                                   column-label "!VENDOR"
-                             itemfg.ord-max        format ">>>>>>>9"
-                                                   column-label "MAXIMUM!ORDER"
-                             v-reord-qty           column-label "SUGGESTED!REORDER"
-                         with frame itemx850 no-box down stream-io width 150.
-                     down with frame itemx850.
-
-                     IF tb_excel THEN 
-                       EXPORT STREAM excel DELIMITER ","
-                         itemfg.i-no itemfg.i-name itemfg.procat itemfg.sell-uom
-                         itemfg.ord-level v-qty-onh v-alloc-qty itemfg.q-ono
-                         itemfg.ord-min itemfg.vend-no 
-                         itemfg.ord-max v-reord-qty
-                         itemfg.cust-no v-sales-rep itemfg.total-std-cost itemfg.prod-uom.
-                 end.
-               */
-           
+          
             cDisplay = "".
             cTmpField = "".
             cExcelDisplay = "".
@@ -864,7 +438,7 @@ for each itemfg
                                  ASSIGN cVarValue = STRING(v-reord-qty - li-avg-hist,"->,>>>,>>9") 
                                     cExcelVarValue = "".
                           END.
-                           WHEN "whse" THEN ASSIGN cVarValue = STRING(itemfg.loc,"x(5)") 
+                           WHEN "whse" THEN ASSIGN cVarValue = STRING(cItemLoc,"x(5)") 
                               cExcelVarValue = "".
                           WHEN "li-hist" THEN 
                                ASSIGN cVarValue = STRING(li-hist[1],"->>>>>9") + " "  + STRING(li-hist[2],"->>>>>9") + " "  + STRING(li-hist[3],"->>>>>9") + " "  +
@@ -879,62 +453,11 @@ for each itemfg
                 END.                
             END.          
             PUT UNFORMATTED     cDisplay SKIP.
-           /*
-                    IF {sys/inc/rptDisp.i "itemfg.i-no"} THEN PUT itemfg.i-no cSpace.
-                    IF {sys/inc/rptDisp.i "itemfg.part-no"} THEN PUT itemfg.part-no FORM "x(15)" cSpace.
-                   IF {sys/inc/rptDisp.i "itemfg.i-name"} THEN PUT itemfg.i-name FORM "x(20)" cSpace.
-                   IF {sys/inc/rptDisp.i "itemfg.procat"} THEN PUT itemfg.procat FORM "x(8)" cSpace.
-                   IF {sys/inc/rptDisp.i "itemfg.sell-uom"} THEN PUT itemfg.sell-uom cSpace.
-                   IF {sys/inc/rptDisp.i "itemfg.vend-no"} THEN PUT itemfg.vend-no FORM "X(12)" cSpace.
-                   IF {sys/inc/rptDisp.i "itemfg.ord-level"} THEN PUT itemfg.ord-level FORMAT "->>>>,>>>,>>9" cSpace.
-                   IF {sys/inc/rptDisp.i "v-qty-onh"} THEN PUT v-qty-onh FORMAT "->>,>>>,>>9" cSpace.
-                   IF {sys/inc/rptDisp.i "v-alloc-qty"} THEN PUT v-alloc-qty FORMAT "->>>>,>>9" cSpace.
-                   IF {sys/inc/rptDisp.i "itemfg.q-ono"} THEN PUT itemfg.q-ono FORMAT "->>>,>>>,>>9" cSpace.
-                   IF {sys/inc/rptDisp.i "itemfg.ord-min"} THEN PUT itemfg.ord-min FORMAT "->>>>,>>9" cSpace.
-                   IF {sys/inc/rptDisp.i "v-qty-avail"} THEN PUT v-qty-avail FORMAT "->>>>,>>9" cSpace.
-                   IF {sys/inc/rptDisp.i "itemfg.ord-max"} THEN PUT itemfg.ord-max FORMAT "->>>>,>>9" cSpace.
-                   IF {sys/inc/rptDisp.i "itemfg.vend-item"} THEN PUT itemfg.vend-item FORM "x(15)" cSpace.
-                   IF {sys/inc/rptDisp.i "v-reord-qty"} THEN PUT v-reord-qty FORMAT "->>>>>>>>,>>>,>>9" cSpace.
-                   IF {sys/inc/rptDisp.i "li-hist"} THEN PUT li-hist.
-                   PUT SKIP.
-              */     
-                   /*
-             display itemfg.i-no           column-label "ITEM #"
-                             itemfg.i-name         format "x(20)"
-                                                   column-label "DESCRIPTION"
-                             itemfg.procat         column-label "PROD!CAT"
-                             itemfg.sell-uom       column-label "UOM"
-                             itemfg.ord-level      format "->>>>>9"
-                                                   column-label "REORDER!LEVEL"
-                             v-qty-onh             format "->>>>>9"
-                                                   column-label "QTY!ON HAND"
-                             v-alloc-qty           format "->>>>>9"
-                                                   column-label "QTY!ALLOC"
-                             itemfg.q-ono          format "->>>>>9"    
-                                                   column-label "QTY!ON ORD"
-                             itemfg.ord-min        format ">>>>>>>9" 
-                                                   column-label "MINIMUM!ORDER"
-                             itemfg.vend-no        format "x(12)"
-                                                   column-label "!VENDOR"
-                             itemfg.ord-max        format ">>>>>>>9"
-                                                   column-label "MAXIMUM!ORDER"
-                             v-reord-qty           column-label "SUGGESTED!REORDER"
-                         with frame itemx850 no-box down stream-io width 150.
-                     down with frame itemx850.
-                     */
+           
                      IF tb_excel THEN 
-                       /*EXPORT STREAM excel DELIMITER ","
-                         itemfg.i-no itemfg.i-name itemfg.procat itemfg.sell-uom
-                         itemfg.ord-level v-qty-onh v-alloc-qty itemfg.q-ono
-                         itemfg.ord-min itemfg.vend-no 
-                         itemfg.ord-max v-reord-qty
-                         itemfg.cust-no v-sales-rep itemfg.total-std-cost itemfg.prod-uom
-                         */
-                       PUT STREAM excel UNFORMATTED
+                         PUT STREAM excel UNFORMATTED
                          cExcelDisplay SKIP.
 
        IF tb_dash THEN PUT FILL("-",300) FORMAT "x(300)" SKIP.
-       
-
     END.
 end. /* each itemfg */
