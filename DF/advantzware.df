@@ -19212,6 +19212,89 @@ ADD INDEX "rec_key" ON "db-ctrl"
   DESCRIPTION "Secondary Index by rec_key"
   INDEX-FIELD "rec_key" ASCENDING 
 
+ADD TABLE "dep-table"
+  AREA "Schema Area"
+  DESCRIPTION "FIN:FXA:FA: Depreciation Table master"
+  DUMP-NAME "dep-tabl"
+
+ADD FIELD "method" OF "dep-table" AS character 
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Method"
+  POSITION 2
+  MAX-WIDTH 10
+  COLUMN-LABEL "Method"
+  HELP "Enter the Method code (method)"
+  ORDER 10
+
+ADD FIELD "Manual" OF "dep-table" AS logical 
+  FORMAT "yes/no"
+  INITIAL "no"
+  LABEL "Manual"
+  POSITION 3
+  MAX-WIDTH 1
+  COLUMN-LABEL "Manual"
+  HELP "Enter Yes to define fixed amount of depreciation per year (Manual)"
+  ORDER 40
+
+ADD FIELD "Depr" OF "dep-table" AS decimal 
+  FORMAT ">>,>>>,>>9.99"
+  INITIAL "0"
+  LABEL "Dep. for yr"
+  POSITION 4
+  MAX-WIDTH 1120
+  HELP "Enter the amount to depreciate for this year (Depr)"
+  EXTENT 40
+  DECIMALS 2
+  ORDER 50
+
+ADD FIELD "Auto-sl" OF "dep-table" AS logical 
+  FORMAT "Straight line/Declining"
+  INITIAL "no"
+  LABEL "Auto SL"
+  POSITION 5
+  MAX-WIDTH 1
+  COLUMN-LABEL "Auto SL"
+  HELP "Enter ""S"" for Straight Line method, ""D"" for Declining method. (Auto-sl)"
+  ORDER 60
+
+ADD FIELD "Ratio" OF "dep-table" AS decimal 
+  FORMAT "9.99"
+  INITIAL "1"
+  LABEL "Declining Balance Multiple"
+  POSITION 6
+  MAX-WIDTH 17
+  HELP "Enter the multiplier for depreciation. (Ratio)"
+  DECIMALS 2
+  ORDER 80
+  MANDATORY
+
+ADD FIELD "Conv" OF "dep-table" AS character 
+  FORMAT "x(3)"
+  INITIAL "PPF"
+  LABEL "Aqc.year/Disp.year/Month Conv."
+  POSITION 7
+  MAX-WIDTH 6
+  VALEXP "caps(substring(Conv,3,1)) eq ""P"" or caps(substr(conv,3,1)) = ""F"""
+  VALMSG "ERROR: Third position of Conv Code should be F or P"
+  HELP "Enter the Convention codes <F>ull, <H>alf, <P>ro-rate or <N>one (Conv)"
+  ORDER 90
+
+ADD FIELD "soyd" OF "dep-table" AS logical 
+  FORMAT "Yes/No"
+  INITIAL "no"
+  LABEL "SOYD Method"
+  POSITION 8
+  MAX-WIDTH 1
+  HELP "Enter ""yes"" for ""Sum-Of-The-Years'-Digits"" calculation method. (soyd)"
+  ORDER 100
+
+ADD INDEX "dep-table" ON "dep-table" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "method" ASCENDING 
+
 ADD TABLE "dept"
   AREA "Data"
   LABEL "Departments"
@@ -27416,7 +27499,6 @@ ADD INDEX "seq" ON "EDPOTran"
 
 ADD INDEX "AckDate" ON "EDPOTran" 
   AREA "Index"
-  INACTIVE
   INDEX-FIELD "ack-date" ASCENDING 
 
 ADD INDEX "rec_key" ON "EDPOTran" 
@@ -41477,6 +41559,105 @@ ADD INDEX "rec_key" ON "gl-jrnl"
   DESCRIPTION "Secondary Index by rec_key"
   INDEX-FIELD "rec_key" ASCENDING 
 
+ADD TABLE "gl-mast"
+  AREA "Schema Area"
+  DESCRIPTION "FIN:LDG:FA: General Ledger Group master File"
+  DUMP-NAME "gl-mast"
+
+ADD FIELD "GL-CODE" OF "gl-mast" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "GL Code"
+  POSITION 2
+  MAX-WIDTH 16
+  COLUMN-LABEL "GL Code"
+  HELP "Enter the G/L group code. (GL-CODE)"
+  ORDER 10
+
+ADD FIELD "acc-code" OF "gl-mast" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Acc. Depreciation Code"
+  POSITION 3
+  MAX-WIDTH 16
+  HELP "Enter the accumulated depreciation G/L code. (acc-code)"
+  ORDER 20
+
+ADD FIELD "exp-code" OF "gl-mast" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Expense Code"
+  POSITION 4
+  MAX-WIDTH 16
+  HELP "Enter the expense G/L code. (exp-code)"
+  ORDER 30
+
+ADD FIELD "GL-NAME" OF "gl-mast" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "G/L Desc"
+  POSITION 5
+  MAX-WIDTH 60
+  HELP "Enter the G/L account description. (GL-NAME)"
+  ORDER 40
+
+ADD FIELD "entity" OF "gl-mast" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Entity"
+  POSITION 6
+  MAX-WIDTH 180
+  HELP "Enter the entity code for the depreciation expense. (entity)"
+  EXTENT 10
+  ORDER 50
+
+ADD FIELD "distr" OF "gl-mast" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Distr"
+  POSITION 7
+  MAX-WIDTH 80
+  HELP "Enter the percentage of the depreciation expense to be posted. (distr)"
+  EXTENT 10
+  ORDER 60
+
+ADD FIELD "gl" OF "gl-mast" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "G/L Code"
+  POSITION 8
+  MAX-WIDTH 180
+  HELP " (gl)"
+  EXTENT 10
+  ORDER 70
+
+ADD FIELD "fa-entity" OF "gl-mast" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "FA Entity"
+  POSITION 9
+  MAX-WIDTH 16
+  COLUMN-LABEL "FA Entity"
+  HELP "Enter the entity code for the depreciation expense. (fa-entity)"
+  ORDER 80
+  MANDATORY
+
+ADD FIELD "fa-gl-code" OF "gl-mast" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "FA G/L Code"
+  POSITION 10
+  MAX-WIDTH 16
+  HELP "Enter the G/L Code for the Fixed Assets account. (fa-gl-code)"
+  ORDER 90
+
+ADD INDEX "gl-mast" ON "gl-mast" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "fa-entity" ASCENDING 
+  INDEX-FIELD "GL-CODE" ASCENDING 
+
 ADD TABLE "gl-rpt"
   AREA "Data"
   DESCRIPTION "General Ledger Report Writer File"
@@ -53486,6 +53667,15 @@ ADD FIELD "sbLiveUpdate" OF "job-mch" AS logical
   HELP "Toggle SB Live Update"
   ORDER 811
 
+ADD FIELD "est-op_rec_key" OF "job-mch" AS character 
+  FORMAT "X(20)"
+  INITIAL ""
+  LABEL "Est Op Record Key"
+  POSITION 74
+  MAX-WIDTH 40
+  HELP "Enter Est Op Record Key Value"
+  ORDER 830
+
 ADD INDEX "j-no" ON "job-mch" 
   AREA "Index"
   PRIMARY
@@ -53493,6 +53683,11 @@ ADD INDEX "j-no" ON "job-mch"
   INDEX-FIELD "j-no" ASCENDING 
   INDEX-FIELD "i-no" ASCENDING 
   INDEX-FIELD "m-code" ASCENDING 
+
+ADD INDEX "EstOpRecKey" ON "job-mch" 
+  AREA "Index"
+  DESCRIPTION "Est Op Rec Key Value"
+  INDEX-FIELD "est-op_rec_key" ASCENDING 
 
 ADD INDEX "job" ON "job-mch" 
   AREA "Index"
@@ -56679,6 +56874,116 @@ ADD INDEX "wi-dscr" ON "loc"
   AREA "Index"
   WORD
   INDEX-FIELD "dscr" ASCENDING 
+
+ADD TABLE "location"
+  AREA "Schema Area"
+  DESCRIPTION "FIN:FXA:FA: Location file for asset"
+  DUMP-NAME "location"
+
+ADD FIELD "entity" OF "location" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Entity"
+  POSITION 2
+  MAX-WIDTH 16
+  HELP "Enter the F/A control entity. (entity)"
+  ORDER 5
+
+ADD FIELD "location" OF "location" AS character 
+  DESCRIPTION "Location file"
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Location"
+  POSITION 3
+  MAX-WIDTH 8
+  COLUMN-LABEL "Location"
+  HELP "Enter the location code. (location)"
+  ORDER 10
+
+ADD FIELD "description" OF "location" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 4
+  MAX-WIDTH 60
+  COLUMN-LABEL "Description"
+  HELP "Enter the description of the location. (description)"
+  ORDER 20
+
+ADD FIELD "city" OF "location" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "City"
+  POSITION 5
+  MAX-WIDTH 40
+  COLUMN-LABEL "City"
+  HELP "Enter the city in which the asset is located. (city)"
+  ORDER 30
+
+ADD FIELD "state" OF "location" AS character 
+  FORMAT "x(3)"
+  INITIAL ""
+  LABEL "State"
+  POSITION 6
+  MAX-WIDTH 4
+  HELP "Enter the province/state in which the asset is located. (state)"
+  ORDER 40
+
+ADD FIELD "county" OF "location" AS character 
+  FORMAT "x(20)"
+  INITIAL ""
+  LABEL "County"
+  POSITION 7
+  MAX-WIDTH 40
+  COLUMN-LABEL "County"
+  HELP "Enter the county in which the asset is located. (county)"
+  ORDER 50
+
+ADD FIELD "building" OF "location" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Building"
+  POSITION 8
+  MAX-WIDTH 20
+  HELP "Enter the number or name of the building. (building)"
+  ORDER 60
+
+ADD FIELD "room" OF "location" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Room"
+  POSITION 9
+  MAX-WIDTH 8
+  HELP "Enter the room number in which the asset is installed. (room)"
+  ORDER 70
+
+ADD FIELD "work-center" OF "location" AS character 
+  FORMAT "x(10)"
+  INITIAL ""
+  LABEL "Wk Ctr"
+  POSITION 10
+  MAX-WIDTH 20
+  COLUMN-LABEL "Wk Ctr"
+  HELP "Enter the work center code under which the asset is located. (work-center)"
+  ORDER 80
+
+ADD FIELD "Country-code" OF "location" AS character 
+  FORMAT "x(4)"
+  INITIAL ""
+  LABEL "Cntry Code"
+  POSITION 11
+  MAX-WIDTH 8
+  COLUMN-LABEL "Cntry Code"
+  VALEXP "{val/canfind country country-code country-code}"
+  VALMSG "ERROR: Country Code does not exist in the Country file."
+  HELP "Enter the code of the country where this customer is located. (Country-code)"
+  ORDER 90
+
+ADD INDEX "location" ON "location" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "location" ASCENDING 
 
 ADD TABLE "lookups"
   AREA "Data"
@@ -91473,6 +91778,80 @@ ADD INDEX "sold-name" ON "soldto"
   INDEX-FIELD "cust-no" ASCENDING 
   INDEX-FIELD "sold-name" ASCENDING 
 
+ADD TABLE "sort1"
+  AREA "Schema Area"
+  DESCRIPTION "FIN:FXA:FA: Sort code description file"
+  DUMP-NAME "sort1"
+
+ADD FIELD "sort-code1" OF "sort1" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Sort Code1"
+  POSITION 2
+  MAX-WIDTH 16
+  COLUMN-LABEL "Sort Code1"
+  HELP "Enter the sort code 1. (sort-code1)"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "description" OF "sort1" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 3
+  MAX-WIDTH 60
+  COLUMN-LABEL "Description"
+  HELP "Enter the description of the sort code 1. (description)"
+  ORDER 30
+
+ADD INDEX "sort1" ON "sort1" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "sort-code1" ASCENDING 
+
+ADD INDEX "sort1-desc" ON "sort1" 
+  AREA "Schema Area"
+  INDEX-FIELD "description" ASCENDING 
+  INDEX-FIELD "sort-code1" ASCENDING 
+
+ADD TABLE "sort2"
+  AREA "Schema Area"
+  DESCRIPTION "FIN:FXA:FA: Sort code 2 description file"
+  DUMP-NAME "sort2"
+
+ADD FIELD "sort-code2" OF "sort2" AS character 
+  FORMAT "x(8)"
+  INITIAL ""
+  LABEL "Sort Code2"
+  POSITION 2
+  MAX-WIDTH 16
+  COLUMN-LABEL "Sort Code2"
+  HELP "Enter the sort code 2. (sort-code2)"
+  ORDER 10
+  MANDATORY
+
+ADD FIELD "description" OF "sort2" AS character 
+  FORMAT "x(30)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 3
+  MAX-WIDTH 60
+  COLUMN-LABEL "Description"
+  HELP "Enter the description of the sort code 2. (description)"
+  ORDER 20
+
+ADD INDEX "sort2" ON "sort2" 
+  AREA "Schema Area"
+  UNIQUE
+  PRIMARY
+  INDEX-FIELD "sort-code2" ASCENDING 
+
+ADD INDEX "sort2-desc" ON "sort2" 
+  AREA "Schema Area"
+  INDEX-FIELD "description" ASCENDING 
+  INDEX-FIELD "sort-code2" ASCENDING 
+
 ADD TABLE "ssrelbol"
   AREA "Data"
   DUMP-NAME "ssrelbol"
@@ -94183,6 +94562,84 @@ ADD INDEX "name" ON "sys-ctrl-shipto"
   INDEX-FIELD "cust-vend-no" ASCENDING 
   INDEX-FIELD "ship-id" ASCENDING 
 
+ADD TABLE "tax-table"
+  AREA "Schema Area"
+  DESCRIPTION "FIN:FXA:FA: Tax Tables"
+  DUMP-NAME "tax-tabl"
+
+ADD FIELD "method" OF "tax-table" AS character 
+  DESCRIPTION "Method of depreciation e.g. ACRS, SL"
+  FORMAT "x(5)"
+  INITIAL ""
+  LABEL "Method"
+  POSITION 2
+  MAX-WIDTH 10
+  COLUMN-LABEL "Method"
+  HELP "Enter the method of depreciation. (method)"
+  ORDER 10
+
+ADD FIELD "description" OF "tax-table" AS character 
+  FORMAT "x(60)"
+  INITIAL ""
+  LABEL "Description"
+  POSITION 3
+  MAX-WIDTH 120
+  COLUMN-LABEL "Description"
+  HELP "Enter the method description. (description)"
+  ORDER 20
+
+ADD FIELD "asset-life" OF "tax-table" AS integer 
+  DESCRIPTION "Asset Life in years"
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Asset Life"
+  POSITION 4
+  MAX-WIDTH 4
+  COLUMN-LABEL "Asset Life"
+  HELP "Enter the asset life in years. (asset-life)"
+  ORDER 30
+
+ADD FIELD "year-of-depr" OF "tax-table" AS integer 
+  DESCRIPTION "Year of depreciation"
+  FORMAT ">9"
+  INITIAL "0"
+  LABEL "Deprcn Yr"
+  POSITION 5
+  MAX-WIDTH 4
+  COLUMN-LABEL "Deprcn Yr"
+  HELP "Enter the year of depreciation. (year-of-depr)"
+  ORDER 40
+
+ADD FIELD "not-used" OF "tax-table" AS decimal 
+  FORMAT "Z9.9999"
+  INITIAL "0"
+  LABEL "Not Used"
+  POSITION 6
+  MAX-WIDTH 192
+  COLUMN-LABEL "Not Used"
+  HELP " (not-used)"
+  EXTENT 12
+  DECIMALS 4
+  ORDER 50
+
+ADD FIELD "Period" OF "tax-table" AS decimal 
+  FORMAT "9.99999"
+  INITIAL "0"
+  LABEL "Period"
+  POSITION 7
+  MAX-WIDTH 208
+  HELP "Enter a percentage for this period. (Period)"
+  EXTENT 13
+  DECIMALS 4
+  ORDER 60
+
+ADD INDEX "tax-table" ON "tax-table" 
+  AREA "Schema Area"
+  PRIMARY
+  INDEX-FIELD "method" ASCENDING 
+  INDEX-FIELD "asset-life" ASCENDING 
+  INDEX-FIELD "year-of-depr" ASCENDING 
+
 ADD TABLE "terms"
   AREA "Data"
   LABEL "Terms"
@@ -96766,6 +97223,14 @@ ADD FIELD "phone" OF "users" AS character
   POSITION 24
   MAX-WIDTH 24
   ORDER 171
+
+ADD FIELD "securityLevel" OF "users" AS integer 
+  FORMAT ">>9"
+  INITIAL "0"
+  LABEL "Sec Level"
+  POSITION 25
+  MAX-WIDTH 4
+  ORDER 221
 
 ADD INDEX "pi-users" ON "users" 
   AREA "Index"
@@ -101717,6 +102182,6 @@ ADD INDEX "wi-city" ON "zipcode"
 
 .
 PSC
-cpstream=ISO8859-1
+cpstream=ibm850
 .
-0002160775
+0002171729
