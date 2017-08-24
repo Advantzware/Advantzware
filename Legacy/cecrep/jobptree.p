@@ -1263,8 +1263,9 @@ PROCEDURE pConvertToHours:
     DEFINE VARIABLE iCheckdec AS INTEGER.
 
     ASSIGN cHours = STRING(ipdHours) .
-    ASSIGN iHours =  INT( SUBSTRING(cHours,1,LENGTH(cHours) - 1)  ).
-
+   
+    ASSIGN iHours =  INT( SUBSTRING(cHours,1,3)).
+     
     cRoundHour = SUBSTRING(cHours,INDEX(cHours,".") + 1).
 
     ASSIGN dResult = (int(cRoundHour) * 60) / 100.
