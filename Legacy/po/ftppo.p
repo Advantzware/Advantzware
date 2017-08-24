@@ -501,6 +501,8 @@ IF AVAIL sys-ctrl THEN DO:
             
             OS-COMMAND VALUE(cExec + " /script=.\po\ftphrms.txt").
         END.
+        ELSE
+            OS-COMMAND VALUE("ftp -v -i -s:.\po\ftphrms.txt").
       END.
       WHEN "Pratt" THEN
         OS-COMMAND VALUE("ftp -v -i -s:.\po\ftppratt.txt").

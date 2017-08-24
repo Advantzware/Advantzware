@@ -32,7 +32,9 @@ DEF VAR v-outfile AS CHAR EXTENT 4 NO-UNDO.
 DEF VAR v-mach AS CHAR EXTENT 4 NO-UNDO.
 DEF VAR v-line AS CHAR NO-UNDO.
 DEF VAR li-style AS INT NO-UNDO.
+DEFINE VARIABLE iNumericAdder AS INTEGER NO-UNDO.
 DEFINE VARIABLE cAssignedCustId AS CHARACTER NO-UNDO.
+DEFINE VARIABLE iAdderCount AS INTEGER.
 
 DEF BUFFER b-qty FOR reftable.
 DEF BUFFER b-setup FOR reftable.
@@ -71,8 +73,16 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       AND (vend.po-export EQ "HRMS" OR
            (poexport-cha  EQ "HRMS" AND vend.an-edi-vend))
     NO-LOCK
-                   
     BY po-ord.po-no.
+  
+  /* Cross-reference vendor to vendors customer number */  
+  FIND FIRST sys-ctrl-shipto NO-LOCK  
+       WHERE sys-ctrl-shipto.company EQ po-ord.company
+         AND sys-ctrl-shipto.cust-vend = FALSE 
+         AND sys-ctrl-shipto.cust-vend-no EQ po-ord.vend-no
+       NO-ERROR.
+  IF AVAILABLE sys-ctrl-shipto THEN 
+      cAssignedCustId = sys-ctrl-shipto.char-fld.
 
   IF OPSYS EQ "UNIX" AND substr(hrms-dir,1,1) NE v-slash THEN
     hrms-dir = v-slash + hrms-dir.
@@ -577,11 +587,23 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
     PUT v-ord-qty[4]                                FORMAT "99999999".
 
 
+
+    iAdderCount  = 1.
+    iNumericAdder = INTEGER(po-ordl.i-no) NO-ERROR.
+    IF NOT ERROR-STATUS:ERROR THEN 
+        ASSIGN v-adder[iAdderCount] = STRING(iNumericAdder, "9999")
+               iAdderCount = iAdderCount + 1
+        .
+
     /* Get adder codes */
     EMPTY TEMP-TABLE ttPoAdders.
     RUN po/getPoAdders.p (INPUT ROWID(po-ordl), INPUT table ttPoAdders BY-REFERENCE).
-    FOR EACH ttPoAdders i = 1 TO 7:
-        v-adder[i] = ttPoAdders.adderCode.
+    FOR EACH ttPoAdders i = 1 TO 6:
+        iNumericAdder = INTEGER(ttPoAdders.adderCode) NO-ERROR.
+        IF NOT ERROR-STATUS:ERROR THEN 
+        ASSIGN v-adder[iAdderCount] = STRING(iNumericAdder, "9999")
+        iAdderCount = iAdderCount + 1
+         .
     END.
     
     /* BASE BOARD GRADE CODE */
