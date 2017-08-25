@@ -3930,7 +3930,7 @@ PROCEDURE create-w-ord :
             w-ord.ord-no       = job-hdr.ord-no
             w-ord.job-no       = job-hdr.job-no
             w-ord.job-no2      = job-hdr.job-no2
-            w-ord.cust-no      = cust.cust-no
+            w-ord.cust-no      = IF AVAIL cust THEN cust.cust-no ELSE ""
             w-ord.cust-name    = IF AVAIL cust THEN cust.NAME ELSE ""
             w-ord.i-no         = loadtag.i-no
             w-ord.ord-qty      = job-hdr.qty
