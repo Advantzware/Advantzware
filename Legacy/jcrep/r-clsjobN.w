@@ -150,13 +150,13 @@ ASSIGN cTextListToDefault  =  "Job#,Job#2,Item Code,Description,Cust. #,Customer
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_job-no begin_job-no2 ~
 end_job-no end_job-no2 begin_cust-no end_cust-no begin_clsdate end_clsdate ~
-rd_qty tgl_SumTot tb_sep_board tb_invoiced begin_date end_date ~
+rd_qty tgl_SumTot tb_sep_board tb_open_job tb_invoiced begin_date end_date ~
 exclude-billed-prep rd-dest lv-ornt lines-per-page lv-font-no td-show-parm ~
 tb_excel tb_runExcel fi_file btn-ok btn-cancel sl_avail Btn_Def sl_selected Btn_Add ~
 Btn_Remove btn_Up btn_down
 &Scoped-Define DISPLAYED-OBJECTS begin_job-no begin_job-no2 begin_cust-no ~
 end_cust-no begin_clsdate end_clsdate lbl_qty rd_qty tgl_SumTot ~
-tb_sep_board tb_invoiced begin_date end_date exclude-billed-prep rd-dest ~
+tb_sep_board tb_open_job tb_invoiced begin_date end_date exclude-billed-prep rd-dest ~
 lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel ~
 tb_runExcel fi_file sl_avail sl_selected
 
@@ -342,6 +342,12 @@ DEFINE VARIABLE tb_sep_board AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_open_job AS LOGICAL INITIAL no 
+     LABEL "Include Open Jobs" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 33 BY 1 NO-UNDO.
+
+
 DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL yes 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
@@ -374,8 +380,9 @@ DEFINE FRAME FRAME-A
           "Enter Ending Date" WIDGET-ID 6
      lbl_qty AT ROW 6.19 COL 11.8 COLON-ALIGNED NO-LABEL
      rd_qty AT ROW 6.19 COL 50.6 NO-LABEL
-     tgl_SumTot AT ROW 7.76 COL 13.6 WIDGET-ID 10
-     tb_sep_board AT ROW 7.76 COL 51.4 WIDGET-ID 12
+     tgl_SumTot AT ROW 7.30 COL 13.6 WIDGET-ID 10
+     tb_sep_board AT ROW 7.30 COL 51.4 WIDGET-ID 12
+     tb_open_job AT ROW 8.30 COL 13.6 
      tb_invoiced AT ROW 9.24 COL 13.8
      begin_date AT ROW 9.24 COL 71.4 COLON-ALIGNED
      end_date AT ROW 10.19 COL 71.4 COLON-ALIGNED HELP
@@ -436,7 +443,7 @@ DEFINE FRAME FRAME-A
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Closed Job Analysis"
+         TITLE              = "Job Analysis Report"
          HEIGHT             = 28.38
          WIDTH              = 96
          MAX-HEIGHT         = 33.29
@@ -565,7 +572,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Closed Job Analysis */
+ON END-ERROR OF C-Win /* Job Analysis Report */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -578,7 +585,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Closed Job Analysis */
+ON WINDOW-CLOSE OF C-Win /* Job Analysis Report */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -1288,13 +1295,13 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_job-no begin_job-no2 begin_cust-no end_cust-no begin_clsdate 
-          end_clsdate lbl_qty rd_qty tgl_SumTot tb_sep_board tb_invoiced 
+          end_clsdate lbl_qty rd_qty tgl_SumTot tb_sep_board tb_open_job tb_invoiced 
           begin_date end_date exclude-billed-prep rd-dest lv-ornt lines-per-page 
           lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file sl_avail sl_selected
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_job-no begin_job-no2 end_job-no end_job-no2 
          begin_cust-no end_cust-no begin_clsdate end_clsdate rd_qty tgl_SumTot 
-         tb_sep_board tb_invoiced begin_date end_date exclude-billed-prep 
+         tb_sep_board tb_open_job tb_invoiced begin_date end_date exclude-billed-prep 
          rd-dest lv-ornt lines-per-page lv-font-no td-show-parm tb_excel 
          tb_runExcel fi_file btn-ok btn-cancel sl_avail Btn_Def sl_selected Btn_Add Btn_Remove
          btn_Up btn_down
@@ -1329,7 +1336,7 @@ EMPTY TEMP-TABLE tt-report.
 
     FOR EACH job-hdr NO-LOCK
         WHERE job-hdr.company EQ cocode
-          AND job-hdr.opened  EQ NO
+          AND (job-hdr.opened  EQ NO OR tb_open_job) 
           AND job-hdr.job-no  GE SUBSTR(v-job-no[1],1,6)
           AND job-hdr.job-no  LE SUBSTR(v-job-no[2],1,6)
           AND FILL(" ",6 - LENGTH(TRIM(job-hdr.job-no))) +
@@ -1341,8 +1348,11 @@ EMPTY TEMP-TABLE tt-report.
         FIND FIRST job NO-LOCK
             WHERE job.company EQ job-hdr.company
               AND job.opened  EQ job-hdr.opened
-              AND job.close-date GE begin_clsdate
-              AND job.close-date LE END_clsdate
+              AND ((job.close-date GE begin_clsdate AND
+                  job.close-date LE END_clsdate)
+              OR (job.start-date GE begin_clsdate AND
+                job.start-date LE END_clsdate AND
+                tb_open_job))
               AND job.job-no  EQ job-hdr.job-no
               AND job.job-no2 EQ job-hdr.job-no2
               AND job.job     EQ job-hdr.job NO-ERROR.
