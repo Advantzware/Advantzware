@@ -973,9 +973,9 @@ IF tb_excel THEN DO:
 
           OUTPUT STREAM excel-2 TO VALUE(fi_file-2).
           IF tb_ytd THEN
-              excelheader = "Customer,Cust#,PTD AMT,MSF,$/MSF,WGT/MSF,YTD Amount".
+              excelheader = "Customer,Cust#,PTD AMT,MSF,$/MSF,WGT/MSF,YTD Amount" .
           ELSE 
-              excelheader = "Customer,Cust#,PTD AMT,MSF,$/MSF,WGT/MSF".
+              excelheader = "Customer,Cust#,PTD AMT,MSF,$/MSF,WGT/MSF" .
       PUT STREAM excel-2 UNFORMATTED '"' REPLACE(excelheader,',','","') '"' skip.
 END. 
 
