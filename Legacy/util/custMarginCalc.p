@@ -176,6 +176,7 @@ DEF BUFFER bf-est FOR est.
         gEstSummaryOnly = TRUE
         row-count = 6 .
 
+/*    
     /**************************** Excel Initilization Starts *********************************/
 
     FIND FIRST users WHERE
@@ -222,7 +223,7 @@ DEF BUFFER bf-est FOR est.
        ASSIGN
          chWorkSheet = chExcelApplication:Sheets:item({&summary-sheet})  .
     /**************************** Excel Initilization End *********************************/
-    
+*/    
     
     ASSIGN
      str-tit2 = TRIM(c-win:TITLE) + ""
@@ -715,7 +716,7 @@ DEF BUFFER bf-est FOR est.
                 ctrl[10] = gsa-lab / 100 
                 ctrl[1]  = gsa-war / 100
                 ctrl[19] = gsa-fm / 100.
-        /*    RUN ce/com/pr4-tots.p. */
+            RUN ce/com/pr4-tots.p. 
             
             FIND FIRST item NO-LOCK
                 WHERE ITEM.company EQ eb.company

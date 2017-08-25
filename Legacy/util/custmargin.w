@@ -882,7 +882,7 @@ PROCEDURE run-report :
                 iprProbeRowid  = ROWID(probe)
                 .
 
-         
+
             RUN util/custMarginCalc.p (
                 INPUT  iprEstRowid,
                 INPUT  iprEstQtyRowid,
@@ -905,6 +905,7 @@ PROCEDURE run-report :
                 OUTPUT  cNetProfitPct,
                 OUTPUT  cOrdNo
                 ).
+
 if cCust <> "" then do:
             DISPLAY cCust            FORMAT "x(8)" COLUMN-LABEL "Customer"
                 dEstDate           COLUMN-LABEL "date"
