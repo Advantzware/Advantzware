@@ -759,15 +759,29 @@
                 ld-wgt-msf format "->,>>>,>>9.99" label "Wgt/MSF"
 
             with no-box no-attr-space STREAM-IO width 132 frame summary2 down.
-    IF tb_excel THEN  
-       EXPORT STREAM excel-2 DELIMITER ","
-              w-sum.NAME 
-              w-sum.cust-no 
-              w-sum.amt 
-              w-sum.msf 
-              ld-amt-msf 
-              ld-wgt-msf
-              SKIP.
+    
+    IF tb_excel THEN DO: 
+        IF tb_ytd THEN
+            EXPORT STREAM excel-2 DELIMITER ","
+            w-sum.NAME 
+            w-sum.cust-no 
+            w-sum.amt 
+            w-sum.msf 
+            ld-amt-msf 
+            ld-wgt-msf
+            w-sum.amt-y
+            SKIP.
+        ELSE
+            EXPORT STREAM excel-2 DELIMITER ","
+            w-sum.NAME 
+            w-sum.cust-no 
+            w-sum.amt 
+            w-sum.msf 
+            ld-amt-msf 
+            ld-wgt-msf
+            SKIP.
+
+    END.
 
       assign
        v-tot-sum-tot = v-tot-sum-tot + w-sum.amt
