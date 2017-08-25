@@ -539,6 +539,24 @@ v-printline = 0.
             END. /* if part-dscr3 */
           END. /* avail itemfg */
         END. /* if v-itemdescription */
+        ELSE IF v-itemDescription THEN /* fg item */ DO:
+           IF po-ordl.dscr[2] NE '' THEN DO:
+           PUT po-ordl.dscr[2] AT 25.
+              ASSIGN
+                v-line-number = v-line-number + 1
+                v-printline = v-printline + 1.
+           END.
+
+       END.
+       ELSE DO:
+           IF po-ordl.vend-i-no NE '' THEN DO:
+           PUT po-ordl.vend-i-no AT 25.
+              ASSIGN
+                v-line-number = v-line-number + 1
+                v-printline = v-printline + 1.
+           END.
+       END.
+
         
         ASSIGN v-basis-w = 0
                v-dep     = 0.

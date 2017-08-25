@@ -466,7 +466,36 @@ v-printline = 0.
             v-printline = v-printline + 1.
         END.
         /* calc total sq feet */
-    
+
+        IF v-itemDescription AND NOT po-ordl.item-type THEN /* fg item */ DO:
+            FIND FIRST itemfg NO-LOCK
+                WHERE itemfg.company = po-ordl.company
+                AND itemfg.i-no = po-ordl.i-no NO-ERROR.
+            IF AVAILABLE itemfg THEN DO:
+                IF itemfg.part-dscr3 NE '' THEN DO:
+                    PUT itemfg.part-dscr3 AT 25.
+                    ASSIGN
+                        v-line-number = v-line-number + 1
+                        v-printline = v-printline + 1.
+                END.  /* if part-dscr3 */ 
+            END. /* avail itemfg */
+        END. /* if v-itemdescription */
+        ELSE IF v-itemDescription THEN /* fg item */ DO:
+            IF po-ordl.dscr[2] NE '' THEN DO:
+                PUT po-ordl.dscr[2] AT 25.
+                ASSIGN
+                    v-line-number = v-line-number + 1
+                    v-printline = v-printline + 1.
+            END.
+        END.
+        ELSE DO:
+            IF po-ordl.vend-i-no NE '' THEN DO:
+                PUT po-ordl.vend-i-no AT 25.
+                ASSIGN
+                    v-line-number = v-line-number + 1
+                    v-printline = v-printline + 1.
+            END.
+        END.
         ASSIGN v-basis-w = 0
                v-dep     = 0.
 
