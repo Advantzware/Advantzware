@@ -1925,26 +1925,9 @@ for each tt-report2,
           no-lock no-error.
       lv-sman = TRIM(tt-report2.key-01) .
       lv-sname = TRIM(IF AVAIL sman THEN sman.sname ELSE "Not on file").
-
-    /*  IF FIRST(tt-report2.key-01) THEN
-         VIEW FRAME r-top2.
-
-      IF tb_excel THEN
-         PUT STREAM excel UNFORMATTED
-             SKIP(1)
-             '"' "Salesrep: " '",'
-             '"' lv-sman      '",' SKIP(1).
-
-      PAGE. */
-  /*  END.
-    ELSE
-    IF FIRST(tt-report2.key-01) THEN PAGE.  */
+   
   end.
-
-  if last-of(tt-report2.key-01) /*or v-prt eq v-custs*/ then do:
-      MESSAGE " last of " STRING(tt-report2.key-01) VIEW-AS ALERT-BOX ERROR.
-  END.
-
+  
   assign
    v-amt = 0
    v-prt = v-prt + 1.
@@ -2039,12 +2022,11 @@ IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
   do i = 1 to 21:
      v-tot-amt[i] = v-tot-amt[i] + v-amt[i].
   end.
-MESSAGE " last of222222  " STRING(tt-report2.key-01) VIEW-AS ALERT-BOX ERROR.
 
  END.
 
  if last-of(tt-report2.key-01) /*or v-prt eq v-custs*/ then do:
-      MESSAGE " last of 333333333333333333333333" STRING(tt-report2.key-01) VIEW-AS ALERT-BOX ERROR.
+     
      v = 0.
 
      do i = v1 to v-per-2:
@@ -2113,7 +2095,6 @@ MESSAGE " last of222222  " STRING(tt-report2.key-01) VIEW-AS ALERT-BOX ERROR.
      if last-of(tt-report2.key-01) then v-tot-amt = 0.
      
   end.
-
 
 end.
 
