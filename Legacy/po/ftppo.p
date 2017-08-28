@@ -67,7 +67,7 @@ FUNCTION getWinScpFile RETURNS CHARACTER
         OR SEARCH("C:\Program Files (x86)\WinSCP\winscp.com") NE ?
         THEN 
     DO:
-        
+        /* WinSCP folder is in resources */
         cExec = SEARCH("WinSCP\winscp.com").
         IF cExec EQ ? THEN 
             cExec = SEARCH("C:\Program Files\WinSCP\winscp.com").
@@ -84,7 +84,7 @@ FUNCTION getWinScpFile RETURNS CHARACTER
 
 END FUNCTION.
 
-cWinScpIniFile = SEARCH("winScp\winscp.ini").
+cWinScpIniFile = SEARCH(".\customer\po\winscp.ini").
 IF cWinScpIniFile EQ ? THEN 
     cWinScpIniFile = "".
 ELSE 
@@ -117,7 +117,7 @@ ELSE
 
 
 IF ip-ftp-where EQ "Corr-U-KraftII" THEN DO:
-  OUTPUT TO VALUE(".\po\ftpcmd2.txt").    /* ftp text file */
+  OUTPUT TO VALUE(".\customer\po\ftpcmd2.txt").    /* ftp text file */
 
   PUT UNFORMATTED 
       "open edi.ftp.sunclipse.com" SKIP   /* ftp server ip address */
@@ -128,12 +128,12 @@ IF ip-ftp-where EQ "Corr-U-KraftII" THEN DO:
       "quit" .
   OUTPUT CLOSE.
 
-  OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpcmd2.txt").
+  OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcmd2.txt").
 END. /* Corr-U-KraftII */
 
 ELSE
 IF ip-ftp-where EQ "kiwi" THEN DO:
-  OUTPUT TO VALUE(".\po\ftpkiwi.txt").    /* ftp text file */
+  OUTPUT TO VALUE(".\customer\po\ftpkiwi.txt").    /* ftp text file */
 
   IF INDEX(ip-exp-file,"TL_kiwi") > 0 THEN
      PUT UNFORMATTED 
@@ -151,14 +151,14 @@ IF ip-ftp-where EQ "kiwi" THEN DO:
          "quit" .
   OUTPUT CLOSE.
 
-  OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpkiwi.txt").
+  OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpkiwi.txt").
 END. /* Kiwi */
 
  
 
 
 /*IF ip-ftp-where EQ "Welsh" THEN DO:                              */
-/*  OUTPUT TO VALUE(".\po\ftpWelsh.txt").    /* ftp text file */   */
+/*  OUTPUT TO VALUE(".\customer\po\ftpWelsh.txt").    /* ftp text file */   */
 /*                                                                 */
 /*  PUT UNFORMATTED                                                */
 /*      "open ftp.corrchain.com" SKIP   /* ftp server ip address */*/
@@ -169,14 +169,14 @@ END. /* Kiwi */
 /*      "quit" .                                                   */
 /*  OUTPUT CLOSE.                                                  */
 /*                                                                 */
-/*  OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpWelsh.txt").            */
+/*  OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpWelsh.txt").            */
 /*END. /* Welsh */                                                 */
 /*                                                                 */
 /*ELSE                                                             */
 IF AVAIL sys-ctrl THEN DO:
 
   IF ip-ftp-where EQ "CorSuply" THEN DO:
-    OUTPUT TO VALUE(".\po\ftpcorr.txt").    /* ftp text file */
+    OUTPUT TO VALUE(".\customer\po\ftpcorr.txt").    /* ftp text file */
 
     IF sys-ctrl.char-fld EQ "Southpak" THEN /* South Pak */
       PUT UNFORMATTED                       
@@ -214,7 +214,7 @@ IF AVAIL sys-ctrl THEN DO:
 /*                                                                       */
 /*    OS-COPY VALUE(ip-exp-file) VALUE(v-ftp-file).                      */
 /*                                                                       */
-/*    OUTPUT TO VALUE(".\po\ftphrms.txt").    /* ftp text file */        */
+/*    OUTPUT TO VALUE(".\customer\po\ftphrms.txt").    /* ftp text file */        */
 /*                                                                       */
 /*    PUT UNFORMATTED                                                    */
 /*        "open 216.127.228.181"       SKIP   /* ftp server ip address */*/
@@ -232,7 +232,7 @@ IF AVAIL sys-ctrl THEN DO:
 
     OS-COPY VALUE(ip-exp-file) VALUE(v-ftp-file).
 
-    OUTPUT TO VALUE(".\po\ftppratt.txt").    /* ftp text file */
+    OUTPUT TO VALUE(".\customer\po\ftppratt.txt").    /* ftp text file */
 
     PUT UNFORMATTED 
         "open ftp.lovebox.com"       SKIP   /* ftp server ip address */
@@ -248,7 +248,7 @@ IF AVAIL sys-ctrl THEN DO:
   IF ip-ftp-where EQ "GP" THEN DO:
     IF LOOKUP(sys-ctrl.char-fld, "PremierPkg,Woodland,Trilakes,Michcor,ST.Clair,NStock") GT 0 THEN DO:
 
-      OUTPUT TO VALUE(".\po\ftpcmdgp.txt").   /* ftp text file */
+      OUTPUT TO VALUE(".\customer\po\ftpcmdgp.txt").   /* ftp text file */
   
   
       /* New Destination in 2015 */
@@ -256,8 +256,7 @@ IF AVAIL sys-ctrl THEN DO:
           "option batch abort"   SKIP.
       PUT UNFORMATTED 
           "option confirm off"   SKIP.
-      IF sys-ctrl.char-fld EQ "PremierPkg" THEN 
-        cWinScpIniFile = "n:\rcode\po\winscp.ini".
+
       IF sys-ctrl.char-fld EQ "Woodland" THEN  /* Woodland */
       PUT UNFORMATTED "open WOODLNDM:WDFTP3@van-ftp.nubridges.net" SKIP.
   
@@ -307,7 +306,7 @@ IF AVAIL sys-ctrl THEN DO:
   END. /* GP  */
   ELSE
      IF ip-ftp-where EQ "Smurfit" THEN DO:
-        OUTPUT TO VALUE(".\po\ftpsmur.txt").    /* ftp text file */
+        OUTPUT TO VALUE(".\customer\po\ftpsmur.txt").    /* ftp text file */
     
         PUT UNFORMATTED 
             "open gwftpe.smurfit.com" SKIP  /* ftp server ip address */
@@ -322,7 +321,7 @@ IF AVAIL sys-ctrl THEN DO:
   ELSE
      IF ip-ftp-where EQ "CorrChoice" THEN DO:
 
-        OUTPUT TO VALUE(".\po\ftpcc.txt").    /* ftp text file */
+        OUTPUT TO VALUE(".\customer\po\ftpcc.txt").    /* ftp text file */
 
         IF sys-ctrl.char-fld EQ "PremierPkg" THEN DO: /* PremierPkg */
            cExec = getWinScpFile().
@@ -381,7 +380,7 @@ IF AVAIL sys-ctrl THEN DO:
    ELSE
      IF ip-ftp-where EQ "AlliFlutes" THEN DO:
          
-         OUTPUT TO VALUE(".\po\ftpaf.txt").    /* ftp text file */
+         OUTPUT TO VALUE(".\customer\po\ftpaf.txt").    /* ftp text file */
          IF sys-ctrl.char-fld EQ "PremierPkg" THEN 
          DO: /* PremierPkg */
              cExec = getWinScpFile().
@@ -490,7 +489,7 @@ IF AVAIL sys-ctrl THEN DO:
     CASE ip-ftp-where:    
       WHEN "HRMS" THEN DO:
           
-        /* OS-COMMAND VALUE("ftp -v -i -s:.\po\ftphrms.txt"). */ 
+        /* OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftphrms.txt"). */ 
         IF AVAIL(sys-ctrl) /* AND sys-ctrl.int-fld EQ 1 */ 
             AND  getWinScpFile() NE ?
             THEN 
@@ -499,19 +498,19 @@ IF AVAIL sys-ctrl THEN DO:
             IF cWinScpIniFile GT "" THEN 
                 cExec = cExec + " " + "/ini=" + cWinScpIniFile.  
             
-            OS-COMMAND VALUE(cExec + " /script=.\po\ftphrms.txt").
+            OS-COMMAND VALUE(cExec + " /script=.\customer\po\ftphrms.txt").
         END.
         ELSE
-            OS-COMMAND VALUE("ftp -v -i -s:.\po\ftphrms.txt").
+            OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftphrms.txt").
       END.
       WHEN "Pratt" THEN
-        OS-COMMAND VALUE("ftp -v -i -s:.\po\ftppratt.txt").
+        OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftppratt.txt").
   
       WHEN "CorSuply" THEN
-        OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpcorr.txt").
+        OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcorr.txt").
   
       WHEN "Smurfit" THEN
-        OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpsmur.txt").
+        OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpsmur.txt").
   
       WHEN "GP" THEN DO:     
         
@@ -523,20 +522,20 @@ IF AVAIL sys-ctrl THEN DO:
             IF cWinScpIniFile GT "" THEN 
               cExec = cExec + " " + "/ini=" + cWinScpIniFile.  
             
-            OS-COMMAND VALUE(cExec + " /script=.\po\ftpcmdgp.txt").
+            OS-COMMAND VALUE(cExec + " /script=.\customer\po\ftpcmdgp.txt").
         END.
         ELSE
-          OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpcmdgp.txt").
+          OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcmdgp.txt").
       END.
       WHEN "CorrChoice" THEN DO:
         IF sys-ctrl.char-fld EQ "PremierPkg" AND cExec NE ? AND cExec NE "" THEN DO:      
           cExec = getWinScpFile().
           IF cWinScpIniFile GT "" THEN 
               cExec = cExec + " " + "/ini=" + cWinScpIniFile.          
-          OS-COMMAND SILENT VALUE(cExec + " /script=.\po\ftpcc.txt").
+          OS-COMMAND SILENT VALUE(cExec + " /script=.\customer\po\ftpcc.txt").
         END.
         ELSE
-          OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpcc.txt").
+          OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcc.txt").
       END.
       WHEN "AlliFlutes" THEN 
         DO:
@@ -547,10 +546,10 @@ IF AVAIL sys-ctrl THEN DO:
                 
                 IF cWinScpIniFile GT "" THEN 
                     cExec = cExec + " " + "/ini=" + cWinScpIniFile.          
-                OS-COMMAND SILENT VALUE(cExec + " /script=.\po\ftpaf.txt").
+                OS-COMMAND SILENT VALUE(cExec + " /script=.\customer\po\ftpaf.txt").
             END.
             ELSE
-                OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpaf.txt").
+                OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpaf.txt").
         END.
       WHEN "ipaper" THEN DO:     
         
@@ -561,10 +560,10 @@ IF AVAIL sys-ctrl THEN DO:
             IF cWinScpIniFile GT "" THEN 
               cExec = cExec + " " + "/ini=" + cWinScpIniFile.  
             
-            OS-COMMAND VALUE(cExec + " /script=.\po\ftpip.txt").
+            OS-COMMAND VALUE(cExec + " /script=.\customer\po\ftpip.txt").
         END.
         ELSE
-          OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpcmdip.txt").
+          OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcmdip.txt").
       END.        
       WHEN "Welsh" THEN DO:
    
@@ -573,10 +572,10 @@ IF AVAIL sys-ctrl THEN DO:
           IF cWinScpIniFile GT "" THEN 
               cExec = cExec + " " + "/ini=" + cWinScpIniFile.    
              
-          OS-COMMAND SILENT VALUE(cExec + " /script=.\po\ftpct.txt").
+          OS-COMMAND SILENT VALUE(cExec + " /script=.\customer\po\ftpct.txt").
         END.
         ELSE
-          OS-COMMAND VALUE("ftp -v -i -s:.\po\ftpcc.txt").
+          OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcc.txt").
       END.      
     END CASE.
   END. /* If lSendTheFile */
@@ -587,7 +586,7 @@ PROCEDURE config-based-script:
         IF ttConfig.ftp-software EQ "FTP" THEN DO:
             
             
-            OUTPUT TO VALUE(".\po\" + ttConfig.ftp-script).    /* ftp text file */
+            OUTPUT TO VALUE(".\customer\po\" + ttConfig.ftp-script).    /* ftp text file */
             
             PUT UNFORMATTED 
                 "open " + ttConfig.ftp-site  SKIP   /* ftp server ip address */
@@ -616,7 +615,7 @@ PROCEDURE config-based-script:
     
         IF ttConfig.ftp-software EQ "winSCP" THEN 
         DO:
-            cWinScpIniFile = SEARCH("winScp\winscp.ini").
+            cWinScpIniFile = SEARCH(".\customer\po\winscp.ini").
             cExec = getWinScpFile().
             IF cWinScpIniFile EQ ? THEN 
                 cWinScpIniFile = "".
@@ -626,7 +625,7 @@ PROCEDURE config-based-script:
                 cWinScpIniFile = " /ini=" + FILE-INFO:FULL-PATHNAME.
             END.
             
-            OUTPUT TO VALUE(".\po\" + ttConfig.ftp-script). 
+            OUTPUT TO VALUE(".\customer\po\" + ttConfig.ftp-script). 
             
     
             PUT UNFORMATTED 
