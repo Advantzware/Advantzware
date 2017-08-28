@@ -1989,10 +1989,10 @@ SESSION:SET-WAIT-STATE ("general").
           IF cFieldName = "tt-rm-bin.qty"
                   THEN cTmpField = STRING(DECIMAL(cTmpField),"->>>,>>9.99<<").
           IF cFieldName = "tt-rm-bin.loc"
-                  THEN cTmpField = IF FIRST-OF(tt-rm-bin.loc) THEN STRING((cTmpField),"x(5)") ELSE "".
+                  THEN cTmpField = /*IF FIRST-OF(tt-rm-bin.loc) THEN*/ STRING((cTmpField),"x(5)") /*ELSE ""*/ .
 
           IF cFieldName = "tt-rm-bin.i-no"
-                  THEN cTmpField = IF FIRST-OF(tt-rm-bin.i-no) THEN STRING((cTmpField),"x(10)") ELSE "".
+                  THEN cTmpField = /*IF FIRST-OF(tt-rm-bin.i-no) THEN*/ STRING((cTmpField),"x(10)") /*ELSE ""*/ .
 
           cDisplay = cDisplay + cTmpField + 
                            FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
@@ -2002,7 +2002,7 @@ SESSION:SET-WAIT-STATE ("general").
        ELSE DO:            
           CASE cTmpField: 
                 WHEN "rolls" THEN cVarValue = "" .
-                WHEN "v-itemname" THEN cVarValue = IF FIRST-OF(tt-rm-bin.i-no) THEN item.i-dscr ELSE "".
+                WHEN "v-itemname" THEN cVarValue = /*IF FIRST-OF(tt-rm-bin.i-no) THEN*/ string(item.i-dscr,"x(30)") /*ELSE ""*/ .
                 WHEN "v-cost" THEN cvarValue = STRING(v-cost,">>>,>>9.99<<<<").
                 WHEN "v-total" THEN cVarValue = STRING(tt-rm-bin.qty * v-cost,"->,>>>,>>9.99").
                 WHEN "v-MSF" THEN cVarValue = STRING(v-MSF,"->>>,>>9.99").
@@ -2020,7 +2020,7 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "cali" THEN cVarValue = STRING(ITEM.cal,"9.99999"). 
                 WHEN "wt-msf" THEN cVarValue = STRING(item.basis-w,">>9.99").
                 WHEN "po-gl-act" THEN cVarValue = STRING(vpo-gl-act) .
-                WHEN "cItemName" THEN cVarValue = IF FIRST-OF(tt-rm-bin.i-no) THEN ITEM.i-name ELSE "" .
+                WHEN "cItemName" THEN cVarValue = /*IF FIRST-OF(tt-rm-bin.i-no) THEN*/ string(ITEM.i-name,"x(30)") /*ELSE ""*/ .
           END CASE.
           cExcelVarValue = cVarValue.  
           cDisplay = cDisplay + cVarValue +
@@ -2071,7 +2071,7 @@ SESSION:SET-WAIT-STATE ("general").
                  WHEN "cali" THEN cVarValue = "".
                  WHEN "wt-msf" THEN cVarValue = "".
                  WHEN "po-gl-act" THEN cVarValue = "" .
-                 WHEN "cItemName" THEN cVarValue = ITEM.i-name .
+                 WHEN "cItemName" THEN cVarValue = string(ITEM.i-name,"x(30)") .
                      
            END CASE.
 
@@ -2706,7 +2706,7 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
        ELSE DO:            
           CASE cTmpField:  
               WHEN "rolls" THEN cVarValue =  "" .
-                WHEN "v-itemname" THEN cVarValue = ITEM.i-dscr.
+                WHEN "v-itemname" THEN cVarValue = string(ITEM.i-dscr,"x(30)").
                 WHEN "v-cost" THEN cvarValue = "".
                 WHEN "v-total" THEN cVarValue = STRING(v-cum-price2,"->,>>>,>>9.99").
                 WHEN "v-MSF" THEN cVarValue = STRING(v-cum-MSF,"->>>,>>9.99").   
@@ -2724,7 +2724,7 @@ IF LAST-OF(tt-rm-bin.i-no) THEN DO:
                 WHEN "cali" THEN cVarValue = "".
                 WHEN "wt-msf" THEN cVarValue = "".
                 WHEN "po-gl-act" THEN cVarValue = STRING(vpo-gl-act) .
-                WHEN "cItemName" THEN cVarValue = ITEM.i-name .
+                WHEN "cItemName" THEN cVarValue = string(ITEM.i-name,"x(30)") .
           END CASE.
           cExcelVarValue = cVarValue.  
           cDisplay = cDisplay + cVarValue +
