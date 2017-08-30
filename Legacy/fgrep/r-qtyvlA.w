@@ -1102,7 +1102,7 @@ DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 
 form
     cust.cust-no label "CUSTOMER"
-    oe-ordl.po-no label "PO #"
+    oe-ordl.po-no label "PO #" format "x(15)"
     /*cust.sman label*/ v-sales-rep LABEL "REP"
     oe-ordl.i-no  label "ITEM #"
     oe-ordl.part-no label "CUST PART #" format "x(15)"
@@ -1117,7 +1117,7 @@ form
 
 form
     cust.cust-no label "CUSTOMER"
-    itemfg.cust-po-no label "PO #"
+    itemfg.cust-po-no label "PO #" format "x(15)"
     /*cust.sman*/ v-sales-rep label "REP"
     itemfg.i-no  label "ITEM #"
     itemfg.part-no label "CUST PART #" format "x(15)"
@@ -1131,7 +1131,7 @@ form
 
 form
     cust.cust-no label "CUSTOMER"
-    oe-ordl.po-no label "PO #"
+    oe-ordl.po-no label "PO #" format "x(15)"
     /*cust.sman*/ v-sales-rep label "REP"
     oe-ordl.i-no  label "ITEM #"
     oe-ordl.i-name label "DESCRIPTION" format "x(15)"
@@ -1145,7 +1145,7 @@ form
 
 form
     cust.cust-no label "CUSTOMER"
-    itemfg.cust-po-no label "PO #"
+    itemfg.cust-po-no label "PO #" format "x(15)"
     /*cust.sman*/ v-sales-rep label "REP"
     itemfg.i-no  label "ITEM #"
     itemfg.i-name label "DESCRIPTION" format "x(15)"

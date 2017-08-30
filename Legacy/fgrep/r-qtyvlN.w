@@ -72,7 +72,7 @@ ASSIGN cTextListToSelect = "CUSTOMER,PO #,REP,ITEM #,CUST PART #,DESCRIPTION,JOB
                            "QTY ONHAND,RECT. DATE,SELL PRICE,TOTAL VALUE,COMMITTED,QTY/CASE"
        cFieldListToSelect = "cust,po,sman,itm,cust-prt,dscr,job," +
                             "qty-oh,rcpt-dt,sel-prc,ttl-val,commtd,qty-case"
-       cFieldLength = "8,9,4,15,15,15,10," + "12,10,13,15,12,7"  
+       cFieldLength = "8,15,4,15,15,15,10," + "12,10,13,15,12,7"  
        cFieldType = "c,c,c,c,c,c,c," + "i,c,i,i,i,i" 
     .
 
