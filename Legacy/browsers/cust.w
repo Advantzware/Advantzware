@@ -864,6 +864,11 @@ DO:
   
   assign s-rec_key = cust.rec_key when avail cust.
   RUN spec-book-image-proc .  /* task 10221306 */
+  IF AVAIL cust THEN
+  DO:
+     run get-link-handle in adm-broker-hdl(this-procedure,"custto-source", output char-hdl).
+     run set-s-rec_key in widget-handle(char-hdl) (INPUT cust.rec_key).
+  END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
