@@ -666,9 +666,9 @@ PROCEDURE load-config:
 
   EMPTY TEMP-TABLE ttConfig.
 
-  IF SEARCH("po/poexport.dat") NE ? THEN DO:
+  IF SEARCH("customer/po/poexport.dat") NE ? THEN DO:
 
-  INPUT FROM po/poexport.dat.
+  INPUT FROM ./customer/po/poexport.dat.
   REPEAT:
       
       CREATE ttConfig.
