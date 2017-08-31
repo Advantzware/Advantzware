@@ -2447,6 +2447,16 @@ PROCEDURE local-update-record :
 
   IF SSPostFG-log THEN
      RUN post-finish-goods.
+  lvrSaveRowid = ROWID(fg-rctd).
+  IF lvlAutoAdd THEN
+    RUN scan-next.
+  ELSE DO:
+      /* Make sure to redisplay since cost may have been updated */
+      /* on all lines.                                           */
+      RUN local-open-query.
+      REPOSITION {&browse-name} TO ROWID lvrSaveRowid NO-ERROR.
+      RUN dispatch ('row-changed').
+  END.
 
 END PROCEDURE.
 
