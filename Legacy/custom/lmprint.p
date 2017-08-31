@@ -208,7 +208,7 @@ ELSE DO:  /*Newer Operating Systems*/
   
 END.
 IF opcPath EQ ? THEN 
-    MESSAGE "Unable to find Label Matrix print program." VIEW-AS ALERT-BOX ERROR.  
+    MESSAGE "The Label Matrix print program cannot be located or launched on this computer - Reinstall or contact your system administrator." VIEW-AS ALERT-BOX ERROR.  
 
 END PROCEDURE.
 	
