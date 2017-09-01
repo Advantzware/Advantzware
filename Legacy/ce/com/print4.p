@@ -143,7 +143,7 @@ DO TRANSACTION:
    do-gsa   = xest.override.
 
   {sys/inc/cerun.i F}
-  vmclean = LOOKUP(cerunf,"McLean,HOP") GT 0.
+  vmclean = LOOKUP(cerunf,"McLean,HOP,CERunF 2") GT 0.
 
   {ce/msfcalc.i}
 
@@ -655,7 +655,7 @@ with STREAM-IO frame brd no-labels no-box width 80 down:
                    /*xef.trim-l when v-layout @ brd-w[1]
                    xef.trim-w when v-layout @ brd-l[1]*/
    with no-box no-labels width 80 frame aa3 DOWN STREAM-IO.
-   IF cerunf = "ASI" THEN v-header = "   Qty      --- Desc/FG Item ----- -- Size / Color ----- --- Style / Part No ---".
+   IF LOOKUP(cerunf,"ASI,CERunF 1") NE 0 /*cerunf = "ASI"*/ THEN v-header = "   Qty      --- Desc/FG Item ----- -- Size / Color ----- --- Style / Part No ---".
    ELSE v-header = "   Qty      --- Description ------ -- Size / Color ----- --- Style / Part No ---".
    if cerunf ne "HOP" then display
    " Feed Size :" lv-brd-w to 21 lv-brd-l to 30 lv-brd-sq to 42
@@ -706,7 +706,7 @@ with no-box no-labels width 80 frame aa5 DOWN STREAM-IO.
        stypart[2] = xeb.part-no
        dsc[1]     = xeb.part-dscr1
        dsc[2]     = xeb.part-dscr2.
-      IF cerunf = "ASI" THEN DO:
+      IF LOOKUP(cerunf,"ASI,CERunF 1") NE 0 /*cerunf = "ASI"*/ THEN DO:
         IF dsc[2] = "" THEN 
             ASSIGN dsc[2] = xeb.stock-no 
                 v-i-no = ""   
@@ -727,7 +727,7 @@ with no-box no-labels width 80 frame aa5 DOWN STREAM-IO.
               dsc[2] format "x(22)"
               sizcol[2] format "x(21)"
               stypart[2] format "x(23)"WITH STREAM-IO.
-         IF cerunf = "ASI" AND v-2desc THEN      
+         IF LOOKUP(cerunf,"ASI,CERunF 1") NE 0 /*cerunf = "ASI"*/ AND v-2desc THEN      
             PUT  SPACE(12) v-i-no FORMAT "x(22)" SKIP(1).
          ELSE
             PUT SKIP(1).

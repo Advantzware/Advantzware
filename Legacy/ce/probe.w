@@ -209,7 +209,7 @@ DO TRANSACTION:
 
   {sys/inc/cerun.i F}
   {sys/inc/cerun.i C}
-  vmclean = CAN-DO("McLean,HOP",cerunf).
+  vmclean = CAN-DO("McLean,HOP,CERunF 2",cerunf).
 
   {sys/inc/cewhatif.i}
 END.
@@ -1190,7 +1190,7 @@ PROCEDURE copy-item :
          where sys-ctrl.company eq cocode
            and sys-ctrl.name    eq "CERUNF"
          no-lock no-error.
-  IF AVAIL sys-ctrl THEN vmclean = sys-ctrl.char-fld EQ "McLean".
+  IF AVAIL sys-ctrl THEN vmclean = IF LOOKUP(sys-ctrl.char-fld,"McLean,CERunF 2") NE 0 THEN TRUE ELSE FALSE .
 
   EMPTY TEMP-TABLE tt-bqty.
 

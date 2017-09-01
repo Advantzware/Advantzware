@@ -2561,7 +2561,7 @@ PROCEDURE local-open-query :
   FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
                       AND sys-ctrl.name    EQ "SETPRINT"
                        NO-ERROR.
-  vmclean2 = AVAILABLE sys-ctrl AND sys-ctrl.char-fld EQ "McLean" AND est.est-type EQ 6.
+  vmclean2 = AVAILABLE sys-ctrl AND LOOKUP(sys-ctrl.char-fld,"McLEAN,CERunC 2") NE 0 /*sys-ctrl.char-fld EQ "McLean"*/ AND est.est-type EQ 6.
   IF vmclean2 THEN v-match-up = sys-ctrl.dec-fld.
  
 END PROCEDURE.

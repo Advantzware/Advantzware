@@ -137,7 +137,7 @@ IF xest.est-type NE 5 THEN DO:
      num-probeit = num-probeit + 1.
   END.
 
-IF cerunc NE "Protagon" THEN
+IF LOOKUP(cerunc,"Protagon,CERunC 3") EQ 0 /*cerunc NE "Protagon"*/ THEN
   IF cerunc-dec EQ 0 THEN DO:
     FOR EACH eb WHERE
         eb.company EQ xest.company AND
@@ -211,7 +211,7 @@ IF cerunc-dec EQ 0 THEN
   PUT SKIP(1).
 END.
 
-IF cerunc EQ "Protagon" AND SEARCH(tmp-dir + TRIM(xest.est-no) + ".z" +
+IF LOOKUP(cerunc,"Protagon,CERunC 3") NE 0 /*cerunc EQ "Protagon"*/ AND SEARCH(tmp-dir + TRIM(xest.est-no) + ".z" +
                                    STRING(probe.line,v-probe-line-fmt)) NE ? THEN
 DO:
    INPUT FROM VALUE(tmp-dir + TRIM(xest.est-no) + ".z" +
