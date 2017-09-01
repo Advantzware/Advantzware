@@ -1527,7 +1527,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
     IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
 
-    IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
+    IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "lovepac" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
         ASSIGN tb_print-dept:HIDDEN    = NO
             tb_print-dept:SENSITIVE = YES
             fi_depts:HIDDEN         = NO
