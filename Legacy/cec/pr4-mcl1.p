@@ -83,8 +83,8 @@ if vmclean and avail probe then do:
 
       {cec/pr4-mcl1.i "probeit" "first-of(eb.form-no)"}
 
-      if (not vsuthrlnd) AND cerunc NE "Protagon" then do:
-        vmcl-desc = "OVERALL".
+      if (not vsuthrlnd) AND /*cerunc NE "Protagon"*/ LOOKUP(cerunc,"Protagon,CERunC 3") = 0 then do:
+         vmcl-desc = "OVERALL".
         {cec/est-summ.i vmcl-desc vmcl-cost}
         IF AVAIL est-summ THEN DO:
           IF FIRST-OF(eb.form-no) THEN est-summ.per-m = 0.

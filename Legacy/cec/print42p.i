@@ -117,7 +117,7 @@ do transaction:
     message "System control record NOT found. Enter default for Set Est Printout"
     update sys-ctrl.char-fld.
   end.
-  vmclean2 = sys-ctrl.char-fld eq "McLean".
+  vmclean2 = IF LOOKUP(sys-ctrl.char-fld,"McLean,CERunC 2") NE 0 THEN TRUE ELSE FALSE /* sys-ctrl.char-fld eq "McLean"*/ .
   if vmclean2 then v-match-up = sys-ctrl.dec-fld.
 end.
 

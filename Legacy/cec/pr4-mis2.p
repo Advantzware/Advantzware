@@ -131,7 +131,7 @@ DEF VAR v-sep-prep-tot AS DEC NO-UNDO.
                     WHEN INDEX("SO",est-prep.simon) > 0
                     "      N/C " WHEN est-prep.simon = "N" @ prep-tot  SKIP WITH STREAM-IO.
 
-         IF cerunc EQ "Protagon" AND
+         IF LOOKUP(cerunc,"Protagon,CERunC 3") NE 0 /*cerunc EQ "Protagon"*/ AND
             est-prep.simon EQ "S" THEN
             DO:
                CREATE tt-prep-sep.
@@ -161,7 +161,7 @@ DEF VAR v-sep-prep-tot AS DEC NO-UNDO.
    DO i = 1 TO 6:
       IF INDEX("SON",xef.mis-simon[i]) = 0 THEN NEXT.
       PUT SKIP(1).
-      IF cerunc = "Protagon" THEN
+      IF LOOKUP(cerunc,"Protagon,CERunC 3") NE 0 /*cerunc = "Protagon"*/ THEN
           PUT "Miscellaneous Cost    Mat/F   Lab/F    Mat/M    Lab/M  Charge     OH% Total Cost"           SKIP .
       ELSE
           PUT "Miscellaneous Cost    Mat/F   Lab/F    Mat/M    Lab/M  Charge  Mrkup% Total Cost"           SKIP .
@@ -264,7 +264,7 @@ DEF VAR v-sep-prep-tot AS DEC NO-UNDO.
 		      xprep.code     = "MISL" + string(i,"9").
 	     END.
 
-         IF cerunc EQ "Protagon" AND
+         IF LOOKUP(cerunc,"Protagon,CERunC 3") NE 0 /*cerunc EQ "Protagon"*/ AND
             xef.mis-simon[i] EQ "S" THEN
             DO:
                CREATE tt-prep-sep.
@@ -293,7 +293,7 @@ DEF VAR v-sep-prep-tot AS DEC NO-UNDO.
    PUT SKIP(2).
    OUTPUT close.
    FIND FIRST tt-prep-sep NO-LOCK NO-ERROR.
-   IF cerunc EQ "Protagon" AND AVAIL tt-prep-sep THEN
+   IF LOOKUP(cerunc,"Protagon,CERunC 3") NE 0 /*cerunc EQ "Protagon"*/ AND AVAIL tt-prep-sep THEN
    DO:
 
       OUTPUT to value(outfile4).

@@ -37,7 +37,7 @@ FOR EACH xef WHERE xef.company = xest.company AND xef.est-no EQ xest.est-no NO-L
         "Lab/F"             TO 40
         "Mat/M"             TO 50
         "Lab/M"             TO 60.
-    IF cerunc = "Protagon" THEN
+    IF LOOKUP(cerunc,"Protagon,CERunC 3") NE 0 /*cerunc = "Protagon"*/ THEN
         PUT "   OH%"            TO 69.
     ELSE
         PUT "Mrkup%"            TO 69.

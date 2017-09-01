@@ -27,7 +27,7 @@ DEF VAR v-tmp-int AS INT NO-UNDO.
 
   do i = 1 to 6:
     if index("IM",xef.mis-simon[i]) > 0 and xef.mis-cost[i] ne "" then do:
-      display skip(1) (IF cerunc = "Protagon" THEN
+      display skip(1) (IF LOOKUP(cerunc,"Protagon,CERunC 3") NE 0 /*cerunc = "Protagon"*/ THEN
       "Miscellaneous Cost    Mat/F   Lab/F     Mat/M     Lab/M Charge    OH% Total Cost"
       ELSE
       "Miscellaneous Cost    Mat/F   Lab/F     Mat/M     Lab/M Charge Mrkup% Total Cost") FORMAT "X(120)"
