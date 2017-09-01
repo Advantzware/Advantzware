@@ -117,7 +117,7 @@ DEF TEMP-TABLE tt-text NO-UNDO
     FIELD tt-recid AS RECID
     INDEX tt-text IS PRIMARY TYPE tt-line.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFromLogo", "C" /* Logical */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 

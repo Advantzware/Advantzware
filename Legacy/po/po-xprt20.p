@@ -67,7 +67,7 @@ DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
        FILE-INFO:FILE-NAME = ls-image2
        ls-full-img2 = FILE-INFO:FULL-PATHNAME + ">".*/
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFromLogo", "C" /* Logical */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 

@@ -121,7 +121,7 @@ DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
-RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFromLogo", "C" /* Logical */, NO /* check by cust */, 
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
 OUTPUT cRtnChar, OUTPUT lRecFound).
 
