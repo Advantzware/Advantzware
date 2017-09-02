@@ -488,19 +488,19 @@ FORMAT wkrecap.procat
    
        /*==== new with selectable columns ====*/
         IF tb_under% AND tb_over% THEN DO:
-            IF v-profit GE fUnder% AND v-profit LE fOver% THEN DELETE tt-report .
+            IF v-profit GE fUnder% AND v-profit LE fOver% THEN DELETE tt-report NO-ERROR .
         END.
         ELSE IF tb_under% AND NOT tb_over% THEN DO:
-            IF v-profit GE fUnder% THEN DELETE tt-report.
+            IF v-profit GE fUnder% THEN DELETE tt-report NO-ERROR.
         END.
         ELSE IF tb_over% AND NOT tb_under% THEN DO:
-            IF v-profit GE fOver% THEN DELETE tt-report.
+            IF v-profit GE fOver% THEN DELETE tt-report NO-ERROR.
         END.
       END.  /* prt-sqft then do */
 
       ELSE  DO:
-          IF tb_under% AND v-profit GT fUnder% THEN DELETE tt-report.
-          IF tb_over% AND v-profit LT fOver% THEN DELETE tt-report.
+          IF tb_under% AND v-profit GT fUnder% THEN DELETE tt-report NO-ERROR.
+          IF tb_over% AND v-profit LT fOver% THEN DELETE tt-report NO-ERROR.
 
       END. /* end of else do prt-sqft */
 
@@ -730,6 +730,7 @@ FORMAT wkrecap.procat
                    WHEN "v-profit" THEN cVarValue = IF prt-profit THEN STRING(v-profit,"->>,>>9.9") ELSE "".
                    WHEN "v-price-per-t" THEN cVarValue = STRING(v-price-per-t,"->>,>>9.99").
                    WHEN "v-net-prct" THEN cVarValue = "". 
+                   WHEN "w-data.shp-qty" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -796,6 +797,7 @@ FORMAT wkrecap.procat
                    WHEN "v-profit" THEN cVarValue = IF prt-profit THEN STRING(v-profit,"->>,>>9.9") ELSE "".
                    WHEN "v-price-per-t" THEN cVarValue = STRING(v-price-per-t,"->>,>>9.99").
                    WHEN "v-net-prct" THEN cVarValue = "". 
+                   WHEN "w-data.shp-qty" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -934,6 +936,7 @@ FORMAT wkrecap.procat
                    WHEN "v-profit" THEN cVarValue = IF prt-profit THEN STRING(v-profit,"->>,>>9.9") ELSE "".
                    WHEN "v-price-per-t" THEN cVarValue = STRING(v-price-per-t,"->>,>>9.99").
                    WHEN "v-net-prct" THEN cVarValue = "" .
+                   WHEN "w-data.shp-qty" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
@@ -999,6 +1002,7 @@ FORMAT wkrecap.procat
                    WHEN "v-profit" THEN cVarValue = IF prt-profit THEN STRING(v-profit,"->>,>>9.9") ELSE "".
                    WHEN "v-price-per-t" THEN cVarValue = STRING(v-price-per-t,"->>,>>9.99").
                    WHEN "v-net-prct" THEN cVarValue = "" .
+                   WHEN "w-data.shp-qty" THEN cVarValue = "" .
               END CASE.
               IF cTmpField = "v-profit" AND NOT prt-profit THEN NEXT.
               cExcelVarValue = cVarValue.
