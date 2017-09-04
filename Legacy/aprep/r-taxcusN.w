@@ -1353,7 +1353,7 @@ if td-show-parm then run show-param.
 
       v-tax-dscr[1] = stax.tax-dscr[1].
 
-      page.            
+     page.            
 
       for each tt-report
         where tt-report.term-id eq v-term
@@ -1461,81 +1461,36 @@ if td-show-parm then run show-param.
 
         END. /* gdm - */
 
-        IF /*last-of(tt-report.key-01) AND*/ /* gdm - */
-           (v-sal-gro[1] ne 0 or
-            v-tax-amt[1] ne 0 or
-            v-freight[1] ne 0) then
-        DO:
-         /*  display tt-report.key-02      
-                 /* when first-of(tt-report.key-02)  gdm - */
-                                         format "x(30)" 
-                   ar-inv.inv-date       when avail ar-inv
-                                         FORMAT "99/99/99"
-                   ar-cash.check-date    when avail ar-cash  @ ar-inv.inv-date
-                 space(2)
-                   ar-inv.inv-no         when avail ar-inv
-                   ar-cashl.inv-no       when avail ar-cashl @ ar-inv.inv-no
-                   v-sal-gro[1]
-                   v-tax-amt[1]
-                   v-freight[1]
-                   v-sal-gro[1] - /* - v-tax-amt[1] */ v-freight[1]
-                                         format "->>,>>>,>>9.99"
-
-               with frame detail no-box no-labels stream-io width 132.
-           DOWN with frame detail no-box no-labels stream-io width 132.
-
-           IF tb_excel THEN
-             PUT STREAM excel UNFORMATTED
-               '"' (IF FIRST-OF(tt-report.key-02) THEN v-tax-dscr[1]
-                    ELSE "")                                             '",'
-               '"' (IF FIRST-OF(tt-report.key-02) THEN tt-report.key-02
-                    ELSE "")                                             '",'
-               '"' (IF AVAIL ar-cash AND ar-cash.check-date NE ? THEN
-                       STRING(ar-cash.check-date,"99/99/9999")
-                    ELSE IF AVAIL ar-inv AND ar-inv.inv-date NE ? THEN
-                       STRING(ar-inv.inv-date,"99/99/9999")
-                    ELSE "")                                             '",'
-               '"' (IF avail ar-cashl THEN STRING(ar-cashl.inv-no)
-                    ELSE IF AVAIL ar-inv THEN STRING(ar-inv.inv-no)
-                    ELSE "")                                             '",'
-               '"' STRING(v-sal-gro[1],"->>,>>>,>>9.99")                 '",'
-               '"' STRING(v-tax-amt[1],"->>,>>>,>>9.99")                 '",'
-               '"' STRING(v-freight[1],"->>,>>>,>>9.99")                 '",'
-               '"' STRING(v-sal-gro[1]  - v-freight[1],"->>,>>>,>>9.99")  '",'
-               SKIP.   */
-
-  ASSIGN cDisplay = ""
-                   cTmpField = ""
-                   cVarValue = ""
-                   cExcelDisplay = ""
-                   cExcelVarValue = "".
-
+        IF (v-sal-gro[1] ne 0 OR v-tax-amt[1] ne 0 OR v-freight[1] ne 0) THEN DO:
+            ASSIGN cDisplay = ""
+                cTmpField = ""
+                cVarValue = ""
+                cExcelDisplay = ""
+                cExcelVarValue = "".
+            
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-                    CASE cTmpField:             
-                         WHEN "tax-auth"              THEN cVarValue = v-tax-dscr[1] .
-                         WHEN "cust-name"        THEN cVarValue = tt-report.key-02 .
-                         WHEN "date"                 THEN cVarValue = ((IF AVAIL ar-cash AND ar-cash.check-date NE ? THEN STRING(ar-cash.check-date,"99/99/9999")  ELSE IF AVAIL ar-inv AND ar-inv.inv-date NE ? THEN STRING(ar-inv.inv-date,"99/99/9999") ELSE "" )) .
-                         WHEN "inv"                THEN  cVarValue = (IF avail ar-cashl THEN STRING(ar-cashl.inv-no) ELSE IF AVAIL ar-inv THEN STRING(ar-inv.inv-no) ELSE "") .
-                         WHEN "grs-sal"          THEN cVarValue = STRING(v-sal-gro[1],"->>,>>>,>>9.99") .
-                         WHEN "tax"                     THEN cVarValue = STRING(v-tax-amt[1],"->>,>>>,>>9.99") .
-                         WHEN "frt"               THEN cVarValue = STRING(v-freight[1],"->>,>>>,>>9.99") .
-                         WHEN "net-sal"             THEN cVarValue = STRING(v-sal-gro[1]  - v-freight[1],"->>,>>>,>>9.99") .
-
-                    END CASE.
-
-                    cExcelVarValue = cVarValue.
-                    cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+                CASE cTmpField:             
+                    WHEN "tax-auth"              THEN cVarValue = v-tax-dscr[1] .
+                    WHEN "cust-name"        THEN cVarValue = tt-report.key-02 .
+                    WHEN "date"                 THEN cVarValue = ((IF AVAIL ar-cash AND ar-cash.check-date NE ? THEN STRING(ar-cash.check-date,"99/99/9999")  ELSE IF AVAIL ar-inv AND ar-inv.inv-date NE ? THEN STRING(ar-inv.inv-date,"99/99/9999") ELSE "" )) .
+                    WHEN "inv"                THEN  cVarValue = (IF avail ar-cashl THEN STRING(ar-cashl.inv-no) ELSE IF AVAIL ar-inv THEN STRING(ar-inv.inv-no) ELSE "") .
+                    WHEN "grs-sal"          THEN cVarValue = STRING(v-sal-gro[1],"->>,>>>,>>9.99") .
+                    WHEN "tax"                     THEN cVarValue = STRING(v-tax-amt[1],"->>,>>>,>>9.99") .
+                    WHEN "frt"               THEN cVarValue = STRING(v-freight[1],"->>,>>>,>>9.99") .
+                    WHEN "net-sal"             THEN cVarValue = STRING(v-sal-gro[1]  - v-freight[1],"->>,>>>,>>9.99") .
+                END CASE.
+                cExcelVarValue = cVarValue.
+                cDisplay = cDisplay + cVarValue +
+                    FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
             PUT UNFORMATTED cDisplay SKIP.
             IF tb_excel THEN DO:
-                 PUT STREAM excel UNFORMATTED  
-                       cExcelDisplay SKIP.
-             END.
-
+                PUT STREAM excel UNFORMATTED  
+                    cExcelDisplay SKIP.
+            END.
             ASSIGN 
                v-sal-gro[2] = v-sal-gro[2] + v-sal-gro[1]  
                v-tax-amt[2] = v-tax-amt[2] + v-tax-amt[1]  
@@ -1543,142 +1498,85 @@ if td-show-parm then run show-param.
         END.
 
         ASSIGN
-         v-sal-gro[1] = 0
-         v-tax-amt[1] = 0
-         v-freight[1] = 0.
-      end.
-
+            v-sal-gro[1] = 0
+            v-tax-amt[1] = 0
+            v-freight[1] = 0.
+      END.
       clear frame totals1 no-pause.
-
-    /*  display skip(1)
-              "TOTALS:"                 to 47
-              v-sal-gro[2]
-              v-tax-amt[2]
-              v-freight[2]
-              v-sal-gro[2]  /* - v-tax-amt[2] */ - v-freight[2]
-                                       format "->>,>>>,>>9.99"
-
-          with frame totals1 no-box no-labels stream-io width 132.
-
-      IF tb_excel THEN
-        PUT STREAM excel UNFORMATTED
-          '"' ""                                                    '",'
-          '"' ""                                                    '",'
-          '"' ""                                                    '",'
-          '"' "TOTALS:"                                             '",'
-          '"' STRING(v-sal-gro[2],"->>,>>>,>>9.99")                 '",'
-          '"' STRING(v-tax-amt[2],"->>,>>>,>>9.99")                 '",'
-          '"' STRING(v-freight[2],"->>,>>>,>>9.99")                 '",'
-          '"' STRING(v-sal-gro[2] - v-freight[2],"->>,>>>,>>9.99")  '",'
-          SKIP(1). */
-
-
-                PUT SKIP str-line SKIP .
-                ASSIGN cDisplay = ""
-                   cTmpField = ""
-                   cVarValue = ""
-                   cExcelDisplay = ""
-                   cExcelVarValue = "".
-
-            DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-                    CASE cTmpField:             
-                          WHEN "tax-auth"              THEN cVarValue = "".
-                          WHEN "cust-name"        THEN cVarValue = "".
-                          WHEN "date"                 THEN cVarValue = "".
-                          WHEN "inv"        THEN  cVarValue = "" .
-                          WHEN "grs-sal"          THEN cVarValue = STRING(v-sal-gro[2],"->>,>>>,>>9.99")   .
-                          WHEN "tax"                     THEN cVarValue = STRING(v-tax-amt[2],"->>,>>>,>>9.99")  .
-                          WHEN "frt"               THEN cVarValue = STRING(v-freight[2],"->>,>>>,>>9.99")  .
-                          WHEN "net-sal"             THEN cVarValue = STRING(v-sal-gro[2] - v-freight[2],"->>,>>>,>>9.99")   .
-
-                    END CASE.
-
-                    cExcelVarValue = cVarValue.
-                    cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
-            END.
-
-            PUT UNFORMATTED "  TOTALS" substring(cDisplay,9,300) SKIP.
-            IF tb_excel THEN DO:
-                PUT STREAM excel UNFORMATTED  
-                    " TOTALS" + substring(cExcelDisplay,3,300) SKIP.
-            END.
-
-      ASSIGN               
-        v-sal-gro[3] = v-sal-gro[3] + v-sal-gro[2] 
-        v-tax-amt[3] = v-tax-amt[3] + v-tax-amt[2]
-        v-freight[3] = v-freight[3] + v-freight[2]
-        v-sal-gro[2] = 0
-        v-tax-amt[2] = 0
-        v-freight[2] = 0.
-    end.  /* for each stax */
-
- /*   display skip(5)
-            "GRAND TOTALS:"             to 47
-            v-sal-gro[3]
-            v-tax-amt[3]
-            v-freight[3]
-            v-sal-gro[3] /* - v-tax-amt[3] */ - v-freight[3]
-                                        format "->>,>>>,>>9.99"
-
-          with frame totals2 no-box no-labels stream-io width 132.
-
-    IF tb_excel THEN
-       PUT STREAM excel UNFORMATTED
-         '"' ""                                                    '",'
-         '"' ""                                                    '",'
-         '"' ""                                                    '",'
-         '"' "GRAND TOTALS:"                                       '",'
-         '"' STRING(v-sal-gro[3],"->>,>>>,>>9.99")                 '",'
-         '"' STRING(v-tax-amt[3],"->>,>>>,>>9.99")                 '",'
-         '"' STRING(v-freight[3],"->>,>>>,>>9.99")                 '",'
-         '"' STRING(v-sal-gro[3] - v-freight[3] ,"->>,>>>,>>9.99")  '",'
-         SKIP(1). */
-
+      IF (v-sal-gro[2] NE 0 OR v-tax-amt[2] NE 0 OR v-freight[1] NE 0) THEN DO:
+          PUT SKIP str-line SKIP .
+          ASSIGN cDisplay = ""
+              cTmpField = ""
+              cVarValue = ""
+              cExcelDisplay = ""
+              cExcelVarValue = "".
+          
+          DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+              cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+              CASE cTmpField:             
+                  WHEN "tax-auth"              THEN cVarValue = "".
+                  WHEN "cust-name"        THEN cVarValue = "".
+                  WHEN "date"                 THEN cVarValue = "".
+                  WHEN "inv"        THEN  cVarValue = "" .
+                  WHEN "grs-sal"          THEN cVarValue = STRING(v-sal-gro[2],"->>,>>>,>>9.99")   .
+                  WHEN "tax"                     THEN cVarValue = STRING(v-tax-amt[2],"->>,>>>,>>9.99")  .
+                  WHEN "frt"               THEN cVarValue = STRING(v-freight[2],"->>,>>>,>>9.99")  .
+                  WHEN "net-sal"             THEN cVarValue = STRING(v-sal-gro[2] - v-freight[2],"->>,>>>,>>9.99")   .
+              END CASE.
+              cExcelVarValue = cVarValue.
+              cDisplay = cDisplay + cVarValue +
+                  FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+          END.
+          PUT UNFORMATTED "  TOTALS" substring(cDisplay,9,300) SKIP.
+          IF tb_excel THEN DO:
+              PUT STREAM excel UNFORMATTED  
+                  " TOTALS" + substring(cExcelDisplay,3,300) SKIP.
+          END.
+          ASSIGN               
+              v-sal-gro[3] = v-sal-gro[3] + v-sal-gro[2] 
+              v-tax-amt[3] = v-tax-amt[3] + v-tax-amt[2]
+              v-freight[3] = v-freight[3] + v-freight[2]
+              v-sal-gro[2] = 0
+              v-tax-amt[2] = 0
+              v-freight[2] = 0.
+      END.
+    END.
     PUT SKIP str-line SKIP .
-                ASSIGN cDisplay = ""
-                   cTmpField = ""
-                   cVarValue = ""
-                   cExcelDisplay = ""
-                   cExcelVarValue = "".
-
-            DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-                    CASE cTmpField:             
-                          WHEN "tax-auth"              THEN cVarValue = "".
-                          WHEN "cust-name"        THEN cVarValue = "".
-                          WHEN "date"                 THEN cVarValue = "".
-                          WHEN "inv"        THEN  cVarValue = "" .
-                          WHEN "grs-sal"          THEN cVarValue = STRING(v-sal-gro[3],"->>,>>>,>>9.99")   .
-                          WHEN "tax"                     THEN cVarValue = STRING(v-tax-amt[3],"->>,>>>,>>9.99")  .
-                          WHEN "frt"               THEN cVarValue = STRING(v-freight[3],"->>,>>>,>>9.99")  .
-                          WHEN "net-sal"             THEN cVarValue = STRING(v-sal-gro[3] - v-freight[3],"->>,>>>,>>9.99")   .
-
-                    END CASE.
-
-                    cExcelVarValue = cVarValue.
-                    cDisplay = cDisplay + cVarValue +
-                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
-            END.
-
-            PUT UNFORMATTED " GRAND TOTALS" substring(cDisplay,14,300) SKIP.
-            IF tb_excel THEN DO:
-                PUT STREAM excel UNFORMATTED  
-                    "GRAND TOTALS" + substring(cExcelDisplay,3,300) SKIP.
-            END.
-
-  IF tb_excel THEN DO:
-     OUTPUT STREAM excel CLOSE.
-     IF tb_runExcel THEN
-       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
-  END.
-
-  RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-
-  SESSION:SET-WAIT-STATE ("").
+    ASSIGN cDisplay = ""
+        cTmpField = ""
+        cVarValue = ""
+        cExcelDisplay = ""
+        cExcelVarValue = "".
+    DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+        cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+        CASE cTmpField:             
+            WHEN "tax-auth"              THEN cVarValue = "".
+            WHEN "cust-name"        THEN cVarValue = "".
+            WHEN "date"                 THEN cVarValue = "".
+            WHEN "inv"        THEN  cVarValue = "" .
+            WHEN "grs-sal"          THEN cVarValue = STRING(v-sal-gro[3],"->>,>>>,>>9.99")   .
+            WHEN "tax"                     THEN cVarValue = STRING(v-tax-amt[3],"->>,>>>,>>9.99")  .
+            WHEN "frt"               THEN cVarValue = STRING(v-freight[3],"->>,>>>,>>9.99")  .
+            WHEN "net-sal"             THEN cVarValue = STRING(v-sal-gro[3] - v-freight[3],"->>,>>>,>>9.99")   .
+        END.
+        cExcelVarValue = cVarValue.
+        cDisplay = cDisplay + cVarValue +
+            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+        cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+    END.
+    PUT UNFORMATTED " GRAND TOTALS" substring(cDisplay,14,300) SKIP.
+    IF tb_excel THEN DO:
+        PUT STREAM excel UNFORMATTED  
+            "GRAND TOTALS" + substring(cExcelDisplay,3,300) SKIP.
+    END.
+    IF tb_excel THEN DO:
+        OUTPUT STREAM excel CLOSE.
+        IF tb_runExcel THEN
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    END.
+    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+    SESSION:SET-WAIT-STATE ("").
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
