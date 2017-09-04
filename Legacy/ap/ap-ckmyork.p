@@ -27,7 +27,7 @@
 /* Variables defined by the user or programmer. */
 DEF VAR viLn-Section-1  AS INT NO-UNDO INIT 2.  /* Line to start printing top section details. */
 DEF VAR viLn-Section-2  AS INT NO-UNDO INIT 24. /* Line to start printing middle section details. */
-DEF VAR viLn-Check      AS INT NO-UNDO INIT 47. /* Line to start printing the check. */
+DEF VAR viLn-Check      AS INT NO-UNDO INIT 43. /* Line to start printing the check. */
 DEF VAR viLn-Void       AS INT NO-UNDO INIT 43. /* Line to start printing VOID. */
 DEF VAR viLn-Detail-Max AS INT NO-UNDO INIT 9.  /* Max number of detail lines in a section. */
 DEF VAR viPageLines     AS INT NO-UNDO INIT 66. /* Number of available lines on the page. */
@@ -424,17 +424,16 @@ PROCEDURE Print-Check :
 
     /* Go to check printing line. */
     Goto-Line(viLn-Check).
-
-
-    Goto-Line(48).
+  
+    /*Goto-Line(48).*/
     PUT LineNum() FORMAT "99" AT 1 
-        ap-chk.check-date AT 55.
+        ap-chk.check-date AT 67.
     /* Increment line count */
     incrementLineCount(1).
 
      
     /* Print check date and total check amount. */
-    Goto-Line(49).
+    Goto-Line(46).
     PUT LineNum() FORMAT "99" AT 1 
         ctot              AT 70.
     /* Increment line count */
@@ -448,24 +447,24 @@ PROCEDURE Print-Check :
 
 
     /* Print vendor remit info and increment line count. */
-    Goto-Line(52).
+    Goto-Line(50).
     PUT LineNum() FORMAT "99" AT 1 
-        CAPS(vend.remit)  FORMAT "x(60)" AT 10.
+        CAPS(vend.remit)  FORMAT "x(60)" AT 11.
     /* Increment line count */
     incrementLineCount(1).
 
     PUT LineNum() FORMAT "99" AT 1 
-        CAPS(add1)  FORMAT "x(60)"  AT 10.
+        CAPS(add1)  FORMAT "x(60)"  AT 11.
     /* Increment line count */
     incrementLineCount(1).
 
     PUT LineNum() FORMAT "99" AT 1 
-        CAPS(add2) FORMAT "x(60)"   AT 10.
+        CAPS(add2) FORMAT "x(60)"   AT 11.
     /* Increment line count */
     incrementLineCount(1).
 
     PUT LineNum() FORMAT "99" AT 1 
-        CAPS(csz)  FORMAT "x(60)"   AT 10.
+        CAPS(csz)  FORMAT "x(60)"   AT 11.
     /* Increment line count */
     incrementLineCount(1).
 
