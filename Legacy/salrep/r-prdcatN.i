@@ -428,7 +428,7 @@
 
         RUN text-proc(INPUT 1).
 
-        PUT SKIP str-line SKIP .
+        PUT SKIP str-line FORMAT "x(250)" SKIP .
         ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -464,10 +464,11 @@
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
           
-            PUT UNFORMATTED " CUSTOMER TOTALS"  substring(cDisplay,17,350) SKIP.
+            PUT UNFORMATTED " CUSTOMER TOTALS"  substring(cDisplay,17,250) SKIP.
+            IF NOT LAST-OF(tt-report.key-03) THEN PUT SKIP(1) .
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  ' CUSTOMER TOTALS ,'
-                        substring(cExcelDisplay,4,350) SKIP.
+                        substring(cExcelDisplay,4,250) SKIP.
              END.
 
       /*  display tt-report.key-02    when v-sum
@@ -579,7 +580,7 @@
 
         RUN text-proc(INPUT 4).
 
-        PUT SKIP str-line SKIP .
+        PUT SKIP str-line  FORMAT "x(250)" SKIP .
         ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -615,90 +616,13 @@
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
           
-            PUT UNFORMATTED " SALESREP TOTALS"  substring(cDisplay,17,350) SKIP.
+            PUT UNFORMATTED " SALESREP TOTALS"  substring(cDisplay,17,250) SKIP.
+            IF NOT LAST-OF(tt-report.key-02) THEN PUT SKIP(1) .
             IF tb_excel THEN DO:
-                 PUT STREAM excel UNFORMATTED  ' CUSTOMER TOTALS ,'
-                        substring(cExcelDisplay,4,350) SKIP.
+                 PUT STREAM excel UNFORMATTED  ' SALESREP TOTALS ,'
+                        substring(cExcelDisplay,4,250) SKIP.
              END.
-
-      /*  display tt-report.key-02    when not v-sum1 and v-sum
-                tt-report.key-03    when not v-sum1 and v-sum
-                sman.sname       when not v-sum1 and v-sum and avail sman
-                "     SALESREP TOTALS" when v-sum1 or not v-sum @ sman.sname
-                "ALL"            when not v-sum1 and v-sum @ tt-report.key-04
-                "ALL"            when not v-sum1 and v-sum @ tt-report.key-05   
-                v-tot-sqft[4]               @ w-data.w-sqft[1]
-                v-tot-amt-txt[4]            @ w-data.w-amt-txt[1]
-                v-tot-cost-txt[4]    when v-cst @ w-data.w-cost-txt[1]
-                v-prof[1]        when v-cst
-                v-tot-sqft[5]               @ w-data.w-sqft[2]
-                v-tot-amt-txt[5]            @ w-data.w-amt-txt[2]
-                v-tot-cost-txt[5]    when v-cst @ w-data.w-cost-txt[2]
-                v-prof[2]        when v-cst
-                v-tot-sqft[6]               @ w-data.w-sqft[3]
-                v-tot-amt-txt[6]            @ w-data.w-amt-txt[3]
-                v-tot-cost-txt[6]    when v-cst @ w-data.w-cost-txt[3]
-                v-prof[3]        when v-cst.
-        down.
-      
-        IF tb_excel AND NOT(v-sum1 OR NOT v-sum) THEN
-        DO:
-           IF v-sum1 or not v-sum THEN
-              PUT STREAM excel UNFORMATTED SKIP(1).
-
-           PUT STREAM excel UNFORMATTED
-               '"' IF not v-sum1 AND v-sum THEN tt-report.key-02
-                   ELSE ""      '",'
-               '"' IF not v-sum1 AND v-sum THEN tt-report.key-03
-                   ELSE ""      '",'
-               '"' IF not v-sum1 AND v-sum AND avail sman THEN sman.sname
-                   ELSE IF v-sum1 OR NOT v-sum THEN "     SALESREP TOTALS" ELSE "" '",'
-               '"' IF NOT v-sum1 AND v-sum THEN "ALL" ELSE ""      '",'
-               '"' IF NOT v-sum1 AND v-sum THEN "ALL" ELSE ""      '",'
-               '"' STRING(v-tot-sqft[4],"->>>9.999")        '",'
-               '"' IF NOT tb_rem-cents THEN
-                      STRING(v-tot-amt[4],"->>>,>>9.99")
-                   ELSE STRING(v-tot-amt[4],"->>>,>>9")       '",'
-               '"' IF v-cst AND NOT tb_rem-cents THEN
-                      STRING(v-tot-cost[4],"->>,>>9.99")
-                   ELSE IF v-cst AND tb_rem-cents THEN
-                      STRING(v-tot-cost[4],"->>,>>9")
-                   ELSE ""                                     '",'
-               '"' IF v-cst THEN STRING(v-prof[1],"->>>9.99")
-                   ELSE ""                                     '",'
-               '"' STRING(v-tot-sqft[5],"->>>9.999")        '",'
-               '"' IF NOT tb_rem-cents THEN
-                      STRING(v-tot-amt[5],"->>>,>>9.99")
-                   ELSE STRING(v-tot-amt[5],"->>>,>>9")       '",'
-               '"' IF v-cst AND NOT tb_rem-cents THEN
-                      STRING(v-tot-cost[5],"->>,>>9.99")
-                   ELSE IF v-cst AND tb_rem-cents THEN
-                      STRING(v-tot-cost[5],"->>,>>9")
-                   ELSE ""                                     '",'
-               '"' IF v-cst THEN STRING(v-prof[2],"->>>9.99")
-                   ELSE ""                                     '",'
-               '"' STRING(v-tot-sqft[6],"->>>9.999")        '",'
-               '"' IF NOT tb_rem-cents THEN
-                      STRING(v-tot-amt[6],"->>>,>>9.99")
-                   ELSE
-                      STRING(v-tot-amt[6],"->>>,>>9")       '",'
-               '"' IF v-cst AND NOT tb_rem-cents THEN
-                      STRING(v-tot-cost[6],"->>,>>9.99")
-                   ELSE IF v-cst AND tb_rem-cents THEN
-                      STRING(v-tot-cost[6],"->>,>>9")
-                   ELSE ""                                     '",'
-               '"' IF v-cst THEN STRING(v-prof[3],"->>>9.99")
-                   ELSE ""                                     '",'
-                   SKIP.
-        END.
-
-        if not last-of(tt-report.key-02) and 
-           (not v-sum or v-sum1)      THEN
-        DO:
-           put skip(1).
-           IF tb_excel THEN
-              PUT STREAM excel UNFORMATTED SKIP(1).
-        END. */
+     
       end.
 
       do i = 7 to 9:
@@ -730,21 +654,7 @@
       DO:
          RUN text-proc(INPUT 7).
 
-        /* display "     CATEGORY TOTALS"      @ sman.sname
-                 v-tot-sqft[7]               @ w-data.w-sqft[1]
-                 v-tot-amt-txt[7]            @ w-data.w-amt-txt[1]
-                 v-tot-cost-txt[7]   when v-cst  @ w-data.w-cost-txt[1]
-                 v-prof[1]       when v-cst
-                 v-tot-sqft[8]               @ w-data.w-sqft[2]
-                 v-tot-amt-txt[8]                @ w-data.w-amt-txt[2]
-                 v-tot-cost-txt[8]   when v-cst  @ w-data.w-cost-txt[2]
-                 v-prof[2]       when v-cst
-                 v-tot-sqft[9]               @ w-data.w-sqft[3]
-                 v-tot-amt-txt[9]                @ w-data.w-amt-txt[3]
-                 v-tot-cost-txt[9]   when v-cst  @ w-data.w-cost-txt[3]
-                 v-prof[3]       when v-cst. */
-
-         PUT SKIP str-line SKIP .
+         PUT SKIP str-line  FORMAT "x(250)" SKIP .
         ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -780,10 +690,10 @@
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
           
-            PUT UNFORMATTED " CATEGORY TOTALS"  substring(cDisplay,17,350) SKIP.
+            PUT UNFORMATTED " CATEGORY TOTALS"  substring(cDisplay,17,250) SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  ' CATEGORY TOTALS ,'
-                        substring(cExcelDisplay,4,350) SKIP.
+                        substring(cExcelDisplay,4,250) SKIP.
              END.
 
       END.
@@ -827,30 +737,7 @@
       
       RUN text-proc(INPUT 10).
 
-    /*  display v-tot-sqft[10]            @ w-data.w-sqft[1]
-              v-tot-amt-txt[10]         @ w-data.w-amt-txt[1]
-              v-tot-cost-txt[10] when v-cst @ w-data.w-cost-txt[1]
-              v-prof[1]      when v-cst
-              v-tot-sqft[11]            @ w-data.w-sqft[2]
-              v-tot-amt-txt[11]             @ w-data.w-amt-txt[2]
-              v-tot-cost-txt[11] when v-cst @ w-data.w-cost-txt[2]
-              v-prof[2]      when v-cst
-              v-tot-sqft[12]            @ w-data.w-sqft[3]
-              v-tot-amt-txt[12]             @ w-data.w-amt-txt[3]
-              v-tot-cost-txt[12] when v-cst @ w-data.w-cost-txt[3]
-              v-prof[3]      when v-cst.
-      
-      down.
-
-      if tt-report.key-01 eq "1" then do:
-        underline w-data.w-sqft[1 for 3]
-                  w-data.w-amt-txt[1 for 3]
-                  w-data.w-cost-txt[1 for 3]
-                  v-prof[1 for 3].
-        down.
-      end. */
-
-       PUT SKIP str-line SKIP .
+       PUT SKIP str-line FORMAT "x(250)" SKIP .
         ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -886,24 +773,24 @@
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
             if tt-report.key-01 eq "1" THEN do:
-                PUT UNFORMATTED " TOTAL SALES"  substring(cDisplay,13,350) SKIP.
+                PUT UNFORMATTED " TOTAL SALES"  substring(cDisplay,13,250) SKIP.
                 IF tb_excel THEN DO:
                     PUT STREAM excel UNFORMATTED  ' TOTAL SALES ,'
-                        substring(cExcelDisplay,4,350) SKIP.
+                        substring(cExcelDisplay,4,250) SKIP.
                 END.
             END.
             ELSE if tt-report.key-01 eq "2" THEN do:
-                PUT UNFORMATTED " MISC"  substring(cDisplay,6,350) SKIP.
+                PUT UNFORMATTED " MISC"  substring(cDisplay,6,250) SKIP.
                 IF tb_excel THEN DO:
                     PUT STREAM excel UNFORMATTED  ' MISC ,'
-                        substring(cExcelDisplay,4,350) SKIP.
+                        substring(cExcelDisplay,4,250) SKIP.
                 END.
             END.
             ELSE DO:
-                PUT UNFORMATTED " MEMO"  substring(cDisplay,6,350) SKIP.
+                PUT UNFORMATTED " MEMO"  substring(cDisplay,6,250) SKIP.
                 IF tb_excel THEN DO:
                     PUT STREAM excel UNFORMATTED  ' MEMO ,'
-                        substring(cExcelDisplay,4,350) SKIP.
+                        substring(cExcelDisplay,4,250) SKIP.
                 END.
             END.
             
@@ -930,23 +817,8 @@
       end.
 
       RUN text-proc(INPUT 13).
-
-    /*  display "               SALES"     @ sman.sname
-              v-tot-sqft[13]             @ w-data.w-sqft[1]
-              v-tot-amt-txt[13]              @ w-data.w-amt-txt[1]
-              v-tot-cost-txt[13] when v-cst  @ w-data.w-cost-txt[1]
-              v-prof[1]      when v-cst
-              v-tot-sqft[14]             @ w-data.w-sqft[2]
-              v-tot-amt-txt[14]              @ w-data.w-amt-txt[2]
-              v-tot-cost-txt[14] when v-cst  @ w-data.w-cost-txt[2]
-              v-prof[2]      when v-cst
-              v-tot-amt-txt[15]              @ w-data.w-amt-txt[3]
-              v-tot-sqft[15]             @ w-data.w-sqft[3]
-              v-tot-cost-txt[15] when v-cst  @ w-data.w-cost-txt[3]
-              v-prof[3]      when v-cst.
-      
-      down. */
-      PUT SKIP str-line SKIP .
+   
+      PUT SKIP str-line  FORMAT "x(250)" SKIP .
         ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -982,10 +854,10 @@
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
           
-            PUT UNFORMATTED " SALES"  substring(cDisplay,7,350) SKIP.
+            PUT UNFORMATTED " SALES"  substring(cDisplay,7,250) SKIP.
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  ' SALES ,'
-                        substring(cExcelDisplay,4,350) SKIP.
+                        substring(cExcelDisplay,4,250) SKIP.
              END.
     end.
   end.
