@@ -33,7 +33,8 @@
          w-data.cost     = oe-ordm.cost * v-pct
          w-data.price    = v-amt
          w-data.revenue  = v-amt
-         w-data.comm     = oe-ordm.s-comm[i].
+         w-data.comm     = oe-ordm.s-comm[i]
+         w-data.shp-qty      = 0.
 
         FIND FIRST prep WHERE prep.company = oe-ordm.company AND
              prep.CODE = oe-ordm.charge  NO-LOCK NO-ERROR.
@@ -102,6 +103,7 @@
            w-data.procat   = if avail itemfg then itemfg.procat else ?
            w-data.item-n   = if avail itemfg then itemfg.i-name else ?
            w-data.qty      = v-qty
+           w-data.shp-qty   = oe-ordl.ship-qty
            w-data.margin   = oe-ordl.q-qty.
 
           IF NOT oe-ordl.is-a-component THEN
