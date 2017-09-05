@@ -77,7 +77,8 @@ def TEMP-TABLE w-data no-undo
   field misc as log
   field cost as dec
   field comm as dec label "Comm %"
-  FIELD margin AS DEC.
+  FIELD margin AS DEC
+  FIELD shp-qty LIKE oe-ordl.ship-qty .
 
 def TEMP-TABLE wkrecap no-undo    /* recap by product category */
   field procat like itemfg.procat column-label "Cat"
