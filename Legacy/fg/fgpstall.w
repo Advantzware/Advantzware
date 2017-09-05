@@ -1252,16 +1252,19 @@ lv-rel-recid = RECID(bf-oe-rel).
                      NO-LOCK NO-ERROR.
   /* Code placed here will execute PRIOR to standard behavior. */
   IF NOT AVAIL bf-oe-rel AND lv-rel-recid <> ? THEN
-     FIND bf-oe-rel WHERE RECID(bf-oe-rel) = lv-rel-recid.
-  ld-prev-rel-qty = IF adm-new-record THEN 0 ELSE bf-oe-rel.qty.
+     FIND bf-oe-rel WHERE RECID(bf-oe-rel) = lv-rel-recid NO-ERROR.
+  ld-prev-rel-qty = IF adm-new-record THEN 0 ELSE IF AVAIL bf-oe-rel THEN bf-oe-rel.qty ELSE 0.
 
-  FIND bf-oe-ord OF bf-oe-ordl NO-LOCK.
+  FIND bf-oe-ord OF bf-oe-ordl NO-LOCK NO-ERROR.
 
 
-
-  FIND b-ordl WHERE ROWID(b-ordl) EQ ROWID(bf-oe-ordl).
+ IF AVAIL bf-oe-ordl THEN
+     FIND b-ordl WHERE ROWID(b-ordl) EQ ROWID(bf-oe-ordl) NO-ERROR.
+  
   b-ordl.t-rel-qty = b-ordl.t-rel-qty + bf-oe-rel.qty - ld-prev-rel-qty.
-  FIND b-ordl WHERE ROWID(b-ordl) EQ ROWID(bf-oe-ordl) NO-LOCK.
+  IF AVAIL bf-oe-ordl THEN
+      FIND b-ordl NO-LOCK WHERE ROWID(b-ordl) EQ ROWID(bf-oe-ordl) NO-ERROR.
+  IF AVAIL bf-oe-rel THEN
   RUN fg/fgitmloc.p (INPUT bf-oe-rel.i-no, INPUT ROWID(bf-oe-rel)).
 
 END PROCEDURE.
@@ -4401,6 +4404,7 @@ DEF VAR stat-type AS INT NO-UNDO.
 DEF VAR v-chosen-rel AS ROWID NO-UNDO.
 DEF BUFFER bf-oe-ordl FOR oe-ordl.
 FIND FIRST bf-oe-ordl WHERE ROWID(bf-oe-ordl) EQ ipr-ordl-row NO-LOCK NO-ERROR.
+      IF NOT AVAIL bf-oe-ordl THEN RETURN .
 
       v-highest-stat = 0.
       FOR EACH oe-rel WHERE oe-rel.company EQ bf-oe-ordl.company
