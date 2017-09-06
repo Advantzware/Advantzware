@@ -3448,7 +3448,8 @@ DEFINE VARIABLE dTotalI AS DEC     NO-UNDO.
           AND rm-bin.loc-bin EQ rm-rctd.loc-bin:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
           AND rm-bin.tag     EQ rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}
         NO-ERROR.
-     IF NOT AVAIL rm-bin THEN DO:
+     IF NOT AVAIL rm-bin AND INTEGER(rm-rctd.tag:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) GE 0  THEN DO:
+         /* ticket 22650 - Tag does not have to exist for a negative issue */
          MESSAGE "Tag # does not exist in the Bin File..."
              VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO rm-rctd.tag IN BROWSE {&BROWSE-NAME}.
