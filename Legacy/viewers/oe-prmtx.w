@@ -1420,7 +1420,7 @@ PROCEDURE valid-entry :
       AND rowid(bf-oe-prmtx) NE rowid(oe-prmtx) NO-ERROR .
 
   IF AVAIL bf-oe-prmtx THEN DO:
-      MESSAGE "This record is a duplicate entry. cannot add a duplicate, so please adjust." VIEW-AS ALERT-BOX ERROR.
+      MESSAGE "This record is a duplicate of a previous entry; please adjust." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO oe-prmtx.cust-no.
       RETURN ERROR.
   END.
