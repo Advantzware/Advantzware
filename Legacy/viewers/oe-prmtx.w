@@ -52,6 +52,7 @@ assign
 def new shared var uom-list as char init "M,EA,L,CS,C,LB,DRM,ROL,PKG,SET,DOZ,BDL" NO-UNDO.
 def var v-invalid as log no-undo.
 DEF VAR lv-cust-no AS cha NO-UNDO.
+DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1179,7 +1180,11 @@ PROCEDURE local-update-record :
   IF ERROR-STATUS:ERROR THEN DO:
      RETURN NO-APPLY.
   END.
-
+  RUN valid-entry NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN DO:
+     RETURN NO-APPLY.
+  END.
+ 
 
   run valid-uom-01.
   if v-invalid then return no-apply.
@@ -1385,6 +1390,38 @@ PROCEDURE valid-i-no :
   THEN DO:
       MESSAGE "Invalid Item#. Try Help." VIEW-AS ALERT-BOX ERROR.
       APPLY "entry" TO oe-prmtx.i-no.
+      RETURN ERROR.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-i-no V-table-Win 
+PROCEDURE valid-entry :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+
+   FIND FIRST bf-oe-prmtx NO-LOCK 
+      WHERE bf-oe-prmtx.company EQ g_company
+        AND bf-oe-prmtx.cust-no EQ oe-prmtx.cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        AND bf-oe-prmtx.i-no EQ oe-prmtx.i-no:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        AND bf-oe-prmtx.procat EQ oe-prmtx.procat:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        AND bf-oe-prmtx.custype EQ oe-prmtx.custype:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        AND bf-oe-prmtx.eff-date EQ date(oe-prmtx.eff-date:SCREEN-VALUE IN FRAME {&FRAME-NAME})
+      AND rowid(bf-oe-prmtx) NE rowid(oe-prmtx) NO-ERROR .
+
+  IF AVAIL bf-oe-prmtx THEN DO:
+      MESSAGE "This record is a duplicate entry. cannot add a duplicate, so please adjust." VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO oe-prmtx.cust-no.
       RETURN ERROR.
   END.
 
