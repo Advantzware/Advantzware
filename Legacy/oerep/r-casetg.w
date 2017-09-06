@@ -2060,7 +2060,7 @@ PROCEDURE get-rel-info :
           AND oe-rel.ord-no   EQ oe-ordl.ord-no
           AND oe-rel.i-no     EQ oe-ordl.i-no
           AND oe-rel.line     EQ oe-ordl.line
-          AND oe-rel.rel-no   EQ 0
+          /*AND oe-rel.rel-no   EQ 0 */  /* Ticket - 21750 */
           AND oe-rel.rel-date GE begin_date
           AND oe-rel.rel-date LE end_date
         BY oe-rel.rel-date
