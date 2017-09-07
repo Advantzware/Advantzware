@@ -26,10 +26,10 @@
 
 /* Variables defined by the user or programmer. */
 DEF VAR viLn-Section-1  AS INT NO-UNDO INIT 2.  /* Line to start printing top section details. */
-DEF VAR viLn-Section-2  AS INT NO-UNDO INIT 24. /* Line to start printing middle section details. */
+DEF VAR viLn-Section-2  AS INT NO-UNDO INIT 23. /* Line to start printing middle section details. */
 DEF VAR viLn-Check      AS INT NO-UNDO INIT 43. /* Line to start printing the check. */
 DEF VAR viLn-Void       AS INT NO-UNDO INIT 43. /* Line to start printing VOID. */
-DEF VAR viLn-Detail-Max AS INT NO-UNDO INIT 9.  /* Max number of detail lines in a section. */
+DEF VAR viLn-Detail-Max AS INT NO-UNDO INIT 10.  /* Max number of detail lines in a section. */
 DEF VAR viPageLines     AS INT NO-UNDO INIT 66. /* Number of available lines on the page. */
 
 /* Show line numbers for testing purposes. */
