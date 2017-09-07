@@ -482,7 +482,7 @@ IF AVAIL sys-ctrl THEN DO:
 
 
 
-  OS-COMMAND VALUE("@echo off").
+  OS-COMMAND SILENT VALUE("@echo off").
 
   IF lSendTheFile THEN DO:
   
