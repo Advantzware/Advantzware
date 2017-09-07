@@ -700,72 +700,14 @@ DEF BUFFER io-oe-retl FOR oe-retl.
       end.
     end.
 
-   /* if v-print1 then v-name = cust.name.
-
-    else do:*/
-      /*find first itemfg
-          where itemfg.company eq cocode
-            and itemfg.i-no    eq w-data.i-no
-          no-lock no-error.*/
+   
       v-name = if avail itemfg then itemfg.i-name else w-data.i-no.
       v-part-no = if avail itemfg then itemfg.part-no else w-data.i-no .
       IF v-est = "" AND AVAIL itemfg THEN
           ASSIGN v-est = itemfg.est-no .
       FIND FIRST sman WHERE sman.company = cocode 
                             AND sman.sman = tt-report.key-05 NO-LOCK NO-ERROR.
-    
-  /*  end.*/
-
-   /* if v-det then do:
-      display w-data.i-no   when first-of(tt-report.key-01) or not v-sort1
-              cust.cust-no        
-              v-name        when ((not v-print1) and first-of(tt-report.key-01))
-                                 or v-print1
-              tt-report.key-03
-              w-data.inv-no
-              v-date
-              v-ord
-              v-est
-                STRING(v-bol,">>>>>>>>") /*WHEN rd_show2 EQ "BOL#" @ v-est*/
-              v-qty[1]
-              v-pric
-              v-uom
-              v-amt[1].
-
-      down.
-
-      IF tb_excel THEN
-         PUT STREAM excel UNFORMATTED
-             '"' IF first-of(tt-report.key-01) or not v-sort1 THEN
-                    REPLACE(w-data.i-no,lv-quotes,"") ELSE ""                            '",'
-             '"' cust.cust-no                                      '",'
-             '"' IF ((not v-print1) and first-of(tt-report.key-01))
-                    or v-print1 THEN v-name ELSE ""                '",'
-             '"' tt-report.key-03                                  '",'
-             '"' w-data.inv-no                                     '",'
-             '"' STRING(v-date)                                    '",'
-             '"' STRING(v-ord,">>>>>>")                            '",'
-             /*'"' IF rd_show2 EQ "BOL#" THEN STRING(v-bol,">>>>>>>>")
-                 ELSE v-est                                        '",'*/
-             '"' STRING(v-qty[1],"->>>,>>>,>>>")                   '",'
-             '"' STRING(v-pric,"->,>>>,>>9.99<<")                  '",'
-             '"' v-uom                                             '",'
-             '"' STRING(v-amt[1],"->,>>>,>>>,>>9.99")              '",'
-             SKIP.
-    end.
-
-    else
-    if (first-of(tt-report.key-01) and v-sort1)     or
-       (first-of(tt-report.key-02) and not v-sort1) then
-    DO:
-      display w-data.i-no
-              v-name.
-
-      IF tb_excel THEN
-         PUT STREAM excel UNFORMATTED
-             '"' w-data.i-no                    '",'
-             '"' v-name                         '",'.
-    END.*/
+  
     ASSIGN cDisplay = ""
            cTmpField = ""
            cVarValue = ""
@@ -904,6 +846,8 @@ END.
                                     FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                          cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                END.
+
+               IF lShipTotal AND NOT FIRST-OF(tt-report.key-03) THEN do:
               
                 PUT str-line SKIP.
                 PUT UNFORMATTED "         SHIP-TO TOTALS" substring(cDisplay,24,350) SKIP.
@@ -911,6 +855,8 @@ END.
                      PUT STREAM excel UNFORMATTED  '               SHIP-TO TOTALS ,'
                            substring(cExcelDisplay,4,350) SKIP(1).
                  END.
+                 IF NOT last-of(tt-report.key-02) AND NOT LAST(tt-report.key-01) THEN PUT SKIP(1) .
+               END. /* lShipTotal*/
 
       end.
       
@@ -921,6 +867,10 @@ END.
        v-qty[2] = 0
        v-amt[2] = 0.
     end.
+    if v-det then do:
+        IF FIRST-OF(tt-report.key-02) AND LAST-OF(tt-report.key-02)  AND NOT LAST(tt-report.key-01) THEN
+            PUT SKIP(1) .
+    END.
 
     if last-of(tt-report.key-02) then do:
       if v-det then do:
@@ -960,22 +910,24 @@ END.
                                     FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                          cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                END.
-              
-                PUT str-line SKIP.
-                IF not v-sort1 THEN do:
-                    PUT UNFORMATTED "         PART NO TOTALS" substring(cDisplay,24,350) SKIP.
-                    IF tb_excel THEN DO:
-                        PUT STREAM excel UNFORMATTED  '               PART NO TOTALS ,'
-                            substring(cExcelDisplay,4,350) SKIP(1).
+               IF NOT FIRST-OF(tt-report.key-02) THEN do:
+                    PUT str-line SKIP.
+                    IF not v-sort1 THEN do:
+                        PUT UNFORMATTED "         PART NO TOTALS" substring(cDisplay,24,350) SKIP.
+                        IF tb_excel THEN DO:
+                            PUT STREAM excel UNFORMATTED  '               PART NO TOTALS ,'
+                                substring(cExcelDisplay,4,350) SKIP(1).
+                        END.
                     END.
-                END.
-                ELSE DO:
-                    PUT UNFORMATTED "         CUSTOMER TOTALS" substring(cDisplay,25,350) SKIP.
-                    IF tb_excel THEN DO:
-                        PUT STREAM excel UNFORMATTED  '               CUSTOMER TOTALS ,'
-                            substring(cExcelDisplay,4,350) SKIP(1).
+                    ELSE DO:
+                        PUT UNFORMATTED "         CUSTOMER TOTALS" substring(cDisplay,25,350) SKIP.
+                        IF tb_excel THEN DO:
+                            PUT STREAM excel UNFORMATTED  '               CUSTOMER TOTALS ,'
+                                substring(cExcelDisplay,4,350) SKIP(1).
+                        END.
                     END.
-                END.
+                    IF NOT last-of(tt-report.key-01) AND NOT LAST(tt-report.key-01) THEN PUT SKIP(1) .
+               END. /* NOT FIRST-OF(tt-report.key-02)*/
       end.  /* Task 11041302  */
       
       else
@@ -1029,22 +981,24 @@ END.
                                     FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                          cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                END.
-              
-                PUT str-line SKIP.
-                IF not v-sort1 THEN do:
-                    PUT UNFORMATTED "         CUSTOMER TOTALS" substring(cDisplay,25,350) SKIP.
-                    IF tb_excel THEN DO:
-                        PUT STREAM excel UNFORMATTED  '               CUSTOMER TOTALS ,'
-                            substring(cExcelDisplay,4,350) SKIP(1).
+               IF NOT FIRST-OF(tt-report.key-01) THEN do:
+                    PUT str-line SKIP.
+                    IF not v-sort1 THEN do:
+                        PUT UNFORMATTED "         CUSTOMER TOTALS" substring(cDisplay,25,350) SKIP.
+                        IF tb_excel THEN DO:
+                            PUT STREAM excel UNFORMATTED  '               CUSTOMER TOTALS ,'
+                                substring(cExcelDisplay,4,350) SKIP(1).
+                        END.
                     END.
-                END.
-                ELSE DO:
-                    PUT UNFORMATTED "         ITEM TOTALS" substring(cDisplay,21,350) SKIP.
-                    IF tb_excel THEN DO:
-                        PUT STREAM excel UNFORMATTED  '               ITEM TOTALS ,'
-                            substring(cExcelDisplay,4,350) SKIP(1).
+                    ELSE DO:
+                        PUT UNFORMATTED "         ITEM TOTALS" substring(cDisplay,21,350) SKIP.
+                        IF tb_excel THEN DO:
+                            PUT STREAM excel UNFORMATTED  '               ITEM TOTALS ,'
+                                substring(cExcelDisplay,4,350) SKIP(1).
+                        END.
                     END.
-                END.
+                    IF NOT last(tt-report.key-01) THEN PUT SKIP(1) .
+               END. /* NOT FIRST-OF(tt-report.key-01)*/
       end. /* Task 11041302  */
 
       else
@@ -1061,7 +1015,7 @@ END.
     end.
 
     if last(tt-report.key-01) then do:
-      put skip(1).
+      /*put skip(1).*/
     
       ASSIGN cDisplay = ""
            cTmpField = ""
