@@ -18,7 +18,7 @@ PUT
   "<FArial><P14><=#3>" "<P10><ADJUST=LPI>" SKIP
   
   SKIP              
-  "<=#3><R+1>Page #:             " PAGE-NUM SKIP
+  "<=#3><R+2>Page #:             " PAGE-NUM SKIP
   "<=#3><R+3>Date  :                     " oe-bolh.bol-date        SKIP
   "<=#3><R+4>Customer Dock time_____________________" SKIP
   /*SKIP*/

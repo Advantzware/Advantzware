@@ -3,7 +3,7 @@
 PUT 
          "<C1><#1><FArial>"   SKIP
          "<P14><C+45> <B>Purchase Order</B> <P10>" v-change-ord SKIP       
-       "<C3><R2><#2><R+8><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(60)"  SKIP 
+       "<C3><R2><#2><R+8><C+40>" "<IMAGE#2=" + ls-full-img1 FORM "x(150)"  SKIP 
        /*"<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)" */
           "<P10><=1><R+8>"   
       /*    v-comp-add1  AT 8 SKIP
@@ -20,12 +20,12 @@ PUT
          SPACE(3) vend.city + " " + vend.state + " " + vend.zip FORM "x(35)"
                   v-scity + " " + v-sstate + " " + v-szip FORM "x(35)" AT 50 SKIP
          
-       "<R4><C50><#3>" SKIP
+       "<R3><C50><#3>" SKIP
        "<FArial><P14><=#3>" /*<C-20><R-2> <B>Purchase Order</B>*/  "<P10>" SKIP
           "<=#3><R+1><B><P12>PO #: " po-ord.po-no "</B><P10>" SKIP(1)
-          "<=#3><R+2>Date: " po-ord.po-date        SKIP
-          "<=#3><R+3>Changed Date: " po-ord.po-change-date SKIP
-          "<=3><R+4>Date Required: " po-ord.due-date SKIP
+          "<=#3><R+3>Date: " po-ord.po-date        SKIP
+          "<=#3><R+4>Changed Date: " po-ord.po-change-date SKIP
+          "<=3><R+5>Date Required: " po-ord.due-date SKIP
        .
     /*IF lv-display-comp THEN 
         PUT "<=1><C3><FGCOLOR=" trim(lv-comp-color) + ">"
