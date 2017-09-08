@@ -91,12 +91,12 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14.
 
 DEFINE VARIABLE fiDueBegin AS DATE FORMAT "99/99/99":U 
-     LABEL "Due Date Begin" 
+     LABEL "Create Date Begin" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiDueEnd AS DATE FORMAT "99/99/99":U 
-     LABEL "Due Date End" 
+     LABEL "Create Date End" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
@@ -327,9 +327,13 @@ chWorkSheet = chExcelApplication:Sheets:item(1).
 FOR EACH job NO-LOCK WHERE 
     job.company = "001" AND 
     job.opened = true and
-    job.due-date >= date(fiDueBegin:screen-value in frame gDialog) and
-    job.due-date <= date(fiDueEnd:screen-value) 
+    job.create-date >= date(fiDueBegin:screen-value in frame gDialog) and
+    job.create-date <= date(fiDueEnd:screen-value) 
     use-index due-date, 
+    EACH job-mat NO-LOCK OF job,
+        FIRST item NO-LOCK WHERE
+            item.company = job.company and
+            item.i-no = job-mat.rm-i-no,
     EACH job-hdr OF job NO-LOCK,
         FIRST itemfg NO-LOCK OF job-hdr, 
         EACH est NO-LOCK WHERE
@@ -396,6 +400,10 @@ FOR EACH job NO-LOCK WHERE
         chWorkSheet:Range("AM" + STRING(iRow)):VALUE = probe.gross-profit
         chWorkSheet:Range("AN" + STRING(iRow)):VALUE = probe.net-profit
         chWorkSheet:Range("AO" + STRING(iRow)):VALUE = probe.prof-on
+        chWorkSheet:Range("AP" + STRING(iRow)):VALUE = item.i-no
+        chWorkSheet:Range("AQ" + STRING(iRow)):VALUE = item.s-len
+        chWorkSheet:Range("AR" + STRING(iRow)):VALUE = item.s-wid
+        
         iRow = iRow + 1.
 
 end.
