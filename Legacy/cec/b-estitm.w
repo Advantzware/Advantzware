@@ -3547,7 +3547,11 @@ DEF VAR lv-comm LIKE eb.comm NO-UNDO.
 
    /*  IF AVAIL itemfg AND eb.part-no = "" THEN
          ASSIGN eb.part-no    = itemfg.part-no. */
-      
+
+      /* convert to decimal from 1/16 */
+       {sys/inc/k16bb.i eb.wid  } 
+       {sys/inc/k16bb.i eb.len  } 
+       {sys/inc/k16bb.i eb.dep  } 
         
         FIND FIRST cust WHERE
             cust.company = gcompany AND
