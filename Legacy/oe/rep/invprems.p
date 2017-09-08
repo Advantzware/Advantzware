@@ -1,4 +1,4 @@
-/* ---------------------------------------------- oe/rep/invpremx.p */
+/* ---------------------------------------------- oe/rep/invprems.p */
 /* PRINT INVOICE   Xprint form for Premier Pkg  (PremierX and PremierS)       */
 /* -------------------------------------------------------------------------- */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
@@ -85,7 +85,7 @@ FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
-ASSIGN ls-image1 = "images\premiercan.jpg"
+ASSIGN ls-image1 = "images\premierinv.jpg"
        FILE-INFO:FILE-NAME = ls-image1.
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
@@ -510,7 +510,7 @@ RUN XMLOutput (lXMLOutput,'','','Header').
         XMLPage = NO.
         /* rstark 05291402 */
 
-        {oe/rep/invpremx.i}  /* xprint form */
+        {oe/rep/invprems.i}  /* xprint form */
 
         ASSIGN
         v-subtot-lines = 0
@@ -559,7 +559,7 @@ RUN XMLOutput (lXMLOutput,'','','Header').
 
           IF v-printline > 62 THEN do:           
                 PAGE.
-                {oe/rep/invpremx.i}
+                {oe/rep/invprems.i}
                 v-printline = 21.
           END.
 
@@ -768,7 +768,7 @@ RUN XMLOutput (lXMLOutput,'','','Header').
           IF v-printline > 62 THEN do:
               
                 PAGE.                
-                {oe/rep/invpremx.i}
+                {oe/rep/invprems.i}
                 v-printline = 21.
           END.
           if first(inv-misc.ord-no) then
@@ -896,12 +896,12 @@ RUN XMLOutput (lXMLOutput,'','','Header').
     PUT "<R58><C58><#8><FROM><R+5><C+22><RECT> " 
         "<=8> Sub Total    :" v-subtot-lines FORM "->>,>>9.99"
         "<=8><R+1> Freight      :" v-inv-freight
-        "<=8><R+2> HST          :" inv-head.t-inv-tax FORM "->>,>>9.99"
+        "<=8><R+2> GST          :" inv-head.t-inv-tax FORM "->>,>>9.99"
         "<=8><R+3>" "" 
         "<=8><R+4> Total Invoice:" inv-head.t-inv-rev FORM "->>,>>9.99" .
 
     PUT "<FArial><R58><C1><P12><B> THANK YOU. </B> <P9> " SKIP.
-    PUT "<FArial><R60><C1><P12> All currencies displayed in CAD. <P9> " SKIP.
+    PUT "<FArial><R60><C1><P12> All currencies displayed in AUD. <P9> " SKIP.
     v-printline = v-printline + 8.
    
     /* rstark 05181205 */

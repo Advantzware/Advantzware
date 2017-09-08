@@ -26,10 +26,10 @@
 
 /* Variables defined by the user or programmer. */
 DEF VAR viLn-Section-1  AS INT NO-UNDO INIT 2.  /* Line to start printing top section details. */
-DEF VAR viLn-Section-2  AS INT NO-UNDO INIT 24. /* Line to start printing middle section details. */
+DEF VAR viLn-Section-2  AS INT NO-UNDO INIT 23. /* Line to start printing middle section details. */
 DEF VAR viLn-Check      AS INT NO-UNDO INIT 43. /* Line to start printing the check. */
 DEF VAR viLn-Void       AS INT NO-UNDO INIT 43. /* Line to start printing VOID. */
-DEF VAR viLn-Detail-Max AS INT NO-UNDO INIT 9.  /* Max number of detail lines in a section. */
+DEF VAR viLn-Detail-Max AS INT NO-UNDO INIT 10.  /* Max number of detail lines in a section. */
 DEF VAR viPageLines     AS INT NO-UNDO INIT 66. /* Number of available lines on the page. */
 
 /* Show line numbers for testing purposes. */
@@ -377,9 +377,9 @@ PROCEDURE Get-Remit-Address :
    IF vend.r-add1 EQ " " THEN DO:   /*if no remit-to address*/
      IF LENGTH(vend.r-zip) GT 5 THEN
        csz = vend.city + ", " + vend.state + " " +
-             SUBSTR(vend.zip,1,5) + "-" + SUBSTR(vend.zip,6,4).
+             SUBSTR(vend.zip,1,5) + "-" + SUBSTR(vend.zip,6,4) + " " + STRING(vend.postal).
      ELSE
-       csz = vend.city + ", " + vend.state + " " + vend.zip.
+       csz = vend.city + ", " + vend.state + " " + vend.zip + " " + STRING(vend.postal).
 
      ASSIGN
       pcAdd1 = vend.add1
@@ -389,9 +389,9 @@ PROCEDURE Get-Remit-Address :
    ELSE DO: /*if a remit-to address exists  GEH */
      IF LENGTH(vend.r-zip) GT 5 THEN
        csz = vend.r-city + ", " + vend.r-state + " " +
-             SUBSTR(vend.r-zip,1,5) + "-" + SUBSTR(vend.r-zip,6,4).
+             SUBSTR(vend.r-zip,1,5) + "-" + SUBSTR(vend.r-zip,6,4) + " " + STRING(vend.postal).
      ELSE
-       csz = vend.r-city + ", " + vend.r-state + " " + vend.r-zip.
+       csz = vend.r-city + ", " + vend.r-state + " " + vend.r-zip + " " + STRING(vend.postal).
 
      ASSIGN
       pcAdd1 = vend.r-add1

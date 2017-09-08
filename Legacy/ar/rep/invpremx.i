@@ -1,18 +1,16 @@
 /* ar/rep/invpremx.i  */
 PUT "<FTimes New Roman>".
         PUT "<C3><R2><#1>"
-         /*    space(24) v-comp-add1 FORM "x(50)"  "</B>" SKIP(1)
-             "<P10>" space(65) v-comp-add2 FORM "x(60)" SKIP
-             space(75) v-comp-add3 FORM "x(60)" SKIP
-             space(62) v-comp-add4 FORM "x(60)" "<P10>" SKIP  */  
-             "<R+8><C+75><IMAGE#1=" ls-full-img1 SKIP(2). /* image */ .
+          
+             "<R+8><C+45><IMAGE#1=" ls-full-img1 SKIP .
         PUT "<=1>" SKIP.
-        PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
-            "<P10><=2><R+6>"
-            "<FCourier New>"
+        PUT "<C1><#2>" 
+            "<P10><=2><R+5.5>"
+            "<FCourier New>"            
+            SPACE(4) "<P11><B>GST# 70523 1090 RT0001</B><P10>" SKIP(1)
             SPACE(12) "REMIT TO: PREMIER PACKAGING" SKIP
-            SPACE(12) "          3254 RELIABLE PARKWAY" SKIP
-            SPACE(12) "          CHICAGO, IL 60686" 
+            SPACE(12) "          PO BOX 39505" SKIP
+            SPACE(12) "          Louisville, KY 40233" 
             SKIP(1)
             space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
             SPACE(14) ar-inv.cust-name v-shipto-name AT 64 skip

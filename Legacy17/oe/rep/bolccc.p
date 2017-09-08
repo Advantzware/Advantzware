@@ -361,7 +361,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
   PUT "<R39><C50><#7>Initial"
       "<=7><C+10><FROM><R+2><C+20><RECT> " 
       "<R41><C50><#8><FROM><R+3><C+30><RECT> " 
-      "<=8><R+1> Total Pallets      :" oe-bolh.tot-pallets FORM ">,>>>,>>9".
+      "<=8><R+1> Total Pallets      :" v-tot-cases /*oe-bolh.tot-pallets*/ FORM ">,>>>,>>9".
 
 PUT "<FBook Antiqua><R39><C1><P12><B>     Shipping Instructions: </B> <P9> " SKIP  .
 
