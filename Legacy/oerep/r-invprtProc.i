@@ -1950,7 +1950,7 @@ PROCEDURE SetInvForm:
                 is-xprint-form = YES.
         WHEN "PremierS" THEN
             ASSIGN
-                v-program      = "oe/rep/invpremx.p"
+                v-program      = "oe/rep/invprems.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "ColoniaX" THEN
@@ -2529,7 +2529,7 @@ PROCEDURE SetInvPostForm:
                 is-xprint-form = YES.
         WHEN "PremierS" THEN
             ASSIGN
-                v-program      = "ar/rep/invpremx.p"
+                v-program      = "ar/rep/invprems.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "ColoniaX" THEN

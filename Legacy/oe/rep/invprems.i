@@ -10,10 +10,10 @@ PUT "<FTimes New Roman>".
         PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
             "<P10><=2><R+5.5>"
             "<FCourier New>"
-            SPACE(4) "<P11><B>GST# 70523 1090 RT0001</B><P10>" SKIP(1)
+            SPACE(14) "<P11><B>ABN 11 620 887 149</B><P10>" SKIP(1)
             SPACE(12) "REMIT TO: PREMIER PACKAGING" SKIP
-            SPACE(12) "          PO BOX 39505" SKIP
-            SPACE(12) "          Louisville, KY 40233" 
+            SPACE(12) "          3254 RELIABLE PARKWAY" SKIP
+            SPACE(12) "          CHICAGO, IL 60686"
             SKIP(1)
             space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
             SPACE(12) inv-head.cust-name v-shipto-name AT 64 skip
