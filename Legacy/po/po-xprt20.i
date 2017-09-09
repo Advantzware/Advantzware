@@ -2,7 +2,7 @@
 
 PUT 
          "<FArial>"   SKIP
-           "<P14><C+35> <B>Purchase Order</B> <P10>" v-change-ord SKIP       
+           "<P14><C+48> <B>Purchase Order</B> <P10>" v-change-ord SKIP       
          "<C2><R2><#1><R+10><C+40><IMAGE#1=" ls-full-img1  SKIP
          "<FCourier New>"
          "Purchase Order To:" SPACE(30) "Ship To:"  SKIP.
