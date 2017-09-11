@@ -6,8 +6,8 @@ PUT
   "<FArial>"  SKIP
   "<#1><P10><ADJUST=LPI><C50><B>STRAIGHT BILL OF LADING"  SKIP
   "<=1><R+1><C25></B>"            SKIP
-  "<=1><R+2><C25><B><C50>Bill of Lading #: " oe-bolh.bol-no   "</B>"
-  "<R-4><C1><#2><R+10><C+60><IMAGE#1=" ls-full-img1 SKIP
+  "<=1><R+3><C25><B><C50>Bill of Lading #: " oe-bolh.bol-no   "</B>"
+  "<R-4><C1><#2><R+9><C+60><IMAGE#1=" ls-full-img1 SKIP
   "<FCourier New>"
   "Bill To:" SPACE(30) "Ship To:"  SKIP
   SPACE(5) v-comp-name v-ship-name AT 45 skip
@@ -18,11 +18,11 @@ PUT
   "<FArial><P14><=#3>" "<P10><ADJUST=LPI>" SKIP
   
   SKIP              
-  "<=#3><R+2>Page #:             " PAGE-NUM SKIP
-  "<=#3><R+3>Date  :                     " oe-bolh.bol-date        SKIP
-  "<=#3><R+4>Customer Dock time_____________________" SKIP
+  "<=#3><R+3>Page #:             " PAGE-NUM SKIP
+  "<=#3><R+4>Date  :                     " oe-bolh.bol-date        SKIP
+  "<=#3><R+5>Customer Dock time_____________________" SKIP
   /*SKIP*/
-  SKIP(3).
+  SKIP(1).
 
 PUT
   "<P10><ADJUST=LPI>"
