@@ -12,7 +12,7 @@ PUT
           v-comp-add4  AT 8 SKIP
           v-comp-add5  AT 8 /*"<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)"*/ skip
           lv-email AT 8 */
-          "<FCourier New>" SKIP(1)
+          "<FCourier New>" SKIP(2)
          space(3) "Purchase Order To:"   "Ship To:" AT 50 SKIP
          SPACE(3) vend.name v-sname AT 50 skip
          SPACE(3) vend.add1 v-saddr[1] AT 50 SKIP
@@ -20,7 +20,7 @@ PUT
          SPACE(3) vend.city + " " + vend.state + " " + vend.zip FORM "x(35)"
                   v-scity + " " + v-sstate + " " + v-szip FORM "x(35)" AT 50 SKIP
          
-       "<R3><C50><#3>" SKIP
+       "<R4><C50><#3>" SKIP
        "<FArial><P14><=#3>" /*<C-20><R-2> <B>Purchase Order</B>*/  "<P10>" SKIP
           "<=#3><R+1.5><B><P12>PO #: " po-ord.po-no "</B><P10>" SKIP(1)
           "<=#3><R+4.5>Date: " po-ord.po-date        SKIP
