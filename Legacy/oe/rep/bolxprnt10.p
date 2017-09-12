@@ -104,6 +104,7 @@ DEF VAR v-print-barTag AS LOG NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+DEFINE VARIABLE lBroker AS LOGICAL NO-UNDO .
 
 RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
     INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
@@ -193,11 +194,12 @@ for each xxreport where xxreport.term-id eq v-term-id,
     v-phone = IF oe-bolh.area-code + oe-bolh.phone <> "" THEN 
               "(" + oe-bolh.area-code + ")" + string(oe-bolh.phone,"xxx-xxxx")
               ELSE ""
-    v-shipto-contact = oe-bolh.contact.
+    v-shipto-contact = oe-bolh.contact
+    lBroker = NO .
 
     IF v-phone = "" THEN v-phone = "(" + shipto.area-code + ")" + string(shipto.phone,"xxx-xxxx").
     IF v-shipto-contact = "" THEN v-shipto-contact = shipto.contact.
-
+    
     if shipto.broker then DO:
        ASSIGN v-comp-add1 = cust.addr[1]
               v-comp-add2 = cust.addr[2]
@@ -207,7 +209,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
               v-comp-add4 = "Phone:  " + string(cust.area-code,"(999)") + string(cust.phone,"999-9999") 
               v-comp-add5 = "Fax     :  " + string(cust.fax,"(999)999-9999") 
               lv-email    = "Email:  " + cust.email   
-              lv-comp-name = cust.NAME .
+              lv-comp-name = cust.NAME 
+              lBroker = YES .
        /* sold to address from order */
        FIND FIRST oe-boll where oe-boll.company eq oe-bolh.company and oe-boll.b-no eq oe-bolh.b-no NO-LOCK NO-ERROR.
        IF AVAIL oe-boll THEN DO:
@@ -228,7 +231,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
                 v-comp-add4 = v-cusx-add4                
                 v-comp-add5 = v-cusx-add5
                 lv-email    = v-cusx-email
-                lv-comp-name = v-cusx-name.
+                lv-comp-name = v-cusx-name
+                lBroker = NO .
    /* assign
        v-comp-name    = cust.name
        v-comp-addr[1] = cust.addr[1]
