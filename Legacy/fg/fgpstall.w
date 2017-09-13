@@ -1256,7 +1256,13 @@ lv-rel-recid = RECID(bf-oe-rel).
   ld-prev-rel-qty = IF adm-new-record THEN 0 ELSE IF AVAIL bf-oe-rel THEN bf-oe-rel.qty ELSE 0.
 
   FIND bf-oe-ord OF bf-oe-ordl NO-LOCK NO-ERROR.
-
+  IF NOT AVAIL bf-oe-ord THEN DO:
+      MESSAGE
+          "Unable to locate an order header record for this order line." SKIP
+          "Please contact your System Administrator for assistance."
+          VIEW-AS ALERT-BOX ERROR.
+      RETURN.
+  END.
 
  IF AVAIL bf-oe-ordl THEN
      FIND b-ordl WHERE ROWID(b-ordl) EQ ROWID(bf-oe-ordl) NO-ERROR.
