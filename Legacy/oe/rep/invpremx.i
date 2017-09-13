@@ -11,10 +11,10 @@ PUT "<FTimes New Roman>".
             "<P10><=2><R+5.5>"
             "<FCourier New>"
             SPACE(4) "<P11><B>GST# 70523 1090 RT0001</B><P10>" SKIP(1)
-            SPACE(12) "REMIT TO: PREMIER PACKAGING" SKIP
+            /*SPACE(12) "REMIT TO: PREMIER PACKAGING" SKIP
             SPACE(12) "          PO BOX 39505" SKIP
-            SPACE(12) "          Louisville, KY 40233" 
-            SKIP(1)
+            SPACE(12) "          Louisville, KY 40233" */
+            SKIP(3)
             space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
             SPACE(12) inv-head.cust-name v-shipto-name AT 64 skip
             SPACE(12) inv-head.addr[1]   v-shipto-addr[1] AT 64 SKIP
