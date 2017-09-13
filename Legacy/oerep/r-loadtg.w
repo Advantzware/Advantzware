@@ -113,7 +113,6 @@ DEF VAR v-fgdsc3 LIKE itemfg.part-dscr3 NO-UNDO.
 
 DEFINE VARIABLE cPrevFromItem AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cPrevToItem AS CHARACTER   NO-UNDO.
-DEFINE VARIABLE lReturn AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE tt-ordjobs
     FIELD job-no LIKE job.job-no
@@ -1805,7 +1804,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cas-lab C-Win
 ON RETURN OF fi_cas-lab IN FRAME FRAME-A /* Scan Case Label */
 DO:
-  lReturn = YES.
   APPLY 'TAB' TO SELF.
   RETURN NO-APPLY.
 END.
@@ -2403,6 +2401,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        begin_form:VISIBLE = NO.
 
      ASSIGN
+       fi_cas-lab:SCREEN-VALUE = "" /*calling from OU1 brings back old wrong value*/
        begin_filename:SCREEN-VALUE = bardir-desc.
 
     IF bardir-int = 1 THEN DO:
@@ -2410,41 +2409,85 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        IF AVAIL users AND users.user_program[3] NE "" THEN
            ASSIGN begin_filename:SCREEN-VALUE = users.user_program[3].                  
     END.
-     
-    IF  PROGRAM-NAME(3) MATCHES "*/b-ordlt.*" THEN DO: 
-      
+
+    /* gdm - 06100901 */
+    IF SEARCH('OU1-loadtag.txt') NE ? OR
+       SEARCH('IU2-loadtag.txt') NE ?
+      THEN ASSIGN v-txtflg = YES.
+    /* gdm - 06100901 end */
+
+    IF SEARCH('OU1-loadtag.txt') NE ? THEN DO:
+      /* gdm - 06100901 end */
       ASSIGN
         v-ord-list     = ""
         v-job-list     = ""
         v-ord-list:SCREEN-VALUE   = ""
         v-job-list:SCREEN-VALUE   = ""
-        fi_cas-lab:SCREEN-VALUE   = "" .
+        begin_ord-no:SCREEN-VALUE = ""
+        end_ord-no:SCREEN-VALUE   = "" 
+        begin_job:SCREEN-VALUE    = ""
+        begin_job:SCREEN-VALUE    = ""
+        end_job:SCREEN-VALUE      = ""
+        begin_job2:SCREEN-VALUE   = ""
+        end_job2:SCREEN-VALUE     = ""  
+        begin_i-no:SCREEN-VALUE   = ""  
+        end_i-no:SCREEN-VALUE     = "" .
       /* gdm - 06100901 end */
-      
 
-      IF  begin_i-no:SCREEN-VALUE NE '' THEN DO:  
+      INPUT FROM 'OU1-loadtag.txt' NO-ECHO.
+      IMPORT ordNo jobNo jobNo2 iNo poNoPo.
+      INPUT CLOSE.
+      OS-DELETE 'OU1-loadtag.txt'.
+      IF ordNo NE '' THEN
+      ASSIGN
+        begin_ord-no:SCREEN-VALUE = ordNo
+        end_ord-no:SCREEN-VALUE   = ordNo.
+      IF jobNo NE '' THEN
+      ASSIGN
+        begin_job:SCREEN-VALUE    = jobNo
+        begin_job:SCREEN-VALUE    = jobNo
+        end_job:SCREEN-VALUE      = jobNo
+        begin_job2:SCREEN-VALUE   = jobNo2
+        end_job2:SCREEN-VALUE     = jobNo2.
+
+      IF iNo NE '' THEN DO:      
+        ASSIGN
+          begin_i-no:SCREEN-VALUE   = iNo
+          end_i-no:SCREEN-VALUE     = iNo.
         FIND FIRST po-ordl WHERE po-ordl.company EQ cocode
-          AND po-ordl.po-no = int(begin_ord-no:SCREEN-VALUE) NO-LOCK NO-ERROR.
+          AND po-ordl.po-no = poNoPo NO-LOCK NO-ERROR.
         IF AVAIL po-ordl THEN DO:
           FIND itemfg WHERE itemfg.company EQ cocode
-                AND itemfg.i-no EQ begin_i-no:SCREEN-VALUE
+                AND itemfg.i-no EQ iNo
               NO-LOCK NO-ERROR.
         END.
 
+
         IF (AVAIL itemfg AND itemfg.pur-man AND NOT itemfg.isaset)            
-            AND AVAIL po-ordl THEN
+            AND poNoPo GT 0 THEN
           ASSIGN loadtagFunction:SCREEN-VALUE = "Po"
+                 begin_ord-no:SCREEN-VALUE    = STRING(poNoPo, ">>>>>>>>>")
+                 end_ord-no:SCREEN-VALUE      = STRING(poNoPo, ">>>>>>>>>")
                  begin_job:SCREEN-VALUE       = ""
                  end_job:SCREEN-VALUE         = "".
+/*         ELSE DO:                                                            */
+/*           FIND FIRST itemfg WHERE itemfg.company EQ cocode                  */
+/*               AND itemfg.i-no EQ iNo                                        */
+/*             NO-LOCK NO-ERROR.                                               */
+/*           /* Unassembled sets were not defaulting from-to item # */         */
+/*           IF AVAIL itemfg AND itemfg.isaset AND itemfg.alloc = YES THEN DO: */
+/*             loadtagFunction:SCREEN-VALUE = "order".                         */
+/*             RUN get-import-ord (INPUT INTEGER(begin_ord-no:SCREEN-VALUE)).  */
+/*           END.                                                              */
+/*         END.                                                                */
 
       END. /* i-no ne '' */
       ELSE
         loadtagFunction:SCREEN-VALUE = "order".
 
-    END.   
+    END.    
 
-    /*IF SEARCH('IU2-loadtag.txt') NE ? THEN DO:*/
-    IF  PROGRAM-NAME(3) MATCHES "*/b-trans.*" THEN DO:
+    IF SEARCH('IU2-loadtag.txt') NE ? THEN DO:
       /* gdm - 06100901 end */
       ASSIGN
         v-ord-list     = ""
@@ -2461,10 +2504,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         begin_i-no:SCREEN-VALUE   = ""  
         end_i-no:SCREEN-VALUE     = "" .
       /* gdm - 06100901 end */
-       
-      IF fi_cas-lab:SCREEN-VALUE NE "" THEN
+
+      DEF VAR v-fg-tag AS cha FORM "x(25)" NO-UNDO.
+      INPUT FROM 'IU2-loadtag.txt' NO-ECHO.
+      IMPORT v-fg-tag.
+      INPUT CLOSE.
+      OS-DELETE 'IU2-loadtag.txt'.
+      IF v-fg-tag NE '' THEN
       ASSIGN tb_reprint-tag = YES
              tb_reprint-tag:SCREEN-VALUE = "Yes"
+             fi_cas-lab:SCREEN-VALUE = v-fg-tag
              .
       loadtagFunction:SCREEN-VALUE = "order".
       /* APPLY 'value-changed' TO tb_reprint-tag. */
@@ -2505,7 +2554,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 */  
 
     /* gdm - 06100901 */
-    IF  PROGRAM-NAME(3) MATCHES "*/mainmenu.*" THEN do:
+    IF NOT v-txtflg  THEN DO:
 
        /* gdm - 06050908 */
        ASSIGN
@@ -3815,7 +3864,7 @@ PROCEDURE create-w-ord :
             w-ord.vendor       = company.name
             w-ord.tare-wt      = 10
             w-ord.uom          = "EA"
-            w-ord.mult         = IF AVAIL cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult then
+            w-ord.mult         = if cust.int-field[1] ne 0 AND NOT glOverrideMult then
                                    cust.int-field[1] else v-mult
             w-ord.dont-run-set = IF AVAIL oe-ordl THEN oe-ordl.is-a-component ELSE NO
             w-ord.ord-desc1    = IF AVAIL oe-ordl THEN oe-ordl.part-dscr1 ELSE ""
@@ -3932,8 +3981,8 @@ PROCEDURE create-w-ord :
             w-ord.ord-no       = job-hdr.ord-no
             w-ord.job-no       = job-hdr.job-no
             w-ord.job-no2      = job-hdr.job-no2
-            w-ord.cust-no      = IF AVAIL cust THEN cust.cust-no ELSE ""
-            w-ord.cust-name    = IF AVAIL cust THEN cust.NAME ELSE ""
+            w-ord.cust-no      = cust.cust-no
+            w-ord.cust-name    = cust.name
             w-ord.i-no         = loadtag.i-no
             w-ord.ord-qty      = job-hdr.qty
             w-ord.due-date     = job.start-date
@@ -3942,7 +3991,7 @@ PROCEDURE create-w-ord :
             w-ord.vendor       = company.name
             w-ord.tare-wt      = 10
             w-ord.uom          = "EA"
-            w-ord.mult         = IF AVAIL cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult THEN
+            w-ord.mult         = if cust.int-field[1] ne 0 AND NOT glOverrideMult THEN
                                    cust.int-field[1] else v-mult
             w-ord.lot          = loadtag.misc-char[2].
 
@@ -4805,7 +4854,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
             w-ord.vendor       = company.name
             w-ord.tare-wt      = 10
             w-ord.uom          = "EA"
-            w-ord.mult         = IF AVAILABLE cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult then
+            w-ord.mult         = if cust.int-field[1] ne 0 AND NOT glOverrideMult then
                                    cust.int-field[1] else v-mult
             w-ord.dont-run-set = oe-ordl.is-a-component
             w-ord.ord-desc1    = oe-ordl.part-dscr1
@@ -5041,7 +5090,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
           w-ord.vendor       = company.name
           w-ord.tare-wt      = 10
           w-ord.uom          = "EA"
-          w-ord.mult         = IF AVAIL cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult then
+          w-ord.mult         = if cust.int-field[1] ne 0 AND NOT glOverrideMult then
                                  cust.int-field[1] else v-mult
           w-ord.dont-run-set = oe-ordl.is-a-component
           w-ord.ord-desc1    = oe-ordl.part-dscr1
@@ -6522,12 +6571,8 @@ PROCEDURE new-cas-lab :
 
            RUN cas-lab-label-mat-file.
 
-           IF lReturn THEN DO:
-             APPLY "choose" TO btn-ok.
-             lReturn = NO.
-           END.
-           ELSE
-           RUN ok-button. 
+           APPLY "choose" TO btn-ok.
+/*            RUN ok-button. */
       END.
       ELSE MESSAGE "Invalid Loadtag. Try Help." VIEW-AS ALERT-BOX ERROR.
     END.
@@ -7464,7 +7509,7 @@ PROCEDURE write-loadtag-line :
         w-ord.gross-wt  "," /*??07  Lbs/M Pieces  - cust waste  6 characters    LbsperM                                                                                     */
         "," /*08  Plant Number    2 characters    plantnumber                                                                                             */
         "- -,"/*09  this field contains “- -“   3 characters    Text0098                                                                                    */
-        w-ord.total-tags "," /*10  Number of tags per unit 1 character **QUANTITY                                                                                          */
+        1 /* w-ord.total-tags */ "," /*10  Number of tags per unit 1 character **QUANTITY                                                                                          */
         1 "," /*11  Number of tags to print 5 characters    tagstoprint                                                                                     */
         w-ord.ord-no  ","/*12  Order Number    7 characters    ordernumber                                                                                             */
         w-ord.total-unit  ","/*13  Quantity per pallet 6 characters    qtypallet                                                                                           */
