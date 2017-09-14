@@ -11,12 +11,43 @@
     Created     : Wed Aug 16 09:05:30 EDT 2017
     Notes       :
   ----------------------------------------------------------------------*/
+{fg/invrecpt.i NEW}
+DEFINE TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
+    FIELD row-id      AS ROWID
+    FIELD has-rec     AS LOG       INIT NO
+    FIELD invoiced    AS LOG       INIT NO
+    FIELD old-tag     AS CHARACTER
+    FIELD ret-loc     AS CHARACTER
+    FIELD ret-loc-bin AS CHARACTER.
+    
+DEFINE TEMP-TABLE tt-fgemail NO-UNDO
+    FIELD i-no      LIKE itemfg.i-no
+    FIELD po-no     LIKE oe-ordl.po-no
+    FIELD ord-no    LIKE oe-ordl.ord-no
+    FIELD qty-rec   AS DEC
+    FIELD recipient AS CHAR.
+
+DEFINE TEMP-TABLE tt-email NO-UNDO 
+    FIELD tt-recid AS RECID
+    FIELD job-no   LIKE job-hdr.job-no
+    FIELD job-no2  LIKE job-hdr.job-no2
+    FIELD i-no     LIKE itemfg.i-no
+    FIELD qty      AS INTEGER
+    FIELD cust-no  AS cha
+    INDEX tt-cust IS PRIMARY cust-no DESCENDING .
+    
+DEFINE TEMP-TABLE tt-inv LIKE w-inv.   
+        
 DEFINE INPUT  PARAMETER v-post-date AS DATE NO-UNDO.
 DEFINE INPUT  PARAMETER tg-recalc-cost AS LOGICAL NO-UNDO.
 DEFINE INPUT  PARAMETER ip-run-what AS CHARACTER NO-UNDO.
-/* input table w-fg-rctd by reference */
+DEFINE INPUT PARAMETER gv-fgemail      AS LOGICAL   NO-UNDO INIT ?. 
+DEFINE INPUT PARAMETER TABLE FOR w-fg-rctd.
+DEFINE INPUT PARAMETER TABLE FOR tt-fgemail. 
+DEFINE INPUT PARAMETER TABLE FOR tt-email. 
+DEFINE INPUT PARAMETER TABLE FOR tt-inv.  
+/* Need to return w-job for prompting */
 
-DEFINE INPUT PARAMETER gv-fgemail      AS LOGICAL   NO-UNDO INIT ?.
 DEFINE VARIABLE ll              AS LOG       NO-UNDO.
 DEFINE VARIABLE dBillAmt        AS DECIMAL   NO-UNDO. /* set, not used */
 DEFINE VARIABLE lEmailBol       AS LOG       NO-UNDO. /* set and used internally */
@@ -34,71 +65,9 @@ RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 /* {methods/prgsecur.i} */
 
 /* temp prgsecur.i */
-/* prgsecur.i {1} - WIN or blank */
-
 {methods/defines/globdefs.i}
-
+DEFINE VARIABLE v-prgmname LIKE prgrms.prgmname NO-UNDO INIT "fgpstall.".
 DEFINE BUFFER b-prgrms FOR prgrms.
-
-DEFINE VARIABLE v-prgmname   LIKE b-prgrms.prgmname NO-UNDO.
-DEFINE VARIABLE Audit_File   AS CHARACTER NO-UNDO.
-DEFINE VARIABLE period_pos   AS INTEGER   NO-UNDO.
-DEFINE VARIABLE num-groups   AS INTEGER   NO-UNDO.
-DEFINE VARIABLE group-ok     AS LOGICAL   NO-UNDO.
-DEFINE VARIABLE access-close AS LOGICAL   NO-UNDO.
-
-IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
-   INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
-   INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-    v-prgmname = USERID("NOSWEAT") + "..".
-ELSE
-    ASSIGN
-        /*   period_pos = INDEX(PROGRAM-NAME(1),".")                                             */
-        /*   v-prgmname = SUBSTR(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 10) + 1) */
-        v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1)
-        v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
-        
-v-prgmname = "fgpstall.".
-FIND b-prgrms WHERE b-prgrms.prgmname = v-prgmname NO-LOCK NO-ERROR.
-IF AVAILABLE b-prgrms THEN
-DO:
-    DO num-groups = 1 TO NUM-ENTRIES(g_groups):
-        IF NOT CAN-DO(b-prgrms.can_run,ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(b-prgrms.can_create,ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(b-prgrms.can_delete,ENTRY(num-groups,g_groups)) THEN
-            NEXT.
-        group-ok = YES.
-        LEAVE.
-    END.
-/*
-IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
-    NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
-    NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
-    NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
-DO:
-    MESSAGE "Program :" PROGRAM-NAME(1) SKIP 
-        "Title :" b-prgrms.prgtitle SKIP(1)
-        "Access to this Program Denied - Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
-    access-close = YES.    /* used later in methods/template/windows.i - local-initialize procedure */
-    
-    IF "{1}" NE "WIN" THEN
-    DO:
-        APPLY 'CLOSE' TO THIS-PROCEDURE. /*task 10020703*/
-        RETURN.
-    END.
-END.
-*/
-END. 
-ELSE
-DO: 
-/*
-MESSAGE "Program :" PROGRAM-NAME(1) SKIP(1)
-    "Program Master Record Does Not Exist - Contact Systems Manager" 
-    VIEW-AS ALERT-BOX ERROR.
-RETURN. */
-END.
-/* end temp prgsecur.i */
 
 {custom/gcompany.i}
 {custom/gloc.i}
@@ -106,8 +75,7 @@ END.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-gcompany = '001'.
-gloc = "main".
+
 ASSIGN
     cocode = gcompany
     locode = gloc.
@@ -117,7 +85,7 @@ END.
 
 {jc/jcgl-sh.i NEW}
 {fg/fg-post3.i NEW}
-{fg/invrecpt.i NEW}
+
 
 DO TRANSACTION:
     {sys/inc/closejob.i FGPost}
@@ -130,36 +98,10 @@ END.
 
 ASSIGN
     v-fgpostgl = fgpostgl.
-    
-DEFINE TEMP-TABLE tt-email NO-UNDO 
-    FIELD tt-recid AS RECID
-    FIELD job-no   LIKE job-hdr.job-no
-    FIELD job-no2  LIKE job-hdr.job-no2
-    FIELD i-no     LIKE itemfg.i-no
-    FIELD qty      AS INTEGER
-    FIELD cust-no  AS cha
-    INDEX tt-cust IS PRIMARY cust-no DESCENDING .
-    
-DEFINE TEMP-TABLE tt-inv LIKE w-inv.      
- 
-DEFINE TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
-    FIELD row-id      AS ROWID
-    FIELD has-rec     AS LOG       INIT NO
-    FIELD invoiced    AS LOG       INIT NO
-    FIELD old-tag     AS CHARACTER
-    FIELD ret-loc     AS CHARACTER
-    FIELD ret-loc-bin AS CHARACTER.
-    
+  
 DEFINE TEMP-TABLE tt-posted-items
     FIELD i-no LIKE w-fg-rctd.i-no
     INDEX i-no i-no.
-
-DEFINE TEMP-TABLE tt-fgemail NO-UNDO
-    FIELD i-no      LIKE itemfg.i-no
-    FIELD po-no     LIKE oe-ordl.po-no
-    FIELD ord-no    LIKE oe-ordl.ord-no
-    FIELD qty-rec   AS DEC
-    FIELD recipient AS CHAR.
         
 {sys/ref/fgoecost.i}
 
@@ -201,7 +143,6 @@ RUN fg-post.
 
 
 /* **********************  Internal Procedures  *********************** */
-
 
 PROCEDURE add-rel-assign-logic:
     /*------------------------------------------------------------------------------
@@ -278,7 +219,7 @@ PROCEDURE add-rel-for-qty:
     DEF VAR oereleas-log LIKE sys-ctrl.log-fld NO-UNDO.
     DEF VAR oereleas-cha LIKE sys-ctrl.char-fld NO-UNDO.
 
-
+    /* Calling program validates this exists */
     FIND FIRST sys-ctrl
         WHERE sys-ctrl.company EQ cocode
         AND sys-ctrl.name    EQ "OERELEAS"
@@ -367,22 +308,10 @@ PROCEDURE add-rel-for-qty:
         /*                         "der quantity + the Underrun %."                                  */
         /*                 view-as alert-box warning.                                                */
 
+        /* Calling program validates this record exists */
         FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ cocode
             AND sys-ctrl.name    EQ "OECARIER"
             NO-LOCK NO-ERROR.
-        IF NOT AVAIL sys-ctrl THEN 
-        DO:
-            CREATE sys-ctrl.
-            ASSIGN 
-                sys-ctrl.company  = cocode
-                sys-ctrl.name     = "OECARIER"
-                sys-ctrl.descrip  = "Default carrier from Header or ShipTo:"
-                sys-ctrl.char-fld = "ShipTo".       
-            DO WHILE TRUE:
-                MESSAGE "Default Shipping Carrier from Header or Shipto?" UPDATE sys-ctrl.char-fld.
-                IF sys-ctrl.char-fld = "Header" OR sys-ctrl.char-fld = "ShipTo" THEN LEAVE. 
-            END.
-        END.
 
         RELEASE shipto.
 
@@ -475,8 +404,6 @@ PROCEDURE add-rel-for-qty:
 
   
     END.
-
-
 
 END PROCEDURE.
 
@@ -660,6 +587,7 @@ PROCEDURE fg-post:
         RUN manualFarmOut.
         DELETE w-fg-rctd.
     END.
+    
     FIND FIRST w-fg-rctd NO-ERROR.
     /* In case only processing rita-code F */
     IF NOT AVAILABLE w-fg-rctd THEN 
@@ -667,59 +595,7 @@ PROCEDURE fg-post:
         RETURN.
     END.
 
-
-    /* Check for invalid transfers */
-    FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code = "T"
-        BY w-fg-rctd.tag
-        BY w-fg-rctd.rct-date
-        BY w-fg-rctd.trans-time
-        BY w-fg-rctd.r-no:
-
-        IF NOT CAN-FIND(FIRST itemfg WHERE
-            itemfg.company EQ cocode AND
-            itemfg.i-no    EQ w-fg-rctd.i-no) THEN
-            NEXT.
-
-        FIND FIRST fg-bin WHERE fg-bin.company EQ cocode
-            AND fg-bin.i-no    EQ w-fg-rctd.i-no
-            AND fg-bin.job-no  EQ w-fg-rctd.job-no
-            AND fg-bin.job-no2 EQ w-fg-rctd.job-no2
-            AND fg-bin.loc     EQ w-fg-rctd.loc
-            AND fg-bin.loc-bin EQ w-fg-rctd.loc-bin
-            AND fg-bin.tag     EQ w-fg-rctd.tag
-            AND fg-bin.cust-no EQ w-fg-rctd.cust-no
-            USE-INDEX co-ino NO-ERROR.
-        IF NOT AVAILABLE fg-bin THEN 
-        DO:
-            MESSAGE "A transfer exists for item " w-fg-rctd.i-no SKIP
-                "with an invalid location:" SKIP
-                "  Warehouse = " w-fg-rctd.loc SKIP
-                "  Bin = " w-fg-rctd.loc-bin SKIP
-                "  Tag = " w-fg-rctd.tag SKIP
-                "Please correct and re-run the posting process." SKIP
-                VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-            RETURN "Invalid Location".
-        END.
-        ELSE IF fg-bin.pur-uom EQ "" THEN 
-            DO:
-                MESSAGE "A blank UOM exists for item bin " w-fg-rctd.i-no SKIP
-                    "with location:" SKIP
-                    "  Warehouse = " w-fg-rctd.loc SKIP
-                    "  Bin = " w-fg-rctd.loc-bin SKIP
-                    "  Tag = " w-fg-rctd.tag SKIP
-                    "Please correct and re-run the posting process." SKIP
-                    VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-                RETURN "Invalid Location".          
-            END.
-            ELSE IF itemfg.prod-uom EQ "" THEN 
-                DO:
-                    MESSAGE "A blank cost UOM exists for item " w-fg-rctd.i-no SKIP
-                        "Please correct and re-run the posting process." SKIP
-                        VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-                    RETURN "Invalid Location".          
-                END.
-    END.
-    
+     
     /* #pn# Setting rita-code to A since the negative R was causing problems */
     /* #pn# task 08211305                                                    */   
     /* b-w-fg-rctd are components with negative qty, w-fg-rctd are sets */
@@ -743,18 +619,6 @@ PROCEDURE fg-post:
 
         IF AVAILABLE fg-rctd  THEN 
         DO:
-            /*##BL - FGSetAssembly requires the bin to match that of the character*/
-            /*##BL of FGSetAssembly N-K.  If it doesn't, abort posting  */
-            IF lFGSetAssembly 
-                AND fg-rctd.loc-bin NE cFGSetAssembly 
-                AND avail(itemfg) 
-                AND itemfg.alloc  EQ NO THEN 
-            DO:
-                MESSAGE "The Bin location for Component " fg-rctd.i-no " must be " cFGSetAssembly "." SKIP
-                    "Please correct on the Set Parts tab of FG Receiving and re-run the posting process."
-                    VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
-                RETURN ERROR.
-            END.
             ASSIGN 
                 w-fg-rctd.rita-code = "A"
                 fg-rctd.rita-code   = "A".
@@ -808,12 +672,14 @@ PROCEDURE fg-post:
         IF fgPostLog THEN RUN fgPostLog ('End fg/fg-post.i - Start fg/fgemails.i').
         IF w-fg-rctd.rita-code = "R" THEN 
         DO:
+            /* Creates tt-email records */
         {fg/fgemails.i}
         END.
 
         IF fgPostLog THEN RUN fgPostLog ('End fg-bin - Start fg-rctd').
 
-        FIND FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-ERROR.
+        FIND FIRST fg-rctd EXCLUSIVE-LOCK 
+                     WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-ERROR.
 
         IF AVAILABLE fg-rctd THEN 
         DO:
@@ -823,16 +689,17 @@ PROCEDURE fg-post:
                 fg-rctd.trans-time = TIME
                 fg-rctd.tag2       = w-fg-rctd.tag2.
 
-            FOR EACH fg-rcpts
+            FOR EACH fg-rcpts EXCLUSIVE-LOCK
                 WHERE fg-rcpts.company EQ fg-rctd.company
-                AND fg-rcpts.r-no    EQ fg-rctd.r-no:
+                  AND fg-rcpts.r-no    EQ fg-rctd.r-no:
                 ASSIGN 
                     fg-rcpts.rita-code = fg-rctd.rita-code.
             END.
 
-            FIND CURRENT fg-rctd NO-LOCK.
+            
         END.
-
+        FIND CURRENT fg-rctd NO-LOCK NO-ERROR.
+        
         IF fgPostLog THEN RUN fgPostLog ('End loop'). 
     END.  /* for each w-fg-rctd */
 
@@ -950,11 +817,8 @@ PROCEDURE fg-post:
         NO-LOCK
         BREAK BY w-fg-rctd.i-no:
 
-
-
         IF LAST-OF(w-fg-rctd.i-no) THEN 
         DO:
-
 
             IF fgPostLog THEN RUN fgPostLog ('Third loop  -  Start Last i-no').
 
@@ -1119,47 +983,49 @@ PROCEDURE fg-post:
         END.
     END.
 
-    IF v-got-fgemail THEN 
-    DO:
-        IF fgPostLog THEN RUN fgPostLog ('Start Run send-fgemail').
-        RUN send-fgemail (v-fgemail-file).
-        IF fgPostLog THEN RUN fgPostLog ('End Run send-fgemail').
-    END.  
+/*    Now handled in calling program                                 */
+/*    IF v-got-fgemail THEN                                          */
+/*    DO:                                                            */
+/*        IF fgPostLog THEN RUN fgPostLog ('Start Run send-fgemail').*/
+/*        RUN send-fgemail (v-fgemail-file).                         */
+/*        IF fgPostLog THEN RUN fgPostLog ('End Run send-fgemail').  */
+/*    END.                                                           */
 
-    FOR EACH w-fg-rctd ,
-        FIRST itemfg
-        WHERE itemfg.company EQ cocode
-        AND itemfg.i-no    EQ w-fg-rctd.i-no NO-LOCK , 
-        EACH tt-inv WHERE tt-inv.row-id EQ w-fg-rctd.row-id 
-        BREAK BY tt-inv.bol-no:
-
-        FIND FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-LOCK NO-ERROR.
-        RUN get-ord-recs (ROWID(fg-rctd),
-            BUFFER po-ordl,
-            BUFFER po-ord,
-            BUFFER oe-ordl,
-            BUFFER oe-ord,
-            BUFFER reftable).
-        IF AVAIL(reftable) AND (reftable.val[2] GT 0 OR reftable.val[3] EQ 1) THEN
-            ASSIGN ll        = reftable.val[1] NE 0
-                dBillAmt  = reftable.val[2]
-                lEmailBol = reftable.val[3] EQ 1
-                lInvFrt   = reftable.val[1] GT 0.
-        IF lEmailBol AND last-of(tt-inv.bol-no) THEN 
-        DO:
-            FIND FIRST oe-bolh WHERE oe-bolh.company EQ g_company
-                AND oe-bolh.bol-no EQ tt-inv.bol-no NO-LOCK NO-ERROR.
-
-            RUN custom/setUserPrint.p (g_company,'oe-boll_.',
-                'begin_cust,end_cust,begin_bol#,end_bol#,begin_ord#,end_ord#,tb_reprint,tb_posted,rd_bolcert',
-                oe-bolh.cust-no + ',' + oe-bolh.cust-no + ',' +
-                STRING(oe-bolh.bol-no) + ',' + STRING(oe-bolh.bol-no) +
-                ',,99999999,' + STRING(oe-bolh.printed) + ',' +
-                STRING(oe-bolh.posted) + ',BOL').
-            RUN listobjs/oe-boll_.w.
-
-        END. /* If email bol */
-    END. /* each w-fg-rctd */
+/*    Now handled in calling program                                                                            */
+/*    FOR EACH w-fg-rctd ,                                                                                      */
+/*        FIRST itemfg                                                                                          */
+/*        WHERE itemfg.company EQ cocode                                                                        */
+/*        AND itemfg.i-no    EQ w-fg-rctd.i-no NO-LOCK ,                                                        */
+/*        EACH tt-inv WHERE tt-inv.row-id EQ w-fg-rctd.row-id                                                   */
+/*        BREAK BY tt-inv.bol-no:                                                                               */
+/*                                                                                                              */
+/*        FIND FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-LOCK NO-ERROR.                         */
+/*        RUN get-ord-recs (ROWID(fg-rctd),                                                                     */
+/*            BUFFER po-ordl,                                                                                   */
+/*            BUFFER po-ord,                                                                                    */
+/*            BUFFER oe-ordl,                                                                                   */
+/*            BUFFER oe-ord,                                                                                    */
+/*            BUFFER reftable).                                                                                 */
+/*        IF AVAIL(reftable) AND (reftable.val[2] GT 0 OR reftable.val[3] EQ 1) THEN                            */
+/*            ASSIGN ll        = reftable.val[1] NE 0                                                           */
+/*                dBillAmt  = reftable.val[2]                                                                   */
+/*                lEmailBol = reftable.val[3] EQ 1                                                              */
+/*                lInvFrt   = reftable.val[1] GT 0.                                                             */
+/*        IF lEmailBol AND last-of(tt-inv.bol-no) THEN                                                          */
+/*        DO:                                                                                                   */
+/*            FIND FIRST oe-bolh WHERE oe-bolh.company EQ g_company                                             */
+/*                AND oe-bolh.bol-no EQ tt-inv.bol-no NO-LOCK NO-ERROR.                                         */
+/*                                                                                                              */
+/*            RUN custom/setUserPrint.p (g_company,'oe-boll_.',                                                 */
+/*                'begin_cust,end_cust,begin_bol#,end_bol#,begin_ord#,end_ord#,tb_reprint,tb_posted,rd_bolcert',*/
+/*                oe-bolh.cust-no + ',' + oe-bolh.cust-no + ',' +                                               */
+/*                STRING(oe-bolh.bol-no) + ',' + STRING(oe-bolh.bol-no) +                                       */
+/*                ',,99999999,' + STRING(oe-bolh.printed) + ',' +                                               */
+/*                STRING(oe-bolh.posted) + ',BOL').                                                             */
+/*            RUN listobjs/oe-boll_.w.                                                                          */
+/*                                                                                                              */
+/*        END. /* If email bol */                                                                               */
+/*    END. /* each w-fg-rctd */                                                                                 */
 
     IF fgPostLog THEN RUN fgPostLog ('End').
     IF fgPostLog THEN OUTPUT STREAM logFile CLOSE.

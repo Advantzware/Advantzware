@@ -14,6 +14,14 @@
   ----------------------------------------------------------------------*/
 
 /* ***************************  Definitions  ************************** */
+DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
+    FIELD row-id      AS ROWID
+    FIELD has-rec     AS LOG   INIT NO
+    FIELD invoiced    AS LOG   INIT NO
+    FIELD old-tag     AS CHAR
+    FIELD ret-loc     AS CHAR
+    FIELD ret-loc-bin AS CHAR.
+
 DEF INPUT PARAMETER ip-post-eom-date AS DATE NO-UNDO.
 DEF INPUT PARAMETER ip-run-what AS CHAR NO-UNDO. 
 DEFINE INPUT PARAMETER begin_fg-r-no  AS INTEGER   FORMAT ">>>>>>>>":U INITIAL 0. 
@@ -54,11 +62,12 @@ DEFINE INPUT PARAMETER td-show-parm   AS LOGICAL   INITIAL YES.
 DEFINE INPUT PARAMETER tg-recalc-cost AS LOGICAL   INITIAL NO. 
 DEFINE INPUT PARAMETER tgIssue        AS LOGICAL   INITIAL NO. 
 DEFINE INPUT PARAMETER tgl-itemCD     AS LOGICAL   INITIAL NO. 
-
+DEFINE INPUT PARAMETER TABLE FOR w-fg-rctd. 
+DEFINE OUTPUT PARAMETER lv-list-name AS CHARACTER EXTENT 2 NO-UNDO. 
 /* Local Variable Definitions ---                                       */
-DEF    VAR      list-name AS cha       NO-UNDO.
+DEF    VAR      list-name AS cha       NO-UNDO. 
 DEFINE VARIABLE init-dir  AS CHARACTER NO-UNDO.
-DEF VAR lv-list-name LIKE list-name EXTENT 2 NO-UNDO.
+/*DEF VAR lv-list-name LIKE list-name EXTENT 2 NO-UNDO. */
 
 {methods/defines/hndldefs.i}
 /* {methods/prgsecur.i} */
@@ -76,57 +85,7 @@ DEFINE VARIABLE num-groups   AS INTEGER   NO-UNDO.
 DEFINE VARIABLE group-ok     AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE access-close AS LOGICAL   NO-UNDO.
 
-IF INDEX(PROGRAM-NAME(1),".uib") NE 0 OR
-   INDEX(PROGRAM-NAME(1),".ab")  NE 0 OR
-   INDEX(PROGRAM-NAME(1),".ped") NE 0 THEN
-    v-prgmname = USERID("NOSWEAT") + "..".
-ELSE
-    ASSIGN
-        /*   period_pos = INDEX(PROGRAM-NAME(1),".")                                             */
-        /*   v-prgmname = SUBSTR(PROGRAM-NAME(1),INDEX(PROGRAM-NAME(1),"/",period_pos - 10) + 1) */
-        v-prgmname = SUBSTRING(PROGRAM-NAME(1), R-INDEX(PROGRAM-NAME(1), "/") + 1)
-        v-prgmname = SUBSTR(v-prgmname,1,INDEX(v-prgmname,".")).
 v-prgmname = "fgpstall.".
-FIND b-prgrms WHERE b-prgrms.prgmname = v-prgmname NO-LOCK NO-ERROR.
-IF AVAILABLE b-prgrms THEN
-DO:
-    DO num-groups = 1 TO NUM-ENTRIES(g_groups):
-        IF NOT CAN-DO(b-prgrms.can_run,ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(b-prgrms.can_update,ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(b-prgrms.can_create,ENTRY(num-groups,g_groups)) AND
-            NOT CAN-DO(b-prgrms.can_delete,ENTRY(num-groups,g_groups)) THEN
-            NEXT.
-        group-ok = YES.
-        LEAVE.
-    END.
-    /*
-    IF NOT CAN-DO(b-prgrms.can_run,USERID("NOSWEAT")) AND
-        NOT CAN-DO(b-prgrms.can_update,USERID("NOSWEAT")) AND
-        NOT CAN-DO(b-prgrms.can_create,USERID("NOSWEAT")) AND
-        NOT CAN-DO(b-prgrms.can_delete,USERID("NOSWEAT")) AND NOT group-ok THEN
-    DO:
-        MESSAGE "Program :" PROGRAM-NAME(1) SKIP 
-            "Title :" b-prgrms.prgtitle SKIP(1)
-            "Access to this Program Denied - Contact Systems Manager" VIEW-AS ALERT-BOX ERROR.
-        access-close = YES.    /* used later in methods/template/windows.i - local-initialize procedure */
-    
-        IF "{1}" NE "WIN" THEN
-        DO:
-            APPLY 'CLOSE' TO THIS-PROCEDURE. /*task 10020703*/
-            RETURN.
-        END.
-    END.
-    */
-END. 
-ELSE
-DO: 
-    /*
-    MESSAGE "Program :" PROGRAM-NAME(1) SKIP(1)
-        "Program Master Record Does Not Exist - Contact Systems Manager" 
-        VIEW-AS ALERT-BOX ERROR.
-    RETURN. */
-END.
-/* end temp prgsecur.i */
 
 {custom/gcompany.i}
 {custom/gloc.i}
@@ -134,8 +93,7 @@ END.
 {custom/getloc.i}
 
 {sys/inc/var.i new shared}
-gcompany = '001'.
-gloc = "main".
+
 ASSIGN
     cocode = gcompany
     locode = gloc.
@@ -227,13 +185,6 @@ DEF VAR v-uom-dsh       AS CHAR    FORMAT "x(10)" NO-UNDO.
 DEF VAR v-cstprt        AS CHAR    FORMAT "x(15)" NO-UNDO.
 DEF VAR v-pr-tots2      LIKE v-pr-tots NO-UNDO.
 
-DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
-    FIELD row-id      AS ROWID
-    FIELD has-rec     AS LOG   INIT NO
-    FIELD invoiced    AS LOG   INIT NO
-    FIELD old-tag     AS CHAR
-    FIELD ret-loc     AS CHAR
-    FIELD ret-loc-bin AS CHAR.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
@@ -483,10 +434,7 @@ EMPTY TEMP-TABLE tt-set.
 /* be included                                                              */
 IF NOT (begin_i-no EQ "" AND end_i-no BEGINS "zzzzzzzzzzz")
     THEN RUN createComponentList.
-MESSAGE "v-postlst" v-postlst
-SKIP
-"company" gcompany
-VIEW-AS ALERT-BOX.
+
 DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
     FOR EACH fg-rctd
         WHERE fg-rctd.company   EQ gcompany
@@ -508,9 +456,14 @@ DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
         (fg-rctd.updated-by GE begin_userid 
         AND fg-rctd.updated-by LE end_userid))
         USE-INDEX rita-code:
-         MESSAGE "record found"
-         VIEW-AS ALERT-BOX.
+
         RUN build-tables.
+
+        OUTPUT TO c:\temp\buildtab.txt.
+        FOR EACH  w-fg-rctd.
+          EXPORT  w-fg-rctd.i-no.
+        END.
+        OUTPUT CLOSE.
     END.
 END.
     
@@ -688,18 +641,6 @@ END.
 OUTPUT STREAM before CLOSE.
 OUTPUT STREAM after  CLOSE.
 
-IF tb_excel THEN 
-DO:
-    OUTPUT STREAM excel CLOSE.
-    IF tb_runExcel THEN
-        OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
-END.
-
-/* Only save screen selections if the screen was enabled */
-/*IF ip-run-what EQ "" THEN                                          */
-/*    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).*/
-
-
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -809,6 +750,7 @@ PROCEDURE build-tables:
 
         IF li-max-qty GE fg-rctd.t-qty THEN 
         DO:
+
             CREATE w-fg-rctd.
             BUFFER-COPY fg-rctd TO w-fg-rctd
                 ASSIGN

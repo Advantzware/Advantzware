@@ -42,7 +42,7 @@ ASSIGN
  cocode = gcompany
  locode = gloc.
 
-DEFINE SHARED VARIABLE choice AS LOG NO-UNDO.
+DEFINE NEW SHARED VARIABLE choice AS LOG NO-UNDO.
 
 DEF VAR v-fgpostgl AS CHAR NO-UNDO.
 DEF VAR v-fg-value AS DEC FORMAT "->,>>>,>>9.99".
@@ -57,9 +57,36 @@ DEF VAR lInvFrt AS LOG NO-UNDO.
 DEF VAR dBillAmt AS DECIMAL NO-UNDO.
 DEF VAR lEmailBol AS LOG NO-UNDO.
 DEF VAR ll AS LOG NO-UNDO.
-
+DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE lFGSetAssembly AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cFGSetAssembly AS CHARACTER NO-UNDO.
+DEF VAR v-autobin AS cha NO-UNDO.  
 DEFINE VARIABLE gv-fgemail AS LOGICAL NO-UNDO INIT ?.
 
+FIND FIRST sys-ctrl  WHERE sys-ctrl.company EQ gcompany
+    AND sys-ctrl.name    EQ "AUTOPOST"
+    NO-LOCK NO-ERROR.
+v-autobin = IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "".
+RUN sys/ref/nk1look.p (INPUT cocode,
+    INPUT "FGSetAssembly",
+    INPUT "L",
+    INPUT NO,
+    INPUT NO,
+    INPUT "",
+    INPUT "",
+    OUTPUT cFGSetAssembly,
+    OUTPUT lFound).
+IF lFound THEN
+    lFGSetAssembly = cFGSetAssembly EQ "YES".
+RUN sys/ref/nk1look.p (INPUT cocode,
+    INPUT "FGSetAssembly",
+    INPUT "C",
+    INPUT NO,
+    INPUT NO,
+    INPUT "",
+    INPUT "",
+    OUTPUT cFGSetAssembly,
+    OUTPUT lFound).
 DEF TEMP-TABLE w-fg-rctd NO-UNDO LIKE fg-rctd
     FIELD row-id   AS ROWID
     FIELD has-rec  AS LOG INIT NO
@@ -222,6 +249,16 @@ lv-font-no lines-per-page lv-font-name tb_excel tb_runExcel fi_file
 
 
 /* ************************  Function Prototypes ********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnCheckSys C-Win
+FUNCTION fnCheckSys RETURNS LOGICAL 
+    (INPUT cNK1 AS CHARACTER  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-act-rel-qty C-Win 
 FUNCTION get-act-rel-qty RETURNS INTEGER
@@ -1257,7 +1294,14 @@ lv-rel-recid = RECID(bf-oe-rel).
 
   FIND bf-oe-ord OF bf-oe-ordl NO-LOCK.
 
-
+  IF NOT AVAIL bf-oe-ord THEN 
+  DO:
+      MESSAGE
+          "Unable to locate an order header record for this order line." SKIP
+          "Please contact your System Administrator for assistance."
+          VIEW-AS ALERT-BOX ERROR.
+      RETURN.
+  END.
 
   FIND b-ordl WHERE ROWID(b-ordl) EQ ROWID(bf-oe-ordl).
   b-ordl.t-rel-qty = b-ordl.t-rel-qty + bf-oe-rel.qty - ld-prev-rel-qty.
@@ -3019,7 +3063,7 @@ PROCEDURE fg-post :
   DEF VAR v-tagcost AS DEC NO-UNDO.
   DEF VAR ld-cvt-qty AS DEC NO-UNDO.
   DEF VAR ld-cvt-cost AS DEC DECIMALS 10 NO-UNDO.
-  DEF VAR v-autobin  AS cha NO-UNDO.
+  
   DEF VAR v-newhdr AS LOG NO-UNDO. 
   DEF VAR v-fin-qty AS DEC NO-UNDO.
   DEF VAR choice AS LOG NO-UNDO.
@@ -3037,546 +3081,87 @@ PROCEDURE fg-post :
   DEF VAR v-calc-cost AS DEC NO-UNDO.
   DEF VAR cJob LIKE oe-ordl.job-no  NO-UNDO.
   DEF VAR iJobNo2 LIKE oe-ordl.job-no2 NO-UNDO.
+  DEFINE VARIABLE lNk1Found AS LOGICAL NO-UNDO.
   DEFINE VARIABLE fgPostLog AS LOGICAL NO-UNDO.
-  DEFINE VARIABLE iRNo AS INTEGER NO-UNDO.
-  /*##PN - variable for FGSetAssembly setting*/
-
-  DEFINE VARIABLE lFound AS LOGICAL     NO-UNDO.
-  DEFINE VARIABLE lFGSetAssembly AS LOGICAL     NO-UNDO.
-  DEFINE VARIABLE cFGSetAssembly AS CHARACTER   NO-UNDO.
-
-  fgPostLog = SEARCH('logs/fgpstall.log') NE ?.
-  IF fgPostLog THEN
-  OUTPUT STREAM logFile TO VALUE('logs/fgpstall.' +
-         STRING(TODAY,'99999999') + '.' + STRING(TIME) + '.log').
-
-  SESSION:SET-WAIT-STATE ("general").
-  IF fgPostLog THEN RUN fgPostLog ('Started').
-  FIND FIRST period NO-LOCK
-      WHERE period.company EQ cocode
-        AND period.pst     LE v-post-date
-        AND period.pend    GE v-post-date.
-
-  FIND FIRST sys-ctrl  WHERE sys-ctrl.company EQ gcompany
-                         AND sys-ctrl.name    EQ "AUTOPOST"
-       NO-LOCK NO-ERROR.
-  v-autobin = IF AVAIL sys-ctrl THEN sys-ctrl.char-fld ELSE "".
-  RUN sys/ref/nk1look.p (INPUT cocode,
-                         INPUT "FGSetAssembly",
-                         INPUT "L",
-                         INPUT NO,
-                         INPUT NO,
-                         INPUT "",
-                         INPUT "",
-                         OUTPUT cFGSetAssembly,
-                         OUTPUT lFound).
-  IF lFound THEN
-      lFGSetAssembly = cFGSetAssembly EQ "YES".
-  RUN sys/ref/nk1look.p (INPUT cocode,
-                         INPUT "FGSetAssembly",
-                         INPUT "C",
-                         INPUT NO,
-                         INPUT NO,
-                         INPUT "",
-                         INPUT "",
-                         OUTPUT cFGSetAssembly,
-                         OUTPUT lFound).
-
-  DISABLE TRIGGERS FOR LOAD OF itemfg.
-  DISABLE TRIGGERS FOR LOAD OF b-oe-ordl.
-
-  /* Handle Manually created job farm out records */
-  FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code = "F":       
-      RUN manualFarmOut.
-      DELETE w-fg-rctd.
-  END.
-  FIND FIRST w-fg-rctd NO-ERROR.
-  /* In case only processing rita-code F */
-  IF NOT AVAIL w-fg-rctd THEN DO:   
+  lNK1Found = fnCheckSys("OECARIER").
+    
+    IF not fnCheckSys("OECARIER") THEN
       RETURN.
-  END.
-
-
-
-  /* Check for invalid transfers */
-  FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code = "T"
-      BY w-fg-rctd.tag
-      BY w-fg-rctd.rct-date
-      BY w-fg-rctd.trans-time
-      BY w-fg-rctd.r-no:
-
-      IF NOT CAN-FIND(FIRST itemfg WHERE
-         itemfg.company EQ cocode AND
-         itemfg.i-no    EQ w-fg-rctd.i-no) THEN
-         NEXT.
-
-      FIND FIRST fg-bin WHERE fg-bin.company EQ cocode
-                          AND fg-bin.i-no    EQ w-fg-rctd.i-no
-                          AND fg-bin.job-no  EQ w-fg-rctd.job-no
-                          AND fg-bin.job-no2 EQ w-fg-rctd.job-no2
-                          AND fg-bin.loc     EQ w-fg-rctd.loc
-                          AND fg-bin.loc-bin EQ w-fg-rctd.loc-bin
-                          AND fg-bin.tag     EQ w-fg-rctd.tag
-                          AND fg-bin.cust-no EQ w-fg-rctd.cust-no
-                USE-INDEX co-ino NO-ERROR.
-      IF NOT AVAIL fg-bin THEN DO:
-          MESSAGE "A transfer exists for item " w-fg-rctd.i-no SKIP
-              "with an invalid location:" SKIP
-              "  Warehouse = " w-fg-rctd.loc SKIP
-              "  Bin = " w-fg-rctd.loc-bin SKIP
-              "  Tag = " w-fg-rctd.tag SKIP
-              "Please correct and re-run the posting process." SKIP
-              VIEW-AS ALERT-BOX INFO BUTTONS OK.
-          RETURN "Invalid Location".
-      END.
-      ELSE IF fg-bin.pur-uom EQ "" THEN DO:
-          MESSAGE "A blank UOM exists for item bin " w-fg-rctd.i-no SKIP
-              "with location:" SKIP
-              "  Warehouse = " w-fg-rctd.loc SKIP
-              "  Bin = " w-fg-rctd.loc-bin SKIP
-              "  Tag = " w-fg-rctd.tag SKIP
-              "Please correct and re-run the posting process." SKIP
-              VIEW-AS ALERT-BOX INFO BUTTONS OK.
-          RETURN "Invalid Location".          
-      END.
-      ELSE IF itemfg.prod-uom EQ "" THEN DO:
-          MESSAGE "A blank cost UOM exists for item " w-fg-rctd.i-no SKIP
-              "Please correct and re-run the posting process." SKIP
-              VIEW-AS ALERT-BOX INFO BUTTONS OK.
-          RETURN "Invalid Location".          
-      END.
-   END.
-  /* #pn# Setting rita-code to A since the negative R was causing problems */
-  /* #pn# task 08211305                                                    */   
-  /* b-w-fg-rctd are components with negative qty, w-fg-rctd are sets */
-  FOR EACH b-w-fg-rctd WHERE b-w-fg-rctd.qty LT 0,
-    EACH reftable NO-LOCK WHERE reftable.reftable EQ "fg-rctd.user-id" 
-      AND reftable.company  EQ b-w-fg-rctd.company 
-      AND reftable.loc      EQ STRING(b-w-fg-rctd.r-no,"9999999999")        
-      /* AND (reftable.dscr EQ "fg-rctd: " + STRING(w-fg-rctd.r-no, "9999999999") AND reftable.dscr BEGINS "fg-rctd: ") */  
-      USE-INDEX loc    .
-      
-    iRNo = INTEGER(SUBSTRING(reftable.dscr, 9, 11)) NO-ERROR.
-    IF ERROR-STATUS:ERROR = NO THEN 
-      FIND FIRST w-fg-rctd NO-LOCK WHERE w-fg-rctd.r-no EQ iRNo NO-ERROR. 
-    IF NOT AVAILABLE w-fg-rctd THEN 
-      NEXT. 
-      
-    FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = w-fg-rctd.row-id  NO-ERROR.
-    FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode 
-                                AND itemfg.i-no    EQ w-fg-rctd.i-no
-                             NO-ERROR.
-
-    IF AVAIL fg-rctd  THEN DO:
-        /*##BL - FGSetAssembly requires the bin to match that of the character*/
-        /*##BL of FGSetAssembly N-K.  If it doesn't, abort posting  */
-        IF lFGSetAssembly 
-          AND fg-rctd.loc-bin NE cFGSetAssembly 
-          AND avail(itemfg) 
-          AND itemfg.alloc  EQ NO THEN DO:
-            MESSAGE "The Bin location for Component " fg-rctd.i-no " must be " cFGSetAssembly "." SKIP
-                "Please correct on the Set Parts tab of FG Receiving and re-run the posting process."
-                VIEW-AS ALERT-BOX INFO BUTTONS OK.
-            RETURN ERROR.
-        END.
-        ASSIGN w-fg-rctd.rita-code   = "A"
-               fg-rctd.rita-code     = "A".
-    END.
-    RELEASE fg-rctd.
-
-  END.
+    IF not fnCheckSys("OERELEAS") THEN
+      RETURN.
+    IF not fnCheckSys("INVPRINT") THEN
+      RETURN.
+    IF not fnCheckSys("BOLDATE") THEN
+        RETURN.
+    IF not fnCheckSys("RELPOST") THEN
+        RETURN.
+    IF not fnCheckSys("AUTOPDC") THEN
+        RETURN.
+    IF not fnCheckSys("BOLWHSE") THEN
+        RETURN.
+    IF not fnCheckSys("INVDATE") THEN
+        RETURN.
+    
+  RUN validateFgAssembly.
+  IF ERROR-STATUS:ERROR THEN 
+    RETURN.
+    
+  RUN validateTransfers.
+    IF ERROR-STATUS:ERROR THEN 
+        RETURN.
+        
   
-  FOR EACH w-fg-rctd
-      BY w-fg-rctd.tag
-      BY w-fg-rctd.rct-date
-      BY w-fg-rctd.trans-time
-      BY w-fg-rctd.r-no:
-
-    IF NOT CAN-FIND(FIRST itemfg WHERE
-       itemfg.company EQ cocode AND
-       itemfg.i-no    EQ w-fg-rctd.i-no) THEN
-       NEXT.
-
-    loop1:
-    REPEAT:
-
-       FIND FIRST itemfg WHERE
-            itemfg.company EQ cocode AND
-            itemfg.i-no    EQ w-fg-rctd.i-no
-            EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-
-       IF AVAIL itemfg THEN
-       DO:           
-          /* If FGEMAIL is active and quantity on hand is zero and item is allocated,
-             then process user data into a temp-table for processing emails later. */
-          IF gv-fgemail = YES AND (itemfg.q-onh = 0 AND itemfg.q-alloc > 0) THEN
-              RUN Process-FGemail-Data (INPUT itemfg.i-no, w-fg-rctd.t-qty,w-fg-rctd.po-no).
-
-          IF fgPostLog THEN RUN fgPostLog ('Start fg/fg-post.i ' + TRIM(itemfg.i-no)).
-
-          /* itemfg gets updated here. */
-          {fg/fg-post.i w-fg-rctd w-fg-rctd}
-
-          IF autofgissue-log THEN
-            RUN farmOutComp.
-
-          FIND CURRENT itemfg NO-LOCK NO-ERROR.
-          FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
-          FIND CURRENT po-ordl NO-LOCK NO-ERROR.
-          FIND CURRENT fg-bin NO-LOCK NO-ERROR.
-          LEAVE loop1.
-       END. /* IF AVAIL itemfg */
-    END. /* loop1 REPEAT */
-
-    IF fgPostLog THEN RUN fgPostLog ('End fg/fg-post.i - Start fg/fgemails.i').
-    IF w-fg-rctd.rita-code = "R" THEN DO:
-       {fg/fgemails.i}
-    END.
-
-    IF fgPostLog THEN RUN fgPostLog ('End fg-bin - Start fg-rctd').
-
-    FIND FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-ERROR.
-
-    IF AVAIL fg-rctd THEN DO:
-      ASSIGN
-       fg-rctd.rita-code = "P"  /* posted */
-       fg-rctd.post-date = v-post-date
-       fg-rctd.trans-time = TIME
-       fg-rctd.tag2      = w-fg-rctd.tag2.
-
-      FOR EACH fg-rcpts
-          WHERE fg-rcpts.company EQ fg-rctd.company
-            AND fg-rcpts.r-no    EQ fg-rctd.r-no:
-        ASSIGN fg-rcpts.rita-code = fg-rctd.rita-code.
-      END.
-
-      FIND CURRENT fg-rctd NO-LOCK.
-    END.
-
-    IF fgPostLog THEN RUN fgPostLog ('End loop'). 
-  END.  /* for each w-fg-rctd */
-
-
-  IF fgPostLog THEN RUN fgPostLog ('End fg/fgemails.i - Start loadtag').
-  FOR EACH w-fg-rctd
-      BREAK BY w-fg-rctd.i-no
-            BY w-fg-rctd.job-no
-            BY w-fg-rctd.job-no2
-            BY w-fg-rctd.loc
-            BY w-fg-rctd.loc-bin
-            BY w-fg-rctd.tag:
-
-    IF FIRST-OF(w-fg-rctd.i-no) THEN DO:
-        FIND FIRST tt-posted-items WHERE tt-posted-items.i-no = w-fg-rctd.i-no
-                                   NO-LOCK NO-ERROR.
-        IF NOT AVAIL tt-posted-items THEN DO:
-            CREATE tt-posted-items.
-            ASSIGN tt-posted-items.i-no = w-fg-rctd.i-no.
-        END.
-    END.
-
-    IF LAST-OF(w-fg-rctd.tag) THEN DO:
-       IF TRIM(w-fg-rctd.tag) NE "" THEN 
-       /* Ensure Bin/Tags Qty is correct.  Task 01270602 */
-       FOR EACH fg-bin NO-LOCK
-           WHERE fg-bin.company EQ g_company
-             AND fg-bin.i-no    EQ w-fg-rctd.i-no
-             AND fg-bin.tag     EQ w-fg-rctd.tag
-           USE-INDEX tag:
-
-         RUN fg/calcbinq.p (ROWID(fg-bin)).
-       END.
-
-       FIND FIRST loadtag
-           WHERE loadtag.company   EQ g_company
-             AND loadtag.item-type EQ NO
-             AND loadtag.tag-no    EQ w-fg-rctd.tag
-             AND loadtag.i-no      EQ w-fg-rctd.i-no
-             AND loadtag.job-no    EQ w-fg-rctd.job-no
-           USE-INDEX tag EXCLUSIVE-LOCK NO-ERROR.
-
-       IF fgPostLog THEN RUN fgPostLog ('End loadtag - Start fg-bin').
-
-       IF AVAIL loadtag THEN DO:
-         FIND FIRST fg-bin
-             WHERE fg-bin.company EQ g_company
-               AND fg-bin.i-no    EQ loadtag.i-no
-               AND fg-bin.tag     EQ loadtag.tag-no
-               AND fg-bin.qty     GT 0
-             USE-INDEX tag NO-LOCK NO-ERROR.
-         IF AVAIL fg-bin AND w-fg-rctd.rita-code = "T" AND
-            TRUNC((fg-bin.qty - fg-bin.partial-count) / fg-bin.case-count,0) = w-fg-rctd.cases THEN /* full qty transfer*/ 
-
-           ASSIGN
-            loadtag.loc          = w-fg-rctd.loc2   
-            loadtag.loc-bin      = w-fg-rctd.loc-bin2
-            loadtag.qty          = fg-bin.qty
-            loadtag.pallet-count = fg-bin.qty
-            loadtag.partial      = fg-bin.partial-count
-            loadtag.tot-cases    = (loadtag.qty - loadtag.partial) / loadtag.qty-case.
-
-         ELSE /*partial transfer */
-           ASSIGN
-            loadtag.loc     = w-fg-rctd.loc
-            loadtag.loc-bin = w-fg-rctd.loc-bin.
-
-         FIND CURRENT loadtag NO-LOCK.
-       END.
-    END.
-
-/*  task 04041203 - cycle count record was not necessary per Joe */
-/*     IF ip-run-what EQ "SETUP" AND ssfgretc-log AND                 */
-/*        ( (w-fg-rctd.rita-code EQ "T" AND w-fg-rctd.inv-no NE 0) OR */
-/*           w-fg-rctd.rita-code EQ "I" ) THEN                        */
-/*        RUN create-phy-count-proc.                                  */
-  END.
-
-  FOR EACH w-inv:
-      /* Save w-inv data to send email bol's */
-      DELETE w-inv.
-  END.
-
-  IF fgPostLog THEN RUN fgPostLog ('End First - Start Second For Each w-fg-rctd').
-  FOR EACH w-fg-rctd WHERE w-fg-rctd.invoiced,
-      FIRST itemfg
-      WHERE itemfg.company EQ cocode
-        AND itemfg.i-no    EQ w-fg-rctd.i-no
-      NO-LOCK:
-
-    CREATE w-inv.
-    w-inv.row-id = w-fg-rctd.row-id.
-  END.
-  IF fgPostLog THEN RUN fgPostLog ('End Second For Each w-fg-rctd').
-
-  IF fgPostLog THEN RUN fgPostLog ('Begin Run fg/invrecpt.p').
-  RUN fg/invrecpt.p (?, 2).
-  IF fgPostLog THEN RUN fgPostLog ('End Run fg/invrecpt.p').
-
-  FOR EACH w-inv:
-    /* Save w-inv data to send email bol's */
-    CREATE tt-inv.
-    BUFFER-COPY w-inv TO tt-inv.
-
-  END.
-
-
-  IF fgPostLog THEN RUN fgPostLog ('End First - Start Third For Each w-fg-rctd').
-
-  FOR EACH w-fg-rctd WHERE (TRIM(w-fg-rctd.tag) EQ "" OR v-cost-from-receipt = "TransferCost"),
-      FIRST itemfg
-      WHERE itemfg.company EQ cocode
-        AND itemfg.i-no    EQ w-fg-rctd.i-no
-      NO-LOCK
-      BREAK BY w-fg-rctd.i-no:
-
-
-
-    IF LAST-OF(w-fg-rctd.i-no) THEN DO:
-
-
-      IF fgPostLog THEN RUN fgPostLog ('Third loop  -  Start Last i-no').
-
-      IF fgPostLog THEN RUN fgPostLog ('Begin Run fg/updfgcs1.p for ' + w-fg-rctd.i-no).
-      RUN fg/updfgcs1.p (RECID(itemfg), NO).
-      IF fgPostLog THEN RUN fgPostLog ('End Run fg/updfgcs1.p for ' + w-fg-rctd.i-no).
-
-      /* Calculate this once per item instead of per order line */
-      IF v-cost-from-receipt = "TransferCost" AND itemfg.spare-dec-1 EQ 0 THEN DO:
-          /* override for v-cost-from-receipt */
-           IF w-fg-rctd.job-no GT "" THEN DO:
-               FIND job-hdr WHERE job-hdr.company = cocode
-                              AND job-hdr.job-no  = w-fg-rctd.job-no
-                              AND job-hdr.job-no2 = w-fg-rctd.job-no2
-                              AND job-hdr.i-no    = w-fg-rctd.i-no
-                            NO-LOCK NO-ERROR.
-           END. /* Job-no gt "" */
-           IF w-fg-rctd.po-no GT "" THEN
-               FIND FIRST po-ordl WHERE po-ordl.company EQ cocode
-                                    AND po-ordl.po-no EQ INTEGER(w-fg-rctd.po-no)
-                                    AND po-ordl.i-no  EQ w-fg-rctd.i-no
-                                  NO-LOCK NO-ERROR.
-
-           IF NOT ((AVAIL(job-hdr) AND job-hdr.ord-no GT 0) OR
-                   (AVAIL(po-ordl) AND po-ordl.ord-no GT 0)) THEN
-
-             RUN sys/ref/convcuom.p("EA",
-                                     "M", 0, 0, 0, 0,
-                                     w-fg-rctd.ext-cost / w-fg-rctd.t-qty, OUTPUT v-calc-cost).
-
-      END. /* If v-cost-from-receipt = TransferCost */
-
-
-      FOR EACH oe-ordl
-          WHERE oe-ordl.company EQ cocode
-            AND oe-ordl.opened  EQ YES
-            AND oe-ordl.i-no    EQ w-fg-rctd.i-no
-            AND oe-ordl.job-no  EQ ""
-          /*  AND oe-ordl.cost    EQ 0*/
-          USE-INDEX opened NO-LOCK
-          BREAK BY oe-ordl.ord-no
-          TRANSACTION:
-
-        v-calc-cost = oe-ordl.cost.
-
-        IF oe-ordl.cost NE 0 AND NOT v-cost-from-receipt = "TransferCost" THEN
-            NEXT.
-
-        /* Default to standard cost, or accept calculated value from code above */
-        IF NOT (v-cost-from-receipt = "TransferCost" AND itemfg.spare-dec-1 EQ 0) THEN DO:
-          IF oe-ordl.cost EQ 0 THEN DO:
-
-            IF itemfg.prod-uom EQ "M" THEN
-              v-calc-cost = itemfg.total-std-cost.
-            ELSE
-              RUN sys/ref/convcuom.p((IF LOOKUP(itemfg.prod-uom,fg-uom-list) GT 0
-                                      THEN "EA" ELSE itemfg.prod-uom),
-                                      "M", 0, 0, 0, 0,
-                                      itemfg.total-std-cost, OUTPUT v-calc-cost).
-          END. /* If cost EQ 0 */
-
-        END. /* Not TransferCost */
-
-        /* WFK - process is too slow, so only update if its available */
-        FIND b-oe-ordl WHERE ROWID(b-oe-ordl) EQ ROWID(oe-ordl) EXCLUSIVE NO-ERROR NO-WAIT.
-        IF b-oe-ordl.cost NE v-calc-cost THEN
-          b-oe-ordl.cost = v-calc-cost.
-
-        IF fgPostLog THEN RUN fgPostLog ('Third loop - End Last i-no').
-
-      END. /* each oe-ordl */
-    END. /* last of i-no */
-  END. /* each w-fg-rctd */
-
-  IF fgPostLog THEN RUN fgPostLog ('Start process releases').
-  /* If overage, reset quantity or create a new release */
-  RUN process-releases.
-  IF fgPostLog THEN RUN fgPostLog ('End process releases').
-
-  IF fgPostLog THEN RUN fgPostLog ('End Third For Each w-fg-rctd').
-
-  IF v-fgpostgl NE "None" THEN DO TRANSACTION:
-
-    loop2:
-    REPEAT:
-       FIND FIRST gl-ctrl WHERE gl-ctrl.company EQ cocode EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-       IF AVAIL gl-ctrl THEN
-       DO:
-          ASSIGN
-             v-trnum       = gl-ctrl.trnum + 1
-             gl-ctrl.trnum = v-trnum.
-          FIND CURRENT gl-ctrl NO-LOCK.
-          LEAVE loop2.
-       END.
-    END.
-
-    IF fgPostLog THEN RUN fgPostLog ('Begin Run gl-from-work 1').
-    RUN gl-from-work (1, v-trnum).
-    IF fgPostLog THEN RUN fgPostLog ('End 1 - Begin Run gl-from-work 2').
-    RUN gl-from-work (2, v-trnum).
-    IF fgPostLog THEN RUN fgPostLog ('End Run gl-from-work 2').
-  END.
-  FIND CURRENT itemfg-loc NO-LOCK NO-ERROR.
-  FIND FIRST w-job NO-ERROR.
-  IF AVAIL w-job THEN DO:
-    IF fgPostLog THEN RUN fgPostLog ('Start jc/d-jclose.p').
-    RUN jc/d-jclose.w.
-    IF fgPostLog THEN RUN fgPostLog ('End jc/d-jclose.p').
-  END.
-
-  IF v-adjustgl THEN DO TRANSACTION:
-    /** GET next G/L TRANS. POSTING # **/
-    REPEAT:
-       FIND FIRST gl-ctrl WHERE gl-ctrl.company EQ cocode EXCLUSIVE-LOCK NO-ERROR NO-WAIT.
-
-       IF AVAIL gl-ctrl THEN
-       DO:
-          ASSIGN
-           v-trnum       = gl-ctrl.trnum + 1
-           gl-ctrl.trnum = v-trnum.
-          FIND CURRENT gl-ctrl NO-LOCK.
-          LEAVE.
-       END.
-    END.
-
-    IF fgPostLog THEN RUN fgPostLog ('Start For Each work-job').
-    FOR EACH work-job BREAK BY work-job.actnum:
-      CREATE gltrans.
-      ASSIGN
-       gltrans.company = cocode
-       gltrans.actnum  = work-job.actnum
-       gltrans.jrnl    = "ADJUST"
-       gltrans.tr-date = v-post-date
-       gltrans.period  = period.pnum
-       gltrans.trnum   = v-trnum.
-
-      IF work-job.fg THEN
-        ASSIGN
-         gltrans.tr-amt  = - work-job.amt
-         gltrans.tr-dscr = "ADJUSTMENT FG".
-      ELSE
-        ASSIGN
-         gltrans.tr-amt  = work-job.amt
-         gltrans.tr-dscr = "ADJUSTMENT COGS".
-
-      RELEASE gltrans.
-    END. /* each work-job */
-    IF fgPostLog THEN RUN fgPostLog ('End For Each work-job').
-  END.
-
-  IF tg-recalc-cost THEN DO:
-    FOR EACH tt-posted-items:        
-        RUN fg/updfgcst.p (tt-posted-items.i-no).
-    END.
-  END.
-
-  IF v-got-fgemail THEN DO:
-    IF fgPostLog THEN RUN fgPostLog ('Start Run send-fgemail').
-    RUN send-fgemail (v-fgemail-file).
-    IF fgPostLog THEN RUN fgPostLog ('End Run send-fgemail').
-  END.  
-
-  FOR EACH w-fg-rctd ,
-    FIRST itemfg
-    WHERE itemfg.company EQ cocode
-      AND itemfg.i-no    EQ w-fg-rctd.i-no NO-LOCK , 
-    EACH tt-inv WHERE tt-inv.row-id EQ w-fg-rctd.row-id 
-    BREAK BY tt-inv.bol-no:
-
-      FIND FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-LOCK NO-ERROR.
-      RUN get-ord-recs (ROWID(fg-rctd),
-                        BUFFER po-ordl,
-                        BUFFER po-ord,
-                        BUFFER oe-ordl,
-                        BUFFER oe-ord,
-                        BUFFER reftable).
-      IF AVAIL(reftable) AND (reftable.val[2] GT 0 OR reftable.val[3] EQ 1) THEN
-      ASSIGN ll       = reftable.val[1] NE 0
-             dBillAmt  = reftable.val[2]
-             lEmailBol = reftable.val[3] EQ 1
-             lInvFrt   = reftable.val[1] GT 0.
-       IF lEmailBol AND last-of(tt-inv.bol-no) THEN DO:
-         FIND FIRST oe-bolh WHERE oe-bolh.company EQ g_company
-            AND oe-bolh.bol-no EQ tt-inv.bol-no NO-LOCK NO-ERROR.
-
-         RUN custom/setUserPrint.p (g_company,'oe-boll_.',
-               'begin_cust,end_cust,begin_bol#,end_bol#,begin_ord#,end_ord#,tb_reprint,tb_posted,rd_bolcert',
-               oe-bolh.cust-no + ',' + oe-bolh.cust-no + ',' +
-               STRING(oe-bolh.bol-no) + ',' + STRING(oe-bolh.bol-no) +
-               ',,99999999,' + STRING(oe-bolh.printed) + ',' +
-               STRING(oe-bolh.posted) + ',BOL').
-         RUN listobjs/oe-boll_.w.
-
-       END. /* If email bol */
-  END. /* each w-fg-rctd */
-
-  IF fgPostLog THEN RUN fgPostLog ('End').
-  IF fgPostLog THEN OUTPUT STREAM logFile CLOSE.
-  /* WFK - no error message was being returned, so set to no if */
-  /*       no return error was encountered                      */
-  ERROR-STATUS:ERROR = NO.
-
-  SESSION:SET-WAIT-STATE ("").
-
+  /* return temp-table w-job for processing */
+  RUN fg/fgpostBatch.p (
+      INPUT v-post-date,
+      INPUT tg-recalc-cost,
+      INPUT ip-run-what,
+      INPUT gv-fgemail,
+      INPUT TABLE w-fg-rctd BY-reference,
+      INPUT TABLE tt-fgemail BY-reference,
+      INPUT TABLE tt-email BY-reference,
+      INPUT TABLE tt-inv BY-reference).
+
+  IF v-got-fgemail THEN 
+    DO:
+        IF fgPostLog THEN RUN fgPostLog ('Start Run send-fgemail').
+        RUN send-fgemail (v-fgemail-file).
+        IF fgPostLog THEN RUN fgPostLog ('End Run send-fgemail').
+    END.  
+    FOR EACH w-fg-rctd ,
+        FIRST itemfg
+        WHERE itemfg.company EQ cocode
+        AND itemfg.i-no    EQ w-fg-rctd.i-no NO-LOCK , 
+        EACH tt-inv WHERE tt-inv.row-id EQ w-fg-rctd.row-id 
+        BREAK BY tt-inv.bol-no:
+
+        FIND FIRST fg-rctd WHERE ROWID(fg-rctd) EQ w-fg-rctd.row-id NO-LOCK NO-ERROR.
+        RUN get-ord-recs (ROWID(fg-rctd),
+            BUFFER po-ordl,
+            BUFFER po-ord,
+            BUFFER oe-ordl,
+            BUFFER oe-ord,
+            BUFFER reftable).
+        IF AVAIL(reftable) AND (reftable.val[2] GT 0 OR reftable.val[3] EQ 1) THEN
+            ASSIGN ll        = reftable.val[1] NE 0
+                dBillAmt  = reftable.val[2]
+                lEmailBol = reftable.val[3] EQ 1
+                lInvFrt   = reftable.val[1] GT 0.
+        IF lEmailBol AND last-of(tt-inv.bol-no) THEN 
+        DO:
+            FIND FIRST oe-bolh WHERE oe-bolh.company EQ g_company
+                AND oe-bolh.bol-no EQ tt-inv.bol-no NO-LOCK NO-ERROR.
+
+            RUN custom/setUserPrint.p (g_company,'oe-boll_.',
+                'begin_cust,end_cust,begin_bol#,end_bol#,begin_ord#,end_ord#,tb_reprint,tb_posted,rd_bolcert',
+                oe-bolh.cust-no + ',' + oe-bolh.cust-no + ',' +
+                STRING(oe-bolh.bol-no) + ',' + STRING(oe-bolh.bol-no) +
+                ',,99999999,' + STRING(oe-bolh.printed) + ',' +
+                STRING(oe-bolh.posted) + ',BOL').
+            RUN listobjs/oe-boll_.w.
+
+        END. /* If email bol */
+    END. /* each w-fg-rctd */  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -4946,239 +4531,60 @@ IF LENGTH(end_job-no) < 6 THEN
 
 IF ip-run-what EQ "" THEN
   DISPLAY begin_job-no END_job-no WITH FRAME {&FRAME-NAME}.
+  
+  RUN fg/fgPostReport.p (
+        ip-post-eom-date,
+        ip-run-what,
+        begin_fg-r-no ,
+        begin_i-no ,
+        begin_job-no ,
+        begin_userid ,
+        begin_whs ,
+        end_fg-r-no ,
+        end_i-no ,
+        end_job-no ,
+        end_userid ,
+        end_whs ,
+        fi_file ,
+        ldt-from ,
+        ldt-to ,
+        lines-per-page ,
+        lv-font-name ,
+        lv-font-no ,
+        v-post-date ,
+        v-trans-lbl ,
+        lv-ornt ,
+        rd-dest ,
+        rd-Itm#Cst# ,
+        rd-ItmPo ,
+        rd-UOMJob ,
+        rd_print ,
+        t-adj ,
+        t-receipt ,
+        t-ret ,
+        t-ship ,
+        t-trans ,
+        tb_excel ,
+        tb_glnum ,
+        tb_grndtotal ,
+        tb_runExcel ,
+        tb_totCstVal ,
+        td-show-parm ,
+        tg-recalc-cost ,
+        tgIssue ,
+        tgl-itemCD ,
+        INPUT TABLE w-fg-rctd BY-reference ,
+        OUTPUT lv-list-name
+  ).
 
-ASSIGN
- str-tit2 = CURRENT-WINDOW:TITLE
- {sys/inc/ctrtext.i str-tit2 112}
- str-tit3 = "Period Date: " + string(v-post-date,"99/99/9999") + "             Posted by: " + USERID('nosweat') + "  As of " + string(TODAY,"99/99/9999")
- {sys/inc/ctrtext.i str-tit3 132}
-
- v-postlst   = (IF t-receipt THEN "R," ELSE "") +
-               (IF t-setup THEN "I," ELSE "") +
-               (IF t-ship THEN "S," ELSE "") +
-               (IF t-trans THEN "T," ELSE "") +
-               (IF t-adj THEN "A," ELSE "") +
-               (IF t-ret THEN "E," ELSE "") +
-               (IF tgIssue THEN "F," ELSE "")
- v-cost-sell = rd_print EQ "C"
- v-pr-tots2  = tb_totCstVal
- v-pr-tots   = tb_grndtotal.
-
-IF LENGTH(v-postlst) GT 0 AND
-   SUBSTR(v-postlst,LENGTH(v-postlst),1) EQ "," THEN
-   SUBSTR(v-postlst,LENGTH(v-postlst),1) = "".
-
-DO li = 1 TO 2:
-  {sys/inc/print1.i}
-  lv-list-name[li] = list-name.
-  PAUSE 1 NO-MESSAGE.
-END.
-
-OUTPUT STREAM before TO VALUE(lv-list-name[1]) PAGE-SIZE VALUE(lines-per-page).
-OUTPUT STREAM after  TO VALUE(lv-list-name[2]) PAGE-SIZE VALUE(lines-per-page).
-
-IF td-show-parm THEN RUN show-param.
-
-EMPTY TEMP-TABLE tt-set.
-/* If not running for all items, check these items for components that must */
-/* be included                                                              */
-IF NOT (begin_i-no EQ "" AND end_i-no BEGINS "zzzzzzzzzzz")
-     THEN RUN createComponentList.
-
-DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
-  FOR EACH fg-rctd
-      WHERE fg-rctd.company   EQ gcompany
-        AND fg-rctd.rita-code EQ ENTRY(li-loop,v-postlst)
-        AND fg-rctd.r-no      GE begin_fg-r-no
-        AND fg-rctd.r-no      LE end_fg-r-no
-        AND ((fg-rctd.i-no      GE begin_i-no
-             AND fg-rctd.i-no      LE end_i-no)
-             OR CAN-FIND(FIRST tt-set WHERE tt-set.part-no EQ fg-rctd.i-no))
-        AND fg-rctd.rct-date  GE ldt-from
-        AND fg-rctd.rct-date  LE ldt-to
-        AND fg-rctd.job-no    GE begin_job-no
-        AND fg-rctd.job-no    LE end_job-no
-        AND fg-rctd.loc-bin   NE ""
-        AND fg-rctd.loc       GE begin_whs
-        AND fg-rctd.loc       LE end_whs
-        AND ((begin_userid    LE "" AND
-              end_userid      GE "") OR
-             (fg-rctd.updated-by GE begin_userid 
-              AND fg-rctd.updated-by LE end_userid))
-      USE-INDEX rita-code:
-
-    RUN build-tables.
-  END.
-END.
-
-RUN build-comp-tables.
-
-IF v-cost-sell THEN DO:
-  v-hdr = "        COST".
-
-  IF tb_excel THEN 
-  DO:
-    OUTPUT STREAM excel TO VALUE(fi_file).
-
-    IF rd-ItmPo EQ 1
-      THEN ASSIGN excelheader = "Date,Time,Item,Description,".
-      ELSE ASSIGN excelheader = "Date,Time,Item,Description,Po No,Vendor,".
-
-    ASSIGN excelheader = excelheader + 
-                         "T,Tag No,Units,Count,Total,Bin,".
-    IF rd-UOMJob EQ 1 
-      THEN ASSIGN excelheader = excelheader + "UOM,Total Cost".
-      ELSE ASSIGN excelheader = excelheader + "Job #,Total Cost".
-
-    PUT STREAM excel UNFORMATTED excelheader SKIP.
-
-  END.
-
-   IF rd-ItmPo EQ 1 THEN DO:
-     {fg/rep/fg-post.i "itemxA" "v-fg-cost" "itempxA" "v-tot-cost"}
-   END.
-   ELSE DO:
-     {fg/rep/fg-post.i "itemx" "v-fg-cost" "itempx" "v-tot-cost"}
-   END.
-END.
-ELSE DO:
-  v-hdr = "       VALUE".
-
-  IF tb_excel THEN 
-  DO:
-    OUTPUT STREAM excel TO VALUE(fi_file).
-
-    IF rd-ItmPo EQ 1
-      THEN ASSIGN excelheader = "Date,Time,Item,Description,".
-      ELSE ASSIGN excelheader = "Date,Time,Item,Description,Po No,Vendor,".
-
-    ASSIGN excelheader = excelheader + 
-                         "T,Tag No,Units,Count,Total,Bin,".
-
-    IF rd-UOMJob EQ 1 
-      THEN ASSIGN excelheader = excelheader + "UOM,Total Value".
-      ELSE ASSIGN excelheader = excelheader + "Job #,Total Value".
-
-    PUT STREAM excel UNFORMATTED excelheader SKIP.
-  END.
-
-  IF rd-ItmPo EQ 1 THEN DO:
-   {fg/rep/fg-post.i "itemyA" "v-fg-value" "itempyA" "v-tot-value"}
-  END.
-  ELSE DO:
-   {fg/rep/fg-post.i "itemy" "v-fg-value" "itempy" "v-tot-value"}
-  END.
-END.
-
-IF v-pr-tots THEN DO:
-  IF v-cost-sell THEN DO:                   
-    PUT STREAM before
-        " " TO 124 SKIP       
-        "MSF->  FG: " + trim(STRING(v-msf[5],">>,>>9.9<<")) +
-        "  Wst: " + trim(STRING(v-msf[6],">>,>>9.9<<"))    +
-        "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],">>,>>9.9<<"))
-                    FORMAT "x(59)" AT 15
-        "GRAND TOTALS:" TO 97
-        v-grd-tot-qty TO 110 v-grd-tot-cost TO 141 SKIP. 
-
-    PUT STREAM after
-        " " TO 124 SKIP       
-        "MSF->  FG: " + trim(STRING(v-msf[5],">>,>>9.9<<")) +
-        "  Wst: " + trim(STRING(v-msf[6],">>,>>9.9<<"))    +
-        "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],">>,>>9.9<<"))
-                    FORMAT "x(59)" AT 15 
-        "GRAND TOTALS:" TO 97
-        v-grd-tot-qty TO 110 v-grd-tot-cost TO 141 SKIP.     
-  END.
-  ELSE DO:
-    PUT STREAM before
-        " " TO 124 SKIP       
-        "MSF->  FG: " + trim(STRING(v-msf[5],">>,>>9.9<<")) +
-        "  Wst: " + trim(STRING(v-msf[6],">>,>>9.9<<"))    +
-        "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],">>,>>9.9<<"))
-                    FORMAT "x(59)" AT 15 
-        "GRAND TOTALS:" TO 100
-        v-grd-tot-qty TO 113 v-grd-tot-value TO 144 SKIP.
-
-    PUT STREAM after
-        " " TO 124 SKIP       
-        "MSF->  FG: " + trim(STRING(v-msf[5],">>,>>9.9<<")) +
-        "  Wst: " + trim(STRING(v-msf[6],">>,>>9.9<<"))    +
-        "  Tot: " + trim(STRING(v-msf[5] + v-msf[6],">>,>>9.9<<"))
-                    FORMAT "x(59)" AT 15 
-        "GRAND TOTALS:" TO 97
-        v-grd-tot-qty TO 110 v-grd-tot-value TO 141 SKIP.
-  END.
-END. /* if v-pr-tots */
-
-HIDE FRAME r-top1.
-
-IF tb_glnum THEN DO:
-  PAGE STREAM before.
-  PAGE STREAM after.
-
-  FOR EACH work-gl BREAK BY work-gl.actnum:
-
-    FIND FIRST account
-        WHERE account.company EQ cocode
-          AND account.actnum  EQ work-gl.actnum
-        NO-LOCK NO-ERROR.
-
-    ASSIGN
-     v-dscr        = IF AVAIL account THEN account.dscr
-                     ELSE "ACCOUNT NOT FOUND - " + work-gl.actnum
-     v-disp-actnum = work-gl.actnum
-     v-disp-amt    = work-gl.debits - work-gl.credits.
-
-    DISPLAY STREAM before
-            v-disp-actnum v-dscr v-post-date v-disp-amt
-          WITH FRAME gldetail.
-    DOWN STREAM before WITH FRAME gldetail.
-
-    DISPLAY STREAM after
-            v-disp-actnum v-dscr v-post-date v-disp-amt
-          WITH FRAME gldetail.
-    DOWN STREAM after WITH FRAME gldetail.
-  END. /* each work-job */
-
-  FOR EACH work-job BREAK BY work-job.actnum:
-
-    FIND FIRST account
-        WHERE account.company EQ cocode
-          AND account.actnum  EQ work-job.actnum
-        NO-LOCK NO-ERROR.
-
-    ASSIGN
-     v-dscr        = IF AVAIL account THEN account.dscr
-                     ELSE "ACCOUNT NOT FOUND - " + work-job.actnum
-     v-disp-actnum = work-job.actnum.
-
-    IF work-job.fg THEN
-      v-disp-amt = - work-job.amt.
-    ELSE
-      v-disp-amt = work-job.amt.
-
-    DISPLAY STREAM before
-            v-disp-actnum v-dscr v-post-date v-disp-amt
-          WITH FRAME gldetail.
-    DOWN STREAM before WITH FRAME gldetail.
-
-    DISPLAY STREAM after
-            v-disp-actnum v-dscr v-post-date v-disp-amt
-          WITH FRAME gldetail.
-    DOWN STREAM after WITH FRAME gldetail.
-  END. /* each work-job */
-END.
-
-OUTPUT STREAM before CLOSE.
-OUTPUT STREAM after  CLOSE.
+list-name = lv-list-name[1].
 
 IF tb_excel THEN 
-  DO:
-      OUTPUT STREAM excel CLOSE.
-      IF tb_runExcel THEN
-         OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
-END.
+    DO:
+        OUTPUT STREAM excel CLOSE.
+        IF tb_runExcel THEN
+            OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
+    END.
 
 /* Only save screen selections if the screen was enabled */
 IF ip-run-what EQ "" THEN
@@ -5462,6 +4868,57 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateFgAssembly C-Win
+PROCEDURE validateFgAssembly:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iRNo AS INTEGER NO-UNDO.
+  DEFINE BUFFER b-w-fg-rctd FOR w-fg-rctd.
+
+    FOR EACH b-w-fg-rctd WHERE b-w-fg-rctd.qty LT 0,
+        EACH reftable NO-LOCK WHERE reftable.reftable EQ "fg-rctd.user-id" 
+        AND reftable.company  EQ b-w-fg-rctd.company 
+        AND reftable.loc      EQ STRING(b-w-fg-rctd.r-no,"9999999999")        
+        /* AND (reftable.dscr EQ "fg-rctd: " + STRING(w-fg-rctd.r-no, "9999999999") AND reftable.dscr BEGINS "fg-rctd: ") */  
+        USE-INDEX loc    .
+      
+        iRNo = INTEGER(SUBSTRING(reftable.dscr, 9, 11)) NO-ERROR.
+        IF ERROR-STATUS:ERROR = NO THEN 
+            FIND FIRST w-fg-rctd NO-LOCK WHERE w-fg-rctd.r-no EQ iRNo NO-ERROR. 
+        IF NOT AVAILABLE w-fg-rctd THEN 
+            NEXT. 
+      
+        FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = w-fg-rctd.row-id  NO-ERROR.
+        FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode 
+            AND itemfg.i-no    EQ w-fg-rctd.i-no
+            NO-ERROR.
+
+        IF AVAIL fg-rctd  THEN 
+        DO:
+            /*##BL - FGSetAssembly requires the bin to match that of the character*/
+            /*##BL of FGSetAssembly N-K.  If it doesn't, abort posting  */
+            IF lFGSetAssembly 
+                AND fg-rctd.loc-bin NE cFGSetAssembly 
+                AND avail(itemfg) 
+                AND itemfg.alloc  EQ NO THEN 
+                  RETURN ERROR.
+
+        END.
+        RELEASE fg-rctd.
+
+    END.
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ValidateFGItemRange C-Win 
 PROCEDURE ValidateFGItemRange :
 /*------------------------------------------------------------------------------
@@ -5505,7 +4962,98 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateTransfers C-Win
+PROCEDURE validateTransfers:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    /* Check for invalid transfers */
+    FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code = "T"
+        BY w-fg-rctd.tag
+        BY w-fg-rctd.rct-date
+        BY w-fg-rctd.trans-time
+        BY w-fg-rctd.r-no:
+
+        IF NOT CAN-FIND(FIRST itemfg WHERE
+            itemfg.company EQ cocode AND
+            itemfg.i-no    EQ w-fg-rctd.i-no) THEN
+            NEXT.
+
+        FIND FIRST fg-bin WHERE fg-bin.company EQ cocode
+            AND fg-bin.i-no    EQ w-fg-rctd.i-no
+            AND fg-bin.job-no  EQ w-fg-rctd.job-no
+            AND fg-bin.job-no2 EQ w-fg-rctd.job-no2
+            AND fg-bin.loc     EQ w-fg-rctd.loc
+            AND fg-bin.loc-bin EQ w-fg-rctd.loc-bin
+            AND fg-bin.tag     EQ w-fg-rctd.tag
+            AND fg-bin.cust-no EQ w-fg-rctd.cust-no
+            USE-INDEX co-ino NO-ERROR.
+        IF NOT AVAIL fg-bin THEN 
+        DO:
+            MESSAGE "A transfer exists for item " w-fg-rctd.i-no SKIP
+                "with an invalid location:" SKIP
+                "  Warehouse = " w-fg-rctd.loc SKIP
+                "  Bin = " w-fg-rctd.loc-bin SKIP
+                "  Tag = " w-fg-rctd.tag SKIP
+                "Please correct and re-run the posting process." SKIP
+                VIEW-AS ALERT-BOX INFO BUTTONS OK.
+            RETURN "Invalid Location".
+        END.
+        ELSE IF fg-bin.pur-uom EQ "" THEN 
+            DO:
+                MESSAGE "A blank UOM exists for item bin " w-fg-rctd.i-no SKIP
+                    "with location:" SKIP
+                    "  Warehouse = " w-fg-rctd.loc SKIP
+                    "  Bin = " w-fg-rctd.loc-bin SKIP
+                    "  Tag = " w-fg-rctd.tag SKIP
+                    "Please correct and re-run the posting process." SKIP
+                    VIEW-AS ALERT-BOX INFO BUTTONS OK.
+                RETURN "Invalid Location".          
+            END.
+            ELSE IF itemfg.prod-uom EQ "" THEN 
+                DO:
+                    MESSAGE "A blank cost UOM exists for item " w-fg-rctd.i-no SKIP
+                        "Please correct and re-run the posting process." SKIP
+                        VIEW-AS ALERT-BOX INFO BUTTONS OK.
+                    RETURN "Invalid Location".          
+                END.
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 /* ************************  Function Implementations ***************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnCheckSys C-Win
+FUNCTION fnCheckSys RETURNS LOGICAL  
+  (INPUT cNK1 AS CHARACTER   ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE result AS LOGICAL NO-UNDO.
+    FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
+        AND sys-ctrl.name    EQ cNK1
+        NO-ERROR.
+    IF NOT AVAILABLE sys-ctrl THEN 
+      MESSAGE "Warning: NK1 Missing" cNK1
+              VIEW-AS ALERT-BOX.
+    RESULT = AVAILABLE  sys-ctrl.
+        
+
+	RETURN result.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-act-rel-qty C-Win 
 FUNCTION get-act-rel-qty RETURNS INTEGER
