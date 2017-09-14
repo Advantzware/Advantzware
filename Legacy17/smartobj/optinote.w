@@ -61,10 +61,10 @@ CREATE WIDGET-POOL.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Select_InvNote 
-     IMAGE-UP FILE "Graphics/32x32/edit.ico":U
+     IMAGE-UP FILE "Graphics/32x32/currency_dollar.ico":U
      IMAGE-INSENSITIVE FILE "Graphics/32x32/inactive.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Operator Notes" 
-     SIZE 8 BY 1.81 TOOLTIP "Notes".
+     SIZE 8 BY 1.81 TOOLTIP "Collection Notes".
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -144,7 +144,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 

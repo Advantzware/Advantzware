@@ -37,7 +37,7 @@ DEF VAR v-contact LIKE quotehd.contact NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
 DEF VAR ls-full-img2 AS cha FORM "x(50)" NO-UNDO.
 
 ASSIGN ls-image1 = "images\harwell.jpg".
@@ -233,9 +233,20 @@ if (not ch-multi) then do:
          ln-cnt = ln-cnt + 4.
     END.
   END.
+  if ch-inst AND AVAIL est then do:
+      {custom/notespr2.i job v-inst2 6 "notes.rec_key = est.rec_key " }
+      DO i = 1 TO 6:
+             v-dept-inst[i] = v-inst2[i].
+      END.
+      IF v-dept-inst[1] <> "" OR v-dept-inst[2] <> "" THEN DO:
+          ln-cnt = ln-cnt + 4.
+      END.
+  END.
+
+  
   lv-tot-pg = lv-tot-pg + TRUNC( ln-cnt / 22,0) .  /* 33 - 55 */
    /* get total page number */
-
+  
    {cec/quote/quohawl2.i}
 
    {cec/quote/quohawl.i 1}
@@ -331,22 +342,26 @@ else do:
     if first-of(report.key-01) OR s-sep-page then do:      
       v-printline = 0.
       IF NOT first(report.key-01) THEN page.
+     
       ASSIGN
         v-first-q-no = xquo.q-no
         lv-tot-pg = 1
         ln-cnt = 0.
+      
        /* get total page number */
       FOR EACH bf-report where bf-report.term-id eq v-term-id
-                           AND bf-report.key-01 = report.key-01,
-          first bf-quo  where recid(bf-quo) eq bf-report.rec-id,
-          EACH xqitm OF bf-quo NO-LOCK:
+                           AND bf-report.key-03 = report.key-03,
+          first bf-quo  where recid(bf-quo) eq bf-report.rec-id ,
+          EACH xqitm OF bf-quo  NO-LOCK:
        /*   EACH xqqty OF xqitm NO-LOCK: */
           ln-cnt = ln-cnt + 1.
           
       END.
+      
       ln-cnt = ln-cnt * 6.
+      
       FOR EACH bf-report where bf-report.term-id eq v-term-id
-                           AND bf-report.key-01 = report.key-01,
+                           AND bf-report.key-03 = report.key-03,
           first bf-quo  where recid(bf-quo) eq bf-report.rec-id,
           EACH xqitm OF bf-quo NO-LOCK,
           EACH xqqty OF xqitm NO-LOCK,
@@ -362,18 +377,20 @@ else do:
             ln-cnt = ln-cnt + 1.
           END.
           ln-cnt = ln-cnt + 1.
+          
       END.
 
       FOR EACH bf-report where bf-report.term-id eq v-term-id
-                           AND bf-report.key-01 = report.key-01,
+                           AND bf-report.key-03 = report.key-03,
           first bf-quo  where recid(bf-quo) eq bf-report.rec-id,
           EACH xqchg OF bf-quo WHERE xqchg.qty  EQ 0 AND xqchg.line EQ 0 NO-LOCK
                   BREAK BY xqchg.charge:
           IF FIRST(xqchg.charge) THEN ln-cnt = ln-cnt + 1.
+          
       END.
       IF s-print-comp THEN DO :      /* Print components of a set */
         FOR EACH bf-report where bf-report.term-id eq v-term-id
-                           AND bf-report.key-01 = report.key-01 NO-LOCK,
+                           AND bf-report.key-03 = report.key-03 NO-LOCK,
             first bf-quo  where recid(bf-quo) eq bf-report.rec-id NO-LOCK,
             FIRST est WHERE est.company EQ bf-quo.company
                      AND est.est-no  EQ bf-quo.est-no 
@@ -382,11 +399,22 @@ else do:
                  AND ef.est-no  EQ est.est-no NO-LOCK,      
             EACH eb OF ef NO-LOCK BREAK BY ef.form-no :
             ln-cnt = ln-cnt + 4.
+            /*IF bf-quo.q-no =  THEN */
+            
         END.
+      END.
+      if ch-inst AND AVAIL est then do:
+          {custom/notespr2.i job v-inst2 6 "notes.rec_key = est.rec_key " }
+          DO i = 1 TO 6:
+                 v-dept-inst[i] = v-inst2[i].
+          END.
+          IF v-dept-inst[1] <> "" OR v-dept-inst[2] <> "" THEN DO:
+              ln-cnt = ln-cnt + 4.
+          END.
       END.
       lv-tot-pg = lv-tot-pg + TRUNC( ln-cnt / 22,0) .  /* 33 - 55 */
       /* get total page number */
-
+       
       {cec/quote/quohawl2.i}
     end.
 
