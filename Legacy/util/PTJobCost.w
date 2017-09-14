@@ -329,21 +329,28 @@ FOR EACH job NO-LOCK WHERE
     job.opened = true and
     job.create-date >= date(fiDueBegin:screen-value in frame gDialog) and
     job.create-date <= date(fiDueEnd:screen-value) 
-    use-index due-date, 
-    EACH job-mat NO-LOCK OF job,
-        FIRST item NO-LOCK WHERE
+    use-index due-date: 
+    EACH job-hdr NO-LOCK OF job,
+    EACH job-mat NO-LOCK OF job:
+    
+    FIND FIRST est NO-LOCK WHERE
+        est.company = job.company and
+        est.loc = job.loc and
+        est.est-no = job.est-no
+        USE-INDEX est-no.
+    IF AVAIL est THEN DO:
+        FIND FIRST item NO-LOCK WHERE
             item.company = job.company and
-            item.i-no = job-mat.rm-i-no,
-    EACH job-hdr OF job NO-LOCK,
-        FIRST itemfg NO-LOCK OF job-hdr, 
-        EACH est NO-LOCK WHERE
-            est.company = job.company and
-            est.loc = job.loc and
-            est.est-no = job.est-no,
-            EACH probe WHERE
+            item.i-no = job-mat.rm-i-no
+            NO-ERROR.
+        IF AVAIL item THEN DO:
+            FOR EACH probe WHERE
                 probe.company = job.company and
                 probe.est-no = job.est-no, 
+                
+                
                 EACH oe-ordl NO-LOCK WHERE 
+        FIRST itemfg NO-LOCK OF job-hdr, 
                     oe-ordl.company = job.company AND 
                     oe-ordl.job-no = job.job-no AND 
                     oe-ordl.job-no2 = job.job-no2 use-index job,
