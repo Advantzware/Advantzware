@@ -1000,7 +1000,7 @@ PROCEDURE enable-oe-prmtx-field :
   DO WITH FRAME {&FRAME-NAME}:
     ENABLE ALL.
 
-    IF oe-prmtx.meth THEN DO:
+    IF AVAIL oe-prmtx AND oe-prmtx.meth THEN DO:
       ENABLE  oe-prmtx.price.
       DISABLE oe-prmtx.discount.
     END.
@@ -1010,9 +1010,9 @@ PROCEDURE enable-oe-prmtx-field :
       DISABLE oe-prmtx.price.
     END.
 
-    IF oe-prmtx.cust-no NE "" THEN DISABLE oe-prmtx.custype.
+    IF AVAIL oe-prmtx AND oe-prmtx.cust-no NE "" THEN DISABLE oe-prmtx.custype.
 
-    IF oe-prmtx.i-no NE "" THEN DISABLE oe-prmtx.procat.
+    IF AVAIL oe-prmtx AND oe-prmtx.i-no NE "" THEN DISABLE oe-prmtx.procat.
   END.
 
 END PROCEDURE.
