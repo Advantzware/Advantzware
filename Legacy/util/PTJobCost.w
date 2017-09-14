@@ -53,6 +53,7 @@ DEF temp-table ttJobMat
     FIELD std-mat-cost LIKE job-hdr.std-mat-cost
     FIELD std-tot-cost LIKE job-hdr.std-tot-cost
     FIELD std-var-cost LIKE job-hdr.std-var-cost
+    FIELD rm-i-no LIKE job-mat.rm-i-no
     FIELD length LIKE job-mat.len
     FIELD line LIKE job-mat.line
     FIELD number-up LIKE job-mat.n-up
@@ -395,6 +396,7 @@ FOR EACH job NO-LOCK WHERE
                 ttJobMat.std-mat-cost = job-hdr.std-mat-cost
                 ttJobMat.std-tot-cost = job-hdr.std-tot-cost
                 ttJobMat.std-var-cost = job-hdr.std-var-cost
+                ttJobMat.rm-i-no = job-mat.rm-i-no
                 ttJobMat.length = job-mat.len
                 ttJobMat.line = job-mat.line
                 ttJobMat.number-up = job-mat.n-up
@@ -472,30 +474,31 @@ FOR EACH ttJobMat:
         chWorkSheet:Range("N" + STRING(iRow)):VALUE = ttJobMat.std-mat-cost  
         chWorkSheet:Range("O" + STRING(iRow)):VALUE = ttJobMat.std-tot-cost  
         chWorkSheet:Range("P" + STRING(iRow)):VALUE = ttJobMat.std-var-cost  
-        chWorkSheet:Range("Q" + STRING(iRow)):VALUE = ttJobMat.length        
-        chWorkSheet:Range("R" + STRING(iRow)):VALUE = ttJobMat.line          
-        chWorkSheet:Range("S" + STRING(iRow)):VALUE = ttJobMat.number-up     
-        chWorkSheet:Range("T" + STRING(iRow)):VALUE = ttJobMat.mat-qty       
-        chWorkSheet:Range("U" + STRING(iRow)):VALUE = ttJobMat.mat-uom       
-        chWorkSheet:Range("V" + STRING(iRow)):VALUE = ttJobMat.mat-std-cost  
-        chWorkSheet:Range("W" + STRING(iRow)):VALUE = ttJobMat.width         
-        chWorkSheet:Range("X" + STRING(iRow)):VALUE = ttJobMat.msf           
-        chWorkSheet:Range("Y" + STRING(iRow)):VALUE = ttJobMat.mat-type      
-        chWorkSheet:Range("Z" + STRING(iRow)):VALUE = ttJobMat.prod-cat      
-        chWorkSheet:Range("AA" + STRING(iRow)):VALUE = ttJobMat.rm-avg-cost   
-        chWorkSheet:Range("AB" + STRING(iRow)):VALUE = ttJobMat.rm-last-cot   
-        chWorkSheet:Range("AC" + STRING(iRow)):VALUE = ttJobMat.rm-uom        
-        chWorkSheet:Range("AD" + STRING(iRow)):VALUE = ttJobMat.order-no      
-        chWorkSheet:Range("AE" + STRING(iRow)):VALUE = ttJobMat.customer      
-        chWorkSheet:Range("AF" + STRING(iRow)):VALUE = ttJobMat.name          
-        chWorkSheet:Range("AG" + STRING(iRow)):VALUE = ttJobMat.ord-line      
+        chWorkSheet:Range("Q" + STRING(iRow)):VALUE = ttJobMat.rm-i-no        
+        chWorkSheet:Range("R" + STRING(iRow)):VALUE = ttJobMat.length        
+        chWorkSheet:Range("S" + STRING(iRow)):VALUE = ttJobMat.width         
+        chWorkSheet:Range("T" + STRING(iRow)):VALUE = ttJobMat.line          
+        chWorkSheet:Range("U" + STRING(iRow)):VALUE = ttJobMat.number-up     
+        chWorkSheet:Range("V" + STRING(iRow)):VALUE = ttJobMat.mat-qty       
+        chWorkSheet:Range("W" + STRING(iRow)):VALUE = ttJobMat.mat-uom       
+        chWorkSheet:Range("X" + STRING(iRow)):VALUE = ttJobMat.mat-std-cost  
+        chWorkSheet:Range("Y" + STRING(iRow)):VALUE = ttJobMat.msf           
+        chWorkSheet:Range("Z" + STRING(iRow)):VALUE = ttJobMat.mat-type      
+        chWorkSheet:Range("AA" + STRING(iRow)):VALUE = ttJobMat.prod-cat      
+        chWorkSheet:Range("AB" + STRING(iRow)):VALUE = ttJobMat.rm-avg-cost   
+        chWorkSheet:Range("AC" + STRING(iRow)):VALUE = ttJobMat.rm-last-cot   
+        chWorkSheet:Range("AD" + STRING(iRow)):VALUE = ttJobMat.rm-uom        
+        chWorkSheet:Range("AE" + STRING(iRow)):VALUE = ttJobMat.order-no      
+        chWorkSheet:Range("AF" + STRING(iRow)):VALUE = ttJobMat.customer      
+        chWorkSheet:Range("AG" + STRING(iRow)):VALUE = ttJobMat.name          
+        chWorkSheet:Range("AH" + STRING(iRow)):VALUE = ttJobMat.ord-line      
         iRow = iRow + 1.
 END.
 
 ASSIGN
     chExcelApplication:VISIBLE = true
     chExcelApplication:ScreenUpdating = true.
-chWorkbook:WorkSheets(1):Columns("A:AQ"):AutoFit.
+chWorkbook:WorkSheets(1):Columns("A:AH"):AutoFit.
 chExcelApplication:VISIBLE = TRUE.
 
 RELEASE OBJECT chWorkbook         NO-ERROR.
