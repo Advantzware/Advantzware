@@ -2153,6 +2153,7 @@ PROCEDURE add-estimate :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
 
   ASSIGN                
   ll-is-add-from-tool = YES  /* add from option button not from add button */
@@ -2162,6 +2163,11 @@ PROCEDURE add-estimate :
      then run est/d-addset.w (output ls-add-what). /* one item or set cec/est-add.p */*/
   RUN est/d-addfol.w (INPUT YES, OUTPUT ls-add-what). /* one item or set cec/est-add.p */
   IF ls-add-what = "" THEN RETURN NO-APPLY.  /* cancel */
+  
+  IF ls-add-what EQ "est" THEN DO:
+      RUN get-link-handle IN adm-broker-hdl  (THIS-PROCEDURE,'Record-source':U,OUTPUT char-hdl).
+      RUN clearFilterValues IN WIDGET-HANDLE(char-hdl).
+  END.
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
   
