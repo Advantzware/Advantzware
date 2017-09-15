@@ -71,6 +71,7 @@ DEF temp-table ttJobMat
     FIELD customer LIKE oe-ord.cust-no
     FIELD name LIKE cust.name
     FIELD ord-line AS INT FORMAT ">>9"
+    FIELD ord-line-price LIKE oe-ordl.price
     .
 
 
@@ -330,7 +331,12 @@ DEF VAR chFile             AS CHARACTER        NO-UNDO.
 DEF VAR iRow as int no-undo.
 
 CREATE "Excel.Application" chExcelApplication.
-FILE-INFO:FILE-NAME = SEARCH("template\PTjobCost.xlt").
+IF SEARCH("template\PTjobCost.xlt") = ? THEN DO:
+    FILE-INFO:FILE-NAME = SEARCH("P:\ASI\Repositories\Advantzware\Resources\template\PTjobCost.xlt").
+END.
+ELSE DO:
+    FILE-INFO:FILE-NAME = SEARCH("template\PTjobCost.xlt").
+END.
 ASSIGN 
     chFile = SEARCH(FILE-INFO:FULL-PATHNAME).
   
@@ -367,7 +373,14 @@ FOR EACH job NO-LOCK WHERE
         est.loc = job.loc and
         est.est-no = job.est-no
         USE-INDEX est-no.
-    FOR EACH job-hdr NO-LOCK OF job:
+    /* Sets and single-items */
+    FIND FIRST job-hdr NO-LOCK OF job NO-ERROR.
+    
+    FIND FIRST itemfg NO-LOCK WHERE
+        itemfg.company = job.company and
+        itemfg.i-no = job-hdr.i-no
+        NO-ERROR.
+        
         FOR EACH job-mat NO-LOCK WHERE
             job-mat.company = job-hdr.company AND
             job-mat.job-no = job-hdr.job-no AND
@@ -378,9 +391,10 @@ FOR EACH job NO-LOCK WHERE
                 item.i-no = job-mat.rm-i-no
                 NO-ERROR.
 
-            CREATE ttJobMat.
+            CREATE ttJobMat. /* roll this up to job-hdr */
             ASSIGN
                 ttJobMat.job-no = job.job-no
+                ttJobMat.job-no2 = job.job-no2 /* Run No */
                 ttJobMat.create-date = job.create-date
                 ttJobMat.start-date = job.start-date
                 ttJobMat.complete-date = job.complete-date
@@ -447,6 +461,7 @@ FOR EACH job NO-LOCK WHERE
                     NO-ERROR.
 
                 ASSIGN
+                    ttJobMat.ord-line-price = if avail oe-ordl then oe-ordl.price else itemfg.price
                     ttJobMat.order-no = oe-ord.ord-no
                     ttJobMat.customer = oe-ord.cust-no
                     ttJobMat.name = cust.name
@@ -492,6 +507,7 @@ FOR EACH ttJobMat:
         chWorkSheet:Range("AF" + STRING(iRow)):VALUE = ttJobMat.customer      
         chWorkSheet:Range("AG" + STRING(iRow)):VALUE = ttJobMat.name          
         chWorkSheet:Range("AH" + STRING(iRow)):VALUE = ttJobMat.ord-line      
+        chWorkSheet:Range("AI" + STRING(iRow)):VALUE = ttJobMat.ord-line-price
         iRow = iRow + 1.
 END.
 
