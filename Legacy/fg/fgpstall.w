@@ -3171,7 +3171,7 @@ PROCEDURE fg-post :
     IF NOT AVAILABLE w-fg-rctd THEN 
       NEXT. 
       
-    FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = w-fg-rctd.row-id  NO-ERROR.
+    FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = b-w-fg-rctd.row-id  NO-ERROR.
     FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode 
                                 AND itemfg.i-no    EQ w-fg-rctd.i-no
                              NO-ERROR.
@@ -3188,8 +3188,8 @@ PROCEDURE fg-post :
                 VIEW-AS ALERT-BOX INFO BUTTONS OK.
             RETURN ERROR.
         END.
-        ASSIGN w-fg-rctd.rita-code   = "A"
-               fg-rctd.rita-code     = "A".
+        ASSIGN b-w-fg-rctd.rita-code   = "A"
+               fg-rctd.rita-code       = "A".
     END.
     RELEASE fg-rctd.
 
