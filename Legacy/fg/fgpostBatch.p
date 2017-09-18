@@ -612,7 +612,7 @@ PROCEDURE fg-post:
         IF NOT AVAILABLE w-fg-rctd THEN 
             NEXT. 
       
-        FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = w-fg-rctd.row-id  NO-ERROR.
+        FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = b-w-fg-rctd.row-id  NO-ERROR.
         FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode 
             AND itemfg.i-no    EQ w-fg-rctd.i-no
             NO-ERROR.
@@ -620,7 +620,7 @@ PROCEDURE fg-post:
         IF AVAILABLE fg-rctd  THEN 
         DO:
             ASSIGN 
-                w-fg-rctd.rita-code = "A"
+                b-w-fg-rctd.rita-code = "A"
                 fg-rctd.rita-code   = "A".
         END.
         RELEASE fg-rctd.
@@ -1536,99 +1536,6 @@ PROCEDURE replace-rel-qty:
     bf-orig-oe-rel.qty = ipi-qty.
     RUN add-rel-assign-logic (INPUT ipr-rel-row, INPUT ipi-qty).
     RELEASE bf-orig-oe-rel.
-
-END PROCEDURE.
-
-PROCEDURE send-fgemail:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-    DEF INPUT PARAM ip-fgemail-file AS cha .
-
-    DEF VAR retcode        AS INT  NO-UNDO.
-    DEF VAR ls-to-list     AS cha  NO-UNDO.
-    DEF VAR lv-mailto      AS cha  NO-UNDO.
-    DEF VAR lv-mailsubject AS cha  NO-UNDO.
-    DEF VAR lv-mailbody    AS cha  NO-UNDO.
-    DEF VAR lv-mailattach  AS cha  NO-UNDO.
-    DEF VAR v-fgemail-file AS cha  NO-UNDO.
-    DEF VAR v-dir          AS CHAR FORMAT "X(80)" NO-UNDO.
-
-    /* gdm - 12170901 */
-    DEF BUFFER bf-job-hdr FOR job-hdr.
-    DEF BUFFER bf-oe-ordl FOR oe-ordl.
-    DEF BUFFER bf-itemfg  FOR itemfg.
-
-    FIND FIRST users WHERE
-        users.user_id EQ USERID("NOSWEAT")
-        NO-LOCK NO-ERROR.
-
-    IF AVAIL users AND users.user_program[2] NE "" THEN
-        v-dir = users.user_program[2] + "\".
-    ELSE
-        v-dir = "c:\tmp\".
-
-    FOR EACH tt-email,
-        FIRST cust NO-LOCK WHERE cust.company = g_company
-        AND cust.cust-no = tt-email.cust-no
-        AND cust.active = "E" BREAK BY tt-email.cust-no:
-        IF FIRST-OF(tt-email.cust-no) THEN 
-        DO:
-            v-fgemail-file = v-dir + trim(tt-email.cust-no) + ".txt".
-            OUTPUT STREAM st-email TO VALUE(v-fgemail-file).
-            PUT STREAM st-email 
-                "      Qty      JOB#       FG Item#          Part #          PO #            Item Name                 " SKIP
-                "============ ========== =============== =============== =============== ==============================" SKIP.
-        END.
-
-        RELEASE bf-oe-ordl.
-
-        /* gdm - 12170901 */
-        FIND FIRST bf-job-hdr WHERE
-            bf-job-hdr.company EQ g_company AND
-            bf-job-hdr.job-no EQ tt-email.job-no AND
-            bf-job-hdr.job-no2 EQ tt-email.job-no2 AND
-            bf-job-hdr.i-no EQ tt-email.i-no AND
-            bf-job-hdr.ord-no NE 0
-            NO-LOCK NO-ERROR.
-
-        IF AVAIL bf-job-hdr THEN
-            FIND FIRST bf-oe-ordl WHERE
-                bf-oe-ordl.company EQ g_company AND
-                bf-oe-ordl.ord-no EQ bf-job-hdr.ord-no
-                NO-LOCK NO-ERROR.
-
-        FIND FIRST bf-itemfg WHERE
-            bf-itemfg.company EQ g_company AND
-            bf-itemfg.i-no EQ tt-email.i-no
-            NO-LOCK NO-ERROR.
-
-        PUT STREAM st-email UNFORMATTED
-            tt-email.qty FORM "->>>,>>>,>>9" " " 
-            tt-email.job-no + "-" + string(tt-email.job-no2,"99") FORM "x(10)"
-            " " tt-email.i-no FORM "X(15)"
-            " " (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.part-no ELSE IF AVAIL bf-itemfg THEN bf-itemfg.part-no ELSE "") FORM "x(15)"
-            " " (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.po-no ELSE IF AVAIL bf-job-hdr THEN bf-job-hdr.po-no ELSE "") FORM "x(15)" 
-            " " (IF AVAIL bf-oe-ordl THEN bf-oe-ordl.i-name ELSE IF AVAIL bf-itemfg THEN bf-itemfg.i-name ELSE "") FORM "x(30)"
-            SKIP.
-
-        IF LAST-OF(tt-email.cust-no) THEN 
-        DO:
-            OUTPUT STREAM st-email CLOSE.           
-            {custom/emailList.i &recKey=cust.rec_key &emailList=ls-to-list}
-            IF ls-to-list NE '' THEN 
-            DO:
-                ASSIGN 
-                    lv-mailto      = "To:" + ls-to-list
-                    lv-mailsubject = "Finished Goods Receipts have been posted"
-                    lv-mailbody    = "Finished Goods Receipts have been posted"
-                    lv-mailattach  = v-fgemail-file.
-                RUN mail(lv-mailto,lv-mailsubject,lv-mailbody,lv-mailattach,1,OUTPUT retcode).
-            END.
-        END. /* last-of(tt-email.cust-no) */
-    END.
-
 
 END PROCEDURE.
 
