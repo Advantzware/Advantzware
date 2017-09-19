@@ -12,12 +12,12 @@ DEF VAR v-lines-tmp AS INT NO-UNDO.
 DEF VAR lv-tmp AS CHAR NO-UNDO.
 DEF VAR lv-tmp-val AS CHAR NO-UNDO.
 DEF VAR k_frac AS DEC INIT 6.25 NO-UNDO.
-DEF VAR v-ink-1 AS cha FORM "X(30)" NO-UNDO.
-DEF VAR v-ink-2 AS cha FORM "X(30)" NO-UNDO.
-DEF VAR v-ink-3 AS cha FORM "X(30)" NO-UNDO.
-DEF VAR v-ink-4 AS cha FORM "X(30)" NO-UNDO.
-DEF VAR v-ink-5 AS cha FORM "X(30)" NO-UNDO.
-DEF VAR v-ink-6 AS cha FORM "X(30)" NO-UNDO.
+DEF VAR v-ink-1 AS cha FORM "X(34)" NO-UNDO.
+DEF VAR v-ink-2 AS cha FORM "X(34)" NO-UNDO.
+DEF VAR v-ink-3 AS cha FORM "X(34)" NO-UNDO.
+DEF VAR v-ink-4 AS cha FORM "X(34)" NO-UNDO.
+DEF VAR v-ink-5 AS cha FORM "X(34)" NO-UNDO.
+DEF VAR v-ink-6 AS cha FORM "X(34)" NO-UNDO.
 DEF var v-dept-note AS cha FORM "x(110)" EXTENT 8 NO-UNDO.
 DEF var v-spec-note AS cha FORM "x(110)" EXTENT 8 NO-UNDO.
 DEF VAR lv-under-run AS cha NO-UNDO.
@@ -213,38 +213,43 @@ do v-local-loop = 1 to v-local-copies:
         if i lt 6 then do i = i + 1 to 6:
           create w-i.
         end.
-
         find first w-i.
-        v-ink-1 =  w-i.i-dscr /*+
-                   (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">>>,>>9") ELSE "" ) +
-                   IF w-i.i-dscr <> "" THEN "LBS" ELSE ""*/ .
+        {sys/inc/roundup.i w-i.i-qty}
+        v-ink-1 =   string(w-i.i-dscr,"x(30)") + " " + 
+                   (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">9") ELSE "" ) + 
+                   (IF w-i.i-dscr <> "" THEN "#" ELSE "") .
         find next w-i.
-        v-ink-2 =  w-i.i-dscr /*+
-                   (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">>>,>>9") ELSE "" ) +
-                   IF w-i.i-dscr <> "" THEN "LBS" ELSE ""*/.
+        {sys/inc/roundup.i w-i.i-qty}
+        v-ink-2 =  string(w-i.i-dscr,"x(30)") + " " + 
+                   (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">9") ELSE "" ) + 
+                   (IF w-i.i-dscr <> "" THEN "#" ELSE "") .
         find next w-i.
-        v-ink-3 =  w-i.i-dscr /*+
-                   (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">>>,>>9") ELSE "" ) +
-                   IF w-i.i-dscr <> "" THEN "LBS" ELSE ""*/.
+        {sys/inc/roundup.i w-i.i-qty}
+        v-ink-3 =  string(w-i.i-dscr,"x(30)") + " " + 
+                   (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">9") ELSE "" ) + 
+                   (IF w-i.i-dscr <> "" THEN "#" ELSE "").
         find NEXT w-i.
+        {sys/inc/roundup.i w-i.i-qty}
 
         ASSIGN
-        v-ink-4 =  w-i.i-dscr /*+
-                   (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">>>,>>9") ELSE "" ) +
-                   IF w-i.i-dscr <> "" THEN "LBS" ELSE ""*/
+        v-ink-4 =  string(w-i.i-dscr,"x(30)") + " " + 
+                   (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">9") ELSE "" ) + 
+                   (IF w-i.i-dscr <> "" THEN "#" ELSE "")
         v-form-sqft = round(if v-corr then (xeb.t-len * xeb.t-wid * .007)
                             else (xeb.t-len * xeb.t-wid / 144),3)
         v-form-sqft-2 = round(if v-corr then (v-form-len * v-form-wid * .007)
                                        else (v-form-len * v-form-wid / 144),3).
         FIND NEXT w-i.
-         v-ink-5 =  w-i.i-dscr /*+
-                   (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">>>,>>9") ELSE "" ) +
-                   IF w-i.i-dscr <> "" THEN "LBS" ELSE ""*/.
+        {sys/inc/roundup.i w-i.i-qty}
+         v-ink-5 =  string(w-i.i-dscr,"x(30)") + " " + 
+                   (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">9") ELSE "" ) + 
+                   (IF w-i.i-dscr <> "" THEN "#" ELSE "") .
         find next w-i.
+        {sys/inc/roundup.i w-i.i-qty}
 
-         v-ink-6 =  w-i.i-dscr /*+
-                   (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">>>,>>9") ELSE "" ) +
-                   IF w-i.i-dscr <> "" THEN "LBS" ELSE ""*/.
+         v-ink-6 =  string(w-i.i-dscr,"x(30)") + " " + 
+                   (IF w-i.i-qty <> 0 THEN string(w-i.i-qty,">9") ELSE "" ) + 
+                   (IF w-i.i-dscr <> "" THEN "#" ELSE "") .
        
         find first xxprep where xxprep.company eq cocode
                             and xxprep.code eq xeb.die-no
@@ -423,7 +428,7 @@ do v-local-loop = 1 to v-local-copies:
               "  " +
               "L:" + trim(string({sys/inc/k16v.i v-form-len},">,>>9.99"))  format "x(22)" AT 2
               "MSF:" + trim(string(v-dc-qty * v-form-sqft-2 / 1000,">>>9.9<")) format "x(11)"
-              "Ink 1:" AT 39 v-ink-1
+              "1:" AT 39 v-ink-1
               "Gross Size:" AT 80  
               "W:" + trim(string({sys/inc/k16v.i xef.gsh-wid},">>>9.99")) +
               "  " +
@@ -431,29 +436,29 @@ do v-local-loop = 1 to v-local-copies:
                                                                 format "x(20)"
               "Slit: W:" + string(v-outw) + " L:" + string(v-outl) FORM "x(15)"   
               SKIP
-              "Board:" AT 2 v-board-code FORM "x(30)" "Ink 2:" AT 39 v-ink-2 "Net   Size:" AT 80
+              "Board:" AT 2 v-board-code FORM "x(30)" "2:" AT 39 v-ink-2 "Net   Size:" AT 80
               "W:" + trim(string({sys/inc/k16v.i xef.nsh-wid},">>>9.99")) +
               "  " +
               "L:" + trim(string({sys/inc/k16v.i xef.nsh-len},">>>9.99")) format "x(22)"
               SKIP
-              v-board-dscr AT 4 FORM "x(30)" "Ink 3:" AT 39 v-ink-3 "Die   Size:" AT 80
+              v-board-dscr AT 4 FORM "x(30)" "3:" AT 39 v-ink-3 "Die   Size:" AT 80
               "W:" + trim(string({sys/inc/k16v.i xef.trim-w},">>>9.99")) +
               "  " +
               "L:" + trim(string({sys/inc/k16v.i xef.trim-l},">>>9.99")) format "x(22)"
               "Up:" "W:" + string(v-upl) + " L:" + string(v-upw) FORM "x(9)"
               SKIP
                "Score:" AT 2 v-len-score1 WHEN xstyle.TYPE <> "F" format "x(25)" 
-              "Ink 4:" AT 39 v-ink-4 "Blank Size:" AT 80 
+              "4:" AT 39 v-ink-4 "Blank Size:" AT 80 
               "W:" + trim(string({sys/inc/k16v.i xeb.t-wid},">>>9.99")) +
               "  " +
               "L:" + trim(string({sys/inc/k16v.i xeb.t-len},">>>9.99")) format "x(22)"
               SKIP
               v-len-score2 AT 6 FORM "x(25)"              
-              "Ink 5:" AT 39 v-ink-5 
+              "5:" AT 39 v-ink-5 
               "Impressions: " AT 80 trim(string(v-dc-qty))    format "x(7)"
               SKIP
               "Adders:" AT 2 v-adders FORM "x(23)"
-              "Ink 6:" AT 39 v-ink-6 
+              "6:" AT 39 v-ink-6 
               "D/C Style:" AT 80 SKIP
               "Color Desc:" AT 39 xeb.i-coldscr when avail xeb
               "Corr Dir:" AT 80 v-crgrain
@@ -1054,5 +1059,8 @@ PROCEDURE stackImage:
     "<IMAGE#71=" pattern.dscr ">"
     "<R-13>".
 END PROCEDURE.
+
+
+
 
 /* end ---------------------------------- copr. 1997  advanced software, inc. */
