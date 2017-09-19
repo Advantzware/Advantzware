@@ -103,10 +103,10 @@ DEFINE VARIABLE begin_i-no AS CHARACTER FORMAT "X(15)":U
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE begin_tag AS CHARACTER FORMAT "X(5)" 
+DEFINE VARIABLE begin_tag AS CHARACTER FORMAT "X(20)" 
      LABEL "Beginning Tag#" 
      VIEW-AS FILL-IN 
-     SIZE 17 BY 1.
+     SIZE 24 BY 1.
 
 DEFINE VARIABLE begin_whse AS CHARACTER FORMAT "X(5)" 
      LABEL "Beginning Warehouse" 
@@ -126,7 +126,7 @@ DEFINE VARIABLE end_i-no AS CHARACTER FORMAT "X(15)":U INITIAL "zzzzzzzzzzzzzzz"
 DEFINE VARIABLE end_tag AS CHARACTER FORMAT "X(20)" INITIAL "zzzzzzzzzzzzzzzzzzzz" 
      LABEL "Ending Tag#" 
      VIEW-AS FILL-IN 
-     SIZE 22 BY 1.
+     SIZE 24 BY 1.
 
 DEFINE VARIABLE end_whse AS CHARACTER FORMAT "X(5)" INITIAL "zzz" 
      LABEL "Ending Warehouse" 
@@ -384,6 +384,37 @@ END.
 ON LEAVE OF end_whse IN FRAME FRAME-A /* Ending Warehouse */
 DO:
      assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_tag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_tag C-Win
+ON HELP OF end_tag IN FRAME FRAME-A /* Font */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE rec-val AS RECID NO-UNDO .
+
+    RUN addon/windows/l-ldtag5.w (gcompany,NO,end_tag:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
+    IF char-val <> "" THEN ASSIGN end_tag:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME begin_tag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_tag C-Win
+ON HELP OF begin_tag IN FRAME FRAME-A /* Font */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+    DEFINE VARIABLE rec-val AS RECID NO-UNDO .
+
+    RUN addon/windows/l-ldtag5.w (gcompany,NO,begin_tag:SCREEN-VALUE,OUTPUT char-val,OUTPUT rec-val).
+    IF char-val <> "" THEN ASSIGN begin_tag:SCREEN-VALUE = ENTRY(1,char-val) .
+
 END.
 
 /* _UIB-CODE-BLOCK-END */

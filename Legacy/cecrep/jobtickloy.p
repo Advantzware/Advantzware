@@ -487,8 +487,8 @@ if v-standards then do:
     create w-i.
     assign
      w-i.i-code = job-mat.i-no
-     w-i.i-dscr = item.i-dscr
-     w-i.i-qty  = job-mat.qty.
+     w-i.i-dscr = item.i-name
+     w-i.i-qty  = job-mat.std-cost.
   end.
 end.
 
