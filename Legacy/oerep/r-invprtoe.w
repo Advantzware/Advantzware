@@ -151,6 +151,7 @@ DEF VAR vSoldToNo AS CHAR NO-UNDO.  /* to hold soldto# for email */
 DEF VAR vShipToNo AS CHAR NO-UNDO.  /* to hold shipto# for email */
 /* Allows for other names besides r-invprt. */
 v-prgmname = ipcPrgmnameOverride.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -326,92 +327,92 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 13.81.
 
-DEFINE VARIABLE tbPostedAR AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tbPostedAR AS LOGICAL INITIAL no 
      LABEL "Posted AR Invoices" 
      VIEW-AS TOGGLE-BOX
      SIZE 30.8 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_attachBOL AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_attachBOL AS LOGICAL INITIAL no 
      LABEL "Attach Signed BOL" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_BatchMail AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_BatchMail AS LOGICAL INITIAL no 
      LABEL "&Batch E-Mail" 
      VIEW-AS TOGGLE-BOX
      SIZE 19.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_collate AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_collate AS LOGICAL INITIAL no 
      LABEL "Collate?" 
      VIEW-AS TOGGLE-BOX
      SIZE 12 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_cust-copy AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_cust-copy AS LOGICAL INITIAL no 
      LABEL "Customer Copy?" 
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_email-orig AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_email-orig AS LOGICAL INITIAL no 
      LABEL "Email as Original?" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_HideDialog AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_HideDialog AS LOGICAL INITIAL no 
      LABEL "&Hide Dialog-Box" 
      VIEW-AS TOGGLE-BOX
      SIZE 19.4 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_office-copy AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_office-copy AS LOGICAL INITIAL no 
      LABEL "Office Copy?" 
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_override-email AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_override-email AS LOGICAL INITIAL yes 
      LABEL "Ignore Paperless Setting?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_posted AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_posted AS LOGICAL INITIAL no 
      LABEL "Reprint Posted Invoices?" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_print-dept AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_print-dept AS LOGICAL INITIAL no 
      LABEL "Print Dept Notes?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_prt-inst AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_prt-inst AS LOGICAL INITIAL yes 
      LABEL "Print Instructions?" 
      VIEW-AS TOGGLE-BOX
      SIZE 21.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_prt-zero-qty AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_prt-zero-qty AS LOGICAL INITIAL yes 
      LABEL "Print if Inv/Ship Qty = 0?" 
      VIEW-AS TOGGLE-BOX
      SIZE 28.8 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_reprint AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_reprint AS LOGICAL INITIAL no 
      LABEL "Reprint Invoices?" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_setcomp AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_setcomp AS LOGICAL INITIAL no 
      LABEL "Print Set Component?" 
      VIEW-AS TOGGLE-BOX
      SIZE 25.4 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_sman-copy AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_sman-copy AS LOGICAL INITIAL no 
      LABEL "SalesRep Copy?" 
      VIEW-AS TOGGLE-BOX
      SIZE 22 BY .81 NO-UNDO.
 
-DEFINE VARIABLE tb_splitPDF AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_splitPDF AS LOGICAL INITIAL no 
      LABEL "PDF Per Invoice" 
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY .81 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
@@ -436,8 +437,8 @@ DEFINE FRAME FRAME-A
           "Enter Beginning BOL Number"
      end_bol AT ROW 5.29 COL 69 COLON-ALIGNED HELP
           "Enter Ending BOL Number"
+     tb_reprint AT ROW 6.62 COL 28.2
      lv-scr-num-copies AT ROW 6.62 COL 69.8 COLON-ALIGNED
-     tb_reprint AT ROW 6.71 COL 28.2
      tb_posted AT ROW 7.48 COL 28.2
      tb_collate AT ROW 7.48 COL 59.4
      tbPostedAR AT ROW 8.38 COL 28.2 WIDGET-ID 24
@@ -507,15 +508,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -708,7 +709,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -1526,7 +1527,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     
     IF LOOKUP(v-print-fmt,"Boxtech,Imperial") GT 0 THEN lv-prt-bypass = YES.
 
-    IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
+    IF v-print-fmt EQ "XPRINT" OR v-print-fmt EQ "lovepac" OR v-print-fmt EQ "Boss" OR v-print-fmt EQ "Simkins" OR v-print-fmt EQ "CapCityIn" THEN
         ASSIGN tb_print-dept:HIDDEN    = NO
             tb_print-dept:SENSITIVE = YES
             fi_depts:HIDDEN         = NO

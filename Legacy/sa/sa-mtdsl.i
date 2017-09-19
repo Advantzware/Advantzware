@@ -12,6 +12,7 @@ assign
 		            substr(tt-report.key-02,1,2) +
 		            substr(tt-report.key-02,4,2)
 
- tt-report.key-03 = string({1}.inv-no,"999999").
+ tt-report.key-03 = string({1}.inv-no,"999999"). 
+ tt-report.key-04 = string({1}.line,"9999") .
 
 /* End ---------------------------------- Copr. 1997  Advanced Software, Inc. */

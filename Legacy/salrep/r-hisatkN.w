@@ -1925,22 +1925,9 @@ for each tt-report2,
           no-lock no-error.
       lv-sman = TRIM(tt-report2.key-01) .
       lv-sname = TRIM(IF AVAIL sman THEN sman.sname ELSE "Not on file").
-
-    /*  IF FIRST(tt-report2.key-01) THEN
-         VIEW FRAME r-top2.
-
-      IF tb_excel THEN
-         PUT STREAM excel UNFORMATTED
-             SKIP(1)
-             '"' "Salesrep: " '",'
-             '"' lv-sman      '",' SKIP(1).
-
-      PAGE. */
-  /*  END.
-    ELSE
-    IF FIRST(tt-report2.key-01) THEN PAGE.  */
+   
   end.
-
+  
   assign
    v-amt = 0
    v-prt = v-prt + 1.
@@ -1986,42 +1973,6 @@ IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
   if v-prt le v-custs then do:
      v = 0.
 
-     
-    
-    /* do i = v1 to v-per-2:
-        v = v + 1.
-
-        if v modulo 4 eq 0 or
-           i eq v-per-2   then do:
-
-          v-j = v / 4.
-
-          {sys/inc/roundup.i v-j}
-
-          assign
-           j = v-j
-           j = v1 + (4 * (j - 1)).
-
-     /*     display cust.cust-no          when v eq 4 or
-                                             (i eq v-per-2 and v lt 4)
-                  cust.name             when v eq 4 or
-                                             (i eq v-per-2 and v lt 4)
-                  v-amt[j]              when v-label[1] ne "" and
-                                             j     le v-per-2     @ v-amt[17]
-                  v-amt[j + 1]          when v-label[2] ne "" and
-                                             j + 1 le v-per-2     @ v-amt[18]
-                  v-amt[j + 2]          when v-label[3] ne "" and
-                                             j + 2 le v-per-2     @ v-amt[19]
-                  v-amt[j + 3]          when v-label[4] ne "" and
-                                             j + 3 le v-per-2     @ v-amt[20]
-                  v-amt[21]             when v eq 4 or
-                                             (i eq v-per-2 and v lt 4).
-          down.*/
-
-
-        end.
-     END. */
-
         ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -2063,23 +2014,6 @@ IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
                        cExcelDisplay SKIP.
              END.
 
-    /* IF tb_excel THEN
-     DO:
-        PUT STREAM excel UNFORMATTED
-             '"' cust.cust-no '",'
-             '"' cust.name    '",'.
-
-        do i = v1 to v-per-2:
-
-           PUT STREAM excel UNFORMATTED
-               '"' STRING(v-amt[i],"->,>>>,>>>,>>9.99") '",'.
-        END.
-
-        PUT STREAM excel UNFORMATTED
-            '"' STRING(v-amt[21],"->,>>>,>>>,>>9.99")  '",'.
-     END.*/
-
-
      put SKIP.
      IF tb_excel THEN
         PUT STREAM excel UNFORMATTED SKIP(1).
@@ -2089,16 +2023,11 @@ IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
      v-tot-amt[i] = v-tot-amt[i] + v-amt[i].
   end.
 
-  if last-of(tt-report2.key-01) or v-prt eq v-custs then do:
-     v = 0.
+ END.
 
-    /* underline cust.name.
-     if v-label[1] ne "" then underline v-amt[17].
-     if v-label[2] ne "" then underline v-amt[18].
-     if v-label[3] ne "" then underline v-amt[19].
-     if v-label[4] ne "" then underline v-amt[20].
-     underline v-amt[21].
-     down.*/
+ if last-of(tt-report2.key-01) /*or v-prt eq v-custs*/ then do:
+     
+     v = 0.
 
      do i = v1 to v-per-2:
        v = v + 1.
@@ -2113,28 +2042,7 @@ IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
          assign
           j = v-j
           j = v1 + (4 * (j - 1)).
-
-    /*     display "Totals"              when v eq 4 or
-                                            (i eq v-per-2 and v lt 4)
-                                                                 @ cust.name
-                 "Totals (Printed Customers)"
-                                       when (not last-of(tt-report2.key-01))
-                                        and (v eq 4 or
-                                             (i eq v-per-2 and v lt 4))
-                                                                 @ cust.name
-                 v-tot-amt[j]          when v-label[1] ne "" and
-                                            j     le v-per-2     @ v-amt[17]
-                 v-tot-amt[j + 1]      when v-label[2] ne "" and
-                                            j + 1 le v-per-2     @ v-amt[18]
-                 v-tot-amt[j + 2]      when v-label[3] ne "" and
-                                            j + 2 le v-per-2     @ v-amt[19]
-                 v-tot-amt[j + 3]      when v-label[4] ne "" and
-                                            j + 3 le v-per-2     @ v-amt[20]
-                 v-tot-amt[21]         when v eq 4 or
-                                            (i eq v-per-2 and v lt 4)
-                                                                 @ v-amt[21].
-         down.*/
-
+   
        end.
      end.
 
@@ -2179,26 +2087,7 @@ IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
                  PUT STREAM excel UNFORMATTED  '               TOTALS ,'
                        substring(cExcelDisplay,4,350) SKIP(1).
              END.
-
-   /*  IF tb_excel THEN
-     DO:
-        PUT STREAM excel UNFORMATTED
-          '"' ""                                               '",'
-          '"' IF not last-of(tt-report2.key-01) THEN
-                 "Totals (Printed Customers)"
-              ELSE "Totals"                                    '",'.
-
-
-        do i = v1 to v-per-2:
-           PUT STREAM excel UNFORMATTED
-             '"' STRING(v-tot-amt[i],"->,>>>,>>>,>>9.99")     '",'.
-        END.
-
-        PUT STREAM excel UNFORMATTED
-          '"' STRING(v-tot-amt[21],"->,>>>,>>>,>>9.99")      '",'
-          SKIP.
-
-     END.*/
+   
      DO i = 1 to 21:
       d-gr-tot-amt[i] = d-gr-tot-amt[i] + v-tot-amt[i].
      end.
@@ -2206,7 +2095,7 @@ IF v-inc OR (NOT v-inc AND (lp-zero EQ NO)) THEN DO:
      if last-of(tt-report2.key-01) then v-tot-amt = 0.
      
   end.
-END.
+
 end.
 
             ASSIGN cDisplay = ""

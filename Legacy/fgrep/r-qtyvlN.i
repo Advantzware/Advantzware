@@ -434,7 +434,7 @@ FOR EACH tt-cust,
                 cTmpField = ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                      CASE cTmpField:             
                           WHEN "cust"       THEN cVarValue = STRING(cust.cust-no)  .                                                  
-                          WHEN "po"         THEN cVarValue = IF AVAIL oe-ordl THEN STRING(oe-ordl.po-no,"x(9)") ELSE STRING(itemfg.cust-po-no,"x(9)") .                           
+                          WHEN "po"         THEN cVarValue = IF AVAIL oe-ordl THEN STRING(oe-ordl.po-no,"x(15)") ELSE STRING(itemfg.cust-po-no,"x(15)") .                           
                           WHEN "sman"       THEN cVarValue = STRING(v-sales-rep) .                                            
                           WHEN "itm"        THEN cVarValue = STRING(itemfg.i-no,"x(15)") .                                                                         
                           WHEN "cust-prt"   THEN cVarValue = STRING(itemfg.part-no,"x(15)") .                                                           

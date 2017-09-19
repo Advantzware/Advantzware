@@ -1330,14 +1330,14 @@ SESSION:SET-WAIT-STATE ("general").
     IF tagask AND tt-rm-bin.tag NE "" THEN
       tt-rm-bin.tag = "*" + tt-rm-bin.tag + "*".
 
-    DISPLAY tt-rm-bin.loc          WHEN FIRST-OF(tt-rm-bin.loc)
-                                     OR v-prnt-line EQ 0
+    DISPLAY tt-rm-bin.loc          /*WHEN FIRST-OF(tt-rm-bin.loc)
+                                     OR v-prnt-line EQ 0*/
                                    LABEL "Whse"
-            tt-rm-bin.i-no         WHEN FIRST-OF(tt-rm-bin.i-no)
-                                     OR v-prnt-line EQ 0
+            tt-rm-bin.i-no         /*WHEN FIRST-OF(tt-rm-bin.i-no)
+                                     OR v-prnt-line EQ 0*/ FORMAT "x(10)"
                                    LABEL "Item"
-            ITEM.i-name            WHEN FIRST-OF(tt-rm-bin.i-no)
-                                     OR v-prnt-line EQ 0
+            ITEM.i-name            /*WHEN FIRST-OF(tt-rm-bin.i-no)
+                                     OR v-prnt-line EQ 0*/
                                    FORMAT "x(30)"
                                    LABEL "Item Name"
             /*ITEM.i-dscr            WHEN FIRST-OF(tt-rm-bin.i-no)

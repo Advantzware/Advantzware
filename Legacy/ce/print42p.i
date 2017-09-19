@@ -108,7 +108,7 @@ DO TRANSACTION:
    do-gsa   = xest.override.
 
   {sys/inc/cerun.i F}
-  vmclean = LOOKUP(cerunf,"McLean,HOP") gt 0.
+  vmclean = LOOKUP(cerunf,"McLean,HOP,CERunF 2") gt 0.
 
   {ce/msfcalc.i}
 END.
@@ -572,13 +572,13 @@ with frame brd no-labels no-box width 82 stream-io down:
                     if xef.form-no = 1 then "BOTTOM" else "LID"
                     else
                        "FORM " + trim(string(xef.form-no,">9")).
-  IF cerunf = "ASI" THEN 
+  IF (cerunf = "ASI" OR cerunf = "CERunF 1") THEN 
      v-header = "- # UP - --- Qty --- --- Desc/FG Item --- -- Size/Color ---   --- Style/Part # --".
     ELSE v-header = "- # UP - --- Qty --- --- Description ---- -- Size/Color ---   --- Style/Part # --".
         
   if summary-rpt THEN DO:
    PUT skip.
-      IF cerunf <> "ASI" THEN
+      IF lookup(cerunf,"ASI,CERunF 1") EQ 0 /*cerunf <> "ASI"*/ THEN
        PUT "         --- Qty --- --- Description ---- -- Size/Color ---" skip.
       ELSE
        PUT "         --- Qty --- --- Desc/FG Item --- -- Size/Color ---" skip.
@@ -635,7 +635,7 @@ with frame brd no-labels no-box width 82 stream-io down:
        stypart[2] = xeb.part-no
        dsc[1]     = xeb.part-dscr1
        dsc[2]     = xeb.part-dscr2.
-      IF cerunf = "ASI" THEN DO:
+      IF lookup(cerunf,"ASI,CERunF 1") NE 0 /*cerunf = "ASI"*/ THEN DO:
         IF dsc[2] = "" THEN 
             ASSIGN dsc[2] = xeb.stock-no 
                 v-i-no = ""   
@@ -664,7 +664,7 @@ with frame brd no-labels no-box width 82 stream-io down:
           dsc[2] format "x(20)"
           sizcol[2] format "x(21)"
           stypart[2] format "x(15)" skip.
-      IF cerunf = "ASI" AND v-2desc THEN
+      IF lookup(cerunf,"ASI,CERunF 1") NE 0 /*cerunf = "ASI"*/ AND v-2desc THEN
           PUT SPACE(21) v-i-no FORMAT "x(20)" SKIP.
       down.
    end.

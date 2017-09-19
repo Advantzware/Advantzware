@@ -86,9 +86,9 @@ DEF SHARED VAR s-print-zero-qty AS LOG NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
 ASSIGN
-   ls-image1 = "images\premierinv.jpg"
+   ls-image1 = "images\premiercan.jpg"
    FILE-INFO:FILE-NAME = ls-image1
    ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
@@ -452,13 +452,13 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
     PUT "<R58><C58><#8><FROM><R+5><C+22><RECT> " 
         "<=8> Sub Total    :" v-subtot-lines FORM "->>,>>9.99"
         "<=8><R+1> Freight      :" v-inv-freight
-        "<=8><R+2> Sales Tax    :" ar-inv.tax-amt FORM "->>,>>9.99"
+        "<=8><R+2> HST          :" ar-inv.tax-amt FORM "->>,>>9.99"
         "<=8><R+3>" "" 
         "<=8><R+4> Total Invoice:" v-inv-total FORM "->>,>>9.99" . /* ar-inv.gross*/
 
 
     PUT "<FArial><R58><C1><#9><P12><B> THANK YOU. </B> <P9> " SKIP
-            "<R60><C1><P12> All currencies displayed in USD. <P9> " SKIP
+            "<R60><C1><P12> All currencies displayed in CAD. <P9> " SKIP
         "<=9><R-6>" v-notes[1]
         "<=9><R-5>" v-notes[2]
         "<=9><R-4>" v-notes[3]

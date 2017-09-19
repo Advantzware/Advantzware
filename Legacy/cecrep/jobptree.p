@@ -1263,8 +1263,9 @@ PROCEDURE pConvertToHours:
     DEFINE VARIABLE iCheckdec AS INTEGER.
 
     ASSIGN cHours = STRING(ipdHours) .
-    ASSIGN iHours =  INT( SUBSTRING(cHours,1,LENGTH(cHours) - 1)  ).
-
+   
+    ASSIGN iHours =  INT( SUBSTRING(cHours,1,3)).
+     
     cRoundHour = SUBSTRING(cHours,INDEX(cHours,".") + 1).
 
     ASSIGN dResult = (int(cRoundHour) * 60) / 100.
@@ -1277,7 +1278,7 @@ PROCEDURE pConvertToHours:
 
     IF iCheckdec GT 0 THEN
         dResult = dResult + 1 .
-    ipcOoutputHour =   string(iHours) + ":" +  string(int(dResult)) .
+    ipcOoutputHour =   string(iHours) + ":" +  string(int(dResult),"99") .
 
 END PROCEDURE.
  

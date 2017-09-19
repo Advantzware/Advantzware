@@ -298,7 +298,7 @@
     if tt-report.key-10 eq "ar-invl" then do:
       find ar-invl where recid(ar-invl) eq tt-report.rec-id no-lock.
       find ar-inv  where ar-inv.x-no    eq ar-invl.x-no  no-lock.
-      {sa/sa-mtdsl.i "ar-inv" "ar-inv.inv-date"}
+      {sa/sa-mtdsl.i "ar-invl" "ar-inv.inv-date"}
     end.
 
     else
@@ -322,6 +322,7 @@
       break by tt-report.key-01
             by tt-report.key-02
             by tt-report.key-03
+            by tt-report.key-04
 
       with STREAM-IO width 132:
       
@@ -381,10 +382,20 @@
       end.
 
       if v-pct le 0 or v-pct eq ? then v-pct = 1.
-
-      assign
+      
+      IF FIRST-OF(tt-report.key-04) THEN
+          dPerSales = v-pct .
+      ELSE dPerSales = dPerSales + v-pct .
+      
+      IF LAST-OF(tt-report.key-04) THEN DO:
+          IF dPerSales GT 1 THEN
+              ASSIGN dPerSales = 1 .
+       w-inv.amt = w-inv.amt + (v-amt  * dPerSales) .
+       w-inv.msf = w-inv.msf + (v-sqft * dPerSales).
+       END.
+      /*assign
        w-inv.amt = w-inv.amt + (v-amt  * v-pct)
-       w-inv.msf = w-inv.msf + (v-sqft * v-pct).
+       w-inv.msf = w-inv.msf + (v-sqft * v-pct). */
     end.
 
     else
@@ -614,6 +625,8 @@
                      USE-INDEX ytd-only)
 
       break by tt-report.key-01
+            by tt-report.key-03
+            by tt-report.key-04
 
       with title "SUMMARY":
 
@@ -666,14 +679,22 @@
       end.
 
       if v-pct le 0 or v-pct eq ? then v-pct = 1.
-
-      w-sum.amt-y = w-sum.amt-y + (v-amt * v-pct).
-
-      IF tt-report.ytd-only EQ NO THEN
-        assign
-         w-sum.amt = w-sum.amt + (v-amt  * v-pct)
-         w-sum.msf = w-sum.msf + (v-sqft * v-pct)
-         w-sum.wgt = w-sum.wgt + (v-wght * v-pct).
+     
+      IF FIRST-OF(tt-report.key-04) THEN
+          dPerSales = v-pct .
+      ELSE dPerSales = dPerSales + v-pct .
+      
+        IF LAST-OF(tt-report.key-04) THEN DO:
+            IF dPerSales GT 1 THEN
+                ASSIGN dPerSales = 1 .
+           w-sum.amt-y = w-sum.amt-y + (v-amt * dPerSales).
+          IF tt-report.ytd-only EQ NO THEN DO:
+            assign
+                w-sum.amt = w-sum.amt + (v-amt  * dPerSales)
+                w-sum.msf = w-sum.msf + (v-sqft * dPerSales)
+                w-sum.wgt = w-sum.wgt + (v-wght * dPerSales).
+          END.
+      END.
     end.
 
     else
@@ -788,15 +809,28 @@
                 ld-wgt-msf format "->,>>>,>>9.99" label "Wgt/MSF"
 
             with no-box no-attr-space STREAM-IO width 132 frame summary2 down.
-    IF tb_excel THEN  
-       EXPORT STREAM excel-2 DELIMITER ","
-              w-sum.NAME 
-              w-sum.cust-no 
-              w-sum.amt 
-              w-sum.msf 
-              ld-amt-msf 
-              ld-wgt-msf
-              SKIP.
+    IF tb_excel THEN DO: 
+        IF tb_ytd THEN
+            EXPORT STREAM excel-2 DELIMITER ","
+            w-sum.NAME 
+            w-sum.cust-no 
+            w-sum.amt 
+            w-sum.msf 
+            ld-amt-msf 
+            ld-wgt-msf
+            w-sum.amt-y
+            SKIP.
+        ELSE
+            EXPORT STREAM excel-2 DELIMITER ","
+            w-sum.NAME 
+            w-sum.cust-no 
+            w-sum.amt 
+            w-sum.msf 
+            ld-amt-msf 
+            ld-wgt-msf
+            SKIP.
+
+    END.
 
       assign
        v-tot-sum-tot = v-tot-sum-tot + w-sum.amt
@@ -834,4 +868,28 @@
   if tb_ytd then put v-tot-sum-tot-y to 114.
 
   put skip.
+
+  IF tb_excel THEN DO: 
+        IF tb_ytd THEN
+            EXPORT STREAM excel-2 DELIMITER ","
+            "Total"
+            ""
+            v-tot-sum-tot 
+            v-tot-sum-msf 
+            ld-amt-msf FORMAT "->>,>>>,>>9.99"
+            ld-wgt-msf format "->>,>>>,>>9.99"
+            v-tot-sum-tot-y
+            SKIP.
+        ELSE
+            EXPORT STREAM excel-2 DELIMITER ","
+            "Total"
+            ""
+            v-tot-sum-tot 
+            v-tot-sum-msf 
+            ld-amt-msf FORMAT "->>,>>>,>>9.99"
+            ld-wgt-msf FORMAT "->>,>>>,>>9.99"
+            ""
+            SKIP.
+
+    END.
 

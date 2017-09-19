@@ -157,7 +157,7 @@ for each est-prep
             when est-prep.simon eq "N" @ prep-tot
           SKIP.
 
-   IF cerunc EQ "Protagon" AND
+   IF LOOKUP(cerunc,"Protagon,CERunC 3") NE 0 /*cerunc EQ "Protagon"*/ AND
       est-prep.simon EQ "S" THEN
       DO:
          FIND FIRST b-eb WHERE
@@ -214,7 +214,7 @@ for each xef
         "Lab/F"             to 40
         "Mat/M"             to 50
         "Lab/M"             to 60.
-    IF cerunc = "Protagon" THEN
+    IF LOOKUP(cerunc,"Protagon,CERunC 3") NE 0 /*cerunc = "Protagon"*/ THEN
         PUT "   OH%"            to 69.
     ELSE
         PUT "Mrkup%"            to 69.
@@ -339,7 +339,7 @@ for each xef
 		 xprep.code     = "MISL" + string(i,"9").
 	end.
                   
-    IF cerunc EQ "Protagon" AND
+    IF LOOKUP(cerunc,"Protagon,CERunC 3") NE 0 /*cerunc EQ "Protagon"*/ AND
        xef.mis-simon[i] EQ "S" THEN
        DO:
           FIND FIRST b-eb WHERE
@@ -386,7 +386,7 @@ put skip(2).
 output close.
    
    FIND FIRST tt-prep-sep NO-LOCK NO-ERROR.
-   IF cerunc EQ "Protagon" AND AVAIL tt-prep-sep THEN
+   IF LOOKUP(cerunc,"Protagon,CERunC 3") NE 0 /*cerunc EQ "Protagon"*/ AND AVAIL tt-prep-sep THEN
    DO:
 
       output to value(outfile4).

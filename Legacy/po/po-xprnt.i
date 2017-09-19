@@ -2,7 +2,7 @@
 
 PUT 
      "<FArial>"   SKIP
-       "<P14><C+35> <B>Purchase Order</B> <P10>" v-change-ord SKIP       
+       "<P14><C+48> <B>Purchase Order</B> <P10>" v-change-ord SKIP       
    "<C1><#1><R+5><C+25>" SKIP 
       "<=1><R+2>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
       "<P10><=1><R+3>"

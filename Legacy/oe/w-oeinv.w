@@ -152,14 +152,14 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 320
          VIRTUAL-HEIGHT     = 320
          VIRTUAL-WIDTH      = 320
-         RESIZE             = no
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = NO
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -204,7 +204,7 @@ ASSIGN XXTABVALXX = FRAME OPTIONS-FRAME:MOVE-BEFORE-TAB-ITEM (FRAME message-fram
 /* SETTINGS FOR FRAME OPTIONS-FRAME
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
-THEN W-Win:HIDDEN = yes.
+THEN W-Win:HIDDEN = YES.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -674,7 +674,7 @@ PROCEDURE adm-create-objects :
 
   END CASE.
   /* Select a Startup page. */
-  IF adm-current-page eq 0 
+  IF adm-current-page EQ 0 
   THEN RUN select-page IN THIS-PROCEDURE ( 1 ).
 
 END PROCEDURE.
@@ -792,7 +792,7 @@ PROCEDURE hide-estimate :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- run select-page (li-prev-page).
+ RUN select-page (li-prev-page).
 
 END PROCEDURE.
 
@@ -838,33 +838,33 @@ PROCEDURE local-change-page :
 
   /* Code placed here will execute PRIOR to standard behavior. */
   
-  run get-attribute ("current-page").
-  assign li-prev-page = li-cur-page
-         li-cur-page = int(return-value).
+  RUN get-attribute ("current-page").
+  ASSIGN li-prev-page = li-cur-page
+         li-cur-page = int(RETURN-VALUE).
 
-  if li-cur-page = 6 then do:  /* estimate */
+  IF li-cur-page = 6 THEN DO:  /* estimate */
      li-last-page = li-prev-page.
-     run get-link-handle in adm-broker-hdl (this-procedure,"estimate-target",output char-hdl).
+     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"estimate-target",OUTPUT char-hdl).
      
-     if valid-handle(widget-handle(char-hdl)) then do:
-        run get-line-est in widget-handle(char-hdl) (output ls-est-no).        
-        if ls-est-no = "" then do:
-           message "SORRY, NO ESTIMATE EXISTS FOR THIS INVOICE." 
-               view-as alert-box error.      
-           run hide-estimate.
-           return no-apply.        
-        end.  
+     IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO:
+        RUN get-line-est IN WIDGET-HANDLE(char-hdl) (OUTPUT ls-est-no).        
+        IF ls-est-no = "" THEN DO:
+           MESSAGE "SORRY, NO ESTIMATE EXISTS FOR THIS INVOICE." 
+               VIEW-AS ALERT-BOX ERROR.      
+           RUN hide-estimate.
+           RETURN NO-APPLY.        
+        END.  
         ELSE DO:
             FIND FIRST est WHERE est.company = g_company AND
                                 est.est-no = ls-est-no NO-LOCK NO-ERROR.
-            IF AVAIL est AND est.est-type <= 4 THEN do:
+            IF AVAIL est AND est.est-type <= 4 THEN DO:
                  RUN select-page (9).  
                  li-prev-page = li-last-page.
                  RETURN.
             END.
         END.
-    end.                  
-  end.
+    END.                  
+  END.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
@@ -1042,14 +1042,54 @@ PROCEDURE setUserPrint :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  IF AVAILABLE inv-head THEN
-  RUN custom/setUserPrint.p (inv-head.company,'inv-hea_.',
+  DEFINE VARIABLE dtFromBolDate AS DATE NO-UNDO.
+  DEFINE VARIABLE dtToBolDate AS DATE NO-UNDO.
+  
+  IF AVAILABLE inv-head THEN DO:
+      FIND FIRST oe-bolh NO-LOCK 
+        WHERE oe-bolh.company EQ inv-head.company
+          AND oe-bolh.bol-no EQ inv-head.bol-no
+          NO-ERROR.
+      IF AVAILABLE oe-bolh THEN 
+      ASSIGN 
+          dtFromBolDate = oe-bolh.bol-date
+          dtToBolDate   = oe-bolh.bol-date
+          .
+
+    FIND FIRST b-inv-head NO-LOCK 
+        WHERE b-inv-head.company EQ inv-head.company
+          AND b-inv-head.inv-no  EQ inv-head.inv-no
+          AND b-inv-head.multi-invoice 
+          NO-ERROR.
+      IF AVAILABLE b-inv-head THEN 
+      DO:
+          /* BOL date range should include range from individual invoices */
+          FOR EACH  b-inv-head NO-LOCK 
+              WHERE b-inv-head.company EQ inv-head.company
+                AND b-inv-head.inv-no  EQ inv-head.inv-no
+                AND b-inv-head.multi-invoice EQ NO
+              :
+              FIND FIRST oe-bolh NO-LOCK 
+                  WHERE oe-bolh.company EQ b-inv-head.company
+                    AND oe-bolh.bol-no EQ b-inv-head.bol-no
+                  NO-ERROR.
+                    
+              IF oe-bolh.bol-date NE ? AND oe-bolh.bol-date LT dtFromBolDate THEN 
+                  dtFromBolDate = oe-bolh.bol-date. 
+              IF oe-bolh.bol-date NE ? AND oe-bolh.bol-date GT dtToBolDate THEN 
+                 dtToBolDate = oe-bolh.bol-date.                
+          END.         
+    END.
+
+               
+    RUN custom/setUserPrint.p (inv-head.company,'inv-hea_.',
                              'begin_cust-no,end_cust-no,begin_inv,end_inv,begin_date,end_date,begin_bol,end_bol,tb_reprint,tb_posted',
                              inv-head.cust-no + ',' + inv-head.cust-no + ',' +
                              STRING(inv-head.inv-no) + ',' + STRING(inv-head.inv-no) + ',' +
-                             STRING(inv-head.inv-date) + ',' + STRING(inv-head.inv-date) + ',' +
+                             STRING(dtFromBolDate) + ',' + STRING(dtToBolDate) + ',' +
                              STRING(inv-head.bol-no) + ',' + STRING(inv-head.bol-no) + ',' +
                              STRING(inv-head.printed) + ',' + STRING(inv-head.posted)).
+  END.
 
 END PROCEDURE.
 

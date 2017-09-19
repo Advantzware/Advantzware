@@ -2943,6 +2943,10 @@ PROCEDURE po-cost :
 
     IF AVAILABLE po-ordl THEN 
     DO WITH FRAME {&FRAME-NAME}:
+        IF po-ordl.i-no NE rm-rctd.i-no:screen-value IN BROWSE {&browse-name} THEN
+            RUN find-exact-po.
+        IF NOT AVAILABLE po-ordl THEN
+            LEAVE.
       
         FIND FIRST ITEM WHERE
             item.company EQ cocode AND

@@ -120,7 +120,7 @@ assign
 
 do transaction:
   {sys/inc/cerun.i F}
-  vmclean = lookup(cerunf,"McLean,HOP") gt 0.
+  vmclean = lookup(cerunf,"McLean,HOP,CERunF 2") gt 0.
 
   {ce/msfcalc.i}
 
@@ -278,7 +278,7 @@ assign
  ld-wid   = xeb.wid * ld-metric
  ld-dep   = xeb.dep * ld-metric.
 
-IF cerunf = "ASI" THEN DO:
+IF lookup(cerunf,"ASI,CERunF 1") NE 0 /*cerunf = "ASI"*/ THEN DO:
     IF dsc[2] = "" THEN 
         ASSIGN dsc[2] = xeb.stock-no
             v-i-no = ""   
@@ -529,7 +529,7 @@ do k = 1 to 28:
   if cust-ad[4] ne "" OR ship-ad[4] ne "" then
     put cust-ad[4] FORMAT "x(29)" TO 44
         ship-ad[4] FORMAT "x(29)" TO 80 SKIP.
-  IF cerunf = "ASI" THEN v-header = "   Qty      --- Desc/FG Item ----- -- Size / Color ----- --- Style / Part No ---".
+  IF lookup(cerunf,"ASI,CERunF 1") NE 0  /*cerunf = "ASI"*/ THEN v-header = "   Qty      --- Desc/FG Item ----- -- Size / Color ----- --- Style / Part No ---".
     ELSE v-header = "   Qty      --- Description ------ -- Size / Color ----- --- Style / Part No ---".
   DISPLAY skip(1)
     v-header FORMAT "x(80)"
@@ -547,7 +547,7 @@ do k = 1 to 28:
 /*    SKIP(1)*/
 /*    IF cerunf = "ASI" AND v-2desc THEN SPACE(12) v-i-no FORMAT "x(22)"*/
     with no-box no-labels color value("blu/brown") width 80 frame aa1 STREAM-IO.
-    IF cerunf = "ASI" AND v-2desc THEN      
+    IF lookup(cerunf,"ASI,CERunF 1") NE 0 /*cerunf = "ASI"*/ AND v-2desc THEN      
        PUT  SPACE(12) v-i-no FORMAT "x(22)" SKIP(1).
     ELSE
        PUT SKIP(1).

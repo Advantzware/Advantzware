@@ -388,7 +388,8 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'adm/objects/p-updsav.r':U ,
+             /*INPUT  'adm/objects/p-updsav.r':U ,*/
+             INPUT  'p-updsav.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Edge-Pixels = 2,
                      SmartPanelType = Update,
@@ -404,6 +405,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_company , 'Record':U , h_company-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_company-2 ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_company-2 ).
+       /* Links to SmartPanel h_p-updsav. */
+       RUN add-link IN adm-broker-hdl ( h_company-2 , 'buttons':U , h_p-updsav ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_company-2 ,

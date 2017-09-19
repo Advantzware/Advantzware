@@ -1287,7 +1287,7 @@ ELSE DO:
         
               WITH DOWN FRAME jobhead4-po-pe NO-BOX STREAM-IO WIDTH 200.
         
-          DOWN WITH FRAME jobhead4+-po-pe.
+          DOWN WITH FRAME jobhead4-po-pe.
         END.
 
         IF tb_excel THEN

@@ -486,11 +486,22 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+DEFINE VARIABLE il-cur-page AS INTEGER INIT 1 NO-UNDO.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+
+  run get-attribute ("current-page").
+   assign il-cur-page = int(return-value).
+
+   IF il-cur-page = 2 THEN DO:
+     FIND FIRST users NO-LOCK WHERE 
+         users.user_id EQ USERID(LDBNAME(1)) 
+         NO-ERROR.
+     IF AVAIL users AND users.securityLevel LE 899 THEN
+         RUN set-buttons IN h_p-updsav ('disable-all').
+   END.
 
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}

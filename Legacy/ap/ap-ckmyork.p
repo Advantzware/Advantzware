@@ -26,10 +26,10 @@
 
 /* Variables defined by the user or programmer. */
 DEF VAR viLn-Section-1  AS INT NO-UNDO INIT 2.  /* Line to start printing top section details. */
-DEF VAR viLn-Section-2  AS INT NO-UNDO INIT 24. /* Line to start printing middle section details. */
-DEF VAR viLn-Check      AS INT NO-UNDO INIT 47. /* Line to start printing the check. */
+DEF VAR viLn-Section-2  AS INT NO-UNDO INIT 23. /* Line to start printing middle section details. */
+DEF VAR viLn-Check      AS INT NO-UNDO INIT 43. /* Line to start printing the check. */
 DEF VAR viLn-Void       AS INT NO-UNDO INIT 43. /* Line to start printing VOID. */
-DEF VAR viLn-Detail-Max AS INT NO-UNDO INIT 9.  /* Max number of detail lines in a section. */
+DEF VAR viLn-Detail-Max AS INT NO-UNDO INIT 10.  /* Max number of detail lines in a section. */
 DEF VAR viPageLines     AS INT NO-UNDO INIT 66. /* Number of available lines on the page. */
 
 /* Show line numbers for testing purposes. */
@@ -41,6 +41,7 @@ DEF VAR viCurrentLine        AS INT NO-UNDO INIT 1.  /* Current line (private). 
 DEF VAR viCurrentPage        AS INT NO-UNDO INIT 1.  /* Current page (private) */
 DEF VAR viNumDetailsPrinted  AS INT NO-UNDO INIT 0.  /* Num detail lines printed (private). */
 DEF VAR viNumChecks          AS INT NO-UNDO INIT 0.  /* Num checks processed (private)*/
+DEFINE VARIABLE cPostalCode  AS CHARACTER NO-UNDO .
 
 /* Temp-table for processing check invoice details. */
 DEF TEMP-TABLE wrk-chk
@@ -377,25 +378,27 @@ PROCEDURE Get-Remit-Address :
    IF vend.r-add1 EQ " " THEN DO:   /*if no remit-to address*/
      IF LENGTH(vend.r-zip) GT 5 THEN
        csz = vend.city + ", " + vend.state + " " +
-             SUBSTR(vend.zip,1,5) + "-" + SUBSTR(vend.zip,6,4).
+             SUBSTR(vend.zip,1,5) + "-" + SUBSTR(vend.zip,6,4) .
      ELSE
-       csz = vend.city + ", " + vend.state + " " + vend.zip.
+       csz = vend.city + ", " + vend.state + " " + vend.zip .
 
      ASSIGN
       pcAdd1 = vend.add1
-      pcAdd2 = vend.add2.
+      pcAdd2 = vend.add2
+      cPostalCode = STRING(vend.postal) .
    END.
 
    ELSE DO: /*if a remit-to address exists  GEH */
      IF LENGTH(vend.r-zip) GT 5 THEN
        csz = vend.r-city + ", " + vend.r-state + " " +
-             SUBSTR(vend.r-zip,1,5) + "-" + SUBSTR(vend.r-zip,6,4).
+             SUBSTR(vend.r-zip,1,5) + "-" + SUBSTR(vend.r-zip,6,4) .
      ELSE
-       csz = vend.r-city + ", " + vend.r-state + " " + vend.r-zip.
+       csz = vend.r-city + ", " + vend.r-state + " " + vend.r-zip .
 
      ASSIGN
       pcAdd1 = vend.r-add1
-      pcAdd2 = vend.r-add2.
+      pcAdd2 = vend.r-add2
+      cPostalCode = STRING(vend.postal).
    END.
 
    RETURN.
@@ -424,17 +427,16 @@ PROCEDURE Print-Check :
 
     /* Go to check printing line. */
     Goto-Line(viLn-Check).
-
-
-    Goto-Line(48).
+  
+    /*Goto-Line(48).*/
     PUT LineNum() FORMAT "99" AT 1 
-        ap-chk.check-date AT 55.
+        ap-chk.check-date AT 67.
     /* Increment line count */
     incrementLineCount(1).
 
      
     /* Print check date and total check amount. */
-    Goto-Line(49).
+    Goto-Line(46).
     PUT LineNum() FORMAT "99" AT 1 
         ctot              AT 70.
     /* Increment line count */
@@ -442,32 +444,38 @@ PROCEDURE Print-Check :
 
     /* Print text dollar amount (line 50). */
     PUT LineNum() FORMAT "99" AT 1
-        CAPS(dol) FORMAT "x(60)" AT 10.
+        CAPS(dol) FORMAT "x(65)" AT 8.
     /* Increment line count */
     incrementLineCount(1).
 
 
     /* Print vendor remit info and increment line count. */
-    Goto-Line(52).
+    Goto-Line(50).
     PUT LineNum() FORMAT "99" AT 1 
-        CAPS(vend.remit)  FORMAT "x(60)" AT 10.
+        CAPS(vend.remit)  FORMAT "x(60)" AT 11.
     /* Increment line count */
     incrementLineCount(1).
 
     PUT LineNum() FORMAT "99" AT 1 
-        CAPS(add1)  FORMAT "x(60)"  AT 10.
+        CAPS(add1)  FORMAT "x(60)"  AT 11.
     /* Increment line count */
     incrementLineCount(1).
 
     PUT LineNum() FORMAT "99" AT 1 
-        CAPS(add2) FORMAT "x(60)"   AT 10.
+        CAPS(add2) FORMAT "x(60)"   AT 11.
     /* Increment line count */
     incrementLineCount(1).
 
     PUT LineNum() FORMAT "99" AT 1 
-        CAPS(csz)  FORMAT "x(60)"   AT 10.
+        CAPS(csz)  FORMAT "x(60)"   AT 11. 
     /* Increment line count */
     incrementLineCount(1).
+  
+    PUT LineNum() FORMAT "99" AT 1 
+        CAPS(cPostalCode)  FORMAT "x(60)"   AT 11. 
+    /* Increment line count */
+    incrementLineCount(1).
+
 
 /*     /* Skip a line. */  */
 /*     skipLines(1).       */

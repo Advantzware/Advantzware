@@ -51,7 +51,7 @@
            ar-inv.inv-date le v-ptd-last  then
           assign
            w-ptd-sqft = w-ptd-sqft + v-sqft
-           w-ptd-amt  = w-ptd-amt  + /*v-amt*/ dPtdAmt .
+           w-ptd-amt  = w-ptd-amt  + v-amt /*dPtdAmt*/ .
 
         if tdate eq ar-inv.inv-date then
           assign

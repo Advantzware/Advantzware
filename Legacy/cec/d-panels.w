@@ -818,7 +818,7 @@ DO:
      ASSIGN {&displayed-objects}.
    END.
 
-   IF ip-16ths THEN RUN 16ths-to-dec.
+   IF ip-16ths THEN RUN ip16ths-to-dec.
 
    ASSIGN
     op-total[01] = val-1
@@ -2892,8 +2892,8 @@ RUN disable_UI.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE 16ths-to-dec Dialog-Frame 
-PROCEDURE 16ths-to-dec :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ip16ths-to-dec Dialog-Frame 
+PROCEDURE ip16ths-to-dec :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>

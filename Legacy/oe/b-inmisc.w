@@ -45,6 +45,7 @@ ASSIGN cocode = g_company
  def BUFFER bf-head FOR inv-head.
  DEF BUFFER bf-misc FOR inv-misc.
  DEF VAR v-tax AS DEC NO-UNDO.
+ DEFINE VARIABLE rRowidNew AS ROWID NO-UNDO .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -820,6 +821,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+   
+  /* Code placed here will execute PRIOR to standard behavior. */
+    IF NOT AVAIL inv-misc AND adm-new-record AND  adm-adding-record  THEN
+      FIND FIRST inv-misc WHERE ROWID(inv-misc) EQ rRowidNew NO-ERROR .
+  /* Buttons were made not sensitive during add, so reverse that here */
+ 
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  
+  
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record B-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -861,6 +887,7 @@ PROCEDURE local-create-record :
   IF AVAIL inv-line THEN
       ASSIGN inv-misc.spare-char-2 = inv-line.i-no
              inv-misc.est-no = inv-line.est-no.
+  ASSIGN rRowidNew = ROWID(inv-misc) . /* strang error in validation */
   
 END PROCEDURE.
 
@@ -903,7 +930,9 @@ PROCEDURE local-enable-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
+  DO WITH FRAME {&FRAME-NAME}:
   APPLY "entry" TO inv-misc.charge IN BROWSE {&browse-name}.
+  END.
 
 END PROCEDURE.
 
@@ -917,7 +946,10 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR char-hdl AS CHAR NO-UNDO.
-
+  
+  IF NOT AVAIL inv-misc AND adm-new-record AND  adm-adding-record  THEN
+      FIND FIRST inv-misc WHERE ROWID(inv-misc) EQ rRowidNew NO-ERROR .
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   /* ====== validation ========== */
   RUN valid-charge NO-ERROR.
@@ -1419,9 +1451,9 @@ PROCEDURE valid-s-pct :
     IF (inv-misc.s-man[1]:SCREEN-VALUE IN BROWSE {&browse-name} NE "" OR
         inv-misc.s-man[2]:SCREEN-VALUE IN BROWSE {&browse-name} NE "" OR
         inv-misc.s-man[3]:SCREEN-VALUE IN BROWSE {&browse-name} NE "")   AND
-       ((ip-int EQ 0 AND ld-pct NE 100) OR
+       ((ip-int EQ 0 AND ld-pct LT 100) OR
         (ip-int NE 0 AND ld-pct GT 100)) THEN DO:
-      MESSAGE "% of Sales for all sales reps must total 100..." VIEW-AS ALERT-BOX ERROR.
+      MESSAGE "% of Sales for all sales reps must total 100..." VIEW-AS ALERT-BOX INFO.
       IF ip-int EQ 3 THEN APPLY "entry" TO inv-misc.s-pct[3] IN BROWSE {&browse-name}.
       ELSE
       IF ip-int EQ 2 THEN APPLY "entry" TO inv-misc.s-pct[2] IN BROWSE {&browse-name}.

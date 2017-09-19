@@ -1628,6 +1628,7 @@ DEF VAR cSelectedList AS cha NO-UNDO.
  DEFINE VAR amountcount AS INT NO-UNDO .
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
+DEFINE VARIABLE lShipTotal AS LOGICAL NO-UNDO.
 
 form header
      "               "
@@ -1732,7 +1733,8 @@ ASSIGN
 /* v-print1   = rd_show EQ "Customer Name" */
  v-sort1    = rd_sort EQ "Finished Goods"              
  v-inc-fc   = tb_fin-chg
- lSelected  = tb_cust-list. 
+ lSelected  = tb_cust-list
+ lShipTotal = NO . 
 
 ASSIGN
  v-hdr[1] = if v-sort1  then "FG Item#" else "Customer Part#"
@@ -1760,6 +1762,9 @@ DEF VAR cslist AS cha NO-UNDO.
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
          str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
+         
+         IF LOOKUP(ttRptSelected.TextList, "Ship To") <> 0    THEN
+             ASSIGN  lShipTotal = YES.
  END.
 IF lselected THEN DO:
     FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .

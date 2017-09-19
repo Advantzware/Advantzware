@@ -57,7 +57,8 @@ DEFINE TEMP-TABLE w-data NO-UNDO
   FIELD misc AS LOGICAL
   FIELD cost AS DECIMAL
   FIELD comm AS DECIMAL LABEL "Comm %"
-  FIELD margin AS DECIMAL.
+  FIELD margin AS DECIMAL
+  FIELD shp-qty LIKE oe-ordl.ship-qty   .
 
 DEFINE TEMP-TABLE wkrecap NO-UNDO     /* recap by product category */
   FIELD procat LIKE itemfg.procat COLUMN-LABEL "Cat"
@@ -108,22 +109,23 @@ DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 
     (IF {sys/inc/rptDisp.i "oe-ordl.part-no"}  THEN "Customer Part#" ELSE "" ) +  15    
   */
-ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER NAME,COMM %,PROD CODE," +
+ASSIGN cTextListToSelect  = "DUE DATE,ORDER#,CUSTOMER NAME,PROD CODE," +
                             "FG ITEM NAME,QTY ORDERED/EA,SQ FT,TOTAL Sq Ft/M," +
                             "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON," +
-                            "FG ITEM#,ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE,Net %"  
-       cFieldListToSelect = "oe-ord.due-date,w-data.ord-no,cust.name,w-data.comm,w-data.procat," +
+                            "FG ITEM#,ID,CUSTOMER PART#,CUSTOMER PO#,DIE#,ORDER DATE,Comm %"  
+       cFieldListToSelect = "oe-ord.due-date,w-data.ord-no,cust.name,w-data.procat," +
+
                             "w-data.item-n,w-data.qty,w-data.sqft,t-sqft," +
                             "v-price-per-m,price,v-revenue,v-profit,t-tons,v-price-per-t," +
-                            "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no,cust-po,die-no,oe-ord.ord-date,v-net-prct" 
+                            "oe-ordl.i-no,oe-ord.user-id,oe-ordl.part-no,cust-po,die-no,oe-ord.ord-date,v-net-prct,w-data.shp-qty" 
 
-       cFieldLength = "8,14,13,6,9," + "16,14,10,13," + "10,10,13,9,10,10," + "15,8,15,15,15,10,7"
+       cFieldLength = "8,14,13,9," + "16,14,10,13," + "10,10,13,9,10,10," + "15,8,15,15,15,10,7"
        .
 
 {sys/inc/ttRptSel.i}
- ASSIGN cTextListToDefault  = "DUE DATE,ORDER#,CUSTOMER NAME,COMM %,PROD CODE," +
+ ASSIGN cTextListToDefault  = "DUE DATE,ORDER#,CUSTOMER NAME,Comm %,PROD CODE," +
                               "QTY ORDERED/EA,CUSTOMER PART#,FG ITEM NAME,SQ FT,TOTAL Sq Ft/M," +
-                              "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON" .
+                              "$/MSF,PRICE,ORDER AMOUNT,% PROFIT,TOTAL TONS,$/TON,SHIPPED QTY" .
                               /* "FG ITEM#,ID" */
 
 /* _UIB-CODE-BLOCK-END */

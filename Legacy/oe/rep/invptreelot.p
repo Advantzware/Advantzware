@@ -2,7 +2,6 @@
 /* PRINT INVOICE   Xprint form for PEACHTREE with FG Lot                       */ 
 /* -------------------------------------------------------------------------- */
 DEF INPUT PARAM ip-copy-title AS cha NO-UNDO.
-
 {sys/inc/var.i shared}
 
 {oe/rep/invoice.i}
@@ -445,8 +444,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
         ASSIGN v-case-cnt = ""
                v-pc       = "P" /* partial*/ 
                i          = 0.
-
-        IF inv-line.inv-qty EQ 0 AND inv-line.ship-qty EQ 0 THEN NEXT .
+       
+        IF inv-line.inv-qty EQ 0 THEN NEXT .
 
         FIND FIRST reftable NO-LOCK
           WHERE reftable.reftable EQ "inv-line.lot-no" 

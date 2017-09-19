@@ -40,6 +40,7 @@ DEF TEMP-TABLE temp-rec NO-UNDO
     FIELD whs AS CHAR
     FIELD bin AS CHAR
     FIELD qty AS DEC
+    FIELD tag AS CHARACTER
     INDEX temp-rec-idx trans-date ASC.
 
 DEF BUFFER b-po-ord FOR po-ord.
@@ -65,7 +66,7 @@ DEF BUFFER b-po-ord FOR po-ord.
 &Scoped-define INTERNAL-TABLES temp-rec
 
 /* Definitions for BROWSE BROWSE-4                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-4 temp-rec.item-no temp-rec.trans-date temp-rec.job-no temp-rec.job-no2 temp-rec.whs temp-rec.bin temp-rec.qty   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-4 temp-rec.item-no temp-rec.trans-date temp-rec.job-no temp-rec.job-no2 temp-rec.whs temp-rec.bin temp-rec.qty temp-rec.tag  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-4   
 &Scoped-define SELF-NAME BROWSE-4
 &Scoped-define QUERY-STRING-BROWSE-4 FOR EACH temp-rec
@@ -103,16 +104,17 @@ DEFINE QUERY BROWSE-4 FOR
 DEFINE BROWSE BROWSE-4
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS BROWSE-4 F-Frame-Win _FREEFORM
   QUERY BROWSE-4 DISPLAY
-      temp-rec.item-no COLUMN-LABEL "Item No" LABEL-FONT 6 FORMAT "X(15)" WIDTH 20
+    temp-rec.item-no COLUMN-LABEL "Item No" LABEL-FONT 6 FORMAT "X(15)" WIDTH 20
     temp-rec.trans-date COLUMN-LABEL "Receipt Date" LABEL-FONT 6 FORMAT "99/99/9999" WIDTH 15
     temp-rec.job-no COLUMN-LABEL "Job #" FORMAT "X(6)" LABEL-FONT 6 WIDTH 8
     temp-rec.job-no2 COLUMN-LABEL "" FORMAT ">>" LABEL-FONT 6 WIDTH 2.4
     temp-rec.whs COLUMN-LABEL "Warehouse" FORMAT "X(5)" LABEL-FONT 6 WIDTH 13
     temp-rec.bin COLUMN-LABEL "Bin" FORMAT "X(8)" LABEL-FONT 6
     temp-rec.qty COLUMN-LABEL "Qty." FORMAT "->,>>>,>>9.9<<" LABEL-FONT 6 WIDTH 20
+    temp-rec.tag COLUMN-LABEL "Tag" FORMAT "X(20)" LABEL-FONT 6 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ROW-MARKERS SEPARATORS SIZE 88 BY 18.33
+    WITH NO-ROW-MARKERS SEPARATORS SIZE 140 BY 18.33
          BGCOLOR 8  FIT-LAST-COLUMN.
 
 
@@ -123,7 +125,7 @@ DEFINE FRAME F-Main
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 113.8 BY 19
+         SIZE 165.8 BY 19
          BGCOLOR 8 .
 
 
@@ -311,7 +313,7 @@ PROCEDURE populate-tt :
        rm-rcpth.po-no EQ v-po-no AND
        rm-rcpth.rita-code EQ "R"
        NO-LOCK,
-       EACH rm-rdtlh FIELDS(loc loc-bin qty) WHERE
+       EACH rm-rdtlh FIELDS(loc loc-bin qty tag) WHERE
             rm-rdtlh.r-no EQ rm-rcpth.r-no AND
             rm-rdtlh.rita-code EQ rm-rcpth.rita-code
             NO-LOCK:
@@ -323,7 +325,9 @@ PROCEDURE populate-tt :
               temp-rec.trans-date = rm-rcpth.trans-date
               temp-rec.whs = rm-rdtlh.loc
               temp-rec.bin = rm-rdtlh.loc-bin
-              temp-rec.qty = rm-rdtlh.qty.
+              temp-rec.qty = rm-rdtlh.qty
+              temp-rec.tag = rm-rdtlh.tag.
+           .
 
        RELEASE temp-rec.
    END.
@@ -341,7 +345,7 @@ PROCEDURE populate-tt :
           fg-rcpth.po-no EQ v-po-no AND
           LOOKUP(fg-rcpth.rita-code,"R,E") > 0
           NO-LOCK,
-          EACH fg-rdtlh FIELDS(loc loc-bin qty) WHERE
+          EACH fg-rdtlh FIELDS(loc loc-bin qty tag) WHERE
                fg-rdtlh.r-no EQ fg-rcpth.r-no AND
                fg-rdtlh.rita-code EQ fg-rcpth.rita-code
                NO-LOCK:
@@ -353,7 +357,8 @@ PROCEDURE populate-tt :
                  temp-rec.trans-date = fg-rcpth.trans-date
                  temp-rec.whs = fg-rdtlh.loc
                  temp-rec.bin = fg-rdtlh.loc-bin
-                 temp-rec.qty = fg-rdtlh.qty.
+                 temp-rec.qty = fg-rdtlh.qty
+                 temp-rec.tag = fg-rdtlh.tag.
 
           RELEASE temp-rec.
       END.

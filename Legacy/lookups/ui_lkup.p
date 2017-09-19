@@ -1,6 +1,6 @@
 /* ui_lkup.p - Generated 03/15/1998 -  5:05 pm by Exitt
 "ui_lkup. " ~
-"NOSWEAT " ~
+"ASI " ~
 "prgrms " ~
 "INDEX(prgrms.prgmname,'.') NE 0 " ~
 "prgmname " ~
@@ -18,7 +18,7 @@
 " " ~
 */
 
-&Scoped-define lookup-db NOSWEAT.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file prgrms
 &Scoped-define where-statement INDEX(prgrms.prgmname,'.') NE 0
 &Scoped-define return-field prgmname
@@ -31,16 +31,16 @@
 &Scoped-define def-include ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname 
-&Scoped-define window-size 20
+&Scoped-define window-size 20.7
 &Scoped-define window-col 52
 &Scoped-define rect-1-row 17.15
 &Scoped-define by-row 17.42
 &Scoped-define browse-order-width 40
 &Scoped-define browse-order-row 17.42
-&Scoped-define btn-row 18.77
-&Scoped-define btn-ok-col 37
-&Scoped-define btn-cancel-col 26
-&Scoped-define auto-find-row 19.85
+&Scoped-define btn-row 18.7
+&Scoped-define btn-ok-col 39
+&Scoped-define btn-cancel-col 32
+&Scoped-define auto-find-row 20.6
 
 &Global-define FORMAT-1 X(10)
 &Scoped-define FLDNAME1 prgrms.prgmname

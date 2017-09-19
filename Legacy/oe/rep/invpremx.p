@@ -84,8 +84,8 @@ DEFINE VARIABLE lFirstLine AS LOGICAL     NO-UNDO.
 FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
-ASSIGN ls-image1 = "images\premierinv.jpg"
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+ASSIGN ls-image1 = "images\premiercan.jpg"
        FILE-INFO:FILE-NAME = ls-image1.
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
@@ -896,12 +896,12 @@ RUN XMLOutput (lXMLOutput,'','','Header').
     PUT "<R58><C58><#8><FROM><R+5><C+22><RECT> " 
         "<=8> Sub Total    :" v-subtot-lines FORM "->>,>>9.99"
         "<=8><R+1> Freight      :" v-inv-freight
-        "<=8><R+2> Sales Tax    :" inv-head.t-inv-tax FORM "->>,>>9.99"
+        "<=8><R+2> HST          :" inv-head.t-inv-tax FORM "->>,>>9.99"
         "<=8><R+3>" "" 
         "<=8><R+4> Total Invoice:" inv-head.t-inv-rev FORM "->>,>>9.99" .
 
     PUT "<FArial><R58><C1><P12><B> THANK YOU. </B> <P9> " SKIP.
-    PUT "<FArial><R60><C1><P12> All currencies displayed in USD. <P9> " SKIP.
+    PUT "<FArial><R60><C1><P12> All currencies displayed in CAD. <P9> " SKIP.
     v-printline = v-printline + 8.
    
     /* rstark 05181205 */

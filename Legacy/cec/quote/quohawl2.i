@@ -33,9 +33,13 @@
          "<R6><C65><FROM><R8><C65><LINE>" 
          .
     
-   PUT "<FArial><P12><=#3>" /*<R-3>" "    Page#: " + string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" */
-       "<=#3><R-2><C-8> <B>Soumission / Quotation#: " v-first-q-no "</B>" "     Page#: " + string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(30)"
-       "<P10>" SKIP
+   PUT "<FArial><P12><=#3>" /*<R-3>" "    Page#: " + string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" */ .
+   IF NOT s-sep-page THEN
+   PUT    "<=#3><R-2><C-8> <B>Soumission / Quotation#: " v-first-q-no "</B>" "     Page#: " + string(PAGE-NUM,">>9") + " of " +  "<#PAGES>" FORM "x(30)" .
+   ELSE
+       PUT    "<=#3><R-2><C-8> <B>Soumission / Quotation#: " v-first-q-no "</B>" "     Page#: " + string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg)  FORM "x(30)" .
+
+     PUT  "<P10>" SKIP
    "<=#3>  Client/Customer#                    ATTN:"
    "<=#3><R+2> Tele.                                           Fax <FCourier New>" 
    "<=3><R+1> " xquo.cust-no  space(6) xquo.contact /*cust.contact*/

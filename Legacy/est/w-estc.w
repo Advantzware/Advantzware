@@ -1237,7 +1237,7 @@ PROCEDURE local-change-page :
    li-page[2] = li-page[1]
    li-page[1] = int(return-value).
   
-  if li-page[1] = 10 then do:  /* quote */
+  /*if li-page[1] = 10 then do:  /* quote */
     def buffer bf-quote for quotehd .
     find first bf-quote where bf-quote.company = g_company and
                             bf-quote.loc = g_loc and
@@ -1250,7 +1250,7 @@ PROCEDURE local-change-page :
        run hide-quote.
        return no-apply.        
     end.                            
-  end.
+  end.*/ /* ticket - 23023 */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .

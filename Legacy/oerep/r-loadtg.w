@@ -7509,7 +7509,7 @@ PROCEDURE write-loadtag-line :
         w-ord.gross-wt  "," /*??07  Lbs/M Pieces  - cust waste  6 characters    LbsperM                                                                                     */
         "," /*08  Plant Number    2 characters    plantnumber                                                                                             */
         "- -,"/*09  this field contains “- -“   3 characters    Text0098                                                                                    */
-        w-ord.total-tags "," /*10  Number of tags per unit 1 character **QUANTITY                                                                                          */
+        1 /* w-ord.total-tags */ "," /*10  Number of tags per unit 1 character **QUANTITY                                                                                          */
         1 "," /*11  Number of tags to print 5 characters    tagstoprint                                                                                     */
         w-ord.ord-no  ","/*12  Order Number    7 characters    ordernumber                                                                                             */
         w-ord.total-unit  ","/*13  Quantity per pallet 6 characters    qtypallet                                                                                           */

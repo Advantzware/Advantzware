@@ -2804,7 +2804,6 @@ PROCEDURE fg-post :
     IF ERROR-STATUS:ERROR THEN 
         RETURN.
         
-  
   /* return temp-table w-job for processing */
   RUN fg/fgpostBatch.p (
       INPUT v-post-date,

@@ -751,6 +751,7 @@
 
     if last-of(tt-report.key-03) then do:
       if v-det then do:  
+        IF NOT FIRST-OF(tt-report.key-03) THEN do:
         underline v-name v-qty[1] v-amt[1].
 
         display "      SHIP-TO TOTALS"  @ v-name
@@ -776,6 +777,7 @@
                '"' ""                                   '",'
                '"' STRING(v-amt[2],"->,>>>,>>>,>>9.99") '",'
                SKIP(1).
+        END.  /* NOT FIRST-OF(tt-report.key-03)*/
       end.
       
       assign
@@ -786,8 +788,14 @@
        v-amt[2] = 0.
     end.
 
+    if v-det then do:
+        IF FIRST-OF(tt-report.key-02) AND LAST-OF(tt-report.key-02)  AND NOT LAST(tt-report.key-01) THEN
+            PUT SKIP(1) .
+    END.
+
     if last-of(tt-report.key-02) then do:
       if v-det then do:
+        IF NOT FIRST-OF(tt-report.key-02) THEN do:
         underline v-name v-qty[1] v-amt[1].
 
         display "     CUSTOMER TOTALS"                  @ v-name
@@ -814,6 +822,7 @@
                '"' ""                                   '",'
                '"' STRING(v-amt[3],"->,>>>,>>>,>>9.99") '",'
                SKIP(1).
+        END.  /* NOT FIRST-OF(tt-report.key-02)*/
       end.
       
       else
@@ -847,6 +856,7 @@
 
     if last-of(tt-report.key-01) then do:
       if v-det then do:
+        IF NOT FIRST-OF(tt-report.key-01) THEN DO:
         underline v-name v-qty[1] v-amt[1].
 
         display "         ITEM TOTALS"                  @ v-name
@@ -873,6 +883,7 @@
                '"' ""                                   '",'
                '"' STRING(v-amt[4],"->,>>>,>>>,>>9.99") '",'
                SKIP(1).
+        END. /* NOT FIRST-OF(tt-report.key-01) */
       end.
 
       else

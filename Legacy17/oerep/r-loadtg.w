@@ -113,6 +113,7 @@ DEF VAR v-fgdsc3 LIKE itemfg.part-dscr3 NO-UNDO.
 
 DEFINE VARIABLE cPrevFromItem AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cPrevToItem AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE lReturn AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE tt-ordjobs
     FIELD job-no LIKE job.job-no
@@ -1810,6 +1811,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cas-lab C-Win
 ON RETURN OF fi_cas-lab IN FRAME FRAME-A /* Scan Case Label */
 DO:
+  lReturn = YES.
   APPLY 'TAB' TO SELF.
   RETURN NO-APPLY.
 END.
@@ -6576,8 +6578,12 @@ PROCEDURE new-cas-lab :
 
            RUN cas-lab-label-mat-file.
 
-           APPLY "choose" TO btn-ok.
-/*            RUN ok-button. */
+           IF lReturn THEN DO:
+             APPLY "choose" TO btn-ok.
+             lReturn = NO.
+           END.
+           ELSE
+           RUN ok-button. 
       END.
       ELSE MESSAGE "Invalid Loadtag. Try Help." VIEW-AS ALERT-BOX ERROR.
     END.

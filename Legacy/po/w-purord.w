@@ -746,7 +746,9 @@ PROCEDURE select_att :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    {methods/select_att.i}
+    /* Tkt 22432 - Revert from 20414 - PO has special attachment program */
+    RUN windows/attachpo.w(rec_key_value,HEADER_value).
+    /* {methods/select_att.i} */
 
 END PROCEDURE.
 

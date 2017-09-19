@@ -1581,10 +1581,34 @@ PROCEDURE loadTag :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE cOrder AS CHARACTER NO-UNDO .
+  DEFINE BUFFER bff-itemfg FOR itemfg .
   IF NOT AVAILABLE oe-ord THEN RETURN.
-  OUTPUT TO 'OU1-loadtag.txt'.
-  EXPORT oe-ordl.ord-no oe-ordl.job-no oe-ordl.job-no2 oe-ordl.i-no oe-ordl.po-no-po.
-  OUTPUT CLOSE.
+  ASSIGN cOrder = string(oe-ordl.ord-no) .
+  FIND FIRST po-ordl NO-LOCK
+       WHERE po-ordl.company EQ cocode
+         AND po-ordl.po-no = oe-ordl.po-no-po  NO-ERROR.
+        IF AVAIL po-ordl THEN DO:
+          FIND FIRST bff-itemfg NO-LOCK
+               WHERE bff-itemfg.company EQ cocode
+                 AND bff-itemfg.i-no EQ oe-ordl.i-no
+              NO-ERROR.
+          IF AVAIL bff-itemfg AND bff-itemfg.pur-man AND NOT bff-itemfg.isaset THEN
+              ASSIGN cOrder = string(oe-ordl.po-no-po) .
+        END.
+  
+  RUN custom/setUserPrint.p (INPUT oe-ordl.company,
+                           INPUT 'r-loadtg.',
+                           INPUT 'begin_ord-no,end_ord-no,begin_job,end_job,begin_job2,end_job2,begin_i-no,end_i-no',
+                           INPUT STRING(cOrder) + ',' 
+                                + STRING(cOrder) + ',' 
+                                + STRING(oe-ordl.job-no) + ',' 
+                                + STRING(oe-ordl.job-no) + ',' 
+                                + STRING(oe-ordl.job-no2) + ',' 
+                                + STRING(oe-ordl.job-no2) + ',' 
+                                + STRING(oe-ordl.i-no) + ','
+                                + STRING(oe-ordl.i-no)).
+  
   RUN Get_Procedure IN Persistent-Handle ('r-loadtg.',OUTPUT run-proc,YES).
 
 END PROCEDURE.
