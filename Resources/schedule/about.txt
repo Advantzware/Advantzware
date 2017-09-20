@@ -12,6 +12,10 @@
 
  History:
 
+ r4.003 (updated 9.19.2017)
+ * added field "mr std hrs"
+ * added field "run std hrs"
+
  r4.002 (updated 8.10.2017)
  * utilize est-op_rec_key during save operation
  * added field "mat type 5 qty"
