@@ -198,6 +198,21 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+
+DEFINE VARIABLE qty-total AS INTEGER FORMAT "->>,>>>,>>9":U INITIAL 0 
+     LABEL "Total Qty" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1 NO-UNDO.
+
+DEFINE VARIABLE qty-balance AS DECIMAL FORMAT "->>,>>>,>>9" INITIAL 0 
+     LABEL "Balance Qty" 
+     VIEW-AS FILL-IN 
+     SIZE 16 BY 1.
+
+DEFINE RECTANGLE RECT-1
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 60 BY 1.20.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY br_table FOR 
@@ -256,6 +271,9 @@ DEFINE BROWSE br_table
 
 DEFINE FRAME F-Main
      br_table AT ROW 1 COL 1
+     qty-total AT ROW 8.10 COL 80 COLON-ALIGNED
+     qty-balance AT ROW 8.10 COL 110 COLON-ALIGNED
+     RECT-1 AT ROW 8 COL 70
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -317,6 +335,11 @@ END.
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
+
+/* SETTINGS FOR FILL-IN qty-total IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN qty-balance IN FRAME F-Main
+   NO-ENABLE                                                            */
 
 ASSIGN 
        br_table:NUM-LOCKED-COLUMNS IN FRAME F-Main     = 2.
@@ -528,7 +551,7 @@ DO:
   DEF VAR phandle AS HANDLE NO-UNDO.
   run get-link-handle in adm-broker-hdl(this-procedure,"record-source",output char-hdl).
   run display-items in widget-handle(char-hdl) (recid(oe-rell)).
-
+  RUN display-qty .
   /*spec notes*/
   IF AVAIL oe-rell THEN
   DO:
@@ -1420,7 +1443,9 @@ PROCEDURE local-initialize :
   end.
   v-do-all-items = sys-ctrl.char-fld = "ROYAL".
   
+  RUN display-qty .
   APPLY "VALUE-CHANGED":U TO BROWSE {&browse-name}.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1437,7 +1462,8 @@ PROCEDURE local-open-query :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
-
+ 
+  RUN display-qty .
   /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
@@ -1602,6 +1628,7 @@ PROCEDURE repo-query :
   DO WITH FRAME {&FRAME-NAME}:
     REPOSITION {&browse-name} TO ROWID ip-rowid NO-ERROR.
   END.
+  RUN display-qty .
  APPLY "VALUE-CHANGED":U TO BROWSE {&browse-name}.
 END PROCEDURE.
 
@@ -1989,3 +2016,55 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-qty B-table-Win 
+PROCEDURE display-qty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iordered AS INTEGER NO-UNDO .
+  DEFINE VARIABLE iqty-rel AS INTEGER NO-UNDO .
+  DEFINE VARIABLE ibal-rel AS INTEGER NO-UNDO .
+  DEFINE BUFFER bf-oe-ordl-2 FOR oe-ordl.
+  DEFINE BUFFER bf-oe-rell FOR oe-rell .
+
+IF AVAIL oe-rell THEN DO:
+find first bf-oe-ordl-2 NO-LOCK
+       WHERE bf-oe-ordl-2.company = cocode 
+         AND bf-oe-ordl-2.ord-no = oe-rell.ord-no
+         AND bf-oe-ordl-2.i-no = oe-rell.i-no NO-ERROR.
+
+  if avail bf-oe-ordl-2 then
+     assign
+        iordered = bf-oe-ordl-2.qty
+        iqty-rel = bf-oe-ordl-2.t-rel-qty
+        .
+  else assign iordered = 0
+              iqty-rel = 0 .
+  IF iqty-rel < 0  THEN iqty-rel = 0.
+
+     ibal-rel = 0 .
+     FOR EACH bf-oe-rell WHERE bf-oe-rell.company eq oe-relh.company and 
+         bf-oe-rell.r-no    eq oe-relh.r-no 
+         use-index r-no NO-LOCK, 
+         FIRST oe-ordl WHERE oe-ordl.company eq bf-oe-rell.company and 
+         oe-ordl.ord-no eq bf-oe-rell.ord-no and 
+         oe-ordl.i-no eq bf-oe-rell.i-no and 
+         oe-ordl.line eq bf-oe-rell.line  NO-LOCK 
+         BY bf-oe-rell.ord-no :
+        ibal-rel = ibal-rel + bf-oe-rell.qty .
+     END.
+     
+   ASSIGN qty-total = ibal-rel
+          qty-balance = iordered - iqty-rel - ibal-rel .
+
+  display qty-total qty-balance  with frame {&frame-name}.
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
