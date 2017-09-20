@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -73,9 +73,10 @@ DEFINE QUERY external_tables FOR notes.
 &Scoped-Define ENABLED-FIELDS notes.note_title notes.note_text 
 &Scoped-define ENABLED-TABLES notes
 &Scoped-define FIRST-ENABLED-TABLE notes
-&Scoped-Define ENABLED-OBJECTS RECT-1 cbTitle 
-&Scoped-Define DISPLAYED-FIELDS notes.note_date notes.note_time ~
-notes.user_id notes.viewed notes.note_code notes.note_title notes.note_text 
+&Scoped-Define ENABLED-OBJECTS RECT-1 cbTitle btProgram 
+&Scoped-Define DISPLAYED-FIELDS notes.viewed notes.note_code ~
+notes.note_title notes.note_text notes.createDate notes.createTime ~
+notes.createUser notes.updateDate notes.updateTime notes.updateUser 
 &Scoped-define DISPLAYED-TABLES notes
 &Scoped-define FIRST-DISPLAYED-TABLE notes
 &Scoped-Define DISPLAYED-OBJECTS spec-desc cbTitle 
@@ -113,6 +114,10 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btProgram 
+     LABEL "Program" 
+     SIZE 15 BY 1.14.
+
 DEFINE VARIABLE cbTitle AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEM-PAIRS "1","1"
@@ -125,40 +130,53 @@ DEFINE VARIABLE spec-desc AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 122 BY 13.33.
+     SIZE 122 BY 14.29.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     notes.note_date AT ROW 1.24 COL 14 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 16 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
-     notes.note_time AT ROW 1.24 COL 44 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
-     notes.user_id AT ROW 1.24 COL 71 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 16.4 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
      notes.viewed AT ROW 1.24 COL 108
           VIEW-AS TOGGLE-BOX
           SIZE 13.4 BY 1
-     notes.note_code AT ROW 2.43 COL 14 COLON-ALIGNED
+     notes.note_code AT ROW 1.48 COL 14 COLON-ALIGNED
           LABEL "Spec" FORMAT "X(3)"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
-     spec-desc AT ROW 2.43 COL 23 COLON-ALIGNED NO-LABEL
-     notes.note_title AT ROW 3.62 COL 14 COLON-ALIGNED
+     spec-desc AT ROW 1.48 COL 23 COLON-ALIGNED NO-LABEL
+     cbTitle AT ROW 2.62 COL 14 COLON-ALIGNED NO-LABEL WIDGET-ID 2
+     notes.note_title AT ROW 2.67 COL 14 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 74 BY 1
           FONT 4
-     cbTitle AT ROW 3.62 COL 14 COLON-ALIGNED NO-LABEL WIDGET-ID 2
-     notes.note_text AT ROW 4.81 COL 16 NO-LABEL
+     notes.note_text AT ROW 3.86 COL 16 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 106 BY 9.29
+     notes.createDate AT ROW 13.19 COL 23.6 COLON-ALIGNED WIDGET-ID 4
+          LABEL "Created Date"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.createTime AT ROW 13.19 COL 48 COLON-ALIGNED WIDGET-ID 6
+          LABEL "Time"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.createUser AT ROW 13.19 COL 77.4 COLON-ALIGNED WIDGET-ID 8
+          LABEL "User ID"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     btProgram AT ROW 13.91 COL 97 WIDGET-ID 16
+     notes.updateDate AT ROW 14.14 COL 23.6 COLON-ALIGNED WIDGET-ID 10
+          LABEL "Last Updated Date"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.updateTime AT ROW 14.14 COL 48 COLON-ALIGNED WIDGET-ID 12
+          LABEL "Time"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.updateUser AT ROW 14.14 COL 77.4 COLON-ALIGNED WIDGET-ID 14
+          LABEL "User ID"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -171,7 +189,7 @@ DEFINE FRAME F-Main
 &ANALYZE-SUSPEND _PROCEDURE-SETTINGS
 /* Settings for THIS-PROCEDURE
    Type: SmartViewer
-   External Tables: notes
+   External Tables: NOSWEAT.notes
    Allow: Basic,DB-Fields
    Frames: 1
    Add Fields to: EXTERNAL-TABLES
@@ -193,8 +211,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 13.33
-         WIDTH              = 122.
+         HEIGHT             = 17.81
+         WIDTH              = 126.2.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -222,16 +240,22 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN notes.createDate IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.createTime IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.createUser IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN notes.note_code IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
-/* SETTINGS FOR FILL-IN notes.note_date IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN notes.note_time IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN spec-desc IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN notes.user_id IN FRAME F-Main
-   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN notes.updateDate IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.updateTime IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.updateUser IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR TOGGLE-BOX notes.viewed IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -247,11 +271,23 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btProgram
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btProgram V-table-Win
+ON CHOOSE OF btProgram IN FRAME F-Main /* Program */
+DO:
+    IF AVAILABLE notes THEN
+    MESSAGE notes.updateProgram VIEW-AS ALERT-BOX INFORMATION.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME cbTitle
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbTitle V-table-Win
@@ -259,7 +295,7 @@ ON VALUE-CHANGED OF cbTitle IN FRAME F-Main
 DO:
   ASSIGN cbTitle.
   FIND FIRST rejct-cd WHERE rejct-cd.CODE = cbTitle NO-LOCK NO-ERROR.
-
+  
   IF AVAIL(rejct-cd) AND notes.note_text:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN
      notes.note_text:SCREEN-VALUE IN FRAME {&FRAME-NAME} = rejct-cd.dscr.
 END.
@@ -397,7 +433,7 @@ FOR EACH rejct-cd
                                   OR LOOKUP("D", gvcNoteType) GT 0 
                                   OR LOOKUP("L", gvcNoteType) GT 0 THEN "R" ELSE gvcNoteType)
     NO-LOCK WITH FRAME {&FRAME-NAME}.
-
+  
     cbTitle:ADD-LAST(rejct-cd.CODE + " " + rejct-cd.dscr, rejct-cd.CODE).        
 END.
 notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
@@ -467,10 +503,10 @@ PROCEDURE get-title :
 
   IF AVAIL(notes) THEN
   FIND bfNotes WHERE ROWID(bfNotes) = ROWID(notes) NO-LOCK NO-ERROR.
-
+  
   IF AVAIL bfNotes THEN DO WITH FRAME {&FRAME-NAME}:     
       FIND rejct-cd WHERE rejct-cd.CODE = bfNotes.note_title NO-LOCK NO-ERROR.
-
+     
       IF AVAIL rejct-cd THEN
       cbTitle:SCREEN-VALUE = bfNotes.note_title.
   END.
@@ -513,8 +549,8 @@ ASSIGN
   END CASE.
 
 
-
-
+   
+    
  notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
  notes.note_code = ENTRY(1, gvcNoteCode).
  RUN display-note-type.
@@ -542,7 +578,7 @@ PROCEDURE local-display-fields :
     DO:
         ASSIGN 
             notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ENTRY(1, gvcNoteCode).
-
+  
         IF gvcNoteCode EQ "RDC" THEN
             spec-desc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "Release Date Change" .
         ELSE
@@ -559,7 +595,7 @@ PROCEDURE local-display-fields :
     END.
     ELSE 
     DO:
-
+      
         IF AVAIL notes THEN 
         DO: 
           RUN display-note-type.
@@ -613,18 +649,18 @@ PROCEDURE local-update-record :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
+  
   /* Code placed here will execute AFTER standard behavior.    */
   BUFFER-COMPARE notes TO tt-notes SAVE RESULT IN ll.
   IF NOT ll THEN RUN custom/notewtrg.p (ROWID(notes)).
-
+ 
   IF notes.note_title EQ "" OR notes.note_title = ? THEN DO:
     FIND CURRENT notes EXCLUSIVE-LOCK.
     IF cbTitle:SCREEN-VALUE GT "" THEN
     ASSIGN notes.note_title = cbTitle:SCREEN-VALUE.
     FIND CURRENT notes NO-LOCK.
   END.
-
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -637,7 +673,7 @@ PROCEDURE new-note_code :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-
+                  
 /*   DO WITH FRAME {&FRAME-NAME}:                                         */
 /*                                                                        */
 /*     FIND FIRST item-spec NO-LOCK                                       */
@@ -734,8 +770,7 @@ PROCEDURE valid-note_code :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-focus AS HANDLE NO-UNDO.
 
-
-  {methods/lValidateError.i YES}
+{methods/lValidateError.i YES}
 /*   DO WITH FRAME {&FRAME-NAME}:                                                 */
 /*     ip-focus:SCREEN-VALUE = CAPS(ip-focus:SCREEN-VALUE).                       */
 /*                                                                                */
@@ -749,7 +784,6 @@ PROCEDURE valid-note_code :
 /*        RETURN ERROR.                                                           */
 /*      END.                                                                      */
 /*   END.                                                                         */
-
   {methods/lValidateError.i NO}
 END PROCEDURE.
 

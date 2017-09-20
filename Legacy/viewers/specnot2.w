@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -56,7 +56,7 @@ DEF TEMP-TABLE tt-notes LIKE notes.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -71,9 +71,10 @@ DEFINE QUERY external_tables FOR notes.
 notes.note_text 
 &Scoped-define ENABLED-TABLES notes
 &Scoped-define FIRST-ENABLED-TABLE notes
-&Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS notes.note_date notes.note_time ~
-notes.user_id notes.viewed notes.note_code notes.note_title notes.note_text 
+&Scoped-Define ENABLED-OBJECTS RECT-1 btUpdateProgram 
+&Scoped-Define DISPLAYED-FIELDS notes.note_code notes.viewed ~
+notes.note_title notes.note_text notes.createDate notes.createTime ~
+notes.createUser notes.updateDate notes.updateTime notes.updateUser 
 &Scoped-define DISPLAYED-TABLES notes
 &Scoped-define FIRST-DISPLAYED-TABLE notes
 &Scoped-Define DISPLAYED-OBJECTS spec-desc 
@@ -111,46 +112,62 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btUpdateProgram 
+     LABEL "Update Program" 
+     SIZE 21 BY 1.14.
+
 DEFINE VARIABLE spec-desc AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 49 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 122 BY 13.33.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 127 BY 14.29.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     notes.note_date AT ROW 1.24 COL 14 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
-     notes.note_time AT ROW 1.24 COL 44 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
-     notes.user_id AT ROW 1.24 COL 71 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 16.4 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
-     notes.viewed AT ROW 1.24 COL 108
-          VIEW-AS TOGGLE-BOX
-          SIZE 13.4 BY 1
-     notes.note_code AT ROW 2.43 COL 14 COLON-ALIGNED
+     notes.note_code AT ROW 1.24 COL 15 COLON-ALIGNED
           LABEL "Spec" FORMAT "X(3)"
           VIEW-AS FILL-IN 
           SIZE 9 BY 1
-     spec-desc AT ROW 2.43 COL 23 COLON-ALIGNED NO-LABEL
-     notes.note_title AT ROW 3.62 COL 14 COLON-ALIGNED
+     spec-desc AT ROW 1.24 COL 24 COLON-ALIGNED NO-LABEL
+     notes.viewed AT ROW 1.24 COL 108
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY 1
+     notes.note_title AT ROW 2.43 COL 15 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 74 BY 1
           FONT 4
-     notes.note_text AT ROW 4.81 COL 16 NO-LABEL
+     notes.note_text AT ROW 3.62 COL 17 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 106 BY 9.29
-     RECT-1 AT ROW 1 COL 1
+     notes.createDate AT ROW 13.14 COL 22.8 COLON-ALIGNED WIDGET-ID 12
+          VIEW-AS FILL-IN 
+          SIZE 14.2 BY 1
+     notes.createTime AT ROW 13.14 COL 53 COLON-ALIGNED WIDGET-ID 14
+          LABEL "Time"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.createUser AT ROW 13.14 COL 83 COLON-ALIGNED WIDGET-ID 16
+          LABEL "User ID"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
+     btUpdateProgram AT ROW 13.91 COL 102 WIDGET-ID 10
+     notes.updateDate AT ROW 14.1 COL 22.8 COLON-ALIGNED WIDGET-ID 2
+          LABEL "Last Updated Date"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.updateTime AT ROW 14.1 COL 53.2 COLON-ALIGNED WIDGET-ID 6
+          LABEL "Time"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.updateUser AT ROW 14.1 COL 82.8 COLON-ALIGNED WIDGET-ID 8
+          LABEL "User ID"
+          VIEW-AS FILL-IN 
+          SIZE 16.4 BY 1
+     RECT-1 AT ROW 1 COL 1.8
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -184,8 +201,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 13.33
-         WIDTH              = 122.
+         HEIGHT             = 14.33
+         WIDTH              = 127.8.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -208,21 +225,27 @@ END.
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN notes.createDate IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN notes.createTime IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.createUser IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN notes.note_code IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
-/* SETTINGS FOR FILL-IN notes.note_date IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN notes.note_time IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN spec-desc IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN notes.user_id IN FRAME F-Main
-   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN notes.updateDate IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.updateTime IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.updateUser IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR TOGGLE-BOX notes.viewed IN FRAME F-Main
    NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -238,11 +261,23 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btUpdateProgram
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btUpdateProgram V-table-Win
+ON CHOOSE OF btUpdateProgram IN FRAME F-Main /* Update Program */
+DO:
+    IF AVAILABLE notes THEN
+    MESSAGE notes.updateProgram VIEW-AS ALERT-BOX INFORMATION.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME notes.note_code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_code V-table-Win
