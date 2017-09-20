@@ -125,12 +125,12 @@ DEFINE BUTTON Btn_OK AUTO-GO
      SIZE 15 BY 1.14.
 
 DEFINE VARIABLE fiCreateBegin AS DATE FORMAT "99/99/99":U 
-     LABEL "Start Date Begin" 
+     LABEL "Create Date Begin" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fiCreateEnd AS DATE FORMAT "99/99/99":U 
-     LABEL "Start Date End" 
+     LABEL "Create Date End" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
@@ -365,9 +365,8 @@ chWorkSheet = chExcelApplication:Sheets:item(1).
     
 FOR EACH job NO-LOCK WHERE 
     job.company = "001" AND 
-    job.opened = true and
-    job.start-date >= date(fiCreateBegin:screen-value in frame gDialog) and
-    job.start-date <= date(fiCreateEnd:screen-value) 
+    job.create-date >= date(fiCreateBegin:screen-value in frame gDialog) and
+    job.create-date <= date(fiCreateEnd:screen-value) 
     USE-INDEX due-date: 
     
     ASSIGN
@@ -393,7 +392,7 @@ FOR EACH job NO-LOCK WHERE
         ttJobMat.start-date = job.start-date
         ttJobMat.complete-date = job.complete-date
         ttJobMat.est-no = job.est-no
-        ttJobMat.est-type = job.est-type
+        ttJobMat.est-type = est.est-type
         ttJobMat.nbrComp = ihdrct
         .
     case ttJobMat.est-type:
@@ -566,29 +565,29 @@ FOR EACH ttJobMat:
         chWorkSheet:Range("H" + STRING(iRow)):VALUE = ttJobMat.est-type      
         chWorkSheet:Range("I" + STRING(iRow)):VALUE = ttJobMat.est-desc      
 
-        chWorkSheet:Range("J" + STRING(iRow)):VALUE = ttJobMat.fg-item       
-        chWorkSheet:Range("K" + STRING(iRow)):VALUE = ttJobMat.category       
-        chWorkSheet:Range("L" + STRING(iRow)):VALUE = ttJobMat.make-qty      
-        chWorkSheet:Range("M" + STRING(iRow)):VALUE = ttJobMat.std-fix-cost  
-        chWorkSheet:Range("N" + STRING(iRow)):VALUE = ttJobMat.std-lab-cost  
-        chWorkSheet:Range("O" + STRING(iRow)):VALUE = ttJobMat.std-mat-cost  
-        chWorkSheet:Range("P" + STRING(iRow)):VALUE = ttJobMat.std-tot-cost  
-        chWorkSheet:Range("Q" + STRING(iRow)):VALUE = ttJobMat.std-var-cost 
-        chWorkSheet:Range("R" + STRING(iRow)):VALUE = ttJobMat.board-msf
-        chWorkSheet:Range("S" + STRING(iRow)):VALUE = ttJobMat.board-cost
-        chWorkSheet:Range("T" + STRING(iRow)):VALUE = ttJobMat.non-board-cost    
-
-        chWorkSheet:Range("U" + STRING(iRow)):VALUE = ttJobMat.order-no      
-        chWorkSheet:Range("V" + STRING(iRow)):VALUE = ttJobMat.customer      
-        chWorkSheet:Range("W" + STRING(iRow)):VALUE = ttJobMat.name          
-        chWorkSheet:Range("X" + STRING(iRow)):VALUE = ttJobMat.ord-line      
-        chWorkSheet:Range("Y" + STRING(iRow)):VALUE = ttJobMat.ord-line-price
-        chWorkSheet:Range("Z" + STRING(iRow)):VALUE = ttJobMat.ord-line-cost-uom
-        chWorkSheet:Range("AA" + STRING(iRow)):VALUE = ttJobMat.ord-line-tot-cost
-        chWorkSheet:Range("AB" + STRING(iRow)):VALUE = ttJobMat.ord-line-comm-pct
-        chWorkSheet:Range("AC" + STRING(iRow)):VALUE = ttJobMat.ord-line-tot-frt
-        chWorkSheet:Range("AD" + STRING(iRow)):VALUE = ttJobMat.ord-line-fix-oh
-        chWorkSheet:Range("AE" + STRING(iRow)):VALUE = ttJobMat.ord-line-var-oh
+        chWorkSheet:Range("J" + STRING(iRow)):VALUE = ttJobMat.nbrComp       
+        chWorkSheet:Range("K" + STRING(iRow)):VALUE = ttJobMat.fg-item       
+        chWorkSheet:Range("L" + STRING(iRow)):VALUE = ttJobMat.category       
+        chWorkSheet:Range("M" + STRING(iRow)):VALUE = ttJobMat.make-qty      
+        chWorkSheet:Range("N" + STRING(iRow)):VALUE = ttJobMat.std-fix-cost  
+        chWorkSheet:Range("O" + STRING(iRow)):VALUE = ttJobMat.std-lab-cost  
+        chWorkSheet:Range("P" + STRING(iRow)):VALUE = ttJobMat.std-mat-cost  
+        chWorkSheet:Range("Q" + STRING(iRow)):VALUE = ttJobMat.std-tot-cost  
+        chWorkSheet:Range("R" + STRING(iRow)):VALUE = ttJobMat.std-var-cost 
+        chWorkSheet:Range("S" + STRING(iRow)):VALUE = ttJobMat.board-msf
+        chWorkSheet:Range("T" + STRING(iRow)):VALUE = ttJobMat.board-cost
+        chWorkSheet:Range("U" + STRING(iRow)):VALUE = ttJobMat.non-board-cost
+        chWorkSheet:Range("V" + STRING(iRow)):VALUE = ttJobMat.order-no     
+        chWorkSheet:Range("W" + STRING(iRow)):VALUE = ttJobMat.customer      
+        chWorkSheet:Range("X" + STRING(iRow)):VALUE = ttJobMat.name          
+        chWorkSheet:Range("Y" + STRING(iRow)):VALUE = ttJobMat.ord-line      
+        chWorkSheet:Range("Z" + STRING(iRow)):VALUE = ttJobMat.ord-line-price
+        chWorkSheet:Range("AA" + STRING(iRow)):VALUE = ttJobMat.ord-line-cost-uom
+        chWorkSheet:Range("AB" + STRING(iRow)):VALUE = ttJobMat.ord-line-tot-cost
+        chWorkSheet:Range("AC" + STRING(iRow)):VALUE = ttJobMat.ord-line-comm-pct
+        chWorkSheet:Range("AD" + STRING(iRow)):VALUE = ttJobMat.ord-line-tot-frt
+        chWorkSheet:Range("AE" + STRING(iRow)):VALUE = ttJobMat.ord-line-fix-oh
+        chWorkSheet:Range("AF" + STRING(iRow)):VALUE = ttJobMat.ord-line-var-oh
         iRow = iRow + 1.
 END.
 
