@@ -20,6 +20,10 @@
 &SCOPED-DEFINE kicks 0
 &ENDIF
 
+&IF DEFINED(dmiID) EQ 0 &THEN
+&SCOPED-DEFINE dmiID 0
+&ENDIF
+
 EXPORT STREAM {&streamName} 0
   {&resource}
   {&resourceDescription}
@@ -27,4 +31,5 @@ EXPORT STREAM {&streamName} 0
   {&sortOrder}
   {&department}
   {&kicks}
+  {&dmiID}
   .

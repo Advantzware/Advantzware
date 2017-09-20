@@ -202,10 +202,10 @@ END.
 &Scoped-define FRAME-NAME boardFrame
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS scenario btnSave btnRemove btnReset ~
-btnPending btnPendingJobs btnDatePrompt btnShowDowntime btnDetail ~
-btnFlashLight btnJobBrowse resourceGrid btnPrevDate btnNextDate boardDate ~
-btnCalendar btnTimeLine intervals timeValue btnPrevInterval btnNextInterval ~
+&Scoped-Define ENABLED-OBJECTS resourceGrid scenario btnSave btnRemove ~
+btnReset btnPending btnPendingJobs btnDatePrompt btnShowDowntime btnDetail ~
+btnFlashLight btnJobBrowse btnPrevDate btnNextDate boardDate btnCalendar ~
+btnTimeLine intervals timeValue btnPrevInterval btnNextInterval ~
 btnResourceList btnNext btnLast btnSetColorType resourceList 
 &Scoped-Define DISPLAYED-OBJECTS scenario boardDate intervals timeValue ~
 resourceList day-1 day-2 day-3 day-4 day-5 day-6 day-7 day-8 day-9 day-10 ~
@@ -1854,6 +1854,7 @@ PROCEDURE asiDC :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE lvProdAce AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lvVorneDat AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lvHCDat AS CHARACTER NO-UNDO.
   DEFINE VARIABLE lvHCExport AS CHARACTER NO-UNDO.
@@ -1874,43 +1875,51 @@ PROCEDURE asiDC :
 
   SESSION:SET-WAIT-STATE('General').
 
-  lvVorneDat = findProgram('{&data}/',ID,'/Vorne.dat').
-  IF lvVorneDat NE ? THEN DO:
-      RUN {&loads}/ASI/vorne.w (lvVorneDat,OUTPUT lvContinue).
+  lvProdAce = findProgram('{&data}/',ID,'/ProdAce.dat').
+  IF lvProdAce NE ? THEN DO:
+      RUN {&loads}/ASI/prodAce.w (lvProdAce,OUTPUT lvContinue).
       IF NOT lvContinue THEN RETURN.
-  END.
-  
-  lvHCDat = findProgram('{&data}/',ID,'/HighwayConnect.dat').
-  IF lvHCDat NE ? THEN DO:
-    INPUT FROM VALUE(lvHCDat) NO-ECHO.
-    IMPORT lvHCExport.
-    IMPORT lvHCImport.
-    INPUT CLOSE.
-    FOR EACH ttblJob NO-LOCK
-        WHERE ttblJob.jobCompleted EQ NO
-          AND ttblJob.liveUpdate EQ YES
-        BREAK BY ttblJob.resource:
-      IF FIRST-OF(ttblJob.resource) THEN DO:
-        FIND FIRST ttblResource NO-LOCK
-             WHERE ttblResource.resource EQ ttblJob.resource NO-ERROR.
-        IF AVAILABLE ttblResource THEN
-        OUTPUT TO VALUE(lvHCImport + ttblResource.resourceDescription + '.txt').
-        ELSE NEXT.
-      END. /* first-of */
-      EXPORT DELIMITER '~t' 'H' 'U'
-        ttblJob.job + (IF ttblJob.userField19 EQ '' THEN ''
-                       ELSE '.' + STRING(INTEGER(ttblJob.userField19)))
-        ttblResource.resourceDescription
-        ttblJob.userField08
-        ttblJob.userField09
-        ttblJob.userField01
-        ttblJob.userField01
-        STRING(YEAR(ttblJob.dueDate)) + STRING(MONTH(ttblJob.dueDate)) + STRING(DAY(ttblJob.dueDate))
-        STRING(INTEGER(ttblJob.userField15))
-        .
-    END. /* each ttbljob */
-    OUTPUT CLOSE.
-  END. /* if lvhcdat ne ? */
+  END. /* production ace */
+  ELSE DO:
+      lvVorneDat = findProgram('{&data}/',ID,'/Vorne.dat').
+      IF lvVorneDat NE ? THEN DO:
+          RUN {&loads}/ASI/vorne.w (lvVorneDat,OUTPUT lvContinue).
+          IF NOT lvContinue THEN RETURN.
+      END. /* vorne */
+      ELSE DO:
+          lvHCDat = findProgram('{&data}/',ID,'/HighwayConnect.dat').
+          IF lvHCDat NE ? THEN DO:
+            INPUT FROM VALUE(lvHCDat) NO-ECHO.
+            IMPORT lvHCExport.
+            IMPORT lvHCImport.
+            INPUT CLOSE.
+            FOR EACH ttblJob NO-LOCK
+                WHERE ttblJob.jobCompleted EQ NO
+                  AND ttblJob.liveUpdate EQ YES
+                BREAK BY ttblJob.resource:
+              IF FIRST-OF(ttblJob.resource) THEN DO:
+                FIND FIRST ttblResource NO-LOCK
+                     WHERE ttblResource.resource EQ ttblJob.resource NO-ERROR.
+                IF AVAILABLE ttblResource THEN
+                OUTPUT TO VALUE(lvHCImport + ttblResource.resourceDescription + '.txt').
+                ELSE NEXT.
+              END. /* first-of */
+              EXPORT DELIMITER '~t' 'H' 'U'
+                ttblJob.job + (IF ttblJob.userField19 EQ '' THEN ''
+                               ELSE '.' + STRING(INTEGER(ttblJob.userField19)))
+                ttblResource.resourceDescription
+                ttblJob.userField08
+                ttblJob.userField09
+                ttblJob.userField01
+                ttblJob.userField01
+                STRING(YEAR(ttblJob.dueDate)) + STRING(MONTH(ttblJob.dueDate)) + STRING(DAY(ttblJob.dueDate))
+                STRING(INTEGER(ttblJob.userField15))
+                .
+            END. /* each ttbljob */
+            OUTPUT CLOSE.
+          END. /* if lvhcdat ne ? */
+      END. /* highway connect */
+  END. /* else */
 
   {{&includes}/asiDC.i ttblJob}
   {{&includes}/asiDC.i pendingJob}
@@ -2141,9 +2150,12 @@ PROCEDURE buildResource :
     resourceIdx = resourceIdx + 1.
     {{&includes}/{&Board}/lightBulb.i}
     RUN createResourceButton (ttblResource.resource,
-                              ttblResource.resourceDescription,resourceIdx).
+                              ttblResource.resourceDescription,
+                              resourceIdx).
     RUN createResource (ttblResource.resource,
-                        ttblResource.resourceDescription,resourceIdx).
+                        ttblResource.resourceDescription,
+                        resourceIdx,
+                        ttblResource.dmiID).
   END.
   RUN hideResource (resourceIdx).
   RUN LockWindowUpdate (0,OUTPUT i).
@@ -2396,6 +2408,9 @@ PROCEDURE createResource :
   DEFINE INPUT PARAMETER ipResource AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ipResourceDescription AS CHARACTER NO-UNDO.
   DEFINE INPUT PARAMETER ipIdx AS INTEGER NO-UNDO.
+  DEFINE INPUT PARAMETER ipDmiID AS INTEGER NO-UNDO.
+
+  ipDmiID = ipIdx.
 
   DEFINE VARIABLE pWidget AS WIDGET-HANDLE NO-UNDO.
 
@@ -2421,8 +2436,10 @@ PROCEDURE createResource :
     pWidget:LABEL = REPLACE(ipResource,'&','&&')
     pWidget:NAME = ipResource
     pWidget:PRIVATE-DATA = ipResource
-    pWidget:TOOLTIP = IF ipResourceDescription EQ '' THEN ?
-                      ELSE ipResourceDescription
+    pWidget:TOOLTIP = (IF ipResourceDescription EQ '' THEN ?
+                       ELSE ipResourceDescription) +
+                      (IF ipDmiID NE 0 THEN ' (DMI ID: ' + STRING(ipDmiID,'999') + ')'
+                       ELSE '')
     ldummy = pWidget:MOVE-TO-TOP()
     resourceWidget[ipIdx] = pWidget:HANDLE
     resourceYCoord = resourceYCoord + hpixels + gap.
