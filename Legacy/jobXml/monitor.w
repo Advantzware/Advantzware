@@ -49,14 +49,25 @@ PROCEDURE postMonitor:
     cPathOut = PrePressHotFolderOut-char.
 
     /* Pausing because this monitor process outbound records as well as monitoring a folder */
-    /* so should not run every second                                                       */    
-    iWaitCount = iWaitCount + 1.
-    IF iWaitCount GE iWaitSeconds THEN 
-    DO:
-      IF iWaitCount EQ 1 THEN 
-        RUN monitorActivity ('Pausing for ' + STRING(iWaitSeconds),YES,'').
-      iWaitCount = 0. 
-      RETURN.      
+    /* so should not run every second                                                       */
+    WAITLOOP:
+    DO WHILE TRUE:    
+        
+        iWaitCount = iWaitCount + 1.
+
+        IF iWaitCount GE iWaitSeconds THEN 
+        DO:
+         iWaitCount = 0. 
+          /* RETURN. */
+          LEAVE WAITLOOP.
+        END.
+        
+        IF iWaitCount EQ 1 THEN 
+          RUN monitorActivity ('Pausing for ' + STRING(iWaitSeconds) + " seconds (To exit, click 'Close' in between pauses)",YES,'').
+         
+        PAUSE 1.
+        PROCESS EVENTS.
+           
     END. 
     PROCESS EVENTS.
 
