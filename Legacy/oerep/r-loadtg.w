@@ -113,6 +113,7 @@ DEF VAR v-fgdsc3 LIKE itemfg.part-dscr3 NO-UNDO.
 
 DEFINE VARIABLE cPrevFromItem AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cPrevToItem AS CHARACTER   NO-UNDO.
+DEFINE VARIABLE lReturn AS LOGICAL NO-UNDO.
 
 DEF TEMP-TABLE tt-ordjobs
     FIELD job-no LIKE job.job-no
@@ -1804,6 +1805,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_cas-lab C-Win
 ON RETURN OF fi_cas-lab IN FRAME FRAME-A /* Scan Case Label */
 DO:
+  lReturn = YES.
   APPLY 'TAB' TO SELF.
   RETURN NO-APPLY.
 END.
@@ -2462,8 +2464,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
         IF fi_cas-lab:SCREEN-VALUE NE "" THEN
          ASSIGN tb_reprint-tag = YES
-                tb_reprint-tag:SCREEN-VALUE = "Yes" .
-
+             tb_reprint-tag:SCREEN-VALUE = "Yes"
+             .
       loadtagFunction:SCREEN-VALUE = "order".
       /* APPLY 'value-changed' TO tb_reprint-tag. */
      END.       /* b-trans  */ 
@@ -3813,7 +3815,7 @@ PROCEDURE create-w-ord :
             w-ord.vendor       = company.name
             w-ord.tare-wt      = 10
             w-ord.uom          = "EA"
-            w-ord.mult         = if cust.int-field[1] ne 0 AND NOT glOverrideMult then
+            w-ord.mult         = IF AVAIL cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult then
                                    cust.int-field[1] else v-mult
             w-ord.dont-run-set = IF AVAIL oe-ordl THEN oe-ordl.is-a-component ELSE NO
             w-ord.ord-desc1    = IF AVAIL oe-ordl THEN oe-ordl.part-dscr1 ELSE ""
@@ -3930,8 +3932,8 @@ PROCEDURE create-w-ord :
             w-ord.ord-no       = job-hdr.ord-no
             w-ord.job-no       = job-hdr.job-no
             w-ord.job-no2      = job-hdr.job-no2
-            w-ord.cust-no      = cust.cust-no
-            w-ord.cust-name    = cust.name
+            w-ord.cust-no      = IF AVAIL cust THEN cust.cust-no ELSE ""
+            w-ord.cust-name    = IF AVAIL cust THEN cust.NAME ELSE ""
             w-ord.i-no         = loadtag.i-no
             w-ord.ord-qty      = job-hdr.qty
             w-ord.due-date     = job.start-date
@@ -3940,7 +3942,7 @@ PROCEDURE create-w-ord :
             w-ord.vendor       = company.name
             w-ord.tare-wt      = 10
             w-ord.uom          = "EA"
-            w-ord.mult         = if cust.int-field[1] ne 0 AND NOT glOverrideMult THEN
+            w-ord.mult         = IF AVAIL cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult THEN
                                    cust.int-field[1] else v-mult
             w-ord.lot          = loadtag.misc-char[2].
 
@@ -4803,7 +4805,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
             w-ord.vendor       = company.name
             w-ord.tare-wt      = 10
             w-ord.uom          = "EA"
-            w-ord.mult         = if cust.int-field[1] ne 0 AND NOT glOverrideMult then
+            w-ord.mult         = IF AVAILABLE cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult then
                                    cust.int-field[1] else v-mult
             w-ord.dont-run-set = oe-ordl.is-a-component
             w-ord.ord-desc1    = oe-ordl.part-dscr1
@@ -5039,7 +5041,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
           w-ord.vendor       = company.name
           w-ord.tare-wt      = 10
           w-ord.uom          = "EA"
-          w-ord.mult         = if cust.int-field[1] ne 0 AND NOT glOverrideMult then
+          w-ord.mult         = IF AVAIL cust AND cust.int-field[1] ne 0 AND NOT glOverrideMult then
                                  cust.int-field[1] else v-mult
           w-ord.dont-run-set = oe-ordl.is-a-component
           w-ord.ord-desc1    = oe-ordl.part-dscr1
@@ -6520,8 +6522,12 @@ PROCEDURE new-cas-lab :
 
            RUN cas-lab-label-mat-file.
 
+           IF lReturn THEN DO:
            APPLY "choose" TO btn-ok.
-/*            RUN ok-button. */
+             lReturn = NO.
+           END.
+           ELSE
+           RUN ok-button. 
       END.
       ELSE MESSAGE "Invalid Loadtag. Try Help." VIEW-AS ALERT-BOX ERROR.
     END.
@@ -7493,9 +7499,9 @@ PROCEDURE write-loadtag-line :
         "," /*42  Order entry message line 8  64 characters   msg8                                                                                        */
         "," /*43  Order entry message line 9  64 characters   msg9                                                                                        */
         '"' +  removeChars(w-ord.style-desc) + '"' "," /*44  Style description   15 characters   styledesc                                                                                           */
-        w-ord.box-len FORMAT ">>>9.99<<<" "," /*45  Box length  9 characters    boxlen                                                                                                      */
-        w-ord.box-wid FORMAT ">>>9.99<<<" "," /*46  Box width   9 characters    boxwid                                                                                                      */
-        w-ord.box-dep FORMAT ">>>9.99<<<" ","/*47  Box depth   9 characters    boxdep                                                                                                      */
+          w-ord.box-len FORMAT ">>>9.99<<<" "," /*45  Box length  9 characters    boxlen                                                                                                      */
+          w-ord.box-wid FORMAT ">>>9.99<<<" "," /*46  Box width   9 characters    boxwid                                                                                                      */
+          w-ord.box-dep FORMAT ">>>9.99<<<" ","/*47  Box depth   9 characters    boxdep                                                                                                      */
         "," /*48  Corrugator Scoring 1    6 characters    corrscore1                                                                                      */
         "," /*49  Corrugator Scoring 2    6 characters    corrscore2                                                                                      */
         "," /*50  Corrugator Scoring 3    6 characters    corrscore3                                                                                      */
