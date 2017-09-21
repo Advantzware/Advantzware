@@ -7048,7 +7048,7 @@ PROCEDURE reprint-tag :
       VIEW FRAME top.
 
   IF cBarCodeProgram EQ 'Loftware' then 
-    cLoadtagFile = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY),"99") + STRING(TIME) + SUBSTRING(STRING(NOW),21,3) + '.lt'.
+    cLoadtagFile = STRING(YEAR(TODAY),"9999") + STRING(MONTH(TODAY),"99") + STRING(DAY(TODAY),"99") + STRING(TIME) + SUBSTRING(STRING(NOW),21,3) + '.csv'.
   ELSE cLoadtagFile = 'loadtag.txt'.
   IF v-out = "" THEN v-out = "c:~\ba~\label~\" + cLoadtagFile.
   ELSE do:
@@ -7450,11 +7450,11 @@ PROCEDURE write-loadtag-line :
   IF cBarCodeProgram EQ "Loftware" THEN DO:
       
     PUT UNFORMATTED  "!" removeChars(scr-label-file)  ","  /*01  00000000.lwl = tag template*/
-          removeChars(w-ord.cust-name)  ","  /*02  Customer Name   30 characters   Customername                                                                                            */
-          removeChars(w-ord.cust-part-no) "," /*03  Customer Part ID or Number  30 characters   custpartid                                                                                  */
-          removeChars(w-ord.cust-po-no)  "," /*04  Customer PO Number  15 characters   Custpo                                                                                              */
-          removeChars(w-ord.ship-city + " " + w-ord.ship-state)  "," /*05  Customer Ship To City & State   30 characters   custshiptocityst                                                                        */
-          removeChars(w-ord.est-no) "," /*06  File (Estimate) number  7 characters    filenumber                                                                                      */
+        '"' +  removeChars(w-ord.cust-name) + '"'  ","  /*02  Customer Name   30 characters   Customername                                                                                            */
+        '"' +  removeChars(w-ord.cust-part-no) + '"' "," /*03  Customer Part ID or Number  30 characters   custpartid                                                                                  */
+        '"' +   removeChars(w-ord.cust-po-no) + '"'  "," /*04  Customer PO Number  15 characters   Custpo                                                                                              */
+        '"' +   removeChars(w-ord.ship-city + " " + w-ord.ship-state) + '"'  "," /*05  Customer Ship To City & State   30 characters   custshiptocityst                                                                        */
+        '"' +   removeChars(w-ord.est-no) + '"' "," /*06  File (Estimate) number  7 characters    filenumber                                                                                      */
         w-ord.gross-wt  "," /*??07  Lbs/M Pieces  - cust waste  6 characters    LbsperM                                                                                     */
         "," /*08  Plant Number    2 characters    plantnumber                                                                                             */
         "- -,"/*09  this field contains “- -“   3 characters    Text0098                                                                                    */
@@ -7472,30 +7472,30 @@ PROCEDURE write-loadtag-line :
         "," /*21  Critical Operation #4   2 characters    C04                                                                                             */
         "," /*22  Critical Operation #5   2 characters    C05                                                                                             */
         "," /*23  Critical Operation #6   2 characters    C06                                                                                             */
-         removeChars(STRING(w-ord.cust-no,"x(5)") + STRING(w-ord.ship-code,"x(3)")) "," /*24  Customer and ShipTo Number in the format NNNNNSSS where NNNNN = Customer Number and SSS = ShipTo Number 8 characters    custshiptonumber*/
+        '"' +  removeChars(STRING(w-ord.cust-no,"x(5)") + STRING(w-ord.ship-code,"x(3)")) + '"' "," /*24  Customer and ShipTo Number in the format NNNNNSSS where NNNNN = Customer Number and SSS = ShipTo Number 8 characters    custshiptonumber*/
         "," /*25  B/L instructions        B/L                                                                                                             */
         "," /*26  RECORD      Record                                                                                                                      */
         "," /*27  Load (Unit) Number – use only when Unitized Inventory is not active 5 characters    loadnumber                                          */
         "," /*28  Number of bands (strap pattern) 6 characters    Straps                                                                                  */
         "," /*29  Unit type   1 character unittype                                                                                                        */
-          removeChars(w-ord.ship-name)  "," /*30  Customer ShipTo Name    60 characters   custshiptoname                                                                                  */
-          caps(removeChars(w-ord.i-no))  FORM "x(15)" "," /*31  Unit ID (Serial number) 23 characters   UnitID                                                                                          */
-          removeChars(w-ord.i-name) FORMAT "X(30)"  "," /*32  Material description    30 characters   matldesc                                                                                        */
+        '"' +  removeChars(w-ord.ship-name)  + '"' "," /*30  Customer ShipTo Name    60 characters   custshiptoname                                                                                  */
+        '"' +  caps(removeChars(w-ord.i-no)) + '"'  FORM "x(17)" "," /*31  Unit ID (Serial number) 23 characters   UnitID                                                                                          */
+        '"' +   removeChars(w-ord.i-name) + '"' FORMAT "X(30)"  "," /*32  Material description    30 characters   matldesc                                                                                        */
         "," /*33  Sheet width 9 characters    shtwdth                                                                                                     */
         "," /*34  Sheet length    9 characters    shtleng.                                                                                                */
         "," /*35  Load Number (Use only when Unitized Inventory is active)    5 characters    Loadnumber                                                  */
         "," /*36  Broker’s Customer Name  30 characters   brokercust                                                                                      */
-           removeChars(w-ord.ship-add1) " "  removeChars(w-ord.ship-add2)  ","/*37  Customer ShipTo Address 30 characters   custshiptoadd                                                                                   */
+          '"' +  removeChars(w-ord.ship-add1) " "  removeChars(w-ord.ship-add2) + '"'  ","/*37  Customer ShipTo Address 30 characters   custshiptoadd                                                                                   */
          1 "," /*38  Number of tags to print 3 characters    numbertagstoprint                                                                               */
         w-ord.pcs  "," /*39  Number per bundle   5 characters    numberperbndl                                                                                       */
         "," /*40  Broker number   5 characters    brokernumber                                                                                            */
           loadtag.tag-no "," /*41  Order entry message line 7  64 characters   msg7                                                                                        */
         "," /*42  Order entry message line 8  64 characters   msg8                                                                                        */
         "," /*43  Order entry message line 9  64 characters   msg9                                                                                        */
-          removeChars(w-ord.style-desc) "," /*44  Style description   15 characters   styledesc                                                                                           */
-          w-ord.box-len FORMAT ">>>9.99<<<" "," /*45  Box length  9 characters    boxlen                                                                                                      */
-          w-ord.box-wid FORMAT ">>>9.99<<<" "," /*46  Box width   9 characters    boxwid                                                                                                      */
-          w-ord.box-dep FORMAT ">>>9.99<<<" ","/*47  Box depth   9 characters    boxdep                                                                                                      */
+        '"' +  removeChars(w-ord.style-desc) + '"' "," /*44  Style description   15 characters   styledesc                                                                                           */
+        w-ord.box-len FORMAT ">>>9.99<<<" "," /*45  Box length  9 characters    boxlen                                                                                                      */
+        w-ord.box-wid FORMAT ">>>9.99<<<" "," /*46  Box width   9 characters    boxwid                                                                                                      */
+        w-ord.box-dep FORMAT ">>>9.99<<<" ","/*47  Box depth   9 characters    boxdep                                                                                                      */
         "," /*48  Corrugator Scoring 1    6 characters    corrscore1                                                                                      */
         "," /*49  Corrugator Scoring 2    6 characters    corrscore2                                                                                      */
         "," /*50  Corrugator Scoring 3    6 characters    corrscore3                                                                                      */
