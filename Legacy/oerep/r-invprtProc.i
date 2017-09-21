@@ -550,8 +550,6 @@ PROCEDURE GenerateEmail:
 
         IF is-xprint-form THEN 
         DO:
-            IF v-print-fmt NE "Southpak-xl" AND v-print-fmt NE "PrystupExcel" THEN
-                RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
 
             IF cActualPDF NE lv-pdf-file AND SEARCH(cActualPDF) NE ? THEN 
             DO:
@@ -1642,8 +1640,12 @@ PROCEDURE SendMail-1:
         END.
 
         ELSE
-            IF v-print-fmt NE "Southpak-XL" AND v-print-fmt <> "PrystupExcel" THEN
+            IF v-print-fmt NE "Southpak-XL" AND v-print-fmt <> "PrystupExcel" THEN DO:
+                IF "{&head}" EQ "ar-inv" OR (v-print-fmt NE "Southpak-xl" AND v-print-fmt NE "PrystupExcel") THEN
+                    RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
+                
                 list-name = lv-pdf-file.
+            END.
             ELSE
                 list-name = list-name + '.pdf'.
     /* Process attached BOL form */
