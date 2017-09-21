@@ -745,8 +745,9 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-session:data-entry-return = yes.
+  SESSION:DATA-ENTRY-RETURN = yes.
   RUN oe/oe-sysct.p.
+  SUBSCRIBE "eventInvoicePrinted" ANYWHERE.
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -946,6 +947,27 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE eventInvoicePrinted V-table-Win
+PROCEDURE eventInvoicePrinted:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+    RUN local-display-fields.
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"record-source",OUTPUT char-hdl).
+
+    IF char-hdl NE "" THEN
+        RUN refreshBrowse IN WIDGET-HANDLE(char-hdl) NO-ERROR.
+        
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-status V-table-Win 
 PROCEDURE get-status :

@@ -738,6 +738,9 @@ OR ENDKEY OF {&WINDOW-NAME} ANYWHERE
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Invoicing */
 DO:
+        /* Used by calling procedure (e.g. v-oeinv.w to refresh values) */
+        PUBLISH "eventInvoicePrinted".
+        
         /* This event will close the window and terminate the procedure.  */
         APPLY "CLOSE":U TO THIS-PROCEDURE.
         RETURN NO-APPLY.
