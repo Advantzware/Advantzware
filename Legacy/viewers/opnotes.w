@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -66,13 +66,14 @@ DEF VAR v-machine AS cha NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR notes.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS notes.note_date notes.viewed notes.note_code ~
-notes.note_title notes.note_text 
+&Scoped-Define ENABLED-FIELDS notes.note_code notes.viewed notes.note_title ~
+notes.note_text notes.createDate 
 &Scoped-define ENABLED-TABLES notes
 &Scoped-define FIRST-ENABLED-TABLE notes
-&Scoped-Define ENABLED-OBJECTS RECT-1 btn-dept 
-&Scoped-Define DISPLAYED-FIELDS notes.note_date notes.note_time ~
-notes.user_id notes.viewed notes.note_code notes.note_title notes.note_text 
+&Scoped-Define ENABLED-OBJECTS RECT-1 btn-dept btProgram 
+&Scoped-Define DISPLAYED-FIELDS notes.note_code notes.viewed ~
+notes.note_title notes.note_text notes.createDate notes.createTime ~
+notes.createUser notes.updateDate notes.updateTime notes.updateUser 
 &Scoped-define DISPLAYED-TABLES notes
 &Scoped-define FIRST-DISPLAYED-TABLE notes
 &Scoped-Define DISPLAYED-OBJECTS dept-dscr 
@@ -114,47 +115,63 @@ DEFINE BUTTON btn-dept
      LABEL "Department List" 
      SIZE 23 BY 1.14.
 
+DEFINE BUTTON btProgram 
+     LABEL "Program" 
+     SIZE 15 BY 1.14.
+
 DEFINE VARIABLE dept-dscr AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 46 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 122 BY 13.33.
+     SIZE 122 BY 14.05.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     notes.note_date AT ROW 1.24 COL 14 COLON-ALIGNED
+     notes.note_code AT ROW 1.24 COL 14 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
-     notes.note_time AT ROW 1.24 COL 44 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
-     notes.user_id AT ROW 1.24 COL 71 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 16.4 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
+          SIZE 6 BY 1
+     dept-dscr AT ROW 1.24 COL 21 COLON-ALIGNED NO-LABEL
      notes.viewed AT ROW 1.24 COL 108
           VIEW-AS TOGGLE-BOX
           SIZE 13.4 BY 1
-     notes.note_code AT ROW 2.43 COL 14 COLON-ALIGNED
-          LABEL "Dept"
-          VIEW-AS FILL-IN 
-          SIZE 6 BY 1
-     dept-dscr AT ROW 2.43 COL 21 COLON-ALIGNED NO-LABEL
-     btn-dept AT ROW 2.43 COL 98
-     notes.note_title AT ROW 3.48 COL 14 COLON-ALIGNED
+     btn-dept AT ROW 2.19 COL 98
+     notes.note_title AT ROW 2.29 COL 14 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 74 BY 1
           BGCOLOR 15 FONT 4
-     notes.note_text AT ROW 4.57 COL 16 NO-LABEL
+     notes.note_text AT ROW 3.38 COL 16 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 106 BY 9.52
           BGCOLOR 15 
+     notes.createDate AT ROW 12.91 COL 23.2 COLON-ALIGNED WIDGET-ID 2
+          LABEL "Created Date"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.createTime AT ROW 12.91 COL 50.2 COLON-ALIGNED WIDGET-ID 4
+          LABEL "Time"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.createUser AT ROW 12.91 COL 80.2 COLON-ALIGNED WIDGET-ID 6
+          LABEL "User ID"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     btProgram AT ROW 13.67 COL 100.4 WIDGET-ID 14
+     notes.updateDate AT ROW 13.86 COL 23.4 COLON-ALIGNED WIDGET-ID 8
+          LABEL "Last Updated Date"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.updateTime AT ROW 13.86 COL 50.2 COLON-ALIGNED WIDGET-ID 10
+          LABEL "Time"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.updateUser AT ROW 13.86 COL 80.2 COLON-ALIGNED WIDGET-ID 12
+          LABEL "User ID"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -189,7 +206,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 13.33
+         HEIGHT             = 14.24
          WIDTH              = 122.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -218,12 +235,20 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN notes.createDate IN FRAME F-Main
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN notes.createTime IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.createUser IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR FILL-IN dept-dscr IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN notes.note_time IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN notes.user_id IN FRAME F-Main
-   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN notes.updateDate IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.updateTime IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.updateUser IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -237,7 +262,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -269,28 +294,26 @@ DO:
   {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME notes.note_code
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_code V-table-Win
-ON ENTRY OF notes.note_code IN FRAME F-Main /* Dept */
+&Scoped-define SELF-NAME btProgram
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btProgram V-table-Win
+ON CHOOSE OF btProgram IN FRAME F-Main /* Program */
 DO:
-    IF v-machine <> "" THEN
-    ENABLE btn-dept WITH FRAME {&FRAME-NAME}.
+    IF AVAILABLE notes THEN
+    MESSAGE notes.updateProgram VIEW-AS ALERT-BOX INFORMATION.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME notes.note_date
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_date V-table-Win
-ON ENTRY OF notes.note_date IN FRAME F-Main /* Dept */
+&Scoped-define SELF-NAME notes.createDate
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.createDate V-table-Win
+ON ENTRY OF notes.createDate IN FRAME F-Main /* Created Date */
 DO:
-
     IF v-machine <> "" THEN do:
         ENABLE btn-dept WITH FRAME {&FRAME-NAME}.
         IF /*PROGRAM-NAME(9) MATCHES "*add-record*"*/ v-got-dept = YES
@@ -302,8 +325,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME notes.note_code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_code V-table-Win
-ON HELP OF notes.note_code IN FRAME F-Main /* Dept */
+ON ENTRY OF notes.note_code IN FRAME F-Main /* Code */
+DO:
+    IF v-machine <> "" THEN
+    ENABLE btn-dept WITH FRAME {&FRAME-NAME}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_code V-table-Win
+ON HELP OF notes.note_code IN FRAME F-Main /* Code */
 DO:
   {&methods/lValidateError.i YES}
   RUN lookups/dept.p.
@@ -320,13 +355,12 @@ DO:
   {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_code V-table-Win
-ON LEAVE OF notes.note_code IN FRAME F-Main /* Dept */
+ON LEAVE OF notes.note_code IN FRAME F-Main /* Code */
 DO:
 
   IF LASTKEY NE -1 THEN DO:
@@ -406,7 +440,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record V-table-Win 
 PROCEDURE local-cancel-record :
@@ -562,7 +595,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-note_code V-table-Win 
 PROCEDURE valid-note_code :
 /*------------------------------------------------------------------------------
@@ -589,5 +621,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

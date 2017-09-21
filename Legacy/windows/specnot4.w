@@ -1,4 +1,4 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
           nosweat          PROGRESS
@@ -58,6 +58,7 @@ ASSIGN
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE SmartWindow
+&Scoped-define DB-AWARE no
 
 &Scoped-define ADM-CONTAINER WINDOW
 
@@ -113,18 +114,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
+         BGCOLOR 15 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15 .
 
 
@@ -163,14 +164,27 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT W-Win:LOAD-ICON("adeicon\edit%":U) THEN
     MESSAGE "Unable to load icon: adeicon\edit%"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{src/adm/method/containr.i}
+{methods/template/windows.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW W-Win
@@ -223,17 +237,6 @@ THEN W-Win:HIDDEN = yes.
  
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB W-Win 
-/* ************************* Included-Libraries *********************** */
-
-{src/adm/method/containr.i}
-{methods/template/windows.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
 
 /* ************************  Control Triggers  ************************ */
 
@@ -280,7 +283,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-create-objects W-Win _ADM-CREATE-OBJECTS
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-create-objects W-Win  _ADM-CREATE-OBJECTS
 PROCEDURE adm-create-objects :
 /*------------------------------------------------------------------------------
   Purpose:     Create handles for all SmartObjects used in this procedure.
@@ -323,8 +326,10 @@ PROCEDURE adm-create-objects :
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
-
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/specnot4.w':U ,
@@ -332,24 +337,26 @@ PROCEDURE adm-create-objects :
              INPUT  'Layout = ':U ,
              OUTPUT h_specnot4-2 ).
        RUN set-position IN h_specnot4-2 ( 4.81 , 6.00 ) NO-ERROR.
-       /* Size in UIB:  ( 18.10 , 139.00 ) */
+       RUN set-size IN h_specnot4-2 ( 18.10 , 141.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2') NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
        /* Links to SmartNavBrowser h_specnot4-2. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_specnot4-2 ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_specnot4-2 ,
+             h_folder , 'AFTER':U ).
     END. /* Page 1 */
-
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/specnot4.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_specnot4 ).
-       RUN set-position IN h_specnot4 ( 5.52 , 11.00 ) NO-ERROR.
-       /* Size in UIB:  ( 14.52 , 135.00 ) */
+       RUN set-position IN h_specnot4 ( 4.95 , 11.00 ) NO-ERROR.
+       /* Size in UIB:  ( 15.71 , 122.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/p-navico.r':U ,
@@ -372,13 +379,19 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-updsav ( 2.14 , 56.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1') NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
        /* Links to SmartViewer h_specnot4. */
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_specnot4 ).
        RUN add-link IN adm-broker-hdl ( h_specnot4-2 , 'Record':U , h_specnot4 ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_specnot4 ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+             h_specnot4 , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updsav ,
+             h_p-navico , 'AFTER':U ).
     END. /* Page 2 */
 
   END CASE.
@@ -391,8 +404,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available W-Win _ADM-ROW-AVAILABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available W-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
   Purpose:     Dispatched to this procedure when the Record-
@@ -423,8 +435,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI W-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI W-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -443,8 +454,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI W-Win _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI W-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -469,7 +479,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE get-ip-header W-Win 
 PROCEDURE get-ip-header :
 /*------------------------------------------------------------------------------
@@ -484,7 +493,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get-ip-rec_key W-Win 
 PROCEDURE Get-ip-rec_key :
@@ -502,7 +510,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
 /* -----------------------------------------------------------
@@ -519,8 +526,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win _ADM-SEND-RECORDS
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
   Purpose:     Send record ROWID's for all tables used by
@@ -542,7 +548,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed W-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -556,5 +561,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

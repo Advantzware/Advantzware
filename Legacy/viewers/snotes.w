@@ -1,7 +1,7 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
+&ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -44,10 +44,11 @@ CREATE WIDGET-POOL.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE SmartViewer
+&Scoped-define DB-AWARE no
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* External Tables                                                      */
@@ -58,14 +59,16 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR notes.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS notes.viewed notes.note_title notes.note_text 
-&Scoped-define FIELD-PAIRS~
- ~{&FP1}note_title ~{&FP2}note_title ~{&FP3}
+&Scoped-Define ENABLED-FIELDS notes.note_title notes.viewed notes.note_text 
 &Scoped-define ENABLED-TABLES notes
 &Scoped-define FIRST-ENABLED-TABLE notes
-&Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS notes.note_date notes.note_time ~
-notes.user_id notes.viewed notes.note_title notes.note_text 
+&Scoped-Define ENABLED-OBJECTS RECT-1 btProgram 
+&Scoped-Define DISPLAYED-FIELDS notes.note_title notes.viewed ~
+notes.note_text notes.createDate notes.createTime notes.createUser ~
+notes.updateDate notes.updateTime notes.updateUser 
+&Scoped-define DISPLAYED-TABLES notes
+&Scoped-define FIRST-DISPLAYED-TABLE notes
+
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,List-4,List-5,F1   */
@@ -100,37 +103,54 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON btProgram 
+     LABEL "Program" 
+     SIZE 15 BY 1.14.
+
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 122 BY 13.33.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 122 BY 14.05.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     notes.note_date AT ROW 1.24 COL 14 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
-     notes.note_time AT ROW 1.24 COL 44 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 14 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
-     notes.user_id AT ROW 1.24 COL 71 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 16.4 BY 1
-          BGCOLOR 7 FGCOLOR 15 FONT 4
-     notes.viewed AT ROW 1.24 COL 108
-          VIEW-AS TOGGLE-BOX
-          SIZE 13.4 BY 1
-     notes.note_title AT ROW 2.43 COL 14 COLON-ALIGNED
+     notes.note_title AT ROW 1.24 COL 14 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 74 BY 1
           BGCOLOR 15 FONT 4
-     notes.note_text AT ROW 3.62 COL 16 NO-LABEL
+     notes.viewed AT ROW 1.24 COL 108
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.4 BY 1
+     notes.note_text AT ROW 2.43 COL 16 NO-LABEL
           VIEW-AS EDITOR SCROLLBAR-VERTICAL
           SIZE 106 BY 10.48
           BGCOLOR 15 
+     notes.createDate AT ROW 12.91 COL 23.2 COLON-ALIGNED WIDGET-ID 2
+          LABEL "Created Date"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.createTime AT ROW 12.91 COL 49.2 COLON-ALIGNED WIDGET-ID 4
+          LABEL "Time"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.createUser AT ROW 12.91 COL 80.4 COLON-ALIGNED WIDGET-ID 6
+          LABEL "User ID"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.updateDate AT ROW 13.86 COL 23.2 COLON-ALIGNED WIDGET-ID 8
+          LABEL "Last Updated Date"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.updateTime AT ROW 13.86 COL 49.2 COLON-ALIGNED WIDGET-ID 10
+          LABEL "Time"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     notes.updateUser AT ROW 13.86 COL 80.4 COLON-ALIGNED WIDGET-ID 12
+          LABEL "User ID"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY 1
+     btProgram AT ROW 13.86 COL 99 WIDGET-ID 14
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -153,7 +173,7 @@ DEFINE FRAME F-Main
 /* This procedure should always be RUN PERSISTENT.  Report the error,  */
 /* then cleanup and return.                                            */
 IF NOT THIS-PROCEDURE:PERSISTENT THEN DO:
-  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT."
+  MESSAGE "{&FILE-NAME} should only be RUN PERSISTENT.":U
           VIEW-AS ALERT-BOX ERROR BUTTONS OK.
   RETURN.
 END.
@@ -165,30 +185,47 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
-         HEIGHT             = 13.33
+         HEIGHT             = 14.19
          WIDTH              = 122.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
+/* ************************* Included-Libraries *********************** */
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+{src/adm/method/viewer.i}
+{methods/template/viewer.i}
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW V-table-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN notes.note_date IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN notes.note_time IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN notes.user_id IN FRAME F-Main
-   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN notes.createDate IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.createTime IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.createUser IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.updateDate IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.updateTime IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+/* SETTINGS FOR FILL-IN notes.updateUser IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -205,16 +242,22 @@ ASSIGN
  
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB V-table-Win 
-/* ************************* Included-Libraries *********************** */
 
-{src/adm/method/viewer.i}
-{methods/template/viewer.i}
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME btProgram
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btProgram V-table-Win
+ON CHOOSE OF btProgram IN FRAME F-Main /* Program */
+DO:
+    IF AVAILABLE notes THEN
+    MESSAGE notes.updateProgram VIEW-AS ALERT-BOX INFORMATION.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
@@ -233,7 +276,7 @@ ASSIGN
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win _ADM-ROW-AVAILABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-row-available V-table-Win  _ADM-ROW-AVAILABLE
 PROCEDURE adm-row-available :
 /*------------------------------------------------------------------------------
   Purpose:     Dispatched to this procedure when the Record-
@@ -264,8 +307,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI V-table-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -283,8 +325,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win _ADM-SEND-RECORDS
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records V-table-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------
   Purpose:     Send record ROWID's for all tables used by
@@ -306,7 +347,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE state-changed V-table-Win 
 PROCEDURE state-changed :
 /* -----------------------------------------------------------
@@ -326,5 +366,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 

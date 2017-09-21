@@ -119,18 +119,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 4 .
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 4 .
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 46 ROW 2.91
          SIZE 105 BY 1.43
+         BGCOLOR 4 .
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 4 .
 
 
@@ -339,8 +339,12 @@ PROCEDURE adm-create-objects :
        /* Links to SmartFolder h_folder. */
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
+             h_add , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
+             FRAME message-frame:HANDLE , 'AFTER':U ).
     END. /* Page 0 */
-
     WHEN 1 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'browsers/specnott.w':U ,
@@ -351,13 +355,15 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_specnott-2 ( 18.10 , 138.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('2') NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
 
        /* Links to SmartNavBrowser h_specnott-2. */
        RUN add-link IN adm-broker-hdl ( h_p-navico , 'Navigation':U , h_specnott-2 ).
 
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_specnott-2 ,
+             h_folder , 'AFTER':U ).
     END. /* Page 1 */
-
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'viewers/specnott.w':U ,
@@ -369,7 +375,7 @@ PROCEDURE adm-create-objects :
                      Create-On-Add = Yes':U ,
              OUTPUT h_specnott ).
        RUN set-position IN h_specnott ( 5.76 , 15.00 ) NO-ERROR.
-       /* Size in UIB:  ( 13.33 , 122.00 ) */
+       /* Size in UIB:  ( 14.05 , 122.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'p-updbar.w':U ,
@@ -392,7 +398,7 @@ PROCEDURE adm-create-objects :
        RUN set-size IN h_p-navico ( 2.14 , 38.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
-       RUN init-pages IN THIS-PROCEDURE ('1') NO-ERROR.
+       RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
        /* Links to SmartViewer h_specnott. */
        RUN add-link IN adm-broker-hdl ( h_p-updbar , 'TableIO':U , h_specnott ).
@@ -402,6 +408,12 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_p-updbar , 'auto-add':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_specnott ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updbar ,
+             h_specnott , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-navico ,
+             h_p-updbar , 'AFTER':U ).
     END. /* Page 2 */
 
   END CASE.
