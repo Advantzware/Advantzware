@@ -57,7 +57,7 @@ DEF VAR v-rowid-list AS CHAR NO-UNDO. /* Used to pull records from history */
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR oe-ordl, oe-ord.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn-View btn-price btn-stat btn-his 
+&Scoped-Define ENABLED-OBJECTS Btn-View Btn-Save btn-price btn-stat btn-his 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -215,8 +215,6 @@ ASSIGN
        btn-price:PRIVATE-DATA IN FRAME F-Main     = 
                 "panel-image".
 
-/* SETTINGS FOR BUTTON Btn-Save IN FRAME F-Main
-   NO-ENABLE                                                            */
 ASSIGN 
        Btn-Save:PRIVATE-DATA IN FRAME F-Main     = 
                 "panel-image".
@@ -304,13 +302,11 @@ END.
 &Scoped-define SELF-NAME Btn-Save
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn-Save V-table-Win
 ON CHOOSE OF Btn-Save IN FRAME F-Main /* Update */
-/*
-    DO:
-    run oe/d-oeitem.w (recid(oe-ordl), oe-ordl.ord-no,"Update",INPUT TABLE tt-item-qty-price,OUTPUT ll-canceled).
-    run get-link-handle in adm-broker-hdl(this-procedure,"oeitem-target", output char-hdl).
-    run reopen-query in widget-handle(char-hdl) (rowid(oe-ordl)).
-
-      */
+DO:
+    RUN oe/d-oeitem.w (RECID(oe-ordl), oe-ordl.ord-no, "WebUpdate",INPUT TABLE tt-item-qty-price,
+                       OUTPUT v-rowid-list, OUTPUT ll-canceled).
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"oeitem-target", OUTPUT char-hdl).
+    RUN reopen-query IN WIDGET-HANDLE(char-hdl) (ROWID(oe-ordl)).
 END.
 
 /* _UIB-CODE-BLOCK-END */

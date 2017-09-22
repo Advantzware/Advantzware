@@ -1380,6 +1380,14 @@ DO:
 
   DISABLE TRIGGERS FOR LOAD OF xoe-ord.
 
+  IF ip-type EQ "WebUpdate" THEN DO:
+    FIND CURRENT oe-ordl EXCLUSIVE-LOCK.
+    ASSIGN oe-ordl.qty.
+    FIND CURRENT oe-ordl NO-LOCK.
+    APPLY "go" TO FRAME {&FRAME-NAME}.
+    RETURN.
+  END.
+
   /* display spec notes for the item */   
   RUN windows/d-spnote.w (oe-ordl.i-no:SCREEN-VALUE).
 
@@ -3289,6 +3297,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN
        fi_qty-uom:SENSITIVE = NO
        fi_qty-uom:HIDDEN    = YES.
+
+      IF ip-type EQ "WebUpdate" THEN DO:  
+          DISABLE {&ENABLED-FIELDS} WITH FRAME {&FRAME-NAME}. 
+          ENABLE oe-ordl.qty.
+      END. /* webupdate */
+
   END.
 
   IF fgsecurity-log THEN
@@ -3314,7 +3328,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN
         asi.oe-ordl.spare-char-2:SENSITIVE IN FRAME {&FRAME-NAME} = NO
         asi.oe-ordl.spare-dec-1:SENSITIVE IN FRAME {&FRAME-NAME} = NO.
-
 
   WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
