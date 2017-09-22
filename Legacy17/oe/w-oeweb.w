@@ -90,8 +90,8 @@ DEFINE VARIABLE h_optionse AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico-2 AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updcan AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updcan-2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-upddel AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
-DEFINE VARIABLE h_v-dlword AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-hldapp AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-navest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_v-oebill AS HANDLE NO-UNDO.
@@ -387,7 +387,7 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = Yes':U ,
              OUTPUT h_v-ord ).
-       RUN set-position IN h_v-ord ( 4.81 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_v-ord ( 4.81 , 4.00 ) NO-ERROR.
        /* Size in UIB:  ( 17.48 , 152.40 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -399,34 +399,34 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 2.38 , 40.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'oe/v-dlword.w':U ,
-             INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'Layout = ':U ,
-             OUTPUT h_v-dlword ).
-       RUN set-position IN h_v-dlword ( 22.91 , 136.00 ) NO-ERROR.
-       /* Size in UIB:  ( 2.38 , 21.00 ) */
-
-       RUN init-object IN THIS-PROCEDURE (
              INPUT  'est/v-navest.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest ).
-       RUN set-position IN h_v-navest ( 23.14 , 23.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest ( 22.91 , 4.00 ) NO-ERROR.
+       RUN set-size IN h_v-navest ( 2.38 , 34.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'panels/p-upddel.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-upddel ).
+       RUN set-position IN h_p-upddel ( 22.91 , 44.00 ) NO-ERROR.
+       RUN set-size IN h_p-upddel ( 2.38 , 40.00 ) NO-ERROR.
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
 
        /* Links to SmartViewer h_v-ord. */
        RUN add-link IN adm-broker-hdl ( h_b-oewebq , 'Record':U , h_v-ord ).
-       RUN add-link IN adm-broker-hdl ( h_v-dlword , 'TableIO':U , h_v-ord ).
+       RUN add-link IN adm-broker-hdl ( h_p-upddel , 'TableIO':U , h_v-ord ).
 
        /* Links to SmartViewer h_v-hldapp. */
        RUN add-link IN adm-broker-hdl ( h_v-ord , 'hold-approve':U , h_v-hldapp ).
        RUN add-link IN adm-broker-hdl ( h_v-ord , 'Record':U , h_v-hldapp ).
-
-       /* Links to SmartViewer h_v-dlword. */
-       RUN add-link IN adm-broker-hdl ( h_v-ord , 'Record':U , h_v-dlword ).
 
        /* Links to SmartViewer h_v-navest. */
        RUN add-link IN adm-broker-hdl ( h_b-oewebq , 'nav-itm':U , h_v-navest ).
@@ -434,12 +434,12 @@ PROCEDURE adm-create-objects :
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-ord ,
              h_folder , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_v-hldapp ,
-             h_v-ord , 'AFTER':U ).
-       RUN adjust-tab-order IN adm-broker-hdl ( h_v-dlword ,
-             h_v-hldapp , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_v-navest ,
-             h_v-dlword , 'AFTER':U ).
+             h_v-ord , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-upddel ,
+             h_v-navest , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_v-hldapp ,
+             h_p-upddel , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
@@ -991,6 +991,38 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-buttons-insensitive W-Win
+PROCEDURE make-buttons-insensitive:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE make-buttons-sensitive W-Win
+PROCEDURE make-buttons-sensitive:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pass-set-item-rec W-Win 
 PROCEDURE pass-set-item-rec :

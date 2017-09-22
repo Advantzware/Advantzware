@@ -64,6 +64,7 @@ DEF VAR v-n-ord LIKE oe-ctrl.n-ord NO-UNDO.
 DEF VAR v-estord-id AS RECID EXTENT 10 NO-UNDO.
 DEF VAR v-multord AS LOG NO-UNDO.
 DEF VAR ll-ord-no-override AS LOG NO-UNDO.
+DEFINE VARIABLE lWebOrder AS LOGICAL NO-UNDO.
 
 {ce/print4.i "new shared"}
 {ce/print42.i "new shared"}
@@ -254,7 +255,7 @@ oe-ord.approved-date oe-ord.ack-prnt-date
 fi_sname-lbl fi_s-pct-lbl fi_s-comm-lbl fi_sman-lbl 
 
 /* Custom List Definitions                                              */
-/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,calendarPopup,List-4,List-5,List-6 */
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,calendarPopup,webField,nonWebField,List-6 */
 &Scoped-define ADM-CREATE-FIELDS oe-ord.cust-no 
 &Scoped-define ADM-ASSIGN-FIELDS fi_type oe-ord.stat oe-ord.cust-name ~
 oe-ord.sold-name oe-ord.addr[1] oe-ord.sold-addr[1] oe-ord.addr[2] ~
@@ -263,6 +264,8 @@ oe-ord.sold-state oe-ord.sold-zip oe-ord.terms-d fi_prev_order tb_whs-order ~
 oe-ord.sname[1] oe-ord.sname[2] oe-ord.sname[3] 
 &Scoped-define calendarPopup btnCalendar-1 btnCalendar-2 btnCalendar-3 ~
 btnCalendar-4 btnCalendar-5 
+&Scoped-define webField oe-ord.due-code oe-ord.due-date oe-ord.po-no 
+&Scoped-define nonWebField fi_type fi_prev_order tb_whs-order 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -369,7 +372,7 @@ DEFINE RECTANGLE RECT-33
 
 DEFINE RECTANGLE RECT-34
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 75.4 BY 1.75
+     SIZE 75.4 BY 1.76
      BGCOLOR 15 .
 
 DEFINE RECTANGLE RECT-35
@@ -723,13 +726,13 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ord.cust-no IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL EXP-FORMAT                                     */
 /* SETTINGS FOR FILL-IN oe-ord.due-code IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
+   4 EXP-LABEL EXP-FORMAT                                               */
 /* SETTINGS FOR FILL-IN oe-ord.due-date IN FRAME F-Main
-   EXP-LABEL                                                            */
+   4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN oe-ord.est-no IN FRAME F-Main
    EXP-FORMAT                                                           */
 /* SETTINGS FOR FILL-IN fi_prev_order IN FRAME F-Main
-   NO-ENABLE 2                                                          */
+   NO-ENABLE 2 5                                                        */
 /* SETTINGS FOR FILL-IN fi_s-comm-lbl IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_s-pct-lbl IN FRAME F-Main
@@ -739,7 +742,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fi_sname-lbl IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_type IN FRAME F-Main
-   NO-ENABLE 2                                                          */
+   NO-ENABLE 2 5                                                        */
 /* SETTINGS FOR FILL-IN oe-ord.job-no IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ord.job-no2 IN FRAME F-Main
@@ -749,7 +752,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ord.ord-date IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.po-no IN FRAME F-Main
-   EXP-LABEL                                                            */
+   4 EXP-LABEL                                                          */
 /* SETTINGS FOR FILL-IN oe-ord.s-comm[1] IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.s-pct[1] IN FRAME F-Main
@@ -787,7 +790,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-ord.tax-gr IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR TOGGLE-BOX tb_whs-order IN FRAME F-Main
-   NO-ENABLE 2                                                          */
+   NO-ENABLE 2 5                                                        */
 /* SETTINGS FOR FILL-IN oe-ord.terms IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-ord.terms-d IN FRAME F-Main
@@ -809,7 +812,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1034,7 +1037,6 @@ DO:
     {&methods/lValidateError.i NO}       
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1106,7 +1108,6 @@ DO:
     {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1140,7 +1141,6 @@ DO:
   IF DATE(oe-ord.due-date:SCREEN-VALUE IN FRAME {&FRAME-NAME} ) > DATE(oe-ord.last-date:SCREEN-VALUE) 
   THEN oe-ord.last-date:SCREEN-VALUE = oe-ord.due-date:SCREEN-VALUE.
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1338,7 +1338,6 @@ DO:
     {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1421,7 +1420,6 @@ DO:
   END.
   {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1539,7 +1537,6 @@ DO:
   END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1582,7 +1579,6 @@ IF LASTKEY NE -1 THEN DO:
 END.
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1619,7 +1615,6 @@ DO:
     IF AVAIL terms THEN oe-ord.terms-d:screen-value = terms.dscr.
     {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -3739,7 +3734,6 @@ RUN release-shared-buffers.
 
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -4227,7 +4221,6 @@ PROCEDURE hold-approve :
 
 
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -4807,7 +4800,7 @@ DEFINE BUFFER bf-eb FOR eb .
 
     IF RETURN-VALUE EQ "ERROR" OR RETURN-VALUE EQ "ADM-ERROR" THEN
         RETURN NO-APPLY.
-    
+
     IF AVAIL oe-ord THEN 
         FOR EACH bf-eb NO-LOCK
            WHERE bf-eb.company EQ cocode
@@ -4929,7 +4922,6 @@ DEFINE BUFFER bf-eb FOR eb .
 {&methods/lValidateError.i NO}
 END PROCEDURE.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -4990,7 +4982,7 @@ PROCEDURE local-enable-fields :
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
     IF NOT v-slow-ord AND NOT adm-new-record THEN DISABLE oe-ord.sold-id.
-
+    
     FIND FIRST sys-ctrl
         WHERE sys-ctrl.company EQ cocode
           AND sys-ctrl.name    EQ "CEMENU"
@@ -5016,10 +5008,15 @@ PROCEDURE local-enable-fields :
         ELSE
             DISABLE oe-ord.due-date. 
 
-
 /*     RUN process-status(""). */
     /* If status is hold, enable status type, else disable status type. */
     ASSIGN oe-ord.spare-char-2:SENSITIVE = (IF oe-ord.stat:SCREEN-VALUE = "H" THEN TRUE ELSE FALSE).
+    
+    IF lWebOrder THEN DO:
+        DISABLE {&ENABLED-FIELDS} {&nonWebField}.
+        ENABLE {&webField}.
+    END. /* web orders */
+    
   END.
 
   ASSIGN
@@ -5039,6 +5036,8 @@ PROCEDURE local-initialize :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE VARIABLE char-hdl AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE pHandle AS HANDLE NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
 
@@ -5046,7 +5045,11 @@ PROCEDURE local-initialize :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-
+    RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"Container-Source",OUTPUT char-hdl).
+    ASSIGN 
+        pHandle = WIDGET-HANDLE(char-hdl)
+        lWebOrder = VALID-HANDLE (pHandle) AND INDEX (pHandle:NAME,"w-oeweb") NE 0
+        .
 
 END PROCEDURE.
 
@@ -5269,7 +5272,6 @@ PROCEDURE local-update-record :
 
 
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -5672,7 +5674,6 @@ END.
 {&methods/lValidateError.i NO}
 
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
