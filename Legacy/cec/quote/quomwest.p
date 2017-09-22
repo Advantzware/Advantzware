@@ -369,7 +369,8 @@ else do:
     /* get total page number */
 
     end.
-    IF s-sep-page or FIRST-OF(report.key-02) THEN DO:
+   
+    IF s-sep-page or FIRST-OF(report.key-01) THEN DO:
        {cec/quote/quoxpnt2.i}           
     END. /* key-03 */
     v-last = last-of(report.key-01).
