@@ -259,7 +259,7 @@ do v-local-loop = 1 to v-local-copies:
                     lv-over-run  = trim(string(cust.over-pct,">>9.99%"))
                     lv-under-run = trim(string(cust.under-pct,">>9.99%")) .
 
-       PUT    "</PROGRESS>"
+       PUT   /* "</PROGRESS>"*/
        "<P10><R1><C1>F-850-001-A    <P12><B>JOB TICKET" AT 9
        "<C40>Production Specification </B><P10>Part item name:" lv-part-name SKIP
        "<#1><C1><FROM><C105><R+45><RECT><|3>" 
@@ -621,6 +621,7 @@ do v-local-loop = 1 to v-local-copies:
       end.  /* for each w-ef */
 
       IF s-prt-set-header AND last-of(job.job-no2) AND est.est-type = 6 THEN DO: /* print set header */
+          
          i = 0.
          FOR EACH bf-eb WHERE bf-eb.company = est.company
                            AND bf-eb.est-no = est.est-no
@@ -628,6 +629,7 @@ do v-local-loop = 1 to v-local-copies:
               i = i + 1.
          END.   
          IF i > 1 THEN DO:
+             
             DEF VAR v-set-qty AS INT NO-UNDO.
             DEF VAR v-ord-qty AS INT NO-UNDO.
             DEF VAR v-over-run AS cha NO-UNDO.
@@ -649,29 +651,29 @@ do v-local-loop = 1 to v-local-copies:
                                           ELSE 0 ).
 
 
-            PUT "<R1><C1><#15><C30><P16><B> SET HEADER<P7>" SKIP
-                "<P13><B>" v-cus[1] AT 2 "<P7></B>"
-                "<P12><B>" lv-fg-name FORMAT "x(30)" AT 70 "<P7></B>"
-                "<P8><B>Job #: " AT 3 v-job-prt "<C25>Our Order #: " v-ord-no
-                "<P7></B><C60>Our Date: " v-ord-date SKIP
-                "Est #: " AT 3 v-est-no "<C25>FG #: " v-fg-set "<C60>Due Date: " v-due-date SKIP
-                "<=1><R+4><C2><From><R+5><C78><RECT><||3>" SKIP
-                "<=1><R+4><C2>CUSTOMER INFORMATION <C25> ORDER INFORMATION <C53>ITEM DESCRIPTION" SKIP
+            PUT "<R1><C1><#15><C45><P16><B> SET HEADER<P10>" SKIP
+                "<P14><B>" v-cus[1] AT 3 "<P10></B>"
+                "<P13><B>" lv-fg-name FORMAT "x(30)" AT 80 "<P10></B>"
+                "<P11><B>Job #: " AT 3 v-job-prt "<C35>Our Order #: " v-ord-no
+                "<P10></B><C75>Our Date: " v-ord-date SKIP
+                "Est #: " AT 3 v-est-no "<C35>FG #: " v-fg-set "<C75>Due Date: " v-due-date SKIP
+                "<=1><R+4><C1><From><R+5><C105><RECT><||3>" SKIP
+                "<=1><R+4><C2>CUSTOMER INFORMATION <C35> ORDER INFORMATION <C72>ITEM DESCRIPTION" SKIP
                 v-cus[1] AT 3 " PO#: " v-po-no " Set Qty: "  v-set-qty
                 " Max Qty: " STRING(v-max-qty,">>>,>>9")
-                v-i-line[2] AT 90
+                v-i-line[2] AT 86
                 SKIP
                 v-cus[2] AT 3
                 /*" Job Qty:" trim(string(xJobQty * v-pqty,">>>,>>9"))    format "x(7)"
                 " Order Qty:" string(v-ord-qty) format "x(7)"*/
-                v-i-line[3] AT 90 SKIP
-                v-cus[3] AT 3  " Cust Part #:" lv-part-no
-                v-i-line[4] AT 90 SKIP
+                v-i-line[3] AT 86 SKIP
+                v-cus[3] AT 3  "<B> Cust Part #:" lv-part-no "</B>"
+                v-i-line[4] AT 93 SKIP
                 v-cus[4]  AT 3 " Overrun:"  format "x(7)"
                 " Underrun:" format "x(7)"
-                "Adders:" v-adders FORM "x(36)" v-i-line[5] AT 90 SKIP
-                "<=1><R+9><C30><P8><B>Set Components<P7></B> <C50>Set item: " v-fg-set SKIP
-                "<C2>FINISHED GOOD #  DESCRIPTION                     SAMPLES REQ'D  RATIO PER SET     DIE #      CAD#        STYLE" SKIP.
+                "Adders:" v-adders FORM "x(36)" v-i-line[5] AT 86 SKIP
+                "<=1><R+9><C30><P10><B>Set Components<P10></B> <C50>Set item: " v-fg-set SKIP
+                "<P10><C2>FINISHED GOOD #  DESCRIPTION                     SAMPLES REQ'D  RATIO PER SET     DIE #      CAD#        STYLE" SKIP.
             /* each components */                                                    
 
             DEF VAR v-shipto AS cha NO-UNDO.
@@ -730,33 +732,33 @@ do v-local-loop = 1 to v-local-copies:
                 PUT SKIP.
                 v-tmp-line = v-tmp-line + 1.
                 IF v-tmp-line + 65 > PAGE-SIZE THEN DO:
-                  PUT "<=1><R+10><C2><FROM><R+" + string(v-tmp-line + 1) + "><C78><RECT><||3>" FORM "x(150)" SKIP.
+                  PUT "<=1><R+10><C1><FROM><R+" + string(v-tmp-line + 1) + "><C105><RECT><||3>" FORM "x(150)" SKIP.
                   PAGE. 
                   v-tmp-line = 0.
 
-                  PUT "<R1><C30><P16><B> SET HEADER<P7>" SKIP
-                "<P13><B>" v-cus[1] AT 2 "<P7></B>" 
-                "<P12><B>" lv-fg-name FORMAT "x(30)" AT 70 "<P7></B>"
-                "<P8><B>Job #: " AT 3 v-job-prt "<C25>Our Order #: " v-ord-no 
-                "<P7></B><C60>Our Date: " v-ord-date SKIP
-                "Est #: " AT 3 v-est-no "<C25>FG #: " v-fg-set "<C60>Due Date: " v-due-date SKIP
-                "<=1><R+4><C2><From><R+5><C78><RECT><||3>" SKIP
-                "<=1><R+4><C2>CUSTOMER INFORMATION <C25> ORDER INFORMATION <C53>ITEM DESCRIPTION" SKIP
+                  PUT "<R1><C45><P16><B> SET HEADER<P10>" SKIP
+                "<P14><B>" v-cus[1] AT 2 "<P10></B>" 
+                "<P13><B>" lv-fg-name FORMAT "x(30)" AT 80 "<P10></B>"
+                "<P11><B>Job #: " AT 3 v-job-prt "<C35>Our Order #: " v-ord-no 
+                "<P10></B><C75>Our Date: " v-ord-date SKIP
+                "Est #: " AT 3 v-est-no "<C35>FG #: " v-fg-set "<C75>Due Date: " v-due-date SKIP
+                "<=1><R+4><C1><From><R+5><C105><RECT><||3>" SKIP
+                "<=1><R+4><C2>CUSTOMER INFORMATION <C35> ORDER INFORMATION <C72>ITEM DESCRIPTION" SKIP
                 v-cus[1] AT 3 " PO#: " v-po-no " Set Qty: "  v-set-qty
                 " Max Qty: " STRING(v-max-qty,">>>,>>>")
-                v-i-line[2] AT 90
+                v-i-line[2] AT 86
                 SKIP
                 v-cus[2] AT 3
                 /*" Job Qty:" trim(string(job-hdr.qty * v-pqty,">>>,>>9")) format "x(7)"
                 " Order Qty:" string(v-ord-qty) format "x(7)" */
-                v-i-line[3] AT 90 SKIP
-                v-cus[3] AT 3  " Cust Part #:" lv-part-no 
-                v-i-line[4] AT 90 SKIP
+                v-i-line[3] AT 86 SKIP
+                v-cus[3] AT 3  "<b> Cust Part #:" lv-part-no "</B">
+                v-i-line[4] AT 93 SKIP
                 v-cus[4]  AT 3 " Overrun:"  format "x(7)" 
                 " Underrun:" format "x(7)"  
-                "Adders:" v-adders FORM "x(36)" v-i-line[5] AT 90 SKIP
-                "<=1><R+9><C30><P8><B>Set Components<P7></B> <C50>Set item: " v-fg-set SKIP
-                "<C2>FINISHED GOOD #  DESCRIPTION                     SAMPLES REQ'D  RATIO PER SET     DIE #      CAD#        STYLE" SKIP.             
+                "Adders:" v-adders FORM "x(36)" v-i-line[5] AT 86 SKIP
+                "<=1><R+9><C30><P10><B>Set Components<P10></B> <C50>Set item: " v-fg-set SKIP
+                "<P10><C2>FINISHED GOOD #  DESCRIPTION                     SAMPLES REQ'D  RATIO PER SET     DIE #      CAD#        STYLE" SKIP.             
                 END.
             END.
             v-tmp-line = v-tmp-line + 1.
@@ -771,7 +773,7 @@ do v-local-loop = 1 to v-local-copies:
                   v-tmp-line = v-tmp-line + 1.
                END.
             END.
-            PUT "<=1><R+10><C2><FROM><R+" + string(v-tmp-line) + "><C78><RECT><||3>" FORM "x(150)" SKIP.
+            PUT "<=1><R+10><C1><FROM><R+" + string(v-tmp-line) + "><C105><RECT><||3>" FORM "x(150)" SKIP.
             v-tmp-line = v-tmp-line + 10.
 
             i = 0.
@@ -780,8 +782,8 @@ do v-local-loop = 1 to v-local-copies:
             END.
             i = i + 2.
             PUT /*"<C2>Machine Routing:  <C15> SU:    Start    Stop     Total    Run:   Start   Stop    total   qty   in   out  waste  date" SKIP*/
-                "  Machine Routing        SU:    Start    Stop    Total   RUN:  Start   Stop    Total   QTY:    In     Out     Waste     Date" SKIP
-                "<=1><R+" + string(v-tmp-line + 1) + "><C2><FROM><R+" + string(i) + "><C78><RECT><||3>" FORM "x(150)" SKIP
+                "<p9>  Machine Routing        SU:    Start    Stop    Total   RUN:  Start   Stop    Total   QTY:    In     Out     Waste     Date" SKIP
+                "<=1><R+" + string(v-tmp-line + 1) + "><C1><FROM><R+" + string(i) + "><C105><RECT><||3>" FORM "x(150)" SKIP
                 "<=1><R+" + string(v-tmp-line + 1) + ">" FORM "x(20)".
                 .
 
@@ -805,6 +807,7 @@ do v-local-loop = 1 to v-local-copies:
                    /*chr(124) format "x"           at 131   */                  
                    with no-box no-labels frame o21 width 132 no-attr-space down STREAM-IO.
             end.
+            PUT "<p10>".
             FOR EACH tt-wm:
                 DELETE tt-wm.
             END.
@@ -870,13 +873,13 @@ do v-local-loop = 1 to v-local-copies:
             IF v-ship <> "" THEN v-dept-inst[15] = v-ship.  /* shipto notes */
             PUT "<=1><R+" + string(v-tmp-line) + ">" form "X(20)".
             v-tmp-line = v-tmp-line + 1.
-            PUT "Unitizing Bale <C24>Date <C44>Units <C62>Complete" AT 3 SKIP
-                "# Per Bndl: " AT 3 tt-prem.tt-#-bundle "<C20>_____________________ <C40>____________________  <C60>________________" skip
-                "# Per Unit: " AT 3 tt-prem.tt-#-unit "<C20>_____________________ <C40>____________________  <C62>Partial" skip
-                "Pattern: " AT 3 tt-prem.tt-pattern FORM "x(10)" "<C20>_____________________ <C40>____________________  <C60>________________" skip
-                "Pallet: " AT 3 tt-prem.tt-pallet FORM "x(10)"  "<C20>_____________________ <C40>____________________ " skip
-                "<=1><R+" + string(v-tmp-line) + "><C2><FROM><R+6><C78><RECT><||3>" FORM "x(150)" SKIP
-                "<=1><R+" + string(v-tmp-line + 7) + "><C2><FROM><R+15><C78><RECT><||3>" FORM "x(150)" SKIP
+            PUT "Unitizing Bale <C24>Date <C44>Units <C62>Complete <C79>OP <C93>QA" AT 3 SKIP
+                "# Per Bndl: " AT 3 tt-prem.tt-#-bundle "<C20>_____________________ <C40>____________________  <C60>________________  <C75>________________  <C90>________________" skip
+                "# Per Unit: " AT 3 tt-prem.tt-#-unit "<C20>_____________________ <C40>____________________  <C62>Partial  <C75>________________  <C90>________________" skip
+                "Pattern: " AT 3 tt-prem.tt-pattern FORM "x(10)" "<C20>_____________________ <C40>____________________  <C60>________________  <C75>________________  <C90>________________" skip
+                "Pallet: " AT 3 tt-prem.tt-pallet FORM "x(10)"  "<C20>_____________________ <C40>____________________  <C75>________________  <C90>________________" skip
+                "<=1><R+" + string(v-tmp-line) + "><C1><FROM><R+6><C105><RECT><||3>" FORM "x(150)" SKIP
+                "<=1><R+" + string(v-tmp-line + 7) + "><C1><FROM><R+15><C105><RECT><||3>" FORM "x(150)" SKIP
 
                 "<=1><R+" + string(v-tmp-line + 7) + "><C2>Special instructions  <C51>SHIPPING INFO       Ship to: " + v-shipto FORM "x(250)" SKIP
                 v-dept-inst[1] AT 3 FORM "x(82)" chr(124) format "xx" v-shp[1] SKIP

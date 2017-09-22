@@ -390,7 +390,7 @@ IF is-xprint-form THEN DO:
 
   ELSE IF rd-dest = 5 THEN DO:
     IF (ip-industry = "Corr" AND 
-       (can-do ('PEACHTREE,PACIFIC,MWBox,Hughes,Protagon,Freedman,ARTIOS,Suthrlnd,United,oklahoma,Spectrum,CapCity,Allwest,RFC2,Loylang',lv-format-c))  OR 
+       (can-do ('PEACHTREE,PACIFIC,MWBox,Hughes,Protagon,Freedman,ARTIOS,Suthrlnd,United,oklahoma,Spectrum,CapCity,Allwest,RFC2,Loylang,Soule,HPB,MulticellGA,MCPartitions,ColonialPL,Delta,Bell',lv-format-c))  OR 
        (can-do ("Xprint,Lakeside,VINELAND,TriLakes,Axis,TriLakes2,Michcor",lv-format-c) AND lv-ornt = "L")) OR
        (ip-industry = "FOLD" AND 
        can-do ('Interpac,Frankstn,OTTPkg,Colonial,CCC,Dayton,Livngstn,Shelby,HPB,METRO,FibreFC,PPI,PackRite,Rosmar,Knight,MidYork,Carded,Dee,Badger',lv-format-f)) THEN 
@@ -724,7 +724,7 @@ ELSE IF ip-industry EQ "Corr" THEN DO:
      RUN cecrep/jobptree.p (lv-format-c,1,1,tb_app-unprinted,tb_make_hold:SCREEN-VALUE).
   END.
   ELSE IF lv-format-c = "Soule" THEN DO:
-      PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>" skip.
+      PUT UNFORMATTED "<OLANDSCAPE></PROGRESS><P10>" skip.
       RUN cecrep/jobsoule.p (lv-format-c).
   END.
   ELSE IF lv-format-c = "BELL" THEN DO:
