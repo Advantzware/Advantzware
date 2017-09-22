@@ -2266,6 +2266,13 @@ PROCEDURE set-report :
     lv-program     = "oe/rep/relxprnt.p"
     lines-per-page = 75
     is-xprint-form = YES  . /*60*/
+  ELSE
+
+  IF v-relprint EQ "relprint 10" THEN
+   ASSIGN
+    lv-program     = "oe/rep/relxprnt10.p"
+    lines-per-page = 75
+    is-xprint-form = YES  . /*60*/
 
   ELSE
   IF v-relprint EQ "APC" THEN
