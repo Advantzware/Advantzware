@@ -608,7 +608,7 @@ PROCEDURE refresh-boximg :
   
    if box-design-hdr.box-3d-image <> "" then do:
      /*  box-image:auto-resize = yes. */
-     ll-dummy = box-image-2:load-image(box-design-hdr.box-3d-image) in frame {&frame-name}.
+     ll-dummy = box-image-2:load-image(box-design-hdr.box-3d-image) in frame {&frame-name} NO-ERROR.
      /*assign box-image:height-pixels = box-image:height-pixels - 10
             box-image:width-pixels =  box-image:width-pixels - 10.
             
