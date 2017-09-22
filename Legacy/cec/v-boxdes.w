@@ -1028,7 +1028,7 @@ PROCEDURE local-display-fields :
       ASSIGN box-design-hdr.box-text:HIDDEN = YES
              box-image-2:HIDDEN = NO
      /*  box-image:auto-resize = yes. */
-     ll-dummy = box-image-2:load-image(box-design-hdr.box-image) in frame {&frame-name}.
+     ll-dummy = box-image-2:load-image(box-design-hdr.box-image) in frame {&frame-name} NO-ERROR .
      /*assign box-image:height-pixels = box-image:height-pixels - 10
             box-image:width-pixels =  box-image:width-pixels - 10.
             
@@ -1134,7 +1134,7 @@ PROCEDURE refresh-boximg :
   
    IF AVAIL box-design-hdr AND box-design-hdr.box-image <> "" then do:
      /*  box-image:auto-resize = yes. */
-     ll-dummy = box-image:load-image(box-design-hdr.box-image) in frame {&frame-name}.
+     ll-dummy = box-image:load-image(box-design-hdr.box-image) in frame {&frame-name} NO-ERROR.
      /*assign box-image:height-pixels = box-image:height-pixels - 10
             box-image:width-pixels =  box-image:width-pixels - 10.
             
