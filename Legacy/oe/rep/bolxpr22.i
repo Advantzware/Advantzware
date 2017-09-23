@@ -14,8 +14,8 @@
          v-comp-add2 AT 8  SKIP
          v-comp-add3 AT 8 SKIP
          v-comp-add4 AT 8 SKIP
-         v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
-         lv-email AT 8 SKIP(1)
+         v-comp-add5 AT 8 SKIP
+         lv-email AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP(1)
                "<FCourier New>"
                SPACE(30) "Ship To:" AT 59  SKIP
                SPACE(5) v-comp-name v-ship-name AT 45 skip
