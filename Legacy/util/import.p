@@ -15,11 +15,11 @@
 /* ***************************  Definitions  ************************** */
 DEFINE INPUT PARAMETER ipcCompany     AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER ipcImportFile  AS CHARACTER NO-UNDO.
+DEFINE INPUT PARAMETER ipcLogFile     AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER iplLogOnly     AS LOGICAL   NO-UNDO.
 DEFINE INPUT PARAMETER ipcType        AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER iplHeader      AS LOGICAL NO-UNDO.
 
-DEFINE VARIABLE cLogFile     AS CHARACTER NO-UNDO INIT '.\ImportLog.csv'.
 
 /*To be Exposed to support mass field updates based on type*/
 DEFINE VARIABLE cField       AS CHARACTER NO-UNDO INIT 'Note'.
@@ -117,10 +117,14 @@ DEFINE TEMP-TABLE ttImportedVendors
     FIELD cVendFax         AS CHARACTER
     FIELD c1099            AS CHARACTER 
     FIELD cFedID           AS CHARACTER 
+    FIELD cType            AS CHARACTER
+    FIELD cTaxGroup        AS CHARACTER
+    FIELD cCarrier         AS CHARACTER 
     FIELD lValid           AS LOGICAL
     FIELD cInvalidReason   AS CHARACTER
     INDEX VendNo IS PRIMARY cVendNo
     INDEX Valid             lValid.
+
 
 DEFINE TEMP-TABLE ttImportedCustomers
     FIELD cCustNo        AS CHARACTER
@@ -949,6 +953,9 @@ PROCEDURE pImportFileVend:
                 ttImportedVendors.cVendFax
                 ttImportedVendors.c1099
                 ttImportedVendors.cFedID
+                ttImportedVendors.cType
+                ttImportedVendors.cTaxGroup
+                ttImportedVendors.cCarrier
                 .
             END.
         END.
@@ -1061,7 +1068,7 @@ PROCEDURE pProcessChangesAccount:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     
-    OUTPUT STREAM sLog TO VALUE(cLogFile).
+    OUTPUT STREAM sLog TO VALUE(ipcLogFile).
 
     FOR EACH ttImportedAccounts NO-LOCK
         WHERE ttImportedAccounts.lValid EQ YES 
@@ -1107,7 +1114,7 @@ PROCEDURE pProcessChangesInvociesAR:
     DEFINE VARIABLE riARInvl AS ROWID.
     DEFINE BUFFER bf-ar-inv FOR ar-inv.
     
-    OUTPUT STREAM sLog TO VALUE(cLogFile).
+    OUTPUT STREAM sLog TO VALUE(ipcLogFile).
 
     FOR EACH ttImportedInvoicesAR NO-LOCK:
         IF ttImportedInvoicesAR.lValid EQ YES THEN 
@@ -1316,7 +1323,7 @@ PROCEDURE pProcessChangesInvociesAP:
     DEFINE VARIABLE riAPInv  AS ROWID. 
     DEFINE VARIABLE riAPInvl AS ROWID. 
     
-    OUTPUT STREAM sLog TO VALUE(cLogFile).
+    OUTPUT STREAM sLog TO VALUE(ipcLogFile).
 
     FOR EACH ttImportedInvoicesAP NO-LOCK:
         IF ttImportedInvoicesAP.lValid EQ YES THEN 
@@ -1449,7 +1456,7 @@ PROCEDURE pProcessChangesFG:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     
-    OUTPUT STREAM sLog TO VALUE(cLogFile).
+    OUTPUT STREAM sLog TO VALUE(ipcLogFile).
 
     FOR EACH ttImportedFGItems NO-LOCK
         WHERE ttImportedFGItems.lValid EQ YES 
@@ -1555,7 +1562,7 @@ PROCEDURE pProcessChangesVend:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     
-    OUTPUT STREAM sLog TO VALUE(cLogFile).
+    OUTPUT STREAM sLog TO VALUE(ipcLogFile).
 
     FOR EACH ttImportedVendors NO-LOCK
         WHERE ttImportedVendors.lValid EQ YES 
@@ -1593,12 +1600,12 @@ PROCEDURE pProcessChangesVend:
                     vend.phone        = REPLACE(ttImportedVendors.cVendPhone,"-","")
                     vend.fax-area     = ttImportedVendors.cVendFaxAreaCode
                     vend.fax          = REPLACE(ttImportedVendors.cVendFax,"-","")
-                    vend.tax-gr       = "NON"
+                    vend.tax-gr       = ttImportedVendors.cTaxGroup
                     vend.terms        = ttImportedVendors.cTerms
                     vend.code-1099    = ttImportedVendors.c1099
                     vend.loc          = "MAIN"
                     vend.frt-pay      = "P"
-                    vend.carrier      = "TRUCK"
+                    vend.carrier      = ttImportedVendors.cCarrier
                     vend.actnum       = ttImportedVendors.cGL
                     vend.tax-id       = ttImportedVendors.cFedID
                     vend.payment-type = "Check"
@@ -1638,7 +1645,7 @@ PROCEDURE pProcessChangesCust:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     
-    OUTPUT STREAM sLog TO VALUE(cLogFile).
+    OUTPUT STREAM sLog TO VALUE(ipcLogFile).
 
     FOR EACH ttImportedCustomers NO-LOCK
         WHERE ttImportedCustomers.lValid EQ YES 
@@ -1786,7 +1793,7 @@ PROCEDURE pProcessChangesCustUpd:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
     
-    OUTPUT STREAM sLog TO VALUE(cLogFile).
+    OUTPUT STREAM sLog TO VALUE(ipcLogFile).
 
     FOR EACH ttCustUpdate NO-LOCK
         WHERE ttCustUpdate.lValid EQ YES 
@@ -2174,7 +2181,7 @@ FUNCTION fValidateImportInvoiceAP RETURNS LOGICAL
         DO:
             ASSIGN 
                 ttImportedInvoicesAP.lValid         = NO
-                ttImportedInvoicesAP.cInvalidReason = "Vendor: " + ttImportedInvoicesAP.cVendNo + " not found."
+                ttImportedInvoicesAP.cInvalidReason = "Vendor: " + ttImportedInvoicesAP.cVendNo + " not found. "
                 .
         END.
         ELSE
@@ -2182,6 +2189,25 @@ FUNCTION fValidateImportInvoiceAP RETURNS LOGICAL
             ASSIGN 
                 ttImportedInvoicesAP.lValid = YES
                 .
+        END.
+        IF ttImportedInvoicesAP.cLineAccount NE "" THEN DO:
+            FIND FIRST account NO-LOCK
+                WHERE account.company EQ ipcCompany
+                AND account.actnum EQ ttImportedInvoicesAP.cLineAccount
+                NO-ERROR.
+            IF NOT AVAILABLE account THEN 
+            DO:
+                ASSIGN 
+                    ttImportedInvoicesAP.lValid         = NO
+                    ttImportedInvoicesAP.cInvalidReason = ttImportedInvoicesAP.cInvalidReason + "Account: " + ttImportedInvoicesAP.cLineAccount + " not found."
+                    .
+            END.
+            ELSE
+            DO:
+                ASSIGN 
+                    ttImportedInvoicesAP.lValid = YES
+                    .
+            END.
         END.
     END.
     
