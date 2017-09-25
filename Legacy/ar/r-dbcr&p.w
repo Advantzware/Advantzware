@@ -69,10 +69,12 @@ DEF VAR v-print-fmt AS CHARACTER NO-UNDO.
 DEF VAR is-xprint-form AS LOGICAL.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF BUFFER b-reftable2 FOR reftable.
+DEFINE VARIABLE cCustStatCheck AS CHARACTER NO-UNDO .
 
 DO TRANSACTION:
   {sys/inc/postdate.i}
   {sys/inc/inexport.i}
+  {sys/inc/oecredit.i}
 END.
 
 
@@ -498,6 +500,7 @@ DO:
 
     IF lv-post THEN do:      
         RUN post-gl.
+        RUN check-status .
         RUN copy-report-to-audit-dir.
       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
     END.
@@ -1078,6 +1081,9 @@ FORMAT HEADER
             by ar-cash.check-no
       with frame a1:
 
+      IF LOOKUP(ar-cash.cust-no,cCustStatCheck) EQ 0 THEN
+        ASSIGN cCustStatCheck = cCustStatCheck + ar-cash.cust-no + "," .
+
     FIND FIRST reftable WHERE
          reftable.reftable = "ARCASHHOLD" AND
          reftable.rec_key = ar-cash.rec_key
@@ -1416,3 +1422,54 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-status C-Win 
+ PROCEDURE check-status :
+ /*------------------------------------------------------------------------------
+   Purpose:     
+   Parameters:  <none>
+   Notes:       
+ ------------------------------------------------------------------------------*/
+ 
+ DEFINE VARIABLE ld-ord-bal      LIKE cust.ord-bal NO-UNDO.
+ DEFINE VARIABLE lRelHold AS LOGICAL NO-UNDO .
+ FOR EACH cust EXCLUSIVE-LOCK
+     WHERE cust.company EQ cocode
+       AND LOOKUP(cust.cust-no,cCustStatCheck) NE 0
+       AND cust.cust-no NE "" :
+            
+     FIND FIRST  terms NO-LOCK
+         WHERE terms.company = cust.company
+           AND terms.t-code  = cust.terms NO-ERROR.
+     
+     IF cust.cr-hold THEN do:
+         ld-ord-bal      = cust.ord-bal.
+
+         IF oecredit-cha EQ "" THEN
+             RUN ar/updcust1.p (YES, BUFFER cust, OUTPUT ld-ord-bal).
+         
+         IF ld-ord-bal + cust.acc-bal LT cust.cr-lim THEN 
+              ASSIGN lRelHold = YES .
+         ELSE IF ld-ord-bal LT cust.ord-lim THEN
+             ASSIGN lRelHold = YES . 
+         ELSE lRelHold = NO .
+
+              IF lRelHold THEN  DO:  
+                  ASSIGN cust.cr-hold = NO .
+                  
+                  FOR EACH oe-ord EXCLUSIVE-LOCK
+                     WHERE oe-ord.company             EQ cocode
+                       AND oe-ord.cust-no             EQ cust.cust-no
+                       AND oe-ord.stat EQ "H" :
+                     ASSIGN
+                         oe-ord.stat = "A" .
+                  END.
+              END. /* lRelHold*/
+
+     END. /* cust.cr-hold */
+ END. /* for cust */
+ 
+ END PROCEDURE.
+ 
+ /* _UIB-CODE-BLOCK-END */
+ &ANALYZE-RESUME
