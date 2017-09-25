@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
+          asitest166       PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -62,12 +62,12 @@ CREATE WIDGET-POOL.
 DEFINE QUERY external_tables FOR terms.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS terms.dscr terms.disc-rate terms.disc-days ~
-terms.net-days terms.cut-date terms.type 
+terms.net-days 
 &Scoped-define ENABLED-TABLES terms
 &Scoped-define FIRST-ENABLED-TABLE terms
 &Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-FIELDS terms.t-code terms.dscr terms.disc-rate ~
-terms.disc-days terms.net-days terms.cut-date terms.type 
+terms.disc-days terms.net-days 
 &Scoped-define DISPLAYED-TABLES terms
 &Scoped-define FIRST-DISPLAYED-TABLE terms
 &Scoped-Define DISPLAYED-OBJECTS termsCOD 
@@ -139,15 +139,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
           BGCOLOR 15 FONT 4
-     terms.cut-date AT ROW 3.62 COL 31 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 7 BY 1
-          BGCOLOR 15 FONT 4
-     terms.type AT ROW 3.62 COL 49 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 3.2 BY 1
-          BGCOLOR 15 FONT 4
-     termsCOD AT ROW 3.62 COL 62 HELP
+     termsCOD AT ROW 3.62 COL 33.4 HELP
           "Is Terms Code COD?"
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -231,25 +223,15 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME termsCOD
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL termsCOD V-table-Win
-ON VALUE-CHANGED OF termsCOD IN FRAME F-Main /* COD */
-DO:
-  ASSIGN {&SELF-NAME}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
+&Scoped-define SELF-NAME terms.t-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL terms.t-code V-table-Win
-ON LEAVE OF terms.t-code IN FRAME F-Main /* Carrier */
+ON LEAVE OF terms.t-code IN FRAME F-Main /* Terms */
 DO:
     IF LASTKEY EQ -1 THEN Return .
      {&methods/lValidateError.i YES}
@@ -259,8 +241,18 @@ DO:
         return no-apply.     
      end.
      {&methods/lValidateError.i NO}
-END. 
+END.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME termsCOD
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL termsCOD V-table-Win
+ON VALUE-CHANGED OF termsCOD IN FRAME F-Main /* COD */
+DO:
+  ASSIGN {&SELF-NAME}.
+END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -387,37 +379,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
-PROCEDURE local-update-record :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-   DO WITH FRAME {&FRAME-NAME}:
-   {&methods/lValidateError.i YES}
-    IF terms.t-code:SCREEN-VALUE EQ "CASH" AND adm-new-record 
-     THEN DO:
-        MESSAGE "CASH is reserved for Cash Only process when entering an invoice through OB1 as a cash sale." view-as alert-box error.
-        APPLY "entry" TO terms.t-code .
-        RETURN NO-APPLY.     
-     END.
-    {&methods/lValidateError.i NO}
-   END.
-
-      /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-
-
-END PROCEDURE.
-
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -461,6 +422,34 @@ PROCEDURE local-display-fields :
     termsCOD = AVAILABLE reftable AND reftable.val[1] EQ 1.
     DISPLAY termsCOD.
   END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-update-record V-table-Win 
+PROCEDURE local-update-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+   DO WITH FRAME {&FRAME-NAME}:
+   {&methods/lValidateError.i YES}
+    IF terms.t-code:SCREEN-VALUE EQ "CASH" AND adm-new-record 
+     THEN DO:
+        MESSAGE "CASH is reserved for Cash Only process when entering an invoice through OB1 as a cash sale." view-as alert-box error.
+        APPLY "entry" TO terms.t-code .
+        RETURN NO-APPLY.     
+     END.
+    {&methods/lValidateError.i NO}
+   END.
+
+      /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
 
 END PROCEDURE.
 

@@ -70,7 +70,7 @@ CREATE WIDGET-POOL.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table terms.t-code terms.dscr ~
-terms.disc-rate terms.disc-days terms.net-days terms.cut-date terms.type 
+terms.disc-rate terms.disc-days terms.net-days  
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH terms WHERE ~{&KEY-PHRASE} ~
       AND terms.company = gcompany NO-LOCK ~
@@ -129,9 +129,7 @@ DEFINE QUERY Browser-Table FOR
       terms.dscr
       terms.disc-rate
       terms.disc-days
-      terms.net-days
-      terms.cut-date
-      terms.type) SCROLLING.
+      terms.net-days) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -139,12 +137,10 @@ DEFINE BROWSE Browser-Table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
   QUERY Browser-Table NO-LOCK DISPLAY
       terms.t-code FORMAT "x(5)":U
-      terms.dscr FORMAT "x(30)":U
+      terms.dscr FORMAT "x(40)":U
       terms.disc-rate FORMAT "z9.9":U
       terms.disc-days FORMAT "z9":U
       terms.net-days FORMAT ">>9":U
-      terms.cut-date FORMAT "999":U
-      terms.type FORMAT "x(1)":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 92 BY 18.1
@@ -250,8 +246,6 @@ ASSIGN
      _FldNameList[4]   = ASI.terms.disc-days
      _FldNameList[5]   > ASI.terms.net-days
 "net-days" ? ">>9" "integer" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   = ASI.terms.cut-date
-     _FldNameList[7]   = ASI.terms.type
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
