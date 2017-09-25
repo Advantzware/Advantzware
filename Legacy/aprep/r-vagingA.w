@@ -98,12 +98,12 @@ DEF TEMP-TABLE w-sort NO-UNDO field w-int as int.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_comp end_comp begin_vend ~
-end_vend begin_curr end_curr begin_type end_type tb_ACH-only tb_ACH-excl ~
+end_vend begin_curr end_curr begin_type end_type tb_elect tb_non-elect ~
 as_of_date rd_date period-days-1 period-days-2 period-days-3 period-days-4 ~
 rd_sort tb_detailed lines-per-page lv-ornt rd-dest lv-font-no td-show-parm ~
 tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_comp end_comp begin_vend end_vend ~
-begin_curr end_curr begin_type end_type tb_ACH-only tb_ACH-excl as_of_date ~
+begin_curr end_curr begin_type end_type tb_elect tb_non-elect as_of_date ~
 lbl_date rd_date period-days-1 period-days-2 period-days-3 period-days-4 ~
 lbl_sort rd_sort tb_detailed lines-per-page lv-ornt rd-dest lv-font-no ~
 lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
@@ -263,13 +263,13 @@ DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 94 BY 12.62.
 
-DEFINE VARIABLE tb_ACH-excl AS LOGICAL INITIAL no 
-     LABEL "Exclude ACH Vendors" 
+DEFINE VARIABLE tb_non-elect AS LOGICAL INITIAL no 
+     LABEL "Non-Electronic" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY .95 NO-UNDO.
 
-DEFINE VARIABLE tb_ACH-only AS LOGICAL INITIAL no 
-     LABEL "ACH Vendors Only" 
+DEFINE VARIABLE tb_elect AS LOGICAL INITIAL no 
+     LABEL "Electronic" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .95 NO-UNDO.
 
@@ -313,8 +313,8 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Currency Code" WIDGET-ID 10
      end_type AT ROW 5.38 COL 63 COLON-ALIGNED HELP
           "Enter Beginning Currency Code" WIDGET-ID 12
-     tb_ACH-only AT ROW 6.71 COL 25 WIDGET-ID 14
-     tb_ACH-excl AT ROW 6.71 COL 52.4 WIDGET-ID 16
+     tb_elect AT ROW 6.71 COL 25 WIDGET-ID 14
+     tb_non-elect AT ROW 6.71 COL 52.4 WIDGET-ID 16
      as_of_date AT ROW 7.91 COL 23 COLON-ALIGNED HELP
           "Enter As od date"
      lbl_date AT ROW 7.91 COL 47 COLON-ALIGNED NO-LABEL
@@ -491,11 +491,11 @@ ASSIGN
                 "parm".
 
 ASSIGN 
-       tb_ACH-excl:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_non-elect:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
-       tb_ACH-only:PRIVATE-DATA IN FRAME FRAME-A     = 
+       tb_elect:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -826,15 +826,15 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_ACH-excl
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_ACH-excl C-Win
-ON VALUE-CHANGED OF tb_ACH-excl IN FRAME FRAME-A /* Exclude ACH Vendors */
+&Scoped-define SELF-NAME tb_non-elect
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_non-elect C-Win
+ON VALUE-CHANGED OF tb_non-elect IN FRAME FRAME-A /* Exclude ACH Vendors */
 DO:
   assign {&self-name}.
-  IF tb_ACH-only AND tb_ACH-excl THEN 
+  IF NOT tb_elect AND NOT tb_non-elect THEN 
       ASSIGN 
-        tb_ACH-only = NO
-        tb_ACH-only:SCREEN-VALUE = "NO".
+        tb_elect = YES
+        tb_elect:SCREEN-VALUE = "Yes".
 
 END.
 
@@ -842,15 +842,15 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME tb_ACH-only
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_ACH-only C-Win
-ON VALUE-CHANGED OF tb_ACH-only IN FRAME FRAME-A /* ACH Vendors Only */
+&Scoped-define SELF-NAME tb_elect
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_elect C-Win
+ON VALUE-CHANGED OF tb_elect IN FRAME FRAME-A /* ACH Vendors Only */
 DO:
   assign {&self-name}.
-  IF tb_ACH-only AND tb_ACH-excl THEN 
+  IF NOT tb_elect AND NOT tb_non-elect THEN 
       ASSIGN 
-        tb_ACH-excl = NO
-        tb_ACH-excl:SCREEN-VALUE = "NO".
+        tb_non-elect = YES
+        tb_non-elect:SCREEN-VALUE = "Yes".
 
 END.
 
@@ -999,13 +999,13 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_comp end_comp begin_vend end_vend begin_curr end_curr begin_type 
-          end_type tb_ACH-only tb_ACH-excl as_of_date lbl_date rd_date 
+          end_type tb_elect tb_non-elect as_of_date lbl_date rd_date 
           period-days-1 period-days-2 period-days-3 period-days-4 lbl_sort 
           rd_sort tb_detailed lines-per-page lv-ornt rd-dest lv-font-no 
           lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_comp end_comp begin_vend end_vend begin_curr 
-         end_curr begin_type end_type tb_ACH-only tb_ACH-excl as_of_date 
+         end_curr begin_type end_type tb_elect tb_non-elect as_of_date 
          rd_date period-days-1 period-days-2 period-days-3 period-days-4 
          rd_sort tb_detailed lines-per-page lv-ornt rd-dest lv-font-no 
          td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
@@ -1100,7 +1100,7 @@ DEF VAR ll-mult-curr AS LOG NO-UNDO.
 DEF VAR lv-page-break AS CHAR NO-UNDO.
 DEF VAR lv-f-bot-hdr AS CHAR FORMAT "x(12)" NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
-
+DEFINE VARIABLE cPaymentList AS CHARACTER NO-UNDO.
 def buffer xap-ledger for ap-ledger.
 
 FORM HEADER SKIP(1)
@@ -1191,6 +1191,22 @@ VIEW FRAME r-top.
 
   EMPTY TEMP-TABLE tt-vend.
 
+  IF tb_elect AND tb_non-elect THEN DO:
+     cPaymentList = "".
+  END.
+  ELSE IF tb_elect THEN DO:
+      FOR EACH payment-type NO-LOCK WHERE payment-type.company = cocode 
+                                   AND NOT payment-type.paperCheck: 
+       cPaymentList = cPaymentList + payment-type.type + ",".                            
+      END.
+  END.
+  ELSE IF tb_non-elect THEN DO:
+      FOR EACH payment-type NO-LOCK WHERE payment-type.company = cocode 
+                                AND payment-type.paperCheck: 
+          cPaymentList = cPaymentList + payment-type.type + ",".                            
+      END.
+  END.
+
   FOR EACH company WHERE
        company.company GE begin_comp AND
        company.company LE end_comp
@@ -1207,8 +1223,7 @@ VIEW FRAME r-top.
              (vend.curr-code EQ ""            AND
               company.curr-code GE begin_curr AND
               company.curr-code LE end_curr))
-        AND ((vend.payment-type NE "ACH" AND tb_ACH-excl) OR NOT tb_ACH-excl)
-        AND ((vend.payment-type EQ "ACH" AND tb_ACH-only) OR NOT tb_ACH-only):
+        AND ( LOOKUP(vend.payment-type,cPaymentList) NE 0 OR  cPaymentList EQ ""):
        {custom/statusMsg.i " 'Processing Vendor#  '  + string(vend.vend-no) "}
     FOR EACH ap-inv
         WHERE ap-inv.company   EQ company.company
