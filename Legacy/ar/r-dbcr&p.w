@@ -74,6 +74,7 @@ DEFINE VARIABLE cCustStatCheck AS CHARACTER NO-UNDO .
 DO TRANSACTION:
   {sys/inc/postdate.i}
   {sys/inc/inexport.i}
+  {sys/inc/oecredit.i}
 END.
 
 
@@ -1429,7 +1430,9 @@ END PROCEDURE.
    Parameters:  <none>
    Notes:       
  ------------------------------------------------------------------------------*/
- DEFINE VARIABLE dInvoiceAmount AS DECIMAL NO-UNDO .
+ 
+ DEFINE VARIABLE ld-ord-bal      LIKE cust.ord-bal NO-UNDO.
+ DEFINE VARIABLE lRelHold AS LOGICAL NO-UNDO .
  FOR EACH cust EXCLUSIVE-LOCK
      WHERE cust.company EQ cocode
        AND LOOKUP(cust.cust-no,cCustStatCheck) NE 0
@@ -1438,34 +1441,31 @@ END PROCEDURE.
      FIND FIRST  terms NO-LOCK
          WHERE terms.company = cust.company
            AND terms.t-code  = cust.terms NO-ERROR.
-     ASSIGN dInvoiceAmount = 0.
+     
      IF cust.cr-hold THEN do:
-         FOR EACH ar-inv NO-LOCK
-             WHERE ar-inv.company  EQ cust.company
-               AND ar-inv.posted   EQ YES
-               AND ar-inv.due      GT 0
-               AND ar-inv.cust-no  EQ cust.cust-no
-               AND ar-inv.due-date LE (TODAY - (cust.cr-hold-invdays + terms.net-days))
-             USE-INDEX posted-due
-             BREAK BY ar-inv.company:
-     
-             ACCUM ar-inv.due (TOTAL).
-             
-             IF LAST(ar-inv.company) THEN 
-                 dInvoiceAmount = ACCUM TOTAL ar-inv.due .
-                 
-         END.  /* for each ar-inv */
-         IF cust.cr-lim GT dInvoiceAmount THEN do:    
-            ASSIGN cust.cr-hold = NO .
-     
-                 FOR EACH oe-ord EXCLUSIVE-LOCK
+         ld-ord-bal      = cust.ord-bal.
+
+         IF oecredit-cha EQ "" THEN
+             RUN ar/updcust1.p (YES, BUFFER cust, OUTPUT ld-ord-bal).
+         
+         IF ld-ord-bal + cust.acc-bal LT cust.cr-lim THEN 
+              ASSIGN lRelHold = YES .
+         ELSE IF ld-ord-bal LT cust.ord-lim THEN
+             ASSIGN lRelHold = YES . 
+         ELSE lRelHold = NO .
+
+              IF lRelHold THEN  DO:  
+                  ASSIGN cust.cr-hold = NO .
+                  
+                  FOR EACH oe-ord EXCLUSIVE-LOCK
                      WHERE oe-ord.company             EQ cocode
                        AND oe-ord.cust-no             EQ cust.cust-no
                        AND oe-ord.stat EQ "H" :
                      ASSIGN
                          oe-ord.stat = "A" .
-                 END.
-         END. /* cust.cr-lim GT dInvoiceAmount*/
+                  END.
+              END. /* lRelHold*/
+
      END. /* cust.cr-hold */
  END. /* for cust */
  
