@@ -2503,9 +2503,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF begin_filename:SCREEN-VALUE = "" AND userLabelPath <> "" THEN        
         begin_filename:SCREEN-VALUE = userLabelPath.
 */  
-
     /* gdm - 06100901 */
-    IF  PROGRAM-NAME(3) MATCHES "*/mainmenu.*" THEN do:
+    IF  PROGRAM-NAME(3) MATCHES "*/mainmenu.*" 
+    or program-name(1) matches "*r-loadtg.*" THEN do:
 
        /* gdm - 06050908 */
        ASSIGN
