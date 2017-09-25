@@ -2059,7 +2059,7 @@ find first bf-oe-ordl-2 NO-LOCK
      END.
      
    ASSIGN qty-total = ibal-rel
-          qty-balance = iordered - iqty-rel - ibal-rel .
+          qty-balance = iordered - ibal-rel .
 
   display qty-total qty-balance  with frame {&frame-name}.
 END.
