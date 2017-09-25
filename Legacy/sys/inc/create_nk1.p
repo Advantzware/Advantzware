@@ -28,7 +28,7 @@ v-std-list = "LoadTagSSCC,IR12,OEDateChange,FGRecptPassWord,InvStatus,BOLQtyPopu
             + "OEJobHold,lmLock,CESAMPLE,DefaultDir,JobHoldReason,ASIHelpService,CRMAuthToken,TSAMPMWarn,SSScanVendor," 
             + "OEBOLPrompt,SHTCALCWarn,BOLFMTTran,BOLMaster,SalesBudget,CEMarkupMatrixInterpolate,CEMarkupMatrixLookup,"
             + "KiwiT,BusinessFormModal,LoadTagXprintImage,AsiHelpClientID,CEGotoCalc,FGKEEPZEROBIN,RMKEEPZEROBIN,PrePressHotFolderIn,PrePressHotFolderOut,"
-            + "METRIC,CEImportForm,CEImportFormFolder,BusinessFormLogo,CalcBtnImage,CalcBtnLink,DCClosedJobs"  .
+            + "METRIC,CEImportForm,CEImportFormFolder,BusinessFormLogo,CalcBtnImage,CalcBtnLink,DCClosedJobs,ImportFolder,ImportLog"  .
 
 
 IF CAN-DO(v-std-list,ip-nk1-value) THEN
@@ -353,6 +353,16 @@ CASE ip-nk1-value:
     WHEN "DCClosedJobs" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
         INPUT "Prevent Data Collection on Closed Jobs",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+    WHEN "ImportFolder" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Default Folder for Importer File Lookup",
+        INPUT "" /* Char Value */, INPUT 0 /* Int value */,
+        INPUT NO /* Logical value */).
+    WHEN "ImportLog" THEN   
+    RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
+        INPUT "Logfile for Importer",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).
 END CASE.
