@@ -18,8 +18,8 @@
          	v-comp-add2 AT 8  SKIP
          	v-comp-add3 AT 8 SKIP
          	v-comp-add4 AT 8 SKIP
-         	v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
-         	lv-email AT 8 SKIP(1) .
+         	v-comp-add5 AT 8 SKIP
+         	lv-email AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP(1) .
 	  END.
          
              Put  "<FCourier New>"

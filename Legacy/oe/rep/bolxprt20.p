@@ -228,12 +228,12 @@ for each xxreport where xxreport.term-id eq v-term-id,
           FIND FIRST oe-ord WHERE oe-ord.company = oe-bolh.company
                               AND oe-ord.ord-no = oe-boll.ord-no NO-LOCK NO-ERROR.
           IF AVAIL oe-ord THEN
-             ASSIGN lv-comp-name = oe-ord.sold-name
-                    v-comp-add1 = oe-ord.sold-addr[1]
-                    v-comp-add2 = oe-ord.sold-addr[2]
-                    v-comp-add3 = oe-ord.sold-city + ", " +
-                                  oe-ord.sold-state + "  " +
-                                  oe-ord.sold-zip.        
+             ASSIGN lv-comp-name = oe-ord.cust-name
+                    v-comp-add1 = oe-ord.addr[1]
+                    v-comp-add2 = oe-ord.addr[2]
+                    v-comp-add3 = oe-ord.city + ", " +
+                                  oe-ord.state + "  " +
+                                  oe-ord.zip.        
        END.
     END.
     ELSE ASSIGN v-comp-add1 = v-cusx-add1
