@@ -28,9 +28,7 @@ DISPLAY
   terms.dscr
   terms.disc-rate
   terms.disc-days
-  terms.net-days
-  terms.cut-date
-  terms.type.
+  terms.net-days  .
 
 {methods/lstlogic/shownote.i &db_table="terms" &col="5" &frame-name="f-notes"}
 {methods/lstlogic/showmisc.i &db_table="terms" &col="5" &frame-name="f-miscflds"}
