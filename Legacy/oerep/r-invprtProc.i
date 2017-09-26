@@ -409,9 +409,9 @@ PROCEDURE BatchMail :
                         AND b2-{&head}.{&multiinvoice} EQ NO            
                         AND INDEX(vcHoldStats, b2-{&head}.stat) EQ 0 NO-LOCK NO-ERROR.
                     IF AVAILABLE b2-{&head} THEN
-                        FIND FIRST {&line} /*OF b2-{&head} */ NO-LOCK WHERE {&line}.ord-no NE 0 NO-ERROR.  
+                        FIND FIRST {&line}  NO-LOCK WHERE {&line}.{&rno} EQ b2-{&head}.{&rno} AND {&line}.ord-no NE 0 NO-ERROR.  
                 END.  
-                ELSE FIND FIRST {&line} /* OF b1-{&head}2 */ NO-LOCK WHERE {&line}.ord-no NE 0 NO-ERROR.
+                ELSE FIND FIRST {&line}  NO-LOCK WHERE {&line}.{&rno} EQ b1-{&head}2.{&rno} AND {&line}.ord-no NE 0 NO-ERROR.
                 IF AVAILABLE {&line} THEN 
                 DO:
                     FIND oe-ord WHERE oe-ord.company = b1-{&head}2.company
@@ -933,7 +933,7 @@ PROCEDURE output-to-mail :
                             FIND oe-ord WHERE oe-ord.company = buf-{&head}.company
                                 AND oe-ord.ord-no = {&line}.ord-no
                                 NO-LOCK NO-ERROR.
-                            vSoldToNo = IF AVAILABLE oe-ord THEN oe-ord.sold-id ELSE "". 
+                            vSoldToNo = IF AVAILABLE oe-ord THEN oe-ord.sold-id ELSE "".
                         END.
                         vShipToNo = STRING(buf-{&head}.sold-no).
 
@@ -1688,6 +1688,7 @@ PROCEDURE SendMail-1:
             VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
         RETURN. 
     END.
+
     IF NOT lSupressEmail THEN
         RUN custom/xpmail2.p   (INPUT   icRecType,
             INPUT   'R-INVPRT.',
