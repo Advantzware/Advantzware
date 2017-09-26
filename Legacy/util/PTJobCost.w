@@ -81,6 +81,7 @@ DEF temp-table ttJobMat
     field ord-line-tot-frt like oe-ordl.t-freight
     field ord-line-fix-oh like oe-ordl.fixoh
     field ord-line-var-oh like oe-ordl.varoh
+    FIELD ord-line-price-uom LIKE oe-ordl.pr-uom
     .
 {src/adm2/widgetprto.i}
 
@@ -506,6 +507,16 @@ FOR EACH job NO-LOCK WHERE
     end.
 
     find first job-hdr of job no-lock no-error.
+    FIND FIRST itemfg NO-LOCK WHERE
+                itemfg.company = job.company and
+                itemfg.i-no = job-hdr.i-no
+                NO-ERROR.
+        IF AVAILABLE itemfg THEN 
+            ASSIGN 
+                ttJobMat.category = itemfg.procat
+                ttJobMat.ord-line-price = itemfg.sell-price
+                ttJobMat.ord-line-price-uom = itemfg.sell-uom
+                .
     FIND oe-ord NO-LOCK WHERE
         oe-ord.company = job.company and
         oe-ord.ord-no = job-hdr.ord-no
@@ -539,18 +550,14 @@ FOR EACH job NO-LOCK WHERE
             oe-ordl.i-no = job-hdr.i-no AND
             oe-ordl.job-no = job-hdr.job-no
             NO-ERROR.
-
+        
         if avail oe-ordl then do:
-            FIND FIRST itemfg NO-LOCK WHERE
-                itemfg.company = job.company and
-                itemfg.i-no = job-hdr.i-no
-                NO-ERROR.
             ASSIGN
                 ttJobMat.order-no = oe-ord.ord-no
                 ttJobMat.ord-line = oe-ordl.line
-                ttJobMat.category = if avail itemfg then itemfg.procat else ttJobMat.category
                 ttJobMat.ord-line-item-no = oe-ordl.i-no
                 ttJobMat.ord-line-price = oe-ordl.price
+                ttJobMat.ord-line-price-uom = oe-ordl.pr-uom
                 ttJobMat.ord-line-cost-uom = oe-ordl.cost
                 ttJobMat.ord-line-tot-cost = oe-ordl.t-cost
                 ttJobMat.ord-line-comm-pct = oe-ordl.s-comm
@@ -597,12 +604,13 @@ FOR EACH ttJobMat:
         chWorkSheet:Range("AA" + STRING(iRow)):VALUE = ttJobMat.name          
         chWorkSheet:Range("AB" + STRING(iRow)):VALUE = ttJobMat.ord-line      
         chWorkSheet:Range("AC" + STRING(iRow)):VALUE = ttJobMat.ord-line-price
-        chWorkSheet:Range("AD" + STRING(iRow)):VALUE = ttJobMat.ord-line-cost-uom
-        chWorkSheet:Range("AE" + STRING(iRow)):VALUE = ttJobMat.ord-line-tot-cost
-        chWorkSheet:Range("AF" + STRING(iRow)):VALUE = ttJobMat.ord-line-comm-pct
-        chWorkSheet:Range("AG" + STRING(iRow)):VALUE = ttJobMat.ord-line-tot-frt
-        chWorkSheet:Range("AH" + STRING(iRow)):VALUE = ttJobMat.ord-line-fix-oh
-        chWorkSheet:Range("AI" + STRING(iRow)):VALUE = ttJobMat.ord-line-var-oh
+        chWorkSheet:Range("AD" + STRING(iRow)):VALUE = ttJobMat.ord-line-price-uom
+        chWorkSheet:Range("AE" + STRING(iRow)):VALUE = ttJobMat.ord-line-cost-uom
+        chWorkSheet:Range("AF" + STRING(iRow)):VALUE = ttJobMat.ord-line-tot-cost
+        chWorkSheet:Range("AG" + STRING(iRow)):VALUE = ttJobMat.ord-line-comm-pct
+        chWorkSheet:Range("AH" + STRING(iRow)):VALUE = ttJobMat.ord-line-tot-frt
+        chWorkSheet:Range("AI" + STRING(iRow)):VALUE = ttJobMat.ord-line-fix-oh
+        chWorkSheet:Range("AJ" + STRING(iRow)):VALUE = ttJobMat.ord-line-var-oh
         iRow = iRow + 1.
 END.
 
