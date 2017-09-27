@@ -58,13 +58,14 @@ DEF VAR is-xprint-form AS LOGICAL.
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF VAR ld-curr AS DEC NO-UNDO.
 DEF VAR lv-audit-dir AS CHAR NO-UNDO.
-
+DEFINE VARIABLE cCustStatCheck AS CHARACTER NO-UNDO .
 DEF TEMP-TABLE tt-post NO-UNDO FIELD row-id AS ROWID
                                FIELD ex-rate LIKE currency.ex-rate INIT 1
                                FIELD curr-amt LIKE ar-cash.check-amt
                                FIELD actnum LIKE account.actnum.
 
 DO TRANSACTION:
+  {sys/inc/oecredit.i}
   {sys/inc/postdate.i}
   find first sys-ctrl where
         sys-ctrl.company eq cocode AND
@@ -508,6 +509,7 @@ DO:
 
     IF lv-post THEN do:      
       RUN post-gl.
+      RUN check-status .
       RUN copy-report-to-audit-dir.
       MESSAGE "Posting Complete" VIEW-AS ALERT-BOX.
     END.
@@ -1302,6 +1304,9 @@ IF td-show-parm THEN RUN show-param.
       EACH ar-cashl WHERE ar-cashl.c-no EQ ar-cash.c-no NO-LOCK
       BREAK BY ar-cashl.actnum BY ar-cashl.c-no:
 
+      IF LOOKUP(ar-cash.cust-no,cCustStatCheck) EQ 0 THEN
+        ASSIGN cCustStatCheck = cCustStatCheck + ar-cash.cust-no + "," .
+
     IF FIRST-OF(ar-cashl.actnum) THEN DO:
       FIND FIRST account NO-LOCK
           WHERE account.company EQ cocode
@@ -1486,3 +1491,53 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-status C-Win 
+ PROCEDURE check-status :
+ /*------------------------------------------------------------------------------
+   Purpose:     
+   Parameters:  <none>
+   Notes:       
+ ------------------------------------------------------------------------------*/
+ 
+ DEFINE VARIABLE ld-ord-bal      LIKE cust.ord-bal NO-UNDO.
+ DEFINE VARIABLE lRelHold AS LOGICAL NO-UNDO .
+ FOR EACH cust EXCLUSIVE-LOCK
+     WHERE cust.company EQ cocode
+       AND LOOKUP(cust.cust-no,cCustStatCheck) NE 0
+       AND cust.cust-no NE "" :
+            
+     FIND FIRST  terms NO-LOCK
+         WHERE terms.company = cust.company
+           AND terms.t-code  = cust.terms NO-ERROR.
+     
+     IF cust.cr-hold THEN do:
+         ld-ord-bal      = cust.ord-bal.
+
+         IF oecredit-cha EQ "" THEN
+             RUN ar/updcust1.p (YES, BUFFER cust, OUTPUT ld-ord-bal).
+         
+         IF ld-ord-bal + cust.acc-bal LT cust.cr-lim THEN 
+              ASSIGN lRelHold = YES .
+         ELSE IF ld-ord-bal LT cust.ord-lim THEN
+             ASSIGN lRelHold = YES . 
+         ELSE lRelHold = NO .
+
+              IF lRelHold THEN  DO:  
+                  ASSIGN cust.cr-hold = NO .
+                  
+                  FOR EACH oe-ord EXCLUSIVE-LOCK
+                     WHERE oe-ord.company             EQ cocode
+                       AND oe-ord.cust-no             EQ cust.cust-no
+                       AND oe-ord.stat EQ "H" :
+                     ASSIGN
+                         oe-ord.stat = "A" .
+                  END.
+              END. /* lRelHold*/
+
+     END. /* cust.cr-hold */
+ END. /* for cust */
+ 
+ END PROCEDURE.
+ 
+ /* _UIB-CODE-BLOCK-END */
+ &ANALYZE-RESUME
