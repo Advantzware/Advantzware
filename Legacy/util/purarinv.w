@@ -35,10 +35,26 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEF BUFFER b-ar-cashl FOR ar-cashl.
 
+DEF STREAM out1.
+DEF STREAM out2.
+DEF STREAM out3.
+DEF STREAM out4.
+DEF STREAM out5.
+
+DEF VAR cDestroy AS CHAR NO-UNDO.
+DEF VAR iPurgeCount AS INT NO-UNDO.
+DEF VAR iPurgeCount2 AS INT NO-UNDO.
+DEF VAR iPurgeCount3 AS INT NO-UNDO.
+DEF VAR iPurgeCount4 AS INT NO-UNDO.
+DEF VAR iPurgeCount5 AS INT NO-UNDO.
+DEF VAR invBalAmt AS DEC NO-UNDO.
+DEF VAR totWriteOff AS DEC NO-UNDO.
 {methods/defines/hndldefs.i}
+/*
 {methods/prgsecur.i}
-
+*/
 {custom/gcompany.i}
 {custom/getcmpny.i}
 {custom/gloc.i}
@@ -65,10 +81,10 @@ assign
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS begin_date end_date begin_inv end_inv ~
-begin_cust-no end_cust-no tb_open tb_zero btn-process btn-cancel RECT-17 
-&Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_inv end_inv ~
-begin_cust-no end_cust-no tb_open tb_zero 
+&Scoped-Define ENABLED-OBJECTS EDITOR-1 tbNonZero begin_date end_date ~
+begin_cust-no end_cust-no begin_inv end_inv btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS EDITOR-1 tbNonZero begin_date end_date ~
+begin_cust-no end_cust-no begin_inv end_inv 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -89,96 +105,91 @@ DEFINE BUTTON btn-cancel
      SIZE 18 BY 1.14.
 
 DEFINE BUTTON btn-process 
-     LABEL "&Start Process" 
+     LABEL "&Purge" 
      SIZE 18 BY 1.14.
 
+DEFINE VARIABLE EDITOR-1 AS CHARACTER 
+     VIEW-AS EDITOR
+     SIZE 65 BY 4 NO-UNDO.
+
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
-     LABEL "Beginning Customer#" 
+     LABEL "From Customer#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Beginning Date" 
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/50 
+     LABEL "From Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE begin_inv AS INTEGER FORMAT ">>>>>>>>" INITIAL 0 
-     LABEL "Beginning Invoice#" 
+     LABEL "From Invoice#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzz" 
-     LABEL "Ending Customer#" 
+     LABEL "To Customer#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
-     LABEL "Ending Date" 
+     LABEL "To Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE end_inv AS INTEGER FORMAT ">>>>>>>>" INITIAL 99999999 
-     LABEL "Ending Invoice#" 
+     LABEL "To Invoice#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 89 BY 8.57.
-
-DEFINE VARIABLE tb_open AS LOGICAL INITIAL no 
-     LABEL "Purge Open Invoices?" 
+DEFINE VARIABLE tbNonZero AS LOGICAL INITIAL no 
+     LABEL "Purge Invoices with non-zero balance?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 26 BY .95 NO-UNDO.
-
-DEFINE VARIABLE tb_zero AS LOGICAL INITIAL no 
-     LABEL "Purge Zero Invoices Only?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 30 BY .95 NO-UNDO.
+     SIZE 42 BY .95 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_date AT ROW 6.71 COL 26 COLON-ALIGNED HELP
+     EDITOR-1 AT ROW 5.29 COL 15 NO-LABEL WIDGET-ID 10 NO-TAB-STOP 
+     tbNonZero AT ROW 9.81 COL 21
+     begin_date AT ROW 11.24 COL 19 COLON-ALIGNED HELP
           "Enter Beginning Date"
-     end_date AT ROW 6.71 COL 65 COLON-ALIGNED HELP
+     end_date AT ROW 11.24 COL 54 COLON-ALIGNED HELP
           "Enter Ending Date"
-     begin_inv AT ROW 7.67 COL 26 COLON-ALIGNED HELP
-          "Enter Beginning Invoice Number"
-     end_inv AT ROW 7.67 COL 65 COLON-ALIGNED HELP
-          "Enter Ending Invoice Number"
-     begin_cust-no AT ROW 8.62 COL 26 COLON-ALIGNED HELP
+     begin_cust-no AT ROW 12.67 COL 19 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_cust-no AT ROW 8.62 COL 65 COLON-ALIGNED HELP
+     end_cust-no AT ROW 12.67 COL 54 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     tb_open AT ROW 10.29 COL 33
-     tb_zero AT ROW 11.48 COL 33
-     btn-process AT ROW 14.1 COL 21
-     btn-cancel AT ROW 14.1 COL 53
-     RECT-17 AT ROW 4.81 COL 1
+     begin_inv AT ROW 14.1 COL 19 COLON-ALIGNED HELP
+          "Enter Beginning Invoice Number"
+     end_inv AT ROW 14.1 COL 54 COLON-ALIGNED HELP
+          "Enter Ending Invoice Number"
+     btn-process AT ROW 15.76 COL 21 WIDGET-ID 2
+     btn-cancel AT ROW 15.76 COL 56
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
-     "Selection Parameters" VIEW-AS TEXT
-          SIZE 21 BY .62 AT ROW 5.29 COL 5
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 89.6 BY 15.14.
+         SIZE 89.6 BY 17.91.
 
 DEFINE FRAME FRAME-B
-     "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
-          SIZE 76 BY .95 AT ROW 2.91 COL 8
-          BGCOLOR 11 FGCOLOR 12 FONT 5
-     "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
-          SIZE 84 BY .95 AT ROW 1.95 COL 4
-          BGCOLOR 11 FGCOLOR 12 FONT 5
+     "and may take hours to complete!" VIEW-AS TEXT
+          SIZE 46 BY .95 AT ROW 3.62 COL 21
+          FONT 17
+     "You MUST perform a database backup before running this" VIEW-AS TEXT
+          SIZE 84 BY .95 AT ROW 1.24 COL 4
+          FONT 17
+     "procedure.  Please note this process is VERY time intensive" VIEW-AS TEXT
+          SIZE 84 BY .95 AT ROW 2.43 COL 4 WIDGET-ID 2
+          FONT 17
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 89.2 BY 3.81
-         BGCOLOR 11 .
+         BGCOLOR 14 FGCOLOR 12  WIDGET-ID 100.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -197,7 +208,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Purge AR Invoices"
-         HEIGHT             = 15.14
+         HEIGHT             = 17.91
          WIDTH              = 89.6
          MAX-HEIGHT         = 19.76
          MAX-WIDTH          = 98.2
@@ -234,16 +245,6 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
                                                                         */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -251,6 +252,14 @@ ASSIGN
 ASSIGN 
        begin_inv:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -268,7 +277,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -300,28 +309,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME begin_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
-ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
-DO:
-   assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME begin_inv
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_inv C-Win
-ON LEAVE OF begin_inv IN FRAME FRAME-A /* Beginning Invoice# */
-DO:
-     assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
@@ -335,52 +322,55 @@ END.
 
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
-ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
+ON CHOOSE OF btn-process IN FRAME FRAME-A /* Purge */
 DO:
-  DEF VAR v-process AS LOG INIT NO NO-UNDO.
+    MESSAGE 
+        "Are you sure you want to permanently delete the selected records?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lProcess AS LOG.
 
-
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN {&displayed-objects}.
-  END.
-
-  MESSAGE "Are you sure you want to delete the AR Invoices within the " +
-          "selection parameters?"
-          VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE v-process.
-
-  IF v-process THEN RUN run-process.
+    IF lProcess THEN DO:
+        UPDATE 
+            cDestroy LABEL "Enter 'DESTROY' to confirm purge"
+            WITH FRAME b VIEW-AS DIALOG-BOX THREE-D.
+        IF cDestroy NE "DESTROY" THEN DO:
+            MESSAGE
+                "Purge Cancelled."
+                VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+        END.
+        RUN ipRunPurge.
+    END.
+    ELSE DO:
+        MESSAGE
+            "Purge Cancelled."
+            VIEW-AS ALERT-BOX.
+        RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
-ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
+&Scoped-define SELF-NAME end_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
+ON LEAVE OF end_date IN FRAME FRAME-A /* To Date */
 DO:
-     assign {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME end_inv
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_inv C-Win
-ON LEAVE OF end_inv IN FRAME FRAME-A /* Ending Invoice# */
-DO:
-   assign {&self-name}.
-   IF begin_inv = END_inv THEN DO:
-     FIND FIRST ar-inv WHERE ar-inv.company = g_company
-                         AND ar-inv.inv-no = begin_inv NO-LOCK NO-ERROR.
-     IF AVAIL ar-inv THEN
-       ASSIGN begin_cust-no:SCREEN-VALUE = ar-inv.cust-no
-              end_cust-no:SCREEN-VALUE = ar-inv.cust-no
-              begin_date:SCREEN-VALUE = STRING(ar-inv.inv-date)
-              end_date:SCREEN-VALUE = STRING(ar-inv.inv-date).
-
-   END.
+    IF DATE(SELF:SCREEN-VALUE) > DATE(STRING(MONTH(TODAY),"99") + "/" +
+                                STRING(DAY(TODAY),"99") + "/" +
+                                STRING(YEAR(TODAY) - 7,"9999")) THEN DO:
+        MESSAGE
+            "It is unusual to purge financial data more" SKIP
+            "recent than 7 years.  Are you sure?"
+            VIEW-AS ALERT-BOX WARNING BUTTONS YES-NO UPDATE lSure AS LOG.
+        IF NOT lSure THEN DO:
+            ASSIGN
+                SELF:SCREEN-VALUE = STRING(MONTH(TODAY),"99") + "/" +
+                                    STRING(DAY(TODAY),"99") + "/" +
+                                    STRING(YEAR(TODAY) - 7,"9999").
+            RETURN NO-APPLY.
+        END.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -411,15 +401,33 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  /* check security */
-  IF access-close THEN DO:
-     APPLY "close" TO THIS-PROCEDURE.
-     RETURN .
-  END.
+    /* check security 
+    IF access-close THEN DO:
+        APPLY "close" TO THIS-PROCEDURE.
+        RETURN .
+    END.
+    */
+    FIND ar-ctrl NO-LOCK WHERE 
+        ar-ctrl.company = gcompany 
+        NO-ERROR.
+  
   RUN enable_UI.
-  {methods/nowait.i}
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+
+    ASSIGN
+        editor-1:SCREEN-VALUE = "This process will purge ALL posted AR invoices " +
+                                "and their associated details based on the criteria " +
+                                "you select below. Purged records include: invoices, " +
+                                "invoice lines, cash payments against invoices, and " +
+                                "all associated cash payment details. Invoices not " +
+                                "marked as POSTED will NOT be purged."
+        end_date:SCREEN-VALUE = STRING(MONTH(TODAY),"99") + "/" +
+                                STRING(DAY(TODAY),"99") + "/" +
+                                STRING(YEAR(TODAY) - 7,"9999").
+    APPLY 'entry' to tbNonZero.                            
+    {methods/nowait.i}
+  
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -458,11 +466,11 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_date end_date begin_inv end_inv begin_cust-no end_cust-no 
-          tb_open tb_zero 
+  DISPLAY EDITOR-1 tbNonZero begin_date end_date begin_cust-no end_cust-no 
+          begin_inv end_inv 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE begin_date end_date begin_inv end_inv begin_cust-no end_cust-no 
-         tb_open tb_zero btn-process btn-cancel RECT-17 
+  ENABLE EDITOR-1 tbNonZero begin_date end_date begin_cust-no end_cust-no 
+         begin_inv end_inv btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -473,110 +481,145 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
-PROCEDURE run-process :
-/* ------------------------------------------------ util/arinvdel.p 03/98 JLF */
-/* Purge Paid AR Invoices                                                     */
-/* -------------------------------------------------------------------------- */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRunPurge C-Win 
+PROCEDURE ipRunPurge :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    OUTPUT STREAM out1 TO VALUE("c:\tmp\ar-inv" + 
+                                STRING(YEAR(TODAY),"99") +
+                                STRING(MONTH(TODAY),"99") +
+                                STRING(DAY(TODAY),"99") + ".d").
+    OUTPUT STREAM out2 TO VALUE("c:\tmp\ar-invl" +
+                                STRING(YEAR(TODAY),"99") +
+                                STRING(MONTH(TODAY),"99") +
+                                STRING(DAY(TODAY),"99") + ".d").
+    OUTPUT STREAM out3 TO VALUE("c:\tmp\ar-cash" + 
+                                STRING(YEAR(TODAY),"99") +
+                                STRING(MONTH(TODAY),"99") +
+                                STRING(DAY(TODAY),"99") + ".d").
+    OUTPUT STREAM out4 TO VALUE("c:\tmp\ar-cashl" +
+                                STRING(YEAR(TODAY),"99") +
+                                STRING(MONTH(TODAY),"99") +
+                                STRING(DAY(TODAY),"99") + ".d").
 
-def buffer b-ar-cashl for ar-cashl.
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN {&displayed-objects}.
+    END.
 
-def var fdate like ar-inv.inv-date init 01/01/0001 format "99/99/9999".
-def var tdate like fdate           init 01/01/0001 format "99/99/9999".
-def var v-open as log              init no         format "Yes/No".
+    SESSION:SET-WAIT-STATE ("general").
 
-def var amt as dec.
+    DISABLE TRIGGERS FOR LOAD OF ar-inv.
+    DISABLE TRIGGERS FOR LOAD OF ar-invl.
+    DISABLE TRIGGERS FOR LOAD OF ar-cash.
+    DISABLE TRIGGERS FOR LOAD OF ar-cashl.
 
 
-session:set-wait-state("General").
+    FOR EACH ar-inv WHERE 
+        ar-inv.company  EQ cocode AND 
+        ar-inv.inv-date GE begin_date AND 
+        ar-inv.inv-date LE end_date AND 
+        ar-inv.inv-no   GE begin_inv AND
+        ar-inv.inv-no   LE end_inv AND
+        ar-inv.cust-no  GE begin_cust-no AND
+        ar-inv.cust-no  LE end_cust-no AND
+        ar-inv.posted   EQ yes
+        USE-INDEX inv-date:
 
-assign
- fdate  = begin_date
- tdate  = end_date
- v-open = tb_open.
+        ASSIGN
+            invBalAmt = IF ar-inv.net = ar-inv.gross + ar-inv.freight + ar-inv.tax-amt THEN
+                    ar-inv.net 
+                  ELSE 
+                    ar-inv.gross.
 
-DISABLE TRIGGERS FOR LOAD OF ar-inv.
-DISABLE TRIGGERS FOR LOAD OF ar-cash.
+        FOR EACH ar-cashl NO-LOCK WHERE
+            ar-cashl.company  EQ ar-inv.company AND
+            ar-cashl.posted   EQ yes AND
+            ar-cashl.cust-no  EQ ar-inv.cust-no AND
+            ar-cashl.inv-no   EQ ar-inv.inv-no
+            USE-INDEX inv-no:
 
-for each ar-inv
-    where ar-inv.company  eq cocode
-      and ar-inv.inv-date ge fdate
-      and ar-inv.inv-date le tdate
-      and ar-inv.inv-no   ge begin_inv
-      and ar-inv.inv-no   le end_inv
-      and ar-inv.cust-no  ge begin_cust-no
-      and ar-inv.cust-no  le end_cust-no
-      and ar-inv.posted   eq yes
-    use-index inv-date:
+            
+            FIND FIRST ar-cash NO-LOCK WHERE
+                ar-cash.c-no EQ ar-cashl.c-no
+                USE-INDEX c-no.
 
-  amt = if ar-inv.net eq ar-inv.gross + ar-inv.freight + ar-inv.tax-amt then
-          ar-inv.net else ar-inv.gross.
+            IF ar-cashl.memo THEN DO:
+                IF ar-cashl.dscr BEGINS "CREDIT MEMO CREATED FROM OE RETURN" THEN ASSIGN
+                    invBalAmt = invBalAmt - ar-cashl.amt-disc.
+                ELSE IF ar-cashl.amt-paid + ar-cashl.amt-disc <> 0 THEN ASSIGN
+                    invBalAmt = invBalAmt + (ar-cashl.amt-paid + ar-cashl.amt-disc).
+                ELSE ASSIGN
+                    invBalAmt = invBalAmt + (ar-cashl.amt-paid - ar-cashl.amt-disc).
+            END.
+            ELSE ASSIGN
+                invBalAmt = invBalAmt + ((ar-cashl.amt-paid * -1) + (ar-cashl.amt-disc * -1)).
+        END.
 
-  IF NOT tb_zero THEN
-    if v-open then amt = 0.
+        IF invBalAmt = 0 
+        OR tbNonZero THEN DO:
+        
+            ASSIGN
+                totWriteOff = totWriteOff + invBalAmt.
+                
+            FOR EACH ar-cashl EXCLUSIVE WHERE
+                ar-cashl.company  EQ ar-inv.company AND
+                ar-cashl.posted   EQ yes AND
+                ar-cashl.cust-no  EQ ar-inv.cust-no AND
+                ar-cashl.inv-no   EQ ar-inv.inv-no
+                USE-INDEX inv-no:
 
-    else
-    for each ar-cashl
-        where ar-cashl.company  eq ar-inv.company
-          and ar-cashl.posted   eq yes
-          and ar-cashl.cust-no  eq ar-inv.cust-no
-          and ar-cashl.inv-no   eq ar-inv.inv-no
-        use-index inv-no no-lock,
+                FIND ar-cash EXCLUSIVE WHERE
+                    ar-cash.c-no EQ ar-cashl.c-no
+                    USE-INDEX c-no NO-ERROR.
+                
+                IF AVAIL ar-cash THEN DO:
+                    FIND FIRST b-ar-cashl NO-LOCK WHERE
+                        b-ar-cashl.c-no EQ ar-cashl.c-no AND 
+                        ROWID(b-ar-cashl) NE ROWID(ar-cashl)
+                        NO-ERROR.
+                    IF NOT AVAIL b-ar-cashl THEN DO:
+                        DELETE ar-cash.
+                        ASSIGN
+                            iPurgeCount = iPurgeCount + 1.
+                    END.
+                END.
 
-        first ar-cash
-        where ar-cash.c-no       eq ar-cashl.c-no
-        use-index c-no no-lock:
+                DELETE ar-cashl.
+                ASSIGN
+                    iPurgeCount2 = iPurgeCount2 + 1.
+            END.
 
-      if ar-cashl.memo then
-        if ar-cashl.dscr begins "CREDIT MEMO CREATED FROM OE RETURN" then
-          amt = amt - ar-cashl.amt-disc.
-        else
-        if ar-cashl.amt-paid + ar-cashl.amt-disc ne 0 then
-          amt = amt + (ar-cashl.amt-paid + ar-cashl.amt-disc).
-        else
-          amt = amt + (ar-cashl.amt-paid - ar-cashl.amt-disc).
-      else
-        amt = amt + ((ar-cashl.amt-paid * -1) + (ar-cashl.amt-disc * -1)).
-    end.
+            FOR EACH ar-invl EXCLUSIVE WHERE
+                ar-invl.company EQ cocode AND
+                ar-invl.x-no EQ ar-inv.x-no:
+                DELETE ar-invl.
+                ASSIGN
+                    iPurgeCount3 = iPurgeCount3 + 1.
+            END.
 
-  if amt eq 0 then do:
-    for each ar-cashl
-        where ar-cashl.company  eq ar-inv.company
-          and ar-cashl.posted   eq yes
-          and ar-cashl.cust-no  eq ar-inv.cust-no
-          and ar-cashl.inv-no   eq ar-inv.inv-no
-        use-index inv-no:
+            DELETE ar-inv.
+            ASSIGN
+                iPurgeCount4 = iPurgeCount4 + 1.
+        END.
+    END.
 
-      find ar-cash
-          where ar-cash.c-no eq ar-cashl.c-no
-          use-index c-no no-error.
-      if avail ar-cash then do:
-        find first b-ar-cashl
-            where b-ar-cashl.c-no   eq ar-cashl.c-no
-              and recid(b-ar-cashl) ne recid(ar-cashl)
-            no-lock no-error.
-        if not avail b-ar-cashl then delete ar-cash.
-      end.
+    SESSION:SET-WAIT-STATE("").
 
-      delete ar-cashl.
-    end.
-
-    for each ar-invl
-        where ar-invl.company eq cocode
-          and ar-invl.x-no eq ar-inv.x-no:
-      delete ar-invl.
-    end.
-
-    delete ar-inv.
-  end.
-end.
-
-session:set-wait-state("").
-
-message trim(c-win:title) + " Process Is Completed." view-as alert-box.
-apply "close" to this-procedure.
-
-/* end ---------------------------------- copr. 2001  advanced software, inc. */
+    MESSAGE  
+        "Purge process completed." SKIP
+        STRING(iPurgeCount4) + " invoices records were deleted." SKIP
+        STRING(iPurgeCount3) + " invoice line records were deleted." SKIP
+        STRING(iPurgeCount) + " ar-cash records were deleted." SKIP
+        STRING(iPurgeCount2) + " ar-cashl records were deleted." SKIP
+        STRING(totWriteOff,"-$>>>,>>>,>>9.99") + "were written off." SKIP
+        "Backup files were placed in then C:\tmp directory" SKIP
+        "for retrieval if necessary."
+        VIEW-AS ALERT-BOX.
+        
+    APPLY "close" TO THIS-PROCEDURE.
 
 END PROCEDURE.
 
