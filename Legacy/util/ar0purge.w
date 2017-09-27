@@ -23,6 +23,12 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEF STREAM out1.
+DEF STREAM out2.
+
+DEF VAR cDestroy AS CHAR NO-UNDO.
+DEF VAR iPurgeCount AS INT NO-UNDO.
+DEF VAR iPurgeCount2 AS INT NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -49,14 +55,14 @@ assign
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS begin_date end_date begin_cust-no ~
-end_cust-no btn-process btn-cancel RECT-17 
-&Scoped-Define DISPLAYED-OBJECTS begin_date end_date begin_cust-no ~
-end_cust-no 
+&Scoped-Define ENABLED-OBJECTS EDITOR-1 tbPurgeMore begin_cust-no ~
+end_cust-no begin_date end_date btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS EDITOR-1 tbPurgeMore begin_cust-no ~
+end_cust-no begin_date end_date 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -77,80 +83,77 @@ DEFINE BUTTON btn-cancel
      SIZE 18 BY 1.14.
 
 DEFINE BUTTON btn-process 
-     LABEL "&Start Process" 
+     LABEL "&Purge" 
      SIZE 18 BY 1.14.
 
+DEFINE VARIABLE EDITOR-1 AS CHARACTER 
+     VIEW-AS EDITOR
+     SIZE 65 BY 4 NO-UNDO.
+
 DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)" 
-     LABEL "Beginning Customer#" 
+     LABEL "From Customer#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Beginning Date" 
+DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/50 
+     LABEL "From Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" 
-     LABEL "Ending Customer#" 
+DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzzzzzz" 
+     LABEL "To Customer#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "Ending Date" 
+     LABEL "To Date" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-17
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 89 BY 8.57.
+DEFINE VARIABLE tbPurgeMore AS LOGICAL INITIAL no 
+     LABEL "Purge non-zero transactions?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 46 BY .81 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_date AT ROW 10.76 COL 24 COLON-ALIGNED HELP
-          "Enter Beginning Date"
-     end_date AT ROW 10.76 COL 63 COLON-ALIGNED HELP
-          "Enter Ending Date"
-     begin_cust-no AT ROW 11.71 COL 24 COLON-ALIGNED HELP
+     EDITOR-1 AT ROW 5.29 COL 15 NO-LABEL WIDGET-ID 2 NO-TAB-STOP 
+     tbPurgeMore AT ROW 9.81 COL 22 WIDGET-ID 4
+     begin_cust-no AT ROW 11 COL 20 COLON-ALIGNED HELP
           "Enter Beginning Customer Number"
-     end_cust-no AT ROW 11.71 COL 63 COLON-ALIGNED HELP
+     end_cust-no AT ROW 11 COL 59 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     btn-process AT ROW 15.29 COL 21
-     btn-cancel AT ROW 15.29 COL 53
-     RECT-17 AT ROW 4.81 COL 1
-     "Transactions that have been posted with zeroes or" VIEW-AS TEXT
-          SIZE 60 BY .95 AT ROW 6.48 COL 17
-          FONT 5
-     "(From Detailed Aged Receivables Report)" VIEW-AS TEXT
-          SIZE 40 BY .62 AT ROW 8.62 COL 25
-          FONT 4
+     begin_date AT ROW 12.43 COL 20 COLON-ALIGNED HELP
+          "Enter Beginning Date"
+     end_date AT ROW 12.43 COL 59 COLON-ALIGNED HELP
+          "Enter Ending Date"
+     btn-process AT ROW 14.57 COL 21
+     btn-cancel AT ROW 14.57 COL 53
      "" VIEW-AS TEXT
           SIZE 2.2 BY .95 AT ROW 1.95 COL 88
           BGCOLOR 11 
-     "This process will purge all Paid On-Account" VIEW-AS TEXT
-          SIZE 53 BY .86 AT ROW 5.52 COL 20
-          FONT 5
-     "are included in the ranges below" VIEW-AS TEXT
-          SIZE 40 BY .95 AT ROW 7.43 COL 25
-          FONT 5
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 89.6 BY 17.52.
 
 DEFINE FRAME FRAME-B
-     "This process may take hours.  Please let the process complete!" VIEW-AS TEXT
-          SIZE 79 BY .95 AT ROW 2.91 COL 8
-          BGCOLOR 11 FGCOLOR 12 FONT 5
-     "You MUST perform a database backup before running this procedure!" VIEW-AS TEXT
-          SIZE 84 BY .95 AT ROW 1.95 COL 3
-          BGCOLOR 11 FGCOLOR 12 FONT 5
+     "and may take hours to complete!" VIEW-AS TEXT
+          SIZE 46 BY .95 AT ROW 3.62 COL 21
+          FONT 17
+     "You MUST perform a database backup before running this" VIEW-AS TEXT
+          SIZE 84 BY .95 AT ROW 1.24 COL 4
+          FONT 17
+     "procedure.  Please note this process is VERY time intensive" VIEW-AS TEXT
+          SIZE 84 BY .95 AT ROW 2.43 COL 4 WIDGET-ID 2
+          FONT 17
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 89.2 BY 3.81
-         BGCOLOR 11 .
+         BGCOLOR 14 FGCOLOR 12 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -169,7 +172,7 @@ DEFINE FRAME FRAME-B
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Purge Zero Posted AR"
+         TITLE              = "Purge Posted Cash Transactions"
          HEIGHT             = 17.71
          WIDTH              = 90
          MAX-HEIGHT         = 19.76
@@ -206,20 +209,18 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
-                                                                        */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
+   FRAME-NAME                                                           */
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -233,7 +234,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -241,7 +242,7 @@ THEN C-Win:HIDDEN = no.
 
 &Scoped-define SELF-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON END-ERROR OF C-Win /* Purge Zero Posted AR */
+ON END-ERROR OF C-Win /* Purge Posted Cash Transactions */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -254,22 +255,11 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
-ON WINDOW-CLOSE OF C-Win /* Purge Zero Posted AR */
+ON WINDOW-CLOSE OF C-Win /* Purge Posted Cash Transactions */
 DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME begin_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
-ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
-DO:
-   assign {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -289,27 +279,55 @@ END.
 
 &Scoped-define SELF-NAME btn-process
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
-ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
+ON CHOOSE OF btn-process IN FRAME FRAME-A /* Purge */
 DO:
-  def var v-process as log no-undo.
+    MESSAGE 
+        "Are you sure you want to permanently delete the selected records?"
+        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lProcess AS LOG.
 
-
-  message "Are you sure you want to delete paid on-account transactions " +
-          "posted w/0?"
-      view-as alert-box question button yes-no update v-process.
-
-  if v-process then run run-process.
+    IF lProcess THEN DO:
+        UPDATE 
+            cDestroy LABEL "Enter 'DESTROY' to confirm purge"
+            WITH FRAME b VIEW-AS DIALOG-BOX THREE-D.
+        IF cDestroy NE "DESTROY" THEN DO:
+            MESSAGE
+                "Purge Cancelled."
+                VIEW-AS ALERT-BOX.
+            RETURN NO-APPLY.
+        END.
+        RUN ipRunPurge.
+    END.
+    ELSE DO:
+        MESSAGE
+            "Purge Cancelled."
+            VIEW-AS ALERT-BOX.
+        RETURN NO-APPLY.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME end_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
-ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
+&Scoped-define SELF-NAME end_date
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
+ON LEAVE OF end_date IN FRAME FRAME-A /* To Date */
 DO:
-     assign {&self-name}.
+    IF DATE(SELF:SCREEN-VALUE) > DATE(STRING(MONTH(TODAY),"99") + "/" +
+                                STRING(DAY(TODAY),"99") + "/" +
+                                STRING(YEAR(TODAY) - 7,"9999")) THEN DO:
+        MESSAGE
+            "It is unusual to purge financial data more" SKIP
+            "recent than 7 years.  Are you sure?"
+            VIEW-AS ALERT-BOX WARNING BUTTONS YES-NO UPDATE lSure AS LOG.
+        IF NOT lSure THEN DO:
+            ASSIGN
+                SELF:SCREEN-VALUE = STRING(MONTH(TODAY),"99") + "/" +
+                                    STRING(DAY(TODAY),"99") + "/" +
+                                    STRING(YEAR(TODAY) - 7,"9999").
+            RETURN NO-APPLY.
+        END.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -341,16 +359,32 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     /* check security */
-  IF access-close THEN DO:
-     APPLY "close" TO THIS-PROCEDURE.
-     RETURN .
-  END.
+    IF access-close THEN DO:
+        APPLY "close" TO THIS-PROCEDURE.
+        RETURN.
+    END.
 
-  FIND ap-ctrl WHERE ap-ctrl.company = gcompany NO-LOCK NO-ERROR.
+    FIND ap-ctrl NO-LOCK WHERE 
+        ap-ctrl.company = gcompany 
+        NO-ERROR.
+
   RUN enable_UI.
-  {methods/nowait.i}
-  IF NOT THIS-PROCEDURE:PERSISTENT THEN
-    WAIT-FOR CLOSE OF THIS-PROCEDURE.
+  
+    ASSIGN
+        editor-1:SCREEN-VALUE = "This process will purge ALL paid-on-account " +
+                                "transactions that have a zero dollar transaction " +
+                                "amount.  Optionally, you can choose a range of " +
+                                "customers and/or dates to purge additional (non-zero) " +
+                                "transactions.  If the cash record is not marked as " +
+                                "POSTED it will NOT be purged."
+        end_date:SCREEN-VALUE = STRING(MONTH(TODAY),"99") + "/" +
+                                STRING(DAY(TODAY),"99") + "/" +
+                                STRING(YEAR(TODAY) - 7,"9999").
+    APPLY 'entry' to tbPurgeMore.                            
+    {methods/nowait.i}
+  
+    IF NOT THIS-PROCEDURE:PERSISTENT THEN
+        WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -389,10 +423,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY begin_date end_date begin_cust-no end_cust-no 
+  DISPLAY EDITOR-1 tbPurgeMore begin_cust-no end_cust-no begin_date end_date 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE begin_date end_date begin_cust-no end_cust-no btn-process btn-cancel 
-         RECT-17 
+  ENABLE EDITOR-1 tbPurgeMore begin_cust-no end_cust-no begin_date end_date 
+         btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -403,67 +437,92 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
-PROCEDURE run-process :
-DEF BUFFER b-ar-cashl FOR ar-cashl.
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRunPurge C-Win 
+PROCEDURE ipRunPurge :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    OUTPUT STREAM out1 TO VALUE("c:\tmp\ar-cashl" + 
+                                STRING(YEAR(TODAY),"99") +
+                                STRING(MONTH(TODAY),"99") +
+                                STRING(DAY(TODAY),"99") + ".d").
+    OUTPUT STREAM out2 TO VALUE("c:\tmp\ar-cash" +
+                                STRING(YEAR(TODAY),"99") +
+                                STRING(MONTH(TODAY),"99") +
+                                STRING(DAY(TODAY),"99") + ".d").
+    
+    DEF BUFFER b-ar-cashl FOR ar-cashl.
 
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN {&displayed-objects}.
+    END.
 
-DO WITH FRAME {&FRAME-NAME}:
-  ASSIGN {&displayed-objects}.
-END.
+    SESSION:SET-WAIT-STATE ("general").
 
-SESSION:SET-WAIT-STATE ("general").
+    FOR EACH ar-cashl WHERE 
+        ar-cashl.company  EQ cocode AND 
+        ar-cashl.posted   EQ YES AND 
+        ar-cashl.memo     EQ NO AND 
+        ar-cashl.amt-paid EQ 0 AND 
+        ar-cashl.amt-disc EQ 0 AND 
+        (ar-cashl.on-account EQ YES OR ar-cashl.inv-no EQ 0)
+        USE-INDEX c-no:
+    
+        /* If no more ar-cashl records for this ar-cash, delete the ar-cash as well */
+        IF NOT CAN-FIND(FIRST b-ar-cashl WHERE 
+                            b-ar-cashl.c-no EQ ar-cashl.c-no AND
+                            ROWID(b-ar-cashl) NE ROWID(ar-cashl)) THEN DO:
+            FIND ar-cash OF ar-cashl EXCLUSIVE.
+            EXPORT STREAM out2 ar-cash.
+            DELETE ar-cash.
+            ASSIGN
+                iPurgeCount2 = iPurgeCount2 + 1.
+        END.    
 
-FOR EACH ar-cashl
-    WHERE ar-cashl.company  EQ cocode
-      AND ar-cashl.posted   EQ YES
-      AND ar-cashl.memo     EQ NO
-      AND ar-cashl.amt-paid EQ 0
-      AND ar-cashl.amt-disc EQ 0
-      AND (ar-cashl.on-account EQ YES OR ar-cashl.inv-no EQ 0)
-    USE-INDEX inv-no
+        EXPORT STREAM out1 ar-cashl.
+        DELETE ar-cashl.
+        ASSIGN
+            iPurgeCount = iPurgeCount + 1.
+    END.
 
-    TRANSACTION:
+    IF tbPurgeMore:CHECKED THEN DO:
+        FOR EACH ar-cash EXCLUSIVE WHERE 
+            ar-cash.company     EQ cocode AND 
+            ar-cash.cust-no     GE begin_cust-no AND 
+            ar-cash.cust-no     LE end_cust-no AND 
+            ar-cash.check-date  GE begin_date AND
+            ar-cash.check-date  LE end_date AND
+            ar-cash.posted      EQ YES
+            USE-INDEX ar-cash:
 
-  DELETE ar-cashl.
+            FOR EACH ar-cashl EXCLUSIVE WHERE
+                ar-cashl.c-no = ar-cash.c-no:
+                EXPORT STREAM out1 ar-cashl.
+                DELETE ar-cashl.
+                ASSIGN
+                    iPurgeCount = iPurgeCount + 1.
+            END.
 
-  IF AVAIL ar-cash AND
-     NOT CAN-FIND(FIRST b-ar-cashl WHERE b-ar-cashl.c-no EQ ar-cash.c-no) THEN DO:
-    ar-cash.posted = NO.
-    DELETE ar-cash.
-  END.
-END.
+            EXPORT STREAM out2 ar-cash.
+            DELETE ar-cash.
+            ASSIGN
+                iPurgeCount2 = iPurgeCount2 + 1.
+        END.
+    END.
 
-FOR EACH ar-cashl
-    WHERE ar-cashl.company     EQ cocode
-      AND ar-cashl.cust-no     GE begin_cust-no
-      AND ar-cashl.cust-no     LE end_cust-no
-      AND ar-cashl.posted      EQ YES
-      /*AND ar-cashl.memo        EQ NO*/
-      AND (ar-cashl.on-account EQ YES OR ar-cashl.inv-no EQ 0)
-    USE-INDEX ar-cashl,
+    SESSION:SET-WAIT-STATE ("").
 
-    FIRST ar-cash
-    WHERE ar-cash.c-no       EQ ar-cashl.c-no
-      AND ar-cash.check-date GE begin_date
-      AND ar-cash.check-date LE end_date
-
-    TRANSACTION:
-
-  DELETE ar-cashl.
-
-  IF NOT CAN-FIND(FIRST b-ar-cashl WHERE b-ar-cashl.c-no EQ ar-cash.c-no) THEN DO:
-    ar-cash.posted = NO.
-    DELETE ar-cash.
-  END.
-END.
-
-SESSION:SET-WAIT-STATE ("").
-
-message trim(c-win:title) + " Process Is Completed." view-as alert-box.
-apply "close" to this-procedure.
-
-/* end ---------------------------------- copr. 2001  advanced software, inc. */
+    MESSAGE  
+        "Purge process completed." SKIP
+        STRING(iPurgeCount2) + " ar-cash records were deleted." SKIP
+        STRING(iPurgeCount) + " ar-cashl records were deleted." SKIP
+        "Backup files were placed in C:\tmp\ar-cash.d and C:\tmp\ar-cashl.d" SKIP
+        "for retrieval if necessary."
+        VIEW-AS ALERT-BOX.
+        
+    APPLY "close" TO THIS-PROCEDURE.
 
 END PROCEDURE.
 
