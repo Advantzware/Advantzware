@@ -581,10 +581,11 @@ v-printline = 0.
         v-setup = po-ordl.setup
         v-cost = lv-cost. /* reclac cost from setup */
         dCoreDia = 0.
-        IF AVAIL ITEM AND ITEM.industry EQ "2" THEN
-            ASSIGN dCoreDia =  IF item.mat-type EQ "P" THEN (item.ect / 10000) ELSE item.ect.
-        ELSE dCoreDia =  IF item.mat-type NE "A" THEN (item.ect / 10000) ELSE item.ect.
-
+        IF AVAIL ITEM THEN do:
+          IF ITEM.industry EQ "2" THEN
+              ASSIGN dCoreDia =  IF item.mat-type EQ "P" THEN (item.ect / 10000) ELSE item.ect.
+              ELSE dCoreDia =  IF item.mat-type NE "A" THEN (item.ect / 10000) ELSE item.ect.
+        END.
 
         IF AVAIL ITEM AND ITEM.mat-type EQ "B" AND ITEM.industry EQ "2" THEN
           ASSIGN lv-flute = "  Flute: " + ITEM.flute
