@@ -219,3 +219,19 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable-add-button s-object 
+PROCEDURE disable-add-button :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   /*DEFINE INPUT PARAMETER ip-log AS LOG NO-UNDO.*/
+   DO WITH FRAME {&FRAME-NAME}:
+     Select_Add:SENSITIVE  = NO .
+   END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
