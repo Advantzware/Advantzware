@@ -515,10 +515,11 @@ v-printline = 0.
        v-tot-sqft = v-tot-sqft + (v-qty * 1000).
 
        dCoreDia = 0.
-        IF AVAIL ITEM AND ITEM.industry EQ "2" THEN
+       IF AVAIL ITEM THEN DO:
+        IF ITEM.industry EQ "2" THEN
             ASSIGN dCoreDia =  IF item.mat-type EQ "P" THEN (item.ect / 10000) ELSE item.ect.
         ELSE dCoreDia =  IF item.mat-type NE "A" THEN (item.ect / 10000) ELSE item.ect.
-
+       END.
 
        RUN calc-cost (recid(po-ordl),OUTPUT v-cost,OUTPUT v-setup).                    
 
@@ -922,7 +923,7 @@ PROCEDURE calc-cost:
 
      IF e-item.std-uom NE b-po-ordl.pr-qty-uom THEN
        RUN sys/ref/convquom.p(b-po-ordl.pr-qty-uom,
-                              e-item.std-uom, vv-basis-w,
+                             IF AVAIL e-item THEN e-item.std-uom ELSE "", vv-basis-w,
                               v-len, v-wid, vv-dep,
                               vv-qty, OUTPUT vv-qty).
 
@@ -979,7 +980,7 @@ PROCEDURE calc-cost:
      IF vv-qty <> 0 THEN vv-cost = vv-cost / vv-qty.  
      ELSE vv-cost = vv-cost.
 
-     IF e-item.std-uom NE b-po-ordl.pr-uom THEN
+     IF AVAIL e-item AND e-item.std-uom NE b-po-ordl.pr-uom THEN
          RUN sys/ref/convcuom.p(e-item.std-uom,
                                 b-po-ordl.pr-uom, vv-basis-w,
                                 v-len, v-wid, vv-dep,
