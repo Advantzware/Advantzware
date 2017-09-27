@@ -25,10 +25,16 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 DEF STREAM out1.
 DEF STREAM out2.
+DEF STREAM out3.
+DEF STREAM out4.
+DEF STREAM out5.
 
 DEF VAR cDestroy AS CHAR NO-UNDO.
 DEF VAR iPurgeCount AS INT NO-UNDO.
 DEF VAR iPurgeCount2 AS INT NO-UNDO.
+DEF VAR iPurgeCount3 AS INT NO-UNDO.
+DEF VAR iPurgeCount4 AS INT NO-UNDO.
+DEF VAR iPurgeCount5 AS INT NO-UNDO.
 
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
@@ -461,6 +467,9 @@ PROCEDURE ipRunPurge :
 
     SESSION:SET-WAIT-STATE ("general").
 
+    DISABLE TRIGGERS FOR LOAD OF ar-cash.
+    DISABLE TRIGGERS FOR LOAD OF ar-cashl.
+
     FOR EACH ar-cashl WHERE 
         ar-cashl.company  EQ cocode AND 
         ar-cashl.posted   EQ YES AND 
@@ -518,7 +527,7 @@ PROCEDURE ipRunPurge :
         "Purge process completed." SKIP
         STRING(iPurgeCount2) + " ar-cash records were deleted." SKIP
         STRING(iPurgeCount) + " ar-cashl records were deleted." SKIP
-        "Backup files were placed in C:\tmp\ar-cash.d and C:\tmp\ar-cashl.d" SKIP
+        "Backup files were placed in the C:\tmp directory" SKIP
         "for retrieval if necessary."
         VIEW-AS ALERT-BOX.
         
