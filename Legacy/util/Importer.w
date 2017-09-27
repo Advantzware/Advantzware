@@ -481,8 +481,8 @@ PROCEDURE pImport :
         ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcFileName AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcLogFile AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplLogOnly AS LOGICAL NO-UNDO.
+    DEFINE INPUT PARAMETER ipcType AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER iplHeader AS LOGICAL NO-UNDO.
     
 
@@ -520,8 +520,9 @@ PROCEDURE pRunProcess :
                              OUTPUT ipcImportFileName).
 
     RUN pImport (ipcImportFileName,
-                 cbType,
+                 fiLogFile,
                  lLogOnly,
+                 cbType,
                  lHeaderRow).
 
     SESSION:SET-WAIT-STATE(""). 
