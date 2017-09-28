@@ -174,7 +174,7 @@ PROCEDURE processResultXML:
         OS-COPY VALUE(cFullFilePath) VALUE(cNewFilePath).    
 
         IF INTEGER(OS-ERROR) EQ 0 THEN  
-            OS-DELETE VALUE(cInputFile).    
+            OS-DELETE VALUE(cFullFilePath).   
             
     RUN monitorActivity ('Processing Result XML' ,YES,'').
 END PROCEDURE.
