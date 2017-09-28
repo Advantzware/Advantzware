@@ -857,6 +857,38 @@ PROCEDURE calc-total:
 
 END PROCEDURE.
 
+PROCEDURE createComponentList:
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-itemfg FOR itemfg.
+    DEFINE BUFFER bf-fg-set FOR fg-set.
+
+    FOR EACH bf-itemfg 
+        WHERE bf-itemfg.company EQ cocode
+        AND bf-itemfg.i-no GE begin_i-no
+        AND bf-itemfg.i-no LE end_i-no
+        AND bf-itemfg.isaset
+        NO-LOCK,
+        EACH bf-fg-set 
+        WHERE bf-fg-set.company EQ bf-itemfg.company
+        AND bf-fg-set.set-no EQ bf-itemfg.i-no
+        NO-LOCK:
+
+        FIND FIRST tt-set WHERE tt-set.part-no = bf-fg-set.part-no NO-ERROR.
+        IF NOT AVAIL tt-set THEN 
+        DO:
+            CREATE tt-set.
+            ASSIGN 
+                tt-set.part-no = bf-fg-set.part-no.
+        END.
+
+    END.
+
+
+END PROCEDURE.
+
 PROCEDURE orig:
     /*------------------------------------------------------------------------------
      Purpose:
