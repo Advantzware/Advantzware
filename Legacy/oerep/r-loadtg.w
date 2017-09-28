@@ -2505,7 +2505,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 */  
     /* gdm - 06100901 */  
     IF  PROGRAM-NAME(3) MATCHES "*/mainmenu.*" 
-    /*or program-name(1) matches "*r-loadtg.*"*/ THEN do:
+    /* Next phrase accounts for direct load from icon or combined launcher */
+    or (program-name(1) matches "*r-loadtg.*"
+        and not program-name(2) matches "*persist*") THEN do:
 
        /* gdm - 06050908 */
        ASSIGN
@@ -7463,7 +7465,7 @@ PROCEDURE write-loadtag-line :
         '"' +   removeChars(w-ord.est-no) + '"' "," /*06  File (Estimate) number  7 characters    filenumber                                                                                      */
         w-ord.gross-wt  "," /*??07  Lbs/M Pieces  - cust waste  6 characters    LbsperM                                                                                     */
         "," /*08  Plant Number    2 characters    plantnumber                                                                                             */
-        "- -,"/*09  this field contains “- -“   3 characters    Text0098                                                                                    */
+        "- -,"/*09  this field contains Â“- -Â“   3 characters    Text0098                                                                                    */
         1 /* w-ord.total-tags */ "," /*10  Number of tags per unit 1 character **QUANTITY                                                                                          */
         1 "," /*11  Number of tags to print 5 characters    tagstoprint                                                                                     */
         w-ord.ord-no  ","/*12  Order Number    7 characters    ordernumber                                                                                             */
@@ -7481,7 +7483,7 @@ PROCEDURE write-loadtag-line :
         '"' +  removeChars(STRING(w-ord.cust-no,"x(5)") + STRING(w-ord.ship-code,"x(3)")) + '"' "," /*24  Customer and ShipTo Number in the format NNNNNSSS where NNNNN = Customer Number and SSS = ShipTo Number 8 characters    custshiptonumber*/
         "," /*25  B/L instructions        B/L                                                                                                             */
         "," /*26  RECORD      Record                                                                                                                      */
-        "," /*27  Load (Unit) Number – use only when Unitized Inventory is not active 5 characters    loadnumber                                          */
+        "," /*27  Load (Unit) Number Â– use only when Unitized Inventory is not active 5 characters    loadnumber                                          */
         "," /*28  Number of bands (strap pattern) 6 characters    Straps                                                                                  */
         "," /*29  Unit type   1 character unittype                                                                                                        */
         '"' +  removeChars(w-ord.ship-name)  + '"' "," /*30  Customer ShipTo Name    60 characters   custshiptoname                                                                                  */
@@ -7490,7 +7492,7 @@ PROCEDURE write-loadtag-line :
         "," /*33  Sheet width 9 characters    shtwdth                                                                                                     */
         "," /*34  Sheet length    9 characters    shtleng.                                                                                                */
         "," /*35  Load Number (Use only when Unitized Inventory is active)    5 characters    Loadnumber                                                  */
-        "," /*36  Broker’s Customer Name  30 characters   brokercust                                                                                      */
+        "," /*36  BrokerÂ’s Customer Name  30 characters   brokercust                                                                                      */
           '"' +  removeChars(w-ord.ship-add1) " "  removeChars(w-ord.ship-add2) + '"'  ","/*37  Customer ShipTo Address 30 characters   custshiptoadd                                                                                   */
          1 "," /*38  Number of tags to print 3 characters    numbertagstoprint                                                                               */
         w-ord.pcs  "," /*39  Number per bundle   5 characters    numberperbndl                                                                                       */
