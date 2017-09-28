@@ -1535,6 +1535,7 @@ DO:
                  NO-ERROR.
             IF AVAILABLE tt-job-mch THEN
             ASSIGN
+                job-mch.m-code        = tt-job-mch.m-code
                 job-mch.start-date    = tt-job-mch.start-date
                 job-mch.start-date-su = tt-job-mch.start-date-su
                 job-mch.start-time    = tt-job-mch.start-time
