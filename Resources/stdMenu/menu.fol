@@ -309,6 +309,7 @@ r-macmsf. hl
 r-jobprp. hl 
 r-jcost. hl
 r-wipjob. hl
+r-mchmsfN. hl
 hf h est
 job-code. hf est
 jc-ctrl. hf est
