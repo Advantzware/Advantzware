@@ -726,8 +726,10 @@ PROCEDURE create-order-lines.
                      END. /* each b-blk */
                     
                      v-board-cst = v-board-cst / (v-qty-2 / 1000).
-                     
+                  /*Why is Price being recalculated based on target markup?*/   
                   RUN custom/markup.p (ROWID(xeb),
+                                       v-board-cst,
+                                       v-board-cst,
                                        v-board-cst,
                                        0,
                                        INPUT-OUTPUT lv-sell-by,

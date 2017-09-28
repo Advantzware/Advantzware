@@ -80,6 +80,8 @@ IF AVAILABLE xeb THEN
     RUN custom/markup.p (ROWID(xeb),
         0,
         0,
+        0,
+        0,
         INPUT-OUTPUT lv-sell-by,
         INPUT-OUTPUT v-pct[3]).
 
