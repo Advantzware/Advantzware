@@ -151,7 +151,12 @@
              v-program = "oe/rep/bolxprnt10.p"
              is-xprint-form = YES
              lines-per-page = 80.
-         WHEN "Coburn" THEN
+        WHEN "bolfmt10-CAN" THEN
+          ASSIGN
+             v-program = "oe/rep/bolxprnt10can.p"
+             is-xprint-form = YES
+             lines-per-page = 80. 
+        WHEN "Coburn" THEN
           ASSIGN
              v-program = "oe/rep/bolcobrn.p"
              is-xprint-form = YES
