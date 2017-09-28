@@ -241,7 +241,7 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:
      ASSIGN
-	   str-init[1]  = "quoprint 1,quoprint 2,quoprint 10,quoprint 20"
+	   str-init[1]  = "quoprint 1,quoprint 2,quoprint 10,quoprint 20,quoprint1-CAN"
        str-init[2]  = "invprint 1,invprint 2,invprint 10,invprint 20"
        str-init[8]  = "poprint 1,poprint 2,poprint 10,poprint 20"
        str-init[9]  = "relprint 1,relprint 2,relprint 10"
