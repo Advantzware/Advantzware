@@ -489,19 +489,19 @@ PROCEDURE ipRunPurge :
   Notes:       
 ------------------------------------------------------------------------------*/
     OUTPUT STREAM out1 TO VALUE("c:\tmp\ar-inv" + 
-                                STRING(YEAR(TODAY),"99") +
+                                STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
                                 STRING(DAY(TODAY),"99") + ".d").
     OUTPUT STREAM out2 TO VALUE("c:\tmp\ar-invl" +
-                                STRING(YEAR(TODAY),"99") +
+                                STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
                                 STRING(DAY(TODAY),"99") + ".d").
     OUTPUT STREAM out3 TO VALUE("c:\tmp\ar-cash" + 
-                                STRING(YEAR(TODAY),"99") +
+                                STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
                                 STRING(DAY(TODAY),"99") + ".d").
     OUTPUT STREAM out4 TO VALUE("c:\tmp\ar-cashl" +
-                                STRING(YEAR(TODAY),"99") +
+                                STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
                                 STRING(DAY(TODAY),"99") + ".d").
 
@@ -581,12 +581,14 @@ PROCEDURE ipRunPurge :
                         ROWID(b-ar-cashl) NE ROWID(ar-cashl)
                         NO-ERROR.
                     IF NOT AVAIL b-ar-cashl THEN DO:
+                        EXPORT STREAM out3 ar-cash.
                         DELETE ar-cash.
                         ASSIGN
                             iPurgeCount = iPurgeCount + 1.
                     END.
                 END.
 
+                EXPORT STREAM out4 ar-cashl.
                 DELETE ar-cashl.
                 ASSIGN
                     iPurgeCount2 = iPurgeCount2 + 1.
@@ -595,11 +597,13 @@ PROCEDURE ipRunPurge :
             FOR EACH ar-invl EXCLUSIVE WHERE
                 ar-invl.company EQ cocode AND
                 ar-invl.x-no EQ ar-inv.x-no:
+                EXPORT STREAM out2 ar-invl.
                 DELETE ar-invl.
                 ASSIGN
                     iPurgeCount3 = iPurgeCount3 + 1.
             END.
 
+            EXPORT STREAM out1 ar-inv.
             DELETE ar-inv.
             ASSIGN
                 iPurgeCount4 = iPurgeCount4 + 1.
@@ -607,7 +611,12 @@ PROCEDURE ipRunPurge :
     END.
 
     SESSION:SET-WAIT-STATE("").
-
+    
+    OUTPUT STREAM out1 CLOSE.
+    OUTPUT STREAM out2 CLOSE.
+    OUTPUT STREAM out3 CLOSE.
+    OUTPUT STREAM out4 CLOSE.
+    
     MESSAGE  
         "Purge process completed." SKIP
         STRING(iPurgeCount4) + " invoices records were deleted." SKIP

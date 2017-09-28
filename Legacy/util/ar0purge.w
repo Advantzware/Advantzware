@@ -451,11 +451,11 @@ PROCEDURE ipRunPurge :
   Notes:       
 ------------------------------------------------------------------------------*/
     OUTPUT STREAM out1 TO VALUE("c:\tmp\ar-cashl" + 
-                                STRING(YEAR(TODAY),"99") +
+                                STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
                                 STRING(DAY(TODAY),"99") + ".d").
     OUTPUT STREAM out2 TO VALUE("c:\tmp\ar-cash" +
-                                STRING(YEAR(TODAY),"99") +
+                                STRING(YEAR(TODAY),"9999") +
                                 STRING(MONTH(TODAY),"99") +
                                 STRING(DAY(TODAY),"99") + ".d").
     
@@ -522,6 +522,9 @@ PROCEDURE ipRunPurge :
     END.
 
     SESSION:SET-WAIT-STATE ("").
+
+    OUTPUT STREAM out1 CLOSE.
+    OUTPUT STREAM out2 CLOSE.
 
     MESSAGE  
         "Purge process completed." SKIP
