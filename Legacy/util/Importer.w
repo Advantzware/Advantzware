@@ -40,9 +40,9 @@ ASSIGN
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-19 cbType fcFileName lHeaderRow ~
-lLogOnly fiLogFile btnProcess btnCancel 
-&Scoped-Define DISPLAYED-OBJECTS cbType fcFileName lHeaderRow lLogOnly ~
-fiLogFile fcMessage 
+lAbortIfNotAllValid lLogOnly fiLogFile btnProcess btnCancel 
+&Scoped-Define DISPLAYED-OBJECTS cbType fcFileName lHeaderRow ~
+lAbortIfNotAllValid lLogOnly fiLogFile 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -113,10 +113,6 @@ DEFINE VARIABLE fcFileName AS CHARACTER FORMAT "X(256)"
      VIEW-AS FILL-IN 
      SIZE 69 BY 1.
 
-DEFINE VARIABLE fcMessage AS CHARACTER FORMAT "X(256)":U 
-     VIEW-AS FILL-IN 
-     SIZE 98 BY 1 NO-UNDO.
-
 DEFINE VARIABLE fiLogFile AS CHARACTER FORMAT "X(256)":U 
      LABEL "Log File" 
      VIEW-AS FILL-IN 
@@ -124,7 +120,12 @@ DEFINE VARIABLE fiLogFile AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-19
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 98 BY 6.43.
+     SIZE 98 BY 7.38.
+
+DEFINE VARIABLE lAbortIfNotAllValid AS LOGICAL INITIAL yes 
+     LABEL "Abort Import If Invalid Record Found" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 47 BY .81 NO-UNDO.
 
 DEFINE VARIABLE lHeaderRow AS LOGICAL INITIAL yes 
      LABEL "First Row is Header" 
@@ -143,12 +144,12 @@ DEFINE FRAME FRAME-A
      cbType AT ROW 2.43 COL 19 COLON-ALIGNED WIDGET-ID 6
      fcFileName AT ROW 3.86 COL 19 COLON-ALIGNED HELP
           "Enter file name to import order"
-     lHeaderRow AT ROW 5.29 COL 21 WIDGET-ID 4
-     lLogOnly AT ROW 5.29 COL 54 WIDGET-ID 12
-     fiLogFile AT ROW 6.48 COL 19 COLON-ALIGNED WIDGET-ID 14
-     btnProcess AT ROW 8.86 COL 28
-     btnCancel AT ROW 8.86 COL 57
-     fcMessage AT ROW 10.52 COL 3 NO-LABEL WIDGET-ID 2
+     lHeaderRow AT ROW 5.05 COL 21 WIDGET-ID 4
+     lAbortIfNotAllValid AT ROW 6 COL 21 WIDGET-ID 16
+     lLogOnly AT ROW 6.95 COL 21 WIDGET-ID 12
+     fiLogFile AT ROW 7.91 COL 19 COLON-ALIGNED WIDGET-ID 14
+     btnProcess AT ROW 9.95 COL 28
+     btnCancel AT ROW 9.95 COL 57
      RECT-19 AT ROW 1.95 COL 3
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -212,11 +213,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 ASSIGN 
        fcFileName:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
-/* SETTINGS FOR FILL-IN fcMessage IN FRAME FRAME-A
-   NO-ENABLE ALIGN-L                                                    */
-ASSIGN 
-       fcMessage:READ-ONLY IN FRAME FRAME-A        = TRUE.
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = yes.
@@ -352,7 +348,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    
     /*    IF NOT llBatchMode THEN*/
     RUN enable_UI.
-
+    fiLogFile:SCREEN-VALUE = fGetLogFile(gcCompany).
 
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -394,14 +390,13 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY cbType fcFileName lHeaderRow lLogOnly fiLogFile fcMessage 
+  DISPLAY cbType fcFileName lHeaderRow lAbortIfNotAllValid lLogOnly fiLogFile 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE RECT-19 cbType fcFileName lHeaderRow lLogOnly fiLogFile btnProcess 
-         btnCancel 
+  ENABLE RECT-19 cbType fcFileName lHeaderRow lAbortIfNotAllValid lLogOnly 
+         fiLogFile btnProcess btnCancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
-  fiLogFile:SCREEN-VALUE = fGetLogFile(gcCompany).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -495,7 +490,8 @@ PROCEDURE pImport :
                            ipcLogFile,
                            iplLogOnly,
                            ipcType,
-                           iplHeader).
+                           iplHeader,
+                           lAbortIfNotAllValid).
     END.           
     ELSE 
         MESSAGE "File: " ipcFileName " not found." VIEW-AS ALERT-BOX.
