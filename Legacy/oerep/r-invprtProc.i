@@ -1517,7 +1517,10 @@ DO:
                             END.
                             ELSE 
                             DO: 
-                                PUT "<PDF=DIRECT><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                                IF "{&head}" EQ "ar-inv" THEN
+                                  PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
+                                ELSE
+                                  PUT "<PDF=DIRECT><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                                 cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                             END.  
             END.
@@ -1625,6 +1628,18 @@ PROCEDURE SendMail-1:
 
     IF NOT SEARCH (list-name) = ? THEN 
     DO: 
+        IF "{&head}" EQ "ar-inv" AND v-print-fmt NE "Southpak-xl" AND v-print-fmt NE "PrystupExcel"  THEN 
+        DO:
+            /* RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22"). */
+            /* For AR printing, preview the file before email */
+            IF is-xprint-form THEN 
+            DO:
+                FILE-INFO:FILE-NAME = list-name.
+                RUN printfile (FILE-INFO:FILE-NAME).
+            END.
+            ELSE
+                RUN custom/scr-rpt2.w (list-name,c-win-TITLE,int(lv-font-no),lv-ornt,lv-prt-bypass).
+        END.
 
         IF NOT is-xprint-form AND NOT v-print-fmt EQ "Southpak-xl" AND NOT v-print-fmt EQ "PrystupExcel" THEN 
         DO:
@@ -1644,9 +1659,6 @@ PROCEDURE SendMail-1:
 
         ELSE
             IF v-print-fmt NE "Southpak-XL" AND v-print-fmt <> "PrystupExcel" THEN DO:
-                IF "{&head}" EQ "ar-inv" OR (v-print-fmt NE "Southpak-xl" AND v-print-fmt NE "PrystupExcel") THEN
-                    RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
-                
                 list-name = lv-pdf-file.
             END.
             ELSE
