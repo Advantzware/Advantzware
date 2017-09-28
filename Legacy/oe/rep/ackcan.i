@@ -38,8 +38,8 @@ PUT "<R6><C50><FROM><R6><C80><LINE>" SKIP
    "<R8><C65><FROM><R10><C65><LINE>" SKIP
    .
 
-PUT "<FArial><P12><=#3><R-2> <B>Acknowledgement</B> " "<P10>" SKIP
-    "<=#3> Customer ID             Contact"
+PUT "<FArial><P12><=#3><R-2> <B>Reconnaissance</B> " "<P10>" SKIP
+    "<=#3> Client                   Contact"
     "<=#3><R+2> Telephone                      Fax" 
     "<=#3><R+4> Customer PO                        Order Date <FCourier New>"
     "<=3><R+1> " oe-ord.cust-no  space(5) oe-ord.contact
@@ -67,9 +67,9 @@ PUT "<|10><R19><C1><#4><FROM><R23><C80><RECT>" SKIP
 "<R19><C38><FROM><R23><C38><LINE>" SKIP
 "<R19><C52><FROM><R23><C52><LINE>" SKIP
 "<R19><C65><FROM><R23><C65><LINE>" SKIP
-"<R19><C73><FROM><R23><C73><LINE>" SKIP
+"<R19><C73.5><FROM><R23><C73.5><LINE>" SKIP
 .
-PUT "<FArial><=4><R+1> Date Req.             FOB                     Expediteur                            Termes                       Representant       Commande     Quote#" SKIP
+PUT "<FArial><=4><R+1> Date Req.             FOB                     Expediteur                            Termes                       Representant       Commande#     Quote#" SKIP
 "<FCourier New><=4><R+3> " lv-due-date FORM "99/99/9999" space(2)
 oe-ord.fob-code FORM "x(11)" SPACE(2) /* gdm 01060906 */
 v-shipvia /*carrier.carrier*/ FORM "x(20)" SPACE(1)
@@ -85,7 +85,7 @@ PUT "<|10><R24><C1><#5><FROM><R26><C80><RECT>" SKIP
        "<R24><C72><FROM><R26><C72><LINE>" SKIP
        .
 
-PUT "<FArial><=5><R+1> Line        Reference#                   Description                                                         Commande#                     Price             UM" SKIP(1).
+PUT "<FArial><=5><R+1> Ligne       Reference#                   Description                                                         Commande                      Prix             UM" SKIP(1).
 PUT "<FCourier New>"          .
 v-printline = v-printline + 6.
 
