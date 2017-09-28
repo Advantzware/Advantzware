@@ -503,16 +503,16 @@ DEFINE FRAME F-Main
           "Select to Include 0 Qty WIP Items" WIDGET-ID 226
      svIncludeInactiveItems AT ROW 35.52 COL 56 HELP
           "Select to Include Inactive Items" WIDGET-ID 228
-     "Order Status:" VIEW-AS TEXT
-          SIZE 13 BY 1 AT ROW 29.57 COL 8 WIDGET-ID 244
-     "Job Status:" VIEW-AS TEXT
-          SIZE 11 BY 1 AT ROW 28.38 COL 10 WIDGET-ID 242
-     "Secondary Sort By:" VIEW-AS TEXT
-          SIZE 18 BY 1 AT ROW 27.19 COL 3 WIDGET-ID 208
-     "WIP Qty:" VIEW-AS TEXT
-          SIZE 9 BY 1 AT ROW 30.76 COL 12 WIDGET-ID 246
      "Primary Sort By:" VIEW-AS TEXT
           SIZE 15 BY 1 AT ROW 26 COL 6 WIDGET-ID 90
+     "WIP Qty:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 30.76 COL 12 WIDGET-ID 246
+     "Secondary Sort By:" VIEW-AS TEXT
+          SIZE 18 BY 1 AT ROW 27.19 COL 3 WIDGET-ID 208
+     "Job Status:" VIEW-AS TEXT
+          SIZE 11 BY 1 AT ROW 28.38 COL 10 WIDGET-ID 242
+     "Order Status:" VIEW-AS TEXT
+          SIZE 13 BY 1 AT ROW 29.57 COL 8 WIDGET-ID 244
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1

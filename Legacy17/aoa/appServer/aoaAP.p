@@ -18,6 +18,12 @@
 
 /* ***************************  Definitions  ************************** */
 
+/* AP Invoice Posting.rpa */
+{aoa/tempTable/ttAPInvoicePosting.i}
+{aoa/tempTable/ttAPInvoicePostingGL.i}
+{aoa/tempTable/ttAPInvoicePostingSummary.i}
+{aoa/tempTable/ttAPInvoicePostingMsg.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -34,6 +40,65 @@
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Prototypes ********************** */
+
+&IF DEFINED(EXCLUDE-fAPInvoicePosting) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAPInvoicePosting Procedure 
+FUNCTION fAPInvoicePosting RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fAPInvoicePostingGL) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAPInvoicePostingGL Procedure
+FUNCTION fAPInvoicePostingGL RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fAPInvoicePostingMsg) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAPInvoicePostingMsg Procedure
+FUNCTION fAPInvoicePostingMsg RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fAPInvoicePostingSummary) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fAPInvoicePostingSummary Procedure
+FUNCTION fAPInvoicePostingSummary RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTableHandle Procedure 
+FUNCTION fGetTableHandle RETURNS HANDLE
+  ( ipcProgramID AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 
 
 /* *********************** Procedure Settings ************************ */
@@ -70,4 +135,127 @@
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+/* ************************  Function Implementations ***************** */
+
+&IF DEFINED(EXCLUDE-fAPInvoicePosting) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAPInvoicePosting Procedure 
+FUNCTION fAPInvoicePosting RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+Purpose:  AP Invoice Posting.rpa.rpa
+Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttAPInvoicePosting.
+    EMPTY TEMP-TABLE ttAPInvoicePostingGL.
+    EMPTY TEMP-TABLE ttAPInvoicePostingSummary.
+    
+    /* subject business logic */
+    RUN aoa/BL/r-apve&p.p (OUTPUT TABLE ttAPInvoicePosting,
+                           OUTPUT TABLE ttAPInvoicePostingGL,
+                           OUTPUT TABLE ttAPInvoicePostingSummary,
+                           ipcCompany, ipiBatch, ipcUserID).
+
+    RETURN TEMP-TABLE ttAPInvoicePosting:HANDLE.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-fAPInvoicePostingGL) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAPInvoicePostingGL Procedure
+FUNCTION fAPInvoicePostingGL RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+Purpose:  AP Invoice Posting.rpa.rpa
+Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttAPInvoicePostingGL.
+    
+    /* subject business logic */
+    RUN aoa/BL/r-apve&pGL.p (OUTPUT TABLE ttAPInvoicePostingGL, ipcCompany, ipiBatch, ipcUserID).
+
+    RETURN TEMP-TABLE ttAPInvoicePostingGL:HANDLE.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fAPInvoicePostingMsg) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAPInvoicePostingMsg Procedure
+FUNCTION fAPInvoicePostingMsg RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+ Purpose:  AP Invoice Posting.rpa.rpa
+Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttAPInvoicePostingMsg.
+    
+    /* subject business logic */
+    RUN aoa/BL/r-apve&pMsg.p (OUTPUT TABLE ttAPInvoicePostingMsg, ipcCompany, ipiBatch, ipcUserID).
+
+    RETURN TEMP-TABLE ttAPInvoicePostingMsg:HANDLE.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fAPInvoicePostingSummary) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fAPInvoicePostingSummary Procedure
+FUNCTION fAPInvoicePostingSummary RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+Purpose:  AP Invoice Posting.rpa.rpa
+Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttAPInvoicePostingSummary.
+    
+    /* subject business logic */
+    RUN aoa/BL/r-apve&pSummary.p (OUTPUT TABLE ttAPInvoicePostingSummary, ipcCompany, ipiBatch, ipcUserID).
+
+    RETURN TEMP-TABLE ttAPInvoicePostingSummary:HANDLE.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTableHandle Procedure 
+FUNCTION fGetTableHandle RETURNS HANDLE
+  ( ipcProgramID AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    CASE ipcProgramID:
+        /* AP Invoice Posting.rpa */
+        WHEN "r-apve&p." THEN
+        RETURN TEMP-TABLE ttAPInvoicePosting:HANDLE.
+    END CASE.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
 

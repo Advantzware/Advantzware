@@ -3,7 +3,7 @@
     File        : import.p
     Purpose     : Runs an import for various tables in the system
 
-    Syntax      : run util\import.p (cocode, filename, logonly (Y/N), type, header file y/n)
+    Syntax      : run util\import.p (cocode, filename, logonly (Y/N), type, header file y/n, abort y/n)
                     Valid Types:  AR, AP, CUST, VEND, GL, FG
     Description : Runs an import based on a .csv file passed in as argument
 
@@ -19,10 +19,11 @@ DEFINE INPUT PARAMETER ipcLogFile     AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER iplLogOnly     AS LOGICAL   NO-UNDO.
 DEFINE INPUT PARAMETER ipcType        AS CHARACTER NO-UNDO.
 DEFINE INPUT PARAMETER iplHeader      AS LOGICAL NO-UNDO.
+DEFINE INPUT PARAMETER iplAbortIfInvalid AS LOGICAL NO-UNDO.
 
 
 /*To be Exposed to support mass field updates based on type*/
-DEFINE VARIABLE cField       AS CHARACTER NO-UNDO INIT 'Note'.
+DEFINE VARIABLE cField AS CHARACTER NO-UNDO INIT 'Note'.
 
 
 DEFINE TEMP-TABLE ttCustUpdate
@@ -30,6 +31,7 @@ DEFINE TEMP-TABLE ttCustUpdate
     FIELD cField         AS CHARACTER
     FIELD lValid         AS LOGICAL
     FIELD cInvalidReason AS CHARACTER
+    FIELD iCount         AS INTEGER 
     .
 DEFINE TEMP-TABLE ttImportedInvoicesAP
     FIELD cVendNo          AS CHARACTER 
@@ -50,6 +52,7 @@ DEFINE TEMP-TABLE ttImportedInvoicesAP
     FIELD cLineTax         AS CHARACTER
     FIELD lValid           AS LOGICAL
     FIELD cInvalidReason   AS CHARACTER
+    FIELD iCount           AS INTEGER
     .
     
 DEFINE TEMP-TABLE ttImportedInvoicesAR
@@ -91,6 +94,7 @@ DEFINE TEMP-TABLE ttImportedInvoicesAR
     FIELD cLineTax                 AS CHARACTER  
     FIELD lValid                   AS LOGICAL
     FIELD cInvalidReason           AS CHARACTER
+    FIELD iCount                   AS INTEGER
     .
 DEFINE TEMP-TABLE ttImportedVendors
     FIELD cVendNo          AS CHARACTER
@@ -122,6 +126,7 @@ DEFINE TEMP-TABLE ttImportedVendors
     FIELD cCarrier         AS CHARACTER 
     FIELD lValid           AS LOGICAL
     FIELD cInvalidReason   AS CHARACTER
+    FIELD iCount           AS INTEGER
     INDEX VendNo IS PRIMARY cVendNo
     INDEX Valid             lValid.
 
@@ -159,6 +164,7 @@ DEFINE TEMP-TABLE ttImportedCustomers
     FIELD cDateAdded     AS CHARACTER 
     FIELD lValid         AS LOGICAL
     FIELD cInvalidReason AS CHARACTER
+    FIELD iCount         AS INTEGER
     INDEX CustNo IS PRIMARY cCustNo
     INDEX Valid             lValid.
 
@@ -194,6 +200,7 @@ DEFINE TEMP-TABLE ttImportedFGItems
     FIELD cNotePick      AS CHARACTER
     FIELD lValid         AS LOGICAL
     FIELD cInvalidReason AS CHARACTER
+    FIELD iCount         AS INTEGER
     INDEX INo IS PRIMARY cINo
     INDEX Valid          lValid.
 
@@ -203,6 +210,7 @@ DEFINE TEMP-TABLE ttImportedAccounts
     FIELD cAccountType   AS CHARACTER
     FIELD lValid         AS LOGICAL
     FIELD cInvalidReason AS CHARACTER
+    FIELD iCount         AS INTEGER
     INDEX Account IS PRIMARY cAccount
     INDEX Valid              lValid.
 
@@ -241,67 +249,78 @@ CASE ipcType:
     WHEN "CUSTUPD" THEN 
         DO:
             RUN pImportFileCustUpd.
-            IF fValidateImportCustUpd() THEN
+            IF fValidateImportCustUpd() OR NOT iplAbortIfInvalid THEN
                 RUN pProcessChangesCustUpd.
-            ELSE
-                RUN pDisplayErrorsCustUpd.
-    
+            ELSE DO:
+                iplLogOnly = YES.
+                RUN pProcessChangesCustUpd.
+            END.
         END.
     WHEN "CUST" THEN 
         DO:
             RUN pImportFileCust.
-            IF fValidateImportCust() THEN
+            IF fValidateImportCust() OR NOT iplAbortIfInvalid THEN
                 RUN pProcessChangesCust.
-            ELSE
-                RUN pDisplayErrorsCust.
-    
+            ELSE DO:
+                iplLogOnly = YES.
+                RUN pProcessChangesCust.
+            END.
         END.
     WHEN "VEND" THEN 
         DO:
             RUN pImportFileVend.
-            IF fValidateImportVend() THEN
+            IF fValidateImportVend() OR NOT iplAbortIfInvalid THEN
                 RUN pProcessChangesVend.
-            ELSE
-                RUN pDisplayErrorsVend.
+            ELSE DO:
+                iplLogOnly = YES.
+                RUN pProcessChangesVend.
+            END.
         END.
     WHEN "GL" THEN 
         DO:
             RUN pImportFileAccount.
-            IF fValidateImportAccount() THEN
+            IF fValidateImportAccount() OR NOT iplAbortIfInvalid THEN
                 RUN pProcessChangesAccount.
-            ELSE
-                RUN pDisplayErrorsAccount.
-
+            ELSE DO:
+                iplLogOnly = YES.
+                RUN pProcessChangesAccount.
+            END.
         END.    
     WHEN "FG" THEN 
         DO:
             RUN pImportFileFG.
-            IF fValidateImportFG() THEN
+            IF fValidateImportFG() OR NOT iplAbortIfInvalid THEN
                 RUN pProcessChangesFG.
-            ELSE
-                RUN pDisplayErrorsFG.
-    
+            ELSE DO:
+                iplLogOnly = YES.
+                RUN pProcessChangesFG.
+            END.
         END.
     WHEN "AP" THEN 
         DO:
             RUN pImportFileInvoicesAP.
-            IF fValidateImportInvoiceAP() THEN
+            IF fValidateImportInvoiceAP() OR NOT iplAbortIfInvalid THEN
                 RUN pProcessChangesInvociesAP.
-            ELSE
-                RUN pDisplayErrorsInvoicesAP.
-    
+            ELSE DO:
+                iplLogOnly = YES.
+                RUN pProcessChangesInvociesAP.
+            END.
         END.
     WHEN "AR" THEN 
         DO:
             RUN pImportFileInvoicesAR.
-            IF fValidateImportInvoiceAR() THEN
+            IF fValidateImportInvoiceAR() OR NOT iplAbortIfInvalid THEN
                 RUN pProcessChangesInvociesAR.
-            ELSE
-                RUN pDisplayErrorsInvoicesAR.
-    
+            ELSE DO:
+                iplLogOnly = YES.
+                RUN pProcessChangesInvociesAR.
+            END.
         END.
         
 END CASE.
+MESSAGE "Import Process Completed.  Check LogFile at " ipcLogFile " for results"
+    VIEW-AS ALERT-BOX.
+    
 /* **********************  Internal Procedures  *********************** */
 
 PROCEDURE pAddNote:
@@ -340,6 +359,7 @@ PROCEDURE pCreateNewInvoiceAP:
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER.
     DEFINE INPUT PARAMETER ipcVendor AS CHARACTER.
     DEFINE INPUT PARAMETER ipcInvoice AS CHARACTER.
+    DEFINE INPUT PARAMETER ipcInvDate AS CHARACTER.
     DEFINE OUTPUT PARAMETER opriAPInv AS ROWID.
     
     CREATE ap-inv.
@@ -349,7 +369,8 @@ PROCEDURE pCreateNewInvoiceAP:
         ap-inv.inv-date = TODAY
         ap-inv.vend-no  = ipcVendor
         .
-                    
+    IF ipcInvDate NE "" THEN 
+        ap-inv.inv-date = DATE(ipcInvDate).                     
     FIND FIRST vend NO-LOCK 
         WHERE vend.company EQ ipcCompany
         AND vend.vend-no EQ ipcVendor
@@ -407,6 +428,7 @@ PROCEDURE pCreateNewInvoiceAR:
         ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER.
     DEFINE INPUT PARAMETER ipcCustomer AS CHARACTER.
+    DEFINE INPUT PARAMETER ipcInvDate AS CHARACTER.
     DEFINE OUTPUT PARAMETER opriARInv AS ROWID.
     
     DEFINE VARIABLE iNextInvoiceNumber     AS INTEGER NO-UNDO.
@@ -445,6 +467,7 @@ PROCEDURE pCreateNewInvoiceAR:
         ar-inv.inv-date = TODAY 
         ar-inv.cust-no  = ipcCustomer
         .
+    IF ipcInvDate NE "" THEN ar-inv.inv-date = DATE(ipcInvDate).
     FIND FIRST cust NO-LOCK 
         WHERE cust.company EQ ipcCompany
         AND cust.cust-no EQ ar-inv.cust-no
@@ -596,121 +619,14 @@ PROCEDURE pCreateNewInvoiceLineAR:
     
 END PROCEDURE.
 
-PROCEDURE pDisplayErrorsAccount:
-    /*------------------------------------------------------------------------------
-     Purpose: Displays records with errors
-     Notes:
-    ------------------------------------------------------------------------------*/
-    FOR EACH ttImportedAccounts NO-LOCK
-        WHERE ttImportedAccounts.lValid EQ NO:
-        DISPLAY 
-            ttImportedAccounts.cInvalidReason FORMAT "x(60)"
-            ttImportedAccounts.cAccount
-            .   
-    END.
-
-END PROCEDURE.
-
-PROCEDURE pDisplayErrorsFG:
-    /*------------------------------------------------------------------------------
-     Purpose: Displays records with errors
-     Notes:
-    ------------------------------------------------------------------------------*/
-    FOR EACH ttImportedFGItems NO-LOCK
-        WHERE ttImportedFGItems.lValid EQ NO:
-        DISPLAY 
-            ttImportedFGItems.cInvalidReason FORMAT "x(60)"
-            ttImportedFGItems.ciNo
-            .   
-    END.
-
-END PROCEDURE.
-
-PROCEDURE pDisplayErrorsVend:
-    /*------------------------------------------------------------------------------
-     Purpose: Displays records with errors
-     Notes:
-    ------------------------------------------------------------------------------*/
-    FOR EACH ttImportedVendors NO-LOCK
-        WHERE ttImportedVendors.lValid EQ NO:
-        DISPLAY 
-            ttImportedVendors.cInvalidReason FORMAT "x(60)"
-            ttImportedVendors.cVendNo
-            .   
-    END.
-
-END PROCEDURE.
-
-PROCEDURE pDisplayErrorsCust:
-    /*------------------------------------------------------------------------------
-     Purpose: Displays records with errors
-     Notes:
-    ------------------------------------------------------------------------------*/
-    FOR EACH ttImportedCustomers NO-LOCK
-        WHERE ttImportedCustomers.lValid EQ NO:
-        DISPLAY 
-            ttImportedCustomers.cInvalidReason FORMAT "x(60)"
-            ttImportedCustomers.cCustNo
-            .   
-    END.
-
-END PROCEDURE.
-
-PROCEDURE pDisplayErrorsCustUpd:
-    /*------------------------------------------------------------------------------
-     Purpose: Displays records with errors
-     Notes:
-    ------------------------------------------------------------------------------*/
-    FOR EACH ttCustUpdate NO-LOCK
-        WHERE ttCustUpdate.lValid EQ NO:
-        DISPLAY 
-            ttCustUpdate.cInvalidReason FORMAT "x(60)"
-            ttCustUpdate.cCustNo
-            .   
-    END.
-
-END PROCEDURE.
-
-PROCEDURE pDisplayErrorsInvoiceAP:
-    /*------------------------------------------------------------------------------
-     Purpose: Displays records with errors
-     Notes:
-    ------------------------------------------------------------------------------*/
-    FOR EACH ttImportedInvoicesAP NO-LOCK
-        WHERE ttImportedInvoicesAP.lValid EQ NO:
-        DISPLAY 
-            ttImportedInvoicesAP.cInvalidReason FORMAT "x(60)"
-            ttImportedInvoicesAP.cVendNo
-            ttImportedInvoicesAP.cInvNo
-            .   
-    END.
-
-END PROCEDURE.
-
-PROCEDURE pDisplayErrorsInvoiceAR:
-    /*------------------------------------------------------------------------------
-     Purpose: Displays records with errors
-     Notes:
-    ------------------------------------------------------------------------------*/
-    FOR EACH ttImportedInvoicesAR NO-LOCK
-        WHERE ttImportedInvoicesAR.lValid EQ NO:
-        DISPLAY 
-            ttImportedInvoicesAR.cInvalidReason FORMAT "x(60)"
-            ttImportedInvoicesAR.cCustNo
-            ttImportedInvoicesAR.cInvNo
-            .   
-    END.
-
-END PROCEDURE.
-
 
 PROCEDURE pImportFileInvoicesAP:
     /*------------------------------------------------------------------------------
      Purpose: Reads the contents of an Excel File into a temp table
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
     
     EMPTY TEMP-TABLE ttImportedInvoicesAP.
     cFile = ipcImportFile.
@@ -720,7 +636,6 @@ PROCEDURE pImportFileInvoicesAP:
         INPUT STREAM sRow FROM VALUE(cFile).
         REPEAT:
             iCount = iCount + 1.
-            IF NOT (iCount EQ 1 AND iplHeader) THEN DO:
             CREATE ttImportedInvoicesAP.
             IMPORT STREAM sRow DELIMITER ","
                 ttImportedInvoicesAP.cInvNo
@@ -740,12 +655,12 @@ PROCEDURE pImportFileInvoicesAP:
                 ttImportedInvoicesAP.cLinePrice
                 ttImportedInvoicesAP.cLinePriceUom
                 . 
-            END.
+            ttImportedInvoicesAP.iCount = iCount.
         END.
         OUTPUT STREAM sRow CLOSE.
     END.
     FOR EACH ttImportedInvoicesAP:
-        IF TRIM(ttImportedInvoicesAP.cInvNo) EQ "" THEN
+        IF TRIM(ttImportedInvoicesAP.cInvNo) EQ "" AND ttImportedInvoicesAP.iCount > 1  THEN
             DELETE ttImportedInvoicesAP.
     END.
 
@@ -756,8 +671,8 @@ PROCEDURE pImportFileInvoicesAR:
      Purpose: Reads the contents of an Excel File into a temp table
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
     
     EMPTY TEMP-TABLE ttImportedInvoicesAR.
     cFile = ipcImportFile.
@@ -766,7 +681,6 @@ PROCEDURE pImportFileInvoicesAR:
         INPUT STREAM sRow FROM VALUE(cFile).
         REPEAT:
             iCount = iCount + 1.
-            IF NOT (iCount EQ 1 AND iplHeader) THEN DO:
             CREATE ttImportedInvoicesAR.
             IMPORT STREAM sRow DELIMITER ","
                 ttImportedInvoicesAR.cInvNo
@@ -806,12 +720,12 @@ PROCEDURE pImportFileInvoicesAR:
                 ttImportedInvoicesAR.cLineSalesman3Percent    
                 ttImportedInvoicesAR.cLineSalesman3Commission
                 .
-            END. 
+            ttImportedInvoicesAR.iCount = iCount. 
         END.
         OUTPUT STREAM sRow CLOSE.
     END.
     FOR EACH ttImportedInvoicesAR:
-        IF TRIM(ttImportedInvoicesAR.cInvNo) EQ "" THEN
+        IF TRIM(ttImportedInvoicesAR.cInvNo) EQ "" AND (ttImportedInvoicesAR.iCount > 1 or ttImportedInvoicesAR.iCount = 0) THEN
             DELETE ttImportedInvoicesAR.
     END.
 
@@ -823,8 +737,8 @@ PROCEDURE pImportFileAccount:
      Purpose: Reads the contents of an Excel File into a temp table
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
     
     EMPTY TEMP-TABLE ttImportedAccounts.
     cFile = ipcImportFile.
@@ -833,19 +747,18 @@ PROCEDURE pImportFileAccount:
         INPUT STREAM sRow FROM VALUE(cFile).
         REPEAT:
             iCount = iCount + 1.
-            IF NOT (iCount EQ 1 AND iplHeader) THEN DO:
             CREATE ttImportedAccounts.
             IMPORT STREAM sRow DELIMITER ","
                 ttImportedAccounts.cAccount
                 ttImportedAccounts.cAccountDesc
                 ttImportedAccounts.cAccountType
                 . 
-            END.
+            ttImportedAccounts.iCount = iCount.
         END.
         OUTPUT STREAM sRow CLOSE.
     END.
     FOR EACH ttImportedAccounts:
-        IF TRIM(ttImportedAccounts.cAccount) EQ "" OR iplHeader THEN
+        IF TRIM(ttImportedAccounts.cAccount) EQ "" AND ttImportedAccounts.iCount > 1 THEN
             DELETE ttImportedAccounts.
     END.
 
@@ -856,8 +769,8 @@ PROCEDURE pImportFileFG:
      Purpose: Reads the contents of an Excel File into a temp table
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
     
     EMPTY TEMP-TABLE ttImportedFGItems.
     cFile = ipcImportFile.
@@ -866,7 +779,6 @@ PROCEDURE pImportFileFG:
         INPUT STREAM sRow FROM VALUE(cFile).
         REPEAT:
             iCount = iCount + 1.
-            IF NOT (iCount EQ 1 AND iplHeader) THEN DO:
             CREATE ttImportedFGItems.
             IMPORT STREAM sRow DELIMITER ","
                 ttImportedFGItems.cINo
@@ -899,12 +811,12 @@ PROCEDURE pImportFileFG:
                 ttImportedFGItems.cNoteEst       
                 ttImportedFGItems.cNotePick      
                 . 
-            END.
+            ttImportedFGItems.iCount = iCount.
         END.
         OUTPUT STREAM sRow CLOSE.
     END.
     FOR EACH ttImportedFGItems:
-        IF TRIM(ttImportedFGItems.cINo) EQ "" THEN
+        IF TRIM(ttImportedFGItems.cINo) EQ "" AND ttImportedFGItems.iCount > 1 THEN
             DELETE ttImportedFGItems.
     END.
 
@@ -916,8 +828,8 @@ PROCEDURE pImportFileVend:
      Purpose: Reads the contents of an Excel File into a temp table
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
     
     EMPTY TEMP-TABLE ttImportedVendors.
     cFile = ipcImportFile.
@@ -926,7 +838,6 @@ PROCEDURE pImportFileVend:
         INPUT STREAM sRow FROM VALUE(cFile).
         REPEAT:
             iCount = iCount + 1.
-            IF NOT (iCount EQ 1 AND iplHeader) THEN DO:
             CREATE ttImportedVendors.
             IMPORT STREAM sRow DELIMITER ","
                 ttImportedVendors.cVendNo
@@ -957,12 +868,12 @@ PROCEDURE pImportFileVend:
                 ttImportedVendors.cTaxGroup
                 ttImportedVendors.cCarrier
                 .
-            END.
+            ttImportedVendors.iCount = iCount.
         END.
         OUTPUT STREAM sRow CLOSE.
     END.
     FOR EACH ttImportedVendors:
-        IF TRIM(ttImportedVendors.cVendNo) EQ "" THEN
+        IF TRIM(ttImportedVendors.cVendNo) EQ "" AND ttImportedVendors.iCount > 1 THEN
             DELETE ttImportedVendors.
     END.
 
@@ -973,8 +884,8 @@ PROCEDURE pImportFileCust:
      Purpose: Reads the contents of an Excel File into a temp table
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iCount AS INTEGER NO-UNDO. 
+    DEFINE VARIABLE cFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER   NO-UNDO. 
     
     EMPTY TEMP-TABLE ttImportedCustomers.
     cFile = ipcImportFile.
@@ -983,7 +894,6 @@ PROCEDURE pImportFileCust:
         INPUT STREAM sRow FROM VALUE(cFile).
         REPEAT:
             iCount = iCount + 1.
-            IF NOT (iCount EQ 1 AND iplHeader) THEN DO:
             CREATE ttImportedCustomers.
             IMPORT STREAM sRow DELIMITER ","
                 ttImportedCustomers.cCustNo
@@ -1018,12 +928,12 @@ PROCEDURE pImportFileCust:
                 ttImportedCustomers.cShipZip
                 
                 . 
-            END.
+            ttImportedCustomers.iCount = iCount.
         END.
         OUTPUT STREAM sRow CLOSE.
     END.
     FOR EACH ttImportedCustomers:
-        IF TRIM(ttImportedCustomers.cCustNo) EQ "" THEN
+        IF TRIM(ttImportedCustomers.cCustNo) EQ "" AND ttImportedCustomers.iCount > 1 THEN
             DELETE ttImportedCustomers.
     END.
 
@@ -1034,8 +944,8 @@ PROCEDURE pImportFileCustUpd:
      Purpose: Reads the contents of an Excel File into a temp table
      Notes:
     ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE cFile AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
+    DEFINE VARIABLE cFile  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iCount AS INTEGER   NO-UNDO.
     
     EMPTY TEMP-TABLE ttCustUpdate.
     cFile = ipcImportFile.
@@ -1044,18 +954,17 @@ PROCEDURE pImportFileCustUpd:
         INPUT STREAM sRow FROM VALUE(cFile).
         REPEAT:
             iCount = iCount + 1.
-            IF NOT (iCount EQ 1 AND iplHeader) THEN DO:
             CREATE ttCustUpdate.
             IMPORT STREAM sRow DELIMITER ","
                 ttCustUpdate.cCustNo
                 ttCustUpdate.cField
                 . 
-            END.
+            ttCustUpdate.iCount = iCount.
         END.
         OUTPUT STREAM sRow CLOSE.
     END.
     FOR EACH ttCustUpdate:
-        IF TRIM(ttCustUpdate.cCustNo) EQ "" THEN
+        IF TRIM(ttCustUpdate.cCustNo) EQ "" AND ttCustUpdate.iCount > 1 THEN
             DELETE ttCustUpdate.
     END.
 
@@ -1127,7 +1036,7 @@ PROCEDURE pProcessChangesInvociesAR:
                     NO-ERROR.
                 IF NOT AVAILABLE ar-inv THEN 
                 DO:
-                    RUN pCreateNewInvoiceAR (ipcCompany,ttImportedInvoicesAR.cCustNo, OUTPUT riARInv).
+                    RUN pCreateNewInvoiceAR (ipcCompany,ttImportedInvoicesAR.cCustNo, ttImportedInvoicesAR.cInvDate, OUTPUT riARInv).
                     FIND ar-inv EXCLUSIVE-LOCK 
                         WHERE ROWID(ar-inv) EQ riARInv
                         NO-ERROR.
@@ -1150,7 +1059,7 @@ PROCEDURE pProcessChangesInvociesAR:
                             AND stax.tax-group EQ ttImportedInvoicesAR.cTaxCode
                             NO-ERROR.
                         IF AVAILABLE stax THEN 
-                            ar-inv.tax-code = ttImportedInvoicesAP.cTaxCode.
+                            ar-inv.tax-code = ttImportedInvoicesAR.cTaxCode.
                     END.
                     IF ttImportedInvoicesAR.cTermsCode NE "" THEN 
                         ar-inv.terms = ttImportedInvoicesAR.cTermsCode.
@@ -1338,7 +1247,7 @@ PROCEDURE pProcessChangesInvociesAP:
                     NO-ERROR.
                 IF NOT AVAILABLE ap-inv THEN /*create a new one*/
                 DO:
-                    RUN pCreateNewInvoiceAP (ipcCompany, ttImportedInvoicesAP.cVendNo, ttimportedInvoicesAP.cInvNo, OUTPUT riApInv).
+                    RUN pCreateNewInvoiceAP (ipcCompany, ttImportedInvoicesAP.cVendNo, ttimportedInvoicesAP.cInvNo, ttImportedInvoicesAP.cInvDate, OUTPUT riApInv).
                     FIND ap-inv EXCLUSIVE-LOCK
                         WHERE ROWID(ap-inv) EQ riAPInv
                         NO-ERROR.
@@ -1926,26 +1835,26 @@ PROCEDURE pRecalculateARInvoiceHeader:
             NO-ERROR.
             
         ASSIGN
-            dSubTotal     = bf-ar-inv.net + bf-ar-inv.freight
+            dSubTotal         = bf-ar-inv.net + bf-ar-inv.freight
             bf-ar-inv.tax-amt = 0
-            dTax        = 0
-            dTaxFreight = 0.
+            dTax              = 0
+            dTaxFreight       = 0.
    
         IF bf-ar-inv.tax-code NE "" AND cust.sort EQ "Y" THEN 
         DO:
-/*            RUN ar/calctax2.p (bf-ar-inv.tax-code,*/
-/*                NO,                               */
-/*                bf-ar-inv.net,                    */
-/*                cust.company,                     */
-/*                "", /* item */                    */
-/*                OUTPUT dTax).                     */
-/*                                                  */
-/*            RUN ar/calctax2.p (bf-ar-inv.tax-code,*/
-/*                YES,                              */
-/*                bf-ar-inv.freight,                */
-/*                cust.company,                     */
-/*                "", /* item */                    */
-/*                OUTPUT dTaxFreight).              */
+            /*            RUN ar/calctax2.p (bf-ar-inv.tax-code,*/
+            /*                NO,                               */
+            /*                bf-ar-inv.net,                    */
+            /*                cust.company,                     */
+            /*                "", /* item */                    */
+            /*                OUTPUT dTax).                     */
+            /*                                                  */
+            /*            RUN ar/calctax2.p (bf-ar-inv.tax-code,*/
+            /*                YES,                              */
+            /*                bf-ar-inv.freight,                */
+            /*                cust.company,                     */
+            /*                "", /* item */                    */
+            /*                OUTPUT dTaxFreight).              */
 
             bf-ar-inv.tax-amt = dTax + dTaxFreight.
         END.
@@ -1972,6 +1881,15 @@ FUNCTION fValidateImportFG RETURNS LOGICAL
     DEFINE VARIABLE iX        AS INTEGER NO-UNDO.
     
     FOR EACH ttImportedFGItems:
+        ttImportedFGItems.lValid = YES.
+        IF ttImportedFGItems.iCount EQ 1 AND iplHeader THEN 
+        DO: 
+            ASSIGN 
+                ttImportedFGItems.lValid         = NO 
+                ttImportedFGItems.cInvalidReason = "Header"
+                .
+            NEXT.
+        END.
         FIND FIRST itemfg NO-LOCK
             WHERE itemfg.company EQ ipcCompany
             AND itemfg.i-no EQ ttImportedFGItems.cINo
@@ -1994,16 +1912,9 @@ FUNCTION fValidateImportFG RETURNS LOGICAL
                     ttImportedFGItems.cInvalidReason = "Style: " + ttImportedFGItems.cStyle + " does not exist."
                     .
             END.
-            ELSE 
-            DO:
-                ASSIGN 
-                    ttImportedFGItems.lValid = YES
-                    .
-            END.
     END.
-     
-    lAllValid = NOT CAN-FIND(FIRST ttImportedFGItems WHERE ttImportedFGItems.lValid = NO).
-    lAllValid = YES.
+    
+    lAllValid = NOT CAN-FIND(FIRST ttImportedFGItems WHERE ttImportedFGItems.lValid EQ NO AND ttImportedFGItems.cInvalidReason NE "Header").
     RETURN lAllValid.
 
         
@@ -2020,6 +1931,15 @@ FUNCTION fValidateImportAccount RETURNS LOGICAL
     DEFINE VARIABLE iX        AS INTEGER NO-UNDO.
     
     FOR EACH ttImportedAccounts:
+        ttImportedAccounts.lValid = YES.
+        IF ttImportedAccounts.iCount EQ 1 AND iplHeader THEN 
+        DO: 
+            ASSIGN 
+                ttImportedAccounts.lValid         = NO 
+                ttImportedAccounts.cInvalidReason = "Header"
+                .
+            NEXT.
+        END.
         FIND FIRST account NO-LOCK
             WHERE account.company EQ ipcCompany
             AND account.actnum EQ ttImportedAccounts.cAccount
@@ -2031,16 +1951,9 @@ FUNCTION fValidateImportAccount RETURNS LOGICAL
                 ttImportedAccounts.cInvalidReason = "Account: " + ttImportedAccounts.cAccount + " already exists."
                 .
         END.
-        ELSE 
-        DO:
-            ASSIGN 
-                ttImportedAccounts.lValid = YES
-                .
-        END.
     END.
-     
-    lAllValid = NOT CAN-FIND(FIRST ttImportedAccounts WHERE ttImportedAccounts.lValid = NO).
-    lAllValid = YES.
+
+    lAllValid = NOT CAN-FIND(FIRST ttImportedAccounts WHERE ttImportedAccounts.lValid EQ NO AND ttImportedAccounts.cInvalidReason NE "Header").
     RETURN lAllValid.
 
         
@@ -2059,7 +1972,15 @@ FUNCTION fValidateImportVend RETURNS LOGICAL
     DEFINE VARIABLE iX        AS INTEGER NO-UNDO.
     
     FOR EACH ttImportedVendors:
-        
+        ttImportedVendors.lValid = YES.
+        IF ttImportedVendors.iCount EQ 1 AND iplHeader THEN 
+        DO: 
+            ASSIGN 
+                ttImportedVendors.lValid         = NO 
+                ttImportedVendors.cInvalidReason = "Header"
+                .
+            NEXT.
+        END.
         FIND FIRST vend NO-LOCK
             WHERE vend.company EQ ipcCompany
             AND vend.vend-no EQ ttImportedVendors.cVendNo
@@ -2071,16 +1992,9 @@ FUNCTION fValidateImportVend RETURNS LOGICAL
                 ttImportedVendors.cInvalidReason = "Vendor: " + ttImportedVendors.cVendNo + " already exists."
                 .
         END.
-        ELSE 
-        DO:
-            ASSIGN 
-                ttImportedVendors.lValid = YES
-                .
-        END.
     END.
      
-    lAllValid = NOT CAN-FIND(FIRST ttImportedVendors WHERE ttImportedVendors.lValid = NO).
-    lAllValid = YES.
+    lAllValid = NOT CAN-FIND(FIRST ttImportedVendors WHERE ttImportedVendors.lValid EQ NO AND ttImportedVendors.cInvalidReason NE "Header").
     RETURN lAllValid.
 
         
@@ -2098,7 +2012,15 @@ FUNCTION fValidateImportCust RETURNS LOGICAL
     DEFINE VARIABLE iX        AS INTEGER NO-UNDO.
     
     FOR EACH ttImportedCustomers:
-        
+        ttImportedCustomers.lValid = YES.
+        IF ttImportedCustomers.iCount EQ 1 AND iplHeader THEN 
+        DO: 
+            ASSIGN 
+                ttImportedCustomers.lValid         = NO 
+                ttImportedCustomers.cInvalidReason = "Header"
+                .
+            NEXT.
+        END.
         FIND FIRST cust NO-LOCK
             WHERE cust.company EQ ipcCompany
             AND cust.cust-no EQ ttImportedCustomers.cCustNo
@@ -2110,15 +2032,9 @@ FUNCTION fValidateImportCust RETURNS LOGICAL
                 ttImportedCustomers.cInvalidReason = "Customer: " + ttImportedCustomers.cCustNo + " already exists."
                 .
         END.
-        ELSE 
-        DO:
-            ASSIGN 
-                ttImportedCustomers.lValid = YES
-                .
-        END.
     END.
     
-    lAllValid = NOT CAN-FIND(FIRST ttImportedCustomers WHERE ttImportedCustomers.lValid = NO).
+    lAllValid = NOT CAN-FIND(FIRST ttImportedCustomers WHERE ttImportedCustomers.lValid EQ NO AND ttImportedCustomers.cInvalidReason NE "Header").
 
     RETURN lAllValid.
 
@@ -2135,7 +2051,15 @@ FUNCTION fValidateImportCustUpd RETURNS LOGICAL
     DEFINE VARIABLE iX        AS INTEGER NO-UNDO.
     
     FOR EACH ttCustUpdate:
-        
+        ttCustUpdate.lValid = YES.
+        IF ttCustUpdate.iCount EQ 1 AND iplHeader THEN 
+        DO: 
+            ASSIGN 
+                ttCustUpdate.lValid         = NO 
+                ttCustUpdate.cInvalidReason = "Header"
+                .
+            NEXT.
+        END.
         FIND FIRST cust NO-LOCK
             WHERE cust.company EQ ipcCompany
             AND cust.cust-no EQ ttCustUpdate.cCustNo
@@ -2147,15 +2071,9 @@ FUNCTION fValidateImportCustUpd RETURNS LOGICAL
                 ttCustUpdate.cInvalidReason = "Customer: " + ttCustUpdate.cCustNo + " not found."
                 .
         END.
-        ELSE 
-        DO:
-            ASSIGN 
-                ttCustUpdate.lValid = YES
-                .
-        END.
     END.
     
-    lAllValid = YES. /*NOT CAN-FIND(FIRST ttCustUpdate WHERE ttCustUpdate.lValid = NO).*/
+    lAllValid = NOT CAN-FIND(FIRST ttCustUpdate WHERE ttCustUpdate.lValid EQ NO AND ttCustUpdate.cInvalidReason NE "Header").
 
     RETURN lAllValid.
 
@@ -2172,7 +2090,15 @@ FUNCTION fValidateImportInvoiceAP RETURNS LOGICAL
     DEFINE VARIABLE iX        AS INTEGER NO-UNDO.
     
     FOR EACH ttImportedInvoicesAP:
-        
+        ttImportedInvoicesAP.lValid = YES.
+        IF ttImportedInvoicesAP.iCount EQ 1 AND iplHeader THEN 
+        DO: 
+            ASSIGN 
+                ttImportedInvoicesAP.lValid         = NO 
+                ttImportedInvoicesAP.cInvalidReason = "Header"
+                .
+            NEXT.
+        END.
         FIND FIRST vend NO-LOCK
             WHERE vend.company EQ ipcCompany
             AND vend.vend-no EQ ttImportedInvoicesAP.cVendNo
@@ -2184,13 +2110,8 @@ FUNCTION fValidateImportInvoiceAP RETURNS LOGICAL
                 ttImportedInvoicesAP.cInvalidReason = "Vendor: " + ttImportedInvoicesAP.cVendNo + " not found. "
                 .
         END.
-        ELSE
+        IF ttImportedInvoicesAP.cLineAccount NE "" THEN 
         DO:
-            ASSIGN 
-                ttImportedInvoicesAP.lValid = YES
-                .
-        END.
-        IF ttImportedInvoicesAP.cLineAccount NE "" THEN DO:
             FIND FIRST account NO-LOCK
                 WHERE account.company EQ ipcCompany
                 AND account.actnum EQ ttImportedInvoicesAP.cLineAccount
@@ -2202,16 +2123,10 @@ FUNCTION fValidateImportInvoiceAP RETURNS LOGICAL
                     ttImportedInvoicesAP.cInvalidReason = ttImportedInvoicesAP.cInvalidReason + "Account: " + ttImportedInvoicesAP.cLineAccount + " not found."
                     .
             END.
-            ELSE
-            DO:
-                ASSIGN 
-                    ttImportedInvoicesAP.lValid = YES
-                    .
-            END.
         END.
     END.
     
-    lAllValid = YES. /*NOT CAN-FIND(FIRST ttCustUpdate WHERE ttCustUpdate.lValid = NO).*/
+    lAllValid = NOT CAN-FIND(FIRST ttImportedInvoicesAP WHERE ttImportedInvoicesAP.lValid EQ NO AND ttImportedInvoicesAP.cInvalidReason NE "Header").
 
     RETURN lAllValid.
 
@@ -2228,7 +2143,15 @@ FUNCTION fValidateImportInvoiceAR RETURNS LOGICAL
     DEFINE VARIABLE iX        AS INTEGER NO-UNDO.
     
     FOR EACH ttImportedInvoicesAR:
-        
+        ttImportedInvoicesAR.lValid = YES.
+        IF ttImportedInvoicesAR.iCount EQ 1 AND iplHeader THEN 
+        DO: 
+            ASSIGN 
+                ttImportedInvoicesAR.lValid         = NO 
+                ttImportedInvoicesAR.cInvalidReason = "Header"
+                .
+            NEXT.
+        END.
         FIND FIRST cust NO-LOCK
             WHERE cust.company EQ ipcCompany
             AND cust.cust-no EQ ttImportedInvoicesAR.cCustNo
@@ -2240,15 +2163,9 @@ FUNCTION fValidateImportInvoiceAR RETURNS LOGICAL
                 ttImportedInvoicesAR.cInvalidReason = "Customer: " + ttImportedInvoicesAR.cCustNo + " not found."
                 .
         END.
-        ELSE 
-        DO:
-            ASSIGN 
-                ttImportedInvoicesAR.lValid = YES
-                .
-        END.
     END.
     
-    lAllValid = YES. /*NOT CAN-FIND(FIRST ttCustUpdate WHERE ttCustUpdate.lValid = NO).*/
+    lAllValid = NOT CAN-FIND(FIRST ttImportedInvoicesAR WHERE ttImportedInvoicesAR.lValid EQ NO AND ttImportedInvoicesAR.cInvalidReason NE "Header").
 
     RETURN lAllValid.
 

@@ -409,9 +409,9 @@ PROCEDURE BatchMail :
                         AND b2-{&head}.{&multiinvoice} EQ NO            
                         AND INDEX(vcHoldStats, b2-{&head}.stat) EQ 0 NO-LOCK NO-ERROR.
                     IF AVAILABLE b2-{&head} THEN
-                        FIND FIRST {&line} /*OF b2-{&head} */ NO-LOCK WHERE {&line}.ord-no NE 0 NO-ERROR.  
+                        FIND FIRST {&line}  NO-LOCK WHERE {&line}.{&rno} EQ b2-{&head}.{&rno} AND {&line}.ord-no NE 0 NO-ERROR.  
                 END.  
-                ELSE FIND FIRST {&line} /* OF b1-{&head}2 */ NO-LOCK WHERE {&line}.ord-no NE 0 NO-ERROR.
+                ELSE FIND FIRST {&line}  NO-LOCK WHERE {&line}.{&rno} EQ b1-{&head}2.{&rno} AND {&line}.ord-no NE 0 NO-ERROR.
                 IF AVAILABLE {&line} THEN 
                 DO:
                     FIND oe-ord WHERE oe-ord.company = b1-{&head}2.company
@@ -675,7 +675,7 @@ PROCEDURE runReport5:
             FIRST b-cust WHERE
             b-cust.company EQ cocode AND
             b-cust.cust-no EQ buf-{&head}.cust-no AND
-            /* out temp  */ ((b-cust.inv-meth EQ ? AND buf-{&head}.{&multiinvoice}) OR
+            ((b-cust.inv-meth EQ ? AND buf-{&head}.{&multiinvoice}) OR
             (b-cust.inv-meth NE ? AND NOT buf-{&head}.{&multiinvoice}) OR "{&head}" EQ "ar-inv")
             NO-LOCK
             BREAK BY buf-{&head}.company
@@ -933,7 +933,7 @@ PROCEDURE output-to-mail :
                             FIND oe-ord WHERE oe-ord.company = buf-{&head}.company
                                 AND oe-ord.ord-no = {&line}.ord-no
                                 NO-LOCK NO-ERROR.
-                            vSoldToNo = IF AVAILABLE oe-ord THEN oe-ord.sold-id ELSE "". 
+                            vSoldToNo = IF AVAILABLE oe-ord THEN oe-ord.sold-id ELSE "".
                         END.
                         vShipToNo = STRING(buf-{&head}.sold-no).
 
@@ -1129,7 +1129,7 @@ PROCEDURE build-list1:
             
         IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(oe-boll)) OR {&head}.{&multiinvoice} )  THEN 
         DO:
-            IF "{&head}" EQ "inv-head" THEN
+            IF "{&head}" EQ "inv-head" AND AVAIL(buf-{&line}) THEN                 
                 NEXT.            
         END.
 
@@ -1257,7 +1257,7 @@ PROCEDURE run-report :
             NO-ERROR. 
     
                               
-        IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(oe-boll)) OR {&head}.{&multiinvoice} OR "{&head}" EQ "AR-INV") THEN 
+        IF AVAIL buf-{&line} AND NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(oe-boll)) OR {&head}.{&multiinvoice} OR "{&head}" EQ "AR-INV") THEN 
         DO:
             NEXT.            
         END.
@@ -1292,7 +1292,7 @@ PROCEDURE run-report :
                     
                     
                 RELEASE oe-bolh.
-                      
+            IF AVAIL buf-{&line}1 THEN DO:
                 IF buf-{&line}1.{&bolno} EQ 0 THEN
                         
                     FOR EACH oe-bolh NO-LOCK 
@@ -1308,11 +1308,12 @@ PROCEDURE run-report :
                                                         
                   {&bol-check}
             END.
+            END.
             iBol = 0.
-            IF buf-{&line}1.bol-no GT 0 THEN
+            IF AVAIL buf-{&line}1 AND buf-{&line}1.bol-no GT 0 THEN
                 iBol = buf-{&line}1.bol-no.
             ELSE 
-                IF b-{&head}1.{&bolno} GT 0 THEN
+                IF AVAIL b-{&head}1 AND b-{&head}1.{&bolno} GT 0 THEN
                     iBol = b-{&head}1.{&bolno}.
             
             
@@ -1333,7 +1334,7 @@ END. /* If multi-invoice */
 /* Was bolcheck.i */
                                     
 RELEASE oe-bolh.
-                          
+        IF AVAIL buf-{&line} THEN DO:
 IF buf-{&line}.bol-no EQ 0 THEN
     FOR EACH oe-bolh NO-LOCK 
         WHERE oe-bolh.b-no EQ buf-{&line}.{&bno}:
@@ -1348,9 +1349,11 @@ END.
                       
 {&bol-check}
 END.
+         END.
+        
             
 iBol = 0.
-IF buf-{&line}.bol-no GT 0 THEN
+          IF AVAIL buf-{&line} AND buf-{&line}.bol-no GT 0 THEN
     iBol = buf-{&line}.bol-no.
 ELSE 
     IF {&head}.{&bolno} GT 0 THEN
@@ -1392,7 +1395,7 @@ IF vcInvNums MATCHES '*-*' THEN
 
 /* update loadtag status - Bill of lading task#: 10190414 */
 IF NOT {&head}.printed THEN
-    FOR EACH bf-{&line} /* wfk  OF {&head} */ NO-LOCK:
+    FOR EACH bf-{&line}  WHERE bf-{&line}.{&rno} EQ {&head}.{&rno} NO-LOCK:
         FOR EACH oe-boll WHERE oe-boll.company EQ bf-{&line}.company
             AND oe-boll.b-no    EQ bf-{&line}.{&bno}
             AND oe-boll.ord-no  EQ bf-{&line}.ord-no
@@ -1522,7 +1525,7 @@ DO:
     END CASE.
 
     PUT "</PROGRESS>".
-END.
+END. /* Is Xprint form */
 
 ASSIGN 
     lXMLOutput  = rd-dest EQ iXMLOutput /* rstark 05181205 */
@@ -1688,6 +1691,7 @@ PROCEDURE SendMail-1:
             VIEW-AS ALERT-BOX INFORMATION BUTTONS OK.
         RETURN. 
     END.
+
     IF NOT lSupressEmail THEN
         RUN custom/xpmail2.p   (INPUT   icRecType,
             INPUT   'R-INVPRT.',
@@ -1848,9 +1852,11 @@ PROCEDURE setBOLRange:
                 END.
             END.
         END. 
-    
+        IF "{&head}" eq "inv-head" THEN DO:
         FOR EACH oe-bolh NO-LOCK
             WHERE oe-bolh.company EQ cocode
+                AND oe-bolh.posted EQ TRUE
+                AND oe-bolh.printed EQ TRUE
             AND oe-bolh.{&bolno}  GE INT(begin_bol-SCREEN-VALUE)
             AND oe-bolh.{&bolno}  LE INT(end_bol-SCREEN-VALUE):
        
@@ -1860,6 +1866,24 @@ PROCEDURE setBOLRange:
             IF oe-bolh.bol-date GT DATE(end_date-screen-value) THEN
                 opend_date-SCREEN-VALUE = STRING(oe-bolh.bol-date).
                 
+            END.
+        END.
+        ELSE DO:
+            IF INT(begin_inv-screen-value) GT 0 THEN DO:
+              FOR EACH ar-inv NO-LOCK
+                 WHERE ar-inv.company eq cocode
+                   AND ar-inv.inv-no GE INTEGER(begin_inv-screen-value)
+                   AND ar-inv.inv-no LE INTEGER(end_inv-screen-value)
+                   :
+                IF ar-inv.inv-date LT DATE(begin_date-SCREEN-VALUE) THEN
+                    opbegin_date-SCREEN-VALUE = STRING(ar-inv.inv-date).
+    
+                IF ar-inv.inv-date GT DATE(end_date-screen-value) THEN
+                    opend_date-SCREEN-VALUE = STRING(ar-inv.inv-date).
+                 
+              END.
+                
+            END.
         END.
     END.     
     

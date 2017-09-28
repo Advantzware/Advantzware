@@ -2797,13 +2797,17 @@ PROCEDURE fg-post :
         RETURN.
     
   RUN validateFgAssembly.
-  IF ERROR-STATUS:ERROR THEN 
+  IF ERROR-STATUS:ERROR THEN DO:
+    MESSAGE "Error: Invalid FG Assembly Bin"
+    VIEW-AS ALERT-BOX. 
     RETURN.
+  END.
     
   RUN validateTransfers.
-    IF ERROR-STATUS:ERROR THEN 
+    IF ERROR-STATUS:ERROR THEN do:
+        message "Error: Invalid Transfer" view-as alert-box.
         RETURN.
-        
+    END.
   /* return temp-table w-job for processing */
   RUN fg/fgpostBatch.p (
       INPUT v-post-date,
@@ -4189,7 +4193,7 @@ PROCEDURE validateFgAssembly:
     ------------------------------------------------------------------------------*/
   DEFINE VARIABLE iRNo AS INTEGER NO-UNDO.
   DEFINE BUFFER b-w-fg-rctd FOR w-fg-rctd.
-
+  DEFINE VARIABLE lSucceeded AS LOGICAL NO-UNDO.
     FOR EACH b-w-fg-rctd WHERE b-w-fg-rctd.qty LT 0,
         EACH reftable NO-LOCK WHERE reftable.reftable EQ "fg-rctd.user-id" 
         AND reftable.company  EQ b-w-fg-rctd.company 
@@ -4198,8 +4202,11 @@ PROCEDURE validateFgAssembly:
         USE-INDEX loc    .
       
         iRNo = INTEGER(SUBSTRING(reftable.dscr, 9, 11)) NO-ERROR.
-        IF ERROR-STATUS:ERROR = NO THEN 
+        IF ERROR-STATUS:ERROR THEN 
+          iRNo = INTEGER(SUBSTRING(reftable.dscr, 1, 11)) NO-ERROR.
+        IF ERROR-STATUS:ERROR = NO THEN do:
             FIND FIRST w-fg-rctd NO-LOCK WHERE w-fg-rctd.r-no EQ iRNo NO-ERROR. 
+        end.
         IF NOT AVAILABLE w-fg-rctd THEN 
             NEXT. 
       
@@ -4220,7 +4227,7 @@ PROCEDURE validateFgAssembly:
 
         END.
         RELEASE fg-rctd.
-
+        ASSIGN lSucceeded = YES NO-ERROR.
     END.
 
 

@@ -1,3 +1,4 @@
+"AP" "AP Invoice Posting" "r-apve&p." "VU3"
 "AR" "Aged Receivables" "r-araged." "AR5"
 "AR" "Aged Receivables Totals" "agedtot." "AR51"
 "AR" "Cash Receipt By SalesRep Name" "r-cashs2." "AR16"
@@ -16,6 +17,8 @@
 "OE" "Orders Booked By Order No" "r-booko#." "OR11"
 "OE" "Post BOL / Create Invoices" "r-bolpst." "OS5"
 "OE" "Recap Product Category" "recappc." "OR17"
+"OE" "Scheduled Releases" "r-sched." "OR2"
+"OE" "Shipping Report" "shiprpt." "OR17"
 "RM" "ReOrdering Advice" "r-reordr." "MR2"
 "TS" "Machine Transaction Summary" "mtransum." "TR15"
 "TS" "Machine Transactions" "r-mchtrn." "TR3"

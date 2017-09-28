@@ -20,7 +20,7 @@
 
 &Scoped-define lookup-db ASI.
 &Scoped-define lookup-file itemfg
-&Scoped-define where-statement TRUE
+&Scoped-define where-statement itemfg.company = gcompany
 &Scoped-define return-field i-no
 &Scoped-define font 4
 &Scoped-define height-size 19

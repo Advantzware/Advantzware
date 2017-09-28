@@ -143,6 +143,16 @@ FUNCTION fDateOptions RETURNS LOGICAL (ipDateOption AS HANDLE)  FORWARD.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDateOptionValue W-Win
+FUNCTION fDateOptionValue RETURNS DATE
+  (ipcDateOption AS CHARACTER, ipdtDate AS DATE)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGenerateInclude W-Win 
 FUNCTION fGenerateInclude RETURNS LOGICAL
   ( iphFrame AS HANDLE, ipcType AS CHARACTER )  FORWARD.
@@ -2290,6 +2300,23 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDateOptionValue W-Win
+FUNCTION fDateOptionValue RETURNS DATE 
+  (ipcDateOption AS CHARACTER, ipdtDate AS DATE) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    RETURN DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin,ipcDateOption,ipdtDate).
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGenerateInclude W-Win 
 FUNCTION fGenerateInclude RETURNS LOGICAL

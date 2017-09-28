@@ -100,7 +100,7 @@ ASSIGN
     
 {fg/fullset.i NEW}
 {fg/fg-post3.i NEW}
-{jc/jcgl-sh.i NEW}
+{jc/jcgl-sh.i }
 {sys/inc/adjustgl.i}
 
 DEF STREAM before.
@@ -108,14 +108,17 @@ DEF STREAM after.
 
 DEFINE VARIABLE excelheader AS CHARACTER NO-UNDO.
 DEFINE STREAM excel.
+DEF            VAR v-fgpostgl     AS CHAR    NO-UNDO.
+
 DO TRANSACTION:
     {sys/inc/fgpost.i}   
+    {sys/inc/fgpostgl.i}
+    assign v-fgpostgl = fgpostgl.
 END.
 DEFINE SHARED VARIABLE choice AS LOG NO-UNDO.
 
 DEF VAR v-fg-value AS DEC FORMAT "->,>>>,>>9.99".
 DEF VAR t-setup AS LOG NO-UNDO.
-DEF            VAR v-fgpostgl     AS CHAR    NO-UNDO.
 
 DEF            VAR v-msf          AS DEC     FORMAT ">,>>9.999" EXTENT 6.
 DEF            VAR is-xprint-form AS LOG     NO-UNDO.
@@ -459,11 +462,6 @@ DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
 
         RUN build-tables.
 
-        OUTPUT TO c:\temp\buildtab.txt.
-        FOR EACH  w-fg-rctd.
-          EXPORT  w-fg-rctd.i-no.
-        END.
-        OUTPUT CLOSE.
     END.
 END.
     

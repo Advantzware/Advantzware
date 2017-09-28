@@ -83,7 +83,7 @@ DO TRANSACTION:
     {sys/inc/fgpost.i}   
 END.
 
-{jc/jcgl-sh.i NEW}
+{jc/jcgl-sh.i }
 {fg/fg-post3.i NEW}
 
 
