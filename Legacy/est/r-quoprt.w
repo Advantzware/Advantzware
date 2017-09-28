@@ -2579,7 +2579,7 @@ PROCEDURE SetQuoForm :
   Notes:       
 ------------------------------------------------------------------------------*/
    DEFINE INPUT PARAM icPrintFormat AS CHAR NO-UNDO.
-   IF INDEX("Pacific,Xprint,quoprint 1,quoprint 2,quoprint 10,quoprint 20,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Oklahoma,Accord",icPrintFormat) > 0 THEN
+   IF INDEX("Pacific,Xprint,quoprint 1,quoprint 2,quoprint 10,quoprint 20,Printers,Hughes,SouthPak,ABox,Midwest,Axis,MWFIBRE,century,Concepts,oracle,Harwell,quoprint10-CAN,PremierX,Elite,Unipak,Ottpkg,Frankstn,Mirpkg,APC,Perform,FibreX,Boss,Protagon,Loylang,LoylangBSF,PPI,Packrite,Xprint30,StClair,AllWest,Soule,Sultana,SouleMed,Simkins,CCC,Peachtree,Oklahoma,Accord",icPrintFormat) > 0 THEN
       is-xprint-form = YES.     
    ELSE is-xprint-form = NO.
 
@@ -2593,6 +2593,7 @@ PROCEDURE SetQuoForm :
        WHEN "Brick" THEN ASSIGN v-program = "cec/quote/quobrick.p" lines-per-page = 38.
        WHEN "Fibre" THEN ASSIGN v-program = "cec/quote/quofibre.p" lines-per-page = 52.
        WHEN "Harwell" THEN ASSIGN v-program = "cec/quote/quohawl.p" lines-per-page = 56.
+       WHEN "quoprint10-CAN" THEN ASSIGN v-program = "cec/quote/quo10can.p" lines-per-page = 56.
        WHEN "Pacific" THEN ASSIGN v-program = "cec/quote/quopacif.p" lines-per-page = 66.
        WHEN "Abox" THEN ASSIGN v-program = "cec/quote/quoabox.p" lines-per-page = 66.
        WHEN "Xprint" OR WHEN "quoprint 1" OR WHEN "quoprint 2" THEN ASSIGN v-program = "cec/quote/quoxprnt.p" lines-per-page = 66.
