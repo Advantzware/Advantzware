@@ -151,7 +151,7 @@
              v-program = "oe/rep/bolxprnt10.p"
              is-xprint-form = YES
              lines-per-page = 80.
-        WHEN "bolfmt 10-CAN" THEN
+        WHEN "bolfmt10-CAN" THEN
           ASSIGN
              v-program = "oe/rep/bolxprnt10can.p"
              is-xprint-form = YES

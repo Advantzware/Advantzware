@@ -69,7 +69,7 @@ ASSIGN
                 "Allwest,COLOR,Badger,LoyLang,Carded,Metro,Knight,CSC-GA,KDWILLSX,Peachtree,Protagon," +
                 "PremierCX,PeachTreeBC,ACCORDBC,Soule,NSTOCK,TrilakesLot#,Multicell,MetroTags,AllPkg2,PremierBroker,SouleMed,Chillicothe," +
                 "CapitolBC,CardedBC,Axis,BadgerSoldTo,PeachtreeLotPO,Lakeside,CSCINStamp,CCCWPP,Prystup-Excel,Printers,Printers2,RFCX," +
-                "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt 10-CAN"
+                "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN"
  str-init[11] = "ASI,Laser,P&P,n,Raritan,ContSrvc,Royal,Triad,Rudd,"   +
                 "Hartford,AIHalper,Brick,Fibre,Herman,ASILaser,TriadLas,"      +
                 "Chillic,Middlesx,Hughes,ASI2000,Unipak,RFC,Inland,Prefered,"  +
@@ -245,7 +245,7 @@ IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:
        str-init[2]  = "invprint 1,invprint 2,invprint 10,invprint 20"
        str-init[8]  = "poprint 1,poprint 2,poprint 10,poprint 20"
        str-init[9]  = "relprint 1,relprint 2"
-       str-init[10] = "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt 10-CAN"
+       str-init[10] = "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN"
        str-init[11] = "chkfmt 1,chkfmt 2"
        str-init[13] = "ackhead 1,ackhead 2,ackhead 10,ackhead 20"
        str-init[29] = "bolcert 1,bolcert 2"
