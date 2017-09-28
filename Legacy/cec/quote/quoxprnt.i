@@ -128,17 +128,17 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
            END.
 
            IF AVAIL eb AND AVAIL style AND int(style.industry) > 1 AND NOT est.metric THEN
-             trim-size = TRIM(STRING({sys/inc/k16v.i ld-len})) + "x" +
-                         TRIM(STRING({sys/inc/k16v.i ld-wid})) + "x" +
-                         TRIM(STRING({sys/inc/k16v.i ld-dep})).
+             trim-size = TRIM(STRING({sys/inc/k16v.i ld-len},lv-format)) + "x" +
+                         TRIM(STRING({sys/inc/k16v.i ld-wid},lv-format)) + "x" +
+                         TRIM(STRING({sys/inc/k16v.i ld-dep},lv-format)).
 
            ELSE
            IF AVAIL eb THEN
              trim-size = TRIM(STRING(ld-len,lv-format)) + "x" +
                          TRIM(STRING(ld-wid,lv-format)) + "x" +
-                         TRIM(STRING(ld-dep,lv-format)).
+                         (STRING(ld-dep,lv-format)).
 
-           ELSE trim-size = "".
+           ELSE trim-size = "".   
       END.
       lv-part-dscr2 = IF ll-prt-dscr2 THEN xqitm.part-dscr2 ELSE style-dscr.
       PUT  xquo.q-no  trim-size AT 8 FORM "x(21)"
@@ -358,9 +358,9 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       END.
 
       IF AVAIL style AND INT(style.industry) > 1 AND NOT est.metric THEN
-        trim-size = TRIM(STRING({sys/inc/k16v.i ld-len})) + "x" +
-                    TRIM(STRING({sys/inc/k16v.i ld-wid})) + "x" +
-                    TRIM(STRING({sys/inc/k16v.i ld-dep})).
+        trim-size = TRIM(STRING({sys/inc/k16v.i ld-len},lv-format)) + "x" +
+                    TRIM(STRING({sys/inc/k16v.i ld-wid},lv-format)) + "x" +
+                    TRIM(STRING({sys/inc/k16v.i ld-dep},lv-format)).
 
       ELSE
         trim-size = TRIM(STRING(ld-len,lv-format)) + "x" +
