@@ -62,15 +62,16 @@ svStartDueDate btnCalendar-9 svStartDueDateOption svAllPONumber svAllCAD ~
 svAllTerms svEndDueDate btnCalendar-10 svEndDueDateOption svStartPONumber ~
 svStartCAD svStartTerms svEndPONumber svEndCAD svEndTerms svStartShipDate ~
 btnCalendar-11 svStartShipDateOption svEndShipDate btnCalendar-12 ~
-svEndShipDateOption svAllUserID svStartUserID svStartBOLDate btnCalendar-13 ~
-svStartBOLDateOption svEndUserID svEndBOLDate btnCalendar-14 ~
-svEndBOLDateOption svAllItemNo svAsOfDate btnCalendar-15 svAsOfDateOption ~
-svStartItemNo svSort svEndItemNo svSubRpt_SubReportName svAllJobNo ~
-svAllOrderNo svAllBOL svAllLocBin svAllInvNo svStartJobNo svStartJobNo2 ~
-svStartOrderNo svStartBOL svStartLocBin svStartInvNo svEndJobNo svEndJobNo2 ~
-svEndOrderNo svEndBOL svEndLocBin svEndInvNo svAllProdCategory ~
-svStartProdCategory svEndProdCategory svAllShift svStartShift svEndShift ~
-svAllDept svStartDept svEndDept 
+svEndShipDateOption svAllUserID svAllCarrier svStartUserID svStartCarrier ~
+svStartBOLDate btnCalendar-13 svStartBOLDateOption svEndUserID svEndCarrier ~
+svEndBOLDate btnCalendar-14 svEndBOLDateOption svAllItemNo svAsOfDate ~
+btnCalendar-15 svAsOfDateOption svStartItemNo svSort svEndItemNo ~
+svSubRpt_SubReportName svAllJobNo svAllOrderNo svAllBOL svAllLocBin ~
+svAllInvNo svStartJobNo svStartJobNo2 svStartOrderNo svStartBOL ~
+svStartLocBin svStartInvNo svEndJobNo svEndJobNo2 svEndOrderNo svEndBOL ~
+svEndLocBin svEndInvNo svAllProdCategory svStartProdCategory ~
+svEndProdCategory svAllShift svStartShift svEndShift svAllDept svStartDept ~
+svEndDept 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svCustList svAllLoc ~
 svAllCustNo svStartTranDate svStartTranDateOption svStartLoc startLocName ~
 svStartCustNo startCustName svEndTranDate svEndTranDateOption svEndLoc ~
@@ -87,11 +88,12 @@ svStartDueDateOption svAllPONumber svAllCAD svAllTerms svEndDueDate ~
 svEndDueDateOption svStartPONumber svStartCAD svStartTerms startTermsName ~
 svEndPONumber svEndCAD svEndTerms endTermsName svStartShipDate ~
 svStartShipDateOption svEndShipDate svEndShipDateOption svAllUserID ~
-svStartUserID startUserIDName svStartBOLDate svStartBOLDateOption ~
-svEndUserID endUserIDName svEndBOLDate svEndBOLDateOption svAllItemNo ~
-svAsOfDate svAsOfDateOption svStartItemNo startItemName svSort svEndItemNo ~
-endItemName svSubRpt_SubReportName svAllJobNo svAllOrderNo svAllBOL ~
-svAllLocBin svAllInvNo svStartJobNo svStartJobNo2 svStartOrderNo svStartBOL ~
+svAllCarrier svStartUserID startUserIDName svStartCarrier startCarrierName ~
+svStartBOLDate svStartBOLDateOption svEndUserID endUserIDName svEndCarrier ~
+endCarrierName svEndBOLDate svEndBOLDateOption svAllItemNo svAsOfDate ~
+svAsOfDateOption svStartItemNo startItemName svSort svEndItemNo endItemName ~
+svSubRpt_SubReportName svAllJobNo svAllOrderNo svAllBOL svAllLocBin ~
+svAllInvNo svStartJobNo svStartJobNo2 svStartOrderNo svStartBOL ~
 svStartLocBin svStartInvNo svEndJobNo svEndJobNo2 svEndOrderNo svEndBOL ~
 svEndLocBin svEndInvNo svAllProdCategory svStartProdCategory ~
 startProdCategoryName svEndProdCategory endProdCategoryName svAllShift ~
@@ -283,6 +285,10 @@ DEFINE VARIABLE svStartTranDateOption AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
 
+DEFINE VARIABLE endCarrierName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 52 BY 1.
+
 DEFINE VARIABLE endCompanyName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 52 BY 1.
@@ -330,6 +336,10 @@ DEFINE VARIABLE endTermsName AS CHARACTER FORMAT "X(30)"
 DEFINE VARIABLE endUserIDName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
      SIZE 45 BY 1.
+
+DEFINE VARIABLE startCarrierName AS CHARACTER FORMAT "X(30)" 
+     VIEW-AS FILL-IN 
+     SIZE 52 BY 1.
 
 DEFINE VARIABLE startCompanyName AS CHARACTER FORMAT "X(30)" 
      VIEW-AS FILL-IN 
@@ -403,6 +413,11 @@ DEFINE VARIABLE svEndCAD AS CHARACTER FORMAT "X(8)"
      LABEL "End CAD" 
      VIEW-AS FILL-IN 
      SIZE 22 BY 1.
+
+DEFINE VARIABLE svEndCarrier AS CHARACTER FORMAT "X(5)" 
+     LABEL "End Carrier" 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1.
 
 DEFINE VARIABLE svEndCompany AS CHARACTER FORMAT "X(3)" 
      LABEL "End Company" 
@@ -544,6 +559,11 @@ DEFINE VARIABLE svStartCAD AS CHARACTER FORMAT "X(15)"
      VIEW-AS FILL-IN 
      SIZE 22 BY 1.
 
+DEFINE VARIABLE svStartCarrier AS CHARACTER FORMAT "X(5)" 
+     LABEL "Start Carrier" 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1.
+
 DEFINE VARIABLE svStartCompany AS CHARACTER FORMAT "X(3)" 
      LABEL "Start Company" 
      VIEW-AS FILL-IN 
@@ -681,6 +701,11 @@ DEFINE VARIABLE svAllCAD AS LOGICAL INITIAL yes
      LABEL "All CAD" 
      VIEW-AS TOGGLE-BOX
      SIZE 11 BY .95 NO-UNDO.
+
+DEFINE VARIABLE svAllCarrier AS LOGICAL INITIAL yes 
+     LABEL "All Carriers" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 13 BY .95 NO-UNDO.
 
 DEFINE VARIABLE svAllCompany AS LOGICAL INITIAL yes 
      LABEL "All Companies" 
@@ -929,9 +954,14 @@ DEFINE FRAME F-Main
           "Select End Ship Date Option" NO-LABEL WIDGET-ID 190
      svAllUserID AT ROW 18.62 COL 91 HELP
           "All User IDs?" WIDGET-ID 158
+     svAllCarrier AT ROW 18.62 COL 172 HELP
+          "All Carriers?" WIDGET-ID 328
      svStartUserID AT ROW 19.81 COL 89 COLON-ALIGNED HELP
           "Enter Start User ID" WIDGET-ID 162
      startUserIDName AT ROW 19.81 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 156
+     svStartCarrier AT ROW 19.81 COL 170 COLON-ALIGNED HELP
+          "Enter Start Carrier" WIDGET-ID 332
+     startCarrierName AT ROW 19.81 COL 179 COLON-ALIGNED NO-LABEL WIDGET-ID 326
      svStartBOLDate AT ROW 20.05 COL 23 COLON-ALIGNED HELP
           "Enter Start BOL Date" WIDGET-ID 242
      btnCalendar-13 AT ROW 20.05 COL 41 WIDGET-ID 234
@@ -940,6 +970,9 @@ DEFINE FRAME F-Main
      svEndUserID AT ROW 21 COL 89 COLON-ALIGNED HELP
           "Enter End User ID" WIDGET-ID 160
      endUserIDName AT ROW 21 COL 105 COLON-ALIGNED NO-LABEL WIDGET-ID 154
+     svEndCarrier AT ROW 21 COL 170 COLON-ALIGNED HELP
+          "Enter End Carrier" WIDGET-ID 330
+     endCarrierName AT ROW 21 COL 179 COLON-ALIGNED NO-LABEL WIDGET-ID 324
      svEndBOLDate AT ROW 21.24 COL 23 COLON-ALIGNED HELP
           "Enter End BOL Date" WIDGET-ID 238
      btnCalendar-14 AT ROW 21.24 COL 41 WIDGET-ID 236
@@ -957,6 +990,13 @@ DEFINE FRAME F-Main
      startItemName AT ROW 23.86 COL 112 COLON-ALIGNED NO-LABEL WIDGET-ID 172
      svSort AT ROW 24.57 COL 25 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 84
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 233 BY 42.43.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      svEndItemNo AT ROW 25.05 COL 89 COLON-ALIGNED HELP
           "Enter End Item" WIDGET-ID 166
      endItemName AT ROW 25.05 COL 112 COLON-ALIGNED NO-LABEL WIDGET-ID 170
@@ -966,13 +1006,6 @@ DEFINE FRAME F-Main
           "All Jobs?" WIDGET-ID 174
      svAllOrderNo AT ROW 26.71 COL 118 HELP
           "All Orders?" WIDGET-ID 196
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 233 BY 42.43.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      svAllBOL AT ROW 26.71 COL 140 HELP
           "All BOLs?" WIDGET-ID 246
      svAllLocBin AT ROW 26.71 COL 162 HELP
@@ -1025,6 +1058,13 @@ DEFINE FRAME F-Main
           "Enter Start Department" WIDGET-ID 230
      startDeptName AT ROW 40.05 COL 98 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 224
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 233 BY 42.43.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      svEndDept AT ROW 41.24 COL 89 COLON-ALIGNED HELP
           "Enter End Department" WIDGET-ID 228
      endDeptName AT ROW 41.24 COL 98 COLON-ALIGNED HELP
@@ -1121,6 +1161,8 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR BUTTON btnCalendar-9 IN FRAME F-Main
    3                                                                    */
+/* SETTINGS FOR FILL-IN endCarrierName IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endCompanyName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endCurrencyName IN FRAME F-Main
@@ -1144,6 +1186,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN endTermsName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN endUserIDName IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN startCarrierName IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN startCompanyName IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -1386,6 +1430,17 @@ END.
 ON VALUE-CHANGED OF svAllCAD IN FRAME F-Main /* All CAD */
 DO:
     {aoa/includes/svAllValueChanged.i svStartCAD svEndCAD}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svAllCarrier
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAllCarrier sObject
+ON VALUE-CHANGED OF svAllCarrier IN FRAME F-Main /* All Carriers */
+DO:
+    {aoa/includes/svAllValueChanged.i svStartCarrier svEndCarrier}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1647,6 +1702,17 @@ END.
 ON VALUE-CHANGED OF svEndBOLDateOption IN FRAME F-Main
 DO:
     {aoa/includes/tDateOption.i &dateObject=svEndBOLDate &btnCalendar=14}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svEndCarrier
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndCarrier sObject
+ON LEAVE OF svEndCarrier IN FRAME F-Main /* End Carrier */
+DO:
+    endCarrierName:SCREEN-VALUE = {aoa/includes/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1945,6 +2011,17 @@ END.
 ON VALUE-CHANGED OF svStartBOLDateOption IN FRAME F-Main
 DO:
     {aoa/includes/tDateOption.i &dateObject=svStartBOLDate &btnCalendar=13}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svStartCarrier
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartCarrier sObject
+ON LEAVE OF svStartCarrier IN FRAME F-Main /* Start Carrier */
+DO:
+    startCarrierName:SCREEN-VALUE = {aoa/includes/fSetDescription.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2350,6 +2427,11 @@ PROCEDURE pInitialize :
         APPLY "VALUE-CHANGED":U TO svAllTerms.
         APPLY "LEAVE":U TO svStartTerms.
         APPLY "LEAVE":U TO svEndTerms.
+
+        APPLY "VALUE-CHANGED":U TO svAllCarrier.
+        APPLY "LEAVE":U TO svStartCarrier.
+        APPLY "LEAVE":U TO svEndCarrier.
+        
     END.
 
 END PROCEDURE.
