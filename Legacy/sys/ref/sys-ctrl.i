@@ -27,7 +27,7 @@ ASSIGN
                 "Frankstn,Mirpkg,APC,FibreX,PPI,Fibre-Excel,Packrite,Knight-Excel," + 
                 "MSPACK-Excel,AllWest,Simkins,CCC,Soule,SouleMed,MWFIBRE,Loylang,Protagon," +
                 "PeachTree,LoylangBSF,Premier-Excel,Oklahoma,Accord,Hughes,Sultana,CCC-Excel,Axis,Boss,Bell-Excel,Perform," +
-                "Printers,quoprint 1,quoprint 2,quoprint 10,quoprint 20"
+                "Printers,quoprint 1,quoprint 2,quoprint 10,quoprint 20,quoprint10-CAN"
  str-init[2]  = "Capitol,ASI,Beeler,Argrov,ILWalker,1/2 Page,Phoenix,Color,Interpac,Royal,Keystone," +
                 "Livngstn,ContSrvc,Rudd,Premier,MultiWll,Imperial,PAC 1/2," +
                 "Colonial,Clev 1/2,Triad,Danbury,TriState,Blueridg,Sonoco," +  
@@ -69,7 +69,7 @@ ASSIGN
                 "Allwest,COLOR,Badger,LoyLang,Carded,Metro,Knight,CSC-GA,KDWILLSX,Peachtree,Protagon," +
                 "PremierCX,PeachTreeBC,ACCORDBC,Soule,NSTOCK,TrilakesLot#,Multicell,MetroTags,AllPkg2,PremierBroker,SouleMed,Chillicothe," +
                 "CapitolBC,CardedBC,Axis,BadgerSoldTo,PeachtreeLotPO,Lakeside,CSCINStamp,CCCWPP,Prystup-Excel,Printers,Printers2,RFCX," +
-                "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20"
+                "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN"
  str-init[11] = "ASI,Laser,P&P,n,Raritan,ContSrvc,Royal,Triad,Rudd,"   +
                 "Hartford,AIHalper,Brick,Fibre,Herman,ASILaser,TriadLas,"      +
                 "Chillic,Middlesx,Hughes,ASI2000,Unipak,RFC,Inland,Prefered,"  +
@@ -84,7 +84,7 @@ ASSIGN
                 "Century,Oracle,PremierX,Frankstn,Mirpkg,Unipak,OTTPkg,Shelby," +
                 "RUDDX,APC,Imperial,Indiana,Fibrex,PPI,HPB,Albert,ContSvc,Triad,Packrite,Dee," +
                 "Allwest,Simkins,HOPX,PremierCX,Accord,Soule,ACPI,Hughes,Carded,SouleUOM,Badger,Axis," +
-                "3CPack,3CPackSD,Perform,ackhead 1,ackhead 2,ackhead 10,ackhead 20"
+                "3CPack,3CPackSD,Perform,ackhead 1,ackhead 2,ackhead 10,ackhead 20,ack-canadian10"
  str-init[14] = "10 Pitch,17 Pitch,Boxtech,Phoenix,TriState,Triad,RFC,HOP," +
                 "Brick,Hartford"
  str-init[15] = "Inches,MM,Both"
@@ -244,8 +244,8 @@ IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:
 	   str-init[1]  = "quoprint 1,quoprint 2,quoprint 10,quoprint 20"
        str-init[2]  = "invprint 1,invprint 2,invprint 10,invprint 20"
        str-init[8]  = "poprint 1,poprint 2,poprint 10,poprint 20"
-       str-init[9]  = "relprint 1,relprint 2,relprint 10"
-       str-init[10] = "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20"
+       str-init[9]  = "relprint 1,relprint 2"
+       str-init[10] = "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN"
        str-init[11] = "chkfmt 1,chkfmt 2"
        str-init[13] = "ackhead 1,ackhead 2,ackhead 10,ackhead 20"
        str-init[29] = "bolcert 1,bolcert 2"
