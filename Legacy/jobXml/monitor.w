@@ -2,6 +2,7 @@
 /* Count up to iWaitSeconds, then continue processing */ 
 DEFINE VARIABLE iWaitCount AS INTEGER NO-UNDO.
 DEFINE VARIABLE iWaitSeconds AS INTEGER INIT 30 NO-UNDO.
+
 {custom/monitor.w "jobXml" "jobXml"}
 {XMLOutput/XMLOutput.i &Company=cocode &NEW=NEW}
 lXmlOutput = TRUE.
@@ -64,7 +65,7 @@ PROCEDURE postMonitor:
         
         IF iWaitCount EQ 1 THEN 
           RUN monitorActivity ('Pausing for ' + STRING(iWaitSeconds) + " seconds (To exit, click 'Close' in between pauses)",YES,'').
-         
+        PROCESS EVENTS.
         PAUSE 1.
         PROCESS EVENTS.
            
@@ -153,7 +154,7 @@ PROCEDURE postMonitor:
         IF attrList NE 'f' OR monitorFile BEGINS '.' OR
        INDEX(monitorFile,'.xml') EQ 0 THEN NEXT.
         cFullFilePath = cPathIn + "\" + monitorFile.
-        RUN processResultXML (INPUT cFullFilePath).
+        RUN processResultXML (INPUT cPathin, INPUT monitorFile).
         /*    IF OS-ERROR EQ 0 THEN          */
         /*      OS-DELETE VALUE(monitorFile).*/
         RUN monitorActivity ('Processing ' + monitorFile,YES,'').
@@ -163,7 +164,18 @@ PROCEDURE postMonitor:
 END PROCEDURE.
 
 PROCEDURE processResultXML:
+    DEFINE INPUT PARAMETER cInputDir  AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER cInputFile AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cFullFilePath AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cNewFilePath AS CHARACTER NO-UNDO.
+        cFullFilePath = cInputDir + "\" + cInputFile.
+        cNewFilePath = cInputDir + "\" + "archive" + "\" + cInputFile.
+        
+        OS-COPY VALUE(cFullFilePath) VALUE(cNewFilePath).    
+
+        IF INTEGER(OS-ERROR) EQ 0 THEN  
+            OS-DELETE VALUE(cInputFile).    
+            
     RUN monitorActivity ('Processing Result XML' ,YES,'').
 END PROCEDURE.
 
