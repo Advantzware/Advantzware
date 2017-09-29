@@ -61,7 +61,7 @@ DEFINE SHARED WORKFILE w-form
 {cec/msfcalc.i}
 
 {sys/inc/ceprice.i}
-
+{ce/fEstOpRecKey.i}
 
 v-parts = 0.
 FOR EACH eb FIELDS(yld-qty) NO-LOCK
@@ -304,7 +304,7 @@ FOR EACH xef
                 op.run-rate  = mach.run-rate
                 op.run-varoh = mach.run-varoh
                 op.wst-prct  = est-op.op-spoil
-                op.rec_key   = est-op.rec_key
+                op.rec_key   = fEstOpRecKey(est-op.rec_key)
                 .
 
             IF mach.p-type EQ "P" THEN 
