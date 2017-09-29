@@ -51,10 +51,13 @@ DEF VAR iPurgeCount4 AS INT NO-UNDO.
 DEF VAR iPurgeCount5 AS INT NO-UNDO.
 DEF VAR invBalAmt AS DEC NO-UNDO.
 DEF VAR totWriteOff AS DEC NO-UNDO.
+
+ASSIGN
+    totWriteOff = 0.
+    
 {methods/defines/hndldefs.i}
-/*
 {methods/prgsecur.i}
-*/
+
 {custom/gcompany.i}
 {custom/getcmpny.i}
 {custom/gloc.i}
@@ -401,12 +404,12 @@ PAUSE 0 BEFORE-HIDE.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-    /* check security 
+    /* check security */
     IF access-close THEN DO:
         APPLY "close" TO THIS-PROCEDURE.
         RETURN .
     END.
-    */
+    
     FIND ar-ctrl NO-LOCK WHERE 
         ar-ctrl.company = gcompany 
         NO-ERROR.
@@ -623,7 +626,7 @@ PROCEDURE ipRunPurge :
         STRING(iPurgeCount3) + " invoice line records were deleted." SKIP
         STRING(iPurgeCount) + " ar-cash records were deleted." SKIP
         STRING(iPurgeCount2) + " ar-cashl records were deleted." SKIP
-        STRING(totWriteOff,"-$>>>,>>>,>>9.99") + "were written off." SKIP
+        STRING(totWriteOff,"->>>,>>>,>>9.99") + " dollars were written off." SKIP
         "Backup files were placed in then C:\tmp directory" SKIP
         "for retrieval if necessary."
         VIEW-AS ALERT-BOX.
