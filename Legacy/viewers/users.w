@@ -1,7 +1,6 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
           asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
@@ -43,7 +42,11 @@ ASSIGN cocode = g_company
 &SCOPED-DEFINE proc-enable proc-enable
 &SCOPED-DEFINE users-rowavail proc-rowavail
 
+DEFINE NEW GLOBAL SHARED VAR cIniLoc AS CHAR NO-UNDO.
+DEFINE NEW GLOBAL SHARED VAR cUsrLoc AS CHAR NO-UNDO.
+
 DEF VAR createLabelPath AS LOG NO-UNDO.
+DEF VAR cOldUserID AS CHAR NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -69,24 +72,22 @@ DEF VAR createLabelPath AS LOG NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR users, usr.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS users.user_name users.track_usage ~
-users.internal-user users.use_colors users.use_fonts users.use_ctrl_keys ~
-users.developer users.num-rows-web users.user_program[2] ~
+&Scoped-Define ENABLED-FIELDS users.securityLevel users.userAlias ~
+users.user_name users.track_usage users.use_colors users.use_fonts ~
+users.use_ctrl_keys users.developer users.user_program[2] ~
 users.user_program[1] users.user_program[3] 
-&Scoped-define ENABLED-TABLES users usr
+&Scoped-define ENABLED-TABLES users
 &Scoped-define FIRST-ENABLED-TABLE users
-&Scoped-define SECOND-ENABLED-TABLE usr
-&Scoped-Define ENABLED-OBJECTS RECT-1 RECT-25 
-&Scoped-Define DISPLAYED-FIELDS users.user_id users.user_name ~
-users.track_usage users.internal-user users.use_colors users.use_fonts ~
-users.use_ctrl_keys users.developer users.num-rows-web ~
-users.user_program[2] users.user_program[1] users.user_program[3] 
-&Scoped-define DISPLAYED-TABLES users usr
+&Scoped-Define ENABLED-OBJECTS cbUserType SELECT-4 SELECT-5 SELECT-6 
+&Scoped-Define DISPLAYED-FIELDS users.securityLevel users.userAlias ~
+users.user_id users.user_name users.track_usage users.use_colors ~
+users.use_fonts users.use_ctrl_keys users.developer users.user_program[2] ~
+users.user_program[1] users.user_program[3] 
+&Scoped-define DISPLAYED-TABLES users
 &Scoped-define FIRST-DISPLAYED-TABLE users
-&Scoped-define SECOND-DISPLAYED-TABLE usr
-&Scoped-Define DISPLAYED-OBJECTS tg_po tg_bol tg_invoice tg_ack tg_quote ~
-fi_phone-area lv-phone-num fi_phone-country fi_fax-area lv-fax-num ~
-fi_fax-country tb_security v-sec-from v-sec-to fi_email 
+&Scoped-Define DISPLAYED-OBJECTS cbUserType SELECT-4 SELECT-5 SELECT-6 ~
+tg_po tg_bol tg_invoice tg_ack tg_quote fi_phone-area lv-phone-num ~
+fi_phone-country fi_fax-area lv-fax-num fi_fax-country fi_email 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -128,84 +129,85 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE VARIABLE cbUserType AS CHARACTER FORMAT "X(256)":U 
+     LABEL "User Type" 
+     VIEW-AS COMBO-BOX INNER-LINES 4
+     LIST-ITEMS "Full User","Production Floor","Administrator","Portal User" 
+     DROP-DOWN-LIST
+     SIZE 29 BY 1 NO-UNDO.
+
 DEFINE VARIABLE fi_email AS CHARACTER FORMAT "X(60)":U 
      LABEL "Email" 
      VIEW-AS FILL-IN 
      SIZE 50 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_fax-area AS CHARACTER FORMAT "(xxx)":U 
-     LABEL "Fax" 
+     LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_fax-country AS CHARACTER FORMAT "X(8)":U 
-     LABEL "Country Code" 
+     LABEL "FAX +" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 7 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_phone-area AS CHARACTER FORMAT "(xxx)":U 
-     LABEL "Phone" 
+     LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_phone-country AS CHARACTER FORMAT "X(8)":U 
-     LABEL "Country Code" 
+     LABEL "Phone +" 
      VIEW-AS FILL-IN 
-     SIZE 13 BY 1 NO-UNDO.
+     SIZE 7 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-fax-num AS CHARACTER FORMAT "xxx-xxxx":U 
+     LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-phone-num AS CHARACTER FORMAT "xxx-xxxx":U 
-     VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
-
-DEFINE VARIABLE v-sec-from AS CHARACTER FORMAT "X(8)":U 
-     LABEL "From" 
-     VIEW-AS FILL-IN 
-     SIZE 18 BY 1 NO-UNDO.
-
-DEFINE VARIABLE v-sec-to AS CHARACTER FORMAT "X(8)":U 
-     LABEL "To" 
+     LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 108 BY 16.43.
+DEFINE VARIABLE SELECT-4 AS CHARACTER 
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+     LIST-ITEMS "Production","Test" 
+     SIZE 35 BY 2 NO-UNDO.
 
-DEFINE RECTANGLE RECT-25
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 30 BY 5.24.
+DEFINE VARIABLE SELECT-5 AS CHARACTER 
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+     LIST-ITEMS "Production","Test" 
+     SIZE 36 BY 2 NO-UNDO.
 
-DEFINE VARIABLE tb_security AS LOGICAL INITIAL no 
-     LABEL "Security?" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 20 BY .81 NO-UNDO.
+DEFINE VARIABLE SELECT-6 AS CHARACTER 
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+     LIST-ITEMS "Advantzware","Addon","Case Labels","Loadtags","Sharpshooter","Touchscreen" 
+     SIZE 36 BY 4.76 NO-UNDO.
 
 DEFINE VARIABLE tg_ack AS LOGICAL INITIAL no 
-     LABEL "Acknowledgment" 
+     LABEL "Acknowledgments" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tg_bol AS LOGICAL INITIAL no 
-     LABEL "BOL" 
+     LABEL "BOLs" 
      VIEW-AS TOGGLE-BOX
      SIZE 9 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tg_invoice AS LOGICAL INITIAL no 
-     LABEL "Invoice" 
+     LABEL "Invoices" 
      VIEW-AS TOGGLE-BOX
      SIZE 13 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tg_po AS LOGICAL INITIAL no 
-     LABEL "PO" 
+     LABEL "POs" 
      VIEW-AS TOGGLE-BOX
      SIZE 9 BY .81 NO-UNDO.
 
 DEFINE VARIABLE tg_quote AS LOGICAL INITIAL no 
-     LABEL "Quote" 
+     LABEL "Quotes" 
      VIEW-AS TOGGLE-BOX
      SIZE 11 BY .81 NO-UNDO.
 
@@ -213,78 +215,79 @@ DEFINE VARIABLE tg_quote AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     users.user_id AT ROW 1.24 COL 21 COLON-ALIGNED
+     cbUserType AT ROW 4.1 COL 99 COLON-ALIGNED WIDGET-ID 48
+     users.securityLevel AT ROW 2.91 COL 99 COLON-ALIGNED WIDGET-ID 44
+          LABEL "Security Level" FORMAT ">999"
           VIEW-AS FILL-IN 
-          SIZE 11.6 BY 1
-          BGCOLOR 15 FONT 4
-     users.user_name AT ROW 1.24 COL 48 COLON-ALIGNED
+          SIZE 8 BY 1
+     SELECT-4 AT ROW 6.48 COL 101 NO-LABEL WIDGET-ID 50
+     SELECT-5 AT ROW 8.86 COL 101 NO-LABEL WIDGET-ID 52
+     SELECT-6 AT ROW 11.24 COL 101 NO-LABEL WIDGET-ID 54
+     users.userAlias AT ROW 1.24 COL 99 COLON-ALIGNED WIDGET-ID 40
           VIEW-AS FILL-IN 
-          SIZE 38 BY 1
+          SIZE 37 BY 1
+     users.user_id AT ROW 1.24 COL 15 COLON-ALIGNED
+          LABEL "User ID"
+          VIEW-AS FILL-IN 
+          SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     users.track_usage AT ROW 2.43 COL 23
+     users.user_name AT ROW 1.24 COL 40 COLON-ALIGNED
+          LABEL "Name"
+          VIEW-AS FILL-IN 
+          SIZE 43 BY 1
+          BGCOLOR 15 FONT 4
+     users.track_usage AT ROW 11.95 COL 16
           VIEW-AS TOGGLE-BOX
           SIZE 19.8 BY 1
-     users.internal-user AT ROW 2.43 COL 48.4 NO-LABEL WIDGET-ID 2
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "Internal", yes,
-"External", no
-          SIZE 28 BY 1
-     tg_po AT ROW 3.29 COL 78.2 WIDGET-ID 32
-     users.use_colors AT ROW 3.62 COL 23
+     tg_po AT ROW 15.76 COL 59 WIDGET-ID 32
+     users.use_colors AT ROW 12.91 COL 16
           VIEW-AS TOGGLE-BOX
           SIZE 27 BY 1
-     tg_bol AT ROW 4.14 COL 78.2 WIDGET-ID 28
-     users.use_fonts AT ROW 4.81 COL 23
+     tg_bol AT ROW 13.86 COL 59 WIDGET-ID 28
+     users.use_fonts AT ROW 13.86 COL 16
           VIEW-AS TOGGLE-BOX
           SIZE 26.2 BY 1
-     tg_invoice AT ROW 5 COL 78.2 WIDGET-ID 30
-     tg_ack AT ROW 5.81 COL 78.2 WIDGET-ID 26
-     users.use_ctrl_keys AT ROW 6 COL 23
+     tg_invoice AT ROW 14.81 COL 59 WIDGET-ID 30
+     tg_ack AT ROW 12.91 COL 59 WIDGET-ID 26
+     users.use_ctrl_keys AT ROW 14.81 COL 16
           VIEW-AS TOGGLE-BOX
           SIZE 38.4 BY 1
-     tg_quote AT ROW 6.71 COL 78.2 WIDGET-ID 34
-     users.developer AT ROW 7.19 COL 23
+     tg_quote AT ROW 11.95 COL 59 WIDGET-ID 34
+     users.developer AT ROW 15.76 COL 16
           VIEW-AS TOGGLE-BOX
           SIZE 16.8 BY 1
-     fi_phone-area AT ROW 8.38 COL 21 COLON-ALIGNED WIDGET-ID 10
-     lv-phone-num AT ROW 8.38 COL 28.8 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     fi_phone-country AT ROW 8.33 COL 62.6 COLON-ALIGNED WIDGET-ID 12
-     fi_fax-area AT ROW 9.38 COL 21 COLON-ALIGNED WIDGET-ID 16
-     lv-fax-num AT ROW 9.38 COL 28.8 COLON-ALIGNED NO-LABEL WIDGET-ID 20
-     fi_fax-country AT ROW 9.38 COL 62.6 COLON-ALIGNED WIDGET-ID 18
-     users.num-rows-web AT ROW 10.38 COL 95.8 COLON-ALIGNED WIDGET-ID 6
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
-     tb_security AT ROW 11.57 COL 23
-     v-sec-from AT ROW 11.33 COL 48 COLON-ALIGNED
-     v-sec-to AT ROW 11.33 COL 72 COLON-ALIGNED
-     /*usr.Usr-Lang AT ROW 12.52 COL 23 NO-LABEL
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "English", "English":U,
-"Espanol", "Espanol":U
-          SIZE 30 BY 1*/
-     users.user_program[2] AT ROW 12.95 COL 39.4 COLON-ALIGNED HELP
+     fi_phone-area AT ROW 2.91 COL 29 COLON-ALIGNED WIDGET-ID 10
+     lv-phone-num AT ROW 2.91 COL 39 COLON-ALIGNED WIDGET-ID 14
+     fi_phone-country AT ROW 2.91 COL 19 COLON-ALIGNED WIDGET-ID 12
+     fi_fax-area AT ROW 4.1 COL 29 COLON-ALIGNED WIDGET-ID 16
+     lv-fax-num AT ROW 4.1 COL 39 COLON-ALIGNED WIDGET-ID 20
+     fi_fax-country AT ROW 4.1 COL 19 COLON-ALIGNED WIDGET-ID 18
+     users.user_program[2] AT ROW 8.38 COL 19 COLON-ALIGNED HELP
           "" WIDGET-ID 8
-          LABEL "Document/Report Temp Path" FORMAT "x(100)"
+          LABEL "Report Path" FORMAT "x(100)"
           VIEW-AS FILL-IN 
-          SIZE 65.6 BY 1
-     users.user_program[1] AT ROW 13.95 COL 31 COLON-ALIGNED
-          LABEL "Box Image Software Path" FORMAT "x(80)"
+          SIZE 60 BY 1
+     users.user_program[1] AT ROW 7.19 COL 19 COLON-ALIGNED
+          LABEL "Image Viewer" FORMAT "x(80)"
           VIEW-AS FILL-IN 
-          SIZE 74.4 BY 1
-     users.user_program[3] AT ROW 15 COL 2.2 WIDGET-ID 36
-          LABEL "FG/RM Pallet Load Tag / Case Label Text File Path" FORMAT "x(100)"
+          SIZE 60 BY 1
+     users.user_program[3] AT ROW 9.57 COL 2 WIDGET-ID 36
+          LABEL "Document Path" FORMAT "x(100)"
           VIEW-AS FILL-IN 
-          SIZE 45 BY 1
-     fi_email AT ROW 10.48 COL 20.8 COLON-ALIGNED WIDGET-ID 38
-     /*"Language:" VIEW-AS TEXT
-          SIZE 12 BY .81 AT ROW 12.52 COL 10*/
+          SIZE 60 BY 1
+     fi_email AT ROW 5.52 COL 19 COLON-ALIGNED WIDGET-ID 38
      "Phone/Fax Appear on:" VIEW-AS TEXT
-          SIZE 27 BY .62 AT ROW 2.52 COL 78 WIDGET-ID 24
-     RECT-1 AT ROW 1 COL 1
-     RECT-25 AT ROW 2.43 COL 76.8 WIDGET-ID 22
+          SIZE 27 BY .62 AT ROW 11.24 COL 58 WIDGET-ID 24
+     "Databases:" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 8.86 COL 87 WIDGET-ID 60
+     "Modes:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 11.24 COL 92 WIDGET-ID 62
+     "Options:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 11.24 COL 14 WIDGET-ID 42
+     "User Can Select:" VIEW-AS TEXT
+          SIZE 22 BY .62 AT ROW 5.52 COL 101 WIDGET-ID 56
+     "Environments:" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 6.48 COL 84 WIDGET-ID 58
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -319,7 +322,7 @@ END.
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW V-table-Win ASSIGN
          HEIGHT             = 16.43
-         WIDTH              = 108.2.
+         WIDTH              = 142.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -361,8 +364,8 @@ ASSIGN
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN lv-phone-num IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
-/* SETTINGS FOR TOGGLE-BOX tb_security IN FRAME F-Main
-   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN users.securityLevel IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR TOGGLE-BOX tg_ack IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR TOGGLE-BOX tg_bol IN FRAME F-Main
@@ -374,17 +377,15 @@ ASSIGN
 /* SETTINGS FOR TOGGLE-BOX tg_quote IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN users.user_id IN FRAME F-Main
-   NO-ENABLE 1                                                          */
+   NO-ENABLE 1 EXP-LABEL                                                */
+/* SETTINGS FOR FILL-IN users.user_name IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN users.user_program[1] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN users.user_program[2] IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN users.user_program[3] IN FRAME F-Main
    ALIGN-L EXP-LABEL EXP-FORMAT                                         */
-/* SETTINGS FOR FILL-IN v-sec-from IN FRAME F-Main
-   NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN v-sec-to IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -398,55 +399,32 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME tb_security
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_security V-table-Win
-ON VALUE-CHANGED OF tb_security IN FRAME F-Main /* Security? */
-DO:
-   ASSIGN {&self-name}.
-   IF tb_security THEN ASSIGN v-sec-from:SENSITIVE = YES
-                              v-sec-to:SENSITIVE = YES
-                              v-sec-from:SCREEN-VALUE = IF adm-adding-record THEN users.USER_id:screen-value
-                                                        ELSE users.USER_id
-                              v-sec-to:SCREEN-VALUE = users.USER_id:SCREEN-VALUE.
-   ELSE ASSIGN v-sec-from:SENSITIVE = NO
-               v-sec-to:SENSITIVE = NO.
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME users.user_program[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.user_program[1] V-table-Win
-ON HELP OF users.user_program[1] IN FRAME F-Main /* Box Image Software Path */
+ON HELP OF users.user_program[1] IN FRAME F-Main /* Image Viewer */
 DO:
-     def var ls-filename as cha no-undo.
-     def var ll-ok as log no-undo.
+    DEF VAR ls-filename AS CHAR NO-UNDO.
+    DEF VAR ll-ok AS LOG NO-UNDO.
 
-     system-dialog get-file ls-filename 
-                   title "Select Image Program File to insert"
-                   filters "Application Files    (*.exe)" "*.exe",
-                           "All Files    (*.*) " "*.*"
-                   initial-dir '"c:\prorgam files\"'
-                   MUST-EXIST
-                   USE-FILENAME
-                   UPDATE ll-ok.
-     /*
-     FILE-INFO:FILE-NAME = ls-filename.
-     ls-filename = FILE-INFO:FULL-PATHNAME.
-     SELF:SCREEN-VALUE = ls-filename.
-     */
-     IF INDEX(ls-filename,"/") > 0 THEN
-        SELF:SCREEN-VALUE = substring(ls-filename,R-INDEX(ls-filename,"/") + 1).
-     ELSE IF INDEX(ls-filename,"\") > 0 THEN
-        SELF:SCREEN-VALUE = substring(ls-filename,R-INDEX(ls-filename,"\") + 1).
+    SYSTEM-DIALOG GET-FILE ls-filename 
+        TITLE "Select Image Viewer File to insert"
+        FILTERS "Application Files    (*.exe)" "*.exe",
+                "All Files    (*.*) " "*.*"
+        INITIAL-DIR '"c:\program files\"'
+        MUST-EXIST
+        USE-FILENAME
+        UPDATE ll-ok.
+
+     IF INDEX(ls-filename,"/") > 0 THEN ASSIGN
+        SELF:SCREEN-VALUE = SUBSTRING(ls-filename,R-INDEX(ls-filename,"/") + 1).
+     ELSE IF INDEX(ls-filename,"\") > 0 THEN ASSIGN
+        SELF:SCREEN-VALUE = SUBSTRING(ls-filename,R-INDEX(ls-filename,"\") + 1).
 
 END.
 
@@ -455,13 +433,13 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.user_program[1] V-table-Win
-ON LEAVE OF users.user_program[1] IN FRAME F-Main /* Box Image Software Path */
+ON LEAVE OF users.user_program[1] IN FRAME F-Main /* Image Viewer */
 DO:
 
-  IF INDEX(self:screen-value,"/") > 0 THEN
-        SELF:SCREEN-VALUE = substring(self:screen-value,R-INDEX(self:screen-value,"/") + 1).
-     ELSE IF INDEX(self:screen-value,"\") > 0 THEN
-        SELF:SCREEN-VALUE = substring(self:screen-value,R-INDEX(self:screen-value,"\") + 1).
+    IF INDEX(SELF:SCREEN-VALUE,"/") > 0 THEN ASSIGN
+        SELF:SCREEN-VALUE = SUBSTRING(SELF:SCREEN-VALUE,R-INDEX(SELF:SCREEN-VALUE,"/") + 1).
+     ELSE IF INDEX(SELF:SCREEN-VALUE,"\") > 0 THEN ASSIGN
+        SELF:SCREEN-VALUE = SUBSTRING(SELF:SCREEN-VALUE,R-INDEX(SELF:SCREEN-VALUE,"\") + 1).
 
 END.
 
@@ -471,39 +449,19 @@ END.
 
 &Scoped-define SELF-NAME users.user_program[3]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.user_program[3] V-table-Win
-ON HELP OF users.user_program[3] IN FRAME F-Main /* FG/RM Pallet Load Tag / Case Label Text File Path */
+ON HELP OF users.user_program[3] IN FRAME F-Main /* Document Path */
 DO:
-   def var ls-filename as cha no-undo.
-   def var ll-ok as log no-undo.
+    DEF VAR ls-filename AS CHAR NO-UNDO.
+    DEF VAR ll-ok AS LOG NO-UNDO.
 
-   system-dialog get-dir ls-filename 
-                 title "Select Path to save"
-                 initial-dir users.USER_program[3]
-                 UPDATE ll-ok.
+    SYSTEM-DIALOG GET-DIR ls-filename 
+        TITLE "Select Path to save"
+        INITIAL-DIR users.USER_program[3]
+        UPDATE ll-ok.
 
-    IF ll-ok THEN self:screen-value = ls-filename.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME v-sec-from
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-sec-from V-table-Win
-ON LEAVE OF v-sec-from IN FRAME F-Main /* From */
-DO:
-   ASSIGN {&self-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME v-sec-to
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL v-sec-to V-table-Win
-ON LEAVE OF v-sec-to IN FRAME F-Main /* To */
-DO:
-  ASSIGN {&self-name}.
+    IF ll-ok THEN ASSIGN
+        SELF:SCREEN-VALUE = ls-filename.
+    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -593,20 +551,20 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF BUFFER bf-usercomp FOR usercomp.
-  DEF VAR lv-default-comp AS cha NO-UNDO.
-  DEF VAR lv-default-loc AS cha NO-UNDO.
-  DEF VAR ll-ans AS LOG NO-UNDO.
-  DEF VAR ll-dummy AS LOG NO-UNDO.
-  DEF VAR v-old-pass AS cha FORM "x(30)" NO-UNDO.
-  DEF VAR v-new-pass AS cha FORM "x(30)" NO-UNDO.
-  DEF VAR cOldUserID AS CHARACTER FORM "x(30)" NO-UNDO.
-  DEFINE BUFFER bf-usercust FOR usercust .
-  DEFINE BUFFER bf-usrx FOR usrx .
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  ASSIGN FRAME {&frame-name} v-sec-from v-sec-to.
-  ASSIGN cOldUserID = users.user_id .
+    DEF BUFFER bf-usercust FOR usercust .
+    DEF BUFFER bf-usrx FOR usrx .
+    DEF BUFFER bf-usercomp FOR usercomp.
+    
+    DEF VAR lv-default-comp AS cha NO-UNDO.
+    DEF VAR lv-default-loc AS cha NO-UNDO.
+    DEF VAR ll-ans AS LOG NO-UNDO.
+    DEF VAR ll-dummy AS LOG NO-UNDO.
+    DEF VAR v-old-pass AS cha FORM "x(30)" NO-UNDO.
+    DEF VAR v-new-pass AS cha FORM "x(30)" NO-UNDO.
+    DEF VAR cOldUserID AS CHARACTER FORM "x(30)" NO-UNDO.
+  
+    ASSIGN 
+        cOldUserID = users.user_id.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -700,23 +658,20 @@ PROCEDURE local-assign-record :
   END.
 
   SESSION:SET-WAIT-STATE("general").
-  IF tb_security THEN DO:  /*set program security */
      FOR EACH prgrms :
-         IF LOOKUP(v-sec-from,prgrms.can_run) > 0 
-            AND LOOKUP(v-sec-to,prgrms.can_run) <= 0 
-            THEN prgrms.can_run = prgrms.can_run + "," + v-sec-to.
-         IF LOOKUP(v-sec-from,prgrms.can_create) > 0 
-             AND LOOKUP(v-sec-to,prgrms.can_create) <= 0 
-            THEN prgrms.can_create = prgrms.can_create + "," + v-sec-to.
-         IF LOOKUP(v-sec-from,prgrms.can_update) > 0 
-             AND LOOKUP(v-sec-to,prgrms.can_update) <= 0 
-            THEN prgrms.can_update = prgrms.can_update + "," + v-sec-to.
-         IF LOOKUP(v-sec-from,prgrms.can_delete) > 0 
-             AND LOOKUP(v-sec-to,prgrms.can_delete) <= 0 
-            THEN prgrms.can_delete = prgrms.can_delete + "," + v-sec-to.
+         IF LOOKUP(cOldUserID,prgrms.can_run) > 0 
+            AND LOOKUP(users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME},prgrms.can_run) <= 0 
+            THEN prgrms.can_run = prgrms.can_run + "," + users.user_id:SCREEN-VALUE.
+         IF LOOKUP(cOldUserID,prgrms.can_create) > 0 
+             AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_create) <= 0 
+            THEN prgrms.can_create = prgrms.can_create + "," + users.user_id:SCREEN-VALUE.
+         IF LOOKUP(cOldUserID,prgrms.can_update) > 0 
+             AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_update) <= 0 
+            THEN prgrms.can_update = prgrms.can_update + "," + users.user_id:SCREEN-VALUE.
+         IF LOOKUP(cOldUserID,prgrms.can_delete) > 0 
+             AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_delete) <= 0 
+            THEN prgrms.can_delete = prgrms.can_delete + "," + users.user_id:SCREEN-VALUE.
      END.
-  END.
-
   RUN reftable-values(NO).
 
   SESSION:SET-WAIT-STATE("").
@@ -764,13 +719,11 @@ PROCEDURE local-cancel-record :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  tb_security = NO.
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  DISABLE tb_security v-sec-from v-sec-to tg_po tg_bol tg_invoice tg_ack tg_quote
+  DISABLE tg_po tg_bol tg_invoice tg_ack tg_quote
           fi_phone-area lv-phone-num fi_phone-country
           fi_fax-area lv-fax-num fi_fax-country fi_email
           WITH FRAME {&FRAME-NAME}.
@@ -785,18 +738,16 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-/* gdm - 05180924 */
-ASSIGN 
-  fi_email = users.image_filename
-  fi_email:SCREEN-VALUE IN FRAME {&FRAME-NAME} = users.image_filename.
+    ASSIGN 
+        fi_email = users.image_filename
+        fi_email:SCREEN-VALUE IN FRAME {&FRAME-NAME} = users.image_filename.
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  RUN reftable-values(INPUT YES).
+    RUN reftable-values(INPUT YES).
 
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+    
 
 END PROCEDURE.
 
@@ -814,18 +765,7 @@ PROCEDURE local-update-record :
   RUN validate-userid NO-ERROR.
   IF error-status:error THEN RETURN.
 
-  IF v-sec-from <> "" THEN RUN  valid-user-id (v-sec-from) NO-ERROR.
-  IF error-status:error THEN do:
-     APPLY "entry" TO v-sec-from IN FRAME {&FRAME-NAME}.
-     RETURN.
-  END.
-  IF v-sec-to <> "" THEN RUN  valid-user-id (v-sec-to) NO-ERROR.
-  IF error-status:error THEN do:
-     APPLY "entry" TO v-sec-to IN FRAME {&FRAME-NAME}.
-     RETURN.
-  END.
-
-  IF users.user_program[2]:SCREEN-VALUE NE "" THEN
+  IF users.user_program[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN
   DO:
      IF SUBSTRING(users.user_program[2]:SCREEN-VALUE,LENGTH(users.user_program[2]:SCREEN-VALUE),1) EQ "\" OR
         SUBSTRING(users.user_program[2]:SCREEN-VALUE,LENGTH(users.user_program[2]:SCREEN-VALUE),1) EQ "/" THEN
@@ -861,17 +801,13 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  ASSIGN tb_security = NO
-         v-sec-from = ""
-         v-sec-to = "".
 
-  DISABLE tb_security v-sec-from v-sec-to tg_po tg_bol tg_invoice tg_ack tg_quote
+  DISABLE tg_po tg_bol tg_invoice tg_ack tg_quote
           fi_phone-area lv-phone-num fi_phone-country
           fi_fax-area lv-fax-num fi_fax-country fi_email
           WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -883,12 +819,9 @@ PROCEDURE proc-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  ASSIGN tb_security = NO
-         tb_security:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
-
   /* task 04101303*/
-    IF USERID("NOSWEAT") EQ "asi" THEN
-         ASSIGN users.track_usage:SENSITIVE = YES 
+    IF USERID(LDBNAME(1)) EQ "asi" THEN
+         ASSIGN users.track_usage:SENSITIVE IN FRAME {&FRAME-NAME} = YES 
                 users.use_colors:SENSITIVE = YES
                 users.use_fonts:SENSITIVE = YES
                 users.use_ctrl_keys:SENSITIVE = YES
@@ -900,7 +833,7 @@ PROCEDURE proc-enable :
                users.use_ctrl_keys:SENSITIVE = NO
                users.developer:SENSITIVE = NO.
 
-  ENABLE tb_security tg_po tg_bol tg_invoice tg_ack tg_quote
+  ENABLE tg_po tg_bol tg_invoice tg_ack tg_quote
          fi_phone-area lv-phone-num fi_phone-country
          fi_fax-area lv-fax-num fi_fax-country fi_email
          WITH FRAME {&FRAME-NAME}.
@@ -917,10 +850,6 @@ PROCEDURE proc-rowavail :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  ASSIGN tb_security = NO
-        v-sec-from = ""
-        v-sec-to = "".
-
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
