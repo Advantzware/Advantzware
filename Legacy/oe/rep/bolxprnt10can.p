@@ -353,7 +353,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
 
   PUT "<R54><C50><#8><FROM><R+4><C+30><RECT> " 
     "<=8><R+1> Total Pallets       :" v-tot-palls 
-    "<=8><R+3> Total Poids         :" v-tot-wt /*fORM ">>,>>9.99"*/ .
+    "<=8><R+3> Total Poids/Weight  :" v-tot-wt /*fORM ">>,>>9.99"*/ .
     
   ASSIGN v-ship-i = "".
   IF v-print-shipnotes THEN
@@ -370,7 +370,7 @@ for each xxreport where xxreport.term-id eq v-term-id,
     "<R58><C1>"
     "__________________________________________________________________________________________________________________" 
     "<R59><C1>" "<B>  Signature of Receipt </B>" 
-    "<R60><C7>" "Customer ________________________________________                       Transporteur ___________________________________" 
+    "<R60><C7>" "Customer ________________________________________                       Transporteur/Carrier_____________________________" 
     "<R62><C7>" "Date ____________________________________________                       Date _________________________________________"     
     .
 
