@@ -457,7 +457,7 @@ end.
      skip (1)
      "MSF:"                 to 66
      v-tot-sqft[2]          to 80   format ">,>>>,>>9.999" SKIP
-      "TPS:"                 to 66
+      "TVS:"                 to 66
     /* v-tot-sqft[2]          to 80   format ">,>>>,>>9.999"*/
      SKIP.
 
