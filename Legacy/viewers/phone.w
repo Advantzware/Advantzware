@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -36,7 +36,7 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 
 DEFINE VARIABLE     ip-rec_key  AS CHAR     NO-UNDO.
-DEFINE SHARED VAR   vrPhone     AS RECID    NO-UNDO.
+DEFINE SHARED VAR   vrPhone     AS CHAR    NO-UNDO.
 DEFINE VARIABLE char-hld AS CHARACTER   NO-UNDO.
 /* DEFINE VARIABLE     vrPhone     AS RECID    NO-UNDO. */
 
@@ -79,7 +79,7 @@ phone.phone phone.phone_ext phone.fax_ctry_code phone.fax_city_code ~
 phone.fax phone.titlcode phone.attention phone.e_mail 
 &Scoped-define DISPLAYED-TABLES phone
 &Scoped-define FIRST-DISPLAYED-TABLE phone
-&Scoped-Define DISPLAYED-OBJECTS titlcode_description tbNotice F1 
+&Scoped-Define DISPLAYED-OBJECTS titlcode_description F1 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -139,12 +139,6 @@ DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 62 BY 11.43.
 
-DEFINE VARIABLE tbNotice AS LOGICAL INITIAL no 
-     LABEL "E-Mail Notification" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 39.4 BY .81
-     FGCOLOR 12  NO-UNDO.
-
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -191,26 +185,25 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 45 BY 1
           BGCOLOR 15 FONT 4
-     tbNotice AT ROW 10.81 COL 15.2
      F1 AT ROW 6.05 COL 29 NO-LABEL
      "E-Mail:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 9.52 COL 6
-     "Intl Code" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 1.95 COL 13
-          BGCOLOR 3 FGCOLOR 15 
-     "Fax:" VIEW-AS TEXT
-          SIZE 5 BY 1 AT ROW 3.86 COL 9
-     "Area Code" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 1.95 COL 25
-          BGCOLOR 4 FGCOLOR 15 
-     "Number" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 1.95 COL 41
-          BGCOLOR 4 FGCOLOR 15 
+     "Phone:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 2.91 COL 6
      "Ext" VIEW-AS TEXT
           SIZE 4 BY .62 AT ROW 1.95 COL 54
           BGCOLOR 1 FGCOLOR 15 
-     "Phone:" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 2.91 COL 6
+     "Number" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 1.95 COL 41
+          BGCOLOR 4 FGCOLOR 15 
+     "Area Code" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 1.95 COL 25
+          BGCOLOR 4 FGCOLOR 15 
+     "Fax:" VIEW-AS TEXT
+          SIZE 5 BY 1 AT ROW 3.86 COL 9
+     "Intl Code" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 1.95 COL 13
+          BGCOLOR 3 FGCOLOR 15 
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -281,8 +274,6 @@ ASSIGN
 ASSIGN 
        F1:HIDDEN IN FRAME F-Main           = TRUE.
 
-/* SETTINGS FOR TOGGLE-BOX tbNotice IN FRAME F-Main
-   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN phone.titlcode IN FRAME F-Main
    4                                                                    */
 /* SETTINGS FOR FILL-IN titlcode_description IN FRAME F-Main
@@ -300,7 +291,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -319,7 +310,6 @@ DO:
   {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -329,17 +319,6 @@ END.
 ON VALUE-CHANGED OF phone.e_mail IN FRAME F-Main /* e-mail Address */
 DO:
   RUN SetNotifyMode.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME tbNotice
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbNotice V-table-Win
-ON VALUE-CHANGED OF tbNotice IN FRAME F-Main /* E-Mail Notification */
-DO:
-  RUN EmailNotify (NO).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -361,7 +340,6 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 
 &UNDEFINE SELF-NAME
@@ -442,7 +420,7 @@ PROCEDURE EmailNotify :
 
   DEFINE INPUT PARAM ilQuietMode  AS LOGICAL NO-UNDO.
    {&methods/lValidateError.i YES}
-  IF tbNotice:CHECKED IN FRAME {&FRAME-NAME} THEN DO:
+  /* IF tbNotice:CHECKED IN FRAME {&FRAME-NAME} THEN */ DO:
 
     IF NOT CAN-FIND (FIRST reftable NO-LOCK
                      WHERE reftable.rec_key = phone.table_rec_key
@@ -454,7 +432,7 @@ PROCEDURE EmailNotify :
              reftable.CODE      = STRING (phone.rec_key).
     END.
   END.
-
+/*
   ELSE DO:
 
     IF AVAIL phone AND phone.table_rec_key NE "" THEN
@@ -507,6 +485,7 @@ PROCEDURE EmailNotify :
     END.
     END.
   END.
+*/
   {&methods/lValidateError.i NO}
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"CONTAINER",OUTPUT char-hdl).
 
@@ -514,7 +493,6 @@ PROCEDURE EmailNotify :
       RUN AdvancedNotice IN WIDGET-HANDLE(char-hdl).
 
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -535,7 +513,7 @@ PROCEDURE local-create-record :
 
 
   RUN SetEmailNotify.
-  vrPhone = ?.
+  vrPhone = "".
     RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"CONTAINER",OUTPUT char-hdl).
 
   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
@@ -558,7 +536,7 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* After Standard Behavior. */
-  vrPhone = RECID(phone).
+  vrPhone = phone.rec_key.
   RUN SetEmailNotify.
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"CONTAINER",OUTPUT char-hdl).
@@ -593,7 +571,7 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* After Standard Behavior. */
-  vrPhone = RECID(phone).
+  vrPhone = phone.rec_key.
   RUN SetEmailNotify.
 
   IF ll-new-record AND CAN-FIND(FIRST shipto WHERE
@@ -626,7 +604,6 @@ PROCEDURE local-update-record :
      END.
      {methods/run_link.i "CONTAINER-SOURCE" "setAddStatus" "(INPUT NO)"}
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -664,15 +641,16 @@ PROCEDURE SetEmailNotify :
   DO WITH FRAME {&FRAME-NAME}:
 
     RUN SetNotifyMode.
-
+/*
     IF CAN-FIND (FIRST reftable NO-LOCK
                  WHERE reftable.rec_key = phone.table_rec_key
                    AND reftable.CODE    = STRING (phone.rec_key)) 
       THEN tbNotice:CHECKED = YES.
       ELSE tbNotice:CHECKED = NO.
+*/  
   END.
 
-  vrPhone = RECID (phone).
+  vrPhone = phone.rec_key.
 
 /*   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"CONTAINER",OUTPUT char-hdl). */
 /*                                                                                       */
@@ -697,8 +675,6 @@ PROCEDURE SetNotifyMode :
 
   DO WITH FRAME {&FRAME-NAME}:
 
-    IF phone.e_mail:SENSITIVE THEN tbNotice:SENSITIVE = TRUE.
-                              ELSE tbNotice:SENSITIVE = FALSE.
   END.
 
 END PROCEDURE.
@@ -729,7 +705,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 /* ************************  Function Implementations ***************** */
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION AdvancedNotice V-table-Win 
@@ -740,14 +715,14 @@ FUNCTION AdvancedNotice RETURNS LOGICAL
     Notes:  
 ------------------------------------------------------------------------------*/
   IF adm-new-record THEN
-   vrPhone = ?.
+   vrPhone = "".
   ELSE
     IF AVAIL(phone) THEN
-      vrPhone = recid(phone).
+      vrPhone = phone.rec_key.
   IF CAN-FIND (FIRST reftable NO-LOCK
                WHERE reftable.rec_key = phone.table_rec_key
                  AND reftable.CODE    = STRING (phone.rec_key)) 
-                 AND tbNotice:CHECKED IN FRAME {&FRAME-NAME}
+               /*  AND tbNotice:CHECKED IN FRAME {&FRAME-NAME} */
       THEN RETURN TRUE.
       ELSE RETURN FALSE.
 
@@ -755,7 +730,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
-
 

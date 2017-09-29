@@ -34,7 +34,7 @@ CREATE WIDGET-POOL.
 /* Variables */
 DEFINE VARIABLE     vlShipNotice    AS LOGICAL  NO-UNDO.
 DEFINE VARIABLE gvlAddStatus AS LOGICAL     NO-UNDO.
-DEFINE SHARED VAR   vrPhone         AS RECID    NO-UNDO.
+DEFINE SHARED VAR   vrPhone         AS CHAR    NO-UNDO.
 DEF BUFFER b-phone FOR phone.
 /* DEFINE VARIABLE     vrPhone         AS RECID    NO-UNDO. */
 define var vHeaderValue as cha no-undo.
@@ -66,11 +66,9 @@ define var vHeaderValue as cha no-undo.
 &Scoped-define FIELDS-IN-QUERY-Browser-Table emailcod.emailcod ~
 emailcod.description CheckNotice() @ vlShipNotice 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} ~
-      /*AND can-do(emailcod.emailTo,vHeaderValue) or emailcod.emailTo = ""*/ NO-LOCK ~
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} ~
-      /*AND can-do(emailcod.emailTo,vHeaderValue) or emailcod.emailTo = ""*/ NO-LOCK ~
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH emailcod WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table emailcod
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table emailcod
@@ -290,63 +288,25 @@ DO:
   Notes:       
 ------------------------------------------------------------------------------*/
     IF gvlAddStatus THEN DO:
-      MESSAGE "Please save the phone record first, and then make this change."
-        VIEW-AS ALERT-BOX INFO BUTTONS OK.
-      RETURN NO-APPLY.
+        MESSAGE 
+            "Please save the phone record first, and then make this change."
+            VIEW-AS ALERT-BOX INFO BUTTONS OK.
+        RETURN NO-APPLY.
     END.
-    IF NOT CAN-FIND (FIRST reftable NO-LOCK
-                     WHERE reftable.rec_key = STRING (vrPhone)
-                       AND reftable.CODE    = emailcod.emailcod)
-    THEN DO:
-
-      CREATE reftable.
-      ASSIGN reftable.rec_key   = STRING (vrPhone)
-             reftable.CODE      = emailcod.emailcod.
-
-      FIND FIRST b-phone WHERE
-           RECID (b-phone) = vrPhone
-           NO-LOCK NO-ERROR.
-
-      IF AVAIL b-phone THEN
-      DO:
-         IF NOT can-find(FIRST emaildtl WHERE
-            emaildtl.emailcod = emailcod.emailcod AND
-            emaildtl.table_rec_key = b-phone.rec_key) THEN
-            DO:
-               CREATE emaildtl.
-               ASSIGN emaildtl.emailcod = emailcod.emailcod
-                      emaildtl.table_rec_key = b-phone.rec_key.               
-               RELEASE emaildtl.
-            END.
-
-         RELEASE b-phone.
-      END.
+    
+    FIND FIRST emaildtl EXCLUSIVE WHERE 
+        emaildtl.table_rec_key = STRING(vrPhone) AND 
+        emaildtl.emailcod = emailcod.emailcod
+        NO-ERROR.
+    
+    IF NOT AVAIL emaildtl THEN DO:
+        CREATE emaildtl.
+        ASSIGN 
+            emaildtl.table_rec_key = STRING (vrPhone)
+            emaildtl.emailcod = emailcod.emailcod.
     END.
-
     ELSE DO:
-
-      FIND FIRST reftable EXCLUSIVE-LOCK
-           WHERE reftable.rec_key = STRING (vrPhone)
-             AND reftable.CODE    = emailcod.emailcod NO-ERROR.
-
-      IF AVAIL reftable THEN
-         DELETE reftable.
-
-      FIND FIRST b-phone WHERE
-           RECID (b-phone) = vrPhone
-           NO-LOCK NO-ERROR.
-
-      IF AVAIL b-phone THEN
-      DO:
-         FIND FIRST emaildtl WHERE
-              emaildtl.emailcod EQ emailcod.emailcod AND
-              emaildtl.table_rec_key EQ b-phone.rec_key
-              EXCLUSIVE-LOCK NO-ERROR.
-
-         IF AVAILABLE emaildtl THEN
-            DELETE emaildtl.
-         RELEASE b-phone.
-      END.
+        DELETE emaildtl.
     END.
 
     BROWSE Browser-Table:REFRESH() NO-ERROR.
@@ -387,7 +347,7 @@ DO:
   {src/adm/template/brschnge.i}
   /*{methods/template/local/setvalue.i} */
   FIND FIRST phone NO-LOCK
-       WHERE RECID (phone) = vrPhone NO-ERROR.
+       WHERE phone.rec_key = vrPhone NO-ERROR.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -466,10 +426,10 @@ PROCEDURE AutoCreateRBOLPrt :
   Notes:       
 ------------------------------------------------------------------------------*/
  
-  IF vrPhone EQ ? THEN DO:
-  {&OPEN-QUERY-Browser-Table}
-  END.
-  IF TRUE THEN RETURN.  /* commented this procedure */
+    IF vrPhone EQ "" THEN DO:
+        {&OPEN-QUERY-Browser-Table}
+    END.
+    IF TRUE THEN RETURN.  /* commented this procedure */
 
 
   FOR EACH emailcod WHERE emailcod.emailcod begins 'r-bolprt' NO-LOCK:
@@ -483,7 +443,7 @@ PROCEDURE AutoCreateRBOLPrt :
              reftable.CODE      = emailcod.emailcod.
 
       FIND FIRST b-phone WHERE
-           RECID (b-phone) = vrPhone
+           b-phone.rec_key = vrPhone
            NO-LOCK NO-ERROR.
 
       IF AVAIL b-phone THEN
@@ -519,33 +479,12 @@ PROCEDURE ClearAll :
   Notes:       
 ------------------------------------------------------------------------------*/
   
-  FOR EACH emailcod WHERE emailcod.emailcod > '' NO-LOCK:
-
-    FIND FIRST reftable EXCLUSIVE-LOCK
-         WHERE reftable.rec_key = STRING (vrPhone)
-           AND reftable.CODE    = emailcod.emailcod NO-ERROR.
-
-    IF AVAIL reftable THEN DELETE reftable.
-
-    FIND FIRST b-phone WHERE
-         RECID (b-phone) = vrPhone
-         NO-LOCK NO-ERROR.
-
-    IF AVAIL b-phone THEN
-    DO:
-       FIND FIRST emaildtl WHERE
-            emaildtl.emailcod EQ emailcod.emailcod AND
-            emaildtl.table_rec_key EQ b-phone.rec_key
-            EXCLUSIVE-LOCK NO-ERROR.
-
-       IF AVAILABLE emaildtl THEN
-          DELETE emaildtl.
-
-       RELEASE b-phone.
+    FOR EACH emaildtl WHERE 
+        emaildtl.table_rec_key = STRING (vrPhone):
+            DELETE emaildtl.
     END.
-  END.
 
-  {&OPEN-QUERY-Browser-Table}
+    {&OPEN-QUERY-Browser-Table}
 
 END PROCEDURE.
 
@@ -655,39 +594,20 @@ PROCEDURE SendAll :
   Notes:       
 ------------------------------------------------------------------------------*/
   
-  FOR EACH emailcod WHERE emailcod.emailcod > '' NO-LOCK:
-
-    IF NOT CAN-FIND (FIRST reftable NO-LOCK
-                     WHERE reftable.rec_key = STRING (vrPhone)
-                       AND reftable.CODE    = emailcod.emailcod)
-    THEN DO:
-
-      CREATE reftable.
-      ASSIGN reftable.rec_key   = STRING (vrPhone)
-             reftable.CODE      = emailcod.emailcod.
-
-      FIND FIRST b-phone WHERE
-           RECID (b-phone) = vrPhone
-           NO-LOCK NO-ERROR.
-
-      IF AVAIL b-phone THEN
-      DO:
-         IF NOT can-find(FIRST emaildtl WHERE
-            emaildtl.emailcod = emailcod.emailcod AND
-            emaildtl.table_rec_key = b-phone.rec_key) THEN
-            DO:
-               CREATE emaildtl.
-               ASSIGN emaildtl.emailcod = emailcod.emailcod
-                      emaildtl.table_rec_key = b-phone.rec_key.
-               RELEASE emaildtl.
-            END.
-
-         RELEASE b-phone.
-      END.
+    FOR EACH emailcod WHERE emailcod.emailcod > '' NO-LOCK:
+        IF NOT CAN-FIND (FIRST emaildtl NO-LOCK WHERE 
+                            emaildtl.table_rec_key = STRING (vrPhone) AND 
+                            emaildtl.emailcod  = emailcod.emailcod)
+        THEN DO:
+            CREATE emaildtl.
+            ASSIGN 
+                emaildtl.emailcod = emailcod.emailcod
+                emaildtl.table_rec_key = STRING(vrPhone).
+            RELEASE emaildtl.
+        END.
     END.
-  END.
-
-  {&OPEN-QUERY-Browser-Table}
+  
+    {&OPEN-QUERY-Browser-Table}
 
 END PROCEDURE.
 
@@ -739,14 +659,12 @@ FUNCTION CheckNotice RETURNS CHARACTER
   Purpose:  
     Notes:  
 ------------------------------------------------------------------------------*/
-    
-    IF CAN-FIND (FIRST reftable NO-LOCK
-                 WHERE reftable.rec_key = STRING (vrPhone)
-                   AND reftable.CODE    = emailcod.emailcod
-                   AND vrPhone NE ?)
-        THEN RETURN 'Yes'.
-        ELSE RETURN 'No'.   
-
+    IF CAN-FIND (FIRST emaildtl NO-LOCK WHERE
+                    emaildtl.emailcod = emailcod.emailcod AND
+                    emaildtl.table_rec_key = vrPhone) THEN
+        RETURN 'Yes'.
+    ELSE 
+        RETURN 'No'.
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

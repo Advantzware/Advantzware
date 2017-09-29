@@ -143,7 +143,7 @@ PROCEDURE local-add-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  tbNotice:CHECKED IN FRAME {&FRAME-NAME} = FALSE.
+  /* tbNotice:CHECKED IN FRAME {&FRAME-NAME} = FALSE. */
 
   RUN SetNotifyMode.
   

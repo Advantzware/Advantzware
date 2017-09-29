@@ -66,7 +66,7 @@ if s-rec_key ne ?   and
 /*   VIEW-AS ALERT-BOX INFO BUTTONS OK.     */
 /*                                          */
 
-DEFINE NEW SHARED VARIABLE vrPhone  AS RECID NO-UNDO.
+DEFINE NEW SHARED VARIABLE vrPhone  AS CHAR NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
