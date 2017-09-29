@@ -1384,6 +1384,7 @@ ASSIGN
         AND job.job     EQ mch-act.job
         AND job.job-no  EQ mch-act.job-no
         AND job.job-no2 EQ mch-act.job-no2
+        AND job.stat    NE "P"
       USE-INDEX job BREAK BY mch-act.m-code 
                           BY mch-act.job-no:
       
@@ -1403,7 +1404,9 @@ ASSIGN
           dTotWasteMSF = 0.
       IF NOT AVAILABLE job-code THEN NEXT.
      
+      IF mch-act.waste > 0 THEN
       ASSIGN dTotWaste = dTotWaste + mch-act.waste.
+
       ASSIGN dGrossQty = dGrossQty + mch-act.qty.
                  
       FIND FIRST job-mch NO-LOCK
@@ -1486,7 +1489,8 @@ ASSIGN
                   ld-qty-msf = mch-act.qty * eb.t-wid * eb.t-len / 1000 / 144.
       END.
       ASSIGN dGrossMSF = dGrossMSF + ld-qty-msf.
-
+      dWasteMsf = 0.
+      IF mch-act.waste > 0 THEN
       IF (mach.p-type = "R" OR mach.p-type = "S" OR mach.p-type = "B") THEN DO:     
           IF AVAIL eb THEN 
               IF mach.p-type = "R" THEN
