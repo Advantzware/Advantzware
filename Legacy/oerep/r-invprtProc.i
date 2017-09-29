@@ -1292,22 +1292,20 @@ PROCEDURE run-report :
                     
                     
                 RELEASE oe-bolh.
-            IF AVAIL buf-{&line}1 THEN DO:
-                IF buf-{&line}1.{&bolno} EQ 0 THEN
-                        
+            IF AVAIL buf-{&line}1 AND "{&head}" EQ "inv-head" THEN DO:
+                IF buf-{&line}1.{&bolno} EQ 0 THEN                       
                     FOR EACH oe-bolh NO-LOCK 
                         WHERE  oe-bolh.b-no EQ buf-{&line}1.{&bno}:
 
                         {&bol-check}
-            END.
-                    
+                    END.                    
                     ELSE
                         FOR EACH oe-bolh NO-LOCK
                             WHERE  oe-bolh.b-no  EQ buf-{&line}1.{&bno}
                             BREAK BY oe-bolh.b-no:
                                                         
-                  {&bol-check}
-            END.
+                            {&bol-check}
+                        END.
             END.
             iBol = 0.
             IF AVAIL buf-{&line}1 AND buf-{&line}1.bol-no GT 0 THEN
@@ -1330,26 +1328,25 @@ END. /* If multi-invoice */
 
         ELSE 
         DO:
-/* Not multi-invoice */
-/* Was bolcheck.i */
+  /* Not multi-invoice */
+  /* Was bolcheck.i */
                                     
-RELEASE oe-bolh.
-        IF AVAIL buf-{&line} THEN DO:
-IF buf-{&line}.bol-no EQ 0 THEN
-    FOR EACH oe-bolh NO-LOCK 
-        WHERE oe-bolh.b-no EQ buf-{&line}.{&bno}:
-                                
-        {&bol-check}
-END.
-            
-            ELSE
-              FOR EACH oe-bolh NO-LOCK
-                  WHERE  oe-bolh.b-no  EQ buf-{&line}.{&bno}
-                  BREAK BY oe-bolh.b-no:
-                      
-{&bol-check}
-END.
-         END.
+  RELEASE oe-bolh.
+  IF AVAIL buf-{&line} AND "{&head}" EQ "inv-head" THEN DO:
+      IF buf-{&line}.bol-no EQ 0 THEN
+        FOR EACH oe-bolh NO-LOCK 
+            WHERE oe-bolh.b-no EQ buf-{&line}.{&bno}:
+                                    
+          {&bol-check}
+        END.
+        ELSE
+          FOR EACH oe-bolh NO-LOCK
+                WHERE  oe-bolh.b-no  EQ buf-{&line}.{&bno}
+                BREAK BY oe-bolh.b-no:
+                          
+              {&bol-check}
+          END.
+  END.
         
             
 iBol = 0.
