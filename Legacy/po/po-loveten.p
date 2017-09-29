@@ -219,8 +219,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
            v-comp-add5 = "Fax  :  " + string(cust.fax,"(999)999-9999").
 
   RELEASE reftable NO-ERROR.
-  IF AVAIL cust THEN cCurCode = cust.curr-code .
-         ELSE cCurCode = "" .
+
 
   assign
    v-contact      = po-ord.contact
@@ -251,7 +250,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       where vend.company eq po-ord.company
         and vend.vend-no eq po-ord.vend-no
       no-lock.
-
+ 
+ IF AVAIL vend THEN cCurCode = vend.curr-code .
+         ELSE cCurCode = "" .
+         
   find first terms
       where terms.company eq po-ord.company
         and terms.t-code  eq po-ord.terms
