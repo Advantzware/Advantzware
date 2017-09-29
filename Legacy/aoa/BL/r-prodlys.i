@@ -357,7 +357,7 @@ PROCEDURE pProductionAnalysis1:
         END. /* round decimals */
     END. /* each ttProductionAnalysis */
 
-    RUN pProductionAnalysis2 (ipcCompany, ipdtStartOpDate, ipdtEndOpDate, ipiStartShift, ipiEndShift).
+    RUN pProductionAnalysis2 (ipcCompany, ipdtStartOpDate, ipdtEndOpDate, ipiStartShift, ipiEndShift, ipiShiftStartTime, ipiShiftEndTime).
 END PROCEDURE.
 
 PROCEDURE pProductionAnalysis2:
