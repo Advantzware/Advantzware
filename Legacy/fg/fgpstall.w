@@ -4262,7 +4262,12 @@ PROCEDURE validateTransfers:
             itemfg.company EQ cocode AND
             itemfg.i-no    EQ w-fg-rctd.i-no) THEN
             NEXT.
-
+        FIND FIRST itemfg NO-LOCK 
+               WHERE itemfg.company EQ cocode 
+                 AND itemfg.i-no    EQ w-fg-rctd.i-no
+               NO-ERROR.
+        IF NOT AVAILABLE itemfg THEN NEXT.
+        
         FIND FIRST fg-bin WHERE fg-bin.company EQ cocode
             AND fg-bin.i-no    EQ w-fg-rctd.i-no
             AND fg-bin.job-no  EQ w-fg-rctd.job-no

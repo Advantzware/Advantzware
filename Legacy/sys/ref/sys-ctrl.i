@@ -247,7 +247,7 @@ IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:
        str-init[9]  = "relprint 1,relprint 2,relprint 10"
        str-init[10] = "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN"
        str-init[11] = "chkfmt 1,chkfmt 2"
-       str-init[13] = "ackhead 1,ackhead 2,ackhead 10,ackhead 20"
+       str-init[13] = "ackhead 1,ackhead 2,ackhead 10,ackhead 20,ack-canadian10"
        str-init[29] = "bolcert 1,bolcert 2"
        str-init[30] = "cerunc 1,cerunc 2,cerunc 3"
        str-init[31] = "cerunf 1,cerunf 2"
