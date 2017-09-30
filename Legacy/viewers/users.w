@@ -49,6 +49,21 @@ DEF BUFFER zUsers FOR users.
 DEF BUFFER lUsers FOR users.
 DEF VAR createLabelPath AS LOG NO-UNDO.
 DEF VAR cOldUserID AS CHAR NO-UNDO.
+DEF VAR cEnvList AS CHAR NO-UNDO.
+DEF VAR cDbList AS CHAR NO-UNDO.
+DEF VAR cModeList AS CHAR NO-UNDO.
+DEF VAR cEnvSelList AS CHAR NO-UNDO.
+DEF VAR cDbSelList AS CHAR NO-UNDO.
+DEF VAR cModeSelList AS CHAR NO-UNDO.
+DEF VAR cAliasFromFile AS CHAR NO-UNDO.
+
+DEF TEMP-TABLE ttUsers
+    FIELD ttfPdbname AS CHAR
+    FIELD ttfUserID AS CHAR
+    FIELD ttfUserAlias AS CHAR
+    FIELD ttfEnvList AS CHAR
+    FIELD ttfDbList AS CHAR
+    FIELD ttfModeList AS CHAR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -74,30 +89,30 @@ DEF VAR cOldUserID AS CHAR NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR users, usr.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS users.user_name users.track_usage ~
-users.use_colors users.use_fonts users.use_ctrl_keys users.developer ~
-users.user_program[2] users.user_program[1] users.user_program[3] 
+&Scoped-Define ENABLED-FIELDS users.user_name users.user_program[1] ~
+users.user_program[2] users.user_program[3] users.track_usage ~
+users.use_colors users.use_fonts users.use_ctrl_keys users.developer 
 &Scoped-define ENABLED-TABLES users
 &Scoped-define FIRST-ENABLED-TABLE users
-&Scoped-Define DISPLAYED-FIELDS users.securityLevel users.userAlias ~
-users.user_id users.user_name users.track_usage users.use_colors ~
-users.use_fonts users.use_ctrl_keys users.developer users.user_program[2] ~
-users.user_program[1] users.user_program[3] 
+&Scoped-Define DISPLAYED-FIELDS users.user_id users.user_name ~
+users.userAlias users.user_program[1] users.user_program[2] ~
+users.user_program[3] users.track_usage users.use_colors users.use_fonts ~
+users.use_ctrl_keys users.developer users.securityLevel 
 &Scoped-define DISPLAYED-TABLES users
 &Scoped-define FIRST-DISPLAYED-TABLE users
-&Scoped-Define DISPLAYED-OBJECTS cbUserType slEnvironments slDatabases ~
-slModes tg_po tg_bol tg_invoice tg_ack tg_quote fi_phone-area lv-phone-num ~
-fi_phone-country fi_fax-area lv-fax-num fi_fax-country fi_email 
+&Scoped-Define DISPLAYED-OBJECTS fi_phone-country fi_phone-area ~
+lv-phone-num fi_fax-country fi_fax-area lv-fax-num fi_email tg_quote tg_ack ~
+tg_bol tg_invoice tg_po cbUserType slEnvironments slDatabases slModes 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS users.user_id 
-&Scoped-define ADM-ASSIGN-FIELDS tg_po tg_bol tg_invoice tg_ack tg_quote ~
-fi_phone-area lv-phone-num fi_phone-country fi_fax-area lv-fax-num ~
-fi_fax-country fi_email 
-&Scoped-define DISPLAY-FIELD tg_po tg_bol tg_invoice tg_ack tg_quote ~
-fi_phone-area lv-phone-num fi_phone-country fi_fax-area lv-fax-num ~
-fi_fax-country fi_email 
+&Scoped-define ADM-ASSIGN-FIELDS fi_phone-country fi_phone-area ~
+lv-phone-num fi_fax-country fi_fax-area lv-fax-num fi_email tg_quote tg_ack ~
+tg_bol tg_invoice tg_po 
+&Scoped-define DISPLAY-FIELD fi_phone-country fi_phone-area lv-phone-num ~
+fi_fax-country fi_fax-area lv-fax-num fi_email tg_quote tg_ack tg_bol ~
+tg_invoice tg_po 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -129,12 +144,36 @@ RUN set-attribute-list (
 
 
 /* Definitions of the field level widgets                               */
+DEFINE BUTTON bAll1 
+     LABEL "All" 
+     SIZE 10 BY .71.
+
+DEFINE BUTTON bAll2 
+     LABEL "All" 
+     SIZE 10 BY .71.
+
+DEFINE BUTTON bAll3 
+     LABEL "All" 
+     SIZE 10 BY .71.
+
+DEFINE BUTTON bNone1 
+     LABEL "None" 
+     SIZE 10 BY .71.
+
+DEFINE BUTTON bNone2 
+     LABEL "None" 
+     SIZE 10 BY .71.
+
+DEFINE BUTTON bNone3 
+     LABEL "None" 
+     SIZE 10 BY .71.
+
 DEFINE VARIABLE cbUserType AS CHARACTER FORMAT "X(256)":U 
      LABEL "User Type" 
      VIEW-AS COMBO-BOX INNER-LINES 4
      LIST-ITEMS "Full User","Production Floor","Administrator","Portal User" 
      DROP-DOWN-LIST
-     SIZE 29 BY 1 NO-UNDO.
+     SIZE 30 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_email AS CHARACTER FORMAT "X(60)":U 
      LABEL "Email" 
@@ -174,17 +213,17 @@ DEFINE VARIABLE lv-phone-num AS CHARACTER FORMAT "xxx-xxxx":U
 DEFINE VARIABLE slDatabases AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      LIST-ITEMS "Production","Test" 
-     SIZE 36 BY 2 NO-UNDO.
+     SIZE 30 BY 2.62 NO-UNDO.
 
 DEFINE VARIABLE slEnvironments AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      LIST-ITEMS "Production","Test" 
-     SIZE 35 BY 2 NO-UNDO.
+     SIZE 30 BY 2.62 NO-UNDO.
 
 DEFINE VARIABLE slModes AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      LIST-ITEMS "Advantzware","Addon","Case Labels","Loadtags","Sharpshooter","Touchscreen" 
-     SIZE 36 BY 4.76 NO-UNDO.
+     SIZE 30 BY 5.24 NO-UNDO.
 
 DEFINE VARIABLE tg_ack AS LOGICAL INITIAL no 
      LABEL "Acknowledgments" 
@@ -215,17 +254,7 @@ DEFINE VARIABLE tg_quote AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     cbUserType AT ROW 4.1 COL 99 COLON-ALIGNED WIDGET-ID 48
-     users.securityLevel AT ROW 2.91 COL 99 COLON-ALIGNED WIDGET-ID 44
-          LABEL "Security Level" FORMAT ">999"
-          VIEW-AS FILL-IN 
-          SIZE 8 BY 1
-     slEnvironments AT ROW 6.48 COL 101 NO-LABEL WIDGET-ID 50
-     slDatabases AT ROW 8.86 COL 101 NO-LABEL WIDGET-ID 52
-     slModes AT ROW 11.24 COL 101 NO-LABEL WIDGET-ID 54
-     users.userAlias AT ROW 1.24 COL 99 COLON-ALIGNED WIDGET-ID 40
-          VIEW-AS FILL-IN 
-          SIZE 37 BY 1
+     bAll1 AT ROW 6.71 COL 90 WIDGET-ID 64
      users.user_id AT ROW 1.24 COL 15 COLON-ALIGNED
           LABEL "User ID"
           VIEW-AS FILL-IN 
@@ -236,58 +265,74 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 43 BY 1
           BGCOLOR 15 FONT 4
-     users.track_usage AT ROW 11.95 COL 16
-          VIEW-AS TOGGLE-BOX
-          SIZE 19.8 BY 1
-     tg_po AT ROW 15.76 COL 59 WIDGET-ID 32
-     users.use_colors AT ROW 12.91 COL 16
-          VIEW-AS TOGGLE-BOX
-          SIZE 27 BY 1
-     tg_bol AT ROW 13.86 COL 59 WIDGET-ID 28
-     users.use_fonts AT ROW 13.86 COL 16
-          VIEW-AS TOGGLE-BOX
-          SIZE 26.2 BY 1
-     tg_invoice AT ROW 14.81 COL 59 WIDGET-ID 30
-     tg_ack AT ROW 12.91 COL 59 WIDGET-ID 26
-     users.use_ctrl_keys AT ROW 14.81 COL 16
-          VIEW-AS TOGGLE-BOX
-          SIZE 38.4 BY 1
-     tg_quote AT ROW 11.95 COL 59 WIDGET-ID 34
-     users.developer AT ROW 15.76 COL 16
-          VIEW-AS TOGGLE-BOX
-          SIZE 16.8 BY 1
+     users.userAlias AT ROW 1.24 COL 99 COLON-ALIGNED WIDGET-ID 40
+          VIEW-AS FILL-IN 
+          SIZE 37 BY 1
+     fi_phone-country AT ROW 2.91 COL 19 COLON-ALIGNED WIDGET-ID 12
      fi_phone-area AT ROW 2.91 COL 29 COLON-ALIGNED WIDGET-ID 10
      lv-phone-num AT ROW 2.91 COL 39 COLON-ALIGNED WIDGET-ID 14
-     fi_phone-country AT ROW 2.91 COL 19 COLON-ALIGNED WIDGET-ID 12
+     fi_fax-country AT ROW 4.1 COL 19 COLON-ALIGNED WIDGET-ID 18
      fi_fax-area AT ROW 4.1 COL 29 COLON-ALIGNED WIDGET-ID 16
      lv-fax-num AT ROW 4.1 COL 39 COLON-ALIGNED WIDGET-ID 20
-     fi_fax-country AT ROW 4.1 COL 19 COLON-ALIGNED WIDGET-ID 18
+     fi_email AT ROW 5.52 COL 19 COLON-ALIGNED WIDGET-ID 38
+     users.user_program[1] AT ROW 7.19 COL 19 COLON-ALIGNED
+          LABEL "Image Viewer" FORMAT "x(80)"
+          VIEW-AS FILL-IN 
+          SIZE 60 BY 1
      users.user_program[2] AT ROW 8.38 COL 19 COLON-ALIGNED HELP
           "" WIDGET-ID 8
           LABEL "Report Path" FORMAT "x(100)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
-     users.user_program[1] AT ROW 7.19 COL 19 COLON-ALIGNED
-          LABEL "Image Viewer" FORMAT "x(80)"
-          VIEW-AS FILL-IN 
-          SIZE 60 BY 1
-     users.user_program[3] AT ROW 9.57 COL 2 WIDGET-ID 36
+     users.user_program[3] AT ROW 9.57 COL 2.4 WIDGET-ID 36
           LABEL "Document Path" FORMAT "x(100)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
-     fi_email AT ROW 5.52 COL 19 COLON-ALIGNED WIDGET-ID 38
-     "Phone/Fax Appear on:" VIEW-AS TEXT
-          SIZE 27 BY .62 AT ROW 11.24 COL 58 WIDGET-ID 24
-     "Databases:" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 8.86 COL 87 WIDGET-ID 60
-     "Modes:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 11.24 COL 92 WIDGET-ID 62
-     "Options:" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 11.24 COL 14 WIDGET-ID 42
+     users.track_usage AT ROW 11.95 COL 16
+          VIEW-AS TOGGLE-BOX
+          SIZE 19.8 BY 1
+     users.use_colors AT ROW 12.91 COL 16
+          VIEW-AS TOGGLE-BOX
+          SIZE 27 BY 1
+     users.use_fonts AT ROW 13.86 COL 16
+          VIEW-AS TOGGLE-BOX
+          SIZE 26.2 BY 1
+     users.use_ctrl_keys AT ROW 14.81 COL 16
+          VIEW-AS TOGGLE-BOX
+          SIZE 38.4 BY 1
+     users.developer AT ROW 15.76 COL 16
+          VIEW-AS TOGGLE-BOX
+          SIZE 16.8 BY 1
+     tg_quote AT ROW 11.95 COL 59 WIDGET-ID 34
+     tg_ack AT ROW 12.91 COL 59 WIDGET-ID 26
+     tg_bol AT ROW 13.86 COL 59 WIDGET-ID 28
+     tg_invoice AT ROW 14.81 COL 59 WIDGET-ID 30
+     tg_po AT ROW 15.76 COL 59 WIDGET-ID 32
+     users.securityLevel AT ROW 2.91 COL 99 COLON-ALIGNED WIDGET-ID 44
+          LABEL "Security Level" FORMAT ">999"
+          VIEW-AS FILL-IN 
+          SIZE 8 BY 1
+     cbUserType AT ROW 4.1 COL 99 COLON-ALIGNED WIDGET-ID 48
+     slEnvironments AT ROW 6.24 COL 101 NO-LABEL WIDGET-ID 50
+     slDatabases AT ROW 9.1 COL 101 NO-LABEL WIDGET-ID 52
+     slModes AT ROW 11.95 COL 101 NO-LABEL WIDGET-ID 54
+     bNone1 AT ROW 7.43 COL 90 WIDGET-ID 66
+     bAll2 AT ROW 9.81 COL 90 WIDGET-ID 68
+     bNone2 AT ROW 10.52 COL 90 WIDGET-ID 70
+     bAll3 AT ROW 12.67 COL 90 WIDGET-ID 72
+     bNone3 AT ROW 13.38 COL 90 WIDGET-ID 74
+     "Environments:" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 6 COL 84 WIDGET-ID 58
      "User Can Select:" VIEW-AS TEXT
           SIZE 22 BY .62 AT ROW 5.52 COL 101 WIDGET-ID 56
-     "Environments:" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 6.48 COL 84 WIDGET-ID 58
+     "Options:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 11.24 COL 14 WIDGET-ID 42
+     "Modes:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 11.95 COL 92 WIDGET-ID 62
+     "Databases:" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 9.1 COL 87 WIDGET-ID 60
+     "Phone/Fax Appear on:" VIEW-AS TEXT
+          SIZE 27 BY .62 AT ROW 11.24 COL 58 WIDGET-ID 24
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -350,6 +395,18 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR BUTTON bAll1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON bAll2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON bAll3 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON bNone1 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON bNone2 IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON bNone3 IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR COMBO-BOX cbUserType IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_email IN FRAME F-Main
@@ -414,6 +471,29 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME bAll1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bAll1 V-table-Win
+ON CHOOSE OF bAll1 IN FRAME F-Main /* All */
+OR CHOOSE OF bAll2
+OR CHOOSE OF bAll3
+OR CHOOSE OF bNone1
+OR CHOOSE OF bNone2
+OR CHOOSE OF bNone3
+DO:
+    CASE SELF:NAME:
+        WHEN "bAll1" THEN ASSIGN slEnvironments:SCREEN-VALUE IN FRAME {&FRAME-NAME} = slEnvironments:LIST-ITEMS.
+        WHEN "bAll2" THEN ASSIGN slDatabases:SCREEN-VALUE IN FRAME {&FRAME-NAME} = slDatabases:LIST-ITEMS.
+        WHEN "bAll3" THEN ASSIGN slModes:SCREEN-VALUE IN FRAME {&FRAME-NAME} = slModes:LIST-ITEMS.
+        WHEN "bNone1" THEN ASSIGN slEnvironments:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+        WHEN "bNone2" THEN ASSIGN slDatabases:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+        WHEN "bNone3" THEN ASSIGN slModes:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+    END CASE.  
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME users.securityLevel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.securityLevel V-table-Win
@@ -525,20 +605,26 @@ END.
 
 /* ***************************  Main Block  *************************** */
 
-  {custom/gcompany.i}
-  {custom/getcmpny.i}
+    {custom/gcompany.i}
+    {custom/getcmpny.i}
 
-  DO TRANSACTION:
-     {sys/inc/webroot.i}
-  END.
-  FIND zUsers NO-LOCK WHERE
-    zUsers.user_id = USERID(LDBNAME(1))
-    NO-ERROR.
+    DO TRANSACTION:
+        {sys/inc/webroot.i}
+    END.
+    FIND zUsers NO-LOCK WHERE
+        zUsers.user_id = USERID(LDBNAME(1))
+        NO-ERROR.
+    RUN ipReadIniFile.
+    RUN ipReadUsrFile.
     
-
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
-  &ENDIF         
+  &ENDIF       
+  
+    ASSIGN
+        slEnvironments:LIST-ITEMS = cEnvList
+        slDatabases:LIST-ITEMS = cDbList
+        slModes:LIST-ITEMS = cModeList.  
 
   /************************ INTERNAL PROCEDURES ********************/
 
@@ -594,6 +680,86 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipReadIniFile V-table-Win 
+PROCEDURE ipReadIniFile :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR cIniLine AS CHAR NO-UNDO.
+    
+    INPUT FROM VALUE(SEARCH(cIniLoc)).
+    REPEAT:
+        IMPORT UNFORMATTED cIniLine.
+        IF cIniLine BEGINS "envList" THEN ASSIGN
+            cEnvList = ENTRY(2,cIniLine,"=").
+        ELSE IF cIniLine BEGINS "dbList" THEN ASSIGN
+            cDbList = ENTRY(2,cIniLine,"=").
+        IF cIniLine BEGINS "modeList" THEN ASSIGN
+            cModeList = ENTRY(2,cIniLine,"=").
+        ELSE NEXT.
+    END.
+    INPUT CLOSE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipReadUsrFile V-table-Win 
+PROCEDURE ipReadUsrFile :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR cUsrLine AS CHAR NO-UNDO.
+    INPUT FROM VALUE(SEARCH(cUsrLoc)).
+    REPEAT:
+        IMPORT UNFORMATTED cUsrLine.
+        IF INDEX(cUsrLine,"|") = 0 THEN NEXT.
+        CREATE ttUsers.
+        ASSIGN
+            ttUsers.ttfPdbname = ENTRY(1,cUsrLine,"|")
+            ttUsers.ttfUserAlias = ENTRY(2,cUsrLine,"|")
+            ttUsers.ttfUserID = ENTRY(3,cUsrLine,"|")
+            ttUsers.ttfEnvList = ENTRY(4,cUsrLine,"|")
+            ttUsers.ttfDbList = ENTRY(5,cUsrLine,"|")
+            ttUsers.ttfModeList = ENTRY(6,cUsrLine,"|")
+            .
+    END.
+    INPUT CLOSE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipWriteUsrFile V-table-Win 
+PROCEDURE ipWriteUsrFile :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    OUTPUT TO VALUE(cUsrLoc).
+    FOR EACH ttUsers:
+        PUT UNFORMATTED
+            ttUsers.ttfPdbname + "|" +
+            ttUsers.ttfUserAlias + "|" +
+            ttUsers.ttfUserID + "|" +
+            ttUsers.ttfEnvList + "|" +
+            ttUsers.ttfDbList + "|" +
+            ttUsers.ttfModeList + CHR(10).
+    END.
+    INPUT CLOSE.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -667,6 +833,14 @@ PROCEDURE local-assign-record :
                 usercomp.company = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001"
                 usercomp.loc = IF AVAIL bf-usercomp THEN bf-usercomp.loc ELSE "MAIN"
                 usercomp.loc_DEFAULT = YES.
+        END.
+        
+        FIND FIRST usr WHERE usr.uid EQ users.user_id NO-ERROR.
+        IF NOT AVAIL usr THEN DO:
+            CREATE usr.
+            ASSIGN
+                usr.uid = users.user_id
+                usr.usr-lang = "EN".
         END.
     END.
 
@@ -757,10 +931,18 @@ PROCEDURE local-cancel-record :
         lv-fax-num 
         fi_fax-country 
         fi_email
+        users.userAlias
+        users.securityLevel
         cbUserType
         slEnvironments
         slDatabases
         slModes
+        bAll1
+        bNone1
+        bAll2
+        bNone2
+        bAll3
+        bNone3
         WITH FRAME {&FRAME-NAME}.
         
 END PROCEDURE.
@@ -774,18 +956,35 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-    ASSIGN 
-        fi_email = users.image_filename
-        fi_email:SCREEN-VALUE IN FRAME {&FRAME-NAME} = users.image_filename
-        cbUserType:screen-value = users.userType
-        slEnvironments:screen-value = users.envList
-        slDatabases:screen-value = users.dbList
-        slModes:screen-value = users.modeList.
+    FIND FIRST ttUsers WHERE
+        ttUsers.ttfPdbName = PDBNAME(1) AND
+        ttUsers.ttfUserID = users.user_id
+        NO-ERROR.
+    IF NOT AVAIL ttUsers THEN DO:
+        CREATE ttUsers.
+        ASSIGN
+            ttUsers.ttfPdbName = PDBNAME(1)
+            ttUsers.ttfUserID = users.user_id
+            ttUsers.ttfEnvList = slEnvironments:list-items in FRAME {&FRAME-NAME}
+            ttUsers.ttfDbList = slDatabases:list-items
+            ttUsers.ttfModeList = slModes:list-items.
+    END.
 
     RUN reftable-values(INPUT YES).
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+    
+    ASSIGN 
+        fi_email = users.image_filename
+        fi_email:SCREEN-VALUE IN FRAME {&FRAME-NAME} = users.image_filename
+        cbUserType:screen-value = users.userType
+        slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
+        slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
+        slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList else slModes:list-items.
+
+    IF users.userAlias:SCREEN-VALUE NE ttUsers.ttfUserAlias THEN ASSIGN
+        users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias.
 
 END PROCEDURE.
 
@@ -846,6 +1045,13 @@ PROCEDURE local-update-record :
         users.envList = slEnvironments:SCREEN-VALUE
         users.dbList = slDatabases:SCREEN-VALUE
         users.modeList = slModes:SCREEN-VALUE.
+    
+    ASSIGN
+        ttUsers.ttfUserAlias = users.userAlias
+        ttUsers.ttfEnvList = if users.envList <> slEnvironments:list-items then users.envList else ""
+        ttUsers.ttfDbList = if users.dbList <> slDatabases:list-items then users.dbList else ""
+        ttUsers.ttfModeList = if users.modeList <> slModes:list-items then users.modeList else "".
+    RUN ipWriteUsrFile.
     RELEASE users.
 
     DISABLE 
@@ -861,9 +1067,17 @@ PROCEDURE local-update-record :
         lv-fax-num 
         fi_fax-country fi_email
         cbUserType
+        users.userAlias
+        users.securityLevel
         slEnvironments
         slDatabases
         slModes
+        bAll1
+        bNone1
+        bAll2
+        bNone2
+        bAll3
+        bNone3
         WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -894,7 +1108,12 @@ PROCEDURE proc-enable :
         slEnvironments:screen-value = ""
         slDatabases:screen-value = ""
         slModes:screen-value = ""
-
+        bAll1:SENSITIVE = TRUE
+        bNone1:SENSITIVE = TRUE
+        bAll2:SENSITIVE = TRUE
+        bNone2:SENSITIVE = TRUE
+        bAll3:SENSITIVE = TRUE
+        bNone3:SENSITIVE = TRUE
         .
     ELSE ASSIGN 
         users.track_usage:SENSITIVE = NO 
@@ -908,12 +1127,18 @@ PROCEDURE proc-enable :
         slEnvironments:SENSITIVE = FALSE
         slDatabases:SENSITIVE = FALSE
         slModes:SENSITIVE = FALSE
+        bAll1:SENSITIVE = FALSE
+        bNone1:SENSITIVE = FALSE
+        bAll2:SENSITIVE = FALSE
+        bNone2:SENSITIVE = FALSE
+        bAll3:SENSITIVE = FALSE
+        bNone3:SENSITIVE = FALSE
         .
     ASSIGN 
         cbUserType:screen-value = users.userType
-        slEnvironments:screen-value = users.envList
-        slDatabases:screen-value = users.dbList
-        slModes:screen-value = users.modeList.
+        slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" then ttUsers.ttfEnvList else slEnvironments:list-items
+        slDatabases:screen-value = if ttUsers.ttfDbList <> "" then ttUsers.ttfDbList else slDatabases:list-items
+        slModes:screen-value = if ttUsers.ttfModeList <> "" then ttUsers.ttfModeList else slModes:list-items.
 
 
     ENABLE 
