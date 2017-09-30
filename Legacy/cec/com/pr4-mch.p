@@ -35,6 +35,7 @@ DEFINE BUFFER bf-eb FOR eb.
 
 
 {sys/inc/ceprice.i}
+{ce/fEstOpRecKey.i}
 
 opsplit$ = 0.
 
@@ -217,7 +218,7 @@ FOR EACH est-op WHERE est-op.company = xest.company
             op.run-varoh = mach.run-varoh
             op.wst-prct  = est-op.op-spoil
             op.speed     = opsp
-            op.rec_key   = est-op.rec_key
+            op.rec_key   = fEstOpRecKey(est-op.rec_key)
             .
 
         IF est-op.op-sb THEN
