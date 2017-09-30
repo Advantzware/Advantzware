@@ -45,6 +45,8 @@ ASSIGN cocode = g_company
 DEFINE NEW GLOBAL SHARED VAR cIniLoc AS CHAR NO-UNDO.
 DEFINE NEW GLOBAL SHARED VAR cUsrLoc AS CHAR NO-UNDO.
 
+DEF BUFFER zUsers FOR users.
+DEF BUFFER lUsers FOR users.
 DEF VAR createLabelPath AS LOG NO-UNDO.
 DEF VAR cOldUserID AS CHAR NO-UNDO.
 
@@ -72,21 +74,19 @@ DEF VAR cOldUserID AS CHAR NO-UNDO.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR users, usr.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS users.securityLevel users.userAlias ~
-users.user_name users.track_usage users.use_colors users.use_fonts ~
-users.use_ctrl_keys users.developer users.user_program[2] ~
-users.user_program[1] users.user_program[3] 
+&Scoped-Define ENABLED-FIELDS users.user_name users.track_usage ~
+users.use_colors users.use_fonts users.use_ctrl_keys users.developer ~
+users.user_program[2] users.user_program[1] users.user_program[3] 
 &Scoped-define ENABLED-TABLES users
 &Scoped-define FIRST-ENABLED-TABLE users
-&Scoped-Define ENABLED-OBJECTS cbUserType SELECT-4 SELECT-5 SELECT-6 
 &Scoped-Define DISPLAYED-FIELDS users.securityLevel users.userAlias ~
 users.user_id users.user_name users.track_usage users.use_colors ~
 users.use_fonts users.use_ctrl_keys users.developer users.user_program[2] ~
 users.user_program[1] users.user_program[3] 
 &Scoped-define DISPLAYED-TABLES users
 &Scoped-define FIRST-DISPLAYED-TABLE users
-&Scoped-Define DISPLAYED-OBJECTS cbUserType SELECT-4 SELECT-5 SELECT-6 ~
-tg_po tg_bol tg_invoice tg_ack tg_quote fi_phone-area lv-phone-num ~
+&Scoped-Define DISPLAYED-OBJECTS cbUserType slEnvironments slDatabases ~
+slModes tg_po tg_bol tg_invoice tg_ack tg_quote fi_phone-area lv-phone-num ~
 fi_phone-country fi_fax-area lv-fax-num fi_fax-country fi_email 
 
 /* Custom List Definitions                                              */
@@ -171,17 +171,17 @@ DEFINE VARIABLE lv-phone-num AS CHARACTER FORMAT "xxx-xxxx":U
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE SELECT-4 AS CHARACTER 
-     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     LIST-ITEMS "Production","Test" 
-     SIZE 35 BY 2 NO-UNDO.
-
-DEFINE VARIABLE SELECT-5 AS CHARACTER 
+DEFINE VARIABLE slDatabases AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      LIST-ITEMS "Production","Test" 
      SIZE 36 BY 2 NO-UNDO.
 
-DEFINE VARIABLE SELECT-6 AS CHARACTER 
+DEFINE VARIABLE slEnvironments AS CHARACTER 
+     VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
+     LIST-ITEMS "Production","Test" 
+     SIZE 35 BY 2 NO-UNDO.
+
+DEFINE VARIABLE slModes AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      LIST-ITEMS "Advantzware","Addon","Case Labels","Loadtags","Sharpshooter","Touchscreen" 
      SIZE 36 BY 4.76 NO-UNDO.
@@ -220,9 +220,9 @@ DEFINE FRAME F-Main
           LABEL "Security Level" FORMAT ">999"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     SELECT-4 AT ROW 6.48 COL 101 NO-LABEL WIDGET-ID 50
-     SELECT-5 AT ROW 8.86 COL 101 NO-LABEL WIDGET-ID 52
-     SELECT-6 AT ROW 11.24 COL 101 NO-LABEL WIDGET-ID 54
+     slEnvironments AT ROW 6.48 COL 101 NO-LABEL WIDGET-ID 50
+     slDatabases AT ROW 8.86 COL 101 NO-LABEL WIDGET-ID 52
+     slModes AT ROW 11.24 COL 101 NO-LABEL WIDGET-ID 54
      users.userAlias AT ROW 1.24 COL 99 COLON-ALIGNED WIDGET-ID 40
           VIEW-AS FILL-IN 
           SIZE 37 BY 1
@@ -350,6 +350,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR COMBO-BOX cbUserType IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_email IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN fi_fax-area IN FRAME F-Main
@@ -365,7 +367,13 @@ ASSIGN
 /* SETTINGS FOR FILL-IN lv-phone-num IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN users.securityLevel IN FRAME F-Main
-   EXP-LABEL EXP-FORMAT                                                 */
+   NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+/* SETTINGS FOR SELECTION-LIST slDatabases IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR SELECTION-LIST slEnvironments IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR SELECTION-LIST slModes IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR TOGGLE-BOX tg_ack IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR TOGGLE-BOX tg_bol IN FRAME F-Main
@@ -376,6 +384,8 @@ ASSIGN
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR TOGGLE-BOX tg_quote IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
+/* SETTINGS FOR FILL-IN users.userAlias IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN users.user_id IN FRAME F-Main
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN users.user_name IN FRAME F-Main
@@ -404,6 +414,46 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME users.securityLevel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.securityLevel V-table-Win
+ON LEAVE OF users.securityLevel IN FRAME F-Main /* Security Level */
+DO:
+    IF zUsers.securityLevel < 1000 
+    AND INTEGER(SELF:SCREEN-VALUE) GE 1000 THEN DO:
+        ASSIGN
+            SELF:SCREEN-VALUE = "700".
+    END.
+    
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME users.userAlias
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.userAlias V-table-Win
+ON LEAVE OF users.userAlias IN FRAME F-Main /* Login Alias */
+DO:
+    IF SELF:SCREEN-VALUE <> "" THEN DO:
+        FIND FIRST lUsers NO-LOCK WHERE 
+            lUsers.userAlias = SELF:SCREEN-VALUE
+            NO-ERROR.
+        IF AVAIL lUsers THEN DO:
+            MESSAGE
+                "Duplicate alias detected. Please enter a different value."
+                VIEW-AS ALERT-BOX ERROR.
+            ASSIGN
+                SELF:SCREEN-VALUE = "".
+            APPLY 'entry' TO SELF.
+            RETURN NO-APPLY.
+        END.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME users.user_program[1]
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.user_program[1] V-table-Win
@@ -438,7 +488,7 @@ DO:
 
     IF INDEX(SELF:SCREEN-VALUE,"/") > 0 THEN ASSIGN
         SELF:SCREEN-VALUE = SUBSTRING(SELF:SCREEN-VALUE,R-INDEX(SELF:SCREEN-VALUE,"/") + 1).
-     ELSE IF INDEX(SELF:SCREEN-VALUE,"\") > 0 THEN ASSIGN
+    ELSE IF INDEX(SELF:SCREEN-VALUE,"\") > 0 THEN ASSIGN
         SELF:SCREEN-VALUE = SUBSTRING(SELF:SCREEN-VALUE,R-INDEX(SELF:SCREEN-VALUE,"\") + 1).
 
 END.
@@ -481,6 +531,10 @@ END.
   DO TRANSACTION:
      {sys/inc/webroot.i}
   END.
+  FIND zUsers NO-LOCK WHERE
+    zUsers.user_id = USERID(LDBNAME(1))
+    NO-ERROR.
+    
 
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -569,143 +623,111 @@ PROCEDURE local-assign-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+    {methods/viewers/assign/{&FIRST-EXTERNAL-TABLE}.i}
 
-  /* gdm - 05180924 */
-  ASSIGN users.image_filename = TRIM(fi_email).
+    IF adm-new-record THEN DO:
+        FIND FIRST bf-usercomp NO-LOCK WHERE 
+            bf-usercomp.USER_id = "ASI" AND
+            bf-usercomp.company_default 
+            NO-ERROR.
+        ASSIGN 
+            lv-default-comp = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001".
 
-  {methods/viewers/assign/{&FIRST-EXTERNAL-TABLE}.i}
-
-  IF adm-new-record THEN DO:
-     FIND FIRST bf-usercomp WHERE bf-usercomp.USER_id = "ASI" AND
-                                  bf-usercomp.company_default NO-LOCK NO-ERROR.
-     lv-default-comp = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001".
-
-     FIND FIRST usercomp WHERE usercomp.USER_id = users.USER_id 
-                           AND usercomp.company = lv-default-comp AND
-                               usercomp.loc = ""
-         NO-LOCK NO-ERROR.
-     IF NOT AVAIL usercomp THEN DO:
-        CREATE usercomp.
-        ASSIGN usercomp.user_id = users.USER_id
-            usercomp.company = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001"
+        FIND FIRST usercomp NO-LOCK WHERE 
+            usercomp.USER_id = users.USER_id AND 
+            usercomp.company = lv-default-comp AND
             usercomp.loc = ""
-            usercomp.company_default = YES.
-     END.
-     FIND FIRST bf-usercomp WHERE bf-usercomp.USER_id = "ASI" AND
-                                  bf-usercomp.loc_default NO-LOCK NO-ERROR.
-     lv-default-loc = IF AVAIL bf-usercomp THEN bf-usercomp.loc ELSE "MAIN".
+            NO-ERROR.
+        IF NOT AVAIL usercomp THEN DO:
+            CREATE usercomp.
+            ASSIGN 
+                usercomp.user_id = users.USER_id
+                usercomp.company = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001"
+                usercomp.loc = ""
+                usercomp.company_default = YES.
+        END.
+     
+        FIND FIRST bf-usercomp NO-LOCK WHERE
+            bf-usercomp.USER_id = "ASI" AND
+            bf-usercomp.loc_default 
+            NO-ERROR.
+        ASSIGN 
+            lv-default-loc = IF AVAIL bf-usercomp THEN bf-usercomp.loc ELSE "MAIN".
 
-     FIND FIRST usercomp WHERE usercomp.USER_id = users.USER_id 
-                           AND usercomp.company = lv-default-comp AND
-                               usercomp.loc = lv-default-loc NO-LOCK NO-ERROR.
+        FIND FIRST usercomp NO-LOCK WHERE 
+            usercomp.USER_id = users.USER_id AND 
+            usercomp.company = lv-default-comp AND
+            usercomp.loc = lv-default-loc 
+            NO-ERROR.
 
-     IF NOT AVAIL usercomp THEN DO:
-        CREATE usercomp.
-        ASSIGN usercomp.user_id = users.USER_id
-            usercomp.company = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001"
-            usercomp.loc = IF AVAIL bf-usercomp THEN bf-usercomp.loc ELSE "MAIN"
-            usercomp.loc_DEFAULT = YES.
-     END.
-  END.
+        IF NOT AVAIL usercomp THEN DO:
+            CREATE usercomp.
+            ASSIGN 
+                usercomp.user_id = users.USER_id
+                usercomp.company = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001"
+                usercomp.loc = IF AVAIL bf-usercomp THEN bf-usercomp.loc ELSE "MAIN"
+                usercomp.loc_DEFAULT = YES.
+        END.
+    END.
 
-  if adm-new-record and not adm-adding-record then do:  /* copy */
-   FOR EACH usercust NO-LOCK
-           WHERE usercust.user_id EQ cOldUserID 
-             AND usercust.company EQ cocode  , 
-           FIRST cust WHERE 
-              cust.company EQ usercust.company AND 
-              cust.cust-no EQ usercust.cust-no NO-LOCK  :
+    IF adm-new-record AND NOT adm-adding-record THEN DO:  /* copy */
+        FOR EACH usercust NO-LOCK WHERE 
+            usercust.user_id EQ cOldUserID AND 
+            usercust.company EQ cocode  , 
+            FIRST cust WHERE 
+                cust.company EQ usercust.company AND 
+                cust.cust-no EQ usercust.cust-no NO-LOCK  :
 
-          CREATE bf-usercust .
-          BUFFER-COPY usercust EXCEPT rec_key user_id TO bf-usercust.
-          ASSIGN
-              bf-usercust.user_id = users.USER_id .
+            CREATE bf-usercust .
+            BUFFER-COPY usercust EXCEPT rec_key user_id TO bf-usercust.
+            ASSIGN
+                bf-usercust.user_id = users.USER_id .
+        END.
+        FOR EACH usrx NO-LOCK WHERE 
+            usrx.uid = cOldUserID AND 
+            usrx.company = cocode AND 
+            usrx.loc NE "", 
+            EACH loc OF usrx NO-LOCK:
 
-      END.
-      /*FOR EACH uservend WHERE      uservend.user_id EQ cOldUserID AND
-                uservend.company EQ cocode NO-LOCK, 
-          FIRST vend WHERE             vend.company EQ uservend.company AND
-             vend.vend-no EQ uservend.vend-no  NO-LOCK    :
+            CREATE bf-usrx .
+            BUFFER-COPY usrx EXCEPT rec_key uid TO bf-usrx.
+            ASSIGN
+                bf-usrx.uid = users.USER_id .
+        END.
+    END.
 
-          CREATE bf-uservend .
-          BUFFER-COPY uservend EXCEPT rec_key user_id TO bf-uservend.
-          ASSIGN
-              bf-uservend.user_id = users.USER_id .
+    SESSION:SET-WAIT-STATE("general").
+     
+    FOR EACH prgrms :
+        IF LOOKUP(cOldUserID,prgrms.can_run) > 0 
+        AND LOOKUP(users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME},prgrms.can_run) <= 0 THEN ASSIGN
+            prgrms.can_run = prgrms.can_run + "," + users.user_id:SCREEN-VALUE.
+        IF LOOKUP(cOldUserID,prgrms.can_create) > 0 
+        AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_create) <= 0 THEN ASSIGN
+            prgrms.can_create = prgrms.can_create + "," + users.user_id:SCREEN-VALUE.
+        IF LOOKUP(cOldUserID,prgrms.can_update) > 0 
+        AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_update) <= 0 THEN ASSIGN
+            prgrms.can_update = prgrms.can_update + "," + users.user_id:SCREEN-VALUE.
+        IF LOOKUP(cOldUserID,prgrms.can_delete) > 0 
+        AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_delete) <= 0 THEN ASSIGN
+            prgrms.can_delete = prgrms.can_delete + "," + users.user_id:SCREEN-VALUE.
+    END.
+  
+    RUN reftable-values(NO).
 
-      END.
-      FOR EACH usersman WHERE      usersman.user_id EQ cOldUserID AND
-                usersman.company EQ cocode NO-LOCK, 
-          FIRST sman WHERE             sman.company EQ usersman.company AND  
-              sman.sman EQ usersman.sman NO-LOCK :
+    SESSION:SET-WAIT-STATE("").
 
-          CREATE bf-usersman .
-          BUFFER-COPY usersman EXCEPT rec_key user_id TO bf-usersman.
-          ASSIGN
-              bf-usersman.user_id = users.USER_id .
-      END.*/ /*Ticket - 22100*/
-
-      FOR EACH usrx 
-          WHERE usrx.uid = cOldUserID AND usrx.company = cocode AND 
-          usrx.loc NE "" NO-LOCK, 
-          EACH loc OF usrx  NO-LOCK :
-
-          CREATE bf-usrx .
-          BUFFER-COPY usrx EXCEPT rec_key uid TO bf-usrx.
-          ASSIGN
-              bf-usrx.uid = users.USER_id .
-      END.
-  END.
-
-  SESSION:SET-WAIT-STATE("general").
-     FOR EACH prgrms :
-         IF LOOKUP(cOldUserID,prgrms.can_run) > 0 
-            AND LOOKUP(users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME},prgrms.can_run) <= 0 
-            THEN prgrms.can_run = prgrms.can_run + "," + users.user_id:SCREEN-VALUE.
-         IF LOOKUP(cOldUserID,prgrms.can_create) > 0 
-             AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_create) <= 0 
-            THEN prgrms.can_create = prgrms.can_create + "," + users.user_id:SCREEN-VALUE.
-         IF LOOKUP(cOldUserID,prgrms.can_update) > 0 
-             AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_update) <= 0 
-            THEN prgrms.can_update = prgrms.can_update + "," + users.user_id:SCREEN-VALUE.
-         IF LOOKUP(cOldUserID,prgrms.can_delete) > 0 
-             AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_delete) <= 0 
-            THEN prgrms.can_delete = prgrms.can_delete + "," + users.user_id:SCREEN-VALUE.
-     END.
-  RUN reftable-values(NO).
-
-  SESSION:SET-WAIT-STATE("").
-
-  IF NOT adm-new-record THEN
-     MESSAGE "Do you want to change " users.USER_id "'s password?"
-         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans .
-  IF ll-ans THEN DO:
-
-     FIND NOSWEAT._user
-          WHERE NOSWEAT._user._userid = users.user_id EXCLUSIVE-LOCK NO-ERROR.
-     IF AVAILABLE NOSWEAT._user THEN         
-     DO:
-         RUN windows/d-passwd.w (RECID(_user)).
-         /*
-         UPDATE SKIP(1) "Enter User's Current Password" 
-                SPACE(5) v-old-pass VALIDATE(ENCODE(v-old-pass) = _user._password,"Invalid Current Password")
-             SPACE(5) 
-                "                        New Password" space(5) v-new-pass 
-         SKIP(1)
-         WITH FRAME f-password2
-              CENTERED NO-LABEL ROW 10 SIDE-LABELS TITLE "User Password" OVERLAY.
-         HIDE FRAME f-password2 NO-PAUSE.
-         /*
-         ASSIGN
-             NOSWEAT._user._password = ENCODE(v-new-pass).
-         */
-         /*ll-dummy = SETUSERID(_user._USERid,encode(v-new-pass),ldbname(1)) .
-         */
-         _user._password = ENCODE(v-new-pass).
-         */
-      END.
-
-  END.
+    IF NOT adm-new-record THEN MESSAGE 
+        "Do you want to change " users.USER_id "'s password?"
+        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans .
+    IF ll-ans THEN DO:
+        FIND _user EXCLUSIVE WHERE 
+            _user._userid = users.user_id 
+            NO-ERROR.
+        IF AVAILABLE _user THEN DO:
+            RUN windows/d-passwd.w (RECID(_user)).
+        END.
+    END.
 
 END PROCEDURE.
 
@@ -722,11 +744,25 @@ PROCEDURE local-cancel-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
-  DISABLE tg_po tg_bol tg_invoice tg_ack tg_quote
-          fi_phone-area lv-phone-num fi_phone-country
-          fi_fax-area lv-fax-num fi_fax-country fi_email
-          WITH FRAME {&FRAME-NAME}.
+    DISABLE 
+        tg_po 
+        tg_bol 
+        tg_invoice 
+        tg_ack 
+        tg_quote
+        fi_phone-area 
+        lv-phone-num 
+        fi_phone-country
+        fi_fax-area 
+        lv-fax-num 
+        fi_fax-country 
+        fi_email
+        cbUserType
+        slEnvironments
+        slDatabases
+        slModes
+        WITH FRAME {&FRAME-NAME}.
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -740,14 +776,16 @@ PROCEDURE local-display-fields :
 ------------------------------------------------------------------------------*/
     ASSIGN 
         fi_email = users.image_filename
-        fi_email:SCREEN-VALUE IN FRAME {&FRAME-NAME} = users.image_filename.
+        fi_email:SCREEN-VALUE IN FRAME {&FRAME-NAME} = users.image_filename
+        cbUserType:screen-value = users.userType
+        slEnvironments:screen-value = users.envList
+        slDatabases:screen-value = users.dbList
+        slModes:screen-value = users.modeList.
 
     RUN reftable-values(INPUT YES).
 
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-
-    
 
 END PROCEDURE.
 
@@ -761,51 +799,72 @@ PROCEDURE local-update-record :
   Notes:       
 ------------------------------------------------------------------------------*/
 
-  /* Code placed here will execute PRIOR to standard behavior. */
-  RUN validate-userid NO-ERROR.
-  IF error-status:error THEN RETURN.
+    RUN validate-userid NO-ERROR.
+    IF error-status:error THEN RETURN.
 
-  IF users.user_program[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN
-  DO:
-     IF SUBSTRING(users.user_program[2]:SCREEN-VALUE,LENGTH(users.user_program[2]:SCREEN-VALUE),1) EQ "\" OR
-        SUBSTRING(users.user_program[2]:SCREEN-VALUE,LENGTH(users.user_program[2]:SCREEN-VALUE),1) EQ "/" THEN
-        DO:
-           MESSAGE "Document/Report Temp Path cannot end in / or \." 
-               VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-           APPLY "ENTRY" TO users.user_program[2] IN FRAME {&FRAME-NAME}.
-           RETURN.
+    IF users.user_program[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+        IF SUBSTRING(users.user_program[2]:SCREEN-VALUE,LENGTH(users.user_program[2]:SCREEN-VALUE),1) EQ "\" 
+        OR SUBSTRING(users.user_program[2]:SCREEN-VALUE,LENGTH(users.user_program[2]:SCREEN-VALUE),1) EQ "/" THEN DO:
+            MESSAGE 
+                "Report Path cannot end in / or \." 
+                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+            APPLY "ENTRY" TO users.user_program[2] IN FRAME {&FRAME-NAME}.
+            RETURN.
         END.
-  END.
+    END.
 
-  IF users.user_program[3]:SCREEN-VALUE NE "" THEN
-  DO:
-     {&methods/lValidateError.i YES}
-     IF SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "\" OR
-        SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "/" THEN
-     DO:
-           MESSAGE "FG/RM Pallet Load Tag / Case Label Text File Path cannot end in / or \." 
-               VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-           APPLY "ENTRY" TO users.user_program[3] IN FRAME {&FRAME-NAME}.
-           RETURN.
-     END.
-     FILE-INFO:FILE-NAME = users.USER_program[3].
-     IF FILE-INFO:FILE-type eq ? then do:
-        message "FG/RM Pallet Load Tag / Case Label Text File Path does not exist. Do you want to create it?" 
-             view-as alert-box ERROR BUTTON YES-NO UPDATE v-ans AS LOG.
-        IF v-ans THEN OS-CREATE-DIR VALUE(file-info:file-name).
-     END.
-    {&methods/lValidateError.i NO}
-  END.  
+    IF users.user_program[3]:SCREEN-VALUE NE "" THEN DO:
+        {&methods/lValidateError.i YES}
+        IF SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "\" 
+        OR SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "/" THEN DO:
+            MESSAGE 
+                "Document Path cannot end in / or \." 
+                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
+            APPLY "ENTRY" TO users.user_program[3] IN FRAME {&FRAME-NAME}.
+            RETURN.
+        END.
+     
+        FILE-INFO:FILE-NAME = users.USER_program[3].
+        IF FILE-INFO:FILE-type eq ? then do:
+            MESSAGE 
+                "Document Path does not exist. Do you want to create it?" 
+                VIEW-AS ALERT-BOX ERROR BUTTON YES-NO UPDATE v-ans AS LOG.
+            IF v-ans THEN OS-CREATE-DIR VALUE(file-info:file-name).
+        END.
+        {&methods/lValidateError.i NO}
+    END.  
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
-  /* Code placed here will execute AFTER standard behavior.    */
+    FIND CURRENT users EXCLUSIVE.
+    ASSIGN 
+        users.userAlias = users.userAlias:screen-value in frame {&frame-name}
+        users.securityLevel = INTEGER(users.securityLevel:SCREEN-VALUE)
+        users.image_filename = TRIM(fi_email)
+        users.userType = cbUserType:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        users.envList = slEnvironments:SCREEN-VALUE
+        users.dbList = slDatabases:SCREEN-VALUE
+        users.modeList = slModes:SCREEN-VALUE.
+    RELEASE users.
 
-  DISABLE tg_po tg_bol tg_invoice tg_ack tg_quote
-          fi_phone-area lv-phone-num fi_phone-country
-          fi_fax-area lv-fax-num fi_fax-country fi_email
-          WITH FRAME {&FRAME-NAME}.
+    DISABLE 
+        tg_po 
+        tg_bol 
+        tg_invoice 
+        tg_ack 
+        tg_quote
+        fi_phone-area 
+        lv-phone-num 
+        fi_phone-country
+        fi_fax-area 
+        lv-fax-num 
+        fi_fax-country fi_email
+        cbUserType
+        slEnvironments
+        slDatabases
+        slModes
+        WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -819,24 +878,58 @@ PROCEDURE proc-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  /* task 04101303*/
-    IF USERID(LDBNAME(1)) EQ "asi" THEN
-         ASSIGN users.track_usage:SENSITIVE IN FRAME {&FRAME-NAME} = YES 
-                users.use_colors:SENSITIVE = YES
-                users.use_fonts:SENSITIVE = YES
-                users.use_ctrl_keys:SENSITIVE = YES
-                users.developer:SENSITIVE = YES.
-    ELSE
-        ASSIGN users.track_usage:SENSITIVE = NO 
-               users.use_colors:SENSITIVE = NO
-               users.use_fonts:SENSITIVE = NO
-               users.use_ctrl_keys:SENSITIVE = NO
-               users.developer:SENSITIVE = NO.
+    IF zUsers.securityLevel > 699 THEN ASSIGN 
+        users.track_usage:SENSITIVE IN FRAME {&FRAME-NAME} = YES 
+        users.use_colors:SENSITIVE = YES
+        users.use_fonts:SENSITIVE = YES
+        users.use_ctrl_keys:SENSITIVE = YES
+        users.developer:SENSITIVE = YES
+        users.userAlias:SENSITIVE = TRUE
+        users.securityLevel:SENSITIVE = TRUE
+        cbUserType:SENSITIVE = TRUE
+        slEnvironments:SENSITIVE = TRUE
+        slDatabases:SENSITIVE = TRUE
+        slModes:SENSITIVE = TRUE
+        cbUserType:screen-value = ""
+        slEnvironments:screen-value = ""
+        slDatabases:screen-value = ""
+        slModes:screen-value = ""
 
-  ENABLE tg_po tg_bol tg_invoice tg_ack tg_quote
-         fi_phone-area lv-phone-num fi_phone-country
-         fi_fax-area lv-fax-num fi_fax-country fi_email
-         WITH FRAME {&FRAME-NAME}.
+        .
+    ELSE ASSIGN 
+        users.track_usage:SENSITIVE = NO 
+        users.use_colors:SENSITIVE = NO
+        users.use_fonts:SENSITIVE = NO
+        users.use_ctrl_keys:SENSITIVE = NO
+        users.developer:SENSITIVE = NO
+        users.userAlias:SENSITIVE = FALSE
+        users.securityLevel:SENSITIVE = FALSE
+        cbUserType:SENSITIVE = FALSE
+        slEnvironments:SENSITIVE = FALSE
+        slDatabases:SENSITIVE = FALSE
+        slModes:SENSITIVE = FALSE
+        .
+    ASSIGN 
+        cbUserType:screen-value = users.userType
+        slEnvironments:screen-value = users.envList
+        slDatabases:screen-value = users.dbList
+        slModes:screen-value = users.modeList.
+
+
+    ENABLE 
+        tg_po 
+        tg_bol 
+        tg_invoice 
+        tg_ack 
+        tg_quote
+        fi_phone-area 
+        lv-phone-num 
+        fi_phone-country
+        fi_fax-area 
+        lv-fax-num 
+        fi_fax-country 
+        fi_email
+        WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
 
@@ -862,128 +955,122 @@ PROCEDURE reftable-values :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-   DEF INPUT PARAM ip-display AS LOG NO-UNDO.
+    DEF INPUT PARAM ip-display AS LOG NO-UNDO.
 
-  DEF VAR v-phone-num AS CHAR NO-UNDO.
-  DEF VAR v-fax-num AS CHAR NO-UNDO.
+    DEF VAR v-phone-num AS CHAR NO-UNDO.
+    DEF VAR v-fax-num AS CHAR NO-UNDO.
 
-  DO WITH FRAME {&FRAME-NAME}:
+    DO WITH FRAME {&FRAME-NAME}:
+        IF AVAIL users THEN DO:
+            FIND FIRST reftable WHERE
+                reftable.reftable EQ "users.user-docs" AND
+                reftable.company EQ users.user_id
+                NO-ERROR.
 
-    IF AVAIL users THEN DO:
-       FIND FIRST reftable WHERE
-            reftable.reftable EQ "users.user-docs" AND
-            reftable.company EQ users.user_id
-            NO-ERROR.
+            IF NOT AVAIL reftable THEN DO:
+                CREATE reftable.
+                ASSIGN
+                    reftable.reftable = "users.user-docs"
+                    reftable.company  = users.user_id.
+            END.
 
-       IF NOT AVAIL reftable THEN DO:
-          CREATE reftable.
-          ASSIGN
-            reftable.reftable = "users.user-docs"
-            reftable.company  = users.user_id.
-       END.
+            IF ip-display THEN ASSIGN
+                tg_po = LOGICAL(reftable.val[1])
+                tg_bol = LOGICAL(reftable.val[2])
+                tg_invoice = LOGICAL(reftable.val[3])
+                tg_ack = LOGICAL(reftable.val[4])
+                tg_quote = LOGICAL(reftable.val[5]).
+            ELSE ASSIGN
+                reftable.val[1] = IF LOGICAL(tg_po:SCREEN-VALUE) THEN 1 ELSE 0
+                reftable.val[2] = IF LOGICAL(tg_bol:SCREEN-VALUE) THEN 1 ELSE 0
+                reftable.val[3] = IF LOGICAL(tg_invoice:SCREEN-VALUE) THEN 1 ELSE 0
+                reftable.val[4] = IF LOGICAL(tg_ack:SCREEN-VALUE) THEN 1 ELSE 0
+                reftable.val[5] = IF LOGICAL(tg_quote:SCREEN-VALUE) THEN 1 ELSE 0.
 
-       IF ip-display THEN
-          ASSIGN
-             tg_po = LOGICAL(reftable.val[1])
-             tg_bol = LOGICAL(reftable.val[2])
-             tg_invoice = LOGICAL(reftable.val[3])
-             tg_ack = LOGICAL(reftable.val[4])
-             tg_quote = LOGICAL(reftable.val[5]).
-       ELSE
-          ASSIGN
-             reftable.val[1] = IF LOGICAL(tg_po:SCREEN-VALUE) THEN 1 ELSE 0
-             reftable.val[2] = IF LOGICAL(tg_bol:SCREEN-VALUE) THEN 1 ELSE 0
-             reftable.val[3] = IF LOGICAL(tg_invoice:SCREEN-VALUE) THEN 1 ELSE 0
-             reftable.val[4] = IF LOGICAL(tg_ack:SCREEN-VALUE) THEN 1 ELSE 0
-             reftable.val[5] = IF LOGICAL(tg_quote:SCREEN-VALUE) THEN 1 ELSE 0.
+            RELEASE reftable.
 
-       RELEASE reftable.
+            FIND FIRST reftable WHERE
+                reftable.reftable EQ "users.phone-no" AND
+                reftable.company EQ users.user_id
+                NO-ERROR.
 
-       FIND FIRST reftable WHERE
-            reftable.reftable EQ "users.phone-no" AND
-            reftable.company EQ users.user_id
-            NO-ERROR.
+            IF NOT AVAIL reftable THEN DO:
+                CREATE reftable.
+                ASSIGN
+                    reftable.reftable = "users.phone-no"
+                    reftable.company  = users.user_id.
+            END.
 
-       IF NOT AVAIL reftable THEN DO:
-          CREATE reftable.
-          ASSIGN
-            reftable.reftable = "users.phone-no"
-            reftable.company  = users.user_id.
-       END.
+            IF ip-display THEN ASSIGN
+                fi_phone-area = SUBSTRING(reftable.CODE,1,3)
+                lv-phone-num = SUBSTRING(reftable.CODE,4).
+            ELSE ASSIGN
+                reftable.CODE = REPLACE(REPLACE(fi_phone-area:SCREEN-VALUE,'(',''),')','')
+                                + REPLACE(lv-phone-num:SCREEN-VALUE,'-','').
 
-       IF ip-display THEN
-          ASSIGN
-             fi_phone-area = SUBSTRING(reftable.CODE,1,3)
-             lv-phone-num = SUBSTRING(reftable.CODE,4).
-       ELSE
-          reftable.CODE = REPLACE(REPLACE(fi_phone-area:SCREEN-VALUE,'(',''),')','')
-                        + REPLACE(lv-phone-num:SCREEN-VALUE,'-','').
+            RELEASE reftable.
 
-       RELEASE reftable.
+            FIND FIRST reftable WHERE
+                reftable.reftable EQ "users.fax-no" AND
+                reftable.company EQ users.user_id
+                NO-ERROR.
 
-       FIND FIRST reftable WHERE
-            reftable.reftable EQ "users.fax-no" AND
-            reftable.company EQ users.user_id
-            NO-ERROR.
+            IF NOT AVAIL reftable THEN DO:
+                CREATE reftable.
+                ASSIGN
+                    reftable.reftable = "users.fax-no"
+                    reftable.company  = users.user_id.
+            END.
 
-       IF NOT AVAIL reftable THEN DO:
-          CREATE reftable.
-          ASSIGN
-            reftable.reftable = "users.fax-no"
-            reftable.company  = users.user_id.
-       END.
+            IF ip-display THEN ASSIGN
+                fi_fax-area = SUBSTRING(reftable.CODE,1,3)
+                lv-fax-num = SUBSTRING(reftable.CODE,4).
+            ELSE ASSIGN
+                reftable.CODE = REPLACE(REPLACE(fi_fax-area:SCREEN-VALUE,'(',''),')','')
+                            + REPLACE(lv-fax-num:SCREEN-VALUE,'-','').
 
-       IF ip-display THEN
-          ASSIGN
-             fi_fax-area = SUBSTRING(reftable.CODE,1,3)
-             lv-fax-num = SUBSTRING(reftable.CODE,4).
-       ELSE
-          reftable.CODE = REPLACE(REPLACE(fi_fax-area:SCREEN-VALUE,'(',''),')','')
-                        + REPLACE(lv-fax-num:SCREEN-VALUE,'-','').
+            RELEASE reftable.
 
-       RELEASE reftable.
+            FIND FIRST reftable WHERE
+                reftable.reftable EQ "users.phone-cnty" AND
+                reftable.company EQ users.user_id
+                NO-ERROR.
 
-       FIND FIRST reftable WHERE
-            reftable.reftable EQ "users.phone-cnty" AND
-            reftable.company EQ users.user_id
-            NO-ERROR.
+            IF NOT AVAIL reftable THEN DO:
+              CREATE reftable.
+              ASSIGN
+                reftable.reftable = "users.phone-cnty"
+                reftable.company  = users.user_id.
+            END.
 
-       IF NOT AVAIL reftable THEN DO:
-          CREATE reftable.
-          ASSIGN
-            reftable.reftable = "users.phone-cnty"
-            reftable.company  = users.user_id.
-       END.
+            IF ip-display THEN ASSIGN
+                fi_phone-country = reftable.CODE.
+            ELSE ASSIGN
+                reftable.CODE = fi_phone-country:SCREEN-VALUE.
 
-       IF ip-display THEN
-          ASSIGN
-             fi_phone-country = reftable.CODE.
-       ELSE
-          reftable.CODE = fi_phone-country:SCREEN-VALUE.
+            RELEASE reftable.
 
-       RELEASE reftable.
+            FIND FIRST reftable WHERE
+                reftable.reftable EQ "users.fax-cnty" AND
+                reftable.company EQ users.user_id
+                NO-ERROR.
 
-       FIND FIRST reftable WHERE
-            reftable.reftable EQ "users.fax-cnty" AND
-            reftable.company EQ users.user_id
-            NO-ERROR.
+            IF NOT AVAIL reftable THEN DO:
+                CREATE reftable.
+                ASSIGN
+                    reftable.reftable = "users.fax-cnty"
+                    reftable.company  = users.user_id.
+            END.
 
-       IF NOT AVAIL reftable THEN DO:
-          CREATE reftable.
-          ASSIGN
-            reftable.reftable = "users.fax-cnty"
-            reftable.company  = users.user_id.
-       END.
+            IF ip-display THEN ASSIGN
+                fi_fax-country = reftable.CODE.
+            ELSE ASSIGN
+                reftable.CODE = fi_fax-country:SCREEN-VALUE.
 
-       IF ip-display THEN
-          ASSIGN
-             fi_fax-country = reftable.CODE.
-       ELSE
-          reftable.CODE = fi_fax-country:SCREEN-VALUE.
-
-       RELEASE reftable.
+            RELEASE reftable.
+        END.
     END.
-  END.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1039,17 +1126,22 @@ PROCEDURE valid-user-id :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  DEF INPUT PARAM ip-user-id AS cha NO-UNDO.
-  DEF BUFFER bf-users FOR users.
+    DEF INPUT PARAM ip-user-id AS cha NO-UNDO.
+    DEF BUFFER bf-users FOR users.
 
-  {methods/lValidateError.i YES}
-  FIND FIRST bf-users WHERE bf-users.USER_id = ip-user-id NO-LOCK NO-ERROR.
-  IF NOT AVAIL bf-users AND NOT adm-new-record THEN DO:
-     MESSAGE "Invalid User ID. " VIEW-AS ALERT-BOX ERROR.     
-     RETURN ERROR.
-  END.
+    {methods/lValidateError.i YES}
+    FIND FIRST bf-users WHERE 
+        bf-users.USER_id = ip-user-id 
+        NO-LOCK NO-ERROR.
+    IF NOT AVAIL bf-users 
+    AND NOT adm-new-record THEN DO:
+        MESSAGE 
+            "Invalid User ID. " 
+            VIEW-AS ALERT-BOX ERROR.     
+        RETURN ERROR.
+    END.
 
-  {methods/lValidateError.i NO}
+    {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1062,13 +1154,17 @@ PROCEDURE validate-userid :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/lValidateError.i YES}
-  IF users.USER_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
-     MESSAGE "User Id must be entered. " VIEW-AS ALERT-BOX ERROR.
-     APPLY "entry" TO users.USER_id.
-     RETURN ERROR.
-  END.
-  {methods/lValidateError.i NO}
+    {methods/lValidateError.i YES}
+  
+    IF users.USER_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
+        MESSAGE 
+            "User Id must be entered. " 
+            VIEW-AS ALERT-BOX ERROR.
+        APPLY "entry" TO users.USER_id.
+        RETURN ERROR.
+    END.
+    {methods/lValidateError.i NO}
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
