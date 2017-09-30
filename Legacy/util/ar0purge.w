@@ -65,10 +65,9 @@ assign
 &Scoped-define FRAME-NAME FRAME-A
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS EDITOR-1 tbPurgeMore begin_cust-no ~
-end_cust-no begin_date end_date btn-process btn-cancel 
-&Scoped-Define DISPLAYED-OBJECTS EDITOR-1 tbPurgeMore begin_cust-no ~
-end_cust-no begin_date end_date 
+&Scoped-Define ENABLED-OBJECTS EDITOR-1 tbPurgeMore btn-process btn-cancel 
+&Scoped-Define DISPLAYED-OBJECTS EDITOR-1 tbPurgeMore end_date ~
+begin_cust-no end_cust-no 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -101,18 +100,13 @@ DEFINE VARIABLE begin_cust-no AS CHARACTER FORMAT "X(8)"
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
-DEFINE VARIABLE begin_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/50 
-     LABEL "From Date" 
-     VIEW-AS FILL-IN 
-     SIZE 17 BY 1 NO-UNDO.
-
 DEFINE VARIABLE end_cust-no AS CHARACTER FORMAT "X(8)" INITIAL "zzzzzzzzzzzz" 
      LABEL "To Customer#" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 01/01/001 
-     LABEL "To Date" 
+     LABEL "Purge records through (date)" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
@@ -127,14 +121,12 @@ DEFINE VARIABLE tbPurgeMore AS LOGICAL INITIAL no
 DEFINE FRAME FRAME-A
      EDITOR-1 AT ROW 5.29 COL 15 NO-LABEL WIDGET-ID 2 NO-TAB-STOP 
      tbPurgeMore AT ROW 9.81 COL 22 WIDGET-ID 4
-     begin_cust-no AT ROW 11 COL 20 COLON-ALIGNED HELP
-          "Enter Beginning Customer Number"
-     end_cust-no AT ROW 11 COL 59 COLON-ALIGNED HELP
-          "Enter Ending Customer Number"
-     begin_date AT ROW 12.43 COL 20 COLON-ALIGNED HELP
-          "Enter Beginning Date"
-     end_date AT ROW 12.43 COL 59 COLON-ALIGNED HELP
+     end_date AT ROW 11 COL 51 COLON-ALIGNED HELP
           "Enter Ending Date"
+     begin_cust-no AT ROW 12.43 COL 20 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number"
+     end_cust-no AT ROW 12.43 COL 59 COLON-ALIGNED HELP
+          "Enter Ending Customer Number"
      btn-process AT ROW 14.57 COL 21
      btn-cancel AT ROW 14.57 COL 53
      "" VIEW-AS TEXT
@@ -216,6 +208,8 @@ ASSIGN FRAME FRAME-B:FRAME = FRAME FRAME-A:HANDLE.
 
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
+/* SETTINGS FOR FILL-IN begin_cust-no IN FRAME FRAME-A
+   NO-ENABLE                                                            */
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -228,10 +222,14 @@ ASSIGN
        btn-process:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "ribbon-button".
 
+/* SETTINGS FOR FILL-IN end_cust-no IN FRAME FRAME-A
+   NO-ENABLE                                                            */
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN end_date IN FRAME FRAME-A
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FRAME FRAME-B
                                                                         */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -291,7 +289,8 @@ DO:
         "Are you sure you want to permanently delete the selected records?"
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lProcess AS LOG.
 
-    IF lProcess THEN DO:
+    IF lProcess 
+    AND tbPurgeMore:checked in frame {&frame-name} THEN DO:
         UPDATE 
             cDestroy LABEL "Enter 'DESTROY' to confirm purge"
             WITH FRAME b VIEW-AS DIALOG-BOX THREE-D.
@@ -301,14 +300,15 @@ DO:
                 VIEW-AS ALERT-BOX.
             RETURN NO-APPLY.
         END.
-        RUN ipRunPurge.
     END.
-    ELSE DO:
+    ELSE IF NOT lProcess THEN DO:
         MESSAGE
             "Purge Cancelled."
             VIEW-AS ALERT-BOX.
         RETURN NO-APPLY.
     END.
+    
+    RUN ipRunPurge.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -317,7 +317,7 @@ END.
 
 &Scoped-define SELF-NAME end_date
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_date C-Win
-ON LEAVE OF end_date IN FRAME FRAME-A /* To Date */
+ON LEAVE OF end_date IN FRAME FRAME-A /* Purge records through (date) */
 DO:
     IF DATE(SELF:SCREEN-VALUE) > DATE(STRING(MONTH(TODAY),"99") + "/" +
                                 STRING(DAY(TODAY),"99") + "/" +
@@ -334,6 +334,24 @@ DO:
             RETURN NO-APPLY.
         END.
     END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tbPurgeMore
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tbPurgeMore C-Win
+ON VALUE-CHANGED OF tbPurgeMore IN FRAME FRAME-A /* Purge non-zero transactions? */
+DO:
+    IF SELF:CHECKED THEN ASSIGN
+        end_date:SENSITIVE IN FRAME {&FRAME-NAME} = TRUE
+        begin_cust-no:SENSITIVE = TRUE
+        end_cust-no:SENSITIVE = TRUE.
+    ELSE ASSIGN
+        end_date:SENSITIVE IN FRAME {&FRAME-NAME} = FALSE
+        begin_cust-no:SENSITIVE = FALSE
+        end_cust-no:SENSITIVE = FALSE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -429,10 +447,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY EDITOR-1 tbPurgeMore begin_cust-no end_cust-no begin_date end_date 
+  DISPLAY EDITOR-1 tbPurgeMore end_date begin_cust-no end_cust-no 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE EDITOR-1 tbPurgeMore begin_cust-no end_cust-no begin_date end_date 
-         btn-process btn-cancel 
+  ENABLE EDITOR-1 tbPurgeMore btn-process btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW FRAME FRAME-B IN WINDOW C-Win.
@@ -501,7 +518,6 @@ PROCEDURE ipRunPurge :
             ar-cash.company     EQ cocode AND 
             ar-cash.cust-no     GE begin_cust-no AND 
             ar-cash.cust-no     LE end_cust-no AND 
-            ar-cash.check-date  GE begin_date AND
             ar-cash.check-date  LE end_date AND
             ar-cash.posted      EQ YES
             USE-INDEX ar-cash:
