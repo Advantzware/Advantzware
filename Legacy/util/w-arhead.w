@@ -1,4 +1,4 @@
-&ANALYZE-SUSPEND _VERSION-NUMBER AB_v9r12 GUI ADM2
+&ANALYZE-SUSPEND _VERSION-NUMBER AB_v10r12 GUI ADM2
 &ANALYZE-RESUME
 /* Connected Databases 
           asi              PROGRESS
@@ -88,7 +88,7 @@ assign
 
 &Scoped-define ADM-SUPPORTED-LINKS Data-Target,Data-Source,Page-Target,Update-Source,Update-Target,Filter-target,Filter-Source
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME fMain
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
@@ -185,7 +185,7 @@ DEFINE VARIABLE begin_inv AS INTEGER FORMAT ">>>>>>" INITIAL 0
      SIZE 14 BY 1.
 
 DEFINE RECTANGLE RECT-18
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 74 BY 1.67.
 
 /* Query definitions                                                    */
@@ -199,10 +199,12 @@ DEFINE QUERY fMain FOR
 DEFINE FRAME fMain
      begin_inv AT ROW 2.43 COL 20 COLON-ALIGNED HELP
           "Enter Beginning Invoice Number"
-     ar-inv.addr[1] AT ROW 3.62 COL 19.6 COLON-ALIGNED
+     ar-inv.addr[1] AT ROW 3.62 COL 20 COLON-ALIGNED
+          LABEL "Address 1"
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
-     ar-inv.addr[2] AT ROW 4.62 COL 19.6 COLON-ALIGNED
+     ar-inv.addr[2] AT ROW 4.57 COL 20 COLON-ALIGNED
+          LABEL "Address 2"
           VIEW-AS FILL-IN 
           SIZE 32 BY 1
      ar-inv.bank-code AT ROW 5.76 COL 20 COLON-ALIGNED
@@ -529,7 +531,11 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW wWin
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME fMain
-   Custom                                                               */
+   FRAME-NAME Custom                                                    */
+/* SETTINGS FOR FILL-IN ar-inv.addr[1] IN FRAME fMain
+   EXP-LABEL                                                            */
+/* SETTINGS FOR FILL-IN ar-inv.addr[2] IN FRAME fMain
+   EXP-LABEL                                                            */
 ASSIGN 
        begin_inv:PRIVATE-DATA IN FRAME fMain     = 
                 "parm".
@@ -568,7 +574,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ar-inv SHARE-LOCK.
 
 &Scoped-define SELF-NAME wWin
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wWin wWin
-ON END-ERROR OF wWin /* Restotre AR Invoices */
+ON END-ERROR OF wWin /* Restore AR Invoices */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -581,7 +587,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL wWin wWin
-ON WINDOW-CLOSE OF wWin /* Restotre AR Invoices */
+ON WINDOW-CLOSE OF wWin /* Restore AR Invoices */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
