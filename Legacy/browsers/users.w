@@ -379,6 +379,24 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipReposition B-table-Win
+PROCEDURE ipReposition :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER iprRowid AS ROWID NO-UNDO.
+    QUERY BROWSER-TABLE:REPOSITION-TO-ROWID(iprRowid).
+    APPLY "value-changed" TO BROWSE {&browse-name}.
+    APPLY "entry" TO BROWSE {&browse-name}.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
 /*------------------------------------------------------------------------------

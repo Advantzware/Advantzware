@@ -36,6 +36,10 @@ CREATE WIDGET-POOL.
 /* Local Variable Definitions ---                                       */
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
+{methods/defines/hndlset.i}
+{methods/defines/noreckey.i}
+{custom/resizdef.i}
+
 ASSIGN cocode = g_company
        locode = g_loc.
 
@@ -44,6 +48,8 @@ ASSIGN cocode = g_company
 
 DEFINE NEW GLOBAL SHARED VAR cIniLoc AS CHAR NO-UNDO.
 DEFINE NEW GLOBAL SHARED VAR cUsrLoc AS CHAR NO-UNDO.
+
+DEFINE SHARED VARIABLE h_users AS HANDLE NO-UNDO.
 
 DEF BUFFER zUsers FOR users.
 DEF BUFFER lUsers FOR users.
@@ -56,6 +62,11 @@ DEF VAR cEnvSelList AS CHAR NO-UNDO.
 DEF VAR cDbSelList AS CHAR NO-UNDO.
 DEF VAR cModeSelList AS CHAR NO-UNDO.
 DEF VAR cAliasFromFile AS CHAR NO-UNDO.
+DEF VAR correct-error AS LOG no-undo.
+DEF VAR copy-record AS LOG NO-UNDO.
+
+
+DEF TEMP-TABLE tempUser NO-UNDO LIKE _User.
 
 DEF TEMP-TABLE ttUsers
     FIELD ttfPdbname AS CHAR
@@ -94,25 +105,30 @@ users.user_program[2] users.user_program[3] users.track_usage ~
 users.use_colors users.use_fonts users.use_ctrl_keys users.developer 
 &Scoped-define ENABLED-TABLES users
 &Scoped-define FIRST-ENABLED-TABLE users
-&Scoped-Define DISPLAYED-FIELDS users.user_id users.user_name ~
-users.userAlias users.user_program[1] users.user_program[2] ~
+&Scoped-Define ENABLED-OBJECTS RECT-5 
+&Scoped-Define DISPLAYED-FIELDS users.fax users.isActive users.isLocked ~
+users.phone users.user_id users.user_name users.userAlias users.phone-cnty ~
+users.image_filename users.user_program[1] users.user_program[2] ~
 users.user_program[3] users.track_usage users.use_colors users.use_fonts ~
-users.use_ctrl_keys users.developer users.securityLevel 
+users.use_ctrl_keys users.developer users.showOnQuote users.showOnAck ~
+users.showOnBol users.showOnInv users.showOnPO users.securityLevel 
 &Scoped-define DISPLAYED-TABLES users
 &Scoped-define FIRST-DISPLAYED-TABLE users
-&Scoped-Define DISPLAYED-OBJECTS fi_phone-country fi_phone-area ~
-lv-phone-num fi_fax-country fi_fax-area lv-fax-num fi_email tg_quote tg_ack ~
-tg_bol tg_invoice tg_po cbUserType slEnvironments slDatabases slModes 
+&Scoped-Define DISPLAYED-OBJECTS fiPassword fi_phone-area lv-phone-num ~
+fi_fax-country fi_fax-area lv-fax-num cbUserType slEnvironments slDatabases ~
+slModes 
 
 /* Custom List Definitions                                              */
-/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
+/* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELDS,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS users.user_id 
-&Scoped-define ADM-ASSIGN-FIELDS fi_phone-country fi_phone-area ~
-lv-phone-num fi_fax-country fi_fax-area lv-fax-num fi_email tg_quote tg_ack ~
-tg_bol tg_invoice tg_po 
-&Scoped-define DISPLAY-FIELD fi_phone-country fi_phone-area lv-phone-num ~
-fi_fax-country fi_fax-area lv-fax-num fi_email tg_quote tg_ack tg_bol ~
-tg_invoice tg_po 
+&Scoped-define ADM-ASSIGN-FIELDS users.phone-cnty fi_phone-area ~
+lv-phone-num fi_fax-country fi_fax-area lv-fax-num users.image_filename ~
+users.showOnQuote users.showOnAck users.showOnBol users.showOnInv ~
+users.showOnPO 
+&Scoped-define DISPLAY-FIELDS users.phone-cnty fi_phone-area lv-phone-num ~
+fi_fax-country fi_fax-area lv-fax-num users.image_filename ~
+users.showOnQuote users.showOnAck users.showOnBol users.showOnInv ~
+users.showOnPO 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -156,6 +172,10 @@ DEFINE BUTTON bAll3
      LABEL "All" 
      SIZE 10 BY .71.
 
+DEFINE BUTTON bChgPwd 
+     LABEL "Change" 
+     SIZE 12 BY 1.14.
+
 DEFINE BUTTON bNone1 
      LABEL "None" 
      SIZE 10 BY .71.
@@ -175,10 +195,10 @@ DEFINE VARIABLE cbUserType AS CHARACTER FORMAT "X(256)":U
      DROP-DOWN-LIST
      SIZE 30 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_email AS CHARACTER FORMAT "X(60)":U 
-     LABEL "Email" 
+DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Password" 
      VIEW-AS FILL-IN 
-     SIZE 50 BY 1 NO-UNDO.
+     SIZE 37 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_fax-area AS CHARACTER FORMAT "(xxx)":U 
      LABEL "-" 
@@ -195,144 +215,170 @@ DEFINE VARIABLE fi_phone-area AS CHARACTER FORMAT "(xxx)":U
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_phone-country AS CHARACTER FORMAT "X(8)":U 
-     LABEL "Phone +" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
-
 DEFINE VARIABLE lv-fax-num AS CHARACTER FORMAT "xxx-xxxx":U 
      LABEL "-" 
      VIEW-AS FILL-IN 
-     SIZE 16 BY 1 NO-UNDO.
+     SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-phone-num AS CHARACTER FORMAT "xxx-xxxx":U 
      LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
+DEFINE RECTANGLE RECT-5
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 53 BY 12.38.
+
 DEFINE VARIABLE slDatabases AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      LIST-ITEMS "Production","Test" 
-     SIZE 30 BY 2.62 NO-UNDO.
+     SIZE 30 BY 2.62
+     FONT 1 NO-UNDO.
 
 DEFINE VARIABLE slEnvironments AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      LIST-ITEMS "Production","Test" 
-     SIZE 30 BY 2.62 NO-UNDO.
+     SIZE 30 BY 2.62
+     FONT 1 NO-UNDO.
 
 DEFINE VARIABLE slModes AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      LIST-ITEMS "Advantzware","Addon","Case Labels","Loadtags","Sharpshooter","Touchscreen" 
-     SIZE 30 BY 5.24 NO-UNDO.
-
-DEFINE VARIABLE tg_ack AS LOGICAL INITIAL no 
-     LABEL "Acknowledgments" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 24 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tg_bol AS LOGICAL INITIAL no 
-     LABEL "BOLs" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 9 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tg_invoice AS LOGICAL INITIAL no 
-     LABEL "Invoices" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 13 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tg_po AS LOGICAL INITIAL no 
-     LABEL "POs" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 9 BY .81 NO-UNDO.
-
-DEFINE VARIABLE tg_quote AS LOGICAL INITIAL no 
-     LABEL "Quotes" 
-     VIEW-AS TOGGLE-BOX
-     SIZE 11 BY .81 NO-UNDO.
+     SIZE 30 BY 5.24
+     FONT 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     bAll1 AT ROW 6.71 COL 90 WIDGET-ID 64
-     users.user_id AT ROW 1.24 COL 15 COLON-ALIGNED
+     users.fax AT ROW 5.29 COL 60 COLON-ALIGNED HELP
+          "" NO-LABEL WIDGET-ID 86 FORMAT "x(12)"
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1
+     users.isActive AT ROW 3.62 COL 112 WIDGET-ID 90
+          LABEL "Active?"
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.2 BY 1
+     users.isLocked AT ROW 3.62 COL 128 WIDGET-ID 88
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.2 BY 1
+     users.phone AT ROW 4.1 COL 60 COLON-ALIGNED HELP
+          "" NO-LABEL WIDGET-ID 84 FORMAT "x(12)"
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1
+     bChgPwd AT ROW 2.67 COL 59 WIDGET-ID 82
+     fiPassword AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 80 PASSWORD-FIELD 
+     bAll1 AT ROW 11.71 COL 97 WIDGET-ID 64
+     users.user_id AT ROW 1.24 COL 12 COLON-ALIGNED
           LABEL "User ID"
           VIEW-AS FILL-IN 
           SIZE 16 BY 1
           BGCOLOR 15 FONT 4
-     users.user_name AT ROW 1.24 COL 40 COLON-ALIGNED
+     users.user_name AT ROW 1.24 COL 37 COLON-ALIGNED
           LABEL "Name"
           VIEW-AS FILL-IN 
-          SIZE 43 BY 1
+          SIZE 40 BY 1
           BGCOLOR 15 FONT 4
      users.userAlias AT ROW 1.24 COL 99 COLON-ALIGNED WIDGET-ID 40
           VIEW-AS FILL-IN 
           SIZE 37 BY 1
-     fi_phone-country AT ROW 2.91 COL 19 COLON-ALIGNED WIDGET-ID 12
-     fi_phone-area AT ROW 2.91 COL 29 COLON-ALIGNED WIDGET-ID 10
-     lv-phone-num AT ROW 2.91 COL 39 COLON-ALIGNED WIDGET-ID 14
-     fi_fax-country AT ROW 4.1 COL 19 COLON-ALIGNED WIDGET-ID 18
-     fi_fax-area AT ROW 4.1 COL 29 COLON-ALIGNED WIDGET-ID 16
-     lv-fax-num AT ROW 4.1 COL 39 COLON-ALIGNED WIDGET-ID 20
-     fi_email AT ROW 5.52 COL 19 COLON-ALIGNED WIDGET-ID 38
-     users.user_program[1] AT ROW 7.19 COL 19 COLON-ALIGNED
+     users.phone-cnty AT ROW 4.1 COL 19 COLON-ALIGNED WIDGET-ID 12
+          LABEL "Phone +"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY 1
+     fi_phone-area AT ROW 4.1 COL 29 COLON-ALIGNED WIDGET-ID 10
+     lv-phone-num AT ROW 4.1 COL 39 COLON-ALIGNED WIDGET-ID 14
+     fi_fax-country AT ROW 5.29 COL 19 COLON-ALIGNED WIDGET-ID 18
+     fi_fax-area AT ROW 5.29 COL 29 COLON-ALIGNED WIDGET-ID 16
+     lv-fax-num AT ROW 5.29 COL 39 COLON-ALIGNED WIDGET-ID 20
+     users.image_filename AT ROW 6.48 COL 19 COLON-ALIGNED HELP
+          "Enter Main Menu Image File Name (fully qualified path)" WIDGET-ID 38
+          LABEL "Email" FORMAT "X(40)"
+          VIEW-AS FILL-IN 
+          SIZE 60 BY 1
+     users.user_program[1] AT ROW 7.91 COL 19 COLON-ALIGNED
           LABEL "Image Viewer" FORMAT "x(80)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
-     users.user_program[2] AT ROW 8.38 COL 19 COLON-ALIGNED HELP
+     users.user_program[2] AT ROW 9.1 COL 19 COLON-ALIGNED HELP
           "" WIDGET-ID 8
           LABEL "Report Path" FORMAT "x(100)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
-     users.user_program[3] AT ROW 9.57 COL 2.4 WIDGET-ID 36
+     users.user_program[3] AT ROW 10.29 COL 2.4 WIDGET-ID 36
           LABEL "Document Path" FORMAT "x(100)"
           VIEW-AS FILL-IN 
           SIZE 60 BY 1
-     users.track_usage AT ROW 11.95 COL 16
+     users.track_usage AT ROW 12.43 COL 10
           VIEW-AS TOGGLE-BOX
           SIZE 19.8 BY 1
-     users.use_colors AT ROW 12.91 COL 16
+     users.use_colors AT ROW 13.38 COL 10
           VIEW-AS TOGGLE-BOX
           SIZE 27 BY 1
-     users.use_fonts AT ROW 13.86 COL 16
+     users.use_fonts AT ROW 14.33 COL 10
           VIEW-AS TOGGLE-BOX
           SIZE 26.2 BY 1
-     users.use_ctrl_keys AT ROW 14.81 COL 16
+     users.use_ctrl_keys AT ROW 15.29 COL 10
           VIEW-AS TOGGLE-BOX
           SIZE 38.4 BY 1
-     users.developer AT ROW 15.76 COL 16
+     users.developer AT ROW 16.24 COL 10
           VIEW-AS TOGGLE-BOX
           SIZE 16.8 BY 1
-     tg_quote AT ROW 11.95 COL 59 WIDGET-ID 34
-     tg_ack AT ROW 12.91 COL 59 WIDGET-ID 26
-     tg_bol AT ROW 13.86 COL 59 WIDGET-ID 28
-     tg_invoice AT ROW 14.81 COL 59 WIDGET-ID 30
-     tg_po AT ROW 15.76 COL 59 WIDGET-ID 32
-     users.securityLevel AT ROW 2.91 COL 99 COLON-ALIGNED WIDGET-ID 44
+     users.showOnQuote AT ROW 12.43 COL 53 WIDGET-ID 34
+          LABEL "Quote"
+          VIEW-AS TOGGLE-BOX
+          SIZE 11 BY .81
+     users.showOnAck AT ROW 13.38 COL 53 WIDGET-ID 26
+          LABEL "Ack"
+          VIEW-AS TOGGLE-BOX
+          SIZE 11 BY .81
+     users.showOnBol AT ROW 14.33 COL 53 WIDGET-ID 28
+          LABEL "BoL"
+          VIEW-AS TOGGLE-BOX
+          SIZE 9 BY .81
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     users.showOnInv AT ROW 15.29 COL 53 WIDGET-ID 30
+          LABEL "Invoice"
+          VIEW-AS TOGGLE-BOX
+          SIZE 13 BY .81
+     users.showOnPO AT ROW 16.24 COL 53 WIDGET-ID 32
+          VIEW-AS TOGGLE-BOX
+          SIZE 9 BY .81
+     users.securityLevel AT ROW 3.62 COL 99 COLON-ALIGNED WIDGET-ID 44
           LABEL "Security Level" FORMAT ">999"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     cbUserType AT ROW 4.1 COL 99 COLON-ALIGNED WIDGET-ID 48
-     slEnvironments AT ROW 6.24 COL 101 NO-LABEL WIDGET-ID 50
-     slDatabases AT ROW 9.1 COL 101 NO-LABEL WIDGET-ID 52
-     slModes AT ROW 11.95 COL 101 NO-LABEL WIDGET-ID 54
-     bNone1 AT ROW 7.43 COL 90 WIDGET-ID 66
-     bAll2 AT ROW 9.81 COL 90 WIDGET-ID 68
-     bNone2 AT ROW 10.52 COL 90 WIDGET-ID 70
-     bAll3 AT ROW 12.67 COL 90 WIDGET-ID 72
-     bNone3 AT ROW 13.38 COL 90 WIDGET-ID 74
+     cbUserType AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 48
+     slEnvironments AT ROW 11 COL 108 NO-LABEL WIDGET-ID 50
+     slDatabases AT ROW 13.86 COL 108 NO-LABEL WIDGET-ID 52
+     slModes AT ROW 5.52 COL 108 NO-LABEL WIDGET-ID 54
+     bNone1 AT ROW 12.43 COL 97 WIDGET-ID 66
+     bAll2 AT ROW 14.57 COL 97 WIDGET-ID 68
+     bNone2 AT ROW 15.29 COL 97 WIDGET-ID 70
+     bAll3 AT ROW 6.24 COL 97 WIDGET-ID 72
+     bNone3 AT ROW 6.95 COL 97 WIDGET-ID 74
      "Environments:" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 6 COL 84 WIDGET-ID 58
-     "User Can Select:" VIEW-AS TEXT
-          SIZE 22 BY .62 AT ROW 5.52 COL 101 WIDGET-ID 56
+          SIZE 16 BY .62 AT ROW 11 COL 91 WIDGET-ID 58
+     " At Login User Can Select:" VIEW-AS TEXT
+          SIZE 30 BY .62 AT ROW 4.81 COL 93 WIDGET-ID 56
      "Options:" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 11.24 COL 14 WIDGET-ID 42
+          SIZE 11 BY .62 AT ROW 11.71 COL 8 WIDGET-ID 42
      "Modes:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 11.95 COL 92 WIDGET-ID 62
+          SIZE 8 BY .62 AT ROW 5.52 COL 99 WIDGET-ID 62
      "Databases:" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 9.1 COL 87 WIDGET-ID 60
+          SIZE 13 BY .62 AT ROW 13.86 COL 94 WIDGET-ID 60
      "Phone/Fax Appear on:" VIEW-AS TEXT
-          SIZE 27 BY .62 AT ROW 11.24 COL 58 WIDGET-ID 24
+          SIZE 27 BY .62 AT ROW 11.71 COL 51 WIDGET-ID 24
+     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
+          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
+          FONT 1
+     RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -376,7 +422,6 @@ END.
 /* ************************* Included-Libraries *********************** */
 
 {src/adm/method/viewer.i}
-{methods/template/viewer.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -401,6 +446,8 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON bAll3 IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON bChgPwd IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON bNone1 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON bNone2 IN FRAME F-Main
@@ -409,38 +456,60 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR COMBO-BOX cbUserType IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR FILL-IN fi_email IN FRAME F-Main
-   NO-ENABLE 2 4                                                        */
+/* SETTINGS FOR FILL-IN users.fax IN FRAME F-Main
+   NO-ENABLE EXP-LABEL EXP-FORMAT EXP-HELP                              */
+ASSIGN 
+       users.fax:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR FILL-IN fiPassword IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_fax-area IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN fi_fax-country IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN fi_phone-area IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
-/* SETTINGS FOR FILL-IN fi_phone-country IN FRAME F-Main
-   NO-ENABLE 2 4                                                        */
+/* SETTINGS FOR FILL-IN users.image_filename IN FRAME F-Main
+   NO-ENABLE 2 4 EXP-LABEL EXP-FORMAT EXP-HELP                          */
+/* SETTINGS FOR TOGGLE-BOX users.isActive IN FRAME F-Main
+   NO-ENABLE EXP-LABEL                                                  */
+ASSIGN 
+       users.isActive:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR TOGGLE-BOX users.isLocked IN FRAME F-Main
+   NO-ENABLE                                                            */
+ASSIGN 
+       users.isLocked:HIDDEN IN FRAME F-Main           = TRUE.
+
 /* SETTINGS FOR FILL-IN lv-fax-num IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN lv-phone-num IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
+/* SETTINGS FOR FILL-IN users.phone IN FRAME F-Main
+   NO-ENABLE EXP-LABEL EXP-FORMAT EXP-HELP                              */
+ASSIGN 
+       users.phone:HIDDEN IN FRAME F-Main           = TRUE.
+
+/* SETTINGS FOR FILL-IN users.phone-cnty IN FRAME F-Main
+   NO-ENABLE 2 4 EXP-LABEL                                              */
 /* SETTINGS FOR FILL-IN users.securityLevel IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
+/* SETTINGS FOR TOGGLE-BOX users.showOnAck IN FRAME F-Main
+   NO-ENABLE 2 4 EXP-LABEL                                              */
+/* SETTINGS FOR TOGGLE-BOX users.showOnBol IN FRAME F-Main
+   NO-ENABLE 2 4 EXP-LABEL                                              */
+/* SETTINGS FOR TOGGLE-BOX users.showOnInv IN FRAME F-Main
+   NO-ENABLE 2 4 EXP-LABEL                                              */
+/* SETTINGS FOR TOGGLE-BOX users.showOnPO IN FRAME F-Main
+   NO-ENABLE 2 4                                                        */
+/* SETTINGS FOR TOGGLE-BOX users.showOnQuote IN FRAME F-Main
+   NO-ENABLE 2 4 EXP-LABEL                                              */
 /* SETTINGS FOR SELECTION-LIST slDatabases IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR SELECTION-LIST slEnvironments IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR SELECTION-LIST slModes IN FRAME F-Main
    NO-ENABLE                                                            */
-/* SETTINGS FOR TOGGLE-BOX tg_ack IN FRAME F-Main
-   NO-ENABLE 2 4                                                        */
-/* SETTINGS FOR TOGGLE-BOX tg_bol IN FRAME F-Main
-   NO-ENABLE 2 4                                                        */
-/* SETTINGS FOR TOGGLE-BOX tg_invoice IN FRAME F-Main
-   NO-ENABLE 2 4                                                        */
-/* SETTINGS FOR TOGGLE-BOX tg_po IN FRAME F-Main
-   NO-ENABLE 2 4                                                        */
-/* SETTINGS FOR TOGGLE-BOX tg_quote IN FRAME F-Main
-   NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN users.userAlias IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN users.user_id IN FRAME F-Main
@@ -495,6 +564,58 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME bChgPwd
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bChgPwd V-table-Win
+ON CHOOSE OF bChgPwd IN FRAME F-Main /* Change */
+DO:
+    ASSIGN
+        fiPassword:SCREEN-VALUE = ""
+        fiPassword:SENSITIVE = TRUE
+        SELF:SENSITIVE = FALSE.
+    APPLY 'entry' TO fiPassword.
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME cbUserType
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL cbUserType V-table-Win
+ON VALUE-CHANGED OF cbUserType IN FRAME F-Main /* User Type */
+DO:
+    CASE SELF:SCREEN-VALUE:
+        WHEN "Full User" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "100".
+        WHEN "Production Floor" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "50".
+        WHEN "Administrator" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "700".
+        WHEN "Portal User" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "10".
+    END CASE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME fiPassword
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPassword V-table-Win
+ON LEAVE OF fiPassword IN FRAME F-Main /* Password */
+OR RETURN OF fiPassword
+DO:
+    IF SELF:SCREEN-VALUE = "" THEN DO:
+        MESSAGE
+            "You are setting this user's password" SKIP
+            "to BLANKS. Is this correct?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lBlanks AS LOG.
+        IF NOT lBlanks THEN RETURN NO-APPLY.
+    END.
+    
+    RUN ipChangePassword (SELF:SCREEN-VALUE).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME users.securityLevel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.securityLevel V-table-Win
 ON LEAVE OF users.securityLevel IN FRAME F-Main /* Security Level */
@@ -529,6 +650,31 @@ DO:
             RETURN NO-APPLY.
         END.
     END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME users.user_id
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.user_id V-table-Win
+ON LEAVE OF users.user_id IN FRAME F-Main /* User ID */
+DO:
+    IF SELF:SCREEN-VALUE <> "" THEN DO:
+        FIND FIRST lUsers NO-LOCK WHERE 
+            lUsers.userAlias = SELF:SCREEN-VALUE
+            NO-ERROR.
+        IF AVAIL lUsers THEN DO:
+            MESSAGE
+                "Duplicate User ID detected. Please enter a different value."
+                VIEW-AS ALERT-BOX ERROR.
+            ASSIGN
+                SELF:SCREEN-VALUE = "".
+            APPLY 'entry' TO SELF.
+            RETURN NO-APPLY.
+        END.
+    END.
+  
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -622,9 +768,16 @@ END.
   &ENDIF       
   
     ASSIGN
+        fiPassword:password-field = if zUsers.user_id = "ASI" then false else true
         slEnvironments:LIST-ITEMS = cEnvList
         slDatabases:LIST-ITEMS = cDbList
-        slModes:LIST-ITEMS = cModeList.  
+        slModes:LIST-ITEMS = cModeList
+        bChgPwd:SENSITIVE = if zUsers.securityLevel > 699 THEN TRUE ELSE FALSE
+        /* Future development
+        users.isActive:SENSITIVE = if zUsers.securityLevel > 699 THEN TRUE ELSE FALSE
+        users.isLocked:SENSITIVE = if zUsers.securityLevel > 699 THEN TRUE ELSE FALSE
+        */
+        .  
 
   /************************ INTERNAL PROCEDURES ********************/
 
@@ -680,6 +833,41 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipChangePassword V-table-Win 
+PROCEDURE ipChangePassword :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF INPUT PARAMETER cNewPassword AS CHARACTER NO-UNDO INITIAL 'jill'.
+
+    FIND FIRST _User WHERE 
+        _User._UserId = users.user_id 
+        EXCLUSIVE-LOCK NO-ERROR.
+
+    IF AVAIL (_User) THEN DO:
+        BUFFER-COPY _User EXCEPT _tenantID _User._Password TO tempUser.
+        ASSIGN 
+            tempUser._Password = ENCODE(cNewPassword).
+        DELETE _User.
+        CREATE _User.
+        BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
+    END.
+    ELSE MESSAGE 
+        "This Userid does not exist"
+        VIEW-AS ALERT-BOX INFO BUTTONS OK.
+
+    ASSIGN  
+        fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = _user._password
+        fiPassword:SENSITIVE = FALSE
+        bChgPwd:SENSITIVE = TRUE.          
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -765,6 +953,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-add-record V-table-Win 
+PROCEDURE local-add-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    {methods/template/local/create.i}
+
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
+    ASSIGN
+        fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+    APPLY 'entry' to users.user_id IN FRAME {&FRAME-NAME}.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
 PROCEDURE local-assign-record :
 /*------------------------------------------------------------------------------
@@ -782,6 +989,7 @@ PROCEDURE local-assign-record :
     DEF VAR v-old-pass AS cha FORM "x(30)" NO-UNDO.
     DEF VAR v-new-pass AS cha FORM "x(30)" NO-UNDO.
     DEF VAR cOldUserID AS CHARACTER FORM "x(30)" NO-UNDO.
+    DEF VAR cNewPwd AS CHAR NO-UNDO.
   
     ASSIGN 
         cOldUserID = users.user_id.
@@ -789,7 +997,7 @@ PROCEDURE local-assign-record :
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-    {methods/viewers/assign/{&FIRST-EXTERNAL-TABLE}.i}
+    /* {methods/viewers/assign/{&FIRST-EXTERNAL-TABLE}.i} */
 
     IF adm-new-record THEN DO:
         FIND FIRST bf-usercomp NO-LOCK WHERE 
@@ -840,8 +1048,28 @@ PROCEDURE local-assign-record :
             CREATE usr.
             ASSIGN
                 usr.uid = users.user_id
-                usr.usr-lang = "EN".
+                usr.usr-lang = "English".
         END.
+        
+        IF fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
+            MESSAGE
+                "You have not created a password for this" SKIP
+                "new user. Would you like to do so now?"
+                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lNewPwd AS LOG.
+            IF lNewPwd THEN DO:
+                UPDATE
+                    cNewPwd LABEL "Password"
+                    WITH FRAME c VIEW-AS DIALOG-BOX THREE-D SIDE-LABELS.
+                ASSIGN
+                    fiPassword:SCREEN-VALUE = cNewPwd.
+            END.
+        END.
+                    
+        CREATE _user.
+        ASSIGN
+            _user._userid = users.user_id
+            _user._password = ENCODE(fiPassword:SCREEN-VALUE)
+            _user._user-name = users.user_name:SCREEN-VALUE.
     END.
 
     IF adm-new-record AND NOT adm-adding-record THEN DO:  /* copy */
@@ -887,21 +1115,7 @@ PROCEDURE local-assign-record :
             prgrms.can_delete = prgrms.can_delete + "," + users.user_id:SCREEN-VALUE.
     END.
   
-    RUN reftable-values(NO).
-
     SESSION:SET-WAIT-STATE("").
-
-    IF NOT adm-new-record THEN MESSAGE 
-        "Do you want to change " users.USER_id "'s password?"
-        VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans .
-    IF ll-ans THEN DO:
-        FIND _user EXCLUSIVE WHERE 
-            _user._userid = users.user_id 
-            NO-ERROR.
-        IF AVAILABLE _user THEN DO:
-            RUN windows/d-passwd.w (RECID(_user)).
-        END.
-    END.
 
 END PROCEDURE.
 
@@ -919,20 +1133,10 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
     DISABLE 
-        tg_po 
-        tg_bol 
-        tg_invoice 
-        tg_ack 
-        tg_quote
         fi_phone-area 
         lv-phone-num 
-        fi_phone-country
         fi_fax-area 
         lv-fax-num 
-        fi_fax-country 
-        fi_email
-        users.userAlias
-        users.securityLevel
         cbUserType
         slEnvironments
         slDatabases
@@ -945,6 +1149,141 @@ PROCEDURE local-cancel-record :
         bNone3
         WITH FRAME {&FRAME-NAME}.
         
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record V-table-Win 
+PROCEDURE local-copy-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    {methods/template/local/create.i}
+
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
+
+    {methods/template/local/copy.i}
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record V-table-Win 
+PROCEDURE local-delete-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+    DISABLE TRIGGERS FOR LOAD OF user-print.
+    DISABLE TRIGGERS FOR LOAD OF usercomp.
+    DISABLE TRIGGERS FOR LOAD OF userEula.
+    DISABLE TRIGGERS FOR LOAD OF userlog.
+    DISABLE TRIGGERS FOR LOAD OF usersman.
+    DISABLE TRIGGERS FOR LOAD OF uservend.
+    DISABLE TRIGGERS FOR LOAD OF usr.
+    DISABLE TRIGGERS FOR LOAD OF usr-grp.
+    DISABLE TRIGGERS FOR LOAD OF usr-menu.
+    DISABLE TRIGGERS FOR LOAD OF usrx.
+    DISABLE TRIGGERS FOR LOAD OF reftable.
+
+    {methods/template/local/delete.i}
+
+    FOR EACH user-print EXCLUSIVE WHERE
+        user-print.user-id = users.user_id:
+        DELETE user-print.
+    END.
+    FOR EACH usercomp EXCLUSIVE WHERE 
+        usercomp.USER_id = users.USER_id:
+        DELETE usercomp.
+    END.
+    FOR EACH usercust EXCLUSIVE WHERE 
+        usercust.user_id EQ users.user_id:
+        DELETE usercust.
+    END.     
+    FOR EACH userEula EXCLUSIVE WHERE 
+        userEula.user_id EQ users.user_id:
+        DELETE userEula.
+    END.     
+    FOR EACH userLog EXCLUSIVE WHERE 
+        userLog.user_id EQ users.user_id:
+        DELETE userLog.
+    END.     
+    FOR EACH usersman EXCLUSIVE WHERE 
+        usersman.user_id EQ users.user_id:
+        DELETE usersman.
+    END.     
+    FOR EACH uservend EXCLUSIVE WHERE 
+        uservend.user_id EQ users.user_id:
+        DELETE uservend.
+    END.     
+    FOR EACH usr EXCLUSIVE WHERE 
+        usr.uid EQ users.user_id:
+        DELETE usr.
+    END.
+    FOR EACH usr-grp EXCLUSIVE WHERE 
+        usr-grp.uid EQ users.user_id:
+        DELETE usr-grp.
+    END.     
+    FOR EACH usr-menu EXCLUSIVE WHERE 
+        usr-menu.user_id EQ users.user_id:
+        DELETE usr-menu.
+    END.     
+    FOR EACH usrx EXCLUSIVE WHERE 
+        usrx.uid = users.user_id:
+        DELETE usrx.
+    END.
+    FOR EACH reftable EXCLUSIVE WHERE 
+        reftable.reftable EQ "users.user-docs" AND
+        reftable.company EQ users.user_id:
+        DELETE reftable.
+    END.
+    FOR EACH reftable EXCLUSIVE WHERE
+        reftable.reftable EQ "users.phone-no" AND
+        reftable.company EQ users.user_id:
+        DELETE reftable.
+    END.
+    FOR EACH reftable EXCLUSIVE WHERE
+        reftable.reftable EQ "users.fax-no" AND
+        reftable.company EQ users.user_id:
+        DELETE reftable.
+    END.
+    FOR EACH reftable EXCLUSIVE WHERE
+        reftable.reftable EQ "users.phone-cnty" AND
+        reftable.company EQ users.user_id:
+        DELETE reftable.
+    END.
+    FOR EACH reftable EXCLUSIVE WHERE
+        reftable.reftable EQ "users.fax-cnty" AND
+        reftable.company EQ users.user_id:
+        DELETE reftable.
+    END.
+
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
+
+    {methods/template/local/deleteAfter.i}
+    
+    RUN local-open-query in h_users.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-disable-fields V-table-Win 
+PROCEDURE local-disable-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'disable-fields':U ) .
+
+    {methods/template/local/disable.i}
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -969,15 +1308,11 @@ PROCEDURE local-display-fields :
             ttUsers.ttfDbList = slDatabases:list-items
             ttUsers.ttfModeList = slModes:list-items.
     END.
-
-    RUN reftable-values(INPUT YES).
-
+    
     /* Dispatch standard ADM method.                             */
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
     
     ASSIGN 
-        fi_email = users.image_filename
-        fi_email:SCREEN-VALUE IN FRAME {&FRAME-NAME} = users.image_filename
         cbUserType:screen-value = users.userType
         slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
         slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
@@ -985,6 +1320,49 @@ PROCEDURE local-display-fields :
 
     IF users.userAlias:SCREEN-VALUE NE ttUsers.ttfUserAlias THEN ASSIGN
         users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias.
+        
+    FIND _user NO-LOCK WHERE 
+        _user._userid = users.user_id
+        NO-ERROR.
+    IF AVAIL _user THEN ASSIGN
+        fiPassword:SCREEN-VALUE = _user._password.
+
+    ASSIGN
+        bChgPwd:SENSITIVE = IF users.user_id = zusers.user_id OR zusers.securityLevel > 699 THEN TRUE ELSE FALSE.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable-fields V-table-Win 
+PROCEDURE local-enable-fields :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    {methods/template/local/update.i}
+
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'enable-fields':U ) .
+
+    {methods/template/local/enable.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-row-available V-table-Win 
+PROCEDURE local-row-available :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'row-available':U ) .  
+
+    {methods/viewers/rowavail.i}
 
 END PROCEDURE.
 
@@ -1040,7 +1418,6 @@ PROCEDURE local-update-record :
     ASSIGN 
         users.userAlias = users.userAlias:screen-value in frame {&frame-name}
         users.securityLevel = INTEGER(users.securityLevel:SCREEN-VALUE)
-        users.image_filename = TRIM(fi_email)
         users.userType = cbUserType:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         users.envList = slEnvironments:SCREEN-VALUE
         users.dbList = slDatabases:SCREEN-VALUE
@@ -1052,20 +1429,12 @@ PROCEDURE local-update-record :
         ttUsers.ttfDbList = if users.dbList <> slDatabases:list-items then users.dbList else ""
         ttUsers.ttfModeList = if users.modeList <> slModes:list-items then users.modeList else "".
     RUN ipWriteUsrFile.
-    RELEASE users.
-
+    
     DISABLE 
-        tg_po 
-        tg_bol 
-        tg_invoice 
-        tg_ack 
-        tg_quote
         fi_phone-area 
         lv-phone-num 
-        fi_phone-country
         fi_fax-area 
         lv-fax-num 
-        fi_fax-country fi_email
         cbUserType
         users.userAlias
         users.securityLevel
@@ -1079,7 +1448,43 @@ PROCEDURE local-update-record :
         bAll3
         bNone3
         WITH FRAME {&FRAME-NAME}.
+    
+    RUN local-open-query in h_users.
+    RUN ipReposition in h_users (ROWID(users)).
+    
+END PROCEDURE.
 
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view V-table-Win 
+PROCEDURE local-view :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'view':U ) .
+
+    {methods/template/local/setvalue.i}
+
+    &IF DEFINED(Translation) NE 0 &THEN
+        {{&translationInclude}}
+    &ENDIF
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE max-widget V-table-Win 
+PROCEDURE max-widget :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    {custom/resizmx2.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1142,18 +1547,10 @@ PROCEDURE proc-enable :
 
 
     ENABLE 
-        tg_po 
-        tg_bol 
-        tg_invoice 
-        tg_ack 
-        tg_quote
         fi_phone-area 
         lv-phone-num 
-        fi_phone-country
         fi_fax-area 
         lv-fax-num 
-        fi_fax-country 
-        fi_email
         WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -1173,129 +1570,14 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE reftable-values V-table-Win 
-PROCEDURE reftable-values :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE restore-widget V-table-Win 
+PROCEDURE restore-widget :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAM ip-display AS LOG NO-UNDO.
-
-    DEF VAR v-phone-num AS CHAR NO-UNDO.
-    DEF VAR v-fax-num AS CHAR NO-UNDO.
-
-    DO WITH FRAME {&FRAME-NAME}:
-        IF AVAIL users THEN DO:
-            FIND FIRST reftable WHERE
-                reftable.reftable EQ "users.user-docs" AND
-                reftable.company EQ users.user_id
-                NO-ERROR.
-
-            IF NOT AVAIL reftable THEN DO:
-                CREATE reftable.
-                ASSIGN
-                    reftable.reftable = "users.user-docs"
-                    reftable.company  = users.user_id.
-            END.
-
-            IF ip-display THEN ASSIGN
-                tg_po = LOGICAL(reftable.val[1])
-                tg_bol = LOGICAL(reftable.val[2])
-                tg_invoice = LOGICAL(reftable.val[3])
-                tg_ack = LOGICAL(reftable.val[4])
-                tg_quote = LOGICAL(reftable.val[5]).
-            ELSE ASSIGN
-                reftable.val[1] = IF LOGICAL(tg_po:SCREEN-VALUE) THEN 1 ELSE 0
-                reftable.val[2] = IF LOGICAL(tg_bol:SCREEN-VALUE) THEN 1 ELSE 0
-                reftable.val[3] = IF LOGICAL(tg_invoice:SCREEN-VALUE) THEN 1 ELSE 0
-                reftable.val[4] = IF LOGICAL(tg_ack:SCREEN-VALUE) THEN 1 ELSE 0
-                reftable.val[5] = IF LOGICAL(tg_quote:SCREEN-VALUE) THEN 1 ELSE 0.
-
-            RELEASE reftable.
-
-            FIND FIRST reftable WHERE
-                reftable.reftable EQ "users.phone-no" AND
-                reftable.company EQ users.user_id
-                NO-ERROR.
-
-            IF NOT AVAIL reftable THEN DO:
-                CREATE reftable.
-                ASSIGN
-                    reftable.reftable = "users.phone-no"
-                    reftable.company  = users.user_id.
-            END.
-
-            IF ip-display THEN ASSIGN
-                fi_phone-area = SUBSTRING(reftable.CODE,1,3)
-                lv-phone-num = SUBSTRING(reftable.CODE,4).
-            ELSE ASSIGN
-                reftable.CODE = REPLACE(REPLACE(fi_phone-area:SCREEN-VALUE,'(',''),')','')
-                                + REPLACE(lv-phone-num:SCREEN-VALUE,'-','').
-
-            RELEASE reftable.
-
-            FIND FIRST reftable WHERE
-                reftable.reftable EQ "users.fax-no" AND
-                reftable.company EQ users.user_id
-                NO-ERROR.
-
-            IF NOT AVAIL reftable THEN DO:
-                CREATE reftable.
-                ASSIGN
-                    reftable.reftable = "users.fax-no"
-                    reftable.company  = users.user_id.
-            END.
-
-            IF ip-display THEN ASSIGN
-                fi_fax-area = SUBSTRING(reftable.CODE,1,3)
-                lv-fax-num = SUBSTRING(reftable.CODE,4).
-            ELSE ASSIGN
-                reftable.CODE = REPLACE(REPLACE(fi_fax-area:SCREEN-VALUE,'(',''),')','')
-                            + REPLACE(lv-fax-num:SCREEN-VALUE,'-','').
-
-            RELEASE reftable.
-
-            FIND FIRST reftable WHERE
-                reftable.reftable EQ "users.phone-cnty" AND
-                reftable.company EQ users.user_id
-                NO-ERROR.
-
-            IF NOT AVAIL reftable THEN DO:
-              CREATE reftable.
-              ASSIGN
-                reftable.reftable = "users.phone-cnty"
-                reftable.company  = users.user_id.
-            END.
-
-            IF ip-display THEN ASSIGN
-                fi_phone-country = reftable.CODE.
-            ELSE ASSIGN
-                reftable.CODE = fi_phone-country:SCREEN-VALUE.
-
-            RELEASE reftable.
-
-            FIND FIRST reftable WHERE
-                reftable.reftable EQ "users.fax-cnty" AND
-                reftable.company EQ users.user_id
-                NO-ERROR.
-
-            IF NOT AVAIL reftable THEN DO:
-                CREATE reftable.
-                ASSIGN
-                    reftable.reftable = "users.fax-cnty"
-                    reftable.company  = users.user_id.
-            END.
-
-            IF ip-display THEN ASSIGN
-                fi_fax-country = reftable.CODE.
-            ELSE ASSIGN
-                reftable.CODE = fi_fax-country:SCREEN-VALUE.
-
-            RELEASE reftable.
-        END.
-    END.
-    
+    {custom/resizrs2.i}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
