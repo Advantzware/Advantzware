@@ -49,7 +49,7 @@
 {aoa/tempTable/ttScheduledReleasesStats.i}
 
 /* Shipment Report.rpa */
-{aoa/tempTable/ttShipmentReport.i}
+/*{aoa/tempTable/ttShipmentReport.i}*/
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -313,8 +313,8 @@ FUNCTION fGetTableHandle RETURNS HANDLE
         WHEN "r-sched." THEN
         RETURN TEMP-TABLE ttScheduledReleases:HANDLE.
         /* Shipment Report.rpa */
-        WHEN "shiprpt." THEN
-        RETURN TEMP-TABLE ttShipmentReport:HANDLE.
+/*        WHEN "shiprpt." THEN                      */
+/*        RETURN TEMP-TABLE ttShipmentReport:HANDLE.*/
     END CASE.
 
 END FUNCTION.
@@ -589,12 +589,12 @@ FUNCTION fShipmentReport RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
   Purpose:  Shipment Report.rpa
     Notes:  
 ------------------------------------------------------------------------------*/
-    EMPTY TEMP-TABLE ttShipmentReport.
+/*    EMPTY TEMP-TABLE ttShipmentReport.*/
     
     /* subject business logic */
-    RUN aoa/BL/shiprpt.p (OUTPUT TABLE ttShipmentReport, ipcCompany, ipiBatch, ipcUserID).
+/*    RUN aoa/BL/shiprpt.p (OUTPUT TABLE ttShipmentReport, ipcCompany, ipiBatch, ipcUserID).*/
     
-    RETURN TEMP-TABLE ttShipmentReport:HANDLE .
+/*    RETURN TEMP-TABLE ttShipmentReport:HANDLE .*/
 
 END FUNCTION.
 
