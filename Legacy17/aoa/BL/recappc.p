@@ -18,6 +18,8 @@ FOR EACH ttRecapProductCategory:
     ASSIGN
         ttRecapProductCategory.priceMSFCurrent = ttRecapProductCategory.amountCurrent / ttRecapProductCategory.sqFtCurrent
         ttRecapProductCategory.priceMSFPeriod  = ttRecapProductCategory.amountPeriod  / ttRecapProductCategory.sqFtPeriod
+        ttRecapProductCategory.numDaysCurrent  = iPerDays[1]
+        ttRecapProductCategory.numDaysPeriod   = iPerDays[2]
         .
     IF ttRecapProductCategory.priceMSFCurrent EQ ? THEN ttRecapProductCategory.priceMSFCurrent = 0.
     IF ttRecapProductCategory.priceMSFPeriod  EQ ? THEN ttRecapProductCategory.priceMSFPeriod  = 0.
