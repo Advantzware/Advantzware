@@ -531,6 +531,7 @@ PROCEDURE pOrdersBooked2:
             ttOrdersBooked.dieNo        = IF AVAILABLE itemfg AND itemfg.die-no NE "" THEN itemfg.die-no
                                      ELSE IF AVAILABLE eb THEN eb.die-no
                                      ELSE ""
+            ttOrdersBooked.xxCost       = w-data.cost
             ttOrdersBooked.xxSort       = ttOrdersBooked.salesRep
                                         + STRING(ttOrdersBooked.dueDate,"99/99/9999")
                                         + STRING(ttOrdersBooked.orderNo)
