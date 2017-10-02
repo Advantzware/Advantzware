@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
+          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -416,8 +416,8 @@ PROCEDURE local-assign-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  if notes.note_type = "C" then assign notes.note_group = ""
-                                      .
+  if notes.note_type = "C" then assign notes.note_group = "".
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
 END PROCEDURE.
 
@@ -459,6 +459,7 @@ PROCEDURE local-create-record :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/viewers/create/notes.i}
    notes.note_source = "vend".
+
 
 END PROCEDURE.
 

@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
+          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -447,7 +447,7 @@ PROCEDURE local-assign-record :
                                        notes.note_code = "".
   else if notes.note_type = "G" then notes.note_code = "".
   else if notes.note_type = "D" then notes.note_group = "".
-
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
