@@ -223,11 +223,24 @@ PROCEDURE create-sys-val :
   Notes:       
 ------------------------------------------------------------------------------*/
   def var li-cnt as int no-undo.
- 
+  DEFINE VARIABLE i AS INTEGER NO-UNDO.
   if ip-name EQ "CINVOICE" then do:
      create tt-sys-val.
      assign tt-sys-val.name = ip-name
             tt-sys-val.name-val = "FIBREMEXICO".
+  end.
+  if ip-name EQ "RELMERGE" then do:
+      DO i = 1 TO 3 :
+      
+     create tt-sys-val.
+     assign tt-sys-val.name = ip-name.
+     IF i = 1  THEN
+            tt-sys-val.name-val = "SamePo#Only".
+     IF i = 2  THEN
+            tt-sys-val.name-val = "SamePo#Only WithPrompt".
+     IF i = 3  THEN
+            tt-sys-val.name-val = "SamePo#Only WithoutPrompt".
+      END.
   end.
   
 END PROCEDURE.
