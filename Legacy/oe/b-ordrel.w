@@ -5005,10 +5005,10 @@ DEF BUFFER bf-oe-rel FOR oe-rel.
 DEF VAR lrCurrentRel AS ROWID NO-UNDO.
 SESSION:SET-WAIT-STATE ('general').
 
- IF tt-report.s-basis[1] = "I"  THEN DO:
+ /*IF tt-report.s-basis[1] = "I"  THEN DO: 
      MESSAGE "Invoice only record can not Release..." VIEW-AS ALERT-BOX ERROR.
      RETURN.
- END.
+ END.*/ /* Ticket - 22911 */
 
 
 lrCurrentRel = ROWID(oe-rel).
