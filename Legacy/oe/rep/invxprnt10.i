@@ -5,11 +5,11 @@ PUT "<C+25><#1>".
 PUT "<=1>" SKIP.
   PUT "<C2><R2><#1><R+10><C+37><IMAGE#1=" ls-full-img1  SKIP
     "<FCourier New>"
-    space(4) "Bill To:" SPACE(44) "Ship To:" SKIP
-    SPACE(4) inv-head.cust-name v-shipto-name AT 57 skip
-    SPACE(4) inv-head.addr[1]   v-shipto-addr[1] AT 57 SKIP
-    SPACE(4) inv-head.addr[2]  v-shipto-addr[2] AT 57 SKIP
-    SPACE(4) v-addr3   v-sold-addr3 AT 57 SKIP.
+    space(4) "Bill To:" "<C50>" "Ship To:" SKIP
+    SPACE(4) inv-head.cust-name "<C50>" v-shipto-name  skip
+    SPACE(4) inv-head.addr[1] "<C50>"  v-shipto-addr[1]  SKIP
+    SPACE(4) inv-head.addr[2] "<C50>" v-shipto-addr[2]  SKIP
+    SPACE(4) v-addr3 "<C50>"  v-sold-addr3  SKIP.
 v-printline = v-printline + 18.
 
 PUT "</B><P10><R4><C50><#3><FROM><R10><C80><RECT><||3>" SKIP.
