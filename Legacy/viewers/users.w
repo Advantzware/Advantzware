@@ -177,6 +177,10 @@ DEFINE BUTTON bChgPwd
      LABEL "Change" 
      SIZE 12 BY 1.14.
 
+DEFINE BUTTON bDefaults 
+     LABEL "Use Defaults" 
+     SIZE 18 BY .71.
+
 DEFINE BUTTON bNone1 
      LABEL "None" 
      SIZE 10 BY .71.
@@ -202,28 +206,24 @@ DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(256)":U
      SIZE 37 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_fax-area AS CHARACTER FORMAT "xxx":U 
-     LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
 DEFINE VARIABLE fi_phone-area AS CHARACTER FORMAT "xxx":U 
-     LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-fax-num AS CHARACTER FORMAT "xxx-xxxx":U 
-     LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
 DEFINE VARIABLE lv-phone-num AS CHARACTER FORMAT "xxx-xxxx":U 
-     LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-5
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 53 BY 12.38.
+     SIZE 53 BY 12.62.
 
 DEFINE VARIABLE slDatabases AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -239,14 +239,15 @@ DEFINE VARIABLE slEnvironments AS CHARACTER
 
 DEFINE VARIABLE slModes AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     LIST-ITEMS "Advantzware","Addon","Case Labels","Loadtags","Sharpshooter","Touchscreen" 
-     SIZE 30 BY 5.24
+     LIST-ITEMS "Advantzware","Addon","Case Labels","Loadtags","RM Loadtags","Sharpshooter","Touchscreen","xxx" 
+     SIZE 30 BY 5
      FONT 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
+     bDefaults AT ROW 4.81 COL 121 WIDGET-ID 104
      users.user_id AT ROW 1.24 COL 12 COLON-ALIGNED
           LABEL "User ID"
           VIEW-AS FILL-IN 
@@ -262,27 +263,25 @@ DEFINE FRAME F-Main
           SIZE 37 BY 1
      fiPassword AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 80 PASSWORD-FIELD 
      bChgPwd AT ROW 2.67 COL 59 WIDGET-ID 82
-     users.phone-cnty AT ROW 4.1 COL 19 COLON-ALIGNED WIDGET-ID 12
-          LABEL "Phone +"
+     users.phone-cnty AT ROW 4.1 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 12
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
      users.phone AT ROW 4.1 COL 60 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 84 FORMAT "x(12)"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1 NO-TAB-STOP 
-     fi_phone-area AT ROW 4.1 COL 29 COLON-ALIGNED WIDGET-ID 10
-     lv-phone-num AT ROW 4.1 COL 39 COLON-ALIGNED WIDGET-ID 14
+     fi_phone-area AT ROW 4.1 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     lv-phone-num AT ROW 4.1 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 14
      users.fax AT ROW 5.29 COL 60 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 86 FORMAT "x(12)"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1 NO-TAB-STOP 
      users.fax-cnty AT ROW 5.29 COL 19 COLON-ALIGNED HELP
-          "" WIDGET-ID 18
-          LABEL "FAX" FORMAT "x(8)"
+          "" NO-LABEL WIDGET-ID 18 FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
-     fi_fax-area AT ROW 5.29 COL 29 COLON-ALIGNED WIDGET-ID 16
-     lv-fax-num AT ROW 5.29 COL 39 COLON-ALIGNED WIDGET-ID 20
+     fi_fax-area AT ROW 5.29 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     lv-fax-num AT ROW 5.29 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 20
      users.image_filename AT ROW 6.48 COL 19 COLON-ALIGNED HELP
           "Enter Main Menu Image File Name (fully qualified path)" WIDGET-ID 38
           LABEL "Email" FORMAT "X(40)"
@@ -332,9 +331,6 @@ DEFINE FRAME F-Main
           LABEL "Invoice"
           VIEW-AS TOGGLE-BOX
           SIZE 13 BY .81
-     users.showOnPO AT ROW 16.24 COL 53 WIDGET-ID 32
-          VIEW-AS TOGGLE-BOX
-          SIZE 9 BY .81
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -342,6 +338,9 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     users.showOnPO AT ROW 16.24 COL 53 WIDGET-ID 32
+          VIEW-AS TOGGLE-BOX
+          SIZE 9 BY .81
      cbUserType AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 48
      users.securityLevel AT ROW 3.62 COL 99 COLON-ALIGNED WIDGET-ID 44
           LABEL "Security Level" FORMAT ">999"
@@ -360,25 +359,37 @@ DEFINE FRAME F-Main
      slDatabases AT ROW 13.86 COL 108 NO-LABEL WIDGET-ID 52
      bAll2 AT ROW 14.57 COL 97 WIDGET-ID 68
      bNone2 AT ROW 15.29 COL 97 WIDGET-ID 70
-     slModes AT ROW 5.52 COL 108 NO-LABEL WIDGET-ID 54
-     bAll3 AT ROW 6.24 COL 97 WIDGET-ID 72
-     bNone3 AT ROW 6.95 COL 97 WIDGET-ID 74
+     slModes AT ROW 5.76 COL 108 NO-LABEL WIDGET-ID 54
+     bAll3 AT ROW 6.48 COL 97 WIDGET-ID 72
+     bNone3 AT ROW 7.19 COL 97 WIDGET-ID 74
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11 COL 91 WIDGET-ID 58
-     " At Login User Can Select:" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 4.81 COL 93 WIDGET-ID 56
-     "Options:" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 11.71 COL 8 WIDGET-ID 42
-     "Modes:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 5.52 COL 99 WIDGET-ID 62
-     "Databases:" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 13.86 COL 94 WIDGET-ID 60
      "Phone/Fax Appear on:" VIEW-AS TEXT
           SIZE 27 BY .62 AT ROW 11.71 COL 51 WIDGET-ID 24
      "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
           SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
           FONT 1
-     RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
+     "Phone: +" VIEW-AS TEXT
+          SIZE 10 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
+     "FAX: +" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
+     "  -" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 4.1 COL 28 WIDGET-ID 96
+     "  -" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 5.29 COL 28 WIDGET-ID 98
+     "  -" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 100
+     "  -" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 5.29 COL 38 WIDGET-ID 102
+     " At Login User Can Select:" VIEW-AS TEXT
+          SIZE 30 BY .62 AT ROW 4.57 COL 90 WIDGET-ID 56
+     "Options:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 11.71 COL 8 WIDGET-ID 42
+     "Modes:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 5.76 COL 99 WIDGET-ID 62
+     "Databases:" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 13.86 COL 94 WIDGET-ID 60
+     RECT-5 AT ROW 4.81 COL 88 WIDGET-ID 78
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -447,6 +458,8 @@ ASSIGN
 /* SETTINGS FOR BUTTON bAll3 IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON bChgPwd IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR BUTTON bDefaults IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR BUTTON bNone1 IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -574,6 +587,24 @@ DO:
         SELF:SENSITIVE = FALSE.
     APPLY 'entry' TO fiPassword.
     RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME bDefaults
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bDefaults V-table-Win
+ON CHOOSE OF bDefaults IN FRAME F-Main /* Use Defaults */
+DO:
+    ASSIGN
+        slModes:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
+        slEnvironments:SCREEN-VALUE = ""
+        slDatabases:SCREEN-VALUE = ""
+        slModes:SCREEN-VALUE IN FRAME {&FRAME-NAME} = 
+            "Advantzware,Addon,CaseLabel,Loadtags,RM Loadtag,Sharpshooter,Touchscreen"
+        slEnvironments:SCREEN-VALUE = ENTRY(1,slEnvironments:LIST-ITEMS)
+        slDatabases:SCREEN-VALUE = ENTRY(1,slDatabases:LIST-ITEMS).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -982,7 +1013,11 @@ PROCEDURE local-add-record :
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
     ASSIGN
-        fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "".
+        fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
+        fi_phone-area:SCREEN-VALUE = ""
+        lv-phone-num:SCREEN-VALUE = ""
+        fi_fax-area:SCREEN-VALUE = ""
+        lv-fax-no:SCREEN-VALUE = "".
     APPLY 'entry' to users.user_id IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -1284,8 +1319,6 @@ PROCEDURE local-delete-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
     {methods/template/local/deleteAfter.i}
-    
-    RUN local-open-query in h_users.
 
 END PROCEDURE.
 
@@ -1339,7 +1372,8 @@ PROCEDURE local-display-fields :
         cbUserType:screen-value = users.userType
         slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
         slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
-        slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList else slModes:list-items.
+        slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList else slModes:list-items
+        .
 
     IF users.userAlias:SCREEN-VALUE NE ttUsers.ttfUserAlias THEN ASSIGN
         users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias.
@@ -1473,9 +1507,8 @@ PROCEDURE local-update-record :
         bNone3
         WITH FRAME {&FRAME-NAME}.
     
-    RUN local-open-query in h_users.
-    RUN ipReposition in h_users (ROWID(users)).
-    
+    RUN local-display-fields.
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1543,6 +1576,7 @@ PROCEDURE proc-enable :
         bNone2:SENSITIVE = TRUE
         bAll3:SENSITIVE = TRUE
         bNone3:SENSITIVE = TRUE
+        bDefaults:SENSITIVE = TRUE
         .
     ELSE ASSIGN 
         users.track_usage:SENSITIVE = NO 
@@ -1562,13 +1596,13 @@ PROCEDURE proc-enable :
         bNone2:SENSITIVE = FALSE
         bAll3:SENSITIVE = FALSE
         bNone3:SENSITIVE = FALSE
+        bDefaults:SENSITIVE = FALSE
         .
     ASSIGN 
         cbUserType:screen-value = users.userType
         slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" then ttUsers.ttfEnvList else slEnvironments:list-items
         slDatabases:screen-value = if ttUsers.ttfDbList <> "" then ttUsers.ttfDbList else slDatabases:list-items
         slModes:screen-value = if ttUsers.ttfModeList <> "" then ttUsers.ttfModeList else slModes:list-items.
-
 
     ENABLE 
         fi_phone-area 
