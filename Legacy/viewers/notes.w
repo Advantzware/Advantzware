@@ -329,6 +329,26 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
+PROCEDURE local-assign-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -347,7 +367,7 @@ PROCEDURE local-create-record :
   ASSIGN notes.note_date = TODAY
          notes.note_time = TIME
          notes.USER_id = USERID("nosweat").
-
+  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

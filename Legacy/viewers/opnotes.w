@@ -485,6 +485,7 @@ PROCEDURE local-create-record :
          notes.note_group = ip-header_value  /* job.job : touch OP notes for the job*/
          v-got-dept = YES
         . 
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
 END PROCEDURE.
 
@@ -547,7 +548,7 @@ PROCEDURE local-update-record :
   /* Code placed here will execute AFTER standard behavior.    */
   BUFFER-COMPARE notes TO tt-notes SAVE RESULT IN ll.
   IF NOT ll THEN RUN custom/notewtrg.p (ROWID(notes)).
-
+  RUN local-display-fields.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

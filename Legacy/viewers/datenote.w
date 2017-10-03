@@ -515,6 +515,25 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-assign-record V-table-Win 
+PROCEDURE local-assign-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-create-record V-table-Win 
 PROCEDURE local-create-record :
 /*------------------------------------------------------------------------------
@@ -537,6 +556,9 @@ ASSIGN
   notes.note_date = TODAY
   notes.note_time = TIME
   notes.user_id = USERID("NOSWEAT").
+
+
+
   cScreenNoteCode = notes.note_code:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
   IF cScreenNoteCode EQ "" THEN 
     cScreenNoteCode = ENTRY(1, gvcNoteCode).
