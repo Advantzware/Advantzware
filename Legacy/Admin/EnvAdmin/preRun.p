@@ -252,6 +252,35 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-epGetUserGroups) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE epGetUserGroups Procedure 
+PROCEDURE epGetUserGroups :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF OUTPUT PARAMETER cGroups AS CHAR.
+    
+    ASSIGN 
+        cGroups = "".
+
+    FOR EACH usergrps NO-LOCK:
+        IF CAN-DO(usergrps.users,USERID(LDBNAME(1))) THEN ASSIGN
+            cGroups = cGroups + usergrps.usergrps + ",".
+    END.
+
+    ASSIGN
+        cGroups = TRIM(cGroups,",").
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-epTouchLogin) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE epTouchLogin Procedure 
@@ -297,7 +326,7 @@ PROCEDURE epUpdateUsrFile :
 ------------------------------------------------------------------------------*/
     DEF OUTPUT PARAMETER opcUserList AS CHAR NO-UNDO.
     
-    FOR EACH _user:
+    FOR EACH _user NO-LOCK:
         ASSIGN
             opcUserList = opcUserList + _user._userid + ",".
     END.

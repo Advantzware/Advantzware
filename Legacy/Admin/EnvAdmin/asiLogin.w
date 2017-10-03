@@ -59,13 +59,15 @@ DEFINE NEW GLOBAL SHARED VARIABLE g_rec_key AS CHARACTER NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g_pageno AS INTEGER NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g_mainmenu AS WIDGET-HANDLE NO-UNDO.
 DEFINE NEW GLOBAL SHARED VARIABLE g-sharpshooter  AS LOG NO-UNDO.
+DEFINE NEW GLOBAL SHARED VARIABLE cIniLoc AS CHAR NO-UNDO.
+DEFINE NEW GLOBAL SHARED VARIABLE cUsrLoc AS CHAR NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_company AS CHARACTER NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_loc AS CHARACTER NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_sysdate AS DATE NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_period AS INTEGER NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_init AS LOGICAL NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_batch AS LOGICAL NO-UNDO.
-DEFINE NEW SHARED VARIABLE g_batch-rowid AS ROWID NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_batch-rowid AS rowid NO-UNDO.
 DEFINE NEW SHARED VARIABLE miscflds_reckey AS CHARACTER.
 DEFINE NEW SHARED VARIABLE table_reckey AS CHARACTER.
 DEFINE NEW SHARED VARIABLE persistent-handle AS HANDLE.
@@ -187,6 +189,7 @@ DEF VAR cXportList AS CHAR NO-UNDO.
 DEF TEMP-TABLE ttUsers
     FIELD ttfPdbname AS CHAR
     FIELD ttfUserID AS CHAR
+    FIELD ttfUserAlias AS CHAR
     FIELD ttfEnvList AS CHAR
     FIELD ttfDbList AS CHAR
     FIELD ttfModeList AS CHAR.
@@ -388,6 +391,9 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
+ASSIGN 
+       cbDatabase:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
+
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -453,25 +459,37 @@ DO:
     DEF VAR cMessage AS CHAR NO-UNDO.
     DEF VAR cCmdString AS CHAR NO-UNDO.
 
+    APPLY 'value-changed' TO cbDatabase.
+    APPLY 'value-changed' TO cbEnvironment.
+    APPLY 'value-changed' TO cbMode.
+    
     IF connectStatement <> "" THEN DO:
         IF VALID-HANDLE(hPreRun) THEN DO:
             RUN epDisconnectDB IN hPreRun.
             RUN epConnectDB IN hPreRun (connectStatement,
-                                        fiUserID:{&SV},
+                                        ttUsers.ttfUserID,
                                         fiPassword:{&SV},
                                         OUTPUT lError).
         END.
         ELSE DO:
             RUN ipDisconnectDB IN THIS-PROCEDURE.
             RUN ipConnectDB in THIS-PROCEDURE (connectStatement,
-                                               fiUserID:{&SV},
+                                               ttUsers.ttfUserID,
                                                fiPassword:{&SV},
                                                OUTPUT lError).
-            RUN preRun.p PERSISTENT SET hPreRun.
+            IF CONNECTED(LDBNAME(1)) THEN
+                RUN preRun.p PERSISTENT SET hPreRun.
+            ELSE DO:
+                MESSAGE 
+                    "Unable to connect to that database with the" SKIP
+                    "credentials supplied.  Please try again."
+                    VIEW-AS ALERT-BOX ERROR.
+                RETURN NO-APPLY.
+            END.
         END.
     END.
     ASSIGN
-        lUserOK = SETUSERID(fiUserID:{&SV},fiPassword:{&SV},LDBNAME(1)).
+        lUserOK = SETUSERID(ttUsers.ttfUserID,fiPassword:{&SV},LDBNAME(1)).
     IF lUserOK = TRUE THEN DO:
         RUN ipPreRun.
         ASSIGN
@@ -537,8 +555,14 @@ END.
 ON LEAVE OF fiUserID IN FRAME DEFAULT-FRAME /* User ID */
 DO:
     FIND FIRST ttUsers NO-LOCK WHERE
-        ttUsers.ttfUserID = SELF:{&SV}
+        ttUsers.ttfUserID = SELF:{&SV} AND
+        ttUsers.ttfPdbName = cbDatabase:{&SV}
         NO-ERROR.
+    IF NOT AVAIL ttUsers THEN DO:
+        FIND FIRST ttUsers NO-LOCK WHERE
+            ttUsers.ttfUserAlias = SELF:{&SV}
+            NO-ERROR.
+    END.
     IF NOT AVAIL ttUsers THEN DO:
         MESSAGE
             "Unable to locate this user in the advantzware.usr file." SKIP
@@ -557,6 +581,10 @@ DO:
         APPLY 'value-changed' TO cbEnvironment.
         APPLY 'value-changed' to cbDatabase.
         APPLY 'value-changed' TO cbMode.
+        IF ttUsers.ttfUserId = "Admin" 
+        OR ttUsers.ttfUserId = "ASI"  THEN
+            ENABLE cbDatabase WITH FRAME {&FRAME-NAME}.
+
     END.
         
 END.
@@ -608,6 +636,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     APPLY 'value-changed' TO cbEnvironment.
     APPLY 'value-changed' TO cbMode.
     APPLY 'entry' TO fiUserID.
+    
 
     IF NOT THIS-PROCEDURE:PERSISTENT THEN
         WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -706,7 +735,51 @@ PROCEDURE ipChangeEnvironment :
     DEF VAR cTop AS CHAR NO-UNDO.
     DEF VAR preProPath AS CHAR NO-UNDO.
     DEF VAR iLookup AS INT NO-UNDO.
+    DEF VAR iCtr AS INT NO-UNDO.
     
+    CASE cbEnvironment:SCREEN-VALUE IN FRAME {&FRAME-NAME}:
+        WHEN "Prod" THEN DO:
+            DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
+                IF INDEX(ENTRY(iCtr,cbDatabase:LIST-ITEMS),"Prod") <> 0 THEN DO:
+                    ASSIGN
+                        cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cbDatabase:LIST-ITEMS).
+                    LEAVE.
+                END.
+            END.
+        END.
+        WHEN "Test" THEN DO:
+            DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
+                IF INDEX(ENTRY(iCtr,cbDatabase:LIST-ITEMS),"Test") <> 0 THEN DO:
+                    ASSIGN
+                        cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cbDatabase:LIST-ITEMS).
+                    LEAVE.
+                END.
+            END.
+        END.
+        WHEN "16.6.0" THEN DO:
+            DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
+                IF INDEX(ENTRY(iCtr,cbDatabase:LIST-ITEMS),"166") <> 0 THEN DO:
+                    ASSIGN
+                        cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cbDatabase:LIST-ITEMS).
+                    LEAVE.
+                END.
+            END.
+        END.
+        WHEN "16.5.8" OR 
+        WHEN "16.5.4" OR 
+        WHEN "16.5.0" THEN
+        DO:
+            DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
+                IF INDEX(ENTRY(iCtr,cbDatabase:LIST-ITEMS),"165") <> 0 THEN DO:
+                    ASSIGN
+                        cbDatabase:SCREEN-VALUE = ENTRY(iCtr,cbDatabase:LIST-ITEMS).
+                    LEAVE.
+                END.
+            END.
+        END.
+    END CASE.
+    APPLY 'value-changed' to cbDatabase.
+
     ASSIGN
         iLookup = LOOKUP(cbEnvironment:{&SV},cEnvList)
         cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment:{&SV} + "\"
@@ -717,6 +790,7 @@ PROCEDURE ipChangeEnvironment :
                      cTop + cenvPgmDir + "\Addon" + "," +
                      cTop + cenvResDir + "\Addon" + ","
         PROPATH = preProPath + origPropath.
+        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -776,6 +850,7 @@ PROCEDURE ipConnectDb :
         CREATE ALIAS asihlp FOR DATABASE VALUE(LDBNAME(1)).
         CREATE ALIAS asinos FOR DATABASE VALUE(LDBNAME(1)).
     END.
+
     ASSIGN
         lError = NOT CONNECTED(LDBNAME(1)).
         
@@ -816,6 +891,8 @@ PROCEDURE ipGetIniFile :
         IF iCtr > 4 THEN LEAVE.
     END.
     IF NOT SEARCH(cIniFileLoc) = ? THEN ASSIGN
+        file-info:file-name = SEARCH(cIniFileLoc)
+        cIniLoc = file-info:full-pathname
         lFoundIni = TRUE.
 
 END PROCEDURE.
@@ -841,6 +918,8 @@ PROCEDURE ipGetUsrFile :
     END.
     IF NOT SEARCH(cUsrFileLoc) = ? THEN ASSIGN
         cUsrFileLoc = SEARCH(cUsrFileLoc)
+        file-info:file-name = SEARCH(cUsrFileLoc)
+        cUsrLoc = file-info:full-pathname
         lFoundUsr = TRUE.
 
 END PROCEDURE.
@@ -872,8 +951,8 @@ PROCEDURE ipPreRun :
     
     RUN epUpdateUsrFile IN hPreRun (OUTPUT cUsrList).
     RUN ipUpdUsrFile IN THIS-PROCEDURE (cUsrList).
-    RUN ipGetUserGroups IN THIS-PROCEDURE.
-
+    RUN epGetUserGroups IN hPreRun (OUTPUT g_groups).
+    
     IF fiUserID:{&SV} = "ASI" THEN RUN asiload.p.
 
     RUN epCheckExpiration IN hPreRun (OUTPUT lOK).
@@ -884,7 +963,7 @@ PROCEDURE ipPreRun :
     RUN epGetDeveloperList IN hPreRun (OUTPUT g_developer).
 
     RUN epGetUsercomp IN hPreRun (OUTPUT g_company, OUTPUT g_loc).
-    
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1072,10 +1151,11 @@ PROCEDURE ipReadUsrFile :
         CREATE ttUsers.
         ASSIGN
             ttUsers.ttfPdbname = ENTRY(1,cUsrLine,"|")
-            ttUsers.ttfUserID = ENTRY(2,cUsrLine,"|")
-            ttUsers.ttfEnvList = ENTRY(3,cUsrLine,"|")
-            ttUsers.ttfDbList = ENTRY(4,cUsrLine,"|")
-            ttUsers.ttfModeList = ENTRY(5,cUsrLine,"|")
+            ttUsers.ttfUserAlias = ENTRY(2,cUsrLine,"|")
+            ttUsers.ttfUserID = ENTRY(3,cUsrLine,"|")
+            ttUsers.ttfEnvList = ENTRY(4,cUsrLine,"|")
+            ttUsers.ttfDbList = ENTRY(5,cUsrLine,"|")
+            ttUsers.ttfModeList = ENTRY(6,cUsrLine,"|")
             iCtr = iCtr + 1.
     END.
     INPUT CLOSE.
@@ -1135,7 +1215,9 @@ PROCEDURE ipUpdUsrFile :
             ASSIGN
                 lUpdUsr = TRUE
                 ttUsers.ttfPdbname = PDBNAME(1)
-                ttUsers.ttfUserID = ENTRY(iCtr,ipcUserList).
+                ttUsers.ttfUserID = ENTRY(iCtr,ipcUserList)
+                ttUsers.ttfUserAlias = ENTRY(iCtr,ipcUserList)
+                .
         END.
     END.
     FOR EACH ttUsers WHERE
@@ -1149,6 +1231,7 @@ PROCEDURE ipUpdUsrFile :
         FOR EACH ttUsers:
             ASSIGN cOutString = 
                 ttUsers.ttfPdbname + "|" +
+                ttUsers.ttfUserAlias + "|" + 
                 ttUsers.ttfUserID + "|" + 
                 ttUsers.ttfEnvList + "|" +
                 ttUsers.ttfDbList + "|" +
@@ -1157,24 +1240,11 @@ PROCEDURE ipUpdUsrFile :
         END.
         OUTPUT STREAM usrStream CLOSE.
     END.
+                
+    
     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetUserGroups C-Win
-PROCEDURE ipGetUserGroups:
-    g_groups = "".
-    FOR EACH usergrps NO-LOCK:
-        IF CAN-DO(usergrps.users,USERID(LDBNAME(1))) THEN
-            g_groups = g_groups + usergrps.usergrps + ",".
-    END.
-    g_groups = TRIM(g_groups,",").
-    
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
