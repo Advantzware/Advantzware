@@ -100,33 +100,34 @@ DEF TEMP-TABLE ttUsers
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR users, usr.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS users.user_name users.user_program[1] ~
+&Scoped-Define ENABLED-FIELDS users.user_name users.phone-cnty ~
+users.fax-cnty users.image_filename users.user_program[1] ~
 users.user_program[2] users.user_program[3] users.track_usage ~
 users.use_colors users.use_fonts users.use_ctrl_keys users.developer 
 &Scoped-define ENABLED-TABLES users
 &Scoped-define FIRST-ENABLED-TABLE users
 &Scoped-Define ENABLED-OBJECTS RECT-5 
-&Scoped-Define DISPLAYED-FIELDS users.fax users.isActive users.isLocked ~
-users.phone users.user_id users.user_name users.userAlias users.phone-cnty ~
+&Scoped-Define DISPLAYED-FIELDS users.user_id users.user_name ~
+users.userAlias users.phone-cnty users.phone users.fax users.fax-cnty ~
 users.image_filename users.user_program[1] users.user_program[2] ~
 users.user_program[3] users.track_usage users.use_colors users.use_fonts ~
 users.use_ctrl_keys users.developer users.showOnQuote users.showOnAck ~
-users.showOnBol users.showOnInv users.showOnPO users.securityLevel 
+users.showOnBol users.showOnInv users.showOnPO users.securityLevel ~
+users.isActive users.isLocked 
 &Scoped-define DISPLAYED-TABLES users
 &Scoped-define FIRST-DISPLAYED-TABLE users
 &Scoped-Define DISPLAYED-OBJECTS fiPassword fi_phone-area lv-phone-num ~
-fi_fax-country fi_fax-area lv-fax-num cbUserType slEnvironments slDatabases ~
-slModes 
+fi_fax-area lv-fax-num cbUserType slEnvironments slDatabases slModes 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELDS,List-5,F1 */
 &Scoped-define ADM-CREATE-FIELDS users.user_id 
 &Scoped-define ADM-ASSIGN-FIELDS users.phone-cnty fi_phone-area ~
-lv-phone-num fi_fax-country fi_fax-area lv-fax-num users.image_filename ~
+lv-phone-num users.fax-cnty fi_fax-area lv-fax-num users.image_filename ~
 users.showOnQuote users.showOnAck users.showOnBol users.showOnInv ~
 users.showOnPO 
 &Scoped-define DISPLAY-FIELDS users.phone-cnty fi_phone-area lv-phone-num ~
-fi_fax-country fi_fax-area lv-fax-num users.image_filename ~
+users.fax-cnty fi_fax-area lv-fax-num users.image_filename ~
 users.showOnQuote users.showOnAck users.showOnBol users.showOnInv ~
 users.showOnPO 
 
@@ -200,17 +201,12 @@ DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 37 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_fax-area AS CHARACTER FORMAT "(xxx)":U 
+DEFINE VARIABLE fi_fax-area AS CHARACTER FORMAT "xxx":U 
      LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_fax-country AS CHARACTER FORMAT "X(8)":U 
-     LABEL "FAX +" 
-     VIEW-AS FILL-IN 
-     SIZE 7 BY 1 NO-UNDO.
-
-DEFINE VARIABLE fi_phone-area AS CHARACTER FORMAT "(xxx)":U 
+DEFINE VARIABLE fi_phone-area AS CHARACTER FORMAT "xxx":U 
      LABEL "-" 
      VIEW-AS FILL-IN 
      SIZE 7 BY 1 NO-UNDO.
@@ -251,24 +247,6 @@ DEFINE VARIABLE slModes AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     users.fax AT ROW 5.29 COL 60 COLON-ALIGNED HELP
-          "" NO-LABEL WIDGET-ID 86 FORMAT "x(12)"
-          VIEW-AS FILL-IN 
-          SIZE 4 BY 1
-     users.isActive AT ROW 3.62 COL 112 WIDGET-ID 90
-          LABEL "Active?"
-          VIEW-AS TOGGLE-BOX
-          SIZE 13.2 BY 1
-     users.isLocked AT ROW 3.62 COL 128 WIDGET-ID 88
-          VIEW-AS TOGGLE-BOX
-          SIZE 13.2 BY 1
-     users.phone AT ROW 4.1 COL 60 COLON-ALIGNED HELP
-          "" NO-LABEL WIDGET-ID 84 FORMAT "x(12)"
-          VIEW-AS FILL-IN 
-          SIZE 4 BY 1
-     bChgPwd AT ROW 2.67 COL 59 WIDGET-ID 82
-     fiPassword AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 80 PASSWORD-FIELD 
-     bAll1 AT ROW 11.71 COL 97 WIDGET-ID 64
      users.user_id AT ROW 1.24 COL 12 COLON-ALIGNED
           LABEL "User ID"
           VIEW-AS FILL-IN 
@@ -282,13 +260,27 @@ DEFINE FRAME F-Main
      users.userAlias AT ROW 1.24 COL 99 COLON-ALIGNED WIDGET-ID 40
           VIEW-AS FILL-IN 
           SIZE 37 BY 1
+     fiPassword AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 80 PASSWORD-FIELD 
+     bChgPwd AT ROW 2.67 COL 59 WIDGET-ID 82
      users.phone-cnty AT ROW 4.1 COL 19 COLON-ALIGNED WIDGET-ID 12
           LABEL "Phone +"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
+     users.phone AT ROW 4.1 COL 60 COLON-ALIGNED HELP
+          "" NO-LABEL WIDGET-ID 84 FORMAT "x(12)"
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1 NO-TAB-STOP 
      fi_phone-area AT ROW 4.1 COL 29 COLON-ALIGNED WIDGET-ID 10
      lv-phone-num AT ROW 4.1 COL 39 COLON-ALIGNED WIDGET-ID 14
-     fi_fax-country AT ROW 5.29 COL 19 COLON-ALIGNED WIDGET-ID 18
+     users.fax AT ROW 5.29 COL 60 COLON-ALIGNED HELP
+          "" NO-LABEL WIDGET-ID 86 FORMAT "x(12)"
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1 NO-TAB-STOP 
+     users.fax-cnty AT ROW 5.29 COL 19 COLON-ALIGNED HELP
+          "" WIDGET-ID 18
+          LABEL "FAX" FORMAT "x(8)"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY 1
      fi_fax-area AT ROW 5.29 COL 29 COLON-ALIGNED WIDGET-ID 16
      lv-fax-num AT ROW 5.29 COL 39 COLON-ALIGNED WIDGET-ID 20
      users.image_filename AT ROW 6.48 COL 19 COLON-ALIGNED HELP
@@ -336,13 +328,6 @@ DEFINE FRAME F-Main
           LABEL "BoL"
           VIEW-AS TOGGLE-BOX
           SIZE 9 BY .81
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
      users.showOnInv AT ROW 15.29 COL 53 WIDGET-ID 30
           LABEL "Invoice"
           VIEW-AS TOGGLE-BOX
@@ -350,17 +335,32 @@ DEFINE FRAME F-Main
      users.showOnPO AT ROW 16.24 COL 53 WIDGET-ID 32
           VIEW-AS TOGGLE-BOX
           SIZE 9 BY .81
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     cbUserType AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 48
      users.securityLevel AT ROW 3.62 COL 99 COLON-ALIGNED WIDGET-ID 44
           LABEL "Security Level" FORMAT ">999"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     cbUserType AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 48
+     users.isActive AT ROW 3.62 COL 112 WIDGET-ID 90
+          LABEL "Active?"
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.2 BY 1
+     users.isLocked AT ROW 3.62 COL 128 WIDGET-ID 88
+          VIEW-AS TOGGLE-BOX
+          SIZE 13.2 BY 1
      slEnvironments AT ROW 11 COL 108 NO-LABEL WIDGET-ID 50
-     slDatabases AT ROW 13.86 COL 108 NO-LABEL WIDGET-ID 52
-     slModes AT ROW 5.52 COL 108 NO-LABEL WIDGET-ID 54
+     bAll1 AT ROW 11.71 COL 97 WIDGET-ID 64
      bNone1 AT ROW 12.43 COL 97 WIDGET-ID 66
+     slDatabases AT ROW 13.86 COL 108 NO-LABEL WIDGET-ID 52
      bAll2 AT ROW 14.57 COL 97 WIDGET-ID 68
      bNone2 AT ROW 15.29 COL 97 WIDGET-ID 70
+     slModes AT ROW 5.52 COL 108 NO-LABEL WIDGET-ID 54
      bAll3 AT ROW 6.24 COL 97 WIDGET-ID 72
      bNone3 AT ROW 6.95 COL 97 WIDGET-ID 74
      "Environments:" VIEW-AS TEXT
@@ -461,16 +461,16 @@ ASSIGN
 ASSIGN 
        users.fax:HIDDEN IN FRAME F-Main           = TRUE.
 
+/* SETTINGS FOR FILL-IN users.fax-cnty IN FRAME F-Main
+   2 4 EXP-LABEL EXP-FORMAT EXP-HELP                                    */
 /* SETTINGS FOR FILL-IN fiPassword IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN fi_fax-area IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
-/* SETTINGS FOR FILL-IN fi_fax-country IN FRAME F-Main
-   NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN fi_phone-area IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
 /* SETTINGS FOR FILL-IN users.image_filename IN FRAME F-Main
-   NO-ENABLE 2 4 EXP-LABEL EXP-FORMAT EXP-HELP                          */
+   2 4 EXP-LABEL EXP-FORMAT EXP-HELP                                    */
 /* SETTINGS FOR TOGGLE-BOX users.isActive IN FRAME F-Main
    NO-ENABLE EXP-LABEL                                                  */
 ASSIGN 
@@ -491,7 +491,7 @@ ASSIGN
        users.phone:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* SETTINGS FOR FILL-IN users.phone-cnty IN FRAME F-Main
-   NO-ENABLE 2 4 EXP-LABEL                                              */
+   2 4 EXP-LABEL                                                        */
 /* SETTINGS FOR FILL-IN users.securityLevel IN FRAME F-Main
    NO-ENABLE EXP-LABEL EXP-FORMAT                                       */
 /* SETTINGS FOR TOGGLE-BOX users.showOnAck IN FRAME F-Main
@@ -598,6 +598,19 @@ END.
 
 &Scoped-define SELF-NAME fiPassword
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPassword V-table-Win
+ON END-ERROR OF fiPassword IN FRAME F-Main /* Password */
+DO:
+    ASSIGN  
+        fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = _user._password
+        fiPassword:SENSITIVE = FALSE
+        bChgPwd:SENSITIVE = TRUE.          
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fiPassword V-table-Win
 ON LEAVE OF fiPassword IN FRAME F-Main /* Password */
 OR RETURN OF fiPassword
 DO:
@@ -606,7 +619,11 @@ DO:
             "You are setting this user's password" SKIP
             "to BLANKS. Is this correct?"
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lBlanks AS LOG.
-        IF NOT lBlanks THEN RETURN NO-APPLY.
+        IF NOT lBlanks THEN DO:
+            ASSIGN
+                SELF:SCREEN-VALUE = _user._password.
+            RETURN NO-APPLY.
+        END.
     END.
     
     RUN ipChangePassword (SELF:SCREEN-VALUE).
@@ -620,7 +637,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL users.securityLevel V-table-Win
 ON LEAVE OF users.securityLevel IN FRAME F-Main /* Security Level */
 DO:
-    IF zUsers.securityLevel < 1000 
+    IF (zUsers.securityLevel < 1000 OR users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "asi")
     AND INTEGER(SELF:SCREEN-VALUE) GE 1000 THEN DO:
         ASSIGN
             SELF:SCREEN-VALUE = "700".
@@ -638,7 +655,8 @@ ON LEAVE OF users.userAlias IN FRAME F-Main /* Login Alias */
 DO:
     IF SELF:SCREEN-VALUE <> "" THEN DO:
         FIND FIRST lUsers NO-LOCK WHERE 
-            lUsers.userAlias = SELF:SCREEN-VALUE
+            lUsers.userAlias = SELF:SCREEN-VALUE AND
+            lUsers.user_id NE users.user_id
             NO-ERROR.
         IF AVAIL lUsers THEN DO:
             MESSAGE
@@ -750,7 +768,7 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-
+    {sys/inc/f3help.i}
     {custom/gcompany.i}
     {custom/getcmpny.i}
 
@@ -992,7 +1010,8 @@ PROCEDURE local-assign-record :
     DEF VAR cNewPwd AS CHAR NO-UNDO.
   
     ASSIGN 
-        cOldUserID = users.user_id.
+        cOldUserID = users.user_id
+        .
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
@@ -1313,6 +1332,10 @@ PROCEDURE local-display-fields :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
     
     ASSIGN 
+        fi_phone-area:screen-value = substring(users.phone,1,3)
+        lv-phone-num:screen-value = substring(users.phone,4)
+        fi_fax-area:screen-value = substring(users.fax,1,3)
+        lv-fax-num:screen-value = substring(users.fax,4)
         cbUserType:screen-value = users.userType
         slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
         slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
@@ -1391,7 +1414,6 @@ PROCEDURE local-update-record :
     END.
 
     IF users.user_program[3]:SCREEN-VALUE NE "" THEN DO:
-        {&methods/lValidateError.i YES}
         IF SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "\" 
         OR SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "/" THEN DO:
             MESSAGE 
@@ -1408,7 +1430,6 @@ PROCEDURE local-update-record :
                 VIEW-AS ALERT-BOX ERROR BUTTON YES-NO UPDATE v-ans AS LOG.
             IF v-ans THEN OS-CREATE-DIR VALUE(file-info:file-name).
         END.
-        {&methods/lValidateError.i NO}
     END.  
 
   /* Dispatch standard ADM method.                             */
@@ -1421,7 +1442,10 @@ PROCEDURE local-update-record :
         users.userType = cbUserType:SCREEN-VALUE IN FRAME {&FRAME-NAME}
         users.envList = slEnvironments:SCREEN-VALUE
         users.dbList = slDatabases:SCREEN-VALUE
-        users.modeList = slModes:SCREEN-VALUE.
+        users.modeList = slModes:SCREEN-VALUE
+        users.phone = fi_phone-area:screen-value + lv-phone-num
+        users.fax = fi_fax-area:screen-value + lv-fax-num
+        .
     
     ASSIGN
         ttUsers.ttfUserAlias = users.userAlias
