@@ -76,7 +76,7 @@ ASSIGN
                 "Dayton,AllLaser,IPLaser,Trilakes,ADVLaser,ColorLas,Harwllas," +
                 "Midwest,Argvlas,Oracle,Vineland,Lakelas,Imperial,IndianaL,"   +
                 "Frankstn,Pacific,STCLaser,Woodland,Hamilton,PrePkgLS,FibreLsr," +
-                "Action,CAPLasAL,ACPI,Carded,Adaptls,Soule,MidYork,ASSILaser," +
+                "Action,CAPLasAL,ACPI,Carded,Adaptls,Soule,MidYork,ASSILaser,Laser" +
                 "Protagon,AllLaserHP1536DN,ASIX,CustCorr,chkfmt 1,chkfmt 2,Lovepac"
  str-init[12] = "ASI,Bin/Tag,No Tags".
 ASSIGN
