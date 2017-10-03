@@ -44,7 +44,7 @@ assign
 {ap/ap-chk.i NEW }
 FIND CURRENT sys-ctrl NO-LOCK NO-ERROR.
 def var laser-list as char no-undo
-   init "l,Laser,Raritan,Hartford,ASILaser,TriadLas,ASI2000,AllLaser,Argvlas,Action,AllLaserHP1536DN".    /* Task 09301303*/
+   init "l,Laser,Raritan,Hartford,ASILaser,Laser,TriadLas,ASI2000,AllLaser,Argvlas,Action,AllLaserHP1536DN".    /* Task 09301303*/
 DEFINE VARIABLE laser-list-ach AS CHARACTER NO-UNDO 
     INIT "ASI,Badger".
 
@@ -1398,6 +1398,10 @@ ELSE DO:
           assign
              max-per-chk  = 12
              next-program = "ap/ap-ckasi.p".
+       WHEN "Laser" THEN
+          assign
+             max-per-chk  = 12
+             next-program = "ap/ap-cklaser.p".
        WHEN "Carded" THEN
           assign
              max-per-chk  = 12
