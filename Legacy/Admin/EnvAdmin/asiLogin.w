@@ -65,7 +65,7 @@ DEFINE NEW SHARED VARIABLE g_sysdate AS DATE NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_period AS INTEGER NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_init AS LOGICAL NO-UNDO.
 DEFINE NEW SHARED VARIABLE g_batch AS LOGICAL NO-UNDO.
-DEFINE NEW SHARED VARIABLE g_batch-rowid AS rowid NO-UNDO.
+DEFINE NEW SHARED VARIABLE g_batch-rowid AS ROWID NO-UNDO.
 DEFINE NEW SHARED VARIABLE miscflds_reckey AS CHARACTER.
 DEFINE NEW SHARED VARIABLE table_reckey AS CHARACTER.
 DEFINE NEW SHARED VARIABLE persistent-handle AS HANDLE.
@@ -872,6 +872,7 @@ PROCEDURE ipPreRun :
     
     RUN epUpdateUsrFile IN hPreRun (OUTPUT cUsrList).
     RUN ipUpdUsrFile IN THIS-PROCEDURE (cUsrList).
+    RUN ipGetUserGroups IN THIS-PROCEDURE.
 
     IF fiUserID:{&SV} = "ASI" THEN RUN asiload.p.
 
@@ -1156,11 +1157,24 @@ PROCEDURE ipUpdUsrFile :
         END.
         OUTPUT STREAM usrStream CLOSE.
     END.
-                
-    
     
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipSetUserGroups C-Win
+PROCEDURE ipGetUserGroups:
+    g_groups = "".
+    FOR EACH usergrps NO-LOCK:
+        IF CAN-DO(usergrps.users,USERID(LDBNAME(1))) THEN
+            g_groups = g_groups + usergrps.usergrps + ",".
+    END.
+    g_groups = TRIM(g_groups,",").
+    
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
