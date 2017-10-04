@@ -266,7 +266,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
       if last(ap-sel.inv-no) then do: 
         display ap-chk.check-date ctot with frame b3.
                /*max-per-chk = 12 */
-        put skip(15 - lv-line-cnt ).
+        put skip(12 - lv-line-cnt ).
         IF v-print-fmt = "asi2000" THEN PUT SKIP(1).
 
         assign
@@ -276,7 +276,7 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
          cgross = 0
          dol    = "".
       end. 
-      ELSE IF ll-void THEN PUT SKIP(17 - lv-line-cnt) /* no total frame b3 */.
+      ELSE IF ll-void THEN PUT SKIP(14 - lv-line-cnt) /* no total frame b3 */.
 
       ll = 0.
     end.
