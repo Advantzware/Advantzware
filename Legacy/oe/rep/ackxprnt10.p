@@ -305,7 +305,7 @@ find first company where company.company eq cocode no-lock no-error.
          v-line = v-line + 1
          v-printline = v-printline + 1.
       */
-        if v-printline ge lv-line-print then
+        if v-printline GT lv-line-print then
         do:
             PAGE .
             {oe/rep/ackxprnt10.i}
@@ -348,7 +348,7 @@ find first company where company.company eq cocode no-lock no-error.
 
         v-totord = v-totord + v-totlin.
   
-        if v-printline ge lv-line-print then
+        if v-printline GT lv-line-print then
         do:
             PAGE .
             {oe/rep/ackxprnt10.i}
@@ -371,7 +371,7 @@ find first company where company.company eq cocode no-lock no-error.
                     PUT v-inst[i] SKIP.
                     v-printline = v-printline + 1.
                  END.
-                 if v-printline ge lv-line-print then
+                 if v-printline GT lv-line-print then
                  do:
                     PAGE .
                     {oe/rep/ackxprnt10.i}
@@ -381,13 +381,7 @@ find first company where company.company eq cocode no-lock no-error.
               IF NOT lv-first-note THEN do:
                  PUT SKIP(1).
                  v-printline = v-printline + 1.           
-              END.
-              if v-printline ge lv-line-print then
-              do:
-                 PAGE .
-                 {oe/rep/ackxprnt10.i}
-                 assign v-printline = 20.          
-              end.
+              END.     
            END.
         END.  /* if v-prntinst*/
 
@@ -426,13 +420,8 @@ find first company where company.company eq cocode no-lock no-error.
              .
         PUT SKIP.
         assign v-line = v-line + 1
-          v-printline = v-printline + 2.
-        if v-printline ge lv-line-print then
-        do:
-            PAGE .
-            {oe/rep/ackxprnt10.i}
-            assign v-printline = 20.          
-        end.
+          v-printline = v-printline + 2.   
+        
         if oe-ordm.bill ne "N" THEN assign v-totord = v-totord + oe-ordm.amt.
       end. /* each oe-ordm */
            
@@ -459,12 +448,12 @@ find first company where company.company eq cocode no-lock no-error.
           "THIS IS A CONFIRMATION OF YOUR ORDER,NOT AN INVOICE."
           skip.
 */
-      if v-printline ge lv-line-print then
+      /*if v-printline ge lv-line-print then
       do:
             PAGE .
             {oe/rep/ackxprnt10.i}
             assign v-printline = 20.          
-      end.
+      end.*/
 
       assign
        v-totord        = 0
@@ -497,7 +486,7 @@ PROCEDURE print-rels:
 
 
     DO WITH FRAME sched-rel DOWN:
-          if v-printline ge lv-line-print then
+          if v-printline GT lv-line-print then
           do:
             PAGE .
             {oe/rep/ackxprnt10.i}
@@ -515,7 +504,7 @@ PROCEDURE print-rels:
               v-printline = v-printline + 1.
             end.
           end.
-          if v-printline ge lv-line-print then
+          if v-printline GT lv-line-print then
           do:
             PAGE .
             {oe/rep/ackxprnt10.i}
@@ -545,7 +534,7 @@ PROCEDURE print-rels:
               v-addr4 = shipto.ship-city + ", " +
                         shipto.ship-state + "  " + shipto.ship-zip.
       
-            if v-printline ge lv-line-print  then
+            if v-printline GT lv-line-print  then
             do:
                PAGE .
                {oe/rep/ackxprnt10.i}
@@ -554,7 +543,7 @@ PROCEDURE print-rels:
             IF AVAIL shipto THEN DO:
                 put shipto.ship-name AT 10 SKIP .
                 v-printline = v-printline + 1.
-                if v-printline ge lv-line-print then
+                if v-printline GT lv-line-print then
                 do:
                     PAGE .
                     {oe/rep/ackxprnt10.i}
@@ -563,7 +552,7 @@ PROCEDURE print-rels:
                 IF shipto.ship-addr[1] <> "" THEN DO:
                    PUT shipto.ship-addr[1] AT 10  SKIP.
                    v-printline = v-printline + 1.
-                   if v-printline ge lv-line-print then
+                   if v-printline GT lv-line-print then
                    do:
                       PAGE .
                       {oe/rep/ackxprnt10.i}
@@ -573,7 +562,7 @@ PROCEDURE print-rels:
                 IF shipto.ship-addr[2] <> "" THEN DO:
                     PUT shipto.ship-addr[2] AT 10  SKIP.
                     v-printline = v-printline + 1.
-                    if v-printline ge lv-line-print then
+                    if v-printline GT lv-line-print then
                     do:
                         PAGE .
                         {oe/rep/ackxprnt10.i}
