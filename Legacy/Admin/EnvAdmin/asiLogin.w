@@ -496,7 +496,7 @@ DO:
             c-Win:VISIBLE = FALSE.
         IF NOT cbMode:{&SV} = "Monitor Users" THEN DO:
             /* Set current dir */
-            RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment:{&SV}). 
+            RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment:{&SV} + "\"). 
 
             RUN VALUE(cRunPgm).
         END.

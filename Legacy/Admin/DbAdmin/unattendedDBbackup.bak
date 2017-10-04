@@ -55,7 +55,7 @@ REM     ECHO SHIP database backed up successfully
 REM     ECHO SHIP database backed up successfully >> !logFile!
 REM REM     )
 REM REM CALL !DLC11!\bin\dbman -host %hostname% -port %adminport% -database !shipDBName! -stop > NUL
-REM COPY !shipDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiShip.%backdate%.st > NUL
+COPY !shipDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiShip.%backdate%.st > NUL
 
 ECHO Completed unattended backup >> !logFile!
 ECHO ------------------------------------------------------ >> !logFile!
