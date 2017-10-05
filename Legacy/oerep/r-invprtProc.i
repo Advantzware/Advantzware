@@ -722,7 +722,6 @@ PROCEDURE runReport5:
                         RUN SetInvForm(vcDefaultForm).
                     v-print-fmt = vcDefaultForm.
                 END.
-
                 RUN run-report(buf-{&head}.cust-no,buf-{&head}.sold-no, TRUE).
                 RUN GenerateReport IN hCallingProc (INPUT lv-fax-type,
                     INPUT buf-{&head}.cust-no,
@@ -1104,10 +1103,12 @@ PROCEDURE build-list1:
         ) 
         AND (IF "{&head}" EQ "ar-inv" THEN {&head}.inv-date GE begin_date
         AND {&head}.inv-date LE end_date ELSE TRUE)        
-        AND (((NOT v-reprint) AND {&head}.inv-no EQ 0) OR
-        (v-reprint AND {&head}.inv-no NE 0 AND
-        {&head}.inv-no        GE finv AND
-        {&head}.inv-no        LE tinv)),
+        AND (    (v-reprint EQ NO
+                     AND ({&head}.inv-no EQ 0 
+                           OR ("{&head}" EQ "ar-inv" AND {&head}.printed EQ NO)))
+                  OR (v-reprint EQ YES AND {&head}.inv-no NE 0 
+                     AND {&head}.inv-no        GE finv 
+                     AND {&head}.inv-no        LE tinv )),
         FIRST cust
         WHERE cust.company EQ cocode
         AND cust.cust-no EQ {&head}.cust-no
@@ -1129,7 +1130,7 @@ PROCEDURE build-list1:
             
         IF NOT ( ({&head}.{&multiinvoice} EQ NO AND AVAILABLE(oe-boll)) OR {&head}.{&multiinvoice} )  THEN 
         DO:
-            IF "{&head}" EQ "inv-head" AND AVAIL(buf-{&line}) THEN                 
+            IF "{&head}" EQ "inv-head" AND AVAIL(buf-{&line}) THEN
                 NEXT.            
         END.
 
@@ -1217,7 +1218,6 @@ PROCEDURE run-report :
 
     FIND FIRST tt-list NO-ERROR.
     
-
     IF NOT AVAILABLE tt-list THEN
         RUN build-list1 (
             ip-cust-no,
