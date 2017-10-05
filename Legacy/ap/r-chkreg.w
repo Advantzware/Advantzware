@@ -1316,7 +1316,7 @@ IF tb_APcheckFile THEN DO:
         TRIM(vend.name) 
        ELSE FILL(" ",10)                        ","            /* Payee NAME     */
 
-     TRIM(STRING(v-amt-paid,"->>,>>>,>>9.99"))         ","      /* Amount         */  
+     TRIM(STRING(v-amt-paid,"->>>>>>>9.99"))         ","      /* Amount         */  
      IF v-check-date NE ? 
         THEN STRING(v-check-date,"99/99/9999")   
         ELSE "00000000"                                        /* Issue Date     */
