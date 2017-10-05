@@ -409,9 +409,9 @@ PROCEDURE ipReposition :
   Notes:       
 ------------------------------------------------------------------------------*/
     DEF INPUT PARAMETER iprRowid AS ROWID NO-UNDO.
-    QUERY BROWSER-TABLE:REPOSITION-TO-ROWID(iprRowid).
-    APPLY "value-changed" TO BROWSE {&browse-name}.
-    APPLY "entry" TO BROWSE {&browse-name}.
+    REPOSITION {&browse-name} TO ROWID iprRowid NO-ERROR.  
+    RUN dispatch ('row-changed').
+    APPLY "value-changed" TO {&browse-name} IN FRAME {&FRAME-NAME}.
     
 END PROCEDURE.
 
