@@ -21,7 +21,7 @@ DEF SHARED VAR s-group-notes AS LOG NO-UNDO.
 DEF VAR v-wid AS DEC format ">>9.99<<" NO-UNDO.
 DEF VAR v-dep AS DEC format ">>9.99<<" NO-UNDO.    
 DEF VAR v-basis-w AS DEC NO-UNDO.
-DEF VAR v-len AS DEC FORM "->,>>9.9999" NO-UNDO.
+DEF VAR v-len AS DEC FORM "->>9.99<<" NO-UNDO.
 DEF var v-wid2 like po-ordl.s-wid format ">>9.99<<" no-undo. /* for recalc extened cost */
 def var v-len2 like po-ordl.s-len format ">>9.99<<" no-undo. /* for recalc extened cost */
 def var pol-counter as int no-undo.
@@ -597,13 +597,13 @@ v-printline = 0.
           IF AVAIL ITEM AND ITEM.mat-type EQ "B" AND ITEM.industry = "2" AND  ITEM.flute NE "" AND ITEM.reg-no NE "" THEN
           ASSIGN cFlueTest = string(lv-flute,"x(13)") + string(lv-reg-no,"x(10)").
           ELSE
-              ASSIGN cFlueTest = "Core Dia: " + string(dCoreDia,">,>>9.99<<")
+              ASSIGN cFlueTest = IF dCoreDia GT 0 THEN "Core Dia: " + string(dCoreDia,">,>>9.99<<") ELSE ""
                      dCoreDia = 0.
 
         IF v-wid GT 0 THEN DO:
           PUT "W: " AT 25 FNmetric(v-wid, v-wid2, "W") FORMAT "x(8)" SPACE(1).
           IF v-len GT 0 THEN
-          PUT "L: "  FNmetric(v-len, v-len2, "L") FORMAT "x(8)" SPACE(1).
+          PUT "L: "  FNmetric(v-len, v-len2, "L") FORMAT "x(10)" SPACE(1).
          IF lv-dep GT 0 THEN
           PUT "D: "  FNmetric(lv-dep, lv-dep2, "D") FORMAT "x(8)" SPACE(1).
         END.
