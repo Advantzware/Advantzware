@@ -1122,7 +1122,7 @@ PROCEDURE build-list1:
             NO-ERROR.
             
         IF AVAIL buf-{&line} THEN 
-            FIND FIRST oe-boll WHERE oe-boll.b-no EQ buf-{&line}.{&bno}
+            FIND FIRST oe-boll NO-LOCK WHERE oe-boll.b-no EQ buf-{&line}.{&bno}
             AND oe-boll.bol-no GE fbol
             AND oe-boll.bol-no LE tbol 
             NO-ERROR. 
@@ -1251,7 +1251,7 @@ PROCEDURE run-report :
             NO-ERROR.
             
         IF AVAIL buf-{&line} THEN 
-            FIND FIRST oe-boll WHERE oe-boll.b-no EQ buf-{&line}.{&bno}
+            FIND FIRST oe-boll NO-LOCK WHERE oe-boll.b-no EQ buf-{&line}.{&bno}
               AND oe-boll.bol-no GE fbol
               AND oe-boll.bol-no LE tbol 
             NO-ERROR. 
@@ -1391,7 +1391,7 @@ IF vcInvNums MATCHES '*-*' THEN
     vcInvNums = RIGHT-TRIM (SUBSTRING (vcInvNums, 1, INDEX (vcInvNums,'-')), '-') + SUBSTRING (vcInvNums, R-INDEX (vcInvNums, '-')).
 
 /* update loadtag status - Bill of lading task#: 10190414 */
-IF NOT {&head}.printed THEN
+IF NOT {&head}.printed AND "{&head}" EQ "inv-head" THEN
     FOR EACH bf-{&line}  WHERE bf-{&line}.{&rno} EQ {&head}.{&rno} NO-LOCK:
         FOR EACH oe-boll WHERE oe-boll.company EQ bf-{&line}.company
             AND oe-boll.b-no    EQ bf-{&line}.{&bno}
@@ -1513,7 +1513,7 @@ DO:
                                 cActualPDF = lv-pdf-file + vcInvNums + ".pdf".
                             END.
                             ELSE 
-                            DO: 
+                            DO:           
                                 IF "{&head}" EQ "ar-inv" THEN
                                   PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcInvNums + ".pdf>" FORM "x(180)".
                                 ELSE
@@ -1627,17 +1627,10 @@ PROCEDURE SendMail-1:
     DO: 
         IF "{&head}" EQ "ar-inv" AND v-print-fmt NE "Southpak-xl" AND v-print-fmt NE "PrystupExcel"  THEN 
         DO:
-            /* RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22"). */
-            /* For AR printing, preview the file before email */
-            IF is-xprint-form THEN 
-            DO:
-                FILE-INFO:FILE-NAME = list-name.
-                RUN printfile (FILE-INFO:FILE-NAME).
-            END.
-            ELSE
+            IF NOT is-xprint-form THEN 
                 RUN custom/scr-rpt2.w (list-name,c-win-TITLE,int(lv-font-no),lv-ornt,lv-prt-bypass).
         END.
-
+  
         IF NOT is-xprint-form AND NOT v-print-fmt EQ "Southpak-xl" AND NOT v-print-fmt EQ "PrystupExcel" THEN 
         DO:
 
@@ -1656,6 +1649,7 @@ PROCEDURE SendMail-1:
 
         ELSE
             IF v-print-fmt NE "Southpak-XL" AND v-print-fmt <> "PrystupExcel" THEN DO:
+                RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
                 list-name = lv-pdf-file.
             END.
             ELSE
