@@ -2,7 +2,7 @@
  
    put 
          "<FArial>"  SKIP
-          "<P14><C+40><B>Bill Of Lading</B>     Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" SKIP .
+          "<P14><C+40><B>Bill Of Lading</B>     "/*Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)"*/ SKIP .
           if NOT lBroker THEN DO:
             Put "<C2><R2><#1><R+10><C+37><IMAGE#1=" ls-full-img1  SKIP .
 	   END.
