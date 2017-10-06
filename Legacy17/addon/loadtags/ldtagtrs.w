@@ -34,6 +34,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+{methods/prgsecur.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
