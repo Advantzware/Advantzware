@@ -506,15 +506,18 @@ PROCEDURE get-defaults :
     END.
    
     IF prep.cust-no NE "" THEN
-       FOR EACH cust FIELDS(NAME)
+       FOR EACH cust FIELDS(cust-no NAME)
            WHERE cust.company EQ prep.company
              AND cust.cust-no  EQ prep.cust-no
            NO-LOCK:
-         prep.cust-name = cust.name.
+         prep.cust-name = cust.name. 
+         ASSIGN
+             prep.owner[1]   = cust.cust-no
+             prep.owner-%[1] = 100.
          LEAVE.
        END.
 
-    FOR EACH cust FIELDS(cust-no rec_key)
+    /*FOR EACH cust FIELDS(cust-no rec_key)
         WHERE cust.company EQ prep.company
           AND cust.active  EQ "X"
         NO-LOCK
@@ -523,7 +526,7 @@ PROCEDURE get-defaults :
        prep.owner[1]   = cust.cust-no
        prep.owner-%[1] = 100.
       LEAVE.
-    END.
+    END.*/ /* ticket 23653 */
     
     RUN  est/calcMatType.p (INPUT io-code1, OUTPUT cMatTypeSearch).
     
@@ -558,10 +561,10 @@ PROCEDURE get-defaults :
        prep.loc       = b-prep.loc
        prep.simon     = b-prep.simon
        prep.mkup      = b-prep.mkup
-       prep.owner[1]     = b-prep.owner[1]
+       /*prep.owner[1]     = b-prep.owner[1]
        prep.owner-%[1]   = b-prep.owner-%[1]
-      prep.owner[2]     = b-prep.owner[2]
-      prep.owner-%[2]   = b-prep.owner-%[2]
+       prep.owner[2]     = b-prep.owner[2]
+       prep.owner-%[2]   = b-prep.owner-%[2]*/ /* ticket 23653 */
        .  
        
       IF cDefaultFromPrep GT "" THEN DO:
