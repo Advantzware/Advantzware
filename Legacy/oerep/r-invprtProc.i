@@ -1543,7 +1543,7 @@ ELSE IF v-print-fmt EQ "1/2 Page" AND rd-dest = 6 THEN
         PUT CONTROL CHR(18).
     END.
 
-    ELSE IF LOOKUP(v-print-fmt,"BlueRX,ColoniaX,ABC,Knight,Knight1,Central,Rosmar,ACPI,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree") > 0 THEN 
+    ELSE IF LOOKUP(v-print-fmt,"BlueRX,ColoniaX,ABC,Nosco,Nosco1,Central,Rosmar,ACPI,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree") > 0 THEN 
         DO:
             RUN value(v-program) (""). 
             v-reprint = YES.
@@ -2323,12 +2323,12 @@ PROCEDURE SetInvForm:
                 v-program      = "oe/rep/invhpb.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
-        WHEN "Knight" THEN
+        WHEN "Nosco" THEN
             ASSIGN
                 v-program      = "oe/rep/invknight.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
-        WHEN "Knight1" THEN
+        WHEN "Nosco1" THEN
             ASSIGN
                 v-program      = "oe/rep/invknight1.p"
                 lines-per-page = 66
@@ -2887,7 +2887,7 @@ PROCEDURE SetInvPostForm:
             ASSIGN
                 v-program      = "oe/rep/invilwalkp.p"
                 lines-per-page = 55.
-        WHEN "Knight" THEN
+        WHEN "Nosco" THEN
             ASSIGN
                 v-program      = "ar/rep/invknight.p"
                 lines-per-page = 66
@@ -2902,7 +2902,7 @@ PROCEDURE SetInvPostForm:
                 v-program      = "ar/rep/invandrop.p"   
                 lines-per-page = 66
                 is-xprint-form = YES.
-        WHEN "Knight1" THEN
+        WHEN "Nosco1" THEN
             ASSIGN
                 v-program      = "ar/rep/invknight1.p"
                 lines-per-page = 66

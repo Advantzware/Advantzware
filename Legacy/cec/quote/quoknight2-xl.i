@@ -1,5 +1,11 @@
   /* Quote# */
   
+   mypict = chExcelApplication:Range("A1"):Parent:Pictures:Insert(ls-full-img1).
+   mypict:TOP = chExcelApplication:Range("A1"):TOP.
+   mypict:LEFT = chExcelApplication:Range("A1"):LEFT.
+   mypict:HEIGHT = 85.          
+   RELEASE OBJECT mypict.   
+     
   ASSIGN v-cell = "R1C5".
   chExcelApplication:Goto(v-cell) NO-ERROR.
   ASSIGN chExcelApplication:ActiveCell:Value = v-first-q-no

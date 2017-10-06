@@ -255,7 +255,7 @@
              v-program = "oe/rep/bolora2.p"
              is-xprint-form = YES
              lines-per-page = 64.
-       WHEN "Knight" THEN
+       WHEN "NOSCO" THEN
           ASSIGN
              v-program = "oe/rep/bolkni.p"
              is-xprint-form = YES
