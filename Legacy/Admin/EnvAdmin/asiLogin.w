@@ -835,7 +835,7 @@ PROCEDURE ipConnectDb :
                   " -P " + cPassword + 
                   " -ct 2") NO-ERROR.
     IF LDBNAME(1) = ? THEN DO:
-        cStatement = REPLACE(cStatement,cHostName,"LOCALHOST").
+        cStatement = REPLACE(cStatement,"-H " + cHostName,"-H LOCALHOST").
         CONNECT VALUE(cStatement + 
                       " -U " + cUser + 
                       " -P " + cPassword) NO-ERROR.
