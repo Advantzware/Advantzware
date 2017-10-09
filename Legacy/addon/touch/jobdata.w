@@ -122,15 +122,12 @@ Btn_Waste Btn_complete Btn_ReSet_Time Btn_Set_Time Btn_Accept Btn_Cancel
 
 /* ************************  Function Prototypes ********************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getNumForms s-object
-FUNCTION getNumForms RETURNS INTEGER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD getNumForms s-object 
+FUNCTION getNumForms RETURNS INTEGER
   (  ) FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD setTimerStatus s-object 
 FUNCTION setTimerStatus RETURNS CHARACTER
@@ -404,8 +401,8 @@ CREATE CONTROL-FRAME CtrlFrame ASSIGN
        COLUMN          = 103
        HEIGHT          = 4.76
        WIDTH           = 20
-       HIDDEN          = YES
-       SENSITIVE       = YES.
+       HIDDEN          = yes
+       SENSITIVE       = yes.
 
 PROCEDURE adm-create-controls:
       CtrlFrame:NAME = "CtrlFrame":U .
@@ -3863,9 +3860,8 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getNumForms s-object
-FUNCTION getNumForms RETURNS INTEGER 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION getNumForms s-object 
+FUNCTION getNumForms RETURNS INTEGER
   (  ):
     /*------------------------------------------------------------------------------
      Purpose:
@@ -3912,11 +3908,9 @@ FUNCTION getNumForms RETURNS INTEGER
     RETURN iFormCnt.
 
 END FUNCTION.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION setTimerStatus s-object 
 FUNCTION setTimerStatus RETURNS CHARACTER
