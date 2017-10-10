@@ -53,6 +53,7 @@ DEFINE TEMP-TABLE ttTempJob
     FIELD Caliper      AS CHARACTER
     FIELD Structure    AS CHARACTER
     FIELD Board        AS CHARACTER
+    FIELD FgCategory   AS CHARACTER
     .
  
 DEFINE VARIABLE cocode AS CHARACTER NO-UNDO.
@@ -141,7 +142,8 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                     ttTempjob.FGItemCode = itemfg.i-no
                     ttTempjob.FGName     = itemfg.i-name
                     ttTempjob.CustPart   = itemfg.part-no
-                    ttTempjob.ItemStatus = (IF itemfg.stat EQ "A" THEN "Active" ELSE "Inactive")             
+                    ttTempjob.ItemStatus = (IF itemfg.stat EQ "A" THEN "Active" ELSE "Inactive") 
+                    ttTempjob.FgCategory = itemfg.procat-desc
                     .
                 IF AVAILABLE cust THEN 
                     ASSIGN ttTempjob.customerID   = cust.cust-no
@@ -206,7 +208,8 @@ DO:
             RUN XMLOutput (lXMLOutput,'Product','','Row').
                 RUN XMLOutput (lXMLOutput,'FGItemCode', ttTempjob.FGItemCode,'Col').
                 RUN XMLOutput (lXMLOutput,'FGName'    , ttTempjob.FGName,'Col').
-                RUN XMLOutput (lXMLOutput,'CustPart'  , ttTempjob.CustPart,'Col').     
+                RUN XMLOutput (lXMLOutput,'CustPart'  , ttTempjob.CustPart,'Col').    
+                RUN XMLOutput (lXMLOutput,'FGCategory', ttTempjob.FgCategory,'Col').
                 RUN XMLOutput (lXMLOutput,'ItemStatus', ttTempjob.ItemStatus,'Col').  
                 
                 EMPTY TEMP-TABLE ttUDF.
