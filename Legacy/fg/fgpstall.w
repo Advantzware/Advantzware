@@ -260,6 +260,26 @@ FUNCTION fnCheckSys RETURNS LOGICAL
 
 
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnValidateFgAssembly C-Win
+FUNCTION fnValidateFgAssembly RETURNS LOGICAL 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fnValidateTransfers C-Win
+FUNCTION fnValidateTransfers RETURNS LOGICAL 
+  (  ) FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-act-rel-qty C-Win 
 FUNCTION get-act-rel-qty RETURNS INTEGER
   ( /* parameter-definitions */ )  FORWARD.
@@ -2760,18 +2780,16 @@ PROCEDURE fg-post :
     IF not fnCheckSys("INVDATE") THEN
         RETURN.
     
-  RUN validateFgAssembly.
-  IF ERROR-STATUS:ERROR THEN DO:
+  IF NOT fnValidateFgAssembly() THEN DO:
     MESSAGE "Error: Invalid FG Assembly Bin"
     VIEW-AS ALERT-BOX. 
     RETURN.
   END.
     
-  RUN validateTransfers.
-    IF ERROR-STATUS:ERROR THEN do:
-        message "Error: Invalid Transfer" view-as alert-box.
+  IF NOT fnValidateTransfers() THEN DO:     
         RETURN.
-    END.
+  END.
+  
   /* return temp-table w-job for processing */
   RUN fg/fgpostBatch.p (
       INPUT v-post-date,
@@ -4149,57 +4167,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateFgAssembly C-Win
-PROCEDURE validateFgAssembly:
-    /*------------------------------------------------------------------------------
-     Purpose:
-     Notes:
-    ------------------------------------------------------------------------------*/
-  DEFINE VARIABLE iRNo AS INTEGER NO-UNDO.
-  DEFINE BUFFER b-w-fg-rctd FOR w-fg-rctd.
-  DEFINE VARIABLE lSucceeded AS LOGICAL NO-UNDO.
-    FOR EACH b-w-fg-rctd WHERE b-w-fg-rctd.qty LT 0,
-        EACH reftable NO-LOCK WHERE reftable.reftable EQ "fg-rctd.user-id" 
-        AND reftable.company  EQ b-w-fg-rctd.company 
-        AND reftable.loc      EQ STRING(b-w-fg-rctd.r-no,"9999999999")        
-        /* AND (reftable.dscr EQ "fg-rctd: " + STRING(w-fg-rctd.r-no, "9999999999") AND reftable.dscr BEGINS "fg-rctd: ") */  
-        USE-INDEX loc    .
-      
-        iRNo = INTEGER(SUBSTRING(reftable.dscr, 9, 11)) NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN 
-          iRNo = INTEGER(SUBSTRING(reftable.dscr, 1, 11)) NO-ERROR.
-        IF ERROR-STATUS:ERROR = NO THEN do:
-            FIND FIRST w-fg-rctd NO-LOCK WHERE w-fg-rctd.r-no EQ iRNo NO-ERROR. 
-        end.
-        IF NOT AVAILABLE w-fg-rctd THEN 
-            NEXT. 
-      
-        FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = w-fg-rctd.row-id  NO-ERROR.
-        FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode 
-            AND itemfg.i-no    EQ w-fg-rctd.i-no
-            NO-ERROR.
-
-        IF AVAIL fg-rctd  THEN 
-        DO:
-            /*##BL - FGSetAssembly requires the bin to match that of the character*/
-            /*##BL of FGSetAssembly N-K.  If it doesn't, abort posting  */
-            IF lFGSetAssembly 
-                AND fg-rctd.loc-bin NE cFGSetAssembly 
-                AND avail(itemfg) 
-                AND itemfg.alloc  EQ NO THEN 
-                  RETURN ERROR.
-
-        END.
-        RELEASE fg-rctd.
-        ASSIGN lSucceeded = YES NO-ERROR.
-    END.
-
-
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ValidateFGItemRange C-Win 
@@ -4245,13 +4212,106 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE validateTransfers C-Win
-PROCEDURE validateTransfers:
+
+/* ************************  Function Implementations ***************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnCheckSys C-Win
+FUNCTION fnCheckSys RETURNS LOGICAL  
+    (INPUT cNK1 AS CHARACTER   ):
     /*------------------------------------------------------------------------------
      Purpose:
      Notes:
     ------------------------------------------------------------------------------*/
-    /* Check for invalid transfers */
+    DEFINE VARIABLE result AS LOGICAL NO-UNDO.
+    FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
+        AND sys-ctrl.name EQ cNK1
+        NO-ERROR.
+    IF NOT AVAILABLE sys-ctrl THEN 
+        MESSAGE "Warning: NK1 Missing" cNK1
+            VIEW-AS ALERT-BOX.
+    RESULT = AVAILABLE  sys-ctrl.        
+
+    RETURN result.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnValidateFgAssembly C-Win
+FUNCTION fnValidateFgAssembly RETURNS LOGICAL 
+    (  ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/
+
+
+    DEFINE VARIABLE iRNo AS INTEGER NO-UNDO.
+    DEFINE BUFFER b-w-fg-rctd FOR w-fg-rctd.
+    DEFINE VARIABLE lSucceeded AS LOGICAL NO-UNDO.
+    
+    lSucceeded = YES.
+    FOR EACH b-w-fg-rctd WHERE b-w-fg-rctd.qty LT 0,
+        EACH reftable NO-LOCK WHERE reftable.reftable EQ "fg-rctd.user-id" 
+        AND reftable.company  EQ b-w-fg-rctd.company 
+        AND reftable.loc      EQ STRING(b-w-fg-rctd.r-no,"9999999999")        
+        /* AND (reftable.dscr EQ "fg-rctd: " + STRING(w-fg-rctd.r-no, "9999999999") AND reftable.dscr BEGINS "fg-rctd: ") */  
+        USE-INDEX loc    .
+      
+        iRNo = INTEGER(SUBSTRING(reftable.dscr, 9, 11)) NO-ERROR.
+        IF ERROR-STATUS:ERROR THEN 
+          iRNo = INTEGER(SUBSTRING(reftable.dscr, 1, 11)) NO-ERROR.
+        IF ERROR-STATUS:ERROR = NO THEN do:
+            FIND FIRST w-fg-rctd NO-LOCK WHERE w-fg-rctd.r-no EQ iRNo NO-ERROR. 
+        end.
+        IF NOT AVAILABLE w-fg-rctd THEN 
+            NEXT. 
+      
+        FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = w-fg-rctd.row-id  NO-ERROR.
+        FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode 
+            AND itemfg.i-no    EQ w-fg-rctd.i-no
+            NO-ERROR.
+
+        IF AVAIL fg-rctd  THEN 
+        DO:
+            /*##BL - FGSetAssembly requires the bin to match that of the character*/
+            /*##BL of FGSetAssembly N-K.  If it doesn't, abort posting  */
+            IF lFGSetAssembly 
+                AND fg-rctd.loc-bin NE cFGSetAssembly 
+                AND avail(itemfg) 
+                AND itemfg.alloc  EQ NO THEN 
+                  lSucceeded = NO.
+
+        END.
+        RELEASE fg-rctd.
+        
+    END.
+    
+    RETURN lSucceeded.
+    
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnValidateTransfers C-Win
+FUNCTION fnValidateTransfers RETURNS LOGICAL 
+  (  ):
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE lTransferResult AS LOGICAL NO-UNDO.
+    
+    lTransferResult = TRUE.
     FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code = "T"
         BY w-fg-rctd.tag
         BY w-fg-rctd.rct-date
@@ -4263,9 +4323,9 @@ PROCEDURE validateTransfers:
             itemfg.i-no    EQ w-fg-rctd.i-no) THEN
             NEXT.
         FIND FIRST itemfg NO-LOCK 
-               WHERE itemfg.company EQ cocode 
-                 AND itemfg.i-no    EQ w-fg-rctd.i-no
-               NO-ERROR.
+            WHERE itemfg.company EQ cocode 
+            AND itemfg.i-no    EQ w-fg-rctd.i-no
+            NO-ERROR.
         IF NOT AVAILABLE itemfg THEN NEXT.
         
         FIND FIRST fg-bin WHERE fg-bin.company EQ cocode
@@ -4286,7 +4346,7 @@ PROCEDURE validateTransfers:
                 "  Tag = " w-fg-rctd.tag SKIP
                 "Please correct and re-run the posting process." SKIP
                 VIEW-AS ALERT-BOX INFO BUTTONS OK.
-            RETURN "Invalid Location".
+            lTransferResult = FALSE.
         END.
         ELSE IF fg-bin.pur-uom EQ "" THEN 
             DO:
@@ -4297,44 +4357,18 @@ PROCEDURE validateTransfers:
                     "  Tag = " w-fg-rctd.tag SKIP
                     "Please correct and re-run the posting process." SKIP
                     VIEW-AS ALERT-BOX INFO BUTTONS OK.
-                RETURN "Invalid Location".          
+                lTransferResult = FALSE.          
             END.
             ELSE IF itemfg.prod-uom EQ "" THEN 
                 DO:
                     MESSAGE "A blank cost UOM exists for item " w-fg-rctd.i-no SKIP
                         "Please correct and re-run the posting process." SKIP
                         VIEW-AS ALERT-BOX INFO BUTTONS OK.
-                    RETURN "Invalid Location".          
+                    lTransferResult = FALSE.           
                 END.
     END.
 
-END PROCEDURE.
-	
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-/* ************************  Function Implementations ***************** */
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fnCheckSys C-Win
-FUNCTION fnCheckSys RETURNS LOGICAL  
-  (INPUT cNK1 AS CHARACTER   ):
-/*------------------------------------------------------------------------------
- Purpose:
- Notes:
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE result AS LOGICAL NO-UNDO.
-    FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
-        AND sys-ctrl.name    EQ cNK1
-        NO-ERROR.
-    IF NOT AVAILABLE sys-ctrl THEN 
-      MESSAGE "Warning: NK1 Missing" cNK1
-              VIEW-AS ALERT-BOX.
-    RESULT = AVAILABLE  sys-ctrl.
-        
-
-	RETURN result.
+	RETURN lTransferResult.
 
 END FUNCTION.
 	
