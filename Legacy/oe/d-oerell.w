@@ -3,8 +3,8 @@
 /* Connected Databases 
           asi              PROGRESS
 */
-&SCOPED-DEFINE WINDOW-NAME CURRENT-WINDOW
-&SCOPED-DEFINE FRAME-NAME Dialog-Frame
+&Scoped-define WINDOW-NAME CURRENT-WINDOW
+&Scoped-define FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
 /*------------------------------------------------------------------------
   File: po\d-poordl.w
@@ -59,58 +59,58 @@ DEFINE BUFFER bf-ordl FOR oe-ordl.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &ANALYZE-SUSPEND _UIB-PREPROCESSOR-BLOCK 
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE DIALOG-BOX
-&SCOPED-DEFINE DB-AWARE no
+&Scoped-define PROCEDURE-TYPE DIALOG-BOX
+&Scoped-define DB-AWARE no
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&SCOPED-DEFINE FRAME-NAME Dialog-Frame
+&Scoped-define FRAME-NAME Dialog-Frame
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&SCOPED-DEFINE INTERNAL-TABLES oe-rell oe-ordl
+&Scoped-define INTERNAL-TABLES oe-rell oe-ordl
 
 /* Definitions for DIALOG-BOX Dialog-Frame                              */
-&SCOPED-DEFINE FIELDS-IN-QUERY-Dialog-Frame oe-rell.ord-no oe-rell.i-no ~
-oe-rell.po-no oe-rell.qty oe-rell.tag oe-rell.loc oe-rell.loc-bin ~
-oe-rell.job-no oe-rell.job-no2 oe-rell.cust-no oe-rell.cases ~
+&Scoped-define FIELDS-IN-QUERY-Dialog-Frame oe-rell.ord-no oe-rell.i-no ~
+oe-rell.po-no oe-rell.tag oe-rell.loc oe-rell.loc-bin oe-rell.job-no ~
+oe-rell.job-no2 oe-rell.cust-no oe-rell.qty oe-rell.cases oe-rell.qty-case ~
+oe-rell.partial oe-rell.rel-no oe-rell.b-ord-no oe-rell.s-code ~
+oe-rell.link-no 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame oe-rell.ord-no ~
+oe-rell.i-no oe-rell.po-no oe-rell.tag oe-rell.loc oe-rell.loc-bin ~
+oe-rell.job-no oe-rell.job-no2 oe-rell.cust-no oe-rell.qty oe-rell.cases ~
 oe-rell.qty-case oe-rell.partial oe-rell.rel-no oe-rell.b-ord-no ~
 oe-rell.s-code oe-rell.link-no 
-&SCOPED-DEFINE ENABLED-FIELDS-IN-QUERY-Dialog-Frame oe-rell.ord-no ~
-oe-rell.i-no oe-rell.po-no oe-rell.qty oe-rell.tag oe-rell.loc ~
-oe-rell.loc-bin oe-rell.job-no oe-rell.job-no2 oe-rell.cust-no ~
-oe-rell.cases oe-rell.qty-case oe-rell.partial  ~
- oe-rell.s-code 
-&SCOPED-DEFINE ENABLED-TABLES-IN-QUERY-Dialog-Frame oe-rell
-&SCOPED-DEFINE FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame oe-rell
-&SCOPED-DEFINE QUERY-STRING-Dialog-Frame FOR EACH oe-rell ~
-      WHERE oe-rell.company EQ cocode  SHARE-LOCK
-&SCOPED-DEFINE OPEN-QUERY-Dialog-Frame OPEN QUERY Dialog-Frame FOR EACH oe-rell ~
-      WHERE oe-rell.company EQ cocode  SHARE-LOCK.
-&SCOPED-DEFINE TABLES-IN-QUERY-Dialog-Frame oe-rell oe-ordl
-&SCOPED-DEFINE FIRST-TABLE-IN-QUERY-Dialog-Frame oe-rell
-&SCOPED-DEFINE SECOND-TABLE-IN-QUERY-Dialog-Frame oe-ordl
+&Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame oe-rell
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame oe-rell
+&Scoped-define QUERY-STRING-Dialog-Frame FOR EACH oe-rell ~
+      WHERE oe-rell.company eq cocode  SHARE-LOCK
+&Scoped-define OPEN-QUERY-Dialog-Frame OPEN QUERY Dialog-Frame FOR EACH oe-rell ~
+      WHERE oe-rell.company eq cocode  SHARE-LOCK.
+&Scoped-define TABLES-IN-QUERY-Dialog-Frame oe-rell oe-ordl
+&Scoped-define FIRST-TABLE-IN-QUERY-Dialog-Frame oe-rell
+&Scoped-define SECOND-TABLE-IN-QUERY-Dialog-Frame oe-ordl
 
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-FIELDS oe-rell.ord-no oe-rell.i-no oe-rell.po-no ~
-oe-rell.qty oe-rell.tag oe-rell.loc oe-rell.loc-bin oe-rell.job-no ~
-oe-rell.job-no2 oe-rell.cust-no oe-rell.cases oe-rell.qty-case ~
-oe-rell.partial oe-rell.s-code 
-&SCOPED-DEFINE ENABLED-TABLES oe-rell
-&SCOPED-DEFINE FIRST-ENABLED-TABLE oe-rell
-&SCOPED-DEFINE ENABLED-OBJECTS Btn_Done Btn_Cancel Btn_OK RECT-21 RECT-38 
-&SCOPED-DEFINE DISPLAYED-FIELDS oe-rell.ord-no oe-rell.i-no oe-rell.po-no ~
-oe-rell.qty oe-rell.tag oe-rell.loc oe-rell.loc-bin oe-rell.job-no ~
-oe-rell.job-no2 oe-rell.cust-no oe-rell.cases oe-rell.qty-case ~
-oe-rell.partial oe-rell.rel-no oe-rell.b-ord-no oe-rell.s-code ~
-oe-rell.link-no 
-&SCOPED-DEFINE DISPLAYED-TABLES oe-rell
-&SCOPED-DEFINE FIRST-DISPLAYED-TABLE oe-rell
-&SCOPED-DEFINE DISPLAYED-OBJECTS fi_part-no
-
+&Scoped-Define ENABLED-FIELDS oe-rell.ord-no oe-rell.i-no oe-rell.po-no ~
+oe-rell.tag oe-rell.loc oe-rell.loc-bin oe-rell.job-no oe-rell.job-no2 ~
+oe-rell.cust-no oe-rell.qty oe-rell.cases oe-rell.qty-case oe-rell.partial ~
+oe-rell.rel-no oe-rell.b-ord-no oe-rell.s-code oe-rell.link-no 
+&Scoped-define ENABLED-TABLES oe-rell
+&Scoped-define FIRST-ENABLED-TABLE oe-rell
+&Scoped-Define ENABLED-OBJECTS fi_part-no Btn_OK Btn_Done Btn_Cancel ~
+RECT-21 RECT-38 
+&Scoped-Define DISPLAYED-FIELDS oe-rell.ord-no oe-rell.i-no oe-rell.po-no ~
+oe-rell.tag oe-rell.loc oe-rell.loc-bin oe-rell.job-no oe-rell.job-no2 ~
+oe-rell.cust-no oe-rell.qty oe-rell.cases oe-rell.qty-case oe-rell.partial ~
+oe-rell.rel-no oe-rell.b-ord-no oe-rell.s-code oe-rell.link-no 
+&Scoped-define DISPLAYED-TABLES oe-rell
+&Scoped-define FIRST-DISPLAYED-TABLE oe-rell
+&Scoped-Define DISPLAYED-OBJECTS fi_part-no 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -141,7 +141,7 @@ DEFINE BUTTON Btn_OK
      BGCOLOR 8 .
 
 DEFINE VARIABLE fi_part-no AS CHARACTER FORMAT "X(15)":U 
-     LABEL "Cust Part#"
+     LABEL "Cust Part#" 
      VIEW-AS FILL-IN 
      SIZE 20 BY 1 NO-UNDO.
 
@@ -163,77 +163,77 @@ DEFINE QUERY Dialog-Frame FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     oe-rell.ord-no AT ROW 1.24 COLUMN 29.8 COLON-ALIGNED FORMAT ">>>>>>"
+     oe-rell.ord-no AT ROW 1.24 COL 29.8 COLON-ALIGNED FORMAT ">>>>>>"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     oe-rell.i-no AT ROW 2.43 COLUMN 29.8 COLON-ALIGNED HELP
+     oe-rell.i-no AT ROW 2.43 COL 29.8 COLON-ALIGNED HELP
           ""
-          LABEL "FG Item#" FORMAT "x(15)"
+          LABEL "FG Item#"
           VIEW-AS FILL-IN 
           SIZE 33.6 BY 1
-     oe-rell.po-no AT ROW 3.62 COLUMN 29.8 COLON-ALIGNED FORMAT "x(15)"
+     oe-rell.po-no AT ROW 3.62 COL 29.8 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 33.6 BY 1
-     oe-rell.tag AT ROW 4.76 COLUMN 29.8 COLON-ALIGNED
+     oe-rell.tag AT ROW 4.76 COL 29.8 COLON-ALIGNED
           LABEL "Tag" FORMAT "x(20)"
           VIEW-AS FILL-IN 
           SIZE 33.6 BY 1
-     oe-rell.loc AT ROW 5.91 COLUMN 29.8 COLON-ALIGNED
-          LABEL "Whse" FORMAT "x(5)"
+     oe-rell.loc AT ROW 5.91 COL 29.8 COLON-ALIGNED
+          LABEL "Whse"
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
-     oe-rell.loc-bin AT ROW 7.19 COLUMN 29.8 COLON-ALIGNED
-          LABEL "Bin Loc."  FORMAT "x(8)"
+     oe-rell.loc-bin AT ROW 7.19 COL 29.8 COLON-ALIGNED
+          LABEL "Bin Loc."
           VIEW-AS FILL-IN 
           SIZE 19 BY 1
-     oe-rell.job-no AT ROW 8.48 COLUMN 29.8 COLON-ALIGNED
-          LABEL "Job Number" FORMAT "x(6)"
+     oe-rell.job-no AT ROW 8.48 COL 29.8 COLON-ALIGNED
+          LABEL "Job Number"
           VIEW-AS FILL-IN 
           SIZE 18.6 BY 1
-     oe-rell.job-no2 AT ROW 8.48 COLUMN 48.2 COLON-ALIGNED NO-LABELS FORMAT "99"
-          VIEW-AS FILL-IN  
+     oe-rell.job-no2 AT ROW 8.48 COL 48.2 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     oe-rell.cust-no AT ROW 9.62 COLUMN 29.8 COLON-ALIGNED
-          LABEL "Customer" FORMAT "x(8)"
+     oe-rell.cust-no AT ROW 9.62 COL 29.8 COLON-ALIGNED
+          LABEL "Customer"
           VIEW-AS FILL-IN 
           SIZE 23.6 BY 1
-     oe-rell.qty AT ROW 2.43 COLUMN 85.4 COLON-ALIGNED
+     oe-rell.qty AT ROW 2.43 COL 85.4 COLON-ALIGNED
           LABEL "Qty" FORMAT "->>,>>>,>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     oe-rell.cases AT ROW 3.62 COLUMN 85.4 COLON-ALIGNED
-          LABEL "Units" FORMAT "->>>,>>>"
+     oe-rell.cases AT ROW 3.62 COL 85.4 COLON-ALIGNED
+          LABEL "Units"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     oe-rell.qty-case AT ROW 4.76 COLUMN 85.4 COLON-ALIGNED
-          LABEL "Qty/Unit" FORMAT ">>>,>>>"
+     oe-rell.qty-case AT ROW 4.76 COL 85.4 COLON-ALIGNED
+          LABEL "Qty/Unit"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     oe-rell.partial AT ROW 5.91 COLUMN 85.4 COLON-ALIGNED
-          LABEL "Partial" FORMAT "->>,>>>,>>>"
+     oe-rell.partial AT ROW 5.91 COL 85.4 COLON-ALIGNED
+          LABEL "Partial"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     oe-rell.rel-no AT ROW 7.19 COLUMN 85.4 COLON-ALIGNED
+     oe-rell.rel-no AT ROW 7.19 COL 85.4 COLON-ALIGNED
           LABEL "Rel#"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     oe-rell.b-ord-no AT ROW 7.19 COLUMN 94.6 COLON-ALIGNED NO-LABELS
+     oe-rell.b-ord-no AT ROW 7.19 COL 94.6 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 5 BY 1
-     oe-rell.s-code AT ROW 7.19 COLUMN 106 COLON-ALIGNED
+     oe-rell.s-code AT ROW 7.19 COL 106 COLON-ALIGNED
           LABEL "S/I"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     oe-rell.link-no AT ROW 9.62 COLUMN 85.4 COLON-ALIGNED
-          LABEL "Rel. Seq. #"
+     oe-rell.link-no AT ROW 9.62 COL 85.4 COLON-ALIGNED
+          LABEL "Rel. Seq. #" FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 17 BY 1
-     fi_part-no AT ROW 8.48 COLUMN 85.4 COLON-ALIGNED 
-     Btn_OK AT ROW 13.29 COLUMN 37
-     Btn_Done AT ROW 13.24 COLUMN 57
-     Btn_Cancel AT ROW 13.24 COLUMN 77.2
-     RECT-21 AT ROW 11.71 COLUMN 1
-     RECT-38 AT ROW 1 COLUMN 1
+     fi_part-no AT ROW 8.48 COL 85.4 COLON-ALIGNED
+     Btn_OK AT ROW 13.29 COL 37
+     Btn_Done AT ROW 13.24 COL 57
+     Btn_Cancel AT ROW 13.24 COL 77.2
+     RECT-21 AT ROW 11.71 COL 1
+     RECT-38 AT ROW 1 COL 1
      SPACE(0.99) SKIP(4.14)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -284,7 +284,7 @@ ASSIGN
 /* SETTINGS FOR FILL-IN oe-rell.job-no2 IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-rell.link-no IN FRAME Dialog-Frame
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-rell.loc IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-rell.loc-bin IN FRAME Dialog-Frame
@@ -301,8 +301,6 @@ ASSIGN
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN oe-rell.s-code IN FRAME Dialog-Frame
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN fi_part-no IN FRAME Dialog-Frame
-   exp-label                                                            */
 /* SETTINGS FOR FILL-IN oe-rell.tag IN FRAME Dialog-Frame
    EXP-LABEL EXP-FORMAT                                                 */
 /* _RUN-TIME-ATTRIBUTES-END */
@@ -322,13 +320,13 @@ ASSIGN
 */  /* DIALOG-BOX Dialog-Frame */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
 /* ************************  Control Triggers  ************************ */
 
-&SCOPED-DEFINE SELF-NAME Dialog-Frame
+&Scoped-define SELF-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Dialog-Frame Dialog-Frame
 ON HELP OF FRAME Dialog-Frame /* Order Release Item Update */
 DO:
@@ -431,7 +429,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Cancel
+&Scoped-define SELF-NAME Btn_Cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel Dialog-Frame
 ON CHOOSE OF Btn_Cancel IN FRAME Dialog-Frame /* Cancel */
 DO:
@@ -450,7 +448,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_Done
+&Scoped-define SELF-NAME Btn_Done
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Done Dialog-Frame
 ON CHOOSE OF Btn_Done IN FRAME Dialog-Frame /* Done */
 DO:
@@ -465,7 +463,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME Btn_OK
+&Scoped-define SELF-NAME Btn_OK
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK Dialog-Frame
 ON CHOOSE OF Btn_OK IN FRAME Dialog-Frame /* Save */
 DO:
@@ -569,7 +567,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-rell.cases
+&Scoped-define SELF-NAME oe-rell.cases
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.cases Dialog-Frame
 ON VALUE-CHANGED OF oe-rell.cases IN FRAME Dialog-Frame /* Units */
 DO:
@@ -580,7 +578,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-rell.cust-no
+&Scoped-define SELF-NAME oe-rell.cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.cust-no Dialog-Frame
 ON LEAVE OF oe-rell.cust-no IN FRAME Dialog-Frame /* Customer */
 DO:
@@ -594,7 +592,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-rell.i-no
+&Scoped-define SELF-NAME oe-rell.i-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.i-no Dialog-Frame
 ON LEAVE OF oe-rell.i-no IN FRAME Dialog-Frame /* FG Item# */
 DO:
@@ -610,7 +608,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-rell.job-no
+&Scoped-define SELF-NAME oe-rell.job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.job-no Dialog-Frame
 ON LEAVE OF oe-rell.job-no IN FRAME Dialog-Frame /* Job Number */
 DO:
@@ -624,35 +622,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-rell.loc
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.loc Dialog-Frame
-ON LEAVE OF oe-rell.loc IN FRAME Dialog-Frame /* location */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-rell.loc-bin
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.loc-bin Dialog-Frame
-ON LEAVE OF oe-rell.loc-bin IN FRAME Dialog-Frame /* loc bin  */
-DO:
-  IF LASTKEY NE -1 THEN DO:
-    RUN valid-loc-bin NO-ERROR.
-    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&SCOPED-DEFINE SELF-NAME oe-rell.job-no2
+&Scoped-define SELF-NAME oe-rell.job-no2
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.job-no2 Dialog-Frame
 ON LEAVE OF oe-rell.job-no2 IN FRAME Dialog-Frame /* job-no2 */
 DO:
@@ -666,7 +636,35 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-rell.ord-no
+&Scoped-define SELF-NAME oe-rell.loc
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.loc Dialog-Frame
+ON LEAVE OF oe-rell.loc IN FRAME Dialog-Frame /* Whse */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-loc NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME oe-rell.loc-bin
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.loc-bin Dialog-Frame
+ON LEAVE OF oe-rell.loc-bin IN FRAME Dialog-Frame /* Bin Loc. */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-loc-bin NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME oe-rell.ord-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.ord-no Dialog-Frame
 ON ENTRY OF oe-rell.ord-no IN FRAME Dialog-Frame /* Order# */
 DO:
@@ -729,7 +727,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-rell.partial
+&Scoped-define SELF-NAME oe-rell.partial
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.partial Dialog-Frame
 ON VALUE-CHANGED OF oe-rell.partial IN FRAME Dialog-Frame /* Partial */
 DO:
@@ -740,7 +738,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-rell.po-no
+&Scoped-define SELF-NAME oe-rell.po-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.po-no Dialog-Frame
 ON LEAVE OF oe-rell.po-no IN FRAME Dialog-Frame /* Customer PO */
 DO:
@@ -765,7 +763,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-rell.qty
+&Scoped-define SELF-NAME oe-rell.qty
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.qty Dialog-Frame
 ON LEAVE OF oe-rell.qty IN FRAME Dialog-Frame /* Qty */
 DO:
@@ -776,7 +774,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-rell.qty-case
+&Scoped-define SELF-NAME oe-rell.qty-case
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.qty-case Dialog-Frame
 ON VALUE-CHANGED OF oe-rell.qty-case IN FRAME Dialog-Frame /* Qty/Unit */
 DO:
@@ -787,7 +785,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME oe-rell.s-code
+&Scoped-define SELF-NAME oe-rell.s-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-rell.s-code Dialog-Frame
 ON LEAVE OF oe-rell.s-code IN FRAME Dialog-Frame /* S/I */
 DO:
@@ -925,6 +923,30 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-exist-ord Dialog-Frame 
+PROCEDURE check-exist-ord :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:     return "" to import  or any string  not to import items
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
+DO WITH FRAME {&FRAME-NAME}:
+  IF CAN-FIND(FIRST bf-rell
+               WHERE bf-rell.company EQ oe-relh.company
+                 AND bf-rell.r-no EQ oe-relh.r-no
+                 AND INTEGER(oe-rell.ord-no:SCREEN-VALUE  ) EQ bf-rell.ord-no
+                 AND ROWID(bf-rell) NE ip-rowid) THEN
+     RETURN "Order Exist".
+
+  RETURN "".
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE create-item Dialog-Frame 
 PROCEDURE create-item :
 /*------------------------------------------------------------------------------
@@ -1028,6 +1050,75 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-orditm Dialog-Frame 
+PROCEDURE display-orditm :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
+
+
+  FIND bf-ordl WHERE RECID(bf-ordl) = ip-recid NO-LOCK NO-ERROR.
+  IF NOT AVAILABLE bf-ordl THEN RETURN.
+
+  FIND FIRST oe-ord OF bf-ordl NO-LOCK.
+
+  FIND FIRST oe-rel NO-LOCK
+       WHERE oe-rel.company EQ bf-ordl.company
+         AND oe-rel.ord-no EQ bf-ordl.ord-no
+         AND oe-rel.ship-id EQ oe-relh.ship-id
+         AND oe-rel.rel-date EQ oe-relh.rel-date
+         AND oe-rel.i-no EQ bf-ordl.i-no
+         AND oe-rel.link-no EQ 0
+      NO-ERROR.  
+DO WITH FRAME {&FRAME-NAME}:
+  ASSIGN oe-rell.i-no:screen-value  = STRING(bf-ordl.i-no).
+         oe-rell.qty:SCREEN-VALUE = IF AVAILABLE oe-rel THEN STRING(oe-rel.qty) ELSE STRING(bf-ordl.qty).
+         oe-rell.qty-case:SCREEN-VALUE = STRING(bf-ordl.cas-cnt).
+         oe-rell.job-no:SCREEN-VALUE = STRING(bf-ordl.job-no).
+         oe-rell.job-no2:SCREEN-VALUE = STRING(bf-ordl.job-no2).
+         oe-rell.po-no:SCREEN-VALUE = IF AVAILABLE oe-rel THEN oe-rel.po-no
+                                      ELSE
+                                      IF bf-ordl.po-no NE "" THEN bf-ordl.po-no
+                                      ELSE oe-ord.po-no.
+
+  FIND fg-bin NO-LOCK 
+      WHERE fg-bin.company EQ bf-ordl.company
+      AND fg-bin.i-no EQ bf-ordl.i-no
+      AND fg-bin.loc EQ  oe-rell.loc
+      AND fg-bin.qty EQ INTEGER(oe-rell.qty:SCREEN-VALUE)
+      NO-ERROR.
+  IF AVAILABLE fg-bin THEN  DO:
+         ASSIGN oe-rell.tag:SCREEN-VALUE = fg-bin.tag.
+                oe-rell.loc-bin:SCREEN-VALUE = fg-bin.loc-bin.
+         IF fg-bin.case-count GT 0 THEN oe-rell.qty-case:SCREEN-VALUE = STRING(fg-bin.case-count).         
+  END.
+
+  RUN calc-cases.
+
+  /** Find last actual release for this order number and add 1 to
+     the get the next release. **/
+  /* === rel-no logic moved to line (oe-rell) ========*/
+  DEFINE BUFFER bf-rell FOR oe-rell .
+  DEFINE VARIABLE li-nxt-rel-no AS INTEGER NO-UNDO.
+  FOR EACH bf-rell WHERE bf-rell.company EQ g_company
+      AND bf-rell.ord-no  EQ INT(oe-rell.ord-no:SCREEN-VALUE)
+      AND ROWID(bf-rell) NE ROWID(oe-rell) NO-LOCK 
+      BY bf-rell.rel-no DESCENDING:
+      li-nxt-rel-no =  bf-rell.rel-no.
+      LEAVE.  
+  END.
+  li-nxt-rel-no = li-nxt-rel-no + 1.
+  oe-rell.rel-no:SCREEN-VALUE = STRING(li-nxt-rel-no).
+END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI Dialog-Frame  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
@@ -1039,21 +1130,211 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-   DISPLAY fi_part-no WITH FRAME Dialog-Frame.
+  DISPLAY fi_part-no 
+      WITH FRAME Dialog-Frame.
   IF AVAILABLE oe-rell THEN 
-    DISPLAY oe-rell.ord-no oe-rell.i-no oe-rell.po-no oe-rell.qty oe-rell.tag 
-          oe-rell.loc oe-rell.loc-bin oe-rell.job-no oe-rell.job-no2 
-          oe-rell.cust-no oe-rell.cases oe-rell.qty-case oe-rell.partial 
+    DISPLAY oe-rell.ord-no oe-rell.i-no oe-rell.po-no oe-rell.tag oe-rell.loc 
+          oe-rell.loc-bin oe-rell.job-no oe-rell.job-no2 oe-rell.cust-no 
+          oe-rell.qty oe-rell.cases oe-rell.qty-case oe-rell.partial 
           oe-rell.rel-no oe-rell.b-ord-no oe-rell.s-code oe-rell.link-no 
       WITH FRAME Dialog-Frame.
-  ENABLE oe-rell.ord-no oe-rell.i-no oe-rell.po-no oe-rell.qty oe-rell.tag 
-         oe-rell.loc oe-rell.loc-bin oe-rell.job-no oe-rell.job-no2 
-         oe-rell.cust-no oe-rell.cases oe-rell.qty-case oe-rell.partial 
-         oe-rell.s-code Btn_Done Btn_Cancel 
-         Btn_OK RECT-21 RECT-38 
+  ENABLE oe-rell.ord-no oe-rell.i-no oe-rell.po-no oe-rell.tag oe-rell.loc 
+         oe-rell.loc-bin oe-rell.job-no oe-rell.job-no2 oe-rell.cust-no 
+         oe-rell.qty oe-rell.cases oe-rell.qty-case oe-rell.partial 
+         oe-rell.rel-no oe-rell.b-ord-no oe-rell.s-code oe-rell.link-no 
+         fi_part-no Btn_OK Btn_Done Btn_Cancel RECT-21 RECT-38 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-order-items Dialog-Frame 
+PROCEDURE import-order-items :
+/*------------------------------------------------------------------------------
+  Purpose:    oe/allrel.p  oe/oe-rellu.p  
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-recid  AS RECID     NO-UNDO.
+  DEFINE INPUT PARAMETER ip-char   AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER op-rowid AS ROWID     NO-UNDO.
+
+  DEFINE BUFFER b-oe-rell FOR oe-rell.
+  DEFINE BUFFER b-oe-rell-new FOR oe-rell.
+
+  FIND bf-ordl NO-LOCK
+      WHERE RECID(bf-ordl) EQ ip-recid NO-ERROR.
+  IF AVAILABLE bf-ordl THEN
+    FIND FIRST oe-ord OF bf-ordl NO-LOCK NO-ERROR.
+  ELSE
+    FIND oe-ord NO-LOCK
+        WHERE RECID(oe-ord) EQ ip-recid NO-ERROR.
+
+  FIND FIRST b-oe-rell NO-LOCK
+      WHERE b-oe-rell.r-no   EQ oe-relh.r-no
+        AND b-oe-rell.s-code NE ""
+        AND ROWID(b-oe-rell) NE ROWID(oe-rell)
+      NO-ERROR.
+
+  IF AVAILABLE oe-ord THEN
+  FOR EACH bf-ordl OF oe-ord NO-LOCK:
+    IF RECID(bf-ordl) EQ ip-recid OR ip-char EQ "order" THEN DO:
+      FIND FIRST oe-rel
+          WHERE oe-rel.company EQ oe-ord.company
+          AND oe-rel.ord-no EQ oe-ord.ord-no
+          AND oe-rel.ship-id EQ oe-relh.ship-id
+          AND oe-rel.rel-date EQ oe-relh.rel-date
+          AND oe-rel.i-no EQ bf-ordl.i-no
+          AND oe-rel.link-no EQ 0
+          NO-ERROR.
+
+      CREATE b-oe-rell-new.
+      ASSIGN b-oe-rell-new.company = oe-relh.company.
+             b-oe-rell-new.loc = /* g_loc - 10021210 */ IF AVAILABLE oe-rel THEN oe-rel.spare-char-1
+                                ELSE g_loc.
+             b-oe-rell-new.r-no = oe-relh.r-no.
+             b-oe-rell-new.po-no = IF AVAILABLE oe-rel THEN oe-rel.po-no
+                                   ELSE
+                                   IF bf-ordl.po-no NE "" THEN bf-ordl.po-no
+                                   ELSE oe-ord.po-no .
+             b-oe-rell-new.line = bf-ordl.line.
+             b-oe-rell-new.qty = IF AVAILABLE oe-rel THEN oe-rel.qty ELSE bf-ordl.qty.
+             b-oe-rell-new.i-no = bf-ordl.i-no.
+             b-oe-rell-new.link-no = IF AVAILABLE oe-rel THEN oe-rel.r-no ELSE 0.
+             b-oe-rell-new.s-code = IF AVAILABLE b-oe-rell THEN b-oe-rell.s-code ELSE "B".
+             b-oe-rell-new.qty-case = bf-ordl.cas-cnt.
+             b-oe-rell-new.ord-no = oe-ord.ord-no.
+             b-oe-rell-new.job-no = bf-ordl.job-no.
+             b-oe-rell-new.job-no2 = bf-ordl.job-no2.
+
+      /*{oe/rel-no.i}*/
+      DEFINE BUFFER bf-rell FOR oe-rell .
+      DEFINE VARIABLE il-nxt-rel-no AS INTEGER NO-UNDO.
+      FOR EACH bf-rell NO-LOCK
+           WHERE bf-rell.company EQ g_company
+             AND bf-rell.ord-no  EQ b-oe-rell-new.ord-no 
+          BY bf-rell.rel-no DESCENDING:
+          il-nxt-rel-no =  bf-rell.rel-no.
+          LEAVE.  
+       END.
+
+      ASSIGN
+       il-nxt-rel-no = il-nxt-rel-no + 1
+       b-oe-rell-new.rel-no = il-nxt-rel-no.
+
+      IF AVAILABLE oe-rel THEN oe-rel.rel-no = b-oe-rell-new.rel-no. 
+
+      FIND FIRST itemfg NO-LOCK
+          WHERE itemfg.company EQ b-oe-rell-new.company
+            AND itemfg.i-no    EQ b-oe-rell-new.i-no
+          NO-ERROR.
+
+      ASSIGN
+      b-oe-rell-new.qty-case = IF AVAILABLE bf-ordl AND
+                               bf-ordl.cas-cnt GT 0 THEN bf-ordl.cas-cnt
+                               ELSE
+                               IF AVAILABLE itemfg           AND
+                                  itemfg.case-count GT 0 THEN itemfg.case-count
+                               ELSE 1.
+
+
+       b-oe-rell-new.cases   = TRUNC((b-oe-rell-new.qty - b-oe-rell-new.partial) /
+                               b-oe-rell-new.qty-case,0).
+       b-oe-rell-new.partial = b-oe-rell-new.qty - (b-oe-rell-new.cases * b-oe-rell-new.qty-case).
+
+      IF RECID(bf-ordl) EQ ip-recid THEN op-rowid = ROWID(b-oe-rell-new).
+    END.                 
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-order-items-look Dialog-Frame 
+PROCEDURE import-order-items-look :
+/*------------------------------------------------------------------------------
+  Purpose:    oe/allrel.p  oe/oe-rellu.p  
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE INPUT PARAMETER ip-recid  AS RECID     NO-UNDO.
+  DEFINE INPUT PARAMETER ip-char   AS CHARACTER NO-UNDO.
+  DEFINE OUTPUT PARAMETER op-rowid AS ROWID     NO-UNDO.
+
+  DEFINE BUFFER b-oe-rell FOR oe-rell.
+  DEFINE BUFFER b-oe-rell-new FOR oe-rell.
+
+  FIND bf-ordl NO-LOCK WHERE RECID(bf-ordl) EQ ip-recid NO-ERROR.
+  IF AVAILABLE bf-ordl THEN
+    FIND FIRST oe-ord OF bf-ordl NO-LOCK NO-ERROR.
+  ELSE
+    FIND oe-ord NO-LOCK WHERE RECID(oe-ord) EQ ip-recid NO-ERROR.
+
+  FIND FIRST b-oe-rell NO-LOCK
+      WHERE b-oe-rell.r-no   EQ oe-relh.r-no
+        AND b-oe-rell.s-code NE ""
+        AND ROWID(b-oe-rell) NE ROWID(oe-rell)
+      NO-ERROR.
+ DO WITH FRAME {&FRAME-NAME}:
+  IF AVAILABLE oe-ord THEN
+  FOR EACH bf-ordl OF oe-ord NO-LOCK:
+    IF RECID(bf-ordl) EQ ip-recid OR ip-char EQ "order" THEN DO:
+      FIND FIRST oe-rel
+          WHERE oe-rel.company EQ oe-ord.company
+          AND oe-rel.ord-no EQ oe-ord.ord-no
+          AND oe-rel.ship-id EQ oe-relh.ship-id
+          AND oe-rel.rel-date EQ oe-relh.rel-date
+          AND oe-rel.i-no EQ bf-ordl.i-no
+          AND oe-rel.link-no EQ 0
+          NO-ERROR.
+
+     /* create b-oe-rell-new.*/
+      ASSIGN oe-rell.loc:SCREEN-VALUE = /* g_loc - 10021210 */ IF AVAILABLE oe-rel THEN oe-rel.spare-char-1
+                                ELSE g_loc .
+             oe-rell.po-no:SCREEN-VALUE = IF AVAILABLE oe-rel THEN oe-rel.po-no
+                                   ELSE
+                                   IF bf-ordl.po-no NE "" THEN bf-ordl.po-no
+                                   ELSE oe-ord.po-no  .
+             /*oe-rell.line = bf-ordl.line*/
+             oe-rell.qty:SCREEN-VALUE = IF AVAILABLE oe-rel THEN STRING(oe-rel.qty) ELSE STRING(bf-ordl.qty).
+             oe-rell.i-no:SCREEN-VALUE = bf-ordl.i-no .
+             oe-rell.link-no:SCREEN-VALUE = IF AVAILABLE oe-rel THEN STRING(oe-rel.r-no) ELSE "0".
+             oe-rell.s-code:SCREEN-VALUE = IF AVAILABLE b-oe-rell THEN b-oe-rell.s-code ELSE "B" .
+             oe-rell.qty-case:SCREEN-VALUE = STRING(bf-ordl.cas-cnt) .
+             oe-rell.ord-no:SCREEN-VALUE = STRING(oe-ord.ord-no) .
+             oe-rell.job-no:SCREEN-VALUE = bf-ordl.job-no .
+             oe-rell.job-no2:SCREEN-VALUE = STRING(bf-ordl.job-no2) .
+
+
+
+      FIND FIRST itemfg NO-LOCK
+          WHERE itemfg.company EQ oe-rell.company
+            AND itemfg.i-no    EQ oe-rell.i-no:SCREEN-VALUE
+          NO-ERROR.
+
+      ASSIGN
+      oe-rell.qty-case:SCREEN-VALUE = IF AVAILABLE bf-ordl AND
+                               bf-ordl.cas-cnt GT 0 THEN STRING(bf-ordl.cas-cnt)
+                               ELSE
+                               IF AVAILABLE itemfg           AND
+                                  itemfg.case-count GT 0 THEN STRING(itemfg.case-count)
+                               ELSE "1" .
+
+
+       oe-rell.cases:SCREEN-VALUE   = STRING((INT(oe-rell.qty:SCREEN-VALUE) - INT(oe-rell.partial:SCREEN-VALUE)) /
+                              INT(oe-rell.qty-case:SCREEN-VALUE)) .
+       oe-rell.partial:SCREEN-VALUE = STRING(INT(oe-rell.qty:SCREEN-VALUE) - (INT(oe-rell.cases:SCREEN-VALUE) * INT(oe-rell.qty-case:SCREEN-VALUE))).
+
+
+
+    END.                 
+  END.
+ END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1163,7 +1444,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-loc Dialog-Frame 
 PROCEDURE valid-loc :
@@ -1311,292 +1591,3 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE check-exist-ord Dialog-Frame
-PROCEDURE check-exist-ord :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:     return "" to import  or any string  not to import items
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-rowid AS ROWID NO-UNDO.
-DO WITH FRAME {&FRAME-NAME}:
-  IF CAN-FIND(FIRST bf-rell
-               WHERE bf-rell.company EQ oe-relh.company
-                 AND bf-rell.r-no EQ oe-relh.r-no
-                 AND INTEGER(oe-rell.ord-no:SCREEN-VALUE  ) EQ bf-rell.ord-no
-                 AND ROWID(bf-rell) NE ip-rowid) THEN
-     RETURN "Order Exist".
-
-  RETURN "".
-END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-order-items Dialog-Frame 
-PROCEDURE import-order-items :
-/*------------------------------------------------------------------------------
-  Purpose:    oe/allrel.p  oe/oe-rellu.p  
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-recid  AS RECID     NO-UNDO.
-  DEFINE INPUT PARAMETER ip-char   AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER op-rowid AS ROWID     NO-UNDO.
-
-  DEFINE BUFFER b-oe-rell FOR oe-rell.
-  DEFINE BUFFER b-oe-rell-new FOR oe-rell.
-
-  FIND bf-ordl NO-LOCK
-      WHERE RECID(bf-ordl) EQ ip-recid NO-ERROR.
-  IF AVAILABLE bf-ordl THEN
-    FIND FIRST oe-ord OF bf-ordl NO-LOCK NO-ERROR.
-  ELSE
-    FIND oe-ord NO-LOCK
-        WHERE RECID(oe-ord) EQ ip-recid NO-ERROR.
-
-  FIND FIRST b-oe-rell NO-LOCK
-      WHERE b-oe-rell.r-no   EQ oe-relh.r-no
-        AND b-oe-rell.s-code NE ""
-        AND ROWID(b-oe-rell) NE ROWID(oe-rell)
-      NO-ERROR.
-
-  IF AVAILABLE oe-ord THEN
-  FOR EACH bf-ordl OF oe-ord NO-LOCK:
-    IF RECID(bf-ordl) EQ ip-recid OR ip-char EQ "order" THEN DO:
-      FIND FIRST oe-rel
-          WHERE oe-rel.company EQ oe-ord.company
-          AND oe-rel.ord-no EQ oe-ord.ord-no
-          AND oe-rel.ship-id EQ oe-relh.ship-id
-          AND oe-rel.rel-date EQ oe-relh.rel-date
-          AND oe-rel.i-no EQ bf-ordl.i-no
-          AND oe-rel.link-no EQ 0
-          NO-ERROR.
-
-      CREATE b-oe-rell-new.
-      ASSIGN b-oe-rell-new.company = oe-relh.company.
-             b-oe-rell-new.loc = /* g_loc - 10021210 */ IF AVAILABLE oe-rel THEN oe-rel.spare-char-1
-                                ELSE g_loc.
-             b-oe-rell-new.r-no = oe-relh.r-no.
-             b-oe-rell-new.po-no = IF AVAILABLE oe-rel THEN oe-rel.po-no
-                                   ELSE
-                                   IF bf-ordl.po-no NE "" THEN bf-ordl.po-no
-                                   ELSE oe-ord.po-no .
-             b-oe-rell-new.line = bf-ordl.line.
-             b-oe-rell-new.qty = IF AVAILABLE oe-rel THEN oe-rel.qty ELSE bf-ordl.qty.
-             b-oe-rell-new.i-no = bf-ordl.i-no.
-             b-oe-rell-new.link-no = IF AVAILABLE oe-rel THEN oe-rel.r-no ELSE 0.
-             b-oe-rell-new.s-code = IF AVAILABLE b-oe-rell THEN b-oe-rell.s-code ELSE "B".
-             b-oe-rell-new.qty-case = bf-ordl.cas-cnt.
-             b-oe-rell-new.ord-no = oe-ord.ord-no.
-             b-oe-rell-new.job-no = bf-ordl.job-no.
-             b-oe-rell-new.job-no2 = bf-ordl.job-no2.
-
-      /*{oe/rel-no.i}*/
-      DEFINE BUFFER bf-rell FOR oe-rell .
-      DEFINE VARIABLE il-nxt-rel-no AS INTEGER NO-UNDO.
-      FOR EACH bf-rell NO-LOCK
-           WHERE bf-rell.company EQ g_company
-             AND bf-rell.ord-no  EQ b-oe-rell-new.ord-no 
-          BY bf-rell.rel-no DESCENDING:
-          il-nxt-rel-no =  bf-rell.rel-no.
-          LEAVE.  
-       END.
-
-      ASSIGN
-       il-nxt-rel-no = il-nxt-rel-no + 1
-       b-oe-rell-new.rel-no = il-nxt-rel-no.
-
-      IF AVAILABLE oe-rel THEN oe-rel.rel-no = b-oe-rell-new.rel-no. 
-
-      FIND FIRST itemfg NO-LOCK
-          WHERE itemfg.company EQ b-oe-rell-new.company
-            AND itemfg.i-no    EQ b-oe-rell-new.i-no
-          NO-ERROR.
-
-      ASSIGN
-      b-oe-rell-new.qty-case = IF AVAILABLE bf-ordl AND
-                               bf-ordl.cas-cnt GT 0 THEN bf-ordl.cas-cnt
-                               ELSE
-                               IF AVAILABLE itemfg           AND
-                                  itemfg.case-count GT 0 THEN itemfg.case-count
-                               ELSE 1.
-
-
-       b-oe-rell-new.cases   = TRUNC((b-oe-rell-new.qty - b-oe-rell-new.partial) /
-                               b-oe-rell-new.qty-case,0).
-       b-oe-rell-new.partial = b-oe-rell-new.qty - (b-oe-rell-new.cases * b-oe-rell-new.qty-case).
-
-      IF RECID(bf-ordl) EQ ip-recid THEN op-rowid = ROWID(b-oe-rell-new).
-    END.                 
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE import-order-items-look Dialog-Frame 
-PROCEDURE import-order-items-look :
-/*------------------------------------------------------------------------------
-  Purpose:    oe/allrel.p  oe/oe-rellu.p  
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-recid  AS RECID     NO-UNDO.
-  DEFINE INPUT PARAMETER ip-char   AS CHARACTER NO-UNDO.
-  DEFINE OUTPUT PARAMETER op-rowid AS ROWID     NO-UNDO.
-
-  DEFINE BUFFER b-oe-rell FOR oe-rell.
-  DEFINE BUFFER b-oe-rell-new FOR oe-rell.
-
-  FIND bf-ordl NO-LOCK WHERE RECID(bf-ordl) EQ ip-recid NO-ERROR.
-  IF AVAILABLE bf-ordl THEN
-    FIND FIRST oe-ord OF bf-ordl NO-LOCK NO-ERROR.
-  ELSE
-    FIND oe-ord NO-LOCK WHERE RECID(oe-ord) EQ ip-recid NO-ERROR.
-
-  FIND FIRST b-oe-rell NO-LOCK
-      WHERE b-oe-rell.r-no   EQ oe-relh.r-no
-        AND b-oe-rell.s-code NE ""
-        AND ROWID(b-oe-rell) NE ROWID(oe-rell)
-      NO-ERROR.
- DO WITH FRAME {&FRAME-NAME}:
-  IF AVAILABLE oe-ord THEN
-  FOR EACH bf-ordl OF oe-ord NO-LOCK:
-    IF RECID(bf-ordl) EQ ip-recid OR ip-char EQ "order" THEN DO:
-      FIND FIRST oe-rel
-          WHERE oe-rel.company EQ oe-ord.company
-          AND oe-rel.ord-no EQ oe-ord.ord-no
-          AND oe-rel.ship-id EQ oe-relh.ship-id
-          AND oe-rel.rel-date EQ oe-relh.rel-date
-          AND oe-rel.i-no EQ bf-ordl.i-no
-          AND oe-rel.link-no EQ 0
-          NO-ERROR.
-
-     /* create b-oe-rell-new.*/
-      ASSIGN oe-rell.loc:SCREEN-VALUE = /* g_loc - 10021210 */ IF AVAILABLE oe-rel THEN oe-rel.spare-char-1
-                                ELSE g_loc .
-             oe-rell.po-no:SCREEN-VALUE = IF AVAILABLE oe-rel THEN oe-rel.po-no
-                                   ELSE
-                                   IF bf-ordl.po-no NE "" THEN bf-ordl.po-no
-                                   ELSE oe-ord.po-no  .
-             /*oe-rell.line = bf-ordl.line*/
-             oe-rell.qty:SCREEN-VALUE = IF AVAILABLE oe-rel THEN STRING(oe-rel.qty) ELSE STRING(bf-ordl.qty).
-             oe-rell.i-no:SCREEN-VALUE = bf-ordl.i-no .
-             oe-rell.link-no:SCREEN-VALUE = IF AVAILABLE oe-rel THEN STRING(oe-rel.r-no) ELSE "0".
-             oe-rell.s-code:SCREEN-VALUE = IF AVAILABLE b-oe-rell THEN b-oe-rell.s-code ELSE "B" .
-             oe-rell.qty-case:SCREEN-VALUE = STRING(bf-ordl.cas-cnt) .
-             oe-rell.ord-no:SCREEN-VALUE = STRING(oe-ord.ord-no) .
-             oe-rell.job-no:SCREEN-VALUE = bf-ordl.job-no .
-             oe-rell.job-no2:SCREEN-VALUE = STRING(bf-ordl.job-no2) .
-
-
-
-      FIND FIRST itemfg NO-LOCK
-          WHERE itemfg.company EQ oe-rell.company
-            AND itemfg.i-no    EQ oe-rell.i-no:SCREEN-VALUE
-          NO-ERROR.
-
-      ASSIGN
-      oe-rell.qty-case:SCREEN-VALUE = IF AVAILABLE bf-ordl AND
-                               bf-ordl.cas-cnt GT 0 THEN STRING(bf-ordl.cas-cnt)
-                               ELSE
-                               IF AVAILABLE itemfg           AND
-                                  itemfg.case-count GT 0 THEN STRING(itemfg.case-count)
-                               ELSE "1" .
-
-
-       oe-rell.cases:SCREEN-VALUE   = STRING((INT(oe-rell.qty:SCREEN-VALUE) - INT(oe-rell.partial:SCREEN-VALUE)) /
-                              INT(oe-rell.qty-case:SCREEN-VALUE)) .
-       oe-rell.partial:SCREEN-VALUE = STRING(INT(oe-rell.qty:SCREEN-VALUE) - (INT(oe-rell.cases:SCREEN-VALUE) * INT(oe-rell.qty-case:SCREEN-VALUE))).
-
-
-
-    END.                 
-  END.
- END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE display-orditm Dialog-Frame 
-PROCEDURE display-orditm :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-  DEFINE INPUT PARAMETER ip-recid AS RECID NO-UNDO.
-
-
-  FIND bf-ordl WHERE RECID(bf-ordl) = ip-recid NO-LOCK NO-ERROR.
-  IF NOT AVAILABLE bf-ordl THEN RETURN.
-
-  FIND FIRST oe-ord OF bf-ordl NO-LOCK.
-
-  FIND FIRST oe-rel NO-LOCK
-       WHERE oe-rel.company EQ bf-ordl.company
-         AND oe-rel.ord-no EQ bf-ordl.ord-no
-         AND oe-rel.ship-id EQ oe-relh.ship-id
-         AND oe-rel.rel-date EQ oe-relh.rel-date
-         AND oe-rel.i-no EQ bf-ordl.i-no
-         AND oe-rel.link-no EQ 0
-      NO-ERROR.  
-DO WITH FRAME {&FRAME-NAME}:
-  ASSIGN oe-rell.i-no:screen-value  = STRING(bf-ordl.i-no).
-         oe-rell.qty:SCREEN-VALUE = IF AVAILABLE oe-rel THEN STRING(oe-rel.qty) ELSE STRING(bf-ordl.qty).
-         oe-rell.qty-case:SCREEN-VALUE = STRING(bf-ordl.cas-cnt).
-         oe-rell.job-no:SCREEN-VALUE = STRING(bf-ordl.job-no).
-         oe-rell.job-no2:SCREEN-VALUE = STRING(bf-ordl.job-no2).
-         oe-rell.po-no:SCREEN-VALUE = IF AVAILABLE oe-rel THEN oe-rel.po-no
-                                      ELSE
-                                      IF bf-ordl.po-no NE "" THEN bf-ordl.po-no
-                                      ELSE oe-ord.po-no.
-
-  FIND fg-bin NO-LOCK 
-      WHERE fg-bin.company EQ bf-ordl.company
-      AND fg-bin.i-no EQ bf-ordl.i-no
-      AND fg-bin.loc EQ  oe-rell.loc
-      AND fg-bin.qty EQ INTEGER(oe-rell.qty:SCREEN-VALUE)
-      NO-ERROR.
-  IF AVAILABLE fg-bin THEN  DO:
-         ASSIGN oe-rell.tag:SCREEN-VALUE = fg-bin.tag.
-                oe-rell.loc-bin:SCREEN-VALUE = fg-bin.loc-bin.
-         IF fg-bin.case-count GT 0 THEN oe-rell.qty-case:SCREEN-VALUE = STRING(fg-bin.case-count).         
-  END.
-
-  RUN calc-cases.
-
-  /** Find last actual release for this order number and add 1 to
-     the get the next release. **/
-  /* === rel-no logic moved to line (oe-rell) ========*/
-  DEFINE BUFFER bf-rell FOR oe-rell .
-  DEFINE VARIABLE li-nxt-rel-no AS INTEGER NO-UNDO.
-  FOR EACH bf-rell WHERE bf-rell.company EQ g_company
-      AND bf-rell.ord-no  EQ INT(oe-rell.ord-no:SCREEN-VALUE)
-      AND ROWID(bf-rell) NE ROWID(oe-rell) NO-LOCK 
-      BY bf-rell.rel-no DESCENDING:
-      li-nxt-rel-no =  bf-rell.rel-no.
-      LEAVE.  
-  END.
-  li-nxt-rel-no = li-nxt-rel-no + 1.
-  oe-rell.rel-no:SCREEN-VALUE = STRING(li-nxt-rel-no).
-END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
