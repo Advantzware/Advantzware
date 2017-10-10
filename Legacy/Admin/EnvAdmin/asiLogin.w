@@ -459,9 +459,12 @@ DO:
     DEF VAR cMessage AS CHAR NO-UNDO.
     DEF VAR cCmdString AS CHAR NO-UNDO.
 
+/*
+
     APPLY 'value-changed' TO cbDatabase.
     APPLY 'value-changed' TO cbEnvironment.
     APPLY 'value-changed' TO cbMode.
+*/    
     
     IF connectStatement <> "" THEN DO:
         IF VALID-HANDLE(hPreRun) THEN DO:
@@ -783,7 +786,8 @@ PROCEDURE ipChangeEnvironment :
     ASSIGN
         iLookup = LOOKUP(cbEnvironment:{&SV},cEnvList)
         cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment:{&SV} + "\"
-        preProPath = cTop + cenvCustDir + "," +
+        preProPath = cMapDir + "\" + cEnvDir + "\" + cbEnvironment:{&SV} + "," +
+                     cTop + cenvCustDir + "," +
                      cTop + cenvOverDir + "," +
                      cTop + cenvPgmDir + "," +
                      cTop + cenvResDir + "," +
@@ -812,6 +816,8 @@ PROCEDURE ipChangeMode :
         iIndex = LOOKUP(cModeItem,cModeList)
         cPgmItem = ENTRY(iIndex,cPgmList)
         cRunPgm = cPgmItem.
+    IF cModeItem EQ "Sharpshooter" OR cModeItem EQ "Addon" THEN
+      g-sharpshooter = YES.
         
 END PROCEDURE.
 
@@ -830,9 +836,15 @@ PROCEDURE ipConnectDb :
     DEF INPUT PARAMETER cPassword AS CHAR NO-UNDO.
     DEF OUTPUT PARAMETER lError AS LOG NO-UNDO.
 
+    IF cPassword <> "" THEN
+
     CONNECT VALUE(cStatement + 
                   " -U " + cUser + 
                   " -P " + cPassword + 
+                  " -ct 2") NO-ERROR.
+    ELSE
+            CONNECT VALUE(cStatement + 
+                  " -U " + cUser + 
                   " -ct 2") NO-ERROR.
     IF LDBNAME(1) = ? THEN DO:
         cStatement = REPLACE(cStatement,"-H " + cHostName,"-H LOCALHOST").
