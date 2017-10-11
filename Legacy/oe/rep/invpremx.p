@@ -85,9 +85,9 @@ FIND FIRST inv-head NO-LOCK NO-ERROR.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
-ASSIGN ls-image1 = "images\premiercan.jpg"
-       FILE-INFO:FILE-NAME = ls-image1.
-       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+/*ASSIGN ls-image1 = "images\premiercan.jpg"          */
+/*       FILE-INFO:FILE-NAME = ls-image1.             */
+/*       ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -104,6 +104,13 @@ DEF VAR dOrigQty AS DEC NO-UNDO.
 DEFINE VARIABLE cOrigUOM AS CHARACTER   NO-UNDO.
 DEFINE VARIABLE cXMLShipTo AS CHARACTER   NO-UNDO.
 
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lChkImage AS LOGICAL NO-UNDO. 
+DEFINE VARIABLE cTaxCode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyID AS CHARACTER NO-UNDO.
+
 /* rstark 05181205 */
 {XMLOutput/XMLOutput.i &XMLOutput=XMLInvoice &Company=cocode}
 RUN XMLOutput (lXMLOutput,'','','Header').
@@ -115,7 +122,33 @@ RUN XMLOutput (lXMLOutput,'','','Header').
 /* rstark 05291402 */
 
     find first company where company.company = cocode no-lock no-error.
-  
+    IF company.company EQ '004' THEN 
+        ASSIGN 
+            cCurCode = 'CAD'
+            cTaxCode = 'HST'
+            cCompanyID = 'GST# 70523 1090 RT0001'
+            .
+    ELSE IF company.company EQ '006' THEN 
+        ASSIGN 
+            cCurCode = 'AUD'
+            cTaxCode = 'GST'
+            cCompanyID = 'ABN 11 620 887 149'
+            .
+    ELSE 
+        ASSIGN 
+            cCurCode = 'USD'
+            cTaxCode = 'Tax'
+            cCompanyID = ''
+            .
+  RUN sys/ref/nk1look.p (INPUT company.company, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+            OUTPUT cRtnChar, OUTPUT lRecFound).
+
+ASSIGN ls-full-img1 = cRtnChar + ">" .
+
+IF cRtnChar NE "" THEN
+    ASSIGN lChkImage = YES.
+    
     ASSIGN v-comp-add1 = ""
            v-comp-add2 = ""
            v-comp-add3 = " "
@@ -896,12 +929,12 @@ RUN XMLOutput (lXMLOutput,'','','Header').
     PUT "<R58><C58><#8><FROM><R+5><C+22><RECT> " 
         "<=8> Sub Total    :" v-subtot-lines FORM "->>,>>9.99"
         "<=8><R+1> Freight      :" v-inv-freight
-        "<=8><R+2> HST          :" inv-head.t-inv-tax FORM "->>,>>9.99"
+        "<=8><R+2> " cTaxCode FORMAT "x(3)" "          :" inv-head.t-inv-tax FORM "->>,>>9.99"
         "<=8><R+3>" "" 
         "<=8><R+4> Total Invoice:" inv-head.t-inv-rev FORM "->>,>>9.99" .
 
     PUT "<FArial><R58><C1><P12><B> THANK YOU. </B> <P9> " SKIP.
-    PUT "<FArial><R60><C1><P12> All currencies displayed in CAD. <P9> " SKIP.
+    PUT "<FArial><R60><C1><P12> All currencies displayed in " cCurCode ". <P9> " SKIP.
     v-printline = v-printline + 8.
    
     /* rstark 05181205 */

@@ -4,13 +4,15 @@ RUN XMLOutput (lXMLOutput,'',STRING(PAGE-NUM),'Page'). /* rstark 05181205 */
 RUN cXMLOutput (clXMLOutput,'',STRING(PAGE-NUM),'Page'). /* rstark 05291402 */
 
 PUT "<FTimes New Roman>".
-        PUT "<C3><R2><#1>"
-             "<R+8><C+45><IMAGE#1=" ls-full-img1 SKIP. /* image */ .
+        IF lChkImage THEN
+         PUT  "<C3><#1><R+8><C+45>" "<IMAGE#1=" + ls-full-img1 FORM "x(160)" SKIP .
+/*         PUT "<C3><R2><#1>"                                         */
+/*             "<R+8><C+45><IMAGE#1=" ls-full-img1 SKIP. /* image */ .*/
         PUT "<=1>" SKIP. 
         PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
-            "<P10><=2><R+5.5>"
+            "<P10><=2><R+8>"
             "<FCourier New>"
-            SPACE(4) "<P11><B>GST# 70523 1090 RT0001</B><P10>" SKIP(1)
+            SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" SKIP(1)
             /*SPACE(12) "REMIT TO: PREMIER PACKAGING" SKIP
             SPACE(12) "          PO BOX 39505" SKIP
             SPACE(12) "          Louisville, KY 40233" */
