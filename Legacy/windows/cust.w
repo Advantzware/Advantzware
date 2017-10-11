@@ -933,7 +933,8 @@ DEF VAR iCurrentPage AS INT.
   iCurrentPage = INT(RETURN-VALUE).
   IF iCurrentPage = 3 
     THEN assign s-rec_key     = string (dynamic-function ('GetCurrShipTo' in h_shipto)).
-    else assign rec_key_value = lv-cust-rec-key
+    ELSE IF iCurrentPage = 4 THEN ASSIGN s-rec_key     = string (dynamic-function ('GetCurrSoldTo' in h_soldto)).
+        ELSE assign rec_key_value = lv-cust-rec-key
                 s-rec_key     = lv-cust-rec-key.
   IF iCurrentPage = 2 THEN DO:
       RUN dispatch IN h_p-navico ( INPUT 'adm-initialize':U ) .
