@@ -12,7 +12,7 @@ DEF VAR v-start-compress AS cha NO-UNDO.
 DEF VAR v-end-compress AS cha NO-UNDO.
 DEF VAR k_frac AS DEC INIT 6.25 NO-UNDO.
 DEF VAR lv-ord-qty LIKE oe-ordl.qty NO-UNDO.
-
+DEFINE VARIABLE lFirstPage AS LOGICAL NO-UNDO.
 {jcrep/r-ticket.i "shared"}
 
 {cecrep/jobtickprm.i "new shared"}
@@ -99,7 +99,7 @@ assign
                             else 1  */
            v-local-copies = 1
            prt-copies = 1.
-
+lFirstPage = YES.
 do v-local-loop = 1 to v-local-copies:
   {cecrep/jobprem.i}
       break by job.job-no BY job.job-no2:
@@ -223,7 +223,9 @@ do v-local-loop = 1 to v-local-copies:
           end.
 
         end. /*brick format*/
-
+        IF NOT lFirstPage THEN 
+          PAGE.
+        lFirstPage = NO.
         view frame head.  /* factory header display  */
         
         /* rstark 05181205 */
@@ -694,36 +696,36 @@ do v-local-loop = 1 to v-local-copies:
                 xoe-ord.sold-id when avail xoe-ord
                 xeb.ship-id when avail xeb @ xoe-ord.sold-id
                 xoe-rel.ship-id when avail xoe-rel @ xoe-ord.sold-id
-                /*chr(124) format "x"       at 131 */
+              /*chr(124) format "x"       at 131 */
                 
-                /*"O"                       at 1*/
-                 /*entry(1,v-inst) */ v-dept-inst[1] FORM "x(82)" AT 3
+              /*"O"                       at 1*/
+              /*entry(1,v-inst) */ v-dept-inst[1] FORM "x(82)" AT 3
                 chr(124) format "x"       at 87
                 chr(124) format "x"       at 90
                 v-shp[1]
-                /*"T"                       at 1*/
-                /*ENTRY(2,v-inst)*/ v-dept-inst[2] format "x(82)" AT 3 
+              /*"T"                       at 1*/
+              /*ENTRY(2,v-inst)*/ v-dept-inst[2] format "x(82)" AT 3 
                 /*chr(124) format "x"       at 2 */
                 /*substr(v-inst,144,082)*/             
                 chr(124) format "x"       at 87
                 chr(124) format "x"       at 90
                 v-shp[2]
-                /*"E"                       at 1    */
-                /*ENTRY(3,v-inst)*/ v-dept-inst[3] format "x(82)" AT 3   
+              /*"E"                       at 1    */
+              /*ENTRY(3,v-inst)*/ v-dept-inst[3] format "x(82)" AT 3   
                 chr(124) format "x"       at 87
                 chr(124) format "x"       at 90
                 v-shp[3]
-               /* "S"                       at 1*/
-                /*ENTRY(4,v-inst)*/ v-dept-inst[4] format "x(82)" AT 3 
+              /* "S"                       at 1*/
+              /*ENTRY(4,v-inst)*/ v-dept-inst[4] format "x(82)" AT 3 
                 chr(124) format "x"       at 87
                 chr(124) format "x"       at 90
                 v-shp[4]
-                /*ENTRY(5,v-inst)*/ v-dept-inst[5] format "x(82)" AT 3
+              /*ENTRY(5,v-inst)*/ v-dept-inst[5] format "x(82)" AT 3
                 chr(124) format "x"       at 87
                 chr(124) format "x"       at 90
                 "Item PO #:"
                 xoe-ordl.po-no when avail xoe-ordl
-               /*ENTRY(6,v-inst) */ v-dept-inst[6] format "x(128)" AT 3
+              /*ENTRY(6,v-inst) */ v-dept-inst[6] format "x(128)" AT 3
                 skip(1)
             with no-box no-labels frame m8 width 132 no-attr-space STREAM-IO.
         
@@ -785,6 +787,7 @@ do v-local-loop = 1 to v-local-copies:
                         IF AVAIL xoe-ord  THEN trim(string(xoe-ord.over-pct,">>9.99%"))  ELSE "".
            v-under-run = IF AVAIL xoe-ordl THEN trim(string(xoe-ordl.under-pct,">>9.99%")) ELSE
                          IF AVAIL xoe-ord  THEN trim(string(xoe-ord.under-pct,">>9.99%"))  ELSE "".
+           PAGE.                         
            PUT "<R3><C1><#15><C30><P16><B> SET HEADER<P7></B>" SKIP(1)
                "User Id:" AT 3 v-user-id   "<c24>"
                "Job #: " AT 3 v-job-prt "<C25>Our Order #: " v-ord-no 
