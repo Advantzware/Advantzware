@@ -22,11 +22,11 @@ form
      ctot               to 79
     with frame b3 no-box no-labels stream-io no-attr-space.
 
-form skip(9)
-     ap-chk.check-date  to 60
-     ctot               to 79 format "**,***,**9.99"
-     skip(1)
+form skip(8)
      dol                at 10
+     SKIP(2)
+     ap-chk.check-date  to 62
+     ctot               to 79 format "**,***,**9.99"
      skip(1)
      vend.remit         at 10
      add1               at 10
