@@ -140,6 +140,7 @@ DEFINE NEW SHARED VARIABLE CallingParameter  AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE vcBegCustNo       AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE vcEndCustNo       AS CHARACTER NO-UNDO.
 DEFINE            VARIABLE vlSkipRec         AS LOGICAL   NO-UNDO.
+DEFINE            VARIABLE lReportRecCreated AS LOGICAL   NO-UNDO.
 DEFINE            VARIABLE vcHoldStats       AS CHARACTER INIT "H,W" NO-UNDO.
 
 DEFINE            VARIABLE glPaperless       AS LOGICAL   NO-UNDO.
@@ -271,6 +272,9 @@ PROCEDURE assignSelections:
         tbPostedAR        = iptbPostedAR
 
         tb_splitPDF       = iptbSplitPDF
+        s-print-zero-qty = tb_prt-zero-qty
+        svi-print-item   = rs_no_PN        
+        nsv_setcomp      = tb_setcomp
         .
 
 END. 
@@ -723,10 +727,11 @@ PROCEDURE runReport5:
                     v-print-fmt = vcDefaultForm.
                 END.
                 RUN run-report(buf-{&head}.cust-no,buf-{&head}.sold-no, TRUE).
-                RUN GenerateReport IN hCallingProc (INPUT lv-fax-type,
-                    INPUT buf-{&head}.cust-no,
-                    INPUT buf-{&head}.cust-no,
-                    INPUT lv-fax-image).
+                IF lReportRecCreated THEN
+                  RUN GenerateReport IN hCallingProc (INPUT lv-fax-type,
+                      INPUT buf-{&head}.cust-no,
+                      INPUT buf-{&head}.cust-no,
+                      INPUT lv-fax-image).
             END.
         END.
     END. /*can-find sys-ctrl and not posted*/
@@ -739,10 +744,11 @@ PROCEDURE runReport5:
         v-print-fmt = vcDefaultForm.
 
         RUN run-report("","", FALSE).
-        RUN GenerateReport IN hCallingProc (INPUT lv-fax-type,
-            INPUT begin_cust,
-            INPUT end_cust,
-            INPUT lv-fax-image).
+        IF lReportRecCreated THEN
+          RUN GenerateReport IN hCallingProc (INPUT lv-fax-type,
+              INPUT begin_cust,
+              INPUT end_cust,
+              INPUT lv-fax-image).
     END.
     
 END.
@@ -798,10 +804,11 @@ PROCEDURE runReport1:
     END.
 
     RUN run-report("","", FALSE).
-    RUN GenerateReport IN hCallingProc (INPUT lv-fax-type,
-        INPUT begin_cust,
-        INPUT end_cust,
-        INPUT lv-fax-image).
+    IF lReportRecCreated THEN
+      RUN GenerateReport IN hCallingProc (INPUT lv-fax-type,
+          INPUT begin_cust,
+          INPUT end_cust,
+          INPUT lv-fax-image).
 END PROCEDURE.
 
 PROCEDURE output-to-mail :
@@ -1133,7 +1140,7 @@ PROCEDURE build-list1:
             IF "{&head}" EQ "inv-head" AND AVAIL(buf-{&line}) THEN
                 NEXT.            
         END.
-
+        
         CREATE tt-list.
         tt-list.rec-row = ROWID({&head}).
 
@@ -1225,6 +1232,7 @@ PROCEDURE run-report :
             ip-sys-ctrl-shipto 
 
             ).
+    lReportRecCreated = NO.
     vcBOLFiles = "".
     build-report:
     FOR EACH tt-list WHERE (IF rCurrentInvoice EQ ? THEN TRUE ELSE
@@ -1374,6 +1382,7 @@ DO:
 END.
 
 vlSkipRec = NO.
+lReportRecCreated = YES.
 CREATE report.
 ASSIGN
     report.term-id = v-term-id
@@ -1599,6 +1608,8 @@ END.
 FOR EACH report WHERE report.term-id EQ v-term-id: 
     DELETE report.
 END.
+
+EMPTY TEMP-TABLE tt-list.
 
 RUN custom/usrprint.p (v-prgmname, hFrame-Handle).
 
@@ -1856,20 +1867,45 @@ PROCEDURE setBOLRange:
             END.
         END. 
         IF "{&head}" eq "inv-head" THEN DO:
-        FOR EACH oe-bolh NO-LOCK
-            WHERE oe-bolh.company EQ cocode
-                AND oe-bolh.posted EQ TRUE
-                AND oe-bolh.printed EQ TRUE
-            AND oe-bolh.{&bolno}  GE INT(begin_bol-SCREEN-VALUE)
-            AND oe-bolh.{&bolno}  LE INT(end_bol-SCREEN-VALUE):
-       
-            IF oe-bolh.bol-date LT DATE(begin_date-SCREEN-VALUE) THEN
-                opbegin_date-SCREEN-VALUE = STRING(oe-bolh.bol-date).
-
-            IF oe-bolh.bol-date GT DATE(end_date-screen-value) THEN
-                opend_date-SCREEN-VALUE = STRING(oe-bolh.bol-date).
+            IF INTEGER(begin_bol-screen-value) GT 0 THEN DO:
+                FOR EACH oe-bolh NO-LOCK
+                  WHERE oe-bolh.company EQ cocode
+                    AND oe-bolh.posted EQ TRUE
+                    AND oe-bolh.printed EQ TRUE
+                    AND oe-bolh.{&bolno}  GE INT(begin_bol-SCREEN-VALUE)
+                    AND oe-bolh.{&bolno}  LE INT(end_bol-SCREEN-VALUE):
+           
+                   IF oe-bolh.bol-date LT DATE(begin_date-SCREEN-VALUE) THEN
+                      opbegin_date-SCREEN-VALUE = STRING(oe-bolh.bol-date).
+    
+                   IF oe-bolh.bol-date GT DATE(end_date-screen-value) THEN
+                            opend_date-SCREEN-VALUE = STRING(oe-bolh.bol-date).
+                    
+                END.
+            END. 
+            ELSE 
+            DO:
+                IF INT(begin_inv-screen-value) GT 0 AND INT(end_inv-screen-value) GT 0 THEN DO:
+                  IF int(begin_bol-SCREEN-VALUE) EQ 0 THEN opbegin_bol-SCREEN-VALUE = "0".
+                  IF int(end_bol-SCREEN-VALUE) EQ 0 THEN opend_bol-SCREEN-VALUE = "99999999".
+                END.
+/*                FOR EACH oe-bolh NO-LOCK                                     */
+/*                    WHERE oe-bolh.company EQ cocode                          */
+/*                    AND oe-bolh.posted EQ TRUE                               */
+/*                    AND oe-bolh.printed EQ TRUE                              */
+/*                    AND oe-bolh.{&bolno}  GE INT(begin_bol-SCREEN-VALUE)     */
+/*                    AND oe-bolh.{&bolno}  LE INT(end_bol-SCREEN-VALUE):      */
+/*                                                                             */
+/*                    IF oe-bolh.bol-date LT DATE(begin_date-SCREEN-VALUE) THEN*/
+/*                        opbegin_date-SCREEN-VALUE = STRING(oe-bolh.bol-date).*/
+/*                                                                             */
+/*                    IF oe-bolh.bol-date GT DATE(end_date-screen-value) THEN  */
+/*                      opend_date-SCREEN-VALUE = STRING(oe-bolh.bol-date).    */
+/*                                                                             */
+/*                 END.                                                        */
                 
             END.
+            
         END.
         ELSE DO:
             IF INT(begin_inv-screen-value) GT 0 THEN DO:
