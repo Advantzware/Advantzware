@@ -134,20 +134,35 @@ RUN XMLOutput (lXMLOutput,'','','Header').
             cTaxCode = 'GST'
             cCompanyID = 'ABN 11 620 887 149'
             .
+    ELSE IF company.company EQ '005' THEN
+        ASSIGN 
+            cCurCode = 'USD'
+            cTaxCode = 'Sales Tax'
+            cCompanyID = ''
+            .
     ELSE 
         ASSIGN 
             cCurCode = 'USD'
-            cTaxCode = 'Tax'
+            cTaxCode = 'Sales Tax'
             cCompanyID = ''
             .
   RUN sys/ref/nk1look.p (INPUT company.company, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
             INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
             OUTPUT cRtnChar, OUTPUT lRecFound).
 
-ASSIGN ls-full-img1 = cRtnChar + ">" .
+IF cRtnChar NE "" THEN DO:
+    ASSIGN 
+        lChkImage = YES
+        ls-full-img1 = SEARCH(ls-full-img1)
+        ls-full-img1 = cRtnChar + ">".
+END.
+DO:
+    ASSIGN 
+        ls-image1 = SEARCH("images\premierinv.jpg")
+        FILE-INFO:FILE-NAME = ls-image1.
+    ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+END.
 
-IF cRtnChar NE "" THEN
-    ASSIGN lChkImage = YES.
     
     ASSIGN v-comp-add1 = ""
            v-comp-add2 = ""
@@ -929,12 +944,12 @@ IF cRtnChar NE "" THEN
     PUT "<R58><C58><#8><FROM><R+5><C+22><RECT> " 
         "<=8> Sub Total    :" v-subtot-lines FORM "->>,>>9.99"
         "<=8><R+1> Freight      :" v-inv-freight
-        "<=8><R+2> " cTaxCode FORMAT "x(3)" "          :" inv-head.t-inv-tax FORM "->>,>>9.99"
+        "<=8><R+2> " cTaxCode FORMAT "x(9)" "    :" inv-head.t-inv-tax FORM "->>,>>9.99"
         "<=8><R+3>" "" 
         "<=8><R+4> Total Invoice:" inv-head.t-inv-rev FORM "->>,>>9.99" .
 
     PUT "<FArial><R58><C1><P12><B> THANK YOU. </B> <P9> " SKIP.
-    PUT "<FArial><R60><C1><P12> All currencies displayed in " cCurCode ". <P9> " SKIP.
+    PUT "<FArial><R60><C1><P12> All currencies displayed in " cCurCode FORMAT "x(3)" ". <P9> " SKIP.
     v-printline = v-printline + 8.
    
     /* rstark 05181205 */

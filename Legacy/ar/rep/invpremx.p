@@ -125,17 +125,26 @@ IF company.company EQ '004' THEN
     ELSE 
         ASSIGN 
             cCurCode = 'USD'
-            cTaxCode = 'Tax'
+            cTaxCode = 'Sales Tax'
             cCompanyID = ''
             .
   RUN sys/ref/nk1look.p (INPUT company.company, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
             INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
             OUTPUT cRtnChar, OUTPUT lRecFound).
 
-ASSIGN ls-full-img1 = cRtnChar + ">" .
+IF cRtnChar NE "" THEN DO:
+    ASSIGN 
+        lChkImage = YES
+        ls-full-img1 = SEARCH(ls-full-img1)
+        ls-full-img1 = cRtnChar + ">".
+END.
+DO:
+    ASSIGN 
+        ls-image1 = SEARCH("images\premierinv.jpg")
+        FILE-INFO:FILE-NAME = ls-image1.
+    ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+END.
 
-IF cRtnChar NE "" THEN
-    ASSIGN lChkImage = YES.
     find first oe-ctrl where oe-ctrl.company = cocode no-lock no-error.
 
     for each report where report.term-id eq v-term-id no-lock,
@@ -485,13 +494,13 @@ IF cRtnChar NE "" THEN
     PUT "<R58><C58><#8><FROM><R+5><C+22><RECT> " 
         "<=8> Sub Total    :" v-subtot-lines FORM "->>,>>9.99"
         "<=8><R+1> Freight      :" v-inv-freight
-        "<=8><R+2> " cTaxCode FORMAT "x(3)" "          :" ar-inv.tax-amt FORM "->>,>>9.99"
+        "<=8><R+2> " cTaxCode FORMAT "x(9)" "    :" ar-inv.tax-amt FORM "->>,>>9.99"
         "<=8><R+3>" "" 
         "<=8><R+4> Total Invoice:" v-inv-total FORM "->>,>>9.99" . /* ar-inv.gross*/
 
 
     PUT "<FArial><R58><C1><#9><P12><B> THANK YOU. </B> <P9> " SKIP
-            "<R60><C1><P12> All currencies displayed in " cCurCode ". <P9> " SKIP
+            "<R60><C1><P12> All currencies displayed in " cCurCode FORMAT "x(3)" ". <P9> " SKIP
         "<=9><R-6>" v-notes[1]
         "<=9><R-5>" v-notes[2]
         "<=9><R-4>" v-notes[3]
