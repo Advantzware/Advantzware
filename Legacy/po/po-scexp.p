@@ -75,7 +75,7 @@ FOR EACH report NO-LOCK WHERE report.term-id EQ v-term-id,
      v-outfile[1] = TRIM(STClair-dir) + v-slash + "dataxfer" +
                     v-slash + "in" + v-slash
      v-outfile[2] = v-outfile[1] + STRING(TIME,"99999999")
-     v-outfile[3] = "po_" + TRIM(v-format) + "STC" +
+     v-outfile[3] = "po_" + TRIM(REPLACE(v-format, " ","")) + "STC" +
                     SUBSTR(STRING(YEAR(TODAY),"9999"),3,2) +
                     STRING(MONTH(TODAY),"99") +
                     STRING(DAY(TODAY),"99") +
