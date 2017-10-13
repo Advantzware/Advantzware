@@ -25,12 +25,12 @@ OR company.company EQ '006' THEN
             SPACE(12) v-email    "</B>" SKIP    .
 ELSE IF company.company = '005' THEN
         PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
-            "<P10><=2><R+8>"
+            "<P10><=2><R+5>"
             "<FCourier New>"
             SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" SKIP(1)
             SPACE(12) "REMIT TO: MCI PACKAGING" SKIP
             SPACE(12) "          PO BOX 39505" SKIP
-            SPACE(12) "          Louisville, KY 40233" SKIP
+            SPACE(12) "          Louisville, KY 40233" SKIP (2)
             space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
             SPACE(12) inv-head.cust-name v-shipto-name AT 64 skip
             SPACE(12) inv-head.addr[1]   v-shipto-addr[1] AT 64 SKIP
@@ -39,12 +39,12 @@ ELSE IF company.company = '005' THEN
             SPACE(12) v-email    "</B>" SKIP    .
 ELSE           
         PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
-            "<P10><=2><R+8>"
+            "<P10><=2><R+5>"
             "<FCourier New>"
             SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" SKIP(1)
             SPACE(12) "REMIT TO: PREMIER PACKAGING" SKIP
             SPACE(12) "          PO BOX 39505" SKIP
-            SPACE(12) "          Louisville, KY 40233" SKIP
+            SPACE(12) "          Louisville, KY 40233" SKIP (2)
             space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
             SPACE(12) inv-head.cust-name v-shipto-name AT 64 skip
             SPACE(12) inv-head.addr[1]   v-shipto-addr[1] AT 64 SKIP
