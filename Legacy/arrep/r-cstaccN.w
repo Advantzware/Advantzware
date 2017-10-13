@@ -40,6 +40,9 @@ DEFINE VARIABLE init-dir AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ou-log      LIKE sys-ctrl.log-fld NO-UNDO INITIAL NO.
 DEFINE VARIABLE ou-cust-int LIKE sys-ctrl.int-fld NO-UNDO.
 
+/*DEFINE INPUT PARAMETER iphTable AS HANDLE NO-UNDO.*/
+
+
 {methods/defines/hndldefs.i}
 {methods/prgsecur.i}
 
@@ -104,12 +107,12 @@ ASSIGN cTextListToDefault  = "GL Acct#,Description,Customer,Inv#,Journal,Run#,Da
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 tb_cust-list btnCustList ~
-begin_cust end_cust begin_date end_date begin_acct end_acct sl_avail ~
+begin_cust end_cust begin_date end_date begin_acct end_acct tb_totals sl_avail ~
 Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
 lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
 btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS tb_cust-list begin_cust end_cust ~
-begin_date end_date begin_acct end_acct sl_avail sl_selected rd-dest ~
+begin_date end_date begin_acct end_acct tb_totals sl_avail sl_selected rd-dest ~
 lv-ornt lines-per-page lv-font-no lv-font-name td-show-parm tb_excel ~
 tb_runExcel fi_file 
 
@@ -193,12 +196,17 @@ DEFINE VARIABLE end_cust AS CHARACTER FORMAT "X(8)":U INITIAL "zzzzzzzz"
      VIEW-AS FILL-IN 
      SIZE 27 BY 1 NO-UNDO.
 
+DEFINE VARIABLE tb_totals AS LOGICAL INITIAL NO 
+     LABEL "Print Totals?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 19 BY 1 NO-UNDO.
+
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
      SIZE 27 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-cstacc.csv" 
+DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-cstacc.xls" 
      LABEL "If Yes, File Name" 
      VIEW-AS FILL-IN 
      SIZE 43 BY 1
@@ -281,14 +289,15 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Customer Number"
      end_cust AT ROW 3.29 COL 63 COLON-ALIGNED HELP
           "Enter Ending Customer Number"
-     begin_date AT ROW 4.57 COL 19 COLON-ALIGNED HELP
+     begin_date AT ROW 4.25 COL 19 COLON-ALIGNED HELP
           "Enter Beginning Vendor Number"
-     end_date AT ROW 4.57 COL 63 COLON-ALIGNED HELP
+     end_date AT ROW 4.25 COL 63 COLON-ALIGNED HELP
           "Enter Ending Vendor Number"
-     begin_acct AT ROW 5.86 COL 19 COLON-ALIGNED HELP
+     begin_acct AT ROW 5.19 COL 19 COLON-ALIGNED HELP
           "Enter Beginning GL Account Number"
-     end_acct AT ROW 5.86 COL 63 COLON-ALIGNED HELP
+     end_acct AT ROW 5.19 COL 63 COLON-ALIGNED HELP
           "Enter Ending GL Account Number"
+     tb_totals AT ROW 6.25 COL 36
      sl_avail AT ROW 8.33 COL 4.4 NO-LABEL WIDGET-ID 26
      Btn_Def AT ROW 8.33 COL 40.4 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
@@ -404,7 +413,9 @@ ASSIGN
 ASSIGN 
        end_acct:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
-
+ASSIGN 
+       tb_totals:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 ASSIGN 
        end_cust:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -646,6 +657,15 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME tb_totals
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_totals C-Win
+ON VALUE-CHANGED OF tb_totals IN FRAME FRAME-A /* Print Totals */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &Scoped-define SELF-NAME end_cust
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust C-Win
@@ -1184,11 +1204,11 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY tb_cust-list begin_cust end_cust begin_date end_date begin_acct 
-          end_acct sl_avail sl_selected rd-dest lv-ornt lines-per-page 
+          end_acct tb_totals sl_avail sl_selected rd-dest lv-ornt lines-per-page 
           lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 tb_cust-list btnCustList begin_cust end_cust begin_date 
-         end_date begin_acct end_acct sl_avail Btn_Def sl_selected Btn_Add 
+         end_date begin_acct end_acct tb_totals sl_avail Btn_Def sl_selected Btn_Add 
          Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page lv-font-no 
          td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
@@ -1343,8 +1363,8 @@ PROCEDURE run-report :
 DEF VAR lv-jrnl LIKE gltrans.jrnl NO-UNDO.
 DEF VAR li AS INT NO-UNDO.
 DEF VAR lj AS INT NO-UNDO.
-DEF VAR lv-amt LIKE tt-report.amt EXTENT 3 NO-UNDO.
-DEF VAR ld-tax-rate AS DEC  EXTENT 4 NO-UNDO.
+DEF VAR lv-amt LIKE tt-report.amt EXTENT 5 NO-UNDO.
+DEF VAR ld-tax-rate AS DEC  EXTENT 5 NO-UNDO.
 def var v-ttl-tax  as decimal no-undo.
 def var v-ttl-rate as decimal no-undo.
 
@@ -1365,6 +1385,26 @@ DEF VAR excelheader AS CHAR NO-UNDO.
 DEF VAR lSelected AS LOG INIT YES NO-UNDO.
 DEF VAR fcust AS CHAR NO-UNDO.
 DEF VAR tcust AS CHAR NO-UNDO.
+DEFINE VARIABLE iColumn     AS INTEGER    NO-UNDO.
+DEFINE VARIABLE iColIdx     AS INTEGER    NO-UNDO.
+DEFINE VARIABLE iRow        AS INTEGER    NO-UNDO INITIAL 1.
+DEFINE VARIABLE iStatusRow  AS INTEGER    NO-UNDO INITIAL 3.
+DEFINE VARIABLE hQuery      AS HANDLE     NO-UNDO.
+DEFINE VARIABLE hQueryBuf   AS HANDLE     NO-UNDO.
+DEFINE VARIABLE cDynFunc    AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cExcelFile  AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cDataType   AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE cFormat     AS CHARACTER  NO-UNDO.
+DEFINE VARIABLE chExcel     AS COM-HANDLE NO-UNDO.
+DEFINE VARIABLE chWorksheet AS COM-HANDLE NO-UNDO.
+DEFINE VARIABLE chWorkBook  AS COM-HANDLE NO-UNDO.
+DEFINE VARIABLE chRangeRow  AS COM-HANDLE NO-UNDO.
+DEFINE VARIABLE chRangeCol  AS COM-HANDLE NO-UNDO.
+DEFINE VARIABLE idx         AS INTEGER    NO-UNDO.
+
+/*IF NOT VALID-HANDLE(iphTable) THEN RETURN.*/
+
+
 
 FORM tt-report.actnum      COLUMN-LABEL "GL Acct#"
      account.dscr          COLUMN-LABEL "Description" FORMAT "x(32)"
@@ -1389,8 +1429,54 @@ ASSIGN
 assign
      fcust = begin_cust
      tcust = END_cust 
-     lSelected  = tb_cust-list .
+     lSelected  = tb_cust-list
+     /*v-tot         = tb_totals */.
+cExcelFile = fi_file.
+IF tb_excel THEN DO:
+IF SEARCH(cExcelFile) NE ? THEN
+OS-DELETE VALUE(SEARCH(cExcelFile)).
 
+/* Connect to the running Excel session. */
+CREATE "Excel.Application" chExcel CONNECT NO-ERROR.
+/* Start a new session of Excel. */
+
+IF NOT VALID-HANDLE(chExcel) THEN
+CREATE "Excel.Application" chExcel NO-ERROR.
+
+/* Check if Excel got initialized. */
+IF NOT VALID-HANDLE(chExcel) THEN DO:
+    MESSAGE "Unable to Start Excel" VIEW-AS ALERT-BOX ERROR.
+    RETURN ERROR.
+END.
+
+/* Open our Excel Template. */
+
+chWorkbook = chExcel:Workbooks:Open(cExcelFile) NO-ERROR.
+chExcel:Visible = TRUE.
+/* Do not display Excel error messages. */
+chExcel:DisplayAlerts = FALSE NO-ERROR.
+ASSIGN
+    chExcel:SheetsInNewWorkbook = 1
+    chWorkbook  = chExcel:Workbooks:Add()
+    chWorksheet = chWorkbook:Worksheets(1)
+    .
+chWorkbook:Worksheets:Add(,chWorksheet).
+RELEASE OBJECT chWorksheet.
+
+
+/* Select a worksheet */
+chWorkbook:Worksheets(1):Activate.
+ASSIGN
+    chWorksheet = chWorkbook:Worksheets(1)
+    /* Rename the worksheet */
+    chWorkSheet:Name = "AR Accounts by Customer"
+    /* Disable screen updating so it will go faster */
+    chExcel:ScreenUpdating = TRUE
+    .
+/* remove spare worksheet */
+chWorkbook:WorkSheets(2):DELETE NO-ERROR.
+ASSIGN iColumn = 1.
+END.
 DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
@@ -1414,18 +1500,24 @@ DEF VAR cslist AS cha NO-UNDO.
             str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
             str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " . 
-
+          IF tb_excel THEN DO:
+            chWorkSheet:Cells(iRow,iColumn):Value = ttRptSelected.TextList.
+            iColumn = iColumn + 1.
+          END.
  END.
+
+/* pause to let excel display catch up */
+PAUSE 1 NO-MESSAGE.
 
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i VALUE(lines-per-page)}
 
-IF tb_excel THEN DO:
+/*IF tb_excel THEN DO:
     OUTPUT STREAM excel TO VALUE(fi_file).
     /*excelHeader = 'GL Acct#,Description,Customer,Inv#,Journal,Run#,Date,Amount'.*/
     PUT STREAM excel UNFORMATTED '"' REPLACE(excelHeader,',','","') '"' SKIP.
-END. /* if tb_excel */
+END. /* if tb_excel */*/
 IF lselected THEN DO:
     FIND FIRST ttCustList WHERE ttCustList.log-fld USE-INDEX cust-no  NO-LOCK NO-ERROR  .
     IF AVAIL ttCustList THEN ASSIGN fcust = ttCustList.cust-no .
@@ -1654,9 +1746,9 @@ FOR EACH tt-report
           BY tt-report.cust-no
           BY tt-report.inv-no
           BY tt-report.jrnl:
-
+     
     {custom/statusMsg.i " 'Processing Customer#  '  + string(tt-report.cust-no) "}
-
+ 
   FIND FIRST account
       WHERE account.company EQ cocode
         AND account.actnum  EQ tt-report.actnum
@@ -1666,221 +1758,162 @@ FOR EACH tt-report
       WHERE cust.company EQ cocode
         AND cust.cust-no EQ tt-report.cust-no
       NO-LOCK NO-ERROR.
-
-
-
-/*  DISPLAY tt-report.actnum WHEN FIRST-OF(tt-report.actnum)
-          account.dscr WHEN AVAIL account AND FIRST-OF(tt-report.actnum)
-              "Not on File" WHEN NOT AVAIL account AND FIRST-OF(tt-report.actnum)
-                @ account.dscr
-          tt-report.cust-no WHEN FIRST-OF(tt-report.cust-no)
-          /*cust.name WHEN AVAIL cust AND FIRST-OF(tt-report.cust-no)
-              "Not on File" WHEN NOT AVAIL cust AND FIRST-OF(tt-report.cust-no)
-                @ cust.name*/
-          tt-report.inv-no
-          tt-report.jrnl
-          tt-report.tr-num
-          tt-report.tr-date
-          tt-report.amt
-      WITH FRAME detail.
-  DOWN WITH FRAME detail. 
-
-  IF tb_excel THEN
-    PUT STREAM excel UNFORMATTED
-       '"' (IF FIRST-OF(tt-report.actnum) THEN tt-report.actnum ELSE "") '",'
-       '"' (IF AVAIL account AND FIRST-OF(tt-report.actnum) THEN account.dscr
-            ELSE IF NOT AVAIL account AND FIRST-OF(tt-report.actnum) THEN
-                "Not on File"
-            ELSE "")                                                     '",'
-       '"'  (IF FIRST-OF(tt-report.cust-no) THEN tt-report.cust-no
-             ELSE "")                                                    '",'
-       '"' tt-report.inv-no                                              '",' 
-       '"' tt-report.jrnl                                                '",'
-       '"' tt-report.tr-num                                              '",'
-       '"' (IF tt-report.tr-date NE ? THEN
-            STRING(tt-report.tr-date,"99/99/9999") ELSE "")              '",'
-       '"' STRING(tt-report.amt,'->>,>>>,>>9.99')                        '",'
-      SKIP. */
-
+   
       ASSIGN cDisplay = ""
             cTmpField = ""
             cVarValue = ""
             cExcelDisplay = ""
             cExcelVarValue = "".
-
+            iColumn = 1.
+            ASSIGN iRow = iRow + 1.
+            
      DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
         cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
              CASE cTmpField: 
-                  WHEN "act"     THEN cVarValue = IF FIRST-OF(tt-report.actnum) THEN tt-report.actnum ELSE "" .
-                  WHEN "dscr"    THEN cVarValue = IF AVAIL account AND FIRST-OF(tt-report.actnum) THEN account.dscr ELSE IF NOT AVAIL account AND FIRST-OF(tt-report.actnum) THEN "Not on File" ELSE "" .
-                  WHEN "cust"    THEN cVarValue = IF FIRST-OF(tt-report.cust-no) THEN tt-report.cust-no ELSE "" .
-                  WHEN "inv"     THEN cVarValue = STRING(tt-report.inv-no) .
-                  WHEN "jrnl"    THEN cVarValue = STRING(tt-report.jrnl) .
-                  WHEN "run"     THEN cVarValue = STRING(tt-report.tr-num) .
-                  WHEN "date"    THEN cVarValue = IF tt-report.tr-date NE ? THEN STRING(tt-report.tr-date,"99/99/9999") ELSE ""  .
-                  WHEN "amt"     THEN cVarValue = STRING(tt-report.amt,"->>,>>>,>>9.99")   .
+                  WHEN "act"     THEN ASSIGN cVarValue = IF FIRST-OF(tt-report.actnum) THEN tt-report.actnum ELSE ""
+                                cExcelVarValue = tt-report.actnum  .
+                  WHEN "dscr"    THEN ASSIGN cVarValue = IF AVAIL account AND FIRST-OF(tt-report.actnum) THEN account.dscr ELSE IF NOT AVAIL account AND FIRST-OF(tt-report.actnum) THEN "Not on File" ELSE "" 
+                                cExcelVarValue = account.dscr   .
+                  WHEN "cust"    THEN ASSIGN cVarValue = IF FIRST-OF(tt-report.cust-no) THEN tt-report.cust-no ELSE ""
+                                cExcelVarValue = tt-report.cust-no  .
+                  WHEN "inv"     THEN ASSIGN cVarValue = STRING(tt-report.inv-no)
+                                cExcelVarValue = cVarValue  . 
+                  WHEN "jrnl"    THEN ASSIGN cVarValue = STRING(tt-report.jrnl) 
+                                cExcelVarValue = cVarValue  .
+                  WHEN "run"     THEN ASSIGN cVarValue = STRING(tt-report.tr-num) 
+                                 cExcelVarValue = cVarValue  .
+                  WHEN "date"    THEN ASSIGN cVarValue = IF tt-report.tr-date NE ? THEN STRING(tt-report.tr-date,"99/99/9999") ELSE ""  
+                                  cExcelVarValue = cVarValue  .
+                  WHEN "amt"     THEN ASSIGN cVarValue =  STRING(tt-report.amt,"->>,>>>,>>9.99")
+                                  cExcelVarValue = cVarValue  .
 
              END CASE.
 
-             cExcelVarValue = cVarValue.
              cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+             
+             IF tb_excel THEN DO:
+               chWorkSheet:Cells(iRow,iColumn):Value = cExcelVarValue  NO-ERROR.
+               iColumn = iColumn + 1.
+             END.
+             
      END.
 
      PUT UNFORMATTED cDisplay SKIP.
-     IF tb_excel THEN DO:
+     
+    /* IF tb_excel THEN DO:
           PUT STREAM excel UNFORMATTED  
                 cExcelDisplay SKIP.
-      END.
+      END.*/
 
   lv-amt[1] = lv-amt[1] + tt-report.amt.
 
   IF LAST-OF(tt-report.cust-no) THEN DO WITH FRAME detail:
-  /*  PUT SKIP(1).
 
-    UNDERLINE tt-report.amt.
-    DISPLAY "Customer" @ tt-report.cust-no
-            "Totals"   @ tt-report.inv-no
-            lv-amt[1]  @ tt-report.amt.
-    DOWN.
-
-    IF tb_excel THEN
-      PUT STREAM excel UNFORMATTED
-         '"' ""                                 '",'
-         '"' ""                                 '",'
-         '"' "Customer"                         '",'
-         '"' "Totals"                           '",' 
-         '"' ""                                 '",'
-         '"' ""                                 '",'
-         '"' ""                                 '",'
-         '"' STRING(lv-amt[1],'->>,>>>,>>9.99') '",'
-        SKIP. */
-    PUT SKIP str-line SKIP .
-     ASSIGN cDisplay = ""
-            cTmpField = ""
-            cVarValue = ""
-            cExcelDisplay = ""
-            cExcelVarValue = "".
-
-     DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-        cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+      IF tb_totals THEN DO:
+          PUT SKIP str-line SKIP .
+          ASSIGN cDisplay = ""
+              cTmpField = ""
+              cVarValue = ""
+              cExcelDisplay = ""
+              cExcelVarValue = "".
+          ASSIGN iRow = iRow + 1.
+                 iColumn = 1.
+          IF tb_excel THEN DO:
+              chWorkSheet:Cells(iRow,iColumn):Value = "Customer Totals"  NO-ERROR.
+          END.
+         DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+             cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
              CASE cTmpField: 
-                  WHEN "act"     THEN cVarValue = "" .
-                  WHEN "dscr"    THEN cVarValue = "" .
-                  WHEN "cust"    THEN cVarValue = "" .
-                  WHEN "inv"     THEN cVarValue = "" .
-                  WHEN "jrnl"    THEN cVarValue = "" .
-                  WHEN "run"     THEN cVarValue = "" .
-                  WHEN "date"    THEN cVarValue = ""  .
-                  WHEN "amt"     THEN cVarValue = STRING(lv-amt[1],"->>,>>>,>>9.99")   .
+                 WHEN "act"     THEN cVarValue = "" .
+                 WHEN "dscr"    THEN cVarValue = "" .
+                 WHEN "cust"    THEN cVarValue = "" .
+                 WHEN "inv"     THEN cVarValue = "" .
+                 WHEN "jrnl"    THEN cVarValue = "" .
+                 WHEN "run"     THEN cVarValue = "" .
+                 WHEN "date"    THEN cVarValue = ""  .
+                 WHEN "amt"     THEN cVarValue = STRING(lv-amt[1],"->>,>>>,>>9.99")   .
 
              END CASE.
 
              cExcelVarValue = cVarValue.
              cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
-     END.
-     PUT UNFORMATTED  "       Customer Totals" substring(cDisplay,23,300) SKIP.
-     IF tb_excel THEN DO:
-         PUT STREAM excel UNFORMATTED  
-              "  Customer Totals  " + substring(cExcelDisplay,3,300) SKIP.
-     END.
+             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".  
+             IF tb_excel THEN DO:
+                 IF iColumn NE 1 THEN
+                     chWorkSheet:Cells(iRow,iColumn):Value = cVarValue  NO-ERROR.
+                 iColumn = iColumn + 1.
+             END.
+         END.
+         PUT UNFORMATTED  "       Customer Totals" substring(cDisplay,23,300) SKIP.
+         PUT SKIP(1).
+      END. /* IF tb_totals */
 
     ASSIGN
      lv-amt[2] = lv-amt[2] + lv-amt[1]
      lv-amt[1] = 0.
-
-    PUT SKIP(1).
+    
   END.
 
   IF LAST-OF(tt-report.actnum) THEN DO WITH FRAME detail:
-   /* PUT SKIP(1).
-
-    UNDERLINE tt-report.amt.
-    DISPLAY "   Acct#" @ tt-report.cust-no
-            "Totals"   @ tt-report.inv-no
-            lv-amt[2]  @ tt-report.amt.
-    DOWN.
-
-    IF tb_excel THEN
-      PUT STREAM excel UNFORMATTED
-         '"' ""                                 '",'
-         '"' ""                                 '",'
-         '"' "Acct#"                            '",'
-         '"' "Totals"                           '",' 
-         '"' ""                                 '",'
-         '"' ""                                 '",'
-         '"' ""                                 '",'
-         '"' STRING(lv-amt[2],'->>,>>>,>>9.99') '",'
-        SKIP. */
+   IF tb_totals THEN DO:
       PUT SKIP str-line SKIP .
-     ASSIGN cDisplay = ""
-            cTmpField = ""
-            cVarValue = ""
-            cExcelDisplay = ""
-            cExcelVarValue = "".
+      ASSIGN cDisplay = ""
+             cTmpField = ""
+             cVarValue = ""
+             cExcelDisplay = ""
+             cExcelVarValue = "".
+      ASSIGN iRow = iRow + 1.
+             iColumn = 1.
+             IF tb_excel THEN DO:
+                 chWorkSheet:Cells(iRow,iColumn):Value = "Acct# Totals"  NO-ERROR.
+             END.
+      DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+          cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+          CASE cTmpField: 
+              WHEN "act"     THEN cVarValue = "" .
+              WHEN "dscr"    THEN cVarValue = "" .
+              WHEN "cust"    THEN cVarValue = "" .
+              WHEN "inv"     THEN cVarValue = "" .
+              WHEN "jrnl"    THEN cVarValue = "" .
+              WHEN "run"     THEN cVarValue = "" .
+              WHEN "date"    THEN cVarValue = ""  .
+              WHEN "amt"     THEN cVarValue = STRING(lv-amt[2],"->>,>>>,>>9.99")   .
 
-     DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-        cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-             CASE cTmpField: 
-                  WHEN "act"     THEN cVarValue = "" .
-                  WHEN "dscr"    THEN cVarValue = "" .
-                  WHEN "cust"    THEN cVarValue = "" .
-                  WHEN "inv"     THEN cVarValue = "" .
-                  WHEN "jrnl"    THEN cVarValue = "" .
-                  WHEN "run"     THEN cVarValue = "" .
-                  WHEN "date"    THEN cVarValue = ""  .
-                  WHEN "amt"     THEN cVarValue = STRING(lv-amt[2],"->>,>>>,>>9.99")   .
-
-             END CASE.
-
-             cExcelVarValue = cVarValue.
-             cDisplay = cDisplay + cVarValue +
-                        FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
-     END.
-     PUT UNFORMATTED  "       Acct# Totals" substring(cDisplay,20,300) SKIP.
-     IF tb_excel THEN DO:
-         PUT STREAM excel UNFORMATTED  
-              "  Acct# Totals  " + substring(cExcelDisplay,3,300) SKIP.
-     END.
+          END CASE.
+          cExcelVarValue = cVarValue.
+          cDisplay = cDisplay + cVarValue +
+              FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".
+              IF tb_excel THEN DO:
+                  IF iColumn NE 1 THEN
+                      chWorkSheet:Cells(iRow,iColumn):Value = cVarValue  NO-ERROR.
+                  iColumn = iColumn + 1.
+              END.
+      END.
+      PUT UNFORMATTED  "       Acct# Totals" substring(cDisplay,20,300) SKIP.
+      PUT SKIP(3).
+   END. /*if tb_totals*/
 
     ASSIGN
      lv-amt[3] = lv-amt[3] + lv-amt[2]
      lv-amt[2] = 0.
-
-    PUT SKIP(3).
+    
   END.
 
   IF LAST(tt-report.actnum) THEN DO WITH FRAME detail:
-  /*  PUT SKIP(1).
-
-    UNDERLINE tt-report.amt.
-    DISPLAY "   Grand" @ tt-report.cust-no
-            "Totals"   @ tt-report.inv-no
-            lv-amt[3]  @ tt-report.amt.
-    DOWN.
-
-    IF tb_excel THEN
-      PUT STREAM excel UNFORMATTED
-         '"' ""                                 '",'
-         '"' ""                                 '",'
-         '"' ""                                 '",'
-         '"' "Grand Totals"                     '",' 
-         '"' ""                                 '",'
-         '"' ""                                 '",'
-         '"' ""                                 '",'
-         '"' STRING(lv-amt[3],'->>,>>>,>>9.99') '",'
-        SKIP. */
       PUT SKIP str-line SKIP .
      ASSIGN cDisplay = ""
             cTmpField = ""
             cVarValue = ""
             cExcelDisplay = ""
             cExcelVarValue = "".
-
+     ASSIGN iRow = iRow + 1.
+            iColumn = 1.
+            IF tb_excel THEN DO:
+                chWorkSheet:Cells(iRow,iColumn):Value = "Grand Totals"  NO-ERROR.
+            END.
      DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
         cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
              CASE cTmpField: 
@@ -1898,20 +1931,30 @@ FOR EACH tt-report
              cExcelVarValue = cVarValue.
              cDisplay = cDisplay + cVarValue +
                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",". 
+             IF tb_excel THEN DO:
+                 IF iColumn NE 1 THEN
+                     chWorkSheet:Cells(iRow,iColumn):Value = cVarValue  NO-ERROR.
+                 iColumn = iColumn + 1.
+             END.
      END.
      PUT UNFORMATTED  "       Grand Totals" substring(cDisplay,20,300) SKIP.
-     IF tb_excel THEN DO:
+    /* IF tb_excel THEN DO:
          PUT STREAM excel UNFORMATTED  
               "  Grand Totals  " + substring(cExcelDisplay,3,300) SKIP.
-     END.
+     END.*/
   END.
 END.
-
 IF tb_excel THEN DO:
-  OUTPUT STREAM excel CLOSE.
-  IF tb_runExcel THEN
-  OS-COMMAND NO-WAIT start excel.exe VALUE(SEARCH(fi_file)).
+/* enable screen updating */
+chExcel:ScreenUpdating = TRUE.
+/* auto save excel file */
+chExcel:ActiveSheet:SaveAs(cExcelFile).
+
+/* Release created objects. */
+RELEASE OBJECT chWorkbook  NO-ERROR.
+RELEASE OBJECT chWorkSheet NO-ERROR.
+RELEASE OBJECT chExcel     NO-ERROR.
 END.
 
 RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
