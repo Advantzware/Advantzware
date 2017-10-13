@@ -4,5 +4,6 @@
   RUN showLightBulb ('').
   IF flashLight THEN
   RUN showFlashLight ('').
-  DISABLE btnComplete btnJobNotes WITH FRAME {&FRAME-NAME}.
+  DISABLE btnToolTip btnComplete btnJobNotes WITH FRAME {&FRAME-NAME}.
+  btnToolTip:TOOLTIP = ''.
   RUN LockWindowUpdate (0,OUTPUT i).
