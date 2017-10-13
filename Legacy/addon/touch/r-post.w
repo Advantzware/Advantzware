@@ -686,6 +686,63 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME begin_machine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_machine C-Win
+ON HELP OF begin_machine IN FRAME FRAME-A /* Beginning Date */
+DO:
+  RUN lookups/mach.p.
+  IF g_lookup-var NE ""                                AND
+         TRIM(g_lookup-var) NE TRIM(begin_machine:SCREEN-VALUE) THEN DO:
+        begin_machine:SCREEN-VALUE = g_lookup-var.
+      END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_machine
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_machine C-Win
+ON HELP OF end_machine IN FRAME FRAME-A /* Beginning Date */
+DO:
+  RUN lookups/mach.p.
+  IF g_lookup-var NE ""                                AND
+         TRIM(g_lookup-var) NE TRIM(end_machine:SCREEN-VALUE) THEN DO:
+        end_machine:SCREEN-VALUE = g_lookup-var.
+      END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_shift
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_shift C-Win
+ON HELP OF begin_shift IN FRAME FRAME-A /* Beginning Date */
+DO:
+  RUN lookups/shifts.p.
+  IF g_lookup-var NE ""                                AND
+         TRIM(g_lookup-var) NE TRIM(begin_shift:SCREEN-VALUE) THEN DO:
+        begin_shift:SCREEN-VALUE = g_lookup-var.
+      END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&Scoped-define SELF-NAME end_shift
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_shift C-Win
+ON HELP OF end_shift IN FRAME FRAME-A /* Beginning Date */
+DO:
+  RUN lookups/shifts.p.
+  IF g_lookup-var NE ""                                AND
+         TRIM(g_lookup-var) NE TRIM(end_shift:SCREEN-VALUE) THEN DO:
+        end_shift:SCREEN-VALUE = g_lookup-var.
+      END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME btn-cancel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
