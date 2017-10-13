@@ -100,7 +100,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
    v-outfile[1] = TRIM(AlliFlutes-dir) + v-slash + "dataxfer" +
                   v-slash + "in" + v-slash
    v-outfile[2] = v-outfile[1] + string(TIME,"99999999")
-   v-outfile[3] = "po_" + trim(v-format) + "AlliFlutes" +
+   v-outfile[3] = "po_" + trim(REPLACE(v-format, " ","")) + "AlliFlutes" +
                   substr(STRING(YEAR(TODAY),"9999"),3,2) +
                   string(MONTH(TODAY),"99") +
                   string(DAY(TODAY),"99") +

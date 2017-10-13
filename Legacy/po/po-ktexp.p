@@ -124,7 +124,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                   SUBSTR(STRING(TIME,"HH:MM:SS"),4,2) +
                   SUBSTR(STRING(TIME,"HH:MM:SS"),7,2) + ".dat".
   ELSE
-     v-outfile[3] = "po_" + TRIM(v-FORMAT) + "kiwi" +
+     v-outfile[3] = "po_" + TRIM(REPLACE(v-format, " ","")) + "kiwi" +
                     SUBSTR(STRING(YEAR(TODAY),"9999"),3,2) +
                     STRING(MONTH(TODAY),"99") +
                     STRING(DAY(TODAY),"99") +

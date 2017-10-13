@@ -64,6 +64,7 @@ DEF NEW SHARED VAR s-print-bin-to AS cha NO-UNDO.
 DEF NEW SHARED VAR s-print-pricing AS LOG NO-UNDO.
 DEF NEW SHARED VAR lv-spec-list AS CHAR NO-UNDO.
 DEF NEW SHARED VAR s-print-spec AS LOG NO-UNDO .
+DEFINE NEW SHARED VARIABLE lSortRelSeq AS LOGICAL NO-UNDO .
 DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF VAR vcDefaultForm AS CHAR NO-UNDO.
 DEF BUFFER b-oe-relh FOR oe-relh.
@@ -110,17 +111,19 @@ END.
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 RECT-9 begin_cust-no ~
 end_cust-no tb_excl_cust begin_relnum end_relnum begin_ord-no end_ord-no ~
 begin_date end_date begin_del-zone end_del-zone begin_whse end_whse ~
-tb_printed tb_print-spec fi_specs tb_posted tb_more rd-print-what tb_p-bin ~
-tb_zone-s tb_zone-p tb_print-component begin_loc end_loc begin_loc-bin ~
-end_loc-bin tb_whs-bin-sort rd-dest lv-ornt lines-per-page lv-font-no ~
-tgMultipleReleases td-show-parm tb_post-rel btn-ok btn-cancel 
+tb_printed tb_print-spec tb_sort-rel fi_specs tb_posted tb_more ~
+rd-print-what tb_p-bin tb_zone-s tb_zone-p tb_print-component begin_loc ~
+end_loc begin_loc-bin end_loc-bin tb_whs-bin-sort rd-dest lv-ornt ~
+lines-per-page lv-font-no tgMultipleReleases td-show-parm tb_post-rel ~
+btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no tb_excl_cust ~
 begin_relnum end_relnum begin_ord-no end_ord-no begin_date end_date ~
 begin_del-zone end_del-zone begin_whse end_whse tb_printed tb_exl-tg-bin ~
-tb_print-spec fi_specs tb_posted tb_more rd-print-what tb_p-bin tb_zone-s ~
-tb_zone-p tb_print-component begin_loc end_loc tb_prt-part-no tb_pricing ~
-begin_loc-bin end_loc-bin tb_whs-bin-sort rd-dest lv-ornt lines-per-page ~
-lv-font-no lv-font-name tgMultipleReleases td-show-parm tb_post-rel 
+tb_print-spec tb_sort-rel fi_specs tb_posted tb_more rd-print-what tb_p-bin ~
+tb_zone-s tb_zone-p tb_print-component begin_loc end_loc tb_prt-part-no ~
+tb_pricing begin_loc-bin end_loc-bin tb_whs-bin-sort rd-dest lv-ornt ~
+lines-per-page lv-font-no lv-font-name tgMultipleReleases td-show-parm ~
+tb_post-rel 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -277,83 +280,88 @@ DEFINE RECTANGLE RECT-9
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 49 BY 6.67.
 
-DEFINE VARIABLE tb_excl_cust AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_excl_cust AS LOGICAL INITIAL no 
      LABEL "Exclude Specific Customers" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY .57 NO-UNDO.
 
-DEFINE VARIABLE tb_exl-tg-bin AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_exl-tg-bin AS LOGICAL INITIAL no 
      LABEL "Exclude Tags and Bins?" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_more AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_more AS LOGICAL INITIAL no 
      LABEL "Print Multiple Releases Per Form?" 
      VIEW-AS TOGGLE-BOX
      SIZE 37 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_p-bin AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_p-bin AS LOGICAL INITIAL yes 
      LABEL "Print Bin Locations?" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_post-rel AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_post-rel AS LOGICAL INITIAL no 
      LABEL "Post Release?" 
      VIEW-AS TOGGLE-BOX
      SIZE 19 BY 1
      BGCOLOR 15  NO-UNDO.
 
-DEFINE VARIABLE tb_posted AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_posted AS LOGICAL INITIAL no 
      LABEL "Reprint Posted Release?" 
      VIEW-AS TOGGLE-BOX
      SIZE 30 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_pricing AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_pricing AS LOGICAL INITIAL no 
      LABEL "Print Pricing?" 
      VIEW-AS TOGGLE-BOX
      SIZE 17 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_print-component AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_print-component AS LOGICAL INITIAL no 
      LABEL "Print Assembled Components?" 
      VIEW-AS TOGGLE-BOX
      SIZE 41 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_print-spec AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_print-spec AS LOGICAL INITIAL no 
      LABEL "Print Spec Notes?" 
      VIEW-AS TOGGLE-BOX
      SIZE 23.6 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_printed AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_printed AS LOGICAL INITIAL no 
      LABEL "Reprint Release Tickets?" 
      VIEW-AS TOGGLE-BOX
      SIZE 29 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_prt-part-no AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_prt-part-no AS LOGICAL INITIAL no 
      LABEL "Print Customer Part#?" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_whs-bin-sort AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_sort-rel AS LOGICAL INITIAL no 
+     LABEL "Sort Rel Seq?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 23.6 BY 1 NO-UNDO.
+
+DEFINE VARIABLE tb_whs-bin-sort AS LOGICAL INITIAL no 
      LABEL "Sort Bin Locations" 
      VIEW-AS TOGGLE-BOX
      SIZE 25 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_zone-p AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tb_zone-p AS LOGICAL INITIAL yes 
      LABEL "Print Delivery Zone?" 
      VIEW-AS TOGGLE-BOX
      SIZE 26 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tb_zone-s AS LOGICAL INITIAL NO 
+DEFINE VARIABLE tb_zone-s AS LOGICAL INITIAL no 
      LABEL "Sort By Delivery Zone?" 
      VIEW-AS TOGGLE-BOX
      SIZE 28 BY 1 NO-UNDO.
 
-DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL NO 
+DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no 
      LABEL "Show Parameters?" 
      VIEW-AS TOGGLE-BOX
      SIZE 24 BY 1 NO-UNDO.
 
-DEFINE VARIABLE tgMultipleReleases AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tgMultipleReleases AS LOGICAL INITIAL yes 
      LABEL "Multiple Releases" 
      VIEW-AS TOGGLE-BOX
      SIZE 23 BY .81 NO-UNDO.
@@ -390,6 +398,7 @@ DEFINE FRAME FRAME-A
      tb_printed AT ROW 8.33 COL 6
      tb_exl-tg-bin AT ROW 8.33 COL 53
      tb_print-spec AT ROW 8.86 COL 46.6 WIDGET-ID 10
+     tb_sort-rel AT ROW 8.86 COL 52.8 WIDGET-ID 14
      fi_specs AT ROW 8.86 COL 70 COLON-ALIGNED HELP
           "Enter Spec Code separated by commas" NO-LABEL WIDGET-ID 12
      tb_posted AT ROW 9.19 COL 35 RIGHT-ALIGNED
@@ -419,13 +428,13 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 25.29 COL 59
      "Output Destination" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 17.33 COL 4
+     "To" VIEW-AS TEXT
+          SIZE 5 BY .62 AT ROW 13.48 COL 85
+     "From" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 13.48 COL 67
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.1 COL 4.2
           BGCOLOR 2 
-     "From" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 13.48 COL 67
-     "To" VIEW-AS TEXT
-          SIZE 5 BY .62 AT ROW 13.48 COL 85
      RECT-6 AT ROW 17.19 COL 1
      RECT-7 AT ROW 1.19 COL 1
      RECT-9 AT ROW 10.14 COL 48
@@ -458,15 +467,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.29
          VIRTUAL-WIDTH      = 204.8
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -486,16 +495,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -519,6 +518,14 @@ ASSIGN
 ASSIGN 
        begin_whse:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -601,6 +608,11 @@ ASSIGN
 /* SETTINGS FOR TOGGLE-BOX tb_prt-part-no IN FRAME FRAME-A
    NO-ENABLE                                                            */
 ASSIGN 
+       tb_sort-rel:HIDDEN IN FRAME FRAME-A           = TRUE
+       tb_sort-rel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
        tb_zone-p:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -609,12 +621,12 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -647,6 +659,20 @@ END.
 
 
 &Scoped-define SELF-NAME begin_cust-no
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
+ON HELP OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+   RUN windows/l-cust2.w (INPUT cocode, INPUT begin_cust-no:SCREEN-VALUE,"", OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN begin_cust-no:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
 ON LEAVE OF begin_cust-no IN FRAME FRAME-A /* Beginning Customer# */
 DO:
@@ -990,6 +1016,20 @@ END.
 
 &Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
+ON HELP OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
+DO:
+    DEF VAR char-val AS cha NO-UNDO.
+
+   RUN windows/l-cust2.w (INPUT cocode, INPUT end_cust-no:SCREEN-VALUE,"", OUTPUT char-val).
+    IF char-val <> "" THEN ASSIGN end_cust-no:SCREEN-VALUE = ENTRY(1,char-val) .
+
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
 ON LEAVE OF end_cust-no IN FRAME FRAME-A /* Ending Customer# */
 DO:
      ASSIGN {&self-name}.
@@ -1094,34 +1134,6 @@ DO:
     RUN WINDOWS/l-fonts.w (FOCUS:SCREEN-VALUE, OUTPUT char-val).
     IF char-val <> "" THEN ASSIGN FOCUS:SCREEN-VALUE = ENTRY(1,char-val)
                                   LV-FONT-NAME:SCREEN-VALUE = ENTRY(2,char-val).
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME begin_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_cust-no C-Win
-ON HELP OF begin_cust-no IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-   RUN windows/l-cust2.w (INPUT cocode, INPUT begin_cust-no:SCREEN-VALUE,"", OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN begin_cust-no:SCREEN-VALUE = ENTRY(1,char-val) .
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&Scoped-define SELF-NAME end_cust-no
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
-ON HELP OF end_cust-no IN FRAME FRAME-A /* Font */
-DO:
-    DEF VAR char-val AS cha NO-UNDO.
-
-   RUN windows/l-cust2.w (INPUT cocode, INPUT end_cust-no:SCREEN-VALUE,"", OUTPUT char-val).
-    IF char-val <> "" THEN ASSIGN end_cust-no:SCREEN-VALUE = ENTRY(1,char-val) .
 
 END.
 
@@ -1308,6 +1320,17 @@ END.
 &Scoped-define SELF-NAME tb_printed
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_printed C-Win
 ON VALUE-CHANGED OF tb_printed IN FRAME FRAME-A /* Reprint Release Tickets? */
+DO:
+  ASSIGN {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_sort-rel
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_sort-rel C-Win
+ON VALUE-CHANGED OF tb_sort-rel IN FRAME FRAME-A /* Sort Rel Seq? */
 DO:
   ASSIGN {&self-name}.
 END.
@@ -1524,6 +1547,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        tb_exl-tg-bin:HIDDEN = NO.
     ELSE
        tb_exl-tg-bin:HIDDEN = YES.
+
+     IF v-relprint NE "PremierX" THEN
+         tb_sort-rel:HIDDEN = YES .
+     ELSE tb_sort-rel:HIDDEN = NO .
 
     IF v-relprint NE "Argrov" THEN
       ASSIGN
@@ -1881,8 +1908,8 @@ PROCEDURE enable_UI :
   DISPLAY begin_cust-no end_cust-no tb_excl_cust begin_relnum end_relnum 
           begin_ord-no end_ord-no begin_date end_date begin_del-zone 
           end_del-zone begin_whse end_whse tb_printed tb_exl-tg-bin 
-          tb_print-spec fi_specs tb_posted tb_more rd-print-what tb_p-bin 
-          tb_zone-s tb_zone-p tb_print-component begin_loc end_loc 
+          tb_print-spec tb_sort-rel fi_specs tb_posted tb_more rd-print-what 
+          tb_p-bin tb_zone-s tb_zone-p tb_print-component begin_loc end_loc 
           tb_prt-part-no tb_pricing begin_loc-bin end_loc-bin tb_whs-bin-sort 
           rd-dest lv-ornt lines-per-page lv-font-no lv-font-name 
           tgMultipleReleases td-show-parm tb_post-rel 
@@ -1890,10 +1917,11 @@ PROCEDURE enable_UI :
   ENABLE RECT-6 RECT-7 RECT-9 begin_cust-no end_cust-no tb_excl_cust 
          begin_relnum end_relnum begin_ord-no end_ord-no begin_date end_date 
          begin_del-zone end_del-zone begin_whse end_whse tb_printed 
-         tb_print-spec fi_specs tb_posted tb_more rd-print-what tb_p-bin 
-         tb_zone-s tb_zone-p tb_print-component begin_loc end_loc begin_loc-bin 
-         end_loc-bin tb_whs-bin-sort rd-dest lv-ornt lines-per-page lv-font-no 
-         tgMultipleReleases td-show-parm tb_post-rel btn-ok btn-cancel 
+         tb_print-spec tb_sort-rel fi_specs tb_posted tb_more rd-print-what 
+         tb_p-bin tb_zone-s tb_zone-p tb_print-component begin_loc end_loc 
+         begin_loc-bin end_loc-bin tb_whs-bin-sort rd-dest lv-ornt 
+         lines-per-page lv-font-no tgMultipleReleases td-show-parm tb_post-rel 
+         btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -2091,7 +2119,8 @@ ASSIGN
  cLocStart    = begin_whse
  cLocEnd      = end_whse
  lv-spec-list  = fi_specs
- s-print-spec  = tb_print-spec .
+ s-print-spec  = tb_print-spec 
+ lSortRelSeq   = tb_sort-rel.
 
 IF LOOKUP(v-relprint,"Hopx,ACPI,Fibrex,Accord,Metro,Carded,Loylang,PremierX,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair") > 0 AND
    LOOKUP(s-print-what-item,"I,S") > 0 THEN 

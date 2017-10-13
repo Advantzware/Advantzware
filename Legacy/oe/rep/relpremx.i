@@ -24,6 +24,7 @@ def TEMP-TABLE w-oe-rell NO-UNDO
    FIELD loc AS CHAR
    FIELD loc-bin AS CHAR
    field seq    as   int
+   FIELD relseq AS INT 
    field set-no like fg-set.set-no
    INDEX r-no IS PRIMARY r-no i-no
    INDEX idx set-no seq i-no po-no.
@@ -89,7 +90,7 @@ DEF SHARED VAR s-print-loc-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-loc-to AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-from AS cha NO-UNDO.
 DEF SHARED VAR s-print-bin-to AS cha NO-UNDO.
-
+DEFINE SHARED VARIABLE lSortRelSeq AS LOGICAL NO-UNDO .
 
 format w-bin.w-ord-col                  AT 1    FORMAT "x(6)"
        w-bin.w-par                      at 8    format "x(25)"
@@ -231,6 +232,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
          w-oe-rell.seq    = i
          w-oe-rell.set-no = oe-rell.i-no
          oe-rell.printed  = yes.
+         IF lSortRelSeq THEN
+             ASSIGN w-oe-rell.relseq = itemfg.spare-int-2 .
 
         /* gdm - 03230907 */
         IF v-print-components AND
@@ -252,6 +255,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
              w-oe-rell.set-no = oe-rell.i-no
              w-oe-rell.i-no   = fg-set.part-no
              w-oe-rell.qty    = w-oe-rell.qty * v-part-qty.
+            IF lSortRelSeq THEN
+             ASSIGN w-oe-rell.relseq = itemfg.spare-int-2 .
           end.
 
         v-weight = v-weight + (oe-rell.qty * itemfg.weight-100 / 100).
@@ -273,7 +278,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                 itemfg.company EQ cocode AND
                 itemfg.i-no EQ w-oe-rell.i-no
                 no-lock
-          break by w-oe-rell.set-no
+          break BY w-oe-rell.relseq
+                by w-oe-rell.set-no
                 by w-oe-rell.seq
                 by w-oe-rell.i-no
                 by w-oe-rell.po-no
