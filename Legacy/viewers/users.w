@@ -204,7 +204,7 @@ DEFINE VARIABLE cbUserType AS CHARACTER FORMAT "X(256)":U
      SIZE 30 BY 1
      FONT 4 NO-UNDO.
 
-DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(256)":U 
+DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(32)":U 
      LABEL "Password" 
      VIEW-AS FILL-IN 
      SIZE 37 BY 1
@@ -272,7 +272,7 @@ DEFINE FRAME F-Main
           SIZE 37 BY 1
           FONT 4
      fiPassword AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 80 PASSWORD-FIELD 
-     bChgPwd AT ROW 2.67 COL 59 WIDGET-ID 82
+     bChgPwd AT ROW 2.67 COL 59 WIDGET-ID 82 NO-TAB-STOP 
      users.phone-cnty AT ROW 4.1 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 12
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
@@ -382,6 +382,14 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
+     "  -" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 4.1 COL 28 WIDGET-ID 96
+     "  -" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 5.29 COL 28 WIDGET-ID 98
+     "  -" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 100
+     "  -" VIEW-AS TEXT
+          SIZE 3 BY 1 AT ROW 5.29 COL 38 WIDGET-ID 102
      " At Login User Can Select:" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
           FONT 4
@@ -402,14 +410,6 @@ DEFINE FRAME F-Main
           SIZE 10 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
      "FAX: +" VIEW-AS TEXT
           SIZE 7 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
-     "  -" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 4.1 COL 28 WIDGET-ID 96
-     "  -" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 5.29 COL 28 WIDGET-ID 98
-     "  -" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 100
-     "  -" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 5.29 COL 38 WIDGET-ID 102
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -637,10 +637,10 @@ END.
 ON VALUE-CHANGED OF cbUserType IN FRAME F-Main /* User Type */
 DO:
     CASE SELF:SCREEN-VALUE:
-        WHEN "Full User" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "100".
-        WHEN "Production Floor" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "50".
-        WHEN "Administrator" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "700".
         WHEN "Portal User" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "10".
+        WHEN "Production Floor" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "50".
+        WHEN "Full User" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "100".
+        WHEN "Administrator" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "700".
     END CASE.
 END.
 
@@ -671,14 +671,15 @@ DO:
             "You are setting this user's password" SKIP
             "to BLANKS. Is this correct?"
             VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lBlanks AS LOG.
-        IF NOT lBlanks THEN DO:
+        IF NOT lBlanks AND NOT lAdd THEN DO:
             ASSIGN
                 SELF:SCREEN-VALUE = _user._password.
             RETURN NO-APPLY.
         END.
     END.
     
-    RUN ipChangePassword (SELF:SCREEN-VALUE).
+    IF NOT lAdd THEN 
+        RUN ipChangePassword (SELF:SCREEN-VALUE).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1033,13 +1034,17 @@ PROCEDURE local-add-record :
     {methods/template/local/create.i}
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'add-record':U ) .
+  
     ASSIGN
         lAdd = TRUE
         fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
         fi_phone-area:SCREEN-VALUE = ""
         lv-phone-num:SCREEN-VALUE = ""
         fi_fax-area:SCREEN-VALUE = ""
-        lv-fax-num:SCREEN-VALUE = "".
+        lv-fax-num:SCREEN-VALUE = ""
+        cbUserType:SCREEN-VALUE = "Full User"
+        users.securityLevel:SCREEN-VALUE = "100".
+        
     APPLY 'entry' to users.user_id IN FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -1137,20 +1142,25 @@ PROCEDURE local-assign-record :
                 VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lNewPwd AS LOG.
             IF lNewPwd THEN DO:
                 UPDATE
-                    cNewPwd LABEL "Password"
+                    cNewPwd format "x(32)" LABEL "Password"
                     WITH FRAME c VIEW-AS DIALOG-BOX THREE-D SIDE-LABELS.
                 ASSIGN
                     fiPassword:SCREEN-VALUE = cNewPwd.
             END.
         END.
                     
-        CREATE _user.
-        ASSIGN
+        FIND FIRST _user EXCLUSIVE WHERE
             _user._userid = users.user_id
-            _user._password = ENCODE(fiPassword:SCREEN-VALUE)
-            _user._user-name = users.user_name:SCREEN-VALUE.
-        ASSIGN
-            fiPassword:SCREEN-VALUE = _user._password.
+            NO-ERROR.
+        IF NOT AVAIL _user THEN DO:
+            CREATE _user.
+            ASSIGN
+                _user._userid = users.user_id
+                _user._password = ENCODE(fiPassword:SCREEN-VALUE)
+                _user._user-name = users.user_name:SCREEN-VALUE.
+            ASSIGN
+                fiPassword:SCREEN-VALUE = _user._password.
+        END.
     END.
 
     IF adm-new-record AND NOT adm-adding-record THEN DO:  /* copy */
@@ -1348,6 +1358,8 @@ PROCEDURE local-delete-record :
 
     {methods/template/local/deleteAfter.i}
 
+    RUN ipGoBack IN h_Users.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1375,6 +1387,11 @@ PROCEDURE local-display-fields :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+    
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+    
+    IF AVAIL users THEN DO:
     FIND FIRST ttUsers WHERE
         ttUsers.ttfPdbName = PDBNAME(1) AND
         ttUsers.ttfUserID = users.user_id
@@ -1388,10 +1405,7 @@ PROCEDURE local-display-fields :
             ttUsers.ttfDbList = slDatabases:list-items
             ttUsers.ttfModeList = slModes:list-items.
     END.
-    
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-    
+
     ASSIGN 
         fi_phone-area:screen-value = substring(users.phone,1,3)
         lv-phone-num:screen-value = substring(users.phone,4)
@@ -1414,7 +1428,7 @@ PROCEDURE local-display-fields :
 
     ASSIGN
         bChgPwd:SENSITIVE = IF users.user_id = zusers.user_id OR zusers.securityLevel > 699 THEN TRUE ELSE FALSE.
-
+    END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1500,7 +1514,9 @@ PROCEDURE local-update-record :
     ASSIGN
         rThisUser = ?.
         
-    FIND CURRENT users EXCLUSIVE NO-ERROR.
+    FIND users EXCLUSIVE WHERE 
+        users.user_id = users.user_id:SCREEN-VALUE 
+        NO-ERROR.
     IF AVAIL users THEN DO:
         ASSIGN 
             users.userAlias = users.userAlias:screen-value in frame {&frame-name}
