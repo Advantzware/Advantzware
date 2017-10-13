@@ -283,8 +283,8 @@ DEFINE BROWSE Browser-Table
       oe-boll.partial COLUMN-LABEL "Partial" FORMAT "->>>,>>>":U
             WIDTH 12
       oe-boll.qty COLUMN-LABEL "Qty Shipped" FORMAT "->>,>>>,>>9":U
-      fgBin() @ fgBin COLUMN-LABEL "Unts/Pallet" FORMAT ">,>>9":U
-      oe-boll.tot-pallets COLUMN-LABEL "Pallets" FORMAT ">,>>9":U
+      fgBin() @ fgBin COLUMN-LABEL "Unts/Pallet" FORMAT "->,>>>,>>9":U
+      oe-boll.tot-pallets COLUMN-LABEL "Pallets" FORMAT "->,>>>,>>9":U
       oe-boll.weight COLUMN-LABEL "Weight" FORMAT "->>>>>>9":U
             WIDTH 11
       oe-boll.freight FORMAT ">>>,>>9.99":U WIDTH 14
@@ -458,7 +458,7 @@ ASSIGN
      _FldNameList[14]   > ASI.oe-boll.qty
 "oe-boll.qty" "Qty Shipped" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > "_<CALC>"
-"fgBin() @ fgBin" "Unts/Pallet" ">,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"fgBin() @ fgBin" "Unts/Pallet" "->,>>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.oe-boll.tot-pallets
 "oe-boll.tot-pallets" "Pallets" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.oe-boll.weight
