@@ -426,7 +426,7 @@ DO:
    IF LASTKEY = -1 THEN RETURN.
    ASSIGN {&self-name}.
 
-   IF lv-period-to:SCREEN-VALUE < lv-period-fr:SCREEN-VALUE THEN DO:
+   IF int(lv-period-to:SCREEN-VALUE) < int(lv-period-fr:SCREEN-VALUE) THEN DO:
        MESSAGE "Ending Period must be same or later period..." VIEW-AS ALERT-BOX ERROR.
        RETURN NO-APPLY.
    END.
@@ -599,7 +599,7 @@ ON CHOOSE OF btn-go IN FRAME F-Main /* Go */
 DO:
       ASSIGN {&list-1}.
       
-      IF lv-period-to:SCREEN-VALUE < lv-period-fr:SCREEN-VALUE THEN DO:
+      IF int(lv-period-to:SCREEN-VALUE) < int(lv-period-fr:SCREEN-VALUE) THEN DO:
           MESSAGE "Ending Period must be same or later period" VIEW-AS ALERT-BOX ERROR.
           RETURN NO-APPLY.
       END.
