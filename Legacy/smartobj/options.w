@@ -253,8 +253,22 @@ END.
 &Scoped-define SELF-NAME Select_Notes
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Select_Notes s-object
 ON CHOOSE OF Select_Notes IN FRAME F-Main /* Notes */
-DO:
-   {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}"}
+DO:                                    
+    DEF VAR hHandle AS HANDLE NO-UNDO.
+
+  /* get container source object handle */
+  RUN get-link-handle IN adm-broker-hdl (INPUT THIS-PROCEDURE,
+                                         INPUT  'Container-Source':U,
+                                         OUTPUT hHandle).
+  
+  IF hHandle:NAME BEGINS 'po/w-purord' THEN
+      {methods/run_link.i "CONTAINER-SOURCE" "Select_Note" }  /* ticket - 23581*/
+  ELSE
+      {methods/run_link.i "CONTAINER-SOURCE" "{&SELF-NAME}" }
+
+  RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"spec-source",OUTPUT char-hdl).
+      IF char-hdl NE "" THEN
+          RUN value-changed-proc IN WIDGET-HANDLE(char-hdl).
 END.
 
 /* _UIB-CODE-BLOCK-END */
