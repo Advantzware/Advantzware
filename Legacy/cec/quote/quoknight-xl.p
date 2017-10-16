@@ -90,6 +90,17 @@ DEFINE VARIABLE AdobePrinter     AS CHAR NO-UNDO.
 define variable CommandString    AS CHAR NO-UNDO.
 define variable WshNetwork as com-handle.
 DEF VAR v-dir AS CHAR FORMAT "X(80)" NO-UNDO.
+DEF VAR ls-image1 AS cha NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE mypict AS COM-HANDLE NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+ASSIGN ls-full-img1 = cRtnChar .
 
 FIND FIRST users WHERE
      users.user_id EQ USERID("NOSWEAT")
@@ -175,7 +186,6 @@ if not ch-multi then do:
      
    ASSIGN chWorkbook = chExcelApplication:Workbooks:Open(chfile)
           inRowCount = 18.
-
    {cec/quote/quoknight2-xl.i}    
    {cec/quote/quoknight-xl.i 1}
    

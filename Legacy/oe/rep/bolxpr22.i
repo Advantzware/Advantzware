@@ -2,7 +2,7 @@
  
    put 
          "<FArial>"  SKIP
-          "<P14><C+40><B>Bill Of Lading</B>     Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)" SKIP
+          "<P14><C+40><B>Bill Of Lading</B>    "/* Page: " string(PAGE-NUM - lv-pg-num,">>9") + " of <#PAGES>"  FORM "x(20)"*/ SKIP
           "<C1><#1><R+5><C+25>"
           "<=1><C3><FGCOLOR=" trim(lv-comp-color) + ">"
           "<=1><C3><R+1><P20><B>" lv-comp-name "</B><FGCOLOR=" trim(lv-other-color) + ">" FORM "x(6)" 

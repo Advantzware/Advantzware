@@ -1245,7 +1245,7 @@ PROCEDURE send-rmemail :
                      + "PO# " + STRING (tt-email.po-no) + "  "
                      + "Item# " + tt-email.item-no + "  "
                      + "Item Name - "  + tt-email.item-name + "  "
-                     + "The Purchse Order Quantity was " + TRIM(STRING(tt-email.po-qty,"-ZZ,ZZZ,ZZ9.99")) + " "
+                     + "The Purchase Order Quantity was " + TRIM(STRING(tt-email.po-qty,"-ZZ,ZZZ,ZZ9.99")) + " "
                      + tt-email.cons-uom + ". " 
                      + "We just received " + trim(string(tt-email.recvd-qty,"-ZZ,ZZZ,ZZ9.99"))
                      + " " + tt-email.cons-uom  + " out of a total receipt quantity of "
@@ -1259,7 +1259,7 @@ PROCEDURE send-rmemail :
                      + "PO# " + STRING (tt-email.po-no) + "  "
                      + "For Item# "    + tt-email.item-no       + "  "
                      + "With Item Name "  + tt-email.item-name  + "  "
-                     + "The Purchse Order Quantity of " + STRING(tt-email.po-qty,"-ZZ,ZZZ,ZZ9.99")
+                     + "The Purchase Order Quantity of " + STRING(tt-email.po-qty,"-ZZ,ZZZ,ZZ9.99")
                      + " " + tt-email.cons-uom + " has Vendor Underrun % " + string(tt-email.underrun-pct) + ". " 
                      + "We just received " + string(tt-email.recvd-qty,"-ZZ,ZZZ,ZZ9.99")
                      + " " + tt-email.cons-uom + " out of a total receipt quantity of "

@@ -1,17 +1,17 @@
 /* ar/rep/invknight.i  */
 PUT "<FTimes New Roman>"
     "<C3><R2><#2>"
-    "<R+8><C+75><IMAGE#1=" ls-full-img1 SKIP(2) /* image */
+    "<R+8><C+45><IMAGE#1=" ls-full-img1 SKIP(2) /* image */
     "<=1>" SKIP
     "<C1><#2>"
     "<P10><=2><R+6>"
     "<FCourier New>"
      SKIP(1).
  
-  PUT SPACE(12) "PLEASE REMIT TO:"       SKIP
-      SPACE(14) "KNIGHT PAPER BOX CO. "  SKIP
-      SPACE(14) "2638 MOMENTUM PLACE "   SKIP
-      SPACE(14) "CHICAGO, IL 60689-5326 " 
+  PUT SPACE(12) "PLEASE REMIT TO: NOSCO"       SKIP
+      SPACE(14) "2199 DELANY ROAD  "  SKIP
+      SPACE(14) "GURNEE, IL 60031 "   SKIP
+      SPACE(14) "847-336-4200 " 
       SKIP(1) .
 
    ASSIGN

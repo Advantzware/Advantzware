@@ -755,7 +755,7 @@ DO:
       v-print-fmt EQ "TRILAKE-EXCEL" OR
       v-print-fmt EQ "FIBRE-EXCEL"   OR 
       v-print-fmt EQ "MSPACK-EXCEL"  OR /* gdm - 12030805 */ 
-      v-print-fmt EQ "KNIGHT-EXCEL") AND /* gdm - 11060808 */
+      v-print-fmt EQ "NOSCO-EXCEL") AND /* gdm - 11060808 */
      NOT CAN-FIND(FIRST sys-ctrl-shipto WHERE
          sys-ctrl-shipto.company = cocode AND
          sys-ctrl-shipto.NAME = "QUOPRINT") THEN
@@ -1758,7 +1758,7 @@ PROCEDURE batchmail-2-proc :
       v-print-fmt EQ "TRILAKE-EXCEL" OR
       v-print-fmt EQ "FIBRE-EXCEL" OR
       v-print-fmt EQ "MSPACK-EXCEL" OR
-      v-print-fmt EQ "KNIGHT-EXCEL") AND
+      v-print-fmt EQ "NOSCO-EXCEL") AND
       NOT CAN-FIND(FIRST sys-ctrl-shipto WHERE
           sys-ctrl-shipto.company = cocode AND
           sys-ctrl-shipto.NAME = "QUOPRINT") THEN
@@ -1773,7 +1773,7 @@ PROCEDURE batchmail-2-proc :
       v-print-fmt <> "BELL-EXCEL" AND
       v-print-fmt <> "CCC-EXCEL" AND
        v-print-fmt <> "FIBRE-EXCEL"  AND
-      v-print-fmt <> "KNIGHT-EXCEL" AND 
+      v-print-fmt <> "NOSCO-EXCEL" AND 
       v-print-fmt <> "MSPACK-EXCEL" THEN
       lv-pdf-file = init-dir + "\" + (IF v-print-fmt EQ "Century" THEN "CBXQuote"
                     ELSE "QT") + STRING(b-quotehd.q-no).
@@ -1866,7 +1866,7 @@ PROCEDURE GenerateMail :
                v-print-fmt EQ "CCC-EXCEL" OR
                v-print-fmt EQ "TRILAKE-EXCEL" OR
                v-print-fmt EQ "FIBRE-EXCEL" OR
-               v-print-fmt EQ "KNIGHT-EXCEL" OR
+               v-print-fmt EQ "NOSCO-EXCEL" OR
                v-print-fmt EQ "MSPACK-EXCEL") THEN
            RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
 
@@ -1901,7 +1901,7 @@ PROCEDURE GenerateReport :
          v-print-fmt <> "BELL-EXCEL" AND
          v-print-fmt <> "CCC-EXCEL" AND
          v-print-fmt <> "FIBRE-EXCEL" AND 
-         v-print-fmt <> "KNIGHT-EXCEL" AND 
+         v-print-fmt <> "NOSCO-EXCEL" AND 
          v-print-fmt <> "MSPACK-EXCEL" THEN
       DO:
          case rd-dest:
@@ -2285,7 +2285,7 @@ ASSIGN
  v-lines-per-page = lines-per-page.
 
 /* Check for XL also */
-IF v-print-fmt = "CSC-EXCEL" OR v-print-fmt = "TRILAKE-EXCEL" OR v-print-fmt = "FIBRE-EXCEL" OR v-print-fmt = "KNIGHT-EXCEL" 
+IF v-print-fmt = "CSC-EXCEL" OR v-print-fmt = "TRILAKE-EXCEL" OR v-print-fmt = "FIBRE-EXCEL" OR v-print-fmt = "NOSCO-EXCEL" 
     OR v-print-fmt = "MSPACK-EXCEL" OR v-print-fmt = "PREMIER-EXCEL" 
     OR v-print-fmt = "CCC-EXCEL" OR v-print-fmt = "BELL-EXCEL" THEN.
 ELSE
@@ -2475,7 +2475,7 @@ ASSIGN
  v-lines-per-page = lines-per-page.
 
 /* Check for XL also */
-IF v-print-fmt = "CSC-EXCEL" OR v-print-fmt = "TRILAKE-EXCEL" OR v-print-fmt = "FIBRE-EXCEL" OR v-print-fmt = "KNIGHT-EXCEL" 
+IF v-print-fmt = "CSC-EXCEL" OR v-print-fmt = "TRILAKE-EXCEL" OR v-print-fmt = "FIBRE-EXCEL" OR v-print-fmt = "NOSCO-EXCEL" 
    OR v-print-fmt = "MSPACK-EXCEL" OR v-print-fmt = "PREMIER-EXCEL" 
    OR v-print-fmt = "CCC-EXCEL" OR v-print-fmt = "BELL-EXCEL" THEN.
 ELSE
@@ -2629,7 +2629,7 @@ PROCEDURE SetQuoForm :
        WHEN "Accord" THEN ASSIGN v-program = "cec/quote/quoaccd.p" lines-per-page = 66.
        WHEN "PPI" THEN ASSIGN v-program = "cec/quote/quoppi.p" lines-per-page = 66.
        WHEN "Packrite" THEN ASSIGN v-program = "cec/quote/quopkrit.p" lines-per-page = 66.
-       WHEN "KNIGHT-EXCEL" THEN ASSIGN v-program = "cec/quote/quoknight-xl.p" lines-per-page = 66. /* gdm - 11060808 */
+       WHEN "NOSCO-EXCEL" THEN ASSIGN v-program = "cec/quote/quoknight-xl.p" lines-per-page = 66. /* gdm - 11060808 */
        WHEN "Xprint30" THEN ASSIGN v-program = "cec/quote/qoxpnt30.p" lines-per-page = 66.
        WHEN "StClair" THEN ASSIGN v-program = "cec/quote/qosclair.p" lines-per-page = 66.
        WHEN "MSPACK-EXCEL" THEN ASSIGN v-program = "cec/quote/quomsp-xl.p" lines-per-page = 66.
@@ -2688,7 +2688,7 @@ PROCEDURE show-param :
      v-print-fmt <> "PREMIER-EXCEL" AND
      v-print-fmt <> "BELL-EXCEL" AND
      v-print-fmt <> "CCC-EXCEL" AND
-     v-print-fmt <> "KNIGHT-EXCEL" THEN.
+     v-print-fmt <> "NOSCO-EXCEL" THEN.
   ELSE DO :
 
   do while true:

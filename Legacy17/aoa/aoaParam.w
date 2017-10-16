@@ -847,6 +847,18 @@ END.
 &ANALYZE-RESUME
 
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView W-Win
+ON RIGHT-MOUSE-CLICK OF btnView IN FRAME paramFrame /* View */
+DO:
+    RUN pSaveParamValues (NO, BUFFER user-print).
+    MESSAGE "Parameter Values Saved"
+    VIEW-AS ALERT-BOX.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define FRAME-NAME frameColumns
 &Scoped-define SELF-NAME svAvailableColumns
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svAvailableColumns W-Win

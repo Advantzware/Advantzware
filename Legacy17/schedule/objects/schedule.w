@@ -1592,8 +1592,27 @@ PROCEDURE local-initialize :
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE startHeight AS INTEGER NO-UNDO.
   DEFINE VARIABLE startWidth AS INTEGER NO-UNDO.
+  DEFINE VARIABLE version AS CHARACTER NO-UNDO.
+  DEFINE VARIABLE lContinue AS LOGICAL NO-UNDO.
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  INPUT FROM VALUE(SEARCH('{&data}/' + ID + '/config.dat')) NO-ECHO.
+  IMPORT version.
+  INPUT CLOSE.
+  IF version LT "{&version1}" THEN DO:
+    MESSAGE
+        "Schedule Board Configuration Release" version "is Outdated." SKIP 
+        "Auto Correct to Release {&version}?" SKIP(1)
+        "Warning: Auto Correrct will not preserve any previous Configuration Values!!!"
+    VIEW-AS ALERT-BOX BUTTONS YES-NO TITLE "Invalid SB Release"
+    UPDATE lContinue.
+    IF lContinue THEN
+    OS-COPY VALUE(SEARCH('{&data}/_config.dat')) VALUE(SEARCH('{&data}/' + ID + '/config.dat')).
+    ELSE DO:
+        APPLY 'CLOSE':U TO THIS-PROCEDURE.
+        RETURN.
+    END.
+  END.
 &IF DEFINED(UIB_is_Running) EQ 0 &THEN
   IF NOT continue THEN RETURN.
 &ENDIF

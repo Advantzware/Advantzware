@@ -24,7 +24,7 @@ ASSIGN
  str-init[1]  = "ABox,10 Pitch,ContSrvc,CSC-EXCEL,TRILAKE-EXCEL,HOP," +
                 "Triad,Fibre,Harwell,Pacific,Xprint,SouthPak,Midwest," +
                 "Century,Concepts,Oracle,PremierX,Elite,Unipak,OTTPkg,Xprint30,StClair," +
-                "Frankstn,Mirpkg,APC,FibreX,PPI,Fibre-Excel,Packrite,Knight-Excel," + 
+                "Frankstn,Mirpkg,APC,FibreX,PPI,Fibre-Excel,Packrite,Nosco-Excel," + 
                 "MSPACK-Excel,AllWest,Simkins,CCC,Soule,SouleMed,MWFIBRE,Loylang,Protagon," +
                 "PeachTree,LoylangBSF,Premier-Excel,Oklahoma,Accord,Hughes,Sultana,CCC-Excel,Axis,Boss,Bell-Excel,Perform," +
                 "Printers,quoprint 1,quoprint 2,quoprint 10,quoprint 20,quoprint10-CAN"
@@ -37,7 +37,7 @@ ASSIGN
                 "MWBox,CentBox,Dayton,Oracle,RFC,PremierX,CSC,Frankstn,Mirpkg," +
                 "CSCIN,Elite,Unipak,AllpkgX,RuddX,APC,Abox-Xp,Consbox,SonocoX," +
                 "BlueRX,ImperiaX,ColoniaX,Indiana,ArgrovX,AgMach,HPB,PPI,ABC,Fibrex," +
-                "TriLakes,Knight,Knight1,Southpakl,Androp,Packrite," +
+                "TriLakes,Nosco,Nosco1,Southpakl,Androp,Packrite," +
                 "Rosmar,Badger,Badger-Emailed,AllWest,Simkins,ACPI,ColorX,Loylang," +
                 "ColonialLot#,LoylangJIT,Carded,CCCFGLot,CSC-GA,CCCFGL3,Adapt,Soule,SouleMed,CapCityIN," +
                 "Peachtreefgl3,Peachtree,DEE,CSC-GASummary,TrilakesBroker,Accord,NStock,LoylangBSF,PremierS,Printers," +
@@ -66,7 +66,7 @@ ASSIGN
                 "RFC,MWBox,Intrpack,Dayton,Xprint2,SouthPak,SouthPak-XL,PremierX,PremierPX," +
                 "Frankstn,Mirpkg,CSCIN,Elite,ACPI,P&PX,Express,Lamar Pkg,OTTPkg,DEE,APC,ConsBox," +
                 "Indiana,Michcor,FibreCI,Herman,PPI,PackRite,Hamilton,Trilakes,CapCityIN,TrilakesX,Fibrex," +
-                "Allwest,COLOR,Badger,LoyLang,Carded,Metro,Knight,CSC-GA,KDWILLSX,Peachtree,Protagon," +
+                "Allwest,COLOR,Badger,LoyLang,Carded,Metro,Nosco,CSC-GA,KDWILLSX,Peachtree,Protagon," +
                 "PremierCX,PeachTreeBC,ACCORDBC,Soule,NSTOCK,TrilakesLot#,Multicell,MetroTags,AllPkg2,PremierBroker,SouleMed,Chillicothe," +
                 "CapitolBC,CardedBC,Axis,BadgerSoldTo,PeachtreeLotPO,Lakeside,CSCINStamp,CCCWPP,Prystup-Excel,Printers,Printers2,RFCX," +
                 "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN"
@@ -191,7 +191,7 @@ ASSIGN
  str-init[108] = "Workstation,Server"  
  str-init[109] = "Reorder Point"   
  str-init[110] = ",HOP,Xprint,AllWest,PremierPkg,SouleMed,Soule"  
- str-init[111] = ",Positive Pay"
+ str-init[111] = ",Positive Pay,Positive Pay-knight"
  str-init[112] = ",DuplicateFGDayClient" 
  str-init[113] = ",Trailer" 
  str-init[114] = ",Overrun/Underrun"

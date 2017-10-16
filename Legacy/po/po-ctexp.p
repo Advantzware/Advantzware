@@ -96,7 +96,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                     v-slash + "in" + v-slash
      v-outfile[2] = v-outfile[1] + string(time,"99999999")
      v-outfile[3] =  (IF corrtrim-char = "Welsh" THEN "socorrWelsh_po_" ELSE "po_")
-                + trim(v-format) + "lacor" +
+                + trim(REPLACE(v-format, " ","")) + "lacor" +
                     substr(string(year(today),"9999"),3,2) +
                     string(month(today),"99") +
                     string(day(today),"99") +

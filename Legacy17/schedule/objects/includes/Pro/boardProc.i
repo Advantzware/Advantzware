@@ -925,6 +925,8 @@ PROCEDURE jobSelection :
 
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
+/*  MESSAGE ipWidget:TOOLTIP VIEW-AS ALERT-BOX.*/
+  
   RUN gridLine (ipWidget).
   IF endMove THEN
   DO:

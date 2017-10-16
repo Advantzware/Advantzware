@@ -87,10 +87,10 @@ DEF SHARED VAR s-print-zero-qty AS LOG NO-UNDO.
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
-ASSIGN
-   ls-image1 = "images\premiercan.jpg"
-   FILE-INFO:FILE-NAME = ls-image1
-   ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+/*ASSIGN                                          */
+/*   ls-image1 = "images\premiercan.jpg"          */
+/*   FILE-INFO:FILE-NAME = ls-image1              */
+/*   ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
@@ -100,8 +100,50 @@ DEF VAR v-comp-add1 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add2 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add3 AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
+
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+DEFINE VARIABLE lChkImage AS LOGICAL NO-UNDO. 
+DEFINE VARIABLE cTaxCode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cCompanyID AS CHARACTER NO-UNDO.
+
     
     find first company where company.company = cocode no-lock no-error.
+IF company.company EQ '004' THEN 
+        ASSIGN 
+            cCurCode = 'CAD'
+            cTaxCode = 'HST'
+            cCompanyID = 'GST# 70523 1090 RT0001'
+            .
+    ELSE IF company.company EQ '006' THEN 
+        ASSIGN 
+            cCurCode = 'AUD'
+            cTaxCode = 'GST'
+            cCompanyID = 'ABN 11 620 887 149'
+            .
+    ELSE 
+        ASSIGN 
+            cCurCode = 'USD'
+            cTaxCode = 'Sales Tax'
+            cCompanyID = ''
+            .
+  RUN sys/ref/nk1look.p (INPUT company.company, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+            INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+            OUTPUT cRtnChar, OUTPUT lRecFound).
+
+IF cRtnChar NE "" THEN DO:
+    ASSIGN 
+        lChkImage = YES
+        ls-full-img1 = SEARCH(ls-full-img1)
+        ls-full-img1 = cRtnChar + ">".
+END.
+DO:
+    ASSIGN 
+        ls-image1 = SEARCH("images\premierinv.jpg")
+        FILE-INFO:FILE-NAME = ls-image1.
+    ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+END.
 
     find first oe-ctrl where oe-ctrl.company = cocode no-lock no-error.
 
@@ -452,13 +494,13 @@ DEF VAR v-comp-add4 AS cha FORM "x(30)" NO-UNDO.
     PUT "<R58><C58><#8><FROM><R+5><C+22><RECT> " 
         "<=8> Sub Total    :" v-subtot-lines FORM "->>,>>9.99"
         "<=8><R+1> Freight      :" v-inv-freight
-        "<=8><R+2> HST          :" ar-inv.tax-amt FORM "->>,>>9.99"
+        "<=8><R+2> " cTaxCode FORMAT "x(9)" "    :" ar-inv.tax-amt FORM "->>,>>9.99"
         "<=8><R+3>" "" 
         "<=8><R+4> Total Invoice:" v-inv-total FORM "->>,>>9.99" . /* ar-inv.gross*/
 
 
     PUT "<FArial><R58><C1><#9><P12><B> THANK YOU. </B> <P9> " SKIP
-            "<R60><C1><P12> All currencies displayed in CAD. <P9> " SKIP
+            "<R60><C1><P12> All currencies displayed in " cCurCode FORMAT "x(3)" ". <P9> " SKIP
         "<=9><R-6>" v-notes[1]
         "<=9><R-5>" v-notes[2]
         "<=9><R-4>" v-notes[3]

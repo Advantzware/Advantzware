@@ -1288,6 +1288,49 @@ PROCEDURE output-to-screen :
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME  
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PositivePay-knight C-Win 
+PROCEDURE PositivePay-knight :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes: gdm - 05210901
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE v-check-date AS DATE NO-UNDO .
+IF tb_APcheckFile THEN DO:
+ 
+     FIND FIRST bank NO-LOCK
+        WHERE bank.company EQ cocode
+          AND bank.bank-code EQ ap-sel.bank-code NO-ERROR.
+
+     v-check-date = IF ap-sel.man-check THEN ap-sel.pre-date ELSE ap-sel.check-date .
+
+     PUT STREAM checkFile UNFORMATTED
+     IF ap-sel.vend-no EQ "VOID"
+          THEN "V" ELSE "I"      ","                                 /* Void Indicator */
+     STRING(INT(REPLACE(bank.bk-act,"-","")), "9999999999")    ","    /* Account Number */
+     STRING(INT(ap-sel.check-no))               ","            /* Check Number   */
+     IF TRIM(vend.name) NE ""
+       THEN
+        TRIM(vend.name) 
+       ELSE FILL(" ",10)                        ","            /* Payee NAME     */
+
+     TRIM(STRING(v-amt-paid,"->>>>>>>9.99"))         ","      /* Amount         */  
+     IF v-check-date NE ? 
+        THEN STRING(v-check-date,"99/99/9999")   
+        ELSE "00000000"                                        /* Issue Date     */
+     FILL(" ",30)                                              /* Additinal data */ 
+     
+    SKIP.
+
+END.
+
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE PositivePay C-Win 

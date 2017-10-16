@@ -144,6 +144,13 @@ FUNCTION fDateOptions RETURNS LOGICAL (ipDateOption AS HANDLE)  FORWARD.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDateOptionValue W-Win 
+FUNCTION fDateOptionValue RETURNS DATE
+  (ipcDateOption AS CHARACTER, ipdtDate AS DATE)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGenerateInclude W-Win 
 FUNCTION fGenerateInclude RETURNS LOGICAL
   ( iphFrame AS HANDLE, ipcType AS CHARACTER )  FORWARD.
@@ -376,6 +383,23 @@ DEFINE FRAME paramFrame
          AT COL 1 ROW 1
          SIZE 149 BY 18.05.
 
+DEFINE FRAME frameShow
+     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
+     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
+     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
+     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
+     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
+     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
+     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
+     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
+     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
+     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 1
+         SIZE 40 BY 10.48
+         TITLE "Show/Hide Sections" WIDGET-ID 300.
+
 DEFINE FRAME frameColumns
      svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
      btnDefault AT ROW 1.71 COL 32 HELP
@@ -398,23 +422,6 @@ DEFINE FRAME frameColumns
          AT COL 82 ROW 1
          SIZE 67 BY 10.48
          TITLE "Report Columns" WIDGET-ID 200.
-
-DEFINE FRAME frameShow
-     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
-     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
-     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
-     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
-     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
-     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
-     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
-     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
-     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
-     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 1
-         SIZE 40 BY 10.48
-         TITLE "Show/Hide Sections" WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -834,6 +841,18 @@ ON CHOOSE OF btnView IN FRAME paramFrame /* View */
 DO:
     RUN pSaveParamValues (NO, BUFFER user-print).
     {aoa/includes/aoaURL.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView W-Win
+ON RIGHT-MOUSE-CLICK OF btnView IN FRAME paramFrame /* View */
+DO:
+    RUN pSaveParamValues (NO, BUFFER user-print).
+    MESSAGE "Parameter Values Saved"
+    VIEW-AS ALERT-BOX.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2247,6 +2266,14 @@ FUNCTION fDateOptions RETURNS LOGICAL (ipDateOption AS HANDLE) :
 ,Current Date +5~
 ,Current Date -6~
 ,Current Date +6~
+,Current Date -7~
+,Current Date +7~
+,Current Date -8~
+,Current Date +8~
+,Current Date -9~
+,Current Date +9~
+,Current Date -10~
+,Current Date +10~
 ,Start of this Month~
 ,End of this Month~
 ,First Day of Last Month~
@@ -2277,6 +2304,20 @@ FUNCTION fDateOptions RETURNS LOGICAL (ipDateOption AS HANDLE) :
         .
 
   RETURN TRUE.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDateOptionValue W-Win 
+FUNCTION fDateOptionValue RETURNS DATE
+  (ipcDateOption AS CHARACTER, ipdtDate AS DATE) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    RETURN DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin,ipcDateOption,ipdtDate).
 
 END FUNCTION.
 

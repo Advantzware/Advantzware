@@ -422,7 +422,7 @@ PROCEDURE EmailNotify :
    {&methods/lValidateError.i YES}
   /* IF tbNotice:CHECKED IN FRAME {&FRAME-NAME} THEN */ DO:
 
-    IF AVAILABLE phone AND NOT CAN-FIND (FIRST reftable NO-LOCK
+    IF AVAIL phone AND NOT CAN-FIND (FIRST reftable NO-LOCK
                      WHERE reftable.rec_key = phone.table_rec_key
                        AND reftable.CODE    = STRING (phone.rec_key)) 
     THEN DO:
@@ -536,7 +536,7 @@ PROCEDURE local-display-fields :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
 
   /* After Standard Behavior. */
-  IF AVAILABLE phone THEN
+  IF AVAIL phone THEN 
     vrPhone = phone.rec_key.
   RUN SetEmailNotify.
 
@@ -572,7 +572,8 @@ PROCEDURE local-update-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
   /* After Standard Behavior. */
-  vrPhone = phone.rec_key.
+  IF AVAIL phone THEN 
+    vrPhone = phone.rec_key.
   RUN SetEmailNotify.
 
   IF ll-new-record AND CAN-FIND(FIRST shipto WHERE
@@ -650,8 +651,9 @@ PROCEDURE SetEmailNotify :
       ELSE tbNotice:CHECKED = NO.
 */  
   END.
- IF AVAILABLE phone THEN
-   vrPhone = phone.rec_key.
+
+  IF AVAIL phone THEN 
+    vrPhone = phone.rec_key.
 
 /*   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"CONTAINER",OUTPUT char-hdl). */
 /*                                                                                       */
@@ -720,7 +722,7 @@ FUNCTION AdvancedNotice RETURNS LOGICAL
   ELSE
     IF AVAIL(phone) THEN
       vrPhone = phone.rec_key.
-  IF AVAILABLE phone AND CAN-FIND (FIRST reftable NO-LOCK
+    IF AVAIL phone AND CAN-FIND (FIRST reftable NO-LOCK
                WHERE reftable.rec_key = phone.table_rec_key
                  AND reftable.CODE    = STRING (phone.rec_key)) 
                /*  AND tbNotice:CHECKED IN FRAME {&FRAME-NAME} */

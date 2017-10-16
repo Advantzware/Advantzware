@@ -36,7 +36,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 {methods/defines/hndldefs.i}
-
+{methods/prgsecur.i}
 {custom/gcompany.i}
 
 /* _UIB-CODE-BLOCK-END */

@@ -94,7 +94,7 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
    v-outfile[1] = TRIM(hrms-dir) + v-slash + "dataxfer" +
                   v-slash + "in" + v-slash
    v-outfile[2] = v-outfile[1] + string(TIME,"99999999")
-   v-outfile[3] = "po_" + trim(v-format) + vend.vend-no +
+   v-outfile[3] = "po_" + trim(REPLACE(v-format, " ","")) + vend.vend-no +
                   substr(STRING(YEAR(TODAY),"9999"),3,2) +
                   string(MONTH(TODAY),"99") +
                   string(DAY(TODAY),"99") +
@@ -102,7 +102,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
                   substr(STRING(TIME,"HH:MM:SS"),4,2) +
                   substr(STRING(TIME,"HH:MM:SS"),7,2) + ".dat"
    v-outfile[4] = v-outfile[1] + v-outfile[3].
-    
+   
+   
   OUTPUT to value(v-outfile[2]).
 
   IF po-ord.stat EQ "N" THEN po-ord.stat = "O".

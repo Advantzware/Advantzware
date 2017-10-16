@@ -145,12 +145,12 @@ DEFINE BROWSE BROWSE-2
      po-ordl.cost
      po-ordl.pr-uom column-label "UOM"
      po-ordl.t-cost
-     po-ordl.i-name
+     po-ordl.i-name 
      ENABLE tt-pol.selekt
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 135 BY 12.38
-         BGCOLOR 8  ROW-HEIGHT-CHARS .52 FIT-LAST-COLUMN.
+         BGCOLOR 8  ROW-HEIGHT-CHARS .52 /*FIT-LAST-COLUMN*/.
 
 
 /* ************************  Frame Definitions  *********************** */

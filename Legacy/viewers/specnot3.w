@@ -34,7 +34,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-
+DEFINE SHARED VARIABLE g_lookup-var AS CHARACTER NO-UNDO.
 DEFINE VARIABLE ip-rec_key AS CHARACTER NO-UNDO.
 {custom/globdefs.i}
 &scoped-define spec-note spec-note
@@ -281,6 +281,26 @@ ON CHOOSE OF btProgramList IN FRAME F-Main /* Program */
 DO:
     IF AVAILABLE notes THEN
     MESSAGE notes.updateProgram VIEW-AS ALERT-BOX INFORMATION.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL notes.note_code V-table-Win
+ON HELP OF notes.note_code IN FRAME F-Main /* Dept */
+DO:
+  RUN lookups/dept.p.
+  IF g_lookup-var NE '' AND g_lookup-var NE SELF:SCREEN-VALUE THEN
+  DO:
+    FIND dept NO-LOCK WHERE dept.code EQ g_lookup-var NO-ERROR.
+    ASSIGN
+      SELF:SCREEN-VALUE = g_lookup-var
+      notes.note_title:SCREEN-VALUE = IF AVAIL dept THEN dept.dscr ELSE ''.
+  END.
+  APPLY 'ENTRY' TO SELF.
+  RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */

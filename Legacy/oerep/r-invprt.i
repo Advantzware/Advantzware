@@ -1483,7 +1483,7 @@ PROCEDURE run-report :
             PUT CONTROL CHR(18).
         END.
 
-        ELSE IF LOOKUP(v-print-fmt,"BlueRX,ColoniaX,ABC,Knight,Knight1,Central,Rosmar,ACPI,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree") > 0 THEN 
+        ELSE IF LOOKUP(v-print-fmt,"BlueRX,ColoniaX,ABC,Nosco,Nosco1,Central,Rosmar,ACPI,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree") > 0 THEN 
             DO:
                 RUN value(v-program) (""). 
                 v-reprint = YES.
@@ -1723,7 +1723,7 @@ PROCEDURE run-report-posted :
             PUT CONTROL CHR(18).
         END.
 
-        ELSE IF LOOKUP(v-print-fmt,"BlueRX,ColoniaX,ABC,Knight,Knight1,Central,Rosmar,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree") > 0 THEN 
+        ELSE IF LOOKUP(v-print-fmt,"BlueRX,ColoniaX,ABC,Nosco,Nosco1,Central,Rosmar,ACPI,ColorX,ColonialLot#,Carded,CCCFGLot,CCCFGL3,Peachtreefgl3,Peachtree") > 0 THEN 
             DO:  
                 RUN value(v-program) ("").
                 IF tb_cust-copy THEN RUN value(v-program) ("Customer Copy").

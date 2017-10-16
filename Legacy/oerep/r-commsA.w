@@ -843,10 +843,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_prep C-Win
 ON VALUE-CHANGED OF tb_prep IN FRAME FRAME-A /* Show Prep Charges? */
 DO:
-  IF {&self-name}:SCREEN-VALUE EQ "Yes" THEN
+  /*IF {&self-name}:SCREEN-VALUE EQ "Yes" THEN
     rd_part-fg:SENSITIVE = YES.
   ELSE
-    rd_part-fg:SENSITIVE = NO.
+    rd_part-fg:SENSITIVE = NO.*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -955,12 +955,16 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {methods/nowait.i}
 
   DO WITH FRAME {&FRAME-NAME}:
-    rd_part-fg:SENSITIVE = NO.
+    /*rd_part-fg:SENSITIVE = NO.*/
     {custom/usrprint.i}
 
     ASSIGN begin_slsmn:SENSITIVE = YES 
            end_slsmn:SENSITIVE = YES
            tgChooseSalesReps:SCREEN-VALUE = "NO".
+    IF tb_detailed:SCREEN-VALUE EQ "Yes" THEN
+        rd_part-fg:SENSITIVE = YES.
+    ELSE
+        rd_part-fg:SENSITIVE = NO.
 
     APPLY "entry" TO rd_ptd.
 

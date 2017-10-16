@@ -1005,7 +1005,7 @@ IF tb_excel THEN DO:
    excelheader3 = "Job#,Blank,Start SE,End SE,Start Run,End Run,Received,Received,Quantity,Received,Deviation,Produced,Waste,per line,Time,Run time,Per Hr,,Efficiency,Efficiency".   
    */
    excelheader2 = ",,MR Start,MR End,Run Start,Run End,,Sq Feet,Setup,Run,Sq Feet,Sheets,Produced,Finished,FG,FG,Sq. Ft.,Sq Ft,waste % ,Avg Pcs,Setup,Run".
-   excelheader3 = "Machine,Date,Time,Time,Time,Time,Job#,Blank,Hours,Hours,Received,Received,Quantity,Quantity,Received,Deviation,Produced,Waste,per line,Per Hr,Efficiency,Efficiency".
+   excelheader3 = "Machine,Date,Time,Time,Time,Time,Job#,Blank,Hours,Hours,Received,Received,Quantity,Quantity,Received,Deviation,Produced,Waste,per line,Per Hr,Efficiency,Efficiency,Shift#".
    PUT STREAM excel UNFORMATTED '"' REPLACE(excelheader2,',','","') '"' SKIP
        '"' REPLACE(excelheader3,',','","') '"' SKIP.
        .

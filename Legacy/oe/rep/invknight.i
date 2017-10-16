@@ -2,17 +2,18 @@
 
 PUT "<FTimes New Roman>"
     "<C3><R4><#2>"
-    "<R+7.5><C+75><IMAGE#1=" ls-full-img1 SKIP(3)
+    "<R+7.5><C+45><IMAGE#1=" ls-full-img1 SKIP(3)
     "<=1>"
     "<C1><#2>"
     "<P10><=2><R+6>"
     "<FCourier New>"
-    SKIP(3).
+    SKIP(2).
 
   PUT  
-       SPACE(2) "REMIT TO: KNIGHT PAPER BOX CO. "  SKIP
-       SPACE(12) "2638 MOMENTUM PLACE " SKIP
-       SPACE(12) "CHICAGO, IL 60689-5326 " 
+       SPACE(2) "REMIT TO: NOSCO "  SKIP
+       SPACE(12) "2199 DELANY ROAD " SKIP
+       SPACE(12) "GURNEE, IL 60031 " SKIP
+       SPACE(12) "847-336-4200 " 
        SKIP(1) .
 
    ASSIGN v-billto-name =  inv-head.cust-name

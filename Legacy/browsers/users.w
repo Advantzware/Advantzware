@@ -31,7 +31,9 @@ CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
 
+&SCOPED-DEFINE setBrowseFocus
 &SCOPED-DEFINE winReSize
+&SCOPED-DEFINE SortByPhrase (IF browse-order:SCREEN-VALUE IN FRAME F-Main = "1" THEN users.user_id ELSE users.user_name)
 {methods/defines/winReSize.i}
 
 /* Parameters Definitions ---                                           */
@@ -40,6 +42,7 @@ CREATE WIDGET-POOL.
 
 {custom/globdefs.i}
 {sys/inc/VAR.i NEW SHARED}
+DEF BUFFER zUsers for users.
 ASSIGN cocode = g_company
        locode = g_loc.
 
@@ -56,7 +59,7 @@ ASSIGN cocode = g_company
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target,Navigation-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME Browser-Table
 
@@ -67,22 +70,13 @@ ASSIGN cocode = g_company
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE Browser-Table                                 */
-&Scoped-define FIELDS-IN-QUERY-Browser-Table users.user_id users.user_name ~
-users.track_usage users.use_colors users.use_fonts users.use_ctrl_keys ~
-usr.Usr-Lang 
-&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
-&Scoped-define QUERY-STRING-Browser-Table FOR EACH users WHERE ~{&KEY-PHRASE} ~
-      AND users.user_id = userid(ldbname(1)) or ~
-userid(ldbname(1)) = "asi" or ~
-(userid(ldbname(1)) = "admin" and users.user_id NE "asi") NO-LOCK, ~
-      FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK ~
-    ~{&SORTBY-PHRASE}
-&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH users WHERE ~{&KEY-PHRASE} ~
-      AND users.user_id = userid(ldbname(1)) or ~
-userid(ldbname(1)) = "asi" or ~
-(userid(ldbname(1)) = "admin" and users.user_id NE "asi") NO-LOCK, ~
-      FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK ~
-    ~{&SORTBY-PHRASE}.
+&Scoped-define FIELDS-IN-QUERY-Browser-Table users.user_id users.user_name users.phone users.image_filename users.userType users.securityLevel   
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table   
+&Scoped-define SELF-NAME Browser-Table
+&Scoped-define QUERY-STRING-Browser-Table FOR EACH users WHERE {&KEY-PHRASE} AND     users.user_id = userid(ldbname(1)) OR     zUsers.securityLevel GE 1000 OR     (zUsers.securityLevel GE 700 AND users.user_id NE "ASI") NO-LOCK, ~
+               FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK         BY {&SortByPhrase}
+&Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY {&SELF-NAME} FOR EACH users WHERE {&KEY-PHRASE} AND     users.user_id = userid(ldbname(1)) OR     zUsers.securityLevel GE 1000 OR     (zUsers.securityLevel GE 700 AND users.user_id NE "ASI") NO-LOCK, ~
+               FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK         BY {&SortByPhrase}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table users usr
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table users
 &Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table usr
@@ -130,28 +124,22 @@ DEFINE RECTANGLE RECT-4
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-      users
-    FIELDS(users.user_id
-      users.user_name
-      users.track_usage
-      users.use_colors
-      users.use_fonts
-      users.use_ctrl_keys), 
-      usr
-    FIELDS(usr.Usr-Lang) SCROLLING.
+      users, 
+      usr SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
 DEFINE BROWSE Browser-Table
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _STRUCTURED
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS Browser-Table B-table-Win _FREEFORM
   QUERY Browser-Table NO-LOCK DISPLAY
-      users.user_id FORMAT "X(8)":U
-      users.user_name FORMAT "X(30)":U
-      users.track_usage FORMAT "yes/no":U
-      users.use_colors COLUMN-LABEL "Use Colors" FORMAT "yes/no":U
-      users.use_fonts COLUMN-LABEL "Use Fonts" FORMAT "yes/no":U
-      users.use_ctrl_keys FORMAT "yes/no":U
-      usr.Usr-Lang FORMAT "x(10)":U
+      users.user_id COLUMN-LABEL "User ID" FORMAT "X(8)":U
+      users.user_name FORMAT "X(30)":U WIDTH 34.8
+      users.phone FORMAT "x(12)":U WIDTH 18
+      users.image_filename COLUMN-LABEL "Email" FORMAT "X(40)":U
+            WIDTH 39.4
+      users.userType FORMAT "x(20)":U WIDTH 18.2
+      users.securityLevel COLUMN-LABEL "Sec Lvl" FORMAT ">999":U
+            WIDTH 12
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 146 BY 18.1
@@ -229,7 +217,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB Browser-Table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -247,23 +235,20 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.users,ASI.usr WHERE ASI.users ..."
+     _START_FREEFORM
+OPEN QUERY {&SELF-NAME} FOR EACH users WHERE {&KEY-PHRASE} AND
+    users.user_id = userid(ldbname(1)) OR
+    zUsers.securityLevel GE 1000 OR
+    (zUsers.securityLevel GE 700 AND users.user_id NE "ASI") NO-LOCK,
+        FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
+        BY {&SortByPhrase}.
+     _END_FREEFORM
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = "USED, FIRST USED"
      _Where[1]         = "users.user_id = userid(ldbname(1)) or
-userid(ldbname(1)) = ""asi"" or
-(userid(ldbname(1)) = ""admin"" and users.user_id NE ""asi"")"
+zUsers.securityLevel GE 1000 OR
+(zUsers.securityLevel GE 700 AND users.securityLevel LE zUsers.securityLevel)"
      _JoinCode[2]      = "usr.uid EQ users.user_id"
-     _FldNameList[1]   = ASI.users.user_id
-     _FldNameList[2]   = ASI.users.user_name
-     _FldNameList[3]   = ASI.users.track_usage
-     _FldNameList[4]   > ASI.users.use_colors
-"users.use_colors" "Use Colors" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[5]   > ASI.users.use_fonts
-"users.use_fonts" "Use Fonts" ? "logical" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[6]   = ASI.users.use_ctrl_keys
-     _FldNameList[7]   > asi.usr.Usr-Lang
-"usr.Usr-Lang" ? "x(10)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
@@ -281,8 +266,92 @@ userid(ldbname(1)) = ""asi"" or
 
 /* ************************  Control Triggers  ************************ */
 
+&Scoped-define SELF-NAME auto_find
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL auto_find B-table-Win
+ON VALUE-CHANGED OF auto_find IN FRAME F-Main /* Auto Find */
+DO:
+    CASE browse-order:SCREEN-VALUE:
+        WHEN "1" THEN DO:
+            IF zUsers.user_id = "ASI" THEN DO:
+                OPEN QUERY browser-table FOR EACH users WHERE
+                    (IF INDEX(SELF:SCREEN-VALUE,'*') EQ 0 THEN
+                        users.user_id BEGINS SELF:SCREEN-VALUE
+                    ELSE
+                        (users.user_id MATCHES SELF:SCREEN-VALUE OR SELF:SCREEN-VALUE EQ "")) NO-LOCK,
+                    FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
+                    {&SORTBY-PHRASE}.
+            END.
+            ELSE IF zUsers.securityLevel GE 700 THEN DO:
+                OPEN QUERY browser-table FOR EACH users WHERE
+                    users.user_id NE "asi" AND
+                    (IF INDEX(SELF:SCREEN-VALUE,'*') EQ 0 THEN
+                        users.user_id BEGINS SELF:SCREEN-VALUE
+                    ELSE
+                        (users.user_id MATCHES SELF:SCREEN-VALUE OR SELF:SCREEN-VALUE EQ "")) NO-LOCK,
+                    FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
+                    {&SORTBY-PHRASE}.
+            END.
+            ELSE DO:
+                OPEN QUERY browser-table FOR EACH users WHERE
+                    users.user_id EQ zUsers.user_id NO-LOCK,
+                    FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
+                    {&SORTBY-PHRASE}.
+            END.
+        END.
+        WHEN "2" THEN DO:
+            IF zUsers.user_id = "ASI" THEN DO:
+                OPEN QUERY browser-table FOR EACH users WHERE
+                    (IF INDEX(SELF:SCREEN-VALUE,'*') EQ 0 THEN
+                        users.user_name BEGINS SELF:SCREEN-VALUE
+                    ELSE
+                        (users.user_name MATCHES SELF:SCREEN-VALUE OR SELF:SCREEN-VALUE EQ "")) NO-LOCK,
+                    FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
+                    {&SORTBY-PHRASE}.
+            END.
+            ELSE IF zUsers.securityLevel GE 700 THEN DO:
+                OPEN QUERY browser-table FOR EACH users WHERE
+                    users.user_id NE "asi" AND
+                    (IF INDEX(SELF:SCREEN-VALUE,'*') EQ 0 THEN
+                        users.user_name BEGINS SELF:SCREEN-VALUE
+                    ELSE
+                        (users.user_name MATCHES SELF:SCREEN-VALUE OR SELF:SCREEN-VALUE EQ "")) NO-LOCK,
+                    FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
+                    {&SORTBY-PHRASE}.
+            END.
+            ELSE DO:
+                OPEN QUERY browser-table FOR EACH users WHERE
+                    users.user_name EQ zUsers.user_name NO-LOCK,
+                    FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
+                    {&SORTBY-PHRASE}.
+            END.
+        END.
+    END CASE.
+    assign
+        auto_find.
+    apply 'value-changed' to browser-table.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define BROWSE-NAME Browser-Table
 &Scoped-define SELF-NAME Browser-Table
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
+ON ANY-PRINTABLE OF Browser-Table IN FRAME F-Main
+DO:
+    if length(keyfunction(lastkey)) = 1 then assign
+        auto_find:screen-value in frame {&frame-name} = auto_find:screen-value + keyfunction(lastkey).
+    else if keyfunction(lastkey) = "BACKSPACE" THEN ASSIGN
+        auto_find:screen-value in frame {&frame-name} = SUBSTRING(auto_find:screen-value,1,length(auto_find:screen-value) - 1).
+    apply 'value-changed' to auto_find.
+    return no-apply.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ROW-ENTRY OF Browser-Table IN FRAME F-Main
 DO:
@@ -325,7 +394,18 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
+{sys/inc/f3help.i}
 
+FIND zUsers NO-LOCK WHERE
+    zUsers.user_id = USERID(LDBNAME(1))
+    NO-ERROR.
+IF NOT AVAIL zUsers THEN DO:
+    MESSAGE
+        "You are not logged in as a valid user."
+        VIEW-AS ALERT-BOX ERROR.
+    RETURN.
+END.    
+    
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
@@ -378,24 +458,15 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win 
-PROCEDURE export-xl :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGoBack B-table-Win 
+PROCEDURE ipGoBack :
 /*------------------------------------------------------------------------------
   Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-DEF VAR From-user AS CHAR NO-UNDO.
-DEF VAR To-user AS CHAR NO-UNDO.
-
-IF users.user_id NE "" THEN
-    ASSIGN
-    From-user = users.user_id
-    To-user   = users.user_id . 
-
-RUN windows/user-exp.w (From-user,To-user).
-
-
+    reposition browser-table backwards 1.
+    apply 'value-changed' to browser-table in frame {&frame-name}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -408,31 +479,9 @@ PROCEDURE ipReposition :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF INPUT PARAMETER iprRowid AS ROWID NO-UNDO.
-    REPOSITION {&browse-name} TO ROWID iprRowid NO-ERROR.  
-    RUN dispatch ('row-changed').
-    APPLY "value-changed" TO {&browse-name} IN FRAME {&FRAME-NAME}.
-    
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
-PROCEDURE local-open-query :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
-  /* Code placed here will execute PRIOR to standard behavior. */
-
-  /* Dispatch standard ADM method.                             */
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
-
-  /* Code placed here will execute AFTER standard behavior.    */
-  APPLY "value-changed" TO BROWSE {&browse-name}.
-  APPLY "entry" TO BROWSE {&browse-name}.
+    DEF INPUT PARAMETER iprCurrRowid AS ROWID.
+    REPOSITION browser-table TO ROWID iprCurrRowid.
+    apply 'value-changed' to browser-table in frame {&frame-name}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -456,6 +505,19 @@ PROCEDURE send-records :
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE setbrowsefocus B-table-Win 
+PROCEDURE setbrowsefocus :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    apply 'entry' to browser-table in frame {&frame-name}.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
