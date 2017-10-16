@@ -382,6 +382,15 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
+     "Phone/Fax Appear on:" VIEW-AS TEXT
+          SIZE 27 BY .62 AT ROW 11.71 COL 51 WIDGET-ID 24
+     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
+          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
+          FONT 1
+     "Phone: +" VIEW-AS TEXT
+          SIZE 10 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
+     "FAX: +" VIEW-AS TEXT
+          SIZE 7 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
      "  -" VIEW-AS TEXT
           SIZE 3 BY 1 AT ROW 4.1 COL 28 WIDGET-ID 96
      "  -" VIEW-AS TEXT
@@ -401,15 +410,6 @@ DEFINE FRAME F-Main
      "Databases:" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 14.1 COL 94 WIDGET-ID 60
           FONT 4
-     "Phone/Fax Appear on:" VIEW-AS TEXT
-          SIZE 27 BY .62 AT ROW 11.71 COL 51 WIDGET-ID 24
-     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
-          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
-          FONT 1
-     "Phone: +" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
-     "FAX: +" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -640,7 +640,7 @@ DO:
         WHEN "Portal User" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "10".
         WHEN "Production Floor" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "50".
         WHEN "Full User" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "100".
-        WHEN "Administrator" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "700".
+        WHEN "Administrator" THEN ASSIGN users.securityLevel:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "900".
     END CASE.
 END.
 
@@ -843,10 +843,10 @@ END.
         slEnvironments:LIST-ITEMS = cEnvList
         slDatabases:LIST-ITEMS = cDbList
         slModes:LIST-ITEMS = cModeList
-        bChgPwd:SENSITIVE = if zUsers.securityLevel > 699 THEN TRUE ELSE FALSE
+        bChgPwd:SENSITIVE = if zUsers.securityLevel > 899 THEN TRUE ELSE FALSE
         /* Future development
-        users.isActive:SENSITIVE = if zUsers.securityLevel > 699 THEN TRUE ELSE FALSE
-        users.isLocked:SENSITIVE = if zUsers.securityLevel > 699 THEN TRUE ELSE FALSE
+        users.isActive:SENSITIVE = if zUsers.securityLevel > 899 THEN TRUE ELSE FALSE
+        users.isLocked:SENSITIVE = if zUsers.securityLevel > 899 THEN TRUE ELSE FALSE
         */
         .  
 
@@ -1090,28 +1090,28 @@ PROCEDURE local-assign-record :
             lv-default-comp = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001".
 
         FIND FIRST usercomp NO-LOCK WHERE 
-            usercomp.USER_id = users.USER_id AND 
+            usercomp.USER_id = users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} AND 
             usercomp.company = lv-default-comp AND
             usercomp.loc = ""
             NO-ERROR.
         IF NOT AVAIL usercomp THEN DO:
             CREATE usercomp.
             ASSIGN 
-                usercomp.user_id = users.USER_id
+                usercomp.user_id = users.user_id:SCREEN-VALUE
                 usercomp.company = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001"
                 usercomp.loc = ""
                 usercomp.company_default = YES.
         END.
      
         FIND FIRST bf-usercomp NO-LOCK WHERE
-            bf-usercomp.USER_id = "ASI" AND
+            bf-usercomp.user_id = "ASI" AND
             bf-usercomp.loc_default 
             NO-ERROR.
         ASSIGN 
             lv-default-loc = IF AVAIL bf-usercomp THEN bf-usercomp.loc ELSE "MAIN".
 
         FIND FIRST usercomp NO-LOCK WHERE 
-            usercomp.USER_id = users.USER_id AND 
+            usercomp.user_id = users.user_id:SCREEN-VALUE AND 
             usercomp.company = lv-default-comp AND
             usercomp.loc = lv-default-loc 
             NO-ERROR.
@@ -1119,17 +1119,17 @@ PROCEDURE local-assign-record :
         IF NOT AVAIL usercomp THEN DO:
             CREATE usercomp.
             ASSIGN 
-                usercomp.user_id = users.USER_id
+                usercomp.user_id = users.user_id:SCREEN-VALUE
                 usercomp.company = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001"
                 usercomp.loc = IF AVAIL bf-usercomp THEN bf-usercomp.loc ELSE "MAIN"
                 usercomp.loc_DEFAULT = YES.
         END.
         
-        FIND FIRST usr WHERE usr.uid EQ users.user_id NO-ERROR.
+        FIND FIRST usr WHERE usr.uid EQ users.user_id:SCREEN-VALUE NO-ERROR.
         IF NOT AVAIL usr THEN DO:
             CREATE usr.
             ASSIGN
-                usr.uid = users.user_id
+                usr.uid = users.user_id:SCREEN-VALUE
                 usr.usr-lang = "English".
         END.
         ELSE IF usr.usr-lang = "EN" THEN ASSIGN
@@ -1150,12 +1150,12 @@ PROCEDURE local-assign-record :
         END.
                     
         FIND FIRST _user EXCLUSIVE WHERE
-            _user._userid = users.user_id
+            _user._userid = users.user_id:SCREEN-VALUE
             NO-ERROR.
         IF NOT AVAIL _user THEN DO:
             CREATE _user.
             ASSIGN
-                _user._userid = users.user_id
+                _user._userid = users.user_id:SCREEN-VALUE
                 _user._password = ENCODE(fiPassword:SCREEN-VALUE)
                 _user._user-name = users.user_name:SCREEN-VALUE.
             ASSIGN
@@ -1529,6 +1529,16 @@ PROCEDURE local-update-record :
             users.fax = fi_fax-area:screen-value + lv-fax-num
             rThisUser = ROWID(users).
     
+        FIND ttUsers EXCLUSIVE WHERE
+            ttUsers.ttfPdbname = PDBNAME(1) AND
+            ttUsers.ttfUserID = users.user_id
+            NO-ERROR.
+        IF NOT AVAIL ttUsers THEN DO:
+            CREATE ttUsers.
+            ASSIGN
+                ttUsers.ttfPdbname = PDBNAME(1)
+                ttUsers.ttfUserID = users.user_id.
+        END.
         ASSIGN
             ttUsers.ttfUserAlias = users.userAlias
             ttUsers.ttfEnvList = if users.envList <> slEnvironments:list-items then users.envList else ""
@@ -1563,6 +1573,8 @@ PROCEDURE local-update-record :
        RUN DISPATCH IN h_Users ('open-query'). 
     END.
     
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
     RUN ipReposition IN h_Users (rThisUser).
     RUN local-display-fields.
         
@@ -1611,7 +1623,7 @@ PROCEDURE proc-enable :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    IF zUsers.securityLevel > 699 THEN ASSIGN 
+    IF zUsers.securityLevel > 899 THEN ASSIGN 
         users.track_usage:SENSITIVE IN FRAME {&FRAME-NAME} = YES 
         users.use_colors:SENSITIVE = YES
         users.use_fonts:SENSITIVE = YES

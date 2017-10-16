@@ -277,7 +277,7 @@ DO:
                     (IF INDEX(SELF:SCREEN-VALUE,'*') EQ 0 THEN
                         users.user_id BEGINS SELF:SCREEN-VALUE
                     ELSE
-                        (users.user_id MATCHES SELF:SCREEN-VALUE OR SELF:SCREEN-VALUE EQ "")) NO-LOCK,
+                        (users.user_id MATCHES SELF:SCREEN-VALUE + "*" OR SELF:SCREEN-VALUE EQ "")) NO-LOCK,
                     FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
                     {&SORTBY-PHRASE}.
             END.
@@ -287,7 +287,7 @@ DO:
                     (IF INDEX(SELF:SCREEN-VALUE,'*') EQ 0 THEN
                         users.user_id BEGINS SELF:SCREEN-VALUE
                     ELSE
-                        (users.user_id MATCHES SELF:SCREEN-VALUE OR SELF:SCREEN-VALUE EQ "")) NO-LOCK,
+                        (users.user_id MATCHES SELF:SCREEN-VALUE + "*" OR SELF:SCREEN-VALUE EQ "")) NO-LOCK,
                     FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
                     {&SORTBY-PHRASE}.
             END.
@@ -304,7 +304,7 @@ DO:
                     (IF INDEX(SELF:SCREEN-VALUE,'*') EQ 0 THEN
                         users.user_name BEGINS SELF:SCREEN-VALUE
                     ELSE
-                        (users.user_name MATCHES SELF:SCREEN-VALUE OR SELF:SCREEN-VALUE EQ "")) NO-LOCK,
+                        (users.user_name MATCHES SELF:SCREEN-VALUE + "*" OR SELF:SCREEN-VALUE EQ "")) NO-LOCK,
                     FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
                     {&SORTBY-PHRASE}.
             END.
@@ -314,7 +314,7 @@ DO:
                     (IF INDEX(SELF:SCREEN-VALUE,'*') EQ 0 THEN
                         users.user_name BEGINS SELF:SCREEN-VALUE
                     ELSE
-                        (users.user_name MATCHES SELF:SCREEN-VALUE OR SELF:SCREEN-VALUE EQ "")) NO-LOCK,
+                        (users.user_name MATCHES SELF:SCREEN-VALUE + "*" OR SELF:SCREEN-VALUE EQ "")) NO-LOCK,
                     FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
                     {&SORTBY-PHRASE}.
             END.
@@ -326,9 +326,25 @@ DO:
             END.
         END.
     END CASE.
-    assign
+    ASSIGN
         auto_find.
-    apply 'value-changed' to browser-table.
+
+    IF QUERY browser-table:NUM-RESULTS EQ 0 THEN DO:
+        MESSAGE
+            "No entries match that pattern."
+            VIEW-AS ALERT-BOX.
+        OPEN QUERY browser-table FOR EACH users WHERE 
+            users.user_id = userid(ldbname(1)) OR
+            zUsers.securityLevel GE 1000 OR
+            (zUsers.securityLevel GE 700 AND users.user_id NE "ASI") NO-LOCK,
+                FIRST usr WHERE usr.uid EQ users.user_id NO-LOCK
+                BY {&SortByPhrase}.
+        ASSIGN
+            SELF:SCREEN-VALUE = ""
+            auto_find = "".
+    END.                
+        
+    APPLY 'value-changed' TO browser-table.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -340,12 +356,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Browser-Table B-table-Win
 ON ANY-PRINTABLE OF Browser-Table IN FRAME F-Main
 DO:
-    if length(keyfunction(lastkey)) = 1 then assign
-        auto_find:screen-value in frame {&frame-name} = auto_find:screen-value + keyfunction(lastkey).
-    else if keyfunction(lastkey) = "BACKSPACE" THEN ASSIGN
-        auto_find:screen-value in frame {&frame-name} = SUBSTRING(auto_find:screen-value,1,length(auto_find:screen-value) - 1).
-    apply 'value-changed' to auto_find.
-    return no-apply.
+    IF LENGTH(KEYFUNCTION(lastkey)) = 1 THEN ASSIGN
+        auto_find:SCREEN-VALUE IN FRAME {&FRAME-NAME} = auto_find:SCREEN-VALUE + KEYFUNCTION(lastkey).
+    ELSE IF KEYFUNCTION(lastkey) = "BACKSPACE" THEN ASSIGN
+        auto_find:SCREEN-VALUE = SUBSTRING(auto_find:SCREEN-VALUE,1,LENGTH(auto_find:SCREEN-VALUE) - 1).
+    APPLY 'value-changed' TO auto_find.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
