@@ -76,14 +76,17 @@ for each job-mat
    work-mat.est-qty     = work-mat.est-qty + job-mat.qty
    work-mat.est-qty-uom = job-mat.qty-uom
    work-mat.est-cost    = work-mat.est-cost + (job-mat.qty * v-op-cost).
-   IF FIRST-OF(ITEM.mat-type) THEN
-     v-non-zero-cost-found = FALSE.
-
-  IF INDEX("1234BR",item.mat-type) GT 0 AND v-non-zero-cost-found EQ TRUE THEN DO:
-     work-mat.est-cost = 0. 
-  END.
-  IF v-non-zero-cost-found EQ FALSE AND work-mat.est-cost GT 0 THEN
-    v-non-zero-cost-found = TRUE.
+   /*The following code commented out for ticket 23736.  
+   Joe thinks it was originally added because a former customer used to issue board to one sheet only but since there is a 
+   summarize materials, I believe this only causes problems now*/
+/*   IF FIRST-OF(ITEM.mat-type) THEN                                                */
+/*     v-non-zero-cost-found = FALSE.                                               */
+/*                                                                                  */
+/*  IF INDEX("1234BR",item.mat-type) GT 0 AND v-non-zero-cost-found EQ TRUE THEN DO:*/
+/*     work-mat.est-cost = 0.                                                       */
+/*  END.                                                                            */
+/*  IF v-non-zero-cost-found EQ FALSE AND work-mat.est-cost GT 0 THEN               */
+/*    v-non-zero-cost-found = TRUE.                                                 */
 
   IF work-mat.est-qty  EQ ? THEN work-mat.est-qty  = 0.
   IF work-mat.est-cost EQ ? THEN work-mat.est-cost = 0.
