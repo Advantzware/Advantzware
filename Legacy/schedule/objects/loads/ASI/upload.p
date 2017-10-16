@@ -41,6 +41,17 @@ FOR EACH pendingJob NO-LOCK:
          AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
        NO-ERROR.
   IF NOT AVAILABLE job-mch THEN 
+  FIND FIRST job-mch EXCLUSIVE-LOCK 
+       WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
+         AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,pendingJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,pendingJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
+         AND ROWID(job-mch) EQ jobMchRowID
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN 
   FIND FIRST job-mch EXCLUSIVE-LOCK
        WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
          AND job-mch.m-code EQ ENTRY(3,pendingJob.keyValue)
@@ -64,7 +75,7 @@ FOR EACH pendingJob NO-LOCK:
          AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
          AND ROWID(job-mch) EQ jobMchRowID
        NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN NEXT.
+  IF NOT AVAILABLE job-mch THEN
   FIND FIRST job-mch EXCLUSIVE-LOCK
        WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
          AND job-mch.m-code EQ pendingJob.resource
@@ -75,7 +86,7 @@ FOR EACH pendingJob NO-LOCK:
          AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
          AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
        NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN NEXT.
+  IF NOT AVAILABLE job-mch THEN
   FIND FIRST job-mch EXCLUSIVE-LOCK
        WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
          AND job-mch.m-code EQ ENTRY(3,pendingJob.keyValue)
@@ -122,6 +133,17 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
          AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
          AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
          AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN 
+  FIND FIRST job-mch EXCLUSIVE-LOCK 
+       WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
+         AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
+         AND ROWID(job-mch) EQ jobMchRowID
        NO-ERROR.
   IF NOT AVAILABLE job-mch THEN 
   FIND FIRST job-mch EXCLUSIVE-LOCK
@@ -175,7 +197,7 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
           ' AltResource: ' ttblJob.altResource
           ' RowIDs: ' ttblJob.rowIDs 
           ' KeyValue: ' ttblJob.keyValue
-          ' SB Run? : ' ttblJob.jobCompleted
+          ' SB Run?: ' ttblJob.jobCompleted
           ' ** Not Found **' SKIP.
       NEXT.
   END.
@@ -186,9 +208,9 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
           ' KeyValue: ' ttblJob.keyValue
           ' RecKey: ' job-mch.rec_key
           ' Run?: ' job-mch.run-complete
-          ' SB Run? : ' ttblJob.jobCompleted
+          ' SB Run?: ' ttblJob.jobCompleted
           ' Current: ' job-mch.m-code
-          ' New : ' ttblJob.altResource SKIP.
+          ' New: ' ttblJob.altResource SKIP.
   END.
   
   IF CAN-FIND(FIRST jobNotes WHERE jobNotes.jobRowID EQ jobMchRowID) THEN
@@ -229,7 +251,7 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
           ' KeyValue: ' ttblJob.keyValue
           ' RecKey: ' job-mch.rec_key
           ' Run?: ' job-mch.run-complete
-          ' SB Run? : ' ttblJob.jobCompleted SKIP.
+          ' SB Run?: ' ttblJob.jobCompleted SKIP.
       job-mch.run-complete = ttblJob.jobCompleted.
   END.
   IF job-mch.m-code NE ttblJob.altResource THEN DO:
@@ -238,7 +260,7 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
           ' KeyValue: ' ttblJob.keyValue
           ' RecKey: ' job-mch.rec_key
           ' Current: ' job-mch.m-code
-          ' New : ' ttblJob.altResource SKIP.
+          ' New: ' ttblJob.altResource SKIP.
       job-mch.m-code = ttblJob.altResource.
   END.
   RUN setLiveUpdate (job-mch.company,job-mch.job-no,job-mch.job-no2,
