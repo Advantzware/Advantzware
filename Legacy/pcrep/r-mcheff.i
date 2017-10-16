@@ -487,6 +487,7 @@ IF TRIM(tt-srt.job-no) = "w8225" THEN
             '"' round(tt-srt.qty-prod / tt-srt.run-act-hr,0) '",'
              '"' mr-eff FORM "->>>>9.99%" '",'
              '"' run-eff FORM "->>>>9.99%" '",'
+             '"' STRING(tt-srt.shift,">>>>") '",'
              SKIP.
 /*             
          IF tt-srt.job-no = "205234" THEN
