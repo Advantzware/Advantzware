@@ -2,7 +2,7 @@
 
 PUT "<FTimes New Roman>"
     "<C3><R4><#2>"
-    "<R+7.5><C+75><IMAGE#1=" ls-full-img1 SKIP(3)
+    "<R+8><C+45><IMAGE#1=" ls-full-img1 SKIP(3)
     "<=1>"
     "<C1><#2>"
     "<P10><=2><R+6>"

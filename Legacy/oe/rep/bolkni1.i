@@ -1,7 +1,7 @@
 /* oe/rep/bolkni1.i */      
       put 
          "<FCourier New>"
-           "<C3><R2><#1><R+8><C+45><IMAGE#1=" ls-full-img1 
+           "<C3><R2><#1><R+8><C+40><IMAGE#1=" ls-full-img1 
           "<P14><R8><C46><B>Bill of lading #:" OE-BOLH.BOL-NO "</B><P10> "
         
             SKIP /* pacific package */             
