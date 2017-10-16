@@ -348,7 +348,7 @@ PROCEDURE EmailNotify :
 
   IF AVAIL empalert AND NOT CAN-FIND (FIRST reftable NO-LOCK
                      WHERE reftable.rec_key = empalert.table_rec_key
-                       AND reftable.CODE    = empalert.rec_key THEN
+                       AND reftable.CODE    = empalert.rec_key) THEN
      DO:
         CREATE reftable.
         ASSIGN reftable.rec_key   = STRING (empalert.table_rec_key)
@@ -605,7 +605,7 @@ FUNCTION AdvancedNotice RETURNS LOGICAL
 
   IF CAN-FIND (FIRST reftable NO-LOCK
                WHERE reftable.rec_key = empalert.table_rec_key
-                 AND reftable.CODE    = empalert.rec_key 
+                 AND reftable.CODE    = empalert.rec_key) 
       THEN RETURN TRUE.
       ELSE RETURN FALSE.
 

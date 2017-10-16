@@ -46,7 +46,7 @@ ELSE IF TRIM("{1}") EQ "oe-bol" THEN
 DO:
   FIND FIRST b-reftable WHERE
        b-reftable.reftable EQ "oe-boll.lot-no" AND
-       b-reftable.rec_key  EQ xoe-bol.rec_key
+       b-reftable.rec_key  EQ xoe-boll.rec_key
        USE-INDEX rec_key
        NO-LOCK NO-ERROR.
 
