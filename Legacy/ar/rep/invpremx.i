@@ -44,8 +44,8 @@ ELSE
             "<FCourier New>"
             SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" SKIP(1)
             SPACE(12) "REMIT TO: PREMIER PACKAGING" SKIP
-            SPACE(12) "          PO BOX 39505" SKIP
-            SPACE(12) "          Louisville, KY 40233" SKIP (2)
+            SPACE(12) "          3254 RELIABLE PARKWAY" SKIP
+            SPACE(12) "          CHICAGO, IL  60686" SKIP (2)
             space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
             SPACE(12) ar-inv.cust-name v-shipto-name AT 64 skip
             SPACE(12) ar-inv.addr[1]   v-shipto-addr[1] AT 64 SKIP
