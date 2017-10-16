@@ -465,7 +465,7 @@ PROCEDURE deleteEmailCode :
     DELETE emaildtl.
 
     FIND FIRST reftable WHERE
-         reftable.rec_key = STRING(RECID(empAlert)) AND
+         reftable.rec_key = empalert.rec_key AND
          reftable.CODE    = emailcod.emailcod
          EXCLUSIVE-LOCK NO-ERROR.
 

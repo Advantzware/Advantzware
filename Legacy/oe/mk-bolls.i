@@ -81,7 +81,7 @@ FOR EACH oe-rell
     DO:
        CREATE reftable.
        ASSIGN reftable.reftable = "oe-boll.lot-no"
-              reftable.rec_key  = STRING(RECID(oe-boll))
+              reftable.rec_key  = oe-boll.rec_key
               reftable.CODE     = b-reftable.CODE.
        RELEASE reftable.
        RELEASE b-reftable.
@@ -97,7 +97,7 @@ FOR EACH oe-rell
     DO:
        CREATE reftable.               
        ASSIGN reftable.reftable = "oe-boll.sell-price"
-              reftable.rec_key  = STRING(RECID(oe-boll))
+              reftable.rec_key  = oe-boll.rec_key
               reftable.val[1]   = b-reftable.val[1]
               reftable.val[2]   = b-reftable.val[2].
        RELEASE reftable.

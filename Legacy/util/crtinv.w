@@ -550,7 +550,7 @@ FOR EACH oe-boll WHERE oe-boll.company EQ cocode
       DO:
          FIND FIRST b-reftable3 WHERE
                b-reftable3.reftable EQ "oe-boll.lot-no" AND
-               b-reftable3.rec_key  EQ STRING(RECID(oe-boll))
+               b-reftable3.rec_key  EQ oe-boll.rec_key
                USE-INDEX rec_key
                NO-LOCK NO-ERROR.
          
@@ -861,7 +861,7 @@ DEF VAR v-index AS INT NO-UNDO.
       DO:
          FIND FIRST b-reftable3 WHERE
                b-reftable3.reftable EQ "oe-boll.lot-no" AND
-               b-reftable3.rec_key  EQ STRING(RECID(oe-boll))
+               b-reftable3.rec_key  EQ oe-boll.rec_key
                USE-INDEX rec_key
                NO-LOCK NO-ERROR.
          
@@ -959,7 +959,7 @@ DEF VAR v-index AS INT NO-UNDO.
          
           FIND FIRST reftable WHERE
                reftable.reftable EQ "oe-boll.lot-no" AND
-               reftable.rec_key  EQ STRING(RECID(oe-boll))
+               reftable.rec_key  EQ oe-boll.rec_key
                USE-INDEX rec_key
                NO-LOCK NO-ERROR.
          

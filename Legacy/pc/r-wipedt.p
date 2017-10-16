@@ -1665,11 +1665,11 @@ PROCEDURE proc-form-cmplt :
       FIND FIRST b-reftable
           WHERE b-reftable.reftable EQ "ts/jobdata.p"
             AND b-reftable.company  EQ cocode
-            AND b-reftable.code     EQ STRING(RECID(job-hdr))
+            AND b-reftable.code     EQ job-hdr.rec_key
           NO-LOCK NO-ERROR.
 
       IF AVAIL b-reftable THEN 
-      FIND FIRST fg-bin WHERE RECID(fg-bin) EQ INT(b-reftable.code2) NO-LOCK NO-ERROR.
+      FIND FIRST fg-bin WHERE fg-bin.rec_key EQ b-reftable.code2 NO-LOCK NO-ERROR.
       
       IF AVAIL fg-bin THEN
         ASSIGN
@@ -2072,11 +2072,11 @@ PROCEDURE proc-set-cmplt :
       FIND FIRST b-reftable
           WHERE b-reftable.reftable EQ "ts/jobdata.p"
             AND b-reftable.company  EQ cocode
-            AND b-reftable.code     EQ STRING(RECID(job-hdr))
+            AND b-reftable.code     EQ job-hdr.rec_key
           NO-LOCK NO-ERROR.
 
       IF AVAIL b-reftable THEN 
-      FIND FIRST fg-bin WHERE RECID(fg-bin) EQ INT(b-reftable.code2) NO-LOCK NO-ERROR.
+      FIND FIRST fg-bin WHERE fg-bin.rec_key EQ b-reftable.code2 NO-LOCK NO-ERROR.
       
       IF AVAIL fg-bin THEN
         ASSIGN

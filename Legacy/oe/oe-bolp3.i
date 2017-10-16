@@ -327,7 +327,7 @@ IF NOT AVAIL inv-line THEN DO:
 
    FIND FIRST reftable WHERE
         reftable.reftable EQ "oe-boll.sell-price" AND
-        reftable.rec_key  EQ STRING(RECID(oe-boll))
+        reftable.rec_key  EQ oe-boll.rec_key
         USE-INDEX rec_key
         NO-LOCK NO-ERROR.
 

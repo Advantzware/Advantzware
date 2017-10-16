@@ -1968,7 +1968,7 @@ PROCEDURE local-create-record :
        CREATE reftable.
        ASSIGN
           reftable.reftable = "oe-boll.lot-no"
-          reftable.rec_key  =  STRING(RECID(oe-boll))
+          reftable.rec_key  =  oe-boll.rec_key
           reftable.CODE     = lv-copy-lot-no.
 
        RELEASE reftable.
