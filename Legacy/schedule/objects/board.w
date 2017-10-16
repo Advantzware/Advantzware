@@ -2114,7 +2114,7 @@ PROCEDURE buildPixelArray :
   RUN msgFrame ('Building Pixel Array').
   DO i = 1 TO 24:
     k = INT((intEtime[i] - intStime[i]) / rectWidth).
-    DO j = 1 to rectWidth:
+    DO j = 1 TO rectWidth:
       ASSIGN
         dateTimePixel[j + (i - 1) * rectWidth] =
                       numericDateTime(intDate[i],(j - 1) * k + intStime[i]).
@@ -2886,10 +2886,6 @@ PROCEDURE getScenario :
   DEFINE VARIABLE version AS CHARACTER NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
 
-  /*
-  RUN msgFrame ('Load Pending Jobs').
-  {{&includes}/getPending.i}
-  */
   RUN msgFrame ('Load Scenario "' + scenario + '"').
   {{&includes}/getScenario.i}
   RUN msgFrame ('Load Pending Jobs').
