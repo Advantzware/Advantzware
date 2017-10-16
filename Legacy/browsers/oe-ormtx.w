@@ -51,7 +51,7 @@ DEF TEMP-TABLE tt-oe-prmtxx LIKE oe-prmtx
    FIELD row-no   AS INTEGER
    FIELD refcode  AS CHAR.
 DEFINE VARIABLE fi_eff-date AS DATE FORMAT "99/99/9999":U INITIAL TODAY .
-
+DEFINE VARIABLE cCustomer AS CHARACTER NO-UNDO .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -92,10 +92,10 @@ oe-prmtx.price[5] oe-prmtx.price[6] oe-prmtx.price[7] oe-prmtx.price[8] ~
 oe-prmtx.price[9] oe-prmtx.price[10] 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH oe-prmtx WHERE ~{&KEY-PHRASE} ~
-      AND oe-prmtx.company = cocode AND (oe-prmtx.cust-no = oe-ordl.cust-no OR  oe-ordl.cust-no = "" OR oe-prmtx.cust-no = "" ) NO-LOCK ~
+      AND oe-prmtx.company = cocode AND (oe-prmtx.cust-no = oe-ordl.cust-no OR  oe-ordl.cust-no = "" OR (oe-prmtx.cust-no EQ "" AND cCustomer EQ "") ) NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH oe-prmtx WHERE ~{&KEY-PHRASE} ~
-      AND oe-prmtx.company = cocode AND (oe-prmtx.cust-no = oe-ordl.cust-no OR  oe-ordl.cust-no = "" OR oe-prmtx.cust-no = "" ) NO-LOCK ~
+      AND oe-prmtx.company = cocode AND (oe-prmtx.cust-no = oe-ordl.cust-no OR  oe-ordl.cust-no = "" OR (oe-prmtx.cust-no EQ "" AND cCustomer EQ "") ) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-Browser-Table oe-prmtx
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table oe-prmtx
@@ -550,7 +550,7 @@ PROCEDURE local-open-query :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+DEFINE BUFFER bf-oe-prmtx FOR oe-prmtx .
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -561,10 +561,18 @@ PROCEDURE local-open-query :
 
    /* MESSAGE "browser main " + STRING(oe-ordl.i-no) VIEW-AS ALERT-BOX ERROR. */
     DO WITH FRAME {&FRAME-NAME}:
-    IF AVAIL oe-ordl THEN
-        ASSIGN auto_find:SCREEN-VALUE = oe-ordl.i-no 
-        browse-order:SCREEN-VALUE = "3" .
-        
+        IF AVAIL oe-ordl THEN do:
+            ASSIGN auto_find:SCREEN-VALUE = oe-ordl.i-no 
+                browse-order:SCREEN-VALUE = "3" .
+         
+           FOR EACH bf-oe-prmtx NO-LOCK
+               WHERE bf-oe-prmtx.company = cocode 
+               AND (bf-oe-prmtx.cust-no = oe-ordl.cust-no )
+               AND  bf-oe-prmtx.i-no BEGINS oe-ordl.i-no :
+               cCustomer = oe-ordl.cust-no .
+               LEAVE .
+           END.
+        END.
     END.
   
     APPLY "entry" TO auto_find .
