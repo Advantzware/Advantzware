@@ -104,6 +104,7 @@ DEF VAR v-print-barTag AS LOG NO-UNDO.
 DEF VAR v-print-binsTags AS LOG NO-UNDO.
 
 DEFINE TEMP-TABLE tt-boll-bintag LIKE oe-boll.
+DEF VAR v-transfer AS cha FORM "x(50)" NO-UNDO.
         
 
 RUN GetPrintBarTag IN SOURCE-PROCEDURE (OUTPUT v-Print-BarTag) NO-ERROR.
@@ -290,6 +291,13 @@ for each xxreport where xxreport.term-id eq v-term-id,
           substr(v-salesman,length(trim(v-salesman)),1) = "".
 
       v-fob = if oe-ord.fob-code begins "ORIG" then "Origin" else "Destination".
+      IF AVAIL oe-boll THEN do:
+          IF oe-boll.s-code = "T" THEN
+                v-transfer = "<P14>TRANSFER<FGCOLOR=BLACK><P10>".
+            ELSE IF oe-boll.s-code = "S" THEN
+                v-transfer = "<P14>SHIP-ONLY<FGCOLOR=BLACK><P10>".
+            ELSE v-transfer = "".
+      END.
       
       LEAVE.
     end.

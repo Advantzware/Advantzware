@@ -19,7 +19,7 @@
          v-comp-add5 AT 8 "<FGCOLOR=" + trim(lv-other-color) + ">" FORM "x(15)" SKIP
          lv-email AT 8 SKIP(1)
                "<FCourier New>"
-               "Sold To:" SPACE(30) "Ship To:"  SKIP
+               "Sold To:" SPACE(30) "Ship To:" "<FGCOLOR=red>" v-transfer AT 95  "<FGCOLOR=Black>" SKIP
                SPACE(5) v-comp-name v-ship-name AT 45 skip
                SPACE(5) v-comp-addr[1] v-ship-addr[1] AT 45 SKIP
              SPACE(5) v-comp-addr[2] v-ship-addr[2] AT 45 SKIP
