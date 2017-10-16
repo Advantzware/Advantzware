@@ -326,9 +326,9 @@ PROCEDURE epUpdateUsrFile :
 ------------------------------------------------------------------------------*/
     DEF OUTPUT PARAMETER opcUserList AS CHAR NO-UNDO.
     
-    FOR EACH _user NO-LOCK:
+    FOR EACH users NO-LOCK:
         ASSIGN
-            opcUserList = opcUserList + _user._userid + ",".
+            opcUserList = opcUserList + users.user_id + ",".
     END.
     ASSIGN
         opcUserList = TRIM(opcUserList,",").

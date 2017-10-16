@@ -460,12 +460,10 @@ DO:
     DEF VAR cCmdString AS CHAR NO-UNDO.
 
 /*
-
     APPLY 'value-changed' TO cbDatabase.
     APPLY 'value-changed' TO cbEnvironment.
     APPLY 'value-changed' TO cbMode.
 */    
-    
     IF connectStatement <> "" THEN DO:
         IF VALID-HANDLE(hPreRun) THEN DO:
             RUN epDisconnectDB IN hPreRun.
@@ -792,7 +790,8 @@ PROCEDURE ipChangeEnvironment :
                      cTop + cenvPgmDir + "," +
                      cTop + cenvResDir + "," +
                      cTop + cenvPgmDir + "\Addon" + "," +
-                     cTop + cenvResDir + "\Addon" + ","
+                     cTop + cenvResDir + "\Addon" + "," +
+                     cTop + "\CustFiles" + ","
         PROPATH = preProPath + origPropath.
         
 END PROCEDURE.
@@ -837,8 +836,7 @@ PROCEDURE ipConnectDb :
     DEF OUTPUT PARAMETER lError AS LOG NO-UNDO.
 
     IF cPassword <> "" THEN
-
-    CONNECT VALUE(cStatement + 
+        CONNECT VALUE(cStatement + 
                   " -U " + cUser + 
                   " -P " + cPassword + 
                   " -ct 2") NO-ERROR.
