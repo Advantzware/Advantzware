@@ -312,7 +312,15 @@ DO:
 
    DO WITH FRAME {&FRAME-NAME}:
 
-     {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT opName,OUTPUT opModule)"}                
+     {methods/run_link.i "RECORD-SOURCE" "Get-Values" "(OUTPUT opName,OUTPUT opModule)"}   
+
+      IF opName EQ "RELMERGE" THEN
+      DO:
+         RUN windows/l-sysfchr.w (gcompany,opName,FOCUS:SCREEN-VALUE,OUTPUT char-val1).
+         IF char-val1 NE '' THEN
+            sys-ctrl-shipto.char-fld:SCREEN-VALUE = STRING(char-val1).
+         RETURN NO-APPLY.
+      END.
 
       IF opName EQ "CINVOICE" THEN
       DO:
@@ -662,6 +670,8 @@ PROCEDURE local-display-fields :
          ASSIGN sys-ctrl-shipto.char-fld:LABEL IN FRAME {&FRAME-NAME} = "File Directory" .
     ELSE IF opName  EQ "CustomerList" THEN
          ASSIGN sys-ctrl-shipto.char-fld:LABEL IN FRAME {&FRAME-NAME} = "Menu Hot Key" .
+    ELSE IF opName  EQ "RELMERGE" THEN
+         ASSIGN sys-ctrl-shipto.char-fld:LABEL IN FRAME {&FRAME-NAME} = "Character Value" .
     ELSE
         ASSIGN sys-ctrl-shipto.char-fld:LABEL IN FRAME {&FRAME-NAME}  = "Business Form Name" . 
 
