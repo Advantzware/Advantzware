@@ -33,7 +33,7 @@ DEFINE INPUT-OUTPUT PARAMETER m-lookup-var AS CHARACTER.
 &Scoped-define def-include ~{methods/defines/lkupprgm.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname 
-&Scoped-define window-size 23
+&Scoped-define window-size 24
 &Scoped-define window-col 52
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
@@ -42,7 +42,7 @@ DEFINE INPUT-OUTPUT PARAMETER m-lookup-var AS CHARACTER.
 &Scoped-define btn-row 21.77
 &Scoped-define btn-ok-col 37
 &Scoped-define btn-cancel-col 26
-&Scoped-define auto-find-row 22.85
+&Scoped-define auto-find-row 23.65
 
 &Scoped-define FLDNAME1 lkupprgm.lkupprgm
 &Scoped-define SORTBY-1 BY {&FLDNAME1}

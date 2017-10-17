@@ -31,7 +31,7 @@
 &Scoped-define def-include ~{methods/defines/s-pref.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include ~{methods/lookups/setpref.i}
 &Scoped-define ui-prgmname zipcode.
-&Scoped-define window-size 23.7
+&Scoped-define window-size 24.7
 &Scoped-define window-col 44
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
