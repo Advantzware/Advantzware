@@ -1910,15 +1910,15 @@ PROCEDURE proc-form-cmplt :
     FIND FIRST b-reftable
         WHERE b-reftable.reftable EQ "ts/jobdata.p"
           AND b-reftable.company  EQ cocode
-          AND b-reftable.code     EQ STRING(RECID(job-hdr))
+          AND b-reftable.code     EQ job-hdr.rec_key
         EXCLUSIVE NO-ERROR.
     IF AVAIL b-reftable THEN DELETE b-reftable.
     CREATE b-reftable.
     ASSIGN
      b-reftable.reftable = "ts/jobdata.p"
      b-reftable.company  = cocode
-     b-reftable.code     = STRING(RECID(job-hdr))
-     b-reftable.code2    = STRING(RECID(fg-bin))
+     b-reftable.code     = job-hdr.rec_key
+     b-reftable.code2    = fg-bin.rec_key
      li-units            = b-reftable.val[1].
     
     v-runqty = 0. 
@@ -2309,15 +2309,15 @@ PROCEDURE proc-set-cmplt :
     FIND FIRST b-reftable
         WHERE b-reftable.reftable EQ "ts/jobdata.p"
           AND b-reftable.company  EQ cocode
-          AND b-reftable.code     EQ STRING(RECID(job-hdr))
+          AND b-reftable.code     EQ job-hdr.rec_key
         EXCLUSIVE NO-ERROR.
     IF AVAIL b-reftable THEN DELETE b-reftable.
     CREATE b-reftable.
     ASSIGN
      b-reftable.reftable = "ts/jobdata.p"
      b-reftable.company  = cocode
-     b-reftable.code     = STRING(RECID(job-hdr))
-     b-reftable.code2    = STRING(RECID(fg-bin))
+     b-reftable.code     = job-hdr.rec_key
+     b-reftable.code2    = fg-bin.rec_key
      li-units            = b-reftable.val[1].
     
     v-runqty = 0. 
@@ -2549,11 +2549,11 @@ PROCEDURE proc-set-cmplt :
       FIND FIRST b-reftable
           WHERE b-reftable.reftable EQ "ts/jobdata.p"
             AND b-reftable.company  EQ cocode
-            AND b-reftable.code     EQ STRING(RECID(job-hdr))
+            AND b-reftable.code     EQ job-hdr.rec_key
           NO-LOCK NO-ERROR.
 
       IF AVAIL b-reftable THEN 
-      FIND FIRST fg-bin WHERE RECID(fg-bin) EQ INT(b-reftable.code2) NO-LOCK NO-ERROR.
+      FIND FIRST fg-bin WHERE fg-bin.rec_key EQ b-reftable.code2 NO-LOCK NO-ERROR.
       
       IF AVAIL fg-bin THEN
         ASSIGN

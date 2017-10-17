@@ -405,7 +405,7 @@ DO bo-try = 1 TO 2:
      
     FIND FIRST b-reftable2 WHERE
          b-reftable2.reftable EQ "oe-boll.lot-no" AND
-         b-reftable2.rec_key  EQ STRING(RECID(oe-boll))
+         b-reftable2.rec_key  EQ oe-boll.rec_key
          USE-INDEX rec_key
          NO-LOCK NO-ERROR.
 
@@ -422,7 +422,7 @@ DO bo-try = 1 TO 2:
 
     FIND FIRST b-reftable2 WHERE
          b-reftable2.reftable EQ "oe-boll.sell-price" AND
-         b-reftable2.rec_key  EQ STRING(RECID(oe-boll))
+         b-reftable2.rec_key  EQ oe-boll.rec_key
          USE-INDEX rec_key
          NO-LOCK NO-ERROR.
 

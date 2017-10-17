@@ -29,7 +29,7 @@ END.
 
 FOR EACH reftable WHERE
     reftable.reftable EQ "oe-boll.lot-no" AND
-    reftable.rec_key EQ STRING(RECID(oe-boll))
+    reftable.rec_key EQ oe-boll.rec_key
     EXCLUSIVE-LOCK:
 
     DELETE reftable.
@@ -37,7 +37,7 @@ END.
 
 FOR EACH reftable WHERE
     reftable.reftable EQ "oe-boll.sell-price" AND
-    reftable.rec_key EQ STRING(RECID(oe-boll))
+    reftable.rec_key EQ oe-boll.rec_key
     EXCLUSIVE-LOCK:
 
     DELETE reftable.

@@ -1190,7 +1190,7 @@ FOR EACH oe-boll WHERE oe-boll.b-no = oe-bolh.b-no NO-LOCK :
 
        FIND FIRST reftable WHERE
             reftable.reftable EQ "oe-boll.sell-price" AND
-            reftable.rec_key  EQ STRING(RECID(oe-boll))
+            reftable.rec_key  EQ oe-boll.rec_key
             USE-INDEX rec_key
             NO-LOCK NO-ERROR.
     

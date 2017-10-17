@@ -124,7 +124,7 @@ FOR EACH tt-boll
                NO-LOCK,
                FIRST reftable WHERE
                      reftable.reftable EQ "oe-boll.lot-no" AND
-                     reftable.rec_key = STRING(RECID(b-oe-boll)) AND
+                     reftable.rec_key = b-oe-boll.rec_key AND
                      reftable.CODE NE ""
                      USE-INDEX rec_key
                      NO-LOCK :

@@ -63,15 +63,15 @@
     FIND FIRST reftable
         WHERE reftable.reftable EQ "ts/jobdata.p"
           AND reftable.company  EQ company_code
-          AND reftable.code     EQ STRING(RECID(job-hdr))
+          AND reftable.code     EQ job-hdr.rec_key
         EXCLUSIVE NO-ERROR.
     IF AVAIL reftable THEN DELETE reftable.
     CREATE reftable.
     ASSIGN
      reftable.reftable = "ts/jobdata.p"
      reftable.company  = company_code
-     reftable.code     = STRING(RECID(job-hdr))
-     reftable.code2    = STRING(RECID(fg-bin)).
+     reftable.code     = job-hdr.rec_key
+     reftable.code2    = fg-bin.rec_key.
     
     v-runqty = 0. 
     FOR EACH bf-machtran WHERE bf-machtran.company = company_code AND

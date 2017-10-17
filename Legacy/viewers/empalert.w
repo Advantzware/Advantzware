@@ -348,11 +348,11 @@ PROCEDURE EmailNotify :
 
   IF AVAIL empalert AND NOT CAN-FIND (FIRST reftable NO-LOCK
                      WHERE reftable.rec_key = empalert.table_rec_key
-                       AND reftable.CODE    = STRING (RECID (empalert))) THEN
+                       AND reftable.CODE    = empalert.rec_key) THEN
      DO:
         CREATE reftable.
         ASSIGN reftable.rec_key   = STRING (empalert.table_rec_key)
-               reftable.CODE      = STRING (RECID (empalert)).
+               reftable.CODE      = empalert.rec_key.
      END.
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"CONTAINER",OUTPUT char-hdl).
@@ -605,7 +605,7 @@ FUNCTION AdvancedNotice RETURNS LOGICAL
 
   IF CAN-FIND (FIRST reftable NO-LOCK
                WHERE reftable.rec_key = empalert.table_rec_key
-                 AND reftable.CODE    = STRING (RECID (empalert))) 
+                 AND reftable.CODE    = empalert.rec_key) 
       THEN RETURN TRUE.
       ELSE RETURN FALSE.
 

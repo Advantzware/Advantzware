@@ -461,11 +461,11 @@ PROCEDURE addEmailCode :
       emaildtl.table_rec_key = empalert.rec_key.
 
     IF NOT CAN-FIND(FIRST reftable WHERE
-       reftable.rec_key = STRING(RECID(empalert)) AND
+       reftable.rec_key = empalert.rec_key AND
        reftable.CODE    = emailcod.emailcod) THEN
        DO:
           CREATE reftable.
-          ASSIGN reftable.rec_key = STRING(RECID(empalert))
+          ASSIGN reftable.rec_key = empalert.rec_key
                  reftable.CODE    = emailcod.emailcod.
           RELEASE reftable.
        END.
