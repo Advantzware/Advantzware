@@ -400,7 +400,13 @@ PROCEDURE Create_Buttons :
             ELSE ' >').
 
         IF AVAILABLE prgrms AND prgrms.prgmname EQ "custproc." 
-            AND USER("nosweat") NE "asi" THEN NEXT .
+            AND USER("nosweat") NE "asi" THEN DO: /*NEXT .*/ /* ticket - 23865  */
+            FIND FIRST users NO-LOCK WHERE 
+                users.user_id EQ USERID(LDBNAME(1)) 
+                NO-ERROR.
+            IF AVAIL users AND users.securityLevel LE 899 THEN
+                NEXT.
+        END.
 
         RUN Mneumonic (INPUT-OUTPUT button-label).
 
