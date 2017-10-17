@@ -8,11 +8,13 @@
   IF flashLight THEN
   RUN showFlashLight (ttblJob.job).
   &IF '{&Board}' NE 'Basic' &THEN
-  ENABLE btnComplete btnJobNotes WITH FRAME {&FRAME-NAME}.
+  ENABLE btnToolTip btnComplete btnJobNotes WITH FRAME {&FRAME-NAME}.
   ASSIGN
     btnComplete:PRIVATE-DATA = STRING(ROWID(ttblJob))
     btnJobNotes:PRIVATE-DATA = STRING(ROWID(ttblJob))
     currentJob = ipWidget:HANDLE
-    currentResource = ''.
+    btnToolTip:TOOLTIP = currentJob:TOOLTIP 
+    currentResource = ''
+    .
   &ENDIF
   RUN LockWindowUpdate (0,OUTPUT i).

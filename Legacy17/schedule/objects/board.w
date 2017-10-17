@@ -410,6 +410,11 @@ DEFINE BUTTON btnTimeLine
      LABEL "" 
      SIZE 5.2 BY 1.05 TOOLTIP "Position Board to Current Date & Time".
 
+DEFINE BUTTON btnToolTip 
+     IMAGE-UP FILE "schedule/images/helpabout.bmp":U
+     LABEL "" 
+     SIZE 5 BY 1.05 TOOLTIP "Show ToolTip".
+
 DEFINE VARIABLE intervals AS CHARACTER FORMAT "X(256)":U INITIAL "1 Hour" 
      VIEW-AS COMBO-BOX INNER-LINES 30
      DROP-DOWN-LIST
@@ -837,6 +842,8 @@ DEFINE FRAME boardFrame
           "Remove Scenario"
      btnReset AT ROW 1.05 COL 102 HELP
           "Reset Scenario"
+     btnToolTip AT ROW 1.05 COL 107.6 HELP
+          "Click to Show ToolTip" WIDGET-ID 2
      btnPending AT ROW 1.05 COL 113 HELP
           "Click to Access Pending by Job"
      btnPendingJobs AT ROW 1.05 COL 118 HELP
@@ -901,14 +908,14 @@ DEFINE FRAME boardFrame
      day-13 AT ROW 2.19 COL 90.8 COLON-ALIGNED NO-LABEL
      day-14 AT ROW 2.19 COL 96.2 COLON-ALIGNED NO-LABEL
      day-15 AT ROW 2.19 COL 101.6 COLON-ALIGNED NO-LABEL
-     day-16 AT ROW 2.19 COL 107 COLON-ALIGNED NO-LABEL
-     day-17 AT ROW 2.19 COL 112.4 COLON-ALIGNED NO-LABEL
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME boardFrame
+     day-16 AT ROW 2.19 COL 107 COLON-ALIGNED NO-LABEL
+     day-17 AT ROW 2.19 COL 112.4 COLON-ALIGNED NO-LABEL
      day-18 AT ROW 2.19 COL 117.8 COLON-ALIGNED NO-LABEL
      day-19 AT ROW 2.19 COL 123.2 COLON-ALIGNED NO-LABEL
      day-20 AT ROW 2.19 COL 128.6 COLON-ALIGNED NO-LABEL
@@ -1216,6 +1223,12 @@ ASSIGN
 ASSIGN 
        btnShowDowntime:PRIVATE-DATA IN FRAME boardFrame     = 
                 " Downtime".
+
+/* SETTINGS FOR BUTTON btnToolTip IN FRAME boardFrame
+   NO-ENABLE                                                            */
+ASSIGN 
+       btnToolTip:PRIVATE-DATA IN FRAME boardFrame     = 
+                "Complete Job".
 
 /* SETTINGS FOR FILL-IN day-1 IN FRAME boardFrame
    NO-ENABLE                                                            */
@@ -1720,6 +1733,18 @@ DO:
   END.
   ELSE
   RUN timeLine.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME btnToolTip
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnToolTip s-object
+ON CHOOSE OF btnToolTip IN FRAME boardFrame
+DO:
+    IF VALID-HANDLE(currentJob) THEN
+    MESSAGE currentJob:TOOLTIP VIEW-AS ALERT-BOX.
 END.
 
 /* _UIB-CODE-BLOCK-END */
