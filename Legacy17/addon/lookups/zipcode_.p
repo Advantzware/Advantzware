@@ -31,7 +31,7 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i NEW SHARED}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname zipcode.
-&Scoped-define window-size 23.7
+&Scoped-define window-size 24.7
 &Scoped-define window-col 49.5
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42

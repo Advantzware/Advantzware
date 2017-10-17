@@ -31,7 +31,7 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{methods/defines/rm-rcpt.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include ~{custom/itemno.i}
 &Scoped-define ui-prgmname 
-&Scoped-define window-size 23
+&Scoped-define window-size 24
 &Scoped-define window-col 25
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
@@ -40,7 +40,7 @@
 &Scoped-define btn-row 21.77
 &Scoped-define btn-ok-col 91
 &Scoped-define btn-cancel-col 80
-&Scoped-define auto-find-row 22.85
+&Scoped-define auto-find-row 23.65
 
 &Global-define DATATYP1 INTEGER
 &Global-define FORMAT-1 >>>>>9
