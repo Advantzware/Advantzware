@@ -6289,20 +6289,22 @@ PROCEDURE vend-cost :
                         AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
                         AND e-itemfg-vend.vend-no EQ po-ord.vend-no
                         AND e-itemfg-vend.cust-no EQ po-ordl.cust-no:SCREEN-VALUE
+                        AND e-itemfg-vend.est-no EQ "" /*23592 avoid farm Tab costs from estimating*/
                         NO-ERROR.
-                /* gdm - 06040918 - check for vendor */
-                IF NOT AVAILABLE e-itemfg-vend THEN
+                ELSE 
                     FIND FIRST e-itemfg-vend NO-LOCK
                         WHERE e-itemfg-vend.company EQ e-itemfg.company
                         AND e-itemfg-vend.i-no    EQ e-itemfg.i-no
                         AND e-itemfg-vend.vend-no EQ po-ord.vend-no
+                        AND e-itemfg-vend.est-no EQ "" /*23592 avoid Farm Tab costs from estimating*/
                         NO-ERROR.
                 /* gdm - check for blank vendor */
                 IF NOT AVAILABLE e-itemfg-vend THEN
                     FIND FIRST e-itemfg-vend NO-LOCK
                         WHERE e-itemfg-vend.company EQ e-itemfg.company
                         AND e-itemfg-vend.i-no    EQ e-itemfg.i-no 
-                        AND e-itemfg-vend.vend-no EQ "" NO-ERROR.
+                        AND e-itemfg-vend.vend-no EQ "" 
+                        NO-ERROR.
                 IF AVAILABLE e-itemfg-vend THEN 
                 DO:            
                     CREATE tt-eiv.
