@@ -31,7 +31,7 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared} ~{methods/defines/machine.i}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname machchrg.
-&Scoped-define window-size 23.7
+&Scoped-define window-size 24.7
 &Scoped-define window-col 57.5
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42

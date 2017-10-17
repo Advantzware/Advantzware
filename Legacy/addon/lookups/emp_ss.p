@@ -31,7 +31,7 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname employee.
-&Scoped-define window-size 23.7
+&Scoped-define window-size 24.7
 &Scoped-define window-col 41.5
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
