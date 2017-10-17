@@ -41,6 +41,52 @@ FOR EACH pendingJob NO-LOCK:
          AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
        NO-ERROR.
   IF NOT AVAILABLE job-mch THEN 
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
+         AND job-mch.m-code EQ ENTRY(3,pendingJob.keyValue)
+         AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,pendingJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,pendingJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
+         AND ROWID(job-mch) EQ jobMchRowID
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
+         AND job-mch.m-code EQ pendingJob.resource
+         AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,pendingJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,pendingJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
+         AND ROWID(job-mch) EQ jobMchRowID
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
+         AND job-mch.m-code EQ pendingJob.resource
+         AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,pendingJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,pendingJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
+         AND job-mch.m-code EQ ENTRY(3,pendingJob.keyValue)
+         AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,pendingJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,pendingJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN 
   FIND FIRST job-mch EXCLUSIVE-LOCK 
        WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
          AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
@@ -50,52 +96,6 @@ FOR EACH pendingJob NO-LOCK:
          AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
          AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
          AND ROWID(job-mch) EQ jobMchRowID
-       NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN 
-  FIND FIRST job-mch EXCLUSIVE-LOCK
-       WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
-         AND job-mch.m-code EQ ENTRY(3,pendingJob.keyValue)
-         AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
-         AND job-mch.job-no EQ ENTRY(5,pendingJob.keyValue)
-         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,pendingJob.keyValue))
-         AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
-         AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
-         AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
-         AND ROWID(job-mch) EQ jobMchRowID
-       NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN
-  FIND FIRST job-mch EXCLUSIVE-LOCK
-       WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
-         AND job-mch.m-code EQ pendingJob.resource
-         AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
-         AND job-mch.job-no EQ ENTRY(5,pendingJob.keyValue)
-         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,pendingJob.keyValue))
-         AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
-         AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
-         AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
-         AND ROWID(job-mch) EQ jobMchRowID
-       NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN
-  FIND FIRST job-mch EXCLUSIVE-LOCK
-       WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
-         AND job-mch.m-code EQ pendingJob.resource
-         AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
-         AND job-mch.job-no EQ ENTRY(5,pendingJob.keyValue)
-         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,pendingJob.keyValue))
-         AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
-         AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
-         AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
-       NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN
-  FIND FIRST job-mch EXCLUSIVE-LOCK
-       WHERE job-mch.company EQ ENTRY(1,pendingJob.keyValue)
-         AND job-mch.m-code EQ ENTRY(3,pendingJob.keyValue)
-         AND job-mch.job EQ INTEGER(ENTRY(4,pendingJob.keyValue))
-         AND job-mch.job-no EQ ENTRY(5,pendingJob.keyValue)
-         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,pendingJob.keyValue))
-         AND job-mch.frm EQ INTEGER(ENTRY(7,pendingJob.keyValue))
-         AND job-mch.blank-no EQ INTEGER(ENTRY(8,pendingJob.keyValue))
-         AND job-mch.pass EQ INTEGER(ENTRY(9,pendingJob.keyValue))
        NO-ERROR.
   IF NOT AVAILABLE job-mch THEN NEXT.
   ASSIGN
@@ -135,6 +135,52 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
          AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
        NO-ERROR.
   IF NOT AVAILABLE job-mch THEN 
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
+         AND job-mch.m-code EQ ENTRY(3,ttblJob.keyValue)
+         AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
+         AND ROWID(job-mch) EQ jobMchRowID
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
+         AND job-mch.m-code EQ ttblJob.resource
+         AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
+         AND ROWID(job-mch) EQ jobMchRowID
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
+         AND job-mch.m-code EQ ttblJob.resource
+         AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN
+  FIND FIRST job-mch EXCLUSIVE-LOCK
+       WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
+         AND job-mch.m-code EQ ENTRY(3,ttblJob.keyValue)
+         AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
+         AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
+         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
+         AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
+         AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
+         AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
+       NO-ERROR.
+  IF NOT AVAILABLE job-mch THEN 
   FIND FIRST job-mch EXCLUSIVE-LOCK 
        WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
          AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
@@ -144,52 +190,6 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
          AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
          AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
          AND ROWID(job-mch) EQ jobMchRowID
-       NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN 
-  FIND FIRST job-mch EXCLUSIVE-LOCK
-       WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
-         AND job-mch.m-code EQ ENTRY(3,ttblJob.keyValue)
-         AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
-         AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
-         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
-         AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
-         AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
-         AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
-         AND ROWID(job-mch) EQ jobMchRowID
-       NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN
-  FIND FIRST job-mch EXCLUSIVE-LOCK
-       WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
-         AND job-mch.m-code EQ ttblJob.resource
-         AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
-         AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
-         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
-         AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
-         AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
-         AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
-         AND ROWID(job-mch) EQ jobMchRowID
-       NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN
-  FIND FIRST job-mch EXCLUSIVE-LOCK
-       WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
-         AND job-mch.m-code EQ ttblJob.resource
-         AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
-         AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
-         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
-         AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
-         AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
-         AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
-       NO-ERROR.
-  IF NOT AVAILABLE job-mch THEN
-  FIND FIRST job-mch EXCLUSIVE-LOCK
-       WHERE job-mch.company EQ ENTRY(1,ttblJob.keyValue)
-         AND job-mch.m-code EQ ENTRY(3,ttblJob.keyValue)
-         AND job-mch.job EQ INTEGER(ENTRY(4,ttblJob.keyValue))
-         AND job-mch.job-no EQ ENTRY(5,ttblJob.keyValue)
-         AND job-mch.job-no2 EQ INTEGER(ENTRY(6,ttblJob.keyValue))
-         AND job-mch.frm EQ INTEGER(ENTRY(7,ttblJob.keyValue))
-         AND job-mch.blank-no EQ INTEGER(ENTRY(8,ttblJob.keyValue))
-         AND job-mch.pass EQ INTEGER(ENTRY(9,ttblJob.keyValue))
        NO-ERROR.
   IF NOT AVAILABLE job-mch THEN DO:
       PUT UNFORMATTED 'ttblJob:' AT 5
