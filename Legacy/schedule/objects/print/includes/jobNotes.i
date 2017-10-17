@@ -1,7 +1,7 @@
 /* jobNotes.i */
 
   ASSIGN
-    noteRowID = TO-ROWID(ENTRY(NUM-ENTRIES({&useTable}.rowIDs),{&useTable}.rowIDs))
+    noteRowID = TO-ROWID(ENTRY(2,{&useTable}.rowIDs))
     noteFound = NO
     noteCnt = 0.
   

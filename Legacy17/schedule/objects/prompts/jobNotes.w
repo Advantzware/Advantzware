@@ -262,7 +262,7 @@ DO:
   RETURN NO-APPLY.
   FOR EACH buffJob NO-LOCK WHERE buffJob.job EQ ttblJob.job
                              AND ROWID(buffJob) NE ROWID(ttblJob):
-    buffNoteRowID = TO-ROWID(ENTRY(NUM-ENTRIES(buffJob.rowIDs),buffJob.rowIDs)).
+    buffNoteRowID = TO-ROWID(ENTRY(2,buffJob.rowIDs)).
     FIND FIRST buffJobNotes EXCLUSIVE-LOCK
          WHERE buffJobNotes.jobRowID EQ buffNoteRowID
            AND buffJobNotes.noteDate EQ jobNotes.noteDate
@@ -318,7 +318,7 @@ DO:
   IF allResources THEN DO:
     FOR EACH buffJob NO-LOCK WHERE buffJob.job EQ ttblJob.job
                                AND ROWID(buffJob) NE ROWID(ttblJob):
-      buffNoteRowID = TO-ROWID(ENTRY(NUM-ENTRIES(buffJob.rowIDs),buffJob.rowIDs)).
+      buffNoteRowID = TO-ROWID(ENTRY(2,buffJob.rowIDs)).
       FIND FIRST buffJobNotes EXCLUSIVE-LOCK
            WHERE buffJobNotes.jobRowID EQ buffNoteRowID
              AND buffJobNotes.noteDate EQ jobNotes.noteDate
@@ -384,7 +384,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RETURN.
   END.
   ASSIGN
-    noteRowID = TO-ROWID(ENTRY(NUM-ENTRIES(ttblJob.rowIDs),ttblJob.rowIDs))
+    noteRowID = TO-ROWID(ENTRY(2,ttblJob.rowIDs))
     FRAME {&FRAME-NAME}:TITLE = FRAME {&FRAME-NAME}:TITLE + ' - ' +
                                 ttblJob.job + ' (' + ttblJob.resource + ')'.
   {&OPEN-BROWSERS-IN-QUERY-{&FRAME-NAME}}
