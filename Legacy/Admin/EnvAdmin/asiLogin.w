@@ -478,8 +478,12 @@ DO:
                                                ttUsers.ttfUserID,
                                                fiPassword:{&SV},
                                                OUTPUT lError).
-            IF CONNECTED(LDBNAME(1)) THEN
-                RUN preRun.p PERSISTENT SET hPreRun.
+            IF CONNECTED(LDBNAME(1)) THEN DO:
+                IF INDEX(PDBNAME(1),"165") <> 0 THEN
+                    RUN preRun165.p PERSISTENT SET hPreRun.
+                ELSE
+                    RUN preRun.p PERSISTENT SET hPreRun.
+            END.
             ELSE DO:
                 MESSAGE 
                     "Unable to connect to that database with the" SKIP
@@ -848,7 +852,7 @@ PROCEDURE ipConnectDb :
         cStatement = REPLACE(cStatement,"-H " + cHostName,"-H LOCALHOST").
         CONNECT VALUE(cStatement + 
                       " -U " + cUser + 
-                      " -P " + cPassword) NO-ERROR.
+                      " -P '" + cPassword + "'") NO-ERROR.
     END.
     IF CONNECTED(LDBNAME(1))
     AND LDBNAME(1) = "ASI" THEN DO:
