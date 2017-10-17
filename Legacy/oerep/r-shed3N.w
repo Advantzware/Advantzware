@@ -101,7 +101,8 @@ def TEMP-TABLE w-ord
   field is-a-component like oe-ordl.is-a-component
   field palls as int format "->>,>>>,>>9"
   FIELD xls-rel-date  LIKE oe-rel.rel-date format "99/99/99"
-  FIELD xls-status    AS CHAR.
+  FIELD xls-status    AS CHAR
+  FIELD iPro-qty  AS INTEGER .
 
 def buffer b-w-ord for w-ord.
 
@@ -121,7 +122,11 @@ DEF VAR ls-fax-file AS CHAR NO-UNDO.
 DEF VAR ll-secure AS LOG NO-UNDO.
 
 DEF TEMP-TABLE tt-report LIKE report FIELD qty LIKE oe-rell.qty
-                                     FIELD onh LIKE fg-bin.qty.
+                                     FIELD onh LIKE fg-bin.qty
+                                     FIELD ord-no  AS INTEGER 
+                                     FIELD i-no    AS CHARACTER 
+                                     FIELD rel-date AS DATE
+                                     FIELD pro-qty AS INTEGER  .
 DEF STREAM excel.
 
 DEF VAR ldummy AS LOG NO-UNDO.
@@ -135,16 +140,16 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Customer#,Rel Date,Rel Num,Ship To,Carrier,Order #,Cust Part#,Descrption,Fg Item#," +
-                           "Po Number,Qty On Hand,Release Qty,Sales Value,Skids,Status"
+                           "Po Number,Qty On Hand,Release Qty,Sales Value,Skids,Status,Projected Qty"
        cFieldListToSelect = "cust,rel-date,rel-num,ship,carr,ord,cust-part,desc,fg-item," +
-                            "po-num,Qty-hand,rel-qty,sales,skid,stat"
-       cFieldLength = "9,8,7,8,7,8,15,25,15," + "15,11,11,15,7,6"
-       cFieldType = "c,c,i,c,c,i,c,c,c," + "c,i,i,i,i,c" 
+                            "po-num,Qty-hand,rel-qty,sales,skid,stat,proj-qty"
+       cFieldLength = "9,8,7,8,7,8,15,25,15," + "15,11,11,15,7,6,13"
+       cFieldType = "c,c,i,c,c,i,c,c,c," + "c,i,i,i,i,c,i" 
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Customer#,Rel Date,Rel Num,Ship To,Carrier,Order #,Cust Part#,Descrption,Fg Item#," +
-                           "Po Number,Qty On Hand,Release Qty,Sales Value,Skids,Status" .
+                           "Po Number,Qty On Hand,Projected Qty,Release Qty,Sales Value,Skids,Status" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -166,12 +171,12 @@ end_ord-no begin_i-no end_i-no begin_loc end_loc begin_slsmn end_slsmn ~
 begin_date end_date begin_carr end_carr tb_actual tb_backordered rd_sort ~
 tb_show-only sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up ~
 btn_down rd-dest lv-ornt lv-font-no lines-per-page td-show-parm tb_excel ~
-tb_runExcel fi_file btn-ok btn-cancel RECT-6 RECT-7 RECT-11 
+tb_runExcel fi_file btn-ok btn-cancel RECT-6 RECT-7 RECT-11 tb_pro-qty 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_ord-no ~
 end_ord-no begin_i-no end_i-no begin_loc end_loc begin_slsmn end_slsmn ~
 begin_date end_date begin_carr end_carr tb_actual tb_backordered rd_sort ~
 tb_show-only sl_avail sl_selected rd-dest lv-ornt lv-font-no lines-per-page ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+lv-font-name td-show-parm tb_excel tb_runExcel fi_file tb_pro-qty 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -346,7 +351,7 @@ DEFINE VARIABLE rd_sort AS CHARACTER INITIAL "Customer#"
 
 DEFINE RECTANGLE RECT-11
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 96.4 BY 6.44.
+     SIZE 96.4 BY 6.43.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -379,6 +384,11 @@ DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes
      VIEW-AS TOGGLE-BOX
      SIZE 21 BY .81
      BGCOLOR 3  NO-UNDO.
+
+DEFINE VARIABLE tb_pro-qty AS LOGICAL INITIAL yes 
+     LABEL "Projected Qty?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 18.2 BY 1.33 NO-UNDO.
 
 DEFINE VARIABLE tb_runExcel AS LOGICAL INITIAL no 
      LABEL "Auto Run Excel?" 
@@ -454,6 +464,7 @@ DEFINE FRAME FRAME-A
           "Enter File Name"
      btn-ok AT ROW 24.95 COL 29.4
      btn-cancel AT ROW 24.95 COL 77.4
+     tb_pro-qty AT ROW 8.71 COL 91.6 WIDGET-ID 58
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 18.57 COL 3.8 WIDGET-ID 38
      "Release Types:" VIEW-AS TEXT
@@ -469,8 +480,6 @@ DEFINE FRAME FRAME-A
           SIZE 15 BY 1 AT ROW 8.71 COL 30.4 WIDGET-ID 14
      "Selected Columns(In Display Order)" VIEW-AS TEXT
           SIZE 34 BY .62 AT ROW 12.1 COL 81.4 WIDGET-ID 44
-     RECT-6 AT ROW 18.38 COL 1
-     RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -478,6 +487,8 @@ DEFINE FRAME FRAME-A
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME FRAME-A
+     RECT-6 AT ROW 18.38 COL 1
+     RECT-7 AT ROW 1 COL 1
      RECT-11 AT ROW 11.95 COL 23.6 WIDGET-ID 8
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -535,16 +546,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME Custom                                                    */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_carr:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -572,6 +573,14 @@ ASSIGN
 ASSIGN 
        begin_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_carr:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -625,6 +634,10 @@ ASSIGN
        tb_excel:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+ASSIGN 
+       tb_pro-qty:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 /* SETTINGS FOR TOGGLE-BOX tb_runExcel IN FRAME FRAME-A
    ALIGN-R                                                              */
 ASSIGN 
@@ -641,7 +654,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1133,6 +1146,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME tb_pro-qty
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_pro-qty C-Win
+ON VALUE-CHANGED OF tb_pro-qty IN FRAME FRAME-A /* Projected Qty? */
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_runExcel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_runExcel C-Win
 ON VALUE-CHANGED OF tb_runExcel IN FRAME FRAME-A /* Auto Run Excel? */
@@ -1371,14 +1395,14 @@ PROCEDURE enable_UI :
           begin_loc end_loc begin_slsmn end_slsmn begin_date end_date begin_carr 
           end_carr tb_actual tb_backordered rd_sort tb_show-only sl_avail 
           sl_selected rd-dest lv-ornt lv-font-no lines-per-page lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+          td-show-parm tb_excel tb_runExcel fi_file tb_pro-qty 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE begin_cust-no end_cust-no begin_ord-no end_ord-no begin_i-no end_i-no 
          begin_loc end_loc begin_slsmn end_slsmn begin_date end_date begin_carr 
          end_carr tb_actual tb_backordered rd_sort tb_show-only sl_avail 
          Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt 
          lv-font-no lines-per-page td-show-parm tb_excel tb_runExcel fi_file 
-         btn-ok btn-cancel RECT-6 RECT-7 RECT-11 
+         btn-ok btn-cancel RECT-6 RECT-7 RECT-11 tb_pro-qty 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1567,7 +1591,8 @@ DEF VAR cFieldName AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
-
+DEFINE VARIABLE iProjQty AS INTEGER NO-UNDO .
+DEFINE VARIABLE iRelqty AS INTEGER NO-UNDO .
 /*{sys/form/r-top5DL3.f} */
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
@@ -1722,6 +1747,7 @@ SESSION:SET-WAIT-STATE ("general").
     STATUS DEFAULT "Processing Order#/FG#: " +
                    TRIM(STRING(oe-ordl.ord-no,">>>>>>>>")) + "/" +
                    TRIM(oe-ordl.i-no).
+    
 
     FOR EACH oe-rell NO-LOCK
         WHERE oe-rell.company EQ oe-ordl.company
@@ -1736,8 +1762,8 @@ SESSION:SET-WAIT-STATE ("general").
         WHERE oe-relh.r-no     EQ oe-rell.r-no
           AND oe-relh.posted   EQ NO
           AND oe-relh.deleted  EQ NO
-          AND oe-relh.rel-date GE v-fdate[1]
-          AND oe-relh.rel-date LE v-fdate[2]
+          /*AND oe-relh.rel-date GE v-fdate[1]
+          AND oe-relh.rel-date LE v-fdate[2]*/
           AND oe-relh.carrier  GE v-fcarr[1]
           AND oe-relh.carrier  LE v-fcarr[2]
         USE-INDEX r-no
@@ -1784,7 +1810,10 @@ SESSION:SET-WAIT-STATE ("general").
          tt-report.key-05  = STRING(INDEX(v-types,v-type),"99")
          tt-report.key-06  = IF oe-rell.b-ord-no EQ 0 THEN "A" ELSE "B"
          tt-report.qty     = lv-qty
-         tt-report.rec-id  = RECID(oe-rell).
+         tt-report.rec-id  = RECID(oe-rell)
+         tt-report.ord-no     = oe-ord.ord-no
+         tt-report.i-no  = oe-rell.i-no 
+         tt-report.rel-date   = oe-relh.rel-date   .
 
         FOR EACH fg-bin
             WHERE fg-bin.company EQ oe-ordl.company
@@ -1802,10 +1831,48 @@ SESSION:SET-WAIT-STATE ("general").
 
   STATUS DEFAULT "Printing...".
 
-  IF tb_show-only THEN
+  
+  RELEASE tt-report.
+    iRelqty = 0  .
+  for each tt-report where tt-report.term-id eq "",
+      FIRST oe-rell where recid(oe-rell) eq tt-report.rec-id no-lock,
+      first oe-relh
+      where oe-relh.company eq oe-rell.company
+        and oe-relh.r-no    eq oe-rell.r-no
+      use-index r-no NO-LOCK,
+      first oe-ordl
+      where oe-ordl.company eq oe-rell.company
+        and oe-ordl.ord-no  eq oe-rell.ord-no
+        and oe-ordl.i-no    eq oe-rell.i-no
+        and oe-ordl.line    eq oe-rell.line
+      NO-LOCK,
+      first oe-ord of oe-ordl no-lock,
+      first cust
+      where cust.company eq oe-ord.company
+        and cust.cust-no eq oe-ord.cust-no
+      no-lock
+      break by tt-report.ord-no
+            by tt-report.i-no :
+       
+      IF FIRST-OF(tt-report.i-no) THEN
+             iRelqty = 0.
+  
+      tt-report.pro-qty  = tt-report.onh - iRelqty  .
+
+      IF FIRST-OF(tt-report.i-no) THEN
+                iRelqty = tt-report.qty  .
+      ELSE iRelqty = iRelqty + tt-report.qty .
+
+     IF tt-report.rel-date LT v-fdate[1] 
+         OR tt-report.rel-date GT v-fdate[2]  THEN
+         DELETE tt-report .
+
+    END.
+
+    IF tb_show-only THEN
   FOR EACH tt-report
       WHERE tt-report.term-id EQ ""
-        AND tt-report.qty     LE tt-report.onh:
+        AND tt-report.qty     LE tt-report.pro-qty /*tt-report.onh*/:
     DELETE tt-report.
   END.
 
@@ -1815,9 +1882,7 @@ SESSION:SET-WAIT-STATE ("general").
      tt-report.term-id = ""
      ll-show-top-only  = YES.
   END.
-
-  RELEASE tt-report.
-
+  
   for each tt-report where tt-report.term-id eq "",
       FIRST oe-rell where recid(oe-rell) eq tt-report.rec-id no-lock,
       first oe-relh
@@ -1897,6 +1962,8 @@ SESSION:SET-WAIT-STATE ("general").
 
     w-ord.palls = w-ord.palls + ld-palls.
 
+    w-ord.iPro-qty = tt-report.pro-qty.
+
     IF NOT FIRST-OF(tt-report.key-02) AND v-sort EQ "C" THEN w-ord.cust-name = "".
 
     IF v-comps AND itemfg.isaset THEN DO:
@@ -1943,7 +2010,7 @@ SESSION:SET-WAIT-STATE ("general").
       IF AVAIL itemfg OR ll-show-top-only THEN DO:
         /*{oe/rep/schdrel.i}*/
           DEF VAR lv-issue AS CHAR FORMAT "x(5)" NO-UNDO.
-          lv-issue = IF w-ord.rel-qty GT w-ord.onh-qty THEN "ISSUE" ELSE "OK".
+          lv-issue = IF w-ord.rel-qty GT /*w-ord.onh-qty*/ w-ord.iPro-qty THEN "ISSUE" ELSE "OK".
 
              ASSIGN cDisplay = ""
                    cTmpField = ""
@@ -1970,6 +2037,8 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "sales"   THEN cVarValue = IF ll-secure THEN STRING(w-ord.t-price,"$->>,>>>,>>9.99") ELSE "" .
                          WHEN "skid"  THEN cVarValue = STRING(w-ord.palls,">>>,>>9") .
                          WHEN "stat"   THEN cVarValue = STRING(lv-issue,"x(6)") .
+                         WHEN "proj-qty"   THEN cVarValue = IF tb_pro-qty THEN STRING(w-ord.iPro-qty,"->>>>,>>>,>>9") ELSE "" .
+
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -2035,6 +2104,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "sales"   THEN cVarValue = IF ll-secure THEN STRING(v-tot-val[1],"$->>,>>>,>>9.99") ELSE "" .
                          WHEN "skid"  THEN cVarValue = STRING(v-tot-pal[1],">>>,>>9") .
                          WHEN "stat"   THEN cVarValue = "" .
+                         WHEN "proj-qty"   THEN cVarValue = "" .
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -2042,12 +2112,12 @@ SESSION:SET-WAIT-STATE ("general").
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
-
-            IF v-sort EQ "C" THEN
+       IF trim(cDisplay) NE "" THEN do:
+        IF v-sort EQ "C" THEN
           PUT UNFORMATTED "          Customer Totals:"  substring(cDisplay,27,350) SKIP(1).  
         ELSE
           PUT UNFORMATTED "          Sub Totals:" substring(cDisplay,22,350) SKIP(1).
-
+       END.
 
             /*IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
@@ -2096,6 +2166,7 @@ SESSION:SET-WAIT-STATE ("general").
                          WHEN "sales"   THEN cVarValue = IF ll-secure THEN STRING(v-tot-val[2],"$->>,>>>,>>9.99") ELSE "" .
                          WHEN "skid"  THEN cVarValue = STRING(v-tot-pal[2],">>>,>>9") .
                          WHEN "stat"   THEN cVarValue = "" .
+                          WHEN "proj-qty"   THEN cVarValue = "" .
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -2104,7 +2175,7 @@ SESSION:SET-WAIT-STATE ("general").
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
             END.
 
-
+          IF trim(cDisplay) NE "" THEN 
           PUT UNFORMATTED "          Report Totals:  "  substring(cDisplay,27,350) SKIP(1).  
 
 
@@ -2203,6 +2274,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 
