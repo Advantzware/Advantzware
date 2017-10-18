@@ -1510,6 +1510,10 @@ ELSE DO:
           assign
              max-per-chk  = 10
              next-program = "ap/ap-ckpre.p".
+       WHEN "APChkFmt1" then
+          assign
+             max-per-chk  = 10
+             next-program = "ap/ap-ckapfmt.p".
        WHEN "ACPI" then
           assign
              laser-chk = yes
