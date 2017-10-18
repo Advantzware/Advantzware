@@ -352,14 +352,6 @@ PROCEDURE pShipmentReport:
         iExtent = iExtent + 1.
         RUN pQtyShipped (iExtent, STRING(ttShipmentReportSummary.qtyShipped,"->,>>>,>>>,>>>")).
     END. /* each ttShipmentReport */
-    
-    OUTPUT TO c:\tmp\ttShipmentReport.csv.
-    FOR EACH ttShipmentReport
-        WHERE ttShipmentReport.rowType EQ "Data"
-        :
-        EXPORT DELIMITER "," ttShipmentReport EXCEPT rowType parameters.
-    END. /* each ttShipmentReport */ 
-    OUTPUT CLOSE.
 END PROCEDURE.
 
 PROCEDURE pShipmentReportSummary:
