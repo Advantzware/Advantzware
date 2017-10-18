@@ -86,18 +86,20 @@ ASSIGN cTextListToDefault  = "Vendor,Name,Type,Active,Contact,Address 1,Address 
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_vend end_vend begin_type ~
-end_type begin_buyer end_buyer lv-ornt lines-per-page rd-dest ~
-lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel ~
-sl_avail Btn_Add sl_selected Btn_Remove Btn_Def btn_down btn_Up
+end_type begin_buyer end_buyer rd_active sl_avail Btn_Def sl_selected ~
+Btn_Add Btn_Remove btn_Up btn_down lv-ornt lines-per-page rd-dest ~
+lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_vend end_vend begin_type end_type ~
-begin_buyer end_buyer lv-ornt lines-per-page rd-dest lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file sl_avail sl_selected
+begin_buyer end_buyer lbl_active rd_active sl_avail sl_selected lv-ornt ~
+lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Prototypes ********************** */
 
@@ -107,6 +109,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -178,6 +181,10 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-venlst.c
      SIZE 43 BY 1
      FGCOLOR 9 .
 
+DEFINE VARIABLE lbl_active AS CHARACTER FORMAT "X(256)":U INITIAL "Vendor Status?" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
@@ -207,13 +214,21 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
 "To File", 3
      SIZE 23 BY 3.81 NO-UNDO.
 
+DEFINE VARIABLE rd_active AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Active", "Active",
+"Inactive", "Inactive",
+"All Vendors", "All Vendors"
+     SIZE 44 BY 1 NO-UNDO.
+
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 95 BY 7.14.
 
 DEFINE RECTANGLE RECT-7
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 95 BY 5.95.
+     SIZE 95 BY 6.91.
 
 DEFINE VARIABLE sl_avail AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
@@ -256,43 +271,45 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Buyer"
      end_buyer AT ROW 5.29 COL 67 COLON-ALIGNED HELP
           "Enter Ending Buyer"
-     sl_avail AT ROW 7.86 COL 3 NO-LABEL WIDGET-ID 26
-     Btn_Def AT ROW 7.86 COL 39 HELP
+     lbl_active AT ROW 6.62 COL 22.6 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     rd_active AT ROW 6.62 COL 40.4 NO-LABEL WIDGET-ID 60
+     sl_avail AT ROW 8.86 COL 3 NO-LABEL WIDGET-ID 26
+     Btn_Def AT ROW 8.86 COL 39 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 56
-     sl_selected AT ROW 7.86 COL 58.4 NO-LABEL WIDGET-ID 28
-     Btn_Add AT ROW 8.86 COL 39 HELP
+     sl_selected AT ROW 8.86 COL 58.4 NO-LABEL WIDGET-ID 28
+     Btn_Add AT ROW 9.86 COL 39 HELP
           "Add Selected Table to Tables to Audit" WIDGET-ID 32
-     Btn_Remove AT ROW 9.86 COL 39 HELP
+     Btn_Remove AT ROW 10.86 COL 39 HELP
           "Remove Selected Table from Tables to Audit" WIDGET-ID 34
-     btn_Up AT ROW 10.91 COL 39 WIDGET-ID 40
-     btn_down AT ROW 11.91 COL 39 WIDGET-ID 42
-     lv-ornt AT ROW 13.57 COL 30 NO-LABEL
-     lines-per-page AT ROW 13.57 COL 83 COLON-ALIGNED
-     rd-dest AT ROW 14.29 COL 6 NO-LABEL
-     lv-font-no AT ROW 15.24 COL 33 COLON-ALIGNED
-     lv-font-name AT ROW 16.19 COL 27 COLON-ALIGNED NO-LABEL
-     td-show-parm AT ROW 17.14 COL 29.2
-     tb_excel AT ROW 18.1 COL 49.2 RIGHT-ALIGNED
-     tb_runExcel AT ROW 18.1 COL 70.2 RIGHT-ALIGNED
-     fi_file AT ROW 18.95 COL 27.2 COLON-ALIGNED HELP
+     btn_Up AT ROW 11.91 COL 39 WIDGET-ID 40
+     btn_down AT ROW 12.91 COL 39 WIDGET-ID 42
+     lv-ornt AT ROW 14.57 COL 30 NO-LABEL
+     lines-per-page AT ROW 14.57 COL 83 COLON-ALIGNED
+     rd-dest AT ROW 15.29 COL 6 NO-LABEL
+     lv-font-no AT ROW 16.24 COL 33 COLON-ALIGNED
+     lv-font-name AT ROW 17.19 COL 27 COLON-ALIGNED NO-LABEL
+     td-show-parm AT ROW 18.14 COL 29.2
+     tb_excel AT ROW 19.1 COL 49.2 RIGHT-ALIGNED
+     tb_runExcel AT ROW 19.1 COL 70.2 RIGHT-ALIGNED
+     fi_file AT ROW 19.95 COL 27.2 COLON-ALIGNED HELP
           "Enter File Name"
-     btn-ok AT ROW 20.48 COL 19
-     btn-cancel AT ROW 20.48 COL 58
+     btn-ok AT ROW 21.48 COL 19
+     btn-cancel AT ROW 21.48 COL 58
      "Available Columns" VIEW-AS TEXT
-          SIZE 29 BY .62 AT ROW 7.14 COL 3.8 WIDGET-ID 38
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 13.43 COL 4
+          SIZE 29 BY .62 AT ROW 8.14 COL 3.8 WIDGET-ID 38
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 8.14 COL 58.4 WIDGET-ID 44
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 7.14 COL 58.4 WIDGET-ID 44
-     RECT-6 AT ROW 13.19 COL 1
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 14.43 COL 4
+     RECT-6 AT ROW 14.19 COL 1
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 95.4 BY 20.86.
+         SIZE 95.4 BY 22.33.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -312,7 +329,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Vendor Master List"
-         HEIGHT             = 21
+         HEIGHT             = 22.43
          WIDTH              = 95.6
          MAX-HEIGHT         = 33.29
          MAX-WIDTH          = 204.8
@@ -346,16 +363,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_buyer:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -367,6 +374,14 @@ ASSIGN
 ASSIGN 
        begin_vend:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_buyer:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -384,8 +399,17 @@ ASSIGN
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN lbl_active IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_active:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_active".
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
+ASSIGN 
+       rd_active:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
 
 /* SETTINGS FOR TOGGLE-BOX tb_excel IN FRAME FRAME-A
    ALIGN-R                                                              */
@@ -405,7 +429,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -504,6 +528,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
@@ -581,6 +606,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME end_buyer
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_buyer C-Win
@@ -694,6 +720,18 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&Scoped-define SELF-NAME rd_active
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_active C-Win
+ON VALUE-CHANGED OF rd_active IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
 ON DEFAULT-ACTION OF sl_avail IN FRAME FRAME-A
@@ -755,6 +793,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
@@ -859,7 +898,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE DisplaySelectionDefault C-Win 
 PROCEDURE DisplaySelectionDefault :
@@ -991,13 +1029,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_vend end_vend begin_type end_type begin_buyer end_buyer 
-          lv-ornt lines-per-page rd-dest lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file sl_avail sl_selected
+          lbl_active rd_active sl_avail sl_selected lv-ornt lines-per-page 
+          rd-dest lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel 
+          fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_vend end_vend begin_type end_type begin_buyer 
-         end_buyer lv-ornt lines-per-page rd-dest lv-font-no 
-         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
-         sl_avail sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down
+         end_buyer rd_active sl_avail Btn_Def sl_selected Btn_Add Btn_Remove 
+         btn_Up btn_down lv-ornt lines-per-page rd-dest lv-font-no td-show-parm 
+         tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1295,7 +1334,8 @@ if td-show-parm then run show-param.
   for each vend where (vend.company >= fco and vend.company <= tco)     and
                           (vend.vend-no >= fvend and vend.vend-no <= tvend) and
                           (vend.type >= ftype and vend.type <= ttype) and
-                          (vend.buyer >= fbuy and vend.buyer <= tbuy)
+                          (vend.buyer >= fbuy and vend.buyer <= tbuy) AND
+                          (vend.active   EQ SUBSTR(rd_active,1,1) OR rd_active BEGINS "All")
                           NO-LOCK
                           break by vend.vend-no with frame vend2:
 
@@ -1557,7 +1597,6 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ************************  Function Implementations ***************** */
 
