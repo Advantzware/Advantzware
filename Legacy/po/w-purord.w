@@ -654,12 +654,17 @@ PROCEDURE local-change-page :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+def var li-cur-page as int init 1 no-undo.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
-
+  run get-attribute ("current-page").
+  assign li-cur-page = int(return-value).
+     IF li-cur-page = 3 THEN
+         RUN dept-pan-image-proc IN h_bi-poord .
+     ELSE
+         RUN dept-pan-image-proc IN h_b-po-inq .
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/winReSizePgChg.i}
 
