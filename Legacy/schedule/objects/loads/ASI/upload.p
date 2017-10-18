@@ -207,6 +207,7 @@ FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
           ' RowIDs: ' ttblJob.rowIDs ' - RowID: ' STRING(ROWID(job-mch))
           ' KeyValue: ' ttblJob.keyValue
           ' RecKey: ' job-mch.rec_key
+          ' EstOPRecKey: ' job-mch.est-op_rec_key
           ' Run?: ' job-mch.run-complete
           ' SB Run?: ' ttblJob.jobCompleted
           ' Current: ' job-mch.m-code
