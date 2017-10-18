@@ -57,11 +57,13 @@ DEF STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_vend end_vend begin_type ~
-end_type begin_buyer end_buyer tb_detailed lv-ornt lines-per-page rd-dest ~
-lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+end_type begin_buyer end_buyer rd_active tb_detailed lv-ornt lines-per-page ~
+rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_vend end_vend begin_type end_type ~
-begin_buyer end_buyer tb_detailed lv-ornt lines-per-page rd-dest lv-font-no ~
-lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+begin_buyer end_buyer lbl_active rd_active tb_detailed lv-ornt ~
+lines-per-page rd-dest lv-font-no lv-font-name td-show-parm tb_excel ~
+tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -121,6 +123,10 @@ DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-venlst.c
      SIZE 43 BY 1
      FGCOLOR 9 .
 
+DEFINE VARIABLE lbl_active AS CHARACTER FORMAT "X(256)":U INITIAL "Vendor Status?" 
+     VIEW-AS FILL-IN 
+     SIZE 17 BY 1 NO-UNDO.
+
 DEFINE VARIABLE lines-per-page AS INTEGER FORMAT ">>":U INITIAL 99 
      LABEL "Lines Per Page" 
      VIEW-AS FILL-IN 
@@ -149,6 +155,14 @@ DEFINE VARIABLE rd-dest AS INTEGER INITIAL 2
 "To Screen", 2,
 "To File", 3
      SIZE 23 BY 3.81 NO-UNDO.
+
+DEFINE VARIABLE rd_active AS CHARACTER 
+     VIEW-AS RADIO-SET HORIZONTAL
+     RADIO-BUTTONS 
+          "Active", "Active",
+"Inactive", "Inactive",
+"All Vendors", "All Vendors"
+     SIZE 44 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-6
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -184,19 +198,21 @@ DEFINE VARIABLE td-show-parm AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME FRAME-A
-     begin_vend AT ROW 2.91 COL 29 COLON-ALIGNED HELP
+     begin_vend AT ROW 2.48 COL 29 COLON-ALIGNED HELP
           "Enter Beginning Vendor Number"
-     end_vend AT ROW 2.91 COL 67 COLON-ALIGNED HELP
+     end_vend AT ROW 2.48 COL 67 COLON-ALIGNED HELP
           "Enter Ending Vendor Number"
-     begin_type AT ROW 4.1 COL 29 COLON-ALIGNED HELP
+     begin_type AT ROW 3.67 COL 29 COLON-ALIGNED HELP
           "Enter Beginning Type"
-     end_type AT ROW 4.1 COL 67 COLON-ALIGNED HELP
+     end_type AT ROW 3.67 COL 67 COLON-ALIGNED HELP
           "Enter Ending Type"
-     begin_buyer AT ROW 5.29 COL 29 COLON-ALIGNED HELP
+     begin_buyer AT ROW 4.86 COL 29 COLON-ALIGNED HELP
           "Enter Beginning Buyer"
-     end_buyer AT ROW 5.29 COL 67 COLON-ALIGNED HELP
+     end_buyer AT ROW 4.86 COL 67 COLON-ALIGNED HELP
           "Enter Ending Buyer"
-     tb_detailed AT ROW 6.71 COL 39
+     lbl_active AT ROW 6.29 COL 13 COLON-ALIGNED NO-LABEL WIDGET-ID 58
+     rd_active AT ROW 6.29 COL 30.8 NO-LABEL WIDGET-ID 60
+     tb_detailed AT ROW 7.52 COL 39
      lv-ornt AT ROW 9.24 COL 30 NO-LABEL
      lines-per-page AT ROW 9.24 COL 83 COLON-ALIGNED
      rd-dest AT ROW 9.95 COL 6 NO-LABEL
@@ -273,16 +289,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_buyer:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -294,6 +300,14 @@ ASSIGN
 ASSIGN 
        begin_vend:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_buyer:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -311,8 +325,18 @@ ASSIGN
        fi_file:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
+/* SETTINGS FOR FILL-IN lbl_active IN FRAME FRAME-A
+   NO-ENABLE                                                            */
+ASSIGN 
+       lbl_active:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "rd_active".
+
 /* SETTINGS FOR FILL-IN lv-font-name IN FRAME FRAME-A
    NO-ENABLE                                                            */
+ASSIGN 
+       rd_active:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
 ASSIGN 
        tb_detailed:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -335,7 +359,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -547,6 +571,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME rd_active
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_active C-Win
+ON VALUE-CHANGED OF rd_active IN FRAME FRAME-A
+DO:
+  assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME tb_detailed
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_detailed C-Win
 ON VALUE-CHANGED OF tb_detailed IN FRAME FRAME-A /* Detailed? */
@@ -672,12 +707,12 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_vend end_vend begin_type end_type begin_buyer end_buyer 
-          tb_detailed lv-ornt lines-per-page rd-dest lv-font-no lv-font-name 
-          td-show-parm tb_excel tb_runExcel fi_file 
+          lbl_active rd_active tb_detailed lv-ornt lines-per-page rd-dest 
+          lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_vend end_vend begin_type end_type begin_buyer 
-         end_buyer tb_detailed lv-ornt lines-per-page rd-dest lv-font-no 
-         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         end_buyer rd_active tb_detailed lv-ornt lines-per-page rd-dest 
+         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -859,7 +894,8 @@ if td-show-parm then run show-param.
   for each vend where (vend.company >= fco and vend.company <= tco)     and
                           (vend.vend-no >= fvend and vend.vend-no <= tvend) and
                           (vend.type >= ftype and vend.type <= ttype) and
-                          (vend.buyer >= fbuy and vend.buyer <= tbuy)
+                          (vend.buyer >= fbuy and vend.buyer <= tbuy) AND
+                          (vend.active   EQ SUBSTR(rd_active,1,1) OR rd_active BEGINS "All")
                           NO-LOCK
                           break by vend.vend-no with frame vend2:
 
