@@ -1,4 +1,4 @@
-/* sman_.p - Generated 01/17/2000 - 12:09 pm by nosweat
+/* sman_.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "sman_. " ~
 "ASI " ~
 "sman " ~
@@ -25,22 +25,23 @@
 &Scoped-define font 4
 &Scoped-define height-size 19
 &Scoped-define width-size 35
-&Scoped-define show-fields sman.sname LABEL "Sales Rep" sman.sman LABEL "Sales Rep Name"
-&Scoped-define frame-title Sale Rep Description Lookup
+&Scoped-define show-fields sman.sname sman.sman
+&Scoped-define show-fields-yellow sman.sname LABEL-BGCOLOR 14 sman.sman LABEL-BGCOLOR 14
+&Scoped-define frame-title Saleman Description Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname 
-&Scoped-define window-size 23
+&Scoped-define window-size 24
 &Scoped-define window-col 57.5
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 29
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 26
-&Scoped-define btn-cancel-col 15
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 28
+&Scoped-define btn-cancel-col 21
+&Scoped-define auto-find-row 23.65
 
 &Global-define DATATYP1 INTEGER
 &Global-define FORMAT-1 >>9
@@ -50,6 +51,6 @@
 &Global-define FORMAT-2 x(3)
 &Scoped-define FLDNAME2 sman.sman
 &Scoped-define SORTBY-2 BY {&FLDNAME2} {&SORTBY-1}
-&Scoped-define DESCRIP2 SalesRep
+&Scoped-define DESCRIP2 Salesman
 
 {methods/lookup.i}

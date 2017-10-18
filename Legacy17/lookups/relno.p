@@ -1,4 +1,4 @@
-/* relno.p - Generated 08/17/2005 -  4:13 pm by nosweat
+/* relno.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "relno. " ~
 "ASI " ~
 "oe-relh " ~
@@ -26,6 +26,7 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 46
 &Scoped-define show-fields oe-relh.release# oe-relh.printed oe-relh.rel-date
+&Scoped-define show-fields-yellow oe-relh.release# LABEL-BGCOLOR 14 oe-relh.printed LABEL-BGCOLOR 14 oe-relh.rel-date LABEL-BGCOLOR 14
 &Scoped-define frame-title 
 &Scoped-define top-include ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{sys/inc/var.i new shared}
@@ -37,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 40
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 37
-&Scoped-define btn-cancel-col 26
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 39
+&Scoped-define btn-cancel-col 32
 &Scoped-define auto-find-row 23.65
 
 &Global-define DATATYP1 INTEGER

@@ -1,4 +1,4 @@
-/* bolh.p - Generated 07/28/2017 - 12:11 pm by NoSweat
+/* bolh.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "bolh. " ~
 "ASI " ~
 "oe-bolh " ~
@@ -32,7 +32,7 @@
 &Scoped-define def-include ~{sys/inc/var.i new shared} ~{custom/gcompany.i}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname bolh.
-&Scoped-define window-size 24.7
+&Scoped-define window-size 24
 &Scoped-define window-col 52
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
@@ -41,7 +41,7 @@
 &Scoped-define btn-row 21.7
 &Scoped-define btn-ok-col 39
 &Scoped-define btn-cancel-col 32
-&Scoped-define auto-find-row 23.6
+&Scoped-define auto-find-row 23.65
 
 &Global-define DATATYP1 INTEGER
 &Global-define FORMAT-1 >>>>>>>9

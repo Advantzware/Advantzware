@@ -1,4 +1,4 @@
-/* delzne.p - Generated 01/28/2003 -  5:03 pm by nosweat
+/* delzne.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "delzne. " ~
 "ASI " ~
 "carr-mtx " ~
@@ -20,12 +20,13 @@
 
 &Scoped-define lookup-db ASI.
 &Scoped-define lookup-file carr-mtx
-&Scoped-define where-statement carr-mtx.company eq cocode
+&Scoped-define where-statement TRUE
 &Scoped-define return-field del-zone
 &Scoped-define font 3
 &Scoped-define height-size 19
 &Scoped-define width-size 46
 &Scoped-define show-fields carr-mtx.del-zone carr-mtx.carrier carr-mtx.del-dscr carr-mtx.del-zip
+&Scoped-define show-fields-yellow carr-mtx.del-zone LABEL-BGCOLOR 14 carr-mtx.carrier LABEL-BGCOLOR 14 carr-mtx.del-dscr LABEL-BGCOLOR 14 carr-mtx.del-zip LABEL-BGCOLOR 14
 &Scoped-define frame-title Carrier Zone Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
@@ -37,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 40
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 37
-&Scoped-define btn-cancel-col 26
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 39
+&Scoped-define btn-cancel-col 32
 &Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(5)

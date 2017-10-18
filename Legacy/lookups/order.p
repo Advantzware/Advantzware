@@ -1,4 +1,4 @@
-/* order.p - Generated 07/28/2017 - 12:13 pm by NoSweat
+/* order.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "order. " ~
 "ASI " ~
 "oe-ord " ~
@@ -32,7 +32,7 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i}~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname order.
-&Scoped-define window-size 23.7
+&Scoped-define window-size 24
 &Scoped-define window-col 39.5
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
@@ -41,7 +41,7 @@
 &Scoped-define btn-row 21.7
 &Scoped-define btn-ok-col 64
 &Scoped-define btn-cancel-col 57
-&Scoped-define auto-find-row 23.6
+&Scoped-define auto-find-row 23.65
 
 &Global-define DATATYP1 INTEGER
 &Global-define FORMAT-1 >>>>>9

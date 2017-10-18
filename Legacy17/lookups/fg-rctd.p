@@ -1,4 +1,4 @@
-/* fg-rctd.p - Generated 12/15/2004 -  7:05 pm by nosweat
+/* fg-rctd.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "fg-rctd. " ~
 "asi " ~
 "fg-rctd " ~
@@ -26,6 +26,7 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 100
 &Scoped-define show-fields fg-rctd.r-no fg-rctd.rct-date fg-rctd.tag fg-rctd.po-no fg-rctd.job-no fg-rctd.job-no2 fg-rctd.i-no fg-rctd.t-qty fg-rctd.rita-code
+&Scoped-define show-fields-yellow fg-rctd.r-no LABEL-BGCOLOR 14 fg-rctd.rct-date LABEL-BGCOLOR 14 fg-rctd.tag LABEL-BGCOLOR 14 fg-rctd.po-no LABEL-BGCOLOR 14 fg-rctd.job-no LABEL-BGCOLOR 14 fg-rctd.job-no2 LABEL-BGCOLOR 14 fg-rctd.i-no LABEL-BGCOLOR 14 fg-rctd.t-qty LABEL-BGCOLOR 14 fg-rctd.rita-code LABEL-BGCOLOR 14
 &Scoped-define frame-title FG Transaction Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{sys/inc/var.i new shared} ~{custom/gcompany.i}
@@ -37,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 94
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 91
-&Scoped-define btn-cancel-col 80
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 93
+&Scoped-define btn-cancel-col 86
 &Scoped-define auto-find-row 23.65
 
 &Global-define DATATYP1 INTEGER

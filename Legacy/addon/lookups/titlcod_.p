@@ -1,4 +1,4 @@
-/* titlcod_.p - Generated 07/28/1998 -  8:28 pm by NoSweat
+/* titlcod_.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "titlcod_. " ~
 "ASI " ~
 "titlcode " ~
@@ -26,12 +26,13 @@
 &Scoped-define height-size 10
 &Scoped-define width-size 46
 &Scoped-define show-fields titlcode.description titlcode.titlcode
+&Scoped-define show-fields-yellow titlcode.description LABEL-BGCOLOR 14 titlcode.titlcode LABEL-BGCOLOR 14
 &Scoped-define frame-title Title Description Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{custom/getloc.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i NEW SHARED}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname titlcode.
-&Scoped-define window-size 14.7
+&Scoped-define window-size 15
 &Scoped-define window-col 52
 &Scoped-define rect-1-row 11.15
 &Scoped-define by-row 11.42
@@ -40,7 +41,7 @@
 &Scoped-define btn-row 12.7
 &Scoped-define btn-ok-col 39
 &Scoped-define btn-cancel-col 32
-&Scoped-define auto-find-row 14.6
+&Scoped-define auto-find-row 14.65
 
 &Global-define FORMAT-1 X(30)
 &Scoped-define FLDNAME1 titlcode.description

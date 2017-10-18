@@ -1,4 +1,4 @@
-/* dept_.p - Generated 08/13/2003 -  3:01 pm by nosweat
+/* dept_.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "dept_. " ~
 "ASI " ~
 "dept " ~
@@ -26,21 +26,22 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 60
 &Scoped-define show-fields dept.code dept.dscr dept.fc
+&Scoped-define show-fields-yellow dept.code LABEL-BGCOLOR 14 dept.dscr LABEL-BGCOLOR 14 dept.fc LABEL-BGCOLOR 14
 &Scoped-define frame-title Departments Lookup
 &Scoped-define top-include ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname dept.
-&Scoped-define window-size 23
+&Scoped-define window-size 24
 &Scoped-define window-col 45
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 54
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 51
-&Scoped-define btn-cancel-col 40
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 53
+&Scoped-define btn-cancel-col 46
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(2)
 &Scoped-define FLDNAME1 dept.code

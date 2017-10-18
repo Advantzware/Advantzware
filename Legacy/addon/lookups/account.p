@@ -1,4 +1,4 @@
-/* account.p - Generated 03/01/2006 - 10:03 am by NoSweat
+/* account.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "account. " ~
 "ASI " ~
 "account " ~
@@ -38,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 76
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 73
-&Scoped-define btn-cancel-col 62
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 75
+&Scoped-define btn-cancel-col 68
 &Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(25)

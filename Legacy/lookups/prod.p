@@ -1,4 +1,4 @@
-/* prod.p - Generated 02/11/2009 -  4:32 pm by nosweat
+/* prod.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "prod. " ~
 "ASI " ~
 "prod " ~
@@ -32,16 +32,16 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname prod.
-&Scoped-define window-size 23
+&Scoped-define window-size 24
 &Scoped-define window-col 43.5
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 57
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 54
-&Scoped-define btn-cancel-col 43
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 56
+&Scoped-define btn-cancel-col 49
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(8)
 &Scoped-define FLDNAME1 prod.prolin

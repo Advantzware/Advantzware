@@ -1,4 +1,4 @@
-/* custcarr.p - Generated 10/08/2002 - 11:58 am by yoosun
+/* custcarr.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "custcarr. " ~
 "ASI " ~
 "carrier " ~
@@ -26,6 +26,7 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 42
 &Scoped-define show-fields carrier.carrier carrier.dscr
+&Scoped-define show-fields-yellow carrier.carrier LABEL-BGCOLOR 14 carrier.dscr LABEL-BGCOLOR 14
 &Scoped-define frame-title Common Carriers Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{methods/defines/shipto.i} ~{sys/inc/var.i new shared}
@@ -37,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 36
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 33
-&Scoped-define btn-cancel-col 22
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 35
+&Scoped-define btn-cancel-col 28
 &Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(5)

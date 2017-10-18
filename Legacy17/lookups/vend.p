@@ -1,4 +1,4 @@
-/* vend.p - Generated 10/17/2017 - 12:49 pm by NoSweat
+/* vend.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "vend. " ~
 "ASI " ~
 "vend " ~
@@ -32,7 +32,7 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname vend.
-&Scoped-define window-size 23.7
+&Scoped-define window-size 24
 &Scoped-define window-col 47.5
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
@@ -41,7 +41,7 @@
 &Scoped-define btn-row 21.7
 &Scoped-define btn-ok-col 48
 &Scoped-define btn-cancel-col 41
-&Scoped-define auto-find-row 23.6
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(30)
 &Scoped-define FLDNAME1 vend.name
@@ -51,5 +51,6 @@
 &Scoped-define FLDNAME2 vend.vend-no
 &Scoped-define SORTBY-2 BY {&FLDNAME2} {&SORTBY-1}
 &Scoped-define DESCRIP2 Vend.#
+&SCOPED-DEFINE useMatches YES    /*Task# 11181313*/
 
 {methods/lookup.i}

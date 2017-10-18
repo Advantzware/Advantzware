@@ -1,4 +1,4 @@
-/* mach1.p - Generated 07/28/2017 - 12:48 pm by NoSweat
+/* mach1.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "mach1. " ~
 "asi " ~
 "mach " ~
@@ -32,7 +32,7 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname mach1.
-&Scoped-define window-size 24.7
+&Scoped-define window-size 24
 &Scoped-define window-col 47.5
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
@@ -41,7 +41,7 @@
 &Scoped-define btn-row 21.7
 &Scoped-define btn-ok-col 48
 &Scoped-define btn-cancel-col 41
-&Scoped-define auto-find-row 23.6
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(6)
 &Scoped-define FLDNAME1 mach.m-code

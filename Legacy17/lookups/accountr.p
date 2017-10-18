@@ -1,4 +1,4 @@
-/* accountr.p - Generated 11/04/2002 - 10:45 am by nosweat
+/* accountr.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "accountr. " ~
 "ASI " ~
 "account " ~
@@ -26,6 +26,7 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 82
 &Scoped-define show-fields account.actnum account.dscr account.type
+&Scoped-define show-fields-yellow account.actnum LABEL-BGCOLOR 14 account.dscr LABEL-BGCOLOR 14 account.type LABEL-BGCOLOR 14
 &Scoped-define frame-title GL Revenue Accounts
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
@@ -37,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 76
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 73
-&Scoped-define btn-cancel-col 62
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 75
+&Scoped-define btn-cancel-col 68
 &Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(25)

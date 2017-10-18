@@ -1,4 +1,4 @@
-/* matprep.p - Generated 09/07/2001 -  5:38 pm by nosweat
+/* matprep.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "matprep. " ~
 "ASI " ~
 "matprep " ~
@@ -26,6 +26,7 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 41
 &Scoped-define show-fields matprep.mat matprep.dscr
+&Scoped-define show-fields-yellow matprep.mat LABEL-BGCOLOR 14 matprep.dscr LABEL-BGCOLOR 14
 &Scoped-define frame-title Preparation Material Codes Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
@@ -37,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 35
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 32
-&Scoped-define btn-cancel-col 21
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 34
+&Scoped-define btn-cancel-col 27
 &Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(5)

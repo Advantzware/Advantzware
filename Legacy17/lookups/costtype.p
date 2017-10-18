@@ -1,4 +1,4 @@
-/* costtype.p - Generated 08/28/2001 -  4:09 pm by nosweat
+/* costtype.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "costtype. " ~
 "ASI " ~
 "costtype " ~
@@ -26,6 +26,7 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 120
 &Scoped-define show-fields costtype.cost-type costtype.descr costtype.inv-asset costtype.pur-var costtype.cons-exp
+&Scoped-define show-fields-yellow costtype.cost-type LABEL-BGCOLOR 14 costtype.descr LABEL-BGCOLOR 14 costtype.inv-asset LABEL-BGCOLOR 14 costtype.pur-var LABEL-BGCOLOR 14 costtype.cons-exp LABEL-BGCOLOR 14
 &Scoped-define frame-title Material Cost Types Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{custom/getloc.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i new shared}
@@ -37,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 114
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 111
-&Scoped-define btn-cancel-col 100
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 113
+&Scoped-define btn-cancel-col 106
 &Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 X(3)

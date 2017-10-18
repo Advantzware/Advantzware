@@ -1,16 +1,16 @@
-/* poino.p - Generated 07/28/2017 -  1:02 pm by NoSweat
+/* poino.p - Generated 10/17/2017 -  8:46 pm by NoSweat
 "poino. " ~
-"asi " ~
+"ASI " ~
 "po-ordl " ~
 " " ~
-"i-no " ~
+"po-no " ~
 "4 " ~
 "19 " ~
 "68 " ~
 "po-no,i-no,i-name " ~
-"Item#,Name " ~
+"Purchase Order#,Item#,Name " ~
 "yes " ~
-"i-no,i-name " ~
+"po-no,i-no,i-name " ~
 "Item By PO# " ~
 "{custom/getcmpny.i} ~{sys/inc/varasgn.i} " ~
 "{custom/gcompany.i} ~{sys/inc/var.i new shared} " ~
@@ -18,10 +18,10 @@
 " " ~
 */
 
-&Scoped-define lookup-db asi.
+&Scoped-define lookup-db ASI.
 &Scoped-define lookup-file po-ordl
 &Scoped-define where-statement TRUE
-&Scoped-define return-field i-no
+&Scoped-define return-field po-no
 &Scoped-define font 4
 &Scoped-define height-size 19
 &Scoped-define width-size 68
@@ -32,7 +32,7 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname 
-&Scoped-define window-size 24.7
+&Scoped-define window-size 23.7
 &Scoped-define window-col 41
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
@@ -43,13 +43,18 @@
 &Scoped-define btn-cancel-col 54
 &Scoped-define auto-find-row 23.6
 
-&Global-define FORMAT-1 x(15)
-&Scoped-define FLDNAME1 po-ordl.i-no
+&Global-define DATATYP1 INTEGER
+&Global-define FORMAT-1 >>>>>9
+&Scoped-define FLDNAME1 po-ordl.po-no
 &Scoped-define SORTBY-1 BY {&FLDNAME1}
-&Scoped-define DESCRIP1 Item#
-&Global-define FORMAT-2 x(30)
-&Scoped-define FLDNAME2 po-ordl.i-name
+&Scoped-define DESCRIP1 Purchase Order#
+&Global-define FORMAT-2 x(15)
+&Scoped-define FLDNAME2 po-ordl.i-no
 &Scoped-define SORTBY-2 BY {&FLDNAME2} {&SORTBY-1}
-&Scoped-define DESCRIP2 Name
+&Scoped-define DESCRIP2 Item#
+&Global-define FORMAT-3 x(30)
+&Scoped-define FLDNAME3 po-ordl.i-name
+&Scoped-define SORTBY-3 BY {&FLDNAME3} {&SORTBY-2}
+&Scoped-define DESCRIP3 Name
 
 {methods/lookup.i}

@@ -1,4 +1,4 @@
-/* ui_lkup.p - Generated 03/15/1998 -  5:05 pm by Exitt
+/* ui_lkup.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "ui_lkup. " ~
 "ASI " ~
 "prgrms " ~
@@ -26,12 +26,13 @@
 &Scoped-define height-size 16
 &Scoped-define width-size 46
 &Scoped-define show-fields prgrms.prgmname prgrms.prgtitle
+&Scoped-define show-fields-yellow prgrms.prgmname LABEL-BGCOLOR 14 prgrms.prgtitle LABEL-BGCOLOR 14
 &Scoped-define frame-title User Interface Programs Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{custom/getloc.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i NEW SHARED}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname 
-&Scoped-define window-size 20.7
+&Scoped-define window-size 21
 &Scoped-define window-col 52
 &Scoped-define rect-1-row 17.15
 &Scoped-define by-row 17.42
@@ -40,7 +41,7 @@
 &Scoped-define btn-row 18.7
 &Scoped-define btn-ok-col 39
 &Scoped-define btn-cancel-col 32
-&Scoped-define auto-find-row 20.6
+&Scoped-define auto-find-row 20.65
 
 &Global-define FORMAT-1 X(10)
 &Scoped-define FLDNAME1 prgrms.prgmname
