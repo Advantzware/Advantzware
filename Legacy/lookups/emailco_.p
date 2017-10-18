@@ -1,4 +1,4 @@
-/* emailco_.p - Generated 03/30/2005 -  3:30 pm by NoSweat
+/* emailco_.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "emailco_. " ~
 "ASI " ~
 "emailcod " ~
@@ -26,21 +26,22 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 46
 &Scoped-define show-fields emailcod.description emailcod.emailcod
+&Scoped-define show-fields-yellow emailcod.description LABEL-BGCOLOR 14 emailcod.emailcod LABEL-BGCOLOR 14
 &Scoped-define frame-title Email Codes Description Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname emailcod.
-&Scoped-define window-size 23
+&Scoped-define window-size 24
 &Scoped-define window-col 52
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 40
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 37
-&Scoped-define btn-cancel-col 26
-&Scoped-define auto-find-row 22.85
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 39
+&Scoped-define btn-cancel-col 32
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 X(30)
 &Scoped-define FLDNAME1 emailcod.description

@@ -1,4 +1,4 @@
-/* mchargc.p - Generated 08/08/2003 -  8:31 am by nosweat
+/* mchargc.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "mchargc. " ~
 "asi " ~
 "job-code " ~
@@ -26,6 +26,7 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 46
 &Scoped-define show-fields job-code.code job-code.dscr
+&Scoped-define show-fields-yellow job-code.code LABEL-BGCOLOR 14 job-code.dscr LABEL-BGCOLOR 14
 &Scoped-define frame-title Machine Charge Codes Lookup
 &Scoped-define top-include ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{sys/inc/var.i new shared}
@@ -37,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 40
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 37
-&Scoped-define btn-cancel-col 26
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 39
+&Scoped-define btn-cancel-col 32
 &Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(5)

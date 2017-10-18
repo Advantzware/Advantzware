@@ -1,4 +1,4 @@
-/* company.p - Generated 07/28/2017 - 12:00 pm by NoSweat
+/* company.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "company. " ~
 "ASI " ~
 "company " ~
@@ -32,7 +32,7 @@
 &Scoped-define def-include ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname company.
-&Scoped-define window-size 24.7
+&Scoped-define window-size 24
 &Scoped-define window-col 45
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
@@ -41,7 +41,7 @@
 &Scoped-define btn-row 21.7
 &Scoped-define btn-ok-col 53
 &Scoped-define btn-cancel-col 46
-&Scoped-define auto-find-row 23.6
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(3)
 &Scoped-define FLDNAME1 company.company

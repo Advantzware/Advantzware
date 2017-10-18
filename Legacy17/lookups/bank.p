@@ -1,4 +1,4 @@
-/* bank.p - Generated 07/28/2006 -  4:07 pm by nosweat
+/* bank.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "bank. " ~
 "ASI " ~
 "bank " ~
@@ -38,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 30
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 27
-&Scoped-define btn-cancel-col 16
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 29
+&Scoped-define btn-cancel-col 22
 &Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(8)

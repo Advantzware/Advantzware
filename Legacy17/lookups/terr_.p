@@ -1,4 +1,4 @@
-/* terr_.p - Generated 01/17/2000 - 12:12 pm by nosweat
+/* terr_.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "terr_. " ~
 "ASI " ~
 "terr " ~
@@ -26,6 +26,7 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 40
 &Scoped-define show-fields terr.dscr terr.terr
+&Scoped-define show-fields-yellow terr.dscr LABEL-BGCOLOR 14 terr.terr LABEL-BGCOLOR 14
 &Scoped-define frame-title Territory Description Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
@@ -37,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 34
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 31
-&Scoped-define btn-cancel-col 20
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 33
+&Scoped-define btn-cancel-col 26
 &Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(20)

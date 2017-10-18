@@ -1,4 +1,4 @@
-/* company_.p - Generated 08/08/2002 -  1:08 pm by nosweat
+/* company_.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "company_. " ~
 "ASI " ~
 "company " ~
@@ -26,6 +26,7 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 45
 &Scoped-define show-fields company.name company.company
+&Scoped-define show-fields-yellow company.name LABEL-BGCOLOR 14 company.company LABEL-BGCOLOR 14
 &Scoped-define frame-title Company Description Lookup
 &Scoped-define top-include ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{sys/inc/var.i new shared}
@@ -37,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 39
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 36
-&Scoped-define btn-cancel-col 25
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 38
+&Scoped-define btn-cancel-col 31
 &Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(30)

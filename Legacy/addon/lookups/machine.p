@@ -1,4 +1,4 @@
-/* machine.p - Generated 03/31/2010 -  3:57 pm by andres
+/* machine.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "machine. " ~
 "ASI " ~
 "mach " ~
@@ -38,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 36
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 33
-&Scoped-define btn-cancel-col 22
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 35
+&Scoped-define btn-cancel-col 28
 &Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(6)

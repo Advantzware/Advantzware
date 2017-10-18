@@ -1,4 +1,4 @@
-/* prod_.p - Generated 01/26/2000 -  6:05 pm by nosweat
+/* prod_.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "prod_. " ~
 "ASI " ~
 "prod " ~
@@ -26,6 +26,7 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 63
 &Scoped-define show-fields prod.dscr prod.prolin
+&Scoped-define show-fields-yellow prod.dscr LABEL-BGCOLOR 14 prod.prolin LABEL-BGCOLOR 14
 &Scoped-define frame-title Product Line GL Accounts Description Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
@@ -37,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 57
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 54
-&Scoped-define btn-cancel-col 43
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 56
+&Scoped-define btn-cancel-col 49
 &Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(45)

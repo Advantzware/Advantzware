@@ -1,4 +1,4 @@
-/* ventype.p - Generated 08/06/2003 -  5:58 pm by nosweat
+/* ventype.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "ventype. " ~
 "ASI " ~
 "ventype " ~
@@ -26,6 +26,7 @@
 &Scoped-define height-size 19
 &Scoped-define width-size 48
 &Scoped-define show-fields ventype.type ventype.Dscr
+&Scoped-define show-fields-yellow ventype.type LABEL-BGCOLOR 14 ventype.Dscr LABEL-BGCOLOR 14
 &Scoped-define frame-title Vendor Types Lookup
 &Scoped-define top-include ~{custom/getcmpny.i} ~{sys/inc/varasgn.i}
 &Scoped-define def-include ~{custom/gcompany.i} ~{sys/inc/var.i new shared}
@@ -37,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 42
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 39
-&Scoped-define btn-cancel-col 28
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 41
+&Scoped-define btn-cancel-col 34
 &Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(8)

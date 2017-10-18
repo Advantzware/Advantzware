@@ -1,4 +1,4 @@
-/* poprint.p - Generated 02/28/2006 -  4:15 pm by nosweat
+/* poprint.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "poprint. " ~
 "ASI " ~
 "po-ord " ~
@@ -38,9 +38,9 @@
 &Scoped-define by-row 20.42
 &Scoped-define browse-order-width 60
 &Scoped-define browse-order-row 20.42
-&Scoped-define btn-row 21.77
-&Scoped-define btn-ok-col 57
-&Scoped-define btn-cancel-col 46
+&Scoped-define btn-row 21.7
+&Scoped-define btn-ok-col 59
+&Scoped-define btn-cancel-col 52
 &Scoped-define auto-find-row 23.65
 
 &Global-define DATATYP1 INTEGER

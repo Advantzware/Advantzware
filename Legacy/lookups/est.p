@@ -1,4 +1,4 @@
-/* est.p - Generated 07/28/2017 - 12:43 pm by NoSweat
+/* est.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "est. " ~
 "ASI " ~
 "est " ~
@@ -32,7 +32,7 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i NEW SHARED}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname 
-&Scoped-define window-size 23.7
+&Scoped-define window-size 24
 &Scoped-define window-col 52
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
@@ -41,7 +41,7 @@
 &Scoped-define btn-row 21.7
 &Scoped-define btn-ok-col 39
 &Scoped-define btn-cancel-col 32
-&Scoped-define auto-find-row 23.6
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(5)
 &Scoped-define FLDNAME1 est.est-no

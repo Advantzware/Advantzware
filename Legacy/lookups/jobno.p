@@ -1,4 +1,4 @@
-/* jobno.p - Generated 07/28/2017 -  1:05 pm by NoSweat
+/* jobno.p - Generated 10/17/2017 -  7:54 pm by NoSweat
 "jobno. " ~
 "asi " ~
 "job-hdr " ~
@@ -32,7 +32,7 @@
 &Scoped-define def-include ~{custom/gcompany.i} ~{custom/gloc.i} ~{sys/inc/var.i new shared}
 &Scoped-define end-include 
 &Scoped-define ui-prgmname 
-&Scoped-define window-size 23.7
+&Scoped-define window-size 24
 &Scoped-define window-col 47
 &Scoped-define rect-1-row 20.15
 &Scoped-define by-row 20.42
@@ -41,7 +41,7 @@
 &Scoped-define btn-row 21.7
 &Scoped-define btn-ok-col 49
 &Scoped-define btn-cancel-col 42
-&Scoped-define auto-find-row 23.6
+&Scoped-define auto-find-row 23.65
 
 &Global-define FORMAT-1 x(6)
 &Scoped-define FLDNAME1 job-hdr.job-no
