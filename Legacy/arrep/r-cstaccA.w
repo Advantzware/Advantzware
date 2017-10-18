@@ -1026,7 +1026,7 @@ END.
 /* Open our Excel Template. */
 
 chWorkbook = chExcel:Workbooks:Open(cExcelFile) NO-ERROR.
-chExcel:Visible = TRUE.
+chExcel:Visible = FALSE.
 /* Do not display Excel error messages. */
 chExcel:DisplayAlerts = FALSE NO-ERROR.
 ASSIGN
@@ -1045,7 +1045,7 @@ ASSIGN
     /* Rename the worksheet */
     chWorkSheet:Name = "AR Accounts by Customer"
     /* Disable screen updating so it will go faster */
-    chExcel:ScreenUpdating = TRUE
+    chExcel:ScreenUpdating = FALSE
     .
 /* remove spare worksheet */
 chWorkbook:WorkSheets(2):DELETE NO-ERROR.
@@ -1436,6 +1436,7 @@ END.
 IF tb_excel THEN DO:
 /* enable screen updating */
 chExcel:ScreenUpdating = TRUE.
+chExcel:Visible = TRUE.
 /* auto save excel file */
 chExcel:ActiveSheet:SaveAs(cExcelFile).
 
