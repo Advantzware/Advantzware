@@ -1587,7 +1587,7 @@ FOR EACH ar-ledger
 
             IF stax.accum-tax AND li GT 1 THEN
            DO lj = 1 TO li - 1: 
-
+              IF lj > 3  THEN LEAVE .
               ld-tax-rate[li] = ld-tax-rate[li] +
                                 (ld-tax-rate[li] * (stax.tax-rate[lj] / 100)).
             END.
