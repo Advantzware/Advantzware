@@ -32,6 +32,7 @@ DEFINE VARIABLE opCADCAM AS CHARACTER NO-UNDO.
 &ENDIF
 
 /* Local Variable Definitions ---                                       */
+DEFINE VARIABLE gchCadX AS COM-HANDLE      NO-UNDO.
 
 DEFINE TEMP-TABLE ttblCADCAM NO-UNDO
   FIELD board LIKE ef.board
@@ -129,10 +130,6 @@ cStyleComp-10 iCompQty-10 iNumUp-10 rs-man-pur-10
 /* ***********************  Control Definitions  ********************** */
 
 /* Define a dialog box                                                  */
-
-/* Definitions of handles for OCX Containers                            */
-DEFINE VARIABLE CtrlFrame AS WIDGET-HANDLE NO-UNDO.
-DEFINE VARIABLE chCtrlFrame AS COMPONENT-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btnCAD#Lookup 
@@ -574,32 +571,6 @@ ASSIGN
  
 
 
-/* **********************  Create OCX Containers  ********************** */
-
-&ANALYZE-SUSPEND _CREATE-DYNAMIC
-
-&IF "{&OPSYS}" = "WIN32":U AND "{&WINDOW-SYSTEM}" NE "TTY":U &THEN
-
-CREATE CONTROL-FRAME CtrlFrame ASSIGN
-       FRAME           = FRAME D-Dialog:HANDLE
-       ROW             = 4.89
-       COLUMN          = 93.5
-       HEIGHT          = 1.94
-       WIDTH           = 8
-       WIDGET-ID       = 2
-       HIDDEN          = no
-       SENSITIVE       = yes.
-
-PROCEDURE adm-create-controls:
-      CtrlFrame:NAME = "CtrlFrame":U .
-/* CtrlFrame OCXINFO:CREATE-CONTROL from: {B642F377-218D-11D2-AFBC-0060976A10C1} type: CadX */
-
-END PROCEDURE.
-
-&ENDIF
-
-&ANALYZE-RESUME /* End of _CREATE-DYNAMIC */
-
 
 /* ************************  Control Triggers  ************************ */
 
@@ -680,6 +651,7 @@ DO:
   def var iRevision as int init 65 no-undo.
   def var iRevExt as int no-undo.
   
+  RUN CadXConnect.
   assign iFormNumber = 0
          iBlankNumber = 0
          cadNumber cStyle iNumOfParts cCategory rs-man-pur iSetQty
@@ -1865,37 +1837,20 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE control_load D-Dialog  _CONTROL-LOAD
-PROCEDURE control_load :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE CadXConnect D-Dialog 
+PROCEDURE CadXConnect :
 /*------------------------------------------------------------------------------
-  Purpose:     Load the OCXs    
-  Parameters:  <none>
-  Notes:       Here we load, initialize and make visible the 
-               OCXs in the interface.                        
+ Purpose:
+ Notes:
 ------------------------------------------------------------------------------*/
-
-&IF "{&OPSYS}" = "WIN32":U AND "{&WINDOW-SYSTEM}" NE "TTY":U &THEN
-DEFINE VARIABLE UIB_S    AS LOGICAL    NO-UNDO.
-DEFINE VARIABLE OCXFile  AS CHARACTER  NO-UNDO.
-
-OCXFile = SEARCH( "d-artioscad.wrx":U ).
-IF OCXFile = ? THEN
-  OCXFile = SEARCH(SUBSTRING(THIS-PROCEDURE:FILE-NAME, 1,
-                     R-INDEX(THIS-PROCEDURE:FILE-NAME, ".":U), "CHARACTER":U) + "wrx":U).
-
-IF OCXFile <> ? THEN
-DO:
-  ASSIGN
-    chCtrlFrame = CtrlFrame:COM-HANDLE
-    UIB_S = chCtrlFrame:LoadControls( OCXFile, "CtrlFrame":U)
-  .
-  RUN DISPATCH IN THIS-PROCEDURE("initialize-controls":U) NO-ERROR.
-END.
-ELSE MESSAGE "d-artioscad.wrx":U SKIP(1)
-             "The binary control file could not be found. The controls cannot be loaded."
-             VIEW-AS ALERT-BOX TITLE "Controls Not Loaded".
-
-&ENDIF
+    CREATE "ArtiosCAD-X.CadXCtrl.1" gchCadX CONNECT NO-ERROR.
+    IF NOT VALID-HANDLE (gchCadX) THEN
+        CREATE "ArtiosCAD-X.CadXCtrl.1" gchCadX NO-ERROR.
+    IF NOT VALID-HANDLE (gchCadX) THEN DO:
+        MESSAGE "Unable to Connect to Artios CadX. Please make sure Artios CadX is installed."
+            VIEW-AS ALERT-BOX INFO BUTTONS OK.
+        RETURN.
+    END.
 
 END PROCEDURE.
 
@@ -1925,32 +1880,32 @@ ASSIGN
    iFormNumber = iFormNumber + 1
    iBlankNumber = 1
    cCadPath = if avail sys-ctrl and sys-ctrl.char-fld <> "" then sys-ctrl.char-fld else "c:\tmp\"
-   cFileNameJPG = cCadPath + /*chCtrlFrame:CadX:ReturnTextCode4Param("#W$")*/
+   cFileNameJPG = cCadPath + /*gchCadX:ReturnTextCode4Param("#W$")*/
                   SUBSTRING(ipFilename, R-INDEX(ipFilename, "\") + 1) + ".jpg"
-   resultx = chCtrlFrame:CadX:OpenDesign (ipFilename,0)
-   resultx = chCtrlFrame:CadX:SetOverlayClass(3,1) /*print dimensions*/
-   resultx = chCtrlFrame:CadX:SaveAsBitmap(1,cFilenameJPG, 600, 600, 20, , , 1, 100).
+   resultx = gchCadX:OpenDesign (ipFilename,0)
+   resultx = gchCadX:SetOverlayClass(3,1) /*print dimensions*/
+   resultx = gchCadX:SaveAsBitmap(1,cFilenameJPG, 600, 600, 20, , , 1, 100).
 
   find first tt-CompStyle where tt-CompStyle.form-num = iFormNumber no-error.
-  cDieInch = chCtrlFrame:CadX:ReturnTextCode4Param("#LENRULE").
+  cDieInch = gchCadX:ReturnTextCode4Param("#LENRULE").
   IF INDEX(cDieInch,"+") > 0 THEN cDieInch = SUBSTRING(cDieInch,1,INDEX(cDieInch,"+") - 1).
 
   CREATE tt-artios.
-  ASSIGN tt-artios.cadnum = /*cadNumber*/ chCtrlFrame:CadX:ReturnTextCode4Param("#ITEM$")
+  ASSIGN tt-artios.cadnum = /*cadNumber*/ gchCadX:ReturnTextCode4Param("#ITEM$")
          tt-artios.cadfile = ipFileName
-         tt-artios.custname = chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(CUST,NAME$)")
-         tt-artios.partname = chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(DESIGN,SDSC1$)") 
-         tt-artios.partnum = chCtrlFrame:CadX:ReturnTextCode4Param("#ITEM$")
-         tt-artios.style = /*chCtrlFrame:CadX:ReturnTextCode4Param("#CFN$")*/ 
+         tt-artios.custname = gchCadX:ReturnTextCode4Param("DBGET(CUST,NAME$)")
+         tt-artios.partname = gchCadX:ReturnTextCode4Param("DBGET(DESIGN,SDSC1$)") 
+         tt-artios.partnum = gchCadX:ReturnTextCode4Param("#ITEM$")
+         tt-artios.style = /*gchCadX:ReturnTextCode4Param("#CFN$")*/ 
                                if avail tt-CompStyle then tt-CompStyle.CompStyle[1] else cStyle
          tt-artios.flute = ""
          tt-artios.test = "" 
-         tt-artios.board = substring(chCtrlFrame:CadX:ReturnTextCode4Param("BRD$"),1,9)
-         tt-artios.len = chCtrlFrame:CadX:ReturnNumericCode4Param("L")
-         tt-artios.wid = chCtrlFrame:CadX:ReturnNumericCode4Param("W")
-         tt-artios.dep = chCtrlFrame:CadX:ReturnNumericCode4Param("D")
-         tt-artios.t-len = chCtrlFrame:CadX:ReturnNumericCode4Param("#MANSIZEX")
-         tt-artios.t-wid = chCtrlFrame:CadX:ReturnNumericCode4Param("#MANSIZEY")
+         tt-artios.board = substring(gchCadX:ReturnTextCode4Param("BRD$"),1,9)
+         tt-artios.len = gchCadX:ReturnNumericCode4Param("L")
+         tt-artios.wid = gchCadX:ReturnNumericCode4Param("W")
+         tt-artios.dep = gchCadX:ReturnNumericCode4Param("D")
+         tt-artios.t-len = gchCadX:ReturnNumericCode4Param("#MANSIZEX")
+         tt-artios.t-wid = gchCadX:ReturnNumericCode4Param("#MANSIZEY")
          tt-artios.seq = iSeq
          tt-artios.ratio = if avail tt-CompStyle then tt-CompStyle.CompRatio[1] else dRatio-1
          tt-artios.form-num = iFormNumber
@@ -1959,19 +1914,19 @@ ASSIGN
          tt-artios.setQty = iSetQty
          tt-artios.CompQty = if avail tt-CompStyle then tt-CompStyle.CompQty[1] else iCompQty-1
          tt-artios.procat = cCategory
-         tt-artios.cust-no = chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(CUST,NUMBR$)")
-         tt-artios.sman    = chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(SLSPN,SNAME$)")
-         tt-artios.dienum =  chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(DESIGN,SDSC3$)")
+         tt-artios.cust-no = gchCadX:ReturnTextCode4Param("DBGET(CUST,NUMBR$)")
+         tt-artios.sman    = gchCadX:ReturnTextCode4Param("DBGET(SLSPN,SNAME$)")
+         tt-artios.dienum =  gchCadX:ReturnTextCode4Param("DBGET(DESIGN,SDSC3$)")
          tt-artios.NumOfComponents = tt-CompStyle.NumOfComponents
          tt-artios.CompNumUp = if avail tt-CompStyle then tt-CompStyle.CompNumUp[1] else 1
          tt-artios.DesignImg = cFileNameJPG
          tt-artios.pur-man = IF AVAIL tt-CompStyle THEN tt-CompStyle.CompPurMan[1] ELSE
                              IF rs-man-pur = "M" THEN NO
                              ELSE YES
-         tt-artios.grain   = chCtrlFrame:CadX:ReturnTextCode4Param("#GRAIN$")
-         tt-artios.DesignerName = chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(DSGNR,FNAME$)")
+         tt-artios.grain   = gchCadX:ReturnTextCode4Param("#GRAIN$")
+         tt-artios.DesignerName = gchCadX:ReturnTextCode4Param("DBGET(DSGNR,FNAME$)")
                                  + " " +
-                                 chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(DSGNR,LNAME$)")
+                                 gchCadX:ReturnTextCode4Param("DBGET(DSGNR,LNAME$)")
                           .
            
        if avail tt-compstyle and tt-CompStyle.NumOfComponents > 1 then do while iSeq < tt-CompStyle.NumOfComponents:
@@ -1979,21 +1934,21 @@ ASSIGN
           create tt-artios.
           assign iSeq = iSeq + 1
                  iBlankNumber = iBlankNumber + 1
-                 tt-artios.cadnum = /*cadNumber*/ chCtrlFrame:CadX:ReturnTextCode4Param("#ITEM$")
+                 tt-artios.cadnum = /*cadNumber*/ gchCadX:ReturnTextCode4Param("#ITEM$")
                  tt-artios.cadfile = ipFileName
-                 tt-artios.custname = chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(CUST,NAME$)")
-                 tt-artios.partname = chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(DESIGN,SDSC1$)") 
-                 tt-artios.partnum = chCtrlFrame:CadX:ReturnTextCode4Param("#ITEM$")
-                 tt-artios.style = /*chCtrlFrame:CadX:ReturnTextCode4Param("#CFN$")*/ 
+                 tt-artios.custname = gchCadX:ReturnTextCode4Param("DBGET(CUST,NAME$)")
+                 tt-artios.partname = gchCadX:ReturnTextCode4Param("DBGET(DESIGN,SDSC1$)") 
+                 tt-artios.partnum = gchCadX:ReturnTextCode4Param("#ITEM$")
+                 tt-artios.style = /*gchCadX:ReturnTextCode4Param("#CFN$")*/ 
                                      if avail tt-CompStyle then tt-CompStyle.CompStyle[iSeq] else cStyle
                  tt-artios.flute = ""
                  tt-artios.test = "" 
-                 tt-artios.board = substring(chCtrlFrame:CadX:ReturnTextCode4Param("BRD$"),1,9)
-                 tt-artios.len = chCtrlFrame:CadX:ReturnNumericCode4Param("L")
-                 tt-artios.wid = chCtrlFrame:CadX:ReturnNumericCode4Param("W")
-                 tt-artios.dep = chCtrlFrame:CadX:ReturnNumericCode4Param("D")
-                 tt-artios.t-len = chCtrlFrame:CadX:ReturnNumericCode4Param("#MANSIZEX")
-                 tt-artios.t-wid = chCtrlFrame:CadX:ReturnNumericCode4Param("#MANSIZEY")
+                 tt-artios.board = substring(gchCadX:ReturnTextCode4Param("BRD$"),1,9)
+                 tt-artios.len = gchCadX:ReturnNumericCode4Param("L")
+                 tt-artios.wid = gchCadX:ReturnNumericCode4Param("W")
+                 tt-artios.dep = gchCadX:ReturnNumericCode4Param("D")
+                 tt-artios.t-len = gchCadX:ReturnNumericCode4Param("#MANSIZEX")
+                 tt-artios.t-wid = gchCadX:ReturnNumericCode4Param("#MANSIZEY")
                  tt-artios.seq = iSeq
                  tt-artios.ratio = if avail tt-CompStyle then tt-CompStyle.CompRatio[iSeq] else dRatio-2
                  tt-artios.form-num = iFormNumber
@@ -2002,22 +1957,22 @@ ASSIGN
                  tt-artios.setQty = iSetQty
                  tt-artios.CompQty =  if avail tt-CompStyle then tt-CompStyle.CompQty[iSeq] else 0
                  tt-artios.procat = cCategory                      
-                 tt-artios.cust-no = chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(CUST,NUMBR$)")
-                 tt-artios.sman    = chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(SLSPN,SNAME$)")
-                 tt-artios.dienum =  chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(DESIGN,SDSC3$)")
+                 tt-artios.cust-no = gchCadX:ReturnTextCode4Param("DBGET(CUST,NUMBR$)")
+                 tt-artios.sman    = gchCadX:ReturnTextCode4Param("DBGET(SLSPN,SNAME$)")
+                 tt-artios.dienum =  gchCadX:ReturnTextCode4Param("DBGET(DESIGN,SDSC3$)")
                  tt-artios.NumOfComponents = tt-CompStyle.NumOfComponents
                  tt-artios.CompNumUp = if avail tt-CompStyle then tt-CompStyle.CompNumUp[iSeq] else 1
                  tt-artios.DesignImg = cFileNameJPG
                  tt-artios.pur-man = if avail tt-CompStyle then tt-CompStyle.CompPurMan[iSeq] else
                                      IF rs-man-pur EQ "M" THEN NO ELSE YES
-                 tt-artios.grain   = chCtrlFrame:CadX:ReturnTextCode4Param("#GRAIN$")
-                 tt-artios.DesignerName = chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(DSGNR,FNAME$)")
+                 tt-artios.grain   = gchCadX:ReturnTextCode4Param("#GRAIN$")
+                 tt-artios.DesignerName = gchCadX:ReturnTextCode4Param("DBGET(DSGNR,FNAME$)")
                                  + " " + 
-                                 chCtrlFrame:CadX:ReturnTextCode4Param("DBGET(DSGNR,LNAME$)")
+                                 gchCadX:ReturnTextCode4Param("DBGET(DSGNR,LNAME$)")
                   .
        end.
 
-       resultx = chCtrlFrame:CadX:CloseDesign().
+       resultx = gchCadX:CloseDesign().
            
 END PROCEDURE.
 
