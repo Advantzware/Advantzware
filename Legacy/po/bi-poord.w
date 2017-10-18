@@ -390,6 +390,7 @@ DO:
   {methods/template/local/setvalue.i}
       
   RUN spec-book-image-proc.
+  RUN dept-pan-image-proc .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -802,6 +803,32 @@ PROCEDURE spec-book-image-proc :
 
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN spec-book-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE dept-pan-image-proc B-table-Win 
+PROCEDURE dept-pan-image-proc :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR v-spec AS LOG NO-UNDO.
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+
+   v-spec = NO . 
+   IF AVAIL po-ordl THEN
+        v-spec = CAN-FIND(FIRST notes WHERE
+               notes.rec_key = po-ordl.rec_key ).
+
+   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE, 'specpo-target':U, OUTPUT char-hdl).
+
+   IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+      RUN dept-pen-image IN WIDGET-HANDLE(char-hdl) (INPUT v-spec).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

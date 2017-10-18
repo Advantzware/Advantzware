@@ -1381,8 +1381,10 @@ PROCEDURE local-get-first :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/setvalue2.i}
 
-  IF AVAIL po-ord THEN
+  IF AVAIL po-ord THEN do:
      RUN paper-clip-image-proc(INPUT po-ord.rec_key).
+     RUN dept-pan-image-proc.
+  END.
 
 END PROCEDURE.
 
@@ -1404,8 +1406,10 @@ PROCEDURE local-get-last :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/setvalue2.i}
 
-  IF AVAIL po-ord THEN
+  IF AVAIL po-ord THEN do:
      RUN paper-clip-image-proc(INPUT po-ord.rec_key).
+     RUN dept-pan-image-proc.
+  END.
 
 END PROCEDURE.
 
@@ -1427,8 +1431,10 @@ PROCEDURE local-get-next :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/setvalue2.i}
 
-  IF AVAIL po-ord THEN
+  IF AVAIL po-ord THEN do:
      RUN paper-clip-image-proc(INPUT po-ord.rec_key).
+     RUN dept-pan-image-proc.
+  END.
 
 END PROCEDURE.
 
@@ -1450,8 +1456,10 @@ PROCEDURE local-get-prev :
   /* Code placed here will execute AFTER standard behavior.    */
   {methods/template/local/setvalue2.i}
 
-  IF AVAIL po-ord THEN
+  IF AVAIL po-ord THEN do:
      RUN paper-clip-image-proc(INPUT po-ord.rec_key).
+     RUN dept-pan-image-proc.
+  END.
 
 END PROCEDURE.
 
