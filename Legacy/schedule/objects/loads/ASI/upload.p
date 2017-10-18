@@ -29,7 +29,9 @@ OUTPUT TO 'schedule/load.log' APPEND.
 PUT UNFORMATTED 'Start Save: ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss') ' for ' ID ' by ' USERID('nosweat') SKIP.
 
 FOR EACH pendingJob NO-LOCK:
+  RELEASE job-mch.
   jobMchRowID = TO-ROWID(ENTRY(2,pendingJob.rowIDs)).
+  IF ENTRY(3,pendingJob.rowIDs) NE "None" THEN
   FIND FIRST job-mch EXCLUSIVE-LOCK 
        WHERE job-mch.est-op_rec_key EQ ENTRY(3,pendingJob.rowIDs)
          AND job-mch.company EQ ENTRY(1,pendingJob.keyValue)
@@ -123,7 +125,9 @@ FOR EACH pendingJob NO-LOCK:
 END. /* each pendingJob */
 
 FOR EACH ttblJob NO-LOCK BREAK BY ttblJob.jobSort BY ttblJob.resourceSequence:
+  RELEASE job-mch.
   jobMchRowID = TO-ROWID(ENTRY(2,ttblJob.rowIDs)).
+  IF ENTRY(3,ttblJob.rowIDs) NE "None" THEN
   FIND FIRST job-mch EXCLUSIVE-LOCK 
        WHERE job-mch.est-op_rec_key EQ ENTRY(3,ttblJob.rowIDs)
          AND job-mch.company EQ ENTRY(1,ttblJob.keyValue)
