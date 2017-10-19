@@ -373,28 +373,41 @@ PROCEDURE BatchMail :
             v-depts      = fi_depts-SCREEN-VALUE.
             
     DO:  /* not tb_post */
-
-        FOR EACH b1-{&head}2
-            WHERE b1-{&head}2.company         EQ cocode
-            AND b1-{&head}2.cust-no         GE icBegCustNo
-            AND b1-{&head}2.cust-no         LE icEndCustNo         
-            AND INDEX(vcHoldStats, b1-{&head}2.stat) EQ 0
-            AND (((NOT v-reprint) AND b1-{&head}2.inv-no EQ 0) OR
-            (v-reprint AND b1-{&head}2.inv-no NE 0 AND          
-            b1-{&head}2.inv-no        GE finv AND 
-            b1-{&head}2.inv-no        LE tinv))
-            AND (IF "{&head}" EQ "ar-inv" THEN b1-{&head}2.inv-date GE begin_date
-            AND b1-{&head}2.inv-date LE end_date ELSE TRUE)
-            NO-LOCK,
-            FIRST b2-cust
-            WHERE b2-cust.company EQ cocode
-            AND b2-cust.cust-no EQ b1-{&head}2.cust-no
-            AND (b2-cust.log-field[1] OR NOT tb_Batchmail OR tb_override-email)
-            AND ((b2-cust.inv-meth EQ ? AND b1-{&head}2.{&multiinvoice}) OR
-            (b2-cust.inv-meth NE ? AND NOT b1-{&head}2.{&multiinvoice}) OR "{&head}" EQ "ar-inv")  
-            /*AND CAN-FIND(FIRST {&line} OF b1-{&head}2)*/
-            NO-LOCK
-            BREAK BY b2-cust.cust-no :
+            
+             
+    FOR EACH b1-{&head}2 NO-LOCK
+        WHERE b1-{&head}2.company         EQ cocode
+        AND b1-{&head}2.cust-no         GE icBegCustNo
+        AND b1-{&head}2.cust-no         LE icEndCustNo  
+        AND b1-{&head}2.inv-no GE finv
+        AND b1-{&head}2.inv-no LE tinv 
+        
+        AND (INDEX(vcHoldStats, b1-{&head}2.stat) EQ 0 OR "{&head}" EQ "ar-inv")
+        AND ("{&head}" NE "ar-inv" 
+        OR (b1-{&head}2.posted = tb_posted AND cInvoiceType EQ "ar-inv")
+        OR ((b1-{&head}2.posted = tbPostedAR or tbPostedAR eq ?) AND cInvoiceType EQ "inv-head")
+        ) 
+        
+       
+        AND (IF "{&head}" EQ "ar-inv" THEN b1-{&head}2.inv-date GE begin_date
+        AND b1-{&head}2.inv-date LE end_date ELSE TRUE)        
+        AND (    (v-reprint EQ NO
+                     AND (b1-{&head}2.inv-no EQ 0 
+                           OR ("{&head}" EQ "ar-inv" AND b1-{&head}2.printed EQ NO)))
+                  OR (v-reprint EQ YES AND b1-{&head}2.inv-no NE 0 
+                     AND b1-{&head}2.inv-no        GE finv 
+                     AND b1-{&head}2.inv-no        LE tinv ))
+   
+        ,
+        FIRST b2-cust
+        WHERE b2-cust.company EQ cocode
+        AND b2-cust.cust-no EQ b1-{&head}2.cust-no
+        AND ((b2-cust.inv-meth EQ ? AND b1-{&head}2.{&multiinvoice}) OR
+        (b2-cust.inv-meth NE ? AND NOT b1-{&head}2.{&multiinvoice}) OR
+        "{&head}" EQ "ar-inv"
+        ) 
+        NO-LOCK break BY b2-cust.cust-no :
+                    
             
             IF FIRST-OF (b2-cust.cust-no) THEN 
             DO:
@@ -1379,6 +1392,8 @@ IF cust.inv-meth EQ ?
     AND NOT "{&head}" EQ "ar-inv" THEN 
 DO:
     NEXT.
+/* Needs testing */
+
 END.
 
 vlSkipRec = NO.
@@ -1609,6 +1624,8 @@ FOR EACH report WHERE report.term-id EQ v-term-id:
     DELETE report.
 END.
 
+/* If it's split pdf, the tt-list is in use in 'output-to-mail' */
+IF NOT tb_splitPDF THEN
 EMPTY TEMP-TABLE tt-list.
 
 RUN custom/usrprint.p (v-prgmname, hFrame-Handle).
@@ -1661,6 +1678,14 @@ PROCEDURE SendMail-1:
         ELSE
             IF v-print-fmt NE "Southpak-XL" AND v-print-fmt <> "PrystupExcel" THEN DO:
                 RUN printPDF (list-name, "ADVANCED SOFTWARE","A1g9f84aaq7479de4m22").
+                  
+              /* Fix for incorrect file name during batch emailing */    
+              IF cActualPDF NE lv-pdf-file AND SEARCH(cActualPDF) NE ? THEN 
+              DO:
+                  OS-COPY VALUE(cActualPDF) VALUE(lv-pdf-file).
+                  OS-DELETE VALUE(cActualPDF).           
+              END.
+                  
                 list-name = lv-pdf-file.
             END.
             ELSE
