@@ -1040,7 +1040,8 @@ PROCEDURE local-assign-record :
   DEF VAR ll-job-mch AS LOG NO-UNDO.
   DEF VAR li AS INT NO-UNDO.
   DEF VAR v-bf-prdd-rowid AS ROWID NO-UNDO.
-
+  DEFINE VARIABLE lNewJobMch AS LOGICAL NO-UNDO.
+  
   /* Code placed here will execute PRIOR to standard behavior. */
   lv-name = tt-prdd.i-name:SCREEN-VALUE IN BROWSE {&browse-name}.
 
@@ -1103,7 +1104,7 @@ PROCEDURE local-assign-record :
   ll-job-mch = NO.
   FOR EACH tt-job-mch:
     FIND FIRST job-mch WHERE ROWID(job-mch) EQ tt-job-mch.row-id NO-ERROR.
-    
+    lNewJobMch = NOT AVAILABLE job-mch.
     IF NOT AVAIL job-mch THEN CREATE job-mch.
     BUFFER-COPY tt-job-mch TO job-mch NO-ERROR.
 
@@ -1123,7 +1124,8 @@ PROCEDURE local-assign-record :
          job-mch.wst-prct = mach.run-spoil.
         IF tt-prdd.speed GT 0 THEN
           job-mch.speed    = tt-prdd.speed.
-
+        IF lNewJobMch THEN 
+          job-mch.est-op_rec_key = "".
       END.
 
     END.
@@ -3030,6 +3032,20 @@ PROCEDURE valid-pass :
               AND job-mch.pass    EQ INT(tt-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
             USE-INDEX seq-idx NO-LOCK NO-ERROR.
 
+        IF NOT AVAIL job-mch THEN
+        /* search without using dept */
+        FIND FIRST job-mch
+            WHERE job-mch.company EQ tt-prdd.company
+              AND job-mch.job     EQ tt-prdd.job
+              AND job-mch.job-no  EQ tt-prdd.job-no
+              AND job-mch.job-no2 EQ tt-prdd.job-no2
+              AND job-mch.m-code  EQ lv-m-code
+              AND job-mch.frm     EQ INT(tt-prdd.frm:SCREEN-VALUE IN BROWSE {&browse-name})
+              AND (job-mch.blank-no EQ INT(tt-prdd.blank-no:SCREEN-VALUE IN BROWSE {&browse-name}) or
+                   ll-no-blk)
+              AND job-mch.pass    EQ INT(tt-prdd.pass:SCREEN-VALUE IN BROWSE {&browse-name})
+            USE-INDEX seq-idx NO-LOCK NO-ERROR.
+    
         IF AVAIL job-mch THEN DO:
           IF actual-entered(job-mch.m-code, job-mch.job) = NO AND job-mch.run-hr = 0 then
           ASSIGN
