@@ -1851,7 +1851,8 @@ SESSION:SET-WAIT-STATE ("general").
       where cust.company eq oe-ord.company
         and cust.cust-no eq oe-ord.cust-no
       no-lock
-      break by tt-report.ord-no
+      break BY tt-report.rel-date
+            by tt-report.ord-no
             by tt-report.i-no :
        
       IF FIRST-OF(tt-report.i-no) THEN
