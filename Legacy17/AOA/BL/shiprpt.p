@@ -36,6 +36,12 @@ DEFINE VARIABLE dOtherFreight    AS DECIMAL   NO-UNDO.
 
 DEFINE BUFFER b-oe-boll FOR oe-boll.
 
+{custom/globdefs.i &NEW="NEW"}
+ASSIGN
+    g_company = ipcCompany
+    g_loc     = cLocation
+    .
+
 /* Business Logic */       
 FOR EACH ar-inv NO-LOCK 
     WHERE ar-inv.company  EQ ipcCompany
@@ -148,8 +154,6 @@ FOR EACH ar-inv NO-LOCK
         ttShipmentReportDetail.frtCharge = dFrtRate[1]
         .
     dFrtRate[2] = dFrtRate[2] + dFrtRate[1].
-    IF LAST(ar-inv.inv-no) THEN DO:
-    END. /* last inv-no */
 END. /* each ar-inv */
 
 RUN pShipmentReportSummary.
