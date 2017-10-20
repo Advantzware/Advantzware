@@ -69,10 +69,11 @@ DEF VAR lv-due-date AS DATE NO-UNDO.
 DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO .
-  ASSIGN
-   ls-image1 = "images\Lovepac_logo.jpg"
-   FILE-INFO:FILE-NAME = ls-image1
-   ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+ASSIGN ls-full-img1 = cRtnChar + ">" .         
 
 find first sys-ctrl where sys-ctrl.company eq cocode
                       and sys-ctrl.name    eq "ACKHEAD" no-lock no-error.

@@ -4,7 +4,7 @@ PUT "<FArial>".
 PUT "<C+25><#1>".
 PUT "<=1>" SKIP.
 PUT "<C1><#2>" 
-    "<C2><P10><R2><#1><R+10><C+37><IMAGE#1=" ls-full-img1  SKIP
+    "<C2><P10><R2><#1><R+10><C+42><IMAGE#1=" ls-full-img1  SKIP
    /* "<P10><=2><R+4>" "<FGCOLOR=" + trim(lv-comp-color) + ">" FORM "x(15)"
             "<P10><=2><R+5>"
             space(3) v-comp-add1  SKIP
