@@ -66,8 +66,7 @@ DEF VAR correct-error AS LOG no-undo.
 DEF VAR copy-record AS LOG NO-UNDO.
 DEF VAR rThisUser AS ROWID NO-UNDO.
 DEF VAR lAdd AS LOG NO-UNDO.
-
-
+DEF VAR lCopy AS LOG NO-UNDO.
 DEF TEMP-TABLE tempUser NO-UNDO LIKE _User.
 
 DEF TEMP-TABLE ttUsers
@@ -110,7 +109,7 @@ users.use_colors users.use_fonts users.use_ctrl_keys users.developer
 &Scoped-define FIRST-ENABLED-TABLE users
 &Scoped-Define ENABLED-OBJECTS RECT-5 
 &Scoped-Define DISPLAYED-FIELDS users.user_id users.user_name ~
-users.userAlias users.phone-cnty users.phone users.fax users.fax-cnty ~
+users.userAlias users.phone-cnty users.phone users.fax-cnty users.fax ~
 users.image_filename users.user_program[1] users.user_program[2] ~
 users.user_program[3] users.track_usage users.use_colors users.use_fonts ~
 users.use_ctrl_keys users.developer users.showOnQuote users.showOnAck ~
@@ -118,8 +117,8 @@ users.showOnBol users.showOnInv users.showOnPO users.securityLevel ~
 users.isActive users.isLocked 
 &Scoped-define DISPLAYED-TABLES users
 &Scoped-define FIRST-DISPLAYED-TABLE users
-&Scoped-Define DISPLAYED-OBJECTS fiPassword fi_phone-area lv-phone-num ~
-fi_fax-area lv-fax-num cbUserType slEnvironments slDatabases slModes 
+&Scoped-Define DISPLAYED-OBJECTS fiPassword cbUserType fi_phone-area ~
+lv-phone-num fi_fax-area lv-fax-num slEnvironments slDatabases slModes 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELDS,List-5,F1 */
@@ -256,7 +255,6 @@ DEFINE VARIABLE slModes AS CHARACTER
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     bDefaults AT ROW 5.52 COL 118 WIDGET-ID 104
      users.user_id AT ROW 1.24 COL 12 COLON-ALIGNED
           LABEL "User ID"
           VIEW-AS FILL-IN 
@@ -272,28 +270,29 @@ DEFINE FRAME F-Main
           SIZE 37 BY 1
           FONT 4
      fiPassword AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 80 PASSWORD-FIELD 
+     cbUserType AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 48
      bChgPwd AT ROW 2.67 COL 59 WIDGET-ID 82 NO-TAB-STOP 
-     users.phone-cnty AT ROW 4.1 COL 19 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     users.phone-cnty AT ROW 4.1 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 12
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           FONT 4
-     users.phone AT ROW 4.1 COL 60 COLON-ALIGNED HELP
+     fi_phone-area AT ROW 4.1 COL 44 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     users.phone AT ROW 4.1 COL 75 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 84 FORMAT "x(12)"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1 NO-TAB-STOP 
-     fi_phone-area AT ROW 4.1 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     lv-phone-num AT ROW 4.1 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 14
-     users.fax AT ROW 5.29 COL 60 COLON-ALIGNED HELP
-          "" NO-LABEL WIDGET-ID 86 FORMAT "x(12)"
-          VIEW-AS FILL-IN 
-          SIZE 4 BY 1 NO-TAB-STOP 
-     users.fax-cnty AT ROW 5.29 COL 19 COLON-ALIGNED HELP
+     lv-phone-num AT ROW 4.1 COL 57 COLON-ALIGNED NO-LABEL WIDGET-ID 14
+     users.fax-cnty AT ROW 5.29 COL 28 COLON-ALIGNED HELP
           "" NO-LABEL WIDGET-ID 18 FORMAT "x(8)"
           VIEW-AS FILL-IN 
           SIZE 7 BY 1
           FONT 4
-     fi_fax-area AT ROW 5.29 COL 29 COLON-ALIGNED NO-LABEL WIDGET-ID 16
-     lv-fax-num AT ROW 5.29 COL 39 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     fi_fax-area AT ROW 5.29 COL 44 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     lv-fax-num AT ROW 5.29 COL 57 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     users.fax AT ROW 5.29 COL 75 COLON-ALIGNED HELP
+          "" NO-LABEL WIDGET-ID 86 FORMAT "x(12)"
+          VIEW-AS FILL-IN 
+          SIZE 4 BY 1 NO-TAB-STOP 
      users.image_filename AT ROW 6.48 COL 19 COLON-ALIGNED HELP
           "Enter Main Menu Image File Name (fully qualified path)" WIDGET-ID 38
           LABEL "Email" FORMAT "X(40)"
@@ -357,7 +356,6 @@ DEFINE FRAME F-Main
      users.showOnPO AT ROW 16.24 COL 53 WIDGET-ID 32
           VIEW-AS TOGGLE-BOX
           SIZE 9 BY .81
-     cbUserType AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 48
      users.securityLevel AT ROW 3.62 COL 99 COLON-ALIGNED WIDGET-ID 44
           LABEL "Security Level" FORMAT ">999"
           VIEW-AS FILL-IN 
@@ -370,6 +368,7 @@ DEFINE FRAME F-Main
      users.isLocked AT ROW 3.62 COL 128 WIDGET-ID 88
           VIEW-AS TOGGLE-BOX
           SIZE 13.2 BY 1
+     bDefaults AT ROW 5.52 COL 118 WIDGET-ID 104
      slEnvironments AT ROW 11.71 COL 108 NO-LABEL WIDGET-ID 50
      bAll1 AT ROW 11.95 COL 97 WIDGET-ID 64
      bNone1 AT ROW 12.67 COL 97 WIDGET-ID 66
@@ -382,23 +381,6 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
-     "Phone/Fax Appear on:" VIEW-AS TEXT
-          SIZE 27 BY .62 AT ROW 11.71 COL 51 WIDGET-ID 24
-     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
-          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
-          FONT 1
-     "Phone: +" VIEW-AS TEXT
-          SIZE 10 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
-     "FAX: +" VIEW-AS TEXT
-          SIZE 7 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
-     "  -" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 4.1 COL 28 WIDGET-ID 96
-     "  -" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 5.29 COL 28 WIDGET-ID 98
-     "  -" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 100
-     "  -" VIEW-AS TEXT
-          SIZE 3 BY 1 AT ROW 5.29 COL 38 WIDGET-ID 102
      " At Login User Can Select:" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
           FONT 4
@@ -410,6 +392,23 @@ DEFINE FRAME F-Main
      "Databases:" VIEW-AS TEXT
           SIZE 13 BY .62 AT ROW 14.1 COL 94 WIDGET-ID 60
           FONT 4
+     "(#)" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 4.1 COL 54 WIDGET-ID 106
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 5.29 COL 38 WIDGET-ID 108
+     "(#)" VIEW-AS TEXT
+          SIZE 4 BY 1 AT ROW 5.29 COL 54 WIDGET-ID 110
+     "Phone/Fax Appear on:" VIEW-AS TEXT
+          SIZE 27 BY .62 AT ROW 11.71 COL 51 WIDGET-ID 24
+     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
+          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
+          FONT 1
+     "Phone: (Country)" VIEW-AS TEXT
+          SIZE 20 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
+     "FAX: (Country)" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 96
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -1038,6 +1037,7 @@ PROCEDURE local-add-record :
     ASSIGN
         lAdd = TRUE
         fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = ""
+        fiPassword:SENSITIVE = TRUE
         fi_phone-area:SCREEN-VALUE = ""
         lv-phone-num:SCREEN-VALUE = ""
         fi_fax-area:SCREEN-VALUE = ""
@@ -1058,154 +1058,11 @@ PROCEDURE local-assign-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF BUFFER bf-usercust FOR usercust .
-    DEF BUFFER bf-usrx FOR usrx .
-    DEF BUFFER bf-usercomp FOR usercomp.
-    
-    DEF VAR lv-default-comp AS cha NO-UNDO.
-    DEF VAR lv-default-loc AS cha NO-UNDO.
-    DEF VAR ll-ans AS LOG NO-UNDO.
-    DEF VAR ll-dummy AS LOG NO-UNDO.
-    DEF VAR v-old-pass AS cha FORM "x(30)" NO-UNDO.
-    DEF VAR v-new-pass AS cha FORM "x(30)" NO-UNDO.
-    DEF VAR cOldUserID AS CHARACTER FORM "x(30)" NO-UNDO.
-    DEF VAR cNewPwd AS CHAR NO-UNDO.
-  
-    ASSIGN 
-        cOldUserID = users.user_id
-        .
 
-  /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'assign-record':U ) .
 
-    /* {methods/viewers/assign/{&FIRST-EXTERNAL-TABLE}.i} */
-
-    IF adm-new-record THEN DO:
+    /* {methods/viewers/assign/{&FIRST-EXTERNAL-TABLE}.i}  */
     
-        FIND FIRST bf-usercomp NO-LOCK WHERE 
-            bf-usercomp.USER_id = "ASI" AND
-            bf-usercomp.company_default 
-            NO-ERROR.
-        ASSIGN 
-            lv-default-comp = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001".
-
-        FIND FIRST usercomp NO-LOCK WHERE 
-            usercomp.USER_id = users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} AND 
-            usercomp.company = lv-default-comp AND
-            usercomp.loc = ""
-            NO-ERROR.
-        IF NOT AVAIL usercomp THEN DO:
-            CREATE usercomp.
-            ASSIGN 
-                usercomp.user_id = users.user_id:SCREEN-VALUE
-                usercomp.company = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001"
-                usercomp.loc = ""
-                usercomp.company_default = YES.
-        END.
-     
-        FIND FIRST bf-usercomp NO-LOCK WHERE
-            bf-usercomp.user_id = "ASI" AND
-            bf-usercomp.loc_default 
-            NO-ERROR.
-        ASSIGN 
-            lv-default-loc = IF AVAIL bf-usercomp THEN bf-usercomp.loc ELSE "MAIN".
-
-        FIND FIRST usercomp NO-LOCK WHERE 
-            usercomp.user_id = users.user_id:SCREEN-VALUE AND 
-            usercomp.company = lv-default-comp AND
-            usercomp.loc = lv-default-loc 
-            NO-ERROR.
-
-        IF NOT AVAIL usercomp THEN DO:
-            CREATE usercomp.
-            ASSIGN 
-                usercomp.user_id = users.user_id:SCREEN-VALUE
-                usercomp.company = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001"
-                usercomp.loc = IF AVAIL bf-usercomp THEN bf-usercomp.loc ELSE "MAIN"
-                usercomp.loc_DEFAULT = YES.
-        END.
-        
-        FIND FIRST usr WHERE usr.uid EQ users.user_id:SCREEN-VALUE NO-ERROR.
-        IF NOT AVAIL usr THEN DO:
-            CREATE usr.
-            ASSIGN
-                usr.uid = users.user_id:SCREEN-VALUE
-                usr.usr-lang = "English".
-        END.
-        ELSE IF usr.usr-lang = "EN" THEN ASSIGN
-            usr.usr-lang = "English".
-        
-        IF fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
-            MESSAGE
-                "You have not created a password for this" SKIP
-                "new user. Would you like to do so now?"
-                VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lNewPwd AS LOG.
-            IF lNewPwd THEN DO:
-                UPDATE
-                    cNewPwd format "x(32)" LABEL "Password"
-                    WITH FRAME c VIEW-AS DIALOG-BOX THREE-D SIDE-LABELS.
-                ASSIGN
-                    fiPassword:SCREEN-VALUE = cNewPwd.
-            END.
-        END.
-                    
-        FIND FIRST _user EXCLUSIVE WHERE
-            _user._userid = users.user_id:SCREEN-VALUE
-            NO-ERROR.
-        IF NOT AVAIL _user THEN DO:
-            CREATE _user.
-            ASSIGN
-                _user._userid = users.user_id:SCREEN-VALUE
-                _user._password = ENCODE(fiPassword:SCREEN-VALUE)
-                _user._user-name = users.user_name:SCREEN-VALUE.
-            ASSIGN
-                fiPassword:SCREEN-VALUE = _user._password.
-        END.
-    END.
-
-    IF adm-new-record AND NOT adm-adding-record THEN DO:  /* copy */
-        FOR EACH usercust NO-LOCK WHERE 
-            usercust.user_id EQ cOldUserID AND 
-            usercust.company EQ cocode  , 
-            FIRST cust WHERE 
-                cust.company EQ usercust.company AND 
-                cust.cust-no EQ usercust.cust-no NO-LOCK  :
-
-            CREATE bf-usercust .
-            BUFFER-COPY usercust EXCEPT rec_key user_id TO bf-usercust.
-            ASSIGN
-                bf-usercust.user_id = users.USER_id .
-        END.
-        FOR EACH usrx NO-LOCK WHERE 
-            usrx.uid = cOldUserID AND 
-            usrx.company = cocode AND 
-            usrx.loc NE "", 
-            EACH loc OF usrx NO-LOCK:
-
-            CREATE bf-usrx .
-            BUFFER-COPY usrx EXCEPT rec_key uid TO bf-usrx.
-            ASSIGN
-                bf-usrx.uid = users.USER_id .
-        END.
-
-        SESSION:SET-WAIT-STATE("general").
-        FOR EACH prgrms :
-            IF LOOKUP(cOldUserID,prgrms.can_run) > 0 
-            AND LOOKUP(users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME},prgrms.can_run) <= 0 THEN ASSIGN
-                prgrms.can_run = prgrms.can_run + "," + users.user_id:SCREEN-VALUE.
-            IF LOOKUP(cOldUserID,prgrms.can_create) > 0 
-            AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_create) <= 0 THEN ASSIGN
-                prgrms.can_create = prgrms.can_create + "," + users.user_id:SCREEN-VALUE.
-            IF LOOKUP(cOldUserID,prgrms.can_update) > 0 
-            AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_update) <= 0 THEN ASSIGN
-                prgrms.can_update = prgrms.can_update + "," + users.user_id:SCREEN-VALUE.
-            IF LOOKUP(cOldUserID,prgrms.can_delete) > 0 
-            AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_delete) <= 0 THEN ASSIGN
-                prgrms.can_delete = prgrms.can_delete + "," + users.user_id:SCREEN-VALUE.
-        END.
-        SESSION:SET-WAIT-STATE("").
-    END.
-  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1222,6 +1079,11 @@ PROCEDURE local-cancel-record :
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
 
     DISABLE 
+        users.user_id
+        users.user_name
+        users.userAlias
+        users.securityLevel
+        fiPassword
         fi_phone-area 
         lv-phone-num 
         fi_fax-area 
@@ -1253,7 +1115,9 @@ PROCEDURE local-copy-record :
 
     {methods/template/local/create.i}
     ASSIGN
-        lAdd = TRUE.
+        lAdd = TRUE
+        lCopy = TRUE
+        cOldUserID = users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME}.
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
 
@@ -1353,6 +1217,18 @@ PROCEDURE local-delete-record :
         reftable.company EQ users.user_id:
         DELETE reftable.
     END.
+    
+    FIND ttUsers EXCLUSIVE WHERE
+        ttUsers.ttfPdbname = PDBNAME(1) AND
+        ttUsers.ttfUserID = users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME}
+        NO-ERROR.
+    IF AVAIL ttUsers THEN DO:
+        DELETE ttUsers.
+        RUN ipWriteUsrFile.
+        EMPTY TEMP-TABLE ttUsers.
+        RUN ipReadUsrFile.
+    END.
+    
 
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ) .
 
@@ -1392,42 +1268,44 @@ PROCEDURE local-display-fields :
     RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
     
     IF AVAIL users THEN DO:
-    FIND FIRST ttUsers WHERE
-        ttUsers.ttfPdbName = PDBNAME(1) AND
-        ttUsers.ttfUserID = users.user_id
-        NO-ERROR.
-    IF NOT AVAIL ttUsers THEN DO:
-        CREATE ttUsers.
-        ASSIGN
-            ttUsers.ttfPdbName = PDBNAME(1)
+        FIND FIRST ttUsers WHERE
+            ttUsers.ttfPdbName = PDBNAME(1) AND
             ttUsers.ttfUserID = users.user_id
-            ttUsers.ttfEnvList = slEnvironments:list-items in FRAME {&FRAME-NAME}
-            ttUsers.ttfDbList = slDatabases:list-items
-            ttUsers.ttfModeList = slModes:list-items.
-    END.
+            NO-ERROR.
+        IF NOT AVAIL ttUsers THEN DO:
+            CREATE ttUsers.
+            ASSIGN
+                ttUsers.ttfPdbName = PDBNAME(1)
+                ttUsers.ttfUserID = users.user_id
+                ttUsers.ttfEnvList = slEnvironments:list-items in FRAME {&FRAME-NAME}
+                ttUsers.ttfDbList = slDatabases:list-items
+                ttUsers.ttfModeList = slModes:list-items
+                ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE.
+        END.
 
-    ASSIGN 
-        fi_phone-area:screen-value = substring(users.phone,1,3)
-        lv-phone-num:screen-value = substring(users.phone,4)
-        fi_fax-area:screen-value = substring(users.fax,1,3)
-        lv-fax-num:screen-value = substring(users.fax,4)
-        cbUserType:screen-value = users.userType
-        slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
-        slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
-        slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList else slModes:list-items
-        .
+        ASSIGN 
+            fi_phone-area:screen-value = substring(users.phone,1,3)
+            lv-phone-num:screen-value = substring(users.phone,4)
+            fi_fax-area:screen-value = substring(users.fax,1,3)
+            lv-fax-num:screen-value = substring(users.fax,4)
+            cbUserType:screen-value = users.userType
+            slEnvironments:screen-value = if ttUsers.ttfEnvList <> "" THEN ttUsers.ttfEnvList else slEnvironments:list-items
+            slDatabases:screen-value = if ttUsers.ttfDbList <> "" THEN ttUsers.ttfDbList else slDatabases:list-items
+            slModes:screen-value = if ttUsers.ttfModeList <> "" THEN ttUsers.ttfModeList else slModes:list-items
+            .
 
-    IF users.userAlias:SCREEN-VALUE NE ttUsers.ttfUserAlias THEN ASSIGN
-        users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias.
+        IF users.userAlias:SCREEN-VALUE NE ttUsers.ttfUserAlias THEN ASSIGN
+            users.userAlias:SCREEN-VALUE = ttUsers.ttfUserAlias.
         
-    FIND _user NO-LOCK WHERE 
-        _user._userid = users.user_id
-        NO-ERROR.
-    IF AVAIL _user THEN ASSIGN
-        fiPassword:SCREEN-VALUE = _user._password.
+        FIND _user NO-LOCK WHERE 
+            _user._userid = users.user_id
+            NO-ERROR.
+        IF AVAIL _user THEN ASSIGN
+            fiPassword:SCREEN-VALUE = _user._password.
 
-    ASSIGN
-        bChgPwd:SENSITIVE = IF users.user_id = zusers.user_id OR zusers.securityLevel > 699 THEN TRUE ELSE FALSE.
+        ASSIGN
+            bChgPwd:SENSITIVE = IF users.user_id = zusers.user_id OR zusers.securityLevel > 699 THEN TRUE ELSE FALSE
+            fiPassword:SENSITIVE = FALSE.
     END.
 END PROCEDURE.
 
@@ -1474,40 +1352,204 @@ PROCEDURE local-update-record :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
+    DEF BUFFER bf-usercust FOR usercust .
+    DEF BUFFER bf-usrx FOR usrx .
+    DEF BUFFER bf-usercomp FOR usercomp.
+    
+    DEF VAR lv-default-comp AS cha NO-UNDO.
+    DEF VAR lv-default-loc AS cha NO-UNDO.
+    DEF VAR ll-ans AS LOG NO-UNDO.
+    DEF VAR ll-dummy AS LOG NO-UNDO.
+    DEF VAR v-old-pass AS cha FORM "x(30)" NO-UNDO.
+    DEF VAR v-new-pass AS cha FORM "x(30)" NO-UNDO.
+    DEF VAR cNewPwd AS CHAR NO-UNDO.
+  
+    ASSIGN 
+        cOldUserID = users.user_id
+        .
 
     RUN validate-userid NO-ERROR.
     IF error-status:error THEN RETURN.
 
-    IF users.user_program[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
-        IF SUBSTRING(users.user_program[2]:SCREEN-VALUE,LENGTH(users.user_program[2]:SCREEN-VALUE),1) EQ "\" 
-        OR SUBSTRING(users.user_program[2]:SCREEN-VALUE,LENGTH(users.user_program[2]:SCREEN-VALUE),1) EQ "/" THEN DO:
+    IF users.user_program[1]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+        FILE-INFO:FILE-NAME = users.USER_program[1].
+        IF FILE-INFO:FILE-type eq ? then do:
             MESSAGE 
-                "Report Path cannot end in / or \." 
-                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-            APPLY "ENTRY" TO users.user_program[2] IN FRAME {&FRAME-NAME}.
+                "Image Viewer file does not exist. Please change it to an existing file." 
+                VIEW-AS ALERT-BOX ERROR.
+            APPLY 'entry' TO users.user_program[1].
             RETURN.
         END.
     END.
 
-    IF users.user_program[3]:SCREEN-VALUE NE "" THEN DO:
-        IF SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "\" 
-        OR SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "/" THEN DO:
-            MESSAGE 
-                "Document Path cannot end in / or \." 
-                VIEW-AS ALERT-BOX ERROR BUTTONS OK.
-            APPLY "ENTRY" TO users.user_program[3] IN FRAME {&FRAME-NAME}.
-            RETURN.
+    IF users.user_program[2]:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
+        IF SUBSTRING(users.user_program[2]:SCREEN-VALUE,LENGTH(users.user_program[2]:SCREEN-VALUE),1) EQ "\" 
+        OR SUBSTRING(users.user_program[2]:SCREEN-VALUE,LENGTH(users.user_program[2]:SCREEN-VALUE),1) EQ "/" THEN DO:
+            ASSIGN
+                users.user_program[2]:SCREEN-VALUE = SUBSTRING(users.user_program[2]:SCREEN-VALUE,1,LENGTH(users.user_program[2]:SCREEN-VALUE) - 1).
         END.
-     
-        FILE-INFO:FILE-NAME = users.USER_program[3].
+
+        FILE-INFO:FILE-NAME = users.USER_program[2].
         IF FILE-INFO:FILE-type eq ? then do:
             MESSAGE 
                 "Document Path does not exist. Do you want to create it?" 
                 VIEW-AS ALERT-BOX ERROR BUTTON YES-NO UPDATE v-ans AS LOG.
             IF v-ans THEN OS-CREATE-DIR VALUE(file-info:file-name).
         END.
+    END.
+
+    IF users.user_program[3]:SCREEN-VALUE NE "" THEN DO:
+        IF SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "\" 
+        OR SUBSTRING(users.user_program[3]:SCREEN-VALUE,LENGTH(users.user_program[3]:SCREEN-VALUE),1) EQ "/" THEN DO:
+            ASSIGN
+                users.user_program[3]:SCREEN-VALUE = SUBSTRING(users.user_program[3]:SCREEN-VALUE,1,LENGTH(users.user_program[3]:SCREEN-VALUE) - 1).
+        END.
+         
+        FILE-INFO:FILE-NAME = users.USER_program[3].
+        IF FILE-INFO:FILE-type eq ? then do:
+            MESSAGE 
+                "Document Path does not exist. Do you want to create it?" 
+                VIEW-AS ALERT-BOX ERROR BUTTON YES-NO UPDATE v-ans2 AS LOG.
+            IF v-ans2 THEN OS-CREATE-DIR VALUE(file-info:file-name).
+        END.
     END.  
 
+    IF fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "" THEN DO:
+        MESSAGE
+            "You have not created a password for this" SKIP
+            "user. Would you like to do so now?"
+            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE lNewPwd AS LOG.
+        IF lNewPwd THEN DO:
+            APPLY 'entry' to fiPassword.
+            RETURN.
+        END.
+    END.
+                    
+    IF lAdd THEN DO:
+        /* Add _user record */
+        FIND FIRST _user EXCLUSIVE WHERE
+            _user._userid = users.user_id:SCREEN-VALUE
+            NO-ERROR.
+        IF NOT AVAIL _user THEN DO:
+            CREATE _user.
+            ASSIGN
+                _user._userid = users.user_id:SCREEN-VALUE
+                _user._password = ENCODE(fiPassword:SCREEN-VALUE)
+                _user._user-name = users.user_name:SCREEN-VALUE.
+            ASSIGN
+                fiPassword:SCREEN-VALUE = _user._password.
+        END.
+        
+        /* Add default usercomp records for new user */
+        FIND FIRST bf-usercomp NO-LOCK WHERE 
+            bf-usercomp.USER_id = "ASI" AND
+            bf-usercomp.company_default 
+            NO-ERROR.
+        ASSIGN 
+            lv-default-comp = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001".
+        FIND FIRST usercomp NO-LOCK WHERE 
+            usercomp.USER_id = users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME} AND 
+            usercomp.company = lv-default-comp AND
+            usercomp.loc = ""
+            NO-ERROR.
+        IF NOT AVAIL usercomp THEN DO:
+            CREATE usercomp.
+            ASSIGN 
+                usercomp.user_id = users.user_id:SCREEN-VALUE
+                usercomp.company = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001"
+                usercomp.loc = ""
+                usercomp.company_default = YES.
+        END.
+        FIND FIRST bf-usercomp NO-LOCK WHERE
+            bf-usercomp.user_id = "ASI" AND
+            bf-usercomp.loc_default 
+            NO-ERROR.
+        ASSIGN 
+            lv-default-loc = IF AVAIL bf-usercomp THEN bf-usercomp.loc ELSE "MAIN".
+        FIND FIRST usercomp NO-LOCK WHERE 
+            usercomp.user_id = users.user_id:SCREEN-VALUE AND 
+            usercomp.company = lv-default-comp AND
+            usercomp.loc = lv-default-loc 
+            NO-ERROR.
+        IF NOT AVAIL usercomp THEN DO:
+            CREATE usercomp.
+            ASSIGN 
+                usercomp.user_id = users.user_id:SCREEN-VALUE
+                usercomp.company = IF AVAIL bf-usercomp THEN bf-usercomp.company ELSE "001"
+                usercomp.loc = IF AVAIL bf-usercomp THEN bf-usercomp.loc ELSE "MAIN"
+                usercomp.loc_DEFAULT = YES.
+        END.
+        
+        /* Add usr record for new user */
+        FIND FIRST usr WHERE usr.uid EQ users.user_id:SCREEN-VALUE NO-ERROR.
+        IF NOT AVAIL usr THEN DO:
+            CREATE usr.
+            ASSIGN
+                usr.uid = users.user_id:SCREEN-VALUE
+                usr.usr-lang = "English".
+        END.
+        ELSE IF usr.usr-lang = "EN" THEN ASSIGN
+            usr.usr-lang = "English".
+        
+        IF lCopy THEN DO:
+            FOR EACH usercust NO-LOCK WHERE 
+                usercust.user_id EQ cOldUserID AND 
+                usercust.company EQ cocode  , 
+                FIRST cust WHERE 
+                    cust.company EQ usercust.company AND 
+                    cust.cust-no EQ usercust.cust-no NO-LOCK  :
+    
+                CREATE bf-usercust .
+                BUFFER-COPY usercust EXCEPT rec_key user_id TO bf-usercust.
+                ASSIGN
+                    bf-usercust.user_id = users.USER_id .
+            END.
+            FOR EACH usrx NO-LOCK WHERE 
+                usrx.uid = cOldUserID AND 
+                usrx.company = cocode AND 
+                usrx.loc NE "", 
+                EACH loc OF usrx NO-LOCK:
+    
+                CREATE bf-usrx .
+                BUFFER-COPY usrx EXCEPT rec_key uid TO bf-usrx.
+                ASSIGN
+                    bf-usrx.uid = users.USER_id .
+            END.
+
+            FOR EACH prgrms :
+                IF LOOKUP(cOldUserID,prgrms.can_run) > 0 
+                AND LOOKUP(users.user_id:SCREEN-VALUE IN FRAME {&FRAME-NAME},prgrms.can_run) <= 0 THEN ASSIGN
+                    prgrms.can_run = prgrms.can_run + "," + users.user_id:SCREEN-VALUE.
+                IF LOOKUP(cOldUserID,prgrms.can_create) > 0 
+                AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_create) <= 0 THEN ASSIGN
+                    prgrms.can_create = prgrms.can_create + "," + users.user_id:SCREEN-VALUE.
+                IF LOOKUP(cOldUserID,prgrms.can_update) > 0 
+                AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_update) <= 0 THEN ASSIGN
+                    prgrms.can_update = prgrms.can_update + "," + users.user_id:SCREEN-VALUE.
+                IF LOOKUP(cOldUserID,prgrms.can_delete) > 0 
+                AND LOOKUP(users.user_id:SCREEN-VALUE,prgrms.can_delete) <= 0 THEN ASSIGN
+                    prgrms.can_delete = prgrms.can_delete + "," + users.user_id:SCREEN-VALUE.
+            END.
+        END. /* lCopy */
+    END. /* lAdd */
+
+        FIND ttUsers EXCLUSIVE WHERE
+            ttUsers.ttfPdbname = PDBNAME(1) AND
+            ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
+            NO-ERROR.
+        IF NOT AVAIL ttUsers THEN DO:
+            CREATE ttUsers.
+            ASSIGN
+                ttUsers.ttfPdbname = PDBNAME(1)
+                ttUsers.ttfUserID = users.user_id:SCREEN-VALUE.
+        END.
+        ASSIGN
+            ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
+            ttUsers.ttfEnvList = if users.envList <> slEnvironments:list-items then users.envList else ""
+            ttUsers.ttfDbList = if users.dbList <> slDatabases:list-items then users.dbList else ""
+            ttUsers.ttfModeList = if users.modeList <> slModes:list-items then users.modeList else "".
+        RUN ipWriteUsrFile.
+   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1528,26 +1570,10 @@ PROCEDURE local-update-record :
             users.phone = fi_phone-area:screen-value + lv-phone-num
             users.fax = fi_fax-area:screen-value + lv-fax-num
             rThisUser = ROWID(users).
-    
-        FIND ttUsers EXCLUSIVE WHERE
-            ttUsers.ttfPdbname = PDBNAME(1) AND
-            ttUsers.ttfUserID = users.user_id
-            NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
-            CREATE ttUsers.
-            ASSIGN
-                ttUsers.ttfPdbname = PDBNAME(1)
-                ttUsers.ttfUserID = users.user_id.
-        END.
-        ASSIGN
-            ttUsers.ttfUserAlias = users.userAlias
-            ttUsers.ttfEnvList = if users.envList <> slEnvironments:list-items then users.envList else ""
-                ttUsers.ttfDbList = if users.dbList <> slDatabases:list-items then users.dbList else ""
-            ttUsers.ttfModeList = if users.modeList <> slModes:list-items then users.modeList else "".
-        RUN ipWriteUsrFile.
     END.
-    
+
     DISABLE 
+        fiPassword
         fi_phone-area 
         lv-phone-num 
         fi_fax-area 
@@ -1568,15 +1594,16 @@ PROCEDURE local-update-record :
         WITH FRAME {&FRAME-NAME}.
     
     IF lAdd THEN DO:
-        ASSIGN
-            lAdd = FALSE.
        RUN DISPATCH IN h_Users ('open-query'). 
     END.
+    ASSIGN
+        lAdd = FALSE
+        lCopy = FALSE.
     
-  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
-
     RUN ipReposition IN h_Users (rThisUser).
     RUN local-display-fields.
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
         
 END PROCEDURE.
 
