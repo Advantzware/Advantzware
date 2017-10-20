@@ -10,9 +10,9 @@ PUT "<FTimes New Roman>".
 IF company.company EQ '004'
 OR company.company EQ '006' THEN
         PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
-            "<P10><=2><R+4>"
-            "<FCourier New>"
-            SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" SKIP(1)
+            "<P10><=2><R+6>"
+            "<FCourier New>" SKIP(1)
+            SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" 
             SKIP(3)
             space(12) "BILL TO:" SPACE(43) "SHIP TO:" SKIP
             SPACE(12) ar-inv.cust-name v-shipto-name AT 64 skip
@@ -26,7 +26,7 @@ OR company.company EQ '006' THEN
             SPACE(12) v-email    "</B>" SKIP    .
 ELSE IF company.company = '005' THEN
         PUT "<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */
-            "<P10><=2><R+5>"
+            "<P10><=2><R+6>"
             "<FCourier New>"
             SPACE(4) "<P11><B>" cCompanyID FORMAT "x(30)" "</B><P10>" SKIP(1)
             SPACE(12) "REMIT TO: MCI PACKAGING" SKIP
