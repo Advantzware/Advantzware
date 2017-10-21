@@ -56,11 +56,6 @@ DEFINE SHARED VARIABLE cTextListToDefault AS cha NO-UNDO.
 DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR cslist AS cha NO-UNDO.
-/*{sys/form/r-top5L3.f} */
-
-/* 21685 Frame r-top no longer shared, so set up title here */
-/*DEFINE SHARED FRAME r-top. */
-FORM HEADER "" WITH FRAME r-top.
 
 FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
 
@@ -78,17 +73,10 @@ FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
             .        
     cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-
-    IF LOOKUP(ttRptSelected.TextList, "InvoiceAmt,Past Due Amt") <> 0    THEN
-        ASSIGN
-            str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
-    ELSE
-        str-line = str-line + FILL(" ",ttRptSelected.FieldLength) + " " .
-
 END.
-/*{sys/form/r-top3.f}*/
+
 {sys/form/r-top5DL2.f} 
-VIEW FRAME r-top.
+/*VIEW FRAME r-top.*/
 FOR EACH cust
     WHERE cust.company EQ cocode
     AND cust.cust-no GE v-s-cust
@@ -197,46 +185,14 @@ FOR EACH cust
                 FIND FIRST terms WHERE terms.company = cocode AND
                     terms.t-code = cust.terms NO-LOCK NO-ERROR.
 
-                /*  if det-rpt2 then 
-                    display cust.cust-no
-                            space(3)
-                            cust.name
-                            space(3)
-                            cust.area-code                           format "(xxx)"
-                            cust.phone                               format "xxx-xxxx"
-                            "  Fax:"
-                            substr(cust.fax,1,3)                     format "(xxx)"
-                            substr(cust.fax,4,7)                     format "xxx-xxxx"
-                            skip
-                            "CL:"
-                            trim(string(v-cr-lim,">,>>>,>>>,>>9.99")) format "x(17)"
-                            cust.contact                             format "x(20)"
-                            space(2)
-                            v-sman
-                            space(2)
-                            terms.dscr when avail terms              format "x(13)"
-                        with no-labels no-box frame a1 STREAM-IO width 80. 
-                       
-                  if v-prt-add then run print-cust-add.   */                 
-
                 v-first-cust = NO.
             END.
-
-            /*  if det-rpt2 then
-                display d at 4 format "-9999" when v-days-old 
-                        space(7) "IN" space(5) ar-inv.inv-no
-                        space(2) ar-inv.inv-date FORMAT "99/99/99"
-                        amt to 54 ag to 77
-                        with frame c no-labels no-box STREAM-IO width 80.  */
 
             ASSIGN
                 cust-t[1] = cust-t[1] + ag
                 v-dec     = 0
                 v-dec[1]  = ag.
-       
-            /*   if v-export then
-                 run export-data ("", d, "IN", string(ar-inv.inv-no,">>>>>>>>>>"),
-                                  ar-inv.inv-date, amt, v-dec[1]). */
+            
             ASSIGN 
                 cDisplay       = ""
                 cTmpField      = ""
@@ -297,7 +253,7 @@ FOR EACH cust
 
             END.
      
-            PUT UNFORMATTED cDisplay SKIP.
+            PUT UNFORMATTED cDisplay FORMAT "x(340)" SKIP.
             IF v-export THEN 
             DO:
                 PUT STREAM s-temp UNFORMATTED  
@@ -356,17 +312,7 @@ FOR EACH cust
                     DO:
                         IF v-disc-type EQ "DISC" THEN 
                         DO:
-                            /*  display ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
-                                      v-type at 16
-                                      ar-cashl.inv-no at 23
-                                      ar-cash.check-date at 31 FORMAT "99/99/99"
-                                      v-cr-db-amt to 54 skip
-                                  with frame f-1 no-box no-labels STREAM-IO width 80.
-                                  
-                              if v-export then
-                                run export-data (ar-cashl.check-no, 0, v-type,
-                                                 string(ar-cashl.inv-no,">>>>>>>>>>"),
-                                                 ar-cash.check-date, v-cr-db-amt, 0). */
+                           
 
                             ASSIGN 
                                 cDisplay       = ""
@@ -427,25 +373,13 @@ FOR EACH cust
                                 cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                             END.
                 
-                            PUT UNFORMATTED cDisplay SKIP.
+                            PUT UNFORMATTED cDisplay FORMAT "x(340)" SKIP.
                             IF v-export THEN 
                             DO:
                                 PUT STREAM s-temp UNFORMATTED  
                                     cExcelDisplay SKIP.
                             END.
                         END.
-
-                        /*  display ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
-                                  v-disc-type at 16
-                                  ar-cashl.inv-no at 23
-                                  ar-cash.check-date at 31 FORMAT "99/99/99"
-                                  v-disc-amt to 54
-                              with frame f-50{&frame} no-box no-labels STREAM-IO width 80.
-                              
-                          if v-export then
-                            run export-data (ar-cashl.check-no, 0, v-disc-type,
-                                             string(ar-cashl.inv-no,">>>>>>>>>>"),
-                                             ar-cash.check-date, v-disc-amt, 0). */
 
                         ASSIGN 
                             cDisplay       = ""
@@ -506,7 +440,7 @@ FOR EACH cust
                             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                         END.
             
-                        PUT UNFORMATTED cDisplay SKIP.
+                        PUT UNFORMATTED cDisplay FORMAT "x(340)" SKIP.
                         IF v-export THEN 
                         DO:
                             PUT STREAM s-temp UNFORMATTED  
@@ -519,17 +453,6 @@ FOR EACH cust
                 ELSE
                     IF det-rpt2 THEN 
                     DO:
-                        /* display ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
-                                 v-type at 16
-                                 ar-cashl.inv-no at 23
-                                 ar-cash.check-date at 31 FORMAT "99/99/99"
-                                 v-cr-db-amt to 54
-                             with frame f-100 no-box no-labels STREAM-IO width 80.
-                             
-                         if v-export then
-                           run export-data (ar-cashl.check-no, 0, v-type,
-                                            string(ar-cashl.inv-no,">>>>>>>>>>"),
-                                            ar-cash.check-date, v-cr-db-amt, 0). */
                         ASSIGN 
                             cDisplay       = ""
                             cTmpField      = ""
@@ -589,7 +512,7 @@ FOR EACH cust
                             cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                         END.
             
-                        PUT UNFORMATTED cDisplay SKIP.
+                        PUT UNFORMATTED cDisplay FORMAT "x(340)" SKIP.
                         IF v-export THEN 
                         DO:
                             PUT STREAM s-temp UNFORMATTED  
@@ -691,26 +614,6 @@ FOR EACH cust
 
                 FIND FIRST terms WHERE terms.company = cocode AND
                     terms.t-code = cust.terms NO-LOCK NO-ERROR.
-
-                /*  if det-rpt2 then
-                     display cust.cust-no
-                             cust.name
-                             cust.area-code                           format "(xxx)"
-                             cust.phone                               format "xxx-xxxx"
-                             "Fax:"
-                             substr(cust.fax,1,3)                     format "(xxx)"
-                             substr(cust.fax,4,7)                     format "xxx-xxxx"
-                             skip
-                             "CL:"
-                             trim(string(v-cr-lim,">,>>>,>>>,>>9.99")) format "x(17)"
-                             cust.contact                             format "x(20)"
-                             space(2)
-                             v-sman
-                             space(2)
-                             terms.dscr when avail terms              format "x(13)"
-                         with no-labels no-box frame a2 STREAM-IO width 80.
-                        
-                  if v-prt-add then run print-cust-add. */
         
                 ASSIGN 
                     v-first-cust = NO.
@@ -736,22 +639,6 @@ FOR EACH cust
 
             IF first-unapp THEN 
             DO:
-
-                /*  if det-rpt2 then
-                    display skip(1)
-                            ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
-                            v-type at 16
-                            "ON ACCT" at 23
-                            ar-cash.check-date at 31 FORMAT "99/99/99"
-                            (v-cr-db-amt + v-disc-amt)
-                                  format "->>>,>>>,>>9.99" to 54
-                            unapp[1] when unapp[1] ne 0 to 77
-                        with frame ab no-labels no-box STREAM-IO width 80.
-                        
-                  if v-export then
-                    run export-data (ar-cashl.check-no, 0, v-type, "ON ACCT",
-                                     ar-cash.check-date, v-cr-db-amt + v-disc-amt,
-                                     unapp[1]).*/
                 ASSIGN 
                     cDisplay       = ""
                     cTmpField      = ""
@@ -811,7 +698,7 @@ FOR EACH cust
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                 END.
             
-                PUT UNFORMATTED cDisplay SKIP.
+                PUT UNFORMATTED cDisplay FORMAT "x(340)" SKIP.
                 IF v-export THEN 
                 DO:
                     PUT STREAM s-temp UNFORMATTED  
@@ -825,18 +712,6 @@ FOR EACH cust
 
             ELSE 
             DO:
-                /* if det-rpt2 then
-                   display ar-cashl.check-no at 4 format "x(10)" when not v-days-old 
-                           v-type at 16
-                           "ON ACCT" at 23
-                           ar-cash.check-date at 31 FORMAT "99/99/99"
-                           (v-cr-db-amt + v-disc-amt)
-                                    format "->>>,>>>,>>9.99" to 54
-                       with frame f-2 no-box no-labels STREAM-IO width 80.
-                       
-                 if v-export then
-                   run export-data (ar-cashl.check-no, 0, v-type, "ON ACCT",
-                                    ar-cash.check-date, v-cr-db-amt + v-disc-amt, 0). */
                 ASSIGN 
                     cDisplay       = ""
                     cTmpField      = ""
@@ -896,7 +771,7 @@ FOR EACH cust
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
                 END.
             
-                PUT UNFORMATTED cDisplay SKIP.
+                PUT UNFORMATTED cDisplay FORMAT "x(340)" SKIP.
                 IF v-export THEN 
                 DO:
                     PUT STREAM s-temp UNFORMATTED  
@@ -909,21 +784,7 @@ FOR EACH cust
 
     IF (NOT v-first-cust) OR c1 NE 0 THEN 
     DO:
-        /* if det-rpt2 then do:
-           display skip(1) "***** CUSTOMER TOTALS" at 4 c1 to 54 cust-t[1] to 77
-                   skip(1)
-               with frame a3 no-labels no-box no-attr-space STREAM-IO width 80.
-           
-           if not last-of({&sort-by}) or "{&sort-by}" ne "cust.sman" then
-             put skip(1).
-         end.
-         
-         else
-           display cust.cust-no space(2) cust.name + "  " + m3 format "x(50)" skip
-                   c1        to 54
-                   cust-t[1] to 77
-                   skip(1)
-               with frame a3sum no-labels no-box no-attr-space STREAM-IO width 80. */
+        
         PUT SKIP str-line SKIP.
         ASSIGN 
             cDisplay       = ""
@@ -985,7 +846,7 @@ FOR EACH cust
         END.
             
         PUT UNFORMATTED  
-            "       CUSTOMER TOTALS:" SUBSTRING(cDisplay,24,300) SKIP.
+            "       CUSTOMER TOTALS:" SUBSTRING(cDisplay,24,300) SKIP(1).
         IF v-export THEN 
         DO:
             PUT STREAM s-temp UNFORMATTED  
@@ -1004,13 +865,7 @@ FOR EACH cust
           
         IF "{&sort-by}" EQ "cust.sman" THEN 
         DO:
-            /* display v-sman                  at 4    format "x(33)"
-                     "TOTALS: " + v-sman                  @ v-sman
-                     "***** SALESMAN TOTALS" when det-rpt2 @ v-sman
-                     c1                      to 54
-                     sman-t[1]               to 77
-                     skip(2)
-                 with frame slsmn no-labels no-box no-attr-space STREAM-IO width 80. */
+            
             PUT SKIP str-line SKIP.
             ASSIGN 
                 cDisplay       = ""
@@ -1072,7 +927,7 @@ FOR EACH cust
             END.
             
             PUT UNFORMATTED  
-                "       SALESMAN TOTALS:" SUBSTRING(cDisplay,24,300) SKIP.
+                "       SALESMAN TOTALS:" SUBSTRING(cDisplay,24,300) SKIP(1).
             IF v-export THEN 
             DO:
                 PUT STREAM s-temp UNFORMATTED  
@@ -1093,75 +948,6 @@ FOR EACH cust
 END.  /* for each cust record */
   
 RETURN.
- /* 
-  procedure print-cust-add:
-    display cust.addr[1]                                                skip
-            cust.addr[2]                                                skip
-            trim(cust.city) + ", " +
-            trim(cust.state) + "  " + trim(cust.zip) format "x(50)"
-            
-        with no-labels no-box frame cust-detail STREAM-IO width 80.
-  end.
-  
-  procedure export-data:
-    def input parameter v-field-01 like ar-cashl.check-no no-undo.
-    def input parameter v-field-02 like d                 no-undo.
-    def input parameter v-field-03 like v-type            no-undo.
-    def input parameter v-field-04 as   char              no-undo.
-    def input parameter v-field-05 like ar-inv.inv-date   no-undo.
-    def input parameter v-field-06 like amt               no-undo.
-    def input parameter v-field-07 like ag                no-undo.
-    
-    
-    /*put stream s-temp unformatted
-        trim(cust.cust-no)                                      + "," +
-        trim(cust.name)                                         + "," +
-        trim(cust.contact)                                      + "," +
-        trim(v-sman)                                            + "," +
-        trim(if avail terms then terms.dscr else "")            + "," +
-        trim(cust.addr[1])                                      + "," +
-        trim(cust.addr[2])                                      + "," +
-        trim(cust.city)                                         + "," +
-        trim(cust.state)                                        + "," +
-        trim(cust.zip)                                          + "," +
-        trim(string(cust.cr-lim,">>>>>>>>9.99"))                + "," +
-        trim(string(cust.area-code,"(xxx)") + " " +
-             string(cust.phone,"xxx-xxxx"))                     + "," +
-        trim(string(substr(cust.fax,1,3),"(xxx)") + " " +
-             string(substr(cust.fax,4,7),"xxx-xxxx"))           + "," +
-        trim(v-field-01)                                        + "," +
-        trim(string(v-field-02,"->>>>"))                        + "," +
-        trim(v-field-03)                                        + "," +
-        trim(v-field-04)                                        + "," +
-        trim(string(v-field-05,"99/99/9999"))                   + "," +
-        trim(string(v-field-06,"->>>>>>>>9.99"))                + "," +
-        trim(string(v-field-07,"->>>>>>>>9.99"))
-        skip.*/
-    EXPORT STREAM s-temp DELIMITER ","
-            trim(cust.cust-no)                               
-            trim(cust.name)                                  
-            trim(cust.contact)                               
-            trim(v-sman)                                     
-            trim(if avail terms then terms.dscr else "")     
-            trim(cust.addr[1])                               
-            trim(cust.addr[2])                               
-            trim(cust.city)                                  
-            trim(cust.state)                                 
-            trim(cust.zip)                                   
-            trim(string(cust.cr-lim,">>>>>>>>9.99"))         
-            trim(string(cust.area-code,"(xxx)") + " " +      
-                 string(cust.phone,"xxx-xxxx"))              
-            trim(string(substr(cust.fax,1,3),"(xxx)") + " " +
-                 string(substr(cust.fax,4,7),"xxx-xxxx"))    
-            trim(v-field-01)                                 
-            trim(string(v-field-02,"->>>>"))                 
-            trim(v-field-03)                                 
-            trim(v-field-04)                                 
-            trim(string(v-field-05,"99/99/9999"))            
-            trim(string(v-field-06,"->>>>>>>>9.99"))         
-            trim(string(v-field-07,"->>>>>>>>9.99"))  
-       SKIP.
-
-  end.  */
+ 
   
 /* End ---------------------------------- Copr. 2002  Advanced Software, Inc. */
