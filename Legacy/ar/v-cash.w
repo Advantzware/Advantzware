@@ -159,11 +159,11 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 24 BY 1
      ld-not-applied AT ROW 4.81 COL 101 COLON-ALIGNED
-     ar-cash.curr-code[1] AT ROW 5.76 COL 19 COLON-ALIGNED
+     ar-cash.curr-code[1] AT ROW 5.86 COL 19 COLON-ALIGNED
           LABEL "Currency Code"
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
-     ar-cash.ex-rate AT ROW 5.76 COL 59 COLON-ALIGNED
+     ar-cash.ex-rate AT ROW 5.86 COL 59 COLON-ALIGNED
           LABEL "Exchange Rate"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
