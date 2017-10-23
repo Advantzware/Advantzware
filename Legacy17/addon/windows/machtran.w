@@ -822,7 +822,7 @@ PROCEDURE selectMiscFlds :
 
 
      IF AVAIL job-hdr THEN
-       RUN UDF/mfvalues.w (sys-ctrl.char-fld,{&mfRecKey},{&mfHeader}).
+       RUN UDF/mfvalues.w (sys-ctrl.char-fld,{&mfRecKey},{&mfHeader},h_smartmsg).
 
 END PROCEDURE.
 
