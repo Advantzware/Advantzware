@@ -32,7 +32,7 @@ form skip(8)
      add1               at 10
      add2               at 10
      csz                at 10
-     skip(4)                              
+     skip(5)                              
 
     with frame b1 width 85 no-box no-labels stream-io no-attr-space.
 
