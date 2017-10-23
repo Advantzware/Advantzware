@@ -1820,6 +1820,8 @@ ASSIGN
  cstrtit = str-tit2 .
  cstrtit2 = str-tit3 .
  iline    = lines-per-page .
+ str-tit6 = "" .
+ str-tit7 = "" .
 SESSION:SET-WAIT-STATE ("general").
 
 DO WITH FRAME {&frame-name}:
