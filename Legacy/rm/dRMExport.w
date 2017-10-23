@@ -1115,8 +1115,8 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                 AND ITEM.i-no EQ ipb-itemfg.i-no NO-LOCK NO-ERROR.
             IF AVAIL ITEM THEN do:
                 ASSIGN 
-                test = (item.q-ytd * item.avg-cost)
-                lc-return = STRING(test)    .
+                lc-return = STRING(item.q-ytd * item.avg-cost,"->>>>>>>>>>>>9")
+                    .
             END.
         END.
         WHEN "u-ptd" THEN DO:
@@ -1124,8 +1124,8 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                 AND ITEM.i-no EQ ipb-itemfg.i-no NO-LOCK NO-ERROR.
             IF AVAIL ITEM THEN do:
                 ASSIGN 
-                test = (item.q-ptd * item.avg-cost)
-                lc-return = STRING(test)    .
+                lc-return = STRING(item.q-ptd * item.avg-cost,"->>>>>>>>>>>>9")
+                    .
             END.
         END.
         WHEN "u-lyr" THEN DO:
@@ -1133,8 +1133,8 @@ FUNCTION getValue-itemfg RETURNS CHARACTER
                 AND ITEM.i-no EQ ipb-itemfg.i-no NO-LOCK NO-ERROR.
             IF AVAIL ITEM THEN do:
                 ASSIGN 
-                test = (item.q-lyr * item.avg-cost)
-                lc-return = STRING(test)    .
+                lc-return = STRING(item.q-lyr * item.avg-cost,"->>>>>>>>>>>>9")
+                    .
             END.
         END.
         WHEN "costtype-descr"  THEN DO:
