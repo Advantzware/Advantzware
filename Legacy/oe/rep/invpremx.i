@@ -52,7 +52,7 @@ ELSE
             SPACE(12) v-addr3   v-sold-addr3 AT 64  SKIP
             SPACE(12) v-email    "</B>" SKIP    .
             
-        v-printline = v-printline + 15.
+        v-printline = v-printline + 33.
         PUT "<|10><R7><C53><#3><FROM><R9><C78><RECT>" SKIP.
         PUT "<R8><C53><FROM><R8><C78><LINE>" SKIP
             "<R7><C65><FROM><R9><C65><LINE>" SKIP .

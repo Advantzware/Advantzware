@@ -608,11 +608,11 @@ END.
           IF v-printline > 62 THEN do:           
                 PAGE.
                 {oe/rep/invpremx.i}
-                v-printline = 21.
+                v-printline = 39.
           END.
 
             assign v-line = v-line + 1
-                   v-printline = v-printline + 2.
+                   /* v-printline = v-printline + 2 */.  
             find first oe-ordl where oe-ordl.company = cocode and
                                      oe-ordl.ord-no = inv-line.ord-no and
                                      oe-ordl.i-no = inv-line.i-no
@@ -817,7 +817,7 @@ END.
               
                 PAGE.                
                 {oe/rep/invpremx.i}
-                v-printline = 21.
+                v-printline = 39.
           END.
           if first(inv-misc.ord-no) then
           do:
