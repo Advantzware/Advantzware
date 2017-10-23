@@ -1251,10 +1251,10 @@ END.
 ON VALUE-CHANGED OF tb_p-bin IN FRAME FRAME-A /* Print Bin Locations? */
 DO:
   ASSIGN {&self-name}.
-  IF LOOKUP(v-relprint,"HOPX,ACPI,Fibrex,Accord,Carded,Loylang,PremierX,Lakeside,Distributor,Frank,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair") > 0 THEN DO:
+  IF LOOKUP(v-relprint,"HOPX,ACPI,Fibrex,Accord,Carded,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair") > 0 THEN DO:
      IF tb_p-bin THEN
      DO:
-        IF v-relprint = "PremierX" OR v-relprint = "Lakeside" OR v-relprint = "Distributor" OR v-relprint = "Frank" OR v-relprint = "NSTOCK" OR v-relprint = "Axis"
+        IF v-relprint = "PremierX" OR v-relprint = "Relprint 10" OR v-relprint = "Lakeside" OR v-relprint = "Distributor" OR v-relprint = "Frank" OR v-relprint = "NSTOCK" OR v-relprint = "Axis"
             OR v-relprint = "Protagon" OR v-relprint = "Soule" 
                 OR v-relprint = "NStock"  /*OR v-relprint = "Prystup"*/ OR v-relprint = "StClair" THEN
            rd-print-what:SCREEN-VALUE = "S".
@@ -1501,7 +1501,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         OR v-relprint EQ "Protagon" 
         OR v-relprint EQ "Soule" /*OR v-relprint EQ "NStock"*/ 
         /*OR v-relprint EQ "Prystup" */
-        OR v-relprint EQ "StClair" THEN
+        OR v-relprint EQ "StClair"
+        OR v-relprint EQ "Relprint 10" THEN
        rd-print-what:ADD-LAST("Summary of Bins On Hand","S").
 
     {custom/usrprint.i}
@@ -1601,7 +1602,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
               begin_loc-bin:SENSITIVE = begin_loc:SENSITIVE
               END_loc-bin:SENSITIVE = begin_loc:SENSITIVE.
     ELSE
-    IF LOOKUP(v-relprint,"HOPX,ACPI,Fibrex,Accord,Loylang,PremierX,Lakeside,Distributor,Frank,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair") > 0 THEN   /* NSTOCK,*/
+    IF LOOKUP(v-relprint,"HOPX,ACPI,Fibrex,Accord,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair") > 0 THEN   /* NSTOCK,*/
        ASSIGN rd-print-what:sensitive = YES
               begin_loc:SENSITIVE = IF LOOKUP(rd-print-what:SCREEN-VALUE,"I,S") > 0 THEN YES ELSE NO
               END_loc:SENSITIVE = begin_loc:SENSITIVE
@@ -2122,7 +2123,7 @@ ASSIGN
  s-print-spec  = tb_print-spec 
  lSortRelSeq   = tb_sort-rel.
 
-IF LOOKUP(v-relprint,"Hopx,ACPI,Fibrex,Accord,Metro,Carded,Loylang,PremierX,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair") > 0 AND
+IF LOOKUP(v-relprint,"Hopx,ACPI,Fibrex,Accord,Metro,Carded,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair") > 0 AND
    LOOKUP(s-print-what-item,"I,S") > 0 THEN 
    ASSIGN s-print-loc-from = begin_loc
           s-print-loc-to = END_loc
@@ -2376,7 +2377,7 @@ PROCEDURE set-report :
     lv-program     = "oe/rep/relpremx.p"
     lines-per-page = 75
     is-xprint-form = YES  . /*60*/
-
+  
   ELSE IF v-relprint EQ "Lakeside" THEN
    ASSIGN
     lv-program     = "oe/rep/relkside.p"
