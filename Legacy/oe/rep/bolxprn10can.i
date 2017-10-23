@@ -1,7 +1,7 @@
  /* oe/rep/bolxprn20.i  */  
  
  put "<FArial>"  SKIP
-          "<P14><C+40><B>Connaissement / Bill of Lading</B> " SKIP
+          "<P14><C+46><B>Connaissement / Bill of Lading</B> " SKIP
            "<C2><R2><#1><R+11><C+45><IMAGE#1=" ls-full-img1  SKIP
          
                "<FCourier New>"

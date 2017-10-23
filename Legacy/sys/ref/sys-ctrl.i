@@ -53,7 +53,7 @@ ASSIGN
               + "PremierX,CSC,Elite,OTTPkg,APC,ConsBox,FibreX,ASIXprnt,Valley,PPI,CSC-GA,"
               + "HPB,Indiana,MWFibre,Packrite,Allwest,ACPI,Badger,CCC,Soule,SouleMed,"
               + "Protagon,Protagon2,PremierCX,PeachTree,PremierXFGItems,Hughes,Boss,Bell,StClair,Sultana,"
-              + "Coburn,poprint 1,poprint 2,poprint 10,poprint 20,Lovepac"
+              + "Coburn,poprint 1,poprint 2,poprint 10,poprint 20,Lovepac,POPrint10-CAN"
  str-init[9]  = "ASI,Argrov,Century,HOP,MultiWll,Sonoco,TriState,Fibre," +
                 "Premier,Pacific,Xprint,CentBox,HOPX,Xprint2,Frankstn,APC,FibreX,Indiana,PPI," +
                 "HPB,Keystone,Hughes,Allwest,Rosmar,Loylang,Carded,PremierX,CSC-GA,CardedX," +
@@ -84,7 +84,7 @@ ASSIGN
                 "Century,Oracle,PremierX,Frankstn,Mirpkg,Unipak,OTTPkg,Shelby," +
                 "RUDDX,APC,Imperial,Indiana,Fibrex,PPI,HPB,Albert,ContSvc,Triad,Packrite,Dee," +
                 "Allwest,Simkins,HOPX,PremierCX,Accord,Soule,ACPI,Hughes,Carded,SouleUOM,Badger,Axis," +
-                "3CPack,3CPackSD,Perform,ackhead 1,ackhead 2,ackhead 10,ackhead 20,ack-canadian10"
+                "3CPack,3CPackSD,Perform,ackhead 1,ackhead 2,ackhead 10,ackhead 20,ackhead10-CAN"
  str-init[14] = "10 Pitch,17 Pitch,Boxtech,Phoenix,TriState,Triad,RFC,HOP," +
                 "Brick,Hartford"
  str-init[15] = "Inches,MM,Both"
