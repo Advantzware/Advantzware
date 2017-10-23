@@ -239,7 +239,7 @@ DEFINE FRAME FRAME-A
      lv-ornt AT ROW 11 COL 31 NO-LABEL
      lines-per-page AT ROW 11 COL 84 COLON-ALIGNED
      lv-font-no AT ROW 13.62 COL 34 COLON-ALIGNED
-     lv-font-name AT ROW 14.57 COL 28 COLON-ALIGNED NO-LABEL
+     lv-font-name AT ROW 14.67 COL 28 COLON-ALIGNED NO-LABEL
      td-show-parm AT ROW 16.48 COL 31
      btn-ok AT ROW 19.33 COL 23
      btn-cancel AT ROW 19.33 COL 58
