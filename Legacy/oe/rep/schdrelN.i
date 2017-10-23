@@ -295,25 +295,15 @@ if chosen eq 2 then DO:
                             no-lock.
                        
                         IF AVAIL itemfg AND itemfg.est-no NE "" THEN
-                          FOR EACH job-hdr
-                            WHERE job-hdr.company EQ cocode
-                            AND job-hdr.est-no    EQ itemfg.est-no
-                            AND job-hdr.opened  EQ YES
-                            NO-LOCK
-                            BY ROWID(job-hdr) DESC:
-                            LEAVE.
-                         END.
-                        ELSE DO:
-                            FOR EACH job-hdr
-                                WHERE job-hdr.company EQ cocode
-                                AND job-hdr.ord-no  EQ w-ord.ord-no
-                                AND job-hdr.cust-no EQ w-ord.cust-no
-                                AND job-hdr.i-no    EQ w-ord.i-no
-                                AND job-hdr.opened  EQ YES
-                                NO-LOCK
-                                BY ROWID(job-hdr) DESC:
-                                LEAVE.
-                            END.
+                          FOR EACH est-op NO-LOCK WHERE est-op.company EQ itemfg.company 
+                            AND est-op.est-no EQ itemfg.est-no 
+                            AND est-op.line LT 500 BREAK BY est-op.line :
+                            IF FIRST(est-op.line) AND v-m-code <> "" THEN 
+                                v-m-code = v-m-code + "," .
+                            ASSIGN v-m-code = v-m-code + est-op.m-code.
+                                    IF NOT LAST(est-op.line) THEN do: 
+                                        ASSIGN  v-m-code = v-m-code + "," .
+                                        END.
                         END.
                     END.
 
@@ -332,8 +322,7 @@ if chosen eq 2 then DO:
                             AND job-hdr.job-no2 EQ w-ord.job-no2
                             AND job-hdr.ord-no  EQ w-ord.ord-no
                             NO-LOCK NO-ERROR.
-                        END.
-                   
+                       
                         IF AVAIL job-hdr THEN
                             FIND FIRST job
                             WHERE job.company EQ job-hdr.company
@@ -393,6 +382,7 @@ if chosen eq 2 then DO:
                                         END.
                              END.
                         END.
+                    END.
 
                                     cVarValue = IF v-m-code NE "" THEN v-m-code ELSE "" .
                 END.
