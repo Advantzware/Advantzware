@@ -2099,7 +2099,7 @@ PROCEDURE validate-est :
         MESSAGE 
             "Must have System Control Parameter 'JOBCREATE'..."
             VIEW-AS ALERT-BOX ERROR.
-        APPLY "entry" TO job.est-no.
+        APPLY "entry" TO job.est-no IN FRAME {&FRAME-NAME}.
         RETURN.
     END.
 
