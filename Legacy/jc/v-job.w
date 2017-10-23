@@ -2089,14 +2089,24 @@ PROCEDURE validate-est :
   DEFINE VARIABLE ll AS LOG NO-UNDO.
   DEFINE VARIABLE lActive AS LOG NO-UNDO.
 
-  {methods/lValidateError.i YES}
-  ll-valid = YES.
-
-  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN llValid = NO.
     FIND FIRST sys-ctrl NO-LOCK
         WHERE sys-ctrl.company EQ cocode
           AND sys-ctrl.name    EQ "JOBCREAT"
         NO-ERROR.
+    IF NOT AVAILABLE sys-ctrl
+    OR SUBSTR(sys-ctrl.char-fld,2,1) EQ "" THEN DO:
+        MESSAGE 
+            "Must have System Control Parameter 'JOBCREATE'..."
+            VIEW-AS ALERT-BOX ERROR.
+        APPLY "entry" TO job.est-no.
+        RETURN.
+    END.
+
+  {methods/lValidateError.i YES}
+  ll-valid = YES.
+
+  DO WITH FRAME {&FRAME-NAME}:
 
     IF job.est-no:SCREEN-VALUE NE "" THEN DO:
       job.est-no:SCREEN-VALUE =
@@ -2213,13 +2223,6 @@ PROCEDURE validate-est :
         END.
 
         ELSE DO:
-          IF NOT AVAILABLE sys-ctrl                  OR
-             SUBSTR(sys-ctrl.char-fld,2,1) EQ "" THEN DO:
-            MESSAGE "Must have System Control Parameter 'JOBCREATE'..."
-                VIEW-AS ALERT-BOX ERROR.
-            APPLY "entry" TO job.est-no.
-            RETURN NO-APPLY.
-          END.
 
           FIND LAST xjob
               WHERE xjob.company EQ cocode
