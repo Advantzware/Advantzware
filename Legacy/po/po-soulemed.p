@@ -56,8 +56,8 @@ DEF BUFFER xitem    FOR item.
 
 DEF VAR ls-image1 AS cha NO-UNDO.
 DEF VAR ls-image2 AS cha EXTENT 50 NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(60)" NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(60)" EXTENT 50 NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(180)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(180)" EXTENT 50 NO-UNDO.
 
 ASSIGN ls-image1 = "images\Soulemedical.jpg"
        FILE-INFO:FILE-NAME = ls-image1
@@ -607,20 +607,23 @@ print-po-blok:
          /*v-bot-lab[2] */
          "<=8><R+4> Grand Total:" po-ord.t-cost FORM "->>,>>9.99" .
 
-     PUT "<FArial><R54><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
-         "<R55.5>"
+     PUT "<FArial><R52.5><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
+         "<R54>"
          " Please acknowledge this order verifying price, freight terms, quantity, and delivery date." SKIP
          " INVOICES WILL BE PAID ACCORDING TO THIS PURCHASE ORDER ONLY! If no" SKIP
          " prices are on this order, please provide current pricing. No partial or back orders without" SKIP
          " our permission. Prices on this order are firm unless notified otherwise." SKIP        
-         "<R64>"
+         "<R62.5>"
          ' ____________________Please initial & Fax to "Buyer" ' SKIP
         SKIP.
 
-     PUT "<FArial><R59.5><C1>*Deliveries accepted <B>7:00a.m - 3:30p.m</B>." SKIP      
-         " <R60.5><C1>*Mark all units with purchase order number and quantity." SKIP 
-         " <R61.5><C1>*If delivery date cannot be met call <B>(813)907-6002</B>." SKIP
-         " <R62.5><C1>*or Fax <B>(813)907-6092</B>." SKIP                             
+     PUT "<FArial><R58><C1>*Deliveries accepted <B>7:00a.m - 3:30p.m</B>." SKIP      
+         " <R59><C1>*Mark all units with purchase order number and quantity." SKIP 
+         " <R60><C1>*If delivery date cannot be met call <B>(813)907-6002</B>." SKIP
+         " <R61><C1>*or Fax <B>(813)907-6092</B>." SKIP  
+         
+         "<R63.5>SHIP ACCORDING TO APPROVED SPECIFICATIONS - NO CHANGES ARE TO BE MADE TO THE APPROVED" SKIP
+         "<R64.5>SPECIFICATIONS OF THE PART NUMBER ON THIS PURCHASE ORDER WITHOUT SOULE MEDICAL APPROVAL."
         SKIP.
 
 
