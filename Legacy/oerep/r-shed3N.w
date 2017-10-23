@@ -1851,8 +1851,10 @@ SESSION:SET-WAIT-STATE ("general").
       where cust.company eq oe-ord.company
         and cust.cust-no eq oe-ord.cust-no
       no-lock
-      break by tt-report.ord-no
-            by tt-report.i-no :
+      break 
+            by tt-report.ord-no
+            by tt-report.i-no
+            BY tt-report.rel-date :
        
       IF FIRST-OF(tt-report.i-no) THEN
              iRelqty = 0.
