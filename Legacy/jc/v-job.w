@@ -2089,7 +2089,7 @@ PROCEDURE validate-est :
   DEFINE VARIABLE ll AS LOG NO-UNDO.
   DEFINE VARIABLE lActive AS LOG NO-UNDO.
 
-    ASSIGN llValid = NO.
+    ASSIGN ll-Valid = NO.
     FIND FIRST sys-ctrl NO-LOCK
         WHERE sys-ctrl.company EQ cocode
           AND sys-ctrl.name    EQ "JOBCREAT"
