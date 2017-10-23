@@ -6,8 +6,8 @@
 
    FOR EACH mch-act NO-LOCK
        WHERE mch-act.company EQ cocode
-         AND mch-act.op-date GE v-date[1]
-         AND mch-act.op-date LE v-date[2]
+         AND (mch-act.op-date GT v-date[1] OR (mch-act.op-date EQ v-date[1] AND mch-act.start GE v-time[1])) 
+         AND (mch-act.op-date LT v-date[2] OR (mch-act.op-date EQ v-date[2] AND mch-act.start LE v-time[2]))        
          AND mch-act.shift   GE v-shift[1]
          AND mch-act.shift   LE v-shift[2]
        USE-INDEX dte-idx,

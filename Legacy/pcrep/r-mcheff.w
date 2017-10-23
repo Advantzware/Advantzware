@@ -80,12 +80,14 @@ DEF STREAM excel.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_dept end_dept begin_mach ~
-end_mach begin_Shift end_shift begin_date end_date tb_show lv-ornt ~
-lines-per-page rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file ~
-btn-ok btn-cancel 
+end_mach begin_Shift end_shift begin_date end_date begin_time ~
+begin_time_mins end_time end_time_mins tb_show lv-ornt lines-per-page ~
+rd-dest lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_dept end_dept begin_mach end_mach ~
-begin_Shift end_shift begin_date end_date tb_show lv-ornt lines-per-page ~
-rd-dest lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+begin_Shift end_shift begin_date end_date begin_time begin_time_mins ~
+end_time end_time_mins tb_show lv-ornt lines-per-page rd-dest lv-font-no ~
+lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
@@ -129,6 +131,16 @@ DEFINE VARIABLE begin_Shift AS INTEGER FORMAT ">9" INITIAL 1
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
 
+DEFINE VARIABLE begin_time AS INTEGER FORMAT "99":U INITIAL 0 
+     LABEL "Beginning Time (24 HR)" 
+     VIEW-AS FILL-IN 
+     SIZE 5 BY .95 NO-UNDO.
+
+DEFINE VARIABLE begin_time_mins AS INTEGER FORMAT "99":U INITIAL 0 
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 5 BY .95 NO-UNDO.
+
 DEFINE VARIABLE end_date AS DATE FORMAT "99/99/9999":U INITIAL 12/31/9999 
      LABEL "Ending Date" 
      VIEW-AS FILL-IN 
@@ -148,6 +160,16 @@ DEFINE VARIABLE end_shift AS INTEGER FORMAT ">9" INITIAL 3
      LABEL "Ending shift" 
      VIEW-AS FILL-IN 
      SIZE 17 BY 1.
+
+DEFINE VARIABLE end_time AS INTEGER FORMAT "99":U INITIAL 23 
+     LABEL "Ending Time (24 HR)" 
+     VIEW-AS FILL-IN 
+     SIZE 5 BY .95 NO-UNDO.
+
+DEFINE VARIABLE end_time_mins AS INTEGER FORMAT "99":U INITIAL 59 
+     LABEL "" 
+     VIEW-AS FILL-IN 
+     SIZE 5 BY .95 NO-UNDO.
 
 DEFINE VARIABLE fi_file AS CHARACTER FORMAT "X(30)" INITIAL "c:~\tmp~\r-mcheff.csv" 
      LABEL "If Yes, Detail File Name" 
@@ -244,8 +266,16 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Date"
      end_date AT ROW 5.52 COL 69 COLON-ALIGNED HELP
           "Enter Ending Date"
-     tb_show AT ROW 7.19 COL 30
-     rd_TonMsfQty AT ROW 9.33 COL 18 NO-LABEL WIDGET-ID 8
+     begin_time AT ROW 6.43 COL 26 COLON-ALIGNED HELP
+          "Enter Beginning Time (Hour)" WIDGET-ID 14
+     begin_time_mins AT ROW 6.43 COL 33 COLON-ALIGNED HELP
+          "Enter Beginning Time (Mins)" WIDGET-ID 18
+     end_time AT ROW 6.48 COL 69 COLON-ALIGNED HELP
+          "Enter Ending Time (Hour)" WIDGET-ID 20
+     end_time_mins AT ROW 6.48 COL 76 COLON-ALIGNED HELP
+          "Enter Ending Time (Mins)" WIDGET-ID 22
+     tb_show AT ROW 7.91 COL 28
+     rd_TonMsfQty AT ROW 9.33 COL 28 NO-LABEL WIDGET-ID 8
      lv-ornt AT ROW 13.62 COL 30 NO-LABEL
      lines-per-page AT ROW 13.62 COL 83 COLON-ALIGNED
      rd-dest AT ROW 13.67 COL 5 NO-LABEL
@@ -322,16 +352,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -349,6 +369,22 @@ ASSIGN
                 "parm".
 
 ASSIGN 
+       begin_time:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       begin_time_mins:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
        end_date:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
@@ -362,6 +398,14 @@ ASSIGN
 
 ASSIGN 
        end_shift:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_time:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "parm".
+
+ASSIGN 
+       end_time_mins:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
 
 ASSIGN 
@@ -397,7 +441,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -467,6 +511,38 @@ END.
 ON LEAVE OF begin_Shift IN FRAME FRAME-A /* Beginning Shift */
 DO:
    assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_time
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_time C-Win
+ON LEAVE OF begin_time IN FRAME FRAME-A /* Beginning Time (24 HR) */
+DO:
+   assign {&self-name}.
+   IF begin_time LT 0 OR begin_time GT 24 THEN DO: 
+        MESSAGE "Invalid Hours" VIEW-AS ALERT-BOX.
+        SELF:SET-SELECTION (1,3).    
+        RETURN NO-APPLY.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME begin_time_mins
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL begin_time_mins C-Win
+ON LEAVE OF begin_time_mins IN FRAME FRAME-A
+DO:
+   assign {&self-name}.
+   IF begin_time_mins LT 0 OR begin_time_mins GT 60 THEN DO: 
+        MESSAGE "Invalid Minutes" VIEW-AS ALERT-BOX.
+        SELF:SET-SELECTION (1,3).    
+        RETURN NO-APPLY.
+    END.   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -564,6 +640,38 @@ END.
 ON LEAVE OF end_shift IN FRAME FRAME-A /* Ending shift */
 DO:
      assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_time
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_time C-Win
+ON LEAVE OF end_time IN FRAME FRAME-A /* Ending Time (24 HR) */
+DO:
+   assign {&self-name}.
+   IF end_time LT 0 OR end_time GT 24 THEN DO: 
+        MESSAGE "Invalid Hours" VIEW-AS ALERT-BOX.
+        SELF:SET-SELECTION (1,3).    
+        RETURN NO-APPLY.
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME end_time_mins
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_time_mins C-Win
+ON LEAVE OF end_time_mins IN FRAME FRAME-A
+DO:
+   assign {&self-name}.
+    IF end_time_mins LT 0 OR end_time_mins GT 60 THEN DO: 
+        MESSAGE "Invalid Minutes" VIEW-AS ALERT-BOX.
+        SELF:SET-SELECTION (1,3).    
+        RETURN NO-APPLY.
+    END.    
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -780,12 +888,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_dept end_dept begin_mach end_mach begin_Shift end_shift 
-          begin_date end_date tb_show lv-ornt lines-per-page rd-dest lv-font-no 
-          lv-font-name td-show-parm tb_excel tb_runExcel fi_file 
+          begin_date end_date begin_time begin_time_mins end_time end_time_mins 
+          tb_show lv-ornt lines-per-page rd-dest lv-font-no lv-font-name 
+          td-show-parm tb_excel tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_dept end_dept begin_mach end_mach begin_Shift 
-         end_shift begin_date end_date tb_show lv-ornt lines-per-page rd-dest 
-         lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
+         end_shift begin_date end_date begin_time begin_time_mins end_time 
+         end_time_mins tb_show lv-ornt lines-per-page rd-dest lv-font-no 
+         td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -894,6 +1004,7 @@ PROCEDURE run-report :
 DEF BUFFER b-mch-act FOR mch-act.
 
 def var v-date as date extent 2 format "99/99/9999" no-undo.
+def var v-time as int extent 2 no-undo.
 def var v-dept as ch format "x(4)" extent 2 initial ["","zzzz"].
 def var v-mach as ch format "x(6)" extent 2 initial ["","zzzzzz"].
 def var v-shift like mch-act.shift format ">>" extent 2 initial ["1", "99"].
@@ -968,6 +1079,8 @@ assign
  v-date[1]   = begin_date
  v-date[2]   = end_date
  v-show      = tb_show
+ v-time[1] = begin_time * 3600 + begin_time_mins * 60
+ v-time[2] = end_time * 3600 + end_time_mins * 60 + 59
  /*v-show1     = tb_show1
  v-tot-uni-jobs = tb_tot-job*/
 
