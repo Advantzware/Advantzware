@@ -280,7 +280,7 @@ IF ip-industry EQ "Corr" AND tb_corr = TRUE AND
 END.
 
 IF ip-industry EQ "Corr" AND tb_corr                                         AND
-   CAN-DO("Premier,Xprint,Lakeside,VINELAND,Suthrlnd,United,Oklahoma,Spectrum,Michcor,PQP,RFC2",lv-format-c) AND
+   CAN-DO("Premier,Xprint,Valley,Lakeside,VINELAND,Suthrlnd,United,Oklahoma,Spectrum,Michcor,PQP,RFC2",lv-format-c) AND
    s-prt-set-header                                     THEN
   {cecrep/jobprem.i NO-LOCK} 
   break by job.job-no
@@ -391,7 +391,7 @@ IF is-xprint-form THEN DO:
   ELSE IF rd-dest = 5 THEN DO:
     IF (ip-industry = "Corr" AND 
        (can-do ('PEACHTREE,PACIFIC,MWBox,Hughes,Protagon,Freedman,ARTIOS,Suthrlnd,United,oklahoma,Spectrum,CapCity,Allwest,RFC2,Loylang,Soule,HPB,MulticellGA,MCPartitions,ColonialPL,Delta,Bell',lv-format-c))  OR 
-       (can-do ("Xprint,Lakeside,VINELAND,TriLakes,Axis,TriLakes2,Michcor",lv-format-c) AND lv-ornt = "L")) OR
+       (can-do ("Xprint,Valley,Lakeside,VINELAND,TriLakes,Axis,TriLakes2,Michcor",lv-format-c) AND lv-ornt = "L")) OR
        (ip-industry = "FOLD" AND 
        can-do ('Interpac,Frankstn,OTTPkg,Colonial,CCC,Dayton,Livngstn,Shelby,HPB,METRO,FibreFC,PPI,PackRite,Rosmar,Knight,MidYork,Carded,Dee,Badger',lv-format-f)) THEN 
       PUT UNFORMATTED "<OLANDSCAPE>".
@@ -752,6 +752,10 @@ ELSE IF ip-industry EQ "Corr" THEN DO:
   ELSE IF lv-format-c = "Lakeside" THEN do:
       PUT UNFORMATTED "</PROGRESS><P7>" skip.
       RUN cecrep/joblksid.p (lv-format-c).
+  END.
+  ELSE IF lv-format-c = "Valley" THEN do:
+      PUT UNFORMATTED "</PROGRESS><P7>" skip.
+      RUN cecrep/jobvaly.p (lv-format-c).
   END.
   ELSE IF lv-ornt = "P" THEN do:
       PUT UNFORMATTED "</PROGRESS><P7>" skip.
