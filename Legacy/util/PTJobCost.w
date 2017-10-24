@@ -36,7 +36,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
-DEF TEMP-TABLE ttJobMat
+DEFINE TEMP-TABLE ttJobHeader
     FIELD job-no             LIKE job.job-no
     FIELD job-no2            LIKE job.job-no2
     FIELD csr                LIKE job.user-id
@@ -45,11 +45,12 @@ DEF TEMP-TABLE ttJobMat
     FIELD complete-date      LIKE job.complete-date
     FIELD est-no             LIKE job.est-no
     FIELD est-type           LIKE job.est-type
-    FIELD est-desc           AS CHAR    FORMAT "x(8)"
-    FIELD nbrComp            AS INT     FORMAT ">>>9"
+    FIELD est-desc           AS CHARACTER FORMAT "x(8)"
+    FIELD nbrComp            AS INTEGER   FORMAT ">>>9"
     FIELD form-no            LIKE job-hdr.frm
+    FIELD blank-no           LIKE job-hdr.blank-no
     FIELD fg-item            LIKE job-hdr.i-no
-    FIELD category           AS CHAR
+    FIELD category           AS CHARACTER
     FIELD run-no             LIKE job-hdr.job-no2
     FIELD ord-no             LIKE job-hdr.ord-no
     FIELD make-qty           LIKE job-hdr.qty
@@ -65,13 +66,13 @@ DEF TEMP-TABLE ttJobMat
     FIELD OHqty              LIKE probe.est-qty
     FIELD mat-qty            AS DECIMAL
     FIELD msf                AS DECIMAL
-    FIELD board-msf          AS DECIMAL FORMAT "->,>>>,>>9.99<"
-    FIELD board-cost         AS DECIMAL FORMAT "->,>>>,>>9.99<"
-    FIELD non-board-cost     AS DECIMAL FORMAT "->,>>>,>>9.99<"
+    FIELD board-msf          AS DECIMAL   FORMAT "->,>>>,>>9.99<"
+    FIELD board-cost         AS DECIMAL   FORMAT "->,>>>,>>9.99<"
+    FIELD non-board-cost     AS DECIMAL   FORMAT "->,>>>,>>9.99<"
     FIELD order-no           LIKE oe-ord.ord-no
     FIELD customer           LIKE oe-ord.cust-no
     FIELD name               LIKE cust.name
-    FIELD ord-line           AS INT     FORMAT ">>9"
+    FIELD ord-line           AS INTEGER   FORMAT ">>9"
     FIELD ord-line-item-no   LIKE oe-ordl.i-no
     FIELD ord-line-blank     LIKE oe-ordl.blank-no
     FIELD ord-line-price     LIKE oe-ordl.price
@@ -331,13 +332,14 @@ PROCEDURE ipRunReport :
       Parameters:  <none>
       Notes:       
     ------------------------------------------------------------------------------*/
-    DEF VAR chExcelApplication AS COMPONENT-HANDLE NO-UNDO.
-    DEF VAR chWorkBook         AS COMPONENT-HANDLE NO-UNDO.
-    DEF VAR chWorksheet        AS COMPONENT-HANDLE NO-UNDO.
-    DEF VAR chHyper            AS COMPONENT-HANDLE NO-UNDO. 
-    DEF VAR chFile             AS CHARACTER        NO-UNDO.
-    DEF VAR iRow               AS INT              NO-UNDO.
-    DEF VAR ihdrct             AS INT              NO-UNDO.
+    DEFINE VARIABLE chExcelApplication AS COMPONENT-HANDLE NO-UNDO.
+    DEFINE VARIABLE chWorkBook         AS COMPONENT-HANDLE NO-UNDO.
+    DEFINE VARIABLE chWorksheet        AS COMPONENT-HANDLE NO-UNDO.
+    DEFINE VARIABLE chHyper            AS COMPONENT-HANDLE NO-UNDO. 
+    DEFINE VARIABLE chFile             AS CHARACTER        NO-UNDO.
+    DEFINE VARIABLE iRow               AS INTEGER          NO-UNDO.
+    DEFINE VARIABLE ihdrct             AS INTEGER          NO-UNDO.
+    DEFINE BUFFER bf-job-hdr FOR job-hdr.
 
     CREATE "Excel.Application" chExcelApplication.
     IF SEARCH("template\PTjobCost.xlt") = ? THEN 
@@ -370,283 +372,230 @@ PROCEDURE ipRunReport :
     chWorkbook:WorkSheets(1):Activate.
     chWorkSheet = chExcelApplication:Sheets:item(1).
     
-    FOR EACH job NO-LOCK WHERE 
-        job.company = "001" AND 
-        job.create-date >= date(fiCreateBegin:screen-value IN FRAME gDialog) AND
-        job.create-date <= date(fiCreateEnd:screen-value)
+    FOR EACH job NO-LOCK 
+        WHERE job.company EQ  "001" 
+        AND job.create-date GE date(fiCreateBegin:SCREEN-VALUE IN FRAME gDialog) 
+        AND job.create-date LE date(fiCreateEnd:SCREEN-VALUE) 
+        ,
+        EACH job-hdr OF job NO-LOCK
         BY job.create-date: 
     
         ASSIGN
             fiJob:screen-value = STRING(job.job-no)
             ihdrct             = 0.
 
-        FIND FIRST est NO-LOCK WHERE
-            est.company = job.company AND
-            est.loc = job.loc AND
-            est.est-no = job.est-no
+        FIND FIRST est NO-LOCK 
+            WHERE est.company EQ job.company 
+            AND est.loc EQ job.loc 
+            AND est.est-no EQ job.est-no
             USE-INDEX est-no.
    
-        FOR EACH job-hdr OF job NO-LOCK:
-            ASSIGN 
+        FOR EACH bf-job-hdr OF job NO-LOCK:
+            ASSIGN
                 ihdrct = ihdrct + 1.
         END.
 
-        CREATE ttJobMat. /* roll this up to job-hdr */
+        CREATE ttJobHeader. 
         ASSIGN
-            ttJobMat.job-no        = job.job-no
-            ttJobMat.job-no2       = job.job-no2 /* Run No */
-            ttJobMat.csr           = job.user-id
-            ttJobMat.create-date   = job.create-date
-            ttJobMat.start-date    = job.start-date
-            ttJobMat.complete-date = job.complete-date
-            ttJobMat.est-no        = job.est-no
-            ttJobMat.est-type      = est.est-type
-            ttJobMat.nbrComp       = ihdrct
+            ttJobHeader.job-no        = job.job-no
+            ttJobHeader.job-no2       = job.job-no2 /* Run No */
+            ttJobHeader.csr           = job.user-id
+            ttJobHeader.create-date   = job.create-date
+            ttJobHeader.start-date    = job.start-date
+            ttJobHeader.complete-date = job.complete-date
+            ttJobHeader.est-no        = job.est-no
+            ttJobHeader.est-type      = est.est-type
+            ttJobHeader.nbrComp       = ihdrct
+            ttJobHeader.form-no       = job-hdr.frm
+            ttJobHeader.blank-no      = job-hdr.blank-no
+            ttJobHeader.fg-item       = job-hdr.i-no
+            ttJobHeader.run-no        = job-hdr.job-no2
+            ttJobHeader.ord-no        = job-hdr.ord-no
+            ttJobHeader.make-qty      = job-hdr.qty
+            ttJobHeader.std-fix-cost  = job-hdr.std-fix-cost
+            ttJobHeader.std-lab-cost  = job-hdr.std-lab-cost
+            ttJobHeader.std-mat-cost  = job-hdr.std-mat-cost
+            ttJobHeader.std-tot-cost  = job-hdr.std-tot-cost
+            ttJobHeader.std-var-cost  = job-hdr.std-var-cost
             .
   
-        CASE ttJobMat.est-type:
+        CASE ttJobHeader.est-type:
             WHEN 1 THEN 
                 ASSIGN 
-                    ttJobMat.est-desc = "Single".
+                    ttJobHeader.est-desc = "Single".
             WHEN 2 THEN 
                 ASSIGN 
-                    ttJobMat.est-desc = "2-Piece".
+                    ttJobHeader.est-desc = "Set".
             WHEN 3 THEN 
                 ASSIGN 
-                    ttJobMat.est-desc = "Tandem".
+                    ttJobHeader.est-desc = "Tandem".
             WHEN 4 THEN 
                 ASSIGN 
-                    ttJobMat.est-desc = "Combo".
+                    ttJobHeader.est-desc = "Combo".
             WHEN 5 THEN 
                 ASSIGN 
-                    ttJobMat.est-desc = "Single".
+                    ttJobHeader.est-desc = "Single".
             WHEN 6 THEN 
                 ASSIGN 
-                    ttJobMat.est-desc = "Set".
-        END CASE.
-    
-        IF ihdrct = 1 THEN 
-        DO:
-            FIND FIRST job-hdr OF job NO-LOCK NO-ERROR.
-            IF AVAIL job-hdr THEN 
-            DO:
-                ASSIGN
-                    ttJobMat.form-no      = job-hdr.frm
-                    ttJobMat.fg-item      = job-hdr.i-no
-                    ttJobMat.run-no       = job-hdr.job-no2
-                    ttJobMat.ord-no       = job-hdr.ord-no
-                    ttJobMat.make-qty     = job-hdr.qty
-                    ttJobMat.std-fix-cost = job-hdr.std-fix-cost
-                    ttJobMat.std-lab-cost = job-hdr.std-lab-cost
-                    ttJobMat.std-mat-cost = job-hdr.std-mat-cost
-                    ttJobMat.std-tot-cost = job-hdr.std-tot-cost
-                    ttJobMat.std-var-cost = job-hdr.std-var-cost.
-                FIND LAST probe NO-LOCK WHERE
-                    probe.company = job.company AND
-                    probe.est-no = job.est-no AND 
-                    probe.est-qty EQ INTEGER(job-hdr.qty)
-                    NO-ERROR.
-                IF AVAIL probe THEN ASSIGN
-                        ttJobMat.fixOH = probe.fo-cost
-                        ttJobMat.varOH = probe.vo-cost
-                        ttJobMat.OHqty = probe.est-qty.
-            
-            END.    
-            FIND FIRST itemfg NO-LOCK WHERE
-                itemfg.company = job.company AND
-                itemfg.i-no = job-hdr.i-no
-                NO-ERROR.
+                    ttJobHeader.est-desc = "Set".
+            WHEN 7 THEN 
+                ASSIGN 
+                    ttJobHeader.est-desc = "Combo/Tandem".
+            WHEN 8 THEN 
+                ASSIGN 
+                    ttJobHeader.est-desc = "Combo/Tandem".
+        END CASE.       
+        FIND LAST probe NO-LOCK 
+            WHERE probe.company EQ job.company
+            AND probe.est-no EQ job.est-no
+            AND probe.est-qty EQ INTEGER(job-hdr.qty)
+            NO-ERROR.
+        IF AVAILABLE probe THEN 
             ASSIGN
-                ttJobMat.category = itemfg.procat.
-        
-            FOR EACH job-mat NO-LOCK WHERE
-                job-mat.company = job-hdr.company AND
-                job-mat.job-no = job-hdr.job-no AND
-                job-mat.job-no2 = job-hdr.job-no2:
-    
-                FIND FIRST item NO-LOCK WHERE
-                    item.company = job.company AND
-                    item.i-no = job-mat.rm-i-no
-                    NO-ERROR.
-                IF item.mat-type = "B" THEN 
-                DO:
-                    ASSIGN
-                        ttJobMat.length     = job-mat.len
-                        ttJobMat.width      = job-mat.wid
-                        ttJobMat.mat-qty    = job-mat.qty
-                        ttJobMat.board-msf  = ttJobMat.board-msf + (job-mat.qty * job-mat.len * job-mat.wid / 144000)
-                        ttJobMat.board-cost = ttJobMat.board-cost + job-mat.std-cost.
-                END.
-                ELSE 
-                DO:
-                    ASSIGN
-                        ttJobMat.length         = 0
-                        ttJobMat.width          = 0
-                        ttJobMat.mat-qty        = job-mat.qty
-                        ttJobMat.board-msf      = ttJobMat.board-msf + (job-mat.qty * job-mat.len * job-mat.wid / 144000)
-                        ttJobMat.non-board-cost = ttJobMat.non-board-cost + job-mat.std-cost.
-                END.
-            END.
-        END.
-        ELSE 
-        DO:
-            FOR EACH job-hdr OF job:
-                ASSIGN
-                    ttJobMat.fg-item      = "MULT"
-                    ttJobMat.ord-no       = job-hdr.ord-no
-                    ttJobMat.make-qty     = ttJobMat.make-qty + job-hdr.qty
-                    ttJobMat.std-fix-cost = ttJobMat.std-fix-cost + job-hdr.std-fix-cost
-                    ttJobMat.std-lab-cost = ttJobMat.std-lab-cost + job-hdr.std-lab-cost
-                    ttJobMat.std-mat-cost = ttJobMat.std-mat-cost + job-hdr.std-mat-cost
-                    ttJobMat.std-tot-cost = ttJobMat.std-tot-cost + job-hdr.std-tot-cost
-                    ttJobMat.std-var-cost = ttJobMat.std-var-cost + job-hdr.std-var-cost.
-            END.
-    
-            FOR EACH job-mat NO-LOCK WHERE
-                job-mat.company = job.company AND
-                job-mat.job-no = job.job-no AND
-                job-mat.job-no2 = job.job-no2:
-    
-                FIND FIRST item NO-LOCK WHERE
-                    item.company = job.company AND
-                    item.i-no = job-mat.rm-i-no
-                    NO-ERROR.
-                
-                IF item.mat-type = "B" THEN 
-                DO:
-                    ASSIGN
-                        ttJobMat.length     = job-mat.len
-                        ttJobMat.width      = job-mat.wid
-                        ttJobMat.mat-qty    = job-mat.qty
-                        ttJobMat.board-msf  = ttJobMat.board-msf + (job-mat.qty * job-mat.len * job-mat.wid / 144000)
-                        ttJobMat.board-cost = ttJobMat.board-cost + job-mat.std-cost.
-                END.
-                ELSE 
-                DO:
-                    ASSIGN
-                        ttJobMat.length         = 0
-                        ttJobMat.width          = 0
-                        ttJobMat.mat-qty        = job-mat.qty
-                        ttJobMat.board-msf      = ttJobMat.board-msf + (job-mat.qty * job-mat.len * job-mat.wid / 144000)
-                        ttJobMat.non-board-cost = ttJobMat.non-board-cost + job-mat.std-cost.
-                END.
-            END.
-        END.
-
-        FIND FIRST job-hdr OF job NO-LOCK NO-ERROR.
-        FIND FIRST itemfg NO-LOCK WHERE
-            itemfg.company = job.company AND
-            itemfg.i-no = job-hdr.i-no
-            NO-ERROR.
-        IF AVAILABLE itemfg THEN 
-            ASSIGN 
-                ttJobMat.category           = itemfg.procat
-                ttJobMat.ord-line-price     = itemfg.sell-price
-                ttJobMat.ord-line-price-uom = itemfg.sell-uom
-                .
-        FIND oe-ord NO-LOCK WHERE
-            oe-ord.company = job.company AND
-            oe-ord.ord-no = job-hdr.ord-no
-            NO-ERROR.
-        
-        IF AVAIL oe-ord THEN 
-        DO:
-            FIND cust NO-LOCK WHERE
-                cust.company = oe-ord.company AND
-                cust.cust-no = oe-ord.cust-no
-                NO-ERROR.
+                ttJobHeader.fixOH = probe.fo-cost
+                ttJobHeader.varOH = probe.vo-cost
+                ttJobHeader.OHqty = probe.est-qty.
             
-            FIND oe-ordl NO-LOCK WHERE
-                oe-ordl.company = oe-ord.company AND
-                oe-ordl.ord-no = oe-ord.ord-no AND
-                oe-ordl.i-no = job-hdr.i-no AND
-                oe-ordl.job-no = job-hdr.job-no AND
-                oe-ordl.job-no2 = job-hdr.job-no2 AND
-                oe-ordl.qty = job-hdr.qty
-                NO-ERROR.
+        FIND FIRST itemfg NO-LOCK 
+            WHERE itemfg.company EQ job.company 
+            AND itemfg.i-no EQ job-hdr.i-no
+            NO-ERROR.
+        ASSIGN
+            ttJobHeader.category           = itemfg.procat
+            ttJobHeader.ord-line-price     = itemfg.sell-price
+            ttJobHeader.ord-line-price-uom = itemfg.sell-uom
+            .
             
-            IF NOT AVAIL oe-ordl THEN FIND oe-ordl NO-LOCK WHERE
-                    oe-ordl.company = oe-ord.company AND
-                    oe-ordl.ord-no = oe-ord.ord-no AND
-                    oe-ordl.i-no = job-hdr.i-no AND
-                    oe-ordl.job-no = job-hdr.job-no AND
-                    oe-ordl.job-no2 = job-hdr.job-no2
-                    NO-ERROR.
-            IF NOT AVAIL oe-ordl THEN FIND oe-ordl NO-LOCK WHERE
-                    oe-ordl.company = oe-ord.company AND
-                    oe-ordl.ord-no = oe-ord.ord-no AND
-                    oe-ordl.i-no = job-hdr.i-no AND
-                    oe-ordl.job-no = job-hdr.job-no
-                    NO-ERROR.
-        
-            IF AVAIL oe-ordl THEN 
+        FOR EACH job-mat NO-LOCK 
+            WHERE job-mat.company EQ job-hdr.company 
+            AND job-mat.job-no EQ job-hdr.job-no
+            AND job-mat.job-no2 EQ job-hdr.job-no2
+            AND (job-mat.frm EQ job-hdr.frm OR ttJobHeader.est-type EQ 6) ,    
+            FIRST item NO-LOCK 
+            WHERE item.company EQ job-mat.company 
+            AND item.i-no EQ job-mat.rm-i-no:
+            IF item.mat-type = "B" THEN 
             DO:
                 ASSIGN
-                    ttJobMat.order-no           = oe-ord.ord-no
-                    ttJobMat.ord-line           = oe-ordl.line
-                    ttJobMat.ord-line-item-no   = oe-ordl.i-no
-                    ttJobMat.ord-line-price     = oe-ordl.price
-                    ttJobMat.ord-line-price-uom = oe-ordl.pr-uom
-                    ttJobMat.ord-line-cost-uom  = oe-ordl.cost
-                    ttJobMat.ord-line-tot-cost  = oe-ordl.t-cost
-                    ttJobMat.ord-line-comm-pct  = oe-ordl.s-comm
-                    ttJobMat.ord-line-tot-frt   = oe-ordl.t-freight
-                    ttJobMat.ord-line-fix-oh    = oe-ordl.fixoh
-                    ttJobMat.ord-line-var-oh    = oe-ordl.varoh
-                    ttJobMat.customer           = oe-ord.cust-no
-                    ttJobMat.name               = cust.name.
+                    ttJobHeader.length     = job-mat.len
+                    ttJobHeader.width      = job-mat.wid
+                    ttJobHeader.mat-qty    = job-mat.qty
+                    ttJobHeader.board-msf  = ttJobHeader.board-msf + (job-mat.qty * job-mat.len * job-mat.wid / 144000)
+                    ttJobHeader.board-cost = ttJobHeader.board-cost + job-mat.cost-m.
+            END.
+            ELSE 
+            DO:
+                ASSIGN
+                    ttJobHeader.non-board-cost = ttJobHeader.non-board-cost + job-mat.cost-m.
             END.
         END.
-        PROCESS EVENTS.
+        FIND oe-ord NO-LOCK 
+            WHERE oe-ord.company EQ job.company 
+            AND oe-ord.ord-no EQ job-hdr.ord-no
+            NO-ERROR.
+        IF AVAILABLE oe-ord THEN 
+        DO:
+            FIND cust NO-LOCK 
+                WHERE cust.company EQ oe-ord.company 
+                AND cust.cust-no EQ oe-ord.cust-no
+                NO-ERROR.
+            
+            FIND oe-ordl NO-LOCK 
+                WHERE oe-ordl.company EQ oe-ord.company 
+                AND oe-ordl.ord-no EQ oe-ord.ord-no 
+                AND oe-ordl.i-no EQ job-hdr.i-no 
+                AND oe-ordl.job-no EQ job-hdr.job-no 
+                AND oe-ordl.job-no2 EQ job-hdr.job-no2 
+                AND oe-ordl.qty EQ job-hdr.qty
+                NO-ERROR.
+            
+            IF NOT AVAILABLE oe-ordl THEN 
+                FIND oe-ordl NO-LOCK 
+                    WHERE oe-ordl.company EQ oe-ord.company 
+                    AND oe-ordl.ord-no EQ oe-ord.ord-no 
+                    AND oe-ordl.i-no EQ job-hdr.i-no 
+                    AND oe-ordl.job-no EQ job-hdr.job-no 
+                    AND oe-ordl.job-no2 EQ job-hdr.job-no2
+                    NO-ERROR.
+            IF NOT AVAILABLE oe-ordl THEN 
+                FIND oe-ordl NO-LOCK 
+                    WHERE oe-ordl.company EQ oe-ord.company 
+                    AND oe-ordl.ord-no EQ oe-ord.ord-no
+                    AND oe-ordl.i-no EQ job-hdr.i-no 
+                    AND oe-ordl.job-no EQ job-hdr.job-no
+                    NO-ERROR.
+        
+            IF AVAILABLE oe-ordl THEN 
+            DO:
+                ASSIGN
+                    ttJobHeader.order-no           = oe-ord.ord-no
+                    ttJobHeader.ord-line           = oe-ordl.line
+                    ttJobHeader.ord-line-item-no   = oe-ordl.i-no
+                    ttJobHeader.ord-line-price     = oe-ordl.price
+                    ttJobHeader.ord-line-price-uom = oe-ordl.pr-uom
+                    ttJobHeader.ord-line-cost-uom  = oe-ordl.cost
+                    ttJobHeader.ord-line-tot-cost  = oe-ordl.t-cost
+                    ttJobHeader.ord-line-comm-pct  = oe-ordl.s-comm
+                    ttJobHeader.ord-line-tot-frt   = oe-ordl.t-freight
+                    ttJobHeader.ord-line-fix-oh    = oe-ordl.fixoh
+                    ttJobHeader.ord-line-var-oh    = oe-ordl.varoh
+                    ttJobHeader.customer           = oe-ord.cust-no
+                    ttJobHeader.name               = cust.name.
+            END.
+        END.
+
     END.
+    PROCESS EVENTS.
                     
-    FOR EACH ttJobMat:
+    FOR EACH ttJobHeader:
         ASSIGN
-            chWorkSheet:Range("A" + STRING(iRow)):VALUE  = ttJobMat.job-no        
-            chWorkSheet:Range("B" + STRING(iRow)):VALUE  = ttJobMat.job-no2
-            chWorkSheet:Range("C" + STRING(iRow)):VALUE  = ttJobMat.csr       
-            chWorkSheet:Range("D" + STRING(iRow)):VALUE  = ttJobMat.start-date    
-            chWorkSheet:Range("E" + STRING(iRow)):VALUE  = ttJobMat.create-date   
-            chWorkSheet:Range("F" + STRING(iRow)):VALUE  = ttJobMat.complete-date 
+            chWorkSheet:Range("A" + STRING(iRow)):VALUE  = ttJobHeader.job-no        
+            chWorkSheet:Range("B" + STRING(iRow)):VALUE  = ttJobHeader.job-no2
+            chWorkSheet:Range("C" + STRING(iRow)):VALUE  = ttJobHeader.csr       
+            chWorkSheet:Range("D" + STRING(iRow)):VALUE  = ttJobHeader.start-date    
+            chWorkSheet:Range("E" + STRING(iRow)):VALUE  = ttJobHeader.create-date   
+            chWorkSheet:Range("F" + STRING(iRow)):VALUE  = ttJobHeader.complete-date 
 
-            chWorkSheet:Range("G" + STRING(iRow)):VALUE  = ttJobMat.est-no        
-            chWorkSheet:Range("H" + STRING(iRow)):VALUE  = ttJobMat.est-type      
-            chWorkSheet:Range("I" + STRING(iRow)):VALUE  = ttJobMat.est-desc      
+            chWorkSheet:Range("G" + STRING(iRow)):VALUE  = ttJobHeader.est-no        
+            chWorkSheet:Range("H" + STRING(iRow)):VALUE  = ttJobHeader.est-type      
+            chWorkSheet:Range("I" + STRING(iRow)):VALUE  = ttJobHeader.est-desc      
 
-            chWorkSheet:Range("J" + STRING(iRow)):VALUE  = ttJobMat.nbrComp       
-            chWorkSheet:Range("K" + STRING(iRow)):VALUE  = ttJobMat.fg-item       
-            chWorkSheet:Range("L" + STRING(iRow)):VALUE  = ttJobMat.category       
-            chWorkSheet:Range("M" + STRING(iRow)):VALUE  = ttJobMat.make-qty      
-            chWorkSheet:Range("N" + STRING(iRow)):VALUE  = ttJobMat.std-fix-cost  
-            chWorkSheet:Range("O" + STRING(iRow)):VALUE  = ttJobMat.std-lab-cost  
-            chWorkSheet:Range("P" + STRING(iRow)):VALUE  = ttJobMat.std-mat-cost  
-            chWorkSheet:Range("Q" + STRING(iRow)):VALUE  = ttJobMat.std-tot-cost  
-            chWorkSheet:Range("R" + STRING(iRow)):VALUE  = ttJobMat.std-var-cost 
-            chWorkSheet:Range("S" + STRING(iRow)):VALUE  = ttJobMat.fixOH 
-            chWorkSheet:Range("T" + STRING(iRow)):VALUE  = ttJobMat.varOH
-            chWorkSheet:Range("U" + STRING(iRow)):VALUE  = ttJobMat.OHqty
-            chWorkSheet:Range("V" + STRING(iRow)):VALUE  = ttJobMat.board-msf
-            chWorkSheet:Range("W" + STRING(iRow)):VALUE  = ttJobMat.board-cost
-            chWorkSheet:Range("X" + STRING(iRow)):VALUE  = ttJobMat.non-board-cost
-            chWorkSheet:Range("Y" + STRING(iRow)):VALUE  = ttJobMat.order-no     
-            chWorkSheet:Range("Z" + STRING(iRow)):VALUE  = ttJobMat.customer      
-            chWorkSheet:Range("AA" + STRING(iRow)):VALUE = ttJobMat.name          
-            chWorkSheet:Range("AB" + STRING(iRow)):VALUE = ttJobMat.ord-line      
-            chWorkSheet:Range("AC" + STRING(iRow)):VALUE = ttJobMat.ord-line-price
-            chWorkSheet:Range("AD" + STRING(iRow)):VALUE = ttJobMat.ord-line-price-uom
-            chWorkSheet:Range("AE" + STRING(iRow)):VALUE = ttJobMat.ord-line-cost-uom
-            chWorkSheet:Range("AF" + STRING(iRow)):VALUE = ttJobMat.ord-line-tot-cost
-            chWorkSheet:Range("AG" + STRING(iRow)):VALUE = ttJobMat.ord-line-comm-pct
-            chWorkSheet:Range("AH" + STRING(iRow)):VALUE = ttJobMat.ord-line-tot-frt
-            chWorkSheet:Range("AI" + STRING(iRow)):VALUE = ttJobMat.ord-line-fix-oh
-            chWorkSheet:Range("AJ" + STRING(iRow)):VALUE = ttJobMat.ord-line-var-oh
+            chWorkSheet:Range("J" + STRING(iRow)):VALUE  = ttJobHeader.nbrComp       
+            chWorkSheet:Range("K" + STRING(iRow)):VALUE  = ttJobHeader.fg-item       
+            chWorkSheet:Range("L" + STRING(iRow)):VALUE  = ttJobHeader.category       
+            chWorkSheet:Range("M" + STRING(iRow)):VALUE  = ttJobHeader.make-qty      
+            chWorkSheet:Range("N" + STRING(iRow)):VALUE  = ttJobHeader.std-fix-cost  
+            chWorkSheet:Range("O" + STRING(iRow)):VALUE  = ttJobHeader.std-lab-cost  
+            chWorkSheet:Range("P" + STRING(iRow)):VALUE  = ttJobHeader.std-mat-cost  
+            chWorkSheet:Range("Q" + STRING(iRow)):VALUE  = ttJobHeader.std-tot-cost  
+            chWorkSheet:Range("R" + STRING(iRow)):VALUE  = ttJobHeader.std-var-cost 
+            chWorkSheet:Range("S" + STRING(iRow)):VALUE  = ttJobHeader.fixOH 
+            chWorkSheet:Range("T" + STRING(iRow)):VALUE  = ttJobHeader.varOH
+            chWorkSheet:Range("U" + STRING(iRow)):VALUE  = ttJobHeader.OHqty
+            chWorkSheet:Range("V" + STRING(iRow)):VALUE  = ttJobHeader.board-msf
+            chWorkSheet:Range("W" + STRING(iRow)):VALUE  = ttJobHeader.board-cost
+            chWorkSheet:Range("X" + STRING(iRow)):VALUE  = ttJobHeader.non-board-cost
+            chWorkSheet:Range("Y" + STRING(iRow)):VALUE  = ttJobHeader.order-no     
+            chWorkSheet:Range("Z" + STRING(iRow)):VALUE  = ttJobHeader.customer      
+            chWorkSheet:Range("AA" + STRING(iRow)):VALUE = ttJobHeader.name          
+            chWorkSheet:Range("AB" + STRING(iRow)):VALUE = ttJobHeader.ord-line      
+            chWorkSheet:Range("AC" + STRING(iRow)):VALUE = ttJobHeader.ord-line-price
+            chWorkSheet:Range("AD" + STRING(iRow)):VALUE = ttJobHeader.ord-line-price-uom
+            chWorkSheet:Range("AE" + STRING(iRow)):VALUE = ttJobHeader.ord-line-cost-uom
+            chWorkSheet:Range("AF" + STRING(iRow)):VALUE = ttJobHeader.ord-line-tot-cost
+            chWorkSheet:Range("AG" + STRING(iRow)):VALUE = ttJobHeader.ord-line-comm-pct
+            chWorkSheet:Range("AH" + STRING(iRow)):VALUE = ttJobHeader.ord-line-tot-frt
+            chWorkSheet:Range("AI" + STRING(iRow)):VALUE = ttJobHeader.ord-line-fix-oh
+            chWorkSheet:Range("AJ" + STRING(iRow)):VALUE = ttJobHeader.ord-line-var-oh
+            chWorkSheet:Range("AK" + STRING(iRow)):VALUE = ttJobHeader.form-no
+            chWorkSheet:Range("AL" + STRING(iRow)):VALUE = ttJobHeader.blank-no
             iRow                                         = iRow + 1.
     END.
 
     ASSIGN
         chExcelApplication:VISIBLE        = TRUE
         chExcelApplication:ScreenUpdating = TRUE.
-    chWorkbook:WorkSheets(1):Columns("A:AH"):AutoFit.
+    chWorkbook:WorkSheets(1):Columns("A:AL"):AutoFit.
     chExcelApplication:VISIBLE = TRUE.
 
     RELEASE OBJECT chWorkbook         NO-ERROR.
