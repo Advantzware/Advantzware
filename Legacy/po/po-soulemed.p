@@ -600,7 +600,7 @@ print-po-blok:
 
      RUN get-notes (po-ord.rec_key, "",1).
 
-     PUT "<R54><C60><#8><FROM><R+5><C+20><RECT> " 
+     PUT "<R56.5><C60><#8><FROM><R+5><C+20><RECT> " 
          "<=8><R+1> Sub Total  :" po-ord.t-cost - po-ord.tax FORM "->>,>>9.99"
          "<=8><R+2> "  v-bot-lab[1] 
          "<=8><R+3> "  " " /*PST        :" inv-head.t-inv-tax FORM "->>,>>9.99"*/
@@ -608,22 +608,22 @@ print-po-blok:
          "<=8><R+4> Grand Total:" po-ord.t-cost FORM "->>,>>9.99" .
 
      PUT "<FArial><R52.5><C1><P12><B> Terms and Conditions </B> <P9> " SKIP
-         "<R54>"
+         "<R54> SHIP ACCORDING TO APPROVED SPECIFICATIONS - NO CHANGES ARE TO BE MADE TO THE APPROVED" SKIP
+         "<R55> SPECIFICATIONS OF THE PART NUMBER ON THIS PURCHASE ORDER WITHOUT SOULE MEDICAL APPROVAL." SKIP
+         "<R56>"
          " Please acknowledge this order verifying price, freight terms, quantity, and delivery date." SKIP
          " INVOICES WILL BE PAID ACCORDING TO THIS PURCHASE ORDER ONLY! If no" SKIP
          " prices are on this order, please provide current pricing. No partial or back orders without" SKIP
          " our permission. Prices on this order are firm unless notified otherwise." SKIP        
-         "<R62.5>"
+         "<R64.5>"
          ' ____________________Please initial & Fax to "Buyer" ' SKIP
         SKIP.
 
-     PUT "<FArial><R58><C1>*Deliveries accepted <B>7:00a.m - 3:30p.m</B>." SKIP      
-         " <R59><C1>*Mark all units with purchase order number and quantity." SKIP 
-         " <R60><C1>*If delivery date cannot be met call <B>(813)907-6002</B>." SKIP
-         " <R61><C1>*or Fax <B>(813)907-6092</B>." SKIP  
+     PUT "<FArial><R60><C1>*Deliveries accepted <B>7:00a.m - 3:30p.m</B>." SKIP      
+         " <R61><C1>*Mark all units with purchase order number and quantity." SKIP 
+         " <R62><C1>*If delivery date cannot be met call <B>(813)907-6002</B>." SKIP
+         " <R63><C1>*or Fax <B>(813)907-6092</B>." SKIP  
          
-         "<R63.5>SHIP ACCORDING TO APPROVED SPECIFICATIONS - NO CHANGES ARE TO BE MADE TO THE APPROVED" SKIP
-         "<R64.5>SPECIFICATIONS OF THE PART NUMBER ON THIS PURCHASE ORDER WITHOUT SOULE MEDICAL APPROVAL."
         SKIP.
 
 
