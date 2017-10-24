@@ -70,6 +70,8 @@ DEFINE VARIABLE h_exit AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_folder AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updcan AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_p-updcan2 AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_password AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_quserctrl AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_usercontrol AS HANDLE NO-UNDO.
@@ -85,18 +87,18 @@ DEFINE FRAME F-Main
          SIZE 150 BY 24
          BGCOLOR 15  WIDGET-ID 100.
 
-DEFINE FRAME OPTIONS-FRAME
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 2 ROW 1
-         SIZE 148 BY 1.91
-         BGCOLOR 15  WIDGET-ID 100.
-
 DEFINE FRAME message-frame
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 68 ROW 2.91
          SIZE 83 BY 1.43
+         BGCOLOR 15  WIDGET-ID 100.
+
+DEFINE FRAME OPTIONS-FRAME
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 2 ROW 1
+         SIZE 148 BY 1.91
          BGCOLOR 15  WIDGET-ID 100.
 
 
@@ -106,7 +108,7 @@ DEFINE FRAME message-frame
 /* Settings for THIS-PROCEDURE
    Type: SmartWindow
    Allow: Basic,Browse,DB-Fields,Query,Smart,Window
-   Design Page: 1
+   Design Page: 4
    Other Settings: COMPILE
  */
 &ANALYZE-RESUME _END-PROCEDURE-SETTINGS
@@ -117,7 +119,7 @@ DEFINE FRAME message-frame
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "User Session Tracking"
+         TITLE              = "User Controls"
          HEIGHT             = 24
          WIDTH              = 150
          MAX-HEIGHT         = 24.81
@@ -210,7 +212,7 @@ THEN W-Win:HIDDEN = yes.
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* User Session Tracking */
+ON END-ERROR OF W-Win /* User Controls */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -223,7 +225,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* User Session Tracking */
+ON WINDOW-CLOSE OF W-Win /* User Controls */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
@@ -294,8 +296,8 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Current|Settings|History' + ',
-                     FOLDER-TAB-TYPE = 1':U ,
+             INPUT  'FOLDER-LABELS = ':U + 'Current|Settings|History|Password' + ',
+                     FOLDER-TAB-TYPE = 2':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
        RUN set-size IN h_folder ( 21.67 , 131.00 ) NO-ERROR.
@@ -376,6 +378,38 @@ PROCEDURE adm-create-objects :
        RUN adjust-tab-order IN adm-broker-hdl ( h_userloghst ,
              h_folder , 'AFTER':U ).
     END. /* Page 3 */
+    WHEN 4 THEN DO:
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'viewers/pwdControl.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_password ).
+       RUN set-position IN h_password ( 5.05 , 26.00 ) NO-ERROR.
+       /* Size in UIB:  ( 11.48 , 56.40 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'p-updcan.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Edge-Pixels = 2,
+                     SmartPanelType = Update,
+                     AddFunction = One-Record':U ,
+             OUTPUT h_p-updcan2 ).
+       RUN set-position IN h_p-updcan2 ( 22.43 , 88.00 ) NO-ERROR.
+       RUN set-size IN h_p-updcan2 ( 1.43 , 30.00 ) NO-ERROR.
+
+       /* Initialize other pages that this page requires. */
+       RUN init-pages IN THIS-PROCEDURE ('2':U) NO-ERROR.
+
+       /* Links to SmartViewer h_password. */
+       RUN add-link IN adm-broker-hdl ( h_p-updcan2 , 'TableIO':U , h_password ).
+       RUN add-link IN adm-broker-hdl ( h_quserctrl , 'Record':U , h_password ).
+
+       /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_password ,
+             h_folder , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_p-updcan2 ,
+             h_password , 'AFTER':U ).
+    END. /* Page 4 */
 
   END CASE.
   /* Select a Startup page. */

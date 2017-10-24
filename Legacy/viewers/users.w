@@ -67,6 +67,9 @@ DEF VAR copy-record AS LOG NO-UNDO.
 DEF VAR rThisUser AS ROWID NO-UNDO.
 DEF VAR lAdd AS LOG NO-UNDO.
 DEF VAR lCopy AS LOG NO-UNDO.
+DEF VAR lPwdChanged AS LOG NO-UNDO.
+DEF VAR cOldPwd AS CHAR NO-UNDO.
+
 DEF TEMP-TABLE tempUser NO-UNDO LIKE _User.
 
 DEF TEMP-TABLE ttUsers
@@ -381,6 +384,15 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
+     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
+          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
+          FONT 1
+     "Phone: (Country)" VIEW-AS TEXT
+          SIZE 20 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
+     "FAX: (Country)" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 96
      " At Login User Can Select:" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
           FONT 4
@@ -400,15 +412,6 @@ DEFINE FRAME F-Main
           SIZE 4 BY 1 AT ROW 5.29 COL 54 WIDGET-ID 110
      "Phone/Fax Appear on:" VIEW-AS TEXT
           SIZE 27 BY .62 AT ROW 11.71 COL 51 WIDGET-ID 24
-     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
-          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
-          FONT 1
-     "Phone: (Country)" VIEW-AS TEXT
-          SIZE 20 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
-     "FAX: (Country)" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 96
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -601,6 +604,22 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL bChgPwd V-table-Win
 ON CHOOSE OF bChgPwd IN FRAME F-Main /* Change */
 DO:
+    /* Verify password restrictions and display */
+    IF usercontrol.minLC > 0 
+    OR usercontrol.minUC > 0 
+    OR usercontrol.minNC > 0 
+    OR usercontrol.minSC > 0 
+    OR usercontrol.minPasswordLen > 0 THEN DO:
+        MESSAGE
+            "Note: Passwords have the following restrictions:" SKIP
+            "Minimum Length = " + STRING(usercontrol.minPasswordLen) SKIP
+            "Minimum lower case = " + STRING(usercontrol.minLC) SKIP
+            "Minimum UPPER case = " + STRING(usercontrol.minUC) SKIP
+            "Minimum numeric chars = " + STRING(usercontrol.minNC) SKIP
+            "Minimum special chars = " + STRING(usercontrol.minSC)
+            VIEW-AS ALERT-BOX.
+    END.
+    
     ASSIGN
         fiPassword:SCREEN-VALUE = ""
         fiPassword:SENSITIVE = TRUE
@@ -665,6 +684,13 @@ END.
 ON LEAVE OF fiPassword IN FRAME F-Main /* Password */
 OR RETURN OF fiPassword
 DO:
+    DEF VAR lPwdOK AS LOG NO-UNDO.
+    RUN ipCheckPwd (INPUT-OUTPUT lPwdOK).
+    IF NOT lPwdOK THEN DO:
+        ASSIGN SELF:SCREEN-VALUE = "".
+        RETURN NO-APPLY.
+    END.
+    
     IF SELF:SCREEN-VALUE = "" THEN DO:
         MESSAGE
             "You are setting this user's password" SKIP
@@ -827,6 +853,16 @@ END.
     DO TRANSACTION:
         {sys/inc/webroot.i}
     END.
+    
+    FIND FIRST usercontrol NO-LOCK NO-ERROR.
+    IF NOT AVAIL usercontrol THEN DO:
+        MESSAGE
+            "There is no usercontrol record defined." SKIP
+            "Please contact your System Administrator."
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    
     FIND zUsers NO-LOCK WHERE
         zUsers.user_id = USERID(LDBNAME(1))
         NO-ERROR.
@@ -937,7 +973,98 @@ PROCEDURE ipChangePassword :
         fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME} = _user._password
         fiPassword:SENSITIVE = FALSE
         bChgPwd:SENSITIVE = TRUE.          
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipCheckPwd V-table-Win 
+PROCEDURE ipCheckPwd :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF INPUT-OUTPUT PARAMETER lPwdOK AS LOG NO-UNDO.
+    
+    DEF VAR iHasLC AS INT NO-UNDO.
+    DEF VAR iHasUC AS INT NO-UNDO.
+    DEF VAR iHasNC AS INT NO-UNDO.
+    DEF VAR iHasSC AS INT NO-UNDO.
+    DEF VAR iHasLen AS INT NO-UNDO.
+    DEF VAR iCtr AS INT NO-UNDO.
+    
+    ASSIGN
+        lPwdOK = YES.
+        
+    /* Verify password restrictions and display */
+    IF usercontrol.minLC > 0 
+    OR usercontrol.minUC > 0 
+    OR usercontrol.minNC > 0 
+    OR usercontrol.minSC > 0 
+    OR usercontrol.minPasswordLen > 0 THEN DO:
+        DO iCtr = 1 TO LENGTH(fiPassword:SCREEN-VALUE IN FRAME {&FRAME-NAME}):
+            IF ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) GE 97
+            AND ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) LE 122 THEN ASSIGN
+                iHasLC = iHasLC + 1.
+            IF ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) GE 65
+            AND ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) LE 90 THEN ASSIGN
+                iHasUC = iHasUC + 1.
+            IF ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) GE 48
+            AND ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) LE 57 THEN ASSIGN
+                iHasNC = iHasNC + 1.
+            IF ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) GE 33
+            AND ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) LE 47 THEN ASSIGN
+                iHasSC = iHasSC + 1.
+            IF ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) GE 58
+            AND ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) LE 64 THEN ASSIGN
+                iHasSC = iHasSC + 1.
+            IF ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) GE 91
+            AND ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) LE 96 THEN ASSIGN
+                iHasSC = iHasSC + 1.
+            IF ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) GE 123
+            AND ASC(SUBSTRING(fiPassword:SCREEN-VALUE,iCtr,1)) LE 126 THEN ASSIGN
+                iHasSC = iHasSC + 1.
+        END.
+        IF ENCODE(fiPassword:SCREEN-VALUE) = cOldPwd THEN DO:
+            MESSAGE
+                "The password you entered is the same as the existing" SKIP
+                "password. This is not allowed in this environment."
+                VIEW-AS ALERT-BOX ERROR.
+            ASSIGN
+                fiPassword:SCREEN-VALUE = cOldPwd
+                fiPassword:SENSITIVE = FALSE
+                lPwdChanged = FALSE
+                bChgPwd:SENSITIVE = TRUE.
+            RETURN.
+        END.
+    END.
+    ASSIGN
+        iHasLen = LENGTH(fiPassword:SCREEN-VALUE).
+    IF iHasLen LT usercontrol.minPasswordLen
+    OR iHasLC LT usercontrol.minLC
+    OR iHasUC LT usercontrol.minUC
+    OR iHasNC LT usercontrol.minNC
+    OR iHasSC LT usercontrol.minSC THEN DO:
+        ASSIGN
+            lPwdOK = NO.
+        MESSAGE
+            "The password you entered does not meet requirements." SKIP
+            "Minimum Length = " + STRING(usercontrol.minPasswordLen) + " - Yours has " + STRING(iHasLen) SKIP
+            "Minimum lower case = " + STRING(usercontrol.minLC) + " - Yours has " + STRING(iHasLC)  SKIP
+            "Minimum UPPER case = " + STRING(usercontrol.minUC) + " - Yours has " + STRING(iHasUC)  SKIP
+            "Minimum numeric chars = " + STRING(usercontrol.minNC) + " - Yours has " + STRING(iHasNC)  SKIP
+            "Minimum special chars = " + STRING(usercontrol.minSC) + " - Yours has " + STRING(iHasSC) SKIP
+            "Please try again." 
+            VIEW-AS ALERT-BOX ERROR.
+        RETURN.
+    END.
+    ASSIGN
+        lPwdChanged = TRUE.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1301,7 +1428,8 @@ PROCEDURE local-display-fields :
             _user._userid = users.user_id
             NO-ERROR.
         IF AVAIL _user THEN ASSIGN
-            fiPassword:SCREEN-VALUE = _user._password.
+            fiPassword:SCREEN-VALUE = _user._password
+            cOldPwd = _user._password.
 
         ASSIGN
             bChgPwd:SENSITIVE = IF users.user_id = zusers.user_id OR zusers.securityLevel > 699 THEN TRUE ELSE FALSE
@@ -1363,6 +1491,7 @@ PROCEDURE local-update-record :
     DEF VAR v-old-pass AS cha FORM "x(30)" NO-UNDO.
     DEF VAR v-new-pass AS cha FORM "x(30)" NO-UNDO.
     DEF VAR cNewPwd AS CHAR NO-UNDO.
+    DEF VAR lPwdOK AS LOG NO-UNDO.
   
     ASSIGN 
         cOldUserID = users.user_id
@@ -1423,6 +1552,13 @@ PROCEDURE local-update-record :
             APPLY 'entry' to fiPassword.
             RETURN.
         END.
+        ELSE DO:
+            RUN ipCheckPwd (INPUT-OUTPUT lPwdOK).
+            IF NOT lPwdOK THEN DO:
+                ASSIGN fiPassword:SCREEN-VALUE = "".
+                RETURN.
+            END.
+        END.            
     END.
                     
     IF lAdd THEN DO:
@@ -1480,16 +1616,6 @@ PROCEDURE local-update-record :
                 usercomp.loc_DEFAULT = YES.
         END.
         
-        /* Add usr record for new user */
-        FIND FIRST usr WHERE usr.uid EQ users.user_id:SCREEN-VALUE NO-ERROR.
-        IF NOT AVAIL usr THEN DO:
-            CREATE usr.
-            ASSIGN
-                usr.uid = users.user_id:SCREEN-VALUE
-                usr.usr-lang = "English".
-        END.
-        ELSE IF usr.usr-lang = "EN" THEN ASSIGN
-            usr.usr-lang = "English".
         
         IF lCopy THEN DO:
             FOR EACH usercust NO-LOCK WHERE 
@@ -1532,6 +1658,23 @@ PROCEDURE local-update-record :
             END.
         END. /* lCopy */
     END. /* lAdd */
+
+        /* Add usr record for new user */
+        FIND FIRST usr WHERE usr.uid EQ users.user_id:SCREEN-VALUE NO-ERROR.
+        IF NOT AVAIL usr THEN DO:
+            CREATE usr.
+            ASSIGN
+                usr.uid = users.user_id:SCREEN-VALUE
+                usr.usr-lang = "English".
+            IF lPwdChanged THEN ASSIGN
+                usr.last-chg = today.
+        END.
+        ELSE DO:
+            IF usr.usr-lang = "EN" THEN ASSIGN
+                usr.usr-lang = "English".
+            IF lPwdChanged THEN ASSIGN
+                usr.last-chg = today.
+        END.
 
         FIND ttUsers EXCLUSIVE WHERE
             ttUsers.ttfPdbname = PDBNAME(1) AND
