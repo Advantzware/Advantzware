@@ -1518,30 +1518,46 @@ PROCEDURE run-alloc :
   DEF VAR lv-alloc-char AS cha NO-UNDO.
   DEF VAR ll AS LOG NO-UNDO.
   DEF VAR char-hdl AS CHAR NO-UNDO.
-
+  DEFINE VARIABLE lCheck AS LOGICAL NO-UNDO.
   DEF BUFFER b-job-mat FOR job-mat.
 
-
-  IF INDEX("LRAW",job.stat) = 0 THEN DO:
-     MESSAGE "The job status must be 'R'eleased in order to perform this selection"
-            VIEW-AS ALERT-BOX ERROR.
-     RETURN ERROR.
-  END.
-
-  /*IF job-mat.post:SCREEN-VALUE IN BROWSE {&browse-name} EQ "Y" THEN DO:
-     MESSAGE "It's posted. Unpost first..." VIEW-AS ALERT-BOX ERROR.
-     RETURN ERROR.
-  END.*/
 
   FIND FIRST item
         WHERE item.company EQ cocode
           AND item.i-no    EQ job-mat.rm-i-no:SCREEN-VALUE IN BROWSE {&browse-name}
           AND item.i-code  EQ "R"
         NO-LOCK NO-ERROR.
-  IF NOT AVAIL ITEM THEN DO:
+  
+      
+ IF AVAIL job-mat AND job-mat.all-flg THEN lv-alloc-char = "Deallocate".
+     ELSE lv-alloc-char = "Allocate".
+ 
+  IF job.stat = "H" THEN DO:
+
+      IF NOT AVAIL ITEM THEN DO:
+          MESSAGE "Estimated Material cannot be Allocated, Press Update Key to Add Real Material ..." VIEW-AS ALERT-BOX ERROR.
+          RETURN ERROR.
+      END.
+
+      lCheck = YES .
+     MESSAGE "The job status is Hold, are you sure you want to" SKIP lv-alloc-char "this material ?"
+            VIEW-AS ALERT-BOX WARNING BUTTON YES-NO UPDATE ll.
+     IF NOT ll THEN do:
+         RETURN ERROR.
+     END.
+  END.
+  ELSE IF INDEX("LRAW",job.stat) = 0 THEN DO:
+     MESSAGE "The job status must be 'R'eleased in order to perform this selection"
+            VIEW-AS ALERT-BOX ERROR.
+     RETURN ERROR.
+  END.
+
+
+  IF NOT AVAIL ITEM AND NOT lCheck THEN DO:
       MESSAGE "Estimated Material cannot be Allocated, Press Update Key to Add Real Material ..." VIEW-AS ALERT-BOX ERROR.
       RETURN ERROR.
   END.
+
 
   lv-allocated = YES.
 
@@ -1575,7 +1591,7 @@ PROCEDURE run-alloc :
    IF ip-ask THEN DO:
      IF AVAIL job-mat AND job-mat.all-flg THEN lv-alloc-char = "Deallocate?".
      ELSE lv-alloc-char = "Allocate?".
-
+     IF NOT lCheck THEN
      MESSAGE "Are you sure you want to " lv-alloc-char VIEW-AS ALERT-BOX WARNING
          BUTTON YES-NO UPDATE ll.
    END.
