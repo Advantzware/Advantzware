@@ -474,6 +474,32 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE export-xl B-table-Win
+PROCEDURE export-xl :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR From-user AS CHAR NO-UNDO.
+    DEF VAR To-user AS CHAR NO-UNDO.
+    
+    IF users.user_id NE "" THEN
+    ASSIGN
+        From-user = users.user_id
+        To-user   = users.user_id
+        . 
+    
+    RUN windows/user-exp.w (From-user,To-user).
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipGoBack B-table-Win 
 PROCEDURE ipGoBack :
 /*------------------------------------------------------------------------------
