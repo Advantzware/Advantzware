@@ -228,7 +228,7 @@ ON WINDOW-CLOSE OF FRAME gDialog /* Job Cost Report */
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK gDialog
 ON CHOOSE OF Btn_OK IN FRAME gDialog /* OK */
     DO:
-        RUN pRunReport.
+        RUN ipRunReport.
     END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -325,8 +325,8 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pRunReport gDialog 
-PROCEDURE pRunReport :
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipRunReport gDialog 
+PROCEDURE ipRunReport :
     /*------------------------------------------------------------------------------
       Purpose:     
       Parameters:  <none>
