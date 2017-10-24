@@ -904,6 +904,13 @@ END.
 
           end.
          end. /* 1 to 4 */
+         IF v-printline > 63 THEN 
+            DO:              
+                PAGE.                
+                {oe/rep/invpremx.i}
+                v-printline = 39.
+            END.
+         
         end.
 
         v-frt-tax = inv-head.t-inv-freight.
