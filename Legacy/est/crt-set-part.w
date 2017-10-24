@@ -1190,9 +1190,9 @@ PROCEDURE local-initialize :
 
   /* SAB:  The radio set will only accept ? assignment by setting the screen-value first, then assign it. */
   ASSIGN /*rd_alloc   = IF est.est-type GE 5 THEN v-alloc ELSE v-allocf.*/
-     rd_alloc:SCREEN-VALUE   = /*IF est.est-type GE 5 THEN*/ string(v-alloc) /*ELSE v-allocf*/ .
-
-  ASSIGN /* DISPLAY*/ rd_alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".
+     rd_alloc:SCREEN-VALUE   =  string(v-alloc)  .
+      ASSIGN rd_alloc . /* ticket 20630 */
+  /*ASSIGN /* DISPLAY*/ rd_alloc:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "NO".*/
 
 /*   RUN get-default-cat. */
 
