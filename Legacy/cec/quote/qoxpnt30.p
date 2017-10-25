@@ -89,7 +89,7 @@ DEF VAR lv-part-dscr2 AS cha NO-UNDO.
 DEF VAR lv-i-coldscr AS cha NO-UNDO.
 DEF VAR ll-prt-dscr2 AS LOG NO-UNDO.
 DEF VAR adder-print AS LOG NO-UNDO.
-
+DEFINE VARIABLE cAdder  AS   CHARACTER NO-UNDO.
 
 /* rdb 01/31/07 12060608 */	
 DEFINE VARIABLE logSetPrinting AS LOGICAL    NO-UNDO.

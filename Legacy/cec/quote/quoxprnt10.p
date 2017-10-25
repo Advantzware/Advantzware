@@ -40,7 +40,7 @@ def var v-board             as   char                                   no-undo.
 def var v-last as log initial no no-undo.
 DEF VAR v-quo-date AS DATE FORM "99/99/9999" NO-UNDO.
 DEF VAR v-contact LIKE quotehd.contact NO-UNDO.
-
+DEFINE VARIABLE cAdder  AS   CHARACTER NO-UNDO.
 
 DEF VAR v-tel AS cha FORM "x(30)" NO-UNDO.
 DEF VAR v-fax AS cha FORM "x(30)" NO-UNDO.
