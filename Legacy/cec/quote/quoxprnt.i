@@ -203,8 +203,11 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
 
        ELSE
        IF NOT logSetPrinting AND AVAIL ef THEN DO:
-         v-board = ef.adder[1] + " " + ef.adder[2] + " " + ef.adder[3] + " " +
-                   ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6].
+           DO i = 1 TO 6:
+               IF ef.adder[i] NE "" THEN
+                  v-board = v-board + ef.adder[i] + ",".
+           END.
+           v-board = SUBSTRING(v-board,1,LENGTH(v-board) - 1).
          adder-print = YES.
        END.
 
@@ -240,30 +243,40 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
        */
 
        IF logSetPrinting THEN
-         PUT "FG#: " + lv-fg# AT 8 FORM "x(21)" v-board FORM "x(28)".
+         PUT "FG#: " + lv-fg# AT 8 FORM "x(21)" v-board FORM "x(72)".
        ELSE DO:
          /*don't print board description twice*/
          IF v-board EQ chrX THEN DO:
             v-board = "".
-            IF AVAIL ef THEN
-              ASSIGN
-                v-board = ef.adder[1] + " " + ef.adder[2] + " " + ef.adder[3] + " " +
-                          ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6]
+            IF AVAIL ef THEN DO:
+                DO i = 1 TO 6:
+                    IF ef.adder[i] NE "" THEN
+                        ASSIGN
+                        v-board = v-board + ef.adder[i] + ",".
+                END.
+                v-board = SUBSTRING(v-board,1,LENGTH(v-board) - 1).
                 adder-print = YES.
+            END.
          END.
          /* gdm - 11170804 deducted 2 char from format, used to be 30 */
-         PUT "FG#: " + lv-fg# AT 8 FORM "x(21)" v-board FORM "x(28)".
+         PUT "FG#: " + lv-fg# AT 8 FORM "x(21)" v-board FORM "x(72)".
        END.
     END.
 
     ELSE
     IF i EQ 6 AND numfit GE 6 THEN DO:
+        
        v-board = "".
-       IF NOT adder-print AND NOT logSetPrinting AND AVAIL ef THEN
-         v-board = ef.adder[1] + " " + ef.adder[2] + " " + ef.adder[3] + " " +
-                   ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6].
+       IF NOT adder-print AND NOT logSetPrinting AND AVAIL ef THEN DO:
+           DO i = 1 TO 6:
+               IF ef.adder[i] NE "" THEN
+                   v-board = v-board + ef.adder[i] + ",".
+           END.
+           v-board = SUBSTRING(v-board,1,LENGTH(v-board) - 1).
+       END.
        /* gdm - 11170804 deducted 2 char from format, used to be 30 */
-       IF v-board NE "" THEN PUT SPACE(28) v-board FORM "x(28)".
+       
+       IF v-board NE "" THEN PUT SPACE(28) v-board FORMAT "x(72)".
       /* ELSE numfit = 10.*/
     END.
 
@@ -383,11 +396,17 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       style-dscr = IF AVAIL style THEN style.dscr ELSE eb.style.      
       PUT eb.part-dscr1 AT 8 FORM "x(21)"
           style-dscr SKIP.
+
+      DO i = 1 TO 6:
+          IF ef.adder[i] NE "" THEN
+              cAdder = cAdder + ef.adder[i] + ",".
+      END.
+      cAdder = SUBSTRING(cAdder,1,LENGTH(cAdder) - 1).
+
     
       v-board = /*IF AVAIL ef THEN*/
-                  ef.board    + " - " +
-                  ef.adder[1] + " " + ef.adder[2] + " " + ef.adder[3] + " " +
-                  ef.adder[4] + " " + ef.adder[5] + " " + ef.adder[6]
+                  ef.board    + " - " + cAdder.
+                  
                 /*ELSE "-"*/.
               
       IF SUBSTR(v-board,LENGTH(TRIM(v-board)),1) EQ "-" THEN
@@ -405,7 +424,7 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
       END.
       
       PUT eb.part-dscr2  AT 8  FORM "x(21)"
-          v-board  FORM "x(50)"   SKIP .
+          v-board  FORM "x(80)"   SKIP .
     
       put eb.i-coldscr   AT 30 SKIP.
     END.
