@@ -31,7 +31,8 @@ else
 if avail itemfg and itemfg.isaset then do:
   if avail eb then
   for each b-eb
-      where b-eb.est-no  eq eb.est-no
+      where b-eb.company EQ eb.company
+        and  b-eb.est-no  eq eb.est-no
         and b-eb.form-no ne 0
       no-lock
       
