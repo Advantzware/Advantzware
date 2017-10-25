@@ -145,6 +145,13 @@ FOR EACH EDDoc EXCLUSIVE-LOCK WHERE ROWID(EDDoc) EQ iprEdDoc,
                     ttTempjob.ItemStatus = (IF itemfg.stat EQ "A" THEN "Active" ELSE "Inactive") 
                     ttTempjob.FgCategory = itemfg.procat-desc
                     .
+                
+                /* Override of itemfg.procat-desc to match logic in viewers/itemfg.w */    
+                FIND FIRST fgcat NO-LOCK WHERE fgcat.company = job-hdr.company 
+                                           AND fgcat.procat = itemfg.procat
+                                         NO-ERROR.
+                ttTempjob.FgCategory = IF AVAIL fgcat THEN fgcat.dscr ELSE ttTempjob.FgCategory.
+                                    
                 IF AVAILABLE cust THEN 
                     ASSIGN ttTempjob.customerID   = cust.cust-no
                         ttTempJob.customerName = cust.name
