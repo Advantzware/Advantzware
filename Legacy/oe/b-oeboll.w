@@ -3507,9 +3507,12 @@ PROCEDURE valid-pallet-qty :
 
   /* ticket 23785 */
   DO WITH FRAME {&FRAME-NAME}:
-    IF LENGTH(oe-boll.tot-pallets:SCREEN-VALUE IN BROWSE {&browse-name}) GT  5 THEN DO:
+    IF INTEGER(oe-boll.tot-pallets:SCREEN-VALUE IN BROWSE {&browse-name}) GT 9999999 THEN DO:
         ASSIGN oe-boll.tot-pallets:SCREEN-VALUE IN BROWSE {&browse-name} = string(SUBSTRING(oe-boll.tot-pallets:SCREEN-VALUE IN BROWSE {&browse-name},1,5)) .
-        MESSAGE "Value is not valid - Enter a valid value."  VIEW-AS ALERT-BOX ERROR.
+        MESSAGE 
+          "Value is too large for field." SKIP
+          "Enter a quantity less than 10MM."
+          VIEW-AS ALERT-BOX ERROR.
          APPLY "entry" TO oe-boll.tot-pallets IN BROWSE {&browse-name}.
          RETURN ERROR.
     END.
