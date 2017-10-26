@@ -61,7 +61,7 @@ DEFINE QUERY external_tables FOR userControl.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS userControl.pwdChgLen ~
 userControl.minPasswordLen userControl.minLC userControl.minUC ~
-userControl.minNC userControl.minSC userControl.autoLockoutTries 
+userControl.minNC userControl.minSC 
 &Scoped-define ENABLED-TABLES userControl
 &Scoped-define FIRST-ENABLED-TABLE userControl
 &Scoped-Define DISPLAYED-FIELDS userControl.pwdChgLen ~
@@ -133,9 +133,12 @@ DEFINE FRAME F-Main
           SIZE 5.6 BY 1
      userControl.autoLockoutTries AT ROW 11.48 COL 39 COLON-ALIGNED WIDGET-ID 18
           VIEW-AS FILL-IN 
-          SIZE 16.4 BY 1
+          SIZE 6 BY 1
      "Password Restrictions" VIEW-AS TEXT
           SIZE 27 BY .62 AT ROW 1.71 COL 8 WIDGET-ID 36
+     "(Lockout tries controlled by advantzware.ini entry)" VIEW-AS TEXT
+          SIZE 50 BY .62 AT ROW 12.67 COL 4 WIDGET-ID 38
+          FONT 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -198,6 +201,8 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN userControl.autoLockoutTries IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN userControl.minLC IN FRAME F-Main
    EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN userControl.minNC IN FRAME F-Main
