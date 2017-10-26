@@ -317,7 +317,7 @@ END.
                 v-tot-pallets = 0
                 v-pc = "C". /* complete*/
          FOR EACH oe-bolh NO-LOCK WHERE oe-bolh.b-no = xinv-line.b-no 
-             /*oe-bolh.ord-no = xinv-line.ord-no*/ :
+                /*oe-bolh.ord-no = xinv-line.ord-no*/ :
            v-pc = "P". /* partial*/ 
            FOR EACH oe-boll fields(cases partial p-c) NO-LOCK WHERE
               oe-boll.company = oe-bolh.company AND
@@ -333,8 +333,8 @@ END.
               
            END. /* each oe-boll */
            assign v-date-ship = oe-bolh.bol-date
-                 /* v-tot-pallets = v-tot-pallets + v-bol-cases +
-                                  (if oe-boll.partial gt 0 then 1 else 0) */.
+                        /* v-tot-pallets = v-tot-pallets + v-bol-cases +
+                                         (if oe-boll.partial gt 0 then 1 else 0) */.
          END. /* each oe-bolh */
          
          if last-of(xinv-line.i-no) then do:
@@ -612,7 +612,7 @@ END.
           END.
 
             assign v-line = v-line + 1
-                   /* v-printline = v-printline + 2 */.  
+                    /* v-printline = v-printline + 2 */.  
             find first oe-ordl where oe-ordl.company = cocode and
                                      oe-ordl.ord-no = inv-line.ord-no and
                                      oe-ordl.i-no = inv-line.i-no
@@ -812,7 +812,9 @@ END.
         
         for each inv-misc no-lock where inv-misc.company = inv-head.company and
           inv-misc.r-no = inv-head.r-no and
-          inv-misc.bill = "Y" break by ord-no with frame detailm:
+            inv-misc.bill = "Y" break by ord-no with frame detailm:
+            
+              
           IF v-printline > 62 THEN do:
               
                 PAGE.                
@@ -883,11 +885,15 @@ END.
 
         end. /* each inv-misc */
 
-        IF v-prntinst THEN DO:
-         do i = 1 to 4:
-          if inv-head.bill-i[i] ne "" then do:
-            put inv-head.bill-i[i] at 10 skip.
-            assign v-printline = v-printline + 1.
+        IF v-prntinst THEN 
+        DO:
+            do i = 1 to 4:
+                if inv-head.bill-i[i] ne "" then 
+                do:
+                    put inv-head.bill-i[i] at 10 skip.
+                    assign 
+                        v-printline = v-printline + 1.
+             
 
             /* rstark 05181205 */
             XMLLineNumber = XMLLineNumber + 1.
@@ -958,7 +964,12 @@ END.
     PUT "<FArial><R58><C1><P12><B> THANK YOU. </B> <P9> " SKIP.
     PUT "<FArial><R60><C1><P12> All currencies displayed in " cCurCode FORMAT "x(3)" ". <P9> " SKIP.
     v-printline = v-printline + 8.
-   
+    IF v-printline > 63 THEN 
+        DO:              
+            PAGE.                
+               
+            v-printline = 39.
+        END.
     /* rstark 05181205 */
     RUN XMLOutput (lXMLOutput,'Last',STRING(PAGE-NUM),'Page').
     RUN XMLOutput (lXMLOutput,'InvoiceFooter','','Row').
