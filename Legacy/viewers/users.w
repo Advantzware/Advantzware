@@ -107,7 +107,8 @@ DEFINE QUERY external_tables FOR users, usr.
 &Scoped-Define ENABLED-FIELDS users.user_name users.phone-cnty ~
 users.fax-cnty users.image_filename users.user_program[1] ~
 users.user_program[2] users.user_program[3] users.track_usage ~
-users.use_colors users.use_fonts users.use_ctrl_keys users.developer 
+users.use_colors users.use_fonts users.use_ctrl_keys users.developer ~
+users.isLocked 
 &Scoped-define ENABLED-TABLES users
 &Scoped-define FIRST-ENABLED-TABLE users
 &Scoped-Define ENABLED-OBJECTS RECT-5 
@@ -272,7 +273,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 37 BY 1
           FONT 4
-     fiPassword AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 80 PASSWORD-FIELD 
+     fiPassword AT ROW 2.67 COL 19 COLON-ALIGNED WIDGET-ID 80
      cbUserType AT ROW 2.43 COL 99 COLON-ALIGNED WIDGET-ID 48
      bChgPwd AT ROW 2.67 COL 59 WIDGET-ID 82 NO-TAB-STOP 
      users.phone-cnty AT ROW 4.1 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 12
@@ -384,15 +385,6 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
-     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
-          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
-          FONT 1
-     "Phone: (Country)" VIEW-AS TEXT
-          SIZE 20 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
-     "FAX: (Country)" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 96
      " At Login User Can Select:" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
           FONT 4
@@ -412,6 +404,15 @@ DEFINE FRAME F-Main
           SIZE 4 BY 1 AT ROW 5.29 COL 54 WIDGET-ID 110
      "Phone/Fax Appear on:" VIEW-AS TEXT
           SIZE 27 BY .62 AT ROW 11.71 COL 51 WIDGET-ID 24
+     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
+          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
+          FONT 1
+     "Phone: (Country)" VIEW-AS TEXT
+          SIZE 20 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
+     "FAX: (Country)" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 96
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -511,11 +512,6 @@ ASSIGN
    NO-ENABLE EXP-LABEL                                                  */
 ASSIGN 
        users.isActive:HIDDEN IN FRAME F-Main           = TRUE.
-
-/* SETTINGS FOR TOGGLE-BOX users.isLocked IN FRAME F-Main
-   NO-ENABLE                                                            */
-ASSIGN 
-       users.isLocked:HIDDEN IN FRAME F-Main           = TRUE.
 
 /* SETTINGS FOR FILL-IN lv-fax-num IN FRAME F-Main
    NO-ENABLE 2 4                                                        */
@@ -690,7 +686,6 @@ DO:
         ASSIGN SELF:SCREEN-VALUE = "".
         RETURN NO-APPLY.
     END.
-    
     IF SELF:SCREEN-VALUE = "" THEN DO:
         MESSAGE
             "You are setting this user's password" SKIP
@@ -702,7 +697,6 @@ DO:
             RETURN NO-APPLY.
         END.
     END.
-    
     IF NOT lAdd THEN 
         RUN ipChangePassword (SELF:SCREEN-VALUE).
 END.
@@ -874,14 +868,11 @@ END.
   &ENDIF       
   
     ASSIGN
-        fiPassword:password-field = if zUsers.user_id = "ASI" then false else true
         slEnvironments:LIST-ITEMS = cEnvList
         slDatabases:LIST-ITEMS = cDbList
         slModes:LIST-ITEMS = cModeList
-        bChgPwd:SENSITIVE = if zUsers.securityLevel > 899 THEN TRUE ELSE FALSE
         /* Future development
         users.isActive:SENSITIVE = if zUsers.securityLevel > 899 THEN TRUE ELSE FALSE
-        users.isLocked:SENSITIVE = if zUsers.securityLevel > 899 THEN TRUE ELSE FALSE
         */
         .  
 
@@ -964,6 +955,25 @@ PROCEDURE ipChangePassword :
         DELETE _User.
         CREATE _User.
         BUFFER-COPY tempUser EXCEPT _tenantid TO _User.
+        FIND FIRST userPwdHist EXCLUSIVE WHERE
+            userPwdHist.user_id = _user._userID AND
+            userPwdHist.pwd = cNewPassword AND
+            userPwdHist.pwdDate = today NO-ERROR.
+        IF NOT AVAIL userPwdHist THEN DO:
+            CREATE userPwdHist.
+            ASSIGN
+                userPwdHist.user_id = _user._userID
+                userPwdHist.pwdDate = today
+                userPwdHist.createDate = TODAY
+                userPwdHist.createTime = TIME
+                userPwdHist.createUser = USERID(LDBNAME(1)).
+        END.
+        ASSIGN
+            userPwdHist.pwd = cNewPassword
+            userPwdHist.updateDate = TODAY
+            userPwdHist.updateTime = TIME
+            userPwdHist.updateUser = USERID(LDBNAME(1))
+            .
     END.
     ELSE MESSAGE 
         "This Userid does not exist"
@@ -1801,6 +1811,7 @@ PROCEDURE proc-enable :
         users.developer:SENSITIVE = YES
         users.userAlias:SENSITIVE = TRUE
         users.securityLevel:SENSITIVE = TRUE
+        users.isLocked:SENSITIVE = TRUE
         cbUserType:SENSITIVE = TRUE
         slEnvironments:SENSITIVE = TRUE
         slDatabases:SENSITIVE = TRUE
@@ -1825,6 +1836,7 @@ PROCEDURE proc-enable :
         users.developer:SENSITIVE = NO
         users.userAlias:SENSITIVE = FALSE
         users.securityLevel:SENSITIVE = FALSE
+        users.isLocked:SENSITIVE = FALSE
         cbUserType:SENSITIVE = FALSE
         slEnvironments:SENSITIVE = FALSE
         slDatabases:SENSITIVE = FALSE
@@ -1844,6 +1856,7 @@ PROCEDURE proc-enable :
         slModes:screen-value = if ttUsers.ttfModeList <> "" then ttUsers.ttfModeList else slModes:list-items.
 
     ENABLE 
+        bChgPwd
         fi_phone-area 
         lv-phone-num 
         fi_fax-area 

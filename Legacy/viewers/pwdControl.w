@@ -34,6 +34,10 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+DEFINE NEW GLOBAL SHARED VAR cIniLoc AS CHAR NO-UNDO.
+DEFINE NEW GLOBAL SHARED VAR cIniLoc AS CHAR NO-UNDO.
+
+DEF VAR cLockoutTries AS CHAR NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -234,9 +238,21 @@ ASSIGN
 
 /* ***************************  Main Block  *************************** */
 
+    RUN ipReadIniFile.
+
+    FIND FIRST usercontrol EXCLUSIVE NO-ERROR.
+    IF AVAIL usercontrol THEN DO:
+        IF INTEGER(cLockoutTries) NE usercontrol.autoLockoutTries THEN DO:
+            ASSIGN
+                usercontrol.autoLockoutTries = INTEGER(cLockoutTries).
+        END.
+    END.
+    RELEASE usercontrol.
+    
   &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
     RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
   &ENDIF         
+  
   
   /************************ INTERNAL PROCEDURES ********************/
 
@@ -290,6 +306,29 @@ PROCEDURE disable_UI :
   /* Hide all frames. */
   HIDE FRAME F-Main.
   IF THIS-PROCEDURE:PERSISTENT THEN DELETE PROCEDURE THIS-PROCEDURE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE ipReadIniFile V-table-Win 
+PROCEDURE ipReadIniFile :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF VAR cIniLine AS CHAR NO-UNDO.
+    
+    INPUT FROM VALUE(SEARCH(cIniLoc)).
+    REPEAT:
+        IMPORT UNFORMATTED cIniLine.
+        IF cIniLine BEGINS "LockoutTries" THEN ASSIGN
+            cLockoutTries = ENTRY(2,cIniLine,"=").
+        ELSE NEXT.
+    END.
+    INPUT CLOSE.
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
