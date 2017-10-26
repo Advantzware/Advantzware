@@ -38,10 +38,13 @@ DEFINE BUFFER b-oe-boll FOR oe-boll.
 
 {custom/globdefs.i &NEW="NEW"}
 ASSIGN
-    g_company = ipcCompany
-    g_loc     = cLocation
+    g_company   = ipcCompany
+    g_loc       = cLocation
+    cStartJobNo = FILL(" ",6 - LENGTH(TRIM(cStartJobNo)))
+                + TRIM(cStartJobNo)
+    cEndJobNo   = FILL(" ",6 - LENGTH(TRIM(cEndJobNo)))
+                + TRIM(cEndJobNo)
     .
-
 /* Business Logic */       
 FOR EACH ar-inv NO-LOCK 
     WHERE ar-inv.company  EQ ipcCompany
