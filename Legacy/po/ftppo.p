@@ -28,9 +28,11 @@ DEF INPUT PARAM ip-ftp-where AS cha NO-UNDO.
 
 {sys/inc/var.i SHARED}
 
+DEFINE STREAM sReadLog.
 DEF VAR v-ftp-file AS cha NO-UNDO.
 DEFINE VARIABLE cExec          AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cWinScpIniFile AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cWinScpXmlLog AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lConfigBased AS LOG NO-UNDO.
 
 DEF TEMP-TABLE ttConfig FIELD exportFormat  AS CHAR
@@ -92,7 +94,8 @@ DO:
     FILE-INFO:FILE-NAME = cWinScpIniFile.
     cWinScpIniFile = " /ini=" + FILE-INFO:FULL-PATHNAME.
 END.
-
+cWinScpXmlLog = ip-exp-file + ".xmllog".
+ 
 RUN load-config.
 
 
@@ -494,9 +497,10 @@ IF AVAIL sys-ctrl THEN DO:
             AND  getWinScpFile() NE ?
             THEN 
         DO:
+            
             cExec = getWinScpFile().
             IF cWinScpIniFile GT "" THEN 
-                cExec = cExec + " " + "/ini=" + cWinScpIniFile.  
+                cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
             
             OS-COMMAND VALUE(cExec + " /script=.\customer\po\ftphrms.txt").
         END.
@@ -520,7 +524,7 @@ IF AVAIL sys-ctrl THEN DO:
         DO:
             cExec = getWinScpFile().
             IF cWinScpIniFile GT "" THEN 
-              cExec = cExec + " " + "/ini=" + cWinScpIniFile.  
+              cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
             
             OS-COMMAND VALUE(cExec + " /script=.\customer\po\ftpcmdgp.txt").
         END.
@@ -531,7 +535,7 @@ IF AVAIL sys-ctrl THEN DO:
         IF sys-ctrl.char-fld EQ "PremierPkg" AND cExec NE ? AND cExec NE "" THEN DO:      
           cExec = getWinScpFile().
           IF cWinScpIniFile GT "" THEN 
-              cExec = cExec + " " + "/ini=" + cWinScpIniFile.          
+              cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
           OS-COMMAND SILENT VALUE(cExec + " /script=.\customer\po\ftpcc.txt").
         END.
         ELSE
@@ -545,7 +549,7 @@ IF AVAIL sys-ctrl THEN DO:
                 cExec = getWinScpFile().
                 
                 IF cWinScpIniFile GT "" THEN 
-                    cExec = cExec + " " + "/ini=" + cWinScpIniFile.          
+                    cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.          
                 OS-COMMAND SILENT VALUE(cExec + " /script=.\customer\po\ftpaf.txt").
             END.
             ELSE
@@ -558,7 +562,7 @@ IF AVAIL sys-ctrl THEN DO:
         DO:
             cExec = getWinScpFile().
             IF cWinScpIniFile GT "" THEN 
-              cExec = cExec + " " + "/ini=" + cWinScpIniFile.  
+              cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.  
             
             OS-COMMAND VALUE(cExec + " /script=.\customer\po\ftpip.txt").
         END.
@@ -570,7 +574,7 @@ IF AVAIL sys-ctrl THEN DO:
         IF cExec NE ? AND cExec NE "" THEN DO:      
           cExec = getWinScpFile().
           IF cWinScpIniFile GT "" THEN 
-              cExec = cExec + " " + "/ini=" + cWinScpIniFile.    
+              cExec = cExec + " " + "/ini=" + cWinScpIniFile + " " + "/xmllog=" + cWinScpXmlLog.    
              
           OS-COMMAND SILENT VALUE(cExec + " /script=.\customer\po\ftpct.txt").
         END.
@@ -578,8 +582,37 @@ IF AVAIL sys-ctrl THEN DO:
           OS-COMMAND VALUE("ftp -v -i -s:.\customer\po\ftpcc.txt").
       END.      
     END CASE.
+    
+    
+    RUN checkXmlLogResult.
   END. /* If lSendTheFile */
 END. /* If avail sys-ctrl */
+
+
+PROCEDURE checkXmlLogResult:
+    DEFINE VARIABLE cLogLine AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lTransferSuccess AS LOGICAL NO-UNDO.
+    lTransferSuccess = TRUE.
+    IF SEARCH(cWinscpXmlLog) NE ? THEN DO:
+        lTransferSuccess = FALSE.
+        INPUT STREAM sReadLog FROM VALUE(cWinScpXmlLog).
+        REPEAT:
+            cLogLine = "".
+            IMPORT STREAM sReadLog UNFORMATTED cLogLine.
+            IF INDEX(cLogLine, "Result") GT 0 AND INDEX(cLogLine, "success") GT 0 THEN DO:
+                IF INDEX(cLogLine, "true") GT 0 THEN DO:
+                    lTransferSuccess = TRUE.
+                END.
+            END. 
+        END. /* repeat */
+        INPUT STREAM sReadLog CLOSE.
+
+        IF NOT lTransferSuccess THEN 
+           MESSAGE "Warning: The purchase order was not transmitted."
+                   VIEW-AS ALERT-BOX.
+        
+    END.
+END PROCEDURE.
 
 PROCEDURE config-based-script:
 
