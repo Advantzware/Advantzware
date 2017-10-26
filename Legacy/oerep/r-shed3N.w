@@ -1653,7 +1653,7 @@ DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
    v-types      = STRING(tb_actual,"A/")      + STRING(tb_backordered,"B/")
 
    str-tit3 = (IF v-sort EQ "C"  THEN "By Customer By Date"      ELSE
-               IF v-sort EQ "R"  THEN "By Date By Customer"      ELSE
+               IF v-sort EQ "R"  THEN "By Release Date"          ELSE
                IF v-sort EQ "I"  THEN "By Item By Date"          ELSE
                IF v-sort EQ "N"  THEN "By Item Name By Date"     ELSE
                IF v-sort EQ "A"  THEN "By Carrier By Date"       ELSE
@@ -1852,9 +1852,9 @@ SESSION:SET-WAIT-STATE ("general").
         and cust.cust-no eq oe-ord.cust-no
       no-lock
       break 
-            by tt-report.ord-no
             by tt-report.i-no
-            BY tt-report.rel-date :
+            BY tt-report.rel-date
+            :
        
       IF FIRST-OF(tt-report.i-no) THEN
              iRelqty = 0.
@@ -1923,7 +1923,7 @@ SESSION:SET-WAIT-STATE ("general").
     find first itemfg
         where itemfg.company eq cocode
           and itemfg.i-no    eq oe-ordl.i-no
-        no-lock.
+        NO-LOCK NO-ERROR.
 
     assign
      w-ord.ord-no    = oe-ord.ord-no
@@ -1949,7 +1949,7 @@ SESSION:SET-WAIT-STATE ("general").
      w-ord.po-num    = oe-rell.po-no
      w-ord.ord-qty   = oe-ordl.qty
      w-ord.shp-qty   = oe-ordl.ship-qty
-     w-ord.msf       = w-ord.rel-qty * itemfg.t-sqft / 1000
+     w-ord.msf       = w-ord.rel-qty * ( IF AVAIL itemfg THEN itemfg.t-sqft ELSE 0) / 1000
      w-ord.prom-code = oe-ordl.prom-code
      w-ord.last-date = oe-ord.last-date
      w-ord.carrier   = oe-relh.carrier
@@ -1968,7 +1968,7 @@ SESSION:SET-WAIT-STATE ("general").
 
     IF NOT FIRST-OF(tt-report.key-02) AND v-sort EQ "C" THEN w-ord.cust-name = "".
 
-    IF v-comps AND itemfg.isaset THEN DO:
+    IF v-comps AND AVAIL itemfg AND itemfg.isaset THEN DO:
       RUN fg/fullset.p (ROWID(itemfg)).
 
       FOR EACH tt-fg-set,
