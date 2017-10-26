@@ -18,6 +18,9 @@
 
 /* ***************************  Definitions  ************************** */
 
+/* Cost Out Report.rpa */
+{AOA/tempTable/ttCostOutReport.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -33,6 +36,34 @@
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+&IF DEFINED(EXCLUDE-fCostOutReport) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fCostOutReport Procedure
+FUNCTION fCostOutReport RETURNS HANDLE ( {aoa/includes/fInputVars.i} )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGetTableHandle Procedure
+FUNCTION fGetTableHandle RETURNS HANDLE
+  ( ipcProgramID AS CHARACTER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 
 
@@ -69,5 +100,56 @@
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+/* ************************  Function Implementations ***************** */
+
+
+&IF DEFINED(EXCLUDE-fCostOutReport) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fCostOutReport Procedure
+FUNCTION fCostOutReport RETURNS HANDLE ( {aoa/includes/fInputVars.i} ) :
+/*------------------------------------------------------------------------------
+  Purpose:  Audit Query.rpa
+    Notes:  
+------------------------------------------------------------------------------*/
+    EMPTY TEMP-TABLE ttCostOutReport.
+
+    /* subject business logic */
+    RUN aoa/BL/costOut.p (OUTPUT TABLE ttCostOutReport, ipcCompany, ipiBatch, ipcUserID).
+
+    RETURN TEMP-TABLE ttCostOutReport:HANDLE .
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
+
+&IF DEFINED(EXCLUDE-fGetTableHandle) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGetTableHandle Procedure
+FUNCTION fGetTableHandle RETURNS HANDLE
+  ( ipcProgramID AS CHARACTER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    CASE ipcProgramID:
+        /* Cost Out Report.rpa */
+        WHEN "costOut." THEN
+        RETURN TEMP-TABLE ttCostOutReport:HANDLE.
+    END CASE.
+
+END FUNCTION.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ENDIF
+
 
 
