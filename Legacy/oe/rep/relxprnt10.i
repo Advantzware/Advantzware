@@ -72,7 +72,8 @@ def var v-part-info like itemfg.i-name no-undo.
 def var v-qty like oe-rell.qty no-undo.
 def var v-rel-qty like oe-rell.qty  NO-UNDO.
 def var v-tot-rqty AS INT NO-UNDO.
-DEF VAR sw  AS logi NO-UNDO.
+DEF VAR sw  AS logi NO-UNDO. 
+DEFINE VARIABLE swm AS LOGICAL NO-UNDO .
 DEF VAR v-rs AS CHAR NO-UNDO FORM "x(2)".
 DEF VAR v-cq AS LOG NO-UNDO.
 
@@ -301,11 +302,13 @@ if v-zone-p then v-zone-hdr = "Route No.:".
 
         IF FIRST-OF(w-oe-rell.set-no) THEN
            ASSIGN v-tot-rqty = 0
-                  sw = NO. 
+                  sw = NO
+                  swm = NO. 
 
         IF FIRST-OF(w-oe-rell.ord-no) THEN
            ASSIGN v-tot-rqty = 0
-                  sw = NO.
+                  sw = NO
+                  swm = NO.
            
         ASSIGN
            v-rel-qty = v-rel-qty + w-oe-rell.qty
@@ -363,6 +366,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                 w-bin.w-uom    = IF oe-ordl.spare-char-2 NE "" THEN oe-ordl.spare-char-2 ELSE "EA" 
                 w-bin.job = fg-bin.job-no
                 w-bin.job2 = fg-bin.job-no2
+                w-bin.w-date-time = "29991201000000".
                 i        = i + 1
                  .
                ASSIGN iOrdQtyCust = 0.
@@ -397,10 +401,10 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                       by fg-rcpth.job-no2
                       by fg-bin.qty*/ :
                  
-                      w-bin.w-date-time = STRING(YEAR(fg-rcpth.trans-date),"9999")
+                     /* w-bin.w-date-time = STRING(YEAR(fg-rcpth.trans-date),"9999")
                                         + STRING(MONTH(fg-rcpth.trans-date),"99")
                                         + STRING(DAY(fg-rcpth.trans-date),"99")
-                                        + STRING(fg-rdtlh.trans-time,"999999").
+                                        + STRING(fg-rdtlh.trans-time,"999999").*/
                  
                       LEAVE.
                   END.
@@ -504,42 +508,42 @@ if v-zone-p then v-zone-hdr = "Route No.:".
            
            do i = i to 7:
               create w-bin.
-              ASSIGN w-bin.w-date-time = "29991231000000".
+              ASSIGN w-bin.w-date-time = "29991200000000".
               RELEASE w-bin.
            end.
-           for each w-bin where w-bin.w-ord-col eq ""
+           for each w-bin where w-bin.w-ord-col eq "" 
                BY w-bin.w-date-time
                by w-bin.w-qty[2] desc
                by w-bin.w-qty[1] desc:
                w-bin.w-ord-col = string(w-oe-rell.ord-no). 
                leave.
            end.  
-           for each w-bin where w-bin.w-ord-col eq ""
+           for each w-bin where w-bin.w-ord-col eq "" 
                BY w-bin.w-date-time
                by w-bin.w-qty[2] desc
                by w-bin.w-qty[1] desc:
                w-bin.w-ord-col = v-rs. 
                leave.
            end.  
-           for each w-bin where w-bin.w-par eq ""
+           for each w-bin where w-bin.w-par eq "" 
                BY w-bin.w-date-time
                by w-bin.w-qty[2] desc
-               by w-bin.w-qty[1] desc:
+               by w-bin.w-qty[1] desc:  
                w-bin.w-par = if w-oe-rell.seq eq 0 then oe-ordl.part-no
                              else itemfg.part-no.
                leave.
            end.  
           
-           for each w-bin where w-bin.w-par eq ""
+           for each w-bin where w-bin.w-par eq "" 
                BY w-bin.w-date-time
                by w-bin.w-qty[2] desc
-               by w-bin.w-qty[1] desc:
+               by w-bin.w-qty[1] desc:  
                w-bin.w-par = if w-oe-rell.seq eq 0 then oe-ordl.i-name
                              else itemfg.i-name.
                leave.
            end.
           
-           for each w-bin where w-bin.w-par eq ""
+           for each w-bin where w-bin.w-par eq "" 
                BY w-bin.w-date-time
                by w-bin.w-qty[2] desc
                by w-bin.w-qty[1] desc:
@@ -548,7 +552,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                leave.
            end.
           
-           for each w-bin where w-bin.w-par eq ""
+           for each w-bin where w-bin.w-par eq "" 
                BY w-bin.w-date-time
                BY w-bin.w-qty[2] desc
                by w-bin.w-qty[1] desc:
@@ -557,7 +561,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                leave.
            end.
            
-           for each w-bin where w-bin.w-par eq ""
+           for each w-bin where w-bin.w-par eq "" 
                BY w-bin.w-date-time
                by w-bin.w-qty[2] DESC
                by w-bin.w-qty[1] desc:
@@ -565,7 +569,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                leave.
            end.
           
-           for each w-bin where w-bin.w-par eq ""
+           for each w-bin where w-bin.w-par eq "" 
                BY w-bin.w-date-time
                by w-bin.w-qty[2] desc
                by w-bin.w-qty[1] desc:
@@ -702,7 +706,6 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                   INPUT "EA",
                   OUTPUT v-tot-rqty-a).
               
-              
               display {2}
                      w-bin.w-ord-col
 /*                      w-oe-rell.ord-no when FIRST(w-bin.w-date-time) @ w-oe-rell.ord-no */
@@ -718,7 +721,11 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               ASSIGN lv-tot-cust-qty = w-bin.w-units * w-bin.w-unit-count.
               IF w-bin.w-uom NE "" THEN
                 lv-save-cust-uom = caps(trim(w-bin.w-uom)).
+              IF NOT swm THEN
+                      ASSIGN lv-tot-cust-qty = oe-ordl.qty 
+                             lv-save-cust-uom = CAPS(oe-ordl.pr-uom) .
              IF lv-tot-cust-qty GT 0 AND sw = YES /*AND v-cq = NO*/ THEN DO:
+                  
                   RUN right-just (INPUT 11, 
                     INPUT 8,
                     INPUT trim(STRING(lv-tot-cust-qty, "->>>>>>>>")),
@@ -733,7 +740,8 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                   ASSIGN 
                     lv-tot-cust-qty = 0
                     lv-save-cust-uom = "" 
-                    v-cq = YES.
+                    v-cq = YES 
+                    swm  = YES .
               END.
 
             ASSIGN

@@ -2,7 +2,7 @@
 
    PUT "<FArial>" SKIP
        "<P14><C+50><B>Pick Ticket</B> " SKIP
-       "<C1><#1><R+10><C+45><IMAGE#1=" ls-full-img1 SKIP
+       "<C1><#1><R+9><C+45><IMAGE#1=" ls-full-img1 SKIP
         "<C1><LEFT=9mm><#1><R+5><C+25>" SKIP
        
         "<=1>" SKIP
@@ -35,7 +35,7 @@
          "<=#3><B>Ticket #: " 
          "<UNITS=INCHES><AT=.54,6><FROM><AT=+.6,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE=" +
           string(oe-relh.release#) + ">" FORM "x(100)" "</B><P10>" 
-           "<AT=,6.5>" oe-relh.release#        SKIP(1)
+           "<AT=,6.5>" oe-relh.release# FORMAT ">>>>>>9"        SKIP(1)
          "<=#3><R+5>Print Date:" v-ticket-date   FORM "99/99/9999" " "   STRING(oe-relh.upd-time,"hh:mm am") SKIP
          "<=#3><R+6>Ship Date:" oe-relh.rel-date        SKIP
          "<=#3><R+7>CSR: " v-csr SKIP
