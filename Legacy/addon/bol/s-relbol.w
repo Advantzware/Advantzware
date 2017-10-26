@@ -216,7 +216,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  '':U ,
              OUTPUT h_exit ).
-       RUN set-position IN h_exit ( 13.40 , 2.00 ) NO-ERROR.
+       RUN set-position IN h_exit ( 11.95 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.81 , 7.80 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -226,7 +226,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-relbol ).
-       RUN set-position IN h_p-relbol ( 13.40 , 10.00 ) NO-ERROR.
+       RUN set-position IN h_p-relbol ( 11.95 , 10.00 ) NO-ERROR.
        RUN set-size IN h_p-relbol ( 2.86 , 34.00 ) NO-ERROR.
 
        /* Links to SmartBrowser h_b-relbol. */
