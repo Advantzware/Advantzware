@@ -1653,7 +1653,7 @@ DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
    v-types      = STRING(tb_actual,"A/")      + STRING(tb_backordered,"B/")
 
    str-tit3 = (IF v-sort EQ "C"  THEN "By Customer By Date"      ELSE
-               IF v-sort EQ "R"  THEN "By Date By Customer"      ELSE
+               IF v-sort EQ "R"  THEN "By Release Date"          ELSE
                IF v-sort EQ "I"  THEN "By Item By Date"          ELSE
                IF v-sort EQ "N"  THEN "By Item Name By Date"     ELSE
                IF v-sort EQ "A"  THEN "By Carrier By Date"       ELSE
