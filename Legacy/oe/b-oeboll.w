@@ -460,7 +460,7 @@ ASSIGN
      _FldNameList[15]   > "_<CALC>"
 "fgBin() @ fgBin" "Unts/Pallet" "->,>>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.oe-boll.tot-pallets
-"oe-boll.tot-pallets" "Pallets" ? "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-boll.tot-pallets" "Pallets" "->,>>>,>>9" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.oe-boll.weight
 "oe-boll.weight" "Weight" "->>>>>>9" "integer" ? ? ? ? ? ? yes ? no no "11" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.oe-boll.freight
@@ -961,7 +961,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-boll.partial Browser-Table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF oe-boll.partial IN BROWSE Browser-Table /* Partial */
 DO:
@@ -989,6 +988,20 @@ DO:
 
      IF LASTKEY NE 13 THEN
         oe-boll.tot-pallets:SCREEN-VALUE = STRING(v-tot-pallets).
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-boll.tot-pallets Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF oe-boll.tot-pallets IN BROWSE Browser-Table /* tot-pallets */
+DO:
+
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-pallet-qty  NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -2262,8 +2275,8 @@ PROCEDURE local-update-record :
   RUN valid-tag NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-/*   RUN valid-po NO-ERROR.                      */
-/*   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY. */
+  RUN valid-pallet-qty  NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   RUN valid-job-no (2) NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -3476,6 +3489,30 @@ PROCEDURE value-changed-qty :
     ll-qty-warned = NO.
 
     RUN calc-wgt.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-pallet-qty B-table-Win 
+PROCEDURE valid-pallet-qty :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* ticket 23785 */
+  DO WITH FRAME {&FRAME-NAME}:
+    IF LENGTH(oe-boll.tot-pallets:SCREEN-VALUE IN BROWSE {&browse-name}) GT  5 THEN DO:
+        ASSIGN oe-boll.tot-pallets:SCREEN-VALUE IN BROWSE {&browse-name} = string(SUBSTRING(oe-boll.tot-pallets:SCREEN-VALUE IN BROWSE {&browse-name},1,5)) .
+        MESSAGE "Value is not valid - Enter a valid value."  VIEW-AS ALERT-BOX ERROR.
+         APPLY "entry" TO oe-boll.tot-pallets IN BROWSE {&browse-name}.
+         RETURN ERROR.
+    END.
   END.
 
 END PROCEDURE.
