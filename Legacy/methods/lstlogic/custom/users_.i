@@ -26,13 +26,16 @@
 DISPLAY
   users.user_id
   users.user_name
-  users.track_usage
+  users.phone
+  users.userType 
+  users.securityLevel FORMAT ">999  "
+  /*users.track_usage
   users.use_colors
   users.use_fonts
   users.use_ctrl_keys
-  users.developer.
+  users.developer*/.
 IF users.image_filename NE "" THEN
-PUT "Image:" AT 11 users.image_filename.
+PUT "Email:" AT 11 users.image_filename.
 
 {methods/lstlogic/shownote.i &db_table="users" &col="5" &frame-name="f-notes"}
 {methods/lstlogic/showmisc.i &db_table="users" &col="5" &frame-name="f-miscflds"}
