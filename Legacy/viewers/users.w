@@ -207,7 +207,7 @@ DEFINE VARIABLE cbUserType AS CHARACTER FORMAT "X(256)":U
      SIZE 30 BY 1
      FONT 4 NO-UNDO.
 
-DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(32)":U 
+DEFINE VARIABLE fiPassword AS CHARACTER FORMAT "X(999)":U 
      LABEL "Password" 
      VIEW-AS FILL-IN 
      SIZE 37 BY 1
@@ -385,6 +385,15 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
+     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
+          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
+          FONT 1
+     "Phone: (Country)" VIEW-AS TEXT
+          SIZE 20 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
+     "FAX: (Country)" VIEW-AS TEXT
+          SIZE 16 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
+     "(Area)" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 96
      " At Login User Can Select:" VIEW-AS TEXT
           SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
           FONT 4
@@ -404,15 +413,6 @@ DEFINE FRAME F-Main
           SIZE 4 BY 1 AT ROW 5.29 COL 54 WIDGET-ID 110
      "Phone/Fax Appear on:" VIEW-AS TEXT
           SIZE 27 BY .62 AT ROW 11.71 COL 51 WIDGET-ID 24
-     "(Use CTRL-click to select multiple items)" VIEW-AS TEXT
-          SIZE 39 BY .62 AT ROW 16.48 COL 98 WIDGET-ID 76
-          FONT 1
-     "Phone: (Country)" VIEW-AS TEXT
-          SIZE 20 BY 1 AT ROW 4.1 COL 10 WIDGET-ID 92
-     "FAX: (Country)" VIEW-AS TEXT
-          SIZE 16 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
-     "(Area)" VIEW-AS TEXT
-          SIZE 8 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 96
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 

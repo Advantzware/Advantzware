@@ -112,37 +112,34 @@ RUN set-attribute-list (
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     userControl.pwdChgLen AT ROW 2.91 COL 39 COLON-ALIGNED WIDGET-ID 34
+     userControl.pwdChgLen AT ROW 2.91 COL 39 COLON-ALIGNED WIDGET-ID 34 FORMAT ">>>9"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
      userControl.minPasswordLen AT ROW 4.81 COL 39 COLON-ALIGNED WIDGET-ID 28
-          LABEL "Minimum Password Length"
+          LABEL "Minimum Password Length" FORMAT ">>9"
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
      userControl.minLC AT ROW 6 COL 39 COLON-ALIGNED WIDGET-ID 24
-          LABEL "Minimumn lower case chars"
+          LABEL "Minimumn lower case chars" FORMAT ">9"
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
      userControl.minUC AT ROW 7.19 COL 39 COLON-ALIGNED WIDGET-ID 32
-          LABEL "Minimum UPPER CASE chars"
+          LABEL "Minimum UPPER CASE chars" FORMAT ">9"
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
      userControl.minNC AT ROW 8.38 COL 39 COLON-ALIGNED WIDGET-ID 26
-          LABEL "Minimum numeric chars"
+          LABEL "Minimum numeric chars" FORMAT ">9"
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
      userControl.minSC AT ROW 9.57 COL 39 COLON-ALIGNED WIDGET-ID 30
-          LABEL "Minimum special chars"
+          LABEL "Minimum special chars" FORMAT ">9"
           VIEW-AS FILL-IN 
           SIZE 5.6 BY 1
      userControl.autoLockoutTries AT ROW 11.48 COL 39 COLON-ALIGNED WIDGET-ID 18
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     "Password Restrictions" VIEW-AS TEXT
+     "Password Restrictions:" VIEW-AS TEXT
           SIZE 27 BY .62 AT ROW 1.71 COL 8 WIDGET-ID 36
-     "(Lockout tries controlled by advantzware.ini entry)" VIEW-AS TEXT
-          SIZE 50 BY .62 AT ROW 12.67 COL 4 WIDGET-ID 38
-          FONT 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -208,15 +205,17 @@ ASSIGN
 /* SETTINGS FOR FILL-IN userControl.autoLockoutTries IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN userControl.minLC IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN userControl.minNC IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN userControl.minPasswordLen IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN userControl.minSC IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN userControl.minUC IN FRAME F-Main
-   EXP-LABEL                                                            */
+   EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN userControl.pwdChgLen IN FRAME F-Main
+   EXP-FORMAT                                                           */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -232,6 +231,39 @@ ASSIGN
 
  
 
+
+
+/* ************************  Control Triggers  ************************ */
+
+&Scoped-define SELF-NAME userControl.minPasswordLen
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL userControl.minPasswordLen V-table-Win
+ON LEAVE OF userControl.minPasswordLen IN FRAME F-Main /* Minimum Password Length */
+OR LEAVE OF userControl.minLC
+OR LEAVE OF userControl.minUC
+OR LEAVE OF userControl.minNC
+OR LEAVE OF userControl.minSC
+DO:
+    DEF VAR iMinLen AS INT NO-UNDO.
+    ASSIGN
+        iMinLen = INTEGER(userControl.minLC:SCREEN-VALUE IN FRAME {&FRAME-NAME}) +
+                  INTEGER(userControl.minUC:SCREEN-VALUE) +
+                  INTEGER(userControl.minNC:SCREEN-VALUE) +
+                  INTEGER(userControl.minSC:SCREEN-VALUE).
+    IF iMinLen GT INTEGER(userControl.minPasswordLen:SCREEN-VALUE) THEN DO:
+        MESSAGE
+            "The minimum password length value will not support" SKIP
+            "this entry.  Modifying Minimum Password Length value."
+            VIEW-AS ALERT-BOX.
+        ASSIGN
+            userControl.minPasswordLen:SCREEN-VALUE = STRING(iMinLen).
+    END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK V-table-Win 
 
