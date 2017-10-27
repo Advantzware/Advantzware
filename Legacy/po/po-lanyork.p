@@ -111,11 +111,31 @@ DEFINE VARIABLE cStyleDscr AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cJointGlue AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cBoardName AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cColorDscr AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cInkName1  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cInkName2  AS CHARACTER NO-UNDO.
-DEFINE VARIABLE cInkName3  AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cInkName  AS CHARACTER EXTENT 10 NO-UNDO.
 DEFINE VARIABLE cCadName   AS CHARACTER NO-UNDO.
 DEFINE VARIABLE cCarrierDscr AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lv-cost-dec    AS DECIMAL EXTENT 3 NO-UNDO.
+DEFINE  VARIABLE factor#                 AS DECIMAL   NO-UNDO.
+DEFINE            VARIABLE fg-uom-list        AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE v-wid-frac              AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE v-len-frac              AS CHARACTER NO-UNDO.
+DEFINE        VARIABLE v-dep-frac              AS CHARACTER NO-UNDO.
+RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
+
+DEFINE TEMP-TABLE tt-ei NO-UNDO
+    FIELD std-uom AS CHARACTER.
+
+DEFINE TEMP-TABLE tt-eiv NO-UNDO
+    FIELD run-qty  AS DECIMAL   DECIMALS 3 EXTENT 20
+    FIELD run-cost AS DECIMAL   DECIMALS 4 EXTENT 20
+    FIELD setups   AS DECIMAL   DECIMALS 2 EXTENT 20
+    FIELD rec_key  AS CHARACTER.
+
+DEFINE TEMP-TABLE tt-eiv-2 NO-UNDO
+    FIELD run-qty  AS DECIMAL   DECIMALS 3 EXTENT 20
+    FIELD run-cost AS DECIMAL   DECIMALS 4 EXTENT 20
+    FIELD setups   AS DECIMAL   DECIMALS 2 EXTENT 20
+    FIELD rec_key  AS CHARACTER.
 
 DEF TEMP-TABLE tt-text NO-UNDO
     FIELD TYPE AS cha
@@ -318,7 +338,7 @@ v-printline = 0.
                    lv-dep = TRUNCATE(lv-dep2,0) + lv-dep.
            else
               assign v-wid = po-ordl.s-wid 
-                    v-len = po-ordl.s-len.
+                    v-len =  po-ordl.s-len.
             
             assign v-num-add = 0.
 
@@ -363,13 +383,24 @@ v-printline = 0.
                       /*
                     put xitem.i-no at 25 xitem.i-name at 38.
                     assign v-line-number = v-line-number + 1.
-                    */
+                    */ 
+                      RUN po-adder2 (RECID(po-ordl),
+                                     RECID(job-mat),
+                                     po-ord.vend-no,
+                                     DEC(po-ordl.ord-qty),
+                                     job-mat.std-cost,
+                                     0,
+                                     xitem.i-no,
+                                     OUTPUT lv-cost-dec[1],
+                                     OUTPUT lv-cost-dec[2],
+                                     OUTPUT lv-cost-dec[3]).
+                        
                       assign v-num-add = v-num-add + 1.
-                      if v-num-add eq 1 THEN assign v-adder[1] = string(xitem.i-name,"x(30)") + "        " + STRING(job-mat.std-cost,"->>>>>9.99") + "   " + STRING(job-mat.sc-uom) + "   " + STRING(job-mat.qty,"->>>>>9.99") .
-                      else if v-num-add eq 2 THEN assign v-adder[2] = string(xitem.i-name,"x(30)") + "        " + STRING(job-mat.std-cost,"->>>>>9.99") + "   " + STRING(job-mat.sc-uom) + "   " + STRING(job-mat.qty,"->>>>>9.99") .
-                      else if v-num-add eq 3 THEN assign v-adder[3] = string(xitem.i-name,"x(30)") + "        " + STRING(job-mat.std-cost,"->>>>>9.99") + "   " + STRING(job-mat.sc-uom) + "   " + STRING(job-mat.qty,"->>>>>9.99") .
-                      else if v-num-add eq 4 THEN assign v-adder[4] = string(xitem.i-name,"x(30)") + "        " + STRING(job-mat.std-cost,"->>>>>9.99") + "   " + STRING(job-mat.sc-uom) + "   " + STRING(job-mat.qty,"->>>>>9.99") .
-                      else if v-num-add eq 5 THEN assign v-adder[5] = string(xitem.i-name,"x(30)") + "        " + STRING(job-mat.std-cost,"->>>>>9.99") + "   " + STRING(job-mat.sc-uom) + "   " + STRING(job-mat.qty,"->>>>>9.99") .
+                      if v-num-add eq 1 THEN assign v-adder[1] = string(xitem.i-name,"x(30)") + "         " + STRING(lv-cost-dec[1],"->>>>>9.99") + "  " + STRING("EA") + "  " + STRING(lv-cost-dec[2],"->>>>>9.99") .
+                      else if v-num-add eq 2 THEN assign v-adder[2] = string(xitem.i-name,"x(30)") + "         " + STRING(lv-cost-dec[1],"->>>>>9.99") + "  " + STRING("EA") + "  " + STRING(lv-cost-dec[2],"->>>>>9.99") .
+                      else if v-num-add eq 3 THEN assign v-adder[3] = string(xitem.i-name,"x(30)") + "         " + STRING(lv-cost-dec[1],"->>>>>9.99") + "  " + STRING("EA") + "  " + STRING(lv-cost-dec[2],"->>>>>9.99") .
+                      else if v-num-add eq 4 THEN assign v-adder[4] = string(xitem.i-name,"x(30)") + "         " + STRING(lv-cost-dec[1],"->>>>>9.99") + "  " + STRING("EA") + "  " + STRING(lv-cost-dec[2],"->>>>>9.99") .
+                      else if v-num-add eq 5 THEN assign v-adder[5] = string(xitem.i-name,"x(30)") + "         " + STRING(lv-cost-dec[1],"->>>>>9.99") + "  " + STRING("EA") + "  " + STRING(lv-cost-dec[2],"->>>>>9.99") .
                   end.
 
                 end.
@@ -415,6 +446,7 @@ v-printline = 0.
         END.
     
         ASSIGN
+        v-setup = po-ordl.setup
         lv-ord-qty = po-ordl.ord-qty
         lv-cost    = po-ordl.cost
         lv-pr-uom = po-ordl.pr-uom
@@ -448,12 +480,12 @@ v-printline = 0.
            PUT po-ordl.LINE FORM ">>9"
                STRING(lv-ord-qty, lv-format) FORMAT "x(14)" SPACE(2)
                lv-pr-qty-uom SPACE(1)
-               po-ordl.i-no FORM "x(30)" SPACE(17)
+               po-ordl.i-name FORM "x(30)" SPACE(17)
                
                 
                lv-cost FORM "->>>9.99<<" SPACE(2)
                lv-pr-uom 
-               po-ordl.t-cost FORM "->>,>>9.99"          
+               (po-ordl.t-cost - v-setup) FORM "->>,>>9.99"          
                SKIP.
         ELSE
         DO:
@@ -500,10 +532,12 @@ v-printline = 0.
                  cJointGlue =  IF AVAIL eb THEN eb.adhesive ELSE "" .
                  cBoardName = IF AVAIL ef THEN ef.brd-dscr ELSE "" .
                  cColorDscr = IF AVAIL eb THEN eb.i-coldscr ELSE "" .
-                 cInkName1 = IF AVAIL eb AND eb.i-dscr[1] NE ""  THEN eb.i-dscr[1] ELSE IF AVAIL eb THEN eb.i-dscr2[1] ELSE "" .
-                 cInkName2 = IF AVAIL eb AND eb.i-dscr[2] NE ""  THEN eb.i-dscr[2] ELSE IF AVAIL eb THEN eb.i-dscr2[2] ELSE "" .
-                 cInkName3 = IF AVAIL eb AND eb.i-dscr[3] NE ""  THEN eb.i-dscr[3] ELSE IF AVAIL eb THEN eb.i-dscr2[3] ELSE "" .
                  cCadName  = IF AVAIL eb THEN eb.cad-no ELSE "" .
+                IF AVAIL eb THEN DO:
+                 DO i = 1 TO 10:
+                     cInkName[i] = IF AVAIL eb AND eb.i-dscr[i] NE ""  THEN eb.i-dscr[i] ELSE IF AVAIL eb THEN eb.i-dscr2[i] ELSE "" .
+                 END.
+                END.
 
            PUT po-ordl.LINE FORM ">>9"
                STRING(lv-ord-qty, lv-format) FORMAT "x(14)" SPACE(2)
@@ -513,7 +547,7 @@ v-printline = 0.
                 
                lv-cost FORM "->>>9.99<<" SPACE(2)
                lv-pr-uom 
-               po-ordl.t-cost FORM "->>,>>9.99"          
+               (po-ordl.t-cost - v-setup) FORM "->>,>>9.99"          
                SKIP.
         END.
 
@@ -522,12 +556,18 @@ v-printline = 0.
            
             
            IF po-ordl.item-type THEN do:
-            IF v-wid GT 0 THEN DO:
-                PUT "W: " AT 25 FNmetric(v-wid, v-wid2, "W") FORMAT "x(8)" SPACE(1).
-                IF v-len GT 0 THEN
-                    PUT "L: "  FNmetric(v-len, v-len2, "L") FORMAT "x(10)" SPACE(1).
+            IF po-ordl.s-wid  GT 0 THEN DO:
+              
+                  RUN sys\inc\decfrac2.p(INPUT DEC(po-ordl.s-wid ), INPUT 32, OUTPUT v-wid-frac).
+                  RUN sys\inc\decfrac2.p(INPUT DEC(po-ordl.s-len), INPUT 32, OUTPUT v-len-frac).
+                  RUN sys\inc\decfrac2.p(INPUT DEC(IF AVAILABLE item AND CAN-DO("C,5,6,D",item.mat-type) THEN item.case-d
+                       ELSE IF AVAILABLE item THEN item.s-dep ELSE 0), INPUT 32, OUTPUT v-dep-frac).
+
+                PUT "W: " AT 25 v-wid-frac FORMAT "x(10)" SPACE(1).
+                IF po-ordl.s-len GT 0 THEN
+                    PUT "L: "  v-len-frac FORMAT "x(10)" SPACE(1).
                 IF lv-dep GT 0 THEN
-                    PUT "D: "  FNmetric(lv-dep, lv-dep2, "D") FORMAT "x(8)" SPACE(1).
+                    PUT "D: "  v-dep-frac FORMAT "x(10)" SPACE(1).
              END.
            END.
            ELSE PUT "Your File#:" AT 25 po-ordl.vend-i-no FORM "x(30)" . 
@@ -575,12 +615,17 @@ v-printline = 0.
         END.
         ELSE DO:
 
-            IF v-wid GT 0 THEN DO:
-                  PUT "W: " AT 25 FNmetric(v-wid, v-wid2, "W") FORMAT "x(8)" SPACE(1).
-                  IF v-len GT 0 THEN
-                      PUT "L: "  FNmetric(v-len, v-len2, "L") FORMAT "x(10)" SPACE(1).
-                  IF lv-dep GT 0 THEN
-                      PUT "D: "  FNmetric(lv-dep, lv-dep2, "D") FORMAT "x(8)" SPACE(1).
+            IF AVAIL itemfg AND itemfg.l-score[50] GT 0 THEN DO:
+               
+                  RUN sys\inc\decfrac2.p(INPUT DEC(itemfg.w-score[50]), INPUT 32, OUTPUT v-wid-frac).
+                  RUN sys\inc\decfrac2.p(INPUT DEC(itemfg.l-score[50]), INPUT 32, OUTPUT v-len-frac).
+                  RUN sys\inc\decfrac2.p(INPUT DEC(itemfg.d-score[50]), INPUT 32, OUTPUT v-dep-frac).
+
+                  PUT "W: " AT 25  v-wid-frac FORMAT "x(10)" SPACE(1).
+                  IF itemfg.l-score[50] GT 0 THEN
+                      PUT "L: "   v-len-frac FORMAT "x(10)" SPACE(1).
+                  IF itemfg.d-score[50] GT 0 THEN
+                      PUT "D: "   v-dep-frac FORMAT "x(10)" SPACE(1).
                   PUT SKIP .
                   ASSIGN
               v-line-number = v-line-number + 1
@@ -590,13 +635,12 @@ v-printline = 0.
                
         END.
 
-         IF po-ordl.pr-qty-uom EQ "MSF" THEN v-qty = po-ordl.ord-qty.
+        IF po-ordl.pr-qty-uom EQ "MSF" THEN v-qty = po-ordl.ord-qty.
         ELSE RUN sys/ref/convquom.p(po-ordl.pr-qty-uom, "MSF",
                              v-basis-w, po-ordl.s-len, po-ordl.s-wid, v-dep,
                              po-ordl.ord-qty, OUTPUT v-qty).
         ASSIGN
         v-tot-sqft = v-tot-sqft + (v-qty * 1000)
-        v-setup = po-ordl.setup
         v-cost = lv-cost. /* reclac cost from setup */
 
         IF po-ordl.item-type THEN do:
@@ -619,18 +663,13 @@ v-printline = 0.
               PUT cColorDscr FORM "x(30)" AT 25 SKIP .
                v-line-number = v-line-number + 1 .
           END.
-          IF cInkName1 NE "" THEN do:
-              PUT cInkName1 FORM "x(30)" AT 25 SKIP .
-               v-line-number = v-line-number + 1 .
+          DO i = 1 TO 10:
+              IF cInkName[i] NE "" THEN DO:
+                 PUT cInkName[i] FORM "x(30)" AT 25 SKIP .
+                   v-line-number = v-line-number + 1 .
+              END.
           END.
-          IF cInkName2 NE "" THEN do:
-              PUT cInkName2 FORM "x(30)" AT 25 SKIP .
-               v-line-number = v-line-number + 1 .
-          END.
-          IF cInkName3 NE "" THEN do:
-              PUT cInkName3 FORM "x(30)" AT 25 SKIP .
-               v-line-number = v-line-number + 1 .
-          END.
+          
           IF cCadName NE "" THEN do:
               PUT cCadName FORM "x(30)" AT 25 SKIP .
                v-line-number = v-line-number + 1 .
@@ -683,7 +722,7 @@ v-printline = 0.
         END.
        
         IF  v-setup GT 0 THEN DO:
-            PUT SKIP(1) "SETUP" AT 25 "<C60>" STRING(v-setup,">>,>>9.99<<") + " " + "SETUP"  + STRING(v-setup,">>,>>9.99<<") FORMAT "x(30)"  SKIP.
+            PUT SKIP(1) "SETUP" AT 25 "<C60>" STRING(v-setup,">>>>9.99<<") + " " + " SETUP"  + STRING(v-setup,"->>>>9.99<<") FORMAT "x(30)"  SKIP.
              v-line-number = v-line-number + 2 .
         END.
 
@@ -858,5 +897,205 @@ IF v-printline < 60 THEN PUT SKIP(80 - v-printline).
 
     end. /* for each po-ord record */.
 
+
+
+
+
+PROCEDURE po-adder2 :
+    /*------------------------------------------------------------------------------
+      Purpose:     
+      PARAMs:  <none>
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ip-recid  AS RECID.
+    DEFINE INPUT PARAMETER ip-recid1 AS RECID.
+    DEFINE INPUT PARAMETER ip-vend-no LIKE po-ord.vend-no NO-UNDO.
+    DEFINE INPUT PARAMETER ip-qty AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ip-cost AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ip-cons-cost AS DECIMAL NO-UNDO.
+    DEFINE INPUT PARAMETER ip-adder-item AS CHARACTER NO-UNDO.
+
+    DEFINE OUTPUT PARAMETER op-cons-cost AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-cost AS DECIMAL NO-UNDO.
+    DEFINE OUTPUT PARAMETER op-adder-setup AS DECIMAL NO-UNDO.
+
+    DEFINE VARIABLE v-tot-cost AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-cost     AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-add-cost AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-qty-comp AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE v-setup    LIKE e-item-vend.setup NO-UNDO.
+    DEFINE VARIABLE v-adder    AS DECIMAL EXTENT 2 NO-UNDO.
+    DEFINE VARIABLE v-index    AS INTEGER NO-UNDO.
+    DEFINE VARIABLE v-len-dec  AS DECIMAL NO-UNDO .
+    DEFINE VARIABLE v-wid-dec  AS DECIMAL NO-UNDO .
+    DEFINE VARIABLE v-dep-dec  AS DECIMAL NO-UNDO .
+
+    DEFINE BUFFER xjob-mat FOR job-mat.
+    DEFINE BUFFER bff-job-mat FOR job-mat .
+    DEFINE BUFFER b-cost  FOR reftable.
+    DEFINE BUFFER b-qty   FOR reftable.
+    DEFINE BUFFER b-setup FOR reftable.
+    DEFINE BUFFER bff-item FOR ITEM .
+    FIND xjob-mat WHERE RECID(xjob-mat) EQ ip-recid1 NO-LOCK.
+                      
+
+    ASSIGN
+        op-cost      = ip-cost
+        op-cons-cost = ip-cons-cost.
+    
+        FIND FIRST item NO-LOCK WHERE 
+            item.company  EQ job-mat.company AND
+            item.i-no     EQ po-ordl.i-no
+            NO-ERROR.
+
+        IF AVAILABLE ITEM AND
+            ITEM.mat-type NE "B" THEN
+            LEAVE.
+
+        ASSIGN v-len-dec                   = xjob-mat.len
+            v-wid-dec                      = xjob-mat.wid
+            v-dep-dec                      = IF AVAILABLE item AND CAN-DO("C,5,6,D",item.mat-type) THEN item.case-d
+                ELSE IF AVAILABLE item THEN item.s-dep ELSE 0
+                    {po/calc16.i v-len-dec}
+                    {po/calc16.i v-wid-dec}
+                    {po/calc16.i v-dep-dec} .
+
+        ASSIGN
+            v-adder[1] = ip-cost
+            v-adder[2] = ip-cons-cost.
+
+        IF po-ordl.pr-uom EQ "EA"                    OR
+            (NOT po-ordl.item-type AND
+            LOOKUP(po-ordl.pr-uom,fg-uom-list) EQ 0) THEN
+            v-tot-cost = ip-cost.
+
+        ELSE
+            RUN sys/ref/convcuom.p(po-ordl.pr-uom, "EA",
+                v-basis-w, v-len-dec, v-wid-dec, v-dep-dec,
+                ip-cost, OUTPUT v-tot-cost).
+ 
+        FOR EACH bff-job-mat NO-LOCK
+            WHERE bff-job-mat.company  EQ xjob-mat.company
+            /*AND bff-job-mat.i-no      EQ xjob-mat.i-no*/
+            AND bff-job-mat.job      EQ xjob-mat.job
+            AND bff-job-mat.frm      EQ xjob-mat.frm
+            AND bff-job-mat.job-no   EQ xjob-mat.job-no
+            AND bff-job-mat.job-no2  EQ xjob-mat.job-no2
+            USE-INDEX seq-idx,
+
+            FIRST bff-item NO-LOCK
+            WHERE bff-item.company  EQ bff-job-mat.company
+            AND bff-item.i-no     EQ bff-job-mat.i-no
+            AND bff-item.i-no     EQ ip-adder-item
+            AND bff-item.mat-type EQ "A":
+
+            FIND FIRST e-item NO-LOCK
+                WHERE e-item.company EQ po-ordl.company
+                AND e-item.i-no    EQ po-ordl.i-no
+                NO-ERROR.
+    
+            FIND FIRST e-item-vend NO-LOCK
+                WHERE e-item-vend.company EQ bff-item.company
+                AND e-item-vend.i-no    EQ bff-item.i-no
+                AND e-item-vend.vend-no EQ ip-vend-no
+                NO-ERROR.
+
+            IF AVAILABLE e-item AND AVAILABLE e-item-vend AND ip-vend-no NE "" THEN 
+            DO:
+                IF po-ordl.pr-qty-uom EQ e-item.std-uom THEN
+                    v-qty-comp = ip-qty.
+                ELSE
+                    RUN sys/ref/convquom.p(po-ordl.pr-qty-uom, e-item.std-uom,
+                        v-basis-w, v-len-dec, v-wid-dec, v-dep-dec,
+                        ip-qty, OUTPUT v-qty-comp).
+        
+
+                v-setup = 0.
+
+                EMPTY TEMP-TABLE tt-eiv-2.
+                CREATE tt-eiv-2.
+
+                DO v-index = 1 TO 10:
+                    ASSIGN
+                        tt-eiv-2.run-qty[v-index]  = e-item-vend.run-qty[v-index]
+                        tt-eiv-2.run-cost[v-index] = e-item-vend.run-cost[v-index]
+                        tt-eiv-2.setups[v-index]   = e-item-vend.setups[v-index].
+                END.
+
+                FIND FIRST b-qty WHERE
+                    b-qty.reftable = "vend-qty" AND
+                    b-qty.company = e-item-vend.company AND
+                    b-qty.CODE    = e-item-vend.i-no AND
+                    b-qty.code2   = e-item-vend.vend-no
+                    NO-LOCK NO-ERROR.
+      
+                IF AVAILABLE b-qty THEN
+                DO:
+                    FIND FIRST b-cost NO-LOCK WHERE
+                        b-cost.reftable = "vend-cost" AND
+                        b-cost.company = e-item-vend.company AND
+                        b-cost.CODE    = e-item-vend.i-no AND
+                        b-cost.code2   = e-item-vend.vend-no
+                        NO-ERROR.
+
+                    FIND FIRST b-setup NO-LOCK WHERE
+                        b-setup.reftable = "vend-setup" AND
+                        b-setup.company = e-item-vend.company AND
+                        b-setup.CODE    = e-item-vend.i-no AND
+                        b-setup.code2   = e-item-vend.vend-no
+                        NO-ERROR.
+      
+                    DO v-index = 1 TO 10:
+                        ASSIGN
+                            tt-eiv-2.run-qty[v-index + 10]  = b-qty.val[v-index]
+                            tt-eiv-2.run-cost[v-index + 10] = b-cost.val[v-index]
+                            tt-eiv-2.setups[v-index + 10]   = b-setup.val[v-index].
+                    END.
+                END.
+
+                DO i = 1 TO EXTENT(tt-eiv-2.run-qty):
+                    IF v-qty-comp LE tt-eiv-2.run-qty[i] THEN
+                        LEAVE.
+                END.
+                /*  if i eq 1 then v-setup = e-item-vend.setup. */
+                IF i GT EXTENT(tt-eiv-2.run-qty) THEN i = EXTENT(tt-eiv-2.run-qty).
+                ASSIGN
+                    v-setup        = tt-eiv-2.setups[i]
+                    op-adder-setup = op-adder-setup + v-setup
+                    v-cost         = ((tt-eiv-2.run-cost[i] * v-qty-comp) + v-setup) / v-qty-comp.
+                /* This adds the Adder cost in */
+                IF e-item.std-uom NE po-ordl.pr-uom THEN
+                    RUN sys/ref/convcuom.p(e-item.std-uom, po-ordl.pr-uom, bff-job-mat.basis-w,
+                        bff-job-mat.len, bff-job-mat.wid, bff-item.s-dep,
+                        v-cost, OUTPUT v-cost).
+            END.
+
+            ELSE 
+            DO:
+                v-cost = bff-job-mat.std-cost.
+      
+                IF job-mat.sc-uom NE po-ordl.pr-uom THEN
+                    RUN sys/ref/convcuom.p(job-mat.sc-uom, po-ordl.pr-uom, bff-job-mat.basis-w,
+                        bff-job-mat.len, bff-job-mat.wid, bff-item.s-dep,
+                        bff-job-mat.std-cost, OUTPUT v-cost).
+            END.
+            IF v-cost = ? THEN v-cost = 0.
+           
+                v-add-cost = v-add-cost + v-cost.
+                op-cons-cost = v-cost .
+        END.
+
+        IF po-ordl.pr-uom NE "EA" THEN 
+            RUN sys/ref/convcuom.p("EA", po-ordl.pr-uom,
+                v-basis-w, v-len-dec, v-wid-dec, v-dep-dec,
+                v-tot-cost, OUTPUT v-tot-cost).
+ 
+        op-cost = v-add-cost + v-tot-cost.
+        
+    
+
+END PROCEDURE.
+
 /* END ---------------------------- Copr. 1992 - 1994  Advanced Software Inc. */
+
 
