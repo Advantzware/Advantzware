@@ -1602,7 +1602,7 @@ PROCEDURE local-initialize :
     MESSAGE
         "Schedule Board Configuration Release" version "is Outdated." SKIP 
         "Auto Correct to Release {&version}?" SKIP(1)
-        "Warning: Auto Correrct will not preserve any previous Configuration Values!!!"
+        "Warning: Auto Correct will not preserve any previous Configuration Values!!!"
     VIEW-AS ALERT-BOX BUTTONS YES-NO TITLE "Invalid SB Release"
     UPDATE lContinue.
     IF lContinue THEN
