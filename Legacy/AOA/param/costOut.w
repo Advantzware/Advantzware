@@ -49,10 +49,10 @@ CREATE WIDGET-POOL.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS svCompany svLocation svAllJobNo svStartJobNo ~
 svStartJobNo2 svEndJobNo svEndJobNo2 svStartDate btnCalendar-5 ~
-svStartDateOption svEndDate btnCalendar-6 svEndDateOption svOpened 
+svStartDateOption svEndDate btnCalendar-6 svEndDateOption svOpened svSort 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svAllJobNo ~
 svStartJobNo svStartJobNo2 svEndJobNo svEndJobNo2 svStartDate ~
-svStartDateOption svEndDate svEndDateOption svOpened 
+svStartDateOption svEndDate svEndDateOption svOpened svSort 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -137,6 +137,16 @@ DEFINE VARIABLE svOpened AS CHARACTER
 "Both", "Both"
      SIZE 37 BY 1 TOOLTIP "Job Status" NO-UNDO.
 
+DEFINE VARIABLE svSort AS CHARACTER 
+     VIEW-AS RADIO-SET VERTICAL
+     RADIO-BUTTONS 
+          "Job", "Job",
+"Die No", "Die No",
+"Sales Rep", "Sales Rep",
+"Customer", "Customer",
+"Item No", "Item No"
+     SIZE 16 BY 5 NO-UNDO.
+
 DEFINE VARIABLE svAllJobNo AS LOGICAL INITIAL yes 
      LABEL "All Jobs" 
      VIEW-AS TOGGLE-BOX
@@ -168,14 +178,17 @@ DEFINE FRAME F-Main
      btnCalendar-6 AT ROW 8.62 COL 41 WIDGET-ID 82
      svEndDateOption AT ROW 8.62 COL 44 COLON-ALIGNED HELP
           "Select End Date Option" NO-LABEL WIDGET-ID 66
-     svOpened AT ROW 10.76 COL 25 HELP
+     svOpened AT ROW 10.52 COL 25 HELP
           "Select Job Status" NO-LABEL WIDGET-ID 234
+     svSort AT ROW 12.19 COL 25 NO-LABEL WIDGET-ID 240
+     "Sort By:" VIEW-AS TEXT
+          SIZE 8 BY 1 AT ROW 12.19 COL 16 WIDGET-ID 246
      "Job Status:" VIEW-AS TEXT
-          SIZE 11 BY 1 AT ROW 10.76 COL 13 WIDGET-ID 238
+          SIZE 11 BY 1 AT ROW 10.52 COL 13 WIDGET-ID 238
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 85.4 BY 15.24
+         SIZE 85.4 BY 17.38
          TITLE "Report Parameters".
 
 
@@ -205,7 +218,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 15.24
+         HEIGHT             = 17.38
          WIDTH              = 85.4.
 /* END WINDOW DEFINITION */
                                                                         */

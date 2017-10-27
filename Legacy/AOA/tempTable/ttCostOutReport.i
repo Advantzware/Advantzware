@@ -23,5 +23,6 @@ DEFINE TEMP-TABLE ttCostOutReport NO-UNDO
     FIELD actualCF     AS DECIMAL       LABEL "Actual CF"      FORMAT "->>,>>>,>>9.99"
     FIELD category     AS CHARACTER     LABEL "Category"       FORMAT "x(8)"
     FIELD qtyProduced  AS DECIMAL       LABEL "Qty Produced"   FORMAT "->>,>>>,>>9.99"
-        INDEX ttCostOutReport IS PRIMARY custName jobNo
+    FIELD xxSort       AS CHARACTER     LABEL "Sort By"        FORMAT "x(20)"
+        INDEX ttCostOutReport IS PRIMARY xxSort
     .

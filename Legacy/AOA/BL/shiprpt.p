@@ -58,14 +58,15 @@ FOR EACH ar-inv NO-LOCK
     FIRST cust NO-LOCK 
     WHERE cust.company EQ ar-inv.company
       AND cust.cust-no EQ ar-inv.cust-no,
-    EACH ar-invl NO-LOCK 
+    EACH  ar-invl NO-LOCK 
     WHERE ar-invl.x-no EQ ar-inv.x-no
-      AND FILL(" ",6 - LENGTH(TRIM(ar-invl.job-no))) +
-          TRIM(ar-invl.job-no) +
-          STRING(ar-invl.job-no2,"99") GE cStartJobNo + STRING(iStartJobNo2,"99")
-      AND FILL(" ",6 - LENGTH(TRIM(ar-invl.job-no))) +
-          TRIM(ar-invl.job-no) +
-          STRING(ar-invl.job-no2,"99") LE cEndJobNo + STRING(iEndJobNo2,"99")
+      AND ((FILL(" ",6 - LENGTH(TRIM(ar-invl.job-no))) +
+            TRIM(ar-invl.job-no) +
+            STRING(ar-invl.job-no2,"99") GE cStartJobNo + STRING(iStartJobNo2,"99")
+      AND   FILL(" ",6 - LENGTH(TRIM(ar-invl.job-no))) +
+            TRIM(ar-invl.job-no) +
+            STRING(ar-invl.job-no2,"99") LE cEndJobNo + STRING(iEndJobNo2,"99"))
+       OR   lAllJobNo EQ YES)
       AND NOT ar-invl.misc,
     FIRST itemfg NO-LOCK 
     WHERE itemfg.company EQ ar-inv.company

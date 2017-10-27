@@ -1,4 +1,4 @@
-/* pCostOutReport.i - auto generated 10.26.2017 @  1:21:04 am from aoa/aoaParam.w */
+/* pCostOutReport.i - auto generated 10.26.2017 @  4:09:25 pm from aoa/aoaParam.w */
 
     {aoa/includes/aoaInputDefParams.i}
 
@@ -14,6 +14,7 @@
     DEFINE VARIABLE dtEndDate AS DATE NO-UNDO.
     DEFINE VARIABLE cEndDateOption AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cOpened AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cSort AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSecure AS LOGICAL NO-UNDO.
     DEFINE VARIABLE cAvailableColumns AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSelectedColumns AS CHARACTER NO-UNDO.
@@ -36,6 +37,7 @@
         cEndDateOption = DYNAMIC-FUNCTION("fGetParamValue","svEndDateOption")
         dtEndDate = DYNAMIC-FUNCTION("fDateOptionDate",cEndDateOption,dtEndDate)
         cOpened = DYNAMIC-FUNCTION("fGetParamValue","svOpened")
+        cSort = DYNAMIC-FUNCTION("fGetParamValue","svSort")
         lSecure = DYNAMIC-FUNCTION("fGetParamValue","svSecure") EQ "yes"
         cAvailableColumns = DYNAMIC-FUNCTION("fGetParamValue","svAvailableColumns")
         cSelectedColumns = DYNAMIC-FUNCTION("fGetParamValue","svSelectedColumns")

@@ -37,14 +37,15 @@ ASSIGN
                 + TRIM(cEndJobNo)
     .
 FOR EACH job NO-LOCK
-    WHERE  job.company EQ ipcCompany
-      AND (job.opened EQ (cOpened EQ "Yes") OR cOpened EQ "Both")
-      AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
-          TRIM(job.job-no) +
-          STRING(job.job-no2,"99") GE cStartJobNo + STRING(iStartJobNo2,"99")
-      AND FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
-          TRIM(job.job-no) +
-          STRING(job.job-no2,"99") LE cEndJobNo + STRING(iEndJobNo2,"99")
+    WHERE   job.company EQ ipcCompany
+      AND  (job.opened EQ (cOpened EQ "Yes") OR cOpened EQ "Both")
+      AND ((FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
+            TRIM(job.job-no) +
+            STRING(job.job-no2,"99") GE cStartJobNo + STRING(iStartJobNo2,"99")
+      AND   FILL(" ",6 - LENGTH(TRIM(job.job-no))) +
+            TRIM(job.job-no) +
+            STRING(job.job-no2,"99") LE cEndJobNo + STRING(iEndJobNo2,"99"))
+       OR   lAllJobNo EQ YES)
       AND ((job.close-date GE dtStartDate
       AND   job.close-date LE dtEndDate
       AND   job.opened     EQ NO)
@@ -237,6 +238,8 @@ PROCEDURE pJobDetail:
             END. /* each fg-rcpth */
         END. /* last frm */
         IF LAST(job-hdr.frm) THEN DO:
+            IF AVAILABLE cust THEN
+            ttCostOutReport.custName = cust.name.
             ASSIGN
                 dAvgPrice                    = dSales    / (iTotalOrdered / 1000)
                 dSales                       = dAvgPrice * (iQtyProduced  / 1000)
@@ -257,9 +260,13 @@ PROCEDURE pJobDetail:
                                              - ttCostOutReport.totalActCost)
                                              / dSales)
                                              * 100
+                ttCostOutReport.xxSort       = IF cSort EQ "Die No"    THEN ttCostOutReport.dieNo
+                                          ELSE IF cSort EQ "Sales Rep" THEN ttCostOutReport.salesRep
+                                          ELSE IF cSort EQ "Customer"  THEN ttCostOutReport.custName
+                                          ELSE IF cSort EQ "Item No"   THEN ttCostOutReport.itemNo
+                                          ELSE ""
+                                             + job-hdr.job-no + STRING(job-hdr.job-no2,"99")
                 .
-            IF AVAILABLE cust THEN
-            ttCostOutReport.custName = cust.name.
         END. /* if last */
     END. /* each job-hdr */
 END PROCEDURE.
