@@ -504,17 +504,19 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                  end.   
               end.
            end.
-
-           
-           do i = i to 7:
+          
+           do i = 1 to 7:
               create w-bin.
+              IF i EQ 1 OR i EQ 2 OR i EQ 3 THEN
               ASSIGN w-bin.w-date-time = "29991200000000".
+              ELSE
+                  ASSIGN w-bin.w-date-time = "29991201000000".
               RELEASE w-bin.
            end.
            for each w-bin where w-bin.w-ord-col eq "" 
                BY w-bin.w-date-time
                by w-bin.w-qty[2] desc
-               by w-bin.w-qty[1] desc:
+               by w-bin.w-qty[1] desc:  
                w-bin.w-ord-col = string(w-oe-rell.ord-no). 
                leave.
            end.  
