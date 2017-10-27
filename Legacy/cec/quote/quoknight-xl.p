@@ -178,7 +178,7 @@ if (xquo.shipto[1] eq xquo.soldto[1] and
 
 RUN UTIL/CurrDir.p (output CurrDir).
 
-chFile = CurrDir + "\Template\quoteknight.xlt" NO-ERROR.
+chFile = CurrDir + "\Template\quotenosco.xlt" NO-ERROR.
    
 chExcelApplication:VISIBLE = TRUE.
 
