@@ -2,7 +2,6 @@
 &ANALYZE-RESUME
 /* Connected Databases 
           asi              PROGRESS
-          nosweat          PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
@@ -51,7 +50,7 @@ DEFINE VARIABLE noteTime AS CHARACTER NO-UNDO.
 
 &Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 &Scoped-define BROWSE-NAME br_table
 
@@ -75,10 +74,14 @@ notes.user_id notes.note_code notes.note_form_no notes.note_type
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br_table 
 &Scoped-define QUERY-STRING-br_table FOR EACH notes WHERE TRUE /* Join to job incomplete */ ~
       AND notes.rec_key EQ job.rec_key ~
-AND notes.note_type NE 'S' NO-LOCK
+AND (notes.note_type EQ 'D' ~
+OR (notes.note_type EQ 'O' ~
+AND notes.note_group EQ STRING(job.job))) NO-LOCK
 &Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH notes WHERE TRUE /* Join to job incomplete */ ~
       AND notes.rec_key EQ job.rec_key ~
-AND notes.note_type NE 'S' NO-LOCK.
+AND (notes.note_type EQ 'D' ~
+OR (notes.note_type EQ 'O' ~
+AND notes.note_group EQ STRING(job.job))) NO-LOCK.
 &Scoped-define TABLES-IN-QUERY-br_table notes
 &Scoped-define FIRST-TABLE-IN-QUERY-br_table notes
 
@@ -236,7 +239,7 @@ END.
 /* SETTINGS FOR WINDOW B-table-Win
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
-   NOT-VISIBLE Size-to-Fit                                              */
+   NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
 /* BROWSE-TAB br_table 1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
@@ -257,16 +260,18 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE"
      _TblOptList       = ", FIRST"
      _Where[1]         = "notes.rec_key EQ job.rec_key
-AND notes.note_type NE 'S'"
+AND (notes.note_type EQ 'D'
+OR (notes.note_type EQ 'O'
+AND notes.note_group EQ STRING(job.job)))"
      _FldNameList[1]   > ASI.notes.note_date
-"notes.note_date" "Date" "99.99.9999" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"notes.note_date" "Date" "99.99.9999" "date" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > "_<CALC>"
-"STRING(notes.note_time,'HH:MM:SSam') @ noteTime" "Time" "X(10)" ? ? ? ? ? ? ? no ? no no "10.8" yes no no "U" "" ""
+"STRING(notes.note_time,'HH:MM:SSam') @ noteTime" "Time" "X(10)" ? ? ? ? ? ? ? no ? no no "10.8" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > ASI.notes.note_title
-"notes.note_title" "Title" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"notes.note_title" "Title" "X(30)" "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   = ASI.notes.user_id
      _FldNameList[5]   > ASI.notes.note_code
-"notes.note_code" "Dept" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" ""
+"notes.note_code" "Dept" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   = ASI.notes.note_form_no
      _FldNameList[7]   = ASI.notes.note_type
      _Query            is NOT OPENED
@@ -280,7 +285,7 @@ AND notes.note_type NE 'S'"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
