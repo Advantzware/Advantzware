@@ -1,4 +1,4 @@
-/* pMachineTransactions.i - auto generated 11.09.2016 @  8:49:00 pm from aoa/aoaParam.w */
+/* pMachineTransactions.i - auto generated 10.27.2017 @  8:35:45 pm from aoa/aoaParam.w */
 
     {aoa/includes/aoaInputDefParams.i}
 
@@ -13,6 +13,11 @@
     DEFINE VARIABLE lAllShift AS LOGICAL NO-UNDO.
     DEFINE VARIABLE iStartShift AS INTEGER NO-UNDO.
     DEFINE VARIABLE iEndShift AS INTEGER NO-UNDO.
+    DEFINE VARIABLE lUseTime AS LOGICAL NO-UNDO.
+    DEFINE VARIABLE cStartTime AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cStartAMPM AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndTime AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cEndAMPM AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cSort AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lSubRpt_EmployeeTransactions AS LOGICAL NO-UNDO.
     DEFINE VARIABLE lSecure AS LOGICAL NO-UNDO.
@@ -36,6 +41,11 @@
         lAllShift = DYNAMIC-FUNCTION("fGetParamValue","svAllShift") EQ "yes"
         iStartShift = DYNAMIC-FUNCTION("fGetParamValue","svStartShift")
         iEndShift = DYNAMIC-FUNCTION("fGetParamValue","svEndShift")
+        lUseTime = DYNAMIC-FUNCTION("fGetParamValue","svUseTime") EQ "yes"
+        cStartTime = DYNAMIC-FUNCTION("fGetParamValue","svStartTime")
+        cStartAMPM = DYNAMIC-FUNCTION("fGetParamValue","svStartAMPM")
+        cEndTime = DYNAMIC-FUNCTION("fGetParamValue","svEndTime")
+        cEndAMPM = DYNAMIC-FUNCTION("fGetParamValue","svEndAMPM")
         cSort = DYNAMIC-FUNCTION("fGetParamValue","svSort")
         lSubRpt_EmployeeTransactions = DYNAMIC-FUNCTION("fGetParamValue","svSubRpt_EmployeeTransactions") EQ "yes"
         lSecure = DYNAMIC-FUNCTION("fGetParamValue","svSecure") EQ "yes"

@@ -50,16 +50,16 @@ CREATE WIDGET-POOL.
 &Scoped-Define ENABLED-OBJECTS svCompany svLocation svAllDept svStartDept ~
 svEndDept svAllMachine svStartMachine svEndMachine svStartOpDate ~
 btnCalendar-1 svStartOpDateOption svEndOpDate btnCalendar-2 ~
-svEndOpDateOption svAllShift svStartShift svEndShift svCustList btnCustList ~
-svAllCustNo svStartCustNo svEndCustNo svPrintByScheduledMachine ~
-svRoundDecimals svSort 
+svEndOpDateOption svAllShift svStartShift svEndShift svUseTime svStartTime ~
+svStartAMPM svEndTime svEndAMPM svCustList btnCustList svAllCustNo ~
+svStartCustNo svEndCustNo svPrintByScheduledMachine svRoundDecimals svSort 
 &Scoped-Define DISPLAYED-OBJECTS svCompany svLocation svAllDept svStartDept ~
 startDeptName svEndDept endDeptName svAllMachine svStartMachine ~
 startMachineDescription svEndMachine endMachineDescription svStartOpDate ~
 svStartOpDateOption svEndOpDate svEndOpDateOption svAllShift svStartShift ~
-startShiftName svEndShift endShiftName svCustList svAllCustNo svStartCustNo ~
-startCustName svEndCustNo endCustName svPrintByScheduledMachine ~
-svRoundDecimals svSort 
+startShiftName svEndShift endShiftName svUseTime svStartTime svStartAMPM ~
+svEndTime svEndAMPM svCustList svAllCustNo svStartCustNo startCustName ~
+svEndCustNo endCustName svPrintByScheduledMachine svRoundDecimals svSort 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -88,11 +88,25 @@ DEFINE BUTTON btnCustList
      LABEL "Preview" 
      SIZE 9.8 BY .95.
 
+DEFINE VARIABLE svEndAMPM AS CHARACTER FORMAT "X(2)":U INITIAL "AM" 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEMS "am","pm" 
+     DROP-DOWN-LIST
+     SIZE 8 BY 1 TOOLTIP "Select AM/PM"
+     BGCOLOR 15  NO-UNDO.
+
 DEFINE VARIABLE svEndOpDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Item 1" 
      DROP-DOWN-LIST
      SIZE 25 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svStartAMPM AS CHARACTER FORMAT "X(2)":U INITIAL "AM" 
+     VIEW-AS COMBO-BOX INNER-LINES 2
+     LIST-ITEMS "am","pm" 
+     DROP-DOWN-LIST
+     SIZE 8 BY 1 TOOLTIP "Select AM/PM"
+     BGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE svStartOpDateOption AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS COMBO-BOX INNER-LINES 5
@@ -162,6 +176,11 @@ DEFINE VARIABLE svEndShift AS INTEGER FORMAT ">9" INITIAL 0
      VIEW-AS FILL-IN 
      SIZE 4 BY 1.
 
+DEFINE VARIABLE svEndTime AS CHARACTER FORMAT "99:99":U INITIAL "1200" 
+     LABEL "End Time" 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1 NO-UNDO.
+
 DEFINE VARIABLE svLocation AS CHARACTER FORMAT "X(5)" 
      LABEL "Location" 
      VIEW-AS FILL-IN 
@@ -191,6 +210,11 @@ DEFINE VARIABLE svStartShift AS INTEGER FORMAT ">9" INITIAL 0
      LABEL "Start Shift" 
      VIEW-AS FILL-IN 
      SIZE 4 BY 1.
+
+DEFINE VARIABLE svStartTime AS CHARACTER FORMAT "99:99":U INITIAL "1200" 
+     LABEL "Start Time" 
+     VIEW-AS FILL-IN 
+     SIZE 8 BY 1 NO-UNDO.
 
 DEFINE VARIABLE svSort AS CHARACTER 
      VIEW-AS RADIO-SET HORIZONTAL
@@ -233,6 +257,11 @@ DEFINE VARIABLE svRoundDecimals AS LOGICAL INITIAL no
      LABEL "Round Decimals" 
      VIEW-AS TOGGLE-BOX
      SIZE 33 BY 1 NO-UNDO.
+
+DEFINE VARIABLE svUseTime AS LOGICAL INITIAL no 
+     LABEL "Use Start/End Times (not Shift Tables)" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 40 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -280,28 +309,45 @@ DEFINE FRAME F-Main
           "Enter End Shift" WIDGET-ID 120
      endShiftName AT ROW 16.24 COL 28 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 114
-     svCustList AT ROW 17.91 COL 25 WIDGET-ID 48
-     btnCustList AT ROW 17.91 COL 55 WIDGET-ID 46
-     svAllCustNo AT ROW 19.1 COL 25 HELP
+     svUseTime AT ROW 17.43 COL 25 HELP
+          "Select to Use Time vs Shift Table" WIDGET-ID 248
+     svStartTime AT ROW 18.62 COL 23 COLON-ALIGNED HELP
+          "Enter Start Time" WIDGET-ID 222
+     svStartAMPM AT ROW 18.62 COL 31 COLON-ALIGNED HELP
+          "Select AM/PM" NO-LABEL WIDGET-ID 244
+     svEndTime AT ROW 18.62 COL 52 COLON-ALIGNED HELP
+          "Enter End Time" WIDGET-ID 228
+     svEndAMPM AT ROW 18.62 COL 60 COLON-ALIGNED HELP
+          "Select AM/PM" NO-LABEL WIDGET-ID 246
+     svCustList AT ROW 20.29 COL 25.4 WIDGET-ID 48
+     btnCustList AT ROW 20.29 COL 55.4 WIDGET-ID 46
+     svAllCustNo AT ROW 21.48 COL 25.4 HELP
           "All Customers?" WIDGET-ID 56
-     svStartCustNo AT ROW 20.29 COL 23 COLON-ALIGNED HELP
+     svStartCustNo AT ROW 22.67 COL 23.4 COLON-ALIGNED HELP
           "Enter Beginning Customer" WIDGET-ID 2
-     startCustName AT ROW 20.29 COL 39 COLON-ALIGNED HELP
+     startCustName AT ROW 22.67 COL 39.4 COLON-ALIGNED HELP
           "Enter Beginning Customer Name" NO-LABEL WIDGET-ID 4
-     svEndCustNo AT ROW 21.48 COL 23 COLON-ALIGNED HELP
+     svEndCustNo AT ROW 23.86 COL 23.4 COLON-ALIGNED HELP
           "Enter Ending Customer" WIDGET-ID 6
-     endCustName AT ROW 21.48 COL 39 COLON-ALIGNED HELP
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1
+         SIZE 85.8 BY 29.48.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
+     endCustName AT ROW 23.86 COL 39.4 COLON-ALIGNED HELP
           "Enter Ending Customer Name" NO-LABEL WIDGET-ID 8
-     svPrintByScheduledMachine AT ROW 23.14 COL 25 WIDGET-ID 124
-     svRoundDecimals AT ROW 24.33 COL 25 WIDGET-ID 126
-     svSort AT ROW 25.76 COL 24.6 HELP
+     svPrintByScheduledMachine AT ROW 25.52 COL 25.4 WIDGET-ID 124
+     svRoundDecimals AT ROW 26.71 COL 25.4 WIDGET-ID 126
+     svSort AT ROW 28.14 COL 25 HELP
           "Select Sort Option" NO-LABEL WIDGET-ID 84
      "Sort By:" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 25.76 COL 15 WIDGET-ID 90
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 85.8 BY 27.1
+         SIZE 85.8 BY 29.48
          TITLE "Report Parameters".
 
 
@@ -331,7 +377,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW sObject ASSIGN
-         HEIGHT             = 27.1
+         HEIGHT             = 29.48
          WIDTH              = 85.8.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -575,6 +621,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svEndTime
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svEndTime sObject
+ON LEAVE OF svEndTime IN FRAME F-Main /* End Time */
+DO:
+    {AOA/includes/svTime.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME svLocation
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svLocation sObject
 ON ENTRY OF svLocation IN FRAME F-Main /* Location */
@@ -675,6 +732,28 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME svStartTime
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svStartTime sObject
+ON LEAVE OF svStartTime IN FRAME F-Main /* Start Time */
+DO:
+    {AOA/includes/svTime.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME svUseTime
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL svUseTime sObject
+ON VALUE-CHANGED OF svUseTime IN FRAME F-Main /* Use Start/End Times (not Shift Tables) */
+DO:
+    {AOA/includes/svTimeInit.i svStartTime svStartAMPM svEndTime svEndAMPM}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK sObject 
@@ -744,6 +823,8 @@ PROCEDURE pInitialize :
         APPLY "LEAVE":U TO svStartShift.
         APPLY "LEAVE":U TO svEndShift.
         
+        APPLY "VALUE-CHANGED":U TO svUseTime.
+
         APPLY "VALUE-CHANGED":U TO svAllCustNo.
         APPLY "LEAVE":U TO svStartCustNo.
         APPLY "LEAVE":U TO svEndCustNo.
