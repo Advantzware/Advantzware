@@ -118,7 +118,7 @@ DEFINE BUFFER bUserPrint FOR user-print.
     ~{&OPEN-QUERY-browseUserPrint}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExcel btnCancel btnView 
+&Scoped-Define ENABLED-OBJECTS btnExcel btnSaveParams btnCancel btnView 
 
 /* Custom List Definitions                                              */
 /* ScheduleFields,showFields,batchObjects,batchShowHide,columnObjects,List-6 */
@@ -311,6 +311,11 @@ DEFINE BUTTON btnSave
      LABEL "&Save" 
      SIZE 4.4 BY 1 TOOLTIP "Save Parameter Values to Batch ID".
 
+DEFINE BUTTON btnSaveParams 
+     IMAGE-UP FILE "aoa/images/aoasave.jpg":U
+     LABEL "Save Params" 
+     SIZE 4.4 BY 1 TOOLTIP "Save Parameters".
+
 DEFINE BUTTON btnScheduler 
      LABEL "Assign &Scheduler Batch ID" 
      SIZE 27 BY 1 TOOLTIP "Assign Batch ID to Parameter Values".
@@ -366,9 +371,11 @@ DEFINE FRAME paramFrame
           "Show Batch Parameter Values" WIDGET-ID 20
      btnExcel AT ROW 2.43 COL 35 HELP
           "Export to Excel" WIDGET-ID 22
-     btnCancel AT ROW 3.62 COL 2 HELP
+     btnSaveParams AT ROW 3.62 COL 2 HELP
+          "Save Parameters" WIDGET-ID 24
+     btnCancel AT ROW 3.62 COL 7 HELP
           "Close" WIDGET-ID 12
-     btnView AT ROW 3.62 COL 7 HELP
+     btnView AT ROW 3.62 COL 12 HELP
           "View" WIDGET-ID 14
      btnDelete AT ROW 3.62 COL 25 HELP
           "Delete Batch ID" WIDGET-ID 4
@@ -382,23 +389,6 @@ DEFINE FRAME paramFrame
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 149 BY 18.05.
-
-DEFINE FRAME frameShow
-     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
-     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
-     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
-     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
-     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
-     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
-     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
-     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
-     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
-     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 41 ROW 1
-         SIZE 40 BY 10.48
-         TITLE "Show/Hide Sections" WIDGET-ID 300.
 
 DEFINE FRAME frameColumns
      svAvailableColumns AT ROW 1.71 COL 1 NO-LABEL WIDGET-ID 68
@@ -422,6 +412,23 @@ DEFINE FRAME frameColumns
          AT COL 82 ROW 1
          SIZE 67 BY 10.48
          TITLE "Report Columns" WIDGET-ID 200.
+
+DEFINE FRAME frameShow
+     svShowAll AT ROW 1.24 COL 2 WIDGET-ID 18
+     svShowReportHeader AT ROW 2.19 COL 5 WIDGET-ID 2
+     svShowParameters AT ROW 3.14 COL 8 WIDGET-ID 16
+     svShowPageHeader AT ROW 4.1 COL 5 WIDGET-ID 6
+     svShowGroupHeader AT ROW 5.05 COL 5 WIDGET-ID 10
+     svShowGroupFooter AT ROW 6 COL 5 WIDGET-ID 12
+     svShowPageFooter AT ROW 6.95 COL 5 WIDGET-ID 8
+     svShowReportFooter AT ROW 7.91 COL 5 WIDGET-ID 4
+     svExcelTable AT ROW 9.33 COL 3 WIDGET-ID 20
+     RECT-1 AT ROW 9.1 COL 2 WIDGET-ID 22
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 41 ROW 1
+         SIZE 40 BY 10.48
+         TITLE "Show/Hide Sections" WIDGET-ID 300.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -813,6 +820,19 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnSaveParams
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnSaveParams W-Win
+ON CHOOSE OF btnSaveParams IN FRAME paramFrame /* Save Params */
+DO:
+    RUN pSaveParamValues (NO, BUFFER user-print).
+    MESSAGE "Parameter Values Saved"
+    VIEW-AS ALERT-BOX.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME btnScheduler
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnScheduler W-Win
 ON CHOOSE OF btnScheduler IN FRAME paramFrame /* Assign Scheduler Batch ID */
@@ -841,18 +861,6 @@ ON CHOOSE OF btnView IN FRAME paramFrame /* View */
 DO:
     RUN pSaveParamValues (NO, BUFFER user-print).
     {aoa/includes/aoaURL.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnView W-Win
-ON RIGHT-MOUSE-CLICK OF btnView IN FRAME paramFrame /* View */
-DO:
-    RUN pSaveParamValues (NO, BUFFER user-print).
-    MESSAGE "Parameter Values Saved"
-    VIEW-AS ALERT-BOX.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1092,7 +1100,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnExcel btnCancel btnView 
+  ENABLE btnExcel btnSaveParams btnCancel btnView 
       WITH FRAME paramFrame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   DISPLAY svShowAll svShowReportHeader svShowParameters svShowPageHeader 
@@ -1676,7 +1684,7 @@ PROCEDURE pGetParamValues :
         hChild = hChild:FIRST-CHILD
         .
     DO WHILE VALID-HANDLE(hChild):
-        IF hChild:NAME NE ? AND hChild:SENSITIVE THEN DO:
+        IF hChild:NAME NE ? AND (hChild:SENSITIVE OR hChild:TYPE EQ "COMBO-BOX") THEN DO:
             DO idx = 1 TO EXTENT(user-print.field-name):
                 IF TRIM(user-print.field-name[idx]) EQ hChild:NAME THEN DO:
                     hChild:SCREEN-VALUE = user-print.field-value[idx].
@@ -1900,8 +1908,9 @@ PROCEDURE pSaveParamValues :
             hChild = hChild:FIRST-CHILD
             .
         DO WHILE VALID-HANDLE(hChild):
-            IF hChild:NAME NE ?        AND
-               hChild:SENSITIVE        AND
+            IF hChild:NAME NE ? AND
+              (hChild:SENSITIVE OR
+               hChild:TYPE EQ "COMBO-BOX") AND
                hChild:TYPE NE "Button" THEN
             ASSIGN
                 idx = idx + 1
@@ -2073,10 +2082,12 @@ PROCEDURE pSetWinSize :
             iSaveHeight                               = hWinKitFrame:HEIGHT-PIXELS
             btnView:Y                                 = hParamFrame:HEIGHT-PIXELS + 5
             btnCancel:Y                               = hParamFrame:HEIGHT-PIXELS + 5
+            btnSaveParams:Y                           = hParamFrame:HEIGHT-PIXELS + 5
             btnExcel:Y                                = hParamFrame:HEIGHT-PIXELS + 5
             btnView:X                                 = hParamFrame:WIDTH-PIXELS - btnView:WIDTH-PIXELS
             btnCancel:X                               = btnView:X - btnCancel:WIDTH-PIXELS - 2
-            btnExcel:X                                = btnCancel:X - ((btnCancel:X
+            btnSaveParams:X                           = btnCancel:X - btnSaveParams:WIDTH-PIXELS - 2
+            btnExcel:X                                = btnSaveParams:X - ((btnSaveParams:X
                                                       - (btnShowBatch:X + btnShowBatch:WIDTH-PIXELS)) / 2)
                                                       - btnExcel:WIDTH-PIXELS / 2
             .
