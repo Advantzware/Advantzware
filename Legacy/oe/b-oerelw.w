@@ -51,6 +51,8 @@ DEF VAR lv-show-prev AS LOG NO-UNDO.
 DEF VAR lv-show-next AS LOG NO-UNDO.
 DEF VAR lv-last-show-rel-no AS int NO-UNDO.
 DEF VAR lv-first-show-rel-no AS int NO-UNDO.
+DEFINE VARIABLE begin_rno  LIKE oe-rell.r-no NO-UNDO.
+DEFINE VARIABLE ending_rno LIKE oe-rell.r-no NO-UNDO.
 
 &SCOPED-DEFINE key-phrase oe-relh.company EQ cocode AND oe-relh.stat EQ "W"
 
@@ -1019,11 +1021,11 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-open-query B-table-Win 
 PROCEDURE local-open-query :
-/*------------------------------------------------------------------------------
-  Purpose:     Override standard ADM method
-  Notes:       
-------------------------------------------------------------------------------*/
-
+    /*------------------------------------------------------------------------------
+      Purpose:     Override standard ADM method
+      Notes:       
+    ------------------------------------------------------------------------------*/
+    DEFINE BUFFER bf-oe-rell FOR oe-rell.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
