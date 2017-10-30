@@ -30,6 +30,7 @@
 CREATE WIDGET-POOL.
 
 /* ***************************  Definitions  ************************** */
+&SCOPED-DEFINE proc-enable proc-enable
 
 /* Parameters Definitions ---                                           */
 
@@ -291,6 +292,38 @@ PROCEDURE send-records :
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE proc-enable V-table-Win 
+PROCEDURE proc-enable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+    FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+
+IF AVAIL users AND users.securityLevel GE 1000 THEN
+     ASSIGN 
+        userControl.maxAllowedUsers:SENSITIVE IN FRAME {&FRAME-NAME} = YES 
+        userControl.numUsersOverLimit:SENSITIVE IN FRAME {&FRAME-NAME} = YES .
+   ELSE 
+       ASSIGN 
+        userControl.maxAllowedUsers:SENSITIVE IN FRAME {&FRAME-NAME} = NO 
+        userControl.numUsersOverLimit:SENSITIVE IN FRAME {&FRAME-NAME} = NO
+       .
+
+    IF AVAIL users AND users.securityLevel GT 900 THEN
+         ASSIGN 
+             userControl.maxSessionsPerUser:SENSITIVE IN FRAME {&FRAME-NAME} = YES  .
+    ELSE 
+        userControl.maxSessionsPerUser:SENSITIVE IN FRAME {&FRAME-NAME} = NO  .
+    
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

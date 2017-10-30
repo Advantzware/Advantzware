@@ -631,6 +631,18 @@ PROCEDURE post-enable :
       DISABLE sys-ctrl.log-fld WITH FRAME {&FRAME-NAME}.
 
   END.
+  IF sys-ctrl.NAME:SCREEN-VALUE IN FRAME {&FRAME-NAME} = "SECURITY"  
+  THEN DO:
+      FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+
+      IF AVAIL users AND users.securityLevel GE 1000 THEN
+          ENABLE  sys-ctrl.log-fld WITH FRAME {&FRAME-NAME}.
+      ELSE
+          DISABLE sys-ctrl.char-fld sys-ctrl.date-fld sys-ctrl.dec-fld sys-ctrl.int-fld 
+                  sys-ctrl.log-fld sys-ctrl.descrip sys-ctrl.module WITH FRAME {&FRAME-NAME}.
+
+  END.
 
 END PROCEDURE.
 

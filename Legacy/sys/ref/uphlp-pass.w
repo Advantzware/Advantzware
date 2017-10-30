@@ -248,7 +248,7 @@ ON CHOOSE OF Btn_OK IN FRAME Password /* OK */
 DO:
   ASSIGN pass_word.
 
-  op-validated = pass_word EQ "advance4me".
+  op-validated = pass_word EQ sys-ctrl.char-fld.
 
   IF NOT op-validated THEN 
     MESSAGE "Invalid password, access denied..." VIEW-AS ALERT-BOX ERROR.

@@ -518,14 +518,11 @@ PROCEDURE calc-cost :
 IF AVAIL users AND users.securityLevel GE 900 THEN
     ASSIGN v-override = YES.
 IF not(v-override) THEN DO:
-  IF v-acs-code NE "YORKIE" THEN RUN windows/chkcode.w (OUTPUT v-acs-code).
-
-  IF v-acs-code EQ "YORKIE" THEN v-override = YES.
-  ELSE DO:
-    MESSAGE "Invalid password, access denied..."
-        VIEW-AS ALERT-BOX ERROR.
-    RETURN NO-APPLY.
-  END.
+  /*IF v-acs-code NE "YORKIE" THEN RUN windows/chkcode.w (OUTPUT v-acs-code).*/
+   IF NOT v-override THEN do:  
+     RUN sys/ref/d-passwd.w (10, OUTPUT v-override). 
+     IF NOT v-override THEN RETURN NO-APPLY.
+   END.  
 END.
      
   IF v-override THEN DO:
@@ -543,14 +540,14 @@ END.
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE choice.
 
     IF choice THEN bf-item.last-cost = bf-rm-bin.cost.*/
-
+   IF AVAIL rm-bin THEN
     ASSIGN
      lv-rowid = ROWID(rm-bin)
      lv-qty   = rm-bin.qty
      lv-cost  = rm-bin.cost.
 
     RUN rm/d-rm-bin.w (lv-rowid).
-
+    IF AVAIL rm-bin THEN
     IF lv-qty  NE rm-bin.qty  OR
        lv-cost NE rm-bin.cost THEN DO:
 

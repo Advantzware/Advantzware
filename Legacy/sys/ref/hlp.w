@@ -301,6 +301,12 @@ DO:
     ASSIGN ll-secure = NO
            op-ed-text = ed-text.
 
+    FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+
+    IF AVAIL users AND users.securityLevel GE 900 THEN
+    ASSIGN ll-secure = YES.
+
     IF NOT ll-secure THEN RUN sys/ref/uphlp-pass.w (3, OUTPUT ll-secure).
 
     IF ll-secure EQ YES THEN

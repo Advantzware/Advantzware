@@ -46,6 +46,11 @@ ASSIGN
     cocode = g_company
     locode = g_loc.
 
+FIND FIRST sys-ctrl NO-LOCK
+    WHERE sys-ctrl.company EQ cocode
+      AND sys-ctrl.NAME    EQ "SECURITY"
+    NO-ERROR.
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -194,7 +199,7 @@ DO:
   ASSIGN pass_word.
 
   ASSIGN 
-      op-validated = TRIM(pass_word) EQ TRIM(v-psswrd).
+      op-validated = TRIM(pass_word) EQ sys-ctrl.char-fld.
 
   IF NOT op-validated THEN
     MESSAGE "Invalid password, access denied..." VIEW-AS ALERT-BOX ERROR.
