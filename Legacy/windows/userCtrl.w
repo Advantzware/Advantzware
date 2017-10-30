@@ -499,8 +499,8 @@ PROCEDURE local-enable :
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  IF USERID(LDBNAME(1)) NE "ASI" AND VALID-HANDLE(h_folder) THEN
-    RUN disable-folder-page IN h_folder (2) .
+  /*IF USERID(LDBNAME(1)) NE "ASI" AND VALID-HANDLE(h_folder) THEN
+    RUN disable-folder-page IN h_folder (2) .*/
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

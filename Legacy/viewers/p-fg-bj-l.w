@@ -200,7 +200,10 @@ ASSIGN
 ON CHOOSE OF btn-update IN FRAME F-Main /* Update Cost/Unit/Count */
 DO:
   def var char-hdl as cha no-undo.
-      
+ FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+  IF AVAIL users AND users.securityLevel GE 900 THEN
+    ASSIGN ll-secure = YES.
   
   IF NOT ll-secure THEN do:  
      RUN sys/ref/d-passwd.w (1, OUTPUT ll-secure). 

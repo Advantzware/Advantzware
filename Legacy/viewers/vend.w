@@ -1746,7 +1746,9 @@ IF AVAIL users AND users.securityLevel GE 1000 THEN
     IF NOT ll-secure                                              AND
        STRING(vend.po-export) NE vend.po-export:SCREEN-VALUE   THEN DO:
 
-      RUN sys/ref/d-passmi.w (OUTPUT ll-secure).
+      IF NOT ll-secure THEN do:  
+          RUN sys/ref/d-passwd.w (10, OUTPUT ll-secure). 
+      END.  
 
       IF NOT ll-secure THEN
         ASSIGN

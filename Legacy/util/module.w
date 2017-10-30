@@ -35,6 +35,20 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
+
+{sys/inc/var.i new shared}
+    
+assign
+ cocode = g_company
+ locode = g_loc.
+
+/* Local Variable Definitions ---                                       */
+
+FIND FIRST sys-ctrl
+    WHERE sys-ctrl.company EQ cocode
+      AND sys-ctrl.NAME    EQ "SECURITY"
+    NO-LOCK NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -164,9 +178,13 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_OK D-Dialog
 ON CHOOSE OF Btn_OK IN FRAME D-Dialog /* OK */
 DO:
+    DEF VAR lv-override AS LOG LABEL " Enter Password " NO-UNDO.
+
     ASSIGN v-password  .
 
-    IF v-password = "advance4me" THEN RUN util/module2.w ("ASI")  .
+    lv-override = v-password EQ sys-ctrl.char-fld.
+    
+    IF lv-override THEN RUN util/module2.w ("ASI")  .
     ELSE DO:
         MESSAGE "Invalid Password!" VIEW-AS ALERT-BOX.
         RETURN NO-APPLY.
