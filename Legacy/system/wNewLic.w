@@ -228,11 +228,12 @@ ON CHOOSE OF btAccept /* Advantzware License Code Entry */
         iSite = INTEGER (cSite) NO-ERROR.
     
         FIND FIRST sys-ctrl WHERE sys-ctrl.name = "site number" NO-LOCK NO-ERROR.
-        IF AVAILABLE sys-ctrl AND avail(asi._license) THEN 
+        FIND FIRST userControl NO-LOCK. 
+        IF AVAILABLE sys-ctrl AND AVAILABLE userControl THEN 
         DO:
             
             IF iSite EQ  sys-ctrl.int-fld 
-                AND iNumUsers = asi._license._Lic-ValidUsers THEN 
+                AND iNumUsers = userControl.maxAllowedUsers THEN 
             DO:
                 FOR EACH module EXCLUSIVE-LOCK WHERE:
                     module.expire-date = dExpireDate.
