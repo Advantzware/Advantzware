@@ -404,7 +404,7 @@ END.
 /* FOLDING */
 IF ip-industry EQ "Fold" THEN DO:
     /* Colonial */
-   IF NOT CAN-DO('ASI,CentBox,UniPak,HPB,METRO,FibreFC,Indiana-XL,Accord,Dee,Colonial,Carded,Carded2,Coburn,Knight***',lv-format-f) THEN spec-list = "".
+   IF NOT CAN-DO('ASI,CentBox,UniPak,HPB,METRO,FibreFC,Indiana-XL,Accord,Dee,Colonial,xml,Carded,Carded2,Coburn,Knight***',lv-format-f) THEN spec-list = "".
    
    if  lv-format-f = 'Indiana-XL'      and 
        (logical (tb_RS:screen-value in frame {&frame-name}) = true or
@@ -458,6 +458,9 @@ IF ip-industry EQ "Fold" THEN DO:
    ELSE IF lv-format-f EQ "Colonial" THEN DO:
       PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".
       RUN cerep/jobcolnl.p (lv-format-f).
+   END.
+   ELSE IF lv-format-f EQ "xml" THEN DO: 
+      RUN cerep/job_xml.p.
    END.
    ELSE IF lv-format-f EQ "CCC" THEN DO:
       PUT UNFORMATTED "<OLANDSCAPE><P10></PROGRESS>".
