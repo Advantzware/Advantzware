@@ -61,23 +61,23 @@ IF ipcIndustry EQ "2" THEN
                             "Qty Usage Last YR,Usage Cost PTD,Usage Cost YTD,Total Cost Last YR,Ink Type,Press Type,Min Lbs/Job,SI/Lb,Wgt/100,Caliper,Shrink%,Weight/MSF,Width,Depth," +
                             "Length,Density,Roll W,Color,ECT,Department 1,Department 2,Department 3,Department 4,Department 5,Department 6,Department 7,Department 8,Department 9,Department 10," +
                             "Reduction% 1,Reduction% 2,Reduction% 3,Reduction% 4,Reduction% 5,Reduction% 6,Reduction% 7,Reduction% 8,Reduction% 9,Reduction% 10,Length,Width,Depth,Avg Wt,Boxes/Bundle," +
-                            "Bundle/Pallet,Weight,Flute,Test,Sq In/Lb,Lin In/UOM,Warehouse,Bin"
+                            "Bundle/Pallet,Weight,Flute,Test,Sq In/Lb,Lin In/UOM,Warehouse,Bin,Qty On Hand"
 
         cFieldListToSelect = "i-no,i-name,i-dscr,est-dscr,i-code,tax-rcpt,mat-type,mat-dscr,cost-type,costtype-descr,procat,procat-dscr,q-ptd," +
                             "q-ytd,q-lyr,u-ptd,u-ytd,u-lyr,ink-type,press-type,min-lbs,yield,weight-100,cal,shrink,basis-w,s-wid,s-dep,s-len,density,r-wid,color-1,ect," +
                             "dept-name[1],dept-name[2],dept-name[3],dept-name[4],dept-name[5],dept-name[6],dept-name[7],dept-name[8],dept-name[9],dept-name[10]," +
                             "speed%[1],speed%[2],speed%[3],speed%[4],speed%[5],speed%[6],speed%[7],speed%[8],speed%[9],speed%[10],case-l,case-w,case-d,avg-w,box-case," +
-                            "case-pall,basis-w,flute,reg-no,sqin-lb,linin-lb,loc,loc-bin".
+                            "case-pall,basis-w,flute,reg-no,sqin-lb,linin-lb,loc,loc-bin,q-onh".
 ELSE 
     ASSIGN 
         cTextListToSelect = "Item#,Name,DESC,Est.DESC,Item Code,Taxable,Mat'l Type,Mat'1 Dscr,Cost Type,Cost Dscr,Category,Category Dscr,QTY Usage PTD,Qty Usage YTD," +
-                            "Qty Usage Last YR,Usage Cost PTD,Usage Cost YTD,Total Cost Last YR,Ink Type,Press Type,Min Lbs/Job,SI/Lb,Wgt/100,Warehouse,Bin"
+                            "Qty Usage Last YR,Usage Cost PTD,Usage Cost YTD,Total Cost Last YR,Ink Type,Press Type,Min Lbs/Job,SI/Lb,Wgt/100,Warehouse,Bin,Qty On Hand"
 
         cFieldListToSelect = "i-no,i-name,i-dscr,est-dscr,i-code,tax-rcpt,mat-type,mat-dscr,cost-type,costtype-descr,procat,procat-dscr,q-ptd," +
-                            "q-ytd,q-lyr,u-ptd,u-ytd,u-lyr,ink-type,press-type,min-lbs,yield,weight-100,loc,loc-bin" .
+                            "q-ytd,q-lyr,u-ptd,u-ytd,u-lyr,ink-type,press-type,min-lbs,yield,weight-100,loc,loc-bin,q-onh" .
 
 {sys/inc/ttRptSel.i}
-    ASSIGN cTextListToDefault  = "Item#,Name,DESC,Item Code,Mat'l Type,Mat'1 Dscr,Cost Type,Cost Dscr,Category,Category Dscr,Warehouse,Bin" .
+    ASSIGN cTextListToDefault  = "Item#,Name,DESC,Item Code,Mat'l Type,Mat'1 Dscr,Cost Type,Cost Dscr,Category,Category Dscr,Warehouse,Bin,Qty On Hand" .
 
 
 /* _UIB-CODE-BLOCK-END */
