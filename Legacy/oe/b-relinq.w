@@ -55,6 +55,8 @@ DEF VAR lv-show-next AS LOG NO-UNDO.
 DEF VAR lv-last-show-rel-no AS int NO-UNDO.
 DEF VAR lv-first-show-rel-no AS int NO-UNDO.
 DEF VAR lActive AS LOGICAL NO-UNDO.
+DEFINE VARIABLE begin_rno LIKE oe-rell.r-no NO-UNDO.
+DEFINE VARIABLE ending_rno LIKE oe-rell.r-no NO-UNDO.
 DO TRANSACTION:
      {sys/ref/CustList.i NEW}
     {sys/inc/custlistform.i ""OT1"" }
@@ -1193,7 +1195,7 @@ PROCEDURE local-open-query :
   Purpose:     Override standard ADM method
   Notes:       
 ------------------------------------------------------------------------------*/
-
+DEFINE BUFFER bf-oe-rell FOR oe-rell.
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
@@ -1290,6 +1292,7 @@ PROCEDURE query-proc :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  DEFINE BUFFER bf-oe-rell FOR oe-rell.
   IF ll-first THEN RUN first-query.
   ELSE IF lv-show-prev OR lv-show-next THEN RUN show-all.
   ELSE DO:
