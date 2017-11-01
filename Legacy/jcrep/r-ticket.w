@@ -1609,7 +1609,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     lv-int-f    = sys-ctrl.int-fld
     lv-default-f = sys-ctrl.char-fld.
    IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0*/
-     lookup(lv-format-f,"Interpac,FibreFC,HPB,metro,Dayton,Livngstn,CentBox,Frankstn,Colonial,Unipak,Ottpkg,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Carded,Carded2,Coburn,Knight***") > 0 THEN lines-per-page = 55.
+     lookup(lv-format-f,"Interpac,FibreFC,HPB,metro,Dayton,Livngstn,CentBox,Frankstn,Colonial,xml,Unipak,Ottpkg,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Carded,Carded2,Coburn,Knight***") > 0 THEN lines-per-page = 55.
 
    {sys/inc/jobcard.i "C"}
    ASSIGN
@@ -1716,7 +1716,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
     {custom/usrprint.i}
 
-    IF lv-format-c = "ColonialPL" OR lv-format-f = "Colonial" THEN
+    IF lv-format-c = "ColonialPL" OR lv-format-f = "Colonial" OR lv-format-f = "xml" THEN
       ASSIGN
         tb_draft:HIDDEN = NO
         tb_draft:SENSITIVE = YES
@@ -1760,7 +1760,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                  OR lv-format-f = "Livngstn"  OR lv-format-f = "FibreFC"  OR lv-format-f = "HPB"
                  OR lv-format-f = "metro"     or lv-format-f = "Indiana-XL" OR lv-format-f = "MidYork"
                  OR lv-format-f = "CentBox"   OR lv-format-f = "Keystone" OR lv-format-f = "Frankstn" 
-                 OR lv-format-f = "Colonial"  OR lv-format-f = "Unipak"   OR lv-format-f = "Ottpkg"
+                 OR lv-format-f = "Colonial" OR lv-format-f = "xml"  OR lv-format-f = "Unipak"   OR lv-format-f = "Ottpkg"
                  OR lv-format-f = "MWFIbre"   OR lv-format-f = "Shelby"   OR lv-format-f = "CCC"
                  OR lv-format-f = "PPI"       OR lv-format-f = "Accord"   OR lv-format-f = "Knight" 
                  OR lv-format-f = "PackRite"  OR lv-format-f = "Knight***"
@@ -2936,7 +2936,8 @@ PROCEDURE output-to-screen :
    OS-COPY VALUE(lv-file) VALUE(lv-xpfile).
    OS-COMMAND VALUE(lv-cmd + " " + lv-xpfile) .
 */ 
-
+IF tb_fold AND lv-format-f EQ "xml" THEN
+    RETURN.
  IF tb_corr THEN DO:
     FILE-INFO:FILE-NAME = list-name.
     RUN printfile (FILE-INFO:FILE-NAME).   
