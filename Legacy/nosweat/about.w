@@ -1,5 +1,8 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
+/* Connected Databases 
+          asi              PROGRESS
+*/
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &Scoped-define FRAME-NAME Dialog-Frame
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS Dialog-Frame 
@@ -36,6 +39,9 @@ DEFINE VARIABLE winReSizeDat AS CHARACTER NO-UNDO.
 DEFINE VARIABLE winReSize AS CHARACTER NO-UNDO.
 DEFINE VARIABLE sizeRatio AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cWorkDir AS CHARACTER NO-UNDO .
+
+{system/sysconst.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -50,11 +56,37 @@ DEFINE VARIABLE cWorkDir AS CHARACTER NO-UNDO .
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME Dialog-Frame
 
+/* Internal Tables (found by Frame, Query & Browse Queries)             */
+&Scoped-define INTERNAL-TABLES userControl
+
+/* Definitions for DIALOG-BOX Dialog-Frame                              */
+&Scoped-define FIELDS-IN-QUERY-Dialog-Frame userControl.maxAllowedUsers ~
+userControl.maxSessionsPerUser userControl.numUsersOverLimit 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-Dialog-Frame ~
+userControl.maxAllowedUsers userControl.maxSessionsPerUser ~
+userControl.numUsersOverLimit 
+&Scoped-define ENABLED-TABLES-IN-QUERY-Dialog-Frame userControl
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Dialog-Frame userControl
+&Scoped-define QUERY-STRING-Dialog-Frame FOR EACH userControl SHARE-LOCK
+&Scoped-define OPEN-QUERY-Dialog-Frame OPEN QUERY Dialog-Frame FOR EACH userControl SHARE-LOCK.
+&Scoped-define TABLES-IN-QUERY-Dialog-Frame userControl
+&Scoped-define FIRST-TABLE-IN-QUERY-Dialog-Frame userControl
+
+
 /* Standard List Definitions                                            */
+&Scoped-Define ENABLED-FIELDS userControl.maxAllowedUsers ~
+userControl.maxSessionsPerUser userControl.numUsersOverLimit 
+&Scoped-define ENABLED-TABLES userControl
+&Scoped-define FIRST-ENABLED-TABLE userControl
 &Scoped-Define ENABLED-OBJECTS userScreen screenImage autoMaximize winSize ~
-Btn_OK 
+Btn_OK termsPrivacyPolicyLink helpCenterReleaseNotes asiVersion asiUpdates 
+&Scoped-Define DISPLAYED-FIELDS userControl.maxAllowedUsers ~
+userControl.maxSessionsPerUser userControl.numUsersOverLimit 
+&Scoped-define DISPLAYED-TABLES userControl
+&Scoped-define FIRST-DISPLAYED-TABLE userControl
 &Scoped-Define DISPLAYED-OBJECTS autoMaximize winSize physical_file ~
-prgmTitle copyrite 
+prgmTitle copyrite termsPrivacyPolicyLink helpCenterReleaseNotes asiVersion ~
+asiUpdates 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -73,9 +105,27 @@ DEFINE BUTTON Btn_OK AUTO-GO
      LABEL "&OK" 
      SIZE 15 BY 1.19.
 
+DEFINE VARIABLE asiUpdates AS CHARACTER FORMAT "X(256)":U INITIAL "System Updates" 
+     LABEL "Link" 
+      VIEW-AS TEXT 
+     SIZE 52 BY .62 TOOLTIP "Click Link"
+     FGCOLOR 9  NO-UNDO.
+
+DEFINE VARIABLE asiVersion AS CHARACTER FORMAT "X(256)":U 
+     LABEL "Version" 
+      VIEW-AS TEXT 
+     SIZE 19.6 BY .62
+     FGCOLOR 2  NO-UNDO.
+
 DEFINE VARIABLE copyrite AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 57 BY .62 NO-UNDO.
+
+DEFINE VARIABLE helpCenterReleaseNotes AS CHARACTER FORMAT "X(256)":U INITIAL "Help Center and Release Notes" 
+     LABEL "Link" 
+      VIEW-AS TEXT 
+     SIZE 52 BY .62 TOOLTIP "Click Link"
+     FGCOLOR 9  NO-UNDO.
 
 DEFINE VARIABLE physical_file AS CHARACTER FORMAT "X(256)":U 
      LABEL "Physical File" 
@@ -86,6 +136,12 @@ DEFINE VARIABLE prgmTitle AS CHARACTER FORMAT "X(256)":U
      LABEL "Title" 
       VIEW-AS TEXT 
      SIZE 50 BY .62 NO-UNDO.
+
+DEFINE VARIABLE termsPrivacyPolicyLink AS CHARACTER FORMAT "X(256)":U INITIAL "Advantzware Terms and Privacy Policy" 
+     LABEL "Link" 
+      VIEW-AS TEXT 
+     SIZE 52 BY .62 TOOLTIP "Click Link"
+     FGCOLOR 9  NO-UNDO.
 
 DEFINE IMAGE IMAGE-1
      FILENAME "Graphics/asiicon.ico":U
@@ -105,6 +161,11 @@ DEFINE RECTANGLE RECT-2
      SIZE 60 BY .24
      BGCOLOR 9 .
 
+DEFINE RECTANGLE RECT-3
+     EDGE-PIXELS 2 GRAPHIC-EDGE    
+     SIZE 60 BY .24
+     BGCOLOR 9 .
+
 DEFINE RECTANGLE userScreen
      EDGE-PIXELS 2 GRAPHIC-EDGE    
      SIZE 60 BY 10.71
@@ -120,28 +181,50 @@ DEFINE VARIABLE autoMaximize AS LOGICAL INITIAL no
      VIEW-AS TOGGLE-BOX
      SIZE 20 BY .81 NO-UNDO.
 
+/* Query definitions                                                    */
+&ANALYZE-SUSPEND
+DEFINE QUERY Dialog-Frame FOR 
+      userControl SCROLLING.
+&ANALYZE-RESUME
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME Dialog-Frame
-     autoMaximize AT ROW 4.33 COL 9 WIDGET-ID 2
-     winSize AT ROW 16.48 COL 9 NO-LABEL WIDGET-ID 8
-     Btn_OK AT ROW 18.86 COL 54
+     autoMaximize AT ROW 11.71 COL 9 WIDGET-ID 2
+     winSize AT ROW 23.86 COL 9 NO-LABEL WIDGET-ID 8
+     Btn_OK AT ROW 26.24 COL 54
      physical_file AT ROW 1.24 COL 23 COLON-ALIGNED
      prgmTitle AT ROW 2.19 COL 14 COLON-ALIGNED
      copyrite AT ROW 3.14 COL 7 COLON-ALIGNED NO-LABEL
-     "NOTE: screen scaling applies to all modules" VIEW-AS TEXT
-          SIZE 42 BY .81 AT ROW 18.86 COL 11 WIDGET-ID 18
-          FONT 4
+     termsPrivacyPolicyLink AT ROW 4.57 COL 14 COLON-ALIGNED WIDGET-ID 24
+     helpCenterReleaseNotes AT ROW 5.52 COL 14 COLON-ALIGNED WIDGET-ID 28
+     asiVersion AT ROW 6.48 COL 24 COLON-ALIGNED WIDGET-ID 26
+     userControl.maxAllowedUsers AT ROW 7.43 COL 37 COLON-ALIGNED WIDGET-ID 32
+           VIEW-AS TEXT 
+          SIZE 9.2 BY .62
+          FGCOLOR 2 
+     userControl.maxSessionsPerUser AT ROW 8.38 COL 42 COLON-ALIGNED WIDGET-ID 34
+           VIEW-AS TEXT 
+          SIZE 5.6 BY .62
+          FGCOLOR 2 
+     userControl.numUsersOverLimit AT ROW 9.33 COL 40 COLON-ALIGNED WIDGET-ID 36
+           VIEW-AS TEXT 
+          SIZE 8 BY .62
+          FGCOLOR 2 
+     asiUpdates AT ROW 10.29 COL 14 COLON-ALIGNED WIDGET-ID 30
      "(value change requires a close/reopen)" VIEW-AS TEXT
-          SIZE 38 BY .81 AT ROW 4.33 COL 30 WIDGET-ID 4
+          SIZE 38 BY .81 AT ROW 11.71 COL 30 WIDGET-ID 4
+          FONT 4
+     "NOTE: screen scaling applies to all modules" VIEW-AS TEXT
+          SIZE 42 BY .81 AT ROW 26.24 COL 11 WIDGET-ID 18
           FONT 4
      IMAGE-1 AT ROW 1.24 COL 2
      RECT-1 AT ROW 4.1 COL 9
-     RECT-2 AT ROW 5.29 COL 9
-     userScreen AT ROW 5.76 COL 9 WIDGET-ID 6
-     screenImage AT ROW 6.24 COL 11 WIDGET-ID 14
-     SPACE(2.00) SKIP(4.05)
+     RECT-2 AT ROW 12.67 COL 9
+     userScreen AT ROW 13.14 COL 9 WIDGET-ID 6
+     screenImage AT ROW 13.62 COL 11 WIDGET-ID 14
+     RECT-3 AT ROW 11.24 COL 9 WIDGET-ID 20
+     SPACE(7.39) SKIP(17.08)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -169,8 +252,19 @@ ASSIGN
        FRAME Dialog-Frame:SCROLLABLE       = FALSE
        FRAME Dialog-Frame:HIDDEN           = TRUE.
 
+ASSIGN 
+       asiUpdates:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
+ASSIGN 
+       asiVersion:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
 /* SETTINGS FOR FILL-IN copyrite IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+ASSIGN 
+       helpCenterReleaseNotes:READ-ONLY IN FRAME Dialog-Frame        = TRUE
+       helpCenterReleaseNotes:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "https://support.zoho.com/portal/advantzware/kb".
+
 /* SETTINGS FOR IMAGE IMAGE-1 IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN physical_file IN FRAME Dialog-Frame
@@ -181,7 +275,25 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR RECTANGLE RECT-2 IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+/* SETTINGS FOR RECTANGLE RECT-3 IN FRAME Dialog-Frame
+   NO-ENABLE                                                            */
+ASSIGN 
+       termsPrivacyPolicyLink:READ-ONLY IN FRAME Dialog-Frame        = TRUE
+       termsPrivacyPolicyLink:PRIVATE-DATA IN FRAME Dialog-Frame     = 
+                "http://www.advantzware.com/advantzware-terms-privacy-policy".
+
 /* _RUN-TIME-ATTRIBUTES-END */
+&ANALYZE-RESUME
+
+
+/* Setting information for Queries and Browse Widgets fields            */
+
+&ANALYZE-SUSPEND _QUERY-BLOCK DIALOG-BOX Dialog-Frame
+/* Query rebuild information for DIALOG-BOX Dialog-Frame
+     _TblList          = "ASI.userControl"
+     _Options          = "SHARE-LOCK"
+     _Query            is NOT OPENED
+*/  /* DIALOG-BOX Dialog-Frame */
 &ANALYZE-RESUME
 
  
@@ -195,6 +307,23 @@ ASSIGN
 ON WINDOW-CLOSE OF FRAME Dialog-Frame /* About Advantzware System */
 DO:
   APPLY "END-ERROR":U TO SELF.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME asiUpdates
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL asiUpdates Dialog-Frame
+ON LEFT-MOUSE-CLICK OF asiUpdates IN FRAME Dialog-Frame /* Link */
+DO:
+    IF SELF:PRIVATE-DATA NE ? THEN
+    OS-COMMAND NO-WAIT START VALUE(SELF:PRIVATE-DATA).
+    ELSE
+    MESSAGE
+    "This Link Not Yet Implemented"
+    VIEW-AS ALERT-BOX.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -225,6 +354,34 @@ DO:
   OUTPUT TO VALUE(winReSizeDat).
   EXPORT winSize sizeRatio.
   OUTPUT CLOSE.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME helpCenterReleaseNotes
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL helpCenterReleaseNotes Dialog-Frame
+ON LEFT-MOUSE-CLICK OF helpCenterReleaseNotes IN FRAME Dialog-Frame /* Link */
+DO:
+    IF SELF:PRIVATE-DATA NE ? THEN
+    OS-COMMAND NO-WAIT START VALUE(SELF:PRIVATE-DATA).
+    ELSE
+    MESSAGE
+    "This Link Not Yet Implemented"
+    VIEW-AS ALERT-BOX.
+    RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME termsPrivacyPolicyLink
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL termsPrivacyPolicyLink Dialog-Frame
+ON LEFT-MOUSE-CLICK OF termsPrivacyPolicyLink IN FRAME Dialog-Frame /* Link */
+DO:
+    OS-COMMAND NO-WAIT START VALUE(SELF:PRIVATE-DATA).
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -263,24 +420,41 @@ THEN FRAME {&FRAME-NAME}:PARENT = ACTIVE-WINDOW.
 MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
-  RUN enable_UI.
-  DO WITH FRAME {&FRAME-NAME}:
+    asiVersion = "{&awversion}".
+    RUN enable_UI.
+    DO WITH FRAME {&FRAME-NAME}:
+    FIND FIRST userControl NO-LOCK NO-ERROR.
+    IF AVAILABLE userControl THEN
+    DISPLAY
+        userControl.maxAllowedUser
+        userControl.maxSessionsPerUser
+        userControl.numUsersOverLimit
+        .
+    DISPLAY
+        termsPrivacyPolicyLink
+        helpCenterReleaseNotes
+        asiVersion
+        asiUpdates
+        .    
     ASSIGN
       physical_file:SCREEN-VALUE = ENTRY(NUM-ENTRIES(callingprgm,' '),callingprgm,' ')
       copyrite:SCREEN-VALUE = '{copyrite}'
       callingprgm = ENTRY(NUM-ENTRIES(callingprgm,' '),callingprgm,' ')
       callingprgm = SUBSTR(callingprgm,R-INDEX(callingprgm,'/') + 1)
-      callingprgm = SUBSTR(callingprgm,1,LENGTH(callingprgm) - 1).
+      callingprgm = SUBSTR(callingprgm,1,LENGTH(callingprgm) - 1)
+      .
     FIND prgrms NO-LOCK WHERE prgrms.prgmname EQ callingprgm NO-ERROR.
     IF AVAILABLE prgrms THEN
     ASSIGN
       FRAME {&FRAME-NAME}:TITLE = FRAME {&FRAME-NAME}:TITLE + ' ' + prgrms.prgtitle
-      prgmTitle:SCREEN-VALUE = prgrms.prgtitle.
+      prgmTitle:SCREEN-VALUE = prgrms.prgtitle
+      .
     ASSIGN
       winReSize = 'users/' + USERID('NOSWEAT') + '/' + callingprgm + 'winReSize'
       winReSizeDat = 'users/' + USERID('NOSWEAT') + '/winReSize.dat'
       autoMaximize:SCREEN-VALUE = STRING(SEARCH(winReSize) NE ?)
-      autoMaximize.
+      autoMaximize
+      .
     IF SEARCH(winReSizeDat) NE ? THEN DO:
       INPUT FROM VALUE(SEARCH(winReSizeDat)).
       IMPORT winSize sizeRatio.
@@ -340,8 +514,16 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY autoMaximize winSize physical_file prgmTitle copyrite 
+          termsPrivacyPolicyLink helpCenterReleaseNotes asiVersion asiUpdates 
+      WITH FRAME Dialog-Frame.
+  IF AVAILABLE userControl THEN 
+    DISPLAY userControl.maxAllowedUsers userControl.maxSessionsPerUser 
+          userControl.numUsersOverLimit 
       WITH FRAME Dialog-Frame.
   ENABLE userScreen screenImage autoMaximize winSize Btn_OK 
+         termsPrivacyPolicyLink helpCenterReleaseNotes asiVersion 
+         userControl.maxAllowedUsers userControl.maxSessionsPerUser 
+         userControl.numUsersOverLimit asiUpdates 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
