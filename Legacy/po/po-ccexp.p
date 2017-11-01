@@ -261,13 +261,13 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
               and xitem.mat-type eq "A"
             no-lock
             
-            /*,
-            
-            FIRST reftable
-            WHERE reftable.reftable EQ "util/b-hrms-x.w"
-              AND reftable.company  EQ xitem.company
-              AND reftable.code2    EQ xitem.i-no
-            NO-LOCK*/   :
+                  /*,
+                  
+                  FIRST reftable
+                  WHERE reftable.reftable EQ "util/b-hrms-x.w"
+                    AND reftable.company  EQ xitem.company
+                    AND reftable.code2    EQ xitem.i-no
+                  NO-LOCK*/   :
               
           assign
            i          = i + 1
@@ -613,11 +613,10 @@ FOR EACH report WHERE report.term-id EQ v-term-id NO-LOCK,
       v-instr = v-instr + " " + trim(notes.note_text).
     end.
 
-    DO i = 1 TO 64:
-       IF asc(SUBSTRING(v-instr,i,1)) = 10 OR
-          asc(SUBSTRING(v-instr,i,1)) = 13
-          THEN SUBSTRING(v-instr,i,1) = "".
-    END.
+    ASSIGN
+          v-instr = REPLACE(v-instr,CHR(10)," ")
+          v-instr = REPLACE(v-instr,CHR(13)," ").
+    
     put v-instr                                     format "x(64)" .
         
 
