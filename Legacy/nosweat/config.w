@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          nosweat          PROGRESS
+          asi              PROGRESS
 */
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
@@ -53,17 +53,18 @@ DEFINE VARIABLE selected-name AS CHARACTER NO-UNDO.
 /* ********************  Preprocessor Definitions  ******************** */
 
 &Scoped-define PROCEDURE-TYPE Window
+&Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
 &Scoped-define INTERNAL-TABLES config
 
 /* Definitions for FRAME DEFAULT-FRAME                                  */
-&Scoped-define FIELDS-IN-QUERY-DEFAULT-FRAME config.image_filename ~
-config.audit_dir config.audit_dir_unix config.logs_dir config.spool_dir ~
-config.start_page_no 
+&Scoped-define FIELDS-IN-QUERY-DEFAULT-FRAME config.audit_dir ~
+config.logs_dir config.spool_dir config.start_page_no 
+&Scoped-define QUERY-STRING-DEFAULT-FRAME FOR EACH config SHARE-LOCK
 &Scoped-define OPEN-QUERY-DEFAULT-FRAME OPEN QUERY DEFAULT-FRAME FOR EACH config SHARE-LOCK.
 &Scoped-define TABLES-IN-QUERY-DEFAULT-FRAME config
 &Scoped-define FIRST-TABLE-IN-QUERY-DEFAULT-FRAME config
@@ -71,14 +72,17 @@ config.start_page_no
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-15 Btn_Update Btn_Close 
-&Scoped-Define DISPLAYED-FIELDS config.image_filename config.audit_dir ~
-config.audit_dir_unix config.logs_dir config.spool_dir config.start_page_no 
+&Scoped-Define DISPLAYED-FIELDS config.audit_dir config.logs_dir ~
+config.spool_dir config.start_page_no 
+&Scoped-define DISPLAYED-TABLES config
+&Scoped-define FIRST-DISPLAYED-TABLE config
+
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
-&Scoped-define List-1 config.image_filename config.audit_dir ~
-config.audit_dir_unix config.logs_dir config.spool_dir config.start_page_no 
-&Scoped-define F1 F1 F-2 F-3 F-4 
+&Scoped-define List-1 config.audit_dir config.logs_dir config.spool_dir ~
+config.start_page_no 
+&Scoped-define F1 F-2 F-3 F-4 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -114,13 +118,8 @@ DEFINE VARIABLE F-4 AS CHARACTER FORMAT "X(256)":U INITIAL "F1"
      SIZE 2.2 BY .52
      BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
 
-DEFINE VARIABLE F1 AS CHARACTER FORMAT "X(256)":U INITIAL "F1" 
-      VIEW-AS TEXT 
-     SIZE 2.2 BY .52
-     BGCOLOR 0 FGCOLOR 15 FONT 4 NO-UNDO.
-
 DEFINE RECTANGLE RECT-15
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 33 BY 1.67.
 
 /* Query definitions                                                    */
@@ -132,27 +131,19 @@ DEFINE QUERY DEFAULT-FRAME FOR
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     config.image_filename AT ROW 1.24 COL 22 COLON-ALIGNED
+     config.audit_dir AT ROW 1.71 COL 5.2
           VIEW-AS FILL-IN 
           SIZE 82 BY 1
           BGCOLOR 15 
-     config.audit_dir AT ROW 2.43 COL 9
+     config.logs_dir AT ROW 3.38 COL 19 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 82 BY 1
           BGCOLOR 15 
-     config.audit_dir_unix AT ROW 3.62 COL 22 COLON-ALIGNED
+     config.spool_dir AT ROW 5.05 COL 19 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 82 BY 1
           BGCOLOR 15 
-     config.logs_dir AT ROW 4.81 COL 22 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 82 BY 1
-          BGCOLOR 15 
-     config.spool_dir AT ROW 6 COL 22 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 82 BY 1
-          BGCOLOR 15 
-     config.start_page_no AT ROW 7.19 COL 22 COLON-ALIGNED
+     config.start_page_no AT ROW 6.95 COL 26 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 4.8 BY 1
           BGCOLOR 15 
@@ -160,10 +151,9 @@ DEFINE FRAME DEFAULT-FRAME
           "Update/Save System Configurations"
      Btn_Close AT ROW 7.43 COL 92 HELP
           "Cancel Update or Close Window"
-     F1 AT ROW 1.24 COL 106 NO-LABEL
-     F-2 AT ROW 2.43 COL 106 NO-LABEL
-     F-3 AT ROW 4.81 COL 106 NO-LABEL
-     F-4 AT ROW 6 COL 106 NO-LABEL
+     F-2 AT ROW 1.95 COL 104 NO-LABEL
+     F-3 AT ROW 3.62 COL 104 NO-LABEL
+     F-4 AT ROW 5.29 COL 104 NO-LABEL
      RECT-15 AT ROW 7.19 COL 75
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -205,34 +195,33 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
+&IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
 IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
     MESSAGE "Unable to load icon: Graphics\asiicon.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
+&ENDIF
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
 
-/* ***************  Runtime Attributes and UIB Settings  ************** */
+
+/* ***********  Runtime Attributes and AppBuilder Settings  *********** */
 
 &ANALYZE-SUSPEND _RUN-TIME-ATTRIBUTES
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
-ASSIGN
+   FRAME-NAME                                                           */
+/* SETTINGS FOR FILL-IN config.audit_dir IN FRAME DEFAULT-FRAME
+   NO-ENABLE ALIGN-L 1                                                  */
+ASSIGN 
        Btn_Close:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        Btn_Update:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ribbon-button".
 
-
-/* SETTINGS FOR FILL-IN config.audit_dir IN FRAME DEFAULT-FRAME
-   NO-ENABLE ALIGN-L 1                                                  */
-/* SETTINGS FOR FILL-IN config.audit_dir_unix IN FRAME DEFAULT-FRAME
-   NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN F-2 IN FRAME DEFAULT-FRAME
    NO-DISPLAY NO-ENABLE ALIGN-L 6                                       */
 ASSIGN 
@@ -248,13 +237,6 @@ ASSIGN
 ASSIGN 
        F-4:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
 
-/* SETTINGS FOR FILL-IN F1 IN FRAME DEFAULT-FRAME
-   NO-DISPLAY NO-ENABLE ALIGN-L 6                                       */
-ASSIGN 
-       F1:HIDDEN IN FRAME DEFAULT-FRAME           = TRUE.
-
-/* SETTINGS FOR FILL-IN config.image_filename IN FRAME DEFAULT-FRAME
-   NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN config.logs_dir IN FRAME DEFAULT-FRAME
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN config.spool_dir IN FRAME DEFAULT-FRAME
@@ -272,13 +254,12 @@ THEN C-Win:HIDDEN = no.
 
 &ANALYZE-SUSPEND _QUERY-BLOCK FRAME DEFAULT-FRAME
 /* Query rebuild information for FRAME DEFAULT-FRAME
-     _TblList          = "nosweat.config"
+     _TblList          = "ASI.config"
      _Query            is OPENED
 */  /* FRAME DEFAULT-FRAME */
 &ANALYZE-RESUME
 
-
-
+ 
 
 
 
@@ -331,16 +312,15 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Close C-Win
 ON CHOOSE OF Btn_Close IN FRAME DEFAULT-FRAME /* Close */
 DO:
-  IF {&SELF-NAME}:LABEL = "&Close" THEN
-  APPLY "CLOSE" TO THIS-PROCEDURE.
-  ELSE
-  DO WITH FRAME {&FRAME-NAME}:
-    DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
-    ASSIGN
-      {&SELF-NAME}:LABEL = "&Close"
-      Btn_Update:LABEL = "&Update".
-    RUN enable_UI.
-  END.
+    IF {&SELF-NAME}:LABEL = "&Close" THEN
+        APPLY "CLOSE" TO THIS-PROCEDURE.
+    ELSE DO WITH FRAME {&FRAME-NAME}:
+        DISABLE {&LIST-1} WITH FRAME {&FRAME-NAME}.
+        ASSIGN
+            {&SELF-NAME}:LABEL = "&Close"
+            Btn_Update:LABEL = "&Update".
+        RUN enable_UI.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -351,46 +331,30 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Update C-Win
 ON CHOOSE OF Btn_Update IN FRAME DEFAULT-FRAME /* Update */
 DO:
-  IF {&SELF-NAME}:LABEL = "&Update" THEN
-  DO WITH FRAME {&FRAME-NAME}:
-    ENABLE {&LIST-1}.
-    DISPLAY {&F1}.
-    ASSIGN
-      {&SELF-NAME}:LABEL = "&Save"
-      Btn_Close:LABEL = "&Cancel".
-    APPLY "ENTRY" TO config.image_file.
-  END.
-  ELSE
-  DO WITH FRAME {&FRAME-NAME}:
-    DISABLE {&LIST-1}.
-    HIDE {&F1} NO-PAUSE.
-    ASSIGN
-      {&SELF-NAME}:LABEL = "&Update"
-      Btn_Close:LABEL = "&Close".
-    ASSIGN {&LIST-1}.
-  END.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME config.image_filename
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL config.image_filename C-Win
-ON HELP OF config.image_filename IN FRAME DEFAULT-FRAME /* Image File Name */
-DO:
-  DEFINE VARIABLE OKpressed AS LOGICAL NO-UNDO.
-
-  SYSTEM-DIALOG GET-FILE selected-name
-      TITLE       "Choose Image to SELECT ..."
-      FILTERS     "Image Files (*.bmp)" "*.bmp"
-      INITIAL-DIR "Graphics"
-      MUST-EXIST
-      USE-FILENAME
-      UPDATE OKpressed.
-  IF NOT OKpressed THEN
-  RETURN NO-APPLY.
-  {&SELF-NAME}:SCREEN-VALUE = selected-name.
+    IF {&SELF-NAME}:LABEL = "&Update" THEN DO WITH FRAME {&FRAME-NAME}:
+        ENABLE 
+            config.audit_dir
+            f-2
+            config.logs_dir
+            f-3
+            config.spool_dir
+            f-4
+            config.start_page_no
+            WITH FRAME {&FRAME-NAME}.
+        DISPLAY f-2 f-3 f-4.
+        ASSIGN
+            {&SELF-NAME}:LABEL = "&Save"
+            Btn_Close:LABEL = "&Cancel".
+        APPLY "ENTRY" TO config.audit_dir.
+    END.
+    ELSE DO WITH FRAME {&FRAME-NAME}:
+        DISABLE {&LIST-1}.
+        HIDE {&F1} NO-PAUSE.
+        ASSIGN
+            {&SELF-NAME}:LABEL = "&Update"
+            Btn_Close:LABEL = "&Close".
+        ASSIGN {&LIST-1}.
+    END.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -467,7 +431,7 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win _DEFAULT-DISABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI C-Win  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     DISABLE the User Interface
@@ -486,8 +450,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win _DEFAULT-ENABLE
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE enable_UI C-Win  _DEFAULT-ENABLE
 PROCEDURE enable_UI :
 /*------------------------------------------------------------------------------
   Purpose:     ENABLE the User Interface
@@ -502,8 +465,7 @@ PROCEDURE enable_UI :
   {&OPEN-QUERY-DEFAULT-FRAME}
   GET FIRST DEFAULT-FRAME.
   IF AVAILABLE config THEN 
-    DISPLAY config.image_filename config.audit_dir config.audit_dir_unix 
-          config.logs_dir config.spool_dir config.start_page_no 
+    DISPLAY config.audit_dir config.logs_dir config.spool_dir config.start_page_no 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   ENABLE RECT-15 Btn_Update Btn_Close 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
@@ -513,5 +475,4 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
