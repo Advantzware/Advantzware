@@ -1045,7 +1045,7 @@ for each shipto
 
   for each ar-inv
       where ar-inv.company eq cocode
-        and ar-inv.posted  eq no
+        /*and ar-inv.posted  eq no*/ /* ticket - 24071*/ 
         and ar-inv.cust-no eq v-new-cust
         and ar-inv.ship-id eq shipto.ship-id
       use-index posted
@@ -1198,7 +1198,7 @@ for each soldto
 
   for each ar-inv
       where ar-inv.company eq cocode
-        and ar-inv.posted  eq no
+        /*and ar-inv.posted  eq no*/ /* ticket 24071*/
         and ar-inv.cust-no eq v-new-cust
         and ar-inv.sold-id eq soldto.sold-id
       use-index posted
