@@ -147,6 +147,8 @@
   users_user_id = USERID(ldbname(1)) /*+ " - " + users.user_name*/ .
   DISPLAY users_user_id
       WITH FRAME {&FRAME-NAME} IN WINDOW {&WINDOW-NAME}.
+  /*
+  /* Users.image_filename repurposed to email address, so this never executes */
   v_image_filename = users.image_filename.
   IF v_image_filename = "" THEN
   DO:
@@ -160,5 +162,6 @@
   END.
   IF v_image_filename NE "" THEN
   ldummy = menu-image:LOAD-IMAGE(v_image_filename) NO-ERROR.
+  */
   VIEW FRAME {&FRAME-NAME} IN WINDOW {&WINDOW-NAME}.
   {methods/nowait.i}
