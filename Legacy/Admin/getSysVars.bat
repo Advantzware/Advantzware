@@ -31,6 +31,7 @@ FOR /F "tokens=1,2 delims==" %%G IN (%configFile%) DO SET %%G=%%H
 :ERRCHECK
 SET isError=N
 SET isWarn=N
+GOTO :ENDERRCHECK
 REM If initial run, populate empty variables
 IF "%siteName%" == "" (
     SET isError=Y

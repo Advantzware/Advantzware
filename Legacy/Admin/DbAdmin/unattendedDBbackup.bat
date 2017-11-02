@@ -30,32 +30,30 @@ SET DLC=%DLC11%
 !Drive!
 CD \!topDir!\!DbDir!\!dbProdDir!
 ECHO Beginning PROD database backup >> %logFile%
-CALL !DLC11!\bin\probkup online !prodDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiProd.%backdate%.bak > NUL
-IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\asiProd.%backdate%.bak (
+CALL !DLC11!\bin\probkup online !prodDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDbName!.bak > NUL
+IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDbName!.bak (
     ECHO PROD database backed up successfully
     ECHO PROD database backed up successfully >> !logFile!
     )
-COPY !prodDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiProd.%backdate%.st > NUL
+COPY !prodDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDbName!.st > NUL
 
 CD \!topDir!\!DbDir!\!dbTestDir!
 ECHO Beginning TEST database backup >> !logFile!
-CALL !DLC11!\bin\probkup online !testDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiTest.%backdate%.bak > NUL
-IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\asiTest.%backdate%.bak (
+CALL !DLC11!\bin\probkup online !testDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDbName!.bak > NUL
+IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDbName!.bak (
     ECHO TEST database backed up successfully
     ECHO TEST database backed up successfully >> !logFile!
     )
-COPY !testDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiTest.%backdate%.st > NUL
+COPY !testDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDbName!.st > NUL
 
-REM CD \!topDir!\!DbDir!\!dbShipDir!
-REM CALL !DLC11!\bin\dbman -host %hostname% -port %adminport% -database !shipDBName! -start > NUL
-REM ECHO Beginning SHIP database backup >> !logFile!
-REM CALL !DLC11!\bin\probkup online !shipDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiShip.%backdate%.bak > NUL
-REM IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\asiShip.%backdate%.bak (
-REM     ECHO SHIP database backed up successfully
-REM     ECHO SHIP database backed up successfully >> !logFile!
-REM REM     )
-REM REM CALL !DLC11!\bin\dbman -host %hostname% -port %adminport% -database !shipDBName! -stop > NUL
-REM COPY !shipDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiShip.%backdate%.st > NUL
+CD \!topDir!\!DbDir!\!dbShipDir!
+ECHO Beginning SHIP database backup >> !logFile!
+CALL !DLC11!\bin\probkup online !shipDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDbName!.bak > NUL
+IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDbName!.bak (
+    ECHO SHIP database backed up successfully
+    ECHO SHIP database backed up successfully >> !logFile!
+    )
+COPY !shipDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDbName!.st > NUL
 
 ECHO Completed unattended backup >> !logFile!
 ECHO ------------------------------------------------------ >> !logFile!

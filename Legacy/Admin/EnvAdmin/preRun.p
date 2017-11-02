@@ -135,6 +135,110 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-epCheckPwdExpire) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE epCheckPwdExpire Procedure 
+PROCEDURE epCheckPwdExpire :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF INPUT-OUTPUT PARAMETER iopOK AS LOG INITIAL TRUE NO-UNDO.
+    DEF VAR iDaysToExpire AS INT NO-UNDO.
+    
+    FIND FIRST usr NO-LOCK WHERE 
+        usr.uid = USERID(LDBNAME(1))
+        NO-ERROR.
+    IF NOT AVAIL usr THEN DO:
+        MESSAGE
+            "Your userid is not set up correctly." SKIP
+            "Please contact your System Administrator."
+            VIEW-AS ALERT-BOX ERROR.
+        ASSIGN
+            iopOK = FALSE.
+        RETURN.
+    END.
+    ELSE DO:
+        FIND FIRST usercontrol NO-LOCK NO-ERROR.
+        IF NOT AVAIL usercontrol THEN DO:
+            MESSAGE
+                "There is no usercontrol record for this system." SKIP
+                "Please contact your System Administrator."
+                VIEW-AS ALERT-BOX ERROR.
+            ASSIGN
+                iopOK = FALSE.
+            RETURN.
+        END.
+        ELSE DO:
+            IF usercontrol.pwdChgLen = 0 THEN DO:
+                ASSIGN
+                    iopOK = TRUE.
+                RETURN.
+            END.
+            ASSIGN
+                iDaysToExpire = usr.last-chg + usercontrol.pwdChgLen - today.
+            IF iDaysToExpire LT 0 THEN DO:
+                MESSAGE 
+                    "Your password has expired.  It must be" SKIP
+                    "changed by a System Administrator."
+                    VIEW-AS ALERT-BOX ERROR.
+                ASSIGN
+                    iopOK = FALSE.
+                RETURN.
+            END.
+            ELSE IF iDaysToExpire LT 16 THEN DO:
+                MESSAGE
+                    "Your password will expire in " + string(iDaysToExpire) + " days." SKIP
+                    "You should change it before expiration."
+                    VIEW-AS ALERT-BOX WARNING.
+                RETURN.
+            END.
+        END.
+    END.            
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
+&IF DEFINED(EXCLUDE-epCheckUserLocked) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE epCheckUserLocked Procedure 
+PROCEDURE epCheckUserLocked :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF INPUT-OUTPUT PARAMETER iopOK AS LOG INITIAL TRUE NO-UNDO.
+    DEF VAR iDaysToExpire AS INT NO-UNDO.
+
+    FIND FIRST users NO-LOCK WHERE
+        users.user_id EQ USERID(LDBNAME(1))
+        NO-ERROR.
+    IF NOT AVAIL users THEN DO:
+        ASSIGN
+            iopOK = FALSE.
+        RETURN.
+    END.
+    IF users.isLocked EQ TRUE THEN DO:
+        MESSAGE
+            "Your Advantzware account has been locked." SKIP
+            "Please contact a Systems Administrator."
+            VIEW-AS ALERT-BOX ERROR.
+        ASSIGN
+            iopOK = FALSE.
+        RETURN.
+    END.           
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-epConnectDB) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE epConnectDB Procedure 
@@ -326,9 +430,9 @@ PROCEDURE epUpdateUsrFile :
 ------------------------------------------------------------------------------*/
     DEF OUTPUT PARAMETER opcUserList AS CHAR NO-UNDO.
     
-    FOR EACH users NO-LOCK:
+    FOR EACH _user NO-LOCK:
         ASSIGN
-            opcUserList = opcUserList + users.user_id + ",".
+            opcUserList = opcUserList + _user._userid + ",".
     END.
     ASSIGN
         opcUserList = TRIM(opcUserList,",").

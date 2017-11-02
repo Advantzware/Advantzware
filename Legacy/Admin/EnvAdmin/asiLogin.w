@@ -93,6 +93,7 @@ DEF VAR cUsrFileLoc AS CHAR NO-UNDO.
 DEF VAR cVarName AS CHAR EXTENT 100 NO-UNDO.
 DEF VAR cVarValue AS CHAR EXTENT 100 NO-UNDO.
 DEF VAR iCtr AS INT NO-UNDO.
+DEF VAR jCtr AS INT NO-UNDO.
 DEF VAR iNumUsers AS INT NO-UNDO.
 DEF VAR cIniLine AS CHAR NO-UNDO.
 DEF VAR cUsrLine AS CHAR NO-UNDO.
@@ -101,9 +102,6 @@ DEF VAR lFoundUsr AS LOG NO-UNDO.
 DEF VAR lCorrupt AS LOG NO-UNDO.
 DEF VAR lSysError AS LOG NO-UNDO.
 DEF VAR lMakeBackup AS LOG NO-UNDO.
-DEF VAR cDbList AS CHAR NO-UNDO.
-DEF VAR cDbDirList AS CHAR NO-UNDO.
-DEF VAR cDbPortList AS CHAR NO-UNDO.
 DEF VAR origPropath AS CHAR NO-UNDO.
 DEF VAR connectStatement AS CHAR NO-UNDO.
 DEF VAR cRunPgm AS CHAR NO-UNDO.
@@ -112,79 +110,91 @@ DEF VAR hPreRun AS HANDLE.
 DEF VAR xDbDir AS CHAR NO-UNDO.
 DEF VAR cUsrList AS CHAR NO-UNDO.
 DEF VAR lUpdUsr AS LOG NO-UNDO.
+DEF VAR iTries AS INT NO-UNDO.
+DEF VAR iLockoutTries AS INT NO-UNDO.
 
-/* Server/Host variables */
-DEF VAR csitename AS CHAR NO-UNDO.
-DEF VAR chostname AS CHAR NO-UNDO.
-DEF VAR cdrive AS CHAR NO-UNDO.
-DEF VAR ctopDir AS CHAR NO-UNDO.
-DEF VAR cmapDir AS CHAR NO-UNDO.
-/* Directory Structure */
-/* Top Level */
-DEF VAR cadminDir AS CHAR NO-UNDO.
-DEF VAR cbackupDir AS CHAR NO-UNDO.
-DEF VAR ccustDir AS CHAR NO-UNDO.
-DEF VAR cdbDir AS CHAR NO-UNDO.
-DEF VAR cenvDir AS CHAR NO-UNDO.
-DEF VAR cinstallDir AS CHAR NO-UNDO.
-DEF VAR cupdateDir AS CHAR NO-UNDO.
-/* Admin Level */
-DEF VAR cdbAdmin AS CHAR NO-UNDO.
-DEF VAR cenvAdmin AS CHAR NO-UNDO.
-/* Backup Level */
-DEF VAR cdbBackup AS CHAR NO-UNDO.
-DEF VAR cpgmBackup AS CHAR NO-UNDO.
-DEF VAR cresBackup AS CHAR NO-UNDO.
-/* Database Level */
-DEF VAR cdbDataDir AS CHAR NO-UNDO.
-DEF VAR cdbProdDir AS CHAR NO-UNDO.
-DEF VAR cdbShipDir AS CHAR NO-UNDO.
-DEF VAR cdbStructDir AS CHAR NO-UNDO.
-DEF VAR cdbTestDir AS CHAR NO-UNDO.
-/* Environments Level */
-DEF VAR cenvProdDir AS CHAR NO-UNDO.
-DEF VAR cenvTestDir AS CHAR NO-UNDO.
-DEF VAR cenvCustDir AS CHAR NO-UNDO.
-DEF VAR cenvOverDir AS CHAR NO-UNDO.
-DEF VAR cenvPgmDir AS CHAR NO-UNDO.
-DEF VAR cenvResDir AS CHAR NO-UNDO.
-DEF VAR cenvSchDir AS CHAR NO-UNDO.
-DEF VAR cenvUMenuDir AS CHAR NO-UNDO.
-DEF VAR cenvUserDir AS CHAR NO-UNDO.
-/* Updates Level */
-DEF VAR czipDir AS CHAR NO-UNDO.
-DEF VAR cdataUpdDir AS CHAR NO-UNDO.
-DEF VAR cstrUpdDir AS CHAR NO-UNDO.
-DEF VAR coverDir AS CHAR NO-UNDO.
-DEF VAR cprogramsDir AS CHAR NO-UNDO.
-DEF VAR cresourceDir AS CHAR NO-UNDO.
-/* DBMS variables */
-DEF VAR cDLC11 AS CHAR NO-UNDO.
-DEF VAR cproVersion AS CHAR NO-UNDO.
-/* Database variables */
-DEF VAR cprodDbName AS CHAR NO-UNDO.
-DEF VAR cprodDbPort AS CHAR NO-UNDO.
-DEF VAR cprodDbStFile AS CHAR NO-UNDO.
-DEF VAR cshipDBName AS CHAR NO-UNDO.
-DEF VAR cshipDBPort AS CHAR NO-UNDO.
-DEF VAR cshipDbStFile AS CHAR NO-UNDO.
-DEF VAR ctestDBName AS CHAR NO-UNDO.
-DEF VAR ctestDbPort AS CHAR NO-UNDO.
-DEF VAR ctestDbStFile AS CHAR NO-UNDO.
-DEF VAR cdfFilename AS CHAR NO-UNDO.
-/* Misc variables */
-DEF VAR cdeltaFilename AS CHAR NO-UNDO.
-DEF VAR cadminport AS CHAR NO-UNDO.
-DEF VAR cmakeBackup AS CHAR NO-UNDO.
-/* Login variables */
-DEF VAR cenvList AS CHAR NO-UNDO.
-DEF VAR cmodeList AS CHAR NO-UNDO.
-DEF VAR cpgmList AS CHAR NO-UNDO.
-DEF VAR cXenvList AS CHAR NO-UNDO.
-DEF VAR cXmodeList AS CHAR NO-UNDO.
-DEF VAR cXdbList AS CHAR NO-UNDO.
-DEF VAR cXdbPortList AS CHAR NO-UNDO.
-DEF VAR cXportList AS CHAR NO-UNDO.
+/* Advantzware.ini variables */
+DEF VAR cAdminDir AS CHAR INITIAL "Admin" NO-UNDO.
+DEF VAR cAdminport AS CHAR INITIAL "20952" NO-UNDO.
+DEF VAR cBackupDir AS CHAR INITIAL "Backups" NO-UNDO.
+DEF VAR cCurrVer AS CHAR INITIAL "10.6.0" NO-UNDO.
+DEF VAR cDbAdmin AS CHAR INITIAL "DbAdmin" NO-UNDO.
+DEF VAR cDbBackup AS CHAR INITIAL "Databases" NO-UNDO.
+DEF VAR cDbDataDir AS CHAR INITIAL "Data" NO-UNDO.
+DEF VAR cDbDir AS CHAR INITIAL "Databases" NO-UNDO.
+DEF VAR cDbDirList AS CHAR INITIAL "Prod" NO-UNDO.
+DEF VAR cDbList AS CHAR INITIAL "asiProd" NO-UNDO.
+DEF VAR cDbPortList AS CHAR INITIAL "2826" NO-UNDO.
+DEF VAR cDbProdDir AS CHAR INITIAL "Prod" NO-UNDO.
+DEF VAR cDbShipDir AS CHAR INITIAL "Ship" NO-UNDO.
+DEF VAR cDbStructDir AS CHAR INITIAL "Structure" NO-UNDO.
+DEF VAR cDbTestDir AS CHAR INITIAL "Test" NO-UNDO.
+DEF VAR cDeltaFilename AS CHAR INITIAL "asi165166.df" NO-UNDO.
+DEF VAR cDeskDir AS CHAR INITIAL "Desktop" NO-UNDO.
+DEF VAR cDfFilename AS CHAR INITIAL "asi166.df" NO-UNDO.
+DEF VAR cDLCDir AS CHAR INITIAL "OE116" NO-UNDO.
+DEF VAR cDocDir AS CHAR INITIAL "Documentation" NO-UNDO.
+DEF VAR cDrive AS CHAR INITIAL "C" NO-UNDO.
+DEF VAR cEnvAddonDir AS CHAR INITIAL "Addon" NO-UNDO.
+DEF VAR cEnvAdmin AS CHAR INITIAL "EnvAdmin" NO-UNDO.
+DEF VAR cEnvCustFilesDir AS CHAR INITIAL "CustFiles" NO-UNDO.
+DEF VAR cEnvCustomerDir AS CHAR INITIAL "Customer" NO-UNDO.
+DEF VAR cEnvDir AS CHAR INITIAL "Environments" NO-UNDO.
+DEF VAR cEnvList AS CHAR INITIAL "Prod" NO-UNDO.
+DEF VAR cEnvOverrideDir AS CHAR INITIAL "Override" NO-UNDO.
+DEF VAR cEnvPODir AS CHAR INITIAL "PO" NO-UNDO.
+DEF VAR cEnvProdDir AS CHAR INITIAL "Prod" NO-UNDO.
+DEF VAR cEnvProgramsDir AS CHAR INITIAL "Programs" NO-UNDO.
+DEF VAR cEnvResourcesDir AS CHAR INITIAL "Resources" NO-UNDO.
+DEF VAR cEnvScheduleDir AS CHAR INITIAL "Schedule" NO-UNDO.
+DEF VAR cEnvTestDir AS CHAR INITIAL "Test" NO-UNDO.
+DEF VAR cEnvUserMenuDir AS CHAR INITIAL "Usermenu" NO-UNDO.
+DEF VAR cEnvUsersDir AS CHAR INITIAL "Users" NO-UNDO.
+DEF VAR cHostname AS CHAR INITIAL "HOSTNAME" NO-UNDO.
+DEF VAR cInstallDir AS CHAR INITIAL "Install" NO-UNDO.
+DEF VAR cLockoutTries AS CHAR INITIAL "4" NO-UNDO.
+DEF VAR cMakeBackup AS CHAR INITIAL "N" NO-UNDO.
+DEF VAR cMapDir AS CHAR INITIAL "N" NO-UNDO.
+DEF VAR cModeList AS CHAR INITIAL "Advantzware,Addon,CaseLabel,Schedule Monitor,Editor,Esko Monitor,FG XML Monitor,Loadtags,Monitor Users,Rel XML Monitor,RFID Monitor,RM Loadtag,Sharpshooter,Touchscreen" NO-UNDO.
+DEF VAR cPgmBackup AS CHAR INITIAL "Programs" NO-UNDO.
+DEF VAR cPgmList AS CHAR INITIAL "system/mainmenu.w,system/addmain.w,oerep/r-casetg.w,custom/asiSchW.w,_edit.p,jobxml\monitor.w,fgXml\monitor.w,oerep/r-loadtg.w,proshut.bat,relxml\monitor.w,rfid\monitor.w,rmrep/rmloadtg.w,sshoot/sshoot.w,touch/touchscr.w" NO-UNDO.
+DEF VAR cProdDbName AS CHAR INITIAL "asiProd" NO-UNDO.
+DEF VAR cProdDbPort AS CHAR INITIAL "2826" NO-UNDO.
+DEF VAR cProdDbStFile AS CHAR INITIAL "asiProd.st" NO-UNDO.
+DEF VAR cProVersion AS CHAR INITIAL "11" NO-UNDO.
+DEF VAR cResBackup AS CHAR INITIAL "Resources" NO-UNDO.
+DEF VAR cShipDBName AS CHAR INITIAL "asiShip" NO-UNDO.
+DEF VAR cShipDBPort AS CHAR INITIAL "2825" NO-UNDO.
+DEF VAR cShipDbStFile AS CHAR INITIAL "asiShip.st" NO-UNDO.
+DEF VAR cSitename AS CHAR INITIAL "ASI" NO-UNDO.
+DEF VAR cTestDBName AS CHAR INITIAL "asiTest" NO-UNDO.
+DEF VAR cTestDbPort AS CHAR INITIAL "2827" NO-UNDO.
+DEF VAR cTestDbStFile AS CHAR INITIAL "asiTest.st" NO-UNDO.
+DEF VAR cTopDir AS CHAR INITIAL "asigui" NO-UNDO.
+DEF VAR cUpdAdminDir AS CHAR INITIAL "Admin" NO-UNDO.
+DEF VAR cUpdateDir AS CHAR INITIAL "Updates" NO-UNDO.
+DEF VAR cUpdCompressDir AS CHAR INITIAL "Compress" NO-UNDO.
+DEF VAR cUpdDataDir AS CHAR INITIAL "DataFiles" NO-UNDO.
+DEF VAR cUpdDeskDir AS CHAR INITIAL "Desktop" NO-UNDO.
+DEF VAR cUpdMenuDir AS CHAR INITIAL "MenuFiles" NO-UNDO.
+DEF VAR cUpdProgramDir AS CHAR INITIAL "ProgramFiles" NO-UNDO.
+DEF VAR cUpdRelNotesDir AS CHAR INITIAL "ReleaseNotes" NO-UNDO.
+DEF VAR cUpdSQLDir AS CHAR INITIAL "SQLAccess" NO-UNDO.
+DEF VAR cUpdStructureDir AS CHAR INITIAL "StructureUpdate" NO-UNDO.
+DEF VAR cVerDate AS CHAR INITIAL "10/1/17" NO-UNDO.
+DEF VAR cXdbList AS CHAR INITIAL "" NO-UNDO.
+DEF VAR cXdbPortList AS CHAR INITIAL "" NO-UNDO.
+DEF VAR cXenvList AS CHAR INITIAL "" NO-UNDO.
+DEF VAR cXmodeList AS CHAR INITIAL "" NO-UNDO.
+DEF VAR cXportList AS CHAR INITIAL "" NO-UNDO.
+/* END advantzware.ini Variables */
+
+DEF TEMP-TABLE ttIniFile
+    FIELD iPos AS INT
+    FIELD cRaw AS CHAR
+    FIELD cVarName AS CHAR
+    FIELD cVarValue AS CHAR
+    INDEX idxPos IS PRIMARY UNIQUE iPos.
 
 DEF TEMP-TABLE ttUsers
     FIELD ttfPdbname AS CHAR
@@ -194,7 +204,7 @@ DEF TEMP-TABLE ttUsers
     FIELD ttfDbList AS CHAR
     FIELD ttfModeList AS CHAR.
 
-PROCEDURE SetCurrentDirectoryW EXTERNAL "KERNEL32.DLL":
+PROCEDURE SetCurrentDirectoryA EXTERNAL "KERNEL32.DLL":
    DEFINE INPUT  PARAMETER chrCurDir AS CHARACTER.
    DEFINE RETURN PARAMETER iResult AS LONG.
 END PROCEDURE.
@@ -459,11 +469,6 @@ DO:
     DEF VAR cMessage AS CHAR NO-UNDO.
     DEF VAR cCmdString AS CHAR NO-UNDO.
 
-/*
-    APPLY 'value-changed' TO cbDatabase.
-    APPLY 'value-changed' TO cbEnvironment.
-    APPLY 'value-changed' TO cbMode.
-*/    
     IF connectStatement <> "" THEN DO:
         IF VALID-HANDLE(hPreRun) THEN DO:
             RUN epDisconnectDB IN hPreRun.
@@ -501,13 +506,13 @@ DO:
             c-Win:VISIBLE = FALSE.
         IF NOT cbMode:{&SV} = "Monitor Users" THEN DO:
             /* Set current dir */
-            RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment:{&SV} + "\"). 
+            RUN ipSetCurrentDir (cMapDir + "\" + cEnvDir + "\" + cbEnvironment:{&SV}). 
 
             RUN VALUE(cRunPgm).
         END.
         ELSE DO:
             ASSIGN 
-                cCmdString = cDLC11 + "\bin\proshut.bat" + " -db " +
+                cCmdString = cDLCDir + "\bin\proshut.bat" + " -db " +
                              cDrive + "\" + cTopDir + "\" + cDbDir + "\" + xDbDir + "\" + PDBNAME(1).
             OS-COMMAND VALUE(cCmdString).
         END.
@@ -515,7 +520,7 @@ DO:
     ELSE MESSAGE
         "Unable to login with that User ID and Password."
         VIEW-AS ALERT-BOX ERROR.
-    quit.
+    QUIT.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -761,7 +766,8 @@ PROCEDURE ipChangeEnvironment :
                 END.
             END.
         END.
-        WHEN "16.6.0" THEN DO:
+        WHEN "16.6.0" OR
+        WHEN "16.6.4" THEN DO: 
             DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
                 IF INDEX(ENTRY(iCtr,cbDatabase:LIST-ITEMS),"166") <> 0 THEN DO:
                     ASSIGN
@@ -772,8 +778,7 @@ PROCEDURE ipChangeEnvironment :
         END.
         WHEN "16.5.8" OR 
         WHEN "16.5.4" OR 
-        WHEN "16.5.0" THEN
-        DO:
+        WHEN "16.5.0" THEN DO:
             DO iCtr = 1 TO NUM-ENTRIES(cbDatabase:LIST-ITEMS):
                 IF INDEX(ENTRY(iCtr,cbDatabase:LIST-ITEMS),"165") <> 0 THEN DO:
                     ASSIGN
@@ -789,15 +794,17 @@ PROCEDURE ipChangeEnvironment :
         iLookup = LOOKUP(cbEnvironment:{&SV},cEnvList)
         cTop = cMapDir + "\" + cEnvDir + "\" + cbEnvironment:{&SV} + "\"
         preProPath = cMapDir + "\" + cEnvDir + "\" + cbEnvironment:{&SV} + "," +
-                     cTop + cenvCustDir + "," +
-                     cTop + cenvOverDir + "," +
-                     cTop + cenvPgmDir + "," +
-                     cTop + cenvResDir + "," +
-                     cTop + cenvPgmDir + "\Addon" + "," +
-                     cTop + cenvResDir + "\Addon" + "," +
-                     cTop + "\CustFiles" + ","
+                     cTop + cEnvCustomerDir + "," +
+                     cTop + cEnvCustomerDir + "\Addon," +
+                     cTop + cEnvOverrideDir + "," +
+                     cTop + cEnvOverrideDir + "\Addon," +
+                     cTop + cEnvProgramsDir + "," +
+                     cTop + cEnvProgramsDir + "\Addon" + "," +
+                     cTop + "\CustFiles" + "," +
+                     cTop + cEnvResourcesDir + "," +
+                     cTop + cEnvResourcesDir + "\Addon" +
+                     cMapDir + "\" + cAdminDir + "\" + cEnvAdmin + ",".
         PROPATH = preProPath + origPropath.
-        
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -864,7 +871,18 @@ PROCEDURE ipConnectDb :
         CREATE ALIAS asihlp FOR DATABASE VALUE(LDBNAME(1)).
         CREATE ALIAS asinos FOR DATABASE VALUE(LDBNAME(1)).
     END.
-
+    ELSE DO:
+        ASSIGN
+            iTries = iTries + 1.
+        IF iLockoutTries > 0 AND iTries > iLockoutTries THEN DO:
+            MESSAGE
+                "You have exceeded the allowed login attempts." SKIP
+                "Exiting..."
+                VIEW-AS ALERT-BOX ERROR.
+            QUIT.
+        END.
+    END.
+    
     ASSIGN
         lError = NOT CONNECTED(LDBNAME(1)).
         
@@ -948,8 +966,15 @@ PROCEDURE ipPreRun :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEF VAR lOK AS LOG NO-UNDO.
+    DEF VAR lOK AS LOG INITIAL TRUE NO-UNDO.
 
+    IF INDEX(PDBNAME(1),"165") EQ 0 
+    AND USERID(LDBNAME(1)) NE "asi" THEN DO:
+        RUN epCheckPwdExpire IN hPreRun (INPUT-OUTPUT lOK).
+        IF NOT lOK THEN QUIT.
+        RUN epCheckUserLocked IN hPreRun (INPUT-OUTPUT lOK).
+        IF NOT lOK THEN QUIT.
+    END.
     IF NOT VALID-HANDLE(persistent-handle) THEN
         RUN nosweat/persist.p PERSISTENT SET persistent-handle.
     IF NOT VALID-HANDLE(listlogic-handle) THEN
@@ -959,9 +984,7 @@ PROCEDURE ipPreRun :
         RUN epTouchLogin in hPreRun (OUTPUT tslogin-log).
 
     RUN epUserRecordCheck IN hPreRun (OUTPUT lOK, OUTPUT g_track_usage).
-    IF NOT lOK THEN DO:
-    QUIT.
-    END.
+    IF NOT lOK THEN QUIT.
     
     RUN epUpdateUsrFile IN hPreRun (OUTPUT cUsrList).
     RUN ipUpdUsrFile IN THIS-PROCEDURE (cUsrList).
@@ -970,9 +993,7 @@ PROCEDURE ipPreRun :
     IF fiUserID:{&SV} = "ASI" THEN RUN asiload.p.
 
     RUN epCheckExpiration IN hPreRun (OUTPUT lOK).
-    IF NOT lOK THEN DO:
-    QUIT.
-    END.
+    IF NOT lOK THEN QUIT.
     
     RUN epGetDeveloperList IN hPreRun (OUTPUT g_developer).
 
@@ -993,155 +1014,101 @@ PROCEDURE ipReadIniFile :
     ASSIGN 
         lCorrupt = FALSE
         iCtr = 1.
+        
+    EMPTY TEMP-TABLE ttIniFile.
     INPUT FROM VALUE(SEARCH(cIniFileLoc)).
     REPEAT:
         IMPORT UNFORMATTED cIniLine.
-        IF INDEX(cIniLine,"=") = 0 THEN NEXT.
+        CREATE ttIniFile.
         ASSIGN
+            ttIniFile.iPos = iCtr
+            iCtr = iCtr + 1
+            ttIniFile.cRaw = cIniLine.
+        IF INDEX(cIniLine,"=") NE 0 THEN ASSIGN
             cVarName[iCtr] = ENTRY(1,cIniLine,"=")
-            cVarValue[iCtr] = ENTRY(2,cIniLine,"=")
-            iCtr = iCtr + 1.
+            cVarValue[iCtr] = ENTRY(2,cIniLine,"=").
     END.
     INPUT CLOSE.
 
-    DO iCtr = 1 TO 100:
-        IF cVarName[iCtr] = "" THEN LEAVE.
-        CASE cVarName[iCtr]:
-            WHEN "sitename" THEN ASSIGN csitename = cVarValue[iCtr]. 
-            WHEN "hostname" THEN ASSIGN chostname = cVarValue[iCtr]. 
-            WHEN "drive" THEN ASSIGN cdrive = cVarValue[iCtr]. 
-            WHEN "topDir" THEN ASSIGN ctopDir = cVarValue[iCtr]. 
-            WHEN "mapDir" THEN ASSIGN cmapDir = cVarValue[iCtr]. 
-            
-            WHEN "adminDir" THEN ASSIGN cAdminDir = cVarValue[iCtr].
-            WHEN "backupDir" THEN ASSIGN cbackupDir = cVarValue[iCtr]. 
-            WHEN "custDir" THEN ASSIGN ccustDir = cVarValue[iCtr]. 
-            WHEN "dbDir" THEN ASSIGN cdbDir = cVarValue[iCtr]. 
-            WHEN "envDir" THEN ASSIGN cenvDir = cVarValue[iCtr]. 
-            WHEN "installDir" THEN ASSIGN cinstallDir = cVarValue[iCtr]. 
-            WHEN "updateDir" THEN ASSIGN cupdateDir = cVarValue[iCtr]. 
-            
-            WHEN "dbAdmin" THEN ASSIGN cdbAdmin = cVarValue[iCtr]. 
-            WHEN "envAdmin" THEN ASSIGN cenvAdmin = cVarValue[iCtr]. 
-            
-            WHEN "dbBackup" THEN ASSIGN cdbBackup = cVarValue[iCtr]. 
-            WHEN "pgmBackup" THEN ASSIGN cpgmBackup = cVarValue[iCtr]. 
-            WHEN "resBackup" THEN ASSIGN cresBackup = cVarValue[iCtr]. 
-
-            WHEN "dbDataDir" THEN ASSIGN cdbDataDir = cVarValue[iCtr]. 
-            WHEN "dbProdDir" THEN ASSIGN cdbProdDir = cVarValue[iCtr]. 
-            WHEN "dbShipDir" THEN ASSIGN cdbShipDir = cVarValue[iCtr]. 
-            WHEN "dbStructDir" THEN ASSIGN cdbStructDir = cVarValue[iCtr]. 
-            WHEN "dbTestDir" THEN ASSIGN cdbTestDir = cVarValue[iCtr]. 
-
-            WHEN "envProdDir" THEN ASSIGN cenvProdDir = cVarValue[iCtr]. 
-            WHEN "envTestDir" THEN ASSIGN cenvTestDir = cVarValue[iCtr]. 
-            WHEN "envCustDir" THEN ASSIGN cenvCustDir = cVarValue[iCtr]. 
-            WHEN "envOverDir" THEN ASSIGN cenvOverDir = cVarValue[iCtr]. 
-            WHEN "envPgmDir" THEN ASSIGN cenvPgmDir = cVarValue[iCtr]. 
-            WHEN "envResDir" THEN ASSIGN cenvResDir = cVarValue[iCtr]. 
-            WHEN "envSchDir" THEN ASSIGN cenvSchDir = cVarValue[iCtr]. 
-            WHEN "envUMenuDir" THEN ASSIGN cenvUMenuDir = cVarValue[iCtr]. 
-            WHEN "envUserDir" THEN ASSIGN cenvUserDir = cVarValue[iCtr]. 
-
-            WHEN "zipDir" THEN ASSIGN czipDir = cVarValue[iCtr]. 
-            WHEN "dataUpdDir" THEN ASSIGN cdataUpdDir = cVarValue[iCtr]. 
-            WHEN "strUpdDir" THEN ASSIGN cstrUpdDir = cVarValue[iCtr]. 
-            WHEN "overDir" THEN ASSIGN coverDir = cVarValue[iCtr]. 
-            WHEN "programsDir" THEN ASSIGN cprogramsDir = cVarValue[iCtr]. 
-            WHEN "resourceDir" THEN ASSIGN cresourceDir = cVarValue[iCtr]. 
-
-            WHEN "DLC11" THEN ASSIGN cDLC11 = cVarValue[iCtr]. 
-            WHEN "proVersion" THEN ASSIGN cproVersion = cVarValue[iCtr]. 
-
-            WHEN "prodDbName" THEN ASSIGN cprodDbName = cVarValue[iCtr]. 
-            WHEN "prodDbPort" THEN ASSIGN cprodDbPort = cVarValue[iCtr]. 
-            WHEN "prodDbStFile" THEN ASSIGN cprodDbStFile = cVarValue[iCtr]. 
-            WHEN "shipDBName" THEN ASSIGN cshipDBName = cVarValue[iCtr]. 
-            WHEN "shipDBPort" THEN ASSIGN cshipDBPort = cVarValue[iCtr]. 
-            WHEN "shipDbStFile" THEN ASSIGN cshipDbStFile = cVarValue[iCtr]. 
-            WHEN "testDBName" THEN ASSIGN ctestDBName = cVarValue[iCtr]. 
-            WHEN "testDbPort" THEN ASSIGN ctestDbPort = cVarValue[iCtr]. 
-            WHEN "testDbStFile" THEN ASSIGN ctestDbStFile = cVarValue[iCtr]. 
-            WHEN "dfFilename" THEN ASSIGN cdfFilename = cVarValue[iCtr]. 
-
-            WHEN "deltaFilename" THEN ASSIGN cdeltaFilename = cVarValue[iCtr]. 
-            WHEN "adminport" THEN ASSIGN cadminport = cVarValue[iCtr]. 
-            WHEN "makeBackup" THEN ASSIGN cmakeBackup = cVarValue[iCtr]. 
-
-            WHEN "envList" THEN ASSIGN cenvList = cVarValue[iCtr]. 
-            WHEN "modeList" THEN ASSIGN cmodeList = cVarValue[iCtr]. 
-            WHEN "pgmList" THEN ASSIGN cpgmList = cVarValue[iCtr]. 
-            WHEN "dbList" THEN ASSIGN cdbList = cVarValue[iCtr]. 
-            WHEN "dbDirList" THEN ASSIGN cDbDirList = cVarValue[iCtr]. 
-            WHEN "dbPortList" THEN ASSIGN cDbPortList = cVarValue[iCtr]. 
-            
+    DO jCtr = 1 TO 100:
+        CASE cVarName[jCtr]:
+            WHEN "adminDir" THEN ASSIGN cAdminDir = cVarValue[jCtr].
+            WHEN "adminport" THEN ASSIGN cadminport = cVarValue[jCtr]. 
+            WHEN "backupDir" THEN ASSIGN cBackupDir = cVarValue[jCtr]. 
+            WHEN "currVer" THEN ASSIGN cCurrVer = cVarValue[jCtr].
+            WHEN "dbAdmin" THEN ASSIGN cDbAdmin = cVarValue[jCtr]. 
+            WHEN "dbBackup" THEN ASSIGN cDbBackup = cVarValue[jCtr]. 
+            WHEN "dbDataDir" THEN ASSIGN cDbDataDir = cVarValue[jCtr]. 
+            WHEN "dbDir" THEN ASSIGN cDbDir = cVarValue[jCtr]. 
+            WHEN "dbDirList" THEN ASSIGN cDbDirList = cVarValue[jCtr]. 
+            WHEN "dbList" THEN ASSIGN cdbList = cVarValue[jCtr]. 
+            WHEN "dbPortList" THEN ASSIGN cDbPortList = cVarValue[jCtr]. 
+            WHEN "dbProdDir" THEN ASSIGN cDbProdDir = cVarValue[jCtr]. 
+            WHEN "dbShipDir" THEN ASSIGN cDbShipDir = cVarValue[jCtr]. 
+            WHEN "dbStructDir" THEN ASSIGN cDbStructDir = cVarValue[jCtr]. 
+            WHEN "dbTestDir" THEN ASSIGN cDbTestDir = cVarValue[jCtr]. 
+            WHEN "deltaFilename" THEN ASSIGN cdeltaFilename = cVarValue[jCtr]. 
+            WHEN "deskDir" THEN ASSIGN cDeskDir = cVarValue[jCtr]. 
+            WHEN "dfFilename" THEN ASSIGN cdfFilename = cVarValue[jCtr]. 
+            WHEN "DLCDir" THEN ASSIGN cDLCDir = cVarValue[jCtr]. 
+            WHEN "docDir" THEN ASSIGN cDocDir = cVarValue[jCtr]. 
+            WHEN "drive" THEN ASSIGN cDrive = cVarValue[jCtr]. 
+            WHEN "envAddonDir" THEN ASSIGN cEnvAddonDir = cVarValue[jCtr]. 
+            WHEN "envAdmin" THEN ASSIGN cEnvAdmin = cVarValue[jCtr]. 
+            WHEN "envCustFilesDir" THEN ASSIGN cEnvCustFilesDir = cVarValue[jCtr]. 
+            WHEN "envCustomerDir" THEN ASSIGN cEnvCustomerDir = cVarValue[jCtr]. 
+            WHEN "envDir" THEN ASSIGN cEnvDir = cVarValue[jCtr]. 
+            WHEN "envList" THEN ASSIGN cenvList = cVarValue[jCtr]. 
+            WHEN "envOverrideDir" THEN ASSIGN cEnvOverrideDir = cVarValue[jCtr]. 
+            WHEN "envProgramsDir" THEN ASSIGN cEnvProgramsDir = cVarValue[jCtr]. 
+            WHEN "envPoDir" THEN ASSIGN cEnvPODir = cVarValue[jCtr]. 
+            WHEN "envProdDir" THEN ASSIGN cenvProdDir = cVarValue[jCtr]. 
+            WHEN "envResourcesDir" THEN ASSIGN cEnvResourcesDir = cVarValue[jCtr]. 
+            WHEN "envScheduleDir" THEN ASSIGN cEnvScheduleDir = cVarValue[jCtr]. 
+            WHEN "envTestDir" THEN ASSIGN cEnvTestDir = cVarValue[jCtr]. 
+            WHEN "envUserMenuDir" THEN ASSIGN cEnvUserMenuDir = cVarValue[jCtr]. 
+            WHEN "envUsersDir" THEN ASSIGN cEnvUsersDir = cVarValue[jCtr]. 
+            WHEN "hostname" THEN ASSIGN cHostname = cVarValue[jCtr].
+            WHEN "installDir" THEN ASSIGN cInstallDir = cVarValue[jCtr]. 
+            WHEN "lockoutTries" THEN ASSIGN cLockoutTries = cVarValue[jCtr]. 
+            WHEN "makeBackup" THEN ASSIGN cmakeBackup = cVarValue[jCtr]. 
+            WHEN "mapDir" THEN ASSIGN cMapDir = cVarValue[jCtr]. 
+            WHEN "modeList" THEN ASSIGN cmodeList = cVarValue[jCtr]. 
+            WHEN "pgmBackup" THEN ASSIGN cPgmBackup = cVarValue[jCtr]. 
+            WHEN "pgmList" THEN ASSIGN cpgmList = cVarValue[jCtr]. 
+            WHEN "prodDbName" THEN ASSIGN cprodDbName = cVarValue[jCtr]. 
+            WHEN "prodDbPort" THEN ASSIGN cprodDbPort = cVarValue[jCtr]. 
+            WHEN "prodDbStFile" THEN ASSIGN cprodDbStFile = cVarValue[jCtr]. 
+            WHEN "proVersion" THEN ASSIGN cproVersion = cVarValue[jCtr]. 
+            WHEN "resBackup" THEN ASSIGN cResBackup = cVarValue[jCtr]. 
+            WHEN "shipDBName" THEN ASSIGN cshipDBName = cVarValue[jCtr]. 
+            WHEN "shipDBPort" THEN ASSIGN cshipDBPort = cVarValue[jCtr]. 
+            WHEN "shipDbStFile" THEN ASSIGN cshipDbStFile = cVarValue[jCtr]. 
+            WHEN "sitename" THEN ASSIGN cSitename = cVarValue[jCtr]. 
+            WHEN "testDBName" THEN ASSIGN ctestDBName = cVarValue[jCtr]. 
+            WHEN "testDbPort" THEN ASSIGN ctestDbPort = cVarValue[jCtr]. 
+            WHEN "testDbStFile" THEN ASSIGN ctestDbStFile = cVarValue[jCtr]. 
+            WHEN "topDir" THEN ASSIGN cTopDir = cVarValue[jCtr]. 
+            WHEN "updAdminDir" THEN ASSIGN cUpdAdminDir = cVarValue[jCtr]. 
+            WHEN "updateDir" THEN ASSIGN cUpdateDir = cVarValue[jCtr]. 
+            WHEN "updCompressDir" THEN ASSIGN cUpdCompressDir = cVarValue[jCtr]. 
+            WHEN "updDataDir" THEN ASSIGN cUpdDataDir = cVarValue[jCtr]. 
+            WHEN "updDeskDir" THEN ASSIGN cUpdDeskDir = cVarValue[jCtr]. 
+            WHEN "updMenuDir" THEN ASSIGN cUpdMenuDir = cVarValue[jCtr]. 
+            WHEN "updProgramDir" THEN ASSIGN cUpdProgramDir = cVarValue[jCtr]. 
+            WHEN "updRelNotesDir" THEN ASSIGN cUpdRelNotesDir = cVarValue[jCtr]. 
+            WHEN "updSQLDir" THEN ASSIGN cUpdSQLDir = cVarValue[jCtr]. 
+            WHEN "updStructuredDir" THEN ASSIGN cUpdStructureDir = cVarValue[jCtr]. 
+            WHEN "verDate" THEN ASSIGN cVerDate = cVarValue[jCtr].
         END CASE.
-    END.
-    IF csitename = ""
-    OR chostname = ""
-    OR cdrive = ""
-    OR ctopDir = ""
-    OR cmapDir = ""
-    OR cadminDir = ""
-    OR cbackupDir = ""
-    OR ccustDir = ""
-    OR cdbDir = ""
-    OR cenvDir = ""
-    OR cinstallDir = ""
-    OR cupdateDir = ""
-    OR cdbAdmin = ""
-    OR cenvAdmin = ""
-    OR cdbBackup = ""
-    OR cpgmBackup = ""
-    OR cresBackup = ""
-    OR cdbDataDir = ""
-    OR cdbProdDir = ""
-    OR cdbShipDir = ""
-    OR cdbStructDir = ""
-    OR cdbTestDir = ""
-    OR cenvProdDir = ""
-    OR cenvTestDir = ""
-    OR cenvCustDir = ""
-    OR cenvOverDir = ""
-    OR cenvPgmDir = ""
-    OR cenvResDir = ""
-    OR cenvSchDir = ""
-    OR cenvUMenuDir = ""
-    OR cenvUserDir = ""
-    OR czipDir = ""
-    OR cdataUpdDir = ""
-    OR cstrUpdDir = ""
-    OR coverDir = ""
-    OR cprogramsDir = ""
-    OR cresourceDir = ""
-    OR cDLC11 = ""
-    OR cproVersion = ""
-    OR cprodDbName = ""
-    OR cprodDbPort = ""
-    OR cprodDbStFile = ""
-    OR cshipDBName = ""
-    OR cshipDBPort = ""
-    OR cshipDbStFile = ""
-    OR ctestDBName = ""
-    OR ctestDbPort = ""
-    OR ctestDbStFile = ""
-    OR cdfFilename = ""
-    OR cdeltaFilename = ""
-    OR cadminport = ""
-    OR cmakeBackup = ""
-    OR cenvList = ""
-    OR cmodeList = "" 
-    OR cdbList = ""
-    OR cDbDirList = ""
-    OR cDbPortList = "" THEN DO:
-        ASSIGN
-            lCorrupt = TRUE.
-        RETURN.
     END.
 
     ASSIGN
-        lmakeBackup = IF cMakeBackup = "Y" THEN TRUE ELSE FALSE.
+        lmakeBackup = IF cMakeBackup = "Y" THEN TRUE ELSE FALSE
+        cLockoutTries = SUBSTRING(cLockoutTries,1,1)
+        iLockoutTries = IF cLockoutTries NE "" 
+                        AND ASC(cLockoutTries) GE 48
+                        AND ASC(cLockoutTries) LE 57 THEN INT(cLockoutTries) ELSE 0.
 
 END PROCEDURE.
 
@@ -1192,10 +1159,9 @@ PROCEDURE ipSetCurrentDir :
     DEF VAR iResult AS INT NO-UNDO.
     DEF VAR iReturnValue AS INT NO-UNDO.
     
-    RUN SetCurrentDirectoryW (INPUT CODEPAGE-CONVERT(ipTgtDir, "UTF-16"), 
-                              OUTPUT iResult).
+    RUN SetCurrentDirectoryA (ipTgtDir, OUTPUT iResult).
 
-    IF iResult = 0 THEN DO:
+    IF iResult NE 1 THEN DO:
         RUN GetLastError (output iReturnValue).
         MESSAGE 
             "Unable to set working directory." SKIP

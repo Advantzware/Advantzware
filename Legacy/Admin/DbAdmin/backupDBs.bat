@@ -38,51 +38,51 @@ SET DLC=%DLC11%
 
 IF /I !whichDB! == prod (
     CD \!topDir!\!DbDir!\!dbProdDir!
-    CALL !DLC11!\bin\probkup online !prodDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiProd.%backdate%.bak > NUL
-    IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\asiProd.%backdate%.bak (
-        ECHO PROD database backed up successfully
+    CALL !DLC11!\bin\probkup online !prodDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDBName!.bak > NUL
+    IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDBName!.bak (
+        ECHO !prodDBName! database backed up successfully
         )
-    COPY !prodDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiProd.%backdate%.st > NUL
+    COPY !prodDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDBName!.st > NUL
     )
 IF /I !whichDB! == test (
     CD \!topDir!\!DbDir!\!dbTestDir!
-    CALL !DLC11!\bin\probkup online !testDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiTest.%backdate%.bak > NUL
-    IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\asiTest.%backdate%.bak (
-        ECHO TEST database backed up successfully
+    CALL !DLC11!\bin\probkup online !testDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDBName!.bak > NUL
+    IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDBName!.bak (
+        ECHO !testDBName! database backed up successfully
         )
-    COPY !testDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiTest.%backdate%.st > NUL
+    COPY !testDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDBName!.st > NUL
     )
 IF /I !whichDB! == ship (
     CD \!topDir!\!DbDir!\!dbShipDir!
-    CALL !DLC11!\bin\probkup online !shipDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiShip.%backdate%.bak > NUL
-    IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\asiShip.%backdate%.bak (
-        ECHO SHIP database backed up successfully
+    CALL !DLC11!\bin\probkup online !shipDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDBName!.bak > NUL
+    IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDBName!.bak (
+        ECHO !shipDBName! database backed up successfully
         )
-    COPY !shipDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiShip.%backdate%.st > NUL
+    COPY !shipDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDBName!.st > NUL
     )
 IF /I !whichDB! == all (
     CD \!topDir!\!DbDir!\!dbProdDir!
-    CALL !DLC11!\bin\probkup online !prodDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiProd.%backdate%.bak > NUL
-    IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\asiProd.%backdate%.bak (
-        ECHO PROD database backed up successfully
+    CALL !DLC11!\bin\probkup online !prodDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDBName!.bak > NUL
+    IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDBName!.bak (
+        ECHO !prodDBName! database backed up successfully
         )
-    COPY !prodDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiProd.%backdate%.st > NUL
+    COPY !prodDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDBName!.st > NUL
 
     CD \!topDir!\!DbDir!\!dbTestDir!
-    CALL !DLC11!\bin\probkup online !testDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiTest.%backdate%.bak > NUL
-    IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\asiTest.%backdate%.bak (
-        ECHO TEST database backed up successfully
+    CALL !DLC11!\bin\probkup online !testDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDBName!.bak > NUL
+    IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDBName!.bak (
+        ECHO !testDBName! database backed up successfully
         )
-    COPY !testDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiTest.%backdate%.st > NUL
+    COPY !testDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDBName!.st > NUL
 
     CD \!topDir!\!DbDir!\!dbShipDir!
     CALL !DLC11!\bin\dbman -host %hostname% -port %adminport% -database !shipDBName! -start > NUL
-    CALL !DLC11!\bin\probkup online !shipDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiShip.%backdate%.bak > NUL
-    IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\asiShip.%backdate%.bak (
-        ECHO SHIP database backed up successfully
+    CALL !DLC11!\bin\probkup online !shipDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDBName!.bak > NUL
+    IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDBName!.bak (
+        ECHO !shipDBName! database backed up successfully
         )
     CALL !DLC11!\bin\dbman -host %hostname% -port %adminport% -database !shipDBName! -stop > NUL
-    COPY !shipDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\asiShip.%backdate%.st > NUL
+    COPY !shipDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDBName!.st > NUL
     )
 GOTO :EXIT
 
