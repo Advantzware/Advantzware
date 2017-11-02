@@ -58,17 +58,17 @@ DEFINE VARIABLE cWorkDir     AS CHARACTER NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-FIELDS userControl.maxAllowedUsers ~
-userControl.maxSessionsPerUser userControl.numUsersOverLimit 
+userControl.maxSessionsPerUser 
 &Scoped-define ENABLED-TABLES userControl
 &Scoped-define FIRST-ENABLED-TABLE userControl
-&Scoped-Define ENABLED-OBJECTS btnProperties btnSave userScreen screenImage ~
-properties autoMaximize winSize 
+&Scoped-Define ENABLED-OBJECTS btnProperties userScreen screenImage ~
+properties autoMaximize winSize btnSave currentUsers 
 &Scoped-Define DISPLAYED-FIELDS userControl.maxAllowedUsers ~
-userControl.maxSessionsPerUser userControl.numUsersOverLimit 
+userControl.maxSessionsPerUser 
 &Scoped-define DISPLAYED-TABLES userControl
 &Scoped-define FIRST-DISPLAYED-TABLE userControl
 &Scoped-Define DISPLAYED-OBJECTS autoMaximize winSize physical_file ~
-prgmTitle copyrite asiVersion 
+prgmTitle copyrite asiVersion currentUsers 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -104,8 +104,8 @@ DEFINE BUTTON btnSave AUTO-GO
 
 DEFINE VARIABLE properties AS CHARACTER 
      VIEW-AS EDITOR SCROLLBAR-VERTICAL
-     SIZE 131 BY 26.43
-     FGCOLOR 1  NO-UNDO.
+     SIZE 132 BY 26.19
+     FONT 0 NO-UNDO.
 
 DEFINE VARIABLE asiVersion AS CHARACTER FORMAT "X(256)":U 
      LABEL "Version" 
@@ -116,6 +116,12 @@ DEFINE VARIABLE asiVersion AS CHARACTER FORMAT "X(256)":U
 DEFINE VARIABLE copyrite AS CHARACTER FORMAT "X(256)":U 
       VIEW-AS TEXT 
      SIZE 57 BY .62 NO-UNDO.
+
+DEFINE VARIABLE currentUsers AS INTEGER FORMAT ">>9":U INITIAL 0 
+     LABEL "Current Users Logged In" 
+      VIEW-AS TEXT 
+     SIZE 6 BY .62
+     FGCOLOR 2  NO-UNDO.
 
 DEFINE VARIABLE physical_file AS CHARACTER FORMAT "X(256)":U 
      LABEL "Physical File" 
@@ -170,10 +176,10 @@ DEFINE VARIABLE autoMaximize AS LOGICAL INITIAL no
 
 DEFINE FRAME Dialog-Frame
      btnProperties AT ROW 1.24 COL 69 WIDGET-ID 42
-     btnSave AT ROW 23.38 COL 61
-     properties AT ROW 1 COL 78 NO-LABEL WIDGET-ID 38
+     properties AT ROW 1 COL 77 NO-LABEL WIDGET-ID 38
      autoMaximize AT ROW 8.86 COL 9 WIDGET-ID 2
      winSize AT ROW 21 COL 9 NO-LABEL WIDGET-ID 8
+     btnSave AT ROW 23.38 COL 61
      physical_file AT ROW 1.24 COL 23 COLON-ALIGNED
      prgmTitle AT ROW 2.19 COL 14 COLON-ALIGNED
      copyrite AT ROW 3.14 COL 7 COLON-ALIGNED NO-LABEL
@@ -186,15 +192,12 @@ DEFINE FRAME Dialog-Frame
            VIEW-AS TEXT 
           SIZE 5.6 BY .62
           FGCOLOR 2 
-     userControl.numUsersOverLimit AT ROW 7.43 COL 33 COLON-ALIGNED WIDGET-ID 36
-           VIEW-AS TEXT 
-          SIZE 8 BY .62
-          FGCOLOR 2 
-     "(value change requires a close/reopen)" VIEW-AS TEXT
-          SIZE 38 BY .81 AT ROW 8.86 COL 30 WIDGET-ID 4
-          FONT 4
+     currentUsers AT ROW 7.43 COL 36 COLON-ALIGNED WIDGET-ID 44
      "NOTE: screen scaling applies to all modules" VIEW-AS TEXT
           SIZE 42 BY .81 AT ROW 23.86 COL 18 WIDGET-ID 18
+          FONT 4
+     "(value change requires a close/reopen)" VIEW-AS TEXT
+          SIZE 38 BY .81 AT ROW 8.86 COL 30 WIDGET-ID 4
           FONT 4
      IMAGE-1 AT ROW 1.24 COL 2
      RECT-1 AT ROW 4.1 COL 9
@@ -202,7 +205,7 @@ DEFINE FRAME Dialog-Frame
      userScreen AT ROW 10.29 COL 9 WIDGET-ID 6
      screenImage AT ROW 10.76 COL 11 WIDGET-ID 14
      RECT-3 AT ROW 8.38 COL 9 WIDGET-ID 20
-     SPACE(139.99) SKIP(18.80)
+     SPACE(140.00) SKIP(18.57)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
          FONT 6
@@ -212,7 +215,7 @@ DEFINE FRAME linkFrame
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 2 ROW 25.29
-         SIZE 74 BY 2.14
+         SIZE 74 BY 1.91
          FONT 6
          TITLE "Links" WIDGET-ID 100.
 
@@ -248,8 +251,17 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN copyrite IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+ASSIGN 
+       currentUsers:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
 /* SETTINGS FOR IMAGE IMAGE-1 IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
+ASSIGN 
+       userControl.maxAllowedUsers:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
+ASSIGN 
+       userControl.maxSessionsPerUser:READ-ONLY IN FRAME Dialog-Frame        = TRUE.
+
 /* SETTINGS FOR FILL-IN physical_file IN FRAME Dialog-Frame
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN prgmTitle IN FRAME Dialog-Frame
@@ -387,12 +399,7 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     RUN enable_UI.
-    ASSIGN
-        properties:HIDDEN = YES
-        FRAME {&FRAME-NAME}:WIDTH = FRAME {&FRAME-NAME}:WIDTH - 133
-        .
     DO WITH FRAME {&FRAME-NAME}:
-        RUN pProperties.
         FIND prgrms NO-LOCK WHERE prgrms.prgmname EQ callingprgm NO-ERROR.
         IF AVAILABLE prgrms THEN
         ASSIGN
@@ -416,8 +423,13 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         DISPLAY
             userControl.maxAllowedUser
             userControl.maxSessionsPerUser
-            userControl.numUsersOverLimit
             .
+        FOR EACH userLog NO-LOCK
+            WHERE userLog.logoutDateTime EQ ?
+            :
+            currentUsers = currentUsers + 1.
+        END. /* each userlog */
+        DISPLAY currentUsers.
         IF SEARCH(winReSizeDat) NE ? THEN DO:
           INPUT FROM VALUE(SEARCH(winReSizeDat)).
           IMPORT winSize sizeRatio.
@@ -438,6 +450,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
        
         winSize:SCREEN-VALUE = STRING(winSize).
         APPLY 'VALUE-CHANGED':U TO winSize.
+        RUN pProperties.
     END.
     WAIT-FOR GO OF FRAME {&FRAME-NAME}.
 END.
@@ -479,14 +492,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY autoMaximize winSize physical_file prgmTitle copyrite asiVersion 
+          currentUsers 
       WITH FRAME Dialog-Frame.
   IF AVAILABLE userControl THEN 
     DISPLAY userControl.maxAllowedUsers userControl.maxSessionsPerUser 
-          userControl.numUsersOverLimit 
       WITH FRAME Dialog-Frame.
-  ENABLE btnProperties btnSave userScreen screenImage properties autoMaximize 
-         winSize userControl.maxAllowedUsers userControl.maxSessionsPerUser 
-         userControl.numUsersOverLimit 
+  ENABLE btnProperties userScreen screenImage properties autoMaximize winSize 
+         btnSave userControl.maxAllowedUsers userControl.maxSessionsPerUser 
+         currentUsers 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -562,23 +575,26 @@ PROCEDURE pProperties :
   Parameters:  {none}
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE VARIABLE aboutINI AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cVersion AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cValue   AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE idx      AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE cDescrip AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cModule  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCharFld AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cDateFld AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE iIntFld  AS INTEGER   NO-UNDO.
-    DEFINE VARIABLE dDecFld  AS DECIMAL   NO-UNDO.
-    DEFINE VARIABLE lLogFld  AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cDLC     AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE hLabel   AS HANDLE NO-UNDO.
-    DEFINE VARIABLE hLink    AS HANDLE    NO-UNDO.
-    DEFINE VARIABLE iCol     AS DECIMAL   NO-UNDO INITIAL 1.3.
-    DEFINE VARIABLE iRow     AS DECIMAL   NO-UNDO INITIAL 1.1.
-    DEFINE VARIABLE iGap     AS DECIMAL   NO-UNDO INITIAL .95.
+    DEFINE VARIABLE aboutINI  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cVersion  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cValue    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE idx       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cDescrip  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cModule   AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cCharFld  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE cDateFld  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iIntFld   AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dDecFld   AS DECIMAL   NO-UNDO.
+    DEFINE VARIABLE lLogFld   AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cDLC      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE hLabel    AS HANDLE NO-UNDO.
+    DEFINE VARIABLE hLink     AS HANDLE    NO-UNDO.
+    DEFINE VARIABLE iLinkFGC  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iLinkBGC  AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iLinkFont AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iCol      AS DECIMAL   NO-UNDO INITIAL 1.3.
+    DEFINE VARIABLE iRow      AS DECIMAL   NO-UNDO INITIAL 1.1.
+    DEFINE VARIABLE iGap      AS DECIMAL   NO-UNDO INITIAL .7.
     
     /* get progress installed location */
     GET-KEY-VALUE SECTION 'STARTUP'
@@ -595,6 +611,16 @@ PROCEDURE pProperties :
     USE aboutINI.
     
     DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN
+            properties:FGCOLOR = INT(fGetKeyValue("Settings","FGCOLOR"))
+            properties:BGCOLOR = INT(fGetKeyValue("Settings","BGCOLOR"))
+            properties:FONT    = INT(fGetKeyValue("Settings","FONT"))
+            iLinkFGC           = INT(fGetKeyValue("Links","FGCOLOR"))
+            iLinkBGC           = INT(fGetKeyValue("Links","BGCOLOR"))
+            iLinkFont          = INT(fGetKeyValue("Links","FONT"))
+            properties:HIDDEN  = YES
+            FRAME {&FRAME-NAME}:WIDTH = FRAME {&FRAME-NAME}:WIDTH - 133
+            .
         /* get links and dynamically create clickable widgets */
         DO WHILE TRUE:
             /* get link label from about.ini */
@@ -622,9 +648,11 @@ PROCEDURE pProperties :
                     READ-ONLY = YES
                     WIDTH = 73
                     HEIGHT = .62
+                    FGCOLOR = iLinkFGC
+                    BGCOLOR = iLinkBGC
+                    FONT = iLinkFont
                     DATA-TYPE = "CHARACTER"
                     FORMAT = "x(256)"
-                    FGCOLOR = 9
                     TOOLTIP = "Click Link"
                     SCREEN-VALUE = cValue
               TRIGGERS:
@@ -707,7 +735,23 @@ PROCEDURE pProperties :
                                     + FILL(" ",5) + ENTRY(idx,SESSION:STARTUP-PARAMETERS)
                                     .
         END. /* do idx */
+        /* show current users logged in */
+        properties:SCREEN-VALUE = properties:SCREEN-VALUE + CHR(10) + CHR(10)
+                                + "[Current Users Logged In]"
+                                .
+        FOR EACH userLog NO-LOCK
+            WHERE userLog.logoutDateTime EQ ?
+            :
+            properties:SCREEN-VALUE = properties:SCREEN-VALUE + CHR(10)
+                                    + FILL(" ",5)
+                                    + STRING(userLog.loginDateTime) + " "
+                                    + userLog.user_id + ": "
+                                    + userLog.userName
+                                    .
+        END. /* each userlog */
     END. /* do with frame */
+    
+    UNLOAD aboutINI.
 
 END PROCEDURE.
 
