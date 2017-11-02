@@ -13,7 +13,7 @@ DEF BUFFER xxreport     FOR report.
 {oe/rep/oe-lad.i}
 
 DEF VAR v-salesman          AS   CHAR FORMAT "x(26)" NO-UNDO.
-DEF VAR v-fob               AS   CHAR FORMAT "x(12)" NO-UNDO.
+DEF VAR v-fob               AS   CHAR FORMAT "x(11)" NO-UNDO.
 DEF VAR v-tot-cases         AS   INT FORMAT ">>>>9" NO-UNDO.
 DEF VAR v-tot-wt            AS   DEC FORMAT "->,>>>,>>9" NO-UNDO.
 
@@ -62,6 +62,7 @@ DEF WORKFILE w3 NO-UNDO
 DEF VAR lv-pg-num AS INT NO-UNDO.
 DEF VAR lv-tot-pg AS INT NO-UNDO.
 DEF VAR ln-cnt AS INT NO-UNDO.
+DEFINE VARIABLE dReqDate AS DATE FORMAT "99/99/9999" NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
@@ -165,7 +166,6 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
                         oe-bolh.cust-no,
                         oe-bolh.ship-id,
                         BUFFER shipto).
-
     ASSIGN
      v-ship-name    = shipto.ship-name
      v-ship-addr[1] = shipto.ship-addr[1]
@@ -180,8 +180,9 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
      v-comp-addr3   = cust.city + ", " +
                       cust.state + "  " +
                       cust.zip
-     v-dock-note = shipto.dock-hour .
-
+     v-dock-note = shipto.dock-hour
+     dReqDate = oe-bolh.bol-date + shipto.spare-int-2 .
+    
     IF TRIM(v-comp-addr3) EQ "," THEN v-comp-addr3 = "".
               
     IF v-comp-addr[2] EQ "" THEN
@@ -228,7 +229,7 @@ FOR EACH xxreport WHERE xxreport.term-id EQ v-term-id,
                            ELSE IF oe-bolh.frt-pay EQ "B" THEN "PPD/Add"
                            ELSE IF oe-bolh.frt-pay EQ "C" THEN "Collect"
                            ELSE IF oe-bolh.frt-pay EQ "T" THEN "Third Party"
-                           ELSE ""
+                           ELSE ""                             
              v-zone = cust.del-zone.
              
       IF v-terms EQ "" THEN
@@ -376,7 +377,7 @@ PUT
     "<B>  Signature of Receipt </B>" SKIP
     "Customer ________________________________________                       Carrier _______________________________________" AT 23 SKIP(1)
     "Date ____________________________________________                       Date __________________________________________" AT 23 SKIP   
-    "<C1>" lv-prt-date "  " STRING(lv-prt-time,"HH:MM AM") "  " lv-prt-sts
+    "<C1>" lv-prt-date "  " STRING(lv-prt-time,"HH:MM AM") "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts "  " 
     "Page " AT 202 STRING(PAGE-NUMBER) /*STRING(PAGE-NUM - lv-pg-num,">>9")*/ + " of <#PAGES> "  FORM "x(20)" SKIP
     "<R51><C1><P6>RECEIVED, SUBJECT TO THE CLASSIFCATION AND LAWFULLY FILED TARIFFS IN EFFECT ON THE DATE OF THIS Bill of Lading. The property described above, except as noted, marked or consigned and" 
     "<R51.6><C1>destined as indicated below, which said carrier (the word carrier being understood through this contract as meaning any person or corporation in possession of the property under the contract) agrees to carry to" SKIP
