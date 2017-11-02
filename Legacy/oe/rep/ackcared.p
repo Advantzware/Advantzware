@@ -28,7 +28,7 @@ def var v-frt-tax-rate like v-tax-rate.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(150)" NO-UNDO.
 ASSIGN ls-image1 = "images\carded.jpg"
        FILE-INFO:FILE-NAME = ls-image1
        ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
@@ -139,8 +139,8 @@ DEF VAR lv-first-note AS LOG NO-UNDO.
         if v-printline ge 45 then
         do:
            PUT "<FArial><R56><C1><#10><P12><B> Comments </B> <P10>  "          
-               "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Carded"
-               "<R58><C1>  Graphics, LLC. confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
+               "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Graphic"
+               "<R58><C1>  Packaging International confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
                "<=10><R-2>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER, NOT AN INVOICE.</B>".
            PAGE.
            {oe/rep/ackcared.i}
@@ -232,8 +232,8 @@ DEF VAR lv-first-note AS LOG NO-UNDO.
         if v-printline ge 48 then
         do:
            PUT "<FArial><R56><C1><#10><P12><B> Comments </B> <P10>  "          
-               "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Carded"
-               "<R58><C1>  Graphics, LLC. confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
+               "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Graphic"
+               "<R58><C1>  Packaging International confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
                "<=10><R-2>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER, NOT AN INVOICE.</B>".
             PAGE.
             {oe/rep/ackcared.i}
@@ -257,8 +257,8 @@ DEF VAR lv-first-note AS LOG NO-UNDO.
           if v-printline ge 48 then
         do:
             PUT "<FArial><R56><C1><#10><P12><B> Comments </B> <P10>  "          
-                "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Carded"
-                "<R58><C1>  Graphics, LLC. confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
+                "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Graphic"
+                "<R58><C1>  Packaging International confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
                 "<=10><R-2>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER, NOT AN INVOICE.</B>".
             PAGE .
             {oe/rep/ackcared.i}
@@ -303,8 +303,8 @@ DEF VAR lv-first-note AS LOG NO-UNDO.
                if v-printline ge 45 then
                do:
                   PUT "<FArial><R56><C1><#10><P12><B> Comments </B> <P10>  "          
-                      "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Carded"
-                      "<R58><C1>  Graphics, LLC. confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
+                      "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Graphic"
+                      "<R58><C1>  Packaging International confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
                       "<=10><R-2>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER, NOT AN INVOICE.</B>".
                   PAGE.
                   {oe/rep/ackcared.i}
@@ -375,8 +375,8 @@ DEF VAR lv-first-note AS LOG NO-UNDO.
                  IF v-inst[i] <> "" THEN DO:
                     if v-printline ge 48 THEN do:
                      PUT "<FArial><R56><C1><#10><P12><B> Comments </B> <P10>  "          
-                         "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Carded"
-                         "<R58><C1>  Graphics, LLC. confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
+                         "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Graphic"
+                         "<R58><C1>  Packaging International confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
                          "<=10><R-2>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER, NOT AN INVOICE.</B>".
                      PAGE.
                      {oe/rep/ackcared.i}
@@ -406,8 +406,8 @@ DEF VAR lv-first-note AS LOG NO-UNDO.
         if v-printline ge 48 then
         do:
             PUT "<FArial><R56><C1><#10><P12><B> Comments </B> <P10>  "          
-                "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Carded"
-                "<R58><C1>  Graphics, LLC. confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
+                "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Graphic"
+                "<R58><C1>  Packaging International confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
                 "<=10><R-2>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER, NOT AN INVOICE.</B>".
             PAGE.
             {oe/rep/ackcared.i}
@@ -439,8 +439,8 @@ DEF VAR lv-first-note AS LOG NO-UNDO.
        oe-ord.ack-prnt = yes.
        
       PUT "<FArial><R56><C1><#10><P12><B> Comments </B> <P10>  "          
-          "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Carded "
-          "<R58><C1>  Graphics, LLC. confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
+          "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Graphic "
+          "<R58><C1>  Packaging International confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
           "<P8><R60><C1>  I acknowledge the above quantity, pricing and product specs are correct." 
           " <R62><C1>______________________________________(Please sign and fax back) " 
           "<=10><R-2>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER, NOT AN INVOICE.</B>" .
