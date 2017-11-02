@@ -376,7 +376,7 @@ DEF VAR lv-first-note AS LOG NO-UNDO.
                     if v-printline ge 48 THEN do:
                      PUT "<FArial><R56><C1><#10><P12><B> Comments </B> <P10>  "          
                          "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Graphic"
-                         "<R58><C1>  Packaging International. confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
+                         "<R58><C1>  Packaging International confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
                          "<=10><R-2>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER, NOT AN INVOICE.</B>".
                      PAGE.
                      {oe/rep/ackcared.i}
@@ -407,7 +407,7 @@ DEF VAR lv-first-note AS LOG NO-UNDO.
         do:
             PUT "<FArial><R56><C1><#10><P12><B> Comments </B> <P10>  "          
                 "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Graphic"
-                "<R58><C1>  Packaging International. confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
+                "<R58><C1>  Packaging International confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
                 "<=10><R-2>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER, NOT AN INVOICE.</B>".
             PAGE.
             {oe/rep/ackcared.i}
@@ -440,7 +440,7 @@ DEF VAR lv-first-note AS LOG NO-UNDO.
        
       PUT "<FArial><R56><C1><#10><P12><B> Comments </B> <P10>  "          
           "<R57><C1>  Your Order is being Manufactured as described herein.  Any changes in this order will not be valid unless Graphic "
-          "<R58><C1>  Packaging International. confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
+          "<R58><C1>  Packaging International confirms them in writing.  A 10% underrun or overrun will constitute fulfillment of this order."
           "<P8><R60><C1>  I acknowledge the above quantity, pricing and product specs are correct." 
           " <R62><C1>______________________________________(Please sign and fax back) " 
           "<=10><R-2>" SPACE(32) "<P9><B>THIS IS A CONFIRMATION OF YOUR ORDER, NOT AN INVOICE.</B>" .
