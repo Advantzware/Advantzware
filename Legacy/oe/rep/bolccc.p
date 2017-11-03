@@ -108,6 +108,7 @@ DEF VAR lv-ord-type-list AS cha INIT
     ["Change,New Customer,Original,Quality/Re-work,Repeat,Transfer,Complete Re-run"] NO-UNDO. 
 DEF VAR v-lot-no AS CHAR NO-UNDO.
 DEF VAR lv-print-img AS LOG NO-UNDO.
+DEF VAR cPrintFormat AS CHARACTER NO-UNDO.
 
 ASSIGN tmpstore = FILL("-",80).
 
@@ -121,6 +122,7 @@ FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company = cocode
 
 IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "CCCWPP" THEN lv-print-img = YES.
     ELSE lv-print-img = NO.
+IF AVAIL sys-ctrl THEN cPrintFormat = sys-ctrl.char-fld .
 
 FIND FIRST company NO-LOCK WHERE company.company EQ cocode .
 FIND FIRST oe-ctrl NO-LOCK WHERE oe-ctrl.company EQ cocode .

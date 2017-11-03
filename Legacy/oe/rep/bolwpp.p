@@ -65,14 +65,14 @@ DEF VAR ln-cnt AS INT NO-UNDO.
 
 /* === with xprint ====*/
 DEF VAR ls-image1 AS cha NO-UNDO.
-DEF VAR ls-full-img1 AS cha FORM "x(50)" NO-UNDO.
+DEF VAR ls-full-img1 AS cha FORM "x(180)" NO-UNDO.
 ASSIGN ls-image1 = "images\cccw.jpg".
 
 FILE-INFO:FILE-NAME = ls-image1. 
 ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
 
 DEF VAR ls-image2 AS cha NO-UNDO.
-DEF VAR ls-full-img2 AS cha FORM "x(80)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(180)" NO-UNDO.
 ASSIGN ls-image2 = "images\worldpaclogo9.jpg".
 
 FILE-INFO:FILE-NAME = ls-image2. 
@@ -106,13 +106,22 @@ DEF VAR lv-ord-type-code AS cha INIT ["C,N,O,Q,R,T,X"] NO-UNDO.
 DEF VAR lv-ord-type-list AS cha INIT 
     ["Change,New Customer,Original,Quality/Re-work,Repeat,Transfer,Complete Re-run"] NO-UNDO. 
 DEF VAR v-lot-no AS CHAR NO-UNDO.
-
+DEF VAR lv-print-img AS LOG NO-UNDO.
+DEFINE VARIABLE dReqDate AS DATE FORMAT "99/99/9999" NO-UNDO.
+DEF VAR cPrintFormat AS CHARACTER NO-UNDO.
 assign tmpstore = fill("-",80).
 
 find first oe-bolh no-lock no-error.
 find first carrier no-lock no-error.
 find first cust no-lock no-error.
 {sa/sa-sls01.i}
+
+FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company = cocode
+    AND sys-ctrl.NAME = "BOLFMT" NO-ERROR.
+
+IF AVAIL sys-ctrl AND sys-ctrl.char-fld = "CCCWPP" THEN lv-print-img = YES.
+    ELSE lv-print-img = NO.
+IF AVAIL sys-ctrl THEN cPrintFormat = sys-ctrl.char-fld .
 
 find first company where company.company eq cocode no-lock.
 find first oe-ctrl where oe-ctrl.company eq cocode no-lock.
@@ -161,7 +170,8 @@ for each xxreport where xxreport.term-id eq v-term-id,
      v-comp-addr3   = cust.city + ", " +
                       cust.state + "  " +
                       cust.zip
-     v-dock-note = shipto.dock-hour .
+     v-dock-note = shipto.dock-hour
+     dReqDate = oe-bolh.bol-date + shipto.spare-int-2 .
 
     if trim(v-comp-addr3) eq "," then v-comp-addr3 = "".
               
@@ -352,7 +362,7 @@ PUT
     "<B>  Signature of Receipt </B>" SKIP
     "Customer ________________________________________                       Carrier _______________________________________" AT 23 SKIP(1)
     "Date ____________________________________________                       Date __________________________________________" AT 23 SKIP   
-    "<C1>" lv-prt-date "  " STRING(lv-prt-time,"HH:MM AM") "  " lv-prt-sts
+    "<C1>" lv-prt-date "  " STRING(lv-prt-time,"HH:MM AM") "   " CAPS(oe-bolh.USER-ID) "   " lv-prt-sts
     "Page " AT 202 string(PAGE-NUM - lv-pg-num,">>9") + " of " + string(lv-tot-pg) FORM "x(20)" SKIP
     "<R51><C1><P6>RECEIVED, SUBJECT TO THE CLASSIFCATION AND LAWFULLY FILED TARIFFS IN EFFECT ON THE DATE OF THIS Bill of Lading. The property described above, except as noted, marked or consigned and" 
     "<R51.6><C1>destined as indicated below, which said carrier (the word carrier being understood through this contract as meaning any person or corporation in possession of the property under the contract) agrees to carry to" SKIP

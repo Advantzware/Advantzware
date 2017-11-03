@@ -152,15 +152,21 @@ for each report where report.term-id eq v-term-id,
 
       /* v-job-no = fill(" ",6 - length(trim(oe-ordl.job-no))) +
                trim(oe-ordl.job-no) + "-" + trim(string(oe-ordl.job-no2,"99")). */
-
+    
     lv-cases = lv-cases-tot.
     IF AVAIL oe-ordl THEN FIND oe-ord OF oe-ordl NO-LOCK NO-ERROR.
     IF v-printline >= 33 THEN DO:
              PUT {1} "<R49><C1>" lv-prt-date "  " STRING(lv-prt-time,"HH:MM AM") "   "  caps(oe-bolh.USER-ID)  "   " lv-prt-sts
                      "<C69>Page " /*string(PAGE-NUM - lv-pg-num,">>9")*/ STRING(PAGE-NUMBER) + " of <#PAGES> "  FORM "x(20)" .
              PAGE {1}.
-             v-printline = 0.
-             {oe/rep/bolccc1.i}
+             v-printline = 0.  
+             IF cPrintFormat EQ "CCC" THEN do:
+                 {oe/rep/bolccc1.i}
+             END.
+             ELSE DO:
+                 {oe/rep/bolcent2.i}
+             END.
+
     END.
 
     DISPLAY  {1}
@@ -234,8 +240,14 @@ for each report where report.term-id eq v-term-id,
                  "<C69>Page " /*string(PAGE-NUM - lv-pg-num,">>9")*/ STRING(PAGE-NUMBER) + " of <#PAGES> "  FORM "x(20)" .
             /* PUT {1} SKIP(5) "*CONTINUED*" AT 52.*/
              PAGE {1}.
-             v-printline = 0.
-             {oe/rep/bolccc1.i}
+             v-printline = 0.  
+             IF cPrintFormat EQ "CCC" THEN do:
+                  {oe/rep/bolccc1.i}
+             END.
+             ELSE DO:
+                {oe/rep/bolcent2.i}
+                     
+             END.
           END.
 
           v-part-dscr = string(fg-set.part-no,"x(16)") +
