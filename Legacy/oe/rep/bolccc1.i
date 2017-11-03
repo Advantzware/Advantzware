@@ -8,7 +8,7 @@
       IF lv-print-img THEN
           PUT  "<FMS Mincho>"
           "<P14><R2><C52><B>Bill of lading #:" OE-BOLH.BOL-NO "</B><P10> " SKIP
-          "<R3><C5>Manufactured by:"  "<R2><C30>Distributed by:"  SKIP
+          "<R3><C5>Manufactured by:"  "<R3><C30>Distributed by:"  SKIP
           "<C3><R4><#1><C+3><R+6><C+45><IMAGE#1=" ls-full-img1
            "<C30><R4><#1><C+3><R+6><C+45><IMAGE#1=" ls-full-img2 SKIP .
 
