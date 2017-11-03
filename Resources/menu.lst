@@ -226,10 +226,10 @@ r-prfitm. e
 r-yeavol. e
 r-lastvs. e
 r-slsbud. e
-eq        e 
-r-dash.   eq
-r-invmh.  eq
-r-boomh.  eq
+eq e
+r-dash. eq
+r-invmh. eq
+r-boomh. eq
 r-salrmh. eq
 r-prodmh. eq
 dbinvmh. eq
@@ -308,15 +308,15 @@ r-msfkic. hr
 r-wipbct. hr
 r-jobmsf. hr
 r-wiptag. hr
+r-fibaud. hr
 hl h
 r-jobdue. hl
 r-backlo. hl
 r-totwsa. hl
 r-macmsf. hl
-r-jobprp. hl 
+r-jobprp. hl
 r-jcost. hl
 r-wipjob. hl
-r-mchmsfN. hl
 hf h est
 job-code. hf est
 jc-ctrl. hf est
@@ -495,11 +495,11 @@ r-postck. lr
 r-pstchk. lr
 r-glrpt. lr
 lf l est
-company. lf 
-account. lf 
-gl-ctrl. lf 
-bank. lf 
-w-ccode. lf 
+company. lf
+account. lf
+gl-ctrl. lf
+bank. lf
+w-ccode. lf
 r-impbud. lf
 s file est
 s1 s est
@@ -537,8 +537,22 @@ fxtrncst. s3 est
 fxtrncs2. s3 est
 acctbtob. s3 est
 updvend#. s3 est
-users. s est
-usergrps. s est
+user s est
+comp_loc. user est
+usermenu. user est
+users. user est
+users_. user est
+track_. user est
+usergrps. user est
+usergrp_. user est
+codes s est
+emailcod. codes est
+statecod. codes est
+stateco_. codes est
+titlcode. codes est
+titlcod_. codes est
+zipcode. codes est
+zipcode_. codes est
 access. s est
 s8 s est
 sys-ctrl. s8 est
@@ -564,7 +578,6 @@ bldfgbin. s11 est
 deflocbn. s11 est
 setwhsbn. s11 est
 shipmeth. s11 est
-patchftp. s est
 ss s est
 file. ss est
 job-cat. ss est
@@ -580,7 +593,6 @@ holiday. ss est
 xref. ss est
 sr s est
 w-usrprt. sr est
-sr2. sr est
 w-batch. sr est
 EDIRelBL. sr est
 contexp. sr est
@@ -589,48 +601,19 @@ wedpoak. sr est
 wedshtr. sr est
 impspxml. sr est
 wQuery. sr est
-RULE file est
-user mainmenu est
-comp_loc. user est
-RULE user est
-usermenu. user est
-codes mainmenu est
-statecod. codes est
-titlcode. codes est
-emailcod. codes est
-zipcode. codes est
-RULE codes est
-codeslist codes est
-stateco_. codeslist est
-titlcod_. codeslist est
-zipcode_. codeslist est
-system mainmenu est
+system s est
 spooler. system est
 splchkdn. system est
-RULE system est
 config. system est
-parmfile. system est
 setaudit. system est
-RULE system est
+audit_. system est
 access. system est
 miscflds. system est
 prgrms. system est
-RULE system est
-usergrps. system est
-users. system est
-RULE system est
-ziploadr. system est
-RULE system est
-systemlist system est
-parmfil_. systemlist est
-prgrms_. systemlist est
-usergrp_. systemlist est
-users_. systemlist est
-RULE systemlist est
-audit_. systemlist est
-track_. systemlist est
+prgrms_. system est
+parmfile. system est
+parmfil_. system est
 help mainmenu est
 help. help est
 helpcont. help est
-RULE help est
 about. help est
