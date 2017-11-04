@@ -42,6 +42,10 @@ DEFINE VARIABLE ipcLaunchType AS CHARACTER NO-UNDO INITIAL "Report".
 
 /* Local Variable Definitions ---                                       */
 
+DEFINE VARIABLE cColumnLabel       AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSaveLabel         AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lAscending         AS LOGICAL   NO-UNDO INITIAL YES.
+
 DEFINE TEMP-TABLE ttModule NO-UNDO
     FIELD module   AS CHARACTER LABEL "Module"      FORMAT "x(5)"
     FIELD modDescr AS CHARACTER LABEL "Description" FORMAT "x(25)"
@@ -81,8 +85,8 @@ IF ERROR-STATUS:ERROR THEN RETURN.
 &Scoped-define FIELDS-IN-QUERY-browseAOA ttAOA.aoaFile ttAOA.progID ttAOA.menuID ttAOA.module   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-browseAOA   
 &Scoped-define SELF-NAME browseAOA
-&Scoped-define QUERY-STRING-browseAOA FOR EACH ttAOA WHERE ttModule.module EQ "*" OR ttAOA.module EQ ttModule.module
-&Scoped-define OPEN-QUERY-browseAOA OPEN QUERY {&SELF-NAME} FOR EACH ttAOA WHERE ttModule.module EQ "*" OR ttAOA.module EQ ttModule.module.
+&Scoped-define QUERY-STRING-browseAOA FOR EACH ttAOA WHERE ttModule.module EQ "*" OR ttAOA.module EQ ttModule.module ~{&SORTBY-PHRASE}
+&Scoped-define OPEN-QUERY-browseAOA OPEN QUERY {&SELF-NAME} FOR EACH ttAOA WHERE ttModule.module EQ "*" OR ttAOA.module EQ ttModule.module ~{&SORTBY-PHRASE}.
 &Scoped-define TABLES-IN-QUERY-browseAOA ttAOA
 &Scoped-define FIRST-TABLE-IN-QUERY-browseAOA ttAOA
 
@@ -142,10 +146,10 @@ DEFINE QUERY browseModule FOR
 DEFINE BROWSE browseAOA
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _DISPLAY-FIELDS browseAOA C-Win _FREEFORM
   QUERY browseAOA DISPLAY
-      ttAOA.aoaFile
-    ttAOA.progID
-    ttAOA.menuID
-    ttAOA.module
+      ttAOA.aoaFile LABEL-BGCOLOR 14
+    ttAOA.progID LABEL-BGCOLOR 14
+    ttAOA.menuID LABEL-BGCOLOR 14
+    ttAOA.module LABEL-BGCOLOR 14
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 73 BY 25.24
@@ -211,8 +215,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
 /* ************************* Included-Libraries *********************** */
 
@@ -234,6 +236,9 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* BROWSE-TAB browseModule 1 DEFAULT-FRAME */
 /* BROWSE-TAB browseAOA browseModule DEFAULT-FRAME */
 ASSIGN 
+       browseAOA:ALLOW-COLUMN-SEARCHING IN FRAME DEFAULT-FRAME = TRUE.
+
+ASSIGN 
        btnClose:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "WinKitRibbon".
 
@@ -253,7 +258,7 @@ THEN C-Win:HIDDEN = no.
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE browseAOA
 /* Query rebuild information for BROWSE browseAOA
      _START_FREEFORM
-OPEN QUERY {&SELF-NAME} FOR EACH ttAOA WHERE ttModule.module EQ "*" OR ttAOA.module EQ ttModule.module.
+OPEN QUERY {&SELF-NAME} FOR EACH ttAOA WHERE ttModule.module EQ "*" OR ttAOA.module EQ ttModule.module ~{&SORTBY-PHRASE}.
      _END_FREEFORM
      _Query            is OPENED
 */  /* BROWSE browseAOA */
@@ -268,7 +273,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH ttModule.
 */  /* BROWSE browseModule */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -306,6 +311,23 @@ END.
 ON DEFAULT-ACTION OF browseAOA IN FRAME DEFAULT-FRAME /* AOA Files */
 DO:
     APPLY "CHOOSE":U TO btnLaunch.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL browseAOA C-Win
+ON START-SEARCH OF browseAOA IN FRAME DEFAULT-FRAME /* AOA Files */
+DO:
+    IF {&BROWSE-NAME}:CURRENT-COLUMN:NAME NE ? THEN DO:
+        cColumnLabel = BROWSE {&BROWSE-NAME}:CURRENT-COLUMN:NAME.
+        IF cColumnLabel EQ cSaveLabel THEN
+        lAscending = NOT lAscending.
+        cSaveLabel = cColumnLabel.
+        RUN pReopenBrowse.
+    END.
+    RETURN NO-APPLY.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -430,6 +452,82 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByFile C-Win 
+PROCEDURE pByFile :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAscending THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.aoaFile
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+    ELSE
+    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.aoaFile DESCENDING
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByMenuID C-Win 
+PROCEDURE pByMenuID :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAscending THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.menuID
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+    ELSE
+    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.menuID DESCENDING
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByModule C-Win 
+PROCEDURE pByModule :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAscending THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.module
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+    ELSE
+    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.module DESCENDING
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pByProgID C-Win 
+PROCEDURE pByProgID :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    IF lAscending THEN
+    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.progID
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+    ELSE
+    &SCOPED-DEFINE SORTBY-PHRASE BY ttAOA.progID DESCENDING
+    {&OPEN-QUERY-{&BROWSE-NAME}}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pGetAOAFiles C-Win 
 PROCEDURE pGetAOAFiles :
 /*------------------------------------------------------------------------------
@@ -476,6 +574,29 @@ PROCEDURE pGetAOAFiles :
     {&OPEN-QUERY-browseModule}
     APPLY "VALUE-CHANGED":U TO BROWSE browseModule.
     {&OPEN-QUERY-browseALL}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReopenBrowse C-Win 
+PROCEDURE pReopenBrowse :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    CASE cColumnLabel:
+        WHEN "aoaFile" THEN
+        RUN pByFile.
+        WHEN "progID" THEN
+        RUN pByProgID.
+        WHEN "menuID" THEN
+        RUN pByMenuID.
+        WHEN "module" THEN
+        RUN pByModule.
+    END CASE.
 
 END PROCEDURE.
 
