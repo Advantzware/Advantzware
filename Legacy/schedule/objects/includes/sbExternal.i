@@ -1,9 +1,11 @@
-/* sbExternal.i - used in sbReport.p */
+/* sbExternal.i - used in sbReport.p, sbStatus.p and sbNotes.p */
 
 {{&includes}/defBoard.i}
 {{&includes}/sharedVars.i NEW}
 {{&includes}/filterVars.i NEW}
 {{&includes}/ttblJob.i NEW}
+&SCOPED-DEFINE useTable ttblJob
+{{&includes}/jobStatusFunc.i}
 
 /* configuration vars */
 {{&includes}/configVars.i}
@@ -46,7 +48,8 @@ containerHandle = THIS-PROCEDURE:HANDLE.
 PROCESS EVENTS.
 
 RUN getConfiguration.
-reload = IF '{&sbExternal}' EQ 'sbReport' THEN reloadReport
+reload = IF '{&sbExternal}' EQ 'sbNotes'  THEN reloadStatus
+    ELSE IF '{&sbExternal}' EQ 'sbReport' THEN reloadReport
     ELSE IF '{&sbExternal}' EQ 'sbStatus' THEN reloadStatus
     ELSE ?.
 
@@ -85,8 +88,8 @@ PROCESS EVENTS.
 RUN getScenario.
 HIDE FRAME fMsg2 NO-PAUSE.
 
-&IF '{&sbExternal}' EQ 'sbHTML' &THEN
-RUN {&objects}/sbHTML.p.
+&IF '{&sbExternal}' EQ 'sbNotes' &THEN
+RUN {&objects}/sbNotes.w.
 &ELSEIF '{&sbExternal}' EQ 'sbReport' &THEN
 RUN {&prompts}/fieldFilter.w ('{&Board}','','',NO,NO,?,'print').
 &ELSEIF '{&sbExternal}' EQ 'sbStatus' &THEN

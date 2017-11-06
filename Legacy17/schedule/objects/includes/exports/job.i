@@ -119,6 +119,10 @@
 &SCOPED-DEFINE lagTime lagTime
 &ENDIF
 
+&IF DEFINED(statusLabel) EQ 0 &THEN
+&SCOPED-DEFINE statusLabel ''
+&ENDIF
+
 EXPORT STREAM {&streamName}
   {&resource}
   {&jobSequence}
@@ -144,6 +148,7 @@ EXPORT STREAM {&streamName}
   {&completed}
   {&strRowID}
   {&keyValue}
+  {&statusLabel}
   {&udfField}
   {&userField}
   {&jobStatus}

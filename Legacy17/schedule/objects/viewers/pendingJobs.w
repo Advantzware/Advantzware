@@ -3,7 +3,7 @@
 /* Connected Databases 
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS sObject
 /*------------------------------------------------------------------------
 
   File: jobBrowse.w
@@ -37,6 +37,8 @@ CREATE WIDGET-POOL.
 {{&includes}/filterVars.i}
 {{&includes}/ttblJob.i}
 {{&viewers}/includes/sharedVars.i NEW}
+&SCOPED-DEFINE useTable pendingJob
+{{&includes}/jobStatusFunc.i}
 
 /* Parameters Definitions ---                                           */
 

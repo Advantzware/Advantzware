@@ -45,5 +45,6 @@ FOR EACH {1} EXCLUSIVE-LOCK:
   ASSIGN
     ttblJob.jobBGColor = jobBGColor()
     ttblJob.jobFGColor = jobFGColor()
+    ttblJob.statusLabel = jobStatus()
     .
 END. /* each {1} */

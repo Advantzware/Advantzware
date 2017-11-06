@@ -5,14 +5,22 @@
            : Ron@TheStarkGroup.com
 
     Support: 215.369.7800 (AdvantzWare Support)
+           : Ron Ext 7007
            : 404.769.7009 (Cell)
 
- COPYRIGHT, All Rights Reserved, The Stark Group, Inc.
+ COPYRIGHT, All Rights Reserved, Advantzware, Inc.
+            All Rights Reserved, The Stark Group, Inc.
            (scrolldown to view release history)
 
  History:
 
- r4.003 (updated 9.19.2017)
+ r4.003 (updated 11.3.2017)
+ * added field "sb status"
+ * ability to create html resource pages
+ * convert notes & checkoffs to database
+ * enhance notes & checkoffs purge
+
+ r4.002 (updated 9.19.2017)
  * added field "mr std hrs"
  * added field "run std hrs"
 

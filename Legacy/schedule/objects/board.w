@@ -2394,6 +2394,7 @@ PROCEDURE createJob :
   ASSIGN
     ttblJob.jobBGColor = jobBGColor()
     ttblJob.jobFGColor = jobFGColor()
+    ttblJob.statusLabel = jobStatus()
     ttblJob.widgetIdx = ipIdx
     jobWidget.jobBGColor = ttblJob.jobBGColor
     jobWidget.jobFGColor = ttblJob.jobFGColor
@@ -2412,7 +2413,8 @@ PROCEDURE createJob :
     pWidget:SCREEN-VALUE = pWidget:SCREEN-VALUE +
                            (IF intervals:LOOKUP(intervals:SCREEN-VALUE)
                             LE noteButtons THEN '    ' ELSE '') + jobDescriptn
-    pWidget:PRIVATE-DATA = STRING(ROWID(ttblJob)).
+    pWidget:PRIVATE-DATA = STRING(ROWID(ttblJob))
+    .
   pWidget:TOOLTIP = jobToolTip + '~n~nStatus: ' + jobStatus().
   IF '{&Board}' EQ 'Basic' THEN
   pWidget:SCREEN-VALUE = jobDescriptn.
@@ -3456,6 +3458,7 @@ PROCEDURE pFromPending :
         ASSIGN
           ttblJob.jobBGColor = jobBGColor()
           ttblJob.jobFGColor = jobFGColor()
+          ttblJob.statusLabel = jobStatus()
           .
         IF priorDateTime NE ? AND priorDateTime GE ttblJob.startDateTime THEN DO:
           ASSIGN
@@ -3469,6 +3472,7 @@ PROCEDURE pFromPending :
           ASSIGN
             ttblJob.jobBGColor = jobBGColor()
             ttblJob.jobFGColor = jobFGColor()
+            ttblJob.statusLabel = jobStatus()
             .
         END.
         RUN firstAvailable (ttblJob.resource,ROWID(ttblJob),ttblJob.timeSpan,
@@ -3490,6 +3494,7 @@ PROCEDURE pFromPending :
         ASSIGN
           ttblJob.jobBGColor = jobBGColor()
           ttblJob.jobFGColor = jobFGColor()
+          ttblJob.statusLabel = jobStatus()
           .
         ASSIGN
           priorEndDate  = ttblJob.endDate
@@ -3563,6 +3568,7 @@ PROCEDURE pFromPendingByDueDate :
           ASSIGN
             ttblJob.jobBGColor = jobBGColor()
             ttblJob.jobFGColor = jobFGColor()
+            ttblJob.statusLabel = jobStatus()
             .
 
           RUN pSetResourceSequence (bPendingJob.resource).
@@ -3692,6 +3698,7 @@ PROCEDURE pSetDueDateJob :
         ASSIGN
           ttblJob.jobBGColor = jobBGColor()
           ttblJob.jobFGColor = jobFGColor()
+          ttblJob.statusLabel = jobStatus()
           priorStartDate = ttblJob.startDate
           priorStartTime = ttblJob.startTime
           priorDateTime  = ttblJob.startDateTime
@@ -3880,7 +3887,9 @@ PROCEDURE setJobColors :
   FOR EACH ttblJob EXCLUSIVE-LOCK:
     ASSIGN
       ttblJob.jobBGColor = jobBGColor()
-      ttblJob.jobFGColor = jobFGColor().
+      ttblJob.jobFGColor = jobFGColor()
+      ttblJob.statusLabel = jobStatus()
+      .
   END.
   APPLY 'RETURN' TO boardDate IN FRAME {&FRAME-NAME}.
 
