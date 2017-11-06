@@ -41,6 +41,7 @@ DEFINE VARIABLE sizeRatio    AS DECIMAL   NO-UNDO.
 DEFINE VARIABLE cWorkDir     AS CHARACTER NO-UNDO.
 
 {system/sysconst.i}
+{custom/globdefs.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -61,8 +62,8 @@ DEFINE VARIABLE cWorkDir     AS CHARACTER NO-UNDO.
 userControl.maxSessionsPerUser 
 &Scoped-define ENABLED-TABLES userControl
 &Scoped-define FIRST-ENABLED-TABLE userControl
-&Scoped-Define ENABLED-OBJECTS btnProperties userScreen screenImage ~
-properties autoMaximize winSize btnSave currentUsers 
+&Scoped-Define ENABLED-OBJECTS btnProperties userScreen btnSave screenImage ~
+properties autoMaximize winSize currentUsers 
 &Scoped-Define DISPLAYED-FIELDS userControl.maxAllowedUsers ~
 userControl.maxSessionsPerUser 
 &Scoped-define DISPLAYED-TABLES userControl
@@ -176,10 +177,10 @@ DEFINE VARIABLE autoMaximize AS LOGICAL INITIAL no
 
 DEFINE FRAME Dialog-Frame
      btnProperties AT ROW 1.24 COL 69 WIDGET-ID 42
+     btnSave AT ROW 23.38 COL 61
      properties AT ROW 1 COL 77 NO-LABEL WIDGET-ID 38
      autoMaximize AT ROW 8.86 COL 9 WIDGET-ID 2
      winSize AT ROW 21 COL 9 NO-LABEL WIDGET-ID 8
-     btnSave AT ROW 23.38 COL 61
      physical_file AT ROW 1.24 COL 23 COLON-ALIGNED
      prgmTitle AT ROW 2.19 COL 14 COLON-ALIGNED
      copyrite AT ROW 3.14 COL 7 COLON-ALIGNED NO-LABEL
@@ -497,8 +498,8 @@ PROCEDURE enable_UI :
   IF AVAILABLE userControl THEN 
     DISPLAY userControl.maxAllowedUsers userControl.maxSessionsPerUser 
       WITH FRAME Dialog-Frame.
-  ENABLE btnProperties userScreen screenImage properties autoMaximize winSize 
-         btnSave userControl.maxAllowedUsers userControl.maxSessionsPerUser 
+  ENABLE btnProperties userScreen btnSave screenImage properties autoMaximize 
+         winSize userControl.maxAllowedUsers userControl.maxSessionsPerUser 
          currentUsers 
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
@@ -517,7 +518,8 @@ PROCEDURE pGetSysCtrl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    DEFINE INPUT PARAMETER ipcName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcName    AS CHARACTER NO-UNDO.
     
     DEFINE OUTPUT PARAMETER opcDescrip  AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcModule   AS CHARACTER NO-UNDO.
@@ -528,7 +530,7 @@ PROCEDURE pGetSysCtrl :
     DEFINE OUTPUT PARAMETER oplLogFld   AS LOGICAL   NO-UNDO.
     
     FIND FIRST sys-ctrl NO-LOCK
-        WHERE sys-ctrl.company EQ "001"
+        WHERE sys-ctrl.company EQ ipcCompany
           AND sys-ctrl.name EQ ipcName
         NO-ERROR.
     IF AVAILABLE sys-ctrl THEN
@@ -683,7 +685,7 @@ PROCEDURE pProperties :
             /* if ? then no more nk1 code names */
             IF cValue EQ ? THEN LEAVE.
             /* get nk1 values */
-            RUN pGetSysCtrl (cValue,
+            RUN pGetSysCtrl (g_company, cValue,
                 OUTPUT cDescrip,
                 OUTPUT cModule,
                 OUTPUT cCharFld,
