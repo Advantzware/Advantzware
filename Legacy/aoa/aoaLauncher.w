@@ -215,15 +215,6 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* END WINDOW DEFINITION                                                */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _INCLUDED-LIB C-Win 
-/* ************************* Included-Libraries *********************** */
-
-{Advantzware/WinKit/embedwindow-nonadm.i}
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 
 
 /* ***********  Runtime Attributes and AppBuilder Settings  *********** */
@@ -352,7 +343,6 @@ ON CHOOSE OF btnClose IN FRAME DEFAULT-FRAME /* Close */
 DO:
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -365,7 +355,6 @@ ON CHOOSE OF btnLaunch IN FRAME DEFAULT-FRAME /* Launch */
 DO:
   RUN VALUE("aoa/" + ttAOA.progID + "p").
   RETURN NO-APPLY.
-    {Advantzware/WinKit/winkit-panel-triggerend.i} /* added by script _nonAdm1.p */
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -388,7 +377,6 @@ ASSIGN CURRENT-WINDOW                = {&WINDOW-NAME}
 /* terminate it.                                                        */
 ON CLOSE OF THIS-PROCEDURE DO:
    RUN disable_UI.
-   {Advantzware/WinKit/closewindow-nonadm.i} /* added by script _nonAdm1.p */
 END.
 
 /* Best default for GUI applications is...                              */
@@ -402,7 +390,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   {&WINDOW-NAME}:TITLE = "AOA " + ipcLaunchType + " Launcher".
   RUN enable_UI.
   RUN pGetAOAFiles (ipcLaunchType).
-    {Advantzware/WinKit/embedfinalize-nonadm.i} /* added by script _nonAdm1.p */
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
