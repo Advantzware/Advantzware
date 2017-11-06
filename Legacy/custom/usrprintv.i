@@ -26,7 +26,8 @@ IF AVAIL user-print THEN DO:
 
   DO WHILE VALID-HANDLE(lv-field-hdl):
     DO li = 1 TO EXTENT(user-print.field-name):
-      IF TRIM(user-print.field-name[li]) NE ""              AND 
+      IF TRIM(user-print.field-name[li]) NE "" AND 
+         lv-field-hdl:TYPE NE "BUTTON" AND
          (IF "{1}" EQ "" THEN TRUE ELSE TRIM(user-print.field-name[li]) EQ "{1}")  AND
          user-print.field-name[li] EQ lv-field-hdl:NAME THEN DO:
          lv-last-assigned = user-print.field-value[li].
