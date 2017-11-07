@@ -2,23 +2,27 @@
 #
 # Client Performance Parameters
 -Bt 20000           # Temptable buffer size (10,10,50000)
--D 3000             # Directory Size (nbr compiled proc entries)
--fc 20000           # Schema field cache size (0,128,mem)
+-D 1000             # Directory Size (nbr compiled proc entries)
+-fc 10000           # Schema field cache size (0,128,mem)
 -l 40000            # Local buffer size
+-Mm 1024            # Message buffer size (3,1K,32K) (must be same in database startup)
 -mmax 65534         # Maximum memory (1,512,65K)
--q                  # Quick Request
--s 512              # Stack size (9,40,5M)
+#-q                  # Quick Request
+-rereadnolock
+-s 1024             # Stack size (9,40,5M)
 -T c:\tmp           # Temp file directory
 -TB 31              # Speed sort (1,2,31)
+-tmpbsize 8
 -TM 32              # Merge number (1,5,32)
--ct 2               # Client Connection Timeout
+# Product Type Parameters
+#-rx
 # ABL Parameters
--h 3                # Number of databases
--inp 32000          # Input characters (1,4K,32K)
+-h 5                # Number of databases
 -nb 255             # Max nested blocks
 -noincrwarn         # Suppress auto-increment warnings
 -rand 2             # Random number generator
--tok 6400           # Number of tokens (1,1024,mem)
 # Internationalization Parameters
+-cpstream ibm850    # Stream codepage
 -d mdy              # Date format
 -yy 1950            # Year cutover for century
+-debugalert

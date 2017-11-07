@@ -37,23 +37,23 @@ IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDbName!.bak (
     )
 COPY !prodDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\!prodDbName!.st > NUL
 
-CD \!topDir!\!DbDir!\!dbTestDir!
-ECHO Beginning TEST database backup >> !logFile!
-CALL !DLC11!\bin\probkup online !testDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDbName!.bak > NUL
-IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDbName!.bak (
-    ECHO TEST database backed up successfully
-    ECHO TEST database backed up successfully >> !logFile!
-    )
-COPY !testDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDbName!.st > NUL
+REM CD \!topDir!\!DbDir!\!dbTestDir!
+REM ECHO Beginning TEST database backup >> !logFile!
+REM CALL !DLC11!\bin\probkup online !testDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDbName!.bak > NUL
+REM IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDbName!.bak (
+REM     ECHO TEST database backed up successfully
+REM     ECHO TEST database backed up successfully >> !logFile!
+REM     )
+REM COPY !testDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\!testDbName!.st > NUL
 
-CD \!topDir!\!DbDir!\!dbShipDir!
-ECHO Beginning SHIP database backup >> !logFile!
-CALL !DLC11!\bin\probkup online !shipDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDbName!.bak > NUL
-IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDbName!.bak (
-    ECHO SHIP database backed up successfully
-    ECHO SHIP database backed up successfully >> !logFile!
-    )
-COPY !shipDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDbName!.st > NUL
+REM CD \!topDir!\!DbDir!\!dbShipDir!
+REM ECHO Beginning SHIP database backup >> !logFile!
+REM CALL !DLC11!\bin\probkup online !shipDbName! !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDbName!.bak > NUL
+REM IF EXIST !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDbName!.bak (
+REM     ECHO SHIP database backed up successfully
+REM     ECHO SHIP database backed up successfully >> !logFile!
+REM     )
+REM COPY !shipDbStFile! !Drive!\!topDir!\!backupDir!\!dbBackup!\!shipDbName!.st > NUL
 
 ECHO Completed unattended backup >> !logFile!
 ECHO ------------------------------------------------------ >> !logFile!
