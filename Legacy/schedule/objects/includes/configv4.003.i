@@ -6,7 +6,7 @@ downtimeConflictFGColor downtimePrompt downtimeSize downtimeTop downtimeWarning 
 endDateBuffer
 flashGridLine flashLightColor flashLight flashTimeLine fullBoard
 gap gridBGColor gridLineColor
-hpixels
+hpixels htmlPageLocation
 intervalInit
 jobBlock jobConflictBGColor jobConflictFGColor jobPrompt jobWarning
 lightBulbColor lockButtons loadCapacity
