@@ -69,7 +69,9 @@ DO WHILE TRUE:
    NO-ERROR.
 
   IF g_batch THEN DO:
-     IF lv-field-hdl:TYPE <> "Browse" AND lv-field-hdl:DATA-TYPE = "Date" THEN DO:
+     IF lv-field-hdl:TYPE NE "BROWSE" AND
+        lv-field-hdl:TYPE NE "BUTTON" AND
+        lv-field-hdl:DATA-TYPE EQ "Date" THEN DO:
         CREATE tt-date.
         ASSIGN tt-date.tt-name = lv-field-hdl:NAME
                tt-date.tt-value = lv-field-hdl:SCREEN-VALUE.

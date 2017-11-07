@@ -86,16 +86,18 @@ ASSIGN
  li = 0.
 
 DO WHILE TRUE:
-  li = li + 1.
-
-  IF li GT EXTENT(tt-user-print.field-name) OR
-     NOT VALID-HANDLE(lv-field-hdl)         THEN LEAVE.
-
-  ASSIGN
-   tt-user-print.field-label[li] = lv-field-hdl:LABEL
-   tt-user-print.field-name[li]  = lv-field-hdl:NAME
-   tt-user-print.field-value[li] = lv-field-hdl:SCREEN-VALUE NO-ERROR.
- 
+  IF lv-field-hdl:TYPE NE "BUTTON" THEN DO:
+      li = li + 1.
+    
+      IF li GT EXTENT(tt-user-print.field-name) OR
+         NOT VALID-HANDLE(lv-field-hdl)         THEN LEAVE.
+    
+      IF lv-field-hdl:TYPE NE "BUTTON" THEN
+      ASSIGN
+       tt-user-print.field-label[li] = lv-field-hdl:LABEL
+       tt-user-print.field-name[li]  = lv-field-hdl:NAME
+       tt-user-print.field-value[li] = lv-field-hdl:SCREEN-VALUE NO-ERROR.
+  END. 
   lv-field-hdl = lv-field-hdl:NEXT-SIBLING.
 END.
 

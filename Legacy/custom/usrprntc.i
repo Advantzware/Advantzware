@@ -30,7 +30,8 @@ IF AVAIL user-print THEN DO:
 
   DO WHILE VALID-HANDLE(lv-field-hdl):
     DO li = 1 TO EXTENT(user-print.field-name):
-      IF TRIM(user-print.field-name[li]) NE ""              AND 
+      IF TRIM(user-print.field-name[li]) NE "" AND
+         lv-field-hdl:TYPE NE "BUTTON" AND 
          user-print.field-name[li] EQ lv-field-hdl:NAME {1} THEN DO:
         lv-field-hdl:SCREEN-VALUE = user-print.field-value[li] NO-ERROR.
         LEAVE.
