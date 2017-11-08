@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
+          asi       PROGRESS
 */
 &Scoped-define WINDOW-NAME C-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS C-Win 
@@ -65,13 +65,9 @@ DEF VAR giCurrOrd AS INT NO-UNDO.
 &Scoped-Define ENABLED-OBJECTS n-ord Btn_Update Btn_Close RECT-15 RECT-17 ~
 RECT-18 RECT-19 
 &Scoped-Define DISPLAYED-FIELDS oe-ctrl.i-code ar-ctrl.last-inv ~
-oe-ctrl.job-no-def-to-ord oe-ctrl.rng-ord[1] oe-ctrl.rng-ord[2] ~
-oe-ctrl.n-bol oe-ctrl.rng-bol[1] oe-ctrl.rng-bol[2] oe-ctrl.n-bar ~
-oe-ctrl.rng-bc[1] oe-ctrl.rng-bc[2] oe-ctrl.n-rec oe-ctrl.rng-rec[1] ~
-oe-ctrl.rng-rec[2] oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-chrg ~
-oe-ctrl.prep-comm oe-ctrl.prep-tax oe-ctrl.use-ra-no oe-ctrl.ship-from ~
-oe-ctrl.u-inv oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-ack ~
-oe-ctrl.p-sep oe-ctrl.pr-broker 
+oe-ctrl.n-bol oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-comm ~
+oe-ctrl.ship-from oe-ctrl.u-inv oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick ~
+oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker 
 &Scoped-define DISPLAYED-TABLES oe-ctrl ar-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE oe-ctrl
 &Scoped-define SECOND-DISPLAYED-TABLE ar-ctrl
@@ -79,14 +75,10 @@ oe-ctrl.p-sep oe-ctrl.pr-broker
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
-&Scoped-define List-1 tgCreateSSBol oe-ctrl.i-code ~
-oe-ctrl.job-no-def-to-ord n-ord oe-ctrl.rng-ord[1] oe-ctrl.rng-ord[2] ~
-oe-ctrl.n-bol oe-ctrl.rng-bol[1] oe-ctrl.rng-bol[2] oe-ctrl.n-bar ~
-oe-ctrl.rng-bc[1] oe-ctrl.rng-bc[2] oe-ctrl.n-rec oe-ctrl.rng-rec[1] ~
-oe-ctrl.rng-rec[2] oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-chrg ~
-oe-ctrl.prep-comm oe-ctrl.prep-tax oe-ctrl.use-ra-no oe-ctrl.u-inv ~
-oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep ~
-oe-ctrl.pr-broker fNextRFIDNum 
+&Scoped-define List-1 tgCreateSSBol oe-ctrl.i-code n-ord oe-ctrl.n-bol ~
+oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-comm oe-ctrl.u-inv oe-ctrl.p-fact ~
+oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker ~
+fNextRFIDNum 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -143,8 +135,8 @@ DEFINE VARIABLE tgCreateSSBol AS LOGICAL INITIAL no
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME oe-ctrl
-     tgCreateSSBol AT ROW 13.86 COL 72.2 WIDGET-ID 8
-     oe-ctrl.i-code AT ROW 19.62 COL 27 NO-LABEL
+     tgCreateSSBol AT ROW 12.14 COL 72.2 WIDGET-ID 8
+     oe-ctrl.i-code AT ROW 17.33 COL 27 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Stock", yes,
@@ -155,158 +147,81 @@ DEFINE FRAME oe-ctrl
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 7 FGCOLOR 15 
-     oe-ctrl.job-no-def-to-ord AT ROW 20.86 COL 27 NO-LABEL
-          VIEW-AS RADIO-SET HORIZONTAL
-          RADIO-BUTTONS 
-                    "Order", yes,
-"Estimate", no
-          SIZE 23.2 BY .81
      n-ord AT ROW 2.43 COL 35 COLON-ALIGNED HELP
           "Enter order number to be used for next order"
           LABEL "Next Order Number"
-          BGCOLOR 15 
-     oe-ctrl.rng-ord[1] AT ROW 2.43 COL 74 COLON-ALIGNED
-          LABEL "Range"
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-          BGCOLOR 15 
-     oe-ctrl.rng-ord[2] AT ROW 2.43 COL 92 COLON-ALIGNED
-          LABEL "To"
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
           BGCOLOR 15 
      oe-ctrl.n-bol AT ROW 3.62 COL 35 COLON-ALIGNED
           LABEL "Next Bill of Lading Number"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     oe-ctrl.rng-bol[1] AT ROW 3.62 COL 74 COLON-ALIGNED
-          LABEL "Range"
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-          BGCOLOR 15 
-     oe-ctrl.rng-bol[2] AT ROW 3.62 COL 92 COLON-ALIGNED
-          LABEL "To"
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-          BGCOLOR 15 
-     oe-ctrl.n-bar AT ROW 4.81 COL 35 COLON-ALIGNED
-          LABEL "Next Bar Code Label Number"
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-          BGCOLOR 15 
-     oe-ctrl.rng-bc[1] AT ROW 4.81 COL 74 COLON-ALIGNED
-          LABEL "Range"
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-          BGCOLOR 15 
-     oe-ctrl.rng-bc[2] AT ROW 4.81 COL 92 COLON-ALIGNED
-          LABEL "To"
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-          BGCOLOR 15 
-     oe-ctrl.n-rec AT ROW 6 COL 35 COLON-ALIGNED
-          LABEL "Next Receiving Ticket Number"
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-          BGCOLOR 15 
-     oe-ctrl.rng-rec[1] AT ROW 6 COL 74 COLON-ALIGNED
-          LABEL "Range"
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-          BGCOLOR 15 
-     oe-ctrl.rng-rec[2] AT ROW 6 COL 92 COLON-ALIGNED
-          LABEL "To"
-          VIEW-AS FILL-IN 
-          SIZE 10.4 BY 1
-          BGCOLOR 15 
-     oe-ctrl.prcom AT ROW 10.29 COL 7
+     oe-ctrl.prcom AT ROW 8.57 COL 7
           LABEL "Print Company Name on Invoices"
           VIEW-AS TOGGLE-BOX
           SIZE 36 BY .81
-     oe-ctrl.f-tax AT ROW 11.48 COL 7
+     oe-ctrl.f-tax AT ROW 9.76 COL 7
           LABEL "Charge Tax on Freight"
           VIEW-AS TOGGLE-BOX
           SIZE 25 BY .81
-     oe-ctrl.prep-chrg AT ROW 12.43 COL 7
-          LABEL "Charge Tax on Prep Charges"
-          VIEW-AS TOGGLE-BOX
-          SIZE 37 BY .81
-     oe-ctrl.prep-comm AT ROW 13.38 COL 7
+     oe-ctrl.prep-comm AT ROW 10.86 COL 7
           LABEL "Pay Commissions on Prep Charges"
           VIEW-AS TOGGLE-BOX
           SIZE 39 BY .81
-     oe-ctrl.prep-tax AT ROW 14.33 COL 7
-          LABEL "Post Prep Charges to Sales Analysis"
-          VIEW-AS TOGGLE-BOX
-          SIZE 38 BY .81
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1
-         SIZE 120.8 BY 23.38.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME oe-ctrl
-     oe-ctrl.use-ra-no AT ROW 15.29 COL 7
-          LABEL "Use Return Authorization Numbers"
-          VIEW-AS TOGGLE-BOX
-          SIZE 37 BY .81
-     oe-ctrl.ship-from AT ROW 17 COL 37 COLON-ALIGNED
+     oe-ctrl.ship-from AT ROW 14.81 COL 37 COLON-ALIGNED
           LABEL "Ship From"
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
           BGCOLOR 15 
-     oe-ctrl.u-inv AT ROW 17.95 COL 37 COLON-ALIGNED
+     oe-ctrl.u-inv AT ROW 15.76 COL 37 COLON-ALIGNED
           LABEL "Update Inventory When Posting"
           VIEW-AS FILL-IN 
           SIZE 8.6 BY 1
           BGCOLOR 15 
-     oe-ctrl.p-fact AT ROW 10.52 COL 72
+     oe-ctrl.p-fact AT ROW 8.81 COL 72
           LABEL "Print Factory Ticket"
           VIEW-AS TOGGLE-BOX
           SIZE 23 BY .81
-     oe-ctrl.p-bol AT ROW 11.71 COL 72
+     oe-ctrl.p-bol AT ROW 10 COL 72
           LABEL "Print Bill of Lading"
           VIEW-AS TOGGLE-BOX
           SIZE 21 BY .81
-     oe-ctrl.p-pick AT ROW 12.91 COL 72
+     oe-ctrl.p-pick AT ROW 11.19 COL 72
           LABEL "Release/Print Release Ticket"
           VIEW-AS TOGGLE-BOX
           SIZE 34 BY .81
-     oe-ctrl.p-ack AT ROW 17.43 COL 73
+     oe-ctrl.p-ack AT ROW 15.71 COL 73
           LABEL "Print Totals on Acknowledgement"
           VIEW-AS TOGGLE-BOX
           SIZE 37 BY .81
-     oe-ctrl.p-sep AT ROW 18.86 COL 73
+     oe-ctrl.p-sep AT ROW 17.14 COL 73
           LABEL "Print Seperate Invoice per Release"
           VIEW-AS TOGGLE-BOX
           SIZE 37 BY .81
-     oe-ctrl.pr-broker AT ROW 20.05 COL 73
+     oe-ctrl.pr-broker AT ROW 18.33 COL 73
           LABEL "Print Broker on Release / BOL"
           VIEW-AS TOGGLE-BOX
           SIZE 33 BY .81
-     Btn_Update AT ROW 22.71 COL 44 HELP
+     Btn_Update AT ROW 21.62 COL 44 HELP
           "Update/Save System Configurations"
-     Btn_Close AT ROW 22.71 COL 60 HELP
+     Btn_Close AT ROW 21.62 COL 60 HELP
           "Cancel Update or Close Window"
-     fNextRFIDNum AT ROW 7.19 COL 35 COLON-ALIGNED WIDGET-ID 6
+     fNextRFIDNum AT ROW 4.76 COL 35 COLON-ALIGNED WIDGET-ID 6
      "Company Control" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 8.86 COL 7
+          SIZE 19 BY .62 AT ROW 7.14 COL 7
           FGCOLOR 9 FONT 6
      "Default Box Type:" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 19.1 COL 9
-     "Default Job No:" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 20.29 COL 11
+          SIZE 17 BY .62 AT ROW 17.38 COL 9
      "Credit Control" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 9.1 COL 72
+          SIZE 16 BY .62 AT ROW 7.38 COL 72
           FGCOLOR 9 FONT 6
      "Print Operations" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 15.76 COL 72
+          SIZE 19 BY .62 AT ROW 14.05 COL 72
           FGCOLOR 9 FONT 6
-     RECT-15 AT ROW 22.43 COL 43
-     RECT-17 AT ROW 9.57 COL 5
-     RECT-18 AT ROW 9.81 COL 71
-     RECT-19 AT ROW 16.48 COL 72
+     RECT-15 AT ROW 21.33 COL 43
+     RECT-17 AT ROW 7.86 COL 5
+     RECT-18 AT ROW 8.1 COL 71
+     RECT-19 AT ROW 14.76 COL 72
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -364,15 +279,13 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME oe-ctrl
    FRAME-NAME Custom                                                    */
-ASSIGN
+ASSIGN 
        Btn_Close:PRIVATE-DATA IN FRAME oe-ctrl     = 
                 "ribbon-button".
 
-
-ASSIGN
+ASSIGN 
        Btn_Update:PRIVATE-DATA IN FRAME oe-ctrl     = 
                 "ribbon-button".
-
 
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.f-tax IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
@@ -380,18 +293,12 @@ ASSIGN
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR RADIO-SET oe-ctrl.i-code IN FRAME oe-ctrl
    NO-ENABLE 1                                                          */
-/* SETTINGS FOR RADIO-SET oe-ctrl.job-no-def-to-ord IN FRAME oe-ctrl
-   NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN ar-ctrl.last-inv IN FRAME oe-ctrl
    NO-ENABLE EXP-LABEL                                                  */
-/* SETTINGS FOR FILL-IN oe-ctrl.n-bar IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN oe-ctrl.n-bol IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN n-ord IN FRAME oe-ctrl
    1 LIKE = asi.oe-ctrl. EXP-LABEL EXP-SIZE                             */
-/* SETTINGS FOR FILL-IN oe-ctrl.n-rec IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-ack IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.p-bol IN FRAME oe-ctrl
@@ -406,35 +313,13 @@ ASSIGN
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.prcom IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR TOGGLE-BOX oe-ctrl.prep-chrg IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.prep-comm IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR TOGGLE-BOX oe-ctrl.prep-tax IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN oe-ctrl.rng-bc[1] IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN oe-ctrl.rng-bc[2] IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN oe-ctrl.rng-bol[1] IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN oe-ctrl.rng-bol[2] IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN oe-ctrl.rng-ord[1] IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN oe-ctrl.rng-ord[2] IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN oe-ctrl.rng-rec[1] IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN oe-ctrl.rng-rec[2] IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN oe-ctrl.ship-from IN FRAME oe-ctrl
    NO-ENABLE EXP-LABEL                                                  */
 /* SETTINGS FOR TOGGLE-BOX tgCreateSSBol IN FRAME oe-ctrl
    NO-ENABLE 1                                                          */
 /* SETTINGS FOR FILL-IN oe-ctrl.u-inv IN FRAME oe-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR TOGGLE-BOX oe-ctrl.use-ra-no IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
@@ -452,7 +337,7 @@ THEN C-Win:HIDDEN = no.
 */  /* FRAME oe-ctrl */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -707,13 +592,10 @@ PROCEDURE enable_UI :
     DISPLAY ar-ctrl.last-inv 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
   IF AVAILABLE oe-ctrl THEN 
-    DISPLAY oe-ctrl.i-code oe-ctrl.job-no-def-to-ord oe-ctrl.rng-ord[1] 
-          oe-ctrl.rng-ord[2] oe-ctrl.n-bol oe-ctrl.rng-bol[1] oe-ctrl.rng-bol[2] 
-          oe-ctrl.n-bar oe-ctrl.rng-bc[1] oe-ctrl.rng-bc[2] oe-ctrl.n-rec 
-          oe-ctrl.rng-rec[1] oe-ctrl.rng-rec[2] oe-ctrl.prcom oe-ctrl.f-tax 
-          oe-ctrl.prep-chrg oe-ctrl.prep-comm oe-ctrl.prep-tax oe-ctrl.use-ra-no 
-          oe-ctrl.ship-from oe-ctrl.u-inv oe-ctrl.p-fact oe-ctrl.p-bol 
-          oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker 
+    DISPLAY oe-ctrl.i-code oe-ctrl.n-bol oe-ctrl.prcom oe-ctrl.f-tax 
+          oe-ctrl.prep-comm oe-ctrl.ship-from oe-ctrl.u-inv oe-ctrl.p-fact 
+          oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep 
+          oe-ctrl.pr-broker 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
   ENABLE n-ord Btn_Update Btn_Close RECT-15 RECT-17 RECT-18 RECT-19 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
