@@ -62,18 +62,15 @@ CREATE WIDGET-POOL.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS Btn_Update Btn_Close RECT-15 RECT-16 
-&Scoped-Define DISPLAYED-FIELDS rm-ctrl.avg-lst-cst rm-ctrl.using-jc ~
-rm-ctrl.master-audit rm-ctrl.mat rm-ctrl.inv-asset-acctno ~
-rm-ctrl.post-transfers rm-ctrl.post-rcpts-w-i-p 
+&Scoped-Define DISPLAYED-FIELDS rm-ctrl.avg-lst-cst 
 &Scoped-define DISPLAYED-TABLES rm-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE rm-ctrl
 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
-&Scoped-define List-1 rm-ctrl.avg-lst-cst rm-ctrl.using-jc ~
-rm-ctrl.master-audit rm-ctrl.mat rm-ctrl.inv-asset-acctno ~
-rm-ctrl.post-transfers rm-ctrl.post-rcpts-w-i-p 
+&Scoped-define List-1 rm-ctrl.avg-lst-cst 
+
 &Scoped-define F1 F1 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -112,38 +109,12 @@ DEFINE RECTANGLE RECT-16
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME rm-ctrl
-     rm-ctrl.avg-lst-cst AT ROW 1.24 COL 34 NO-LABEL
+     rm-ctrl.avg-lst-cst AT ROW 4.24 COL 31 NO-LABEL
           VIEW-AS RADIO-SET HORIZONTAL
           RADIO-BUTTONS 
                     "Average", yes,
-"Last Cost", no
+     "Last Cost", no
           SIZE 26.8 BY 1
-     rm-ctrl.using-jc AT ROW 2.43 COL 34
-          LABEL "Make Job # Mandatory in R/M Issues"
-          VIEW-AS TOGGLE-BOX
-          SIZE 40 BY .81
-     rm-ctrl.master-audit AT ROW 3.38 COL 34
-          LABEL "Keep Audit Trail on Master Files"
-          VIEW-AS TOGGLE-BOX
-          SIZE 34 BY .81
-     rm-ctrl.mat AT ROW 4.33 COL 32 COLON-ALIGNED
-          LABEL "Default Material Cost Type"
-          VIEW-AS FILL-IN 
-          SIZE 10.6 BY 1
-          BGCOLOR 15 
-     rm-ctrl.inv-asset-acctno AT ROW 5.52 COL 32 COLON-ALIGNED
-          LABEL "Default Inventory Asset Account"
-          VIEW-AS FILL-IN 
-          SIZE 23 BY 1
-          BGCOLOR 15 
-     rm-ctrl.post-transfers AT ROW 6.71 COL 34
-          LABEL "Post Inventory Transfers to G/L"
-          VIEW-AS TOGGLE-BOX
-          SIZE 34 BY .81
-     rm-ctrl.post-rcpts-w-i-p AT ROW 7.67 COL 34
-          LABEL "Post Inventory Receipts to W.I.P."
-          VIEW-AS TOGGLE-BOX
-          SIZE 36 BY .81
      Btn_Update AT ROW 9.1 COL 35 HELP
           "Update/Save System Configurations"
      Btn_Close AT ROW 9.1 COL 51 HELP
@@ -152,7 +123,7 @@ DEFINE FRAME rm-ctrl
      RECT-15 AT ROW 8.86 COL 34
      RECT-16 AT ROW 1 COL 1
      "Use:" VIEW-AS TEXT
-          SIZE 5 BY 1 AT ROW 1.24 COL 28
+          SIZE 5 BY 1 AT ROW 4.24 COL 25
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
@@ -227,18 +198,6 @@ ASSIGN
 ASSIGN 
        F1:HIDDEN IN FRAME rm-ctrl           = TRUE.
 
-/* SETTINGS FOR FILL-IN rm-ctrl.inv-asset-acctno IN FRAME rm-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR TOGGLE-BOX rm-ctrl.master-audit IN FRAME rm-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR FILL-IN rm-ctrl.mat IN FRAME rm-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR TOGGLE-BOX rm-ctrl.post-rcpts-w-i-p IN FRAME rm-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR TOGGLE-BOX rm-ctrl.post-transfers IN FRAME rm-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR TOGGLE-BOX rm-ctrl.using-jc IN FRAME rm-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -325,27 +284,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME rm-ctrl.inv-asset-acctno
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-ctrl.inv-asset-acctno C-Win
-ON ENTRY OF rm-ctrl.inv-asset-acctno IN FRAME rm-ctrl /* Default Inventory Asset Account */
-DO:
-  {custom/actentry.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-ctrl.inv-asset-acctno C-Win
-ON LEAVE OF rm-ctrl.inv-asset-acctno IN FRAME rm-ctrl /* Default Inventory Asset Account */
-DO:
-  {custom/actleave.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -424,9 +362,7 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   IF AVAILABLE rm-ctrl THEN 
-    DISPLAY rm-ctrl.avg-lst-cst rm-ctrl.using-jc rm-ctrl.master-audit rm-ctrl.mat 
-          rm-ctrl.inv-asset-acctno rm-ctrl.post-transfers 
-          rm-ctrl.post-rcpts-w-i-p 
+    DISPLAY rm-ctrl.avg-lst-cst 
       WITH FRAME rm-ctrl IN WINDOW C-Win.
   ENABLE Btn_Update Btn_Close RECT-15 RECT-16 
       WITH FRAME rm-ctrl IN WINDOW C-Win.
