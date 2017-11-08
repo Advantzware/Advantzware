@@ -64,7 +64,7 @@ def var lv-first-time as log init yes no-undo.
 
 /* Definitions for BROWSE BROWSE-1                                      */
 &Scoped-define FIELDS-IN-QUERY-BROWSE-1 statecod.statecod ~
-statecod.description statecod.fips_code 
+statecod.DESCRIPTION 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 
 &Scoped-define FIELD-PAIRS-IN-QUERY-BROWSE-1
 &Scoped-define OPEN-QUERY-BROWSE-1 OPEN QUERY BROWSE-1 FOR EACH statecod WHERE ~{&KEY-PHRASE} NO-LOCK ~
@@ -135,7 +135,6 @@ DEFINE BROWSE BROWSE-1
   QUERY BROWSE-1 NO-LOCK DISPLAY
       statecod.statecod
       statecod.description
-      statecod.fips_code
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ROW-MARKERS SEPARATORS SIZE 81 BY 11.19
@@ -193,7 +192,6 @@ ASSIGN
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _FldNameList[1]   = NOSWEAT.statecod.statecod
      _FldNameList[2]   = NOSWEAT.statecod.description
-     _FldNameList[3]   = NOSWEAT.statecod.fips_code
      _Query            is OPENED
 */  /* BROWSE BROWSE-1 */
 &ANALYZE-RESUME

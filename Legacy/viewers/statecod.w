@@ -59,12 +59,11 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR statecod.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS statecod.description statecod.fips_code 
+&Scoped-Define ENABLED-FIELDS statecod.description  
 &Scoped-define ENABLED-TABLES statecod
 &Scoped-define FIRST-ENABLED-TABLE statecod
 &Scoped-Define ENABLED-OBJECTS RECT-1 
-&Scoped-Define DISPLAYED-FIELDS statecod.statecod statecod.description ~
-statecod.fips_code 
+&Scoped-Define DISPLAYED-FIELDS statecod.statecod statecod.description 
 &Scoped-define DISPLAYED-TABLES statecod
 &Scoped-define FIRST-DISPLAYED-TABLE statecod
 
@@ -118,10 +117,6 @@ DEFINE FRAME F-Main
      statecod.description AT ROW 2.43 COL 23 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 38 BY 1
-          BGCOLOR 15 FONT 4
-     statecod.fips_code AT ROW 3.62 COL 23 COLON-ALIGNED
-          VIEW-AS FILL-IN 
-          SIZE 4.4 BY 1
           BGCOLOR 15 FONT 4
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 

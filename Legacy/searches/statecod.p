@@ -26,7 +26,7 @@
 &Scoped-define font 4
 &Scoped-define height-size 17
 &Scoped-define width-size 46
-&Scoped-define show-fields statecod.statecod statecod.description statecod.fips_code
+&Scoped-define show-fields statecod.statecod statecod.DESCRIPTION
 &Scoped-define frame-title State Abbreviations Search
 &Scoped-define search-text-row 18
 &Scoped-define word-search-row 19
