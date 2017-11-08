@@ -25,8 +25,7 @@
 
 DISPLAY
   statecod.statecod
-  statecod.description
-  statecod.fips_code.
+  statecod.DESCRIPTION.
 
 {methods/lstlogic/shownote.i &db_table="statecod" &col="5" &frame-name="f-notes"}
 {methods/lstlogic/showmisc.i &db_table="statecod" &col="5" &frame-name="f-miscflds"}

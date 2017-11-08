@@ -67,7 +67,7 @@ CREATE WIDGET-POOL.
 
 /* Definitions for BROWSE Browser-Table                                 */
 &Scoped-define FIELDS-IN-QUERY-Browser-Table statecod.statecod ~
-statecod.description statecod.fips_code 
+statecod.DESCRIPTION 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH statecod WHERE ~{&KEY-PHRASE} NO-LOCK ~
     ~{&SORTBY-PHRASE}
@@ -121,8 +121,7 @@ DEFINE RECTANGLE RECT-4
 DEFINE QUERY Browser-Table FOR 
       statecod
     FIELDS(statecod.statecod
-      statecod.description
-      statecod.fips_code) SCROLLING.
+      statecod.description) SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -131,7 +130,6 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       statecod.statecod FORMAT "X(2)":U
       statecod.description FORMAT "X(30)":U
-      statecod.fips_code FORMAT "99":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 61 BY 16.91
@@ -232,7 +230,6 @@ ASSIGN
      _TblOptList       = "USED"
      _FldNameList[1]   = NOSWEAT.statecod.statecod
      _FldNameList[2]   = NOSWEAT.statecod.description
-     _FldNameList[3]   = NOSWEAT.statecod.fips_code
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME
