@@ -306,10 +306,10 @@ DEFINE FRAME Dialog-Frame
           "Enter Beginning Customer Number" WIDGET-ID 108
      end_order AT ROW 7.91 COL 71 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 110
-     end_date AT ROW 9 COL 71 COLON-ALIGNED HELP
-          "Enter Beginning Customer Number" WIDGET-ID 114
      begin_date AT ROW 9.05 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 112
+     end_date AT ROW 9 COL 71 COLON-ALIGNED HELP
+          "Enter Beginning Customer Number" WIDGET-ID 114
      begin_reldt AT ROW 10.05 COL 28 COLON-ALIGNED HELP
           "Enter Beginning Customer Number" WIDGET-ID 116
      end_reldt AT ROW 10.14 COL 71 COLON-ALIGNED HELP
