@@ -214,7 +214,7 @@ DEFINE BROWSE Browser-Table
       inv-misc.tax FORMAT "Y/N":U WIDTH 5.6
       inv-misc.bill FORMAT "X":U WIDTH 6.2
       inv-misc.spare-char-1 COLUMN-LABEL "Tax Prep" FORMAT "x(3)":U
-            WIDTH 9
+            WIDTH 12
       inv-misc.spare-char-2 COLUMN-LABEL "FG Item Code" FORMAT "x(15)":U
             WIDTH 21
       inv-misc.est-no COLUMN-LABEL "Estimate" FORMAT "x(12)":U
@@ -243,6 +243,7 @@ DEFINE BROWSE Browser-Table
       inv-misc.s-comm[3]
       inv-misc.tax
       inv-misc.bill
+      inv-misc.spare-char-1
       inv-misc.spare-char-2
       inv-misc.est-no
       inv-misc.spare-int-1
@@ -883,6 +884,14 @@ PROCEDURE local-create-record :
   IF AVAIL ar-ctrl THEN inv-misc.actnum = ar-ctrl.sales.
   FIND FIRST cust OF inv-head NO-LOCK NO-ERROR.
   inv-misc.tax = cust.SORT = "Y" AND inv-head.tax-gr <> "".
+
+  FIND FIRST oe-ctrl NO-LOCK
+       WHERE oe-ctrl.company = inv-head.company
+      NO-ERROR.
+  IF AVAIL oe-ctrl AND oe-ctrl.prep-chrg THEN
+      ASSIGN
+      inv-misc.tax = oe-ctrl.prep-chrg 
+      inv-misc.spare-char-1  = inv-head.tax-gr   .
 
   IF AVAIL inv-line THEN
       ASSIGN inv-misc.spare-char-2 = inv-line.i-no
