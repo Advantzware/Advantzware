@@ -1106,7 +1106,8 @@ IF ip-all-one EQ "all" THEN
          AND fg-bin.qty     GT 0
     NO-LOCK:
 
-    IF v-cust EQ fg-bin.cust-no AND rel-type EQ "S" THEN NEXT.          /*Task# 12231304*/ 
+    /*IF v-cust EQ fg-bin.cust-no AND rel-type EQ "S" THEN NEXT.*/          /*Task# 12231304*/ 
+    IF v-cust EQ fg-bin.cust-no THEN NEXT.  /* ticket 23164 */
 
     IF NOT((TRIM(fg-bin.job-no) EQ "" OR
               NOT CAN-FIND(FIRST job
@@ -1127,7 +1128,8 @@ FOR EACH fg-bin
       AND fg-bin.qty     GT 0
     NO-LOCK:
 
-    IF v-cust EQ fg-bin.cust-no AND rel-type EQ "S" THEN NEXT.      /*Task# 12231304*/ 
+    /*IF v-cust EQ fg-bin.cust-no AND rel-type EQ "S" THEN NEXT.*/      /*Task# 12231304*/ 
+    IF v-cust EQ fg-bin.cust-no THEN NEXT.  /* ticket 23164 */
 
     IF NOT((TRIM(fg-bin.job-no) EQ "" OR
            NOT CAN-FIND(FIRST job
