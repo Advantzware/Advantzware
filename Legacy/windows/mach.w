@@ -384,6 +384,7 @@ PROCEDURE adm-create-objects :
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_mach ,
              h_folder , 'AFTER':U ).
+       RUN add-link IN adm-broker-hdl ( h_mach , 'export-xl':U , h_export ).
     END. /* Page 1 */
     WHEN 2 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
