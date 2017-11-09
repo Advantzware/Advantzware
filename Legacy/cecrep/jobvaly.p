@@ -54,6 +54,7 @@ DEF VAR lv-over-run AS DECIMAL NO-UNDO.
 DEFINE VARIABLE ls-fgitem-img AS CHARACTER FORM "x(150)" NO-UNDO.
 DEFINE  SHARED VARIABLE s-prt-fgimage AS LOGICAL NO-UNDO.
 DEFINE VARIABLE v-adder-desc  as   CHARACTER FORMAT "x(100)"  NO-UNDO.
+DEFINE VARIABLE cProcat AS CHARACTER NO-UNDO .
 DO TRANSACTION:
    {sys/inc/tspostfg.i}
 END.
@@ -196,9 +197,9 @@ do v-local-loop = 1 to v-local-copies:
 
         PUT "C".
         /* 3 Boxes for customer */
-        PUT "<#2><R+6><C+26><RECT#2><|3>"
-            "<#3><R-6><C+26><RECT#3><|3>"
-            "<#4><R+6><C+26><RECT#4><|3>" SKIP.
+        PUT "<#2><R+7><C+26><RECT#2><|3>"
+            "<#3><R-7><C+26><RECT#3><|3>"
+            "<#4><R+7><C+26><RECT#4><|3>" SKIP.
         /* 3 boxes for board */
         PUT "B".
         /* 3 Boxes for customer */
@@ -231,20 +232,23 @@ do v-local-loop = 1 to v-local-copies:
              lv-over-run  = cust.over-pct
              lv-under-run = cust.under-pct .
 
+          RUN sys/ref/getpo#.p (IF AVAIL xoe-ordl AND est.est-type NE 6 THEN ROWID(xoe-ordl) ELSE ROWID(job),
+                              w-ef.frm, OUTPUT v-po-no).
+
 
         DISP "<=#2> CUSTOMER INFORMATION" SKIP
               v-cus[1] AT 3 SKIP
               v-cus[2] AT 3 SKIP
               v-cus[3] AT 3 SKIP
               v-cus[4] AT 3 SKIP
-            "<=#3><R-6><b> ORDER INFORMATION"
-            "<=#3><R-5> PO #:" 
+            "<=#3><R-7><b> ORDER INFORMATION"
+            "<=#3><R-6> PO #:" 
             xoe-ord.po-no WHEN AVAIL xoe-ord
             "Set Qty:"
             trim(string(if avail xoe-ordl then xoe-ordl.qty
                                           else job-hdr.qty,">>>,>>9"))
                         when avail xeb and xeb.est-type eq 6    format "x(9)"
-            "<=#3><R-4> Job Qty:"
+            "<=#3><R-5> Job Qty:"
              trim(string(job-hdr.qty * v-pqty,">>>,>>9"))    format "x(7)"
             "Order Qty:"
             trim(string( (if avail xoe-ordl then xoe-ordl.qty
@@ -252,25 +256,32 @@ do v-local-loop = 1 to v-local-copies:
                                             if est.form-qty le 1 then 1
                                             else v-pqty,">>>,>>9"))
                                             format "x(7)"
-            "<=#3><R-3> Cust Part #:" lv-part-no 
-            "<=#3><R-2> Overrun:" 
+            "<=#3><R-4> Cust Part #:" lv-part-no 
+            "<=#3><R-3> Overrun:" 
              trim(string(lv-over-run,">>9.99%")) format "x(7)"                                                         
             "Underrun:"
             trim(string(lv-under-run,">>9.99%")) format "x(7)"
-            "<=#3><R-1>        " lv-ord-qty * ( 1 + round((lv-over-run) / 100,2)) FORM ">>>,>>9"
+            "<=#3><R-2>        " lv-ord-qty * ( 1 + round((lv-over-run) / 100,2)) FORM ">>>,>>9"
                        "         "     lv-ord-qty * ( 1 - round((lv-under-run) / 100,2)) FORM ">>>,>>9" "</b>"
             WITH NO-BOX NO-LABELS NO-ATTR-SPACE WIDTH 145 STREAM-IO.
+           IF AVAIL xeb THEN
+               FIND FIRST fgcat NO-LOCK
+               WHERE fgcat.company EQ cocode
+               AND fgcat.procat  EQ xeb.procat
+               NO-ERROR.
+            cProcat = IF AVAIL fgcat THEN fgcat.dscr ELSE "" .
      
      PUT UNFORMATTED
             "<=#4> " v-i-line[1] FORM "x(40)"
-            "<=#4><R+1> " v-i-line[2] FORM "x(40)"
-            "<=#4><R+2> " v-i-line[3] FORM "x(40)"
-            "<=#4><R+3> " v-i-line[4] FORM "x(40)"
-            "<=#4><R+4> Adders:".
+            "<=#4><R+1> " "FG Cat: " cProcat FORM "x(40)"
+            "<=#4><R+2> " v-i-line[2] FORM "x(40)"
+            "<=#4><R+3> " v-i-line[3] FORM "x(40)"
+            "<=#4><R+4> " v-i-line[4] FORM "x(40)"
+            "<=#4><R+5> Adders:".
             IF trim(v-adder-desc) NE "" THEN
             PUT  SUBSTRING(v-adder-desc,1,16) FORMAT "x(16)"  ", "  SUBSTRING(v-adder-desc,17,16) FORMAT "x(16)" .
             IF SUBSTRING(v-adder-desc,33,64) NE "" THEN
-            PUT "<=#4><R+5>        " SUBSTRING(v-adder-desc,33,16) FORMAT "x(16)"  ", "  SUBSTRING(v-adder-desc,49,16) FORMAT "x(16)".
+            PUT "<=#4><R+6>        " SUBSTRING(v-adder-desc,33,16) FORMAT "x(16)"  ", "  SUBSTRING(v-adder-desc,49,16) FORMAT "x(16)".
             
                     
         v-form-sqft = round(if v-corr then (v-form-len * v-form-wid * .007)
@@ -328,7 +339,7 @@ do v-local-loop = 1 to v-local-copies:
             with no-box no-labels frame i1 width 150 no-attr-space STREAM-IO.
         find next w-i.        
         display "<=#5><R+2> Board:"
-                v-form-code 
+                v-form-code FORMAT "x(15)"   " PO:" v-po-no 
                 "<=#6><R-4> 2:"
                 w-i.i-code
                 w-i.i-qty when w-i.i-qty ne 0
@@ -397,7 +408,7 @@ do v-local-loop = 1 to v-local-copies:
             with no-box no-labels frame i5 width 150 no-attr-space STREAM-IO.
         find next w-i.        
         display "<=#5><R+2> Board:"
-                v-form-code 
+                v-form-code FORMAT "x(15)" " PO:" v-po-no
                 "<=#6><R-4> Ink 2:"
                 w-i.i-dscr
                 w-i.i-qty when w-i.i-qty ne 0
