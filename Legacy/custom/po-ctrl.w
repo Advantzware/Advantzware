@@ -62,16 +62,14 @@ DEFINE VARIABLE giCurrPo AS INTEGER NO-UNDO.
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-15 RECT-16 fiNextPo Btn_Update ~
 Btn_Close 
-&Scoped-Define DISPLAYED-FIELDS po-ctrl.rng-po-no[1] po-ctrl.rng-po-no[2] ~
-po-ctrl.prcom po-ctrl.pre-printed-forms 
+&Scoped-Define DISPLAYED-FIELDS po-ctrl.rng-po-no[1] po-ctrl.rng-po-no[2]
 &Scoped-define DISPLAYED-TABLES po-ctrl
 &Scoped-define FIRST-DISPLAYED-TABLE po-ctrl
 &Scoped-Define DISPLAYED-OBJECTS fiNextPo 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
-&Scoped-define List-1 po-ctrl.rng-po-no[1] po-ctrl.rng-po-no[2] ~
-po-ctrl.prcom po-ctrl.pre-printed-forms 
+&Scoped-define List-1 po-ctrl.rng-po-no[1] po-ctrl.rng-po-no[2]
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -109,25 +107,17 @@ DEFINE RECTANGLE RECT-16
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME po-ctrl
-     fiNextPo AT ROW 1.33 COL 29 COLON-ALIGNED WIDGET-ID 2
-     po-ctrl.rng-po-no[1] AT ROW 2.43 COL 29 COLON-ALIGNED
+     fiNextPo AT ROW 2.33 COL 29 COLON-ALIGNED WIDGET-ID 2
+     po-ctrl.rng-po-no[1] AT ROW 3.43 COL 29 COLON-ALIGNED
           LABEL "Range of PO Numers"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     po-ctrl.rng-po-no[2] AT ROW 2.43 COL 44 COLON-ALIGNED
+     po-ctrl.rng-po-no[2] AT ROW 3.43 COL 44 COLON-ALIGNED
           LABEL "To"
           VIEW-AS FILL-IN 
           SIZE 10.4 BY 1
           BGCOLOR 15 
-     po-ctrl.prcom AT ROW 3.62 COL 31
-          LABEL "Print Company Name on P/O's"
-          VIEW-AS TOGGLE-BOX
-          SIZE 33 BY .81
-     po-ctrl.pre-printed-forms AT ROW 4.57 COL 31
-          LABEL "Use Pre-printed P/O Forms"
-          VIEW-AS TOGGLE-BOX
-          SIZE 30 BY .81
      Btn_Update AT ROW 6 COL 32 HELP
           "Update/Save System Configurations"
      Btn_Close AT ROW 6 COL 48 HELP
@@ -201,10 +191,6 @@ ASSIGN
                 "ribbon-button".
 
 
-/* SETTINGS FOR TOGGLE-BOX po-ctrl.prcom IN FRAME po-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
-/* SETTINGS FOR TOGGLE-BOX po-ctrl.pre-printed-forms IN FRAME po-ctrl
-   NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN po-ctrl.rng-po-no[1] IN FRAME po-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN po-ctrl.rng-po-no[2] IN FRAME po-ctrl
@@ -418,8 +404,7 @@ PROCEDURE enable_UI :
   DISPLAY fiNextPo 
       WITH FRAME po-ctrl IN WINDOW C-Win.
   IF AVAILABLE po-ctrl THEN 
-    DISPLAY po-ctrl.rng-po-no[1] po-ctrl.rng-po-no[2] po-ctrl.prcom 
-          po-ctrl.pre-printed-forms 
+    DISPLAY po-ctrl.rng-po-no[1] po-ctrl.rng-po-no[2]
       WITH FRAME po-ctrl IN WINDOW C-Win.
   ENABLE RECT-15 RECT-16 fiNextPo Btn_Update Btn_Close 
       WITH FRAME po-ctrl IN WINDOW C-Win.

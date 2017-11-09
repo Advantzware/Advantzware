@@ -49,7 +49,7 @@ ASSIGN
  str-init[6]  = "ASI,Argrov,Beeler,ILWalker"
  str-init[7]  = "ASI,McLean"
  str-init[8]  = "16th's,32nd's,Century,Middlesx,RFC,Sonoco,Rudd,Brick,Fibre,Metro,"
-              + "P&P,Pacific,Xprint,SouthPak,SouthPak-xl,CentBox,Xprint2,Oracle,"
+              + "Pacific,Xprint,SouthPak,SouthPak-xl,CentBox,Xprint2,Oracle,"
               + "PremierX,CSC,Elite,OTTPkg,APC,ConsBox,FibreX,ASIXprnt,Valley,PPI,CSC-GA,"
               + "HPB,Indiana,MWFibre,Packrite,Allwest,ACPI,Badger,CCC,Soule,SouleMed,"
               + "Protagon,Protagon2,PremierCX,PeachTree,PremierXFGItems,Hughes,Boss,Bell,StClair,Sultana,"

@@ -1682,7 +1682,6 @@ PROCEDURE SetPOPrintForm :
     WHEN 'Rudd'         THEN ASSIGN v-program = "po/po-rudd.p"      li-lineperpage = 60.
     WHEN 'Brick'        THEN ASSIGN v-program = "po/po-brick.p"     li-lineperpage = 60.
     WHEN 'Fibre'        THEN ASSIGN v-program = "po/po-fibre.p"     li-lineperpage = 56.
-    WHEN 'P&P'          THEN ASSIGN v-program = "po/po-pnp.p"       li-lineperpage = 60.
     WHEN 'Pacific'      THEN ASSIGN v-program = "po/po-pacif.p"     li-lineperpage = 80.
     WHEN 'Elite'        THEN ASSIGN v-program = "po/po-elite.p"     li-lineperpage = 80.
     WHEN 'CSC'          THEN ASSIGN v-program = "po/po-xcsc.p"      li-lineperpage = 80.
