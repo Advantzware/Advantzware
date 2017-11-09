@@ -85,17 +85,7 @@ END.
 
 RUN oe/closkids.p (ROWID({&TABLENAME})).
 
-IF {&TABLENAME}.stat NE "C" AND old-{&TABLENAME}.stat EQ "C" THEN DO:
-  CREATE oe-ord-close-checked.
-  ASSIGN
-   oe-ord-close-checked.reftable = "oe-ord.close-checked"
-   oe-ord-close-checked.company  = STRING({&TABLENAME}.company,"x(10)") +
-                                   STRING({&TABLENAME}.ord-no,"9999999999")
-   oe-ord-close-checked.loc      = USERID("nosweat")
-   oe-ord-close-checked.code     = STRING(TODAY,"99/99/9999")
-   oe-ord-close-checked.code2    = STRING(TIME,"99999")
-   oe-ord-close-checked.val[3]   = 1.
-END.
+
 
 DO li = 1 TO EXTENT({&TABLENAME}.sman):
   IF {&TABLENAME}.sman[li] EQ "" THEN
