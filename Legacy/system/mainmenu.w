@@ -398,12 +398,14 @@ PROCEDURE Create_Buttons :
         button-label = (IF AVAILABLE prgrms THEN prgrms.prgtitle ELSE ttbl.menu1) +
             (IF INDEX(ttbl.menu1,'.') NE 0 OR ttbl.menu1 = 'Exit' THEN ''
             ELSE ' >').
+        FIND FIRST users NO-LOCK WHERE 
+                users.user_id EQ USERID(LDBNAME(1)) 
+                NO-ERROR.
+        IF AVAILABLE users AND users.securityLevel LE 999 
+            AND AVAILABLE prgrms AND prgrms.prgmname EQ "file." THEN NEXT.
 
         IF AVAILABLE prgrms AND prgrms.prgmname EQ "custproc." 
             AND USER("nosweat") NE "asi" THEN DO: /*NEXT .*/ /* ticket - 23865  */
-            FIND FIRST users NO-LOCK WHERE 
-                users.user_id EQ USERID(LDBNAME(1)) 
-                NO-ERROR.
             IF AVAIL users AND users.securityLevel LE 899 THEN
                 NEXT.
         END.
