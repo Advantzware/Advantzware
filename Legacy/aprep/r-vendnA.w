@@ -375,6 +375,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+    DO WITH FRAME {&FRAME-NAME}:
+        ASSIGN {&displayed-objects}.
+    END.
   assign rd-dest.
 
   run run-report. 
@@ -584,6 +587,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       end_comp:SENSITIVE   = NO .
 
   {methods/nowait.i}
+  DO WITH FRAME {&FRAME-NAME}:
+    {custom/usrprint.i}
+    APPLY "entry" TO begin_comp.
+  END.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -918,6 +925,7 @@ FOR EACH company WHERE
       IF tb_runExcel THEN
       OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
    END.
+   RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
