@@ -446,6 +446,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+   DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN {&displayed-objects}.
+  END.
   assign rd-dest.
 
   RUN GetSelectionList.
@@ -796,13 +799,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       begin_comp:SENSITIVE = NO
       end_comp:SENSITIVE   = NO .
 
+  {methods/nowait.i}
   DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
     RUN DisplaySelectionList2.
     APPLY "entry" TO begin_comp.
   END.
-
-  {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
