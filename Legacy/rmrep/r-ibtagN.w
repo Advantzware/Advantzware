@@ -76,18 +76,18 @@ DEFINE VARIABLE lv-lstdt AS   CHARACTER   NO-UNDO.
 DEFINE VARIABLE lv-fistdt AS   CHARACTER   NO-UNDO.
 
 ASSIGN cTextListToSelect = "Whse,Item,Description,Bin,Tag,Rolls," +
-                           "Rct Date,Quantity,Unit Cost,Cost Value,MSF,Tons,Cost/MSF,Vendor Tag,Vendor Po#,Cert/Lot/Mill#,Vendor,Last Recd,Caliper," +
+                           "Last Trans Date,Quantity,Unit Cost,Cost Value,MSF,Tons,Cost/MSF,Vendor Tag,Vendor Po#,Cert/Lot/Mill#,Vendor,Last Recd,Caliper," +
                            "Wt/Msf,PO GL Account,Item Name"
        cFieldListToSelect = "tt-rm-bin.loc,tt-rm-bin.i-no,v-itemname,loc-bin,tag,rolls," +
                             "trans-date,qty,v-cost,v-total,v-msf,v-tons,v-costMSF,cVendTag,cVendPo,crtlot,cVendCode,cLstRcd,cali," +
                             "wt-msf,po-gl-act,cItemName"
-       cFieldLength = "5,10,30,8,22,5," + "8,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25,30"
+       cFieldLength = "5,10,30,8,22,5," + "15,16,10,13,11,11,11,30,10,30,8,9,7," + "6,25,30"
        cFieldType = "c,c,c,c,c,i," + "c,i,i,i,i,i,i,c,i,c,c,c,i," + "i,c,c"
        .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Whse,Item,Description,Bin,Tag," +
-                           "Rct Date,Quantity,Unit Cost,Cost Value,Item Name" .
+                           "Last Trans Date,Quantity,Unit Cost,Cost Value,Item Name" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
