@@ -71,21 +71,7 @@ FOR EACH oe-rell
      RELEASE rec_key.
   END.
 
-    FIND FIRST b-reftable WHERE
-         b-reftable.reftable EQ "oe-rell.lot-no" AND
-         b-reftable.rec_key = oe-rell.rec_key
-         USE-INDEX rec_key
-         NO-LOCK NO-ERROR.
-
-    IF AVAIL b-reftable THEN
-    DO:
-       CREATE reftable.
-       ASSIGN reftable.reftable = "oe-boll.lot-no"
-              reftable.rec_key  = oe-boll.rec_key
-              reftable.CODE     = b-reftable.CODE.
-       RELEASE reftable.
-       RELEASE b-reftable.
-    END.
+    
 
     FIND FIRST b-reftable WHERE
          b-reftable.reftable EQ "oe-rell.sell-price" AND

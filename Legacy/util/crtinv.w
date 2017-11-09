@@ -548,13 +548,7 @@ FOR EACH oe-boll WHERE oe-boll.company EQ cocode
           use-index r-no no-error.
       ELSE
       DO:
-         FIND FIRST b-reftable3 WHERE
-               b-reftable3.reftable EQ "oe-boll.lot-no" AND
-               b-reftable3.rec_key  EQ oe-boll.rec_key
-               USE-INDEX rec_key
-               NO-LOCK NO-ERROR.
-         
-          IF AVAIL b-reftable3 THEN
+         IF oe-boll.lot-no <> "" THEN
           find first inv-line
               where inv-line.r-no   eq inv-head.r-no
                 and inv-line.ord-no eq oe-boll.ord-no
@@ -565,7 +559,7 @@ FOR EACH oe-boll WHERE oe-boll.company EQ cocode
                 AND CAN-FIND(FIRST reftable WHERE
                     reftable.reftable = "inv-line.lot-no" AND
                     reftable.rec_key  = inv-line.rec_key AND
-                    reftable.CODE     = b-reftable3.CODE
+                    reftable.CODE     = oe-boll.lot-no
                     USE-INDEX rec_key)
               use-index r-no no-error.
           ELSE
@@ -859,13 +853,8 @@ DEF VAR v-index AS INT NO-UNDO.
           use-index r-no no-error.
       ELSE
       DO:
-         FIND FIRST b-reftable3 WHERE
-               b-reftable3.reftable EQ "oe-boll.lot-no" AND
-               b-reftable3.rec_key  EQ oe-boll.rec_key
-               USE-INDEX rec_key
-               NO-LOCK NO-ERROR.
          
-          IF AVAIL b-reftable3 THEN
+          IF oe-boll.lot-no <> "" THEN
           find first inv-line
               where inv-line.r-no   eq inv-head.r-no
                 and inv-line.ord-no eq oe-boll.ord-no
@@ -876,7 +865,7 @@ DEF VAR v-index AS INT NO-UNDO.
                 AND CAN-FIND(FIRST reftable WHERE
                     reftable.reftable = "inv-line.lot-no" AND
                     reftable.rec_key  = inv-line.rec_key AND
-                    reftable.CODE     = b-reftable3.CODE
+                    reftable.CODE     = oe-boll.lot-no
                     USE-INDEX rec_key)
               use-index r-no no-error.
           ELSE
@@ -957,20 +946,14 @@ DEF VAR v-index AS INT NO-UNDO.
              RELEASE reftable.
           END.
          
-          FIND FIRST reftable WHERE
-               reftable.reftable EQ "oe-boll.lot-no" AND
-               reftable.rec_key  EQ oe-boll.rec_key
-               USE-INDEX rec_key
-               NO-LOCK NO-ERROR.
-         
-          IF AVAIL reftable THEN
+          
+          IF oe-boll.lot-no <> "" THEN
           DO:
              CREATE b-reftable.
              ASSIGN b-reftable.reftable = "inv-line.lot-no"
                     b-reftable.rec_key  = inv-line.rec_key
-                    b-reftable.CODE     = reftable.CODE.
-             RELEASE b-reftable.
-             RELEASE reftable.
+                    b-reftable.CODE     = oe-boll.lot-no.
+             RELEASE b-reftable.             
           END.
       END.
 
