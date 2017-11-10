@@ -420,7 +420,7 @@ PROCEDURE openQuery:
         '{&yellowColumnsName}' EQ 'b-item' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'Name' THEN item.i-name ELSE ~
-  IF sortColumn EQ 'Mat l!Type' THEN item.mat-type ELSE ~
+  IF sortColumn EQ 'Matl!Type' THEN item.mat-type ELSE ~
   IF sortColumn EQ 'Catgy' THEN item.procat ELSE ~
   IF sortColumn EQ 'Description' THEN item.i-dscr ELSE ~
   IF sortColumn EQ 'CType' THEN item.cost-type ELSE ~
