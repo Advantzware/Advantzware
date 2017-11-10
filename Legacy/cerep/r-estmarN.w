@@ -56,7 +56,7 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Est#,Item Description,Bd,Cal,Carton Size,Die Size,#Up,# of Col,Carton Qty," +
-                        "FOB Cst/M,FOB T-Cst,15%,20%,FOB 25%,Variable 30%,Profit 35%,Margins 40%,45%"
+                        "FOB Cst/M,FOB T-Cst,15%,20%,25%,30%,35%,40%,45%"
        cFieldListToSelect = "est,i-desc,bd,cal,cart-sz,die-sz,no-up,no-col,crt-qty," +
                                         "fob-cst,fob-ttl,15-pct,20-pct,fob-25,var-30,pro-35,mar-40,45-pct"
        cFieldLength = "8,30,10,7,30,30,9,9,10," + "9,9,14,14,14,14,14,14,14"
@@ -65,7 +65,7 @@ ASSIGN cTextListToSelect = "Est#,Item Description,Bd,Cal,Carton Size,Die Size,#U
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Est#,Item Description,Bd,Cal,Carton Size,Die Size,#Up,# of Col,Carton Qty," +
-                        "FOB Cst/M,FOB T-Cst,15%,20%,FOB 25%,Variable 30%,Profit 35%,Margins 40%,45%".
+                        "FOB Cst/M,FOB T-Cst,15%,20%,25%,30%,35%,40%,45%".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
