@@ -67,9 +67,9 @@ IF NOT tskey-log THEN
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Caps_Lock Btn_And Btn_Clear Btn_Space ~
-Btn_Backspace Btn_Sort Btn_Alpha Btn_Asterisk Btn_Atsign Btn_bckslash ~
-Btn_Carot Btn_Colon Btn_Comma Btn_Dblquote Btn_Dollar Btn_Equal Btn_Exclaim ~
+&Scoped-Define ENABLED-OBJECTS Btn_Dblquote Btn_Caps_Lock Btn_And Btn_Clear ~
+Btn_Space Btn_Backspace Btn_Sort Btn_Alpha Btn_Asterisk Btn_Atsign ~
+Btn_bckslash Btn_Carot Btn_Colon Btn_Comma Btn_Dollar Btn_Equal Btn_Exclaim ~
 Btn_fwdslash Btn_Grtrthan Btn_Lbox Btn_lcurly Btn_Lessthan Btn_lparenth ~
 Btn_Minus Btn_Percent Btn_Period Btn_Pipe Btn_Plus Btn_Pound Btn_Question ~
 Btn_rbox Btn_rcurly Btn_rparenth Btn_semicoln Btn_Sglquote Btn_underln ~
@@ -169,7 +169,7 @@ DEFINE BUTTON Btn_D
 DEFINE BUTTON Btn_Dblquote 
      IMAGE-UP FILE "Graphics/Keyboard/symbol_key_doublequote.png":U NO-FOCUS FLAT-BUTTON
      LABEL "DQ" 
-     SIZE 11 BY 2.38 TOOLTIP "Semi-Colon".
+     SIZE 11 BY 2.38 TOOLTIP "Double-Quote".
 
 DEFINE BUTTON Btn_Dollar 
      IMAGE-UP FILE "Graphics/Keyboard/symbol_key_dollar.png":U NO-FOCUS FLAT-BUTTON
@@ -405,6 +405,7 @@ DEFINE BUTTON Btn_Z
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     Btn_Dblquote AT ROW 5.76 COL 139
      Btn_Caps_Lock AT ROW 10.52 COL 1
      Btn_And AT ROW 1 COL 73
      Btn_Clear AT ROW 10.52 COL 49
@@ -418,7 +419,6 @@ DEFINE FRAME DEFAULT-FRAME
      Btn_Carot AT ROW 1 COL 62
      Btn_Colon AT ROW 5.76 COL 117
      Btn_Comma AT ROW 8.14 COL 100
-     Btn_Dblquote AT ROW 5.76 COL 139
      Btn_Dollar AT ROW 1 COL 40
      Btn_Equal AT ROW 3.38 COL 144
      Btn_Exclaim AT ROW 1 COL 7
@@ -1360,9 +1360,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE Btn_Caps_Lock Btn_And Btn_Clear Btn_Space Btn_Backspace Btn_Sort 
-         Btn_Alpha Btn_Asterisk Btn_Atsign Btn_bckslash Btn_Carot Btn_Colon 
-         Btn_Comma Btn_Dblquote Btn_Dollar Btn_Equal Btn_Exclaim Btn_fwdslash 
+  ENABLE Btn_Dblquote Btn_Caps_Lock Btn_And Btn_Clear Btn_Space Btn_Backspace 
+         Btn_Sort Btn_Alpha Btn_Asterisk Btn_Atsign Btn_bckslash Btn_Carot 
+         Btn_Colon Btn_Comma Btn_Dollar Btn_Equal Btn_Exclaim Btn_fwdslash 
          Btn_Grtrthan Btn_Lbox Btn_lcurly Btn_Lessthan Btn_lparenth Btn_Minus 
          Btn_Percent Btn_Period Btn_Pipe Btn_Plus Btn_Pound Btn_Question 
          Btn_rbox Btn_rcurly Btn_rparenth Btn_semicoln Btn_Sglquote Btn_underln 
