@@ -133,6 +133,7 @@ DEFINE VARIABLE h_vi-ordl AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vi-ordlr AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-oeitm AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_vp-tandm AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_v-hldapp AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordesf AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordest AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_w-ordfg AS HANDLE NO-UNDO.
@@ -485,7 +486,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_b-ordinq ).
-       RUN set-position IN h_b-ordinq ( 5.29 , 5.00 ) NO-ERROR.
+       RUN set-position IN h_b-ordinq ( 4.60 , 2.60 ) NO-ERROR.
        /* Size in UIB:  ( 19.29 , 148.00 ) */
 
        /* Links to SmartViewer h_movecol. */
@@ -519,7 +520,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-navest ).
-       RUN set-position IN h_v-navest ( 22.91 , 4.00 ) NO-ERROR.
+       RUN set-position IN h_v-navest ( 22.91 , 2.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.43 , 34.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -529,7 +530,7 @@ PROCEDURE adm-create-objects :
                      SmartPanelType = Update,
                      AddFunction = One-Record':U ,
              OUTPUT h_p-ordhd ).
-       RUN set-position IN h_p-ordhd ( 22.91 , 43.00 ) NO-ERROR.
+       RUN set-position IN h_p-ordhd ( 22.91 , 36.00 ) NO-ERROR.
        RUN set-size IN h_p-ordhd ( 2.00 , 64.00 ) NO-ERROR.
 
        RUN init-object IN THIS-PROCEDURE (
@@ -537,7 +538,7 @@ PROCEDURE adm-create-objects :
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_oe-hold ).
-       RUN set-position IN h_oe-hold ( 22.91 , 113.00 ) NO-ERROR.
+       RUN set-position IN h_oe-hold ( 22.91 , 100.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 11.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
@@ -549,8 +550,16 @@ PROCEDURE adm-create-objects :
                      Layout = ,
                      Create-On-Add = ?':U ,
              OUTPUT h_vp-tandm ).
-       RUN set-position IN h_vp-tandm ( 22.91 , 130.00 ) NO-ERROR.
+       RUN set-position IN h_vp-tandm ( 22.91 , 111.00 ) NO-ERROR.
        /* Size in UIB:  ( 1.91 , 17.00 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
+             INPUT  'oe/v-hldapp.w':U ,
+             INPUT  FRAME F-Main:HANDLE ,
+             INPUT  'Layout = ':U ,
+             OUTPUT h_v-hldapp ).
+       RUN set-position IN h_v-hldapp ( 22.91 , 128.00 ) NO-ERROR.
+       /* Size in UIB:  ( 2.38 , 40.00 ) */
 
        /* Initialize other pages that this page requires. */
        RUN init-pages IN THIS-PROCEDURE ('1':U) NO-ERROR.
@@ -559,6 +568,10 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'Record':U , h_v-ord ).
        RUN add-link IN adm-broker-hdl ( h_p-ordhd , 'TableIO':U , h_v-ord ).
        RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-ord':U , h_v-ord ).
+
+       /* Links to SmartViewer h_v-hldapp. */
+       RUN add-link IN adm-broker-hdl ( h_v-ord , 'hold-approve':U , h_v-hldapp ).
+       RUN add-link IN adm-broker-hdl ( h_v-ord , 'Record':U , h_v-hldapp ).
 
        /* Links to SmartViewer h_v-navest. */
        RUN add-link IN adm-broker-hdl ( h_b-ordinq , 'nav-itm':U , h_v-navest ).
@@ -581,6 +594,8 @@ PROCEDURE adm-create-objects :
              h_p-ordhd , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_vp-tandm ,
              h_oe-hold , 'AFTER':U ).
+       RUN adjust-tab-order IN adm-broker-hdl ( h_v-hldapp ,
+             h_vp-tandm , 'AFTER':U ).
     END. /* Page 2 */
     WHEN 3 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
