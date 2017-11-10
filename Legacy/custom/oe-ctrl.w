@@ -65,7 +65,7 @@ DEF VAR giCurrOrd AS INT NO-UNDO.
 &Scoped-Define ENABLED-OBJECTS n-ord Btn_Update Btn_Close RECT-15 RECT-17 ~
 RECT-18 RECT-19 
 &Scoped-Define DISPLAYED-FIELDS oe-ctrl.i-code ar-ctrl.last-inv ~
-oe-ctrl.n-bol oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-comm ~
+oe-ctrl.n-bol oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-chrg oe-ctrl.prep-comm ~
 oe-ctrl.ship-from oe-ctrl.u-inv oe-ctrl.p-fact oe-ctrl.p-bol oe-ctrl.p-pick ~
 oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker 
 &Scoped-define DISPLAYED-TABLES oe-ctrl ar-ctrl
@@ -76,7 +76,7 @@ oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 &Scoped-define List-1 tgCreateSSBol oe-ctrl.i-code n-ord oe-ctrl.n-bol ~
-oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-comm oe-ctrl.u-inv oe-ctrl.p-fact ~
+oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-chrg oe-ctrl.prep-comm oe-ctrl.u-inv oe-ctrl.p-fact ~
 oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep oe-ctrl.pr-broker ~
 fNextRFIDNum 
 
@@ -168,6 +168,10 @@ DEFINE FRAME oe-ctrl
           LABEL "Pay Commissions on Prep Charges"
           VIEW-AS TOGGLE-BOX
           SIZE 39 BY .81
+     oe-ctrl.prep-chrg AT ROW 12.00 COL 7
+          LABEL "Charge Tax on Prep Charges"
+          VIEW-AS TOGGLE-BOX
+          SIZE 37 BY .81
      oe-ctrl.ship-from AT ROW 14.81 COL 37 COLON-ALIGNED
           LABEL "Ship From"
           VIEW-AS FILL-IN 
@@ -313,6 +317,8 @@ ASSIGN
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.prcom IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
+/* SETTINGS FOR TOGGLE-BOX oe-ctrl.prep-chrg IN FRAME oe-ctrl
+   NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ctrl.prep-comm IN FRAME oe-ctrl
    NO-ENABLE 1 EXP-LABEL                                                */
 /* SETTINGS FOR FILL-IN oe-ctrl.ship-from IN FRAME oe-ctrl
@@ -422,7 +428,7 @@ DO:
 
     APPLY "ENTRY" TO n-ord.
     n-ord:SCREEN-VALUE = STRING(giCurrOrd  + 1, ">>>>>>").
-
+    FIND CURRENT oe-ctrl NO-LOCK.
   END.
   ELSE
   DO WITH FRAME {&FRAME-NAME}:
@@ -463,6 +469,7 @@ DO:
      oe-ctrl.n-ord = INTEGER(n-ord:SCREEN-VALUE).
 
      FIND CURRENT oe-ctrl NO-LOCK.
+     FIND CURRENT ar-ctrl NO-LOCK.
   END.
 END.
 
@@ -592,7 +599,7 @@ PROCEDURE enable_UI :
     DISPLAY ar-ctrl.last-inv 
       WITH FRAME oe-ctrl IN WINDOW C-Win.
   IF AVAILABLE oe-ctrl THEN 
-    DISPLAY oe-ctrl.i-code oe-ctrl.n-bol oe-ctrl.prcom oe-ctrl.f-tax 
+    DISPLAY oe-ctrl.i-code oe-ctrl.n-bol oe-ctrl.prcom oe-ctrl.f-tax oe-ctrl.prep-chrg
           oe-ctrl.prep-comm oe-ctrl.ship-from oe-ctrl.u-inv oe-ctrl.p-fact 
           oe-ctrl.p-bol oe-ctrl.p-pick oe-ctrl.p-ack oe-ctrl.p-sep 
           oe-ctrl.pr-broker 
