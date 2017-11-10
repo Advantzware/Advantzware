@@ -420,8 +420,18 @@ PROCEDURE openQuery:
         '{&yellowColumnsName}' EQ 'b-item' &THEN
   &SCOPED-DEFINE SORTBY-PHRASE BY ~
   IF sortColumn EQ 'Name' THEN item.i-name ELSE ~
-  IF sortColumn EQ 'Material!Type' THEN item.mat-type ELSE ~
-  IF sortColumn EQ 'Category' THEN item.procat ELSE ~
+  IF sortColumn EQ 'Matl!Type' THEN item.mat-type ELSE ~
+  IF sortColumn EQ 'Catgy' THEN item.procat ELSE ~
+  IF sortColumn EQ 'Description' THEN item.i-dscr ELSE ~
+  IF sortColumn EQ 'CType' THEN item.cost-type ELSE ~
+  IF sortColumn EQ 'Qty On Hand' THEN string(item.q-onh,'->>>,>>>,>>9.99') ELSE ~
+  IF sortColumn EQ 'Qty On Order' THEN string(item.q-ono,'->>>,>>>,>>9.99') ELSE ~
+  IF sortColumn EQ 'Qty Committed' THEN string(item.q-comm,'->>>,>>>,>>9.99') ELSE ~
+  IF sortColumn EQ 'C-UOM' THEN string(item.cons-uom,'x(3)') ELSE ~
+  IF sortColumn EQ 'Roll Width' THEN string(item.r-wid,'>>,>>9.99') ELSE ~
+  IF sortColumn EQ 'Width' THEN string(item.s-wid,'>>,>>9.99') ELSE ~
+  IF sortColumn EQ 'Depth' THEN string(item.s-dep,'>>,>>9.99') ELSE ~
+  IF sortColumn EQ 'Length' THEN string(item.s-len,'>>,>>9.99') ELSE ~
   item.i-no ~{&SORTED}
 
 &ELSEIF '{&yellowColumnsName}' EQ 'itemfg' &THEN

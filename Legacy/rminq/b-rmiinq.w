@@ -89,8 +89,9 @@ DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
     IF lv-sort-by EQ "tag"        THEN rm-rdtlh.tag                                                   ELSE ~
     IF lv-sort-by EQ "tag2"       THEN rm-rdtlh.tag2                                                  ELSE ~
     IF lv-sort-by EQ "pur-uom"    THEN rm-rcpth.pur-uom                                               ELSE ~
-    IF lv-sort-by EQ "qty"        THEN STRING(9999999999 + rm-rdtlh.qty,"9999999999.99")              ELSE ~
+    IF lv-sort-by EQ "qty"        THEN STRING(rm-rdtlh.qty,"9999999999.99")              ELSE ~
     IF lv-sort-by EQ "cost"       THEN STRING(rm-rdtlh.cost,"9999999999.99999")                       ELSE ~
+    IF lv-sort-by EQ "ld-ext-cost"       THEN STRING(rm-rdtlh.qty * rm-rdtlh.cost)                       ELSE ~
     IF lv-sort-by EQ "job-no"     THEN STRING(rm-rcpth.job-no,"x(6)") + STRING(rm-rcpth.job-no2,"99") ELSE ~
                                        STRING(YEAR(rm-rcpth.trans-date),"9999") + STRING(MONTH(rm-rcpth.trans-date),"99") + STRING(DAY(rm-rcpth.trans-date),"99") + STRING(rm-rcpth.r-no,"9999999999")
 
@@ -327,7 +328,7 @@ DEFINE BROWSE Browser-Table
       rm-rdtlh.cost COLUMN-LABEL "Cost" FORMAT "->>>,>>9.99<<<<":U
             LABEL-BGCOLOR 14
       disp-uom () @ rm-rcpth.loc
-      rm-rcpth.loc COLUMN-LABEL "Cost/UOM" FORMAT "x(3)":U LABEL-BGCOLOR 14
+      rm-rcpth.loc COLUMN-LABEL "Cost/UOM" FORMAT "x(3)":U
       disp-uom () @ rm-rcpth.loc
       rm-rdtlh.qty * rm-rdtlh.cost @ ld-ext-cost COLUMN-LABEL "Ext Cost" FORMAT "->>,>>>,>>9.99":U
             LABEL-BGCOLOR 14
@@ -598,11 +599,12 @@ DO:
     ASSIGN
      lv-column-nam = "job-no"
      lv-column-lab = "Job#".
-  ELSE
-  IF lv-column-nam EQ "loc" THEN
-    ASSIGN
-     lv-column-nam = "pur-uom"
+  IF lv-column-lab = "Cost/UOM" THEN
+      ASSIGN
+     lv-column-nam = "pur-UOM"
      lv-column-lab = "Cost/UOM".
+
+ /**/
 
   IF lv-sort-by EQ lv-column-nam THEN ll-sort-asc = NOT ll-sort-asc.
 

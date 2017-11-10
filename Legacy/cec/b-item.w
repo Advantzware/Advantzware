@@ -162,7 +162,7 @@ DEFINE BROWSE Browser-Table
       item.i-no FORMAT "x(10)":U WIDTH 19.2 LABEL-BGCOLOR 14
       item.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       item.i-code COLUMN-LABEL "Real?" FORMAT "X":U
-      item.mat-type COLUMN-LABEL "Mat'l!Type" FORMAT "X":U LABEL-BGCOLOR 14
+      item.mat-type COLUMN-LABEL "Matl!Type" FORMAT "X":U LABEL-BGCOLOR 14
       item.procat COLUMN-LABEL "Catgy" FORMAT "x(5)":U LABEL-BGCOLOR 14
       item.i-dscr COLUMN-LABEL "Description" FORMAT "x(30)":U LABEL-BGCOLOR 14
       item.cost-type COLUMN-LABEL "CType" FORMAT "XXX":U LABEL-BGCOLOR 14
