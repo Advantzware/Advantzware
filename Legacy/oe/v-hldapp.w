@@ -59,7 +59,7 @@ CREATE WIDGET-POOL.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR oe-ord.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btn-update btn-print RECT-5 
+&Scoped-Define ENABLED-OBJECTS RECT-5 btn-update btn-print 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -96,23 +96,23 @@ RUN set-attribute-list (
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn-print 
      LABEL "Print" 
-     SIZE 18 BY 1.67.
+     SIZE 12 BY 1.43.
 
 DEFINE BUTTON btn-update 
      LABEL "Hold/Approve" 
-     SIZE 18 BY 1.67.
+     SIZE 16 BY 1.43.
 
 DEFINE RECTANGLE RECT-5
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
-     SIZE 39 BY 2.14.
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 30 BY 1.91.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     btn-update AT ROW 1.48 COL 3
-     btn-print AT ROW 1.48 COL 22
-     RECT-5 AT ROW 1.24 COL 2
+     btn-update AT ROW 1.24 COL 2
+     btn-print AT ROW 1.24 COL 18
+     RECT-5 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE .

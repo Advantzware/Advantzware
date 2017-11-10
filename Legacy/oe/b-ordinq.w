@@ -130,7 +130,8 @@ ll-sort-asc = NO /*oeinq*/  .
 
 &SCOPED-DEFINE for-each2        ~
     FIRST oe-ord OF oe-ordl     ~
-    WHERE oe-ord.stat NE "W"  /* gdm - 04080909 */  ~
+    WHERE (oe-ord.stat NE "W" AND tb_web EQ NO) ~
+       OR (oe-ord.stat EQ "W" AND tb_web EQ YES) ~
       USE-INDEX ord-no NO-LOCK, ~
     FIRST itemfg ~{&joinScop} NO-LOCK WHERE itemfg.company EQ oe-ordl.company ~
                                        AND itemfg.i-no EQ oe-ordl.i-no ~
@@ -214,16 +215,16 @@ oe-ordl.job-no oe-ordl.job-no2
 &Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ordl
 &Scoped-define SECOND-ENABLED-TABLE-IN-QUERY-Browser-Table oe-ord
 &Scoped-define QUERY-STRING-Browser-Table FOR EACH oe-ordl ~
-      WHERE oe-ordl.company = g_company and ~
-oe-ordl.ord-no = 999999 NO-LOCK, ~
+      WHERE oe-ordl.company EQ g_company ~
+AND oe-ordl.ord-no EQ 999999 NO-LOCK, ~
       EACH oe-ord OF oe-ordl NO-LOCK, ~
       FIRST itemfg OF oe-ordl ~
       WHERE itemfg.company EQ oe-ordl.company ~
 AND itemfg.i-no EQ oe-ordl.i-no OUTER-JOIN NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH oe-ordl ~
-      WHERE oe-ordl.company = g_company and ~
-oe-ordl.ord-no = 999999 NO-LOCK, ~
+      WHERE oe-ordl.company EQ g_company ~
+AND oe-ordl.ord-no EQ 999999 NO-LOCK, ~
       EACH oe-ord OF oe-ordl NO-LOCK, ~
       FIRST itemfg OF oe-ordl ~
       WHERE itemfg.company EQ oe-ordl.company ~
@@ -238,12 +239,12 @@ AND itemfg.i-no EQ oe-ordl.i-no OUTER-JOIN NO-LOCK ~
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS fi_ord-no fi_cust-no fi_i-no fi_part-no ~
-fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman btn_go btn_prev ~
-Browser-Table fi_i-name RECT-1 
-&Scoped-Define DISPLAYED-OBJECTS fi_ord-no fi_cust-no fi_i-no fi_part-no ~
-fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman fi_sort-by ~
-FI_moveCol fi_i-name 
+&Scoped-Define ENABLED-OBJECTS tb_web fi_ord-no fi_cust-no fi_i-no ~
+fi_part-no fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman ~
+btn_go btn_prev Browser-Table fi_i-name RECT-1 
+&Scoped-Define DISPLAYED-OBJECTS tb_web fi_ord-no fi_cust-no fi_i-no ~
+fi_part-no fi_po-no1 fi_est-no fi_job-no fi_job-no2 fi_cad-no fi_sman ~
+fi_sort-by FI_moveCol fi_i-name 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -253,6 +254,13 @@ FI_moveCol fi_i-name
 
 
 /* ************************  Function Prototypes ********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fget-qty-nothand B-table-Win 
+FUNCTION fget-qty-nothand RETURNS INTEGER
+  (ipBal AS INTEGER,ipHand AS INTEGER )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-act-bol-qty B-table-Win 
 FUNCTION get-act-bol-qty RETURNS INTEGER
@@ -292,13 +300,6 @@ FUNCTION get-pct RETURNS INTEGER
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD get-prod B-table-Win 
 FUNCTION get-prod RETURNS INTEGER
   (OUTPUT op-bal AS INT)  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fget-qty-nothand B-table-Win 
-FUNCTION fget-qty-nothand RETURNS INTEGER
-  (ipBal AS INTEGER,ipHand AS INTEGER )  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -359,17 +360,17 @@ FUNCTION getTotalReturned RETURNS DECIMAL
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btn_go 
      LABEL "&Go" 
-     SIZE 7 BY 1
+     SIZE 6 BY 1
      FONT 6.
 
 DEFINE BUTTON btn_next 
      LABEL "&Next" 
-     SIZE 9.8 BY 1
+     SIZE 9 BY 1
      FONT 6.
 
 DEFINE BUTTON btn_prev 
      LABEL "&Previous" 
-     SIZE 12.8 BY 1
+     SIZE 12 BY 1
      FONT 6.
 
 DEFINE VARIABLE fi_cad-no AS CHARACTER FORMAT "X(15)":U 
@@ -439,7 +440,12 @@ DEFINE VARIABLE fi_sort-by AS CHARACTER FORMAT "X(256)":U
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 152 BY 3.81.
+     SIZE 156 BY 3.33.
+
+DEFINE VARIABLE tb_web AS LOGICAL INITIAL no 
+     LABEL "Web Orders" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 15 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -482,18 +488,16 @@ DEFINE BROWSE Browser-Table
       oe-ordl.req-date COLUMN-LABEL "Due Date" FORMAT "99/99/9999":U
             WIDTH 14.2 LABEL-BGCOLOR 14
       oe-ord.cust-name FORMAT "x(30)":U LABEL-BGCOLOR 14
-      oe-ordl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U WIDTH 21
-            LABEL-BGCOLOR 14
+      oe-ordl.i-no COLUMN-LABEL "FG Item#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.part-no COLUMN-LABEL "Cust Part#" FORMAT "x(15)":U
-            WIDTH 21 LABEL-BGCOLOR 14
+            LABEL-BGCOLOR 14
       oe-ordl.po-no FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.est-no COLUMN-LABEL "Est#" FORMAT "x(8)":U WIDTH 12
             LABEL-BGCOLOR 14
       oe-ordl.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 12
             LABEL-BGCOLOR 14
       oe-ordl.job-no2 COLUMN-LABEL "" FORMAT ">9":U LABEL-BGCOLOR 14
-      itemfg.cad-no COLUMN-LABEL "CAD#" FORMAT "x(15)":U WIDTH 21
-            LABEL-BGCOLOR 14
+      itemfg.cad-no COLUMN-LABEL "CAD#" FORMAT "x(15)":U LABEL-BGCOLOR 14
       oe-ordl.qty COLUMN-LABEL "Ordered Qty" FORMAT "->>,>>>,>>>":U
       get-prod(li-bal) @ li-prod COLUMN-LABEL "Prod. Qty" FORMAT "->>,>>>,>>>":U
       oe-ordl.ship-qty COLUMN-LABEL "Shipped Qty" FORMAT "->>,>>>,>>>":U
@@ -506,7 +510,6 @@ DEFINE BROWSE Browser-Table
             WIDTH 14.4
       get-pct(li-bal) @ li-pct COLUMN-LABEL "O/U%" FORMAT "->>>>>%":U
       get-fgitem() @ lc-fgitem COLUMN-LABEL "FG Item#" FORMAT "x(15)":U
-            WIDTH 21
       oe-ordl.i-name COLUMN-LABEL "Item Name" FORMAT "x(30)":U
       oe-ordl.line FORMAT ">>99":U
       oe-ordl.po-no-po FORMAT ">>>>>9":U
@@ -532,45 +535,34 @@ DEFINE BROWSE Browser-Table
       oe-ordl.job-no2
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-    WITH NO-ASSIGN SEPARATORS SIZE 152 BY 15.48
+    WITH NO-ASSIGN SEPARATORS SIZE 156 BY 17.14
          FONT 2.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     fi_ord-no AT ROW 2.19 COL 2 NO-LABEL
-     fi_cust-no AT ROW 2.19 COL 14 COLON-ALIGNED NO-LABEL
-     fi_i-no AT ROW 2.19 COL 28 COLON-ALIGNED NO-LABEL
-     fi_part-no AT ROW 2.19 COL 48 COLON-ALIGNED NO-LABEL
-     fi_po-no1 AT ROW 2.19 COL 68 COLON-ALIGNED NO-LABEL
-     fi_est-no AT ROW 2.19 COL 88 COLON-ALIGNED NO-LABEL
-     fi_job-no AT ROW 2.19 COL 102 COLON-ALIGNED NO-LABEL
-     fi_job-no2 AT ROW 2.19 COL 113 COLON-ALIGNED NO-LABEL
-     fi_cad-no AT ROW 2.19 COL 117 COLON-ALIGNED NO-LABEL
-     fi_sman AT ROW 2.19 COL 138 COLON-ALIGNED NO-LABEL WIDGET-ID 10
-     btn_go AT ROW 3.62 COL 2
-     btn_prev AT ROW 3.62 COL 9.2
-     btn_next AT ROW 3.62 COL 22.2
-     fi_sort-by AT ROW 3.62 COL 82.6 COLON-ALIGNED NO-LABEL
-     FI_moveCol AT ROW 3.62 COL 135.8 COLON-ALIGNED NO-LABEL WIDGET-ID 4
-     Browser-Table AT ROW 4.81 COL 1 HELP
+     tb_web AT ROW 3.14 COL 140 WIDGET-ID 14
+     fi_ord-no AT ROW 1.95 COL 2 NO-LABEL
+     fi_cust-no AT ROW 1.95 COL 14 COLON-ALIGNED NO-LABEL
+     fi_i-no AT ROW 1.95 COL 28 COLON-ALIGNED NO-LABEL
+     fi_part-no AT ROW 1.95 COL 48 COLON-ALIGNED NO-LABEL
+     fi_po-no1 AT ROW 1.95 COL 68 COLON-ALIGNED NO-LABEL
+     fi_est-no AT ROW 1.95 COL 88 COLON-ALIGNED NO-LABEL
+     fi_job-no AT ROW 1.95 COL 102 COLON-ALIGNED NO-LABEL
+     fi_job-no2 AT ROW 1.95 COL 113 COLON-ALIGNED NO-LABEL
+     fi_cad-no AT ROW 1.95 COL 117 COLON-ALIGNED NO-LABEL
+     fi_sman AT ROW 1.95 COL 138 COLON-ALIGNED NO-LABEL WIDGET-ID 10
+     btn_go AT ROW 3.14 COL 2
+     btn_prev AT ROW 3.14 COL 8
+     btn_next AT ROW 3.14 COL 20
+     fi_sort-by AT ROW 3.14 COL 76 COLON-ALIGNED NO-LABEL
+     FI_moveCol AT ROW 3.14 COL 127 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     Browser-Table AT ROW 4.33 COL 1 HELP
           "Use Home, End, Page-Up, Page-Down, & Arrow Keys to Navigate"
-     fi_i-name AT ROW 3.57 COL 30.6 COLON-ALIGNED NO-LABEL WIDGET-ID 8
+     fi_i-name AT ROW 3.14 COL 28 COLON-ALIGNED NO-LABEL WIDGET-ID 8
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 107.4
-          FGCOLOR 9 FONT 6
-     "Sorted By:" VIEW-AS TEXT
-          SIZE 12 BY 1 AT ROW 3.62 COL 72.4
-          FONT 6
-     "Order#" VIEW-AS TEXT
-          SIZE 10 BY .71 AT ROW 1.24 COL 5
-          FGCOLOR 9 FONT 6
-     "Customer#" VIEW-AS TEXT
-          SIZE 13 BY .71 AT ROW 1.24 COL 17
-          FGCOLOR 9 FONT 6
-     "FG Item#/Name" VIEW-AS TEXT
-          SIZE 19 BY .71 AT ROW 1.24 COL 31.6
           FGCOLOR 9 FONT 6
      "Cust Part#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 54
@@ -584,11 +576,23 @@ DEFINE FRAME F-Main
      "Estimate#" VIEW-AS TEXT
           SIZE 12 BY .71 AT ROW 1.24 COL 92
           FGCOLOR 9 FONT 6
-     "Browser Col. Mode:" VIEW-AS TEXT
-          SIZE 22.6 BY .62 AT ROW 3.86 COL 114.2 WIDGET-ID 6
+     "Browser Col Mode:" VIEW-AS TEXT
+          SIZE 21.6 BY 1 AT ROW 3.14 COL 107 WIDGET-ID 6
           FONT 6
      "CAD#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 123
+          FGCOLOR 9 FONT 6
+     "Sorted:" VIEW-AS TEXT
+          SIZE 9 BY 1 AT ROW 3.14 COL 69
+          FONT 6
+     "Order#" VIEW-AS TEXT
+          SIZE 10 BY .71 AT ROW 1.24 COL 5
+          FGCOLOR 9 FONT 6
+     "Customer#" VIEW-AS TEXT
+          SIZE 13 BY .71 AT ROW 1.24 COL 17
+          FGCOLOR 9 FONT 6
+     "FG Item#/Name" VIEW-AS TEXT
+          SIZE 19 BY .71 AT ROW 1.24 COL 31.6
           FGCOLOR 9 FONT 6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -624,8 +628,8 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW B-table-Win ASSIGN
-         HEIGHT             = 19.29
-         WIDTH              = 152.
+         HEIGHT             = 20.48
+         WIDTH              = 156.
 /* END WINDOW DEFINITION */
                                                                         */
 &ANALYZE-RESUME
@@ -680,8 +684,8 @@ ASSIGN
      _TblList          = "ASI.oe-ordl,ASI.oe-ord OF ASI.oe-ordl,ASI.itemfg OF ASI.oe-ordl"
      _Options          = "NO-LOCK SORTBY-PHRASE"
      _TblOptList       = "USED,, FIRST OUTER"
-     _Where[1]         = "oe-ordl.company = g_company and
-oe-ordl.ord-no = 999999"
+     _Where[1]         = "oe-ordl.company EQ g_company
+AND oe-ordl.ord-no EQ 999999"
      _Where[3]         = "itemfg.company EQ oe-ordl.company
 AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[1]   > ASI.oe-ordl.ord-no
@@ -701,9 +705,9 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[8]   > ASI.oe-ord.cust-name
 "oe-ord.cust-name" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-ordl.i-no
-"oe-ordl.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? yes ? no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-ordl.part-no
-"oe-ordl.part-no" "Cust Part#" ? "character" ? ? ? 14 ? ? yes ? no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordl.part-no" "Cust Part#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.oe-ordl.po-no
 "oe-ordl.po-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.oe-ordl.est-no
@@ -713,7 +717,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[14]   > ASI.oe-ordl.job-no2
 "oe-ordl.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.itemfg.cad-no
-"itemfg.cad-no" "CAD#" ? "character" ? ? ? 14 ? ? no ? no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"itemfg.cad-no" "CAD#" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.oe-ordl.qty
 "oe-ordl.qty" "Ordered Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > "_<CALC>"
@@ -733,7 +737,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[24]   > "_<CALC>"
 "get-pct(li-bal) @ li-pct" "O/U%" "->>>>>%" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[25]   > "_<CALC>"
-"get-fgitem() @ lc-fgitem" "FG Item#" "x(15)" ? ? ? ? ? ? ? no ? no no "21" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"get-fgitem() @ lc-fgitem" "FG Item#" "x(15)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[26]   > ASI.oe-ordl.i-name
 "oe-ordl.i-name" "Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[27]   > ASI.oe-ordl.line
@@ -764,7 +768,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -1089,20 +1093,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/*
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_i-no B-table-Win
-ON VALUE-CHANGED OF fi_i-no IN FRAME F-Main
-DO:
-  /*IF LASTKEY <> 32 THEN */{&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-*/
-
-
 
 &Scoped-define SELF-NAME fi_job-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_job-no B-table-Win
@@ -1159,30 +1149,6 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-/*
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_part-no B-table-Win
-ON VALUE-CHANGED OF fi_part-no IN FRAME F-Main
-DO:
-  IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME fi_po-no1
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_po-no1 B-table-Win
-ON VALUE-CHANGED OF fi_po-no1 IN FRAME F-Main
-DO:
-  IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
-  {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-*/
-
 
 &Scoped-define SELF-NAME fi_sman
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_sman B-table-Win
@@ -1203,6 +1169,20 @@ ON VALUE-CHANGED OF fi_sman IN FRAME F-Main
 DO:
   IF LASTKEY <> 32 THEN {&self-name}:SCREEN-VALUE = CAPS({&self-name}:SCREEN-VALUE).
   {&SELF-NAME}:CURSOR-OFFSET = LENGTH({&SELF-NAME}:SCREEN-VALUE) + 1 + IF LASTKEY EQ 32 THEN 1 ELSE 0. /* added by script _caps.p */
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME tb_web
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_web B-table-Win
+ON VALUE-CHANGED OF tb_web IN FRAME F-Main /* Web Orders */
+DO:
+    ASSIGN {&SELF-NAME}.
+    APPLY 'CHOOSE':U TO btn_go.
+    IF {&SELF-NAME} EQ YES THEN
+    RUN util/fixcXMLDuplicates.p.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -2336,6 +2316,25 @@ END PROCEDURE.
 
 /* ************************  Function Implementations ***************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fget-qty-nothand B-table-Win 
+FUNCTION fget-qty-nothand RETURNS INTEGER
+  (ipBal AS INTEGER,ipHand AS INTEGER ) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE irtnValue AS INTEGER NO-UNDO.
+
+    irtnValue = (ipHand - ipBal).
+
+
+  RETURN irtnValue.
+
+END FUNCTION.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION get-act-bol-qty B-table-Win 
 FUNCTION get-act-bol-qty RETURNS INTEGER
   ( /* parameter-definitions */ ) :
@@ -2554,25 +2553,6 @@ END.
 op-bal = iTotalProdQty.
 RETURN iTotalProdQty.   /* Function return value. */
 
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fget-qty-nothand B-table-Win 
-FUNCTION fget-qty-nothand RETURNS INTEGER
-  (ipBal AS INTEGER,ipHand AS INTEGER ) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-  DEFINE VARIABLE irtnValue AS INTEGER NO-UNDO.
-
-    irtnValue = (ipHand - ipBal).
-
-
-  RETURN irtnValue.
 
 END FUNCTION.
 
