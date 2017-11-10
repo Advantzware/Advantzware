@@ -214,7 +214,7 @@ DEFINE BROWSE br_table
             WIDTH 9
       oe-ordm.tax FORMAT "Y/N":U COLUMN-FONT 0
       oe-ordm.spare-char-1 COLUMN-LABEL "Tax Prep Code" FORMAT "x(3)":U
-            WIDTH 9.2
+            WIDTH 12
       oe-ordm.bill FORMAT "X":U COLUMN-FONT 0
       oe-ordm.spare-int-1 COLUMN-LABEL "Line" FORMAT "->,>>>,>>9":U
             WIDTH 6
@@ -242,6 +242,7 @@ DEFINE BROWSE br_table
       oe-ordm.s-pct[3]
       oe-ordm.s-comm[3]
       oe-ordm.tax
+      oe-ordm.spare-char-1
       oe-ordm.bill
       oe-ordm.spare-int-1
       oe-ordm.spare-char-2
@@ -369,7 +370,7 @@ ASSIGN
      _FldNameList[19]   > ASI.oe-ordm.tax
 "oe-ordm.tax" ? ? "logical" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > ASI.oe-ordm.spare-char-1
-"oe-ordm.spare-char-1" "Tax Prep Code" "x(3)" "character" ? ? ? ? ? ? no ? no no "9.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"oe-ordm.spare-char-1" "Tax Prep Code" "x(3)" "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.oe-ordm.bill
 "oe-ordm.bill" ? ? "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > ASI.oe-ordm.spare-int-1
@@ -454,6 +455,10 @@ DO:
            RUN windows/l-itmfgo.w (oe-ord.company,"",oe-ord.ord-no,oe-ordm.spare-char-2:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
            IF char-val <> "" THEN ASSIGN oe-ordm.spare-char-2:SCREEN-VALUE IN BROWSE {&browse-name} = ENTRY(1,char-val) .         
       END. 
+      when "spare-char-1" then do:
+           RUN windows/l-stax.w (oe-ord.company,oe-ordm.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
+           if char-val <> "" then assign oe-ordm.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val) .         
+      end.
 
   END CASE.
 
@@ -847,6 +852,19 @@ DO:
     RUN valid-est (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL oe-ordm.spare-char-1 Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF oe-ordm.spare-char-1 IN BROWSE br_table /* Tax */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-tax-gr NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1492,6 +1510,9 @@ PROCEDURE local-update-record :
   
   RUN valid-tax NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+
+  RUN valid-tax-gr NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   RUN valid-ord-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
@@ -2195,6 +2216,34 @@ PROCEDURE valid-tax :
     END.
   END.
 
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tax-gr V-table-Win 
+PROCEDURE valid-tax-gr :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF oe-ordm.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
+       NOT CAN-FIND(FIRST stax
+                    WHERE stax.company   EQ cocode
+                      AND stax.tax-group EQ oe-ordm.spare-char-1:SCREEN-VALUE)
+    THEN DO:
+      MESSAGE TRIM(oe-ordm.spare-char-1:LABEL) + " is invalid, try help ..."
+          VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO oe-ordm.spare-char-1.
+      RETURN ERROR.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

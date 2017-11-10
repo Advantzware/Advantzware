@@ -465,6 +465,10 @@ DO:
          when "spare-char-2" then do:
            run windows/l-itemfg.w (inv-misc.company,"",inv-misc.spare-char-2:SCREEN-VALUE IN BROWSE {&browse-name}, output char-val).
            if char-val <> "" then assign inv-misc.spare-char-2:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val) .         
+         end.
+         when "spare-char-1" then do:
+           RUN windows/l-stax.w (inv-misc.company,inv-misc.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name}, OUTPUT char-val).
+           if char-val <> "" then assign inv-misc.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} = entry(1,char-val) .         
       end.
      end case.
 
@@ -698,6 +702,19 @@ DO:
     RUN valid-tax NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL inv-misc.spare-char-1 Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF inv-misc.spare-char-1 IN BROWSE Browser-Table /* Tax */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    RUN valid-tax-gr NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.   
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -969,6 +986,9 @@ PROCEDURE local-update-record :
 
   RUN valid-tax NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
+
+  RUN valid-tax-gr NO-ERROR.
+  IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
   RUN valid-inv-i-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN ERROR.
@@ -1523,3 +1543,31 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tax-gr V-table-Win 
+PROCEDURE valid-tax-gr :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  {methods/lValidateError.i YES}
+  DO WITH FRAME {&FRAME-NAME}:
+    IF inv-misc.spare-char-1:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
+       NOT CAN-FIND(FIRST stax
+                    WHERE stax.company   EQ cocode
+                      AND stax.tax-group EQ inv-misc.spare-char-1:SCREEN-VALUE)
+    THEN DO:
+      MESSAGE TRIM(inv-misc.spare-char-1:LABEL) + " is invalid, try help..."
+          VIEW-AS ALERT-BOX ERROR.
+      APPLY "entry" TO inv-misc.spare-char-1.
+      RETURN ERROR.
+    END.
+  END.
+
+  {methods/lValidateError.i NO}
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
