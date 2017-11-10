@@ -29,6 +29,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+&SCOPED-DEFINE PageNo 5
 {touch/touchdef.i}
 
 &Scoped-define BUTTON-INCLUDE MACHINES
@@ -51,9 +52,8 @@ DEFINE VARIABLE itemlist1 AS CHARACTER NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Button-1 Btn_Button-6 ~
-Btn_All_Machines Btn_Button-2 Btn_Button-7 Btn_Page_Up Btn_Button-3 ~
-Btn_Button-8 Btn_Page_Down Btn_Button-4 Btn_Button-9 Btn_Button-5 ~
-Btn_Button-10 Btn_Cancel 
+Btn_Button-2 Btn_Button-7 Btn_Button-3 Btn_Button-8 Btn_Button-4 ~
+Btn_Button-9 Btn_Button-5 Btn_Button-10 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -70,10 +70,6 @@ Btn_Button-10
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_All_Machines 
-     LABEL "ENTER MACHINE CODE" 
-     SIZE 40 BY 2.38 TOOLTIP "ENTER MACHINE CODE".
-
 DEFINE BUTTON Btn_Button-1 
      LABEL "BUTTON 1" 
      SIZE 40 BY 2.38.
@@ -114,20 +110,6 @@ DEFINE BUTTON Btn_Button-9
      LABEL "BUTTON 9" 
      SIZE 40 BY 2.38.
 
-DEFINE BUTTON Btn_Cancel 
-     LABEL "CANCEL" 
-     SIZE 40 BY 2.38 TOOLTIP "CANCEL".
-
-DEFINE BUTTON Btn_Page_Down 
-     IMAGE-UP FILE "images\pagedown":U
-     LABEL "Page Down" 
-     SIZE 40 BY 2.38 TOOLTIP "PAGE DOWN".
-
-DEFINE BUTTON Btn_Page_Up 
-     IMAGE-UP FILE "images\pageup":U
-     LABEL "Page Up" 
-     SIZE 40 BY 2.38 TOOLTIP "PAGE UP".
-
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 124 BY 12.95.
@@ -138,23 +120,19 @@ DEFINE RECTANGLE RECT-1
 DEFINE FRAME F-Main
      Btn_Button-1 AT ROW 1.71 COL 2
      Btn_Button-6 AT ROW 1.71 COL 43
-     Btn_All_Machines AT ROW 1.71 COL 84
      Btn_Button-2 AT ROW 4.1 COL 2
      Btn_Button-7 AT ROW 4.1 COL 43
-     Btn_Page_Up AT ROW 4.81 COL 84
      Btn_Button-3 AT ROW 6.48 COL 2
      Btn_Button-8 AT ROW 6.48 COL 43
-     Btn_Page_Down AT ROW 8.14 COL 84
      Btn_Button-4 AT ROW 8.86 COL 2
      Btn_Button-9 AT ROW 8.86 COL 43
      Btn_Button-5 AT ROW 11.24 COL 2
      Btn_Button-10 AT ROW 11.24 COL 43
-     Btn_Cancel AT ROW 11.24 COL 84
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 7 FGCOLOR 15 FONT 6.
+         BGCOLOR 15 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -211,10 +189,6 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-ASSIGN 
-       Btn_All_Machines:PRIVATE-DATA IN FRAME F-Main     = 
-                "ENTER MACHINE CODE".
-
 /* SETTINGS FOR BUTTON Btn_Button-1 IN FRAME F-Main
    1                                                                    */
 /* SETTINGS FOR BUTTON Btn_Button-10 IN FRAME F-Main
@@ -235,18 +209,6 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR BUTTON Btn_Button-9 IN FRAME F-Main
    1                                                                    */
-ASSIGN 
-       Btn_Cancel:PRIVATE-DATA IN FRAME F-Main     = 
-                "CANCEL".
-
-ASSIGN 
-       Btn_Page_Down:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\pagedown.bmp".
-
-ASSIGN 
-       Btn_Page_Up:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\pageup.bmp".
-
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -265,17 +227,6 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
-
-&Scoped-define SELF-NAME Btn_All_Machines
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_All_Machines s-object
-ON CHOOSE OF Btn_All_Machines IN FRAME F-Main /* ENTER MACHINE CODE */
-DO:
-  {methods/run_link.i "CONTAINER" "Change_Page" "(8)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME Btn_Button-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Button-1 s-object
@@ -387,40 +338,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel s-object
-ON CHOOSE OF Btn_Cancel IN FRAME F-Main /* CANCEL */
-DO:
-  {methods/run_link.i "CONTAINER" "Change_Page" "(3)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Page_Down
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Page_Down s-object
-ON CHOOSE OF Btn_Page_Down IN FRAME F-Main /* Page Down */
-DO:
-  RUN Button_Labels (INPUT-OUTPUT button_item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Page_Up
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Page_Up s-object
-ON CHOOSE OF Btn_Page_Up IN FRAME F-Main /* Page Up */
-DO:
-  button_item = button_item - 20.
-  RUN Button_Labels (INPUT-OUTPUT button_item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
@@ -428,10 +345,13 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
+
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{touch/pCreateINIObjects.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -488,7 +408,10 @@ PROCEDURE Get_Active_Machines :
     itemlist = ''
     itemlist1 = ''
     button_item = 1
+    .
+/*
     Btn_All_Machines:HIDDEN IN FRAME {&FRAME-NAME} = TRUE.
+*/
   FOR EACH emplogin fields(machine) WHERE emplogin.company = company_code
                               AND emplogin.END_date = ?
                               AND emplogin.end_time = 0
@@ -535,7 +458,10 @@ PROCEDURE Get_Machines :
   ASSIGN
     itemlist = ''
     button_item = 1
+    .
+/*
     Btn_All_Machines:HIDDEN IN FRAME {&FRAME-NAME} = FALSE.
+*/
   FOR EACH empmach FIELDS(machine) WHERE empmach.company = company_code
                              AND empmach.employee = employee_code NO-LOCK,
     FIRST mach FIELDS(m-code m-dscr)WHERE mach.company = company_code
@@ -547,9 +473,29 @@ PROCEDURE Get_Machines :
   END.
   
   IF itemlist = '' THEN
-  APPLY 'CHOOSE' TO Btn_All_Machines IN FRAME {&FRAME-NAME}.
+  RUN pClick ("EnterMachineCode").
   ELSE
   RUN Button_Labels (INPUT-OUTPUT button_item).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize s-object 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  RUN pCreateINIObjects ("EnterMachineCode,PageUp,PageDown,Home").
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
 
 END PROCEDURE.
 
@@ -570,6 +516,36 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {touch/localview.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClick s-object 
+PROCEDURE pClick :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcClick AS CHARACTER NO-UNDO.
+    
+    CASE ipcClick:
+        WHEN "EnterMachineCode" THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(8)"}
+        END.
+        WHEN "PageUp" THEN DO:
+            button_item = button_item - 20.
+            RUN Button_Labels (INPUT-OUTPUT button_item).
+        END.
+        WHEN "PageDown" THEN DO:
+            RUN Button_Labels (INPUT-OUTPUT button_item).
+        END.
+        WHEN "Home" THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(3)"}
+        END.
+    END CASE.
 
 END PROCEDURE.
 

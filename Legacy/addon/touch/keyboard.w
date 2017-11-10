@@ -63,19 +63,19 @@ IF NOT tskey-log THEN
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Exclaim Btn_Atsign Btn_Pound Btn_Dollar ~
-Btn_Percent Btn_Carot Btn_And Btn_Asterisk Btn_lparenth Btn_rparenth ~
-Btn_lcurly Btn_rcurly Btn_underln Btn_Pipe Btn_Lbox Btn_Q Btn_W Btn_E Btn_R ~
-Btn_T Btn_Y Btn_U Btn_I Btn_O Btn_P Btn_Minus Btn_Plus Btn_Equal ~
-Btn_Lessthan Btn_A Btn_S Btn_D Btn_F Btn_G Btn_H Btn_J Btn_K Btn_L ~
-Btn_Colon Btn_semicoln Btn_Dblquote Btn_Sglquote Btn_rbox Btn_Grtrthan ~
-Btn_Z Btn_X Btn_C Btn_V Btn_B Btn_N Btn_M Btn_Comma Btn_Period Btn_fwdslash ~
-Btn_bckslash Btn_Question Btn_Caps_Lock Btn_Clear Btn_Space Btn_Backspace ~
-Btn_Sort Btn_Alpha 
+&Scoped-Define ENABLED-OBJECTS Btn_Caps_Lock Btn_And Btn_Clear Btn_Space ~
+Btn_Backspace Btn_Sort Btn_Alpha Btn_Asterisk Btn_Atsign Btn_bckslash ~
+Btn_Carot Btn_Colon Btn_Comma Btn_Dblquote Btn_Dollar Btn_Equal Btn_Exclaim ~
+Btn_fwdslash Btn_Grtrthan Btn_Lbox Btn_lcurly Btn_Lessthan Btn_lparenth ~
+Btn_Minus Btn_Percent Btn_Period Btn_Pipe Btn_Plus Btn_Pound Btn_Question ~
+Btn_rbox Btn_rcurly Btn_rparenth Btn_semicoln Btn_Sglquote Btn_underln ~
+Btn_A Btn_B Btn_C Btn_D Btn_E Btn_F Btn_G Btn_H Btn_I Btn_J Btn_K Btn_L ~
+Btn_M Btn_N Btn_O Btn_P Btn_Q Btn_R Btn_S Btn_T Btn_U Btn_V Btn_W Btn_X ~
+Btn_Y Btn_Z 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -92,264 +92,264 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_A 
-     IMAGE-UP FILE "keyboard\a":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_a.png":U NO-FOCUS FLAT-BUTTON
      LABEL "A" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Alpha 
      LABEL "ALPHA" 
-     SIZE 17 BY 1.91 TOOLTIP "ALPHA"
+     SIZE 16 BY 1.91 TOOLTIP "ALPHA"
      FONT 6.
 
 DEFINE BUTTON Btn_And 
-     IMAGE-UP FILE "keyboard\and":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_amp.png":U NO-FOCUS FLAT-BUTTON
      LABEL "&" 
      SIZE 11 BY 2.38 TOOLTIP "Ampersand".
 
 DEFINE BUTTON Btn_Asterisk 
-     IMAGE-UP FILE "keyboard\asterisk":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_asterisk.png":U NO-FOCUS FLAT-BUTTON
      LABEL "*" 
      SIZE 11 BY 2.38 TOOLTIP "Asterisk".
 
 DEFINE BUTTON Btn_Atsign 
-     IMAGE-UP FILE "keyboard\atsign":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_at.png":U NO-FOCUS FLAT-BUTTON
      LABEL "@" 
      SIZE 11 BY 2.38 TOOLTIP "At Sign".
 
 DEFINE BUTTON Btn_B 
-     IMAGE-UP FILE "keyboard\b":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_b.png":U NO-FOCUS FLAT-BUTTON
      LABEL "B" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Backspace 
      LABEL "BACKSPACE" 
-     SIZE 44 BY 1.91 TOOLTIP "BACKSPACE"
+     SIZE 48 BY 1.91 TOOLTIP "BACKSPACE"
      FONT 6.
 
 DEFINE BUTTON Btn_bckslash 
-     IMAGE-UP FILE "keyboard\bckslash":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_backslash.png":U NO-FOCUS FLAT-BUTTON
      LABEL "~\" 
      SIZE 11 BY 2.38 TOOLTIP "Back Slash".
 
 DEFINE BUTTON Btn_C 
-     IMAGE-UP FILE "keyboard\c":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_c.png":U NO-FOCUS FLAT-BUTTON
      LABEL "C" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Caps_Lock 
      LABEL "CAPS LOCK (ON)" 
-     SIZE 43 BY 1.91 TOOLTIP "CAPS LOCK"
+     SIZE 48 BY 1.91 TOOLTIP "CAPS LOCK"
      FONT 6.
 
 DEFINE BUTTON Btn_Carot 
-     IMAGE-UP FILE "keyboard\carot":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_carrot.png":U NO-FOCUS FLAT-BUTTON
      LABEL "^" 
      SIZE 11 BY 2.38 TOOLTIP "Carot".
 
 DEFINE BUTTON Btn_Clear 
      LABEL "CLEAR" 
-     SIZE 14 BY 1.91 TOOLTIP "CLEAR"
+     SIZE 16 BY 1.91 TOOLTIP "CLEAR"
      FONT 6.
 
 DEFINE BUTTON Btn_Colon 
-     IMAGE-UP FILE "keyboard\colon":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_colon.png":U NO-FOCUS FLAT-BUTTON
      LABEL ":" 
      SIZE 11 BY 2.38 TOOLTIP "Colon".
 
 DEFINE BUTTON Btn_Comma 
-     IMAGE-UP FILE "keyboard\comma":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_comma.png":U NO-FOCUS FLAT-BUTTON
      LABEL "," 
      SIZE 11 BY 2.38 TOOLTIP "Comma".
 
 DEFINE BUTTON Btn_D 
-     IMAGE-UP FILE "keyboard\d":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_d.png":U NO-FOCUS FLAT-BUTTON
      LABEL "D" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Dblquote 
-     IMAGE-UP FILE "keyboard\dblquote":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_doublequote.png":U NO-FOCUS FLAT-BUTTON
      LABEL "DQ" 
      SIZE 11 BY 2.38 TOOLTIP "Semi-Colon".
 
 DEFINE BUTTON Btn_Dollar 
-     IMAGE-UP FILE "keyboard\dollar":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_dollar.png":U NO-FOCUS FLAT-BUTTON
      LABEL "$" 
      SIZE 11 BY 2.38 TOOLTIP "Dollar".
 
 DEFINE BUTTON Btn_E 
-     IMAGE-UP FILE "keyboard\e":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_e.png":U NO-FOCUS FLAT-BUTTON
      LABEL "E" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Equal 
-     IMAGE-UP FILE "keyboard\equal":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_equal.png":U NO-FOCUS FLAT-BUTTON
      LABEL "=" 
      SIZE 11 BY 2.38 TOOLTIP "Equal".
 
 DEFINE BUTTON Btn_Exclaim 
-     IMAGE-UP FILE "keyboard\exclaim":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_bang.png":U NO-FOCUS FLAT-BUTTON
      LABEL "!" 
      SIZE 11 BY 2.38 TOOLTIP "Exclamition".
 
 DEFINE BUTTON Btn_F 
-     IMAGE-UP FILE "keyboard\f":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_f.png":U NO-FOCUS FLAT-BUTTON
      LABEL "F" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_fwdslash 
-     IMAGE-UP FILE "keyboard\fwdslash":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_forwardslash.png":U NO-FOCUS FLAT-BUTTON
      LABEL "/" 
      SIZE 11 BY 2.38 TOOLTIP "Forward Slash".
 
 DEFINE BUTTON Btn_G 
-     IMAGE-UP FILE "keyboard\g":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_g.png":U NO-FOCUS FLAT-BUTTON
      LABEL "G" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Grtrthan 
-     IMAGE-UP FILE "keyboard\grtrthan":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_greaterthan.png":U NO-FOCUS FLAT-BUTTON
      LABEL ">" 
      SIZE 11 BY 2.38 TOOLTIP "Greater Than".
 
 DEFINE BUTTON Btn_H 
-     IMAGE-UP FILE "keyboard\h":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_h.png":U NO-FOCUS FLAT-BUTTON
      LABEL "H" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_I 
-     IMAGE-UP FILE "keyboard\i":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_i.png":U NO-FOCUS FLAT-BUTTON
      LABEL "I" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_J 
-     IMAGE-UP FILE "keyboard\j":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_j.png":U NO-FOCUS FLAT-BUTTON
      LABEL "J" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_K 
-     IMAGE-UP FILE "keyboard\k":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_k.png":U NO-FOCUS FLAT-BUTTON
      LABEL "K" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_L 
-     IMAGE-UP FILE "keyboard\l":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_l.png":U NO-FOCUS FLAT-BUTTON
      LABEL "L" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Lbox 
-     IMAGE-UP FILE "keyboard\lbox":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_left_bracket.png":U NO-FOCUS FLAT-BUTTON
      LABEL "[" 
-     SIZE 5 BY 2.38 TOOLTIP "Left Square Bracket".
+     SIZE 11 BY 2.38 TOOLTIP "Left Square Bracket".
 
 DEFINE BUTTON Btn_lcurly 
-     IMAGE-UP FILE "keyboard\lcurly":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_left_curly.png":U NO-FOCUS FLAT-BUTTON
      LABEL "~{" 
      SIZE 11 BY 2.38 TOOLTIP "Left Curly Bracket".
 
 DEFINE BUTTON Btn_Lessthan 
-     IMAGE-UP FILE "keyboard\lessthan":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_lessthan.png":U NO-FOCUS FLAT-BUTTON
      LABEL "<" 
      SIZE 11 BY 2.38 TOOLTIP "Less Than".
 
 DEFINE BUTTON Btn_lparenth 
-     IMAGE-UP FILE "keyboard\lparenth":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_left_paren.png":U NO-FOCUS FLAT-BUTTON
      LABEL "(" 
      SIZE 11 BY 2.38 TOOLTIP "Left Parenthesis".
 
 DEFINE BUTTON Btn_M 
-     IMAGE-UP FILE "keyboard\m":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_m.png":U NO-FOCUS FLAT-BUTTON
      LABEL "M" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Minus 
-     IMAGE-UP FILE "keyboard\minus":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_minus.png":U NO-FOCUS FLAT-BUTTON
      LABEL "-" 
      SIZE 11 BY 2.38 TOOLTIP "Minus".
 
 DEFINE BUTTON Btn_N 
-     IMAGE-UP FILE "keyboard\n":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_n.png":U NO-FOCUS FLAT-BUTTON
      LABEL "N" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_O 
-     IMAGE-UP FILE "keyboard\o":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_o.png":U NO-FOCUS FLAT-BUTTON
      LABEL "O" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_P 
-     IMAGE-UP FILE "keyboard\p":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_p.png":U NO-FOCUS FLAT-BUTTON
      LABEL "P" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Percent 
-     IMAGE-UP FILE "keyboard\percent":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_percent.png":U NO-FOCUS FLAT-BUTTON
      LABEL "%" 
      SIZE 11 BY 2.38 TOOLTIP "Percent".
 
 DEFINE BUTTON Btn_Period 
-     IMAGE-UP FILE "keyboard\period":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_period.png":U NO-FOCUS FLAT-BUTTON
      LABEL "." 
      SIZE 11 BY 2.38 TOOLTIP "Period".
 
 DEFINE BUTTON Btn_Pipe 
-     IMAGE-UP FILE "keyboard\pipe":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_pipe.png":U NO-FOCUS FLAT-BUTTON
      LABEL "|" 
-     SIZE 5 BY 2.38 TOOLTIP "Pipe".
+     SIZE 11 BY 2.38 TOOLTIP "Pipe".
 
 DEFINE BUTTON Btn_Plus 
-     IMAGE-UP FILE "keyboard\plus":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_plus.png":U NO-FOCUS FLAT-BUTTON
      LABEL "+" 
      SIZE 11 BY 2.38 TOOLTIP "Plus".
 
 DEFINE BUTTON Btn_Pound 
-     IMAGE-UP FILE "keyboard\pound":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_pound.png":U NO-FOCUS FLAT-BUTTON
      LABEL "#" 
      SIZE 11 BY 2.38 TOOLTIP "Pound".
 
 DEFINE BUTTON Btn_Q 
-     IMAGE-UP FILE "keyboard\q":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_q.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Q" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Question 
-     IMAGE-UP FILE "keyboard\question":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_question.png":U NO-FOCUS FLAT-BUTTON
      LABEL "?" 
      SIZE 11 BY 2.38 TOOLTIP "Question Mark".
 
 DEFINE BUTTON Btn_R 
-     IMAGE-UP FILE "keyboard\r":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_r.png":U NO-FOCUS FLAT-BUTTON
      LABEL "R" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_rbox 
-     IMAGE-UP FILE "keyboard\rbox":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_right_bracket.png":U NO-FOCUS FLAT-BUTTON
      LABEL "]" 
-     SIZE 5 BY 2.38 TOOLTIP "Right Square Bracket".
+     SIZE 11 BY 2.38 TOOLTIP "Right Square Bracket".
 
 DEFINE BUTTON Btn_rcurly 
-     IMAGE-UP FILE "keyboard\rcurly":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_right_curly.png":U NO-FOCUS FLAT-BUTTON
      LABEL "}" 
      SIZE 11 BY 2.38 TOOLTIP "Right Curly Bracket".
 
 DEFINE BUTTON Btn_rparenth 
-     IMAGE-UP FILE "keyboard\rparenth":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_right_paren.png":U NO-FOCUS FLAT-BUTTON
      LABEL ")" 
      SIZE 11 BY 2.38 TOOLTIP "Right Parenthesis".
 
 DEFINE BUTTON Btn_S 
-     IMAGE-UP FILE "keyboard\s":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_s.png":U NO-FOCUS FLAT-BUTTON
      LABEL "S" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_semicoln 
-     IMAGE-UP FILE "keyboard\semicoln":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_semicolon.png":U NO-FOCUS FLAT-BUTTON
      LABEL "~;" 
      SIZE 11 BY 2.38 TOOLTIP "Semi-Colon".
 
 DEFINE BUTTON Btn_Sglquote 
-     IMAGE-UP FILE "keyboard\sglquote":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_quote.png":U NO-FOCUS FLAT-BUTTON
      LABEL "'" 
-     SIZE 5 BY 2.38 TOOLTIP "Single Quote".
+     SIZE 11 BY 2.38 TOOLTIP "Single Quote".
 
 DEFINE BUTTON Btn_Sort 
      LABEL "SORT" 
@@ -358,46 +358,46 @@ DEFINE BUTTON Btn_Sort
 
 DEFINE BUTTON Btn_Space 
      LABEL "SPACE" 
-     SIZE 14 BY 1.91 TOOLTIP "SPACE"
+     SIZE 16 BY 1.91 TOOLTIP "SPACE"
      FONT 6.
 
 DEFINE BUTTON Btn_T 
-     IMAGE-UP FILE "keyboard\t":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_t.png":U NO-FOCUS FLAT-BUTTON
      LABEL "T" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_U 
-     IMAGE-UP FILE "keyboard\u":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_u.png":U NO-FOCUS FLAT-BUTTON
      LABEL "U" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_underln 
-     IMAGE-UP FILE "keyboard\underln":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_underline.png":U NO-FOCUS FLAT-BUTTON
      LABEL "_" 
      SIZE 11 BY 2.38 TOOLTIP "Underscore".
 
 DEFINE BUTTON Btn_V 
-     IMAGE-UP FILE "keyboard\v":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_v.png":U NO-FOCUS FLAT-BUTTON
      LABEL "V" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_W 
-     IMAGE-UP FILE "keyboard\w":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_w.png":U NO-FOCUS FLAT-BUTTON
      LABEL "W" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_X 
-     IMAGE-UP FILE "keyboard\x":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_x.png":U NO-FOCUS FLAT-BUTTON
      LABEL "X" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Y 
-     IMAGE-UP FILE "keyboard\y":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_y.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Y" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Z 
-     IMAGE-UP FILE "keyboard\z":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_z.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Z" 
      SIZE 11 BY 2.38.
 
@@ -405,73 +405,73 @@ DEFINE BUTTON Btn_Z
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     Btn_Exclaim AT ROW 1 COL 1
-     Btn_Atsign AT ROW 1 COL 12
-     Btn_Pound AT ROW 1 COL 23
-     Btn_Dollar AT ROW 1 COL 34
-     Btn_Percent AT ROW 1 COL 45
-     Btn_Carot AT ROW 1 COL 56
-     Btn_And AT ROW 1 COL 67
-     Btn_Asterisk AT ROW 1 COL 78
-     Btn_lparenth AT ROW 1 COL 89
-     Btn_rparenth AT ROW 1 COL 100
-     Btn_lcurly AT ROW 1 COL 111
-     Btn_rcurly AT ROW 1 COL 122
-     Btn_underln AT ROW 1 COL 133
-     Btn_Pipe AT ROW 1 COL 144
-     Btn_Lbox AT ROW 3.38 COL 1
-     Btn_Q AT ROW 3.38 COL 6
-     Btn_W AT ROW 3.38 COL 17
-     Btn_E AT ROW 3.38 COL 28
-     Btn_R AT ROW 3.38 COL 39
-     Btn_T AT ROW 3.38 COL 50
-     Btn_Y AT ROW 3.38 COL 61
-     Btn_U AT ROW 3.38 COL 72
-     Btn_I AT ROW 3.38 COL 83
-     Btn_O AT ROW 3.38 COL 94
-     Btn_P AT ROW 3.38 COL 105
-     Btn_Minus AT ROW 3.38 COL 116
-     Btn_Plus AT ROW 3.38 COL 127
-     Btn_Equal AT ROW 3.38 COL 138
-     Btn_Lessthan AT ROW 5.76 COL 1
-     Btn_A AT ROW 5.76 COL 12
-     Btn_S AT ROW 5.76 COL 23
-     Btn_D AT ROW 5.76 COL 34
-     Btn_F AT ROW 5.76 COL 45
-     Btn_G AT ROW 5.76 COL 56
-     Btn_H AT ROW 5.76 COL 67
-     Btn_J AT ROW 5.76 COL 78
-     Btn_K AT ROW 5.76 COL 89
-     Btn_L AT ROW 5.76 COL 100
-     Btn_Colon AT ROW 5.76 COL 111
-     Btn_semicoln AT ROW 5.76 COL 122
-     Btn_Dblquote AT ROW 5.76 COL 133
-     Btn_Sglquote AT ROW 5.76 COL 144
-     Btn_rbox AT ROW 8.14 COL 1
-     Btn_Grtrthan AT ROW 8.14 COL 6
-     Btn_Z AT ROW 8.14 COL 17
-     Btn_X AT ROW 8.14 COL 28
-     Btn_C AT ROW 8.14 COL 39
-     Btn_V AT ROW 8.14 COL 50
-     Btn_B AT ROW 8.14 COL 61
-     Btn_N AT ROW 8.14 COL 72
-     Btn_M AT ROW 8.14 COL 83
-     Btn_Comma AT ROW 8.14 COL 94
-     Btn_Period AT ROW 8.14 COL 105
-     Btn_fwdslash AT ROW 8.14 COL 116
-     Btn_bckslash AT ROW 8.14 COL 127
-     Btn_Question AT ROW 8.14 COL 138
      Btn_Caps_Lock AT ROW 10.52 COL 1
-     Btn_Clear AT ROW 10.52 COL 44
-     Btn_Space AT ROW 10.52 COL 58
-     Btn_Backspace AT ROW 10.52 COL 72
-     Btn_Sort AT ROW 10.52 COL 116
-     Btn_Alpha AT ROW 10.52 COL 132
+     Btn_And AT ROW 1 COL 73
+     Btn_Clear AT ROW 10.52 COL 49
+     Btn_Space AT ROW 10.52 COL 65
+     Btn_Backspace AT ROW 10.52 COL 81
+     Btn_Sort AT ROW 10.52 COL 129
+     Btn_Alpha AT ROW 10.52 COL 145
+     Btn_Asterisk AT ROW 1 COL 84
+     Btn_Atsign AT ROW 1 COL 18
+     Btn_bckslash AT ROW 8.14 COL 133
+     Btn_Carot AT ROW 1 COL 62
+     Btn_Colon AT ROW 5.76 COL 117
+     Btn_Comma AT ROW 8.14 COL 100
+     Btn_Dblquote AT ROW 5.76 COL 139
+     Btn_Dollar AT ROW 1 COL 40
+     Btn_Equal AT ROW 3.38 COL 144
+     Btn_Exclaim AT ROW 1 COL 7
+     Btn_fwdslash AT ROW 8.14 COL 122
+     Btn_Grtrthan AT ROW 8.14 COL 12
+     Btn_Lbox AT ROW 3.38 COL 1
+     Btn_lcurly AT ROW 1 COL 117
+     Btn_Lessthan AT ROW 5.76 COL 7
+     Btn_lparenth AT ROW 1 COL 95
+     Btn_Minus AT ROW 3.38 COL 122
+     Btn_Percent AT ROW 1 COL 51
+     Btn_Period AT ROW 8.14 COL 111
+     Btn_Pipe AT ROW 1 COL 150
+     Btn_Plus AT ROW 3.38 COL 133
+     Btn_Pound AT ROW 1 COL 29
+     Btn_Question AT ROW 8.14 COL 144
+     Btn_rbox AT ROW 8.14 COL 1
+     Btn_rcurly AT ROW 1 COL 128
+     Btn_rparenth AT ROW 1 COL 106
+     Btn_semicoln AT ROW 5.76 COL 128
+     Btn_Sglquote AT ROW 5.76 COL 150
+     Btn_underln AT ROW 1 COL 139
+     Btn_A AT ROW 5.76 COL 18
+     Btn_B AT ROW 8.14 COL 67
+     Btn_C AT ROW 8.14 COL 45
+     Btn_D AT ROW 5.76 COL 40
+     Btn_E AT ROW 3.38 COL 34
+     Btn_F AT ROW 5.76 COL 51
+     Btn_G AT ROW 5.76 COL 62
+     Btn_H AT ROW 5.76 COL 73
+     Btn_I AT ROW 3.38 COL 89
+     Btn_J AT ROW 5.76 COL 84
+     Btn_K AT ROW 5.76 COL 95
+     Btn_L AT ROW 5.76 COL 106
+     Btn_M AT ROW 8.14 COL 89
+     Btn_N AT ROW 8.14 COL 78
+     Btn_O AT ROW 3.38 COL 100
+     Btn_P AT ROW 3.38 COL 111
+     Btn_Q AT ROW 3.38 COL 12
+     Btn_R AT ROW 3.38 COL 45
+     Btn_S AT ROW 5.76 COL 29
+     Btn_T AT ROW 3.38 COL 56
+     Btn_U AT ROW 3.38 COL 78
+     Btn_V AT ROW 8.14 COL 56
+     Btn_W AT ROW 3.38 COL 23
+     Btn_X AT ROW 8.14 COL 34
+     Btn_Y AT ROW 3.38 COL 67
+     Btn_Z AT ROW 8.14 COL 23
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 148.2 BY 11.48
-         BGCOLOR 7 .
+         SIZE 160.2 BY 11.48
+         BGCOLOR 0 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -494,11 +494,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          COLUMN             = 1
          ROW                = 16.95
          HEIGHT             = 11.48
-         WIDTH              = 148.2
+         WIDTH              = 160.2
          MAX-HEIGHT         = 11.48
-         MAX-WIDTH          = 148.2
+         MAX-WIDTH          = 160.2
          VIRTUAL-HEIGHT     = 11.48
-         VIRTUAL-WIDTH      = 148.2
+         VIRTUAL-WIDTH      = 160.2
+         MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -526,7 +527,7 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        Btn_Alpha:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ALPHA".
@@ -1359,15 +1360,15 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE Btn_Exclaim Btn_Atsign Btn_Pound Btn_Dollar Btn_Percent Btn_Carot 
-         Btn_And Btn_Asterisk Btn_lparenth Btn_rparenth Btn_lcurly Btn_rcurly 
-         Btn_underln Btn_Pipe Btn_Lbox Btn_Q Btn_W Btn_E Btn_R Btn_T Btn_Y 
-         Btn_U Btn_I Btn_O Btn_P Btn_Minus Btn_Plus Btn_Equal Btn_Lessthan 
-         Btn_A Btn_S Btn_D Btn_F Btn_G Btn_H Btn_J Btn_K Btn_L Btn_Colon 
-         Btn_semicoln Btn_Dblquote Btn_Sglquote Btn_rbox Btn_Grtrthan Btn_Z 
-         Btn_X Btn_C Btn_V Btn_B Btn_N Btn_M Btn_Comma Btn_Period Btn_fwdslash 
-         Btn_bckslash Btn_Question Btn_Caps_Lock Btn_Clear Btn_Space 
-         Btn_Backspace Btn_Sort Btn_Alpha 
+  ENABLE Btn_Caps_Lock Btn_And Btn_Clear Btn_Space Btn_Backspace Btn_Sort 
+         Btn_Alpha Btn_Asterisk Btn_Atsign Btn_bckslash Btn_Carot Btn_Colon 
+         Btn_Comma Btn_Dblquote Btn_Dollar Btn_Equal Btn_Exclaim Btn_fwdslash 
+         Btn_Grtrthan Btn_Lbox Btn_lcurly Btn_Lessthan Btn_lparenth Btn_Minus 
+         Btn_Percent Btn_Period Btn_Pipe Btn_Plus Btn_Pound Btn_Question 
+         Btn_rbox Btn_rcurly Btn_rparenth Btn_semicoln Btn_Sglquote Btn_underln 
+         Btn_A Btn_B Btn_C Btn_D Btn_E Btn_F Btn_G Btn_H Btn_I Btn_J Btn_K 
+         Btn_L Btn_M Btn_N Btn_O Btn_P Btn_Q Btn_R Btn_S Btn_T Btn_U Btn_V 
+         Btn_W Btn_X Btn_Y Btn_Z 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

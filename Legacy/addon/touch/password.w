@@ -29,9 +29,10 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+&SCOPED-DEFINE PageNo 4
 {touch/touchdef.i}
 
-DEF VAR lv-password AS cha NO-UNDO.
+DEF VAR lv-password AS CHARACTER NO-UNDO.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -48,7 +49,7 @@ DEF VAR lv-password AS cha NO-UNDO.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 keystroke Btn_Accept Btn_Cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-1 keystroke 
 &Scoped-Define DISPLAYED-OBJECTS keystroke 
 
 /* Custom List Definitions                                              */
@@ -63,22 +64,14 @@ DEF VAR lv-password AS cha NO-UNDO.
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Accept 
-     LABEL "ACCEPT PASSWORD" 
-     SIZE 40 BY 2.38 TOOLTIP "ACCEPT PASSWORD".
-
-DEFINE BUTTON Btn_Cancel 
-     LABEL "CANCEL" 
-     SIZE 40 BY 2.38 TOOLTIP "CANCEL".
-
 DEFINE VARIABLE keystroke AS CHARACTER FORMAT "X(256)":U 
      LABEL "PASSWORD" 
      VIEW-AS FILL-IN 
      SIZE 81 BY 1 TOOLTIP "PASSWORD"
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 124 BY 12.95.
 
 
@@ -86,16 +79,13 @@ DEFINE RECTANGLE RECT-1
 
 DEFINE FRAME F-Main
      keystroke AT ROW 9.81 COL 41 COLON-ALIGNED
-     Btn_Accept AT ROW 11.24 COL 43
-     Btn_Cancel AT ROW 11.24 COL 84
      "TYPE PASSWORD AND TOUCH 'ACCEPT PASSWORD' BUTTON" VIEW-AS TEXT
           SIZE 76 BY .62 AT ROW 8.86 COL 47
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 7 FGCOLOR 15 FONT 6
-         DEFAULT-BUTTON Btn_Accept.
+         BGCOLOR 15 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -153,14 +143,6 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       Btn_Accept:PRIVATE-DATA IN FRAME F-Main     = 
-                "ACCEPT PASSWORD".
-
-ASSIGN 
-       Btn_Cancel:PRIVATE-DATA IN FRAME F-Main     = 
-                "CANCEL".
-
-ASSIGN 
        keystroke:PRIVATE-DATA IN FRAME F-Main     = 
                 "PASSWORD".
 
@@ -183,52 +165,6 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME Btn_Accept
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Accept s-object
-ON CHOOSE OF Btn_Accept IN FRAME F-Main /* ACCEPT PASSWORD */
-DO:
-  {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
-  {methods/run_link.i "CONTAINER" "Get_Value" "('employee_code',OUTPUT employee_code)"}
-  FIND employee WHERE employee.company = company_code
-                  AND employee.employee = employee_code
-                NO-LOCK NO-ERROR.
-  IF NOT AVAILABLE employee THEN
-  RETURN.
-  IF field_value NE employee.passwd THEN
-  DO:
-    MESSAGE 'INVALID PASSWORD - TRY AGAIN' VIEW-AS ALERT-BOX.
-    ASSIGN
-      field_value = ''
-      h_field:SCREEN-VALUE = ''.
-    APPLY "entry" TO keystroke.
-    RETURN NO-APPLY.
-  END.
-  ASSIGN
-    field_value = ''
-    h_field:SCREEN-VALUE = ''.
-      
-  {methods/run_link.i "CONTAINER" "Change_Page" "(5)"}
-  
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel s-object
-ON CHOOSE OF Btn_Cancel IN FRAME F-Main /* CANCEL */
-DO:
-  ASSIGN
-    field_value = ''
-    h_field:SCREEN-VALUE = ''.
-  {methods/run_link.i "CONTAINER" "Change_Page" "(3)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME keystroke
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL keystroke s-object
 ON ANY-PRINTABLE OF keystroke IN FRAME F-Main /* PASSWORD */
@@ -248,10 +184,13 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
+
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{touch/pCreateINIObjects.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -356,6 +295,7 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN pCreateINIObjects ("AcceptPassword,Back").
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -389,6 +329,53 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {touch/localview.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClick s-object 
+PROCEDURE pClick :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcClick AS CHARACTER NO-UNDO.
+    
+    CASE ipcClick:
+        WHEN "AcceptPassword" THEN DO WITH FRAME {&FRAME-NAME}:
+            {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
+            {methods/run_link.i "CONTAINER" "Get_Value" "('employee_code',OUTPUT employee_code)"}
+            FIND FIRST employee NO-LOCK
+                 WHERE employee.company  EQ company_code
+                   AND employee.employee EQ employee_code
+                 NO-ERROR.
+            IF NOT AVAILABLE employee THEN RETURN.
+            IF field_value NE employee.passwd THEN DO:
+              MESSAGE 'INVALID PASSWORD - TRY AGAIN' VIEW-AS ALERT-BOX.
+              ASSIGN
+                field_value = ''
+                h_field:SCREEN-VALUE = ''
+                .
+              APPLY "entry" TO keystroke.
+              RETURN NO-APPLY.
+            END.
+            ASSIGN
+              field_value = ''
+              h_field:SCREEN-VALUE = ''
+              .                
+            {methods/run_link.i "CONTAINER" "Change_Page" "(5)"}
+        END.
+        WHEN "Back" THEN DO:
+            ASSIGN
+              field_value = ''
+              h_field:SCREEN-VALUE = ''
+              .
+            {methods/run_link.i "CONTAINER" "Change_Page" "(3)"}
+        END.
+    END CASE.
 
 END PROCEDURE.
 

@@ -28,11 +28,12 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
- DEFINE VARIABLE v-autopo-sec AS LOGICAL NO-UNDO.
- DEFINE VARIABLE v-access-close AS LOGICAL.
- DEFINE VARIABLE v-access-list AS CHARACTER.
- /* Check if authorized enter job */
-    
+DEFINE VARIABLE v-autopo-sec AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-access-close AS LOGICAL NO-UNDO.
+DEFINE VARIABLE v-access-list AS CHARACTER NO-UNDO.
+DEFINE VARIABLE cSort AS CHARACTER NO-UNDO INITIAL "Job".
+
+/* Check if authorized enter job */
 RUN methods/prgsecur.p
     (INPUT "TSEntJob",
      INPUT "ACCESS",
@@ -42,7 +43,8 @@ RUN methods/prgsecur.p
      OUTPUT v-autopo-sec,
      OUTPUT v-access-close,
      OUTPUT v-access-list).
-  
+
+&SCOPED-DEFINE PageNo 9
 {touch/touchdef.i}
 
 &Scoped-define BUTTON-INCLUDE JOBS
@@ -67,14 +69,13 @@ def temp-table tt-job field job-no like job.job-no
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Button-1 Btn_Button-6 ~
-Btn_Button-11 Btn_Button-16 Btn_Button-21 Btn_Button-26 Btn_schedule ~
-Btn_Close Btn_Button-2 Btn_Button-7 Btn_Button-12 Btn_Button-17 ~
-Btn_Button-22 Btn_Button-27 Btn_Job_List /*Btn_Enter_Job*/ Btn_Page_Up ~
-Btn_Page_Down Btn_Button-3 Btn_Button-8 Btn_Button-13 Btn_Button-18 ~
-Btn_Button-23 Btn_Button-28 Btn_First Btn_Last Btn_Button-4 Btn_Button-9 ~
-Btn_Button-14 Btn_Button-19 Btn_Button-24 Btn_Button-29 Btn_sort ~
-Btn_Button-5 Btn_Button-10 Btn_Button-15 Btn_Button-20 Btn_Button-25 ~
-Btn_Button-30 Btn_Cancel 
+Btn_Button-11 Btn_Button-16 Btn_Button-21 Btn_Button-26 Btn_Button-2 ~
+Btn_Button-7 Btn_Button-12 Btn_Button-17 Btn_Button-22 Btn_Button-27 ~
+Btn_Button-3 Btn_Button-8 Btn_Button-13 Btn_Button-18 Btn_Button-23 ~
+Btn_Button-28 Btn_Button-4 Btn_Button-9 Btn_Button-14 Btn_Button-19 ~
+Btn_Button-24 Btn_Button-29 Btn_Button-5 Btn_Button-10 Btn_Button-15 ~
+Btn_Button-20 Btn_Button-25 Btn_Button-30 
+&Scoped-Define DISPLAYED-OBJECTS sortBy 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -97,166 +98,128 @@ Btn_Button-30
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Button-1 
      LABEL "BUTTON1" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-10 
      LABEL "BUTTON10" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-11 
      LABEL "BUTTON11" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-12 
      LABEL "BUTTON12" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-13 
      LABEL "BUTTON13" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-14 
      LABEL "BUTTON14" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-15 
      LABEL "BUTTON15" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-16 
      LABEL "BUTTON16" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-17 
      LABEL "BUTTON17" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-18 
      LABEL "BUTTON18" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-19 
      LABEL "BUTTON19" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-2 
      LABEL "BUTTON2" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-20 
      LABEL "BUTTON20" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-21 
      LABEL "BUTTON21" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-22 
      LABEL "BUTTON22" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-23 
      LABEL "BUTTON23" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-24 
      LABEL "BUTTON24" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-25 
      LABEL "BUTTON25" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-26 
      LABEL "BUTTON26" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-27 
      LABEL "BUTTON27" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-28 
      LABEL "BUTTON28" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-29 
      LABEL "BUTTON29" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-3 
      LABEL "BUTTON3" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-30 
      LABEL "BUTTON30" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-4 
      LABEL "BUTTON4" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-5 
      LABEL "BUTTON5" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-6 
      LABEL "BUTTON6" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-7 
      LABEL "BUTTON7" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-8 
      LABEL "BUTTON8" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
 DEFINE BUTTON Btn_Button-9 
      LABEL "BUTTON9" 
-     SIZE 13 BY 2.38.
+     SIZE 14 BY 2.38.
 
-DEFINE BUTTON Btn_Cancel 
-     LABEL "CANCEL" 
-     SIZE 39 BY 1.67 TOOLTIP "CANCEL".
-
-DEFINE BUTTON Btn_Close 
-     IMAGE-UP FILE "images\exit-au":U
-     LABEL "CLOSE" 
-     SIZE 10 BY 2.38.
-
-DEFINE BUTTON Btn_Enter_Job 
-     LABEL "ENTER JOB" 
-     SIZE 20 BY 2.14 TOOLTIP "ENTER JOB".
-
-DEFINE BUTTON Btn_First 
-     LABEL "FIRST JOB" 
-     SIZE 19 BY 1.91 TOOLTIP "FIRST JOB".
-
-DEFINE BUTTON Btn_Job_List 
-     LABEL "JOB LIST" 
-     SIZE 19 BY 2.14 TOOLTIP "JOB LIST".
-
-DEFINE BUTTON Btn_Last 
-     LABEL "LAST JOB" 
-     SIZE 20 BY 1.91 TOOLTIP "LAST JOB".
-
-DEFINE BUTTON Btn_Page_Down 
-     IMAGE-UP FILE "images\pagedown":U
-     LABEL "Page Down" 
-     SIZE 20 BY 2.38 TOOLTIP "PAGE DOWN".
-
-DEFINE BUTTON Btn_Page_Up 
-     IMAGE-UP FILE "images\pageup":U
-     LABEL "Page Up" 
-     SIZE 19 BY 2.38 TOOLTIP "PAGE UP".
-
-DEFINE BUTTON Btn_schedule 
-     LABEL "SCHEDULE" 
-     SIZE 29 BY 2.38 TOOLTIP "SCHEDULE".
-
-DEFINE BUTTON Btn_sort 
-     LABEL "SORT / JOB" 
-     SIZE 39 BY 1.67 TOOLTIP "SORT / Job".
+DEFINE VARIABLE sortBy AS CHARACTER FORMAT "X(256)":U INITIAL "Sorted by Jobs" 
+      VIEW-AS TEXT 
+     SIZE 18.4 BY .52
+     BGCOLOR 14  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -272,45 +235,38 @@ DEFINE FRAME F-Main
      Btn_Button-16 AT ROW 1.71 COL 44
      Btn_Button-21 AT ROW 1.71 COL 58
      Btn_Button-26 AT ROW 1.71 COL 72
-     Btn_schedule AT ROW 1.71 COL 86
-     Btn_Close AT ROW 1.71 COL 115
      Btn_Button-2 AT ROW 4.1 COL 2
      Btn_Button-7 AT ROW 4.1 COL 16
      Btn_Button-12 AT ROW 4.1 COL 30
      Btn_Button-17 AT ROW 4.1 COL 44
      Btn_Button-22 AT ROW 4.1 COL 58
      Btn_Button-27 AT ROW 4.1 COL 72
-     Btn_Job_List AT ROW 4.1 COL 86
-     Btn_Enter_Job AT ROW 4.1 COL 105
-     Btn_Page_Up AT ROW 6.24 COL 86
-     Btn_Page_Down AT ROW 6.24 COL 105
      Btn_Button-3 AT ROW 6.48 COL 2
      Btn_Button-8 AT ROW 6.48 COL 16
      Btn_Button-13 AT ROW 6.48 COL 30
      Btn_Button-18 AT ROW 6.48 COL 44
      Btn_Button-23 AT ROW 6.48 COL 58
      Btn_Button-28 AT ROW 6.48 COL 72
-     Btn_First AT ROW 8.62 COL 86
-     Btn_Last AT ROW 8.62 COL 105
      Btn_Button-4 AT ROW 8.86 COL 2
      Btn_Button-9 AT ROW 8.86 COL 16
      Btn_Button-14 AT ROW 8.86 COL 30
      Btn_Button-19 AT ROW 8.86 COL 44
      Btn_Button-24 AT ROW 8.86 COL 58
      Btn_Button-29 AT ROW 8.86 COL 72
-     Btn_sort AT ROW 10.52 COL 86
      Btn_Button-5 AT ROW 11.24 COL 2
      Btn_Button-10 AT ROW 11.24 COL 16
      Btn_Button-15 AT ROW 11.24 COL 30
      Btn_Button-20 AT ROW 11.24 COL 44
      Btn_Button-25 AT ROW 11.24 COL 58
      Btn_Button-30 AT ROW 11.24 COL 72
-     Btn_Cancel AT ROW 12.19 COL 86
+     sortBy AT ROW 1.24 COL 65 COLON-ALIGNED NO-LABEL WIDGET-ID 4
+     "JOBS" VIEW-AS TEXT
+          SIZE 8 BY .52 AT ROW 1.24 COL 3 WIDGET-ID 2
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 7 FGCOLOR 15 FONT 6.
+         BGCOLOR 15 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -427,43 +383,8 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR BUTTON Btn_Button-9 IN FRAME F-Main
    1                                                                    */
-ASSIGN 
-       Btn_Cancel:PRIVATE-DATA IN FRAME F-Main     = 
-                "CANCEL".
-
-ASSIGN 
-       Btn_Enter_Job:PRIVATE-DATA IN FRAME F-Main     = 
-                "ENTER JOB".
-
-ASSIGN 
-       Btn_First:PRIVATE-DATA IN FRAME F-Main     = 
-                "FIRST JOB".
-
-ASSIGN 
-       Btn_Job_List:PRIVATE-DATA IN FRAME F-Main     = 
-                "JOB LIST".
-
-ASSIGN 
-       Btn_Last:PRIVATE-DATA IN FRAME F-Main     = 
-                "LAST JOB".
-
-ASSIGN 
-       Btn_Page_Down:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\pagedown.bmp".
-
-ASSIGN 
-       Btn_Page_Up:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\pageup.bmp".
-
-ASSIGN 
-       Btn_schedule:PRIVATE-DATA IN FRAME F-Main     = 
-                "SCHEDULE".
-
-ASSIGN 
-       Btn_sort:PRIVATE-DATA IN FRAME F-Main     = 
-                "SORT / JOB".
-
-
+/* SETTINGS FOR FILL-IN sortBy IN FRAME F-Main
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -813,130 +734,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel s-object
-ON CHOOSE OF Btn_Cancel IN FRAME F-Main /* CANCEL */
-DO:
-  {methods/run_link.i "CONTAINER" "Change_Page" "(5)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Close
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Close s-object
-ON CHOOSE OF Btn_Close IN FRAME F-Main /* CLOSE */
-DO:
-  {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Enter_Job
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Enter_Job s-object
-ON CHOOSE OF Btn_Enter_Job IN FRAME F-Main /* ENTER JOB */
-DO:
-  {methods/run_link.i "CONTAINER" "Change_Page" "(16)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_First
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_First s-object
-ON CHOOSE OF Btn_First IN FRAME F-Main /* FIRST JOB */
-DO:
-  button_item = 1.
-  RUN Button_Labels (INPUT-OUTPUT button_item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Job_List
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Job_List s-object
-ON CHOOSE OF Btn_Job_List IN FRAME F-Main /* JOB LIST */
-DO:
-  {methods/run_link.i "CONTAINER" "Change_Page" "(15)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Last
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Last s-object
-ON CHOOSE OF Btn_Last IN FRAME F-Main /* LAST JOB */
-DO:
-  button_item = NUM-ENTRIES(itemlist,'@') + 1.
-  RUN Button_Labels (INPUT-OUTPUT button_item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Page_Down
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Page_Down s-object
-ON CHOOSE OF Btn_Page_Down IN FRAME F-Main /* Page Down */
-DO:
-  RUN Button_Labels (INPUT-OUTPUT button_item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Page_Up
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Page_Up s-object
-ON CHOOSE OF Btn_Page_Up IN FRAME F-Main /* Page Up */
-DO:
-  button_item = button_item - 60.
-  RUN Button_Labels (INPUT-OUTPUT button_item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_schedule
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_schedule s-object
-ON CHOOSE OF Btn_schedule IN FRAME F-Main /* SCHEDULE */
-DO:
-  RUN schedule-proc.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_sort
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_sort s-object
-ON CHOOSE OF Btn_sort IN FRAME F-Main /* SORT / JOB */
-DO:
-  IF SELF:TOOLTIP = "SORT / JOB" THEN DO:
-     SELF:TOOLTIP = "SORT / START".
-     RUN Get_jobs ("Start").       
-  END.
-  ELSE DO:
-     SELF:TOOLTIP = "SORT / JOB".
-     RUN Get_jobs ("Job").       
-  END.
-  ASSIGN
-    SELF:LABEL = SELF:TOOLTIP
-    SELF:PRIVATE-DATA = SELF:TOOLTIP.
-  {touch/localview.i}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
@@ -944,20 +741,15 @@ END.
 
 /* ***************************  Main Block  *************************** */
  
-IF v-autopo-sec THEN do:
-    ASSIGN
-        Btn_Enter_Job:SENSITIVE IN FRAME F-Main         = YES .
-END.
-ELSE
-    ASSIGN 
-        Btn_Enter_Job:SENSITIVE IN FRAME F-Main         = NO .
-
+RUN pSetSensitive ("EnterJob",v-autopo-sec).
 
 /* If testing in the UIB, initialize the SmartObject. */ 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
   
+{touch/pCreateINIObjects.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1201,6 +993,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize s-object 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  DISPLAY sortBy WITH FRAME {&FRAME-NAME}.
+  RUN pCreateINIObjects
+    ("First,Last,HomeSmall,JobList,EnterJob,PageUpSmall,PageDownSmall,Schedule,Sort,BackSmall").
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view s-object 
 PROCEDURE local-view :
 /*------------------------------------------------------------------------------
@@ -1215,6 +1029,59 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {touch/localview.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClick s-object 
+PROCEDURE pClick :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcClick AS CHARACTER NO-UNDO.
+    
+    CASE ipcClick:
+        WHEN "HomeSmall" THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
+        END.
+        WHEN "PageUpSmall" THEN DO:
+            button_item = button_item - 60.
+            RUN Button_Labels (INPUT-OUTPUT button_item).
+        END.
+        WHEN "PageDownSmall" THEN DO:
+            RUN Button_Labels (INPUT-OUTPUT button_item).
+        END.
+        WHEN "First" THEN DO:
+            button_item = 1.
+            RUN Button_Labels (INPUT-OUTPUT button_item).
+        END.
+        WHEN "Last" THEN DO:
+            button_item = NUM-ENTRIES(itemlist,'@') + 1.
+            RUN Button_Labels (INPUT-OUTPUT button_item).
+        END.
+        WHEN "BackSmall" THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(5)"}
+        END.
+        WHEN "JobList" THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(15)"}
+        END.
+        WHEN "EnterJob" THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(16)"}
+        END.
+        WHEN "Schedule" THEN DO:
+            RUN schedule-proc.
+        END.
+        WHEN "Sort" THEN DO WITH FRAME {&FRAME-NAME}:
+            cSort = IF cSort EQ "Job" THEN "Start" ELSE "Job".
+            sortBy:SCREEN-VALUE = "Sorted by " + cSort.
+            RUN Get_jobs (cSort).
+            {touch/localview.i}
+        END.
+    END CASE.
 
 END PROCEDURE.
 

@@ -26,6 +26,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+&SCOPED-DEFINE PageNo 0
 {touch/touchdef.i}
 {custom/shftdefs.i}
 
@@ -104,7 +105,7 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartFrame
    Allow: Basic,Browse,DB-Fields,Query,Smart
-   Design Page: 14
+   Design Page: 1
    Other Settings: PERSISTENT-ONLY COMPILE
  */
 
@@ -123,7 +124,7 @@ END.
 &ANALYZE-SUSPEND _CREATE-WINDOW
 /* DESIGN Window definition (used by the UIB) 
   CREATE WINDOW F-Frame-Win ASSIGN
-         HEIGHT             = 13
+         HEIGHT             = 12.95
          WIDTH              = 124.
 /* END WINDOW DEFINITION */
                                                                         */
@@ -169,7 +170,6 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
-
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN
    /* Now enable the interface  if in test mode - otherwise this happens when
@@ -834,6 +834,8 @@ PROCEDURE Get_Value :
     field_value = employee_code.
     WHEN 'employee_name' THEN
     field_value = employee_name.
+    WHEN 'flag_list' THEN
+    field_value = flag_list.
     WHEN 'form_number' THEN
     field_value = form_number.
     WHEN 'item_number' THEN
@@ -1478,6 +1480,8 @@ PROCEDURE Set_Value :
     employee_code = field_value.
     WHEN 'employee_name' THEN
     employee_name = field_value.
+    WHEN 'flag_list' THEN
+    flag_list = field_value.
     WHEN 'form_number' THEN
     form_number = field_value.
     WHEN 'item_number' THEN
@@ -1503,7 +1507,8 @@ PROCEDURE Set_Value :
     WHEN 'pass_sequence' THEN
     pass_sequence = field_value.
     OTHERWISE
-    MESSAGE 'Set_Value:' set_field field_value VIEW-AS ALERT-BOX.
+    MESSAGE 'Set_Value:' set_field field_value
+    VIEW-AS ALERT-BOX TITLE "Case WHEN Missing in touch/touchfrm.w".
   END CASE.
 
 END PROCEDURE.

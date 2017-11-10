@@ -50,7 +50,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define ADM-CONTAINER WINDOW
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME F-Main
 
 /* Custom List Definitions                                              */
@@ -112,8 +112,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
-IF NOT W-Win:LOAD-ICON("adeicon/progress.ico":U) THEN
-    MESSAGE "Unable to load icon: adeicon/progress.ico"
+IF NOT W-Win:LOAD-ICON("Graphics/asiicon.ico":U) THEN
+    MESSAGE "Unable to load icon: Graphics/asiicon.ico"
             VIEW-AS ALERT-BOX WARNING BUTTONS OK.
 &ENDIF
 /* END WINDOW DEFINITION                                                */
@@ -136,7 +136,7 @@ IF NOT W-Win:LOAD-ICON("adeicon/progress.ico":U) THEN
 /* SETTINGS FOR WINDOW W-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME F-Main
-                                                                        */
+   FRAME-NAME                                                           */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(W-Win)
 THEN W-Win:HIDDEN = yes.
 
@@ -182,15 +182,6 @@ END.
 
 
 /* ***************************  Main Block  *************************** */
-/* This code for TRIALS
-if today ge 1/1/2001 then
-do:
-  message "Touch Screen Module has Timed Out." skip
-            "Please contact ASI at 215-369-1160." view-as alert-box error.
-  APPLY 'CLOSE' TO THIS-PROCEDURE.
-  quit.
-end.
-*/
 
 /* Include custom  Main Block code for SmartWindows. */
 {src/adm/template/windowmn.i}

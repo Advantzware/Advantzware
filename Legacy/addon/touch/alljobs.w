@@ -31,8 +31,8 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+&SCOPED-DEFINE PageNo 15
 {touch/touchdef.i}
-
 {custom/globdefs.i}
 
 DO TRANSACTION:
@@ -80,8 +80,7 @@ DEF TEMP-TABLE tt-job-list NO-UNDO
     ~{&OPEN-QUERY-BROWSE-2}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 BROWSE-2 keystroke Btn_Close ~
-Btn_One_Up Btn_Page_Up Btn_One_Down Btn_Page_Down Btn_Select Btn_Cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-1 BROWSE-2 keystroke 
 &Scoped-Define DISPLAYED-OBJECTS keystroke 
 
 /* Custom List Definitions                                              */
@@ -96,44 +95,11 @@ Btn_One_Up Btn_Page_Up Btn_One_Down Btn_Page_Down Btn_Select Btn_Cancel
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Cancel 
-     LABEL "CANCEL" 
-     SIZE 40 BY 2.38 TOOLTIP "CANCEL".
-
-DEFINE BUTTON Btn_Close 
-     IMAGE-UP FILE "images\exit-au":U
-     LABEL "CLOSE" 
-     SIZE 10 BY 2.38.
-
-DEFINE BUTTON Btn_One_Down 
-     IMAGE-UP FILE "images\onedown":U
-     LABEL "One Down" 
-     SIZE 40 BY 2.38 TOOLTIP "DOWN".
-
-DEFINE BUTTON Btn_One_Up 
-     IMAGE-UP FILE "images\oneup":U
-     LABEL "One Up" 
-     SIZE 40 BY 2.38 TOOLTIP "UP".
-
-DEFINE BUTTON Btn_Page_Down 
-     IMAGE-UP FILE "images\pagedown":U
-     LABEL "Page Down" 
-     SIZE 40 BY 2.38 TOOLTIP "PAGE DOWN".
-
-DEFINE BUTTON Btn_Page_Up 
-     IMAGE-UP FILE "images\pageup":U
-     LABEL "Page Up" 
-     SIZE 40 BY 2.38 TOOLTIP "PAGE UP".
-
-DEFINE BUTTON Btn_Select 
-     LABEL "SELECT JOB" 
-     SIZE 40 BY 2.38 TOOLTIP "SELECT JOB".
-
 DEFINE VARIABLE keystroke AS CHARACTER FORMAT "X(256)":U 
      LABEL "KEY VALUE" 
      VIEW-AS FILL-IN 
      SIZE 44 BY 1 TOOLTIP "KEY VALUE"
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -160,19 +126,12 @@ DEFINE BROWSE BROWSE-2
 
 DEFINE FRAME F-Main
      BROWSE-2 AT ROW 1.24 COL 2
-     keystroke AT ROW 1.24 COL 67 COLON-ALIGNED
-     Btn_Close AT ROW 1.24 COL 114
-     Btn_One_Up AT ROW 3.86 COL 43
-     Btn_Page_Up AT ROW 3.86 COL 84
-     Btn_One_Down AT ROW 7.67 COL 43
-     Btn_Page_Down AT ROW 7.67 COL 84
-     Btn_Select AT ROW 11.24 COL 43
-     Btn_Cancel AT ROW 11.24 COL 84
+     keystroke AT ROW 1.24 COL 65 COLON-ALIGNED
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 7 FGCOLOR 15 FONT 6.
+         BGCOLOR 15 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -231,30 +190,6 @@ ASSIGN
        FRAME F-Main:HIDDEN           = TRUE.
 
 ASSIGN 
-       Btn_Cancel:PRIVATE-DATA IN FRAME F-Main     = 
-                "CANCEL".
-
-ASSIGN 
-       Btn_One_Down:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\onedown.bmp".
-
-ASSIGN 
-       Btn_One_Up:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\oneup.bmp".
-
-ASSIGN 
-       Btn_Page_Down:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\pagedown.bmp".
-
-ASSIGN 
-       Btn_Page_Up:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\pageup.bmp".
-
-ASSIGN 
-       Btn_Select:PRIVATE-DATA IN FRAME F-Main     = 
-                "SELECT JOB".
-
-ASSIGN 
        keystroke:PRIVATE-DATA IN FRAME F-Main     = 
                 "KEY VALUE".
 
@@ -291,120 +226,7 @@ OPEN QUERY {&SELF-NAME} FOR EACH tt-job-list USE-INDEX job-idx ~{&SORTBY-PHRASE}
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 s-object
 ON MOUSE-SELECT-DBLCLICK OF BROWSE-2 IN FRAME F-Main
 DO:
-   APPLY "CHOOSE" TO Btn_Select IN FRAME {&FRAME-NAME}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel s-object
-ON CHOOSE OF Btn_Cancel IN FRAME F-Main /* CANCEL */
-DO:
-  {methods/run_link.i "CONTAINER" "Change_Page" "(9)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Close
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Close s-object
-ON CHOOSE OF Btn_Close IN FRAME F-Main /* CLOSE */
-DO:
-  {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_One_Down
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_One_Down s-object
-ON CHOOSE OF Btn_One_Down IN FRAME F-Main /* One Down */
-DO:
-  APPLY "CURSOR-DOWN":U TO BROWSE {&browse-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_One_Up
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_One_Up s-object
-ON CHOOSE OF Btn_One_Up IN FRAME F-Main /* One Up */
-DO:
-  APPLY "CURSOR-UP":U TO BROWSE {&browse-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Page_Down
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Page_Down s-object
-ON CHOOSE OF Btn_Page_Down IN FRAME F-Main /* Page Down */
-DO:
-  APPLY "PAGE-DOWN":U TO BROWSE {&browse-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Page_Up
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Page_Up s-object
-ON CHOOSE OF Btn_Page_Up IN FRAME F-Main /* Page Up */
-DO:
-  APPLY "PAGE-UP":U TO BROWSE {&browse-name}.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Select
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Select s-object
-ON CHOOSE OF Btn_Select IN FRAME F-Main /* SELECT JOB */
-DO:
-  IF AVAIL tt-job-list THEN
-  DO:
-    job# = FILL(' ',6 - LENGTH(tt-job-list.job-no)) + tt-job-list.job-no + "-" + STRING(tt-job-list.job-no2).
-   
-    /* ============ check po whether on hold or release */
-    IF AVAIL tt-job-list THEN
-       find first job where job.company = company_code and
-            job.job-no =  tt-job-list.job-no AND
-            job.job-no2 = tt-job-list.job-no2                               
-            no-lock no-error.
-   
-    if avail job and job.stat = "H" then do:
-       message "JOB ON HOLD. DO NOT PROCEED!"  view-as alert-box.
-       RELEASE job.
-       return.
-    end.
-    DEF BUFFER bf-machtran FOR machtran.
-    FIND FIRST bf-machtran NO-LOCK WHERE bf-machtran.company = company_code 
-                         AND bf-machtran.machine = machine_code 
-                         AND (bf-machtran.job_number NE tt-job-list.job-no
-                             OR bf-machtran.job_sub NE tt-job-list.job-no2 )
-                         AND bf-machtran.END_date = ?
-                         AND bf-machtran.end_time = 0 
-                         AND bf-machtran.TOTAL_time = 0
-                         NO-ERROR.
-    IF AVAIL bf-machtran THEN do:
-       MESSAGE "Job " + trim(bf-machtran.job_number) + "-" + TRIM(string(bf-machtran.job_sub,"99")) +
-               " has data collection transaction started. You must end that job's operation before selecting a new job."
-               VIEW-AS ALERT-BOX ERROR.
-       RELEASE job.
-       RETURN .
-    END.
-    /* ===================*/
-   
-    {methods/run_link.i "CONTAINER" "Set_Value" "('job#',job#)"}
-    {methods/run_link.i "CONTAINER" "Change_Page" "(10)"}
-  END.
+    RUN pClick ("SelectJob").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -435,10 +257,13 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
+
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{touch/pCreateINIObjects.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -599,6 +424,7 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN pCreateINIObjects ("HomeSmall,Up,PageUp,Down,PageDown,SelectJob,Back").
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -606,6 +432,7 @@ PROCEDURE local-initialize :
   /* Code placed here will execute AFTER standard behavior.    */
   IF tskey-log EQ NO THEN
      keystroke:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -625,6 +452,78 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {touch/localview.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClick s-object 
+PROCEDURE pClick :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcClick AS CHARACTER NO-UNDO.
+    
+    CASE ipcClick:
+        WHEN "HomeSmall" THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
+        END.
+        WHEN "Up" THEN DO:
+            APPLY "CURSOR-UP":U TO BROWSE {&BROWSE-NAME}.
+        END.
+        WHEN "PageUp" THEN DO:
+            APPLY "PAGE-UP":U TO BROWSE {&BROWSE-NAME}.
+        END.
+        WHEN "Down" THEN DO:
+            APPLY "CURSOR-DOWN":U TO BROWSE {&BROWSE-NAME}.
+        END.
+        WHEN "PageDown" THEN DO:
+            APPLY "PAGE-DOWN":U TO BROWSE {&BROWSE-NAME}.
+        END.
+        WHEN "SelectJob" THEN DO:
+            IF AVAIL tt-job-list THEN DO:
+              job# = FILL(' ',6 - LENGTH(tt-job-list.job-no)) + tt-job-list.job-no + "-" + STRING(tt-job-list.job-no2).             
+              /* ============ check po whether on hold or release */
+              IF AVAIL tt-job-list THEN
+              FIND FIRST job NO-LOCK
+                   WHERE job.company EQ company_code
+                     AND job.job-no  EQ tt-job-list.job-no
+                     AND job.job-no2 EQ tt-job-list.job-no2                               
+                   NO-ERROR.
+              IF AVAIL job AND job.stat EQ "H" THEN DO:
+                 MESSAGE "JOB ON HOLD. DO NOT PROCEED!" VIEW-AS ALERT-BOX.
+                 RELEASE job.
+                 RETURN.
+              END.
+              DEF BUFFER bf-machtran FOR machtran.
+              FIND FIRST bf-machtran NO-LOCK
+                   WHERE bf-machtran.company     EQ company_code 
+                     AND bf-machtran.machine     EQ machine_code 
+                     AND (bf-machtran.job_number NE tt-job-list.job-no
+                      OR bf-machtran.job_sub     NE tt-job-list.job-no2)
+                     AND bf-machtran.end_date    EQ ?
+                     AND bf-machtran.end_time    EQ 0 
+                     AND bf-machtran.total_time  EQ 0
+                   NO-ERROR.
+              IF AVAIL bf-machtran THEN do:
+                 MESSAGE "Job " + trim(bf-machtran.job_number) + "-" + TRIM(string(bf-machtran.job_sub,"99")) +
+                         " has data collection transaction started. You must end that job's operation before selecting a new job."
+                         VIEW-AS ALERT-BOX ERROR.
+                 RELEASE job.
+                 RETURN .
+              END.
+              /* ===================*/             
+              {methods/run_link.i "CONTAINER" "Set_Value" "('job#',job#)"}
+              {methods/run_link.i "CONTAINER" "Change_Page" "(10)"}
+            END.
+        END.
+        WHEN "Back" THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(9)"}
+        END.
+    END CASE.
 
 END PROCEDURE.
 

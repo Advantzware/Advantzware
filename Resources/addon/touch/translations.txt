@@ -1,10 +1,13 @@
 English,Espanol
+Graphics\32x32\usa_32.ico,Graphics\32x32\mexico_32.ico
 Accept Entry,Acepte la Entrada
 Accept Password,Acepta Contrasena
 Alpha,Alpha
+Back,Atrás
 Backspace,Tecla de Retroceso
 Blank,Blanco
 Blank Number,Blanco
+Boxes,Cajas
 Browse Trans,Hojear Trans
 Cancel,Cancelacion
 Caps Lock,Cerradura de Casquillos
@@ -17,6 +20,7 @@ Company,Compania
 Complete,Completo
 Complete?,Completo?
 Completed?,Completo?
+Down,Abajo
 Employee,Empleado
 Employee Status,Condicion de Empleado
 End Date,Dia de Termino
@@ -33,10 +37,13 @@ First Job,Primer Trabajo
 First Pass,Primer Paso
 Form,Forma
 Form Number,Forma
+Home,Casa
 Hour,Hora
 Item Number,Numero de Articulo
 Job,Trabajo
-Job Data Collection,Coleccion de Informacion del Trabajo
+Job Card,Tarjeta de trabajo
+Job Checklist,Lista de tareas
+Data Collection,Coleccion de Informacion
 Job List,Lista de Trabajo
 Job Number,Trabajo
 Key Value,Valor Dominante
@@ -53,6 +60,8 @@ Machine,Maquina
 Machine Status,Condicion de Maquina
 Main Menu,Menú Principal
 Minute,Minuto
+Page Down,Página Abajo
+Page Up,Página Arriba
 Pass,Pase
 Pass Number,Numero de Pase
 Password,Contrasena
@@ -81,6 +90,7 @@ Total,Total
 Total Time,Tiempo Total
 Total Run,Cantidad Total
 Touch Screen,Pantalla del Tacto
+Up,Hasta
 Verify Entries,Verifique las Entradas
 Verify Job Number,Verifique el Numero de Trabajo
 View Tran,Ver Tran
