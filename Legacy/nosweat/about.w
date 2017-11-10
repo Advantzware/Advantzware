@@ -62,8 +62,8 @@ DEFINE VARIABLE cWorkDir     AS CHARACTER NO-UNDO.
 userControl.maxSessionsPerUser 
 &Scoped-define ENABLED-TABLES userControl
 &Scoped-define FIRST-ENABLED-TABLE userControl
-&Scoped-Define ENABLED-OBJECTS btnProperties userScreen btnSave screenImage ~
-properties autoMaximize winSize currentUsers 
+&Scoped-Define ENABLED-OBJECTS btnProperties userScreen screenImage ~
+properties btnSave autoMaximize winSize currentUsers 
 &Scoped-Define DISPLAYED-FIELDS userControl.maxAllowedUsers ~
 userControl.maxSessionsPerUser 
 &Scoped-define DISPLAYED-TABLES userControl
@@ -177,8 +177,8 @@ DEFINE VARIABLE autoMaximize AS LOGICAL INITIAL no
 
 DEFINE FRAME Dialog-Frame
      btnProperties AT ROW 1.24 COL 69 WIDGET-ID 42
-     btnSave AT ROW 23.38 COL 61
      properties AT ROW 1 COL 77 NO-LABEL WIDGET-ID 38
+     btnSave AT ROW 23.38 COL 61
      autoMaximize AT ROW 8.86 COL 9 WIDGET-ID 2
      winSize AT ROW 21 COL 9 NO-LABEL WIDGET-ID 8
      physical_file AT ROW 1.24 COL 23 COLON-ALIGNED
@@ -194,11 +194,11 @@ DEFINE FRAME Dialog-Frame
           SIZE 5.6 BY .62
           FGCOLOR 2 
      currentUsers AT ROW 7.43 COL 36 COLON-ALIGNED WIDGET-ID 44
-     "NOTE: screen scaling applies to all modules" VIEW-AS TEXT
-          SIZE 42 BY .81 AT ROW 23.86 COL 18 WIDGET-ID 18
-          FONT 4
      "(value change requires a close/reopen)" VIEW-AS TEXT
           SIZE 38 BY .81 AT ROW 8.86 COL 30 WIDGET-ID 4
+          FONT 4
+     "NOTE: screen scaling applies to all modules" VIEW-AS TEXT
+          SIZE 42 BY .81 AT ROW 23.86 COL 18 WIDGET-ID 18
           FONT 4
      IMAGE-1 AT ROW 1.24 COL 2
      RECT-1 AT ROW 4.1 COL 9
@@ -498,7 +498,7 @@ PROCEDURE enable_UI :
   IF AVAILABLE userControl THEN 
     DISPLAY userControl.maxAllowedUsers userControl.maxSessionsPerUser 
       WITH FRAME Dialog-Frame.
-  ENABLE btnProperties userScreen btnSave screenImage properties autoMaximize 
+  ENABLE btnProperties userScreen screenImage properties btnSave autoMaximize 
          winSize userControl.maxAllowedUsers userControl.maxSessionsPerUser 
          currentUsers 
       WITH FRAME Dialog-Frame.
@@ -674,7 +674,7 @@ PROCEDURE pProperties :
         
         ASSIGN
             idx = 0
-            properties:SCREEN-VALUE = "[Key NK1 Settings]" + CHR(10)
+            properties:SCREEN-VALUE = "[Settings]" + CHR(10)
             .
         DO WHILE TRUE:
             /* get nk1 code name from about.ini */
@@ -716,9 +716,9 @@ PROCEDURE pProperties :
         END. /* do idx */
         /* show progress version */
         properties:SCREEN-VALUE = properties:SCREEN-VALUE + CHR(10) + CHR(10)
-                                + "[Progress Version]" + CHR(10)
+                                + "[Database Version]" + CHR(10)
                                 + FILL(" ",5) + cVersion + CHR(10) + CHR(10)
-                                + "[ProPath]"
+                                + "[Start in Location]"
                                 .
         /* show propath but not any progress directories */
         DO idx = 1 TO NUM-ENTRIES(PROPATH):
