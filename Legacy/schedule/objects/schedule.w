@@ -613,17 +613,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnHelp W-Win
 ON CHOOSE OF btnHelp IN FRAME schedulerFrame
 DO:
-  &IF "{&Board}" EQ "Pro" &THEN
   IF SEARCH("{&startDir}\sbProDoc.docx") NE ? THEN
   OS-COMMAND NO-WAIT VALUE(SEARCH("{&startDir}\sbProDoc.docx")).
   ELSE IF SEARCH("{&startDir}\sbProDoc.doc") NE ? THEN
   OS-COMMAND NO-WAIT VALUE(SEARCH("{&startDir}\sbProDoc.doc")).
-  &ELSEIF "{&Board}" EQ "View" &THEN
-  IF SEARCH("{&startDir}\sbViewDoc.docx") NE ? THEN
-  OS-COMMAND NO-WAIT VALUE(SEARCH("{&startDir}\sbViewDoc.docx")).
-  ELSE IF SEARCH("{&startDir}\sbViewDoc.doc") NE ? THEN
-  OS-COMMAND NO-WAIT VALUE(SEARCH("{&startDir}\sbViewDoc.doc")).
-  &ENDIF
   ELSE MESSAGE "Schedule Board Documentation Not Available" VIEW-AS ALERT-BOX.
 END.
 
