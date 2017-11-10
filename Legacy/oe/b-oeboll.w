@@ -1978,13 +1978,8 @@ PROCEDURE local-create-record :
 
     IF lv-copy-lot-no NE "" THEN
     DO:
-       CREATE reftable.
-       ASSIGN
-          reftable.reftable = "oe-boll.lot-no"
-          reftable.rec_key  =  oe-boll.rec_key
-          reftable.CODE     = lv-copy-lot-no.
-
-       RELEASE reftable.
+       
+       ASSIGN oe-boll.lot-no = lv-copy-lot-no.
 
        lv-copy-lot-no = "".
     END.
@@ -3708,15 +3703,7 @@ FUNCTION get-lot-no RETURNS CHARACTER
 ------------------------------------------------------------------------------*/
   DEF VAR v-lot-no AS CHAR NO-UNDO.
 
-  FOR EACH reftable 
-      WHERE reftable.reftable EQ "oe-boll.lot-no" 
-        AND reftable.rec_key EQ STRING(RECID(oe-boll))
-      USE-INDEX rec_key NO-LOCK :
-
-      v-lot-no = reftable.CODE.
-      LEAVE.
-  END.
-
+      v-lot-no = oe-boll.lot-no.
   RETURN v-lot-no.   /* Function return value. */
 
 END FUNCTION.

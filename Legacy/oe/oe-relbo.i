@@ -402,23 +402,13 @@ DO bo-try = 1 TO 2:
        oe-rel.ship-city    = shipto.ship-city
        oe-rel.ship-state   = shipto.ship-state
        oe-rel.ship-zip     = shipto.ship-zip.
-     
-    FIND FIRST b-reftable2 WHERE
-         b-reftable2.reftable EQ "oe-boll.lot-no" AND
-         b-reftable2.rec_key  EQ oe-boll.rec_key
-         USE-INDEX rec_key
-         NO-LOCK NO-ERROR.
-
-    IF AVAIL b-reftable2 THEN
-    DO:
-       ASSIGN
-/*            v-new-lot-code = b-reftable2.CODE  */
-           v-new-frt-pay  = b-reftable2.code2
-           v-new-fob-code = b-reftable2.dscr.
-       IF v-new-lot-code EQ '' AND b-reftable2.CODE NE '' THEN
-           v-new-lot-code = b-reftable2.CODE.
-       RELEASE b-reftable2.
-    END.
+         
+       ASSIGN 
+           v-new-frt-pay = oe-boll.frt-pay
+           v-new-fob-code = oe-boll.fob-code
+           .
+       IF v-new-lot-code EQ '' AND oe-boll.lot-no NE '' THEN
+           v-new-lot-code = oe-boll.lot-no.
 
     FIND FIRST b-reftable2 WHERE
          b-reftable2.reftable EQ "oe-boll.sell-price" AND
