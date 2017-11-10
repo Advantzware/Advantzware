@@ -166,7 +166,7 @@ DEFINE BROWSE Browser-Table
       item.i-name FORMAT "x(30)":U LABEL-BGCOLOR 14
       item.i-dscr COLUMN-LABEL "Description" FORMAT "x(30)":U LABEL-BGCOLOR 14
       item.i-code COLUMN-LABEL "Real?" FORMAT "X":U WIDTH 6
-      item.mat-type COLUMN-LABEL "Mat l!Type" FORMAT "X":U LABEL-BGCOLOR 14
+      item.mat-type COLUMN-LABEL "Matl!Type" FORMAT "X":U LABEL-BGCOLOR 14
       item.procat COLUMN-LABEL "Catgy" FORMAT "x(5)":U LABEL-BGCOLOR 14
       item.cost-type COLUMN-LABEL "CType" FORMAT "XXX":U LABEL-BGCOLOR 14
       item.q-onh COLUMN-LABEL "Qty On Hand" FORMAT "->>>,>>>,>>9.99":U
