@@ -1006,7 +1006,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.board V-table-Win
 ON ENTRY OF ef.board IN FRAME Corr /* Board */
 DO:
-  RUN check-flute-test-change.
+  /*RUN check-flute-test-change.*/
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3724,7 +3724,7 @@ PROCEDURE local-update-record :
   RUN valid-fi_from-est-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
-  RUN check-flute-test-change.
+ /* RUN check-flute-test-change.*/
 
     /* ==== Corrugated item validation ======== */
      ASSIGN
