@@ -1424,23 +1424,14 @@ for each tt-report where tt-report.term-id eq "",
 
       if v-dscr eq "" then v-dscr = quoteitm.part-no.
 
-      if not first(quoteitm.part-no) then put skip(1).
-
-      /*display quotehd.q-no
-              quotehd.est-no
-              quotehd.billto[1]
-              v-dscr
-              quotehd.quo-date
-              sman.sname when avail sman
-              v-ext.
-
-      put skip(1)
-          "    Qty     Price/M      Cost/M         GP$      GP%"
-          space(5)
-          v-cst-hdr
-          skip. */
+    /*  if not first(quoteitm.part-no) then put skip(1).*/
 
     end.
+    assign
+     v-gp$ = v-price - v-cost
+     v-gp% = v-gp$ / v-price * 100.
+
+    if v-gp% eq ? then v-gp% = 0.
 
      ASSIGN cDisplay = ""                                                              
                    cTmpField = ""                                                      
@@ -1451,14 +1442,14 @@ for each tt-report where tt-report.term-id eq "",
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "quot"              THEN cVarValue = if first-of(quoteitm.part-no) THEN string(quotehd.q-no)  ELSE "".
-                         WHEN "est"          THEN cVarValue = if first-of(quoteitm.part-no) THEN string(quotehd.est-no) ELSE "".
-                         WHEN "cust"             THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(quotehd.billto[1]) ELSE "".
-                         WHEN "part"               THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(v-dscr)  ELSE "".
-                         WHEN "date"             THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(quotehd.quo-date)  ELSE "".
-                         WHEN "rep"                  THEN cVarValue = if first-of(quoteitm.part-no) AND AVAIL sman THEN STRING(sman.sname)  ELSE "".
-                         WHEN "ext-price"     THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(v-ext[1],">>>,>>>,>>9.99")  ELSE "" .
-                         WHEN "ext-cost"             THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(v-ext[2],">>>,>>>,>>9.99")  ELSE "" .
+                         WHEN "quot"              THEN cVarValue = string(quotehd.q-no).
+                         WHEN "est"          THEN cVarValue = string(quotehd.est-no).
+                         WHEN "cust"             THEN cVarValue = STRING(quotehd.billto[1]).
+                         WHEN "part"               THEN cVarValue = STRING(v-dscr).
+                         WHEN "date"             THEN cVarValue = IF quotehd.quo-date <> ? THEN STRING(quotehd.quo-date) ELSE "".
+                         WHEN "rep"                  THEN cVarValue = if AVAIL sman THEN STRING(sman.sname) ELSE "".
+                         WHEN "ext-price"     THEN cVarValue = STRING(v-ext[1],">>>,>>>,>>9.99") .
+                         WHEN "ext-cost"             THEN cVarValue = STRING(v-ext[2],">>>,>>>,>>9.99").
                          WHEN "qty"              THEN cVarValue = STRING(quoteqty.qty,">>>>>>9") .
                          WHEN "price"                THEN cVarValue = STRING(v-price,">>>,>>9.99") .
                          WHEN "cost"                 THEN cVarValue = STRING(v-cost,">>>,>>9.99") .
@@ -1468,8 +1459,6 @@ for each tt-report where tt-report.term-id eq "",
                          WHEN "dl"               THEN cVarValue = STRING(quoteqty.lab-cost,"->>>,>>9.99<<<") .
                          WHEN "bo"                   THEN cVarValue = STRING(quoteqty.vo-cost,"->>>,>>9.99<<<") .
                          WHEN "fo"               THEN cVarValue = STRING(quoteqty.fo-cost,"->>>,>>9.99<<<") .
-
-
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1482,35 +1471,10 @@ for each tt-report where tt-report.term-id eq "",
             IF tb_excel THEN DO:
                  PUT STREAM excel UNFORMATTED  
                        cExcelDisplay SKIP.
-             END.   
+             END. 
+  
 
-    assign
-     v-gp$ = v-price - v-cost
-     v-gp% = v-gp$ / v-price * 100.
-
-    if v-gp% eq ? then v-gp% = 0.
-
-  /*  put quoteqty.qty
-        space(2)
-        v-price  format ">>>,>>9.99"
-        space(2)
-        v-cost
-        space(2)
-        v-gp$
-        space(2)
-        v-gp%
-        space(15).
-
-    if v-cst then
-      put quoteqty.mat-cost
-          space(2)
-          quoteqty.lab-cost
-          space(2)
-          quoteqty.vo-cost
-          space(2)
-          quoteqty.fo-cost. */
-
-    put skip.
+   /* put skip.*/
 
     /* gdm - 10130805 */
    /* IF tb_excel THEN DO:
@@ -1571,7 +1535,7 @@ for each tt-report where tt-report.term-id eq "",
           and quotechg.qty eq quoteqty.qty
         break by quotechg.charge:
 
-      if first(quotechg.charge) then put skip(1).
+      if first(quotechg.charge) then /*put skip(1)*/.
 
       if (quotechg.labf ne 0 or  quotechg.labm ne 0) and
          (quotechg.matf eq 0 and quotechg.matm eq 0) then
@@ -1587,15 +1551,15 @@ for each tt-report where tt-report.term-id eq "",
       else
         v-misc = "".
 
-      put space(40)
+     /* put space(40)
           v-misc
           quotechg.charge
           space(43)
           quotechg.amt
-          skip.
+          skip.*/
 
       /* gdm - 10130805 */
-      IF tb_excel THEN DO:
+    /*  IF tb_excel THEN DO:
 
           IF FIRST(quotechg.charge) THEN DO:
               PUT STREAM excel UNFORMATTED
@@ -1622,9 +1586,9 @@ for each tt-report where tt-report.term-id eq "",
                     '"' quotechg.amt    '"'
                    SKIP.*/
           END.
-      END. 
+      END. */
 
-      if last(quotechg.charge) then put skip(1). 
+    /*  if last(quotechg.charge) then put skip(1). */
 
     end.
 
