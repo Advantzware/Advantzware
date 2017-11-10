@@ -31,4 +31,31 @@ DEFINE VARIABLE machtran-rowid AS ROWID NO-UNDO.
 DEFINE VARIABLE h_w-mchtrn AS WIDGET-HANDLE NO-UNDO.
 DEFINE VARIABLE label_language AS CHARACTER NO-UNDO.
 DEFINE VARIABLE language_list AS CHARACTER NO-UNDO.
-DEFINE VARIABLE machine_list AS cha NO-UNDO.   /* task# 08030510*/
+DEFINE VARIABLE flag_list AS CHARACTER NO-UNDO.
+DEFINE VARIABLE machine_list AS CHARACTER NO-UNDO.
+
+DEFINE TEMP-TABLE ttTriggers NO-UNDO
+    FIELD triggerName AS CHARACTER
+    FIELD hRectangle AS HANDLE
+    FIELD hEditor AS HANDLE
+    FIELD hImage AS HANDLE
+        INDEX ttTriggers IS PRIMARY triggerName
+        .
+
+DELETE WIDGET-POOL "TouchPool{&PageNo}" NO-ERROR.
+CREATE WIDGET-POOL "TouchPool{&PageNo}".
+
+FUNCTION fGetKeyValue RETURNS CHARACTER
+  (ipcSection AS CHARACTER, ipcKey AS CHARACTER) :
+/*------------------------------------------------------------------------------
+  Purpose:  
+    Notes:  
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE cValue AS CHARACTER NO-UNDO.
+    
+    GET-KEY-VALUE SECTION ipcSection
+        KEY ipcKey
+        VALUE cValue.
+    RETURN cValue.
+
+END FUNCTION.

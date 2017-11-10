@@ -29,9 +29,12 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
-{touch/touchdef.i}
+DEFINE VARIABLE lVerifyJob AS LOGICAL NO-UNDO.
 
+&SCOPED-DEFINE PageNo 16
+{touch/touchdef.i}
 {custom/globdefs.i}
+
 DO TRANSACTION:
    {sys/inc/tskey.i}
 END.
@@ -51,7 +54,7 @@ END.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Close Btn_Accept Btn_Cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-1 
 &Scoped-Define DISPLAYED-OBJECTS job_# form_# blank_# pass_# item_# ~
 item_name 
 
@@ -79,68 +82,55 @@ FUNCTION actual-entered RETURNS LOGICAL
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Accept 
-     LABEL "VERIFY JOB NUMBER" 
-     SIZE 40 BY 2.38 TOOLTIP "VERIFY JOB NUMBER".
-
 DEFINE BUTTON Btn_Blank_# 
-     LABEL "BLANK NUMBER" 
-     SIZE 21 BY 1.67 TOOLTIP "BLANK NUMBER".
-
-DEFINE BUTTON Btn_Cancel 
-     LABEL "CANCEL" 
-     SIZE 40 BY 2.38 TOOLTIP "CANCEL".
-
-DEFINE BUTTON Btn_Close 
-     IMAGE-UP FILE "images\exit-au":U
-     LABEL "CLOSE" 
-     SIZE 10 BY 2.38.
+     LABEL "Blank Number" 
+     SIZE 23 BY 1.67 TOOLTIP "BLANK NUMBER".
 
 DEFINE BUTTON Btn_Form_# 
-     LABEL "FORM NUMBER" 
-     SIZE 21 BY 1.67 TOOLTIP "FORM NUMBER".
+     LABEL "Form Number" 
+     SIZE 23 BY 1.67 TOOLTIP "FORM NUMBER".
 
 DEFINE BUTTON Btn_Item_# 
-     LABEL "ITEM NUMBER" 
-     SIZE 21 BY 1.67 TOOLTIP "ITEM NUMBER".
+     LABEL "Item Number" 
+     SIZE 23 BY 1.67 TOOLTIP "ITEM NUMBER".
 
 DEFINE BUTTON Btn_Job_# 
-     LABEL "JOB NUMBER" 
-     SIZE 21 BY 1.67 TOOLTIP "JOB NUMBER".
+     LABEL "Job Number" 
+     SIZE 23 BY 1.67 TOOLTIP "JOB NUMBER".
 
 DEFINE BUTTON Btn_Pass_# 
-     LABEL "PASS NUMBER" 
-     SIZE 21 BY 1.67 TOOLTIP "PASS NUMBER".
+     LABEL "Pass Number" 
+     SIZE 23 BY 1.67 TOOLTIP "PASS NUMBER".
 
 DEFINE VARIABLE blank_# AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 8 BY 1
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE form_# AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 8 BY 1
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE item_# AS CHARACTER FORMAT "X(15)":U 
      VIEW-AS FILL-IN 
      SIZE 40 BY 1
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE item_name AS CHARACTER FORMAT "X(30)":U 
      VIEW-AS FILL-IN 
      SIZE 46 BY 1
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE job_# AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 21 BY 1
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE VARIABLE pass_# AS CHARACTER FORMAT "X(256)":U 
      VIEW-AS FILL-IN 
      SIZE 8 BY 1
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -150,25 +140,22 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Btn_Job_# AT ROW 1.48 COL 9
-     job_# AT ROW 1.71 COL 29 COLON-ALIGNED NO-LABEL
-     Btn_Close AT ROW 1.71 COL 114
-     Btn_Form_# AT ROW 3.38 COL 9
-     form_# AT ROW 3.62 COL 29 COLON-ALIGNED NO-LABEL
-     Btn_Blank_# AT ROW 5.29 COL 9
-     blank_# AT ROW 5.52 COL 29 COLON-ALIGNED NO-LABEL
-     Btn_Pass_# AT ROW 7.19 COL 9
-     pass_# AT ROW 7.43 COL 29 COLON-ALIGNED NO-LABEL
-     Btn_Item_# AT ROW 9.1 COL 9
-     item_# AT ROW 9.33 COL 29 COLON-ALIGNED NO-LABEL
-     item_name AT ROW 9.33 COL 70 COLON-ALIGNED NO-LABEL
-     Btn_Accept AT ROW 11.24 COL 19
-     Btn_Cancel AT ROW 11.24 COL 60
+     Btn_Job_# AT ROW 1.24 COL 7
+     job_# AT ROW 1.48 COL 29 COLON-ALIGNED NO-LABEL
+     Btn_Form_# AT ROW 3.14 COL 7
+     form_# AT ROW 3.38 COL 29 COLON-ALIGNED NO-LABEL
+     Btn_Blank_# AT ROW 5.05 COL 7
+     blank_# AT ROW 5.29 COL 29 COLON-ALIGNED NO-LABEL
+     Btn_Pass_# AT ROW 6.95 COL 7
+     pass_# AT ROW 7.19 COL 29 COLON-ALIGNED NO-LABEL
+     Btn_Item_# AT ROW 8.86 COL 7
+     item_# AT ROW 9.1 COL 29 COLON-ALIGNED NO-LABEL
+     item_name AT ROW 9.1 COL 70 COLON-ALIGNED NO-LABEL
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 7 FGCOLOR 15 FONT 6.
+         BGCOLOR 15 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -227,43 +214,35 @@ ASSIGN
 
 /* SETTINGS FOR FILL-IN blank_# IN FRAME F-Main
    NO-ENABLE 1                                                          */
-ASSIGN 
-       Btn_Accept:PRIVATE-DATA IN FRAME F-Main     = 
-                "VERIFY JOB NUMBER".
-
 /* SETTINGS FOR BUTTON Btn_Blank_# IN FRAME F-Main
    NO-ENABLE 2                                                          */
 ASSIGN 
        Btn_Blank_#:PRIVATE-DATA IN FRAME F-Main     = 
-                "BLANK NUMBER".
-
-ASSIGN 
-       Btn_Cancel:PRIVATE-DATA IN FRAME F-Main     = 
-                "CANCEL".
+                "Blank Number".
 
 /* SETTINGS FOR BUTTON Btn_Form_# IN FRAME F-Main
    NO-ENABLE 2                                                          */
 ASSIGN 
        Btn_Form_#:PRIVATE-DATA IN FRAME F-Main     = 
-                "FORM NUMBER".
+                "Form Number".
 
 /* SETTINGS FOR BUTTON Btn_Item_# IN FRAME F-Main
    NO-ENABLE 2                                                          */
 ASSIGN 
        Btn_Item_#:PRIVATE-DATA IN FRAME F-Main     = 
-                "ITEM NUMBER".
+                "Item Number".
 
 /* SETTINGS FOR BUTTON Btn_Job_# IN FRAME F-Main
    NO-ENABLE 2                                                          */
 ASSIGN 
        Btn_Job_#:PRIVATE-DATA IN FRAME F-Main     = 
-                "JOB NUMBER".
+                "Job Number".
 
 /* SETTINGS FOR BUTTON Btn_Pass_# IN FRAME F-Main
    NO-ENABLE 2                                                          */
 ASSIGN 
        Btn_Pass_#:PRIVATE-DATA IN FRAME F-Main     = 
-                "PASS NUMBER".
+                "Pass Number".
 
 /* SETTINGS FOR FILL-IN form_# IN FRAME F-Main
    NO-ENABLE 1                                                          */
@@ -294,28 +273,9 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME Btn_Accept
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Accept s-object
-ON CHOOSE OF Btn_Accept IN FRAME F-Main /* VERIFY JOB NUMBER */
-DO:
-  ASSIGN {&ENTRY-FIELDS}.
-  CASE {&SELF-NAME}:LABEL:
-    WHEN 'VERIFY JOB NUMBER' OR WHEN 'Verifique el Numero de Trabajo' THEN
-    RUN Verify_Job.
-    OTHERWISE
-    RUN Verify_Entries.
-  END CASE.
-  
-
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME Btn_Blank_#
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Blank_# s-object
-ON CHOOSE OF Btn_Blank_# IN FRAME F-Main /* BLANK NUMBER */
+ON CHOOSE OF Btn_Blank_# IN FRAME F-Main /* Blank Number */
 DO:
   RUN Reset_Field_Colors.
   h_field = blank_#:HANDLE.
@@ -326,34 +286,9 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel s-object
-ON CHOOSE OF Btn_Cancel IN FRAME F-Main /* CANCEL */
-DO:
-  IF NOT CAN-DO('VERIFY JOB NUMBER,Verifique el Numero de Trabajo',Btn_Accept:LABEL) THEN
-  RUN local-initialize.
-  ELSE
-  {methods/run_link.i "CONTAINER" "Change_Page" "(9)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Close
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Close s-object
-ON CHOOSE OF Btn_Close IN FRAME F-Main /* CLOSE */
-DO:
-  {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME Btn_Form_#
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Form_# s-object
-ON CHOOSE OF Btn_Form_# IN FRAME F-Main /* FORM NUMBER */
+ON CHOOSE OF Btn_Form_# IN FRAME F-Main /* Form Number */
 DO:
   RUN Reset_Field_Colors.
   h_field = form_#:HANDLE.
@@ -366,7 +301,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_Item_#
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Item_# s-object
-ON CHOOSE OF Btn_Item_# IN FRAME F-Main /* ITEM NUMBER */
+ON CHOOSE OF Btn_Item_# IN FRAME F-Main /* Item Number */
 DO:
   RUN Reset_Field_Colors.
   h_field = item_#:HANDLE.
@@ -379,7 +314,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_Job_#
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Job_# s-object
-ON CHOOSE OF Btn_Job_# IN FRAME F-Main /* JOB NUMBER */
+ON CHOOSE OF Btn_Job_# IN FRAME F-Main /* Job Number */
 DO:
   RUN Reset_Field_Colors.
   h_field = job_#:HANDLE.
@@ -392,7 +327,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_Pass_#
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Pass_# s-object
-ON CHOOSE OF Btn_Pass_# IN FRAME F-Main /* PASS NUMBER */
+ON CHOOSE OF Btn_Pass_# IN FRAME F-Main /* Pass Number */
 DO:
   RUN Reset_Field_Colors.
   h_field = pass_#:HANDLE.
@@ -410,10 +345,13 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
+
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{touch/pCreateINIObjects.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -491,8 +429,10 @@ PROCEDURE initScreen :
       field_value = ''
       h_field = job_#:HANDLE
       h_field:SCREEN-VALUE = ''
-      Btn_Accept:LABEL = 'VERIFY JOB NUMBER'
-      Btn_Accept:PRIVATE-DATA = Btn_Accept:LABEL.
+      lVerifyJob = YES
+      .
+    RUN pSetSensitive ("VerifyJobNumber",YES).
+    RUN pSetSensitive ("VerifyEntries",NO).
     DISABLE {&ENTRY-BUTTONS}.
     DISPLAY {&ENTRY-FIELDS}.
     ENABLE Btn_Job_#.
@@ -529,7 +469,8 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-
+  RUN pCreateINIObjects ("VerifyEntries,VerifyJobNumber,Back,HomeSmall").
+  
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
@@ -556,6 +497,41 @@ PROCEDURE local-view :
   /* Code placed here will execute AFTER standard behavior.    */
   /*{touch/localview.i}*/
   RUN initScreen.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClick s-object 
+PROCEDURE pClick :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcClick AS CHARACTER NO-UNDO.
+    
+    CASE ipcClick:
+        WHEN "HomeSmall" THEN DO WITH FRAME {&FRAME-NAME}:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
+        END.
+        WHEN "Back" THEN DO:
+            IF lVerifyJob EQ YES THEN DO:
+                {methods/run_link.i "CONTAINER" "Change_Page" "(9)"}
+            END.
+            ELSE
+            RUN InitScreen.
+        END.
+        WHEN "VerifyJobNumber" THEN DO:
+            ASSIGN {&ENTRY-FIELDS}.
+            RUN Verify_Job.
+        END.
+        WHEN "VerifyEntries" THEN DO:
+            ASSIGN {&ENTRY-FIELDS}.
+            RUN Verify_Entries.
+        END.
+    END CASE.
 
 END PROCEDURE.
 
@@ -632,31 +608,32 @@ PROCEDURE Reset_Field_Colors :
   DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
       h_field = job_#:HANDLE
-      job_#:FGCOLOR = 0
-      job_#:BGCOLOR = 15
+      job_#:FGCOLOR = 15
+      job_#:BGCOLOR = 0
       h_field = form_#:HANDLE
-      form_#:FGCOLOR = 0
-      form_#:BGCOLOR = 15
+      form_#:FGCOLOR = 15
+      form_#:BGCOLOR = 0
       h_field = blank_#:HANDLE
-      blank_#:FGCOLOR = 0
-      blank_#:BGCOLOR = 15
+      blank_#:FGCOLOR = 15
+      blank_#:BGCOLOR = 0
       h_field = pass_#:HANDLE
-      pass_#:FGCOLOR = 0
-      pass_#:BGCOLOR = 15
+      pass_#:FGCOLOR = 15
+      pass_#:BGCOLOR = 0
       h_field = pass_#:HANDLE
-      pass_#:FGCOLOR = 0
-      pass_#:BGCOLOR = 15
+      pass_#:FGCOLOR = 15
+      pass_#:BGCOLOR = 0
       h_field = item_#:HANDLE
-      item_#:FGCOLOR = 0
-      item_#:BGCOLOR = 15.
-
+      item_#:FGCOLOR = 15
+      item_#:BGCOLOR = 0
+      .
     IF tskey-log = NO THEN
        ASSIGN
           job_#:SENSITIVE = NO
           form_#:SENSITIVE = NO
           blank_#:SENSITIVE = NO
           pass_#:SENSITIVE = NO
-          item_#:SENSITIVE = NO.
+          item_#:SENSITIVE = NO
+          .
   END.
 
 END PROCEDURE.
@@ -675,14 +652,13 @@ PROCEDURE Set_Field_Colors :
     ASSIGN
       field_value = ''
       h_field:FGCOLOR = 15
-      h_field:BGCOLOR = 4.
-
-    IF tskey-log EQ NO THEN
-    DO:
+      h_field:BGCOLOR = 4 /* dark red */
+      h_field:BGCOLOR = 3 /* tiel */
+      .
+    IF tskey-log EQ NO THEN DO:
        h_field:SENSITIVE = YES.
        APPLY "ENTRY":U TO h_field.
     END.
-
   END.
 
 END PROCEDURE.
@@ -1026,9 +1002,7 @@ PROCEDURE Verify_Job :
         ENABLE Btn_Blank_# Btn_Item_#.
      IF mach.dept[1] = 'PR' THEN
         ENABLE Btn_Pass_#.
-     ASSIGN
-       Btn_Accept:LABEL = 'VERIFY ENTRIES'
-       Btn_Accept:PRIVATE-DATA = Btn_Accept:LABEL.
+     lVerifyJob = NO.
      DISABLE Btn_Job_#.
      RUN Reset_Field_Colors.
   END. /* do with frame */
@@ -1058,10 +1032,10 @@ PROCEDURE Verify_Job :
     IF est.est-type NE 1 THEN    ENABLE Btn_Form_#.
     IF mach.p-type = 'B' OR (est.est-type = 3 AND mach.dept[1] = 'PR') THEN
        ENABLE Btn_Blank_# Btn_Item_#.
-    IF mach.dept[1] = 'PR' THEN    ENABLE Btn_Pass_#.
-    ASSIGN
-      Btn_Accept:LABEL = 'VERIFY ENTRIES'
-      Btn_Accept:PRIVATE-DATA = Btn_Accept:LABEL.
+    IF mach.dept[1] = 'PR' THEN ENABLE Btn_Pass_#.
+    lVerifyJob = NO.
+    RUN pSetSensitive ("VerifyJobNumber",NO).
+    RUN pSetSensitive ("VerifyEntries",YES).
     DISABLE Btn_Job_#.
     RUN Reset_Field_Colors.
     /*  run verify_entries.*/

@@ -63,14 +63,14 @@ IF NOT tskey-log THEN
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_A Btn_B Btn_C Btn_D Btn_E Btn_F Btn_G ~
-Btn_H Btn_I Btn_J Btn_K Btn_L Btn_M Btn_N Btn_O Btn_P Btn_Q Btn_R Btn_S ~
-Btn_T Btn_U Btn_V Btn_W Btn_X Btn_Y Btn_Z Btn_Clear Btn_Space Btn_Backspace ~
-Btn_Alpha Btn_Qwerty 
+&Scoped-Define ENABLED-OBJECTS Btn_A Btn_Clear Btn_Space Btn_Backspace ~
+Btn_Alpha Btn_B Btn_Qwerty Btn_C Btn_D Btn_E Btn_F Btn_G Btn_H Btn_I Btn_J ~
+Btn_K Btn_L Btn_M Btn_N Btn_O Btn_P Btn_Q Btn_R Btn_S Btn_T Btn_U Btn_V ~
+Btn_W Btn_X Btn_Y Btn_Z 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -87,8 +87,7 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_A 
-     IMAGE-UP FILE "keyboard\a":U
-     IMAGE-DOWN FILE "keyboard/down\a":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_a.png":U NO-FOCUS FLAT-BUTTON
      LABEL "A" 
      SIZE 11 BY 2.38.
 
@@ -98,8 +97,7 @@ DEFINE BUTTON Btn_Alpha
      FONT 6.
 
 DEFINE BUTTON Btn_B 
-     IMAGE-UP FILE "keyboard\b":U
-     IMAGE-DOWN FILE "keyboard/down\b":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_b.png":U NO-FOCUS FLAT-BUTTON
      LABEL "B" 
      SIZE 11 BY 2.38.
 
@@ -109,8 +107,7 @@ DEFINE BUTTON Btn_Backspace
      FONT 6.
 
 DEFINE BUTTON Btn_C 
-     IMAGE-UP FILE "keyboard\c":U
-     IMAGE-DOWN FILE "keyboard/down\c":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_c.png":U NO-FOCUS FLAT-BUTTON
      LABEL "C" 
      SIZE 11 BY 2.38.
 
@@ -120,86 +117,72 @@ DEFINE BUTTON Btn_Clear
      FONT 6.
 
 DEFINE BUTTON Btn_D 
-     IMAGE-UP FILE "keyboard\d":U
-     IMAGE-DOWN FILE "keyboard/down\d":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_d.png":U NO-FOCUS FLAT-BUTTON
      LABEL "D" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_E 
-     IMAGE-UP FILE "keyboard\e":U
-     IMAGE-DOWN FILE "keyboard/down\e":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_e.png":U NO-FOCUS FLAT-BUTTON
      LABEL "E" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_F 
-     IMAGE-UP FILE "keyboard\f":U
-     IMAGE-DOWN FILE "keyboard/down\f":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_f.png":U NO-FOCUS FLAT-BUTTON
      LABEL "F" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_G 
-     IMAGE-UP FILE "keyboard\g":U
-     IMAGE-DOWN FILE "keyboard/down\g":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_g.png":U NO-FOCUS FLAT-BUTTON
      LABEL "G" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_H 
-     IMAGE-UP FILE "keyboard\h":U
-     IMAGE-DOWN FILE "keyboard/down\h":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_h.png":U NO-FOCUS FLAT-BUTTON
      LABEL "H" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_I 
-     IMAGE-UP FILE "keyboard\i":U
-     IMAGE-DOWN FILE "keyboard/down\i":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_i.png":U NO-FOCUS FLAT-BUTTON
      LABEL "I" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_J 
-     IMAGE-UP FILE "keyboard\j":U
-     IMAGE-DOWN FILE "keyboard/down/j.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_j.png":U NO-FOCUS FLAT-BUTTON
      LABEL "J" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_K 
-     IMAGE-UP FILE "keyboard\k":U
-     IMAGE-DOWN FILE "keyboard/down/k.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_k.png":U NO-FOCUS FLAT-BUTTON
      LABEL "K" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_L 
-     IMAGE-UP FILE "keyboard\l":U
-     IMAGE-DOWN FILE "keyboard/down/l.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_l.png":U NO-FOCUS FLAT-BUTTON
      LABEL "L" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_M 
-     IMAGE-UP FILE "keyboard\m":U
-     IMAGE-DOWN FILE "keyboard/down/m.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_m.png":U NO-FOCUS FLAT-BUTTON
      LABEL "M" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_N 
-     IMAGE-UP FILE "keyboard\n":U
-     IMAGE-DOWN FILE "keyboard/down/n.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_n.png":U NO-FOCUS FLAT-BUTTON
      LABEL "N" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_O 
-     IMAGE-UP FILE "keyboard\o":U
-     IMAGE-DOWN FILE "keyboard/down/o.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_o.png":U NO-FOCUS FLAT-BUTTON
      LABEL "O" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_P 
-     IMAGE-UP FILE "keyboard\p":U
-     IMAGE-DOWN FILE "keyboard/down/p.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_p.png":U NO-FOCUS FLAT-BUTTON
      LABEL "P" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Q 
-     IMAGE-UP FILE "keyboard\q":U
-     IMAGE-DOWN FILE "keyboard/down/q.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_q.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Q" 
      SIZE 11 BY 2.38.
 
@@ -209,14 +192,12 @@ DEFINE BUTTON Btn_Qwerty
      FONT 6.
 
 DEFINE BUTTON Btn_R 
-     IMAGE-UP FILE "keyboard\r":U
-     IMAGE-DOWN FILE "keyboard/down/r.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_r.png":U NO-FOCUS FLAT-BUTTON
      LABEL "R" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_S 
-     IMAGE-UP FILE "keyboard\s":U
-     IMAGE-DOWN FILE "keyboard/down/s.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_s.png":U NO-FOCUS FLAT-BUTTON
      LABEL "S" 
      SIZE 11 BY 2.38.
 
@@ -226,44 +207,37 @@ DEFINE BUTTON Btn_Space
      FONT 6.
 
 DEFINE BUTTON Btn_T 
-     IMAGE-UP FILE "keyboard\t":U
-     IMAGE-DOWN FILE "keyboard/down/t.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_t.png":U NO-FOCUS FLAT-BUTTON
      LABEL "T" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_U 
-     IMAGE-UP FILE "keyboard\u":U
-     IMAGE-DOWN FILE "keyboard/down/u.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_u.png":U NO-FOCUS FLAT-BUTTON
      LABEL "U" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_V 
-     IMAGE-UP FILE "keyboard\v":U
-     IMAGE-DOWN FILE "keyboard/down/v.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_v.png":U NO-FOCUS FLAT-BUTTON
      LABEL "V" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_W 
-     IMAGE-UP FILE "keyboard\w":U
-     IMAGE-DOWN FILE "keyboard/down/w.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_w.png":U NO-FOCUS FLAT-BUTTON
      LABEL "W" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_X 
-     IMAGE-UP FILE "keyboard\x":U
-     IMAGE-DOWN FILE "keyboard/down/x.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_x.png":U NO-FOCUS FLAT-BUTTON
      LABEL "X" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Y 
-     IMAGE-UP FILE "keyboard\y":U
-     IMAGE-DOWN FILE "keyboard/down/y.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_y.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Y" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Z 
-     IMAGE-UP FILE "keyboard\z":U
-     IMAGE-DOWN FILE "keyboard/down/z.bmp":U
+     IMAGE-UP FILE "Graphics\Keyboard\keyboard_key_z.png":U NO-FOCUS FLAT-BUTTON
      LABEL "Z" 
      SIZE 11 BY 2.38.
 
@@ -272,7 +246,12 @@ DEFINE BUTTON Btn_Z
 
 DEFINE FRAME DEFAULT-FRAME
      Btn_A AT ROW 1 COL 1
+     Btn_Clear AT ROW 5.76 COL 1
+     Btn_Space AT ROW 5.76 COL 34
+     Btn_Backspace AT ROW 5.76 COL 78
+     Btn_Alpha AT ROW 5.76 COL 111
      Btn_B AT ROW 1 COL 12
+     Btn_Qwerty AT ROW 5.76 COL 128
      Btn_C AT ROW 1 COL 23
      Btn_D AT ROW 1 COL 34
      Btn_E AT ROW 1 COL 45
@@ -297,16 +276,11 @@ DEFINE FRAME DEFAULT-FRAME
      Btn_X AT ROW 3.38 COL 111
      Btn_Y AT ROW 3.38 COL 122
      Btn_Z AT ROW 3.38 COL 133
-     Btn_Clear AT ROW 5.76 COL 1
-     Btn_Space AT ROW 5.76 COL 34
-     Btn_Backspace AT ROW 5.76 COL 78
-     Btn_Alpha AT ROW 5.76 COL 111
-     Btn_Qwerty AT ROW 5.76 COL 128
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 143.2 BY 6.71
-         BGCOLOR 7 .
+         BGCOLOR 0 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -334,6 +308,7 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 204.8
          VIRTUAL-HEIGHT     = 33.91
          VIRTUAL-WIDTH      = 204.8
+         MAX-BUTTON         = no
          RESIZE             = no
          SCROLL-BARS        = no
          STATUS-AREA        = no
@@ -361,7 +336,7 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        Btn_Alpha:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "ALPHA".
@@ -838,10 +813,10 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE Btn_A Btn_B Btn_C Btn_D Btn_E Btn_F Btn_G Btn_H Btn_I Btn_J Btn_K 
-         Btn_L Btn_M Btn_N Btn_O Btn_P Btn_Q Btn_R Btn_S Btn_T Btn_U Btn_V 
-         Btn_W Btn_X Btn_Y Btn_Z Btn_Clear Btn_Space Btn_Backspace Btn_Alpha 
-         Btn_Qwerty 
+  ENABLE Btn_A Btn_Clear Btn_Space Btn_Backspace Btn_Alpha Btn_B Btn_Qwerty 
+         Btn_C Btn_D Btn_E Btn_F Btn_G Btn_H Btn_I Btn_J Btn_K Btn_L Btn_M 
+         Btn_N Btn_O Btn_P Btn_Q Btn_R Btn_S Btn_T Btn_U Btn_V Btn_W Btn_X 
+         Btn_Y Btn_Z 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

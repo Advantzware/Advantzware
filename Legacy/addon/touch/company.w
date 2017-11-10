@@ -29,6 +29,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+&SCOPED-DEFINE PageNo 1
 {touch/touchdef.i}
 {custom/globdefs.i}
 
@@ -47,8 +48,7 @@ CREATE WIDGET-POOL.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_One_Up SL Btn_One_Down Btn_Select ~
-Btn_Close 
+&Scoped-Define ENABLED-OBJECTS RECT-1 SL 
 &Scoped-Define DISPLAYED-OBJECTS SL 
 
 /* Custom List Definitions                                              */
@@ -63,47 +63,25 @@ Btn_Close
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Close 
-     LABEL "CLOSE" 
-     SIZE 40 BY 2.38 TOOLTIP "CLOSE".
-
-DEFINE BUTTON Btn_One_Down 
-     IMAGE-UP FILE "images\onedown":U
-     LABEL "One Down" 
-     SIZE 40 BY 2.38 TOOLTIP "Down".
-
-DEFINE BUTTON Btn_One_Up 
-     IMAGE-UP FILE "images\oneup":U
-     LABEL "One Up" 
-     SIZE 40 BY 2.38 TOOLTIP "Up".
-
-DEFINE BUTTON Btn_Select 
-     LABEL "SELECT COMPANY" 
-     SIZE 40 BY 2.38 TOOLTIP "SELECT COMPANY".
-
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 124 BY 12.95.
 
 DEFINE VARIABLE SL AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
-     SIZE 40 BY 7.14
+     SIZE 122 BY 6.91
      BGCOLOR 15 FGCOLOR 0  NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     Btn_One_Up AT ROW 1.24 COL 2
      SL AT ROW 3.86 COL 2 NO-LABEL
-     Btn_One_Down AT ROW 11.24 COL 2
-     Btn_Select AT ROW 11.24 COL 43
-     Btn_Close AT ROW 11.24 COL 84
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 7 FGCOLOR 15 FONT 6.
+         BGCOLOR 15 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -160,22 +138,6 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-ASSIGN 
-       Btn_Close:PRIVATE-DATA IN FRAME F-Main     = 
-                "CLOSE".
-
-ASSIGN 
-       Btn_One_Down:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\onedown.bmp".
-
-ASSIGN 
-       Btn_One_Up:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\oneup.bmp".
-
-ASSIGN 
-       Btn_Select:PRIVATE-DATA IN FRAME F-Main     = 
-                "SELECT COMPANY".
-
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -195,68 +157,11 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME Btn_Close
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Close s-object
-ON CHOOSE OF Btn_Close IN FRAME F-Main /* CLOSE */
-DO:
-  {methods/run_link.i "CONTAINER" "Close_Touch_Screen"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_One_Down
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_One_Down s-object
-ON CHOOSE OF Btn_One_Down IN FRAME F-Main /* One Down */
-DO:
-  item = item + 1.
-  IF item GT SL:NUM-ITEMS THEN
-  item = SL:NUM-ITEMS.
-  SL:SCREEN-VALUE = SL:ENTRY(item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_One_Up
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_One_Up s-object
-ON CHOOSE OF Btn_One_Up IN FRAME F-Main /* One Up */
-DO:
-  item = item - 1.
-  IF item LT 1 THEN
-  item = 1.
-  SL:SCREEN-VALUE = SL:ENTRY(item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Select
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Select s-object
-ON CHOOSE OF Btn_Select IN FRAME F-Main /* SELECT COMPANY */
-DO:
-  ASSIGN
-    idummy = INDEX(SL:SCREEN-VALUE,'-')
-    company_code = SUBSTR(SL:SCREEN-VALUE,1,idummy - 2)
-    company_name = SUBSTR(SL:SCREEN-VALUE,idummy + 2).
-
-  {methods/run_link.i "CONTAINER" "Set_Value" "('company_code',company_code)"}
-  {methods/run_link.i "CONTAINER" "Set_Value" "('company_name',company_name)"}
-  {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME SL
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL SL s-object
 ON DEFAULT-ACTION OF SL IN FRAME F-Main
 DO:
-  APPLY 'CHOOSE' TO Btn_Select.
+  RUN pClick ("SelectCompany").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -287,6 +192,8 @@ END.
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{touch/pCreateINIObjects.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -338,6 +245,7 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN pCreateINIObjects ("UpTopLeft,DownBottomLeft,SelectCompany,Back").
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -377,7 +285,7 @@ PROCEDURE local-initialize :
   IF g_company = '' THEN g_company = company_code.
 
   IF VALID-HANDLE(phandle) THEN
-  APPLY 'CHOOSE' TO Btn_Select.
+  RUN pClick ("SelectCompany").
 
 END PROCEDURE.
 
@@ -398,6 +306,48 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {touch/localview.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClick s-object 
+PROCEDURE pClick :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcClick AS CHARACTER NO-UNDO.
+    
+    CASE ipcClick:
+        WHEN "Back" THEN DO WITH FRAME {&fRAME-NAME}:
+            {methods/run_link.i "CONTAINER" "Close_Touch_Screen"}
+        END.
+        WHEN "SelectCompany" THEN DO:
+            ASSIGN
+                idummy = INDEX(SL:SCREEN-VALUE,'-')
+                company_code = SUBSTR(SL:SCREEN-VALUE,1,idummy - 2)
+                company_name = SUBSTR(SL:SCREEN-VALUE,idummy + 2)
+                .          
+            {methods/run_link.i "CONTAINER" "Set_Value" "('company_code',company_code)"}
+            {methods/run_link.i "CONTAINER" "Set_Value" "('company_name',company_name)"}
+            {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
+        END.
+        WHEN "Up" THEN DO:
+            item = item - 1.
+            IF item LT 1 THEN
+            item = 1.
+            SL:SCREEN-VALUE = SL:ENTRY(item).
+        END.
+        WHEN "Down" THEN DO:
+            item = item + 1.
+            IF item GT SL:NUM-ITEMS THEN
+            item = SL:NUM-ITEMS.
+            SL:SCREEN-VALUE = SL:ENTRY(item).
+        END.
+    END CASE.
 
 END PROCEDURE.
 

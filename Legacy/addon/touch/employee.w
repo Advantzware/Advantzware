@@ -29,6 +29,7 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+&SCOPED-DEFINE PageNo 3
 {touch/touchdef.i}
 {custom/globdefs.i}
 
@@ -51,8 +52,7 @@ END.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 SL Btn_One_Up Btn_Page_Up ~
-Btn_One_Down Btn_Page_Down Btn_Select Btn_Cancel 
+&Scoped-Define ENABLED-OBJECTS RECT-1 SL 
 &Scoped-Define DISPLAYED-OBJECTS SL keystroke 
 
 /* Custom List Definitions                                              */
@@ -67,39 +67,11 @@ Btn_One_Down Btn_Page_Down Btn_Select Btn_Cancel
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_Cancel 
-     LABEL "CANCEL" 
-     SIZE 40 BY 2.38 TOOLTIP "CANCEL".
-
-DEFINE BUTTON Btn_One_Down 
-     IMAGE-UP FILE "images\onedown":U
-     LABEL "One Down" 
-     SIZE 40 BY 2.38 TOOLTIP "DOWN".
-
-DEFINE BUTTON Btn_One_Up 
-     IMAGE-UP FILE "images\oneup":U
-     LABEL "One Up" 
-     SIZE 40 BY 2.38 TOOLTIP "UP".
-
-DEFINE BUTTON Btn_Page_Down 
-     IMAGE-UP FILE "images\pagedown":U
-     LABEL "Page Down" 
-     SIZE 40 BY 2.38 TOOLTIP "PAGE DOWN".
-
-DEFINE BUTTON Btn_Page_Up 
-     IMAGE-UP FILE "images\pageup":U
-     LABEL "Page Up" 
-     SIZE 40 BY 2.38 TOOLTIP "PAGE UP".
-
-DEFINE BUTTON Btn_Select 
-     LABEL "SELECT EMPLOYEE" 
-     SIZE 40 BY 2.38 TOOLTIP "SELECT EMPLOYEE".
-
 DEFINE VARIABLE keystroke AS CHARACTER FORMAT "X(256)":U 
      LABEL "KEY VALUE" 
      VIEW-AS FILL-IN 
      SIZE 55 BY 1 TOOLTIP "KEY VALUE"
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
+     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -116,17 +88,11 @@ DEFINE VARIABLE SL AS CHARACTER
 DEFINE FRAME F-Main
      SL AT ROW 1.24 COL 2 NO-LABEL
      keystroke AT ROW 1.24 COL 67 COLON-ALIGNED
-     Btn_One_Up AT ROW 3.62 COL 43
-     Btn_Page_Up AT ROW 3.62 COL 84
-     Btn_One_Down AT ROW 7.43 COL 43
-     Btn_Page_Down AT ROW 7.43 COL 84
-     Btn_Select AT ROW 11.24 COL 43
-     Btn_Cancel AT ROW 11.24 COL 84
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 7 FGCOLOR 15 FONT 6.
+         BGCOLOR 15 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -183,30 +149,6 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-ASSIGN 
-       Btn_Cancel:PRIVATE-DATA IN FRAME F-Main     = 
-                "CANCEL".
-
-ASSIGN 
-       Btn_One_Down:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\onedown.bmp".
-
-ASSIGN 
-       Btn_One_Up:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\oneup.bmp".
-
-ASSIGN 
-       Btn_Page_Down:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\pagedown.bmp".
-
-ASSIGN 
-       Btn_Page_Up:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\pageup.bmp".
-
-ASSIGN 
-       Btn_Select:PRIVATE-DATA IN FRAME F-Main     = 
-                "SELECT EMPLOYEE".
-
 /* SETTINGS FOR FILL-IN keystroke IN FRAME F-Main
    NO-ENABLE                                                            */
 ASSIGN 
@@ -232,90 +174,6 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME Btn_Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel s-object
-ON CHOOSE OF Btn_Cancel IN FRAME F-Main /* CANCEL */
-DO:
-  {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_One_Down
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_One_Down s-object
-ON CHOOSE OF Btn_One_Down IN FRAME F-Main /* One Down */
-DO:
-  item = item + 1.
-  IF item GT SL:NUM-ITEMS THEN
-  item = SL:NUM-ITEMS.
-  SL:SCREEN-VALUE = SL:ENTRY(item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_One_Up
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_One_Up s-object
-ON CHOOSE OF Btn_One_Up IN FRAME F-Main /* One Up */
-DO:
-  item = item - 1.
-  IF item LT 1 THEN
-  item = 1.
-  SL:SCREEN-VALUE = SL:ENTRY(item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Page_Down
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Page_Down s-object
-ON CHOOSE OF Btn_Page_Down IN FRAME F-Main /* Page Down */
-DO:
-  item = item + 19.
-  IF item GT SL:NUM-ITEMS THEN
-  item = SL:NUM-ITEMS.
-  SL:SCREEN-VALUE = SL:ENTRY(item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Page_Up
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Page_Up s-object
-ON CHOOSE OF Btn_Page_Up IN FRAME F-Main /* Page Up */
-DO:
-  item = item - 19.
-  IF item LT 1 THEN
-  item = 1.
-  SL:SCREEN-VALUE = SL:ENTRY(item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Select
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Select s-object
-ON CHOOSE OF Btn_Select IN FRAME F-Main /* SELECT EMPLOYEE */
-DO:
-  ASSIGN
-    idummy = INDEX(SL:SCREEN-VALUE,'(')
-    employee_code = REPLACE(SUBSTR(SL:SCREEN-VALUE,idummy + 1),')','')
-    employee_name = SUBSTR(SL:SCREEN-VALUE,1,idummy - 2).
-  {methods/run_link.i "CONTAINER" "Set_Value" "('employee_code',employee_code)"}
-  {methods/run_link.i "CONTAINER" "Set_Value" "('employee_name',employee_name)"}
-  {methods/run_link.i "CONTAINER" "Change_Page" "(4)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &Scoped-define SELF-NAME keystroke
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL keystroke s-object
 ON VALUE-CHANGED OF keystroke IN FRAME F-Main /* KEY VALUE */
@@ -337,7 +195,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL SL s-object
 ON DEFAULT-ACTION OF SL IN FRAME F-Main
 DO:
-  APPLY 'CHOOSE' TO Btn_Select.
+    RUN pClick ("SelectEmployee").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -364,10 +222,13 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
+
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{touch/pCreateINIObjects.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -504,6 +365,7 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN pCreateINIObjects ("Up,PageUp,Down,PageDown,SelectEmployee,Home").
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -531,6 +393,62 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {touch/localview.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClick s-object 
+PROCEDURE pClick :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcClick AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE idummy AS INTEGER NO-UNDO.
+    
+    CASE ipcClick:
+        WHEN "Up" THEN DO WITH FRAME {&FRAME-NAME}:
+            item = item - 1.
+            IF item LT 1 THEN
+            item = 1.
+            SL:SCREEN-VALUE = SL:ENTRY(item).
+        END.
+        WHEN "PageUp" THEN DO:
+            item = item - 19.
+            IF item LT 1 THEN
+            item = 1.
+            SL:SCREEN-VALUE = SL:ENTRY(item).
+        END.
+        WHEN "Down" THEN DO:
+            item = item + 1.
+            IF item GT SL:NUM-ITEMS THEN
+            item = SL:NUM-ITEMS.
+            SL:SCREEN-VALUE = SL:ENTRY(item).
+        END.
+        WHEN "PageDown" THEN DO:
+            item = item + 19.
+            IF item GT SL:NUM-ITEMS THEN
+            item = SL:NUM-ITEMS.
+            SL:SCREEN-VALUE = SL:ENTRY(item).
+        END.
+        WHEN "SelectEmployee" THEN DO:
+            ASSIGN
+                idummy = INDEX(SL:SCREEN-VALUE,'(')
+                employee_code = REPLACE(SUBSTR(SL:SCREEN-VALUE,idummy + 1),')','')
+                employee_name = SUBSTR(SL:SCREEN-VALUE,1,idummy - 2)
+                .
+            {methods/run_link.i "CONTAINER" "Set_Value" "('employee_code',employee_code)"}
+            {methods/run_link.i "CONTAINER" "Set_Value" "('employee_name',employee_name)"}
+            {methods/run_link.i "CONTAINER" "Change_Page" "(4)"}
+        END.
+        WHEN "Home" THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
+        END.
+    END CASE.
 
 END PROCEDURE.
 

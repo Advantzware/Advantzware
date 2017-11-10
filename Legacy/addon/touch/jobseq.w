@@ -29,8 +29,11 @@ CREATE WIDGET-POOL.
 
 /* Local Variable Definitions ---                                       */
 
+&SCOPED-DEFINE PageNo 13
 {touch/touchdef.i}
+
 DEF VAR rec_key_value LIKE job.rec_key NO-UNDO.
+
 &Scoped-define BUTTON-INCLUDE JOBSEQ
 
 /* _UIB-CODE-BLOCK-END */
@@ -49,14 +52,13 @@ DEF VAR rec_key_value LIKE job.rec_key NO-UNDO.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-1 RECT-5 Btn_Button-2 Btn_Button-6 ~
-Btn_ticket Btn_boximg Btn_Close Btn_Button-3 Btn_Button-7 Btn_Button-10 ~
-Btn_Button-4 Btn_Button-8 Btn_First Btn_Last Btn_Button-5 Btn_Button-9 ~
-Btn_Page_Up Btn_Page_Down Btn_Button-1 Btn_Cancel 
+Btn_Button-3 Btn_Button-7 Btn_Button-4 Btn_Button-8 Btn_Button-5 ~
+Btn_Button-9 Btn_Button-10 Btn_Button-1 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-1 Btn_Button-2 Btn_Button-6 Btn_Button-3 Btn_Button-7 ~
-Btn_Button-10 Btn_Button-4 Btn_Button-8 Btn_Button-5 Btn_Button-9 ~
+Btn_Button-4 Btn_Button-8 Btn_Button-5 Btn_Button-9 Btn_Button-10 ~
 Btn_Button-1 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
@@ -68,93 +70,54 @@ Btn_Button-1
 
 
 /* Definitions of the field level widgets                               */
-DEFINE BUTTON Btn_boximg 
-     IMAGE-UP FILE "images/box6.bmp":U
-     LABEL "Image" 
-     SIZE 15 BY 2.38.
-
 DEFINE BUTTON Btn_Button-1 
      LABEL "BUTTON 1" 
      SIZE 81 BY 2.38.
 
 DEFINE BUTTON Btn_Button-10 
      LABEL "BUTTON 10" 
-     SIZE 40 BY 2.38
+     SIZE 40.2 BY 2.38
      FONT 4.
 
 DEFINE BUTTON Btn_Button-2 
      LABEL "BUTTON 2" 
-     SIZE 40 BY 2.38
+     SIZE 41 BY 2.38
      FONT 4.
 
 DEFINE BUTTON Btn_Button-3 
      LABEL "BUTTON 3" 
-     SIZE 40 BY 2.38
+     SIZE 41 BY 2.38
      FONT 4.
 
 DEFINE BUTTON Btn_Button-4 
      LABEL "BUTTON 4" 
-     SIZE 40 BY 2.38
+     SIZE 41 BY 2.38
      FONT 4.
 
 DEFINE BUTTON Btn_Button-5 
      LABEL "BUTTON 5" 
-     SIZE 40 BY 2.38
+     SIZE 41 BY 2.38
      FONT 4.
 
 DEFINE BUTTON Btn_Button-6 
      LABEL "BUTTON 6" 
-     SIZE 40 BY 2.38
+     SIZE 41 BY 2.38
      FONT 4.
 
 DEFINE BUTTON Btn_Button-7 
      LABEL "BUTTON 7" 
-     SIZE 40 BY 2.38
+     SIZE 41 BY 2.38
      FONT 4.
 
 DEFINE BUTTON Btn_Button-8 
      LABEL "BUTTON 8" 
-     SIZE 40 BY 2.38
+     SIZE 41 BY 2.38
      FONT 4.
 
 DEFINE BUTTON Btn_Button-9 
      LABEL "BUTTON 9" 
-     SIZE 40 BY 2.38
+     SIZE 41 BY 2.38
      FONT 4.
-
-DEFINE BUTTON Btn_Cancel 
-     LABEL "CANCEL" 
-     SIZE 40 BY 2.38 TOOLTIP "CANCEL".
-
-DEFINE BUTTON Btn_Close 
-     IMAGE-UP FILE "images\exit-au":U
-     LABEL "CLOSE" 
-     SIZE 10 BY 2.38.
-
-DEFINE BUTTON Btn_First 
-     LABEL "FIRST CODE" 
-     SIZE 20 BY 2.38 TOOLTIP "FIRST CODE".
-
-DEFINE BUTTON Btn_Last 
-     LABEL "LAST CODE" 
-     SIZE 20 BY 2.38 TOOLTIP "LAST CODE".
-
-DEFINE BUTTON Btn_Page_Down 
-     IMAGE-UP FILE "images\pagedown":U
-     LABEL "Page Down" 
-     SIZE 20 BY 2.38 TOOLTIP "PAGE DOWN".
-
-DEFINE BUTTON Btn_Page_Up 
-     IMAGE-UP FILE "images\pageup":U
-     LABEL "Page Up" 
-     SIZE 20 BY 2.38 TOOLTIP "PAGE UP".
-
-DEFINE BUTTON Btn_ticket 
-     IMAGE-UP FILE "images/pen.jpg":U
-     IMAGE-INSENSITIVE FILE "images/pen.jpg":U
-     LABEL "Job Card" 
-     SIZE 15 BY 2.38
-     BGCOLOR 8 .
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -170,28 +133,20 @@ DEFINE RECTANGLE RECT-5
 DEFINE FRAME F-Main
      Btn_Button-2 AT ROW 1.24 COL 2
      Btn_Button-6 AT ROW 1.24 COL 43
-     Btn_ticket AT ROW 1.24 COL 84
-     Btn_boximg AT ROW 1.24 COL 99
-     Btn_Close AT ROW 1.24 COL 114
      Btn_Button-3 AT ROW 3.62 COL 2
      Btn_Button-7 AT ROW 3.62 COL 43
-     Btn_Button-10 AT ROW 3.62 COL 84
      Btn_Button-4 AT ROW 6 COL 2
      Btn_Button-8 AT ROW 6 COL 43
-     Btn_First AT ROW 6 COL 84
-     Btn_Last AT ROW 6 COL 104
      Btn_Button-5 AT ROW 8.38 COL 2
      Btn_Button-9 AT ROW 8.38 COL 43
-     Btn_Page_Up AT ROW 8.38 COL 84
-     Btn_Page_Down AT ROW 8.38 COL 104
+     Btn_Button-10 AT ROW 8.38 COL 84
      Btn_Button-1 AT ROW 11.24 COL 2
-     Btn_Cancel AT ROW 11.24 COL 84
      RECT-1 AT ROW 1 COL 1
      RECT-5 AT ROW 11 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
-         BGCOLOR 7 FGCOLOR 15 FONT 6.
+         BGCOLOR 15 FONT 6.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -268,26 +223,6 @@ ASSIGN
    1                                                                    */
 /* SETTINGS FOR BUTTON Btn_Button-9 IN FRAME F-Main
    1                                                                    */
-ASSIGN 
-       Btn_Cancel:PRIVATE-DATA IN FRAME F-Main     = 
-                "CANCEL".
-
-ASSIGN 
-       Btn_First:PRIVATE-DATA IN FRAME F-Main     = 
-                "FIRST CODE".
-
-ASSIGN 
-       Btn_Last:PRIVATE-DATA IN FRAME F-Main     = 
-                "LAST CODE".
-
-ASSIGN 
-       Btn_Page_Down:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\pagedown.bmp".
-
-ASSIGN 
-       Btn_Page_Up:PRIVATE-DATA IN FRAME F-Main     = 
-                "images\pageup.bmp".
-
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -306,30 +241,6 @@ ASSIGN
 
 
 /* ************************  Control Triggers  ************************ */
-
-&Scoped-define SELF-NAME Btn_boximg
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_boximg s-object
-ON CHOOSE OF Btn_boximg IN FRAME F-Main /* Image */
-DO:
-   FIND FIRST job-hdr WHERE job-hdr.company = company_code
-                        AND job-hdr.job-no = job_number
-                        AND job-hdr.job-no2 = int(job_sub)
-                        NO-LOCK NO-ERROR.
-   IF AVAIL job-hdr AND job-hdr.est-no <> "" THEN DO:
-      FIND FIRST eb WHERE eb.company      EQ job-hdr.company
-                    AND eb.est-no       EQ job-hdr.est-no
-                    AND eb.form-no    EQ int(FORM_number)
-                    AND (eb.blank-no = int(BLANK_number) OR
-                         int(BLANK_number) = 0) NO-LOCK NO-ERROR.
-
-      IF AVAIL eb THEN RUN est/d-tsbox.w (RECID(eb)).
-   END.
-   
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
 
 &Scoped-define SELF-NAME Btn_Button-1
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Button-1 s-object
@@ -441,92 +352,6 @@ END.
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME Btn_Cancel
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Cancel s-object
-ON CHOOSE OF Btn_Cancel IN FRAME F-Main /* CANCEL */
-DO:
-  {methods/run_link.i "CONTAINER" "Change_Page" "(9)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Close
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Close s-object
-ON CHOOSE OF Btn_Close IN FRAME F-Main /* CLOSE */
-DO:
-  {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_First
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_First s-object
-ON CHOOSE OF Btn_First IN FRAME F-Main /* FIRST CODE */
-DO:
-  button_item = 1.
-  RUN Button_Labels (INPUT-OUTPUT button_item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Last
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Last s-object
-ON CHOOSE OF Btn_Last IN FRAME F-Main /* LAST CODE */
-DO:
-  button_item = NUM-ENTRIES(itemlist,'@') + 1.
-  RUN Button_Labels (INPUT-OUTPUT button_item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Page_Down
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Page_Down s-object
-ON CHOOSE OF Btn_Page_Down IN FRAME F-Main /* Page Down */
-DO:
-  RUN Button_Labels (INPUT-OUTPUT button_item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_Page_Up
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Page_Up s-object
-ON CHOOSE OF Btn_Page_Up IN FRAME F-Main /* Page Up */
-DO:
-  button_item = button_item - 20.
-  RUN Button_Labels (INPUT-OUTPUT button_item).
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
-&Scoped-define SELF-NAME Btn_ticket
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_ticket s-object
-ON CHOOSE OF Btn_ticket IN FRAME F-Main /* Job Card */
-DO:
-    FIND FIRST job WHERE job.company = company_code
-                     AND job.job-no = job_number
-                     AND job.job-no2 = int(job_sub)
-                   NO-LOCK NO-ERROR.
-    rec_key_value = job.rec_key.
-     
-    RUN jcrep/r-tickt2.w (job_number, int(job_sub)) NO-ERROR.
-END.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK s-object 
@@ -534,10 +359,13 @@ END.
 
 /* ***************************  Main Block  *************************** */
 {sys/inc/f3helpw.i}
+
 /* If testing in the UIB, initialize the SmartObject. */  
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
   RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
 &ENDIF
+
+{touch/pCreateINIObjects.i}
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -609,6 +437,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-initialize s-object 
+PROCEDURE local-initialize :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+
+  /* Code placed here will execute PRIOR to standard behavior. */
+  RUN pCreateINIObjects
+    ("HomeSmall,PageUpSmall,PageDownSmall,First,Last,BackSmall,JobCard,Boxes").
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-view s-object 
 PROCEDURE local-view :
 /*------------------------------------------------------------------------------
@@ -623,6 +472,71 @@ PROCEDURE local-view :
 
   /* Code placed here will execute AFTER standard behavior.    */
   {touch/localview.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pClick s-object 
+PROCEDURE pClick :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcClick AS CHARACTER NO-UNDO.
+    
+    CASE ipcClick:
+        WHEN "HomeSmall" THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
+        END.
+        WHEN "PageUpSmall" THEN DO:
+            button_item = button_item - 20.
+            RUN Button_Labels (INPUT-OUTPUT button_item).
+        END.
+        WHEN "PageDownSmall" THEN DO:
+            RUN Button_Labels (INPUT-OUTPUT button_item).
+        END.
+        WHEN "First" THEN DO:
+            button_item = 1.
+            RUN Button_Labels (INPUT-OUTPUT button_item).
+        END.
+        WHEN "Last" THEN DO:
+            button_item = NUM-ENTRIES(itemlist,'@') + 1.
+            RUN Button_Labels (INPUT-OUTPUT button_item).
+        END.
+        WHEN "BackSmall" THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(9)"}
+        END.
+        WHEN "JobCard" THEN DO:
+            FIND FIRST job NO-LOCK
+                 WHERE job.company EQ company_code
+                   AND job.job-no  EQ job_number
+                   AND job.job-no2 EQ INT(job_sub)
+                 NO-ERROR.
+            rec_key_value = job.rec_key.             
+            RUN jcrep/r-tickt2.w (job_number, INT(job_sub)) NO-ERROR.
+        END.
+        WHEN "Boxes" THEN DO:
+            FIND FIRST job-hdr NO-LOCK
+                 WHERE job-hdr.company EQ company_code
+                   AND job-hdr.job-no  EQ job_number
+                   AND job-hdr.job-no2 EQ INT(job_sub)
+                 NO-ERROR.
+            IF AVAILABLE job-hdr AND job-hdr.est-no NE "" THEN DO:
+                FIND FIRST eb NO-LOCK
+                     WHERE eb.company   EQ job-hdr.company
+                       AND eb.est-no    EQ job-hdr.est-no
+                       AND eb.form-no   EQ INT(form_number)
+                       AND (eb.blank-no EQ INT(blank_number)
+                        OR INT(blank_number) EQ 0)
+                     NO-ERROR.                  
+                IF AVAILABLE eb THEN
+                RUN est/d-tsbox.w (RECID(eb)).
+            END.
+        END.
+    END CASE.
 
 END PROCEDURE.
 

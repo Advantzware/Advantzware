@@ -26,6 +26,7 @@
 /* ************************************************************************ */
 
 DEFINE VARIABLE languageList AS CHARACTER NO-UNDO.
+DEFINE VARIABLE flagList AS CHARACTER NO-UNDO.
 DEFINE VARIABLE transString AS CHARACTER NO-UNDO.
 
 DEFINE TEMP-TABLE translations NO-UNDO
@@ -35,6 +36,7 @@ DEFINE TEMP-TABLE translations NO-UNDO
 
 INPUT FROM VALUE(search('touch/translations.txt')) NO-ECHO.
 IMPORT UNFORMATTED languageList. /* first row is list of avail languages */
+IMPORT UNFORMATTED flagList. /* second row is list of language flag images */
 REPEAT:
   IMPORT UNFORMATTED transString.
   IF CAN-FIND(translations WHERE translations.idxString EQ ENTRY(1,transString)) THEN
@@ -48,6 +50,7 @@ INPUT CLOSE.
 
 /* make list avail to other smart objects */
 RUN Set_Value ('language_list',languageList) NO-ERROR.
+RUN Set_Value ('flag_list',flagList) NO-ERROR.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -134,8 +137,11 @@ PROCEDURE Label_Language :
       IF INDEX(current-widget:PRIVATE-DATA,'images') NE 0 THEN
       ldummy = current-widget:LOAD-IMAGE(translate(current-widget:PRIVATE-DATA,NO)).
       ELSE
-      current-widget:LABEL = translate(current-widget:PRIVATE-DATA,
-                                       current-widget:TYPE EQ 'Button').
+        IF current-widget:TYPE EQ "EDITOR" THEN
+        current-widget:SCREEN-VALUE = translate(current-widget:PRIVATE-DATA,NO).
+        ELSE
+        current-widget:LABEL = translate(current-widget:PRIVATE-DATA,NO /*
+                                         current-widget:TYPE EQ 'Button'*/ ).
     END.
     current-widget = current-widget:NEXT-SIBLING.
   END.

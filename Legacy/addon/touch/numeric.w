@@ -61,13 +61,13 @@ IF NOT tskey-log THEN
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_Backspace Btn_Clear Btn_One Btn_Two ~
-Btn_Three Btn_Four Btn_Five Btn_Six Btn_Seven Btn_Eight Btn_Nine Btn_Period ~
-Btn_Zero Btn_Minus 
+&Scoped-Define ENABLED-OBJECTS Btn_Period Btn_Backspace Btn_Clear Btn_Eight ~
+Btn_Five Btn_Four Btn_Minus Btn_Nine Btn_One Btn_Seven Btn_Six Btn_Three ~
+Btn_Two Btn_Zero 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -94,62 +94,62 @@ DEFINE BUTTON Btn_Clear
      FONT 6.
 
 DEFINE BUTTON Btn_Eight 
-     IMAGE-UP FILE "keyboard\eight":U
+     IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_8.png":U NO-FOCUS FLAT-BUTTON
      LABEL "8" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Five 
-     IMAGE-UP FILE "keyboard\five":U
+     IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_5.png":U NO-FOCUS FLAT-BUTTON
      LABEL "5" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Four 
-     IMAGE-UP FILE "keyboard\four":U
+     IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_4.png":U NO-FOCUS FLAT-BUTTON
      LABEL "4" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Minus 
-     IMAGE-UP FILE "keyboard\minus":U
+     IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_minus.png":U NO-FOCUS FLAT-BUTTON
      LABEL "-" 
      SIZE 11 BY 2.38 TOOLTIP "Minus".
 
 DEFINE BUTTON Btn_Nine 
-     IMAGE-UP FILE "keyboard\nine":U
+     IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_9.png":U NO-FOCUS FLAT-BUTTON
      LABEL "9" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_One 
-     IMAGE-UP FILE "keyboard\one":U
+     IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_1.png":U NO-FOCUS FLAT-BUTTON
      LABEL "1" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Period 
-     IMAGE-UP FILE "keyboard\period":U
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_period.png":U NO-FOCUS FLAT-BUTTON
      LABEL "." 
      SIZE 11 BY 2.38 TOOLTIP "Period".
 
 DEFINE BUTTON Btn_Seven 
-     IMAGE-UP FILE "keyboard\seven":U
+     IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_7.png":U NO-FOCUS FLAT-BUTTON
      LABEL "7" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Six 
-     IMAGE-UP FILE "keyboard\six":U
+     IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_6.png":U NO-FOCUS FLAT-BUTTON
      LABEL "6" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Three 
-     IMAGE-UP FILE "keyboard\three":U
+     IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_3.png":U NO-FOCUS FLAT-BUTTON
      LABEL "3" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Two 
-     IMAGE-UP FILE "keyboard\two":U
+     IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_2.png":U NO-FOCUS FLAT-BUTTON
      LABEL "2" 
      SIZE 11 BY 2.38.
 
 DEFINE BUTTON Btn_Zero 
-     IMAGE-UP FILE "keyboard\zero":U
+     IMAGE-UP FILE "Graphics/Keyboard/keyboard_key_0.png":U NO-FOCUS FLAT-BUTTON
      LABEL "0" 
      SIZE 11 BY 2.38.
 
@@ -157,25 +157,25 @@ DEFINE BUTTON Btn_Zero
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
+     Btn_Period AT ROW 10.52 COL 1
      Btn_Backspace AT ROW 1 COL 1
      Btn_Clear AT ROW 1 COL 23
-     Btn_One AT ROW 3.38 COL 1
-     Btn_Two AT ROW 3.38 COL 12
-     Btn_Three AT ROW 3.38 COL 23
-     Btn_Four AT ROW 5.76 COL 1
-     Btn_Five AT ROW 5.76 COL 12
-     Btn_Six AT ROW 5.76 COL 23
-     Btn_Seven AT ROW 8.14 COL 1
      Btn_Eight AT ROW 8.14 COL 12
-     Btn_Nine AT ROW 8.14 COL 23
-     Btn_Period AT ROW 10.52 COL 1
-     Btn_Zero AT ROW 10.52 COL 12
+     Btn_Five AT ROW 5.76 COL 12
+     Btn_Four AT ROW 5.76 COL 1
      Btn_Minus AT ROW 10.52 COL 23
+     Btn_Nine AT ROW 8.14 COL 23
+     Btn_One AT ROW 3.38 COL 1
+     Btn_Seven AT ROW 8.14 COL 1
+     Btn_Six AT ROW 5.76 COL 23
+     Btn_Three AT ROW 3.38 COL 23
+     Btn_Two AT ROW 3.38 COL 12
+     Btn_Zero AT ROW 10.52 COL 12
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
          SIZE 33.2 BY 11.95
-         BGCOLOR 7 .
+         BGCOLOR 0 .
 
 
 /* *********************** Procedure Settings ************************ */
@@ -195,8 +195,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Numeric Pad"
-         COLUMN             = 128
-         ROW                = 2.48
+         COLUMN             = 125
+         ROW                = 1.52
          HEIGHT             = 11.95
          WIDTH              = 33.2
          MAX-HEIGHT         = 11.95
@@ -230,7 +230,7 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
+   FRAME-NAME                                                           */
 ASSIGN 
        Btn_Backspace:PRIVATE-DATA IN FRAME DEFAULT-FRAME     = 
                 "BACKSPACE".
@@ -513,8 +513,9 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE Btn_Backspace Btn_Clear Btn_One Btn_Two Btn_Three Btn_Four Btn_Five 
-         Btn_Six Btn_Seven Btn_Eight Btn_Nine Btn_Period Btn_Zero Btn_Minus 
+  ENABLE Btn_Period Btn_Backspace Btn_Clear Btn_Eight Btn_Five Btn_Four 
+         Btn_Minus Btn_Nine Btn_One Btn_Seven Btn_Six Btn_Three Btn_Two 
+         Btn_Zero 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
