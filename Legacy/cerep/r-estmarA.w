@@ -952,7 +952,7 @@ ASSIGN
 IF tb_excel THEN do:
   OUTPUT STREAM st-excel TO VALUE(fi_file).
   PUT STREAM st-excel UNFORMATTED
-      ",,,,Carton,Die,,,Carton,,,,,,FOB Variable Profit Margins,,,,,," +
+      ",,,,Carton,Die,,,Carton,,,,,,,,,,,," +
       ",Total,Total,Total,Delivered"
       SKIP
       "Est#,Item Description,Bd,Cal,Size,Size,#Up,# of Col,Quantity,F" +
@@ -1082,10 +1082,10 @@ FOR EACH est
             ld-costt              COLUMN-LABEL "FOB Total Cost"
             ld-mar[1]             COLUMN-LABEL "              !           15%"
             ld-mar[2]             COLUMN-LABEL "              !           20%"
-            ld-mar[3]             COLUMN-LABEL "           FOB!           25%"
-            ld-mar[4]             COLUMN-LABEL "      Variable!           30%"
-            ld-mar[5]             COLUMN-LABEL "        Profit!           35%"
-            ld-mar[6]             COLUMN-LABEL "       Margins!           40%"
+            ld-mar[3]             COLUMN-LABEL "              !           25%"
+            ld-mar[4]             COLUMN-LABEL "              !           30%"
+            ld-mar[5]             COLUMN-LABEL "              !           35%"
+            ld-mar[6]             COLUMN-LABEL "              !           40%"
             ld-mar[7]             COLUMN-LABEL "              !           45%"
 
            WITH FRAME est DOWN NO-BOX STREAM-IO WIDTH 300.
