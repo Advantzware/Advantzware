@@ -436,14 +436,7 @@ FOR EACH inv-head, EACH inv-line
 
     IF AVAILABLE oe-ord AND v-post THEN 
     DO:
-            
-        FIND FIRST reftable
-            WHERE reftable.reftable EQ "oe-ord.close-checked"
-            AND reftable.company  EQ STRING(oe-ord.company,"x(10)") +
-            STRING(oe-ord.ord-no,"9999999999")
-            NO-ERROR.
-
- 
+        
         CREATE w-ord.
         ASSIGN
             w-ord.ord-no = oe-ord.ord-no

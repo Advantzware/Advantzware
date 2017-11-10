@@ -4,7 +4,6 @@
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
 
-DEF BUFFER oe-ord-close-checked FOR reftable.
 DEF BUFFER oe-ord-whs-order FOR reftable.
 DEFINE BUFFER bf-oe-ord FOR oe-ord .
 
@@ -23,12 +22,7 @@ FOR EACH eb
   eb.ord-no = 0. 
 END.
 
-FOR EACH oe-ord-close-checked
-    WHERE oe-ord-close-checked.reftable EQ "oe-ord.close-checked"
-      AND oe-ord-close-checked.company  EQ STRING({&TABLENAME}.company,"x(10)") +
-                                           STRING({&TABLENAME}.ord-no,"9999999999"):
-  DELETE oe-ord-close-checked.
-END.
+
 
 FOR EACH oe-ord-whs-order
     WHERE oe-ord-whs-order.reftable EQ "oe-ord.whs-order"
