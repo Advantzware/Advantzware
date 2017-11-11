@@ -530,6 +530,9 @@ PROCEDURE local-display-fields :
      RUN setCellColumns.
      v-called-setCellColumns = YES.
   END.
+  DO WITH FRAME {&FRAME-NAME}:
+    fi_sortby:SCREEN-VALUE = TRIM("Item No") + " - " + "Ascending".
+  END.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
