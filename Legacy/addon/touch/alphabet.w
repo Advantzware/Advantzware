@@ -67,15 +67,15 @@ IF NOT tskey-log THEN
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS Btn_And Btn_Asterisk Btn_Atsign Btn_bckslash ~
-Btn_Carot Btn_Colon Btn_Comma Btn_Dblquote Btn_Dollar Btn_Equal Btn_Exclaim ~
-Btn_fwdslash Btn_Grtrthan Btn_Lbox Btn_lcurly Btn_Lessthan Btn_lparenth ~
-Btn_Minus Btn_Percent Btn_Period Btn_Pipe Btn_Plus Btn_Pound Btn_Question ~
-Btn_rbox Btn_rcurly Btn_rparenth Btn_semicoln Btn_Sglquote Btn_underln ~
-Btn_Caps_Lock Btn_Clear Btn_Space Btn_Backspace Btn_Sort Btn_Qwerty Btn_A ~
-Btn_B Btn_C Btn_D Btn_E Btn_F Btn_G Btn_H Btn_I Btn_J Btn_K Btn_L Btn_M ~
-Btn_N Btn_O Btn_P Btn_Q Btn_R Btn_S Btn_T Btn_U Btn_V Btn_W Btn_X Btn_Y ~
-Btn_Z 
+&Scoped-Define ENABLED-OBJECTS Btn_Atsign Btn_Dblquote Btn_And ~
+Btn_Caps_Lock Btn_Asterisk Btn_Clear Btn_Space Btn_Backspace Btn_bckslash ~
+Btn_Sort Btn_Carot Btn_Qwerty Btn_Colon Btn_Comma Btn_Dollar Btn_Equal ~
+Btn_Exclaim Btn_fwdslash Btn_Grtrthan Btn_Lbox Btn_lcurly Btn_Lessthan ~
+Btn_lparenth Btn_Minus Btn_Percent Btn_Period Btn_Pipe Btn_Plus Btn_Pound ~
+Btn_Question Btn_rbox Btn_rcurly Btn_rparenth Btn_semicoln Btn_Sglquote ~
+Btn_underln Btn_A Btn_B Btn_C Btn_D Btn_E Btn_F Btn_G Btn_H Btn_I Btn_J ~
+Btn_K Btn_L Btn_M Btn_N Btn_O Btn_P Btn_Q Btn_R Btn_S Btn_T Btn_U Btn_V ~
+Btn_W Btn_X Btn_Y Btn_Z 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -107,7 +107,7 @@ DEFINE BUTTON Btn_Asterisk
      SIZE 11 BY 2.38 TOOLTIP "Asterisk".
 
 DEFINE BUTTON Btn_Atsign 
-     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_amp.png":U NO-FOCUS FLAT-BUTTON
+     IMAGE-UP FILE "Graphics/Keyboard/symbol_key_at.png":U NO-FOCUS FLAT-BUTTON
      LABEL "@" 
      SIZE 11 BY 2.38 TOOLTIP "At Sign".
 
@@ -164,7 +164,7 @@ DEFINE BUTTON Btn_D
 DEFINE BUTTON Btn_Dblquote 
      IMAGE-UP FILE "Graphics/Keyboard/symbol_key_doublequote.png":U NO-FOCUS FLAT-BUTTON
      LABEL "DQ" 
-     SIZE 11 BY 2.38 TOOLTIP "Semi-Colon".
+     SIZE 11 BY 2.38 TOOLTIP "Double-Quote".
 
 DEFINE BUTTON Btn_Dollar 
      IMAGE-UP FILE "Graphics/Keyboard/symbol_key_dollar.png":U NO-FOCUS FLAT-BUTTON
@@ -405,14 +405,20 @@ DEFINE BUTTON Btn_Z
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     Btn_And AT ROW 7.67 COL 67
-     Btn_Asterisk AT ROW 7.67 COL 78
      Btn_Atsign AT ROW 7.67 COL 12
+     Btn_Dblquote AT ROW 7.67 COL 133
+     Btn_And AT ROW 7.67 COL 67
+     Btn_Caps_Lock AT ROW 5.76 COL 1
+     Btn_Asterisk AT ROW 7.67 COL 78
+     Btn_Clear AT ROW 5.76 COL 48
+     Btn_Space AT ROW 5.76 COL 64
+     Btn_Backspace AT ROW 5.76 COL 80
      Btn_bckslash AT ROW 10.05 COL 78
+     Btn_Sort AT ROW 5.76 COL 123
      Btn_Carot AT ROW 7.67 COL 56
+     Btn_Qwerty AT ROW 5.76 COL 139
      Btn_Colon AT ROW 10.05 COL 89
      Btn_Comma AT ROW 10.05 COL 45
-     Btn_Dblquote AT ROW 7.67 COL 133
      Btn_Dollar AT ROW 7.67 COL 34
      Btn_Equal AT ROW 10.05 COL 122
      Btn_Exclaim AT ROW 7.67 COL 1
@@ -435,12 +441,6 @@ DEFINE FRAME DEFAULT-FRAME
      Btn_semicoln AT ROW 10.05 COL 100
      Btn_Sglquote AT ROW 7.67 COL 144
      Btn_underln AT ROW 7.67 COL 111
-     Btn_Caps_Lock AT ROW 5.76 COL 1
-     Btn_Clear AT ROW 5.76 COL 48
-     Btn_Space AT ROW 5.76 COL 64
-     Btn_Backspace AT ROW 5.76 COL 80
-     Btn_Sort AT ROW 5.76 COL 123
-     Btn_Qwerty AT ROW 5.76 COL 139
      Btn_A AT ROW 1 COL 1
      Btn_B AT ROW 1 COL 12
      Btn_C AT ROW 1 COL 23
@@ -1356,12 +1356,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE Btn_And Btn_Asterisk Btn_Atsign Btn_bckslash Btn_Carot Btn_Colon 
-         Btn_Comma Btn_Dblquote Btn_Dollar Btn_Equal Btn_Exclaim Btn_fwdslash 
+  ENABLE Btn_Atsign Btn_Dblquote Btn_And Btn_Caps_Lock Btn_Asterisk Btn_Clear 
+         Btn_Space Btn_Backspace Btn_bckslash Btn_Sort Btn_Carot Btn_Qwerty 
+         Btn_Colon Btn_Comma Btn_Dollar Btn_Equal Btn_Exclaim Btn_fwdslash 
          Btn_Grtrthan Btn_Lbox Btn_lcurly Btn_Lessthan Btn_lparenth Btn_Minus 
          Btn_Percent Btn_Period Btn_Pipe Btn_Plus Btn_Pound Btn_Question 
          Btn_rbox Btn_rcurly Btn_rparenth Btn_semicoln Btn_Sglquote Btn_underln 
-         Btn_Caps_Lock Btn_Clear Btn_Space Btn_Backspace Btn_Sort Btn_Qwerty 
          Btn_A Btn_B Btn_C Btn_D Btn_E Btn_F Btn_G Btn_H Btn_I Btn_J Btn_K 
          Btn_L Btn_M Btn_N Btn_O Btn_P Btn_Q Btn_R Btn_S Btn_T Btn_U Btn_V 
          Btn_W Btn_X Btn_Y Btn_Z 
