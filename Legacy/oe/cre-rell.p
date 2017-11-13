@@ -380,15 +380,10 @@ DEF OUTPUT PARAMETER opr-oerell AS ROWID NO-UNDO.
       NO-ERROR.
 
   IF AVAIL b-reftable THEN DO:
-    oe-rell.lot-no = b-reftable.CODE.
-    CREATE reftable.
     ASSIGN
-     reftable.reftable = "oe-rell.lot-no"
-     reftable.rec_key  = oe-rell.rec_key
-     reftable.code     = b-reftable.code
-     reftable.code2    = b-reftable.code2
-     reftable.dscr     = b-reftable.dscr.
-    RELEASE reftable.
+     oe-rell.lot-no     = b-reftable.code
+     oe-rell.frt-pay    = b-reftable.code2
+     oe-rell.fob-code   = b-reftable.dscr.    
     RELEASE b-reftable.
   END.
 

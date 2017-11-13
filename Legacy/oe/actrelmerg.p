@@ -1151,17 +1151,11 @@ FUNCTION get-fob-dscr2 RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
    /* Find of fob dscr for this oe-relh */
-   FIND FIRST b2-reftable 
-     WHERE b2-reftable.reftable EQ "oe-rell.lot-no" 
-       AND b2-reftable.rec_key  EQ ipcRecKey
-     USE-INDEX rec_key
-     NO-LOCK NO-ERROR.
-
-   IF AVAIL(b2-reftable) THEN
-       RETURN b2-reftable.dscr.
+   
+   IF b2-oe-rell.rec_key <> "" THEN 
+     RETURN oe-rell.fob-code.
    ELSE
-       RETURN "".   /* Function return value. */
-
+     RETURN "".     
 END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */

@@ -2869,18 +2869,13 @@ IF v-none THEN DO TRANSACTION:
       WHERE b-reftable.reftable EQ "oe-rel.lot-no"
         AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
       NO-ERROR.
-
-  IF AVAIL b-reftable THEN DO:
-    CREATE reftable.
-    ASSIGN
-     reftable.reftable = "oe-rell.lot-no"
-     reftable.rec_key  = oe-rell.rec_key
-     reftable.code     = b-reftable.code
-     reftable.code2    = b-reftable.code2
-     reftable.dscr     = b-reftable.dscr.
-    RELEASE reftable.
+    
+   ASSIGN
+     oe-rell.lot-no     = b-reftable.code
+     oe-rell.frt-pay    = b-reftable.code2
+     oe-rell.fob-code   = b-reftable.dscr. 
     RELEASE b-reftable.
-  END.
+ 
 
   FIND FIRST b-reftable NO-LOCK
       WHERE b-reftable.reftable EQ "oe-rel.sell-price"

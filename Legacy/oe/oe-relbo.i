@@ -514,26 +514,10 @@ DO bo-try = 1 TO 2:
 
     xoe-rell.tag = oe-rel.tag.
 
-    FIND FIRST b-reftable2 WHERE
-         b-reftable2.reftable = "oe-rell.lot-no" AND
-         b-reftable2.rec_key  = xoe-rell.rec_key
-         USE-INDEX rec_key
-         NO-ERROR.
-
-    IF NOT AVAIL b-reftable2 THEN
-    DO:
-       CREATE b-reftable2.
-       ASSIGN
-          b-reftable2.reftable = "oe-rell.lot-no"
-          b-reftable2.rec_key  = xoe-rell.rec_key.
-    END.
-
     ASSIGN
-       b-reftable2.code     = v-new-lot-code
-       b-reftable2.code2    = v-new-frt-pay
-       b-reftable2.dscr     = v-new-fob-code.
-
-    RELEASE b-reftable2.
+       xoe-rell.lot-no     = v-new-lot-code
+       xoe-rell.frt-pay    = v-new-frt-pay
+       xoe-rell.fob-code     = v-new-fob-code.
 
     FIND FIRST b-reftable2 WHERE
          b-reftable2.reftable EQ "oe-rell.sell-price" AND

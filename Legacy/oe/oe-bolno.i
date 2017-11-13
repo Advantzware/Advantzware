@@ -7,17 +7,12 @@ RUN oe/oe-bolno.p (cocode, OUTPUT v-n-bol).
          vfob-list = "".
   FOR EACH bf-rell WHERE bf-rell.r-no EQ oe-relh.r-no
                          USE-INDEX r-no NO-LOCK:
-    FIND FIRST reftable WHERE
-         reftable.reftable EQ "oe-rell.lot-no" AND
-         reftable.rec_key  EQ bf-rell.rec_key
-         USE-INDEX rec_key
-         NO-LOCK NO-ERROR.
+                                                                                                      
 
-    IF AVAIL reftable THEN DO:
-       ASSIGN vfrt-list = (IF LOOKUP(reftable.code2,vfrt-list) = 0 THEN vfrt-list + "," + reftable.code2 ELSE vfrt-list)
-              vfob-list = (IF LOOKUP(reftable.dscr,vfob-list) = 0 THEN vfob-list + "," + reftable.dscr ELSE vfob-list).
-    END.
-  END.
+    IF bf-rell.lot-no <> "" THEN
+       ASSIGN vfrt-list = (IF LOOKUP(bf-rell.frt-pay,vfrt-list) = 0 THEN vfrt-list + "," + bf-rell.frt-pay ELSE vfrt-list)
+              vfob-list = (IF LOOKUP(bf-rell.fob-code,vfob-list) = 0 THEN vfob-list + "," + bf-rell.fob-code ELSE vfob-list).
+  END.    
 
   IF length(vfrt-list) > 0 THEN
       ASSIGN vfrt-list = SUBSTR(vfrt-list,2).
@@ -59,15 +54,10 @@ end.*/
   ASSIGN vfrt-pay = (IF vfrt-list <> "" THEN SUBSTR(vfrt-list,1,1) ELSE "")
          vfob-code = (IF vfob-list <> "" THEN SUBSTR(vfob-list,1,1) ELSE "").
 
-  FIND FIRST reftable WHERE
-       reftable.reftable EQ "oe-rell.lot-no" AND
-       reftable.rec_key  EQ bf-rell.rec_key
-       USE-INDEX rec_key
-       NO-LOCK NO-ERROR.
 
-  IF AVAIL reftable THEN DO:
-     ASSIGN vfrt-pay = (IF vfrt-pay = "" THEN reftable.code2 ELSE vfrt-pay)
-            vfob-code = (IF vfob-code = "" THEN reftable.dscr ELSE vfob-code).
+    IF bf-rell.lot-no <> "" THEN DO:   
+     ASSIGN vfrt-pay = (IF vfrt-pay = "" THEN bf-rell.frt-pay ELSE vfrt-pay)
+            vfob-code = (IF vfob-code = "" THEN bf-rell.fob-code ELSE vfob-code).        
 
      IF vfrt-pay = "P" THEN vfrt-pay = "Prepaid". 
      ELSE IF vfrt-pay = "C" THEN vfrt-pay = "Collect".
@@ -81,12 +71,12 @@ end.*/
          MESSAGE "Default Freight Pay to 1st Release?"
                  UPDATE vfrt-pay FORM "x(10)".
          IF NOT can-do("P,C,B,T",substr(vfrt-pay,1,1)) THEN
-             ASSIGN vfrt-pay =  reftable.code2.
+             ASSIGN vfrt-pay =  bf-rell.frt-pay.
          
          MESSAGE "Default FOB Code to 1st Release?"
                  UPDATE vfob-code FORM "x(12)".
          IF NOT can-do("O,D",substr(vfob-code,1,1)) THEN 
-             ASSIGN vfob-code = reftable.dscr.
+             ASSIGN vfob-code = bf-rell.fob-code.
      END.
      IF length(vfrt-pay) > 1 THEN
         ASSIGN vfrt-pay =  substr(vfrt-pay,1,1).

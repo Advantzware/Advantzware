@@ -120,18 +120,12 @@ FOR EACH oe-relh
     DO:
        FOR EACH b2-oe-rell FIELDS(rec_key) WHERE
            b2-oe-rell.r-no EQ oe-relh.r-no
-           NO-LOCK:
+           NO-LOCK:                     
            
-         /* Match of lot-no between oe-rel and oe-rell */
-           FIND FIRST b2-reftable WHERE
-                b2-reftable.reftable EQ "oe-rell.lot-no" AND
-                b2-reftable.rec_key  EQ b2-oe-rell.rec_key
-                USE-INDEX rec_key
-                NO-LOCK NO-ERROR.
-           
-           IF (AVAIL b2-reftable AND b2-reftable.dscr NE b-reft-fob.dscr) OR
-              (NOT AVAIL b2-reftable AND b-reft-fob.dscr NE "") THEN
-              NEXT oe-relh-loop.
+           IF (b2-oe-rell.lot-no NE "" AND b2-oe-rell.fob-code NE b-reft-fob.dscr) OR
+              (b2-oe-rell.lot-no EQ "" AND b2-oe-rell.fob-code NE "") THEN
+              NEXT oe-relh-loop.           
+              
        END.
     END.
 
