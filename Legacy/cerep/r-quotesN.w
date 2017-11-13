@@ -86,19 +86,21 @@ ASSIGN cTextListToDefault  = "Quote#,Est#,Customer,Part Description,Date,SalesRe
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS RECT-6 RECT-7 begin_cust-no end_cust-no ~
-begin_slsmn end_slsmn begin_date end_date rd_sort rd-dest lv-ornt ~
+begin_slsmn end_slsmn begin_date end_date rd_sort rd_print sl_avail ~
+sl_selected Btn_Def Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt ~
 lines-per-page lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok ~
-btn-cancel sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down
+btn-cancel 
 &Scoped-Define DISPLAYED-OBJECTS begin_cust-no end_cust-no begin_slsmn ~
-end_slsmn begin_date end_date lbl-sort rd_sort rd-dest lv-ornt ~
-lines-per-page lv-font-no lv-font-name td-show-parm tb_excel tb_runExcel ~
-fi_file sl_avail sl_selected
+end_slsmn begin_date end_date lbl-sort rd_sort rd_print sl_avail ~
+sl_selected rd-dest lv-ornt lines-per-page lv-font-no lv-font-name ~
+td-show-parm tb_excel tb_runExcel fi_file 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ************************  Function Prototypes ********************** */
 
@@ -108,6 +110,7 @@ FUNCTION GEtFieldValue RETURNS CHARACTER
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -238,6 +241,11 @@ DEFINE VARIABLE sl_selected AS CHARACTER
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
      SIZE 33 BY 5.19 NO-UNDO.
 
+DEFINE VARIABLE rd_print AS LOGICAL INITIAL yes 
+     LABEL "Print Prep/Misc Chg?" 
+     VIEW-AS TOGGLE-BOX
+     SIZE 24 BY .81 NO-UNDO.
+
 DEFINE VARIABLE tb_excel AS LOGICAL INITIAL yes 
      LABEL "Export To Excel?" 
      VIEW-AS TOGGLE-BOX
@@ -271,8 +279,9 @@ DEFINE FRAME FRAME-A
           "Enter Beginning Last Modify Date"
      end_date AT ROW 4.57 COL 70 COLON-ALIGNED HELP
           "Enter Ending Last Modify Date"
-     lbl-sort AT ROW 6.19 COL 32 COLON-ALIGNED NO-LABEL
-     rd_sort AT ROW 6.19 COL 44 NO-LABEL
+     lbl-sort AT ROW 6.19 COL 23 COLON-ALIGNED NO-LABEL
+     rd_sort AT ROW 6.19 COL 35 NO-LABEL
+     rd_print AT ROW 6.24 COL 63.8 WIDGET-ID 58
      sl_avail AT ROW 8.33 COL 4.2 NO-LABEL WIDGET-ID 26
      sl_selected AT ROW 8.33 COL 59.6 NO-LABEL WIDGET-ID 28
      Btn_Def AT ROW 8.48 COL 40.2 HELP
@@ -297,13 +306,13 @@ DEFINE FRAME FRAME-A
      btn-cancel AT ROW 23.71 COL 61
      "Available Columns" VIEW-AS TEXT
           SIZE 29 BY .62 AT ROW 7.62 COL 5 WIDGET-ID 38
-     "Output Destination" VIEW-AS TEXT
-          SIZE 18 BY .62 AT ROW 13.95 COL 3
+     "Selected Columns(In Display Order)" VIEW-AS TEXT
+          SIZE 34 BY .62 AT ROW 7.62 COL 59.6 WIDGET-ID 44
      "Selection Parameters" VIEW-AS TEXT
           SIZE 21 BY .71 AT ROW 1.24 COL 5
           BGCOLOR 2 
-     "Selected Columns(In Display Order)" VIEW-AS TEXT
-          SIZE 34 BY .62 AT ROW 7.62 COL 59.6 WIDGET-ID 44
+     "Output Destination" VIEW-AS TEXT
+          SIZE 18 BY .62 AT ROW 13.95 COL 3
      RECT-6 AT ROW 13.71 COL 2
      RECT-7 AT ROW 1 COL 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
@@ -363,16 +372,6 @@ IF NOT C-Win:LOAD-ICON("Graphics\asiicon.ico":U) THEN
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME FRAME-A
    FRAME-NAME                                                           */
-ASSIGN
-       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
-ASSIGN
-       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
-                "ribbon-button".
-
-
 ASSIGN 
        begin_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
@@ -384,6 +383,14 @@ ASSIGN
 ASSIGN 
        begin_slsmn:PRIVATE-DATA IN FRAME FRAME-A     = 
                 "parm".
+
+ASSIGN 
+       btn-cancel:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
+
+ASSIGN 
+       btn-ok:PRIVATE-DATA IN FRAME FRAME-A     = 
+                "ribbon-button".
 
 ASSIGN 
        end_cust-no:PRIVATE-DATA IN FRAME FRAME-A     = 
@@ -431,7 +438,7 @@ THEN C-Win:HIDDEN = no.
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -559,6 +566,7 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
 &Scoped-define SELF-NAME Btn_Add
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Add C-Win
 ON CHOOSE OF Btn_Add IN FRAME FRAME-A /* Add >> */
@@ -636,6 +644,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME end_cust-no
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL end_cust-no C-Win
@@ -750,6 +759,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME rd_print
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_print C-Win
+ON VALUE-CHANGED OF rd_print IN FRAME FRAME-A /* Print Prep/Misc Chg? */
+DO:
+    assign {&self-name}.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define SELF-NAME rd_sort
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rd_sort C-Win
 ON VALUE-CHANGED OF rd_sort IN FRAME FRAME-A
@@ -759,6 +779,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME sl_avail
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL sl_avail C-Win
@@ -821,6 +842,7 @@ END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
 
 &Scoped-define SELF-NAME tb_excel
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL tb_excel C-Win
@@ -1055,13 +1077,14 @@ PROCEDURE enable_UI :
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
   DISPLAY begin_cust-no end_cust-no begin_slsmn end_slsmn begin_date end_date 
-          lbl-sort rd_sort rd-dest lv-ornt lines-per-page lv-font-no 
-          lv-font-name td-show-parm tb_excel tb_runExcel fi_file sl_avail sl_selected
+          lbl-sort rd_sort rd_print sl_avail sl_selected rd-dest lv-ornt 
+          lines-per-page lv-font-no lv-font-name td-show-parm tb_excel 
+          tb_runExcel fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 begin_cust-no end_cust-no begin_slsmn end_slsmn 
-         begin_date end_date rd_sort rd-dest lv-ornt lines-per-page 
+         begin_date end_date rd_sort rd_print sl_avail sl_selected Btn_Def 
+         Btn_Add Btn_Remove btn_Up btn_down rd-dest lv-ornt lines-per-page 
          lv-font-no td-show-parm tb_excel tb_runExcel fi_file btn-ok btn-cancel 
-         sl_avail Btn_Def sl_selected Btn_Add Btn_Remove btn_Up btn_down
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -1320,32 +1343,6 @@ IF tb_excel THEN do:
 END.
 SESSION:SET-WAIT-STATE ("general").
 
-
-/* gdm - 10130805 */
-/*IF tb_excel THEN DO:
-    OUTPUT STREAM excel TO VALUE(fi_file).
-    PUT STREAM excel UNFORMATTED
-       "Quote#,Est#,Customer,Part Description,Date,SalesRep,Ext Price,Ext Cost,Qty,Price/M,Cost/M,GP$,GP%,"
-        .    
-
-    IF v-cst 
-      THEN 
-        PUT STREAM excel UNFORMATTED
-           "Mat,DL,VO,FO,Misc,Charge,ChargeAmt" 
-         SKIP.
-      ELSE
-        PUT STREAM excel UNFORMATTED
-            "Misc,Charge,ChargeAmt"
-            SKIP.
-
-END.
-
-
-
-if v-cst then
-  v-cst-hdr = "Costs --->        Mat           DL           VO           FO". */
-
-
 FOR EACH quotehd
     WHERE quotehd.company  EQ cocode
       AND quotehd.loc      EQ locode
@@ -1433,6 +1430,8 @@ for each tt-report where tt-report.term-id eq "",
 
     if v-gp% eq ? then v-gp% = 0.
 
+  
+
      ASSIGN cDisplay = ""                                                              
                    cTmpField = ""                                                      
                    cVarValue = ""                                                      
@@ -1442,23 +1441,23 @@ for each tt-report where tt-report.term-id eq "",
             DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
                cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                     CASE cTmpField:             
-                         WHEN "quot"              THEN cVarValue = string(quotehd.q-no).
-                         WHEN "est"          THEN cVarValue = string(quotehd.est-no).
-                         WHEN "cust"             THEN cVarValue = STRING(quotehd.billto[1]).
-                         WHEN "part"               THEN cVarValue = STRING(v-dscr).
-                         WHEN "date"             THEN cVarValue = IF quotehd.quo-date <> ? THEN STRING(quotehd.quo-date) ELSE "".
-                         WHEN "rep"                  THEN cVarValue = if AVAIL sman THEN STRING(sman.sname) ELSE "".
-                         WHEN "ext-price"     THEN cVarValue = STRING(v-ext[1],">>>,>>>,>>9.99") .
-                         WHEN "ext-cost"             THEN cVarValue = STRING(v-ext[2],">>>,>>>,>>9.99").
-                         WHEN "qty"              THEN cVarValue = STRING(quoteqty.qty,">>>>>>9") .
-                         WHEN "price"                THEN cVarValue = STRING(v-price,">>>,>>9.99") .
-                         WHEN "cost"                 THEN cVarValue = STRING(v-cost,">>>,>>9.99") .
-                         WHEN "gp"                   THEN cVarValue = STRING(v-gp$,"->>,>>9.99") .
-                         WHEN "gp%"                   THEN cVarValue = STRING(v-gp%,"->>9.99") .
-                         WHEN "mat"                  THEN cVarValue = STRING(quoteqty.mat-cost,"->>>,>>9.99<<<") .
-                         WHEN "dl"               THEN cVarValue = STRING(quoteqty.lab-cost,"->>>,>>9.99<<<") .
-                         WHEN "bo"                   THEN cVarValue = STRING(quoteqty.vo-cost,"->>>,>>9.99<<<") .
-                         WHEN "fo"               THEN cVarValue = STRING(quoteqty.fo-cost,"->>>,>>9.99<<<") .
+                         WHEN "quot"              THEN cVarValue = if first-of(quoteitm.part-no) THEN string(quotehd.q-no)  ELSE "".
+                         WHEN "est"               THEN cVarValue = if first-of(quoteitm.part-no) THEN string(quotehd.est-no) ELSE "".
+                         WHEN "cust"              THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(quotehd.billto[1]) ELSE "".
+                         WHEN "part"              THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(v-dscr)  ELSE "".
+                         WHEN "date"              THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(quotehd.quo-date)  ELSE "".
+                         WHEN "rep"               THEN cVarValue = if first-of(quoteitm.part-no) AND AVAIL sman THEN STRING(sman.sname)  ELSE "".
+                         WHEN "ext-price"         THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(v-ext[1],">>>,>>>,>>9.99")  ELSE "" .
+                         WHEN "ext-cost"          THEN cVarValue = if first-of(quoteitm.part-no) THEN STRING(v-ext[2],">>>,>>>,>>9.99")  ELSE "" .
+                         WHEN "qty"               THEN cVarValue = STRING(quoteqty.qty,">>>>>>9") .
+                         WHEN "price"             THEN cVarValue = STRING(v-price,">>>,>>9.99") .
+                         WHEN "cost"              THEN cVarValue = STRING(v-cost,">>>,>>9.99") .
+                         WHEN "gp"                THEN cVarValue = STRING(v-gp$,"->>,>>9.99") .
+                         WHEN "gp%"               THEN cVarValue = STRING(v-gp%,"->>9.99") .
+                         WHEN "mat"               THEN cVarValue = STRING(quoteqty.mat-cost,"->>>,>>9.99<<<") .
+                         WHEN "dl"                THEN cVarValue = STRING(quoteqty.lab-cost,"->>>,>>9.99<<<") .
+                         WHEN "bo"                THEN cVarValue = STRING(quoteqty.vo-cost,"->>>,>>9.99<<<") .
+                         WHEN "fo"                THEN cVarValue = STRING(quoteqty.fo-cost,"->>>,>>9.99<<<") .
                     END CASE.
 
                     cExcelVarValue = cVarValue.
@@ -1475,58 +1474,19 @@ for each tt-report where tt-report.term-id eq "",
   
 
    /* put skip.*/
-
-    /* gdm - 10130805 */
-   /* IF tb_excel THEN DO:
-
-        IF FIRST-OF(quoteitm.part-no) 
-          THEN 
-            PUT STREAM excel UNFORMATTED
-              '"' quotehd.q-no      '",'
-              '"' quotehd.est-no    '",'
-              '"' quotehd.billto[1] '",'
-              '"' v-dscr            '",'
-              '"' quotehd.quo-date  '",'
-              '"' v_sname           '",'
-              '"' v-ext[1]          '",'
-              '"' v-ext[2]          '",'
-              '"' quoteqty.qty      '",'
-              '"' STRING(ROUND(v-price,10),'->>,>>9.99') '",'
-              '"' STRING(ROUND(v-cost,10),'->>,>>9.99')  '",'
-              '"' STRING(ROUND(v-gp$,10),'->>,>>9.99')   '",'
-              '"' STRING(ROUND(v-gp%,10),'->>,>>9.99')   '",'.
-
-          ELSE
-            PUT STREAM excel UNFORMATTED
-              ',,,,,,,,'
-              '"' quoteqty.qty      '",'
-              '"' STRING(ROUND(v-price,10),'->>,>>9.99') '",'
-              '"' STRING(ROUND(v-cost,10),'->>,>>9.99')  '",'
-              '"' STRING(ROUND(v-gp$,10),'->>,>>9.99')   '",'
-              '"' STRING(ROUND(v-gp%,10),'->>,>>9.99')   '",'.
-
-        IF v-cst 
-          THEN 
-            PUT STREAM excel UNFORMATTED
-              '"' quoteqty.mat-cost '",'
-              '"' quoteqty.lab-cost '",'
-              '"' quoteqty.vo-cost  '",'
-              '"' quoteqty.fo-cost  '",' .        
-
-    END. /* if excel */ */
-
-    /* gdm - 10130805 */
+   
     FIND FIRST quotechg NO-LOCK 
         WHERE quotechg.company EQ quoteqty.company
           AND quotechg.loc     EQ quoteqty.loc
           AND quotechg.q-no    EQ quoteqty.q-no
           AND quotechg.line    EQ quoteqty.line
           AND quotechg.qty     EQ quoteqty.qty NO-ERROR.
+    
     IF NOT AVAIL quotechg THEN 
         IF tb_excel THEN
             PUT STREAM excel UNFORMATTED SKIP.
 
-
+    IF rd_print THEN
     for each quotechg no-lock
         where quotechg.company eq quoteqty.company
           and quotechg.loc eq quoteqty.loc
@@ -1535,7 +1495,7 @@ for each tt-report where tt-report.term-id eq "",
           and quotechg.qty eq quoteqty.qty
         break by quotechg.charge:
 
-      if first(quotechg.charge) then /*put skip(1)*/.
+     /* if first(quotechg.charge) then put skip(1).*/
 
       if (quotechg.labf ne 0 or  quotechg.labm ne 0) and
          (quotechg.matf eq 0 and quotechg.matm eq 0) then
@@ -1551,45 +1511,53 @@ for each tt-report where tt-report.term-id eq "",
       else
         v-misc = "".
 
-     /* put space(40)
+      /*PUT  space(40)
           v-misc
           quotechg.charge
           space(43)
           quotechg.amt
           skip.*/
 
-      /* gdm - 10130805 */
-    /*  IF tb_excel THEN DO:
+      ASSIGN cDisplay = ""                                                              
+                   cTmpField = ""                                                      
+                   cVarValue = ""                                                      
+                   cExcelDisplay = ""
+                   cExcelVarValue = "".
 
-          IF FIRST(quotechg.charge) THEN DO:
-              PUT STREAM excel UNFORMATTED
-                  '"' v-misc          '",'
-                  '"' quotechg.charge '",'
-                  '"' quotechg.amt    '"'
-                  SKIP.
-          END.
-          ELSE DO:
+            DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+               cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+                    CASE cTmpField:             
+                         WHEN "quot"              THEN cVarValue =  "".
+                         WHEN "est"               THEN cVarValue =  "".
+                         WHEN "cust"              THEN cVarValue =  STRING(v-misc).
+                         WHEN "part"              THEN cVarValue =  STRING(quotechg.charge,"x(30)").
+                         WHEN "date"              THEN cVarValue =   "".
+                         WHEN "rep"               THEN cVarValue =  "".
+                         WHEN "ext-price"         THEN cVarValue =  "" .
+                         WHEN "ext-cost"          THEN cVarValue =  STRING(quotechg.amt,"->>,>>>,>>9.99") .
+                         WHEN "qty"               THEN cVarValue = "" .
+                         WHEN "price"             THEN cVarValue = "" .
+                         WHEN "cost"              THEN cVarValue = "" .
+                         WHEN "gp"                THEN cVarValue = "" .
+                         WHEN "gp%"               THEN cVarValue = "" .
+                         WHEN "mat"               THEN cVarValue = "" .
+                         WHEN "dl"                THEN cVarValue = "" .
+                         WHEN "bo"                THEN cVarValue = "" .
+                         WHEN "fo"                THEN cVarValue = "" .
+                    END CASE.
 
-             /* IF v-cst 
-                THEN */
-                  PUT STREAM excel UNFORMATTED
-                    ',,,,,,,,,,,,,,,,,'                   
-                    '"' v-misc          '",'
-                    '"' quotechg.charge '",'
-                    '"' quotechg.amt    '"'
-                   SKIP.
-            /*    ELSE 
-                  PUT STREAM excel UNFORMATTED
-                    ',,,,,,,,,,,,,'
-                    '"' v-misc          '",'
-                    '"' quotechg.charge '",'
-                    '"' quotechg.amt    '"'
-                   SKIP.*/
-          END.
-      END. */
+                    cExcelVarValue = cVarValue.
+                    cDisplay = cDisplay + cVarValue +
+                               FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                    cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+            END.
 
-    /*  if last(quotechg.charge) then put skip(1). */
-
+            PUT UNFORMATTED cDisplay SKIP.
+            IF tb_excel THEN DO:
+                 PUT STREAM excel UNFORMATTED  
+                       cExcelDisplay SKIP.
+             END. 
+     
     end.
 
   end.
@@ -1598,26 +1566,7 @@ for each tt-report where tt-report.term-id eq "",
       skip. */
 
   if last-of(tt-report.key-01) then do:
-   /* put fill("-",133) format "x(133)"
-        skip.
-
-    if v-srt then put "Customer Totals".
-    else put "SalesRep Totals".
-
-    put space(66)
-        "# of Quotes:"
-        SPACE(1)
-        TRIM(STRING(lv-q-qty[1],">,>>>,>>9")) FORMAT "x(9)"
-        SPACE(1)
-        v-tot[1]
-        space(1)
-        v-tot[2]
-        skip
-        fill("-",133) format "x(133)"
-        skip
-        fill("-",133) format "x(133)"
-        skip. */
-
+  
     ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -1678,17 +1627,7 @@ for each tt-report where tt-report.term-id eq "",
   end.
 
   IF LAST(tt-report.key-01) THEN do:
-    /*PUT SKIP(2)
-        "Grand Totals"
-        SPACE(69)
-        "# of Quotes:"
-        SPACE(1)
-        TRIM(STRING(lv-q-qty[2],">,>>>,>>9")) FORMAT "x(9)"
-        SPACE(1)
-        v-tot[3]
-        SPACE(1)
-        v-tot[4].*/
-
+   
       ASSIGN cDisplay = ""
                    cTmpField = ""
                    cVarValue = ""
@@ -1836,5 +1775,4 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
