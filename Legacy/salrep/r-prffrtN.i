@@ -759,7 +759,7 @@
                                            substr(tt-report2.key-02,7,2) + "/" +
                                            substr(tt-report2.key-02,1,4) + substring(cDisplay,31,350) SKIP.
             IF tb_excel THEN DO:
-                 PUT STREAM excel UNFORMATTED 'DATE TOTALS FOR ,' + substr(tt-report2.key-02,5,2) + "/" +
+                 PUT STREAM excel UNFORMATTED 'DATE TOTALS FOR ' + substr(tt-report2.key-02,5,2) + "/" +
                      substr(tt-report2.key-02,7,2) + "/" +
                      substr(tt-report2.key-02,1,4) + substring(cExcelDisplay,4,350) SKIP.
              END.
@@ -853,13 +853,13 @@
            IF rd_sort BEGINS "S" THEN do:
                PUT UNFORMATTED "    SALESREP TOTALS " substring(cDisplay,21,350) SKIP.
                IF tb_excel THEN DO:
-                    PUT STREAM excel UNFORMATTED 'SALESREP TOTALS ,' substring(cExcelDisplay,4,350) SKIP.
+                    PUT STREAM excel UNFORMATTED 'SALESREP TOTALS ' substring(cExcelDisplay,4,350) SKIP.
                END.
            END.
            ELSE DO:
                PUT UNFORMATTED "    FG ITEMS TOTAL " substring(cDisplay,20,350) SKIP.
                IF tb_excel THEN DO:
-                    PUT STREAM excel UNFORMATTED 'FG ITEMS TOTAL ,' substring(cExcelDisplay,4,350) SKIP.
+                    PUT STREAM excel UNFORMATTED 'FG ITEMS TOTAL' substring(cExcelDisplay,4,350) SKIP.
                END.
            END.    
 
@@ -946,7 +946,7 @@
            
            PUT UNFORMATTED "    GRAND TOTAL " substring(cDisplay,17,350) SKIP.
            IF tb_excel THEN DO:
-                PUT STREAM excel UNFORMATTED 'GRAND TOTAL ,' substring(cExcelDisplay,4,350) SKIP.
+                PUT STREAM excel UNFORMATTED 'GRAND TOTAL ' substring(cExcelDisplay,4,350) SKIP.
            END.
            
     end.
