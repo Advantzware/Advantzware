@@ -1539,7 +1539,7 @@ FOR EACH est
                          WHEN "mar-40"              THEN cVarValue = STRING(ld-mar[6],"->>,>>>,>>9.99") .
                          WHEN "45-pct"          THEN cVarValue = STRING(ld-mar[7],"->>,>>>,>>9.99") .
                           WHEN "sman" THEN cVarValue = STRING(eb.sman,"x(9)") .
-                         WHEN "comm"   THEN cVarValue = STRING(eb.comm,">>>>>>>9.99%") .
+                         WHEN "comm"   THEN cVarValue = STRING(eb.comm,"->>9.99%") .
 
                     END CASE.
 
