@@ -58,13 +58,13 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect  = "Est#,Customer Name,Last used,Part #,Description 1,Description 2,Style," +
-                            "Blank size,Item Size,Print,Board,Status,Last Order#,Order Date,Cust#," +
+                            "Blank size,Item Size,Print,Board,Status,Last Order#,Order Date,Cust#,Sales Rep,Commission %," +
                             "Adder1,Adder2,Adder3,Adder4,Adder5"
        cFieldListToSelect = "v_est-no,v_custnm,v_mod-date,eb.part-no,eb.part-dscr1,eb.part-dscr2,v_stydsc," +
-                            "v_blksz,v-blk-dim,eb.i-coldscr,v_i-name,v-booked,eb.ord-no,ord-date,eb.cust-no," +
+                            "v_blksz,v-blk-dim,eb.i-coldscr,v_i-name,v-booked,eb.ord-no,ord-date,eb.cust-no,eb.sman,comm," +
                             "add1,add2,add3,add4,add5"
 
-       cFieldLength = "5,30,10,15,30,30,25," + "20,27,30,30,6,11,10,8," + "10,10,10,10,10"
+       cFieldLength = "5,30,10,15,30,30,25," + "20,27,30,30,6,11,10,8,9,12," + "10,10,10,10,10"
        .
 
 {sys/inc/ttRptSel.i}
@@ -1778,7 +1778,7 @@ FOR EACH tt-eb,
 
                      IF ENTRY(i,cSelectedList) = "Last Order#" THEN
                         cTmpField = IF cTmpField <> "0" THEN cTmpField ELSE "".   
-
+                     
                      cDisplay = cDisplay + cTmpField + 
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                                .
@@ -1806,6 +1806,7 @@ FOR EACH tt-eb,
                  WHEN "add3" THEN cVarValue = STRING(adder[3]).
                  WHEN "add4" THEN cVarValue = STRING(adder[4]).
                  WHEN "add5" THEN cVarValue = STRING(adder[5]).
+                 WHEN "comm"   THEN cVarValue = STRING(eb.comm,"->>9.99%") .
             END CASE.
 
             cExcelVarValue = cVarValue.
