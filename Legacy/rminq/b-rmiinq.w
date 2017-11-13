@@ -89,9 +89,9 @@ DEF BUFFER rm-rdtlh-1 FOR rm-rdtlh.
     IF lv-sort-by EQ "tag"        THEN rm-rdtlh.tag                                                   ELSE ~
     IF lv-sort-by EQ "tag2"       THEN rm-rdtlh.tag2                                                  ELSE ~
     IF lv-sort-by EQ "pur-uom"    THEN rm-rcpth.pur-uom                                               ELSE ~
-    IF lv-sort-by EQ "qty"        THEN rm-rdtlh.qty              ELSE ~
-    IF lv-sort-by EQ "cost"       THEN rm-rdtlh.cost                       ELSE ~
-    IF lv-sort-by EQ "ld-ext-cost"       THEN (rm-rdtlh.qty * rm-rdtlh.cost)                       ELSE ~
+    IF lv-sort-by EQ "qty"        THEN STRING(rm-rdtlh.qty,"-9999999999.99")                          ELSE ~
+    IF lv-sort-by EQ "cost"       THEN STRING(rm-rdtlh.cost,"-9999999999.99")                         ELSE ~
+    IF lv-sort-by EQ "ld-ext-cost"       THEN STRING((rm-rdtlh.qty * rm-rdtlh.cost),"-9999999999.99") ELSE ~
     IF lv-sort-by EQ "job-no"     THEN STRING(rm-rcpth.job-no,"x(6)") + STRING(rm-rcpth.job-no2,"99") ELSE ~
                                        STRING(YEAR(rm-rcpth.trans-date),"9999") + STRING(MONTH(rm-rcpth.trans-date),"99") + STRING(DAY(rm-rcpth.trans-date),"99") + STRING(rm-rcpth.r-no,"9999999999")
 
