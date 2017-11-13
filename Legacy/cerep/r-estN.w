@@ -1806,7 +1806,7 @@ FOR EACH tt-eb,
                  WHEN "add3" THEN cVarValue = STRING(adder[3]).
                  WHEN "add4" THEN cVarValue = STRING(adder[4]).
                  WHEN "add5" THEN cVarValue = STRING(adder[5]).
-                 WHEN "comm"   THEN cVarValue = STRING(eb.comm,">>>>>>>9.99%") .
+                 WHEN "comm"   THEN cVarValue = STRING(eb.comm,"->>9.99%") .
             END CASE.
 
             cExcelVarValue = cVarValue.
