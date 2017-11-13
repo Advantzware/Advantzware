@@ -1571,7 +1571,7 @@ for each eb
                          WHEN "last-usr" THEN cVarValue = STRING(est.updated-id,"x(9)") .
                          WHEN "up"   THEN cVarValue = IF v-num-up NE ? THEN STRING(v-num-up,"->>>") ELSE "" .
                          WHEN "sman" THEN cVarValue = STRING(eb.sman,"x(9)") .
-                         WHEN "comm"   THEN cVarValue = STRING(eb.comm,">>>>>>>9.99%") .
+                         WHEN "comm"   THEN cVarValue = STRING(eb.comm,"->>9.99%") .
 
                     END CASE.
 
