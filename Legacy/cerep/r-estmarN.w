@@ -56,16 +56,18 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Est#,Item Description,Bd,Cal,Carton Size,Die Size,#Up,# of Col,Carton Qty," +
-                        "FOB Cst/M,FOB T-Cst,15%,20%,25%,30%,35%,40%,45%"
+                        "FOB Cst/M,FOB T-Cst,15%,20%,FOB 25%,Variable 30%,Profit 35%,Margins 40%,45%," +
+                        "Sales Rep,Commission %"
        cFieldListToSelect = "est,i-desc,bd,cal,cart-sz,die-sz,no-up,no-col,crt-qty," +
-                                        "fob-cst,fob-ttl,15-pct,20-pct,fob-25,var-30,pro-35,mar-40,45-pct"
-       cFieldLength = "8,30,10,7,30,30,9,9,10," + "9,9,14,14,14,14,14,14,14"
-       cFieldType = "c,c,c,c,c,c,i,i,i," + "i,i,i,i,i,i,i,i,i" 
+                                        "fob-cst,fob-ttl,15-pct,20-pct,fob-25,var-30,pro-35,mar-40,45-pct," +
+                                        "sman,comm"
+       cFieldLength = "8,30,10,7,30,30,9,9,10," + "9,9,14,14,14,14,14,14,14," + "9,12"
+       cFieldType = "c,c,c,c,c,c,i,i,i," + "i,i,i,i,i,i,i,i,i,"  + "c,i"
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Est#,Item Description,Bd,Cal,Carton Size,Die Size,#Up,# of Col,Carton Qty," +
-                        "FOB Cst/M,FOB T-Cst,15%,20%,25%,30%,35%,40%,45%".
+                        "FOB Cst/M,FOB T-Cst,15%,20%,FOB 25%,Variable 30%,Profit 35%,Margins 40%,45%".
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1536,6 +1538,8 @@ FOR EACH est
                          WHEN "pro-35"          THEN cVarValue = STRING(ld-mar[5],"->>,>>>,>>9.99") .
                          WHEN "mar-40"              THEN cVarValue = STRING(ld-mar[6],"->>,>>>,>>9.99") .
                          WHEN "45-pct"          THEN cVarValue = STRING(ld-mar[7],"->>,>>>,>>9.99") .
+                          WHEN "sman" THEN cVarValue = STRING(eb.sman,"x(9)") .
+                         WHEN "comm"   THEN cVarValue = STRING(eb.comm,">>>>>>>9.99%") .
 
                     END CASE.
 

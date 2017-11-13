@@ -55,11 +55,11 @@ DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 
 ASSIGN cTextListToSelect = "Length,Width,Depth,Style,Material,Adder 1,Adder 2,Adder 3," +
-                           "Customer Part#,Est#,Last Ord Date,Customer Name,Last User,# Up" 
+                           "Customer Part#,Est#,Last Ord Date,Customer Name,Last User,# Up,Sales Rep,Commission %" 
        cFieldListToSelect = "len,wid,dep,style,mate,add1,add2,add3," +
-                            "cust-part,est,ord-date,cust-name,last-usr,up" 
-       cFieldLength = "8,8,8,6,10,10,10,10," + "15,8,13,24,9,4" 
-       cFieldType = "i,i,i,c,c,c,c,c," + "c,c,c,c,c,i" 
+                            "cust-part,est,ord-date,cust-name,last-usr,up,sman,comm" 
+       cFieldLength = "8,8,8,6,10,10,10,10," + "15,8,13,24,9,4,9,12" 
+       cFieldType = "i,i,i,c,c,c,c,c," + "c,c,c,c,c,i,c,i" 
     .
 
 {sys/inc/ttRptSel.i}
@@ -1570,6 +1570,8 @@ for each eb
                          WHEN "cust-name"   THEN cVarValue = STRING( eb.ship-name,"x(24)") .
                          WHEN "last-usr" THEN cVarValue = STRING(est.updated-id,"x(9)") .
                          WHEN "up"   THEN cVarValue = IF v-num-up NE ? THEN STRING(v-num-up,"->>>") ELSE "" .
+                         WHEN "sman" THEN cVarValue = STRING(eb.sman,"x(9)") .
+                         WHEN "comm"   THEN cVarValue = STRING(eb.comm,">>>>>>>9.99%") .
 
                     END CASE.
 
