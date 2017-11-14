@@ -572,13 +572,11 @@ PROCEDURE verBage:
 
     PUT 
      "<FArial><R47.5><C1><P9>"  /* "<FArial><R51.5><C1><P9>" */
-     "<b>Cancellation cannot be made if order is in the process of manufacture, without assuming full liability.</b>"           SKIP
-     "Customer agrees to pay for the following additional charges which may apply but may not be quoted above:"          SKIP
-     " <P13><B>*</B><P9> appropriate sales taxes       <P13><B>*</B><P9> die, plate and/or film charges (printing/cutting)     <P13><B>*</B><P9> relevant freight fees"  SKIP
-     " <P13><B>*</B><P9> kit charges for special inks  <P13><B>*</B><P9> control fee for exact quantities (when requested)"  SKIP 
+     "<b>Cancellation cannot be made if order is in the process of manufacture, without assuming full liability.</b>"           SKIP(1)
+     " <P13><B>*</B><P9> Quote valid for 30 days from this date."          SKIP
      " <P13><B>*</B><P9> All item quantities are subject to an over/underrun of 10%." SKIP
      " <P13><B>*</B><P9> Inventory for items will not exceed 30 days.                                 <C58>______________________________" SKIP
-     " <P13><B>*</B><P10><B> Visit our Website at www.sultanapackaging.com </B>                           <C63>Quote Authorization  "                              SKIP   
+     " <P13><B>*</B><P10><B> Visit our Website at www.sultanapkg.com </B>                           <C63>Quote Authorization  "                              SKIP   
      .
 
     PUT {1} 
@@ -589,17 +587,17 @@ PROCEDURE verBage:
     PUT "<|5><R55><C1><#5><FROM><R64><C80><RECT>" SKIP    
         "<C2><R55.5><#6><P12><B>CUSTOMER ACCEPTANCE: </B><P9>" SKIP
         "<=6><R57>"
-        "Signature below by an authorized representative of Customer authorizes Sultana Packaging Company (and its designated affiliates)" SKIP
+        "Signature below by an authorized representative of Customer authorizes Sultana Packaging Group (and its designated affiliates)" SKIP
         "<=6><R58>"
         "to begin production of the item(s) listed above at the specified quantity and designation. Customer agrees to pay quoted prices"   SKIP
         "<=6><R59>"
-        "(and any associated charges) within specified terms and agrees to the detail above. Quote valid for 30 days."                                                SKIP
+        "(and any associated charges) within specified terms and agrees to the detail above."                                                SKIP
         "<=6><R62>"
         " _________________                     ______________________________________                              __________________________ " SKIP
         "<=6><R63>"
         "             Date                                         Authorized Representative of Customer                                                Purchase Order No."
         " " SKIP
-        "Calle Antigua a Tecate #9100 Int. 16 y 18, La Campiña, Tijuana, B.C.  C.P. 22225  Oficina: 622-8862, 63 y 64  <B>www.sultanapackaging.com</B>"
+        "Calle Antigua a Tecate #9100 Int. 16 y 18, La Campiña, Tijuana, B.C.  C.P. 22225  Oficina: 622-8862, 63 y 64  <B>www.sultanapkg.com</B>"
         .
          
     ASSIGN v-printline = v-printline + 16. /*12*/
