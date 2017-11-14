@@ -211,7 +211,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[1] AT ROW 4.57 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[1] AT ROW 4.57 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[1] FORMAT "->>,>>>,>>9.9999<<" AT ROW 4.57 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[1] AT ROW 4.57 COL 87 COLON-ALIGNED NO-LABEL
@@ -223,7 +223,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[2] AT ROW 5.76 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[2] AT ROW 5.76 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[2] FORMAT "->>,>>>,>>9.9999<<" AT ROW 5.76 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[2] AT ROW 5.76 COL 87 COLON-ALIGNED NO-LABEL
@@ -235,7 +235,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[3] AT ROW 6.95 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[3] AT ROW 6.95 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[3] FORMAT "->>,>>>,>>9.9999<<" AT ROW 6.95 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[3] AT ROW 6.95 COL 87 COLON-ALIGNED NO-LABEL
@@ -247,7 +247,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[4] AT ROW 8.14 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[4] AT ROW 8.14 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[4] FORMAT "->>,>>>,>>9.9999<<" AT ROW 8.14 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[4] AT ROW 8.14 COL 87 COLON-ALIGNED NO-LABEL
@@ -259,7 +259,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[5] AT ROW 9.33 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[5] AT ROW 9.33 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[5] FORMAT "->>,>>>,>>9.9999<<" AT ROW 9.33 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[5] AT ROW 9.33 COL 87 COLON-ALIGNED NO-LABEL
@@ -271,7 +271,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[6] AT ROW 10.52 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[6] AT ROW 10.52 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[6] FORMAT "->>,>>>,>>9.9999<<" AT ROW 10.52 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -290,7 +290,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[7] AT ROW 11.71 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[7] AT ROW 11.71 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[7] FORMAT "->>,>>>,>>9.9999<<" AT ROW 11.71 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[7] AT ROW 11.71 COL 87 COLON-ALIGNED NO-LABEL
@@ -302,7 +302,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[8] AT ROW 12.91 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[8] AT ROW 12.91 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[8] FORMAT "->>,>>>,>>9.9999<<" AT ROW 12.91 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[8] AT ROW 12.91 COL 87 COLON-ALIGNED NO-LABEL
@@ -314,7 +314,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[9] AT ROW 14.1 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[9] AT ROW 14.1 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[9] FORMAT "->>,>>>,>>9.9999<<" AT ROW 14.1 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[9] AT ROW 14.1 COL 87 COLON-ALIGNED NO-LABEL
@@ -326,7 +326,7 @@ DEFINE FRAME F-Main
      oe-prmtx.qty[10] AT ROW 15.29 COL 33 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     oe-prmtx.price[10] AT ROW 15.29 COL 55 COLON-ALIGNED NO-LABEL
+     oe-prmtx.price[10] FORMAT "->>,>>>,>>9.9999<<" AT ROW 15.29 COL 55 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 18.8 BY 1
      oe-prmtx.discount[10] AT ROW 15.29 COL 87 COLON-ALIGNED NO-LABEL
