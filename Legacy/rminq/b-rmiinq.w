@@ -649,6 +649,20 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME rm-rdtlh.tag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.tag Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF rm-rdtlh.tag IN BROWSE Browser-Table /* Item# */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+      
+    RUN valid-tag-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rcpth.i-no Browser-Table _BROWSE-COLUMN B-table-Win
 ON RETURN OF rm-rcpth.i-no IN BROWSE Browser-Table /* Item# */
@@ -752,6 +766,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rdtlh.tag Browser-Table _BROWSE-COLUMN B-table-Win
 ON RETURN OF rm-rdtlh.tag IN BROWSE Browser-Table /* Tag */
 DO:
+    RUN valid-tag-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  
   RUN update-record.
 END.
 
@@ -1855,6 +1872,45 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag-no B-table-Win 
+PROCEDURE valid-tag-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR lv-tag LIKE rm-rdtlh.tag NO-UNDO.
+  DEF BUFFER b-item FOR item.
+  DEF BUFFER b-rm-rdtlh FOR rm-rdtlh.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      lv-tag = rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
+      
+   IF rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
+       rm-rcpth.rita-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "R" AND  
+       int(rm-rdtlh.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN do:
+
+       FIND FIRST  b-rm-rdtlh NO-LOCK
+           WHERE b-rm-rdtlh.company EQ cocode
+           /*AND b-rm-rcpth.i-no EQ fi_rm-i-no*/
+           AND b-rm-rdtlh.tag     EQ lv-tag 
+           AND ROWID(b-rm-rdtlh)  NE ROWID(rm-rdtlh) NO-ERROR .
+
+       IF AVAIL b-rm-rdtlh THEN DO:
+           MESSAGE "This Tag Number has already been used..." VIEW-AS ALERT-BOX INFO.
+           rm-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} = rm-rdtlh.tag.
+           APPLY "entry" TO rm-rdtlh.tag IN BROWSE {&browse-name}.
+           RETURN ERROR.
+       END.
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag B-table-Win 
 PROCEDURE valid-tag :

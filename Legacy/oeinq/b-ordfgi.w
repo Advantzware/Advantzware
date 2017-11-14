@@ -1027,6 +1027,8 @@ DO:
   IF LASTKEY NE -1 THEN DO:
     RUN valid-tag NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+    RUN valid-tag-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
   END.
 END.
 
@@ -1037,6 +1039,9 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fg-rdtlh.tag Browser-Table _BROWSE-COLUMN B-table-Win
 ON RETURN OF fg-rdtlh.tag IN BROWSE Browser-Table /* Tag# */
 DO:
+    RUN valid-tag-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+
   RUN update-record.
 END.
 
@@ -2250,6 +2255,43 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag-no B-table-Win 
+PROCEDURE valid-tag-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR lv-tag LIKE fg-rdtlh.tag NO-UNDO.
+  DEF BUFFER b-fg-rdtlh FOR fg-rdtlh.
+
+  DO WITH FRAME {&FRAME-NAME}:
+      lv-tag = fg-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
+      
+   IF fg-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" AND
+       fg-rcpth.rita-code:SCREEN-VALUE IN BROWSE {&browse-name} EQ "R" AND  
+       int(fg-rdtlh.qty:SCREEN-VALUE IN BROWSE {&browse-name}) GT 0 THEN do:
+
+       FIND FIRST  b-fg-rdtlh NO-LOCK
+           WHERE b-fg-rdtlh.company EQ cocode
+           /*AND b-fg-rcpth.i-no EQ fi_rm-i-no*/
+           AND b-fg-rdtlh.tag     EQ lv-tag 
+           AND ROWID(b-fg-rdtlh)  NE ROWID(fg-rdtlh) NO-ERROR .
+
+       IF AVAIL b-fg-rdtlh THEN DO:
+           MESSAGE "This Tag Number has already been used..." VIEW-AS ALERT-BOX INFO.
+           fg-rdtlh.tag:SCREEN-VALUE IN BROWSE {&browse-name} = fg-rdtlh.tag.
+           APPLY "entry" TO fg-rdtlh.tag IN BROWSE {&browse-name}.
+           RETURN ERROR.
+       END.
+    END.
+  END.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag B-table-Win 
 PROCEDURE valid-tag :
 /*------------------------------------------------------------------------------
@@ -2281,6 +2323,9 @@ PROCEDURE valid-tag :
       APPLY "entry" TO fg-rdtlh.tag IN BROWSE {&browse-name}.
       RETURN ERROR.
     END.
+
+
+
   END.
 
 END PROCEDURE.
