@@ -1370,6 +1370,13 @@ PROCEDURE valid-i-no :
       MESSAGE "Invalid entry, try help..." VIEW-AS ALERT-BOX.
       RETURN ERROR.
     END.
+  
+    IF AVAILABLE itemfg AND itemfg.pur-uom EQ "" THEN 
+    DO:
+        MESSAGE "The finished goods item must have a valid Puchase Quantity UOM..." VIEW-AS ALERT-BOX.
+        RETURN ERROR.     
+    END.    
+    
   END.
 
 END PROCEDURE.
