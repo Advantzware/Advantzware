@@ -411,9 +411,6 @@ PROCEDURE Get_Active_Machines :
     itemlist1 = ''
     button_item = 1
     .
-/*
-    Btn_All_Machines:HIDDEN IN FRAME {&FRAME-NAME} = TRUE.
-*/
   FOR EACH emplogin fields(machine) WHERE emplogin.company = company_code
                               AND emplogin.END_date = ?
                               AND emplogin.end_time = 0
@@ -461,9 +458,6 @@ PROCEDURE Get_Machines :
     itemlist = ''
     button_item = 1
     .
-/*
-    Btn_All_Machines:HIDDEN IN FRAME {&FRAME-NAME} = FALSE.
-*/
   FOR EACH empmach FIELDS(machine) WHERE empmach.company = company_code
                              AND empmach.employee = employee_code NO-LOCK,
     FIRST mach FIELDS(m-code m-dscr)WHERE mach.company = company_code

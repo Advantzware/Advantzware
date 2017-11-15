@@ -65,9 +65,9 @@ DEF VAR lv-password AS CHARACTER NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE keystroke AS CHARACTER FORMAT "X(256)":U 
-     LABEL "PASSWORD" 
+     LABEL "Password" 
      VIEW-AS FILL-IN 
-     SIZE 81 BY 1 TOOLTIP "PASSWORD"
+     SIZE 59 BY 1 TOOLTIP "Password"
      BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -78,9 +78,9 @@ DEFINE RECTANGLE RECT-1
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     keystroke AT ROW 9.81 COL 41 COLON-ALIGNED
-     "TYPE PASSWORD AND TOUCH 'ACCEPT PASSWORD' BUTTON" VIEW-AS TEXT
-          SIZE 76 BY .62 AT ROW 8.86 COL 47
+     keystroke AT ROW 2.19 COL 18 COLON-ALIGNED
+     "Type Password and Touch 'Accept Password' Button" VIEW-AS TEXT
+          SIZE 59 BY .62 AT ROW 3.38 COL 20
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -144,7 +144,7 @@ ASSIGN
 
 ASSIGN 
        keystroke:PRIVATE-DATA IN FRAME F-Main     = 
-                "PASSWORD".
+                "Password".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -167,10 +167,20 @@ ASSIGN
 
 &Scoped-define SELF-NAME keystroke
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL keystroke s-object
-ON ANY-PRINTABLE OF keystroke IN FRAME F-Main /* PASSWORD */
+ON ANY-PRINTABLE OF keystroke IN FRAME F-Main /* Password */
 DO:
     RUN Keyboard-Stroke  (keylabel(lastkey)). 
     RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL keystroke s-object
+ON RETURN OF keystroke IN FRAME F-Main /* Password */
+DO:
+    RUN pClick ("AcceptPassword").
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -354,7 +364,7 @@ PROCEDURE pClick :
                  NO-ERROR.
             IF NOT AVAILABLE employee THEN RETURN.
             IF field_value NE employee.passwd THEN DO:
-              MESSAGE 'INVALID PASSWORD - TRY AGAIN' VIEW-AS ALERT-BOX.
+              MESSAGE 'Invalid Password - Try Again' VIEW-AS ALERT-BOX.
               ASSIGN
                 field_value = ''
                 h_field:SCREEN-VALUE = ''
