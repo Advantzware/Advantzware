@@ -554,7 +554,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.91 , 17.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'oe/v-hldapp.w':U ,
+             INPUT  'oe/p-webapprov.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-hldapp ).

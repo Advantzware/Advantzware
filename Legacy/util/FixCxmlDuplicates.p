@@ -1,14 +1,14 @@
 
 /*------------------------------------------------------------------------
     File        : FixCxmlDuplicates.p
-    Purpose     : 
+    Purpose     : remove duplicate cXML Orders with no Order Lines
 
-    Syntax      :
+    Syntax      : RUN util/fixcXMLDuplicates.p
 
     Description : Removes the partial imports for cXML/Ariba order importing.
 
 
-    Author(s)   : 
+    Author(s)   : Brad Vigrass
     Created     : Mon Nov 14 21:10:17 EST 2016
     Notes       :
   ----------------------------------------------------------------------*/
@@ -20,7 +20,6 @@ DEFINE TEMP-TABLE ttOrdersToDelete
     FIELD cPONo   AS CHARACTER 
     FIELD iOrdNo  AS INTEGER 
     .
-
 DEFINE VARIABLE lDelete AS LOGICAL NO-UNDO.
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -31,7 +30,6 @@ DEFINE VARIABLE lDelete AS LOGICAL NO-UNDO.
 RUN pBuildList.
 RUN pAskToDelete (OUTPUT lDelete).
 IF lDelete THEN RUN pDeleteList.
-
 
 /* **********************  Internal Procedures  *********************** */
 
@@ -46,19 +44,21 @@ PROCEDURE pAskToDelete:
 
     IF CAN-FIND(FIRST ttOrdersToDelete) THEN 
     DO:
-        cMessage = "The following duplicate and invalid orders have been found:" + CHR(13).
+        cMessage = "The following duplicate and invalid orders have been found:" + CHR(10) + CHR(10).
         FOR EACH ttOrdersToDelete:
             cMessage = cMessage + " PO#: " + ttOrdersToDelete.cPONo 
-                + " - Order #: " + STRING(ttOrdersToDelete.iOrdNo) + CHR(13).  
+                + " - Order #: " + STRING(ttOrdersToDelete.iOrdNo) + CHR(10).  
         END.
-        cMessage = cMessage + "Do you want to delete?".
-        MESSAGE cMessage VIEW-AS ALERT-BOX BUTTONS YES-NO UPDATE iplDelete.
+        cMessage = cMessage + CHR(10) + "Delete These Orders?".
+        MESSAGE cMessage
+        VIEW-AS ALERT-BOX BUTTONS YES-NO TITLE "cXML Duplicate Invalid Orders w/o Order Lines"
+        UPDATE iplDelete.
     END.
-    ELSE 
-    DO:
-        MESSAGE "No duplicate records found for deletion." VIEW-AS ALERT-BOX.
-        iplDelete = NO.
-    END.
+/*    ELSE                                                                     */
+/*    DO:                                                                      */
+/*        MESSAGE "No duplicate records found for deletion." VIEW-AS ALERT-BOX.*/
+/*        iplDelete = NO.                                                      */
+/*    END.                                                                     */
 
 END PROCEDURE.
 
@@ -71,12 +71,11 @@ PROCEDURE pBuildList:
 
     FOR EACH company NO-LOCK,
         EACH oe-ord NO-LOCK 
-        WHERE oe-ord.company EQ company.company
-        AND oe-ord.stat EQ 'W'
-        AND oe-ord.spare-char-3 NE ''
-        AND NOT CAN-FIND(FIRST oe-ordl OF oe-ord)
-            :
-        
+        WHERE oe-ord.company      EQ company.company
+          AND oe-ord.stat         EQ 'W'
+          AND oe-ord.spare-char-3 NE ''
+          AND NOT CAN-FIND(FIRST oe-ordl OF oe-ord)
+        :        
         CREATE ttOrdersToDelete.
         ASSIGN 
             ttOrdersToDelete.riOrder = ROWID(oe-ord)
@@ -94,10 +93,10 @@ PROCEDURE pDeleteList:
     ------------------------------------------------------------------------------*/
     DEFINE VARIABLE iCount AS INTEGER NO-UNDO.
     
-    iCount = 0.
     FOR EACH ttOrdersToDelete:
         FIND FIRST oe-ord EXCLUSIVE-LOCK 
-            WHERE ROWID(oe-ord) EQ ttOrdersToDelete.riOrder NO-ERROR.
+             WHERE ROWID(oe-ord) EQ ttOrdersToDelete.riOrder
+             NO-ERROR.
         IF AVAILABLE oe-ord THEN DO:
             iCount = iCount + 1.
             DELETE oe-ord.
@@ -107,6 +106,3 @@ PROCEDURE pDeleteList:
     MESSAGE iCount " hidden duplicate orders have been deleted." VIEW-AS ALERT-BOX.
 
 END PROCEDURE.
-
-
-
