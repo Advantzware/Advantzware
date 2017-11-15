@@ -24,7 +24,9 @@ DEF INPUT PARAMETER in-recid AS RECID.
 {sys/inc/VAR.i SHARED}
 
 {oe/d-selbin.i NEW}
+ {sys/inc/oereordr.i} 
 
+ 
 DEF SHARED VAR out-recid AS RECID NO-UNDO.
 DEF SHARED VAR relh-recid AS RECID NO-UNDO.
 
@@ -43,7 +45,9 @@ DEFINE VARIABLE v-s-code          AS CHARACTER       NO-UNDO.
 DEFINE VARIABLE lrOeRell          AS ROWID           NO-UNDO.
 DEFINE VARIABLE li-nxt-rel-no     AS INTEGER         NO-UNDO.
 DEFINE VARIABLE lcBolWhse         AS CHARACTER       NO-UNDO.
-
+DEFINE VARIABLE v-rtn-char        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE RelSkipRecalc-log AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE v-rec-found       AS LOGICAL   NO-UNDO.
      
 DEF BUFFER b-reftable FOR reftable.
 DEF BUFFER bf-rell FOR oe-rell .
@@ -96,6 +100,10 @@ DO TRANSACTION:
 
 END.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "RelSkipRecalc", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT v-rtn-char, OUTPUT v-rec-found).
+RelSkipRecalc-log = LOGICAL(v-rtn-char) NO-ERROR.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -214,6 +222,17 @@ ELSE DO TRANSACTION:
 END.
 RUN update-rel-stat (INPUT ROWID(oe-rel)).
 
+IF AVAILABLE itemfg AND RelSkipRecalc-log THEN DO TRANSACTION:
+    /* Corrects data integrity issue until auditing can identify problem */
+    /* Run if recalc is skipped in oe-rell trigger */
+    FIND CURRENT itemfg EXCLUSIVE-LOCK.
+    RUN fg/calcqa&b.p (ROWID(itemfg), OUTPUT itemfg.q-alloc,
+        OUTPUT itemfg.q-back).
+    itemfg.q-avail = itemfg.q-onh +
+        (IF oereordr-cha EQ "XOnOrder" THEN 0 ELSE itemfg.q-ono) -
+        itemfg.q-alloc.
+    FIND CURRENT itemfg NO-LOCK.      
+END.
 
 END.
 /* end ---------------------------------- copr. 1998  advanced software, inc. */
