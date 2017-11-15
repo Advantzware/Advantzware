@@ -37,6 +37,8 @@ DO TRANSACTION:
    {sys/inc/tskey.i}
 END.
 
+&Scoped-define BUTTON-INCLUDE EMPLOYEES
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -52,11 +54,15 @@ END.
 &Scoped-define FRAME-NAME F-Main
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS RECT-1 SL 
-&Scoped-Define DISPLAYED-OBJECTS SL keystroke 
+&Scoped-Define ENABLED-OBJECTS RECT-1 Btn_Button-1 Btn_Button-6 ~
+Btn_Button-2 Btn_Button-7 Btn_Button-3 Btn_Button-8 Btn_Button-4 ~
+Btn_Button-9 Btn_Button-5 Btn_Button-10 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
+&Scoped-define List-1 Btn_Button-1 Btn_Button-6 Btn_Button-2 Btn_Button-7 ~
+Btn_Button-3 Btn_Button-8 Btn_Button-4 Btn_Button-9 Btn_Button-5 ~
+Btn_Button-10 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -67,27 +73,66 @@ END.
 
 
 /* Definitions of the field level widgets                               */
-DEFINE VARIABLE keystroke AS CHARACTER FORMAT "X(256)":U 
-     LABEL "KEY VALUE" 
-     VIEW-AS FILL-IN 
-     SIZE 55 BY 1 TOOLTIP "KEY VALUE"
-     BGCOLOR 0 FGCOLOR 15  NO-UNDO.
+DEFINE BUTTON Btn_Button-1 
+     LABEL "BUTTON 1" 
+     SIZE 40 BY 2.38.
+
+DEFINE BUTTON Btn_Button-10 
+     LABEL "BUTTON 10" 
+     SIZE 40 BY 2.38.
+
+DEFINE BUTTON Btn_Button-2 
+     LABEL "BUTTON 2" 
+     SIZE 40 BY 2.38.
+
+DEFINE BUTTON Btn_Button-3 
+     LABEL "BUTTON 3" 
+     SIZE 40 BY 2.38.
+
+DEFINE BUTTON Btn_Button-4 
+     LABEL "BUTTON 4" 
+     SIZE 40 BY 2.38.
+
+DEFINE BUTTON Btn_Button-5 
+     LABEL "BUTTON 5" 
+     SIZE 40 BY 2.38.
+
+DEFINE BUTTON Btn_Button-6 
+     LABEL "BUTTON 6" 
+     SIZE 40 BY 2.38.
+
+DEFINE BUTTON Btn_Button-7 
+     LABEL "BUTTON 7" 
+     SIZE 40 BY 2.38.
+
+DEFINE BUTTON Btn_Button-8 
+     LABEL "BUTTON 8" 
+     SIZE 40 BY 2.38.
+
+DEFINE BUTTON Btn_Button-9 
+     LABEL "BUTTON 9" 
+     SIZE 40 BY 2.38.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 124 BY 12.95.
 
-DEFINE VARIABLE SL AS CHARACTER 
-     VIEW-AS SELECTION-LIST SINGLE SORT SCROLLBAR-VERTICAL 
-     SIZE 40 BY 12.38
-     BGCOLOR 15 FGCOLOR 0  NO-UNDO.
-
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME F-Main
-     SL AT ROW 1.24 COL 2 NO-LABEL
-     keystroke AT ROW 1.24 COL 67 COLON-ALIGNED
+     Btn_Button-1 AT ROW 1.71 COL 2 WIDGET-ID 6
+     Btn_Button-6 AT ROW 1.71 COL 43 WIDGET-ID 18
+     Btn_Button-2 AT ROW 4.1 COL 2 WIDGET-ID 10
+     Btn_Button-7 AT ROW 4.1 COL 43 WIDGET-ID 20
+     Btn_Button-3 AT ROW 6.48 COL 2 WIDGET-ID 12
+     Btn_Button-8 AT ROW 6.48 COL 43 WIDGET-ID 22
+     Btn_Button-4 AT ROW 8.86 COL 2 WIDGET-ID 14
+     Btn_Button-9 AT ROW 8.86 COL 43 WIDGET-ID 24
+     Btn_Button-5 AT ROW 11.24 COL 2 WIDGET-ID 16
+     Btn_Button-10 AT ROW 11.24 COL 43 WIDGET-ID 8
+     "EMPLOYEES" VIEW-AS TEXT
+          SIZE 13 BY .52 AT ROW 1.24 COL 3 WIDGET-ID 2
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -149,12 +194,26 @@ ASSIGN
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
 
-/* SETTINGS FOR FILL-IN keystroke IN FRAME F-Main
-   NO-ENABLE                                                            */
-ASSIGN 
-       keystroke:PRIVATE-DATA IN FRAME F-Main     = 
-                "KEY VALUE".
-
+/* SETTINGS FOR BUTTON Btn_Button-1 IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON Btn_Button-10 IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON Btn_Button-2 IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON Btn_Button-3 IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON Btn_Button-4 IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON Btn_Button-5 IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON Btn_Button-6 IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON Btn_Button-7 IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON Btn_Button-8 IN FRAME F-Main
+   1                                                                    */
+/* SETTINGS FOR BUTTON Btn_Button-9 IN FRAME F-Main
+   1                                                                    */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -174,41 +233,110 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&Scoped-define SELF-NAME keystroke
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL keystroke s-object
-ON VALUE-CHANGED OF keystroke IN FRAME F-Main /* KEY VALUE */
+&Scoped-define SELF-NAME Btn_Button-1
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Button-1 s-object
+ON CHOOSE OF Btn_Button-1 IN FRAME F-Main /* BUTTON 1 */
 DO:
-   IF tskey-log = NO THEN
-   DO:
-      IF keystroke:SCREEN-VALUE NE "" THEN
-         RUN key_stroke(INPUT SUBSTRING(keystroke:SCREEN-VALUE,LENGTH(keystroke:SCREEN-VALUE))).
-      ELSE
-         RUN key_stroke(INPUT "Clear").
-   END.
+  {touch/buttons.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&Scoped-define SELF-NAME SL
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL SL s-object
-ON DEFAULT-ACTION OF SL IN FRAME F-Main
+&Scoped-define SELF-NAME Btn_Button-10
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Button-10 s-object
+ON CHOOSE OF Btn_Button-10 IN FRAME F-Main /* BUTTON 10 */
 DO:
-    RUN pClick ("SelectEmployee").
+  {touch/buttons.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL SL s-object
-ON VALUE-CHANGED OF SL IN FRAME F-Main
+&Scoped-define SELF-NAME Btn_Button-2
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Button-2 s-object
+ON CHOOSE OF Btn_Button-2 IN FRAME F-Main /* BUTTON 2 */
 DO:
-  DO item = 1 TO SL:NUM-ITEMS:
-    IF SL:IS-SELECTED(item) THEN
-    LEAVE.
-  END.
+  {touch/buttons.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Button-3
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Button-3 s-object
+ON CHOOSE OF Btn_Button-3 IN FRAME F-Main /* BUTTON 3 */
+DO:
+  {touch/buttons.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Button-4
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Button-4 s-object
+ON CHOOSE OF Btn_Button-4 IN FRAME F-Main /* BUTTON 4 */
+DO:
+  {touch/buttons.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Button-5
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Button-5 s-object
+ON CHOOSE OF Btn_Button-5 IN FRAME F-Main /* BUTTON 5 */
+DO:
+  {touch/buttons.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Button-6
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Button-6 s-object
+ON CHOOSE OF Btn_Button-6 IN FRAME F-Main /* BUTTON 6 */
+DO:
+  {touch/buttons.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Button-7
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Button-7 s-object
+ON CHOOSE OF Btn_Button-7 IN FRAME F-Main /* BUTTON 7 */
+DO:
+  {touch/buttons.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Button-8
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Button-8 s-object
+ON CHOOSE OF Btn_Button-8 IN FRAME F-Main /* BUTTON 8 */
+DO:
+  {touch/buttons.i}
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME Btn_Button-9
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Button-9 s-object
+ON CHOOSE OF Btn_Button-9 IN FRAME F-Main /* BUTTON 9 */
+DO:
+  {touch/buttons.i}
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -236,6 +364,20 @@ END.
 
 /* **********************  Internal Procedures  *********************** */
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Button_Labels s-object 
+PROCEDURE Button_Labels :
+/*------------------------------------------------------------------------------
+  Purpose:     place values on machine button labels
+  Parameters:  Input current button item
+  Notes:       
+------------------------------------------------------------------------------*/
+  {touch/btnlabel.i}
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE disable_UI s-object  _DEFAULT-DISABLE
 PROCEDURE disable_UI :
 /*------------------------------------------------------------------------------
@@ -257,51 +399,11 @@ END PROCEDURE.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Get_Active_Employees s-object 
 PROCEDURE Get_Active_Employees :
 /*------------------------------------------------------------------------------
-  Purpose:     populate selection list with employee records
+  Purpose:     
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-  {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
-  itemlist = ''.
-  
-  /* ======== bad performance when many user hit this place at same time
-  FOR EACH emplogin NO-LOCK WHERE emplogin.company = company_code
-                              AND emplogin.machine GT ''
-                              AND emplogin.end_time = 0
-                              AND emplogin.total_time = 0:
-    FIND employee OF emplogin NO-LOCK.
-    itemlist = IF itemlist = '' THEN employee.last_name + ', ' + 
-                                     employee.first_name + ' (' +
-                                     employee.employee + ')'
-               ELSE itemlist + '@' + employee.last_name + ', ' + 
-                                     employee.first_name + ' (' +
-                                     employee.employee + ')'.
-  END.
-  ===================================  */
-  for each employee where employee.company = company_code no-lock:
-      itemlist = IF itemlist = '' THEN employee.last_name + ', ' + 
-                                     employee.first_name + ' (' +
-                                     employee.employee + ')'
-               ELSE itemlist + '@' + employee.last_name + ', ' + 
-                                     employee.first_name + ' (' +
-                                     employee.employee + ')'.
-  end.
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-      SL:DELIMITER = '@'
-      item = 1
-      SL:LIST-ITEMS = itemlist
-      SL:SCREEN-VALUE = SL:ENTRY(item)
-      h_field = keystroke:HANDLE
-      field_value = ''
-      h_field = keystroke:HANDLE
-      h_field:SCREEN-VALUE = ''.
-  END.
-  IF itemlist = '' THEN
-  DO:
-    MESSAGE 'NO EMPLOYEES AVAILABLE' VIEW-AS ALERT-BOX.
-    {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
-  END.
+  RUN Get_Employees.
 
 END PROCEDURE.
 
@@ -316,41 +418,24 @@ PROCEDURE Get_Employees :
   Notes:       
 ------------------------------------------------------------------------------*/
   {methods/run_link.i "CONTAINER" "Get_Value" "('company_code',OUTPUT company_code)"}
-  itemlist = ''.
-  FOR EACH employee NO-LOCK WHERE employee.company = company_code:
-    itemlist = IF itemlist = '' THEN employee.last_name + ', ' + 
-                                     employee.first_name + ' (' +
-                                     employee.employee + ')'
-               ELSE itemlist + '@' + employee.last_name + ', ' + 
-                                     employee.first_name + ' (' +
-                                     employee.employee + ')'.
+  ASSIGN
+    itemlist = ''
+    button_item = 1
+    .
+  FOR EACH employee NO-LOCK
+      WHERE employee.company EQ company_code
+         BY employee.last_name
+         BY employee.first_name
+         BY employee.employee:
+    itemlist = itemlist 
+             + employee.last_name + ', '
+             + employee.first_name + ' ('
+             + employee.employee + ')'
+             + '@'
+             .
   END.
-  DO WITH FRAME {&FRAME-NAME}:
-    ASSIGN
-      SL:DELIMITER = '@'
-      item = 1
-      SL:LIST-ITEMS = itemlist
-      SL:SCREEN-VALUE = SL:ENTRY(item)
-      h_field = keystroke:HANDLE
-      field_value = ''
-      h_field:SCREEN-VALUE = ''.
-  END.
-
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Key_Stroke s-object 
-PROCEDURE Key_Stroke :
-/*------------------------------------------------------------------------------
-  Purpose:     Apply keystroke to field with focus
-  Parameters:  Input Keystroke
-  Notes:       
-------------------------------------------------------------------------------*/
-  &Scoped-define KEYSTROKE EMPLOYEE
-
-  {touch/keystrok.i}
+  itemlist = TRIM(itemlist,'@').
+  RUN Button_Labels (INPUT-OUTPUT button_item).
 
 END PROCEDURE.
 
@@ -365,14 +450,12 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  RUN pCreateINIObjects ("Up,PageUp,Down,PageDown,SelectEmployee,Home").
+  RUN pCreateINIObjects ("First,Last,PageUp,PageDown,HomeSmall,Back").
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
 
   /* Code placed here will execute AFTER standard behavior.    */
-  IF tskey-log EQ NO THEN
-     keystroke:SENSITIVE IN FRAME {&FRAME-NAME} = YES.
 
 END PROCEDURE.
 
@@ -411,41 +494,25 @@ PROCEDURE pClick :
     DEFINE VARIABLE idummy AS INTEGER NO-UNDO.
     
     CASE ipcClick:
-        WHEN "Up" THEN DO WITH FRAME {&FRAME-NAME}:
-            item = item - 1.
-            IF item LT 1 THEN
-            item = 1.
-            SL:SCREEN-VALUE = SL:ENTRY(item).
+        WHEN "HomeSmall" THEN DO:
+            {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
         END.
         WHEN "PageUp" THEN DO:
-            item = item - 19.
-            IF item LT 1 THEN
-            item = 1.
-            SL:SCREEN-VALUE = SL:ENTRY(item).
-        END.
-        WHEN "Down" THEN DO:
-            item = item + 1.
-            IF item GT SL:NUM-ITEMS THEN
-            item = SL:NUM-ITEMS.
-            SL:SCREEN-VALUE = SL:ENTRY(item).
+            button_item = button_item - 20.
+            RUN Button_Labels (INPUT-OUTPUT button_item).
         END.
         WHEN "PageDown" THEN DO:
-            item = item + 19.
-            IF item GT SL:NUM-ITEMS THEN
-            item = SL:NUM-ITEMS.
-            SL:SCREEN-VALUE = SL:ENTRY(item).
+            RUN Button_Labels (INPUT-OUTPUT button_item).
         END.
-        WHEN "SelectEmployee" THEN DO:
-            ASSIGN
-                idummy = INDEX(SL:SCREEN-VALUE,'(')
-                employee_code = REPLACE(SUBSTR(SL:SCREEN-VALUE,idummy + 1),')','')
-                employee_name = SUBSTR(SL:SCREEN-VALUE,1,idummy - 2)
-                .
-            {methods/run_link.i "CONTAINER" "Set_Value" "('employee_code',employee_code)"}
-            {methods/run_link.i "CONTAINER" "Set_Value" "('employee_name',employee_name)"}
-            {methods/run_link.i "CONTAINER" "Change_Page" "(4)"}
+        WHEN "First" THEN DO:
+            button_item = 1.
+            RUN Button_Labels (INPUT-OUTPUT button_item).
         END.
-        WHEN "Home" THEN DO:
+        WHEN "Last" THEN DO:
+            button_item = NUM-ENTRIES(itemlist,'@') + 1.
+            RUN Button_Labels (INPUT-OUTPUT button_item).
+        END.
+        WHEN "Back" THEN DO:
             {methods/run_link.i "CONTAINER" "Change_Page" "(2)"}
         END.
     END CASE.

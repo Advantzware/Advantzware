@@ -143,8 +143,8 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Machine Transactions"
-         COLUMN             = 32.6
-         ROW                = 16.62
+         COLUMN             = 3.20
+         ROW                = 15.33
          HEIGHT             = 11.76
          WIDTH              = 119.2
          MAX-HEIGHT         = 11.76

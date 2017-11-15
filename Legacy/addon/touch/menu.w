@@ -400,9 +400,12 @@ PROCEDURE pClick :
             {methods/run_link.i "CONTAINER" "Change_Page" "(5)"}
         END.
         WHEN "JobCheckList" THEN DO:
-            RUN windows/machtran.w PERSISTENT SET hJobChecklist.
+            IF VALID-HANDLE(hJobChecklist) EQ NO THEN
+            RUN touch/transactions.w PERSISTENT SET hJobChecklist.
+/*
             RUN adm-initialize IN hJobChecklist.
             RUN Disable-Folder-Tabs IN hJobChecklist (INPUT THIS-PROCEDURE).
+*/
         END.
     END CASE.
 
