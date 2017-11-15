@@ -429,7 +429,7 @@ PROCEDURE valid-tag-no :
   Notes:       
 ------------------------------------------------------------------------------*/
   DEF VAR lv-tag LIKE rm-rctd.tag NO-UNDO.
-  DEF BUFFER b-rm-rctd FOR rm-rdtlh.
+  DEF BUFFER b-rm-rdtlh FOR rm-rdtlh.
   DEFINE BUFFER bf-rm-rctd FOR rm-rctd .
 
   DO WITH FRAME {&FRAME-NAME}:
