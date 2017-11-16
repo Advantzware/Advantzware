@@ -38,6 +38,18 @@ assign
  locode = g_loc.
 
 DEF VAR ll-show-zero-bins AS LOG NO-UNDO.
+DEF VAR lShowRecalcFields AS LOG NO-UNDO.
+FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
+  AND sys-ctrl.name EQ "FgItemHideCalcFields"
+  NO-ERROR.
+IF NOT AVAIL sys-ctrl THEN DO:
+  CREATE sys-ctrl.
+  ASSIGN
+      sys-ctrl.company = cocode
+      sys-ctrl.name = "FgItemHideCalcFields"
+      sys-ctrl.log-fld = FALSE.
+END.
+lShowRecalcFields = (IF AVAIL sys-ctrl THEN NOT sys-ctrl.log-fld ELSE TRUE).
 
 {sys/inc/oeinq.i}
  
@@ -571,6 +583,11 @@ DO:
          w-job.std-var-cost:VISIBLE IN BROWSE {&browse-name} = NO
          w-job.std-fix-cost:VISIBLE IN BROWSE {&browse-name} = NO.
 END.
+ASSIGN 
+  w-job.avl-qty:VISIBLE IN BROWSE {&browse-name} = lShowRecalcFields 
+  w-job.rel-qty:VISIBLE IN BROWSE {&browse-name} = lShowRecalcFields
+  w-job.bol-qty:VISIBLE IN BROWSE {&browse-name} = lShowRecalcFields
+  .
 
 &IF DEFINED(UIB_IS_RUNNING) <> 0 &THEN          
 RUN dispatch IN THIS-PROCEDURE ('initialize':U).        
@@ -744,47 +761,47 @@ PROCEDURE build-table :
   END. /* ll-show-zero-bins */
 
   EMPTY TEMP-TABLE tt-ids.
-
-  FOR EACH oe-relh NO-LOCK
-      WHERE oe-relh.company EQ itemfg.company
-        AND oe-relh.deleted EQ NO
-        AND oe-relh.posted  EQ NO
-      USE-INDEX delpost,
-      EACH oe-rell NO-LOCK
-      WHERE oe-rell.company EQ oe-relh.company
-        AND oe-rell.r-no    EQ oe-relh.r-no
-        AND oe-rell.i-no    EQ itemfg.i-no:
-    CREATE tt-ids.
-    tt-rowid = ROWID(oe-rell).
+  IF lShowRecalcFields THEN DO:
+    FOR EACH oe-relh NO-LOCK
+        WHERE oe-relh.company EQ itemfg.company
+          AND oe-relh.deleted EQ NO
+          AND oe-relh.posted  EQ NO
+        USE-INDEX delpost,
+        EACH oe-rell NO-LOCK
+        WHERE oe-rell.company EQ oe-relh.company
+          AND oe-rell.r-no    EQ oe-relh.r-no
+          AND oe-rell.i-no    EQ itemfg.i-no:
+      CREATE tt-ids.
+      tt-rowid = ROWID(oe-rell).
+    END.
+  
+    FOR EACH oe-bolh NO-LOCK
+        WHERE oe-bolh.company EQ itemfg.company
+          AND oe-bolh.deleted EQ NO
+          AND oe-bolh.posted  EQ NO
+        USE-INDEX post,
+        EACH oe-boll NO-LOCK
+        WHERE oe-boll.company EQ oe-bolh.company
+          AND oe-boll.b-no    EQ oe-bolh.b-no
+          AND oe-boll.i-no    EQ itemfg.i-no:
+      CREATE tt-ids.
+      tt-rowid = ROWID(oe-boll).
+    END.
+  
+    IF AVAIL oe-ctrl AND NOT oe-ctrl.u-inv THEN
+    FOR EACH inv-line NO-LOCK
+        WHERE inv-line.company EQ itemfg.company
+          AND inv-line.i-no    EQ itemfg.i-no,
+        EACH oe-boll NO-LOCK
+        WHERE oe-boll.company EQ inv-line.company
+          AND oe-boll.b-no    EQ inv-line.b-no
+          AND oe-boll.ord-no  EQ inv-line.ord-no
+          AND oe-boll.i-no    EQ inv-line.i-no
+          AND oe-boll.po-no   EQ inv-line.po-no:
+      CREATE tt-ids.
+      tt-rowid = ROWID(oe-boll).
+    END.
   END.
-
-  FOR EACH oe-bolh NO-LOCK
-      WHERE oe-bolh.company EQ itemfg.company
-        AND oe-bolh.deleted EQ NO
-        AND oe-bolh.posted  EQ NO
-      USE-INDEX post,
-      EACH oe-boll NO-LOCK
-      WHERE oe-boll.company EQ oe-bolh.company
-        AND oe-boll.b-no    EQ oe-bolh.b-no
-        AND oe-boll.i-no    EQ itemfg.i-no:
-    CREATE tt-ids.
-    tt-rowid = ROWID(oe-boll).
-  END.
-
-  IF AVAIL oe-ctrl AND NOT oe-ctrl.u-inv THEN
-  FOR EACH inv-line NO-LOCK
-      WHERE inv-line.company EQ itemfg.company
-        AND inv-line.i-no    EQ itemfg.i-no,
-      EACH oe-boll NO-LOCK
-      WHERE oe-boll.company EQ inv-line.company
-        AND oe-boll.b-no    EQ inv-line.b-no
-        AND oe-boll.ord-no  EQ inv-line.ord-no
-        AND oe-boll.i-no    EQ inv-line.i-no
-        AND oe-boll.po-no   EQ inv-line.po-no:
-    CREATE tt-ids.
-    tt-rowid = ROWID(oe-boll).
-  END.
-
   FOR EACH w-jobs BREAK BY w-jobs.job-no BY w-jobs.job-no2:
       CREATE w-job.
       ASSIGN w-job.job-no = w-jobs.job-no
@@ -906,22 +923,6 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE filterZeroBins B-table-Win 
-PROCEDURE filterZeroBins :
-/*------------------------------------------------------------------------------
-  Purpose:     
-  Parameters:  <none>
-  Notes:       
-------------------------------------------------------------------------------*/
-DEF INPUT PARAMETER iplShowZeroBins AS LOG NO-UNDO.
-lv-show-zero-bins = iplShowZeroBins.
-RUN local-open-query.
-END PROCEDURE.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE filterTagBins B-table-Win 
 PROCEDURE filterTagBins :
 /*------------------------------------------------------------------------------
@@ -933,6 +934,21 @@ DEF INPUT PARAMETER iplShowZeroBins AS LOG NO-UNDO.
 DEF INPUT PARAMETER iplTagBins AS CHAR NO-UNDO.
 lv-show-zero-bins = iplShowZeroBins.
 lv-show-tag-no    = iplTagBins .
+RUN local-open-query.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE filterZeroBins B-table-Win 
+PROCEDURE filterZeroBins :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF INPUT PARAMETER iplShowZeroBins AS LOG NO-UNDO.
+lv-show-zero-bins = iplShowZeroBins.
 RUN local-open-query.
 END PROCEDURE.
 
