@@ -42,6 +42,13 @@ DEF VAR lShowRecalcFields AS LOG NO-UNDO.
 FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
   AND sys-ctrl.name EQ "FgItemHideCalcFields"
   NO-ERROR.
+IF NOT AVAIL sys-ctrl THEN DO:
+  CREATE sys-ctrl.
+  ASSIGN
+      sys-ctrl.company = cocode
+      sys-ctrl.name = "FgItemHideCalcFields"
+      sys-ctrl.log-fld = FALSE.
+END.
 lShowRecalcFields = (IF AVAIL sys-ctrl THEN NOT sys-ctrl.log-fld ELSE TRUE).
 
 {sys/inc/oeinq.i}
