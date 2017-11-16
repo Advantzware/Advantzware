@@ -108,7 +108,7 @@ oe-relh.rel-date oe-relh.spare-char-1 oe-relh.spare-char-2 oe-relh.trailer
 &Scoped-define FIRST-DISPLAYED-TABLE oe-relh
 &Scoped-Define DISPLAYED-OBJECTS fi_hold cust_name ship_name cust_addr1 ~
 ship_addr1 cust_addr2 ship_addr2 cust_city cust_state cust_zip ship_city ~
-ship_state ship_zip line_i-no qty-ordered qty-rel qty-ship qty-oh 
+ship_state ship_zip line_i-no freight_term qty-ordered qty-rel qty-ship qty-oh 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,ROW-AVAILABLE,DISPLAY-FIELD,List-5,F1 */
@@ -227,6 +227,10 @@ DEFINE VARIABLE ship_state AS CHARACTER FORMAT "x(2)"
 DEFINE VARIABLE ship_zip AS CHARACTER FORMAT "x(10)" 
      VIEW-AS FILL-IN 
      SIZE 16 BY 1.
+DEFINE VARIABLE freight_term AS CHARACTER FORMAT "x(15)" 
+     LABEL "Freight Terms"
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1.
 
 DEFINE RECTANGLE RECT-1
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
@@ -299,6 +303,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 30 BY 1
      line_i-no AT ROW 6.71 COL 16 COLON-ALIGNED
+     freight_term AT ROW 6.71 COL 72 COLON-ALIGNED
      qty-ordered AT ROW 8.14 COL 17 COLON-ALIGNED
      qty-rel AT ROW 8.14 COL 53 COLON-ALIGNED
      qty-ship AT ROW 8.14 COL 87 COLON-ALIGNED
@@ -389,6 +394,8 @@ ASSIGN
 /* SETTINGS FOR FILL-IN fi_hold IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN line_i-no IN FRAME F-Main
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN freight_term IN FRAME F-Main
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN oe-relh.printed IN FRAME F-Main
    NO-ENABLE                                                            */
@@ -925,7 +932,11 @@ PROCEDURE display-cust-detail :
               cust_city:screen-value      = cust.city
               cust_state:screen-value     = cust.state
               cust_zip:screen-value       = cust.zip
-              oe-relh.carrier:screen-value = cust.carrier.
+              oe-relh.carrier:screen-value = cust.carrier
+              freight_term:SCREEN-VALUE   = IF cust.frt-pay EQ "P" THEN "Prepaid"
+                                            ELSE IF cust.frt-pay EQ "B" THEN "Bill"
+                                            ELSE IF cust.frt-pay EQ "T" THEN "3rd Party"
+                                            ELSE  "Collect"  .
 
        FIND FIRST shipto
            WHERE shipto.company EQ cust.company
@@ -1291,6 +1302,7 @@ PROCEDURE local-create-record :
          cust_addr1 = ""
          cust_addr2 = ""
          cust_city = ""
+         freight_term = ""
          cust_state = ""
          cust_zip = "" 
          line_i-no = "" 
@@ -1300,7 +1312,7 @@ PROCEDURE local-create-record :
          qty-ship = 0 .
 
   display oe-relh.rel-date cust_name cust_addr1 cust_addr2 cust_city cust_state cust_zip
-          ship_name ship_addr1 ship_addr2 ship_city ship_state ship_zip line_i-no qty-oh qty-ordered qty-rel qty-ship with frame {&frame-name}. 
+          ship_name ship_addr1 ship_addr2 ship_city ship_state ship_zip line_i-no freight_term qty-oh qty-ordered qty-rel qty-ship with frame {&frame-name}. 
   run dispatch ('row-changed').
 
 END PROCEDURE.
@@ -1361,7 +1373,11 @@ PROCEDURE local-display-fields :
                                cust_addr2 = cust.addr[2]
                                cust_city = cust.city
                                cust_state = cust.state
-                               cust_zip = cust.zip.
+                               cust_zip = cust.zip
+                               freight_term = IF cust.frt-pay EQ "P" THEN "Prepaid"
+                                              ELSE IF cust.frt-pay EQ "B" THEN "Bill"
+                                              ELSE IF cust.frt-pay EQ "T" THEN "3rd Party"
+                                              ELSE "Collect" .
 
      RUN oe/custxship.p (oe-relh.company,
                          oe-relh.cust-no,
@@ -1386,10 +1402,11 @@ PROCEDURE local-display-fields :
               cust_addr1 = ""
               cust_addr2 = ""
               cust_city = ""
+              freight_term = ""
               cust_state = ""
               cust_zip = "".
   display cust_name cust_addr1 cust_addr2 cust_city cust_state cust_zip
-          ship_name ship_addr1 ship_addr2 ship_city ship_state ship_zip
+          ship_name ship_addr1 ship_addr2 ship_city ship_state ship_zip freight_term
           with frame {&frame-name}.
 
   RUN check-hold.

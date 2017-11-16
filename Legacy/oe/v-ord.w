@@ -619,7 +619,7 @@ DEFINE FRAME F-Main
           LABEL "Ack. Date" FORMAT "99/99/99"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     "Freight Charge" VIEW-AS TEXT
+     "Freight Terms" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 11.05 COL 81
           FGCOLOR 9 
      "FOB:" VIEW-AS TEXT

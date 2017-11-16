@@ -259,6 +259,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      inv-head.frt-pay AT ROW 11.24 COL 27 COLON-ALIGNED
+          LABEL "Freight Terms"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
      inv-head.fob-code AT ROW 11.24 COL 113 COLON-ALIGNED
