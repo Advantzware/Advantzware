@@ -71,7 +71,7 @@ DEF VAR lv-i-no LIKE po-ordl.i-no NO-UNDO.
 DEF VAR lv-line LIKE po-ordl.line NO-UNDO.
 DEF VAR v-rmtags-log AS LOG NO-UNDO.
 DEF VAR v-get-tandem-rec AS LOG NO-UNDO.
-
+DEF VAR ll-is-copy-record AS LOG NO-UNDO.
 DO TRANSACTION:
   {sys/inc/rmrecpt.i}
 END.
@@ -2133,6 +2133,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record B-table-Win 
+PROCEDURE local-copy-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+   
+  /* Code placed here will execute PRIOR to standard behavior. */
+  
+
+      /* Dispatch standard ADM method.                             */
+      RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
+       ASSIGN ll-is-copy-record = YES .
+  
+      /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
 PROCEDURE local-delete-record :
 /*------------------------------------------------------------------------------
@@ -2168,6 +2189,31 @@ PROCEDURE local-delete-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   EMPTY TEMP-TABLE tt-selected.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  /* Code placed here will execute PRIOR to standard behavior. */  
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  
+  ASSIGN
+   adm-new-record      = NO
+   adm-adding-record   = NO
+   ll-is-copy-record   = NO.
+
 
 END PROCEDURE.
 
@@ -2286,6 +2332,8 @@ PROCEDURE local-update-record :
                                  INPUT rm-rctd.pur-uom,
                                  OUTPUT vlc-success).
      END.
+
+     ASSIGN ll-is-copy-record = NO .
 
   RUN multi-issues (ROWID(rm-rctd)) NO-ERROR.
 
@@ -3455,6 +3503,8 @@ DEFINE VARIABLE dTotalI AS DEC     NO-UNDO.
          APPLY "entry" TO rm-rctd.tag IN BROWSE {&BROWSE-NAME}.
          RETURN ERROR.
      END.
+
+ IF NOT ll-is-copy-record THEN
      FOR EACH bf-rm-rctd 
           WHERE bf-rm-rctd.company EQ cocode
             AND bf-rm-rctd.rita-code EQ "I"                    
@@ -3462,10 +3512,24 @@ DEFINE VARIABLE dTotalI AS DEC     NO-UNDO.
             AND bf-rm-rctd.loc       EQ rm-bin.loc
             AND bf-rm-rctd.loc-bin   EQ rm-bin.loc-bin     
             AND bf-rm-rctd.tag       EQ rm-bin.tag  
-            AND NOT (AVAIL(rm-rctd) AND ROWID(rm-rctd) EQ ROWID(bf-rm-rctd))
+           AND NOT (AVAIL(rm-rctd) AND ROWID(rm-rctd) EQ ROWID(bf-rm-rctd))
           NO-LOCK USE-INDEX rita-code:
        dTotalI = dTotalI + bf-rm-rctd.qty.    
      END.
+     ELSE DO:
+         FOR EACH bf-rm-rctd 
+          WHERE bf-rm-rctd.company EQ cocode
+            AND bf-rm-rctd.rita-code EQ "I"                    
+            AND bf-rm-rctd.i-no      EQ rm-bin.i-no
+            AND bf-rm-rctd.loc       EQ rm-bin.loc
+            AND bf-rm-rctd.loc-bin   EQ rm-bin.loc-bin     
+            AND bf-rm-rctd.tag       EQ rm-bin.tag  
+          NO-LOCK USE-INDEX rita-code:
+       dTotalI = dTotalI + bf-rm-rctd.qty.    
+     END.
+
+     END.
+
     
     
     IF DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) > 0 AND
