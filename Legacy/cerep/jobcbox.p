@@ -425,7 +425,7 @@ ASSIGN
                         and eb.form-no     eq job-hdr.frm
                         AND eb.blank-no > 0 NO-LOCK NO-ERROR.
         ASSIGN
-          v-bar-no = IF AVAIL eb THEN eb.spc-no ELSE trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")
+          v-bar-no = /*IF AVAIL eb THEN eb.spc-no ELSE*/ trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")
           v-bar-no = barCode(v-bar-no).
 
         
@@ -438,11 +438,13 @@ ASSIGN
             v-shipto[4] AT 7 SKIP
             v-fill SKIP.     
         /* barcode print */
-        PUT UNFORMATTED "<UNITS=INCHES><AT=.41,7><FROM><AT=+.6,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
-        /*    trim(job-hdr.job-no) "-" STRING(job-hdr.job-no2,"99") ">"
-            "<AT=,8.8>" trim(job-hdr.job-no) "-" STRING(job-hdr.job-no2,"99") */
+        /*PUT UNFORMATTED "<UNITS=INCHES><AT=.41,7><FROM><AT=+.6,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
+        v-bar-no ">" "   Page#:" string(lv-pg-num2,">>9") + " of " + string(lv-tot-pg) FORM "x(20)"
+            "<AT=,7>" v-bar-no "<=#1><R+5>".*/
+
+        PUT UNFORMATTED "<r-5.6><#1><UNITS=INCHES><C70.5><FROM><c90.8><r+3.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
               v-bar-no ">" "   Page#:" string(lv-pg-num2,">>9") + " of " + string(lv-tot-pg) FORM "x(20)"
-            "<AT=,7>" v-bar-no "<=#1><R+5>".
+            "<C71>" v-bar-no  "<=#1><R+5>".
 
         v-line = if avail est                            and
                  est.est-type gt 2 and est.est-type lt 5 then 500 else 50.
