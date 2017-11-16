@@ -551,9 +551,9 @@ END FUNCTION.
                         NO-LOCK NO-ERROR.
 
         ASSIGN
-          v-bar-no = IF AVAIL eb 
+          v-bar-no = /*IF AVAIL eb 
                      THEN eb.spc-no 
-                     ELSE trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")
+                     ELSE*/ trim(job-hdr.job-no) + "-" + STRING(job-hdr.job-no2,"99")
           v-bar-no = barCode(v-bar-no).
         
         PUT "<R-1><#1><C91>Date/Time Generated:" SKIP
@@ -564,9 +564,9 @@ END FUNCTION.
             v-shipto[4] AT 7 SKIP
             v-fill SKIP.     
         /* barcode print */
-        PUT UNFORMATTED "<UNITS=INCHES><AT=.41,7><FROM><AT=+.6,+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
-            v-bar-no ">" 
-            "<AT=,7>" v-bar-no "<=#1><R+5>".
+        PUT UNFORMATTED "<r-5.6><#1><UNITS=INCHES><C70.5><FROM><c90.8><r+3.5><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
+              v-bar-no ">"
+            "<C71>" v-bar-no  "<=#1><R+5>".
 
         /** SUM UP NUMBER OF SHEETS **/
         find first job
