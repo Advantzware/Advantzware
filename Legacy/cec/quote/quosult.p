@@ -78,7 +78,9 @@ DEF VAR lv-part-dscr2   AS CHAR                          NO-UNDO.
 DEF VAR lv-i-coldscr    AS CHAR                          NO-UNDO. 
 DEF VAR chrX            AS CHAR                          NO-UNDO. 
 DEF VAR ls-image1       AS CHAR                          NO-UNDO.
-DEF VAR ls-full-img1    AS CHAR FORMAT "x(80)"           NO-UNDO.
+DEF VAR ls-full-img1    AS CHAR FORMAT "x(200)"           NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 
 DEF VAR v-comp-name      LIKE company.name extent 4 NO-UNDO.
 DEF VAR trim-size        LIKE quoteitm.size         NO-UNDO.
@@ -103,10 +105,16 @@ DEF VAR v-sig-image AS cha NO-UNDO.
 DEF VAR v-quo-date AS DATE FORM "99/99/9999" NO-UNDO.
 
 
-ASSIGN
+/*ASSIGN
   ls-image1 = "images\sultana.jpg"
   FILE-INFO:FILE-NAME = ls-image1
-  ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".
+  ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">".*/
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+ASSIGN ls-full-img1 = cRtnChar + ">"  .
 
 {sys/inc/f16to32.i}
 {cecrep/jobtick2.i "new shared"}
@@ -571,7 +579,7 @@ PROCEDURE verBage:
                 ELSE "".
 
     PUT 
-     "<FArial><R47.5><C1><P9>"  /* "<FArial><R51.5><C1><P9>" */
+     "<FArial><R48.5><C1><P9>"  /* "<FArial><R51.5><C1><P9>" */
      "<b>Cancellation cannot be made if order is in the process of manufacture, without assuming full liability.</b>"           SKIP(1)
      " <P13><B>*</B><P9> Quote valid for 30 days from this date."          SKIP
      " <P13><B>*</B><P9> All item quantities are subject to an over/underrun of 10%." SKIP
