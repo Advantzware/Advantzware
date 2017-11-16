@@ -125,7 +125,7 @@ FOR EACH est-op WHERE est-op.company = xest.company
                     (v-len / 12)) / opsp.
             ELSE
                 IF mach.p-type = "A" THEN
-                    oprun = xest.est-qty[1] / opsp.
+                    oprun = qty / opsp.
                 ELSE
                     IF est-op.op-sb THEN
                         oprun = ((est-op.num-sh * v-on-f) - est-op.op-waste) / opsp.
