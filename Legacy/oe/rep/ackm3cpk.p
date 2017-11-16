@@ -398,18 +398,9 @@ v-upc-no = "" .
                  AND oe-rel.i-no    EQ oe-ordl.i-no  
                  AND oe-rel.line    EQ oe-ordl.line NO-LOCK BY oe-rel.rel-date:
                 
-                 FIND FIRST reftable WHERE
-                       reftable.reftable EQ "oe-rel.lot-no" AND
-                       reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-                       NO-LOCK NO-ERROR.
-                
-                  IF AVAIL reftable THEN
-                     ASSIGN
-                        v-lot-no      = reftable.CODE .
-                  ELSE v-lot-no      = "" .
-                  
+                   ASSIGN v-lot-no = oe-rel.lot-no.      
 
-                 IF oe-rel.tot-qty NE 0 OR oe-rel.po-no NE "" OR reftable.CODE NE "" OR oe-rel.rel-date NE ? OR  oe-rel.ship-addr[1] NE "" THEN 
+                 IF oe-rel.tot-qty NE 0 OR oe-rel.po-no NE "" OR oe-rel.lot-no NE "" OR oe-rel.rel-date NE ? OR  oe-rel.ship-addr[1] NE "" THEN 
                      ASSIGN v-count2 = v-count2 + 1 .
 
                  if v-printline ge lv-line-print THEN do:

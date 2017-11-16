@@ -98,8 +98,7 @@ PUT
          if i eq 2 THEN ASSIGN v-part-dscr = oe-ordl.part-dscr1
                                v-job-var   = if oe-boll.job-no eq "" then "" else
                                              (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99"))
-                               v-job-po    = IF AVAIL reftable THEN reftable.code 
-                                                               ELSE ""
+                               v-job-po    = oe-rel.lot-no
                                v-fgitem    = oe-ordl.part-no.
          ELSE
          if i eq 3 then ASSIGN v-part-dscr = oe-ordl.part-dscr2
@@ -135,8 +134,7 @@ PUT
            IF FIRST(tt-w2.cases * tt-w2.cas-cnt) THEN DO:
              PUT {1} 
                  v-job-var  FORMAT "x(9)"
-                 IF AVAIL reftable 
-                   THEN reftable.code ELSE "" FORMAT "x(15)" AT 11
+                 oe-rel.lot-no FORMAT "x(15)" AT 11
                  oe-ordl.part-no AT 27
                  oe-ordl.part-dscr1 FORMAT "x(30)" AT 42
                  SKIP.
@@ -270,8 +268,7 @@ PUT
          if i eq 2 THEN ASSIGN v-part-dscr = oe-ordl.part-dscr1
                                v-job-var   = if oe-boll.job-no eq "" then "" else
                                              (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99"))
-                               v-job-po    = IF AVAIL reftable THEN reftable.code 
-                                                               ELSE ""
+                               v-job-po    = oe-rel.lot-no
                                v-fgitem    = oe-ordl.part-no.
          ELSE
          if i eq 3 then ASSIGN v-part-dscr = oe-ordl.part-dscr2
@@ -307,8 +304,7 @@ PUT
            IF FIRST(tt-w2.cases * tt-w2.cas-cnt) THEN DO:
              PUT {1} 
                  v-job-var  FORMAT "x(9)"
-                 IF AVAIL reftable 
-                   THEN reftable.code ELSE "" FORMAT "x(15)" AT 11
+                 oe-rel.lot-no FORMAT "x(15)" AT 11
                  oe-ordl.part-no AT 27
                  oe-ordl.part-dscr1 FORMAT "x(30)" AT 42
                  SKIP.

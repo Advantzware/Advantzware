@@ -1563,19 +1563,7 @@ DEF OUTPUT PARAM vlWarning AS LOG NO-UNDO.
                      oe-rel.ord-no  eq oe-ordl.ord-no
                      NO-LOCK NO-ERROR.
 
-                IF AVAIL oe-rel THEN
-                DO:
-                   FIND FIRST ref-lot-no WHERE
-                        ref-lot-no.reftable EQ "oe-rel.lot-no" AND
-                        ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-                        NO-LOCK NO-ERROR.
-
-                   IF AVAIL ref-lot-no THEN
-                   DO:
-                      w-ord.rel-lot# = ref-lot-no.CODE.
-                      RELEASE ref-lot-no.
-                   END.
-                END.
+            ASSIGN w-ord.rel-lot# = oe-rel.lot-no.    
 
                 RELEASE oe-ordl.
                 RELEASE oe-ord.
@@ -1857,19 +1845,7 @@ PROCEDURE from-ord :
             w-ord.ship-zip   = shipto.ship-zip
             w-ord.ship-ctry  = shipto.country.          
 
-          IF AVAIL oe-rel THEN
-          DO:
-             FIND FIRST ref-lot-no WHERE
-                  ref-lot-no.reftable EQ "oe-rel.lot-no" AND
-                  ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-                  NO-LOCK NO-ERROR.
-
-             IF AVAIL ref-lot-no THEN
-             DO:
-                w-ord.rel-lot# = ref-lot-no.CODE.
-                RELEASE ref-lot-no.
-             END.
-          END.
+          ASSIGN w-ord.rel-lot# = oe-rel.lot-no.
 
           IF NOT AVAIL eb AND AVAIL itemfg AND itemfg.est-no NE "" THEN
           FIND FIRST eb
@@ -1997,16 +1973,7 @@ PROCEDURE from-ord :
         /* Add .49 to round up and add 1 for extra tag   */
         ASSIGN w-ord.total-tags = ((w-ord.ord-qty / w-ord.total-unit) + .49) +  IF lookup(v-loadtag,"SSLABEL,CentBox") > 0 THEN 0 ELSE 1.
 
-        FIND FIRST ref-lot-no WHERE
-             ref-lot-no.reftable EQ "oe-rel.lot-no" AND
-             ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-             NO-LOCK NO-ERROR.
-
-        IF AVAIL ref-lot-no THEN
-        DO:
-           w-ord.rel-lot# = ref-lot-no.CODE.
-           RELEASE ref-lot-no.
-        END.
+        ASSIGN w-ord.rel-lot# = oe-rel.lot-no.
       END.
     END.
 
@@ -2088,13 +2055,7 @@ PROCEDURE get-rel-info :
     LEAVE.
   END.
 
-  IF AVAIL oe-rel THEN DO:
-    FIND FIRST ref-lot-no NO-LOCK
-        WHERE ref-lot-no.reftable EQ "oe-rel.lot-no"
-          AND ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-ERROR.
-    IF AVAIL ref-lot-no THEN op-lot# = ref-lot-no.code.
-  END.
+  ASSIGN w-ord.rel-lot# = oe-rel.lot-no.
 
   IF v-po-no-source NE "R"                    OR
      (NOT AVAIL oe-rel AND NOT AVAIL oe-rell) THEN

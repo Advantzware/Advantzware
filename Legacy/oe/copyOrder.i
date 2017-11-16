@@ -92,19 +92,7 @@ PROCEDURE copyOrder:
        b-oe-rel.r-no    = lv-r-no
        b-oe-rel.ord-no  = b-oe-ord.ord-no.
      
-      FIND FIRST reftable WHERE
-           reftable.reftable EQ "oe-rel.lot-no" AND
-           reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-           NO-LOCK NO-ERROR.
-
-      IF AVAIL reftable THEN
-      DO:
-         CREATE b-reftable.
-         BUFFER-COPY reftable EXCEPT company TO b-reftable
-            ASSIGN b-reftable.company = STRING(b-oe-rel.r-no,"9999999999").
-         RELEASE b-reftable.
-         RELEASE reftable.
-      END.
+      
 
       FIND FIRST reftable WHERE
            reftable.reftable EQ "oe-rel.sell-price" AND

@@ -768,17 +768,17 @@ IF choice THEN DO:
                         ELSE
                            "B".
 
-       FIND FIRST b-fob WHERE
-            b-fob.reftable EQ "oe-rel.lot-no" AND
-            b-fob.company  EQ STRING(bf-rel.r-no,"9999999999")
-            NO-LOCK NO-ERROR.
-
-       IF AVAILABLE b-fob THEN
-       DO:
-           w-rel.fob = b-fob.dscr.
-           RELEASE b-fob.
-       END.
-
+/*       FIND FIRST b-fob WHERE                                 */
+/*            b-fob.reftable EQ "oe-rel.lot-no" AND             */
+/*            b-fob.company  EQ STRING(bf-rel.r-no,"9999999999")*/
+/*            NO-LOCK NO-ERROR.                                 */
+/*                                                              */
+/*       IF AVAILABLE b-fob THEN                                */
+/*       DO:                                                    */
+/*           w-rel.fob = b-fob.dscr.                            */
+/*           RELEASE b-fob.                                     */
+/*       END.                                                   */
+         ASSIGN w-rel.fob = bf-rel.fob-code.
        RELEASE w-rel.
     END.
   END.

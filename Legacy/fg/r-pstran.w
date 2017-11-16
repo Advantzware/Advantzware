@@ -849,7 +849,8 @@ IF NOT AVAILABLE bf-oe-ord THEN
            oe-rel.sold-no   = bf-orig-oe-rel.sold-no
            oe-rel.carrier   = bf-orig-oe-rel.carrier
            oe-rel.spare-char-1 = bf-orig-oe-rel.spare-char-1
-           oe-rel.r-no      = v-nxt-r-no.
+           oe-rel.r-no      = v-nxt-r-no
+           oe-rel.lot-no = bf-orig-oe-rel.lot-no.
 
     
            oe-rel.rel-date = bf-orig-oe-rel.rel-date.
@@ -866,14 +867,7 @@ IF NOT AVAILABLE bf-oe-ord THEN
               oe-rel.ship-i[3]    = bf-orig-oe-rel.ship-i[3]
               oe-rel.ship-i[4]    = bf-orig-oe-rel.ship-i[4].
 
-       FIND FIRST ref-lot-no WHERE 
-         ref-lot-no.reftable EQ "oe-rel.lot-no" AND
-         ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-       NO-ERROR.
-  
-  IF AVAILABLE ref-lot-no THEN
-    ASSIGN
-       oe-rel.lot-no = ref-lot-no.CODE.
+       
     
                        
     IF oe-rel.qty LT 0 THEN oe-rel.qty = 0.
@@ -3268,14 +3262,14 @@ PROCEDURE get-rel-info :
     LEAVE.
   END.
 
-  IF AVAILABLE oe-rel THEN DO:
-    FIND FIRST ref-lot-no NO-LOCK
-        WHERE ref-lot-no.reftable EQ "oe-rel.lot-no"
-          AND ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-ERROR.
-    IF AVAILABLE ref-lot-no THEN op-lot# = ref-lot-no.code.
-  END.
-
+/*  IF AVAILABLE oe-rel THEN DO:                                       */
+/*    FIND FIRST ref-lot-no NO-LOCK                                    */
+/*        WHERE ref-lot-no.reftable EQ "oe-rel.lot-no"                 */
+/*          AND ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")*/
+/*        NO-ERROR.                                                    */
+/*    IF AVAILABLE ref-lot-no THEN op-lot# = ref-lot-no.code.          */
+/*  END.                                                               */
+     ASSIGN op-lot# = oe-rel.lot-no.
   IF v-po-no-source NE "R"                    OR
      (NOT AVAILABLE oe-rel AND NOT AVAILABLE oe-rell) THEN
     op-pono = IF v-po-no-source EQ "L" THEN oe-ordl.po-no

@@ -83,9 +83,7 @@ for each report where report.term-id eq v-term-id,
        and oe-rel.rel-no  eq oe-boll.rel-no
        no-lock no-error.
 
-  find first reftable where reftable.reftable eq "oe-rel.lot-no" 
-       and reftable.company  EQ string(oe-rel.r-no,"9999999999")
-       no-lock no-error.
+  
 
   IF v-printline >= 36 THEN DO:
      v-printline = 0.
@@ -123,8 +121,7 @@ for each report where report.term-id eq v-term-id,
          if i eq 2 THEN ASSIGN v-part-dscr = oe-ordl.part-dscr1
                                v-job-var   = if oe-boll.job-no eq "" then "" else
                                              (trim(oe-boll.job-no) + "-" + string(oe-boll.job-no2,"99"))
-                               v-job-po    = IF AVAIL reftable THEN reftable.code 
-                                                               ELSE ""
+                               v-job-po    = oe-rel.lot-no
                                v-fgitem    = oe-ordl.part-no.
          ELSE
          if i eq 3 then ASSIGN v-part-dscr = oe-ordl.part-dscr2
@@ -165,8 +162,7 @@ for each report where report.term-id eq v-term-id,
            IF FIRST(w2.cases * w2.cas-cnt) THEN DO:
              PUT {1} 
                  v-job-var  FORMAT "x(9)"
-                 IF AVAIL reftable 
-                   THEN reftable.code ELSE "" FORMAT "x(15)" AT 11
+                 oe-rel.lot-no FORMAT "x(15)" AT 11
                  oe-ordl.part-no AT 27
                  oe-ordl.part-dscr1 FORMAT "x(30)" AT 42
                  SKIP.
@@ -252,7 +248,7 @@ for each report where report.term-id eq v-term-id,
           if oe-boll.job-no eq "" then "" 
             ELSE  (trim(oe-boll.job-no) + "-" + 
                    string(oe-boll.job-no2,"99"))  FORM "x(9)"
-          IF AVAIL reftable THEN reftable.code ELSE "" FORM "x(15)" AT 11
+          oe-rel.lot-no FORM "x(15)" AT 11
           oe-ordl.part-dscr1  FORM "x(30)" AT 42
           v-1    FORM "->>>9"  when oe-boll.partial gt 0 AT 72 "@"
           oe-boll.partial   when oe-boll.partial gt 0 FORM "->>>>>z"  SKIP
