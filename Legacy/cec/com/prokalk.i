@@ -91,7 +91,6 @@
      ASSIGN
       v-blk    = v-blk / (1 - (est-op.op-spoil / 100))
       v-blk    = v-blk + (est-op.op-waste * IF est-op.op-sb THEN ((v-num-up * vn-out) / v-on-f) ELSE 1)
-      v-blk    = v-blk *  (IF est-op.n_out_div GT 1 THEN est-op.n_out_div ELSE 1)  /*for ticket 19774 - Reduction for assembler machine*/
       v-spo[2] = est-op.op-waste / IF est-op.op-sb THEN v-on-f ELSE (v-num-up * vn-out)
       v-dec    = (v-spo[2] - TRUNC(v-spo[2],0)) * (v-num-up * vn-out)
       v-spo[2] = TRUNC(v-spo[2],0).

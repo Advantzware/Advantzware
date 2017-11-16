@@ -75,7 +75,11 @@ FOR EACH est-op WHERE est-op.company = xest.company
     END.
     ELSE
         oprun = 0.
-
+    
+    /*Run Qty Divisor 24462 (also undoes 19774)*/
+    IF est-op.n_out_div GT 0 THEN 
+        oprun = oprun / est-op.n_out_div.
+        
     IF v-printed-lit AND est-op.n-out GT 1 THEN
         v-gu-out = v-gu-out * est-op.n-out.
 
@@ -163,7 +167,11 @@ FOR EACH est-op WHERE est-op.company = xest.company
         IF AVAILABLE itemfg AND est-op.b-num NE 0 THEN op.i-name = itemfg.i-name.
         IF op.line GE 500 THEN op.line = op.line - 500.
     END.
-
+    
+    /*Run Qty Divisor 24462 (also undoes 19774) REFACTOR - why isn't this done before oprun is calculated?*/
+    IF est-op.n_out_div GT 0 THEN 
+        op.run-qty = op.run-qty / est-op.n_out_div.
+         
     IF est-op.m-code NE "" THEN
         DISPLAY est-op.m-dscr   FORMAT "x(18)"
             est-op.op-mr    FORMAT ">>>9.99"
