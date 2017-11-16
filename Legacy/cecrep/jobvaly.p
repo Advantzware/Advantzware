@@ -594,41 +594,51 @@ do v-local-loop = 1 to v-local-copies:
 
         PUT "<=#10>" SKIP.
 
+        PUT "<|4><R36.3><C55><#14><FROM><R42.7><C78><RECT>".
+        PUT "<R37.5><C55><FROM><R37.5><C78><LINE>".
+        PUT "<R38.6><C55><FROM><R38.6><C78><LINE>".
+        PUT "<R39.6><C55><FROM><R39.6><C78><LINE>".
+        PUT "<R40.6><C55><FROM><R40.6><C78><LINE>".
+        PUT "<R41.6><C55><FROM><R41.6><C78><LINE>".
+        PUT "<R36.3><C62><FROM><R42.7><C62><LINE>".
+        PUT "<R36.3><C73><FROM><R42.7><C73><LINE>".
+        PUT "<#14><R36.6><C56> Machine   Quality signature  Shift".
+        
         display "<=#10><R-1>" /* -1*/
                 "N"                      AT 1
                 "SPECIAL INSTRUCTIONS.." AT 3
                 chr(124) format "x"       at 87
-                chr(124) format "x"       at 90
+               /* chr(124) format "x"       at 90
                 "SHIPPING INFO"
                 "      Ship To #:"
                 xoe-ord.sold-id when avail xoe-ord
                 xeb.ship-id when avail xeb @ xoe-ord.sold-id
-                xoe-rel.ship-id when avail xoe-rel @ xoe-ord.sold-id SKIP
+                xoe-rel.ship-id when avail xoe-rel @ xoe-ord.sold-id */SKIP
                 "O"                       at 1
                 v-dept-inst[1] format "x(82)" AT 3
                 chr(124) format "x"       at 87
-                chr(124) format "x"       at 90
-                v-shp[1]
+                /*chr(124) format "x"       at 90
+                v-shp[1]*/
                 "T"                       at 1
                 v-dept-inst[2] format "x(82)" AT 3
                 chr(124) format "x"       at 87
-                chr(124) format "x"       at 90
-                v-shp[2]
+                /*chr(124) format "x"       at 90
+                v-shp[2]*/
                 "E"                       at 1
                 v-dept-inst[3] format "x(82)" AT 3
                 chr(124) format "x"       at 87
-                chr(124) format "x"       at 90
-                v-shp[3]
+               /* chr(124) format "x"       at 90
+                v-shp[3]*/
                 "S"                       at 1
                 v-dept-inst[4] format "x(82)" AT 3
                 chr(124) format "x"       at 87
-                chr(124) format "x"       at 90
-                v-shp[4]
+               /* chr(124) format "x"       at 90
+                v-shp[4]*/
                 v-dept-inst[5] format "x(82)" AT 3
                 chr(124) format "x"       at 87
-                chr(124) format "x"       at 90
+               /* chr(124) format "x"       at 90
                 "Item PO #:"
-                xoe-ordl.po-no when avail xoe-ordl
+                xoe-ordl.po-no when avail xoe-ordl*/
                 v-dept-inst[6] format "x(128)" AT 3
                 skip(1)
             with no-box no-labels frame m8 width 132 no-attr-space STREAM-IO.
