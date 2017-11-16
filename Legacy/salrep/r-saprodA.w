@@ -794,7 +794,7 @@ def var v-hdr2-2 as char extent 3 format "x(13)" init "-------------" NO-UNDO.
 def var v-hdr2-3 as char extent 3 format "x(13)" init "-------------" NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEFINE VARIABLE dTax AS DECIMAL NO-UNDO .
-DEFINE VARIABLE dFright AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dFreight AS DECIMAL NO-UNDO .
 form
   w-procat      format "x(10)"
   w-sqft
@@ -907,7 +907,7 @@ display "" with frame r-top.
 
          IF FIRST-OF(ar-inv.inv-no) THEN
             ASSIGN dTax    = dTax + ar-inv.tax-amt 
-                   dFright = dFright + ar-inv.freight .
+                   dFreight = dFreight + ar-inv.freight .
 
         if not ar-invl.misc then do:
 
@@ -1126,14 +1126,14 @@ display "" with frame r-top.
       end.
 
       PUT "    Tax   " dTax FORMAT "->,>>>,>>9.99" SKIP .
-      PUT " Fright   " dFright FORMAT "->,>>>,>>9.99" SKIP .
+      PUT " Fright   " dFreight FORMAT "->,>>>,>>9.99" SKIP .
 
       IF tb_excel THEN
            PUT STREAM excel UNFORMATTED
                '"' "  Tax"                                 '",'
                '"' STRING(dTax,"->>>,>>9.999")                    '",' SKIP
                '"' "  Fright"                                 '",'
-               '"' STRING(dFright,"->>>,>>9.999")                    '",' SKIP .
+               '"' STRING(dFreight,"->>>,>>9.999")                    '",' SKIP .
                
 
       assign
