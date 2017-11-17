@@ -1,4 +1,3 @@
-MESSAGE "test" VIEW-AS ALERT-BOX ERROR.
 /* oe/s-invedt.p  batch procedure for r-invedt.w */
 
 
