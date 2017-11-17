@@ -229,17 +229,10 @@ DO v-fifo-loop = 1 TO 2.
         WHERE b-reftable.reftable EQ "oe-rel.sell-price"
           AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
         NO-ERROR.
-   
-    IF AVAIL b-reftable THEN DO:
-      CREATE reftable.
+
       ASSIGN
-       reftable.reftable = "oe-rell.sell-price"
-       reftable.rec_key  = oe-rell.rec_key
-       reftable.val[1]   = b-reftable.val[1]
-       reftable.val[2]   = b-reftable.val[2].
-      RELEASE reftable.
-      RELEASE b-reftable.
-    END.
+       oe-rell.newSellPrice = b-reftable.val[1]
+       oe-rell.newZeroPrice = b-reftable.val[2].
 
     IF fg-bin.qty LE v-rel-qty THEN
       ASSIGN

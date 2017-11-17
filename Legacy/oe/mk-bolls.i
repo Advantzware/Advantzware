@@ -71,23 +71,14 @@ FOR EACH oe-rell
      RELEASE rec_key.
   END.
 
-    
-
-    FIND FIRST b-reftable WHERE
-         b-reftable.reftable EQ "oe-rell.sell-price" AND
-         b-reftable.rec_key = oe-rell.rec_key
-         USE-INDEX rec_key
-         NO-LOCK NO-ERROR.
-
-    IF AVAIL b-reftable THEN
+    IF AVAIL oe-rell THEN
     DO:
        CREATE reftable.               
        ASSIGN reftable.reftable = "oe-boll.sell-price"
               reftable.rec_key  = oe-boll.rec_key
-              reftable.val[1]   = b-reftable.val[1]
-              reftable.val[2]   = b-reftable.val[2].
+              oe-rell.newSellPrice   = b-reftable.val[1]
+              oe-rell.newZeroPrice   = b-reftable.val[2].
        RELEASE reftable.
-       RELEASE b-reftable.
     END.
 
     if oe-boll.loc-bin eq "" then do:

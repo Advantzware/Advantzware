@@ -829,18 +829,11 @@ PROCEDURE calc-ext-cost:
            itemfg.i-no EQ oe-ordl.i-no
            NO-LOCK NO-ERROR.
            
-      FIND FIRST reftable NO-LOCK WHERE
-           reftable.reftable EQ "oe-rell.sell-price" AND
-           reftable.rec_key  EQ tt-rell.rec_key
-           USE-INDEX rec_key
-            NO-ERROR.
 
-      IF AVAILABLE reftable AND reftable.val[1] NE 0 THEN
-         lv-price = reftable.val[1].
+      IF tt-rell.newSellPrice <> 0 THEN
+         lv-price = tt-rell.newSellPrice.
       ELSE
          lv-price = oe-ordl.price.
-
-      RELEASE reftable.
 
       ASSIGN
        lv-tmp-price = IF oe-ordl.pr-uom BEGINS "L" AND oe-ordl.pr-uom NE "LB" THEN

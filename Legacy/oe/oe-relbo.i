@@ -520,25 +520,10 @@ DO bo-try = 1 TO 2:
 
     RELEASE b-reftable2.
 
-    FIND FIRST b-reftable2 WHERE
-         b-reftable2.reftable EQ "oe-rell.sell-price" AND
-         b-reftable2.rec_key = xoe-rell.rec_key
-         USE-INDEX rec_key
-         NO-ERROR.
-
-    IF NOT AVAIL b-reftable2 THEN
-    DO:
-       CREATE b-reftable2.
-       ASSIGN
-          b-reftable2.reftable = "oe-rell.sell-price"
-          b-reftable2.rec_key  = xoe-rell.rec_key.
-    END.
 
     ASSIGN
-       b-reftable2.val[1] = v-new-sell-price
-       b-reftable2.val[2] = DECIMAL(v-new-zero-price).
-
-    RELEASE b-reftable2.
+       xoe-rell.newSellPrice = v-new-sell-price
+       xoe-rell.newZeroPrice = DECIMAL(v-new-zero-price).
   END.
 END.
 

@@ -102,4 +102,20 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*oe-rel*/
+    METHOD PUBLIC INTEGER OeRellSellPrice():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "oe-rell.sell-price"
+            NO-LOCK:
+            FIND FIRST oe-rell WHERE oe-rell.rec_key = reftable.rec_key
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE oe-rell THEN    
+            ASSIGN 
+                oe-rell.newSellPrice  = reftable.val[1]
+                oe-rell.newZeroPrice  = reftable.val[2]
+                . 
+            RELEASE oe-rell.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*oe-rell*/
 END CLASS.

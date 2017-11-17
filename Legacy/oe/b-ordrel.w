@@ -2873,17 +2873,9 @@ IF v-none THEN DO TRANSACTION:
         AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
       NO-ERROR.
 
-  IF AVAIL b-reftable THEN DO:
-    CREATE reftable.
-    ASSIGN
-     reftable.reftable = "oe-rell.sell-price"
-     reftable.rec_key  = oe-rell.rec_key
-     reftable.val[1]   = b-reftable.val[1]
-     reftable.val[2]   = b-reftable.val[2].
-    RELEASE reftable.
-    RELEASE b-reftable.
-  END.
-
+      ASSIGN
+       oe-rell.newSellPrice = b-reftable.val[1]
+       oe-rell.newZeroPrice = b-reftable.val[2].
   IF v-whse EQ "SHIPTO" THEN DO:
     FIND FIRST shipto
       WHERE shipto.company EQ cocode
