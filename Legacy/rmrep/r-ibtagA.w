@@ -57,11 +57,18 @@ DEFINE VARIABLE is-xprint-form AS LOGICAL.
 DEFINE VARIABLE ls-fax-file AS CHARACTER NO-UNDO.
 DEFINE VARIABLE v-roll-multp AS DECIMAL DECIMALS 4 NO-UNDO.
 
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lTagFormat AS LOGICAL NO-UNDO .
 DEFINE TEMP-TABLE tt-rm-bin NO-UNDO LIKE rm-bin
                                  FIELD trans-date LIKE rm-rcpth.trans-date.
 
 
 DEFINE STREAM excel.
+RUN sys/ref/nk1look.p (INPUT cocode, "TagFormat", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+lTagFormat = LOGICAL(cRtnChar) NO-ERROR .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -93,6 +100,16 @@ td-show-parm tb_excel tb_runExcel fi_file
 /* List-1,List-2,List-3,List-4,List-5,F1                                */
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
+&ANALYZE-RESUME
+
+/* ************************  Function Prototypes ********************** */
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fPrepareCSV B-table-Win 
+FUNCTION fPrepareCSV RETURNS CHARACTER
+  (ipBal AS CHARACTER)  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
 
@@ -1361,7 +1378,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 
         ASSIGN
-          chrRmBinTag = TRIM(tt-rm-bin.tag)
+          chrRmBinTag =  fPrepareCSV(STRING(tt-rm-bin.tag))
           chrTotCostVal = STRING(tt-rm-bin.qty * v-cost, "->>>>>9.99").
 
         EXPORT STREAM excel DELIMITER ","
@@ -1598,4 +1615,25 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+FUNCTION fPrepareCSV RETURNS CHARACTER 
+(ipcValue AS CHARACTER) :
+/*------------------------------------------------------------------------------
+Purpose: Tests for an integer value in a character and adds a ' to force Text formatting
+Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE iTester AS INT64 NO-UNDO.
+
+ iTester = INT64(ipcValue) NO-ERROR.
+ IF iTester NE 0 AND lTagFormat THEN 
+      cReturn = '="' + ipcValue + '"'.
+ ELSE DO:
+     cReturn = ipcValue.
+  END.
+
+RETURN cReturn.
+
+END FUNCTION.
 
