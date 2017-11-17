@@ -504,8 +504,9 @@ find first company where company.company eq cocode NO-LOCK.
               if v-part-info ne "" OR (v = 1 AND inv-line.part-no <> "") then
                 v-beeler-lines = v-beeler-lines + 1.
             end.
-            v-printline = v-printline + v-beeler-lines.
-
+           
+            /*v-printline = v-printline + v-beeler-lines.*/
+ 
             assign v-inv-qty = inv-line.qty /* task 03170618 inv-qty*/
                    v-i-no = inv-line.i-no
                    v-i-dscr = inv-line.i-name
