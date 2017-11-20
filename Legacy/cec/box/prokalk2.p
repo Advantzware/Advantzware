@@ -62,7 +62,7 @@ DEF VAR ll-no-more-blank-fed AS LOG NO-UNDO.
 DEF VAR ll-foam AS LOG NO-UNDO.
 DEF VAR v-dep LIKE eb.dep NO-UNDO.
 DEF VAR v-count AS INT NO-UNDO.
-DEFINE VARIABLE dOutDivisor AS DECIMAL NO-UNDO INIT 1. /*For cumulative Out Divisor 19774*/
+
 
 DEF TEMP-TABLE w-qty NO-UNDO
   FIELD b-num   LIKE est-op.b-num
@@ -198,8 +198,8 @@ qty = save-qty.
       end.
       {sys/inc/roundup.i spo}*/
 
-      r-spo[xef.form-no] = xef.gsh-qty - t-shtfrm[xef.form-no] * dOutDivisor - spo.
-      dOutDivisor = 1.
+      r-spo[xef.form-no] = xef.gsh-qty - t-shtfrm[xef.form-no] - spo.
+      
 /* end ---------------------------------- copr. 1992  advanced software, inc. */
 
 RETURN.
@@ -228,9 +228,6 @@ FOR EACH est-op
         AND (xeb.blank-no EQ est-op.b-num OR est-op.b-num EQ 0)
       NO-LOCK.
        
-   /*19774 - accumulate the Out Divisor for use in final waste calc*/
-   IF est-op.n_out_div GT 1 THEN 
-        dOutDivisor = dOutDivisor * est-op.n_out_div.
         
   {cec/prokalk.i}
 END.
@@ -282,10 +279,7 @@ FOR EACH est-op
 
   IF FIRST(est-op.d-seq) THEN cumul = v-blk / (v-num-up * vn-out).
    
-   /*19774 - accumulate the Out Divisor for use in final waste calc*/
-   IF est-op.n_out_div GT 1 THEN 
-        dOutDivisor = dOutDivisor * est-op.n_out_div.
-        
+
   {cec/prokalk.i}
 
   ASSIGN

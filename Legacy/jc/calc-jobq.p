@@ -112,6 +112,10 @@ FOR EACH est-op WHERE est-op.company EQ xest.company
   END.
   ELSE oprun = 0.
   
+  /*Run Qty Divisor 24462 (also undoes 19774)*/
+    IF est-op.n_out_div GT 0 THEN 
+        oprun = oprun / est-op.n_out_div.
+        
   IF v-printed-lit AND est-op.n-out GT 1 THEN
     v-gu-out = v-gu-out * est-op.n-out.
   
@@ -175,6 +179,10 @@ FOR EACH est-op WHERE est-op.company EQ xest.company
         v-run-qty = est-op.num-sh * v-num-up *
           (IF xef.n-out   EQ 0 THEN 1 ELSE xef.n-out) *
           (IF xef.n-out-l EQ 0 THEN 1 ELSE xef.n-out-l).
+        
+      /*Run Qty Divisor 24462 (also undoes 19774)*/
+      IF est-op.n_out_div GT 0 THEN 
+        v-run-qty = v-run-qty / est-op.n_out_div.
 
       /* Found the given item and machine, so exit program  */
       IF /* est-op.m-code EQ ip-m-code AND */ 

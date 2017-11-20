@@ -1223,7 +1223,7 @@ FOR EACH job-hdr NO-LOCK
       PUT UNFORMATTED 'Job Status @ ' AT 15 STRING(TIME,'hh:mm:ss') ' ' ETIME SKIP.
       FIND FIRST sbStatus NO-LOCK
            WHERE sbStatus.company EQ job-mch.company
-             AND sbStatus.m-code EQ job-mch.m-code
+             AND sbStatus.m-code EQ scheduleResource
              AND sbStatus.job-no EQ job-mch.job-no
              AND sbStatus.job-no2 EQ job-mch.job-no2
              AND sbStatus.frm EQ job-mch.frm
