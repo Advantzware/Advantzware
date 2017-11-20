@@ -1006,7 +1006,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.board V-table-Win
 ON ENTRY OF ef.board IN FRAME Corr /* Board */
 DO:
-  /*RUN check-flute-test-change.*/
+  IF NOT lv-foam THEN
+      RUN check-flute-test-change.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -3723,8 +3724,9 @@ PROCEDURE local-update-record :
   /* Code placed here will execute PRIOR to standard behavior. */
   RUN valid-fi_from-est-no NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
-
- /* RUN check-flute-test-change.*/
+  
+  IF NOT lv-foam THEN
+      RUN check-flute-test-change.
 
     /* ==== Corrugated item validation ======== */
      ASSIGN
@@ -3928,11 +3930,18 @@ PROCEDURE new-board :
     IF ef.board NE ef.board:SCREEN-VALUE THEN DO:
       FIND FIRST item NO-LOCK {sys/look/itemb1W.i}
              AND item.i-no EQ ef.board:SCREEN-VALUE NO-ERROR.
-      IF AVAIL item THEN
+      IF AVAIL item THEN do:
          ASSIGN
-           ef.brd-dscr:SCREEN-VALUE = item.i-name
-           eb.flute:SCREEN-VALUE = ITEM.flute
-           eb.test:SCREEN-VALUE = ITEM.reg-no.
+           ef.brd-dscr:SCREEN-VALUE = item.i-name .
+           IF NOT lv-foam THEN
+               ASSIGN
+               eb.flute:SCREEN-VALUE = ITEM.flute
+               eb.test:SCREEN-VALUE = ITEM.reg-no.
+           ELSE
+               ASSIGN 
+               eb.flute:SCREEN-VALUE = ITEM.flute
+               eb.test:SCREEN-VALUE = ITEM.reg-no.
+      END.
     END.
   END.
 
@@ -4183,8 +4192,12 @@ PROCEDURE proc-enable :
 
     ENABLE tab-inout.
     RUN check-style.
-    IF lv-foam THEN DISABLE eb.flute eb.test.
-               ELSE ENABLE  eb.flute eb.test.
+    IF lv-foam THEN do:
+        eb.flute:SCREEN-VALUE = "" .
+        eb.test:SCREEN-VALUE = "" .
+         DISABLE eb.flute eb.test.
+    END.
+    ELSE ENABLE  eb.flute eb.test.
 
     RUN shipto-enable.
     ENABLE btnDieLookup btnCadLookup.
