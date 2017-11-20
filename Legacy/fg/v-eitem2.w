@@ -1,7 +1,7 @@
 &ANALYZE-SUSPEND _VERSION-NUMBER UIB_v8r12 GUI ADM1
 &ANALYZE-RESUME
 /* Connected Databases 
-          asi              PROGRESS
+          asi       PROGRESS
 */
 &Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS V-table-Win 
@@ -41,7 +41,9 @@ def temp-table tmpfile field siz as dec
 def var lv-roll-w like e-itemfg.roll-w no-undo.
 DEF VAR lv-group-hdl AS HANDLE NO-UNDO.
 DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
-
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lVendCostMtx AS LOGICAL NO-UNDO .
 {custom/gcompany.i}
 {custom/persist.i}
 
@@ -54,6 +56,11 @@ DEF VAR lv-field-hdl AS HANDLE NO-UNDO.
       AND reftable.val[2]   EQ e-itemfg-vend.blank-no
 
 DEF BUFFER bfEVend FOR e-itemfg-vend.
+
+RUN sys/ref/nk1look.p (INPUT g_company, "VendCostMatrix", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+ASSIGN lVendCostMtx = LOGICAL(cRtnChar) NO-ERROR .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -91,11 +98,12 @@ e-itemfg-vend.run-qty[8] e-itemfg-vend.run-cost[8] e-itemfg-vend.setups[8] ~
 e-itemfg-vend.run-qty[9] e-itemfg-vend.run-cost[9] e-itemfg-vend.setups[9] ~
 e-itemfg-vend.run-qty[10] e-itemfg-vend.run-cost[10] ~
 e-itemfg-vend.setups[10] e-itemfg-vend.roll-w[27] e-itemfg-vend.roll-w[28] ~
-e-itemfg-vend.roll-w[29] e-itemfg-vend.roll-w[30] 
+e-itemfg-vend.roll-w[29] e-itemfg-vend.roll-w[30] e-itemfg-vend.spare-dec-1
 &Scoped-define ENABLED-TABLES e-itemfg-vend
 &Scoped-define FIRST-ENABLED-TABLE e-itemfg-vend
 &Scoped-Define ENABLED-OBJECTS tb_sel-02 tb_sel-03 tb_sel-04 tb_sel-05 ~
-tb_sel-06 tb_sel-07 tb_sel-08 tb_sel-09 tb_sel-10 tb_sel-01 tb_sel RECT-24 
+tb_sel-06 tb_sel-07 tb_sel-08 tb_sel-09 tb_sel-10 tb_sel-01 tb_sel RECT-24 ~
+RECT-26 
 &Scoped-Define DISPLAYED-FIELDS e-itemfg-vend.i-no e-itemfg-vend.vend-no ~
 e-itemfg-vend.vend-item e-itemfg-vend.run-qty[1] e-itemfg-vend.run-cost[1] ~
 e-itemfg-vend.setups[1] e-itemfg-vend.run-qty[2] e-itemfg-vend.run-cost[2] ~
@@ -109,12 +117,12 @@ e-itemfg-vend.setups[8] e-itemfg-vend.run-qty[9] e-itemfg-vend.run-cost[9] ~
 e-itemfg-vend.setups[9] e-itemfg-vend.run-qty[10] ~
 e-itemfg-vend.run-cost[10] e-itemfg-vend.setups[10] ~
 e-itemfg-vend.roll-w[27] e-itemfg-vend.roll-w[28] e-itemfg-vend.roll-w[29] ~
-e-itemfg-vend.roll-w[30] 
+e-itemfg-vend.roll-w[30] e-itemfg-vend.spare-dec-1
 &Scoped-define DISPLAYED-TABLES e-itemfg-vend
 &Scoped-define FIRST-DISPLAYED-TABLE e-itemfg-vend
 &Scoped-Define DISPLAYED-OBJECTS ls-item-name ls-item-dscr fi_std-uom ~
 ls-vend-name tb_sel-02 tb_sel-03 tb_sel-04 tb_sel-05 tb_sel-06 tb_sel-07 ~
-tb_sel-08 tb_sel-09 tb_sel-10 tb_sel-01 tb_sel 
+tb_sel-08 tb_sel-09 tb_sel-10 tb_sel-01 tb_sel qty-label 
 
 /* Custom List Definitions                                              */
 /* ADM-CREATE-FIELDS,ADM-ASSIGN-FIELDS,List-3,List-4,List-5,List-6      */
@@ -167,9 +175,17 @@ DEFINE VARIABLE ls-vend-name AS CHARACTER FORMAT "X(256)":U
      VIEW-AS FILL-IN 
      SIZE 58 BY 1 NO-UNDO.
 
+DEFINE VARIABLE qty-label AS CHARACTER FORMAT "X(15)":U 
+     VIEW-AS FILL-IN 
+     SIZE 15.2 BY .86 NO-UNDO.
+
 DEFINE RECTANGLE RECT-24
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 99 BY 15.71.
+
+DEFINE RECTANGLE RECT-26
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
+     SIZE 49 BY 9.76.
 
 DEFINE VARIABLE tb_sel AS LOGICAL INITIAL no 
      LABEL "Check to pre-select this quantity/" 
@@ -349,6 +365,10 @@ DEFINE FRAME F-Main
      tb_sel-08 AT ROW 13.24 COL 52
      tb_sel-09 AT ROW 14.19 COL 52
      tb_sel-10 AT ROW 15.14 COL 52
+     e-itemfg-vend.spare-dec-1 AT ROW 8.50 COL 71 COLON-ALIGNED
+          LABEL "Min. Charge"
+          VIEW-AS FILL-IN 
+          SIZE 13.6 BY 1
      e-itemfg-vend.roll-w[27] AT ROW 10.52 COL 71 COLON-ALIGNED HELP
           "Enter Sheet Width Minimum"
           LABEL "Sheet Width"
@@ -369,21 +389,21 @@ DEFINE FRAME F-Main
           SIZE 11.6 BY 1
      tb_sel-01 AT ROW 6.57 COL 52
      tb_sel AT ROW 5.62 COL 52
+     qty-label AT ROW 5.62 COL 2.2 NO-LABEL
      "Cost Per" VIEW-AS TEXT
-          SIZE 14 BY .71 AT ROW 5.86 COL 19
+          SIZE 14 BY .71 AT ROW 5.62 COL 19
      "Min" VIEW-AS TEXT
           SIZE 5 BY .43 AT ROW 12.19 COL 76
      "Max" VIEW-AS TEXT
           SIZE 5 BY .43 AT ROW 12.19 COL 88
-     "QTY to" VIEW-AS TEXT
-          SIZE 14 BY .71 AT ROW 5.86 COL 2
      "Setup $" VIEW-AS TEXT
-          SIZE 14 BY .71 AT ROW 5.86 COL 36
+          SIZE 14 BY .71 AT ROW 5.62 COL 36
      "Min" VIEW-AS TEXT
           SIZE 5 BY .43 AT ROW 10.05 COL 76
      "Max" VIEW-AS TEXT
           SIZE 5 BY .43 AT ROW 10.05 COL 88
      RECT-24 AT ROW 1 COL 1
+     RECT-26 AT ROW 6.48 COL 1.6 WIDGET-ID 6
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -455,6 +475,10 @@ ASSIGN
    NO-ENABLE                                                            */
 /* SETTINGS FOR FILL-IN ls-vend-name IN FRAME F-Main
    NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN qty-label IN FRAME F-Main
+   NO-ENABLE ALIGN-L                                                    */
+/* SETTINGS FOR FILL-IN e-itemfg-vend.spare-dec-1 IN FRAME F-Main
+   EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN e-itemfg-vend.roll-w[27] IN FRAME F-Main
    EXP-LABEL EXP-HELP                                                   */
 /* SETTINGS FOR FILL-IN e-itemfg-vend.roll-w[28] IN FRAME F-Main
@@ -498,7 +522,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -691,7 +715,6 @@ DO:
     DISP ls-vend-name WITH FRAME {&FRAME-NAME}.
 
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1086,6 +1109,10 @@ PROCEDURE local-display-fields :
     ASSIGN
      lv-group-hdl = FRAME {&FRAME-NAME}:FIRST-CHILD
      lv-field-hdl = lv-group-hdl:FIRST-CHILD.
+     IF NOT lVendCostMtx THEN
+         e-itemfg-vend.spare-dec-1:HIDDEN = TRUE .
+     ELSE 
+        e-itemfg-vend.spare-dec-1:HIDDEN = FALSE .
 
     DO WHILE VALID-HANDLE(lv-field-hdl):
       IF lv-field-hdl:NAME BEGINS "roll-w" AND
@@ -1136,6 +1163,11 @@ PROCEDURE local-display-fields :
          ls-item-name = ""
          ls-item-dscr = "".
 
+  IF lVendCostMtx  THEN
+       ASSIGN qty-label = "Qty FROM" .
+  ELSE 
+        ASSIGN qty-label = "Qty TO" .
+
   RUN disp-vend-name.
 
   /*task# 07190509*/
@@ -1143,7 +1175,7 @@ PROCEDURE local-display-fields :
      FIND itemfg WHERE itemfg.company = gcompany AND itemfg.i-no = e-itemfg-vend.i-no NO-LOCK NO-ERROR.
   IF AVAIL itemfg THEN ASSIGN ls-item-name = itemfg.i-name
                               ls-item-dscr = itemfg.part-dscr1.
-  DISP ls-item-name ls-item-dscr WITH FRAME {&FRAME-NAME}.
+  DISP ls-item-name ls-item-dscr qty-label WITH FRAME {&FRAME-NAME}.
 
   RUN new-sel.
 
@@ -1259,7 +1291,6 @@ PROCEDURE local-update-record :
   ELSE RUN dispatch ("display-fields").
 
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
