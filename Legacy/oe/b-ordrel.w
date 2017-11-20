@@ -2565,8 +2565,7 @@ PROCEDURE create-job :
         END.
        
         ELSE DO:
-           IF NOT AVAIL sys-ctrl                 OR
-              SUBSTR(sys-ctrl.char-fld,2,1) EQ "" THEN DO:
+           IF NOT AVAIL sys-ctrl THEN DO:
               MESSAGE "Must have System Control Parameter 'JOBCREATE'..."
                   VIEW-AS ALERT-BOX ERROR.
               ll = NO.

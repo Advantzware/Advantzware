@@ -2094,8 +2094,7 @@ PROCEDURE validate-est :
         WHERE sys-ctrl.company EQ cocode
           AND sys-ctrl.name    EQ "JOBCREAT"
         NO-ERROR.
-    IF NOT AVAILABLE sys-ctrl
-    OR SUBSTR(sys-ctrl.char-fld,2,1) EQ "" THEN DO:
+    IF NOT AVAILABLE sys-ctrl THEN DO:
         MESSAGE 
             "Must have System Control Parameter 'JOBCREATE'..."
             VIEW-AS ALERT-BOX ERROR.
