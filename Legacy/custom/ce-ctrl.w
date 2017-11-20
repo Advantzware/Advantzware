@@ -469,6 +469,7 @@ DEFINE FRAME DEFAULT-FRAME
     SIZE 10.4 BY 1
     BGCOLOR 15 
     ce-ctrl.prof-mrkup AT ROW 18.95 COL 87 COLON-ALIGNED
+    LABEL "Profit Margin %"
     VIEW-AS FILL-IN 
     SIZE 10 BY 1
     BGCOLOR 15 
