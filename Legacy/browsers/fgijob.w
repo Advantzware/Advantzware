@@ -39,18 +39,15 @@ assign
 
 DEF VAR ll-show-zero-bins AS LOG NO-UNDO.
 DEF VAR lShowRecalcFields AS LOG NO-UNDO.
-FIND FIRST sys-ctrl NO-LOCK WHERE sys-ctrl.company EQ cocode
-  AND sys-ctrl.name EQ "FgItemHideCalcFields"
-  NO-ERROR.
-IF NOT AVAIL sys-ctrl THEN DO:
-  CREATE sys-ctrl.
-  ASSIGN
-      sys-ctrl.company = cocode
-      sys-ctrl.name = "FgItemHideCalcFields"
-      sys-ctrl.log-fld = FALSE.
-END.
-lShowRecalcFields = (IF AVAIL sys-ctrl THEN NOT sys-ctrl.log-fld ELSE TRUE).
+DEFINE VARIABLE lcReturn      AS CHARACTER NO-UNDO.
+DEFINE VARIABLE llRecFound    AS LOG       NO-UNDO.
 
+RUN sys/ref/nk1look.p (cocode, "FgItemHideCalcFields", "L", NO, NO, "", "", 
+    OUTPUT lcReturn, OUTPUT llRecFound).
+lShowRecalcFields = TRUE.
+IF llRecFound THEN
+    lShowRecalcFields = NOT LOGICAL(lcReturn) NO-ERROR.  
+    
 {sys/inc/oeinq.i}
  
 def new shared temp-table w-job no-undo
