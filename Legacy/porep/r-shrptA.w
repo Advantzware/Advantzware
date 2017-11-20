@@ -1073,9 +1073,9 @@ FORM HEADER
         "QTY ORDER" TO 89
         "QTY RECEIVED" TO 104
         "REQ DATE" AT 106
-        "MSF" TO 124
-        "CARRIER" AT 126
-        FILL("-",132) FORMAT "x(132)"
+        "MSF" TO 127
+        "CARRIER" AT 129
+        FILL("-",135) FORMAT "x(135)"
     WITH STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE PAGE-TOP
          FRAME sch-head-vend.
 
@@ -1115,8 +1115,8 @@ FORM HEADER
        tt-sched.cons-qty TO 89 FORMAT "->>>,>>>,>>9.99"
        tt-sched.t-rec-qty TO 104 FORMAT "->>>,>>>,>>9.99"
        tt-sched.due-date FORMAT "99/99/99" AT 106
-       tt-sched.amt-msf TO 124 FORMAT "->,>>9.999"
-       tt-sched.carrier AT 126 SKIP
+       tt-sched.amt-msf TO 127 FORMAT "->,>>>,>>9.99"
+       tt-sched.carrier AT 129 SKIP
        WITH DOWN STREAM-IO WIDTH 200 NO-LABELS NO-BOX NO-UNDERLINE FRAME sch-rcts-vend.
 
   {ce/msfcalc.i}
