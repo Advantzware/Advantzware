@@ -1386,16 +1386,21 @@ PROCEDURE local-display-fields :
     fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
                               TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
   END.
-  IF USERID("NOSWEAT") EQ "ASI" THEN
-     ASSIGN btCopy:HIDDEN = NO
-            btCopy:SENSITIVE = YES
-            btDelete:HIDDEN = NO
-            btDelete:SENSITIVE = YES.
-  ELSE
+
+  FIND FIRST users NO-LOCK WHERE 
+      users.user_id EQ USERID(LDBNAME(1)) 
+      NO-ERROR.
+  
+  IF AVAIL users AND users.securityLevel LE 900 THEN
      ASSIGN btCopy:HIDDEN = YES
             btCopy:SENSITIVE = NO
             btDelete:HIDDEN = YES
             btDelete:SENSITIVE = NO.
+  ELSE
+      ASSIGN btCopy:HIDDEN = NO
+            btCopy:SENSITIVE = YES
+            btDelete:HIDDEN = NO
+            btDelete:SENSITIVE = YES.
 
   IF v-called-setCellColumns = NO THEN DO:
      RUN setCellColumns.
