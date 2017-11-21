@@ -78,10 +78,10 @@ for each job-mch where
    /* #BL#  the job machine mr-hr into the est-mr-hr  */
    /* #BL#  the job machine run-hr into the est-run-hr  */
    /* #BL#  the job machine mr-waste into the mr-waste  */
+   
    ASSIGN work-mch.est-mr-hr  = work-mch.est-mr-hr + job-mch.mr-hr
           work-mch.est-run-hr = work-mch.est-run-hr + job-mch.run-hr
           work-mch.mr-waste   = work-mch.mr-waste + job-mch.mr-waste.
-
    
    v-run-hr = job-mch.run-hr.
    /* #BL# if the run hours are zero in job machine, take them from */
@@ -119,7 +119,7 @@ for each job-mch where
        END.
        IF AVAIL mch-act THEN
            ASSIGN v-run-hr = mch-act.hours.
-   END.
+   END. 
 
    IF tb_curr THEN DO:
      /* #BL# If current checkbox then calculate the job mch temp table */
@@ -150,7 +150,8 @@ for each job-mch where
                                (mach.run-fixoh * v-run-hr)
       work-mch.est-run-cost3 = work-mch.est-run-cost3 +
                                (mach.run-varoh * v-run-hr)
-      work-mch.est-run-hr = v-run-hr.
+      work-mch.est-run-hr = /*v-run-hr*/ job-mch.run-hr.
+     
 
    END. /* if tb_curr */
    ELSE
@@ -189,7 +190,7 @@ for each job-mch where
          work-mch.est-run-cost3 = work-mch.est-run-cost3 +                          
                                   (job-mch.run-varoh * v-run-hr /* job-mch.run-hr */).
          IF work-mch.est-run-hr EQ 0 THEN
-             work-mch.est-run-hr = v-run-hr.
+             work-mch.est-run-hr = /*v-run-hr*/job-mch.run-hr.
       END.
       ELSE
       DO:
@@ -238,8 +239,8 @@ for each job-mch where
                 work-mch.est-run-cost3 = work-mch.est-run-cost3 +
                                         (mch-act.varoh * v-run-hr /* job-mch.run-hr */).
              IF work-mch.est-run-hr = 0 THEN
-                 work-mch.est-run-hr = v-run-hr.
-              
+                 work-mch.est-run-hr = /*v-run-hr*/ job-mch.run-hr.
+             
              LEAVE. 
          END. /* each mch-act */
          IF v-rate-found = NO THEN DO:
@@ -572,7 +573,7 @@ PROCEDURE clear-unknown-values:
           ASSIGN work-mch.run-feet      = work-mch.run-qty * work-mat.len / 12
                  work-mch.est-feet      = work-mch.est-qty * work-mat.len / 12
                  work-mch.est-run-hr    = work-mch.est-feet / work-mch.est-speed.
-    
+       
       ASSIGN
        work-mch.est-run-cost1 = work-mch.est-run-cost1 / work-mch.est-run-hr
        work-mch.est-run-cost2 = work-mch.est-run-cost2 / work-mch.est-run-hr
@@ -664,7 +665,7 @@ PROCEDURE fix-missing-costs:
                     work-mch.est-run-hr    = work-mch.est-qty / work-mch.est-speed.
                     IF work-mch.est-run-hr NE 0 THEN
                     v-run-hr = work-mch.est-run-hr.
-                  END.
+                 END.
                   
                   /* wfk - 7/31/13 - testing */
                   IF v-act-run GT 0 THEN
@@ -824,7 +825,7 @@ for each mch-act where
      work-mch.est-run-cost2 = work-mch.est-run-cost2 / work-mch.est-run-hr
      work-mch.est-run-cost3 = work-mch.est-run-cost3 / work-mch.est-run-hr
      work-mch.est-run-hr    = work-mch.est-qty / work-mch.est-speed.
-
+    
     /* #PN# Recalc costs if error */
     IF work-mch.est-run-cost1 EQ ?
         OR work-mch.est-run-cost2 EQ ?
