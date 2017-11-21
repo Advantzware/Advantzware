@@ -1774,8 +1774,20 @@ PROCEDURE local-display-fields :
     fi_sort-by:SCREEN-VALUE = TRIM(lv-sort-by-lab)               + " " +
                               TRIM(STRING(ll-sort-asc,"As/Des")) + "cending".
 
-    IF v-upd-perms THEN
-       ASSIGN btn_del:HIDDEN = NO
+
+  FIND FIRST users NO-LOCK WHERE 
+      users.user_id EQ USERID(LDBNAME(1)) 
+      NO-ERROR.
+ 
+  IF AVAIL users AND users.securityLevel LE 900 THEN
+       ASSIGN btn_del:HIDDEN = YES
+              btn_del:SENSITIVE = NO
+              btn_copy:HIDDEN = YES
+              btn_copy:SENSITIVE = NO
+              btCompress:HIDDEN = YES
+              btCompress:SENSITIVE = NO.
+    ELSE
+        ASSIGN btn_del:HIDDEN = NO
               btn_del:SENSITIVE = YES
               btn_copy:HIDDEN = NO
               btn_copy:SENSITIVE = YES
