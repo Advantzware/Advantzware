@@ -94,7 +94,7 @@ DEFINE TEMP-TABLE w-ord
     FIELD upd-user AS CHARACTER
     FIELD due-date AS DATE
     .
-DEFINE TEMP-TABLE tt-fg-set LIKE fg-set
+DEFINE WORKFILE tt-fg-set LIKE fg-set
     FIELD isaset     LIKE itemfg.isaset
     FIELD alloc      LIKE itemfg.alloc
     FIELD part-qty-dec AS DECIMAL
@@ -604,22 +604,37 @@ PROCEDURE jobRouting:
     DEFINE VARIABLE lRunComplete AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cRouting     AS CHARACTER NO-UNDO.
     
-    EMPTY TEMP-TABLE tt-fg-set.
+    FOR EACH tt-fg-set:
+        DELETE tt-fg-set.
+    END.
     
     RELEASE job-hdr.
     RELEASE job.
     RELEASE reftable.
     
     IF TRIM(w-ord.job-no) EQ "" THEN DO:
-            FOR EACH job-hdr NO-LOCK
-                WHERE job-hdr.company EQ ipcCompany
-                  AND job-hdr.ord-no  EQ w-ord.ord-no
-                  AND job-hdr.cust-no EQ w-ord.cust-no
-                  AND job-hdr.i-no    EQ w-ord.i-no
-                  AND job-hdr.opened  EQ YES
-                BY ROWID(job-hdr) DESCENDING:
-                LEAVE.
-            END. /* each job-hdr */
+/*        FOR EACH job-hdr NO-LOCK                  */
+/*            WHERE job-hdr.company EQ ipcCompany   */
+/*              AND job-hdr.ord-no  EQ w-ord.ord-no */
+/*              AND job-hdr.cust-no EQ w-ord.cust-no*/
+/*              AND job-hdr.i-no    EQ w-ord.i-no   */
+/*              AND job-hdr.opened  EQ YES          */
+/*            BY ROWID(job-hdr) DESCENDING:         */
+/*            LEAVE.                                */
+/*        END. /* each job-hdr */                   */
+        IF AVAIL itemfg AND itemfg.est-no NE "" THEN
+        FOR EACH est-op NO-LOCK
+            WHERE est-op.company EQ itemfg.company 
+              AND est-op.est-no  EQ itemfg.est-no 
+              AND est-op.line    LT 500
+            BREAK BY est-op.line
+            :
+            IF FIRST(est-op.line) AND cRouting NE "" THEN 
+            cRouting = cRouting + ",".
+            cRouting = cRouting + est-op.m-code + ",".
+            IF NOT LAST(est-op.line) THEN 
+            cRouting = TRIM(cRouting,",").
+        END. /* each est-op */
     END. /* if trim */
     ELSE DO:
         FIND FIRST job-hdr NO-LOCK
