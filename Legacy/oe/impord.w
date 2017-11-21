@@ -421,7 +421,9 @@ ASSIGN
             + (IF PROGRAM-NAME(6) NE ? THEN "," + PROGRAM-NAME(6) ELSE "")
             + (IF PROGRAM-NAME(7) NE ? THEN "," + PROGRAM-NAME(7) ELSE "")
     llBatchMode = INDEX(lcProgStack, "mainmenu")       EQ 0 AND 
-                  INDEX(lcProgStack, "asilogin")         EQ 0 AND 
+        		  /* Removed to allow batch processing when launched from asiLogin       
+			      INDEX(lcProgStack, "asilogin")         EQ 0 AND 
+                  */
                   INDEX(lcProgStack, "SmartFrameWork") EQ 0
     &IF DEFINED(UIB_is_Running) NE 0 &THEN
     llBatchMode = NO
