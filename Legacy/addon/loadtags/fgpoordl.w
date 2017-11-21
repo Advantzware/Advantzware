@@ -93,6 +93,17 @@ DEFINE TEMP-TABLE ttbl NO-UNDO
               s-wid
               s-len.
 
+ASSIGN cocode = g_company .
+
+FIND FIRST usercomp NO-LOCK WHERE 
+        usercomp.user_id = USERID(LDBNAME(1)) AND
+        usercomp.company = cocode AND
+        usercomp.loc NE "" AND
+        usercomp.loc_default = yes
+        NO-ERROR.
+    ASSIGN
+        locode = IF AVAIL usercomp THEN usercomp.loc ELSE "MAIN".  
+
 
 DEFINE NEW SHARED TEMP-TABLE ttbl-roll NO-UNDO
   FIELD po-no LIKE po-ordl.po-no
@@ -119,7 +130,7 @@ DEFINE NEW SHARED TEMP-TABLE ttbl-roll NO-UNDO
               s-wid
               s-len.
 
-&Scoped-Define SORTBY-PHRASE BY asi.po-ordl.po-no desc
+&Scoped-Define SORTBY-PHRASE BY /*asi.*/ po-ordl.po-no desc
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -151,8 +162,8 @@ po-ordl.pr-qty-uom
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table 
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH po-ordl WHERE ~{&KEY-PHRASE} ~
       AND po-ordl.company = cocode and ~
-ASI.po-ordl.deleted = no and ~
-ASI.po-ordl.stat <> "C" and ~
+po-ordl.deleted = no and ~
+po-ordl.stat <> "C" and ~
 po-ordl.item-type = no ~
  NO-LOCK, ~
       FIRST po-ord WHERE po-ord.company = po-ordl.company ~
@@ -763,27 +774,27 @@ DO:
                      .
         end.
       /* === create new rm table ==============*/
-        create asi.fg-rctd.
-        assign asi.fg-rctd.r-no = 0
-             asi.fg-rctd.company = cocode
-             asi.fg-rctd.rita-code = "R"
-             asi.fg-rctd.rct-date = today
-             asi.fg-rctd.trans-time = TIME
-             asi.fg-rctd.loc = fg-rdtl.loc /*locode*/
-             asi.fg-rctd.po-no = string(ttbl.po-no)
-             asi.fg-rctd.po-line = ttbl.j-no
-             asi.fg-rctd.i-no = ttbl.i-no
-             asi.fg-rctd.job-no = ttbl.job-no
-             asi.fg-rctd.job-no2 = ttbl.job-no2
-             asi.fg-rctd.loc-bin = fg-rdtl.loc-bin
-             asi.fg-rctd.s-num = 0
+        create fg-rctd.
+        assign fg-rctd.r-no = 0
+             fg-rctd.company = cocode
+             fg-rctd.rita-code = "R"
+             fg-rctd.rct-date = today
+             fg-rctd.trans-time = TIME
+             fg-rctd.loc = fg-rdtl.loc /*locode*/
+             fg-rctd.po-no = string(ttbl.po-no)
+             fg-rctd.po-line = ttbl.j-no
+             fg-rctd.i-no = ttbl.i-no
+             fg-rctd.job-no = ttbl.job-no
+             fg-rctd.job-no2 = ttbl.job-no2
+             fg-rctd.loc-bin = fg-rdtl.loc-bin
+             fg-rctd.s-num = 0
              .
       /* =======================*/
 
        v_con-uom = itemfg.cons-uom.
 
       assign fg-rcpts.pur-uom  = v_con-uom
-             asi.fg-rctd.pur-uom = v_con-uom
+             fg-rctd.pur-uom = v_con-uom
              .
           /* assign fg-rdtl.qty = (ttbl.no-of-tags * ttbl.count) + ttbl.partial. */
 
@@ -802,7 +813,7 @@ DO:
 
       if i LT ttbl.no-of-tags then
       do x = 1 to (v-num-tags):
-        if avail itemfg /*and itemfg.r-wid eq 0*/ and avail asi.fg-rctd then     
+        if avail itemfg /*and itemfg.r-wid eq 0*/ and avail fg-rctd then     
         do:    
           assign v-sheet = true.
           assign a =    "~""    + string(ttbl.po-no)
@@ -1050,19 +1061,19 @@ DO:
         assign rm-rdtl.loc-bin = item.loc-bin.
 
       /* === create new rm table ==============*/
-      create asi.rm-rctd.
-      assign asi.rm-rctd.r-no = 0
-             asi.rm-rctd.company = cocode
-             asi.rm-rctd.rita-code = "R"
-             asi.rm-rctd.rct-date = today
-             asi.rm-rctd.loc = locode
-             asi.rm-rctd.po-no = string(ttbl-roll.po-no)
-             asi.rm-rctd.po-line = ttbl-roll.po-line
-             asi.rm-rctd.i-no = ttbl-roll.i-no
-             asi.rm-rctd.job-no = ttbl-roll.job-no
-             asi.rm-rctd.job-no2 = ttbl-roll.job-no2
-             asi.rm-rctd.loc-bin = if avail item then item.loc-bin else ""
-             asi.rm-rctd.s-num = 0
+      create rm-rctd.
+      assign rm-rctd.r-no = 0
+             rm-rctd.company = cocode
+             rm-rctd.rita-code = "R"
+             rm-rctd.rct-date = today
+             rm-rctd.loc = locode
+             rm-rctd.po-no = string(ttbl-roll.po-no)
+             rm-rctd.po-line = ttbl-roll.po-line
+             rm-rctd.i-no = ttbl-roll.i-no
+             rm-rctd.job-no = ttbl-roll.job-no
+             rm-rctd.job-no2 = ttbl-roll.job-no2
+             rm-rctd.loc-bin = if avail item then item.loc-bin else ""
+             rm-rctd.s-num = 0
              .
       /* =======================*/
 
@@ -1082,8 +1093,8 @@ DO:
         assign rm-rdtl.loc-bin = sys-ctrl.char-fld.
       end.
    
-      if asi.rm-rctd.loc-bin = "" and avail sys-ctrl 
-      then asi.rm-rctd.loc-bin = sys-ctrl.char-fld.
+      if rm-rctd.loc-bin = "" and avail sys-ctrl 
+      then rm-rctd.loc-bin = sys-ctrl.char-fld.
 
       find first item where item.company eq cocode
                         and item.i-no    eq rm-rcpt.i-no
@@ -1097,13 +1108,13 @@ DO:
                            use-index item-ordno no-lock no-error.
         if avail po-ordl then
           assign v_con-uom = po-ordl.cons-uom
-                 asi.rm-rctd.s-num = po-ordl.s-num
+                 rm-rctd.s-num = po-ordl.s-num
                  .      
       end.
       else v_con-uom = item.cons-uom.
 
       assign rm-rcpt.pur-uom  = v_con-uom
-             asi.rm-rctd.pur-uom = v_con-uom.
+             rm-rctd.pur-uom = v_con-uom.
 
       find first po-ordl where po-ordl.company eq rm-rcpt.company
                            and po-ordl.po-no   eq integer(rm-rcpt.po-no)
@@ -1169,8 +1180,8 @@ DO:
                 (po-ordl.pr-uom, v-cost-uom, v-bwt, v-len, v-wid, 0,
                  po-ordl.cost, output rm-rdtl.cost).
                  
-           assign asi.rm-rctd.cost-uom = po-ordl.pr-uom
-                  asi.rm-rctd.cost = po-ordl.cost.      
+           assign rm-rctd.cost-uom = po-ordl.pr-uom
+                  rm-rctd.cost = po-ordl.cost.      
         end.
       end.
 
@@ -1229,9 +1240,9 @@ DO:
         assign
           v-tag-seq   = v-tag-seq + 1
           rm-rdtl.tag = string(int(rm-rcpt.po-no),"999999") + string(v-tag-seq,"99")
-          asi.rm-rctd.tag = rm-rdtl.tag
-          asi.rm-rctd.barcode = string(int(rm-rcpt.po-no),"9999999") + 
-                            string(asi.rm-rctd.po-line,"999") +
+          rm-rctd.tag = rm-rdtl.tag
+          rm-rctd.barcode = string(int(rm-rcpt.po-no),"9999999") + 
+                            string(rm-rctd.po-line,"999") +
                             string(v-tag-seq,"999") +
                             string(ttbl.count,"9999")
           .
@@ -1241,16 +1252,16 @@ DO:
        /* What QTY for RM receipt ????????  */
       if po-ordl.cons-uom eq "LBS" then
         assign rm-rdtl.qty = ttbl-roll.weight
-               asi.rm-rctd.qty = ttbl-roll.weight.
+               rm-rctd.qty = ttbl-roll.weight.
       else if po-ordl.cons-uom eq "LF" then
         assign rm-rdtl.qty = ttbl-roll.lf
-               asi.rm-rctd.qty = ttbl-roll.lf.
+               rm-rctd.qty = ttbl-roll.lf.
       else do:     
         /*run sys/ref/convquom.p*/
         run rm/convquom.p 
         ("LF",po-ordl.cons-uom, v-bwt, v-len, v-wid, 0, 
                                ttbl-roll.lf, output rm-rdtl.qty).
-        asi.rm-rctd.qty = rm-rdtl.qty.
+        rm-rctd.qty = rm-rdtl.qty.
         
       end.
       /* put "PO#,JOB#,PART#,LF,WEIGHT,TAG,TAGFIELD" skip.  */
@@ -1264,11 +1275,11 @@ DO:
                     + "~",~"" + string(ttbl-roll.i-no)
                     + "~",~"" + trim(string(ttbl-roll.lf,"->>>>>>9"))
                     + "~",~"" + trim(string(ttbl-roll.weight,"->>>>>>9"))
-                    + "~",~"" + /*string(rm-rdtl.tag)*/ asi.rm-rctd.barcode
+                    + "~",~"" + /*string(rm-rdtl.tag)*/ rm-rctd.barcode
                     + "~",~"" + string(ttbl-roll.po-no) 
                     + "/"     + string(ttbl-roll.i-no)
                     + "/"     + trim(string(ttbl-roll.lf,"->>>>>>9")) 
-                    + "/"     + /*string(rm-rdtl.tag)*/ asi.rm-rctd.barcode
+                    + "/"     + /*string(rm-rdtl.tag)*/ rm-rctd.barcode
                     + "~",~"" + "" /* string(po-ordl.company) */
                     + "~",~"" + "" /* string(rm-bin.loc) */
                     + "~",~"" + "" /* string(rm-bin.loc-bin) */
