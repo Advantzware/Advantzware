@@ -130,10 +130,10 @@ DEFINE VARIABLE cellColumnDat AS CHARACTER NO-UNDO.
 &Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br-bin                                        */
-&Scoped-define FIELDS-IN-QUERY-br-bin w-bin.job-no w-bin.job-no2 NO-LABEL w-bin.last-rct-date w-bin.loc w-bin.loc-bin w-bin.tag w-bin.rfid w-bin.cust-no w-bin.to-rel w-bin.to-bol w-bin.qty w-bin.units w-bin.case-count w-bin.partial-count w-bin.stack-code   
+&Scoped-define FIELDS-IN-QUERY-br-bin w-bin.job-no w-bin.job-no2 NO-LABEL w-bin.last-rct-date w-bin.loc w-bin.loc-bin w-bin.tag w-bin.rfid w-bin.to-rel w-bin.to-bol w-bin.qty w-bin.units w-bin.case-count w-bin.partial-count w-bin.stack-code   
 &Scoped-define ENABLED-FIELDS-IN-QUERY-br-bin w-bin.job-no   w-bin.job-no2   w-bin.last-rct-date   w-bin.loc ~
  w-bin.loc-bin   w-bin.tag ~
- w-bin.rfid   w-bin.cust-no   w-bin.to-rel   w-bin.to-bol   w-bin.qty ~
+ w-bin.rfid   w-bin.to-rel   w-bin.to-bol   w-bin.qty ~
  ~
 w-bin.units ~
    w-bin.case-count ~
@@ -244,8 +244,6 @@ DEFINE BROWSE br-bin
     w-bin.loc-bin       LABEL "Bin"            FORMAT "x(8)"  LABEL-BGCOLOR  14
     w-bin.tag           LABEL "Tag"            FORMAT "x(25)" LABEL-BGCOLOR  14
     w-bin.rfid          LABEL "RFID"           FORMAT "x(25)" LABEL-BGCOLOR  14
-    w-bin.cust-no       LABEL "Customer#"                     LABEL-BGCOLOR  14
-                        WIDTH 12
     w-bin.to-rel        LABEL "Released Qty" FORMAT "->>>,>>>,>>9"
                                                               LABEL-BGCOLOR  14
     w-bin.to-bol        LABEL "BOL Qty" FORMAT "->>>,>>>,>>9"
@@ -269,7 +267,6 @@ DEFINE BROWSE br-bin
     w-bin.loc-bin
     w-bin.tag    
     w-bin.rfid
-    w-bin.cust-no
     w-bin.to-rel
     w-bin.to-bol
     w-bin.qty           
@@ -769,7 +766,6 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       w-bin.loc-bin:READ-ONLY IN BROWSE {&browse-name} = YES
       w-bin.tag:READ-ONLY IN BROWSE {&browse-name} = YES
       w-bin.rfid:READ-ONLY IN BROWSE {&browse-name} = YES
-      w-bin.cust-no:READ-ONLY IN BROWSE {&browse-name} = YES
       w-bin.to-rel:READ-ONLY IN BROWSE {&browse-name} = YES
       w-bin.to-bol:READ-ONLY IN BROWSE {&browse-name} = YES
       w-bin.qty:READ-ONLY IN BROWSE {&browse-name} = YES

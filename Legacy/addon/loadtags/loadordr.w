@@ -92,6 +92,16 @@ DEFINE TEMP-TABLE ttbl NO-UNDO
               s-wid
               s-len.
 
+ASSIGN cocode = g_company .
+ FIND FIRST usercomp NO-LOCK WHERE 
+        usercomp.user_id = USERID(LDBNAME(1)) AND
+        usercomp.company = cocode AND
+        usercomp.loc NE "" AND
+        usercomp.loc_default = yes
+        NO-ERROR.
+    ASSIGN
+        cocode = IF AVAIL usercomp THEN usercomp.loc ELSE "MAIN".  
+
 DEFINE NEW SHARED TEMP-TABLE ttbl-roll NO-UNDO
   FIELD po-no LIKE po-ordl.po-no
   FIELD job-no LIKE po-ordl.job-no
@@ -769,27 +779,27 @@ DO:
                      .
         end.
       /* === create new rm table ==============*/
-        create asi.fg-rctd.
-        assign asi.fg-rctd.r-no = 0
-             asi.fg-rctd.company = cocode
-             asi.fg-rctd.rita-code = "R"
-             asi.fg-rctd.rct-date = today
-             asi.fg-rctd.trans-time = TIME
-             asi.fg-rctd.loc = fg-rdtl.loc /*locode*/
-             asi.fg-rctd.po-no = string(ttbl.po-no)
-             asi.fg-rctd.po-line = ttbl.j-no
-             asi.fg-rctd.i-no = ttbl.i-no
-             asi.fg-rctd.job-no = ttbl.job-no
-             asi.fg-rctd.job-no2 = ttbl.job-no2
-             asi.fg-rctd.loc-bin = fg-rdtl.loc-bin
-             asi.fg-rctd.s-num = 0
+        create fg-rctd.
+        assign fg-rctd.r-no = 0
+             fg-rctd.company = cocode
+             fg-rctd.rita-code = "R"
+             fg-rctd.rct-date = today
+             fg-rctd.trans-time = TIME
+             fg-rctd.loc = fg-rdtl.loc /*locode*/
+             fg-rctd.po-no = string(ttbl.po-no)
+             fg-rctd.po-line = ttbl.j-no
+             fg-rctd.i-no = ttbl.i-no
+             fg-rctd.job-no = ttbl.job-no
+             fg-rctd.job-no2 = ttbl.job-no2
+             fg-rctd.loc-bin = fg-rdtl.loc-bin
+             fg-rctd.s-num = 0
              .
       /* =======================*/
 
        v_con-uom = itemfg.cons-uom.
 
       assign fg-rcpts.pur-uom  = v_con-uom
-             asi.fg-rctd.pur-uom = v_con-uom
+             fg-rctd.pur-uom = v_con-uom
              .
           /* assign fg-rdtl.qty = (ttbl.no-of-tags * ttbl.count) + ttbl.partial. */
 
@@ -808,7 +818,7 @@ DO:
 
       if i LT ttbl.no-of-tags then
       do x = 1 to (v-num-tags):
-        if avail itemfg /*and itemfg.r-wid eq 0*/ and avail asi.fg-rctd then     
+        if avail itemfg /*and itemfg.r-wid eq 0*/ and avail fg-rctd then     
         do:    
           assign v-sheet = true.
           assign a =    "~""    + string(ttbl.po-no)

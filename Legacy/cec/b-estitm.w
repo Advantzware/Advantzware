@@ -1680,6 +1680,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL ef.board br-estitm _BROWSE-COLUMN B-table-Win
 ON ENTRY OF ef.board IN BROWSE br-estitm /* Board */
 DO:
+  IF NOT lv-foam THEN
   RUN check-flute-test-change.
 END.
 
@@ -6217,6 +6218,7 @@ PROCEDURE local-update-record :
   RUN valid-cust-user NO-ERROR.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
 
+  IF NOT lv-foam THEN
   RUN check-flute-test-change.
   /* == validation ===== */
 /*   IF eb.stock-no:SCREEN-VALUE IN BROWSE {&browse-name} <> "" THEN DO:

@@ -83,7 +83,7 @@ ASSIGN cTextListToSelect = "JOB NO,ITEM NO,ITEM NAME,VEND NO,VEND NAME,P/O#,P/O 
                                "QTY ORDER,QTY RECEIVED,REQ DATE,MSF,CARRIER" /*5*/
            cFieldListToSelect = "lv-job-no,tt-sched.i-no,tt-sched.i-name,tt-sched.vend-no,tt-sched.vend-name,tt-sched.po-no,tt-sched.po-date,tt-sched.cons-uom," +
                                 "tt-sched.cons-qty,tt-sched.t-rec-qty,tt-sched.due-date,tt-sched.amt-msf,tt-sched.carrier"
-           cFieldLength = "10,15,30,8,30,8,10,4," + "12,12,10,9,7"
+           cFieldLength = "10,15,30,8,30,8,10,4," + "15,15,8,13,7"
            cFieldType = "c,c,c,c,c,c,c,c," + "i,i,c,i,c"
            .
         ASSIGN cTextListToDefault  = "JOB NO,ITEM NO,ITEM NAME,VEND NO,P/O#,P/O DATE,UOM," +  /*8*/
@@ -1430,7 +1430,7 @@ DEF VAR v-cost AS DEC NO-UNDO.
 DEF VAR v-s-num LIKE po-ordl.s-num INIT 1 NO-UNDO.
 DEF VAR v-tot AS DEC NO-UNDO.
 DEF VAR lv-job-no AS CHAR NO-UNDO.
-DEF VAR lv-uom AS CHAR NO-UNDO.
+DEF VAR lv-uom AS CHARACTER NO-UNDO.
 DEF VAR v-ord-qty AS DEC NO-UNDO.
 
 def var v-mattype-list          as   char format "x(36)" NO-UNDO.
@@ -1667,6 +1667,7 @@ DISPLAY "" WITH FRAME r-top.
 
      lv-job-no = IF tt-sched.job-no EQ "" THEN ""
                  ELSE TRIM(tt-sched.job-no) + "-" + STRING(tt-sched.job-no2,"99").
+                 /*MESSAGE "test" STRING(tt-sched.cons-qty)     STRING(tt-sched.amt-msf) VIEW-AS ALERT-BOX ERROR.*/
 
        ASSIGN cDisplay = ""
            cTmpField = ""
@@ -1682,11 +1683,11 @@ DISPLAY "" WITH FRAME r-top.
           hField = BUFFER b-tt-sched:BUFFER-FIELD(cTmpField).
           cTmpField = substring(GetFieldValue(hField),1,int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength))).
           IF cFieldName = "tt-sched.cons-qty"
-                  THEN cTmpField = STRING(decimal(cTmpField),"->>>>,>>9.99").
+                  THEN cTmpField = STRING(decimal(cTmpField),"->>>,>>>,>>9.99").
           IF cFieldName = "tt-sched.t-rec-qty"
-                  THEN cTmpField = STRING(decimal(cTmpField),"->>>>,>>9.99"). 
+                  THEN cTmpField = STRING(decimal(cTmpField),"->>>,>>>,>>9.99"). 
           IF cFieldName = "tt-sched.amt-msf"
-                  THEN cTmpField = STRING(decimal(cTmpField),"->,>>9.99").
+                  THEN cTmpField = STRING(decimal(cTmpField),"->,>>>,>>9.99").
           cDisplay = cDisplay + cTmpField + 
                            FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cTmpField))
                            .

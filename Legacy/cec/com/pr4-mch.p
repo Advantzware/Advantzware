@@ -98,7 +98,11 @@ FOR EACH est-op WHERE est-op.company = xest.company
     END.
 
     ELSE oprun = 0.
-
+    
+    /*Run Qty Divisor 24462 (also undoes 19774)*/
+    IF est-op.n_out_div GT 0 THEN 
+        oprun = oprun / est-op.n_out_div.
+        
     ASSIGN
         opmr$        = opmr  * est-op.op-rate[1]
         oprun$       = oprun * est-op.op-rate[2]
@@ -227,7 +231,11 @@ FOR EACH est-op WHERE est-op.company = xest.company
             op.run-qty = est-op.num-sh * v-num-up *
                 (IF xef.n-out   EQ 0 THEN 1 ELSE xef.n-out) *
                 (IF xef.n-out-l EQ 0 THEN 1 ELSE xef.n-out-l).
-
+        
+        /*Run Qty Divisor 24462 (also undoes 19774)*/
+        IF est-op.n_out_div GT 0 THEN 
+            op.run-qty = op.run-qty / est-op.n_out_div.
+            
         FIND FIRST itemfg
             WHERE itemfg.company EQ cocode
             AND itemfg.i-no    EQ op.i-no

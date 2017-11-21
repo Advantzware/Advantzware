@@ -156,6 +156,11 @@ for each xef
       ELSE
         oprun = ((v-num-sh * v-on-s) - est-op.op-waste) / opsp.
     ELSE oprun = 0.
+    
+    /*Run Qty Divisor 24462 (also undoes 19774)*/
+    IF est-op.n_out_div GT 0 THEN 
+        oprun = oprun / est-op.n_out_div.
+    
     DO:
         /*
         MESSAGE "rates" est-op.op-rate[1] est-op.op-rate[2]

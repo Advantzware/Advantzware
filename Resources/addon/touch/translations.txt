@@ -43,6 +43,7 @@ Item Number,Numero de Articulo
 Job,Trabajo
 Job Card,Tarjeta de trabajo
 Job Checklist,Lista de tareas
+Job Filter,Filtro de trabajo
 Data Collection,Coleccion de Informacion
 Job List,Lista de Trabajo
 Job Number,Trabajo
@@ -57,6 +58,7 @@ Log Out,Salida
 Login,Entrada
 Logout,Salida
 Machine,Maquina
+Machine Filter,Filtro de la máquina
 Machine Status,Condicion de Maquina
 Main Menu,Menú Principal
 Minute,Minuto

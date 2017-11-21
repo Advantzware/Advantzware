@@ -511,23 +511,11 @@ DEF VAR loop-limit AS INT NO-UNDO.
     END.
   END.
 
-  IF INDEX("NAH",oe-ord.stat) GT 0 THEN DO:
-    /* 06211305 - replace with sequence */
-/*     FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ oe-ord.company EXCLUSIVE-LOCK NO-WAIT NO-ERROR. */
-/*     IF AVAIL oe-ctrl                      AND                                                   */
-/*        oe-ord.ord-no EQ oe-ctrl.n-ord - 1 THEN oe-ctrl.n-ord = oe-ctrl.n-ord - 1.               */
-/*     FIND CURRENT oe-ctrl NO-LOCK NO-ERROR.                                                      */
-    /* Dispatch standard ADM method.                             */
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ).
-  END.
-    
-  ELSE DO:
-    FIND CURRENT oe-ord.
-    oe-ord.stat = "D".
-    FIND CURRENT oe-ord NO-LOCK.
 
-    RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ).
-  END.
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ).
+
+    
   END. /* transaction */
 
   RUN release-shared-buffers.

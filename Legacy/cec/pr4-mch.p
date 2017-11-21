@@ -125,14 +125,18 @@ FOR EACH est-op WHERE est-op.company = xest.company
                     (v-len / 12)) / opsp.
             ELSE
                 IF mach.p-type = "A" THEN
-                    oprun = xest.est-qty[1] / opsp.
+                    oprun = qty / opsp.
                 ELSE
                     IF est-op.op-sb THEN
                         oprun = ((est-op.num-sh * v-on-f) - est-op.op-waste) / opsp.
                     ELSE
                         oprun = ((est-op.num-sh * v-on-s) - est-op.op-waste) / opsp.       
     ELSE oprun = 0.
-
+    
+    /*Run Qty Divisor 24462 (also undoes 19774)*/
+    IF est-op.n_out_div GT 0 THEN 
+        oprun = oprun / est-op.n_out_div.
+    
     IF w-form.min-msf AND mach.dept[1] EQ "RC" THEN
         ASSIGN
             opmr$     = 0
@@ -220,7 +224,11 @@ FOR EACH est-op WHERE est-op.company = xest.company
             op.run-qty = est-op.num-sh * v-on-f.
         ELSE
             op.run-qty = est-op.num-sh * xeb.num-up * v-n-out.
-               
+        
+        /*Run Qty Divisor 24462 (also undoes 19774) - REFACTOR why is op.run-qty not determined before oprun*/
+        IF est-op.n_out_div GT 0 THEN 
+            op.run-qty = op.run-qty / est-op.n_out_div.       
+        
         op.speed = IF ll-unitize THEN (op.run-qty / oprun)
         ELSE opsp.
 

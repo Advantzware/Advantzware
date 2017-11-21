@@ -619,7 +619,7 @@ DEFINE FRAME F-Main
           LABEL "Ack. Date" FORMAT "99/99/99"
           VIEW-AS FILL-IN 
           SIZE 15 BY 1
-     "Freight Charge" VIEW-AS TEXT
+     "Freight Terms" VIEW-AS TEXT
           SIZE 18 BY .62 AT ROW 11.05 COL 81
           FGCOLOR 9 
      "FOB:" VIEW-AS TEXT
@@ -4868,18 +4868,11 @@ DEFINE BUFFER bf-eb FOR eb .
         RETURN NO-APPLY.
 
 
-    IF INDEX("NAHW",oe-ord.stat) GT 0 THEN DO:
-        /* Dispatch standard ADM method.                             */
-        RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ).
-    END.
+    /* Dispatch standard ADM method.                             */
+    RUN dispatch IN THIS-PROCEDURE ( INPUT 'delete-record':U ).
 
-    ELSE DO:
-        FIND bf-oe-ord WHERE ROWID(bf-oe-ord) = ROWID(oe-ord) EXCLUSIVE-LOCK NO-ERROR.
-        bf-oe-ord.stat = "D".
-        FIND CURRENT bf-oe-ord NO-LOCK.
 
-        RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ).
-    END.
+
     /* Code placed here will execute AFTER standard behavior.    */
 
     /* Set back to original value in case something else needs it */

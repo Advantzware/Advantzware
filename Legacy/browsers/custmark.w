@@ -167,16 +167,16 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       cust-markup.style COLUMN-LABEL "Style" FORMAT "x(6)":U WIDTH 12
       cust-markup.procat FORMAT "x(5)":U WIDTH 12
-      cust-markup.markup[1] COLUMN-LABEL "Markup01" FORMAT "->>>9.99<<<":U
-      cust-markup.markup[2] COLUMN-LABEL "Markup02" FORMAT "->>>9.99<<<":U
-      cust-markup.markup[3] COLUMN-LABEL "Markup03" FORMAT "->>>9.99<<<":U
-      cust-markup.markup[4] COLUMN-LABEL "Markup04" FORMAT "->>>9.99<<<":U
-      cust-markup.markup[5] COLUMN-LABEL "Markup05" FORMAT "->>>9.99<<<":U
-      cust-markup.markup[6] COLUMN-LABEL "Markup06" FORMAT "->>>9.99<<<":U
-      cust-markup.markup[7] COLUMN-LABEL "Markup07" FORMAT "->>>9.99<<<":U
-      cust-markup.markup[8] COLUMN-LABEL "Markup08" FORMAT "->>>9.99<<<":U
-      cust-markup.markup[9] COLUMN-LABEL "Markup09" FORMAT "->>>9.99<<<":U
-      cust-markup.markup[10] COLUMN-LABEL "Markup10" FORMAT "->>>9.99<<<":U
+      cust-markup.markup[1] COLUMN-LABEL "Margin01" FORMAT "->>>9.99<<<":U
+      cust-markup.markup[2] COLUMN-LABEL "Margin02" FORMAT "->>>9.99<<<":U
+      cust-markup.markup[3] COLUMN-LABEL "Margin03" FORMAT "->>>9.99<<<":U
+      cust-markup.markup[4] COLUMN-LABEL "Margin04" FORMAT "->>>9.99<<<":U
+      cust-markup.markup[5] COLUMN-LABEL "Margin05" FORMAT "->>>9.99<<<":U
+      cust-markup.markup[6] COLUMN-LABEL "Margin06" FORMAT "->>>9.99<<<":U
+      cust-markup.markup[7] COLUMN-LABEL "Margin07" FORMAT "->>>9.99<<<":U
+      cust-markup.markup[8] COLUMN-LABEL "Margin08" FORMAT "->>>9.99<<<":U
+      cust-markup.markup[9] COLUMN-LABEL "Margin09" FORMAT "->>>9.99<<<":U
+      cust-markup.markup[10] COLUMN-LABEL "Margin10" FORMAT "->>>9.99<<<":U
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 96 BY 15.24
@@ -280,25 +280,25 @@ ASSIGN
      _FldNameList[2]   > asi.cust-markup.procat
 "cust-markup.procat" ? ? "character" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > asi.cust-markup.markup[1]
-"cust-markup.markup[1]" "Markup01" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[1]" "Margin01" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > asi.cust-markup.markup[2]
-"cust-markup.markup[2]" "Markup02" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[2]" "Margin02" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > asi.cust-markup.markup[3]
-"cust-markup.markup[3]" "Markup03" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[3]" "Margin03" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > asi.cust-markup.markup[4]
-"cust-markup.markup[4]" "Markup04" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[4]" "Margin04" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > asi.cust-markup.markup[5]
-"cust-markup.markup[5]" "Markup05" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[5]" "Margin05" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > asi.cust-markup.markup[6]
-"cust-markup.markup[6]" "Markup06" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[6]" "Margin06" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > asi.cust-markup.markup[7]
-"cust-markup.markup[7]" "Markup07" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[7]" "Margin07" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > asi.cust-markup.markup[8]
-"cust-markup.markup[8]" "Markup08" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[8]" "Margin08" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > asi.cust-markup.markup[9]
-"cust-markup.markup[9]" "Markup09" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[9]" "Margin09" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > asi.cust-markup.markup[10]
-"cust-markup.markup[10]" "Markup10" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"cust-markup.markup[10]" "Margin10" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
 &ANALYZE-RESUME

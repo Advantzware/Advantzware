@@ -74,6 +74,9 @@ DEFINE VARIABLE str-line AS CHARACTER FORMAT "x(300)" NO-UNDO.
 DEFINE VARIABLE cTextListToDefault AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lv-lstdt AS   CHARACTER   NO-UNDO.
 DEFINE VARIABLE lv-fistdt AS   CHARACTER   NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO .
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO .
+DEFINE VARIABLE lTagFormat AS LOGICAL NO-UNDO .
 
 ASSIGN cTextListToSelect = "Whse,Item,Description,Bin,Tag,Rolls," +
                            "Last Trans Date,Quantity,Unit Cost,Cost Value,MSF,Tons,Cost/MSF,Vendor Tag,Vendor Po#,Cert/Lot/Mill#,Vendor,Last Recd,Caliper," +
@@ -89,6 +92,10 @@ ASSIGN cTextListToSelect = "Whse,Item,Description,Bin,Tag,Rolls," +
 ASSIGN cTextListToDefault  = "Whse,Item,Description,Bin,Tag," +
                            "Last Trans Date,Quantity,Unit Cost,Cost Value,Item Name" .
 
+RUN sys/ref/nk1look.p (INPUT cocode, "TagFormat", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+lTagFormat = LOGICAL(cRtnChar) NO-ERROR .
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -128,6 +135,14 @@ td-show-parm tb_excel tb_runExcel fi_file
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD GetFieldValue C-Win 
 FUNCTION GetFieldValue RETURNS CHARACTER
   ( hipField AS HANDLE )  FORWARD.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fPrepareCSV B-table-Win 
+FUNCTION fPrepareCSV RETURNS CHARACTER
+  (ipBal AS CHARACTER)  FORWARD.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -2011,7 +2026,7 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "cVendTag" THEN cVarValue = cVendTag.
                 WHEN "trans-date" THEN cVarValue = STRING(lv-lstdt) /*string(lv-fistdt)*/ .
                 WHEN "loc-bin" THEN cVarValue = STRING(tt-rm-bin.loc-bin).
-                WHEN "tag" THEN cVarValue = STRING(tt-rm-bin.tag).
+                WHEN "tag" THEN cVarValue = fPrepareCSV(STRING(tt-rm-bin.tag)) .
                 WHEN "qty" THEN cVarValue = STRING(tt-rm-bin.qty,"->>>,>>>,>>9.999").
                 WHEN "cVendPo" THEN cVarValue = STRING(tt-rm-bin.po-no,"->>>>>>>>"). /* task 02261404 */
                 WHEN "crtlot" THEN cVarValue = IF tt-rm-bin.tag2 NE "" THEN STRING(tt-rm-bin.tag2,"x(30)") ELSE "".
@@ -2023,6 +2038,10 @@ SESSION:SET-WAIT-STATE ("general").
                 WHEN "cItemName" THEN cVarValue = /*IF FIRST-OF(tt-rm-bin.i-no) THEN*/ string(ITEM.i-name,"x(30)") /*ELSE ""*/ .
           END CASE.
           cExcelVarValue = cVarValue.  
+          IF cTmpField = "tag" THEN do:
+              cVarValue = REPLACE(cVarValue,'"','')  .
+              cVarValue = REPLACE(cVarValue,'=','')  .
+          END.
           cDisplay = cDisplay + cVarValue +
                        FILL(" ",INTEGER(ENTRY(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)).             
           cExcelDisplay = cExcelDisplay + QUOTER(cExcelVarValue) + ",". 
@@ -3046,4 +3065,25 @@ END FUNCTION.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+FUNCTION fPrepareCSV RETURNS CHARACTER 
+(ipcValue AS CHARACTER) :
+/*------------------------------------------------------------------------------
+Purpose: Tests for an integer value in a character and adds a ' to force Text formatting
+Notes:
+------------------------------------------------------------------------------*/
+DEFINE VARIABLE cReturn AS CHARACTER NO-UNDO.
+
+DEFINE VARIABLE iTester AS INT64 NO-UNDO.
+
+ iTester = INT64(ipcValue) NO-ERROR.
+ IF iTester NE 0 AND lTagFormat THEN 
+      cReturn = '="' + ipcValue + '"'.
+ ELSE DO:
+     cReturn = ipcValue.
+  END.
+
+RETURN cReturn.
+
+END FUNCTION.
 

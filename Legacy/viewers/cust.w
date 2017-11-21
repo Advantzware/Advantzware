@@ -621,7 +621,7 @@ DEFINE FRAME F-Main
           FGCOLOR 9 FONT 4
      "FOB:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 8.67 COL 83.2
-     "Freight Payment:" VIEW-AS TEXT
+     "Freight Terms:" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 7.81 COL 72
      "Shipping Information" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 6.95 COL 75

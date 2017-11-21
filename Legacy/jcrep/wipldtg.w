@@ -3801,7 +3801,7 @@ PROCEDURE wip-reported-proc :
          IF AVAIL job-mch THEN
             begin_mach:SCREEN-VALUE = job-mch.m-code.
       END.
-      FIND FIRST loc WHERE loc.loc = "MAIN" 
+      FIND FIRST loc WHERE loc.loc = gloc 
          AND loc.company = cocode NO-LOCK NO-ERROR.
       IF AVAIL loc THEN DO:
          ASSIGN fi_wip-whs:SCREEN-VALUE = loc.loc .

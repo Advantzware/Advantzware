@@ -13,29 +13,34 @@ ASSIGN
   item_number = REPLACE(SUBSTR(SELF:LABEL,idummy + 1),')','').
 {methods/run_link.i "CONTAINER" "Set_Value" "('blank_number',blank_number)"}
 {methods/run_link.i "CONTAINER" "Set_Value" "('item_number',item_number)"}
-
-run valid-blank no-error.  /* ysk */
-if error-status:error then return. /* ysk */
-
+RUN valid-blank NO-ERROR.
+IF ERROR-STATUS:ERROR THEN RETURN.
 {methods/run_link.i "CONTAINER" "Change_Page" "(12)"}
 
-&ELSEIF '{&BUTTON-INCLUDE}' = 'FORMS' &THEN
+&ELSEIF '{&BUTTON-INCLUDE}' EQ 'EMPLOYEES' &THEN
+ASSIGN
+  idummy = INDEX(SELF:LABEL,'(')
+  employee_code = REPLACE(SUBSTR(SELF:LABEL,idummy + 1),')','')
+  employee_name = SUBSTR(SELF:LABEL,1,idummy - 2).
+{methods/run_link.i "CONTAINER" "Set_Value" "('employee_code',employee_code)"}
+{methods/run_link.i "CONTAINER" "Set_Value" "('employee_name',employee_name)"}
+{methods/run_link.i "CONTAINER" "Change_Page" "(4)"}
+
+&ELSEIF '{&BUTTON-INCLUDE}' EQ 'FORMS' &THEN
 ASSIGN
   idummy = INDEX(SELF:LABEL,':')
   form_number = SUBSTR(SELF:LABEL,idummy + 2).
 {methods/run_link.i "CONTAINER" "Set_Value" "('form_number',form_number)"}
 {methods/run_link.i "CONTAINER" "Change_Page" "(11)"}
 
-&ELSEIF '{&BUTTON-INCLUDE}' = 'JOBS' &THEN
+&ELSEIF '{&BUTTON-INCLUDE}' EQ 'JOBS' &THEN
 job# = SELF:LABEL.
 {methods/run_link.i "CONTAINER" "Set_Value" "('job#',job#)"}
-
-run check-job-status no-error.       /* ysk*/
-if error-status:error then return .  /* ysk*/
-
+RUN check-job-status NO-ERROR.
+IF ERROR-STATUS:ERROR THEN RETURN.
 {methods/run_link.i "CONTAINER" "Change_Page" "(10)"}
 
-&ELSEIF '{&BUTTON-INCLUDE}' = 'JOBSEQ' &THEN
+&ELSEIF '{&BUTTON-INCLUDE}' EQ 'JOBSEQ' &THEN
 ASSIGN
   job_sequence = SELF:LABEL
   idummy = R-INDEX(SELF:LABEL,'(')
@@ -47,14 +52,14 @@ ASSIGN
 {methods/run_link.i "CONTAINER" "Set_MachTran_Rowid" "(machtran-rowid)"}
 {methods/run_link.i "CONTAINER" "Change_Page" "(14)"}
 
-&ELSEIF '{&BUTTON-INCLUDE}' = 'MACHINES' &THEN
+&ELSEIF '{&BUTTON-INCLUDE}' EQ 'MACHINES' &THEN
 ASSIGN
   idummy = INDEX(SELF:LABEL,'(')
   machine_code = SUBSTR(SELF:LABEL,1,idummy - 2).
 {methods/run_link.i "CONTAINER" "Set_Value" "('machine_code',machine_code)"}
 {methods/run_link.i "CONTAINER" "Change_Page" "(6)"}
 
-&ELSEIF '{&BUTTON-INCLUDE}' = 'PASS' &THEN
+&ELSEIF '{&BUTTON-INCLUDE}' EQ 'PASS' &THEN
 ASSIGN
   idummy = INDEX(SELF:LABEL,':')
   pass_sequence = SUBSTR(SELF:LABEL,idummy + 2).

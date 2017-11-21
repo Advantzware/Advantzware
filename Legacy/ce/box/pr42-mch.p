@@ -105,7 +105,11 @@ FOR EACH est-op
                     oprun = ((est-op.num-sh * v-gu-out) - est-op.op-waste) / est-op.op-speed.
     END.
     ELSE oprun = 0.
-
+    
+    /*Run Qty Divisor 24462 (also undoes 19774)*/
+    IF est-op.n_out_div GT 0 THEN 
+        oprun = oprun / est-op.n_out_div.
+        
     IF v-printed-lit AND est-op.n-out GT 1 THEN
         v-gu-out = v-gu-out * est-op.n-out.
 
@@ -222,6 +226,11 @@ FOR EACH est-op
         OP.run-qty = est-op.num-sh * v-num-up *
             (IF xef.n-out   EQ 0 THEN 1 ELSE xef.n-out) *
             (IF xef.n-out-l EQ 0 THEN 1 ELSE xef.n-out-l).
+        
+        /*Run Qty Divisor 24462 (also undoes 19774)*/
+        IF est-op.n_out_div GT 0 THEN 
+            op.run-qty = op.run-qty / est-op.n_out_div.
+        
         IF AVAILABLE itemfg AND est-op.b-num <> 0 THEN
             OP.i-name = itemfg.i-name.
         IF OP.line >= 500 THEN

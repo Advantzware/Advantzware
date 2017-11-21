@@ -435,13 +435,13 @@ DEFINE FRAME F-Main
      cust-markup.markup_reduction[10] AT ROW 16.71 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 110
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     "Markup Reduction" VIEW-AS TEXT
+     "Margin Reduction" VIEW-AS TEXT
           SIZE 23 BY 1 AT ROW 4.81 COL 93 WIDGET-ID 88
-     "Markup On" VIEW-AS TEXT
+     "Margin On" VIEW-AS TEXT
           SIZE 14 BY 1 AT ROW 4.81 COL 40 WIDGET-ID 74
      "Reduction Matrix" VIEW-AS TEXT
           SIZE 24 BY .62 AT ROW 3.86 COL 73 WIDGET-ID 84
-     "Markup" VIEW-AS TEXT
+     "Margin" VIEW-AS TEXT
           SIZE 12 BY 1 AT ROW 4.81 COL 27 WIDGET-ID 76
      RECT-1 AT ROW 1 COL 1
      RECT-10 AT ROW 4.1 COL 71 WIDGET-ID 82
@@ -684,6 +684,19 @@ END.
 
 
 /* **********************  Internal Procedures  *********************** */
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE add-item V-table-Win 
+PROCEDURE add-item :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   RUN dispatch ('add-record').
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE adm-find-using-key V-table-Win  adm/support/_key-fnd.p
 PROCEDURE adm-find-using-key :

@@ -1251,12 +1251,12 @@ END.
 ON VALUE-CHANGED OF tb_p-bin IN FRAME FRAME-A /* Print Bin Locations? */
 DO:
   ASSIGN {&self-name}.
-  IF LOOKUP(v-relprint,"HOPX,ACPI,Fibrex,Accord,Carded,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair") > 0 THEN DO:
+  IF LOOKUP(v-relprint,"HOPX,ACPI,Fibrex,Accord,Carded,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 THEN DO:
      IF tb_p-bin THEN
      DO:
         IF v-relprint = "PremierX" OR v-relprint = "Relprint 10" OR v-relprint = "Lakeside" OR v-relprint = "Distributor" OR v-relprint = "Frank" OR v-relprint = "NSTOCK" OR v-relprint = "Axis"
             OR v-relprint = "Protagon" OR v-relprint = "Soule" 
-                OR v-relprint = "NStock"  /*OR v-relprint = "Prystup"*/ OR v-relprint = "StClair" THEN
+                OR v-relprint = "NStock"  /*OR v-relprint = "Prystup"*/ OR v-relprint = "StClair" OR v-relprint = "Midwest" THEN
            rd-print-what:SCREEN-VALUE = "S".
         ELSE
            rd-print-what:SCREEN-VALUE = "I".
@@ -1502,6 +1502,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
         OR v-relprint EQ "Soule" /*OR v-relprint EQ "NStock"*/ 
         /*OR v-relprint EQ "Prystup" */
         OR v-relprint EQ "StClair"
+        OR v-relprint EQ "Midwest"
         OR v-relprint EQ "Relprint 10" THEN
        rd-print-what:ADD-LAST("Summary of Bins On Hand","S").
 
@@ -1595,6 +1596,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             tb_p-bin:SENSITIVE = NO 
             tb_p-bin = YES.
 
+    IF v-relprint EQ "Midwest" THEN
+        ASSIGN 
+            rd-print-what:SENSITIVE = NO
+            rd-print-what:SCREEN-VALUE = "I"
+            rd-print-what = "I" 
+            tb_p-bin:SCREEN-VALUE = "Yes"
+            tb_p-bin:SENSITIVE = NO 
+            tb_p-bin = YES.
+
     IF LOOKUP(v-relprint,"Carded") > 0 THEN
        ASSIGN rd-print-what:sensitive = YES
               begin_loc:SENSITIVE = IF rd-print-what:SCREEN-VALUE = "I" THEN YES ELSE NO
@@ -1602,7 +1612,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
               begin_loc-bin:SENSITIVE = begin_loc:SENSITIVE
               END_loc-bin:SENSITIVE = begin_loc:SENSITIVE.
     ELSE
-    IF LOOKUP(v-relprint,"HOPX,ACPI,Fibrex,Accord,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair") > 0 THEN   /* NSTOCK,*/
+    IF LOOKUP(v-relprint,"HOPX,ACPI,Fibrex,Accord,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 THEN   /* NSTOCK,*/
        ASSIGN rd-print-what:sensitive = YES
               begin_loc:SENSITIVE = IF LOOKUP(rd-print-what:SCREEN-VALUE,"I,S") > 0 THEN YES ELSE NO
               END_loc:SENSITIVE = begin_loc:SENSITIVE
@@ -1630,6 +1640,9 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
             rd-print-what = "R".
 
     IF v-relprint EQ "StClair" THEN
+        ASSIGN 
+            rd-print-what:SENSITIVE = NO .
+    IF v-relprint EQ "Midwest" THEN
         ASSIGN 
             rd-print-what:SENSITIVE = NO .
 
@@ -2123,7 +2136,7 @@ ASSIGN
  s-print-spec  = tb_print-spec 
  lSortRelSeq   = tb_sort-rel.
 
-IF LOOKUP(v-relprint,"Hopx,ACPI,Fibrex,Accord,Metro,Carded,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair") > 0 AND
+IF LOOKUP(v-relprint,"Hopx,ACPI,Fibrex,Accord,Metro,Carded,Loylang,PremierX,Relprint 10,Lakeside,Distributor,Frank,NSTOCK,Axis,CSC-GA,Protagon,CardedX,Peachtree,Multicell,CCC,Soule,StClair,Midwest") > 0 AND
    LOOKUP(s-print-what-item,"I,S") > 0 THEN 
    ASSIGN s-print-loc-from = begin_loc
           s-print-loc-to = END_loc
@@ -2200,11 +2213,11 @@ IF IS-xprint-form AND (v-1st-page OR v-multi-cust = NO) THEN DO:
         WHEN 1 THEN PUT  "<PRINTER?></PROGRESS>".
         WHEN 2 THEN DO:
             IF NOT lBussFormModle THEN DO:            
-              IF v-relprint = "StClair" THEN  PUT "<PREVIEW><MODAL=NO><OLANDSCAPE></PROGRESS>".
+              IF v-relprint = "StClair" OR v-relprint = "Midwest" THEN  PUT "<PREVIEW><MODAL=NO><OLANDSCAPE></PROGRESS>".
               ELSE PUT "<PREVIEW><MODAL=NO></PROGRESS>". 
             END. 
             ELSE DO:
-              IF v-relprint = "StClair" THEN  PUT "<PREVIEW><OLANDSCAPE></PROGRESS>".
+              IF v-relprint = "StClair" OR v-relprint = "Midwest" THEN  PUT "<PREVIEW><OLANDSCAPE></PROGRESS>".
               ELSE PUT "<PREVIEW></PROGRESS>".
             END.      
         END.
@@ -2423,6 +2436,12 @@ PROCEDURE set-report :
   ELSE IF v-relprint EQ "StClair" THEN
    ASSIGN
     lv-program     = "oe/rep/relStClair.p"
+    lines-per-page = 75
+    is-xprint-form = YES  . /*60*/
+
+  ELSE IF v-relprint EQ "Midwest" THEN
+   ASSIGN
+    lv-program     = "oe/rep/relmidwest.p"
     lines-per-page = 75
     is-xprint-form = YES  . /*60*/
 

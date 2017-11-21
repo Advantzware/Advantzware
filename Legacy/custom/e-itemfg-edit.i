@@ -34,7 +34,7 @@ FOR EACH tt-{1} WHERE tt-{1}-qty GT 0 BREAK BY tt-{1}-qty:
      {1}.run-cost[li-{1}] = tt-{1}-cst
      {1}.setups[li-{1}]   = tt-{1}-stp.
 
-    IF LAST(tt-{1}-qty) OR li-{1} EQ EXTENT({1}.run-qty) THEN
+    IF not lVendCostMtx and  (LAST(tt-{1}-qty) OR li-{1} EQ EXTENT({1}.run-qty) ) THEN
       {1}.run-qty[li-{1}] = 9999999.9.
   END.
 END.

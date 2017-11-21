@@ -547,6 +547,7 @@ FOR EACH job-hdr NO-LOCK
       RUN XMLOutput (lXMLOutput,'NUMBER_UP',v-upnew,'Col').
       RUN XMLOutput (lXMLOutput,'QC_SPC',v-spc-no,'Col').
       RUN XMLOutput (lXMLOutput,'Category',cProCat,'Col').
+      RUN XMLOutput (lXMLOutput,'/JobTicketHeader','','Row').
       
       
         IF AVAILABLE oe-rel THEN 
@@ -673,19 +674,24 @@ FOR EACH job-hdr NO-LOCK
         RUN XMLOutput (lXMLOutput,'cost',v-misc[3],'Col').
         IF i = 4 THEN
         RUN XMLOutput (lXMLOutput,'cost',v-misc[4],'Col').
-      END.
-       
+       END.
+       RUN XMLOutput (lXMLOutput,'/TicketPrinting','','Row').
+
+       RUN XMLOutput (lXMLOutput,'Graphics','','Row').
        RUN XMLOutput (lXMLOutput,'FGItem',cTypeCode,'Col').
        RUN XMLOutput (lXMLOutput,'Structure_Number',eb.cad-no,'Col').
        RUN XMLOutput (lXMLOutput,'Artwork',eb.plate-no,'Col').
        RUN XMLOutput (lXMLOutput,'BarCode',eb.upc-no,'Col').
        RUN XMLOutput (lXMLOutput,'Lastship_order',v-per-ord,'Col').
-      
+       RUN XMLOutput (lXMLOutput,'/Graphics','','Row').
+
+       RUN XMLOutput (lXMLOutput,'StructuralDesign','','Row').
        RUN XMLOutput (lXMLOutput,'FG_Item',cTypeCode,'Col').
        RUN XMLOutput (lXMLOutput,'Die_Size',STRING(ef.trim-w) + "x" + STRING(ef.trim-l),'Col').
        RUN XMLOutput (lXMLOutput,'Style',eb.style,'Col').
        RUN XMLOutput (lXMLOutput,'Die',eb.die-no,'Col').
        RUN XMLOutput (lXMLOutput,'Blank_size',string(eb.t-wid) + "   X   " + string(eb.t-len),'Col').
+       RUN XMLOutput (lXMLOutput,'/StructuralDesign','','Row').
        
         /** SUM UP NUMBER OF SHEETS **/
         FIND FIRST job NO-LOCK
@@ -1055,12 +1061,13 @@ FOR EACH job-hdr NO-LOCK
                  dWstPrct = dWstPrct + wrk-op.spoil[job-hdr.frm].
         END.
         iCountLine = iCountLine + 4.
-
+        RUN XMLOutput (lXMLOutput,'PlateMaking','','Row').
         RUN XMLOutput (lXMLOutput,'MR_Waste',iMrWaste,'Col').
         RUN XMLOutput (lXMLOutput,'Artwork',eb.plate-no,'Col').
         RUN XMLOutput (lXMLOutput,'MR_Hours',dMrHour,'Col').
         RUN XMLOutput (lXMLOutput,'fg_item',itemfg.i-no,'Col').
         RUN XMLOutput (lXMLOutput,'Item_code',itemfg.cc-code,'Col').
+        RUN XMLOutput (lXMLOutput,'/PlateMaking','','Row').
         
         FIND FIRST ITEM NO-LOCK
             WHERE item.company EQ cocode
@@ -1111,7 +1118,7 @@ FOR EACH job-hdr NO-LOCK
                     v-print-feet = (wrk-sheet.gsh-qty * ef.gsh-len) / 12 .
 
                   iCountLine = iCountLine + 5.
-
+                  RUN XMLOutput (lXMLOutput,'Printing','','Row').
                   RUN XMLOutput (lXMLOutput,'Code',ef.m-code,'Col').
                   RUN XMLOutput (lXMLOutput,'MRWaste',iMrWaste,'Col').
                   RUN XMLOutput (lXMLOutput,'Stock_Code',IF AVAIL job-mat THEN  job-mat.rm-i-no ELSE "",'Col').
@@ -1314,13 +1321,16 @@ FOR EACH job-hdr NO-LOCK
             
             iCountLine = iCountLine + 1.
             iCountLine = iCountLine + 8.
-            
+            RUN XMLOutput (lXMLOutput,'/Printing','','Row').
+
+            RUN XMLOutput (lXMLOutput,'DieCutting','','Row').
             RUN XMLOutput (lXMLOutput,'MR_Waste',iMrWaste,'Col').
             RUN XMLOutput (lXMLOutput,'Die_Size',STRING(ef.trim-w) + "  x  " + STRING(ef.trim-l),'Col').
             RUN XMLOutput (lXMLOutput,'MR_Hours',dMrHour,'Col').
             RUN XMLOutput (lXMLOutput,'Die',eb.cad-no,'Col').
             RUN XMLOutput (lXMLOutput,'Run_Speed',iSpeed,'Col').
             RUN XMLOutput (lXMLOutput,'Spoilage',dWstPrct,'Col').
+            RUN XMLOutput (lXMLOutput,'/DieCutting','','Row').
             
             FOR FIRST wrk-op WHERE
                       wrk-op.s-num EQ job-hdr.frm AND
@@ -1471,7 +1481,7 @@ FOR EACH job-hdr NO-LOCK
            END.
            
            iCountLine = iCountLine + 4.
-
+           RUN XMLOutput (lXMLOutput,'RollExamining','','Row').
            RUN XMLOutput (lXMLOutput,'code',ef.m-code,'Col').
            RUN XMLOutput (lXMLOutput,'MR_Waste',iMrWaste,'Col').
            RUN XMLOutput (lXMLOutput,'case_no',eb.cas-no,'Col').
@@ -1498,7 +1508,9 @@ FOR EACH job-hdr NO-LOCK
            RUN XMLOutput (lXMLOutput,'Quantity',job-hdr.qty,'Col').
            RUN XMLOutput (lXMLOutput,'Max_Ht',cShpDoc,'Col').
            RUN XMLOutput (lXMLOutput,'class',itemfg.class,'Col').
+           RUN XMLOutput (lXMLOutput,'/RollExamining','','Row').
            
+           RUN XMLOutput (lXMLOutput,'TicketPrint','','Row').
            RUN XMLOutput (lXMLOutput,'Requested_Date',dDueDate,'Col').
            RUN XMLOutput (lXMLOutput,'Ship_Due_Date',dLastDate,'Col').
            RUN XMLOutput (lXMLOutput,'Ship_id',eb.ship-id,'Col').
@@ -1510,8 +1522,7 @@ FOR EACH job-hdr NO-LOCK
            RUN XMLOutput (lXMLOutput,'Available_Deliverly_Hours',cShipDocHour,'Col').
            RUN XMLOutput (lXMLOutput,'Dock_Appointment_Number',cDockAptmnt,'Col').
            RUN XMLOutput (lXMLOutput,'Dock_Appointment_Contact',cContact,'Col').
-           RUN XMLOutput (lXMLOutput,'/TicketPrinting','','Row'). 
-           RUN XMLOutput (lXMLOutput,'/JobTicketHeader','','Row').
+           RUN XMLOutput (lXMLOutput,'/TicketPrint','','Row').
              
    END. /* last-of(eb.form-no) */
           

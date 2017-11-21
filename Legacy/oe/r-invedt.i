@@ -129,7 +129,9 @@
     end. /* each xoe-ordl */
 
     assign v-line-tot = 0
-           v-misc-tot = 0.
+           v-misc-tot = 0
+           dfreight =   0
+           cfreightCode = "".
 
     /* Added by FWK 8/11/97 */
     for each inv-line where inv-line.r-no = inv-head.r-no no-lock:
@@ -141,6 +143,12 @@
       assign v-misc-tot = v-misc-tot + inv-misc.amt.
     end.
     /* Added by FWK 8/11/97 */
+    ASSIGN dfreight = IF inv-head.frt-pay NE "p" THEN inv-head.t-inv-freight ELSE 0.
+    ASSIGN  cfreightCode = IF inv-head.frt-pay EQ "B" THEN "Bill"
+                           ELSE IF inv-head.frt-pay EQ "C" THEN "Collect"
+                           ELSE IF inv-head.frt-pay EQ "P" THEN "Prepaid"
+                           ELSE "3rd Party".
+
 
                                   /** Write header Line **/
     display
@@ -150,7 +158,8 @@
       inv-head.t-inv-weight
       v-tot-pallets
       v-tot-cas
-      inv-head.t-inv-freight
+      cfreightCode
+      dfreight
       inv-head.t-inv-tax
       v-misc-tot
       v-line-tot
@@ -167,7 +176,8 @@
           '"' inv-head.t-inv-weight  '",'
           '"' v-tot-pallets          '",'
           '"' v-tot-cas              '",'
-          '"' inv-head.t-inv-freight '",'
+          '"' cfreightCode          '",'
+          '"' dfreight '",'
           '"' inv-head.t-inv-tax     '",'
           '"' v-misc-tot             '",'
           '"' v-line-tot             '",'
@@ -253,7 +263,8 @@
                 '"' inv-head.t-inv-weight  '",'
                 '"' v-tot-pallets          '",'
                 '"' v-tot-cas              '",'
-                '"' inv-head.t-inv-freight '",'
+                '"' cfreightCode           '",'
+                '"' dfreight '",'
                 '"' inv-head.t-inv-tax     '",'
                 '"' v-misc-tot             '",'
                 '"' v-line-tot             '",'

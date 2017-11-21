@@ -22,7 +22,6 @@
   FIELD jobCompleted AS LOGICAL LABEL 'C' FORMAT 'C/'
   FIELD rowIDs AS CHARACTER /* comma delimited row id's */
   FIELD keyValue AS CHARACTER
-  FIELD statusLabel AS CHARACTER FORMAT 'x(12)'
   FIELD udfField01 AS CHARACTER
   FIELD udfField02 AS CHARACTER
   FIELD udfField03 AS CHARACTER
@@ -146,6 +145,7 @@
   FIELD liveUpdate AS LOGICAL INITIAL YES
   FIELD lagTime AS INTEGER
   FIELD jobToolTip AS CHARACTER
+  FIELD statusLabel AS CHARACTER FORMAT 'x(12)'
   FIELD prepCompleted AS LOGICAL INITIAL YES
   FIELD sequenced AS LOGICAL
   FIELD anchored AS LOGICAL

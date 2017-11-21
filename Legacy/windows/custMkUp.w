@@ -75,6 +75,7 @@ DEFINE VARIABLE h_options AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-navico AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_p-updsav AS HANDLE NO-UNDO.
 DEFINE VARIABLE h_smartmsg AS HANDLE NO-UNDO.
+DEFINE VARIABLE h_f-add AS HANDLE NO-UNDO.
 
 /* ************************  Frame Definitions  *********************** */
 
@@ -114,7 +115,7 @@ DEFINE FRAME OPTIONS-FRAME
 IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW W-Win ASSIGN
          HIDDEN             = YES
-         TITLE              = "Customer MarkUp"
+         TITLE              = "Customer Margins"
          HEIGHT             = 24
          WIDTH              = 150
          MAX-HEIGHT         = 24
@@ -214,7 +215,7 @@ Destroy on next read */
 
 &Scoped-define SELF-NAME W-Win
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON END-ERROR OF W-Win /* Customer MarkUp */
+ON END-ERROR OF W-Win /* Customer Margins */
 OR ENDKEY OF {&WINDOW-NAME} ANYWHERE DO:
   /* This case occurs when the user presses the "Esc" key.
      In a persistently run window, just ignore this.  If we did not, the
@@ -227,7 +228,7 @@ END.
 
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
-ON WINDOW-CLOSE OF W-Win /* Customer MarkUp */
+ON WINDOW-CLOSE OF W-Win /* Customer Margins */
 DO:
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
@@ -271,6 +272,14 @@ PROCEDURE adm-create-objects :
 
     WHEN 0 THEN DO:
        RUN init-object IN THIS-PROCEDURE (
+             INPUT  'smartobj/f-add.w':U ,
+             INPUT  FRAME OPTIONS-FRAME:HANDLE ,
+             INPUT  '':U ,
+             OUTPUT h_f-add ).
+       RUN set-position IN h_f-add ( 1.00 , 83.00 ) NO-ERROR.
+       /* Size in UIB:  ( 1.81 , 7.80 ) */
+
+       RUN init-object IN THIS-PROCEDURE (
              INPUT  'smartobj/options.w':U ,
              INPUT  FRAME OPTIONS-FRAME:HANDLE ,
              INPUT  '':U ,
@@ -297,7 +306,7 @@ PROCEDURE adm-create-objects :
        RUN init-object IN THIS-PROCEDURE (
              INPUT  'adm/objects/folder.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
-             INPUT  'FOLDER-LABELS = ':U + 'Browse MarkUp|View MarkUp' + ',
+             INPUT  'FOLDER-LABELS = ':U + 'Browse Margins|View Margins' + ',
                      FOLDER-TAB-TYPE = 1':U ,
              OUTPUT h_folder ).
        RUN set-position IN h_folder ( 3.14 , 2.00 ) NO-ERROR.
@@ -307,6 +316,8 @@ PROCEDURE adm-create-objects :
        RUN add-link IN adm-broker-hdl ( h_folder , 'Page':U , THIS-PROCEDURE ).
 
        /* Adjust the tab order of the smart objects. */
+       RUN adjust-tab-order IN adm-broker-hdl ( h_options ,
+             h_f-add , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_exit ,
              h_options , 'AFTER':U ).
        RUN adjust-tab-order IN adm-broker-hdl ( h_folder ,
@@ -366,6 +377,7 @@ PROCEDURE adm-create-objects :
        /* Links to SmartViewer h_custmkup-2. */
        RUN add-link IN adm-broker-hdl ( h_custmkup , 'Record':U , h_custmkup-2 ).
        RUN add-link IN adm-broker-hdl ( h_p-updsav , 'TableIO':U , h_custmkup-2 ).
+       RUN add-link IN adm-broker-hdl ( THIS-PROCEDURE , 'add-item':U , h_custmkup-2 ).
 
        /* Adjust the tab order of the smart objects. */
        RUN adjust-tab-order IN adm-broker-hdl ( h_custmkup-2 ,
@@ -481,6 +493,25 @@ PROCEDURE local-exit :
    
    RETURN.
        
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Add W-Win 
+PROCEDURE Select_Add :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEF VAR char-hdl AS CHAR NO-UNDO.
+  
+   RUN select-page(2).
+   RUN get-link-handle IN adm-broker-hdl(THIS-PROCEDURE,"add-item-target", OUTPUT char-hdl).
+   RUN add-item IN WIDGET-HANDLE(char-hdl).
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
