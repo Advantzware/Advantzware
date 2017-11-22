@@ -4,6 +4,7 @@
 {ap/ap-chk.i}
 DEF VAR lv-line-cnt AS INT NO-UNDO.
 DEF VAR ll-void AS LOG NO-UNDO.
+DEFINE VARIABLE cPostCode AS CHARACTER NO-UNDO .
 
 DEFINE TEMP-TABLE wrk-chk
   field inv-no      like ap-sel.inv-no
@@ -29,11 +30,12 @@ form skip(5)  /* basic check form area starting with amount in words - start 7 b
      SKIP               
      ap-chk.check-date  to 60
      ctot               to 79 format "**,***,**9.99"
-     SKIP(1)
+     /*SKIP(1)*/ SKIP
      vend.remit         at 10
      add1               at 10
      add2               at 10
      csz                at 10
+     cPostCode          AT 10
      skip
      "Memo:"            to 8
      vend.check-memo
@@ -78,14 +80,16 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
     ASSIGN add1   = vend.r-add1
  	   add2   = vend.r-add2
 	   csz    = vend.r-city + ", " + vend.r-state
-	   lv-zip = vend.r-zip.
+	   lv-zip = vend.r-zip 
+       cPostCode = vend.r-country + "   " + vend.r-postal .
 
     IF add1 EQ "" AND add2 EQ "" THEN    /*if no remit-to address*/
       ASSIGN
        add1   = vend.add1
        add2   = vend.add2
        csz    = vend.city + ", " + vend.state
-       lv-zip = vend.zip.
+       lv-zip = vend.zip
+       cPostCode = vend.country + "   " + vend.postal .
 
     IF lv-zip BEGINS "00000" THEN lv-zip = "".
 
@@ -107,7 +111,8 @@ if v-print-mode ne "ALIGN" then do:         /* production mode */
 
     IF add2 EQ "" THEN ASSIGN
        add2 = csz
-       csz  = "".
+       csz  = cPostCode 
+       cPostCode = "" .
     
     ll = 0.
    
@@ -212,7 +217,8 @@ Procedure print-check:
 		caps(add1)        @ add1
 		caps(add2)        @ add2
 		caps(csz)         @ csz
-		vend.check-memo
+        CAPS(cPostCode)   @ cPostCode FORMAT "x(30)"
+		vend.check-memo 
 	    with frame b1.
 
    IF ll-void = YES THEN 
