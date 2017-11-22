@@ -72,11 +72,17 @@ DEF VAR lv-line LIKE po-ordl.line NO-UNDO.
 DEF VAR v-rmtags-log AS LOG NO-UNDO.
 DEF VAR v-get-tandem-rec AS LOG NO-UNDO.
 DEF VAR ll-is-copy-record AS LOG NO-UNDO.
+DEF VAR lAllowRmAdd AS LOG NO-UNDO.
+DEF VAR lcReturn   AS CHAR NO-UNDO.
+DEF VAR llRecFound AS LOG  NO-UNDO.
 DO TRANSACTION:
   {sys/inc/rmrecpt.i}
 END.
 
+RUN sys/ref/nk1look.p (cocode, "AllowRMAdd", "L", NO, NO, "", "", 
+    OUTPUT lcReturn, OUTPUT llRecFound).
 
+   lAllowRmAdd = LOGICAL(lcReturn) NO-ERROR.  
 
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
@@ -3186,20 +3192,26 @@ PROCEDURE valid-i-no :
             NOT CAN-FIND(FIRST item 
            WHERE item.company EQ cocode
              AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})/*)*/ THEN DO:
-         MESSAGE "Item is not on file. Do you want to add it? "
-             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
-         IF ll-ans THEN DO:
-           RUN create-item.
-           NEXT.
+           IF lAllowRmAdd EQ YES THEN DO:
+               MESSAGE "Item is not on file. Do you want to add it? "
+                   VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
+               IF ll-ans THEN DO:
+                   RUN create-item.
+                   NEXT.
+               END.
+               ELSE 
+                   v-msg = "Invalid entry, try help".
+           END.
+         ELSE DO:
+              v-msg = "Invalid entry, try help".
          END.
-         ELSE v-msg = "Invalid entry, try help".
        END.
     END.
 
     IF v-msg EQ "" THEN
       IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} EQ ""    AND
          INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) EQ 0 AND
-         item.mat-type NE "P"                                          THEN
+         AVAIL ITEM AND item.mat-type NE "P"                                          THEN
       v-msg = "If PO# and Job# are blank then RM Type must be 'P'aper".
 
     IF v-msg EQ "" THEN
@@ -3210,7 +3222,7 @@ PROCEDURE valid-i-no :
               AND po-ordl.po-no   EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
               AND po-ordl.i-no    EQ lv-i-no
               AND po-ordl.line    EQ lv-line
-              AND po-ordl.s-wid   LE (IF item.r-wid NE 0 THEN item.r-wid
+              AND po-ordl.s-wid   LE (IF AVAIL ITEM AND item.r-wid NE 0 THEN item.r-wid
                                                          ELSE item.s-wid)) THEN
           v-msg = "RM width must be greater than PO RM you are issuing to...".
 
