@@ -847,10 +847,11 @@ for each job-hdr NO-LOCK
                          b-oe-rel2.ord-no  eq xoe-ordl.ord-no AND
                          b-oe-rel2.i-no    eq xoe-ordl.i-no AND
                          b-oe-rel2.line    eq xoe-ordl.LINE
-                         NO-LOCK:
-                    FIND FIRST reftable
-                        WHERE reftable.reftable EQ "oe-rel.lot-no"
-                        AND reftable.company  EQ STRING(b-oe-rel2.r-no,"9999999999") NO-LOCK NO-ERROR.
+                           NO-LOCK.
+/*                         NO-LOCK:*/
+/*                    FIND FIRST reftable                                                               */
+/*                        WHERE reftable.reftable EQ "oe-rel.lot-no"                                    */
+/*                        AND reftable.company  EQ STRING(b-oe-rel2.r-no,"9999999999") NO-LOCK NO-ERROR.*/
 
                     FIND FIRST oe-rell
                         WHERE oe-rell.company  EQ b-oe-rel2.company
@@ -866,7 +867,7 @@ for each job-hdr NO-LOCK
                             oe-relh.r-no     EQ oe-rell.r-no NO-LOCK NO-ERROR.
 
                         
-                    RUN AddTTFGItem (b-oe-rel2.tot-qty, b-oe-rel2.po-no, IF AVAIL reftable THEN reftable.CODE ELSE "", 
+                    RUN AddTTFGItem (b-oe-rel2.tot-qty, b-oe-rel2.po-no, b-oe-rel2.lot-no, 
                         IF AVAIL oe-relh THEN string(oe-relh.rel-date) ELSE string(b-oe-rel2.rel-date) ).
                 END.
            END.

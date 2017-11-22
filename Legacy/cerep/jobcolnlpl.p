@@ -462,10 +462,10 @@ for each job-hdr NO-LOCK
 
              IF v-date-comp = ? OR v-date-comp > b-oe-rel.rel-date THEN DO:
                 ASSIGN v-date-comp = b-oe-rel.rel-date.
-                FIND FIRST reftable WHERE
-                          reftable.reftable EQ "oe-rel.lot-no" AND
-                          reftable.company  EQ STRING(b-oe-rel.r-no,"9999999999")
-                     NO-LOCK NO-ERROR.                                           
+/*                FIND FIRST reftable WHERE                                        */
+/*                          reftable.reftable EQ "oe-rel.lot-no" AND               */
+/*                          reftable.company  EQ STRING(b-oe-rel.r-no,"9999999999")*/
+/*                     NO-LOCK NO-ERROR.                                           */
              END.
 
              
@@ -476,8 +476,7 @@ for each job-hdr NO-LOCK
                       v-ship-date[1] = IF b-oe-rel.rel-date <> ?  THEN  b-oe-rel.rel-date ELSE ? 
                       v-due-qty[1]   = IF b-oe-rel.tot-qty <> 0 THEN b-oe-rel.tot-qty ELSE 0 
                       v-po-no  [1]   = IF b-oe-rel.po-no <> "" THEN  b-oe-rel.po-no ELSE "" .
-                  IF AVAIL reftable THEN 
-                   ASSIGN v-cust-lot#[1] = reftable.CODE.
+                   ASSIGN v-cust-lot#[1] = b-oe-rel.lot-no.
               END.
                       
              IF icount = 2 THEN do:  

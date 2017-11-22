@@ -452,14 +452,7 @@ FOR  EACH job-hdr NO-LOCK
         DO:
             v-po-no = oe-rel.po-no .
 
-            FIND FIRST reftable NO-LOCK WHERE
-                reftable.reftable EQ "oe-rel.lot-no" AND
-                reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-                NO-ERROR.
-            IF AVAILABLE reftable THEN 
-                ASSIGN v-cust-lot# = reftable.CODE.
-            ELSE
-                ASSIGN v-cust-lot# = "".
+              ASSIGN v-cust-lot# = oe-rel.lot-no.
 
             FIND FIRST shipto NO-LOCK
                 WHERE shipto.company EQ cocode
@@ -481,10 +474,10 @@ FOR  EACH job-hdr NO-LOCK
                                     AND b-oe-rel.i-no    EQ oe-rel.i-no
                                     AND b-oe-rel.line    EQ oe-rel.LINE :
 
-            FIND FIRST reftable NO-LOCK WHERE
-                       reftable.reftable EQ "oe-rel.lot-no" AND
-                       reftable.company  EQ STRING(b-oe-rel.r-no,"9999999999")
-                       NO-ERROR.
+/*            FIND FIRST reftable NO-LOCK WHERE                                 */
+/*                       reftable.reftable EQ "oe-rel.lot-no" AND               */
+/*                       reftable.company  EQ STRING(b-oe-rel.r-no,"9999999999")*/
+/*                       NO-ERROR.                                              */
            
             icount =  icount + 1 .
             IF icount = 1 THEN  
@@ -492,28 +485,29 @@ FOR  EACH job-hdr NO-LOCK
                     v-ship-date[1] = IF b-oe-rel.rel-date NE ?  THEN  b-oe-rel.rel-date ELSE ? 
                     v-due-qty[1]   = IF b-oe-rel.tot-qty NE 0 THEN b-oe-rel.tot-qty ELSE 0 
                     v-po-no[1]     = IF b-oe-rel.po-no NE "" THEN  b-oe-rel.po-no ELSE ""
-                    v-cust-lot#[1] = IF AVAILABLE reftable THEN reftable.CODE ELSE "" .
+/*                    v-cust-lot#[1] = IF AVAILABLE reftable THEN reftable.CODE ELSE "" .*/
+                    v-cust-lot#[1] = IF b-oe-rel.lot-no <> "" THEN b-oe-rel.lot-no ELSE "" .
                       
             IF icount = 2 THEN  
                 ASSIGN 
                     v-ship-date[2] = IF b-oe-rel.rel-date NE ?  THEN  b-oe-rel.rel-date ELSE ? 
                     v-due-qty[2]   = IF b-oe-rel.tot-qty NE 0 THEN b-oe-rel.tot-qty ELSE 0 
                     v-po-no[2]     = IF b-oe-rel.po-no NE "" THEN  b-oe-rel.po-no ELSE "" 
-                    v-cust-lot#[2] = IF AVAILABLE reftable THEN reftable.CODE ELSE ""   .
+                    v-cust-lot#[2] = IF b-oe-rel.lot-no <> "" THEN b-oe-rel.lot-no ELSE "" .
 
             IF icount = 3 THEN  
                 ASSIGN 
                     v-ship-date[3] = IF b-oe-rel.rel-date NE ?  THEN  b-oe-rel.rel-date ELSE ? 
                     v-due-qty[3]   = IF b-oe-rel.tot-qty NE 0 THEN b-oe-rel.tot-qty ELSE 0 
                     v-po-no[3]     = IF b-oe-rel.po-no NE "" THEN  b-oe-rel.po-no ELSE ""   
-                    v-cust-lot#[3] = IF AVAILABLE reftable THEN reftable.CODE ELSE "" .
+                    v-cust-lot#[3] = IF b-oe-rel.lot-no <> "" THEN b-oe-rel.lot-no ELSE "" .
 
             IF icount = 4 THEN  
                 ASSIGN 
                     v-ship-date[4] = IF b-oe-rel.rel-date NE ?  THEN  b-oe-rel.rel-date ELSE ?  
                     v-due-qty[4]   = IF b-oe-rel.tot-qty NE 0 THEN b-oe-rel.tot-qty ELSE 0 
                     v-po-no[4]     = IF b-oe-rel.po-no NE "" THEN  b-oe-rel.po-no ELSE ""   
-                    v-cust-lot#[4] = IF AVAILABLE reftable THEN reftable.CODE ELSE "" . 
+                    v-cust-lot#[4] = IF b-oe-rel.lot-no <> "" THEN b-oe-rel.lot-no ELSE "" . 
             
         END. /* FOR EACH */
         

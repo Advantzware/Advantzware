@@ -2854,6 +2854,9 @@ IF v-none THEN DO TRANSACTION:
    oe-rell.posted  = NO
    oe-rell.deleted = NO
    oe-rell.loc     = oe-rel.spare-char-1
+   oe-rell.lot-no  = oe-rel.lot-no
+   oe-rell.frt-pay = oe-rel.frt-pay 
+   oe-rell.fob-code = oe-rel.fob-code
    /** Set link to the planned releases **/
    oe-rell.link-no = oe-rel.r-no
    oe-rell.s-code  = IF AVAIL reftable THEN reftable.code ELSE
@@ -2863,40 +2866,15 @@ IF v-none THEN DO TRANSACTION:
    bf-oe-rel.link-no = oe-rell.r-no.
    RELEASE bf-oe-rel.
   RELEASE reftable.
-
-  FIND FIRST b-reftable NO-LOCK
-      WHERE b-reftable.reftable EQ "oe-rel.lot-no"
-        AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-ERROR.
-
-  IF AVAIL b-reftable THEN DO:
-    CREATE reftable.
-    ASSIGN
-     reftable.reftable = "oe-rell.lot-no"
-     reftable.rec_key  = oe-rell.rec_key
-     reftable.code     = b-reftable.code
-     reftable.code2    = b-reftable.code2
-     reftable.dscr     = b-reftable.dscr.
-    RELEASE reftable.
-    RELEASE b-reftable.
-  END.
-
+    
   FIND FIRST b-reftable NO-LOCK
       WHERE b-reftable.reftable EQ "oe-rel.sell-price"
         AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
       NO-ERROR.
 
-  IF AVAIL b-reftable THEN DO:
-    CREATE reftable.
-    ASSIGN
-     reftable.reftable = "oe-rell.sell-price"
-     reftable.rec_key  = oe-rell.rec_key
-     reftable.val[1]   = b-reftable.val[1]
-     reftable.val[2]   = b-reftable.val[2].
-    RELEASE reftable.
-    RELEASE b-reftable.
-  END.
-
+      ASSIGN
+       oe-rell.newSellPrice = b-reftable.val[1]
+       oe-rell.newZeroPrice = b-reftable.val[2].
   IF v-whse EQ "SHIPTO" THEN DO:
     FIND FIRST shipto
       WHERE shipto.company EQ cocode
@@ -3204,20 +3182,10 @@ PROCEDURE create-report-record-1 :
                 v-inv-ship = NO .
          RELEASE bf-oe-rel.
     END.
-
-    FIND FIRST ref-lot-no WHERE
-         ref-lot-no.reftable EQ "oe-rel.lot-no" AND
-         ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-         NO-LOCK NO-ERROR.
-
-    IF AVAIL ref-lot-no THEN
-    DO:
-       ASSIGN
-          tt-report.lot-no      = ref-lot-no.CODE
-          tt-report.frt-pay = ref-lot-no.code2
-          tt-report.flute         = ref-lot-no.dscr.
-       RELEASE ref-lot-no.
-    END.
+    ASSIGN
+          tt-report.lot-no  = oe-rel.lot-no
+          tt-report.frt-pay = oe-rel.frt-pay
+          tt-report.flute   = oe-rel.fob-code.
 
     FIND FIRST ref-sell-price WHERE
          ref-sell-price.reftable EQ "oe-rel.sell-price" AND
@@ -3589,23 +3557,11 @@ PROCEDURE local-assign-record :
                          + USERID("nosweat") + ","
                          + tt-report.pr-uom.
 
-  FIND FIRST ref-lot-no WHERE
-       ref-lot-no.reftable EQ "oe-rel.lot-no" AND
-       ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-       NO-ERROR.
-
-  IF NOT AVAIL ref-lot-no THEN
-  DO:
-     CREATE ref-lot-no.
-     ASSIGN
-       ref-lot-no.reftable = "oe-rel.lot-no"
-       ref-lot-no.company  = STRING(oe-rel.r-no,"9999999999").
-  END.
-
+  
   ASSIGN
-     ref-lot-no.CODE  = tt-report.lot-no:SCREEN-VALUE IN BROWSE {&browse-name}
-     ref-lot-no.code2 = tt-report.frt-pay:SCREEN-VALUE IN BROWSE {&browse-name}
-     ref-lot-no.dscr  = tt-report.flute:SCREEN-VALUE IN BROWSE {&browse-name}.
+     oe-rel.lot-no  = tt-report.lot-no:SCREEN-VALUE IN BROWSE {&browse-name}
+     oe-rel.frt-pay = tt-report.frt-pay:SCREEN-VALUE IN BROWSE {&browse-name}
+     oe-rel.fob-code  = tt-report.flute:SCREEN-VALUE IN BROWSE {&browse-name}.
 
   FIND FIRST ref-sell-price WHERE
        ref-sell-price.reftable EQ "oe-rel.sell-price" AND
@@ -3965,16 +3921,7 @@ PROCEDURE local-create-record :
         IF lfirstReleaseofItem THEN 
             oe-rel.spare-char-4 = STRING(oe-ord.due-date) + ",,". 
       
-        FIND FIRST ref-lot-no WHERE
-            ref-lot-no.reftable EQ "oe-rel.lot-no" AND
-            ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-            NO-ERROR.
-  
-        IF AVAIL ref-lot-no THEN
-            ASSIGN
-                oe-rel.lot-no = ref-lot-no.CODE.
-    
-                       
+                                  
         IF oe-rel.qty LT 0 THEN oe-rel.qty = 0.
 
         oe-rel.tot-qty = oe-ordl.qty - v-qty-released /*oe-rel.qty*/ .
@@ -5385,26 +5332,37 @@ IF NOT AVAIL bf-oe-boll THEN
                    NO-LOCK NO-ERROR.
 
 
- FIND FIRST bf-ref WHERE
-       bf-ref.reftable EQ "oe-rel.lot-no" AND
-       bf-ref.company  EQ STRING(bf-oe-rel.r-no,"9999999999")
-       NO-ERROR.
-  IF NOT AVAIL bf-ref THEN
-  DO:
-     CREATE bf-ref.
-     ASSIGN
-       bf-ref.reftable = "oe-rel.lot-no"
-       bf-ref.company  = STRING(oe-rel.r-no,"9999999999").
-  END.
-
+/* FIND FIRST bf-ref WHERE                                     */
+/*       bf-ref.reftable EQ "oe-rel.lot-no" AND                */
+/*       bf-ref.company  EQ STRING(bf-oe-rel.r-no,"9999999999")*/
+/*       NO-ERROR.                                             */
+/*  IF NOT AVAIL bf-ref THEN                                   */
+/*  DO:                                                        */
+/*     CREATE bf-ref.                                          */
+/*     ASSIGN                                                  */
+/*       bf-ref.reftable = "oe-rel.lot-no"                     */
+/*       bf-ref.company  = STRING(oe-rel.r-no,"9999999999").   */
+/*  END.                                                       */
+/*                                                             */
+/*  IF AVAIL bf-oe-boll THEN                                   */
+/*     bf-ref.CODE  = bf-oe-boll.lot-no.                       */
+/*  ELSE                                                       */
+/*     bf-ref.CODE  = bf-oe-rell.lot-no.                       */
+/*                                                             */
+/*  IF AVAIL bf-ref AND AVAIL(bf-oe-boll) THEN DO:             */
+/*    IF bf-ref.CODE EQ "" AND bf-oe-boll.lot-no NE "" THEN    */
+/*       bf-ref.CODE = bf-oe-boll.lot-no.                      */
+/*    IF bf-oe-rel.lot-no = "" AND bf-oe-boll.lot-no NE "" THEN*/
+/*      bf-oe-rel.lot-no = bf-oe-boll.lot-no.                  */
+/*  END.                                                       */
   IF AVAIL bf-oe-boll THEN
-     bf-ref.CODE  = bf-oe-boll.lot-no.
+     bf-oe-rel.lot-no  = bf-oe-boll.lot-no.
   ELSE
-     bf-ref.CODE  = bf-oe-rell.lot-no.
+     bf-oe-rel.lot-no  = bf-oe-rell.lot-no.
 
-  IF AVAIL bf-ref AND AVAIL(bf-oe-boll) THEN DO:
-    IF bf-ref.CODE EQ "" AND bf-oe-boll.lot-no NE "" THEN
-       bf-ref.CODE = bf-oe-boll.lot-no.
+  IF bf-oe-rel.lot-no <> "" AND AVAIL(bf-oe-boll) THEN DO:
+    IF bf-oe-rel.lot-no EQ "" AND bf-oe-boll.lot-no NE "" THEN
+       bf-oe-rel.lot-no = bf-oe-boll.lot-no.
     IF bf-oe-rel.lot-no = "" AND bf-oe-boll.lot-no NE "" THEN
       bf-oe-rel.lot-no = bf-oe-boll.lot-no.
   END.

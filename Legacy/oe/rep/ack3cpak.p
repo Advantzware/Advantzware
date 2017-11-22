@@ -319,18 +319,7 @@ find first company where company.company eq cocode no-lock no-error.
                AND bf-oe-rel.line    EQ oe-ordl.line
                NO-LOCK BREAK BY bf-oe-rel.rel-date DESC:
             
-              IF AVAIL bf-oe-rel THEN DO:
-                  
-                 FIND FIRST ref-lot-no WHERE
-                            ref-lot-no.reftable EQ "oe-rel.lot-no" AND
-                            ref-lot-no.company  EQ STRING(bf-oe-rel.r-no,"9999999999")
-                       NO-LOCK NO-ERROR.
-              
-                 IF AVAIL ref-lot-no THEN
-                   ASSIGN v-lot-no      = ref-lot-no.CODE.
-                 
-                 RELEASE ref-lot-no.
-              END.
+              ASSIGN v-lot-no = bf-oe-rel.lot-no.  
               LEAVE.
         END.
               RELEASE bf-oe-rel.

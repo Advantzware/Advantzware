@@ -622,15 +622,8 @@ ASSIGN
                       AND xoe-rel.i-no    EQ v-fg
                       NO-ERROR.
           END.
-         IF AVAILABLE xoe-rel THEN
-             FIND FIRST reftable NO-LOCK WHERE
-             reftable.reftable EQ "oe-rel.lot-no" AND
-             reftable.company  EQ STRING(xoe-rel.r-no,"9999999999")
-             NO-ERROR.
 
-         IF AVAILABLE reftable THEN
-             ASSIGN
-             cCustpo-name      = reftable.CODE . 
+           ASSIGN cCustpo-name = xoe-rel.lot-no.
         
          IF AVAILABLE xoe-rel AND cCustpo-name = "" THEN
              ASSIGN cCustpo-name = (IF xoe-rel.po-no NE "" AND AVAIL xoe-rel THEN xoe-rel.po-no ELSE IF AVAILABLE xoe-ordl THEN xoe-ordl.po-no ELSE "") .  .

@@ -167,6 +167,9 @@ DO v-fifo-loop = 1 TO 2.
      oe-rell.job-no  = fg-bin.job-no
      oe-rell.job-no2 = fg-bin.job-no2
      oe-rell.cust-no = fg-bin.cust-no
+     oe-rell.lot-no  = oe-rel.lot-no
+     oe-rell.frt-pay = oe-rel.frt-pay
+     oe-rell.fob-code = oe-rel.fob-code
      oe-rell.i-no    = v-i-no
      oe-rell.po-no   = v-po-no
      oe-rell.ord-no  = v-ord-no
@@ -191,39 +194,15 @@ DO v-fifo-loop = 1 TO 2.
                         else 1.
 
     RELEASE reftable.
-
-    FIND FIRST b-reftable NO-LOCK
-         WHERE b-reftable.reftable EQ "oe-rel.lot-no"
-         AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-         NO-ERROR.
-
-    IF AVAIL b-reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "oe-rell.lot-no"
-       reftable.rec_key  = oe-rell.rec_key
-       reftable.code     = b-reftable.code
-       reftable.code2    = b-reftable.code2
-       reftable.dscr     = b-reftable.dscr.
-      RELEASE reftable.
-      RELEASE b-reftable.
-    END.
-   
+       
     FIND FIRST b-reftable NO-LOCK
         WHERE b-reftable.reftable EQ "oe-rel.sell-price"
           AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
         NO-ERROR.
    
-    IF AVAIL b-reftable THEN DO:
-      CREATE reftable.
-      ASSIGN
-       reftable.reftable = "oe-rell.sell-price"
-       reftable.rec_key  = oe-rell.rec_key
-       reftable.val[1]   = b-reftable.val[1]
-       reftable.val[2]   = b-reftable.val[2].
-      RELEASE reftable.
-      RELEASE b-reftable.
-    END.
+    ASSIGN
+       oe-rell.newSellPrice = b-reftable.val[1]
+       oe-rell.newZeroPrice = b-reftable.val[2].
 
     IF fg-bin.qty LE v-rel-qty THEN
       ASSIGN

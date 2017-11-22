@@ -3084,13 +3084,8 @@ PROCEDURE get-rel-info :
     LEAVE.
   END.
 
-  IF AVAIL oe-rel THEN DO:
-    FIND FIRST ref-lot-no NO-LOCK
-        WHERE ref-lot-no.reftable EQ "oe-rel.lot-no"
-          AND ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-ERROR.
-    IF AVAIL ref-lot-no THEN op-lot# = ref-lot-no.code.
-  END.
+                      
+    ASSIGN op-lot# = oe-rel.lot-no.
 
   IF v-po-no-source NE "R"                    OR
      (NOT AVAIL oe-rel AND NOT AVAIL oe-rell) THEN
