@@ -142,7 +142,7 @@ DEFINE VARIABLE m_default AS CHARACTER FORMAT "X(256)":U
      SIZE 44.8 BY 1 NO-UNDO.
 
 DEFINE RECTANGLE RECT-3
-     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL 
+     EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 83 BY 1.76.
 
 DEFINE VARIABLE m_menus AS CHARACTER 
@@ -405,7 +405,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN buildPanels.
   RUN enable_UI.
   RUN Enhance IN Persistent-Handle (FRAME {&FRAME-NAME}:HANDLE).
-  INPUT FROM value(SEARCH("menu_plus.lst")) NO-ECHO.
+  INPUT FROM value(SEARCH("stdMenu/menu_plus.lst")) NO-ECHO.
   RUN Get_Menus.
   INPUT CLOSE.
   {methods/nowait.i}
