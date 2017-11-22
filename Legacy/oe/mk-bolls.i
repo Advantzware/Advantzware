@@ -70,7 +70,7 @@ FOR EACH oe-rell
         rec_key.table_name = "oe-boll".
      RELEASE rec_key.
   END.
-
+    /* Reftable removed
     IF AVAIL oe-rell THEN
     DO:
        CREATE reftable.               
@@ -80,6 +80,7 @@ FOR EACH oe-rell
               oe-rell.newZeroPrice   = b-reftable.val[2].
        RELEASE reftable.
     END.
+    */
 
     if oe-boll.loc-bin eq "" then do:
       find first sys-ctrl
