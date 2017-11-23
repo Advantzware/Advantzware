@@ -203,7 +203,7 @@ IF cAcrobatPath = ? THEN DO:
    IF cAcrobatPath = ? THEN cAcrobatPath = get-reg-data-V7().
    IF cAcrobatPath = ? THEN cAcrobatPath = get-reg-data-V6().
    IF cAcrobatPath = ? THEN DO:
-      MESSAGE "Acrobat Reader versions 5.0 through DC are supported." VIEW-AS ALERT-BOX ERROR.
+      /*MESSAGE "Acrobat Reader versions 5.0 through DC are supported." VIEW-AS ALERT-BOX ERROR.*/
       RETURN.
    END.
 END.
