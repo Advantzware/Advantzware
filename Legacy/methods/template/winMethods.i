@@ -28,6 +28,8 @@ DEFINE VARIABLE header_value AS CHARACTER NO-UNDO.
 DEFINE VARIABLE misc_rec_key_value AS CHARACTER NO-UNDO.
 DEFINE VARIABLE misc_header_value AS CHARACTER NO-UNDO.
 
+DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
+
 {methods/defines/noreckey.i}
 
 {custom/resizdef.i}  /* resizing window definition include */
@@ -77,6 +79,10 @@ DEFINE VARIABLE misc_header_value AS CHARACTER NO-UNDO.
 
 
 /* ***************************  Main Block  *************************** */
+
+&IF "{&FIRST-EXTERNAL-TABLE}" NE "" &THEN
+hTable = BUFFER {&FIRST-EXTERNAL-TABLE}:HANDLE.
+&ENDIF
 
 {methods/menus/{&winMethods}.i}
 {methods/enhance.i}
@@ -207,38 +213,38 @@ PROCEDURE Init-Options-Panel :
   ASSIGN
     listname = SUBSTR("{&FIRST-EXTERNAL-TABLE}",1,7) + "_"
     search-button = IF SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.r") = ? AND
-                       SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.p") = ? THEN no
-                    ELSE yes
+                       SEARCH("searches/{&FIRST-EXTERNAL-TABLE}.p") = ? THEN NO
+                    ELSE YES
     list-button = IF SEARCH("listobjs/" + listname + ".r") = ? AND
-                     SEARCH("listobjs/" + listname + ".w") = ? THEN no
-                  ELSE yes
+                     SEARCH("listobjs/" + listname + ".w") = ? THEN NO
+                  ELSE YES
     notes-button = IF /*INDEX("{&NORECKEY}","{&FIRST-EXTERNAL-TABLE}")*/
-                       lookup("{&FIRST-EXTERNAL-TABLE}","{&NORECKEY}"," ") = 0 THEN yes
-                   ELSE no
-    misc_fields-button = IF b-prgrms.mfgroup = "" THEN no ELSE yes
-    spec-note-button = lookup("{&FIRST-EXTERNAL-TABLE}","est,item,itemfg,cust,vend,oe-ord,job,pc-prdd,pc-prdh,oe-ordl,po-ordl,quotehd,oe-relh") > 0
+                       LOOKUP("{&FIRST-EXTERNAL-TABLE}","{&NORECKEY}"," ") = 0 THEN YES
+                   ELSE NO
+    misc_fields-button = IF b-prgrms.mfgroup = "" THEN NO ELSE YES
+    spec-note-button = LOOKUP("{&FIRST-EXTERNAL-TABLE}","est,item,itemfg,cust,vend,oe-ord,job,pc-prdd,pc-prdh,oe-ordl,po-ordl,quotehd,oe-relh") > 0
     .
 
   &Scoped-define MENUITEM search
   IF NOT {&MENUITEM}-button THEN
   ASSIGN
-    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = no
-    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = no.
+    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = NO
+    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO.
   &Scoped-define MENUITEM list
   IF NOT {&MENUITEM}-button THEN
   ASSIGN
-    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = no
-    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = no.
+    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = NO
+    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO.
   &Scoped-define MENUITEM notes
   IF NOT {&MENUITEM}-button THEN
   ASSIGN
-    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = no
-    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = no.
+    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = NO
+    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO.
   &Scoped-define MENUITEM misc_fields
   IF NOT {&MENUITEM}-button THEN
   ASSIGN
-    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = no
-    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = no.
+    MENU-ITEM m_{&MENUITEM}:SENSITIVE IN MENU MENU-BAR-{&WINDOW-NAME} = NO
+    MENU-ITEM p_{&MENUITEM}:SENSITIVE IN MENU POPUP-MENU-{&WINDOW-NAME} = NO.
 &ENDIF
 
 END PROCEDURE.
@@ -354,7 +360,7 @@ PROCEDURE Run-Search :
         VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO UPDATE updatesrch AS LOGICAL.
     IF updatesrch THEN
     DO:
-      RUN Get_Procedure IN Persistent-Handle ("searches.",OUTPUT run-proc,no).
+      RUN Get_Procedure IN Persistent-Handle ("searches.",OUTPUT run-proc,NO).
       IF run-proc NE "" THEN
       RUN VALUE(run-proc) ("{&FIRST-EXTERNAL-TABLE}.").
     END.
@@ -366,6 +372,23 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Address Include
+PROCEDURE Select_Address:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN Get_Procedure IN Persistent-Handle ('address.',OUTPUT run-proc,NO).
+    IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_appl Include 
 PROCEDURE select_appl :
 /*------------------------------------------------------------------------------
@@ -373,7 +396,7 @@ PROCEDURE select_appl :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-run windows/utillook.w.
+RUN windows/utillook.w.
 
 END PROCEDURE.
 
@@ -387,7 +410,7 @@ PROCEDURE select_dept :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
-    RUN Get_Procedure IN Persistent-Handle ('specnote.',OUTPUT run-proc,no).
+    RUN Get_Procedure IN Persistent-Handle ('specnote.',OUTPUT run-proc,NO).
     IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .      
 
 END PROCEDURE.
@@ -418,10 +441,10 @@ PROCEDURE select_help :
 ------------------------------------------------------------------------------*/
 /*  run system/asihelp.w.   LATER */
   
-  apply "entry" to frame {&frame-name}.
+  APPLY "entry" TO FRAME {&frame-name}.
   
-  apply keycode("f3") to frame {&frame-name}.
-  return no-apply.
+  APPLY KEYCODE("f3") TO FRAME {&frame-name}.
+  RETURN NO-APPLY.
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -434,27 +457,44 @@ PROCEDURE select_home :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
- run get-attribute ("IS-Home").
+ RUN get-attribute ("IS-Home").
 
- if return-value = ? or return-value = "?" then do:
-    run set-attribute-list ("Is-Home = Home ") .
+ IF RETURN-VALUE = ? OR RETURN-VALUE = "?" THEN DO:
+    RUN set-attribute-list ("Is-Home = Home ") .
     {methods/run_link.i "RECORD-SOURCE" "dispatch" "('get-first')"} 
- end.
- else do:
-      if return-value = "Home" then   do:
-          run set-attribute-list ("Is-Home = End ") .
+ END.
+ ELSE DO:
+      IF RETURN-VALUE = "Home" THEN   DO:
+          RUN set-attribute-list ("Is-Home = End ") .
          {methods/run_link.i "RECORD-SOURCE" "dispatch" "('get-last')"} 
-      end.
-      else do:
-           run set-attribute-list ("Is-Home = Home ") .
+      END.
+      ELSE DO:
+           RUN set-attribute-list ("Is-Home = Home ") .
            {methods/run_link.i "RECORD-SOURCE" "dispatch" "('get-first')"} 
-      end.     
- end.
+      END.     
+ END.
  
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE Select_Phone Include
+PROCEDURE Select_Phone:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    RUN Get_Procedure IN Persistent-Handle ('phone.',OUTPUT run-proc,NO).
+    IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_spec Include 
 PROCEDURE select_spec :
@@ -466,33 +506,33 @@ PROCEDURE select_spec :
   &IF DEFINED(item_spec) &THEN   /* for fg or rm item spec note */
     &IF '{&winMethods}' EQ 'wndwmenu' &THEN
       IF "{&item_spec}" = "Customer" THEN DO:
-         RUN Get_Procedure IN Persistent-Handle ('specnot3.',OUTPUT run-proc,no).
+         RUN Get_Procedure IN Persistent-Handle ('specnot3.',OUTPUT run-proc,NO).
          IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .
       END.
       ELSE IF "{&item_spec}" = "Vendor" THEN DO:
-         RUN Get_Procedure IN Persistent-Handle ('specnot4.',OUTPUT run-proc,no).
+         RUN Get_Procedure IN Persistent-Handle ('specnot4.',OUTPUT run-proc,NO).
          IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .
       END.
       ELSE DO:
-         RUN Get_Procedure IN Persistent-Handle ('specnot2.',OUTPUT run-proc,no).
+         RUN Get_Procedure IN Persistent-Handle ('specnot2.',OUTPUT run-proc,NO).
          IF INDEX(PROGRAM-NAME(1),"est/w-est") GT 0 OR 
-            index(program-name(1),"oe/w-order") GT 0 OR 
-            index(program-name(1),"oeinq/w-ordinq") GT 0 OR
-            index(program-name(1),"windows/itemfg") GT 0 THEN
+            index(PROGRAM-NAME(1),"oe/w-order") GT 0 OR 
+            index(PROGRAM-NAME(1),"oeinq/w-ordinq") GT 0 OR
+            index(PROGRAM-NAME(1),"windows/itemfg") GT 0 THEN
             RUN windows/specnot2.w(rec_key_value,header_value).
          ELSE
          IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .
       END.
     &ELSE
       IF "{&item_spec}" = "Customer" THEN
-      RUN Get_Procedure IN Persistent-Handle ('specnot3.',OUTPUT run-proc,no).
+      RUN Get_Procedure IN Persistent-Handle ('specnot3.',OUTPUT run-proc,NO).
       ELSE IF "{&item_spec}" = "Vendor" THEN
-      RUN Get_Procedure IN Persistent-Handle ('specnot4.',OUTPUT run-proc,no).
-      ELSE RUN Get_Procedure IN Persistent-Handle ('specnot2.',OUTPUT run-proc,no).
+      RUN Get_Procedure IN Persistent-Handle ('specnot4.',OUTPUT run-proc,NO).
+      ELSE RUN Get_Procedure IN Persistent-Handle ('specnot2.',OUTPUT run-proc,NO).
       IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .      
     &ENDIF
   &ELSE
-    RUN Get_Procedure IN Persistent-Handle ('specnote.',OUTPUT run-proc,no).
+    RUN Get_Procedure IN Persistent-Handle ('specnote.',OUTPUT run-proc,NO).
     IF run-proc NE '' THEN {methods/smartrun.i (rec_key_value,header_value)} .
   &ENDIF
   
