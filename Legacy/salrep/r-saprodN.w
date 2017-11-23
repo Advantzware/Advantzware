@@ -1187,7 +1187,12 @@ DEF VAR str-tit4 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-tit5 AS cha FORM "x(200)" NO-UNDO.
 DEF VAR str-line AS cha FORM "x(350)" NO-UNDO.
 DEFINE VARIABLE dTax AS DECIMAL NO-UNDO .
-DEFINE VARIABLE dFright AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dFreight AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dTax-ptd AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dFreight-ptd AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dTax-ytd AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dFreight-ytd AS DECIMAL NO-UNDO.
+
 {sys/form/r-top5DL3.f}
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEF VAR excelheader AS CHAR NO-UNDO.
@@ -1327,9 +1332,20 @@ display "" with frame r-top.
          tt-report.key-01  = "MISC"
          tt-report.key-10  = "ar-invl".
         
-        IF FIRST-OF(ar-inv.inv-no) THEN
-            ASSIGN dTax    = dTax + ar-inv.tax-amt 
-                   dFright = dFright + ar-inv.freight .
+        IF FIRST-OF(ar-inv.inv-no) THEN do:
+             ASSIGN dTax-ytd     = dTax-ytd + ar-inv.tax-amt 
+                    dFreight-ytd = dFreight-ytd + ar-inv.freight .
+
+             if ar-inv.inv-date ge v-ptd-first and
+                 ar-inv.inv-date le v-ptd-last  then
+                 assign
+                    dTax-ptd    = dTax-ptd + ar-inv.tax-amt 
+                   dFreight-ptd = dFreight-ptd + ar-inv.freight.
+
+             if tdate eq ar-inv.inv-date then
+                ASSIGN dTax     = dTax + ar-inv.tax-amt 
+                        dFreight = dFreight + ar-inv.freight .
+         END.
 
         if not ar-invl.misc then do:
 
@@ -1535,10 +1551,10 @@ display "" with frame r-top.
                   WHEN "dly-amt"  THEN cVarValue =  STRING(dTax,"->,>>>,>>9.99")    .
                   WHEN "dly-msf"  THEN cVarValue = ""     .      
                   WHEN "ptd-sf"   THEN cVarValue = "" .
-                  WHEN "ptd-amt"  THEN cVarValue = "" .
+                  WHEN "ptd-amt"  THEN cVarValue = STRING(dTax-ptd,"->,>>>,>>9.99") .
                   WHEN "ptd-msf"  THEN cVarValue = "" .
                   WHEN "ytd-sf"   THEN cVarValue = "" .
-                  WHEN "ytd-amt"  THEN cVarValue = "" .  
+                  WHEN "ytd-amt"  THEN cVarValue = STRING(dTax-ytd,"->,>>>,>>9.99") .  
                   WHEN "ytd-msf"  THEN cVarValue = "" .
 
               END CASE.
@@ -1565,13 +1581,13 @@ display "" with frame r-top.
               CASE cTmpField:
                   WHEN "cat"      THEN cVarValue = "" .
                   WHEN "dly-sf"   THEN cVarValue = ""     .       
-                  WHEN "dly-amt"  THEN cVarValue =  STRING(dFright,"->,>>>,>>9.99")    .
+                  WHEN "dly-amt"  THEN cVarValue =  STRING(dFreight,"->,>>>,>>9.99")    .
                   WHEN "dly-msf"  THEN cVarValue = ""     .      
                   WHEN "ptd-sf"   THEN cVarValue = "" .
-                  WHEN "ptd-amt"  THEN cVarValue = "" .
+                  WHEN "ptd-amt"  THEN cVarValue = STRING(dFreight-ptd,"->,>>>,>>9.99") .
                   WHEN "ptd-msf"  THEN cVarValue = "" .
                   WHEN "ytd-sf"   THEN cVarValue = "" .
-                  WHEN "ytd-amt"  THEN cVarValue = "" .  
+                  WHEN "ytd-amt"  THEN cVarValue = STRING(dFreight-ytd,"->,>>>,>>9.99") .  
                   WHEN "ytd-msf"  THEN cVarValue = "" .
 
               END CASE.
@@ -1582,10 +1598,10 @@ display "" with frame r-top.
               cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
       END.
       
-          PUT UNFORMATTED "Fright " substring(cDisplay,8,350) SKIP.
+          PUT UNFORMATTED "Freight" substring(cDisplay,8,350) SKIP.
           IF tb_excel THEN DO:
               PUT STREAM excel UNFORMATTED  
-                  "Fright" + substring(cExcelDisplay,3,300) SKIP.
+                  "Freight" + substring(cExcelDisplay,3,300) SKIP.
           END.
 
       assign

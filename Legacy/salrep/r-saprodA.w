@@ -795,6 +795,10 @@ def var v-hdr2-3 as char extent 3 format "x(13)" init "-------------" NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
 DEFINE VARIABLE dTax AS DECIMAL NO-UNDO .
 DEFINE VARIABLE dFreight AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dTax-ptd AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dFreight-ptd AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dTax-ytd AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dFreight-ytd AS DECIMAL NO-UNDO .
 form
   w-procat      format "x(10)"
   w-sqft
@@ -905,9 +909,20 @@ display "" with frame r-top.
          tt-report.key-01  = "MISC"
          tt-report.key-10  = "ar-invl".
 
-         IF FIRST-OF(ar-inv.inv-no) THEN
-            ASSIGN dTax    = dTax + ar-inv.tax-amt 
-                   dFreight = dFreight + ar-inv.freight .
+         IF FIRST-OF(ar-inv.inv-no) THEN do:
+             ASSIGN dTax-ytd     = dTax-ytd + ar-inv.tax-amt 
+                    dFreight-ytd = dFreight-ytd + ar-inv.freight .
+
+             if ar-inv.inv-date ge v-ptd-first and
+                 ar-inv.inv-date le v-ptd-last  then
+                 assign
+                    dTax-ptd    = dTax-ptd + ar-inv.tax-amt 
+                   dFreight-ptd = dFreight-ptd + ar-inv.freight.
+
+             if tdate eq ar-inv.inv-date then
+                ASSIGN dTax     = dTax + ar-inv.tax-amt 
+                        dFreight = dFreight + ar-inv.freight .
+         END.
 
         if not ar-invl.misc then do:
 
@@ -1125,15 +1140,37 @@ display "" with frame r-top.
         put skip.
       end.
 
-      PUT "    Tax   " dTax FORMAT "->,>>>,>>9.99" SKIP .
-      PUT " Fright   " dFreight FORMAT "->,>>>,>>9.99" SKIP .
+      PUT "    Tax   " SPACE(14) dTax FORMAT "->,>>>,>>9.99" 
+          SPACE(28)  dTax-ptd FORMAT "->,>>>,>>9.99" .
+      IF v-ytd THEN PUT
+          SPACE(28)  dTax-ytd FORMAT "->,>>>,>>9.99"  .
+      PUT SKIP .
+      PUT "Freight   " SPACE(14) dFreight FORMAT "->,>>>,>>9.99"
+          SPACE(28)  dFreight-ptd FORMAT "->,>>>,>>9.99" .
+      IF v-ytd THEN PUT
+          SPACE(28)  dFreight-ytd FORMAT "->,>>>,>>9.99" SKIP .
 
       IF tb_excel THEN
            PUT STREAM excel UNFORMATTED
                '"' "  Tax"                                 '",'
-               '"' STRING(dTax,"->>>,>>9.999")                    '",' SKIP
-               '"' "  Fright"                                 '",'
-               '"' STRING(dFreight,"->>>,>>9.999")                    '",' SKIP .
+               '"'                                         '",'
+               '"' STRING(dTax,"->>>,>>9.999")                    '",' 
+               '"'                                         '",'
+               '"'                                         '",'
+               '"' STRING(dTax-ptd,"->>>,>>9.999")                    '",' 
+               '"'                                         '",'
+               '"'                                         '",'
+               '"' IF v-ytd THEN STRING(dTax-ytd,"->>>,>>9.999")   ELSE ""          '",' SKIP
+
+               '"' "  Freight"                                 '",'
+               '"'                                         '",'
+               '"' STRING(dFreight,"->>>,>>9.999")                    '",' 
+               '"'                                         '",'
+               '"'                                         '",'
+               '"' STRING(dFreight-ptd,"->>>,>>9.999")                    '",'
+               '"'                                         '",'
+               '"'                                         '",'
+               '"' IF v-ytd THEN STRING(dFreight-ytd,"->>>,>>9.999") ELSE ""        '",' SKIP .
                
 
       assign
