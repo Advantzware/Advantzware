@@ -308,9 +308,14 @@ DO:
                                                 ATTACH.run-program:SENSITIVE = NO.
           WHEN "pdf" THEN DO:
               RUN custom/runapdf.p (OUTPUT lv-cmd).
-              ASSIGN ATTACH.run-application:SCREEN-VALUE = "Acrobat" 
-                     ATTACH.run-program:SCREEN-VALUE = lv-cmd 
-                     ATTACH.run-program:SENSITIVE = NO.
+              IF lv-cmd NE "" THEN
+                  ASSIGN ATTACH.run-application:SCREEN-VALUE = "Acrobat" 
+                         ATTACH.run-program:SCREEN-VALUE = lv-cmd 
+                         ATTACH.run-program:SENSITIVE = NO.
+              ELSE 
+                  ASSIGN ATTACH.run-application:SCREEN-VALUE = "Windows Default"
+                         ATTACH.run-program:SCREEN-VALUE = ""
+                         ATTACH.run-program:SENSITIVE = NO.
           END.
           WHEN "jpg" OR WHEN "bmp" THEN ASSIGN ATTACH.run-application:SCREEN-VALUE = "MS Paint"
                                                ATTACH.run-program:SCREEN-VALUE = "mspaint.exe"

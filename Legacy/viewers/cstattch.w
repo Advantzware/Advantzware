@@ -306,8 +306,12 @@ DO:
                                                 ATTACH.run-program:SCREEN-VALUE = "Excel.exe".
           WHEN "pdf" THEN DO:
               RUN custom/runapdf.p (OUTPUT lv-cmd).
-              ASSIGN ATTACH.run-application:SCREEN-VALUE = "Acrobat" 
-                     ATTACH.run-program:SCREEN-VALUE = lv-cmd.
+              IF lv-cmd NE "" THEN
+                  ASSIGN ATTACH.run-application:SCREEN-VALUE = "Acrobat" 
+                         ATTACH.run-program:SCREEN-VALUE = lv-cmd.
+              ELSE 
+                  ASSIGN ATTACH.run-application:SCREEN-VALUE = "Windows Default" 
+                         ATTACH.run-program:SCREEN-VALUE = "".
           END.
           WHEN "jpg" OR WHEN "bmp" THEN ASSIGN ATTACH.run-application:SCREEN-VALUE = "MS Paint"
                                                ATTACH.run-program:SCREEN-VALUE = "mspaint.exe".
