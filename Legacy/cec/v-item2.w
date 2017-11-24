@@ -1170,6 +1170,11 @@ PROCEDURE override :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+    FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+
+IF AVAIL users AND users.securityLevel GT 900 THEN
+      ll-secure = YES .
 
   IF NOT ll-secure THEN RUN sys/ref/d-passwd.w (3, OUTPUT ll-secure).
 
