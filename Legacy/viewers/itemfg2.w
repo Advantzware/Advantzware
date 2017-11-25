@@ -1269,13 +1269,13 @@ PROCEDURE valid-pur-uom :
   {methods/lValidateError.i YES}
   DO WITH FRAME {&FRAME-NAME}:
     itemfg.pur-uom:SCREEN-VALUE = CAPS(itemfg.pur-uom:SCREEN-VALUE).
-    /* take out per Joe - task 10021210 */
-/*     IF NOT CAN-FIND(FIRST uom WHERE uom.uom EQ itemfg.pur-uom:SCREEN-VALUE   */
-/*                                 AND LOOKUP(uom.uom, uom-list) GT 0) THEN DO: */
-/*       MESSAGE TRIM(itemfg.pur-uom:LABEL) + " is invalid, try help..."        */
-/*           VIEW-AS ALERT-BOX ERROR.                                           */
-/*       RETURN ERROR.                                                          */
-/*     end.                                                                     */
+    /* take out per Joe - task 10021210 */ /* ticket 24648 */
+    IF NOT CAN-FIND(FIRST uom WHERE uom.uom EQ itemfg.pur-uom:SCREEN-VALUE  
+                                AND LOOKUP(uom.uom, uom-list) GT 0) THEN DO:
+      MESSAGE TRIM(itemfg.pur-uom:LABEL) + " is invalid, try help..."       
+          VIEW-AS ALERT-BOX ERROR.                                          
+      RETURN ERROR.                                                         
+    end.                                                                    
   END.
 
   {methods/lValidateError.i NO}
