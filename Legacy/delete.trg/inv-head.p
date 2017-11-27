@@ -1,6 +1,6 @@
 /* Be sure whatever mods you make take into account multi-invoice customers  */
 &Scoped-define ACTION DELETE
-&Scoped-define DBNAME PDBNAME('ASI')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME inv-head
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.

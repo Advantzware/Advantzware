@@ -95,9 +95,9 @@ DEF BUFFER mach-1 FOR mach.
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR mach.
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-FIELDS mach.m-dscr mach.sch-m-code mach.loc ~
-mach.dept[1] mach.dept[2] mach.dept[3] mach.dept[4] mach.m-seq mach.p-type ~
-mach.run-spoil mach.mr-waste mach.daily-prod-hours mach.therm ~
+&Scoped-Define ENABLED-FIELDS mach.m-dscr mach.sch-m-code mach.spare-int-2 ~
+mach.loc mach.dept[1] mach.dept[2] mach.dept[3] mach.dept[4] mach.m-seq ~
+mach.p-type mach.run-spoil mach.mr-waste mach.daily-prod-hours mach.therm ~
 mach.gang-jobs mach.lab-rate[1] mach.lab-rate[2] mach.lab-rate[3] ~
 mach.lab-drate mach.mrk-rate mach.mr-crusiz mach.run-crusiz mach.mr-varoh ~
 mach.mr-fixoh mach.mr-trate mach.run-varoh mach.run-fixoh mach.run-trate ~
@@ -111,19 +111,20 @@ mach.min_pan_lw mach.min_slot_score
 &Scoped-define FIRST-ENABLED-TABLE mach
 &Scoped-Define ENABLED-OBJECTS RECT-10 RECT-11 RECT-12 
 &Scoped-Define DISPLAYED-FIELDS mach.m-code mach.m-dscr mach.sch-m-code ~
-mach.loc mach.dept[1] mach.dept[2] mach.dept[3] mach.dept[4] mach.d-seq ~
-mach.m-seq mach.p-type mach.run-spoil mach.mr-waste mach.daily-prod-hours ~
-mach.therm mach.gang-jobs mach.lab-rate[1] mach.lab-rate[2] ~
-mach.lab-rate[3] mach.lab-drate mach.mrk-rate mach.mr-crusiz ~
-mach.run-crusiz mach.mr-rate mach.mr-varoh mach.mr-fixoh mach.mr-trate ~
-mach.run-rate mach.run-varoh mach.run-fixoh mach.run-trate mach.min-len ~
-mach.max-len mach.min-trimw mach.min-wid mach.max-wid mach.min-triml ~
-mach.min-cal mach.max-cal mach.min-pan-l mach.max-pan-l mach.min-pan-w ~
-mach.max-pan-w mach.min-dep mach.max-dep mach.min-run mach.max-run ~
-mach.pr-type mach.washup mach.col-pass mach.max-color mach.coater ~
-mach.col-wastesh mach.ink-waste mach.col-wastelb mach.tan-mrp mach.tan-mrf ~
-mach.num-wid mach.num-len mach.spare-int-1 mach.max_hd_hd mach.max_pan_lw ~
-mach.max_slot_score mach.min_hd_hd mach.min_pan_lw mach.min_slot_score 
+mach.spare-int-2 mach.loc mach.dept[1] mach.dept[2] mach.dept[3] ~
+mach.dept[4] mach.d-seq mach.m-seq mach.p-type mach.run-spoil mach.mr-waste ~
+mach.daily-prod-hours mach.therm mach.gang-jobs mach.lab-rate[1] ~
+mach.lab-rate[2] mach.lab-rate[3] mach.lab-drate mach.mrk-rate ~
+mach.mr-crusiz mach.run-crusiz mach.mr-rate mach.mr-varoh mach.mr-fixoh ~
+mach.mr-trate mach.run-rate mach.run-varoh mach.run-fixoh mach.run-trate ~
+mach.min-len mach.max-len mach.min-trimw mach.min-wid mach.max-wid ~
+mach.min-triml mach.min-cal mach.max-cal mach.min-pan-l mach.max-pan-l ~
+mach.min-pan-w mach.max-pan-w mach.min-dep mach.max-dep mach.min-run ~
+mach.max-run mach.pr-type mach.washup mach.col-pass mach.max-color ~
+mach.coater mach.col-wastesh mach.ink-waste mach.col-wastelb mach.tan-mrp ~
+mach.tan-mrf mach.num-wid mach.num-len mach.spare-int-1 mach.max_hd_hd ~
+mach.max_pan_lw mach.max_slot_score mach.min_hd_hd mach.min_pan_lw ~
+mach.min_slot_score 
 &Scoped-define DISPLAYED-TABLES mach
 &Scoped-define FIRST-DISPLAYED-TABLE mach
 &Scoped-Define DISPLAYED-OBJECTS cb_industry tb_plain-jobs tb_obsolete ~
@@ -181,7 +182,7 @@ DEFINE VARIABLE ls-limit-lbl AS CHARACTER FORMAT "X(256)":U INITIAL "LIMITS"
 
 DEFINE RECTANGLE RECT-10
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 141 BY 4.29
+     SIZE 146 BY 4.29
      FGCOLOR 3 .
 
 DEFINE RECTANGLE RECT-11
@@ -190,7 +191,7 @@ DEFINE RECTANGLE RECT-11
 
 DEFINE RECTANGLE RECT-12
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
-     SIZE 70 BY 7.14.
+     SIZE 75 BY 7.14.
 
 DEFINE VARIABLE tb_obsolete AS LOGICAL INITIAL no 
      LABEL "Obsolete?" 
@@ -200,7 +201,7 @@ DEFINE VARIABLE tb_obsolete AS LOGICAL INITIAL no
 DEFINE VARIABLE tb_plain-jobs AS LOGICAL INITIAL no 
      LABEL "Plain Jobs Only?" 
      VIEW-AS TOGGLE-BOX
-     SIZE 24 BY 1 NO-UNDO.
+     SIZE 22 BY 1 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -213,9 +214,15 @@ DEFINE FRAME F-Main
      mach.m-dscr AT ROW 1.24 COL 45 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 47 BY 1
-     mach.sch-m-code AT ROW 1.24 COL 120 COLON-ALIGNED
+     mach.sch-m-code AT ROW 1.24 COL 116 COLON-ALIGNED
+          LABEL "Schedule Machine"
           VIEW-AS FILL-IN 
-          SIZE 19.6 BY 1
+          SIZE 11 BY 1
+     mach.spare-int-2 AT ROW 1.24 COL 138 COLON-ALIGNED HELP
+          "Enter Machine DMI ID" WIDGET-ID 16
+          LABEL "DMI ID" FORMAT "999"
+          VIEW-AS FILL-IN 
+          SIZE 7 BY 1 TOOLTIP "Machine DMI ID"
      mach.loc AT ROW 2.19 COL 18 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 11 BY 1
@@ -232,14 +239,14 @@ DEFINE FRAME F-Main
      mach.dept[4] AT ROW 2.19 COL 63 COLON-ALIGNED NO-LABEL FORMAT "x(2)"
           VIEW-AS FILL-IN 
           SIZE 6 BY 1
-     mach.d-seq AT ROW 2.19 COL 95 COLON-ALIGNED
+     mach.d-seq AT ROW 2.19 COL 94 COLON-ALIGNED
           LABEL "Sequence"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     mach.m-seq AT ROW 2.19 COL 101 COLON-ALIGNED NO-LABEL
+     mach.m-seq AT ROW 2.19 COL 100 COLON-ALIGNED NO-LABEL
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     cb_industry AT ROW 2.19 COL 120 COLON-ALIGNED HELP
+     cb_industry AT ROW 2.19 COL 116 COLON-ALIGNED HELP
           "Enter whether machine is used for 1=Fold 2=Corr 3=Foam"
      mach.p-type AT ROW 3.14 COL 18 COLON-ALIGNED HELP
           "Enter (R)oll, (S)heet, (B)lank, (Parts) Fed or (A)ssemble Sets"
@@ -250,36 +257,36 @@ DEFINE FRAME F-Main
           SIZE 11 BY 1
      mach.run-spoil AT ROW 3.14 COL 60 COLON-ALIGNED
           VIEW-AS FILL-IN 
-          SIZE 9.2 BY 1
-     mach.mr-waste AT ROW 3.14 COL 95 COLON-ALIGNED
+          SIZE 9 BY 1
+     mach.mr-waste AT ROW 3.14 COL 94 COLON-ALIGNED
           VIEW-AS FILL-IN 
           SIZE 6.8 BY 1
-     tb_plain-jobs AT ROW 3.14 COL 122
+     tb_plain-jobs AT ROW 3.14 COL 118
      tb_obsolete AT ROW 4.1 COL 20
      mach.daily-prod-hours AT ROW 4.1 COL 55 COLON-ALIGNED
           LABEL "Lag Time"
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     mach.therm AT ROW 4.1 COL 76
+     mach.therm AT ROW 4.1 COL 75
           LABEL "Use Lineal Feet in RUN Matrix?"
           VIEW-AS TOGGLE-BOX
           SIZE 41 BY 1
-     mach.gang-jobs AT ROW 4.1 COL 122
+     mach.gang-jobs AT ROW 4.1 COL 118
           VIEW-AS TOGGLE-BOX
           SIZE 19 BY 1
-     mach.lab-rate[1] AT ROW 5.52 COL 17 COLON-ALIGNED
+     mach.lab-rate[1] AT ROW 5.52 COL 18 COLON-ALIGNED
           LABEL "Labor Rate1" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     mach.lab-rate[2] AT ROW 6.48 COL 17 COLON-ALIGNED
+     mach.lab-rate[2] AT ROW 6.48 COL 18 COLON-ALIGNED
           LABEL "Rate2" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     mach.lab-rate[3] AT ROW 7.43 COL 17 COLON-ALIGNED
+     mach.lab-rate[3] AT ROW 7.43 COL 18 COLON-ALIGNED
           LABEL "Rate3" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     mach.lab-drate AT ROW 8.38 COL 17 COLON-ALIGNED
+     mach.lab-drate AT ROW 8.38 COL 18 COLON-ALIGNED
           LABEL "Default"
           VIEW-AS COMBO-BOX INNER-LINES 5
           LIST-ITEMS "1","2","3" 
@@ -289,6 +296,13 @@ DEFINE FRAME F-Main
           LABEL "Min Charge" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
+    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 1 ROW 1 SCROLLABLE 
+         FONT 6.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME F-Main
      mach.mr-crusiz AT ROW 6.48 COL 56 COLON-ALIGNED
           LABEL "Setup Crew"
           VIEW-AS FILL-IN 
@@ -297,42 +311,35 @@ DEFINE FRAME F-Main
           LABEL "Run Crew"
           VIEW-AS FILL-IN 
           SIZE 13 BY 1
-    WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 1 ROW 1 SCROLLABLE 
-         FONT 6.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME F-Main
-     mach.mr-rate AT ROW 5.52 COL 94 COLON-ALIGNED
+     mach.mr-rate AT ROW 5.52 COL 99 COLON-ALIGNED
           LABEL "Setup D.L." FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     mach.mr-varoh AT ROW 6.48 COL 94 COLON-ALIGNED
+     mach.mr-varoh AT ROW 6.48 COL 99 COLON-ALIGNED
           LABEL "Var OH" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     mach.mr-fixoh AT ROW 7.43 COL 94 COLON-ALIGNED
+     mach.mr-fixoh AT ROW 7.43 COL 99 COLON-ALIGNED
           LABEL "Fixed OH" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     mach.mr-trate AT ROW 8.38 COL 94 COLON-ALIGNED
+     mach.mr-trate AT ROW 8.38 COL 99 COLON-ALIGNED
           LABEL "Total" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     mach.run-rate AT ROW 5.52 COL 123 COLON-ALIGNED
+     mach.run-rate AT ROW 5.52 COL 132 COLON-ALIGNED
           LABEL "Run D.L" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     mach.run-varoh AT ROW 6.48 COL 123 COLON-ALIGNED
+     mach.run-varoh AT ROW 6.48 COL 132 COLON-ALIGNED
           LABEL "Var OH" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     mach.run-fixoh AT ROW 7.43 COL 123 COLON-ALIGNED
+     mach.run-fixoh AT ROW 7.43 COL 132 COLON-ALIGNED
           LABEL "Fixed OH" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
-     mach.run-trate AT ROW 8.38 COL 123 COLON-ALIGNED
+     mach.run-trate AT ROW 8.38 COL 132 COLON-ALIGNED
           LABEL "Total" FORMAT ">,>>9.99"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
@@ -381,13 +388,6 @@ DEFINE FRAME F-Main
           LABEL "Slot Size"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
-     mach.max-dep AT ROW 16.86 COL 40 COLON-ALIGNED NO-LABEL
-          VIEW-AS FILL-IN 
-          SIZE 14 BY .81
-     mach.min-run AT ROW 17.67 COL 22 COLON-ALIGNED
-          LABEL "Run Qty" FORMAT ">>>>>>>9"
-          VIEW-AS FILL-IN 
-          SIZE 14 BY .81
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1 SCROLLABLE 
@@ -395,6 +395,13 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     mach.max-dep AT ROW 16.86 COL 40 COLON-ALIGNED NO-LABEL
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
+     mach.min-run AT ROW 17.67 COL 22 COLON-ALIGNED
+          LABEL "Run Qty" FORMAT ">>>>>>>9"
+          VIEW-AS FILL-IN 
+          SIZE 14 BY .81
      mach.max-run AT ROW 17.67 COL 40 COLON-ALIGNED NO-LABEL FORMAT ">>>>>>>9"
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
@@ -421,7 +428,7 @@ DEFINE FRAME F-Main
           LABEL "Ink Waste Lbs/MR"
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
-     mach.col-wastelb AT ROW 14.57 COL 127 COLON-ALIGNED
+     mach.col-wastelb AT ROW 14.57 COL 132 COLON-ALIGNED
           LABEL "Lbs/Color"
           VIEW-AS FILL-IN 
           SIZE 9.2 BY 1
@@ -429,16 +436,16 @@ DEFINE FRAME F-Main
           LABEL "Tandem MR/Plate"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
-     mach.tan-mrf AT ROW 15.52 COL 127 COLON-ALIGNED
+     mach.tan-mrf AT ROW 15.52 COL 132 COLON-ALIGNED
           LABEL "/Fountain"
           VIEW-AS FILL-IN 
           SIZE 8 BY 1
+     ls-limit-lbl AT ROW 9.76 COL 9 COLON-ALIGNED NO-LABEL
      mach.num-wid AT ROW 16.95 COL 99 COLON-ALIGNED
           LABEL "Max Num  Width"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
-     ls-limit-lbl AT ROW 9.76 COL 9 COLON-ALIGNED NO-LABEL
-     mach.num-len AT ROW 16.95 COL 127 COLON-ALIGNED
+     mach.num-len AT ROW 16.95 COL 132 COLON-ALIGNED
           LABEL "Max Num Length"
           VIEW-AS FILL-IN 
           SIZE 4.4 BY 1
@@ -469,13 +476,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 14 BY .81
      "Printing Press" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 9.81 COL 81
-          FGCOLOR 9 
-     "R A T E S" VIEW-AS TEXT
-          SIZE 12 BY .62 AT ROW 5.05 COL 72
-          FGCOLOR 9 
-     "Max" VIEW-AS TEXT
-          SIZE 6 BY .62 AT ROW 9.76 COL 46
+          SIZE 17 BY .62 AT ROW 9.81 COL 84
           FGCOLOR 9 
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -484,6 +485,12 @@ DEFINE FRAME F-Main
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME F-Main
+     "R A T E S" VIEW-AS TEXT
+          SIZE 12 BY .62 AT ROW 5.05 COL 72
+          FGCOLOR 9 
+     "Max" VIEW-AS TEXT
+          SIZE 6 BY .62 AT ROW 9.76 COL 46
+          FGCOLOR 9 
      "Min" VIEW-AS TEXT
           SIZE 5 BY .62 AT ROW 9.76 COL 28
           FGCOLOR 9 
@@ -651,7 +658,11 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN mach.run-varoh IN FRAME F-Main
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN mach.sch-m-code IN FRAME F-Main
+   EXP-LABEL                                                            */
 /* SETTINGS FOR FILL-IN mach.spare-int-1 IN FRAME F-Main
+   EXP-LABEL EXP-FORMAT EXP-HELP                                        */
+/* SETTINGS FOR FILL-IN mach.spare-int-2 IN FRAME F-Main
    EXP-LABEL EXP-FORMAT EXP-HELP                                        */
 /* SETTINGS FOR FILL-IN mach.tan-mrf IN FRAME F-Main
    NO-ENABLE 2 EXP-LABEL                                                */
@@ -678,7 +689,7 @@ ASSIGN
 */  /* FRAME F-Main */
 &ANALYZE-RESUME
 
-
+ 
 
 
 
@@ -764,7 +775,6 @@ DO:
 
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -848,7 +858,6 @@ DO:
       {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -896,7 +905,6 @@ DO:
       {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -943,7 +951,6 @@ DO:
                .
       {&methods/lValidateError.i NO}
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1054,7 +1061,6 @@ DO:
       {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1116,7 +1122,6 @@ DO:
   {&methods/lValidateError.i NO}
 END.
 
-
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -1130,7 +1135,6 @@ DO:
   APPLY "tab" TO SELF.
   RETURN NO-APPLY.
 END.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
@@ -1981,7 +1985,6 @@ PROCEDURE local-update-record :
   IF adm-new-record AND NOT adm-adding-record THEN RUN repo-query (ROWID(mach)).
 
 END PROCEDURE.
-
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

@@ -1,5 +1,5 @@
 &Scoped-define ACTION DELETE
-&Scoped-define DBNAME PDBNAME('EMPTRACK')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME emp_type
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.

@@ -75,6 +75,14 @@ DEFINE VARIABLE find-auto AS LOGICAL NO-UNDO.
 
 /* ***************************  Main Block  *************************** */
 
+ON CTRL-A OF {&BROWSE-NAME} IN FRAME {&FRAME-NAME}
+DO:
+    DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
+    
+    hTable = BUFFER {&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}:HANDLE.
+    RUN system/CallAudit.p ("{&FIRST-TABLE-IN-QUERY-{&BROWSE-NAME}}",hTable,"Browser",PROGRAM-NAME(1)).
+END.
+
 &IF "{&IAMWHAT}" = "" &THEN
   &IF DEFINED(BRWSDEFS) NE 0 &THEN
 {methods/browsers/{&BRWSDEFS}.i}

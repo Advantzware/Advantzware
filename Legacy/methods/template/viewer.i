@@ -21,6 +21,7 @@
 {methods/defines/hndlset.i}
 {methods/defines/noreckey.i}
 {custom/resizdef.i}
+
 /* 2 vars are from addon */
 DEFINE VAR correct-error AS LOG no-undo.
 DEFINE VAR copy-record AS LOG NO-UNDO.
@@ -70,6 +71,14 @@ DEFINE VAR copy-record AS LOG NO-UNDO.
 
 
 /* ***************************  Main Block  *************************** */
+
+ON CTRL-A OF FRAME {&FRAME-NAME}
+DO:
+    DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
+    
+    hTable = BUFFER {&FIRST-EXTERNAL-TABLE}:HANDLE.
+    RUN system/CallAudit.p ("{&FIRST-EXTERNAL-TABLE}",hTable,"Viewer",PROGRAM-NAME(1)).
+END.
 
 {methods/template/primflds.i}
 {methods/enhance.i}
