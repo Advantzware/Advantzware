@@ -709,18 +709,12 @@ FIND oe-ordl WHERE ROWID(oe-ordl) EQ r-current-ordl EXCLUSIVE-LOCK.
         END.
       END.
       DO TRANSACTION:
-        FIND FIRST oe-ordl-whs-item EXCLUSIVE-LOCK
-        WHERE oe-ordl-whs-item.reftable EQ "oe-ordl.whs-item"
-        AND oe-ordl-whs-item.company  EQ oe-ordl.company
-        AND oe-ordl-whs-item.loc      EQ STRING(oe-ordl.ord-no,"9999999999")
-        AND oe-ordl-whs-item.CODE     EQ oe-ordl.i-no
-        AND oe-ordl-whs-item.code2    EQ STRING(oe-ordl.LINE,"9999999999")
-        NO-ERROR.
+        
         IF AVAIL oe-ordl-whs-item THEN DO:
           IF tb_whs-item THEN
-          oe-ordl-whs-item.val[1] = 1.
+          oe-ordl.managed = true.
           ELSE
-          oe-ordl-whs-item.val[1] = 0.
+          oe-ordl.managed = false.
           FIND CURRENT oe-ordl-whs-item NO-LOCK.
         END.
       END.
@@ -5952,16 +5946,10 @@ PROCEDURE whs-item :
 ------------------------------------------------------------------------------*/
   DEF INPUT PARAM ip-int AS INT NO-UNDO.
   RELEASE oe-ordl-whs-item.
-  FIND FIRST oe-ordl-whs-item NO-LOCK
-  WHERE oe-ordl-whs-item.reftable EQ "oe-ordl.whs-item"
-  AND oe-ordl-whs-item.company  EQ oe-ordl.company
-  AND oe-ordl-whs-item.loc      EQ STRING(oe-ordl.ord-no,"9999999999")
-  AND oe-ordl-whs-item.CODE     EQ oe-ordl.i-no
-  AND oe-ordl-whs-item.code2    EQ STRING(oe-ordl.LINE,"9999999999")
-  NO-ERROR.
+  
   IF ip-int EQ 0 THEN DO :
     ASSIGN
-    ll-prev-whs-item = AVAIL oe-ordl-whs-item AND oe-ordl-whs-item.val[1] EQ 1     .
+    ll-prev-whs-item = AVAIL oe-ordl AND oe-ordl.managed = true     .
     set-sv("tb_whs-item", STRING(ll-prev-whs-item,"yes/no") ).
   END.
   ELSE

@@ -2646,16 +2646,9 @@ FUNCTION getMI RETURNS CHARACTER
     DEF BUFFER oe-ordl-whs-item FOR reftable.
 
     lc-result = "".
-    RELEASE oe-ordl-whs-item.
-    FIND FIRST oe-ordl-whs-item NO-LOCK
-      WHERE oe-ordl-whs-item.reftable EQ "oe-ordl.whs-item"
-        AND oe-ordl-whs-item.company  EQ cocode
-        AND oe-ordl-whs-item.loc      EQ STRING(oe-ordl.ord-no,"9999999999")
-        AND oe-ordl-whs-item.code     EQ oe-ordl.i-no
-        AND oe-ordl-whs-item.code2    EQ STRING(oe-ordl.line,"9999999999")
-      NO-ERROR.
+    RELEASE oe-ordl-whs-item.    
     IF AVAIL oe-ordl-whs-item THEN 
-        IF oe-ordl-whs-item.val[1] = 1 THEN
+        IF oe-ordl.managed = true THEN
             lc-result = "X".
         RETURN lc-result.   /* Function return value. */
 

@@ -133,4 +133,19 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*fg-rctd*/
+    METHOD PUBLIC INTEGER OeOrdlWhsItem():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "oe-ordl.whs-item"
+            NO-LOCK:
+            FIND FIRST oe-ordl WHERE oe-ordl.company = (reftable.company)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE oe-ordl THEN    
+            ASSIGN 
+                oe-ordl.managed  = (reftable.val[1] EQ 1)                
+                . 
+            RELEASE oe-ordl.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*oe-ordl*/
 END CLASS.

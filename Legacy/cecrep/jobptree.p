@@ -259,16 +259,10 @@ ASSIGN
           FIND FIRST oe-ordl WHERE oe-ordl.company EQ job-hdr.company
                AND oe-ordl.ord-no  EQ job-hdr.ord-no
                AND oe-ordl.i-no    EQ job-hdr.i-no NO-LOCK NO-ERROR.
-       IF AVAILABLE oe-ordl THEN
-          FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ "oe-ordl.whs-item"
-                         AND reftable.company  EQ oe-ordl.company
-                         AND reftable.loc      EQ STRING(oe-ordl.ord-no,"9999999999")
-                         AND reftable.code     EQ oe-ordl.i-no
-                         AND reftable.code2    EQ STRING(oe-ordl.line,"9999999999")
-                         NO-ERROR.
+       IF AVAILABLE oe-ordl THEN         
 
        ASSIGN
-       v-managed-order = IF AVAILABLE reftable AND reftable.val[1] EQ 1 THEN "MANAGED   WAREHOUSE   ORDER"
+       v-managed-order = IF oe-ordl.managed = true THEN "MANAGED   WAREHOUSE   ORDER"
                          ELSE ""
        v-break = FIRST-OF(job.job-no2).
 
