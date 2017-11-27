@@ -79,8 +79,8 @@ ASSIGN cTextListToSelect = "Order No,Job Number,Due Date,Customer,Name,Rep,PO #,
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Order No,Job Number,Due Date,Customer,Name,Rep,PO #,Description," + 
-                           "Est#,Qty Due,Status,Last Ship ID,Qty OH,Order Date,Item Number,Rel Date," +
-                           "Stat,Order Qty" .
+                           "Est#,Qty Due,Status,Std Cost,Sales $$,GP Dollars,GP%,Last Ship ID".
+                            
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

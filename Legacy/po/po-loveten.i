@@ -289,38 +289,60 @@ FOR EACH po-ordl
 
   ASSIGN
     vsTmpLine = po-ordl.pr-uom + vsTmp-v-sqft
-    v-line-2 = "".
+    v-line-2 = ""
+    cItemNo = "" 
+    v-line-1 = "" .
 
   IF AVAIL ITEM AND ITEM.mat-type = "B" AND ITEM.industry = "2" THEN
   DO:
      RUN sys\inc\decfrac2.p(INPUT po-ordl.s-wid, INPUT 32, OUTPUT v-wid-frac).
      RUN sys\inc\decfrac2.p(INPUT po-ordl.s-len, INPUT 32, OUTPUT v-len-frac).
-     v-line-2 = "W: " + v-wid-frac + " L: " + v-len-frac.
+     RUN sys\inc\decfrac2.p(INPUT v-dep, INPUT 32, OUTPUT v-dep-frac).
+     IF v-wid-frac NE "" THEN
+     v-line-2 = "W: " + v-wid-frac  .
+     IF v-len-frac NE "" THEN
+     v-line-2 = v-line-2 + " L: " + v-len-frac  .
+     IF v-dep-frac NE "" THEN
+         ASSIGN v-line-2 = v-line-2 + " Depth: " + v-dep-frac.
   END.
-  ELSE
-     v-line-2 = po-ordl.i-name.
+     v-line-1 = IF po-ordl.i-name NE "" THEN po-ordl.i-name ELSE "".
+     ASSIGN cItemNo = IF po-ordl.i-no NE "" THEN "Item#: " + po-ordl.i-no ELSE "".
      
   PUT {1} v-ord-qty FORMAT "X(6)" TO 6
-          v-line-2 FORMAT "X(28)" AT 8
+          cItemNo FORMAT "X(23)" AT 8
           v-adder[1] FORMAT "X(9)" AT 37
           v-job AT 47
           po-ordl.cost format ">>,>>9.99<<<" AT 60
           space(1) vsTmpLine
-          po-ordl.dscr[1] FORMAT "X(28)" AT 8
+          v-line-1 FORMAT "x(28)" AT 8
           v-adder[2] FORMAT "X(9)" AT 37
           v-mach[1] FORMAT "X(6)" AT 50
           v-mach[2] FORMAT "X(1)" AT 57
           po-ordl.due-date FORMAT "99/99/99" AT 60
-          v-cost FORMAT "->,>>>,>>9.99<<<" TO 80
-          po-ordl.dscr[2] format "x(28)" at 8.
+          v-cost FORMAT "->,>>>,>>9.99<<<" TO 80 SKIP
+          v-line-2 FORMAT "x(28)" AT 8 
+          v-adder[3] FORMAT "X(9)" AT 37.
 
-  DO v-count = 3 TO 6:
-     IF v-adder[v-count] <> "" THEN
+  
+     IF v-adder[4] <> "" OR po-ordl.dscr[1] NE "" THEN
      DO:
         v-print-lines = v-print-lines + 1.
-        PUT {1} v-adder[v-count] AT 37 SKIP.
+        PUT {1} po-ordl.dscr[1] format "x(28)" at 8
+            v-adder[4] AT 37 SKIP.
      END.
-  END.
+
+     IF v-adder[5] <> "" OR po-ordl.dscr[2] NE "" THEN
+     DO:
+        v-print-lines = v-print-lines + 1.
+        PUT {1} po-ordl.dscr[2] format "x(28)" at 8
+            v-adder[5] AT 37 SKIP.
+     END.
+     IF v-adder[6] <> "" THEN
+     DO:
+        v-print-lines = v-print-lines + 1.
+        PUT {1} v-adder[5] AT 37 SKIP.
+     END.
+
 
   DISPLAY {1}
           string(po-ordl.over-pct,">9.99%") + "/" + string(po-ordl.under-pct,">9.99%") @ v-overrun

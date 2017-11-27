@@ -105,7 +105,7 @@ ASSIGN cTextListToSelect = "CUSTOMER,PO #,SREP,ITEM #,CUST PART #,DESCRIPTION,JO
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "CUSTOMER,PO #,SREP,ITEM #,"
-                         + "DESCRIPTION,WHSE,QTY ORDERED,QTY SHIPPED,"
+                         + "DESCRIPTION,WHSE,QTY ORDERED,QTY SHIPPED,REL#,REL DATE,RELEASE QTY,"
                          + "QTY ON HAND,ORDER PRICE,VALUE".
 
 

@@ -85,19 +85,19 @@ DEF VAR cColumnInit AS LOG INIT YES NO-UNDO.
 
 ASSIGN cTextListToSelect = "Sales Rep,Sales Name,Cust#,Cust Name#,Order PO#,Line PO#,Release PO#," +
                            "Order#,Job#,FG Item#,Item Name,Cust Part#,Ord Date," +
-                           "Order Qty,Inv,Date Inv#,Qty Shipped,Release Qty,Balance Due,Invoice Amt," +
+                           "Order Qty,Inv#,Inv/Rel Date,Qty Shipped,Release Qty,Balance Due,Invoice Amt," +
                            "Qty On-Hand"
        cFieldListToSelect = "sman,sname,cust,cname,ord-po,item-po,rel-po," +
                             "ordjob,jobno,fgitem,i-name,cust-part,ord-date," +
                             "ord-qty,invrel,date-inv,qty-ship,rel-qty,bal-due,inv-amt," +
                             "qty-on-hand" 
-       cFieldLength = "9,25,8,30,15,15,15," + "8,10,15,30,15,8," + "11,7,9,11,11,11,11," + "11"
+       cFieldLength = "9,25,8,30,15,15,15," + "8,10,15,30,15,8," + "11,7,12,11,11,11,11," + "11"
        cFieldType = "c,c,c,c,c,c,c," +  "c,c,c,c,c,c," + "i,i,c,i,i,i,i," + "i" 
     .
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Sales Rep,Order PO#,Line PO#,Release PO#,Order#,Job#,FG Item#,Cust Part#,Ord Date," +
-                           "Order Qty,Inv,Date Inv#,Qty Shipped,Release Qty,Balance Due,Invoice Amt," +
+                           "Order Qty,Inv#,Inv/Rel Date,Qty Shipped,Release Qty,Balance Due,Invoice Amt," +
                            "Qty On-Hand" .
 
 /* _UIB-CODE-BLOCK-END */

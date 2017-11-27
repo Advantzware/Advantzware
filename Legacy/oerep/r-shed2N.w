@@ -89,7 +89,7 @@ ASSIGN cTextListToSelect = "Customer,Ship-To,FOB,City,St,Zip,Customer PO,Order,R
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Customer,Ship-To,FOB,City,St,Zip,Customer PO,Order,R#," +
-                           "FG Item#,Cust Part#,Release Qty,DATE,T,Qty On Hand,Notes" .
+                           "FG Item#,FG Item Name,Cust Part#,Release Qty,DATE,T,Qty On Hand,Notes" .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

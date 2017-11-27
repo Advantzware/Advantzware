@@ -105,7 +105,7 @@ ASSIGN cTextListToSelect = "CUSTOMER,CUST NAME,ITEM #,TAG#,FULL TAG#,FG LOT#,CUS
 {sys/inc/ttRptSel.i}
 
 ASSIGN cTextListToDefault  = "CUSTOMER,CUST NAME,ITEM #,FULL TAG#,FG LOT#,REC DATE,CUST PART#,DESCRIPTION,WHSE,BIN,JOB#," +
-                             "MSF OH,C-UOM,UOM COST,TOTAL COST,LINE PO#,REL QTY" .
+                             "QTY ON HAND,MSF OH,C-UOM,UOM COST,TOTAL COST,LINE PO#,REL QTY" .
 
 
 {sys/inc/oereordr.i}

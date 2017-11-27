@@ -739,7 +739,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   {methods/nowait.i}
 
-APPLY "entry" TO begin_date IN FRAME {&FRAME-NAME}.
+  DO WITH FRAME {&FRAME-NAME}:
+    {custom/usrprint.i}
+    APPLY "entry" TO begin_date.
+  END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1218,6 +1221,7 @@ assign
        IF tb_runExcel THEN
           OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
     END.
+    RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 
 end procedure.
