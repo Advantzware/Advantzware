@@ -877,13 +877,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   {methods/nowait.i}
-
-  /* uncommet this part if the greenbar is needed
-  DO WITH FRAME {&frame-name}:
+  
+  DO WITH FRAME {&FRAME-NAME}:
     {custom/usrprint.i}
-  END.*/
-
-  APPLY "entry" TO begin_tag# IN FRAME {&FRAME-NAME}.
+    APPLY "entry" TO begin_tag#.
+  END.
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1663,14 +1661,12 @@ END.
 
 /* END. /* for each wiptag */  */
 
-RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
-
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
   IF tb_runExcel THEN
     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
 END.
-
+RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

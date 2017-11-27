@@ -723,8 +723,12 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   RUN enable_UI.
 
   {methods/nowait.i}
+  DO WITH FRAME {&FRAME-NAME}:
+    {custom/usrprint.i}
+    APPLY "entry" TO Begin_dept.
+  END.
 
-   APPLY "entry" TO Begin_dept IN FRAME {&FRAME-NAME}.
+   
 
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -1297,7 +1301,7 @@ IF tb_excel THEN DO:
 END.
 
 SESSION:SET-WAIT-STATE ("").
-
+RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 /* end ---------------------------------- copr. 2002 Advanced Software, Inc. */
 
 end procedure.

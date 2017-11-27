@@ -469,6 +469,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN enable_UI.
 
   {methods/nowait.i}
+  DO WITH FRAME {&FRAME-NAME}:
+    {custom/usrprint.i}
+    APPLY "entry" TO CURRENT-WINDOW.
+  END.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -737,6 +741,7 @@ IF v-export THEN DO:
 END.
 
 SESSION:SET-WAIT-STATE("").
+RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 END PROCEDURE.
 

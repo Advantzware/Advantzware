@@ -735,6 +735,10 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
   select-mat:list-items = v-mat-list.
 
   {methods/nowait.i}
+  DO WITH FRAME {&FRAME-NAME}:
+    {custom/usrprint.i}
+    APPLY "entry" TO begin_date.
+  END.
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1179,6 +1183,7 @@ IF tb_excel THEN DO:
 END.
 
 SESSION:SET-WAIT-STATE ("").
+RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 /* end ---------------------------------- copr. 2003 Advanced Software, Inc. */
 
