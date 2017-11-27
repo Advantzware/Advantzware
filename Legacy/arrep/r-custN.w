@@ -120,7 +120,10 @@ ASSIGN cTextListToSelect = "Cust.#,Name,Address 1,Address 2,City,State,Zip,Tel #
 
 {sys/inc/ttRptSel.i}
 ASSIGN cTextListToDefault  = "Cust.#,Name,Type,Active,Address 1,Address 2,City,State,Zip,"
-                           + "Tel #,Contact,Rep,SalesRep Name,Disc,Cust Price Lvl,Tax Resale ID#,Exp.".
+                           + "Tel #,Contact,Rep,SalesRep Name,Disc,Cust Price Lvl,Tax Resale ID#,Exp.,FAX #,AutoReprice,"
+                           + "EDI,Bal Method,Mfg/Whse Days,Pallet,Case/Bundle,Stmnt Freq,Terr,Cr. Acct #,Ord Loc,Carrier,Del Zone,Cr Rating,"
+                           + "Hold Days/Inv,Credit Lim,Partial Ship,Fr Pay Meth,Order Lim,Taxable,FOB,Cred Hold,"
+                           + "TAX Code,Fin Chrgs,Inv Per PO,Terms,Credit Hold Term,Date Added,MarkUp,Underrun,Overrun,E-Mail/Web Address,Load Tags"  .
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

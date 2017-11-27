@@ -68,7 +68,7 @@ ASSIGN cTextListToSelect = "Job#,Order#,Cust#,Cust Name#,Item Number,Item Name,C
     .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault  = "Job#,Order#,Cust#,Item Number,Cust Po#,Qty Ordered,Order Date," +
+ASSIGN cTextListToDefault  = "Job#,Order#,Cust#,Item Number,Item Name,Cust Po#,Qty Ordered,Order Date," +
     	                   "Due Date,Cust Part#,Est#,Die#,Cad#" .
 
 /* _UIB-CODE-BLOCK-END */

@@ -72,7 +72,7 @@ DEF VAR iColumnLength AS INT NO-UNDO.
 DEF VAR cTextListToDefault AS cha NO-UNDO.
 
 ASSIGN cTextListToSelect = "Catgy,Dly Sq Ft/M,Dly Amount,Dly $/MSF,"
-              + "PTD Sq Ft/M,PTD Amount,PTD $/MSF,YTD Sq Ft/M,Daily Total,YTD $/MSF"
+              + "PTD Sq Ft/M,PTD Amount,PTD $/MSF,YTD Sq Ft/M,YTD Amount,YTD $/MSF"
        cFieldListToSelect = "cat,dly-sf,dly-amt,dly-msf," +
                             "ptd-sf,ptd-amt,ptd-msf,ytd-sf,ytd-amt,ytd-msf"
        cFieldLength = "5,12,13,13," + "12,13,13,12,13,13" 
@@ -1266,7 +1266,7 @@ assign
           .        
           cSlist = cSlist + ttRptSelected.FieldList + ",".
 
-        IF LOOKUP(ttRptSelected.TextList, "Dly Sq Ft/M,Dly Amount,Dly $/MSF,PTD Sq Ft/M,PTD Amount,PTD $/MSF,YTD Sq Ft/M,Daily Total,YTD $/MSF") <> 0    THEN
+        IF LOOKUP(ttRptSelected.TextList, "Dly Sq Ft/M,Dly Amount,Dly $/MSF,PTD Sq Ft/M,PTD Amount,PTD $/MSF,YTD Sq Ft/M,YTD Amount,YTD $/MSF") <> 0    THEN
          ASSIGN
          str-line = str-line + FILL("-",ttRptSelected.FieldLength) + " " .
         ELSE
