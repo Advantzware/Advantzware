@@ -362,7 +362,7 @@ CASE ip-nk1-value:
         INPUT NO /* Logical value */).
     WHEN "ImportLog" THEN   
     RUN sys/inc/addnk1.p (INPUT cocode, INPUT ip-nk1-value, INPUT NO /* Prompt? */,
-        INPUT "Logfile for Importer",
+        INPUT "Default Folder for Importer Logfile",
         INPUT "" /* Char Value */, INPUT 0 /* Int value */,
         INPUT NO /* Logical value */).
     WHEN "RelSkipRecalc" THEN   
