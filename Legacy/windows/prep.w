@@ -489,6 +489,39 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-change-page W-Win 
+PROCEDURE local-change-page :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+DEF VAR iCurrentPage AS INT.
+DEF VAR l-is-in-update AS LOG NO-UNDO.
+  /* Code placed here will execute PRIOR to standard behavior. */
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'change-page':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+
+  RUN GET-ATTRIBUTE('CURRENT-PAGE').
+  iCurrentPage = INT(RETURN-VALUE).
+  
+  RUN check-update-mode IN h_prep-2 (OUTPUT l-is-in-update) NO-ERROR.
+  IF l-is-in-update AND iCurrentPage = 1 THEN do:
+      MESSAGE 
+        "You must complete or cancel the update before leaving the current records ."
+            VIEW-AS ALERT-BOX WARNING.
+
+  RUN select-page IN THIS-PROCEDURE ( 2 ).
+  END.
+   
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-exit W-Win 
 PROCEDURE local-exit :
 /* -----------------------------------------------------------
