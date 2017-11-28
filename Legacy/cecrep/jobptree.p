@@ -440,6 +440,8 @@ ASSIGN
                      ELSE "COMBO"
        lv-est-type = lv-est-type + "   FORM " + string(b-eb.form-no) + " OF " + string(xest.form-qty) 
                     + "  BLANK " + STRING(b-eb.blank-no) + " OF " + STRING(xef.blank-qty).
+       
+       cJobNumber = v-job-prt + "-" + string(b-eb.form-no,"99") + "-" + STRING(b-eb.blank-no,"99") .
 
        FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ 'stackpat'
                            AND reftable.company EQ ''
@@ -451,7 +453,7 @@ ASSIGN
        PUT "<P12><B><C94>JOB TICKET" SKIP. /*AT 140*/  /*caps(SUBSTRING(v-fg,1,1)) FORM "x" AT 40*/       
       
        PUT UNFORMATTED "<r-2><UNITS=INCHES><C75><FROM><c92><r+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
-              v-job-prt ">" SKIP "<r-1>".
+              cJobNumber ">" SKIP "<r-1>".
        PUT
        "<#1><C1><FROM><C106><R+45><RECT><||3><C80><P10></B>" v-qa-text "<B>"
        "<=1><R-2><C33><B><P12>" v-managed-order "</B>"
@@ -1013,7 +1015,7 @@ ASSIGN
             "<=11><C60><FROM><R+3><C60><LINE><||3>"
             "<=11><R+3><C1><FROM><C106><LINE><||3>"
             "<=11>Job # <C30> Estimate # <C60> Cust Part #"  SKIP
-            "<P12><C12>" v-job-prt 
+            "<P12><C12>" cJobNumber FORMAT "x(16)"
             "<C40>" v-est-no
             "<C70>" lv-part-no SKIP /*(2)*/.
 
