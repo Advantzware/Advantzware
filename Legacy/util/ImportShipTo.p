@@ -55,6 +55,7 @@ DEFINE TEMP-TABLE ttImportShipTo
     FIELD Billable            AS LOGICAL 
     .
 
+DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 1. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
 
 /* ********************  Preprocessor Definitions  ******************** */
@@ -77,6 +78,7 @@ PROCEDURE pAddRecord:
     DEFINE OUTPUT PARAMETER oplValid AS LOGICAL NO-UNDO.
     DEFINE OUTPUT PARAMETER opcNote AS CHARACTER NO-UNDO.
 
+    DEFINE VARIABLE hdTempTableBuffer AS HANDLE.
     DEFINE VARIABLE cData AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-ttImportShipTo FOR ttImportShipto.
 
@@ -87,154 +89,19 @@ PROCEDURE pAddRecord:
     FOR EACH ttImportMap
         WHERE ttImportMap.cType EQ 'ShipTo':
         cData = ipcData[ttImportMap.iImportIndex].
-        /*Refactor - Can you refence a Temp-table field in a buffer by name or index?*/
-        CASE ttImportMap.cLabel:
-            WHEN "CustomerID" THEN 
-                DO:
-                    ttImportShipTo.CustomerID = cData.
-                END.
-            WHEN "ShipToID" THEN 
-                DO:
-                    ttImportShipTo.ShipToID = cData.
-                END.
-            WHEN "ShipName" THEN 
-                DO:
-                    ttImportShipTo.ShipName = cData.
-                END.
-            WHEN "ShipAddress1" THEN 
-                DO:
-                    ttImportShipTo.ShipAddress1 = cData.
-                END.
-            WHEN "ShipAddress2" THEN 
-                DO:
-                    ttImportShipTo.ShipAddress2 = cData.
-                END.
-            WHEN "ShipCity" THEN 
-                DO:
-                    ttImportShipTo.ShipCity = cData.
-                END.
-            WHEN "ShipState" THEN 
-                DO:
-                    ttImportShipTo.ShipState = cData.
-                END.
-            WHEN "ShipCode" THEN 
-                DO:
-                    ttImportShipTo.ShipCode = cData.
-                END.
-            WHEN "Contact" THEN 
-                DO:
-                    ttImportShipTo.Contact = cData.
-                END.
-            WHEN "PhoneArea" THEN 
-                DO:
-                    ttImportShipTo.PhoneArea = cData.
-                END.  
-            WHEN "Phone" THEN 
-                DO:
-                    ttImportShipTo.Phone = cData.
-                END.
-            WHEN "Fax" THEN 
-                DO:
-                    ttImportShipTo.Fax = cData.
-                END.
-            WHEN "SalesRep" THEN 
-                DO:
-                    ttImportShipTo.SalesRep = cData.
-                END.
-            WHEN "TaxCode" THEN 
-                DO:
-                    ttImportShipTo.TaxCode = cData.
-                END.
-            WHEN "Note1" THEN 
-                DO:
-                    ttImportShipTo.Note1 = cData.
-                END.
-            WHEN "Note2" THEN 
-                DO:
-                    ttImportShipTo.Note2 = cData.
-                END.
-            WHEN "Note3" THEN 
-                DO:
-                    ttImportShipTo.Note3 = cData.
-                END.
-            WHEN "Note4" THEN 
-                DO:
-                    ttImportShipTo.Note4 = cData.
-                END.
-            WHEN "Warehouse" THEN 
-                DO:
-                    ttImportShipTo.Warehouse = cData.
-                END.
-            WHEN "Bin" THEN 
-                DO:
-                    ttImportShipTo.Bin = cData.
-                END.
-            WHEN "Carrier" THEN 
-                DO:
-                    ttImportShipTo.Carrier = cData.
-                END.
-            WHEN "Zone" THEN 
-                DO:
-                    ttImportShipTo.Zone = cData.
-                END.
-            WHEN "Pallet" THEN 
-                DO:
-                    ttImportShipTo.Pallet = cData.
-                END.
-            WHEN "ShipperID" THEN 
-                DO:
-                    ttImportShipTo.ShipperID = cData.
-                END.
-            WHEN "MemberID" THEN 
-                DO:
-                    ttImportShipTo.MemberID = cData.
-                END.
-            WHEN "DockID" THEN 
-                DO:
-                    ttImportShipTo.DockID = cData.
-                END.
-            WHEN "DockHours" THEN 
-                DO:
-                    ttImportShipTo.DockHours = cData.
-                END.
-            WHEN "Charge" THEN 
-                DO:
-                    ttImportShipTo.Charge = DEC(cData).
-                END.
-            WHEN "DaysTransit" THEN 
-                DO:
-                    ttImportShipTo.DaysTransit = DEC(cData).
-                END.
-            WHEN "DaysSamples" THEN 
-                DO:
-                    ttImportShipTo.DaysSamples = INT(cData).
-                END. 
-            WHEN "DaysDockAppt" THEN 
-                DO:
-                    ttImportShipTo.DaysDockAppt = INT(cData).
-                END.    
-            WHEN "DaysEarliestAllowed" THEN 
-                DO:
-                    ttImportShipTo.DaysEarliestAllowed = INT(cData).
-                END.
-            WHEN "DaysLatestAllowed" THEN 
-                DO:
-                    ttImportShipTo.DaysLatestAllowed = INT(cData).
-                END.
-            WHEN "ShipByCaseAllowed" THEN 
-                DO:
-                    ttImportShipTo.ShipByCaseAllowed = cData BEGINS "Y".
-                END.
-            WHEN "Broker" THEN 
-                DO:
-                    ttImportShipTo.Broker = cData BEGINS "Y".
-                END.
-            WHEN "Billable" THEN 
-                DO:
-                    ttImportShipTo.Billable = cData BEGINS "Y".
-                END. 
-        END CASE. 
-       
+        hdTempTableBuffer = TEMP-TABLE ttImportShipTo:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(ttImportMap.iIndex + giIndexOffset):HANDLE.
+        CASE ttImportMap.cDataType:
+            WHEN "integer" THEN 
+                ASSIGN hdTempTableBuffer:BUFFER-VALUE = INT(cData).
+            WHEN "logical" THEN 
+                ASSIGN hdTempTableBuffer:BUFFER-VALUE = cData BEGINS "Y".
+            WHEN "decimal" THEN 
+                ASSIGN hdTempTableBuffer:BUFFER-VALUE = DEC(cDaTa).
+            WHEN "date" THEN 
+                ASSIGN hdTempTableBuffer:BUFFER-VALUE = DATE(cData). 
+            OTHERWISE 
+                ASSIGN hdTempTableBuffer:BUFFER-VALUE = cData.
+        END CASE.              
     END.
     IF oplValid THEN 
     DO:
@@ -252,7 +119,7 @@ PROCEDURE pAddRecord:
     END.
     IF oplValid THEN 
     DO:
-        IF ttImportShipTo.Company EQ '' THEN 
+        IF ttImportShipTo.ShipToID EQ '' THEN 
             ASSIGN 
                 oplValid = NO
                 opcNote  = "Key Field Blank: ShipToID".
@@ -421,25 +288,17 @@ PROCEDURE pInitialize:
     DEFINE VARIABLE cWidths    AS CHARACTER NO-UNDO.
     DEFINE VARIABLE cFormats   AS CHARACTER NO-UNDO.
     DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
-
+    DEFINE VARIABLE iIndexStart AS INTEGER NO-UNDO.
+    
     EMPTY TEMP-TABLE ttImportShipTo.
     EMPTY TEMP-TABLE ttImportMap.
     
-/*    ASSIGN                                                                                                               */
-/*    cFields    = "Customer,ShipTo,Name,Address1,Address2,City,State,Code,Contact,PhoneArea,Phone,Fax,SalesRep,TaxCode," +*/
-/*                   "Note1,Note2,Note3,Note4," +                                                                          */
-/*                   "Warehouse,Bin,Carrier,Zone,Pallet,ShipperID,MemberID,JDEdwardsID,DockID,DockHours,Charge,"+          */
-/*                   "TransitDays,Samples,DockAppt,EarliestAllowed,LatestAllowed,ShipByCase,Broker,Billable"               */
-/*    cDataTypes = "C,C,C,C,C,C,C,C,C,I,I,I,C,C," +                                                                        */
-/*                  "C,C,C,C," +                                                                                           */
-/*                  "C,C,C,C,C,C,C,C,C,C,D," +                                                                             */
-/*                  "I,I,I,I,I,L,L,L"                                                                                      */
-    cWidths    = "60,150,150,150,150,150,150,50,150,50,50,50,60,60," +
+    iIndexStart = 1 + giIndexOffset.
+    cWidths    = "60,60,150,150,150,150,150,50,150,50,50,50,60,60," +
                   "150,150,150,150," +
                   "60,60,60,60,60,60,60,60,60,60,60," +
                   "60,60,60,60,60,60,60,60"
-
-    .
+                  .
 
     IF ipcLoadFile EQ '' THEN 
     DO:
@@ -449,7 +308,7 @@ PROCEDURE pInitialize:
             cFormats = ""
             cLabels = ""
             .
-        DO iIndex = 2 TO TEMP-TABLE ttImportShipTo:DEFAULT-BUFFER-HANDLE:NUM-FIELDS:
+        DO iIndex = iIndexStart TO TEMP-TABLE ttImportShipTo:DEFAULT-BUFFER-HANDLE:NUM-FIELDS:
             ASSIGN 
                 cFields = cFields + TEMP-TABLE ttImportShipTo:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):NAME + ","
                 cDataTypes = cDataTypes + TEMP-TABLE ttImportShipTo:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(iIndex):DATA-TYPE + ","
@@ -459,6 +318,12 @@ PROCEDURE pInitialize:
             
         
         END.
+        ASSIGN 
+            cFields = TRIM(cFields,",")
+            cDataTypes = TRIM(cDataTypes,",")
+            cFormats = TRIM(cFormats,",")
+            cLabels = TRIM(cLabels,",")
+            .
         DO iIndex = 1 TO NUM-ENTRIES(cFields):
             CREATE ttImportMap.
             ASSIGN 
@@ -524,7 +389,7 @@ FOR EACH ttImportShipTo NO-LOCK:
         shipto.loc = ttImportShipTo.Warehouse
         shipto.loc-bin = ttImportShipto.Bin
         shipto.carrier = ttImportShipTo.Carrier
-        shipto.del-zone = ttImportShipto.Zone
+        shipto.dest-code = ttImportShipto.Zone
         shipto.pallet = ttImportShipTo.Pallet
         shipto.spare-char-4 = ttImportShipTo.ShipperID
         shipto.spare-char-5 = ttImportShipTo.MemberID

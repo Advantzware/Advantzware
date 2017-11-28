@@ -73,7 +73,7 @@ ASSIGN cTextListToSelect = "Customer #,customer Name,Ship To #,Ship To Name,Addr
       cFieldListToSelect = "cust-no,cust-name,ship-id,ship-name,ship-addr[1],ship-addr[2],contact,ship-city,ship-state,ship-zip,phone,fax,tax-code,loc,loc-bin,carrier," +
                            "dest-code,pallet,broker,bill,spare-char-4,spare-char-5,dock-loc,dock-hour,del-chg,del-time,spare-int-1," +
                            "spare-int-2,spare-int-3,spare-int-4,ship-meth,notes[1],notes[2],notes[3],notes[4],salrepship,salrepcust,jd-edw,man-tax," +
-                           "area-code,sman" .
+                           "area-code,spare-char-1" .
 {sys/inc/ttRptSel.i}
 
     ASSIGN cTextListToDefault = "Customer #,Ship To #,Ship To Name,Address 1,Address 2,City,State,Zip,Contact,Area Code,Phone,Fax,Sales Rep Code (ShipTo),Tax Code," +
