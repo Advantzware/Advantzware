@@ -332,7 +332,10 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL BROWSE-2 D-Dialog
 ON MOUSE-SELECT-DBLCLICK OF BROWSE-2 IN FRAME D-Dialog
 DO:
-  IF USERID("nosweat") EQ "asi" AND
+  FIND FIRST users NO-LOCK WHERE 
+         users.user_id EQ USERID(LDBNAME(1)) 
+         NO-ERROR.
+  IF AVAIL users AND users.securityLevel GT 899  AND
     AVAILABLE tt-mat-tran THEN DO:
 
     /*  RUN windows/ITEM.w .*/
@@ -542,7 +545,10 @@ FRAME {&FRAME-NAME}:TITLE = "Job #: " + ip-job-no + "-" + STRING(ip-job-no2)
 
 btn_dril-dwn:SENSITIVE = YES .
 
-IF USERID("NOSWEAT") EQ "ASI" THEN
+FIND FIRST users NO-LOCK WHERE 
+         users.user_id EQ USERID(LDBNAME(1)) 
+         NO-ERROR.
+IF AVAIL users AND users.securityLevel GT 899 THEN
    ASSIGN
       btn_add:SENSITIVE = YES
       btn_add:HIDDEN = NO
