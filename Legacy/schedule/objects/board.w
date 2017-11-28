@@ -828,7 +828,7 @@ DEFINE VARIABLE resourceList AS CHARACTER
 DEFINE VARIABLE msg AS CHARACTER 
      VIEW-AS EDITOR
      SIZE 54 BY 14.52
-     FGCOLOR 15 FONT 6 NO-UNDO.
+     FGCOLOR 14 FONT 6 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -981,12 +981,12 @@ DEFINE FRAME boardFrame
          AT COL 1 ROW 1 SCROLLABLE .
 
 DEFINE FRAME msgFrame
-     msg AT ROW 1.95 COL 61 NO-LABEL
+     msg AT ROW 1.48 COL 3 NO-LABEL
     WITH 1 DOWN KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 28 ROW 3.38
          SIZE 130 BY 24.38
-         BGCOLOR 1 
+         BGCOLOR 0 FGCOLOR 14 
          TITLE BGCOLOR 1 "Scheduler Loading ... One Moment Please ...".
 
 
