@@ -749,10 +749,15 @@ PROCEDURE pSetType :
     DEFINE VARIABLE hdColumn AS HANDLE.
     DEFINE VARIABLE iWidth   AS INTEGER   NO-UNDO.
     DEFINE VARIABLE cFormat  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iColumnIndex AS INTEGER NO-UNDO.
 
     RUN pSetType IN ghdImportProcs (ipcTypeToSet).
     hdBrowse = brPreview:HANDLE IN FRAME {&FRAME-NAME}.
-
+    
+    DO iColumnIndex = 3 TO hdBrowse:NUM-COLUMNS:
+        hdColumn = hdBrowse:GET-BROWSE-COLUMN (iColumnIndex).
+        hdColumn:LABEL = "".
+    END.
     FOR EACH ttImportMap
         WHERE ttImportMap.cType EQ ipcTypeToSet:
         hdColumn = hdBrowse:GET-BROWSE-COLUMN (ttImportMap.iImportIndex + 2).
