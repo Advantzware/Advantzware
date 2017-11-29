@@ -32,14 +32,7 @@ IF AVAIL itemfg THEN RUN fg/makenote.p (BUFFER {&TABLENAME},
                                         YES,
                                         itemfg.rec_key).
 
-FOR EACH oe-ordl-q-no
-    WHERE oe-ordl-q-no.reftable EQ "oe-ordl.q-no"
-      AND oe-ordl-q-no.company  EQ {&TABLENAME}.company
-      AND oe-ordl-q-no.loc      EQ STRING({&TABLENAME}.ord-no,"9999999999")
-      AND oe-ordl-q-no.code     EQ {&TABLENAME}.i-no
-      AND oe-ordl-q-no.code2    EQ STRING({&TABLENAME}.line,"9999999999"):
-  DELETE oe-ordl-q-no.
-END.
+
 
 
 

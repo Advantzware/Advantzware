@@ -138,10 +138,47 @@ CLASS RefTableMigration:
         FOR EACH reftable WHERE reftable.reftable = "oe-ordl.whs-item"
             NO-LOCK:
             FIND FIRST oe-ordl WHERE oe-ordl.company = (reftable.company)
+                                AND oe-ordl.ord-no = INT(reftable.loc)
+                                AND oe-ordl.i-no = (reftable.code)
+                                AND oe-ordl.line = INT(reftable.code2)
                 EXCLUSIVE-LOCK NO-ERROR.
             IF AVAILABLE oe-ordl THEN    
             ASSIGN 
                 oe-ordl.managed  = (reftable.val[1] EQ 1)                
+                . 
+            RELEASE oe-ordl.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*oe-ordl*/
+    METHOD PUBLIC INTEGER OeOrdWhsOrder():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "oe-ord.whs-order"
+            NO-LOCK:
+            FIND FIRST oe-ord WHERE oe-ordl.company = (reftable.company)
+                                AND oe-ordl.ord-no = INT(reftable.loc)                                
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE oe-ord THEN    
+            ASSIGN 
+                oe-ord.managed  = (reftable.val[1] EQ 1)                
+                . 
+            RELEASE oe-ord.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*oe-ord*/
+    METHOD PUBLIC INTEGER OeOrdlQNo():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "oe-ordl.q-no"                            
+            NO-LOCK:
+            FIND FIRST oe-ordl WHERE oe-ordl.company = (reftable.company)
+                                AND oe-ordl.ord-no = INT(reftable.loc)
+                                AND oe-ordl.i-no = (reftable.code)
+                                AND oe-ordl.line = INT(reftable.code2)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE oe-ordl THEN    
+            ASSIGN 
+                oe-ordl.q-no  = INT(reftable.val[1] EQ 1)                
                 . 
             RELEASE oe-ordl.      
             iCnt = iCnt + 1.                 

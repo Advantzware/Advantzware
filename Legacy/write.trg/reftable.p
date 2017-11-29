@@ -20,21 +20,7 @@ DISABLE TRIGGERS FOR LOAD OF b-ref.
 DISABLE TRIGGERS FOR LOAD OF po-ord.
 DISABLE TRIGGERS FOR LOAD OF po-ordl.
 
-IF {&TABLENAME}.reftable EQ "oe-ordl.q-no" THEN
-FOR EACH oe-ord
-    WHERE oe-ord.company EQ {&TABLENAME}.company
-      AND oe-ord.ord-no  EQ INT({&TABLENAME}.loc)
-    NO-LOCK:
 
-  FIND oe-ordl OF oe-ord
-      WHERE oe-ordl.i-no EQ {&TABLENAME}.code
-      NO-LOCK NO-ERROR.
-  IF AVAIL oe-ordl THEN {&TABLENAME}.code2 = STRING(oe-ordl.line,"9999999999").
-
-  LEAVE.
-END.
-
-ELSE
 IF LOOKUP({&TABLENAME}.reftable,"EST-MISC,MACH-CREW") GT 0 THEN DO:
   IF {&TABLENAME}.reftable EQ "EST-MISC" THEN DO:
     lv-est-no = "".
