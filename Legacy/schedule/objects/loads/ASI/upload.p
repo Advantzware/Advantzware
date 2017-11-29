@@ -551,82 +551,78 @@ PROCEDURE getConfiguration:
 END PROCEDURE.
 
 PROCEDURE pHTMLPages:
-    DEFINE VARIABLE cResource AS CHARACTER NO-UNDO.
     DEFINE VARIABLE lAltLine  AS LOGICAL   NO-UNDO.
     DEFINE VARIABLE cBGColor  AS CHARACTER NO-UNDO.
-    DEFINE VARIABLE cCompany  AS CHARACTER NO-UNDO.
     
-    cCompany = ENTRY(1,ttblJob.keyValue).
-    INPUT FROM VALUE (SEARCH ('{&data}/' + ID + '/resourceList.dat')) NO-ECHO.
-    IMPORT ^.
-    REPEAT:
-        IMPORT cResource.
-        FIND FIRST mach NO-LOCK 
-             WHERE mach.company EQ cCompany
-               AND mach.m-code  EQ cResource
-             NO-ERROR.
-        OUTPUT TO VALUE(htmlPageLocation + '\' + cResource + '.htm').
-        PUT UNFORMATTED
-            '<html>' SKIP
-            '<head>' SKIP
-            '<title>Operation: ' cResource (IF AVAILABLE mach THEN ' - ' + mach.m-dscr ELSE '') '</title>' SKIP
-            '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' SKIP
-            '<meta http-equiv="Refresh" content="120">' SKIP
-            '</head>' SKIP
-            '<a name="Top">' SKIP
-            '<form>' SKIP
-            '<fieldset>' SKIP
-            '<legend>Operation: <b><font color="DC143C">' cResource (IF AVAILABLE mach THEN ' - ' + mach.m-dscr ELSE '')
-            '</font></b> (updated ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')'
-            '~&nbsp;</legend>' SKIP
-            '<table border="1" cellspacing="0" cellpadding="1" width="100%">' SKIP
-            '  <tr>' SKIP
-            '    <td bgcolor="#CCCCCC" align="center" nowrap><b>Seq</b></td>' SKIP
-            '    <td bgcolor="#CCCCCC" nowrap><b>Job</b></td>' SKIP
-            '    <td bgcolor="#CCCCCC" nowrap><b>Customer</b></td>' SKIP
-            '    <td bgcolor="#CCCCCC" nowrap><b>Item</b></td>' SKIP
-            '    <td bgcolor="#CCCCCC" align="right" nowrap><b>Run Qty</b></td>' SKIP
-            '    <td bgcolor="#CCCCCC" align="center" nowrap><b>Due Date</b></td>' SKIP
-            '    <td bgcolor="#CCCCCC" align="center" nowrap><b>Start Date</b></td>' SKIP
-            '    <td bgcolor="#CCCCCC" align="right" nowrap><b>Time</b></td>' SKIP
-            '    <td bgcolor="#CCCCCC" align="center" nowrap><b>End Date</b></td>' SKIP 
-            '    <td bgcolor="#CCCCCC" align="right" nowrap><b>Time</b></td>' SKIP 
-            '  </tr>' SKIP
-            .
-        lAltLine = YES.
-        FOR EACH ttblJob NO-LOCK
-            WHERE ttblJob.resource EQ cResource
-            BREAK BY ttblJob.jobSequence
-                  BY ttblJob.jobSort
-            :
-            ASSIGN 
-                lAltLine = NOT lAltLine
-                cBGColor = IF lAltLine THEN ' bgcolor="D1FCC5"' ELSE ''
-                .
+    FOR EACH ttblJob NO-LOCK
+        BREAK BY ttblJob.resource
+              BY ttblJob.jobSequence
+              BY ttblJob.jobSort
+        :
+        IF FIRST-OF(ttblJob.resource) THEN DO:
+            FIND FIRST mach NO-LOCK 
+                 WHERE mach.company EQ ENTRY(1,ttblJob.keyValue)
+                   AND mach.m-code  EQ ttblJob.resource
+                 NO-ERROR.
+            OUTPUT TO VALUE(htmlPageLocation + '\' + ttblJob.resource + '.htm').
             PUT UNFORMATTED
-                '  <tr>' SKIP
-                '    <td' cBGColor ' align="center" nowrap>' ttblJob.jobSequence '</td>' SKIP
-                '    <td' cBGColor ' nowrap><b>' ttblJob.jobSort '</b></td>' SKIP
-                '    <td' cBGColor ' nowrap>' ttblJob.userField02 '</td>' SKIP
-                '    <td' cBGColor ' nowrap>' ttblJob.userField09 '</td>' SKIP
-                '    <td' cBGColor ' align="right" nowrap>' ttblJob.userField15 '</td>' SKIP
-                '    <td' cBGColor ' align="center" nowrap>' STRING(ttblJob.dueDate,'99.99.9999') '</td>' SKIP
-                '    <td' cBGColor ' align="center" nowrap>' STRING(ttblJob.startDate,'99.99.9999') '</td>' SKIP
-                '    <td' cBGColor ' align="right" nowrap>' STRING(ttblJob.startTime,"hh:mm:ss am") '</td>' SKIP
-                '    <td' cBGColor ' align="center" nowrap>' STRING(ttblJob.endDate,'99.99.9999') '</td>' SKIP 
-                '    <td' cBGColor ' align="right" nowrap>' STRING(ttblJob.endTime,"hh:mm:ss am") '</td>' SKIP 
-                '  </tr>' SKIP
+                '<html>' SKIP
+                '<head>' SKIP
+                '<title>Operation: ' ttblJob.resource (IF AVAILABLE mach THEN ' - ' + mach.m-dscr ELSE '') '</title>' SKIP
+                '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' SKIP
+                '<meta http-equiv="Refresh" content="120">' SKIP
+                '</head>' SKIP
+                '<a name="Top"></a>' SKIP
+                '<form>' SKIP
+                '<fieldset>' SKIP
+                '<legend>Operation: <b><font color="DC143C">' ttblJob.resource (IF AVAILABLE mach THEN ' - ' + mach.m-dscr ELSE '')
+                '</font></b> (updated ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')'
+                '~&nbsp;</legend>' SKIP
+                '  <table border="1" cellspacing="0" cellpadding="1" width="100%">' SKIP
+                '    <tr>' SKIP
+                '      <td bgcolor="#CCCCCC" align="center" nowrap><b>Seq</b></td>' SKIP
+                '      <td bgcolor="#CCCCCC" nowrap><b>Job</b></td>' SKIP
+                '      <td bgcolor="#CCCCCC" nowrap><b>Customer</b></td>' SKIP
+                '      <td bgcolor="#CCCCCC" nowrap><b>Item</b></td>' SKIP
+                '      <td bgcolor="#CCCCCC" align="right" nowrap><b>Run Qty</b></td>' SKIP
+                '      <td bgcolor="#CCCCCC" align="center" nowrap><b>Due Date</b></td>' SKIP
+                '      <td bgcolor="#CCCCCC" align="center" nowrap><b>Start Date</b></td>' SKIP
+                '      <td bgcolor="#CCCCCC" align="right" nowrap><b>Time</b></td>' SKIP
+                '      <td bgcolor="#CCCCCC" align="center" nowrap><b>End Date</b></td>' SKIP 
+                '      <td bgcolor="#CCCCCC" align="right" nowrap><b>Time</b></td>' SKIP 
+                '    </tr>' SKIP
                 .
-        END. /* each ttbljob */
-        PUT UNFORMATTED
-            '</table>' SKIP
-            '<div align="left"><a href="#Top">Top</a>' SKIP
-            '<div align="right">~&copy; Advantzware, Inc., All Rights Reserved</div>' SKIP
-            '</fieldset>' SKIP
-            '</form>' SKIP
-            '</html>' SKIP
+            lAltLine = YES.
+        END. /* if first-of */
+        ASSIGN 
+            lAltLine = NOT lAltLine
+            cBGColor = IF lAltLine THEN ' bgcolor="D1FCC5"' ELSE ''
             .
-        OUTPUT CLOSE.
-    END. /* repeat */
+        PUT UNFORMATTED
+            '    <tr>' SKIP
+            '      <td' cBGColor ' align="center" nowrap>' ttblJob.jobSequence '</td>' SKIP
+            '      <td' cBGColor ' nowrap><b>' ttblJob.jobSort '</b></td>' SKIP
+            '      <td' cBGColor ' nowrap>' ttblJob.userField02 '</td>' SKIP
+            '      <td' cBGColor ' nowrap>' ttblJob.userField09 '</td>' SKIP
+            '      <td' cBGColor ' align="right" nowrap>' ttblJob.userField15 '</td>' SKIP
+            '      <td' cBGColor ' align="center" nowrap>' STRING(ttblJob.dueDate,'99.99.9999') '</td>' SKIP
+            '      <td' cBGColor ' align="center" nowrap>' STRING(ttblJob.startDate,'99.99.9999') '</td>' SKIP
+            '      <td' cBGColor ' align="right" nowrap>' STRING(ttblJob.startTime,"hh:mm:ss am") '</td>' SKIP
+            '      <td' cBGColor ' align="center" nowrap>' STRING(ttblJob.endDate,'99.99.9999') '</td>' SKIP 
+            '      <td' cBGColor ' align="right" nowrap>' STRING(ttblJob.endTime,"hh:mm:ss am") '</td>' SKIP 
+            '    </tr>' SKIP
+            .
+        IF LAST-OF(ttblJob.resource) THEN DO:
+            PUT UNFORMATTED
+                '  </table>' SKIP
+                '  <div align="left"><a href="#Top">Top</a>' SKIP
+                '  <div align="right">~&copy; Advantzware, Inc., All Rights Reserved</div>' SKIP
+                '</fieldset>' SKIP
+                '</form>' SKIP
+                '</html>' SKIP
+                .
+            OUTPUT CLOSE.
+        END. /* if last-of */
+    END. /* each ttbljob */
     INPUT CLOSE.
 END PROCEDURE.
