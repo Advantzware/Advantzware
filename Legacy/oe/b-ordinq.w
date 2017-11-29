@@ -1495,11 +1495,7 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
-  MESSAGE 200
-  VIEW-AS ALERT-BOX.
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
-  MESSAGE 300
-  VIEW-AS ALERT-BOX.
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
