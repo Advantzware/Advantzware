@@ -509,7 +509,7 @@ FOR EACH mach NO-LOCK
   END. /* first-of m-code */
 END. /* each mach */
 
-FOR EACH tResource EXCLUSIVE-LOCK:
+FOR EACH tResource:
   sortOrder = sortOrder + 1.
   {{&exports}/resource.i
       &streamName=sResource
