@@ -703,18 +703,18 @@ find first company where company.company eq cocode NO-LOCK.
            inv-head.f-bill AND inv-head.t-inv-freight <> 0 AND AVAIL stax THEN
         do i = 1 to 5:
 
-           if stax.tax-code1[i] ne "" AND stax.tax-frt[i] EQ YES then do:
+           if stax.tax-code1[i] ne "" AND stax.tax-frt1[i] EQ YES then do:
                 create w-tax.
                 assign
                  w-dsc      = stax.tax-dscr1[i]
                  w-tax      = round((if stax.company eq "yes" then v-frt-tax
                                                          ELSE inv-head.t-inv-freight) *
-                                        stax.tax-rate1[i] / 100,2)                 
+                                        stax.tax-rate1[i] / 100,2)
                  v-frt-tax  = v-frt-tax + w-tax
                  v-t-tax[i] = v-t-tax[i] + w-tax
                  v-lines    = v-lines + 1.
            END.
-        end.      
+        end. 
 
         assign
          inv-head.printed = yes
