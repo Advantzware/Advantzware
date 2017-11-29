@@ -217,7 +217,7 @@ get-pct(li-bal) @ li-pct get-fgitem() @ lc-fgitem oe-ordl.i-name ~
 oe-ordl.line oe-ordl.po-no-po oe-ordl.e-num oe-ordl.whsed ~
 get-act-bol-qty() @ li-act-bol-qty getTotalReturned() @ dTotQtyRet ~
 getReturnedInv() @ dTotRetInv oe-ordl.s-man[1] ~
-fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc ~
+fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table oe-ordl.ord-no ~
 oe-ordl.cust-no oe-ord.stat oe-ord.ord-date oe-ordl.req-date ~
 oe-ord.cust-name oe-ordl.i-no oe-ordl.part-no oe-ordl.po-no oe-ordl.est-no ~
@@ -245,7 +245,8 @@ AND itemfg.i-no EQ oe-ordl.i-no OUTER-JOIN NO-LOCK, ~
       FIRST ttRelease WHERE TRUE /* Join to oe-ordl incomplete */ ~
       AND ttRelease.ordlRecID EQ RECID(oe-ordl) NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table oe-ordl oe-ord itemfg ttRelease 
+&Scoped-define TABLES-IN-QUERY-Browser-Table oe-ordl oe-ord itemfg ~
+ttRelease
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table oe-ordl
 &Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table oe-ord
 &Scoped-define THIRD-TABLE-IN-QUERY-Browser-Table itemfg
@@ -490,15 +491,7 @@ DEFINE QUERY Browser-Table FOR
       oe-ordl.po-no-po
       oe-ordl.e-num
       oe-ordl.whsed
-      oe-ordl.s-man[1]
-      oe-ordl.company
-      oe-ordl.ord-no
-      oe-ordl.i-no
-      oe-ordl.line
-      oe-ordl.company
-      oe-ordl.ord-no
-      oe-ordl.i-no
-      oe-ordl.line), 
+      oe-ordl.s-man[1]), 
       oe-ord, 
       itemfg, 
       ttRelease SCROLLING.
@@ -597,6 +590,9 @@ DEFINE FRAME F-Main
      "Job#" VIEW-AS TEXT
           SIZE 8 BY .71 AT ROW 1.24 COL 104
           FGCOLOR 9 FONT 6
+     "REP#" VIEW-AS TEXT
+          SIZE 6.6 BY .71 AT ROW 1.24 COL 140.2 WIDGET-ID 12
+          FGCOLOR 9 FONT 6
      "Cust PO#/Lot#" VIEW-AS TEXT
           SIZE 18 BY .71 AT ROW 1.24 COL 70
           FGCOLOR 9 FONT 6
@@ -620,9 +616,6 @@ DEFINE FRAME F-Main
           FGCOLOR 9 FONT 6
      "Cust Part#" VIEW-AS TEXT
           SIZE 13 BY .71 AT ROW 1.24 COL 50
-          FGCOLOR 9 FONT 6
-     "REP#" VIEW-AS TEXT
-          SIZE 6.6 BY .71 AT ROW 1.24 COL 140.2 WIDGET-ID 12
           FGCOLOR 9 FONT 6
      RECT-1 AT ROW 1 COL 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -720,47 +713,47 @@ AND oe-ordl.ord-no EQ 999999"
 AND itemfg.i-no EQ oe-ordl.i-no"
      _Where[4]         = "ttRelease.ordlRecID EQ RECID(oe-ordl)"
      _FldNameList[1]   > ASI.oe-ordl.ord-no
-"oe-ordl.ord-no" ? ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.ord-no" ? ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.oe-ordl.cust-no
-"oe-ordl.cust-no" "Customer#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.cust-no" "Customer#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[3]   > "_<CALC>"
 "getRS() @ lc-rs" "R&S" "X" ? ? ? ? 14 ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[4]   > "_<CALC>"
 "getMI() @ lc-mi" "MI" "X" ? ? ? ? 14 ? ? no ? no no "4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[5]   > ASI.oe-ord.stat
-"oe-ord.stat" "Status" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ord.stat" "Status" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[6]   > ASI.oe-ord.ord-date
-"oe-ord.ord-date" "Order Date" ? "date" ? ? ? 14 ? ? yes ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ord.ord-date" "Order Date" ? "date" ? ? ? 14 ? ? yes ? no no "14.4" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[7]   > ASI.oe-ordl.req-date
-"oe-ordl.req-date" "Due Date" ? "date" ? ? ? 14 ? ? yes ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.req-date" "Due Date" ? "date" ? ? ? 14 ? ? yes ? no no "14.2" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[8]   > ASI.oe-ord.cust-name
-"oe-ord.cust-name" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ord.cust-name" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[9]   > ASI.oe-ordl.i-no
-"oe-ordl.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.i-no" "FG Item#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[10]   > ASI.oe-ordl.part-no
-"oe-ordl.part-no" "Cust Part#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.part-no" "Cust Part#" ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[11]   > ASI.oe-ordl.po-no
-"oe-ordl.po-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.po-no" ? ? "character" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[12]   > ASI.oe-ordl.lot-no
-"oe-ordl.lot-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.lot-no" ? ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[13]   > ASI.oe-ordl.est-no
-"oe-ordl.est-no" "Est#" "x(8)" "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.est-no" "Est#" "x(8)" "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[14]   > ASI.oe-ordl.job-no
-"oe-ordl.job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.job-no" "Job#" ? "character" ? ? ? 14 ? ? yes ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[15]   > ASI.oe-ordl.job-no2
-"oe-ordl.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.job-no2" "" ? "integer" ? ? ? 14 ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[16]   > ASI.itemfg.cad-no
-"itemfg.cad-no" "CAD#" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.itemfg.cad-no" "CAD#" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[17]   > ASI.oe-ordl.qty
-"oe-ordl.qty" "Ordered Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.qty" "Ordered Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > "_<CALC>"
 "get-prod(li-bal) @ li-prod" "Prod. Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.oe-ordl.ship-qty
-"oe-ordl.ship-qty" "Shipped Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.ship-qty" "Shipped Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[20]   > "_<CALC>"
 "get-xfer-qty () @ ld-xfer-qty" "Transfer!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[21]   > ASI.oe-ordl.inv-qty
-"oe-ordl.inv-qty" "Invoice Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.inv-qty" "Invoice Qty" "->>,>>>,>>>" "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[22]   > "_<CALC>"
 "get-bal(li-qoh) @ li-bal" "On Hand Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[23]   > "_<CALC>"
@@ -772,14 +765,14 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[26]   > "_<CALC>"
 "get-fgitem() @ lc-fgitem" "FG Item#" "x(15)" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[27]   > ASI.oe-ordl.i-name
-"oe-ordl.i-name" "Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.i-name" "Item Name" ? "character" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[28]   > ASI.oe-ordl.line
-"oe-ordl.line" ? ">>99" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.line" ? ">>99" "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[29]   > ASI.oe-ordl.po-no-po
-"oe-ordl.po-no-po" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.po-no-po" ? ? "integer" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[30]   = ASI.oe-ordl.e-num
      _FldNameList[31]   > ASI.oe-ordl.whsed
-"oe-ordl.whsed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.whsed" ? ? "logical" ? ? ? ? ? ? no ? no no ? no no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[32]   > "_<CALC>"
 "get-act-bol-qty() @ li-act-bol-qty" "Act. BOL!Qty" "->>,>>>,>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[33]   > "_<CALC>"
@@ -787,7 +780,7 @@ AND itemfg.i-no EQ oe-ordl.i-no"
      _FldNameList[34]   > "_<CALC>"
 "getReturnedInv() @ dTotRetInv" "Qty Returned Inv" ">>>,>>9" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[35]   > ASI.oe-ordl.s-man[1]
-"oe-ordl.s-man[1]" "Rep" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"ASI.oe-ordl.s-man[1]" "Rep" ? "character" ? ? ? 14 ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[36]   > "_<CALC>"
 "fget-qty-nothand(get-act-rel-qty() + get-act-bol-qty(),li-qoh) @ iHandQtyNoalloc" "On Hand Qty not Allocated" "->>>>>>>>" ? ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
@@ -980,7 +973,6 @@ DO:
       .
 
     ll-first = NO.
-
     RUN dispatch ("open-query").
     GET FIRST Browser-Table .
      IF NOT AVAILABLE oe-ord THEN DO:
@@ -1503,7 +1495,11 @@ PROCEDURE local-display-fields :
   /* Code placed here will execute PRIOR to standard behavior. */
 
   /* Dispatch standard ADM method.                             */
+  MESSAGE 200
+  VIEW-AS ALERT-BOX.
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'display-fields':U ) .
+  MESSAGE 300
+  VIEW-AS ALERT-BOX.
 
   /* Code placed here will execute AFTER standard behavior.    */
   DO WITH FRAME {&FRAME-NAME}:
@@ -1625,38 +1621,6 @@ PROCEDURE local-initialize :
 ------------------------------------------------------------------------------*/
   
   /* Code placed here will execute PRIOR to standard behavior. */
-  {&for-eachblank}
-      USE-INDEX opened NO-LOCK,
-      FIRST oe-ord OF oe-ordl USE-INDEX ord-no NO-LOCK
-      :
-      FIND FIRST ttRelease
-           WHERE ttRelease.ordlRecID EQ RECID(oe-ordl)
-           NO-ERROR.
-      IF NOT AVAILABLE ttRelease THEN DO:
-          CREATE ttRelease.
-          ttRelease.ordlRecID = RECID(oe-ordl).
-      END. /* not avail */
-      IF oe-ordl.lot-no NE "" AND NOT CAN-DO(ttRelease.lot-no,oe-ordl.lot-no) THEN 
-      ttRelease.lot-no = ttRelease.lot-no + oe-ordl.lot-no + ",".
-      IF oe-ordl.po-no NE "" AND NOT CAN-DO(ttRelease.po-no,oe-ordl.po-no) THEN 
-      ttRelease.po-no = ttRelease.po-no + oe-ordl.po-no + ",".
-      IF CAN-FIND(FIRST oe-rel
-             WHERE oe-rel.company EQ oe-ordl.company
-               AND oe-rel.ord-no  EQ oe-ordl.ord-no
-               AND oe-rel.i-no    EQ oe-ordl.i-no
-               AND oe-rel.line    EQ oe-ordl.line) THEN
-      FOR EACH oe-rel NO-LOCK
-          WHERE oe-rel.company EQ oe-ordl.company
-            AND oe-rel.ord-no  EQ oe-ordl.ord-no
-            AND oe-rel.i-no    EQ oe-ordl.i-no
-            AND oe-rel.line    EQ oe-ordl.line
-          :
-          IF oe-rel.lot-no NE "" AND NOT CAN-DO(ttRelease.lot-no,oe-rel.lot-no) THEN 
-          ttRelease.lot-no = ttRelease.lot-no + oe-rel.lot-no + ",".
-          IF oe-rel.po-no NE "" AND NOT CAN-DO(ttRelease.po-no,oe-rel.po-no) THEN 
-          ttRelease.po-no = ttRelease.po-no + oe-rel.po-no + ",".
-      END. /* each oe-rel */
-  END. /* for-eachblank */
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'initialize':U ) .
@@ -1698,6 +1662,7 @@ PROCEDURE local-open-query :
 ------------------------------------------------------------------------------*/
 
   /* Code placed here will execute PRIOR to standard behavior. */
+  RUN pReleaseTT.
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
@@ -1819,7 +1784,6 @@ PROCEDURE one-row-query :
   IF fi_cust-no EQ "" AND
      fi_i-no    EQ "" AND
      fi_part-no EQ "" AND
-/*     fi_po-no1 EQ "" AND*/
      fi_est-no  EQ "" AND
      fi_job-no  EQ "" THEN DO:
         &SCOPED-DEFINE joinScop OUTER-JOIN
@@ -1898,6 +1862,50 @@ PROCEDURE paper-clip-image-proc :
 
    IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
       RUN paper-clip-image IN WIDGET-HANDLE(char-hdl) (INPUT v-att).
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pReleaseTT B-table-Win 
+PROCEDURE pReleaseTT :
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+  {&for-eachblank}
+      USE-INDEX opened NO-LOCK,
+      FIRST oe-ord OF oe-ordl USE-INDEX ord-no NO-LOCK
+      :
+      FIND FIRST ttRelease
+           WHERE ttRelease.ordlRecID EQ RECID(oe-ordl)
+           NO-ERROR.
+      IF NOT AVAILABLE ttRelease THEN DO:
+          CREATE ttRelease.
+          ttRelease.ordlRecID = RECID(oe-ordl).
+      END. /* not avail */
+      IF oe-ordl.lot-no NE "" AND NOT CAN-DO(ttRelease.lot-no,oe-ordl.lot-no) THEN 
+      ttRelease.lot-no = ttRelease.lot-no + oe-ordl.lot-no + ",".
+      IF oe-ordl.po-no NE "" AND NOT CAN-DO(ttRelease.po-no,oe-ordl.po-no) THEN 
+      ttRelease.po-no = ttRelease.po-no + oe-ordl.po-no + ",".
+      IF CAN-FIND(FIRST oe-rel
+             WHERE oe-rel.company EQ oe-ordl.company
+               AND oe-rel.ord-no  EQ oe-ordl.ord-no
+               AND oe-rel.i-no    EQ oe-ordl.i-no
+               AND oe-rel.line    EQ oe-ordl.line) THEN
+      FOR EACH oe-rel NO-LOCK
+          WHERE oe-rel.company EQ oe-ordl.company
+            AND oe-rel.ord-no  EQ oe-ordl.ord-no
+            AND oe-rel.i-no    EQ oe-ordl.i-no
+            AND oe-rel.line    EQ oe-ordl.line
+          :
+          IF oe-rel.lot-no NE "" AND NOT CAN-DO(ttRelease.lot-no,oe-rel.lot-no) THEN 
+          ttRelease.lot-no = ttRelease.lot-no + oe-rel.lot-no + ",".
+          IF oe-rel.po-no NE "" AND NOT CAN-DO(ttRelease.po-no,oe-rel.po-no) THEN 
+          ttRelease.po-no = ttRelease.po-no + oe-rel.po-no + ",".
+      END. /* each oe-rel */
+  END. /* for-eachblank */
 
 END PROCEDURE.
 
