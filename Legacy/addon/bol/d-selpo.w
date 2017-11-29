@@ -38,6 +38,7 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 DEF INPUT PARAM ip-oe-relh-rec AS RECID NO-UNDO.
 DEF INPUT PARAM ip-loadtag-rec as RECID NO-UNDO.
+DEFINE INPUT PARAMETER ipiOrdNo LIKE oe-ord.ord-no NO-UNDO.
 DEF OUTPUT PARAM op-po-no AS cha NO-UNDO.
 
 /* Local Variable Definitions ---                                       */
@@ -295,7 +296,7 @@ END.
 
 FOR EACH ASI.oe-rell WHERE oe-rell.company = oe-relh.company
          and oe-rell.r-no = oe-relh.r-no
-         and oe-rell.ord-no = loadtag.ord-no
+         and oe-rell.ord-no = ipiOrdNo
          and oe-rell.i-no = loadtag.i-no
          USE-INDEX r-no NO-LOCK 
          BREAK BY oe-rell.po-no:

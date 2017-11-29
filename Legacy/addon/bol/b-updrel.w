@@ -749,7 +749,7 @@ DO:
      lv-po-no = oe-rell.po-no
      lv-po-from-rell = YES.
    END.
-   IF lv-po-cnt > 1 THEN RUN addon/bol/d-selpo.w (RECID(oe-relh),RECID(loadtag),OUTPUT lv-po-no).
+   IF lv-po-cnt > 1 THEN RUN addon/bol/d-selpo.w (RECID(oe-relh),RECID(loadtag), v-ord-no, OUTPUT lv-po-no).
       /*task 10030502*/
    ELSE IF NOT lv-po-from-rell AND CAN-FIND (FIRST itemfg WHERE itemfg.company = cocode
                           AND itemfg.i-no = loadtag.i-no AND itemfg.i-code = "C") THEN DO:
