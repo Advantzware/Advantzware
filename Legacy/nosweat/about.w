@@ -401,23 +401,25 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
     RUN enable_UI.
     DO WITH FRAME {&FRAME-NAME}:
-        FIND prgrms NO-LOCK WHERE prgrms.prgmname EQ callingprgm NO-ERROR.
+        ASSIGN
+            callingprgm = ENTRY(NUM-ENTRIES(callingprgm,' '),callingprgm,' ')
+            physical_file:SCREEN-VALUE = callingprgm
+            callingprgm = SUBSTR(callingprgm,R-INDEX(callingprgm,'/') + 1)
+            callingprgm = SUBSTR(callingprgm,1,LENGTH(callingprgm) - 1)
+            winReSize = 'users/' + USERID('NOSWEAT') + '/' + callingprgm + 'winReSize'
+            winReSizeDat = 'users/' + USERID('NOSWEAT') + '/winReSize.dat'
+            copyrite:SCREEN-VALUE = '{copyrite}'
+            asiVersion:SCREEN-VALUE = '{&awversion}'
+            autoMaximize:SCREEN-VALUE = STRING(SEARCH(winReSize) NE ?)
+            autoMaximize
+            .
+        FIND FIRST prgrms NO-LOCK
+             WHERE prgrms.prgmname EQ callingprgm
+             NO-ERROR.
         IF AVAILABLE prgrms THEN
         ASSIGN
             FRAME {&FRAME-NAME}:TITLE = FRAME {&FRAME-NAME}:TITLE + ' ' + prgrms.prgtitle
             prgmTitle:SCREEN-VALUE = prgrms.prgtitle
-            .
-        ASSIGN
-            winReSize = 'users/' + USERID('NOSWEAT') + '/' + callingprgm + 'winReSize'
-            winReSizeDat = 'users/' + USERID('NOSWEAT') + '/winReSize.dat'
-            autoMaximize:SCREEN-VALUE = STRING(SEARCH(winReSize) NE ?)
-            autoMaximize
-            physical_file:SCREEN-VALUE = ENTRY(NUM-ENTRIES(callingprgm,' '),callingprgm,' ')
-            copyrite:SCREEN-VALUE = '{copyrite}'
-            callingprgm = ENTRY(NUM-ENTRIES(callingprgm,' '),callingprgm,' ')
-            callingprgm = SUBSTR(callingprgm,R-INDEX(callingprgm,'/') + 1)
-            callingprgm = SUBSTR(callingprgm,1,LENGTH(callingprgm) - 1)
-            asiVersion:SCREEN-VALUE = "{&awversion}".
             .
         FIND FIRST userControl NO-LOCK NO-ERROR.
         IF AVAILABLE userControl THEN
