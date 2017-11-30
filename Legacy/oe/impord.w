@@ -1189,16 +1189,18 @@ PROCEDURE pAutoCreateShipTo:
     DEFINE INPUT PARAMETER ipcShipCity AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcShipState AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcShipZip AS CHARACTER NO-UNDO.
-    DEFINE INPUT PARAMETER ipcContact AS CHARACTER NO-UNDO.
     DEFINE INPUT PARAMETER ipcPhone AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcContact AS CHARACTER NO-UNDO.
     DEFINE OUTPUT PARAMETER opcShipToID AS CHARACTER NO-UNDO.
     
     DEFINE VARIABLE iShipNo AS INTEGER NO-UNDO .
+    DEFINE VARIABLE cArea AS CHARACTER NO-UNDO.
     DEFINE BUFFER bf-default-shipto FOR shipto.
     DEFINE BUFFER bf-state-shipto FOR shipto.
     DEFINE BUFFER bf-shipto FOR shipto.
     
     opcShipToID = ipcShipToID.
+    RUN pParsePhone (INPUT ipcPhone, OUTPUT cArea, OUTPUT ipcPhone).
     FIND FIRST bf-default-shipto NO-LOCK 
         WHERE bf-default-shipto.company EQ ipcCompany
         AND bf-default-shipto.cust-no EQ ipcCustNo
@@ -1232,6 +1234,7 @@ PROCEDURE pAutoCreateShipTo:
             shipto.ship-id      = IF ipcShipToID NE '' THEN ipcShipToID ELSE STRING(shipto.ship-no)
             shipto.contact      = ipcContact
             shipto.loc          = IF AVAIL(bf-default-shipto) THEN bf-default-shipto.loc ELSE locode
+            shipto.area-code    = cArea
             shipto.phone        = ipcPhone
             shipto.ship-name    = ipcShipName
             shipto.ship-addr[1] = ipcShipAddress
@@ -1256,6 +1259,44 @@ PROCEDURE pAutoCreateShipTo:
     END. /* not avail shipto */
     opcShipToID = shipto.ship-id.    
     
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pParsePhone C-Win
+PROCEDURE pParsePhone:
+/*------------------------------------------------------------------------------
+ Purpose: Tests the format of a Phone Number and converts to Area Code and Phone
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcFullPhone AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcAreaCode AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcPhone AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE iLength AS INTEGER NO-UNDO.
+DEFINE VARIABLE iChar AS INTEGER NO-UNDO.
+
+ipcFullPhone = REPLACE(ipcFullPhone,"(","").
+ipcFullPhone = REPLACE(ipcFullPhone,")","").
+ipcFullPhone = REPLACE(ipcFullPhone,"-","").
+ipcFullPhone = REPLACE(ipcFullPhone,".","").
+ipcFullPhone = REPLACE(ipcFullPhone,"+","").
+ipcFullPhone = REPLACE(ipcFullPhone," ","").
+iLength = LENGTH(ipcFullPhone).
+IF iLength GT 7 THEN 
+    ASSIGN 
+        opcPhone = SUBSTRING(ipcFullPhone,iLength - 6, iLength)
+        opcAreaCode = SUBSTRING(ipcFullPhone,1,iLength - 7)
+        .        
+ELSE 
+    ASSIGN 
+        opcPhone = ipcFullPhone
+        opcAreaCode = ""
+        .
+
 END PROCEDURE.
 	
 /* _UIB-CODE-BLOCK-END */
