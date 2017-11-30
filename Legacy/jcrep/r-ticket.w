@@ -1609,7 +1609,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     lv-int-f    = sys-ctrl.int-fld
     lv-default-f = sys-ctrl.char-fld.
    IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0*/
-     lookup(lv-format-f,"Interpac,FibreFC,HPB,metro,Dayton,Livngstn,CentBox,Frankstn,Colonial,xml,Unipak,Ottpkg,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Carded,Carded2,Coburn,Knight***") > 0 THEN lines-per-page = 55.
+     lookup(lv-format-f,"Interpac,FibreFC,HPB,metro,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,xml,Unipak,Ottpkg,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Carded,Carded2,Coburn,Knight***") > 0 THEN lines-per-page = 55.
 
    {sys/inc/jobcard.i "C"}
    ASSIGN
@@ -1763,7 +1763,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                  OR lv-format-f = "Colonial" OR lv-format-f = "xml"  OR lv-format-f = "Unipak"   OR lv-format-f = "Ottpkg"
                  OR lv-format-f = "MWFIbre"   OR lv-format-f = "Shelby"   OR lv-format-f = "CCC"
                  OR lv-format-f = "PPI"       OR lv-format-f = "Accord"   OR lv-format-f = "Knight" 
-                 OR lv-format-f = "PackRite"  OR lv-format-f = "Knight***"
+                 OR lv-format-f = "PackRite"  OR lv-format-f = "Knight***" OR lv-format-f = "Wingate"
                  OR lv-format-f = "Dee"       OR lv-format-f = "Rosmar" OR lv-format-f = "Carded" OR lv-format-f = "Carded2" OR lv-format-f = "Coburn")) OR
         (tb_corr AND (lv-format-c = "Trilakes" OR lv-format-c = "Axis" OR lv-format-c = "Trilakes2" OR lv-format-c = "Hughes")) THEN
       assign 
@@ -2898,7 +2898,7 @@ PROCEDURE output-to-printer :
 /*      MESSAGE "lv-format-f  " lv-format-f VIEW-AS ALERT-BOX ERROR.*/
       IF /*index("Interpac,Dayton,FibreFC,Livngstn",lv-format-f) > 0 */
         lookup(lv-format-f, 
-          "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Keystone,Frankstn,Colonial,Unipak,OttPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN
+          "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Frankstn,Colonial,Unipak,OttPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN
      DO:   
          FILE-INFO:FILE-NAME = list-name.
          RUN printfile (FILE-INFO:FILE-NAME).   
@@ -2956,7 +2956,7 @@ IF tb_fold AND lv-format-f EQ "xml" THEN
      end.
 
      IF  /*index("Interpac,FibreFC,Dayton,Livngstn",lv-format-f) > 0 */
-        lookup(lv-format-f, "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Keystone,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,MidYork,Knight,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN
+        lookup(lv-format-f, "Interpac,FibreFC,HPB,Metro,Dayton,Livngstn,CentBox,Wingate,Keystone,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,MidYork,Knight,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2") > 0 THEN
      DO:
          FILE-INFO:FILE-NAME = list-name.
          RUN printfile (FILE-INFO:FILE-NAME).
