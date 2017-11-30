@@ -501,6 +501,15 @@ if v-zone-p then v-zone-hdr = "Route No.:".
               ASSIGN w-bin.w-date-time = "29991231000000".
               RELEASE w-bin.
            end.
+
+           for each w-bin where w-bin.w-par eq ""
+               BY w-bin.w-date-time
+               by w-bin.w-qty[2] DESC
+               by w-bin.w-qty[1] desc:
+               w-bin.w-par = w-oe-rell.i-no.
+               IF w-bin.w-par EQ "" THEN w-bin.w-par = " ".
+               leave.
+           end.
           
            for each w-bin where w-bin.w-par eq ""
                BY w-bin.w-date-time
@@ -538,15 +547,6 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                by w-bin.w-qty[1] desc:
                w-bin.w-par = if w-oe-rell.seq eq 0 then oe-ordl.part-dscr2
                              else itemfg.part-dscr2.
-               IF w-bin.w-par EQ "" THEN w-bin.w-par = " ".
-               leave.
-           end.
-           
-           for each w-bin where w-bin.w-par eq ""
-               BY w-bin.w-date-time
-               by w-bin.w-qty[2] DESC
-               by w-bin.w-qty[1] desc:
-               w-bin.w-par = w-oe-rell.i-no.
                IF w-bin.w-par EQ "" THEN w-bin.w-par = " ".
                leave.
            end.
