@@ -306,6 +306,9 @@ END.
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
   assign rd-dest.
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN {&displayed-objects}.
+  END.
 
   run run-report. 
   STATUS DEFAULT "Processing Complete". 

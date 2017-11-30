@@ -642,8 +642,8 @@ PROCEDURE enable_UI :
   DISPLAY begin_mach end_mach begin_date end_date lv-ornt lines-per-page rd-dest 
           lv-font-no lv-font-name tb_excel tb_runExcel td-show-parm fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE begin_mach end_mach begin_date end_date tb_runExcel fi_file btn-ok 
-         btn-cancel RECT-6 RECT-7 
+  ENABLE RECT-6 RECT-7 begin_mach end_mach begin_date end_date lv-ornt lines-per-page rd-dest lv-font-no
+         tb_excel tb_runExcel td-show-parm fi_file btn-ok btn-cancel
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
