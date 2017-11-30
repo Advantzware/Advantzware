@@ -293,7 +293,15 @@ DO TRANSACTION:
   
 RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 
-RUN sys/ref/uom-ea.p (OUTPUT lv-ea-list).
+/* RUN sys/ref/uom-ea.p (OUTPUT lv-ea-list). */
+FOR EACH uom WHERE
+    uom.base-uom EQ "EA" AND
+    uom.mult EQ 1:
+    ASSIGN
+        lv-ea-list = lv-ea-list + uom.uom + ",".
+END.
+ASSIGN
+    lv-ea-list = TRIM(lv-ea-list,",").
 
 {sys/inc/schedule.i}
  v-run-schedule = NOT (AVAIL sys-ctrl AND sys-ctrl.char-fld EQ 'NoDate' AND sys-ctrl.log-fld).
