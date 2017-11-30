@@ -2479,15 +2479,10 @@ PROCEDURE create-job :
   SESSION:SET-WAIT-STATE("general").
 
   IF AVAIL oe-rel THEN DO TRANSACTION:
-     FIND FIRST oe-rel-job NO-LOCK
-         WHERE oe-rel-job.reftable EQ "oe-rel.job"
-           AND oe-rel-job.code     EQ STRING(oe-rel.r-no,"9999999999")
-         USE-INDEX code NO-ERROR.
-    
-     IF AVAIL oe-rel-job THEN
+     
      FIND FIRST job NO-LOCK
-         WHERE job.company EQ oe-rel-job.company
-           AND job.job     EQ INT(oe-rel-job.code2)
+         WHERE job.company EQ oe-rel.company
+           AND job.job     EQ INT(oe-rel.job)
          NO-ERROR.
     
      IF AVAIL job THEN DO:
@@ -2607,15 +2602,10 @@ PROCEDURE create-job :
          job.start-date = TODAY
          job.stat       = "P"
          job.job-no     = v-bld-job
-         job.job-no2    = li.
-       
-        CREATE oe-rel-job.
-        ASSIGN
-         oe-rel-job.reftable = "oe-rel.job"
-         oe-rel-job.company  = oe-rel.company
-         oe-rel-job.code     = STRING(oe-rel.r-no,"9999999999")
-         oe-rel-job.code2    = STRING(job.job,"9999999999").
-        RELEASE oe-rel-job.
+         job.job-no2    = li.      
+        
+        
+        ASSIGN oe-rel.job = INT(job.job).
      END.
     
      IF AVAIL job THEN DO:

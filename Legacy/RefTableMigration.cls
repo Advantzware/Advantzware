@@ -155,8 +155,8 @@ CLASS RefTableMigration:
         DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
         FOR EACH reftable WHERE reftable.reftable = "oe-ord.whs-order"
             NO-LOCK:
-            FIND FIRST oe-ord WHERE oe-ordl.company = (reftable.company)
-                                AND oe-ordl.ord-no = INT(reftable.loc)                                
+            FIND FIRST oe-ord WHERE oe-ord.company = (reftable.company)
+                                AND oe-ord.ord-no = INT(reftable.loc)                                
                 EXCLUSIVE-LOCK NO-ERROR.
             IF AVAILABLE oe-ord THEN    
             ASSIGN 
@@ -185,4 +185,20 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*oe-ordl*/
+    METHOD PUBLIC INTEGER OeRelJob():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "oe-rel.job"                            
+            NO-LOCK:
+            FIND FIRST oe-rel WHERE oe-rel.company = (reftable.company)
+                                AND oe-rel.r-no = INT(reftable.code)                                                               
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE oe-rel THEN    
+            ASSIGN 
+                oe-rel.job  = INT(reftable.code2)               
+                . 
+            RELEASE oe-rel.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*oe-rel*/
 END CLASS.
