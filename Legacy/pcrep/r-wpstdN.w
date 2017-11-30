@@ -1104,8 +1104,8 @@ PROCEDURE enable_UI :
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 RECT-8 begin_mach end_mach begin_date end_date 
          begin_shift end_shift select-mach tb_comp rd_sort sl_avail sl_selected 
-         Btn_Def Btn_Add Btn_Remove btn_down btn_Up tb_runExcel fi_file btn-ok 
-         btn-cancel 
+         lv-ornt lines-per-page rd-dest lv-font-no tb_excel tb_runExcel td-show-parm 
+         Btn_Def Btn_Add Btn_Remove btn_down btn_Up fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
