@@ -276,6 +276,28 @@ PROCEDURE assignSelections:
         svi-print-item   = rs_no_PN        
         nsv_setcomp      = tb_setcomp
         .
+        
+        CASE rd-dest:
+            WHEN 1 THEN 
+                ASSIGN 
+                    LvOutputSelection = "Printer".
+            WHEN 2 THEN 
+                ASSIGN 
+                    LvOutputSelection = "Screen". 
+            WHEN 3 THEN 
+                ASSIGN 
+                    LvOutputSelection = "File".
+            WHEN 4 THEN 
+                ASSIGN 
+                    LvOutputSelection = "Fax".
+            WHEN 5 THEN 
+                ASSIGN 
+                    LvOutputSelection = "Email".
+            WHEN 6 THEN 
+                ASSIGN 
+                    LvOutputSelection = "Port".
+        END CASE.
+        
 
 END. 
 /* end input parameters */
