@@ -1,11 +1,11 @@
 
 /*------------------------------------------------------------------------
-    File        : ImportShipTo.p
+    File        : ImportAP.p
     Purpose     : 
 
     Syntax      :
 
-    Description : Import Program (Persistent) for Configuring and Processing the Import for Ship Tos	
+    Description : Import Program (Persistent) for Configuring and Processing the Import for AP Invoices	
 
     Author(s)   : BV
     Created     : Fri Nov 24 16:18:38 EST 2017
@@ -16,24 +16,25 @@
 {util\ttImport.i SHARED}
 
 DEFINE TEMP-TABLE ttImportAP
-    FIELD Company         AS CHARACTER 
-    FIELD VendorID        AS CHARACTER 
-    FIELD InvoiceNo       AS CHARACTER 
-    FIELD InvoiceDate     AS DATE 
-    FIELD DueDate         AS DATE 
-    FIELD TaxGroup        AS CHARACTER 
-    FIELD Discount        AS DECIMAL 
-    FIELD Days            AS INTEGER 
-    FIELD LinePONumber    AS INTEGER 
-    FIELD LinePOLine      AS INTEGER 
-    FIELD LineAccount     AS CHARACTER 
-    FIELD LineQuantity    AS DECIMAL 
-    FIELD LineQuantityUom AS CHARACTER 
-    FIELD LinePrice       AS DECIMAL 
-    FIELD LinePriceUom    AS CHARACTER 
-    FIELD LineAmount      AS DECIMAL 
-    FIELD LineTax         AS LOGICAL
+    FIELD Company         AS CHARACTER FORMAT "x(3)"
+    FIELD InvoiceNo       AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "Invoice #"
+    FIELD VendorID        AS CHARACTER FORMAT "x(10)" COLUMN-LABEL "Vendor ID"
+    FIELD InvoiceDate     AS DATE FORMAT "99/99/99" COLUMN-LABEL "Inv Date"
+    FIELD DueDate         AS DATE FORMAT "99/99/99" COLUMN-LABEL "Due Date"
+    FIELD LineAmount      AS DECIMAL FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "$ Amount" 
+    FIELD LineQuantity    AS DECIMAL FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Quantity"
+    FIELD LineQuantityUom AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Qty UOM"
+    FIELD LinePrice       AS DECIMAL FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Price"
+    FIELD LinePriceUom    AS CHARACTER FORMAT "x(3)" COLUMN-LABEL "Price UOM"
+    FIELD LineTax         AS LOGICAL FORMAT "Y/N" COLUMN-LABEL "Tax (Line)"
+    FIELD LineAccount     AS CHARACTER FORMAT "x(20)" COLUMN-LABEL "GL Accnt #"
+    FIELD TaxGroup        AS CHARACTER FORMAT "x(5)" COLUMN-LABEL "Tax Group"
+    FIELD Discount        AS DECIMAL FORMAT "->>>,>>>,>>>.99" COLUMN-LABEL "Discount"
+    FIELD DiscountDays    AS INTEGER FORMAT ">>9" COLUMN-LABEL "Disc Days"
+    FIELD LinePONumber    AS INTEGER FORMAT ">>>>>9" COLUMN-LABEL "PO #"
+    FIELD LinePOLine      AS INTEGER FORMAT ">>9" COLUMN-LABEL "PO Line"
     .
+    
 
 DEFINE VARIABLE giIndexOffset AS INTEGER NO-UNDO INIT 1. /*Set to 1 if there is a Company field in temp-table since this will not be part of the import data*/
 
@@ -67,7 +68,7 @@ PROCEDURE pAddRecord:
     ASSIGN 
         ttImportAP.Company = ipcCompany.
     FOR EACH ttImportMap
-        WHERE ttImportMap.cType EQ 'ShipTo':
+        WHERE ttImportMap.cType EQ 'AP':
         cData = ipcData[ttImportMap.iImportIndex].
         hdTempTableBuffer = TEMP-TABLE ttImportAP:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(ttImportMap.iIndex + giIndexOffset):HANDLE.
         CASE ttImportMap.cDataType:
@@ -115,7 +116,7 @@ PROCEDURE pAddRecord:
             WHERE vend.company EQ ttImportAP.Company
             AND vend.vend-no EQ ttImportAP.VendorID
             NO-ERROR. 
-        IF NOT AVAILABLE cust THEN 
+        IF NOT AVAILABLE vend THEN 
             ASSIGN 
                 oplValid = NO 
                 opcNote  = "Key Field Invalid: VendorID"
@@ -201,7 +202,7 @@ PROCEDURE pCreateNewInvoice:
     DEFINE INPUT PARAMETER ipcCompany AS CHARACTER.
     DEFINE INPUT PARAMETER ipcVendor AS CHARACTER.
     DEFINE INPUT PARAMETER ipcInvoice AS CHARACTER.
-    DEFINE INPUT PARAMETER ipcInvDate AS CHARACTER.
+    DEFINE INPUT PARAMETER ipdtInvDate AS DATE.
     DEFINE OUTPUT PARAMETER opriAPInv AS ROWID.
     
     CREATE ap-inv.
@@ -211,8 +212,8 @@ PROCEDURE pCreateNewInvoice:
         ap-inv.inv-date = TODAY
         ap-inv.vend-no  = ipcVendor
         .
-    IF ipcInvDate NE "" THEN 
-        ap-inv.inv-date = DATE(ipcInvDate).                     
+    IF ipdtInvDate NE ? THEN 
+        ap-inv.inv-date = DATE(ipdtInvDate).                     
     FIND FIRST vend NO-LOCK 
         WHERE vend.company EQ ipcCompany
         AND vend.vend-no EQ ipcVendor
@@ -319,7 +320,7 @@ END PROCEDURE.
 
 PROCEDURE pExportData:
 /*------------------------------------------------------------------------------
- Purpose:  Runs the Export Data Program for ShipTo
+ Purpose:  Runs the Export Data Program for AP
  Notes:
 ------------------------------------------------------------------------------*/
 
@@ -328,7 +329,7 @@ END PROCEDURE.
 
 PROCEDURE pInitialize:
     /*------------------------------------------------------------------------------
-     Purpose: Initializes the specific Column Mapping for ShipTos   
+     Purpose: Initializes the specific Column Mapping for APs   
      Notes:
     ------------------------------------------------------------------------------*/
     DEFINE INPUT PARAMETER ipcLoadFile AS CHARACTER NO-UNDO.
@@ -345,12 +346,8 @@ PROCEDURE pInitialize:
     EMPTY TEMP-TABLE ttImportMap.
     
     iIndexStart = 1 + giIndexOffset.
-    cWidths    = "60,60,150,150,150,150,150,50,150,50,50,50,60,60," +
-        "150,150,150,150," +
-        "60,60,60,60,60,60,60,60,60,60,60," +
-        "60,60,60,60,60,60,60,60"
-        .
-
+    cWidths    = "60,60,60,60,60,60,60,60,60,60,60,60,60,60,60,60".
+    
     IF ipcLoadFile EQ '' THEN 
     DO:
         ASSIGN 
@@ -378,7 +375,7 @@ PROCEDURE pInitialize:
         DO iIndex = 1 TO NUM-ENTRIES(cFields):
             CREATE ttImportMap.
             ASSIGN 
-                ttImportMap.cType         = "ShipTo"
+                ttImportMap.cType         = "AP"
                 ttImportMap.cLabel        = ENTRY(iIndex,cFields)
                 ttImportMap.iIndex        = iIndex
                 ttImportMap.iImportIndex  = iIndex
@@ -423,7 +420,7 @@ PROCEDURE pProcessImport:
             NO-ERROR.
         IF NOT AVAILABLE ap-inv THEN /*create a new one*/
         DO:
-            RUN pCreateNewInvoiceAP (ttImportAP.Company, ttImportAP.VendorID, ttImportAP.InvoiceNo, ttImportAP.InvoiceDate, OUTPUT riApInv).
+            RUN pCreateNewInvoice (ttImportAP.Company, ttImportAP.VendorID, ttImportAP.InvoiceNo, ttImportAP.InvoiceDate, OUTPUT riApInv).
             FIND ap-inv EXCLUSIVE-LOCK
                 WHERE ROWID(ap-inv) EQ riAPInv
                 NO-ERROR.
@@ -443,13 +440,13 @@ PROCEDURE pProcessImport:
             END.
             IF ttImportAP.DueDate NE ? THEN 
                 ap-inv.due-date = ttImportAP.DueDate.
-            IF ttImportAP.Days NE 0 THEN 
-                ap-inv.disc-days = ttImportAP.Days.
+            IF ttImportAP.DiscountDays NE 0 THEN 
+                ap-inv.disc-days = ttImportAP.DiscountDays.
             IF ttImportAP.Discount NE 0 THEN 
                 ap-inv.disc-% = ttImportAP.Discount.
     
         END. /*not available ap-inv*/
-        RUN pCreateNewInvoiceLineAP (ROWID(ap-inv), OUTPUT riAPInvl).
+        RUN pCreateNewInvoiceLine (ROWID(ap-inv), OUTPUT riAPInvl).
         FIND ap-invl EXCLUSIVE-LOCK 
             WHERE ROWID(ap-invl) EQ riAPInvl
             NO-ERROR.
