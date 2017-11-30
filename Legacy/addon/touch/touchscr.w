@@ -166,6 +166,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL W-Win W-Win
 ON WINDOW-CLOSE OF W-Win /* AdvantzWare Touch Screen */
 DO:
+    message
+        program-name(1) skip
+        program-name(1) skip
+        program-name(1) skip
+        program-name(1) view-as alert-box.
+    RUN system/userLogOut.p.
   /* This ADM code must be left here in order for the SmartWindow
      and its descendents to terminate properly on exit. */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -254,6 +260,8 @@ PROCEDURE Close_Touch_Screen :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+   IF INDEX(program-name(4),"addmain") = 0 THEN
+       RUN system/userLogOut.p.
   APPLY 'CLOSE' TO THIS-PROCEDURE.
 
 END PROCEDURE.
