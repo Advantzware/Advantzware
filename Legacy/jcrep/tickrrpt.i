@@ -25,7 +25,7 @@ DO li = 1 TO NUM-ENTRIES(spec_codes):
 END.
 
 /*FibreFC,*/
-IF tb_fold  AND CAN-DO("Interpac,Dayton,Livngstn,CentBox,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Badger,Carded,Carded2,Coburn,Knight***",lv-format-f) THEN 
+IF tb_fold  AND CAN-DO("Interpac,Dayton,Livngstn,CentBox,Wingate,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Badger,Carded,Carded2,Coburn,Knight***",lv-format-f) THEN 
   lines-per-page = 50. /*55*/
 ELSE IF tb_fold AND CAN-DO("FibreFC,HPB,METRO,Dee",lv-format-f) THEN 
   lines-per-page = 70 /* 58 lines-per-page*/.
@@ -302,10 +302,11 @@ IF ip-industry EQ "Corr" AND tb_corr                                         AND
   END.
 END.
 
-/* CentBox */
+/* CentBox */  
 IF ip-industry EQ "Fold" AND tb_fold AND 
    s-committed-board-only       AND 
    (lv-format-f EQ "CentBox"    or
+    lv-format-f EQ "Wingate"    or
     lv-format-f eq "Indiana-XL" OR
     lv-format-f EQ "Accord"     OR
     lv-format-f EQ "Carded"     OR
@@ -367,7 +368,7 @@ SESSION:SET-WAIT-STATE ("general").
 
 /*Change similar lines in jcrep\r-tickt2.w can-do ... in multiple places*/
 is-xprint-form = (ip-industry EQ "Corr") OR 
-                  CAN-DO("Interpac,FibreFC,Metro,HPB,Dayton,Livngstn,CentBox,Keystone,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2",lv-format-f).
+                  CAN-DO("Interpac,FibreFC,Metro,HPB,Dayton,Livngstn,CentBox,Wingate,Keystone,Frankstn,Colonial,Unipak,OTTPkg,MWFibre,Shelby,CCC,Indiana-XL,PPI,PackRite,Rosmar,Accord,Knight,MidYork,Dee,Badger,Carded,Carded2,Coburn,Knight***,jobcardf 1,jobcardf 2",lv-format-f).
 
 IF is-xprint-form THEN DO:
 
@@ -404,7 +405,7 @@ END.
 /* FOLDING */
 IF ip-industry EQ "Fold" THEN DO:
     /* Colonial */
-   IF NOT CAN-DO('ASI,CentBox,UniPak,HPB,METRO,FibreFC,Indiana-XL,Accord,Dee,Colonial,xml,Carded,Carded2,Coburn,Knight***',lv-format-f) THEN spec-list = "".
+   IF NOT CAN-DO('ASI,CentBox,Wingate,UniPak,HPB,METRO,FibreFC,Indiana-XL,Accord,Dee,Colonial,xml,Carded,Carded2,Coburn,Knight***',lv-format-f) THEN spec-list = "".
    
    if  lv-format-f = 'Indiana-XL'      and 
        (logical (tb_RS:screen-value in frame {&frame-name}) = true or
@@ -522,7 +523,14 @@ IF ip-industry EQ "Fold" THEN DO:
      IF lv-int-f EQ 1 THEN
        RUN cerep/jobcbox2.p (lv-format-f).
      ELSE
-       RUN cerep/jobcbox.p (lv-format-f).
+       RUN cerep/jobcbox.p (lv-format-f).  
+
+   ELSE
+   IF lv-format-f EQ "Wingate" THEN
+     IF lv-int-f EQ 1 THEN
+       RUN cerep/jobwin2.p (lv-format-f).
+     ELSE
+       RUN cerep/jobwin.p (lv-format-f).
 
    ELSE IF lv-format-f EQ "Accord" THEN
       IF lv-int-f EQ 1 THEN
