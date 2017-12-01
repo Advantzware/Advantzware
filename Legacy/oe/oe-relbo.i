@@ -255,7 +255,7 @@ DO bo-try = 1 TO 2:
     IF NOT AVAIL xoe-relh THEN DO:
       FIND LAST yoe-relh USE-INDEX r-no NO-LOCK NO-ERROR.
       /* 10051225 */
-      RUN oe/get-r-no.p (INPUT "oe-relh", OUTPUT v-nxt-r-no).
+      RUN oe/getNextRelNo.p (INPUT "oe-relh", OUTPUT v-nxt-r-no).
       CREATE xoe-relh.
       ASSIGN
        xoe-relh.r-no      = v-nxt-r-no
@@ -342,7 +342,7 @@ DO bo-try = 1 TO 2:
     /** Find last release in the oe-rel file. **/
 /*     FIND FIRST oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR. */
 /*     i = (IF AVAIL oe-rel THEN oe-rel.r-no ELSE 0) + 1.   */
-    RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+    RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
     CREATE oe-rel.
     ASSIGN
      oe-rel.r-no      = v-nxt-r-no

@@ -1280,7 +1280,7 @@ PROCEDURE local-create-record :
 /*   10051225 */
 /*   find last oe-relh use-index r-no no-lock no-error.            */
 /*   li-next-r-no = if avail oe-relh then oe-relh.r-no + 1 else 1. */
-  RUN oe/get-r-no.p (INPUT "oe-relh", OUTPUT li-next-r-no).
+  RUN oe/getNextRelNo.p (INPUT "oe-relh", OUTPUT li-next-r-no).
   RUN oe/release#.p (g_company, OUTPUT li-next-release).
 
   /* Dispatch standard ADM method.                             */

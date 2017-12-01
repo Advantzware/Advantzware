@@ -234,7 +234,7 @@ DO TRANSACTION:
 /*   10051225 */
 /*   FIND LAST oe-relh USE-INDEX r-no NO-LOCK NO-ERROR. */
 /*   li = IF AVAIL oe-relh THEN oe-relh.r-no ELSE 0.    */
-  RUN oe/get-r-no.p (INPUT "oe-relh", OUTPUT v-nxt-r-no).
+  RUN oe/getNextRelNo.p (INPUT "oe-relh", OUTPUT v-nxt-r-no).
 
   RUN oe/release#.p (cocode, OUTPUT li2).
   

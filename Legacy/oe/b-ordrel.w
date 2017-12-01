@@ -1703,7 +1703,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
 /*         10051225 */
 /*         FIND FIRST oe-rel NO-LOCK USE-INDEX seq-no NO-ERROR.      */
 /*         v-nxt-r-no = IF AVAIL oe-rel THEN oe-rel.r-no + 1 ELSE 1. */
-        RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+        RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
         CREATE oe-rel.
         ASSIGN
          oe-rel.company   = oe-relh.company
@@ -1837,7 +1837,7 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
 /*           10051225 */
 /*           FIND FIRST oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR.      */
 /*           v-nxt-r-no = IF AVAIL oe-rel THEN oe-rel.r-no + 1 ELSE 1. */
-          RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+          RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
           CREATE oe-rel.
           ASSIGN
            oe-rel.company   = oe-relh.company
@@ -3797,7 +3797,7 @@ PROCEDURE local-create-record :
   
     /* Code placed here will execute PRIOR to standard behavior. */
 
-    RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+    RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
     FIND FIRST bf-cust WHERE bf-cust.cust-no EQ oe-ord.cust-no NO-LOCK NO-ERROR.
     ASSIGN
         v-ship-id = IF AVAIL oe-rel THEN oe-rel.ship-id ELSE ""
@@ -4634,7 +4634,7 @@ PROCEDURE local-update-record :
                v-totqty-inv-only = oe-rel.tot-qty.
   
        /* Add a new oe-rel */
-       RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+       RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
        
        CREATE bf-add-oe-rel.
        BUFFER-COPY oe-rel EXCEPT r-no rec_key TO bf-add-oe-rel.
