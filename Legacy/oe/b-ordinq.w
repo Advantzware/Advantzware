@@ -1901,6 +1901,7 @@ PROCEDURE pReleaseTT :
             AND oe-rel.i-no    EQ oe-ordl.i-no
             AND oe-rel.line    EQ oe-ordl.line
           :
+
 /*          FIND FIRST reftable NO-LOCK                                               */
 /*               WHERE reftable.reftable EQ "oe-rel.lot-no"                           */
 /*                 AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")          */

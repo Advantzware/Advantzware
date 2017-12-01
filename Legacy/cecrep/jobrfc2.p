@@ -89,6 +89,16 @@ DEF VAR lv-text AS cha NO-UNDO.
 DEF BUFFER b-itemfg FOR itemfg.
 DEF VAR cha-val AS cha NO-UNDO.
 
+DEF VAR ls-image1    AS CHAR                NO-UNDO.
+DEF VAR ls-full-img1 AS CHAR FORMAT "x(200)" NO-UNDO.
+
+ASSIGN 
+ ls-image1 = "images/Quality_Check_SheetRevC.jpg" .
+
+FILE-INFO:FILE-NAME = ls-image1.
+ls-full-img1 = FILE-INFO:FULL-PATHNAME + ">" .
+
+
 DO TRANSACTION:
    {sys/inc/tspostfg.i}
 END.
@@ -634,6 +644,9 @@ do v-local-loop = 1 to v-local-copies:
             i = i + 1.
             IF  i <= 6 THEN v-spec-note[i] = tt-formtext.tt-text.      
         END.
+
+        PAGE.
+           PUT "<#21><R1><C3><R50><C110><IMAGE#1=" ls-full-img1 SKIP .
 
         PAGE.
         PUT "<#11><C1><FROM><C106><R+47><RECT><||3><C80><P10>"

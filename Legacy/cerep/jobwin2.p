@@ -192,7 +192,7 @@ DEF BUFFER b-shipto FOR shipto.
 DEF BUFFER b-cust FOR cust.
 DEFINE VARIABLE v-last-job AS CHAR NO-UNDO .
 DEFINE VARIABLE lMachSheeter AS LOGICAL NO-UNDO .
-
+DEF VAR lv-rowid AS ROWID NO-UNDO.
 /* rdb 02/02/07 */
 DEFINE VARIABLE chrBarcode AS CHARACTER FORM "x(15)" EXTENT 10 NO-UNDO.
 DEFINE VARIABLE chrDummy   AS CHARACTER  NO-UNDO.
@@ -257,7 +257,8 @@ DEF VAR r          AS   INT          NO-UNDO.
 DEF VAR v-text     AS   CHAR         NO-UNDO.
 DEF VAR vjobreckey LIKE job.rec_key NO-UNDO.
 DEF VAR vitemreckey   LIKE itemfg.rec_key NO-UNDO.
-
+DEFINE VARIABLE dlayerDepth AS DECIMAL NO-UNDO .
+DEFINE VARIABLE ddivider AS DECIMAL NO-UNDO .
 DEF VAR v-die-no  LIKE eb.die-no NO-UNDO.
 
 format HEADER 
@@ -1308,6 +1309,16 @@ END FUNCTION.
                  " <=15>".
                  
         v-num-of-inks = 0. /* 1 thru 8 */
+
+        FOR EACH wrk-ink NO-LOCK BREAK BY wrk-ink.i-unit DESC:
+          IF FIRST(wrk-ink.i-unit)  THEN
+              i = wrk-ink.i-unit .
+          IF wrk-ink.i-unit = 0 THEN
+              ASSIGN
+              wrk-ink.i-unit = i + 1 
+              i = i + 1.
+
+        END.
    
 
         DO j = 1 TO 5:
@@ -1414,7 +1425,7 @@ END FUNCTION.
             FIRST item NO-LOCK
             WHERE item.company  EQ xjob-mat.company
               AND item.i-no     EQ xjob-mat.rm-i-no  
-              AND INDEX("W56",item.mat-type) GT 0
+              AND INDEX("W",item.mat-type) GT 0
             BREAK BY xjob-mat.rm-i-no
                   BY xjob-mat.wid
                   BY xjob-mat.len:
@@ -1437,7 +1448,7 @@ END FUNCTION.
             FIRST item NO-LOCK
             WHERE item.company  EQ xjob-mat.company
               AND item.i-no     EQ xjob-mat.rm-i-no  
-              AND INDEX("W56",item.mat-type) GT 0
+              AND INDEX("W",item.mat-type) GT 0
             BREAK BY item.i-no
                   BY xjob-mat.wid
                   BY xjob-mat.len:
@@ -1640,7 +1651,7 @@ END FUNCTION.
             FIRST item NO-LOCK
             WHERE item.company  EQ xjob-mat.company
               AND item.i-no     EQ xjob-mat.rm-i-no  
-              AND item.mat-type EQ "G"
+              AND INDEX("G",item.mat-type) GT 0
             BREAK BY item.i-no:
                          
           IF LAST-OF(item.i-no) THEN intLnCount = intLnCount + 1.
@@ -1649,7 +1660,7 @@ END FUNCTION.
         RUN PRpage (intLnCount).
                                                 
         PUT "<C1>Adhesive"   SKIP          /*RDR*/                                         
-             "<C1><u>RM Item #</u> <u>Description</u> "  SKIP.
+             "<C1><u>RM Item #</u> <u>Description</u>                     "  SKIP.
 
         FOR EACH xjob-mat NO-LOCK
             WHERE xjob-mat.company EQ job-hdr.company
@@ -1660,7 +1671,7 @@ END FUNCTION.
             FIRST item NO-LOCK
             WHERE item.company  EQ xjob-mat.company
               AND item.i-no     EQ xjob-mat.rm-i-no  
-              AND item.mat-type EQ "G"
+              AND INDEX("G",item.mat-type) GT 0
             BREAK BY item.i-no:
                          
           IF LAST-OF(item.i-no) THEN
@@ -1669,7 +1680,20 @@ END FUNCTION.
 		        item.i-name                                        
                 SKIP.
         END. /* xjob-mat */
+        IF AVAIL eb THEN do:
 
+            RUN find-depth-reftable(ROWID(eb), OUTPUT lv-rowid).
+            FIND reftable WHERE ROWID(reftable) EQ lv-rowid NO-ERROR.
+            IF AVAIL reftable THEN
+                ASSIGN
+                dlayerDepth  = reftable.val[1]
+                ddivider = reftable.val[2].
+
+          PUT "<C1>                       </u> <u>Length  </u> <u>Width  </u>  <u>Depth</u>      <u>Qty</u>" SKIP .
+          PUT "<C1> PackCode:  "  eb.cas-no FORMAT "x(10)" SPACE(2)  eb.cas-len SPACE(2)  eb.cas-wid SPACE(2)  eb.cas-dep SPACE(2) eb.spare-int-3 FORMAT ">>9"  SKIP
+              "<C1> Layer Pad: "  eb.layer-pad FORMAT "x(10)" SPACE(2) eb.lp-len SPACE(2)  eb.lp-wid SPACE(2) dlayerDepth FORMAT ">9.9999" SPACE(2) eb.lp-up  SKIP
+              "<C1> Divider:   "  eb.divider FORMAT "x(10)"  SPACE(2) eb.div-len SPACE(2)  eb.div-wid SPACE(2) ddivider FORMAT ">9.9999" SPACE(2) eb.div-up  SKIP  .
+        END.
         PUT " " SKIP.      
 
        /* 02/02/07
@@ -2313,5 +2337,60 @@ PROCEDURE PRprintfg3:
      END. /* IF FIRST-OF(x-hdr.i-no) THEN DO: */                                      
    END. /* FOR EACH x-hdr WHERE x-hdr.company = job-hdr.company */         
 END. /* PROCEDURE PRprintfg (INPUT vbookmark): */
+
+
+PROCEDURE find-depth-reftable :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+  DEF OUTPUT PARAM op-rowid AS ROWID NO-UNDO.
+
+  DEF BUFFER b-eb FOR eb.
+  DEF BUFFER b-rt FOR reftable.
+  DEF BUFFER b-item FOR ITEM.
+
+  FIND b-eb WHERE ROWID(b-eb) EQ ip-rowid NO-LOCK NO-ERROR.
+
+  IF AVAIL b-eb THEN DO TRANSACTION:
+     FIND FIRST b-rt
+          WHERE b-rt.reftable EQ "cedepth"
+            AND b-rt.company  EQ b-eb.company
+            AND b-rt.loc      EQ b-eb.est-no
+            AND b-rt.code     EQ STRING(b-eb.form-no,"9999999999")
+            AND b-rt.code2    EQ STRING(b-eb.blank-no,"9999999999")
+          NO-LOCK NO-ERROR.
+     IF NOT AVAIL b-rt THEN DO:
+        CREATE b-rt.
+        ASSIGN
+           b-rt.reftable = "cedepth"
+           b-rt.company  = b-eb.company
+           b-rt.loc      = b-eb.est-no
+           b-rt.code     = STRING(b-eb.form-no,"9999999999")
+           b-rt.code2    = STRING(b-eb.blank-no,"9999999999").
+
+        IF eb.layer-pad NE "" THEN
+        DO:
+           find FIRST b-item where
+                b-item.company = b-eb.company and
+                b-item.i-no = b-eb.layer-pad and
+                b-item.mat-type = "5"
+                no-lock no-error.
+
+           IF AVAIL b-item THEN
+           DO:
+              ASSIGN
+                 b-rt.val[1] = b-item.case-d
+                 b-rt.val[2] = b-item.case-d.
+              RELEASE b-item.
+           END.
+        END.
+    END.
+
+    op-rowid = ROWID(b-rt).
+  END.
+END PROCEDURE.
 
 /* end ---------------------------------- copr. 1994  advanced software, inc. */

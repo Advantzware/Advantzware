@@ -966,6 +966,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Loadtag Creation */
 DO:
+   IF INDEX(program-name(4),"asiLogin") <> 0 THEN
+       RUN system/userLogOut.p.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -1163,6 +1165,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
+   IF INDEX(program-name(4),"asiLogin") <> 0 THEN
+       RUN system/userLogOut.p.
    apply "close" to this-procedure.
 END.
 
