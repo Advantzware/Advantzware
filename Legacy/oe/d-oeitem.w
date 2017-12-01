@@ -295,7 +295,7 @@ RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 
 /* RUN sys/ref/uom-ea.p (OUTPUT lv-ea-list). */
 FOR EACH uom WHERE
-    uom.base-uom EQ "EA" AND
+    uom.other EQ "EA" AND
     uom.mult EQ 1:
     ASSIGN
         lv-ea-list = lv-ea-list + uom.uom + ",".
@@ -438,8 +438,7 @@ fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-2 oe-ordl.job-no oe-ordl.job-no2 oe-ordl.t-price ~
-oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3 fi_sman-lbl ~
-fi_sname-1 fi_s-pct-lbl fi_s-comm-lbl 
+oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -874,10 +873,10 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-2 IN FRAME d-oeitem
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
-   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
+   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.t-price IN FRAME d-oeitem
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ordl.tax IN FRAME d-oeitem
@@ -2124,7 +2123,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_qty-uom d-oeitem
 ON LEAVE OF fi_qty-uom IN FRAME d-oeitem
 DO:
-
   IF LASTKEY NE -1 THEN DO:
     RUN valid-uom (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -8956,8 +8954,21 @@ PROCEDURE valid-uom :
           VIEW-AS ALERT-BOX ERROR.
       RETURN ERROR.
     END.
-      
-    IF ip-focus:NAME EQ "fi_qty-uom"             AND
+    find first uom where
+        uom.uom = lv-uom
+        no-lock no-error.
+    if ip-focus:NAME EQ "fi_qty-uom"
+    and avail uom 
+    and uom.mult NE 1
+    and NOT CAN-DO("," + TRIM(lv-ea-list),lv-uom) then do:
+        assign
+           ld = DEC(oe-ordl.qty:SCREEN-VALUE)
+           ld = ld * uom.mult
+           oe-ordl.qty:SCREEN-VALUE = STRING(ld)
+           ip-focus:screen-value = "EA".
+        run leave-qty.
+    end.        
+    else IF ip-focus:NAME EQ "fi_qty-uom"             AND
        NOT CAN-DO("," + TRIM(lv-ea-list),lv-uom) AND
        ((lv-uom NE "CS" AND lv-uom NE "PLT") OR
         DEC(oe-ordl.cas-cnt:SCREEN-VALUE) NE 0)  THEN DO:
