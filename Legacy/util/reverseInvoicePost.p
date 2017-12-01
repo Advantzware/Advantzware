@@ -198,7 +198,7 @@ DEFINE TEMP-TABLE inv-misc LIKE inv-misc.
    def var v-rno as int.
 FOR EACH ar-inv WHERE ar-inv.company EQ '001' AND ar-inv.inv-no ge  611022 
 and inv-no le 611040:
-    v-rno = v-rno + 1.
+    v-rno = next-value(inv_r_no_seq).
     CREATE inv-head. 
     ASSIGN            
         inv-head.r-no          = v-rno                                

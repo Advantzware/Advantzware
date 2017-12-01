@@ -1028,14 +1028,8 @@ PROCEDURE create-invoice :
             WHERE cust.company EQ oe-ord.company
               AND cust.cust-no EQ oe-ord.cust-no.
 
-        FIND LAST inv-head USE-INDEX r-no NO-LOCK NO-ERROR.
-        lv-r-no = IF AVAIL inv-head THEN inv-head.r-no ELSE 0.
-  
-        FIND LAST inv-line USE-INDEX r-no NO-LOCK NO-ERROR.
-        IF AVAIL inv-line AND inv-line.r-no GT lv-r-no THEN lv-r-no = inv-line.r-no.
-  
-        lv-r-no = lv-r-no + 1.
-  
+        lv-r-no = NEXT-VALUE(inv_r_no_seq).
+        
         FOR EACH shipto NO-LOCK
             WHERE shipto.company EQ oe-ord.company
               AND shipto.cust-no EQ oe-ord.cust-no

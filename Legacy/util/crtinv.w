@@ -691,14 +691,8 @@ DEF VAR v-index AS INT NO-UNDO.
 
       IF v-index EQ 1 THEN
       DO:
-         FIND LAST inv-head USE-INDEX r-no NO-LOCK NO-ERROR.
-         v-ref-no = IF AVAIL inv-head THEN inv-head.r-no ELSE 0.
   
-         FIND LAST inv-line USE-INDEX r-no NO-LOCK NO-ERROR.
-         IF AVAIL inv-line AND inv-line.r-no GT v-ref-no THEN
-            v-ref-no = inv-line.r-no.
-  
-         v-ref-no = v-ref-no + 1.
+         v-ref-no = next-value(inv_r_no_seq).
 
          FIND FIRST oe-bolh WHERE
               oe-bolh.company EQ cocode AND

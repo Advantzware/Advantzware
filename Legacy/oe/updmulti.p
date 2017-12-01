@@ -59,13 +59,13 @@ END.
 
 IF ll-mult THEN DO:
   IF NOT AVAIL inv-mult THEN DO:
-    FIND LAST inv-head USE-INDEX r-no NO-LOCK NO-ERROR.
-    lv-r-no = IF AVAIL inv-head THEN inv-head.r-no ELSE 0.
+
+    lv-r-no = next-value(inv_r_no_seq).
 
     CREATE inv-mult.
     BUFFER-COPY io-inv-head EXCEPT rec_key TO inv-mult
     ASSIGN
-     inv-mult.r-no          = lv-r-no + 1
+     inv-mult.r-no          = lv-r-no
      inv-mult.multi-invoice = YES
      inv-mult.stat          = "H".
   END.

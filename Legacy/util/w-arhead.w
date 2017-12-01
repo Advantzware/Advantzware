@@ -1020,13 +1020,6 @@ PROCEDURE build-inv-header :
         AND shipto.cust-no EQ oe-bolh.cust-no
       USE-INDEX ship-no NO-ERROR.
 
-   DO WHILE TRUE :
-        FIND inv-head WHERE inv-head.r-no = v-ref-inv NO-LOCK NO-ERROR.
-        IF AVAILABLE inv-head THEN 
-            v-ref-inv = v-ref-inv + 1.
-        ELSE LEAVE.
-    END.
-
    
   CREATE inv-head.
   ASSIGN inv-head.sold-no    = shipto.ship-id
@@ -1940,8 +1933,8 @@ find last ar-inv use-index x-no no-lock no-error.
 
 v-ref-ar = ar-inv.x-no + 1.
 
-FIND LAST inv-head NO-LOCK USE-INDEX r-no NO-ERROR.
-v-ref-inv = IF AVAIL inv-head THEN inv-head.r-no + 1 ELSE 0.
+
+v-ref-inv = next-value(inv_r_no_seq).
 
 FIND LAST ar-invl NO-LOCK USE-INDEX x-no.
 v-ref-arl = ar-invl.x-no + 1.

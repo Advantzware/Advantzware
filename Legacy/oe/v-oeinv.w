@@ -1354,13 +1354,11 @@ PROCEDURE local-create-record :
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  X = 1.
-  find last bf-inv-head use-index r-no no-lock no-error.
-  if available bf-inv-head then x = bf-inv-head.r-no + 1.
-
+    x = next-value(inv_r_no_seq)
+    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
+  
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN ll-cred-lim = NO
          inv-head.r-no = x
