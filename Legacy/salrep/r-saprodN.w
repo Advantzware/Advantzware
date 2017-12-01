@@ -1145,6 +1145,10 @@ def var v-gtot-ytd-sqft  like v-gtot-sqft NO-UNDO.
 def var v-gtot-ytd-amt   like v-gtot-amt NO-UNDO.
 def var v-gtot-ytd-msf   like v-gtot-msf NO-UNDO.
 
+def var v-grtot-amt   like v-gtot-amt NO-UNDO.
+def var v-grtot-ptd-amt   like v-gtot-amt NO-UNDO.
+def var v-grtot-ytd-amt   like v-gtot-amt NO-UNDO.
+
 def var v-procat like fgcat.procat NO-UNDO.
 def var v-sqft like itemfg.t-sqft NO-UNDO.
 def var v-amt  like ar-inv.gross NO-UNDO.
@@ -1247,7 +1251,6 @@ assign
  /*v-ytd        = tb_ytd*/
  v-inc-fc     = tb_fin-chg
  v-misc       = tb_misc-sal.
-
 
  DEF VAR cslist AS cha NO-UNDO.
  FOR EACH ttRptSelected BY ttRptSelected.DisplayOrder:
@@ -1535,83 +1538,21 @@ display "" with frame r-top.
         END.
         
       end.
-
-
-      PUT SKIP str-line SKIP .
-      ASSIGN cDisplay = ""
-             cTmpField = ""
-             cVarValue = ""
-             cExcelDisplay = ""
-             cExcelVarValue = "".
-                DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-         cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-              CASE cTmpField:
-                  WHEN "cat"      THEN cVarValue = "" .
-                  WHEN "dly-sf"   THEN cVarValue = ""     .       
-                  WHEN "dly-amt"  THEN cVarValue =  STRING(dTax,"->,>>>,>>9.99")    .
-                  WHEN "dly-msf"  THEN cVarValue = ""     .      
-                  WHEN "ptd-sf"   THEN cVarValue = "" .
-                  WHEN "ptd-amt"  THEN cVarValue = STRING(dTax-ptd,"->,>>>,>>9.99") .
-                  WHEN "ptd-msf"  THEN cVarValue = "" .
-                  WHEN "ytd-sf"   THEN cVarValue = "" .
-                  WHEN "ytd-amt"  THEN cVarValue = STRING(dTax-ytd,"->,>>>,>>9.99") .  
-                  WHEN "ytd-msf"  THEN cVarValue = "" .
-
-              END CASE.
-
-              cExcelVarValue = cVarValue.
-              cDisplay = cDisplay + cVarValue +
-                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
-      END.
-      
-          PUT UNFORMATTED "  Tax  " substring(cDisplay,8,350) SKIP.
-          IF tb_excel THEN DO:
-              PUT STREAM excel UNFORMATTED  
-                  "  Tax " + substring(cExcelDisplay,3,300) SKIP.
-          END.
-         
-      ASSIGN cDisplay = ""
-             cTmpField = ""
-             cVarValue = ""
-             cExcelDisplay = ""
-             cExcelVarValue = "".
-                DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
-         cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
-              CASE cTmpField:
-                  WHEN "cat"      THEN cVarValue = "" .
-                  WHEN "dly-sf"   THEN cVarValue = ""     .       
-                  WHEN "dly-amt"  THEN cVarValue =  STRING(dFreight,"->,>>>,>>9.99")    .
-                  WHEN "dly-msf"  THEN cVarValue = ""     .      
-                  WHEN "ptd-sf"   THEN cVarValue = "" .
-                  WHEN "ptd-amt"  THEN cVarValue = STRING(dFreight-ptd,"->,>>>,>>9.99") .
-                  WHEN "ptd-msf"  THEN cVarValue = "" .
-                  WHEN "ytd-sf"   THEN cVarValue = "" .
-                  WHEN "ytd-amt"  THEN cVarValue = STRING(dFreight-ytd,"->,>>>,>>9.99") .  
-                  WHEN "ytd-msf"  THEN cVarValue = "" .
-
-              END CASE.
-
-              cExcelVarValue = cVarValue.
-              cDisplay = cDisplay + cVarValue +
-                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
-              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
-      END.
-      
-          PUT UNFORMATTED "Freight" substring(cDisplay,8,350) SKIP.
-          IF tb_excel THEN DO:
-              PUT STREAM excel UNFORMATTED  
-                  "Freight" + substring(cExcelDisplay,3,300) SKIP.
-          END.
-
       assign
        v-gtot-sqft     = v-gtot-sqft     + v-mtot-sqft
        v-gtot-amt      = v-gtot-amt      + v-mtot-amt
        v-gtot-ptd-sqft = v-gtot-ptd-sqft + v-mtot-ptd-sqft
        v-gtot-ptd-amt  = v-gtot-ptd-amt  + v-mtot-ptd-amt
        v-gtot-ytd-sqft = v-gtot-ytd-sqft + v-mtot-ytd-sqft
-       v-gtot-ytd-amt  = v-gtot-ytd-amt  + v-mtot-ytd-amt.
+       v-gtot-ytd-amt  = v-gtot-ytd-amt  + v-mtot-ytd-amt
+
+       v-grtot-amt     = v-grtot-amt + v-gtot-amt + dTax + dFreight
+       v-grtot-ptd-amt = v-grtot-ptd-amt + v-gtot-ptd-amt + dTax-ptd + dFreight-ptd
+       v-grtot-ytd-amt = v-grtot-ytd-amt + v-gtot-ytd-amt + dTax-ytd + dFreight-ytd.
+      
     end.
+
+
 
     find first tt-report
         where tt-report.term-id eq ""
@@ -1641,7 +1582,7 @@ display "" with frame r-top.
     {sa/sa-sprdN.i g}
 
     /* Print totals the second time */
-    put skip(1).
+    /*put skip(1).*/
    /* underline w-sqft
               w-amt
               w-msf
@@ -1725,6 +1666,110 @@ display "" with frame r-top.
             PUT STREAM excel UNFORMATTED  
                 "  TOTAL " + substring(cExcelDisplay,3,300) SKIP.
         END.
+
+        PUT SKIP str-line SKIP .
+      ASSIGN cDisplay = ""
+             cTmpField = ""
+             cVarValue = ""
+             cExcelDisplay = ""
+             cExcelVarValue = "".
+                DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+         cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+              CASE cTmpField:
+                  WHEN "cat"      THEN cVarValue = "" .
+                  WHEN "dly-sf"   THEN cVarValue = ""     .       
+                  WHEN "dly-amt"  THEN cVarValue =  STRING(dTax,"->,>>>,>>9.99")    .
+                  WHEN "dly-msf"  THEN cVarValue = ""     .      
+                  WHEN "ptd-sf"   THEN cVarValue = "" .
+                  WHEN "ptd-amt"  THEN cVarValue = STRING(dTax-ptd,"->,>>>,>>9.99") .
+                  WHEN "ptd-msf"  THEN cVarValue = "" .
+                  WHEN "ytd-sf"   THEN cVarValue = "" .
+                  WHEN "ytd-amt"  THEN cVarValue = STRING(dTax-ytd,"->,>>>,>>9.99") .  
+                  WHEN "ytd-msf"  THEN cVarValue = "" .
+
+              END CASE.
+
+              cExcelVarValue = cVarValue.
+              cDisplay = cDisplay + cVarValue +
+                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+      END.
+      
+          PUT UNFORMATTED "  Tax  " substring(cDisplay,8,350) SKIP.
+          IF tb_excel THEN DO:
+              PUT STREAM excel UNFORMATTED  
+                  "  Tax " + substring(cExcelDisplay,3,300) SKIP.
+          END.
+         
+      ASSIGN cDisplay = ""
+             cTmpField = ""
+             cVarValue = ""
+             cExcelDisplay = ""
+             cExcelVarValue = "".
+                DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+         cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+              CASE cTmpField:
+                  WHEN "cat"      THEN cVarValue = "" .
+                  WHEN "dly-sf"   THEN cVarValue = ""     .       
+                  WHEN "dly-amt"  THEN cVarValue =  STRING(dFreight,"->,>>>,>>9.99")    .
+                  WHEN "dly-msf"  THEN cVarValue = ""     .      
+                  WHEN "ptd-sf"   THEN cVarValue = "" .
+                  WHEN "ptd-amt"  THEN cVarValue = STRING(dFreight-ptd,"->,>>>,>>9.99") .
+                  WHEN "ptd-msf"  THEN cVarValue = "" .
+                  WHEN "ytd-sf"   THEN cVarValue = "" .
+                  WHEN "ytd-amt"  THEN cVarValue = STRING(dFreight-ytd,"->,>>>,>>9.99") .  
+                  WHEN "ytd-msf"  THEN cVarValue = "" .
+
+              END CASE.
+
+              cExcelVarValue = cVarValue.
+              cDisplay = cDisplay + cVarValue +
+                         FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+              cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+      END.
+      
+          PUT UNFORMATTED "Freight" substring(cDisplay,8,350) SKIP.
+          IF tb_excel THEN DO:
+              PUT STREAM excel UNFORMATTED  
+                  "Freight" + substring(cExcelDisplay,3,300) SKIP.
+          END.
+          
+              
+
+          PUT SKIP str-line SKIP .
+    ASSIGN cDisplay = ""
+               cTmpField = ""
+               cVarValue = ""
+               cExcelDisplay = ""
+               cExcelVarValue = "".
+                  DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
+           cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
+                CASE cTmpField:
+                  WHEN "cat"      THEN cVarValue = "" .
+                  WHEN "dly-sf"   THEN cVarValue = ""     .       
+                  WHEN "dly-amt"  THEN cVarValue =  STRING(v-grtot-amt,"->,>>>,>>9.99")    .
+                  WHEN "dly-msf"  THEN cVarValue = ""     .      
+                  WHEN "ptd-sf"   THEN cVarValue = "" .
+                  WHEN "ptd-amt"  THEN cVarValue = STRING(v-grtot-ptd-amt,"->,>>>,>>9.99") .
+                  WHEN "ptd-msf"  THEN cVarValue = "" .
+                  WHEN "ytd-sf"   THEN cVarValue = "" .
+                  WHEN "ytd-amt"  THEN cVarValue = STRING(v-grtot-ytd-amt,"->,>>>,>>9.99") .  
+                  WHEN "ytd-msf"  THEN cVarValue = "" .
+                END CASE.
+
+                cExcelVarValue = cVarValue.
+                cDisplay = cDisplay + cVarValue +
+                           FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
+                cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
+        END.
+
+        PUT UNFORMATTED "  GRAND TOTAL" substring(cDisplay,14,350) SKIP.
+        IF tb_excel THEN DO:
+            PUT STREAM excel UNFORMATTED  
+                "  GRAND TOTAL " + substring(cExcelDisplay,3,300) SKIP.
+        END.
+
+        
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.
