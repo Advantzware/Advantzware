@@ -181,7 +181,6 @@ FOR EACH po-ordl
         if last(job-mat.blank-no)            or
            job-mat.blank-no eq po-ordl.b-num then leave.
       end.
-
       if avail job-mat then do:
         find first ef
             where ef.company eq job.company
@@ -218,7 +217,7 @@ FOR EACH po-ordl
               v-adder[v-num-add] = xitem.i-no.
            end.
         END.
-        ELSE
+        ELSE 
            for each xjob-mat
                where xjob-mat.company  eq job-mat.company
                  and xjob-mat.job      eq job-mat.job
@@ -239,6 +238,7 @@ FOR EACH po-ordl
              
              if v-num-add ge 6 then leave.
         end.
+        
 
 
       end.
@@ -291,7 +291,8 @@ FOR EACH po-ordl
     vsTmpLine = po-ordl.pr-uom + vsTmp-v-sqft
     v-line-2 = ""
     cItemNo = "" 
-    v-line-1 = "" .
+    v-line-1 = ""
+    cVendItem = "" .
 
   IF AVAIL ITEM AND ITEM.mat-type = "B" AND ITEM.industry = "2" THEN
   DO:
@@ -306,59 +307,61 @@ FOR EACH po-ordl
          ASSIGN v-line-2 = v-line-2 + " Depth: " + v-dep-frac.
   END.
      v-line-1 = IF po-ordl.i-name NE "" THEN po-ordl.i-name ELSE "".
-     ASSIGN cItemNo = IF po-ordl.i-no NE "" THEN "Item#: " + po-ordl.i-no ELSE "".
+     ASSIGN cItemNo = IF po-ordl.i-no NE "" THEN "Item#:" + po-ordl.i-no ELSE ""
+            cVendItem = IF po-ordl.vend-i-no NE "" THEN "Vendor Item#:" + po-ordl.vend-i-no ELSE "".
+                                                                               
      
   PUT {1} v-ord-qty FORMAT "X(6)" TO 6
-          cItemNo FORMAT "X(23)" AT 8
+          cVendItem FORMAT "X(29)" AT 8
           v-adder[1] FORMAT "X(9)" AT 37
           v-job AT 47
           po-ordl.cost format ">>,>>9.99<<<" AT 60
           space(1) vsTmpLine
-          v-line-1 FORMAT "x(28)" AT 8
+          cItemNo FORMAT "x(23)" AT 8
           v-adder[2] FORMAT "X(9)" AT 37
           v-mach[1] FORMAT "X(6)" AT 50
           v-mach[2] FORMAT "X(1)" AT 57
           po-ordl.due-date FORMAT "99/99/99" AT 60
           v-cost FORMAT "->,>>>,>>9.99<<<" TO 80 SKIP
-          v-line-2 FORMAT "x(28)" AT 8 
+          v-line-1 FORMAT "x(28)" AT 8 
           v-adder[3] FORMAT "X(9)" AT 37.
 
   
-     IF v-adder[4] <> "" OR po-ordl.dscr[1] NE "" THEN
+     IF  v-adder[4] <> "" OR po-ordl.dscr[1] NE "" THEN
      DO:
         v-print-lines = v-print-lines + 1.
         PUT {1} po-ordl.dscr[1] format "x(28)" at 8
-            v-adder[4] AT 37 SKIP.
+            v-adder[4] FORMAT "X(9)" AT 37 SKIP.
      END.
 
-     IF v-adder[5] <> "" OR po-ordl.dscr[2] NE "" THEN
+     IF v-adder[5] <> "" OR po-ordl.dscr[2] NE "" OR v-setup NE "" THEN
      DO:
         v-print-lines = v-print-lines + 1.
         PUT {1} po-ordl.dscr[2] format "x(28)" at 8
-            v-adder[5] AT 37 SKIP.
+            v-adder[5] FORMAT "X(9)" AT 37 
+            v-setup FORMAT "x(16)" AT 49 SKIP.
      END.
+     
+    IF v-wid NE "" OR v-len NE "" OR v-dep2 NE "" OR (AVAIL ITEM AND ITEM.mat-type = "B" AND ITEM.industry EQ "2") OR v-adder[6] <> "" THEN
+         v-print-lines = v-print-lines + 1.
+     IF v-wid NE "" THEN
+         PUT {1} "W: " at 8 v-wid space(2).
+     IF v-len NE "" THEN
+         PUT {1} "L: " v-len space(2).
+     IF v-dep2 NE "" THEN
+         PUT {1} "D: " v-dep SPACE(2).
+     IF AVAIL ITEM AND ITEM.mat-type = "B" AND ITEM.industry EQ "2" THEN
+         PUT {1} "Flute: " item.flute space(2) item.reg-no format "x(6)".
      IF v-adder[6] <> "" THEN
      DO:
-        v-print-lines = v-print-lines + 1.
-        PUT {1} v-adder[5] AT 37 SKIP.
+        PUT {1} v-adder[6] FORMAT "X(9)" AT 37 SKIP.
      END.
-
 
   DISPLAY {1}
           string(po-ordl.over-pct,">9.99%") + "/" + string(po-ordl.under-pct,">9.99%") @ v-overrun
-          v-setup WITH FRAME po-line-2.
+          WITH FRAME po-line-2.
 
-  IF v-wid NE "" THEN
-    PUT {1} "W: " at 8 v-wid space(2).
-
-  IF v-len NE "" THEN
-    PUT {1} "L: " v-len space(2).
-
-  IF v-dep2 NE "" THEN
-    PUT {1} "D: " v-dep SPACE(2).
-
-  IF AVAIL ITEM AND ITEM.mat-type = "B" AND ITEM.industry EQ "2" THEN
-    PUT {1} "Flute: " item.flute space(2) item.reg-no format "x(6)".
+  
 
   run po/po-ordls.p (recid(po-ordl)).
             
