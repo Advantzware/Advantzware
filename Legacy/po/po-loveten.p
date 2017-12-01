@@ -86,6 +86,7 @@ DEF VAR v-len-frac AS CHAR NO-UNDO.
 DEF VAR v-dep-frac AS CHAR NO-UNDO.
 DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO .
 DEFINE VARIABLE cItemNo LIKE po-ordl.i-no NO-UNDO.
+DEFINE VARIABLE cVendItem LIKE po-ordl.vend-i-no NO-UNDO.
 
 {custom/formtext.i NEW}
 
