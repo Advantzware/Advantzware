@@ -1354,7 +1354,7 @@ PROCEDURE local-create-record :
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
-    x = next-value(inv_r_no_seq)
+    x = next-value(inv_r_no_seq).
     
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .

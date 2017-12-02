@@ -21,7 +21,6 @@
         END.
         WHEN "oe-relh" THEN ASSIGN
             opNextRelNo = NEXT-VALUE(oerel_release_seq).
-        END.
         OTHERWISE DO:
             MESSAGE
                 "Entered mode (" + ipMode + ") not supported" SKIP
