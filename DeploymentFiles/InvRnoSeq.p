@@ -35,6 +35,7 @@
             
         /* If the record is in ambiguous state or otherwise returns 0, keep trying */
         IF iLastDataValue EQ 0 THEN DO WHILE iLastDataValue EQ 0:
+            PAUSE 1.
             FIND LAST inv-head NO-LOCK
               USE-INDEX r-no 
               NO-ERROR.
