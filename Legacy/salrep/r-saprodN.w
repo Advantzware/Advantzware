@@ -1544,11 +1544,7 @@ display "" with frame r-top.
        v-gtot-ptd-sqft = v-gtot-ptd-sqft + v-mtot-ptd-sqft
        v-gtot-ptd-amt  = v-gtot-ptd-amt  + v-mtot-ptd-amt
        v-gtot-ytd-sqft = v-gtot-ytd-sqft + v-mtot-ytd-sqft
-       v-gtot-ytd-amt  = v-gtot-ytd-amt  + v-mtot-ytd-amt
-
-       v-grtot-amt     = v-grtot-amt + v-gtot-amt + dTax + dFreight
-       v-grtot-ptd-amt = v-grtot-ptd-amt + v-gtot-ptd-amt + dTax-ptd + dFreight-ptd
-       v-grtot-ytd-amt = v-grtot-ytd-amt + v-gtot-ytd-amt + dTax-ytd + dFreight-ytd.
+       v-gtot-ytd-amt  = v-gtot-ytd-amt  + v-mtot-ytd-amt.
       
     end.
 
@@ -1734,7 +1730,10 @@ display "" with frame r-top.
                   "Freight" + substring(cExcelDisplay,3,300) SKIP.
           END.
           
-              
+         ASSIGN
+             v-grtot-amt     = v-grtot-amt + v-gtot-amt + dTax + dFreight
+             v-grtot-ptd-amt = v-grtot-ptd-amt + v-gtot-ptd-amt + dTax-ptd + dFreight-ptd
+             v-grtot-ytd-amt = v-grtot-ytd-amt + v-gtot-ytd-amt + dTax-ytd + dFreight-ytd.    
 
           PUT SKIP str-line SKIP .
     ASSIGN cDisplay = ""

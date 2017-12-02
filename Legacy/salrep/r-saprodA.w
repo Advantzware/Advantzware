@@ -1143,19 +1143,15 @@ display "" with frame r-top.
 
         put skip.
       end.
-               
 
+ 
       assign
        v-gtot-sqft     = v-gtot-sqft     + v-mtot-sqft
        v-gtot-amt      = v-gtot-amt      + v-mtot-amt
        v-gtot-ptd-sqft = v-gtot-ptd-sqft + v-mtot-ptd-sqft
        v-gtot-ptd-amt  = v-gtot-ptd-amt  + v-mtot-ptd-amt
        v-gtot-ytd-sqft = v-gtot-ytd-sqft + v-mtot-ytd-sqft
-       v-gtot-ytd-amt  = v-gtot-ytd-amt  + v-mtot-ytd-amt
-       v-grtot-amt     = v-grtot-amt + v-gtot-amt + dTax + dFreight
-       v-grtot-ptd-amt = v-grtot-ptd-amt + v-gtot-ptd-amt + dTax-ptd + dFreight-ptd
-       v-grtot-ytd-amt = v-grtot-ytd-amt + v-gtot-ytd-amt + dTax-ytd + dFreight-ytd.  
-
+       v-gtot-ytd-amt  = v-gtot-ytd-amt  + v-mtot-ytd-amt.
     end.
 
     find first tt-report
@@ -1208,6 +1204,8 @@ display "" with frame r-top.
       v-gtot-ytd-amt / v-gtot-ytd-sqft
       else 0).
 
+
+
     DISPLAY "  TOTAL"                   @ w-procat
             v-gtot-sqft                 @ w-sqft
             v-gtot-amt                  @ w-amt
@@ -1236,6 +1234,11 @@ display "" with frame r-top.
                ELSE "" '",'
            '"' IF v-ytd THEN STRING(v-gtot-ytd-msf,"->,>>>,>>9.99")
                ELSE "" '",' .
+    ASSIGN
+       v-grtot-amt     = v-grtot-amt + v-gtot-amt + dTax + dFreight
+       v-grtot-ptd-amt = v-grtot-ptd-amt + v-gtot-ptd-amt + dTax-ptd + dFreight-ptd
+       v-grtot-ytd-amt = v-grtot-ytd-amt + v-gtot-ytd-amt + dTax-ytd + dFreight-ytd.
+       
      PUT SKIP.
      PUT "    Tax   " SPACE(14) dTax FORMAT "->,>>>,>>9.99" 
           SPACE(28)  dTax-ptd FORMAT "->,>>>,>>9.99" .
