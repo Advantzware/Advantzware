@@ -294,20 +294,20 @@ DEFINE FRAME F-Main
      cust-markup.run-qty[1] AT ROW 6 COL 8 NO-LABEL WIDGET-ID 56 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     cust-markup.markup[1] AT ROW 6 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     cust-markup.markup[1] AT ROW 6 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 36 FORMAT ">9.9999"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-01 AT ROW 6 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 14
      cust-markup.lookup_reduction[1] AT ROW 6 COL 70 COLON-ALIGNED NO-LABEL WIDGET-ID 92
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
-     cust-markup.markup_reduction[1] AT ROW 6 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 112
+     cust-markup.markup_reduction[1] AT ROW 6 COL 91 COLON-ALIGNED NO-LABEL WIDGET-ID 112 
           VIEW-AS FILL-IN 
           SIZE 14 BY 1
      cust-markup.run-qty[2] AT ROW 7.19 COL 8 NO-LABEL WIDGET-ID 58 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     cust-markup.markup[2] AT ROW 7.19 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 38
+     cust-markup.markup[2] AT ROW 7.19 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 38 FORMAT ">9.9999"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-02 AT ROW 7.19 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 16
@@ -320,7 +320,7 @@ DEFINE FRAME F-Main
      cust-markup.run-qty[3] AT ROW 8.38 COL 8 NO-LABEL WIDGET-ID 60 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     cust-markup.markup[3] AT ROW 8.38 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 40
+     cust-markup.markup[3] AT ROW 8.38 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 40 FORMAT ">9.9999"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-03 AT ROW 8.38 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 18
@@ -333,7 +333,7 @@ DEFINE FRAME F-Main
      cust-markup.run-qty[4] AT ROW 9.57 COL 8 NO-LABEL WIDGET-ID 62 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     cust-markup.markup[4] AT ROW 9.57 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 42
+     cust-markup.markup[4] AT ROW 9.57 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 42 FORMAT ">9.9999"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-04 AT ROW 9.57 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 20
@@ -353,7 +353,7 @@ DEFINE FRAME F-Main
      cust-markup.run-qty[5] AT ROW 10.76 COL 8 NO-LABEL WIDGET-ID 64 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     cust-markup.markup[5] AT ROW 10.76 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 44
+     cust-markup.markup[5] AT ROW 10.76 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 44 FORMAT ">9.9999"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-05 AT ROW 10.76 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 22
@@ -366,7 +366,7 @@ DEFINE FRAME F-Main
      cust-markup.run-qty[6] AT ROW 11.95 COL 8 NO-LABEL WIDGET-ID 66 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     cust-markup.markup[6] AT ROW 11.95 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 46
+     cust-markup.markup[6] AT ROW 11.95 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 46 FORMAT ">9.9999"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-06 AT ROW 11.95 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 24
@@ -379,7 +379,7 @@ DEFINE FRAME F-Main
      cust-markup.run-qty[7] AT ROW 13.14 COL 8 NO-LABEL WIDGET-ID 68 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     cust-markup.markup[7] AT ROW 13.14 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+     cust-markup.markup[7] AT ROW 13.14 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 48  FORMAT ">9.9999"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-07 AT ROW 13.14 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 26
@@ -392,7 +392,7 @@ DEFINE FRAME F-Main
      cust-markup.run-qty[8] AT ROW 14.33 COL 8 NO-LABEL WIDGET-ID 70 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     cust-markup.markup[8] AT ROW 14.33 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 50
+     cust-markup.markup[8] AT ROW 14.33 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 50 FORMAT ">9.9999"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-08 AT ROW 14.33 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 28
@@ -405,7 +405,7 @@ DEFINE FRAME F-Main
      cust-markup.run-qty[9] AT ROW 15.52 COL 8 NO-LABEL WIDGET-ID 72 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     cust-markup.markup[9] AT ROW 15.52 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 52
+     cust-markup.markup[9] AT ROW 15.52 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 52 FORMAT ">9.9999"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
@@ -425,7 +425,7 @@ DEFINE FRAME F-Main
      cust-markup.run-qty[10] AT ROW 16.71 COL 8 NO-LABEL WIDGET-ID 54 FORMAT ">>>,>>>,>>9.9<<<<"
           VIEW-AS FILL-IN 
           SIZE 18 BY 1
-     cust-markup.markup[10] AT ROW 16.71 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 34
+     cust-markup.markup[10] AT ROW 16.71 COL 25 COLON-ALIGNED NO-LABEL WIDGET-ID 34 FORMAT ">9.9999"
           VIEW-AS FILL-IN 
           SIZE 12 BY 1
      cb_markup-on-10 AT ROW 16.71 COL 38 COLON-ALIGNED NO-LABEL WIDGET-ID 32
