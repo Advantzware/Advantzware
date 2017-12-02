@@ -237,6 +237,7 @@
 "" "" "inv_no" "ar-inv" "0307200200045503"
 "" "" "m_prgmname" "prgrms." "0724199800000036"
 "" "" "m_user_id" "users." "0724199800000037"
+"" "" "scr-rel#" "relno." "1201201701841082"
 "" "" "svEndBOL" "bolh." "0728201700400093"
 "" "" "svEndCompany" "company." "0728201700400032"
 "" "" "svEndCurrency" "currency." "0728201700400065"
@@ -288,6 +289,7 @@
 "" "" "vi_stock-no" "itemfg." "0128200300056207"
 "" "" "vi_style" "style." "0130200300056412"
 "ASI" "account" "actnum" "account." "0724200200032066"
+"ASI" "address" "zipcode" "zipcode." "1201201701841078"
 "ASI" "ap-chk" "bank-code" "bank." "0806200200033956"
 "ASI" "ap-chk" "vend-no" "vend." "0806200200033955"
 "ASI" "ap-ctrl" "cash-act" "account." "0201200000003167"
@@ -443,3 +445,15 @@
 "NOSWEAT" "phone" "titlcode" "titlcode." "0724199800000039"
 "NOSWEAT" "prgmxref" "prgmname" "prgrms." "0724199800000040"
 "NOSWEAT" "zipcode" "state" "statecod." "0724199800000041"
+.
+PSC
+filename=lookups
+records=0000000000447
+ldbname=ASI
+timestamp=2017/12/01-14:29:20
+numformat=44,46
+dateformat=mdy-1950
+map=NO-MAP
+cpstream=ISO8859-1
+.
+0000023236
