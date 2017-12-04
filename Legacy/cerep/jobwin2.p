@@ -198,6 +198,7 @@ DEFINE VARIABLE chrBarcode AS CHARACTER FORM "x(15)" EXTENT 10 NO-UNDO.
 DEFINE VARIABLE chrDummy   AS CHARACTER  NO-UNDO.
 /* rdb 02/16/07 */
 DEFINE VARIABLE intLnCount AS INTEGER    NO-UNDO.
+DEFINE VARIABLE cInkCoatingLst AS CHARACTER NO-UNDO.
 
 
 DEF VAR v-num-of-fgitm AS INT NO-UNDO.
@@ -1309,16 +1310,6 @@ END FUNCTION.
                  " <=15>".
                  
         v-num-of-inks = 0. /* 1 thru 8 */
-
-        FOR EACH wrk-ink NO-LOCK BREAK BY wrk-ink.i-unit DESC:
-          IF FIRST(wrk-ink.i-unit)  THEN
-              i = wrk-ink.i-unit .
-          IF wrk-ink.i-unit = 0 THEN
-              ASSIGN
-              wrk-ink.i-unit = i + 1 
-              i = i + 1.
-
-        END.
    
 
         DO j = 1 TO 5:
@@ -1343,6 +1334,15 @@ END FUNCTION.
           END.
         END.
 
+        FOR EACH wrk-ink NO-LOCK 
+            WHERE wrk-ink.i-unit = 0 BREAK BY wrk-ink.i-unit DESC:
+          ASSIGN cInkCoatingLst = cInkCoatingLst + STRING(wrk-ink.i-code) + " - " + 
+                                  STRING(wrk-ink.i-dscr,"x(20)").
+          IF NOT LAST(wrk-ink.i-unit) THEN
+              ASSIGN cInkCoatingLst = cInkCoatingLst + ",".
+        END.
+        IF cInkCoatingLst NE "" THEN
+            PUT "<B>Coatings: </B>" cInkCoatingLst FORMAT "x(300)".
         PUT "" SKIP 
              "Approval & In-Process Inspection Checklist Complete : <FROM><R+1><C+2><RECT><||3> " SKIP.
 
