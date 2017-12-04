@@ -174,7 +174,6 @@ END.
 DO TRANSACTION:
     {sys/inc/overwriteJobPlan.i}  
 END.
-lOverwriteJobPlan-Log = cOverwriteJobPlan-Char EQ "Yes".
 
 FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
@@ -1522,6 +1521,7 @@ DO:
                 job-mch.n-on     = IF mach.p-type EQ "B" THEN 1 ELSE
                                      (v-up * v-out / v-on-f)
                 job-mch.est-op_rec_key = op.rec_key
+                lOverwriteJobPlan-Log  = cOverwriteJobPlan-Char NE "No"
                 .
       
             FIND FIRST tt-job-mch
@@ -1541,18 +1541,16 @@ DO:
                  NO-ERROR.
             IF AVAILABLE tt-job-mch THEN DO:
                 IF job-mch.m-code NE tt-job-mch.m-code THEN DO:
-                    IF lOverwriteJobPlan-Log EQ NO THEN DO:
-                        IF cOverwriteJobPlan-Char EQ "Ask" THEN DO:
-                            MESSAGE
-                                "Job:" job-mch.job-no + "-" + STRING(job-mch.job-no2)
-                                "Form:" job-mch.frm SKIP(1)
-                                "Routing has changed from ~"" + job-mch.m-code +
-                                "~" to ~"" + tt-job-mch.m-code + "~"." SKIP(1)
-                                "Allow this Routing Change?"
-                            VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
-                            UPDATE lOverwriteJobPlan-Log.
-                        END. /* if ask */
-                    END. /* overwrite job plan NO */ 
+                    IF cOverwriteJobPlan-Char EQ "Ask" THEN DO:
+                        MESSAGE
+                            "Job:" job-mch.job-no + "-" + STRING(job-mch.job-no2)
+                            "Form:" job-mch.frm SKIP(1)
+                            "Routing has changed from ~"" + job-mch.m-code +
+                            "~" to ~"" + tt-job-mch.m-code + "~"." SKIP(1)
+                            "Allow this Routing Change?"
+                        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+                        UPDATE lOverwriteJobPlan-Log.
+                    END. /* if ask */
                 END. /* differing machince codes */ 
                 IF lOverwriteJobPlan-Log EQ YES THEN
                 ASSIGN
