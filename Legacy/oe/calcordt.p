@@ -18,6 +18,11 @@ DEF VAR lvdT-Revenue LIKE oe-ord.t-revenue NO-UNDO.
 DEF VAR lvdTax LIKE oe-ord.tax NO-UNDO.
 DEF VAR lvdT-Weight LIKE oe-ord.t-weight NO-UNDO.
 DEF VAR lvdT-Freight LIKE oe-ord.t-freight NO-UNDO.
+DEF VAR dtCost LIKE oe-ord.t-cost NO-UNDO.
+DEF VAR dtRevenue LIKE oe-ord.t-revenue NO-UNDO.
+DEF VAR dtTax LIKE oe-ord.tax NO-UNDO.
+DEF VAR dtWeight LIKE oe-ord.t-weight NO-UNDO.
+DEF VAR dtFreight LIKE oe-ord.t-freight NO-UNDO.
 
 DEF BUFFER bf-oe-ord FOR oe-ord.
 
@@ -127,6 +132,12 @@ IF AVAIL oe-ord THEN DO:
     FIND bf-oe-ord WHERE ROWID(bf-oe-ord) EQ ROWID(oe-ord)
       EXCLUSIVE-LOCK.
     ASSIGN
+       dtCost = bf-oe-ord.t-cost
+       dtRevenue = bf-oe-ord.t-revenue
+       dtTax = bf-oe-ord.tax
+       dtWeight = bf-oe-ord.t-weight
+       dtFreight = bf-oe-ord.t-freight
+
        bf-oe-ord.t-cost    = lvdT-cost  
        bf-oe-ord.t-revenue = lvdT-Revenue  
        bf-oe-ord.tax       = lvdTax  
@@ -136,14 +147,12 @@ IF AVAIL oe-ord THEN DO:
   END.
 
 
-
   IF oe-ord.cust-no NE "" AND
-     v-call-from-jc EQ NO AND
+     v-call-from-jc EQ NO /* AND
      AVAIL cust AND 
-     (oe-ord.t-revenue NE lvdT-Revenue OR oe-ord.tax NE lvdTax) THEN
+     (oe-ord.t-revenue NE lvdT-Revenue OR oe-ord.tax NE lvdTax) */ THEN
      DO:
         REPEAT:
-       
            FIND FIRST cust
                 {sys/ref/custW.i}
                 AND cust.cust-no EQ oe-ord.cust-no
@@ -151,7 +160,7 @@ IF AVAIL oe-ord THEN DO:
        
            IF AVAIL cust THEN
            DO:
-              cust.ord-bal = cust.ord-bal - oe-ord.t-revenue - oe-ord.tax.
+              cust.ord-bal = cust.ord-bal - dtRevenue - dtTax.
               cust.ord-bal = cust.ord-bal + lvdT-Revenue + lvdTax.
               FIND CURRENT cust NO-LOCK.
               LEAVE.
