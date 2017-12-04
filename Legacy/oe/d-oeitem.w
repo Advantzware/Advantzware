@@ -1686,6 +1686,8 @@ DO:
     
       RUN oe/oe-comm.p.  
     
+      RUN oe/calcordt.p (ROWID(oe-ord)).  
+    
       IF ld-prev-t-price NE oe-ordl.t-price OR ip-type BEGINS "update-" THEN
          RUN oe/creditck.p (ROWID(oe-ord), YES).  
     
@@ -1877,7 +1879,6 @@ DO:
           UPDATE ll.
     END.
     IF ll THEN oe-ord.due-date = oe-ordl.req-date.
-  
 
     FIND CURRENT oe-ord NO-LOCK NO-ERROR.
   END.
@@ -1960,10 +1961,6 @@ DO:
         END. /* if ll-ans */
       END. /* If invoice was found */
     END. /* If Price was modified */
-    
-  find oe-ord of oe-ordl no-lock no-error.
-  RUN oe/calcordt.p (ROWID(oe-ord)).  
-
   APPLY "go" TO FRAME {&FRAME-NAME}.
 
 END.
