@@ -1100,10 +1100,11 @@ IF ip-all-one EQ "all" THEN
        WHERE fg-bin.company EQ cocode
          AND fg-bin.i-no    EQ v-i-no
          AND fg-bin.qty     GT 0
+         AND fg-bin.cust-no EQ '' /* ticket 23164 */
     NO-LOCK:
 
     /*IF v-cust EQ fg-bin.cust-no AND rel-type EQ "S" THEN NEXT.*/          /*Task# 12231304*/ 
-    IF v-cust EQ fg-bin.cust-no THEN NEXT.  /* ticket 23164 */
+/*    IF v-cust EQ fg-bin.cust-no THEN NEXT.*/
 
     IF NOT((TRIM(fg-bin.job-no) EQ "" OR
               NOT CAN-FIND(FIRST job
@@ -1122,10 +1123,11 @@ FOR EACH fg-bin
       AND fg-bin.job-no  EQ v-job-no
       AND fg-bin.job-no2 EQ v-job-no2
       AND fg-bin.qty     GT 0
+      AND fg-bin.cust-no EQ '' /* ticket 23164 */
     NO-LOCK:
 
     /*IF v-cust EQ fg-bin.cust-no AND rel-type EQ "S" THEN NEXT.*/      /*Task# 12231304*/ 
-    IF v-cust EQ fg-bin.cust-no THEN NEXT.  /* ticket 23164 */
+/*    IF v-cust EQ fg-bin.cust-no THEN NEXT.*/
 
     IF NOT((TRIM(fg-bin.job-no) EQ "" OR
            NOT CAN-FIND(FIRST job
