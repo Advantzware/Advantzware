@@ -127,18 +127,20 @@
         put skip(1).
         
         if v-misc and tt-report.key-01 eq "MISC" then do:
-          put w-procat format "x(25)" space(2).
           
           find first account
               where account.company eq cocode
                 and account.actnum  eq tt-report.key-02
               no-lock no-error.
               
-          if avail account then put account.dscr.
-          
+          if avail account then w-procat  = w-procat + "  " + account.dscr.
+          put w-procat format "x(50)" space(2).
           put skip.
-        end.
-        
+          IF tb_excel THEN DO:
+             PUT STREAM excel UNFORMATTED  
+                   w-procat SKIP.
+         END.
+        END.
       /*  display w-procat    when not (v-misc and tt-report.key-01 eq "MISC")
                 w-sqft
                 w-amt
@@ -178,7 +180,7 @@
                   DO i = 1 TO NUM-ENTRIES(cSelectedlist):                             
            cTmpField = entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldListToSelect).
                 CASE cTmpField:
-                    WHEN "cat"      THEN cVarValue = (IF not (v-misc and tt-report.key-01 eq "MISC") THEN w-procat ELSE w-procat + " " + (IF AVAIL account THEN account.dscr ELSE "")) .
+                    WHEN "cat"      THEN cVarValue = (IF not (v-misc and tt-report.key-01 eq "MISC") THEN w-procat ELSE "").
                     WHEN "dly-sf"   THEN cVarValue =  STRING(w-sqft,"->>>,>>9.999") .    
                     WHEN "dly-amt"  THEN cVarValue =  STRING(w-amt,"->,>>>,>>9.99") .
                     WHEN "dly-msf"  THEN cVarValue =  STRING(w-msf,"->,>>>,>>9.99") .   
