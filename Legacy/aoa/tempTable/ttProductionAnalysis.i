@@ -47,6 +47,7 @@ DEFINE TEMP-TABLE ttProductionAnalysis NO-UNDO
     FIELD dept           AS CHARACTER LABEL "Department"      FORMAT "x(2)"
     FIELD actMachine     AS CHARACTER LABEL "Act Machine"     FORMAT "x(6)"
     FIELD opDate         AS DATE      LABEL "Oper Date"       FORMAT "99/99/9999"
+    FIELD opTime         AS CHARACTER LABEL "Oper Time"       FORMAT "x(11)"
     FIELD startDate      AS DATE      LABEL "Start Date"      FORMAT "99/99/9999"
     FIELD startTime      AS CHARACTER LABEL "Start Time"      FORMAT "x(11)"
     FIELD xxTotMRHrs     AS DECIMAL   LABEL "Total MR Hrs"    FORMAT "->>>9.99"
