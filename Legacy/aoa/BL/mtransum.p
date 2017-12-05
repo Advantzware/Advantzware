@@ -33,8 +33,8 @@ FOR EACH machtran NO-LOCK
       AND machtran.start_date LE dtEndMachTranDate
       AND machtran.shift      GE STRING(iStartShift)
       AND machtran.shift      LE STRING(iEndShift)
-      AND DATETIME(machtran.start_date,machtran.start_time) GE DATETIME(dtStartMachTranDate,iShiftStartTime)
-      AND DATETIME(machtran.start_date,machtran.start_time) LE DATETIME(dtEndMachTranDate,iShiftEndTime)
+      AND DATETIME(machtran.start_date,machtran.start_time * 1000) GE DATETIME(dtStartMachTranDate,iShiftStartTime)
+      AND DATETIME(machtran.start_date,machtran.start_time * 1000) LE DATETIME(dtEndMachTranDate,iShiftEndTime)
     :
     cJobNo = machtran.job_number + "-" + STRING(machtran.job_sub,"99").
     FIND FIRST ttMachineTransactionSummary
