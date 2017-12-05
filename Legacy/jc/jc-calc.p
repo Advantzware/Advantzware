@@ -1521,7 +1521,7 @@ DO:
                 job-mch.n-on     = IF mach.p-type EQ "B" THEN 1 ELSE
                                      (v-up * v-out / v-on-f)
                 job-mch.est-op_rec_key = op.rec_key
-                lOverwriteJobPlan-Log  = cOverwriteJobPlan-Char NE "No"
+                lOverwriteJobPlan-Log  = cOverwriteJobPlan-Char NE "Yes"
                 .
       
             FIND FIRST tt-job-mch
