@@ -67,12 +67,17 @@ FOR EACH ar-inv NO-LOCK
             TRIM(ar-invl.job-no) +
             STRING(ar-invl.job-no2,"99") LE cEndJobNo + STRING(iEndJobNo2,"99"))
        OR   lAllJobNo EQ YES)
-      AND NOT ar-invl.misc,
+      AND ar-invl.misc EQ NO,
     FIRST itemfg NO-LOCK 
     WHERE itemfg.company EQ ar-inv.company
       AND itemfg.i-no    EQ ar-invl.i-no
     BREAK BY ar-inv.inv-no BY ar-inv.inv-date
     :
+    IF lCustList AND
+       NOT CAN-FIND(FIRST ttCustList
+                    WHERE ttCustList.cust-no EQ ar-inv.cust-no
+                      AND ttCustList.log-fld EQ TRUE) THEN
+    NEXT.
     ASSIGN
         iPallets  = 0
         dFrtRate[1] = 0

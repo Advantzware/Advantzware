@@ -152,6 +152,7 @@ PROCEDURE pProductionAnalysis1:
                     ttProductionAnalysis.pass       = mch-act.pass
                     ttProductionAnalysis.actMachine = mch-act.m-code
                     ttProductionAnalysis.opDate     = mch-act.op-date
+                    ttProductionAnalysis.opTime     = STRING(mch-act.op-time,"hh:mm:ss am")
                     ttProductionAnalysis.startDate  = ttProductionAnalysis.opDate
                     .
               RUN pProRateMR.
