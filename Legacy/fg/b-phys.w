@@ -1398,11 +1398,8 @@ PROCEDURE local-create-record :
 
   FOR LAST b-fg-rctd FIELDS(company r-no rct-date) NO-LOCK 
       WHERE b-fg-rctd.company = cocode
-        AND b-fg-rctd.rita-code = "C",
-      FIRST reftable NO-LOCK 
-      WHERE reftable.reftable EQ "fg-rctd.user-id" 
-        AND reftable.company  EQ b-fg-rctd.company 
-        AND reftable.loc      EQ STRING(b-fg-rctd.r-no,"9999999999"):
+        AND b-fg-rctd.rita-code = "C".
+
 
       ASSIGN v_rct-date = b-fg-rctd.rct-date.
 

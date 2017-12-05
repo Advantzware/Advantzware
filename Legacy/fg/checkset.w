@@ -425,23 +425,15 @@ PROCEDURE checkset :
           NO-LOCK:
 
 
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "fg-rctd.user-id" AND
-             reftable.company  EQ cocode AND
-             reftable.loc      EQ STRING(b-fg-rctd.r-no,"9999999999") AND
-             reftable.dscr BEGINS "fg-rctd: "
-             NO-LOCK NO-ERROR.
-
-        IF AVAIL reftable THEN
-        DO:
-           v-int = INT(SUBSTRING(reftable.dscr,9)).
-
+        IF fg-rctd.created-by NE "" THEN
+          DO:
+           v-int = b-fg-rctd.r-no.
            IF NOT CAN-FIND(FIRST b2-fg-rctd WHERE
-              b2-fg-rctd.r-no EQ v-int AND
-              b2-fg-rctd.rita-code NE "P"
-              AND ROWID(b2-fg-rctd)    NE ip-rowid2) THEN
-              NEXT.
-        END.
+             b2-fg-rctd.r-no EQ v-int AND
+             b2-fg-rctd.rita-code NE "P"
+             AND ROWID(b2-fg-rctd)    NE ip-rowid2) THEN
+             NEXT.
+          END.   
 
       /* v-set-use already includes this number, unless there is another */
       /* positive receipt for the component separate from the set header */

@@ -2485,18 +2485,11 @@ DO li-loop = 1 TO NUM-ENTRIES(v-postlst):
         AND fg-rctd.loc-bin   NE ""
         AND fg-rctd.loc       GE begin_whs
         AND fg-rctd.loc       LE end_whs
-        AND ((begin_userid    LE "" AND
-              end_userid      GE "" AND
-              NOT CAN-FIND(FIRST reftable
-                           WHERE reftable.reftable EQ "fg-rctd.user-id"
-                             AND reftable.company  EQ fg-rctd.company
-                             AND reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999"))) OR
-             CAN-FIND(FIRST reftable
-                      WHERE reftable.reftable EQ "fg-rctd.user-id"
-                        AND reftable.company  EQ fg-rctd.company
-                        AND reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999")
-                        AND reftable.code     GE begin_userid
-                        AND reftable.code     LE end_userid))
+        AND begin_userid      LE "" 
+        AND end_userid      GE "" 
+        AND fg-rctd.created-by GE begin_userid
+        AND fg-rctd.created-by LE end_userid     
+
       USE-INDEX rita-code:
 
     RUN build-tables.

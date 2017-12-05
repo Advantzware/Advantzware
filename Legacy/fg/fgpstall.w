@@ -1306,13 +1306,7 @@ FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code EQ "R":
             AND fg-set.set-no  EQ w-fg-rctd.i-no
          NO-LOCK:
 
-        FIND FIRST reftable
-          WHERE reftable.reftable EQ "fg-rctd.user-id"
-            AND reftable.company  EQ w-fg-rctd.company
-            AND reftable.loc      EQ STRING(w-fg-rctd.r-no,"9999999999")
-          NO-LOCK NO-ERROR.
 
-        IF AVAIL reftable THEN DO:
 
             FOR EACH bf-fg-rctd 
                   WHERE bf-fg-rctd.company EQ w-fg-rctd.company
@@ -1320,12 +1314,6 @@ FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code EQ "R":
                     AND bf-fg-rctd.rita-code EQ "R" 
                   NO-LOCK:
 
-                FOR EACH reftable 
-                    WHERE reftable.reftable EQ "fg-rctd.user-id"
-                      AND reftable.company  EQ bf-fg-rctd.company
-                      AND reftable.loc      EQ STRING(bf-fg-rctd.r-no,"9999999999")        
-                      AND (reftable.dscr EQ "fg-rctd: " + STRING(w-fg-rctd.r-no, "9999999999") AND reftable.dscr BEGINS "fg-rctd: ")  
-                    USE-INDEX loc   NO-LOCK .
 
                   FIND fg-rctd WHERE ROWID(fg-rctd) EQ ROWID(bf-fg-rctd)
                       NO-LOCK NO-ERROR.
@@ -1336,8 +1324,8 @@ FOR EACH w-fg-rctd WHERE w-fg-rctd.rita-code EQ "R":
                         RUN build-tables.
                   END.
 
-                END. /* each reftable */
-            END. /* each bf-fg-rctd */
+/*                END. /* each reftable */*/
+/*            END. /* each bf-fg-rctd */  */
         END. /* avail reftable for header item */
     END. /* each fg-set */
 
@@ -3000,12 +2988,7 @@ PROCEDURE get-ord-recs :
           AND b-oe-ord.ord-no  EQ b-oe-ordl.ord-no
         NO-LOCK NO-ERROR.
 
-    IF AVAIL oe-ord THEN
-    FIND FIRST b-ref
-        WHERE b-ref.reftable EQ "fg-rctd.user-id"
-          AND b-ref.company  EQ b-fg-rctd.company
-          AND b-ref.loc      EQ STRING(b-fg-rctd.r-no,"9999999999")
-        NO-LOCK NO-ERROR.
+
   END.
 
 END PROCEDURE.
@@ -3422,15 +3405,7 @@ PROCEDURE print-and-post :
                EXCLUSIVE-LOCK:
 
               fg-rcpts.linker = "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999").
-              FOR EACH reftable 
-                WHERE reftable.reftable EQ "fg-rctd.user-id"
-                  AND reftable.company  EQ fg-rcpts.company
-                  AND reftable.loc      EQ STRING(fg-rcpts.r-no,"9999999999")        /* component */
-                  AND (reftable.dscr EQ "fg-rctd: " + STRING(lv-r-no, "9999999999")  /* set header r-no */
-                       AND reftable.dscr BEGINS "fg-rctd: ")  
-                USE-INDEX loc   EXCLUSIVE-LOCK:
-                reftable.dscr = "fg-rctd: " + STRING(fg-rctd.r-no, "9999999999").
-              END. /* each reftable */
+
             END. /* each fg-rcpts */
         END. /* If r-no was changed by trigger */
       END. /* do trans */
@@ -4251,21 +4226,8 @@ FUNCTION fnValidateFgAssembly RETURNS LOGICAL
     DEFINE VARIABLE lSucceeded AS LOGICAL NO-UNDO.
     
     lSucceeded = YES.
-    FOR EACH b-w-fg-rctd WHERE b-w-fg-rctd.qty LT 0,
-        EACH reftable NO-LOCK WHERE reftable.reftable EQ "fg-rctd.user-id" 
-        AND reftable.company  EQ b-w-fg-rctd.company 
-        AND reftable.loc      EQ STRING(b-w-fg-rctd.r-no,"9999999999")        
-        /* AND (reftable.dscr EQ "fg-rctd: " + STRING(w-fg-rctd.r-no, "9999999999") AND reftable.dscr BEGINS "fg-rctd: ") */  
-        USE-INDEX loc    .
-      
-        iRNo = INTEGER(SUBSTRING(reftable.dscr, 9, 11)) NO-ERROR.
-        IF ERROR-STATUS:ERROR THEN 
-          iRNo = INTEGER(SUBSTRING(reftable.dscr, 1, 11)) NO-ERROR.
-        IF ERROR-STATUS:ERROR = NO THEN do:
-            FIND FIRST w-fg-rctd NO-LOCK WHERE w-fg-rctd.r-no EQ iRNo NO-ERROR. 
-        end.
-        IF NOT AVAILABLE w-fg-rctd THEN 
-            NEXT. 
+    FOR EACH b-w-fg-rctd WHERE b-w-fg-rctd.qty LT 0.
+
       
         FIND fg-rctd EXCLUSIVE-LOCK WHERE ROWID(fg-rctd) = w-fg-rctd.row-id  NO-ERROR.
         FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ cocode 

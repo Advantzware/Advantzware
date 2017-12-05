@@ -125,15 +125,7 @@ IF AVAIL reftable THEN DO TRANSACTION:
   IF ROWID(fg-rctd) EQ ll-first THEN DO:
 
   
-    FIND FIRST bf-ref
-        WHERE bf-ref.reftable EQ "fg-rctd.user-id"
-          AND bf-ref.company  EQ fg-rctd.company
-          AND bf-ref.loc      EQ STRING(fg-rctd.r-no,"9999999999")
-          AND (bf-ref.val[1] EQ 1
-              OR bf-ref.val[3] GT 0)
-        NO-LOCK NO-ERROR.
-           
-    IF NOT AVAIL bf-ref THEN 
+
       /* Prompt for other information for invoice */    
       RUN prompt-for-invoice (OUTPUT ll, OUTPUT lInvFrt, OUTPUT dBillAmt, OUTPUT lEmailBol).
 
@@ -570,12 +562,7 @@ PROCEDURE get-ord-recs:
           AND b-oe-ord.ord-no  EQ b-oe-ordl.ord-no
         NO-LOCK NO-ERROR.
 
-    IF AVAIL oe-ord THEN
-    FIND FIRST b-ref
-        WHERE b-ref.reftable EQ "fg-rctd.user-id"
-          AND b-ref.company  EQ b-fg-rctd.company
-          AND b-ref.loc      EQ STRING(b-fg-rctd.r-no,"9999999999")
-        NO-LOCK NO-ERROR.
+
   END.
 END.
 

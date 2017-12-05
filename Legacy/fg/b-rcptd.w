@@ -168,7 +168,7 @@ RUN sys/ref/nk1look.p (INPUT cocode,
 &Scoped-define BROWSE-NAME Browser-Table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES fg-rctd reftable
+&Scoped-define INTERNAL-TABLES fg-rctd
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -192,29 +192,16 @@ fg-rctd.frt-cost fg-rctd.stack-code
       AND fg-rctd.company eq cocode and ~
 fg-rctd.r-no ge lv-frst-rno and ~
 (fg-rctd.rita-code eq "R" or fg-rctd.rita-code eq "E") ~
-use-index fg-rctd NO-LOCK, ~
-      FIRST reftable WHERE reftable.reftable EQ "fg-rctd.user-id" AND ~
-reftable.company  EQ fg-rctd.company AND ~
-reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999") AND ~
-((reftable.dscr    EQ lv-linker AND reftable.dscr begins "fg-rctd: ") OR ~
- (not ll-set-parts and not reftable.dscr begins "fg-rctd: ")) use-index loc ~
- NO-LOCK ~
+use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company eq cocode and ~
 fg-rctd.r-no ge lv-frst-rno and ~
 (fg-rctd.rita-code eq "R" or fg-rctd.rita-code eq "E") ~
-use-index fg-rctd NO-LOCK, ~
-      FIRST reftable WHERE reftable.reftable EQ "fg-rctd.user-id" AND ~
-reftable.company  EQ fg-rctd.company AND ~
-reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999") AND ~
-((reftable.dscr    EQ lv-linker AND reftable.dscr begins "fg-rctd: ") OR ~
- (not ll-set-parts and not reftable.dscr begins "fg-rctd: ")) use-index loc ~
- NO-LOCK ~
+use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table fg-rctd reftable
+&Scoped-define TABLES-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table fg-rctd
-&Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table reftable
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -273,8 +260,7 @@ DEFINE RECTANGLE RECT-1
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-      fg-rctd, 
-      reftable SCROLLING.
+      fg-rctd SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -287,15 +273,19 @@ DEFINE BROWSE Browser-Table
             LABEL-BGCOLOR 14
       STRING(fg-rctd.trans-time,'HH:MM') @ trans-time COLUMN-LABEL "Receipt!Time"
             WIDTH 10
-      fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U LABEL-BGCOLOR 14 WIDTH 29
+      fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U WIDTH 29
+            LABEL-BGCOLOR 14
       fg-rctd.po-no FORMAT "x(9)":U WIDTH 14 LABEL-BGCOLOR 14
-      fg-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U LABEL-BGCOLOR 14 WIDTH 8
+      fg-rctd.job-no COLUMN-LABEL "Job#" FORMAT "x(6)":U WIDTH 8
+            LABEL-BGCOLOR 14
       fg-rctd.job-no2 FORMAT "99":U
-      fg-rctd.i-no COLUMN-LABEL "Item" FORMAT "X(15)":U LABEL-BGCOLOR 14 WIDTH 21
+      fg-rctd.i-no COLUMN-LABEL "Item" FORMAT "X(15)":U WIDTH 22
+            LABEL-BGCOLOR 14
       fg-rctd.i-name COLUMN-LABEL "Name/Desc" FORMAT "x(30)":U
             LABEL-BGCOLOR 14
-      fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U LABEL-BGCOLOR 14 WIDTH 6
-      fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U LABEL-BGCOLOR 14
+      fg-rctd.loc COLUMN-LABEL "Whse" FORMAT "x(5)":U WIDTH 8 LABEL-BGCOLOR 14
+      fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U WIDTH 14
+            LABEL-BGCOLOR 14
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U LABEL-BGCOLOR 14
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT ">>>,>>9":U
             LABEL-BGCOLOR 14
@@ -438,19 +428,13 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.fg-rctd,ASI.reftable WHERE ASI.fg-rctd ..."
+     _TblList          = "ASI.fg-rctd"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ", FIRST"
      _Where[1]         = "fg-rctd.company eq cocode and
 fg-rctd.r-no ge lv-frst-rno and
 (fg-rctd.rita-code eq ""R"" or fg-rctd.rita-code eq ""E"")
 use-index fg-rctd"
-     _JoinCode[2]      = "reftable.reftable EQ ""fg-rctd.user-id"" AND
-reftable.company  EQ fg-rctd.company AND
-reftable.loc      EQ STRING(fg-rctd.r-no,""9999999999"") AND
-((reftable.dscr    EQ lv-linker AND reftable.dscr begins ""fg-rctd: "") OR
- (not ll-set-parts and not reftable.dscr begins ""fg-rctd: "")) use-index loc
-"
      _FldNameList[1]   > ASI.fg-rctd.r-no
 "fg-rctd.r-no" "Seq#" ">>>>>>>>" "integer" ? ? ? 14 ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-rctd.rct-date
@@ -2838,12 +2822,7 @@ FOR EACH b-fg-rctd WHERE b-fg-rctd.company EQ g_company
     AND b-fg-rctd.i-no = fg-rctd.i-no
     AND (RECID(b-fg-rctd) <> RECID(fg-rctd)
          OR (adm-new-record AND NOT adm-adding-record))
-  NO-LOCK,
-  FIRST ASI.reftable WHERE reftable.reftable EQ "fg-rctd.user-id" AND
-    reftable.company  EQ b-fg-rctd.company AND
-    reftable.loc      EQ STRING(b-fg-rctd.r-no,"9999999999")  AND
-    (reftable.dscr    EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ")  
-    USE-INDEX loc NO-LOCK :
+  NO-LOCK:
 
 
   
@@ -2954,12 +2933,8 @@ PROCEDURE get-set-full-qty :
            AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE 
            AND (RECID(b-fg-rctd) <> recid(fg-rctd) 
                 OR (adm-new-record AND NOT adm-adding-record))
-           NO-LOCK,     
-    FIRST ASI.reftable WHERE reftable.reftable EQ "fg-rctd.user-id" AND
-      reftable.company  EQ fg-rctd.company AND
-      reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999")  AND
-      (reftable.dscr    EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ")  
-    USE-INDEX loc:
+           NO-LOCK:     
+
 
       lv-out-qty = lv-out-qty + b-fg-rctd.t-qty.     
       IF ip-cost-to-set GT 0 THEN DO:
@@ -3457,22 +3432,7 @@ PROCEDURE local-create-record :
     /*BV - This code sets the new receipt date to the latest existing receipt date. This code
     was identified as causing slowness at Hughes, however we found a bunch of "orphaned" set parts receipts 
     that should be handled separately (04181326)*/
-    FOR EACH b-fg-rctd NO-LOCK
-        WHERE b-fg-rctd.company   EQ g_company
-          AND b-fg-rctd.rita-code EQ "R"
-          AND ROWID(b-fg-rctd)    NE ROWID(fg-rctd)
-         ,
-        FIRST reftable NO-LOCK
-        WHERE reftable.reftable EQ "fg-rctd.user-id"
-          AND reftable.company  EQ b-fg-rctd.company
-          AND reftable.loc      EQ STRING(b-fg-rctd.r-no,"9999999999")
-          AND NOT reftable.dscr BEGINS "fg-rctd: " /*not a set part receipt*/
-/*           AND ((reftable.dscr   EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ") OR */
-/*                (NOT ll-set-parts AND NOT reftable.dscr BEGINS "fg-rctd: "))           */
-        BY b-fg-rctd.r-no DESC:  /*Last one added, not necessarily the last date*/
-      fg-rctd.rct-date = b-fg-rctd.rct-date.
-      LEAVE.
-    END.
+
   END.  
 
   ASSIGN
@@ -4140,13 +4100,7 @@ gvcCurrentItem = fg-rctd.i-no.
        IF fg-rctd.i-no = cSelectionItem THEN DO:
          
          FIND CURRENT fg-rctd EXCLUSIVE-LOCK.
-         FOR EACH ASI.reftable WHERE reftable.reftable EQ "fg-rctd.user-id" 
-           AND reftable.company  EQ fg-rctd.company 
-           AND reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999") 
-           AND (reftable.dscr    EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ")
-           EXCLUSIVE-LOCK:
-           DELETE reftable.
-         END.
+
          DELETE fg-rctd.
        END.
      END.
@@ -4214,22 +4168,7 @@ gvcCurrentItem = fg-rctd.i-no.
      /*BV - This code sets the new receipt date to the latest existing receipt date. This code
      was identified as causing slowness at Hughes, however we found a bunch of "orphaned" set parts receipts 
      that should be handled separately (04181326)*/
-     FOR EACH b-fg-rctd NO-LOCK
-         WHERE b-fg-rctd.company   EQ g_company
-           AND b-fg-rctd.rita-code EQ "R"
-           AND ROWID(b-fg-rctd)    NE ROWID(bfFgRctd)         
-          ,
-         FIRST reftable NO-LOCK
-         WHERE reftable.reftable EQ "fg-rctd.user-id"
-           AND reftable.company  EQ b-fg-rctd.company
-           AND reftable.loc      EQ STRING(b-fg-rctd.r-no,"9999999999")
-           AND NOT reftable.dscr BEGINS "fg-rctd: " /*not a set part receipt*/
- /*           AND ((reftable.dscr   EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ") OR */
- /*                (NOT ll-set-parts AND NOT reftable.dscr BEGINS "fg-rctd: "))           */
-         BY b-fg-rctd.r-no DESC:  /*Last one added, not necessarily the last date*/
-       bfFgRctd.rct-date = b-fg-rctd.rct-date.
-       LEAVE.
-     END.
+
    
 
      ASSIGN
@@ -4238,21 +4177,8 @@ gvcCurrentItem = fg-rctd.i-no.
       bfFgRctd.rita-code = "R"
       bfFgRctd.trans-time   = TIME
       .   
-      FIND FIRST reftable NO-LOCK
-         WHERE reftable.reftable EQ "fg-rctd.user-id"
-           AND reftable.company  EQ bfFgRctd.company
-           AND reftable.loc      EQ STRING(bfFgRctd.r-no,"9999999999")
-           AND reftable.dscr EQ lv-linker
-           AND reftable.dscr BEGINS "fg-rctd: " 
-          NO-ERROR.
-      IF NOT AVAIL reftable THEN DO:
-        CREATE reftable.
-        ASSIGN
-         reftable.reftable = "fg-rctd.user-id"
-         reftable.company  = bfFgRctd.company
-         reftable.loc      = STRING(bfFgRctd.r-no,"9999999999")
-         reftable.dscr = lv-linker.         
-      END.
+
+        ASSIGN bfFgRctd.created-by = USERID("nosweat").
 
       /* as in local-assign logic */
       IF ll-set-parts THEN DO:
@@ -4314,7 +4240,6 @@ PROCEDURE send-records :
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "fg-rctd"}
-  {src/adm/template/snd-list.i "reftable"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

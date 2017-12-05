@@ -229,14 +229,11 @@ postit:
     for each fg-rctd
         where fg-rctd.company   eq cocode
           and fg-rctd.rita-code eq "C"
-          AND ((begin_userid    LE "" AND
-                end_userid      GE "") OR
-               CAN-FIND(FIRST reftable
-                        WHERE reftable.reftable EQ "fg-rctd.user-id"
-                          AND reftable.company  EQ fg-rctd.company
-                          AND reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999")
-                          AND reftable.code     GE begin_userid
-                          AND reftable.code     LE end_userid))
+          AND begin_userid    LE "" 
+          AND end_userid      GE "" 
+          AND fg-rctd.created-by GE begin_userid
+          AND fg-rctd.created-by LE end_userid
+
         no-lock,  
         first itemfg
         where itemfg.company eq cocode
@@ -505,13 +502,10 @@ time_stamp = string(time,"hh:mmam").
   FOR EACH fg-rctd NO-LOCK 
       WHERE fg-rctd.company   EQ cocode
         and fg-rctd.rita-code EQ "C"
-        AND fg-rctd.loc-bin   NE "",
-      EACH reftable NO-LOCK 
-      WHERE reftable.reftable EQ "fg-rctd.user-id" 
-        AND reftable.company  EQ fg-rctd.company 
-        AND reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999") 
-        AND reftable.code     GE begin_userid
-        AND reftable.code     LE end_userid, 
+        AND fg-rctd.loc-bin   NE ""
+        AND fg-rctd.created-by GE begin_userid
+        AND fg-rctd.created-by LE end_userid,
+
       FIRST itemfg NO-LOCK
       WHERE itemfg.company EQ cocode
         AND itemfg.i-no    EQ fg-rctd.i-no
@@ -729,13 +723,10 @@ time_stamp = string(time,"hh:mmam").
   FOR EACH fg-rctd NO-LOCK 
       WHERE fg-rctd.company   EQ cocode
         and fg-rctd.rita-code EQ "C"
-        AND fg-rctd.loc-bin   NE "",
-      EACH reftable NO-LOCK 
-      WHERE reftable.reftable EQ "fg-rctd.user-id" 
-        AND reftable.company  EQ fg-rctd.company 
-        AND reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999") 
-        AND reftable.code     GE begin_userid
-        AND reftable.code     LE end_userid, 
+        AND fg-rctd.loc-bin   NE ""
+        AND fg-rctd.created-by GE begin_userid
+        AND fg-rctd.created-by LE end_userid,
+
       FIRST itemfg NO-LOCK
       WHERE itemfg.company EQ cocode
         AND itemfg.i-no    EQ fg-rctd.i-no

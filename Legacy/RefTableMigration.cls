@@ -201,4 +201,18 @@ CLASS RefTableMigration:
         END.  /*FOR EACH reftable*/         
         RETURN iCnt.
     END METHOD. /*oe-rel*/
+    METHOD PUBLIC INTEGER FgRctdUserId():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable NO-LOCK
+         WHERE reftable.reftable EQ "fg-rctd.user-id" :
+         FIND FIRST fg-rctd WHERE fg-rctd.company = reftable.company
+          AND fg-rctd.r-no = INT(reftable.loc) EXCLUSIVE-LOCK NO-ERROR.
+         IF AVAILABLE fg-rctd THEN DO:
+          ASSIGN
+              fg-rctd.created-by = reftable.code
+              fg-rctd.updated-by = reftable.code2.
+          END.
+         END.       
+        RETURN iCnt.
+    END METHOD. /*fg-rctd*/
 END CLASS.
