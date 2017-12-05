@@ -35,7 +35,7 @@ CREATE WIDGET-POOL.
 {{&includes}/filterVars.i}
 {{&includes}/ttblJob.i}
 {{&viewers}/includes/sharedVars.i NEW}
-&SCOPED-DEFINE useTable pendingJob
+&SCOPED-DEFINE useTable ttblJob
 {{&includes}/jobStatusFunc.i}
 
 /* Parameters Definitions ---                                           */
