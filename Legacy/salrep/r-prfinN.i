@@ -277,18 +277,17 @@ IF NOT v-smr THEN
 
         with frame itemx DOWN:
         
-      if first-of(tt-report2.key-01) /*AND v-sort EQ "Sales Rep"*/ then do: 
-         find first sman
+      if first-of(tt-report2.key-01) /*AND v-sort EQ "Sales Rep"*/ then do:
+         
+         page.
+      end.
+     find first sman
              where sman.company eq cocode
                and sman.sman    eq tt-report2.key-05
              no-lock no-error.
 
          v-slsmn-hdr = trim(tt-report2.key-05) .
          v-slsmn-hdr2 = (if avail sman then sman.sname else "Not on file").
-         
-         page.
-      end.
-     
 
       create w-data.
       assign
@@ -523,6 +522,7 @@ IF NOT v-smr THEN
        
             CASE cTmpField:               
                  WHEN "rep" THEN cVarValue = string(tt-report2.key-05) .
+                 WHEN "rep-name" THEN cVarValue = string(v-slsmn-hdr2) .
                  WHEN "name" THEN cVarValue = string(item-name,"x(15)") .
                  WHEN "cust" THEN cVarValue = STRING(v-cust-no).
                  WHEN "custname" THEN cVarValue = IF AVAIL cust THEN STRING(cust.name,"x(15)") ELSE "".
@@ -596,6 +596,7 @@ IF NOT v-smr THEN
        
             CASE cTmpField:               
                  WHEN "rep" THEN cVarValue = "".
+                 WHEN "rep-name" THEN cVarValue = "".
                  WHEN "name" THEN cVarValue = "" .
                  WHEN "cust" THEN cVarValue = "".
                  WHEN "custname" THEN cVarValue = "".
@@ -671,6 +672,7 @@ IF NOT v-smr THEN
        
             CASE cTmpField:               
                  WHEN "rep" THEN cVarValue = "".
+                 WHEN "rep-name" THEN cVarValue = "" .
                  WHEN "name" THEN cVarValue = "" .
                  WHEN "cust" THEN cVarValue = "".
                  WHEN "custname" THEN cVarValue = "".
@@ -750,6 +752,7 @@ IF NOT v-smr THEN
        
             CASE cTmpField:               
                  WHEN "rep" THEN cVarValue = "".
+                 WHEN "rep-name" THEN cVarValue = "".
                  WHEN "name" THEN cVarValue = "" .
                  WHEN "cust" THEN cVarValue = "".
                  WHEN "custname" THEN cVarValue = "".
@@ -1048,6 +1051,7 @@ IF NOT v-smr THEN
        
             CASE cTmpField:               
                  WHEN "rep" THEN cVarValue = STRING(tt-report2.key-05) .
+                 WHEN "rep-name" THEN cVarValue = string(v-slsmn-hdr2) .
                  WHEN "name" THEN cVarValue = string(item-name,"x(15)") .
                  WHEN "cust" THEN cVarValue = STRING(v-cust-no).
                  WHEN "custname" THEN cVarValue = IF AVAIL cust THEN STRING(cust.name,"x(15)") ELSE "".
@@ -1124,6 +1128,7 @@ IF NOT v-smr THEN
        
             CASE cTmpField:               
                  WHEN "rep" THEN cVarValue = "".
+                 WHEN "rep-name" THEN cVarValue = "" .
                  WHEN "name" THEN cVarValue = "" .
                  WHEN "cust" THEN cVarValue = "".
                  WHEN "custname" THEN cVarValue = "".
