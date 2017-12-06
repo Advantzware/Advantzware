@@ -282,7 +282,6 @@ IF v-none THEN DO TRANSACTION:
    RELEASE bf-oe-rel.
   RELEASE reftable.
 
-  
   FIND FIRST b-reftable NO-LOCK
       WHERE b-reftable.reftable EQ "oe-rel.sell-price"
         AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")

@@ -15,32 +15,7 @@ END.
 
 IF TRIM("{1}") EQ "oe-rel" THEN
 DO:
-  FIND FIRST b-reftable WHERE
-       b-reftable.reftable EQ "oe-rell.lot-no" AND
-       b-reftable.rec_key  EQ xoe-rell.rec_key
-       USE-INDEX rec_key
-       NO-LOCK NO-ERROR.
-
-  IF AVAIL b-reftable THEN DO:
-
-     FIND FIRST reftable WHERE
-          reftable.reftable = "oe-rell.lot-no" AND
-          reftable.rec_key  = oe-rell.rec_key
-          USE-INDEX rec_key
-          EXCLUSIVE-LOCK NO-ERROR.
-
-     IF NOT AVAIL reftable THEN
-     DO:
-        CREATE reftable.
-        ASSIGN
-           reftable.reftable = "oe-rell.lot-no"
-           reftable.rec_key  = oe-rell.rec_key.
-     END.
-     
-     reftable.code = b-reftable.code.
-     RELEASE reftable.
-     RELEASE b-reftable.
-  END.
+  ASSIGN oe-rell.lot-no = xoe-rell.lot-no.
 END.
 ELSE IF TRIM("{1}") EQ "oe-bol" THEN
 DO:

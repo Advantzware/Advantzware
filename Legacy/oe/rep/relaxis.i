@@ -27,6 +27,7 @@ FIELD set-no   LIKE fg-set.set-no
 FIELD qty-case LIKE oe-rell.qty-case
 FIELD cases    LIKE oe-rell.cases
 FIELD partial  LIKE oe-rell.partial
+field lot-no like oe-rell.lot-no
 INDEX r-no IS PRIMARY r-no i-no
 INDEX idx set-no seq i-no po-no.
 
@@ -638,17 +639,7 @@ FOR EACH w-bin WHERE w-bin.w-par EQ ""
   BY w-bin.w-qty[2] desc
   BY w-bin.w-qty[1] desc:
 
-  FIND FIRST ref-lot-no WHERE
-  ref-lot-no.reftable EQ "oe-rell.lot-no" AND
-  ref-lot-no.rec_key  EQ w-oe-rell.rec_key
-  USE-INDEX rec_key
-  NO-LOCK NO-ERROR.
-
-  IF AVAILABLE ref-lot-no THEN
-  DO:
-    w-bin.w-par = ref-lot-no.CODE.
-    RELEASE ref-lot-no.
-  END.
+    ASSIGN w-bin.w-par = w-oe-rell.lot-no.
 
   LEAVE.
 END.

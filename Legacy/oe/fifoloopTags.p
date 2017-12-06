@@ -359,7 +359,7 @@ PROCEDURE pCreateDynamicTT:
     /* Main output parameter for program */
     ophTToe-rell = hTToe-rell. 
     
-    /* Give it oe-rell table’s fields & indexes */
+    /* Give it oe-rell tableÂ’s fields & indexes */
     hTToe-rell:CREATE-LIKE(hBufPassedTToe-rell).
 
     /* No more fields will be added */
@@ -496,8 +496,19 @@ PROCEDURE pCreateOeRell:
       RETURN.
     RELEASE reftable.
 
-
-     ASSIGN 
+    FIND FIRST b-reftable NO-LOCK
+        WHERE b-reftable.reftable EQ "oe-rel.lot-no"
+        AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
+        NO-ERROR.
+    
+   IF AVAIL b-reftable THEN DO:
+        ASSIGN
+             oe-rell.lot-no     = b-reftable.code
+             oe-rell.frt-pay    = b-reftable.code2
+             oe-rell.fob-code   = b-reftable.dscr.
+        RELEASE b-reftable. 
+    END.
+  ELSE ASSIGN 
          oe-rell.lot-no  = oe-rel.lot-no
          oe-rell.frt-pay = oe-rel.frt-pay
          oe-rell.fob-code = oe-rel.fob-code.

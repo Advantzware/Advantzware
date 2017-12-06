@@ -391,17 +391,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
 
                 v-lot-no = "".
 
-                FIND FIRST ref-lot-no WHERE
-                     ref-lot-no.reftable EQ "oe-rell.lot-no" AND
-                     ref-lot-no.rec_key  EQ w-oe-rell.rec_key
-                     USE-INDEX rec_key
-                     NO-LOCK NO-ERROR.
-
-                IF AVAILABLE ref-lot-no THEN
-                DO:
-                   v-lot-no = ref-lot-no.CODE.
-                   RELEASE ref-lot-no.
-                END.
+                  ASSIGN v-lot-no = w-oe-rell.lot-no.
 
                 ASSIGN w-bin = fg-bin.loc-bin
                        w-loc = fg-bin.loc  /* gdm - 06220906 */
@@ -528,17 +518,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
 
             v-lot-no = "".
 
-            FIND FIRST ref-lot-no WHERE
-                 ref-lot-no.reftable EQ "oe-rell.lot-no" AND
-                 ref-lot-no.rec_key  EQ w-oe-rell.rec_key
-                 USE-INDEX rec_key
-                 NO-LOCK NO-ERROR.
-
-            IF AVAILABLE ref-lot-no THEN
-            DO:
-               v-lot-no = ref-lot-no.CODE.
-               RELEASE ref-lot-no.
-            END.
+              ASSIGN v-lot-no = w-oe-rell.lot-no.
 
             for each w-bin where w-par eq "" by w-qty[2] desc by w-qty[1] desc:
               if v-lot-no ne "" then w-par = "Lot #: " + v-lot-no.
