@@ -1217,9 +1217,8 @@ PROCEDURE copyOrder :
         AND oe-rel.ord-no    EQ oe-ord.ord-no
       NO-LOCK:
 
-      /* FIND FIRST b-oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR. */
-      /* lv-r-no = (IF AVAIL b-oe-rel THEN b-oe-rel.r-no ELSE 0) + 1. */
-      RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT lv-r-no).
+      FIND FIRST b-oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR.
+      lv-r-no = (IF AVAIL b-oe-rel THEN b-oe-rel.r-no ELSE 0) + 1. 
       CREATE b-oe-rel.
       BUFFER-COPY oe-rel EXCEPT rec_key TO b-oe-rel
 

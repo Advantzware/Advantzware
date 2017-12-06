@@ -555,9 +555,9 @@ DEF BUFFER b-oe-rel  FOR oe-rel.
       END.
 
       ELSE DO:
-        /* FIND FIRST oe-rel NO-LOCK USE-INDEX seq-no NO-ERROR. */
-        /* v-nxt-r-no = IF AVAIL oe-rel THEN oe-rel.r-no + 1 ELSE 1. */
-        RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no). 
+        FIND FIRST oe-rel NO-LOCK USE-INDEX seq-no NO-ERROR.
+        v-nxt-r-no = IF AVAIL oe-rel THEN oe-rel.r-no + 1 ELSE 1.
+
         CREATE oe-rel.
         ASSIGN
          oe-rel.company   = oe-relh.company

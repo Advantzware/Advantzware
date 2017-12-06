@@ -11,7 +11,7 @@ op-next# = 0.
 /* IF AVAIL oe-relh AND oe-relh.release# GT op-next# THEN */
 /*   op-next# = oe-relh.release#.                         */
 
-RUN oe/getNextRelNo.p (INPUT "release#", OUTPUT op-next#).
+RUN oe/get-r-no.p (INPUT "release#", OUTPUT op-next#).
 
 FIND LAST oe-bolh
     WHERE oe-bolh.company EQ ip-cocode

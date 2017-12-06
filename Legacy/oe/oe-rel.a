@@ -38,6 +38,11 @@ if avail {&fil} then do:
         no-lock no-error.
     */
 
+    /** Find last release in the oe-rel file. **/
+    find first oe-rel use-index seq-no no-lock no-error.
+    /* v-nxt-r-no = (if avail oe-rel then oe-rel.r-no else 0) + 1. */
+    RUN oe/get-r-no.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
+
     find first sys-ctrl where sys-ctrl.company eq cocode
                           and sys-ctrl.name    eq "OECARIER"
                no-lock no-error.
@@ -53,11 +58,6 @@ if avail {&fil} then do:
       end.
     end.
     
-    /** Find last release in the oe-rel file. **/
-    /* find first oe-rel use-index seq-no no-lock no-error. */
-    /* v-nxt-r-no = (if avail oe-rel then oe-rel.r-no else 0) + 1. */
-    RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
-
     create oe-rel.
     assign oe-rel.company   = cocode
            oe-rel.loc       = locode

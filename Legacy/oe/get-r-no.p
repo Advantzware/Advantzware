@@ -25,10 +25,8 @@
   /* Original Logic, use as a starting point  */
   IF ip-mode = "oe-rel" THEN DO:
       v-Ref-Value = "NextRelease".
-      /* FIND FIRST oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR. */
-      /* v-last-r-no = IF AVAIL oe-rel THEN oe-rel.r-no + 1 ELSE 1. */
-      ASSIGN
-        v-last-r-no = NEXT-VALUE(oerel_rno_seq).
+      FIND FIRST oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR.
+      v-last-r-no = IF AVAIL oe-rel THEN oe-rel.r-no + 1 ELSE 1.
   END.
   ELSE IF ip-mode = "release#" THEN DO:
     v-ref-value = "NextRelease#".

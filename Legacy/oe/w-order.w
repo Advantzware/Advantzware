@@ -1292,6 +1292,10 @@ PROCEDURE local-change-page :
   assign li-prev-page = li-cur-page
          li-cur-page = int(return-value).
 
+  if li-prev-page = 2 then do:
+      RUN get-link-handle IN adm-broker-hdl(h_v-ord,"record-source",OUTPUT char-hdl).
+      RUN notify IN WIDGET-HANDLE(char-hdl) ('row-available'). 
+  end.
   if li-cur-page = 6 then do:  /* estimate */
      li-last-page = li-prev-page.
      IF li-prev-page = 3 THEN DO:   /* get from line item */
