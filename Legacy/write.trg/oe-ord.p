@@ -1,5 +1,5 @@
 &Scoped-define ACTION UPDATE
-&Scoped-define DBNAME PDBNAME('ASI')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME oe-ord
 
 TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
@@ -28,7 +28,7 @@ ASSIGN
  locode = g_loc.
 
 {sys/inc/oeuserid.i}
-IF {&TABLENAME}.ord-no EQ 0 AND USERID("NOSWEAT") EQ "ASI" THEN DO:
+IF {&TABLENAME}.ord-no EQ 0 AND USERID("ASI") EQ "ASI" THEN DO:
     MESSAGE "Internal Error - Please Call ASI" SKIP
         "An order with order number 0 was created." SKIP
         "Press OK to continue." SKIP
@@ -126,8 +126,8 @@ RUN oe/calcordt.p (ROWID({&TABLENAME})).
 
 IF oeuserid-log THEN 
     ASSIGN 
-        {&TABLENAME}.user-id = USERID("nosweat")
-        {&TABLENAME}.updated-id = USERID("nosweat")
+        {&TABLENAME}.user-id = USERID("ASI")
+        {&TABLENAME}.updated-id = USERID("ASI")
         .
 
 FOR EACH oe-rel
@@ -135,7 +135,7 @@ FOR EACH oe-rel
       AND oe-rel.ord-no  EQ {&TABLENAME}.ord-no
     NO-LOCK:
 
-  FIND b-oe-rel WHERE rowid(b-oe-rel) EQ rowid(oe-rel) EXCLUSIVE NO-ERROR NO-WAIT.
+  FIND b-oe-rel WHERE ROWID(b-oe-rel) EQ rowid(oe-rel) EXCLUSIVE NO-ERROR NO-WAIT.
 
   IF AVAIL b-oe-rel THEN
   DO:

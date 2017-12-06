@@ -71,6 +71,11 @@ SESSION:ADD-SUPER-PROCEDURE (hAppSrvBin).
 
 DEFINE BUFFER bUserPrint FOR user-print.
 
+/* function fDateOptions */
+{AOA/includes/fDateOptions.i}
+/* function fDateOptionValue */
+{AOA/includes/fDateOptionValue.i}
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -136,19 +141,6 @@ btnMoveDown
 
 
 /* ************************  Function Prototypes ********************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDateOptions W-Win 
-FUNCTION fDateOptions RETURNS LOGICAL (ipDateOption AS HANDLE)  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fDateOptionValue W-Win 
-FUNCTION fDateOptionValue RETURNS DATE
-  (ipcDateOption AS CHARACTER, ipdtDate AS DATE)  FORWARD.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION-FORWARD fGenerateInclude W-Win 
 FUNCTION fGenerateInclude RETURNS LOGICAL
@@ -1457,7 +1449,7 @@ PROCEDURE pExcel :
         
         ASSIGN
             chWorkSheet:Cells(iStatusRow + 2,2):Value = "Formatting Cells...Done"
-            chWorkSheet:Cells(iStatusRow + 4,2):Value = "Building Wooksheet..."
+            chWorkSheet:Cells(iStatusRow + 4,2):Value = "Building Worksheet..."
             .
         /* pause to let excel display catch up */
         PAUSE 1 NO-MESSAGE.
@@ -2247,85 +2239,6 @@ END PROCEDURE.
 &ANALYZE-RESUME
 
 /* ************************  Function Implementations ***************** */
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDateOptions W-Win 
-FUNCTION fDateOptions RETURNS LOGICAL (ipDateOption AS HANDLE) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    DEFINE VARIABLE dateOptions AS CHARACTER NO-UNDO INITIAL
-"Fixed Date~
-,Current Date~
-,Current Date -1~
-,Current Date +1~
-,Current Date -2~
-,Current Date +2~
-,Current Date -3~
-,Current Date +3~
-,Current Date -4~
-,Current Date +4~
-,Current Date -5~
-,Current Date +5~
-,Current Date -6~
-,Current Date +6~
-,Current Date -7~
-,Current Date +7~
-,Current Date -8~
-,Current Date +8~
-,Current Date -9~
-,Current Date +9~
-,Current Date -10~
-,Current Date +10~
-,Start of this Month~
-,End of this Month~
-,First Day of Last Month~
-,Last Day of Last Month~
-,Start of this Year~
-,End of this Year~
-,First Day of Last Year~
-,Last Day of Last Year~
-,Last Sunday~
-,Last Monday~
-,Last Tuesday~
-,Last Wednesday~
-,Last Thursday~
-,Last Friday~
-,Last Saturday~
-,Next Sunday~
-,Next Monday~
-,Next Tuesday~
-,Next Wednesday~
-,Next Thursday~
-,Next Friday~
-,Next Saturday~
-".
-    ASSIGN
-        ipDateOption:LIST-ITEMS   = dateOptions
-        ipDateOption:INNER-LINES  = NUM-ENTRIES(dateOptions)
-        ipDateOption:SCREEN-VALUE = ipDateOption:ENTRY(1)
-        .
-
-  RETURN TRUE.
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fDateOptionValue W-Win 
-FUNCTION fDateOptionValue RETURNS DATE
-  (ipcDateOption AS CHARACTER, ipdtDate AS DATE) :
-/*------------------------------------------------------------------------------
-  Purpose:  
-    Notes:  
-------------------------------------------------------------------------------*/
-    RETURN DYNAMIC-FUNCTION("fDateOptionDate" IN hAppSrvBin,ipcDateOption,ipdtDate).
-
-END FUNCTION.
-
-/* _UIB-CODE-BLOCK-END */
-&ANALYZE-RESUME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _FUNCTION fGenerateInclude W-Win 
 FUNCTION fGenerateInclude RETURNS LOGICAL

@@ -53,12 +53,12 @@ DEFINE VARIABLE ldummy AS LOGICAL NO-UNDO.
 &Scoped-define PROCEDURE-TYPE Window
 &Scoped-define DB-AWARE no
 
-/* Name of first Frame and/or Browse and/or first Query                 */
+/* Name of designated FRAME-NAME and/or first browse and/or first query */
 &Scoped-define FRAME-NAME DEFAULT-FRAME
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS audit-tables db-names Btn_Audit_All ~
-table-names Btn_Remove Btn_Add Btn_Tables_All Btn_Cancel Btn_OK 
+&Scoped-Define ENABLED-OBJECTS Btn_Add Btn_Audit_All Btn_Cancel Btn_OK ~
+Btn_Remove Btn_Tables_All audit-tables db-names table-names 
 &Scoped-Define DISPLAYED-OBJECTS audit-tables db-names table-names 
 
 /* Custom List Definitions                                              */
@@ -76,70 +76,76 @@ DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON Btn_Add 
+     IMAGE-UP FILE "Graphics/32x32/navigate_right2.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Add >>" 
-     SIZE 16 BY 1.24.
+     SIZE 8 BY 1.91 TOOLTIP "Add".
 
 DEFINE BUTTON Btn_Audit_All 
+     IMAGE-UP FILE "Graphics/32x32/indent_increase.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Select All >" 
-     SIZE 16 BY 1.24.
+     SIZE 8 BY 1.91 TOOLTIP "Select All".
 
 DEFINE BUTTON Btn_Cancel DEFAULT 
+     IMAGE-UP FILE "Graphics/32x32/door_exit.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&Cancel" 
-     SIZE 16 BY 1.24
+     SIZE 8 BY 1.91 TOOLTIP "Exit"
      BGCOLOR 8 FONT 4.
 
 DEFINE BUTTON Btn_OK AUTO-GO DEFAULT 
+     IMAGE-UP FILE "Graphics/32x32/floppy_disk.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "&OK" 
-     SIZE 16 BY 1.24
+     SIZE 8 BY 1.91 TOOLTIP "Save"
      BGCOLOR 8 FONT 4.
 
 DEFINE BUTTON Btn_Remove 
+     IMAGE-UP FILE "Graphics/32x32/navigate_left2.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "<< &Remove" 
-     SIZE 16 BY 1.19.
+     SIZE 8 BY 1.91 TOOLTIP "Remove".
 
 DEFINE BUTTON Btn_Tables_All 
+     IMAGE-UP FILE "Graphics/32x32/indent_decrease.ico":U NO-FOCUS FLAT-BUTTON
      LABEL "< Selec&t All" 
-     SIZE 16 BY 1.24.
+     SIZE 8 BY 1.91 TOOLTIP "Select All".
 
 DEFINE VARIABLE audit-tables AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SORT SCROLLBAR-VERTICAL 
-     SIZE 24 BY 22.38 NO-UNDO.
+     SIZE 24 BY 32.14 NO-UNDO.
 
 DEFINE VARIABLE db-names AS CHARACTER 
      VIEW-AS SELECTION-LIST SINGLE SCROLLBAR-VERTICAL 
-     SIZE 24 BY 5.62 NO-UNDO.
+     SIZE 24 BY 3.05 NO-UNDO.
 
 DEFINE VARIABLE table-names AS CHARACTER 
      VIEW-AS SELECTION-LIST MULTIPLE SCROLLBAR-VERTICAL 
-     SIZE 24 BY 15.52 NO-UNDO.
+     SIZE 24 BY 27.62 NO-UNDO.
 
 
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     audit-tables AT ROW 2.19 COL 43 HELP
+     Btn_Add AT ROW 7.91 COL 26 HELP
+          "Add Selected Table to Tables to Audit"
+     Btn_Audit_All AT ROW 16.95 COL 26 HELP
+          "Select All Tables to Audit"
+     Btn_Cancel AT ROW 32.43 COL 26 HELP
+          "Use this function to CANCEL field selecition"
+     Btn_OK AT ROW 2.67 COL 26 HELP
+          "Use this function to ACCEPT selected field"
+     Btn_Remove AT ROW 19.33 COL 26 HELP
+          "Remove Selected Table from Tables to Audit"
+     Btn_Tables_All AT ROW 10.05 COL 26 HELP
+          "Select All Tables"
+     audit-tables AT ROW 2.19 COL 35 HELP
           "Select Table Name" NO-LABEL
      db-names AT ROW 2.24 COL 1 HELP
           "Select Database Name" NO-LABEL
-     Btn_Audit_All AT ROW 4.1 COL 26 HELP
-          "Select All Tables to Audit"
-     table-names AT ROW 9.05 COL 1 HELP
+     table-names AT ROW 6.71 COL 1 HELP
           "Select Table Name" NO-LABEL
-     Btn_Remove AT ROW 9.81 COL 26 HELP
-          "Remove Selected Table from Tables to Audit"
-     Btn_Add AT ROW 11.48 COL 26 HELP
-          "Add Selected Table to Tables to Audit"
-     Btn_Tables_All AT ROW 16.95 COL 26 HELP
-          "Select All Tables"
-     Btn_Cancel AT ROW 21.48 COL 26 HELP
-          "Use this function to CANCEL field selecition"
-     Btn_OK AT ROW 23.14 COL 26 HELP
-          "Use this function to ACCEPT selected field"
      "Table Names" VIEW-AS TEXT
-          SIZE 15.6 BY 1 AT ROW 7.91 COL 4
+          SIZE 15.6 BY 1 AT ROW 5.52 COL 4
           FONT 6
      "Tables to Audit" VIEW-AS TEXT
-          SIZE 18 BY 1 AT ROW 1 COL 45
+          SIZE 18 BY 1 AT ROW 1 COL 37
           FONT 6
      "Database Names" VIEW-AS TEXT
           SIZE 20 BY 1 AT ROW 1 COL 3
@@ -147,7 +153,7 @@ DEFINE FRAME DEFAULT-FRAME
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 1 ROW 1
-         SIZE 67 BY 24.
+         SIZE 58.2 BY 33.33.
 
 
 /* *********************** Procedure Settings ************************ */
@@ -167,12 +173,12 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
   CREATE WINDOW C-Win ASSIGN
          HIDDEN             = YES
          TITLE              = "Audit Table Selections"
-         HEIGHT             = 24
-         WIDTH              = 67
-         MAX-HEIGHT         = 24
-         MAX-WIDTH          = 67
-         VIRTUAL-HEIGHT     = 24
-         VIRTUAL-WIDTH      = 67
+         HEIGHT             = 33.33
+         WIDTH              = 58.2
+         MAX-HEIGHT         = 33.33
+         MAX-WIDTH          = 58.2
+         VIRTUAL-HEIGHT     = 33.33
+         VIRTUAL-WIDTH      = 58.2
          RESIZE             = yes
          SCROLL-BARS        = no
          STATUS-AREA        = yes
@@ -194,7 +200,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 /* SETTINGS FOR WINDOW C-Win
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
-                                                                        */
+   FRAME-NAME                                                           */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
 THEN C-Win:HIDDEN = no.
 
@@ -227,6 +233,17 @@ DO:
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME audit-tables
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL audit-tables C-Win
+ON DEFAULT-ACTION OF audit-tables IN FRAME DEFAULT-FRAME
+DO:
+    APPLY 'CHOOSE':U TO Btn_Remove.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -323,6 +340,17 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME table-names
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL table-names C-Win
+ON DEFAULT-ACTION OF table-names IN FRAME DEFAULT-FRAME
+DO:
+    APPLY 'CHOOSE':U TO Btn_Add.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &UNDEFINE SELF-NAME
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _MAIN-BLOCK C-Win 
@@ -399,8 +427,8 @@ PROCEDURE enable_UI :
 ------------------------------------------------------------------------------*/
   DISPLAY audit-tables db-names table-names 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE audit-tables db-names Btn_Audit_All table-names Btn_Remove Btn_Add 
-         Btn_Tables_All Btn_Cancel Btn_OK 
+  ENABLE Btn_Add Btn_Audit_All Btn_Cancel Btn_OK Btn_Remove Btn_Tables_All 
+         audit-tables db-names table-names 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.

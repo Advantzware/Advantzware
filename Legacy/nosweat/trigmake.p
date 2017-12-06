@@ -36,7 +36,7 @@ PROCEDURE Delete_Trigger:
   OUTPUT TO VALUE("delete.trg/" + dictdb._file._file-name + ".p").
   PUT UNFORMATTED
     "~&Scoped-define ACTION DELETE" SKIP
-    "~&Scoped-define DBNAME PDBNAME('" LDBNAME("dictdb") "')" SKIP
+    "~&Scoped-define DBNAME " LDBNAME("dictdb") SKIP
     "~&Scoped-define TABLENAME " dictdb._file._file-name SKIP(1)
     "TRIGGER PROCEDURE FOR DELETE OF ~{&TABLENAME}." SKIP(1)
     "~{methods/triggers/delete.i}" SKIP.
@@ -55,7 +55,7 @@ PROCEDURE Write_Trigger:
   OUTPUT TO VALUE("write.trg/" + dictdb._file._file-name + ".p").
   PUT UNFORMATTED
     "~&Scoped-define ACTION UPDATE" SKIP
-    "~&Scoped-define DBNAME PDBNAME('" LDBNAME("dictdb") "')" SKIP
+    "~&Scoped-define DBNAME " LDBNAME("dictdb") SKIP
     "~&Scoped-define TABLENAME " dictdb._file._file-name SKIP(1)
     "TRIGGER PROCEDURE FOR WRITE OF ~{&TABLENAME} OLD BUFFER old-~{&TABLENAME}." SKIP(1)
     "~{methods/triggers/write.i}" SKIP.
