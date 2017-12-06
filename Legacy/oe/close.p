@@ -41,7 +41,8 @@ DO TRANSACTION:
 FIND oe-ord WHERE RECID(oe-ord) EQ ip-recid NO-ERROR.
 IF NOT AVAIL oe-ord OR oe-ord.stat EQ "D" THEN RETURN.
 
-{oeactor = IF ip-close THEN -1 ELSE 1.
+{oe/closeaud.i oe-ord}
+v-factor = IF ip-close THEN -1 ELSE 1.
 
 FIND FIRST cust
     WHERE cust.company eq oe-ord.company

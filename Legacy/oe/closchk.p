@@ -52,7 +52,6 @@ FOR EACH w-ord:
             END.
         END.
     
-    /* Reftable removed
     {oe/closeaud.i oe-ord}
     /* Reftable removed with #22925
     IF lOrdClosed THEN 
