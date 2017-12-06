@@ -446,17 +446,13 @@ FOR EACH bf-fg-rctd
         END.
 
        /*     Find header based on reftable.loc      */
-       FIND FIRST ASI.reftable WHERE reftable.reftable EQ "fg-rctd.user-id" 
-              AND reftable.company  EQ bf-fg-rctd.company 
-              AND reftable.loc EQ STRING(bf-fg-rctd.r-no,"9999999999")
-              and reftable.dscr begins "fg-rctd: " 
-           NO-LOCK NO-ERROR.
-        IF AVAIL reftable THEN DO:
+       
+        IF bf-fg-rctd.created-by NE "" THEN DO:
 
           FIND FIRST bf-fg-rctd-SH
                   WHERE bf-fg-rctd-SH.company EQ bf-fg-rctd.company
                     AND bf-fg-rctd-SH.rita-code EQ "R"
-                    AND bf-fg-rctd-SH.r-no EQ INT(TRIM(reftable.dscr,"fg-rctd: "))
+                    AND bf-fg-rctd-SH.r-no EQ bf-fg-rctd.r-no
                   USE-INDEX fg-rctd
                   NO-LOCK NO-ERROR.
           IF NOT AVAIL bf-fg-rctd-sh OR bf-fg-rctd-sh.rita-code EQ "P" THEN DO:
@@ -470,7 +466,7 @@ FOR EACH bf-fg-rctd
                     DELETE bf-fg-rctd-del.
             END.
           END. /* Delete block */
-        END. /* if avail reftable */
+        END. /* IF bf-fg-rctd.created-by NE "" */
 
   END. /* each fg-rctd */
 

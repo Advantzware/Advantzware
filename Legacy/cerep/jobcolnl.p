@@ -872,15 +872,17 @@ FOR EACH job-hdr NO-LOCK
                 v-case-qty-ext[vext]  = v-case-qty
                 v-up-ext[vext]        = v-up.
 
-            IF AVAILABLE oe-rel THEN
-               FIND FIRST reftable NO-LOCK WHERE
-                          reftable.reftable EQ "oe-rel.lot-no" AND
-                          reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-                          NO-ERROR.
-            IF AVAILABLE reftable THEN 
-               ASSIGN v-cust-lot# = reftable.CODE.
-            ELSE
-               ASSIGN v-cust-lot# = "".
+/*            IF AVAILABLE oe-rel THEN                                           */
+/*               FIND FIRST reftable NO-LOCK WHERE                               */
+/*                          reftable.reftable EQ "oe-rel.lot-no" AND             */
+/*                          reftable.company  EQ STRING(oe-rel.r-no,"9999999999")*/
+/*                          NO-ERROR.                                            */
+/*            IF AVAILABLE reftable THEN                                         */
+/*               ASSIGN v-cust-lot# = reftable.CODE.                             */
+/*            ELSE                                                               */
+/*               ASSIGN v-cust-lot# = "".                                        */
+
+              ASSIGN v-cust-lot# = oe-rel.lot-no.
 
             FIND FIRST itemfg NO-LOCK WHERE itemfg.company EQ job-hdr.company
                                         AND itemfg.i-no    EQ job-hdr.i-no NO-ERROR.

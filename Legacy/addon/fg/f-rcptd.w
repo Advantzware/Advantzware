@@ -2340,20 +2340,7 @@ PROCEDURE local-create-record :
      fg-rctd.cases-unit   = 1
      fg-rctd.ext-cost     = 0.
 
-    FOR EACH b-fg-rctd NO-LOCK
-        WHERE b-fg-rctd.company   EQ g_company
-          AND b-fg-rctd.rita-code EQ "R"
-          AND ROWID(b-fg-rctd)    NE ROWID(fg-rctd),
-        FIRST reftable NO-LOCK
-        WHERE reftable.reftable EQ "fg-rctd.user-id"
-          AND reftable.company  EQ b-fg-rctd.company
-          AND reftable.loc      EQ STRING(b-fg-rctd.r-no,"9999999999")
-          AND ((reftable.dscr   EQ lv-linker AND reftable.dscr BEGINS "fg-rctd: ") OR
-               (NOT ll-set-parts AND NOT reftable.dscr BEGINS "fg-rctd: "))
-        BY b-fg-rctd.rct-date:
-      fg-rctd.rct-date = b-fg-rctd.rct-date.
-      LEAVE.
-    END.
+
   END.  
 
   ASSIGN

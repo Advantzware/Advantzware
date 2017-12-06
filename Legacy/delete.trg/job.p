@@ -113,12 +113,7 @@ FOR EACH reftable
   DELETE reftable.
 END.
 
-FOR EACH reftable
-    WHERE reftable.reftable EQ "oe-rel.job"
-      AND reftable.code2    EQ STRING({&TABLENAME}.job,"9999999999")
-    USE-INDEX code2 EXCLUSIVE-LOCK:
-  DELETE reftable.
-END.
+
 
 FOR EACH reftable
     WHERE reftable.reftable EQ "job.qty-changed"

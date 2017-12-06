@@ -412,17 +412,8 @@ ELSE lv-comp-color = "BLACK".
                    oe-rel.i-no    EQ oe-ordl.i-no   AND 
                    oe-rel.line    EQ oe-ordl.line NO-LOCK:
                    
-                FIND FIRST reftable WHERE
-                    reftable.reftable EQ "oe-rel.lot-no" AND
-                    reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-                    NO-LOCK NO-ERROR.
-
-                IF AVAIL reftable AND reftable.CODE <> "" THEN
-                DO:
-                   ASSIGN
-                        v-po-no      = reftable.CODE.
-                        RELEASE reftable.
-                   END.
+                ASSIGN
+                        v-po-no      = oe-rel.lot-no.
                END.            
            END.
            ELSE DO:

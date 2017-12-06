@@ -496,40 +496,20 @@ PROCEDURE pCreateOeRell:
       RETURN.
     RELEASE reftable.
 
-    FIND FIRST b-reftable NO-LOCK
-        WHERE b-reftable.reftable EQ "oe-rel.lot-no"
-        AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-ERROR.
 
-    IF AVAILABLE b-reftable THEN 
-    DO:
-        CREATE reftable.
-        ASSIGN
-            reftable.reftable = "oe-rell.lot-no"
-            reftable.rec_key  = oe-rell.rec_key
-            reftable.code     = b-reftable.code
-            reftable.code2    = b-reftable.code2
-            reftable.dscr     = b-reftable.dscr.
-        RELEASE reftable.
-        RELEASE b-reftable.
-    END.
+     ASSIGN 
+         oe-rell.lot-no  = oe-rel.lot-no
+         oe-rell.frt-pay = oe-rel.frt-pay
+         oe-rell.fob-code = oe-rel.fob-code.
    
     FIND FIRST b-reftable NO-LOCK
         WHERE b-reftable.reftable EQ "oe-rel.sell-price"
         AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
         NO-ERROR.
    
-    IF AVAILABLE b-reftable THEN 
-    DO:
-        CREATE reftable.
-        ASSIGN
-            reftable.reftable = "oe-rell.sell-price"
-            reftable.rec_key  = oe-rell.rec_key
-            reftable.val[1]   = b-reftable.val[1]
-            reftable.val[2]   = b-reftable.val[2].
-        RELEASE reftable.
-        RELEASE b-reftable.
-    END.
+      ASSIGN
+       oe-rell.newSellPrice = b-reftable.val[1]
+       oe-rell.newZeroPrice = b-reftable.val[2].
     
     IF iRelQtyToAssign GT 0 AND AVAILABLE oe-rel THEN 
     DO:

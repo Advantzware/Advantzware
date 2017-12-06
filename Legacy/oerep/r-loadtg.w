@@ -5059,16 +5059,7 @@ DEF INPUT PARAM ip-rowid AS ROWID NO-UNDO.
           num-rec            = num-rec + 1.
 
 
-        FIND FIRST ref-lot-no WHERE
-             ref-lot-no.reftable EQ "oe-rel.lot-no" AND
-             ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-             NO-LOCK NO-ERROR.
-
-        IF AVAIL ref-lot-no THEN
-        DO:
-           w-ord.rel-lot# = ref-lot-no.CODE.
-           RELEASE ref-lot-no.
-        END.
+        ASSIGN w-ord.rel-lot# = oe-rel.lot-no.
         IF tb_xfer-lot THEN w-ord.lot# = w-ord.rel-lot#.
 
         IF AVAIL itemfg THEN
@@ -6026,15 +6017,8 @@ PROCEDURE get-rel-info :
         .
     LEAVE.
   END.
-
-  IF AVAIL oe-rel THEN DO:
-    FIND FIRST ref-lot-no NO-LOCK
-        WHERE ref-lot-no.reftable EQ "oe-rel.lot-no"
-          AND ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-ERROR.
-    IF AVAIL ref-lot-no THEN op-lot# = ref-lot-no.code.
-  END.
-
+  
+  ASSIGN op-lot# = oe-rel.lot-no.
   IF v-po-no-source EQ "J" THEN
       FIND FIRST b-job-hdr WHERE ROWID(b-job-hdr) EQ ip-job NO-LOCK NO-ERROR .
 

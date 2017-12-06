@@ -243,7 +243,7 @@ IF choice AND llReady THEN DO:
     RELEASE oe-relh.
     
     reft-s-code = get-s-code-fn(oe-rel.r-no).
-    reft-dscr   = get-dscr(oe-rel.r-no).
+    reft-dscr   = oe-rel.fob-code.
 
     /* ************ Set 'by po' for the particular customer as relmerge value ** */
     ll-by-po = NO.
@@ -1124,14 +1124,6 @@ FUNCTION get-dscr RETURNS CHARACTER
     Notes:  
 ------------------------------------------------------------------------------*/
     
-FIND FIRST b-reft-fob WHERE
-     b-reft-fob.reftable EQ "oe-rel.lot-no" AND
-     b-reft-fob.company  EQ STRING(ipr-oe-rel-r-no,"9999999999")
-     NO-LOCK NO-ERROR.
-
-IF AVAIL b-reft-fob THEN
-    RETURN b-reft-fob.dscr.
-ELSE
     RETURN "".   /* Function return value. */
 
 END FUNCTION.

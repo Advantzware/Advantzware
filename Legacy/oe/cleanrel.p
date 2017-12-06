@@ -409,26 +409,14 @@ IF NOT AVAIL bf-oe-boll THEN
                    NO-LOCK NO-ERROR.
 
 
- FIND FIRST bf-ref WHERE
-       bf-ref.reftable EQ "oe-rel.lot-no" AND
-       bf-ref.company  EQ STRING(bf-oe-rel.r-no,"9999999999")
-       NO-ERROR.
-  IF NOT AVAIL bf-ref THEN
-  DO:
-     CREATE bf-ref.
-     ASSIGN
-       bf-ref.reftable = "oe-rel.lot-no"
-       bf-ref.company  = STRING(oe-rel.r-no,"9999999999").
-  END.
-
-  IF AVAIL bf-oe-boll THEN
-     bf-ref.CODE  = bf-oe-boll.lot-no.
+ IF AVAIL bf-oe-boll THEN
+     bf-oe-rel.lot-no  = bf-oe-boll.lot-no.
   ELSE
-     bf-ref.CODE  = bf-oe-rell.lot-no.
+     bf-oe-rel.lot-no  = bf-oe-rell.lot-no.
 
-  IF AVAIL bf-ref AND AVAIL(bf-oe-boll) THEN DO:
-    IF bf-ref.CODE EQ "" AND bf-oe-boll.lot-no NE "" THEN
-       bf-ref.CODE = bf-oe-boll.lot-no.
+  IF bf-oe-rel.lot-no <> "" AND AVAIL(bf-oe-boll) THEN DO:
+    IF bf-oe-rel.lot-no EQ "" AND bf-oe-boll.lot-no NE "" THEN
+       bf-oe-rel.lot-no = bf-oe-boll.lot-no.
     IF bf-oe-rel.lot-no = "" AND bf-oe-boll.lot-no NE "" THEN
       bf-oe-rel.lot-no = bf-oe-boll.lot-no.
   END.

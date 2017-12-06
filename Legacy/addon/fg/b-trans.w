@@ -1099,14 +1099,12 @@ PROCEDURE leave-tag :
            AND b-fg-rctd.i-no = fg-rctd.i-no:SCREEN-VALUE IN BROWSE {&browse-name} 
            AND b-fg-rctd.rita-code = "T" 
            AND ROWID(b-fg-rctd) NE ROWID (fg-rctd)
-         NO-LOCK,
-       LAST bf-reftable 
-          WHERE bf-reftable.company EQ b-fg-rctd.company 
-            AND bf-reftable.reftable EQ "fg-rctd.user-id"
-            AND bf-reftable.loc EQ STRING(b-fg-rctd.r-no,"9999999999")
-            AND bf-reftable.loc EQ STRING(b-fg-rctd.r-no,"9999999999")
-            AND bf-reftable.code EQ USERID("NOSWEAT") NO-LOCK         .
+         NO-LOCK:
 
+            IF b-fg-rctd.created-by = "" THEN DO:
+                   ASSIGN b-fg-rctd.created-by = USERID("nosweat").
+            END.    
+        
         ASSIGN fg-rctd.loc2:SCREEN-VALUE = b-fg-rctd.loc2
                fg-rctd.loc-bin2:SCREEN-VALUE = b-fg-rctd.loc-bin2.
 

@@ -369,12 +369,8 @@ PROCEDURE get-set-full-qty:
            AND b-fg-rctd.job-no2 = (fg-rctd.job-no2)
            AND b-fg-rctd.i-no = fg-rctd.i-no 
            AND recid(b-fg-rctd) <> recid(fg-rctd)
-           NO-LOCK,     
-    FIRST ASI.reftable WHERE reftable.reftable EQ "fg-rctd.user-id" AND
-      reftable.company  EQ fg-rctd.company AND
-      reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999")  AND
-      reftable.dscr    EQ "fg-rctd: " + STRING(fg-rctd.r-no,"9999999999")   
-    use-index loc:
+           NO-LOCK.     
+
 
       lv-out-qty = lv-out-qty + b-fg-rctd.t-qty.     
       IF ip-cost-to-set GT 0 THEN DO:

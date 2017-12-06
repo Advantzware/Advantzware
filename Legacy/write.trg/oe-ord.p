@@ -19,9 +19,6 @@ DEF VAR li-next-ordno AS INT NO-UNDO.
 
 DISABLE TRIGGERS FOR LOAD OF oe-rel.
 DISABLE TRIGGERS FOR LOAD OF b-oe-ordl.
-/* Reftable removed with #22925
-DISABLE TRIGGERS FOR LOAD OF oe-ord-close-checked.
-*/
 
 ASSIGN
  cocode = g_company

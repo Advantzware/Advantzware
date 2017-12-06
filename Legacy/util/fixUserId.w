@@ -218,22 +218,11 @@ DO:
    SESSION:SET-WAIT-STATE("General"). 
 
      FOR EACH fg-rcpth NO-LOCK:
-      FIND FIRST reftable WHERE reftable.reftable = "fg-rctd.user-id" 
-                            AND reftable.company  = fg-rcpth.company 
-                            AND reftable.loc      = STRING(fg-rcpth.r-no,"9999999999") NO-ERROR.
 
-      IF AVAIL reftable AND reftable.CODE = "?"  THEN
-         reftable.CODE = "ASI".
-
-      IF NOT AVAIL reftable THEN DO:
-         CREATE reftable.
-         ASSIGN
-            reftable.reftable = "fg-rctd.user-id" 
-            reftable.company  = fg-rcpth.company
-            reftable.loc      = STRING(fg-rcpth.r-no,"9999999999")
-            reftable.CODE = "ASI"      /* userid is stored in reftable.code */
-            v-cnt = v-cnt + 1.
-      END.
+        ASSIGN
+        fg-rctd.created-by = "ASI"
+        v-cnt = v-cnt + 1.
+        
          STATUS DEFAULT "Processing.... " + TRIM(STRING(v-cnt)).
    END.
 

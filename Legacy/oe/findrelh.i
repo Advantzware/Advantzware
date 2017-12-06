@@ -34,10 +34,7 @@ FIND FIRST b-reft-findrelh
 
 /* Get reftable record for this r-no for an dscr to match against another  */
 /* reftable record related to lot# (compare the oe-rel.lot with oe-rell   */
-FIND FIRST b-reft-fob WHERE
-     b-reft-fob.reftable EQ "oe-rel.lot-no" AND
-     b-reft-fob.company  EQ STRING({1}.r-no,"9999999999")
-     NO-LOCK NO-ERROR.
+
 
 /* Set ll-by-po */
 ll-by-po = NO.
@@ -120,17 +117,10 @@ FOR EACH oe-relh
     DO:
        FOR EACH b2-oe-rell FIELDS(rec_key) WHERE
            b2-oe-rell.r-no EQ oe-relh.r-no
-           NO-LOCK:
-           
-         /* Match of lot-no between oe-rel and oe-rell */
-           FIND FIRST b2-reftable WHERE
-                b2-reftable.reftable EQ "oe-rell.lot-no" AND
-                b2-reftable.rec_key  EQ b2-oe-rell.rec_key
-                USE-INDEX rec_key
-                NO-LOCK NO-ERROR.
-           
-           IF (AVAIL b2-reftable AND b2-reftable.dscr NE b-reft-fob.dscr) OR
-              (NOT AVAIL b2-reftable AND b-reft-fob.dscr NE "") THEN
+           NO-LOCK:          
+         
+           IF (b2-oe-rell.fob-code <> "" AND b2-oe-rell.fob-code NE {1}.fob-code)
+           OR (b2-oe-rell.fob-code = "" AND {1}.fob-code NE "") THEN           
               NEXT oe-relh-loop.
        END.
     END.

@@ -172,22 +172,11 @@ IF AVAIL oe-relh THEN DO:
     reftable.code = oe-rell.s-code.
 
     RELEASE reftable.
-
-    FIND FIRST reftable WHERE
-         reftable.reftable EQ "oe-rel.lot-no" AND
-         reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-         NO-ERROR.
     
-    IF NOT AVAIL reftable THEN
-    DO:
-       CREATE reftable.
-       ASSIGN reftable.reftable = "oe-rel.lot-no"
-              reftable.company  = STRING(oe-rel.r-no,"9999999999").
-    END.
     ASSIGN
-       reftable.CODE = lv-lot-no
-       reftable.code2 = lv-frt-pay
-       reftable.dscr  = lv-fob-code.
+       oe-rel.lot-no = lv-lot-no
+       oe-rel.frt-pay = lv-frt-pay
+       oe-rel.fob-code  = lv-fob-code.
 
     IF lv-sell-price-found THEN
     DO:

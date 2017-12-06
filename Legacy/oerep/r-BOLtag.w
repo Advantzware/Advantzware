@@ -2618,14 +2618,7 @@ IF AVAIL cust THEN
               w-ord.tag-no = oe-boll.tag                                                    
               num-rec            = num-rec + 1.                   
 
-              FIND FIRST ref-lot-no 
-                  WHERE ref-lot-no.reftable EQ "oe-rel.lot-no" 
-                    AND ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-                  NO-LOCK NO-ERROR.
-              IF AVAIL ref-lot-no THEN DO:
-                  w-ord.rel-lot# = ref-lot-no.CODE.
-                  RELEASE ref-lot-no.
-              END.
+              ASSIGN w-ord.rel-lot# = oe-rel.lot-no.
 
               IF AVAIL itemfg 
                 THEN
@@ -3062,14 +3055,7 @@ IF AVAIL cust THEN
 
               num-rec            = num-rec + 1.                   
 
-              FIND FIRST ref-lot-no 
-                  WHERE ref-lot-no.reftable EQ "oe-rel.lot-no" 
-                    AND ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-                  NO-LOCK NO-ERROR.
-              IF AVAIL ref-lot-no THEN DO:
-                  w-ord.rel-lot# = ref-lot-no.CODE.
-                  RELEASE ref-lot-no.
-              END.
+              ASSIGN w-ord.rel-lot# = oe-rel.lot-no.
 
               IF AVAIL itemfg 
                 THEN
@@ -3230,13 +3216,7 @@ IF NOT AVAIL oe-rel
       LEAVE.
    END.
 
-IF AVAIL oe-rel THEN DO:
-  FIND FIRST ref-lot-no NO-LOCK
-    WHERE ref-lot-no.reftable EQ "oe-rel.lot-no"
-      AND ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999") NO-ERROR.
-  IF AVAIL ref-lot-no THEN op-lot# = ref-lot-no.code.
-END.
-
+ASSIGN op-lot# = oe-rel.lot-no.
 ASSIGN op-pono = oe-ord.po-no.
 
 END PROCEDURE.

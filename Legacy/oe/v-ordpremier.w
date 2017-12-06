@@ -6542,32 +6542,17 @@ PROCEDURE whs-order :
 
   RELEASE oe-ord-whs-order.
 
-  IF AVAIL oe-ord THEN DO:
-    FIND FIRST oe-ord-whs-order NO-LOCK
-        WHERE oe-ord-whs-order.reftable EQ "oe-ord.whs-order"
-          AND oe-ord-whs-order.company  EQ oe-ord.company
-          AND oe-ord-whs-order.loc      EQ STRING(oe-ord.ord-no,"9999999999")
-        NO-ERROR.
-
-    IF NOT AVAIL oe-ord-whs-order THEN DO:
-      CREATE oe-ord-whs-order.
-      ASSIGN
-       oe-ord-whs-order.reftable = "oe-ord.whs-order"
-       oe-ord-whs-order.company  = oe-ord.company
-       oe-ord-whs-order.loc      = STRING(oe-ord.ord-no,"9999999999").
-      FIND CURRENT oe-ord-whs-order NO-LOCK.
-    END.
-  END.
+  
 
   IF ip-int EQ 0 THEN DO WITH FRAME {&FRAME-NAME}:
     tb_whs-order:SCREEN-VALUE = STRING(AVAIL oe-ord-whs-order AND
-                                       oe-ord-whs-order.val[1] EQ 1,"yes/no").
+                                       oe-ord.managed =true,"yes/no").
   END.
 
   ELSE
   IF AVAIL oe-ord-whs-order THEN DO /*  */:
     FIND CURRENT oe-ord-whs-order.
-    oe-ord-whs-order.val[1] = INT(tb_whs-order).
+    oe-ord.managed = LOGICAL(tb_whs-order).
     FIND CURRENT oe-ord-whs-order NO-LOCK.
   END.
 

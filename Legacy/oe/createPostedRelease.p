@@ -208,18 +208,8 @@ if choice then do:
                            s-code.code
                         ELSE
                            "B".
-
-       FIND FIRST b-fob WHERE
-            b-fob.reftable EQ "oe-rel.lot-no" AND
-            b-fob.company  EQ STRING(bf-rel.r-no,"9999999999")
-            NO-LOCK NO-ERROR.
-
-       IF AVAIL b-fob THEN
-       DO:
-           w-rel.fob = b-fob.dscr.
-           RELEASE b-fob.
-       END. /* avail b-fob */
-
+      
+       ASSIGN w-rel.fob = bf-rel.fob-code.
        RELEASE w-rel.
     END. /* if not can-do... */
   END. /* each bf-rel */

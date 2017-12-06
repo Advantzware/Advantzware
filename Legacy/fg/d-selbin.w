@@ -642,13 +642,9 @@ DEF VAR lItemType AS LOG NO-UNDO.
        AND fg-rctd.loc-bin EQ fg-bin.loc-bin
        AND fg-rctd.rita-code EQ "R"
        AND fg-rctd.t-qty LT 0
-     NO-LOCK,
-    FIRST ASI.reftable WHERE reftable.reftable EQ "fg-rctd.user-id" AND
-      reftable.company  EQ fg-rctd.company AND
-      reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999")  AND
-      (reftable.dscr    EQ ip-lv-linker AND reftable.dscr begins "fg-rctd: ")     
-    use-index loc NO-LOCK:
-    dTo-Rel = dTo-Rel - fg-rctd.t-qty.    
+     NO-LOCK:
+
+    dTo-Rel = dTo-Rel - fg-rctd.t-qty.
   END.
   w-bin.to-rel = dTo-Rel.
   w-bin.to-bol = dTo-Rel.

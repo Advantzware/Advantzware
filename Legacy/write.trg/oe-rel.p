@@ -183,16 +183,7 @@ FOR EACH oe-ord
   LEAVE.
 END.
 
-IF NOT CAN-FIND(FIRST reftable WHERE
-   reftable.reftable EQ "oe-rel.lot-no" AND
-   reftable.company  EQ STRING(oe-rel.r-no,"9999999999")) THEN
-   DO:
-      CREATE reftable.
-      ASSIGN
-         reftable.reftable = "oe-rel.lot-no"
-         reftable.company = STRING(oe-rel.r-no,"9999999999").
-      RELEASE reftable.
-   END.
+
 
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.

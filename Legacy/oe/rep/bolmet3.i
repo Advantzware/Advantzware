@@ -38,13 +38,8 @@ FOR EACH tt-boll,
                  oe-rel.line    eq oe-ordl.LINE AND
                  oe-rel.rel-no  EQ tt-boll.rel-no
                  NO-LOCK:
-            FIND FIRST reftable
-                WHERE reftable.reftable EQ "oe-rel.lot-no"
-                AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999") NO-LOCK NO-ERROR.
-            IF AVAIL reftable AND reftable.CODE NE "" THEN DO:
-                lv-lot-no = reftable.CODE.
-                LEAVE.
-            END.
+
+              ASSIGN lv-lot-no = oe-rel.lot-no.
         END.
     END.
     
