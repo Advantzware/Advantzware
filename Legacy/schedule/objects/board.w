@@ -3734,7 +3734,7 @@ PROCEDURE msgFrame :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipMsg AS CHARACTER NO-UNDO.
 
-  IF ipMsg EQ ? THEN DO:
+ IF ipMsg EQ ? THEN DO:
       RUN initMsgFrame. 
       SESSION:SET-WAIT-STATE('').
   END.
