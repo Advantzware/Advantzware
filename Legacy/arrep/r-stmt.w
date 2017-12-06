@@ -1703,8 +1703,8 @@ IF ip-sys-ctrl-shipto THEN
       v-hi-cust = ip-cust-no.
 ELSE
    ASSIGN
-      v-lo-cust = begin_cust-no
-      v-hi-cust = end_cust-no.
+      v-lo-cust = ""
+      v-hi-cust = "" .
 
 {sys/inc/print1.i}
 
@@ -1753,9 +1753,9 @@ FOR EACH ttCustList
     FIRST cust no-lock
         WHERE cust.company eq cocode
           AND cust.cust-no EQ ttCustList.cust-no
-    /*     cust.cust-no ge v-lo-cust and */
-    /*     cust.cust-no le v-hi-cust and */
-          AND ((cust.acc-bal ne 0 AND NOT tb_curr-bal) OR (tb_curr-bal))
+           AND (cust.cust-no EQ v-lo-cust OR v-lo-cust = "")
+           AND (cust.cust-no EQ v-hi-cust  OR v-hi-cust = "")
+           AND ((cust.acc-bal ne 0 AND NOT tb_curr-bal) OR (tb_curr-bal))
         BREAK BY cust.cust-no
     transaction:
 
@@ -3242,17 +3242,9 @@ IF ip-sys-ctrl-shipto THEN
       v-hi-cust = ip-cust-no.
 ELSE
    ASSIGN
-      v-lo-cust = begin_cust-no
-      v-hi-cust = end_cust-no.
-
- ASSIGN
-    v-lo-cust   = IF tb_BatchMail:CHECKED IN FRAME {&frame-name} 
-                    THEN ip-cust-no 
-                    ELSE /*begin_cust-no*/ ""
-    v-hi-cust   = IF tb_BatchMail:CHECKED IN FRAME {&frame-name} 
-                    THEN ip-cust-no 
-                    ELSE /*end_cust-no*/ "" .
-
+      v-lo-cust = ""
+      v-hi-cust = "".
+ 
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i  value(lines-per-page)}
@@ -3973,8 +3965,8 @@ IF ip-sys-ctrl-shipto THEN
       v-hi-cust = ip-cust-no.
 ELSE
    ASSIGN
-      v-lo-cust = begin_cust-no
-      v-hi-cust = end_cust-no.
+      v-lo-cust = ""
+      v-hi-cust = "".
 
 {sys/inc/print1.i}
 
@@ -3992,8 +3984,8 @@ FOR EACH ttCustList
     first cust no-lock
     where cust.company eq cocode
       AND cust.cust-no EQ ttCustList.cust-no
-/*     cust.cust-no ge v-lo-cust and */
-/*     cust.cust-no le v-hi-cust and */
+      AND (cust.cust-no EQ v-lo-cust OR v-lo-cust = "")
+      AND (cust.cust-no EQ v-hi-cust  OR v-hi-cust = "")
       AND ((cust.acc-bal ne 0 AND NOT tb_curr-bal) OR (tb_curr-bal))
     transaction:
 
