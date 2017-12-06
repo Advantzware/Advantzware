@@ -214,5 +214,24 @@ CLASS RefTableMigration:
           END.
          END.       
         RETURN iCnt.
-    END METHOD. /*fg-rctd*/
+    END METHOD. /*fg-bin*/
+    METHOD PUBLIC INTEGER FgBinCost():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable NO-LOCK
+          WHERE reftable.reftable EQ "fg-bin.cost" USE-INDEX rec_key:
+          FIND FIRST fg-rdtlh WHERE fg-rdtlh.company = reftable.company
+              AND fg-rdtlh.rec_key = reftable.rec_key EXCLUSIVE-LOCK NO-ERROR.
+          IF AVAILABLE fg-rdtlh THEN DO:
+              ASSIGN
+                  fg-rdtlh.avg-cost     = reftable.val[1]
+                  fg-rdtlh.last-cost    = reftable.val[2]
+                  fg-rdtlh.std-fix-cost = reftable.val[3]
+                  fg-rdtlh.std-lab-cost = reftable.val[4]
+                  fg-rdtlh.std-mat-cost = reftable.val[5]
+                  fg-rdtlh.std-tot-cost = reftable.val[6]
+                  fg-rdtlh.std-var-cost = reftable.val[7].
+          END.
+        END.  
+        RETURN iCnt.
+    END METHOD. /*fg-bin*/
 END CLASS.
