@@ -276,6 +276,28 @@ PROCEDURE assignSelections:
         svi-print-item   = rs_no_PN        
         nsv_setcomp      = tb_setcomp
         .
+        
+        CASE rd-dest:
+            WHEN 1 THEN 
+                ASSIGN 
+                    LvOutputSelection = "Printer".
+            WHEN 2 THEN 
+                ASSIGN 
+                    LvOutputSelection = "Screen". 
+            WHEN 3 THEN 
+                ASSIGN 
+                    LvOutputSelection = "File".
+            WHEN 4 THEN 
+                ASSIGN 
+                    LvOutputSelection = "Fax".
+            WHEN 5 THEN 
+                ASSIGN 
+                    LvOutputSelection = "Email".
+            WHEN 6 THEN 
+                ASSIGN 
+                    LvOutputSelection = "Port".
+        END CASE.
+        
 
 END. 
 /* end input parameters */
@@ -2167,6 +2189,11 @@ PROCEDURE SetInvForm:
                 v-program      = "oe/rep/invxprnt10.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
+        WHEN "Shamrock" THEN
+            ASSIGN
+                v-program      = "oe/rep/invshamrock.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
         WHEN "Boss" THEN
             ASSIGN
                 v-program      = "oe/rep/invboss.p"
@@ -2733,6 +2760,11 @@ PROCEDURE SetInvPostForm:
         WHEN "invprint 20" THEN
             ASSIGN
                 v-program      = "ar/rep/invxprnt10.p"
+                lines-per-page = 66
+                is-xprint-form = YES.
+        WHEN "Shamrock" THEN
+            ASSIGN
+                v-program      = "ar/rep/invshamrock.p"
                 lines-per-page = 66
                 is-xprint-form = YES.
         WHEN "Boss" THEN

@@ -70,6 +70,14 @@ DEFINE VARIABLE copy-record AS LOGICAL NO-UNDO.
 
 /* ***************************  Main Block  *************************** */
 
+ON CTRL-A OF FRAME {&FRAME-NAME}
+DO:
+    DEFINE VARIABLE hTable AS HANDLE NO-UNDO.
+    
+    hTable = BUFFER {&FIRST-EXTERNAL-TABLE}:HANDLE.
+    RUN system/CallAudit.p ("{&FIRST-EXTERNAL-TABLE}",hTable,"Viewer",PROGRAM-NAME(1)).
+END.
+
 {methods/template/primflds.i}
 {methods/enhance.i}
 {methods/template/viewrhlp.i}

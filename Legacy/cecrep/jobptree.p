@@ -259,16 +259,10 @@ ASSIGN
           FIND FIRST oe-ordl WHERE oe-ordl.company EQ job-hdr.company
                AND oe-ordl.ord-no  EQ job-hdr.ord-no
                AND oe-ordl.i-no    EQ job-hdr.i-no NO-LOCK NO-ERROR.
-       IF AVAILABLE oe-ordl THEN
-          FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ "oe-ordl.whs-item"
-                         AND reftable.company  EQ oe-ordl.company
-                         AND reftable.loc      EQ STRING(oe-ordl.ord-no,"9999999999")
-                         AND reftable.code     EQ oe-ordl.i-no
-                         AND reftable.code2    EQ STRING(oe-ordl.line,"9999999999")
-                         NO-ERROR.
+       IF AVAILABLE oe-ordl THEN         
 
        ASSIGN
-       v-managed-order = IF AVAILABLE reftable AND reftable.val[1] EQ 1 THEN "MANAGED   WAREHOUSE   ORDER"
+       v-managed-order = IF oe-ordl.managed = true THEN "MANAGED   WAREHOUSE   ORDER"
                          ELSE ""
        v-break = FIRST-OF(job.job-no2).
 
@@ -440,6 +434,8 @@ ASSIGN
                      ELSE "COMBO"
        lv-est-type = lv-est-type + "   FORM " + string(b-eb.form-no) + " OF " + string(xest.form-qty) 
                     + "  BLANK " + STRING(b-eb.blank-no) + " OF " + STRING(xef.blank-qty).
+       
+       cJobNumber = v-job-prt + "-" + string(b-eb.form-no,"99") + "-" + STRING(b-eb.blank-no,"99") .
 
        FIND FIRST reftable NO-LOCK WHERE reftable.reftable EQ 'stackpat'
                            AND reftable.company EQ ''
@@ -451,7 +447,7 @@ ASSIGN
        PUT "<P12><B><C94>JOB TICKET" SKIP. /*AT 140*/  /*caps(SUBSTRING(v-fg,1,1)) FORM "x" AT 40*/       
       
        PUT UNFORMATTED "<r-2><UNITS=INCHES><C75><FROM><c92><r+2><BARCODE,TYPE=39,CHECKSUM=NONE,VALUE="
-              v-job-prt ">" SKIP "<r-1>".
+              cJobNumber ">" SKIP "<r-1>".
        PUT
        "<#1><C1><FROM><C106><R+45><RECT><||3><C80><P10></B>" v-qa-text "<B>"
        "<=1><R-2><C33><B><P12>" v-managed-order "</B>"
@@ -491,23 +487,24 @@ ASSIGN
            v-i-line[4] = "Joint: " + IF AVAILABLE xeb THEN v-joint-dscr ELSE "".
         
        /*===== for xprint */
-        RUN sys/ref/getpo#.p (IF AVAILABLE xoe-ordl AND est.est-type NE 6 THEN ROWID(xoe-ordl) ELSE ROWID(job),
-                              w-ef.frm, OUTPUT v-po-no).
+       /* RUN sys/ref/getpo#.p (IF AVAILABLE xoe-ordl THEN ROWID(xoe-ordl) ELSE ROWID(job),
+                              w-ef.frm, OUTPUT v-po-no).*/
+        RUN pGetpoNum(IF AVAILABLE xoe-ordl THEN ROWID(xoe-ordl) ELSE ROWID(job),
+                      w-ef.frm, OUTPUT v-po-no).
         RELEASE po-ord.
         IF v-po-no NE 0 THEN
         FIND FIRST po-ord
             WHERE po-ord.company EQ cocode
               AND po-ord.po-no   EQ v-po-no
             NO-LOCK NO-ERROR.
-          
         ASSIGN
          v-vend-no    = IF AVAILABLE po-ord THEN po-ord.vend-no ELSE ""
-         v-qty-or-sup = "Vend: ".
+         v-qty-or-sup = "Vend:".
 
         IF v-vend-no NE "" THEN DO:
            v-qty-or-sup = v-qty-or-sup + trim(v-vend-no).
            IF v-po-no NE 0 THEN v-qty-or-sup = v-qty-or-sup + " PO#:" +
-                                               trim(STRING(v-po-no,">>>>>9")).
+                                               trim(STRING(v-po-no,">>>>>9")) + "-" + (IF AVAIL po-ord AND  po-ord.stat NE "" THEN po-ord.stat ELSE "") .
         END.
         
         i = 0.
@@ -622,15 +619,8 @@ ASSIGN
                       AND xoe-rel.i-no    EQ v-fg
                       NO-ERROR.
           END.
-         IF AVAILABLE xoe-rel THEN
-             FIND FIRST reftable NO-LOCK WHERE
-             reftable.reftable EQ "oe-rel.lot-no" AND
-             reftable.company  EQ STRING(xoe-rel.r-no,"9999999999")
-             NO-ERROR.
 
-         IF AVAILABLE reftable THEN
-             ASSIGN
-             cCustpo-name      = reftable.CODE . 
+           ASSIGN cCustpo-name = xoe-rel.lot-no.
         
          IF AVAILABLE xoe-rel AND cCustpo-name = "" THEN
              ASSIGN cCustpo-name = (IF xoe-rel.po-no NE "" AND AVAIL xoe-rel THEN xoe-rel.po-no ELSE IF AVAILABLE xoe-ordl THEN xoe-ordl.po-no ELSE "") .  .
@@ -690,7 +680,7 @@ ASSIGN
            "<B><C97>" v-adder-5 "</B>" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
            SKIP
            "<P12><B>CustPart#:" AT 2 v-cp FORM "x(15)"  "</B>"
-           "<P10>" v-qty-or-sup AT 101 FORM "x(26)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank            
+           "<P10>" v-qty-or-sup AT 101 FORM "x(28)" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank            
            "<B><C97>" v-adder-6 "</B>" WHEN FIRST-OF(w-ef.frm) AND NOT v-see-1st-blank
            SKIP  
            "<P10>Item Name: " + lv-fg-name  AT 2  FORM "x(41)" 
@@ -1013,7 +1003,7 @@ ASSIGN
             "<=11><C60><FROM><R+3><C60><LINE><||3>"
             "<=11><R+3><C1><FROM><C106><LINE><||3>"
             "<=11>Job # <C30> Estimate # <C60> Cust Part #"  SKIP
-            "<P12><C12>" v-job-prt 
+            "<P12><C12>" cJobNumber FORMAT "x(16)"
             "<C40>" v-est-no
             "<C70>" lv-part-no SKIP /*(2)*/.
 
@@ -1280,6 +1270,93 @@ PROCEDURE pConvertToHours:
         dResult = dResult + 1 .
     ipcOoutputHour =   string(iHours) + ":" +  string(int(dResult),"99") .
 
+END PROCEDURE.
+
+PROCEDURE pGetpoNum:
+DEFINE INPUT PARAM ip-rowid AS ROWID NO-UNDO.
+DEFINE INPUT PARAM ip-form-no LIKE po-ordl.s-num NO-UNDO.
+DEFINE OUTPUT PARAM op-po-no LIKE po-ordl.po-no NO-UNDO.
+DEFINE  BUFFER bf-job FOR job.
+DEFINE BUFFER bf-job-hdr FOR job-hdr.
+
+DEF VAR v-ord-no LIKE oe-ordl.ord-no NO-UNDO.
+
+
+ASSIGN
+ op-po-no = 0
+ v-ord-no = 0.
+
+FIND oe-ordl WHERE ROWID(oe-ordl) EQ ip-rowid NO-LOCK NO-ERROR.
+
+IF AVAIL oe-ordl THEN DO:
+  ASSIGN
+   v-ord-no = oe-ordl.ord-no
+   op-po-no = oe-ordl.po-no-po.
+
+  FIND FIRST bf-job
+      WHERE bf-job.company EQ oe-ordl.company
+        AND bf-job.job-no  EQ oe-ordl.job-no
+        AND bf-job.job-no2 EQ oe-ordl.job-no2
+      NO-LOCK NO-ERROR.  
+END.
+
+ELSE FIND bf-job WHERE ROWID(bf-job) EQ ip-rowid NO-LOCK NO-ERROR.
+
+IF AVAIL bf-job THEN
+FOR EACH job-mat
+    WHERE job-mat.company EQ bf-job.company
+      AND job-mat.job     EQ bf-job.job
+      AND job-mat.job-no  EQ bf-job.job-no
+      AND job-mat.job-no2 EQ bf-job.job-no2
+      AND job-mat.frm     EQ ip-form-no
+    NO-LOCK,
+
+    FIRST item
+    WHERE item.company  EQ bf-job.company
+      AND item.i-no     EQ job-mat.rm-i-no
+      AND INDEX("1234BPR",item.mat-type) GT 0
+    NO-LOCK,
+
+    FIRST bf-job-hdr OF bf-job NO-LOCK,
+
+    FIRST reftable
+    WHERE reftable.reftable EQ "ORDERPO"
+      AND reftable.company  EQ bf-job.company
+      AND reftable.loc      EQ STRING(v-ord-no,"9999999999")
+      AND reftable.code     EQ STRING(job-mat.job,"9999999999") +
+                               STRING(job-mat.frm,"9999999999")
+      AND reftable.code2    EQ job-mat.rm-i-no
+    NO-LOCK
+    
+    BY job-mat.blank-no
+    BY job-mat.rm-i-no:
+  op-po-no = reftable.val[1].
+  LEAVE.
+END.
+
+IF op-po-no EQ 0 THEN
+FOR EACH po-ordl
+    WHERE po-ordl.company   EQ bf-job.company
+      AND po-ordl.job-no    EQ bf-job.job-no
+      AND po-ordl.job-no2   EQ bf-job.job-no2
+      AND (po-ordl.s-num    EQ ip-form-no OR po-ordl.s-num EQ ?)
+      AND po-ordl.item-type EQ YES
+    USE-INDEX job-no NO-LOCK,
+
+    FIRST po-ord WHERE
+    po-ord.company EQ po-ordl.company AND
+    po-ord.po-no   EQ po-ordl.po-no 
+    NO-LOCK,
+
+    FIRST item
+    WHERE item.company  EQ po-ordl.company
+      AND item.i-no     EQ po-ordl.i-no
+      AND INDEX("1234BPR",item.mat-type) GT 0
+    NO-LOCK:
+
+  op-po-no = po-ordl.po-no.
+  LEAVE.
+END.
 END PROCEDURE.
  
         HIDE ALL NO-PAUSE.

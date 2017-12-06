@@ -53,6 +53,7 @@ DEF VAR lv-last-show-rel-no AS int NO-UNDO.
 DEF VAR lv-first-show-rel-no AS int NO-UNDO.
 DEFINE VARIABLE begin_rno  LIKE oe-rell.r-no NO-UNDO.
 DEFINE VARIABLE ending_rno LIKE oe-rell.r-no NO-UNDO.
+DEFINE VARIABLE tb_posted AS LOGICAL NO-UNDO.
 
 &SCOPED-DEFINE key-phrase oe-relh.company EQ cocode AND oe-relh.stat EQ "W"
 

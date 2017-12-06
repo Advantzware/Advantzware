@@ -1,5 +1,5 @@
 &Scoped-define ACTION UPDATE
-&Scoped-define DBNAME PDBNAME('ASI')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME fg-rcpth
 
 TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
@@ -52,23 +52,12 @@ IF {&TABLENAME}.company NE "" AND {&TABLENAME}.r-no NE 0 THEN DO:
       NO-ERROR.
   IF AVAIL po-ord THEN {&TABLENAME}.vend-no = po-ord.vend-no.
 
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "fg-rctd.user-id"
-        AND reftable.company  EQ {&TABLENAME}.company
-        AND reftable.loc      EQ STRING({&TABLENAME}.r-no,"9999999999")
-      NO-ERROR.
-  IF NOT AVAIL reftable THEN DO:
-    CREATE reftable.
+
+     IF fg-rctd.created-by = "" THEN DO:
+         ASSIGN fg-rctd.created-by = USERID("nosweat").
+    END.
     ASSIGN
-     reftable.reftable = "fg-rctd.user-id"
-     reftable.company  = {&TABLENAME}.company
-     reftable.loc      = STRING({&TABLENAME}.r-no,"9999999999")
-     reftable.code     = USERID("nosweat").
-  END.
-  IF NEW reftable                                                        OR
-     NOT CAN-FIND(FIRST fg-rctd WHERE fg-rctd.r-no EQ {&TABLENAME}.r-no) THEN
-    ASSIGN
-     reftable.code2        = USERID("nosweat")
+      fg-rctd.updated-by = USERID("nosweat")         
      {&TABLENAME}.upd-date = TODAY
      {&TABLENAME}.upd-time = TIME.
 END.

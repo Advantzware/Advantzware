@@ -11,6 +11,7 @@
 "FG" "Finished Goods Export" "rd-fgexp." "IF1"
 "FG" "Inventory Value" "r-fgohbb." "IR2"
 "JC" "Cost Out Report" "costOut." "JR15"
+"NS" "Audit Query" "AuditHist." "NS5"
 "OE" "BOL Packing List" "bolpcklst." "OS9"
 "OE" "Invoice Post / Update GL" "r-inve&p." "OB4"
 "OE" "Open Order Report" "r-ordopn." "OR16"

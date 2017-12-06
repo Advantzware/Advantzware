@@ -885,6 +885,7 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+/* Compiler says this is defined elsewhere
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE select_phone W-Win 
 PROCEDURE select_phone :
 /*------------------------------------------------------------------------------
@@ -910,7 +911,7 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
+*/
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE send-records W-Win  _ADM-SEND-RECORDS
 PROCEDURE send-records :
 /*------------------------------------------------------------------------------

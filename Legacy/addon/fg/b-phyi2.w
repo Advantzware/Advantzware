@@ -1259,24 +1259,14 @@ DEF BUFFER bf-reftable FOR reftable.
 
   /* Code placed here will execute AFTER standard behavior.    */
 
-  FIND FIRST bf-reftable
-      WHERE bf-reftable.reftable EQ "fg-rctd.user-id"
-        AND bf-reftable.company  EQ fg-rctd.company
-        AND bf-reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999")
-      NO-ERROR.
-  IF NOT AVAIL bf-reftable THEN DO:
-    CREATE bf-reftable.
+
+    IF fg-rctd.created-by = "" THEN DO:
+         ASSIGN fg-rctd.created-by = USERID("nosweat").
+    END.
     ASSIGN
-     bf-reftable.reftable = "fg-rctd.user-id"
-     bf-reftable.company  = fg-rctd.company
-     bf-reftable.loc      = STRING(fg-rctd.r-no,"9999999999")
-     bf-reftable.code     = USERID("nosweat").
-  END.
-  ASSIGN
-   bf-reftable.code2        = USERID("nosweat")
-   fg-rctd.upd-date = TODAY
-   fg-rctd.upd-time = TIME
-   fg-rctd.updated-by = USERID("nosweat").
+        fg-rctd.updated-by = USERID("nosweat")
+        fg-rctd.upd-date = TODAY 
+        fg-rctd.upd-time = TIME .
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

@@ -193,16 +193,8 @@ FOR EACH report
       WHERE oe-ordl.company EQ oe-ord.company
         AND oe-ordl.ord-no  eq oe-ord.ord-no NO-LOCK NO-ERROR.
     IF AVAIL oe-ordl THEN DO:
-
-     FIND FIRST reftable NO-LOCK
-       WHERE reftable.reftable EQ "oe-ordl.q-no"
-         AND reftable.company EQ oe-ordl.company
-         AND reftable.loc EQ STRING(oe-ordl.ord-no,"9999999999")
-         AND reftable.CODE EQ oe-ordl.i-no
-         AND reftable.code2 EQ STRING(oe-ordl.LINE,"9999999999") NO-ERROR.
-
-     IF AVAIL reftable THEN v-q-no = reftable.val[1].
-
+     
+     ASSIGN v-q-no = oe-ordl.q-no.
     END.
 
     /* get total page-num */

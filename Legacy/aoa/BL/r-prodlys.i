@@ -55,8 +55,8 @@ PROCEDURE pProductionAnalysis1:
           AND mch-act.op-date LE ipdtEndOpDate
           AND mch-act.shift   GE ipiStartShift
           AND mch-act.shift   LE ipiEndShift
-          AND DATETIME(mch-act.op-date,mch-act.op-time) GE DATETIME(ipdtStartOpDate,ipiShiftStartTime)
-          AND DATETIME(mch-act.op-date,mch-act.op-time) LE DATETIME(ipdtEndOpDate,ipiShiftEndTime)
+          AND DATETIME(mch-act.op-date,mch-act.op-time * 1000) GE DATETIME(ipdtStartOpDate,ipiShiftStartTime)
+          AND DATETIME(mch-act.op-date,mch-act.op-time * 1000) LE DATETIME(ipdtEndOpDate,ipiShiftEndTime)
         USE-INDEX dte-idx,
         FIRST mach NO-LOCK
         WHERE mach.company EQ mch-act.company
@@ -152,6 +152,7 @@ PROCEDURE pProductionAnalysis1:
                     ttProductionAnalysis.pass       = mch-act.pass
                     ttProductionAnalysis.actMachine = mch-act.m-code
                     ttProductionAnalysis.opDate     = mch-act.op-date
+                    ttProductionAnalysis.opTime     = STRING(mch-act.op-time,"hh:mm:ss am")
                     ttProductionAnalysis.startDate  = ttProductionAnalysis.opDate
                     .
               RUN pProRateMR.
@@ -501,8 +502,8 @@ PROCEDURE pProductionAnalysis2:
               AND bMchAct.op-date   LE ipdtEndOpDate
               AND bMchAct.shift     GE ipiStartShift
               AND bMchAct.shift     LE ipiEndShift
-              AND DATETIME(bMchAct.op-date,bMchAct.op-time) GE DATETIME(ipdtStartOpDate,ipiShiftStartTime)
-              AND DATETIME(bMchAct.op-date,bMchAct.op-time) LE DATETIME(ipdtEndOpDate,ipiShiftEndTime)
+              AND DATETIME(bMchAct.op-date,bMchAct.op-time * 1000) GE DATETIME(ipdtStartOpDate,ipiShiftStartTime)
+              AND DATETIME(bMchAct.op-date,bMchAct.op-time * 1000) LE DATETIME(ipdtEndOpDate,ipiShiftEndTime)
             :
             FIND FIRST job-code NO-LOCK
                  WHERE job-code.code EQ bMchAct.code

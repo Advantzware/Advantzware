@@ -444,6 +444,28 @@ END PROCEDURE.
 
 &ENDIF
 
+&IF DEFINED(EXCLUDE-epUserLogin) = 0 &THEN
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE epUserLogin Procedure 
+PROCEDURE epUserLogin :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEF OUTPUT PARAMETER lExit AS LOG.
+    DEF VAR lResult AS LOG.
+    RUN system\userLogin.p (OUTPUT lResult).
+    IF lResult THEN ASSIGN 
+        lExit = TRUE.
+    
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ENDIF
+
 &IF DEFINED(EXCLUDE-epUserRecordCheck) = 0 &THEN
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE epUserRecordCheck Procedure 

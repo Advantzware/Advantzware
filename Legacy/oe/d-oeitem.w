@@ -293,7 +293,15 @@ DO TRANSACTION:
   
 RUN sys/ref/ordtypes.p (OUTPUT lv-type-codes, OUTPUT lv-type-dscrs).
 
-RUN sys/ref/uom-ea.p (OUTPUT lv-ea-list).
+/* RUN sys/ref/uom-ea.p (OUTPUT lv-ea-list). */
+FOR EACH uom WHERE
+    uom.other EQ "EA" AND
+    uom.mult EQ 1:
+    ASSIGN
+        lv-ea-list = lv-ea-list + uom.uom + ",".
+END.
+ASSIGN
+    lv-ea-list = TRIM(lv-ea-list,",").
 
 {sys/inc/schedule.i}
  v-run-schedule = NOT (AVAIL sys-ctrl AND sys-ctrl.char-fld EQ 'NoDate' AND sys-ctrl.log-fld).
@@ -430,8 +438,7 @@ fi_sname-2 fi_sname-3 fi_sname-lbl fi_jobStartDate
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
 &Scoped-define List-2 oe-ordl.job-no oe-ordl.job-no2 oe-ordl.t-price ~
-oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3 fi_sman-lbl ~
-fi_sname-1 fi_s-pct-lbl fi_s-comm-lbl 
+oe-ordl.cost oe-ordl.type-code fi_sname-1 fi_sname-2 fi_sname-3 
 
 /* _UIB-PREPROCESSOR-BLOCK-END */
 &ANALYZE-RESUME
@@ -866,10 +873,10 @@ ASSIGN
    EXP-LABEL EXP-FORMAT                                                 */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-char-2 IN FRAME d-oeitem
    EXP-LABEL                                                            */
-/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
-   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.spare-dec-1 IN FRAME d-oeitem
    EXP-LABEL EXP-FORMAT                                                 */
+/* SETTINGS FOR FILL-IN spare-dec-1 IN FRAME d-oeitem
+   NO-ENABLE LIKE = asi.itemfg. EXP-LABEL EXP-FORMAT                    */
 /* SETTINGS FOR FILL-IN oe-ordl.t-price IN FRAME d-oeitem
    NO-ENABLE 2 EXP-LABEL                                                */
 /* SETTINGS FOR TOGGLE-BOX oe-ordl.tax IN FRAME d-oeitem
@@ -1457,20 +1464,13 @@ DO:
            ASSIGN tb_whs-item:SCREEN-VALUE = "YES" tb_whs-item = YES.
         END.        
     END.
-    DO TRANSACTION:
-      FIND FIRST oe-ordl-whs-item EXCLUSIVE-LOCK
-      WHERE oe-ordl-whs-item.reftable EQ "oe-ordl.whs-item"
-        AND oe-ordl-whs-item.company  EQ oe-ordl.company
-        AND oe-ordl-whs-item.loc      EQ STRING(oe-ordl.ord-no,"9999999999")
-        AND oe-ordl-whs-item.code     EQ oe-ordl.i-no
-        AND oe-ordl-whs-item.code2    EQ STRING(oe-ordl.line,"9999999999")
-      NO-ERROR.
+    DO TRANSACTION:      
 
       IF AVAIL oe-ordl-whs-item THEN DO:
          IF tb_whs-item THEN
-             oe-ordl-whs-item.val[1] = 1.
+             oe-ordl.managed = true.
          ELSE
-             oe-ordl-whs-item.val[1] = 0.
+             oe-ordl.managed = false.
          FIND CURRENT oe-ordl-whs-item NO-LOCK.
       END.
     END.
@@ -2116,7 +2116,6 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_qty-uom d-oeitem
 ON LEAVE OF fi_qty-uom IN FRAME d-oeitem
 DO:
-
   IF LASTKEY NE -1 THEN DO:
     RUN valid-uom (FOCUS) NO-ERROR.
     IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
@@ -8948,8 +8947,21 @@ PROCEDURE valid-uom :
           VIEW-AS ALERT-BOX ERROR.
       RETURN ERROR.
     END.
-      
-    IF ip-focus:NAME EQ "fi_qty-uom"             AND
+    find first uom where
+        uom.uom = lv-uom
+        no-lock no-error.
+    if ip-focus:NAME EQ "fi_qty-uom"
+    and avail uom 
+    and uom.mult NE 1
+    and NOT CAN-DO("," + TRIM(lv-ea-list),lv-uom) then do:
+        assign
+           ld = DEC(oe-ordl.qty:SCREEN-VALUE)
+           ld = ld * uom.mult
+           oe-ordl.qty:SCREEN-VALUE = STRING(ld)
+           ip-focus:screen-value = "EA".
+        run leave-qty.
+    end.        
+    else IF ip-focus:NAME EQ "fi_qty-uom"             AND
        NOT CAN-DO("," + TRIM(lv-ea-list),lv-uom) AND
        ((lv-uom NE "CS" AND lv-uom NE "PLT") OR
         DEC(oe-ordl.cas-cnt:SCREEN-VALUE) NE 0)  THEN DO:
@@ -9483,19 +9495,11 @@ PROCEDURE whs-item :
   DEF INPUT PARAM ip-int AS INT NO-UNDO.
 
 
-  RELEASE oe-ordl-whs-item.
-
-  FIND FIRST oe-ordl-whs-item NO-LOCK
-      WHERE oe-ordl-whs-item.reftable EQ "oe-ordl.whs-item"
-        AND oe-ordl-whs-item.company  EQ oe-ordl.company
-        AND oe-ordl-whs-item.loc      EQ STRING(oe-ordl.ord-no,"9999999999")
-        AND oe-ordl-whs-item.code     EQ oe-ordl.i-no
-        AND oe-ordl-whs-item.code2    EQ STRING(oe-ordl.line,"9999999999")
-      NO-ERROR.
+  RELEASE oe-ordl-whs-item.  
 
   IF ip-int EQ 0 THEN DO WITH FRAME {&FRAME-NAME}:
     ASSIGN
-     ll-prev-whs-item = AVAIL oe-ordl-whs-item AND oe-ordl-whs-item.val[1] EQ 1     
+     ll-prev-whs-item = AVAIL oe-ordl AND oe-ordl.managed = true     
      tb_whs-item:SCREEN-VALUE = STRING(ll-prev-whs-item,"yes/no").
     
   END.

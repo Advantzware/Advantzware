@@ -1,5 +1,5 @@
 &Scoped-define ACTION DELETE
-&Scoped-define DBNAME PDBNAME('ASI')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME oe-rel
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
@@ -30,25 +30,13 @@ FOR EACH reftable
 END.
 
 FOR EACH reftable
-    WHERE reftable.reftable EQ "oe-rel.lot-no"
-      AND reftable.company  EQ STRING({&TABLENAME}.r-no,"9999999999")
-    USE-INDEX reftable:
-  DELETE reftable.
-END.
-
-FOR EACH reftable
     WHERE reftable.reftable EQ "oe-rel.sell-price"
       AND reftable.company  EQ STRING({&TABLENAME}.r-no,"9999999999")
     USE-INDEX reftable:
   DELETE reftable.
 END.
 
-FOR EACH reftable
-    WHERE reftable.reftable EQ "oe-rel.job"
-      AND reftable.code     EQ STRING({&TABLENAME}.r-no,"9999999999")
-    USE-INDEX code:
-  DELETE reftable.
-END.
+
 
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.

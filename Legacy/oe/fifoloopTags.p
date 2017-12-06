@@ -45,8 +45,8 @@ IF SEARCH("logs/fifo.txt") NE ?  THEN
    lUseLogs = TRUE.
 DEFINE STREAM sDebug.
 IF lUseLogs THEN DO:
-    OUTPUT STREAM sDEbug TO VALUE(cDebugLog).
-    OUTPUT TO VALUE(REPLACE(cDebugLog, "txt", "errs")).
+    OUTPUT STREAM sDEbug TO VALUE(cDebugLog) append.
+    OUTPUT TO VALUE(REPLACE(cDebugLog, "txt", "errs")) append.
 END.
 
 /** If Shipping From Bill Of Lading Then Set Ship Code = B
@@ -144,6 +144,7 @@ DO:
     IF lUseCSCIndex THEN 
     DO:
         fDebugLog("fifo CSC Index Option").
+
         fifo-loop-csc:
         DO iFifoLoopCount = 1 TO 2.
             FOR EACH fg-bin
@@ -203,7 +204,7 @@ DO:
     END. /* IF Using CSC: No Index */
     ELSE 
     DO:
-        fDebugLog("fifo - before loop " + " qty to asign " + STRING(iRelQtyToAssign)).        
+        fDebugLog("fifo - before loop " + " qty to asign " + STRING(iRelQtyToAssign) + " item " + cIno).        
         DEFINE VARIABLE iLastToAssign AS INTEGER.
         iLastToAssign = 0.
         /* Using i-no index */
@@ -298,8 +299,10 @@ DO:
                     iAvailable = fg-bin.qty - iOnBOL.
                     
                     IF NOT ((iAvailable      GT 0 AND iFifoLoopCount EQ 2) OR
-                            (iAvailable      GE iRelQtyToAssign AND iFifoLoopCount EQ 1)) THEN 
+                            (iAvailable      GE iRelQtyToAssign AND iFifoLoopCount EQ 1)) THEN DO:
+                        fDebugLog("run skiptag for qty problem " + fg-bin.tag + " avail " + string(iavailable) + " irelqtytoass " + string(iRelQtytoassign)).                                
                             NEXT.
+                    END.
                     fDebugLog("run pcreatetempoerell " + fg-bin.tag).
                     RUN pCreateTempOeRell (INPUT ROWID(fg-bin), ROWID(fg-rcpth)).
     
@@ -311,7 +314,7 @@ DO:
                      /* Record was found, so leave the loop */
                      LEAVE loop-count.
                 END. /* end for each fg-bin */
-                 fDebugLog("next of loop ").
+                 fDebugLog("next of loop " + string(iFifoLoopCount)).
             END. /* loop-count: do iFifoLoopCount 1 to 2 */
 
             IF iRelQtyToAssign LE 0 OR iRelQtyToAssign EQ iLastToAssign OR lFgBinFound = FALSE THEN LEAVE fifo-loop.
@@ -356,7 +359,7 @@ PROCEDURE pCreateDynamicTT:
     /* Main output parameter for program */
     ophTToe-rell = hTToe-rell. 
     
-    /* Give it oe-rell table’s fields & indexes */
+    /* Give it oe-rell tableÂ’s fields & indexes */
     hTToe-rell:CREATE-LIKE(hBufPassedTToe-rell).
 
     /* No more fields will be added */
@@ -505,23 +508,19 @@ PROCEDURE pCreateOeRell:
              oe-rell.fob-code   = b-reftable.dscr.
         RELEASE b-reftable. 
     END.
+  ELSE ASSIGN 
+         oe-rell.lot-no  = oe-rel.lot-no
+         oe-rell.frt-pay = oe-rel.frt-pay
+         oe-rell.fob-code = oe-rel.fob-code.
    
     FIND FIRST b-reftable NO-LOCK
         WHERE b-reftable.reftable EQ "oe-rel.sell-price"
         AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
         NO-ERROR.
    
-    IF AVAILABLE b-reftable THEN 
-    DO:
-        CREATE reftable.
-        ASSIGN
-            reftable.reftable = "oe-rell.sell-price"
-            reftable.rec_key  = oe-rell.rec_key
-            reftable.val[1]   = b-reftable.val[1]
-            reftable.val[2]   = b-reftable.val[2].
-        RELEASE reftable.
-        RELEASE b-reftable.
-    END.
+      ASSIGN
+       oe-rell.newSellPrice = b-reftable.val[1]
+       oe-rell.newZeroPrice = b-reftable.val[2].
     
     IF iRelQtyToAssign GT 0 AND AVAILABLE oe-rel THEN 
     DO:

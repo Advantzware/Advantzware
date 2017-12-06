@@ -210,6 +210,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL C-Win C-Win
 ON WINDOW-CLOSE OF C-Win /* Advantzware Scheduler/Monitor */
 DO:
+   IF INDEX(program-name(4),"asiLogin") <> 0 THEN
+       RUN system/userLogOut.p.
   /* This event will close the window and terminate the procedure.  */
   APPLY "CLOSE":U TO THIS-PROCEDURE.
   RETURN NO-APPLY.
@@ -223,6 +225,8 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btExit C-Win
 ON CHOOSE OF btExit IN FRAME DEFAULT-FRAME /* Exit */
 DO:
+   IF INDEX(program-name(4),"asiLogin") <> 0 THEN
+       RUN system/userLogOut.p.
   APPLY "CLOSE" TO THIS-PROCEDURE.
   RETURN NO-APPLY.
 END.

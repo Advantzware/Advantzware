@@ -382,12 +382,8 @@ PROCEDURE processComponent:
     IF v-set-qty GT 0 OR (v-set-qty LT 0 AND fg-rctd.t-qty LT 0) THEN 
     DO:
 
-        FIND FIRST use-job NO-LOCK
-            WHERE use-job.reftable EQ "fg-rctd.use-job"
-            AND use-job.company  EQ STRING(fg-rctd.r-no,"9999999999")
-            NO-ERROR.
-  
-        IF AVAILABLE use-job AND use-job.val[1] EQ 1 THEN 
+       
+         IF fg-rctd.use-job THEN 
         DO:      
             IF lFGSetAssembly THEN 
             DO:              
@@ -414,7 +410,7 @@ PROCEDURE processComponent:
             DO:              
                 FOR EACH fg-bin
                     WHERE fg-bin.company EQ cocode
-                    AND fg-bin.i-no    EQ b-itemfg.i-no
+                    AND fg-bin.i-no    EQ b-itemfg.i-no 
                     AND fg-bin.job-no  EQ fg-rctd.job-no
                     AND fg-bin.job-no2 EQ fg-rctd.job-no2
                     AND fg-bin.qty     GT 0

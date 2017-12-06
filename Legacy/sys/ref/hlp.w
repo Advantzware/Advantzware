@@ -600,6 +600,13 @@ PROCEDURE local-enable :
   /* Code placed here will execute AFTER standard behavior.    */
     IF USERID("nosweat") NE "ASI" THEN
         btDataDigger:VISIBLE IN FRAME f-main = NO.
+    
+    FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+
+    IF AVAIL users AND users.securityLevel LE 999 THEN
+     btn-update:VISIBLE IN FRAME f-main = NO.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

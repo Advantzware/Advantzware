@@ -1,5 +1,5 @@
 &Scoped-define ACTION UPDATE
-&Scoped-define DBNAME PDBNAME('ASI')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME oe-rell
 
 TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
@@ -9,7 +9,7 @@ TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 DEF BUFFER b-oe-ordl FOR oe-ordl.
 
 DEF VAR cocode AS CHAR NO-UNDO.
-
+DEFINE VARIABLE lSkipRecalcInventory AS LOGICAL NO-UNDO. 
 
 DISABLE TRIGGERS FOR LOAD OF b-oe-ordl.
 DISABLE TRIGGERS FOR LOAD OF itemfg.
@@ -18,6 +18,17 @@ DISABLE TRIGGERS FOR LOAD OF reftable.
 cocode = {&TABLENAME}.company.
 {sys/inc/oereordr.i}
 
+/* Finding sys-ctrl directly for to improve speed for trigger */
+FIND FIRST sys-ctrl NO-LOCK
+    WHERE sys-ctrl.company EQ cocode
+      AND sys-ctrl.name    EQ "RelSkipRecalc"
+    NO-ERROR.
+IF AVAILABLE sys-ctrl THEN 
+  lSkipRecalcInventory = sys-ctrl.log-fld.
+
+ASSIGN {&TABLENAME}.upd-date = TODAY
+       {&TABLENAME}.upd-time = TIME
+       .
 IF TRIM({&TABLENAME}.s-code) EQ "" THEN {&TABLENAME}.s-code = "B".
 
 IF {&TABLENAME}.qty-case LT 0 THEN
@@ -63,9 +74,9 @@ FOR EACH oe-ord
       AND oe-ord.ord-no  EQ {&TABLENAME}.ord-no
     NO-LOCK:
 
-  FIND oe-ordl OF oe-ord
+  FIND oe-ordl OF oe-ord NO-LOCK 
       WHERE oe-ordl.i-no EQ {&TABLENAME}.i-no
-      NO-LOCK NO-ERROR.
+      NO-ERROR.
   IF AVAIL oe-ordl THEN {&TABLENAME}.line = oe-ordl.line.
 
   LEAVE.
@@ -95,7 +106,7 @@ FOR EACH oe-ordl NO-LOCK
   LEAVE.
 END.
 
-IF {&TABLENAME}.b-ord-no GE 0               AND
+IF lSkipRecalcInventory EQ NO AND {&TABLENAME}.b-ord-no GE 0               AND
    {&TABLENAME}.qty NE old-{&TABLENAME}.qty THEN
 FOR EACH itemfg
     WHERE itemfg.company EQ {&TABLENAME}.company

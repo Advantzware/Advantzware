@@ -847,6 +847,11 @@ APPLY "entry" TO lbl_ord-stat IN FRAME {&FRAME-NAME}.
       RUN SetCustRange(tb_cust-list:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ "YES").
    END.
 
+   DO WITH FRAME {&FRAME-NAME}:
+    {custom/usrprint.i}
+    /*APPLY "entry" TO begin_ord-date.*/
+  END.
+
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1351,7 +1356,7 @@ END.
 
 SESSION:SET-WAIT-STATE("").
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
-
+RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 end procedure.
 
 /* _UIB-CODE-BLOCK-END */

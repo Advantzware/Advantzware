@@ -47,3 +47,8 @@ ELSE DO:
         iShiftEndTime = shifts.end_time.
     END. /* different shifts */
 END. /* else */
+
+ASSIGN
+    iShiftStartTime = iShiftStartTime * 1000        
+    iShiftEndTime   = iShiftEndTime   * 1000
+    .

@@ -643,20 +643,11 @@ PROCEDURE create-report-record-1 :
             ELSE
           IF AVAIL oe-rell          THEN oe-rell.s-code
             ELSE "B".
-  
-  FIND FIRST ref-lot-no WHERE
-      ref-lot-no.reftable EQ "oe-rel.lot-no" AND
-      ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-  NO-LOCK NO-ERROR.
-  
-  IF AVAIL ref-lot-no THEN
-  DO:
+
     ASSIGN
-        tt-report.lot-no      = ref-lot-no.CODE
-        tt-report.freight-pay = ref-lot-no.code2
-        tt-report.fob         = ref-lot-no.dscr.
-    RELEASE ref-lot-no.
-  END.
+        tt-report.lot-no      = oe-rel.lot-no
+        tt-report.freight-pay = oe-rel.frt-pay
+        tt-report.fob         = oe-rel.fob-code.
   
   FIND FIRST ref-sell-price 
     WHERE ref-sell-price.reftable EQ "oe-rel.sell-price" 

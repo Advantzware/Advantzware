@@ -920,7 +920,7 @@ PROCEDURE run-report :
 
 /*also modify oe\s-invedt.p*/
 
-{sys/form/r-topw.f}
+{sys/form/r-topw2.f}
 
 def var v-detail as log format "Detail/Summary" init NO no-undo.
 def var v-sort   as log format "Customer/BOL"   init YES no-undo.
@@ -951,6 +951,8 @@ DEF VAR ld-margin AS DEC NO-UNDO.
 DEF VAR ld-total-p AS DEC NO-UNDO.
 DEF VAR ld-total-c AS DEC NO-UNDO.
 DEF VAR lv-dash AS CHAR FORMAT "x" INIT "-" NO-UNDO.
+DEFINE VARIABLE dfreight LIKE inv-head.t-inv-freight NO-UNDO.
+DEFINE VARIABLE cfreightCode AS CHARACTER NO-UNDO.
 
 /* gdm - 10130810 */
 DEF VAR v_misc-amt  AS CHAR NO-UNDO.
@@ -959,32 +961,34 @@ def buffer xinv-line for inv-line.
 
 form header
   " Customer"
-      "Weight" to 47 "Pallets" to 58 "Cases" to 65 "Freight" to 75
-      "Tax" to 85 "Misc" to 100 "Items" to 115 " Total" to 132
-  fill("=",132) format "x(132)"
+      "Weight" to 47 "Pallets" to 58 "Cases" to 65 "Freight Terms" TO 80 "Freight" to 96
+      "Tax" to 106 "Misc" to 120 "Items" to 135 " Total" to 160 SKIP
+  fill("=",160) format "x(160)"
   with FRAME r-top.
 
 form
   inv-head.cust-no lv-dash
   inv-head.cust-name format "x(25)"
   inv-head.t-inv-weight v-tot-pallets v-tot-cas format "->>>>9"
-  inv-head.t-inv-freight format "->,>>9.99"
-  inv-head.t-inv-tax format "->,>>9.99"
-  v-misc-tot to 100 format "->>>,>>9.99"
-  v-line-tot to 115
-  inv-head.t-inv-rev format "->>,>>>,>>9.99" to 132
-with down STREAM-IO width 132 no-labels no-box no-underline frame ord.
+  cfreightCode TO 80 FORMAT "x(10)"
+  dfreight TO 96 format "->,>>9.99"
+  inv-head.t-inv-tax TO 106 format "->>,>>9.99"
+  v-misc-tot to 120 format "->>>,>>9.99"
+  v-line-tot to 135
+  inv-head.t-inv-rev format "->>,>>>,>>9.999999" to 160
+with down STREAM-IO width 180 no-labels no-box no-underline frame ord.
 
 form
   inv-head.cust-no lv-dash
   inv-head.cust-name format "x(25)"
   inv-head.t-inv-weight v-tot-pallets v-tot-cas format "->>>>9"
-  inv-head.t-inv-freight format "->,>>9.99"
-  inv-head.t-inv-tax format "->,>>9.99"
-  v-misc-tot to 100 format "->>>,>>9.99"
-  v-line-tot to 115
-  ld-total-c format "->>,>>>,>>9.99" to 132
-  inv-head.t-inv-rev format "->>,>>>,>>9.99"
+  cfreightCode TO 80 FORMAT "x(10)"
+  dfreight TO 96 format "->,>>9.99"
+  inv-head.t-inv-tax TO 106 format "->>,>>9.99"
+  v-misc-tot to 120 format "->>>,>>9.99"
+  v-line-tot to 135
+  ld-total-c format "->>,>>>,>>9.99" to 160
+  inv-head.t-inv-rev format "->>,>>>,>>9.999999"
 with down STREAM-IO width 180 no-labels no-box no-underline frame ord-c.
 
 form
@@ -995,10 +999,10 @@ form
   inv-line.qty format "->>,>>>,>>9" label "Order"
   inv-line.inv-qty format "->>,>>>,>>9" column-label "Quantities!Invoiced "
   inv-line.ship-qty format "->>,>>>,>>9" label "Shipped"
-  inv-line.price format "->>>,>>9.99" label "Price"
+  inv-line.price format "->>>,>>9.999999" label "Price"
   inv-line.pr-uom label "UOM"
-  inv-line.t-price format "->>,>>>,>>9.99" column-label "Extended! Price" TO 132 skip
-  with down no-box STREAM-IO width 132 frame ordl.
+  inv-line.t-price format "->>,>>>,>>9.999999" column-label "Extended! Price" TO 140 skip
+  with down no-box STREAM-IO width 140 frame ordl.
 
 form
   inv-line.ord-no at 5 label "Order#"
@@ -1008,10 +1012,10 @@ form
   inv-line.qty format "->>,>>>,>>9" label "Order"
   inv-line.inv-qty format "->>,>>>,>>9" column-label "Quantities!Invoiced "
   inv-line.ship-qty format "->>,>>>,>>9" label "Shipped"
-  inv-line.price format "->>>,>>9.99" label "Price"
+  inv-line.price format "->>>,>>9.999999" label "Price"
   inv-line.pr-uom label "UOM"
   v-line-cost format "->>,>>>,>>9.99" column-label "Extended!  Cost" TO 132 
-  inv-line.t-price format "->>,>>>,>>9.99" column-label "Extended! Price"
+  inv-line.t-price format "->>,>>>,>>9.999999" column-label "Extended! Price"
   ld-margin format "->>,>>9.99" column-label "!Margin%"
   skip
   with down no-box STREAM-IO width 180 frame ordl-c.
@@ -1020,7 +1024,7 @@ form
   inv-misc.charge at 10 label "Charge"
   inv-misc.dscr label "Description"
   inv-misc.po-no LABEL "Customer PO#"
-  inv-misc.amt format "->>,>>>,>>9.99" to 132 label "Price"
+  inv-misc.amt format "->>,>>>,>>9.999999" to 132 label "Price"
   skip
   with down STREAM-IO width 132 no-box frame ordm.
 
@@ -1029,7 +1033,7 @@ form
   inv-misc.dscr label "Description"
   inv-misc.po-no LABEL "Customer PO#"
   inv-misc.cost format "->>,>>>,>>9.99" to 132 label "Cost"
-  inv-misc.amt format "->>,>>>,>>9.99" label "Price"
+  inv-misc.amt format "->>,>>>,>>9.999999" label "Price"
   ld-margin format "->>,>>9.99" column-label "!Margin%"
   skip
   with down STREAM-IO width 180 no-box frame ordm-c.
@@ -1067,7 +1071,7 @@ assign
 IF tb_excel THEN DO:
     OUTPUT STREAM excel TO VALUE(fi_file).
     PUT STREAM excel UNFORMATTED 
-     'Customer,Weight,Pallets,Cases,Freight,Tax,Misc,Items,Total,'.   
+     'Customer,Weight,Pallets,Cases,Freight Terms,Freight,Tax,Misc,Items,Total,'.   
 
     IF v-detail then do:
         

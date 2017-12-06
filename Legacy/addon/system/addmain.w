@@ -305,8 +305,8 @@ ON WINDOW-CLOSE OF {&WINDOW-NAME} DO:
      MESSAGE 'Exit Add-On~'s?' VIEW-AS ALERT-BOX
         QUESTION BUTTONS YES-NO UPDATE closeMenu.
   IF NOT closeMenu THEN RETURN NO-APPLY.
-  APPLY "CLOSE":U TO THIS-PROCEDURE.
-  RETURN NO-APPLY.
+   RUN system/userLogOut.p.
+        QUIT. /* kills all processes */
 END.
 ON ENDKEY, END-ERROR OF {&WINDOW-NAME} ANYWHERE DO:
   APPLY "CLOSE":U TO THIS-PROCEDURE.
@@ -557,8 +557,10 @@ PROCEDURE Run_Button :
   DEFINE VARIABLE current-widget AS WIDGET-HANDLE NO-UNDO.
   DEFINE VARIABLE save-widget AS WIDGET-HANDLE NO-UNDO.
 
-  IF button-handle:NAME = 'Exit' THEN
-  QUIT.
+  IF button-handle:NAME = 'Exit' THEN DO:
+    RUN system/userLogOut.p.
+    QUIT.
+  END.
   ASSIGN
     current-widget = FRAME {&FRAME-NAME}:HANDLE
     current-widget = current-widget:FIRST-CHILD

@@ -259,6 +259,7 @@ DEFINE FRAME F-Main
           VIEW-AS FILL-IN 
           SIZE 10 BY 1
      inv-head.frt-pay AT ROW 11.24 COL 27 COLON-ALIGNED
+          LABEL "Freight Terms"
           VIEW-AS FILL-IN 
           SIZE 4 BY 1
      inv-head.fob-code AT ROW 11.24 COL 113 COLON-ALIGNED
@@ -1353,13 +1354,11 @@ PROCEDURE local-create-record :
 
 
   /* Code placed here will execute PRIOR to standard behavior. */
-  X = 1.
-  find last bf-inv-head use-index r-no no-lock no-error.
-  if available bf-inv-head then x = bf-inv-head.r-no + 1.
-
+    x = next-value(inv_r_no_seq).
+    
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'create-record':U ) .
-
+  
   /* Code placed here will execute AFTER standard behavior.    */
   ASSIGN ll-cred-lim = NO
          inv-head.r-no = x

@@ -303,16 +303,9 @@ for each xxreport where xxreport.term-id eq v-term-id,
                                                     BY oe-rel.po-no
                                                     BY oe-rel.ship-no 
                                                     BY oe-rel.qty:
-         
-             FIND FIRST ref-lot-no WHERE
-                 ref-lot-no.reftable EQ "oe-rel.lot-no" AND
-                 ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-                 NO-LOCK NO-ERROR.
-             IF AVAIL ref-lot-no AND ref-lot-no.dscr <> "" THEN do:
-                 ASSIGN
-                     v-fob = if ref-lot-no.dscr begins "O" then "Origin" else "Destination" .
-                     LEAVE.
-             END.
+
+               ASSIGN 
+                     v-fob = if oe-rel.fob-code begins "O" then "Origin" else "Destination" .
         END.
 
         IF v-fob = "" THEN

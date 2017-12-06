@@ -149,24 +149,24 @@ DEFINE BUTTON Btn_AMPM
      SIZE 15 BY 1.67.
 
 DEFINE BUTTON Btn_complete 
-     LABEL "COMPLETE?" 
-     SIZE 16 BY 1.67 TOOLTIP "COMPLETE?".
+     LABEL "Complete?" 
+     SIZE 16 BY 1.67 TOOLTIP "Complete?".
 
 DEFINE BUTTON Btn_Hour 
-     LABEL "HOUR" 
-     SIZE 16 BY 1.67 TOOLTIP "HOUR".
+     LABEL "Hour" 
+     SIZE 16 BY 1.67 TOOLTIP "Hour".
 
 DEFINE BUTTON Btn_Minute 
-     LABEL "MINUTE" 
-     SIZE 15 BY 1.67 TOOLTIP "MINUTE".
+     LABEL "Minute" 
+     SIZE 15 BY 1.67 TOOLTIP "Minute".
 
 DEFINE BUTTON Btn_Quantity 
-     LABEL "QUANTITY" 
-     SIZE 16 BY 1.67 TOOLTIP "QUANTITY".
+     LABEL "Quantity" 
+     SIZE 16 BY 1.67 TOOLTIP "Quantity".
 
 DEFINE BUTTON Btn_Waste 
-     LABEL "WASTE" 
-     SIZE 16 BY 1.67 TOOLTIP "WASTE".
+     LABEL "Waste" 
+     SIZE 16 BY 1.67 TOOLTIP "Waste".
 
 DEFINE VARIABLE run-qty AS DECIMAL FORMAT "->>,>>>,>>9":U INITIAL 0 
      VIEW-AS FILL-IN 
@@ -290,25 +290,25 @@ ASSIGN
    2                                                                    */
 ASSIGN 
        Btn_Hour:PRIVATE-DATA IN FRAME F-Main     = 
-                "HOUR".
+                "Hour".
 
 /* SETTINGS FOR BUTTON Btn_Minute IN FRAME F-Main
    2                                                                    */
 ASSIGN 
        Btn_Minute:PRIVATE-DATA IN FRAME F-Main     = 
-                "MINUTE".
+                "Minute".
 
 /* SETTINGS FOR BUTTON Btn_Quantity IN FRAME F-Main
    2                                                                    */
 ASSIGN 
        Btn_Quantity:PRIVATE-DATA IN FRAME F-Main     = 
-                "QUANTITY".
+                "Quantity".
 
 /* SETTINGS FOR BUTTON Btn_Waste IN FRAME F-Main
    2                                                                    */
 ASSIGN 
        Btn_Waste:PRIVATE-DATA IN FRAME F-Main     = 
-                "WASTE".
+                "Waste".
 
 /* SETTINGS FOR FILL-IN run-qty IN FRAME F-Main
    NO-ENABLE 1                                                          */
@@ -395,7 +395,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_complete
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_complete s-object
-ON CHOOSE OF Btn_complete IN FRAME F-Main /* COMPLETE? */
+ON CHOOSE OF Btn_complete IN FRAME F-Main /* Complete? */
 DO:
   /*RUN Reset_Field_Colors.
   h_field = v-completed:HANDLE.
@@ -413,7 +413,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_Hour
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Hour s-object
-ON CHOOSE OF Btn_Hour IN FRAME F-Main /* HOUR */
+ON CHOOSE OF Btn_Hour IN FRAME F-Main /* Hour */
 DO:
   
 
@@ -431,7 +431,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_Minute
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Minute s-object
-ON CHOOSE OF Btn_Minute IN FRAME F-Main /* MINUTE */
+ON CHOOSE OF Btn_Minute IN FRAME F-Main /* Minute */
 DO:
   
 
@@ -449,7 +449,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_Quantity
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Quantity s-object
-ON CHOOSE OF Btn_Quantity IN FRAME F-Main /* QUANTITY */
+ON CHOOSE OF Btn_Quantity IN FRAME F-Main /* Quantity */
 DO:
   RUN Reset_Field_Colors.
   h_field = run-qty:HANDLE.
@@ -462,7 +462,7 @@ END.
 
 &Scoped-define SELF-NAME Btn_Waste
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL Btn_Waste s-object
-ON CHOOSE OF Btn_Waste IN FRAME F-Main /* WASTE */
+ON CHOOSE OF Btn_Waste IN FRAME F-Main /* Waste */
 DO:
   RUN Reset_Field_Colors.
   h_field = waste-qty:HANDLE.

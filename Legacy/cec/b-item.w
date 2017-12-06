@@ -394,7 +394,8 @@ DO:
   */
 
   /* need to assign rec_key value for notes.   noreckey.i has item */
-  FIND CURRENT ITEM NO-LOCK.
+  FIND CURRENT ITEM NO-LOCK NO-ERROR.
+  IF NOT AVAIL item THEN RETURN.
    {methods/run_link.i "CONTAINER-SOURCE" "Set-Rec-Key_Header"
      "(item.rec_key,{methods/headers/item.i})"}
    {methods/run_link.i "CONTAINER-SOURCE" "Notes-Message"

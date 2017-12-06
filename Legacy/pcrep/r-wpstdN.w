@@ -99,8 +99,8 @@ ASSIGN cTextListToSelect = "Machine#,DP,S,B,P,Charge Code,Charge Cat,Date,Job#,S
            .
 
 {sys/inc/ttRptSel.i}
-ASSIGN cTextListToDefault = "Machine#,DP,S,B,P,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Start,Stop,CR,Qty," +  /*14*/     
-                            "Waste,C,FG Item,Style,Length,Width,Depth,Blank Len,Blank Wid," +  /*9*/     
+ASSIGN cTextListToDefault = "Machine#,S,B,Charge Code,Charge Cat,Date,Job#,Shift,Hours,Qty," +  /*14*/     
+                            "Waste,FG Item,Style,Length,Width,Depth,Blank Len,Blank Wid," +  /*9*/     
                             "Blank Sq In.,Board,Board Cal,MSF,Wgt/MSF,Roll Width," +  /*6*/     
                             "Gross S Wid,Gross S Len,Net Sht Wid,Net Sht Len," +  /*4*/     
                             "Film Wid,Film Len,# Colors,Die Inches,Number Up,Number Out,Glue Inches" /*7*/
@@ -1104,8 +1104,8 @@ PROCEDURE enable_UI :
       WITH FRAME FRAME-A IN WINDOW C-Win.
   ENABLE RECT-6 RECT-7 RECT-8 begin_mach end_mach begin_date end_date 
          begin_shift end_shift select-mach tb_comp rd_sort sl_avail sl_selected 
-         Btn_Def Btn_Add Btn_Remove btn_down btn_Up tb_runExcel fi_file btn-ok 
-         btn-cancel 
+         lv-ornt lines-per-page rd-dest lv-font-no tb_excel tb_runExcel td-show-parm 
+         Btn_Def Btn_Add Btn_Remove btn_down btn_Up fi_file btn-ok btn-cancel 
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.

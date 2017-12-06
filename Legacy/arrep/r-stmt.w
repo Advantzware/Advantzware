@@ -1053,7 +1053,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     IF (v-stmt-char EQ "" OR v-stmt-char EQ "ASI") AND
        lookup("PDFCamp Printer",SESSION:GET-PRINTERS()) GT 0 THEN
        v-pdf-camp = YES.
-    IF (v-stmt-char EQ "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "SouleMed") THEN DO:
+    IF (v-stmt-char EQ "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "SouleMed") THEN DO:
         fi_contact:HIDDEN = NO.
         RUN setAttentionDefault.
     END.
@@ -1703,8 +1703,8 @@ IF ip-sys-ctrl-shipto THEN
       v-hi-cust = ip-cust-no.
 ELSE
    ASSIGN
-      v-lo-cust = begin_cust-no
-      v-hi-cust = end_cust-no.
+      v-lo-cust = ""
+      v-hi-cust = "" .
 
 {sys/inc/print1.i}
 
@@ -1753,9 +1753,9 @@ FOR EACH ttCustList
     FIRST cust no-lock
         WHERE cust.company eq cocode
           AND cust.cust-no EQ ttCustList.cust-no
-    /*     cust.cust-no ge v-lo-cust and */
-    /*     cust.cust-no le v-hi-cust and */
-          AND ((cust.acc-bal ne 0 AND NOT tb_curr-bal) OR (tb_curr-bal))
+           AND (cust.cust-no EQ v-lo-cust OR v-lo-cust = "")
+           AND (cust.cust-no EQ v-hi-cust  OR v-hi-cust = "")
+           AND ((cust.acc-bal ne 0 AND NOT tb_curr-bal) OR (tb_curr-bal))
         BREAK BY cust.cust-no
     transaction:
 
@@ -3107,6 +3107,8 @@ def var v-inv-type-descr as char format 'x(30)' no-undo.
 def var v-inv-type-list as char no-undo init "I,CR,DR,P,DA,FC,R".
 def var v-inv-type-max  as int no-undo.
 v-inv-type-max = num-entries(v-inv-type-list).
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
 def var v-inv-type-array as char no-undo extent 7 init
   ["Invoice",
   "CR Memo",
@@ -3123,6 +3125,10 @@ do xx = 1 to v-inv-type-max:
 end.
 
 v-asi-excel = v-stmt-char EQ "ASIExcel".
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
 
 form
   tt-inv.trans-date COLUMN-LABEL "Date"
@@ -3167,6 +3173,7 @@ DEF VAR ls-image2 AS cha NO-UNDO.
 DEF VAR ls-full-img2 AS cha FORM "x(150)" NO-UNDO.
 ASSIGN ls-image1 = (IF v-stmt-char = "Protagon" THEN "images\protinv.jpg"
                    ELSE IF v-stmt-char = "SouleMed" THEN "images\Soulemedical.jpg" 
+                   ELSE IF v-stmt-char =  "StdStatement10" THEN cRtnChar 
                     ELSE "images\Soule.jpg") . 
 
 
@@ -3235,17 +3242,9 @@ IF ip-sys-ctrl-shipto THEN
       v-hi-cust = ip-cust-no.
 ELSE
    ASSIGN
-      v-lo-cust = begin_cust-no
-      v-hi-cust = end_cust-no.
-
- ASSIGN
-    v-lo-cust   = IF tb_BatchMail:CHECKED IN FRAME {&frame-name} 
-                    THEN ip-cust-no 
-                    ELSE /*begin_cust-no*/ ""
-    v-hi-cust   = IF tb_BatchMail:CHECKED IN FRAME {&frame-name} 
-                    THEN ip-cust-no 
-                    ELSE /*end_cust-no*/ "" .
-
+      v-lo-cust = ""
+      v-hi-cust = "".
+ 
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i  value(lines-per-page)}
@@ -3612,6 +3611,30 @@ FIRST cust no-lock
            "<=1><R+17>Date       Ref# Desc.      Customer PO           Invoice<C60>Balance        Balance" SKIP
            "<=1><R+18><FROM><C+80><LINE>"
             .
+       
+       IF v-stmt-char = "StdStatement10" THEN
+           PUT "<C2><R2><#1><R+8><C+47><IMAGE#1=" ls-full-img1 SKIP
+           "<P11><R4><C50><#3><FROM><R7><C80><RECT><||3>" SKIP
+           "<R5><C50><FROM><R5><C80><LINE><||3>" SKIP
+           "<R6><C50><FROM><R6><C80><LINE><||3>" SKIP
+           "<R4><C65><FROM><R5><C65><LINE><||3>" SKIP
+           "<R5><C65><FROM><R6><C65><LINE><||3>" SKIP
+           "<R6><C65><FROM><R7><C65><LINE><||3>" SKIP.
+           PUT "<P22><=#3><C50><R-2> <B><P22>Statement</B> <P11>" " <B> PAGE: </B>" string(PAGE-NUM,">>9") SKIP
+               "<=#3><R+0>  Customer ID      " cust.cust-no
+               "<=#3><R+1>  Terms            " lv-terms
+               "<=#3><R+2>  Statement Date   " v-stmt-date . 
+          
+          PUT "<=1><R+10><C1>" ws_addr[1] skip
+           "<=1><R+11><C1>" ws_addr[2] v-remitto[1]  skip 
+           "<=1><R+12><C1>" ws_addr[3] v-remitto[2]  skip
+           "<=1><R+13><C1>" ws_addr[4] v-remitto[3]  skip
+           "<=1><R+14><C1>" ws_addr[5] v-remitto[4]  skip
+           "<=1><R+15>Attn: " lc-attn FORMAT "x(30)"
+           "<=1><R+16>                                                Original<C60>Invoice" SKIP
+           "<=1><R+17>Date       Ref# Desc.      Customer PO           Invoice<C60>Balance        Balance" SKIP
+           "<=1><R+18><FROM><C+80><LINE>"
+            .
 
        v-first = NO.
     end.
@@ -3691,7 +3714,7 @@ FIRST cust no-lock
          IF v-stmt-char = "Protagon" THEN
          PUT "<C14><R59.5><#3><R+6><C+53><IMAGE#3=" ls-full-img2 SKIP.
 
-         IF v-stmt-char = "Soule" OR v-stmt-char = "SouleMed" THEN
+         IF v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "SouleMed" THEN
          PUT "<C14><R59.5><#3><R+4><C+7> <b> THANK YOU - YOUR BUSINESS IS APPRECIATED </b>"  SKIP.
 
          IF v-stmt-char = "LoyLang" OR v-stmt-char = "Printers" THEN 
@@ -3748,7 +3771,7 @@ IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,RFC,Premier,ASIExcel,Loy
    RETURN.
 END.
 
-IF lookup(v-stmt-char,"Protagon,Soule,SouleMed") > 0 THEN DO:
+IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,SouleMed") > 0 THEN DO:
     RUN run-protagonstmt (ip-cust-no, ip-sys-ctrl-shipto, NO).
     RETURN.
 END.
@@ -3942,8 +3965,8 @@ IF ip-sys-ctrl-shipto THEN
       v-hi-cust = ip-cust-no.
 ELSE
    ASSIGN
-      v-lo-cust = begin_cust-no
-      v-hi-cust = end_cust-no.
+      v-lo-cust = ""
+      v-hi-cust = "".
 
 {sys/inc/print1.i}
 
@@ -3961,8 +3984,8 @@ FOR EACH ttCustList
     first cust no-lock
     where cust.company eq cocode
       AND cust.cust-no EQ ttCustList.cust-no
-/*     cust.cust-no ge v-lo-cust and */
-/*     cust.cust-no le v-hi-cust and */
+      AND (cust.cust-no EQ v-lo-cust OR v-lo-cust = "")
+      AND (cust.cust-no EQ v-hi-cust  OR v-hi-cust = "")
       AND ((cust.acc-bal ne 0 AND NOT tb_curr-bal) OR (tb_curr-bal))
     transaction:
 
@@ -4296,7 +4319,7 @@ IF lookup(v-stmt-char,"ASIXprnt,stmtprint 1,stmtprint 2,Loylang,RFC,Premier,Badg
    RUN run-asistmt-mail (icCustNo).
    RETURN.
 END.
-IF lookup(v-stmt-char,"Protagon,Soule,SouleMed") > 0 THEN DO:
+IF lookup(v-stmt-char,"Protagon,Soule,StdStatement10,SouleMed") > 0 THEN DO:
     RUN run-protagonstmt (icCustNo, NO, YES).
     RETURN.
 END.
@@ -4874,7 +4897,7 @@ PROCEDURE setAttentionDefault :
 ------------------------------------------------------------------------------*/
 DEFINE BUFFER lbf-cust FOR cust.
 
-IF (v-stmt-char = "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "SouleMed")
+IF (v-stmt-char = "Protagon" OR v-stmt-char = "Soule" OR v-stmt-char = "StdStatement10" OR v-stmt-char = "SouleMed")
     AND begin_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} EQ end_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} 
     AND begin_cust-no:SCREEN-VALUE IN FRAME {&FRAME-NAME} NE "" THEN DO:
     FIND FIRST lbf-cust WHERE lbf-cust.company = cocode

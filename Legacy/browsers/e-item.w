@@ -411,7 +411,7 @@ PROCEDURE local-open-query :
 
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'open-query':U ) .
-
+  IF NOT AVAIL ITEM THEN RETURN .
   /* Code placed here will execute AFTER standard behavior.    */
   ll-first-rec = no.
   if not avail e-item then do:

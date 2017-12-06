@@ -1,10 +1,8 @@
 &Scoped-define ACTION DELETE
-&Scoped-define DBNAME PDBNAME('ASI')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME account
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
-
-{methods/triggers/delete.i}
 
 IF CAN-FIND(FIRST glhist
             WHERE glhist.company EQ {&TABLENAME}.company
@@ -16,3 +14,5 @@ IF CAN-FIND(FIRST glhist
       VIEW-AS ALERT-BOX.
   RETURN ERROR.
 END.
+
+{methods/triggers/delete.i}

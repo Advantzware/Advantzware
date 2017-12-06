@@ -265,6 +265,9 @@ IF v-none THEN DO TRANSACTION:
    oe-rell.job-no2 = oe-ordl.job-no2
    oe-rell.po-no   = oe-rel.po-no
    oe-rell.line    = oe-rel.line
+   oe-rell.lot-no  = oe-rel.lot-no
+   oe-rell.frt-pay = oe-rel.frt-pay
+   oe-rell.fob-code = oe-rel.fob-code
    oe-rell.printed = no
    oe-rell.posted  = no
    oe-rell.deleted = no
@@ -280,33 +283,13 @@ IF v-none THEN DO TRANSACTION:
   RELEASE reftable.
 
   FIND FIRST b-reftable NO-LOCK
-      WHERE b-reftable.reftable EQ "oe-rel.lot-no"
-        AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-      NO-ERROR.
-
-  IF AVAIL b-reftable THEN DO:
-    ASSIGN
-     oe-rell.lot-no     = b-reftable.code
-     oe-rell.frt-pay    = b-reftable.code2
-     oe-rell.fob-code   = b-reftable.dscr.
-    RELEASE b-reftable.
-  END.
-
-  FIND FIRST b-reftable NO-LOCK
       WHERE b-reftable.reftable EQ "oe-rel.sell-price"
         AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
       NO-ERROR.
 
-  IF AVAIL b-reftable THEN DO:
-    CREATE reftable.
     ASSIGN
-     reftable.reftable = "oe-rell.sell-price"
-     reftable.rec_key  = oe-rell.rec_key
-     reftable.val[1]   = b-reftable.val[1]
-     reftable.val[2]   = b-reftable.val[2].
-    RELEASE reftable.
-    RELEASE b-reftable.
-  END.
+       oe-rell.newSellPrice = b-reftable.val[1]
+       oe-rell.newZeroPrice = b-reftable.val[2].
 
   if v-whse eq "SHIPTO" then do:
     find first shipto

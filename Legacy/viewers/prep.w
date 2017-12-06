@@ -1578,6 +1578,28 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win 
+PROCEDURE check-update-mode :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+DEFINE OUTPUT PARAMETER op-in-update AS LOGICAL INIT NO NO-UNDO.
+
+IF prep.dscr:SENSITIVE IN FRAME {&FRAME-NAME} EQ YES THEN do:
+    op-in-update = YES .
+END.  
+
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-enable V-table-Win 
 PROCEDURE local-enable :
 /*------------------------------------------------------------------------------

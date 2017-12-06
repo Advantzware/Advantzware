@@ -71,12 +71,18 @@ DEF VAR lv-i-no LIKE po-ordl.i-no NO-UNDO.
 DEF VAR lv-line LIKE po-ordl.line NO-UNDO.
 DEF VAR v-rmtags-log AS LOG NO-UNDO.
 DEF VAR v-get-tandem-rec AS LOG NO-UNDO.
-
+DEF VAR ll-is-copy-record AS LOG NO-UNDO.
+DEF VAR lAllowRmAdd AS LOG NO-UNDO.
+DEF VAR lcReturn   AS CHAR NO-UNDO.
+DEF VAR llRecFound AS LOG  NO-UNDO.
 DO TRANSACTION:
   {sys/inc/rmrecpt.i}
 END.
 
+RUN sys/ref/nk1look.p (cocode, "AllowRMAdd", "L", NO, NO, "", "", 
+    OUTPUT lcReturn, OUTPUT llRecFound).
 
+   lAllowRmAdd = LOGICAL(lcReturn) NO-ERROR.  
 
 FIND FIRST sys-ctrl
     WHERE sys-ctrl.company EQ cocode
@@ -2133,6 +2139,27 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-copy-record B-table-Win 
+PROCEDURE local-copy-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+   
+  /* Code placed here will execute PRIOR to standard behavior. */
+  
+
+      /* Dispatch standard ADM method.                             */
+      RUN dispatch IN THIS-PROCEDURE ( INPUT 'copy-record':U ) .
+       ASSIGN ll-is-copy-record = YES .
+  
+      /* Code placed here will execute AFTER standard behavior.    */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-delete-record B-table-Win 
 PROCEDURE local-delete-record :
 /*------------------------------------------------------------------------------
@@ -2168,6 +2195,31 @@ PROCEDURE local-delete-record :
 
   /* Code placed here will execute AFTER standard behavior.    */
   EMPTY TEMP-TABLE tt-selected.
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE local-cancel-record B-table-Win 
+PROCEDURE local-cancel-record :
+/*------------------------------------------------------------------------------
+  Purpose:     Override standard ADM method
+  Notes:       
+------------------------------------------------------------------------------*/
+  
+  /* Code placed here will execute PRIOR to standard behavior. */  
+
+  /* Dispatch standard ADM method.                             */
+  RUN dispatch IN THIS-PROCEDURE ( INPUT 'cancel-record':U ) .
+
+  /* Code placed here will execute AFTER standard behavior.    */
+  
+  ASSIGN
+   adm-new-record      = NO
+   adm-adding-record   = NO
+   ll-is-copy-record   = NO.
+
 
 END PROCEDURE.
 
@@ -2286,6 +2338,8 @@ PROCEDURE local-update-record :
                                  INPUT rm-rctd.pur-uom,
                                  OUTPUT vlc-success).
      END.
+
+     ASSIGN ll-is-copy-record = NO .
 
   RUN multi-issues (ROWID(rm-rctd)) NO-ERROR.
 
@@ -3138,20 +3192,26 @@ PROCEDURE valid-i-no :
             NOT CAN-FIND(FIRST item 
            WHERE item.company EQ cocode
              AND item.i-no    EQ rm-rctd.i-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})/*)*/ THEN DO:
-         MESSAGE "Item is not on file. Do you want to add it? "
-             VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
-         IF ll-ans THEN DO:
-           RUN create-item.
-           NEXT.
+           IF lAllowRmAdd EQ YES THEN DO:
+               MESSAGE "Item is not on file. Do you want to add it? "
+                   VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO UPDATE ll-ans AS LOG.
+               IF ll-ans THEN DO:
+                   RUN create-item.
+                   NEXT.
+               END.
+               ELSE 
+                   v-msg = "Invalid entry, try help".
+           END.
+         ELSE DO:
+              v-msg = "Invalid entry, try help".
          END.
-         ELSE v-msg = "Invalid entry, try help".
        END.
     END.
 
     IF v-msg EQ "" THEN
       IF rm-rctd.job-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME} EQ ""    AND
          INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) EQ 0 AND
-         item.mat-type NE "P"                                          THEN
+         AVAIL ITEM AND item.mat-type NE "P"                                          THEN
       v-msg = "If PO# and Job# are blank then RM Type must be 'P'aper".
 
     IF v-msg EQ "" THEN
@@ -3162,7 +3222,7 @@ PROCEDURE valid-i-no :
               AND po-ordl.po-no   EQ INT(rm-rctd.po-no:SCREEN-VALUE IN BROWSE {&BROWSE-NAME})
               AND po-ordl.i-no    EQ lv-i-no
               AND po-ordl.line    EQ lv-line
-              AND po-ordl.s-wid   LE (IF item.r-wid NE 0 THEN item.r-wid
+              AND po-ordl.s-wid   LE (IF AVAIL ITEM AND item.r-wid NE 0 THEN item.r-wid
                                                          ELSE item.s-wid)) THEN
           v-msg = "RM width must be greater than PO RM you are issuing to...".
 
@@ -3455,6 +3515,8 @@ DEFINE VARIABLE dTotalI AS DEC     NO-UNDO.
          APPLY "entry" TO rm-rctd.tag IN BROWSE {&BROWSE-NAME}.
          RETURN ERROR.
      END.
+
+ IF NOT ll-is-copy-record THEN
      FOR EACH bf-rm-rctd 
           WHERE bf-rm-rctd.company EQ cocode
             AND bf-rm-rctd.rita-code EQ "I"                    
@@ -3462,10 +3524,24 @@ DEFINE VARIABLE dTotalI AS DEC     NO-UNDO.
             AND bf-rm-rctd.loc       EQ rm-bin.loc
             AND bf-rm-rctd.loc-bin   EQ rm-bin.loc-bin     
             AND bf-rm-rctd.tag       EQ rm-bin.tag  
-            AND NOT (AVAIL(rm-rctd) AND ROWID(rm-rctd) EQ ROWID(bf-rm-rctd))
+           AND NOT (AVAIL(rm-rctd) AND ROWID(rm-rctd) EQ ROWID(bf-rm-rctd))
           NO-LOCK USE-INDEX rita-code:
        dTotalI = dTotalI + bf-rm-rctd.qty.    
      END.
+     ELSE DO:
+         FOR EACH bf-rm-rctd 
+          WHERE bf-rm-rctd.company EQ cocode
+            AND bf-rm-rctd.rita-code EQ "I"                    
+            AND bf-rm-rctd.i-no      EQ rm-bin.i-no
+            AND bf-rm-rctd.loc       EQ rm-bin.loc
+            AND bf-rm-rctd.loc-bin   EQ rm-bin.loc-bin     
+            AND bf-rm-rctd.tag       EQ rm-bin.tag  
+          NO-LOCK USE-INDEX rita-code:
+       dTotalI = dTotalI + bf-rm-rctd.qty.    
+     END.
+
+     END.
+
     
     
     IF DEC(rm-rctd.qty:SCREEN-VALUE IN BROWSE {&BROWSE-NAME}) > 0 AND

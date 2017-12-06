@@ -34,10 +34,22 @@ CREATE WIDGET-POOL.
 /* Parameters Definitions ---                                           */
 
 /* Local Variable Definitions ---                                       */
+{custom/globdefs.i}
 def new shared var cocode    as   char  format "x(3)"  initial "001" no-undo.
 def var locode     as   char  format "x(5)"  initial "MAIN" no-undo.
 def var v-locode like locode no-undo.
 def var char-val as cha no-undo.
+
+ASSIGN cocode = g_company .
+ FIND FIRST usercomp NO-LOCK WHERE 
+        usercomp.user_id = USERID(LDBNAME(1)) AND
+        usercomp.company = cocode AND
+        usercomp.loc NE "" AND
+        usercomp.loc_default = yes
+        NO-ERROR.
+    ASSIGN
+        cocode = IF AVAIL usercomp THEN usercomp.loc ELSE "MAIN".  
+
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME

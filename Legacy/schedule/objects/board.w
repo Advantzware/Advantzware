@@ -63,6 +63,9 @@ DEFINE VARIABLE schdChanged AS LOGICAL NO-UNDO.
 DEFINE VARIABLE jobSequencerHandle AS HANDLE NO-UNDO.
 DEFINE VARIABLE startTimeOK AS LOGICAL NO-UNDO.
 DEFINE VARIABLE viewRefreshInterval AS INTEGER NO-UNDO.
+DEFINE VARIABLE iMsg AS INTEGER NO-UNDO.
+DEFINE VARIABLE hMsgImage AS HANDLE NO-UNDO EXTENT 23.
+DEFINE VARIABLE hMsgText AS HANDLE NO-UNDO EXTENT 23.
 
 /* buildGridArray & buildPixel Array vars */
 DEFINE VARIABLE dateTimePixel AS DECIMAL NO-UNDO EXTENT 2000.
@@ -825,10 +828,189 @@ DEFINE VARIABLE resourceList AS CHARACTER
      SIZE 27 BY 24.38
      BGCOLOR 8 FONT 6 NO-UNDO.
 
-DEFINE VARIABLE msg AS CHARACTER 
-     VIEW-AS EDITOR
-     SIZE 54 BY 14.52
-     FGCOLOR 15 FONT 6 NO-UNDO.
+DEFINE VARIABLE msgText-1 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-10 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-11 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-12 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-13 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-14 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-15 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-16 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-17 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-18 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-19 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-2 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-20 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-21 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-22 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-23 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-3 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-4 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-5 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-6 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-7 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-8 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE VARIABLE msgText-9 AS CHARACTER FORMAT "X(256)":U 
+      VIEW-AS TEXT 
+     SIZE 55 BY .86
+     FGCOLOR 15  NO-UNDO.
+
+DEFINE IMAGE msgImage-1
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-10
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-11
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-12
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-13
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-14
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-15
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-16
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-17
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-18
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-19
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-2
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-20
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-21
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-22
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-23
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-3
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-4
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-5
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-6
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-7
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-8
+     SIZE 3.6 BY .86.
+
+DEFINE IMAGE msgImage-9
+     SIZE 3.6 BY .86.
 
 
 /* ************************  Frame Definitions  *********************** */
@@ -981,12 +1163,57 @@ DEFINE FRAME boardFrame
          AT COL 1 ROW 1 SCROLLABLE .
 
 DEFINE FRAME msgFrame
-     msg AT ROW 1.95 COL 61 NO-LABEL
+     msgText-1 AT ROW 1.95 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 12
+     msgText-2 AT ROW 2.91 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 16
+     msgText-3 AT ROW 3.86 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 20
+     msgText-4 AT ROW 4.81 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 24
+     msgText-5 AT ROW 5.76 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 28
+     msgText-6 AT ROW 6.71 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 32
+     msgText-7 AT ROW 7.67 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 36
+     msgText-8 AT ROW 8.62 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 40
+     msgText-9 AT ROW 9.57 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 44
+     msgText-10 AT ROW 10.52 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 48
+     msgText-11 AT ROW 11.48 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 52
+     msgText-12 AT ROW 12.43 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 56
+     msgText-13 AT ROW 13.38 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 60
+     msgText-14 AT ROW 14.33 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 64
+     msgText-15 AT ROW 15.29 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 68
+     msgText-16 AT ROW 16.24 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 72
+     msgText-17 AT ROW 17.19 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 76
+     msgText-18 AT ROW 18.14 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 80
+     msgText-19 AT ROW 19.1 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 84
+     msgText-20 AT ROW 20.05 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 88
+     msgText-21 AT ROW 21 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 92
+     msgText-22 AT ROW 21.95 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 96
+     msgText-23 AT ROW 22.91 COL 11 COLON-ALIGNED NO-LABEL WIDGET-ID 100
+     msgImage-1 AT ROW 1.95 COL 7 WIDGET-ID 2
+     msgImage-2 AT ROW 2.91 COL 7 WIDGET-ID 14
+     msgImage-3 AT ROW 3.86 COL 7 WIDGET-ID 18
+     msgImage-4 AT ROW 4.81 COL 7 WIDGET-ID 22
+     msgImage-5 AT ROW 5.76 COL 7 WIDGET-ID 26
+     msgImage-6 AT ROW 6.71 COL 7 WIDGET-ID 30
+     msgImage-7 AT ROW 7.67 COL 7 WIDGET-ID 34
+     msgImage-8 AT ROW 8.62 COL 7 WIDGET-ID 38
+     msgImage-9 AT ROW 9.57 COL 7 WIDGET-ID 42
+     msgImage-10 AT ROW 10.52 COL 7 WIDGET-ID 46
+     msgImage-11 AT ROW 11.48 COL 7 WIDGET-ID 50
+     msgImage-12 AT ROW 12.43 COL 7 WIDGET-ID 54
+     msgImage-13 AT ROW 13.38 COL 7 WIDGET-ID 58
+     msgImage-14 AT ROW 14.33 COL 7 WIDGET-ID 62
+     msgImage-15 AT ROW 15.29 COL 7 WIDGET-ID 66
+     msgImage-16 AT ROW 16.24 COL 7 WIDGET-ID 70
+     msgImage-17 AT ROW 17.19 COL 7 WIDGET-ID 74
+     msgImage-18 AT ROW 18.14 COL 7 WIDGET-ID 78
+     msgImage-19 AT ROW 19.1 COL 7 WIDGET-ID 82
+     msgImage-20 AT ROW 20.05 COL 7 WIDGET-ID 86
+     msgImage-21 AT ROW 21 COL 7 WIDGET-ID 90
+     msgImage-22 AT ROW 21.95 COL 7 WIDGET-ID 94
+     msgImage-23 AT ROW 22.91 COL 7 WIDGET-ID 98
     WITH 1 DOWN KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 28 ROW 3.38
          SIZE 130 BY 24.38
-         BGCOLOR 1 
+         BGCOLOR 0 FGCOLOR 14 
          TITLE BGCOLOR 1 "Scheduler Loading ... One Moment Please ...".
 
 
@@ -1345,6 +1572,52 @@ ASSIGN
 ASSIGN 
        FRAME msgFrame:HIDDEN           = TRUE.
 
+/* SETTINGS FOR FILL-IN msgText-1 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-10 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-11 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-12 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-13 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-14 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-15 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-16 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-17 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-18 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-19 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-2 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-20 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-21 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-22 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-23 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-3 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-4 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-5 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-6 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-7 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-8 IN FRAME msgFrame
+   NO-ENABLE                                                            */
+/* SETTINGS FOR FILL-IN msgText-9 IN FRAME msgFrame
+   NO-ENABLE                                                            */
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
 
@@ -1857,6 +2130,8 @@ CREATE TEXT timeLine IN WIDGET-POOL 'gridLine'
       HEIGHT-PIXELS = 1
       BGCOLOR = 12
       HIDDEN = NO.
+
+RUN initMsgFrame.
 
 {{&includes}/{&Board}/boardProc.i}
 {{&includes}/{&Board}/calcEnd.i}
@@ -3019,6 +3294,79 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initMsgFrame s-object
+PROCEDURE initMsgFrame:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+    
+    DO WITH FRAME msgFrame:
+        ASSIGN
+            iMsg          = 0
+            hMsgImage[1]  = msgImage-1:HANDLE
+            hMsgImage[2]  = msgImage-2:HANDLE
+            hMsgImage[3]  = msgImage-3:HANDLE
+            hMsgImage[4]  = msgImage-4:HANDLE
+            hMsgImage[5]  = msgImage-5:HANDLE
+            hMsgImage[6]  = msgImage-6:HANDLE
+            hMsgImage[7]  = msgImage-7:HANDLE
+            hMsgImage[8]  = msgImage-8:HANDLE
+            hMsgImage[9]  = msgImage-9:HANDLE
+            hMsgImage[10] = msgImage-10:HANDLE
+            hMsgImage[11] = msgImage-11:HANDLE
+            hMsgImage[12] = msgImage-12:HANDLE
+            hMsgImage[13] = msgImage-13:HANDLE
+            hMsgImage[14] = msgImage-14:HANDLE
+            hMsgImage[15] = msgImage-15:HANDLE
+            hMsgImage[16] = msgImage-16:HANDLE
+            hMsgImage[17] = msgImage-17:HANDLE
+            hMsgImage[18] = msgImage-18:HANDLE
+            hMsgImage[19] = msgImage-19:HANDLE
+            hMsgImage[20] = msgImage-20:HANDLE
+            hMsgImage[21] = msgImage-21:HANDLE
+            hMsgImage[22] = msgImage-22:HANDLE
+            hMsgImage[23] = msgImage-23:HANDLE
+            hMsgText[1]   = msgText-1:HANDLE
+            hMsgText[2]   = msgText-2:HANDLE
+            hMsgText[3]   = msgText-3:HANDLE
+            hMsgText[4]   = msgText-4:HANDLE
+            hMsgText[5]   = msgText-5:HANDLE
+            hMsgText[6]   = msgText-6:HANDLE
+            hMsgText[7]   = msgText-7:HANDLE
+            hMsgText[8]   = msgText-8:HANDLE
+            hMsgText[9]   = msgText-9:HANDLE
+            hMsgText[10]  = msgText-10:HANDLE
+            hMsgText[11]  = msgText-11:HANDLE
+            hMsgText[12]  = msgText-12:HANDLE
+            hMsgText[13]  = msgText-13:HANDLE
+            hMsgText[14]  = msgText-14:HANDLE
+            hMsgText[15]  = msgText-15:HANDLE
+            hMsgText[16]  = msgText-16:HANDLE
+            hMsgText[17]  = msgText-17:HANDLE
+            hMsgText[18]  = msgText-18:HANDLE
+            hMsgText[19]  = msgText-19:HANDLE
+            hMsgText[20]  = msgText-20:HANDLE
+            hMsgText[21]  = msgText-21:HANDLE
+            hMsgText[22]  = msgText-22:HANDLE
+            hMsgText[23]  = msgText-23:HANDLE
+            .
+    END. /* frame msgframe */
+    
+    DO iIndex = 1 TO EXTENT(hMsgImage):
+        hMsgImage[iIndex]:LOAD-IMAGE(?).
+        hMsgText[iIndex]:SCREEN-VALUE = "".
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE jobMoving s-object 
 PROCEDURE jobMoving :
 {{&includes}/{&Board}/jobMoving.i}
@@ -3386,14 +3734,24 @@ PROCEDURE msgFrame :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipMsg AS CHARACTER NO-UNDO.
 
-  IF ipMsg EQ ? THEN
-  ldummy = SESSION:SET-WAIT-STATE('').
-  IF NOT (showStatus OR openBoard) THEN RETURN.
-  DO WITH FRAME msgFrame:
-    ASSIGN
-      msg = IF ipMsg EQ ? THEN '' ELSE msg + ipMsg + ' ... ' + CHR(10)
-      msg:SCREEN-VALUE = msg.
+ IF ipMsg EQ ? THEN DO:
+      RUN initMsgFrame. 
+      SESSION:SET-WAIT-STATE('').
   END.
+  
+  IF NOT (showStatus OR openBoard) THEN RETURN.
+  
+  IF iMsg GT 0 THEN
+  hMsgImage[iMsg]:LOAD-IMAGE("Graphics/16x16/check.png").
+  
+  IF ipMsg NE ? THEN DO:
+    ASSIGN    
+      iMsg = iMsg + 1
+      hMsgText[iMsg]:SCREEN-VALUE = ipMsg
+      .    
+    hMsgImage[iMsg]:LOAD-IMAGE("Graphics/16x16/navigate_right.png").
+  END.
+
   PROCESS EVENTS.
 
 END PROCEDURE.

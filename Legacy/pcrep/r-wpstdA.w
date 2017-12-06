@@ -642,8 +642,8 @@ PROCEDURE enable_UI :
   DISPLAY begin_mach end_mach begin_date end_date lv-ornt lines-per-page rd-dest 
           lv-font-no lv-font-name tb_excel tb_runExcel td-show-parm fi_file 
       WITH FRAME FRAME-A IN WINDOW C-Win.
-  ENABLE begin_mach end_mach begin_date end_date tb_runExcel fi_file btn-ok 
-         btn-cancel RECT-6 RECT-7 
+  ENABLE RECT-6 RECT-7 begin_mach end_mach begin_date end_date lv-ornt lines-per-page rd-dest lv-font-no
+         tb_excel tb_runExcel td-show-parm fi_file btn-ok btn-cancel
       WITH FRAME FRAME-A IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-FRAME-A}
   VIEW C-Win.
@@ -930,13 +930,14 @@ RUN est/rc-seq.p (OUTPUT lv-rc-seq).
 
 SESSION:SET-WAIT-STATE("").
 
-RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+
 
 IF tb_excel THEN DO:
   OUTPUT STREAM st-excell CLOSE.
   IF tb_runExcel THEN
     OS-COMMAND NO-WAIT START excel.exe VALUE(SEARCH(fi_file)).
 END.
+RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 

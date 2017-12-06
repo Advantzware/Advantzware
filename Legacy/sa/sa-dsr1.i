@@ -118,17 +118,18 @@
 
         put skip(1).
         
-        if v-misc and tt-report.key-01 eq "MISC" then do:
-          put w-procat format "x(25)" space(2).
+        if v-misc and tt-report.key-01 eq "MISC" then do:         
           
           find first account
               where account.company eq cocode
                 and account.actnum  eq tt-report.key-02
               no-lock no-error.
               
-          if avail account then put account.dscr.
+          if avail account then w-procat  = w-procat + "  " + account.dscr.
+          put w-procat format "x(50)" space(2).
           
           put skip.
+         
         end.
         
         display w-procat    when not (v-misc and tt-report.key-01 eq "MISC")
@@ -147,7 +148,7 @@
         IF tb_excel THEN
            PUT STREAM excel UNFORMATTED
                '"' IF not (v-misc and tt-report.key-01 eq "MISC") THEN w-procat
-                   ELSE w-procat + " " + (IF AVAIL account THEN account.dscr ELSE "") '",'
+                   ELSE w-procat '",'
                '"' STRING(w-sqft,"->>>,>>9.999")                    '",'
                '"' STRING(w-amt,"->,>>>,>>9.99") '",'
                '"' STRING(w-msf,"->,>>>,>>9.99")                        '",'

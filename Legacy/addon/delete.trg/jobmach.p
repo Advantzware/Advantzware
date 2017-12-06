@@ -1,5 +1,5 @@
 &Scoped-define ACTION DELETE
-&Scoped-define DBNAME PDBNAME('JOBS')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME jobmach
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.

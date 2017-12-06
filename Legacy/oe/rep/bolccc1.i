@@ -3,11 +3,11 @@
      IF NOT lv-print-img THEN
        put 
          "<FMS Mincho>"
-          "<P14><R2><C52><B>Bill of lading #:" OE-BOLH.BOL-NO "</B><P10> "
+          "<P14><R4><C52><B>Bill of lading #:" OE-BOLH.BOL-NO "</B><P10> "
           "<C3><R2><#1><C+3><R+8><C+45><IMAGE#1=" ls-full-img1  SKIP    .
       IF lv-print-img THEN
           PUT  "<FMS Mincho>"
-          "<P14><R2><C52><B>Bill of lading #:" OE-BOLH.BOL-NO "</B><P10> " SKIP
+          "<P14><R3><C52><B>Bill of lading #:" OE-BOLH.BOL-NO "</B><P10> " SKIP
           "<R3><C5>Manufactured by:"  "<R3><C30>Distributed by:"  SKIP
           "<C3><R4><#1><C+3><R+6><C+45><IMAGE#1=" ls-full-img1
            "<C30><R4><#1><C+3><R+6><C+45><IMAGE#1=" ls-full-img2 SKIP .

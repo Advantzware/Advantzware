@@ -256,7 +256,7 @@ DEFINE FRAME F-Main
           SIZE 33 BY 1
      oe-bolh.frt-pay AT ROW 4.33 COL 105.4 COLON-ALIGNED HELP
           "B=Bill, C=Collect, P=Prepaid, T=Third Party"
-          LABEL "Frt Payment"
+          LABEL "Freight Terms"
           VIEW-AS FILL-IN 
           SIZE 3.2 BY 1
      oe-bolh.airway-bill AT ROW 4.33 COL 121 COLON-ALIGNED HELP

@@ -1,5 +1,5 @@
 &Scoped-define ACTION DELETE
-&Scoped-define DBNAME PDBNAME('ASI')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME oe-ordl
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
@@ -32,23 +32,9 @@ IF AVAIL itemfg THEN RUN fg/makenote.p (BUFFER {&TABLENAME},
                                         YES,
                                         itemfg.rec_key).
 
-FOR EACH oe-ordl-q-no
-    WHERE oe-ordl-q-no.reftable EQ "oe-ordl.q-no"
-      AND oe-ordl-q-no.company  EQ {&TABLENAME}.company
-      AND oe-ordl-q-no.loc      EQ STRING({&TABLENAME}.ord-no,"9999999999")
-      AND oe-ordl-q-no.code     EQ {&TABLENAME}.i-no
-      AND oe-ordl-q-no.code2    EQ STRING({&TABLENAME}.line,"9999999999"):
-  DELETE oe-ordl-q-no.
-END.
 
-FOR EACH oe-ordl-whs-item
-    WHERE oe-ordl-whs-item.reftable EQ "oe-ordl.whs-item"
-      AND oe-ordl-whs-item.company  EQ {&TABLENAME}.company
-      AND oe-ordl-whs-item.loc      EQ STRING({&TABLENAME}.ord-no,"9999999999")
-      AND oe-ordl-whs-item.code     EQ {&TABLENAME}.i-no
-      AND oe-ordl-whs-item.code2    EQ STRING({&TABLENAME}.line,"9999999999"):
-  DELETE oe-ordl-whs-item.
-END.
+
+
 
 {&TABLENAME}.line = 999999999.
 FOR EACH oe-ord OF {&TABLENAME}:

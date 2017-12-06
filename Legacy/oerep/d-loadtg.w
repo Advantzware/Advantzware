@@ -33,6 +33,7 @@ DEFINE VARIABLE totalUnit LIKE w-ord.total-unit NO-UNDO.
 DEFINE VARIABLE pcsValue LIKE w-ord.pcs NO-UNDO.
 DEFINE VARIABLE bundleValue LIKE w-ord.bundle NO-UNDO.
 DEFINE VARIABLE glTotalTagsChanged AS LOGICAL     NO-UNDO.
+DEFINE VARIABLE iTotalQty AS INTEGER NO-UNDO.
 
 DEF var v-loadtag  AS char NO-UNDO INIT "ASI".  /* sys ctrl option */
 DEF var v-tags AS DEC NO-UNDO INIT 1.  /* sys ctrl option */
@@ -66,7 +67,7 @@ IF NOT BOLWt-log THEN RUN calc-weight-all.
 &Scoped-define INTERNAL-TABLES w-ord
 
 /* Definitions for BROWSE BROWSE-1                                      */
-&Scoped-define FIELDS-IN-QUERY-BROWSE-1 w-ord.ord-no w-ord.job-no w-ord.job-no2 NO-LABEL w-ord.cust-no w-ord.i-no w-ord.ord-qty w-ord.over-pct w-ord.pcs "Unit Count" w-ord.bundle Unit" */ "Units/!Pallet" w-ord.partial w-ord.total-unit w-ord.total-tags /* gdm 09210907 */ w-ord.unit-wt w-ord.pallt-wt w-ord.lot w-ord.i-name w-ord.cust-po-no   
+&Scoped-define FIELDS-IN-QUERY-BROWSE-1 w-ord.ord-no w-ord.job-no w-ord.job-no2 NO-LABEL w-ord.cust-no w-ord.i-no w-ord.ord-qty w-ord.over-pct w-ord.pcs "Unit Count" w-ord.bundle Unit" */ "Units/!Pallet" w-ord.partial w-ord.total-unit w-ord.total-tags /* gdm 09210907 */ w-ord.unit-wt w-ord.pallt-wt w-ord.lot w-ord.i-name w-ord.cust-po-no w-ord.total-unit * w-ord.total-tags @ iTotalQty ~
 &Scoped-define ENABLED-FIELDS-IN-QUERY-BROWSE-1 w-ord.over-pct ~
  w-ord.pcs ~
  w-ord.bundle ~
@@ -91,7 +92,7 @@ IF NOT BOLWt-log THEN RUN calc-weight-all.
 
 /* Standard List Definitions                                            */
 &Scoped-Define ENABLED-OBJECTS BROWSE-1 btnCancel btn_save btn_copy ~
-btn_delete Btn_OK btnAutoCopy 
+btn_delete Btn_OK btnAutoCopy fi_total-qty
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -110,7 +111,6 @@ FUNCTION CheckTotals RETURNS LOGICAL
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
 
 /* ***********************  Control Definitions  ********************** */
 
@@ -143,6 +143,11 @@ DEFINE BUTTON btn_save
      LABEL "&Save" 
      SIZE 15 BY 1.62.
 
+DEFINE VARIABLE fi_total-qty AS CHARACTER FORMAT "X(15)":U 
+     LABEL "Total Quantity(all records)" 
+     VIEW-AS FILL-IN 
+     SIZE 20 BY 1 NO-UNDO.
+
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY BROWSE-1 FOR 
@@ -163,8 +168,9 @@ DEFINE BROWSE BROWSE-1
       w-ord.pcs FORM ">>>,>>9" COLUMN-LABEL /*"Bdl/Case!Count"*/ "Unit Count"
       w-ord.bundle FORM ">>>,>>9" COLUMN-LABEL /*"Bdl/Case!Per Unit" */ "Units/!Pallet"
       w-ord.partial COLUMN-LABEL "Partial"
-      w-ord.total-unit FORM ">,>>>,>>9" COLUMN-LABEL "Total Qty!Per Unit"
+      w-ord.total-unit FORM ">,>>>,>>9" COLUMN-LABEL "Total Qty!Per Pallet"
       w-ord.total-tags COLUMN-LABEL "No. of!Tags" /* gdm 09210907 */
+      w-ord.total-unit * w-ord.total-tags @ iTotalQty FORMAT ">,>>>,>>9" COLUMN-LABEL "Total Qty"
       w-ord.unit-wt COLUMN-LABEL "Unit!Wt"
       w-ord.pallt-wt COLUMN-LABEL "Pallet!Wt"
       w-ord.lot FORMAT "X(20)" COLUMN-LABEL "FG Lot#"
@@ -208,6 +214,7 @@ DEFINE FRAME Dialog-Frame
      btn_delete AT ROW 15.29 COL 71
      Btn_OK AT ROW 15.29 COL 93
      btnAutoCopy AT ROW 15.29 COL 118
+     fi_total-qty AT ROW 15.29 COL 210 COLON-ALIGNED
      SPACE(98.00) SKIP(0.00)
     WITH VIEW-AS DIALOG-BOX KEEP-TAB-ORDER 
          SIDE-LABELS NO-UNDERLINE THREE-D  SCROLLABLE 
@@ -327,6 +334,7 @@ ON CHOOSE OF btn_copy IN FRAME Dialog-Frame /* Copy */
 DO:
   IF NOT AVAIL w-ord THEN RETURN NO-APPLY.
   RUN copy-word.
+  RUN pGrandTotal.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
   REPOSITION {&BROWSE-NAME} TO ROWID copyRowID.
 END.
@@ -372,6 +380,7 @@ DO:
        APPLY "entry" TO w-ord.bundle.
        RETURN NO-APPLY.
    END.
+   RUN pGrandTotal.
    RUN update-word.
 END.
 
@@ -394,6 +403,7 @@ END.
 /*                                                                       */
 /*   RETURN NO-APPLY.                                                    */
 /* END.                                                                  */
+
 
 ON 'RETURN' OF w-ord.over-pct IN BROWSE {&BROWSE-NAME} DO:
   APPLY 'LEAVE' TO w-ord.over-pct IN BROWSE {&BROWSE-NAME}.
@@ -445,7 +455,7 @@ ON 'RETURN' OF w-ord.total-unit IN BROWSE {&BROWSE-NAME} DO:
 END.
 
 ON 'LEAVE' OF w-ord.total-unit IN BROWSE {&BROWSE-NAME} DO:
-  IF SELF:MODIFIED THEN RUN calc-total.
+  IF SELF:MODIFIED THEN RUN calc-partial-unit.
 END.
 
 ON 'RETURN' OF w-ord.partial IN BROWSE {&BROWSE-NAME} DO:
@@ -519,6 +529,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     v-tags = sys-ctrl.dec-fld.    
 
   RUN enable_UI.
+  RUN pGrandTotal.
   IF AVAIL w-ord AND w-ord.i-no NE '' THEN
         RUN displayUNNotes(INPUT g_company,
                            INPUT w-ord.i-no).
@@ -590,10 +601,51 @@ PROCEDURE calc-total :
       IF int(w-ord.partial:SCREEN-VALUE IN BROWSE {&browse-name}) > 0 THEN w-ord.total-tags = 1.
            
 
-        DISPLAY w-ord.total-unit w-ord.total-tags w-ord.partial
+        DISPLAY w-ord.total-unit w-ord.total-tags w-ord.partial w-ord.total-unit * w-ord.total-tags @ iTotalQty
              WITH BROWSE {&browse-name}.
 
    END.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE calc-total Dialog-Frame 
+PROCEDURE calc-partial-unit :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+   DEFINE VARIABLE lv-qty      LIKE w-ord.total-unit      NO-UNDO.
+   DEFINE VARIABLE lv-cases    LIKE w-ord.bundle    NO-UNDO.
+   DEFINE VARIABLE lv-qty-case LIKE w-ord.pcs NO-UNDO.
+   DEFINE VARIABLE lv-partial  LIKE w-ord.partial  NO-UNDO.
+   
+   IF AVAIL w-ord THEN DO:
+       DO WITH FRAME {&FRAME-NAME}:
+           ASSIGN lv-qty   = DEC(w-ord.total-unit:SCREEN-VALUE IN BROWSE {&browse-name} ).
+           lv-qty-case = DEC(w-ord.pcs:SCREEN-VALUE IN BROWSE {&browse-name} ).
+           lv-partial  = DEC(w-ord.partial:SCREEN-VALUE IN BROWSE {&browse-name} ).
+           IF lv-qty-case EQ 0 THEN lv-qty-case = lv-qty.
+
+           ASSIGN lv-cases   = TRUNC((lv-qty - lv-partial) / lv-qty-case,0).
+           lv-partial = lv-qty - (lv-cases * lv-qty-case).
+           
+           w-ord.bundle:SCREEN-VALUE IN BROWSE {&browse-name}    = STRING(lv-cases).
+           w-ord.pcs:SCREEN-VALUE IN BROWSE {&browse-name} = STRING(lv-qty-case).
+           w-ord.partial:SCREEN-VALUE IN BROWSE {&browse-name}  = STRING(lv-partial).
+
+           w-ord.bundle  = lv-cases.
+           w-ord.pcs     = (lv-qty-case).
+           w-ord.partial  = (lv-partial).
+           w-ord.total-unit = lv-qty.
+
+  END.
+  DISPLAY w-ord.bundle w-ord.partial w-ord.pcs w-ord.total-unit * w-ord.total-tags @ iTotalQty
+             WITH BROWSE {&browse-name}.
+   END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
@@ -788,7 +840,8 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE BROWSE-1 btnCancel btn_save btn_copy btn_delete Btn_OK btnAutoCopy 
+    DISPLAY fi_total-qty WITH FRAME Dialog-Frame.
+  ENABLE BROWSE-1 btnCancel btn_save btn_copy btn_delete Btn_OK btnAutoCopy  
       WITH FRAME Dialog-Frame.
   VIEW FRAME Dialog-Frame.
   {&OPEN-BROWSERS-IN-QUERY-Dialog-Frame}
@@ -892,6 +945,29 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE update-word Dialog-Frame 
+PROCEDURE pGrandTotal :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEFINE VARIABLE iGrandTotalQty LIKE w-ord.total-unit.
+  DEFINE BUFFER bf-w-ord FOR w-ord.
+      FOR EACH bf-w-ord NO-LOCK:
+          ASSIGN iGrandTotalQty = iGrandTotalQty + (bf-w-ord.total-unit * bf-w-ord.total-tags).
+      END.
+      DO WITH FRAME {&FRAME-NAME}:
+      ASSIGN fi_total-qty:SCREEN-VALUE = string(iGrandTotalQty).
+      END.
+      
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 /* ************************  Function Implementations ***************** */
 

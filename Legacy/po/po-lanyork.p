@@ -122,6 +122,17 @@ DEFINE        VARIABLE v-len-frac              AS CHARACTER NO-UNDO.
 DEFINE        VARIABLE v-dep-frac              AS CHARACTER NO-UNDO.
 RUN sys/ref/uom-fg.p (?, OUTPUT fg-uom-list).
 
+DEF VAR ls-full-img1 AS cha FORM "x(200)" NO-UNDO.
+DEF VAR ls-full-img2 AS cha FORM "x(200)" NO-UNDO.
+DEFINE VARIABLE cRtnChar AS CHARACTER NO-UNDO.
+DEFINE VARIABLE lRecFound AS LOGICAL NO-UNDO.
+
+RUN sys/ref/nk1look.p (INPUT cocode, "BusinessFormLogo", "C" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+OUTPUT cRtnChar, OUTPUT lRecFound).
+
+ASSIGN ls-full-img1 = cRtnChar + ">" .
+
 DEFINE TEMP-TABLE tt-ei NO-UNDO
     FIELD std-uom AS CHARACTER.
 
@@ -532,7 +543,7 @@ v-printline = 0.
                  cJointGlue =  IF AVAIL eb THEN eb.adhesive ELSE "" .
                  cBoardName = IF AVAIL ef THEN ef.brd-dscr ELSE "" .
                  cColorDscr = IF AVAIL eb THEN eb.i-coldscr ELSE "" .
-                 cCadName  = IF AVAIL eb THEN eb.cad-no ELSE "" .
+                 cCadName  = IF AVAIL eb AND eb.cad-no NE "" THEN "Design#: " + eb.cad-no ELSE "" .
                 IF AVAIL eb THEN DO:
                  DO i = 1 TO 10:
                      cInkName[i] = IF AVAIL eb AND eb.i-dscr[i] NE ""  THEN eb.i-dscr[i] ELSE IF AVAIL eb THEN eb.i-dscr2[i] ELSE "" .
@@ -660,7 +671,7 @@ v-printline = 0.
 
         IF NOT po-ordl.item-type THEN DO:
           IF cColorDscr NE "" THEN do:
-              PUT cColorDscr FORM "x(30)" AT 25 SKIP .
+              PUT cColorDscr FORM "x(40)" AT 25 SKIP .
                v-line-number = v-line-number + 1 .
           END.
           DO i = 1 TO 10:
@@ -671,7 +682,7 @@ v-printline = 0.
           END.
           
           IF cCadName NE "" THEN do:
-              PUT cCadName FORM "x(30)" AT 25 SKIP .
+              PUT cCadName FORM "x(40)" AT 25 SKIP .
                v-line-number = v-line-number + 1 .
           END.                         
 
@@ -761,7 +772,7 @@ v-printline = 0.
          END.
 
          DO i = 1 TO li:
-            PUT v-dept-note[i] SKIP.
+            PUT v-dept-note[i] AT 25 SKIP.
             v-printline = v-printline + 1.
             IF v-printline > 46 THEN DO:                  
                PAGE.
@@ -770,7 +781,7 @@ v-printline = 0.
             END.
          END.
 
-     PUT skip(1).
+     PUT SKIP.
      assign
         v-line-number = v-line-number + 1
         v-printline = v-printline + 1.
@@ -801,7 +812,7 @@ v-printline = 0.
         END.
         ASSIGN
         lv-text-line = 0
-        lv-text-line-length = 80.
+        lv-text-line-length = 75.
         DO i = 1 TO LENGTH(lv-text):
            ASSIGN lv-char = SUBSTR(lv-text,i,1).
            IF lv-char EQ CHR(10) OR lv-char EQ CHR(13) THEN DO: END.
@@ -825,9 +836,11 @@ v-printline = 0.
               v-printline = 0.
               {po/po-lanyork.i}
             END.     
-            PUT tt-text.tt-text FORM "x(80)"  SKIP.
+            PUT tt-text.tt-text FORM "x(75)" AT 25 SKIP.
                 v-printline = v-printline + 1.
         END.
+        PUT SKIP(1).
+        v-printline = v-printline + 1.
      END.  /* v-print-sn */
    
 

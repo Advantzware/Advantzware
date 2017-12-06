@@ -1955,12 +1955,7 @@ END FUNCTION.
                       AND xoe-rel.i-no    EQ xoe-ordl.i-no
                       AND xoe-rel.LINE    EQ xoe-ordl.LINE
                       NO-LOCK NO-ERROR.
-            
-            IF AVAIL xoe-rel THEN
-                 FIND FIRST reftable WHERE
-                   reftable.reftable EQ "oe-rel.lot-no" AND
-                   reftable.company  EQ STRING(xoe-rel.r-no,"9999999999")
-                NO-LOCK NO-ERROR.
+ 
             IF AVAIL xoe-ordl THEN v-fgqty[i] = xoe-ordl.cas-cnt.
                  /*FIND FIRST itemfg WHERE itemfg.company = xjob-hdr.company AND
                                    itemfg.i-no = xjob-hdr.i-no NO-LOCK NO-ERROR.*/
@@ -1983,7 +1978,7 @@ END FUNCTION.
                                      ELSE 0
                   tt-fgitm.cas-pal = IF AVAIL b-eb THEN b-eb.cas-pal ELSE 0
                   tt-fgitm.seq = i
-                  tt-fgitm.lot-no = IF AVAIL reftable THEN reftable.CODE ELSE ""
+                  tt-fgitm.lot-no = xoe-rel.lot-no
                   i = i + 1.
             
             /* gdm - 12100817 */

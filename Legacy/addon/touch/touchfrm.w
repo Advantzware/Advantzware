@@ -105,7 +105,7 @@ DEFINE FRAME F-Main
 /* Settings for THIS-PROCEDURE
    Type: SmartFrame
    Allow: Basic,Browse,DB-Fields,Query,Smart
-   Design Page: 1
+   Design Page: 7
    Other Settings: PERSISTENT-ONLY COMPILE
  */
 
@@ -440,33 +440,33 @@ PROCEDURE Change_Page :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER page_no AS INTEGER NO-UNDO.
 
-  IF VALID-HANDLE(h_numeric) THEN  DELETE PROCEDURE h_numeric.
-  IF VALID-HANDLE(h_keyboard) THEN  DELETE PROCEDURE h_keyboard.
-  IF VALID-HANDLE(h_w-mchtrn) THEN  DELETE PROCEDURE h_w-mchtrn.
+  IF VALID-HANDLE(h_numeric)  THEN DELETE PROCEDURE h_numeric.
+  IF VALID-HANDLE(h_keyboard) THEN DELETE PROCEDURE h_keyboard.
+  IF VALID-HANDLE(h_w-mchtrn) THEN DELETE PROCEDURE h_w-mchtrn.
 
-  IF page_no = 1 THEN DO:
+  IF page_no EQ 1 THEN DO:
    {sys/inc/tslogin.i}
    IF tslogin-log THEN RETURN NO-APPLY.   
   END.
-  IF activity_status = 'logout' AND page_no = 5 THEN /* bypass machines */
+  IF activity_status EQ 'logout' AND page_no EQ 5 THEN /* bypass machines */
   page_no = 6. /* login_logout */
   ELSE
-  IF activity_status = 'logout' AND page_no = 8 THEN /* bypass allmachs */
+  IF activity_status EQ 'logout' AND page_no EQ 8 THEN /* bypass allmachs */
   page_no = 6. /* login_logout */
   ELSE
-  IF activity_status = 'job-data-collection' AND page_no = 3 THEN /* cancel status */
+  IF activity_status EQ 'job-data-collection' AND page_no EQ 3 THEN /* cancel status */
   page_no = 2. /* menu */
   ELSE
-  IF activity_status = 'job-data-collection' AND page_no = 6 THEN /* bypass login/out */
+  IF activity_status EQ 'job-data-collection' AND page_no EQ 6 THEN /* bypass login/out */
   page_no = 9. /* job data entry */
   ELSE
-  IF activity_status = 'employee-status' AND page_no = 4 THEN /* bypass password */
+  IF activity_status EQ 'employee-status' AND page_no EQ 4 THEN /* bypass password */
   page_no = 7. /* status */
   ELSE
-  IF activity_status = 'machine-status' AND page_no = 6 THEN /* bypass login/out */
+  IF activity_status EQ 'machine-status' AND page_no EQ 6 THEN /* bypass login/out */
   page_no = 7. /* status */
   ELSE
-  IF activity_status = 'machine-status' AND page_no = 3 THEN /* cancel status */
+  IF activity_status EQ 'machine-status' AND page_no EQ 3 THEN /* cancel status */
   page_no = 2. /* menu */
   RUN SELECT-PAGE (page_no).
   CASE page_no:
@@ -479,15 +479,17 @@ PROCEDURE Change_Page :
     DO:
       RUN Set_Title(translate('Employee',NO) + ' - ' +
                     translate('Company',NO) + ': ' + company_name + ' (' + company_code + ')').
-      FIND employee WHERE employee.company = company_code
-                      AND employee.employee = employee_code
+      /*
+      FIND employee WHERE employee.company EQ company_code
+                      AND employee.employee EQ employee_code
                     NO-LOCK NO-ERROR.
       IF AVAILABLE employee THEN
       RUN Display_Keyboard (employee.keyboard_type,h_employee).
       ELSE
       RUN Display_Keyboard ('sortpad.',h_employee).
       RELEASE employee.
-      IF activity_status = 'login' THEN
+      */
+      IF activity_status EQ 'login' THEN
       RUN Get_Employees IN h_employee.
       ELSE
       RUN Get_Active_Employees IN h_employee.
@@ -498,8 +500,8 @@ PROCEDURE Change_Page :
                     translate('Employee',NO) + ': ' + employee_name + ' (' + employee_code + '), ' +
                     translate('Company',NO) + ': ' + company_name + ' (' + company_code + ')').
       RUN Display_Keyboard ('numeric.',h_password).
-      FIND employee WHERE employee.company = company_code
-                      AND employee.employee = employee_code
+      FIND employee WHERE employee.company EQ company_code
+                      AND employee.employee EQ employee_code
                     NO-LOCK NO-ERROR.
       IF AVAILABLE employee THEN
       RUN Display_Keyboard (employee.keyboard_type,h_password).
@@ -510,7 +512,7 @@ PROCEDURE Change_Page :
     END.
     WHEN 5 THEN /* machines */
     DO:
-      IF activity_status = 'login' THEN
+      IF activity_status EQ 'login' THEN
       DO:
         RUN Set_Title(translate('Machine',NO) + ' - ' +
                       translate('Employee',NO) + ': ' + employee_name + ' (' + employee_code + '), ' +
@@ -552,15 +554,15 @@ PROCEDURE Change_Page :
     WHEN 8 THEN /* allmachs */
     DO:
       RUN Display_Keyboard ('numeric.',h_allmachs).
-      FIND employee WHERE employee.company = company_code
-                      AND employee.employee = employee_code
+      FIND employee WHERE employee.company EQ company_code
+                      AND employee.employee EQ employee_code
                     NO-LOCK NO-ERROR.
       IF AVAILABLE employee THEN
       RUN Display_Keyboard (employee.keyboard_type,h_allmachs).
       ELSE
       RUN Display_Keyboard ('sortpad.',h_allmachs).
       RELEASE employee.
-      IF activity_status = 'login' THEN
+      IF activity_status EQ 'login' THEN
       DO:
         RUN Set_Title(translate('Machine',NO) + ' - ' +
                       translate('Employee',NO) + ': ' + employee_name + ' (' + employee_code + '), ' +
@@ -650,8 +652,8 @@ PROCEDURE Change_Page :
     WHEN 15 THEN /* alljobs */
     DO:
       RUN Display_Keyboard ('numeric.',h_alljobs).
-      FIND employee WHERE employee.company = company_code
-                      AND employee.employee = employee_code
+      FIND employee WHERE employee.company EQ company_code
+                      AND employee.employee EQ employee_code
                     NO-LOCK NO-ERROR.
       IF AVAILABLE employee THEN
       RUN Display_Keyboard (employee.keyboard_type,h_alljobs).
@@ -666,8 +668,8 @@ PROCEDURE Change_Page :
     WHEN 16 THEN /* manually enter job number */
     DO:
       RUN Display_Keyboard ('numeric.',h_enterjob).
-      FIND employee WHERE employee.company = company_code
-                      AND employee.employee = employee_code
+      FIND employee WHERE employee.company EQ company_code
+                      AND employee.employee EQ employee_code
                     NO-LOCK NO-ERROR.
       IF AVAILABLE employee THEN
       RUN Display_Keyboard (employee.keyboard_type,h_enterjob).

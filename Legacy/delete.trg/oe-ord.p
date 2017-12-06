@@ -1,5 +1,5 @@
 &Scoped-define ACTION DELETE
-&Scoped-define DBNAME PDBNAME('ASI')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME oe-ord
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
@@ -24,12 +24,7 @@ END.
 
 
 
-FOR EACH oe-ord-whs-order
-    WHERE oe-ord-whs-order.reftable EQ "oe-ord.whs-order"
-      AND oe-ord-whs-order.company  EQ {&TABLENAME}.company
-      AND oe-ord-whs-order.loc      EQ STRING({&TABLENAME}.ord-no,"9999999999"):
-  DELETE oe-ord-whs-order.
-END.
+
 
 /* Clear out any error-status from find with no-error that is false */
 DEF VAR ll-error AS LOG NO-UNDO.

@@ -621,7 +621,7 @@ DEFINE FRAME F-Main
           FGCOLOR 9 FONT 4
      "FOB:" VIEW-AS TEXT
           SIZE 6 BY .62 AT ROW 8.67 COL 83.2
-     "Freight Payment:" VIEW-AS TEXT
+     "Freight Terms:" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 7.81 COL 72
      "Shipping Information" VIEW-AS TEXT
           SIZE 20 BY .62 AT ROW 6.95 COL 75
@@ -2239,8 +2239,9 @@ PROCEDURE local-update-record :
         END.
         IF v-custsize = "Hughes" and
            v-cust-length <> LENGTH(cust.cust-no:SCREEN-VALUE) THEN DO:
-           MESSAGE "Customer Number must be " v-cust-length "digits character." 
-                   VIEW-AS ALERT-BOX ERROR.
+           MESSAGE "Your NK1 Setting for customer length is set to" v-cust-length "characters, so you" SKIP
+               "must change your setting or use a" v-cust-length "character length customer number."
+               VIEW-AS ALERT-BOX ERROR.
            APPLY "entry" TO cust.cust-no.
            RETURN.
         END.

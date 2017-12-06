@@ -14,6 +14,9 @@
 
  History:
 
+ r4.004 (updated 12.5.2017)
+ * licensed ability to generate resource html pages
+
  r4.003 (updated 11.3.2017)
  * added field "sb status"
  * ability to create html resource pages

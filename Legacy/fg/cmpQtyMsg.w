@@ -381,35 +381,24 @@ MAIN-BLOCK:
 DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
   
-  FIND fg-rctd WHERE ROWID(fg-rctd) EQ ip-rowid2 NO-LOCK NO-ERROR.
+  FIND fg-rctd WHERE ROWID(fg-rctd) EQ ip-rowid2 EXCLUSIVE-LOCK NO-ERROR.
 
   IF AVAIL fg-rctd THEN DO:
-    FIND FIRST use-job NO-LOCK
-        WHERE use-job.reftable EQ "fg-rctd.use-job"
-          AND use-job.company  EQ STRING(fg-rctd.r-no,"9999999999")
-        NO-ERROR.
-      
-    IF NOT AVAIL use-job THEN DO TRANSACTION:
-      CREATE use-job.
-      ASSIGN
-       use-job.reftable = "fg-rctd.use-job"
-       use-job.company  = STRING(fg-rctd.r-no,"9999999999")
-       use-job.val[1]   = INT(fgsetrec-log).
-      FIND CURRENT use-job NO-LOCK.
-    END.
+    ASSIGN fg-rctd.use-job = fgsetrec-log.
 
     IF ip-rowid1 EQ ? THEN DO:
       FIND FIRST itemfg
           WHERE itemfg.company EQ fg-rctd.company
             AND itemfg.i-no    EQ fg-rctd.i-no
           NO-LOCK NO-ERROR.
-      tb_use-job = use-job.val[1] EQ 1.
+      tb_use-job = fgsetrec-log.
     END.
 
     ELSE DO:
       FIND itemfg WHERE ROWID(itemfg) EQ ip-rowid1 NO-LOCK NO-ERROR.
       tb_use-job = fgsetrec-log.
     END.
+    RELEASE fg-rctd.
   END.
 
   IF AVAIL itemfg THEN DO:
@@ -536,23 +525,16 @@ PROCEDURE checkset :
           NO-LOCK:
 
 
-        FIND FIRST reftable WHERE
-             reftable.reftable EQ "fg-rctd.user-id" AND
-             reftable.company  EQ cocode AND
-             reftable.loc      EQ STRING(b-fg-rctd.r-no,"9999999999") AND
-             reftable.dscr BEGINS "fg-rctd: "
-             NO-LOCK NO-ERROR.
 
-        IF AVAIL reftable THEN
-        DO:
-           v-int = INT(SUBSTRING(reftable.dscr,9)).
-
+       IF fg-rctd.created-by NE "" THEN
+          DO:
+           v-int = b-fg-rctd.r-no.
            IF NOT CAN-FIND(FIRST b2-fg-rctd WHERE
-              b2-fg-rctd.r-no EQ v-int AND
-              b2-fg-rctd.rita-code NE "P"
-              AND ROWID(b2-fg-rctd)    NE ip-rowid2) THEN
-              NEXT.
-        END.
+             b2-fg-rctd.r-no EQ v-int AND
+             b2-fg-rctd.rita-code NE "P"
+             AND ROWID(b2-fg-rctd)    NE ip-rowid2) THEN
+             NEXT.
+          END.   
 
       /* v-set-use already includes this number, unless there is another */
       /* positive receipt for the component separate from the set header */

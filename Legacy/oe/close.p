@@ -12,7 +12,7 @@ DEF BUFFER b-oe-rell FOR oe-rell.
 DEF VAR v-factor       AS   INT NO-UNDO.
 DEF VAR v-fin-qty      AS   INT NO-UNDO.
 DEF VAR v              AS   INT NO-UNDO.
-DEF VAR v-tax-rate     AS   DEC FORMAT ">,>>9.99<<<" NO-UNDO.
+DEF VAR v-tax-rate     AS   DEC FORMAT ">,>>9.99" NO-UNDO.
 DEF VAR v-frt-tax-rate LIKE v-tax-rate NO-UNDO.
 DEF VAR print-log      AS   LOG NO-UNDO.
 DEF VAR close_date     AS DATE NO-UNDO.
@@ -41,10 +41,7 @@ DO TRANSACTION:
 FIND oe-ord WHERE RECID(oe-ord) EQ ip-recid NO-ERROR.
 IF NOT AVAIL oe-ord OR oe-ord.stat EQ "D" THEN RETURN.
 
-{oe/closeaud.i oe-ord}
-reftable.val[3] = 2.
-
-v-factor = IF ip-close THEN -1 ELSE 1.
+{oeactor = IF ip-close THEN -1 ELSE 1.
 
 FIND FIRST cust
     WHERE cust.company eq oe-ord.company

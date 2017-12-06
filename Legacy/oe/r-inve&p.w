@@ -2075,7 +2075,7 @@ PROCEDURE list-post-inv :
     inv-head.t-inv-tax FORMAT "->,>>>,>>9.99"
     v-misc-tot FORMAT "->>>>9.99"
     v-line-tot FORMAT "->>>>>>9.99"
-    inv-head.t-inv-rev TO 135
+    inv-head.t-inv-rev format "->>,>>>,>>9.999999" TO 138
     ld-pton FORMAT "->>>>>>9.999"
     ld-t[2]
     WITH STREAM-IO WIDTH 180 NO-LABELS NO-BOX NO-UNDERLINE FRAME inv.
@@ -2087,9 +2087,9 @@ PROCEDURE list-post-inv :
     w-inv-line.inv-qty FORMAT "->>,>>>,>>9" COLUMN-LABEL "Quantities!Invoiced "
     w-inv-line.ship-qty FORMAT "->>,>>>,>>9" LABEL "Shipped"
     w-inv-line.t-cost FORMAT "->>>,>>9.99<<<<" LABEL "Cost"
-    w-inv-line.price FORMAT "->>>,>>9.99<<<<" LABEL "Price"
+    w-inv-line.price FORMAT "->>>,>>9.999999" LABEL "Price"
     w-inv-line.uom LABEL "UOM"
-    w-inv-line.t-price COLUMN-LABEL "Extended! Price"
+    w-inv-line.t-price format "->>,>>>,>>9.999999" COLUMN-LABEL "Extended! Price"
     v-prof  FORMAT "->>>9.99%" COLUMN-LABEL "Profit"
     WITH DOWN NO-BOX STREAM-IO WIDTH 180 FRAME invl.
 
@@ -2100,9 +2100,9 @@ PROCEDURE list-post-inv :
     w-inv-line.inv-qty FORMAT "->>,>>>,>>9" COLUMN-LABEL "Quantities!Invoiced "
     w-inv-line.ship-qty FORMAT "->>,>>>,>>9" LABEL "Shipped"
     w-inv-line.t-cost FORMAT "->>>,>>9.99<<<<" LABEL "Cost"
-    w-inv-line.price FORMAT "->>>,>>9.99<<<<" LABEL "Price"
+    w-inv-line.price FORMAT "->>>,>>9.999999" LABEL "Price"
     w-inv-line.uom LABEL "UOM"
-    w-inv-line.t-price COLUMN-LABEL "Extended! Price"
+    w-inv-line.t-price format "->>,>>>,>>9.999999" COLUMN-LABEL "Extended! Price"
     ld-pton FORMAT "->>>>>>9.999" COLUMN-LABEL "!     $/Ton"
     ld-t[1] COLUMN-LABEL "!      Tons"
     v-prof  FORMAT "->>>9.99%" COLUMN-LABEL "Profit"
@@ -2111,7 +2111,7 @@ PROCEDURE list-post-inv :
   FORMAT
     w-ord-misc.charge AT 10 LABEL "Charge"
     w-ord-misc.dscr LABEL "Description"
-    w-ord-misc.amt FORMAT "->>>,>>9.99" TO 71 LABEL "Price" SKIP
+    w-ord-misc.amt FORMAT "->>>,>>9.999999" TO 71 LABEL "Price" SKIP
     WITH STREAM-IO DOWN NO-BOX FRAME invm.
 
   SESSION:SET-WAIT-STATE ("general").
@@ -2460,10 +2460,10 @@ PROCEDURE run-report :
     "Number"  "Date" AT 10  "Cust#" AT 17 "Customer Name" AT 26 "Order#" TO 59
     "Quantity" TO 74 "Frt" TO 84 "Tax" TO 98
     "Misc" TO 108 "Items" TO 120
-    "Total" TO 135 
-    lv-label-ton[1] TO 158
-    FILL("=",138) FORMAT "x(138)"
-    lv-label-ton[2] TO 158
+    "Total" TO 138 
+    lv-label-ton[1] TO 162
+    FILL("=",142) FORMAT "x(142)"
+    lv-label-ton[2] TO 162
     WITH FRAME r-top WIDTH 180.
 
   FIND FIRST period                   

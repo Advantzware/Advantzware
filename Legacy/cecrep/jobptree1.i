@@ -58,7 +58,7 @@ def {1} var v-loc-bin       as   char format "x(14)"                    no-undo.
 def {1} var v-set-hdr       as   char format "x(25)"                    no-undo.
 def {1} var v-board-code    as   char format "x(15)"                    no-undo.
 def {1} var v-board-dscr    as   char format "x(32)"                    no-undo.
-
+DEFINE {1} VARIABLE cJobNumber AS CHAR NO-UNDO .
 def {1} workfile w-m no-undo
   FIELD m-code LIKE mach.m-code
   field dseq like mach.d-seq
@@ -83,7 +83,7 @@ FORM HEADER
        "<P8><=1>" 
        "<U>Sold To:</U>" at 23        /*"<U>Location:</U>" AT 105*/ "<U>Job Information:</U><P10>" AT 145 SKIP
        v-cus[1] AT 2 "<P12><B>Due Date:</B><P10>" AT 39 v-due-date FORM "x(13)"
-       /*"Bin:" AT 82 v-loc-bin*/ "<P12><B>" "Job#:" AT 109  v-job-prt "</B><P10>" " Overrun:" /*AT 131*/ lv-over-run format "x(7)"   
+       /*"Bin:" AT 82 v-loc-bin*/ "<P11><B>" "Job#:<P10>" AT 110  cJobNumber format "x(15)" "</B><P10>" "Overrun:" /*AT 131*/ lv-over-run format "x(7)"   
        SKIP
        v-cus[2] AT 2 v-make-hold AT 39 "Est#:" AT 90 v-est-no  "Underrun:" AT 110 lv-under-run FORMAT "x(7)"
        SKIP

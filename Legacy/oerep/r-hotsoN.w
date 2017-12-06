@@ -1706,14 +1706,9 @@ PROCEDURE build-tt :
    /* for managed warehouse shipto */
    RELEASE b1-in-house-cust.
    RELEASE b1-shipto.
-   FIND FIRST reftable WHERE reftable.reftable EQ "oe-ordl.whs-item"
-                         AND reftable.company  EQ oe-ordl.company
-                         AND reftable.loc      EQ STRING(oe-ordl.ord-no,"9999999999")
-                         AND reftable.code     EQ oe-ordl.i-no
-                         AND reftable.code2    EQ STRING(oe-ordl.line,"9999999999")
-        NO-LOCK NO-ERROR.
+   
 
-   IF AVAIL reftable AND reftable.val[1] EQ 1 THEN DO:
+   IF AVAIL oe-ordl AND oe-ordl.managed = true THEN DO:
       FIND FIRST b1-in-house-cust NO-LOCK
            WHERE b1-in-house-cust.company EQ oe-ordl.company
            AND b1-in-house-cust.active  EQ "X" NO-ERROR.

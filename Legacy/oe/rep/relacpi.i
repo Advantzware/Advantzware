@@ -719,11 +719,11 @@ if v-zone-p then v-zone-hdr = "Route No.:".
             LEAVE.
           end.
           
-         /* for each w-bin where w-par eq "" BY w-count-pro by w-qty[2] desc by w-qty[1] DESC:
+          for each w-bin where w-par eq "" BY w-count-pro by w-qty[2] desc by w-qty[1] DESC:
             w-par = /*if w-oe-rell.seq eq 0 AND*/ IF oe-ordl.part-dscr3 NE "" then oe-ordl.part-dscr3
                                           else itemfg.part-dscr3.
             leave.
-          end.*/
+          end.
           
           for each w-bin where w-par eq "" BY w-count-pro by w-qty[2] desc by w-qty[1] desc:
             w-par = w-oe-rell.i-no.

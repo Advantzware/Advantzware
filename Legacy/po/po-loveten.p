@@ -83,7 +83,10 @@ DEF VAR aa AS INT NO-UNDO.
 DEF VAR v-setup AS CHAR NO-UNDO.
 DEF VAR v-wid-frac AS CHAR NO-UNDO.
 DEF VAR v-len-frac AS CHAR NO-UNDO.
+DEF VAR v-dep-frac AS CHAR NO-UNDO.
 DEFINE VARIABLE cCurCode AS CHARACTER NO-UNDO .
+DEFINE VARIABLE cItemNo LIKE po-ordl.i-no NO-UNDO.
+DEFINE VARIABLE cVendItem LIKE po-ordl.vend-i-no NO-UNDO.
 
 {custom/formtext.i NEW}
 
@@ -122,6 +125,7 @@ END FUNCTION.
 DEF VAR vsTmp-v-sqft AS CHAR NO-UNDO.
 DEF VAR vsTmpLine AS CHAR FORMAT "X(11)" NO-UNDO.
 DEF VAR v-line-2 AS CHAR FORMAT "X(30)" NO-UNDO.
+DEF VAR v-line-1 AS CHAR FORMAT "X(30)" NO-UNDO.
 
 FORM "Overrun/Underrun:" AT 8 v-overrun FORM "x(13)"
      v-adder[3]             at 39   format "x(9)"

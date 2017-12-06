@@ -171,6 +171,10 @@ DO TRANSACTION:
     {sys/inc/cecomm.i}  
 END.
 
+DO TRANSACTION:
+    {sys/inc/overwriteJobPlan.i}  
+END.
+
 FIND FIRST ce-ctrl {sys/look/ce-ctrlW.i} NO-LOCK NO-ERROR.
 
 RUN oe/oe-sysct.p.
@@ -210,7 +214,6 @@ DO TRANSACTION:
         sys-ctrl.descrip = "Create Job Quantity with overrun % from customer if no order?"
         sys-ctrl.log-fld = NO.
 END.
-
 ll-jqcust = sys-ctrl.log-fld.
 
 FIND FIRST jc-ctrl WHERE jc-ctrl.company EQ cocode NO-LOCK NO-ERROR.
@@ -1518,6 +1521,7 @@ DO:
                 job-mch.n-on     = IF mach.p-type EQ "B" THEN 1 ELSE
                                      (v-up * v-out / v-on-f)
                 job-mch.est-op_rec_key = op.rec_key
+                lOverwriteJobPlan-Log  = cOverwriteJobPlan-Char NE "Yes"
                 .
       
             FIND FIRST tt-job-mch
@@ -1535,22 +1539,36 @@ DO:
                    AND tt-job-mch.pass     EQ job-mch.pass
                    AND tt-job-mch.dept     EQ job-mch.dept
                  NO-ERROR.
-            IF AVAILABLE tt-job-mch THEN
-            ASSIGN
-                job-mch.m-code        = tt-job-mch.m-code
-                job-mch.start-date    = tt-job-mch.start-date
-                job-mch.start-date-su = tt-job-mch.start-date-su
-                job-mch.start-time    = tt-job-mch.start-time
-                job-mch.start-time-su = tt-job-mch.start-time-su
-                job-mch.end-date      = tt-job-mch.end-date
-                job-mch.end-date-su   = tt-job-mch.end-date-su
-                job-mch.end-time      = tt-job-mch.end-time
-                job-mch.end-time-su   = tt-job-mch.end-time-su
-                job-mch.mr-complete   = tt-job-mch.mr-complete
-                job-mch.run-complete  = tt-job-mch.run-complete
-                job-mch.sbLiveUpdate  = tt-job-mch.sbLiveUpdate
-                job-mch.anchored      = tt-job-mch.anchored
-                .
+            IF AVAILABLE tt-job-mch THEN DO:
+                IF job-mch.m-code NE tt-job-mch.m-code THEN DO:
+                    IF cOverwriteJobPlan-Char EQ "Ask" THEN DO:
+                        MESSAGE
+                            "Job:" job-mch.job-no + "-" + STRING(job-mch.job-no2)
+                            "Form:" job-mch.frm SKIP(1)
+                            "Routing has changed from ~"" + job-mch.m-code +
+                            "~" to ~"" + tt-job-mch.m-code + "~"." SKIP(1)
+                            "Allow this Routing Change?"
+                        VIEW-AS ALERT-BOX QUESTION BUTTONS YES-NO
+                        UPDATE lOverwriteJobPlan-Log.
+                    END. /* if ask */
+                END. /* differing machince codes */ 
+                IF lOverwriteJobPlan-Log EQ YES THEN
+                ASSIGN
+                    job-mch.m-code        = tt-job-mch.m-code
+                    job-mch.start-date    = tt-job-mch.start-date
+                    job-mch.start-date-su = tt-job-mch.start-date-su
+                    job-mch.start-time    = tt-job-mch.start-time
+                    job-mch.start-time-su = tt-job-mch.start-time-su
+                    job-mch.end-date      = tt-job-mch.end-date
+                    job-mch.end-date-su   = tt-job-mch.end-date-su
+                    job-mch.end-time      = tt-job-mch.end-time
+                    job-mch.end-time-su   = tt-job-mch.end-time-su
+                    job-mch.mr-complete   = tt-job-mch.mr-complete
+                    job-mch.run-complete  = tt-job-mch.run-complete
+                    job-mch.sbLiveUpdate  = tt-job-mch.sbLiveUpdate
+                    job-mch.anchored      = tt-job-mch.anchored
+                    .
+            END. /* avail tt-job-mch */
         END. /* each op */
 
         EMPTY TEMP-TABLE tt-job-mch.

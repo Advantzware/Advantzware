@@ -765,6 +765,10 @@ def var v-gtot-ytd-sqft  like v-gtot-sqft NO-UNDO.
 def var v-gtot-ytd-amt   like v-gtot-amt NO-UNDO.
 def var v-gtot-ytd-msf   like v-gtot-msf NO-UNDO.
 
+def var v-grtot-amt   like v-gtot-amt NO-UNDO.
+def var v-grtot-ptd-amt   like v-gtot-amt NO-UNDO.
+def var v-grtot-ytd-amt   like v-gtot-amt NO-UNDO.
+
 def var v-procat like fgcat.procat NO-UNDO.
 def var v-sqft like itemfg.t-sqft NO-UNDO.
 def var v-amt  like ar-inv.gross NO-UNDO.
@@ -793,7 +797,12 @@ def var v-hdr2-1 as char extent 3 format "x(12)" init "------------" NO-UNDO.
 def var v-hdr2-2 as char extent 3 format "x(13)" init "-------------" NO-UNDO.
 def var v-hdr2-3 as char extent 3 format "x(13)" init "-------------" NO-UNDO.
 DEF VAR excelheader AS CHAR NO-UNDO.
-
+DEFINE VARIABLE dTax AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dFreight AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dTax-ptd AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dFreight-ptd AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dTax-ytd AS DECIMAL NO-UNDO .
+DEFINE VARIABLE dFreight-ytd AS DECIMAL NO-UNDO .
 form
   w-procat      format "x(10)"
   w-sqft
@@ -894,7 +903,7 @@ display "" with frame r-top.
           each ar-invl
           where ar-invl.x-no eq ar-inv.x-no
             and (ar-invl.billable or not ar-invl.misc)
-          no-lock:
+          NO-LOCK BREAK BY ar-inv.inv-no:
 
         create tt-report.
 
@@ -903,6 +912,21 @@ display "" with frame r-top.
          tt-report.rec-id  = recid(ar-invl)
          tt-report.key-01  = "MISC"
          tt-report.key-10  = "ar-invl".
+
+         IF FIRST-OF(ar-inv.inv-no) THEN do:
+             ASSIGN dTax-ytd     = dTax-ytd + ar-inv.tax-amt 
+                    dFreight-ytd = dFreight-ytd + ar-inv.freight .
+
+             if ar-inv.inv-date ge v-ptd-first and
+                 ar-inv.inv-date le v-ptd-last  then
+                 assign
+                    dTax-ptd    = dTax-ptd + ar-inv.tax-amt 
+                   dFreight-ptd = dFreight-ptd + ar-inv.freight.
+
+             if tdate eq ar-inv.inv-date then
+                ASSIGN dTax     = dTax + ar-inv.tax-amt 
+                        dFreight = dFreight + ar-inv.freight .
+         END.
 
         if not ar-invl.misc then do:
 
@@ -1120,6 +1144,7 @@ display "" with frame r-top.
         put skip.
       end.
 
+ 
       assign
        v-gtot-sqft     = v-gtot-sqft     + v-mtot-sqft
        v-gtot-amt      = v-gtot-amt      + v-mtot-amt
@@ -1179,7 +1204,9 @@ display "" with frame r-top.
       v-gtot-ytd-amt / v-gtot-ytd-sqft
       else 0).
 
-    display "  TOTAL"                   @ w-procat
+
+
+    DISPLAY "  TOTAL"                   @ w-procat
             v-gtot-sqft                 @ w-sqft
             v-gtot-amt                  @ w-amt
             v-gtot-msf                  @ w-msf
@@ -1190,7 +1217,7 @@ display "" with frame r-top.
             v-gtot-ytd-amt  when v-ytd  @ w-ytd-amt
             v-gtot-ytd-msf  when v-ytd  @ w-ytd-msf
         with frame itemx.
-
+    PUT space(11)"------------ ------------- ------------- ------------ ------------- ------------- ------------ ------------- -------------" SKIP.
     IF tb_excel THEN
        PUT STREAM excel UNFORMATTED
            SKIP(1)
@@ -1206,7 +1233,65 @@ display "" with frame r-top.
            '"' IF v-ytd THEN STRING(v-gtot-ytd-amt,"->,>>>,>>9.99")
                ELSE "" '",'
            '"' IF v-ytd THEN STRING(v-gtot-ytd-msf,"->,>>>,>>9.99")
-               ELSE "" '",'.
+               ELSE "" '",' .
+    ASSIGN
+       v-grtot-amt     = v-grtot-amt + v-gtot-amt + dTax + dFreight
+       v-grtot-ptd-amt = v-grtot-ptd-amt + v-gtot-ptd-amt + dTax-ptd + dFreight-ptd
+       v-grtot-ytd-amt = v-grtot-ytd-amt + v-gtot-ytd-amt + dTax-ytd + dFreight-ytd.
+       
+     PUT SKIP.
+     PUT "    Tax   " SPACE(14) dTax FORMAT "->,>>>,>>9.99" 
+          SPACE(28)  dTax-ptd FORMAT "->,>>>,>>9.99" .
+      IF v-ytd THEN PUT
+          SPACE(28)  dTax-ytd FORMAT "->,>>>,>>9.99"  .
+      PUT SKIP .
+      PUT "Freight   " SPACE(14) dFreight FORMAT "->,>>>,>>9.99"
+          SPACE(28)  dFreight-ptd FORMAT "->,>>>,>>9.99" .
+      IF v-ytd THEN PUT
+          SPACE(28)  dFreight-ytd FORMAT "->,>>>,>>9.99" SKIP .
+      PUT space(11)"------------ ------------- ------------- ------------ ------------- ------------- ------------ ------------- -------------" SKIP.
+
+      IF tb_excel THEN
+           PUT  STREAM excel UNFORMATTED 
+               SKIP(1)
+               '"' "  Tax"                                 '",'
+               '"'                                         '",'
+               '"' STRING(dTax,"->>>,>>9.999")                    '",' 
+               '"'                                         '",'
+               '"'                                         '",'
+               '"' STRING(dTax-ptd,"->>>,>>9.999")                    '",' 
+               '"'                                         '",'
+               '"'                                         '",'
+               '"' IF v-ytd THEN STRING(dTax-ytd,"->>>,>>9.999")   ELSE ""          '",' SKIP
+
+               '"' "  Freight"                                 '",'
+               '"'                                         '",'
+               '"' STRING(dFreight,"->>>,>>9.999")                    '",' 
+               '"'                                         '",'
+               '"'                                         '",'
+               '"' STRING(dFreight-ptd,"->>>,>>9.999")                    '",'
+               '"'                                         '",'
+               '"'                                         '",'
+               '"' IF v-ytd THEN STRING(dFreight-ytd,"->>>,>>9.999") ELSE ""        '",' SKIP .
+
+      PUT "    GRAND TOTAL " SPACE(8) v-grtot-amt FORMAT "->,>>>,>>9.99" 
+          SPACE(28)  v-grtot-ptd-amt FORMAT "->,>>>,>>9.99" .
+      IF v-ytd THEN PUT
+          SPACE(28)  v-grtot-ytd-amt FORMAT "->,>>>,>>9.99"  .
+      PUT SKIP .
+
+      IF tb_excel THEN
+           PUT STREAM excel UNFORMATTED
+               '"' "  GRAND TOTAL"                                 '",'
+               '"'                                         '",'
+               '"' STRING(v-grtot-amt,"->>>,>>9.999")                    '",' 
+               '"'                                         '",'
+               '"'                                         '",'
+               '"' STRING(v-grtot-ptd-amt,"->>>,>>9.999")                    '",' 
+               '"'                                         '",'
+               '"'                                         '",'
+               '"' IF v-ytd THEN STRING(v-grtot-ytd-amt,"->,>>>,>>9.999")   ELSE ""          '",' SKIP.
+
 
 IF tb_excel THEN DO:
   OUTPUT STREAM excel CLOSE.

@@ -919,7 +919,11 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
 
   {methods/nowait.i}
 
-APPLY "entry" TO begin_due-date IN FRAME {&FRAME-NAME}.
+  DO WITH FRAME {&FRAME-NAME}:
+    {custom/usrprint.i}
+    APPLY "entry" TO begin_due-date.
+  END.
+
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
 END.
@@ -1223,6 +1227,7 @@ IF tb_excel THEN DO:
 END.
 
 SESSION:SET-WAIT-STATE ("").
+RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
 
 /* end ---------------------------------- copr. 2001 Advanced Software, Inc. */
 

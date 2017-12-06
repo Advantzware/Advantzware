@@ -43,7 +43,7 @@ DO WITH FRAME {&FRAME-NAME}:
       Btn_Button-9:LABEL = ENTRY(k,itemlist,'@').
       WHEN 10 THEN
       Btn_Button-10:LABEL = ENTRY(k,itemlist,'@').
-&IF '{&BUTTON-INCLUDE}' = 'JOBS' &THEN
+&IF '{&BUTTON-INCLUDE}' EQ 'JOBS' &THEN
       WHEN 11 THEN
       Btn_Button-11:LABEL = ENTRY(k,itemlist,'@').
       WHEN 12 THEN
@@ -110,7 +110,7 @@ DO WITH FRAME {&FRAME-NAME}:
       Btn_Button-9:HIDDEN = TRUE.
       WHEN 10 THEN
       Btn_Button-10:HIDDEN = TRUE.
-&IF '{&BUTTON-INCLUDE}' = 'JOBS' &THEN
+&IF '{&BUTTON-INCLUDE}' EQ 'JOBS' &THEN
       WHEN 11 THEN
       Btn_Button-11:HIDDEN = TRUE.
       WHEN 12 THEN

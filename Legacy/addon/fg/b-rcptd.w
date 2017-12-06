@@ -157,7 +157,7 @@ RUN sys/ref/nk1look.p (INPUT cocode,
 &Scoped-define BROWSE-NAME Browser-Table
 
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&Scoped-define INTERNAL-TABLES fg-rctd reftable
+&Scoped-define INTERNAL-TABLES fg-rctd
 
 /* Define KEY-PHRASE in case it is used by any query. */
 &Scoped-define KEY-PHRASE TRUE
@@ -168,7 +168,7 @@ fg-rctd.loc-bin fg-rctd.cases fg-rctd.qty-case fg-rctd.cases-unit ~
 fg-rctd.partial fg-rctd.t-qty fg-rctd.stack-code fg-rctd.job-no ~
 fg-rctd.job-no2 fg-rctd.po-no fg-rctd.i-no fg-rctd.i-name fg-rctd.std-cost ~
 fg-rctd.cost-uom fg-rctd.frt-cost fg-rctd.ext-cost fg-rctd.r-no ~
-reftable.code reftable.code2 fg-rctd.rct-date 
+fg-rctd.rct-date 
 &Scoped-define ENABLED-FIELDS-IN-QUERY-Browser-Table fg-rctd.tag ~
 fg-rctd.loc fg-rctd.loc-bin fg-rctd.cases fg-rctd.qty-case ~
 fg-rctd.cases-unit fg-rctd.partial fg-rctd.stack-code fg-rctd.rct-date 
@@ -180,10 +180,7 @@ fg-rctd.r-no ge lv-frst-rno and ~
 LOOKUP(fg-rctd.rita-code,"R,E") > 0 ~
 and ((lv-do-what = "delete" and fg-rctd.t-qty < 0) or  ~
      (lv-do-what <> "delete" and fg-rctd.t-qty >= 0)) ~
-use-index fg-rctd NO-LOCK, ~
-      FIRST reftable WHERE reftable.reftable EQ "fg-rctd.user-id" AND ~
-reftable.company  EQ fg-rctd.company AND ~
-reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999") AND ( NOT reftable.dscr begins "fg-rctd: ") NO-LOCK ~
+use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}
 &Scoped-define OPEN-QUERY-Browser-Table OPEN QUERY Browser-Table FOR EACH fg-rctd WHERE ~{&KEY-PHRASE} ~
       AND fg-rctd.company eq cocode and ~
@@ -191,14 +188,10 @@ fg-rctd.r-no ge lv-frst-rno and ~
 LOOKUP(fg-rctd.rita-code,"R,E") > 0 ~
 and ((lv-do-what = "delete" and fg-rctd.t-qty < 0) or  ~
      (lv-do-what <> "delete" and fg-rctd.t-qty >= 0)) ~
-use-index fg-rctd NO-LOCK, ~
-      FIRST reftable WHERE reftable.reftable EQ "fg-rctd.user-id" AND ~
-reftable.company  EQ fg-rctd.company AND ~
-reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999") AND ( NOT reftable.dscr begins "fg-rctd: ") NO-LOCK ~
+use-index fg-rctd NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&Scoped-define TABLES-IN-QUERY-Browser-Table fg-rctd reftable
+&Scoped-define TABLES-IN-QUERY-Browser-Table fg-rctd
 &Scoped-define FIRST-TABLE-IN-QUERY-Browser-Table fg-rctd
-&Scoped-define SECOND-TABLE-IN-QUERY-Browser-Table reftable
 
 
 /* Definitions for FRAME F-Main                                         */
@@ -243,8 +236,7 @@ DEFINE RECTANGLE RECT-4
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
 DEFINE QUERY Browser-Table FOR 
-      fg-rctd, 
-      reftable SCROLLING.
+      fg-rctd SCROLLING.
 &ANALYZE-RESUME
 
 /* Browse definitions                                                   */
@@ -253,7 +245,7 @@ DEFINE BROWSE Browser-Table
   QUERY Browser-Table NO-LOCK DISPLAY
       fg-rctd.tag COLUMN-LABEL "Tag#" FORMAT "x(20)":U WIDTH 29
       fg-rctd.loc COLUMN-LABEL "Whs" FORMAT "x(13)":U WIDTH 8
-      fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U 
+      fg-rctd.loc-bin COLUMN-LABEL "Bin" FORMAT "x(8)":U
       fg-rctd.cases COLUMN-LABEL "Units" FORMAT "->>>,>>9":U WIDTH 9
       fg-rctd.qty-case COLUMN-LABEL "Unit!Count" FORMAT "->>>,>>9":U
             WIDTH 9
@@ -275,10 +267,6 @@ DEFINE BROWSE Browser-Table
       fg-rctd.frt-cost COLUMN-LABEL "Freight Cost" FORMAT ">>>,>>9.99<<":U
       fg-rctd.ext-cost COLUMN-LABEL "Extended Cost" FORMAT "->>>,>>9.99<<":U
       fg-rctd.r-no COLUMN-LABEL "Seq#" FORMAT ">>>>>>>>":U WIDTH 12
-      reftable.code COLUMN-LABEL "User!Created" FORMAT "x(8)":U
-            WIDTH 15
-      reftable.code2 COLUMN-LABEL "User!Updated" FORMAT "x(8)":U
-            WIDTH 15
       fg-rctd.rct-date COLUMN-LABEL "Receipt!Date" FORMAT "99/99/9999":U
   ENABLE
       fg-rctd.tag
@@ -368,7 +356,7 @@ END.
   NOT-VISIBLE,,RUN-PERSISTENT                                           */
 /* SETTINGS FOR FRAME F-Main
    NOT-VISIBLE FRAME-NAME Size-to-Fit                                   */
-/* BROWSE-TAB Browser-Table 1 F-Main */
+/* BROWSE-TAB Browser-Table TEXT-1 F-Main */
 ASSIGN 
        FRAME F-Main:SCROLLABLE       = FALSE
        FRAME F-Main:HIDDEN           = TRUE.
@@ -381,7 +369,7 @@ ASSIGN
 
 &ANALYZE-SUSPEND _QUERY-BLOCK BROWSE Browser-Table
 /* Query rebuild information for BROWSE Browser-Table
-     _TblList          = "ASI.fg-rctd,ASI.reftable WHERE ASI.fg-rctd ..."
+     _TblList          = "ASI.fg-rctd"
      _Options          = "NO-LOCK KEY-PHRASE SORTBY-PHRASE"
      _TblOptList       = ", FIRST"
      _Where[1]         = "fg-rctd.company eq cocode and
@@ -390,9 +378,6 @@ LOOKUP(fg-rctd.rita-code,""R,E"") > 0
 and ((lv-do-what = ""delete"" and fg-rctd.t-qty < 0) or 
      (lv-do-what <> ""delete"" and fg-rctd.t-qty >= 0))
 use-index fg-rctd"
-     _JoinCode[2]      = "reftable.reftable EQ ""fg-rctd.user-id"" AND
-reftable.company  EQ fg-rctd.company AND
-reftable.loc      EQ STRING(fg-rctd.r-no,""9999999999"") AND ( NOT reftable.dscr begins ""fg-rctd: "")"
      _FldNameList[1]   > ASI.fg-rctd.tag
 "fg-rctd.tag" "Tag#" "x(20)" "character" ? ? ? ? ? ? yes ? no no "29" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[2]   > ASI.fg-rctd.loc
@@ -430,11 +415,7 @@ reftable.loc      EQ STRING(fg-rctd.r-no,""9999999999"") AND ( NOT reftable.dscr
 "fg-rctd.ext-cost" "Extended Cost" ? "decimal" ? ? ? ? ? ? no ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[19]   > ASI.fg-rctd.r-no
 "fg-rctd.r-no" "Seq#" ">>>>>>>>" "integer" ? ? ? ? ? ? no ? no no "12" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[20]   > ASI.reftable.code
-"reftable.code" "User!Created" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[21]   > ASI.reftable.code2
-"reftable.code2" "User!Updated" ? "character" ? ? ? ? ? ? no ? no no "15" yes no no "U" "" "" "" "" "" "" 0 no 0 no no
-     _FldNameList[22]   > ASI.fg-rctd.rct-date
+     _FldNameList[20]   > ASI.fg-rctd.rct-date
 "fg-rctd.rct-date" "Receipt!Date" ? "date" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE Browser-Table */
@@ -2114,30 +2095,16 @@ PROCEDURE local-assign-record :
   END.
   RUN fg/comprcpt.p (ROWID(fg-rctd)).
 
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "fg-rctd.user-id"
-        AND reftable.company  EQ fg-rctd.company
-        AND reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999")
-      NO-ERROR.
 
-  IF NOT AVAIL reftable THEN DO:
-    CREATE reftable.
+    IF fg-rctd.created-by = "" THEN DO:
+         ASSIGN fg-rctd.created-by = USERID("nosweat").
+    END.
     ASSIGN
-     reftable.reftable = "fg-rctd.user-id"
-     reftable.company  = fg-rctd.company
-     reftable.loc      = STRING(fg-rctd.r-no,"9999999999")
-     reftable.code     = USERID("nosweat").
-  END.
-  ASSIGN
-   reftable.code2   = USERID("nosweat")
-   fg-rctd.upd-date = TODAY
-   fg-rctd.upd-time = TIME.
+        fg-rctd.updated-by = USERID("nosweat")
+        fg-rctd.upd-date = TODAY
+        fg-rctd.upd-time = TIME.
 
-  FIND FIRST fg-rcpts NO-LOCK
-      WHERE fg-rcpts.r-no   EQ fg-rctd.r-no
-        AND fg-rcpts.linker BEGINS "fg-rctd: "
-      NO-ERROR.
-  IF AVAIL fg-rcpts THEN reftable.dscr = fg-rcpts.linker.
+
 
 END PROCEDURE.
 
@@ -3090,7 +3057,6 @@ PROCEDURE send-records :
 
   /* For each requested table, put it's ROWID in the output list.      */
   {src/adm/template/snd-list.i "fg-rctd"}
-  {src/adm/template/snd-list.i "reftable"}
 
   /* Deal with any unexpected table requests before closing.           */
   {src/adm/template/snd-end.i}

@@ -308,6 +308,19 @@ END.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+&Scoped-define SELF-NAME rm-rctd.tag
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL rm-rctd.tag Browser-Table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF rm-rctd.tag IN BROWSE Browser-Table /* Tag# */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+     RUN valid-tag-no NO-ERROR.
+    IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &UNDEFINE SELF-NAME
 
@@ -403,6 +416,55 @@ PROCEDURE state-changed :
          or add new cases. */
       {src/adm/template/bstates.i}
   END CASE.
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE valid-tag-no B-table-Win 
+PROCEDURE valid-tag-no :
+/*------------------------------------------------------------------------------
+  Purpose:     
+  Parameters:  <none>
+  Notes:       
+------------------------------------------------------------------------------*/
+  DEF VAR lv-tag LIKE rm-rctd.tag NO-UNDO.
+  DEF BUFFER b-rm-rdtlh FOR rm-rdtlh.
+  DEFINE BUFFER bf-rm-rctd FOR rm-rctd .
+
+  DO WITH FRAME {&FRAME-NAME}:
+      lv-tag = rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name}.
+      
+   IF rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} NE "" THEN do:
+
+       FIND FIRST  b-rm-rdtlh NO-LOCK
+           WHERE b-rm-rdtlh.company EQ cocode
+           AND b-rm-rdtlh.tag     EQ lv-tag 
+           NO-ERROR .
+
+       IF AVAIL b-rm-rdtlh THEN DO:
+           MESSAGE "This Tag Number has already been used. Please Enter a Unique Tag Number " VIEW-AS ALERT-BOX INFO.
+           rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = rm-rctd.tag.
+           APPLY "entry" TO rm-rctd.tag IN BROWSE {&browse-name}.
+           RETURN ERROR.
+       END.
+
+       FIND FIRST  bf-rm-rctd NO-LOCK
+           WHERE  bf-rm-rctd.tag     EQ lv-tag 
+           AND ROWID(bf-rm-rctd) NE ROWID(rm-rctd)
+           NO-ERROR .
+
+       IF AVAIL bf-rm-rctd THEN DO:
+           MESSAGE "This Tag Number has already been used. Please Enter a Unique Tag Number " VIEW-AS ALERT-BOX INFO.
+           rm-rctd.tag:SCREEN-VALUE IN BROWSE {&browse-name} = rm-rctd.tag.
+           APPLY "entry" TO rm-rctd.tag IN BROWSE {&browse-name}.
+           RETURN ERROR.
+       END.
+
+       
+    END.
+  END.
+
 END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */

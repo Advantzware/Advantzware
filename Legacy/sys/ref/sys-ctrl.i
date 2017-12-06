@@ -14,11 +14,10 @@ name-fld-list =
 /* 46     47        48      49      50       51       52        53       54        55      56      57       58      59      60     61       62       63       64      65     66      67     68      69      70      71      72       73        74       75      76       77       78       79      80      81       82      83     84      85     86      87      88  */
 /*  89       90       91     92      93      94       95    96   97     98      99       100       101      102     103    104      105       106    107   108       109       110       111      112       113       114      115       116       117    118      119      120       121     122        123        124         125     126     127     128        129  */
 "stmtprint,TSFinish,appaper,cecunit,fgpost,corsuply,fgitemsf,GP,oeprep,celayout,1099misc,RFQPrint,oecredit,maxbreak,aptax,rmemails,sspostfg,bolfmtx,schdcard,TSTIME,FGReOrder,ARMEMO,APCheckFile,OEPrompt,SSBOLSCAN,INVCOPYS,CORRCHOICE,BORELDATE,OEINQ,ECBROWSE,VENDXFER,CUSTXFER,ORDERXFER,MISCJOBCL,RMUnderOver,CEPREPPRICE,RELTYPE,SSMoveFG,CEMISC,BolPostTime,CEDeliveryZone," +
-/* 130         131      132     133           134        135      136      137      138      139    140      141           142       143           144      145         146      147        148        149       150          151        152    153               154*/
-"BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster,CEMarkupMatrixLookup".
-                                  /* 126*/
+/* 130         131      132     133           134        135      136      137      138      139    140      141           142       143           144      145         146      147        148        149       150          151        152    153               154               155       */
+"BOLFreight,CESAMPLE,SSRMISSUE,CorrTrim,CustShipToImp,OEScreen,fgoecost,runship,InvStatus,AGEDAYS,FGPostCmp,AckMaster,ChkFmtACH,OeDateChange,SSBOLEMAIL,FGRecptUnit,FGBrowseIA,AlliFlutes,SSBOLPRINT,POScreen,SSScanVendor,BOLFMTTran,POStatus,BOLMaster,CEMarkupMatrixLookup,overwriteJobPlan".
 
-DEF VAR str-init  AS CHAR EXTENT 155 NO-UNDO.
+DEFINE VARIABLE str-init AS CHARACTER EXTENT 155 NO-UNDO.
     
 ASSIGN
  str-init[1]  = "ABox,10 Pitch,ContSrvc,CSC-EXCEL,TRILAKE-EXCEL,HOP," +
@@ -42,7 +41,7 @@ ASSIGN
                 "ColonialLot#,LoylangJIT,Carded,CCCFGLot,CSC-GA,CCCFGL3,Adapt,Soule,SouleMed,CapCityIN," +
                 "Peachtreefgl3,Peachtree,DEE,CSC-GASummary,TrilakesBroker,Accord,NStock,LoylangBSF,PremierS,Printers," +
                 "Protagon,Protagon2,SoulePO,RFCX,Central,Bell,PrestigeLLB,Axis,Boss,CSCINStamp,PrystupExcel,Coburn," +
-                "invprint 1,invprint 2,invprint 10,invprint 20,Lovepac,invprint10-CAN"
+                "invprint 1,invprint 2,invprint 10,invprint 20,Lovepac,invprint10-CAN,Shamrock"
  str-init[3]  = "ASI,Clevelnd,McLean,Suthrlnd,HOP,Brick,Peachtre"
  str-init[4]  = "Foldware,Corrware"
  str-init[5]  = "D Pallet,Z Trailr"
@@ -58,7 +57,7 @@ ASSIGN
                 "Premier,Pacific,Xprint,CentBox,HOPX,Xprint2,Frankstn,APC,FibreX,Indiana,PPI," +
                 "HPB,Keystone,Hughes,Allwest,Rosmar,Loylang,Carded,PremierX,CSC-GA,CardedX," +
                 "Protagon,Peachtree,ACPI,Soule,NStock,Multicell,Prystup,Metro,StClair," +
-                "Frank,Axis,Distributor,Accord,Lakeside,relprint 1,relprint 2,relprint 10"
+                "Frank,Axis,Distributor,Accord,Lakeside,relprint 1,relprint 2,relprint 10,Midwest"
  str-init[10] = "ASI,1/2 Page,Royal,ContSrvc,Superior,Premier,Warren,PAC 1/2," +
                 "Imperial,P&P,Triad,TriState,BlueRidg,BlueRidg2,Sonoco,HOP,CCC," +
                 "Boxtech,Empire,Brick,AllPkg,Fibre,Maxpak,Oracle,Harwell,Century," +
@@ -84,7 +83,7 @@ ASSIGN
                 "Century,Oracle,PremierX,Frankstn,Mirpkg,Unipak,OTTPkg,Shelby," +
                 "RUDDX,APC,Imperial,Indiana,Fibrex,PPI,HPB,Albert,ContSvc,Triad,Packrite,Dee," +
                 "Allwest,Simkins,HOPX,PremierCX,Accord,Soule,ACPI,Hughes,Carded,SouleUOM,Badger,Axis," +
-                "3CPack,3CPackSD,Perform,ackhead 1,ackhead 2,ackhead 10,ackhead 20,ackhead10-CAN"
+                "3CPack,3CPackSD,Perform,ackhead 1,ackhead 2,ackhead 10,ackhead 20,ackhead10-CAN,Shamrock-Ack"
  str-init[14] = "10 Pitch,17 Pitch,Boxtech,Phoenix,TriState,Triad,RFC,HOP," +
                 "Brick,Hartford"
  str-init[15] = "Inches,MM,Both"
@@ -111,7 +110,7 @@ ASSIGN
                 "Oklahoma,Protagon,TriState,Soule,Adapt,Freedman,BELL,VINELAND,Axis,Lakeside,PFS," +
                 "jobcardc 1,jobcardc 2,Printers,Valley" 
  str-init[33] = "ASI,HOP,Fibre,Century,Interpac,FibreFC,HPB,Dayton,Livngstn,CentBox,Metro,Keystone,Frankstn,Colonial,Unipak,OTTPkg,Shelby,CCC,Indiana-XL,PPI,Accord,Knight,MidYork,Dee,Badger,Rosmar,Carded,Carded2,PackRite,Prystup,Knight***,Coburn," + /*MWFibre=Keystone*/
-                "jobcardf 1,jobcardf 2,xml"
+                "jobcardf 1,jobcardf 2,xml,Wingate"
  str-init[34] = "Manual,Matrix"
  str-init[35] = "ShipTo,Header"
  str-init[36] = "ShipTo,FGFile"
@@ -128,7 +127,8 @@ ASSIGN
  str-init[47] = "JobClose,FGPost" 
  str-init[48] = "EA,M" 
  str-init[49] = "Gross,Net" 
- str-init[50] = "ASI,Hughes"  .
+ str-init[50] = "ASI,Hughes"
+ .
 ASSIGN
  str-init[51] = "None,CorrTrim,Alliance,HRMS,CorSuply,Corr-U-KraftII,GP," +
                 "Vendor,Kiwi,Smurfit,CorrChoice,Pratt,AlliFlutes,iPaper,KiwiT"  
@@ -168,8 +168,7 @@ ASSIGN
  str-init[86] = ",16th's,32nd's,Decimal" /* cecscrn */
  str-init[87] = "RunOnly,MR+Run" /* ceprice */
  str-init[88] = ",AllOrders,SameOrderOnly,SamePo#Only,AllOrders&ShipFromWhse,SamePO#&ShipFromWhse,SameOrder&SameShipFrom,SameOrder&SameShipFrom&SamePO,AllOrders&NotRunShip"  /* relmerge */       
-                
- str-init[89] = ",ASI,ASIXprnt,Premier,ASIExcel,Loylang,Printers,Protagon,Badger,Soule,RFC,SouleMed,stmtprint 1,stmtprint 2"  /*stmtprin*/
+ str-init[89] = ",ASI,ASIXprnt,Premier,ASIExcel,Loylang,Printers,Protagon,Badger,Soule,RFC,SouleMed,stmtprint 1,stmtprint 2,StdStatement10"  /*stmtprin*/
  str-init[90] = "All Machines,Last Machine,NO"  /*TSFinish*/
  str-init[91] = "MSF,PO UOM"  /*appaper*/
  str-init[92] = "FluteMtx,AUTOCALC"  /*appaper*/
@@ -190,7 +189,7 @@ ASSIGN
  str-init[107] = ",Indiana,Dee"
  str-init[108] = "Workstation,Server"  
  str-init[109] = "Reorder Point"   
- str-init[110] = ",HOP,Xprint,AllWest,PremierPkg,SouleMed,Soule"  
+ str-init[110] = ",HOP,Xprint,AllWest,PremierPkg,SouleMed,Soule,StdCreditMemo10"  
  str-init[111] = ",Positive Pay,Positive Pay-knight"
  str-init[112] = ",DuplicateFGDayClient" 
  str-init[113] = ",Trailer" 
@@ -205,7 +204,8 @@ ASSIGN
  str-init[122] = "ASIJobCL,MidYorkJobCL,CentBoxJobCL,ASIJobCR,ACPIJobCor"
  str-init[123] = "UnderRuns and OverRun,OverRuns Only"
  str-init[124] = "Profit,Cost Markup"
- str-init[128] = "BolCreation,Fixed Time".
+ str-init[128] = "BolCreation,Fixed Time"
+ .
 
 ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[126] = "FG Lot#,Whs/Bin"
@@ -236,8 +236,8 @@ ASSIGN str-init[125] = "Ship Only,Invoice Only,Bill and Ship,Transfer Only"
        str-init[152] = ",Open,Hold"
        str-init[153] = "Trailer#,ShipTo,Indiana"
        str-init[154] = "Square Feet,Board Cost,Factory Cost,Full Cost"
+       str-init[155] = "Yes,No,Ask"
        .
-
 	
 IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:
      ASSIGN
@@ -247,15 +247,16 @@ IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:
        str-init[9]  = "relprint 1,relprint 2,relprint 10"
        str-init[10] = "bolfmt 1,bolfmt 2,bolfmt 10,bolfmt 20,bolfmt10-CAN"
        str-init[11] = "chkfmt 1,chkfmt 2,APChkFmt1"
-       str-init[13] = "ackhead 1,ackhead 2,ackhead 10,ackhead 20,ackhead10-CAN"
+       str-init[13] = "ackhead 1,ackhead 2,ackhead 10,ackhead 20,ackhead10-CAN,Shamrock-Ack"
        str-init[29] = "bolcert 1,bolcert 2"
        str-init[30] = "cerunc 1,cerunc 2,cerunc 3"
        str-init[31] = "cerunf 1,cerunf 2"
        str-init[32] = "jobcardc 1,jobcardc 2"
        str-init[33] = "jobcardf 1,jobcardf 2"
-       str-init[89] = "stmtprint 1,stmtprint 2"  /*stmtprin*/
+       str-init[89] = "stmtprint 1,stmtprint 2,StdStatement10"  /*stmtprin*/
        str-init[141] = "AckMaster 1,AckMaster 2" /*"3CPack"*/
-       str-init[151] = "bolfmt1" .
+       str-init[151] = "bolfmt1"
+       .
 
 end.
 

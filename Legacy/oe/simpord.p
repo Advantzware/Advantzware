@@ -90,7 +90,15 @@ DEF TEMP-TABLE ttDetail
       FIELD NoteTITLE AS CHAR
       FIELD notes AS CHAR
       FIELD ShipTo AS CHAR
-      FIELD ItemQuote# AS INT.
+      FIELD ItemQuote# AS INT
+      FIELD ShipFrom AS CHARACTER
+      FIELD ShipToName AS CHARACTER 
+      FIELD ShipToStreet AS CHARACTER 
+      FIELD ShipToCity AS CHARACTER 
+      FIELD ShipToState AS CHARACTER
+      FIELD ShipToZip AS CHARACTER
+      FIELD ShipToPhone AS CHARACTER
+      FIELD ShipToContact AS CHARACTER .
 
 DO TRANSACTION:
     {sys/inc/oereleas.i}
@@ -522,12 +530,28 @@ PROCEDURE BuildImpTable :
 
           IF NUM-ENTRIES(cInput) >= 9 AND ENTRY(9,cInput) <> "" THEN
                            ttDetail.ItemEst# = ENTRY(9,cInput).
-              IF NUM-ENTRIES(cInput) >= 10 THEN
+            IF NUM-ENTRIES(cInput) >= 10 THEN
                        ttDetail.Notes = ENTRY(10,cInput).
-              IF NUM-ENTRIES(cInput) >= 11 THEN
+            IF NUM-ENTRIES(cInput) >= 11 THEN
                        ttDetail.ShipTo = ENTRY(11,cInput).
-              IF NUM-ENTRIES(cInput) > 12  THEN
+            IF NUM-ENTRIES(cInput) > 12  THEN
                            ttDetail.ItemQuote# = int(ENTRY(12,cInput)).
+            IF NUM-ENTRIES(cInput) >= 13 THEN
+                         ttDetail.ShipFrom = ENTRY(13,cInput).                           
+            IF NUM-ENTRIES(cInput) >= 14 THEN
+                         ttDetail.ShipToName = ENTRY(14,cInput).
+            IF NUM-ENTRIES(cInput) >= 15 THEN
+                         ttDetail.ShipToStreet = ENTRY(15,cInput).
+            IF NUM-ENTRIES(cInput) >= 16 THEN
+                         ttDetail.ShipToCity = ENTRY(16,cInput).
+            IF NUM-ENTRIES(cInput) >= 17 THEN
+                         ttDetail.ShipToState = ENTRY(17,cInput).
+             IF NUM-ENTRIES(cInput) >= 18 THEN
+                         ttDetail.ShipToZip = ENTRY(18,cInput).
+            IF NUM-ENTRIES(cInput) >= 19 THEN
+                         ttDetail.ShipToPhone = ENTRY(19,cInput).
+            IF NUM-ENTRIES(cInput) >= 20 THEN
+                         ttDetail.ShipToContact = ENTRY(20,cInput).
     
           END.
      END.
@@ -842,7 +866,17 @@ PROCEDURE CreateOrder :
 
                    {oe/ordltot3.i oe-ordl qty oe-ordl  }
                    {oe/defwhsed.i oe-ordl}
-                
+                  RUN pAutoCreateShipTo (INPUT cocode, 
+                        INPUT oe-ord.cust-no, 
+                        INPUT ttDetail.ShipTo, 
+                        INPUT ttDetail.ShipToName,
+                        INPUT ttDetail.ShipToStreet,
+                        INPUT ttDetail.ShipToCity,
+                        INPUT ttDetail.ShipToState,
+                        INPUT ttDetail.ShipToZip,
+                        INPUT ttDetail.ShipToPhone,
+                        INPUT ttDetail.ShipToContact,
+                        OUTPUT ttDetail.ShipTo ).
                   RUN CreateRelease.
                   IF ttDetail.Notes <> "" THEN RUN CreateSpecNote (RECID(itemfg)).
                   IF ttDetail.ItemEst# <> "" AND
@@ -1363,6 +1397,131 @@ END PROCEDURE.
 
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pAutoCreateShipTo C-Win
+PROCEDURE pAutoCreateShipTo:
+    /*------------------------------------------------------------------------------
+     Purpose: AutoAdds a ShipTo for a given customer and address
+     Notes:
+    ------------------------------------------------------------------------------*/
+    DEFINE INPUT PARAMETER ipcCompany AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcCustNo AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipToId AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipName AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipAddress AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipCity AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipState AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcShipZip AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcPhone AS CHARACTER NO-UNDO.
+    DEFINE INPUT PARAMETER ipcContact AS CHARACTER NO-UNDO.
+    DEFINE OUTPUT PARAMETER opcShipToID AS CHARACTER NO-UNDO.
+    
+    DEFINE VARIABLE iShipNo AS INTEGER NO-UNDO .
+    DEFINE VARIABLE cArea AS CHARACTER NO-UNDO.
+    DEFINE BUFFER bf-default-shipto FOR shipto.
+    DEFINE BUFFER bf-state-shipto FOR shipto.
+    DEFINE BUFFER bf-shipto FOR shipto.
+    
+    opcShipToID = ipcShipToID.
+    RUN pParsePhone (INPUT ipcPhone, OUTPUT cArea, OUTPUT ipcPhone).
+    FIND FIRST bf-default-shipto NO-LOCK 
+        WHERE bf-default-shipto.company EQ ipcCompany
+        AND bf-default-shipto.cust-no EQ ipcCustNo
+        AND bf-default-shipto.ship-id EQ ipcCustNo
+        NO-ERROR.
+    
+    FIND FIRST shipto NO-LOCK
+        WHERE shipto.company EQ ipcCompany
+        AND shipto.cust-no EQ ipcCustNo
+        AND shipto.ship-id EQ ipcShipToID
+        NO-ERROR.
+    IF NOT AVAILABLE shipto THEN 
+        FIND FIRST shipto NO-LOCK 
+            WHERE shipto.company EQ ipcCompany
+            AND shipto.cust-no EQ ipcCustNo
+            AND shipto.ship-addr[1] EQ ipcShipAddress
+            AND shipto.ship-city EQ ipcShipCity
+            AND shipto.ship-state EQ ipcShipState
+        NO-ERROR.
+    IF NOT AVAILABLE shipto THEN      
+    DO:
+        FIND LAST bf-shipto NO-LOCK USE-INDEX ship-no
+            WHERE bf-shipto.company EQ ipcCompany
+            AND bf-shipto.cust-no EQ ipcCustNo NO-ERROR.
+        iShipNo =  IF AVAILABLE bf-shipto THEN bf-shipto.ship-no + 1 ELSE 1.
+        CREATE shipto.
+        ASSIGN
+            shipto.company      = ipcCompany
+            shipto.cust-no      = ipcCustNo
+            shipto.ship-no      = iShipNo
+            shipto.ship-id      = IF ipcShipToID NE '' THEN ipcShipToID ELSE STRING(shipto.ship-no)
+            shipto.contact      = ipcContact
+            shipto.loc          = IF AVAIL(bf-default-shipto) THEN bf-default-shipto.loc ELSE locode
+            shipto.area-code    = cArea
+            shipto.phone        = ipcPhone
+            shipto.ship-name    = ipcShipName
+            shipto.ship-addr[1] = ipcShipAddress
+            shipto.ship-city    = ipcShipCity
+            shipto.ship-state   = ipcShipState
+            shipto.ship-zip     = ipcShipZip
+            shipto.country      = IF AVAIL(bf-default-shipto) THEN bf-default-shipto.country ELSE ""
+            shipto.carrier      = IF AVAIL(bf-default-shipto) THEN bf-default-shipto.carrier ELSE ""
+            shipto.dest-code    = IF AVAIL(bf-default-shipto) THEN bf-default-shipto.dest-code ELSE ""
+            .
+        FIND FIRST bf-state-shipto
+            WHERE bf-state-shipto.company EQ shipto.company
+            AND bf-state-shipto.cust-no EQ shipto.cust-no
+            AND bf-state-shipto.ship-id NE shipto.cust-no
+            AND bf-state-shipto.ship-state EQ shipto.ship-state
+            NO-LOCK NO-ERROR.
+        shipto.tax-code = IF AVAIL(bf-state-shipto) THEN bf-state-shipto.tax-code 
+        ELSE IF AVAIL(bf-default-shipto) THEN bf-shipto.tax-code 
+        ELSE "".
+         
+ 
+    END. /* not avail shipto */
+    opcShipToID = shipto.ship-id.    
+    
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pParsePhone C-Win
+PROCEDURE pParsePhone:
+/*------------------------------------------------------------------------------
+ Purpose: Tests the format of a Phone Number and converts to Area Code and Phone
+ Notes:
+------------------------------------------------------------------------------*/
+DEFINE INPUT PARAMETER ipcFullPhone AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcAreaCode AS CHARACTER NO-UNDO.
+DEFINE OUTPUT PARAMETER opcPhone AS CHARACTER NO-UNDO. 
+DEFINE VARIABLE iLength AS INTEGER NO-UNDO.
+DEFINE VARIABLE iChar AS INTEGER NO-UNDO.
+
+ipcFullPhone = REPLACE(ipcFullPhone,"(","").
+ipcFullPhone = REPLACE(ipcFullPhone,")","").
+ipcFullPhone = REPLACE(ipcFullPhone,"-","").
+ipcFullPhone = REPLACE(ipcFullPhone,".","").
+ipcFullPhone = REPLACE(ipcFullPhone,"+","").
+ipcFullPhone = REPLACE(ipcFullPhone," ","").
+iLength = LENGTH(ipcFullPhone).
+IF iLength GT 7 THEN 
+    ASSIGN 
+        opcPhone = SUBSTRING(ipcFullPhone,iLength - 6, iLength)
+        opcAreaCode = SUBSTRING(ipcFullPhone,1,iLength - 7)
+        .        
+ELSE 
+    ASSIGN 
+        opcPhone = ipcFullPhone
+        opcAreaCode = ""
+        .
+
+END PROCEDURE.
+    
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE runProcess C-Win 
 PROCEDURE runProcess :

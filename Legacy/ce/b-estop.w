@@ -3,7 +3,7 @@
 /* Connected Databases 
           asi              PROGRESS
 */
-&SCOPED-DEFINE WINDOW-NAME CURRENT-WINDOW
+&Scoped-define WINDOW-NAME CURRENT-WINDOW
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CUSTOM _DEFINITIONS B-table-Win 
 /*------------------------------------------------------------------------
 
@@ -85,63 +85,64 @@ END.
 
 /* ********************  Preprocessor Definitions  ******************** */
 
-&SCOPED-DEFINE PROCEDURE-TYPE SmartBrowser
-&SCOPED-DEFINE DB-AWARE NO
+&Scoped-define PROCEDURE-TYPE SmartBrowser
+&Scoped-define DB-AWARE no
 
-&SCOPED-DEFINE ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
+&Scoped-define ADM-SUPPORTED-LINKS Record-Source,Record-Target,TableIO-Target
 
 /* Name of designated FRAME-NAME and/or first browse and/or first query */
-&SCOPED-DEFINE FRAME-NAME F-Main
-&SCOPED-DEFINE BROWSE-NAME br_table
+&Scoped-define FRAME-NAME F-Main
+&Scoped-define BROWSE-NAME br_table
 
 /* External Tables                                                      */
-&SCOPED-DEFINE EXTERNAL-TABLES est est-qty
-&SCOPED-DEFINE FIRST-EXTERNAL-TABLE est
+&Scoped-define EXTERNAL-TABLES est est-qty
+&Scoped-define FIRST-EXTERNAL-TABLE est
 
 
 /* Need to scope the external tables to this procedure                  */
 DEFINE QUERY external_tables FOR est, est-qty.
 /* Internal Tables (found by Frame, Query & Browse Queries)             */
-&SCOPED-DEFINE INTERNAL-TABLES est-op
+&Scoped-define INTERNAL-TABLES est-op
 
 /* Define KEY-PHRASE in case it is used by any query. */
-&SCOPED-DEFINE KEY-PHRASE TRUE
+&Scoped-define KEY-PHRASE TRUE
 
 /* Definitions for BROWSE br_table                                      */
-&SCOPED-DEFINE FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
+&Scoped-define FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
 est-op.m-code est-op.m-dscr est-op.n-out est-op.op-mr est-op.op-waste ~
 est-op.op-speed est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] ~
 est-op.op-rate[1] est-op.op-rate[2] est-op.num-col est-op.num-coat ~
-est-op.plates est-op.fountains 
-&SCOPED-DEFINE ENABLED-FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
+est-op.plates est-op.fountains est-op.n_out_div 
+&Scoped-define ENABLED-FIELDS-IN-QUERY-br_table est-op.s-num est-op.b-num ~
 est-op.m-code est-op.m-dscr est-op.n-out est-op.op-mr est-op.op-waste ~
 est-op.op-speed est-op.op-spoil est-op.op-crew[1] est-op.op-crew[2] ~
-est-op.num-col est-op.num-coat est-op.plates est-op.fountains 
-&SCOPED-DEFINE ENABLED-TABLES-IN-QUERY-br_table est-op
-&SCOPED-DEFINE FIRST-ENABLED-TABLE-IN-QUERY-br_table est-op
-&SCOPED-DEFINE QUERY-STRING-br_table FOR EACH est-op NO-LOCK WHERE est-op.company EQ est-qty.company ~
-  AND est-op.est-no EQ est-qty.est-no ~
-  AND est-op.line LT 500 ~
-      AND ((ASI.est-op.qty EQ est-qty.eqty AND est.est-type EQ 1) OR ~
- (ASI.est-op.qty EQ lv-eqty AND est.est-type NE 1))  ~
-    ~
+est-op.num-col est-op.num-coat est-op.plates est-op.fountains ~
+est-op.n_out_div 
+&Scoped-define ENABLED-TABLES-IN-QUERY-br_table est-op
+&Scoped-define FIRST-ENABLED-TABLE-IN-QUERY-br_table est-op
+&Scoped-define QUERY-STRING-br_table FOR EACH est-op WHERE est-op.company = est-qty.company ~
+  AND est-op.est-no = est-qty.est-no ~
+  AND est-op.line < 500 ~
+      AND ((ASI.est-op.qty eq est-qty.eqty and est.est-type eq 1) or ~
+ (ASI.est-op.qty eq lv-eqty and est.est-type ne 1))  ~
+   NO-LOCK ~
     ~{&SORTBY-PHRASE}
-&SCOPED-DEFINE OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH est-op NO-LOCK WHERE est-op.company EQ est-qty.company ~
-  AND est-op.est-no EQ est-qty.est-no ~
-  AND est-op.line LT 500 ~
-      AND ((ASI.est-op.qty EQ est-qty.eqty AND est.est-type EQ 1) OR ~
- (ASI.est-op.qty EQ lv-eqty AND est.est-type NE 1))  ~
-    ~
+&Scoped-define OPEN-QUERY-br_table OPEN QUERY br_table FOR EACH est-op WHERE est-op.company = est-qty.company ~
+  AND est-op.est-no = est-qty.est-no ~
+  AND est-op.line < 500 ~
+      AND ((ASI.est-op.qty eq est-qty.eqty and est.est-type eq 1) or ~
+ (ASI.est-op.qty eq lv-eqty and est.est-type ne 1))  ~
+   NO-LOCK ~
     ~{&SORTBY-PHRASE}.
-&SCOPED-DEFINE TABLES-IN-QUERY-br_table est-op
-&SCOPED-DEFINE FIRST-TABLE-IN-QUERY-br_table est-op
+&Scoped-define TABLES-IN-QUERY-br_table est-op
+&Scoped-define FIRST-TABLE-IN-QUERY-br_table est-op
 
 
 /* Definitions for FRAME F-Main                                         */
 
 /* Standard List Definitions                                            */
-&SCOPED-DEFINE ENABLED-OBJECTS br_table 
-&SCOPED-DEFINE DISPLAYED-OBJECTS fi_sortby 
+&Scoped-Define ENABLED-OBJECTS br_table 
+&Scoped-Define DISPLAYED-OBJECTS fi_sortby 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -221,19 +222,19 @@ DEFINE BROWSE br_table
       est-op.n-out COLUMN-LABEL "Out" FORMAT ">>9":U
       est-op.op-mr COLUMN-LABEL "MR-Hrs." FORMAT ">>9.99":U
       est-op.op-waste FORMAT ">>>>>9":U
-      est-op.op-speed FORMAT ">>>>>9":U
+      est-op.op-speed FORMAT ">>>>9":U
       est-op.op-spoil FORMAT ">>9.99":U
-      est-op.op-crew[1] COLUMN-LABEL "MRCrew" FORMAT ">9.99":U WIDTH 9.2
-      est-op.op-crew[2] COLUMN-LABEL "RunCrew" FORMAT ">9.99":U
+      est-op.op-crew[1] COLUMN-LABEL "MRCrew" FORMAT "9.99":U WIDTH 9.2
+      est-op.op-crew[2] COLUMN-LABEL "RunCrew" FORMAT "9.99":U
             WIDTH 9.6
-      est-op.op-rate[1] COLUMN-LABEL "MRate" FORMAT ">>>9.99":U
-            WIDTH 8.6
-      est-op.op-rate[2] COLUMN-LABEL "RRate" FORMAT ">>>9.99":U
+      est-op.op-rate[1] COLUMN-LABEL "MRate" FORMAT ">>9.99":U
+            WIDTH 7.6
+      est-op.op-rate[2] COLUMN-LABEL "RRate" FORMAT ">>9.99":U
       est-op.num-col COLUMN-LABEL "Inks" FORMAT ">>>":U WIDTH 9
       est-op.num-coat COLUMN-LABEL "Varnish" FORMAT ">>>":U WIDTH 12
       est-op.plates FORMAT ">>>":U
       est-op.fountains FORMAT ">>>":U
-      est-op.n_out_div COLUMN-LABEL "Out Divisor" FORMAT "->>,>>9.99":U
+      est-op.n_out_div COLUMN-LABEL "Run Qty Divisor" FORMAT "->>,>>9.99":U
   ENABLE
       est-op.s-num
       est-op.b-num
@@ -382,7 +383,7 @@ ASSIGN
      _FldNameList[17]   > ASI.est-op.fountains
 "est-op.fountains" ? ">>>" "integer" ? ? ? ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[18]   > ASI.est-op.n_out_div
-"est-op.n_out_div" "Out Divisor" ? "decimal" ? ? ? ? ? ? yes "Enter Divisor for Out Reduction" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-op.n_out_div" "Run Qty Divisor" ? "decimal" ? ? ? ? ? ? yes "Enter Divisor for Out Reduction" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME
@@ -400,8 +401,8 @@ ASSIGN
 
 /* ************************  Control Triggers  ************************ */
 
-&SCOPED-DEFINE BROWSE-NAME br_table
-&SCOPED-DEFINE SELF-NAME br_table
+&Scoped-define BROWSE-NAME br_table
+&Scoped-define SELF-NAME br_table
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL br_table B-table-Win
 ON HELP OF br_table IN FRAME F-Main /* Operations */
 DO:
@@ -469,7 +470,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.s-num
+&Scoped-define SELF-NAME est-op.s-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.s-num br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.s-num IN BROWSE br_table /* S */
 DO:
@@ -496,7 +497,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.b-num
+&Scoped-define SELF-NAME est-op.b-num
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.b-num br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.b-num IN BROWSE br_table /* B */
 DO:
@@ -539,7 +540,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.m-code
+&Scoped-define SELF-NAME est-op.m-code
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-code br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.m-code IN BROWSE br_table /* Machine */
 DO:
@@ -606,7 +607,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.m-dscr
+&Scoped-define SELF-NAME est-op.m-dscr
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.m-dscr br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.m-dscr IN BROWSE br_table /* Desc */
 DO:
@@ -618,7 +619,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.n-out
+&Scoped-define SELF-NAME est-op.n-out
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.n-out br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.n-out IN BROWSE br_table /* Out */
 DO:
@@ -648,9 +649,9 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.NUM-COL
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.NUM-COL br_table _BROWSE-COLUMN B-table-Win
-ON ENTRY OF est-op.NUM-COL IN BROWSE br_table /* Inks */
+&Scoped-define SELF-NAME est-op.num-col
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.num-col br_table _BROWSE-COLUMN B-table-Win
+ON ENTRY OF est-op.num-col IN BROWSE br_table /* Inks */
 DO:
   IF lv-dept NE "PR" THEN DO WITH FRAME {&FRAME-NAME}:
     APPLY "tab" TO {&self-name} IN BROWSE {&browse-name}.
@@ -662,8 +663,8 @@ END.
 &ANALYZE-RESUME
 
 
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.NUM-COL br_table _BROWSE-COLUMN B-table-Win
-ON LEAVE OF est-op.NUM-COL IN BROWSE br_table /* Inks */
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.num-col br_table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF est-op.num-col IN BROWSE br_table /* Inks */
 DO:
   IF LASTKEY NE -1 THEN DO:
     IF ll-import-stds AND lv-dept NE "PR" AND lv-dept NE "CT" THEN RUN get-stds.
@@ -674,7 +675,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.num-coat
+&Scoped-define SELF-NAME est-op.num-coat
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.num-coat br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.num-coat IN BROWSE br_table /* Varnish */
 DO:
@@ -700,7 +701,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.plates
+&Scoped-define SELF-NAME est-op.plates
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.plates br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.plates IN BROWSE br_table /* Plate Changes */
 DO:
@@ -733,7 +734,7 @@ END.
 &ANALYZE-RESUME
 
 
-&SCOPED-DEFINE SELF-NAME est-op.fountains
+&Scoped-define SELF-NAME est-op.fountains
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.fountains br_table _BROWSE-COLUMN B-table-Win
 ON ENTRY OF est-op.fountains IN BROWSE br_table /* Fountain Changes */
 DO:
@@ -756,6 +757,19 @@ END.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.fountains br_table _BROWSE-COLUMN B-table-Win
 ON LEAVE OF est-op.fountains IN BROWSE br_table /* Fountain Changes */
+DO:
+  IF LASTKEY NE -1 THEN DO:
+    IF ll-import-stds THEN RUN get-stds.
+  END.
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME est-op.n_out_div
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL est-op.n_out_div br_table _BROWSE-COLUMN B-table-Win
+ON LEAVE OF est-op.n_out_div IN BROWSE br_table /* Run Qty Divisor */
 DO:
   IF LASTKEY NE -1 THEN DO:
     IF ll-import-stds THEN RUN get-stds.

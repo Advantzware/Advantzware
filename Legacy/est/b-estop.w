@@ -246,7 +246,7 @@ DEFINE BROWSE br_table
             WIDTH 11.2
       est-op.att-qty[3] COLUMN-LABEL "Qty" FORMAT ">>,>>>":U
       est-op.spare-char-1 COLUMN-LABEL "Feed" FORMAT "x(1)":U
-      est-op.n_out_div COLUMN-LABEL "Out Divisor" FORMAT "->>,>>9.99":U
+      est-op.n_out_div COLUMN-LABEL "Run Qty Divisor" FORMAT "->>,>>9.99":U
   ENABLE
       est-op.s-num
       est-op.b-num
@@ -269,7 +269,7 @@ DEFINE BROWSE br_table
       est-op.att-type[3]
       est-op.att-qty[3]
       est-op.spare-char-1
-      est-op.n_out_div HELP "Enter Divisor for Out Reduction"
+      est-op.n_out_div HELP "Enter Divisor for Run Quantity Reduction"
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
     WITH NO-ASSIGN SEPARATORS SIZE 130 BY 7.14
@@ -412,7 +412,7 @@ ASSIGN
      _FldNameList[23]   > ASI.est-op.spare-char-1
 "est-op.spare-char-1" "Re" "N/R" "character" ? ? 0 ? ? ? yes ? no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _FldNameList[24]   > ASI.est-op.n_out_div
-"est-op.n_out_div" "Out Divisor" ? "decimal" ? ? ? ? ? ? yes "Enter Divisor for Out Reduction" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
+"est-op.n_out_div" "Run Qty Divisor" ? "decimal" ? ? ? ? ? ? yes "Enter Divisor for Out Reduction" no no ? yes no no "U" "" "" "" "" "" "" 0 no 0 no no
      _Query            is NOT OPENED
 */  /* BROWSE br_table */
 &ANALYZE-RESUME

@@ -198,13 +198,7 @@ FOR EACH ttCustList
                       tt-oe-rel.link-no  = oe-rel.link-no
                       tt-oe-rel.po-no    = oe-rel.po-no.
 
-                  FIND FIRST ref-lot-no WHERE
-                            ref-lot-no.reftable EQ "oe-rel.lot-no" AND
-                            ref-lot-no.company  EQ STRING(oe-rel.r-no,"9999999999")
-                       NO-LOCK NO-ERROR.
-              
-                 IF AVAILABLE ref-lot-no THEN
-                   ASSIGN tt-oe-rel.lot-no = ref-lot-no.CODE.
+                   ASSIGN tt-oe-rel.lot-no = oe-rel.lot-no.
 
                  v-prodqty2 = 0 .
                  

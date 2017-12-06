@@ -410,7 +410,12 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-ok C-Win
 ON CHOOSE OF btn-ok IN FRAME FRAME-A /* OK */
 DO:
+
   assign rd-dest.
+  DO WITH FRAME {&FRAME-NAME}:
+    ASSIGN {&displayed-objects}.
+  END.
+  
 
   RUN GetSelectionList.
   run run-report. 
@@ -1038,7 +1043,7 @@ PROCEDURE run-report :
 /* ----------------------------------------------- gl/rep/gl-invs.p 11/96 JLF */
 /* GL Invoice Summary Report                                                  */
 /* -------------------------------------------------------------------------- */
-SESSION:SET-WAIT-STATE("general").
+
 /*{sys/form/r-top.f}*/
 
 DEF VAR v-export     AS LOGICAL.
@@ -1073,6 +1078,7 @@ DEF VAR str-line AS cha FORM "x(300)" NO-UNDO.
 {sys/form/r-top5DL3.f} 
 cSelectedList = sl_selected:LIST-ITEMS IN FRAME {&FRAME-NAME}.
 DEFINE VARIABLE excelheader AS CHARACTER  NO-UNDO.
+SESSION:SET-WAIT-STATE("general").
 
 find first ar-ctrl where ar-ctrl.company eq cocode no-lock.
 
@@ -1084,7 +1090,7 @@ assign
    v-ar-stax    = ar-ctrl.stax
    v-ar-sales   = ar-ctrl.sales
    v-ar-disc    = ar-ctrl.discount
-   v-export = tb_excel
+   v-export     = tb_excel
    v-exp-name = fi_file. 
 
 
@@ -1115,16 +1121,14 @@ DEF VAR cslist AS cha NO-UNDO.
 {sys/inc/print1.i}
 
 {sys/inc/outprint.i value(lines-per-page)}
-
+IF v-export THEN DO:
+   OUTPUT STREAM s-temp TO VALUE(v-exp-name).
+   put stream s-temp unformatted excelheader skip.
+END.
 if td-show-parm then 
    run show-param.
 
 display "" with frame r-top.
-
-IF v-export THEN DO:
-   OUTPUT STREAM s-temp TO VALUE(v-exp-name).
-   put stream s-temp unformatted excelheader skip.
-END.  
 
 for each ar-inv
    where ar-inv.company eq cocode

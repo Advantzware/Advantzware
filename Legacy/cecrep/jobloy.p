@@ -662,15 +662,9 @@ MESSAGE "lv-test22 " + STRING(lv-text) + "    " + STRING(tt-formtext.tt-text) VI
         RELEASE bf-shipto-notes.
                                                                        
         RELEASE b1-in-house-cust.
-        RELEASE b1-shipto.
-        FIND FIRST reftable WHERE reftable.reftable EQ "oe-ordl.whs-item"
-                              AND reftable.company  EQ xoe-ordl.company
-                              AND reftable.loc      EQ STRING(xoe-ordl.ord-no,"9999999999")
-                              AND reftable.code     EQ xoe-ordl.i-no
-                              AND reftable.code2    EQ STRING(xoe-ordl.line,"9999999999")
-                   NO-LOCK NO-ERROR.
+        RELEASE b1-shipto.        
 
-        IF AVAIL reftable AND reftable.val[1] EQ 1 THEN DO:
+        IF xoe-ordl.managed = true THEN DO:
             FIND FIRST b1-in-house-cust WHERE b1-in-house-cust.company EQ xoe-ordl.company
                                           AND b1-in-house-cust.active  EQ "X"
                  NO-LOCK NO-ERROR.

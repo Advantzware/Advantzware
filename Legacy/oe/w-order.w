@@ -554,7 +554,7 @@ PROCEDURE adm-create-objects :
        /* Size in UIB:  ( 1.91 , 17.00 ) */
 
        RUN init-object IN THIS-PROCEDURE (
-             INPUT  'oe/v-hldapp.w':U ,
+             INPUT  'oe/p-webapprov.w':U ,
              INPUT  FRAME F-Main:HANDLE ,
              INPUT  'Layout = ':U ,
              OUTPUT h_v-hldapp ).
@@ -1292,6 +1292,10 @@ PROCEDURE local-change-page :
   assign li-prev-page = li-cur-page
          li-cur-page = int(return-value).
 
+  if li-prev-page = 2 then do:
+      RUN get-link-handle IN adm-broker-hdl(h_v-ord,"record-source",OUTPUT char-hdl).
+      RUN notify IN WIDGET-HANDLE(char-hdl) ('row-available'). 
+  end.
   if li-cur-page = 6 then do:  /* estimate */
      li-last-page = li-prev-page.
      IF li-prev-page = 3 THEN DO:   /* get from line item */

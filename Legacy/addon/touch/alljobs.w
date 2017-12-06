@@ -96,9 +96,9 @@ DEF TEMP-TABLE tt-job-list NO-UNDO
 
 /* Definitions of the field level widgets                               */
 DEFINE VARIABLE keystroke AS CHARACTER FORMAT "X(256)":U 
-     LABEL "KEY VALUE" 
+     LABEL "Job Filter" 
      VIEW-AS FILL-IN 
-     SIZE 44 BY 1 TOOLTIP "KEY VALUE"
+     SIZE 44 BY 1 TOOLTIP "Job Filter"
      BGCOLOR 0 FGCOLOR 15  NO-UNDO.
 
 DEFINE RECTANGLE RECT-1
@@ -191,7 +191,7 @@ ASSIGN
 
 ASSIGN 
        keystroke:PRIVATE-DATA IN FRAME F-Main     = 
-                "KEY VALUE".
+                "Job Filter".
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -235,7 +235,7 @@ END.
 
 &Scoped-define SELF-NAME keystroke
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL keystroke s-object
-ON VALUE-CHANGED OF keystroke IN FRAME F-Main /* KEY VALUE */
+ON VALUE-CHANGED OF keystroke IN FRAME F-Main /* Job Filter */
 DO:
    IF tskey-log = NO THEN
    DO:

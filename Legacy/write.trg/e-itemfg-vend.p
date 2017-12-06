@@ -1,12 +1,24 @@
 &Scoped-define ACTION UPDATE
-&Scoped-define DBNAME PDBNAME('ASI')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME e-itemfg-vend
 
 TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 
 {methods/triggers/write.i}
-
+{sys/inc/var.i NEW SHARED}
 DEF BUFFER b-{&TABLENAME} FOR {&TABLENAME}.
+
+DEFINE VARIABLE lVendCostMtx AS LOGICAL NO-UNDO .
+
+ cocode = {&TABLENAME}.company.
+
+ FIND FIRST sys-ctrl
+    WHERE sys-ctrl.company EQ cocode
+      AND sys-ctrl.name    EQ "VendCostMatrix"
+    NO-LOCK NO-ERROR.
+
+ASSIGN lVendCostMtx = IF AVAIL sys-ctrl THEN LOGICAL(sys-ctrl.log-fld) ELSE NO NO-ERROR .
+
 
 IF {&TABLENAME}.company NE ""     AND
    {&TABLENAME}.roll-w[27] EQ 0   AND

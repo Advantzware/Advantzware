@@ -122,44 +122,6 @@ IF AVAIL oe-ordl THEN DO:
       END.
       ELSE LEAVE.
     END.
-
-
-    RELEASE oe-ordl-q-no.
-    DO WHILE TRUE:
-      FIND NEXT oe-ordl-q-no EXCLUSIVE
-          WHERE oe-ordl-q-no.reftable EQ "oe-ordl.q-no"
-            AND oe-ordl-q-no.company  EQ oe-ordl.company
-            AND oe-ordl-q-no.loc      EQ STRING(oe-ordl.ord-no,"9999999999")
-            AND oe-ordl-q-no.code     EQ ipcOldINo
-            AND (oe-ordl-q-no.code2   EQ STRING(ipiOldLine,"9999999999") OR
-                 (oe-ordl-q-no.code2  NE STRING(oe-ordl.line,"9999999999") AND iplNoDuplINo))
-          NO-ERROR NO-WAIT.
-
-      IF AVAIL oe-ordl-q-no THEN
-        ASSIGN
-         oe-ordl-q-no.code  = oe-ordl.i-no
-         oe-ordl-q-no.code2 = STRING(oe-ordl.line,"9999999999").
-
-      ELSE LEAVE.
-    END.
-
-    RELEASE oe-ordl-whs-item.
-    DO WHILE TRUE:
-      FIND NEXT oe-ordl-whs-item EXCLUSIVE
-          WHERE oe-ordl-whs-item.reftable EQ "oe-ordl.whs-item"
-            AND oe-ordl-whs-item.company  EQ oe-ordl.company
-            AND oe-ordl-whs-item.loc      EQ STRING(oe-ordl.ord-no,"9999999999")
-            AND oe-ordl-whs-item.code     EQ ipcOldINo
-            AND (oe-ordl-whs-item.code2   EQ STRING(ipiOldLine,"9999999999") OR
-                 (oe-ordl-whs-item.code2  NE STRING(oe-ordl.line,"9999999999") AND iplNoDuplINo))
-          NO-ERROR NO-WAIT.
-
-      IF AVAIL oe-ordl-whs-item THEN
-        ASSIGN
-         oe-ordl-whs-item.code  = oe-ordl.i-no
-         oe-ordl-whs-item.code2 = STRING(oe-ordl.line,"9999999999").
-
-      ELSE LEAVE.
-    END.
+   
   END.
 END.

@@ -88,7 +88,7 @@ userField81 userField82 userField83 userField84 userField85 ~
 userField86 userField87 userField88 userField89 userField90 ~
 userField91 userField92 userField93 userField94 userField95 ~
 userField96 userField97
-    /*
+/*
 userField98 
 */
 
@@ -2222,49 +2222,47 @@ DEFINE FRAME colorsFrame
           "Click to Set HTML Page Location" WIDGET-ID 2
      dueDateUsedValue AT ROW 24.1 COL 32 HELP
           "Select Due Date/Production Date" NO-LABEL
-     "Default ~"<Due>~" Value Used:" VIEW-AS TEXT
-          SIZE 28 BY .81 AT ROW 24.1 COL 3
-     "BG   FG" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 1.24 COL 112
-          FONT 1
-     "<Job Completed>" VIEW-AS TEXT
-          SIZE 17 BY 1 AT ROW 3.14 COL 44
-          FONT 1
-     "<Due><Start--End><Now>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 15.05 COL 44
-          FONT 1
-     "Priority" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.24 COL 121
-     "Status Checkoffs:" VIEW-AS TEXT
-          SIZE 17 BY .81 AT ROW 22.19 COL 3
-     "[External Program Load Setting]" VIEW-AS TEXT
-          SIZE 30 BY .62 AT ROW 20.29 COL 3
-          BGCOLOR 8 
-     "Priority" VIEW-AS TEXT
-          SIZE 7 BY .62 AT ROW 1.24 COL 36
-     "<Due><Start--Now--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 16.24 COL 44
-          FONT 1
-     "Custom Color Label" VIEW-AS TEXT
-          SIZE 19 BY .62 AT ROW 1.24 COL 76
-     "<Start--Now--End><Due>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 7.91 COL 44
-          FONT 1
-     "<Now><Start--Due--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 5.52 COL 44
-          FONT 1
-     "<Start--Due--End><Now>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 13.86 COL 44
-          FONT 1
-     "<Due><Now><Start--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 17.43 COL 44
+     "<Start--Due--Now--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 10.29 COL 44
           FONT 1
      "<Start--End><Due><Now>" VIEW-AS TEXT
           SIZE 25 BY 1 AT ROW 12.67 COL 44
           FONT 1
-     "[Status Checkoff Default Settings]" VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 20.29 COL 83
+     "<Due><Now><Start--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 17.43 COL 44
+          FONT 1
+     "<Start--Due--End><Now>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 13.86 COL 44
+          FONT 1
+     "<Now><Start--Due--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 5.52 COL 44
+          FONT 1
+     "<Start--Now--End><Due>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 7.91 COL 44
+          FONT 1
+     "Custom Color Label" VIEW-AS TEXT
+          SIZE 19 BY .62 AT ROW 1.24 COL 76
+     "<Due><Start--Now--End>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 16.24 COL 44
+          FONT 1
+     "Priority" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.24 COL 36
+     "[External Program Load Setting]" VIEW-AS TEXT
+          SIZE 30 BY .62 AT ROW 20.29 COL 3
           BGCOLOR 8 
+     "Status Checkoffs:" VIEW-AS TEXT
+          SIZE 17 BY .81 AT ROW 22.19 COL 3
+     "Priority" VIEW-AS TEXT
+          SIZE 7 BY .62 AT ROW 1.24 COL 121
+     "<Due><Start--End><Now>" VIEW-AS TEXT
+          SIZE 25 BY 1 AT ROW 15.05 COL 44
+          FONT 1
+     "<Job Completed>" VIEW-AS TEXT
+          SIZE 17 BY 1 AT ROW 3.14 COL 44
+          FONT 1
+     "BG   FG" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 1.24 COL 112
+          FONT 1
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 1.24
@@ -2272,9 +2270,8 @@ DEFINE FRAME colorsFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME colorsFrame
-     "<Start--Due--Now--End>" VIEW-AS TEXT
-          SIZE 25 BY 1 AT ROW 10.29 COL 44
-          FONT 1
+     "Default ~"<Due>~" Value Used:" VIEW-AS TEXT
+          SIZE 28 BY .81 AT ROW 24.1 COL 3
      "<Now><Start--End><Due>" VIEW-AS TEXT
           SIZE 25 BY 1 AT ROW 4.33 COL 44
           FONT 1
@@ -2306,6 +2303,9 @@ DEFINE FRAME colorsFrame
      "<Unavailable>" VIEW-AS TEXT
           SIZE 14 BY 1 AT ROW 1.95 COL 44
           FONT 1
+     "[Status Checkoff Default Settings]" VIEW-AS TEXT
+          SIZE 32 BY .62 AT ROW 20.29 COL 83
+          BGCOLOR 8 
      RECT-7 AT ROW 18.62 COL 2
      customBGColor-1 AT ROW 1.95 COL 110
      customBGColor-10 AT ROW 12.67 COL 110
@@ -2349,9 +2349,6 @@ DEFINE FRAME colorsFrame
      jobFGColor-10 AT ROW 12.67 COL 32
      jobFGColor-11 AT ROW 13.86 COL 32
      jobFGColor-12 AT ROW 15.05 COL 32
-     jobFGColor-13 AT ROW 16.24 COL 32
-     jobFGColor-14 AT ROW 17.43 COL 32
-     jobConflictFGColorValue AT ROW 18.86 COL 32
     WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
          AT COL 24 ROW 1.24
@@ -2359,6 +2356,9 @@ DEFINE FRAME colorsFrame
 
 /* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
 DEFINE FRAME colorsFrame
+     jobFGColor-13 AT ROW 16.24 COL 32
+     jobFGColor-14 AT ROW 17.43 COL 32
+     jobConflictFGColorValue AT ROW 18.86 COL 32
      downtimeConflictFGColorValue AT ROW 18.86 COL 117
      customFGColor-1 AT ROW 1.95 COL 117
      customFGColor-2 AT ROW 3.14 COL 117
@@ -2382,196 +2382,6 @@ DEFINE FRAME colorsFrame
          AT COL 24 ROW 1.24
          SIZE 129 BY 25.24
          TITLE "Color, Label & Priority Settings".
-
-DEFINE FRAME defaultsFrame
-     intervals AT ROW 1.95 COL 10 COLON-ALIGNED HELP
-          "Select Startup Interval Value"
-     lockButtonValue AT ROW 1.95 COL 47 COLON-ALIGNED HELP
-          "Select Startup Lock Button Images Value"
-     threeDValue AT ROW 1.95 COL 91 NO-LABEL
-     timeValue AT ROW 3.14 COL 10 COLON-ALIGNED HELP
-          "Select Startup Time Value"
-     autoSizeValue AT ROW 3.14 COL 26 HELP
-          "Select to Force Scheduler to Optimize Job Bar Height and Gap"
-     noteButtonValue AT ROW 3.14 COL 47 COLON-ALIGNED HELP
-          "Select Startup Note Button Images Value"
-     threeDLeftValue AT ROW 3.86 COL 91
-     threeDTopValue AT ROW 3.86 COL 113
-     hpixelsValue AT ROW 4.33 COL 47 COLON-ALIGNED HELP
-          "Select Startup Job Bar Height Value"
-     gapValue AT ROW 4.33 COL 67 COLON-ALIGNED HELP
-          "Select Startup Gap  Between Job Bar Value"
-     rectJobBox AT ROW 5.05 COL 92 NO-LABEL
-     rectJobNoBox AT ROW 5.14 COL 92.4 NO-LABEL
-     showStatusValue AT ROW 5.52 COL 49
-     allResourcesValue AT ROW 6.48 COL 49 HELP
-          "Click to Show All Resources"
-     threeDBottomValue AT ROW 6.48 COL 91
-     threeDRightValue AT ROW 6.48 COL 113
-     downtimeTopValue AT ROW 7.43 COL 91
-     alphaSortValue AT ROW 7.67 COL 49 HELP
-          "Click to Alpha Sort Resources"
-     downtimeSizeValue AT ROW 8.38 COL 111 COLON-ALIGNED HELP
-          "Select Startup Gap  Between Job Bar Value"
-     flashGridLineValue AT ROW 8.86 COL 49 HELP
-          "Click to Show Grid Line Flashing"
-     completedHideValue AT ROW 9.57 COL 91
-     flashTimeLineValue AT ROW 10.05 COL 49 HELP
-          "Click to Show Time Line Flashing"
-     fullBoardValue AT ROW 11.24 COL 49
-     saveIntervalValue AT ROW 11.48 COL 1 COLON-ALIGNED HELP
-          "Enter Auto Save Interval Minutes" NO-LABEL
-     priority1Value AT ROW 11.48 COL 103 NO-LABEL
-     popupBottomValue AT ROW 12.43 COL 49
-     priority2Value AT ROW 12.43 COL 103 NO-LABEL
-     viewRefreshValue AT ROW 12.67 COL 1 COLON-ALIGNED HELP
-          "Enter Auto View Refresh Interval Minutes" NO-LABEL
-     priority3Value AT ROW 13.38 COL 103 NO-LABEL
-     moveUndoRedoValue AT ROW 13.62 COL 49
-     btnDetailBoard AT ROW 13.86 COL 3 HELP
-          "Tune Detail Window Display On/Off"
-     detailWindowValue AT ROW 13.86 COL 9
-     btnShowDowntime AT ROW 15.05 COL 3
-     showDowntimeValue AT ROW 15.05 COL 9
-     IDList AT ROW 15.29 COL 50 NO-LABEL
-     jobBlockValue AT ROW 15.76 COL 94 HELP
-          "Select to Block Job Conflicts"
-     jobWarningValue AT ROW 15.76 COL 104 HELP
-          "Select to Issue Warning of Job Conflicts"
-     jobPromptValue AT ROW 15.76 COL 117 HELP
-          "Select to Block Job Conflicts"
-     btnFlashLight AT ROW 16.24 COL 3 HELP
-          "Turn Highlight On/Off"
-     flashLightValue AT ROW 16.24 COL 9
-     btnBoardDatePrompt AT ROW 17.43 COL 3 HELP
-          "Turn Date Prompt Popup On/Off"
-     boardDatePromptValue AT ROW 17.43 COL 9
-     downtimeBlockValue AT ROW 17.67 COL 94 HELP
-          "Select to Block Downtime Conflicts"
-     downtimeWarningValue AT ROW 17.67 COL 104 HELP
-          "Select to Issue Warning of Downtime Conflicts"
-     downtimePromptValue AT ROW 17.67 COL 117 HELP
-          "Select to Block Job Conflicts"
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME defaultsFrame
-     packOptionValue AT ROW 18.86 COL 10 COLON-ALIGNED
-     pendingOverValue AT ROW 19.33 COL 120 COLON-ALIGNED HELP
-          "Enter Number of Days to Set Job Ending Date Prior to Due Date"
-     packOptionPromptValue AT ROW 20.05 COL 30 HELP
-          "Select to Prompt Pack Options"
-     pendingLastDayValue AT ROW 20.52 COL 71 COLON-ALIGNED HELP
-          "Enter Number of Days from Current Date for Setting Ending Date"
-     pendingDaysValue AT ROW 20.52 COL 120 COLON-ALIGNED HELP
-          "Enter Number of Days to Set Job Ending Date Prior to Due Date"
-     btnDatePrompt AT ROW 21.48 COL 3 HELP
-          "Turn Date Prompt Popup On/Off"
-     datePromptValue AT ROW 21.48 COL 9
-     btnDetailResource AT ROW 22.67 COL 3 HELP
-          "Tune Detail Window Display On/Off"
-     resourceJobDetailValue AT ROW 22.67 COL 9
-     dontShowStartup AT ROW 22.67 COL 54 HELP
-          "Select to Not Show Startup Configurations"
-     boardSize AT ROW 22.67 COL 109 COLON-ALIGNED HELP
-          "Select Board Size Resolution"
-     resourceBrowseActionValue AT ROW 23.86 COL 40 COLON-ALIGNED HELP
-          "Set Behavior for Resource Browser Default Action"
-     loadCapacityValue AT ROW 23.86 COL 54
-     endDateBufferValue AT ROW 23.86 COL 120 COLON-ALIGNED HELP
-          "Enter Number of Days Past Last Job Date to Buffer"
-     rectDTOver AT ROW 4.81 COL 99 COLON-ALIGNED NO-LABEL
-     "Auto Save Interval Minutes (Zero=Off)" VIEW-AS TEXT
-          SIZE 38 BY .62 AT ROW 11.71 COL 10
-     "[Board Settings]" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 1.24 COL 3
-          BGCOLOR 8 
-     "[Pending Jobs]" VIEW-AS TEXT
-          SIZE 15 BY .62 AT ROW 18.86 COL 54
-          BGCOLOR 8 
-     "[Resource Popup Settings]" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 20.76 COL 3
-          BGCOLOR 8 
-     "Auto View Refresh Interval (Zero=Off)" VIEW-AS TEXT
-          SIZE 37 BY .62 AT ROW 12.91 COL 10
-     "(if changed scheduler restart required)" VIEW-AS TEXT
-          SIZE 36 BY .62 AT ROW 2.91 COL 91
-          FGCOLOR 12 
-     "Time Line Color" VIEW-AS TEXT
-          SIZE 15.4 BY .62 AT ROW 8.14 COL 10
-     "[Job Appearance]" VIEW-AS TEXT
-          SIZE 17 BY .62 AT ROW 1.24 COL 91
-          BGCOLOR 8 
-     "Resource Grid Background Color" VIEW-AS TEXT
-          SIZE 32 BY .62 AT ROW 5.76 COL 10
-     "[Conflict Settings]" VIEW-AS TEXT
-          SIZE 16.8 BY .62 AT ROW 14.33 COL 91
-          BGCOLOR 8 
-     "Job Selection Highlight Color" VIEW-AS TEXT
-          SIZE 27.6 BY .62 AT ROW 10.52 COL 10
-     "Job Conflict Settings" VIEW-AS TEXT
-          SIZE 20 BY .62 AT ROW 15.05 COL 91
-     "[Valid Schedule Board ID's]" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 14.57 COL 50
-          BGCOLOR 8 
-     "[Scheduler Re-Start Required to take effect]" VIEW-AS TEXT
-          SIZE 42 BY .62 AT ROW 21.95 COL 54
-          BGCOLOR 8 
-     "Job Seq.:" VIEW-AS TEXT
-          SIZE 9 BY .62 AT ROW 12.43 COL 92
-     "Resource:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 11.48 COL 91
-     "Grid Line Color" VIEW-AS TEXT
-          SIZE 14.4 BY .62 AT ROW 6.95 COL 10
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24.
-
-/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
-DEFINE FRAME defaultsFrame
-     "Downtime Conflict Settings" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 16.95 COL 91
-     "Board Background Color" VIEW-AS TEXT
-          SIZE 24 BY .62 AT ROW 4.57 COL 10
-     "[Priority Settings]" VIEW-AS TEXT
-          SIZE 16 BY .62 AT ROW 10.76 COL 91
-          BGCOLOR 8 
-     "Job on Resource Highlight Color" VIEW-AS TEXT
-          SIZE 31 BY .62 AT ROW 9.33 COL 10
-     "Res. Seq.:" VIEW-AS TEXT
-          SIZE 10 BY .62 AT ROW 13.38 COL 91
-     RECT-3 AT ROW 21 COL 2
-     RECT-1 AT ROW 1.48 COL 2
-     rectGrid AT ROW 4.81 COL 91
-     RECT-5 AT ROW 1.48 COL 90
-     RECT-2 AT ROW 14.57 COL 90
-     rectTop AT ROW 5.05 COL 92
-     RECT-4 AT ROW 22.19 COL 53
-     rectRight AT ROW 5.05 COL 126
-     rectDTUnder AT ROW 4.81 COL 101
-     rectBottom AT ROW 6.1 COL 92.4
-     rectLeft AT ROW 5.05 COL 92
-     flashLightColorValue AT ROW 10.29 COL 3
-     gridBGColorValue AT ROW 4.33 COL 3
-     gridLineColorValue AT ROW 6.71 COL 3
-     lightBulbColorValue AT ROW 9.1 COL 3
-     lockImage AT ROW 2.19 COL 78
-     resourceBGColorValue AT ROW 5.52 COL 3
-     timeLineColorValue AT ROW 7.91 COL 3
-     RECT-8 AT ROW 19.1 COL 53
-     RECT-9 AT ROW 11 COL 90
-     RECT-10 AT ROW 14.81 COL 49
-     noteImage-1 AT ROW 3.38 COL 78
-     noteImage-2 AT ROW 3.38 COL 81
-    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
-         SIDE-LABELS NO-UNDERLINE THREE-D 
-         AT COL 24 ROW 1.24
-         SIZE 129 BY 25.24
-         TITLE "Default Settings".
 
 DEFINE FRAME colorDisplayFrame
      "No Color" VIEW-AS TEXT
@@ -2727,6 +2537,196 @@ DEFINE FRAME fieldsFrame
          SIZE 129 BY 25
          TITLE "Fields".
 
+DEFINE FRAME defaultsFrame
+     intervals AT ROW 1.95 COL 10 COLON-ALIGNED HELP
+          "Select Startup Interval Value"
+     lockButtonValue AT ROW 1.95 COL 47 COLON-ALIGNED HELP
+          "Select Startup Lock Button Images Value"
+     threeDValue AT ROW 1.95 COL 91 NO-LABEL
+     timeValue AT ROW 3.14 COL 10 COLON-ALIGNED HELP
+          "Select Startup Time Value"
+     autoSizeValue AT ROW 3.14 COL 26 HELP
+          "Select to Force Scheduler to Optimize Job Bar Height and Gap"
+     noteButtonValue AT ROW 3.14 COL 47 COLON-ALIGNED HELP
+          "Select Startup Note Button Images Value"
+     threeDLeftValue AT ROW 3.86 COL 91
+     threeDTopValue AT ROW 3.86 COL 113
+     hpixelsValue AT ROW 4.33 COL 47 COLON-ALIGNED HELP
+          "Select Startup Job Bar Height Value"
+     gapValue AT ROW 4.33 COL 67 COLON-ALIGNED HELP
+          "Select Startup Gap  Between Job Bar Value"
+     rectJobBox AT ROW 5.05 COL 92 NO-LABEL
+     rectJobNoBox AT ROW 5.14 COL 92.4 NO-LABEL
+     showStatusValue AT ROW 5.52 COL 49
+     allResourcesValue AT ROW 6.48 COL 49 HELP
+          "Click to Show All Resources"
+     threeDBottomValue AT ROW 6.48 COL 91
+     threeDRightValue AT ROW 6.48 COL 113
+     downtimeTopValue AT ROW 7.43 COL 91
+     alphaSortValue AT ROW 7.67 COL 49 HELP
+          "Click to Alpha Sort Resources"
+     downtimeSizeValue AT ROW 8.38 COL 111 COLON-ALIGNED HELP
+          "Select Startup Gap  Between Job Bar Value"
+     flashGridLineValue AT ROW 8.86 COL 49 HELP
+          "Click to Show Grid Line Flashing"
+     completedHideValue AT ROW 9.57 COL 91
+     flashTimeLineValue AT ROW 10.05 COL 49 HELP
+          "Click to Show Time Line Flashing"
+     fullBoardValue AT ROW 11.24 COL 49
+     saveIntervalValue AT ROW 11.48 COL 1 COLON-ALIGNED HELP
+          "Enter Auto Save Interval Minutes" NO-LABEL
+     priority1Value AT ROW 11.48 COL 103 NO-LABEL
+     popupBottomValue AT ROW 12.43 COL 49
+     priority2Value AT ROW 12.43 COL 103 NO-LABEL
+     viewRefreshValue AT ROW 12.67 COL 1 COLON-ALIGNED HELP
+          "Enter Auto View Refresh Interval Minutes" NO-LABEL
+     priority3Value AT ROW 13.38 COL 103 NO-LABEL
+     moveUndoRedoValue AT ROW 13.62 COL 49
+     btnDetailBoard AT ROW 13.86 COL 3 HELP
+          "Tune Detail Window Display On/Off"
+     detailWindowValue AT ROW 13.86 COL 9
+     btnShowDowntime AT ROW 15.05 COL 3
+     showDowntimeValue AT ROW 15.05 COL 9
+     IDList AT ROW 15.29 COL 50 NO-LABEL
+     jobBlockValue AT ROW 15.76 COL 94 HELP
+          "Select to Block Job Conflicts"
+     jobWarningValue AT ROW 15.76 COL 104 HELP
+          "Select to Issue Warning of Job Conflicts"
+     jobPromptValue AT ROW 15.76 COL 117 HELP
+          "Select to Block Job Conflicts"
+     btnFlashLight AT ROW 16.24 COL 3 HELP
+          "Turn Highlight On/Off"
+     flashLightValue AT ROW 16.24 COL 9
+     btnBoardDatePrompt AT ROW 17.43 COL 3 HELP
+          "Turn Date Prompt Popup On/Off"
+     boardDatePromptValue AT ROW 17.43 COL 9
+     downtimeBlockValue AT ROW 17.67 COL 94 HELP
+          "Select to Block Downtime Conflicts"
+     downtimeWarningValue AT ROW 17.67 COL 104 HELP
+          "Select to Issue Warning of Downtime Conflicts"
+     downtimePromptValue AT ROW 17.67 COL 117 HELP
+          "Select to Block Job Conflicts"
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25.24.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME defaultsFrame
+     packOptionValue AT ROW 18.86 COL 10 COLON-ALIGNED
+     pendingOverValue AT ROW 19.33 COL 120 COLON-ALIGNED HELP
+          "Enter Number of Days to Set Job Ending Date Prior to Due Date"
+     packOptionPromptValue AT ROW 20.05 COL 30 HELP
+          "Select to Prompt Pack Options"
+     pendingLastDayValue AT ROW 20.52 COL 71 COLON-ALIGNED HELP
+          "Enter Number of Days from Current Date for Setting Ending Date"
+     pendingDaysValue AT ROW 20.52 COL 120 COLON-ALIGNED HELP
+          "Enter Number of Days to Set Job Ending Date Prior to Due Date"
+     btnDatePrompt AT ROW 21.48 COL 3 HELP
+          "Turn Date Prompt Popup On/Off"
+     datePromptValue AT ROW 21.48 COL 9
+     btnDetailResource AT ROW 22.67 COL 3 HELP
+          "Tune Detail Window Display On/Off"
+     resourceJobDetailValue AT ROW 22.67 COL 9
+     dontShowStartup AT ROW 22.67 COL 54 HELP
+          "Select to Not Show Startup Configurations"
+     boardSize AT ROW 22.67 COL 109 COLON-ALIGNED HELP
+          "Select Board Size Resolution"
+     resourceBrowseActionValue AT ROW 23.86 COL 40 COLON-ALIGNED HELP
+          "Set Behavior for Resource Browser Default Action"
+     loadCapacityValue AT ROW 23.86 COL 54
+     endDateBufferValue AT ROW 23.86 COL 120 COLON-ALIGNED HELP
+          "Enter Number of Days Past Last Job Date to Buffer"
+     rectDTOver AT ROW 4.81 COL 99 COLON-ALIGNED NO-LABEL
+     "Auto Save Interval Minutes (Zero=Off)" VIEW-AS TEXT
+          SIZE 38 BY .62 AT ROW 11.71 COL 10
+     "[Pending Jobs]" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 18.86 COL 54
+          BGCOLOR 8 
+     "[Resource Popup Settings]" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 20.76 COL 3
+          BGCOLOR 8 
+     "Auto View Refresh Interval (Zero=Off)" VIEW-AS TEXT
+          SIZE 37 BY .62 AT ROW 12.91 COL 10
+     "(if changed scheduler restart required)" VIEW-AS TEXT
+          SIZE 36 BY .62 AT ROW 2.91 COL 91
+          FGCOLOR 12 
+     "Time Line Color" VIEW-AS TEXT
+          SIZE 15.4 BY .62 AT ROW 8.14 COL 10
+     "[Job Appearance]" VIEW-AS TEXT
+          SIZE 17 BY .62 AT ROW 1.24 COL 91
+          BGCOLOR 8 
+     "Resource Grid Background Color" VIEW-AS TEXT
+          SIZE 32 BY .62 AT ROW 5.76 COL 10
+     "[Conflict Settings]" VIEW-AS TEXT
+          SIZE 16.8 BY .62 AT ROW 14.33 COL 91
+          BGCOLOR 8 
+     "Job Selection Highlight Color" VIEW-AS TEXT
+          SIZE 27.6 BY .62 AT ROW 10.52 COL 10
+     "Job Conflict Settings" VIEW-AS TEXT
+          SIZE 20 BY .62 AT ROW 15.05 COL 91
+     "[Valid Schedule Board ID's]" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 14.57 COL 50
+          BGCOLOR 8 
+     "[Scheduler Re-Start Required to take effect]" VIEW-AS TEXT
+          SIZE 42 BY .62 AT ROW 21.95 COL 54
+          BGCOLOR 8 
+     "Job Seq.:" VIEW-AS TEXT
+          SIZE 9 BY .62 AT ROW 12.43 COL 92
+     "Resource:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 11.48 COL 91
+     "Grid Line Color" VIEW-AS TEXT
+          SIZE 14.4 BY .62 AT ROW 6.95 COL 10
+     "Downtime Conflict Settings" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 16.95 COL 91
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25.24.
+
+/* DEFINE FRAME statement is approaching 4K Bytes.  Breaking it up   */
+DEFINE FRAME defaultsFrame
+     "Board Background Color" VIEW-AS TEXT
+          SIZE 24 BY .62 AT ROW 4.57 COL 10
+     "[Priority Settings]" VIEW-AS TEXT
+          SIZE 16 BY .62 AT ROW 10.76 COL 91
+          BGCOLOR 8 
+     "Job on Resource Highlight Color" VIEW-AS TEXT
+          SIZE 31 BY .62 AT ROW 9.33 COL 10
+     "Res. Seq.:" VIEW-AS TEXT
+          SIZE 10 BY .62 AT ROW 13.38 COL 91
+     "[Board Settings]" VIEW-AS TEXT
+          SIZE 15 BY .62 AT ROW 1.24 COL 3
+          BGCOLOR 8 
+     RECT-3 AT ROW 21 COL 2
+     RECT-1 AT ROW 1.48 COL 2
+     rectGrid AT ROW 4.81 COL 91
+     RECT-5 AT ROW 1.48 COL 90
+     RECT-2 AT ROW 14.57 COL 90
+     rectTop AT ROW 5.05 COL 92
+     RECT-4 AT ROW 22.19 COL 53
+     rectRight AT ROW 5.05 COL 126
+     rectDTUnder AT ROW 4.81 COL 101
+     rectBottom AT ROW 6.1 COL 92.4
+     rectLeft AT ROW 5.05 COL 92
+     flashLightColorValue AT ROW 10.29 COL 3
+     gridBGColorValue AT ROW 4.33 COL 3
+     gridLineColorValue AT ROW 6.71 COL 3
+     lightBulbColorValue AT ROW 9.1 COL 3
+     lockImage AT ROW 2.19 COL 78
+     resourceBGColorValue AT ROW 5.52 COL 3
+     timeLineColorValue AT ROW 7.91 COL 3
+     RECT-8 AT ROW 19.1 COL 53
+     RECT-9 AT ROW 11 COL 90
+     RECT-10 AT ROW 14.81 COL 49
+     noteImage-1 AT ROW 3.38 COL 78
+     noteImage-2 AT ROW 3.38 COL 81
+    WITH 1 DOWN KEEP-TAB-ORDER OVERLAY 
+         SIDE-LABELS NO-UNDERLINE THREE-D 
+         AT COL 24 ROW 1.24
+         SIZE 129 BY 25.24
+         TITLE "Default Settings".
+
 
 /* *********************** Procedure Settings ************************ */
 
@@ -2848,6 +2848,8 @@ ASSIGN FRAME colorDisplayFrame:FRAME = FRAME configurationFrame:HANDLE
    4                                                                    */
 /* SETTINGS FOR FRAME colorsFrame
                                                                         */
+/* SETTINGS FOR BUTTON btnHTMLPageLocation IN FRAME colorsFrame
+   NO-ENABLE                                                            */
 /* SETTINGS FOR COMBO-BOX colorPriorityValue-1 IN FRAME colorsFrame
    1 5                                                                  */
 ASSIGN 
@@ -4855,6 +4857,7 @@ PROCEDURE getConfiguration :
   DEFINE VARIABLE custVal AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE ulColor AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lDisableHTMLPageLocation AS LOGICAL NO-UNDO.
   
   INPUT FROM VALUE(SEARCH('{&data}/statusCheckOffs.dat')) NO-ECHO.
   REPEAT:
@@ -5019,8 +5022,16 @@ PROCEDURE getConfiguration :
     ENABLE
       reloadReportValue reloadStatusValue dueDateUsedValue
       completedCheckOffValue customCheckOffValue {&jobLabelFields}
-      btnHTMLPageLocation
       .
+    FIND FIRST asi.module NO-LOCK
+         WHERE asi.module.db-name EQ "ASI"
+           AND asi.module.module  EQ "sbHTML"
+         NO-ERROR.
+    lDisableHTMLPageLocation = AVAILABLE asi.module AND
+                              (NOT asi.module.is-used OR
+                               asi.module.expire-date LT TODAY).
+    IF lDisableHTMLPageLocation EQ NO THEN 
+    ENABLE btnHTMLPageLocation.
     IF customValueList EQ '' THEN
     DISABLE {&customValueFields}.
   END. /* colorsframe */

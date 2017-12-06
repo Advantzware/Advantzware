@@ -1,5 +1,5 @@
 &Scoped-define ACTION UPDATE
-&Scoped-define DBNAME PDBNAME('ASI')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME fg-rctd
 
 TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
@@ -8,17 +8,7 @@ DEF VAR lv-r-no AS INT NO-UNDO.
 
 {methods/triggers/write.i}
 
-IF old-fg-rctd.r-no EQ 0 AND  fg-rctd.r-no NE 0 THEN DO: 
-  /* If this is a new record, reftable should not exist for this */
-  /* r-no, so delete any old ones that do exist                  */
-  FIND FIRST reftable
-    WHERE reftable.reftable EQ "fg-rctd.user-id"
-      AND reftable.company  EQ fg-rctd.company
-      AND reftable.loc      EQ STRING(fg-rctd.r-no,"9999999999")
-    EXCLUSIVE-LOCK NO-ERROR.
-  IF AVAIL reftable THEN
-    DELETE reftable.
-END.
+
 
 /* Obtain fgpofrt nk1 value for ext-cost calculation */
 cocode = {&TABLENAME}.company.
@@ -137,44 +127,17 @@ IF {&TABLENAME}.company NE "" AND {&TABLENAME}.r-no NE 0 THEN DO:
        EXCLUSIVE-LOCK:
   
       fg-rcpts.linker = "fg-rctd: " + STRING({&TABLENAME}.r-no,"9999999999").
-      FOR EACH reftable 
-        WHERE reftable.reftable EQ "fg-rctd.user-id"
-          AND reftable.company  EQ fg-rcpts.company
-          AND reftable.loc      EQ STRING(fg-rcpts.r-no,"9999999999")        /* component */
-          AND (reftable.dscr EQ "fg-rctd: " + STRING(lv-r-no, "9999999999")  /* set header r-no */
-               AND reftable.dscr begins "fg-rctd: ")  
-        USE-INDEX loc   EXCLUSIVE-LOCK:
-        reftable.dscr = "fg-rctd: " + STRING({&TABLENAME}.r-no, "9999999999").
-      END. /* each reftable */
+
     END. /* each fg-rcpts */
   END.
 
-  FIND FIRST reftable
-      WHERE reftable.reftable EQ "fg-rctd.user-id"
-        AND reftable.company  EQ {&TABLENAME}.company
-        AND reftable.loc      EQ STRING({&TABLENAME}.r-no,"9999999999")
-      NO-ERROR.
-  IF NOT AVAIL reftable THEN DO:
-    CREATE reftable.
-    ASSIGN
-     reftable.reftable = "fg-rctd.user-id"
-     reftable.company  = {&TABLENAME}.company
-     reftable.loc      = STRING({&TABLENAME}.r-no,"9999999999")
-     reftable.code     = USERID("nosweat").
-  END.
 
-  {&TABLENAME}.updated-by = USERID("nosweat").
 
-  ASSIGN
-   reftable.code2        = USERID("nosweat")
-   {&TABLENAME}.upd-date = TODAY
-   {&TABLENAME}.upd-time = TIME.
+ASSIGN  {&TABLENAME}.updated-by = USERID("nosweat")
+        {&TABLENAME}.upd-date = TODAY
+        {&TABLENAME}.upd-time = TIME.
 
-  FIND FIRST fg-rcpts NO-LOCK
-      WHERE fg-rcpts.r-no   EQ {&TABLENAME}.r-no
-        AND fg-rcpts.linker BEGINS "fg-rctd: "
-      NO-ERROR.
-  IF AVAIL fg-rcpts THEN reftable.dscr = fg-rcpts.linker.
+
 END.
 
 IF {&TABLENAME}.created-by EQ "" THEN

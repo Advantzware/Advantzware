@@ -1,5 +1,5 @@
 &Scoped-define ACTION DELETE
-&Scoped-define DBNAME PDBNAME('ASI')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME fg-rctd
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.
@@ -35,12 +35,7 @@ IF NOT llSkipProcess THEN DO:
       DELETE fg-rcpts.
     END.
     
-    FOR EACH reftable
-        WHERE reftable.reftable EQ "fg-rctd.user-id"
-          AND reftable.company  EQ {&TABLENAME}.company
-          AND reftable.loc      EQ STRING({&TABLENAME}.r-no,"9999999999"):
-      DELETE reftable.
-    END.
+    
     IF {&TABLENAME}.rita-code EQ "T" AND AVAIL oe-bolh THEN DO:
       FIND CURRENT oe-bolh NO-ERROR.
       oe-bolh.posted = NO.

@@ -24,7 +24,9 @@ DEF INPUT PARAMETER in-recid AS RECID.
 {sys/inc/VAR.i SHARED}
 
 {oe/d-selbin.i NEW}
+ {sys/inc/oereordr.i} 
 
+ 
 DEF SHARED VAR out-recid AS RECID NO-UNDO.
 DEF SHARED VAR relh-recid AS RECID NO-UNDO.
 
@@ -43,7 +45,9 @@ DEFINE VARIABLE v-s-code          AS CHARACTER       NO-UNDO.
 DEFINE VARIABLE lrOeRell          AS ROWID           NO-UNDO.
 DEFINE VARIABLE li-nxt-rel-no     AS INTEGER         NO-UNDO.
 DEFINE VARIABLE lcBolWhse         AS CHARACTER       NO-UNDO.
-
+DEFINE VARIABLE v-rtn-char        AS CHARACTER NO-UNDO.
+DEFINE VARIABLE RelSkipRecalc-log AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE v-rec-found       AS LOGICAL   NO-UNDO.
      
 DEF BUFFER b-reftable FOR reftable.
 DEF BUFFER bf-rell FOR oe-rell .
@@ -96,6 +100,10 @@ DO TRANSACTION:
 
 END.
 
+RUN sys/ref/nk1look.p (INPUT cocode, "RelSkipRecalc", "L" /* Logical */, NO /* check by cust */, 
+    INPUT YES /* use cust not vendor */, "" /* cust */, "" /* ship-to*/,
+    OUTPUT v-rtn-char, OUTPUT v-rec-found).
+RelSkipRecalc-log = LOGICAL(v-rtn-char) NO-ERROR.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
@@ -214,6 +222,17 @@ ELSE DO TRANSACTION:
 END.
 RUN update-rel-stat (INPUT ROWID(oe-rel)).
 
+IF AVAILABLE itemfg AND RelSkipRecalc-log THEN DO TRANSACTION:
+    /* Corrects data integrity issue until auditing can identify problem */
+    /* Run if recalc is skipped in oe-rell trigger */
+    FIND CURRENT itemfg EXCLUSIVE-LOCK.
+    RUN fg/calcqa&b.p (ROWID(itemfg), OUTPUT itemfg.q-alloc,
+        OUTPUT itemfg.q-back).
+    itemfg.q-avail = itemfg.q-onh +
+        (IF oereordr-cha EQ "XOnOrder" THEN 0 ELSE itemfg.q-ono) -
+        itemfg.q-alloc.
+    FIND CURRENT itemfg NO-LOCK.      
+END.
 
 END.
 /* end ---------------------------------- copr. 1998  advanced software, inc. */
@@ -359,6 +378,8 @@ DEF OUTPUT PARAMETER opr-oerell AS ROWID NO-UNDO.
    oe-rell.po-no   = oe-rel.po-no
    oe-rell.line    = oe-rel.line
    oe-rell.lot-no  = oe-rel.lot-no
+   oe-rell.frt-pay = oe-rel.frt-pay
+   oe-rell.fob-code = oe-rel.fob-code
    oe-rell.printed = NO
    oe-rell.posted  = NO
    oe-rell.deleted = NO
@@ -387,21 +408,14 @@ DEF OUTPUT PARAMETER opr-oerell AS ROWID NO-UNDO.
     RELEASE b-reftable.
   END.
 
-  FIND FIRST b-reftable NO-LOCK
+FIND FIRST b-reftable NO-LOCK
       WHERE b-reftable.reftable EQ "oe-rel.sell-price"
         AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
       NO-ERROR.
 
-  IF AVAIL b-reftable THEN DO:
-    CREATE reftable.
     ASSIGN
-     reftable.reftable = "oe-rell.sell-price"
-     reftable.rec_key  = oe-rell.rec_key
-     reftable.val[1]   = b-reftable.val[1]
-     reftable.val[2]   = b-reftable.val[2].
-    RELEASE reftable.
-    RELEASE b-reftable.
-  END.
+       oe-rell.newSellPrice = b-reftable.val[1]
+       oe-rell.newZeroPrice = b-reftable.val[2].
 
   IF oe-rell.qty-case EQ 0 THEN
     oe-rell.qty-case = IF AVAIL itemfg AND itemfg.case-count GT 0

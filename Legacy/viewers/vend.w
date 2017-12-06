@@ -1196,7 +1196,11 @@ PROCEDURE enable-vend-fields :
 ------------------------------------------------------------------------------*/
 
   DO WITH FRAME {&FRAME-NAME}:
-    IF poexport-log AND poexport-cha EQ "Vendor" THEN ENABLE vend.po-export.
+      FIND FIRST users NO-LOCK
+     WHERE users.user_id EQ USERID(LDBNAME(1)) NO-ERROR.
+
+IF AVAIL users AND users.securityLevel GE 1000 THEN
+     ENABLE vend.po-export.
 /*    ENABLE tb_cc tb_billpay.*/
   END.
 

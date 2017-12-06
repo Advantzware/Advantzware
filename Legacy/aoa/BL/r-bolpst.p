@@ -172,7 +172,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     EMPTY TEMP-TABLE tt-email.
 
     RUN pRunReport. 
-
+    fDebugMsg("Decide to post lpost " + string(lpost) + " avail w-bolh " + string(can-find(FIRST w-bolh))).
     IF lPost THEN DO:
         IF CAN-FIND(FIRST w-bolh) THEN DO:
 
@@ -397,10 +397,10 @@ PROCEDURE pAutoSelectTags:
     FOR EACH w-bin:
         ASSIGN li-selected-qty = li-selected-qty + w-bin.qty.
     END.
-    fDebugMsg("selected qty " + STRING(li-selected-qty) ).
+    fDebugMsg("selected qty " + STRING(li-selected-qty) + " bol " + string(xoe-boll.bol-no) + " " + xoe-boll.i-no).
     /* Was not able to assign full quantity from tagged inventory */
     IF li-selected-qty LT xoe-boll.qty THEN DO:
-        
+        fDebugMsg("create w-nopost for bol-no " + string(xoe-boll.bol-no) + " item " + xoe-boll.i-no ).
         CREATE w-nopost.
         ASSIGN
             w-nopost.ord-no   = xoe-boll.ord-no
@@ -644,20 +644,20 @@ PROCEDURE pPostBols :
     /* DEFINE VARIABLE lv-exception AS LOG     NO-UNDO. */
     DEFINE VARIABLE dActualQty AS DECIMAL NO-UNDO.
     DEFINE VARIABLE hRelLib    AS HANDLE  NO-UNDO.
-
+    DEFINE BUFFER bf-oe-bolh FOR oe-bolh.
     /* Deletes xreport of report */
     {sa/sa-sls01.i}
 
     DISABLE TRIGGERS FOR LOAD OF itemfg.
     FOR EACH w-bolh,
-        FIRST oe-bolh NO-LOCK
-        WHERE RECID(oe-bolh) EQ w-bolh.w-recid
-        BREAK BY oe-bolh.b-no
-              BY oe-bolh.bol-no
+        FIRST bf-oe-bolh NO-LOCK
+        WHERE RECID(bf-oe-bolh) EQ w-bolh.w-recid
+        BREAK BY bf-oe-bolh.b-no
+              BY bf-oe-bolh.bol-no
         :
-        IF NOT FIRST-OF(oe-bolh.b-no) THEN DELETE w-bolh.
+        IF NOT FIRST-OF(bf-oe-bolh.b-no) THEN DELETE w-bolh.
     END.
-
+    fDebugMsg("start postBols").
     FIND FIRST sys-ctrl NO-LOCK
          WHERE sys-ctrl.company EQ cocode
            AND sys-ctrl.name    EQ 'EDIBOLPost'
@@ -667,58 +667,66 @@ PROCEDURE pPostBols :
     DO TRANSACTION.
         bolh:
         FOR EACH w-bolh,
-            FIRST oe-bolh NO-LOCK
-            WHERE RECID(oe-bolh) EQ w-bolh.w-recid,
+            FIRST bf-oe-bolh NO-LOCK
+            WHERE RECID(bf-oe-bolh) EQ w-bolh.w-recid,
             FIRST cust NO-LOCK
             WHERE cust.company EQ cocode
-              AND cust.cust-no EQ oe-bolh.cust-no                  
-            BREAK BY oe-bolh.bol-no
-                  BY oe-bolh.ord-no
-                  BY oe-bolh.rel-no
+              AND cust.cust-no EQ bf-oe-bolh.cust-no                  
+            BREAK BY bf-oe-bolh.bol-no
+                  BY bf-oe-bolh.ord-no
+                  BY bf-oe-bolh.rel-no
             :
             /* Create tt-fg-bin */
-            IF FIRST-OF(oe-bolh.bol-no) AND lPrintInvoice AND lCheckQty THEN
-            RUN oe/bolcheck.p (ROWID(oe-bolh)).
+            IF FIRST-OF(bf-oe-bolh.bol-no) AND lPrintInvoice AND lCheckQty THEN
+            RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).
             
             /* Find out if autoSelectingTags for this customer */
-            RUN sys/ref/nk1look.p (cocode, "BOLPOST", "C", YES, YES /* Cust# */, oe-bolh.cust-no, "" /* ship-to value */, 
+            RUN sys/ref/nk1look.p (cocode, "BOLPOST", "C", YES, YES /* Cust# */, bf-oe-bolh.cust-no, "" /* ship-to value */, 
                 OUTPUT cAutoSelectShipFrom, OUTPUT lRecordFound).
-            RUN sys/ref/nk1look.p (cocode, "BOLPOST", "L", YES, YES /* Cust# */, oe-bolh.cust-no, "" /* ship-to value */, 
+            RUN sys/ref/nk1look.p (cocode, "BOLPOST", "L", YES, YES /* Cust# */, bf-oe-bolh.cust-no, "" /* ship-to value */, 
                 OUTPUT cAutoSelectShipFromAlpha, OUTPUT lRecordFound).
                 lAutoSelectShipFrom = LOGICAL(cAutoSelectShipFromAlpha).
-            FIND FIRST w-except WHERE w-except.bol-no EQ oe-bolh.bol-no NO-ERROR.
+            FIND FIRST w-except WHERE w-except.bol-no EQ bf-oe-bolh.bol-no NO-ERROR.
             fDebugMsg("cAutoSelectShipFrom " + cAutoSelectShipFrom + " " + STRING(lAutoSelectShipFrom) + 
-                                          " avail w-except " + STRING(AVAILABLE(w-except))).
+                                          " avail w-except " + STRING(AVAILABLE(w-except)) + string(avail(bf-oe-bolh))).
             IF lAutoSelectShipFrom  THEN DO:
               lTaglessBOLExists = FALSE.
                 FOR EACH bf-oe-boll NO-LOCK                   
-                   WHERE bf-oe-boll.b-no EQ oe-bolh.b-no                   
+                   WHERE bf-oe-boll.b-no EQ bf-oe-bolh.b-no                   
                    :
                   IF bf-oe-boll.tag EQ "" THEN
                      lTaglessBOLExists = TRUE.
-                END.
-                fDebugMsg("decide to lTaglessBolExists " + string(lTaglessBOLExists)).                
+                END. /* each bf-oe-boll */
+                fDebugMsg("decide that lTaglessBolExists " + string(lTaglessBOLExists) + string(avail(bf-oe-bolh))).                
                 IF AVAIL w-except OR lTaglessBOLExists THEN DO:
                 
                     /* Try to assign tags to fulfill BOL Qty */
                     FOR EACH bf-oe-boll NO-LOCK                   
-                       WHERE bf-oe-boll.b-no EQ oe-bolh.b-no                   
+                       WHERE bf-oe-boll.b-no EQ bf-oe-bolh.b-no                   
                        :
-                        fDebugMsg("start pUaotSelTags " + string(lTaglessBOLExists)).
+                        fDebugMsg("start pAutoSelTags " + string(lTaglessBOLExists)).
                         RUN pAutoSelectTags (INPUT ROWID(bf-oe-boll)).
-                    END.
-                     
+                    END. /* each bf-oe-boll */
+                    
+                    fDebugMsg("after pAutoSelTags " + string(avail(bf-oe-bolh))).
                     FOR EACH w-except 
-                      WHERE w-except.bol-no EQ oe-bolh.bol-no 
+                      WHERE w-except.bol-no EQ bf-oe-bolh.bol-no 
                       :
                           DELETE w-except.
-                    END.
+                    END. /* each w-except */
+                    fDebugMsg("before bol check " + string(avail(bf-oe-bolh)) ).
                     /* check if suffient inventory again after selecting tags */
-                    RUN oe/bolcheck.p (ROWID(oe-bolh)).
-                END.
-            END.
-            FIND FIRST w-except WHERE w-except.bol-no EQ oe-bolh.bol-no NO-ERROR.
-            IF AVAILABLE w-except THEN NEXT bolh.
+                    RUN oe/bolcheck.p (ROWID(bf-oe-bolh)).
+                END. /* if avail w-except */
+            END. /* if lautoselectshipfrom */
+            
+            fDebugMsg("before each w-except after bolcheck " + string(avail(bf-oe-bolh))).
+            FIND FIRST w-except WHERE w-except.bol-no EQ bf-oe-bolh.bol-no NO-ERROR.
+            IF AVAILABLE w-except THEN 
+            DO:
+              fDebugMsg("w-exception found no qty avail " + string(bf-oe-bolh.bol-no)  ).
+              NEXT bolh.
+            END. /* if avail w-except */
 
             iLineCount = iLineCount + 1.
 
@@ -731,12 +739,12 @@ PROCEDURE pPostBols :
                        AND sys-ctrl-shipto.log-fld      EQ YES
                      NO-ERROR.
             END. /* avail sys-ctrl */
-
+            fDebugMsg("pPostbols actual qty check " + string(w-bolh.bol-no) + " aail bolh " + string(avail(bf-oe-bolh))).
             cExternalProgram = "sbo/oerel-recalc-act.p".
             RUN VALUE(cExternalProgram) PERSISTENT SET hExtProgramHandle NO-ERROR.
             hRelLib = hExtProgramHandle.
 
-            FOR EACH oe-boll NO-LOCK WHERE oe-boll.b-no EQ oe-bolh.b-no,
+            FOR EACH oe-boll NO-LOCK WHERE oe-boll.b-no EQ bf-oe-bolh.b-no,
                 EACH oe-ordl NO-LOCK
                 WHERE oe-ordl.company EQ oe-boll.company
                 AND oe-ordl.ord-no EQ oe-boll.ord-no
@@ -754,21 +762,26 @@ PROCEDURE pPostBols :
                     /* Set actual quantity */
                     IF AVAILABLE oe-rel AND VALID-HANDLE(hRelLib) THEN 
                         RUN recalc-act-qty IN hRelLib (INPUT ROWID(oe-rel), OUTPUT dActualQty).
-                END.
-            END.
+                     fDebugMsg("pPostbols actual qty check " + string(dActualQty)  ).                        
+                END. /* each oe-rel */
+            END. /* each oe-boll */
 
             IF VALID-HANDLE(hRelLib) THEN
                 DELETE OBJECT hRelLib.
-
+                
+            fDebugMsg("pPostbols before each oe-boll " + string(avail(bf-oe-bolh) ) ).
             FOR EACH oe-boll NO-LOCK
-                WHERE oe-boll.company EQ oe-bolh.company
-                  AND oe-boll.b-no    EQ oe-bolh.b-no
+                WHERE oe-boll.company EQ bf-oe-bolh.company
+                  AND oe-boll.b-no    EQ bf-oe-bolh.b-no
                 :
+                fDebugMsg("running bol-pre-post for " + STRING(oe-boll.bol-no)  ).
                 RUN oe/bol-pre-post.p (ROWID(oe-boll), v-term).
-                IF fgreorder-log AND cust.ACTIVE EQ "E" THEN
+                IF fgreorder-log AND cust.ACTIVE EQ "E" THEN DO:
+                    fDebugMsg("running pCreateReport for " + STRING(oe-boll.bol-no)  ).
                     RUN pCreateReorder (ROWID(oe-boll)).
+                END. /* if fgreorder-log */
             END. /* each oe-boll */
-        END. /* for each oe-bolh */
+        END. /* for each bf-oe-bolh */
 
         FOR EACH tt-fg-bin:
             DELETE tt-fg-bin.
@@ -883,8 +896,10 @@ PROCEDURE pRunReport :
         :
         IF lCustList AND
            NOT CAN-FIND(FIRST ttCustList
-                        WHERE ttCustList.cust-no EQ oe-bolh.cust-no) THEN
-        NEXT.
+                        WHERE ttCustList.cust-no EQ oe-bolh.cust-no) THEN DO:
+           fDebugMsg("Skip for custlist " + string(oe-bolh.bol-no)).                            
+           NEXT.
+        END.
         CREATE w-bolh.
         ASSIGN
             w-bolh.bol-no   = oe-bolh.bol-no
@@ -912,8 +927,10 @@ PROCEDURE pRunReport :
         :
         IF lCustList AND
            NOT CAN-FIND(FIRST ttCustList
-                        WHERE ttCustList.cust-no EQ oe-bolh.cust-no) THEN
-        NEXT.
+                        WHERE ttCustList.cust-no EQ oe-bolh.cust-no) THEN DO:
+           fDebugMsg("Skip for custlist " + string(oe-bolh.bol-no)).                            
+           NEXT.
+        END.
         CREATE w-bolh.
         ASSIGN
             w-bolh.bol-no   = oe-bolh.bol-no
@@ -1061,8 +1078,10 @@ PROCEDURE pRunReport :
             IF AVAILABLE oe-ord  AND
                AVAILABLE oe-ordl AND
                oe-ordl.ship-qty + oe-boll.qty GT
-               oe-ordl.qty * (1 + (oe-ordl.over-pct / 100)) THEN
-            ttPostBOLCreateInvoice.reason = "Qty Shipped will exceed Qty Ordered + Allowable Overrun".
+               oe-ordl.qty * (1 + (oe-ordl.over-pct / 100)) THEN DO:
+              ttPostBOLCreateInvoice.reason = "Qty Shipped will exceed Qty Ordered + Allowable Overrun".
+                fDebugMsg("In Run Report - Set Reason Qty shipped" + string(oe-ordl.ship-qty + oe-boll.qty) + " exceeds " + string(oe-ordl.qty) ).  
+            END.
         END. /* each oe-boll */
     END. /* each w-bolh */
 END PROCEDURE.
