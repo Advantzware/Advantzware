@@ -624,5 +624,58 @@ PROCEDURE pHTMLPages:
             OUTPUT CLOSE.
         END. /* if last-of */
     END. /* each ttbljob */
-    INPUT CLOSE.
+    
+    OUTPUT TO VALUE(htmlPageLocation + '\sbResources.htm').
+    PUT UNFORMATTED
+        '<html>' SKIP
+        '<head>' SKIP
+        '<title>Schedule Board Resources</title>' SKIP
+        '<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">' SKIP
+        '<meta http-equiv="Refresh" content="120">' SKIP
+        '</head>' SKIP
+        '<a name="Top"></a>' SKIP
+        '<form>' SKIP
+        '<fieldset>' SKIP
+        '<legend>Schedule Board Resources (updated ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')'
+        '~&nbsp;</legend>' SKIP
+        '  <table border="1" cellspacing="0" cellpadding="10">' SKIP
+        '    <tr>' SKIP
+        '      <td bgcolor="#CCCCCC" nowrap><b>Resource</b></td>' SKIP
+        '      <td bgcolor="#CCCCCC" nowrap><b>Name</b></td>' SKIP
+        '    </tr>' SKIP
+        .
+    lAltLine = YES.
+    FOR EACH ttblJob NO-LOCK
+        BREAK BY ttblJob.resource
+              BY ttblJob.jobSequence
+              BY ttblJob.jobSort
+        :
+        IF FIRST-OF(ttblJob.resource) THEN DO:
+            FIND FIRST mach NO-LOCK 
+                 WHERE mach.company EQ ENTRY(1,ttblJob.keyValue)
+                   AND mach.m-code  EQ ttblJob.resource
+                 NO-ERROR.
+            ASSIGN 
+                lAltLine = NOT lAltLine
+                cBGColor = IF lAltLine THEN ' bgcolor="D1FCC5"' ELSE ''
+                .
+            PUT UNFORMATTED
+                '    <tr>' SKIP
+                '      <td' cBGColor ' nowrap><b><a href="' htmlPageLocation + '\' + ttblJob.resource + '.htm" target="_blank">'
+                ttblJob.resource '</a></b></td>' SKIP
+                '      <td' cBGColor ' nowrap><b><a href="' htmlPageLocation + '\' + ttblJob.resource + '.htm" target="_blank">'
+                (IF AVAILABLE mach THEN mach.m-dscr ELSE '') '</a></b></td>' SKIP
+                '    </tr>' SKIP
+                .
+        END. /* if first-of */
+    END. /* each ttbljob */
+    PUT UNFORMATTED
+        '  </table>' SKIP
+        '  <div align="left"><a href="#Top">Top</a>' SKIP
+        '  <div align="right">~&copy; Advantzware, Inc., All Rights Reserved</div>' SKIP
+        '</fieldset>' SKIP
+        '</form>' SKIP
+        '</html>' SKIP
+        .
+    OUTPUT CLOSE.
 END PROCEDURE.

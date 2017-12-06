@@ -4857,6 +4857,7 @@ PROCEDURE getConfiguration :
   DEFINE VARIABLE custVal AS CHARACTER  NO-UNDO.
   DEFINE VARIABLE i AS INTEGER NO-UNDO.
   DEFINE VARIABLE ulColor AS INTEGER NO-UNDO.
+  DEFINE VARIABLE lDisableHTMLPageLocation AS LOGICAL NO-UNDO.
   
   INPUT FROM VALUE(SEARCH('{&data}/statusCheckOffs.dat')) NO-ECHO.
   REPEAT:
@@ -5021,8 +5022,16 @@ PROCEDURE getConfiguration :
     ENABLE
       reloadReportValue reloadStatusValue dueDateUsedValue
       completedCheckOffValue customCheckOffValue {&jobLabelFields}
-/*      btnHTMLPageLocation */
       .
+    FIND FIRST asi.module NO-LOCK
+         WHERE asi.module.db-name EQ "ASI"
+           AND asi.module.module  EQ "sbHTML"
+         NO-ERROR.
+    lDisableHTMLPageLocation = AVAILABLE asi.module AND
+                              (NOT asi.module.is-used OR
+                               asi.module.expire-date LT TODAY).
+    IF lDisableHTMLPageLocation EQ NO THEN 
+    ENABLE btnHTMLPageLocation.
     IF customValueList EQ '' THEN
     DISABLE {&customValueFields}.
   END. /* colorsframe */
