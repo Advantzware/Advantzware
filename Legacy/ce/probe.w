@@ -2076,6 +2076,9 @@ PROCEDURE display-probe :
   Parameters:  <none>
   Notes:       
 ------------------------------------------------------------------------------*/
+  OS-DELETE VALUE(ls-xfile).
+  OS-DELETE VALUE(ls-outfile) .
+  
   RUN printProbe (NO).
  
 END PROCEDURE.
@@ -3052,6 +3055,8 @@ PROCEDURE printProbe :
   
   list-name = IF v-prt-note THEN ls-notefile ELSE ls-outfile.
   dos silent type value(list-name) >> value(ls-xfile).
+  
+  IF is-xprint-form THEN
   list-name = ls-xfile.
 
   IF v-prt-box THEN DO:
