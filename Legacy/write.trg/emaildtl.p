@@ -1,5 +1,5 @@
 &Scoped-define ACTION UPDATE
-&Scoped-define DBNAME PDBNAME('tmp')
+&Scoped-define DBNAME LDBNAME('tmp')
 &Scoped-define TABLENAME emaildtl
 
 TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.

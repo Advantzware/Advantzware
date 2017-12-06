@@ -1,18 +1,5 @@
-
-/*------------------------------------------------------------------------
-    File        : notes.p
-    Purpose     : 
-
-    Syntax      :
-
-    Description : Write trigger for the Notes table	
-
-    Author(s)   : 
-    Created     : Thu Sep 14 18:30:00 EDT 2017
-    Notes       :
-  ----------------------------------------------------------------------*/
 &Scoped-define ACTION UPDATE
-&Scoped-define DBNAME PDBNAME('ASI')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME notes
 TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
 DEFINE VARIABLE cPrograms AS CHARACTER NO-UNDO.

@@ -2131,54 +2131,7 @@ CREATE TEXT timeLine IN WIDGET-POOL 'gridLine'
       BGCOLOR = 12
       HIDDEN = NO.
 
-ASSIGN
-    hMsgImage[1]  = msgImage-1:HANDLE
-    hMsgImage[2]  = msgImage-2:HANDLE
-    hMsgImage[3]  = msgImage-3:HANDLE
-    hMsgImage[4]  = msgImage-4:HANDLE
-    hMsgImage[5]  = msgImage-5:HANDLE
-    hMsgImage[6]  = msgImage-6:HANDLE
-    hMsgImage[7]  = msgImage-7:HANDLE
-    hMsgImage[8]  = msgImage-8:HANDLE
-    hMsgImage[9]  = msgImage-9:HANDLE
-    hMsgImage[10] = msgImage-10:HANDLE
-    hMsgImage[11] = msgImage-11:HANDLE
-    hMsgImage[12] = msgImage-12:HANDLE
-    hMsgImage[13] = msgImage-13:HANDLE
-    hMsgImage[14] = msgImage-14:HANDLE
-    hMsgImage[15] = msgImage-15:HANDLE
-    hMsgImage[16] = msgImage-16:HANDLE
-    hMsgImage[17] = msgImage-17:HANDLE
-    hMsgImage[18] = msgImage-18:HANDLE
-    hMsgImage[19] = msgImage-19:HANDLE
-    hMsgImage[20] = msgImage-20:HANDLE
-    hMsgImage[21] = msgImage-21:HANDLE
-    hMsgImage[22] = msgImage-22:HANDLE
-    hMsgImage[23] = msgImage-23:HANDLE
-    hMsgText[1]   = msgText-1:HANDLE
-    hMsgText[2]   = msgText-2:HANDLE
-    hMsgText[3]   = msgText-3:HANDLE
-    hMsgText[4]   = msgText-4:HANDLE
-    hMsgText[5]   = msgText-5:HANDLE
-    hMsgText[6]   = msgText-6:HANDLE
-    hMsgText[7]   = msgText-7:HANDLE
-    hMsgText[8]   = msgText-8:HANDLE
-    hMsgText[9]   = msgText-9:HANDLE
-    hMsgText[10]  = msgText-10:HANDLE
-    hMsgText[11]  = msgText-11:HANDLE
-    hMsgText[12]  = msgText-12:HANDLE
-    hMsgText[13]  = msgText-13:HANDLE
-    hMsgText[14]  = msgText-14:HANDLE
-    hMsgText[15]  = msgText-15:HANDLE
-    hMsgText[16]  = msgText-16:HANDLE
-    hMsgText[17]  = msgText-17:HANDLE
-    hMsgText[18]  = msgText-18:HANDLE
-    hMsgText[19]  = msgText-19:HANDLE
-    hMsgText[20]  = msgText-20:HANDLE
-    hMsgText[21]  = msgText-21:HANDLE
-    hMsgText[22]  = msgText-22:HANDLE
-    hMsgText[23]  = msgText-23:HANDLE
-    .
+RUN initMsgFrame.
 
 {{&includes}/{&Board}/boardProc.i}
 {{&includes}/{&Board}/calcEnd.i}
@@ -3341,6 +3294,79 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE initMsgFrame s-object
+PROCEDURE initMsgFrame:
+/*------------------------------------------------------------------------------
+ Purpose:
+ Notes:
+------------------------------------------------------------------------------*/
+    DEFINE VARIABLE iIndex AS INTEGER NO-UNDO.
+    
+    DO WITH FRAME msgFrame:
+        ASSIGN
+            iMsg          = 0
+            hMsgImage[1]  = msgImage-1:HANDLE
+            hMsgImage[2]  = msgImage-2:HANDLE
+            hMsgImage[3]  = msgImage-3:HANDLE
+            hMsgImage[4]  = msgImage-4:HANDLE
+            hMsgImage[5]  = msgImage-5:HANDLE
+            hMsgImage[6]  = msgImage-6:HANDLE
+            hMsgImage[7]  = msgImage-7:HANDLE
+            hMsgImage[8]  = msgImage-8:HANDLE
+            hMsgImage[9]  = msgImage-9:HANDLE
+            hMsgImage[10] = msgImage-10:HANDLE
+            hMsgImage[11] = msgImage-11:HANDLE
+            hMsgImage[12] = msgImage-12:HANDLE
+            hMsgImage[13] = msgImage-13:HANDLE
+            hMsgImage[14] = msgImage-14:HANDLE
+            hMsgImage[15] = msgImage-15:HANDLE
+            hMsgImage[16] = msgImage-16:HANDLE
+            hMsgImage[17] = msgImage-17:HANDLE
+            hMsgImage[18] = msgImage-18:HANDLE
+            hMsgImage[19] = msgImage-19:HANDLE
+            hMsgImage[20] = msgImage-20:HANDLE
+            hMsgImage[21] = msgImage-21:HANDLE
+            hMsgImage[22] = msgImage-22:HANDLE
+            hMsgImage[23] = msgImage-23:HANDLE
+            hMsgText[1]   = msgText-1:HANDLE
+            hMsgText[2]   = msgText-2:HANDLE
+            hMsgText[3]   = msgText-3:HANDLE
+            hMsgText[4]   = msgText-4:HANDLE
+            hMsgText[5]   = msgText-5:HANDLE
+            hMsgText[6]   = msgText-6:HANDLE
+            hMsgText[7]   = msgText-7:HANDLE
+            hMsgText[8]   = msgText-8:HANDLE
+            hMsgText[9]   = msgText-9:HANDLE
+            hMsgText[10]  = msgText-10:HANDLE
+            hMsgText[11]  = msgText-11:HANDLE
+            hMsgText[12]  = msgText-12:HANDLE
+            hMsgText[13]  = msgText-13:HANDLE
+            hMsgText[14]  = msgText-14:HANDLE
+            hMsgText[15]  = msgText-15:HANDLE
+            hMsgText[16]  = msgText-16:HANDLE
+            hMsgText[17]  = msgText-17:HANDLE
+            hMsgText[18]  = msgText-18:HANDLE
+            hMsgText[19]  = msgText-19:HANDLE
+            hMsgText[20]  = msgText-20:HANDLE
+            hMsgText[21]  = msgText-21:HANDLE
+            hMsgText[22]  = msgText-22:HANDLE
+            hMsgText[23]  = msgText-23:HANDLE
+            .
+    END. /* frame msgframe */
+    
+    DO iIndex = 1 TO EXTENT(hMsgImage):
+        hMsgImage[iIndex]:LOAD-IMAGE(?).
+        hMsgText[iIndex]:SCREEN-VALUE = "".
+    END.
+
+END PROCEDURE.
+	
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE jobMoving s-object 
 PROCEDURE jobMoving :
 {{&includes}/{&Board}/jobMoving.i}
@@ -3708,8 +3734,10 @@ PROCEDURE msgFrame :
 ------------------------------------------------------------------------------*/
   DEFINE INPUT PARAMETER ipMsg AS CHARACTER NO-UNDO.
 
-  IF ipMsg EQ ? THEN
-  SESSION:SET-WAIT-STATE('').
+ IF ipMsg EQ ? THEN DO:
+      RUN initMsgFrame. 
+      SESSION:SET-WAIT-STATE('').
+  END.
   
   IF NOT (showStatus OR openBoard) THEN RETURN.
   

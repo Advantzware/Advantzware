@@ -1,7 +1,7 @@
 /* oe/rep/ackxprnt.i */
 
 PUT "<FArial>".
-     PUT "<C1><#1><R+10><C+50><IMAGE#1=" ls-full-img1 SKIP. /* pacific package */ 
+     PUT "<C1><#1><R+10><C+47><IMAGE#1=" ls-full-img1 SKIP. /* pacific package */ 
            
 PUT "<=1>" SKIP.
 PUT /*"<C1><#2>" /*<R+10><C+35><IMAGE#2=" ls-full-img2 SKIP  /* company image */ */

@@ -1617,6 +1617,15 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     lv-int-c    = sys-ctrl.int-fld
     lv-default-c = sys-ctrl.char-fld .   
 
+    &IF DEFINED(TSJobCard) NE 0 &THEN
+    ASSIGN
+        begin_job1 = ip-job-no
+        begin_job2 = ip-job-no2
+        end_job1   = ip-job-no
+        end_job2   = ip-job-no2
+        .
+    &ENDIF
+    
     IF TRIM(begin_job1:SCREEN-VALUE) NE ""                          AND
        TRIM(begin_job1:SCREEN-VALUE) EQ TRIM(end_job1:SCREEN-VALUE) AND
        INT(begin_job2:SCREEN-VALUE)  EQ INT(end_job2:SCREEN-VALUE)  THEN DO:

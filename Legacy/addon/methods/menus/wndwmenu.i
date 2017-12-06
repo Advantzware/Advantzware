@@ -59,6 +59,11 @@ RUN VALUE(run-proc) ('index.',0).
 &Scoped-define LABEL11 About
 &Scoped-define PROC11 ~
 RUN Get_Procedure IN Persistent-Handle ('about.',OUTPUT run-proc,yes).
+&Scoped-define LABEL12 Audit History
+&Scoped-define PROC12 ~
+RUN Get_Procedure IN Persistent-Handle ('CallAudit.',OUTPUT run-proc,no). ~
+IF run-proc NE '' THEN ~
+RUN VALUE(run-proc) ('{&FIRST-EXTERNAL-TABLE}',hTable,'Window',PROGRAM-NAME(1)).
 
 DEFINE SUB-MENU m_File
        {methods/menus/menuitem.i 1 m}
@@ -82,12 +87,16 @@ DEFINE SUB-MENU m_Help
        {methods/menus/menuitem.i 9 m}
        {methods/menus/menuitem.i 10 m}
        RULE
+       {methods/menus/menuitem.i 12 m} 
+       RULE
        {methods/menus/menuitem.i 11 m}
        .
 
 DEFINE SUB-MENU p_Help
        {methods/menus/menuitem.i 9 p}
        {methods/menus/menuitem.i 10 p}
+       RULE
+       {methods/menus/menuitem.i 12 p} 
        RULE
        {methods/menus/menuitem.i 11 p}
        .
@@ -132,6 +141,7 @@ ASSIGN {&WINDOW-NAME}:MENUBAR    = MENU MENU-BAR-W-Win:HANDLE
 {methods/menus/menutrig.i 9}
 {methods/menus/menutrig.i 10}
 {methods/menus/menutrig.i 11}
+{methods/menus/menutrig.i 12}
 
 &IF INDEX("{&OPTIONS}","{&FIRST-EXTERNAL-TABLE}") NE 0 &THEN
 &Scoped-define ITEMS no

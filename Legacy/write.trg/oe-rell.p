@@ -1,5 +1,5 @@
 &Scoped-define ACTION UPDATE
-&Scoped-define DBNAME PDBNAME('ASI')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME oe-rell
 
 TRIGGER PROCEDURE FOR WRITE OF {&TABLENAME} OLD BUFFER old-{&TABLENAME}.
@@ -20,8 +20,8 @@ cocode = {&TABLENAME}.company.
 
 /* Finding sys-ctrl directly for to improve speed for trigger */
 FIND FIRST sys-ctrl NO-LOCK
-    WHERE sys-ctrl.company eq cocode
-    AND sys-ctrl.name EQ "RelSkipRecalc"
+    WHERE sys-ctrl.company EQ cocode
+      AND sys-ctrl.name    EQ "RelSkipRecalc"
     NO-ERROR.
 IF AVAILABLE sys-ctrl THEN 
   lSkipRecalcInventory = sys-ctrl.log-fld.
@@ -74,9 +74,9 @@ FOR EACH oe-ord
       AND oe-ord.ord-no  EQ {&TABLENAME}.ord-no
     NO-LOCK:
 
-  FIND oe-ordl OF oe-ord
+  FIND oe-ordl OF oe-ord NO-LOCK 
       WHERE oe-ordl.i-no EQ {&TABLENAME}.i-no
-      NO-LOCK NO-ERROR.
+      NO-ERROR.
   IF AVAIL oe-ordl THEN {&TABLENAME}.line = oe-ordl.line.
 
   LEAVE.

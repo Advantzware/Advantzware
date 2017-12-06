@@ -45,8 +45,8 @@ IF SEARCH("logs/fifo.txt") NE ?  THEN
    lUseLogs = TRUE.
 DEFINE STREAM sDebug.
 IF lUseLogs THEN DO:
-    OUTPUT STREAM sDEbug TO VALUE(cDebugLog).
-    OUTPUT TO VALUE(REPLACE(cDebugLog, "txt", "errs")).
+    OUTPUT STREAM sDEbug TO VALUE(cDebugLog) append.
+    OUTPUT TO VALUE(REPLACE(cDebugLog, "txt", "errs")) append.
 END.
 
 /** If Shipping From Bill Of Lading Then Set Ship Code = B
@@ -144,6 +144,7 @@ DO:
     IF lUseCSCIndex THEN 
     DO:
         fDebugLog("fifo CSC Index Option").
+
         fifo-loop-csc:
         DO iFifoLoopCount = 1 TO 2.
             FOR EACH fg-bin
@@ -203,7 +204,7 @@ DO:
     END. /* IF Using CSC: No Index */
     ELSE 
     DO:
-        fDebugLog("fifo - before loop " + " qty to asign " + STRING(iRelQtyToAssign)).        
+        fDebugLog("fifo - before loop " + " qty to asign " + STRING(iRelQtyToAssign) + " item " + cIno).        
         DEFINE VARIABLE iLastToAssign AS INTEGER.
         iLastToAssign = 0.
         /* Using i-no index */
@@ -298,8 +299,10 @@ DO:
                     iAvailable = fg-bin.qty - iOnBOL.
                     
                     IF NOT ((iAvailable      GT 0 AND iFifoLoopCount EQ 2) OR
-                            (iAvailable      GE iRelQtyToAssign AND iFifoLoopCount EQ 1)) THEN 
+                            (iAvailable      GE iRelQtyToAssign AND iFifoLoopCount EQ 1)) THEN DO:
+                        fDebugLog("run skiptag for qty problem " + fg-bin.tag + " avail " + string(iavailable) + " irelqtytoass " + string(iRelQtytoassign)).                                
                             NEXT.
+                    END.
                     fDebugLog("run pcreatetempoerell " + fg-bin.tag).
                     RUN pCreateTempOeRell (INPUT ROWID(fg-bin), ROWID(fg-rcpth)).
     
@@ -311,7 +314,7 @@ DO:
                      /* Record was found, so leave the loop */
                      LEAVE loop-count.
                 END. /* end for each fg-bin */
-                 fDebugLog("next of loop ").
+                 fDebugLog("next of loop " + string(iFifoLoopCount)).
             END. /* loop-count: do iFifoLoopCount 1 to 2 */
 
             IF iRelQtyToAssign LE 0 OR iRelQtyToAssign EQ iLastToAssign OR lFgBinFound = FALSE THEN LEAVE fifo-loop.

@@ -1,5 +1,5 @@
 &Scoped-define ACTION DELETE
-&Scoped-define DBNAME PDBNAME('ASI')
+&Scoped-define DBNAME ASI
 &Scoped-define TABLENAME gl-rptd
 
 TRIGGER PROCEDURE FOR DELETE OF {&TABLENAME}.

@@ -253,7 +253,7 @@ IF PROGRAM-NAME(1) MATCHES "*windows/l-syschr.w*" then do:
        str-init[31] = "cerunf 1,cerunf 2"
        str-init[32] = "jobcardc 1,jobcardc 2"
        str-init[33] = "jobcardf 1,jobcardf 2"
-       str-init[89] = "stmtprint 1,stmtprint 2"  /*stmtprin*/
+       str-init[89] = "stmtprint 1,stmtprint 2,StdStatement10"  /*stmtprin*/
        str-init[141] = "AckMaster 1,AckMaster 2" /*"3CPack"*/
        str-init[151] = "bolfmt1"
        .
