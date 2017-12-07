@@ -35,13 +35,6 @@ FOR EACH reftable WHERE
     DELETE reftable.
 END.
 
-FOR EACH reftable WHERE
-    reftable.reftable EQ "oe-boll.sell-price" AND
-    reftable.rec_key EQ oe-boll.rec_key
-    EXCLUSIVE-LOCK:
-
-    DELETE reftable.
-END.
 
 IF {&TABLENAME}.ord-no NE 0 THEN
 FOR EACH oe-rel
