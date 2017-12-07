@@ -207,14 +207,11 @@ DO v-fifo-loop = 1 TO 2.
         RELEASE b-reftable. 
     END.
 
-    FIND FIRST b-reftable NO-LOCK
-        WHERE b-reftable.reftable EQ "oe-rel.sell-price"
-          AND b-reftable.company  EQ STRING(oe-rel.r-no,"9999999999")
-        NO-ERROR.
+    
    
     ASSIGN
-       oe-rell.newSellPrice = b-reftable.val[1]
-       oe-rell.newZeroPrice = b-reftable.val[2].
+       oe-rell.newSellPrice = oe-rel.sell-price
+       oe-rell.newZeroPrice = oe-rel.zeroPrice.
 
     IF fg-bin.qty LE v-rel-qty THEN
       ASSIGN

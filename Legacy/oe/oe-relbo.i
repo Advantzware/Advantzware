@@ -429,22 +429,10 @@ DO bo-try = 1 TO 2:
        oe-rel.frt-pay = v-new-frt-pay
        oe-rel.fob-code  = v-new-fob-code.
 
-    FIND FIRST b-reftable2 WHERE
-         b-reftable2.reftable EQ "oe-rel.sell-price" AND
-         b-reftable2.company  EQ STRING(oe-rel.r-no,"9999999999")
-         NO-ERROR.
-
-    IF NOT AVAIL b-reftable2 THEN
-    DO:
-       CREATE b-reftable2.
-       ASSIGN
-          b-reftable2.reftable = "oe-rel.sell-price"
-          b-reftable2.company  = STRING(oe-rel.r-no,"9999999999").
-    END.
-
+    
     ASSIGN
-       b-reftable2.val[1] = v-new-sell-price
-       b-reftable2.val[2] = DECIMAL(v-new-zero-price).
+       oe-rel.sell-price = v-new-sell-price
+       oe-rel.zeroPrice = DECIMAL(v-new-zero-price).
 
     RELEASE b-reftable2.
 
