@@ -1567,7 +1567,7 @@ for each rm-rcpth
 
                     END CASE.
 
-                    cExcelVarValue = cVarValue.
+                    cExcelVarValue = IF cTmpField EQ "rm-item" THEN string(rm-bin.i-no,"x(10)") ELSE IF cTmpField = "desc" THEN string(item.i-name,"x(25)") ELSE cVarValue.
                     cDisplay = cDisplay + cVarValue +
                                FILL(" ",int(entry(getEntryNumber(INPUT cTextListToSelect, INPUT ENTRY(i,cSelectedList)), cFieldLength)) + 1 - LENGTH(cVarValue)). 
                     cExcelDisplay = cExcelDisplay + quoter(cExcelVarValue) + ",".            
