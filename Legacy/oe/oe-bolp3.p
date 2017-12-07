@@ -84,6 +84,7 @@ DEF VAR ld-Inv AS DEC NO-UNDO.
 DEF VAR cRelSCode AS CHAR NO-UNDO.
 DEF VAR iTotalIScode AS INT NO-UNDO.
 DEF VAR iTotalSScode AS INT NO-UNDO.
+DEFINE VARIABLE rCurrentInvHeadRow AS ROWID  NO-UNDO.
 DEF BUFFER bf-oe-ordl FOR oe-ordl.
 DEF BUFFER bf-oe-boll FOR oe-boll.
 
@@ -103,6 +104,35 @@ DEFINE TEMP-TABLE ttblUPS NO-UNDO
   FIELD cod AS LOGICAL
     INDEX ttblUPS IS PRIMARY UNIQUE company ord-no sold-to.
            
+DEFINE VARIABLE lUseLogs AS LOGICAL NO-UNDO.
+DEFINE VARIABLE cDebugLog AS CHARACTER NO-UNDO.
+DEFINE STREAM sDebug.
+lUseLogs = TRUE. /* Use debug logging unless it's turned off */
+if search("custfiles\logs\" + "block-oe-bolp3-logging.txt") ne ? then 
+    lUseLogs = FALSE.
+cDebugLog = "custfiles\logs\" + "oe-bolp3" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,1000)) + ".txt".
+IF lUseLogs THEN 
+    OUTPUT STREAM sDebug TO VALUE(cDebugLog).
+IF ERROR-STATUS:ERROR THEN 
+    lUseLogs = FALSE.
+
+/* ************************  Function Implementations ***************** */
+FUNCTION fLogMsg RETURNS CHARACTER 
+    (INPUT ipcMessage AS CHARACTER  ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/	
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    IF lUseLogs THEN 
+    DO:
+        OUTPUT STREAM sDebug CLOSE. 
+        OUTPUT STREAM sDebug TO VALUE(cDebugLog) append.
+        PUT STREAM sDebug UNFORMATTED ipcMessage SKIP.
+    END.
+    RETURN cResult.
+END FUNCTION.
+
 FUNCTION tabChar RETURNS CHARACTER (ipValue AS CHARACTER):
   RETURN IF ipValue NE '' THEN '~t' ELSE ''.
 END FUNCTION.
@@ -167,6 +197,7 @@ IF v-format EQ "HARWELL" THEN invdate-chr = "Current".
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 v-u-inv = oe-ctrl.u-inv.
 
+    
 EMPTY TEMP-TABLE w-inv.
 
 DO TRANSACTION:
@@ -325,7 +356,8 @@ STATUS DEFAULT "Processing BOL Posting 1........ BOL#: " + STRING(oe-bolh.bol-no
   END. /* Each report */
 
   RUN check-posted.
-
+  
+  rCurrentInvHeadRow = ?.
   FOR EACH report WHERE report.term-id EQ v-term,
 
       FIRST oe-boll WHERE RECID(oe-boll) EQ report.rec-id,
@@ -370,12 +402,14 @@ STATUS DEFAULT "Processing BOL Posting 1........ BOL#: " + STRING(oe-bolh.bol-no
             BY report.key-07:
 
     STATUS DEFAULT "Processing BOL Posting 2........ BOL#: " + STRING(oe-bolh.bol-no).
+    fLogMsg("Start oe-bolp3.i from oe-bolp3.p " + " BOL# " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no).
     /* Note: oe-bolp3 requires locks on oe-ord, oe-ordl, oe-bolh, oe-boll */
     {oe/oe-bolp3.i "report" "key-03"}
     
     CREATE tt-report.
     BUFFER-COPY report TO tt-report.
     DELETE report.
+    fLogMsg("End oe-bolp3.i in oe-bolp3.p" + " BOL#: " + STRING(oe-bolh.bol-no)  + " item: " + oe-boll.i-no).    
   END.
 
   /* Check for and Create Backorder Releases */
@@ -550,6 +584,12 @@ STATUS DEFAULT.
 RETURN.
 
 /* end --------------------------------- copyright 1998 Advanced Software Inc.*/
+
+
+
+/* ************************  Function Prototypes ********************** */
+FUNCTION fLogMsg RETURNS CHARACTER 
+    (INPUT ipcMessage AS CHARACTER  ) FORWARD.
 
 PROCEDURE check-posted:
   FOR EACH report WHERE report.term-id EQ v-term,

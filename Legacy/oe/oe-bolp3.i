@@ -2,13 +2,27 @@
 /* BILL OF LADING POSTING                                                     */
 /* -------------------------------------------------------------------------- */
 
-FIND FIRST inv-head WHERE inv-head.r-no EQ v-ref-no NO-ERROR.
+RELEASE inv-head.
 
+IF rCurrentInvHeadRow NE ? THEN 
+    FIND FIRST inv-head WHERE ROWID(inv-head) EQ rCurrentInvHeadRow NO-ERROR.
+fLogMsg("Top of oe-bolp3.i: " + "  BOL#: " + STRING(oe-bolh.bol-no) + " ino: " + oe-boll.i-no + " Avail Invhead? " + STRING(avail(inv-head))).
 IF FIRST-OF({1}.{2})                   OR
-   NOT AVAIL inv-head                  OR
-   inv-head.cust-no NE oe-bolh.cust-no THEN DO:
-
-  v-ref-no = next-value(inv_r_no_seq).
+    NOT AVAIL inv-head                  OR
+    inv-head.cust-no NE oe-bolh.cust-no THEN 
+DO:
+    fLogMsg("Start create inv-head block in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no).
+    /* Original Code */
+    FIND LAST inv-head USE-INDEX r-no NO-LOCK NO-ERROR.
+    v-ref-no = IF AVAIL inv-head THEN inv-head.r-no ELSE 0.
+  
+    FIND LAST inv-line USE-INDEX r-no NO-LOCK NO-ERROR.
+    IF AVAIL inv-line AND inv-line.r-no GT v-ref-no THEN v-ref-no = inv-line.r-no.
+  
+    v-ref-no = v-ref-no + 1.
+    fLogMsg("Obtain v-ref-no in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " v-ref-no: " + STRING(v-ref-no)).
+  /* New Code */
+  /* v-ref-no = next-value(inv_r_no_seq). */
   
   FIND FIRST shipto NO-LOCK
       WHERE shipto.company EQ oe-bolh.company
@@ -35,7 +49,7 @@ IF FIRST-OF({1}.{2})                   OR
   ELSE
       ASSIGN v-fob-code = "".
   RELEASE reftable.
-
+  fLogMsg("Create inv-head in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " v-ref-no: " + STRING(v-ref-no)).
   CREATE inv-head.
   ASSIGN
    inv-head.sold-no      = shipto.ship-id
@@ -85,8 +99,11 @@ IF FIRST-OF({1}.{2})                   OR
    inv-head.city         = cust.city
    inv-head.state        = cust.state
    inv-head.zip          = cust.zip
-   inv-head.curr-code[1] = cust.curr-code.
-  
+   inv-head.curr-code[1] = cust.curr-code
+   rCurrentInvHeadRow = ROWID(inv-head)
+   .
+   
+  fLogMsg("Done Create inv-head in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " v-ref-no: " + STRING(v-ref-no)).
   IF invStatus-log THEN
       inv-head.stat = "W".
   
@@ -134,10 +151,11 @@ for each oe-ordm
     where oe-ordm.company eq oe-boll.company
       and oe-ordm.ord-no  eq oe-boll.ord-no
       and oe-ordm.bill    eq "Y":
+  fLogMsg("Create inv-misc in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " v-ref-no: " + STRING(v-ref-no)).          
   create inv-misc.
   BUFFER-COPY oe-ordm EXCEPT rec_key TO inv-misc
   assign
-   inv-misc.r-no           = v-ref-no
+   inv-misc.r-no           = inv-head.r-no
    inv-misc.posted         = no
    inv-misc.deleted        = no
    inv-misc.inv-i-no       = oe-ordm.ord-i-no
@@ -156,6 +174,7 @@ find first job-hdr
     no-lock no-error.
 
 /** update release **/
+fLogMsg("Update Release in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " v-ref-no: " + STRING(v-ref-no)).
 assign
  oe-relh.ship-no   = oe-bolh.ship-no
  oe-relh.ship-id   = oe-bolh.ship-id
@@ -229,7 +248,7 @@ if avail shipto and avail oe-rel then
    oe-rel.ship-city    = shipto.ship-city
    oe-rel.ship-state   = shipto.ship-state
    oe-rel.ship-zip     = shipto.ship-zip.
-
+fLogMsg("Set oe-bolh,oe-boll posted in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " v-ref-no: " + STRING(v-ref-no)).
 assign
  oe-bolh.posted = yes
  oe-boll.posted = yes.
@@ -277,12 +296,13 @@ DO:
 /*          and inv-line.po-no  eq oe-boll.po-no  */
 /*        use-index r-no no-error.                */
 END.
-
+fLogMsg("Check inv-line avail in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " avail inv-line: " + STRING(AVAILABLE(inv-line))).
 IF NOT AVAIL inv-line THEN DO:
+fLogMsg("Begin create inv-line in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " v-ref-no: " + STRING(v-ref-no)).    
   CREATE inv-line.
 
   ASSIGN
-   inv-line.r-no       = v-ref-no
+   inv-line.r-no       = inv-head.r-no
    inv-line.company    = oe-bolh.company
    inv-line.ord-no     = oe-boll.ord-no
    inv-line.b-no       = oe-bolh.b-no
@@ -318,7 +338,8 @@ IF NOT AVAIL inv-line THEN DO:
    inv-line.p-c        = oe-boll.p-c
    inv-line.po-no      = oe-boll.po-no
    inv-line.lot-no     = oe-boll.lot-no.
-
+   fLogMsg("Done create inv-line in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " avail inv-line: " + STRING(AVAILABLE(inv-line)) 
+              + " inv-line.r-no " + STRING(inv-line.r-no) + " inv-line.b-no " + STRING(inv-line.b-no) + " inv-line.line " + STRING(inv-line.line)).
    FIND FIRST reftable WHERE
         reftable.reftable EQ "oe-boll.sell-price" AND
         reftable.rec_key  EQ oe-boll.rec_key
@@ -351,9 +372,9 @@ IF NOT AVAIL inv-line THEN DO:
       RELEASE b-reftable.
       RELEASE reftable.
    END.
-        
-END.
-
+   fLogMsg("Done create inv-line avail in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " avail inv-line: " + STRING(AVAILABLE(inv-line))).        
+END. /* Create inv-line */
+fLogMsg("Begin inv-line calculated values in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " avail inv-line: " + STRING(AVAILABLE(inv-line))).
 ASSIGN
  inv-line.t-weight      = inv-line.t-weight + oe-boll.weight
  inv-head.t-inv-weight  = inv-head.t-inv-weight + oe-boll.weight
@@ -448,11 +469,12 @@ END.
 
 IF AVAIL oe-rel THEN
    RUN oe/rel-stat.p (ROWID(oe-rel), OUTPUT oe-rel.stat).
-
+fLogMsg("END inv-line calculated values in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " avail inv-line: " + STRING(AVAILABLE(inv-line))).
+fLogMsg("Test v-u-in in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " v-u-inv " + STRING(v-u-inv)).
 if v-u-inv then do:
   {oe/oe-bolp.i "oe-ordl"}
 end.
-
+fLogMsg("After oe-bolp.i in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " avail inv-line: " + STRING(AVAILABLE(inv-line))).
 /** update order status **/
 assign
  oe-ord.stat          = "P"
@@ -467,6 +489,7 @@ assign
 if not v-u-inv then oe-bolh.w-ord = yes.
 
 IF LAST-OF({1}.{2}) AND AVAIL inv-head THEN DO:
+  fLogMsg("Begin last-of key-03 in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " avail inv-line: " + STRING(AVAILABLE(inv-line))).    
   FIND xinv-head WHERE ROWID(xinv-head) EQ ROWID(inv-head) NO-LOCK NO-ERROR.
 
   IF AVAIL xinv-head THEN
@@ -502,7 +525,8 @@ IF LAST-OF({1}.{2}) AND AVAIL inv-head THEN DO:
                    inv-head.bol-no,xoe-ord.terms,ROWID(inv-head)).
 
   END. /* each b-invl */
+    fLogMsg("End last-of key-03 in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " avail inv-line: " + STRING(AVAILABLE(inv-line))).
 END. /* if last-of */
-
+fLogMsg("Done oe-bolp3.i oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " oe-boll.b-no " + STRING(oe-boll.b-no)).
 /* end --------------------------------- copyright 1998 Advanced Software Inc.*/
 
