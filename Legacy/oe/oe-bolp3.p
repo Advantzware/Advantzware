@@ -196,7 +196,12 @@ IF v-format EQ "HARWELL" THEN invdate-chr = "Current".
                               
 FIND FIRST oe-ctrl WHERE oe-ctrl.company EQ cocode NO-LOCK NO-ERROR.
 v-u-inv = oe-ctrl.u-inv.
-
+fLogMsg("Start oe-bolp3 user: " + USERID("nosweat")).
+fLogMsg("Start oe-bolp3 Pgm: " + PROGRAM-NAME(1)).
+fLogMsg("Start oe-bolp3 Pgm: " + PROGRAM-NAME(2)).
+fLogMsg("Start oe-bolp3 Pgm: " + PROGRAM-NAME(3)).
+fLogMsg("Start oe-bolp3 Pgm: " + PROGRAM-NAME(4)).
+fLogMsg("Start oe-bolp3 Pgm: " + PROGRAM-NAME(5)).
     
 EMPTY TEMP-TABLE w-inv.
 
