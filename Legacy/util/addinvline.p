@@ -104,7 +104,36 @@ DEFINE TEMP-TABLE ttblUPS NO-UNDO
   FIELD invHeadRowID AS ROWID
   FIELD cod AS LOGICAL
     INDEX ttblUPS IS PRIMARY UNIQUE company ord-no sold-to.
-           
+DEFINE VARIABLE rCurrentInvHeadRow AS ROWID NO-UNDO.    
+DEFINE VARIABLE lUseLogs  AS LOGICAL   NO-UNDO.
+DEFINE VARIABLE cDebugLog AS CHARACTER NO-UNDO.
+DEFINE STREAM sDebug.
+lUseLogs = TRUE. /* Use debug logging unless it's turned off */
+if search("custfiles\logs\" + "block-oe-bolp3-logging.txt") ne ? then 
+    lUseLogs = FALSE.
+cDebugLog = "custfiles\logs\" + "oe-bolp3" + STRING(TODAY,"99999999") + STRING(TIME) + STRING(RANDOM(1,1000)) + ".txt".
+IF lUseLogs THEN 
+    OUTPUT STREAM sDebug TO VALUE(cDebugLog).
+IF ERROR-STATUS:ERROR THEN 
+    lUseLogs = FALSE.
+
+/* ************************  Function Implementations ***************** */
+FUNCTION fLogMsg RETURNS CHARACTER 
+    (INPUT ipcMessage AS CHARACTER  ):
+    /*------------------------------------------------------------------------------
+     Purpose:
+     Notes:
+    ------------------------------------------------------------------------------*/    
+    DEFINE VARIABLE cResult AS CHARACTER NO-UNDO.
+    IF lUseLogs THEN 
+    DO:
+        OUTPUT STREAM sDebug CLOSE. 
+        OUTPUT STREAM sDebug TO VALUE(cDebugLog) append.
+        PUT STREAM sDebug UNFORMATTED ipcMessage SKIP.
+    END.
+    RETURN cResult.
+END FUNCTION.
+               
 FUNCTION tabChar RETURNS CHARACTER (ipValue AS CHARACTER):
   RETURN IF ipValue NE '' THEN '~t' ELSE ''.
 END FUNCTION.
