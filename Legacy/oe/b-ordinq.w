@@ -1902,16 +1902,8 @@ PROCEDURE pReleaseTT :
             AND oe-rel.line    EQ oe-ordl.line
           :
 
-/*          FIND FIRST reftable NO-LOCK                                               */
-/*               WHERE reftable.reftable EQ "oe-rel.lot-no"                           */
-/*                 AND reftable.company  EQ STRING(oe-rel.r-no,"9999999999")          */
-/*               NO-ERROR.                                                            */
-/*          IF AVAILABLE reftable AND                                                 */
-/*             reftable.code NE "" AND                                                */
-/*             NOT CAN-DO(ttRelease.lot-no,oe-rel.lot-no) THEN                        */
-/*          ttRelease.lot-no = ttRelease.lot-no + reftable.code + ",".                */
-/*          IF oe-rel.lot-no NE "" AND NOT CAN-DO(ttRelease.lot-no,oe-rel.lot-no) THEN*/
-/*          ttRelease.lot-no = ttRelease.lot-no + oe-rel.lot-no + ",".                */
+          IF oe-rel.lot-no NE "" AND NOT CAN-DO(ttRelease.lot-no,oe-rel.lot-no) THEN
+          ttRelease.lot-no = ttRelease.lot-no + oe-rel.lot-no + ",".
           IF oe-rel.po-no NE "" AND NOT CAN-DO(ttRelease.po-no,oe-rel.po-no) THEN 
           ttRelease.po-no = ttRelease.po-no + oe-rel.po-no + ",".
       END. /* each oe-rel */
