@@ -3723,6 +3723,7 @@ PROCEDURE local-cancel-record :
   END.
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"ordbol-source", OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
   RUN reset-button IN WIDGET-HANDLE(char-hdl) (YES).
 
 END PROCEDURE.
@@ -4243,13 +4244,15 @@ PROCEDURE local-enable-fields :
   /*RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"ordrel-source", OUTPUT char-hdl).
   RUN reset-button IN WIDGET-HANDLE(char-hdl) (NO).*/
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"ordrel-source", OUTPUT char-hdl).
-
-  IF adm-new-record OR adm-cur-state = "Update-begin" THEN
-  RUN reset-button IN WIDGET-HANDLE(char-hdl) (NO).
-  ELSE
-  RUN reset-button IN WIDGET-HANDLE(char-hdl) (YES).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN DO: 
+      IF adm-new-record OR adm-cur-state = "Update-begin" THEN
+      RUN reset-button IN WIDGET-HANDLE(char-hdl) (NO).
+      ELSE
+      RUN reset-button IN WIDGET-HANDLE(char-hdl) (YES).
+  END. /* if valid-handle */
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"ordbol-source", OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN 
   RUN reset-button IN WIDGET-HANDLE(char-hdl) (NO).
 
   /* if a new record, no date change reason needed, if blank, diaglog will appear */
@@ -4400,6 +4403,7 @@ PROCEDURE local-update-record :
   
   /* Disable button during update */
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"ordrel-source", OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
   RUN reset-button IN WIDGET-HANDLE(char-hdl) (NO).
   /* ==== validation ==========*/
  /* if int(oe-rel.qty:screen-value in browse {&browse-name}) <= 0 then do:
@@ -4553,9 +4557,11 @@ PROCEDURE local-update-record :
   END.
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"ordrel-source", OUTPUT char-hdl).
-     RUN reset-button IN WIDGET-HANDLE(char-hdl) (YES).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
+  RUN reset-button IN WIDGET-HANDLE(char-hdl) (YES).
 
   RUN get-link-handle IN adm-broker-hdl (THIS-PROCEDURE,"ordbol-source", OUTPUT char-hdl).
+  IF VALID-HANDLE(WIDGET-HANDLE(char-hdl)) THEN
   RUN reset-button IN WIDGET-HANDLE(char-hdl) (YES).
 
   IF RelType-int = 1 AND AVAIL tt-report AND tt-report.s-basis[1] EQ "I" THEN DO:
