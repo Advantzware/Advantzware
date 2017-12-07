@@ -4,6 +4,7 @@
 {{&includes}/defBoard.i}
 {{&includes}/sharedVars.i}
 {{&includes}/ttblJob.i}
+{{&includes}/specialTime.i}
 
 /* configuration vars */
 {{&includes}/configVars.i}
@@ -551,8 +552,27 @@ PROCEDURE getConfiguration:
 END PROCEDURE.
 
 PROCEDURE pHTMLPages:
-    DEFINE VARIABLE lAltLine  AS LOGICAL   NO-UNDO.
-    DEFINE VARIABLE cBGColor  AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE lAltLine       AS LOGICAL   NO-UNDO.
+    DEFINE VARIABLE cBGColor       AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iJobs          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iTime          AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE dtDate         AS DATE      NO-UNDO.
+    DEFINE VARIABLE lUsed          AS LOGICAL   NO-UNDO EXTENT 1440.
+    DEFINE VARIABLE cBookedTime    AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iBookedTime    AS INTEGER   NO-UNDO EXTENT 31.
+    DEFINE VARIABLE cUsedTime      AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iUsedTime      AS INTEGER   NO-UNDO EXTENT 31.
+    DEFINE VARIABLE cAvailTime     AS CHARACTER NO-UNDO.
+    DEFINE VARIABLE iAvailTime     AS INTEGER   NO-UNDO EXTENT 31.
+    DEFINE VARIABLE iStartTime     AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE iEndTime       AS INTEGER   NO-UNDO.
+    DEFINE VARIABLE cDays          AS CHARACTER NO-UNDO INITIAL "Sun,Mon,Tue,Wed,Thu,Fri,Sat".
+    DEFINE VARIABLE dStartDateTime AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE dEndDateTime   AS DECIMAL NO-UNDO.
+    DEFINE VARIABLE idx            AS INTEGER NO-UNDO.
+    DEFINE VARIABLE jdx            AS INTEGER NO-UNDO.
+    
+    DEFINE BUFFER bTtblJob FOR ttblJob.
     
     FOR EACH ttblJob NO-LOCK
         BREAK BY ttblJob.resource
@@ -636,12 +656,29 @@ PROCEDURE pHTMLPages:
         '<a name="Top"></a>' SKIP
         '<form>' SKIP
         '<fieldset>' SKIP
-        '<legend>Schedule Board Resources (updated ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')'
+        '<legend>Schedule Board Resource Capacity View (updated ' STRING(TODAY,'99.99.9999') ' @ ' STRING(TIME,'hh:mm:ss am') ')'
         '~&nbsp;</legend>' SKIP
-        '  <table border="1" cellspacing="0" cellpadding="10">' SKIP
+        '  <table cellspacing="3" cellpadding="3">' SKIP
+        '    <tr>' SKIP 
+        '      <td>Legend:</td>' SKIP 
+        '      <td bgcolor="#000000"><font color="#FFFFFF">Downtime</font></td>' SKIP 
+        '      <td bgcolor="#0000FF"><font color="#FFFFFF">Booked (#Jobs)</font></td>' SKIP 
+        '      <td bgcolor="#009900"><font color="#FFFFFF">Available</font></td>' SKIP 
+        '    </tr>' SKIP  
+        '  </table>' SKIP 
+        '  <table border="1" cellspacing="0" cellpadding="3" width="100%">' SKIP
         '    <tr>' SKIP
         '      <td bgcolor="#CCCCCC" nowrap><b>Resource</b></td>' SKIP
         '      <td bgcolor="#CCCCCC" nowrap><b>Name</b></td>' SKIP
+        '      <td bgcolor="#CCCCCC" nowrap><b>Pending</b></td>' SKIP
+        .
+    DO dtDate = TODAY TO TODAY + 30:
+        cBGColor = IF WEEKDAY(dtDate) EQ 1 OR WEEKDAY(dtDate) EQ 7 THEN 'bgcolor="#CCCCFF"' ELSE 'bgcolor="#CCCCCC"'.
+        PUT UNFORMATTED
+            '      <td ' cBGColor 'nowrap><b>' ENTRY(WEEKDAY(dtDate),cDays) ' ' MONTH(dtDate) '/' DAY(dtDate) '</b></td>' SKIP
+            .
+    END. /* do dtdate */ 
+    PUT UNFORMATTED
         '    </tr>' SKIP
         .
     lAltLine = YES.
@@ -656,15 +693,121 @@ PROCEDURE pHTMLPages:
                    AND mach.m-code  EQ ttblJob.resource
                  NO-ERROR.
             ASSIGN 
+                iJobs = 0
+                iTime = 0
+                .
+            FOR EACH pendingJob
+                WHERE pendingJob.resource EQ ttblJob.resource
+                :
+                ASSIGN 
+                    iJobs = iJobs + 1
+                    iTime = iTime + pendingJob.timeSpan
+                    .
+            END. /* each pendingjob */
+            ASSIGN 
                 lAltLine = NOT lAltLine
                 cBGColor = IF lAltLine THEN ' bgcolor="D1FCC5"' ELSE ''
                 .
             PUT UNFORMATTED
                 '    <tr>' SKIP
-                '      <td' cBGColor ' nowrap><b><a href="' htmlPageLocation + '\' + ttblJob.resource + '.htm" target="_blank">'
+                '      <td' cBGColor ' nowrap rowspan="3"><b><a href="' htmlPageLocation + '\' + ttblJob.resource + '.htm" target="_blank">'
                 ttblJob.resource '</a></b></td>' SKIP
-                '      <td' cBGColor ' nowrap><b><a href="' htmlPageLocation + '\' + ttblJob.resource + '.htm" target="_blank">'
+                '      <td' cBGColor ' nowrap rowspan="3"><b><a href="' htmlPageLocation + '\' + ttblJob.resource + '.htm" target="_blank">'
                 (IF AVAILABLE mach THEN mach.m-dscr ELSE '') '</a></b></td>' SKIP
+                '      <td' cBGColor ' nowrap rowspan="3" align="center">'
+                .
+            IF iJobs NE 0 THEN
+            PUT UNFORMATTED
+                'Jobs: <b>' iJobs '<br>' specialTime(iTime) '</b>'
+                .
+            PUT UNFORMATTED
+                '</td>' SKIP.
+                .
+            DO dtDate = TODAY TO TODAY + 30:
+                ASSIGN 
+                    idx            = dtDate - TODAY + 1
+                    iUsedTime[idx] = 0
+                    .
+                FOR EACH boardDowntime
+                    WHERE boardDowntime.resource  EQ ttblJob.resource
+                      AND boardDowntime.startDate EQ dtDate
+                    :
+                    iUsedTime[idx] = iUsedTime[idx] + boardDowntime.downtimeSpan.
+                END. /* each boarddowntime */
+                cUsedTime = IF iUsedTime[idx] EQ 86400 THEN "24:00"
+                       ELSE IF iUsedTime[idx] EQ 0 THEN ""
+                       ELSE STRING(iUsedTime[idx],"hh:mm").
+                PUT UNFORMATTED 
+                    '      <td bgcolor="#000000" nowrap><font color="#FFFFFF">' cUsedTime '</font></td>'
+                    .
+            END. /* do dtdate */
+            PUT UNFORMATTED 
+                '    </tr>' SKIP
+                '    <tr>' SKIP
+                .
+            DO dtDate = TODAY TO TODAY + 30:
+                ASSIGN
+                    lUsed            = NO
+                    idx              = dtDate - TODAY + 1
+                    iBookedTime[idx] = 0
+                    dStartDateTime   = numericDateTime(dtDate,0)
+                    dEndDateTime     = numericDateTime(dtDate,86400)
+                    iJobs            = 0
+                    .
+                FOR EACH bTtblJob
+                    WHERE bTtblJob.resource      EQ ttblJob.resource
+                      AND bTtblJob.startDateTime LE dEndDateTime
+                      AND bTtblJob.endDateTime   GE dStartDateTime
+                    :
+                    ASSIGN
+                        iStartTime = IF bTtblJob.startDateTime LT dStartDateTime THEN 0
+                                     ELSE INTEGER(bTtblJob.startTime / 60)
+                        iEndTime   = IF bTtblJob.endDateTime   GT dEndDateTime   THEN 1440
+                                     ELSE INTEGER(bTtblJob.endTime   / 60)
+                        iJobs      = iJobs + 1
+                        .
+                    IF iStartTime EQ 0 THEN iStartTime = 1.
+                    DO jdx = iStartTime TO iEndTime:
+                        IF jdx LE EXTENT(lUsed) THEN
+                        lUsed[jdx] = YES.
+                    END. /* do jdx */
+                END. /* each bTtblJob */
+                DO jdx = 1 TO EXTENT(lUsed):
+                  IF lUsed[jdx] THEN iBookedTime[idx] = iBookedTime[idx] + 1.
+                END. /* do jdx */
+                ASSIGN 
+                    iBookedTime[idx] = iBookedTime[idx] * 60
+                    iBookedTime[idx] = iBookedTime[idx] - IF iBookedTime[idx] NE 0 THEN iUsedTime[idx] ELSE 0
+                    cBookedTime = IF iBookedTime[idx] EQ 86400 THEN "24:00"
+                             ELSE IF iBookedTime[idx] EQ 0 THEN ""
+                             ELSE STRING(iBookedTime[idx],"hh:mm")
+                    .
+                IF cBookedTime NE "" THEN
+                cBookedTime = cBookedTime + " (" + STRING(iJobs) + ")".
+                PUT UNFORMATTED 
+                    '      <td bgcolor="#0000FF" nowrap><font color="#FFFFFF">' cBookedTime '</font></td>'
+                    .
+            END. /* do dtdate */
+            PUT UNFORMATTED 
+                '    </tr>' SKIP
+                '    <tr>' SKIP
+                .
+            DO dtDate = TODAY TO TODAY + 30:
+                ASSIGN
+                    idx = dtDate - TODAY + 1
+                    iAvailTime[idx] = 86400 - iUsedTime[idx] - iBookedTime[idx]
+                    .
+                cAvailTime = IF iAvailTime[idx] EQ 86400 THEN "24:00"
+                        ELSE IF iAvailTime[idx] EQ 0 THEN ""
+                        ELSE STRING(iAvailTime[idx],"hh:mm").
+                PUT UNFORMATTED 
+                    '      <td bgcolor="#009900" nowrap><font color="#FFFFFF">' cAvailTime '</font></td>'
+                    .
+            END. /* do dtdate */
+            PUT UNFORMATTED 
+                '    </tr>' SKIP
+                '    <tr>' SKIP
+                '      <td colspan="34" bgcolor="#000000"><hr></td>' SKIP 
                 '    </tr>' SKIP
                 .
         END. /* if first-of */
