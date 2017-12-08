@@ -13,16 +13,9 @@ IF FIRST-OF({1}.{2})                   OR
 DO:
     fLogMsg("Start create inv-head block in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no).
     /* Original Code */
-    FIND LAST inv-head USE-INDEX r-no NO-LOCK NO-ERROR.
-    v-ref-no = IF AVAIL inv-head THEN inv-head.r-no ELSE 0.
-  
-    FIND LAST inv-line USE-INDEX r-no NO-LOCK NO-ERROR.
-    IF AVAIL inv-line AND inv-line.r-no GT v-ref-no THEN v-ref-no = inv-line.r-no.
-  
-    v-ref-no = v-ref-no + 1.
+    
+    v-ref-no = next-value(inv_r_no_seq). 
     fLogMsg("Obtain v-ref-no in oe-bolp3.i: " + " BOL#: " + STRING(oe-bolh.bol-no) + " Key03: " + report.key-03 + " ino: " + oe-boll.i-no + " v-ref-no: " + STRING(v-ref-no)).
-  /* New Code */
-  /* v-ref-no = next-value(inv_r_no_seq). */
   
   FIND FIRST shipto NO-LOCK
       WHERE shipto.company EQ oe-bolh.company
