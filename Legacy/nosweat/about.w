@@ -190,7 +190,7 @@ DEFINE FRAME Dialog-Frame
           SIZE 9.2 BY .62
           FGCOLOR 2 
      userControl.maxSessionsPerUser AT ROW 6.48 COL 34.6 COLON-ALIGNED WIDGET-ID 34
-          LABEL "Max Session Per User"
+          LABEL "Max Sessions Per User"
            VIEW-AS TEXT 
           SIZE 5.6 BY .62
           FGCOLOR 2 
