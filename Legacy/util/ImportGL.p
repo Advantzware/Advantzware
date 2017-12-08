@@ -54,7 +54,7 @@ PROCEDURE pAddRecord:
     ASSIGN 
         ttImportGL.Company = ipcCompany.
     FOR EACH ttImportMap
-        WHERE ttImportMap.cType EQ 'ShipTo':
+        WHERE ttImportMap.cType EQ 'GL':
         cData = ipcData[ttImportMap.iImportIndex].
         hdTempTableBuffer = TEMP-TABLE ttImportGL:DEFAULT-BUFFER-HANDLE:BUFFER-FIELD(ttImportMap.iIndex + giIndexOffset):HANDLE.
         CASE ttImportMap.cDataType:

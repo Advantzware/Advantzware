@@ -625,9 +625,9 @@ PROCEDURE pInitializeTypes :
     DEFINE VARIABLE cInitial   AS CHARACTER NO-UNDO.
 
     ASSIGN 
-        cLabelList = 'Accounts Payable (VU1),Accounts Receivable (AU1),Customers (AF1),Customer ShipTos (AF1 - ShipTo Tab),' +
+        cLabelList = 'Accounts Payable (VU1),Accounts Receivable (AU1),Cash Receipts (AC1),Customers (AF1),Customer ShipTos (AF1 - ShipTo Tab),' +
                 'Finished Goods (IF1),General Ledger Accounts (GF2),Vendors (VF1)' 
-        cValueList = 'AP,AR,Cust,ShipTo,FG,GL,Vend'.
+        cValueList = 'AP,AR,Cash,Cust,ShipTo,FG,GL,Vend'.
 
     IF ipcTypesList EQ '' OR ipcTypesList EQ 'ALL' THEN
         ASSIGN 
