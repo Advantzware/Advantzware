@@ -1,14 +1,14 @@
 
 /*------------------------------------------------------------------------
-    File        : impAP.p
+    File        : impCash.p
     Purpose     : 
 
     Syntax      :
 
-    Description : Runs Importer only for Accounts Payable Invoices
+    Description : Runs Importer only for Accounts Receivable Cash Receipts
 
     Author(s)   : BV
-    Created     : Wed Nov 22 15:05:07 EST 2017
+    Created     : Thu Dec 7 15:05:07 EST 2017
     Notes       :
   ----------------------------------------------------------------------*/
 
@@ -24,7 +24,7 @@
 
 
 /* ***************************  Main Block  *************************** */
-RUN util/chk-mod.p ("ASI","impAP.") NO-ERROR.
+RUN util/chk-mod.p ("ASI","impCash.") NO-ERROR.
 IF ERROR-STATUS:ERROR THEN RETURN.
 
-RUN util\Importer.w (gcompany,'AP').
+RUN util\Importer.w (gcompany,'Cash').
