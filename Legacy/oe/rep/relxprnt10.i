@@ -725,7 +725,7 @@ if v-zone-p then v-zone-hdr = "Route No.:".
                 lv-save-cust-uom = caps(trim(w-bin.w-uom)).
               IF NOT swm THEN
                       ASSIGN lv-tot-cust-qty = oe-ordl.qty 
-                             lv-save-cust-uom = CAPS(oe-ordl.pr-uom) .
+                             lv-save-cust-uom = CAPS("EA") .
              IF lv-tot-cust-qty GT 0 AND sw = YES /*AND v-cq = NO*/ THEN DO:
                   
                   RUN right-just (INPUT 11, 
