@@ -1100,8 +1100,9 @@ PROCEDURE loadFiles :
               SKIP
               .
 
-            FIND FIRST oe-rel NO-LOCK USE-INDEX seq-no NO-ERROR.
-            v-nxt-r-no = IF AVAIL oe-rel THEN oe-rel.r-no + 1 ELSE 1.
+            /* FIND FIRST oe-rel NO-LOCK USE-INDEX seq-no NO-ERROR. */
+            /* v-nxt-r-no = IF AVAIL oe-rel THEN oe-rel.r-no + 1 ELSE 1. */
+            RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT v-nxt-r-no).
             CREATE oe-rel.
             ASSIGN
               oe-ordl.e-num = ediLineNo

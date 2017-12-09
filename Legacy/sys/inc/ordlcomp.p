@@ -122,9 +122,9 @@ FOR EACH tt-fg-set WHERE tt-fg-set.part-no NE itemfg.i-no,
           AND oe-rel.line    EQ oe-ordl.line
           AND oe-rel.link-no EQ 0:
 
-      FIND FIRST b-oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR.
-      li = IF AVAIL b-oe-rel THEN b-oe-rel.r-no ELSE 0.
-
+      /* FIND FIRST b-oe-rel USE-INDEX seq-no NO-LOCK NO-ERROR. */
+      /* li = IF AVAIL b-oe-rel THEN b-oe-rel.r-no ELSE 0. */
+      RUN oe/getNextRelNo.p (INPUT "oe-rel", OUTPUT li).
       CREATE b-oe-rel.
       BUFFER-COPY oe-rel EXCEPT rec_key line spare-dec-1 TO b-oe-rel
       ASSIGN
