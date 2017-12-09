@@ -68,7 +68,6 @@ DEF VAR lv-entry-qty-uom AS CHAR NO-UNDO.
 
 DEF BUFFER br-tmp FOR rm-rctd.  /* for tag validation */
 DEF BUFFER xrm-rdtlh FOR rm-rdtlh. /* for tag validation */
-DEFINE BUFFER bLoadTag FOR loadtag.
 
 FIND FIRST sys-ctrl WHERE sys-ctrl.company EQ g_company
                         AND sys-ctrl.name  EQ "SSRMSCAN" NO-LOCK NO-ERROR.

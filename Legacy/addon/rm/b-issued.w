@@ -57,7 +57,6 @@ DEF VAR lv-rmissue AS CHAR NO-UNDO.
 DEFINE VARIABLE lvLastRowID AS ROWID NO-UNDO.
 
 DEF BUFFER xitem FOR ITEM.
-DEFINE BUFFER bLoadTag FOR loadtag.
 
 DEF NEW SHARED TEMP-TABLE item-chg NO-UNDO
     FIELD i-no LIKE job-mat.i-no
