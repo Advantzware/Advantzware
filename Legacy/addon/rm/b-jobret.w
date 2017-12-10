@@ -51,7 +51,6 @@ DEF VAR lv-uom-list AS cha INIT ["EA,TON,MSF,MSH,LB,LF,DIA"] NO-UNDO.
 DEF VAR lv-rmissue AS CHAR NO-UNDO.
 
 DEF BUFFER xitem FOR ITEM.
-DEFINE BUFFER bLoadTag FOR loadtag.
 
 DEF NEW SHARED TEMP-TABLE item-chg NO-UNDO
     FIELD i-no LIKE job-mat.i-no

@@ -1,6 +1,6 @@
 /* loadtag/disptagr.i  get tag# and display tag information for RM item */
 
-IF "{1}" = "RMItem" THEN DO:
+&IF "{1}" EQ "RMItem" &THEN
   FIND FIRST loadtag NO-LOCK WHERE loadtag.company EQ g_company
                                AND loadtag.item-type EQ YES
                                AND loadtag.tag-no EQ {2} NO-ERROR.
@@ -8,14 +8,6 @@ IF "{1}" = "RMItem" THEN DO:
     MESSAGE "Invalid Loadtag#." VIEW-AS ALERT-BOX ERROR.
     RETURN NO-APPLY.
   END.
-  /* blank loadtag record should not exist, if it does, remove it */
-  IF CAN-FIND (FIRST bLoadTag WHERE bLoadTag.company EQ "") THEN DO:
-      FIND FIRST bLoadTag EXCLUSIVE-LOCK 
-           WHERE bLoadTag.company EQ ""
-           NO-ERROR.
-      IF AVAILABLE bLoadTag THEN 
-      DELETE bLoadTag.
-  END. /* if blank loadtag */
   &IF DEFINED(checkNewRecord) &THEN
   IF adm-new-record THEN DO:
   &ENDIF
@@ -35,4 +27,4 @@ IF "{1}" = "RMItem" THEN DO:
   &IF DEFINED(checkNewRecord) &THEN
   END. /* if adm-new-record */
   &ENDIF
-END.
+&ENDIF
