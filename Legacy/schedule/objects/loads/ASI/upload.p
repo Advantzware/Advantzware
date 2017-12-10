@@ -123,6 +123,8 @@ FOR EACH pendingJob NO-LOCK:
   /* only change if not already run-complete */
   IF job-mch.run-complete EQ NO THEN
   job-mch.run-complete = pendingJob.jobCompleted.
+  IF job-mch.m-code NE pendingJob.altResource THEN
+  job-mch.m-code = pendingJob.altResource.
   RUN updateJobStartDate (job-mch.company,job-mch.job,job-mch.start-date-su).
 /*  DO i = 2 TO NUM-ENTRIES(customValueList):                */
 /*    IF NOT pendingJob.jobStatus[i - 1] THEN                */
