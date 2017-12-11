@@ -87,7 +87,7 @@ tgExcludeShipOnly fi_file_path
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btCalendar 
@@ -110,12 +110,12 @@ DEFINE BUTTON btn-process
      LABEL "&Start Process" 
      SIZE 18 BY 1.14.
 
-DEFINE VARIABLE fiFromBolDate AS DATE FORMAT "99/99/99":U INITIAL ? 
+DEFINE VARIABLE fiFromBolDate AS DATE FORMAT "99/99/99":U 
      LABEL "From Bol Date" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
 
-DEFINE VARIABLE fiToBolDate AS DATE FORMAT "99/99/99":U INITIAL ? 
+DEFINE VARIABLE fiToBolDate AS DATE FORMAT "99/99/99":U 
      LABEL "To Bol Date" 
      VIEW-AS FILL-IN 
      SIZE 14 BY 1 NO-UNDO.
@@ -129,7 +129,7 @@ DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 89 BY 11.48.
 
-DEFINE VARIABLE tgExcludeShipOnly AS LOGICAL INITIAL YES 
+DEFINE VARIABLE tgExcludeShipOnly AS LOGICAL INITIAL yes 
      LABEL "Exclude Ship/Bill Only?" 
      VIEW-AS TOGGLE-BOX
      SIZE 28 BY .81 NO-UNDO.
@@ -179,15 +179,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 103.4
          VIRTUAL-HEIGHT     = 23.86
          VIRTUAL-WIDTH      = 103.4
-         RESIZE             = YES
-         SCROLL-BARS        = NO
-         STATUS-AREA        = YES
+         RESIZE             = yes
+         SCROLL-BARS        = no
+         STATUS-AREA        = yes
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = YES
-         THREE-D            = YES
-         MESSAGE-AREA       = NO
-         SENSITIVE          = YES.
+         KEEP-FRAME-Z-ORDER = yes
+         THREE-D            = yes
+         MESSAGE-AREA       = no
+         SENSITIVE          = yes.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -220,7 +220,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = NO.
+THEN C-Win:HIDDEN = no.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -616,7 +616,7 @@ STATUS DEFAULT "DONE.".
         VIEW-AS ALERT-BOX QUESTION BUTTON YES-NO
         UPDATE ll.
  IF ll THEN 
-   OS-COMMAND SILENT NO-WAIT NOTEPAD VALUE(fi_file_path).
+   OS-COMMAND NO-WAIT NOTEPAD VALUE(fi_file_path).
    
 STATUS DEFAULT ''.   
 END PROCEDURE.
