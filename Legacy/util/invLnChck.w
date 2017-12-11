@@ -34,12 +34,12 @@ CREATE WIDGET-POOL.
 
 {sys/inc/var.i new shared}
 
-assign
+ASSIGN
  cocode = gcompany
  locode = gloc.
 
-def var v-process as log no-undo.
-define variable calendarDate as char.
+DEFINE VARIABLE v-process AS LOG NO-UNDO.
+DEFINE VARIABLE calendarDate AS CHARACTER.
 DEFINE TEMP-TABLE ttBOLLineProblems
     FIELD company LIKE company.company
     FIELD BolNo   LIKE oe-boll.bol-no COLUMN-LABEL 'BOL#'
@@ -87,7 +87,7 @@ tgExcludeShipOnly fi_file_path
 /* ***********************  Control Definitions  ********************** */
 
 /* Define the widget handle for the window                              */
-DEFINE VAR C-Win AS WIDGET-HANDLE NO-UNDO.
+DEFINE VARIABLE C-Win AS WIDGET-HANDLE NO-UNDO.
 
 /* Definitions of the field level widgets                               */
 DEFINE BUTTON btCalendar 
@@ -129,7 +129,7 @@ DEFINE RECTANGLE RECT-17
      EDGE-PIXELS 2 GRAPHIC-EDGE  NO-FILL   
      SIZE 89 BY 11.48.
 
-DEFINE VARIABLE tgExcludeShipOnly AS LOGICAL INITIAL yes 
+DEFINE VARIABLE tgExcludeShipOnly AS LOGICAL INITIAL YES 
      LABEL "Exclude Ship/Bill Only?" 
      VIEW-AS TOGGLE-BOX
      SIZE 28 BY .81 NO-UNDO.
@@ -179,15 +179,15 @@ IF SESSION:DISPLAY-TYPE = "GUI":U THEN
          MAX-WIDTH          = 103.4
          VIRTUAL-HEIGHT     = 23.86
          VIRTUAL-WIDTH      = 103.4
-         RESIZE             = yes
-         SCROLL-BARS        = no
-         STATUS-AREA        = yes
+         RESIZE             = YES
+         SCROLL-BARS        = NO
+         STATUS-AREA        = YES
          BGCOLOR            = ?
          FGCOLOR            = ?
-         KEEP-FRAME-Z-ORDER = yes
-         THREE-D            = yes
-         MESSAGE-AREA       = no
-         SENSITIVE          = yes.
+         KEEP-FRAME-Z-ORDER = YES
+         THREE-D            = YES
+         MESSAGE-AREA       = NO
+         SENSITIVE          = YES.
 ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
 
 &IF '{&WINDOW-SYSTEM}' NE 'TTY' &THEN
@@ -220,7 +220,7 @@ ASSIGN
                 "parm".
 
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
-THEN C-Win:HIDDEN = no.
+THEN C-Win:HIDDEN = NO.
 
 /* _RUN-TIME-ATTRIBUTES-END */
 &ANALYZE-RESUME
@@ -295,7 +295,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-cancel C-Win
 ON CHOOSE OF btn-cancel IN FRAME FRAME-A /* Cancel */
 DO:
-    apply "close" to this-procedure.
+    APPLY "close" TO THIS-PROCEDURE.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -306,11 +306,11 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btn-process C-Win
 ON CHOOSE OF btn-process IN FRAME FRAME-A /* Start Process */
 DO:
-   assign tgExcludeShipOnly
+   ASSIGN tgExcludeShipOnly
           fiFromBolDate 
           fiToBolDate
           .
-   run run-process.
+   RUN run-process.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -343,7 +343,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file_path C-Win
 ON HELP OF fi_file_path IN FRAME FRAME-A /* Report Output File */
 DO:
-  DEF VAR v-file-path AS CHAR NO-UNDO.
+  DEFINE VARIABLE v-file-path AS CHARACTER NO-UNDO.
 
   SYSTEM-DIALOG GET-DIR v-file-path
      TITLE "Select Archive Files Path".
@@ -359,7 +359,7 @@ END.
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL fi_file_path C-Win
 ON LEAVE OF fi_file_path IN FRAME FRAME-A /* Report Output File */
 DO:
-   assign {&self-name}.
+   ASSIGN {&self-name}.
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -392,8 +392,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
    ON END-KEY UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK:
 
   RUN enable_UI.
-  fiFromBolDate:screen-value = string(today - 3).
-  fiToBolDate:screen-value = string(today).
+  fiFromBolDate:screen-value = STRING(TODAY - 3).
+  fiToBolDate:screen-value = STRING(TODAY).
   {methods/nowait.i}
   IF NOT THIS-PROCEDURE:PERSISTENT THEN
     WAIT-FOR CLOSE OF THIS-PROCEDURE.
@@ -449,14 +449,14 @@ END PROCEDURE.
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE run-process C-Win 
 PROCEDURE run-process :
-DEF BUFFER bf-inv-line FOR inv-line.
+DEFINE BUFFER bf-inv-line FOR inv-line.
 DEFINE VARIABLE ll AS LOG NO-UNDO.
 DEFINE VARIABLE dFromBolDate AS DATE NO-UNDO.
 DEFINE VARIABLE dtoBolDate AS DATE NO-UNDO.
 DEFINE VARIABLE dTotQty AS DECIMAL NO-UNDO.
 DEFINE VARIABLE dInvQty AS DECIMAL NO-UNDO.
 DEFINE VARIABLE cRecFound AS CHARACTER NO-UNDO.
-    def var linvoiceFound as log no-undo.
+    DEFINE VARIABLE linvoiceFound AS LOG NO-UNDO.
 DEFINE VARIABLE cExcludeList AS CHARACTER NO-UNDO.
 
 ASSIGN dFromBolDate = fiFromBolDate
@@ -473,10 +473,10 @@ STATUS DEFAULT 'Running...'.
 DEFINE VARIABLE iInvFound LIKE inv-head.inv-no NO-UNDO.
 DEFINE VARIABLE iArFound  LIKE ar-invl.inv-no NO-UNDO.
 DEFINE VARIABLE lSkipforSetHeader AS LOGICAL NO-UNDO.
-FOR EACH company no-lock,
+FOR EACH company NO-LOCK,
    EACH oe-bolh NO-LOCK
      WHERE oe-bolh.company EQ company.company
-       and oe-bolh.bol-date ge dFromBolDate
+       AND oe-bolh.bol-date GE dFromBolDate
        AND oe-bolh.bol-date LE dToBolDate
        AND oe-bolh.posted,
     FIRST cust NO-LOCK
@@ -486,7 +486,7 @@ FOR EACH company no-lock,
     EACH oe-boll 
         WHERE oe-boll.company EQ oe-bolh.company
           AND oe-boll.b-no    EQ oe-bolh.b-no                    
-          and oe-boll.qty NE 0
+          AND oe-boll.qty NE 0
           AND oe-boll.posted
           AND /* oe-boll.s-code NE "T" */ LOOKUP(oe-boll.s-code, "T,S,I") EQ 0
         NO-LOCK /*,
@@ -498,7 +498,7 @@ FOR EACH company no-lock,
     dtotQty = dTotQty + oe-boll.qty.
     IF LAST-OF(oe-boll.po-no) THEN DO:    
        
-        ASSIGN lInvoiceFound = no
+        ASSIGN lInvoiceFound = NO
                dinvQty       = 0
                iinvFound     = 0
                iArFound      = 0
@@ -512,25 +512,25 @@ FOR EACH company no-lock,
             AND bf-inv-line.b-no    EQ oe-boll.b-no
             :
             ASSIGN 
-              lInvoiceFound = yes  
+              lInvoiceFound = YES  
               iInvFound     = bf-inv-line.inv-no
               dInvQty = dInvQty + bf-inv-line.inv-qty
               .
         END.
-        for each  ar-invl NO-LOCK
+        FOR EACH  ar-invl NO-LOCK
             WHERE ar-invl.company EQ oe-boll.company
             AND ar-invl.i-no    EQ oe-boll.i-no
             AND ar-invl.po-no   EQ oe-boll.po-no
             AND ar-invl.bol-no    EQ oe-boll.bol-no
-            and ar-invl.b-no      EQ oe-boll.b-no                 
+            AND ar-invl.b-no      EQ oe-boll.b-no                 
             USE-INDEX bol-no
             :
             ASSIGN
-              lInvoiceFound = yes
+              lInvoiceFound = YES
               iArFound      = ar-invl.inv-no
               dInvQty       = dInvQty + ar-invl.inv-qty
               .
-        end.
+        END.
         
         IF NOT lInvoiceFound THEN 
         DO: 
@@ -538,7 +538,7 @@ FOR EACH company no-lock,
                 WHERE ttBOLLineProblems.BolNo EQ oe-boll.bol-no
                 AND ttBOLLineProblems.ItemNo EQ oe-boll.i-no
                 NO-ERROR.
-            IF NOT AVAIL ttBOLLineProblems THEN 
+            IF NOT AVAILABLE ttBOLLineProblems THEN 
             DO:
                 CREATE ttBOLLineProblems.
                 ASSIGN 
@@ -560,10 +560,13 @@ FOR EACH company no-lock,
                                   AND fg-set.part-no EQ oe-boll.i-no:
                     IF (iInvFound GT 0 AND  CAN-FIND(FIRST bf-inv-line NO-LOCK 
                                                        WHERE bf-inv-line.company EQ oe-boll.company
+                                                         AND bf-inv-line.b-no    EQ oe-boll.b-no
                                                          AND bf-inv-line.i-no    EQ fg-set.set-no) )
                       OR 
                         (iArFound GT 0 AND  CAN-FIND(FIRST ar-invl NO-LOCK 
                                                        WHERE ar-invl.company EQ oe-boll.company
+                                                         AND ar-invl.bol-no    EQ oe-boll.bol-no
+                                                         AND ar-invl.b-no      EQ oe-boll.b-no                                                         
                                                         AND ar-invl.i-no    EQ fg-set.set-no) ) THEN
                        lSkipForSetHeader = TRUE.
                                                              
@@ -603,7 +606,7 @@ FOR EACH ttBOLLineProblems:
          COLUMN-LABEL "Inv!Qty"
     ttBOLLineProblems.PostedInvoice COLUMN-LABEL "Posted!Invoice!Found"
     ttBOLLineProblems.UnPostedInvoice COLUMN-LABEL "UnPosted!Invoice!Found"
-    WITH stream-io WIDTH 132.
+    WITH STREAM-IO WIDTH 132.
 END.
 
 OUTPUT STREAM sReport CLOSE.
