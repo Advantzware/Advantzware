@@ -368,6 +368,8 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
      {cec/quote/quo10can2.i}
      v-printline = 0.
   END.
+  IF NOT LAST(xqitm.part-no) THEN
+  put skip(1) .
 END.
 
 numfit = 0.
