@@ -492,6 +492,10 @@ FOR EACH xqitm OF xquo NO-LOCK BREAK BY xqitm.part-no:
     RUN printHeader (2,OUTPUT v-printline).
   END.
 
+  IF NOT LAST(xqitm.part-no) THEN do:
+      PUT SKIP(1).
+      RUN printHeader (1,OUTPUT v-printline).
+  END.
   RUN printHeader (1,OUTPUT v-printline).
 END.
 
@@ -543,16 +547,6 @@ FOR EACH xqchg OF xquo NO-LOCK
  
   IF FIRST(xqchg.charge) THEN PUT SKIP(1).
  
-  /*
-  IF FIRST-OF(xqchg.charge) THEN DO: 
-
-      IF NOT logPrint THEN
-      DO:
-          PUT SKIP(1).
-          logprint = TRUE.
-      END.
-   */   
-  
     /*IF xqchg.qty EQ 0 OR FIRST-OF(xqchg.b-num) THEN DO:*/
      lv-chg-amt = xqchg.amt .
 
