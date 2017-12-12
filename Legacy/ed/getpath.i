@@ -53,17 +53,16 @@ if edcode.direction = "I" then do:
         if edmast.path-in > "" then edmast.path-in else edco.path-in.
     if ws_edi_path = "" then do:
         bell.
-        message "Enter path and filename for inbound" setid
-            update ws_edi_path.
+        RETURN.
     end.
 end.
 else do:
     ws_edi_path =
         if edcode.path-out > "" then edcode.path-out else
         if edmast.path-out > "" then edmast.path-out else edco.path-out.
+		
     if ws_edi_path = "" then do:
         bell.
-        message "Enter path and filename for outbound" setid
-            update ws_edi_path.
+        RETURN.
     end.
 end.

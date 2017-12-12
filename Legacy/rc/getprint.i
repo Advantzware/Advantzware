@@ -176,7 +176,7 @@ DO:
   DO:
     MESSAGE 'Wait, printing report ' + hdg_desc + ' ==> ' +
       (IF printfid = 'P' THEN 'printer' ELSE
-      IF printfid = 'V' THEN 'viewer'  ELSE printdest) + ' ...' .
+      IF printfid = 'V' THEN 'viewer'  ELSE printdest) + ' ...' /* wfk */ view-as alert-box .
     IF printfid = 'P' THEN
     DO:
       OUTPUT {1} TO printer PAGED PAGE-SIZE VALUE(page_len).

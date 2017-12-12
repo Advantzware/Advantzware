@@ -223,6 +223,8 @@ def {1} var supplier_order_number               AS CHAR NO-UNDO FORMAT "x(15)".
 def {1} var tare_package_code                   AS CHAR FORMAT "x(05)" NO-UNDO.
 def {1} var tax_id                              AS CHAR NO-UNDO FORMAT "x(20)".
 def {1} var tax_location                        AS CHAR NO-UNDO FORMAT "x(25)".
+def {1} var tax_type                            AS CHAR NO-UNDO FORMAT "x(25)".
+def {1} var tax_pct                             AS DEC NO-UNDO FORMAT '-999999999'.
 def {1} var tax_location_qualifier              AS CHAR NO-UNDO FORMAT "x(02)".
 def {1} var taxable_flag                        AS CHAR NO-UNDO FORMAT "x(01)".
 def {1} var terms_basis                         AS CHAR NO-UNDO FORMAT 'x(02)'.
@@ -231,6 +233,7 @@ def {1} var terms_type                          AS CHAR NO-UNDO FORMAT 'x(02)'.
 def {1} var total_cartons                   AS INT NO-UNDO FORMAT '99999999'.
 def {1} var total_disc_dollars          AS DEC NO-UNDO FORMAT '-999999999'.
 def {1} var total_frgt_dollars          AS DEC NO-UNDO FORMAT '-999999999'.
+def {1} var total_tax_dollars           AS DEC NO-UNDO FORMAT '-999999999'.
 def {1} var total_gross_dollars         AS DEC NO-UNDO FORMAT '-999999999'.
 def {1} var total_net_dollars           AS DEC NO-UNDO FORMAT '-999999999'.
 def {1} var total_order_amount          AS DEC  NO-UNDO FORMAT "-9999999999999".

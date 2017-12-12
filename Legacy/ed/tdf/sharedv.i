@@ -42,7 +42,10 @@ DEF {1} var ws_segment          AS char FORMAT 'x(03)' NO-UNDO
     label "Seg".
 DEF {1} var ws_element          AS char FORMAT 'x(06)' NO-UNDO
     label "Element".
-
+DEF {1} var ws_filetype          AS char FORMAT 'x(06)' NO-UNDO
+    label "Output File Type".
+DEF {1} var ws_elem_delim          AS char FORMAT 'x(06)' NO-UNDO
+    label "Element Delimiter" init "*".	
 /* 9805 CP */
 DEF {1} var tdf_eof AS logical NO-UNDO initial FALSE LABEL "EOF".
 

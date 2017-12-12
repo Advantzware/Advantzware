@@ -1,0 +1,2 @@
+'Trading Partner' + edmast.partner
+

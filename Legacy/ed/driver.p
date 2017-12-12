@@ -17,6 +17,7 @@ included they must be NEW shared or matching extent (10).
 **
 *****************************************************************************
 \***************************************************************************/
+/*
 {ed/sharedv.i "new"}
 {rc/ercvars.i 10 " " "new"}     /* 9808 CAH */
 {rc/stringv.i}                  /* 9808 CAH */
@@ -71,6 +72,7 @@ IF PROGRAM-NAME(2) BEGINS "ed/outbound" THEN
 ws_direction = "o".
 ELSE
 ws_direction = "i".    /* 9808 CAH */
+ws_direction = "o".
 IF ws_company = "" THEN
 DO:
   FIND FIRST edco NO-LOCK NO-ERROR.
@@ -114,8 +116,9 @@ DO:
 END.
 ws_company = edco.company.
 DISPLAY ws_company WITH FRAME f-view.
-{rc/getprint.i "stream s-out" 56} 
-OUTPUT STREAM s-err TO edi_dbg.txt paged page-size 56.
+/* {rc/getprint.i "stream s-out" 56 }  */ 
+output stream s-out to c:\temp\s-out.txt.
+OUTPUT STREAM s-err TO edi_dbg.txt /* wfk paged page-size 56 */.
 {rc/hdg-noco.i}
 {rc/ctrtext.i hdg_name 40}.
 {rc/ctrtext.i hdg_desc 40}.
@@ -125,6 +128,7 @@ HIDE FRAME f-top NO-PAUSE.
 VIEW FRAME f-current.
 FOR EACH edmast NO-LOCK
     WHERE CAN-DO(partner_list, edmast.partner):
+    MESSAGE "TEST  each edmast" edmast.partner view-as alert-box .
   DISPLAY edmast.partner WITH FRAME f-current.
   ws_partner = edmast.partner.
   IF top-debug THEN
@@ -135,6 +139,9 @@ FOR EACH edmast NO-LOCK
       AND edcode.direction = ws_direction
       /* 9809 CAH: Added proc-order to sorting sequence */
       BREAK BY edcode.partner /* BY edcode.proc-order */BY edcode.setid:
+      
+    MESSAGE "TEST  each edcode" edcode.setid view-as alert-box .
+      
     IF top-debug THEN
     RUN rc/debugmsg.p
       ("Processing Code: "
@@ -274,3 +281,5 @@ STATUS DEFAULT.
 OUTPUT STREAM s-err close.
 HIDE FRAME f-current.
 HIDE FRAME f-view.
+*/
+run ed/outboundProcess.w.

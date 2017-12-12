@@ -36,7 +36,19 @@ DEF VAR bt_code AS char NO-UNDO.    /* billto code */
 DEF var st_code AS char NO-UNDO.    /* optional distribution center */
 DEF var by_code AS char NO-UNDO.    /* ultimate destination */
 DEF var vcCustPOLine AS char NO-UNDO.
-
+DEFINE VARIABLE dTaxRate        AS DECIMAL NO-UNDO.
+DEFINE VARIABLE dTaxRateFreight AS DECIMAL NO-UNDO.
+DEFINE VARIABLE v-shipto-code AS CHARACTER NO-UNDO.
+def var v-shipto-name  as char format "x(30)" NO-UNDO.
+def var v-shipto-addr  as char format "x(30)" extent 2 NO-UNDO.
+def var v-shipto-city  as char format "x(15)" NO-UNDO.
+def var v-shipto-state as char format "x(2)" NO-UNDO.
+def var v-shipto-zip   as char format "x(10)" NO-UNDO.
+def var v-billto-name  as char format "x(30)" NO-UNDO.
+def var v-billto-addr  as char format "x(30)" extent 2 NO-UNDO.
+def var v-billto-city  as char format "x(15)" NO-UNDO.
+def var v-billto-state as char format "x(2)" NO-UNDO.
+def var v-billto-zip   as char format "x(10)" NO-UNDO.
 FUNCTION fUOM-CF returns decimal (INPUT pUOM AS CHAR):
 DEF var UOM-cf AS decimal NO-UNDO DECIMALS 10.
 
@@ -111,12 +123,33 @@ RETURN RETURN-VALUE.
 procedure edi-ar.ip:
 
 if top-debug then run rc/debugmsg.p ("...start of ar-inv invoice").
-
+    assign  
+        v-shipto-name    = ar-inv.sold-name
+        v-shipto-addr[1] = ar-inv.sold-addr[1]
+        v-shipto-addr[2] = ar-inv.sold-addr[2]
+        v-shipto-city    = ar-inv.sold-city
+        v-shipto-state   = ar-inv.sold-state
+        v-shipto-zip     = ar-inv.sold-zip
+        v-ShipTo-code    = ar-inv.sold-id.
+    FIND FIRST shipto NO-LOCK WHERE shipto.company EQ ar-inv.company
+        AND shipto.cust-no EQ ar-inv.cust-no
+        AND shipto.ship-id EQ ar-inv.sold-id
+        NO-ERROR.
+    IF AVAILABLE shipto THEN 
+        ASSIGN v-shipto-code    = ar-inv.sold-id
+            v-shipto-name    = shipto.ship-name
+            v-shipto-addr[1] = shipto.ship-addr[1]
+            v-shipto-addr[2] = shipto.ship-addr[2]
+            v-shipto-city    = shipto.ship-city
+            v-shipto-state   = shipto.ship-state
+            v-shipto-zip     = shipto.ship-zip
+            .
+            
 run edi-010.ip (
     input ar-inv.company,
     input ar-inv.inv-no,
     input ar-inv.cust-no,
-    input ar-inv.cust-no
+    input v-shipto-code
     ).
     
 if return-value > "" then do:
@@ -265,7 +298,8 @@ if ar-inv.freight <> 0 then do:
     "FRT",
     "FREIGHT",
     ar-inv.freight,
-    YES,
+    0,          /* rate */    
+    "Y",
     "Invoice Level Freight Charge"
         ).
 end.
@@ -275,13 +309,16 @@ if ar-inv.tax-amt <> 0 then do:
   where stax-group.company = ar-inv.company
   and stax-group.tax-group = ar-inv.tax-code no-lock no-error.
   
+  RUN ar/cctaxrt.p (INPUT ar-inv.company, ar-inv.tax-code /* oe-ord.tax-gr */,
+        OUTPUT dTaxRate, OUTPUT dTaxRateFreight).  
   run gen-addon.ip (
     ws_eddoc_rec, 
     0,          /* line # */
     "TAX",
     (if avail stax-group then stax-group.tax-dscr else "TAXES"),
     ar-inv.tax-amt,
-    YES,
+    dTaxRate,          /* rate */ 
+    "Y",
     "Invoice Level Taxes"
         ).
 end.
@@ -301,6 +338,7 @@ def input param pLine as int no-undo.
 def input param pCode as char no-undo.
 def input param pDesc as char no-undo.
 def input param pAmt as decimal no-undo.
+def input param pRate as decimal no-undo.
 def input param pBill as char no-undo.
 def input param pRef as char no-undo.
 
@@ -359,6 +397,7 @@ if not avail eddoc then return error "no eddoc".
     edivaddon.agency-code     = pCode /* ### requires xlate */
     edivaddon.Ref-Num         = pRef
     edivaddon.special-svc-code = ""
+    EDIVAddon.Rate = pRate
     .
   /*
   edivaddon.Uom-code       = {2}.Uom-code
@@ -426,7 +465,7 @@ END.
       billto.by-code = ""
       billto.cust = pCust.
   END.
-
+  
   ASSIGN bt_code = billto.by-code.
 
   IF top-debug THEN
@@ -457,6 +496,7 @@ END.
   IF top-debug THEN
   RUN rc/debugrec.s ("Billto Record", RECID(billto)) "edshipto".
 
+  pStore = v-shipto-code.
   /* find the store from the shipto record */
   IF pStore > "" THEN
   DO:
@@ -488,18 +528,29 @@ END.
         bystore.city       = inv-head.sold-city
         bystore.state      = inv-head.sold-state
         bystore.zip        = inv-head.sold-zip
+        by_code            = inv-head.sold-no
         .
-    else if avail ar-inv then ASSIGN
-      billto.name       = ar-inv.sold-name
-      billto.addr1      = ar-inv.sold-addr[1]
-      billto.addr2      = ar-inv.sold-addr[2]
-      billto.city       = ar-inv.sold-city
-      billto.state      = ar-inv.sold-state
-      billto.zip        = ar-inv.sold-zip
-      billto.attention  = ar-inv.contact
-      .
+      else if avail ar-inv then ASSIGN
+      bystore.name       = ar-inv.sold-name
+      bystore.addr1      = ar-inv.sold-addr[1]
+      bystore.addr2      = ar-inv.sold-addr[2]
+      bystore.city       = ar-inv.sold-city
+      bystore.state      = ar-inv.sold-state
+      bystore.zip        = ar-inv.sold-zip        
+        by_code           = ar-inv.sold-id
+       .
+      IF v-shipto-name NE "" THEN 
+        ASSIGN 
+          bystore.name       = v-shipto-name                    
+          bystore.addr1      = v-shipto-addr[1] 
+          bystore.addr2      = v-shipto-addr[2] 
+          bystore.city       = v-shipto-city    
+          bystore.state      = v-shipto-state   
+          bystore.zip        = v-shipto-zip     
+          .      
     END.
-    ASSIGN by_code = bystore.by-code.
+    
+    ASSIGN by_code = bystore.ship-to.
     IF top-debug THEN
     RUN rc/debugmsg.p ("ByStore code set to " + by_code).
 
@@ -516,21 +567,21 @@ procedure edi-020.ip:
 def input param pPO as char no-undo.
 
 def var viPOLine as int no-undo.
-
-  IF NUM-ENTRIES(pPo, "-") = 2 THEN
-  DO:
-    purchase_order_number = ENTRY(1, pPo, "-").
-    vcCustPoLine  = ENTRY(2, pPo, "-").
-    viPOLine = integer(vcCustPoLIne) NO-ERROR.
-    if error-status:error or vcCustPoLine = '' or vipoline = ?
-    then assign purchase_order_number = pPo
-        vcCustPoLine = "".
-  END.
-  ELSE
-  DO:
+/* wfk - Don't know why this was here                           */
+/*  IF NUM-ENTRIES(pPo, "-") = 2 THEN                           */
+/*  DO:                                                         */
+/*    purchase_order_number = ENTRY(1, pPo, "-").               */
+/*    vcCustPoLine  = ENTRY(2, pPo, "-").                       */
+/*    viPOLine = integer(vcCustPoLIne) NO-ERROR.                */
+/*    if error-status:error or vcCustPoLine = '' or vipoline = ?*/
+/*    then assign purchase_order_number = pPo                   */
+/*        vcCustPoLine = "".                                    */
+/*  END.                                                        */
+/*  ELSE                                                        */
+/*  DO:                                                         */
     purchase_order_number = pPo.
     vcCustPoLine = "".
-  END.
+/*  END.*/
 
   IF top-debug THEN
   RUN rc/debugmsg.p ("pPo: " + pPo
@@ -710,7 +761,10 @@ def input param pTerms as char no-undo.
       (IF AVAIL edpotran THEN edpotran.promo-code ELSE "")
       edivtran.sf-code            = edmast.sf-code
       .
-      
+    FIND FIRST company NO-LOCK WHERE company.company EQ EDIVTran.Company NO-ERROR.
+   
+      EDIVTran.Curr-seller = IF AVAILABLE company THEN  company.curr-code ELSE "".
+  
     if avail inv-head then ASSIGN
       edivtran.Invoice-date       = inv-head.Inv-date
       edivtran.BOL-No             = STRING(inv-head.BOL-No)
@@ -1104,13 +1158,33 @@ end.
 procedure edi-oe.ip:    
 
 if top-debug then run rc/debugmsg.p ("...start of inv-head invoice").
-
+    assign  
+        v-shipto-name    = inv-head.sold-name
+        v-shipto-addr[1] = inv-head.sold-addr[1]
+        v-shipto-addr[2] = inv-head.sold-addr[2]
+        v-shipto-city    = inv-head.sold-city
+        v-shipto-state   = inv-head.sold-state
+        v-shipto-zip     = inv-head.sold-zip
+        v-ShipTo-code       = inv-head.sold-no.
+FIND FIRST shipto NO-LOCK WHERE shipto.company EQ inv-head.company
+  AND shipto.cust-no EQ inv-head.cust-no
+  AND shipto.ship-id EQ inv-head.sold-no
+  NO-ERROR.
+IF AVAILABLE shipto THEN 
+  ASSIGN v-shipto-code = inv-head.sold-no
+         v-shipto-name = shipto.ship-name
+         v-shipto-addr[1] = shipto.ship-addr[1]
+         v-shipto-addr[2] = shipto.ship-addr[2]
+         v-shipto-city = shipto.ship-city
+         v-shipto-state = shipto.ship-state
+         v-shipto-zip = shipto.ship-zip
+         .
 
 run edi-010.ip (
     input inv-head.company,
     input inv-head.inv-no,
     input inv-head.bill-to,
-    input inv-head.cust-no
+    input v-shipto-code
     ).
     
 if return-value > "" then do:
@@ -1231,6 +1305,7 @@ FOR EACH inv-misc OF inv-head NO-LOCK
     inv-misc.charge,
     inv-misc.Dscr,
     inv-misc.amt,
+    0,             /* rate */
     inv-misc.bill,
     "ESTIMATE# " + inv-misc.est-no
         ).
@@ -1244,7 +1319,8 @@ if inv-head.t-inv-freight <> 0 then do:
     "FRT",
     "FREIGHT",
     inv-head.t-inv-freight,
-    YES,
+    0,            /* rate */
+    "Y",
     "Invoice Level Freight Charge"
         ).
 end.
@@ -1253,13 +1329,15 @@ if inv-head.t-inv-tax <> 0 then do:
   find stax-group
   where stax-group.company = inv-head.company
   and stax-group.tax-group = inv-head.tax-gr no-lock no-error.
-  
+  RUN ar/cctaxrt.p (INPUT inv-head.company, inv-head.tax-gr ,
+      OUTPUT dTaxRate, OUTPUT dTaxRateFreight).   
   run gen-addon.ip (
     ws_eddoc_rec, 
     0,          /* line # */
     "TAX",
     (if avail stax-group then stax-group.tax-dscr else "TAXES"),
     inv-head.t-inv-tax,
+    dTaxRate,          /* rate */
     YES,
     "Invoice Level Taxes"
         ).

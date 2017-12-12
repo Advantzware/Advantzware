@@ -16,7 +16,7 @@ FORM HEADER
     hdg_desc format 'x(40)' AT 50 SKIP
   hdg_left format 'x(49)' at 1
     space(0) hdg_text format 'x(40)' AT 50
-    space(0) hdg_right format 'x(32)' at 100 SKIP
+    space(0) hdg_right format 'x(30)' at 100 SKIP
 WITH PAGE-TOP NO-BOX NO-LABELS NO-ATTR-SPACE WIDTH 132 FRAME HDG-STD.
 
 

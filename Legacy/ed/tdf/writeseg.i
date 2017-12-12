@@ -17,7 +17,19 @@ DO segx = 1 TO NUM-ENTRIES(segment_list)
     ON error UNDO, NEXT:
   ws_segment = ENTRY(segx, segment_list).
   segx = segx + 1.
-  ws_seq     = INTEGER(ENTRY(segx, segment_list)). 
+  ws_seq     = INTEGER(ENTRY(segx, segment_list)) no-error.
+  /* to allow for multiple N1 to N4 in the same section */
+  IF ws_segment EQ "N1" AND ws_section EQ 10 AND ws_setid EQ "810" THEN 
+    ws_section = 20.
+    /* Skip past the N1 of 20-24 for other header segments */
+    IF ws_segment NE "N1" AND ws_segment NE "N2" AND ws_segment NE "N3" AND ws_segment NE "N4"
+      AND ws_section EQ 20 AND ws_setid EQ "810" THEN 
+        ws_section = 25.    
+  IF ERROR-STATUS:ERROR THEN DO:
+       MESSAGE "error in seqment list" segx skip
+       segment_list
+       VIEW-AS ALERT-BOX.
+      END. 
 
   IF top-debug THEN
   RUN rc/debugmsg.p (ws_segment + ":" + string(ws_seq)).
@@ -35,12 +47,14 @@ DO segx = 1 TO NUM-ENTRIES(segment_list)
       {rc/outstr.i '00000' 13 5}
       ws_char = str_buffa /* save it for debugging if needed */
       .
-
+ 
     next_program = "ed/tdf/" + ws_segment + ".p".
     IF SEARCH(next_program) <> ? THEN
     DO:
       error-status:error = FALSE.
+      /* MESSAGE "test in writeseg.i run next program" next_program VIEW-AS ALERT-BOX. */
       RUN VALUE(next_program) ("O", INPUT-OUTPUT str_buffa, OUTPUT ws_erc).
+       /* MESSAGE "test in writeseg.i DONE next program" next_program VIEW-AS ALERT-BOX. */
       IF ws_erc <> 0 OR error-status:error THEN
       DO:
         RUN rc/debugmsg.p ("Run of " + next_program 
@@ -63,6 +77,8 @@ DO segx = 1 TO NUM-ENTRIES(segment_list)
             wktdf.seq = ws_seq
             wktdf.rec = recid(wktdf)
             wktdf.data-record = TRIM(str_buffa).
+	      IF ws_filetype EQ "EDI" THEN 
+		    wktdf.data-record = SUBSTRING(wktdf.data-record, INDEX(wktdf.data-record, ws_elem_delim)).
         END.
         IF CAN-DO(ctt_count_segment_list, ws_segment) THEN
         {rc/incr.i number_of_line_items}.  /* 9808 CAH */
@@ -81,7 +97,7 @@ PROCEDURE write_tdf.ip:
 FOR EACH wktdf
     BREAK BY wktdf.setid BY wktdf.section BY wktdf.line BY wktdf.seq
     by wktdf.rec:
-  PUT STREAM s-edi UNFORMATTED TRIM(wktdf.data-record) SKIP.
+  PUT STREAM s-edi UNFORMATTED wktdf.section wktdf.line wktdf.seq TRIM(wktdf.data-record) SKIP.
   DELETE wktdf.
 END.    /* for each */
 END PROCEDURE.

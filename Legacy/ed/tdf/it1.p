@@ -21,6 +21,15 @@ DEF var x1 AS int NO-UNDO.
 DEF var s1 AS int NO-UNDO.
 DEF var x2 AS int NO-UNDO.
 DEF var s2 AS int NO-UNDO.
+
+/*MESSAGE "test it1" skip                 */
+/*  "assid " item_assigned_id skip        */
+/*  "qant"  quantity_invoiced skip        */
+/*   "uom" unit_of_measure       skip     */
+/*   "upr" unit_price         skip        */
+/*   "pid" item_product_qualifier skip    */
+/*    "prod id" product_id            skip*/
+/*VIEW-AS ALERT-BOX.                      */
 IF ws_segment <> "IT1" THEN
 RETURN error.
 IF command matches "*I*" THEN

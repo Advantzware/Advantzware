@@ -19,6 +19,9 @@ DEF SHARED var top-debug AS logical NO-UNDO.
 DEF SHARED STREAM s-out.
 {ed/edivars.i       "shared"}
 {ed/tdf/sharedv.i   "shared"}
+/*MESSAGE "test in n1 entity_id" entity_id skip "command" command skip*/
+/*"ws_seg" ws_segment "id_code" id_code                               */
+/*VIEW-AS ALERT-BOX.                                                  */
 IF ws_segment <> "N1" THEN
 RETURN error.
 IF command matches "*I*" THEN
@@ -56,6 +59,7 @@ DO:
       .
   END.
 END CASE.  /* version */
+
 CASE entity_id:
 WHEN "BU" THEN
 ASSIGN ordering_store_number = id_code.
@@ -84,6 +88,11 @@ OTHERWISE RUN rc/debugmsg.p
   ("unrecognized entity_id in N1 segment: " + entity_id + " name: "
   + company_name).
 END.
+
+/*MESSAGE "test in n1 entity_id" entity_id "command" COMMAND skip*/
+/*"id_code" id_code skip                                         */
+/*"id_code_qual" id_code_qualifier                               */
+/*VIEW-AS ALERT-BOX.                                             */
 IF top-debug THEN
 RUN rc/debugmsg.p
   ( "entity_id:" + entity_id
