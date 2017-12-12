@@ -272,8 +272,10 @@ PROCEDURE local-initialize :
   FIND FIRST users NO-LOCK WHERE 
       users.user_id EQ USERID(LDBNAME(1)) 
       NO-ERROR.
-  IF AVAIL users AND users.securityLevel LE 999 THEN
-      DISABLE btn-override WITH FRAME {&FRAME-NAME}. 
+  IF AVAIL users AND users.securityLevel LE 999 THEN ASSIGN
+      btn-override:VISIBLE IN FRAME {&FRAME-NAME} = FALSE. 
+  ELSE ASSIGN
+      btn-override:VISIBLE IN FRAME {&FRAME-NAME} = TRUE. 
 
   /* Code placed here will execute AFTER standard behavior.    */
 
