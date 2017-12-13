@@ -15,14 +15,7 @@ cocode = {&TABLENAME}.company.
 
 {sys/inc/oeuserid.i}
 
-FOR EACH reftable
-    WHERE reftable.reftable EQ "oe/ordlmisc.p"
-      AND reftable.company  EQ {&TABLENAME}.company
-      AND reftable.loc      EQ STRING({&TABLENAME}.ord-no,"9999999999")
-      AND reftable.code     EQ STRING({&TABLENAME}.line,"9999999999")
-      AND reftable.code2    EQ {&TABLENAME}.charge:
-  DELETE reftable.
-END.
+
 
 IF oeuserid-log THEN
 FOR EACH oe-ord

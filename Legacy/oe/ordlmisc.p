@@ -60,18 +60,16 @@ for each est-prep
       and est-prep.est-no  eq xeb.est-no
       and est-prep.s-num   eq xeb.form-no
       and (est-prep.b-num  eq xeb.blank-no or est-prep.b-num eq 0)
-      and est-prep.simon   eq "S"
-      AND NOT CAN-FIND(FIRST reftable
-                       WHERE reftable.reftable EQ "oe/ordlmisc.p"
-                         AND reftable.company  EQ cocode
-                         AND reftable.loc      EQ STRING(oe-ord.ord-no,"9999999999")
-                         AND reftable.code2    EQ est-prep.code
-                         AND reftable.val[2]   EQ est-prep.eqty
-                         AND reftable.val[3]   EQ est-prep.line
-                         AND reftable.dscr     EQ est-prep.est-no)
+      and est-prep.simon   eq "S"                         
+                    
     no-lock:
 
   find last oe-ordm of oe-ord no-lock no-error.
+  IF AVAIL oe-ordm AND 
+     (oe-ordm.estPrepEqty = est-prep.eqty and
+      oe-ordm.estPrepLine = est-prep.line and
+      oe-ordm.est-no  = est-prep.est-no) then next.   
+  
   z = (if avail oe-ordm then oe-ordm.line else 0) + 1.
 
   create oe-ordm.
@@ -85,17 +83,11 @@ for each est-prep
    oe-ordm.ord-i-no = oe-ordl.i-no
    oe-ordm.ord-line = oe-ordl.line.
 
-  CREATE reftable.
-  ASSIGN
-   reftable.reftable = "oe/ordlmisc.p"
-   reftable.company  = cocode
-   reftable.loc      = STRING(oe-ordm.ord-no,"9999999999")
-   reftable.code     = STRING(oe-ordm.line,"9999999999")
-   reftable.code2    = oe-ordm.charge
-   reftable.val[1]   = 1
-   reftable.val[2]   = est-prep.eqty
-   reftable.val[3]   = est-prep.line
-   reftable.dscr     = est-prep.est-no.
+  ASSIGN 
+             oe-ordm.miscType = 1
+             oe-ordm.estPrepEqty   = est-prep.eqty
+             oe-ordm.estPrepLine   = est-prep.line
+             oe-ordm.est-no  = est-prep.est-no. 
 
   if taxit then oe-ordm.tax = true.
   IF PrepTax-log THEN 
@@ -126,18 +118,16 @@ end. /* each est-prep */
 for each ef OF xeb no-lock:
   do i = 1 to 5:
     if ef.mis-simon[i] eq "S"                                  and 
-       (ef.mis-bnum[i] eq xeb.blank-no or ef.mis-bnum[i] eq 0) and
-      NOT CAN-FIND(FIRST reftable
-                   WHERE reftable.reftable EQ "oe/ordlmisc.p"
-                     AND reftable.company  EQ cocode
-                     AND reftable.loc      EQ STRING(oe-ord.ord-no,"9999999999")
-                     AND reftable.code2    EQ ef.mis-cost[i]
-                     AND reftable.val[2]   EQ ef.eqty
-                     AND reftable.val[3]   EQ ef.form-no
-                     AND reftable.val[4]   EQ i
-                     AND reftable.dscr     EQ ef.est-no)       then do:
+       (ef.mis-bnum[i] eq xeb.blank-no or ef.mis-bnum[i] eq 0) 
+                     
+                         then do:
 
       find last oe-ordm of oe-ord no-lock no-error.
+      IF AVAIL oe-ordm AND 
+                 (oe-ordm.estPrepEqty = ef.eqty AND
+                  oe-ordm.estPrepLine = ef.form-no AND
+                  oe-ordm.miscInd = STRING(i) AND
+                  oe-ordm.est-no  = ef.est-no)  THEN NEXT.
       z = (if avail oe-ordm then oe-ordm.line else 0) + 1.
 
       create oe-ordm.
