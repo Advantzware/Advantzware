@@ -385,6 +385,17 @@ DEFINE FRAME F-Main
      "Environments:" VIEW-AS TEXT
           SIZE 16 BY .62 AT ROW 11.24 COL 91 WIDGET-ID 58
           FONT 4
+     " At Login User Can Select:" VIEW-AS TEXT
+          SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
+          FONT 4
+     "Options:" VIEW-AS TEXT
+          SIZE 11 BY .62 AT ROW 11.71 COL 8 WIDGET-ID 42
+     "Modes:" VIEW-AS TEXT
+          SIZE 8 BY .62 AT ROW 6.71 COL 99 WIDGET-ID 62
+          FONT 4
+     "Databases:" VIEW-AS TEXT
+          SIZE 13 BY .62 AT ROW 14.1 COL 94 WIDGET-ID 60
+          FONT 4
      "(#)" VIEW-AS TEXT
           SIZE 4 BY 1 AT ROW 4.1 COL 54 WIDGET-ID 106
      "(Area)" VIEW-AS TEXT
@@ -402,17 +413,6 @@ DEFINE FRAME F-Main
           SIZE 16 BY 1 AT ROW 5.29 COL 13 WIDGET-ID 94
      "(Area)" VIEW-AS TEXT
           SIZE 8 BY 1 AT ROW 4.1 COL 38 WIDGET-ID 96
-     " At Login User Can Select:" VIEW-AS TEXT
-          SIZE 26 BY .62 AT ROW 4.81 COL 91 WIDGET-ID 56
-          FONT 4
-     "Options:" VIEW-AS TEXT
-          SIZE 11 BY .62 AT ROW 11.71 COL 8 WIDGET-ID 42
-     "Modes:" VIEW-AS TEXT
-          SIZE 8 BY .62 AT ROW 6.71 COL 99 WIDGET-ID 62
-          FONT 4
-     "Databases:" VIEW-AS TEXT
-          SIZE 13 BY .62 AT ROW 14.1 COL 94 WIDGET-ID 60
-          FONT 4
      RECT-5 AT ROW 5.05 COL 88 WIDGET-ID 78
     WITH 1 DOWN NO-BOX KEEP-TAB-ORDER OVERLAY 
          SIDE-LABELS NO-UNDERLINE THREE-D 
@@ -1704,23 +1704,6 @@ PROCEDURE local-update-record :
                 usr.last-chg = today.
         END.
 
-        FIND ttUsers EXCLUSIVE WHERE
-            ttUsers.ttfPdbname = PDBNAME(1) AND
-            ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
-            NO-ERROR.
-        IF NOT AVAIL ttUsers THEN DO:
-            CREATE ttUsers.
-            ASSIGN
-                ttUsers.ttfPdbname = PDBNAME(1)
-                ttUsers.ttfUserID = users.user_id:SCREEN-VALUE.
-        END.
-        ASSIGN
-            ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
-            ttUsers.ttfEnvList = if users.envList <> slEnvironments:list-items then users.envList else ""
-            ttUsers.ttfDbList = if users.dbList <> slDatabases:list-items then users.dbList else ""
-            ttUsers.ttfModeList = if users.modeList <> slModes:list-items then users.modeList else "".
-        RUN ipWriteUsrFile.
-   
   /* Dispatch standard ADM method.                             */
   RUN dispatch IN THIS-PROCEDURE ( INPUT 'update-record':U ) .
 
@@ -1742,6 +1725,24 @@ PROCEDURE local-update-record :
             users.fax = fi_fax-area:screen-value + lv-fax-num
             rThisUser = ROWID(users).
     END.
+
+    FIND ttUsers EXCLUSIVE WHERE
+        ttUsers.ttfPdbname = PDBNAME(1) AND
+        ttUsers.ttfUserID = users.user_id:SCREEN-VALUE
+        NO-ERROR.
+    IF NOT AVAIL ttUsers THEN DO:
+        CREATE ttUsers.
+        ASSIGN
+            ttUsers.ttfPdbname = PDBNAME(1)
+            ttUsers.ttfUserID = users.user_id:SCREEN-VALUE.
+    END.
+    ASSIGN
+        ttUsers.ttfUserAlias = users.userAlias:SCREEN-VALUE
+        ttUsers.ttfEnvList = if users.envList <> slEnvironments:list-items then users.envList else ""
+        ttUsers.ttfDbList = if users.dbList <> slDatabases:list-items then users.dbList else ""
+        ttUsers.ttfModeList = if users.modeList <> slModes:list-items then users.modeList else "".
+    RUN ipWriteUsrFile.
+   
 
     DISABLE 
         fiPassword
