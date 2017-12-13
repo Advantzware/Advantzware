@@ -122,7 +122,8 @@ DEFINE BUFFER bUserPrint FOR user-print.
     ~{&OPEN-QUERY-browseUserPrint}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS btnExcel btnSaveParams btnCancel btnView 
+&Scoped-Define ENABLED-OBJECTS btnCSV btnExcel btnSaveParams btnCancel ~
+btnView 
 
 /* Custom List Definitions                                              */
 /* ScheduleFields,showFields,batchObjects,batchShowHide,columnObjects,List-6 */
@@ -287,13 +288,18 @@ DEFINE BUTTON btnCancel AUTO-END-KEY
      LABEL "&Cancel" 
      SIZE 4.4 BY 1 TOOLTIP "Close".
 
+DEFINE BUTTON btnCSV 
+     IMAGE-UP FILE "aoa/images/aoaexcelcsv.png":U
+     LABEL "csv" 
+     SIZE 4.4 BY 1 TOOLTIP "Export to CSV File".
+
 DEFINE BUTTON btnDelete 
      IMAGE-UP FILE "aoa/images/aoadelete.jpg":U
      LABEL "&Delete" 
      SIZE 4.4 BY 1 TOOLTIP "Delete Batch ID".
 
 DEFINE BUTTON btnExcel 
-     IMAGE-UP FILE "aoa/images/aoaexcel.jpg":U
+     IMAGE-UP FILE "aoa/images/aoaexcel.gif":U
      LABEL "&Excel" 
      SIZE 4.4 BY 1 TOOLTIP "Export to Excel".
 
@@ -308,8 +314,8 @@ DEFINE BUTTON btnSaveParams
      SIZE 4.4 BY 1 TOOLTIP "Save Parameters".
 
 DEFINE BUTTON btnScheduler 
-     LABEL "Assign &Scheduler Batch ID" 
-     SIZE 27 BY 1 TOOLTIP "Assign Batch ID to Parameter Values".
+     LABEL "Assign Batch ID" 
+     SIZE 18 BY 1 TOOLTIP "Assign Batch ID to Parameter Values".
 
 DEFINE BUTTON btnShowBatch 
      IMAGE-UP FILE "aoa/images/aoashowbatch.jpg":U
@@ -358,9 +364,11 @@ DEFINE BROWSE browseUserPrint
 DEFINE FRAME paramFrame
      btnScheduler AT ROW 2.43 COL 2 HELP
           "Assign Batch ID to Parameter Values" WIDGET-ID 10
-     btnShowBatch AT ROW 2.43 COL 30 HELP
+     btnShowBatch AT ROW 2.43 COL 21 HELP
           "Show Batch Parameter Values" WIDGET-ID 20
-     btnExcel AT ROW 2.43 COL 35 HELP
+     btnCSV AT ROW 2.43 COL 26 HELP
+          "Export to CSV File" WIDGET-ID 30
+     btnExcel AT ROW 2.43 COL 31 HELP
           "Export to Excel" WIDGET-ID 22
      btnSaveParams AT ROW 3.62 COL 2 HELP
           "Save Parameters" WIDGET-ID 24
@@ -368,11 +376,11 @@ DEFINE FRAME paramFrame
           "Close" WIDGET-ID 26
      btnView AT ROW 3.62 COL 12 HELP
           "View" WIDGET-ID 28
-     btnDelete AT ROW 3.62 COL 25 HELP
+     btnDelete AT ROW 3.62 COL 26 HELP
           "Delete Batch ID" WIDGET-ID 4
-     btnApply AT ROW 3.62 COL 30 HELP
+     btnApply AT ROW 3.62 COL 31 HELP
           "Apply Batch Values to Parameter Values" WIDGET-ID 16
-     btnSave AT ROW 3.62 COL 35 HELP
+     btnSave AT ROW 3.62 COL 36 HELP
           "Save Parameter Values to Batch ID" WIDGET-ID 18
      browseUserPrint AT ROW 11.71 COL 41 WIDGET-ID 500
      browseParamValue AT ROW 11.71 COL 82 WIDGET-ID 600
@@ -541,6 +549,11 @@ ASSIGN
 ASSIGN 
        btnApply:HIDDEN IN FRAME paramFrame           = TRUE
        btnApply:PRIVATE-DATA IN FRAME paramFrame     = 
+                "WinKitRibbon".
+
+ASSIGN 
+       btnCSV:HIDDEN IN FRAME paramFrame           = TRUE
+       btnCSV:PRIVATE-DATA IN FRAME paramFrame     = 
                 "WinKitRibbon".
 
 /* SETTINGS FOR BUTTON btnDelete IN FRAME paramFrame
@@ -720,6 +733,20 @@ END.
 &ANALYZE-RESUME
 
 
+&Scoped-define SELF-NAME btnCSV
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnCSV W-Win
+ON CHOOSE OF btnCSV IN FRAME paramFrame /* csv */
+DO:
+    DO WITH FRAME frameShow:
+        ASSIGN svExcelTable.
+    END.
+    RUN pExcelCSV (BUFFER user-print).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
 &Scoped-define FRAME-NAME frameColumns
 &Scoped-define SELF-NAME btnDefault
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnDefault W-Win
@@ -843,7 +870,7 @@ END.
 
 &Scoped-define SELF-NAME btnScheduler
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL btnScheduler W-Win
-ON CHOOSE OF btnScheduler IN FRAME paramFrame /* Assign Scheduler Batch ID */
+ON CHOOSE OF btnScheduler IN FRAME paramFrame /* Assign Batch ID */
 DO:
     RUN pSchedule.
 END.
@@ -1108,7 +1135,7 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  ENABLE btnExcel btnSaveParams btnCancel btnView 
+  ENABLE btnCSV btnExcel btnSaveParams btnCancel btnView 
       WITH FRAME paramFrame IN WINDOW W-Win.
   {&OPEN-BROWSERS-IN-QUERY-paramFrame}
   DISPLAY svShowAll svShowReportHeader svShowParameters svShowPageHeader 
@@ -1520,6 +1547,87 @@ PROCEDURE pExcel :
         RELEASE OBJECT chWorkbook  NO-ERROR.
         RELEASE OBJECT chWorkSheet NO-ERROR.
         RELEASE OBJECT chExcel     NO-ERROR.
+    END. /* valid happsrv */
+
+END PROCEDURE.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pExcelCSV W-Win 
+PROCEDURE pExcelCSV :
+/*------------------------------------------------------------------------------
+  Purpose:     Export temp-table contents to Excel CSV Format
+  Parameters:  user-print buffer
+  Notes:       
+------------------------------------------------------------------------------*/
+    DEFINE PARAMETER BUFFER user-print FOR user-print.
+
+    DEFINE VARIABLE hTable      AS HANDLE     NO-UNDO.
+    DEFINE VARIABLE cColumns    AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE fieldName   AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE iColumn     AS INTEGER    NO-UNDO.
+    DEFINE VARIABLE hQuery      AS HANDLE     NO-UNDO.
+    DEFINE VARIABLE hQueryBuf   AS HANDLE     NO-UNDO.
+    DEFINE VARIABLE cDynFunc    AS CHARACTER  NO-UNDO.
+    DEFINE VARIABLE cExcelFile  AS CHARACTER  NO-UNDO.
+    
+    RUN pSaveParamValues (NO, BUFFER user-print).
+
+    IF VALID-HANDLE(hAppSrv) THEN DO WITH FRAME frameColumns:
+        hTable = DYNAMIC-FUNCTION('fGetTableHandle' IN hAppSrv, aoaProgramID).
+        IF NOT VALID-HANDLE(hTable) THEN RETURN.
+        
+        ASSIGN
+            cExcelFile = "aoa\excel\.keep"
+            FILE-INFO:FILE-NAME = cExcelFile
+            cExcelFile = FILE-INFO:FULL-PATHNAME
+            cExcelFile = REPLACE(cExcelFile,".keep",aoaTitle + " (")
+                       + USERID("NoSweat") + ").csv"
+            .
+        IF SEARCH(cExcelFile) NE ? THEN
+        OS-DELETE VALUE(SEARCH(cExcelFile)).        
+        OUTPUT TO VALUE(cExcelFile).
+        
+        /* run dynamic function (business subject) */
+        ASSIGN
+            cDynFunc = "f" + REPLACE(aoaTitle," ","")
+            hTable = DYNAMIC-FUNCTION(cDynFunc IN hAppSrv, aoaCompany, 0, USERID("NoSweat"))
+            .
+        IF NOT VALID-HANDLE(hTable) THEN RETURN.
+
+        hTable = hTable:DEFAULT-BUFFER-HANDLE.
+
+        /* build header row column labels */
+        DO iColumn = 1 TO svSelectedColumns:NUM-ITEMS:
+            fieldName = svSelectedColumns:ENTRY(iColumn).
+            /* column label */
+            IF svShowPageHeader OR aoaType EQ "Dashboard" THEN
+            PUT UNFORMATTED hTable:BUFFER-FIELD(fieldName):LABEL + ",".
+        END. /* do iColumn */
+        IF svShowPageHeader OR aoaType EQ "Dashboard" THEN
+        PUT UNFORMATTED SKIP.
+
+        /* scroll returned temp-table records */
+        CREATE QUERY hQuery.
+        hQuery:SET-BUFFERS(hTable:HANDLE).
+        hQuery:QUERY-PREPARE("FOR EACH " + hTable:NAME).
+        hQuery:QUERY-OPEN.
+        hQueryBuf = hQuery:GET-BUFFER-HANDLE(hTable:NAME).
+        REPEAT:
+            hQuery:GET-NEXT().
+            IF hQuery:QUERY-OFF-END THEN LEAVE.
+            IF hQueryBuf:BUFFER-FIELD("RowType"):BUFFER-VALUE() NE "Data" THEN NEXT.
+            DO iColumn = 1 TO svSelectedColumns:NUM-ITEMS:
+                fieldName = svSelectedColumns:ENTRY(iColumn).
+                PUT UNFORMATTED REPLACE(hTable:BUFFER-FIELD(fieldName):BUFFER-VALUE(),","," ") + ",".
+            END. /* do iColumn */
+            PUT UNFORMATTED SKIP.
+        END. /* repeat */
+        hQuery:QUERY-CLOSE().
+        DELETE OBJECT hQuery.
+        OUTPUT CLOSE.
+        OS-COMMAND NO-WAIT START excel.exe VALUE("~"" + cExcelFile + "~"").
     END. /* valid happsrv */
 
 END PROCEDURE.
@@ -2080,13 +2188,15 @@ PROCEDURE pSetWinSize :
             btnView:Y                                 = hParamFrame:HEIGHT-PIXELS + 5
             btnCancel:Y                               = hParamFrame:HEIGHT-PIXELS + 5
             btnSaveParams:Y                           = hParamFrame:HEIGHT-PIXELS + 5
+            btnCSV:Y                                  = hParamFrame:HEIGHT-PIXELS + 5
             btnExcel:Y                                = hParamFrame:HEIGHT-PIXELS + 5
             btnView:X                                 = hParamFrame:WIDTH-PIXELS - btnView:WIDTH-PIXELS
             btnCancel:X                               = btnView:X - btnCancel:WIDTH-PIXELS - 2
             btnSaveParams:X                           = btnCancel:X - btnSaveParams:WIDTH-PIXELS - 2
-            btnExcel:X                                = btnCancel:X - ((btnCancel:X
+            btnCSV:X                                  = btnCancel:X - ((btnCancel:X
                                                       - (btnShowBatch:X + btnShowBatch:WIDTH-PIXELS)) / 2)
-                                                      - btnExcel:WIDTH-PIXELS / 2
+                                                      - btnCSV:WIDTH-PIXELS - 10
+            btnExcel:X                                = btnCSV:X + btnCSV:WIDTH-PIXELS + 2
             .
 
         IF aoaType EQ "Report" THEN DO:
