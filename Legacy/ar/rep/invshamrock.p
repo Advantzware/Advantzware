@@ -627,8 +627,8 @@ ELSE
         "<=8><R+5> Grand Total:" v-subtot-lines + v-t-tax[1] + v-t-tax[2] + v-t-tax[3] + v-inv-freight FORM "->>,>>9.99" .
 
     PUT "<R58><C2> Please remit payment to: "
-        "<R60><C2> ShamRock Packaging SHA4035"
-        "<R61><C2> PO Box 1032"
+        "<R60><C2> Shamrock Packaging SHA4035"
+        "<R61><C2> PO Box 1023"
         "<R62><C2> Bedford Park, IL 60499-1023".
 
     ASSIGN
