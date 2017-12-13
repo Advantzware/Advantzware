@@ -54,6 +54,8 @@ DEFINE VARIABLE cBeforeValueFilter AS CHARACTER NO-UNDO.
 DEFINE VARIABLE lAfterValueFilter  AS LOGICAL   NO-UNDO.
 DEFINE VARIABLE cAfterValueFilter  AS CHARACTER NO-UNDO.
 
+{AOA/tempTable/ttAudit.i}
+
 /* include when using AOA date option objects */
 {AOA/includes/dateOptionDef.i}
 
@@ -419,8 +421,6 @@ DEFINE FRAME AuditSearch
      btnCalendar-1 AT ROW 1.24 COL 60 WIDGET-ID 272
      svStartDateOption AT ROW 1.24 COL 65 HELP
           "Select Start Date Option" NO-LABEL WIDGET-ID 74
-     btnClear AT ROW 2.67 COL 127 HELP
-          "Click to Clear Filters" WIDGET-ID 284
      svDB AT ROW 1.24 COL 99 COLON-ALIGNED HELP
           "Select Audit DB Filter" WIDGET-ID 14
      AuditHdr.AuditKey AT ROW 1.24 COL 161.6 COLON-ALIGNED WIDGET-ID 26
@@ -439,12 +439,14 @@ DEFINE FRAME AuditSearch
           "Select Audit Table Filter" WIDGET-ID 16
      svBeforeValueFilter AT ROW 2.43 COL 161.6 COLON-ALIGNED HELP
           "Enter Before Value to Filter" WIDGET-ID 36
-     btnAfterValueFilterClear AT ROW 3.62 COL 265 HELP
-          "Click to Clear After Value Filter" WIDGET-ID 42
      svField AT ROW 3.62 COL 99 COLON-ALIGNED HELP
           "Select Audit Field Filter" WIDGET-ID 18
      svAfterValueFilter AT ROW 3.62 COL 161.6 COLON-ALIGNED HELP
           "Enter After Value to Filter" WIDGET-ID 38
+     btnClear AT ROW 2.67 COL 127 HELP
+          "Click to Clear Filters" WIDGET-ID 284
+     btnAfterValueFilterClear AT ROW 3.62 COL 265 HELP
+          "Click to Clear After Value Filter" WIDGET-ID 42
      btnSearch AT ROW 2.67 COL 136 HELP
           "Click to Apply Filter Selections" WIDGET-ID 286
      btnBeforeValueFilterClear AT ROW 2.43 COL 265 HELP
@@ -810,9 +812,9 @@ DO:
         MESSAGE
             "No Audit History Records Found."
         VIEW-AS ALERT-BOX.
-        APPLY 'CHOOSE':U TO btnClear.
-        RUN pReopenBrowse.
-        {&OPEN-QUERY-AuditDetail}
+/*        APPLY 'CHOOSE':U TO btnClear.*/
+/*        RUN pReopenBrowse.           */
+/*        {&OPEN-QUERY-AuditDetail}    */
     END.
 END.
 
@@ -932,15 +934,15 @@ ON CHOOSE OF btnClear IN FRAME AuditSearch /* Clear */
 DO:
     ASSIGN
         {&WINDOW-NAME}:TITLE = "Audit History"
-        svType:SCREEN-VALUE  = "ALL"
+        svType:SCREEN-VALUE  = "All"
         svType
-        svUser:SCREEN-VALUE  = "ALL"
+        svUser:SCREEN-VALUE  = "All"
         svUser
-        svDB:SCREEN-VALUE    = "ALL"
+        svDB:SCREEN-VALUE    = "All"
         svDB
-        svTable:SCREEN-VALUE = "ALL"
+        svTable:SCREEN-VALUE = "All"
         svTable
-        svField:SCREEN-VALUE = "ALL"
+        svField:SCREEN-VALUE = "All"
         svField
         cAuditKeyFilter      = ""
         lAuditKeyFilter      = NO
@@ -1099,9 +1101,9 @@ ON VALUE-CHANGED OF svDB IN FRAME AuditSearch /* DB */
 DO:
   ASSIGN
     {&SELF-NAME}
-    svTable:SCREEN-VALUE = "ALL"
+    svTable:SCREEN-VALUE = "All"
     svTable
-    svField:SCREEN-VALUE = "ALL"
+    svField:SCREEN-VALUE = "All"
     svField
     .
     RUN pGetFilterValues ("TABLE").
@@ -1201,7 +1203,7 @@ ON VALUE-CHANGED OF svTable IN FRAME AuditSearch /* Table */
 DO:
   ASSIGN
     {&SELF-NAME}
-    svField:SCREEN-VALUE = "ALL"
+    svField:SCREEN-VALUE = "All"
     svField
     .
     RUN pGetFilterValues ("FIELD").
@@ -1270,6 +1272,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
     RUN enable_UI.
     fDateOptions (svStartDateOption:HANDLE).
     fDateOptions (svEndDateOption:HANDLE).
+    RUN pGetFilterValues ("INIT").
     RUN pGetFilterValues ("ALL").
     RUN pGetFilterValues ("TABLE").
     RUN pGetFilterValues ("FIELD").
@@ -1342,10 +1345,10 @@ PROCEDURE enable_UI :
   IF AVAILABLE AuditHdr THEN 
     DISPLAY AuditHdr.AuditKey 
       WITH FRAME AuditSearch IN WINDOW C-Win.
-  ENABLE btnAuditTables svType svStartDate btnCalendar-1 svStartDateOption 
-         btnClear svDB svUser svEndDate btnCalendar-2 svEndDateOption svTable 
-         svBeforeValueFilter btnAfterValueFilterClear svField 
-         svAfterValueFilter btnSearch btnBeforeValueFilterClear 
+  ENABLE btnAuditTables svType svStartDate btnCalendar-1 svStartDateOption svDB 
+         svUser svEndDate btnCalendar-2 svEndDateOption svTable 
+         svBeforeValueFilter svField svAfterValueFilter btnClear 
+         btnAfterValueFilterClear btnSearch btnBeforeValueFilterClear 
          btnFilterAfterValue btnFilterAuditKey btnFilterBeforeValue btnHistory 
       WITH FRAME AuditSearch IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-AuditSearch}
@@ -1381,14 +1384,14 @@ PROCEDURE pAuditKeyFilter :
         FOR EACH AuditHdr NO-LOCK
             WHERE  AuditHdr.AuditDateTime  GE dtStartDateTime
               AND  AuditHdr.AuditDateTime  LE dtEndDateTime
-              AND (AuditHdr.AuditType      EQ svType  OR svType  EQ "ALL")
-              AND (AuditHdr.AuditUser      EQ svUser  OR svUser  EQ "ALL")
-              AND (AuditHdr.AuditDB        EQ svDB    OR svDB    EQ "ALL")
-              AND (AuditHdr.AuditTable     EQ svTable OR svTable EQ "ALL")
+              AND (AuditHdr.AuditType      EQ svType  OR svType  EQ "All")
+              AND (AuditHdr.AuditUser      EQ svUser  OR svUser  EQ "All")
+              AND (AuditHdr.AuditDB        EQ svDB    OR svDB    EQ "All")
+              AND (AuditHdr.AuditTable     EQ svTable OR svTable EQ "All")
               AND  AuditHdr.AuditKey       EQ cAuditKeyFilter,
              EACH  AuditDtl OF AuditHdr NO-LOCK
             WHERE (AuditDtl.AuditField EQ svField
-               OR svField EQ "ALL")
+               OR svField EQ "All")
               AND (AuditDtl.AuditBeforeValue BEGINS cBeforeValueFilter
                OR cBeforeValueFilter EQ "")
               AND (AuditDtl.AuditAfterValue  BEGINS cAfterValueFilter
@@ -1663,8 +1666,8 @@ PROCEDURE pHistory :
         lAuditKeyFilter = YES
         cAuditKeyFilter = ipcAuditKey
         .
-    OUTPUT TO c:\tmp\AuditQuery.txt.
-    PUT UNFORMATTED "Audit Query History for: " cAuditKeyFilter SKIP.
+    OUTPUT TO c:\tmp\AuditHistory.txt.
+    PUT UNFORMATTED "Audit History for: " cAuditKeyFilter SKIP.
     &SCOPED-DEFINE SORTBY-PHRASE BY AuditHdr.AuditDateTime DESCENDING
     {&QUERY-STRING-AuditHeader}
         WITH STREAM-IO WIDTH 200:
@@ -1683,7 +1686,7 @@ PROCEDURE pHistory :
         lAuditKeyFilter = lSaveFilter
         cAuditKeyFilter = IF lAuditKeyFilter THEN ipcAuditKey ELSE ""
         .
-    OS-COMMAND NO-WAIT notepad.exe c:\tmp\AuditQuery.txt.
+    OS-COMMAND NO-WAIT notepad.exe c:\tmp\AuditHistory.txt.
 
 END PROCEDURE.
 
