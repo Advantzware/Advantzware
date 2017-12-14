@@ -35,6 +35,7 @@ CREATE WIDGET-POOL.
 
 &Scoped-define MAX-ROWS MAX-ROWS maxRows
 &Scoped-define SORTBY-PHRASE {&MAX-ROWS}
+&Scoped-define maxRows 2500
 
 /* Parameters Definitions ---                                           */
 
@@ -599,6 +600,10 @@ ASSIGN
    3                                                                    */
 /* SETTINGS FOR FILL-IN maxRows IN FRAME AuditSearch
    1                                                                    */
+ASSIGN 
+       maxRows:PRIVATE-DATA IN FRAME AuditSearch     = 
+                "NoUserPrint".
+
 /* SETTINGS FOR COMBO-BOX svDB IN FRAME AuditSearch
    1                                                                    */
 /* SETTINGS FOR FILL-IN svEndDate IN FRAME AuditSearch
@@ -1110,6 +1115,11 @@ END.
 ON VALUE-CHANGED OF maxRows IN FRAME AuditSearch /* Max Rows */
 DO:
   ASSIGN {&SELF-NAME}.
+  IF {&SELF-NAME} GT {&maxRows} THEN
+  ASSIGN
+    {&SELF-NAME}:SCREEN-VALUE = "{&maxRows}"
+    {&SELF-NAME}
+    .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -1705,6 +1715,7 @@ PROCEDURE pGetSettings :
         IF hChild:NAME NE ? AND (hChild:SENSITIVE OR hChild:TYPE EQ "COMBO-BOX") THEN DO:
             DO idx = 1 TO EXTENT(user-print.field-name):
                 IF TRIM(user-print.field-name[idx]) EQ hChild:NAME THEN DO:
+                    IF hChild:PRIVATE-DATA EQ "NoUserPrint" THEN LEAVE.
                     hChild:SCREEN-VALUE = user-print.field-value[idx].
                     LEAVE.
                 END. /* found screen object */
