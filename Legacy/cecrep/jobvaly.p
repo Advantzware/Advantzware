@@ -176,6 +176,12 @@ do v-local-loop = 1 to v-local-copies:
         end. /*brick format*/
 
         view frame head.  /* factory header display  */
+    
+        IF v-joint-dscr MATCHES "*- TAB OUT*" THEN
+         v-joint-dscr = REPLACE(v-joint-dscr,'- TAB OUT', ""). 
+         IF v-joint-dscr MATCHES "*- TAB IN*" THEN
+         v-joint-dscr = REPLACE(v-joint-dscr,'- TAB IN', "").
+
         
         if v-format eq "RFC" or v-format eq "Boxtech" then
           assign
