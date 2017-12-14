@@ -1729,7 +1729,7 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
       ASSIGN
         tb_draft:HIDDEN = NO
         tb_draft:SENSITIVE = YES
-        tb_draft:SCREEN-VALUE = "NO".
+       /* tb_draft:SCREEN-VALUE = "NO"*/.
 
          revsn_no:HIDDEN IN FRAME FRAME-A           = TRUE.
      IF LOOKUP(lv-format-c,"Protagon") > 0 THEN
@@ -1774,9 +1774,8 @@ DO ON ERROR   UNDO MAIN-BLOCK, LEAVE MAIN-BLOCK
                  OR lv-format-f = "PPI"       OR lv-format-f = "Accord"   OR lv-format-f = "Knight" 
                  OR lv-format-f = "PackRite"  OR lv-format-f = "Knight***" OR lv-format-f = "Wingate"
                  OR lv-format-f = "Dee"       OR lv-format-f = "Rosmar" OR lv-format-f = "Carded" OR lv-format-f = "Carded2" OR lv-format-f = "Coburn")) OR
-        (tb_corr AND (lv-format-c = "Trilakes" OR lv-format-c = "Axis" OR lv-format-c = "Trilakes2" OR lv-format-c = "Hughes")) THEN
+        (tb_corr AND (lv-format-c = "Trilakes" OR lv-format-c = "Axis" OR lv-format-c = "Trilakes2" OR lv-format-c = "Hughes" OR lv-format-c = "colonialPL")) THEN
       assign 
-        tb_prt-mch = NO
         tb_prt-mch:SENSITIVE      = YES
         tb_prt-shipto:SENSITIVE   = YES
         tb_prt-sellprc:SENSITIVE  = YES
