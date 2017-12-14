@@ -148,12 +148,12 @@ SESSION:SET-WAIT-STATE('').
     ~{&OPEN-QUERY-ttUserMenu}
 
 /* Standard List Definitions                                            */
-&Scoped-Define ENABLED-OBJECTS userName btnReset showOption filterMenu ~
-btnLoadMenu loadMenu filterItem ttMenu ttUserMenu ttItem btnAddItem ~
-btnAddMenu btnDefault btnExit btnMoveDown btnMoveUp btnRemove btnSave ~
-btnShiftLeft btnShiftRight 
-&Scoped-Define DISPLAYED-OBJECTS userName showOption filterMenu loadMenu ~
-filterItem 
+&Scoped-Define ENABLED-OBJECTS userName filterMenu showOption btnLoadMenu ~
+loadMenu copyFromUser filterItem btnReset ttMenu ttUserMenu ttItem ~
+btnAddItem btnAddMenu btnDefault btnExit btnMoveDown btnMoveUp btnRemove ~
+btnSave btnShiftLeft btnShiftRight 
+&Scoped-Define DISPLAYED-OBJECTS userName filterMenu showOption loadMenu ~
+copyFromUser filterItem 
 
 /* Custom List Definitions                                              */
 /* List-1,List-2,List-3,List-4,List-5,List-6                            */
@@ -239,6 +239,12 @@ DEFINE BUTTON btnShiftRight
      SIZE 8.4 BY 2 TOOLTIP "Shift Right"
      FONT 4.
 
+DEFINE VARIABLE copyFromUser AS CHARACTER FORMAT "X(256)":U 
+     VIEW-AS COMBO-BOX INNER-LINES 10
+     DROP-DOWN-LIST
+     SIZE 18 BY 1 TOOLTIP "Select User"
+     BGCOLOR 15  NO-UNDO.
+
 DEFINE VARIABLE showOption AS CHARACTER FORMAT "X(256)":U INITIAL "Show Only Unused" 
      VIEW-AS COMBO-BOX INNER-LINES 5
      LIST-ITEMS "Show Only Unused","Show All","Show All Menus","Show All Items" 
@@ -246,7 +252,7 @@ DEFINE VARIABLE showOption AS CHARACTER FORMAT "X(256)":U INITIAL "Show Only Unu
      SIZE 24 BY 1 TOOLTIP "Show Option" NO-UNDO.
 
 DEFINE VARIABLE userName AS CHARACTER FORMAT "X(256)":U 
-     LABEL "User" 
+     LABEL "Save to User" 
      VIEW-AS COMBO-BOX INNER-LINES 10
      DROP-DOWN-LIST
      SIZE 18 BY 1 TOOLTIP "Select User"
@@ -267,8 +273,9 @@ DEFINE VARIABLE loadMenu AS CHARACTER
      RADIO-BUTTONS 
           "Base Only", "",
 "Addon Only", "_addon",
-"Combined", "_plus"
-     SIZE 52 BY 1 NO-UNDO.
+"Combined", "_plus",
+"From User:", "usermenu"
+     SIZE 57 BY 1 NO-UNDO.
 
 /* Query definitions                                                    */
 &ANALYZE-SUSPEND
@@ -320,23 +327,25 @@ DEFINE BROWSE ttUserMenu
 /* ************************  Frame Definitions  *********************** */
 
 DEFINE FRAME DEFAULT-FRAME
-     userName AT ROW 1.48 COL 63 COLON-ALIGNED HELP
+     userName AT ROW 1.48 COL 151 COLON-ALIGNED HELP
           "Select User Account ID" WIDGET-ID 4
-     btnReset AT ROW 1 COL 47 HELP
-          "RESET Menu Structure from Last Saved File" WIDGET-ID 8
-     showOption AT ROW 1.48 COL 138 COLON-ALIGNED NO-LABEL WIDGET-ID 38
      filterMenu AT ROW 3.14 COL 6 COLON-ALIGNED WIDGET-ID 42
-     btnLoadMenu AT ROW 3.14 COL 69 WIDGET-ID 50
-     loadMenu AT ROW 3.14 COL 87 NO-LABEL WIDGET-ID 44
+     showOption AT ROW 3.14 COL 49 COLON-ALIGNED NO-LABEL WIDGET-ID 38
+     btnLoadMenu AT ROW 3.14 COL 78 WIDGET-ID 50
+     loadMenu AT ROW 3.14 COL 96 NO-LABEL WIDGET-ID 44
+     copyFromUser AT ROW 3.14 COL 151 COLON-ALIGNED HELP
+          "Select User Account ID" NO-LABEL WIDGET-ID 52
      filterItem AT ROW 3.14 COL 181 COLON-ALIGNED WIDGET-ID 40
+     btnReset AT ROW 1 COL 40 HELP
+          "RESET Menu Structure from Last Saved File" WIDGET-ID 8
      ttMenu AT ROW 4.33 COL 2 WIDGET-ID 300
      ttUserMenu AT ROW 4.33 COL 48 WIDGET-ID 200
      ttItem AT ROW 4.33 COL 177 WIDGET-ID 400
-     btnAddItem AT ROW 1 COL 194 HELP
+     btnAddItem AT ROW 1 COL 198 HELP
           "SAVE Menu Structure" WIDGET-ID 32
-     btnAddMenu AT ROW 1 COL 20 HELP
+     btnAddMenu AT ROW 1 COL 24 HELP
           "SAVE Menu Structure" WIDGET-ID 34
-     btnDefault AT ROW 1 COL 1 HELP
+     btnDefault AT ROW 1 COL 7 HELP
           "Load Menu Structure from System DEFAULT Menu List" WIDGET-ID 6
      btnExit AT ROW 1 COL 214 HELP
           "SAVE Menu Structure" WIDGET-ID 20
@@ -346,7 +355,7 @@ DEFINE FRAME DEFAULT-FRAME
           "RESET Menu Structure from Last Saved File" WIDGET-ID 30
      btnRemove AT ROW 1 COL 107 HELP
           "SAVE Menu Structure" WIDGET-ID 36
-     btnSave AT ROW 1 COL 168 HELP
+     btnSave AT ROW 1 COL 182 HELP
           "SAVE Menu Structure" WIDGET-ID 10
      btnShiftLeft AT ROW 1 COL 118 HELP
           "RESET Menu Structure from Last Saved File" WIDGET-ID 24
@@ -403,7 +412,7 @@ ELSE {&WINDOW-NAME} = CURRENT-WINDOW.
   VISIBLE,,RUN-PERSISTENT                                               */
 /* SETTINGS FOR FRAME DEFAULT-FRAME
    FRAME-NAME                                                           */
-/* BROWSE-TAB ttMenu filterItem DEFAULT-FRAME */
+/* BROWSE-TAB ttMenu btnReset DEFAULT-FRAME */
 /* BROWSE-TAB ttUserMenu ttMenu DEFAULT-FRAME */
 /* BROWSE-TAB ttItem ttUserMenu DEFAULT-FRAME */
 IF SESSION:DISPLAY-TYPE = "GUI":U AND VALID-HANDLE(C-Win)
@@ -580,6 +589,7 @@ ON CHOOSE OF btnSave IN FRAME DEFAULT-FRAME
 DO:
   RUN pValidate.
   IF ERROR-STATUS:ERROR THEN RETURN NO-APPLY.
+  OS-CREATE-DIR VALUE("usermenu/" + userName).
   OUTPUT TO VALUE("usermenu/" + userName + "/menu.lst").
   RUN pSave.
   OUTPUT CLOSE.
@@ -608,6 +618,21 @@ END.
 ON CHOOSE OF btnShiftRight IN FRAME DEFAULT-FRAME
 DO:
     RUN pShift (1).
+END.
+
+/* _UIB-CODE-BLOCK-END */
+&ANALYZE-RESUME
+
+
+&Scoped-define SELF-NAME copyFromUser
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL copyFromUser C-Win
+ON VALUE-CHANGED OF copyFromUser IN FRAME DEFAULT-FRAME /* User */
+DO:
+  ASSIGN
+    {&SELF-NAME}
+    loadMenu:SCREEN-VALUE = "usermenu"
+    loadMenu
+    .
 END.
 
 /* _UIB-CODE-BLOCK-END */
@@ -741,7 +766,7 @@ END.
 
 &Scoped-define SELF-NAME userName
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _CONTROL userName C-Win
-ON VALUE-CHANGED OF userName IN FRAME DEFAULT-FRAME /* User */
+ON VALUE-CHANGED OF userName IN FRAME DEFAULT-FRAME /* Save to User */
 DO:
   ASSIGN {&SELF-NAME}.
   APPLY 'CHOOSE' TO btnReset.
@@ -820,12 +845,12 @@ PROCEDURE enable_UI :
                These statements here are based on the "Other 
                Settings" section of the widget Property Sheets.
 ------------------------------------------------------------------------------*/
-  DISPLAY userName showOption filterMenu loadMenu filterItem 
+  DISPLAY userName filterMenu showOption loadMenu copyFromUser filterItem 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
-  ENABLE userName btnReset showOption filterMenu btnLoadMenu loadMenu 
-         filterItem ttMenu ttUserMenu ttItem btnAddItem btnAddMenu btnDefault 
-         btnExit btnMoveDown btnMoveUp btnRemove btnSave btnShiftLeft 
-         btnShiftRight 
+  ENABLE userName filterMenu showOption btnLoadMenu loadMenu copyFromUser 
+         filterItem btnReset ttMenu ttUserMenu ttItem btnAddItem btnAddMenu 
+         btnDefault btnExit btnMoveDown btnMoveUp btnRemove btnSave 
+         btnShiftLeft btnShiftRight 
       WITH FRAME DEFAULT-FRAME IN WINDOW C-Win.
   {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
   VIEW C-Win.
@@ -989,9 +1014,11 @@ PROCEDURE pGetUsers :
         userName:ADD-LAST(users.user_id).
     END. /* each users */
     ASSIGN
-        userName:SCREEN-VALUE = USERID("NoSweat")
-        userName.
-    IF NOT CAN-DO("ASI,NoSweat",USERID("NoSweat")) THEN
+        copyFromUser:LIST-ITEMS = userName:LIST-ITEMS
+        userName:SCREEN-VALUE = USERID("ASI")
+        userName
+        .
+    IF NOT CAN-DO("ASI,NoSweat",USERID("ASI")) THEN
     DISABLE userName WITH FRAME {&FRAME-NAME}.
 
 END PROCEDURE.
@@ -1049,29 +1076,33 @@ END PROCEDURE.
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
 
-
-&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLoadMenu C-Win
-PROCEDURE pLoadMenu:
+&ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pLoadMenu C-Win 
+PROCEDURE pLoadMenu :
 /*------------------------------------------------------------------------------
  Purpose:
  Notes:
 ------------------------------------------------------------------------------*/
     DO WITH FRAME {&FRAME-NAME}:
+        IF loadMenu EQ "usermenu" THEN
+        sourceMenu = SEARCH("usermenu/" + copyFromUser + "/menu.lst").
+        ELSE
         sourceMenu = SEARCH("stdMenu/menu" + loadMenu + ".lst").
-        IF sourceMenu EQ ? THEN RETURN.
-        INPUT FROM VALUE(sourceMenu) NO-ECHO.
-        RUN pGetMenu.
-        INPUT CLOSE.
-        {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
-        RUN pGetPrgrms.
+        IF sourceMenu NE ? THEN DO:
+            INPUT FROM VALUE(sourceMenu) NO-ECHO.
+            RUN pGetMenu.
+            INPUT CLOSE.
+            {&OPEN-BROWSERS-IN-QUERY-DEFAULT-FRAME}
+            RUN pGetPrgrms.
+        END. /* if sourcemenu */
+        ELSE
+        MESSAGE "Menu Does Not Exist, Unable To Load."
+        VIEW-AS ALERT-BOX ERROR.
     END.
 
 END PROCEDURE.
-	
+
 /* _UIB-CODE-BLOCK-END */
 &ANALYZE-RESUME
-
-
 
 &ANALYZE-SUSPEND _UIB-CODE-BLOCK _PROCEDURE pMove C-Win 
 PROCEDURE pMove :
