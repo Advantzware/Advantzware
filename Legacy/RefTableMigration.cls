@@ -215,4 +215,110 @@ CLASS RefTableMigration:
          END.       
         RETURN iCnt.
     END METHOD. /*fg-rctd*/
+    METHOD PUBLIC INTEGER FgBinCost():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable NO-LOCK
+              WHERE reftable.reftable EQ "fg-bin.cost" USE-INDEX rec_key:
+              FIND FIRST fg-rdtlh WHERE fg-rdtlh.company = reftable.company
+                  AND fg-rdtlh.rec_key = reftable.rec_key EXCLUSIVE-LOCK NO-ERROR.
+              IF AVAILABLE fg-rdtlh THEN DO:
+                  ASSIGN
+                      fg-rdtlh.avg-cost     = reftable.val[1]
+                      fg-rdtlh.last-cost    = reftable.val[2]
+                      fg-rdtlh.std-fix-cost = reftable.val[3]
+                      fg-rdtlh.std-lab-cost = reftable.val[4]
+                      fg-rdtlh.std-mat-cost = reftable.val[5]
+                      fg-rdtlh.std-tot-cost = reftable.val[6]
+                      fg-rdtlh.std-var-cost = reftable.val[7].
+               END.
+          END. 
+        RETURN iCnt.
+    END METHOD. /*fg-bin*/
+    METHOD PUBLIC INTEGER OeRelSellPrice():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "oe-rel.sell-price"
+            NO-LOCK:
+            FIND FIRST oe-rel WHERE oe-rel.r-no = INT(reftable.company)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE oe-rel THEN    
+            ASSIGN 
+                oe-rel.sell-price = reftable.val[1]
+                oe-rel.zeroPrice  = reftable.val[2]
+                . 
+            RELEASE oe-rel.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*oe-rel*/
+    METHOD PUBLIC INTEGER OeBollSellPrice():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "oe-boll.sell-price"
+            NO-LOCK:
+            FIND FIRST oe-boll WHERE oe-boll.rec_key = reftable.rec_key
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE oe-boll THEN    
+            ASSIGN 
+                oe-boll.sell-price = reftable.val[1]
+                oe-boll.zeroPrice  = reftable.val[2]
+                . 
+            RELEASE oe-boll.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*oe-boll*/
+    METHOD PUBLIC INTEGER JobCreateTime():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "job.create-time"
+            NO-LOCK:
+            FIND FIRST job WHERE job.company = reftable.company
+                             AND job.loc     = ""
+                             AND job.job     = INT(reftable.code)
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE job THEN    
+            ASSIGN 
+                job.create-time = reftable.val[1]                
+                . 
+            RELEASE job.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*job*/
+    METHOD PUBLIC INTEGER OeOrdlMisc():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "oe/ordlmisc.p"
+            NO-LOCK:
+            FIND FIRST oe-ordm WHERE oe-ordm.company = reftable.company
+                              AND oe-ordm.ord-no     = INT(reftable.loc)
+                              AND oe-ordm.line       = INT(reftable.code)
+                              AND oe-ordm.charge     = reftable.code2
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE oe-ordm THEN    
+            ASSIGN 
+                oe-ordm.miscType = INT(reftable.val[1])
+                oe-ordm.estPrepEqty = reftable.val[2]
+                oe-ordm.estPrepLine = INT(reftable.val[3])
+                oe-ordm.miscInd = STRING(reftable.val[4])
+                oe-ordm.est-no = reftable.dscr                
+                . 
+            RELEASE oe-ordm.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*oe-ordm*/
+    METHOD PUBLIC INTEGER Factored():
+        DEFINE VARIABLE iCnt AS INTEGER NO-UNDO.
+        FOR EACH reftable WHERE reftable.reftable = "FACTORED"
+            NO-LOCK:
+            FIND FIRST itemfg WHERE itemfg.company = reftable.company
+                             AND itemfg.i-no     = reftable.code                             
+                EXCLUSIVE-LOCK NO-ERROR.
+            IF AVAILABLE itemfg THEN    
+            ASSIGN 
+                itemfg.factored = IF reftable.code2 = "YES" THEN YES ELSE NO                
+                . 
+            RELEASE itemfg.      
+            iCnt = iCnt + 1.                 
+        END.  /*FOR EACH reftable*/         
+        RETURN iCnt.
+    END METHOD. /*itemfg*/
 END CLASS.

@@ -1318,15 +1318,13 @@ DO: /* REPEAT: 9508 cah */
    ASSIGN
    report.term-id = v-term-id
    report.key-01  = STRING(ar-inv.inv-no,"9999999999")
-   report.rec-id  = RECID(ar-inv).
+   report.rec-id  = RECID(ar-inv).  
 
-   /* mods for task# 09200521*/
-   IF cust.factored THEN
+IF cust.factored THEN
    for each ar-invl no-lock where ar-invl.x-no = ar-inv.x-no:
-       IF CAN-FIND(FIRST reftable WHERE reftable.reftable EQ "FACTORED"
-                              AND reftable.company  EQ ar-inv.company
-                              AND reftable.loc      EQ ""
-                              AND reftable.code     EQ ar-invl.i-no)
+       IF CAN-FIND(FIRST itemfg WHERE itemfg.company  EQ ar-inv.company
+                              AND itemfg.i-no     EQ ar-invl.i-no
+                              AND itemfg.factored = yes)
            OR ar-invl.i-no = ""
        THEN DO:
             report.key-02 = "Factored".  /* for oe/rep/expfrank.p task#  09200521*/

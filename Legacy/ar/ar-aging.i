@@ -159,27 +159,24 @@ FORMAT HEADER
   FILL("_",132) FORMAT "x(131)"
 WITH PAGE-TOP FRAME r-top-2 STREAM-IO WIDTH 200 NO-BOX.
 
-/* Store list of all factored items */
 DEF TEMP-TABLE tt-factored
-  FIELD company LIKE reftable.company
+  FIELD company LIKE itemfg.company
   FIELD i-no    LIKE itemfg.i-no
   FIELD x-no    LIKE ar-invl.x-no
   INDEX i1 i-no
   INDEX i2 x-no.
   
-FOR EACH reftable WHERE reftable.reftable EQ "FACTORED"        
-                    AND reftable.code2    EQ "YES"
-                  NO-LOCK:
-  /* Note: code2 index exists on reftable */
-  FIND FIRST tt-factored WHERE tt-factored.i-no EQ reftable.CODE
+FOR EACH itemfg WHERE itemfg.factored    EQ YES
+                  NO-LOCK:  
+  FIND FIRST tt-factored WHERE tt-factored.i-no EQ itemfg.i-no
     NO-LOCK NO-ERROR.
   IF NOT AVAIL tt-factored THEN DO:
     FOR EACH ar-invl WHERE ar-invl.company EQ cocode
-      AND ar-invl.i-no EQ reftable.CODE
+      AND ar-invl.i-no EQ itemfg.i-no
       NO-LOCK:
       CREATE tt-factored.
-      ASSIGN tt-factored.company = reftable.company
-             tt-factored.i-no    = reftable.CODE.
+      ASSIGN tt-factored.company = itemfg.company
+             tt-factored.i-no    = itemfg.i-no.
     END.
   END.
 END.
