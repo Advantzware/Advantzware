@@ -176,12 +176,19 @@ do v-local-loop = 1 to v-local-copies:
         end. /*brick format*/
 
         view frame head.  /* factory header display  */
-    
-        IF v-joint-dscr MATCHES "*- TAB OUT*" THEN
-         v-joint-dscr = REPLACE(v-joint-dscr,'- TAB OUT', ""). 
-         IF v-joint-dscr MATCHES "*- TAB IN*" THEN
-         v-joint-dscr = REPLACE(v-joint-dscr,'- TAB IN', "").
 
+        IF AVAIL xeb THEN do:
+            find first ITEM no-lock
+                where item.company eq cocode
+                and item.i-no    eq xeb.adhesive
+                no-error.
+         IF item.mat-type EQ "T" THEN do:
+             IF v-joint-dscr MATCHES "*- TAB OUT*" THEN
+                 v-joint-dscr = REPLACE(v-joint-dscr,'- TAB OUT', ""). 
+             IF v-joint-dscr MATCHES "*- TAB IN*" THEN
+                 v-joint-dscr = REPLACE(v-joint-dscr,'- TAB IN', "").
+         END.
+        END.
         
         if v-format eq "RFC" or v-format eq "Boxtech" then
           assign
