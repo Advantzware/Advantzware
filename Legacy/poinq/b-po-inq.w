@@ -2040,8 +2040,13 @@ PROCEDURE record-added :
    ll-new-record = YES.
 
   DO WITH FRAME {&FRAME-NAME}:
-   fi_due-date:SCREEN-VALUE  = "01/01/2017" .
-   ASSIGN fi_due-date = 01/01/2017 .
+    IF fi_due-date GT TODAY - 365 THEN DO:
+    END.
+    ELSE do:
+        fi_due-date:SCREEN-VALUE  = string(TODAY - 180) .
+        ASSIGN fi_due-date = TODAY - 180 .
+        RUN custom/usrprint.p (v-prgmname, FRAME {&FRAME-NAME}:HANDLE).
+    END.
   END.
 
 END PROCEDURE.
@@ -2179,7 +2184,7 @@ PROCEDURE set-defaults :
      tb_open:SCREEN-VALUE      = "yes"
      tb_closed:SCREEN-VALUE    = "no"  .
      IF fi_due-date:SCREEN-VALUE = "" THEN
-     fi_due-date:SCREEN-VALUE  = "01/01/0001" .   /* task 07101525 */ 
+     fi_due-date:SCREEN-VALUE  = STRING(TODAY - 180) .   /* task 07101525 */ 
   END.
 
 END PROCEDURE.
