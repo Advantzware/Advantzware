@@ -3682,9 +3682,9 @@ PROCEDURE run-packing-list :
           WHEN 1 THEN PUT "<PRINTER?>".
           WHEN 2 THEN do:
            IF NOT lBussFormModle THEN
-            PUT "<PREVIEW><MODAL=NO>". 
+            PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
            ELSE
-            PUT "<PREVIEW>".        
+            PUT "<PREVIEW><LEFT=4mm>".        
           END.
           WHEN 4 THEN do:
                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
@@ -3695,7 +3695,7 @@ PROCEDURE run-packing-list :
                    PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
   END.
@@ -3818,9 +3818,9 @@ PROCEDURE run-report :
           WHEN 1 THEN PUT "<PRINTER?>".
           WHEN 2 THEN do:
            IF NOT lBussFormModle THEN
-            PUT "<PREVIEW><MODAL=NO>". 
+            PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
            ELSE
-            PUT "<PREVIEW>".        
+            PUT "<PREVIEW><LEFT=4mm>".        
           END.
           WHEN 4 THEN do:
                 ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
@@ -3831,7 +3831,7 @@ PROCEDURE run-report :
                    PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
               ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-              ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+              ELSE PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
           END.
       END CASE.
   END.
@@ -4019,9 +4019,9 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
         WHEN 1 THEN PUT  "<PRINTER?>".
         WHEN 2 THEN do:
            IF NOT lBussFormModle THEN
-            PUT "<PREVIEW><MODAL=NO>". 
+            PUT "<PREVIEW><LEFT=4mm><MODAL=NO>". 
            ELSE
-            PUT "<PREVIEW>".        
+            PUT "<PREVIEW><LEFT=4mm>".        
         END.
         WHEN  4 THEN do:
               ls-fax-file = "c:\tmp\fax" + STRING(TIME) + ".tif".
@@ -4032,7 +4032,7 @@ ELSE IF is-xprint-form AND rd-dest = 1 THEN PUT "<PRINTER?>".
                  PUT "<PREVIEW><PDF-EXCLUDE=MS Mincho><PDF-LEFT=2.5mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
                  ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
-            ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
+            ELSE PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + ".pdf>" FORM "x(180)".
         END.
     END CASE.
 END.
@@ -4163,7 +4163,7 @@ PROCEDURE run-report-mail :
         ELSE IF v-print-fmt EQ "PremierX" OR v-print-fmt EQ "RFCX"  OR v-print-fmt = "PremierCX" OR v-print-fmt = "PremierPX" THEN
                    PUT "<PREVIEW><FORMAT=LETTER><PDF-EXCLUDE=MS Mincho><PDF-LEFT=5mm><PDF-TOP=7mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
         ELSE IF v-print-fmt EQ "Prystup-Excel" THEN PUT "<PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
-        ELSE PUT "<PREVIEW><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
+        ELSE PUT "<PREVIEW><LEFT=4mm><PDF-LEFT=2mm><PDF-OUTPUT=" + lv-pdf-file + vcBOLNums + ".pdf>" FORM "x(180)".
     END.
 
     IF lv-run-bol = "YES" THEN DO:
